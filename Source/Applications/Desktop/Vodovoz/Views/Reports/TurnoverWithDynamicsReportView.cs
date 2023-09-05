@@ -61,15 +61,15 @@ namespace Vodovoz.ReportsParameters.Sales
 				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
 				.InitializeFromSource();
 
-			foreach(RadioButton radioButton in yrbtnSliceDay.Group)
-			{
-				if(radioButton.Active)
-				{
-					SliceGroupSelectionChanged(radioButton, EventArgs.Empty);
-				}
+			//foreach(RadioButton radioButton in yrbtnSliceDay.Group)
+			//{
+			//	if(radioButton.Active)
+			//	{
+			//		SliceGroupSelectionChanged(radioButton, EventArgs.Empty);
+			//	}
 
-				radioButton.Toggled += SliceGroupSelectionChanged;
-			}
+			//	radioButton.Toggled += SliceGroupSelectionChanged;
+			//}
 
 			foreach(RadioButton radioButton in yrbtnMeasurementUnitAmount.Group)
 			{
@@ -81,15 +81,15 @@ namespace Vodovoz.ReportsParameters.Sales
 				radioButton.Toggled += MeasurementUnitGroupSelectionChanged;
 			}
 
-			foreach(RadioButton radioButton in yrbtnDynamicsInPercents.Group)
-			{
-				if(radioButton.Active)
-				{
-					DynamicsInGroupSelectionChanged(radioButton, EventArgs.Empty);
-				}
+			//foreach(RadioButton radioButton in yrbtnDynamicsInPercents.Group)
+			//{
+			//	if(radioButton.Active)
+			//	{
+			//		DynamicsInGroupSelectionChanged(radioButton, EventArgs.Empty);
+			//	}
 
-				radioButton.Toggled += DynamicsInGroupSelectionChanged;
-			}
+			//	radioButton.Toggled += DynamicsInGroupSelectionChanged;
+			//}
 
 			ychkbtnShowDynamics.Binding
 				.AddBinding(ViewModel, vm => vm.ShowDynamics, w => w.Active)
@@ -414,20 +414,20 @@ namespace Vodovoz.ReportsParameters.Sales
 			ybuttonCreateReport.Clicked -= OnButtonCreateReportClicked;
 			ybuttonAbortCreateReport.Clicked -= OnButtonAbortCreateReportClicked;
 
-			foreach(RadioButton radioButton in yrbtnSliceDay.Group)
-			{
-				radioButton.Toggled -= SliceGroupSelectionChanged;
-			}
+			//foreach(RadioButton radioButton in yrbtnSliceDay.Group)
+			//{
+			//	radioButton.Toggled -= SliceGroupSelectionChanged;
+			//}
 
 			foreach(RadioButton radioButton in yrbtnMeasurementUnitAmount.Group)
 			{
 				radioButton.Toggled -= MeasurementUnitGroupSelectionChanged;
 			}
 
-			foreach(RadioButton radioButton in yrbtnDynamicsInPercents.Group)
-			{
-				radioButton.Toggled -= DynamicsInGroupSelectionChanged;
-			}
+			//foreach(RadioButton radioButton in yrbtnDynamicsInPercents.Group)
+			//{
+			//	radioButton.Toggled -= DynamicsInGroupSelectionChanged;
+			//}
 
 			ViewModel.PropertyChanged -= ViewModelPropertyChanged;
 			eventboxArrow.ButtonPressEvent -= OnEventboxArrowButtonPressEvent;
