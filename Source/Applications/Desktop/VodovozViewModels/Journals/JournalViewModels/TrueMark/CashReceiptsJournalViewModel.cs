@@ -1,4 +1,5 @@
-﻿using Gamma.Binding.Core.RecursiveTreeConfig;
+﻿using ClosedXML.Excel;
+using Gamma.Binding.Core.RecursiveTreeConfig;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.SqlCommand;
@@ -23,6 +24,7 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
+using Vodovoz.ViewModels.ViewModels.Reports.TrueMark;
 using CashReceiptPermissions = Vodovoz.Permissions.Order.CashReceipt;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
@@ -599,7 +601,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 		private void CreateProductCodesScanningReportAction()
 		{
 			var createProductCodesScanningReportAction = new JournalAction("Отчет о сканировании маркировки",
-				(selected) => _filter.StartDate.HasValue && _filter.EndDate.HasValue && _filter.EndDate.Value >= _filter.StartDate.Value,
+				(selected) => Filter.StartDate.HasValue && Filter.EndDate.HasValue && Filter.EndDate.Value >= Filter.StartDate.Value,
 				(selected) => true,
 				(selected) => GenerateProductCodesScanningReport()
 			);
@@ -608,7 +610,68 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 
 		private void GenerateProductCodesScanningReport()
 		{
+			if(!Filter.StartDate.HasValue || !Filter.EndDate.HasValue)
+			{
+				var interactiveService = _commonServices.InteractiveService;
+				interactiveService.ShowMessage(
+					ImportanceLevel.Error,
+					"Для создания отчета необходимо выбрать дату начала и дату окончания периода");
+			}
 
+			var dialogSettings = new DialogSettings();
+			dialogSettings.DefaultFileExtention = ".xlsx";
+			dialogSettings.FileFilters.Clear();
+			dialogSettings.FileFilters.Add(new DialogFileFilter("Excel", ".xlsx"));
+
+			var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
+			if(!result.Successful)
+			{
+				return;
+			}
+
+			var report = ProductCodesScanningReport.Generate(UoW, Filter.StartDate.Value, Filter.EndDate.Value);
+
+			using(var workbook = new XLWorkbook())
+			{
+				var colNumber = 1;
+				var worksheet = workbook.Worksheets.Add("Сканирование кодов маркировки");
+
+				worksheet.Cell(1, 1).Value = $"{report.Title} за период с {report.CreateDateFrom:dd.MM.yyyy} по {report.CreateDateTo:dd.MM.yyyy}";
+
+				worksheet.Cell(2, colNumber++).Value = "№";
+				worksheet.Cell(2, colNumber++).Value = "Водитель";
+				worksheet.Cell(2, colNumber++).Value = "Требуется кодов в заказах за период, шт.";
+				worksheet.Cell(2, colNumber++).Value = "Успешно отсканировано кодов, шт.";
+				worksheet.Cell(2, colNumber++).Value = "Успешно отсканировано кодов, %";
+				worksheet.Cell(2, colNumber++).Value = "Не отсканировано кодов, шт.";
+				worksheet.Cell(2, colNumber++).Value = "Не отсканировано кодов, %";
+				worksheet.Cell(2, colNumber++).Value = "Дубликаты одноразовые (из пула), шт.";
+				worksheet.Cell(2, colNumber++).Value = "Дубликаты одноразовые (из пула), %";
+				worksheet.Cell(2, colNumber++).Value = "Дубликаты множественные, шт.";
+				worksheet.Cell(2, colNumber++).Value = "Дубликаты множественные, %";
+				worksheet.Cell(2, colNumber++).Value = "Недействительные коды, шт.";
+				worksheet.Cell(2, colNumber++).Value = "Недействительные коды, %";
+
+				var excelRowCounter = 3;
+				foreach(var row in report.Rows)
+				{
+					colNumber = 1;
+					worksheet.Cell(excelRowCounter, colNumber++).Value = row.RowNumber;
+					worksheet.Cell(excelRowCounter, colNumber++).Value = row.DriverFIO;
+					worksheet.Cell(excelRowCounter, colNumber++).Value = row.SuccessfullyScannedCodesCount;
+					worksheet.Cell(excelRowCounter, colNumber++).Value = row.SuccessfullyScannedCodesPercent;
+					worksheet.Cell(excelRowCounter, colNumber++).Value = row.UnscannedCodesCount;
+					worksheet.Cell(excelRowCounter, colNumber++).Value = row.UnscannedCodesPercent;
+					worksheet.Cell(excelRowCounter, colNumber++).Value = row.SingleDuplicatedCodesCount;
+					worksheet.Cell(excelRowCounter, colNumber++).Value = row.SingleDuplicatedCodesPercent;
+					worksheet.Cell(excelRowCounter, colNumber++).Value = row.MultiplyDuplicatedCodesCount;
+					worksheet.Cell(excelRowCounter, colNumber++).Value = row.MultiplyDuplicatedCodesPercent;
+					worksheet.Cell(excelRowCounter, colNumber++).Value = row.InvalidCodesCount;
+					worksheet.Cell(excelRowCounter, colNumber++).Value = row.InvalidCodesPercent;
+					excelRowCounter++;
+				}
+				workbook.SaveAs(result.Path);
+			}
 		}
 		#endregion
 	}
