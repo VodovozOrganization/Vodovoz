@@ -37,11 +37,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 
 			public static RemainingBottlesReport Generate(IUnitOfWork unitOfWork, DateTime createDateFrom, DateTime createDateTo)
 			{
-				var notActualRouteListStatuses = new RouteListItemStatus[] {
-					RouteListItemStatus.Canceled,
-					RouteListItemStatus.Overdue,
-					RouteListItemStatus.Transfered
-				};
+				var notActualRouteListStatuses = RouteListItem.GetNotDeliveredStatuses();
 
 				var rows = (from routelist in unitOfWork.Session.Query<RouteList>()
 							join driver in unitOfWork.Session.Query<Employee>()
