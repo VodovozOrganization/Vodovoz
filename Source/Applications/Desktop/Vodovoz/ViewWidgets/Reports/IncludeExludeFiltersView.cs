@@ -1,6 +1,7 @@
 ﻿using Gamma.Binding;
 using Gtk;
 using QS.Views.GtkUI;
+using System;
 using System.ComponentModel;
 using Vodovoz.Presentation.ViewModels.Common;
 
@@ -134,8 +135,8 @@ namespace Vodovoz.ViewWidgets.Reports
 
 				ytreeviewElements.CreateFluentColumnsConfig<IncludeExcludeElement>()
 					.AddColumn("\t✔️")
-					.AddToggleRenderer(x => x.Include)
-					.AddColumn("X").AddToggleRenderer(x => x.Exclude)
+					.AddToggleRenderer(x => x.Include).ToggledEvent(OnElementCheckboxToggled)
+					.AddColumn("X").AddToggleRenderer(x => x.Exclude).ToggledEvent(OnElementCheckboxToggled)
 					.AddColumn("").AddTextRenderer(x => x.Title ?? "")
 					.AddSetter((cell, node) =>
 					{
@@ -151,6 +152,11 @@ namespace Vodovoz.ViewWidgets.Reports
 					})
 					.Finish();
 			}
+		}
+
+		private void OnElementCheckboxToggled(object o, ToggledArgs args)
+		{
+			ytreeviewElements.QueueDraw();
 		}
 	}
 }
