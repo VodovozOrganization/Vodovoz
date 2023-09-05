@@ -101,7 +101,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				&& !_commonServices.UserService.GetCurrentUser().IsAdmin;
 
 			_userCanGetContactsInSalesReports =
-				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Sales.CanGetContactsInSalesReports);
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Report.Sales.CanGetContactsInSalesReports);
 
 			StartDate = DateTime.Now.Date.AddDays(-6);
 			EndDate = DateTime.Now.Date;
