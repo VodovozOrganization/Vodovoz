@@ -1,9 +1,11 @@
-﻿using NHibernate;
+﻿using System;
+using NHibernate;
 using NHibernate.Transform;
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
@@ -13,7 +15,6 @@ using Vodovoz.ViewModels.ViewModels.Goods;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 {
-	[Appellative(NominativePlural = "Онлайн каталоги номенклатур сайта Кулер сэйл")]
 	public class KulerSaleWebSiteNomenclatureOnlineCatalogsJournalViewModel
 		: EntityJournalViewModelBase<
 			KulerSaleWebSiteNomenclatureOnlineCatalog,
@@ -42,6 +43,18 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 				.TransformUsing(Transformers.AliasToBean<NomenclatureOnlineCatalogsJournalNode>());
 
 			return query;
+		}
+
+		protected override void CreateEntityDialog()
+		{
+			NavigationManager.OpenViewModel<NomenclatureOnlineCatalogViewModel, IEntityUoWBuilder, Type>(
+			this, EntityUoWBuilder.ForCreate(), typeof(KulerSaleWebSiteNomenclatureOnlineCatalog));
+		}
+
+		protected override void EditEntityDialog(NomenclatureOnlineCatalogsJournalNode node)
+		{
+			NavigationManager.OpenViewModel<NomenclatureOnlineCatalogViewModel, IEntityUoWBuilder, Type>(
+			this, EntityUoWBuilder.ForOpen(DomainHelper.GetId(node)), typeof(KulerSaleWebSiteNomenclatureOnlineCatalog));
 		}
 	}
 }
