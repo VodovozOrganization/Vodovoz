@@ -34,7 +34,7 @@ namespace Vodovoz.ReportsParameters.Sales
 
 		private global::Gtk.Label lblDynamicsMeasurementUnit;
 
-		private global::Gtk.Label lblMeasurementUnit1;
+		private global::Gtk.Label lblSlice;
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonShowContacts;
 
@@ -46,7 +46,7 @@ namespace Vodovoz.ReportsParameters.Sales
 
 		private global::Gamma.Widgets.yEnumComboBox yenumDynamicsMeasurementUnit;
 
-		private global::Gamma.Widgets.yEnumComboBox yenumMeasurementUnit;
+		private global::Gamma.Widgets.yEnumComboBox yenumSlice;
 
 		private global::Gtk.VBox vboxParameters;
 
@@ -214,12 +214,12 @@ namespace Vodovoz.ReportsParameters.Sales
 			w12.XOptions = ((global::Gtk.AttachOptions)(4));
 			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.lblMeasurementUnit1 = new global::Gtk.Label();
-			this.lblMeasurementUnit1.Name = "lblMeasurementUnit1";
-			this.lblMeasurementUnit1.Xalign = 0F;
-			this.lblMeasurementUnit1.LabelProp = global::Mono.Unix.Catalog.GetString("Единица измерения:");
-			this.table1.Add(this.lblMeasurementUnit1);
-			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.table1[this.lblMeasurementUnit1]));
+			this.lblSlice = new global::Gtk.Label();
+			this.lblSlice.Name = "lblSlice";
+			this.lblSlice.Xalign = 0F;
+			this.lblSlice.LabelProp = global::Mono.Unix.Catalog.GetString("В разрезе:");
+			this.table1.Add(this.lblSlice);
+			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.table1[this.lblSlice]));
 			w13.TopAttach = ((uint)(1));
 			w13.BottomAttach = ((uint)(2));
 			w13.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -299,14 +299,14 @@ namespace Vodovoz.ReportsParameters.Sales
 			w18.XOptions = ((global::Gtk.AttachOptions)(4));
 			w18.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yenumMeasurementUnit = new global::Gamma.Widgets.yEnumComboBox();
-			this.yenumMeasurementUnit.Name = "yenumMeasurementUnit";
-			this.yenumMeasurementUnit.ShowSpecialStateAll = true;
-			this.yenumMeasurementUnit.ShowSpecialStateNot = false;
-			this.yenumMeasurementUnit.UseShortTitle = false;
-			this.yenumMeasurementUnit.DefaultFirst = false;
-			this.table1.Add(this.yenumMeasurementUnit);
-			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.table1[this.yenumMeasurementUnit]));
+			this.yenumSlice = new global::Gamma.Widgets.yEnumComboBox();
+			this.yenumSlice.Name = "yenumSlice";
+			this.yenumSlice.ShowSpecialStateAll = true;
+			this.yenumSlice.ShowSpecialStateNot = false;
+			this.yenumSlice.UseShortTitle = false;
+			this.yenumSlice.DefaultFirst = false;
+			this.table1.Add(this.yenumSlice);
+			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.table1[this.yenumSlice]));
 			w19.TopAttach = ((uint)(1));
 			w19.BottomAttach = ((uint)(2));
 			w19.LeftAttach = ((uint)(1));
