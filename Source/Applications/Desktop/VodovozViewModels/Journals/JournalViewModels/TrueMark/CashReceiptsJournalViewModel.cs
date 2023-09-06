@@ -659,6 +659,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 					worksheet.Cell(excelRowCounter, colNumber++).Value = row.RowNumber;
 					worksheet.Cell(excelRowCounter, colNumber++).Value = row.DriverFIO;
 					worksheet.Cell(excelRowCounter, colNumber++).Value = row.TotalCodesCount;
+					worksheet.Cell(excelRowCounter, colNumber++).Value = row.SuccessfullyScannedCodesCount;
 					worksheet.Cell(excelRowCounter, colNumber++).Value = row.SuccessfullyScannedCodesPercent;
 					worksheet.Cell(excelRowCounter, colNumber++).Value = row.UnscannedCodesCount;
 					worksheet.Cell(excelRowCounter, colNumber++).Value = row.UnscannedCodesPercent;
