@@ -56,7 +56,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						ReportTotal,
 						new TurnoverWithDynamicsReportRow
 						{
-							Title = "Номенклатура",
+							Title = GroupingTitle,
 							RowType = TurnoverWithDynamicsReportRow.RowTypes.Subheader,
 							SliceColumnValues = CreateInitializedBy(Slices.Count, 0m),
 							DynamicColumns = CreateInitializedBy(ShowDynamics ? Slices.Count * 2 : Slices.Count, ""),
@@ -130,81 +130,93 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				switch(groupingCount)
 				{
 					case 3:
-						var thirdLevelGroup = ordersItemslist
-							.GroupBy(GetSelector(GroupingBy.ElementAt(2)))
-							.GroupBy(g => GetSelector(GroupingBy.ElementAt(1)).Invoke(g.First()))
-							.GroupBy(g => GetSelector(GroupingBy.ElementAt(0)).Invoke(g.First().First()));
-
-						var result3 = Process3rdLevelGroups(
-							thirdLevelGroup,
-							GetGroupTitle(GroupingBy.ElementAt(2)),
-							GetGroupTitle(GroupingBy.ElementAt(1)),
-							GetGroupTitle(GroupingBy.ElementAt(0)));
+						var result3 = Process3rdLevelGroups(ordersItemslist);
 
 						var group3Total = AddGroupTotals("Сводные данные по отчету", result3.Totals);
 
 						ReportTotal = group3Total;
 
+						ProcessIndexes(result3.Rows);
+
 						return result3.Rows;
 					case 2:
-						var secondLevelGroup = ordersItemslist
-							.GroupBy(GetSelector(GroupingBy.ElementAt(1)))
-							.GroupBy(g => GetSelector(GroupingBy.ElementAt(0)).Invoke(g.First()));
-
-						var result2nd = Process2ndLevelGroups(secondLevelGroup,
-							GetGroupTitle(GroupingBy.ElementAt(1)),
-							GetGroupTitle(GroupingBy.ElementAt(0)));
+						var result2nd = Process2ndLevelGroups(ordersItemslist);
 
 						var group2Total = AddGroupTotals("Сводные данные по отчету", result2nd.Totals);
 
 						ReportTotal = group2Total;
 
+						ProcessIndexes(result2nd.Rows);
+
 						return result2nd.Rows;
 					default:
-						var firstLevelGroup = ordersItemslist
-							.GroupBy(GetSelector(GroupingBy.ElementAt(0)));
-						
-						var result = 
-						 Process1stLevelGroups(firstLevelGroup,
-							GetGroupTitle(GroupingBy.ElementAt(0)));
+						var result = Process1stLevelGroups(ordersItemslist);
 
 						result.TotalRow.Title = "Сводные данные по отчету";
 
 						ReportTotal = result.TotalRow;
 
+						ProcessIndexes(result.Rows);
+
 						return result.Rows;
 				}
 			}
 
+			private void ProcessIndexes(IList<TurnoverWithDynamicsReportRow> Rows)
+			{
+				int index = 1;
+
+				foreach(var item in Rows)
+				{
+					if(item.RowType == TurnoverWithDynamicsReportRow.RowTypes.Values)
+					{
+						item.Index = index.ToString();
+						index++;
+					}
+				}
+			}
+
 			private (IList<TurnoverWithDynamicsReportRow> Rows, TurnoverWithDynamicsReportRow TotalRow) Process1stLevelGroups(
-				IEnumerable<IGrouping<object, OrderItemNode>> firstLevelGroup,
-				Func<OrderItemNode, string> func)
+				IEnumerable<OrderItemNode> firstLevelGroup)
 			{
 				var result = new List<TurnoverWithDynamicsReportRow>();
 
-				foreach(var group in firstLevelGroup)
+				var firstSelector = GetSelector(GroupingBy.Last());
+
+				var firstLevelKeyValues = firstLevelGroup.Select(firstSelector).Distinct();
+
+				foreach(var key1 in firstLevelKeyValues)
 				{
+					var filtered = firstLevelGroup.Where(x => firstSelector.Invoke(x).Equals(key1));
+
+					if(!filtered.Any())
+					{
+						continue;
+					}
+
+					var groupTitle = GetGroupTitle(GroupingBy.Last()).Invoke(filtered.First());
+
 					string phones = string.Empty;
 					string emails = string.Empty;
 
 					if(ShowContacts)
 					{
-						phones = ProcessCounterpartyPhones(group);
-						emails = group.First().CounterpartyEmails;
+						phones = ProcessCounterpartyPhones(filtered.First());
+						emails = filtered.First().CounterpartyEmails;
 					}
 
 					var row = new TurnoverWithDynamicsReportRow
 					{
 						RowType = TurnoverWithDynamicsReportRow.RowTypes.Values,
-						Title = func.Invoke(group.First()),
+						Title = groupTitle,
 						Phones = phones,
 						Emails = emails
 					};
 
-					row.SliceColumnValues = CalculateValuesRow(group);
+					row.SliceColumnValues = CalculateValuesRow(filtered);
 
 					ProcessDynamics(row);
-					ProcessLastSale(group, row);
+					ProcessLastSale(filtered, row);
 
 					result.Add(row);
 				}
@@ -215,19 +227,30 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			}
 
 			private (IList<TurnoverWithDynamicsReportRow> Rows, IList<TurnoverWithDynamicsReportRow> Totals) Process2ndLevelGroups(
-				IEnumerable<IGrouping<object, IGrouping<object, OrderItemNode>>> secondLevelGroup,
-				Func<OrderItemNode, string> func1,
-				Func<OrderItemNode, string> func2)
+				IEnumerable<OrderItemNode> secondLevelGroup)
 			{
 				var result = new List<TurnoverWithDynamicsReportRow>();
 
 				IList<TurnoverWithDynamicsReportRow> totalsRows = new List<TurnoverWithDynamicsReportRow>();
 
-				foreach(var group in secondLevelGroup)
-				{
-					var groupTitle = func2.Invoke(group.First().First());
+				var preLast = GroupingBy.Count() - 2;
 
-					var groupRows = Process1stLevelGroups(group, func1);
+				var firstSelector = GetSelector(GroupingBy.ElementAt(preLast));
+
+				var firstLevelKeyValues = secondLevelGroup.Select(firstSelector).Distinct();
+
+				foreach(var key1 in firstLevelKeyValues)
+				{
+					var filtered = secondLevelGroup.Where(x => firstSelector.Invoke(x).Equals(key1));
+
+					if(!filtered.Any())
+					{
+						continue;
+					}
+
+					var groupTitle = GetGroupTitle(GroupingBy.ElementAt(preLast)).Invoke(filtered.First());
+
+					var groupRows = Process1stLevelGroups(filtered);
 
 					groupRows.TotalRow.Title = groupTitle;
 
@@ -240,20 +263,30 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			}
 
 			private (IList<TurnoverWithDynamicsReportRow> Rows, IList<TurnoverWithDynamicsReportRow> Totals) Process3rdLevelGroups(
-				IEnumerable<IGrouping<object, IGrouping<object, IGrouping<object, OrderItemNode>>>> thirdLevelGroup,
-				Func<OrderItemNode, string> func1,
-				Func<OrderItemNode, string> func2,
-				Func<OrderItemNode, string> func3)
+				IEnumerable<OrderItemNode> thirdLevelGroup)
 			{
 				var result = new List<TurnoverWithDynamicsReportRow>();
 
 				IList<TurnoverWithDynamicsReportRow> totalsRows = new List<TurnoverWithDynamicsReportRow>();
 
-				foreach(var group in thirdLevelGroup)
-				{
-					var groupTitle = func3.Invoke(group.First().First().First());
+				var prePreLast = GroupingBy.Count() - 3;
 
-					var groupRows = Process2ndLevelGroups(group, func1, func2);
+				var firstSelector = GetSelector(GroupingBy.ElementAt(prePreLast));
+
+				var firstLevelKeyValues = thirdLevelGroup.Select(firstSelector).Distinct();
+
+				foreach(var key1 in firstLevelKeyValues)
+				{
+					var filtered = thirdLevelGroup.Where(x => firstSelector.Invoke(x).Equals(key1));
+
+					if(!filtered.Any())
+					{
+						continue;
+					}
+
+					var groupTitle = GetGroupTitle(GroupingBy.ElementAt(prePreLast)).Invoke(filtered.First());
+
+					var groupRows = Process2ndLevelGroups(filtered);
 
 					var groupTotal = AddGroupTotals(groupTitle, groupRows.Totals);
 
@@ -339,11 +372,11 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				return result;
 			}
 
-			private string ProcessCounterpartyPhones(IGrouping<object, OrderItemNode> counterpartyGroup)
+			private string ProcessCounterpartyPhones(OrderItemNode counterpartyGroup)
 			{
 				var result = string.Empty;
 
-				var counterpartyPhones = counterpartyGroup.First().CounterpartyPhones;
+				var counterpartyPhones = counterpartyGroup.CounterpartyPhones;
 
 				if(string.IsNullOrWhiteSpace(counterpartyPhones))
 				{
@@ -351,7 +384,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				}
 
 				var ordersContactPhones = counterpartyGroup
-					.Select(cp => cp.OrderContactPhone)
+					.OrderContactPhone
 					.Where(ocp => !counterpartyPhones.Contains(ocp))
 					.Distinct();
 
@@ -378,7 +411,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				return result;
 			}
 
-			private void ProcessLastSale(IGrouping<object, OrderItemNode> nomenclatureGroup, TurnoverWithDynamicsReportRow row)
+			private void ProcessLastSale(IEnumerable<OrderItemNode> nomenclatureGroup, TurnoverWithDynamicsReportRow row)
 			{
 				if(ShowLastSale)
 				{
@@ -391,7 +424,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						LastSaleDate = lastDelivery,
 						DaysFromLastShipment = Math.Floor((CreatedAt - lastDelivery).TotalDays),
 						WarhouseResidue = GroupingBy.LastOrDefault() == GroupingType.Nomenclature
-							? _warehouseNomenclatureBalanceCallback((int)nomenclatureGroup.Key)
+							? _warehouseNomenclatureBalanceCallback.Invoke(nomenclatureGroup.First().Id)
 							: 0
 					};
 				}
@@ -479,7 +512,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				return row;
 			}
 
-			private IList<decimal> CalculateValuesRow(IGrouping<object, OrderItemNode> ordersItemsGroup)
+			private IList<decimal> CalculateValuesRow(IEnumerable<OrderItemNode> ordersItemsGroup)
 			{
 				IList<decimal> result = CreateInitializedBy(Slices.Count, 0m);
 
