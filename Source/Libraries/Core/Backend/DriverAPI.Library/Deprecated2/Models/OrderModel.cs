@@ -459,6 +459,7 @@ namespace DriverAPI.Library.Deprecated2.Models
 					//Не можем создать код идентификации честного знака, потому что такой уже существует.
 					//Позже при обработке этого заказа будет подобран подходящий код
 					orderProductCode.IsDuplicateSourceCode = true;
+					orderProductCode.DuplicatedIdentificationCodeId = codeEntity.Id;
 				}
 			}
 			else
@@ -480,6 +481,7 @@ namespace DriverAPI.Library.Deprecated2.Models
 					//Не можем создать код идентификации честного знака, потому что такой уже существует.
 					//Позже при обработке этого заказа будет подобран подходящий код
 					orderProductCode.IsDuplicateSourceCode = true;
+					orderProductCode.DuplicatedIdentificationCodeId = codeEntity.Id;
 				}
 			}
 
