@@ -1,4 +1,4 @@
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using QS.Banks.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -280,7 +280,7 @@ namespace Vodovoz.Domain.Client
 		}
 
 		[Display(Name = "Форма собственности")]
-		[StringLength(10)]
+		[StringLength(20)]
 		public virtual string TypeOfOwnership
 		{
 			get => _typeOfOwnership;
