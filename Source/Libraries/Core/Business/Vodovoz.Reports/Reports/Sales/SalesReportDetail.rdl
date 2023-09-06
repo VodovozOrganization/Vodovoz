@@ -1176,15 +1176,19 @@ FROM
          	)
             OR
          	(
-         		(orders.payment_type = 'Terminal' AND 
-         		'0' IN (@PaymentByTerminalSource_include) OR orders.terminal_subtype IN (@PaymentByTerminalSource_include))
-         		AND NOT (orders.terminal_subtype IN (@PaymentByTerminalSource_exclude)) 		
+         		('0' IN (@PaymentType_include) OR NOT ('0' IN (@PaymentByTerminalSource_include)))
+         		AND orders.payment_type = 'Terminal'
+                AND NOT ('Terminal' IN (@PaymentType_exclude))
+                AND ('0' IN (@PaymentByTerminalSource_include) OR orders.terminal_subtype IN (@PaymentByTerminalSource_include))
+         		AND NOT (orders.terminal_subtype IN (@PaymentByTerminalSource_exclude))
          	)
             OR
          	(
-         		(orders.payment_type = 'PaidOnline' AND 
-         		0 IN (@PaymentFrom_include) OR orders.payment_from_id IN (@PaymentFrom_include))
-         		AND NOT (orders.payment_from_id IN (@PaymentFrom_exclude)) 		
+         		('0' IN (@PaymentType_include) OR NOT ('0' IN (@PaymentFrom_include)))
+                AND orders.payment_type = 'PaidOnline'
+                AND NOT ('PaidOnline' IN (@PaymentFrom_exclude))
+                AND (0 IN (@PaymentFrom_include) OR orders.payment_from_id IN (@PaymentFrom_include))
+         		AND NOT (orders.payment_from_id IN (@PaymentFrom_exclude))
          	)
        )
        AND (
