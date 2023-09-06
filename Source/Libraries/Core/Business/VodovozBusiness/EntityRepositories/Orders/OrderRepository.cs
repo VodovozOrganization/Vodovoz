@@ -1037,6 +1037,18 @@ namespace Vodovoz.EntityRepositories.Orders
 				.SingleOrDefault<decimal>();
 		}
 
+		public IList<OrderItem> GetIsAccountableInTrueMarkOrderItems(IUnitOfWork uow, int orderId)
+		{
+			OrderItem orderItemAlias = null;
+			Nomenclature nomenclatureAlias = null;
+
+			return uow.Session.QueryOver(()=> orderItemAlias)
+				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(()=> orderItemAlias.Order.Id == orderId)
+				.And(() => nomenclatureAlias.IsAccountableInTrueMark)
+				.List();
+		}
+
 		public IList<TrueMarkApiDocument> GetOrdersForCancellationInTrueMark(IUnitOfWork uow, DateTime startDate, int organizationId)
 		{
 			Counterparty counterpartyAlias = null;

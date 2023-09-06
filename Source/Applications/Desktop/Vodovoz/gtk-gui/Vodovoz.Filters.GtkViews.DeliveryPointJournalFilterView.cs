@@ -4,15 +4,35 @@ namespace Vodovoz.Filters.GtkViews
 {
 	public partial class DeliveryPointJournalFilterView
 	{
-		private global::Gtk.Table table1;
+		private global::Gamma.GtkWidgets.yVBox yvboxMain;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityVMentryCounterparty;
+		private global::Gamma.GtkWidgets.yHBox yhboxFilter1;
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckOnlyNotFoundOsm;
 
+		private global::Gamma.GtkWidgets.yCheckButton ycheckWithoutStreet;
+
 		private global::Gamma.GtkWidgets.yCheckButton ycheckRestrictActive;
 
-		private global::Gamma.GtkWidgets.yCheckButton ycheckWithoutStreet;
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityVMentryCounterparty;
+
+		private global::Gamma.GtkWidgets.yTable ytable1;
+
+		private global::QS.Widgets.ValidatedEntry entryCounterpartyNameLike;
+
+		private global::QS.Widgets.ValidatedEntry entryDeliveryPointAddress1cLike;
+
+		private global::QS.Widgets.ValidatedEntry entryDeliveryPointCompiledAddressLike;
+
+		private global::QS.Widgets.ValidatedEntry entryDeliveryPointId;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelCounterpartyNameLike;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelDeliveryPointAddress1cLike;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelDeliveryPointCompiledAddres;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelDeliveryPointId;
 
 		protected virtual void Build()
 		{
@@ -21,60 +41,160 @@ namespace Vodovoz.Filters.GtkViews
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Filters.GtkViews.DeliveryPointJournalFilterView";
 			// Container child Vodovoz.Filters.GtkViews.DeliveryPointJournalFilterView.Gtk.Container+ContainerChild
-			this.table1 = new global::Gtk.Table(((uint)(1)), ((uint)(4)), false);
-			this.table1.Name = "table1";
-			this.table1.RowSpacing = ((uint)(6));
-			this.table1.ColumnSpacing = ((uint)(6));
-			// Container child table1.Gtk.Table+TableChild
-			this.entityVMentryCounterparty = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entityVMentryCounterparty.Sensitive = false;
-			this.entityVMentryCounterparty.Events = ((global::Gdk.EventMask)(256));
-			this.entityVMentryCounterparty.Name = "entityVMentryCounterparty";
-			this.entityVMentryCounterparty.CanEditReference = false;
-			this.table1.Add(this.entityVMentryCounterparty);
-			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.entityVMentryCounterparty]));
-			w1.LeftAttach = ((uint)(3));
-			w1.RightAttach = ((uint)(4));
-			w1.XOptions = ((global::Gtk.AttachOptions)(4));
-			w1.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
+			this.yvboxMain = new global::Gamma.GtkWidgets.yVBox();
+			this.yvboxMain.Name = "yvboxMain";
+			this.yvboxMain.Spacing = 6;
+			// Container child yvboxMain.Gtk.Box+BoxChild
+			this.yhboxFilter1 = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxFilter1.Name = "yhboxFilter1";
+			this.yhboxFilter1.Spacing = 6;
+			// Container child yhboxFilter1.Gtk.Box+BoxChild
 			this.ycheckOnlyNotFoundOsm = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckOnlyNotFoundOsm.CanFocus = true;
 			this.ycheckOnlyNotFoundOsm.Name = "ycheckOnlyNotFoundOsm";
 			this.ycheckOnlyNotFoundOsm.Label = global::Mono.Unix.Catalog.GetString("Только не найденные в OSM");
 			this.ycheckOnlyNotFoundOsm.DrawIndicator = true;
 			this.ycheckOnlyNotFoundOsm.UseUnderline = true;
-			this.table1.Add(this.ycheckOnlyNotFoundOsm);
-			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckOnlyNotFoundOsm]));
-			w2.XOptions = ((global::Gtk.AttachOptions)(4));
-			w2.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.ycheckRestrictActive = new global::Gamma.GtkWidgets.yCheckButton();
-			this.ycheckRestrictActive.CanFocus = true;
-			this.ycheckRestrictActive.Name = "ycheckRestrictActive";
-			this.ycheckRestrictActive.Label = global::Mono.Unix.Catalog.GetString("Активные");
-			this.ycheckRestrictActive.DrawIndicator = true;
-			this.ycheckRestrictActive.UseUnderline = true;
-			this.table1.Add(this.ycheckRestrictActive);
-			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckRestrictActive]));
-			w3.LeftAttach = ((uint)(2));
-			w3.RightAttach = ((uint)(3));
-			w3.XOptions = ((global::Gtk.AttachOptions)(4));
-			w3.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
+			this.yhboxFilter1.Add(this.ycheckOnlyNotFoundOsm);
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.yhboxFilter1[this.ycheckOnlyNotFoundOsm]));
+			w1.Position = 0;
+			w1.Expand = false;
+			w1.Fill = false;
+			// Container child yhboxFilter1.Gtk.Box+BoxChild
 			this.ycheckWithoutStreet = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckWithoutStreet.CanFocus = true;
 			this.ycheckWithoutStreet.Name = "ycheckWithoutStreet";
 			this.ycheckWithoutStreet.Label = global::Mono.Unix.Catalog.GetString("Только без улиц");
 			this.ycheckWithoutStreet.DrawIndicator = true;
 			this.ycheckWithoutStreet.UseUnderline = true;
-			this.table1.Add(this.ycheckWithoutStreet);
-			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckWithoutStreet]));
-			w4.LeftAttach = ((uint)(1));
-			w4.RightAttach = ((uint)(2));
-			w4.XOptions = ((global::Gtk.AttachOptions)(4));
-			w4.YOptions = ((global::Gtk.AttachOptions)(4));
-			this.Add(this.table1);
+			this.yhboxFilter1.Add(this.ycheckWithoutStreet);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.yhboxFilter1[this.ycheckWithoutStreet]));
+			w2.Position = 1;
+			w2.Expand = false;
+			w2.Fill = false;
+			// Container child yhboxFilter1.Gtk.Box+BoxChild
+			this.ycheckRestrictActive = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckRestrictActive.CanFocus = true;
+			this.ycheckRestrictActive.Name = "ycheckRestrictActive";
+			this.ycheckRestrictActive.Label = global::Mono.Unix.Catalog.GetString("Активные");
+			this.ycheckRestrictActive.DrawIndicator = true;
+			this.ycheckRestrictActive.UseUnderline = true;
+			this.yhboxFilter1.Add(this.ycheckRestrictActive);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.yhboxFilter1[this.ycheckRestrictActive]));
+			w3.Position = 2;
+			w3.Expand = false;
+			w3.Fill = false;
+			// Container child yhboxFilter1.Gtk.Box+BoxChild
+			this.entityVMentryCounterparty = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.entityVMentryCounterparty.Sensitive = false;
+			this.entityVMentryCounterparty.Events = ((global::Gdk.EventMask)(256));
+			this.entityVMentryCounterparty.Name = "entityVMentryCounterparty";
+			this.entityVMentryCounterparty.CanEditReference = false;
+			this.entityVMentryCounterparty.CanOpenWithoutTabParent = false;
+			this.yhboxFilter1.Add(this.entityVMentryCounterparty);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.yhboxFilter1[this.entityVMentryCounterparty]));
+			w4.Position = 3;
+			w4.Expand = false;
+			this.yvboxMain.Add(this.yhboxFilter1);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxFilter1]));
+			w5.Position = 0;
+			w5.Expand = false;
+			w5.Fill = false;
+			// Container child yvboxMain.Gtk.Box+BoxChild
+			this.ytable1 = new global::Gamma.GtkWidgets.yTable();
+			this.ytable1.Name = "ytable1";
+			this.ytable1.NColumns = ((uint)(11));
+			this.ytable1.RowSpacing = ((uint)(6));
+			this.ytable1.ColumnSpacing = ((uint)(6));
+			// Container child ytable1.Gtk.Table+TableChild
+			this.entryCounterpartyNameLike = new global::QS.Widgets.ValidatedEntry();
+			this.entryCounterpartyNameLike.CanFocus = true;
+			this.entryCounterpartyNameLike.Name = "entryCounterpartyNameLike";
+			this.entryCounterpartyNameLike.IsEditable = true;
+			this.entryCounterpartyNameLike.InvisibleChar = '•';
+			this.ytable1.Add(this.entryCounterpartyNameLike);
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.ytable1[this.entryCounterpartyNameLike]));
+			w6.LeftAttach = ((uint)(3));
+			w6.RightAttach = ((uint)(5));
+			w6.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child ytable1.Gtk.Table+TableChild
+			this.entryDeliveryPointAddress1cLike = new global::QS.Widgets.ValidatedEntry();
+			this.entryDeliveryPointAddress1cLike.CanFocus = true;
+			this.entryDeliveryPointAddress1cLike.Name = "entryDeliveryPointAddress1cLike";
+			this.entryDeliveryPointAddress1cLike.IsEditable = true;
+			this.entryDeliveryPointAddress1cLike.InvisibleChar = '•';
+			this.ytable1.Add(this.entryDeliveryPointAddress1cLike);
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.ytable1[this.entryDeliveryPointAddress1cLike]));
+			w7.LeftAttach = ((uint)(9));
+			w7.RightAttach = ((uint)(11));
+			w7.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child ytable1.Gtk.Table+TableChild
+			this.entryDeliveryPointCompiledAddressLike = new global::QS.Widgets.ValidatedEntry();
+			this.entryDeliveryPointCompiledAddressLike.CanFocus = true;
+			this.entryDeliveryPointCompiledAddressLike.Name = "entryDeliveryPointCompiledAddressLike";
+			this.entryDeliveryPointCompiledAddressLike.IsEditable = true;
+			this.entryDeliveryPointCompiledAddressLike.InvisibleChar = '•';
+			this.ytable1.Add(this.entryDeliveryPointCompiledAddressLike);
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.ytable1[this.entryDeliveryPointCompiledAddressLike]));
+			w8.LeftAttach = ((uint)(6));
+			w8.RightAttach = ((uint)(8));
+			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child ytable1.Gtk.Table+TableChild
+			this.entryDeliveryPointId = new global::QS.Widgets.ValidatedEntry();
+			this.entryDeliveryPointId.CanFocus = true;
+			this.entryDeliveryPointId.Name = "entryDeliveryPointId";
+			this.entryDeliveryPointId.IsEditable = true;
+			this.entryDeliveryPointId.InvisibleChar = '•';
+			this.ytable1.Add(this.entryDeliveryPointId);
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.ytable1[this.entryDeliveryPointId]));
+			w9.LeftAttach = ((uint)(1));
+			w9.RightAttach = ((uint)(2));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child ytable1.Gtk.Table+TableChild
+			this.ylabelCounterpartyNameLike = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelCounterpartyNameLike.Name = "ylabelCounterpartyNameLike";
+			this.ylabelCounterpartyNameLike.LabelProp = global::Mono.Unix.Catalog.GetString("Наименование клиента:");
+			this.ytable1.Add(this.ylabelCounterpartyNameLike);
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.ytable1[this.ylabelCounterpartyNameLike]));
+			w10.LeftAttach = ((uint)(2));
+			w10.RightAttach = ((uint)(3));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child ytable1.Gtk.Table+TableChild
+			this.ylabelDeliveryPointAddress1cLike = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelDeliveryPointAddress1cLike.Name = "ylabelDeliveryPointAddress1cLike";
+			this.ylabelDeliveryPointAddress1cLike.LabelProp = global::Mono.Unix.Catalog.GetString("Адрес ТД из 1с:");
+			this.ytable1.Add(this.ylabelDeliveryPointAddress1cLike);
+			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.ytable1[this.ylabelDeliveryPointAddress1cLike]));
+			w11.LeftAttach = ((uint)(8));
+			w11.RightAttach = ((uint)(9));
+			w11.XOptions = ((global::Gtk.AttachOptions)(4));
+			w11.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child ytable1.Gtk.Table+TableChild
+			this.ylabelDeliveryPointCompiledAddres = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelDeliveryPointCompiledAddres.Name = "ylabelDeliveryPointCompiledAddres";
+			this.ylabelDeliveryPointCompiledAddres.LabelProp = global::Mono.Unix.Catalog.GetString("Адрес ТД:");
+			this.ytable1.Add(this.ylabelDeliveryPointCompiledAddres);
+			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.ytable1[this.ylabelDeliveryPointCompiledAddres]));
+			w12.LeftAttach = ((uint)(5));
+			w12.RightAttach = ((uint)(6));
+			w12.XOptions = ((global::Gtk.AttachOptions)(4));
+			w12.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child ytable1.Gtk.Table+TableChild
+			this.ylabelDeliveryPointId = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelDeliveryPointId.Name = "ylabelDeliveryPointId";
+			this.ylabelDeliveryPointId.LabelProp = global::Mono.Unix.Catalog.GetString("Код ТД:");
+			this.ytable1.Add(this.ylabelDeliveryPointId);
+			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.ytable1[this.ylabelDeliveryPointId]));
+			w13.XOptions = ((global::Gtk.AttachOptions)(4));
+			w13.YOptions = ((global::Gtk.AttachOptions)(4));
+			this.yvboxMain.Add(this.ytable1);
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.ytable1]));
+			w14.Position = 1;
+			w14.Expand = false;
+			w14.Fill = false;
+			this.Add(this.yvboxMain);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();

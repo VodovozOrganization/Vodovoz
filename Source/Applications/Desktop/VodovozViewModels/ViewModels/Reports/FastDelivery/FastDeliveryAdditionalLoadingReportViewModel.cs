@@ -203,7 +203,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 				return;
 			}
 
-			var reportName = typeof(FastDeliveryRemainingBottlesReport).GetClassUserFriendlyName().Nominative.CapitalizeSentence();
+			var reportName = typeof(RemainingBottlesReport).GetClassUserFriendlyName().Nominative.CapitalizeSentence();
 
 			var saveDialogSettings = new DialogSettings
 			{
@@ -219,7 +219,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 				return;
 			}
 
-			var report = FastDeliveryRemainingBottlesReport.Generate(UoW, CreateDateFrom.Value.Date, CreateDateTo.Value.LatestDayTime());
+			var report = RemainingBottlesReport.Generate(UoW, CreateDateFrom.Value.Date, CreateDateTo.Value.LatestDayTime());
 
 			var template = new XLTemplate(_fastDeliveryRemainingBottlesReportPath);
 
