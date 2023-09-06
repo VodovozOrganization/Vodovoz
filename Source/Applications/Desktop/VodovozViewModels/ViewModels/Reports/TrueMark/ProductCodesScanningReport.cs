@@ -1,9 +1,11 @@
-﻿using NHibernate;
+﻿using DocumentFormat.OpenXml.Validation;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Utilities.Text;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,52 +40,77 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 
 		public static ProductCodesScanningReport Generate(IUnitOfWork unitOfWork, DateTime createDateFrom, DateTime createDateTo)
 		{
-			CashReceipt cashReceiptAlias = null;
-			RouteList routeListAlias = null;
-			RouteListItem routeListItemAlias = null;
-			Employee driverAlias = null;
-			CashReceiptProductCode productCodeAlias = null;
-			//TrueMarkWaterIdentificationCode sourceCodeAlias = null;
-			Row resultAlias = null;
+			var codesScannedByDrivers = from productCode in unitOfWork.Session.Query<CashReceiptProductCode>()
+										join cashReceipt in unitOfWork.Session.Query<CashReceipt>() on productCode.CashReceipt.Id equals cashReceipt.Id
+										join routeListItem in unitOfWork.Session.Query<RouteListItem>() on cashReceipt.Order.Id equals routeListItem.Order.Id
+										join routeList in unitOfWork.Session.Query<RouteList>() on routeListItem.RouteList.Id equals routeList.Id
+										join driver in unitOfWork.Session.Query<Employee>() on routeList.Driver.Id equals driver.Id
+										where
+											cashReceipt.CreateDate >= createDateFrom
+											&& cashReceipt.CreateDate <= createDateTo
+											&& !cashReceipt.WithoutMarks
+										select new
+										{
+											Driver = driver,
+											ProductCode = productCode
+										};
 
-			var successfullyScannedCodesSubquery = QueryOver.Of(() => productCodeAlias)
-				.Where(() => !productCodeAlias.IsDuplicateSourceCode
-					&& !productCodeAlias.IsUnscannedSourceCode
-					&& productCodeAlias.SourceCode != null);
+			var groupedByDriverCodes = from item in codesScannedByDrivers
+									   group item.ProductCode by item.Driver into groupedCodes
+									   select new
+									   {
+										   Driver = groupedCodes.Key,
+										   ProductCodes = groupedCodes.ToList()
+									   };
 
-			var query = unitOfWork.Session.QueryOver(() => productCodeAlias)
-				.JoinAlias(() => productCodeAlias.CashReceipt, () => cashReceiptAlias)
-				.JoinEntityQueryOver(() => routeListItemAlias, Restrictions.Where(() => cashReceiptAlias.Order.Id == routeListItemAlias.Order.Id), JoinType.LeftOuterJoin)
-				.Left.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
-				.Left.JoinAlias(() => routeListAlias.Driver, () => driverAlias)
-				.Where(() => !cashReceiptAlias.WithoutMarks)
-				.Where(
-					Restrictions.Ge(
-						Projections.SqlFunction("DATE",
-							NHibernateUtil.Date,
-							Projections.Property(() => cashReceiptAlias.CreateDate)),
-						createDateFrom
-					)
-				)
-				.Where(
-					Restrictions.Le(
-						Projections.SqlFunction("DATE",
-							NHibernateUtil.Date,
-							Projections.Property(() => cashReceiptAlias.CreateDate)),
-						createDateTo
-					)
-				)
-				.Select()
-				//.SelectList(list => list
-					//.SelectGroup(() => driverAlias.LastName).WithAlias(() => resultAlias.DriverFIO)
-					//.SelectCount(() => productCodeAlias.Id).WithAlias(() => resultAlias.TotalCodesCount)
-					//.SelectSubQuery(successfullyScannedCodesSubquery).WithAlias(() => resultAlias.SuccessfullyScannedCodesCount)
-					)
-				.List<object[]>()
-				.ToDictionary<>
-				//.TransformUsing(Transformers.AliasToBean<Row>());
+			var rows = new List<Row>();
+			var counter = 1;
 
-			var rows = query.List<Row>();
+			foreach(var item in groupedByDriverCodes)
+			{
+				var driver = item.Driver;
+				var codes = item.ProductCodes;
+
+				var row = new Row();
+
+				row.RowNumber = counter;
+				row.DriverFIO = PersonHelper.PersonNameWithInitials(driver.LastName, driver.Name, driver.Patronymic);
+				row.TotalCodesCount = codes.Count;
+
+				row.SuccessfullyScannedCodesCount = codes
+					.Where(c =>
+						!c.IsDuplicateSourceCode
+						&& !c.IsUnscannedSourceCode
+						&& c.SourceCode != null)
+					.Count();
+
+				row.UnscannedCodesCount = codes
+					.Where(c => c.IsUnscannedSourceCode)
+					.Count();
+
+				row.SingleDuplicatedCodesCount = codes
+					.Where(c =>
+						c.IsDuplicateSourceCode
+						&& (c.DuplicatedIdentificationCodeId == null
+							|| unitOfWork.Session.Query<CashReceiptProductCode>()
+								.Where(cr => cr.DuplicatedIdentificationCodeId == c.DuplicatedIdentificationCodeId)
+								.Count() <= 1))
+					.Count();
+
+				row.MultiplyDuplicatedCodesCount = codes
+					.Where(c =>
+						c.IsDuplicateSourceCode
+						&& c.DuplicatedIdentificationCodeId != null
+						&& unitOfWork.Session.Query<CashReceiptProductCode>()
+								.Where(cr => cr.DuplicatedIdentificationCodeId == c.DuplicatedIdentificationCodeId)
+								.Count() > 1)
+					.Count();
+
+				row.InvalidCodesCount = codes.Where(c => !c.IsValid).Count();
+
+				rows.Add(row);
+				counter++;
+			}
 
 			return new ProductCodesScanningReport(createDateFrom, createDateTo, rows);
 		}
