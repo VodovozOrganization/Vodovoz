@@ -150,6 +150,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		IList<Order> GetOrdersForTrueMarkApi(IUnitOfWork uow, DateTime? startDate, int organizationId);
 		IList<Order> GetOrdersWithSendErrorsForTrueMarkApi(IUnitOfWork uow, DateTime? startDate, int organizationId);
 		decimal GetIsAccountableInTrueMarkOrderItemsCount(IUnitOfWork uow, int orderId);
+		IList<OrderItem> GetIsAccountableInTrueMarkOrderItems(IUnitOfWork uow, int orderId);
 		IList<TrueMarkApiDocument> GetOrdersForCancellationInTrueMark(IUnitOfWork uow, DateTime startDate, int organizationId);
 		IList<OrderOnDayNode> GetOrdersOnDay(IUnitOfWork uow, OrderOnDayFilters orderOnDayFilters);
 	}
