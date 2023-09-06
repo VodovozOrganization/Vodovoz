@@ -72,6 +72,9 @@ namespace Vodovoz.Domain.Orders
 		private readonly INomenclatureRepository _nomenclatureRepository =
 			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 
+		private readonly ICashReceiptRepository _cashReceiptRepository = new CashReceiptRepository(UnitOfWorkFactory.GetDefaultFactory,
+			new OrderParametersProvider(new ParametersProvider()));
+
 		private static readonly IGeneralSettingsParametersProvider _generalSettingsParameters =
 			new GeneralSettingsParametersProvider(new ParametersProvider());
 
@@ -1546,6 +1549,30 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult($"Значение поля \"Комментарий ОДЗ\" не должно превышать 255 символов",
 					new[] { nameof(OPComment) });
 			}
+
+			#region Валидация, если уже есть чек
+
+			var hasReceipts = _cashReceiptRepository.GetReceiptsForOrder(UoW, Id).Any();
+
+			if(hasReceipts)
+			{
+				var incorrectReceiptItems = new List<string>();
+
+				using(var uow = UnitOfWorkFactory.CreateWithoutRoot("Валидация заказа, если уже есть чек"))
+				{
+					if(uow.GetById<Order>(Id) is Order oldOrder)
+					{
+						incorrectReceiptItems = ValidateChangesInOrderWithReceipt(uow, oldOrder);
+					}
+				}
+
+				if(incorrectReceiptItems.Any())
+				{
+					yield return new ValidationResult(string.Join("\n", incorrectReceiptItems));
+				}
+			}
+
+			#endregion
 		}
 
 		private void CopiedOrderItemsPriceValidation(OrderItem[] currentCopiedItems, List<string> incorrectPriceItems)
@@ -1598,6 +1625,74 @@ namespace Vodovoz.Domain.Orders
 							$"{item.NomenclatureString} - цена: {item.Price}, должна быть: {nomenclaturePrice}, либо {alternativeNomenclaturePrice}");
 				}
 			}
+		}
+
+		private List<string> ValidateChangesInOrderWithReceipt(IUnitOfWork uow, Order oldOrder)
+		{
+			List<string> incorrectReceiptItems = new List<string>();
+
+			var oldOrderItems = _orderRepository.GetIsAccountableInTrueMarkOrderItems(uow, Id).GroupBy(x => x.Nomenclature.Id).ToArray();
+
+			if(oldOrder.Client.Id != Client.Id)
+			{
+				incorrectReceiptItems.Add($"Нельзя менять клиента у заказа, по которому сформирован чек.");
+			}
+
+			var newOrderItems = OrderItems
+				.Where(x => x.Nomenclature.IsAccountableInTrueMark)
+				.GroupBy(x => x.Nomenclature.Id)
+				.ToArray();
+
+			var missingInNewOrderIds = oldOrderItems
+				.Select(x => x.Key)
+				.Except(newOrderItems.Select(x => x.Key))
+				.ToArray();
+
+			if(missingInNewOrderIds.Any())
+			{
+				var missingNames = oldOrderItems
+					.Where(x => missingInNewOrderIds.Contains(x.Key))
+					.Select(x => x.First().Nomenclature.Name);
+
+				incorrectReceiptItems.Add($"Нельзя удалять номенклатуры, по которым сформирован чек: {string.Join(", ", missingNames)}.");
+			}
+
+			var missingInOldOrderIds = newOrderItems
+				.Select(x => x.Key)
+				.Except(oldOrderItems.Select(x => x.Key))
+				.ToArray();
+
+			if(missingInOldOrderIds.Any())
+			{
+				var newNames = newOrderItems
+					.Where(x => missingInOldOrderIds.Contains(x.Key))
+					.Select(x => x.First().Nomenclature.Name);
+
+				incorrectReceiptItems.Add($"Нельзя добавлять новые номенклатуры в заказ, по которому сформирован чек: {string.Join(", ", newNames)}.");
+			}
+
+			foreach(var oldItem in oldOrderItems)
+			{
+				var newItem = newOrderItems
+					.Where(x => x.Key == oldItem.Key)
+					.ToArray();
+
+				if(!newItem.Any())
+				{
+					continue;
+				}
+
+				var oldCount = oldItem.Sum(x => x.Count);
+				var newCount = newItem.First().Sum(x => x.Count);
+
+				if(oldCount != newCount)
+				{
+					incorrectReceiptItems.Add($"Нельзя менять кол-во номенклатуры {newItem.First().First().Nomenclature.Name}, " +
+					                          $"по которой сформирован чек (было {oldCount:F0} стало {newCount:F0}).");
+				}
+			}
+
+			return incorrectReceiptItems;
 		}
 
 		#endregion
