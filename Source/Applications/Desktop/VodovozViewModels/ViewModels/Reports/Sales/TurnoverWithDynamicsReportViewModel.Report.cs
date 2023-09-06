@@ -49,27 +49,18 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			private IList<TurnoverWithDynamicsReportRow> ProcessTreeViewDisplay()
 			{
-				if(GroupingBy.LastOrDefault() == GroupingType.Nomenclature)
+				return new List<TurnoverWithDynamicsReportRow>
 				{
-					return new List<TurnoverWithDynamicsReportRow>
+					ReportTotal,
+					new TurnoverWithDynamicsReportRow
 					{
-						ReportTotal,
-						new TurnoverWithDynamicsReportRow
-						{
-							Title = GroupingTitle,
-							RowType = TurnoverWithDynamicsReportRow.RowTypes.Subheader,
-							SliceColumnValues = CreateInitializedBy(Slices.Count, 0m),
-							DynamicColumns = CreateInitializedBy(ShowDynamics ? Slices.Count * 2 : Slices.Count, ""),
-							LastSaleDetails = new TurnoverWithDynamicsReportLastSaleDetails()
-						}
-					}.Union(Rows).ToList();
-				}
-				else
-				{
-					return Rows;
-				}
-
-				throw new InvalidOperationException($"Unsupported value {GroupingBy} of {nameof(GroupingBy)}");
+						Title = GroupingTitle,
+						RowType = TurnoverWithDynamicsReportRow.RowTypes.Subheader,
+						SliceColumnValues = CreateInitializedBy(Slices.Count, 0m),
+						DynamicColumns = CreateInitializedBy(ShowDynamics ? Slices.Count * 2 : Slices.Count, ""),
+						LastSaleDetails = new TurnoverWithDynamicsReportLastSaleDetails()
+					}
+				}.Union(Rows).ToList();
 			}
 
 			#region Parameters
