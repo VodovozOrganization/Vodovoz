@@ -42,6 +42,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 		{
 			var codesScannedByDrivers = from productCode in unitOfWork.Session.Query<CashReceiptProductCode>()
 										join cashReceipt in unitOfWork.Session.Query<CashReceipt>() on productCode.CashReceipt.Id equals cashReceipt.Id
+										join trueMarkWaterIdentificationCode in unitOfWork.Session.Query<TrueMarkWaterIdentificationCode>() on productCode.SourceCode.Id equals trueMarkWaterIdentificationCode.Id
+										into trueMarkIdentificationCodes
+										from trueMarkIdentificationCode in trueMarkIdentificationCodes.DefaultIfEmpty()
 										join routeListItem in unitOfWork.Session.Query<RouteListItem>() on cashReceipt.Order.Id equals routeListItem.Order.Id
 										join routeList in unitOfWork.Session.Query<RouteList>() on routeListItem.RouteList.Id equals routeList.Id
 										join driver in unitOfWork.Session.Query<Employee>() on routeList.Driver.Id equals driver.Id
@@ -49,14 +52,40 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 											cashReceipt.CreateDate >= createDateFrom
 											&& cashReceipt.CreateDate <= createDateTo
 											&& !cashReceipt.WithoutMarks
+
+										let isProductCodeSingleDuplicated = productCode.IsDuplicateSourceCode
+											&& (productCode.DuplicatedIdentificationCodeId == null
+												|| unitOfWork.Session.Query<CashReceiptProductCode>()
+													.Where(c => c.DuplicatedIdentificationCodeId == productCode.DuplicatedIdentificationCodeId)
+													.Count() == 1)
+
+										let isProductCodeMultiplyDuplicated = productCode.IsDuplicateSourceCode
+											&& (productCode.DuplicatedIdentificationCodeId == null
+												|| unitOfWork.Session.Query<CashReceiptProductCode>()
+													.Where(c => c.DuplicatedIdentificationCodeId == productCode.DuplicatedIdentificationCodeId)
+													.Count() > 1)
+
 										select new
 										{
 											Driver = driver,
-											ProductCode = productCode
+											ProductCodeInfo = new
+											{
+												ProductCodeId = productCode.Id,
+												IsDuplicateSourceCode = productCode.IsDuplicateSourceCode,
+												IsUnscannedSourceCode = productCode.IsUnscannedSourceCode,
+												IsDefectiveSourceCode = productCode.IsDefectiveSourceCode,
+												SourceCode = productCode.SourceCode,
+												DuplicatedCodeId = productCode.DuplicatedIdentificationCodeId,
+												IsProductCodeSingleDuplicated = isProductCodeSingleDuplicated,
+												IsProductCodeMultiplyDuplicated = isProductCodeMultiplyDuplicated,
+												ProductCodeIsInvalid = trueMarkIdentificationCode != null && trueMarkIdentificationCode.IsInvalid
+											}
 										};
 
+			var q = codesScannedByDrivers.ToList();
+
 			var groupedByDriverCodes = from item in codesScannedByDrivers
-									   group item.ProductCode by item.Driver into groupedCodes
+									   group item.ProductCodeInfo by item.Driver into groupedCodes
 									   select new
 									   {
 										   Driver = groupedCodes.Key,
@@ -89,24 +118,16 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 					.Count();
 
 				row.SingleDuplicatedCodesCount = codes
-					.Where(c =>
-						c.IsDuplicateSourceCode
-						&& (c.DuplicatedIdentificationCodeId == null
-							|| unitOfWork.Session.Query<CashReceiptProductCode>()
-								.Where(cr => cr.DuplicatedIdentificationCodeId == c.DuplicatedIdentificationCodeId)
-								.Count() <= 1))
+					.Where(c => c.IsProductCodeSingleDuplicated)
 					.Count();
 
 				row.MultiplyDuplicatedCodesCount = codes
-					.Where(c =>
-						c.IsDuplicateSourceCode
-						&& c.DuplicatedIdentificationCodeId != null
-						&& unitOfWork.Session.Query<CashReceiptProductCode>()
-								.Where(cr => cr.DuplicatedIdentificationCodeId == c.DuplicatedIdentificationCodeId)
-								.Count() > 1)
+					.Where(c => c.IsProductCodeMultiplyDuplicated)
 					.Count();
 
-				row.InvalidCodesCount = codes.Where(c => !c.IsValid).Count();
+				row.InvalidCodesCount = codes
+					.Where(c => c.ProductCodeIsInvalid)
+					.Count();
 
 				rows.Add(row);
 				counter++;
