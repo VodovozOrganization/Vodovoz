@@ -15,7 +15,7 @@
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>227.0pt</Height>
+    <Height>258.3pt</Height>
     <ReportItems>
       <Textbox Name="Textbox1">
         <Height>20.29pt</Height>
@@ -714,22 +714,6 @@
           </TableRows>
         </Footer>
       </Table>
-      <Textbox Name="Textbox11">
-        <Height>13.51pt</Height>
-        <Width>223.58pt</Width>
-        <Value>=First({criterions}, "Criterions")</Value>
-        <ZIndex>0</ZIndex>
-        <Left>586.5pt</Left>
-        <Top>139.1pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <TextAlign>Right</TextAlign>
-        </Style>
-        <CanGrow>true</CanGrow>
-        <CanShrink>true</CanShrink>
-      </Textbox>
       <fyi:Grid xmlns:fyi="http://www.fyireporting.com/schemas" Name="Grid1">
         <Style>
           <BorderStyle>
@@ -748,6 +732,58 @@
         </TableColumns>
         <Details>
           <TableRows>
+            <TableRow >
+              <Height>14.1pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox5">
+                      <Value>=First({criterions}, "Criterions")</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign >Right</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>2</ColSpan>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow >
+              <Height>14.1pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox15">
+                      <Value>="Количество заказов: " + Countdistinct({order_id}, "Sales")</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign >Right</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>2</ColSpan>
+                </TableCell>
+              </TableCells>
+            </TableRow>
             <TableRow>
               <Height>14.1pt</Height>
               <TableCells>
@@ -840,20 +876,6 @@
           <TextAlign>Right</TextAlign>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox34">
-        <Height>14.25pt</Height>
-        <Width>182.66pt</Width>
-        <Value>="Количество заказов: " + Countdistinct({order_id}, "Sales")</Value>
-        <ZIndex>0</ZIndex>
-        <Left>628.74pt</Left>
-        <Top>153.20pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <TextAlign>Right</TextAlign>
-        </Style>
-      </Textbox>
     </ReportItems>
     <Columns>1</Columns>
   </Body>
@@ -883,7 +905,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Sales">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
         <CommandText>SELECT
@@ -1259,7 +1281,7 @@ GROUP BY T.nomenclature_id, T.counterparty_id, T.delivery_points_id, T.orders_id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="nomenclature_name">
           <DataField>nomenclature_name</DataField>
           <TypeName>System.String</TypeName>
