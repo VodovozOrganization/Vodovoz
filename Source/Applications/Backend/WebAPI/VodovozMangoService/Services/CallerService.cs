@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using NLog;
 using Polly;
 using System;
@@ -35,7 +34,7 @@ namespace VodovozMangoService.Services
 			connectionStringBuilder.Password = configuration["Mysql:mysql_password"]; ;
 			connectionStringBuilder.SslMode = MySqlSslMode.Disabled;
 			connectionStringBuilder.DefaultCommandTimeout = 5;
-			_connectionString = connectionStringBuilder.GetConnectionString(true);
+			_connectionString = connectionStringBuilder.ConnectionString;
 		}
 
 		public Task RemoveOutDated()
@@ -74,13 +73,16 @@ namespace VodovozMangoService.Services
 
 				var digits = number.Substring(number.Length - Math.Min(10, number.Length));
 				var sql =
-					"SELECT counterparty.name as counterparty_name, delivery_points.compiled_address_short as address, CONCAT_WS(\" \", employees.last_name, employees.name, employees.patronymic) as employee_name, " +
-					"phones.employee_id, phones.delivery_point_id, counterparty.id as counterparty_id, subdivisions.short_name as subdivision_name " +
+					"SELECT IFNULL(client_counterparty.name, delivery_point_counterparty.name) as counterparty_name, " +
+					"delivery_points.compiled_address_short as address, CONCAT_WS(\" \", employees.last_name, employees.name, employees.patronymic) as employee_name, " +
+					"phones.employee_id, phones.delivery_point_id, IFNULL(client_counterparty.id, delivery_point_counterparty.id)  as counterparty_id, " +
+					"subdivisions.short_name as subdivision_name " +
 					"FROM phones " +
 					"LEFT JOIN employees ON employees.id = phones.employee_id " +
 					"LEFT JOIN subdivisions ON subdivisions.id = employees.subdivision_id " +
 					"LEFT JOIN delivery_points ON delivery_points.id = phones.delivery_point_id " +
-					"LEFT JOIN counterparty ON counterparty.id = phones.counterparty_id OR counterparty.id = delivery_points.counterparty_id " +
+					"LEFT JOIN counterparty as client_counterparty ON client_counterparty.id = phones.counterparty_id " +
+					"LEFT JOIN counterparty as delivery_point_counterparty ON delivery_point_counterparty.id = delivery_points.counterparty_id " +
 					"WHERE phones.digits_number = @digits;";
 
 				var retryPolicy = Policy

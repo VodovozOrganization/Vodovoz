@@ -37,6 +37,7 @@ namespace Vodovoz.ViewModels.Goods
 		private bool _flyerAdditionForNewClientsEnabled;
 		private bool _flyerForNewCounterpartyEnabled;
 		private int _flyerForNewCounterpartyBottlesCount;
+		private int _maxFastOrdersPerSpecificTime;
 
 		public AdditionalLoadingSettingsViewModel(
 			ILifetimeScope scope,
@@ -63,6 +64,7 @@ namespace Vodovoz.ViewModels.Goods
 				.ValidateEntityPermission(typeof(AdditionalLoadingNomenclatureDistribution)).CanUpdate;
 			
 			FastDeliveryMaxDistance = _deliveryRulesParametersProvider.MaxDistanceToLatestTrackPointKm;
+			MaxFastOrdersPerSpecificTime = _deliveryRulesParametersProvider.MaxFastOrdersPerSpecificTime;
 
 			FlyerAdditionEnabled = _deliveryRulesParametersProvider.AdditionalLoadingFlyerAdditionEnabled;
 			BottlesCount = _deliveryRulesParametersProvider.BottlesCountForFlyer;
@@ -91,6 +93,12 @@ namespace Vodovoz.ViewModels.Goods
 		{
 			get => _fastDeliveryMaxDistance;
 			set => SetField(ref _fastDeliveryMaxDistance, value);
+		}
+
+		public int MaxFastOrdersPerSpecificTime
+		{
+			get => _maxFastOrdersPerSpecificTime;
+			set => SetField(ref _maxFastOrdersPerSpecificTime, value);
 		}
 
 		public bool FlyerAdditionEnabled
@@ -241,6 +249,13 @@ namespace Vodovoz.ViewModels.Goods
 				return false;
 			}
 
+			if(MaxFastOrdersPerSpecificTime < 1)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning,
+					"Кол-во заказов с доставкой за час не может быть меньше 1");
+				return false;
+			}
+
 			return base.Validate();
 		}
 
@@ -264,6 +279,9 @@ namespace Vodovoz.ViewModels.Goods
 			_deliveryRulesParametersProvider.UpdateFlyerForNewCounterpartyEnabledParameter(FlyerForNewCounterpartyEnabled.ToString());
 			_deliveryRulesParametersProvider.UpdateFlyerForNewCounterpartyBottlesCountParameter(FlyerForNewCounterpartyBottlesCount.ToString());
 
+			_deliveryRulesParametersProvider.UpdateMaxFastOrdersPerSpecificTimeParameter(MaxFastOrdersPerSpecificTime.ToString());
+			UpdateMaxFastDeliveryOrdersValueInAllNotClosedRouteLists(MaxFastOrdersPerSpecificTime);
+
 			UoW.Commit();
 			return true;
 		}
@@ -275,6 +293,18 @@ namespace Vodovoz.ViewModels.Goods
 			foreach(var routeList in notClosedRouteLists)
 			{
 				routeList.UpdateFastDeliveryMaxDistanceValue(distanceToSet);
+			}
+		}
+		private void UpdateMaxFastDeliveryOrdersValueInAllNotClosedRouteLists(int maxFastDeliveryOrders)
+		{
+			var notClosedFastDeliveryRouteLists = UoW.GetAll<RouteList>()
+				.Where(r => r.Status != RouteListStatus.Closed 
+				            && r.AdditionalLoadingDocument != null)
+				.ToList();
+
+			foreach(var routeList in notClosedFastDeliveryRouteLists)
+			{
+				routeList.UpdateMaxFastDeliveryOrdersValue(maxFastDeliveryOrders);
 			}
 		}
 

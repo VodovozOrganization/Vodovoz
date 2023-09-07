@@ -7,7 +7,7 @@ using Vodovoz.Domain.Employees;
 
 namespace DriverAPI.Services
 {
-	public sealed class WakeUpDriverClientService : IWakeUpDriverClientService
+	internal sealed class WakeUpDriverClientService : IWakeUpDriverClientService
 	{
 		private readonly ILogger<WakeUpDriverClientService> _logger;
 

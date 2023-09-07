@@ -1,6 +1,7 @@
-﻿using System;
 using QS.DomainModel.Entity;
 using QS.Project.Journal;
+using QS.Utilities.Text;
+using System;
 using Vodovoz.Domain.Cash;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes
@@ -19,12 +20,23 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes
 
 		public DateTime Date { get; set; }
 		public PayoutRequestState PayoutRequestState { get; set; }
-		public string Author { get; set; }
-		public string AccountablePerson { get; set; }
+		public string AuthorFullName { get; set; }
+		public string AuthorName { get; set; }
+		public string AuthorLastName { get; set; }
+		public string AuthorPatronymic { get; set; }
+		public string AccountablePersonFullName { get; set; }
+		public string AccountablePersonName { get; set; }
+		public string AccountablePersonLastName { get; set; }
+		public string AccountablePersonPatronymic { get; set; }
 		public decimal Sum { get; set; }
 		public string Basis { get; set; }
+		public string ExpenseCategory { get; set; } = string.Empty;
+		public bool HaveReceipt { get; set; } = false;
 		public PayoutRequestDocumentType PayoutRequestDocumentType { get; set; }
 		public string CounterpartyName { get; set; }
+		public string AuthorWithInitials => PersonHelper.PersonNameWithInitials(AuthorLastName, AuthorName, AuthorPatronymic);
+		public string AccountablePersonWithInitials => PersonHelper.PersonNameWithInitials(AccountablePersonLastName, AccountablePersonName, AccountablePersonPatronymic);
+		public DateTime MoneyTransferDate { get; set; }
 
 		protected PayoutRequestJournalNode(Type entityType) : base(entityType)
 		{

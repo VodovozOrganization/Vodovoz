@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -36,7 +36,7 @@ namespace Vodovoz.Views.Logistic
 			
 			buttonCancel.Clicked += (sender, e) => ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
 
-			entityVMEntryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(MainClass.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory());
+			entityVMEntryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(Startup.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory());
 			entityVMEntryCar.Binding.AddBinding(ViewModel.Entity, e => e.Car, w => w.Subject).InitializeFromSource();
 			entityVMEntryCar.CompletionPopupSetWidth(false);
 
@@ -73,12 +73,22 @@ namespace Vodovoz.Views.Logistic
 				.InitializeFromSource();
 			deliveryfreebalanceview.ShowAll();
 			yhboxDeliveryFreeBalance.PackStart(deliveryfreebalanceview, true, true, 0);
+
+			btnCopyEntityId.Clicked += OnBtnCopyEntityIdClicked;
+		}
+
+		protected void OnBtnCopyEntityIdClicked(object sender, EventArgs e)
+		{
+			if(ViewModel.Entity.Id > 0)
+			{
+				GetClipboard(Gdk.Selection.Clipboard).Text = ViewModel.Entity.Id.ToString();
+			}
 		}
 
 		private void ConfigureTreeViewAddresses()
 		{
 			//Заполняем иконки
-			var assembly = Assembly.GetAssembly(typeof(MainClass));
+			var assembly = Assembly.GetAssembly(typeof(Startup));
 			statusIcons.Add(RouteListItemStatus.EnRoute, new Pixbuf(assembly, "Vodovoz.icons.status.car.png"));
 			statusIcons.Add(RouteListItemStatus.Completed, new Pixbuf(assembly, "Vodovoz.icons.status.face-smile-grin.png"));
 			statusIcons.Add(RouteListItemStatus.Overdue, new Pixbuf(assembly, "Vodovoz.icons.status.face-angry.png"));

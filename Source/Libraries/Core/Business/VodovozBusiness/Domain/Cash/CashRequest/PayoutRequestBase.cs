@@ -1,9 +1,10 @@
+﻿using NHibernate.Type;
+using QS.DomainModel.Entity;
+using QS.HistoryLog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using NHibernate.Type;
-using QS.DomainModel.Entity;
-using QS.DomainModel.Entity.EntityPermissions;
+using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Organizations;
 
@@ -19,7 +20,7 @@ namespace Vodovoz.Domain.Cash
 		private DateTime _date = DateTime.Now;
 		private Employee _author;
 		private Subdivision _subdivision;
-		private ExpenseCategory _expenseCategory;
+		private int? _expenseCategoryId;
 		private string _basis;
 		private string _explanation;
 		private string _reasonForSendToReappropriate;
@@ -70,10 +71,11 @@ namespace Vodovoz.Domain.Cash
 		}
 
 		[Display(Name = "Статья расхода")]
-		public virtual ExpenseCategory ExpenseCategory
+		[HistoryIdentifier(TargetType = typeof(FinancialExpenseCategory))]
+		public virtual int? ExpenseCategoryId
 		{
-			get => _expenseCategory;
-			set => SetField(ref _expenseCategory, value);
+			get => _expenseCategoryId;
+			set => SetField(ref _expenseCategoryId, value);
 		}
 
 		[Display(Name = "Основание")]
@@ -148,6 +150,11 @@ namespace Vodovoz.Domain.Cash
 			&& Explanation.Length > 200)
 			{
 				yield return new ValidationResult("Длина пояснения не должна превышать 200 символов", new[] { nameof(Explanation) });
+			}
+
+			if(ExpenseCategoryId == null)
+			{
+				yield return new ValidationResult("Необходимо выбрать статью расхода", new[] { nameof(ExpenseCategoryId) });
 			}
 		}
 

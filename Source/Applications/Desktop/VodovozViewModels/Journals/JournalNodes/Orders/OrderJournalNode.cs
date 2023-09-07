@@ -1,9 +1,11 @@
-﻿using System;
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using QS.Project.Journal;
 using QS.Utilities.Text;
+using System;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
+using Type = System.Type;
 
 namespace Vodovoz.JournalNodes
 {
@@ -97,5 +99,7 @@ namespace Vodovoz.JournalNodes
 				return "black";
 			}
 		}
+
+		public EdoDocFlowStatus EdoDocFlowStatus { get; set; }
 	}
 }

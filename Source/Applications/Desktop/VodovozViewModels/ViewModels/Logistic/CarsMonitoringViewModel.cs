@@ -1,6 +1,7 @@
 ﻿using NetTopologySuite.Geometries;
 using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.Commands;
 using QS.Dialog;
@@ -21,6 +22,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Domain.Logistic.FastDelivery;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
@@ -48,6 +50,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private bool _showCarCirclesOverlay = false;
 		private bool _showDistrictsOverlay = false;
 		private bool _showFastDeliveryOnly = false;
+		private bool _showActualFastDeliveryOnly;
 		private bool _showAddresses = false;
 		private bool _separateVindowOpened = false;
 		private bool _canShowAddresses = true;
@@ -72,6 +75,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private bool _canOpenKeepingTab;
 		private bool _canEditRouteListFastDeliveryMaxDistance;
+		private bool _canEditRouteListMaxFastDeliveryOrders;
 		private bool _showHistory;
 		private DateTime _historyDate;
 		private TimeSpan _historyHour;
@@ -108,7 +112,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			CarRefreshInterval = TimeSpan.FromSeconds(_deliveryRulesParametersProvider.CarsMonitoringResfreshInSeconds);
 
 			DefaultMapCenterPosition = new Coordinate(59.93900, 30.31646);
-			DriverDisconnectedTimespan = TimeSpan.FromMinutes(-20);
+			DriverDisconnectedTimespan = TimeSpan.FromMinutes(-(int)_deliveryRulesParametersProvider.MaxTimeOffsetForLatestTrackPoint.TotalMinutes);
 
 			var timespanRange = new List<TimeSpan>();
 
@@ -132,6 +136,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			OpenKeepingDialogCommand = new DelegateCommand<int>(OpenRouteListKeepingTab);
 			ChangeRouteListFastDeliveryMaxDistanceCommand = new DelegateCommand<int>(OpenChangeRouteListFastDeliveryMaxDistanceDlg);
+			ChangeRouteListMaxFastDeliveryOrdersCommand = new DelegateCommand<int>(OpenChangeRouteListMaxFastDeliveryOrders);
 			OpenTrackPointsJournalTabCommand = new DelegateCommand(OpenTrackPointJournalTab);
 			RefreshWorkingDriversCommand = new DelegateCommand(RefreshWorkingDrivers);
 			RefreshRouteListAddressesCommand = new DelegateCommand<int>(RefreshRouteListAddresses);
@@ -166,6 +171,24 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 		}
 
+		[PropertyChangedAlso(nameof(CoveragePercentBeforeText))]
+		public bool ShowActualFastDeliveryOnly
+		{
+			get => _showActualFastDeliveryOnly;
+			set
+			{
+				if(SetField(ref _showActualFastDeliveryOnly, value))
+				{
+					RefreshWorkingDriversCommand?.Execute();
+					if(ShowDistrictsOverlay)
+					{
+						RefreshFastDeliveryDistrictsCommand?.Execute();
+					}
+				}
+			}
+
+		}
+
 		public bool ShowFastDeliveryOnly
 		{
 			get => _showFastDeliveryOnly;
@@ -176,6 +199,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				{
 					ShowCarCirclesOverlay = false;
 					ShowHistory = false;
+					ShowActualFastDeliveryOnly = false;
 				}
 				RefreshWorkingDriversCommand?.Execute();
 			}
@@ -220,6 +244,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		{
 			get => _canEditRouteListFastDeliveryMaxDistance;
 			set => SetField(ref _canEditRouteListFastDeliveryMaxDistance, value);
+		}
+
+		public bool CanEditRouteListMaxFastDeliveryOrders
+		{
+			get => _canEditRouteListMaxFastDeliveryOrders;
+			set => SetField(ref _canEditRouteListMaxFastDeliveryOrders, value);
 		}
 
 		public bool ShowHistory
@@ -303,6 +333,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public string CoveragePercentString => $"{CoveragePercent:P}";
 
+		public string CoveragePercentBeforeText => ShowActualFastDeliveryOnly ? "Доступно для заказа" : "Процент покрытия";
+
 		[PropertyChangedAlso(nameof(CoveragePercentString))]
 		public double CoveragePercent => DistanceCalculator.CalculateCoveragePercent(
 			FastDeliveryDistricts.Select(fdd => fdd.DistrictBorder).ToList(),
@@ -326,6 +358,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public DelegateCommand<int> OpenKeepingDialogCommand { get; }
 
 		public DelegateCommand<int> ChangeRouteListFastDeliveryMaxDistanceCommand { get; }
+
+		public DelegateCommand<int> ChangeRouteListMaxFastDeliveryOrdersCommand { get; }
 
 		public DelegateCommand OpenTrackPointsJournalTabCommand { get; }
 
@@ -364,6 +398,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private void OpenChangeRouteListFastDeliveryMaxDistanceDlg(int routeListId)
 		{
 			NavigationManager.OpenViewModel<RouteListFastDeliveryMaxDistanceViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(routeListId));
+		}
+
+		private void OpenChangeRouteListMaxFastDeliveryOrders(int routeListId)
+		{
+			NavigationManager.OpenViewModel<RouteListMaxFastDeliveryOrdersViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(routeListId));
 		}
 
 		private void OpenTrackPointJournalTab()
@@ -432,8 +471,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			IProjection isCompanyCarProjection = CarProjections.GetIsCompanyCarProjection();
 
+			DateTime selectedDateTime = ShowHistory ? HistoryDateTime : DateTime.Now;
+
 			var water19LSubquery = QueryOver.Of<DeliveryFreeBalanceOperation>()
 				.Where(o => o.RouteList.Id == routeListAlias.Id)
+				.And(o => o.OperationTime <= selectedDateTime)
 				.JoinQueryOver(o => o.Nomenclature)
 				.Where(n => n.Category == NomenclatureCategory.water
 				            && n.TareVolume == TareVolume.Vol19L)
@@ -452,6 +494,66 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			if(ShowFastDeliveryOnly)
 			{
 				query.Where(() => routeListAlias.AdditionalLoadingDocument != null);
+			}
+
+			var dateForRouteListMaxFastDeliveryOrders = ShowHistory ? HistoryDateTime : DateTime.Now;
+
+			var routeListMaxFastDeliveryOrdersSubquery = QueryOver.Of<RouteListMaxFastDeliveryOrders>()
+				.Where(
+					m => m.RouteList.Id == routeListAlias.Id 
+					     && m.StartDate <= dateForRouteListMaxFastDeliveryOrders 
+					     && (m.EndDate == null || m.EndDate > dateForRouteListMaxFastDeliveryOrders))
+				.Select(m => m.MaxOrders)
+				.OrderBy(m => m.StartDate).Desc
+				.Take(1);
+
+			var routeListMaxFastDeliveryOrdersProjection = Projections.Conditional(Restrictions.IsNull(Projections.SubQuery(routeListMaxFastDeliveryOrdersSubquery)),
+				Projections.Constant(_deliveryRulesParametersProvider.MaxFastOrdersPerSpecificTime),
+				Projections.SubQuery(routeListMaxFastDeliveryOrdersSubquery));
+
+			if(ShowActualFastDeliveryOnly)
+			{
+				var specificTimeForFastOrdersCount = (int)_deliveryRulesParametersProvider.SpecificTimeForMaxFastOrdersCount.TotalMinutes;
+
+				TrackPoint trackPointAlias = null;
+
+				var addressCountSubquery = QueryOver.Of(() => routeListItemAlias)
+					.Inner.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
+					.Where(() => routeListItemAlias.RouteList.Id == routeListAlias.Id)
+					.And(() => orderAlias.IsFastDelivery);
+
+				var trackPointSubQuery = QueryOver.Of(() => trackPointAlias)
+					.JoinAlias(() => trackPointAlias.Track, () => trackAlias)
+					.Where(() => trackAlias.RouteList.Id == routeListAlias.Id);
+
+				if(ShowHistory)
+				{
+					addressCountSubquery.Where(Restrictions.Or(
+							Restrictions.Ge(Projections.Property(() => orderAlias.TimeDelivered), HistoryDateTime),
+							Restrictions.Eq(Projections.Property(() => routeListItemAlias.Status), RouteListItemStatus.EnRoute)))
+						.And(() => routeListItemAlias.CreationDate <= HistoryDateTime);
+				}
+				else
+				{
+					addressCountSubquery.Where(() => routeListItemAlias.Status == RouteListItemStatus.EnRoute)
+						.And(Restrictions.GtProperty(
+							Projections.Property(() => routeListItemAlias.CreationDate),
+							Projections.SqlFunction(
+								new SQLFunctionTemplate(NHibernateUtil.DateTime,
+									$"TIMESTAMPADD(MINUTE, -{specificTimeForFastOrdersCount}, CURRENT_TIMESTAMP)"),
+								NHibernateUtil.DateTime)));
+				}
+
+				addressCountSubquery.Select(Projections.Count(() => routeListItemAlias.Id));
+
+				query.Where(Restrictions.GtProperty(routeListMaxFastDeliveryOrdersProjection, Projections.SubQuery(addressCountSubquery)));
+
+				trackPointSubQuery.Where(Restrictions.Le(Projections.Property(() => trackPointAlias.ReceiveTimeStamp), selectedDateTime))
+					.Where(Restrictions.Ge(Projections.Property(() => trackPointAlias.TimeStamp), selectedDateTime.Add(DriverDisconnectedTimespan)))
+					.Select(Projections.Property(() => trackPointAlias.ReceiveTimeStamp))
+					.Take(1);
+
+				query.WithSubquery.WhereValue(selectedDateTime.Add(DriverDisconnectedTimespan)).Le(trackPointSubQuery);
 			}
 
 			query.JoinAlias(rl => rl.Driver, () => driverAlias)
@@ -511,6 +613,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					.Select(isCompanyCarProjection).WithAlias(() => resultAlias.IsVodovozAuto)
 					.Select(() => routeListAlias.Id).WithAlias(() => resultAlias.RouteListNumber)
 					.SelectSubQuery(routeListFastDeliveryMaxDistanceSubquery).WithAlias(() => resultAlias.FastDeliveryMaxDistance)
+					.Select(routeListMaxFastDeliveryOrdersProjection).WithAlias(() => resultAlias.MaxFastDeliveryOrders)
 					.SelectSubQuery(addressesSubquery).WithAlias(() => resultAlias.AddressesAll)
 					.SelectSubQuery(completedSubquery).WithAlias(() => resultAlias.AddressesCompleted)
 					.Select(() => trackAlias.Id).WithAlias(() => resultAlias.TrackId)
@@ -548,7 +651,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				if (savedRow.FastDeliveryMaxDistance == null)
 				{
 					savedRow.FastDeliveryMaxDistance = (decimal)_deliveryRulesParametersProvider.GetMaxDistanceToLatestTrackPointKmFor(ShowHistory ? HistoryDateTime : DateTime.Now);
-				} 
+				}
+
+				savedRow.MaxFastDeliveryOrders = driversNodes[i].Max(x => x.MaxFastDeliveryOrders);
 
 				WorkingDrivers.Add(savedRow);
 			}
@@ -641,6 +746,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 				OnPropertyChanged(nameof(CoveragePercent));
 			}
+
 			FastDeliveryDistrictChanged?.Invoke();
 		}
 
@@ -774,7 +880,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public decimal? FastDeliveryMaxDistance { get; set; }
 
+		public int? MaxFastDeliveryOrders { get; set; }
+
 		public string FastDeliveryMaxDistanceString => FastDeliveryMaxDistance.HasValue ? $"{FastDeliveryMaxDistance.Value:N1}" : "-";
+
+		public string MaxFastDeliveryOrdersString => MaxFastDeliveryOrders.HasValue ? $"{MaxFastDeliveryOrders.Value}" : "-";
 
 		public int CompletedPercent => AddressesAll == 0 ? 100 : (int)(((double)AddressesCompleted / AddressesAll) * 100);
 

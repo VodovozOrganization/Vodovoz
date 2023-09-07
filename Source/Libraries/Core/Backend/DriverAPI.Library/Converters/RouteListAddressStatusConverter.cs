@@ -3,9 +3,18 @@ using Vodovoz.Domain.Logistic;
 
 namespace DriverAPI.Library.Converters
 {
+	/// <summary>
+	/// Конвертер статуса адреса маршрутного листа
+	/// </summary>
 	public class RouteListAddressStatusConverter
 	{
-		public RouteListAddressDtoStatus convertToAPIRouteListAddressStatus(RouteListItemStatus routeListItemStatus)
+		/// <summary>
+		/// Метод конвертации в статус Api
+		/// </summary>
+		/// <param name="routeListItemStatus">Статус адреса маршрутного листа ДВ</param>
+		/// <returns></returns>
+		/// <exception cref="ConverterException"></exception>
+		public RouteListAddressDtoStatus ConvertToAPIRouteListAddressStatus(RouteListItemStatus routeListItemStatus)
 		{
 			switch (routeListItemStatus)
 			{

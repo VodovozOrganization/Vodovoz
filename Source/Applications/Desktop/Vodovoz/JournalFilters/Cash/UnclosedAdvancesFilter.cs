@@ -1,26 +1,55 @@
-﻿using System;
-using QS.Dialog;
+﻿using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Tdi;
+using QS.ViewModels.Control.EEVM;
 using QSOrmProject.RepresentationModel;
-using Vodovoz.Domain.Cash;
+using System;
+using System.ComponentModel;
+using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Employees;
-using Vodovoz.EntityRepositories.Cash;
-using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem(true)]
-	public partial class UnclosedAdvancesFilter : RepresentationFilterBase<UnclosedAdvancesFilter>, ISingleUoWDialog
+	[ToolboxItem(true)]
+	public partial class UnclosedAdvancesFilter : RepresentationFilterBase<UnclosedAdvancesFilter>, ISingleUoWDialog, INotifyPropertyChanged
 	{
+		private ITdiTab _journalTab;
+		private FinancialExpenseCategory _fianncialExpenseCategory;
+
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		public ITdiTab JournalTab
+		{
+			get => _journalTab;
+			set
+			{
+				_journalTab = value;
+
+				entryExpenseFinancialCategory.ViewModel = new LegacyEEVMBuilderFactory(value, UoW, Startup.MainWin.NavigationManager, Startup.AppDIContainer.BeginLifetimeScope())
+					.ForEntity<FinancialExpenseCategory>()
+					.UseViewModelJournalAndAutocompleter<FinancialCategoriesGroupsJournalViewModel, FinancialCategoriesJournalFilterViewModel>(filter =>
+					{
+						filter.RestrictFinancialSubtype = FinancialSubType.Expense;
+						filter.RestrictNodeSelectTypes.Add(typeof(FinancialExpenseCategory));
+					})
+					.Finish();
+
+				entryExpenseFinancialCategory.ViewModel.ChangedByUser += (s, e) =>
+				{
+					FinancialExpenseCategory = entryExpenseFinancialCategory.ViewModel.Entity as FinancialExpenseCategory;
+					OnRefiltered();
+				};
+			}
+		}
+
 		protected override void ConfigureWithUow()
 		{
 			var employeeFactory = new EmployeeJournalFactory();
 			evmeAccountable.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
 			evmeAccountable.Changed += (sender, e) => OnRefiltered();
 			yAdvancePeriod.PeriodChanged += (sender, e) => OnRefiltered();
-			yentryExpense.Changed += (sender, e) => OnRefiltered();
-			yentryExpense.ItemsQuery = new CategoryRepository(new ParametersProvider()).ExpenseCategoriesQuery();
 		}
 
 		public UnclosedAdvancesFilter(IUnitOfWork uow) : this()
@@ -30,36 +59,43 @@ namespace Vodovoz
 
 		public UnclosedAdvancesFilter()
 		{
-			this.Build();
+			Build();
 		}
 
-		public ExpenseCategory RestrictExpenseCategory {
-			get => yentryExpense.Subject as ExpenseCategory;
-			set {
-				yentryExpense.Subject = value;
-				yentryExpense.Sensitive = false;
+		public FinancialExpenseCategory FinancialExpenseCategory
+		{
+			get => _fianncialExpenseCategory;
+			set
+			{
+				_fianncialExpenseCategory = value;
 			}
 		}
 
-		public Employee RestrictAccountable {
+		public Employee RestrictAccountable
+		{
 			get => evmeAccountable.Subject as Employee;
-			set {
+			set
+			{
 				evmeAccountable.Subject = value;
 				evmeAccountable.Sensitive = false;
 			}
 		}
 
-		public DateTime? RestrictStartDate {
+		public DateTime? RestrictStartDate
+		{
 			get => yAdvancePeriod.StartDateOrNull;
-			set {
+			set
+			{
 				yAdvancePeriod.StartDateOrNull = value;
 				yAdvancePeriod.Sensitive = false;
 			}
 		}
 
-		public DateTime? RestrictEndDate {
+		public DateTime? RestrictEndDate
+		{
 			get => yAdvancePeriod.EndDateOrNull;
-			set {
+			set
+			{
 				yAdvancePeriod.EndDateOrNull = value;
 				yAdvancePeriod.Sensitive = false;
 			}

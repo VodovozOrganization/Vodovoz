@@ -119,6 +119,7 @@ namespace Vodovoz.Models.CashReceipts
 				var responseContent = await _httpClient.PostAsJsonAsync(_sendDocumentUrl, doc, cancellationToken);
 				if(!responseContent.IsSuccessStatusCode)
 				{
+					_logger.LogWarning($"Статус отправки: {responseContent.StatusCode}");
 					result = await CheckFiscalDocument(doc, cancellationToken);
 					return result;
 				}

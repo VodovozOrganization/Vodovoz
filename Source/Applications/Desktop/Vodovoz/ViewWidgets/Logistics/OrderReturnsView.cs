@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.GtkWidgets;
 using Gtk;
 using QS.Dialog;
@@ -214,7 +214,7 @@ namespace Vodovoz
 				ServicesConfig.CommonServices,
 				new EmployeeService(),
 				new NomenclatureJournalFactory(),
-				new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope()),
+				new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
 				_nomenclatureRepository,
 				new UserRepository()
 			) {
@@ -285,7 +285,7 @@ namespace Vodovoz
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_price_discount_from_route_list");
 			_orderNode = new OrderNode(_routeListItem.Order);
 
-			var scope = MainClass.AppDIContainer.BeginLifetimeScope();
+			var scope = Startup.AppDIContainer.BeginLifetimeScope();
 			var navigationManager =  scope.Resolve<INavigationManager>();
 			var builder = new LegacyEEVMBuilderFactory<OrderNode>(this, _orderNode, UoW, navigationManager, scope);
 
@@ -314,7 +314,6 @@ namespace Vodovoz
 					.AddNumericRenderer(node => node.ActualCount, false)
 						.AddSetter((cell, node) => cell.Editable = node.Nomenclature.Category != NomenclatureCategory.deposit)
 						.Adjustment(new Adjustment(0, 0, 9999, 1, 1, 0))
-						.AddSetter((cell, node) => cell.Adjustment = new Adjustment(0, 0, GetMaxCount(node), 1, 1, 0))
 						.AddSetter((cell, node) => cell.Editable = !node.IsEquipment)
 					.AddTextRenderer(node => node.Nomenclature.Unit == null ? string.Empty : node.Nomenclature.Unit.Name, false)
 				.AddColumn("Цена")
@@ -388,6 +387,13 @@ namespace Vodovoz
 			
 			ySpecPaymentFrom.Binding.AddBinding(_routeListItem.Order, e => e.PaymentByCardFrom, w => w.SelectedItem).InitializeFromSource();
 			ySpecPaymentFrom.Binding.AddFuncBinding(_routeListItem.Order, e => e.PaymentType == PaymentType.PaidOnline, w => w.Visible)
+				.InitializeFromSource();
+
+			yenumcomboboxTerminalSubtype.ItemsEnum = typeof(PaymentByTerminalSource);
+			yenumcomboboxTerminalSubtype.Binding
+				.AddSource(_routeListItem.Order)
+				.AddBinding(s => s.PaymentByTerminalSource, w => w.SelectedItemOrNull)
+				.AddFuncBinding(s => s.PaymentType == PaymentType.Terminal, w => w.Visible)
 				.InitializeFromSource();
 
 			entryOnlineOrder.ValidationMode = QSWidgetLib.ValidationType.numeric;
@@ -476,14 +482,6 @@ namespace Vodovoz
 				if(item.ActualCount == null)
 					item.ActualCount = 0;
 			}
-		}
-
-		int GetMaxCount(OrderItemReturnsNode node)
-		{
-			var count = node.Nomenclature.Category == NomenclatureCategory.deposit
-				? 1
-				: 9999;
-			return count;
 		}
 
 		private void ConfigureDeliveryPointRefference(Counterparty client = null)

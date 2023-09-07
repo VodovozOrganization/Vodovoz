@@ -1,6 +1,8 @@
-﻿using Dialogs.Employees;
+﻿using Autofac;
+using Dialogs.Employees;
 using Gtk;
 using QS.Dialog.Gtk;
+using QS.Dialog.GtkUI.FileDialog;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -9,9 +11,11 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
-using System;
-using QS.Dialog.GtkUI.FileDialog;
 using QS.Project.Services.FileDialog;
+using QSReport;
+using System;
+using Microsoft.Extensions.Logging;
+using NLog.Extensions.Logging;
 using Vodovoz;
 using Vodovoz.Core.DataService;
 using Vodovoz.Core.Journal;
@@ -25,7 +29,6 @@ using Vodovoz.Domain.Suppliers;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Cash;
-using Vodovoz.EntityRepositories.Chats;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
@@ -60,11 +63,15 @@ using Vodovoz.PermissionExtensions;
 using Vodovoz.Representations;
 using Vodovoz.ServiceDialogs;
 using Vodovoz.Services;
+using Vodovoz.Settings.Cash;
+using Vodovoz.Settings.Database;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels;
+using Vodovoz.ViewModels.Cash.DocumentsJournal;
+using Vodovoz.ViewModels.Cash.Transfer.Journal;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Cash;
@@ -79,17 +86,16 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Payments;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 using Vodovoz.ViewModels.Logistic;
+using Vodovoz.ViewModels.Logistic.DriversStopLists;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.Suppliers;
 using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
 using Action = Gtk.Action;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
-using Vodovoz.ViewModels.ViewModels.Logistic;
-using Autofac;
-using Vodovoz.Domain.Store;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 
 public partial class MainWindow : Window
 {
@@ -124,6 +130,7 @@ public partial class MainWindow : Window
 	Action ActionRouteListMileageCheck;
 	Action ActionRouteListTracking;
 	Action ActionFastDeliveryAvailabilityJournal;
+	Action ActionDriversStopLists;
 
 	Action ActionReadyForShipment;
 	Action ActionReadyForReception;
@@ -220,6 +227,7 @@ public partial class MainWindow : Window
 		ActionRouteListMileageCheck = new Action("ActionRouteListMileageCheck", "Контроль за километражем", null, "table");
 		ActionRouteListAddressesTransferring = new Action("ActionRouteListAddressesTransferring", "Перенос адресов", null, "table");
 		ActionFastDeliveryAvailabilityJournal = new Action("ActionFastDeliveryAvailabilityJournal", "Доставка за час", null, "table");
+		ActionDriversStopLists = new Action("ActionDriversStopLists", "Стоп-лист", null, "table");
 		//Касса
 		ActionCashDocuments = new Action("ActionCashDocuments", "Кассовые документы", null, "table");
 		ActionAccountableDebt = new Action("ActionAccountableDebt", "Долги сотрудников", null, "table");
@@ -317,6 +325,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionRevisionBottlesAndDeposits, null);
 		w1.Add(ActionReportDebtorsBottles, null);
 		w1.Add(ActionFastDeliveryAvailabilityJournal, null);
+		w1.Add(ActionDriversStopLists, null);
 
 		//Бухгалтерия
 		w1.Add(ActionTransferBankDocs, null);
@@ -407,6 +416,7 @@ public partial class MainWindow : Window
 		ActionRouteListMileageCheck.Activated += ActionRouteListDistanceValidation_Activated;
 		ActionRouteListTracking.Activated += ActionRouteListTracking_Activated;
 		ActionFastDeliveryAvailabilityJournal.Activated += ActionFastDeliveryAvailabilityJournal_Activated;
+		ActionDriversStopLists.Activated += OnActionDriversStopListsActivated;
 
 		ActionFinesJournal.Activated += ActionFinesJournal_Activated;
 		ActionPremiumJournal.Activated += ActionPremiumJournal_Activated;
@@ -415,10 +425,7 @@ public partial class MainWindow : Window
 		ActionReportDebtorsBottles.Activated += ActionReportDebtorsBottles_Activated;
 
 		//Бухгалтерия
-		ActionTransferBankDocs.Activated += ActionTransferBankDocs_Activated;
 		ActionPaymentFromBank.Activated += ActionPaymentFromBank_Activated;
-		ActionAccountingTable.Activated += ActionAccountingTable_Activated;
-		ActionAccountFlow.Activated += ActionAccountFlow_Activated;
 		ActionRevision.Activated += ActionRevision_Activated;
 		ActionExportTo1c.Activated += ActionExportTo1c_Activated;
 		ActionOldExportTo1c.Activated += ActionOldExportTo1c_Activated;
@@ -463,6 +470,11 @@ public partial class MainWindow : Window
 		ActionSalesComplaintsJournal.Activated += OnActionSalesComplaintsJournalActivated;
 
 		#endregion
+	}
+
+	private void OnActionDriversStopListsActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<DriversStopListsViewModel>(null);
 	}
 
 	private void ActionWarehouseDocumentsItemsJournal_Activated(object sender, EventArgs e)
@@ -511,7 +523,7 @@ public partial class MainWindow : Window
 	{
 		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		var userRepository = new UserRepository();
-		var counterpartyJournalFactory = new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope());
+		var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
 
 		tdiMain.OpenTab(
 			DialogHelper.GenerateDialogHashName<RequestToSupplier>(0),
@@ -533,7 +545,7 @@ public partial class MainWindow : Window
 	{
 		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		var userRepository = new UserRepository();
-		var counterpartyJournalFactory = new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope());
+		var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
 
 		IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
 			new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
@@ -576,7 +588,10 @@ public partial class MainWindow : Window
 	void ActionBottleDebtors_Activate(object sender, System.EventArgs e)
 	{
 		DebtorsJournalFilterViewModel filter = new DebtorsJournalFilterViewModel();
-		IEmailParametersProvider emailParametersProvider = new EmailParametersProvider(new ParametersProvider());
+		var loggerFactory = new NLogLoggerFactory();
+		var settingsController =
+			new SettingsController(UnitOfWorkFactory.GetDefaultFactory, new Logger<SettingsController>(loggerFactory));
+		IEmailParametersProvider emailParametersProvider = new EmailParametersProvider(settingsController);
 		IAttachmentsViewModelFactory attachmentsViewModelFactory = new AttachmentsViewModelFactory();
 		IEmailRepository emailRepository = new EmailRepository();
 		IFileDialogService fileDialogService = new FileDialogService();
@@ -589,6 +604,7 @@ public partial class MainWindow : Window
 
 	void ActionRouteListAddressesTransferring_Activated(object sender, System.EventArgs e)
 	{
+		var scope = Startup.AppDIContainer.BeginLifetimeScope();
 		var parametersProvider = new ParametersProvider();
 		var employeeNomenclatureMovementRepository = new EmployeeNomenclatureMovementRepository();
 		var terminalNomenclatureProvider = new BaseParametersProvider(parametersProvider);
@@ -607,7 +623,7 @@ public partial class MainWindow : Window
 				routeListItemRepository,
 				employeeService,
 				ServicesConfig.CommonServices,
-				new CategoryRepository(parametersProvider),
+				scope.Resolve<IFinancialCategoriesGroupsSettings>(),
 				employeeRepository,
 				nomenclatureParametersProvider
 			)
@@ -633,7 +649,7 @@ public partial class MainWindow : Window
 	void ActionRevisionBottlesAndDeposits_Activated(object sender, System.EventArgs e)
 	{
 		var reportViewDlg = new QSReport.ReportViewDlg(new Vodovoz.Reports.RevisionBottlesAndDeposits(
-				new OrderRepository(), new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope()), new DeliveryPointJournalFactory()));
+				new OrderRepository(), new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()), new DeliveryPointJournalFactory()));
 
 		tdiMain.AddTab(reportViewDlg);
 	}
@@ -700,28 +716,9 @@ public partial class MainWindow : Window
 		);
 	}
 
-	void ActionAccountingTable_Activated(object sender, System.EventArgs e)
-	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<AccountingView>(),
-			() => new AccountingView()
-		);
-	}
-
 	void ActionUnclosedAdvances_Activated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<UnclosedAdvancesView>(),
-			() => new UnclosedAdvancesView()
-		);
-	}
-
-	void ActionTransferBankDocs_Activated(object sender, System.EventArgs e)
-	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<LoadBankTransferDocumentDlg>(),
-			() => new LoadBankTransferDocumentDlg()
-		);
+		NavigationManager.OpenTdiTab<UnclosedAdvancesView>(null);
 	}
 
 	void ActionPaymentFromBank_Activated(object sender, EventArgs e)
@@ -759,18 +756,18 @@ public partial class MainWindow : Window
 
 	void ActionCashFlow_Activated(object sender, System.EventArgs e)
 	{
-		var parametersProvider = new ParametersProvider();
+		var scope = Startup.AppDIContainer.BeginLifetimeScope();
 
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.CashFlow>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.CashFlow(
-				new SubdivisionRepository(parametersProvider), ServicesConfig.CommonServices, new CategoryRepository(parametersProvider)))
-		);
+		var report = scope.Resolve<Vodovoz.Reports.CashFlow>();
+
+		var page = NavigationManager.OpenTdiTab<ReportViewDlg, IParametersWidget>(null, report);
+
+		report.ParentTab = page.TdiTab;
 	}
 
 	void ActionSelfdeliveryOrders_Activated(object sender, System.EventArgs e)
 	{
-		var counterpartyJournalFactory = new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope());
+		var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
 		var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
 		var parametersProvider = new ParametersProvider();
 		var employeeJournalFactory = new EmployeeJournalFactory();
@@ -801,30 +798,15 @@ public partial class MainWindow : Window
 			new OrderPaymentSettings(parametersProvider),
 			new OrderParametersProvider(parametersProvider),
 			new DeliveryRulesParametersProvider(parametersProvider),
-			VodovozGtkServicesConfig.EmployeeService
+			VodovozGtkServicesConfig.EmployeeService,
+			NavigationManager
 		);
 
 		tdiMain.AddTab(selfDeliveriesJournal);
 	}
 
-	void ActionCashTransferDocuments_Activated(object sender, System.EventArgs e)
-	{
-		var cashRepository = new CashRepository();
-
-		tdiMain.OpenTab(
-			RepresentationJournalDialog.GenerateHashName<CashTransferDocumentVM>(),
-			() =>
-			{
-				var vm = new CashTransferDocumentVM(
-					UnitOfWorkFactory.GetDefaultFactory,
-					new CashTransferDocumentsFilter(),
-					cashRepository,
-					new ParametersProvider());
-
-				return new MultipleEntityJournal("Журнал перемещения д/с", vm, vm);
-			}
-		);
-	}
+	void ActionCashTransferDocuments_Activated(object sender, System.EventArgs e) =>
+		NavigationManager.OpenViewModel<TransferDocumentsJournalViewModel>(null);
 
 	void ActionFuelTransferDocuments_Activated(object sender, EventArgs e)
 	{
@@ -884,7 +866,7 @@ public partial class MainWindow : Window
 					employeeJournalFactory,
 					new SalesPlanJournalFactory(),
 					new NomenclatureJournalFactory(),
-					autofacScope.BeginLifetimeScope()
+					_autofacScope.BeginLifetimeScope()
 				);
 			});
 
@@ -912,14 +894,6 @@ public partial class MainWindow : Window
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.Revision>(),
 			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.Revision())
-		);
-	}
-
-	void ActionAccountFlow_Activated(object sender, System.EventArgs e)
-	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.AccountFlow>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.AccountFlow(new CategoryRepository(new ParametersProvider())))
 		);
 	}
 
@@ -957,10 +931,7 @@ public partial class MainWindow : Window
 
 	void ActionAccountableDebt_Activated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<AccountableDebts>(),
-			() => new AccountableDebts()
-		);
+		NavigationManager.OpenTdiTab<AccountableDebts>(null);
 	}
 
 	void ActionRouteListTable_Activated(object sender, System.EventArgs e)
@@ -1009,19 +980,8 @@ public partial class MainWindow : Window
 		NavigationManager.OpenTdiTab<RouteListMileageCheckView>(null);
 	}
 
-	void ActionCashDocuments_Activated(object sender, System.EventArgs e)
-	{
-		var cashRepository = new CashRepository();
-
-		tdiMain.OpenTab(
-			RepresentationJournalDialog.GenerateHashName<CashMultipleDocumentVM>(),
-			() =>
-			{
-				var vm = new CashMultipleDocumentVM(new CashDocumentsFilter(), cashRepository);
-				return new MultipleEntityJournal("Журнал кассовых документов", vm, vm);
-			}
-		);
-	}
+	void ActionCashDocuments_Activated(object sender, System.EventArgs e) =>
+		NavigationManager.OpenViewModel<DocumentsJournalViewModel>(null);
 
 	void ActionReadyForShipmentActivated(object sender, System.EventArgs e)
 	{
@@ -1100,7 +1060,7 @@ public partial class MainWindow : Window
 
 	void ActionOrdersTableActivated(object sender, System.EventArgs e)
 	{
-		var counterpartyJournalFactory = new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope());
+		var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
 		var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
 		var employeeJournalFactory = new EmployeeJournalFactory();
 
@@ -1117,7 +1077,7 @@ public partial class MainWindow : Window
 		ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
 
 		var undeliveredOrdersFilter = new UndeliveredOrdersFilterViewModel(ServicesConfig.CommonServices, new OrderSelectorFactory(),
-			new EmployeeJournalFactory(), new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope()), new DeliveryPointJournalFactory(), subdivisionJournalFactory)
+			new EmployeeJournalFactory(), new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()), new DeliveryPointJournalFactory(), subdivisionJournalFactory)
 		{
 			HidenByDefault = true,
 			RestrictUndeliveryStatus = UndeliveryStatus.InProcess,
@@ -1129,7 +1089,7 @@ public partial class MainWindow : Window
 
 	void ActionResidueActivated(object sender, System.EventArgs e)
 	{
-		ILifetimeScope scope = MainClass.AppDIContainer.BeginLifetimeScope();
+		ILifetimeScope scope = Startup.AppDIContainer.BeginLifetimeScope();
 
 		IMoneyRepository moneyRepository = new MoneyRepository();
 		IDepositRepository depositRepository = new DepositRepository();
@@ -1210,7 +1170,7 @@ public partial class MainWindow : Window
 	{
 		IEmployeeJournalFactory employeeJournalFactory = new EmployeeJournalFactory();
 		IDistrictJournalFactory districtJournalFactory = new DistrictJournalFactory();
-		ICounterpartyJournalFactory counterpartyJournalFactory = new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope());
+		ICounterpartyJournalFactory counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
 		IFileDialogService fileDialogService = new FileDialogService();
 		IFastDeliveryAvailabilityHistoryParameterProvider fastDeliveryAvailabilityHistoryParameterProvider =
 			new FastDeliveryAvailabilityHistoryParameterProvider(new ParametersProvider());
@@ -1218,7 +1178,6 @@ public partial class MainWindow : Window
 
 		var filter = new FastDeliveryAvailabilityFilterViewModel(counterpartyJournalFactory, employeeJournalFactory, districtJournalFactory)
 		{
-			HidenByDefault = true,
 			VerificationDateFrom = DateTime.Now.Date,
 			VerificationDateTo = DateTime.Now.Date.Add(new TimeSpan(23, 59, 59))
 		};
@@ -1236,7 +1195,7 @@ public partial class MainWindow : Window
 
 	void OnActionSalesOrdersJournalActivated(object sender, EventArgs e)
 	{
-		var counterpartyJournalFactory = new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope());
+		var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
 		var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
 		var employeeJournalFactory = new EmployeeJournalFactory();
 
@@ -1262,7 +1221,7 @@ public partial class MainWindow : Window
 	{
 		ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
 		var undeliveredOrdersFilter = new UndeliveredOrdersFilterViewModel(ServicesConfig.CommonServices, new OrderSelectorFactory(),
-			new EmployeeJournalFactory(), new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope()), new DeliveryPointJournalFactory(), subdivisionJournalFactory)
+			new EmployeeJournalFactory(), new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()), new DeliveryPointJournalFactory(), subdivisionJournalFactory)
 		{
 			RestrictUndeliveryStatus = UndeliveryStatus.InProcess,
 			RestrictNotIsProblematicCases = true,
@@ -1276,7 +1235,7 @@ public partial class MainWindow : Window
 	{
 		Action<ComplaintFilterViewModel> action = (filterConfig) => filterConfig.IsForSalesDepartment = true;
 
-		var filter = autofacScope.BeginLifetimeScope().Resolve<ComplaintFilterViewModel>(new TypedParameter(typeof(Action<ComplaintFilterViewModel>), action));
+		var filter = _autofacScope.BeginLifetimeScope().Resolve<ComplaintFilterViewModel>(new TypedParameter(typeof(Action<ComplaintFilterViewModel>), action));
 
 		NavigationManager.OpenViewModel<ComplaintsJournalViewModel, ComplaintFilterViewModel>(
 			   null,

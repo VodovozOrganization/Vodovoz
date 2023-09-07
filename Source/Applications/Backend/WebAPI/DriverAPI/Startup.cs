@@ -18,19 +18,24 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using NLog.Web;
 using QS.Attachments.Domain;
 using QS.Banks.Domain;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.DB;
+using QS.Project.Services;
+using QS.Services;
 using System;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text;
 using Vodovoz.Core.DataService;
+using Vodovoz.Data.NHibernate.NhibernateExtensions;
+using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.FastPayments;
@@ -38,7 +43,6 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Models.TrueMark;
-using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Settings.Database;
@@ -46,7 +50,7 @@ using Vodovoz.Tools;
 
 namespace DriverAPI
 {
-	public class Startup
+	internal class Startup
 	{
 		private const string _nLogSectionName = nameof(NLog);
 		private ILogger<Startup> _logger;
@@ -74,8 +78,11 @@ namespace DriverAPI
 
 			// Подключение к БД
 
+			var connectionString = Configuration.GetConnectionString("DefaultConnection");
+
 			services.AddDbContext<ApplicationDbContext>(options =>
-				options.UseMySQL(Configuration.GetConnectionString("DefaultConnection")));
+				options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+
 			services.AddDatabaseDeveloperPageExceptionFilter();
 
 			// Конфигурация Nhibernate
@@ -89,6 +96,8 @@ namespace DriverAPI
 				_logger.LogCritical(e, e.Message);
 				throw;
 			}
+
+			var sdsf = new MySql.Data.MySqlClient.MySqlConnectionStringBuilder();
 
 			RegisterDependencies(ref services);
 
@@ -240,6 +249,7 @@ namespace DriverAPI
 			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
 				.Dialect<MySQL57SpatialExtendedDialect>()
 				.ConnectionString(connectionString)
+				.Driver<LoggedMySqlClientDriver>()
 				.AdoNetBatchSize(100);
 
 			// Настройка ORM
@@ -249,7 +259,7 @@ namespace DriverAPI
 				{
 					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
 					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
-					Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
+					Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
 					Assembly.GetAssembly(typeof(Bank)),
 					Assembly.GetAssembly(typeof(HistoryMain)),
 					Assembly.GetAssembly(typeof(Attachment)),
@@ -261,15 +271,18 @@ namespace DriverAPI
 
 			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Получение пользователя"))
 			{
-				serviceUserId = unitOfWork.Session.Query<Vodovoz.Domain.Employees.User>()
+				var serviceUser = unitOfWork.Session.Query<User>()
 					.Where(u => u.Login == domainDBConfig.GetValue<string>("UserID"))
-					.Select(u => u.Id)
 					.FirstOrDefault();
+
+				serviceUserId = serviceUser.Id;
+
+				ServicesConfig.UserService = new UserService(serviceUser);
 			}
 
 			QS.Project.Repositories.UserRepository.GetCurrentUserId = () => serviceUserId;
 
-			HistoryMain.Enable();
+			HistoryMain.Enable(conStrBuilder);
 		}
 
 		private void RegisterDependencies(ref IServiceCollection services)

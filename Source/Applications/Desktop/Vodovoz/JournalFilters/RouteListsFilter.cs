@@ -62,7 +62,7 @@ namespace Vodovoz
 		{
 			Build();
 
-			var hasAccessToDriverTerminal = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier")
+			var hasAccessToDriverTerminal = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.RoleCashier)
 				|| ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
 			checkDriversWithAttachedTerminals.Sensitive = hasAccessToDriverTerminal;
 			checkDriversWithAttachedTerminals.Toggled += (sender, args) => { ShowDriversWithTerminal = ((yCheckButton)sender).Active; };

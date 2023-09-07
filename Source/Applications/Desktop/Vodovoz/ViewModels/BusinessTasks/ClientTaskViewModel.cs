@@ -322,7 +322,9 @@ namespace Vodovoz.ViewModels.BusinessTasks
 				DebtByClient = bottleRepository.GetBottlesDebtAtCounterparty(UoW, Entity.Counterparty).ToString();
 				ClientPhonesVM.PhonesList = Entity.Counterparty?.ObservablePhones;
 				if(Entity.DeliveryPoint == null)
+				{
 					DebtByAddress = bottleRepository.GetBottleDebtBySelfDelivery(UoW, Entity.Counterparty).ToString();
+				}
 			} else {
 				DebtByClient = string.Empty;
 				ClientPhonesVM.PhonesList = null;

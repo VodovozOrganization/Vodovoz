@@ -1,4 +1,5 @@
 ﻿using NHibernate;
+using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
@@ -39,6 +40,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 				typeof(Counterparty),
 				typeof(DeliveryPoint)
 			);
+
+			SearchEnabled = false;
 		}
 
 		private void CreateEditAction()
@@ -114,6 +117,27 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 			if(FilterViewModel?.RestrictOnlyWithoutStreet == true)
 			{
 				query.Where(() => deliveryPointAlias.Street == null || deliveryPointAlias.Street == " ");
+			}
+
+			if(FilterViewModel?.RestrictDeliveryPointId != null)
+			{
+				query.Where(() => deliveryPointAlias.Id == FilterViewModel.RestrictDeliveryPointId);
+			}
+
+			if(!string.IsNullOrWhiteSpace(FilterViewModel?.RestrictDeliveryPointCompiledAddressLike))
+			{
+				query.Where(Restrictions.InsensitiveLike(
+					Projections.Property(() => deliveryPointAlias.CompiledAddress),
+					$"%{FilterViewModel.RestrictDeliveryPointCompiledAddressLike}%"
+					));
+			}
+
+			if(!string.IsNullOrWhiteSpace(FilterViewModel?.RestrictDeliveryPointAddress1cLike))
+			{
+				query.Where(Restrictions.InsensitiveLike(
+					Projections.Property(() => deliveryPointAlias.Address1c),
+					$"%{FilterViewModel.RestrictDeliveryPointAddress1cLike}%"
+					));
 			}
 
 			query.Where(GetSearchCriterion(

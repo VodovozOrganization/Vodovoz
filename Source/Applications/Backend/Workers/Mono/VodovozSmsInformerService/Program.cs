@@ -6,7 +6,7 @@ using System.Threading;
 using Microsoft.Extensions.Configuration;
 using Mono.Unix;
 using Mono.Unix.Native;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using NLog;
 using QS.Project.DB;
 using Sms.External.SmsRu;
@@ -101,7 +101,7 @@ namespace VodovozSmsInformerService
 				OrmConfig.ConfigureOrm(db_config,
 					new Assembly[]
 					{
-						Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
+						Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
 						Assembly.GetAssembly(typeof(QS.Banks.Domain.Bank)),
 						Assembly.GetAssembly(typeof(QS.HistoryLog.HistoryMain)),
 						Assembly.GetAssembly(typeof(QS.Project.Domain.UserBase)),
@@ -110,7 +110,7 @@ namespace VodovozSmsInformerService
 						Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
 					});
 
-				QS.HistoryLog.HistoryMain.Enable();
+				QS.HistoryLog.HistoryMain.Enable(conStrBuilder);
 
 				ISmsNotificationRepository smsNotificationRepository = new SmsNotificationRepository();
 

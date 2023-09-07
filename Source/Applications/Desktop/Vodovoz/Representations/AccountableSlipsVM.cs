@@ -43,13 +43,12 @@ namespace Vodovoz.ViewModel
 			var reported = UoW.Session.QueryOver<AdvanceReport> (() => operationReportedAlias)
 				.Where (e => e.Accountable == Filter.RestrictAccountable);
 
-
 			//Добавляем условия по фильтру
-			if(Filter.RestrictExpenseCategory != null)
+			if(Filter.FinancialExpenseCategory != null)
 			{
-				recived.Where (o => o.ExpenseCategory == Filter.RestrictExpenseCategory);
-				returned.Where (o => o.ExpenseCategory == Filter.RestrictExpenseCategory);
-				reported.Where (o => o.ExpenseCategory == Filter.RestrictExpenseCategory);
+				recived.Where(o => o.ExpenseCategoryId == Filter.FinancialExpenseCategory.Id);
+				returned.Where(o => o.ExpenseCategoryId == Filter.FinancialExpenseCategory.Id);
+				reported.Where(o => o.ExpenseCategoryId == Filter.FinancialExpenseCategory.Id);
 			}
 				
 			if(Filter.RestrictStartDate.HasValue)
@@ -118,11 +117,11 @@ namespace Vodovoz.ViewModel
 		}
 
 		IColumnsConfig treeViewConfig = ColumnsConfigFactory.Create<AccountableSlipsVMNode> ()
-			.AddColumn("Документ").SetDataProperty (node => node.DocTitle)
-			.AddColumn ("Дата").SetDataProperty (node => node.DateText)
-			.AddColumn ("Получено").SetDataProperty (node => node.AppendText)
-			.AddColumn ("Закрыто").SetDataProperty (node => node.RemovedText)
-			.AddColumn ("Основание").SetDataProperty (node => node.Description)
+			.AddColumn("Документ").AddTextRenderer(node => node.DocTitle)
+			.AddColumn ("Дата").AddTextRenderer(node => node.DateText)
+			.AddColumn ("Получено").AddTextRenderer(node => node.AppendText)
+			.AddColumn ("Закрыто").AddTextRenderer(node => node.RemovedText)
+			.AddColumn ("Основание").AddTextRenderer(node => node.Description)
 			.Finish ();
 
 		public override IColumnsConfig ColumnsConfig {

@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using NLog.Web;
 using QS.Attachments.Domain;
 using QS.Banks.Domain;
@@ -14,6 +14,7 @@ using QS.HistoryLog;
 using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Repositories;
+using QS.Project.Services;
 using QS.Services;
 using RoboatsService.Authentication;
 using RoboatsService.Monitoring;
@@ -25,11 +26,11 @@ using System.Linq;
 using System.Reflection;
 using Vodovoz;
 using Vodovoz.Core.DataService;
+using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.Factories;
 using Vodovoz.Infrastructure.Database;
 using Vodovoz.Models;
-using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
 using Vodovoz.Settings.Database;
 using Vodovoz.Tools;
@@ -79,6 +80,7 @@ namespace RoboatsService
 			builder.RegisterType<ValidOrdersProvider>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<ApiKeyAuthenticationOptions>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<ApiKeyAuthenticationHandler>().AsSelf().AsImplementedInterfaces();
+			builder.RegisterInstance(ServicesConfig.UserService).As<IUserService>();
 			
 			builder.RegisterType<FastPaymentSender>().AsSelf().AsImplementedInterfaces();
 
@@ -92,10 +94,6 @@ namespace RoboatsService
 			builder.RegisterModule<SmsInternalClientModule>();
 			
 			builder.RegisterType<CallTaskWorker>()
-				.AsSelf()
-				.AsImplementedInterfaces();
-
-			builder.RegisterType<UserService>()
 				.AsSelf()
 				.AsImplementedInterfaces();
 
@@ -182,7 +180,7 @@ namespace RoboatsService
 				new Assembly[]
 				{
 					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
-					Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
+					Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
 					Assembly.GetAssembly(typeof(Bank)),
 					Assembly.GetAssembly(typeof(HistoryMain)),
 					Assembly.GetAssembly(typeof(TypeOfEntity)),
@@ -198,10 +196,13 @@ namespace RoboatsService
 
 			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Получение пользователя"))
 			{
-				serviceUserId = unitOfWork.Session.Query<Vodovoz.Domain.Employees.User>()
+				var serviceUser = unitOfWork.Session.Query<Vodovoz.Domain.Employees.User>()
 					.Where(u => u.Login == userLogin)
-					.Select(u => u.Id)
 					.FirstOrDefault();
+
+				serviceUserId = serviceUser.Id;
+
+				ServicesConfig.UserService = new UserService(serviceUser);
 			}
 
 			if(serviceUserId == 0)
@@ -211,7 +212,7 @@ namespace RoboatsService
 
 			UserRepository.GetCurrentUserId = () => serviceUserId;
 
-			HistoryMain.Enable();
+			HistoryMain.Enable(conStrBuilder);
 		}
 	}
 }

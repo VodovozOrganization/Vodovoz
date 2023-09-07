@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.Reflection;
-using Gamma.Binding;
+﻿using Gamma.Binding;
 using Gamma.Utilities;
-using NHibernate.AdoNet;
+using MySqlConnector;
 using NLog;
 using QS.Banks.Domain;
 using QS.BusinessCommon.Domain;
@@ -19,15 +15,19 @@ using QSDocTemplates;
 using QSOrmProject;
 using QSOrmProject.DomainMapping;
 using QSProjectsLib;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using Vodovoz.Cash.Transfer;
+using Vodovoz.Data.NHibernate.HibernateMapping.Organizations;
+using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.Dialogs;
-using Vodovoz.Dialogs.Cash.CashTransfer;
 using Vodovoz.Dialogs.Client;
 using Vodovoz.Dialogs.DocumentDialogs;
 using Vodovoz.Dialogs.Employees;
 using Vodovoz.Dialogs.Goods;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain;
-using Vodovoz.Domain.Accounting;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.CashTransfer;
 using Vodovoz.Domain.Client;
@@ -44,8 +44,8 @@ using Vodovoz.Domain.Retail;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredResources;
-using Vodovoz.NhibernateExtensions;
 using Vodovoz.Settings.Database;
+using Vodovoz.ViewModels.Cash;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using Vodovoz.ViewModels.ViewModels.Logistic;
@@ -57,7 +57,7 @@ using InventoryDocumentViewModel = Vodovoz.ViewModels.ViewModels.Warehouses.Inve
 
 namespace Vodovoz.Configuration
 {
-    public class ApplicationConfigurator : IApplicationConfigurator
+	public class ApplicationConfigurator : IApplicationConfigurator
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         private const int connectionTimeoutSeconds = 120;
@@ -67,7 +67,7 @@ namespace Vodovoz.Configuration
             logger.Debug("Конфигурация ORM...");
 
             //Увеличиваем таймаут если нужно
-            var dbConnectionStringBuilder = new DbConnectionStringBuilder { ConnectionString = QSMain.ConnectionString };
+            var dbConnectionStringBuilder = new MySqlConnectionStringBuilder { ConnectionString = QSMain.ConnectionString };
             if(dbConnectionStringBuilder.TryGetValue("ConnectionTimeout", out var timeoutAsObject)
                 && timeoutAsObject is string timeoutAsString
             ) {
@@ -92,7 +92,7 @@ namespace Vodovoz.Configuration
                 dbConfig,
                 new[] {
                     Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
-                    Assembly.GetAssembly(typeof(HibernateMapping.Organizations.OrganizationMap)),
+                    Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
                     Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
                     Assembly.GetAssembly(typeof(Bank)),
                     Assembly.GetAssembly(typeof(HistoryMain)),
@@ -104,13 +104,15 @@ namespace Vodovoz.Configuration
                     cnf.DataBaseIntegration(
                         dbi => {
                             dbi.BatchSize = 100;
-                            dbi.Batcher<MySqlClientBatchingBatcherFactory>();
-                        }
+							dbi.Timeout = 120;
+						}
                     );
                 }
             );
 
-            logger.Debug("OK");
+			HistoryMain.Enable(dbConnectionStringBuilder);
+
+			logger.Debug("OK");
         }
 
         public void CreateApplicationConfig()
@@ -194,19 +196,16 @@ namespace Vodovoz.Configuration
                     .Column("Подмена", x => x.ReplacementEquipment != null ? "Да" : "Нет")
                     .Column("Точка доставки", x => x.DeliveryPoint.Title).End(),
                 //Касса
-                OrmObjectMapping<Income>.Create().Dialog<CashIncomeDlg>(),
+                OrmObjectMapping<Income>.Create().Dialog<IncomeViewModel>(),
                 OrmObjectMapping<ExpenseCategory>.Create().Dialog<ExpenseCategoryViewModel>().DefaultTableView()
                     .Column("Код", x => x.Id.ToString()).SearchColumn("Название", e => e.Name)
                     .Column("Тип документа", e => e.ExpenseDocumentType.GetEnumTitle())
                     .TreeConfig(new RecursiveTreeConfig<ExpenseCategory>(x => x.Parent, x => x.Childs)).End(),
-                OrmObjectMapping<Expense>.Create().Dialog<CashExpenseDlg>(),
-                OrmObjectMapping<AdvanceReport>.Create().Dialog<AdvanceReportDlg>(),
+                OrmObjectMapping<Expense>.Create().Dialog<ExpenseViewModel>(),
+                OrmObjectMapping<AdvanceReport>.Create().Dialog<AdvanceReportViewModel>(),
                 OrmObjectMapping<Fine>.Create().Dialog<FineDlg>(),
-                OrmObjectMapping<IncomeCashTransferDocument>.Create().Dialog<IncomeCashTransferDlg>(),
-                OrmObjectMapping<CommonCashTransferDocument>.Create().Dialog<CommonCashTransferDlg>(),
-                //Банкинг
-                OrmObjectMapping<AccountIncome>.Create(),
-                OrmObjectMapping<AccountExpense>.Create(),
+                OrmObjectMapping<IncomeCashTransferDocument>.Create().Dialog<IncomeCashTransferView>(),
+                OrmObjectMapping<CommonCashTransferDocument>.Create().Dialog<CommonCashTransferView>(),
                 //Склад
                 OrmObjectMapping<Warehouse>.Create().Dialog<WarehouseDlg>().DefaultTableView().Column("Название", w => w.Name)
                     .Column("В архиве", w => w.IsArchive ? "Да" : "").End(),
@@ -315,7 +314,6 @@ namespace Vodovoz.Configuration
 
             #endregion
 
-            HistoryMain.Enable();
             TemplatePrinter.InitPrinter();
             ImagePrinter.InitPrinter();
 

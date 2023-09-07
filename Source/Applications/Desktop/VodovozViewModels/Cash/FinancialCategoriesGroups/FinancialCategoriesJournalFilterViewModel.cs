@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using QS.DomainModel.Entity;
 using QS.Navigation;
 using QS.Project.Filter;
 using QS.Project.Journal;
@@ -15,7 +16,7 @@ using Vodovoz.ViewModels.ViewModels.Organizations;
 namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 {
 	public partial class FinancialCategoriesJournalFilterViewModel
-		: FilterViewModelBase<FinancialCategoriesJournalFilterViewModel>, IJournalFilterViewModel
+		: FilterViewModelBase<FinancialCategoriesJournalFilterViewModel>
 	{
 		private readonly INavigationManager _navigationManager;
 		private readonly ILifetimeScope _scope;
@@ -25,6 +26,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 		private DialogViewModelBase _journalViewModel;
 		private Subdivision _subdivision;
 		private TargetDocument? _targetDocument;
+		private TargetDocument? _restrictTargetDocument;
 		private FinancialSubType? _restrictFinancialSubtype;
 
 		public FinancialCategoriesJournalFilterViewModel(
@@ -38,7 +40,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 			_scope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 		}
 
-		public bool IsShow { get; set; }
+		public override bool IsShow { get; set; } = true;
 
 		public ObservableCollection<Type> RestrictNodeTypes { get; } = new ObservableCollection<Type>();
 
@@ -81,6 +83,24 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 			get => _targetDocument;
 			set => UpdateFilterField(ref _targetDocument, value);
 		}
+
+		[PropertyChangedAlso(nameof(TargetDocumentRestricted))]
+		public TargetDocument? RestrictTargetDocument
+		{
+			get => _restrictTargetDocument;
+			set
+			{
+				if(SetField(ref _restrictTargetDocument, value))
+				{
+					TargetDocument = value;
+				}
+			}
+		}
+
+		[PropertyChangedAlso(nameof(TargetDocumentNotRestricted))]
+		public bool TargetDocumentRestricted => RestrictTargetDocument != null;
+
+		public bool TargetDocumentNotRestricted => !TargetDocumentRestricted;
 
 		public IEntityEntryViewModel ParentGroupViewModel { get; private set; }
 

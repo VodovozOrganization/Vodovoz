@@ -5,6 +5,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ClosedXML.Excel;
+using DateTimeHelpers;
+using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Multi;
@@ -26,14 +28,22 @@ using Vodovoz.Domain.Store;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.NHibernateProjections.Employees;
 using Vodovoz.ViewModels.Reports;
+using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.ViewModels.Suppliers
 {
 	public class WarehousesBalanceSummaryViewModel : DialogTabViewModelBase
 	{
+		private const int _firstRow = 1;
+		public const string RowNumberTitle = "№";
+		public const string IdTitle = "Код";
+		public const string EntityTitle = "Наименование";
+		public const string InventoryNumberTitle = "Инвентарный\nномер";
+		public const string BalanceTitle = "Остаток";
 		public const string ParameterWarehouseStorages = nameof(Warehouse);
 		public const string ParameterEmployeeStorages = nameof(Employee);
 		public const string ParameterCarStorages = nameof(Car);
+		private const string _storage = "Хранилище";
 		private const string _xlsxFileFilter = "XLSX File (*.xlsx)";
 		private const string _parameterNomenclature = nameof(Nomenclature);
 		private const string _parameterNomenclatureType = nameof(NomenclatureCategory);
@@ -53,8 +63,15 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 		private SelectableParametersReportFilter _nomsFilter;
 		private SelectableParametersReportFilter _storagesFilter;
 
+		private DateTime? _endDate = DateTime.Today;
+		private bool _showReserve;
+		private bool _showPrices;
+		private bool _isGreaterThanZeroByNomenclature;
+		private bool _isGreaterThanZeroByWarehouse;
+		private bool _groupingActiveStorage;
 		private bool _isGenerating = false;
-		private BalanceSummaryReport _report;
+		private BalanceSummaryReport _balanceSummaryReport;
+		private ActiveStoragesBalanceSummaryReport _activeStoragesBalanceSummaryReport;
 		private bool _isCreatedWithReserveData = false;
 
 		public WarehousesBalanceSummaryViewModel(
@@ -69,18 +86,46 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 		#region Свойства
 
-		public DateTime? EndDate { get; set; } = DateTime.Today;
-		public bool ShowReserve { get; set; }
-		public bool ShowPrices { get; set; }
+		public DateTime? EndDate
+		{
+			get => _endDate;
+			set => SetField(ref _endDate, value);
+		}
+
+		public bool ShowReserve
+		{
+			get => _showReserve;
+			set
+			{
+				SetField(ref _showReserve, value);
+				EndDate = DateTime.Now;
+			}
+		}
+
+		public bool ShowPrices
+		{
+			get => _showPrices;
+			set => SetField(ref _showPrices, value);
+		}
 
 		public bool AllNomenclatures { get; set; } = true;
-		public bool IsGreaterThanZeroByNomenclature { get; set; }
+
+		public bool IsGreaterThanZeroByNomenclature
+		{
+			get => _isGreaterThanZeroByNomenclature;
+			set => SetField(ref _isGreaterThanZeroByNomenclature, value);
+		}
 		public bool IsLessOrEqualZeroByNomenclature { get; set; }
 		public bool IsLessThanMinByNomenclature { get; set; }
 		public bool IsGreaterOrEqualThanMinByNomenclature { get; set; }
 
 		public bool AllWarehouses { get; set; } = true;
-		public bool IsGreaterThanZeroByWarehouse { get; set; }
+
+		public bool IsGreaterThanZeroByWarehouse
+		{
+			get => _isGreaterThanZeroByWarehouse;
+			set => SetField(ref _isGreaterThanZeroByWarehouse, value);
+		}
 		public bool IsLessOrEqualZeroByWarehouse { get; set; }
 		public bool IsLessThanMinByWarehouse { get; set; }
 		public bool IsGreaterOrEqualThanMinByWarehouse { get; set; }
@@ -98,13 +143,61 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			set => SetField(ref _isGenerating, value);
 		}
 
-		public CancellationTokenSource ReportGenerationCancelationTokenSource { get; set; }
+		public CancellationTokenSource ReportGenerationCancellationTokenSource { get; set; }
 
-		public BalanceSummaryReport Report
+		public BalanceSummaryReport BalanceSummaryReport
 		{
-			get => _report;
-			set => SetField(ref _report, value);
+			get => _balanceSummaryReport;
+			set
+			{
+				if(!SetField(ref _balanceSummaryReport, value))
+				{
+					return;
+				}
+
+				if(_balanceSummaryReport is null)
+				{
+					return;
+				}
+
+				ActiveStoragesBalanceSummaryReport = null;
+			}
 		}
+
+		public ActiveStoragesBalanceSummaryReport ActiveStoragesBalanceSummaryReport
+		{
+			get => _activeStoragesBalanceSummaryReport;
+			set
+			{
+				if(!SetField(ref _activeStoragesBalanceSummaryReport, value))
+				{
+					return;
+				}
+
+				if(_activeStoragesBalanceSummaryReport is null)
+				{
+					return;
+				}
+					
+				BalanceSummaryReport = null;
+			}
+		}
+
+		public bool GroupingActiveStorage
+		{
+			get => _groupingActiveStorage;
+			set
+			{
+				if(SetField(ref _groupingActiveStorage, value))
+				{
+					UpdateGroupingActiveStorageState();
+				}
+			}
+		}
+		
+		public bool Sensitivity => !GroupingActiveStorage;
+		
+		public StorageType? ActiveSelectedStorageType { get; private set; }
 
 		#endregion
 
@@ -118,7 +211,20 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			var uow = UnitOfWorkFactory.CreateWithoutRoot("Отчет остатков по складам");
 			try
 			{
-				return await GenerateAsync(EndDate ?? DateTime.Today, ShowReserve, ShowPrices, uow, cancellationToken);
+				return await GenerateBalanceSummaryReportAsync(EndDate ?? DateTime.Today, ShowReserve, ShowPrices, uow, cancellationToken);
+			}
+			finally
+			{
+				uow.Dispose();
+			}
+		}
+		
+		public async Task<ActiveStoragesBalanceSummaryReport> GenerateActiveStoragesBalanceSummaryReportAsync(CancellationToken cancellationToken)
+		{
+			var uow = UnitOfWorkFactory.CreateWithoutRoot("Отчет остатков по складам");
+			try
+			{
+				return await GenerateActiveStoragesBalanceSummaryReportAsync(EndDate ?? DateTime.Today, uow, cancellationToken);
 			}
 			finally
 			{
@@ -126,7 +232,9 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			}
 		}
 
-		private async Task<BalanceSummaryReport> GenerateAsync(
+		#region GenerateDefaultReport
+
+		private async Task<BalanceSummaryReport> GenerateBalanceSummaryReportAsync(
 			DateTime endDate,
 			bool createReportWithReserveData,
 			bool withPrices,
@@ -139,51 +247,31 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			//то если после формирования отчета переключить чекбокс и нажать экспорт, отчет выгрузится неправильно
 			_isCreatedWithReserveData = createReportWithReserveData;
 
-			endDate = endDate.AddHours(23).AddMinutes(59).AddSeconds(59);
+			endDate = endDate.LatestDayTime();
 
-			var nomsSet = _nomsFilter.ParameterSets.FirstOrDefault(x => x.ParameterName == _parameterNomenclature);
-			var noms = nomsSet?.GetIncludedParameters()?.ToList();
-			var instancesSet = _nomsFilter.ParameterSets.FirstOrDefault(x => x.ParameterName == _parameterInstances);
-			var instances = instancesSet?.GetIncludedParameters()?.ToList();
-			var typesSet = _nomsFilter.ParameterSets.FirstOrDefault(x => x.ParameterName == _parameterNomenclatureType);
-			var types = typesSet?.GetIncludedParameters()?.ToList();
-			var groupsSet = _nomsFilter.ParameterSets.FirstOrDefault(x => x.ParameterName == _parameterProductGroups);
-			var groups = groupsSet?.GetIncludedParameters()?.ToList();
-			var warehouseStorages = _storagesFilter.ParameterSets
-				.FirstOrDefault(ps => ps.ParameterName == ParameterWarehouseStorages)?.GetIncludedParameters()?.ToList();
-			var employeeStorages = _storagesFilter.ParameterSets
-				.FirstOrDefault(ps => ps.ParameterName == ParameterEmployeeStorages)?.GetIncludedParameters()?.ToList();
-			var carStorages = _storagesFilter.ParameterSets
-				.FirstOrDefault(ps => ps.ParameterName == ParameterCarStorages)?.GetIncludedParameters()?.ToList();
+			var parameters = new WarehousesBalanceSummaryReportParameters()
+				.AddNomenclaturesSet(_nomsFilter.ParameterSets.FirstOrDefault(x => x.ParameterName == _parameterNomenclature))
+				.AddInstancesSet(_nomsFilter.ParameterSets.FirstOrDefault(x => x.ParameterName == _parameterInstances))
+				.AddNomenclatureTypesSet(_nomsFilter.ParameterSets.FirstOrDefault(x => x.ParameterName == _parameterNomenclatureType))
+				.AddNomenclatureGroupsSet(_nomsFilter.ParameterSets.FirstOrDefault(x => x.ParameterName == _parameterProductGroups))
+				.AddWarehouseStorages(_storagesFilter, ParameterWarehouseStorages)
+				.AddEmployeeStorages(_storagesFilter, ParameterEmployeeStorages)
+				.AddCarStorages(_storagesFilter, ParameterCarStorages);
 
 			Nomenclature nomAlias = null;
 
-			var warehousesIds = warehouseStorages?.Select(x => (int)x.Value).ToArray();
-			var employeesIds = employeeStorages?.Select(x => (int)x.Value).ToArray();
-			var carsIds = carStorages?.Select(x => (int)x.Value).ToArray();
-			var groupsIds = groups?.Select(x => (int)x.Value).ToArray();
-			var groupsSelected = groups?.Any() ?? false;
-			var typesSelected = types?.Any() ?? false;
-			var nomsSelected = noms?.Any() ?? false;
-			var instancesSelected = instances?.Any() ?? false;
-			var allNomsSelected = noms?.Count == nomsSet?.Parameters.Count;
-			var allInstancesSelected = instances?.Count == instancesSet?.Parameters.Count;
-
-			if(!nomsSelected && !instancesSelected)
+			if(!parameters.NomenclaturesSelected && !parameters.InstancesSelected)
 			{
-				noms?.AddRange(nomsSet.Parameters);
-				instances?.AddRange(instancesSet.Parameters);
+				parameters.Nomenclatures.AddRange(parameters.NomenclaturesSet.Parameters);
+				parameters.Instances.AddRange(parameters.InstancesSet.Parameters);
 			}
 
-			var nomsIds = noms?.Select(x => (int)x.Value).ToArray();
-			var instancesIds = instances?.Select(x => (int)x.Value).ToArray();
-
-			var report = new BalanceSummaryReport
+			var defaultReport = new BalanceSummaryReport
 			{
 				EndDate = endDate,
-				WarehouseStoragesTitles = warehouseStorages?.Select(x => x.Title).ToList(),
-				EmployeeStoragesTitles = employeeStorages?.Select(x => x.Title).ToList(),
-				CarStoragesTitles = carStorages?.Select(x => x.Title).ToList(),
+				WarehouseStoragesTitles = parameters.WarehouseStorages?.Select(x => x.Title).ToList(),
+				EmployeeStoragesTitles = parameters.EmployeeStorages?.Select(x => x.Title).ToList(),
+				CarStoragesTitles = parameters.CarStorages?.Select(x => x.Title).ToList(),
 				SummaryRows = new List<BalanceSummaryRow>()
 			};
 
@@ -203,16 +291,17 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			IQueryOver<WarehouseInstanceGoodsAccountingOperation, WarehouseInstanceGoodsAccountingOperation>
 				instanceBalanceByWarehousesQuery = null;
 
-			if(warehousesIds != null)
+			if(parameters.WarehousesIds != null)
 			{
 				bulkBalanceByWarehousesQuery = localUow.Session.QueryOver(() => warehouseBulkOperationAlias)
 					.Where(() => warehouseBulkOperationAlias.OperationTime <= endDate)
 					.And(() => !nomAlias.IsArchive)
 					.JoinAlias(x => x.Nomenclature, () => nomAlias)
-					.WhereRestrictionOn(() => warehouseBulkOperationAlias.Warehouse.Id).IsIn(warehousesIds)
+					.WhereRestrictionOn(() => warehouseBulkOperationAlias.Warehouse.Id).IsIn(parameters.WarehousesIds)
 					.SelectList(list => list
 						.SelectGroup(() => warehouseBulkOperationAlias.Warehouse.Id).WithAlias(() => resultAlias.StorageId)
 						.SelectGroup(() => nomAlias.Id).WithAlias(() => resultAlias.EntityId)
+						.Select(() => nomAlias.Name).WithAlias(() => resultAlias.EntityName)
 						.SelectSum(() => warehouseBulkOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
 					)
 					.OrderBy(() => nomAlias.Id).Asc
@@ -224,7 +313,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 					.Where(() => warehouseInstanceOperationAlias.OperationTime <= endDate)
 					.And(() => !instanceAlias.IsArchive)
 					.JoinAlias(x => x.Nomenclature, () => nomAlias)
-					.WhereRestrictionOn(() => warehouseInstanceOperationAlias.Warehouse.Id).IsIn(warehousesIds)
+					.WhereRestrictionOn(() => warehouseInstanceOperationAlias.Warehouse.Id).IsIn(parameters.WarehousesIds)
 					.SelectList(list => list
 						.SelectGroup(() => warehouseInstanceOperationAlias.Warehouse.Id).WithAlias(() => resultAlias.StorageId)
 						.SelectGroup(() => instanceAlias.Id).WithAlias(() => resultAlias.EntityId)
@@ -239,16 +328,17 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			IQueryOver<EmployeeInstanceGoodsAccountingOperation, EmployeeInstanceGoodsAccountingOperation> instanceBalanceByEmployeesQuery =
 				null;
 
-			if(employeesIds != null)
+			if(parameters.EmployeesIds != null)
 			{
 				bulkBalanceByEmployeesQuery = localUow.Session.QueryOver(() => employeeBulkOperationAlias)
 					.Where(() => employeeBulkOperationAlias.OperationTime <= endDate)
 					.And(() => !nomAlias.IsArchive)
 					.JoinAlias(x => x.Nomenclature, () => nomAlias)
-					.WhereRestrictionOn(() => employeeBulkOperationAlias.Employee.Id).IsIn(employeesIds)
+					.WhereRestrictionOn(() => employeeBulkOperationAlias.Employee.Id).IsIn(parameters.EmployeesIds)
 					.SelectList(list => list
 						.SelectGroup(() => employeeBulkOperationAlias.Employee.Id).WithAlias(() => resultAlias.StorageId)
 						.SelectGroup(() => nomAlias.Id).WithAlias(() => resultAlias.EntityId)
+						.Select(() => nomAlias.Name).WithAlias(() => resultAlias.EntityName)
 						.SelectSum(() => employeeBulkOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
 					)
 					.OrderBy(() => nomAlias.Id).Asc
@@ -260,7 +350,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 					.Where(() => employeeInstanceOperationAlias.OperationTime <= endDate)
 					.And(() => !instanceAlias.IsArchive)
 					.JoinAlias(x => x.Nomenclature, () => nomAlias)
-					.WhereRestrictionOn(() => employeeInstanceOperationAlias.Employee.Id).IsIn(employeesIds)
+					.WhereRestrictionOn(() => employeeInstanceOperationAlias.Employee.Id).IsIn(parameters.EmployeesIds)
 					.SelectList(list => list
 						.SelectGroup(() => employeeInstanceOperationAlias.Employee.Id).WithAlias(() => resultAlias.StorageId)
 						.SelectGroup(() => instanceAlias.Id).WithAlias(() => resultAlias.EntityId)
@@ -274,16 +364,17 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			IQueryOver<CarBulkGoodsAccountingOperation, CarBulkGoodsAccountingOperation> bulkBalanceByCarsQuery = null;
 			IQueryOver<CarInstanceGoodsAccountingOperation, CarInstanceGoodsAccountingOperation> instanceBalanceByCarsQuery = null;
 
-			if(carsIds != null)
+			if(parameters.CarsIds != null)
 			{
 				bulkBalanceByCarsQuery = localUow.Session.QueryOver(() => carBulkOperationAlias)
 					.Where(() => carBulkOperationAlias.OperationTime <= endDate)
 					.And(() => !nomAlias.IsArchive)
 					.JoinAlias(x => x.Nomenclature, () => nomAlias)
-					.WhereRestrictionOn(() => carBulkOperationAlias.Car.Id).IsIn(carsIds)
+					.WhereRestrictionOn(() => carBulkOperationAlias.Car.Id).IsIn(parameters.CarsIds)
 					.SelectList(list => list
 						.SelectGroup(() => carBulkOperationAlias.Car.Id).WithAlias(() => resultAlias.StorageId)
 						.SelectGroup(() => nomAlias.Id).WithAlias(() => resultAlias.EntityId)
+						.Select(() => nomAlias.Name).WithAlias(() => resultAlias.EntityName)
 						.SelectSum(() => carBulkOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
 					)
 					.OrderBy(() => nomAlias.Id).Asc
@@ -295,7 +386,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 					.Where(() => carInstanceOperationAlias.OperationTime <= endDate)
 					.And(() => !instanceAlias.IsArchive)
 					.JoinAlias(x => x.Nomenclature, () => nomAlias)
-					.WhereRestrictionOn(() => carInstanceOperationAlias.Car.Id).IsIn(carsIds)
+					.WhereRestrictionOn(() => carInstanceOperationAlias.Car.Id).IsIn(parameters.CarsIds)
 					.SelectList(list => list
 						.SelectGroup(() => carInstanceOperationAlias.Car.Id).WithAlias(() => resultAlias.StorageId)
 						.SelectGroup(() => instanceAlias.Id).WithAlias(() => resultAlias.EntityId)
@@ -315,17 +406,17 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				.JoinEntityAlias(() => instanceAlias, () => nomAlias.Id == instanceAlias.Nomenclature.Id)
 				.Where(() => !instanceAlias.IsArchive)
 				.SelectList(list => list
+					.Select(() => instanceAlias.Id).WithAlias(() => instanceDataAlias.Id)
 					.Select(() => instanceAlias.PurchasePrice).WithAlias(() => instanceDataAlias.PurchasePrice)
 					.Select(n => n.Name).WithAlias(() => instanceDataAlias.Name)
 					.Select(() => instanceAlias.InventoryNumber).WithAlias(() => instanceDataAlias.InventoryNumber))
 				.TransformUsing(Transformers.AliasToBean<InstanceData>())
 				.OrderBy(() => instanceAlias.Id).Asc;
 
-			Vodovoz.Domain.Orders.Order orderAlias = null;
+			Order orderAlias = null;
 			OrderItem orderItemsAlias = null;
 			ReservedBalance reservedBalance = null;
 			ProductGroup productGroupAlias = null;
-			PriceNode priceResult = null;
 
 			OrderStatus[] orderStatusesToCalcReservedItems =
 				new[] { OrderStatus.Accepted, OrderStatus.InTravelList, OrderStatus.OnLoading };
@@ -340,27 +431,9 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 			var nomenclatureQuery = localUow.Session.QueryOver(() => nomAlias);
 
-			var purchasePriceSubquery = QueryOver.Of<NomenclaturePurchasePrice>()
-				.Where(x => x.Nomenclature.Id == nomAlias.Id)
-				.OrderBy(x => x.StartDate).Desc
-				.Select(x => x.PurchasePrice)
-				.Take(1);
-
-			var priceSubquery = QueryOver.Of<NomenclaturePrice>()
-				.Where(x => x.Nomenclature.Id == nomAlias.Id)
-				.OrderBy(x => x.MinCount).Asc
-				.Select(x => x.Price)
-				.Take(1);
-
-			var alternativePriceSubquery = QueryOver.Of<AlternativeNomenclaturePrice>()
-				.Where(x => x.Nomenclature.Id == nomAlias.Id)
-				.OrderBy(x => x.MinCount).Asc
-				.Select(x => x.Price)
-				.Take(1);
-
-			if(typesSelected)
+			if(parameters.NomenclatureTypesSelected)
 			{
-				var typesIds = types.Select(x => (int)x.Value).ToArray();
+				var typesIds = parameters.NomenclatureTypes.Select(x => (int)x.Value).ToArray();
 
 				bulkBalanceByWarehousesQuery?.WhereRestrictionOn(() => nomAlias.Category).IsIn(typesIds);
 				instanceBalanceByWarehousesQuery?.WhereRestrictionOn(() => nomAlias.Category).IsIn(typesIds);
@@ -374,8 +447,9 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				nomenclatureQuery.WhereRestrictionOn(() => nomAlias.Category).IsIn(typesIds);
 			}
 
-			if(nomsSelected && !allNomsSelected)
+			if(parameters.NomenclaturesSelected && !parameters.AllNomenclaturesSelected)
 			{
+				var nomsIds = parameters.NomenclaturesIds;
 				bulkBalanceByWarehousesQuery?.WhereRestrictionOn(() => nomAlias.Id).IsIn(nomsIds);
 				bulkBalanceByEmployeesQuery?.WhereRestrictionOn(() => nomAlias.Id).IsIn(nomsIds);
 				bulkBalanceByCarsQuery?.WhereRestrictionOn(() => nomAlias.Id).IsIn(nomsIds);
@@ -384,16 +458,18 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				nomenclatureQuery.WhereRestrictionOn(() => nomAlias.Id).IsIn(nomsIds);
 			}
 
-			if(instancesSelected && !allInstancesSelected)
+			if(parameters.InstancesSelected && !parameters.AllInstancesSelected)
 			{
+				var instancesIds = parameters.InstancesIds;
 				instanceBalanceByWarehousesQuery?.WhereRestrictionOn(() => instanceAlias.Id).IsIn(instancesIds);
 				instanceBalanceByEmployeesQuery?.WhereRestrictionOn(() => instanceAlias.Id).IsIn(instancesIds);
 				instanceBalanceByCarsQuery?.WhereRestrictionOn(() => instanceAlias.Id).IsIn(instancesIds);
 				instanceDataQuery.WhereRestrictionOn(() => instanceAlias.Id).IsIn(instancesIds);
 			}
 
-			if(groupsSelected)
+			if(parameters.NomenclatureGroupsSelected)
 			{
+				var groupsIds = parameters.NomenclatureGroupsIds;
 				bulkBalanceByWarehousesQuery?.WhereRestrictionOn(() => nomAlias.ProductGroup.Id).IsIn(groupsIds);
 				instanceBalanceByWarehousesQuery?.WhereRestrictionOn(() => nomAlias.ProductGroup.Id).IsIn(groupsIds);
 				bulkBalanceByEmployeesQuery?.WhereRestrictionOn(() => nomAlias.ProductGroup.Id).IsIn(groupsIds);
@@ -414,6 +490,45 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 			#endregion
 
+			return await GenerateBalanceSummaryReportAsync(
+				localUow,
+				createReportWithReserveData,
+				withPrices,
+				minStockQuery,
+				instanceDataQuery,
+				reservedItemsQuery,
+				nomenclatureQuery,
+				bulkBalanceByWarehousesQuery,
+				instanceBalanceByWarehousesQuery,
+				bulkBalanceByEmployeesQuery,
+				instanceBalanceByEmployeesQuery,
+				bulkBalanceByCarsQuery,
+				instanceBalanceByCarsQuery,
+				parameters,
+				defaultReport,
+				cancellationToken
+				);
+		}
+		
+		private async Task<BalanceSummaryReport> GenerateBalanceSummaryReportAsync(
+			IUnitOfWork localUow,
+			bool createReportWithReserveData,
+			bool withPrices,
+			IQueryOver minStockQuery,
+			IQueryOver instanceDataQuery,
+			IQueryOver<Order, Order> reservedItemsQuery,
+			IQueryOver<Nomenclature, Nomenclature> nomenclatureQuery,
+			IQueryOver bulkBalanceByWarehousesQuery,
+			IQueryOver instanceBalanceByWarehousesQuery,
+			IQueryOver bulkBalanceByEmployeesQuery,
+			IQueryOver instanceBalanceByEmployeesQuery,
+			IQueryOver bulkBalanceByCarsQuery,
+			IQueryOver instanceBalanceByCarsQuery,
+			WarehousesBalanceSummaryReportParameters parameters,
+			BalanceSummaryReport report,
+			CancellationToken cancellationToken
+			)
+		{
 			IReadOnlyDictionary<NomenclatureStorageIds, BalanceBean> bulkWarehousesResult = null;
 			IReadOnlyDictionary<NomenclatureStorageIds, BalanceBean> instanceWarehousesResult = null;
 			IReadOnlyDictionary<NomenclatureStorageIds, BalanceBean> bulkEmployeesResult = null;
@@ -437,6 +552,27 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			List<PriceNode> alternativePrices = new List<PriceNode>();
 			List<PriceNode> purchasePrices = new List<PriceNode>();
 
+			Nomenclature nomAlias = null;
+			PriceNode priceResult = null;
+			
+			var purchasePriceSubquery = QueryOver.Of<NomenclaturePurchasePrice>()
+				.Where(x => x.Nomenclature.Id == nomAlias.Id)
+				.OrderBy(x => x.StartDate).Desc
+				.Select(x => x.PurchasePrice)
+				.Take(1);
+
+			var priceSubquery = QueryOver.Of<NomenclaturePrice>()
+				.Where(x => x.Nomenclature.Id == nomAlias.Id)
+				.OrderBy(x => x.MinCount).Asc
+				.Select(x => x.Price)
+				.Take(1);
+
+			var alternativePriceSubquery = QueryOver.Of<AlternativeNomenclaturePrice>()
+				.Where(x => x.Nomenclature.Id == nomAlias.Id)
+				.OrderBy(x => x.MinCount).Asc
+				.Select(x => x.Price)
+				.Take(1);
+			
 			if(withPrices)
 			{
 				prices = nomenclatureQuery.SelectList(list => list
@@ -461,35 +597,14 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 					.ToList();
 			}
 
-			if(bulkBalanceByWarehousesQuery != null)
-			{
-				batch.Add<BalanceBean>(_bulkBalanceWarehousesKey, bulkBalanceByWarehousesQuery);
-			}
-
-			if(instanceBalanceByWarehousesQuery != null)
-			{
-				batch.Add<BalanceBean>(_instanceBalanceWarehousesKey, instanceBalanceByWarehousesQuery);
-			}
-
-			if(bulkBalanceByEmployeesQuery != null)
-			{
-				batch.Add<BalanceBean>(_bulkBalanceEmployeesKey, bulkBalanceByEmployeesQuery);
-			}
-
-			if(instanceBalanceByEmployeesQuery != null)
-			{
-				batch.Add<BalanceBean>(_instanceBalanceEmployeesKey, instanceBalanceByEmployeesQuery);
-			}
-
-			if(bulkBalanceByCarsQuery != null)
-			{
-				batch.Add<BalanceBean>(_bulkBalanceCarsKey, bulkBalanceByCarsQuery);
-			}
-
-			if(instanceBalanceByCarsQuery != null)
-			{
-				batch.Add<BalanceBean>(_instanceBalanceCarsKey, instanceBalanceByCarsQuery);
-			}
+			AddQueriesToQueryBatch(
+				batch,
+				bulkBalanceByWarehousesQuery,
+				instanceBalanceByWarehousesQuery,
+				bulkBalanceByEmployeesQuery,
+				instanceBalanceByEmployeesQuery,
+				bulkBalanceByCarsQuery,
+				instanceBalanceByCarsQuery);
 
 			#endregion
 
@@ -497,44 +612,32 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 			if(bulkBalanceByWarehousesQuery != null)
 			{
-				bulkWarehousesResult =
-					batch.GetResult<BalanceBean>(_bulkBalanceWarehousesKey)
-						.ToDictionary(x => new NomenclatureStorageIds(x.EntityId, x.StorageId));
+				bulkWarehousesResult = GetStoragesBalanceResult(batch, _bulkBalanceWarehousesKey);
 			}
 
 			if(instanceBalanceByWarehousesQuery != null)
 			{
-				instanceWarehousesResult =
-					batch.GetResult<BalanceBean>(_instanceBalanceWarehousesKey)
-						.ToDictionary(x => new NomenclatureStorageIds(x.EntityId, x.StorageId));
+				instanceWarehousesResult = GetStoragesBalanceResult(batch, _instanceBalanceWarehousesKey);
 			}
 
 			if(bulkBalanceByEmployeesQuery != null)
 			{
-				bulkEmployeesResult =
-					batch.GetResult<BalanceBean>(_bulkBalanceEmployeesKey)
-						.ToDictionary(x => new NomenclatureStorageIds(x.EntityId, x.StorageId));
+				bulkEmployeesResult = GetStoragesBalanceResult(batch, _bulkBalanceEmployeesKey);
 			}
 
 			if(instanceBalanceByEmployeesQuery != null)
 			{
-				instanceEmployeesResult =
-					batch.GetResult<BalanceBean>(_instanceBalanceEmployeesKey)
-						.ToDictionary(x => new NomenclatureStorageIds(x.EntityId, x.StorageId));
+				instanceEmployeesResult = GetStoragesBalanceResult(batch, _instanceBalanceEmployeesKey);
 			}
 
 			if(bulkBalanceByCarsQuery != null)
 			{
-				bulkCarsResult =
-					batch.GetResult<BalanceBean>(_bulkBalanceCarsKey)
-						.ToDictionary(x => new NomenclatureStorageIds(x.EntityId, x.StorageId));
+				bulkCarsResult = GetStoragesBalanceResult(batch, _bulkBalanceCarsKey);
 			}
 
 			if(instanceBalanceByCarsQuery != null)
 			{
-				instanceCarsResult =
-					batch.GetResult<BalanceBean>(_instanceBalanceCarsKey)
-						.ToDictionary(x => new NomenclatureStorageIds(x.EntityId, x.StorageId));
+				instanceCarsResult = GetStoragesBalanceResult(batch, _instanceBalanceCarsKey);
 			}
 
 			var minStockResult = batch.GetResult<decimal>(_minStockKey).ToArray();
@@ -544,34 +647,34 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 			#endregion
 
-			CreateInstanceRows(
+			GenerateBalanceSummaryReportInstanceRows(
 				cancellationToken,
 				ref counter,
-				instances,
+				parameters.Instances,
 				instanceData,
-				warehouseStorages,
+				parameters.WarehouseStorages,
 				instanceWarehousesResult,
-				employeeStorages,
+				parameters.EmployeeStorages,
 				instanceEmployeesResult,
-				carStorages,
+				parameters.CarStorages,
 				instanceCarsResult,
 				report,
 				withPrices);
 			
-			CreateBulkRows(
+			GenerateBalanceSummaryReportBulkRows(
 				cancellationToken,
 				ref counter,
-				noms,
+				parameters.Nomenclatures,
 				reservedItems,
 				prices,
 				alternativePrices,
 				purchasePrices,
 				minStockResult,
-				warehouseStorages,
+				parameters.WarehouseStorages,
 				bulkWarehousesResult,
-				employeeStorages,
+				parameters.EmployeeStorages,
 				bulkEmployeesResult,
-				carStorages,
+				parameters.CarStorages,
 				bulkCarsResult,
 				report);
 
@@ -581,16 +684,22 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			return await new ValueTask<BalanceSummaryReport>(report);
 		}
 
-		private void CreateInstanceRows(
+		private Dictionary<NomenclatureStorageIds, BalanceBean> GetStoragesBalanceResult(IQueryBatch batch, string queryKey)
+		{
+			return batch.GetResult<BalanceBean>(queryKey)
+				.ToDictionary(x => new NomenclatureStorageIds(x.EntityId, x.StorageId));
+		}
+		
+		private void GenerateBalanceSummaryReportInstanceRows(
 			CancellationToken cancellationToken,
 			ref int counter,
-			List<SelectableParameter> instances,
+			IList<SelectableParameter> instances,
 			InstanceData[] instanceData,
-			List<SelectableParameter> warehouseStorages,
+			IList<SelectableParameter> warehouseStorages,
 			IReadOnlyDictionary<NomenclatureStorageIds, BalanceBean> instanceWarehousesResult,
-			List<SelectableParameter> employeeStorages,
+			IList<SelectableParameter> employeeStorages,
 			IReadOnlyDictionary<NomenclatureStorageIds, BalanceBean> instanceEmployeesResult,
-			List<SelectableParameter> carStorages,
+			IList<SelectableParameter> carStorages,
 			IReadOnlyDictionary<NomenclatureStorageIds, BalanceBean> instanceCarsResult,
 			BalanceSummaryReport report,
 			bool withPrices)
@@ -616,28 +725,28 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 					row.PurchasePrice = instanceData[instancesCounter].PurchasePrice;
 				}
 
-				FillStoragesBalance(row.WarehousesBalances, warehouseStorages, instanceId, instanceWarehousesResult, cancellationToken);
-				FillStoragesBalance(row.EmployeesBalances, employeeStorages, instanceId, instanceEmployeesResult, cancellationToken);
-				FillStoragesBalance(row.CarsBalances, carStorages, instanceId, instanceCarsResult, cancellationToken);
+				row.FillStoragesBalance(StorageType.Warehouse, warehouseStorages, instanceId, instanceWarehousesResult, cancellationToken);
+				row.FillStoragesBalance(StorageType.Employee, employeeStorages, instanceId, instanceEmployeesResult, cancellationToken);
+				row.FillStoragesBalance(StorageType.Car, carStorages, instanceId, instanceCarsResult, cancellationToken);
 
 				AddRow(report, row);
 			}
 		}
 
-		private void CreateBulkRows(
+		private void GenerateBalanceSummaryReportBulkRows(
 			CancellationToken cancellationToken,
 			ref int counter,
-			List<SelectableParameter> noms,
-			List<ReservedBalance> reservedItems,
-			List<PriceNode> prices,
-			List<PriceNode> alternativePrices,
-			List<PriceNode> purchasePrices,
+			IList<SelectableParameter> noms,
+			IList<ReservedBalance> reservedItems,
+			IList<PriceNode> prices,
+			IList<PriceNode> alternativePrices,
+			IList<PriceNode> purchasePrices,
 			decimal[] minStockResult,
-			List<SelectableParameter> warehouseStorages,
+			IList<SelectableParameter> warehouseStorages,
 			IReadOnlyDictionary<NomenclatureStorageIds, BalanceBean> bulkWarehousesResult,
-			List<SelectableParameter> employeeStorages,
+			IList<SelectableParameter> employeeStorages,
 			IReadOnlyDictionary<NomenclatureStorageIds, BalanceBean> bulkEmployeesResult,
-			List<SelectableParameter> carStorages,
+			IList<SelectableParameter> carStorages,
 			IReadOnlyDictionary<NomenclatureStorageIds, BalanceBean> bulkCarsResult,
 			BalanceSummaryReport report)
 		{
@@ -665,193 +774,14 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 					Min = minStockResult[nomsCounter]
 				};
 
-				FillStoragesBalance(row.WarehousesBalances, warehouseStorages, nomenclatureId, bulkWarehousesResult, cancellationToken);
-				FillStoragesBalance(row.EmployeesBalances, employeeStorages, nomenclatureId, bulkEmployeesResult, cancellationToken);
-				FillStoragesBalance(row.CarsBalances, carStorages, nomenclatureId, bulkCarsResult, cancellationToken);
+				row.FillStoragesBalance(StorageType.Warehouse, warehouseStorages, nomenclatureId, bulkWarehousesResult, cancellationToken);
+				row.FillStoragesBalance(StorageType.Employee, employeeStorages, nomenclatureId, bulkEmployeesResult, cancellationToken);
+				row.FillStoragesBalance(StorageType.Car, carStorages, nomenclatureId, bulkCarsResult, cancellationToken);
 
 				AddRow(report, row);
 			}
 		}
-
-		private void FillStoragesBalance(
-			IList<decimal> storagesBalances,
-			IList<SelectableParameter> storages,
-			int entityId,
-			IReadOnlyDictionary<NomenclatureStorageIds, BalanceBean> storagesResult,
-			CancellationToken cancellationToken)
-		{
-			for(var i = 0; i < storages?.Count; i++)
-			{
-				cancellationToken.ThrowIfCancellationRequested();
-				
-				var key = new NomenclatureStorageIds(entityId, (int)storages[i].Value);
-				storagesResult.TryGetValue(key, out var tempBulkBalanceBean);
-				var amount = tempBulkBalanceBean?.Amount ?? 0;
-				
-				storagesBalances.Add(amount);
-			}
-		}
-
-		public void ExportReport()
-		{
-			using(var wb = new XLWorkbook())
-			{
-				var sheetName = $"{DateTime.Now:dd.MM.yyyy}";
-				var ws = wb.Worksheets.Add(sheetName);
-
-				InsertValues(ws, _isCreatedWithReserveData);
-				ws.Columns().AdjustToContents();
-
-				if(TryGetSavePath(out string path))
-				{
-					wb.SaveAs(path);
-				}
-			}
-		}
-
-		private bool TryGetSavePath(out string path)
-		{
-			var extension = ".xlsx";
-			var dialogSettings = new DialogSettings
-			{
-				Title = "Сохранить",
-				FileName = $"{TabName} {DateTime.Now:yyyy-MM-dd-HH-mm}{extension}"
-			};
-
-			dialogSettings.FileFilters.Add(new DialogFileFilter(_xlsxFileFilter, $"*{extension}"));
-			var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
-			path = result.Path;
-
-			return result.Successful;
-		}
-
-		private void InsertValues(IXLWorksheet ws, bool withReserveData)
-		{
-			var colNames = GetColumnTitles(withReserveData);
-			var rows = GetRowsData(withReserveData);
-			
-			var index = 1;
-			foreach(var name in colNames)
-			{
-				ws.Cell(1, index).Value = name;
-				index++;
-			}
-
-			ws.Cell(2, 1).InsertData(rows);
-			AddStoragesColumns(ws, index);
-		}
-
-		private static string[] GetColumnTitles(bool withReserveData)
-		{
-			if(!withReserveData)
-			{
-				return new[]
-				{
-					"№",
-					"Код",
-					"Наименование",
-					"Инвентарный номер",
-					"Мин. Остаток",
-					"Общий остаток",
-					"Разница",
-					"Цена закупки",
-					"Цена",
-					"Цена Kuler Sale"
-				};
-			}
-			
-			return new[]
-			{
-				"№",
-				"Код",
-				"Наименование",
-				"Инвентарный номер",
-				"Мин. Остаток",
-				"В резерве",
-				"Доступно для заказа",
-				"Общий остаток",
-				"Разница",
-				"Цена закупки",
-				"Цена",
-				"Цена Kuler Sale"
-			};
-		}
 		
-		private IEnumerable GetRowsData(bool withReserveData)
-		{
-			if(!withReserveData)
-			{
-				return from row in Report.SummaryRows
-					select new
-					{
-						row.Num,
-						row.EntityId,
-						row.NomTitle,
-						row.InventoryNumber,
-						row.Min,
-						row.Common,
-						row.Diff,
-						row.PurchasePrice,
-						row.Price,
-						row.AlternativePrice
-					};
-			}
-			
-			return from row in Report.SummaryRows
-				select new
-				{
-					row.Num,
-					row.EntityId,
-					row.NomTitle,
-					row.InventoryNumber,
-					row.Min,
-					row.ReservedItemsAmount,
-					row.AvailableItemsAmount,
-					row.Common,
-					row.Diff,
-					row.PurchasePrice,
-					row.Price,
-					row.AlternativePrice
-				};
-		}
-
-		private void AddStoragesColumns(IXLWorksheet ws, int index)
-		{
-			AddWarehouseColumns(ws, ref index);
-			AddEmployeeColumns(ws, ref index);
-			AddCarColumns(ws, ref index);
-		}
-
-		private void AddWarehouseColumns(IXLWorksheet ws, ref int startIndex)
-		{
-			for(var i = 0; i < Report.WarehouseStoragesTitles?.Count; i++)
-			{
-				ws.Cell(1, startIndex).Value = $"{Report.WarehouseStoragesTitles[i]}";
-				ws.Cell(2, startIndex).InsertData(Report.SummaryRows.Select(sr => sr.WarehousesBalances[i]));
-				startIndex++;
-			}
-		}
-		
-		private void AddEmployeeColumns(IXLWorksheet ws, ref int startIndex)
-		{
-			for(var i = 0; i < Report.EmployeeStoragesTitles?.Count; i++)
-			{
-				ws.Cell(1, startIndex).Value = $"{Report.EmployeeStoragesTitles[i]}";
-				ws.Cell(2, startIndex).InsertData(Report.SummaryRows.Select(sr => sr.EmployeesBalances[i]));
-				startIndex++;
-			}
-		}
-		
-		private void AddCarColumns(IXLWorksheet ws, ref int startIndex)
-		{
-			for(var i = 0; i < Report.CarStoragesTitles?.Count; i++)
-			{
-				ws.Cell(1, startIndex).Value = $"{Report.CarStoragesTitles[i]}";
-				ws.Cell(2, startIndex).InsertData(Report.SummaryRows.Select(sr => sr.CarsBalances[i]));
-				startIndex++;
-			}
-		}
-
 		private void RemoveStoragesByFilterCondition(BalanceSummaryReport report, CancellationToken cancellationToken)
 		{
 			if(AllWarehouses)
@@ -951,13 +881,779 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			counter--;
 		}
 
+		#endregion
+
+		#region GenerateActiveStoragesBalanceSummaryReport
+
+		private async Task<ActiveStoragesBalanceSummaryReport> GenerateActiveStoragesBalanceSummaryReportAsync(
+			DateTime endDate,
+			IUnitOfWork localUow,
+			CancellationToken cancellationToken)
+		{
+			cancellationToken.ThrowIfCancellationRequested();
+
+			endDate = endDate.LatestDayTime();
+
+			var parameters = new WarehousesBalanceSummaryReportParameters()
+				.AddNomenclaturesSet(_nomsFilter.ParameterSets.FirstOrDefault(x => x.ParameterName == _parameterNomenclature))
+				.AddInstancesSet(_nomsFilter.ParameterSets.FirstOrDefault(x => x.ParameterName == _parameterInstances))
+				.AddNomenclatureTypesSet(_nomsFilter.ParameterSets.FirstOrDefault(x => x.ParameterName == _parameterNomenclatureType))
+				.AddNomenclatureGroupsSet(_nomsFilter.ParameterSets.FirstOrDefault(x => x.ParameterName == _parameterProductGroups))
+				.AddWarehouseStorages(_storagesFilter, ParameterWarehouseStorages)
+				.AddEmployeeStorages(_storagesFilter, ParameterEmployeeStorages)
+				.AddCarStorages(_storagesFilter, ParameterCarStorages);
+
+			Nomenclature nomAlias = null;
+
+			var activeStoragesReport = new ActiveStoragesBalanceSummaryReport
+			{
+				EndDate = endDate,
+				ActiveStoragesBalanceRows = new List<ActiveStoragesBalanceSummaryRow>()
+			};
+
+			#region Запросы
+
+			WarehouseBulkGoodsAccountingOperation warehouseBulkOperationAlias = null;
+			WarehouseInstanceGoodsAccountingOperation warehouseInstanceOperationAlias = null;
+			EmployeeBulkGoodsAccountingOperation employeeBulkOperationAlias = null;
+			EmployeeInstanceGoodsAccountingOperation employeeInstanceOperationAlias = null;
+			CarBulkGoodsAccountingOperation carBulkOperationAlias = null;
+			CarInstanceGoodsAccountingOperation carInstanceOperationAlias = null;
+			InventoryNomenclatureInstance instanceAlias = null;
+			BalanceBean resultAlias = null;
+
+			IQueryOver<WarehouseBulkGoodsAccountingOperation, WarehouseBulkGoodsAccountingOperation> bulkBalanceByWarehousesQuery = null;
+			IQueryOver<WarehouseInstanceGoodsAccountingOperation, WarehouseInstanceGoodsAccountingOperation>
+				instanceBalanceByWarehousesQuery = null;
+
+			if(parameters.WarehousesIds != null)
+			{
+				bulkBalanceByWarehousesQuery = localUow.Session.QueryOver(() => warehouseBulkOperationAlias)
+					.Where(() => warehouseBulkOperationAlias.OperationTime <= endDate)
+					.And(() => !nomAlias.IsArchive)
+					.JoinAlias(x => x.Nomenclature, () => nomAlias)
+					.WhereRestrictionOn(() => warehouseBulkOperationAlias.Warehouse.Id).IsIn(parameters.WarehousesIds)
+					.SelectList(list => list
+						.SelectGroup(() => warehouseBulkOperationAlias.Warehouse.Id).WithAlias(() => resultAlias.StorageId)
+						.SelectGroup(() => nomAlias.Id).WithAlias(() => resultAlias.EntityId)
+						.Select(() => nomAlias.Name).WithAlias(() => resultAlias.EntityName)
+						.SelectSum(() => warehouseBulkOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
+					)
+					.Where(Restrictions.Gt(Projections.Sum(() => employeeBulkOperationAlias.Amount), 0))
+					.OrderBy(() => nomAlias.Id).Asc
+					.ThenBy(() => warehouseBulkOperationAlias.Warehouse.Id).Asc
+					.TransformUsing(Transformers.AliasToBean<BalanceBean>());
+
+				instanceBalanceByWarehousesQuery = localUow.Session.QueryOver(() => warehouseInstanceOperationAlias)
+					.JoinAlias(() => warehouseInstanceOperationAlias.InventoryNomenclatureInstance, () => instanceAlias)
+					.Where(() => warehouseInstanceOperationAlias.OperationTime <= endDate)
+					.And(() => !instanceAlias.IsArchive)
+					.JoinAlias(x => x.Nomenclature, () => nomAlias)
+					.WhereRestrictionOn(() => warehouseInstanceOperationAlias.Warehouse.Id).IsIn(parameters.WarehousesIds)
+					.SelectList(list => list
+						.SelectGroup(() => warehouseInstanceOperationAlias.Warehouse.Id).WithAlias(() => resultAlias.StorageId)
+						.SelectGroup(() => instanceAlias.Id).WithAlias(() => resultAlias.EntityId)
+						.SelectSum(() => warehouseInstanceOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
+					)
+					.Where(Restrictions.Gt(Projections.Sum(() => warehouseInstanceOperationAlias.Amount), 0))
+					.OrderBy(() => instanceAlias.Id).Asc
+					.ThenBy(() => warehouseInstanceOperationAlias.Warehouse.Id).Asc
+					.TransformUsing(Transformers.AliasToBean<BalanceBean>());
+			}
+
+			IQueryOver<EmployeeBulkGoodsAccountingOperation, EmployeeBulkGoodsAccountingOperation> bulkBalanceByEmployeesQuery = null;
+			IQueryOver<EmployeeInstanceGoodsAccountingOperation, EmployeeInstanceGoodsAccountingOperation> instanceBalanceByEmployeesQuery =
+				null;
+
+			if(parameters.EmployeesIds != null)
+			{
+				bulkBalanceByEmployeesQuery = localUow.Session.QueryOver(() => employeeBulkOperationAlias)
+					.Where(() => employeeBulkOperationAlias.OperationTime <= endDate)
+					.And(() => !nomAlias.IsArchive)
+					.JoinAlias(x => x.Nomenclature, () => nomAlias)
+					.WhereRestrictionOn(() => employeeBulkOperationAlias.Employee.Id).IsIn(parameters.EmployeesIds)
+					.SelectList(list => list
+						.SelectGroup(() => employeeBulkOperationAlias.Employee.Id).WithAlias(() => resultAlias.StorageId)
+						.SelectGroup(() => nomAlias.Id).WithAlias(() => resultAlias.EntityId)
+						.Select(() => nomAlias.Name).WithAlias(() => resultAlias.EntityName)
+						.Select(() => "-").WithAlias(() => resultAlias.InventoryNumber)
+						.SelectSum(() => employeeBulkOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
+					)
+					.Where(Restrictions.Gt(Projections.Sum(() => employeeBulkOperationAlias.Amount), 0))
+					.OrderBy(() => nomAlias.Id).Asc
+					.ThenBy(() => employeeBulkOperationAlias.Employee.Id).Asc
+					.TransformUsing(Transformers.AliasToBean<BalanceBean>());
+
+				instanceBalanceByEmployeesQuery = localUow.Session.QueryOver(() => employeeInstanceOperationAlias)
+					.JoinAlias(() => employeeInstanceOperationAlias.InventoryNomenclatureInstance, () => instanceAlias)
+					.Where(() => employeeInstanceOperationAlias.OperationTime <= endDate)
+					.And(() => !instanceAlias.IsArchive)
+					.JoinAlias(x => x.Nomenclature, () => nomAlias)
+					.WhereRestrictionOn(() => employeeInstanceOperationAlias.Employee.Id).IsIn(parameters.EmployeesIds)
+					.SelectList(list => list
+						.SelectGroup(() => employeeInstanceOperationAlias.Employee.Id).WithAlias(() => resultAlias.StorageId)
+						.SelectGroup(() => instanceAlias.Id).WithAlias(() => resultAlias.EntityId)
+						.Select(() => nomAlias.Name).WithAlias(() => resultAlias.EntityName)
+						.Select(() => instanceAlias.InventoryNumber).WithAlias(() => resultAlias.InventoryNumber)
+						.SelectSum(() => employeeInstanceOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
+					)
+					.Where(Restrictions.Gt(Projections.Sum(() => employeeInstanceOperationAlias.Amount), 0))
+					.OrderBy(() => instanceAlias.Id).Asc
+					.ThenBy(() => employeeInstanceOperationAlias.Employee.Id).Asc
+					.TransformUsing(Transformers.AliasToBean<BalanceBean>());
+			}
+
+			IQueryOver<CarBulkGoodsAccountingOperation, CarBulkGoodsAccountingOperation> bulkBalanceByCarsQuery = null;
+			IQueryOver<CarInstanceGoodsAccountingOperation, CarInstanceGoodsAccountingOperation> instanceBalanceByCarsQuery = null;
+
+			if(parameters.CarsIds != null)
+			{
+				bulkBalanceByCarsQuery = localUow.Session.QueryOver(() => carBulkOperationAlias)
+					.Where(() => carBulkOperationAlias.OperationTime <= endDate)
+					.And(() => !nomAlias.IsArchive)
+					.JoinAlias(x => x.Nomenclature, () => nomAlias)
+					.WhereRestrictionOn(() => carBulkOperationAlias.Car.Id).IsIn(parameters.CarsIds)
+					.SelectList(list => list
+						.SelectGroup(() => carBulkOperationAlias.Car.Id).WithAlias(() => resultAlias.StorageId)
+						.SelectGroup(() => nomAlias.Id).WithAlias(() => resultAlias.EntityId)
+						.Select(() => nomAlias.Name).WithAlias(() => resultAlias.EntityName)
+						.Select(() => "-").WithAlias(() => resultAlias.InventoryNumber)
+						.SelectSum(() => carBulkOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
+					)
+					.Where(Restrictions.Gt(Projections.Sum(() => carBulkOperationAlias.Amount), 0))
+					.OrderBy(() => nomAlias.Id).Asc
+					.ThenBy(() => carBulkOperationAlias.Car.Id).Asc
+					.TransformUsing(Transformers.AliasToBean<BalanceBean>());
+
+				instanceBalanceByCarsQuery = localUow.Session.QueryOver(() => carInstanceOperationAlias)
+					.JoinAlias(() => carInstanceOperationAlias.InventoryNomenclatureInstance, () => instanceAlias)
+					.Where(() => carInstanceOperationAlias.OperationTime <= endDate)
+					.And(() => !instanceAlias.IsArchive)
+					.JoinAlias(x => x.Nomenclature, () => nomAlias)
+					.WhereRestrictionOn(() => carInstanceOperationAlias.Car.Id).IsIn(parameters.CarsIds)
+					.SelectList(list => list
+						.SelectGroup(() => carInstanceOperationAlias.Car.Id).WithAlias(() => resultAlias.StorageId)
+						.SelectGroup(() => instanceAlias.Id).WithAlias(() => resultAlias.EntityId)
+						.Select(() => nomAlias.Name).WithAlias(() => resultAlias.EntityName)
+						.Select(() => instanceAlias.InventoryNumber).WithAlias(() => resultAlias.InventoryNumber)
+						.SelectSum(() => carInstanceOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
+					)
+					.Where(Restrictions.Gt(Projections.Sum(() => carInstanceOperationAlias.Amount), 0))
+					.OrderBy(() => instanceAlias.Id).Asc
+					.ThenBy(() => carInstanceOperationAlias.Car.Id).Asc
+					.TransformUsing(Transformers.AliasToBean<BalanceBean>());
+			}
+
+			var nomenclatureQuery = localUow.Session.QueryOver(() => nomAlias);
+
+			if(parameters.NomenclatureTypesSelected)
+			{
+				var typesIds = parameters.NomenclatureTypes.Select(x => (int)x.Value).ToArray();
+				bulkBalanceByWarehousesQuery?.WhereRestrictionOn(() => nomAlias.Category).IsIn(typesIds);
+				instanceBalanceByWarehousesQuery?.WhereRestrictionOn(() => nomAlias.Category).IsIn(typesIds);
+				bulkBalanceByEmployeesQuery?.WhereRestrictionOn(() => nomAlias.Category).IsIn(typesIds);
+				instanceBalanceByEmployeesQuery?.WhereRestrictionOn(() => nomAlias.Category).IsIn(typesIds);
+				bulkBalanceByCarsQuery?.WhereRestrictionOn(() => nomAlias.Category).IsIn(typesIds);
+				instanceBalanceByCarsQuery?.WhereRestrictionOn(() => nomAlias.Category).IsIn(typesIds);
+				nomenclatureQuery.WhereRestrictionOn(() => nomAlias.Category).IsIn(typesIds);
+			}
+
+			if(parameters.NomenclaturesSelected && !parameters.AllNomenclaturesSelected)
+			{
+				var nomsIds = parameters.NomenclaturesIds;
+				bulkBalanceByWarehousesQuery?.WhereRestrictionOn(() => nomAlias.Id).IsIn(nomsIds);
+				bulkBalanceByEmployeesQuery?.WhereRestrictionOn(() => nomAlias.Id).IsIn(nomsIds);
+				bulkBalanceByCarsQuery?.WhereRestrictionOn(() => nomAlias.Id).IsIn(nomsIds);
+				nomenclatureQuery.WhereRestrictionOn(() => nomAlias.Id).IsIn(nomsIds);
+			}
+
+			if(parameters.InstancesSelected && !parameters.AllInstancesSelected)
+			{
+				var instancesIds = parameters.InstancesIds;
+				instanceBalanceByWarehousesQuery?.WhereRestrictionOn(() => instanceAlias.Id).IsIn(instancesIds);
+				instanceBalanceByEmployeesQuery?.WhereRestrictionOn(() => instanceAlias.Id).IsIn(instancesIds);
+				instanceBalanceByCarsQuery?.WhereRestrictionOn(() => instanceAlias.Id).IsIn(instancesIds);
+			}
+
+			if(parameters.NomenclatureGroupsSelected)
+			{
+				var groupsIds = parameters.NomenclatureGroupsIds;
+				bulkBalanceByWarehousesQuery?.WhereRestrictionOn(() => nomAlias.ProductGroup.Id).IsIn(groupsIds);
+				instanceBalanceByWarehousesQuery?.WhereRestrictionOn(() => nomAlias.ProductGroup.Id).IsIn(groupsIds);
+				bulkBalanceByEmployeesQuery?.WhereRestrictionOn(() => nomAlias.ProductGroup.Id).IsIn(groupsIds);
+				instanceBalanceByEmployeesQuery?.WhereRestrictionOn(() => nomAlias.ProductGroup.Id).IsIn(groupsIds);
+				bulkBalanceByCarsQuery?.WhereRestrictionOn(() => nomAlias.ProductGroup.Id).IsIn(groupsIds);
+				instanceBalanceByCarsQuery?.WhereRestrictionOn(() => nomAlias.ProductGroup.Id).IsIn(groupsIds);
+				nomenclatureQuery.WhereRestrictionOn(() => nomAlias.ProductGroup.Id).IsIn(groupsIds);
+			}
+
+			#endregion
+			
+			return await GenerateActiveStoragesBalanceSummaryReportAsync(
+				localUow,
+				bulkBalanceByWarehousesQuery,
+				instanceBalanceByWarehousesQuery,
+				bulkBalanceByEmployeesQuery,
+				instanceBalanceByEmployeesQuery,
+				bulkBalanceByCarsQuery,
+				instanceBalanceByCarsQuery,
+				parameters,
+				activeStoragesReport,
+				cancellationToken
+				);
+		}
+
+		private async Task<ActiveStoragesBalanceSummaryReport> GenerateActiveStoragesBalanceSummaryReportAsync(
+			IUnitOfWork localUow,
+			IQueryOver bulkBalanceByWarehousesQuery,
+			IQueryOver instanceBalanceByWarehousesQuery,
+			IQueryOver bulkBalanceByEmployeesQuery,
+			IQueryOver instanceBalanceByEmployeesQuery,
+			IQueryOver bulkBalanceByCarsQuery,
+			IQueryOver instanceBalanceByCarsQuery,
+			WarehousesBalanceSummaryReportParameters parameters,
+			ActiveStoragesBalanceSummaryReport report,
+			CancellationToken cancellationToken)
+		{
+			ILookup<int, BalanceBean> bulkWarehousesResult = null;
+			ILookup<int, BalanceBean> instanceWarehousesResult = null;
+			ILookup<int, BalanceBean> bulkEmployeesResult = null;
+			ILookup<int, BalanceBean> instanceEmployeesResult = null;
+			ILookup<int, BalanceBean> bulkCarsResult = null;
+			ILookup<int, BalanceBean> instanceCarsResult = null;
+
+			var batch = localUow.Session.CreateQueryBatch();
+
+			#region fillbatchQuery
+
+			AddQueriesToQueryBatch(
+				batch,
+				bulkBalanceByWarehousesQuery,
+				instanceBalanceByWarehousesQuery,
+				bulkBalanceByEmployeesQuery,
+				instanceBalanceByEmployeesQuery,
+				bulkBalanceByCarsQuery,
+				instanceBalanceByCarsQuery);
+
+			#endregion
+
+			#region GetResults
+
+			if(bulkBalanceByWarehousesQuery != null)
+			{
+				bulkWarehousesResult = GetActiveStoragesBalanceResult(batch, _bulkBalanceWarehousesKey);
+			}
+
+			if(instanceBalanceByWarehousesQuery != null)
+			{
+				instanceWarehousesResult = GetActiveStoragesBalanceResult(batch, _instanceBalanceWarehousesKey);
+			}
+
+			if(bulkBalanceByEmployeesQuery != null)
+			{
+				bulkEmployeesResult = GetActiveStoragesBalanceResult(batch, _bulkBalanceEmployeesKey);
+			}
+
+			if(instanceBalanceByEmployeesQuery != null)
+			{
+				instanceEmployeesResult = GetActiveStoragesBalanceResult(batch, _instanceBalanceEmployeesKey);
+			}
+
+			if(bulkBalanceByCarsQuery != null)
+			{
+				bulkCarsResult = GetActiveStoragesBalanceResult(batch, _bulkBalanceCarsKey);
+			}
+
+			if(instanceBalanceByCarsQuery != null)
+			{
+				instanceCarsResult = GetActiveStoragesBalanceResult(batch, _instanceBalanceCarsKey);
+			}
+
+			#endregion
+
+			GenerateActiveStoragesBalanceSummaryRows(
+				cancellationToken,
+				parameters.WarehouseStorages,
+				bulkWarehousesResult,
+				instanceWarehousesResult,
+				parameters.EmployeeStorages,
+				bulkEmployeesResult,
+				instanceEmployeesResult,
+				parameters.CarStorages,
+				bulkCarsResult,
+				instanceCarsResult,
+				report);
+
+			cancellationToken.ThrowIfCancellationRequested();
+			return await new ValueTask<ActiveStoragesBalanceSummaryReport>(report);
+		}
+
+		private void GenerateActiveStoragesBalanceSummaryRows(
+			CancellationToken cancellationToken,
+			IList<SelectableParameter> warehouseStorages,
+			ILookup<int, BalanceBean> bulkWarehousesResult,
+			ILookup<int, BalanceBean> instanceWarehousesResult,
+			IList<SelectableParameter> employeeStorages,
+			ILookup<int, BalanceBean> bulkEmployeesResult,
+			ILookup<int, BalanceBean> instanceEmployeesResult,
+			IList<SelectableParameter> carStorages,
+			ILookup<int, BalanceBean> bulkCarsResult,
+			ILookup<int, BalanceBean> instanceCarsResult,
+			ActiveStoragesBalanceSummaryReport report)
+		{
+			cancellationToken.ThrowIfCancellationRequested();
+			
+			FillActiveStoragesBalances(warehouseStorages, bulkWarehousesResult, instanceWarehousesResult, report, cancellationToken);
+			FillActiveStoragesBalances(employeeStorages, bulkEmployeesResult, instanceEmployeesResult, report, cancellationToken);
+			FillActiveStoragesBalances(carStorages, bulkCarsResult, instanceCarsResult, report, cancellationToken);
+		}
+
+		private void FillActiveStoragesBalances(
+			IList<SelectableParameter> storages,
+			ILookup<int, BalanceBean> bulksResult,
+			ILookup<int, BalanceBean> instancesResult,
+			ActiveStoragesBalanceSummaryReport report,
+			CancellationToken cancellationToken)
+		{
+			for(var i = 0; i < storages?.Count; i++)
+			{
+				cancellationToken.ThrowIfCancellationRequested();
+				
+				var storageKey = (int)storages[i].Value;
+				var instancesBalances = instancesResult[storageKey];
+				var nomenclaturesBalances = bulksResult[storageKey];
+
+				if(!instancesBalances.Any() && !nomenclaturesBalances.Any())
+				{
+					continue;
+				}
+
+				var rowNum = 0;
+
+				GenerateActiveStoragesBalanceInstanceRows(storages, report, instancesBalances, ref rowNum, i, cancellationToken);
+				GenerateActiveStoragesBalanceBulkRows(storages, report, nomenclaturesBalances, rowNum, i, cancellationToken);
+			}
+		}
+
+		private void GenerateActiveStoragesBalanceBulkRows(
+			IList<SelectableParameter> storages,
+			ActiveStoragesBalanceSummaryReport report,
+			IEnumerable<BalanceBean> nomenclaturesBalances,
+			int rowNum,
+			int i,
+			CancellationToken cancellationToken)
+		{
+			foreach(var balanceBean in nomenclaturesBalances)
+			{
+				cancellationToken.ThrowIfCancellationRequested();
+				
+				var row = new ActiveStoragesBalanceSummaryRow
+				{
+					StorageId = balanceBean.StorageId,
+					EntityId = balanceBean.EntityId,
+					Entity = balanceBean.EntityName,
+					InventoryNumber = balanceBean.InventoryNumber,
+					Balance = balanceBean.Amount,
+					RowNumberFromStorage = ++rowNum
+				};
+				
+				UpdateStorageTitle(row, storages, rowNum, i);
+				report.ActiveStoragesBalanceRows.Add(row);
+			}
+		}
+
+		private void GenerateActiveStoragesBalanceInstanceRows(
+			IList<SelectableParameter> storages,
+			ActiveStoragesBalanceSummaryReport report,
+			IEnumerable<BalanceBean> instancesBalances,
+			ref int rowNum,
+			int i,
+			CancellationToken cancellationToken)
+		{
+			foreach(var balanceBean in instancesBalances)
+			{
+				cancellationToken.ThrowIfCancellationRequested();
+				
+				var row = new ActiveStoragesBalanceSummaryRow
+				{
+					StorageId = balanceBean.StorageId,
+					EntityId = balanceBean.EntityId,
+					Entity = balanceBean.EntityName,
+					InventoryNumber = balanceBean.InventoryNumber,
+					Balance = balanceBean.Amount,
+					RowNumberFromStorage = ++rowNum
+				};
+
+				UpdateStorageTitle(row, storages, rowNum, i);
+				report.ActiveStoragesBalanceRows.Add(row);
+			}
+		}
+
+		private ILookup<int, BalanceBean> GetActiveStoragesBalanceResult(IQueryBatch batch, string queryKey)
+		{
+			return batch.GetResult<BalanceBean>(queryKey)
+				.ToLookup(x => x.StorageId);
+		}
+		
+		private void UpdateStorageTitle(
+			ActiveStoragesBalanceSummaryRow row,
+			IList<SelectableParameter> storages,
+			int rowNum,
+			int i)
+		{
+			if(rowNum == _firstRow)
+			{
+				row.Storage = storages[i].Title;
+				row.RowNumberStorage = i + 1;
+			}
+		}
+
+		#endregion
+		
+		private void UpdateGroupingActiveStorageState()
+		{
+			OnPropertyChanged(nameof(Sensitivity));
+			ShowReserve = false;
+			ShowPrices = false;
+			EndDate = DateTime.Today.AddDays(1);
+			
+			if(_groupingActiveStorage)
+			{
+				UpdateStateForGroupingActiveStorage();
+			}
+			else
+			{
+				UpdateStorageParameters();
+				UpdateActiveSelectedStorageType(null);
+			}
+		}
+
+		private void UpdateStateForGroupingActiveStorage()
+		{
+			IsGreaterThanZeroByNomenclature = _groupingActiveStorage;
+			IsGreaterThanZeroByWarehouse = _groupingActiveStorage;
+
+			if(StoragesViewModel.CurrentParameterSet is null)
+			{
+				StoragesViewModel.CurrentParameterSet = StoragesViewModel.ReportFilter.ParameterSets.First();
+			}
+			else
+			{
+				UpdateStorageParameters();
+			}
+			
+			if(!string.IsNullOrWhiteSpace(StoragesViewModel.CurrentParameterSet.SearchValue))
+			{
+				StoragesViewModel.SearchValue = string.Empty;
+			}
+			
+			StoragesViewModel.CurrentParameterSet.SelectAll();
+			UpdateActiveSelectedStorageType(StoragesViewModel.CurrentParameterSet);
+		}
+
+		private void UpdateActiveSelectedStorageType(SelectableParameterSet currentActiveParameterSet)
+		{
+			if(currentActiveParameterSet is null)
+			{
+				ActiveSelectedStorageType = null;
+				return;
+			}
+			
+			switch(currentActiveParameterSet.ParameterName)
+			{
+				case ParameterEmployeeStorages:
+					ActiveSelectedStorageType = StorageType.Employee;
+					break;
+				case ParameterCarStorages:
+					ActiveSelectedStorageType = StorageType.Car;
+					break;
+				default:
+					ActiveSelectedStorageType = null;
+					break;
+			}
+		}
+		
+		private void AddQueriesToQueryBatch(
+			IQueryBatch batch,
+			IQueryOver bulkBalanceByWarehousesQuery,
+			IQueryOver instanceBalanceByWarehousesQuery,
+			IQueryOver bulkBalanceByEmployeesQuery,
+			IQueryOver instanceBalanceByEmployeesQuery,
+			IQueryOver bulkBalanceByCarsQuery,
+			IQueryOver instanceBalanceByCarsQuery)
+		{
+			if(bulkBalanceByWarehousesQuery != null)
+			{
+				batch.Add<BalanceBean>(_bulkBalanceWarehousesKey, bulkBalanceByWarehousesQuery);
+			}
+
+			if(instanceBalanceByWarehousesQuery != null)
+			{
+				batch.Add<BalanceBean>(_instanceBalanceWarehousesKey, instanceBalanceByWarehousesQuery);
+			}
+
+			if(bulkBalanceByEmployeesQuery != null)
+			{
+				batch.Add<BalanceBean>(_bulkBalanceEmployeesKey, bulkBalanceByEmployeesQuery);
+			}
+
+			if(instanceBalanceByEmployeesQuery != null)
+			{
+				batch.Add<BalanceBean>(_instanceBalanceEmployeesKey, instanceBalanceByEmployeesQuery);
+			}
+
+			if(bulkBalanceByCarsQuery != null)
+			{
+				batch.Add<BalanceBean>(_bulkBalanceCarsKey, bulkBalanceByCarsQuery);
+			}
+
+			if(instanceBalanceByCarsQuery != null)
+			{
+				batch.Add<BalanceBean>(_instanceBalanceCarsKey, instanceBalanceByCarsQuery);
+			}
+		}
+
+		#region Export Report
+
+		public void ExportReport()
+		{
+			using(var wb = new XLWorkbook())
+			{
+				var sheetName = $"{DateTime.Now:dd.MM.yyyy}";
+				var ws = wb.Worksheets.Add(sheetName);
+
+				if(GroupingActiveStorage)
+				{
+					InsertActiveStoragesBalanceSummaryReportValues(ws);
+				}
+				else
+				{
+					InsertBalanceSummaryReportValues(ws, _isCreatedWithReserveData);
+				}
+				
+				ws.Columns().AdjustToContents();
+
+				if(TryGetSavePath(out string path))
+				{
+					wb.SaveAs(path);
+				}
+			}
+		}
+
+		#region BalanceSummaryReport
+
+		private void InsertBalanceSummaryReportValues(IXLWorksheet ws, bool withReserveData)
+		{
+			var colNames = GetBalanceSummaryReportColumnTitles(withReserveData);
+			var rows = GetBalanceSummaryReportRowsData(withReserveData);
+			
+			var index = 1;
+			foreach(var name in colNames)
+			{
+				ws.Cell(1, index).Value = name;
+				index++;
+			}
+
+			ws.Cell(2, 1).InsertData(rows);
+			AddStoragesColumns(ws, index);
+		}
+		
+		private static string[] GetBalanceSummaryReportColumnTitles(bool withReserveData)
+		{
+			if(!withReserveData)
+			{
+				return new[]
+				{
+					"№",
+					"Код",
+					"Наименование",
+					"Инвентарный номер",
+					"Мин. Остаток",
+					"Общий остаток",
+					"Разница",
+					"Цена закупки",
+					"Цена",
+					"Цена Kuler Sale"
+				};
+			}
+			
+			return new[]
+			{
+				"№",
+				"Код",
+				"Наименование",
+				"Инвентарный номер",
+				"Мин. Остаток",
+				"В резерве",
+				"Доступно для заказа",
+				"Общий остаток",
+				"Разница",
+				"Цена закупки",
+				"Цена",
+				"Цена Kuler Sale"
+			};
+		}
+		
+		private IEnumerable GetBalanceSummaryReportRowsData(bool withReserveData)
+		{
+			if(!withReserveData)
+			{
+				return from row in BalanceSummaryReport.SummaryRows
+					select new
+					{
+						row.Num,
+						row.EntityId,
+						row.NomTitle,
+						row.InventoryNumber,
+						row.Min,
+						row.Common,
+						row.Diff,
+						row.PurchasePrice,
+						row.Price,
+						row.AlternativePrice
+					};
+			}
+			
+			return from row in BalanceSummaryReport.SummaryRows
+				select new
+				{
+					row.Num,
+					row.EntityId,
+					row.NomTitle,
+					row.InventoryNumber,
+					row.Min,
+					row.ReservedItemsAmount,
+					row.AvailableItemsAmount,
+					row.Common,
+					row.Diff,
+					row.PurchasePrice,
+					row.Price,
+					row.AlternativePrice
+				};
+		}
+
+		private void AddStoragesColumns(IXLWorksheet ws, int index)
+		{
+			AddWarehouseColumns(ws, ref index);
+			AddEmployeeColumns(ws, ref index);
+			AddCarColumns(ws, ref index);
+		}
+
+		private void AddWarehouseColumns(IXLWorksheet ws, ref int startIndex)
+		{
+			for(var i = 0; i < BalanceSummaryReport.WarehouseStoragesTitles?.Count; i++)
+			{
+				ws.Cell(1, startIndex).Value = $"{BalanceSummaryReport.WarehouseStoragesTitles[i]}";
+				ws.Cell(2, startIndex).InsertData(BalanceSummaryReport.SummaryRows.Select(sr => sr.WarehousesBalances[i]));
+				startIndex++;
+			}
+		}
+		
+		private void AddEmployeeColumns(IXLWorksheet ws, ref int startIndex)
+		{
+			for(var i = 0; i < BalanceSummaryReport.EmployeeStoragesTitles?.Count; i++)
+			{
+				ws.Cell(1, startIndex).Value = $"{BalanceSummaryReport.EmployeeStoragesTitles[i]}";
+				ws.Cell(2, startIndex).InsertData(BalanceSummaryReport.SummaryRows.Select(sr => sr.EmployeesBalances[i]));
+				startIndex++;
+			}
+		}
+		
+		private void AddCarColumns(IXLWorksheet ws, ref int startIndex)
+		{
+			for(var i = 0; i < BalanceSummaryReport.CarStoragesTitles?.Count; i++)
+			{
+				ws.Cell(1, startIndex).Value = $"{BalanceSummaryReport.CarStoragesTitles[i]}";
+				ws.Cell(2, startIndex).InsertData(BalanceSummaryReport.SummaryRows.Select(sr => sr.CarsBalances[i]));
+				startIndex++;
+			}
+		}
+
+		#endregion
+
+		#region ActiveStoragesBalanceSummaryReport
+
+		public string GetActiveSelectedStorageTypeTitle() =>
+			ActiveSelectedStorageType == null ? _storage : ActiveSelectedStorageType.GetEnumTitle();
+
+		private void InsertActiveStoragesBalanceSummaryReportValues(IXLWorksheet ws)
+		{
+			var colNames = GetActiveStoragesBalanceSummaryReportColumnTitles();
+			var rows = GetActiveStoragesBalanceSummaryReportRowsData();
+			
+			var index = 1;
+			foreach(var name in colNames)
+			{
+				ws.Cell(1, index).Value = name;
+				index++;
+			}
+
+			ws.Cell(2, 1).InsertData(rows);
+		}
+
+		private string[] GetActiveStoragesBalanceSummaryReportColumnTitles()
+		{
+			return new[]
+			{
+				RowNumberTitle,
+				GetActiveSelectedStorageTypeTitle(),
+				RowNumberTitle,
+				IdTitle,
+				EntityTitle,
+				InventoryNumberTitle.Replace('\n', ' '),
+				BalanceTitle
+			};
+		}
+
+		private IEnumerable GetActiveStoragesBalanceSummaryReportRowsData()
+		{
+			return from row in ActiveStoragesBalanceSummaryReport.ActiveStoragesBalanceRows
+				select new
+				{
+					row.RowNumberStorage,
+					row.Storage,
+					row.RowNumberFromStorage,
+					row.EntityId,
+					row.Entity,
+					row.InventoryNumber,
+					row.Balance
+				};
+		}
+
+		#endregion
+		
+		private bool TryGetSavePath(out string path)
+		{
+			var extension = ".xlsx";
+			var dialogSettings = new DialogSettings
+			{
+				Title = "Сохранить",
+				FileName = $"{TabName} {DateTime.Now:yyyy-MM-dd-HH-mm}{extension}"
+			};
+
+			dialogSettings.FileFilters.Add(new DialogFileFilter(_xlsxFileFilter, $"*{extension}"));
+			var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
+			path = result.Path;
+
+			return result.Successful;
+		}
+
+		#endregion
+
+		private void UpdateStorageParameters()
+		{
+			StoragesViewModel.CurrentParameterSet.UpdateParameters();
+			StoragesViewModel.CurrentParameterSet = null;
+			StoragesViewModel.CurrentParameterSet = StoragesViewModel.ReportFilter.ParameterSets.First();
+		}
+
 		private void AddRow(BalanceSummaryReport report, BalanceSummaryRow row)
 		{
 			if(AllNomenclatures
-				|| IsGreaterThanZeroByNomenclature && row.WarehousesBalances.FirstOrDefault(war => war > 0) > 0
-				|| IsLessOrEqualZeroByNomenclature && row.WarehousesBalances.FirstOrDefault(war => war <= 0) <= 0
-				|| IsLessThanMinByNomenclature && row.WarehousesBalances.FirstOrDefault(war => war < row.Min) < row.Min
-				|| IsGreaterOrEqualThanMinByNomenclature && row.WarehousesBalances.FirstOrDefault(war => war >= row.Min) >= row.Min)
+				|| (IsGreaterThanZeroByNomenclature && row.HasGreaterThanZeroBalance)
+				|| (IsLessOrEqualZeroByNomenclature && row.HasLessOrEqualZeroBalance)
+				|| (IsLessThanMinByNomenclature && row.HasLessThanMinBalance)
+				|| (IsGreaterOrEqualThanMinByNomenclature && row.HasGreaterOrEqualThanMinBalance))
 			{
 				report.SummaryRows.Add(row);
 			}
@@ -1170,9 +1866,13 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 					filters =>
 					{
 						SelectableEntityParameter<Employee> resultAlias = null;
-						var query = UoW.Session.QueryOver<Employee>()
-							.Where(e => e.Status == EmployeeStatus.IsWorking);
+						var query = UoW.Session.QueryOver<Employee>();
 
+						if(GroupingActiveStorage)
+						{
+							query.Where(e => e.Status == EmployeeStatus.IsWorking);
+						}
+						
 						var employeeName = EmployeeProjections.GetEmployeeFullNameProjection();
 
 						if(filters != null && EnumerableExtensions.Any(filters))
@@ -1189,8 +1889,15 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 						query.SelectList(list => list
 							.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
-							.Select(employeeName).WithAlias(() => resultAlias.EntityTitle)
-						).TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Employee>>());
+							.Select(employeeName).WithAlias(() => resultAlias.EntityTitle));
+
+						if(GroupingActiveStorage)
+						{
+							query.OrderBy(e => e.Category).Asc()
+								.ThenBy(employeeName).Asc();
+						}
+						
+						query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Employee>>());
 						return query.List<SelectableParameter>();
 					})));
 
@@ -1204,6 +1911,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 						SelectableEntityParameter<Car> resultAlias = null;
 						Car carAlias = null;
 						CarModel carModelAlias = null;
+						CarVersion carVersionAlias = null;
 
 						var query = UoW.Session.QueryOver(() => carAlias)
 							.JoinAlias(c => c.CarModel, () => carModelAlias)
@@ -1214,6 +1922,29 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 							Projections.Constant(" ("),
 							Projections.Property(() => carAlias.RegistrationNumber),
 							Projections.Constant(")"));
+						
+						var carTypeProjection = Projections.Conditional(
+								Restrictions.Where(() => carModelAlias.CarTypeOfUse == CarTypeOfUse.Largus),
+								Projections.Constant(0),
+								Projections.Conditional(
+									Restrictions.Where(() => carModelAlias.CarTypeOfUse == CarTypeOfUse.GAZelle),
+									Projections.Constant(1),
+									Projections.Conditional(
+										Restrictions.Where(() => carModelAlias.CarTypeOfUse == CarTypeOfUse.Truck),
+										Projections.Constant(2),
+										Projections.Constant(3)
+									)
+								)
+							);
+
+						if(GroupingActiveStorage)
+						{
+							query.JoinAlias(() => carAlias.CarVersions, () => carVersionAlias)
+								.Where(() =>
+									carVersionAlias.StartDate <= EndDate
+									&& (carVersionAlias.EndDate == null || carVersionAlias.EndDate > EndDate))
+								.AndRestrictionOn(() => carVersionAlias.CarOwnType).IsIn(new[]{ CarOwnType.Company, CarOwnType.Raskat });
+						}
 
 						if(filters != null && EnumerableExtensions.Any(filters))
 						{
@@ -1229,8 +1960,16 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 						query.SelectList(list => list
 							.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
-							.Select(customName).WithAlias(() => resultAlias.EntityTitle)
-						).TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Car>>());
+							.Select(customName).WithAlias(() => resultAlias.EntityTitle));
+
+						if(GroupingActiveStorage)
+						{
+							query.OrderBy(carTypeProjection).Asc()
+								.ThenBy(() => carAlias.Id).Asc();
+						}
+						
+						query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Car>>());
+						
 						return query.List<SelectableParameter>();
 					})));
 

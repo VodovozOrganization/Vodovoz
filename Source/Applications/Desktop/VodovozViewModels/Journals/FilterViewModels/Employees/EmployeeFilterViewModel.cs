@@ -10,7 +10,7 @@ using Vodovoz.Domain.WageCalculation;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
 {
-	public class EmployeeFilterViewModel : FilterViewModelBase<EmployeeFilterViewModel>, IJournalFilterViewModel
+	public class EmployeeFilterViewModel : FilterViewModelBase<EmployeeFilterViewModel>
 	{
 		private bool _sortByPriority;
 		private bool _canSortByPriority;
@@ -41,7 +41,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
 
 		public EmployeeFilterViewModel(params EmployeeCategory[] hideEmployeeCategories)
 		{
-			var cashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier");
+			var cashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.RoleCashier);
 			var logistician = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
 			HasAccessToDriverTerminal = cashier || logistician;
 			CanSortByPriority = cashier;
@@ -230,7 +230,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
 			}
 		}
 
-		public bool IsShow { get; set; }
+		public override bool IsShow { get; set; } = true;
 
 		#endregion
 

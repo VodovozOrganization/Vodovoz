@@ -112,13 +112,15 @@ namespace Vodovoz.Models.TrueMark
 
 		public TrueMarkWaterCode ParseCodeFrom1c(string code)
 		{
-			var pattern = $@"(?<IdentificationCode>01(?<{_gtinGroupName}>.{{14}})21(?<{_serialGroupName}>.{{13}}))((\|ГС\|)|(\\u001d)|([\\u001d]{{1}}))93(?<{_checkGroupName}>.{{4}})";
+			var cleanCode = code.Replace("\"\"", "\"");
+
+			var pattern = $@"(?<IdentificationCode>01(?<{_gtinGroupName}>.{{14}})21(?<{_serialGroupName}>.{{13}}))((\|ГС\|)|(\\u001d)|()|())93(?<{_checkGroupName}>.{{4}})";
 			_regex = new Regex(pattern);
 
-			var match = _regex.Match(code);
+			var match = _regex.Match(cleanCode);
 			if(!match.Success)
 			{
-				throw new TrueMarkException($"Невозможно распарсить код честного знака для воды. Код ({code}).");
+				throw new TrueMarkException($"Невозможно распарсить код честного знака для воды. Код ({cleanCode}).");
 			}
 
 			Group gtinGroup = match.Groups[_gtinGroupName];
@@ -127,7 +129,7 @@ namespace Vodovoz.Models.TrueMark
 
 			if(gtinGroup == null || serialGroup == null || checkGroup == null)
 			{
-				throw new InvalidOperationException($"Ошибка определения составных частей кода (GTIN, серийного номера и кода проверки). Возможно код имеет не известный формат. Код ({code}).");
+				throw new InvalidOperationException($"Ошибка определения составных частей кода (GTIN, серийного номера и кода проверки). Возможно код имеет не известный формат. Код ({cleanCode}).");
 			}
 
 			string gtin = gtinGroup.Value;

@@ -9,7 +9,7 @@ using Vodovoz.Infrastructure;
 
 namespace DriverAPI.Workers
 {
-	public class WakeUpNotificationSenderService : TimerBackgroundServiceBase
+	internal class WakeUpNotificationSenderService : TimerBackgroundServiceBase
 	{
 		protected readonly ILogger<WakeUpNotificationSenderService> _logger;
 		private readonly IFCMAPIHelper _fCMAPIHelper;

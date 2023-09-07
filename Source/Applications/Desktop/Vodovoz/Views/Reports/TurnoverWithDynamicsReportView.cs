@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.ViewModels.Reports.Sales;
+using Vodovoz.ViewWidgets.Reports;
 using static Vodovoz.ViewModels.Reports.Sales.TurnoverWithDynamicsReportViewModel;
 using static Vodovoz.ViewModels.Reports.Sales.TurnoverWithDynamicsReportViewModel.TurnoverWithDynamicsReport;
 
@@ -15,7 +16,7 @@ namespace Vodovoz.ReportsParameters.Sales
 {
 	public partial class TurnoverWithDynamicsReportView : TabViewBase<TurnoverWithDynamicsReportViewModel>
 	{
-		private SelectableParameterReportFilterView _filterView;
+		private IncludeExludeFiltersView _filterView;
 		private const string _radioButtonPrefix = "yrbtn";
 		private const string _sliceRadioButtonGroupPrefix = "Slice";
 		private const string _measurementUnitRadioButtonGroupPrefix = "MeasurementUnit";
@@ -58,6 +59,10 @@ namespace Vodovoz.ReportsParameters.Sales
 			datePeriodPicker.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.StartDate, w => w.StartDateOrNull)
 				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
+				.InitializeFromSource();
+
+			yrbtnGroupingCounterpartyShowContacts.Binding
+				.AddBinding(ViewModel, vm => vm.UserCanGetContactsInSalesReports, v => v.Sensitive)
 				.InitializeFromSource();
 
 			foreach(RadioButton radioButton in yrbtnGroupingCounterparty.Group)
@@ -113,6 +118,7 @@ namespace Vodovoz.ReportsParameters.Sales
 
 			ShowFilter();
 
+			ytreeReportIndicatorsRows.RowActivated += OnReportRowActivated;
 			ViewModel.PropertyChanged += ViewModelPropertyChanged;
 			eventboxArrow.ButtonPressEvent += OnEventboxArrowButtonPressEvent;
 		}
@@ -199,14 +205,17 @@ namespace Vodovoz.ReportsParameters.Sales
 			columnsConfig.AddColumn("")
 				.AddTextRenderer(row => row.IsSubheaderRow ? "<b>№</b>" : row.Index, useMarkup: true);
 
-			var firstColumnTitle = ViewModel.Report.GroupingBy == GroupingByEnum.Counterparty ? "Контрагент" : "Периоды продаж";
+			var firstColumnTitle = 
+				(ViewModel.Report.GroupingBy == GroupingByEnum.Counterparty || ViewModel.Report.GroupingBy == GroupingByEnum.CounterpartyShowContacts) 
+				? "Контрагент" 
+				: "Периоды продаж";
 
 			columnsConfig.AddColumn(firstColumnTitle).AddTextRenderer(row =>
 				(row.IsSubheaderRow || row.IsTotalsRow) ? $"<b>{row.Title}</b>" : row.Title, useMarkup: true)
 				.WrapWidth(350)
 				.WrapMode(Pango.WrapMode.Word);
 
-			if(ViewModel.Report.GroupingBy == GroupingByEnum.Counterparty)
+			if(ViewModel.Report.GroupingBy == GroupingByEnum.CounterpartyShowContacts)
 			{
 				columnsConfig.AddColumn("Телефоны").AddTextRenderer(row => row.Phones);
 				columnsConfig.AddColumn("E-mail").AddTextRenderer(row => row.Emails);
@@ -278,14 +287,26 @@ namespace Vodovoz.ReportsParameters.Sales
 			columnsConfig.AddColumn("");
 
 			ytreeReportIndicatorsRows.ColumnsConfig = columnsConfig.Finish();
-
 			ytreeReportIndicatorsRows.EnableGridLines = TreeViewGridLines.Both;
+		}
+
+		private void OnReportRowActivated(object o, RowActivatedArgs args)
+		{
+			var row = ytreeReportIndicatorsRows.GetSelectedObject<TurnoverWithDynamicsReportRow>();
+
+			if(row == null)
+			{
+				return;
+			}
+
+			var data = row.SliceColumnValues;
+			GetClipboard(Gdk.Selection.Clipboard).Text = string.Join("  \t", data);
 		}
 
 		private void ShowFilter()
 		{
 			_filterView?.Destroy();
-			_filterView = new SelectableParameterReportFilterView(ViewModel.FilterViewModel);
+			_filterView = new IncludeExludeFiltersView(ViewModel.FilterViewModel);
 			vboxParameters.Add(_filterView);
 			_filterView.Show();
 		}

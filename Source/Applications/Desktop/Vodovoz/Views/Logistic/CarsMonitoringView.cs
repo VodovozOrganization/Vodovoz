@@ -58,6 +58,7 @@ namespace Vodovoz.Views.Logistic
 
 			ybtnOpenKeeping.Binding.AddBinding(ViewModel, vm => vm.CanOpenKeepingTab, w => w.Sensitive);
 			ybtnChangeFastDeliveryDistance.Binding.AddBinding(ViewModel, vm => vm.CanEditRouteListFastDeliveryMaxDistance, w => w.Sensitive);
+			ybtnChangeMaxFastDeliveryOrders.Binding.AddBinding(ViewModel, vm => vm.CanEditRouteListMaxFastDeliveryOrders, w => w.Sensitive);
 
 			ytbtnShowAddressesList.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.ShowAddresses, w => w.Active)
@@ -72,6 +73,11 @@ namespace Vodovoz.Views.Logistic
 
 			ycheckbuttonShowFastDeliveryCircle.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.ShowCarCirclesOverlay, w => w.Active)
+				.AddBinding(vm => vm.ShowFastDeliveryOnly, w => w.Sensitive)
+				.InitializeFromSource();
+
+			yckbtnIsAvailableForFastDelivery.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.ShowActualFastDeliveryOnly, w => w.Active)
 				.AddBinding(vm => vm.ShowFastDeliveryOnly, w => w.Sensitive)
 				.InitializeFromSource();
 
@@ -103,11 +109,13 @@ namespace Vodovoz.Views.Logistic
 				.InitializeFromSource();
 
 			ylblCoveragePercent.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.ShowDistrictsOverlay, w => w.Visible)
+				.AddFuncBinding(vm => vm.ShowDistrictsOverlay, w => w.Visible)
 				.AddBinding(vm => vm.CoveragePercentString, w => w.Text)
 				.InitializeFromSource();
 
-			ylblCoveragePercentBefore.Binding.AddBinding(ViewModel, vm => vm.ShowDistrictsOverlay, w => w.Visible)
+			ylblCoveragePercentBefore.Binding.AddSource(ViewModel)
+				.AddFuncBinding(vm => vm.ShowDistrictsOverlay, w => w.Visible)
+				.AddBinding(vm => vm.CoveragePercentBeforeText, w => w.Text)
 				.InitializeFromSource();
 
 			ConfigureMap();
@@ -156,9 +164,10 @@ namespace Vodovoz.Views.Logistic
 				.AddColumn("Машина").AddTextRenderer().AddSetter((c, node) => c.Markup = node.CarText)
 				.AddColumn("МЛ").AddTextRenderer().AddSetter((c, node) => c.Markup = node.RouteListsText)
 				.AddColumn("Радиус").AddTextRenderer().AddSetter((c, node) => c.Markup = node.FastDeliveryMaxDistanceString)
+				.AddColumn("Макс.\nкол-во ДЗЧ").AddTextRenderer().AddSetter((c, node) => c.Markup = node.MaxFastDeliveryOrdersString)
 				.AddColumn("Выполнено").AddProgressRenderer(x => x.CompletedPercent).AddSetter((c, n) => c.Text = n.CompletedText)
-				.AddColumn("Остаток бут.").AddTextRenderer().AddSetter((c, node) => c.Markup = $"{node.BottlesLeft:N0}")
-				.AddColumn("Остаток запаса").AddTextRenderer().AddSetter((c, node) => c.Markup = $"{node.Water19LReserve:N0}")
+				.AddColumn("Остаток\nбут.").AddTextRenderer().AddSetter((c, node) => c.Markup = $"{node.BottlesLeft:N0}")
+				.AddColumn("Остаток\nзапаса").AddTextRenderer().AddSetter((c, node) => c.Markup = $"{node.Water19LReserve:N0}")
 				.Finish();
 
 			yTreeViewDrivers.ItemsDataSource = ViewModel.WorkingDrivers;
@@ -177,6 +186,7 @@ namespace Vodovoz.Views.Logistic
 			yTreeViewDrivers.RowActivated += OnYTreeViewDriversRowActivated;
 			ybtnOpenKeeping.Clicked += OnButtonOpenKeepingClicked;
 			ybtnChangeFastDeliveryDistance.Clicked += OnButtonChangeFastDeliveryDistanceClicked;
+			ybtnChangeMaxFastDeliveryOrders.Clicked += OnButtonChangeMaxFastDeliveryOrdersClicked;
 			ychkbtnShowHistory.Toggled += ShowHistoryToggled;
 
 			ybuttonTrackPoints.Clicked += OnButtonTrackPointsClicked;
@@ -198,6 +208,7 @@ namespace Vodovoz.Views.Logistic
 			yTreeViewDrivers.RowActivated -= OnYTreeViewDriversRowActivated;
 			ybtnOpenKeeping.Clicked -= OnButtonOpenKeepingClicked;
 			ybtnChangeFastDeliveryDistance.Clicked -= OnButtonChangeFastDeliveryDistanceClicked;
+			ybtnChangeMaxFastDeliveryOrders.Clicked -= OnButtonChangeMaxFastDeliveryOrdersClicked;
 			ychkbtnShowHistory.Toggled -= ShowHistoryToggled;
 
 			ybuttonTrackPoints.Clicked -= OnButtonTrackPointsClicked;
@@ -240,6 +251,7 @@ namespace Vodovoz.Views.Logistic
 			}
 
 			ViewModel.CanEditRouteListFastDeliveryMaxDistance = ViewModel.SelectedWorkingDrivers.Count == 1;
+			ViewModel.CanEditRouteListMaxFastDeliveryOrders = ViewModel.SelectedWorkingDrivers.Count == 1;
 		}
 
 		private void ViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -330,6 +342,18 @@ namespace Vodovoz.Views.Logistic
 				foreach(var routeListId in driver.RouteListsIds.Select(x => x.Key))
 				{
 					ViewModel.ChangeRouteListFastDeliveryMaxDistanceCommand?.Execute(routeListId);
+				}
+			}
+		}
+
+		private void OnButtonChangeMaxFastDeliveryOrdersClicked(object sender, EventArgs e)
+		{
+			var selectedDrivers = ViewModel.SelectedWorkingDrivers;
+			foreach(var driver in selectedDrivers)
+			{
+				foreach(var routeListId in driver.RouteListsIds.Select(x => x.Key))
+				{
+					ViewModel.ChangeRouteListMaxFastDeliveryOrdersCommand?.Execute(routeListId);
 				}
 			}
 		}

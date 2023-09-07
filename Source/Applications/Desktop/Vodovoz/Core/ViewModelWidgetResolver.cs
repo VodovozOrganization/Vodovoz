@@ -1,20 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
-using Gtk;
+﻿using Gtk;
 using QS.Banks.Domain;
 using QS.Deletion.Views;
 using QS.Dialog.GtkUI;
 using QS.HistoryLog;
 using QS.Journal.GtkUI;
-using QS.Project.Filter;
+using QS.Project.Journal;
 using QS.RepresentationModel;
 using QS.Tdi;
-using QS.Tdi.Gtk;
 using QS.ViewModels;
 using QS.ViewModels.Dialog;
 using QS.Views.Resolve;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using Vodovoz.Data.NHibernate.HibernateMapping.Organizations;
 using Vodovoz.Infrastructure.Services;
+using IJournalFilter = QS.RepresentationModel.IJournalFilter;
 
 namespace Vodovoz.Core
 {
@@ -37,13 +38,13 @@ namespace Vodovoz.Core
 			var usedAssemblies = new Assembly[] {
 				Assembly.GetAssembly(typeof(DeletionView)), 
 				Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
-				Assembly.GetAssembly(typeof(HibernateMapping.Organizations.OrganizationMap)),
+				Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
 				Assembly.GetAssembly(typeof(Bank)),
 				Assembly.GetAssembly(typeof(HistoryMain)),
 				Assembly.GetAssembly(typeof(MainWindow)),
 				Assembly.GetAssembly(typeof(VodovozViewModelAssemblyFinder))
 			};
-			_classNamesBaseGtkViewResolver = new ClassNamesBaseGtkViewResolver(usedAssemblies);
+			_classNamesBaseGtkViewResolver = new ClassNamesBaseGtkViewResolver(new ViewFactory(), usedAssemblies);
 		}
 
 		private Dictionary<Type, Type> viewModelWidgets = new Dictionary<Type, Type>();
@@ -54,8 +55,9 @@ namespace Vodovoz.Core
 				return (Widget)tab;
 			}
 
-			if(JournalViewFactory.TryCreateView(out Widget widget, tab)) {
-				return widget;
+			if(tab is JournalViewModelBase journalTab)
+			{
+				return new JournalView(journalTab, this);
 			}
 
 			if(tab is EntityRepresentationSelectorAdapter) {
@@ -68,7 +70,7 @@ namespace Vodovoz.Core
 			}
 
 			var widgetCtorInfo = viewModelWidgets[tabType].GetConstructor(new[] { tabType });
-			widget = (Widget)widgetCtorInfo.Invoke(new object[] { tab });
+			var widget = (Widget)widgetCtorInfo.Invoke(new object[] { tab });
 			return widget;
 		}
 

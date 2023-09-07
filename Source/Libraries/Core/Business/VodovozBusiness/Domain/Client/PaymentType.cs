@@ -1,12 +1,16 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using QS.DomainModel.Entity;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.Client
 {
+	[Appellative(
+		Nominative = "Вид оплаты",
+		NominativePlural = "Виды оплаты")]
 	public enum PaymentType
 	{
 		[Display(Name = "Наличная", ShortName = "нал.")]
 		Cash,
-		[Display(Name = "Терминал (QR-код терминал)", ShortName = "терм.")]
+		[Display(Name = "Терминал", ShortName = "терм.")]
 		Terminal,
 		[Display(Name = "МП водителя (QR-код)", ShortName = "МП вод.")]
 		DriverApplicationQR,

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace Vodovoz.Parameters
 {
@@ -21,5 +21,15 @@ namespace Vodovoz.Parameters
 		string WarehousesForPricesAndStocksIntegrationName { get; }
 		void UpdateSubdivisionsForParameter(List<int> subdivisionsToAdd, List<int> subdivisionsToRemoves, string parameterName);
 		void UpdateWarehousesIdsForParameter(IEnumerable<int> warehousesIds, string parameterName);
+		
+		int DriversUnclosedRouteListsHavingDebtMaxCount { get; }
+
+		void UpdateDriversUnclosedRouteListsHavingDebtMaxCount(int value);
+
+		int DriversRouteListsMaxDebtSum { get; }
+
+		void UpdateDriversRouteListsMaxDebtSum(decimal value);
+		bool GetIsClientsSecondOrderDiscountActive { get; }
+		void UpdateIsClientsSecondOrderDiscountActive(bool value);
 	}
 }

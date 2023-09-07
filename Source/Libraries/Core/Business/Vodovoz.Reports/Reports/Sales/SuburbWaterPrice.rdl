@@ -9,7 +9,7 @@
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>server=vod.qsolution.ru;user=andrey;database=Vodovoz_temp;port=3306;password=123;</ConnectString>
       </ConnectionProperties>
     </DataSource>
@@ -587,7 +587,7 @@ ORDER BY orders.id</CommandText>
         <Height>20.98pt</Height>
         <Width>801.08pt</Width>
         <Value>Заказы без координат</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>5.9pt</Left>
         <Top>60.7pt</Top>
         <Style>

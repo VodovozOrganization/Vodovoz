@@ -1,23 +1,32 @@
-﻿using System.ComponentModel;
-using System.Data.Bindings.Collections.Generic;
-using NHibernate.Transform;
+﻿using NHibernate.Transform;
 using QS.Project.Filter;
-using QS.Project.Journal;
 using QS.RepresentationModel.GtkUI;
+using System.ComponentModel;
+using System.Data.Bindings.Collections.Generic;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Retail;
 using Vodovoz.Representations;
 
 namespace Vodovoz.Filters.ViewModels
 {
-	public class CounterpartyJournalFilterViewModel : FilterViewModelBase<CounterpartyJournalFilterViewModel>, IJournalFilter, IJournalFilterViewModel
+	public class CounterpartyJournalFilterViewModel : FilterViewModelBase<CounterpartyJournalFilterViewModel>
 	{
+		private CounterpartyType? _counterpartyType;
+		private bool _restrictIncludeArchive;
+		private Tag _tag;
+		private IRepresentationModel _tagVM;
+		private bool? _isForRetail;
 		private string _counterpartyName;
 		private string _deliveryPointPhone;
 		private string _counterpartyPhone;
 		private GenericObservableList<SalesChannelSelectableNode> _salesChannels;
 		private bool? _isForSalesDepartment;
 		private ReasonForLeaving? _reasonForLeaving;
+		private bool _isNeedToSendBillByEdo;
+		private int? _counterpartyId;
+		private int? _counterpartyVodovozInternalId;
+		private string _counterpartyInn;
+		private string _deliveryPointAddressLike;
 
 		public CounterpartyJournalFilterViewModel()
 		{
@@ -25,44 +34,39 @@ namespace Vodovoz.Filters.ViewModels
 				x => x.CounterpartyType,
 				x => x.ReasonForLeaving,
 				x => x.RestrictIncludeArchive,
-				x => x.Tag
+				x => x.Tag,
+				x => x.IsNeedToSendBillByEdo
 			);
 		}
 
-		private CounterpartyType? counterpartyType;
 		public virtual CounterpartyType? CounterpartyType {
-			get => counterpartyType;
-			set => SetField(ref counterpartyType, value, () => CounterpartyType);
+			get => _counterpartyType;
+			set => SetField(ref _counterpartyType, value, () => CounterpartyType);
 		}
 
-		private bool restrictIncludeArchive;
 		public virtual bool RestrictIncludeArchive {
-			get => restrictIncludeArchive;
-			set => SetField(ref restrictIncludeArchive, value, () => RestrictIncludeArchive);
+			get => _restrictIncludeArchive;
+			set => SetField(ref _restrictIncludeArchive, value, () => RestrictIncludeArchive);
 		}
 
-		private Tag tag;
 		public virtual Tag Tag {
-			get => tag;
-			set => SetField(ref tag, value, () => Tag);
+			get => _tag;
+			set => SetField(ref _tag, value, () => Tag);
 		}
 
-		private IRepresentationModel tagVM;
 		public virtual IRepresentationModel TagVM {
 			get {
-				if(tagVM == null) {
-					tagVM = new TagVM(UoW);
+				if(_tagVM == null) {
+					_tagVM = new TagVM(UoW);
 				}
-				return tagVM;
+				return _tagVM;
 			}
 		}
 
-		private bool? isForRetail;
-
 		public bool? IsForRetail
 		{
-			get => isForRetail;
-			set => SetField(ref isForRetail, value);
+			get => _isForRetail;
+			set => SetField(ref _isForRetail, value);
 		}
 
 		public bool? IsForSalesDepartment
@@ -116,7 +120,37 @@ namespace Vodovoz.Filters.ViewModels
 			get => _reasonForLeaving;
 			set => SetField(ref _reasonForLeaving, value);
 		}
-		public bool IsShow { get; set; }
+		public override bool IsShow { get; set; } = true;
+
+		public bool IsNeedToSendBillByEdo
+		{
+			get => _isNeedToSendBillByEdo;
+			set => SetField(ref _isNeedToSendBillByEdo, value);
+		}
+
+		public int? CounterpartyId
+		{
+			get => _counterpartyId;
+			set => SetField(ref _counterpartyId, value);
+		}
+
+		public int? CounterpartyVodovozInternalId
+		{
+			get => _counterpartyVodovozInternalId;
+			set => SetField(ref _counterpartyVodovozInternalId, value);
+		}
+
+		public string CounterpartyInn
+		{
+			get => _counterpartyInn;
+			set => SetField(ref _counterpartyInn, value);
+		}
+
+		public string DeliveryPointAddressLike
+		{
+			get => _deliveryPointAddressLike;
+			set => SetField(ref _deliveryPointAddressLike, value);
+		}
 
 		private void UnsubscribeOnCheckChanged()
 		{

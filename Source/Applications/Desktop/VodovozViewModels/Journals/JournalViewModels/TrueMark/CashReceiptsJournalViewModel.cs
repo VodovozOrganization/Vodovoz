@@ -23,6 +23,7 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
+using CashReceiptPermissions = Vodovoz.Permissions.Order.CashReceipt;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 {
@@ -35,7 +36,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 		private readonly TrueMarkCodePoolLoader _codePoolLoader;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly bool _canResendDuplicateReceipts;
-
 
 		private CashReceiptJournalFilterViewModel _filter;
 		private Timer _autoRefreshTimer;
@@ -61,27 +61,33 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
 			var permissionService = _commonServices.CurrentPermissionService;
-			var canReadReceipts = permissionService.ValidatePresetPermission("CashReceipt.CanReadReceipts");
+			
+			var allReceiptStatusesAvailable =
+				permissionService.ValidatePresetPermission(CashReceiptPermissions.AllReceiptStatusesAvailable);
+			var showOnlyCodeErrorStatusReceipts =
+				permissionService.ValidatePresetPermission(CashReceiptPermissions.ShowOnlyCodeErrorStatusReceipts);
+			var showOnlyReceiptSendErrorStatusReceipts =
+				permissionService.ValidatePresetPermission(CashReceiptPermissions.ShowOnlyReceiptSendErrorStatusReceipts);
+			
+			var canReadReceipts = allReceiptStatusesAvailable || showOnlyCodeErrorStatusReceipts || showOnlyReceiptSendErrorStatusReceipts;
 			if(!canReadReceipts)
 			{
 				AbortOpening("Нет прав просматривать кассовые чеки.");
 				return;
 			}
 
-			_canResendDuplicateReceipts = permissionService.ValidatePresetPermission("CashReceipt.CanResendDuplicateReceipts");
+			_canResendDuplicateReceipts = permissionService.ValidatePresetPermission(CashReceiptPermissions.CanResendDuplicateReceipts);
 
 			Filter = filter ?? throw new ArgumentNullException(nameof(filter));
-			;
 
 			_autoRefreshInterval = 30;
 
 			Title = "Журнал чеков";
 
-			var levelQueryLoader = new HierarchicalQueryLoader<CashReceipt, CashReceiptJournalNode>(unitOfWorkFactory);
+			var levelQueryLoader = new HierarchicalQueryLoader<CashReceipt, CashReceiptJournalNode>(unitOfWorkFactory, GetCount);
 
 			levelQueryLoader.SetLevelingModel(GetQuery)
 				.AddNextLevelSource(GetDetails);
-			levelQueryLoader.SetCountFunction(GetCount);
 
 			RecuresiveConfig = levelQueryLoader.TreeConfig;
 
@@ -166,6 +172,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			query.Left.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias);
 			query.Left.JoinAlias(() => routeListAlias.Driver, () => driverAlias);
 			query.Where(() => !cashReceiptAlias.WithoutMarks);
+			
 			if(_filter.Status.HasValue)
 			{
 				query.Where(Restrictions.Eq(Projections.Property(() => cashReceiptAlias.Status), _filter.Status.Value));
@@ -200,6 +207,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			if(_filter.HasUnscannedReason)
 			{
 				query.Where(Restrictions.Eq(Projections.SqlFunction("IS_NULL_OR_WHITESPACE", NHibernateUtil.Boolean, Projections.Property(() => cashReceiptAlias.UnscannedCodesReason)), false));
+			}
+
+			if(_filter.AvailableReceiptStatuses == AvailableReceiptStatuses.CodeErrorAndReceiptSendError
+				&& !_filter.Status.HasValue)
+			{
+				query.WhereRestrictionOn(x => x.Status)
+					.IsInG(new[] { CashReceiptStatus.CodeError, CashReceiptStatus.ReceiptSendError });
 			}
 
 			query.Where(
@@ -539,8 +553,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			var interactiveService = _commonServices.InteractiveService;
 			var dialogSettings = new DialogSettings();
 			dialogSettings.SelectMultiple = false;
-			dialogSettings.Title = "Выберите файл выгрузки кодов из 1с";
-			dialogSettings.FileFilters.Add(new DialogFileFilter("Файлы Excel (*.xlsx)", "*.xlsx"));
+			dialogSettings.Title = "Выберите файл содержащий коды";
+			dialogSettings.FileFilters.Add(new DialogFileFilter("Файлы содержащие коды", "*.xlsx", "*.mxl", "*.csv", "*.txt"));
 			var result = _fileDialogService.RunOpenFileDialog(dialogSettings);
 			if(!result.Successful)
 			{
@@ -552,7 +566,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 				var lodingResult = _codePoolLoader.LoadFromFile(result.Path);
 
 				interactiveService.ShowMessage(ImportanceLevel.Info,
-					$"Предположительное кол-во кодов в выгрузке: {lodingResult.TotalFound}\nВсего загружено кодов: {lodingResult.SuccessfulLoaded}");
+					$"Найдено кодов: {lodingResult.TotalFound}" +
+					$"\nЗагружено: {lodingResult.SuccessfulLoaded}" +
+					$"\nУже существуют в системе: {lodingResult.TotalFound - lodingResult.SuccessfulLoaded}");
 			}
 			catch(IOException ex)
 			{

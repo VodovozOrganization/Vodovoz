@@ -22,6 +22,7 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
+using CashReceiptPermissions = Vodovoz.Permissions.Order.CashReceipt;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
@@ -51,7 +52,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			Filter = filter ?? throw new ArgumentNullException(nameof(filter));
 
 			var permissionService = commonServices.CurrentPermissionService;
-			var canReadReceipts = permissionService.ValidatePresetPermission("CashReceipt.CanReadReceipts");
+			var allReceiptStatusesAvailable =
+				permissionService.ValidatePresetPermission(CashReceiptPermissions.AllReceiptStatusesAvailable);
+			var showOnlyCodeErrorStatusReceipts =
+				permissionService.ValidatePresetPermission(CashReceiptPermissions.ShowOnlyCodeErrorStatusReceipts);
+			var showOnlyReceiptSendErrorStatusReceipts =
+				permissionService.ValidatePresetPermission(CashReceiptPermissions.ShowOnlyReceiptSendErrorStatusReceipts);
+			
+			var canReadReceipts = allReceiptStatusesAvailable || showOnlyCodeErrorStatusReceipts || showOnlyReceiptSendErrorStatusReceipts;
 			if(!canReadReceipts)
 			{
 				AbortOpening("Нет прав просматривать кассовые чеки.");
@@ -172,6 +180,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			if(_filter.HasUnscannedReason)
 			{
 				query.Where(Restrictions.Eq(Projections.SqlFunction("IS_NULL_OR_WHITESPACE", NHibernateUtil.Boolean, Projections.Property(() => cashReceiptAlias.UnscannedCodesReason)), false));
+			}
+
+			if(_filter.AvailableReceiptStatuses == AvailableReceiptStatuses.CodeErrorAndReceiptSendError
+				&& !_filter.Status.HasValue)
+			{
+				query.WhereRestrictionOn(() => cashReceiptAlias.Status)
+					.IsInG(new[] { CashReceiptStatus.CodeError, CashReceiptStatus.ReceiptSendError });
 			}
 
 			query.Where(

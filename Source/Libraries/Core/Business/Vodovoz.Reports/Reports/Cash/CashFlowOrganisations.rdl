@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -7,7 +7,7 @@
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz;user=vad;password=123;port=3306;server=rs.qsolution.ru</ConnectString>
       </ConnectionProperties>
     </DataSource>
@@ -22,7 +22,7 @@
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-    cash_income_category.name AS Category,
+    financial_categories_groups.title AS Category,
     SUM(ocmo.amount) AS sum
 FROM
     organisation_cash_movement_operations ocmo
@@ -31,18 +31,16 @@ FROM
         LEFT JOIN 
     cash_income ci ON codd.cash_income_id = ci.id
         LEFT JOIN
-    cash_income_category ON cash_income_category.id = IFNULL(ci.cash_income_category_id, @cash_income_category_transfer_id)
+    financial_categories_groups ON financial_categories_groups.id = IFNULL(ci.financial_income_category_id, @cash_income_category_transfer_id)
         LEFT JOIN
     organization_cash_transfer_documents octd ON octd.organisation_cash_movement_operation_to_id = ocmo.id
-       
-     
 WHERE
   (ci.type_operation != 'Return' OR octd.id IS NOT NULL )
   AND  ocmo.operation_time &gt;= @startDate AND ocmo.operation_time &lt; @endDate
   AND (@Casher = -1 OR codd.author_id = @Casher)
   AND (@Employee = -1 OR codd.employee_id = @Employee)
   AND IFNULL(codd.organisation_id, octd.organization_to_id)  in (@organisations)
-GROUP BY ci.cash_income_category_id
+GROUP BY ci.financial_income_category_id
 ORDER BY Category;</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
@@ -80,7 +78,7 @@ ORDER BY Category;</CommandText>
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-    cash_expense_category.name as Category,
+    financial_categories_groups.title as Category,
     -SUM(ocmo.amount) as Sum
 FROM
     organisation_cash_movement_operations ocmo
@@ -89,7 +87,7 @@ FROM
         LEFT JOIN
     cash_expense ce ON codd.cash_expense_id = ce.id
         LEFT JOIN
-    cash_expense_category ON cash_expense_category.id = IFNULL(ce.cash_expense_category_id, @cash_expense_category_transfer_id)
+    financial_categories_groups ON financial_categories_groups.id = IFNULL(ce.financial_expense_category_id, @cash_expense_category_transfer_id)
         LEFT JOIN
     organization_cash_transfer_documents octd ON octd.organisation_cash_movement_operation_from_id = ocmo.id
 
@@ -99,7 +97,7 @@ WHERE (ce.type_operation != 'Advance' OR octd.id IS NOT NULL)
   AND (@Casher = -1 OR codd.author_id = @Casher)
   AND (@Employee = -1 OR codd.employee_id = @Employee)
   AND IFNULL(codd.organisation_id, octd.organization_from_id)  in (@organisations)
-GROUP BY ce.cash_expense_category_id
+GROUP BY ce.financial_expense_category_id
 ORDER BY Category;</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
@@ -137,14 +135,14 @@ ORDER BY Category;</CommandText>
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-    cash_expense_category.name as Category,
+    financial_categories_groups.title as Category,
     -SUM(ocmo.amount) as Sum
 FROM
     cash_organisation_distribution_documents codd
         LEFT JOIN 
     cash_expense ce ON codd.cash_expense_id = ce.id
         LEFT JOIN
-    cash_expense_category ON cash_expense_category.id = ce.cash_expense_category_id
+    financial_categories_groups ON financial_categories_groups.id = ce.financial_expense_category_id
         LEFT JOIN
     organisation_cash_movement_operations ocmo ON codd.organisation_cash_movement_operation_id = ocmo.id
 WHERE ce.type_operation = 'Advance' AND
@@ -152,7 +150,7 @@ WHERE ce.type_operation = 'Advance' AND
   AND (@Casher = -1 OR codd.author_id = @Casher)
   AND (@Employee = -1 OR codd.employee_id = @Employee)
   AND codd.organisation_id in (@organisations)
-GROUP BY ce.cash_expense_category_id
+GROUP BY ce.financial_expense_category_id
 ORDER BY Category;</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
@@ -187,14 +185,14 @@ ORDER BY Category;</CommandText>
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-    cash_expense_category.name AS Category,
+    financial_categories_groups.title AS Category,
     SUM(ocmo.amount) AS sum
 FROM
     cash_organisation_distribution_documents codd
         LEFT JOIN 
     cash_income ci ON codd.cash_income_id = ci.id
         LEFT JOIN
-    cash_expense_category ON cash_expense_category.id = ci.cash_expense_category_id
+    financial_categories_groups ON financial_categories_groups.id = ci.financial_expense_category_id
         LEFT JOIN
     organisation_cash_movement_operations ocmo ON codd.organisation_cash_movement_operation_id = ocmo.id
 WHERE
@@ -203,7 +201,7 @@ WHERE
   AND (@Casher = -1 OR codd.author_id = @Casher)
   AND (@Employee = -1 OR codd.employee_id = @Employee)
   AND codd.organisation_id in (@organisations)
-GROUP BY ci.cash_expense_category_id
+GROUP BY ci.financial_expense_category_id
 ORDER BY Category;</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
@@ -238,20 +236,20 @@ ORDER BY Category;</CommandText>
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-    cash_expense_category.name AS Category,
+    financial_categories_groups.title AS Category,
     SUM(cash_advance_report.money) AS sum
 FROM
     cash_advance_report
         JOIN
     cash_organisation_distribution_documents codd ON cash_advance_report.id = codd.cash_advance_report_id
         LEFT JOIN
-    cash_expense_category ON cash_expense_category.id = cash_advance_report.cash_expense_category_id
+    financial_categories_groups ON financial_categories_groups.id = cash_advance_report.financial_expense_category_id
 WHERE
     cash_advance_report.date BETWEEN @startDate AND @endDate
   AND (@Casher = -1 OR cash_advance_report.casher_employee_id = @Casher)
   AND (@Employee = -1 OR cash_advance_report.employee_id = @Employee)
   AND codd.organisation_id in (@organisations)
-GROUP BY cash_advance_report.cash_expense_category_id
+GROUP BY cash_advance_report.financial_expense_category_id
 ORDER BY Category;</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
@@ -362,7 +360,7 @@ GROUP BY org.id;</CommandText>
         <Height>18.03pt</Height>
         <Width>559.42pt</Width>
         <Value>="Доходы и расходы по организациям за период " + Format(CDate({?StartDate}), "dd.MM H:mm") + " - " + Format(CDate({?EndDate}), "dd.MM H:mm")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>4.20pt</Top>
         <Style>
@@ -377,7 +375,7 @@ GROUP BY org.id;</CommandText>
         <Height>16.52pt</Height>
         <Width>558.58pt</Width>
         <Value>="Выбранные фильтры:"</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>1.8pt</Left>
         <Top>27.6pt</Top>
         <Style>
@@ -392,7 +390,7 @@ GROUP BY org.id;</CommandText>
         <Height>14.99pt</Height>
         <Width>555.56pt</Width>
         <Value>= Iif({?Casher} = -1, "", "Кассир: " + {?CasherName} + "; ") + Iif({?Employee} = -1, "", "Сотрудник: " + {?EmployeeName})</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>2.90pt</Left>
         <Top>60.60pt</Top>
         <Style>
@@ -406,7 +404,7 @@ GROUP BY org.id;</CommandText>
         <Height>14.29pt</Height>
         <Width>548.87pt</Width>
         <Value>={?organisation_name}</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>2.50pt</Left>
         <Top>44.70pt</Top>
         <Style>
@@ -724,7 +722,7 @@ GROUP BY org.id;</CommandText>
         <Height>21.11pt</Height>
         <Width>558.67pt</Width>
         <Value>Приход (наличка)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>0.2pt</Top>
         <Style>
@@ -739,7 +737,7 @@ GROUP BY org.id;</CommandText>
         <Height>18.86pt</Height>
         <Width>559.41pt</Width>
         <Value>Расход (наличка)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>140.8pt</Top>
         <Style>
@@ -904,7 +902,7 @@ GROUP BY org.id;</CommandText>
         <Height>18.86pt</Height>
         <Width>559.43pt</Width>
         <Value>Выданные авансы</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>209.4pt</Top>
         <Style>
@@ -1219,7 +1217,7 @@ GROUP BY org.id;</CommandText>
         <Height>21.11pt</Height>
         <Width>558.67pt</Width>
         <Value>Сдача (наличка)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>72.2pt</Top>
         <Style>
@@ -1234,7 +1232,7 @@ GROUP BY org.id;</CommandText>
         <Height>18.86pt</Height>
         <Width>559.43pt</Width>
         <Value>Авансовые отчеты</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>274.9pt</Top>
         <Style>
@@ -1249,7 +1247,7 @@ GROUP BY org.id;</CommandText>
         <Height>16.48pt</Height>
         <Width>177.62pt</Width>
         <Value>Баланс на начало периода:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>18.50pt</Left>
         <Top>344.20pt</Top>
         <Style>
@@ -1264,7 +1262,7 @@ GROUP BY org.id;</CommandText>
         <Height>20.24pt</Height>
         <Width>227.23pt</Width>
         <Value>Баланс на конец периода:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>13.9pt</Left>
         <Top>415.8pt</Top>
         <Style>

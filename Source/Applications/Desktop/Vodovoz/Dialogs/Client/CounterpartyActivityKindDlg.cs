@@ -26,9 +26,11 @@ namespace Vodovoz.Dialogs.Client
 
 		public override bool Save()
 		{
-			var valid = new QSValidator<CounterpartyActivityKind>(Entity);
-			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			if(!validator.Validate(Entity))
+			{
 				return false;
+			}
 			UoWGeneric.Save();
 			return true;
 		}

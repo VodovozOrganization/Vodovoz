@@ -1,4 +1,5 @@
-﻿using NHibernate;
+﻿using Gamma.Utilities;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
@@ -9,7 +10,9 @@ using QS.Project.Journal;
 using QS.Services;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
+using DateTimeHelpers;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -17,7 +20,6 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Undeliveries;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.SidePanel;
@@ -37,7 +39,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 		private readonly IEmployeeJournalFactory _driverEmployeeJournalFactory;
 		private readonly IEmployeeService _employeeService;
 		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
-		private readonly IOrderSelectorFactory _orderSelectorFactory;
 		private readonly ICommonServices _commonServices;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
 		private readonly IEmployeeSettings _employeeSettings;
@@ -45,7 +46,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 
 		public UndeliveredOrdersJournalViewModel(UndeliveredOrdersFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices, IGtkTabsOpener gtkDialogsOpener, IEmployeeJournalFactory driverEmployeeJournalFactory,
-			IEmployeeService employeeService, IUndeliveredOrdersJournalOpener undeliveryViewOpener, IOrderSelectorFactory orderSelectorFactory,
+			IEmployeeService employeeService, IUndeliveredOrdersJournalOpener undeliveryViewOpener,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository, IEmployeeSettings employeeSettings,
 			ISubdivisionParametersProvider subdivisionParametersProvider)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
@@ -54,7 +55,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			_driverEmployeeJournalFactory = driverEmployeeJournalFactory ?? throw new ArgumentNullException(nameof(driverEmployeeJournalFactory));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
-			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			_undeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
@@ -103,143 +103,26 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			undeliveredrdersConfig.FinishConfiguration();
 		}
 
-		private IQueryOver<UndeliveredOrder> GetUndeliveredOrdersQuery(IUnitOfWork uow)
+		private IList<int> GetUndeliveredOrderIds(IUnitOfWork uow, int? skipCount = null, int? takeCount = null)
 		{
-			UndeliveredOrderJournalNode resultAlias = null;
 			UndeliveredOrder undeliveredOrderAlias = null;
 			Domain.Orders.Order oldOrderAlias = null;
 			Domain.Orders.Order newOrderAlias = null;
-			Employee driverAlias = null;
 			Employee oldOrderAuthorAlias = null;
 			Employee authorAlias = null;
 			Employee editorAlias = null;
 			Employee registratorAlias = null;
-			Nomenclature nomenclatureAlias = null;
-			OrderItem orderItemAlias = null;
-			OrderEquipment orderEquipmentAlias = null;
 			Counterparty counterpartyAlias = null;
 			DeliveryPoint undeliveredOrderDeliveryPointAlias = null;
 			DeliverySchedule undeliveredOrderDeliveryScheduleAlias = null;
 			DeliverySchedule newOrderDeliveryScheduleAlias = null;
-			RouteList routeListAlias = null;
-			RouteListItem routeListItemAlias = null;
 			Subdivision subdivisionAlias = null;
-			Fine fineAlias = null;
-			FineItem fineItemAlias = null;
-			Employee finedEmployeeAlias = null;
 			Subdivision inProcessAtSubdivisionAlias = null;
 			Subdivision authorSubdivisionAlias = null;
 			GuiltyInUndelivery guiltyInUndeliveryAlias = null;
-			UndeliveredOrderResultComment undeliveredOrderResultCommentAlias = null;
-			Employee lastResultCommentAuthorAlias = null;
-
-			var subqueryDrivers = QueryOver.Of<RouteListItem>(() => routeListItemAlias)
-				.Where(() => routeListItemAlias.Order.Id == oldOrderAlias.Id)
-				.Left.JoinQueryOver(i => i.RouteList, () => routeListAlias)
-				.Left.JoinAlias(i => i.Driver, () => driverAlias)
-				.Select(
-					Projections.SqlFunction(
-						new SQLFunctionTemplate(NHibernateUtil.String,
-							"GROUP_CONCAT(CONCAT(?1, ' ', LEFT(?2,1),'.',LEFT(?3,1)) ORDER BY ?4 DESC SEPARATOR '\n\t↑\n')"), //⬆
-						NHibernateUtil.String,
-						Projections.Property(() => driverAlias.LastName),
-						Projections.Property(() => driverAlias.Name),
-						Projections.Property(() => driverAlias.Patronymic),
-						Projections.Property(() => routeListItemAlias.Id)
-					)
-				);
-
-			var subquery19LWaterQty = QueryOver.Of<OrderItem>(() => orderItemAlias)
-				.Where(() => orderItemAlias.Order.Id == oldOrderAlias.Id)
-				.Left.JoinQueryOver(i => i.Nomenclature, () => nomenclatureAlias)
-				.Where(n => n.Category == NomenclatureCategory.water && n.TareVolume == TareVolume.Vol19L)
-				.Select(Projections.Sum(() => orderItemAlias.Count));
-
-			var subqueryGoodsToClient = QueryOver.Of<OrderEquipment>(() => orderEquipmentAlias)
-				.Where(() => orderEquipmentAlias.Order.Id == oldOrderAlias.Id)
-				.Where(() => orderEquipmentAlias.Direction == Direction.Deliver)
-				.Left.JoinQueryOver(i => i.Nomenclature, () => nomenclatureAlias)
-				.Select(
-					Projections.SqlFunction(
-						new SQLFunctionTemplate(NHibernateUtil.String,
-							"TRIM(GROUP_CONCAT(CONCAT(IF(?1 IS NULL, ?2, ?1),':',?3) SEPARATOR ?4))"),
-						NHibernateUtil.String,
-						Projections.Property(() => nomenclatureAlias.ShortName),
-						Projections.Property(() => nomenclatureAlias.Name),
-						Projections.Property(() => orderEquipmentAlias.Count),
-						Projections.Constant("\n")
-					)
-				);
-
-			var subqueryGoodsFromClient = QueryOver.Of<OrderEquipment>(() => orderEquipmentAlias)
-				.Where(() => orderEquipmentAlias.Order.Id == oldOrderAlias.Id)
-				.Where(() => orderEquipmentAlias.Direction == Direction.PickUp)
-				.Left.JoinQueryOver(i => i.Nomenclature, () => nomenclatureAlias)
-				.Select(
-					Projections.SqlFunction(
-						new SQLFunctionTemplate(NHibernateUtil.String,
-							"TRIM(GROUP_CONCAT(CONCAT(IF(?1 IS NULL, ?2, ?1),':',?3) SEPARATOR ?4))"),
-						NHibernateUtil.String,
-						Projections.Property(() => nomenclatureAlias.ShortName),
-						Projections.Property(() => nomenclatureAlias.Name),
-						Projections.Property(() => orderEquipmentAlias.Count),
-						Projections.Constant("\n")
-					)
-				);
-
-			var subqueryGuilty = QueryOver.Of<GuiltyInUndelivery>(() => guiltyInUndeliveryAlias)
-				.Where(() => undeliveredOrderAlias.Id == guiltyInUndeliveryAlias.UndeliveredOrder.Id)
-				.Left.JoinQueryOver(g => g.GuiltyDepartment, () => subdivisionAlias)
-				.Select(
-					Projections.SqlFunction(
-						new SQLFunctionTemplate(NHibernateUtil.String,
-							"GROUP_CONCAT(CONCAT(" +
-							"CASE ?1 " +
-							$"WHEN '{nameof(GuiltyTypes.Client)}' THEN 'Клиент' " +
-							$"WHEN '{nameof(GuiltyTypes.Driver)}' THEN 'Водитель' " +
-							$"WHEN '{nameof(GuiltyTypes.Department)}' THEN 'Отд' " +
-							$"WHEN '{nameof(GuiltyTypes.ServiceMan)}' THEN 'Мастер СЦ' " +
-							$"WHEN '{nameof(GuiltyTypes.ForceMajor)}' THEN 'Форс-мажор' " +
-							$"WHEN '{nameof(GuiltyTypes.DirectorLO)}' THEN 'Директор ЛО (Доставка за час)' " +
-							$"WHEN '{nameof(GuiltyTypes.DirectorLOCurrentDayDelivery)}' THEN 'Директор ЛО (Доставка в тот же день)' " +
-							$"WHEN '{nameof(GuiltyTypes.None)}' THEN 'Нет (не недовоз)' " +
-							"ELSE 'Неизвестно' " +
-							"END, " +
-							"IF(?1 = 'Department' AND ?2 = '', ':Неизвестно', " +
-							"IF(?1 = 'Department' AND ?2 != '', CONCAT(':', ?2), ''))) " +
-							"SEPARATOR '\n')"),
-						NHibernateUtil.String,
-						Projections.Property(() => guiltyInUndeliveryAlias.GuiltySide),
-						Projections.Property(() => subdivisionAlias.ShortName)
-					)
-				);
-
-			var subqueryLastResultCommentAuthor = QueryOver.Of<UndeliveredOrderResultComment>(() => undeliveredOrderResultCommentAlias)
-				.Where(() => undeliveredOrderAlias.Id == undeliveredOrderResultCommentAlias.UndeliveredOrder.Id)
-				.Left.JoinAlias(() => undeliveredOrderResultCommentAlias.Author, () => lastResultCommentAuthorAlias)
-				.OrderBy(() => undeliveredOrderResultCommentAlias.CreationTime).Desc
-				.Select(
-					Projections.SqlFunction(
-							new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT( ?1, ' ', SUBSTRING(?2, 1, 1), '. ', SUBSTRING(?3, 1, 1), '.')"),
-							NHibernateUtil.String,
-							Projections.Property(() => lastResultCommentAuthorAlias.LastName),
-							Projections.Property(() => lastResultCommentAuthorAlias.Name),
-							Projections.Property(() => lastResultCommentAuthorAlias.Patronymic)
-					))
-				.Take(1);
-
-			var subqueryFined = QueryOver.Of<Fine>(() => fineAlias)
-				.Where(() => fineAlias.UndeliveredOrder.Id == undeliveredOrderAlias.Id)
-				.Left.JoinAlias(() => fineAlias.Items, () => fineItemAlias)
-				.Left.JoinAlias(() => fineItemAlias.Employee, () => finedEmployeeAlias)
-				.Select(
-					Projections.SqlFunction(
-						new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(CONCAT_WS(': ', ?1, ?2) SEPARATOR '\n')"),
-						NHibernateUtil.String,
-						Projections.Property(() => finedEmployeeAlias.LastName),
-						Projections.Property(() => fineItemAlias.Money)
-					)
-				);
+			UndeliveryDetalization undeliveryDetalizationAlias = null;
+			UndeliveryKind undeliveryKindAlias = null;
+			UndeliveryObject undeliveryObjectAlias = null;
 
 			var query = uow.Session.QueryOver<UndeliveredOrder>(() => undeliveredOrderAlias)
 				.Left.JoinAlias(u => u.OldOrder, () => oldOrderAlias)
@@ -255,7 +138,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 				.Left.JoinAlias(u => u.InProcessAtDepartment, () => inProcessAtSubdivisionAlias)
 				.Left.JoinAlias(u => u.Author.Subdivision, () => authorSubdivisionAlias)
 				.Left.JoinAlias(() => undeliveredOrderAlias.GuiltyInUndelivery, () => guiltyInUndeliveryAlias)
-				.Left.JoinAlias(() => guiltyInUndeliveryAlias.GuiltyDepartment, () => subdivisionAlias);
+				.Left.JoinAlias(() => guiltyInUndeliveryAlias.GuiltyDepartment, () => subdivisionAlias)
+				.Left.JoinAlias(() => undeliveredOrderAlias.UndeliveryDetalization, () => undeliveryDetalizationAlias)
+				.Left.JoinAlias(() => undeliveryDetalizationAlias.UndeliveryKind, () => undeliveryKindAlias)
+				.Left.JoinAlias(() => undeliveryKindAlias.UndeliveryObject, () => undeliveryObjectAlias)
+				;
 
 			if(FilterViewModel?.RestrictDriver != null)
 			{
@@ -295,7 +182,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 
 			if(FilterViewModel?.RestrictOldOrderEndDate != null)
 			{
-				query.Where(() => oldOrderAlias.DeliveryDate <= FilterViewModel.RestrictOldOrderEndDate.Value.AddDays(1).AddTicks(-1));
+				query.Where(() => oldOrderAlias.DeliveryDate <= FilterViewModel.RestrictOldOrderEndDate.Value.LatestDayTime());
 			}
 
 			if(FilterViewModel?.RestrictNewOrderStartDate != null)
@@ -372,8 +259,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 
 			var authorProjection = CustomProjections.Concat_WS(" ",
 				() => authorAlias.LastName, () => authorAlias.Name, () => authorAlias.Patronymic);
-
-
+			
 			query.Where(GetSearchCriterion(
 				() => undeliveredOrderAlias.Id,
 				() => addressProjection,
@@ -383,6 +269,196 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 				() => registratorProjection,
 				() => authorProjection)
 			);
+
+			var itemsQuery = query.SelectList(list => list
+					.SelectGroup(() => undeliveredOrderAlias.Id)
+				)
+				.OrderBy(() => oldOrderAlias.DeliveryDate).Asc;
+
+			if(skipCount.HasValue)
+			{
+				itemsQuery.Skip(skipCount.Value);
+			}
+			
+			if(takeCount.HasValue)
+			{
+				itemsQuery.Take(takeCount.Value);
+			}
+
+			return itemsQuery.List<int>();
+		}
+		
+		private IQueryOver<UndeliveredOrder> GetUndeliveredOrdersQuery(IUnitOfWork uow, int? skipCount = null, int? takeCount = null)
+		{
+			UndeliveredOrderJournalNode resultAlias = null;
+			UndeliveredOrder undeliveredOrderAlias = null;
+			Domain.Orders.Order oldOrderAlias = null;
+			Domain.Orders.Order newOrderAlias = null;
+			Employee driverAlias = null;
+			Employee oldOrderAuthorAlias = null;
+			Employee authorAlias = null;
+			Employee editorAlias = null;
+			Employee registratorAlias = null;
+			Nomenclature nomenclatureAlias = null;
+			OrderItem orderItemAlias = null;
+			OrderEquipment orderEquipmentAlias = null;
+			Counterparty counterpartyAlias = null;
+			DeliveryPoint undeliveredOrderDeliveryPointAlias = null;
+			DeliverySchedule undeliveredOrderDeliveryScheduleAlias = null;
+			DeliverySchedule newOrderDeliveryScheduleAlias = null;
+			RouteList routeListAlias = null;
+			RouteListItem routeListItemAlias = null;
+			Subdivision subdivisionAlias = null;
+			Fine fineAlias = null;
+			FineItem fineItemAlias = null;
+			Employee finedEmployeeAlias = null;
+			Subdivision inProcessAtSubdivisionAlias = null;
+			Subdivision authorSubdivisionAlias = null;
+			GuiltyInUndelivery guiltyInUndeliveryAlias = null;
+			UndeliveredOrderResultComment undeliveredOrderResultCommentAlias = null;
+			Employee lastResultCommentAuthorAlias = null;
+			UndeliveryDetalization undeliveryDetalizationAlias = null;
+			UndeliveryKind undeliveryKindAlias = null;
+			UndeliveryObject undeliveryObjectAlias = null;
+
+			var subqueryDrivers = QueryOver.Of<RouteListItem>(() => routeListItemAlias)
+				.Where(() => routeListItemAlias.Order.Id == oldOrderAlias.Id)
+				.Left.JoinQueryOver(i => i.RouteList, () => routeListAlias)
+				.Left.JoinAlias(i => i.Driver, () => driverAlias)
+				.Select(
+					Projections.SqlFunction(
+						new SQLFunctionTemplate(NHibernateUtil.String,
+							"GROUP_CONCAT(CONCAT(?1, ' ', LEFT(?2,1),'.',LEFT(?3,1)) ORDER BY ?4 DESC SEPARATOR '\n\t↑\n')"), //⬆
+						NHibernateUtil.String,
+						Projections.Property(() => driverAlias.LastName),
+						Projections.Property(() => driverAlias.Name),
+						Projections.Property(() => driverAlias.Patronymic),
+						Projections.Property(() => routeListItemAlias.Id)
+					)
+				);
+
+			var subquery19LWaterQty = QueryOver.Of<OrderItem>(() => orderItemAlias)
+				.Where(() => orderItemAlias.Order.Id == oldOrderAlias.Id)
+				.Left.JoinQueryOver(i => i.Nomenclature, () => nomenclatureAlias)
+				.Where(n => n.Category == NomenclatureCategory.water && n.TareVolume == TareVolume.Vol19L)
+				.Select(Projections.Sum(() => orderItemAlias.Count));
+
+			var subqueryGoodsToClient = QueryOver.Of<OrderEquipment>(() => orderEquipmentAlias)
+				.Where(() => orderEquipmentAlias.Order.Id == oldOrderAlias.Id)
+				.Where(() => orderEquipmentAlias.Direction == Direction.Deliver)
+				.Left.JoinQueryOver(i => i.Nomenclature, () => nomenclatureAlias)
+				.Select(
+					Projections.SqlFunction(
+						new SQLFunctionTemplate(NHibernateUtil.String,
+							"TRIM(GROUP_CONCAT(CONCAT(IF(?1 IS NULL, ?2, ?1),':',?3) SEPARATOR ?4))"),
+						NHibernateUtil.String,
+						Projections.Property(() => nomenclatureAlias.ShortName),
+						Projections.Property(() => nomenclatureAlias.Name),
+						Projections.Property(() => orderEquipmentAlias.Count),
+						Projections.Constant("\n")
+					)
+				);
+
+			var subqueryGoodsFromClient = QueryOver.Of<OrderEquipment>(() => orderEquipmentAlias)
+				.Where(() => orderEquipmentAlias.Order.Id == oldOrderAlias.Id)
+				.Where(() => orderEquipmentAlias.Direction == Direction.PickUp)
+				.Left.JoinQueryOver(i => i.Nomenclature, () => nomenclatureAlias)
+				.Select(
+					Projections.SqlFunction(
+						new SQLFunctionTemplate(NHibernateUtil.String,
+							"TRIM(GROUP_CONCAT(CONCAT(IF(?1 IS NULL, ?2, ?1),':',?3) SEPARATOR ?4))"),
+						NHibernateUtil.String,
+						Projections.Property(() => nomenclatureAlias.ShortName),
+						Projections.Property(() => nomenclatureAlias.Name),
+						Projections.Property(() => orderEquipmentAlias.Count),
+						Projections.Constant("\n")
+					)
+				);
+
+			var subqueryGuilty = QueryOver.Of<GuiltyInUndelivery>(() => guiltyInUndeliveryAlias)
+				.Where(() => undeliveredOrderAlias.Id == guiltyInUndeliveryAlias.UndeliveredOrder.Id)
+				.Left.JoinQueryOver(g => g.GuiltyDepartment, () => subdivisionAlias)
+				.Select(
+					Projections.SqlFunction(
+						new SQLFunctionTemplate(NHibernateUtil.String,
+							"GROUP_CONCAT(CONCAT(" +
+							"CASE ?1 " +
+							$"WHEN '{nameof(GuiltyTypes.Client)}' THEN '{GuiltyTypes.Client.GetEnumTitle()}' " +
+							$"WHEN '{nameof(GuiltyTypes.Driver)}' THEN '{GuiltyTypes.Driver.GetEnumTitle()}' " +
+							$"WHEN '{nameof(GuiltyTypes.Department)}' THEN 'Отд' " +
+							$"WHEN '{nameof(GuiltyTypes.ServiceMan)}' THEN '{GuiltyTypes.ServiceMan.GetEnumTitle()}' " +
+							$"WHEN '{nameof(GuiltyTypes.ForceMajor)}' THEN '{GuiltyTypes.ForceMajor.GetEnumTitle()}' " +
+							$"WHEN '{nameof(GuiltyTypes.DirectorLO)}' THEN '{GuiltyTypes.DirectorLO.GetEnumTitle()}' " +
+							$"WHEN '{nameof(GuiltyTypes.DirectorLOCurrentDayDelivery)}' THEN '{GuiltyTypes.DirectorLOCurrentDayDelivery.GetEnumTitle()}' " +
+							$"WHEN '{nameof(GuiltyTypes.None)}' THEN '{GuiltyTypes.None.GetEnumTitle()})' " +
+							"ELSE 'Неизвестно' " +
+							"END, " +
+							"IF(?1 = 'Department' AND ?2 = '', ':Неизвестно', " +
+							"IF(?1 = 'Department' AND ?2 != '', CONCAT(':', ?2), ''))) " +
+							"SEPARATOR '\n')"),
+						NHibernateUtil.String,
+						Projections.Property(() => guiltyInUndeliveryAlias.GuiltySide),
+						Projections.Property(() => subdivisionAlias.ShortName)
+					)
+				);
+
+			var subqueryLastResultCommentAuthor = QueryOver.Of<UndeliveredOrderResultComment>(() => undeliveredOrderResultCommentAlias)
+				.Where(() => undeliveredOrderAlias.Id == undeliveredOrderResultCommentAlias.UndeliveredOrder.Id)
+				.Left.JoinAlias(() => undeliveredOrderResultCommentAlias.Author, () => lastResultCommentAuthorAlias)
+				.OrderBy(() => undeliveredOrderResultCommentAlias.CreationTime).Desc
+				.Select(
+					Projections.SqlFunction(
+							new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT( ?1, ' ', SUBSTRING(?2, 1, 1), '. ', SUBSTRING(?3, 1, 1), '.')"),
+							NHibernateUtil.String,
+							Projections.Property(() => lastResultCommentAuthorAlias.LastName),
+							Projections.Property(() => lastResultCommentAuthorAlias.Name),
+							Projections.Property(() => lastResultCommentAuthorAlias.Patronymic)
+					))
+				.Take(1);
+
+			var subqueryFined = QueryOver.Of<Fine>(() => fineAlias)
+				.Where(() => fineAlias.UndeliveredOrder.Id == undeliveredOrderAlias.Id)
+				.Left.JoinAlias(() => fineAlias.Items, () => fineItemAlias)
+				.Left.JoinAlias(() => fineItemAlias.Employee, () => finedEmployeeAlias)
+				.Select(
+					Projections.SqlFunction(
+						new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(CONCAT_WS(': ', ?1, ?2) SEPARATOR '\n')"),
+						NHibernateUtil.String,
+						Projections.Property(() => finedEmployeeAlias.LastName),
+						Projections.Property(() => fineItemAlias.Money)
+					)
+				);
+
+			var query = uow.Session.QueryOver<UndeliveredOrder>(() => undeliveredOrderAlias)
+				.Left.JoinAlias(u => u.OldOrder, () => oldOrderAlias)
+				.Left.JoinAlias(u => u.NewOrder, () => newOrderAlias)
+				.Left.JoinAlias(() => oldOrderAlias.Client, () => counterpartyAlias)
+				.Left.JoinAlias(() => newOrderAlias.DeliverySchedule, () => newOrderDeliveryScheduleAlias)
+				.Left.JoinAlias(() => oldOrderAlias.Author, () => oldOrderAuthorAlias)
+				.Left.JoinAlias(() => oldOrderAlias.DeliveryPoint, () => undeliveredOrderDeliveryPointAlias)
+				.Left.JoinAlias(() => oldOrderAlias.DeliverySchedule, () => undeliveredOrderDeliveryScheduleAlias)
+				.Left.JoinAlias(u => u.Author, () => authorAlias)
+				.Left.JoinAlias(u => u.LastEditor, () => editorAlias)
+				.Left.JoinAlias(u => u.EmployeeRegistrator, () => registratorAlias)
+				.Left.JoinAlias(u => u.InProcessAtDepartment, () => inProcessAtSubdivisionAlias)
+				.Left.JoinAlias(u => u.Author.Subdivision, () => authorSubdivisionAlias)
+				.Left.JoinAlias(() => undeliveredOrderAlias.GuiltyInUndelivery, () => guiltyInUndeliveryAlias)
+				.Left.JoinAlias(() => guiltyInUndeliveryAlias.GuiltyDepartment, () => subdivisionAlias)
+				.Left.JoinAlias(() => undeliveredOrderAlias.UndeliveryDetalization, () => undeliveryDetalizationAlias)
+				.Left.JoinAlias(() => undeliveryDetalizationAlias.UndeliveryKind, () => undeliveryKindAlias)
+				.Left.JoinAlias(() => undeliveryKindAlias.UndeliveryObject, () => undeliveryObjectAlias)
+				;
+
+			var addressProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.String,
+					"CONCAT_WS(', ', ?1, CONCAT('д.', ?2), CONCAT('лит.', ?3), CONCAT('кв/оф ', ?4))"),
+				NHibernateUtil.String,
+				Projections.Property(() => undeliveredOrderDeliveryPointAlias.Street),
+				Projections.Property(() => undeliveredOrderDeliveryPointAlias.Building),
+				Projections.Property(() => undeliveredOrderDeliveryPointAlias.Letter),
+				Projections.Property(() => undeliveredOrderDeliveryPointAlias.Room));
+
+			query.WhereRestrictionOn(u => u.Id).IsInG(GetUndeliveredOrderIds(uow, skipCount, takeCount));
 
 			var itemsQuery = query.SelectList(list => list
 					.SelectGroup(() => undeliveredOrderAlias.Id).WithAlias(() => resultAlias.Id)
@@ -410,6 +486,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					.Select(() => editorAlias.Name).WithAlias(() => resultAlias.EditorFirstName)
 					.Select(() => editorAlias.Patronymic).WithAlias(() => resultAlias.EditorMiddleName)
 					.Select(() => undeliveredOrderAlias.Reason).WithAlias(() => resultAlias.Reason)
+					.Select(() => undeliveredOrderAlias.OrderTransferType).WithAlias(() => resultAlias.OrderTransferType)
+					.Select(() => undeliveryDetalizationAlias.Name).WithAlias(() => resultAlias.UndeliveryDetalization)
+					.Select(() => undeliveryKindAlias.Name).WithAlias(() => resultAlias.UndeliveryKind)
+					.Select(() => undeliveryObjectAlias.Name).WithAlias(() => resultAlias.UndeliveryObject)
 					.Select(() => undeliveredOrderAlias.UndeliveryStatus).WithAlias(() => resultAlias.UndeliveryStatus)
 					.Select(() => undeliveredOrderAlias.OldOrderStatus).WithAlias(() => resultAlias.StatusOnOldOrderCancel)
 					.Select(() => oldOrderAlias.OrderStatus).WithAlias(() => resultAlias.OldOrderCurStatus)
@@ -422,7 +502,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					.SelectSubQuery(subqueryGuilty).WithAlias(() => resultAlias.Guilty)
 					.Select(addressProjection).WithAlias(() => resultAlias.Address)
 					.SelectSubQuery(subqueryLastResultCommentAuthor).WithAlias(() => resultAlias.LastResultCommentAuthor)
-				).OrderBy(() => oldOrderAlias.DeliveryDate).Asc
+					)
+				.OrderBy(() => oldOrderAlias.DeliveryDate).Asc
 				.TransformUsing(Transformers.AliasToBean<UndeliveredOrderJournalNode>());
 
 			return itemsQuery;
@@ -487,6 +568,24 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			}
 
 			NodeActionsList.Add(editAction);
+		}
+
+		private void CreateUndeliveredOrderClassificationSummaryAction()
+		{
+			NodeActionsList.Add(new JournalAction("Сводка по классификации недовозов", x => true, x => true,
+				selectedItems =>
+				{
+					_gtkDlgOpener.OpenUndeliveredOrdersClassificationReport(FilterViewModel, false);
+				}));
+		}
+
+		private void CreateUndeliveredOrderWithTransfersClassificationSummaryAction()
+		{
+			NodeActionsList.Add(new JournalAction("Сводка по классификации недовозов с переносами", x => true, x => true,
+				selectedItems =>
+				{
+					_gtkDlgOpener.OpenUndeliveredOrdersClassificationReport( FilterViewModel, true);
+				}));
 		}
 
 		protected void BeforeItemsUpdated(IList items, uint start)
@@ -611,6 +710,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			CreateCustomAddActions();
 			CreateCustomEditAction();
 			CreatePrintAction();
+			CreateUndeliveredOrderClassificationSummaryAction();
+			CreateUndeliveredOrderWithTransfersClassificationSummaryAction();
 		}
 
 		private void CreatePrintAction()

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Text;
 using NHibernate;
 using NLog;
 using QS.DomainModel.Entity;
@@ -17,7 +16,7 @@ namespace Vodovoz.Domain.Goods
 		Nominative = "группа товаров")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class ProductGroup : PropertyChangedBase, IDomainObject, IValidatableObject
+	public class ProductGroup : PropertyChangedBase, IDomainObject, IValidatableObject, INamed, IArchivable
 	{
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 		

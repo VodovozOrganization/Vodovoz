@@ -33,6 +33,8 @@ namespace Vodovoz.JournalViewModels
 				typeof(Tag),
 				typeof(DeliveryPoint)
 			);
+
+			SearchEnabled = false;
 		}
 
 		protected override Func<IUnitOfWork, IQueryOver<Counterparty>> ItemsSourceQueryFunction => (uow) => {
@@ -57,7 +59,7 @@ namespace Vodovoz.JournalViewModels
 				{
 					query.Left.JoinAlias(c => c.SalesChannels, () => salesChannelAlias);
 					query.Where(() => salesChannelAlias.Id.IsIn(FilterViewModel.SalesChannels.Where(x => x.Selected).Select(x => x.Id).ToArray()));
-                }
+				}
 			}
 
 			if (FilterViewModel != null && !FilterViewModel.RestrictIncludeArchive)
@@ -73,6 +75,11 @@ namespace Vodovoz.JournalViewModels
 			if(FilterViewModel?.ReasonForLeaving != null)
 			{
 				query.Where(c => c.ReasonForLeaving == FilterViewModel.ReasonForLeaving);
+			}
+
+			if(FilterViewModel.IsNeedToSendBillByEdo)
+			{
+				query.Where(c => c.NeedSendBillByEdo);
 			}
 
 			if(!string.IsNullOrWhiteSpace(FilterViewModel?.CounterpartyName))
@@ -96,6 +103,29 @@ namespace Vodovoz.JournalViewModels
 			if(!string.IsNullOrWhiteSpace(FilterViewModel?.DeliveryPointPhone))
 			{
 				query.Where(() => deliveryPointPhoneAlias.DigitsNumber == FilterViewModel.DeliveryPointPhone);
+			}
+
+			if(FilterViewModel?.CounterpartyId != null)
+			{
+				query.Where(c => c.Id == FilterViewModel.CounterpartyId);
+			}
+
+			if(FilterViewModel?.CounterpartyVodovozInternalId != null)
+			{
+				query.Where(c => c.VodovozInternalId == FilterViewModel.CounterpartyVodovozInternalId);
+			}
+
+			if(!string.IsNullOrWhiteSpace(FilterViewModel?.CounterpartyInn))
+			{
+				query.Where(c => c.INN == FilterViewModel.CounterpartyInn);
+			}
+
+			if(!string.IsNullOrWhiteSpace(FilterViewModel?.DeliveryPointAddressLike))
+			{
+				query.Where(Restrictions.InsensitiveLike(
+					Projections.Property(() => deliveryPointAlias.CompiledAddress),
+					$"%{FilterViewModel.DeliveryPointAddressLike}%"
+					));
 			}
 
 			var contractsSubquery = QueryOver.Of<CounterpartyContract>(() => contractAlias)
@@ -201,7 +231,7 @@ namespace Vodovoz.JournalViewModels
 				{
 					query.Left.JoinAlias(c => c.SalesChannels, () => salesChannelAlias);
 					query.Where(() => salesChannelAlias.Id.IsIn(FilterViewModel.SalesChannels.Where(x => x.Selected).Select(x => x.Id).ToArray()));
-                }
+				}
 			}
 
 			if(FilterViewModel != null && !FilterViewModel.RestrictIncludeArchive)
@@ -217,6 +247,11 @@ namespace Vodovoz.JournalViewModels
 			if(FilterViewModel?.ReasonForLeaving != null)
 			{
 				query.Where(c => c.ReasonForLeaving == FilterViewModel.ReasonForLeaving);
+			}
+
+			if(FilterViewModel.IsNeedToSendBillByEdo)
+			{
+				query.Where(c => c.NeedSendBillByEdo);
 			}
 
 			if(!string.IsNullOrWhiteSpace(FilterViewModel?.CounterpartyName))
@@ -241,6 +276,29 @@ namespace Vodovoz.JournalViewModels
 			if(!string.IsNullOrWhiteSpace(FilterViewModel?.DeliveryPointPhone))
 			{
 				query.Where(() => deliveryPointPhoneAlias.DigitsNumber == FilterViewModel.DeliveryPointPhone);
+			}
+
+			if(FilterViewModel?.CounterpartyId != null)
+			{
+				query.Where(c => c.Id == FilterViewModel.CounterpartyId);
+			}
+
+			if(FilterViewModel?.CounterpartyVodovozInternalId != null)
+			{
+				query.Where(c => c.VodovozInternalId == FilterViewModel.CounterpartyVodovozInternalId);
+			}
+
+			if(!string.IsNullOrWhiteSpace(FilterViewModel?.CounterpartyInn))
+			{
+				query.Where(c => c.INN == FilterViewModel.CounterpartyInn);
+			}
+
+			if(!string.IsNullOrWhiteSpace(FilterViewModel?.DeliveryPointAddressLike))
+			{
+				query.Where(Restrictions.InsensitiveLike(
+					Projections.Property(() => deliveryPointAlias.CompiledAddress),
+					$"%{FilterViewModel.DeliveryPointAddressLike}%"
+					));
 			}
 
 			var contractsSubquery = QueryOver.Of<CounterpartyContract>(() => contractAlias)
@@ -398,7 +456,7 @@ namespace Vodovoz.JournalViewModels
 					var config = EntityConfigs[selectedNode.EntityType];
 					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
 
-					var openClosePage = MainClass.MainWin.NavigationManager.OpenViewModel<CloseSupplyToCounterpartyViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(selectedNode.Id));
+					var openClosePage = Startup.MainWin.NavigationManager.OpenViewModel<CloseSupplyToCounterpartyViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(selectedNode.Id));
 				}
 			);
 			NodeActionsList.Add(openCloseSupplyAction);

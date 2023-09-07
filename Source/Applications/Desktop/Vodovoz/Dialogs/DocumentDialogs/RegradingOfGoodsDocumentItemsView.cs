@@ -171,7 +171,7 @@ namespace Vodovoz
 		{
 			Action<NomenclatureStockFilterViewModel> filterParams = f => f.RestrictWarehouse = DocumentUoW.Root.Warehouse;
 
-			var vm = MainClass.MainWin.NavigationManager
+			var vm = Startup.MainWin.NavigationManager
 				.OpenViewModel<NomenclatureStockBalanceJournalViewModel, Action<NomenclatureStockFilterViewModel>>(null, filterParams)
 				.ViewModel;
 			
@@ -195,7 +195,7 @@ namespace Vodovoz
 
 				var employeeService = VodovozGtkServicesConfig.EmployeeService;
 
-				var counterpartySelectorFactory = new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope());
+				var counterpartySelectorFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
 
 				var nomenclatureAutoCompleteSelectorFactory =
 					new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
@@ -251,7 +251,10 @@ namespace Vodovoz
 
 			foreach(var item in DocumentUoW.Root.Items)
 			{
-				item.AmountInStock = inStock[item.NomenclatureOld.Id];
+				if(inStock.ContainsKey(item.NomenclatureOld.Id))
+				{
+					item.AmountInStock = inStock[item.NomenclatureOld.Id];
+				}
 			}
 		}
 
@@ -259,7 +262,7 @@ namespace Vodovoz
 		{
 			Action<NomenclatureStockFilterViewModel> filterParams = f => f.RestrictWarehouse = DocumentUoW.Root.Warehouse;
 
-			var vm = MainClass.MainWin.NavigationManager
+			var vm = Startup.MainWin.NavigationManager
 				.OpenViewModel<NomenclatureStockBalanceJournalViewModel, Action<NomenclatureStockFilterViewModel>>(null, filterParams)
 				.ViewModel;
 
@@ -284,7 +287,7 @@ namespace Vodovoz
 			var userRepository = new UserRepository();
 
 			var employeeService = VodovozGtkServicesConfig.EmployeeService;
-			var counterpartyJournalFactory = new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope());
+			var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
 
 			var nomenclatureAutoCompleteSelectorFactory = 
 				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(

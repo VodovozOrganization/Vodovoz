@@ -19,7 +19,7 @@
         <Width>755.19pt</Width>
         <Value>="Отчёт по незакрытым МЛ за период"
 + " с " + Format(Convert.ToDateTime({?start_date}), "dd.MM.yyyy") + " по " + Format(Convert.ToDateTime({?end_date}), "dd.MM.yyyy")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>5.30pt</Top>
         <Style>
@@ -39,7 +39,7 @@
 - все незакрытые на текущий момент МЛ, дата доставки до крайней даты периода интервала и имеющие просрочку больше выбранной;
 - все МЛ, закрытые в указанный период и имеющие просрочку (дата закрытия больше даты создания с допустимой просрочкой);
 - в отчет не попадают выездные мастера и фуры.</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>1.3pt</Left>
         <Top>63.6pt</Top>
         <Style>
@@ -53,7 +53,7 @@
         <Height>15.07pt</Height>
         <Width>752.00pt</Width>
         <Value>="Допустимая просрочка - " + {?delay} +Switch({?delay} = 1, " день", {?delay} &gt; 1 AND {?delay} &lt; 5, " дня", {?delay} &gt;= 5, " дней")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>3.8pt</Left>
         <Top>38.2pt</Top>
         <Style>
@@ -635,7 +635,7 @@
         <Height>14.27pt</Height>
         <Width>225.87pt</Width>
         <Value>="Итого просроченных: " + Count({id}, "data") + " МЛ"</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>530.95pt</Left>
         <Top>11.93pt</Top>
         <Style>
@@ -649,7 +649,7 @@
         <Height>15.77pt</Height>
         <Width>278.57pt</Width>
         <Value>="Создано " + Format({?create_date}, "dd.MM.yyyy HH:mm")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>2.40pt</Left>
         <Top>11.13pt</Top>
         <Style>
@@ -820,7 +820,7 @@ WHERE rl.closing_date BETWEEN @start_date AND @end_date;</CommandText>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString></ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

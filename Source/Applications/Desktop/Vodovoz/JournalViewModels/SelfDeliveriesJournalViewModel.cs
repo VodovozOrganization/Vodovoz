@@ -10,6 +10,7 @@ using NHibernate.Transform;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
@@ -48,13 +49,15 @@ namespace Vodovoz.Representations
 			OrderPaymentSettings orderPaymentSettings,
 			OrderParametersProvider orderParametersProvider,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
-			IEmployeeService employeeService) 
+			IEmployeeService employeeService,
+			INavigationManager navigationManager) 
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			_orderPaymentSettings = orderPaymentSettings ?? throw new ArgumentNullException(nameof(orderPaymentSettings));
 			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
 			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
+			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_currentEmployee =
 				(employeeService ?? throw new ArgumentNullException(nameof(employeeService))).GetEmployeeForUser(
 					UoW,
@@ -219,6 +222,8 @@ namespace Vodovoz.Representations
 			}
 		}
 
+		public INavigationManager NavigationManager { get; }
+
 		protected override void CreatePopupActions()
 		{
 			PopupActionsList.Add(
@@ -232,7 +237,7 @@ namespace Vodovoz.Representations
 					selectedItems => {
 						var selectedNodes = selectedItems.Cast<SelfDeliveryJournalNode>();
 						var selectedNode = selectedNodes.FirstOrDefault();
-						MainClass.MainWin.TdiMain.OpenTab(
+						Startup.MainWin.TdiMain.OpenTab(
 							DialogHelper.GenerateDialogHashName<VodovozOrder>(selectedNode.Id),
 							() => new OrderDlg(selectedNode.Id)
 						);
@@ -328,17 +333,13 @@ namespace Vodovoz.Representations
 			}
 
 			if(order.OrderPositiveSum > 0 && !order.SelfDeliveryIsFullyIncomePaid()) {
-				MainClass.MainWin.TdiMain.OpenTab(
-					"selfDelivery_" + DialogHelper.GenerateDialogHashName<Income>(orderId),
-					() => new CashIncomeSelfDeliveryDlg(order)
-				);
+				var page = NavigationManager.OpenViewModel<IncomeSelfDeliveryViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
+				page.ViewModel.SetOrderById(orderId);
 			}
 
 			if(order.OrderNegativeSum > 0 && !order.SelfDeliveryIsFullyExpenseReturned()) {
-				MainClass.MainWin.TdiMain.OpenTab(
-					"selfDelivery_" + DialogHelper.GenerateDialogHashName<Expense>(orderId),
-					() => new CashExpenseSelfDeliveryDlg(order)
-				);
+				var page = NavigationManager.OpenViewModel<ExpenseSelfDeliveryViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
+				page.ViewModel.SetOrderById(orderId);
 			}
 		}
 	}

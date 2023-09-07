@@ -186,73 +186,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 		protected override void CreateNodeActions()
 		{
 			NodeActionsList.Clear();
-			CreateDefaultSelectAction();
-			CreateAddActions();
 			CreateEditAction();
-			CreateDefaultDeleteAction();
-		}
-
-		protected void CreateAddActions()
-		{
-			if(!EntityConfigs.Any())
-			{
-				return;
-			}
-
-			var totalCreateDialogConfigs = EntityConfigs
-				.Where(x => x.Value.PermissionResult.CanCreate)
-				.Sum(x => x.Value.EntityDocumentConfigurations
-							.Select(y => y.GetCreateEntityDlgConfigs().Count())
-							.Sum());
-
-			if(EntityConfigs.Values.Count(x => x.PermissionResult.CanRead) > 1 || totalCreateDialogConfigs > 1)
-			{
-				var addParentNodeAction = new JournalAction("Добавить", (selected) => true, (selected) => true, (selected) => { });
-				foreach(var entityConfig in EntityConfigs.Values)
-				{
-					foreach(var documentConfig in entityConfig.EntityDocumentConfigurations)
-					{
-						foreach(var createDlgConfig in documentConfig.GetCreateEntityDlgConfigs())
-						{
-							var childNodeAction = new JournalAction(createDlgConfig.Title,
-								(selected) => entityConfig.PermissionResult.CanCreate,
-								(selected) => entityConfig.PermissionResult.CanCreate,
-								(selected) => {
-									createDlgConfig.OpenEntityDialogFunction();
-									if(documentConfig.JournalParameters.HideJournalForCreateDialog)
-									{
-										HideJournal(TabParent);
-									}
-								}
-							);
-							addParentNodeAction.ChildActionsList.Add(childNodeAction);
-						}
-					}
-				}
-				NodeActionsList.Add(addParentNodeAction);
-			}
-			else
-			{
-				var entityConfig = EntityConfigs.First().Value;
-				var addAction = new JournalAction("Добавить",
-					(selected) => entityConfig.PermissionResult.CanCreate,
-					(selected) => entityConfig.PermissionResult.CanCreate,
-					(selected) => {
-						var docConfig = entityConfig.EntityDocumentConfigurations.First();
-						ITdiTab tab = docConfig.GetCreateEntityDlgConfigs().First().OpenEntityDialogFunction();
-
-						if(tab is ITdiDialog)
-							((ITdiDialog)tab).EntitySaved += Tab_EntitySaved;
-
-						if(docConfig.JournalParameters.HideJournalForCreateDialog)
-						{
-							HideJournal(TabParent);
-						}
-					},
-					"Insert"
-					);
-				NodeActionsList.Add(addAction);
-			};
 		}
 
 		protected void CreateEditAction()

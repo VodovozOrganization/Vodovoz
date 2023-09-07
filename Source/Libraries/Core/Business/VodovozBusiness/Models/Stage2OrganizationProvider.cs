@@ -50,7 +50,7 @@ namespace Vodovoz.Models
 			}
 
 			var organizationId = IsOnlineStoreOrderWithoutShipment(order)
-				? _organizationParametersProvider.VodovozSouthOrganizationId
+				? _organizationParametersProvider.VodovozNorthOrganizationId
 				: _organizationParametersProvider.VodovozOrganizationId;
 
 			return uow.GetById<Organization>(organizationId);
@@ -75,10 +75,12 @@ namespace Vodovoz.Models
 			{
 				throw new ArgumentNullException(nameof(order));
 			}
+
 			if(order.OurOrganization != null)
 			{
 				return order.OurOrganization;
 			}
+
 			if(order.Client.WorksThroughOrganization != null)
 			{
 				return order.Client.WorksThroughOrganization;
@@ -128,9 +130,12 @@ namespace Vodovoz.Models
 					organizationId = _organizationParametersProvider.VodovozOrganizationId;
 					break;
 				case PaymentType.Cash:
-				case PaymentType.Terminal:
-					organizationId = _organizationParametersProvider.VodovozSouthOrganizationId;
+					organizationId = _organizationParametersProvider.VodovozNorthOrganizationId;
 					break;
+				case PaymentType.Terminal:
+					organizationId = _organizationParametersProvider.VodovozEastOrganizationId;
+					break;
+				case PaymentType.DriverApplicationQR:
 				case PaymentType.SmsQR:
 					organizationId = GetOrganizationIdForByCard(uow, uow.GetById<PaymentFrom>(_orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId), geographicGroup, orderCreateDate, onlineOrderId); 
 					break;
@@ -155,7 +160,7 @@ namespace Vodovoz.Models
 
 		private Organization GetOrganizationForOnlineStore(IUnitOfWork uow)
 		{
-			return uow.GetById<Organization>(_organizationParametersProvider.VodovozSouthOrganizationId);
+			return uow.GetById<Organization>(_organizationParametersProvider.VodovozNorthOrganizationId);
 		}
 
 		private Organization GetOrganizationForOtherOptions(IUnitOfWork uow, PaymentType paymentType, DateTime? orderCreateDate,
@@ -171,8 +176,10 @@ namespace Vodovoz.Models
 					organizationId = _organizationParametersProvider.VodovozOrganizationId;
 					break;
 				case PaymentType.Cash:
+					organizationId = _organizationParametersProvider.VodovozNorthOrganizationId;
+					break;
 				case PaymentType.Terminal:
-					organizationId = _organizationParametersProvider.VodovozSouthOrganizationId;
+					organizationId = _organizationParametersProvider.VodovozEastOrganizationId;
 					break;
 				case PaymentType.DriverApplicationQR:
 				case PaymentType.SmsQR:
@@ -201,34 +208,34 @@ namespace Vodovoz.Models
 			{
 				return _organizationParametersProvider.VodovozNorthOrganizationId;
 			}
+			
+			if(_orderParametersProvider.PaymentsByCardFromForNorthOrganization.Contains(paymentFrom.Id)
+				&& orderCreateDate.HasValue
+				&& orderCreateDate.Value < new DateTime(2022, 08, 30, 13, 00, 00))
+			{
+				return _organizationParametersProvider.VodovozNorthOrganizationId;
+			}
+
 			if(_orderParametersProvider.PaymentsByCardFromAvangard.Contains(paymentFrom.Id))
 			{
 				if(!onlineOrderId.HasValue)
 				{
-					return paymentFrom.OrganizationForAvangardPayments?.Id ?? _organizationParametersProvider.VodovozSouthOrganizationId;
+					return GetPaymentFromOrganisationIdOrDefault(paymentFrom);
 				}
 
 				var fastPayment = _fastPaymentRepository.GetPerformedFastPaymentByExternalId(uow, onlineOrderId.Value);
 				if(fastPayment == null)
 				{
-					return paymentFrom.OrganizationForAvangardPayments?.Id ?? _organizationParametersProvider.VodovozSouthOrganizationId;
+					return GetPaymentFromOrganisationIdOrDefault(paymentFrom);
 				}
 
 				return fastPayment.Organization?.Id ?? _organizationParametersProvider.VodovozNorthOrganizationId;
 			}
-			if(paymentFrom.Id == _orderParametersProvider.GetPaymentByCardFromMarketplaceId)
-			{
-				return _organizationParametersProvider.VodovozOrganizationId;
-			}
-			if(paymentFrom.Id == _orderParametersProvider.PaymentByCardFromSmsId
-				|| paymentFrom.Id == _orderParametersProvider.PaymentFromTerminalId)
-			{
-				return _organizationParametersProvider.VodovozSouthOrganizationId;
-			}
 
-			return _orderParametersProvider.PaymentsByCardFromForNorthOrganization.Contains(paymentFrom.Id) && orderCreateDate.HasValue && orderCreateDate.Value < new DateTime(2022, 08, 30, 13, 00, 00)
-				? _organizationParametersProvider.VodovozNorthOrganizationId
-				: _organizationParametersProvider.VodovozSouthOrganizationId;
+			return GetPaymentFromOrganisationIdOrDefault(paymentFrom);
 		}
+
+		private int GetPaymentFromOrganisationIdOrDefault(PaymentFrom paymentFrom) =>
+			paymentFrom.OrganizationForOnlinePayments?.Id ?? _organizationParametersProvider.VodovozNorthOrganizationId;
 	}
 }

@@ -1,8 +1,8 @@
 ﻿namespace Vodovoz.Services
 {
-    public interface IOrderParametersProvider
-    {
-        int PaymentByCardFromMobileAppId { get; }
+	public interface IOrderParametersProvider
+	{
+		int PaymentByCardFromMobileAppId { get; }
 		int PaymentByCardFromSiteId { get; }
 		int PaymentByCardFromSmsId { get; }
 		int PaymentByCardFromOnlineStoreId { get; }
@@ -14,10 +14,13 @@
 		int GetPaymentByCardFromAvangardId { get; }
 		int GetPaymentByCardFromSiteByQrCodeId { get; }
 		int GetPaymentByCardFromMobileAppByQrCodeId { get; }
+		int GetPaymentByCardFromKulerSaleId { get; }
 		int[] PaymentsByCardFromNotToSendSalesReceipts { get; }
 		int[] PaymentsByCardFromForNorthOrganization { get; }
 		int[] PaymentsByCardFromAvangard { get; }
 		int GetDiscountReasonStockBottle10PercentsId { get; }
 		int GetDiscountReasonStockBottle20PercentsId { get; }
-    }
+		int GetClientsSecondOrderDiscountReasonId { get; }
+
+	}
 }

@@ -12,6 +12,8 @@ namespace Vodovoz.Views.Reports
 
 		private global::Gamma.GtkWidgets.yButton ybtnExport;
 
+		private global::Gamma.GtkWidgets.yButton ybtnGenerateFastDeliveryRemainingBottlesReport;
+
 		private global::Gamma.GtkWidgets.yButton ybtnRunReport;
 
 		private global::Gamma.GtkWidgets.yLabel ylblProgress;
@@ -66,43 +68,57 @@ namespace Vodovoz.Views.Reports
 			w2.XOptions = ((global::Gtk.AttachOptions)(4));
 			w2.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableFilter.Gtk.Table+TableChild
+			this.ybtnGenerateFastDeliveryRemainingBottlesReport = new global::Gamma.GtkWidgets.yButton();
+			this.ybtnGenerateFastDeliveryRemainingBottlesReport.CanFocus = true;
+			this.ybtnGenerateFastDeliveryRemainingBottlesReport.Name = "ybtnGenerateFastDeliveryRemainingBottlesReport";
+			this.ybtnGenerateFastDeliveryRemainingBottlesReport.UseUnderline = true;
+			this.ybtnGenerateFastDeliveryRemainingBottlesReport.Label = global::Mono.Unix.Catalog.GetString("Отчет по остатку бутылей");
+			this.ytableFilter.Add(this.ybtnGenerateFastDeliveryRemainingBottlesReport);
+			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.ytableFilter[this.ybtnGenerateFastDeliveryRemainingBottlesReport]));
+			w3.TopAttach = ((uint)(1));
+			w3.BottomAttach = ((uint)(2));
+			w3.LeftAttach = ((uint)(2));
+			w3.RightAttach = ((uint)(3));
+			w3.XOptions = ((global::Gtk.AttachOptions)(4));
+			w3.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child ytableFilter.Gtk.Table+TableChild
 			this.ybtnRunReport = new global::Gamma.GtkWidgets.yButton();
 			this.ybtnRunReport.CanFocus = true;
 			this.ybtnRunReport.Name = "ybtnRunReport";
 			this.ybtnRunReport.UseUnderline = true;
 			this.ybtnRunReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать");
 			this.ytableFilter.Add(this.ybtnRunReport);
-			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.ytableFilter[this.ybtnRunReport]));
-			w3.TopAttach = ((uint)(1));
-			w3.BottomAttach = ((uint)(2));
-			w3.XOptions = ((global::Gtk.AttachOptions)(4));
-			w3.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.ytableFilter[this.ybtnRunReport]));
+			w4.TopAttach = ((uint)(1));
+			w4.BottomAttach = ((uint)(2));
+			w4.XOptions = ((global::Gtk.AttachOptions)(4));
+			w4.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableFilter.Gtk.Table+TableChild
 			this.ylblProgress = new global::Gamma.GtkWidgets.yLabel();
 			this.ylblProgress.Name = "ylblProgress";
 			this.ylblProgress.LabelProp = global::Mono.Unix.Catalog.GetString("Progress");
 			this.ytableFilter.Add(this.ylblProgress);
-			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.ytableFilter[this.ylblProgress]));
-			w4.TopAttach = ((uint)(1));
-			w4.BottomAttach = ((uint)(2));
-			w4.LeftAttach = ((uint)(3));
-			w4.RightAttach = ((uint)(4));
-			w4.XOptions = ((global::Gtk.AttachOptions)(4));
-			w4.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.ytableFilter[this.ylblProgress]));
+			w5.TopAttach = ((uint)(1));
+			w5.BottomAttach = ((uint)(2));
+			w5.LeftAttach = ((uint)(3));
+			w5.RightAttach = ((uint)(4));
+			w5.XOptions = ((global::Gtk.AttachOptions)(4));
+			w5.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableFilter.Gtk.Table+TableChild
 			this.ylblRouteListCreateDate = new global::Gamma.GtkWidgets.yLabel();
 			this.ylblRouteListCreateDate.Name = "ylblRouteListCreateDate";
 			this.ylblRouteListCreateDate.Xalign = 1F;
 			this.ylblRouteListCreateDate.LabelProp = global::Mono.Unix.Catalog.GetString("Дата создания МЛ:");
 			this.ytableFilter.Add(this.ylblRouteListCreateDate);
-			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.ytableFilter[this.ylblRouteListCreateDate]));
-			w5.XOptions = ((global::Gtk.AttachOptions)(4));
-			w5.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.ytableFilter[this.ylblRouteListCreateDate]));
+			w6.XOptions = ((global::Gtk.AttachOptions)(4));
+			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.yvboxMain.Add(this.ytableFilter);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.ytableFilter]));
-			w6.Position = 0;
-			w6.Expand = false;
-			w6.Fill = false;
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.ytableFilter]));
+			w7.Position = 0;
+			w7.Expand = false;
+			w7.Fill = false;
 			// Container child yvboxMain.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -113,8 +129,8 @@ namespace Vodovoz.Views.Reports
 			this.ytreeviewReport.Name = "ytreeviewReport";
 			this.GtkScrolledWindow.Add(this.ytreeviewReport);
 			this.yvboxMain.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.GtkScrolledWindow]));
-			w8.Position = 1;
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.GtkScrolledWindow]));
+			w9.Position = 1;
 			this.Add(this.yvboxMain);
 			if ((this.Child != null))
 			{
