@@ -272,13 +272,13 @@ stage('Delivery'){
 		"DeliveryRulesService" : { DeliveryWebArtifact("DeliveryRulesService") },
 		"RoboatsService" : { DeliveryWebArtifact("RoboatsService") },
 		"TrueMarkAPI" : { DeliveryWebArtifact("TrueMarkAPI") },
-		"PushNotificationsWorker" : { DeliveryWebArtifact("PushNotificationsWorker") },
 		"TaxcomEdoApi" : { DeliveryWebArtifact("TaxcomEdoApi") },
 		"CashReceiptApi" : { DeliveryWebArtifact("CashReceiptApi") },
 		"CustomerAppsApi" : { DeliveryWebArtifact("CustomerAppsApi") },
 		"CashReceiptPrepareWorker" : { DeliveryWebArtifact("CashReceiptPrepareWorker") },
 		"CashReceiptSendWorker" : { DeliveryWebArtifact("CashReceiptSendWorker") },
 		"TrueMarkCodePoolCheckWorker" : { DeliveryWebArtifact("TrueMarkCodePoolCheckWorker") },
+		"PushNotificationsWorker" : { DeliveryWebArtifact("PushNotificationsWorker") },
 
 		"VodovozMangoService" : { DeliveryWebLinuxArtifact("VodovozMangoService") },
 
