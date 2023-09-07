@@ -24,7 +24,7 @@ namespace Vodovoz.ViewWidgets.Search
 
 		private global::Gamma.GtkWidgets.yButton buttonAddAnd;
 
-		private global::Gamma.GtkWidgets.yButton ybutton2;
+		private global::Gamma.GtkWidgets.yButton buttonSearchClear;
 
 		protected virtual void Build()
 		{
@@ -128,16 +128,16 @@ namespace Vodovoz.ViewWidgets.Search
 			w10.Expand = false;
 			w10.Fill = false;
 			// Container child hboxSearch.Gtk.Box+BoxChild
-			this.ybutton2 = new global::Gamma.GtkWidgets.yButton();
-			this.ybutton2.TooltipMarkup = "Очистить";
-			this.ybutton2.CanFocus = true;
-			this.ybutton2.Name = "ybutton2";
-			this.ybutton2.UseUnderline = true;
+			this.buttonSearchClear = new global::Gamma.GtkWidgets.yButton();
+			this.buttonSearchClear.TooltipMarkup = "Очистить";
+			this.buttonSearchClear.CanFocus = true;
+			this.buttonSearchClear.Name = "buttonSearchClear";
+			this.buttonSearchClear.UseUnderline = true;
 			global::Gtk.Image w11 = new global::Gtk.Image();
 			w11.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-clear", global::Gtk.IconSize.Menu);
-			this.ybutton2.Image = w11;
-			this.hboxSearch.Add(this.ybutton2);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hboxSearch[this.ybutton2]));
+			this.buttonSearchClear.Image = w11;
+			this.hboxSearch.Add(this.buttonSearchClear);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hboxSearch[this.buttonSearchClear]));
 			w12.Position = 9;
 			w12.Expand = false;
 			w12.Fill = false;

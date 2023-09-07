@@ -46,7 +46,7 @@ namespace Vodovoz.ViewWidgets.Search
 				.InitializeFromSource();
 
 			buttonAddAnd.Clicked += (o, e) => ViewModel.AddSearchEntryCommand.Execute();
-			ybutton2.Clicked += (o, e) => ViewModel.ClearSerarchEntriesTextCommand.Execute();
+			buttonSearchClear.Clicked += (o, e) => ViewModel.ClearSerarchEntriesTextCommand.Execute();
 		}
 	}
 }
