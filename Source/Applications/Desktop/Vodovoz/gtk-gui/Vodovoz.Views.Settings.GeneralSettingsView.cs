@@ -502,11 +502,18 @@ namespace Vodovoz.Views.Settings
 			w43.Position = 0;
 			w43.Expand = false;
 			w43.Fill = false;
-			this.hboxMain.Add(this.vbox1);
-			global::Gtk.Box.BoxChild w44 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.vbox1]));
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.warehousesForPricesAndStocksIntegrationsView = new global::Vodovoz.Views.Settings.NamedDomainEntitiesSettingsView();
+			this.warehousesForPricesAndStocksIntegrationsView.Events = ((global::Gdk.EventMask)(256));
+			this.warehousesForPricesAndStocksIntegrationsView.Name = "warehousesForPricesAndStocksIntegrationsView";
+			this.vbox1.Add(this.warehousesForPricesAndStocksIntegrationsView);
+			global::Gtk.Box.BoxChild w44 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.warehousesForPricesAndStocksIntegrationsView]));
 			w44.Position = 1;
-			w44.Expand = false;
-			w44.Fill = false;
+			this.hboxMain.Add(this.vbox1);
+			global::Gtk.Box.BoxChild w45 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.vbox1]));
+			w45.Position = 1;
+			w45.Expand = false;
+			w45.Fill = false;
 			this.Add(this.hboxMain);
 			if ((this.Child != null))
 			{
