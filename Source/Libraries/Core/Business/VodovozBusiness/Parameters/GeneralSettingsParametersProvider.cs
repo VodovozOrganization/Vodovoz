@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -42,7 +42,6 @@ namespace Vodovoz.Parameters
 		public void UpdateOrderAutoComment(string value) =>
 			_parametersProvider.CreateOrUpdateParameter(_orderAutoComment, value);
 
-
 		public void UpdateCanAddForwardersToLargus(bool value) =>
 			_parametersProvider.CreateOrUpdateParameter(_canAddForwarderToLargus, value.ToString());
 
@@ -76,8 +75,6 @@ namespace Vodovoz.Parameters
 			_parametersProvider.CreateOrUpdateParameter(parameterName, string.Join(", ", warehousesIds));
 		}
 
-		public string SubdivisionsAlternativePricesName => _subdivisionsForAlternativePricesName;
-
 		public int DriversUnclosedRouteListsHavingDebtMaxCount => _parametersProvider.GetValue<int>(_driversUnclosedRouteListsHavingDebtMaxCount);
 
 		public void UpdateDriversUnclosedRouteListsHavingDebtMaxCount(int value) =>
@@ -91,6 +88,7 @@ namespace Vodovoz.Parameters
 
 		public void UpdateIsClientsSecondOrderDiscountActive(bool value) =>
 			_parametersProvider.CreateOrUpdateParameter(_isClientsSecondOrderDiscountActive, value.ToString());
+		
 		private int[] GetSubdivisionsToInformComplaintHasNoDriver()
 		{
 			return ParseIdsFromString(_subdivisionsToInformComplaintHasNoDriverParameterName);
