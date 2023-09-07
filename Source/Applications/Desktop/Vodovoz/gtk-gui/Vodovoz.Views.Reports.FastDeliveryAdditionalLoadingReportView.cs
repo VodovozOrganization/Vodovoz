@@ -72,7 +72,7 @@ namespace Vodovoz.Views.Reports
 			this.ybtnGenerateFastDeliveryRemainingBottlesReport.CanFocus = true;
 			this.ybtnGenerateFastDeliveryRemainingBottlesReport.Name = "ybtnGenerateFastDeliveryRemainingBottlesReport";
 			this.ybtnGenerateFastDeliveryRemainingBottlesReport.UseUnderline = true;
-			this.ybtnGenerateFastDeliveryRemainingBottlesReport.Label = global::Mono.Unix.Catalog.GetString("Отчет по остатку бутылей от ДЗЧ");
+			this.ybtnGenerateFastDeliveryRemainingBottlesReport.Label = global::Mono.Unix.Catalog.GetString("Отчет по остатку бутылей");
 			this.ytableFilter.Add(this.ybtnGenerateFastDeliveryRemainingBottlesReport);
 			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.ytableFilter[this.ybtnGenerateFastDeliveryRemainingBottlesReport]));
 			w3.TopAttach = ((uint)(1));

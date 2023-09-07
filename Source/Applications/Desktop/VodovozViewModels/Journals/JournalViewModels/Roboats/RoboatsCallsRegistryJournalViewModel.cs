@@ -46,11 +46,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 
 			Title = "Реестр Roboats звонков";
 
-			var levelDataLoader = new HierarchicalQueryLoader<RoboatsCall, RoboatsCallJournalNode>(unitOfWorkFactory);
+			var levelDataLoader = new HierarchicalQueryLoader<RoboatsCall, RoboatsCallJournalNode>(unitOfWorkFactory, GetCount);
 			
 			levelDataLoader.SetLevelingModel(GetQuery)
 				.AddNextLevelSource(GetDetails);
-			levelDataLoader.SetCountFunction(GetCount);
 
 			RecuresiveConfig = levelDataLoader.TreeConfig;
 
