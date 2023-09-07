@@ -11,7 +11,7 @@ namespace Vodovoz.ViewModels.Widgets.Search
 	public class CompositeSearchViewModel : WidgetViewModelBase, IJournalSearch
 	{
 		private string[] _searchValues;
-		private string _searchInfoLabelText;
+		private string _searchInfoLabelText = "Поиск";
 		private int _searchEntryShownCount = 1;
 		private string _entrySearchText1;
 		private string _entrySearchText2;
@@ -74,6 +74,7 @@ namespace Vodovoz.ViewModels.Widgets.Search
 			set => SetField(ref _entrySearchText4, value);
 		}
 
+		[PropertyChangedAlso(nameof(CanAddSearchEntry))]
 		public int SearchEntryShownCount
 		{
 			get => _searchEntryShownCount;
@@ -116,7 +117,7 @@ namespace Vodovoz.ViewModels.Widgets.Search
 			}
 		}
 
-		public bool CanAddSearchEntry => SearchEntryShownCount > 3;
+		public bool CanAddSearchEntry => SearchEntryShownCount < 4;
 
 		private void AddSearchEntry()
 		{

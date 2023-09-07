@@ -44,7 +44,7 @@ namespace Vodovoz.ViewWidgets.Search
 
 			buttonAddAnd.Binding
 				.AddSource(ViewModel)
-				.AddFuncBinding(vm => vm.SearchEntryShownCount > 3, w => w.Sensitive)
+				.AddFuncBinding(vm => vm.CanAddSearchEntry, w => w.Sensitive)
 				.InitializeFromSource();
 
 			buttonAddAnd.Clicked += (o, e) => ViewModel.AddSearchEntryCommand.Execute();
