@@ -35,16 +35,6 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding( vm => vm.RestrictCounterpartyNameLike, w => w.Text)
 				.AddFuncBinding(vm => vm.Counterparty == null, w => w.Sensitive)
 				.InitializeFromSource();
-
-			entryDeliveryPointCompiledAddressLike.KeyReleaseEvent += OnKeyReleased;
-			entryDeliveryPointCompiledAddressLike.Binding
-				.AddBinding(ViewModel, vm => vm.RestrictDeliveryPointCompiledAddressLike, w => w.Text)
-				.InitializeFromSource();
-
-			entryDeliveryPointAddress1cLike.KeyReleaseEvent += OnKeyReleased;
-			entryDeliveryPointAddress1cLike.Binding
-				.AddBinding(ViewModel, vm => vm.RestrictDeliveryPointAddress1cLike, w => w.Text)
-				.InitializeFromSource();
 		}
 
 		private void OnKeyReleased(object sender, KeyReleaseEventArgs args)
