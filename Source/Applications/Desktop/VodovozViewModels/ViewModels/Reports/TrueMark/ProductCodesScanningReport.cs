@@ -12,7 +12,7 @@ using Vodovoz.Tools;
 namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 {
 	[Appellative(Nominative = "Отчет о сканировании водителями маркировки ЧЗ")]
-	public class ProductCodesScanningReport
+	public partial class ProductCodesScanningReport
 	{
 		public ProductCodesScanningReport(DateTime createDateFrom, DateTime createDateTo, IList<Row> rows)
 		{
@@ -56,13 +56,12 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 												 && unitOfWork.Session.Query<CashReceiptProductCode>()
 													.Where(c => c.DuplicatedIdentificationCodeId == productCode.DuplicatedIdentificationCodeId)
 													.Count() > 1
-										 select new
+										 select new ScannedCodeInfo
 										 {
 											 DriverId = driver.Id,
 											 DriverFIO = PersonHelper.PersonNameWithInitials(driver.LastName, driver.Name, driver.Patronymic),
-											 ProductCodeId = productCode.Id,
-											 DuplicatedCodeId = productCode.DuplicatedIdentificationCodeId,
 											 SourceCode = productCode.SourceCode,
+											 DuplicatedCodeId = productCode.DuplicatedIdentificationCodeId,
 											 IsProductCodeSingleDuplicated = isProductCodeSingleDuplicated,
 											 IsProductCodeMultiplyDuplicated = isProductCodeMultiplyDuplicated,
 											 IsDuplicateSourceCode = productCode.IsDuplicateSourceCode,
@@ -76,7 +75,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 										select new
 										{
 											Driver = groupedCodes.Key.DriverFIO,
-											ProductCodes = groupedCodes.ToList()
+											ScannedCodes = groupedCodes.ToList()
 										}).ToList();
 
 			var rows = new List<Row>();
@@ -85,36 +84,18 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 			foreach(var item in groupedByDriverCodes)
 			{
 				var driver = item.Driver;
-				var codes = item.ProductCodes;
+				var codes = item.ScannedCodes;
 
 				var row = new Row();
 
 				row.RowNumber = counter;
 				row.DriverFIO = driver;
 				row.TotalCodesCount = codes.Count;
-
-				row.SuccessfullyScannedCodesCount = codes
-					.Where(c =>
-						!c.IsDuplicateSourceCode
-						&& !c.IsUnscannedSourceCode
-						&& c.SourceCode != null)
-					.Count();
-
-				row.UnscannedCodesCount = codes
-					.Where(c => c.IsUnscannedSourceCode)
-					.Count();
-
-				row.SingleDuplicatedCodesCount = codes
-					.Where(c => c.IsProductCodeSingleDuplicated && !c.IsInvalidSourceCode)
-					.Count();
-
-				row.MultiplyDuplicatedCodesCount = codes
-					.Where(c => c.IsProductCodeMultiplyDuplicated && !c.IsInvalidSourceCode)
-					.Count();
-
-				row.InvalidCodesCount = codes
-					.Where(c => c.IsInvalidSourceCode)
-					.Count();
+				row.SuccessfullyScannedCodesCount = GetSuccessfullyScannedCodesCount(codes);
+				row.UnscannedCodesCount = GetUnscannedCodesCount(codes);
+				row.SingleDuplicatedCodesCount = GetSingleDuplicatedCodesCount(codes);
+				row.MultiplyDuplicatedCodesCount = GetMultiplyDuplicatedCodesCount(codes);
+				row.InvalidCodesCount = GetInvalidCodesCount(codes);
 
 				rows.Add(row);
 				counter++;
@@ -124,21 +105,31 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 			return new ProductCodesScanningReport(createDateFrom, createDateTo, rows);
 		}
 
-		public class Row
-		{
-			public int RowNumber { get; set; }
-			public string DriverFIO { get; set; }
-			public int TotalCodesCount { get; set; }
-			public int SuccessfullyScannedCodesCount { get; set; }
-			public decimal SuccessfullyScannedCodesPercent => ((decimal)SuccessfullyScannedCodesCount / TotalCodesCount) * 100;
-			public int UnscannedCodesCount { get; set; }
-			public decimal UnscannedCodesPercent => ((decimal)UnscannedCodesCount / TotalCodesCount) * 100;
-			public int SingleDuplicatedCodesCount { get; set; }
-			public decimal SingleDuplicatedCodesPercent => ((decimal)SingleDuplicatedCodesCount / TotalCodesCount) * 100;
-			public int MultiplyDuplicatedCodesCount { get; set; }
-			public decimal MultiplyDuplicatedCodesPercent => ((decimal)MultiplyDuplicatedCodesCount / TotalCodesCount) * 100;
-			public int InvalidCodesCount { get; set; }
-			public decimal InvalidCodesPercent => ((decimal)InvalidCodesCount / TotalCodesCount) * 100;
-		}
+		private static int GetSuccessfullyScannedCodesCount(List<ScannedCodeInfo> codes) =>
+			codes
+			.Where(c => !c.IsDuplicateSourceCode
+				&& !c.IsUnscannedSourceCode
+				&& c.SourceCode != null)
+			.Count();
+
+		private static int GetUnscannedCodesCount(List<ScannedCodeInfo> codes) =>
+			codes
+			.Where(c => c.IsUnscannedSourceCode)
+			.Count();
+
+		private static int GetSingleDuplicatedCodesCount(List<ScannedCodeInfo> codes) =>
+			codes
+			.Where(c => c.IsProductCodeSingleDuplicated && !c.IsInvalidSourceCode)
+			.Count();
+
+		private static int GetMultiplyDuplicatedCodesCount(List<ScannedCodeInfo> codes) =>
+			codes
+			.Where(c => c.IsProductCodeMultiplyDuplicated && !c.IsInvalidSourceCode)
+			.Count();
+
+		private static int GetInvalidCodesCount(List<ScannedCodeInfo> codes) =>
+			codes
+			.Where(c => c.IsInvalidSourceCode)
+			.Count();
 	}
 }

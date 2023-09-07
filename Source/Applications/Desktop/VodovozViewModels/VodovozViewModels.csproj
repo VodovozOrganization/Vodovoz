@@ -617,6 +617,8 @@
     <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.TurnoverWithDynamicsReport.TurnoverWithDynamicsReportRow.cs" />
     <Compile Include="ViewModels\Reports\SelectableParameterReportFilterSelectionChangedArgs.cs" />
     <Compile Include="ViewModels\Reports\TrueMark\ProductCodesScanningReport.cs" />
+    <Compile Include="ViewModels\Reports\TrueMark\ProductCodesScanningReport.Row.cs" />
+    <Compile Include="ViewModels\Reports\TrueMark\ProductCodesScanningReport.ScannedCodeInfo.cs" />
     <Compile Include="ViewModels\Reports\UndeliveredOrdersJournalReport\UndeliveredOrdersClassificationSummaryReport.cs" />
     <Compile Include="ViewModels\Sale\DeliveryPriceRuleViewModel.cs" />
     <Compile Include="ViewModels\Security\RegisteredRMViewModel.cs" />
