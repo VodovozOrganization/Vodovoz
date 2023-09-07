@@ -15,7 +15,15 @@ namespace Vodovoz.Filters.ViewModels
 		private string _restrictCounterpartyNameLike;
 		private string _restrictDeliveryPointCompiledAddressLike;
 		private string _restrictDeliveryPointAddress1cLike;
-		private CompositeSearchViewModel _searchByAddressViewModel = new CompositeSearchViewModel();
+		private CompositeSearchViewModel _searchByAddressViewModel;
+
+		public DeliveryPointJournalFilterViewModel()
+		{
+			_searchByAddressViewModel = new CompositeSearchViewModel();
+
+			_searchByAddressViewModel.SearchInfoLabelText = "Адрес ТД:";
+			_searchByAddressViewModel.OnSearch += OnSearchByAddressViewModel;
+		}
 
 		public CompositeSearchViewModel SearchByAddressViewModel => _searchByAddressViewModel;
 
@@ -61,6 +69,17 @@ namespace Vodovoz.Filters.ViewModels
 		{
 			get => _restrictDeliveryPointAddress1cLike;
 			set => SetField(ref _restrictDeliveryPointAddress1cLike, value);
+		}
+
+		private void OnSearchByAddressViewModel(object sender, EventArgs e)
+		{
+			Update();
+		}
+
+		public override void Dispose()
+		{
+			_searchByAddressViewModel.OnSearch -= OnSearchByAddressViewModel;
+			base.Dispose();
 		}
 	}
 }
