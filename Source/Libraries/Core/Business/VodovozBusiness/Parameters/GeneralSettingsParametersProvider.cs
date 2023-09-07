@@ -101,7 +101,7 @@ namespace Vodovoz.Parameters
 
 		private int[] GetWarehousesForPricesAndStocksIntegration()
 		{
-			return ParseIdsFromString(_subdivisionsToInformComplaintHasNoDriverParameterName);
+			return ParseIdsFromString(_warehousesForPricesAndStocksIntegrationName);
 		}
 		
 		private int[] ParseIdsFromString(string parameterName, bool allowEmpty = true)
