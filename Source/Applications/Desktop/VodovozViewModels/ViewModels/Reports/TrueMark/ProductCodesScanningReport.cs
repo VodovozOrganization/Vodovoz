@@ -1,4 +1,4 @@
-﻿using QS.DomainModel.Entity;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Utilities.Text;
 using System;
@@ -36,12 +36,12 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 		{
 			var codesScannedByDrivers = (from productCode in unitOfWork.Session.Query<CashReceiptProductCode>()
 										 join cashReceipt in unitOfWork.Session.Query<CashReceipt>() on productCode.CashReceipt.Id equals cashReceipt.Id
-										 join trueMarkWaterIdentificationCode in unitOfWork.Session.Query<TrueMarkWaterIdentificationCode>() on productCode.SourceCode.Id equals trueMarkWaterIdentificationCode.Id
-										 into trueMarkIdentificationCodes
-										 from trueMarkIdentificationCode in trueMarkIdentificationCodes.DefaultIfEmpty()
 										 join routeListItem in unitOfWork.Session.Query<RouteListItem>() on cashReceipt.Order.Id equals routeListItem.Order.Id
 										 join routeList in unitOfWork.Session.Query<RouteList>() on routeListItem.RouteList.Id equals routeList.Id
 										 join driver in unitOfWork.Session.Query<Employee>() on routeList.Driver.Id equals driver.Id
+										 join trueMarkWaterIdentificationCode in unitOfWork.Session.Query<TrueMarkWaterIdentificationCode>() on productCode.SourceCode.Id equals trueMarkWaterIdentificationCode.Id
+										 into trueMarkIdentificationCodes
+										 from trueMarkIdentificationCode in trueMarkIdentificationCodes.DefaultIfEmpty()
 										 where
 											 cashReceipt.CreateDate >= createDateFrom
 											 && cashReceipt.CreateDate < createDateTo.AddDays(1)
@@ -109,6 +109,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 			codes
 			.Where(c => !c.IsDuplicateSourceCode
 				&& !c.IsUnscannedSourceCode
+				&& !c.IsInvalidSourceCode
 				&& c.SourceCode != null)
 			.Count();
 
