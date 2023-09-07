@@ -1,4 +1,7 @@
 ﻿using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.Wordprocessing;
+using FluentNHibernate.Automapping;
 using Gamma.Binding.Core.RecursiveTreeConfig;
 using NHibernate;
 using NHibernate.Criterion;
@@ -596,7 +599,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 
 		#endregion Load codes to pool
 
-		#region CreateProductCodesScanningReportAction
+		#region Product Codes Scanning Repor Creation
 		private void CreateProductCodesScanningReportAction()
 		{
 			var createProductCodesScanningReportAction = new JournalAction("Отчет о сканировании маркировки",
@@ -632,46 +635,153 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 
 			using(var workbook = new XLWorkbook())
 			{
-				var colNumber = 1;
 				var worksheet = workbook.Worksheets.Add("Сканирование кодов маркировки");
+				var sheetTitleRowNumber = 1;
+				var tableTitlesRowNumber = 3;
 
-				worksheet.Cell(1, 1).Value = $"{report.Title} за период с {report.CreateDateFrom:dd.MM.yyyy} по {report.CreateDateTo:dd.MM.yyyy}";
+				SetColumnsWidth(worksheet);
 
-				worksheet.Cell(2, colNumber++).Value = "№";
-				worksheet.Cell(2, colNumber++).Value = "Водитель";
-				worksheet.Cell(2, colNumber++).Value = "Требуется кодов в заказах за период, шт.";
-				worksheet.Cell(2, colNumber++).Value = "Успешно отсканировано кодов, шт.";
-				worksheet.Cell(2, colNumber++).Value = "Успешно отсканировано кодов, %";
-				worksheet.Cell(2, colNumber++).Value = "Не отсканировано кодов, шт.";
-				worksheet.Cell(2, colNumber++).Value = "Не отсканировано кодов, %";
-				worksheet.Cell(2, colNumber++).Value = "Дубликаты одноразовые (из пула), шт.";
-				worksheet.Cell(2, colNumber++).Value = "Дубликаты одноразовые (из пула), %";
-				worksheet.Cell(2, colNumber++).Value = "Дубликаты множественные, шт.";
-				worksheet.Cell(2, colNumber++).Value = "Дубликаты множественные, %";
-				worksheet.Cell(2, colNumber++).Value = "Недействительные коды, шт.";
-				worksheet.Cell(2, colNumber++).Value = "Недействительные коды, %";
+				var reportTitle = $"{report.Title} за период с {report.CreateDateFrom:dd.MM.yyyy} по {report.CreateDateTo:dd.MM.yyyy}";
 
-				var excelRowCounter = 3;
+				RenderWorksheetTitleCell(worksheet, sheetTitleRowNumber, 1, reportTitle);
+
+				RenderTableTitleRow(worksheet, tableTitlesRowNumber);
+
+				var excelRowCounter = ++tableTitlesRowNumber;
 				foreach(var row in report.Rows)
 				{
-					colNumber = 1;
-					worksheet.Cell(excelRowCounter, colNumber++).Value = row.RowNumber;
-					worksheet.Cell(excelRowCounter, colNumber++).Value = row.DriverFIO;
-					worksheet.Cell(excelRowCounter, colNumber++).Value = row.TotalCodesCount;
-					worksheet.Cell(excelRowCounter, colNumber++).Value = row.SuccessfullyScannedCodesCount;
-					worksheet.Cell(excelRowCounter, colNumber++).Value = row.SuccessfullyScannedCodesPercent;
-					worksheet.Cell(excelRowCounter, colNumber++).Value = row.UnscannedCodesCount;
-					worksheet.Cell(excelRowCounter, colNumber++).Value = row.UnscannedCodesPercent;
-					worksheet.Cell(excelRowCounter, colNumber++).Value = row.SingleDuplicatedCodesCount;
-					worksheet.Cell(excelRowCounter, colNumber++).Value = row.SingleDuplicatedCodesPercent;
-					worksheet.Cell(excelRowCounter, colNumber++).Value = row.MultiplyDuplicatedCodesCount;
-					worksheet.Cell(excelRowCounter, colNumber++).Value = row.MultiplyDuplicatedCodesPercent;
-					worksheet.Cell(excelRowCounter, colNumber++).Value = row.InvalidCodesCount;
-					worksheet.Cell(excelRowCounter, colNumber++).Value = row.InvalidCodesPercent;
+					RenderReportRow(worksheet, excelRowCounter, row);
 					excelRowCounter++;
 				}
 				workbook.SaveAs(result.Path);
 			}
+		}
+
+		private void SetColumnsWidth(IXLWorksheet worksheet)
+		{
+			var firstColumnWidth = 5;
+			var columnsWidth = 18;
+
+			for(int i = 0; i < 13; i++)
+			{
+				var column = worksheet.Column(i + 1);
+
+				column.Width = i == 0 ? firstColumnWidth : columnsWidth;
+			}
+		}
+
+		private void RenderTableTitleRow(IXLWorksheet worksheet, int rowNumber)
+		{
+			var colNumber = 1;
+
+			RenderTableTitleCell(worksheet, rowNumber, colNumber++, "№");
+			RenderTableTitleCell(worksheet, rowNumber, colNumber++, "Водитель");
+			RenderTableTitleCell(worksheet, rowNumber, colNumber++, "Требуется кодов в заказах за период, шт.");
+			RenderTableTitleCell(worksheet, rowNumber, colNumber++, "Успешно отсканировано кодов, шт.");
+			RenderTableTitleCell(worksheet, rowNumber, colNumber++, "Успешно отсканировано кодов, %");
+			RenderTableTitleCell(worksheet, rowNumber, colNumber++, "Не отсканировано кодов, шт.");
+			RenderTableTitleCell(worksheet, rowNumber, colNumber++, "Не отсканировано кодов, %");
+			RenderTableTitleCell(worksheet, rowNumber, colNumber++, "Дубликаты одноразовые (из пула), шт.");
+			RenderTableTitleCell(worksheet, rowNumber, colNumber++, "Дубликаты одноразовые (из пула), %");
+			RenderTableTitleCell(worksheet, rowNumber, colNumber++, "Дубликаты множественные, шт.");
+			RenderTableTitleCell(worksheet, rowNumber, colNumber++, "Дубликаты множественные, %");
+			RenderTableTitleCell(worksheet, rowNumber, colNumber++, "Недействительные коды, шт.");
+			RenderTableTitleCell(worksheet, rowNumber, colNumber++, "Недействительные коды, %");
+		}
+
+		private void RenderReportRow(IXLWorksheet worksheet, int rowNumber, ProductCodesScanningReport.Row values)
+		{
+			var colNumber = 1;
+
+			RenderNumericCell(worksheet, rowNumber, colNumber++, values.RowNumber);
+			RenderStringCell(worksheet, rowNumber, colNumber++, values.DriverFIO);
+			RenderNumericCell(worksheet, rowNumber, colNumber++, values.TotalCodesCount);
+			RenderNumericCell(worksheet, rowNumber, colNumber++, values.SuccessfullyScannedCodesCount);
+			RenderNumericFloatingPointCell(worksheet, rowNumber, colNumber++, values.SuccessfullyScannedCodesPercent);
+			RenderNumericCell(worksheet, rowNumber, colNumber++, values.UnscannedCodesCount);
+			RenderNumericFloatingPointCell(worksheet, rowNumber, colNumber++, values.UnscannedCodesPercent);
+			RenderNumericCell(worksheet, rowNumber, colNumber++, values.SingleDuplicatedCodesCount);
+			RenderNumericFloatingPointCell(worksheet, rowNumber, colNumber++, values.SingleDuplicatedCodesPercent);
+			RenderNumericCell(worksheet, rowNumber, colNumber++, values.MultiplyDuplicatedCodesCount);
+			RenderNumericFloatingPointCell(worksheet, rowNumber, colNumber++, values.MultiplyDuplicatedCodesPercent);
+			RenderNumericCell(worksheet, rowNumber, colNumber++, values.InvalidCodesCount);
+			RenderNumericFloatingPointCell(worksheet, rowNumber, colNumber++, values.InvalidCodesPercent);
+		}
+
+		private void RenderWorksheetTitleCell(
+			IXLWorksheet worksheet,
+			int rowNumber,
+			int columnNumber,
+			string value)
+		{
+			RenderCell(worksheet, rowNumber, columnNumber, value, XLDataType.Number, isBold: true, isWrapText: false, fontSize: 13);
+		}
+
+		private void RenderTableTitleCell(
+			IXLWorksheet worksheet,
+			int rowNumber,
+			int columnNumber,
+			string value)
+		{
+			RenderCell(worksheet, rowNumber, columnNumber, value, XLDataType.Number, isBold: true);
+		}
+
+		private void RenderNumericCell(
+			IXLWorksheet worksheet,
+			int rowNumber,
+			int columnNumber,
+			int value)
+		{
+			RenderCell(worksheet, rowNumber, columnNumber, value, XLDataType.Number);
+		}
+
+		private void RenderNumericFloatingPointCell(
+			IXLWorksheet worksheet,
+			int rowNumber,
+			int columnNumber,
+			decimal value)
+		{
+			RenderCell(worksheet, rowNumber, columnNumber, value, XLDataType.Number, numericFormat: "##0.00");
+		}
+
+		private void RenderStringCell(
+			IXLWorksheet worksheet,
+			int rowNumber,
+			int columnNumber,
+			string value)
+		{
+			RenderCell(worksheet, rowNumber, columnNumber, value, XLDataType.Text);
+		}
+
+		private void RenderCell(
+			IXLWorksheet worksheet,
+			int rowNumber,
+			int columnNumber,
+			object value,
+			XLDataType dataType,
+			bool isBold = false,
+			bool isWrapText = true,
+			double fontSize = 11,
+			string numericFormat = "")
+		{
+			var cell = worksheet.Cell(rowNumber, columnNumber);
+
+			cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+			cell.Style.Font.Bold = isBold;
+			cell.Style.Font.FontSize = fontSize;
+			cell.Style.Alignment.WrapText = isWrapText;
+
+			cell.DataType = dataType;
+
+			if(dataType == XLDataType.Number)
+			{
+				if(!string.IsNullOrWhiteSpace(numericFormat))
+				{
+					cell.Style.NumberFormat.Format = numericFormat;
+				}
+			}
+
+			cell.Value = value;
 		}
 		#endregion
 	}
