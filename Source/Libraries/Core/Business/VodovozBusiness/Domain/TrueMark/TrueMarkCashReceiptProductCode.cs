@@ -20,6 +20,7 @@ namespace Vodovoz.Domain.TrueMark
 		private bool _isDefectiveSourceCode;
 		private TrueMarkWaterIdentificationCode _sourceCode;
 		private TrueMarkWaterIdentificationCode _resultCode;
+		private int? _duplicatedIdentificationCodeId;
 
 		public virtual int Id { get; set; }
 
@@ -74,6 +75,13 @@ namespace Vodovoz.Domain.TrueMark
 		{
 			get => _resultCode;
 			set => SetField(ref _resultCode, value);
+		}
+
+		[Display(Name = "Id продублированного кода")]
+		public virtual int? DuplicatedIdentificationCodeId
+		{
+			get => _duplicatedIdentificationCodeId;
+			set => SetField(ref _duplicatedIdentificationCodeId, value);
 		}
 
 		public virtual bool IsValid => SourceCode != null && !SourceCode.IsInvalid;

@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using QS.Commands;
 using QS.Navigation;
 using QS.Project.Filter;
 using QS.Project.Journal.EntitySelector;
@@ -7,7 +8,6 @@ using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Dialog;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
@@ -20,11 +20,12 @@ using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
+using Vodovoz.ViewModels.QualityControl.Reports;
 using Vodovoz.ViewModels.ViewModels.Complaints;
 
 namespace Vodovoz.FilterViewModels
 {
-	public class ComplaintFilterViewModel : FilterViewModelBase<ComplaintFilterViewModel>
+	public partial class ComplaintFilterViewModel : FilterViewModelBase<ComplaintFilterViewModel>
 	{
 		private readonly ICommonServices _commonServices;
 		private readonly INavigationManager _navigationManager;
@@ -51,6 +52,7 @@ namespace Vodovoz.FilterViewModels
 		private IList<ComplaintKind> _complaintKindSource;
 		private ComplaintDetalization _complainDetalization;
 		private DialogViewModelBase _journalViewModel;
+		private ComplaintKindJournalFilterViewModel _complaintKindJournalFilter;
 
 		public ComplaintFilterViewModel(
 			ICommonServices commonServices,
@@ -60,7 +62,6 @@ namespace Vodovoz.FilterViewModels
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
 			ISubdivisionJournalFactory subdivisionJournalFactory,
-			IComplaintKindJournalFactory complaintKindJournalFactory,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
 			Action<ComplaintFilterViewModel> filterParams = null)
 		{
@@ -74,9 +75,7 @@ namespace Vodovoz.FilterViewModels
 			EmployeeSelectorFactory =
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
 				.CreateWorkingEmployeeAutocompleteSelectorFactory();
-			ComplaintKindSelectorFactory =
-				(complaintKindJournalFactory ?? throw new ArgumentNullException(nameof(complaintKindJournalFactory)))
-				.CreateComplaintKindAutocompleteSelectorFactory();
+			InitializeComplaintKindAutocompleteSelectorFactory();
 			GuiltyItemVM = new GuiltyItemViewModel(
 				new ComplaintGuiltyItem(),
 				commonServices,
@@ -130,6 +129,8 @@ namespace Vodovoz.FilterViewModels
 				x => x.ComplaintDiscussionStatus,
 				x => x.ComplaintObject,
 				x => x.CurrentUserSubdivision);
+
+			OpenNumberOfComplaintsAgainstDriversReportTabCommand = new DelegateCommand(OpenNumberOfComplaintsAgainstDriversReportTab);
 		}
 
 		public IEmployeeService EmployeeService { get; set; }
@@ -142,9 +143,15 @@ namespace Vodovoz.FilterViewModels
 
 		public IEntityAutocompleteSelectorFactory InWorkSubdivisionSelectorFactory { get; }
 
-		public IEntityAutocompleteSelectorFactory ComplaintKindSelectorFactory { get; }
+		public IEntityAutocompleteSelectorFactory ComplaintKindSelectorFactory { get; private set; }
 
 		public IEntityEntryViewModel ComplaintDetalizationEntiryEntryViewModel { get; private set; }
+
+		#region Commands
+
+		public DelegateCommand OpenNumberOfComplaintsAgainstDriversReportTabCommand { get; }
+
+		#endregion Commands
 
 		public virtual bool CanChangeSubdivision { get; }
 
@@ -183,6 +190,7 @@ namespace Vodovoz.FilterViewModels
 				if(SetField(ref _complaintObject, value))
 				{
 					ComplaintKindSource = value == null ? _complaintKinds : _complaintKinds.Where(x => x.ComplaintObject == value).ToList();
+					_complaintKindJournalFilter.ComplaintObject = _complaintObject;
 				}
 			}
 		}
@@ -314,15 +322,20 @@ namespace Vodovoz.FilterViewModels
 				ComplaintDetalizationEntiryEntryViewModel = entityEntryViewModel;
 			}
 		}
-	}
 
-	public enum DateFilterType
-	{
-		[Display(Name = "план. завершения")]
-		PlannedCompletionDate,
-		[Display(Name = "факт. завершения")]
-		ActualCompletionDate,
-		[Display(Name = "создания")]
-		CreationDate
+		private void OpenNumberOfComplaintsAgainstDriversReportTab()
+		{
+			_navigationManager.OpenViewModel<NumberOfComplaintsAgainstDriversReportViewModel>(JournalViewModel);
+		}
+		
+		private void InitializeComplaintKindAutocompleteSelectorFactory()
+		{
+			_complaintKindJournalFilter = _lifetimeScope.Resolve<ComplaintKindJournalFilterViewModel>();
+			_complaintKindJournalFilter.IsShow = true;
+			ComplaintKindSelectorFactory =
+				_lifetimeScope.Resolve<IComplaintKindJournalFactory>(
+						new TypedParameter(typeof(ComplaintKindJournalFilterViewModel), _complaintKindJournalFilter))
+					.CreateComplaintKindAutocompleteSelectorFactory();
+		}
 	}
 }

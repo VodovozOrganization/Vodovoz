@@ -410,6 +410,8 @@ namespace Vodovoz
 
 		private void UpdateSensitivity()
 		{
+			toggleWageDetails.Sensitive = Entity.Car.CarModel.CarTypeOfUse != CarTypeOfUse.Truck;
+
 			var sensStatuses = new[] { RouteListStatus.OnClosing, RouteListStatus.MileageCheck, RouteListStatus.Delivered};
 			if(!sensStatuses.Contains(Entity.Status))
 			{
@@ -458,7 +460,6 @@ namespace Vodovoz
 			spinCashOrder.Sensitive = buttonCreateCashOrder.Sensitive = _canEdit;
 			buttonCalculateCash.Sensitive = _canEdit;
 			labelWage1.Visible = _canEdit;
-			toggleWageDetails.Sensitive = true;
 			permissioncommentview.Sensitive = _isRoleCashier && permissionResult.CanUpdate;
 			buttonSave.Sensitive = _canEdit;
 			UpdateButtonState();

@@ -451,7 +451,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                       <Value>=Sum({amount})</Value>
                     </Textbox>
@@ -489,7 +489,7 @@
   <DataElementStyle>AttributeNormal</DataElementStyle>
   <DataSets>
     <DataSet Name="Undeliveries">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT count(*) as amount,
     CASE g.guilty_side
@@ -558,7 +558,7 @@ AND
 
 GROUP BY guilty, object, kind, detalization
 
-ORDER BY guilty, amount</CommandText>
+ORDER BY guilty, amount DESC</CommandText>
         <QueryParameters>
           <QueryParameter Name="old_order_start_date">
             <Value>={?old_order_start_date}</Value>
@@ -619,7 +619,7 @@ ORDER BY guilty, amount</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="amount">
           <DataField>amount</DataField>
           <TypeName>System.Int64</TypeName>

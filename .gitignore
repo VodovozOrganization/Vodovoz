@@ -32,6 +32,9 @@ WinInstall/*
 *appsettings.Production.json
 *appsettings.Development.json
 
+#Include appsettings.Development.json
+!Source/Applications/Backend/Workers/Docker/PushNotificationsWorker/appsettings.Development.json
+
 #Docker Volumes
 Services/Docker/db-data/*
 *.mwb.bak

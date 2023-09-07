@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.FastDelivery;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Delivery;
@@ -18,12 +19,14 @@ namespace Vodovoz.Tools.Orders
 
 			foreach(var item in items)
 			{
-				DateTime dateOfRouteListFastDeliveryMaxDistance = 
+				DateTime dateOfRouteListFastDeliveryMaxDistance, dateOfRouteListMaxFastDeliveryOrders;
+				dateOfRouteListFastDeliveryMaxDistance = dateOfRouteListMaxFastDeliveryOrders =
 					item.FastDeliveryAvailabilityHistory.VerificationDate > DateTime.MinValue 
 					? item.FastDeliveryAvailabilityHistory.VerificationDate
 					: DateTime.Now;
 
 				double routeListFastDeliveryRadius = (double)item.RouteList.GetFastDeliveryMaxDistanceValue(dateOfRouteListFastDeliveryMaxDistance);
+				var routeListMaxFastDeliveryOrders = item.RouteList.GetMaxFastDeliveryOrdersValue(dateOfRouteListMaxFastDeliveryOrders);
 
 				var node = new FastDeliveryVerificationDetailsNode
 				{
@@ -60,8 +63,9 @@ namespace Vodovoz.Tools.Orders
 						IsValidParameter = item.IsValidUnclosedFastDeliveries,
 						ParameterValue = item.UnclosedFastDeliveries
 					},
-					RouteListFastDeliveryRadius = routeListFastDeliveryRadius
-				};
+					RouteListFastDeliveryRadius = routeListFastDeliveryRadius,
+					RouteListMaxFastDeliveryOrders = routeListMaxFastDeliveryOrders
+			};
 
 				nodes.Add(node);
 			}

@@ -1304,6 +1304,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			if(rowNum == _firstRow)
 			{
 				row.Storage = storages[i].Title;
+				row.RowNumberStorage = i + 1;
 			}
 		}
 
@@ -1594,6 +1595,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 		{
 			return new[]
 			{
+				RowNumberTitle,
 				GetActiveSelectedStorageTypeTitle(),
 				RowNumberTitle,
 				IdTitle,
@@ -1608,6 +1610,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			return from row in ActiveStoragesBalanceSummaryReport.ActiveStoragesBalanceRows
 				select new
 				{
+					row.RowNumberStorage,
 					row.Storage,
 					row.RowNumberFromStorage,
 					row.EntityId,

@@ -235,23 +235,11 @@ namespace Vodovoz.Representations
 				.OrderByAlias(() => orderAlias.Id).Desc
 				.Take(1);
 
-			var olderLastOrderIdQueryWithDate = QueryOver.Of(() => lastOrderAlias)
-				.Where(() => lastOrderAlias.Client.Id == counterpartyAlias.Id)
-				.And(() => lastOrderAlias.DeliveryDate > FilterViewModel.EndDate.Value)
-				.And(() => (lastOrderAlias.SelfDelivery && orderAlias.DeliveryPoint == null) || (lastOrderAlias.DeliveryPoint.Id == deliveryPointAlias.Id))
-				.And((x) => x.OrderStatus == OrderStatus.Closed)
-				.Select(Projections.Property<Order>(p => p.Id));
+			var olderLastOrderIdQueryWithDate = GetOlderLastOrderIdWithDateQuery(
+				lastOrderAlias, counterpartyAlias, orderAlias, deliveryPointAlias);
 
-			var LastOrderIdQueryWithDate = QueryOver.Of(() => lastOrderAlias)
-				.Where(() => lastOrderAlias.Client.Id == counterpartyAlias.Id)
-				.And(() => lastOrderAlias.DeliveryDate >= FilterViewModel.StartDate.Value
-					&& lastOrderAlias.DeliveryDate <= FilterViewModel.EndDate.Value)
-				.And(() => (lastOrderAlias.SelfDelivery && orderAlias.DeliveryPoint == null)
-					|| (lastOrderAlias.DeliveryPoint.Id == deliveryPointAlias.Id))
-				.And((x) => x.OrderStatus == OrderStatus.Closed)
-				.WithSubquery.WhereNotExists(olderLastOrderIdQueryWithDate)
-				.Select(Projections.Property<Order>(p => p.Id))
-				.OrderByAlias(() => orderAlias.Id).Desc;
+			var LastOrderIdQueryWithDate = GetLastOrderIdWithDateQuery(
+				lastOrderAlias, counterpartyAlias, orderAlias, deliveryPointAlias, olderLastOrderIdQueryWithDate);
 
 			var LastOrderNomenclatures = QueryOver.Of(() => orderItemAlias)
 				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
@@ -561,23 +549,11 @@ namespace Vodovoz.Representations
 				.OrderByAlias(() => orderAlias.Id).Desc
 				.Take(1);
 
-			var olderLastOrderIdQueryWithDate = QueryOver.Of(() => lastOrderAlias)
-				.Where(() => lastOrderAlias.Client.Id == counterpartyAlias.Id)
-				.And(() => lastOrderAlias.DeliveryDate > FilterViewModel.EndDate.Value)
-				.And(() => (lastOrderAlias.SelfDelivery && orderAlias.DeliveryPoint == null) || (lastOrderAlias.DeliveryPoint.Id == deliveryPointAlias.Id))
-				.And((x) => x.OrderStatus == OrderStatus.Closed)
-				.Select(Projections.Property<Order>(p => p.Id));
+			var olderLastOrderIdQueryWithDate = GetOlderLastOrderIdWithDateQuery(
+				lastOrderAlias, counterpartyAlias, orderAlias, deliveryPointAlias);
 
-			var LastOrderIdQueryWithDate = QueryOver.Of(() => lastOrderAlias)
-				.Where(() => lastOrderAlias.Client.Id == counterpartyAlias.Id)
-				.And(() => lastOrderAlias.DeliveryDate >= FilterViewModel.StartDate.Value
-							&& lastOrderAlias.DeliveryDate <= FilterViewModel.EndDate.Value)
-				.And(() => (lastOrderAlias.SelfDelivery && orderAlias.DeliveryPoint == null)
-							|| (lastOrderAlias.DeliveryPoint.Id == deliveryPointAlias.Id))
-				.And((x) => x.OrderStatus == OrderStatus.Closed)
-				.WithSubquery.WhereNotExists(olderLastOrderIdQueryWithDate)
-				.Select(Projections.Property<Order>(p => p.Id))
-				.OrderByAlias(() => orderAlias.Id).Desc;
+			var LastOrderIdQueryWithDate = GetLastOrderIdWithDateQuery(
+				lastOrderAlias, counterpartyAlias, orderAlias, deliveryPointAlias, olderLastOrderIdQueryWithDate);
 
 			var LastOrderNomenclatures = QueryOver.Of(() => orderItemAlias)
 				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
@@ -945,6 +921,58 @@ namespace Vodovoz.Representations
 
 					bulkEmailView.Show();
 				});
+		}
+		
+		//Имена параметров должны быть такие же как и в основном запросе
+		private QueryOver<Order, Order> GetLastOrderIdWithDateQuery(
+			Order lastOrderAlias,
+			Counterparty counterpartyAlias,
+			Order orderAlias,
+			DeliveryPoint deliveryPointAlias,
+			QueryOver<Order, Order> olderLastOrderIdQueryWithDate)
+		{
+			var query = QueryOver.Of(() => lastOrderAlias)
+				.Where(() => lastOrderAlias.Client.Id == counterpartyAlias.Id)
+				.And(() => (lastOrderAlias.SelfDelivery && orderAlias.DeliveryPoint == null)
+					|| (lastOrderAlias.DeliveryPoint.Id == deliveryPointAlias.Id))
+				.And((x) => x.OrderStatus == OrderStatus.Closed)
+				.WithSubquery.WhereNotExists(olderLastOrderIdQueryWithDate)
+				.Select(Projections.Property<Order>(p => p.Id))
+				.OrderByAlias(() => orderAlias.Id).Desc;
+
+			if(FilterViewModel?.StartDate != null)
+			{
+				query.And(() => lastOrderAlias.DeliveryDate >= FilterViewModel.StartDate);
+			}
+			
+			if(FilterViewModel?.EndDate != null)
+			{
+				query.And(() => lastOrderAlias.DeliveryDate <= FilterViewModel.EndDate);
+			}
+
+			return query;
+		}
+
+		//Имена параметров должны быть такие же как и в основном запросе
+		private QueryOver<Order, Order> GetOlderLastOrderIdWithDateQuery(
+			Order lastOrderAlias,
+			Counterparty counterpartyAlias,
+			Order orderAlias,
+			DeliveryPoint deliveryPointAlias)
+		{
+			var query = QueryOver.Of(() => lastOrderAlias)
+				.Where(() => lastOrderAlias.Client.Id == counterpartyAlias.Id)
+				.And(() => (lastOrderAlias.SelfDelivery && orderAlias.DeliveryPoint == null)
+					|| (lastOrderAlias.DeliveryPoint.Id == deliveryPointAlias.Id))
+				.And((x) => x.OrderStatus == OrderStatus.Closed)
+				.Select(Projections.Property<Order>(p => p.Id));
+			
+			if(FilterViewModel?.EndDate != null)
+			{
+				query.And(() => lastOrderAlias.DeliveryDate > FilterViewModel.EndDate);
+			}
+
+			return query;
 		}
 
 		protected override Func<CallTaskDlg> CreateDialogFunction => () => new CallTaskDlg();

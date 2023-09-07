@@ -31,7 +31,7 @@ namespace Vodovoz.Domain.Employees
 		Nominative = "сотрудник")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class Employee : Personnel, IEmployee, INamed
+	public class Employee : Personnel, IEmployee
 	{
 		private const int _commentLimit = 255;
 		private string _comment;

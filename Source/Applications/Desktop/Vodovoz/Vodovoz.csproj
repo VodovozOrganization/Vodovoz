@@ -872,6 +872,7 @@
     <Compile Include="gtk-gui\Vodovoz.CarUnloadDocumentDlg.cs" />
     <Compile Include="Representations\WorkingDriversVM.cs" />
     <Compile Include="Representations\DriverRouteListAddressesVM.cs" />
+    <Compile Include="ViewWidgets\Reports\IncludeExludeFiltersView.cs" />
     <Compile Include="ViewWidgets\Store\ReturnsReceptionView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReturnsReceptionView.cs" />
     <Compile Include="Additions\Logistic\CarMarker.cs" />
@@ -1958,17 +1959,24 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriversStopListsView.cs" />
     <Compile Include="Views\Logistic\DriverStopListRemovalView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriverStopListRemovalView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Reports.IncludeExludeFiltersView.cs" />
     <Compile Include="Views\BaseParameters\BaseParametersView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.BaseParameters.BaseParametersView.cs" />
+    <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.QualityControl.Reports.NumberOfComplaintsAgainstDriversReportView.cs" />
     <Compile Include="ReportsParameters\Orders\UndeliveredOrdersClassificationReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Orders.UndeliveredOrdersClassificationReportView.cs" />
     <Compile Include="ReportsParameters\Cash\MovementsPaymentControlView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Cash.MovementsPaymentControlView.cs" />
+    <Compile Include="Views\Logistic\RouteListMaxFastDeliveryOrdersView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.RouteListMaxFastDeliveryOrdersView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="ViewModels\Goods\" />
     <Folder Include="Views\BaseParameters\" />
+    <Folder Include="QualityControl\" />
+    <Folder Include="QualityControl\Reports\" />
     <Folder Include="ReportsParameters\Cash\" />
   </ItemGroup>
   <ItemGroup>

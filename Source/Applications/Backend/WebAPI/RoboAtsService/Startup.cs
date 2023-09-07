@@ -80,6 +80,7 @@ namespace RoboatsService
 			builder.RegisterType<ValidOrdersProvider>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<ApiKeyAuthenticationOptions>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<ApiKeyAuthenticationHandler>().AsSelf().AsImplementedInterfaces();
+			builder.RegisterInstance(ServicesConfig.UserService).As<IUserService>();
 			
 			builder.RegisterType<FastPaymentSender>().AsSelf().AsImplementedInterfaces();
 
@@ -93,10 +94,6 @@ namespace RoboatsService
 			builder.RegisterModule<SmsInternalClientModule>();
 			
 			builder.RegisterType<CallTaskWorker>()
-				.AsSelf()
-				.AsImplementedInterfaces();
-
-			builder.RegisterType<UserService>()
 				.AsSelf()
 				.AsImplementedInterfaces();
 

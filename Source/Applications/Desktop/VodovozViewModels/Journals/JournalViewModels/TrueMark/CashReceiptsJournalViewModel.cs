@@ -84,11 +84,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 
 			Title = "Журнал чеков";
 
-			var levelQueryLoader = new HierarchicalQueryLoader<CashReceipt, CashReceiptJournalNode>(unitOfWorkFactory);
+			var levelQueryLoader = new HierarchicalQueryLoader<CashReceipt, CashReceiptJournalNode>(unitOfWorkFactory, GetCount);
 
 			levelQueryLoader.SetLevelingModel(GetQuery)
 				.AddNextLevelSource(GetDetails);
-			levelQueryLoader.SetCountFunction(GetCount);
 
 			RecuresiveConfig = levelQueryLoader.TreeConfig;
 

@@ -436,7 +436,7 @@ namespace Vodovoz.Domain.Client
 		/// Широта. Для установки координат используйте метод SetСoordinates
 		/// </summary>
 		[Display(Name = "Широта")]
-		[PropertyChangedAlso("СoordinatesText")]
+		[PropertyChangedAlso(nameof(CoordinatesText))]
 		public virtual decimal? Latitude
 		{
 			get => _latitude;
@@ -447,7 +447,7 @@ namespace Vodovoz.Domain.Client
 		/// Долгота. Для установки координат используйте метод SetСoordinates
 		/// </summary>
 		[Display(Name = "Долгота")]
-		[PropertyChangedAlso("СoordinatesText")]
+		[PropertyChangedAlso(nameof(CoordinatesText))]
 		public virtual decimal? Longitude
 		{
 			get => _longitude;

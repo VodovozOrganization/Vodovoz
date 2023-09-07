@@ -158,10 +158,10 @@ namespace Vodovoz.ViewModels
 				return;
 
 			int bottleDebt;
-			if(Entity.DeliveryPoint == null)
-				bottleDebt = bottlesRepository.GetBottlesDebtAtCounterparty(UoW, Entity.Customer, Entity.Date);
-			else
-				bottleDebt = bottlesRepository.GetBottlesDebtAtDeliveryPoint(UoW, Entity.DeliveryPoint, Entity.Date);
+			bottleDebt = Entity.DeliveryPoint == null
+				? bottlesRepository.GetBottlesDebtAtCounterparty(UoW, Entity.Customer, Entity.Date)
+				: bottlesRepository.GetBottlesDebtAtDeliveryPoint(UoW, Entity.DeliveryPoint, Entity.Date);
+
 			CurrentBottlesDebt = NumberToTextRus.FormatCase(bottleDebt, "{0} бутыль", "{0} бутыли", "{0} бутылей");
 
 			decimal bottleDeposit;

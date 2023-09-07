@@ -37,6 +37,7 @@ using QS.Tdi;
 using Vodovoz.Journals.JournalViewModels;
 using QS.ViewModels.Dialog;
 using Vodovoz.NHibernateProjections.Employees;
+using static Vodovoz.FilterViewModels.ComplaintFilterViewModel;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 {
@@ -59,6 +60,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 		private readonly IComplaintParametersProvider _complaintParametersProvider;
 		private readonly IGeneralSettingsParametersProvider _generalSettingsParametersProvider;
 		private readonly ILifetimeScope _scope;
+		private string _subdivisionQualityServiceShortName;
+		private string _subdivisionAuditDepartmentShortName;
 
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 
@@ -180,6 +183,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 				FilterViewModel.JournalViewModel = (DialogViewModelBase)_parrentTab;
 			}
 		}
+		
+		private string SubdivisionQualityServiceShortName =>
+			_subdivisionQualityServiceShortName ??
+			(_subdivisionQualityServiceShortName =
+				UoW.GetById<Subdivision>(_subdivisionParametersProvider.QualityServiceSubdivisionId).ShortName ?? "?"); // СК
+		
+		private string SubdivisionAuditDepartmentShortName =>
+			_subdivisionAuditDepartmentShortName ??
+			(_subdivisionAuditDepartmentShortName =
+				UoW.GetById<Subdivision>(_subdivisionParametersProvider.AuditDepartmentSubdivisionId).ShortName ?? "?"); // КРО
 
 		private IQueryOver<Complaint> GetComplaintQuery(IUnitOfWork uow)
 		{
@@ -232,15 +245,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 				Projections.SubQuery(workInSubdivisionsSubQuery),
 				Projections.Constant(", "));
 
-			string subdivisionQualityServiceId = uow.GetById<Subdivision>(_subdivisionParametersProvider.QualityServiceSubdivisionId).ShortName ?? "?"; // СК
-			string subdivisionAuditDepartmentId = uow.GetById<Subdivision>(_subdivisionParametersProvider.AuditDepartmentSubdivisionId).ShortName ?? "?"; // КРО
-
 			var workInSubdivisionsCheckingProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT_WS(',', ?1, IF(?2 = 'Checking',?3, ''))"),
 				NHibernateUtil.String,
 				subdivisionsSubqueryProjection,
 				Projections.Property(() => complaintAlias.Status),
-				Projections.Constant(subdivisionQualityServiceId)
+				Projections.Constant(SubdivisionQualityServiceShortName)
 			);
 
 			var workInSubdivisionsWaitingForReactionProjection = Projections.SqlFunction(
@@ -248,7 +258,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 				NHibernateUtil.String,
 				subdivisionsSubqueryProjection,
 				Projections.Property(() => complaintAlias.Status),
-				Projections.Constant(subdivisionAuditDepartmentId)
+				Projections.Constant(SubdivisionAuditDepartmentShortName)
 			);
 
 			var workInSubdivisionProjection = Projections.Conditional(
@@ -922,6 +932,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 		}
 		
 		public Action<Type> ChangeView { get; set; }
+		
 		private void OpenStandartViewAction()
 		{
 			var openStandartView = new JournalAction("Перейти к обычному виду",
