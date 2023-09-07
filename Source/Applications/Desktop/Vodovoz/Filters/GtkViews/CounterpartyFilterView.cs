@@ -59,9 +59,6 @@ namespace Vodovoz.Filters.GtkViews
 			entryCounterpartyInn.KeyReleaseEvent += OnKeyReleased;
 			entryCounterpartyInn.Binding.AddBinding(ViewModel, vm => vm.CounterpartyInn, w => w.Text).InitializeFromSource();
 
-			entryDeliveryPointAddressLike.KeyReleaseEvent += OnKeyReleased;
-			entryDeliveryPointAddressLike.Binding.AddBinding(ViewModel, vm => vm.DeliveryPointAddressLike, w => w.Text).InitializeFromSource();
-
 			if (ViewModel?.IsForRetail ?? false)
 			{
 				ytreeviewSalesChannels.ColumnsConfig = ColumnsConfigFactory.Create<SalesChannelSelectableNode>()
