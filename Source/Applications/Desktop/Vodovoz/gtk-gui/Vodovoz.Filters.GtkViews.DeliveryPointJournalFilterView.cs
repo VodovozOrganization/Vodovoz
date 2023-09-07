@@ -26,6 +26,8 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gamma.GtkWidgets.yLabel ylabelDeliveryPointId;
 
+		private global::Gamma.GtkWidgets.yHBox yhboxSearchByAddress;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -145,6 +147,13 @@ namespace Vodovoz.Filters.GtkViews
 			w10.Position = 1;
 			w10.Expand = false;
 			w10.Fill = false;
+			// Container child yvboxMain.Gtk.Box+BoxChild
+			this.yhboxSearchByAddress = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxSearchByAddress.Name = "yhboxSearchByAddress";
+			this.yhboxSearchByAddress.Spacing = 6;
+			this.yvboxMain.Add(this.yhboxSearchByAddress);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxSearchByAddress]));
+			w11.Position = 2;
 			this.Add(this.yvboxMain);
 			if ((this.Child != null))
 			{
