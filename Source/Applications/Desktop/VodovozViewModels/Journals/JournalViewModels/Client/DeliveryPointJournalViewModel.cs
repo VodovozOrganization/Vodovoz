@@ -1,4 +1,5 @@
 ﻿using NHibernate;
+using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Deletion;
 using QS.DomainModel.UoW;
@@ -17,178 +18,217 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 	public class DeliveryPointJournalViewModel : FilterableSingleEntityJournalViewModelBase
 		<DeliveryPoint, DeliveryPointViewModel, DeliveryPointJournalNode, DeliveryPointJournalFilterViewModel>
 	{
-	private readonly bool _canDeleteClientAndDp;
-	private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory;
+		private readonly bool _canDeleteClientAndDp;
+		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory;
 
-	public DeliveryPointJournalViewModel(
-		IDeliveryPointViewModelFactory deliveryPointViewModelFactory,
-		DeliveryPointJournalFilterViewModel filterViewModel,
-		IUnitOfWorkFactory unitOfWorkFactory,
-		ICommonServices commonServices,
-		bool hideJournalForOpen,
-		bool hideJournalForCreate)
-		: base(filterViewModel, unitOfWorkFactory, commonServices, hideJournalForOpen, hideJournalForCreate)
-	{
-		_deliveryPointViewModelFactory =
+		public DeliveryPointJournalViewModel(
+			IDeliveryPointViewModelFactory deliveryPointViewModelFactory,
+			DeliveryPointJournalFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			bool hideJournalForOpen,
+			bool hideJournalForCreate)
+			: base(filterViewModel, unitOfWorkFactory, commonServices, hideJournalForOpen, hideJournalForCreate)
+		{
+			_deliveryPointViewModelFactory =
 			deliveryPointViewModelFactory ?? throw new ArgumentNullException(nameof(_deliveryPointViewModelFactory));
 
-		TabName = "Журнал точек доставки";
-		UpdateOnChanges(
-			typeof(Counterparty),
-			typeof(DeliveryPoint)
-		);
-		_canDeleteClientAndDp =
-			commonServices.CurrentPermissionService.ValidatePresetPermission("can_delete_counterparty_and_deliverypoint");
-	}
+			TabName = "Журнал точек доставки";
+			UpdateOnChanges(
+				typeof(Counterparty),
+				typeof(DeliveryPoint)
+			);
+			_canDeleteClientAndDp =
+				commonServices.CurrentPermissionService.ValidatePresetPermission("can_delete_counterparty_and_deliverypoint");
 
-	protected override void CreateNodeActions()
-	{
-		NodeActionsList.Clear();
-		CreateDefaultSelectAction();
-		CreateEditAction();
-		CreateDeleteAction();
-	}
+			SearchEnabled = false;
+		}
 
-	private void CreateEditAction()
-	{
-		var editAction = new JournalAction("Изменить",
-			(selected) => {
-				var selectedNodes = selected.OfType<DeliveryPointJournalNode>();
-				if(selectedNodes == null || selectedNodes.Count() != 1) {
-					return false;
-				}
-				DeliveryPointJournalNode selectedNode = selectedNodes.First();
-				if(!EntityConfigs.ContainsKey(selectedNode.EntityType)) {
-					return false;
-				}
-				var config = EntityConfigs[selectedNode.EntityType];
-				return config.PermissionResult.CanRead;
-			},
-			(selected) => true,
-			(selected) => {
-				var selectedNodes = selected.OfType<DeliveryPointJournalNode>();
-				if(selectedNodes == null || selectedNodes.Count() != 1) {
-					return;
-				}
-				DeliveryPointJournalNode selectedNode = selectedNodes.First();
-				if(!EntityConfigs.ContainsKey(selectedNode.EntityType)) {
-					return;
-				}
-				var config = EntityConfigs[selectedNode.EntityType];
-				var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
+		protected override void CreateNodeActions()
+		{
+			NodeActionsList.Clear();
+			CreateDefaultSelectAction();
+			CreateEditAction();
+			CreateDeleteAction();
+		}
 
-				TabParent.OpenTab(() => foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode), this);
-				if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog) {
-					HideJournal(TabParent);
+		private void CreateEditAction()
+		{
+			var editAction = new JournalAction("Изменить",
+				(selected) =>
+				{
+					var selectedNodes = selected.OfType<DeliveryPointJournalNode>();
+					if(selectedNodes == null || selectedNodes.Count() != 1)
+					{
+						return false;
+					}
+					DeliveryPointJournalNode selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					{
+						return false;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					return config.PermissionResult.CanRead;
+				},
+				(selected) => true,
+				(selected) =>
+				{
+					var selectedNodes = selected.OfType<DeliveryPointJournalNode>();
+					if(selectedNodes == null || selectedNodes.Count() != 1)
+					{
+						return;
+					}
+					DeliveryPointJournalNode selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					{
+						return;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
+
+					TabParent.OpenTab(() => foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode), this);
+					if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog)
+					{
+						HideJournal(TabParent);
+					}
 				}
+			);
+			if(SelectionMode == JournalSelectionMode.None)
+			{
+				RowActivatedAction = editAction;
 			}
-		);
-		if(SelectionMode == JournalSelectionMode.None) {
-			RowActivatedAction = editAction;
+			NodeActionsList.Add(editAction);
 		}
-		NodeActionsList.Add(editAction);
-	}
 
-	private void CreateDeleteAction()
-	{
-		var deleteAction = new JournalAction("Удалить",
-			(selected) =>
+		private void CreateDeleteAction()
+		{
+			var deleteAction = new JournalAction("Удалить",
+				(selected) =>
+				{
+					var selectedNodes = selected.OfType<DeliveryPointJournalNode>().ToList();
+					if(!selectedNodes.Any())
+					{
+						return false;
+					}
+
+					var selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					{
+						return false;
+					}
+
+					var config = EntityConfigs[selectedNode.EntityType];
+					return config.PermissionResult.CanDelete && _canDeleteClientAndDp;
+				},
+				(selected) => true,
+				(selected) =>
+				{
+					var selectedNodes = selected.OfType<DeliveryPointJournalNode>().ToList();
+					if(!selectedNodes.Any())
+					{
+						return;
+					}
+
+					var selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					{
+						return;
+					}
+
+					var config = EntityConfigs[selectedNode.EntityType];
+					if(config.PermissionResult.CanDelete)
+					{
+						DeleteHelper.DeleteEntity(selectedNode.EntityType, selectedNode.Id);
+					}
+				},
+				"Delete"
+			);
+			NodeActionsList.Add(deleteAction);
+		}
+
+		protected override Func<IUnitOfWork, IQueryOver<DeliveryPoint>> ItemsSourceQueryFunction => (uow) =>
+		{
+			DeliveryPoint deliveryPointAlias = null;
+			Counterparty counterpartyAlias = null;
+			DeliveryPointJournalNode resultAlias = null;
+
+			var query = uow.Session.QueryOver(() => deliveryPointAlias);
+
+			if(FilterViewModel != null && FilterViewModel.RestrictOnlyActive)
 			{
-				var selectedNodes = selected.OfType<DeliveryPointJournalNode>().ToList();
-				if(!selectedNodes.Any())
-				{
-					return false;
-				}
+				query.Where(() => deliveryPointAlias.IsActive);
+			}
 
-				var selectedNode = selectedNodes.First();
-				if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
-				{
-					return false;
-				}
-
-				var config = EntityConfigs[selectedNode.EntityType];
-				return config.PermissionResult.CanDelete && _canDeleteClientAndDp;
-			},
-			(selected) => true,
-			(selected) =>
+			if(FilterViewModel?.Counterparty != null)
 			{
-				var selectedNodes = selected.OfType<DeliveryPointJournalNode>().ToList();
-				if(!selectedNodes.Any())
-				{
-					return;
-				}
+				query.Where(() => counterpartyAlias.Id == FilterViewModel.Counterparty.Id);
+			}
 
-				var selectedNode = selectedNodes.First();
-				if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
-				{
-					return;
-				}
+			if(FilterViewModel?.RestrictOnlyNotFoundOsm == true)
+			{
+				query.Where(() => deliveryPointAlias.FoundOnOsm == false);
+			}
 
-				var config = EntityConfigs[selectedNode.EntityType];
-				if(config.PermissionResult.CanDelete)
-				{
-					DeleteHelper.DeleteEntity(selectedNode.EntityType, selectedNode.Id);
-				}
-			},
-			"Delete"
-		);
-		NodeActionsList.Add(deleteAction);
-	}
+			if(FilterViewModel?.RestrictOnlyWithoutStreet == true)
+			{
+				query.Where(() => deliveryPointAlias.Street == null || deliveryPointAlias.Street == " ");
+			}
 
-	protected override Func<IUnitOfWork, IQueryOver<DeliveryPoint>> ItemsSourceQueryFunction => (uow) =>
-	{
-		DeliveryPoint deliveryPointAlias = null;
-		Counterparty counterpartyAlias = null;
-		DeliveryPointJournalNode resultAlias = null;
+			if(FilterViewModel?.RestrictDeliveryPointId != null)
+			{
+				query.Where(() => deliveryPointAlias.Id == FilterViewModel.RestrictDeliveryPointId);
+			}
 
-		var query = uow.Session.QueryOver(() => deliveryPointAlias);
+			if(!string.IsNullOrWhiteSpace(FilterViewModel?.RestrictCounterpartyNameLike))
+			{
+				query.Where(Restrictions.InsensitiveLike(
+					Projections.Property(() => counterpartyAlias.Name),
+					$"%{FilterViewModel.RestrictCounterpartyNameLike}%"
+					));
+			}
 
-		if(FilterViewModel != null && FilterViewModel.RestrictOnlyActive)
-		{
-			query.Where(() => deliveryPointAlias.IsActive);
-		}
+			if(!string.IsNullOrWhiteSpace(FilterViewModel?.RestrictDeliveryPointCompiledAddressLike))
+			{
+				query.Where(Restrictions.InsensitiveLike(
+					Projections.Property(() => deliveryPointAlias.CompiledAddress),
+					$"%{FilterViewModel.RestrictDeliveryPointCompiledAddressLike}%"
+					));
+			}
 
-		if(FilterViewModel?.Counterparty != null)
-		{
-			query.Where(() => counterpartyAlias.Id == FilterViewModel.Counterparty.Id);
-		}
+			if(!string.IsNullOrWhiteSpace(FilterViewModel?.RestrictDeliveryPointAddress1cLike))
+			{
+				query.Where(Restrictions.InsensitiveLike(
+					Projections.Property(() => deliveryPointAlias.Address1c),
+					$"%{FilterViewModel.RestrictDeliveryPointAddress1cLike}%"
+					));
+			}
 
-		if(FilterViewModel?.RestrictOnlyNotFoundOsm == true)
-		{
-			query.Where(() => deliveryPointAlias.FoundOnOsm == false);
-		}
+			query.Where(GetSearchCriterion(
+				() => deliveryPointAlias.Id,
+				() => counterpartyAlias.Name,
+				() => deliveryPointAlias.CompiledAddress,
+				() => deliveryPointAlias.Address1c
+			));
 
-		if(FilterViewModel?.RestrictOnlyWithoutStreet == true)
-		{
-			query.Where(() => deliveryPointAlias.Street == null || deliveryPointAlias.Street == " ");
-		}
+			var resultQuery = query
+				.JoinAlias(c => c.Counterparty, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.SelectList(list => list
+					.Select(() => deliveryPointAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.CompiledAddress)
+					.Select(() => deliveryPointAlias.FoundOnOsm).WithAlias(() => resultAlias.FoundInFias)
+					.Select(() => deliveryPointAlias.IsFixedInOsm).WithAlias(() => resultAlias.FixedInFias)
+					.Select(() => deliveryPointAlias.IsActive).WithAlias(() => resultAlias.IsActive)
+					.Select(() => deliveryPointAlias.Address1c).WithAlias(() => resultAlias.Address1c)
+					.Select(() => counterpartyAlias.FullName).WithAlias(() => resultAlias.Counterparty)
+				)
+				.TransformUsing(Transformers.AliasToBean<DeliveryPointJournalNode>());
 
-		query.Where(GetSearchCriterion(
-			() => deliveryPointAlias.Id,
-			() => counterpartyAlias.Name,
-			() => deliveryPointAlias.CompiledAddress,
-			() => deliveryPointAlias.Address1c
-		));
+			return resultQuery;
+		};
 
-		var resultQuery = query
-			.JoinAlias(c => c.Counterparty, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-			.SelectList(list => list
-				.Select(() => deliveryPointAlias.Id).WithAlias(() => resultAlias.Id)
-				.Select(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.CompiledAddress)
-				.Select(() => deliveryPointAlias.FoundOnOsm).WithAlias(() => resultAlias.FoundInFias)
-				.Select(() => deliveryPointAlias.IsFixedInOsm).WithAlias(() => resultAlias.FixedInFias)
-				.Select(() => deliveryPointAlias.IsActive).WithAlias(() => resultAlias.IsActive)
-				.Select(() => deliveryPointAlias.Address1c).WithAlias(() => resultAlias.Address1c)
-				.Select(() => counterpartyAlias.FullName).WithAlias(() => resultAlias.Counterparty)
-			)
-			.TransformUsing(Transformers.AliasToBean<DeliveryPointJournalNode>());
+		protected override Func<DeliveryPointViewModel> CreateDialogFunction => () => throw new NotImplementedException();
 
-		return resultQuery;
-	};
-
-	protected override Func<DeliveryPointViewModel> CreateDialogFunction => () => throw new NotImplementedException();
-
-	protected override Func<DeliveryPointJournalNode, DeliveryPointViewModel> OpenDialogFunction => (node) =>
-		_deliveryPointViewModelFactory.GetForOpenDeliveryPointViewModel(node.Id);
+		protected override Func<DeliveryPointJournalNode, DeliveryPointViewModel> OpenDialogFunction => (node) =>
+			_deliveryPointViewModelFactory.GetForOpenDeliveryPointViewModel(node.Id);
 	}
 }

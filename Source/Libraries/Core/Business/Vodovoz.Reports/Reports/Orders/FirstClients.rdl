@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>209.804mm</PageHeight>
   <PageWidth>296.926mm</PageWidth>
   <Width>7.5in</Width>
@@ -17,15 +15,15 @@
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>132.2pt</Height>
+    <Height>158.6pt</Height>
     <ReportItems>
       <Textbox Name="Textbox1">
         <Height>24.04pt</Height>
         <Width>814.59pt</Width>
         <Value>='Отчет по первичным клиентам ' + Iif({?start_date} = {?end_date}, 'за ' + Format(CDate({?start_date}), "dd.MM.yy"), 'с ' + Format(CDate({?start_date}), "dd.MM.yy") + ' по ' + Format(CDate({?end_date}), "dd.MM.yy"))</Value>
         <ZIndex>0</ZIndex>
-        <Left>0.00pt</Left>
-        <Top>0.00pt</Top>
+        <Left>0.0pt</Left>
+        <Top>1.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -739,6 +737,20 @@
           <BorderWidth />
         </Style>
       </Textbox>
+      <Textbox Name="Textbox33" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>25.53pt</Height>
+        <Width>816.08pt</Width>
+        <Value>=First( {stats} , "promo_stats" )</Value>
+        <ZIndex>0</ZIndex>
+        <Left>0.0pt</Left>
+        <Top>127.9pt</Top>
+        <CanGrow>true</CanGrow>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
     </ReportItems>
     <Columns>1</Columns>
   </Body>
@@ -768,7 +780,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     o.id AS order_id,
@@ -876,7 +888,7 @@ GROUP BY o.id DESC;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -934,7 +946,7 @@ GROUP BY o.id DESC;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Stats">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     GROUP_CONCAT(concat_ws(': ' ,stats.came_from ,stats.orders_count ) SEPARATOR ' | ') as stats
@@ -986,7 +998,103 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
+        <Field Name="stats">
+          <DataField>stats</DataField>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="promo_stats">
+      <Query >
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+    GROUP_CONCAT(concat_ws(': ' ,stats.promo_name ,stats.promo_count ) SEPARATOR ' | ') as stats
+FROM
+(SELECT
+	COUNT(DISTINCT oi.order_id) as promo_count,
+	IFNULL(ps.discount_reason_info, ps.name) as promo_name
+FROM
+	order_items oi
+INNER JOIN promotional_sets ps ON
+	oi.promotional_set_id = ps.id
+WHERE
+	oi.order_id IN
+(
+	SELECT
+		DISTINCT
+	oi.order_id
+	FROM
+		orders o
+	INNER JOIN order_items oi ON
+		o.id = oi.order_id
+	INNER JOIN counterparty c ON
+		o.id = c.first_order_id
+	INNER JOIN delivery_points dp ON
+		dp.id = o.delivery_point_id
+	INNER JOIN districts ON
+		districts.id = dp.district_id
+	LEFT JOIN discount_reasons dr ON
+		oi.discount_reason_id = dr.id
+	LEFT JOIN promotional_sets ps ON
+		oi.promotional_set_id = ps.id
+	WHERE
+		o.delivery_date BETWEEN @start_date AND @end_date
+		AND
+	(
+        CASE
+			WHEN @discount_id = 0
+				AND ! @has_promotional_sets 
+				THEN dr.id is not null
+				WHEN @discount_id = 0
+				AND @has_promotional_sets 
+				THEN dr.id is not null
+				OR oi.promotional_set_id is not null
+				WHEN @discount_id != 0
+				AND ! @has_promotional_sets 
+				THEN dr.id = @discount_id
+				WHEN @discount_id != 0
+				AND @has_promotional_sets 
+				THEN dr.id = @discount_id
+				OR oi.promotional_set_id is not null
+			END
+		)
+		AND (@district_id = ''
+			OR districts.id = @district_id)
+		AND (@order_status = 'All'
+			OR (o.order_status = @order_status) )
+			AND (@payment_type = 'All'
+				OR (o.payment_type = @payment_type) )
+)
+GROUP BY
+	ps.id
+ORDER BY
+	ps.name) stats
+;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="discount_id">
+            <Value>={?discount_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="start_date">
+            <Value>={?start_date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="end_date">
+            <Value>={?end_date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="district_id">
+            <Value>={?district_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="has_promotional_sets">
+            <Value>={?has_promotional_sets}</Value>
+          </QueryParameter>
+          <QueryParameter Name="order_status">
+            <Value>={?order_status}</Value>
+          </QueryParameter>
+          <QueryParameter Name="payment_type">
+            <Value>={?payment_type}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields >
         <Field Name="stats">
           <DataField>stats</DataField>
         </Field>
@@ -999,8 +1107,7 @@ FROM
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySqlConnector</DataProvider>
-        <ConnectString>
-        </ConnectString>
+        <ConnectString></ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
@@ -1016,8 +1123,7 @@ FROM
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="end_date">
       <DataType>String</DataType>
@@ -1029,8 +1135,7 @@ FROM
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="discount_id">
       <DataType>Integer</DataType>
@@ -1042,24 +1147,21 @@ FROM
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="district_id">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="has_promotional_sets">
       <DataType>Boolean</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="order_status">
       <DataType>String</DataType>
@@ -1071,8 +1173,7 @@ FROM
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="payment_type">
       <DataType>String</DataType>
@@ -1084,8 +1185,7 @@ FROM
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>
