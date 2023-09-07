@@ -300,7 +300,6 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 
 		protected override bool BeforeSave() {
 			logger.Info("Сохраняем номенклатуру...");
-			var t = MobileAppNomenclatureOnlineParameters;
 			Entity.SetNomenclatureCreationInfo(_userRepository);
 			PricesViewSaveChanges?.Invoke();
 			return base.BeforeSave();

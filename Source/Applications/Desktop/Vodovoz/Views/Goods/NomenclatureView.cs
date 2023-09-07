@@ -756,22 +756,4 @@ namespace Vodovoz.Views.Goods
 		#endregion
 
 	}
-	
-	public class NullableDecimalToDecimalConverter : IValueConverter
-	{
-		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-		{
-			return value is null ? 0d : System.Convert.ToDouble(value);
-		}
-
-		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-		{
-			if(decimal.TryParse(value.ToString(), out var result) && result != 0)
-			{
-				return result;
-			}
-
-			return null;
-		}
-	}
 }
