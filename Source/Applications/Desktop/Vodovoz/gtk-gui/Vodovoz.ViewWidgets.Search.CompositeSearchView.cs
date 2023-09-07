@@ -40,7 +40,7 @@ namespace Vodovoz.ViewWidgets.Search
 			this.ylabelSearchInfo = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelSearchInfo.Name = "ylabelSearchInfo";
 			this.ylabelSearchInfo.Xalign = 1F;
-			this.ylabelSearchInfo.LabelProp = global::Mono.Unix.Catalog.GetString("Поиск");
+			this.ylabelSearchInfo.LabelProp = global::Mono.Unix.Catalog.GetString("Поиск ");
 			this.hboxSearch.Add(this.ylabelSearchInfo);
 			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hboxSearch[this.ylabelSearchInfo]));
 			w1.Position = 0;
