@@ -358,6 +358,11 @@ namespace Vodovoz.Dialogs.Logistic
 
 		protected void OnButtonAddWorkingDriversClicked(object sender, EventArgs e)
 		{
+			if(!MessageDialogHelper.RunQuestionDialog("Будут добавлены все работающие водители, вы уверены?"))
+			{
+				return;
+			}
+
 			var workDriversAtDay = _employeeRepository.GetWorkingDriversAtDay(UoW, _filterViewModel.AtDate);
 			var onlyNewDrivers = new List<AtWorkDriver>();
 

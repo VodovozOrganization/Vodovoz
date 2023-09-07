@@ -70,7 +70,6 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref _car, value);
 		}
 
-
 		[Display(Name = "Приоритет для текущего дня")]
 		public virtual short PriorityAtDay
 		{
@@ -104,14 +103,12 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-
 		[Display(Name = "График работы")]
 		public virtual DeliveryDaySchedule DaySchedule
 		{
 			get => _daySchedule;
 			set => SetField(ref _daySchedule, value);
 		}
-
 
 		[Display(Name = "С экспедитором")]
 		public virtual AtWorkForwarder WithForwarder
