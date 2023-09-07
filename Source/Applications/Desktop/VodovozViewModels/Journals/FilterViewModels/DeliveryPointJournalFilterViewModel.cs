@@ -1,6 +1,7 @@
 ﻿using System;
 using QS.Project.Filter;
 using Vodovoz.Domain.Client;
+using Vodovoz.ViewModels.Widgets.Search;
 
 namespace Vodovoz.Filters.ViewModels
 {
@@ -14,6 +15,9 @@ namespace Vodovoz.Filters.ViewModels
 		private string _restrictCounterpartyNameLike;
 		private string _restrictDeliveryPointCompiledAddressLike;
 		private string _restrictDeliveryPointAddress1cLike;
+		private CompositeSearchViewModel _searchByAddressViewModel = new CompositeSearchViewModel();
+
+		public CompositeSearchViewModel SearchByAddressViewModel => _searchByAddressViewModel;
 
 		public virtual bool RestrictOnlyActive {
 			get => _restrictOnlyActive;

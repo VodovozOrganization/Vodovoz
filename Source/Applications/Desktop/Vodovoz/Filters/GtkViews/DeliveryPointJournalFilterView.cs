@@ -3,6 +3,7 @@ using QS.Views.GtkUI;
 using QS.Widgets;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
+using Vodovoz.ViewWidgets.Search;
 using Key = Gdk.Key;
 
 namespace Vodovoz.Filters.GtkViews
@@ -35,6 +36,10 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding( vm => vm.RestrictCounterpartyNameLike, w => w.Text)
 				.AddFuncBinding(vm => vm.Counterparty == null, w => w.Sensitive)
 				.InitializeFromSource();
+
+			var searchByAddressView = new CompositeSearchView(ViewModel.SearchByAddressViewModel);
+			yvboxMain.Add(searchByAddressView);
+			searchByAddressView.Show();
 		}
 
 		private void OnKeyReleased(object sender, KeyReleaseEventArgs args)
