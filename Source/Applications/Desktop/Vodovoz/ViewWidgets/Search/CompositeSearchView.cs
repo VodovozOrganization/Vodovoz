@@ -1,10 +1,12 @@
 ﻿using QS.Views.GtkUI;
+using System.ComponentModel;
 using Vodovoz.ViewModels.Widgets.Search;
 
 namespace Vodovoz.ViewWidgets.Search
 {
 	public partial class CompositeSearchView : WidgetViewBase<CompositeSearchViewModel>
 	{
+		[ToolboxItem(true)]
 		public CompositeSearchView(CompositeSearchViewModel viewModel) : base(viewModel)
 		{
 			Build();
