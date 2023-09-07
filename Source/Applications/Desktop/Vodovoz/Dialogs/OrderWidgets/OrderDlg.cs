@@ -4114,7 +4114,7 @@ namespace Vodovoz
 
 			uow.Save(storedEmail);
 
-			OrderDocumentEmail orderDocumentEmail = new OrderDocumentEmail
+			BillDocumentEmail orderDocumentEmail = new BillDocumentEmail
 			{
 				StoredEmail = storedEmail,
 				Counterparty = Counterparty,

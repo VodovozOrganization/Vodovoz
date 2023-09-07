@@ -29,6 +29,7 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Service;
+using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Counterparties;
@@ -71,6 +72,8 @@ namespace Vodovoz.Domain.Orders
 
 		private readonly INomenclatureRepository _nomenclatureRepository =
 			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+
+		private readonly IEmailRepository _emailRepository = new EmailRepository();
 
 		private static readonly IGeneralSettingsParametersProvider _generalSettingsParameters =
 			new GeneralSettingsParametersProvider(new ParametersProvider());
@@ -3063,11 +3066,13 @@ namespace Vodovoz.Domain.Orders
 					OnChangeStatusToOnLoading();
 					break;
 				case OrderStatus.OnTheWay:
+					break;
 				case OrderStatus.Shipped:
-				case OrderStatus.InTravelList:
 				case OrderStatus.UnloadingOnStock:
+					SendUpdToEmail();
 					break;
 				case OrderStatus.Closed:
+					SendUpdToEmail();
 					OnChangeStatusToClosed();
 					break;
 				case OrderStatus.DeliveryCanceled:
@@ -3163,6 +3168,53 @@ namespace Vodovoz.Domain.Orders
 				ChangeStatusAndCreateTasks(OrderStatus.OnLoading, callTaskWorker);
 				LoadAllowedBy = employee;
 			}
+		}
+
+		public virtual void SendUpdToEmail()
+		{
+			if(!_emailRepository.NeedSendUpdByEmail(Id) || _emailRepository.HasSendedEmailForUpd(Id))
+			{
+				return;
+			}
+
+			var document = OrderDocuments.FirstOrDefault(x => x.Type == OrderDocumentType.UPD || x.Type == OrderDocumentType.SpecialUPD);
+
+			if(document == null)
+			{
+				return;
+			}
+
+			var emailAddressForBill = GetEmailAddressForBill();
+
+			if(emailAddressForBill == null)
+			{
+				return;
+			}
+
+			var storedEmail = new StoredEmail
+			{
+				SendDate = DateTime.Now,
+				StateChangeDate = DateTime.Now,
+				State = StoredEmailStates.PreparingToSend,
+				RecipientAddress = emailAddressForBill.Address,
+				ManualSending = false,
+				Subject = document.Name,
+				Author = Author
+			};
+
+			UoW.Save(storedEmail);
+
+			var updDocumentEmail = new UpdDocumentEmail
+			{
+				StoredEmail = storedEmail,
+				Counterparty = Client,
+				OrderDocument = document
+			};
+
+			UoW.Save(updDocumentEmail);
+
+			//ДЛЯ ТЕСТА
+			ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Info, $"При сохранении изменений будет поставлено в очередь на отправку УПД на адрес {emailAddressForBill.Address}");
 		}
 
 		public virtual void SetActualCountToSelfDelivery()

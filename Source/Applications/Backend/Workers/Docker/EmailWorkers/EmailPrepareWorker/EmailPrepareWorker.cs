@@ -1,33 +1,25 @@
-﻿using fyiReporting.RDL;
-using Mailjet.Api.Abstractions;
+﻿using EmailPrepareWorker.Prepares;
+using EmailPrepareWorker.SendEmailMessageBuilders;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
-using QS.Report;
 using QSOrmProject;
 using QSProjectsLib;
 using RabbitMQ.Client;
-using RabbitMQ.MailSending;
-using RdlEngine;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Parameters;
 using Vodovoz.Settings.Database;
-using EmailAttachment = Mailjet.Api.Abstractions.EmailAttachment;
 
 namespace EmailPrepareWorker
 {
@@ -44,6 +36,8 @@ namespace EmailPrepareWorker
 		private readonly IModel _channel;
 		private readonly IEmailRepository _emailRepository;
 		private readonly IEmailParametersProvider _emailParametersProvider;
+		private readonly IEmailDocumentPreparer _emailDocumentPreparer;
+		private readonly IEmailSendMessagePreparer _emailSendMessagePreparer;
 		private readonly TimeSpan _workDelay = TimeSpan.FromSeconds(5);
 		private readonly int _instanceId;
 
@@ -52,7 +46,9 @@ namespace EmailPrepareWorker
 			IConfiguration configuration,
 			IModel channel,
 			IEmailRepository emailRepository,
-			IEmailParametersProvider emailParametersProvider)
+			IEmailParametersProvider emailParametersProvider,
+			IEmailDocumentPreparer emailDocumentPreparer,
+			IEmailSendMessagePreparer emailSendMessagePreparer)
 		{
 			if(configuration is null)
 			{
@@ -63,6 +59,8 @@ namespace EmailPrepareWorker
 			_channel = channel ?? throw new ArgumentNullException(nameof(channel));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
 			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));
+			_emailDocumentPreparer = emailDocumentPreparer ?? throw new ArgumentNullException(nameof(emailDocumentPreparer));
+			_emailSendMessagePreparer = emailSendMessagePreparer ?? throw new ArgumentNullException(nameof(emailSendMessagePreparer));
 
 			CultureInfo.CurrentCulture = CultureInfo.CreateSpecificCulture("ru-RU");
 
@@ -136,84 +134,56 @@ namespace EmailPrepareWorker
 
 		private async Task PrepareAndSendEmails()
 		{
+			byte[] sendingBody = null;
+			SendEmailMessageBuilder emailSendMessageBuilder = null;
+			
 			try
 			{
-				var sendingMessage = new SendEmailMessage();
-
 				using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Document prepare worker"))
 				{
 					var emailsToSend = _emailRepository.GetEmailsForPreparingOrderDocuments(unitOfWork);
 
-					sendingMessage.From = new EmailContact
-					{
-						Name = _emailParametersProvider.DocumentEmailSenderName,
-						Email = _emailParametersProvider.DocumentEmailSenderAddress
-					};
+					//ДЛЯ ТЕСТА!!!
+					emailsToSend = emailsToSend.Where(x => x.EmailableDocument?.Order?.Comment == "test_email" || x.Id == 635798).ToList(); 
 
 					foreach(var counterpartyEmail in emailsToSend)
 					{
 						try
 						{
-							_logger.LogInformation($"Found message to prepare for stored email: { counterpartyEmail.StoredEmail.Id }");
+							_logger.LogInformation($"Found message to prepare for stored email: {counterpartyEmail.StoredEmail.Id}");
 
-							sendingMessage.To = new List<EmailContact>
-							{
-								new EmailContact
-								{
-									Name = counterpartyEmail.Counterparty.FullName,
-									Email = counterpartyEmail.StoredEmail.RecipientAddress
-								}
-							};
-
-							var document = counterpartyEmail.EmailableDocument;
-
-							if(document == null)
+							if(counterpartyEmail.EmailableDocument == null)
 							{
 								counterpartyEmail.StoredEmail.State = StoredEmailStates.SendingError;
 								counterpartyEmail.StoredEmail.Description = "Missing/deleted emailable document";
 								unitOfWork.Save(counterpartyEmail.StoredEmail);
 								unitOfWork.Commit();
-								
+
 								continue;
 							}
 
-							var template = document.GetEmailTemplate();
-
-							sendingMessage.Subject = $"{ template.Title } { document.Title }";
-							sendingMessage.TextPart = template.Text;
-							sendingMessage.HTMLPart = template.TextHtml;
-
-							var inlinedAttachments = new List<InlinedEmailAttachment>();
-
-							foreach(var item in template.Attachments)
+							switch(counterpartyEmail.Type)
 							{
-								inlinedAttachments.Add(new InlinedEmailAttachment
+								case CounterpartyEmailType.BillDocument:
+								case CounterpartyEmailType.OrderWithoutShipmentForPayment:
+								case CounterpartyEmailType.OrderWithoutShipmentForDebt:
+								case CounterpartyEmailType.OrderWithoutShipmentForAdvancePayment:
 								{
-									ContentID = item.Key,
-									ContentType = item.Value.MIMEType,
-									Filename = item.Value.FileName,
-									Base64Content = item.Value.Base64Content
-								});
+										emailSendMessageBuilder = new SendEmailMessageBuilder(_emailParametersProvider,
+											_emailDocumentPreparer, counterpartyEmail, _instanceId);
+
+										break;
+								}
+								case CounterpartyEmailType.UpdDocument: 
+								{
+									emailSendMessageBuilder = new UpdSendEmailMessageBuilder(_emailParametersProvider,
+										_emailDocumentPreparer, counterpartyEmail, _instanceId);
+										
+									break;
+								}
 							}
 
-							sendingMessage.InlinedAttachments = inlinedAttachments;
-
-							var attachments = new List<EmailAttachment>
-							{
-								await PrepareDocument(document, counterpartyEmail.Type)
-							};
-
-							sendingMessage.Attachments = attachments;
-
-							sendingMessage.Payload = new EmailPayload
-							{
-								Id = counterpartyEmail.StoredEmail.Id,
-								Trackable = true,
-								InstanceId = _instanceId
-							};
-
-							var serializedMessage = JsonSerializer.Serialize(sendingMessage);
-							var sendingBody = Encoding.UTF8.GetBytes(serializedMessage);
+							sendingBody = await _emailSendMessagePreparer.PrepareMessage(emailSendMessageBuilder);
 
 							var properties = _channel.CreateBasicProperties();
 							properties.Persistent = true;
@@ -226,7 +196,7 @@ namespace EmailPrepareWorker
 						}
 						catch(Exception ex)
 						{
-							_logger.LogError($"Failed to process counterparty email { counterpartyEmail.Id }: { ex.Message }");
+							_logger.LogError($"Failed to process counterparty email {counterpartyEmail.Id}: {ex.Message}");
 						}
 					}
 				}
@@ -235,44 +205,6 @@ namespace EmailPrepareWorker
 			{
 				_logger.LogError(ex.Message);
 			}
-		}
-
-		private static async Task<EmailAttachment> PrepareDocument(IEmailableDocument document, CounterpartyEmailType counterpartyEmailType)
-		{
-			bool wasHideSignature;
-			ReportInfo ri;
-
-			wasHideSignature = document.HideSignature;
-			document.HideSignature = false;
-
-			ri = document.GetReportInfo();
-
-			document.HideSignature = wasHideSignature;
-
-			using MemoryStream stream = ReportExporter.ExportToMemoryStream(ri.GetReportUri(), ri.GetParametersString(), QSMain.ConnectionString, OutputPresentationType.PDF, true);
-
-			string documentDate = document.DocumentDate.HasValue ? "_" + document.DocumentDate.Value.ToString("ddMMyyyy") : "";
-
-			string fileName = counterpartyEmailType.ToString();
-			switch(counterpartyEmailType)
-			{
-				case CounterpartyEmailType.OrderDocument:
-					fileName += $"_{ document.Order.Id }";
-					break;
-				default:
-					fileName += $"_{ document.Id }";
-					break;
-			}
-
-			fileName += $"_{ documentDate }.pdf";
-
-			return await new ValueTask<EmailAttachment>(
-				new EmailAttachment
-				{
-					Filename = fileName,
-					ContentType = "application/pdf",
-					Base64Content = Convert.ToBase64String(stream.GetBuffer())
-				});
 		}
 	}
 }
