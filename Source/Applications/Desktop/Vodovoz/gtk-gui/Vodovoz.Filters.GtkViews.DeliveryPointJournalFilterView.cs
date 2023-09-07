@@ -20,17 +20,9 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::QS.Widgets.ValidatedEntry entryCounterpartyNameLike;
 
-		private global::QS.Widgets.ValidatedEntry entryDeliveryPointAddress1cLike;
-
-		private global::QS.Widgets.ValidatedEntry entryDeliveryPointCompiledAddressLike;
-
 		private global::QS.Widgets.ValidatedEntry entryDeliveryPointId;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelCounterpartyNameLike;
-
-		private global::Gamma.GtkWidgets.yLabel ylabelDeliveryPointAddress1cLike;
-
-		private global::Gamma.GtkWidgets.yLabel ylabelDeliveryPointCompiledAddres;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelDeliveryPointId;
 
@@ -116,29 +108,8 @@ namespace Vodovoz.Filters.GtkViews
 			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.ytable1[this.entryCounterpartyNameLike]));
 			w6.LeftAttach = ((uint)(3));
 			w6.RightAttach = ((uint)(5));
+			w6.XOptions = ((global::Gtk.AttachOptions)(4));
 			w6.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child ytable1.Gtk.Table+TableChild
-			this.entryDeliveryPointAddress1cLike = new global::QS.Widgets.ValidatedEntry();
-			this.entryDeliveryPointAddress1cLike.CanFocus = true;
-			this.entryDeliveryPointAddress1cLike.Name = "entryDeliveryPointAddress1cLike";
-			this.entryDeliveryPointAddress1cLike.IsEditable = true;
-			this.entryDeliveryPointAddress1cLike.InvisibleChar = '•';
-			this.ytable1.Add(this.entryDeliveryPointAddress1cLike);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.ytable1[this.entryDeliveryPointAddress1cLike]));
-			w7.LeftAttach = ((uint)(9));
-			w7.RightAttach = ((uint)(11));
-			w7.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child ytable1.Gtk.Table+TableChild
-			this.entryDeliveryPointCompiledAddressLike = new global::QS.Widgets.ValidatedEntry();
-			this.entryDeliveryPointCompiledAddressLike.CanFocus = true;
-			this.entryDeliveryPointCompiledAddressLike.Name = "entryDeliveryPointCompiledAddressLike";
-			this.entryDeliveryPointCompiledAddressLike.IsEditable = true;
-			this.entryDeliveryPointCompiledAddressLike.InvisibleChar = '•';
-			this.ytable1.Add(this.entryDeliveryPointCompiledAddressLike);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.ytable1[this.entryDeliveryPointCompiledAddressLike]));
-			w8.LeftAttach = ((uint)(6));
-			w8.RightAttach = ((uint)(8));
-			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytable1.Gtk.Table+TableChild
 			this.entryDeliveryPointId = new global::QS.Widgets.ValidatedEntry();
 			this.entryDeliveryPointId.CanFocus = true;
@@ -146,54 +117,34 @@ namespace Vodovoz.Filters.GtkViews
 			this.entryDeliveryPointId.IsEditable = true;
 			this.entryDeliveryPointId.InvisibleChar = '•';
 			this.ytable1.Add(this.entryDeliveryPointId);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.ytable1[this.entryDeliveryPointId]));
-			w9.LeftAttach = ((uint)(1));
-			w9.RightAttach = ((uint)(2));
-			w9.XOptions = ((global::Gtk.AttachOptions)(4));
-			w9.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.ytable1[this.entryDeliveryPointId]));
+			w7.LeftAttach = ((uint)(1));
+			w7.RightAttach = ((uint)(2));
+			w7.XOptions = ((global::Gtk.AttachOptions)(4));
+			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytable1.Gtk.Table+TableChild
 			this.ylabelCounterpartyNameLike = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelCounterpartyNameLike.Name = "ylabelCounterpartyNameLike";
 			this.ylabelCounterpartyNameLike.LabelProp = global::Mono.Unix.Catalog.GetString("Наименование клиента:");
 			this.ytable1.Add(this.ylabelCounterpartyNameLike);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.ytable1[this.ylabelCounterpartyNameLike]));
-			w10.LeftAttach = ((uint)(2));
-			w10.RightAttach = ((uint)(3));
-			w10.XOptions = ((global::Gtk.AttachOptions)(4));
-			w10.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child ytable1.Gtk.Table+TableChild
-			this.ylabelDeliveryPointAddress1cLike = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelDeliveryPointAddress1cLike.Name = "ylabelDeliveryPointAddress1cLike";
-			this.ylabelDeliveryPointAddress1cLike.LabelProp = global::Mono.Unix.Catalog.GetString("Адрес ТД из 1с:");
-			this.ytable1.Add(this.ylabelDeliveryPointAddress1cLike);
-			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.ytable1[this.ylabelDeliveryPointAddress1cLike]));
-			w11.LeftAttach = ((uint)(8));
-			w11.RightAttach = ((uint)(9));
-			w11.XOptions = ((global::Gtk.AttachOptions)(4));
-			w11.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child ytable1.Gtk.Table+TableChild
-			this.ylabelDeliveryPointCompiledAddres = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelDeliveryPointCompiledAddres.Name = "ylabelDeliveryPointCompiledAddres";
-			this.ylabelDeliveryPointCompiledAddres.LabelProp = global::Mono.Unix.Catalog.GetString("Адрес ТД:");
-			this.ytable1.Add(this.ylabelDeliveryPointCompiledAddres);
-			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.ytable1[this.ylabelDeliveryPointCompiledAddres]));
-			w12.LeftAttach = ((uint)(5));
-			w12.RightAttach = ((uint)(6));
-			w12.XOptions = ((global::Gtk.AttachOptions)(4));
-			w12.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.ytable1[this.ylabelCounterpartyNameLike]));
+			w8.LeftAttach = ((uint)(2));
+			w8.RightAttach = ((uint)(3));
+			w8.XOptions = ((global::Gtk.AttachOptions)(4));
+			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytable1.Gtk.Table+TableChild
 			this.ylabelDeliveryPointId = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelDeliveryPointId.Name = "ylabelDeliveryPointId";
 			this.ylabelDeliveryPointId.LabelProp = global::Mono.Unix.Catalog.GetString("Код ТД:");
 			this.ytable1.Add(this.ylabelDeliveryPointId);
-			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.ytable1[this.ylabelDeliveryPointId]));
-			w13.XOptions = ((global::Gtk.AttachOptions)(4));
-			w13.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.ytable1[this.ylabelDeliveryPointId]));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.yvboxMain.Add(this.ytable1);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.ytable1]));
-			w14.Position = 1;
-			w14.Expand = false;
-			w14.Fill = false;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.ytable1]));
+			w10.Position = 1;
+			w10.Expand = false;
+			w10.Fill = false;
 			this.Add(this.yvboxMain);
 			if ((this.Child != null))
 			{
