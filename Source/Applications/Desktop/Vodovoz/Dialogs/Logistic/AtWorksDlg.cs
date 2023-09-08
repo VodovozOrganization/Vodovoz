@@ -142,6 +142,8 @@ namespace Vodovoz.Dialogs.Logistic
 			Build();
 
 			Initialize();
+
+			ObservableForwardersAtDay_ListChanged(ForwardersAtDay);
 		}
 
 		#region Properties

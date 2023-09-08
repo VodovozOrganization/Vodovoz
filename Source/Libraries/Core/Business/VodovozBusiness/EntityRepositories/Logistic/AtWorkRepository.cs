@@ -42,9 +42,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 					.Where(() => carVersionAlias.StartDate <= date)
 					.Where(Restrictions.Or(
 						Restrictions.Where(() => carVersionAlias.EndDate == null), 
-						Restrictions.Where(() => carVersionAlias.EndDate >= date)
-						)
-					)
+						Restrictions.Where(() => carVersionAlias.EndDate >= date)))
 					.WhereRestrictionOn(() => carVersionAlias.CarOwnType).IsIn(carOwnTypes.ToArray());
 			}
 
@@ -55,14 +53,12 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 			query.Select(Projections.Distinct(Projections.Id()));
 
-
 			AtWorkDriver atWorkDriverAlias2 = null;
 
 			var resultQuery = uow.Session.QueryOver(() => atWorkDriverAlias2)
 				.WithSubquery.WhereProperty(() => atWorkDriverAlias2.Id).In(query)
 				.Fetch(SelectMode.Fetch, () => atWorkDriverAlias2.Employee)
-				.Fetch(SelectMode.Fetch, () => atWorkDriverAlias2.Car)
-				.Fetch(SelectMode.Fetch, () => atWorkDriverAlias2.Car.CarVersions);
+				.Fetch(SelectMode.Fetch, () => atWorkDriverAlias2.Car);
 
 			return resultQuery.List();
 		}
@@ -75,5 +71,4 @@ namespace Vodovoz.EntityRepositories.Logistic
 					  .List();
 		}
 	}
-
 }
