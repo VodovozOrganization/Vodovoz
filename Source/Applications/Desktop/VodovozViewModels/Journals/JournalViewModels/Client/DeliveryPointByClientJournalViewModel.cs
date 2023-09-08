@@ -124,21 +124,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 				query.Where(() => deliveryPointAlias.Id == FilterViewModel.RestrictDeliveryPointId);
 			}
 
-			if(!string.IsNullOrWhiteSpace(FilterViewModel?.RestrictDeliveryPointCompiledAddressLike))
-			{
-				query.Where(Restrictions.InsensitiveLike(
-					Projections.Property(() => deliveryPointAlias.CompiledAddress),
-					$"%{FilterViewModel.RestrictDeliveryPointCompiledAddressLike}%"
-					));
-			}
-
-			if(!string.IsNullOrWhiteSpace(FilterViewModel?.RestrictDeliveryPointAddress1cLike))
-			{
-				query.Where(Restrictions.InsensitiveLike(
-					Projections.Property(() => deliveryPointAlias.Address1c),
-					$"%{FilterViewModel.RestrictDeliveryPointAddress1cLike}%"
-					));
-			}
+			query.Where(FilterViewModel?.SearchByAddressViewModel?.GetSearchCriterion(
+				() => deliveryPointAlias.CompiledAddress
+			));
 
 			query.Where(GetSearchCriterion(
 				() => deliveryPointAlias.Id,

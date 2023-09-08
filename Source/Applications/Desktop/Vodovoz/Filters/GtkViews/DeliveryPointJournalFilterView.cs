@@ -3,6 +3,7 @@ using QS.Views.GtkUI;
 using QS.Widgets;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
+using Vodovoz.ViewWidgets.Search;
 using Key = Gdk.Key;
 
 namespace Vodovoz.Filters.GtkViews
@@ -36,15 +37,9 @@ namespace Vodovoz.Filters.GtkViews
 				.AddFuncBinding(vm => vm.Counterparty == null, w => w.Sensitive)
 				.InitializeFromSource();
 
-			entryDeliveryPointCompiledAddressLike.KeyReleaseEvent += OnKeyReleased;
-			entryDeliveryPointCompiledAddressLike.Binding
-				.AddBinding(ViewModel, vm => vm.RestrictDeliveryPointCompiledAddressLike, w => w.Text)
-				.InitializeFromSource();
-
-			entryDeliveryPointAddress1cLike.KeyReleaseEvent += OnKeyReleased;
-			entryDeliveryPointAddress1cLike.Binding
-				.AddBinding(ViewModel, vm => vm.RestrictDeliveryPointAddress1cLike, w => w.Text)
-				.InitializeFromSource();
+			var searchByAddressView = new CompositeSearchView(ViewModel.SearchByAddressViewModel);
+			yhboxSearchByAddress.Add(searchByAddressView);
+			searchByAddressView.Show();
 		}
 
 		private void OnKeyReleased(object sender, KeyReleaseEventArgs args)

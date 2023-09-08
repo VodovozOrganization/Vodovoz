@@ -1,6 +1,7 @@
 ﻿using System;
 using QS.Project.Filter;
 using Vodovoz.Domain.Client;
+using Vodovoz.ViewModels.Widgets.Search;
 
 namespace Vodovoz.Filters.ViewModels
 {
@@ -12,8 +13,15 @@ namespace Vodovoz.Filters.ViewModels
 		private bool _restrictOnlyWithoutStreet;
 		private int? _restrictDeliveryPointId;
 		private string _restrictCounterpartyNameLike;
-		private string _restrictDeliveryPointCompiledAddressLike;
-		private string _restrictDeliveryPointAddress1cLike;
+		private readonly CompositeSearchViewModel _searchByAddressViewModel;
+
+		public DeliveryPointJournalFilterViewModel()
+		{
+			_searchByAddressViewModel = new CompositeSearchViewModel();
+			_searchByAddressViewModel.OnSearch += OnSearchByAddressViewModel;
+		}
+
+		public CompositeSearchViewModel SearchByAddressViewModel => _searchByAddressViewModel;
 
 		public virtual bool RestrictOnlyActive {
 			get => _restrictOnlyActive;
@@ -47,16 +55,15 @@ namespace Vodovoz.Filters.ViewModels
 			set => SetField(ref _restrictCounterpartyNameLike, value);
 		}
 
-		public virtual string RestrictDeliveryPointCompiledAddressLike
+		private void OnSearchByAddressViewModel(object sender, EventArgs e)
 		{
-			get => _restrictDeliveryPointCompiledAddressLike;
-			set => SetField(ref _restrictDeliveryPointCompiledAddressLike, value);
+			Update();
 		}
 
-		public virtual string RestrictDeliveryPointAddress1cLike
+		public override void Dispose()
 		{
-			get => _restrictDeliveryPointAddress1cLike;
-			set => SetField(ref _restrictDeliveryPointAddress1cLike, value);
+			_searchByAddressViewModel.OnSearch -= OnSearchByAddressViewModel;
+			base.Dispose();
 		}
 	}
 }
