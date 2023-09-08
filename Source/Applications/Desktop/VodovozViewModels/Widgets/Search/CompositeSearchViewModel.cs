@@ -76,7 +76,7 @@ namespace Vodovoz.ViewModels.Widgets.Search
 		[PropertyChangedAlso(nameof(SearchValues))]
 		public string EntrySearchText4
 		{
-			get => _entrySearchText1;
+			get => _entrySearchText4;
 			set => SetField(ref _entrySearchText4, value);
 		}
 
