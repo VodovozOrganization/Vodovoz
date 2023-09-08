@@ -38,7 +38,7 @@ namespace Vodovoz.Filters.GtkViews
 				.InitializeFromSource();
 
 			var searchByAddressView = new CompositeSearchView(ViewModel.SearchByAddressViewModel);
-			yvboxMain.Add(searchByAddressView);
+			yhboxSearchByAddress.Add(searchByAddressView);
 			searchByAddressView.Show();
 		}
 
