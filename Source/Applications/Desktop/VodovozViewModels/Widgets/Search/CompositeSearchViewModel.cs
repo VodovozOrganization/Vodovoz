@@ -1,10 +1,12 @@
-﻿using QS.Commands;
+﻿using NHibernate.Criterion;
+using QS.Commands;
 using QS.DomainModel.Entity;
 using QS.Project.Journal;
+using QS.Project.Journal.Search;
 using QS.ViewModels;
 using System;
 using System.Linq;
-using System.Runtime.CompilerServices;
+using System.Linq.Expressions;
 
 namespace Vodovoz.ViewModels.Widgets.Search
 {
@@ -19,7 +21,7 @@ namespace Vodovoz.ViewModels.Widgets.Search
 		private string _entrySearchText4;
 
 		private DelegateCommand _addSearchEntryCommand;
-		private DelegateCommand _clearSerarchEntriesTextCommand;
+		private DelegateCommand _clearSearchEntriesTextCommand;
 
 		#region IJournalSearch implementation
 
@@ -33,6 +35,10 @@ namespace Vodovoz.ViewModels.Widgets.Search
 
 		public void Update()
 		{
+			SearchValues = new string[] { EntrySearchText1, EntrySearchText2, EntrySearchText3, EntrySearchText4 }
+				.Where(x => !string.IsNullOrEmpty(x))
+				.ToArray();
+
 			OnSearch?.Invoke(this, new EventArgs());
 		}
 
@@ -83,22 +89,10 @@ namespace Vodovoz.ViewModels.Widgets.Search
 
 		#endregion Properties
 
-		protected override void OnPropertyChanged([CallerMemberName] string propertyName = "")
-		{
-			if(propertyName == nameof(EntrySearchText1)
-				|| propertyName == nameof(EntrySearchText2)
-				|| propertyName == nameof(EntrySearchText3)
-				|| propertyName == nameof(EntrySearchText4))
-			{
-				SearchValues = new string[] { EntrySearchText1, EntrySearchText2, EntrySearchText3, EntrySearchText4 }
-				.Where(x => !string.IsNullOrEmpty(x))
-				.ToArray();
-
-				Update();
-			}
-
-			base.OnPropertyChanged(propertyName);
-		}
+		public ICriterion GetSearchCriterion(params Expression<Func<object>>[] aliasPropertiesExpr) =>
+			new SearchCriterion(this)
+				.By(aliasPropertiesExpr)
+				.Finish();
 
 		#region Commands
 
@@ -126,29 +120,31 @@ namespace Vodovoz.ViewModels.Widgets.Search
 
 		#endregion AddSearchEntryCommand
 
-		#region ClearSerarchEntriesTextCommand
+		#region ClearSearchEntriesTextCommand
 
-		public DelegateCommand ClearSerarchEntriesTextCommand
+		public DelegateCommand ClearSearchEntriesTextCommand
 		{
 			get
 			{
-				if(_clearSerarchEntriesTextCommand == null)
+				if(_clearSearchEntriesTextCommand == null)
 				{
-					_clearSerarchEntriesTextCommand = new DelegateCommand(ClearSerarchEntriesText, () => CanClearSerarchEntriesText);
-					_clearSerarchEntriesTextCommand.CanExecuteChangedWith(this, x => x.CanClearSerarchEntriesText);
+					_clearSearchEntriesTextCommand = new DelegateCommand(ClearSearchEntriesText, () => CanClearSearchEntriesText);
+					_clearSearchEntriesTextCommand.CanExecuteChangedWith(this, x => x.CanClearSearchEntriesText);
 				}
-				return _clearSerarchEntriesTextCommand;
+				return _clearSearchEntriesTextCommand;
 			}
 		}
 
-		public bool CanClearSerarchEntriesText => true;
+		public bool CanClearSearchEntriesText => true;
 
-		private void ClearSerarchEntriesText()
+		private void ClearSearchEntriesText()
 		{
 			EntrySearchText1 = string.Empty;
 			EntrySearchText2 = string.Empty;
 			EntrySearchText3 = string.Empty;
 			EntrySearchText4 = string.Empty;
+
+			Update();
 		}
 
 		#endregion ClearSerarchEntriesTextCommand

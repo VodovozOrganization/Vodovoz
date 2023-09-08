@@ -1,6 +1,7 @@
-﻿using QS.Views.GtkUI;
-using System.ComponentModel;
+﻿using Gtk;
+using QS.Views.GtkUI;
 using Vodovoz.ViewModels.Widgets.Search;
+using Key = Gdk.Key;
 
 namespace Vodovoz.ViewWidgets.Search
 {
@@ -47,7 +48,20 @@ namespace Vodovoz.ViewWidgets.Search
 				.InitializeFromSource();
 
 			buttonAddAnd.Clicked += (o, e) => ViewModel.AddSearchEntryCommand.Execute();
-			buttonSearchClear.Clicked += (o, e) => ViewModel.ClearSerarchEntriesTextCommand.Execute();
+			buttonSearchClear.Clicked += (o, e) => ViewModel.ClearSearchEntriesTextCommand.Execute();
+
+			entrySearch1.KeyReleaseEvent += OnKeyReleased;
+			entrySearch2.KeyReleaseEvent += OnKeyReleased;
+			entrySearch3.KeyReleaseEvent += OnKeyReleased;
+			entrySearch4.KeyReleaseEvent += OnKeyReleased;
+		}
+
+		private void OnKeyReleased(object sender, KeyReleaseEventArgs args)
+		{
+			if(args.Event.Key == Key.Return)
+			{
+				ViewModel.Update();
+			}
 		}
 	}
 }
