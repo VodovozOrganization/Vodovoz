@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gamma.Widgets.Additions;
 using Gdk;
@@ -17,18 +12,21 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Tdi;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
-using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.EntityRepositories.Stock;
-using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
 using Vodovoz.Infrastructure.Services;
@@ -38,14 +36,12 @@ using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Logistic;
 using Vodovoz.ViewModels.Factories;
-using Vodovoz.ViewModels.Infrastructure.Services;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalFactories;
-using Vodovoz.ViewModels.Journals.JournalSelectors;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic;
-using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 
@@ -53,49 +49,102 @@ namespace Vodovoz.Dialogs.Logistic
 {
 	public partial class AtWorksDlg : TdiTabBase, ITdiDialog, ISingleUoWDialog
 	{
+		private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+
 		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(new ParametersProvider());
-		
+		private readonly IDefaultDeliveryDayScheduleSettings _defaultDeliveryDayScheduleSettings;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly IAuthorizationService _authorizationService = new AuthorizationServiceFactory().CreateNewAuthorizationService();
-		private readonly IEmployeeWageParametersFactory _employeeWageParametersFactory = new EmployeeWageParametersFactory();
 		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory = new SubdivisionJournalFactory();
-		private readonly IEmployeePostsJournalFactory _employeePostsJournalFactory = new EmployeePostsJournalFactory();
-		private readonly ICashDistributionCommonOrganisationProvider _cashDistributionCommonOrganisationProvider =
-			new CashDistributionCommonOrganisationProvider(new OrganizationParametersProvider(new ParametersProvider()));
-		private readonly ISubdivisionParametersProvider _supSubdivisionParametersProvider =
-			new SubdivisionParametersProvider(new ParametersProvider());
-		private readonly IWageCalculationRepository _wageCalculationRepository  = new WageCalculationRepository();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
-		private readonly IPhonesViewModelFactory _phonesViewModelFactory = new PhonesViewModelFactory(new PhoneRepository());
-		private readonly IUserRepository _userRepository = new UserRepository();
 		private readonly ICarRepository _carRepository = new CarRepository();
 		private readonly IGeographicGroupRepository _geographicGroupRepository = new GeographicGroupRepository();
 		private readonly IScheduleRestrictionRepository _scheduleRestrictionRepository = new ScheduleRestrictionRepository();
-		private readonly IWarehouseRepository _warehouseRepository = new WarehouseRepository();
-        private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
-        private readonly IAttachmentsViewModelFactory _attachmentsViewModelFactory = new AttachmentsViewModelFactory();
-        private readonly EmployeeFilterViewModel _forwarderFilter;
+		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
+		private readonly IAttachmentsViewModelFactory _attachmentsViewModelFactory = new AttachmentsViewModelFactory();
+		private readonly EmployeeFilterViewModel _forwarderFilter;
 		private IList<RouteList> _routelists = new List<RouteList>();
-		private readonly AtWorkFilterViewModel  _filterViewModel;
+		private readonly AtWorkFilterViewModel _filterViewModel;
+
+		private readonly Gdk.Pixbuf _vodovozCarIcon = Pixbuf.LoadFromResource("Vodovoz.icons.buttons.vodovoz-logo.png");
+
+		private IList<AtWorkDriver> _driversAtDay;
+		private IList<AtWorkForwarder> _forwardersAtDay;
+		private readonly HashSet<AtWorkDriver> _driversWithCommentChanged = new HashSet<AtWorkDriver>();
+		private GenericObservableList<AtWorkDriver> _observableDriversAtDay;
+		private GenericObservableList<AtWorkForwarder> _observableForwardersAtDay;
+		private bool _hasNewDrivers;
+		private readonly bool _canReturnDriver;
+		private readonly DeliveryDaySchedule _defaultDeliveryDaySchedule;
 
 		public AtWorksDlg(
 			IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings,
 			IEmployeeJournalFactory employeeJournalFactory)
 		{
-			if(defaultDeliveryDayScheduleSettings == null)
-			{
-				throw new ArgumentNullException(nameof(defaultDeliveryDayScheduleSettings));
-			}
-
+			_defaultDeliveryDayScheduleSettings = defaultDeliveryDayScheduleSettings ?? throw new ArgumentNullException(nameof(defaultDeliveryDayScheduleSettings));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_filterViewModel = new AtWorkFilterViewModel(UoW, _geographicGroupRepository, CheckAndSaveBeforeСontinue);
 
+			int currentUserId = ServicesConfig.CommonServices.UserService.CurrentUserId;
+			_canReturnDriver = ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission("can_return_driver_to_work", currentUserId);
+
+			_defaultDeliveryDaySchedule =
+				UoW.GetById<DeliveryDaySchedule>(_defaultDeliveryDayScheduleSettings.GetDefaultDeliveryDayScheduleId());
+
+			_forwarderFilter = new EmployeeFilterViewModel();
+
 			Build();
 
+			Initialize();
+		}
+
+		#region Properties
+
+		public IUnitOfWork UoW { get; } = UnitOfWorkFactory.CreateWithoutRoot();
+
+		public bool HasChanges => UoW.HasChanges;
+
+		public event EventHandler<EntitySavedEventArgs> EntitySaved;
+
+		private IList<AtWorkDriver> DriversAtDay
+		{
+			set
+			{
+				_driversAtDay = value;
+				_observableDriversAtDay = new GenericObservableList<AtWorkDriver>(_driversAtDay);
+				ytreeviewAtWorkDrivers.SetItemsSource(_observableDriversAtDay);
+				_observableDriversAtDay.PropertyOfElementChanged += (sender, args) => _driversWithCommentChanged.Add(sender as AtWorkDriver);
+			}
+			get => _driversAtDay;
+		}
+
+		private IList<AtWorkForwarder> ForwardersAtDay
+		{
+			set
+			{
+				_forwardersAtDay = value;
+
+				if(_observableForwardersAtDay != null)
+				{
+					_observableForwardersAtDay.ListChanged -= ObservableForwardersAtDay_ListChanged;
+				}
+
+				_observableForwardersAtDay = new GenericObservableList<AtWorkForwarder>(_forwardersAtDay);
+				_observableForwardersAtDay.ListChanged += ObservableForwardersAtDay_ListChanged;
+				ytreeviewOnDayForwarders.SetItemsSource(_observableForwardersAtDay);
+				ObservableForwardersAtDay_ListChanged(null);
+			}
+			get => _forwardersAtDay;
+		}
+
+		public override string TabName => $"Работают {_filterViewModel.AtDate:d}";
+
+		#endregion Properties
+
+		private void Initialize()
+		{
 			enumcheckCarTypeOfUse.EnumType = typeof(CarTypeOfUse);
 			enumcheckCarTypeOfUse.Binding
-				.AddBinding(_filterViewModel, vm => vm.SelectedCarTypesOfUse, w => w.SelectedValuesList, 
+				.AddBinding(_filterViewModel, vm => vm.SelectedCarTypesOfUse, w => w.SelectedValuesList,
 					new EnumsListConverter<CarTypeOfUse>())
 				.InitializeFromSource();
 
@@ -118,6 +167,7 @@ namespace Vodovoz.Dialogs.Logistic
 			ytreeviewGeographicGroup.Binding
 				.AddBinding(_filterViewModel, vm => vm.GeographicGroupNodes, w => w.ItemsDataSource)
 				.InitializeFromSource();
+
 			ytreeviewGeographicGroup.HeadersVisible = false;
 
 			yenumComboBoxSortBy.ItemsEnum = typeof(SortAtWorkDriversType);
@@ -134,14 +184,20 @@ namespace Vodovoz.Dialogs.Logistic
 				SetButtonCreateEmptyRouteListsSensitive();
 			};
 
+			var priorityAdjustment = new Gtk.Adjustment(6, 1, 10, 1, 1, 1);
+
 			var geographicGroups =
 				_geographicGroupRepository.GeographicGroupsWithCoordinates(UoW, isActiveOnly: true);
-			var colorWhite = new Color(0xff, 0xff, 0xff);
+			var colorBackgroundDefault = Rc.GetStyle(this).Background(StateType.Normal);
+			var colorForegroundDefault = Rc.GetStyle(this).Foreground(StateType.Normal);
+			var colorForegroundInsensitive = Rc.GetStyle(this).Foreground(StateType.Insensitive);
+
 			var colorLightRed = new Color(0xff, 0x66, 0x66);
+
 			ytreeviewAtWorkDrivers.ColumnsConfig = FluentColumnsConfig<AtWorkDriver>.Create()
 				.AddColumn("Приоритет")
 					.AddNumericRenderer(x => x.PriorityAtDay)
-					.Editing(new Gtk.Adjustment(6, 1, 10, 1, 1, 1))
+					.Editing(priorityAdjustment)
 				.AddColumn("Статус")
 					.AddTextRenderer(x => x.Status.GetEnumTitle())
 				.AddColumn("Причина")
@@ -162,18 +218,19 @@ namespace Vodovoz.Dialogs.Logistic
 					.AddComboRenderer(x => x.WithForwarder)
 					.SetDisplayFunc(x => x.Employee.ShortName).Editing().Tag(Columns.Forwarder)
 				.AddColumn("Автомобиль")
-					.AddPixbufRenderer(x => x.Car != null && x.Car.GetActiveCarVersionOnDate(x.Date).CarOwnType == CarOwnType.Company ? vodovozCarIcon : null)
+					.AddPixbufRenderer(x => x.Car != null && x.Car.GetActiveCarVersionOnDate(x.Date).CarOwnType == CarOwnType.Company ? _vodovozCarIcon : null)
 					.AddTextRenderer(x => x.Car != null ? x.Car.RegistrationNumber : "нет")
 				.AddColumn("База")
 					.AddComboRenderer(x => x.GeographicGroup)
 					.SetDisplayFunc(x => x.Name)
 					.FillItems(geographicGroups)
 					.AddSetter(
-						(c, n) => {
+						(c, n) =>
+						{
 							c.Editable = true;
 							c.BackgroundGdk = n.GeographicGroup == null
 								? colorLightRed
-								: colorWhite;
+								: colorBackgroundDefault;
 						}
 					)
 				.AddColumn("Грузоп.")
@@ -188,7 +245,10 @@ namespace Vodovoz.Dialogs.Logistic
 					.AddTextRenderer(x => x.CarOwnTypeDisplayName)
 				.AddColumn("Тип\nавто")
 					.AddTextRenderer(x => x.CarTypeOfUseDisplayName)
-				.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.Status == AtWorkDriver.DriverStatus.NotWorking? "gray": "black")
+				.RowCells().AddSetter<CellRendererText>((c, n) =>
+					c.ForegroundGdk = n.Status == AtWorkDriver.DriverStatus.NotWorking
+					? colorForegroundInsensitive
+					: colorForegroundDefault)
 				.Finish();
 
 			ytreeviewAtWorkDrivers.Selection.Mode = Gtk.SelectionMode.Multiple;
@@ -200,14 +260,7 @@ namespace Vodovoz.Dialogs.Logistic
 				.Finish();
 			ytreeviewOnDayForwarders.Selection.Mode = Gtk.SelectionMode.Multiple;
 			ytreeviewOnDayForwarders.Selection.Changed += YtreeviewForwarders_Selection_Changed;
-			
-			int currentUserId = ServicesConfig.CommonServices.UserService.CurrentUserId;
-			canReturnDriver = ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission("can_return_driver_to_work", currentUserId);
 
-			this.defaultDeliveryDaySchedule =
-				UoW.GetById<DeliveryDaySchedule>(defaultDeliveryDayScheduleSettings.GetDefaultDeliveryDayScheduleId());
-
-			_forwarderFilter = new EmployeeFilterViewModel();
 			_forwarderFilter.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.forwarder,
 				x => x.CanChangeStatus = true,
@@ -271,10 +324,12 @@ namespace Vodovoz.Dialogs.Logistic
 			var workedDrivers = DriversAtDay.Where(d => d.Status == AtWorkDriver.DriverStatus.IsWorking);
 			var routeListGenerator = new EmptyRouteListGenerator(_routeListRepository, workedDrivers);
 			var valid = ServicesConfig.ValidationService.Validate(routeListGenerator, new ValidationContext(routeListGenerator));
+
 			if(!valid)
 			{
 				return;
 			}
+
 			_routelists = routeListGenerator.Generate();
 
 			if(ServicesConfig.InteractiveService.Question($"Будут созданы {_routelists.Count} маршрутных листов.\nПродолжить?"))
@@ -287,78 +342,37 @@ namespace Vodovoz.Dialogs.Logistic
 			}
 		}
 
-		private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		
-		private readonly Gdk.Pixbuf vodovozCarIcon = Pixbuf.LoadFromResource("Vodovoz.icons.buttons.vodovoz-logo.png");
-
-		private IList<AtWorkDriver> driversAtDay;
-		private IList<AtWorkForwarder> forwardersAtDay;
-		private HashSet<AtWorkDriver> driversWithCommentChanged = new HashSet<AtWorkDriver>();
-		private GenericObservableList<AtWorkDriver> observableDriversAtDay;
-		private GenericObservableList<AtWorkForwarder> observableForwardersAtDay;
-		private bool _hasNewDrivers;
-		private readonly bool canReturnDriver;
-		private readonly DeliveryDaySchedule defaultDeliveryDaySchedule;
-
-		public IUnitOfWork UoW { get; } = UnitOfWorkFactory.CreateWithoutRoot();
-		public bool HasChanges => UoW.HasChanges;
-		public event EventHandler<EntitySavedEventArgs> EntitySaved;
-
-		#region Properties
-
-		private IList<AtWorkDriver> DriversAtDay {
-			set {
-				driversAtDay = value;
-				observableDriversAtDay = new GenericObservableList<AtWorkDriver>(driversAtDay);
-				ytreeviewAtWorkDrivers.SetItemsSource(observableDriversAtDay);
-				observableDriversAtDay.PropertyOfElementChanged += (sender, args) => driversWithCommentChanged.Add(sender as AtWorkDriver);
-			}
-			get => driversAtDay;
-		}
-
-		private IList<AtWorkForwarder> ForwardersAtDay {
-			set {
-				forwardersAtDay = value;
-				if(observableForwardersAtDay != null)
-					observableForwardersAtDay.ListChanged -= ObservableForwardersAtDay_ListChanged;
-				observableForwardersAtDay = new GenericObservableList<AtWorkForwarder>(forwardersAtDay);
-				observableForwardersAtDay.ListChanged += ObservableForwardersAtDay_ListChanged;
-				ytreeviewOnDayForwarders.SetItemsSource(observableForwardersAtDay);
-				ObservableForwardersAtDay_ListChanged(null);
-			}
-			get => forwardersAtDay;
-		}
-
-		public override string TabName {
-			get => $"Работают {_filterViewModel.AtDate:d}";
-			protected set => throw new InvalidOperationException("Установка протеворечит логике работы.");
-		}
-
-		#endregion
-
-		#region Events
+		#region EventHandlers
 
 		#region Buttons
+
 		protected void OnButtonSaveChangesClicked(object sender, EventArgs e)
 		{
-			this.Save();
+			Save();
 		}
+
 		protected void OnButtonCancelChangesClicked(object sender, EventArgs e)
 		{
-			this.OnCloseTab(false, CloseSource.Cancel);
+			OnCloseTab(false, CloseSource.Cancel);
 		}
-		
+
 		protected void OnButtonAddWorkingDriversClicked(object sender, EventArgs e)
 		{
+			if(!MessageDialogHelper.RunQuestionDialog("Будут добавлены все работающие водители, вы уверены?"))
+			{
+				return;
+			}
+
 			var workDriversAtDay = _employeeRepository.GetWorkingDriversAtDay(UoW, _filterViewModel.AtDate);
 			var onlyNewDrivers = new List<AtWorkDriver>();
 
-			if(workDriversAtDay.Count > 0) 
+			if(workDriversAtDay.Count > 0)
 			{
-				foreach(var driver in workDriversAtDay) 
+				foreach(var driver in workDriversAtDay)
 				{
-					if(driversAtDay.Any(x => x.Employee.Id == driver.Id)) {
-						logger.Warn($"Водитель {driver.ShortName} уже добавлен. Пропускаем...");
+					if(_driversAtDay.Any(x => x.Employee.Id == driver.Id))
+					{
+						_logger.Warn($"Водитель {driver.ShortName} уже добавлен. Пропускаем...");
 						continue;
 					}
 
@@ -388,7 +402,7 @@ namespace Vodovoz.Dialogs.Logistic
 			var selectDrivers = _employeeJournalFactory.CreateWorkingDriverEmployeeJournal();
 			selectDrivers.SelectionMode = JournalSelectionMode.Multiple;
 			selectDrivers.TabName = "Водители";
-			
+
 			selectDrivers.OnEntitySelectedResult += SelectDrivers_OnEntitySelectedResult;
 			TabParent.AddSlaveTab(this, selectDrivers);
 		}
@@ -396,15 +410,15 @@ namespace Vodovoz.Dialogs.Logistic
 		protected void OnButtonRemoveDriverClicked(object sender, EventArgs e)
 		{
 			var toDel = ytreeviewAtWorkDrivers.GetSelectedObjects<AtWorkDriver>();
-			
+
 			foreach(var driver in toDel)
 			{
-				if (driver.Id > 0)
+				if(driver.Id > 0)
 				{
 					ChangeButtonAddRemove(driver.Status == AtWorkDriver.DriverStatus.IsWorking);
-					if (driver.Status == AtWorkDriver.DriverStatus.NotWorking)
+					if(driver.Status == AtWorkDriver.DriverStatus.NotWorking)
 					{
-						if (canReturnDriver)
+						if(_canReturnDriver)
 						{
 							driver.Status = AtWorkDriver.DriverStatus.IsWorking;
 						}
@@ -416,23 +430,23 @@ namespace Vodovoz.Dialogs.Logistic
 						driver.RemovedDate = DateTime.Now;
 					}
 				}
-				observableDriversAtDay.OnPropertyChanged(nameof(driver.Status));
+				_observableDriversAtDay.OnPropertyChanged(nameof(driver.Status));
 			}
 		}
 
 		protected void OnButtonClearDriverScreenClicked(object sender, EventArgs e)
 		{
-			if (MessageDialogHelper.RunQuestionWithTitleDialog("ВНИМАНИЕ!!!",
-				$"Список работающих и снятых водителей на дату: { _filterViewModel.AtDate.ToShortDateString()} будет очищен\n\n" +
+			if(MessageDialogHelper.RunQuestionWithTitleDialog("ВНИМАНИЕ!!!",
+				$"Список работающих и снятых водителей на дату: {_filterViewModel.AtDate.ToShortDateString()} будет очищен\n\n" +
 				"Вы действительно хотите продолжить?"))
 			{
 				DriversAtDay.ToList().ForEach(x => UoW.Delete(x));
-				observableDriversAtDay.Clear();
+				_observableDriversAtDay.Clear();
 				SetButtonClearDriverScreenSensitive();
 				SetButtonCreateEmptyRouteListsSensitive();
 			}
 		}
-		
+
 		protected void OnButtonDriverSelectAutoClicked(object sender, EventArgs e)
 		{
 			throw new NotSupportedException("Отключено до востребования изменения логики работы логистики");
@@ -444,58 +458,75 @@ namespace Vodovoz.Dialogs.Logistic
 				MessageDialogHelper.RunWarningDialog("Не выбран водитель!");
 				return;
 			}
-			
+
 			var filter = new CarJournalFilterViewModel(new CarModelJournalFactory());
+
 			filter.SetAndRefilterAtOnce(
 				x => x.Archive = false,
 				x => x.RestrictedCarOwnTypes = new List<CarOwnType> { CarOwnType.Company }
 			);
+
 			var journal = new CarJournalViewModel(
 				filter,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				Startup.AppDIContainer.BeginLifetimeScope());
+
 			journal.SelectionMode = JournalSelectionMode.Single;
+
 			journal.OnEntitySelectedResult += (o, args) =>
 			{
 				var car = UoW.GetById<Car>(args.SelectedNodes.First().Id);
-				driversAtDay.Where(x => x.Car != null && x.Car.Id == car.Id).ToList().ForEach(x => x.Car = null);
+				_driversAtDay.Where(x => x.Car != null && x.Car.Id == car.Id).ToList().ForEach(x => x.Car = null);
 				driver.Car = car;
 			};
+
 			TabParent.AddSlaveTab(this, journal);
 		}
-		
+
 		protected void OnButtonAppointForwardersClicked(object sender, EventArgs e)
 		{
 			var toAdd = new List<AtWorkForwarder>();
-			foreach(var forwarder in ForwardersAtDay.Where(f => DriversAtDay.All(d => d.WithForwarder != f))) {
-				var defaulDriver = DriversAtDay.FirstOrDefault(d => d.WithForwarder == null && d.Employee.DefaultForwarder?.Id == forwarder.Employee.Id);
+
+			foreach(var forwarder in ForwardersAtDay.Where(f => DriversAtDay.All(d => d.WithForwarder != f)))
+			{
+				var defaulDriver = DriversAtDay.FirstOrDefault(d => d.WithForwarder == null
+					&& d.Employee.DefaultForwarder?.Id == forwarder.Employee.Id);
+
 				if(defaulDriver != null)
+				{
 					defaulDriver.WithForwarder = forwarder;
+				}
 				else
+				{
 					toAdd.Add(forwarder);
+				}
 			}
 
 			if(toAdd.Count == 0)
+			{
 				return;
+			}
 
 			var orders = _scheduleRestrictionRepository.OrdersCountByDistrict(UoW, _filterViewModel.AtDate, 12);
 			var districtsBottles = orders.GroupBy(x => x.DistrictId).ToDictionary(x => x.Key, x => x.Sum(o => o.WaterCount));
 
-			foreach(var forwarder in toAdd) {
+			foreach(var forwarder in toAdd)
+			{
 				var driversToAdd = DriversAtDay.Where(x =>
-					x.WithForwarder == null
-					&& x.Car != null
-					&& !(x.Car.CarModel.CarTypeOfUse == CarTypeOfUse.Largus
-						&& x.Car.GetActiveCarVersionOnDate(x.Date).CarOwnType == CarOwnType.Company)
-				).ToList();
+						x.WithForwarder == null
+						&& x.Car != null
+						&& !(x.Car.CarModel.CarTypeOfUse == CarTypeOfUse.Largus
+							&& x.Car.GetActiveCarVersionOnDate(x.Date).CarOwnType == CarOwnType.Company))
+					.ToList();
 
-				if(driversToAdd.Count == 0) {
-					logger.Warn("Не осталось водителей для добавленя экспедиторов.");
+				if(driversToAdd.Count == 0)
+				{
+					_logger.Warn("Не осталось водителей для добавленя экспедиторов.");
 					break;
 				}
 
-				int ManOnDistrict(int districtId) => driversAtDay
+				int ManOnDistrict(int districtId) => _driversAtDay
 					.Where(dr =>
 						dr.Car != null
 						&& dr.DistrictsPriorities.Any(dd2 => dd2.District.Id == districtId)
@@ -520,7 +551,8 @@ namespace Vodovoz.Dialogs.Logistic
 						.Max(db => (double)db.Value / ManOnDistrict(db.Key)))
 					.FirstOrDefault();
 
-				if(driver != null) {
+				if(driver != null)
+				{
 					driver.WithForwarder = forwarder;
 				}
 			}
@@ -553,11 +585,9 @@ namespace Vodovoz.Dialogs.Logistic
 					new RouteListsWageController(new WageParameterService(new WageCalculationRepository(),
 						new BaseParametersProvider(new ParametersProvider()))),
 					geoGroupJournalFactory,
-					Startup.MainWin.NavigationManager
-				)
-			);
+					Startup.MainWin.NavigationManager));
 		}
-		
+
 		protected void OnButtonEditDistrictsClicked(object sender, EventArgs e)
 		{
 			districtpriorityview1.Visible = !districtpriorityview1.Visible;
@@ -566,14 +596,14 @@ namespace Vodovoz.Dialogs.Logistic
 		protected void OnButtonOpenDriverClicked(object sender, EventArgs e)
 		{
 			var selected = ytreeviewAtWorkDrivers.GetSelectedObjects<AtWorkDriver>();
-			
-			foreach(var one in selected) 
+
+			foreach(var one in selected)
 			{
 				Startup.MainWin.NavigationManager.OpenViewModelOnTdi<EmployeeViewModel, IEntityUoWBuilder>(
 					this, EntityUoWBuilder.ForOpen(one.Employee.Id));
 			}
 		}
-		
+
 		protected void OnButtonAddForwarderClicked(object sender, EventArgs e)
 		{
 			var forwardersJournal = _employeeJournalFactory.CreateEmployeesJournal(_forwarderFilter);
@@ -581,84 +611,103 @@ namespace Vodovoz.Dialogs.Logistic
 			forwardersJournal.OnEntitySelectedResult += OnForwardersSelected;
 			TabParent.AddSlaveTab(this, forwardersJournal);
 		}
-		
+
 		protected void OnButtonRemoveForwarderClicked(object sender, EventArgs e)
 		{
 			var toDel = ytreeviewOnDayForwarders.GetSelectedObjects<AtWorkForwarder>();
-			foreach(var forwarder in toDel) {
+
+			foreach(var forwarder in toDel)
+			{
 				if(forwarder.Id > 0)
+				{
 					UoW.Delete(forwarder);
-				observableForwardersAtDay.Remove(forwarder);
+				}
+
+				_observableForwardersAtDay.Remove(forwarder);
 			}
 		}
-		#endregion
+
+		#endregion Buttons
 
 		#region YTreeView
 
-		void YtreeviewDrivers_Selection_Changed(object sender, EventArgs e)
+		private void YtreeviewDrivers_Selection_Changed(object sender, EventArgs e)
 		{
 			buttonRemoveDriver.Sensitive = buttonDriverSelectAuto.Sensitive
 				= buttonOpenDriver.Sensitive = ytreeviewAtWorkDrivers.Selection.CountSelectedRows() > 0;
 
 			if(ytreeviewAtWorkDrivers.Selection.CountSelectedRows() != 1 && districtpriorityview1.Visible)
+			{
 				districtpriorityview1.Visible = false;
+			}
 
 			buttonOpenCar.Sensitive = false;
 
-			if(ytreeviewAtWorkDrivers.Selection.CountSelectedRows() == 1) {
+			if(ytreeviewAtWorkDrivers.Selection.CountSelectedRows() == 1)
+			{
 				var selected = ytreeviewAtWorkDrivers.GetSelectedObjects<AtWorkDriver>();
 				districtpriorityview1.ListParent = selected[0];
 				districtpriorityview1.Districts = selected[0].ObservableDistrictsPriorities;
 				buttonOpenCar.Sensitive = selected[0].Car != null;
 				ChangeButtonAddRemove(selected[0].Status == AtWorkDriver.DriverStatus.NotWorking);
 			}
+
 			districtpriorityview1.Sensitive = ytreeviewAtWorkDrivers.Selection.CountSelectedRows() == 1;
 		}
-		
-		void YtreeviewForwarders_Selection_Changed(object sender, EventArgs e)
+
+		private void YtreeviewForwarders_Selection_Changed(object sender, EventArgs e)
 		{
 			buttonRemoveForwarder.Sensitive = ytreeviewOnDayForwarders.Selection.CountSelectedRows() > 0;
 		}
 
-		void ObservableForwardersAtDay_ListChanged(object aList)
+		private void ObservableForwardersAtDay_ListChanged(object aList)
 		{
 			var renderer = ytreeviewAtWorkDrivers.ColumnsConfig.GetRendererMappingByTagGeneric<ComboRendererMapping<AtWorkDriver, AtWorkForwarder>>(Columns.Forwarder).First();
 			renderer.FillItems(ForwardersAtDay, "без экспедитора");
 		}
-		#endregion
-		
+
+		#endregion YTreeView
+
 		protected void OnYdateAtWorksDateChanged(object sender, EventArgs e)
 		{
 			OnTabNameChanged();
 		}
 
-		void SelectDrivers_OnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
+		private void SelectDrivers_OnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
 		{
 			var addDrivers = e.SelectedNodes;
-			logger.Info("Получаем авто для водителей...");
-			var onlyNew = addDrivers.Where(x => driversAtDay.All(y => y.Employee.Id != x.Id)).ToList();
+			_logger.Info("Получаем авто для водителей...");
+			var onlyNew = addDrivers.Where(x => _driversAtDay.All(y => y.Employee.Id != x.Id)).ToList();
 			_hasNewDrivers = onlyNew.Any();
 			var allCars = _carRepository.GetCarsByDrivers(UoW, onlyNew.Select(x => x.Id).ToArray());
 
-			foreach(var driver in addDrivers) {
-				var drv = UoW.GetById<Employee>(driver.Id);
+			var driversIds = addDrivers.Select(x => x.Id);
 
-				if(driversAtDay.Any(x => x.Employee.Id == driver.Id)) {
-					logger.Warn($"Водитель {drv.ShortName} уже добавлен. Пропускаем...");
+			var drivers = UoW.GetById<Employee>(driversIds);
+
+			foreach(var driver in drivers)
+			{
+				if(_driversAtDay.Any(x => x.Employee.Id == driver.Id))
+				{
+					_logger.Warn($"Водитель {driver.ShortName} уже добавлен. Пропускаем...");
 					continue;
 				}
 
-				var daySchedule = GetDriverWorkDaySchedule(drv);
-				var atwork = new AtWorkDriver(drv, _filterViewModel.AtDate, allCars.FirstOrDefault(x => x.Driver.Id == driver.Id), daySchedule);
+				var daySchedule = GetDriverWorkDaySchedule(driver);
+				var atwork = new AtWorkDriver(driver, _filterViewModel.AtDate, allCars.FirstOrDefault(x => x.Driver.Id == driver.Id), daySchedule);
 
-				GetDefaultForwarder(drv, atwork);
+				GetDefaultForwarder(driver, atwork);
 
-				driversAtDay.Add(atwork);
+				_driversAtDay.Add(atwork);
 			}
-			DriversAtDay = driversAtDay.OrderBy(x => x.Employee.ShortName).ToList();
-			logger.Info("Ок");
+
+			DriversAtDay = _driversAtDay.OrderBy(x => x.Employee.ShortName).ToList();
+			_logger.Info("Ок");
+
 			SetButtonClearDriverScreenSensitive();
 			SetButtonCreateEmptyRouteListsSensitive();
+
+			(sender as EmployeesJournalViewModel).OnEntitySelectedResult -= SelectDrivers_OnEntitySelectedResult;
 		}
 
 		protected void OnHideForwadersToggled(object o, Gtk.ToggledArgs args)
@@ -669,24 +718,26 @@ namespace Vodovoz.Dialogs.Logistic
 		private void OnForwardersSelected(object sender, JournalSelectedNodesEventArgs e)
 		{
 			var loaded = UoW.GetById<Employee>(e.SelectedNodes.Select(x => x.Id));
+
 			foreach(var forwarder in loaded)
 			{
-				if(forwardersAtDay.Any(x => x.Employee.Id == forwarder.Id))
+				if(_forwardersAtDay.Any(x => x.Employee.Id == forwarder.Id))
 				{
-					logger.Warn($"Экспедитор {forwarder.ShortName} пропущен так как уже присутствует в списке.");
+					_logger.Warn($"Экспедитор {forwarder.ShortName} пропущен так как уже присутствует в списке.");
 					continue;
 				}
-				forwardersAtDay.Add(new AtWorkForwarder(forwarder, _filterViewModel.AtDate));
+				_forwardersAtDay.Add(new AtWorkForwarder(forwarder, _filterViewModel.AtDate));
 			}
-			ForwardersAtDay = forwardersAtDay.OrderBy(x => x.Employee.ShortName).ToList();
+			ForwardersAtDay = _forwardersAtDay.OrderBy(x => x.Employee.ShortName).ToList();
 		}
 
-		#endregion
+		#endregion EventHandlers
 
-		#region Fuctions
+		#region Methods
+
 		private void SetButtonClearDriverScreenSensitive()
 		{
-			if (_filterViewModel.AtDate < DateTime.Now.Date || !driversAtDay.Any())
+			if(_filterViewModel.AtDate < DateTime.Now.Date || !_driversAtDay.Any())
 			{
 				buttonClearDriverScreen.Sensitive = false;
 			}
@@ -698,29 +749,29 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private void SetButtonCreateEmptyRouteListsSensitive()
 		{
-			ybuttonCreateRouteLists.Sensitive = driversAtDay.Any();
+			ybuttonCreateRouteLists.Sensitive = _driversAtDay.Any();
 		}
 
 		private void ChangeButtonAddRemove(bool needRemove)
 		{
-			if (!canReturnDriver)
+			if(!_canReturnDriver)
 			{
 				return;
 			}
-			
-			if (needRemove)
+
+			if(needRemove)
 			{
 				buttonRemoveDriver.Label = "Вернуть водителя";
-				buttonRemoveDriver.Image = new Gtk.Image(){Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu)};
+				buttonRemoveDriver.Image = new Gtk.Image() { Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu) };
 			}
 			else
 			{
 				buttonRemoveDriver.Label = "Снять водителя";
-				buttonRemoveDriver.Image = new Gtk.Image(){Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-remove", global::Gtk.IconSize.Menu)};
+				buttonRemoveDriver.Image = new Gtk.Image() { Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-remove", global::Gtk.IconSize.Menu) };
 			}
 		}
 
-		public void SaveAndClose() 
+		public void SaveAndClose()
 		{
 			if(Save())
 			{
@@ -734,42 +785,54 @@ namespace Vodovoz.Dialogs.Logistic
 				.ObservableDriverWorkScheduleSets.SingleOrDefault(x => x.IsActive)
 				?.ObservableDriverWorkSchedules.SingleOrDefault(x => (int)x.WeekDay == (int)_filterViewModel.AtDate.DayOfWeek);
 
-			return driverWorkSchedule == null 
-				? defaultDeliveryDaySchedule
+			return driverWorkSchedule == null
+				? _defaultDeliveryDaySchedule
 				: driverWorkSchedule.DaySchedule;
 		}
 
 		private void GetDefaultForwarder(Employee driver, AtWorkDriver atwork)
 		{
-			if(driver.DefaultForwarder != null) {
-				var forwarder = ForwardersAtDay.FirstOrDefault(x => x.Employee.Id == driver.DefaultForwarder.Id);
+			if(driver.DefaultForwarder == null)
+			{
+				return;
+			}
 
-				if(forwarder == null) {
-					if(MessageDialogHelper.RunQuestionDialog($"Водитель {driver.ShortName} обычно ездит с экспедитором {driver.DefaultForwarder.ShortName}. Он отсутствует в списке экспедиторов. Добавить его в список?")) {
-						forwarder = new AtWorkForwarder(driver.DefaultForwarder, _filterViewModel.AtDate);
-						observableForwardersAtDay.Add(forwarder);
-					}
-				}
+			var forwarder = ForwardersAtDay.FirstOrDefault(x => x.Employee.Id == driver.DefaultForwarder.Id);
 
-				if(forwarder != null && DriversAtDay.All(x => x.WithForwarder != forwarder)) {
-					atwork.WithForwarder = forwarder;
-				}
+			if(forwarder == null
+				&& MessageDialogHelper.RunQuestionDialog(
+					  $"Водитель {driver.ShortName} обычно ездит с экспедитором {driver.DefaultForwarder.ShortName}. " +
+					  $"Он отсутствует в списке экспедиторов. Добавить его в список?"))
+			{
+				forwarder = new AtWorkForwarder(driver.DefaultForwarder, _filterViewModel.AtDate);
+				_observableForwardersAtDay.Add(forwarder);
+			}
+
+			if(forwarder != null && DriversAtDay.All(x => x.WithForwarder != forwarder))
+			{
+				atwork.WithForwarder = forwarder;
 			}
 		}
-		
+
 		public bool Save()
 		{
 			// В случае, если вкладка сохраняется, а в списке есть Снятые водители, сделать проверку, что у каждого из них заполнена причина.
-			var NotWorkingDrivers = DriversAtDay.ToList()
+			var NotWorkingDrivers = DriversAtDay
 				.Where(driver => driver.Status == AtWorkDriver.DriverStatus.NotWorking);
-			
-			if (NotWorkingDrivers.Count() != 0)
-				foreach (var atWorkDriver in NotWorkingDrivers)
+
+			if(NotWorkingDrivers.Any())
+			{
+				foreach(var atWorkDriver in NotWorkingDrivers)
 				{
-					if (!String.IsNullOrEmpty(atWorkDriver.Reason)) continue;
+					if(!string.IsNullOrEmpty(atWorkDriver.Reason))
+					{
+						continue;
+					}
+
 					MessageDialogHelper.RunWarningDialog("Не у всех снятых водителей указаны причины!");
 					return false;
 				}
+			}
 
 			foreach(var driver in DriversAtDay)
 			{
@@ -787,13 +850,16 @@ namespace Vodovoz.Dialogs.Logistic
 			}
 
 			var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoW);
+
 			// Сохранение изменившихся за этот раз авторов и дат комментариев
-			foreach (var atWorkDriver in driversWithCommentChanged)
+
+			foreach(var atWorkDriver in _driversWithCommentChanged)
 			{
 				atWorkDriver.CommentLastEditedAuthor = currentEmployee;
 				atWorkDriver.CommentLastEditedDate = DateTime.Now;
 			}
-			driversWithCommentChanged.Clear();
+
+			_driversWithCommentChanged.Clear();
 			ForwardersAtDay.ToList().ForEach(x => UoW.Save(x));
 			DriversAtDay.ToList().ForEach(x => UoW.Save(x));
 
@@ -809,26 +875,32 @@ namespace Vodovoz.Dialogs.Logistic
 
 			return true;
 		}
-		
-		string RenderForwaderWithDriver(AtWorkForwarder atWork)
+
+		private string RenderForwaderWithDriver(AtWorkForwarder atWork)
 		{
-			return string.Join(", ", driversAtDay.Where(x => x.WithForwarder == atWork).Select(x => x.Employee.ShortName));
+			return string.Join(", ", _driversAtDay.Where(x => x.WithForwarder == atWork).Select(x => x.Employee.ShortName));
 		}
 
-		void FillDialogAtDay()
+		private void FillDialogAtDay()
 		{
-			logger.Info("Загружаем экспедиторов на {0:d}...", _filterViewModel.AtDate);
+			_logger.Info("Загружаем экспедиторов на {0:d}...", _filterViewModel.AtDate);
 			ForwardersAtDay = new EntityRepositories.Logistic.AtWorkRepository().GetForwardersAtDay(UoW, _filterViewModel.AtDate);
 
-			logger.Info("Загружаем водителей на {0:d}...", _filterViewModel.AtDate);
+			_logger.Info("Загружаем водителей на {0:d}...", _filterViewModel.AtDate);
+
 			var selectedGeographicGroupIds = _filterViewModel
 				.GeographicGroupNodes
 				.Where(ggn => ggn.Selected)
 				.Select(ggn => ggn.GeographicGroup.Id)
 				.ToArray();
-			DriversAtDay = new EntityRepositories.Logistic.AtWorkRepository().GetDriversAtDay(UoW, _filterViewModel.AtDate,
-				driverStatuses: _filterViewModel.SelectedDriverStatuses, carTypesOfUse: _filterViewModel.SelectedCarTypesOfUse,
-				carOwnTypes: _filterViewModel.SelectedCarOwnTypes, geoGroupIds: selectedGeographicGroupIds);
+
+			DriversAtDay = new EntityRepositories.Logistic.AtWorkRepository().GetDriversAtDay(
+				UoW,
+				_filterViewModel.AtDate,
+				driverStatuses: _filterViewModel.SelectedDriverStatuses,
+				carTypesOfUse: _filterViewModel.SelectedCarTypesOfUse,
+				carOwnTypes: _filterViewModel.SelectedCarOwnTypes,
+				geoGroupIds: selectedGeographicGroupIds);
 
 			switch(_filterViewModel.SortType)
 			{
@@ -844,7 +916,7 @@ namespace Vodovoz.Dialogs.Logistic
 					}
 			}
 
-			logger.Info("Ок");
+			_logger.Info("Ок");
 
 			CheckAndCorrectDistrictPriorities();
 			SetButtonClearDriverScreenSensitive();
@@ -852,49 +924,65 @@ namespace Vodovoz.Dialogs.Logistic
 		}
 
 		//Если дата диалога >= даты активации набора районов и есть хотя бы один район у водителя, который не принадлежит активному набору районов
-		private void CheckAndCorrectDistrictPriorities() {
+		private void CheckAndCorrectDistrictPriorities()
+		{
 			var activeDistrictsSet = UoW.Session.QueryOver<DistrictsSet>().Where(x => x.Status == DistrictsSetStatus.Active).SingleOrDefault();
-			if(activeDistrictsSet == null) {
-				throw new ArgumentNullException(nameof(activeDistrictsSet), @"Не найдена активная версия районов");
+
+			if(activeDistrictsSet == null)
+			{
+				throw new InvalidOperationException("Не найдена активная версия районов");
 			}
-			if(activeDistrictsSet.DateActivated == null) {
-				throw new ArgumentNullException(nameof(activeDistrictsSet), @"У активной версии районов не проставлена дата активации");
+
+			if(activeDistrictsSet.DateActivated == null)
+			{
+				throw new InvalidOperationException("У активной версии районов не проставлена дата активации");
 			}
-			if(_filterViewModel.AtDate.Date >= activeDistrictsSet.DateActivated.Value.Date) {
+
+			if(_filterViewModel.AtDate.Date >= activeDistrictsSet.DateActivated.Value.Date)
+			{
 				var outDatedpriorities = DriversAtDay.SelectMany(x => x.DistrictsPriorities.Where(d => d.District.DistrictsSet.Id != activeDistrictsSet.Id)).ToList();
-				if(!outDatedpriorities.Any()) 
+
+				if(!outDatedpriorities.Any())
+				{
 					return;
-				
+				}
+
 				int deletedCount = 0;
-				foreach (var priority in outDatedpriorities) {
+
+				foreach(var priority in outDatedpriorities)
+				{
 					var newDistrict = activeDistrictsSet.ObservableDistricts.FirstOrDefault(x => x.CopyOf == priority.District);
-					if(newDistrict == null) {
+
+					if(newDistrict == null)
+					{
 						priority.Driver.ObservableDistrictsPriorities.Remove(priority);
 						UoW.Delete(priority);
 						deletedCount++;
 					}
-					else {
+					else
+					{
 						priority.District = newDistrict;
 						UoW.Save(priority);
 					}
 				}
+
 				MessageDialogHelper.RunInfoDialog($"Были найдены и исправлены устаревшие приоритеты районов.\nУдалено приоритетов, ссылающихся на несуществующий район: {deletedCount}");
+
 				ytreeviewAtWorkDrivers.YTreeModel.EmitModelChanged();
 			}
 		}
-		#endregion
-		
+
+		#endregion Methods
+
 		public override void Destroy()
 		{
 			UoW?.Dispose();
 			base.Destroy();
 		}
-		
-		
-		enum Columns
+
+		public enum Columns
 		{
 			Forwarder
 		}
-			   
 	}
 }
