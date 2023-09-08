@@ -22,6 +22,7 @@ using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
@@ -66,6 +67,7 @@ namespace Vodovoz.Dialogs.Logistic
 		private readonly AtWorkFilterViewModel _filterViewModel;
 
 		private readonly Gdk.Pixbuf _vodovozCarIcon = Pixbuf.LoadFromResource("Vodovoz.icons.buttons.vodovoz-logo.png");
+		private readonly Gtk.Adjustment _driversAtWorksPriorityAdjustment = new Gtk.Adjustment(6, 1, 10, 1, 1, 1);
 
 		private IList<AtWorkDriver> _driversAtDay;
 		private IList<AtWorkForwarder> _forwardersAtDay;
@@ -75,6 +77,11 @@ namespace Vodovoz.Dialogs.Logistic
 		private bool _hasNewDrivers;
 		private readonly bool _canReturnDriver;
 		private readonly DeliveryDaySchedule _defaultDeliveryDaySchedule;
+		private readonly IList<GeoGroup> _cachedGeographicGroups;
+		private readonly Color _colorBackgroundDefault;
+		private readonly Color _colorForegroundDefault;
+		private readonly Color _colorForegroundInsensitive;
+		private readonly Color _colorLightRed;
 
 		public AtWorksDlg(
 			IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings,
@@ -89,6 +96,13 @@ namespace Vodovoz.Dialogs.Logistic
 
 			_defaultDeliveryDaySchedule =
 				UoW.GetById<DeliveryDaySchedule>(_defaultDeliveryDayScheduleSettings.GetDefaultDeliveryDayScheduleId());
+
+			_cachedGeographicGroups = _geographicGroupRepository.GeographicGroupsWithCoordinates(UoW, isActiveOnly: true);
+
+			_colorBackgroundDefault = Rc.GetStyle(this).Background(StateType.Normal);
+			_colorForegroundDefault = Rc.GetStyle(this).Foreground(StateType.Normal);
+			_colorForegroundInsensitive = Rc.GetStyle(this).Foreground(StateType.Insensitive);
+			_colorLightRed = new Color(0xff, 0x66, 0x66);
 
 			_forwarderFilter = new EmployeeFilterViewModel();
 
@@ -184,20 +198,41 @@ namespace Vodovoz.Dialogs.Logistic
 				SetButtonCreateEmptyRouteListsSensitive();
 			};
 
-			var priorityAdjustment = new Gtk.Adjustment(6, 1, 10, 1, 1, 1);
+			ConfigureDriversAtWorksTreeView();
+			ConfigureForwardersAtWorksTreeView();
 
-			var geographicGroups =
-				_geographicGroupRepository.GeographicGroupsWithCoordinates(UoW, isActiveOnly: true);
-			var colorBackgroundDefault = Rc.GetStyle(this).Background(StateType.Normal);
-			var colorForegroundDefault = Rc.GetStyle(this).Foreground(StateType.Normal);
-			var colorForegroundInsensitive = Rc.GetStyle(this).Foreground(StateType.Insensitive);
+			_forwarderFilter.SetAndRefilterAtOnce(
+				x => x.RestrictCategory = EmployeeCategory.forwarder,
+				x => x.CanChangeStatus = true,
+				x => x.Status = EmployeeStatus.IsWorking);
 
-			var colorLightRed = new Color(0xff, 0x66, 0x66);
+			ybuttonCreateRouteLists.Clicked += YbuttonCreateRouteListsClicked;
 
-			ytreeviewAtWorkDrivers.ColumnsConfig = FluentColumnsConfig<AtWorkDriver>.Create()
+			buttonDriverSelectAuto.Visible = false;
+
+			hideForwaders.Label = "Экспедиторы на работе";
+			hideForwaders.Toggled += OnHideForwadersToggled;
+
+			_filterViewModel.Update();
+		}
+
+		private void ConfigureForwardersAtWorksTreeView()
+		{
+			ytreeviewOnDayForwarders.ColumnsConfig = FluentColumnsConfig<AtWorkForwarder>.Create()
+							.AddColumn("Экспедитор").AddTextRenderer(x => x.Employee.ShortName)
+							.AddColumn("Едет с водителем").AddTextRenderer(x => RenderForwaderWithDriver(x))
+							.Finish();
+
+			ytreeviewOnDayForwarders.Selection.Mode = Gtk.SelectionMode.Multiple;
+			ytreeviewOnDayForwarders.Selection.Changed += YtreeviewForwarders_Selection_Changed;
+		}
+
+		private void ConfigureDriversAtWorksTreeView()
+		{
+			ytreeviewAtWorkDrivers.CreateFluentColumnsConfig<AtWorkDriver>()
 				.AddColumn("Приоритет")
 					.AddNumericRenderer(x => x.PriorityAtDay)
-					.Editing(priorityAdjustment)
+					.Editing(_driversAtWorksPriorityAdjustment)
 				.AddColumn("Статус")
 					.AddTextRenderer(x => x.Status.GetEnumTitle())
 				.AddColumn("Причина")
@@ -223,14 +258,14 @@ namespace Vodovoz.Dialogs.Logistic
 				.AddColumn("База")
 					.AddComboRenderer(x => x.GeographicGroup)
 					.SetDisplayFunc(x => x.Name)
-					.FillItems(geographicGroups)
+					.FillItems(_cachedGeographicGroups)
 					.AddSetter(
 						(c, n) =>
 						{
 							c.Editable = true;
 							c.BackgroundGdk = n.GeographicGroup == null
-								? colorLightRed
-								: colorBackgroundDefault;
+								? _colorLightRed
+								: _colorBackgroundDefault;
 						}
 					)
 				.AddColumn("Грузоп.")
@@ -247,33 +282,12 @@ namespace Vodovoz.Dialogs.Logistic
 					.AddTextRenderer(x => x.CarTypeOfUseDisplayName)
 				.RowCells().AddSetter<CellRendererText>((c, n) =>
 					c.ForegroundGdk = n.Status == AtWorkDriver.DriverStatus.NotWorking
-					? colorForegroundInsensitive
-					: colorForegroundDefault)
+					? _colorForegroundInsensitive
+					: _colorForegroundDefault)
 				.Finish();
 
 			ytreeviewAtWorkDrivers.Selection.Mode = Gtk.SelectionMode.Multiple;
 			ytreeviewAtWorkDrivers.Selection.Changed += YtreeviewDrivers_Selection_Changed;
-
-			ytreeviewOnDayForwarders.ColumnsConfig = FluentColumnsConfig<AtWorkForwarder>.Create()
-				.AddColumn("Экспедитор").AddTextRenderer(x => x.Employee.ShortName)
-				.AddColumn("Едет с водителем").AddTextRenderer(x => RenderForwaderWithDriver(x))
-				.Finish();
-			ytreeviewOnDayForwarders.Selection.Mode = Gtk.SelectionMode.Multiple;
-			ytreeviewOnDayForwarders.Selection.Changed += YtreeviewForwarders_Selection_Changed;
-
-			_forwarderFilter.SetAndRefilterAtOnce(
-				x => x.RestrictCategory = EmployeeCategory.forwarder,
-				x => x.CanChangeStatus = true,
-				x => x.Status = EmployeeStatus.IsWorking);
-
-			ybuttonCreateRouteLists.Clicked += YbuttonCreateRouteListsClicked;
-
-			buttonDriverSelectAuto.Visible = false;
-
-			hideForwaders.Label = "Экспедиторы на работе";
-			hideForwaders.Toggled += OnHideForwadersToggled;
-
-			_filterViewModel.Update();
 		}
 
 		private void OnGeographicGroupSelected(object o, ToggledArgs args)
@@ -312,7 +326,6 @@ namespace Vodovoz.Dialogs.Logistic
 			var deliveryDaySchedules = UoW.GetAll<DeliveryDaySchedule>().ToList();
 			return deliveryDaySchedules;
 		}
-
 
 		private void YbuttonCreateRouteListsClicked(object sender, EventArgs e)
 		{
@@ -543,6 +556,7 @@ namespace Vodovoz.Dialogs.Logistic
 					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Нет заказов на день для определения приоритета водителя.");
 					return;
 				}
+
 				var driver = driversToAddWithWithActivePrioritySets
 					.OrderByDescending(x => districtsBottles
 						.Where(db => x.Employee.DriverDistrictPrioritySets
