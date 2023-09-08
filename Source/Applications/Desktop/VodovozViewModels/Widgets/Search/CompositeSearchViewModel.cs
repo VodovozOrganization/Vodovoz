@@ -45,28 +45,24 @@ namespace Vodovoz.ViewModels.Widgets.Search
 
 		#region Properties
 
-		[PropertyChangedAlso(nameof(SearchValues))]
 		public string EntrySearchText1
 		{
 			get => _entrySearchText1;
 			set => SetField(ref _entrySearchText1, value);
 		}
 
-		[PropertyChangedAlso(nameof(SearchValues))]
 		public string EntrySearchText2
 		{
 			get => _entrySearchText2;
 			set => SetField(ref _entrySearchText2, value);
 		}
 
-		[PropertyChangedAlso(nameof(SearchValues))]
 		public string EntrySearchText3
 		{
 			get => _entrySearchText3;
 			set => SetField(ref _entrySearchText3, value);
 		}
 
-		[PropertyChangedAlso(nameof(SearchValues))]
 		public string EntrySearchText4
 		{
 			get => _entrySearchText4;
