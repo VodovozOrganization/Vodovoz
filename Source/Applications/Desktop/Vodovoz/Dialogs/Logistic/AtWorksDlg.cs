@@ -3,6 +3,7 @@ using Gamma.Utilities;
 using Gamma.Widgets.Additions;
 using Gdk;
 using Gtk;
+using Microsoft.Extensions.Logging;
 using QS.Dialog;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
@@ -27,7 +28,6 @@ using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Sale;
-using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
 using Vodovoz.Infrastructure.Services;
@@ -50,7 +50,7 @@ namespace Vodovoz.Dialogs.Logistic
 {
 	public partial class AtWorksDlg : TdiTabBase, ITdiDialog, ISingleUoWDialog
 	{
-		private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+		private readonly ILogger<AtWorksDlg> _logger;
 
 		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(new ParametersProvider());
 		private readonly IDefaultDeliveryDayScheduleSettings _defaultDeliveryDayScheduleSettings;
@@ -60,7 +60,7 @@ namespace Vodovoz.Dialogs.Logistic
 		private readonly ICarRepository _carRepository = new CarRepository();
 		private readonly IGeographicGroupRepository _geographicGroupRepository = new GeographicGroupRepository();
 		private readonly IScheduleRestrictionRepository _scheduleRestrictionRepository = new ScheduleRestrictionRepository();
-		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
+		private readonly IRouteListRepository _routeListRepository;
 		private readonly IAttachmentsViewModelFactory _attachmentsViewModelFactory = new AttachmentsViewModelFactory();
 		private readonly EmployeeFilterViewModel _forwarderFilter;
 		private IList<RouteList> _routelists = new List<RouteList>();
@@ -84,11 +84,16 @@ namespace Vodovoz.Dialogs.Logistic
 		private readonly Color _colorLightRed;
 
 		public AtWorksDlg(
+			ILogger<AtWorksDlg> logger,
 			IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings,
-			IEmployeeJournalFactory employeeJournalFactory)
+			IEmployeeJournalFactory employeeJournalFactory,
+			IRouteListRepository routeListRepository)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_defaultDeliveryDayScheduleSettings = defaultDeliveryDayScheduleSettings ?? throw new ArgumentNullException(nameof(defaultDeliveryDayScheduleSettings));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
+
 			_filterViewModel = new AtWorkFilterViewModel(UoW, _geographicGroupRepository, CheckAndSaveBeforeСontinue);
 
 			int currentUserId = ServicesConfig.CommonServices.UserService.CurrentUserId;
@@ -385,7 +390,7 @@ namespace Vodovoz.Dialogs.Logistic
 				{
 					if(_driversAtDay.Any(x => x.Employee.Id == driver.Id))
 					{
-						_logger.Warn($"Водитель {driver.ShortName} уже добавлен. Пропускаем...");
+						_logger.LogWarning("Водитель {DriverName} уже добавлен. Пропускаем...", driver.ShortName);
 						continue;
 					}
 
@@ -535,7 +540,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 				if(driversToAdd.Count == 0)
 				{
-					_logger.Warn("Не осталось водителей для добавленя экспедиторов.");
+					_logger.LogWarning("Не осталось водителей для добавленя экспедиторов.");
 					break;
 				}
 
@@ -690,7 +695,7 @@ namespace Vodovoz.Dialogs.Logistic
 		private void SelectDrivers_OnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
 		{
 			var addDrivers = e.SelectedNodes;
-			_logger.Info("Получаем авто для водителей...");
+			_logger.LogInformation("Получаем авто для водителей...");
 			var onlyNew = addDrivers.Where(x => _driversAtDay.All(y => y.Employee.Id != x.Id)).ToList();
 			_hasNewDrivers = onlyNew.Any();
 			var allCars = _carRepository.GetCarsByDrivers(UoW, onlyNew.Select(x => x.Id).ToArray());
@@ -703,7 +708,7 @@ namespace Vodovoz.Dialogs.Logistic
 			{
 				if(_driversAtDay.Any(x => x.Employee.Id == driver.Id))
 				{
-					_logger.Warn($"Водитель {driver.ShortName} уже добавлен. Пропускаем...");
+					_logger.LogWarning("Водитель {DriverName} уже добавлен. Пропускаем...", driver.ShortName);
 					continue;
 				}
 
@@ -716,7 +721,7 @@ namespace Vodovoz.Dialogs.Logistic
 			}
 
 			DriversAtDay = _driversAtDay.OrderBy(x => x.Employee.ShortName).ToList();
-			_logger.Info("Ок");
+			_logger.LogInformation("Ок");
 
 			SetButtonClearDriverScreenSensitive();
 			SetButtonCreateEmptyRouteListsSensitive();
@@ -737,7 +742,7 @@ namespace Vodovoz.Dialogs.Logistic
 			{
 				if(_forwardersAtDay.Any(x => x.Employee.Id == forwarder.Id))
 				{
-					_logger.Warn($"Экспедитор {forwarder.ShortName} пропущен так как уже присутствует в списке.");
+					_logger.LogWarning("Экспедитор {FrowarderName} пропущен так как уже присутствует в списке.", forwarder.ShortName);
 					continue;
 				}
 				_forwardersAtDay.Add(new AtWorkForwarder(forwarder, _filterViewModel.AtDate));
@@ -897,10 +902,10 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private void FillDialogAtDay()
 		{
-			_logger.Info("Загружаем экспедиторов на {0:d}...", _filterViewModel.AtDate);
+			_logger.LogInformation("Загружаем экспедиторов на {0:d}...", _filterViewModel.AtDate);
 			ForwardersAtDay = new EntityRepositories.Logistic.AtWorkRepository().GetForwardersAtDay(UoW, _filterViewModel.AtDate);
 
-			_logger.Info("Загружаем водителей на {0:d}...", _filterViewModel.AtDate);
+			_logger.LogInformation("Загружаем водителей на {0:d}...", _filterViewModel.AtDate);
 
 			var selectedGeographicGroupIds = _filterViewModel
 				.GeographicGroupNodes
@@ -930,7 +935,7 @@ namespace Vodovoz.Dialogs.Logistic
 					}
 			}
 
-			_logger.Info("Ок");
+			_logger.LogInformation("Ок");
 
 			CheckAndCorrectDistrictPriorities();
 			SetButtonClearDriverScreenSensitive();
