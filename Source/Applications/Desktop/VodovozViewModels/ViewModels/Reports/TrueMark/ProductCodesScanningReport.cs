@@ -5,7 +5,6 @@ using NHibernate.Transform;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
-using QS.Utilities.Text;
 using System;
 using System.Collections.Generic;
 using System.Linq;

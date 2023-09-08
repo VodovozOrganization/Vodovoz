@@ -1,7 +1,4 @@
 ﻿using ClosedXML.Excel;
-using DocumentFormat.OpenXml.Spreadsheet;
-using DocumentFormat.OpenXml.Wordprocessing;
-using FluentNHibernate.Automapping;
 using Gamma.Binding.Core.RecursiveTreeConfig;
 using NHibernate;
 using NHibernate.Criterion;
