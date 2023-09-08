@@ -12,6 +12,7 @@ using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Services;
+using QS.Services;
 using QS.Tdi;
 using System;
 using System.Collections.Generic;
@@ -50,25 +51,29 @@ namespace Vodovoz.Dialogs.Logistic
 {
 	public partial class AtWorksDlg : TdiTabBase, ITdiDialog, ISingleUoWDialog
 	{
-		private readonly ILogger<AtWorksDlg> _logger;
-
-		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(new ParametersProvider());
-		private readonly IDefaultDeliveryDayScheduleSettings _defaultDeliveryDayScheduleSettings;
-		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory = new SubdivisionJournalFactory();
-		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private readonly ICarRepository _carRepository = new CarRepository();
-		private readonly IGeographicGroupRepository _geographicGroupRepository = new GeographicGroupRepository();
-		private readonly IScheduleRestrictionRepository _scheduleRestrictionRepository = new ScheduleRestrictionRepository();
-		private readonly IRouteListRepository _routeListRepository;
-		private readonly IAttachmentsViewModelFactory _attachmentsViewModelFactory = new AttachmentsViewModelFactory();
-		private readonly EmployeeFilterViewModel _forwarderFilter;
-		private IList<RouteList> _routelists = new List<RouteList>();
-		private readonly AtWorkFilterViewModel _filterViewModel;
-
 		private readonly Gdk.Pixbuf _vodovozCarIcon = Pixbuf.LoadFromResource("Vodovoz.icons.buttons.vodovoz-logo.png");
 		private readonly Gtk.Adjustment _driversAtWorksPriorityAdjustment = new Gtk.Adjustment(6, 1, 10, 1, 1, 1);
 
+		private readonly ILogger<AtWorksDlg> _logger;
+
+		private readonly IDefaultDeliveryDayScheduleSettings _defaultDeliveryDayScheduleSettings;
+		private readonly IEmployeeJournalFactory _employeeJournalFactory;
+		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
+		private readonly IEmployeeRepository _employeeRepository;
+		private readonly ICarRepository _carRepository;
+		private readonly IGeographicGroupRepository _geographicGroupRepository;
+		private readonly IScheduleRestrictionRepository _scheduleRestrictionRepository;
+		private readonly IRouteListRepository _routeListRepository;
+		private readonly IAttachmentsViewModelFactory _attachmentsViewModelFactory;
+		private readonly EmployeeFilterViewModel _forwarderFilter;
+		private readonly AtWorkFilterViewModel _filterViewModel;
+
+		private readonly Color _colorBackgroundDefault;
+		private readonly Color _colorForegroundDefault;
+		private readonly Color _colorForegroundInsensitive;
+		private readonly Color _colorLightRed;
+
+		private IList<RouteList> _routelists = new List<RouteList>();
 		private IList<AtWorkDriver> _driversAtDay;
 		private IList<AtWorkForwarder> _forwardersAtDay;
 		private readonly HashSet<AtWorkDriver> _driversWithCommentChanged = new HashSet<AtWorkDriver>();
@@ -78,26 +83,46 @@ namespace Vodovoz.Dialogs.Logistic
 		private readonly bool _canReturnDriver;
 		private readonly DeliveryDaySchedule _defaultDeliveryDaySchedule;
 		private readonly IList<GeoGroup> _cachedGeographicGroups;
-		private readonly Color _colorBackgroundDefault;
-		private readonly Color _colorForegroundDefault;
-		private readonly Color _colorForegroundInsensitive;
-		private readonly Color _colorLightRed;
 
 		public AtWorksDlg(
 			ILogger<AtWorksDlg> logger,
 			IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings,
 			IEmployeeJournalFactory employeeJournalFactory,
-			IRouteListRepository routeListRepository)
+			IRouteListRepository routeListRepository,
+			ICarRepository carRepository,
+			IEmployeeRepository employeeRepository,
+			ISubdivisionJournalFactory subdivisionJournalFactory,
+			IGeographicGroupRepository geographicGroupRepository,
+			IScheduleRestrictionRepository scheduleRestrictionRepository,
+			IAttachmentsViewModelFactory attachmentsViewModelFactory,
+			IUserService userService,
+			IPermissionService permissionService)
 		{
+			if(userService is null)
+			{
+				throw new ArgumentNullException(nameof(userService));
+			}
+
+			if(permissionService is null)
+			{
+				throw new ArgumentNullException(nameof(permissionService));
+			}
+
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_defaultDeliveryDayScheduleSettings = defaultDeliveryDayScheduleSettings ?? throw new ArgumentNullException(nameof(defaultDeliveryDayScheduleSettings));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
+			_carRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
+			_geographicGroupRepository = geographicGroupRepository ?? throw new ArgumentNullException(nameof(geographicGroupRepository));
+			_scheduleRestrictionRepository = scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
+			_attachmentsViewModelFactory = attachmentsViewModelFactory ?? throw new ArgumentNullException(nameof(attachmentsViewModelFactory));
 
 			_filterViewModel = new AtWorkFilterViewModel(UoW, _geographicGroupRepository, CheckAndSaveBeforeСontinue);
 
-			int currentUserId = ServicesConfig.CommonServices.UserService.CurrentUserId;
-			_canReturnDriver = ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission("can_return_driver_to_work", currentUserId);
+			int currentUserId = userService.CurrentUserId;
+			_canReturnDriver = permissionService.ValidateUserPresetPermission("can_return_driver_to_work", currentUserId);
 
 			_defaultDeliveryDaySchedule =
 				UoW.GetById<DeliveryDaySchedule>(_defaultDeliveryDayScheduleSettings.GetDefaultDeliveryDayScheduleId());
