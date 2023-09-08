@@ -13,14 +13,11 @@ namespace Vodovoz.Filters.ViewModels
 		private bool _restrictOnlyWithoutStreet;
 		private int? _restrictDeliveryPointId;
 		private string _restrictCounterpartyNameLike;
-		private string _restrictDeliveryPointCompiledAddressLike;
-		private string _restrictDeliveryPointAddress1cLike;
-		private CompositeSearchViewModel _searchByAddressViewModel;
+		private readonly CompositeSearchViewModel _searchByAddressViewModel;
 
 		public DeliveryPointJournalFilterViewModel()
 		{
 			_searchByAddressViewModel = new CompositeSearchViewModel();
-
 			_searchByAddressViewModel.SearchInfoLabelText = "Адрес ТД:";
 			_searchByAddressViewModel.OnSearch += OnSearchByAddressViewModel;
 		}
@@ -57,18 +54,6 @@ namespace Vodovoz.Filters.ViewModels
 		{
 			get => _restrictCounterpartyNameLike;
 			set => SetField(ref _restrictCounterpartyNameLike, value);
-		}
-
-		public virtual string RestrictDeliveryPointCompiledAddressLike
-		{
-			get => _restrictDeliveryPointCompiledAddressLike;
-			set => SetField(ref _restrictDeliveryPointCompiledAddressLike, value);
-		}
-
-		public virtual string RestrictDeliveryPointAddress1cLike
-		{
-			get => _restrictDeliveryPointAddress1cLike;
-			set => SetField(ref _restrictDeliveryPointAddress1cLike, value);
 		}
 
 		private void OnSearchByAddressViewModel(object sender, EventArgs e)
