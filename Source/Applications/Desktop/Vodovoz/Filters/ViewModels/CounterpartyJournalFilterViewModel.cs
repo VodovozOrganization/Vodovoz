@@ -1,11 +1,13 @@
 ﻿using NHibernate.Transform;
 using QS.Project.Filter;
 using QS.RepresentationModel.GtkUI;
+using System;
 using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Retail;
 using Vodovoz.Representations;
+using Vodovoz.ViewModels.Widgets.Search;
 
 namespace Vodovoz.Filters.ViewModels
 {
@@ -26,10 +28,14 @@ namespace Vodovoz.Filters.ViewModels
 		private int? _counterpartyId;
 		private int? _counterpartyVodovozInternalId;
 		private string _counterpartyInn;
-		private string _deliveryPointAddressLike;
+		private readonly CompositeSearchViewModel _searchByAddressViewModel;
 
 		public CounterpartyJournalFilterViewModel()
 		{
+			_searchByAddressViewModel = new CompositeSearchViewModel();
+			_searchByAddressViewModel.SearchInfoLabelText = "Адрес ТД:";
+			_searchByAddressViewModel.OnSearch += OnSearchByAddressViewModel;
+
 			UpdateWith(
 				x => x.CounterpartyType,
 				x => x.ReasonForLeaving,
@@ -38,6 +44,8 @@ namespace Vodovoz.Filters.ViewModels
 				x => x.IsNeedToSendBillByEdo
 			);
 		}
+
+		public CompositeSearchViewModel SearchByAddressViewModel => _searchByAddressViewModel;
 
 		public virtual CounterpartyType? CounterpartyType {
 			get => _counterpartyType;
@@ -146,12 +154,6 @@ namespace Vodovoz.Filters.ViewModels
 			set => SetField(ref _counterpartyInn, value);
 		}
 
-		public string DeliveryPointAddressLike
-		{
-			get => _deliveryPointAddressLike;
-			set => SetField(ref _deliveryPointAddressLike, value);
-		}
-
 		private void UnsubscribeOnCheckChanged()
 		{
 			foreach (SalesChannelSelectableNode selectableSalesChannel in SalesChannels)
@@ -168,9 +170,20 @@ namespace Vodovoz.Filters.ViewModels
 			}
 		}
 
+		private void OnSearchByAddressViewModel(object sender, EventArgs e)
+		{
+			Update();
+		}
+
 		private void OnStatusCheckChanged(object sender, PropertyChangedEventArgs e)
 		{
 			Update();
+		}
+
+		public override void Dispose()
+		{
+			_searchByAddressViewModel.OnSearch -= OnSearchByAddressViewModel;
+			base.Dispose();
 		}
 	}
 }

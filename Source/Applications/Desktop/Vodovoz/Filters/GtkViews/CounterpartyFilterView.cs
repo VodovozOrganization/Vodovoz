@@ -5,6 +5,7 @@ using QS.Widgets;
 using Vodovoz.Domain.Client;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
+using Vodovoz.ViewWidgets.Search;
 using Key = Gdk.Key;
 
 namespace Vodovoz.Filters.GtkViews
@@ -71,6 +72,10 @@ namespace Vodovoz.Filters.GtkViews
 			{
 				frame2.Visible = false;
 			}
+
+			var searchByAddressView = new CompositeSearchView(ViewModel.SearchByAddressViewModel);
+			yhboxSearchByAddress.Add(searchByAddressView);
+			searchByAddressView.Show();
 		}
 
 		private void OnKeyReleased(object sender, KeyReleaseEventArgs args)
