@@ -4,7 +4,6 @@
 	{
 		public class Row
 		{
-			public int RowNumber { get; set; }
 			public string DriverFIO { get; set; }
 			public int TotalCodesCount { get; set; }
 			public int SuccessfullyScannedCodesCount { get; set; }

@@ -648,11 +648,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 				RenderTableTitleRow(worksheet, tableTitlesRowNumber);
 
 				var excelRowCounter = ++tableTitlesRowNumber;
-				foreach(var row in report.Rows)
+
+				for(int i = 0; i < report.Rows.Count; i++)
 				{
-					RenderReportRow(worksheet, excelRowCounter, row);
+					RenderReportRow(worksheet, excelRowCounter, report.Rows[i], i+1);
 					excelRowCounter++;
 				}
+
 				workbook.SaveAs(result.Path);
 			}
 		}
@@ -689,11 +691,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			RenderTableTitleCell(worksheet, rowNumber, colNumber++, "Недействительные коды, %");
 		}
 
-		private void RenderReportRow(IXLWorksheet worksheet, int rowNumber, ProductCodesScanningReport.Row values)
+		private void RenderReportRow(IXLWorksheet worksheet, int rowNumber, ProductCodesScanningReport.Row values, int dataNumber)
 		{
 			var colNumber = 1;
 
-			RenderNumericCell(worksheet, rowNumber, colNumber++, values.RowNumber);
+			RenderNumericCell(worksheet, rowNumber, colNumber++, dataNumber);
 			RenderStringCell(worksheet, rowNumber, colNumber++, values.DriverFIO);
 			RenderNumericCell(worksheet, rowNumber, colNumber++, values.TotalCodesCount);
 			RenderNumericCell(worksheet, rowNumber, colNumber++, values.SuccessfullyScannedCodesCount);
