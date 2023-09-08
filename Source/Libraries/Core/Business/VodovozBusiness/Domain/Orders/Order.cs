@@ -1552,7 +1552,7 @@ namespace Vodovoz.Domain.Orders
 
 			#region Валидация, если уже есть чек
 
-			var hasReceipts = _cashReceiptRepository.GetReceiptsForOrder(UoW, Id).Any();
+			var hasReceipts = _orderRepository.OrderHasSentReceipt(UoW, Id);
 
 			if(hasReceipts)
 			{
