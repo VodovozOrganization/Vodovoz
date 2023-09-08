@@ -692,6 +692,7 @@
     <Compile Include="TempAdapters\IOrderSelectorFactory.cs" />
     <Compile Include="TempAdapters\SearchHelper.cs" />
     <Compile Include="TempAdapters\SearchParameter.cs" />
+    <Compile Include="Widgets\Search\CompositeSearchViewModel.cs" />
     <Compile Include="Widgets\UndeliveredOrderViewModel.cs" />
     <Compile Include="Widgets\DeliveryFreeBalanceViewModel.cs" />
     <Compile Include="Widgets\AdditionalLoadingItemsViewModel.cs" />
