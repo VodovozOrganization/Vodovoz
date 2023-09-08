@@ -6,8 +6,6 @@ namespace Vodovoz.ViewWidgets.Search
 	{
 		private global::Gtk.HBox hboxSearch;
 
-		private global::Gamma.GtkWidgets.yLabel ylabelSearchInfo;
-
 		private global::Gamma.GtkWidgets.yEntry entrySearch1;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelSearchAnd;
@@ -37,16 +35,6 @@ namespace Vodovoz.ViewWidgets.Search
 			this.hboxSearch.Name = "hboxSearch";
 			this.hboxSearch.Spacing = 6;
 			// Container child hboxSearch.Gtk.Box+BoxChild
-			this.ylabelSearchInfo = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelSearchInfo.Name = "ylabelSearchInfo";
-			this.ylabelSearchInfo.Xalign = 1F;
-			this.ylabelSearchInfo.LabelProp = global::Mono.Unix.Catalog.GetString("Поиск ");
-			this.hboxSearch.Add(this.ylabelSearchInfo);
-			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hboxSearch[this.ylabelSearchInfo]));
-			w1.Position = 0;
-			w1.Expand = false;
-			w1.Fill = false;
-			// Container child hboxSearch.Gtk.Box+BoxChild
 			this.entrySearch1 = new global::Gamma.GtkWidgets.yEntry();
 			this.entrySearch1.WidthRequest = 50;
 			this.entrySearch1.CanFocus = true;
@@ -54,17 +42,17 @@ namespace Vodovoz.ViewWidgets.Search
 			this.entrySearch1.IsEditable = true;
 			this.entrySearch1.InvisibleChar = '•';
 			this.hboxSearch.Add(this.entrySearch1);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hboxSearch[this.entrySearch1]));
-			w2.Position = 1;
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hboxSearch[this.entrySearch1]));
+			w1.Position = 0;
 			// Container child hboxSearch.Gtk.Box+BoxChild
 			this.ylabelSearchAnd = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelSearchAnd.Name = "ylabelSearchAnd";
 			this.ylabelSearchAnd.LabelProp = global::Mono.Unix.Catalog.GetString("и");
 			this.hboxSearch.Add(this.ylabelSearchAnd);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hboxSearch[this.ylabelSearchAnd]));
-			w3.Position = 2;
-			w3.Expand = false;
-			w3.Fill = false;
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hboxSearch[this.ylabelSearchAnd]));
+			w2.Position = 1;
+			w2.Expand = false;
+			w2.Fill = false;
 			// Container child hboxSearch.Gtk.Box+BoxChild
 			this.entrySearch2 = new global::Gamma.GtkWidgets.yEntry();
 			this.entrySearch2.WidthRequest = 50;
@@ -73,17 +61,17 @@ namespace Vodovoz.ViewWidgets.Search
 			this.entrySearch2.IsEditable = true;
 			this.entrySearch2.InvisibleChar = '•';
 			this.hboxSearch.Add(this.entrySearch2);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hboxSearch[this.entrySearch2]));
-			w4.Position = 3;
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hboxSearch[this.entrySearch2]));
+			w3.Position = 2;
 			// Container child hboxSearch.Gtk.Box+BoxChild
 			this.ylabelSearchAnd2 = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelSearchAnd2.Name = "ylabelSearchAnd2";
 			this.ylabelSearchAnd2.LabelProp = global::Mono.Unix.Catalog.GetString("и");
 			this.hboxSearch.Add(this.ylabelSearchAnd2);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hboxSearch[this.ylabelSearchAnd2]));
-			w5.Position = 4;
-			w5.Expand = false;
-			w5.Fill = false;
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hboxSearch[this.ylabelSearchAnd2]));
+			w4.Position = 3;
+			w4.Expand = false;
+			w4.Fill = false;
 			// Container child hboxSearch.Gtk.Box+BoxChild
 			this.entrySearch3 = new global::Gamma.GtkWidgets.yEntry();
 			this.entrySearch3.WidthRequest = 50;
@@ -92,17 +80,17 @@ namespace Vodovoz.ViewWidgets.Search
 			this.entrySearch3.IsEditable = true;
 			this.entrySearch3.InvisibleChar = '•';
 			this.hboxSearch.Add(this.entrySearch3);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hboxSearch[this.entrySearch3]));
-			w6.Position = 5;
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hboxSearch[this.entrySearch3]));
+			w5.Position = 4;
 			// Container child hboxSearch.Gtk.Box+BoxChild
 			this.ylabelSearchAnd3 = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelSearchAnd3.Name = "ylabelSearchAnd3";
 			this.ylabelSearchAnd3.LabelProp = global::Mono.Unix.Catalog.GetString("и");
 			this.hboxSearch.Add(this.ylabelSearchAnd3);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hboxSearch[this.ylabelSearchAnd3]));
-			w7.Position = 6;
-			w7.Expand = false;
-			w7.Fill = false;
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hboxSearch[this.ylabelSearchAnd3]));
+			w6.Position = 5;
+			w6.Expand = false;
+			w6.Fill = false;
 			// Container child hboxSearch.Gtk.Box+BoxChild
 			this.entrySearch4 = new global::Gamma.GtkWidgets.yEntry();
 			this.entrySearch4.WidthRequest = 50;
@@ -111,36 +99,36 @@ namespace Vodovoz.ViewWidgets.Search
 			this.entrySearch4.IsEditable = true;
 			this.entrySearch4.InvisibleChar = '•';
 			this.hboxSearch.Add(this.entrySearch4);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hboxSearch[this.entrySearch4]));
-			w8.Position = 7;
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hboxSearch[this.entrySearch4]));
+			w7.Position = 6;
 			// Container child hboxSearch.Gtk.Box+BoxChild
 			this.buttonAddAnd = new global::Gamma.GtkWidgets.yButton();
 			this.buttonAddAnd.CanFocus = true;
 			this.buttonAddAnd.Name = "buttonAddAnd";
 			this.buttonAddAnd.UseUnderline = true;
 			this.buttonAddAnd.Label = global::Mono.Unix.Catalog.GetString("И");
-			global::Gtk.Image w9 = new global::Gtk.Image();
-			w9.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
-			this.buttonAddAnd.Image = w9;
+			global::Gtk.Image w8 = new global::Gtk.Image();
+			w8.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
+			this.buttonAddAnd.Image = w8;
 			this.hboxSearch.Add(this.buttonAddAnd);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hboxSearch[this.buttonAddAnd]));
-			w10.Position = 8;
-			w10.Expand = false;
-			w10.Fill = false;
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hboxSearch[this.buttonAddAnd]));
+			w9.Position = 7;
+			w9.Expand = false;
+			w9.Fill = false;
 			// Container child hboxSearch.Gtk.Box+BoxChild
 			this.buttonSearchClear = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSearchClear.TooltipMarkup = "Очистить";
 			this.buttonSearchClear.CanFocus = true;
 			this.buttonSearchClear.Name = "buttonSearchClear";
 			this.buttonSearchClear.UseUnderline = true;
-			global::Gtk.Image w11 = new global::Gtk.Image();
-			w11.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-clear", global::Gtk.IconSize.Menu);
-			this.buttonSearchClear.Image = w11;
+			global::Gtk.Image w10 = new global::Gtk.Image();
+			w10.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-clear", global::Gtk.IconSize.Menu);
+			this.buttonSearchClear.Image = w10;
 			this.hboxSearch.Add(this.buttonSearchClear);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hboxSearch[this.buttonSearchClear]));
-			w12.Position = 9;
-			w12.Expand = false;
-			w12.Fill = false;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hboxSearch[this.buttonSearchClear]));
+			w11.Position = 8;
+			w11.Expand = false;
+			w11.Fill = false;
 			this.Add(this.hboxSearch);
 			if ((this.Child != null))
 			{

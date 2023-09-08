@@ -26,6 +26,10 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gamma.GtkWidgets.yLabel ylabelDeliveryPointId;
 
+		private global::Gamma.GtkWidgets.yHBox yhbox1;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelDeliveryPointAddress;
+
 		private global::Gamma.GtkWidgets.yHBox yhboxSearchByAddress;
 
 		protected virtual void Build()
@@ -148,12 +152,30 @@ namespace Vodovoz.Filters.GtkViews
 			w10.Expand = false;
 			w10.Fill = false;
 			// Container child yvboxMain.Gtk.Box+BoxChild
+			this.yhbox1 = new global::Gamma.GtkWidgets.yHBox();
+			this.yhbox1.Name = "yhbox1";
+			this.yhbox1.Spacing = 6;
+			// Container child yhbox1.Gtk.Box+BoxChild
+			this.ylabelDeliveryPointAddress = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelDeliveryPointAddress.Name = "ylabelDeliveryPointAddress";
+			this.ylabelDeliveryPointAddress.LabelProp = global::Mono.Unix.Catalog.GetString("Адрес ТД:");
+			this.yhbox1.Add(this.ylabelDeliveryPointAddress);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.ylabelDeliveryPointAddress]));
+			w11.Position = 0;
+			w11.Expand = false;
+			w11.Fill = false;
+			// Container child yhbox1.Gtk.Box+BoxChild
 			this.yhboxSearchByAddress = new global::Gamma.GtkWidgets.yHBox();
 			this.yhboxSearchByAddress.Name = "yhboxSearchByAddress";
 			this.yhboxSearchByAddress.Spacing = 6;
-			this.yvboxMain.Add(this.yhboxSearchByAddress);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxSearchByAddress]));
-			w11.Position = 2;
+			this.yhbox1.Add(this.yhboxSearchByAddress);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.yhboxSearchByAddress]));
+			w12.Position = 1;
+			this.yvboxMain.Add(this.yhbox1);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhbox1]));
+			w13.Position = 2;
+			w13.Expand = false;
+			w13.Fill = false;
 			this.Add(this.yvboxMain);
 			if ((this.Child != null))
 			{
