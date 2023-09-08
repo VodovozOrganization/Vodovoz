@@ -143,9 +143,6 @@ namespace EmailPrepareWorker
 				{
 					var emailsToSend = _emailRepository.GetEmailsForPreparingOrderDocuments(unitOfWork);
 
-					//ДЛЯ ТЕСТА!!!
-					emailsToSend = emailsToSend.Where(x => x.EmailableDocument?.Order?.Comment == "test_email").ToList(); 
-
 					foreach(var counterpartyEmail in emailsToSend)
 					{
 						try

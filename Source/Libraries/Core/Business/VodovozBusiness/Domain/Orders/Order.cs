@@ -3307,9 +3307,6 @@ namespace Vodovoz.Domain.Orders
 			};
 
 			UoW.Save(updDocumentEmail);
-
-			//ДЛЯ ТЕСТА
-			ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Info, $"При сохранении изменений будет поставлено в очередь на отправку УПД на адрес {emailAddress.Address}");
 		}
 
 		public virtual void SetActualCountToSelfDelivery()
