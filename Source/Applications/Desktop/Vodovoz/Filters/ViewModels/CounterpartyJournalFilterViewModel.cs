@@ -33,7 +33,6 @@ namespace Vodovoz.Filters.ViewModels
 		public CounterpartyJournalFilterViewModel()
 		{
 			_searchByAddressViewModel = new CompositeSearchViewModel();
-			_searchByAddressViewModel.SearchInfoLabelText = "Адрес ТД:";
 			_searchByAddressViewModel.OnSearch += OnSearchByAddressViewModel;
 
 			UpdateWith(

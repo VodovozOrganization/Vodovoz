@@ -15,8 +15,16 @@ namespace Vodovoz.ViewWidgets.Search
 
 		private void Configure()
 		{
-			ylabelSearchInfo.Binding
-				.AddBinding(ViewModel, vm => vm.SearchInfoLabelText, w => w.Text)
+			ylabelSearchAnd.Binding
+				.AddFuncBinding(ViewModel, vm => vm.SearchEntryShownCount > 1, w => w.Visible)
+				.InitializeFromSource();
+
+			ylabelSearchAnd2.Binding
+				.AddFuncBinding(ViewModel, vm => vm.SearchEntryShownCount > 2, w => w.Visible)
+				.InitializeFromSource();
+
+			ylabelSearchAnd3.Binding
+				.AddFuncBinding(ViewModel, vm => vm.SearchEntryShownCount > 3, w => w.Visible)
 				.InitializeFromSource();
 
 			entrySearch1.Binding

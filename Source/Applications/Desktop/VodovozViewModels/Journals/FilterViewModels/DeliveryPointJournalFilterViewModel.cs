@@ -18,7 +18,6 @@ namespace Vodovoz.Filters.ViewModels
 		public DeliveryPointJournalFilterViewModel()
 		{
 			_searchByAddressViewModel = new CompositeSearchViewModel();
-			_searchByAddressViewModel.SearchInfoLabelText = "Адрес ТД:";
 			_searchByAddressViewModel.OnSearch += OnSearchByAddressViewModel;
 		}
 
