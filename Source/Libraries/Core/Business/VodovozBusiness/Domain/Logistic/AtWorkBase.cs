@@ -7,22 +7,23 @@ namespace Vodovoz.Domain.Logistic
 {
 	public abstract class AtWorkBase : PropertyChangedBase, IDomainObject
 	{
+		private Employee _employee;
+		private DateTime _date;
+
 		public virtual int Id { get; set; }
 
-		Employee employee;
-
 		[Display(Name = "Водитель")]
-		public virtual Employee Employee {
-			get { return employee; }
-			set { SetField(ref employee, value, () => Employee); }
+		public virtual Employee Employee
+		{
+			get => _employee;
+			set => SetField(ref _employee, value);
 		}
 
-		private DateTime date;
-
 		[Display(Name = "День")]
-		public virtual DateTime Date {
-			get { return date; }
-			set { SetField(ref date, value, () => Date); }
+		public virtual DateTime Date
+		{
+			get => _date;
+			set => SetField(ref _date, value);
 		}
 	}
 }

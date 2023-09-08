@@ -187,6 +187,7 @@ stage('Build'){
 						PublishBuild("${APP_PATH}/Backend/Workers/IIS/CashReceiptPrepareWorker/CashReceiptPrepareWorker.csproj")
 						PublishBuild("${APP_PATH}/Backend/Workers/IIS/CashReceiptSendWorker/CashReceiptSendWorker.csproj")
 						PublishBuild("${APP_PATH}/Backend/Workers/IIS/TrueMarkCodePoolCheckWorker/TrueMarkCodePoolCheckWorker.csproj")
+						//PublishBuild("${APP_PATH}/Backend/Workers/Docker/PushNotificationsWorker/PushNotificationsWorker.csproj")
 					}
 					else if(CAN_BUILD_WEB)
 					{
@@ -247,6 +248,7 @@ stage('Compress'){
 		"CashReceiptPrepareWorker" : { CompressWebArtifact("Backend/Workers/IIS/CashReceiptPrepareWorker") },
 		"CashReceiptSendWorker" : { CompressWebArtifact("Backend/Workers/IIS/CashReceiptSendWorker") },
 		"TrueMarkCodePoolCheckWorker" : { CompressWebArtifact("Backend/Workers/IIS/TrueMarkCodePoolCheckWorker") },
+		//"PushNotificationsWorker" : { CompressWebArtifact("Backend/Workers/Docker/PushNotificationsWorker") },
 		"VodovozMangoService" : { CompressWebLinuxArtifact("Backend/WebAPI/VodovozMangoService") },
 
 		"VodovozSmsInformerService" : { CompressWcfArtifact("Backend/Workers/Mono/VodovozSmsInformerService") },
@@ -276,6 +278,7 @@ stage('Delivery'){
 		"CashReceiptPrepareWorker" : { DeliveryWebArtifact("CashReceiptPrepareWorker") },
 		"CashReceiptSendWorker" : { DeliveryWebArtifact("CashReceiptSendWorker") },
 		"TrueMarkCodePoolCheckWorker" : { DeliveryWebArtifact("TrueMarkCodePoolCheckWorker") },
+		//"PushNotificationsWorker" : { DeliveryWebArtifact("PushNotificationsWorker") },
 
 		"VodovozMangoService" : { DeliveryWebLinuxArtifact("VodovozMangoService") },
 
@@ -311,6 +314,7 @@ stage('Publish'){
 		"CashReceiptPrepareWorker" : { PublishWeb("CashReceiptPrepareWorker") },
 		"CashReceiptSendWorker" : { PublishWeb("CashReceiptSendWorker") },
 		"TrueMarkCodePoolCheckWorker" : { PublishWeb("TrueMarkCodePoolCheckWorker") },
+		//"PushNotificationsWorker" : { PublishWeb("PushNotificationsWorker") },
 		"VodovozMangoService" : { PublishWebLinux("VodovozMangoService") },
 		"SmsInformerService" : { PublishWCF("VodovozSmsInformerService") },
 		"SmsPaymentService" : { PublishWCF("VodovozSmsPaymentService") },
