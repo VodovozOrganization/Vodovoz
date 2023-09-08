@@ -124,16 +124,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 				query.Where(() => deliveryPointAlias.Id == FilterViewModel.RestrictDeliveryPointId);
 			}
 
-			if(FilterViewModel?.SearchByAddressViewModel?.SearchValues?.Any() == true)
-			{
-				foreach(var value in FilterViewModel?.SearchByAddressViewModel?.SearchValues)
-				{
-					query.Where(Restrictions.InsensitiveLike(
-						Projections.Property(() => deliveryPointAlias.CompiledAddress),
-						$"%{value}%"
-						));
-				}
-			}
+			query.Where(FilterViewModel?.SearchByAddressViewModel?.GetSearchCriterion(
+				() => deliveryPointAlias.CompiledAddress
+			));
 
 			query.Where(GetSearchCriterion(
 				() => deliveryPointAlias.Id,
