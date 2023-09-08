@@ -4040,7 +4040,9 @@ namespace Vodovoz
 
 		private void SendBill()
 		{
-			var document = Entity.OrderDocuments.FirstOrDefault(x => x.Type == OrderDocumentType.Bill || x.Type == OrderDocumentType.SpecialBill);
+			var document = Entity.OrderDocuments.FirstOrDefault(x => (x.Type == OrderDocumentType.Bill
+				|| x.Type == OrderDocumentType.SpecialBill)
+				&& x.Order.Id == Entity.Id);
 
 			if(document == null)
 			{
