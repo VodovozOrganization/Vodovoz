@@ -1,3 +1,5 @@
+﻿using NHibernate;
+using NHibernate.SqlCommand;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Utilities.Text;
@@ -38,53 +40,41 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 										 join cashReceipt in unitOfWork.Session.Query<CashReceipt>() on productCode.CashReceipt.Id equals cashReceipt.Id
 										 join routeListItem in unitOfWork.Session.Query<RouteListItem>() on cashReceipt.Order.Id equals routeListItem.Order.Id
 										 join routeList in unitOfWork.Session.Query<RouteList>() on routeListItem.RouteList.Id equals routeList.Id
-										 join driver in unitOfWork.Session.Query<Employee>() on routeList.Driver.Id equals driver.Id
-										 join trueMarkWaterIdentificationCode in unitOfWork.Session.Query<TrueMarkWaterIdentificationCode>() on productCode.SourceCode.Id equals trueMarkWaterIdentificationCode.Id
+										 join employee in unitOfWork.Session.Query<Employee>() on routeList.Driver.Id equals employee.Id
+										 into drivers
+										 from driver in drivers
+										 join trueMarkWaterIdentificationCode in unitOfWork.Session.Query<TrueMarkWaterIdentificationCode>() on productCode.SourceCode.Id equals trueMarkWaterIdentificationCode.Id 
 										 into trueMarkIdentificationCodes
 										 from trueMarkIdentificationCode in trueMarkIdentificationCodes.DefaultIfEmpty()
 										 where
 											 cashReceipt.CreateDate >= createDateFrom
 											 && cashReceipt.CreateDate < createDateTo.AddDays(1)
 											 && !cashReceipt.WithoutMarks
-										 let isProductCodeSingleDuplicated = productCode.IsDuplicateSourceCode
-												 && (productCode.DuplicatedIdentificationCodeId == null
-													 || unitOfWork.Session.Query<CashReceiptProductCode>()
-														 .Where(c => c.DuplicatedIdentificationCodeId == productCode.DuplicatedIdentificationCodeId)
-														 .Count() == 1)
-										 let isProductCodeMultiplyDuplicated = productCode.IsDuplicateSourceCode
-												 && productCode.DuplicatedIdentificationCodeId != null
-												 && unitOfWork.Session.Query<CashReceiptProductCode>()
-													.Where(c => c.DuplicatedIdentificationCodeId == productCode.DuplicatedIdentificationCodeId)
-													.Count() > 1
 										 select new ScannedCodeInfo
 										 {
 											 DriverId = driver.Id,
 											 DriverFIO = PersonHelper.PersonNameWithInitials(driver.LastName, driver.Name, driver.Patronymic),
-											 SourceCode = productCode.SourceCode,
+											 SourceCodeId = productCode.SourceCode.Id,
 											 DuplicatedCodeId = productCode.DuplicatedIdentificationCodeId,
-											 IsProductCodeSingleDuplicated = isProductCodeSingleDuplicated,
-											 IsProductCodeMultiplyDuplicated = isProductCodeMultiplyDuplicated,
+											 IsProductCodeSingleDuplicated = productCode.IsDuplicateSourceCode && productCode.DuplicatsCount <= 1,
+											 IsProductCodeMultiplyDuplicated = productCode.IsDuplicateSourceCode && productCode.DuplicatsCount > 1,
 											 IsDuplicateSourceCode = productCode.IsDuplicateSourceCode,
 											 IsUnscannedSourceCode = productCode.IsUnscannedSourceCode,
 											 IsDefectiveSourceCode = productCode.IsDefectiveSourceCode,
 											 IsInvalidSourceCode = trueMarkIdentificationCode != null && trueMarkIdentificationCode.IsInvalid
 										 }).ToList();
 
-			var groupedByDriverCodes = (from item in codesScannedByDrivers
-										group item by new { item.DriverId, item.DriverFIO } into groupedCodes
-										select new
-										{
-											Driver = groupedCodes.Key.DriverFIO,
-											ScannedCodes = groupedCodes.ToList()
-										}).ToList();
+			var groupedByDriverCodes = codesScannedByDrivers
+				.GroupBy(c => new { c.DriverId, c.DriverFIO })
+				.ToDictionary(g => g.Key.DriverFIO, g => g.ToList());
 
 			var rows = new List<Row>();
 			var counter = 1;
 
 			foreach(var item in groupedByDriverCodes)
 			{
-				var driver = item.Driver;
-				var codes = item.ScannedCodes;
+				var driver = item.Key;
+				var codes = item.Value;
 
 				var row = new Row();
 
@@ -110,7 +100,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 			.Where(c => !c.IsDuplicateSourceCode
 				&& !c.IsUnscannedSourceCode
 				&& !c.IsInvalidSourceCode
-				&& c.SourceCode != null)
+				&& c.SourceCodeId != null)
 			.Count();
 
 		private static int GetUnscannedCodesCount(List<ScannedCodeInfo> codes) =>
