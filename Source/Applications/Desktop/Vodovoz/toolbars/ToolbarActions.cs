@@ -680,13 +680,13 @@ public partial class MainWindow : Window
 
 	void ActionAtWorks_Activated(object sender, EventArgs e)
 	{
-		var employeeJournalFactory = new EmployeeJournalFactory();
-		var parametersProvider = new ParametersProvider();
+		var localScope = _autofacScope.BeginLifetimeScope();
+
+		var dlg = localScope.Resolve<AtWorksDlg>();
 
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<AtWorksDlg>(),
-			() => new AtWorksDlg(new BaseParametersProvider(parametersProvider), employeeJournalFactory)
-		);
+			() => dlg);
 	}
 
 	void ActionRouteListsAtDay_Activated(object sender, System.EventArgs e)
