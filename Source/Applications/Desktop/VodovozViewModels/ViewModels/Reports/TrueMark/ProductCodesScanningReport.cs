@@ -64,7 +64,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 			var isProductCodeSingleDuplicatedProjection = Projections.Conditional(
 				Restrictions.Conjunction()
 					.Add(() => cashReceiptProductCodeAlias.IsDuplicateSourceCode)
-					.Add(() => cashReceiptProductCodeAlias.DuplicatsCount <= 1),
+					.Add(() => cashReceiptProductCodeAlias.DuplicatesCount <= 1),
 				Projections.Constant(true),
 				Projections.Constant(false)
 				);
@@ -72,7 +72,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 			var isProductCodeMultiplyDuplicatedProjection = Projections.Conditional(
 				Restrictions.Conjunction()
 					.Add(() => cashReceiptProductCodeAlias.IsDuplicateSourceCode)
-					.Add(() => cashReceiptProductCodeAlias.DuplicatsCount > 1),
+					.Add(() => cashReceiptProductCodeAlias.DuplicatesCount > 1),
 				Projections.Constant(true),
 				Projections.Constant(false)
 				);

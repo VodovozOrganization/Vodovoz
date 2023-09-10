@@ -86,7 +86,7 @@ namespace Vodovoz.Domain.TrueMark
 		}
 
 		[Display(Name = "Кол-во дублей найдено на момент сохранения")]
-		public virtual int DuplicatsCount
+		public virtual int DuplicatesCount
 		{
 			get => _duplicatsCount;
 			set => SetField(ref _duplicatsCount, value);
