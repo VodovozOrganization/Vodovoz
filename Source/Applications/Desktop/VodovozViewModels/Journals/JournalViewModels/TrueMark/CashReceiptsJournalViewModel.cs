@@ -138,7 +138,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			}
 		}
 
-		[PropertyChangedAlso(nameof(CanCreateProductCodesScanningReportReport))]
 		public bool IsReportGeneratingInProcess
 		{
 			get => _isReportGeneratingInProcess;

@@ -166,8 +166,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 			.Where(c => c.IsInvalidSourceCode)
 			.Count();
 
-		#region Export report to xls
-				
+		#region Export report to Excel
+
 		public async Task ExportReportToExcelAsync(string path)
 		{
 			await Task.Run(() => ExportReportToExcel(path));
