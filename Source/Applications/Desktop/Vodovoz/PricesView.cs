@@ -17,8 +17,9 @@ namespace Vodovoz
 	public partial class PricesView : Gtk.Bin
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
-		private GenericObservableList<NomenclaturePriceBase> PricesList;
 		private IList<NomenclaturePriceBase> prices;
+		private uint RowNum;
+
 		public IList<NomenclaturePriceBase> Prices
 		{
 			get {
@@ -42,7 +43,7 @@ namespace Vodovoz
 			}
 		}
 
-		void OnEmailListElementRemoved (object aList, int[] aIdx, object aObject)
+		private void OnEmailListElementRemoved (object aList, int[] aIdx, object aObject)
 		{
 			Widget foundWidget = null;
 			foreach(Widget wid in datatablePrices.AllChildren)
@@ -63,7 +64,7 @@ namespace Vodovoz
 			RemoveRow(child.TopAttach);
 		}
 
-		void OnEmailListElementAdded (object aList, int[] aIdx)
+		private void OnEmailListElementAdded (object aList, int[] aIdx)
 		{
 			foreach(int i in aIdx)
 			{
@@ -71,13 +72,13 @@ namespace Vodovoz
 			}
 		}
 
-		uint RowNum;
-
 		public PricesView ()
 		{
 			this.Build ();
 			datatablePrices.NRows = RowNum = 0;
 		}
+		
+		public GenericObservableList<NomenclaturePriceBase> PricesList { get; private set; }
 
 		protected void OnButtonAddClicked (object sender, EventArgs e)
 		{

@@ -9,6 +9,7 @@ using QS.Views.GtkUI;
 using QSOrmProject;
 using QSWidgetLib;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Gamma.Binding;
@@ -56,25 +57,14 @@ namespace Vodovoz.Views.Goods
 			radioPrice.Toggled += OnRadioPriceToggled;
 
 			radioSitesAndApps.Toggled += OnSitesAndAppsToggled;
+			radioSitesAndApps.Binding
+				.AddBinding(ViewModel, vm => vm.ActiveSitesAndAppsTab, w => w.Active)
+				.InitializeFromSource();
 
 			#endregion
 
 			buttonSave.Clicked += (sender, args) =>
 			{
-				ViewModel.Entity.NomenclaturePrice.Clear();
-				foreach(var item in pricesView.Prices.Cast<NomenclaturePrice>())
-				{
-					item.Nomenclature = ViewModel.Entity;
-					ViewModel.Entity.NomenclaturePrice.Add(item);
-				}
-
-				ViewModel.Entity.AlternativeNomenclaturePrices.Clear();
-				foreach(var item in alternativePricesView.Prices.Cast<AlternativeNomenclaturePrice>())
-				{
-					item.Nomenclature = ViewModel.Entity;
-					ViewModel.Entity.AlternativeNomenclaturePrices.Add(item);
-				}
-
 				ViewModel.SaveCommand.Execute();
 			};
 			buttonSave.Sensitive = ViewModel.CanEdit;
@@ -417,12 +407,20 @@ namespace Vodovoz.Views.Goods
 			entityViewModelEntryNomenclature.CanEditReference = true;
 
 			pricesView.Prices = ViewModel.Entity.NomenclaturePrice.Cast<NomenclaturePriceBase>().ToList();
+			pricesView.PricesList.ElementAdded += PriceAdded;
+			pricesView.PricesList.ElementRemoved += PriceRemoved;
+			pricesView.PricesList.ElementChanged += PriceRowChanged;
 			pricesView.Sensitive = ViewModel.CanCreateAndArcNomenclatures && ViewModel.CanEdit;
 			pricesView.NomenclaturePriceType = NomenclaturePriceBase.NomenclaturePriceType.General;
 
 			alternativePricesView.Prices = ViewModel.Entity.AlternativeNomenclaturePrices.Cast<NomenclaturePriceBase>().ToList();
-			alternativePricesView.Sensitive = ViewModel.CanCreateAndArcNomenclatures && ViewModel.CanEditAlternativeNomenclaturePrices &&
-			                                  ViewModel.CanEdit;
+			alternativePricesView.PricesList.ElementAdded += PriceAdded;
+			alternativePricesView.PricesList.ElementRemoved += PriceRemoved;
+			alternativePricesView.PricesList.ElementChanged += PriceRowChanged;
+			alternativePricesView.Sensitive =
+				ViewModel.CanCreateAndArcNomenclatures
+				&& ViewModel.CanEditAlternativeNomenclaturePrices
+				&& ViewModel.CanEdit;
 			alternativePricesView.NomenclaturePriceType = NomenclaturePriceBase.NomenclaturePriceType.Alternative;
 
 			#region Вкладка изображения
@@ -453,6 +451,47 @@ namespace Vodovoz.Views.Goods
 
 			//make actions menu
 			ConfigureActionsMenu();
+		}
+
+		private void PriceRowChanged(object alist, int[] aidx)
+		{
+			ViewModel.SetNeedCheckOnlinePrices();
+		}
+
+		private void PriceAdded(object alist, int[] aidx)
+		{
+			var price = (alist as IList<NomenclaturePriceBase>)[aidx[0]];
+			
+			switch(price)
+			{
+				case NomenclaturePrice generalPrice:
+					generalPrice.Nomenclature = ViewModel.Entity;
+					ViewModel.Entity.NomenclaturePrice.Add(generalPrice);
+					ViewModel.AddNotKulerSaleOnlinePrice(generalPrice);
+					break;
+				case AlternativeNomenclaturePrice alternativePrice:
+					alternativePrice.Nomenclature = ViewModel.Entity;
+					ViewModel.Entity.AlternativeNomenclaturePrices.Add(alternativePrice);
+					ViewModel.AddKulerSaleOnlinePrice(alternativePrice);
+					break;
+			}
+
+			ViewModel.UpdateNomenclatureOnlinePricesNodes();
+		}
+		
+		private void PriceRemoved(object alist, int[] aidx, object aobject)
+		{
+			switch(aobject)
+			{
+				case NomenclaturePrice generalPrice:
+					ViewModel.Entity.NomenclaturePrice.Remove(generalPrice);
+					ViewModel.RemoveNotKulerSalePrices(generalPrice);
+					break;
+				case AlternativeNomenclaturePrice alternativePrice:
+					ViewModel.Entity.AlternativeNomenclaturePrices.Remove(alternativePrice);
+					ViewModel.RemoveKulerSalePrices(alternativePrice);
+					break;
+			}
 		}
 
 		private void ConfigureParametersForMobileApp()
@@ -755,5 +794,23 @@ namespace Vodovoz.Views.Goods
 
 		#endregion
 
+		public override void Dispose()
+		{
+			if(pricesView != null)
+			{
+				pricesView.PricesList.ElementAdded -= PriceAdded;
+				pricesView.PricesList.ElementRemoved -= PriceRemoved;
+				pricesView.PricesList.ElementChanged -= PriceRowChanged;
+			}
+
+			if(alternativePricesView != null)
+			{
+				alternativePricesView.PricesList.ElementAdded -= PriceAdded;
+				alternativePricesView.PricesList.ElementRemoved -= PriceRemoved;
+				alternativePricesView.PricesList.ElementChanged -= PriceRowChanged;
+			}
+			
+			base.Dispose();
+		}
 	}
 }

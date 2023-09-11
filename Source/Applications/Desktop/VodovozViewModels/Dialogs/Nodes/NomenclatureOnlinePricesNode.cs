@@ -4,7 +4,20 @@ namespace Vodovoz.ViewModels.Dialogs.Nodes
 {
 	public class NomenclatureOnlinePricesNode
 	{
-		public decimal MinCount { get; set; }
+		public decimal MinCount
+		{
+			get
+			{
+				if(MobileAppNomenclatureOnlinePrice != null)
+				{
+					return MobileAppNomenclatureOnlinePrice.NomenclaturePrice.MinCount;
+				}
+				
+				return KulerSaleWebSiteNomenclatureOnlinePrice != null
+					? KulerSaleWebSiteNomenclatureOnlinePrice.NomenclaturePrice.MinCount
+					: default(decimal);
+			}
+		}
 		public NomenclatureOnlinePrice MobileAppNomenclatureOnlinePrice { get; set; }
 		public NomenclatureOnlinePrice VodovozWebSiteNomenclatureOnlinePrice { get; set; }
 		public NomenclatureOnlinePrice KulerSaleWebSiteNomenclatureOnlinePrice { get; set; }
