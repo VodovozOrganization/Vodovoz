@@ -5,6 +5,7 @@ using NHibernate;
 using NHibernate.Criterion;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace Vodovoz.EntityRepositories.Store
 {
@@ -23,12 +24,17 @@ namespace Vodovoz.EntityRepositories.Store
 				.SingleOrDefault<int>();
 		}
 
-		public int GetSendedMovementDocumentsToWarehouseByUserSelectedWarehouses(IUnitOfWork uow, int[] warehousesIds)
+		public int GetSendedMovementDocumentsToWarehouseByUserSelectedWarehouses(IUnitOfWork uow, IEnumerable<int> warehousesIds, int currentUserSubdivisionId)
 		{
-			return uow.Session.QueryOver<MovementDocument>()
-				.Where(md => 
-				md.Status == MovementDocumentStatus.Sended
-				&& warehousesIds.Contains(md.ToWarehouse.Id))
+			MovementDocument movementDocumentAlias = null;
+			Warehouse warehouseAlias = null;
+
+			return uow.Session.QueryOver(() => movementDocumentAlias)
+				//.JoinEntityAlias(() => warehouseAlias,
+				//	() => warehouseAlias.MovementDocumentsNotificationsSubdivisionRecipient.Id == currentUserSubdivisionId)
+				.Where(md => md.Status == MovementDocumentStatus.Sended)
+				.And(md => md.ToWarehouse.Id != 13)// warehouseAlias.Id)
+				.AndRestrictionOn(() => movementDocumentAlias.ToWarehouse.Id).IsInG(warehousesIds)
 				.Select(Projections.Count(Projections.Id()))
 				.SingleOrDefault<int>();
 		}
