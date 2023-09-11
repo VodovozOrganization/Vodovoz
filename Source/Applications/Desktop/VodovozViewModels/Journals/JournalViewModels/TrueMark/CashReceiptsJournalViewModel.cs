@@ -23,6 +23,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Models.TrueMark;
+using Vodovoz.Tools;
 using Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
 using Vodovoz.ViewModels.ViewModels.Reports.TrueMark;
@@ -646,6 +647,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			}
 
 			var dialogSettings = new DialogSettings();
+			dialogSettings.Title = "Сохранить";
+			dialogSettings.FileName = typeof(ProductCodesScanningReport).GetClassUserFriendlyName().Nominative 
+				+ $" с {Filter.StartDate:dd.MM.yyyy} по {Filter.EndDate.Value.Date:dd.MM.yyyy}";
 			dialogSettings.DefaultFileExtention = ".xlsx";
 			dialogSettings.FileFilters.Clear();
 			dialogSettings.FileFilters.Add(new DialogFileFilter("Excel", ".xlsx"));
