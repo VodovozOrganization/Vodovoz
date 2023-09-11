@@ -25,7 +25,7 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 
 		public override SendEmailMessageBuilder AddFromContact()
 		{
-			SendingMessage.From = new EmailContact
+			_sendEmailMessage.From = new EmailContact
 			{
 				Name = _emailParametersProvider.DocumentEmailSenderName,
 				Email = _emailParametersProvider.EmailSenderAddressForUpd
@@ -43,7 +43,7 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 				_emailDocumentPreparer.PrepareDocument(document, _counterpartyEmail.Type)
 			};
 
-			SendingMessage.Attachments = attachments;
+			_sendEmailMessage.Attachments = attachments;
 
 			return this;
 		}

@@ -15,7 +15,7 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 		private readonly CounterpartyEmail _counterpartyEmail;
 		private readonly int _instanceId;
 
-		protected SendEmailMessage SendingMessage;
+		protected SendEmailMessage _sendEmailMessage = new();
 
 		public SendEmailMessageBuilder(IEmailParametersProvider emailParametersProvider, IEmailDocumentPreparer emailDocumentPreparer,
 			CounterpartyEmail counterpartyEmail, int instanceId)
@@ -26,14 +26,14 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 			_instanceId = instanceId;
 		}
 
-		public SendEmailMessage Build() => SendingMessage;
+		public SendEmailMessage Build() => _sendEmailMessage;
 
 
 		public static implicit operator SendEmailMessage(SendEmailMessageBuilder builder) => builder.Build();
 
 		public virtual SendEmailMessageBuilder AddFromContact()
 		{
-			SendingMessage.From = new EmailContact
+			_sendEmailMessage.From = new EmailContact
 			{
 				Name = _emailParametersProvider.DocumentEmailSenderName,
 				Email = _emailParametersProvider.DocumentEmailSenderAddress
@@ -44,7 +44,7 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 
 		public virtual SendEmailMessageBuilder AddToContact()
 		{
-			SendingMessage.To = new List<EmailContact>
+			_sendEmailMessage.To = new List<EmailContact>
 			{
 				new()
 				{
@@ -61,9 +61,9 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 			var document = _counterpartyEmail.EmailableDocument;
 			var template = document.GetEmailTemplate();
 
-			SendingMessage.Subject = $"{template.Title} {document.Title}";
-			SendingMessage.TextPart = template.Text;
-			SendingMessage.HTMLPart = template.TextHtml;
+			_sendEmailMessage.Subject = $"{template.Title} {document.Title}";
+			_sendEmailMessage.TextPart = template.Text;
+			_sendEmailMessage.HTMLPart = template.TextHtml;
 
 			return this;
 		}
@@ -87,21 +87,21 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 				});
 			}
 
-			SendingMessage.InlinedAttachments = inlinedAttachments;
+			_sendEmailMessage.InlinedAttachments = inlinedAttachments;
 
 			var attachments = new List<Mailjet.Api.Abstractions.EmailAttachment>
 			{
 				_emailDocumentPreparer.PrepareDocument(document, _counterpartyEmail.Type)
 			};
 
-			SendingMessage.Attachments = attachments;
+			_sendEmailMessage.Attachments = attachments;
 
 			return this;
 		}
 
 		public virtual SendEmailMessageBuilder AddPayload()
 		{
-			SendingMessage.Payload = new EmailPayload
+			_sendEmailMessage.Payload = new EmailPayload
 			{
 				Id = _counterpartyEmail.StoredEmail.Id,
 				Trackable = true,
