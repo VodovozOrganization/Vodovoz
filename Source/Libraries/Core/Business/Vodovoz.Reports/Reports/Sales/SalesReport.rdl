@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -726,7 +726,7 @@ FROM
        AND (delivery_date &gt;= @start_date
          AND delivery_date &lt;= @end_date)
        AND !orders.is_contract_closer
-  AND (
+       AND (
              (0 IN (@Nomenclature_include) OR (nomenclature.id IN (@Nomenclature_include)))
 				AND NOT (nomenclature.id IN (@Nomenclature_exclude))
          )
@@ -784,7 +784,7 @@ FROM
          	(
          		('0' IN (@PaymentType_include) OR NOT ('0' IN (@PaymentFrom_include)))
                 AND orders.payment_type = 'PaidOnline'
-                AND NOT ('PaidOnline' IN (@PaymentFrom_exclude))
+                AND NOT ('PaidOnline' IN (@PaymentType_exclude))
                 AND (0 IN (@PaymentFrom_include) OR orders.payment_from_id IN (@PaymentFrom_include))
          		AND NOT (orders.payment_from_id IN (@PaymentFrom_exclude))
          	)
@@ -798,7 +798,7 @@ FROM
 				AND NOT (IFNULL(nomenclature_groups.id, 0) IN (@ProductGroup_exclude))
          )
        AND (
-	        (
+            (
             (
               (
                 (
@@ -827,7 +827,7 @@ FROM
          )
      GROUP BY order_items.id
     ) as T
-GROUP BY nomenclature_id
+GROUP BY T.order_items_id
 ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
