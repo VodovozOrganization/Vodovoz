@@ -227,6 +227,7 @@ namespace Vodovoz.Domain.Employees
 			set => SetField(ref _salesBySubdivisionsAnalitycsReportSubdivisionsString, value);
 		}
 
+		[Display(Name = "Выбранные пользователем склады для отслеживания наличия перемещений ожидающих приемки")]
 		public virtual string MovementDocumentsNotificationUserSelectedWarehousesString
 		{
 			get => _movementDocumentsNotificationUserSelectedWarehousesString;
