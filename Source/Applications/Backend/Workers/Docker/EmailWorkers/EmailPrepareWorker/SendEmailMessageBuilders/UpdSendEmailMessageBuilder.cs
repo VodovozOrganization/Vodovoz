@@ -2,7 +2,6 @@
 using Mailjet.Api.Abstractions;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Parameters;
 using EmailAttachment = Mailjet.Api.Abstractions.EmailAttachment;
@@ -24,25 +23,29 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 			_counterpartyEmail = counterpartyEmail ?? throw new ArgumentNullException(nameof(counterpartyEmail));
 		}
 
-		public override void BuildFromContact()
+		public override SendEmailMessageBuilder AddFromContact()
 		{
 			SendingMessage.From = new EmailContact
 			{
 				Name = _emailParametersProvider.DocumentEmailSenderName,
 				Email = _emailParametersProvider.EmailSenderAddressForUpd
 			};
+
+			return this;
 		}
 
-		public override async Task BuildAttachment()
+		public override SendEmailMessageBuilder AddAttachment()
 		{
 			var document = _counterpartyEmail.EmailableDocument;
 
 			var attachments = new List<EmailAttachment>
 			{
-				await _emailDocumentPreparer.PrepareDocument(document, _counterpartyEmail.Type)
+				_emailDocumentPreparer.PrepareDocument(document, _counterpartyEmail.Type)
 			};
 
 			SendingMessage.Attachments = attachments;
+
+			return this;
 		}
 	}
 }

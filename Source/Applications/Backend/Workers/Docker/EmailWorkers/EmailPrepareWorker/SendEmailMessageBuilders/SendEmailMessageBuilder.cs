@@ -3,7 +3,6 @@ using Mailjet.Api.Abstractions;
 using RabbitMQ.MailSending;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Parameters;
 
@@ -11,8 +10,6 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 {
 	public class SendEmailMessageBuilder
 	{
-		private protected SendEmailMessage SendingMessage { get; } = new();
-		public SendEmailMessage ResultSendEmailMessage => SendingMessage;
 		private readonly IEmailParametersProvider _emailParametersProvider;
 		private readonly IEmailDocumentPreparer _emailDocumentPreparer;
 		private readonly CounterpartyEmail _counterpartyEmail;
@@ -27,16 +24,27 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 			_instanceId = instanceId;
 		}
 
-		public virtual void BuildFromContact()
+		public SendEmailMessage Build() => SendingMessage;
+
+
+		public static implicit operator SendEmailMessage(SendEmailMessageBuilder builder) => builder.Build();
+
+
+		protected SendEmailMessage SendingMessage = new();
+
+
+		public virtual SendEmailMessageBuilder AddFromContact()
 		{
 			SendingMessage.From = new EmailContact
 			{
 				Name = _emailParametersProvider.DocumentEmailSenderName,
 				Email = _emailParametersProvider.DocumentEmailSenderAddress
 			};
+
+			return this;
 		}
 
-		public virtual void BuildToContact()
+		public virtual SendEmailMessageBuilder AddToContact()
 		{
 			SendingMessage.To = new List<EmailContact>
 			{
@@ -46,9 +54,11 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 					Email = _counterpartyEmail.StoredEmail.RecipientAddress
 				}
 			};
+
+			return this;
 		}
 
-		public virtual void BuildTemplate()
+		public virtual SendEmailMessageBuilder AddTemplate()
 		{
 			var document = _counterpartyEmail.EmailableDocument;
 			var template = document.GetEmailTemplate();
@@ -56,9 +66,11 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 			SendingMessage.Subject = $"{template.Title} {document.Title}";
 			SendingMessage.TextPart = template.Text;
 			SendingMessage.HTMLPart = template.TextHtml;
+
+			return this;
 		}
 
-		public virtual async Task BuildAttachment()
+		public virtual SendEmailMessageBuilder AddAttachment()
 		{
 			var inlinedAttachments = new List<InlinedEmailAttachment>();
 
@@ -81,13 +93,15 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 
 			var attachments = new List<Mailjet.Api.Abstractions.EmailAttachment>
 			{
-				await _emailDocumentPreparer.PrepareDocument(document, _counterpartyEmail.Type)
+				_emailDocumentPreparer.PrepareDocument(document, _counterpartyEmail.Type)
 			};
 
 			SendingMessage.Attachments = attachments;
+
+			return this;
 		}
 
-		public virtual void BuildPayload()
+		public virtual SendEmailMessageBuilder AddPayload()
 		{
 			SendingMessage.Payload = new EmailPayload
 			{
@@ -95,6 +109,8 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 				Trackable = true,
 				InstanceId = _instanceId
 			};
+
+			return this;
 		}
 	}
 }

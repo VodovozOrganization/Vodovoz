@@ -13,7 +13,7 @@ namespace EmailPrepareWorker.Prepares
 {
 	public class EmailDocumentPreparer : IEmailDocumentPreparer
 	{
-		public async Task<EmailAttachment> PrepareDocument(IEmailableDocument document, CounterpartyEmailType counterpartyEmailType)
+		public EmailAttachment PrepareDocument(IEmailableDocument document, CounterpartyEmailType counterpartyEmailType)
 		{
 			bool wasHideSignature;
 			ReportInfo ri;
@@ -43,13 +43,12 @@ namespace EmailPrepareWorker.Prepares
 
 			fileName += $"_{documentDate}.pdf";
 
-			return await new ValueTask<EmailAttachment>(
-				new EmailAttachment
-				{
-					Filename = fileName,
-					ContentType = "application/pdf",
-					Base64Content = Convert.ToBase64String(stream.GetBuffer())
-				});
+			return new EmailAttachment
+			{
+				Filename = fileName,
+				ContentType = "application/pdf",
+				Base64Content = Convert.ToBase64String(stream.GetBuffer())
+			};
 		}
 	}
 }

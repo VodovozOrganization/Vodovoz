@@ -5,6 +5,6 @@ namespace EmailPrepareWorker.Prepares
 {
 	public interface IEmailSendMessagePreparer
 	{
-		Task<byte[]> PrepareMessage(SendEmailMessageBuilder builder);
+		byte[] PrepareMessage(SendEmailMessageBuilder builder);
 	}
 }

@@ -132,9 +132,8 @@ namespace EmailPrepareWorker
 			return base.StopAsync(cancellationToken);
 		}
 
-		private async Task PrepareAndSendEmails()
+		private Task PrepareAndSendEmails()
 		{
-			byte[] sendingBody = null;
 			SendEmailMessageBuilder emailSendMessageBuilder = null;
 			
 			try
@@ -180,7 +179,7 @@ namespace EmailPrepareWorker
 								}
 							}
 
-							sendingBody = await _emailSendMessagePreparer.PrepareMessage(emailSendMessageBuilder);
+							var sendingBody = _emailSendMessagePreparer.PrepareMessage(emailSendMessageBuilder);
 
 							var properties = _channel.CreateBasicProperties();
 							properties.Persistent = true;
@@ -202,6 +201,8 @@ namespace EmailPrepareWorker
 			{
 				_logger.LogError(ex.Message);
 			}
+
+			return Task.CompletedTask;
 		}
 	}
 }

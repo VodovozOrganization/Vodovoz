@@ -1,21 +1,23 @@
 ﻿using EmailPrepareWorker.SendEmailMessageBuilders;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
+using RabbitMQ.MailSending;
 
 namespace EmailPrepareWorker.Prepares
 {
 	public class EmailSendMessagePreparer : IEmailSendMessagePreparer
 	{
-		public async Task<byte[]> PrepareMessage(SendEmailMessageBuilder builder)
+		public byte[] PrepareMessage(SendEmailMessageBuilder builder)
 		{
-			builder.BuildFromContact();
-			builder.BuildToContact();
-			builder.BuildTemplate();
-			await builder.BuildAttachment();
-			builder.BuildPayload();
+			builder.AddFromContact()
+				.AddToContact()
+				.AddTemplate()
+				.AddAttachment()
+				.AddPayload();
 
-			var serializedMessage = JsonSerializer.Serialize(builder.ResultSendEmailMessage);
+			SendEmailMessage message = builder;
+
+			var serializedMessage = JsonSerializer.Serialize(message);
 			var sendingBody = Encoding.UTF8.GetBytes(serializedMessage);
 
 			return sendingBody;
