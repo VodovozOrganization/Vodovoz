@@ -23,8 +23,9 @@ namespace Vodovoz.Infrastructure.Converters
 			{
 				return null;
 			}
-			
-			if(targetType == typeof(decimal?) && decimal.TryParse(value.ToString(), NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var number))
+
+			if(targetType == typeof(decimal?) && decimal.TryParse(value.ToString(), NumberStyles.AllowDecimalPoint,
+					CultureInfo.InvariantCulture, out var number))
 			{
 				return number;
 			}

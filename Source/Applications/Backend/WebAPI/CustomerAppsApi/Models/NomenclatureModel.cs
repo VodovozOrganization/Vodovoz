@@ -9,18 +9,18 @@ namespace CustomerAppsApi.Models
 {
 	public class NomenclatureModel : INomenclatureModel
 	{
-		private readonly IUnitOfWork _uow;
+		private readonly IUnitOfWork _unitOfWork;
 		private readonly INomenclatureOnlineParametersController _nomenclatureOnlineParametersController;
 		private readonly ISourceConverter _sourceConverter;
 		private readonly INomenclatureFactory _nomenclatureFactory;
 
 		public NomenclatureModel(
-			IUnitOfWork uow,
+			IUnitOfWork unitOfWork,
 			INomenclatureOnlineParametersController nomenclatureOnlineParametersController,
 			ISourceConverter sourceConverter,
 			INomenclatureFactory nomenclatureFactory)
 		{
-			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
+			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 			_nomenclatureOnlineParametersController =
 				nomenclatureOnlineParametersController ?? throw new ArgumentNullException(nameof(nomenclatureOnlineParametersController));
 			_sourceConverter = sourceConverter ?? throw new ArgumentNullException(nameof(sourceConverter));
@@ -30,7 +30,7 @@ namespace CustomerAppsApi.Models
 		public NomenclaturesPricesAndStockDto GetNomenclaturesPricesAndStocks(Source source)
 		{
 			var parameterType = _sourceConverter.ConvertToNomenclatureOnlineParameterType(source);
-			var parametersData = _nomenclatureOnlineParametersController.GetNomenclaturesOnlineParametersForSend(_uow, parameterType);
+			var parametersData = _nomenclatureOnlineParametersController.GetNomenclaturesOnlineParametersForSend(_unitOfWork, parameterType);
 
 			return _nomenclatureFactory.CreateNomenclaturesPricesAndStockDto(parametersData);
 		}

@@ -45,7 +45,7 @@ namespace CustomerAppsApi
 {
 	public class Startup
 	{
-		private const string _nLogSectionName = "NLog";
+		private const string _nLogSectionName = nameof(NLog);
 
 		public Startup(IConfiguration configuration)
 		{

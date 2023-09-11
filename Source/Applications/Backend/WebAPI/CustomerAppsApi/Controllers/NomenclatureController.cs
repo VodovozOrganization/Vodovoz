@@ -34,9 +34,9 @@ namespace CustomerAppsApi.Controllers
 				_logger.LogInformation("Поступил запрос на выборку цен и остатков от источника {Source}", sourceName);
 				var now = DateTime.Now;
 				var lastRequestTime = _requestTimes.GetOrAdd(source, now);
-				var passedTime = lastRequestTime == now ? 0d : (now - lastRequestTime).TotalMinutes;
+				var passedTimeMinutes = lastRequestTime == now ? 0d : (now - lastRequestTime).TotalMinutes;
 
-				if(passedTime > 0 && passedTime < 1)
+				if(passedTimeMinutes > 0 && passedTimeMinutes < 1)
 				{
 					_logger.LogInformation("Превышен интервал обращений для источника {Source}", sourceName);
 					return new NomenclaturesPricesAndStockDto
