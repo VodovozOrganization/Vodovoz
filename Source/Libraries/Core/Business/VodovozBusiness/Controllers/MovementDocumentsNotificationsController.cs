@@ -1,9 +1,9 @@
-﻿using Vodovoz.EntityRepositories.Store;
-using System;
+﻿using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
-using QS.DomainModel.NotifyChange;
-using Vodovoz.Domain.Documents;
+using System;
+using System.Collections.Generic;
 using Vodovoz.Domain.Documents.MovementDocuments;
+using Vodovoz.EntityRepositories.Store;
 
 namespace Vodovoz.Controllers
 {
@@ -14,18 +14,21 @@ namespace Vodovoz.Controllers
 		private readonly IWarehouseRepository _warehouseRepository;
 		private readonly IMovementDocumentRepository _movementDocumentRepository;
 		private readonly int _subdivisionIdForNotify;
+		private readonly IEnumerable<int> _userSelectedWarehouses;
 
 		public MovementDocumentsNotificationsController(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IWarehouseRepository warehouseRepository,
 			IMovementDocumentRepository movementDocumentRepository,
-			int subdivisionIdForNotify)
+			int subdivisionIdForNotify,
+			IEnumerable<int> userSelectedWarehouses)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
 			_movementDocumentRepository =
 			 movementDocumentRepository ?? throw new ArgumentNullException(nameof(movementDocumentRepository));
 			_subdivisionIdForNotify = subdivisionIdForNotify;
+			_userSelectedWarehouses = userSelectedWarehouses ?? throw new ArgumentNullException(nameof(userSelectedWarehouses));
 		}
 
 		public event Action<string> UpdateNotificationAction;
@@ -47,7 +50,12 @@ namespace Vodovoz.Controllers
 
 		public string GetNotificationMessageBySubdivision(IUnitOfWork uow)
 		{
-			return GetNotificationMessage(GetSendedMovementDocumentsToWarehouseBySubdivision(uow));
+			var notificationsBySubdivisionCount = GetSendedMovementDocumentsToWarehouseBySubdivision(uow);
+			var notificationsBySelectedWarehousesCount = GetSendedMovementDocumentsToWarehouseByUserSelectedWarehouses(uow, _userSelectedWarehouses);
+
+			var totalNotificationsCount = notificationsBySubdivisionCount + notificationsBySelectedWarehousesCount;
+
+			return GetNotificationMessage(totalNotificationsCount);
 		}
 
 		private bool NeedNotifyEmployee(IUnitOfWork uow)
@@ -58,6 +66,11 @@ namespace Vodovoz.Controllers
 		private int GetSendedMovementDocumentsToWarehouseBySubdivision(IUnitOfWork uow)
 		{
 			return _movementDocumentRepository.GetSendedMovementDocumentsToWarehouseBySubdivision(uow, _subdivisionIdForNotify);
+		}
+
+		private int GetSendedMovementDocumentsToWarehouseByUserSelectedWarehouses(IUnitOfWork uow, IEnumerable<int> selectedWarehouses)
+		{
+			return _movementDocumentRepository.GetSendedMovementDocumentsToWarehouseByUserSelectedWarehouses(uow, selectedWarehouses, _subdivisionIdForNotify);
 		}
 
 		private string GetNotificationMessage(int sendedMovements)

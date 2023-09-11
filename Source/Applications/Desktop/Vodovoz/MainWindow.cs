@@ -11,6 +11,7 @@ using QS.Validation;
 using QSBanks;
 using QSProjectsLib;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Vodovoz;
@@ -39,6 +40,7 @@ public partial class MainWindow : Gtk.Window
 	private readonly IComplaintNotificationController _complaintNotificationController;
 	private readonly bool _hasAccessToSalariesForLogistics;
 	private readonly int _currentUserSubdivisionId;
+	private readonly IEnumerable<int> _curentUserMovementDocumentsNotificationWarehouses;
 	private readonly bool _hideComplaintsNotifications;
 
 	private bool _accessOnlyToWarehouseAndComplaints;
@@ -208,7 +210,11 @@ public partial class MainWindow : Gtk.Window
 		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 		{
 			_currentUserSubdivisionId = GetEmployeeSubdivisionId(uow);
-			_movementsNotificationsController = _autofacScope.Resolve<IMovementDocumentsNotificationsController>(new TypedParameter(typeof(int), _currentUserSubdivisionId));
+			_curentUserMovementDocumentsNotificationWarehouses = CurrentUserSettings.Settings.MovementDocumentsNotificationUserSelectedWarehouses;
+			_movementsNotificationsController = _autofacScope
+				.Resolve<IMovementDocumentsNotificationsController>(
+					new TypedParameter(typeof(int), _currentUserSubdivisionId), 
+					new TypedParameter(typeof(IEnumerable<int>), _curentUserMovementDocumentsNotificationWarehouses));
 
 			var notificationDetails = _movementsNotificationsController.GetNotificationDetails(uow);
 			hboxMovementsNotification.Visible = notificationDetails.NeedNotify;
