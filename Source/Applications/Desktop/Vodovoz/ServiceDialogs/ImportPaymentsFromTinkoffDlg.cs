@@ -22,9 +22,11 @@ namespace Vodovoz.ServiceDialogs
 		private readonly IPaymentsRepository _paymentsRepository = new PaymentsRepository();
 		private PaymentsFromTinkoffParser _tinkoffParser;
 		private PaymentsFromYookassaParser _yookassaParser;
+		private PaymentsFromCloudPaymentsParser _cloudPaymentsParser;
 		private MenuItem _readTinkoff;
 		private MenuItem _readYookassa;
-        private Widget _readFileButton;
+		private MenuItem _readCloudPayments;
+		private Widget _readFileButton;
 
         GenericObservableList<PaymentByCardOnline> paymentsByCard;
 		List<string> errorList = new List<string>();
@@ -98,8 +100,13 @@ namespace Vodovoz.ServiceDialogs
 			_readYookassa.Activated += (sender, args) => ReadYookassaPayments();
 			_readYookassa.Sensitive = !string.IsNullOrEmpty(fChooser.Filename);
 
+			_readCloudPayments = new MenuItem("Прочитать выгрузку CloudPayments");
+			_readCloudPayments.Activated += (sender, args) => ReadCloudPayments();
+			_readCloudPayments.Sensitive = !string.IsNullOrEmpty(fChooser.Filename);
+
 			childActionButtons.Add(_readTinkoff);
 			childActionButtons.Add(_readYookassa);
+			childActionButtons.Add(_readCloudPayments);
 
 			childActionButtons.ShowAll();
 			menuButton.Menu = childActionButtons;
@@ -173,7 +180,23 @@ namespace Vodovoz.ServiceDialogs
 			paymentsByCard = new GenericObservableList<PaymentByCardOnline>(_yookassaParser.PaymentsFromYookassa);
 			ShowParsedPayments();
 		}
-		
+
+		void ReadCloudPayments()
+		{
+			var fileNameExtension = fChooser.Filename.Split(new[] { '.' }).Last();
+
+			if(fileNameExtension != "txt" && fileNameExtension != "csv")
+			{
+				MessageDialogHelper.RunErrorDialog($"Неверное расширение файла! Для выгрузки с CloudPayments нужен {fChooser.Filters[1].Name} или {fChooser.Filters[0].Name}.");
+				return;
+			}
+
+			_cloudPaymentsParser = new PaymentsFromCloudPaymentsParser(fChooser.Filename);
+			_cloudPaymentsParser.Parse();
+			paymentsByCard = new GenericObservableList<PaymentByCardOnline>(_cloudPaymentsParser.PaymentsFromCloudPayments);
+			ShowParsedPayments();
+		}
+
 		private void ShowParsedPayments()
 		{
 			InitializeListOfPayments();
@@ -233,6 +256,7 @@ namespace Vodovoz.ServiceDialogs
             _readFileButton.Sensitive = !string.IsNullOrWhiteSpace(fChooser.Filename);
 			_readTinkoff.Sensitive = !string.IsNullOrEmpty(fChooser.Filename);
 			_readYookassa.Sensitive = !string.IsNullOrEmpty(fChooser.Filename);
+			_readCloudPayments.Sensitive = !string.IsNullOrEmpty(fChooser.Filename);
 
 			btnUpload.Sensitive = false;
 			UpdateDescription();

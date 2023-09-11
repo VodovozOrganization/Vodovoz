@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -91,6 +91,7 @@
     <Compile Include="Domain\Orders\UndeliveryDetalization.cs" />
     <Compile Include="Domain\Orders\UndeliveryKind.cs" />
     <Compile Include="Domain\Orders\UndeliveryObject.cs" />
+    <Compile Include="Domain\Payments\PaymentsFromCloudPaymentsParser.cs" />
     <Compile Include="Domain\StoredEmails\UpdDocumentEmail.cs" />
     <Compile Include="EntityRepositories\Cash\FinancialExpenseCategoriesRepository.cs" />
     <Compile Include="EntityRepositories\Cash\FinancialIncomeCategoriesRepository.cs" />
