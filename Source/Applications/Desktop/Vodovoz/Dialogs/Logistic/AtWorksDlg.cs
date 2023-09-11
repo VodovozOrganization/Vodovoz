@@ -760,7 +760,7 @@ namespace Vodovoz.Dialogs.Logistic
 				toAdd.Add(atwork);
 			}
 
-			RefillDriversAtDay(DriversAtDay.Union(toAdd));
+			RefillDriversAtDay(DriversAtDay.Union(toAdd).ToArray());
 
 			_logger.LogInformation("Ок");
 
