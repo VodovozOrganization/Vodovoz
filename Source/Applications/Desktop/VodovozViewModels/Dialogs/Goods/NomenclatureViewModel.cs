@@ -142,13 +142,17 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 
 		public void RemoveNotKulerSalePrices(NomenclaturePrice price)
 		{
-			var mobileAppPrice =
-				MobileAppNomenclatureOnlineParameters.NomenclatureOnlinePrices
-					.SingleOrDefault(x => x.NomenclaturePrice.Equals(price));
+			var mobileAppPrice = price.Id == 0
+				? MobileAppNomenclatureOnlineParameters.NomenclatureOnlinePrices
+					.SingleOrDefault(x => x.NomenclaturePrice.Equals(price))
+				: MobileAppNomenclatureOnlineParameters.NomenclatureOnlinePrices
+					.SingleOrDefault(x => x.NomenclaturePrice.Id == price.Id);
 
-			var vodovozWebSitePrice =
-				VodovozWebSiteNomenclatureOnlineParameters.NomenclatureOnlinePrices
-					.SingleOrDefault(x => x.NomenclaturePrice.Equals(price));
+			var vodovozWebSitePrice = price.Id == 0
+				? VodovozWebSiteNomenclatureOnlineParameters.NomenclatureOnlinePrices
+					.SingleOrDefault(x => x.NomenclaturePrice.Equals(price))
+				: VodovozWebSiteNomenclatureOnlineParameters.NomenclatureOnlinePrices
+					.SingleOrDefault(x => x.NomenclaturePrice.Id == price.Id);
 			
 			MobileAppNomenclatureOnlineParameters.RemoveNomenclatureOnlinePrice(mobileAppPrice);
 			VodovozWebSiteNomenclatureOnlineParameters.RemoveNomenclatureOnlinePrice(vodovozWebSitePrice);
@@ -158,8 +162,10 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		
 		public void RemoveKulerSalePrices(AlternativeNomenclaturePrice alternativePrice)
 		{
-			var kulerSaleWebSitePrice =
-				KulerSaleWebSiteNomenclatureOnlineParameters.NomenclatureOnlinePrices
+			var kulerSaleWebSitePrice = alternativePrice.Id == 0
+				? KulerSaleWebSiteNomenclatureOnlineParameters.NomenclatureOnlinePrices
+					.SingleOrDefault(x => x.NomenclaturePrice.Equals(alternativePrice))
+				: KulerSaleWebSiteNomenclatureOnlineParameters.NomenclatureOnlinePrices
 					.SingleOrDefault(x => x.NomenclaturePrice.Id == alternativePrice.Id);
 
 			KulerSaleWebSiteNomenclatureOnlineParameters.RemoveNomenclatureOnlinePrice(kulerSaleWebSitePrice);
@@ -368,12 +374,10 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 							"Вы хотите переключиться на вкладку Сайты и приложения перед сохранением номенклатуры?"))
 						{
 							ActiveSitesAndAppsTab = true;
-							_needCheckOnlinePrices = false;
 							return;
 						}
 					}
 					
-					_needCheckOnlinePrices = false;
 					Save(true);
 				},
 				() => true
@@ -383,7 +387,16 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		public bool ActiveSitesAndAppsTab
 		{
 			get => _activeSitesAndAppsTab;
-			set => SetField(ref _activeSitesAndAppsTab, value);
+			set
+			{
+				if(SetField(ref _activeSitesAndAppsTab, value))
+				{
+					if(value)
+					{
+						_needCheckOnlinePrices = false;
+					}
+				}
+			}
 		}
 
 		#endregion
