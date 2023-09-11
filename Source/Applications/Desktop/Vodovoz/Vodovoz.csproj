@@ -1973,6 +1973,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.RouteListMaxFastDeliveryOrdersView.cs" />
     <Compile Include="Views\Settings\NamedDomainEntitiesSettingsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Settings.NamedDomainEntitiesSettingsView.cs" />
+    <Compile Include="ViewWidgets\Search\CompositeSearchView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Search.CompositeSearchView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1981,6 +1983,7 @@
     <Folder Include="QualityControl\" />
     <Folder Include="QualityControl\Reports\" />
     <Folder Include="ReportsParameters\Cash\" />
+    <Folder Include="ViewWidgets\Search\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">

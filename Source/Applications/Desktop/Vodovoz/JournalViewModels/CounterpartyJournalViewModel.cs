@@ -246,13 +246,9 @@ namespace Vodovoz.JournalViewModels
 				query.Where(c => c.INN == FilterViewModel.CounterpartyInn);
 			}
 
-			if(!string.IsNullOrWhiteSpace(FilterViewModel?.DeliveryPointAddressLike))
-			{
-				query.Where(Restrictions.InsensitiveLike(
-					Projections.Property(() => deliveryPointAlias.CompiledAddress),
-					$"%{FilterViewModel.DeliveryPointAddressLike}%"
-					));
-			}
+			query.Where(FilterViewModel?.SearchByAddressViewModel?.GetSearchCriterion(
+				() => deliveryPointAlias.CompiledAddress
+			));
 
 			var contractsSubquery = QueryOver.Of<CounterpartyContract>(() => contractAlias)
 				.Left.JoinAlias(c => c.Counterparty, () => counterpartyAliasForSubquery)
@@ -427,11 +423,9 @@ namespace Vodovoz.JournalViewModels
 				query.Where(c => c.INN == FilterViewModel.CounterpartyInn);
 			}
 
-			if(!string.IsNullOrWhiteSpace(FilterViewModel?.DeliveryPointAddressLike))
-			{
-				query.Where(Restrictions.InsensitiveLike(Projections.Property(() => deliveryPointAlias.CompiledAddress),
-					$"%{FilterViewModel.DeliveryPointAddressLike}%"));
-			}
+			query.Where(FilterViewModel?.SearchByAddressViewModel?.GetSearchCriterion(
+				() => deliveryPointAlias.CompiledAddress
+			));
 
 			var contractsSubquery = QueryOver.Of<CounterpartyContract>(() => contractAlias)
 				.Left.JoinAlias(c => c.Counterparty, () => counterpartyAliasForSubquery)
