@@ -1,4 +1,5 @@
 ﻿using QS.DomainModel.Entity;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 using Vodovoz.Domain.Client;
@@ -11,6 +12,7 @@ namespace Vodovoz.Domain.Contacts
 	public class Email : PropertyChangedBase, IDomainObject
 	{
 		private const string _emailRegEx = @"^[a-zA-Z0-9]+([\._-]?[a-zA-Z0-9]+)*@[a-zA-Zа-яА-Я0-9]+([\.-]?[a-zA-Zа-яА-Я0-9]+)*(\.[a-zA-Zа-яА-Я]{2,10})+$";
+		private TimeSpan _emailMatchingProcessTimeout = TimeSpan.FromSeconds(1);
 
 		private string _address;
 		private EmailType _emailType;
@@ -43,9 +45,20 @@ namespace Vodovoz.Domain.Contacts
 
 		private bool CheckEmailFormatIsValid()
 		{
-			if(Regex.IsMatch(Address, _emailRegEx))
+			try
 			{
-				return true;
+				if(Regex.IsMatch(Address, _emailRegEx, RegexOptions.None, _emailMatchingProcessTimeout))
+				{
+					return true;
+				}
+			}
+			catch(RegexMatchTimeoutException ex)
+			{
+				return false;
+			}
+			catch(Exception ex)
+			{
+				throw ex;
 			}
 
 			return false;
