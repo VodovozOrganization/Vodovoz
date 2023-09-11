@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -1573,6 +1573,21 @@ AND (
              (0 IN (@Counterparty_include) OR (o.client_id IN (@Counterparty_include)))
 				AND NOT (o.client_id IN (@Counterparty_exclude))
          )
+       AND
+         (
+         	(
+			 ('0' IN (@CounterpartyType_include) OR (c.counterparty_type IN (@CounterpartyType_include)))
+				AND NOT (c.counterparty_type IN (@CounterpartyType_exclude))
+         	)
+            OR
+         	(
+         		('0' IN (@CounterpartyType_include) OR NOT ('0' IN (@CounterpartySubtype_include)))
+                AND c.counterparty_type = 'AdvertisingDepartmentClient'
+                AND NOT ('AdvertisingDepartmentClient' IN (@CounterpartyType_exclude))
+                AND (0 IN (@CounterpartySubtype_include) OR c.counterparty_subtype_id IN (@CounterpartySubtype_include))
+         		AND NOT (c.counterparty_subtype_id IN (@CounterpartySubtype_exclude))
+         	)
+       )
        AND (
              (0 IN (@Organization_include) OR (cc.organization_id IN (@Organization_include)))
 				AND NOT (cc.organization_id IN (@Organization_exclude))
@@ -1752,6 +1767,18 @@ AND (
           </QueryParameter>
           <QueryParameter Name="PaymentFrom_exclude">
             <Value>={?PaymentFrom_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="CounterpartyType_include">
+            <Value>={?CounterpartyType_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="CounterpartyType_exclude">
+            <Value>={?CounterpartyType_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="CounterpartySubtype_include">
+            <Value>={?CounterpartySubtype_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="CounterpartySubtype_exclude">
+            <Value>={?CounterpartySubtype_exclude}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
