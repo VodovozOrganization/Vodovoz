@@ -91,6 +91,7 @@
     <Compile Include="Domain\Orders\UndeliveryDetalization.cs" />
     <Compile Include="Domain\Orders\UndeliveryKind.cs" />
     <Compile Include="Domain\Orders\UndeliveryObject.cs" />
+    <Compile Include="Domain\StoredEmails\UpdDocumentEmail.cs" />
     <Compile Include="EntityRepositories\Cash\FinancialExpenseCategoriesRepository.cs" />
     <Compile Include="EntityRepositories\Cash\FinancialIncomeCategoriesRepository.cs" />
     <Compile Include="Domain\Cash\FinancialCategoriesGroups\TargetDocument.cs" />
@@ -430,7 +431,7 @@
     <Compile Include="Domain\Sms\UndeliveryNotApprovedSmsNotification.cs" />
     <Compile Include="Domain\StoredEmails\BulkEmail.cs" />
     <Compile Include="Domain\StoredEmails\CounterpartyEmail.cs" />
-    <Compile Include="Domain\StoredEmails\OrderDocumentEmail.cs" />
+    <Compile Include="Domain\StoredEmails\BillDocumentEmail.cs" />
     <Compile Include="Domain\StoredEmails\OrderWithoutShipmentForPaymentEmail.cs" />
     <Compile Include="Domain\StoredEmails\OrderWithoutShipmentForAdvancePaymentEmail.cs" />
     <Compile Include="Domain\StoredEmails\OrderWithoutShipmentForDebtEmail.cs" />
