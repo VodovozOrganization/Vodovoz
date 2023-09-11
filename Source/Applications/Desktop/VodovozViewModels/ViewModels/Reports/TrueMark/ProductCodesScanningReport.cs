@@ -92,7 +92,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 				.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
 				.JoinAlias(() => routeListAlias.Driver, () => driverAlias)
 				.Where(() => cashReceiptAlias.CreateDate >= createDateFrom
-					&& cashReceiptAlias.CreateDate < createDateTo
+					&& cashReceiptAlias.CreateDate < createDateTo.AddDays(1)
 					&& !cashReceiptAlias.WithoutMarks)
 				.SelectList(list => list
 					.Select(() => driverAlias.Id).WithAlias(() => resultAlias.DriverId)
