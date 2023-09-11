@@ -4,6 +4,7 @@ using NHibernate.Criterion;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.Dialog;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Journal;
@@ -15,14 +16,17 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Timers;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Models.TrueMark;
+using Vodovoz.Tools;
 using Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
+using Vodovoz.ViewModels.ViewModels.Reports.TrueMark;
 using CashReceiptPermissions = Vodovoz.Permissions.Order.CashReceipt;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
@@ -40,6 +44,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 		private CashReceiptJournalFilterViewModel _filter;
 		private Timer _autoRefreshTimer;
 		private int _autoRefreshInterval;
+		private bool _isReportGeneratingInProcess;
 
 		public CashReceiptsJournalViewModel(
 			CashReceiptJournalFilterViewModel filter,
@@ -53,6 +58,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			INavigationManager navigation = null)
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigation)
 		{
+			if(filter is null)
+			{
+				throw new ArgumentNullException(nameof(filter));
+			}
+
 			_trueMarkCodesPool = trueMarkCodesPool ?? throw new ArgumentNullException(nameof(trueMarkCodesPool));
 			_cashReceiptRepository = cashReceiptRepository ?? throw new ArgumentNullException(nameof(cashReceiptRepository));
 			_receiptManualController = receiptManualController ?? throw new ArgumentNullException(nameof(receiptManualController));
@@ -78,7 +88,17 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 
 			_canResendDuplicateReceipts = permissionService.ValidatePresetPermission(CashReceiptPermissions.CanResendDuplicateReceipts);
 
-			Filter = filter ?? throw new ArgumentNullException(nameof(filter));
+			if(!filter.StartDate.HasValue)
+			{
+				filter.StartDate = DateTime.Now.Date.AddMonths(-1);
+			}
+
+			if(!filter.EndDate.HasValue)
+			{
+				filter.EndDate = DateTime.Now.Date;
+			}
+
+			Filter = filter;
 
 			_autoRefreshInterval = 30;
 
@@ -119,6 +139,22 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			}
 		}
 
+		public bool IsReportGeneratingInProcess
+		{
+			get => _isReportGeneratingInProcess;
+			private set
+			{
+				SetField(ref _isReportGeneratingInProcess, value);
+				UpdateJournalActions();
+			}
+		}
+
+		public bool CanCreateProductCodesScanningReportReport => 
+			Filter.StartDate.HasValue 
+			&& Filter.EndDate.HasValue 
+			&& Filter.EndDate.Value >= Filter.StartDate.Value 
+			&& !IsReportGeneratingInProcess;
+
 		public IRecursiveConfig RecuresiveConfig { get; }
 
 		void FilterViewModel_OnFiltered(object sender, EventArgs e)
@@ -148,6 +184,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			CreateNodeManualSendAction();
 			CreateNodeRefreshFiscalDocAction();
 			CreateLoadCodesToPoolAction();
+			CreateProductCodesScanningReportAction();
 		}
 
 		protected override void CreatePopupActions()
@@ -577,5 +614,65 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 		}
 
 		#endregion Load codes to pool
+
+		#region Product Codes Scanning Repor Creation
+		private void CreateProductCodesScanningReportAction()
+		{
+			var createProductCodesScanningReportAction = new JournalAction("Отчет о сканировании маркировки",
+				(selected) => CanCreateProductCodesScanningReportReport,
+				(selected) => true,
+				async (selected) => await GenerateProductCodesScanningReportAsync()
+			);
+			NodeActionsList.Add(createProductCodesScanningReportAction);
+		}
+
+		private async Task GenerateProductCodesScanningReportAsync()
+		{
+			if(!Filter.StartDate.HasValue || !Filter.EndDate.HasValue)
+			{
+				_commonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Error,
+					"Для создания отчета необходимо выбрать дату начала и дату окончания периода");
+
+				return;
+			}
+
+			if(IsReportGeneratingInProcess)
+			{
+				_commonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Error,
+					"Отчет уже в процессе формирования");
+
+				return;
+			}
+
+			var dialogSettings = new DialogSettings();
+			dialogSettings.Title = "Сохранить";
+			dialogSettings.FileName = typeof(ProductCodesScanningReport).GetClassUserFriendlyName().Nominative 
+				+ $" с {Filter.StartDate:dd.MM.yyyy} по {Filter.EndDate.Value.Date:dd.MM.yyyy}";
+			dialogSettings.DefaultFileExtention = ".xlsx";
+			dialogSettings.FileFilters.Clear();
+			dialogSettings.FileFilters.Add(new DialogFileFilter("Excel", ".xlsx"));
+
+			var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
+			if(!result.Successful)
+			{
+				return;
+			}
+
+			IsReportGeneratingInProcess = true;
+
+			ProductCodesScanningReport report;
+
+			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot())
+			{
+				report = await ProductCodesScanningReport.GenerateAsync(unitOfWork, Filter.StartDate.Value, Filter.EndDate.Value);
+			}
+			
+			await report?.ExportReportToExcelAsync(result.Path);
+
+			IsReportGeneratingInProcess = false;
+		}
+		#endregion
 	}
 }
