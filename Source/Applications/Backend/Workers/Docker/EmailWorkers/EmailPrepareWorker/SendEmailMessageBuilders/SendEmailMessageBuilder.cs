@@ -15,6 +15,8 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 		private readonly CounterpartyEmail _counterpartyEmail;
 		private readonly int _instanceId;
 
+		protected SendEmailMessage SendingMessage;
+
 		public SendEmailMessageBuilder(IEmailParametersProvider emailParametersProvider, IEmailDocumentPreparer emailDocumentPreparer,
 			CounterpartyEmail counterpartyEmail, int instanceId)
 		{
@@ -28,10 +30,6 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 
 
 		public static implicit operator SendEmailMessage(SendEmailMessageBuilder builder) => builder.Build();
-
-
-		protected SendEmailMessage SendingMessage = new();
-
 
 		public virtual SendEmailMessageBuilder AddFromContact()
 		{

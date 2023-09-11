@@ -9,13 +9,12 @@ namespace EmailPrepareWorker.Prepares
 	{
 		public byte[] PrepareMessage(SendEmailMessageBuilder builder)
 		{
-			builder.AddFromContact()
+			SendEmailMessage message = builder
+				.AddFromContact()
 				.AddToContact()
 				.AddTemplate()
 				.AddAttachment()
 				.AddPayload();
-
-			SendEmailMessage message = builder;
 
 			var serializedMessage = JsonSerializer.Serialize(message);
 			var sendingBody = Encoding.UTF8.GetBytes(serializedMessage);

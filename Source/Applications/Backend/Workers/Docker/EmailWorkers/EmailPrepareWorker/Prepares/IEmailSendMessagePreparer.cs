@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using EmailPrepareWorker.SendEmailMessageBuilders;
+﻿using EmailPrepareWorker.SendEmailMessageBuilders;
 
 namespace EmailPrepareWorker.Prepares
 {
