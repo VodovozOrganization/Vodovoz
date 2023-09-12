@@ -239,12 +239,19 @@ namespace Vodovoz.ViewModels.ReportsParameters
 
 			_parameters.Add("groups_count", groupParameters.Count());
 
-			var groupingTitle = string
-                .Join(" | ", GroupingSelectViewModel
-                    .GetRightItems()
-				    .Select(x => x.GroupType.GetEnumTitle()));
+			var groupingTitle = string.Empty;
 
-            _parameters.Add("grouping_title", groupingTitle);
+			if(GroupingSelectViewModel.RightItems.Any())
+			{
+				groupingTitle = string
+				.Join(" | ", GroupingSelectViewModel
+					.GetRightItems()
+					.Select(x => x.GroupType.GetEnumTitle()));
+			}
+			else
+			{
+				groupingTitle = GroupingType.NomenclatureType.GetEnumTitle() + " | " + GroupingType.Nomenclature.GetEnumTitle();
+			}
 
             _source = GetReportSource();
 

@@ -3603,7 +3603,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Criterions">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>180</Timeout>
         <CommandText>SELECT
@@ -3663,11 +3663,17 @@ WHERE
 		CONCAT('Искл.типов оплаты: ',excluded_payment_types,'\n'),
 		'')),
         (IF(included_terminal_subtypes!=0,
-        CONCAT('Вкл.источников оплаты по терминалу: ',included_terminal_subtypes,'\n'),
-        '')),
+            CONCAT('Вкл.источников оплаты по терминалу: ',included_terminal_subtypes,'\n'),
+            '')),
         (IF(excluded_terminal_subtypes!=0,
-        CONCAT('Искл.источников оплаты по терминалу: ',excluded_terminal_subtypes,'\n'),
-        '')),
+            CONCAT('Искл.источников оплаты по терминалу: ',excluded_terminal_subtypes,'\n'),
+            '')),
+        (IF(included_payment_froms!=0,
+            CONCAT('Вкл.источников оплаты: ',included_payment_froms,'\n'),
+            '')),
+        (IF(excluded_payment_froms!=0,
+            CONCAT('Искл.источников оплаты: ',excluded_payment_froms,'\n'),
+            '')),
 		(IF(included_promo_sets!=0,
 		CONCAT('Вкл.промо-наборов: ',included_promo_sets,'\n'),
 		'')),
@@ -3783,17 +3789,27 @@ FROM
 			'0' NOT IN (@PaymentType_exclude),
 			(SELECT COUNT(q.pay) FROM (SELECT COUNT(orders.payment_type) AS pay FROM orders WHERE orders.payment_type IN(@PaymentType_exclude) GROUP BY orders.payment_type) AS q),
 			0
-		) AS excluded_payment_types,		
+		) AS excluded_payment_types,
          IF(
                  '0' NOT IN (@PaymentByTerminalSource_include),
                  (SELECT COUNT(q.pay) FROM (SELECT COUNT(orders.terminal_subtype) AS pay FROM orders WHERE orders.terminal_subtype IN(@PaymentByTerminalSource_include) GROUP BY orders.terminal_subtype) AS q),
                  0
          ) AS included_terminal_subtypes,
          IF(
-                 '0' NOT IN (@PaymentByTerminalSource_exclude),
-                 (SELECT COUNT(q.pay) FROM (SELECT COUNT(orders.terminal_subtype) AS pay FROM orders WHERE orders.terminal_subtype IN(@PaymentByTerminalSource_exclude) GROUP BY orders.terminal_subtype) AS q),
+                     '0' NOT IN (@PaymentByTerminalSource_exclude),
+                     (SELECT COUNT(q.pay) FROM (SELECT COUNT(orders.terminal_subtype) AS pay FROM orders WHERE orders.terminal_subtype IN(@PaymentByTerminalSource_exclude) GROUP BY orders.terminal_subtype) AS q),
+                     0
+             ) AS excluded_terminal_subtypes,
+         IF(
+                 '0' NOT IN (@PaymentFrom_include),
+                 (SELECT COUNT(q.pay) FROM (SELECT COUNT(orders.payment_from_id) AS pay FROM orders WHERE orders.payment_from_id IN(@PaymentFrom_include) GROUP BY orders.payment_from_id) AS q),
                  0
-         ) AS excluded_terminal_subtypes,
+         ) AS included_payment_froms,
+         IF(
+                     '0' NOT IN (@PaymentFrom_exclude),
+                     (SELECT COUNT(q.pay) FROM (SELECT COUNT(orders.payment_from_id) AS pay FROM orders WHERE orders.payment_from_id IN(@PaymentFrom_exclude) GROUP BY orders.payment_from_id) AS q),
+                     0
+         ) AS excluded_payment_froms,	
 		IF(
 			0 NOT IN (@PromotionalSet_include),
 			(SELECT COUNT(id) FROM promotional_sets WHERE promotional_sets.id IN(@PromotionalSet_include)),
@@ -3911,9 +3927,15 @@ FROM
           <QueryParameter Name="PaymentByTerminalSource_exclude">
             <Value>={?PaymentByTerminalSource_exclude}</Value>
           </QueryParameter>
+          <QueryParameter Name="PaymentFrom_include">
+            <Value>={?PaymentFrom_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="PaymentFrom_exclude">
+            <Value>={?PaymentFrom_exclude}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="criterions">
           <DataField>criterions</DataField>
           <TypeName>System.String</TypeName>
@@ -3932,7 +3954,7 @@ FROM
   </DataSources>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>

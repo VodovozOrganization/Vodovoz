@@ -173,10 +173,19 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 				_parameters.Add(groupParameter.Key, groupParameter.Value.ToString());
 			}
 
-			var groupingTitle = string
+			var groupingTitle = string.Empty;
+
+			if(GroupingSelectViewModel.RightItems.Any())
+			{
+				groupingTitle = string
 				.Join(" | ", GroupingSelectViewModel
 					.GetRightItems()
 					.Select(x => x.GroupType.GetEnumTitle()));
+			}
+			else
+			{
+				groupingTitle = GroupingType.Nomenclature.GetEnumTitle();
+			}
 
 			_parameters.Add("grouping_title", groupingTitle);
 
