@@ -1972,6 +1972,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.RouteListMaxFastDeliveryOrdersView.cs" />
     <Compile Include="ViewWidgets\Search\CompositeSearchView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Search.CompositeSearchView.cs" />
+    <Compile Include="ViewWidgets\Users\WarehousesUserSelectionView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Users.WarehousesUserSelectionView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1981,6 +1983,7 @@
     <Folder Include="QualityControl\Reports\" />
     <Folder Include="ReportsParameters\Cash\" />
     <Folder Include="ViewWidgets\Search\" />
+    <Folder Include="ViewWidgets\Users\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">
