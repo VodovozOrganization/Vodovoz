@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
@@ -203,6 +203,8 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		/// </summary>
 		decimal CalculateWageForFastDelivery(IRouteListItemWageCalculationSource src)
 		{
+			var fastDeliveryWageRateType = src.GetFastDeliveryWageRateType();
+
 			if(!src.IsFastDelivery)
 			{
 				return 0;
@@ -210,7 +212,7 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 
 			WageDistrictLevelRate wageCalcMethodic = GetCurrentWageDistrictLevelRate(src);
 
-			var rate = wageCalcMethodic.WageRates.FirstOrDefault(r => r.WageRateType == WageRateTypes.FastDelivery);
+			var rate = wageCalcMethodic.WageRates.FirstOrDefault(r => r.WageRateType == fastDeliveryWageRateType);
 
 			return GetRateValue(src, rate);
 		}
@@ -340,12 +342,14 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 
 			if(src.IsFastDelivery)
 			{
+				var fastDeliveryWageRateType = src.GetFastDeliveryWageRateType();
+
 				addressWageDetails.WageCalculationDetailsList.Add(
 					new WageCalculationDetailsItem()
 					{
-						Name = WageRateTypes.FastDelivery.GetEnumTitle(),
+						Name = fastDeliveryWageRateType.GetEnumTitle(),
 						Count = 1,
-						Price = GetRateValue(src, wageRates.FirstOrDefault(r => r.WageRateType == WageRateTypes.FastDelivery))
+						Price = GetRateValue(src, wageRates.FirstOrDefault(r => r.WageRateType == fastDeliveryWageRateType))
 					});
 			}
 
