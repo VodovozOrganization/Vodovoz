@@ -173,6 +173,7 @@ namespace Vodovoz.Views.Users
 			this.tableWriteoff.ColumnSpacing = ((uint)(6));
 			// Container child tableWriteoff.Gtk.Table+TableChild
 			this.frameWarehousesToNotifications = new global::Gtk.Frame();
+			this.frameWarehousesToNotifications.WidthRequest = 400;
 			this.frameWarehousesToNotifications.Name = "frameWarehousesToNotifications";
 			this.frameWarehousesToNotifications.ShadowType = ((global::Gtk.ShadowType)(0));
 			// Container child frameWarehousesToNotifications.Gtk.Container+ContainerChild
