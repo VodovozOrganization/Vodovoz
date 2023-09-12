@@ -1,4 +1,4 @@
-﻿using Gamma.Utilities;
+using Gamma.Utilities;
 using NHibernate.Linq;
 using NHibernate.Util;
 using QS.Commands;
@@ -424,8 +424,7 @@ namespace Vodovoz.Presentation.ViewModels.Common
 
 		private void UpdateFilteredElements()
 		{
-			if(ActiveFilter != null
-				&& ActiveFilter is IncludeExcludeFilter filter)
+			if(ActiveFilter is IncludeExcludeFilter filter)
 			{
 				filter.RefreshFilteredElements();
 			}

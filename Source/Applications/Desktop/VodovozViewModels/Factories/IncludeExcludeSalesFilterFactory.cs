@@ -114,8 +114,7 @@ namespace Vodovoz.ViewModels.Factories
 					// Заполнение подтипов контрагента - клиентов рекламного отдела
 
 					var advertisingDepartmentClientNode = filter.FilteredElements
-						.Where(x => x.Number == nameof(CounterpartyType.AdvertisingDepartmentClient))
-						.FirstOrDefault();
+						.FirstOrDefault(x => x.Number == nameof(CounterpartyType.AdvertisingDepartmentClient));
 
 					if(counterpartySubtypeValues.Any())
 					{
@@ -312,8 +311,7 @@ namespace Vodovoz.ViewModels.Factories
 					// Заполнение подгруппы Оплачено онлайн
 
 					var paidOnlineNode = filter.FilteredElements
-						.Where(x => x.Number == nameof(PaymentType.PaidOnline))
-						.FirstOrDefault();
+						.FirstOrDefault(x => x.Number == nameof(PaymentType.PaidOnline));
 
 					if(paymentValues.Any())
 					{
