@@ -8,7 +8,7 @@ namespace Vodovoz.ViewWidgets.Users
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
-		private global::Gamma.GtkWidgets.yTextView ytextviewWarehousesList;
+		private global::Gamma.GtkWidgets.yTreeView ytreeviewWarehouses;
 
 		private global::Gamma.GtkWidgets.yButton ybuttonAddWarehouseToList;
 
@@ -34,16 +34,15 @@ namespace Vodovoz.ViewWidgets.Users
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.ytextviewWarehousesList = new global::Gamma.GtkWidgets.yTextView();
-			this.ytextviewWarehousesList.CanFocus = true;
-			this.ytextviewWarehousesList.Name = "ytextviewWarehousesList";
-			this.GtkScrolledWindow.Add(this.ytextviewWarehousesList);
+			this.ytreeviewWarehouses = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeviewWarehouses.CanFocus = true;
+			this.ytreeviewWarehouses.Name = "ytreeviewWarehouses";
+			this.GtkScrolledWindow.Add(this.ytreeviewWarehouses);
 			this.ytableMain.Add(this.GtkScrolledWindow);
 			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.GtkScrolledWindow]));
 			w2.TopAttach = ((uint)(1));
 			w2.BottomAttach = ((uint)(2));
 			w2.RightAttach = ((uint)(3));
-			w2.XOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableMain.Gtk.Table+TableChild
 			this.ybuttonAddWarehouseToList = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonAddWarehouseToList.CanFocus = true;
@@ -73,12 +72,11 @@ namespace Vodovoz.ViewWidgets.Users
 			// Container child ytableMain.Gtk.Table+TableChild
 			this.ylabelTitle = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelTitle.Name = "ylabelTitle";
-			this.ylabelTitle.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Выбрать склады для получения уведомлений</b>");
+			this.ylabelTitle.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Склады для получения уведомлений</b>");
 			this.ylabelTitle.UseMarkup = true;
 			this.ytableMain.Add(this.ylabelTitle);
 			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ylabelTitle]));
 			w5.RightAttach = ((uint)(3));
-			w5.XOptions = ((global::Gtk.AttachOptions)(4));
 			w5.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add(this.ytableMain);
 			if ((this.Child != null))
