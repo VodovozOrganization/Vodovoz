@@ -738,21 +738,23 @@ FROM
              (0 IN (@Counterparty_include) OR (orders.client_id IN (@Counterparty_include)))
 				AND NOT (orders.client_id IN (@Counterparty_exclude))
          )
-       AND
-         (
-         	(
-			 ('0' IN (@CounterpartyType_include) OR (counterparty.counterparty_type IN (@CounterpartyType_include)))
-				AND NOT (counterparty.counterparty_type IN (@CounterpartyType_exclude))
-         	)
+        AND
+        (
+            (
+                ((('0' IN (@CounterpartyType_include))
+                    AND (0 IN (@CounterpartySubtype_include)))
+                OR (counterparty.counterparty_type IN (@CounterpartyType_include)))
+                AND NOT (counterparty.counterparty_type IN (@CounterpartyType_exclude))
+            )
             OR
-         	(
-         		('0' IN (@CounterpartyType_include) OR NOT ('0' IN (@CounterpartySubtype_include)))
+            (
+                ('0' IN (@CounterpartyType_include) OR NOT ('0' IN (@CounterpartySubtype_include)))
                 AND counterparty.counterparty_type = 'AdvertisingDepartmentClient'
                 AND NOT ('AdvertisingDepartmentClient' IN (@CounterpartyType_exclude))
                 AND (0 IN (@CounterpartySubtype_include) OR counterparty.counterparty_subtype_id IN (@CounterpartySubtype_include))
-         		AND NOT (counterparty.counterparty_subtype_id IN (@CounterpartySubtype_exclude))
-         	)
-       )
+                AND NOT (counterparty.counterparty_subtype_id IN (@CounterpartySubtype_exclude))
+            )
+        )
        AND (
              (0 IN (@Organization_include) OR (counterparty_contract.organization_id IN (@Organization_include)))
 				AND NOT (counterparty_contract.organization_id IN (@Organization_exclude))
@@ -773,29 +775,38 @@ FROM
              (0 IN (@GeoGroup_include) OR (IFNULL(gg.id, 0) IN (@GeoGroup_include)))
 				AND (orders.delivery_point_id IS NULL OR NOT (IFNULL(gg.id, 0) IN (@GeoGroup_exclude)))
          )
-       AND
-       (
-         	(
-         	   ('0' IN (@PaymentType_include) OR (orders.payment_type IN (@PaymentType_include)))
-				AND NOT (orders.payment_type IN (@PaymentType_exclude))
-         	)
+        AND
+        (
+            (
+                ((('0' IN (@PaymentType_include))
+                        AND ('0' IN (@PaymentByTerminalSource_include))
+                        AND ('0' IN (@PaymentFrom_include)))
+                    OR (orders.payment_type IN (@PaymentType_include)))
+                AND NOT (orders.payment_type IN (@PaymentType_exclude))
+            )
             OR
-         	(
-         		('0' IN (@PaymentType_include) OR NOT ('0' IN (@PaymentByTerminalSource_include)))
-         		AND orders.payment_type = 'Terminal'
+            (
+                ((('0' IN (@PaymentType_include))
+                    AND ('0' IN (@PaymentFrom_include)))
+                    OR NOT ('0' IN (@PaymentByTerminalSource_include)))
+                AND orders.payment_type = 'Terminal'
                 AND NOT ('Terminal' IN (@PaymentType_exclude))
-                AND ('0' IN (@PaymentByTerminalSource_include) OR orders.terminal_subtype IN (@PaymentByTerminalSource_include))
-         		AND NOT (orders.terminal_subtype IN (@PaymentByTerminalSource_exclude))
-         	)
+                AND (('0' IN (@PaymentByTerminalSource_include))
+                        OR (orders.terminal_subtype IN (@PaymentByTerminalSource_include)))
+                AND NOT (orders.terminal_subtype IN (@PaymentByTerminalSource_exclude))
+            )
             OR
-         	(
-         		('0' IN (@PaymentType_include) OR NOT ('0' IN (@PaymentFrom_include)))
+            (
+                ((('0' IN (@PaymentType_include))
+                    AND ('0' IN (@PaymentByTerminalSource_include)))
+                    OR NOT ('0' IN (@PaymentFrom_include)))
                 AND orders.payment_type = 'PaidOnline'
                 AND NOT ('PaidOnline' IN (@PaymentType_exclude))
-                AND (0 IN (@PaymentFrom_include) OR orders.payment_from_id IN (@PaymentFrom_include))
-         		AND NOT (orders.payment_from_id IN (@PaymentFrom_exclude))
-         	)
-       )
+                AND ((0 IN (@PaymentFrom_include))
+                        OR (orders.payment_from_id IN (@PaymentFrom_include)))
+                AND NOT (orders.payment_from_id IN (@PaymentFrom_exclude))
+            )
+        )
        AND (
              (0 IN (@PromotionalSet_include) OR (IFNULL(order_items.promotional_set_id, 0) IN (@PromotionalSet_include)))
 				AND (order_items.promotional_set_id IS NULL OR NOT order_items.promotional_set_id IN (@PromotionalSet_exclude))
