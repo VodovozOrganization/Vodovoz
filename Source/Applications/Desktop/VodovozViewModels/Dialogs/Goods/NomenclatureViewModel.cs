@@ -96,6 +96,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		public bool CanEdit => PermissionResult.CanUpdate || (PermissionResult.CanCreate && IsNewEntity);
 		public bool CanCreateAndArcNomenclatures { get; private set; }
 		public bool CanEditAlternativeNomenclaturePrices { get; private set; }
+		public bool HasAccessToSitesAndAppsTab { get; private set; }
 		public bool AskSaveOnClose => CanEdit;
 		public bool UserCanCreateNomenclaturesWithInventoryAccounting =>
 			IsNewEntity && CanCreateNomenclaturesWithInventoryAccountingPermission;
@@ -279,6 +280,8 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_nomenclatures_with_inventory_accounting");
 			CanEditAlternativeNomenclaturePrices =
 				CommonServices.CurrentPermissionService.ValidatePresetPermission("сan_edit_alternative_nomenclature_prices");
+			HasAccessToSitesAndAppsTab =
+				CommonServices.CurrentPermissionService.ValidatePresetPermission("Nomenclature.HasAccessToSitesAndAppsTab");
 		}
 		
 		private void ConfigureOnlineParameters()
@@ -368,7 +371,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 
 					if(_needCheckOnlinePrices)
 					{
-						if(AskQuestion(
+						if(HasAccessToSitesAndAppsTab && AskQuestion(
 							"Было произведено изменение цен номенклатуры, необходимо проверить корректность цен," +
 							" установленных на вкладке Сайты и приложения.\n" +
 							"Вы хотите переключиться на вкладку Сайты и приложения перед сохранением номенклатуры?"))
@@ -404,11 +407,12 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		public void UpdateNomenclatureOnlinePricesNodes()
 		{
 			NomenclatureOnlinePrices.Clear();
+			var notSortedNodes = new List<NomenclatureOnlinePricesNode>();
 			var onlinePrices = new Dictionary<decimal, NomenclatureOnlinePricesNode>();
 
 			foreach(var nomenclatureOnlineParameter in Entity.NomenclatureOnlineParameters)
 			{
-				foreach(var onlinePrice in nomenclatureOnlineParameter.NomenclatureOnlinePrices.OrderBy(x => x.NomenclaturePrice.MinCount))
+				foreach(var onlinePrice in nomenclatureOnlineParameter.NomenclatureOnlinePrices)
 				{
 					onlinePrices.TryGetValue(onlinePrice.NomenclaturePrice.MinCount, out var nomenclatureOnlinePricesNode);
 
@@ -438,7 +442,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 
 						var minCount = onlinePrice.NomenclaturePrice.MinCount;
 						onlinePrices.Add(minCount, nomenclatureOnlinePricesNode);
-						NomenclatureOnlinePrices.Add(nomenclatureOnlinePricesNode);
+						notSortedNodes.Add(nomenclatureOnlinePricesNode);
 					}
 					else
 					{
@@ -456,6 +460,11 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 						}
 					}
 				}
+			}
+
+			foreach(var node in notSortedNodes.OrderBy(x => x.MinCount))
+			{
+				NomenclatureOnlinePrices.Add(node);
 			}
 		}
 

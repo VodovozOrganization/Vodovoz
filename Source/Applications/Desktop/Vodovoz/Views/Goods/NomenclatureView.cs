@@ -59,6 +59,7 @@ namespace Vodovoz.Views.Goods
 			radioSitesAndApps.Toggled += OnSitesAndAppsToggled;
 			radioSitesAndApps.Binding
 				.AddBinding(ViewModel, vm => vm.ActiveSitesAndAppsTab, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.HasAccessToSitesAndAppsTab, w => w.Visible)
 				.InitializeFromSource();
 
 			#endregion
@@ -455,6 +456,7 @@ namespace Vodovoz.Views.Goods
 
 		private void PriceRowChanged(object alist, int[] aidx)
 		{
+			ViewModel.UpdateNomenclatureOnlinePricesNodes();
 			ViewModel.SetNeedCheckOnlinePrices();
 		}
 
