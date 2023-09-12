@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using QS.Commands;
+﻿using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -10,6 +7,9 @@ using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Subdivisions;
@@ -17,6 +17,7 @@ using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Widgets.Users;
 
 namespace Vodovoz.ViewModels.Users
 {
@@ -33,10 +34,12 @@ namespace Vodovoz.ViewModels.Users
 		private double _progressFraction;
 		private decimal _incrementFixedPrices = 20;
 		private const double _progressStep = 0.25;
+		private readonly WarehousesUserSelectionViewModel _warehousesUserSelectionViewModel;
 
 		public UserSettingsViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
+			INavigationManager navigationManager,
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
@@ -46,6 +49,11 @@ namespace Vodovoz.ViewModels.Users
 			INomenclaturePricesRepository nomenclatureFixedPriceRepository)
 			: base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
+			if(navigationManager is null)
+			{
+				throw new ArgumentNullException(nameof(navigationManager));
+			}
+
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
@@ -65,6 +73,22 @@ namespace Vodovoz.ViewModels.Users
 			{
 				ConfigureCashSorting();
 			}
+
+			_warehousesUserSelectionViewModel = new WarehousesUserSelectionViewModel(
+				UoW,
+				commonServices,
+				navigationManager,
+				Entity.MovementDocumentsNotificationUserSelectedWarehouses);
+
+			_warehousesUserSelectionViewModel.ObservableWarehouses.ListContentChanged += OnWarehousesToNotifyListContentChanged;
+		}
+
+		private void OnWarehousesToNotifyListContentChanged(object sender, EventArgs e)
+		{
+			Entity.MovementDocumentsNotificationUserSelectedWarehouses = 
+				WarehousesUserSelectionViewModel.ObservableWarehouses
+				.Select(w => w.WarehouseId)
+				.ToList();
 		}
 
 		#region Свойства
@@ -105,6 +129,8 @@ namespace Vodovoz.ViewModels.Users
 		public bool CanUpdateFixedPrices { get; private set; }
 
 		public IList<CashSubdivisionSortingSettings> SubdivisionSortingSettings => Entity.ObservableCashSubdivisionSortingSettings;
+
+		public WarehousesUserSelectionViewModel WarehousesUserSelectionViewModel => _warehousesUserSelectionViewModel;
 
 		public DelegateCommand UpdateFixedPricesCommand => _updateFixedPricesCommand ?? (_updateFixedPricesCommand = new DelegateCommand(
 					() =>

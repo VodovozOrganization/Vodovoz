@@ -14,12 +14,13 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 
 namespace Vodovoz.ViewModels.Widgets.Users
 {
-	public class WarehousesUserSelectionViewModel : WidgetViewModelBase
+	public partial class WarehousesUserSelectionViewModel : WidgetViewModelBase
 	{
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly ICommonServices _commonServices;
 		private readonly INavigationManager _navigationManager;
-		private Warehouse _selectedWarehouse;
+
+		private WarehouseNode _selectedWarehouse;
 		private DelegateCommand _addWarehouseCommand;
 		private DelegateCommand _removeWarehouseCommand;
 
@@ -32,15 +33,16 @@ namespace Vodovoz.ViewModels.Widgets.Users
 			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
-			ObservableWarehouses = new GenericObservableList<Warehouse>(GetWarehousesByIds(warehousesIds));
+
+			ObservableWarehouses = new GenericObservableList<WarehouseNode>(GetWarehousesNodesByIds(warehousesIds));
 		}
 
 		#region Свойства
 
-		public virtual GenericObservableList<Warehouse> ObservableWarehouses { get; set; }
+		public virtual GenericObservableList<WarehouseNode> ObservableWarehouses { get; set; }
 
 		[PropertyChangedAlso(nameof(CanRemoveWarehouse))]
-		public Warehouse SelectedWarehouse
+		public WarehouseNode SelectedWarehouse
 		{
 			get => _selectedWarehouse;
 			set => SetField(ref _selectedWarehouse, value);
@@ -48,18 +50,24 @@ namespace Vodovoz.ViewModels.Widgets.Users
 
 		#endregion
 
-		private List<Warehouse> GetWarehousesByIds(IEnumerable<int> warehousesIds)
+		private List<WarehouseNode> GetWarehousesNodesByIds(IEnumerable<int> warehousesIds)
 		{
 			var warehouses = _unitOfWork.GetAll<Warehouse>()
 				.Where(w => warehousesIds.Contains(w.Id))
+				.Select(w => new WarehouseNode { WarehouseId = w.Id, WarehouseName = w.Name })
 				.ToList();
 
 			return warehouses;
 		}
 
+		private bool IsWarehouseAlreadyAdded(int warehouseId) => 
+			ObservableWarehouses
+			.Where(w => w.WarehouseId == warehouseId)
+			.Any();
+
 		#region Commands
 
-		#region Add waarehouse
+		#region Add warehouse
 		public DelegateCommand AddWarehouseCommand
 		{
 			get
@@ -82,9 +90,34 @@ namespace Vodovoz.ViewModels.Widgets.Users
 			warehouseJournalVM.SelectionMode = JournalSelectionMode.Single;
 			warehouseJournalVM.OnEntitySelectedResult += (s, e) =>
 			{
-				if(s is Warehouse warehouseToAdd)
+				if(e.SelectedNodes.FirstOrDefault() is JournalEntityNodeBase entityNode)
 				{
-					ObservableWarehouses.Add(warehouseToAdd);
+					if(entityNode.EntityType != typeof(Warehouse))
+					{
+						return;
+					}
+
+					var addWarehouseId = entityNode.Id;
+					var addWarehouseName = entityNode.Title;
+
+					bool isWarehouseInList = IsWarehouseAlreadyAdded(addWarehouseId);
+
+					if(isWarehouseInList)
+					{
+						_commonServices.InteractiveService.ShowMessage(
+							QS.Dialog.ImportanceLevel.Info,
+							$"Выбранный склад \"{addWarehouseName}\" уже добавлен в список");
+
+						return;
+					}
+
+					var newWarehouseNode = new WarehouseNode 
+					{  
+						WarehouseId = addWarehouseId, 
+						WarehouseName = addWarehouseName 
+					};
+
+					ObservableWarehouses.Add(newWarehouseNode);
 				}
 			};
 		}

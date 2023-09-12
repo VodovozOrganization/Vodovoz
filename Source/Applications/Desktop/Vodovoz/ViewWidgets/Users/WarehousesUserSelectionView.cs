@@ -1,6 +1,6 @@
 ﻿using QS.Views.GtkUI;
-using Vodovoz.Domain.Store;
 using Vodovoz.ViewModels.Widgets.Users;
+using static Vodovoz.ViewModels.Widgets.Users.WarehousesUserSelectionViewModel;
 
 namespace Vodovoz.ViewWidgets.Users
 {
@@ -14,14 +14,14 @@ namespace Vodovoz.ViewWidgets.Users
 
 		private void Configure()
 		{
-			ytreeviewWarehouses.CreateFluentColumnsConfig<Warehouse>()
+			ytreeviewWarehouses.CreateFluentColumnsConfig<WarehouseNode>()
 				.AddColumn("Id склада")
 					.HeaderAlignment(0.5f)
-					.AddNumericRenderer(n => n.Id)
+					.AddNumericRenderer(n => n.WarehouseId)
 					.XAlign(0.5f)
 				.AddColumn("Название")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(n => n.Name)
+					.AddTextRenderer(n => n.WarehouseName)
 					.XAlign(0.5f)
 				.AddColumn("")
 				.Finish();

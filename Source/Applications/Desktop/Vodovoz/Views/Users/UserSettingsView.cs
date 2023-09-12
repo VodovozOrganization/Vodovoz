@@ -1,16 +1,17 @@
-﻿using System;
-using System.ComponentModel;
-using System.Linq;
-using System.Threading.Tasks;
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using Gtk;
 using QS.Dialog;
 using QS.Views.GtkUI;
+using System;
+using System.ComponentModel;
+using System.Linq;
+using System.Threading.Tasks;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Users;
+using Vodovoz.ViewWidgets.Users;
 
 namespace Vodovoz.Views.Users
 {
@@ -124,6 +125,10 @@ namespace Vodovoz.Views.Users
 			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
 
 			#endregion
+
+			var warehousesUserSelectionView = new WarehousesUserSelectionView(ViewModel.WarehousesUserSelectionViewModel);
+			yhboxWarehousesForNotifications.Add(warehousesUserSelectionView);
+			warehousesUserSelectionView.Show();
 		}
 
 		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
