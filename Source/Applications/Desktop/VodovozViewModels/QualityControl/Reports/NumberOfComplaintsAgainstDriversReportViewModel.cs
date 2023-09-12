@@ -28,6 +28,7 @@ namespace Vodovoz.ViewModels.QualityControl.Reports
 		private DateTime? _endDate;
 		private GeoGroup _selectedGeoGroup;
 		private ComplaintResultBase _selectedComplaintResult;
+		private ReportSortOrder _selectedReportSortOrder;
 
 		public NumberOfComplaintsAgainstDriversReportViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -72,6 +73,12 @@ namespace Vodovoz.ViewModels.QualityControl.Reports
 			set => SetField(ref _selectedComplaintResult, value);
 		}
 
+		public ReportSortOrder SelectedReportSortOrder
+		{
+			get => _selectedReportSortOrder;
+			set => SetField(ref _selectedReportSortOrder, value);
+		}
+
 		[PropertyChangedAlso(nameof(CanExportReport))]
 		public NumberOfComplaintsAgainstDriversReport Report
 		{
@@ -98,7 +105,8 @@ namespace Vodovoz.ViewModels.QualityControl.Reports
 			var selectedGeoGroupId = SelectedGeoGroup?.Id ?? 0;
 			var selectedComplaintResultId = SelectedComplaintResult?.Id ?? 0;
 
-			Report = NumberOfComplaintsAgainstDriversReport.Generate(UoW, StartDate.Value, EndDate.Value.LatestDayTime(), selectedGeoGroupId, selectedComplaintResultId);
+			Report = NumberOfComplaintsAgainstDriversReport.Generate(UoW, StartDate.Value, EndDate.Value.LatestDayTime(), selectedGeoGroupId,
+				selectedComplaintResultId, SelectedReportSortOrder);
 		}
 
 		private void ExportReport()

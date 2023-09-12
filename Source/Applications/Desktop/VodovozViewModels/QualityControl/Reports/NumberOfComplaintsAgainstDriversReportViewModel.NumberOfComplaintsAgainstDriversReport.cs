@@ -27,7 +27,8 @@ namespace Vodovoz.ViewModels.QualityControl.Reports
 			public DateTime EndDate { get; }
 			public List<Row> Rows { get; }
 
-			public static NumberOfComplaintsAgainstDriversReport Generate(IUnitOfWork unitOfWork, DateTime startDate, DateTime endDate, int geoGroupId, int complaintResultId)
+			public static NumberOfComplaintsAgainstDriversReport Generate(IUnitOfWork unitOfWork, DateTime startDate, DateTime endDate,
+				int geoGroupId, int complaintResultId, ReportSortOrder sortOrder)
 			{
 				var complaints = (from complaint in unitOfWork.Session.Query<Complaint>()
 								  join complaintKind in unitOfWork.Session.Query<ComplaintKind>() 
@@ -67,6 +68,10 @@ namespace Vodovoz.ViewModels.QualityControl.Reports
 						ComplaintsList = string.Join(",\n", group.Select(x => $"{x.ComplaintId} - {x.ComplaintsKind}"))
 					});
 				}
+
+				result = sortOrder == ReportSortOrder.DriverName
+					? result.OrderBy(x => x.DriverFullName).ToList()
+					: result.OrderByDescending(x => x.ComplaintsCount).ToList();
 
 				return new NumberOfComplaintsAgainstDriversReport(startDate, endDate, result);
 			}
