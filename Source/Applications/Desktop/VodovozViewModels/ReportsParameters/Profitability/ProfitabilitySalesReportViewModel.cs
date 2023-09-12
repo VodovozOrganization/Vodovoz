@@ -173,6 +173,13 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 				_parameters.Add(groupParameter.Key, groupParameter.Value.ToString());
 			}
 
+			var groupingTitle = string
+				.Join(" | ", GroupingSelectViewModel
+					.GetRightItems()
+					.Select(x => x.GroupType.GetEnumTitle()));
+
+			_parameters.Add("grouping_title", groupingTitle);
+
 			_parameters.Add("groups_count", groupParameters.Count());
 
 			_source = GetReportSource();
@@ -249,6 +256,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 				result.Add(new KeyValuePair<string, object>($"group{groupCounter}", item.GroupType));
 				groupCounter++;
 			}
+
 			return result;
 		}
 

@@ -206,7 +206,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				groupCounter++;
 			}
 
-			return result;
+            return result;
 		}
 
 		private void GenerateReport()
@@ -239,7 +239,14 @@ namespace Vodovoz.ViewModels.ReportsParameters
 
 			_parameters.Add("groups_count", groupParameters.Count());
 
-			_source = GetReportSource();
+			var groupingTitle = string
+                .Join(" | ", GroupingSelectViewModel
+                    .GetRightItems()
+				    .Select(x => x.GroupType.GetEnumTitle()));
+
+            _parameters.Add("grouping_title", groupingTitle);
+
+            _source = GetReportSource();
 
 			LoadReport();
 		}

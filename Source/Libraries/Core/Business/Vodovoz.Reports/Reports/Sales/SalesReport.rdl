@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -61,88 +61,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="TextboxItemHeader">
-                      <Value>=
-Iif(
-    {?groups_count} = 3, 
-    Switch(
-        {?group1} = 'Order', 'Заказ',
-        {?group1} = 'Counterparty', 'Контрагент',
-        {?group1} = 'Subdivision', 'Отдел',
-        {?group1} = 'DeliveryDate', 'Дата доставки',
-        {?group1} = 'RouteList', 'МЛ',
-        {?group1} = 'Nomenclature', 'Номенклатура',
-        {?group1} = 'NomenclatureType', 'Тип номенклатуры',
-        {?group1} = 'NomenclatureGroup1', 'Группа 1 уровень',
-        {?group1} = 'NomenclatureGroup2', 'Группа 2 уровень',
-        {?group1} = 'NomenclatureGroup3', 'Группа 3 уровень'
-    )
-    + '  |  ' +
-    Switch(
-        {?group2} = 'Order', 'Заказ',
-        {?group2} = 'Counterparty', 'Контрагент',
-        {?group2} = 'Subdivision', 'Отдел',
-        {?group2} = 'DeliveryDate', 'Дата доставки',
-        {?group2} = 'RouteList', 'МЛ',
-        {?group2} = 'Nomenclature', 'Номенклатура',
-        {?group1} = 'NomenclatureType', 'Тип номенклатуры',
-        {?group2} = 'NomenclatureGroup1', 'Группа 1 уровень',
-        {?group2} = 'NomenclatureGroup2', 'Группа 2 уровень',
-        {?group2} = 'NomenclatureGroup3', 'Группа 3 уровень'
-    )
-    + '  |  ' +
-    Switch(
-        {?group3} = 'Order', 'Заказ',
-        {?group3} = 'Counterparty', 'Контрагент',
-        {?group3} = 'Subdivision', 'Отдел',
-        {?group3} = 'DeliveryDate', 'Дата доставки',
-        {?group3} = 'RouteList', 'МЛ',
-        {?group3} = 'Nomenclature', 'Номенклатура',
-        {?group1} = 'NomenclatureType', 'Тип номенклатуры',
-        {?group3} = 'NomenclatureGroup1', 'Группа 1 уровень',
-        {?group3} = 'NomenclatureGroup2', 'Группа 2 уровень',
-        {?group3} = 'NomenclatureGroup3', 'Группа 3 уровень'
-    ), 
-    Iif(
-        {?groups_count} = 2, 
-        Switch(
-            {?group1} = 'Order', 'Заказ',
-            {?group1} = 'Counterparty', 'Контрагент',
-            {?group1} = 'Subdivision', 'Отдел',
-            {?group1} = 'DeliveryDate', 'Дата доставки',
-            {?group1} = 'RouteList', 'МЛ',
-            {?group1} = 'Nomenclature', 'Номенклатура',
-            {?group1} = 'NomenclatureType', 'Тип номенклатуры',
-            {?group1} = 'NomenclatureGroup1', 'Группа 1 уровень',
-            {?group1} = 'NomenclatureGroup2', 'Группа 2 уровень',
-            {?group1} = 'NomenclatureGroup3', 'Группа 3 уровень'
-        )
-        + '  |  ' +
-        Switch(
-            {?group2} = 'Order', 'Заказ',
-            {?group2} = 'Counterparty', 'Контрагент',
-            {?group2} = 'Subdivision', 'Отдел',
-            {?group2} = 'DeliveryDate', 'Дата доставки',
-            {?group2} = 'RouteList', 'МЛ',
-            {?group2} = 'Nomenclature', 'Номенклатура',
-            {?group1} = 'NomenclatureType', 'Тип номенклатуры',
-            {?group2} = 'NomenclatureGroup1', 'Группа 1 уровень',
-            {?group2} = 'NomenclatureGroup2', 'Группа 2 уровень',
-            {?group2} = 'NomenclatureGroup3', 'Группа 3 уровень'        
-        ), 
-        Switch(
-            {?group1} = 'Order', 'Заказ',
-            {?group1} = 'Counterparty', 'Контрагент',
-            {?group1} = 'Subdivision', 'Отдел',
-            {?group1} = 'DeliveryDate', 'Дата доставки',
-            {?group1} = 'RouteList', 'МЛ',
-            {?group1} = 'Nomenclature', 'Номенклатура',
-            {?group1} = 'NomenclatureType', 'Тип номенклатуры',
-            {?group1} = 'NomenclatureGroup1', 'Группа 1 уровень',
-            {?group1} = 'NomenclatureGroup2', 'Группа 2 уровень',
-            {?group1} = 'NomenclatureGroup3', 'Группа 3 уровень'
-        )
-    )
-)</Value>
+                      <Value>={?grouping_title}</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -561,7 +480,7 @@ Iif(
   </PageFooter>
   <DataSets>
     <DataSet Name="Sales">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
         <CommandText>SELECT
@@ -952,7 +871,7 @@ GROUP BY T.order_items_id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="nomenclature_name">
           <DataField>nomenclature_name</DataField>
           <TypeName>System.String</TypeName>
@@ -1771,7 +1690,7 @@ WHERE
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
@@ -2022,24 +1941,31 @@ WHERE
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="group2">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="group3">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="groups_count">
       <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="grouping_title">
+      <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
