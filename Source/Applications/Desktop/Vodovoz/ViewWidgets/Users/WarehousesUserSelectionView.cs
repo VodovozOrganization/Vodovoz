@@ -22,6 +22,7 @@ namespace Vodovoz.ViewWidgets.Users
 				.AddColumn("Название")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(n => n.WarehouseName)
+					.WrapWidth(250).WrapMode(Pango.WrapMode.WordChar)
 					.XAlign(0.5f)
 				.AddColumn("")
 				.Finish();
