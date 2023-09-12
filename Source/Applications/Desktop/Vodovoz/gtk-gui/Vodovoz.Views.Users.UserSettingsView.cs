@@ -60,7 +60,7 @@ namespace Vodovoz.Views.Users
 
 		private global::Gamma.Widgets.yEnumComboBox yenumcomboStatus;
 
-		private global::Gtk.Label GtkLabel10;
+		private global::Gtk.Label GtkLabel11;
 
 		private global::Gtk.Frame frame2;
 
@@ -72,7 +72,7 @@ namespace Vodovoz.Views.Users
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryCounterparty;
 
-		private global::Gtk.Label GtkLabel14;
+		private global::Gtk.Label GtkLabel15;
 
 		private global::Gtk.Frame frameSortingCashInfo;
 
@@ -88,7 +88,7 @@ namespace Vodovoz.Views.Users
 
 		private global::Gamma.GtkWidgets.yTreeView treeViewSubdivisionsToSort;
 
-		private global::Gtk.Label GtkLabel15;
+		private global::Gtk.Label GtkLabel16;
 
 		private global::Gamma.GtkWidgets.yVBox vboxUpdateFixedPrices;
 
@@ -103,6 +103,8 @@ namespace Vodovoz.Views.Users
 		private global::Gamma.GtkWidgets.yButton btnUpdateFixedPrices;
 
 		private global::Gtk.ProgressBar updateFixedPricesProgress;
+
+		private global::Gamma.GtkWidgets.yHBox yhboxWarehousesForNotifications;
 
 		protected virtual void Build()
 		{
@@ -357,11 +359,11 @@ namespace Vodovoz.Views.Users
 			w21.Fill = false;
 			this.GtkAlignment3.Add(this.vbox9);
 			this.complaintsFrame.Add(this.GtkAlignment3);
-			this.GtkLabel10 = new global::Gtk.Label();
-			this.GtkLabel10.Name = "GtkLabel10";
-			this.GtkLabel10.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Рекламации</b>");
-			this.GtkLabel10.UseMarkup = true;
-			this.complaintsFrame.LabelWidget = this.GtkLabel10;
+			this.GtkLabel11 = new global::Gtk.Label();
+			this.GtkLabel11.Name = "GtkLabel11";
+			this.GtkLabel11.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Рекламации</b>");
+			this.GtkLabel11.UseMarkup = true;
+			this.complaintsFrame.LabelWidget = this.GtkLabel11;
 			this.vbox7.Add(this.complaintsFrame);
 			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vbox7[this.complaintsFrame]));
 			w24.Position = 1;
@@ -402,11 +404,11 @@ namespace Vodovoz.Views.Users
 			w26.Fill = false;
 			this.GtkAlignment7.Add(this.vbox2);
 			this.frame2.Add(this.GtkAlignment7);
-			this.GtkLabel14 = new global::Gtk.Label();
-			this.GtkLabel14.Name = "GtkLabel14";
-			this.GtkLabel14.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Настройка для розницы</b>");
-			this.GtkLabel14.UseMarkup = true;
-			this.frame2.LabelWidget = this.GtkLabel14;
+			this.GtkLabel15 = new global::Gtk.Label();
+			this.GtkLabel15.Name = "GtkLabel15";
+			this.GtkLabel15.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Настройка для розницы</b>");
+			this.GtkLabel15.UseMarkup = true;
+			this.frame2.LabelWidget = this.GtkLabel15;
 			this.vbox7.Add(this.frame2);
 			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.vbox7[this.frame2]));
 			w29.Position = 2;
@@ -467,11 +469,11 @@ namespace Vodovoz.Views.Users
 			w34.Fill = false;
 			this.GtkAlignment11.Add(this.hboxCashInfoSorting);
 			this.frameSortingCashInfo.Add(this.GtkAlignment11);
-			this.GtkLabel15 = new global::Gtk.Label();
-			this.GtkLabel15.Name = "GtkLabel15";
-			this.GtkLabel15.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Сортировка панели \"Остатки по кассам\"</b>");
-			this.GtkLabel15.UseMarkup = true;
-			this.frameSortingCashInfo.LabelWidget = this.GtkLabel15;
+			this.GtkLabel16 = new global::Gtk.Label();
+			this.GtkLabel16.Name = "GtkLabel16";
+			this.GtkLabel16.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Сортировка панели \"Остатки по кассам\"</b>");
+			this.GtkLabel16.UseMarkup = true;
+			this.frameSortingCashInfo.LabelWidget = this.GtkLabel16;
 			this.hbox6.Add(this.frameSortingCashInfo);
 			global::Gtk.Box.BoxChild w37 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.frameSortingCashInfo]));
 			w37.Position = 2;
@@ -552,6 +554,14 @@ namespace Vodovoz.Views.Users
 			w45.Position = 3;
 			w45.Expand = false;
 			w45.Fill = false;
+			// Container child vbox4.Gtk.Box+BoxChild
+			this.yhboxWarehousesForNotifications = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxWarehousesForNotifications.Name = "yhboxWarehousesForNotifications";
+			this.yhboxWarehousesForNotifications.Spacing = 6;
+			this.vbox4.Add(this.yhboxWarehousesForNotifications);
+			global::Gtk.Box.BoxChild w46 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.yhboxWarehousesForNotifications]));
+			w46.PackType = ((global::Gtk.PackType)(1));
+			w46.Position = 4;
 			this.Add(this.vbox4);
 			if ((this.Child != null))
 			{
