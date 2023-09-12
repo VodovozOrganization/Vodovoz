@@ -285,6 +285,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 		private void OnGroupingsRightItemsListContentChanged(object sender, EventArgs e)
 		{
+			if(SelectedGroupings.LastOrDefault() != GroupingType.Nomenclature)
+			{
+				ShowResidueForNomenclaturesWithoutSales = false;
+			}
 			OnPropertyChanged(nameof(SelectedGroupings));
 		}
 
