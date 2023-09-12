@@ -1,12 +1,18 @@
-﻿using System;
+﻿using QS.Views.GtkUI;
+using Vodovoz.ViewModels.Widgets.Users;
+
 namespace Vodovoz.ViewWidgets.Users
 {
-	[System.ComponentModel.ToolboxItem(true)]
-	public partial class WarehousesUserSelectionView : Gtk.Bin
+	public partial class WarehousesUserSelectionView : WidgetViewBase<WarehousesUserSelectionViewModel>
 	{
 		public WarehousesUserSelectionView()
 		{
 			this.Build();
+			Configure();
+		}
+
+		private void Configure()
+		{
 		}
 	}
 }
