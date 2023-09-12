@@ -26,17 +26,20 @@ namespace Vodovoz.EntityRepositories.Store
 
 		public int GetSendedMovementDocumentsToWarehouseByUserSelectedWarehouses(IUnitOfWork uow, IEnumerable<int> warehousesIds, int currentUserSubdivisionId)
 		{
-			MovementDocument movementDocumentAlias = null;
-			Warehouse warehouseAlias = null;
+			var subdivisionWarehouses = uow.GetAll<Warehouse>()
+				.Where(w => w.MovementDocumentsNotificationsSubdivisionRecipient.Id == currentUserSubdivisionId)
+				.Select(w => w.Id);
 
-			return uow.Session.QueryOver(() => movementDocumentAlias)
-				//.JoinEntityAlias(() => warehouseAlias,
-				//	() => warehouseAlias.MovementDocumentsNotificationsSubdivisionRecipient.Id == currentUserSubdivisionId)
-				.Where(md => md.Status == MovementDocumentStatus.Sended)
-				.And(md => md.ToWarehouse.Id != 13)// warehouseAlias.Id)
-				.AndRestrictionOn(() => movementDocumentAlias.ToWarehouse.Id).IsInG(warehousesIds)
-				.Select(Projections.Count(Projections.Id()))
-				.SingleOrDefault<int>();
+			var docsCount = uow.GetAll<MovementDocument>()
+				.Where(d => 
+					d.Status == MovementDocumentStatus.Sended
+					&& warehousesIds.Contains(d.ToWarehouse.Id)
+					&& !subdivisionWarehouses.Contains(d.ToWarehouse.Id))
+				.Select(d => d.Id)
+				.Distinct()
+				.Count();
+
+			return docsCount;
 		}
 	}
 }
