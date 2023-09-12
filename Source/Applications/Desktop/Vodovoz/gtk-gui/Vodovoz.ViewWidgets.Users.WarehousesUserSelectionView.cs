@@ -6,11 +6,11 @@ namespace Vodovoz.ViewWidgets.Users
 	{
 		private global::Gamma.GtkWidgets.yTable ytableMain;
 
-		private global::QS.Views.Control.EntityEntry entityentryWarehouseSelection;
-
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
 		private global::Gamma.GtkWidgets.yTextView ytextviewWarehousesList;
+
+		private global::Gamma.GtkWidgets.yButton ybuttonAddWarehouseToList;
 
 		private global::Gamma.GtkWidgets.yButton ybuttonDeleteWarehouseFromList;
 
@@ -25,20 +25,10 @@ namespace Vodovoz.ViewWidgets.Users
 			// Container child Vodovoz.ViewWidgets.Users.WarehousesUserSelectionView.Gtk.Container+ContainerChild
 			this.ytableMain = new global::Gamma.GtkWidgets.yTable();
 			this.ytableMain.Name = "ytableMain";
-			this.ytableMain.NRows = ((uint)(4));
+			this.ytableMain.NRows = ((uint)(3));
 			this.ytableMain.NColumns = ((uint)(3));
 			this.ytableMain.RowSpacing = ((uint)(6));
 			this.ytableMain.ColumnSpacing = ((uint)(6));
-			// Container child ytableMain.Gtk.Table+TableChild
-			this.entityentryWarehouseSelection = new global::QS.Views.Control.EntityEntry();
-			this.entityentryWarehouseSelection.Events = ((global::Gdk.EventMask)(256));
-			this.entityentryWarehouseSelection.Name = "entityentryWarehouseSelection";
-			this.ytableMain.Add(this.entityentryWarehouseSelection);
-			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.entityentryWarehouseSelection]));
-			w1.TopAttach = ((uint)(1));
-			w1.BottomAttach = ((uint)(2));
-			w1.RightAttach = ((uint)(3));
-			w1.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableMain.Gtk.Table+TableChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -49,11 +39,23 @@ namespace Vodovoz.ViewWidgets.Users
 			this.ytextviewWarehousesList.Name = "ytextviewWarehousesList";
 			this.GtkScrolledWindow.Add(this.ytextviewWarehousesList);
 			this.ytableMain.Add(this.GtkScrolledWindow);
-			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.GtkScrolledWindow]));
+			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.GtkScrolledWindow]));
+			w2.TopAttach = ((uint)(1));
+			w2.BottomAttach = ((uint)(2));
+			w2.RightAttach = ((uint)(3));
+			w2.XOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child ytableMain.Gtk.Table+TableChild
+			this.ybuttonAddWarehouseToList = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonAddWarehouseToList.CanFocus = true;
+			this.ybuttonAddWarehouseToList.Name = "ybuttonAddWarehouseToList";
+			this.ybuttonAddWarehouseToList.UseUnderline = true;
+			this.ybuttonAddWarehouseToList.Label = global::Mono.Unix.Catalog.GetString("Добавить");
+			this.ytableMain.Add(this.ybuttonAddWarehouseToList);
+			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ybuttonAddWarehouseToList]));
 			w3.TopAttach = ((uint)(2));
 			w3.BottomAttach = ((uint)(3));
-			w3.RightAttach = ((uint)(3));
 			w3.XOptions = ((global::Gtk.AttachOptions)(4));
+			w3.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableMain.Gtk.Table+TableChild
 			this.ybuttonDeleteWarehouseFromList = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonDeleteWarehouseFromList.CanFocus = true;
@@ -62,8 +64,10 @@ namespace Vodovoz.ViewWidgets.Users
 			this.ybuttonDeleteWarehouseFromList.Label = global::Mono.Unix.Catalog.GetString("Удалить");
 			this.ytableMain.Add(this.ybuttonDeleteWarehouseFromList);
 			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ybuttonDeleteWarehouseFromList]));
-			w4.TopAttach = ((uint)(3));
-			w4.BottomAttach = ((uint)(4));
+			w4.TopAttach = ((uint)(2));
+			w4.BottomAttach = ((uint)(3));
+			w4.LeftAttach = ((uint)(2));
+			w4.RightAttach = ((uint)(3));
 			w4.XOptions = ((global::Gtk.AttachOptions)(4));
 			w4.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableMain.Gtk.Table+TableChild
