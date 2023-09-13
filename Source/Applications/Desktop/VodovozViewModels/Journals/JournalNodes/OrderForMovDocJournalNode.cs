@@ -28,17 +28,5 @@ namespace Vodovoz.Journals.JournalNodes
 
 		public int? EShopOrder { get; set; }
 		public string EShopNumber => EShopOrder?.ToString() ?? string.Empty;
-
-		public string RowColor {
-			get {
-				if(StatusEnum == OrderStatus.Canceled || StatusEnum == OrderStatus.DeliveryCanceled)
-					return "grey";
-				if(StatusEnum == OrderStatus.Closed)
-					return "green";
-				if(StatusEnum == OrderStatus.NotDelivered)
-					return "blue";
-				return "black";
-			}
-		}
 	}
 }

@@ -17,6 +17,7 @@ using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.Infrastructure;
 
 namespace Vodovoz
 {
@@ -329,12 +330,12 @@ namespace Vodovoz
 			}
 			if(node.DriverBottlesReturned.HasValue) {
 				if(node.BottlesReturned == node.DriverBottlesReturned) {
-					cell.Foreground = "Green";
+					cell.ForegroundGdk = GdkColors.Green;
 				} else {
-					cell.Foreground = "Blue";
+					cell.ForegroundGdk = GdkColors.Blue;
 				}
 			} else {
-				cell.Foreground = "Black";
+				cell.ForegroundGdk = GdkColors.PrimaryText;
 			}
 		}
 
@@ -345,7 +346,7 @@ namespace Vodovoz
 			var formatString = actual < planned
 				? "<b>{0:N0}</b>({1:N0})" 
 				: "<b>{0:N0}</b>";
-			return String.Format(formatString, actual, planned-actual);
+			return string.Format(formatString, actual, planned-actual);
 		}
 
 		public string ToClientString(RouteListItem item)

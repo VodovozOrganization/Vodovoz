@@ -5,6 +5,8 @@ using Gamma.Binding.Core;
 using QS.DocTemplates;
 using QSDocTemplates;
 using QSProjectsLib;
+using Vodovoz.Extensions;
+using Vodovoz.Infrastructure;
 
 namespace Vodovoz.ViewWidgets
 {
@@ -90,23 +92,23 @@ namespace Vodovoz.ViewWidgets
 		void UpdateState()
 		{
 			if(Template == null) {
-				labelStatus.Markup = "<span foreground=\"red\">Шаблон не определен!</span>";
+				labelStatus.Markup = $"<span foreground=\"{GdkColors.Red.ToHtmlColor()}\">Шаблон не определен!</span>";
 				buttonEdit.Sensitive = buttonPrint.Sensitive = buttonOpen.Sensitive = false;
 			} else if(Template.DocParser == null) {
-				labelStatus.Markup = "<span foreground=\"red\">Парсер не задан!</span>";
+				labelStatus.Markup = $"<span foreground=\"{GdkColors.Red.ToHtmlColor()}\">Парсер не задан!</span>";
 				buttonEdit.Sensitive = buttonPrint.Sensitive = buttonOpen.Sensitive = false;
 			} else if(Template.ChangedDocFile == null) {
-				labelStatus.Markup = "<span foreground=\"red\">Документ не сформирован!</span>";
+				labelStatus.Markup = $"<span foreground=\"{GdkColors.Red.ToHtmlColor()}\">Документ не сформирован!</span>";
 				buttonEdit.Sensitive = buttonPrint.Sensitive = buttonOpen.Sensitive = false;
 			} else {
-				labelStatus.Markup = "<span foreground=\"green\">Собственный документ</span>";
+				labelStatus.Markup = $"<span foreground=\"{GdkColors.Green.ToHtmlColor()}\">Собственный документ</span>";
 				buttonEdit.Sensitive = buttonPrint.Sensitive = buttonOpen.Sensitive = true;
 			}
 		}
 
 		void UpdateSize()
 		{
-			label1.LabelProp = String.Empty;
+			label1.LabelProp = string.Empty;
 			if(File != null)
 				label1.LabelProp = StringWorks.BytesToIECUnitsString((uint)File.LongLength);
 		}

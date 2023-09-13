@@ -45,6 +45,7 @@ using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewWidgets.Logistics;
 using Order = Vodovoz.Domain.Orders.Order;
 using Vodovoz.Settings.Cash;
+using Vodovoz.Infrastructure;
 
 namespace Vodovoz
 {
@@ -251,8 +252,8 @@ namespace Vodovoz
 
 		private IColumnsConfig GetColumnsConfig(bool isRightPanel)
 		{
-			var colorGreen = new Gdk.Color(0x44, 0xcc, 0x49);
-			var colorWhite = new Gdk.Color(0xff, 0xff, 0xff);
+			var colorGreen = GdkColors.Green;
+			var basePrimary = GdkColors.PrimaryBase;
 
 			var config = ColumnsConfigFactory.Create<RouteListItemNode>()
 				.AddColumn("Еж.\nномер").AddTextRenderer(node => node.DalyNumber)
@@ -287,7 +288,7 @@ namespace Vodovoz
 
 			return config.AddColumn("Нужен\nтерминал").AddToggleRenderer(x => x.NeedTerminal).Editing(false)
 			             .AddColumn("Комментарий").AddTextRenderer(node => node.Comment)
-			             .RowCells().AddSetter<CellRenderer>((cell, node) => cell.CellBackgroundGdk = node.WasTransfered ? colorGreen : colorWhite)
+			             .RowCells().AddSetter<CellRenderer>((cell, node) => cell.CellBackgroundGdk = node.WasTransfered ? colorGreen : basePrimary)
 			             .Finish();
 		}
 

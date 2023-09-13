@@ -4,6 +4,7 @@ using Gamma.Utilities;
 using Gdk;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Widgets.Cars;
 
 namespace Vodovoz.Views.Logistic
@@ -11,8 +12,8 @@ namespace Vodovoz.Views.Logistic
 	[ToolboxItem(true)]
 	public partial class CarVersionsView : WidgetViewBase<CarVersionsViewModel>
 	{
-		private static readonly Color _greenColor = new Color(0, 255, 0);
-		private static readonly Color _whiteColor = new Color(255, 255, 255);
+		private static readonly Color _greenColor = GdkColors.Green;
+		private static readonly Color _primaryBaseColor = GdkColors.PrimaryBase;
 
 		public CarVersionsView()
 		{
@@ -28,7 +29,7 @@ namespace Vodovoz.Views.Logistic
 
 			ytreeCarVersions.ColumnsConfig = FluentColumnsConfig<CarVersion>.Create()
 				.AddColumn("Код").MinWidth(50).HeaderAlignment(0.5f).AddTextRenderer(x => x.Id == 0 ? "Новая" : x.Id.ToString()).XAlign(0.5f)
-					.AddSetter((c, n) => c.BackgroundGdk = n.Id == 0 ? _greenColor : _whiteColor)
+					.AddSetter((c, n) => c.BackgroundGdk = n.Id == 0 ? _greenColor : _primaryBaseColor)
 				.AddColumn("Принадлежность")
 					.AddComboRenderer(x => x.CarOwnType)
 					.SetDisplayFunc(x => x.GetEnumTitle())

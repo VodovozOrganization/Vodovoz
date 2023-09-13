@@ -12,6 +12,8 @@ using System.ComponentModel;
 using System.Threading.Tasks;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Client;
+using Vodovoz.Extensions;
+using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Dialogs.Counterparty;
 
 namespace Vodovoz.Views.Client
@@ -233,8 +235,8 @@ namespace Vodovoz.Views.Client
 
 			ylabelFoundOnOsm.Binding.AddFuncBinding(ViewModel.Entity,
 				e => e.CoordinatesExist
-					? string.Format("<span foreground='{1}'>{0}</span>", e.CoordinatesText, e.FoundOnOsm ? "green" : "blue")
-					: "<span foreground='red'>Не найден на карте.</span>",
+					? string.Format("<span foreground='{1}'>{0}</span>", e.CoordinatesText, e.FoundOnOsm ? GdkColors.Green.ToHtmlColor() : GdkColors.Blue.ToHtmlColor())
+					: $"<span foreground='{GdkColors.Red.ToHtmlColor()}'>Не найден на карте.</span>",
 				w => w.LabelProp).InitializeFromSource();
 			ylabelChangedUser.Binding.AddFuncBinding(ViewModel,
 				vm => vm.CoordsWasChanged

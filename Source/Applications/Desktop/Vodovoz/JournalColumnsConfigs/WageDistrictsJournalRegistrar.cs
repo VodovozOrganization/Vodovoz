@@ -1,5 +1,6 @@
 ﻿using Gamma.ColumnConfig;
 using Gtk;
+using Vodovoz.Infrastructure;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels.WageCalculation;
 
@@ -19,7 +20,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddTextRenderer(n => n.IsArchiveString)
 				.AddColumn("")
 				.RowCells()
-					.AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+					.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? GdkColors.InsensitiveText : GdkColors.PrimaryText)
 				.Finish();
 	}
 }

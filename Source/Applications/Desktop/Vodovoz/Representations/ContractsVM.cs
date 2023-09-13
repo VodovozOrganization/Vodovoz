@@ -7,6 +7,7 @@ using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Infrastructure;
 
 namespace Vodovoz.ViewModel
 {
@@ -72,11 +73,26 @@ namespace Vodovoz.ViewModel
 			SetItemsSource (contractslist);
 		}
 
-		IColumnsConfig columnsConfig = FluentColumnsConfig <ContractsVMNode>.Create ()
+		IColumnsConfig columnsConfig = FluentColumnsConfig<ContractsVMNode>.Create()
 			.AddColumn("Номер").AddTextRenderer(node => node.Title)
 			.AddColumn ("Организация").AddTextRenderer(node => node.Organization)
-			.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.RowColor)
-			.Finish ();
+			.RowCells().AddSetter<CellRendererText> ((c, n) =>
+			{
+				var color = GdkColors.PrimaryText;
+
+				if(n.IsArchive)
+				{
+					color = GdkColors.InsensitiveText;
+				}
+
+				if(n.OnCancellation)
+				{
+					color = GdkColors.Blue;
+				}
+
+				c.ForegroundGdk = color;
+			})
+			.Finish();
 
 		public override IColumnsConfig ColumnsConfig {
 			get { return columnsConfig; }
@@ -135,17 +151,6 @@ namespace Vodovoz.ViewModel
 		}
 			
 		public string Organization { get; set;}
-
-		public string RowColor {
-			get {
-				if (IsArchive)
-					return "grey";
-				if (OnCancellation)
-					return "blue";
-				return "black";
-
-			}
-		}
 	}
 }
 

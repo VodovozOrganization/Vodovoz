@@ -46,19 +46,19 @@ namespace Vodovoz.JournalColumnsConfigs
 				.RowCells().AddSetter<CellRenderer>(
 					(c, n) =>
 					{
-						var color = GdkColors.WhiteColor;
+						var color = GdkColors.PrimaryBase;
 
 						if(n.Status == PaymentState.undistributed)
 						{
-							color = GdkColors.PinkColor;
+							color = GdkColors.Pink;
 						}
 						if(n.Status == PaymentState.distributed)
 						{
-							color = GdkColors.LightGreenColor;
+							color = GdkColors.LightGreen;
 						}
 						if(n.Status == PaymentState.Cancelled)
 						{
-							color = GdkColors.LightGrayColor;
+							color = GdkColors.InsensitiveBase;
 						}
 
 						c.CellBackgroundGdk = color;

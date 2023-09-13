@@ -7,6 +7,8 @@ using QS.Validation;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Infrastructure;
+using Vodovoz.Extensions;
 
 namespace Vodovoz
 {
@@ -51,7 +53,7 @@ namespace Vodovoz
 		{
 			if(e.PropertyName == Entity.GetPropertyName(x => x.TempalteFile))
 			{
-				labelFileChanged.Markup = "<span foreground=\"green\">(файл изменён)</span>";
+				labelFileChanged.Markup = $"<span foreground=\"{GdkColors.Green.ToHtmlColor()}\">(файл изменён)</span>";
 			}
 		}
 
@@ -66,7 +68,7 @@ namespace Vodovoz
 			logger.Info ("Сохраняем шаблон документа...");
 			UoWGeneric.Save ();
 			logger.Info ("Ok.");
-			labelFileChanged.LabelProp = String.Empty;
+			labelFileChanged.LabelProp = string.Empty;
 			return true;
 		}
 

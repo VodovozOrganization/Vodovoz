@@ -1,5 +1,7 @@
 ﻿using Gamma.ColumnConfig;
 using Gtk;
+using System;
+using Vodovoz.Infrastructure;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
 using WrapMode = Pango.WrapMode;
@@ -19,7 +21,11 @@ namespace Vodovoz.JournalColumnsConfigs
 					.WrapMode(WrapMode.WordChar)
 				.AddColumn("Ответственный").AddTextRenderer(node => node.AssignedEmployeeName ?? string.Empty)
 				.AddColumn("Выполнить до").AddTextRenderer(node => node.Deadline.ToString("dd / MM / yyyy  HH:mm"))
-				.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+				.RowCells().AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsTaskComplete
+					? GdkColors.Green
+					: DateTime.Now > n.Deadline
+						? GdkColors.Red
+						: GdkColors.PrimaryText)
 				.Finish();
 	}
 }

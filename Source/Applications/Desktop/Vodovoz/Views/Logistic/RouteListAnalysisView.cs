@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -10,6 +10,7 @@ using QS.Validation;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.Infrastructure;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
@@ -142,16 +143,16 @@ namespace Vodovoz.Views.Logistic
 
 						switch(n.Status) {
 							case RouteListItemStatus.Overdue:
-								c.CellBackgroundGdk = new Color(0xee, 0x66, 0x66);
+								c.CellBackgroundGdk = GdkColors.LightRed;
 								break;
 							case RouteListItemStatus.Completed:
-								c.CellBackgroundGdk = new Color(0x66, 0xee, 0x66);
+								c.CellBackgroundGdk = GdkColors.LightGreen;
 								break;
 							case RouteListItemStatus.Canceled:
-								c.CellBackgroundGdk = new Color(0xaf, 0xaf, 0xaf);
+								c.CellBackgroundGdk = GdkColors.InsensitiveBase;
 								break;
 							default:
-								c.CellBackgroundGdk = new Color(0xff, 0xff, 0xff);
+								c.CellBackgroundGdk = GdkColors.PrimaryBase;
 								break;
 						}
 					})

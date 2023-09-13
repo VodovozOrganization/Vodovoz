@@ -9,6 +9,7 @@ using System;
 using System.Linq;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Infrastructure;
 
 namespace Vodovoz.ViewModel
 {
@@ -69,10 +70,13 @@ namespace Vodovoz.ViewModel
 		}
 
 		IColumnsConfig treeViewConfig = ColumnsConfigFactory.Create<AccountableDebtsVMNode> ()
-			.AddColumn("Имя сотрудника").AddTextRenderer (node => node.AccountableName)
+			.AddColumn("Имя сотрудника").AddTextRenderer(node => node.AccountableName)
 			.AddColumn ("Задолжность").AddTextRenderer(node => node.DebtText)
-			.RowCells ().AddSetter<Gtk.CellRendererText> ((c, n) => c.Foreground = n.RowColor)
-			.Finish ();
+			.RowCells ().AddSetter<Gtk.CellRendererText> ((c, n) =>
+			{
+				c.ForegroundGdk = n.Debt < 0 ? GdkColors.Red : GdkColors.PrimaryText;
+			})
+			.Finish();
 
 		public override IColumnsConfig ColumnsConfig {
 			get {
@@ -138,12 +142,6 @@ namespace Vodovoz.ViewModel
 		public decimal Debt { get{
 				return Append - Removed - Returned;
 			}}
-
-		public string RowColor {
-			get {
-				return Debt < 0 ? "red" : "black";
-			}
-		}
 	}
 }
 

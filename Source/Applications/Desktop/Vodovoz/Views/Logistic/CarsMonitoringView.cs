@@ -17,6 +17,7 @@ using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using Vodovoz.Extensions;
 
 namespace Vodovoz.Views.Logistic
 {
@@ -711,7 +712,7 @@ namespace Vodovoz.Views.Logistic
 		private DistanceTextInfo CreateRouteInfo(GMapRoute route)
 		{
 			var layout = new Pango.Layout(PangoContext) { Alignment = Pango.Alignment.Right };
-			var colTXT = ColorTranslator.ToHtml(route.Stroke.Color);
+			var colTXT = route.Stroke.Color.ToHtmlColor();
 			layout.SetMarkup($"<span foreground=\"{colTXT}\"><span font=\"Segoe UI Symbol\">⛽</span> {route.Distance:N1} км.</span>");
 
 			return new DistanceTextInfo

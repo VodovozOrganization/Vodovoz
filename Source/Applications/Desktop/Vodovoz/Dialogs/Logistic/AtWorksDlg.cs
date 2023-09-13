@@ -31,6 +31,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
+using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
@@ -69,10 +70,10 @@ namespace Vodovoz.Dialogs.Logistic
 		private readonly EmployeeFilterViewModel _forwarderFilter;
 		private readonly AtWorkFilterViewModel _filterViewModel;
 
-		private readonly Color _colorBackgroundDefault;
-		private readonly Color _colorForegroundDefault;
-		private readonly Color _colorForegroundInsensitive;
-		private readonly Color _colorLightRed;
+		private readonly Color _colorPrimaryBase = GdkColors.PrimaryBase;
+		private readonly Color _colorPrimaryText = GdkColors.PrimaryText;
+		private readonly Color _colorInsensitiveText = GdkColors.InsensitiveText;
+		private readonly Color _colorLightRed = GdkColors.LightRed;
 		private IList<RouteList> _routelists = new List<RouteList>();
 		private readonly HashSet<AtWorkDriver> _driversWithCommentChanged = new HashSet<AtWorkDriver>();
 		private bool _hasNewDrivers;
@@ -126,11 +127,6 @@ namespace Vodovoz.Dialogs.Logistic
 				UoW.GetById<DeliveryDaySchedule>(_defaultDeliveryDayScheduleSettings.GetDefaultDeliveryDayScheduleId());
 
 			_cachedGeographicGroups = _geographicGroupRepository.GeographicGroupsWithCoordinates(UoW, isActiveOnly: true);
-
-			_colorBackgroundDefault = Rc.GetStyle(this).Background(StateType.Normal);
-			_colorForegroundDefault = Rc.GetStyle(this).Foreground(StateType.Normal);
-			_colorForegroundInsensitive = Rc.GetStyle(this).Foreground(StateType.Insensitive);
-			_colorLightRed = new Color(0xff, 0x66, 0x66);
 
 			_forwarderFilter = new EmployeeFilterViewModel();
 
@@ -274,7 +270,7 @@ namespace Vodovoz.Dialogs.Logistic
 							c.Editable = true;
 							c.BackgroundGdk = n.GeographicGroup == null
 								? _colorLightRed
-								: _colorBackgroundDefault;
+								: _colorPrimaryBase;
 						}
 					)
 				.AddColumn("Грузоп.")
@@ -291,8 +287,8 @@ namespace Vodovoz.Dialogs.Logistic
 					.AddTextRenderer(x => x.CarTypeOfUseDisplayName)
 				.RowCells().AddSetter<CellRendererText>((c, n) =>
 					c.ForegroundGdk = n.Status == AtWorkDriver.DriverStatus.NotWorking
-					? _colorForegroundInsensitive
-					: _colorForegroundDefault)
+					? _colorInsensitiveText
+					: _colorPrimaryText)
 				.Finish();
 
 			ytreeviewAtWorkDrivers.ItemsDataSource = DriversAtDay;

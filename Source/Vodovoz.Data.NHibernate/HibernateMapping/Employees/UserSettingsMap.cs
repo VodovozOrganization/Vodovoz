@@ -1,4 +1,4 @@
-﻿using FluentNHibernate.Mapping;
+using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 
@@ -25,6 +25,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Employees
 			Map(x => x.HideComplaintNotification).Column("hide_complaint_notification");
 			Map(x => x.SalesBySubdivisionsAnalitycsReportWarehousesString).Column("sales_by_subdivisions_analitycs_report_warehouses");
 			Map(x => x.SalesBySubdivisionsAnalitycsReportSubdivisionsString).Column("sales_by_subdivisions_analitycs_report_subdivisions");
+			Map(x => x.ThemeName).Column("theme_name");
 			Map(x => x.MovementDocumentsNotificationUserSelectedWarehousesString).Column("movement_documents_notification_user_selected_warehouses");
 			References(x => x.User).Column("user_id");
 			References(x => x.DefaultWarehouse).Column("default_warehouse_id");

@@ -5,6 +5,8 @@ using QS.Navigation;
 using QS.Views.Dialog;
 using QS.Widgets;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Extensions;
+using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewModels.Goods;
 
@@ -96,7 +98,7 @@ namespace Vodovoz.Views.Goods
 			if(e.PropertyName == nameof(ViewModel.PercentSum))
 			{
 				ylabelPercentSum.Markup = "Сумма процентов: " +
-					(ViewModel.PercentSum == 100m ? "100" : $"<span foreground = \"red\">{ViewModel.PercentSum}</span>");
+					(ViewModel.PercentSum == 100m ? "100" : $"<span foreground = \"{GdkColors.Red.ToHtmlColor()}\">{ViewModel.PercentSum}</span>");
 			}
 		}
 

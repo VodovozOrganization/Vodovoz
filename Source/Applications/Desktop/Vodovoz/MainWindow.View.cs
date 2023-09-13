@@ -1,6 +1,10 @@
-﻿using Gtk;
+﻿using GLib;
+using Gtk;
+using MoreLinq;
 using QS.Dialog.GtkUI;
 using System;
+using System.Linq;
+using System.Runtime.InteropServices;
 using Vodovoz;
 using Vodovoz.Domain.Employees;
 using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
@@ -203,4 +207,77 @@ public partial class MainWindow
 		new[] { "#F81919", "#009F6B", "#1F8BFF", "#FF9F00", "#FA7A7A", "#B46034", "#99B6FF", "#8F2BE1", "#00CC44" };
 
 	#endregion Вкладки
+
+	#region Темы оформления
+
+	public void InitializeThemesMenuItem()
+	{
+		string themesPath = Rc.ThemeDir;
+
+		//if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+		//{
+		//	themesPath = @"C:\Program Files (x86)\GtkSharp\2.12\share\themes";
+		//}
+		//else
+		//{
+		//	themesPath = "/usr/share/themes/";
+		//}
+
+		var themes = System.IO.Directory.GetDirectories(themesPath)
+			.Select(x => x.Split(System.IO.Path.DirectorySeparatorChar).LastOrDefault());
+				
+		var t = Rc.GetStyle(this);
+
+		var viewMenuItem = menubarMain.Children.Where(x => x.Name == nameof(Action18)).Cast<ImageMenuItem>().FirstOrDefault();
+
+		var submenu = viewMenuItem.Submenu as Menu;
+
+		var themesSubmenuRoot = new Gtk.MenuItem("Тема оформления");
+
+		var subsubmenu = new Menu();
+
+		themesSubmenuRoot.Submenu = subsubmenu;
+
+		foreach(var theme in themes)
+		{
+			var themeSubmenu = new Gtk.MenuItem(theme);
+
+			if(theme == CurrentUserSettings.Settings.ThemeName)
+			{
+				themeSubmenu.Name = "✔️ " + theme;
+
+			}
+			else
+			{
+				themeSubmenu.Name = theme;
+			}
+
+			themeSubmenu.Activated += ChangeTheme;
+
+			themeSubmenu.Show();
+
+			subsubmenu.Append(themeSubmenu);
+		}
+
+		submenu.Append(themesSubmenuRoot);
+
+		themesSubmenuRoot.Show();
+	}
+
+	private void ChangeTheme(object sender, EventArgs args)
+	{
+		if(sender is MenuItem menu
+			&& MessageDialogHelper.RunQuestionDialog("Для применения данной настройки программа будет закрыта.\n Вы уверены?"))
+		{
+			Gtk.Settings.Default.ThemeName = menu.Name;
+
+			CurrentUserSettings.Settings.ThemeName = menu.Name;
+
+			CurrentUserSettings.SaveSettings();
+
+			Gtk.Application.Quit();
+		}
+	}
+
+	#endregion Темы оформления
 }

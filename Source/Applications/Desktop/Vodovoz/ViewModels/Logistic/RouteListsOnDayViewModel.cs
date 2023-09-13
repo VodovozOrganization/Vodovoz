@@ -33,6 +33,8 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Extensions;
+using Vodovoz.Infrastructure;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
@@ -702,7 +704,7 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			if(row is RouteList rl && rl.OnLoadTimeStart.HasValue) {
 				if(rl.OnloadTimeFixed)
-					return string.Format("<span foreground=\"Turquoise\">{0:hh\\:mm}</span>", rl.OnLoadTimeStart.Value);
+					return string.Format($"<span foreground=\"{GdkColors.Turquoise.ToHtmlColor()}\">{0:hh\\:mm}</span>", rl.OnLoadTimeStart.Value);
 				return rl.OnLoadTimeStart.Value.ToString("hh\\:mm");
 			}
 			return null;
@@ -856,11 +858,11 @@ namespace Vodovoz.ViewModels.Logistic
 
 		string FormatOccupancy(int val, int? min, int? max)
 		{
-			string color = "green";
+			string color = GdkColors.Green.ToHtmlColor();
 			if(val > max)
-				color = "red";
+				color = GdkColors.Red.ToHtmlColor();
 			if(val < min)
-				color = "blue";
+				color = GdkColors.Blue.ToHtmlColor();
 
 			if(min.HasValue && max.HasValue)
 				return string.Format("<span foreground=\"{0}\">{1}</span>({2}-{3})", color, val, min, max);
@@ -871,11 +873,11 @@ namespace Vodovoz.ViewModels.Logistic
 
 		string FormatOccupancy(decimal val, decimal? min, decimal? max)
 		{
-			string color = "green";
+			string color = GdkColors.Green.ToHtmlColor();
 			if(val > max)
-				color = "red";
+				color = GdkColors.Red.ToHtmlColor();
 			if(val < min)
-				color = "blue";
+				color = GdkColors.Blue.ToHtmlColor();
 
 			if(min.HasValue && max.HasValue)
 				return string.Format("<span foreground=\"{0}\">{1}</span>({2}-{3})", color, val, min, max);

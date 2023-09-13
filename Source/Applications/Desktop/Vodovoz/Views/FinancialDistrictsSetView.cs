@@ -13,6 +13,7 @@ using QS.Views.GtkUI;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.ViewModels;
 
 namespace Vodovoz.Views
@@ -34,8 +35,8 @@ namespace Vodovoz.Views
 		{
 			#region TreeView
 
-			var colorRed = new Color(255, 0, 0);
-			var colorWhite = new Color(255, 255, 255);
+			var colorRed = GdkColors.Red;
+			var colorPrimaryBase = GdkColors.PrimaryBase;
 
 			ytreeDistricts.ColumnsConfig = FluentColumnsConfig<FinancialDistrict>.Create()
 				.AddColumn("Код")

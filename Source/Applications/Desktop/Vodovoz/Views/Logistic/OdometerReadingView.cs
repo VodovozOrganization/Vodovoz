@@ -4,6 +4,7 @@ using Gtk;
 using QS.Utilities;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Widgets.Cars;
 
 namespace Vodovoz.Views.Logistic
@@ -11,8 +12,8 @@ namespace Vodovoz.Views.Logistic
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class OdometerReadingView : WidgetViewBase<OdometerReadingsViewModel>
 	{
-		private static readonly Color _greenColor = new Color(0, 255, 0);
-		private static readonly Color _whiteColor = new Color(255, 255, 255);
+		private static readonly Color _greenColor = GdkColors.Green;
+		private static readonly Color _primaryBaseColor = GdkColors.PrimaryBase;
 
 		public OdometerReadingView()
 		{
@@ -28,7 +29,7 @@ namespace Vodovoz.Views.Logistic
 
 			ytreeOdometerReading.ColumnsConfig = FluentColumnsConfig<OdometerReading>.Create()
 				.AddColumn("Код").MinWidth(50).HeaderAlignment(0.5f).AddTextRenderer(x => x.Id == 0 ? "Новая" : x.Id.ToString()).XAlign(0.5f)
-					.AddSetter((c, n) => c.BackgroundGdk = n.Id == 0 ? _greenColor : _whiteColor)
+					.AddSetter((c, n) => c.BackgroundGdk = n.Id == 0 ? _greenColor : _primaryBaseColor)
 				.AddColumn("Одометр")
 					.AddNumericRenderer(x => x.Odometer)
 					.Adjustment(new Adjustment(1, 0, 10000000, 1, 100, 100))

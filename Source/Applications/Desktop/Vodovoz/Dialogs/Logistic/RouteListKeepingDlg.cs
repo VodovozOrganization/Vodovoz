@@ -32,6 +32,7 @@ using Vodovoz.EntityRepositories.Profitability;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
+using Vodovoz.Infrastructure;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Settings.Database;
@@ -593,9 +594,9 @@ namespace Vodovoz
 					case RouteListItemStatus.Completed:
 						return new Gdk.Color(0x66, 0xee, 0x66);
 					case RouteListItemStatus.Canceled:
-						return new Gdk.Color(0xaf, 0xaf, 0xaf);
+						return GdkColors.InsensitiveBase;
 					default:
-						return new Gdk.Color(0xff, 0xff, 0xff);
+						return GdkColors.PrimaryBase;
 				}
 			}
 		}

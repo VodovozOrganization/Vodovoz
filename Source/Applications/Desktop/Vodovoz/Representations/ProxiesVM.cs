@@ -9,6 +9,7 @@ using Vodovoz.Domain.Contacts;
 using QS.DomainModel.UoW;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Client;
+using Vodovoz.Infrastructure;
 
 namespace Vodovoz.ViewModel
 {
@@ -60,7 +61,22 @@ namespace Vodovoz.ViewModel
 			.AddColumn ("Окончание действия").AddTextRenderer(node => node.End)
 			.AddColumn ("Кол-во лиц").AddNumericRenderer(node => node.PeopleCount)
 			.AddColumn ("Точки доставки").AddTextRenderer(node => node.DeliveryPoints)
-			.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.RowColor)
+			.RowCells ().AddSetter<CellRendererText> ((c, n) =>
+			{
+				var color = GdkColors.PrimaryText;
+
+				if(DateTime.Today > n.EndDate)
+				{
+					color = GdkColors.InsensitiveText;
+				}
+
+				if(DateTime.Today < n.StartDate)
+				{
+					color = GdkColors.Blue;
+				}
+
+				c.ForegroundGdk = color;
+			})
 			.Finish ();
 
 		public override IColumnsConfig ColumnsConfig {
@@ -103,16 +119,6 @@ namespace Vodovoz.ViewModel
 		public string Start { get { return String.Format ("{0:d}", StartDate); }}
 
 		public string End { get { return String.Format ("{0:d}", EndDate); }}
-
-		public string RowColor {
-			get {
-				if (DateTime.Today > EndDate)
-					return "grey";
-				if (DateTime.Today < StartDate)
-					return "blue";
-				return "black";
-			}
-		}
 			
 		public int PeopleCount{ get; set;}
 

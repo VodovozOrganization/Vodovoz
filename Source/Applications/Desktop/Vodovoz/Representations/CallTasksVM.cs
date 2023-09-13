@@ -22,6 +22,7 @@ using ClosedXML.Excel;
 using QS.Project.Services.FileDialog;
 using Gamma.Utilities;
 using WrapMode = Pango.WrapMode;
+using Vodovoz.Infrastructure;
 
 namespace Vodovoz.Representations
 {
@@ -64,7 +65,22 @@ namespace Vodovoz.Representations
 				.WrapMode(Pango.WrapMode.WordChar)
 			.AddColumn("Ответственный").AddTextRenderer(node => node.AssignedEmployeeName ?? String.Empty)
 			.AddColumn("Выполнить до").AddTextRenderer(node => node.Deadline.ToString("dd / MM / yyyy  HH:mm"))
-			.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+			.RowCells().AddSetter<CellRendererText>((c, n) =>
+			{
+				var color = GdkColors.PrimaryText;
+
+				if(n.IsTaskComplete)
+				{
+					color = GdkColors.Green;
+				}
+
+				if(DateTime.Now > n.Deadline)
+				{
+					color = GdkColors.Red;
+				}
+
+				c.ForegroundGdk = color;
+			})
 			.Finish();
 
 		public CallTasksVM(IImageProvider imageProvider, IFileDialogService fileDialogService)
@@ -425,18 +441,5 @@ namespace Vodovoz.Representations
 		public int TareReturn { get; set; }
 
 		public string Comment { get; set; }
-
-		public string RowColor
-		{
-			get
-			{
-				if(IsTaskComplete)
-					return "green";
-				if(DateTime.Now > Deadline)
-					return "red";
-
-				return "black";
-			}
-		}
 	}
 }

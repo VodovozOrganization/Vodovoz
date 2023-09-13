@@ -2,6 +2,8 @@
 using Gamma.Utilities;
 using Gtk;
 using QSProjectsLib;
+using Vodovoz.Domain.Orders;
+using Vodovoz.Infrastructure;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
 
@@ -20,7 +22,28 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Сумма").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.Sum))
 				.AddColumn("Клиент").AddTextRenderer(node => node.Counterparty)
 				.AddColumn("Автор").AddTextRenderer(node => node.Author)
-				.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+				.RowCells().AddSetter<CellRendererText>((c, n) =>
+				{
+					var color = GdkColors.PrimaryText;
+
+					if(n.StatusEnum == OrderStatus.Canceled
+						|| n.StatusEnum == OrderStatus.DeliveryCanceled)
+					{
+						color = GdkColors.InsensitiveText;
+					}
+
+					if(n.StatusEnum == OrderStatus.Closed)
+					{
+						color = GdkColors.Green;
+					}
+
+					if(n.StatusEnum == OrderStatus.NotDelivered)
+					{
+						color = GdkColors.Blue;
+					}
+
+					c.ForegroundGdk = color;
+				})
 				.Finish();
 	}
 }

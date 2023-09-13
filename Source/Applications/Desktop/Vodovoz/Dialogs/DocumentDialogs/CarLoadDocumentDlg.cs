@@ -26,6 +26,8 @@ using Vodovoz.Models;
 using Vodovoz.Tools;
 using Vodovoz.Tools.Store;
 using QS.Validation;
+using Vodovoz.Infrastructure;
+using Vodovoz.Extensions;
 
 namespace Vodovoz
 {
@@ -186,7 +188,7 @@ namespace Vodovoz
 			if(Entity.Items.Any(x => x.Amount == 0))
 			{
 				var res = MessageDialogHelper.RunQuestionYesNoCancelDialog(
-					"<span foreground=\"red\">В списке есть нулевые позиции. Убрать нулевые позиции перед сохранением?</span>");
+					$"<span foreground=\"{GdkColors.Red.ToHtmlColor()}\">В списке есть нулевые позиции. Убрать нулевые позиции перед сохранением?</span>");
 				switch(res)
 				{
 					case -4:			//DeleteEvent

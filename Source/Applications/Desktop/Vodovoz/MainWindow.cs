@@ -58,6 +58,8 @@ public partial class MainWindow : Gtk.Window
 
 		Build();
 
+		Gtk.Settings.Default.ThemeName = CurrentUserSettings.Settings.ThemeName;
+
 		PerformanceHelper.AddTimePoint("Закончена стандартная сборка окна.");
 		_applicationInfo = new ApplicationVersionInfo();
 
@@ -313,6 +315,8 @@ public partial class MainWindow : Gtk.Window
 		ActionProfitabilitySalesReport.Activated += ActionProfitabilitySalesReportActivated;
 
 		Action74.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.CanGenerateCashFlowDdsReport);
+
+		InitializeThemesMenuItem();
 	}
 
 	private DateTime GetDateTimeFGromVersion(Version version) =>

@@ -23,6 +23,15 @@ namespace Vodovoz.Domain.Employees
 		private GenericObservableList<CashSubdivisionSortingSettings> _observableCashSubdivisionSortingSettings;
 		private string _movementDocumentsNotificationUserSelectedWarehousesString;
 
+		public UserSettings()
+		{
+		}
+
+		public UserSettings(User user)
+		{
+			User = user;
+		}
+
 		#region Свойства
 
 		public virtual int Id { get; set; }
@@ -32,8 +41,17 @@ namespace Vodovoz.Domain.Employees
 		[Display(Name = "Пользователь")]
 		public virtual User User
 		{
-			get { return _user; }
-			set { SetField(ref _user, value); }
+			get => _user;
+			set => SetField(ref _user, value);
+		}
+
+		/// <summary>
+		/// Тема оформления
+		/// </summary>
+		public virtual string ThemeName
+		{
+			get => _themeName;
+			set => SetField(ref _themeName, value);
 		}
 
 		private ToolbarStyle _toolbarStyle = ToolbarStyle.Both;
@@ -41,8 +59,8 @@ namespace Vodovoz.Domain.Employees
 		[Display(Name = "Стиль панели")]
 		public virtual ToolbarStyle ToolbarStyle
 		{
-			get { return _toolbarStyle; }
-			set { SetField(ref _toolbarStyle, value); }
+			get => _toolbarStyle;
+			set => SetField(ref _toolbarStyle, value);
 		}
 
 		private IconsSize _toolBarIconsSize = IconsSize.Large;
@@ -50,8 +68,8 @@ namespace Vodovoz.Domain.Employees
 		[Display(Name = "Размер иконок панели")]
 		public virtual IconsSize ToolBarIconsSize
 		{
-			get { return _toolBarIconsSize; }
-			set { SetField(ref _toolBarIconsSize, value); }
+			get => _toolBarIconsSize;
+			set => SetField(ref _toolBarIconsSize, value);
 		}
 
 		private bool _reorderTabs;
@@ -95,11 +113,8 @@ namespace Vodovoz.Domain.Employees
 		[Display(Name = "Склад")]
 		public virtual Warehouse DefaultWarehouse
 		{
-			get { return _defaultWarehouse; }
-			set
-			{
-				SetField(ref _defaultWarehouse, value);
-			}
+			get => _defaultWarehouse;
+			set => SetField(ref _defaultWarehouse, value);
 		}
 
 		private NomenclatureCategory? _defaultSaleCategory;
@@ -107,8 +122,8 @@ namespace Vodovoz.Domain.Employees
 		[Display(Name = "Номенклатура на продажу")]
 		public virtual NomenclatureCategory? DefaultSaleCategory
 		{
-			get { return _defaultSaleCategory; }
-			set { SetField(ref _defaultSaleCategory, value); }
+			get => _defaultSaleCategory;
+			set => SetField(ref _defaultSaleCategory, value);
 		}
 
 		private bool _logisticDeliveryOrders;
@@ -150,7 +165,6 @@ namespace Vodovoz.Domain.Employees
 		/// <summary>
 		/// Использовать отдел сотрудника
 		/// </summary>
-
 		private bool _useEmployeeSubdivision;
 		[Display(Name = "Использовать отдел сотрудника")]
 		public virtual bool UseEmployeeSubdivision
@@ -158,7 +172,6 @@ namespace Vodovoz.Domain.Employees
 			get => _useEmployeeSubdivision;
 			set => SetField(ref _useEmployeeSubdivision, value);
 		}
-
 
 		/// <summary>
 		/// Для установки фильтра подразделений
@@ -168,11 +181,8 @@ namespace Vodovoz.Domain.Employees
 		[Display(Name = "Подразделение")]
 		public virtual Subdivision DefaultSubdivision
 		{
-			get { return _defaultSubdivision; }
-			set
-			{
-				SetField(ref _defaultSubdivision, value);
-			}
+			get => _defaultSubdivision;
+			set => SetField(ref _defaultSubdivision, value);
 		}
 
 		/// <summary>
@@ -192,15 +202,13 @@ namespace Vodovoz.Domain.Employees
 		private ComplaintStatuses? _defaultComplaintStatus;
 		private string _salesBySubdivisionsAnalitycsReportWarehousesString;
 		private string _salesBySubdivisionsAnalitycsReportSubdivisionsString;
+		private string _themeName;
 
 		[Display(Name = "Статус рекламации")]
 		public virtual ComplaintStatuses? DefaultComplaintStatus
 		{
-			get { return _defaultComplaintStatus; }
-			set
-			{
-				SetField(ref _defaultComplaintStatus, value);
-			}
+			get => _defaultComplaintStatus;
+			set => SetField(ref _defaultComplaintStatus, value);
 		}
 
 		[Display(Name = "Настройки сортировки касс")]
@@ -262,16 +270,7 @@ namespace Vodovoz.Domain.Employees
 		}
 
 		#endregion
-
-		public UserSettings()
-		{
-		}
-
-		public UserSettings(User user)
-		{
-			User = user;
-		}
-
+		
 		public virtual void UpdateCashSortingIndices()
 		{
 			var index = 1;
@@ -296,10 +295,12 @@ namespace Vodovoz.Domain.Employees
 			var availableSubdivisionsIds = availableSubdivisions.Select(y => y.Id).ToList();
 			var notAvailableAnymore = CashSubdivisionSortingSettings
 				.Where(x => availableSubdivisionsIds.IndexOf(x.CashSubdivision.Id) == -1).ToList();
+
 			foreach(var item in notAvailableAnymore)
 			{//убираем кассы, к которым больше нет доступа
 				CashSubdivisionSortingSettings.Remove(item);
 			}
+
 			if(notAvailableAnymore.Any())
 			{
 				UpdateCashSortingIndices();
@@ -308,10 +309,12 @@ namespace Vodovoz.Domain.Employees
 			var listedIds = CashSubdivisionSortingSettings.Select(x => x.CashSubdivision.Id).ToList();
 			var notListedAsAvailable = availableSubdivisions.Where(x => listedIds.IndexOf(x.Id) == -1).ToList();
 			int lastIndex = -1;
+
 			if(CashSubdivisionSortingSettings.Any())
 			{
 				lastIndex = CashSubdivisionSortingSettings.Max(x => x.SortingIndex);
 			}
+
 			foreach(var item in notListedAsAvailable)
 			{//добавляем кассы, к которым появился доступ
 				CashSubdivisionSortingSettings.Add(new CashSubdivisionSortingSettings(++lastIndex, this, item));

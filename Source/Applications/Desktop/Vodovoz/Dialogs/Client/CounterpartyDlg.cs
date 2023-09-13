@@ -884,7 +884,7 @@ namespace Vodovoz
 			ytreeviewTags.ColumnsConfig = ColumnsConfigFactory.Create<Tag>()
 				.AddColumn("Название").AddTextRenderer(node => node.Name)
 				.AddColumn("Цвет").AddTextRenderer()
-				.AddSetter((cell, node) => { cell.Markup = $"<span foreground=\" {node.ColorText}\">♥</span>"; })
+				.AddSetter((cell, node) => { cell.Markup = $"<span foreground=\"{node.ColorText}\">♥</span>"; })
 				.AddColumn("")
 				.Finish();
 
