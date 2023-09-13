@@ -1457,9 +1457,9 @@ WHERE o.id = @order_id
             <Height>16.50pt</Height>
             <Width>173.52pt</Width>
             <Value>Руководитель________________</Value>
-            <ZIndex>0</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>31.5pt</Top>
+            <ZIndex>1</ZIndex>
+            <Left>0.00pt</Left>
+            <Top>31.50pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1514,7 +1514,7 @@ WHERE o.id = @order_id
             <Height>12.00pt</Height>
             <Width>154.77pt</Width>
             <Value>Бухгалтер______________</Value>
-            <ZIndex>0</ZIndex>
+            <ZIndex>1</ZIndex>
             <Left>283.4pt</Left>
             <Top>30.8pt</Top>
             <Style>
@@ -1971,7 +1971,7 @@ Iif(
         <Visibility>
           <Hidden>={?hide_signature}</Hidden>
         </Visibility>
-        <ZIndex>0</ZIndex>
+        <ZIndex>2</ZIndex>
       </Image>
       <Textbox Name="Textbox18" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>50pt</Height>
