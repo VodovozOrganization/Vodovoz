@@ -2667,7 +2667,8 @@ namespace Vodovoz
 				new NomenclatureJournalFactory(),
 				CounterpartySelectorFactory,
 				NomenclatureRepository,
-				_userRepository
+				_userRepository,
+				_lifetimeScope.Resolve<INomenclatureOnlineParametersProvider>()
 			) {
 				SelectionMode = JournalSelectionMode.Single,
 			};
@@ -2708,7 +2709,8 @@ namespace Vodovoz
 				new NomenclatureJournalFactory(),
 				CounterpartySelectorFactory,
 				NomenclatureRepository,
-				_userRepository
+				_userRepository,
+				_lifetimeScope.Resolve<INomenclatureOnlineParametersProvider>()
 			) {
 				SelectionMode = JournalSelectionMode.Single,
 			};

@@ -991,7 +991,8 @@ namespace Vodovoz
 					CounterpartySelectorFactory,
 					new NomenclatureJournalFactory(),
 					NomenclatureRepository,
-					_userRepository);
+					_userRepository,
+					_lifetimeScope.Resolve<INomenclatureOnlineParametersProvider>());
 			supplierPricesWidget.Sensitive = CanEdit;
 		}
 
@@ -1435,7 +1436,8 @@ namespace Vodovoz
 				new SubdivisionParametersProvider(new ParametersProvider()),
 				new DeliveryScheduleParametersProvider(new ParametersProvider()),
 				new RdlPreviewOpener(),
-				new RouteListItemRepository()
+				new RouteListItemRepository(),
+				_lifetimeScope.Resolve<INomenclatureOnlineParametersProvider>()
 			);
 
 			TabParent.AddTab(orderJournalViewModel, this, false);

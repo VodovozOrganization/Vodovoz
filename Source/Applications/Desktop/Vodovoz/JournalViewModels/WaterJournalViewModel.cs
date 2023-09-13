@@ -31,6 +31,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly ICounterpartyJournalFactory counterpartySelectorFactory;
 		private readonly INomenclatureRepository nomenclatureRepository;
 		private readonly IUserRepository userRepository;
+		private readonly INomenclatureOnlineParametersProvider _nomenclatureOnlineParametersProvider;
 
 		public WaterJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -39,7 +40,8 @@ namespace Vodovoz.JournalViewModels
 			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
-			IUserRepository userRepository
+			IUserRepository userRepository,
+			INomenclatureOnlineParametersProvider nomenclatureOnlineParametersProvider
 		) : base(unitOfWorkFactory, commonServices)
 		{
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -47,6 +49,8 @@ namespace Vodovoz.JournalViewModels
 			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_nomenclatureOnlineParametersProvider =
+				nomenclatureOnlineParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureOnlineParametersProvider));
 
 			TabName = "Выбор номенклатуры воды";
 			SetOrder(x => x.Name);
@@ -143,6 +147,6 @@ namespace Vodovoz.JournalViewModels
 		protected override Func<WaterJournalNode, NomenclatureViewModel> OpenDialogFunction =>
 			node => new NomenclatureViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices,
 				employeeService, _nomenclatureSelectorFactory, counterpartySelectorFactory, nomenclatureRepository,
-				userRepository, new StringHandler());
+				userRepository, new StringHandler(), _nomenclatureOnlineParametersProvider);
 	}
 }

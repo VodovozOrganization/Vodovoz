@@ -16,7 +16,7 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
 			INavigationManager navigationManager)
-			: base(uowBuilder, typeof(MobileAppNomenclatureOnlineCatalog), uowFactory, commonServices.InteractiveService, navigationManager)
+			: base(uowBuilder, typeof(MobileAppNomenclatureOnlineCatalog), uowFactory, commonServices, navigationManager)
 		{
 
 		}

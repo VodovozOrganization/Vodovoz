@@ -24,6 +24,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IEmployeeService _employeeService;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
+		private readonly INomenclatureOnlineParametersProvider _nomenclatureOnlineParametersProvider;
 		private readonly ICounterpartyJournalFactory _counterpartySelectorFactory;
 		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 
@@ -35,6 +36,7 @@ namespace Vodovoz.JournalViewModels
 			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
+			INomenclatureOnlineParametersProvider nomenclatureOnlineParametersProvider,
 			bool hideJournalForOpenDialog = false,
 			bool hideJournalForCreateDialog = false)
 			: base(unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
@@ -43,6 +45,8 @@ namespace Vodovoz.JournalViewModels
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_nomenclatureOnlineParametersProvider =
+				nomenclatureOnlineParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureOnlineParametersProvider));
 			_counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			
@@ -84,7 +88,8 @@ namespace Vodovoz.JournalViewModels
 			_counterpartySelectorFactory,
 			_nomenclatureSelectorFactory,
 			_nomenclatureRepository,
-			_userRepository
+			_userRepository,
+			_nomenclatureOnlineParametersProvider
 		);
 
 		protected override Func<PromotionalSetJournalNode, PromotionalSetViewModel> OpenDialogFunction => node => new PromotionalSetViewModel(
@@ -95,7 +100,8 @@ namespace Vodovoz.JournalViewModels
 			_counterpartySelectorFactory,
 			_nomenclatureSelectorFactory,
 			_nomenclatureRepository,
-			_userRepository
+			_userRepository,
+			_nomenclatureOnlineParametersProvider
 	   	);
 
 		protected override void CreateNodeActions()

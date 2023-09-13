@@ -14,6 +14,7 @@ using QSOrmProject;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 using Vodovoz;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
@@ -42,6 +43,7 @@ using Vodovoz.Journals.JournalViewModels.WageCalculation;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
+using Vodovoz.Settings.Database;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
@@ -435,6 +437,7 @@ public partial class MainWindow
 		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		var userRepository = new UserRepository();
 		var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
+		var loggerFactory = new LoggerFactory();
 
 		tdiMain.OpenTab(
 			() => new NomenclaturesJournalViewModel(
@@ -445,7 +448,9 @@ public partial class MainWindow
 				new NomenclatureJournalFactory(),
 				counterpartyJournalFactory,
 				nomenclatureRepository,
-				userRepository
+				userRepository,
+				new NomenclatureOnlineParametersProvider(
+					new SettingsController(UnitOfWorkFactory.GetDefaultFactory, new Logger<SettingsController>(loggerFactory)))
 			));
 	}
 
@@ -532,7 +537,11 @@ public partial class MainWindow
 				counterpartyJournalFactory,
 				new NomenclatureJournalFactory(),
 				nomenclatureRepository,
-				userRepository
+				userRepository,
+				new NomenclatureOnlineParametersProvider(
+					new SettingsController(
+						UnitOfWorkFactory.GetDefaultFactory,
+						new Logger<SettingsController>(new LoggerFactory())))
 			)
 		);
 	}
@@ -801,12 +810,24 @@ public partial class MainWindow
 		NavigationManager.OpenViewModel<KulerSaleWebSiteNomenclatureOnlineCatalogsJournalViewModel>(null);
 	}
 
+	/// <summary>
+	/// ИПЗ - Группы товаров в ИПЗ
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
 	protected void OnNomenclatureOnlineGroupsActionActivated(object sender, EventArgs e)
 	{
+		NavigationManager.OpenViewModel<NomenclatureOnlineGroupsJournalViewModel>(null);
 	}
 
+	/// <summary>
+	/// ИПЗ - Типы товаров в ИПЗ
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
 	protected void OnNomenclatureOnlineCategoriesActionActivated(object sender, EventArgs e)
 	{
+		NavigationManager.OpenViewModel<NomenclatureOnlineCategoriesJournalViewModel>(null);
 	}
 
 	#endregion ТМЦ

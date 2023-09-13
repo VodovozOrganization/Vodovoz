@@ -1,12 +1,15 @@
-﻿using QS.DomainModel.Entity;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using QS.DomainModel.Entity;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
-using QS.HistoryLog;
 
 namespace Vodovoz.Domain.Goods
 {
-	public abstract class NomenclatureOnlineCatalog : PropertyChangedBase, IDomainObject
+	public abstract class NomenclatureOnlineCatalog : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		private string _name;
+		private Guid? _externalId;
 		
 		public virtual int Id { get; set; }
 
@@ -16,6 +19,27 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _name, value);
 		}
 		
+		public virtual Guid? ExternalId
+		{
+			get => _externalId;
+			set => SetField(ref _externalId, value);
+		}
+		
 		public abstract NomenclatureOnlineParameterType Type { get; }
+		
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(string.IsNullOrWhiteSpace(Name))
+			{
+				yield return new ValidationResult("Не заполнено наименование");
+			}
+			
+			if(ExternalId is null)
+			{
+				yield return new ValidationResult(
+					"Не заполнен или некорректно заполнен внешний номер каталога." +
+					"Номер должен совпадать с шаблоном ХХХХХХХХ-ХХХХ-ХХХХ-ХХХХ-ХХХХХХХХХХХХ");
+			}
+		}
 	}
 }

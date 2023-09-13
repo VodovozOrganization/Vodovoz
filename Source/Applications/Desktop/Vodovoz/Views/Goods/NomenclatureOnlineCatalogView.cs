@@ -1,4 +1,5 @@
 ﻿using System;
+using Gamma.Binding.Converters;
 using QS.Views.GtkUI;
 using Vodovoz.ViewModels.ViewModels.Goods;
 
@@ -27,6 +28,10 @@ namespace Vodovoz.Views.Goods
 
 			entryName.Binding
 				.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text)
+				.InitializeFromSource();
+			
+			entryExternalId.Binding
+				.AddBinding(ViewModel.Entity, vm => vm.ExternalId, w => w.Text, new GuidToStringConverter())
 				.InitializeFromSource();
 		}
 
