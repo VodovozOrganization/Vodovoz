@@ -7,6 +7,7 @@ namespace Vodovoz.Parameters
 	{
 		private readonly IParametersProvider _parametersProvider;
 		private const string _complaintResultOfEmployeesIsGuiltyIdParameterName = "ComplaintResultOfEmployeesIsGuiltyId";
+		private const string _guiltProvenComplaintResultParameterName = "GuiltProvenComplaintResultId";
 
 		public ComplaintParametersProvider(IParametersProvider parametersProvider)
 		{
@@ -18,5 +19,6 @@ namespace Vodovoz.Parameters
 		public int EmployeeResponsibleId => _parametersProvider.GetIntValue("employee_responsible_id");
 
 		public int ComplaintResultOfEmployeesIsGuiltyId => _parametersProvider.GetIntValue(_complaintResultOfEmployeesIsGuiltyIdParameterName);
+		public int GuiltProvenComplaintResultId => _parametersProvider.GetIntValue(_guiltProvenComplaintResultParameterName);
 	}
 }
