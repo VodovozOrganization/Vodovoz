@@ -23,14 +23,22 @@ namespace Vodovoz.Domain.Payments
 				string line;
 				var paymentByCardFrom = PaymentByCardOnlineFrom.FromCloudPayments;
 
+				var count = 0;
 				while((line = reader.ReadLine()) != null)
 				{
+					count++;
 					if(line == string.Empty)
 					{
 						continue;
 					}
 
 					var data = line.Split(new[] { '\t' });
+
+					if(count == 1
+					   && (data.Length < 2 || data[0] != "Номер" || data[1] != "Дата и время" || data[2] != "Банк"))
+					{
+						throw new ArgumentException("Не подходящий файл или выбран не тот тип загрузки.");
+					}
 
 					if(data.Length < 15 || data[14] != "Завершена" || !Guid.TryParse(data[5], out _))
 					{

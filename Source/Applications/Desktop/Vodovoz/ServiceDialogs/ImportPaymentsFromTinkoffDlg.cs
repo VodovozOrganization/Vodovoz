@@ -1,16 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Gamma.GtkWidgets;
+﻿using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
+using QS.Dialog;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.Widgets;
 using QSProjectsLib;
+using System;
+using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
 using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories.Payments;
 
@@ -27,14 +30,17 @@ namespace Vodovoz.ServiceDialogs
 		private MenuItem _readYookassa;
 		private MenuItem _readCloudPayments;
 		private Widget _readFileButton;
+		private readonly IInteractiveService _interactiveService = ServicesConfig.InteractiveService;
 
-        GenericObservableList<PaymentByCardOnline> paymentsByCard;
+		GenericObservableList<PaymentByCardOnline> paymentsByCard;
 		List<string> errorList = new List<string>();
 		IList<PaymentByCardOnlineNode> otherPaymentsFromDB;
 
 		string colorWhite = "white";
 		string colorLightRed = "light coral";
 		string colorYellow = "yellow";
+
+		private const string _ioErrorMessage = "Файл уже открыт в другой программе.Сначала закройте файл.";
 
 		public ImportPaymentsFromTinkoffDlg()
 		{
@@ -160,9 +166,23 @@ namespace Vodovoz.ServiceDialogs
 			}
 			
 			_tinkoffParser = new PaymentsFromTinkoffParser(fChooser.Filename);
-			_tinkoffParser.Parse();
-			paymentsByCard = new GenericObservableList<PaymentByCardOnline>(_tinkoffParser.PaymentsFromTinkoff);
-			ShowParsedPayments();
+
+			try
+			{
+				_tinkoffParser.Parse();
+			}
+			catch(Exception e)
+			{
+				ShowError(e);
+
+				return;
+			}
+
+			if(_tinkoffParser.PaymentsFromTinkoff != null)
+			{
+				paymentsByCard = new GenericObservableList<PaymentByCardOnline>(_tinkoffParser.PaymentsFromTinkoff);
+				ShowParsedPayments();
+			}
 		}
 
 		void ReadYookassaPayments()
@@ -174,9 +194,20 @@ namespace Vodovoz.ServiceDialogs
 				MessageDialogHelper.RunErrorDialog($"Неверное расширение файла! Для выгрузки с Юкассы нужен {fChooser.Filters[1].Name} или {fChooser.Filters[0].Name}.");
 				return;
 			}
-
+			
 			_yookassaParser = new PaymentsFromYookassaParser(fChooser.Filename);
-			_yookassaParser.Parse();
+
+			try
+			{
+				_yookassaParser.Parse();
+			}
+			catch(Exception e)
+			{
+				ShowError(e);
+
+				return;
+			}
+
 			paymentsByCard = new GenericObservableList<PaymentByCardOnline>(_yookassaParser.PaymentsFromYookassa);
 			ShowParsedPayments();
 		}
@@ -192,9 +223,33 @@ namespace Vodovoz.ServiceDialogs
 			}
 
 			_cloudPaymentsParser = new PaymentsFromCloudPaymentsParser(fChooser.Filename);
-			_cloudPaymentsParser.Parse();
+
+			try
+			{
+				_cloudPaymentsParser.Parse();
+			}
+			catch(Exception e)
+			{
+				ShowError(e);
+
+				return;
+			}
 			paymentsByCard = new GenericObservableList<PaymentByCardOnline>(_cloudPaymentsParser.PaymentsFromCloudPayments);
 			ShowParsedPayments();
+		}
+
+		private void ShowError(Exception e)
+		{
+			var message = new StringBuilder();
+
+			if(e is IOException)
+			{
+				message.AppendLine(_ioErrorMessage);
+			}
+
+			message.AppendLine(e.Message);
+
+			_interactiveService.ShowMessage(ImportanceLevel.Error, message.ToString());
 		}
 
 		private void ShowParsedPayments()

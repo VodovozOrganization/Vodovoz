@@ -92,6 +92,7 @@
     <Compile Include="Domain\Orders\UndeliveryKind.cs" />
     <Compile Include="Domain\Orders\UndeliveryObject.cs" />
     <Compile Include="Domain\Payments\PaymentsFromCloudPaymentsParser.cs" />
+    <Compile Include="Domain\Payments\PaymentsFromTinkoffParser.cs" />
     <Compile Include="Domain\StoredEmails\UpdDocumentEmail.cs" />
     <Compile Include="EntityRepositories\Cash\FinancialExpenseCategoriesRepository.cs" />
     <Compile Include="EntityRepositories\Cash\FinancialIncomeCategoriesRepository.cs" />

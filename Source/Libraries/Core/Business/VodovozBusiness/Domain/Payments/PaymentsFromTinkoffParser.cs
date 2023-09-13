@@ -18,11 +18,11 @@ namespace Vodovoz.ServiceDialogs
 		public void Parse()
 		{
 			PaymentsFromTinkoff = File.ReadAllLines(DocumentPath)
-			                          .Skip(1)
-			                          .Select(x => x.Split(';'))
-			                          .Select(x => new PaymentByCardOnline(
-					                          x.Select(y => y.Trim('"')).ToArray()))
-			                          .ToList();
+				.Skip(1)
+				.Select(x => x.Split(';'))
+				.Select(x => new PaymentByCardOnline(
+					x.Select(y => y.Trim('"')).ToArray()))
+				.ToList();
 		}
 	}
 }

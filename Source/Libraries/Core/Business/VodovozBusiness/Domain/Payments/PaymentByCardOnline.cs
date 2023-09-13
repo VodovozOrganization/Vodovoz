@@ -1,9 +1,9 @@
-﻿using System;
+﻿using QS.DomainModel.Entity;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
-using QS.DomainModel.Entity;
 
 namespace Vodovoz.Domain.Payments
 {
