@@ -10,7 +10,7 @@ namespace Vodovoz.Controllers
 {
 	public class MovementDocumentsNotificationsController : IMovementDocumentsNotificationsController
 	{
-		private const string _messageForZeroMovementsCount = "Для Вашего отдела нет складских перемещений ожидающих приемки";
+		private const string _messageForZeroMovementsCount = "Для Вашего отдела и выбранных складов нет складских перемещений ожидающих приемки";
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IWarehouseRepository _warehouseRepository;
 		private readonly IMovementDocumentRepository _movementDocumentRepository;
