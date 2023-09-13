@@ -21,6 +21,7 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using VodovozInfrastructure.StringHandlers;
 
 namespace Vodovoz.ViewModels.Suppliers
 {
@@ -357,7 +358,7 @@ namespace Vodovoz.ViewModels.Suppliers
 						var nom = requestItem.Nomenclature;
 						this.TabParent.AddSlaveTab(this, new NomenclatureViewModel(EntityUoWBuilder.ForOpen(nom.Id),
 							UnitOfWorkFactory, commonServices, employeeService, nomenclatureSelectorFactory,
-							counterpartySelectorFactory, nomenclatureRepository, userRepository));
+							counterpartySelectorFactory, nomenclatureRepository, userRepository, new StringHandler()));
 						return;
 					}
 					if(item is SupplierNode supplierItem) {

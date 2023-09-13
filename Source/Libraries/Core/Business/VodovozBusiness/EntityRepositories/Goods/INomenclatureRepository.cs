@@ -4,7 +4,9 @@ using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.EntityRepositories.Nodes;
+using Vodovoz.Nodes;
 
 namespace Vodovoz.EntityRepositories.Goods
 {
@@ -79,5 +81,9 @@ namespace Vodovoz.EntityRepositories.Goods
 		decimal GetWaterPriceIncrement { get; }
 		Nomenclature GetNomenclature(IUnitOfWork uow, int nomenclatureId);
 		bool Has19LWater(IUnitOfWork uow, int[] nomenclaturesIds);
+		IList<NomenclatureOnlineParametersNode> GetNomenclaturesOnlineParametersForSend(
+			IUnitOfWork uow, NomenclatureOnlineParameterType parameterType);
+		IList<NomenclatureOnlinePriceNode> GetNomenclaturesOnlinePricesByOnlineParameters(
+			IUnitOfWork uow, IEnumerable<int> onlineParametersIds);
 	}
 }

@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using NLog;
 using QS.Commands;
@@ -9,12 +11,16 @@ using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Extension;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.Extensions;
 using Vodovoz.Services;
 using Vodovoz.Models;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Dialogs.Nodes;
 using Vodovoz.ViewModels.ViewModels.Goods;
+using VodovozInfrastructure.StringHandlers;
 
 namespace Vodovoz.ViewModels.Dialogs.Goods
 {
@@ -25,6 +31,10 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		private readonly IEmployeeService _employeeService;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
+		private NomenclatureOnlineParameters _mobileAppNomenclatureOnlineParameters;
+		private NomenclatureOnlineParameters _vodovozWebSiteNomenclatureOnlineParameters;
+		private NomenclatureOnlineParameters _kulerSaleWebSiteNomenclatureOnlineParameters;
+		private bool _needCheckOnlinePrices;
 
 		public Action PricesViewSaveChanges;
 
@@ -36,13 +46,15 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
-			IUserRepository userRepository) : base(uowBuilder, uowFactory, commonServices)
+			IUserRepository userRepository,
+			IStringHandler stringHandler) : base(uowBuilder, uowFactory, commonServices)
 		{
 			if(nomenclatureSelectorFactory is null)
 			{
 				throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			}
 
+			StringHandler = stringHandler ?? throw new ArgumentNullException(nameof(stringHandler));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
@@ -51,20 +63,19 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				(counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory();
 
-			NomenclatureCostPricesViewModel =
-				new NomenclatureCostPricesViewModel(Entity, new NomenclatureCostPriceModel(commonServices.CurrentPermissionService));
-			NomenclaturePurchasePricesViewModel =
-				new NomenclaturePurchasePricesViewModel(Entity, new NomenclaturePurchasePriceModel(commonServices.CurrentPermissionService));
-			NomenclatureInnerDeliveryPricesViewModel =
-				new NomenclatureInnerDeliveryPricesViewModel(Entity, new NomenclatureInnerDeliveryPriceModel(commonServices.CurrentPermissionService));
-			
+			ConfigureEntryViewModels();
+			ConfigureOnlineParameters();
 			ConfigureEntityPropertyChanges();
 			ConfigureValidationContext();
 			SetPermissions();
 		}
 
+		public IStringHandler StringHandler { get; }
 		public IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
+
+		public GenericObservableList<NomenclatureOnlinePricesNode> NomenclatureOnlinePrices { get; private set; }
+			= new GenericObservableList<NomenclatureOnlinePricesNode>();
 
 		public bool ImageLoaded { get; set; }
 		public NomenclatureImage PopupMenuOn { get; set; }
@@ -85,18 +96,102 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		public bool CanEdit => PermissionResult.CanUpdate || (PermissionResult.CanCreate && IsNewEntity);
 		public bool CanCreateAndArcNomenclatures { get; private set; }
 		public bool CanEditAlternativeNomenclaturePrices { get; private set; }
+		public bool HasAccessToSitesAndAppsTab { get; private set; }
 		public bool AskSaveOnClose => CanEdit;
 		public bool UserCanCreateNomenclaturesWithInventoryAccounting =>
 			IsNewEntity && CanCreateNomenclaturesWithInventoryAccountingPermission;
-		public NomenclatureCostPricesViewModel NomenclatureCostPricesViewModel { get; }
-		public NomenclaturePurchasePricesViewModel NomenclaturePurchasePricesViewModel { get; }
-		public NomenclatureInnerDeliveryPricesViewModel NomenclatureInnerDeliveryPricesViewModel { get; }
+
+		public NomenclatureOnlineParameters MobileAppNomenclatureOnlineParameters
+		{
+			get => _mobileAppNomenclatureOnlineParameters;
+			set => SetField(ref _mobileAppNomenclatureOnlineParameters, value);
+		}
+		public NomenclatureOnlineParameters VodovozWebSiteNomenclatureOnlineParameters
+		{
+			get => _vodovozWebSiteNomenclatureOnlineParameters;
+			set => SetField(ref _vodovozWebSiteNomenclatureOnlineParameters, value);
+		}
+		public NomenclatureOnlineParameters KulerSaleWebSiteNomenclatureOnlineParameters
+		{
+			get => _kulerSaleWebSiteNomenclatureOnlineParameters;
+			set => SetField(ref _kulerSaleWebSiteNomenclatureOnlineParameters, value);
+		}
+		public NomenclatureCostPricesViewModel NomenclatureCostPricesViewModel { get; private set; }
+		public NomenclaturePurchasePricesViewModel NomenclaturePurchasePricesViewModel { get; private set; }
+		public NomenclatureInnerDeliveryPricesViewModel NomenclatureInnerDeliveryPricesViewModel { get; private set; }
 		private bool IsNewEntity => Entity.Id == 0;
 		private bool CanCreateNomenclaturesWithInventoryAccountingPermission { get; set; }
+		
+		public void AddNotKulerSaleOnlinePrice(NomenclaturePrice price)
+		{
+			MobileAppNomenclatureOnlineParameters.AddNewNomenclatureOnlinePrice(
+				CreateNomenclatureOnlinePrice(price, NomenclatureOnlineParameterType.ForMobileApp));
+
+			VodovozWebSiteNomenclatureOnlineParameters.AddNewNomenclatureOnlinePrice(
+				CreateNomenclatureOnlinePrice(price, NomenclatureOnlineParameterType.ForVodovozWebSite));
+			
+			_needCheckOnlinePrices = true;
+		}
+		
+		public void AddKulerSaleOnlinePrice(AlternativeNomenclaturePrice price)
+		{
+			KulerSaleWebSiteNomenclatureOnlineParameters.AddNewNomenclatureOnlinePrice(
+				CreateNomenclatureOnlinePrice(price, NomenclatureOnlineParameterType.ForKulerSaleWebSite));
+				
+			_needCheckOnlinePrices = true;
+		}
+
+		public void RemoveNotKulerSalePrices(NomenclaturePrice price)
+		{
+			var mobileAppPrice = price.Id == 0
+				? MobileAppNomenclatureOnlineParameters.NomenclatureOnlinePrices
+					.SingleOrDefault(x => x.NomenclaturePrice.Equals(price))
+				: MobileAppNomenclatureOnlineParameters.NomenclatureOnlinePrices
+					.SingleOrDefault(x => x.NomenclaturePrice.Id == price.Id);
+
+			var vodovozWebSitePrice = price.Id == 0
+				? VodovozWebSiteNomenclatureOnlineParameters.NomenclatureOnlinePrices
+					.SingleOrDefault(x => x.NomenclaturePrice.Equals(price))
+				: VodovozWebSiteNomenclatureOnlineParameters.NomenclatureOnlinePrices
+					.SingleOrDefault(x => x.NomenclaturePrice.Id == price.Id);
+			
+			MobileAppNomenclatureOnlineParameters.RemoveNomenclatureOnlinePrice(mobileAppPrice);
+			VodovozWebSiteNomenclatureOnlineParameters.RemoveNomenclatureOnlinePrice(vodovozWebSitePrice);
+			
+			UpdateNomenclatureOnlinePricesNodes();
+		}
+		
+		public void RemoveKulerSalePrices(AlternativeNomenclaturePrice alternativePrice)
+		{
+			var kulerSaleWebSitePrice = alternativePrice.Id == 0
+				? KulerSaleWebSiteNomenclatureOnlineParameters.NomenclatureOnlinePrices
+					.SingleOrDefault(x => x.NomenclaturePrice.Equals(alternativePrice))
+				: KulerSaleWebSiteNomenclatureOnlineParameters.NomenclatureOnlinePrices
+					.SingleOrDefault(x => x.NomenclaturePrice.Id == alternativePrice.Id);
+
+			KulerSaleWebSiteNomenclatureOnlineParameters.RemoveNomenclatureOnlinePrice(kulerSaleWebSitePrice);
+			
+			UpdateNomenclatureOnlinePricesNodes();
+		}
+
+		public void SetNeedCheckOnlinePrices(bool value = true)
+		{
+			_needCheckOnlinePrices = value;
+		}
 
 		private void ConfigureValidationContext()
 		{
 			ValidationContext.ServiceContainer.AddService(typeof(INomenclatureRepository), _nomenclatureRepository);
+		}
+		
+		private void ConfigureEntryViewModels()
+		{
+			NomenclatureCostPricesViewModel =
+				new NomenclatureCostPricesViewModel(Entity, new NomenclatureCostPriceModel(CommonServices.CurrentPermissionService));
+			NomenclaturePurchasePricesViewModel =
+				new NomenclaturePurchasePricesViewModel(Entity, new NomenclaturePurchasePriceModel(CommonServices.CurrentPermissionService));
+			NomenclatureInnerDeliveryPricesViewModel =
+				new NomenclatureInnerDeliveryPricesViewModel(Entity, new NomenclatureInnerDeliveryPriceModel(CommonServices.CurrentPermissionService));
 		}
 
 		private void ConfigureEntityPropertyChanges() {
@@ -185,6 +280,68 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_nomenclatures_with_inventory_accounting");
 			CanEditAlternativeNomenclaturePrices =
 				CommonServices.CurrentPermissionService.ValidatePresetPermission("сan_edit_alternative_nomenclature_prices");
+			HasAccessToSitesAndAppsTab =
+				CommonServices.CurrentPermissionService.ValidatePresetPermission("Nomenclature.HasAccessToSitesAndAppsTab");
+		}
+		
+		private void ConfigureOnlineParameters()
+		{
+			MobileAppNomenclatureOnlineParameters = GetNomenclatureOnlineParameters(NomenclatureOnlineParameterType.ForMobileApp);
+			VodovozWebSiteNomenclatureOnlineParameters = GetNomenclatureOnlineParameters(NomenclatureOnlineParameterType.ForVodovozWebSite);
+			KulerSaleWebSiteNomenclatureOnlineParameters = GetNomenclatureOnlineParameters(NomenclatureOnlineParameterType.ForKulerSaleWebSite);
+			
+			UpdateNomenclatureOnlinePricesNodes();
+		}
+
+		private NomenclatureOnlineParameters GetNomenclatureOnlineParameters(NomenclatureOnlineParameterType type)
+		{
+			var parameters = Entity.NomenclatureOnlineParameters.SingleOrDefault(x => x.Type == type);
+			return parameters ?? CreateNomenclatureOnlineParameters(type);
+		}
+
+		private NomenclatureOnlineParameters CreateNomenclatureOnlineParameters(NomenclatureOnlineParameterType type)
+		{
+			NomenclatureOnlineParameters parameters = null;
+			switch(type)
+			{
+				case NomenclatureOnlineParameterType.ForMobileApp:
+					parameters = new MobileAppNomenclatureOnlineParameters();
+
+					foreach(var nomenclaturePrice in Entity.NomenclaturePrice)
+					{
+						parameters.AddNewNomenclatureOnlinePrice(
+							CreateNomenclatureOnlinePrice(
+								nomenclaturePrice,
+								NomenclatureOnlineParameterType.ForMobileApp));
+					}
+					break;
+				case NomenclatureOnlineParameterType.ForVodovozWebSite:
+					parameters = new VodovozWebSiteNomenclatureOnlineParameters();
+					
+					foreach(var nomenclaturePrice in Entity.NomenclaturePrice)
+					{
+						parameters.AddNewNomenclatureOnlinePrice(
+							CreateNomenclatureOnlinePrice(
+								nomenclaturePrice,
+								NomenclatureOnlineParameterType.ForVodovozWebSite));
+					}
+					break;
+				case NomenclatureOnlineParameterType.ForKulerSaleWebSite:
+					parameters = new KulerSaleWebSiteNomenclatureOnlineParameters();
+
+					foreach(var alternativeNomenclaturePrice in Entity.AlternativeNomenclaturePrices)
+					{
+						parameters.AddNewNomenclatureOnlinePrice(
+							CreateNomenclatureOnlinePrice(
+								alternativeNomenclaturePrice,
+								NomenclatureOnlineParameterType.ForKulerSaleWebSite));
+					}
+					break;
+			}
+
+			parameters.Nomenclature = Entity;
+			Entity.NomenclatureOnlineParameters.Add(parameters);
+			return parameters;
 		}
 
 		protected override bool BeforeValidation()
@@ -206,15 +363,135 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		#region Commands
 
 		private DelegateCommand saveCommand = null;
+		private bool _activeSitesAndAppsTab;
+
 		public DelegateCommand SaveCommand =>
 			saveCommand ?? (saveCommand = new DelegateCommand(
 				() => {
+
+					if(_needCheckOnlinePrices)
+					{
+						if(HasAccessToSitesAndAppsTab && AskQuestion(
+							"Было произведено изменение цен номенклатуры, необходимо проверить корректность цен," +
+							" установленных на вкладке Сайты и приложения.\n" +
+							"Вы хотите переключиться на вкладку Сайты и приложения перед сохранением номенклатуры?"))
+						{
+							ActiveSitesAndAppsTab = true;
+							return;
+						}
+					}
+					
 					Save(true);
 				},
 				() => true
 			)
 		);
 
+		public bool ActiveSitesAndAppsTab
+		{
+			get => _activeSitesAndAppsTab;
+			set
+			{
+				if(SetField(ref _activeSitesAndAppsTab, value))
+				{
+					if(value)
+					{
+						_needCheckOnlinePrices = false;
+					}
+				}
+			}
+		}
+
 		#endregion
+
+		public void UpdateNomenclatureOnlinePricesNodes()
+		{
+			NomenclatureOnlinePrices.Clear();
+			var notSortedNodes = new List<NomenclatureOnlinePricesNode>();
+			var onlinePrices = new Dictionary<decimal, NomenclatureOnlinePricesNode>();
+
+			foreach(var nomenclatureOnlineParameter in Entity.NomenclatureOnlineParameters)
+			{
+				foreach(var onlinePrice in nomenclatureOnlineParameter.NomenclatureOnlinePrices)
+				{
+					onlinePrices.TryGetValue(onlinePrice.NomenclaturePrice.MinCount, out var nomenclatureOnlinePricesNode);
+
+					if(nomenclatureOnlinePricesNode is null)
+					{
+						switch(onlinePrice.Type)
+						{
+							case NomenclatureOnlineParameterType.ForMobileApp:
+								nomenclatureOnlinePricesNode = new NomenclatureOnlinePricesNode
+								{
+									MobileAppNomenclatureOnlinePrice = onlinePrice
+								};
+								break;
+							case NomenclatureOnlineParameterType.ForVodovozWebSite:
+								nomenclatureOnlinePricesNode = new NomenclatureOnlinePricesNode
+								{
+									VodovozWebSiteNomenclatureOnlinePrice = onlinePrice
+								};
+								break;
+							case NomenclatureOnlineParameterType.ForKulerSaleWebSite:
+								nomenclatureOnlinePricesNode = new NomenclatureOnlinePricesNode
+								{
+									KulerSaleWebSiteNomenclatureOnlinePrice = onlinePrice
+								};
+								break;
+						}
+
+						var minCount = onlinePrice.NomenclaturePrice.MinCount;
+						onlinePrices.Add(minCount, nomenclatureOnlinePricesNode);
+						notSortedNodes.Add(nomenclatureOnlinePricesNode);
+					}
+					else
+					{
+						switch(onlinePrice.Type)
+						{
+							case NomenclatureOnlineParameterType.ForMobileApp:
+								nomenclatureOnlinePricesNode.MobileAppNomenclatureOnlinePrice = onlinePrice;
+								break;
+							case NomenclatureOnlineParameterType.ForVodovozWebSite:
+								nomenclatureOnlinePricesNode.VodovozWebSiteNomenclatureOnlinePrice = onlinePrice;
+								break;
+							case NomenclatureOnlineParameterType.ForKulerSaleWebSite:
+								nomenclatureOnlinePricesNode.KulerSaleWebSiteNomenclatureOnlinePrice = onlinePrice;
+								break;
+						}
+					}
+				}
+			}
+
+			foreach(var node in notSortedNodes.OrderBy(x => x.MinCount))
+			{
+				NomenclatureOnlinePrices.Add(node);
+			}
+		}
+
+		private NomenclatureOnlinePrice CreateNomenclatureOnlinePrice(
+			NomenclaturePriceBase nomenclaturePrice,
+			NomenclatureOnlineParameterType type)
+		{
+			switch(type)
+			{
+				case NomenclatureOnlineParameterType.ForMobileApp:
+					return new MobileAppNomenclatureOnlinePrice
+					{
+						NomenclaturePrice = nomenclaturePrice
+					};
+				case NomenclatureOnlineParameterType.ForVodovozWebSite:
+					return new VodovozWebSiteNomenclatureOnlinePrice
+					{
+						NomenclaturePrice = nomenclaturePrice
+					};
+				case NomenclatureOnlineParameterType.ForKulerSaleWebSite:
+					return new KulerSaleWebSiteNomenclatureOnlinePrice
+					{
+						NomenclaturePrice = nomenclaturePrice
+					};
+				default:
+					throw new ArgumentOutOfRangeException(nameof(type), type, null);
+			}
+		}
 	}
 }
