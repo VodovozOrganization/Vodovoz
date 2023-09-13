@@ -187,9 +187,6 @@ namespace Vodovoz
 		private readonly bool _canEditSealAndSignatureUpd =
 			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_seal_and_signature_UPD");
 
-		private readonly bool _canEditSealAndSignatureSpecialUpd =
-			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_seal_and_signature_special_UPD");
-
 		private readonly bool _canEditDeliveryDateAfterOrderConfirmation =
 			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
 				"can_edit_deliverydate_after_order_confirmation");
@@ -1671,19 +1668,16 @@ namespace Vodovoz
 				.AddSetter((c, n) => c.Visible = n is ISignableDocument)
 				.AddSetter((toggle, document) =>
 				{
-					if(document.Type == OrderDocumentType.UPD)
+					if(document.Type == OrderDocumentType.UPD
+						|| document.Type == OrderDocumentType.SpecialUPD)
 					{
 						toggle.Activatable = CanEditByPermission && _canEditSealAndSignatureUpd;
-					}
-					if(document.Type == OrderDocumentType.SpecialUPD)
-					{
-						toggle.Activatable = CanEditByPermission && _canEditSealAndSignatureSpecialUpd;
 					}
 					else
 					{
 						toggle.Activatable = CanEditByPermission;
 					}
-				}) // Сделать только для  ISignableDocument и UDP
+				}) // Сделать только для  ISignableDocument, UDP и SpecialUPD
 				.AddColumn("")
 				.RowCells().AddSetter<CellRenderer>((c, n) => {
 					c.CellBackgroundGdk = colorWhite;
