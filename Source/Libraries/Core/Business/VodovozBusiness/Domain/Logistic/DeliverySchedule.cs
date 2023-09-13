@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.HistoryLog;
 using QS.Project.Services;
 using Vodovoz.Domain.Roboats;
 
@@ -12,6 +13,7 @@ namespace Vodovoz.Domain.Logistic
 		NominativePlural = "графики доставки",
 		Nominative = "график доставки")]
 	[EntityPermission]
+	[HistoryTrace]
 	public class DeliverySchedule: PropertyChangedBase, IDomainObject, IValidatableObject, IRoboatsEntity
 	{
 		private string _name;
