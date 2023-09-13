@@ -1668,7 +1668,8 @@ namespace Vodovoz
 				.AddSetter((c, n) => c.Visible = n is ISignableDocument)
 				.AddSetter((toggle, document) =>
 				{
-					if(document.Type == OrderDocumentType.UPD)
+					if(document.Type == OrderDocumentType.UPD
+						|| document.Type == OrderDocumentType.SpecialUPD)
 					{
 						toggle.Activatable = CanEditByPermission && _canEditSealAndSignatureUpd;
 					}
@@ -1676,7 +1677,7 @@ namespace Vodovoz
 					{
 						toggle.Activatable = CanEditByPermission;
 					}
-				}) // Сделать только для  ISignableDocument и UDP
+				}) // Сделать только для  ISignableDocument, UDP и SpecialUPD
 				.AddColumn("")
 				.RowCells().AddSetter<CellRenderer>((c, n) => {
 					c.CellBackgroundGdk = colorWhite;
