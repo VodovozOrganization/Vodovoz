@@ -187,6 +187,9 @@ namespace Vodovoz
 		private readonly bool _canEditSealAndSignatureUpd =
 			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_seal_and_signature_UPD");
 
+		private readonly bool _canEditSealAndSignatureSpecialUpd =
+			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_seal_and_signature_special_UPD");
+
 		private readonly bool _canEditDeliveryDateAfterOrderConfirmation =
 			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
 				"can_edit_deliverydate_after_order_confirmation");
@@ -1671,6 +1674,10 @@ namespace Vodovoz
 					if(document.Type == OrderDocumentType.UPD)
 					{
 						toggle.Activatable = CanEditByPermission && _canEditSealAndSignatureUpd;
+					}
+					if(document.Type == OrderDocumentType.UPD)
+					{
+						toggle.Activatable = CanEditByPermission && _canEditSealAndSignatureSpecialUpd;
 					}
 					else
 					{
