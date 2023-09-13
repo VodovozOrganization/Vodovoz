@@ -60,6 +60,8 @@
     <Compile Include="CommonEnums\AllYesNo.cs" />
     <Compile Include="ConfigureDeletion.cs" />
     <Compile Include="Domain\Cash\CashTransfer\CashTransferDocumentStatuses.cs" />
+    <Compile Include="Controllers\INomenclatureOnlineParametersController.cs" />
+    <Compile Include="Controllers\NomenclatureOnlineParametersController.cs" />
     <Compile Include="Domain\Cash\ExpenseInvoiceDocumentType.cs" />
     <Compile Include="Domain\Cash\ExpenseType.cs" />
     <Compile Include="Domain\Cash\FinancialCategoriesGroups\FinancialCategoriesGroup.cs" />
@@ -125,7 +127,18 @@
     <Compile Include="Domain\FastPayments\FastPaymentNotification.cs" />
     <Compile Include="Domain\FastPayments\FastPaymentNotificationType.cs" />
     <Compile Include="Domain\Goods\AlternativeNomenclaturePrice.cs" />
+    <Compile Include="Domain\Goods\NomenclaturesOnlineParameters\KulerSaleWebSiteNomenclatureOnlineParameters.cs" />
+    <Compile Include="Domain\Goods\NomenclaturesOnlineParameters\KulerSaleWebSiteNomenclatureOnlinePrice.cs" />
+    <Compile Include="Domain\Goods\NomenclaturesOnlineParameters\MobileAppNomenclatureOnlineParameters.cs" />
+    <Compile Include="Domain\Goods\NomenclaturesOnlineParameters\MobileAppNomenclatureOnlinePrice.cs" />
+    <Compile Include="Domain\Goods\NomenclaturesOnlineParameters\NomenclatureOnlineAvailability.cs" />
+    <Compile Include="Domain\Goods\NomenclaturesOnlineParameters\NomenclatureOnlineMarker.cs" />
+    <Compile Include="Domain\Goods\NomenclaturesOnlineParameters\NomenclatureOnlineParameters.cs" />
+    <Compile Include="Domain\Goods\NomenclaturesOnlineParameters\NomenclatureOnlineParameterType.cs" />
     <Compile Include="Domain\Goods\NomenclatureInstanceType.cs" />
+    <Compile Include="Domain\Goods\NomenclaturesOnlineParameters\NomenclatureOnlinePrice.cs" />
+    <Compile Include="Domain\Goods\NomenclaturesOnlineParameters\VodovozWebSiteNomenclatureOnlineParameters.cs" />
+    <Compile Include="Domain\Goods\NomenclaturesOnlineParameters\VodovozWebSiteNomenclatureOnlinePrice.cs" />
     <Compile Include="Domain\Goods\NomenclaturePriceBase.cs" />
     <Compile Include="Domain\Client\MobileAppCounterparty.cs" />
     <Compile Include="Domain\Client\WebSiteCounterparty.cs" />
@@ -343,6 +356,7 @@
     <Compile Include="Domain\Logistic\LogisticsRequirements.cs" />
     <Compile Include="Domain\Logistic\RouteListDebt.cs" />
     <Compile Include="Domain\Logistic\RouteListFastDeliveryMaxDistance.cs" />
+    <Compile Include="Domain\NamedDomainObjectNode.cs" />
     <Compile Include="Domain\Operations\DeliveryFreeBalanceOperation.cs" />
     <Compile Include="Domain\Operations\BulkGoodsAccountingOperation.cs" />
     <Compile Include="Domain\Operations\CarBulkGoodsAccountingOperation.cs" />
@@ -618,6 +632,7 @@
     <Compile Include="Extensions\DriverPositionExtensions.cs" />
     <Compile Include="Extensions\EnumExtensions.cs" />
     <Compile Include="Extensions\ExpressionExtensions.cs" />
+    <Compile Include="Extensions\NomenclatureOnlineParametersExtensions.cs" />
     <Compile Include="Factories\CashReceiptFactory.cs" />
     <Compile Include="Factories\CounterpartyContractFactory.cs" />
     <Compile Include="Factories\EmployeeRegistrationFactory.cs" />
@@ -734,6 +749,9 @@
     <Compile Include="NHibernateProjections\Goods\ProductGroupProjections.cs" />
     <Compile Include="NHibernateProjections\Logistics\CarProjections.cs" />
     <Compile Include="NHibernateProjections\Orders\OrderProjections.cs" />
+    <Compile Include="Nodes\NomenclatureOnlineParametersData.cs" />
+    <Compile Include="Nodes\NomenclatureOnlineParametersNode.cs" />
+    <Compile Include="Nodes\NomenclatureOnlinePriceNode.cs" />
     <Compile Include="Parameters\ArchiveDataSettings.cs" />
     <Compile Include="Parameters\CounterpartySettings.cs" />
     <Compile Include="Parameters\CashDistributionCommonOrganisationProvider.cs" />

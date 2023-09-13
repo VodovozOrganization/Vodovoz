@@ -19,6 +19,7 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
+using VodovozInfrastructure.StringHandlers;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
@@ -228,11 +229,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 		protected override Func<NomenclatureViewModel> CreateDialogFunction =>
 			() => new NomenclatureViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices,
 				employeeService, nomenclatureSelectorFactory, counterpartySelectorFactory, nomenclatureRepository,
-				userRepository);
+				userRepository, new StringHandler());
 
 		protected override Func<NomenclatureJournalNode, NomenclatureViewModel> OpenDialogFunction =>
 			node => new NomenclatureViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices,
 				employeeService, nomenclatureSelectorFactory, counterpartySelectorFactory, nomenclatureRepository,
-				userRepository);
+				userRepository, new StringHandler());
 	}
 }

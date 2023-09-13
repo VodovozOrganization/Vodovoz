@@ -1,4 +1,4 @@
-﻿using NHibernate.Driver;
+using NHibernate.Driver;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -60,53 +60,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 				_commonServices.CurrentPermissionService.ValidatePresetPermission("сan_edit_order_auto_comment_setting");
 			OrderAutoComment = _generalSettingsParametersProvider.OrderAutoComment;
 
-			ComplaintsSubdivisionSettingsViewModel = new SubdivisionSettingsViewModel(_commonServices, unitOfWorkFactory, NavigationManager,
-				_generalSettingsParametersProvider, _generalSettingsParametersProvider.SubdivisionsToInformComplaintHasNoDriverParameterName)
-			{
-				CanEdit = CanEditRouteListPrintedFormPhones,
-				MainTitle = "<b>Настройки рекламаций</b>",
-				DetailTitle = "Информировать о незаполненном водителе в рекламациях на следующие отделы:",
-				Info = "Сотрудники данных отделов будут проинформированы о незаполненном водителе при закрытии рекламации. " +
-				       "Если отдел есть в списке ответственных и итог работы по сотрудникам: Вина доказана."
-			};
-
-			var canEditAlternativePrices = _commonServices.CurrentPermissionService.ValidatePresetPermission("сan_edit_alternative_nomenclature_prices");
-
-			AlternativePricesSubdivisionSettingsViewModel = new SubdivisionSettingsViewModel(_commonServices, unitOfWorkFactory, NavigationManager,
-				_generalSettingsParametersProvider, generalSettingsParametersProvider.SubdivisionsAlternativePricesName)
-			{
-				CanEdit = canEditAlternativePrices,
-				MainTitle = "<b>Настройки альтернативных цен</b>",
-				DetailTitle = "Использовать альтернативную цену для авторов заказов из следующих отделов:",
-				Info = "Сотрудники данных отделов могут редактировать альтернативные цены"
-			};
-
-			using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot())
-			{
-				unitOfWork.Session.DefaultReadOnly = true;
-
-				var subdivisionIdToRetrieve = _generalSettingsParametersProvider.SubdivisionsToInformComplaintHasNoDriver;
-
-				var retrievedSubdivisions = unitOfWork.Session.Query<Subdivision>()
-					.Where(subdivision => subdivisionIdToRetrieve.Contains(subdivision.Id))
-					.ToList();
-
-				foreach(var subdivision in retrievedSubdivisions)
-				{
-					ComplaintsSubdivisionSettingsViewModel.ObservableSubdivisions.Add(subdivision);
-				}
-
-				var subdivisionIdsForAlternativePrices = _generalSettingsParametersProvider.SubdivisionsForAlternativePrices;
-
-				var subdivisionForAlternativePrices = unitOfWork.Session.Query<Subdivision>()
-					.Where(s => subdivisionIdsForAlternativePrices.Contains(s.Id))
-					.ToList();
-
-				foreach(var subdivision in subdivisionForAlternativePrices)
-				{
-					AlternativePricesSubdivisionSettingsViewModel.ObservableSubdivisions.Add(subdivision);
-				}
-			}
+			InitializeSettingsViewModels();
 
 			_canEditDriversStopListSettings = _commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_drivers_stop_list_parameters");
 			_driversUnclosedRouteListsHavingDebtCount = _generalSettingsParametersProvider.DriversUnclosedRouteListsHavingDebtMaxCount;
@@ -121,9 +75,11 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 		public bool CanEditRouteListPrintedFormPhones { get; }
 
-		public SubdivisionSettingsViewModel AlternativePricesSubdivisionSettingsViewModel { get; }
-		
-		public SubdivisionSettingsViewModel ComplaintsSubdivisionSettingsViewModel { get; }
+		public SubdivisionSettingsViewModel AlternativePricesSubdivisionSettingsViewModel { get; private set; }
+
+		public SubdivisionSettingsViewModel ComplaintsSubdivisionSettingsViewModel { get; private set; }
+
+		public NamedDomainEntitiesSettingsViewModelBase WarehousesForPricesAndStocksIntegrationViewModel { get; private set; }
 
 		public string RouteListPrintedFormPhones
 		{
@@ -284,5 +240,71 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		}
 
 		#endregion
+
+		private void InitializeSettingsViewModels()
+		{
+			ComplaintsSubdivisionSettingsViewModel = new SubdivisionSettingsViewModel(_commonServices, _unitOfWorkFactory, NavigationManager,
+				_generalSettingsParametersProvider, _generalSettingsParametersProvider.SubdivisionsToInformComplaintHasNoDriverParameterName)
+			{
+				CanEdit = CanEditRouteListPrintedFormPhones,
+				MainTitle = "<b>Настройки рекламаций</b>",
+				DetailTitle = "Информировать о незаполненном водителе в рекламациях на следующие отделы:",
+				Info = "Сотрудники данных отделов будут проинформированы о незаполненном водителе при закрытии рекламации. " +
+					   "Если отдел есть в списке ответственных и итог работы по сотрудникам: Вина доказана."
+			};
+
+			var canEditAlternativePrices = _commonServices.CurrentPermissionService.ValidatePresetPermission("сan_edit_alternative_nomenclature_prices");
+
+			AlternativePricesSubdivisionSettingsViewModel = new SubdivisionSettingsViewModel(_commonServices, _unitOfWorkFactory, NavigationManager,
+				_generalSettingsParametersProvider, _generalSettingsParametersProvider.SubdivisionsAlternativePricesName)
+			{
+				CanEdit = canEditAlternativePrices,
+				MainTitle = "<b>Настройки альтернативных цен</b>",
+				DetailTitle = "Использовать альтернативную цену для авторов заказов из следующих отделов:",
+				Info = "Сотрудники данных отделов могут редактировать альтернативные цены"
+			};
+
+			WarehousesForPricesAndStocksIntegrationViewModel =
+				new WarehousesSettingsViewModel(_commonServices, _unitOfWorkFactory, NavigationManager,
+				_generalSettingsParametersProvider, _generalSettingsParametersProvider.WarehousesForPricesAndStocksIntegrationName)
+			{
+				CanEdit = true,
+				MainTitle = "<b>Настройки складов для интеграции остатков и цен</b>",
+				DetailTitle = "Использовать следующие склады при подсчете остатков для ИПЗ:",
+				Info = "Подсчет остатков при отправке в ИПЗ будет производиться только по выбранным складам."
+			};
+
+			FillItemSources();
+		}
+
+		private void FillItemSources()
+		{
+			using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot())
+			{
+				unitOfWork.Session.DefaultReadOnly = true;
+
+				var subdivisionIdToRetrieve = _generalSettingsParametersProvider.SubdivisionsToInformComplaintHasNoDriver;
+
+				var retrievedSubdivisions = unitOfWork.Session.Query<Subdivision>()
+					.Where(subdivision => subdivisionIdToRetrieve.Contains(subdivision.Id))
+					.ToList();
+
+				foreach(var subdivision in retrievedSubdivisions)
+				{
+					ComplaintsSubdivisionSettingsViewModel.ObservableSubdivisions.Add(subdivision);
+				}
+
+				var subdivisionIdsForAlternativePrices = _generalSettingsParametersProvider.SubdivisionsForAlternativePrices;
+
+				var subdivisionForAlternativePrices = unitOfWork.Session.Query<Subdivision>()
+					.Where(s => subdivisionIdsForAlternativePrices.Contains(s.Id))
+					.ToList();
+
+				foreach(var subdivision in subdivisionForAlternativePrices)
+				{
+					AlternativePricesSubdivisionSettingsViewModel.ObservableSubdivisions.Add(subdivision);
+				}
+			}
+		}
 	}
 }
