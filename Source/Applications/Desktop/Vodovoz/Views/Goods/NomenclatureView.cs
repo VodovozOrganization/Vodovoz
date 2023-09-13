@@ -1,4 +1,4 @@
-﻿using Gamma.GtkWidgets;
+using Gamma.GtkWidgets;
 using Gtk;
 using NLog;
 using QS.BusinessCommon.Domain;
@@ -9,15 +9,21 @@ using QS.Views.GtkUI;
 using QSOrmProject;
 using QSWidgetLib;
 using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using Gamma.Binding;
+using Gamma.ColumnConfig;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Representations.ProductGroups;
 using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.ViewModels.Dialogs.Goods;
+using Vodovoz.ViewModels.Dialogs.Nodes;
 
 namespace Vodovoz.Views.Goods
 {
@@ -25,17 +31,18 @@ namespace Vodovoz.Views.Goods
 	public partial class NomenclatureView : TabViewBase<NomenclatureViewModel>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
+		private Entry _entry;
 		
 		public NomenclatureView(NomenclatureViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 			Configure();
 		}
 
 		private void Configure()
 		{
-			notebook1.ShowTabs = false;
-			
+			notebook.ShowTabs = false;
+
 			#region RadioButtons
 
 			radioInfo.Active = true;
@@ -43,36 +50,29 @@ namespace Vodovoz.Views.Goods
 				.AddBinding(ViewModel, vm => vm.IsEquipmentCategory, w => w.Sensitive)
 				.InitializeFromSource();
 			radioEquipment.Toggled += OnRadioEquipmentToggled;
-			
+
 			radioPrice.Binding
 				.AddBinding(ViewModel, vm => vm.WithoutDependsOnNomenclature, w => w.Sensitive)
 				.InitializeFromSource();
 			radioPrice.Toggled += OnRadioPriceToggled;
-			
+
+			radioSitesAndApps.Toggled += OnSitesAndAppsToggled;
+			radioSitesAndApps.Binding
+				.AddBinding(ViewModel, vm => vm.ActiveSitesAndAppsTab, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.HasAccessToSitesAndAppsTab, w => w.Visible)
+				.InitializeFromSource();
+
 			#endregion
 
 			buttonSave.Clicked += (sender, args) =>
 			{
-				ViewModel.Entity.NomenclaturePrice.Clear();
-				foreach(var item in pricesView.Prices.Cast<NomenclaturePrice>())
-				{
-					item.Nomenclature = ViewModel.Entity;
-					ViewModel.Entity.NomenclaturePrice.Add(item);
-				}
-
-				ViewModel.Entity.AlternativeNomenclaturePrices.Clear();
-				foreach(var item in alternativePricesView.Prices.Cast<AlternativeNomenclaturePrice>())
-				{
-					item.Nomenclature = ViewModel.Entity;
-					ViewModel.Entity.AlternativeNomenclaturePrices.Add(item);
-				}
-
 				ViewModel.SaveCommand.Execute();
 			};
 			buttonSave.Sensitive = ViewModel.CanEdit;
-			buttonCancel.Clicked += (sender, args) => ViewModel.Close(ViewModel.AskSaveOnClose, CloseSource.Cancel);	
+			buttonCancel.Clicked += (sender, args) => ViewModel.Close(ViewModel.AskSaveOnClose, CloseSource.Cancel);
 			ylabelCreationDate.Binding
-				.AddFuncBinding(ViewModel.Entity, s => s.CreateDate.HasValue ? s.CreateDate.Value.ToString("dd.MM.yyyy HH:mm") : "", w => w.LabelProp)
+				.AddFuncBinding(ViewModel.Entity, s => s.CreateDate.HasValue ? s.CreateDate.Value.ToString("dd.MM.yyyy HH:mm") : "",
+					w => w.LabelProp)
 				.InitializeFromSource();
 			ylabelCreatedBy.Binding
 				.AddFuncBinding(ViewModel.Entity, e => ViewModel.GetUserEmployeeName(), w => w.LabelProp)
@@ -109,7 +109,7 @@ namespace Vodovoz.Views.Goods
 			labelTareVolume.Binding
 				.AddBinding(ViewModel, vm => vm.IsWaterCategory, w => w.Visible)
 				.InitializeFromSource();
-			
+
 			yСolorBtnBottleCapColor.Binding
 				.AddBinding(ViewModel.Entity, e => e.BottleCapColor, w => w.Color, new ColorTextToGdkColorConverter())
 				.AddBinding(ViewModel, vm => vm.Is19lTareVolume, w => w.Visible)
@@ -162,7 +162,7 @@ namespace Vodovoz.Views.Goods
 				.AddFuncBinding(ViewModel, vm => vm.IsNotServiceAndDepositCategory && vm.CanEdit, w => w.Sensitive)
 				.AddBinding(ViewModel.Entity, e => e.DoNotReserve, w => w.Active)
 				.InitializeFromSource();
-			
+
 			checkcanPrintPrice.Binding
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.AddBinding(ViewModel, vm => vm.IsWaterInNotDisposableTare, w => w.Visible)
@@ -269,9 +269,10 @@ namespace Vodovoz.Views.Goods
 				.AddBinding(ViewModel.Entity, e => e.Folder1C, w => w.Subject)
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
-			
+
 			yentryProductGroup.JournalButtons = Buttons.Add | Buttons.Edit;
-			yentryProductGroup.RepresentationModel = new ProductGroupVM(ViewModel.UoW, new ProductGroupFilterViewModel{
+			yentryProductGroup.RepresentationModel = new ProductGroupVM(ViewModel.UoW, new ProductGroupFilterViewModel
+			{
 				HidenByDefault = false,
 				HideArchive = true
 			});
@@ -279,13 +280,13 @@ namespace Vodovoz.Views.Goods
 				.AddBinding(ViewModel.Entity, e => e.ProductGroup, w => w.Subject)
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
-			
+
 			referenceUnit.SubjectType = typeof(MeasurementUnits);
 			referenceUnit.Binding
 				.AddBinding(ViewModel.Entity, n => n.Unit, w => w.Subject)
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
-			
+
 			referenceRouteColumn.SubjectType = typeof(RouteColumn);
 			referenceRouteColumn.Binding
 				.AddBinding(ViewModel.Entity, n => n.RouteListColumn, w => w.Subject)
@@ -328,11 +329,12 @@ namespace Vodovoz.Views.Goods
 			checkGroupPricing.Binding
 				.AddBinding(ViewModel.Entity, e => e.UsingInGroupPriceSet, w => w.Active)
 				.InitializeFromSource();
-			ycheckIsAccountableInChestniyZnak.Binding.AddBinding(ViewModel.Entity, e => e.IsAccountableInTrueMark, w => w.Active).InitializeFromSource();
+			ycheckIsAccountableInChestniyZnak.Binding.AddBinding(ViewModel.Entity, e => e.IsAccountableInTrueMark, w => w.Active)
+				.InitializeFromSource();
 			validatedGtin.ValidationMode = ValidationType.numeric;
 			validatedGtin.MaxLength = 14;
 			validatedGtin.Binding.AddBinding(ViewModel.Entity, e => e.Gtin, w => w.Text).InitializeFromSource();
-			
+
 			chkInventoryAccounting.Binding
 				.AddBinding(ViewModel.Entity, e => e.HasInventoryAccounting, w => w.Active)
 				.AddBinding(ViewModel, vm => vm.UserCanCreateNomenclaturesWithInventoryAccounting, w => w.Sensitive)
@@ -406,11 +408,20 @@ namespace Vodovoz.Views.Goods
 			entityViewModelEntryNomenclature.CanEditReference = true;
 
 			pricesView.Prices = ViewModel.Entity.NomenclaturePrice.Cast<NomenclaturePriceBase>().ToList();
+			pricesView.PricesList.ElementAdded += PriceAdded;
+			pricesView.PricesList.ElementRemoved += PriceRemoved;
+			pricesView.PricesList.ElementChanged += PriceRowChanged;
 			pricesView.Sensitive = ViewModel.CanCreateAndArcNomenclatures && ViewModel.CanEdit;
 			pricesView.NomenclaturePriceType = NomenclaturePriceBase.NomenclaturePriceType.General;
 
 			alternativePricesView.Prices = ViewModel.Entity.AlternativeNomenclaturePrices.Cast<NomenclaturePriceBase>().ToList();
-			alternativePricesView.Sensitive = ViewModel.CanCreateAndArcNomenclatures && ViewModel.CanEditAlternativeNomenclaturePrices &&  ViewModel.CanEdit;
+			alternativePricesView.PricesList.ElementAdded += PriceAdded;
+			alternativePricesView.PricesList.ElementRemoved += PriceRemoved;
+			alternativePricesView.PricesList.ElementChanged += PriceRowChanged;
+			alternativePricesView.Sensitive =
+				ViewModel.CanCreateAndArcNomenclatures
+				&& ViewModel.CanEditAlternativeNomenclaturePrices
+				&& ViewModel.CanEdit;
 			alternativePricesView.NomenclaturePriceType = NomenclaturePriceBase.NomenclaturePriceType.Alternative;
 
 			#region Вкладка изображения
@@ -425,9 +436,202 @@ namespace Vodovoz.Views.Goods
 
 			#endregion
 
+			#region Вкладка Сайты и приложения
+
+			ConfigureNotSpecialStateForOnlineAvailabilityWidgets();
+			ConfigureNotSpecialStateForOnlineMarkerWidgets();
+			ConfigureParametersForMobileApp();
+			ConfigureParametersForVodovozWebSite();
+			ConfigureParametersForKulerSaleWebSite();
+
+			ConfigureTreeOnlinePrices();
+
+			#endregion
+
 			ViewModel.Entity.PropertyChanged += Entity_PropertyChanged;
 
 			//make actions menu
+			ConfigureActionsMenu();
+		}
+
+		private void PriceRowChanged(object alist, int[] aidx)
+		{
+			ViewModel.UpdateNomenclatureOnlinePricesNodes();
+			ViewModel.SetNeedCheckOnlinePrices();
+		}
+
+		private void PriceAdded(object alist, int[] aidx)
+		{
+			var price = (alist as IList<NomenclaturePriceBase>)[aidx[0]];
+			
+			switch(price)
+			{
+				case NomenclaturePrice generalPrice:
+					generalPrice.Nomenclature = ViewModel.Entity;
+					ViewModel.Entity.NomenclaturePrice.Add(generalPrice);
+					ViewModel.AddNotKulerSaleOnlinePrice(generalPrice);
+					break;
+				case AlternativeNomenclaturePrice alternativePrice:
+					alternativePrice.Nomenclature = ViewModel.Entity;
+					ViewModel.Entity.AlternativeNomenclaturePrices.Add(alternativePrice);
+					ViewModel.AddKulerSaleOnlinePrice(alternativePrice);
+					break;
+			}
+
+			ViewModel.UpdateNomenclatureOnlinePricesNodes();
+		}
+		
+		private void PriceRemoved(object alist, int[] aidx, object aobject)
+		{
+			switch(aobject)
+			{
+				case NomenclaturePrice generalPrice:
+					ViewModel.Entity.NomenclaturePrice.Remove(generalPrice);
+					ViewModel.RemoveNotKulerSalePrices(generalPrice);
+					break;
+				case AlternativeNomenclaturePrice alternativePrice:
+					ViewModel.Entity.AlternativeNomenclaturePrices.Remove(alternativePrice);
+					ViewModel.RemoveKulerSalePrices(alternativePrice);
+					break;
+			}
+		}
+
+		private void ConfigureParametersForMobileApp()
+		{
+			enumCmbOnlineAvailabilityMobileApp.ItemsEnum = typeof(NomenclatureOnlineAvailability);
+			enumCmbOnlineAvailabilityMobileApp.Binding
+				.AddBinding(ViewModel.MobileAppNomenclatureOnlineParameters, p => p.NomenclatureOnlineAvailability, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
+			
+			enumCmbOnlineMarkerMobileApp.ItemsEnum = typeof(NomenclatureOnlineMarker);
+			enumCmbOnlineMarkerMobileApp.Binding
+				.AddBinding(ViewModel.MobileAppNomenclatureOnlineParameters, p => p.NomenclatureOnlineMarker, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
+			
+			entryOnlineDiscountMobileApp.Binding
+				.AddBinding(ViewModel.MobileAppNomenclatureOnlineParameters, p => p.NomenclatureOnlineDiscount, w => w.Text, new NullableDecimalToStringConverter())
+				.InitializeFromSource();
+			entryOnlineDiscountMobileApp.Changed += OnEntryOnlineDiscountChanged;
+		}
+		
+		private void ConfigureParametersForVodovozWebSite()
+		{
+			enumCmbOnlineAvailabilityVodovozWebSite.ItemsEnum = typeof(NomenclatureOnlineAvailability);
+			enumCmbOnlineAvailabilityVodovozWebSite.Binding
+				.AddBinding(ViewModel.VodovozWebSiteNomenclatureOnlineParameters, p => p.NomenclatureOnlineAvailability, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
+			
+			enumCmbOnlineMarkerVodovozWebSite.ItemsEnum = typeof(NomenclatureOnlineMarker);
+			enumCmbOnlineMarkerVodovozWebSite.Binding
+				.AddBinding(ViewModel.VodovozWebSiteNomenclatureOnlineParameters, p => p.NomenclatureOnlineMarker, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
+			
+			entryOnlineDiscountVodovozWebSite.Binding
+				.AddBinding(ViewModel.VodovozWebSiteNomenclatureOnlineParameters, p => p.NomenclatureOnlineDiscount, w => w.Text, new NullableDecimalToStringConverter())
+				.InitializeFromSource();
+			entryOnlineDiscountVodovozWebSite.Changed += OnEntryOnlineDiscountChanged;
+		}
+		
+		private void ConfigureParametersForKulerSaleWebSite()
+		{
+			enumCmbOnlineAvailabilityKulerSaleWebSite.ItemsEnum = typeof(NomenclatureOnlineAvailability);
+			enumCmbOnlineAvailabilityKulerSaleWebSite.Binding
+				.AddBinding(ViewModel.KulerSaleWebSiteNomenclatureOnlineParameters, p => p.NomenclatureOnlineAvailability, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
+			
+			enumCmbOnlineMarkerKulerSaleWebSite.ItemsEnum = typeof(NomenclatureOnlineMarker);
+			enumCmbOnlineMarkerKulerSaleWebSite.Binding
+				.AddBinding(ViewModel.KulerSaleWebSiteNomenclatureOnlineParameters, p => p.NomenclatureOnlineMarker, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
+			
+			entryOnlineDiscountKulerSaleWebSite.Binding
+				.AddBinding(ViewModel.KulerSaleWebSiteNomenclatureOnlineParameters, p => p.NomenclatureOnlineDiscount, w => w.Text, new NullableDecimalToStringConverter())
+				.InitializeFromSource();
+			entryOnlineDiscountKulerSaleWebSite.Changed += OnEntryOnlineDiscountChanged;
+		}
+		
+		private void OnEntryOnlineDiscountChanged(object sender, EventArgs e)
+		{
+			var entry = sender as Entry;
+			var chars = entry.Text.ToCharArray();
+			
+			var text = ViewModel.StringHandler.ConvertCharsArrayToNumericString(chars);
+			entry.Text = string.IsNullOrWhiteSpace(text) ? string.Empty : text;
+		}
+
+		private void ConfigureNotSpecialStateForOnlineAvailabilityWidgets()
+		{
+			enumCmbOnlineAvailabilityMobileApp.ShowSpecialStateNot = true;
+			enumCmbOnlineAvailabilityVodovozWebSite.ShowSpecialStateNot = true;
+			enumCmbOnlineAvailabilityKulerSaleWebSite.ShowSpecialStateNot = true;
+		}
+		
+		private void ConfigureNotSpecialStateForOnlineMarkerWidgets()
+		{
+			enumCmbOnlineMarkerMobileApp.ShowSpecialStateNot = true;
+			enumCmbOnlineMarkerVodovozWebSite.ShowSpecialStateNot = true;
+			enumCmbOnlineMarkerKulerSaleWebSite.ShowSpecialStateNot = true;
+		}
+		
+		private void ConfigureTreeOnlinePrices()
+		{
+			treeViewOnlinePrices.ColumnsConfig = FluentColumnsConfig<NomenclatureOnlinePricesNode>.Create()
+				.AddColumn("Кол-во (от)")
+					.AddNumericRenderer(x => x.MinCount)
+				.AddColumn("Цена продажи")
+					.AddTextRenderer(x => x.NomenclaturePrice.ToString())
+				.AddColumn("Цена продажи\nКулер-Сейл")
+					.AddTextRenderer(x => x.KulerSalePrice.ToString())
+				.AddColumn("Приложение\n\nЦена без\nскидки")
+					.AddTextRenderer(x => x.MobileAppPriceWithoutDiscountString)
+					.EditingStartedEvent(OnPriceWithoutDiscountStartedEditing)
+					.EditedEvent(OnPriceWithoutDiscountEdited)
+					.AddSetter((cell, node) => cell.Editable = node.CanChangeMobileAppPriceWithoutDiscount)
+				.AddColumn("Сайт ВВ\n\nЦена без\nскидки")
+					.AddTextRenderer(x => x.VodovozWebSitePriceWithoutDiscountString)
+					.EditingStartedEvent(OnPriceWithoutDiscountStartedEditing)
+					.EditedEvent(OnPriceWithoutDiscountEdited)
+					.AddSetter((cell, node) => cell.Editable = node.CanChangeVodovozWebSitePriceWithoutDiscount)
+				.AddColumn("Кулер-Сейл\n\nЦена без\nскидки")
+					.AddTextRenderer(x => x.KulerSaleWebSitePriceWithoutDiscountString)
+					.EditingStartedEvent(OnPriceWithoutDiscountStartedEditing)
+					.EditedEvent(OnPriceWithoutDiscountEdited)
+					.AddSetter((cell, node) => cell.Editable = node.CanChangeKulerSaleWebSitePriceWithoutDiscount)
+				.AddColumn("")
+				.Finish();
+
+			treeViewOnlinePrices.ItemsDataSource = ViewModel.NomenclatureOnlinePrices;
+		}
+
+		private void OnPriceWithoutDiscountStartedEditing(object o, EditingStartedArgs args)
+		{
+			if(args.Args.First() is Entry entry)
+			{
+				_entry = entry;
+				_entry.Changed += OnPriceWithoutDiscountChanged;
+			}
+		}
+		
+		private void OnPriceWithoutDiscountEdited(object o, EditedArgs args)
+		{
+			if(_entry != null)
+			{
+				_entry.Changed -= OnPriceWithoutDiscountChanged;
+				_entry = null;
+			}
+		}
+
+		private void OnPriceWithoutDiscountChanged(object sender, EventArgs e)
+		{
+			var entry = sender as Entry;
+			var chars = entry.Text.ToCharArray();
+			
+			var text = ViewModel.StringHandler.ConvertCharsArrayToNumericString(chars, 2);
+			entry.Text = string.IsNullOrWhiteSpace(text) ? string.Empty : text;
+		}
+
+		private void ConfigureActionsMenu()
+		{
 			var menu = new Menu();
 			var menuItem = new MenuItem("Заменить все ссылки на номенклатуру...");
 			menuItem.Activated += OnReplaceLinksActivated;
@@ -470,25 +674,31 @@ namespace Vodovoz.Views.Goods
 		protected void OnRadioInfoToggled(object sender, EventArgs e)
 		{
 			if(radioInfo.Active)
-				notebook1.CurrentPage = 0;
+			{
+				notebook.CurrentPage = 0;
+			}
 		}
 
 		protected void OnRadioEquipmentToggled(object sender, EventArgs e)
 		{
 			if(radioEquipment.Active)
-				notebook1.CurrentPage = 1;
+			{
+				notebook.CurrentPage = 1;
+			}
 		}
 
 		protected void OnRadioCharacteristicsToggled(object sender, EventArgs e)
 		{
 			if(radioCharacteristics.Active)
-				notebook1.CurrentPage = 2;
+			{
+				notebook.CurrentPage = 2;
+			}
 		}
 
 		protected void OnRadioImagesToggled(object sender, EventArgs e)
 		{
 			if(radioImages.Active) {
-				notebook1.CurrentPage = 3;
+				notebook.CurrentPage = 3;
 				ImageTabOpen();
 			}
 		}
@@ -496,14 +706,24 @@ namespace Vodovoz.Views.Goods
 		protected void OnRadioPriceToggled(object sender, EventArgs e)
 		{
 			if(radioPrice.Active)
-				notebook1.CurrentPage = 4;
+			{
+				notebook.CurrentPage = 4;
+			}
 		}
 
 		protected void OnPurchasePriceToggled(object sender, EventArgs e)
 		{
 			if(radioPurchasePrice.Active)
 			{
-				notebook1.CurrentPage = 5;
+				notebook.CurrentPage = 5;
+			}
+		}
+		
+		private void OnSitesAndAppsToggled(object sender, EventArgs e)
+		{
+			if(radioSitesAndApps.Active)
+			{
+				notebook.CurrentPage = 6;
 			}
 		}
 
@@ -576,5 +796,23 @@ namespace Vodovoz.Views.Goods
 
 		#endregion
 
+		public override void Dispose()
+		{
+			if(pricesView != null)
+			{
+				pricesView.PricesList.ElementAdded -= PriceAdded;
+				pricesView.PricesList.ElementRemoved -= PriceRemoved;
+				pricesView.PricesList.ElementChanged -= PriceRowChanged;
+			}
+
+			if(alternativePricesView != null)
+			{
+				alternativePricesView.PricesList.ElementAdded -= PriceAdded;
+				alternativePricesView.PricesList.ElementRemoved -= PriceRemoved;
+				alternativePricesView.PricesList.ElementChanged -= PriceRowChanged;
+			}
+			
+			base.Dispose();
+		}
 	}
 }

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace Vodovoz.Parameters
 {
@@ -14,10 +14,13 @@ namespace Vodovoz.Parameters
 
 		int[] SubdivisionsToInformComplaintHasNoDriver { get; }
 		int[] SubdivisionsForAlternativePrices { get; }
+		int[] WarehousesForPricesAndStocksIntegration { get; }
 
 		string SubdivisionsToInformComplaintHasNoDriverParameterName { get; }
 		string SubdivisionsAlternativePricesName { get; }
+		string WarehousesForPricesAndStocksIntegrationName { get; }
 		void UpdateSubdivisionsForParameter(List<int> subdivisionsToAdd, List<int> subdivisionsToRemoves, string parameterName);
+		void UpdateWarehousesIdsForParameter(IEnumerable<int> warehousesIds, string parameterName);
 		
 		int DriversUnclosedRouteListsHavingDebtMaxCount { get; }
 

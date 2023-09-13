@@ -15,30 +15,13 @@ namespace Vodovoz.Parameters
 		private const string _driversUnclosedRouteListsHavingDebtMaxCount = "drivers_stop_list_unclosed_route_lists_max_count";
 		private const string _driversRouteListsMaxDebtSum = "drivers_stop_list_route_lists_max_debt_sum";
 		private const string _isClientsSecondOrderDiscountActive = "is_client_second_order_discount_active";
+		private const string _warehousesForPricesAndStocksIntegrationName = "warehouses_for_prices_and_stocks_integration_name";
 
 		public GeneralSettingsParametersProvider(IParametersProvider parametersProvider)
 		{
 			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
 		}
-		
-		private int[] GetSubdivisionsToInformComplaintHasNoDriver()
-		{
-			var parameterValue = _parametersProvider.GetParameterValue(_subdivisionsToInformComplaintHasNoDriverParameterName, true);
-			var splitedIds = parameterValue.Split(new string[] { ", " }, StringSplitOptions.RemoveEmptyEntries);
-			return splitedIds
-				.Select(x => int.Parse(x))
-				.ToArray();
-		}
 
-		private int[] GetSubdivisionssForAlternativePrices()
-		{
-			var parameterValue = _parametersProvider.GetParameterValue(_subdivisionsForAlternativePricesName, true);
-			var splitedIds = parameterValue.Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries);
-			return splitedIds
-				.Select(x => int.Parse(x))
-				.ToArray();
-		}
-		
 		public string GetRouteListPrintedFormPhones => _parametersProvider.GetStringValue(_routeListPrintedFormPhones);
 
 		public void UpdateRouteListPrintedFormPhones(string text) =>
@@ -47,14 +30,17 @@ namespace Vodovoz.Parameters
 		public bool GetCanAddForwardersToLargus => _parametersProvider.GetValue<bool>(_canAddForwarderToLargus);
 
 		public string OrderAutoComment => _parametersProvider.GetStringValue(_orderAutoComment);
+		
+		public string SubdivisionsToInformComplaintHasNoDriverParameterName => _subdivisionsToInformComplaintHasNoDriverParameterName;
+		public string SubdivisionsAlternativePricesName => _subdivisionsForAlternativePricesName;
+		public string WarehousesForPricesAndStocksIntegrationName => _warehousesForPricesAndStocksIntegrationName;
 
 		public int[] SubdivisionsToInformComplaintHasNoDriver => GetSubdivisionsToInformComplaintHasNoDriver();
-
-		public int[] SubdivisionsForAlternativePrices => GetSubdivisionssForAlternativePrices();
+		public int[] SubdivisionsForAlternativePrices => GetSubdivisionsForAlternativePrices();
+		public int[] WarehousesForPricesAndStocksIntegration => GetWarehousesForPricesAndStocksIntegration();
 
 		public void UpdateOrderAutoComment(string value) =>
 			_parametersProvider.CreateOrUpdateParameter(_orderAutoComment, value);
-
 
 		public void UpdateCanAddForwardersToLargus(bool value) =>
 			_parametersProvider.CreateOrUpdateParameter(_canAddForwarderToLargus, value.ToString());
@@ -84,9 +70,10 @@ namespace Vodovoz.Parameters
 			_parametersProvider.CreateOrUpdateParameter(parameterName, string.Join(", ", result));
 		}
 
-		public string SubdivisionsToInformComplaintHasNoDriverParameterName => _subdivisionsToInformComplaintHasNoDriverParameterName;
-
-		public string SubdivisionsAlternativePricesName => _subdivisionsForAlternativePricesName;
+		public void UpdateWarehousesIdsForParameter(IEnumerable<int> warehousesIds, string parameterName)
+		{
+			_parametersProvider.CreateOrUpdateParameter(parameterName, string.Join(", ", warehousesIds));
+		}
 
 		public int DriversUnclosedRouteListsHavingDebtMaxCount => _parametersProvider.GetValue<int>(_driversUnclosedRouteListsHavingDebtMaxCount);
 
@@ -101,5 +88,29 @@ namespace Vodovoz.Parameters
 
 		public void UpdateIsClientsSecondOrderDiscountActive(bool value) =>
 			_parametersProvider.CreateOrUpdateParameter(_isClientsSecondOrderDiscountActive, value.ToString());
+		
+		private int[] GetSubdivisionsToInformComplaintHasNoDriver()
+		{
+			return ParseIdsFromString(_subdivisionsToInformComplaintHasNoDriverParameterName);
+		}
+
+		private int[] GetSubdivisionsForAlternativePrices()
+		{
+			return ParseIdsFromString(_subdivisionsForAlternativePricesName);
+		}
+
+		private int[] GetWarehousesForPricesAndStocksIntegration()
+		{
+			return ParseIdsFromString(_warehousesForPricesAndStocksIntegrationName);
+		}
+		
+		private int[] ParseIdsFromString(string parameterName, bool allowEmpty = true)
+		{
+			var parameterValue = _parametersProvider.GetParameterValue(parameterName, allowEmpty);
+			var splitedIds = parameterValue.Split(new string[] {", "}, StringSplitOptions.RemoveEmptyEntries);
+			return splitedIds
+				.Select(x => int.Parse(x))
+				.ToArray();
+		}
 	}
 }

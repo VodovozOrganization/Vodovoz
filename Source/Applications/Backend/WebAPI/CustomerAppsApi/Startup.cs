@@ -1,6 +1,7 @@
-﻿using CustomerAppsApi.Converters;
+using CustomerAppsApi.Converters;
 using CustomerAppsApi.Factories;
 using CustomerAppsApi.Library.Factories;
+using CustomerAppsApi.Middleware;
 using CustomerAppsApi.Models;
 using CustomerAppsApi.Repositories;
 using CustomerAppsApi.Validators;
@@ -29,10 +30,13 @@ using Vodovoz.Controllers.ContactsForExternalCounterparty;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Roboats;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Factories;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.Settings;
 using Vodovoz.Settings.Database;
 using UserRepository = QS.Project.Repositories.UserRepository;
@@ -41,6 +45,8 @@ namespace CustomerAppsApi
 {
 	public class Startup
 	{
+		private const string _nLogSectionName = nameof(NLog);
+
 		public Startup(IConfiguration configuration)
 		{
 			Configuration = configuration;
@@ -59,6 +65,7 @@ namespace CustomerAppsApi
 				{
 					logging.ClearProviders();
 					logging.AddNLogWeb();
+					logging.AddConfiguration(Configuration.GetSection(_nLogSectionName));
 				});
 
 			RegisterDependencies(services);
@@ -77,11 +84,15 @@ namespace CustomerAppsApi
 			services.AddSingleton<IEmailRepository, EmailRepository>();
 			services.AddSingleton<ISettingsController, SettingsController>();
 			services.AddSingleton<ISessionProvider, DefaultSessionProvider>();
+			services.AddSingleton<IParametersProvider, ParametersProvider>();
+			services.AddSingleton<INomenclatureParametersProvider, NomenclatureParametersProvider>();
 			services.AddSingleton<IUnitOfWorkFactory, DefaultUnitOfWorkFactory>();
 			services.AddSingleton<IRoboatsSettings, RoboatsSettings>();
 			services.AddSingleton<IRoboatsRepository, RoboatsRepository>();
 			services.AddSingleton<IBottlesRepository, BottlesRepository>();
 			services.AddSingleton<ICachedBottlesDebtRepository, CachedBottlesDebtRepository>();
+			services.AddSingleton<INomenclatureRepository, NomenclatureRepository>();
+			services.AddSingleton<IStockRepository, StockRepository>();
 			services.AddSingleton<IExternalCounterpartyRepository, ExternalCounterpartyRepository>();
 			services.AddSingleton<IExternalCounterpartyMatchingRepository, ExternalCounterpartyMatchingRepository>();
 			services.AddSingleton<IRegisteredNaturalCounterpartyDtoFactory, RegisteredNaturalCounterpartyDtoFactory>();
@@ -89,16 +100,20 @@ namespace CustomerAppsApi
 			services.AddSingleton<IExternalCounterpartyFactory, ExternalCounterpartyFactory>();
 			services.AddSingleton<CounterpartyModelFactory>();
 			services.AddSingleton<ICounterpartyFactory, CounterpartyFactory>();
+			services.AddSingleton<INomenclatureFactory, NomenclatureFactory>();
 			services.AddSingleton<PhoneFormatter>(_ => new PhoneFormatter(PhoneFormat.DigitsTen));
 			services.AddSingleton<ICounterpartySettings, CounterpartySettings>();
 			services.AddSingleton<ICameFromConverter, CameFromConverter>();
+			services.AddSingleton<ISourceConverter, SourceConverter>();
 			services.AddSingleton<ContactFinderForExternalCounterpartyFromOne>();
 			services.AddSingleton<ContactFinderForExternalCounterpartyFromTwo>();
 			services.AddSingleton<ContactFinderForExternalCounterpartyFromMany>();
 			services.AddSingleton<IContactManagerForExternalCounterparty, ContactManagerForExternalCounterparty>();
+			services.AddSingleton<INomenclatureOnlineParametersController, NomenclatureOnlineParametersController>();
 
 			services.AddScoped<IUnitOfWork>(_ => UnitOfWorkFactory.CreateWithoutRoot("Сервис интеграции"));
 			services.AddScoped<ICounterpartyModel, CounterpartyModel>();
+			services.AddScoped<INomenclatureModel, NomenclatureModel>();
 			services.AddScoped<CounterpartyModelValidator>();
 		}
 
@@ -112,6 +127,7 @@ namespace CustomerAppsApi
 				app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "CustomerAppsApi v1"));
 			}
 
+			app.UseMiddleware<ResponseLoggingMiddleware>();
 			app.UseHttpsRedirection();
 			app.UseRouting();
 

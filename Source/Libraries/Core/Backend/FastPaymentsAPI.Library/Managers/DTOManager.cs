@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using System.Xml.Serialization;
 using VodovozInfrastructure;
+using VodovozInfrastructure.StringHandlers;
 
 namespace FastPaymentsAPI.Library.Managers
 {

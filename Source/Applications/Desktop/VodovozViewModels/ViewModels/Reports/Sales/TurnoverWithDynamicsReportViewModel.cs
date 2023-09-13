@@ -1,4 +1,4 @@
-﻿using ClosedXML.Report;
+using ClosedXML.Report;
 using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
@@ -622,8 +622,12 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
 					.JoinEntityAlias(() => orderItemAlias, () => orderItemAlias.Nomenclature.Id == nomenclatureAlias.Id, JoinType.LeftOuterJoin)
 					.JoinEntityAlias(() => orderAlias, () => orderItemAlias.Order.Id == orderAlias.Id, JoinType.LeftOuterJoin)
-					.Where(() => FilterViewModel.ShowArchived || !nomenclatureAlias.IsArchive)
-					.And(Restrictions.Le(Projections.Property(() => orderAlias.DeliveryDate), EndDate));
+					.Where(Restrictions.Le(Projections.Property(() => orderAlias.DeliveryDate), EndDate));
+
+				if(!FilterViewModel.ShowArchived)
+				{
+					nomenclaturesEmptyQuery.Where(() => !nomenclatureAlias.IsArchive);
+				}
 
 				if(includedNomenclatureCategories.Any())
 				{

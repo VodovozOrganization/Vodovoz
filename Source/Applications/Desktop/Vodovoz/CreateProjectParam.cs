@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using CashReceiptApi.Client.Framework;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
@@ -238,6 +238,7 @@ using VodovozInfrastructure.Endpoints;
 using VodovozInfrastructure.Interfaces;
 using IErrorReporter = Vodovoz.Tools.IErrorReporter;
 using static Vodovoz.ViewModels.Cash.Reports.CashFlowAnalysisViewModel;
+using VodovozInfrastructure.StringHandlers;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
 using UserView = Vodovoz.Views.Users.UserView;
 using Vodovoz.EntityRepositories.Cash;
@@ -530,6 +531,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<UndeliveredOrdersClassificationReportViewModel, UndeliveredOrdersClassificationReportView>()
 				.RegisterWidgetForWidgetViewModel<NumberOfComplaintsAgainstDriversReportViewModel, NumberOfComplaintsAgainstDriversReportView>()
 				.RegisterWidgetForWidgetViewModel<MovementsPaymentControlViewModel, MovementsPaymentControlView>()
+				.RegisterWidgetForWidgetViewModel<WarehousesSettingsViewModel, NamedDomainEntitiesSettingsView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
@@ -774,6 +776,7 @@ namespace Vodovoz
 
 			builder.RegisterType<GeoGroupVersionsModel>().SingleInstance().AsSelf();
 			builder.RegisterType<NomenclatureFixedPriceController>().As<INomenclatureFixedPriceProvider>().AsSelf();
+			builder.RegisterType<StringHandler>().As<IStringHandler>();
 
 			#endregion
 

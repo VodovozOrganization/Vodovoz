@@ -1,6 +1,8 @@
 ﻿using QS.Views.GtkUI;
 using System.ComponentModel;
+using Vodovoz.Domain.Complaints;
 using Vodovoz.ViewModels.QualityControl.Reports;
+using static Vodovoz.ViewModels.Logistic.DriversStopLists.DriversStopListsViewModel;
 using static Vodovoz.ViewModels.QualityControl.Reports.NumberOfComplaintsAgainstDriversReportViewModel;
 
 namespace Vodovoz.QualityControl.Reports
@@ -23,6 +25,24 @@ namespace Vodovoz.QualityControl.Reports
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.StartDate, w => w.StartDateOrNull)
 				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
+				.InitializeFromSource();
+
+			comboGeoGroup.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.GeoGroups, w => w.ItemsList)
+				.AddBinding(vm => vm.SelectedGeoGroup, w => w.SelectedItem)
+				.InitializeFromSource();
+
+			comboComplaintResult.SetRenderTextFunc<ComplaintResultBase>(cr => cr.Name);
+			comboComplaintResult.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.ComplaintResults, w => w.ItemsList)
+				.AddBinding(vm => vm.SelectedComplaintResult, w => w.SelectedItem)
+				.InitializeFromSource();
+
+			yenumcomboSorting.ItemsEnum = typeof(ReportSortOrder);
+			yenumcomboSorting.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.SelectedReportSortOrder, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 
 			ybuttonCreateReport.Clicked += (s, e) => ViewModel.GenerateReportCommand.Execute();

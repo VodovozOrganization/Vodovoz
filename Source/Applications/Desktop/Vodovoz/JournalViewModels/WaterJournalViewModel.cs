@@ -19,17 +19,19 @@ using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
+using VodovozInfrastructure.StringHandlers;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.JournalViewModels
 {
 	public class WaterJournalViewModel : SingleEntityJournalViewModelBase<Nomenclature, NomenclatureViewModel, WaterJournalNode>
 	{
-		private readonly IEmployeeService employeeService;
+		private readonly IEmployeeService _employeeService;
 		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
-		private readonly ICounterpartyJournalFactory counterpartySelectorFactory;
-		private readonly INomenclatureRepository nomenclatureRepository;
-		private readonly IUserRepository userRepository;
+		private readonly ICounterpartyJournalFactory _counterpartySelectorFactory;
+		private readonly INomenclatureRepository _nomenclatureRepository;
+		private readonly IUserRepository _userRepository;
+		private readonly IStringHandler _stringHandler = new StringHandler();
 
 		public WaterJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -41,11 +43,11 @@ namespace Vodovoz.JournalViewModels
 			IUserRepository userRepository
 		) : base(unitOfWorkFactory, commonServices)
 		{
-			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
-			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
-			this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
-			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
+			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 
 			TabName = "Выбор номенклатуры воды";
 			SetOrder(x => x.Name);
@@ -141,7 +143,7 @@ namespace Vodovoz.JournalViewModels
 
 		protected override Func<WaterJournalNode, NomenclatureViewModel> OpenDialogFunction =>
 			node => new NomenclatureViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices,
-				employeeService, _nomenclatureSelectorFactory, counterpartySelectorFactory, nomenclatureRepository,
-				userRepository);
+				_employeeService, _nomenclatureSelectorFactory, _counterpartySelectorFactory, _nomenclatureRepository,
+				_userRepository, _stringHandler);
 	}
 }
