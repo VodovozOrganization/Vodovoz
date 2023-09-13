@@ -1675,7 +1675,7 @@ namespace Vodovoz
 					{
 						toggle.Activatable = CanEditByPermission && _canEditSealAndSignatureUpd;
 					}
-					if(document.Type == OrderDocumentType.UPD)
+					if(document.Type == OrderDocumentType.SpecialUPD)
 					{
 						toggle.Activatable = CanEditByPermission && _canEditSealAndSignatureSpecialUpd;
 					}
