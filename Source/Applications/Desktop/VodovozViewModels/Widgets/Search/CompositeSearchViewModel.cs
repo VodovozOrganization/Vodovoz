@@ -34,10 +34,7 @@ namespace Vodovoz.ViewModels.Widgets.Search
 
 		public void Update()
 		{
-			SearchValues = new string[] { EntrySearchText1, EntrySearchText2, EntrySearchText3, EntrySearchText4 }
-				.Where(x => !string.IsNullOrEmpty(x))
-				.ToArray();
-
+			UpdateSearchValues();
 			OnSearch?.Invoke(this, new EventArgs());
 		}
 
@@ -78,10 +75,21 @@ namespace Vodovoz.ViewModels.Widgets.Search
 
 		#endregion Properties
 
-		public ICriterion GetSearchCriterion(params Expression<Func<object>>[] aliasPropertiesExpr) =>
-			new SearchCriterion(this)
+		public ICriterion GetSearchCriterion(params Expression<Func<object>>[] aliasPropertiesExpr)
+		{
+			UpdateSearchValues();
+
+			return new SearchCriterion(this)
 				.By(aliasPropertiesExpr)
 				.Finish();
+		}
+
+		private void UpdateSearchValues()
+		{
+			SearchValues = new string[] { EntrySearchText1, EntrySearchText2, EntrySearchText3, EntrySearchText4 }
+				.Where(x => !string.IsNullOrEmpty(x))
+				.ToArray();
+		}
 
 		#region Commands
 
