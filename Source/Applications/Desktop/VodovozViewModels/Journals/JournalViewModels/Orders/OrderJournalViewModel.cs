@@ -12,6 +12,7 @@ using QS.Services;
 using System;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using Vodovoz.Controllers;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -163,6 +164,7 @@ namespace Vodovoz.JournalViewModels
 			CreateDefaultAddActions();
 			CreateCustomEditAction();
 			CreateDefaultDeleteAction();
+			CreateExportToExcelAction();
 		}
 
 		private void CreateCustomEditAction()
@@ -213,6 +215,26 @@ namespace Vodovoz.JournalViewModels
 				RowActivatedAction = editAction;
 			}
 			NodeActionsList.Add(editAction);
+		}
+
+		private void CreateExportToExcelAction()
+		{
+			var createExportToExcelAction = new JournalAction("Выгрузить в Excel",
+				(selected) => true,
+				(selected) => true,
+				(selected) => ExportToExcel()
+			);
+			NodeActionsList.Add(createExportToExcelAction);
+		}
+
+		private void ExportToExcel()
+		{
+			var ordersRows = GetOrdersQuery(UoW).List<OrderJournalNode<VodovozOrder>>();
+			var ordersWithoutShipmentForDebtRows = GetOrdersWithoutShipmentForDebtQuery(UoW).List<OrderJournalNode<OrderWithoutShipmentForDebt>>();
+			var ordersWithoutShipmentForPaymentRows = GetOrdersWithoutShipmentForPaymentQuery(UoW).List<OrderJournalNode<OrderWithoutShipmentForPayment>>();
+			var ordersWithoutShipmentForAdvancePaymentRows = GetOrdersWithoutShipmentForAdvancePaymentQuery(UoW).List<OrderJournalNode<OrderWithoutShipmentForAdvancePayment>>();
+
+			var data = DataLoader.Items;
 		}
 
 		private IQueryOver<VodovozOrder> GetOrdersQuery(IUnitOfWork uow)
