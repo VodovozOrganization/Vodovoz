@@ -266,7 +266,7 @@ namespace Vodovoz.ViewModels.Cash
 		{
 			if(!string.IsNullOrWhiteSpace(title) && !string.IsNullOrWhiteSpace(message))
 			{
-				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, title, message);
+				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, message, title);
 			}
 
 			FailInitialize = true;
