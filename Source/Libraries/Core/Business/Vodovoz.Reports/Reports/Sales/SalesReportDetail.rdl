@@ -752,6 +752,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Right</TextAlign>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                   <ColSpan>2</ColSpan>
@@ -1442,7 +1443,7 @@ GROUP BY T.order_items_id
       </Fields>
     </DataSet>
     <DataSet Name="Criterions">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
         <CommandText>SELECT
@@ -1823,7 +1824,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="criterions">
           <DataField>criterions</DataField>
           <TypeName>System.String</TypeName>
