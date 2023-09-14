@@ -1,10 +1,5 @@
 ﻿using ClosedXML.Excel;
-using DocumentFormat.OpenXml;
-using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Spreadsheet;
-using NPOI.SS.Formula.Functions;
 using QS.DomainModel.Entity;
-using QS.Project.Services.FileDialog;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -17,7 +12,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Orders
 	[Appellative(Nominative = "Отчет по заказам")]
 	public class OrdersReport
 	{
-		private readonly IFileDialogService _fileDialogService;
 		private readonly Report _report;
 
 		#region WorkSheet Config
@@ -50,10 +44,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Orders
 		public OrdersReport(
 			DateTime createDateFrom, 
 			DateTime createDateTo, 
-			IEnumerable<OrderJournalNode> rows,
-			IFileDialogService fileDialogService)
+			IEnumerable<OrderJournalNode> rows)
 		{
-			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_report = new Report(rows);
 
 			CreateDateFrom = createDateFrom;
@@ -69,21 +61,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Orders
 
 		public DateTime ReportCreatedAt { get; }
 
-		public void Export()
-		{
-			var dialogSettings = new DialogSettings();
-			dialogSettings.Title = "Сохранить";
-			dialogSettings.DefaultFileExtention = ".xlsx";
-			dialogSettings.FileName = $"{Title} {ReportCreatedAt:yyyy-MM-dd-HH-mm}.xlsx";
-
-			var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
-			if(result.Successful)
-			{
-				SaveReport(result.Path);
-			}
-		}
-
-		private void SaveReport(string path)
+		public void Export(string path)
 		{
 			using(var workbook = new XLWorkbook())
 			{

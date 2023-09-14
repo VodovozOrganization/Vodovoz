@@ -241,15 +241,25 @@ namespace Vodovoz.JournalViewModels
 				return;
 			}
 
+			var dialogSettings = new DialogSettings();
+			dialogSettings.Title = "Сохранить";
+			dialogSettings.DefaultFileExtention = ".xlsx";
+			dialogSettings.FileName = $"{Title} {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx";
+
+			var saveDialogResul = _fileDialogService.RunSaveFileDialog(dialogSettings);
+			if(!saveDialogResul.Successful)
+			{
+				return;
+			}
+
 			var nodes = GetReportData();
 
-			OrdersReport ordersReport = new OrdersReport(
-				FilterViewModel.StartDate.Value,
-				FilterViewModel.EndDate.Value,
-				nodes,
-				_fileDialogService);
+			var ordersReport = new OrdersReport(
+					FilterViewModel.StartDate.Value,
+					FilterViewModel.EndDate.Value,
+					nodes);
 
-			ordersReport.Export();
+			ordersReport.Export(saveDialogResul.Path);
 		}
 
 		private IEnumerable<OrderJournalNode> GetReportData()
