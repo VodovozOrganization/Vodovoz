@@ -1,4 +1,5 @@
-﻿using NHibernate;
+﻿using MoreLinq;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
@@ -10,9 +11,9 @@ using QS.Project.Journal.DataLoader;
 using QS.Project.Services.FileDialog;
 using QS.Services;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Threading.Tasks;
 using Vodovoz.Controllers;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -43,6 +44,7 @@ using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.ViewModels.Reports.Orders;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
@@ -219,7 +221,8 @@ namespace Vodovoz.JournalViewModels
 
 		private void CreateExportToExcelAction()
 		{
-			var createExportToExcelAction = new JournalAction("Выгрузить в Excel",
+			var createExportToExcelAction = new JournalAction(
+				"Выгрузить в Excel",
 				(selected) => true,
 				(selected) => true,
 				(selected) => ExportToExcel()
@@ -229,12 +232,46 @@ namespace Vodovoz.JournalViewModels
 
 		private void ExportToExcel()
 		{
-			var ordersRows = GetOrdersQuery(UoW).List<OrderJournalNode<VodovozOrder>>();
-			var ordersWithoutShipmentForDebtRows = GetOrdersWithoutShipmentForDebtQuery(UoW).List<OrderJournalNode<OrderWithoutShipmentForDebt>>();
-			var ordersWithoutShipmentForPaymentRows = GetOrdersWithoutShipmentForPaymentQuery(UoW).List<OrderJournalNode<OrderWithoutShipmentForPayment>>();
-			var ordersWithoutShipmentForAdvancePaymentRows = GetOrdersWithoutShipmentForAdvancePaymentQuery(UoW).List<OrderJournalNode<OrderWithoutShipmentForAdvancePayment>>();
+			if(FilterViewModel.StartDate == null || FilterViewModel.EndDate == null)
+			{
+				_commonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					"Слишком много данных. Выберете временной диапазон для формирования выгрузки");
+			}
 
-			var data = DataLoader.Items;
+			var nodes = GetReportData();
+
+			OrdersReport ordersReport = new OrdersReport(
+				FilterViewModel.StartDate.Value,
+				FilterViewModel.EndDate.Value,
+				nodes,
+				_fileDialogService);
+		}
+
+		private IEnumerable<OrderJournalNode> GetReportData()
+		{
+			var ordersRows = 
+				GetOrdersQuery(UoW).List<OrderJournalNode<VodovozOrder>>();
+
+			var ordersWithoutShipmentForDebtRows = 
+				GetOrdersWithoutShipmentForDebtQuery(UoW).List<OrderJournalNode<OrderWithoutShipmentForDebt>>();
+
+			var ordersWithoutShipmentForPaymentRows = 
+				GetOrdersWithoutShipmentForPaymentQuery(UoW).List<OrderJournalNode<OrderWithoutShipmentForPayment>>();
+
+			var ordersWithoutShipmentForAdvancePaymentRows = 
+				GetOrdersWithoutShipmentForAdvancePaymentQuery(UoW).List<OrderJournalNode<OrderWithoutShipmentForAdvancePayment>>();
+
+			IEnumerable<OrderJournalNode> orderJournalNodes = new List<OrderJournalNode>();
+			orderJournalNodes = orderJournalNodes.SortedMerge(
+					OrderByDirection.Descending,
+					Comparer<OrderJournalNode>.Create((x, y) => x.CreateDate > y.CreateDate ? 1 : x.CreateDate < y.CreateDate ? -1 : 0),
+					ordersRows,
+					ordersWithoutShipmentForDebtRows,
+					ordersWithoutShipmentForPaymentRows,
+					ordersWithoutShipmentForAdvancePaymentRows);
+
+			return orderJournalNodes;
 		}
 
 		private IQueryOver<VodovozOrder> GetOrdersQuery(IUnitOfWork uow)
