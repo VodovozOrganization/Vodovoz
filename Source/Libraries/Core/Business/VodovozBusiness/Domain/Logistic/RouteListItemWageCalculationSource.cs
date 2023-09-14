@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Employees;
@@ -105,7 +105,7 @@ namespace Vodovoz.Domain.Logistic
 		public WageRateTypes GetFastDeliveryWageRateType()
 		{
 			var hasFastDeliveryLate =
-				(item.Order.TimeDelivered ?? item.StatusLastUpdate) - item.CreationDate <= _deliveryRulesParametersProvider.MaxTimeForFastDelivery;
+				(item.Order.TimeDelivered ?? item.StatusLastUpdate) - item.CreationDate > _deliveryRulesParametersProvider.MaxTimeForFastDelivery;
 
 			return hasFastDeliveryLate ? WageRateTypes.FastDeliveryWithLate : WageRateTypes.FastDelivery;
 		}

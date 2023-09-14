@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
@@ -203,12 +203,12 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		/// </summary>
 		decimal CalculateWageForFastDelivery(IRouteListItemWageCalculationSource src)
 		{
-			var fastDeliveryWageRateType = src.GetFastDeliveryWageRateType();
-
 			if(!src.IsFastDelivery)
 			{
 				return 0;
 			}
+
+			var fastDeliveryWageRateType = src.GetFastDeliveryWageRateType();
 
 			WageDistrictLevelRate wageCalcMethodic = GetCurrentWageDistrictLevelRate(src);
 
