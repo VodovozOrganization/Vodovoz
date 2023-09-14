@@ -2949,7 +2949,7 @@ or (First({missing_route_list_expenses_per_kg}, 'Sales') = True)
   </PageFooter>
   <DataSets>
     <DataSet Name="Sales">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>180</Timeout>
         <CommandText>
@@ -3191,17 +3191,17 @@ WHERE
 	AND o.delivery_date &lt;= @end_date)
 	AND !o.is_contract_closer
   AND n.category != 'deposit'
-	AND (
+       AND (
              (0 IN (@Nomenclature_include) OR (n.id IN (@Nomenclature_include)))
 				AND NOT (n.id IN (@Nomenclature_exclude))
          )
        AND (
              ('0' IN (@NomenclatureCategory_include) OR (n.category IN (@NomenclatureCategory_include)))
-				AND NOT (n.category IN (@NomenclatureCategory_exclude))
+				AND (NOT (n.category IN (@NomenclatureCategory_exclude)) OR n.category IS NULL)
          )
        AND (
              (0 IN (@Counterparty_include) OR (o.client_id IN (@Counterparty_include)))
-				AND NOT (o.client_id IN (@Counterparty_exclude))
+				AND (NOT (o.client_id IN (@Counterparty_exclude)) OR o.client_id IS NULL)
          )
         AND
         (
@@ -3210,6 +3210,7 @@ WHERE
                     AND (0 IN (@CounterpartySubtype_include)))
                 OR (c.counterparty_type IN (@CounterpartyType_include)))
                 AND NOT (c.counterparty_type IN (@CounterpartyType_exclude))
+                AND (NOT (c.counterparty_subtype_id IN (@CounterpartySubtype_exclude)) OR c.counterparty_subtype_id IS NULL)
             )
             OR
             (
@@ -3217,7 +3218,7 @@ WHERE
                 AND c.counterparty_type = 'AdvertisingDepartmentClient'
                 AND NOT ('AdvertisingDepartmentClient' IN (@CounterpartyType_exclude))
                 AND (0 IN (@CounterpartySubtype_include) OR c.counterparty_subtype_id IN (@CounterpartySubtype_include))
-                AND NOT (c.counterparty_subtype_id IN (@CounterpartySubtype_exclude))
+                AND (NOT (c.counterparty_subtype_id IN (@CounterpartySubtype_exclude)) OR c.counterparty_subtype_id IS NULL)
             )
         )
        AND (
@@ -3237,8 +3238,8 @@ WHERE
 				AND NOT (o.author_employee_id IN (@Employee_exclude))
          )
        AND (
-             (0 IN (@GeoGroup_include) OR (IFNULL(gg.id, 0) IN (@GeoGroup_include)))
-				AND (o.delivery_point_id IS NULL OR NOT (IFNULL(gg.id, 0) IN (@GeoGroup_exclude)))
+             (0 IN (@GeoGroup_include) OR gg.id IN (@GeoGroup_include))
+				AND (o.delivery_point_id IS NULL OR NOT gg.id IN (@GeoGroup_exclude) OR gg.id IS NULL)
          )
         AND
         (
@@ -3248,6 +3249,8 @@ WHERE
                         AND ('0' IN (@PaymentFrom_include)))
                     OR (o.payment_type IN (@PaymentType_include)))
                 AND NOT (o.payment_type IN (@PaymentType_exclude))
+                AND (NOT (o.terminal_subtype IN (@PaymentByTerminalSource_exclude)) OR o.terminal_subtype IS NULL)
+                AND (NOT (o.payment_from_id IN (@PaymentFrom_exclude)) OR o.payment_from_id IS NULL)
             )
             OR
             (
@@ -3258,7 +3261,7 @@ WHERE
                 AND NOT ('Terminal' IN (@PaymentType_exclude))
                 AND (('0' IN (@PaymentByTerminalSource_include))
                         OR (o.terminal_subtype IN (@PaymentByTerminalSource_include)))
-                AND NOT (o.terminal_subtype IN (@PaymentByTerminalSource_exclude))
+                AND (NOT (o.terminal_subtype IN (@PaymentByTerminalSource_exclude)) OR o.terminal_subtype IS NULL)
             )
             OR
             (
@@ -3269,7 +3272,7 @@ WHERE
                 AND NOT ('PaidOnline' IN (@PaymentType_exclude))
                 AND ((0 IN (@PaymentFrom_include))
                         OR (o.payment_from_id IN (@PaymentFrom_include)))
-                AND NOT (o.payment_from_id IN (@PaymentFrom_exclude))
+                AND (NOT (o.payment_from_id IN (@PaymentFrom_exclude)) OR o.payment_from_id IS NULL)
             )
         )
        AND (
@@ -3278,10 +3281,10 @@ WHERE
          )
        AND (
              (0 IN (@ProductGroup_include) OR (IFNULL(ng.id, 0) IN (@ProductGroup_include)))
-				AND NOT (IFNULL(ng.id, 0) IN (@ProductGroup_exclude))
+				AND (NOT (ng.id IN (@ProductGroup_exclude)) OR ng.id IS NULL)
          )
-	AND (
-	        (
+       AND (
+            (
             (
               (
                 (
@@ -3304,6 +3307,10 @@ WHERE
           )
 	        OR ('0' IN (@OrderStatus_include) AND '0' IN (@OrderStatus_exclude))
 	    )
+       AND (
+       	     ('0' IN (@OrderStatus_include) OR (o.order_status IN (@OrderStatus_include)))
+       	     	AND NOT (o.order_status IN (@OrderStatus_exclude))
+         )
 	GROUP BY oi.id
 ;</CommandText>
         <QueryParameters>
@@ -3423,7 +3430,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="counterparty">
           <DataField>counterparty</DataField>
           <TypeName>System.String</TypeName>
@@ -3607,189 +3614,226 @@ WHERE
         <DataSourceName>DS1</DataSourceName>
         <Timeout>180</Timeout>
         <CommandText>SELECT
-	CONCAT(
-		(IF(included_noms!=0,
-		CONCAT('Вкл.ном: ',included_noms,'\n'),
-		'')),
-		(IF(excluded_noms!=0,
-		CONCAT('Искл.ном: ',excluded_noms,'\n'),
-		'')),
-		(IF(included_nomtypes!=0,
-		CONCAT('Вкл.типов ном: ',included_nomtypes,'\n'),
-		'')),
-		(IF(excluded_nomtypes!=0,
-		CONCAT('Искл.типов ном: ',excluded_nomtypes,'\n'),
-		'')),
-		(IF(included_client!=0,
-		CONCAT('Вкл.клиентов: ',included_client,'\n'),
-		'')),
-		(IF(excluded_client!=0,
-		CONCAT('Искл.клиентов: ',excluded_client,'\n'),
-		'')),
-		(IF(included_org!=0,
-		CONCAT('Вкл.орг: ',included_org,'\n'),
-		'')),
-		(IF(excluded_org!=0,
-		CONCAT('Искл.орг: ',excluded_org,'\n'),
-		'')),
-		(IF(included_subdivision!=0,
-		CONCAT('Вкл.отделов: ',included_subdivision,'\n'),
-		'')),
-		(IF(excluded_subdivision!=0,
-		CONCAT('Искл.отделов: ',excluded_subdivision,'\n'),
-		'')),
-		(IF(included_orderauthor!=0,
-		CONCAT('Вкл.авторов заказов: ',included_orderauthor,'\n'),
-		'')),
-		(IF(excluded_orderauthor!=0,
-		CONCAT('Искл.авторов заказов: ',excluded_orderauthor,'\n'),
-		'')),
-		(IF(included_discountreason!=0,
-		CONCAT('Вкл.причин скидок: ',included_discountreason,'\n'),
-		'')),
-		(IF(excluded_discountreason!=0,
-		CONCAT('Искл.причин скидок: ',excluded_discountreason,'\n'),
-		'')),
-		(IF(included_geographic_groups!=0,
-		CONCAT('Вкл.частей города: ',included_geographic_groups,'\n'),
-		'')),
-		(IF(excluded_geographic_groups!=0,
-		CONCAT('Искл.частей города: ',excluded_geographic_groups,'\n'),
-		'')),
-		(IF(included_payment_types!=0,
-		CONCAT('Вкл.типов оплаты: ',included_payment_types,'\n'),
-		'')),
-		(IF(excluded_payment_types!=0,
-		CONCAT('Искл.типов оплаты: ',excluded_payment_types,'\n'),
-		'')),
-        (IF(included_terminal_subtypes!=0,
-            CONCAT('Вкл.источников оплаты по терминалу: ',included_terminal_subtypes,'\n'),
-            '')),
-        (IF(excluded_terminal_subtypes!=0,
-            CONCAT('Искл.источников оплаты по терминалу: ',excluded_terminal_subtypes,'\n'),
-            '')),
-        (IF(included_payment_froms!=0,
-            CONCAT('Вкл.источников оплаты: ',included_payment_froms,'\n'),
-            '')),
-        (IF(excluded_payment_froms!=0,
-            CONCAT('Искл.источников оплаты: ',excluded_payment_froms,'\n'),
-            '')),
-		(IF(included_promo_sets!=0,
-		CONCAT('Вкл.промо-наборов: ',included_promo_sets,'\n'),
-		'')),
-		(IF(excluded_promo_sets!=0,
-		CONCAT('Искл.промо-наборов: ',excluded_promo_sets,'\n'),
-		'')),
-		(IF(included_product_groups!=0,
-		CONCAT('Вкл.групп товаров: ',included_product_groups,'\n'),
-		'')),
+    CONCAT(
+            (IF(included_noms!=0,
+                CONCAT('Вкл.ном: ',included_noms,'\n'),
+                '')),
+            (IF(excluded_noms!=0,
+                CONCAT('Искл.ном: ',excluded_noms,'\n'),
+                '')),
+            (IF(included_nomtypes!=0,
+                CONCAT('Вкл.типов ном: ',included_nomtypes,'\n'),
+                '')),
+            (IF(excluded_nomtypes!=0,
+                CONCAT('Искл.типов ном: ',excluded_nomtypes,'\n'),
+                '')),
+            (IF(included_client!=0,
+                CONCAT('Вкл.клиентов: ',included_client,'\n'),
+                '')),
+            (IF(excluded_client!=0,
+                CONCAT('Искл.клиентов: ',excluded_client,'\n'),
+                '')),
+            (IF(included_client!=0,
+                CONCAT('Вкл.типов клиентов: ',included_client_type,'\n'),
+                '')),
+            (IF(excluded_client!=0,
+                CONCAT('Искл.типов клиентов: ',excluded_client_type,'\n'),
+                '')),
+            (IF(included_client!=0,
+                CONCAT('Вкл.подтипов клиентов: ',included_client_subtype,'\n'),
+                '')),
+            (IF(excluded_client!=0,
+                CONCAT('Искл.подтипов клиентов: ',excluded_client_subtype,'\n'),
+                '')),
+            (IF(included_org!=0,
+                CONCAT('Вкл.орг: ',included_org,'\n'),
+                '')),
+            (IF(excluded_org!=0,
+                CONCAT('Искл.орг: ',excluded_org,'\n'),
+                '')),
+            (IF(included_subdivision!=0,
+                CONCAT('Вкл.отделов: ',included_subdivision,'\n'),
+                '')),
+            (IF(excluded_subdivision!=0,
+                CONCAT('Искл.отделов: ',excluded_subdivision,'\n'),
+                '')),
+            (IF(included_orderauthor!=0,
+                CONCAT('Вкл.авторов заказов: ',included_orderauthor,'\n'),
+                '')),
+            (IF(excluded_orderauthor!=0,
+                CONCAT('Искл.авторов заказов: ',excluded_orderauthor,'\n'),
+                '')),
+            (IF(included_discountreason!=0,
+                CONCAT('Вкл.причин скидок: ',included_discountreason,'\n'),
+                '')),
+            (IF(excluded_discountreason!=0,
+                CONCAT('Искл.причин скидок: ',excluded_discountreason,'\n'),
+                '')),
+            (IF(included_geographic_groups!=0,
+                CONCAT('Вкл.частей города: ',included_geographic_groups,'\n'),
+                '')),
+            (IF(excluded_geographic_groups!=0,
+                CONCAT('Искл.частей города: ',excluded_geographic_groups,'\n'),
+                '')),
+            (IF(included_payment_types!=0,
+                CONCAT('Вкл.типов оплаты: ',included_payment_types,'\n'),
+                '')),
+            (IF(excluded_payment_types!=0,
+                CONCAT('Искл.типов оплаты: ',excluded_payment_types,'\n'),
+                '')),
+            (IF(included_terminal_subtypes!=0,
+                CONCAT('Вкл.источников оплаты по терминалу: ',included_terminal_subtypes,'\n'),
+                '')),
+            (IF(excluded_terminal_subtypes!=0,
+                CONCAT('Искл.источников оплаты по терминалу: ',excluded_terminal_subtypes,'\n'),
+                '')),
+            (IF(included_terminal_subtypes!=0,
+                CONCAT('Вкл.источников оплаты: ',included_payment_froms,'\n'),
+                '')),
+            (IF(excluded_terminal_subtypes!=0,
+                CONCAT('Искл.источников оплаты: ',excluded_payment_froms,'\n'),
+                '')),
+            (IF(included_promo_sets!=0,
+                CONCAT('Вкл.промо-наборов: ',included_promo_sets,'\n'),
+                '')),
+            (IF(excluded_promo_sets!=0,
+                CONCAT('Искл.промо-наборов: ',excluded_promo_sets,'\n'),
+                '')),
+            (IF(included_product_groups!=0,
+                CONCAT('Вкл.групп товаров: ',included_product_groups,'\n'),
+                '')),
+            (IF(excluded_product_groups!=0,
+                CONCAT('Искл.групп товаров: ',excluded_product_groups,'\n'),
+                '')),
         (IF(included_order_statuses!=0,
 		CONCAT('Вкл.статусов заказов: ',included_order_statuses,'\n'),
 		'')),
 		(IF(excluded_order_statuses!=0,
 		CONCAT('Искл.статусов заказов: ',excluded_order_statuses,'\n'),
 		''))
-	) AS criterions
+        ) AS criterions
 FROM
-	(SELECT
-		IF(
-			0 NOT IN (@Nomenclature_include),
-			(SELECT COUNT(id) FROM nomenclature WHERE nomenclature.id IN(@Nomenclature_include)),
-			0
-		) AS included_noms,
-		IF(
-			0 NOT IN (@Nomenclature_exclude),
-			(SELECT COUNT(id) FROM nomenclature WHERE nomenclature.id IN(@Nomenclature_exclude)),
-			0
-		) AS excluded_noms,
+    (SELECT
+         IF(
+                     0 NOT IN (@Nomenclature_include),
+                     (SELECT COUNT(id) FROM nomenclature WHERE nomenclature.id IN(@Nomenclature_include)),
+                     0
+             ) AS included_noms,
+         IF(
+                     0 NOT IN (@Nomenclature_exclude),
+                     (SELECT COUNT(id) FROM nomenclature WHERE nomenclature.id IN(@Nomenclature_exclude)),
+                     0
+             ) AS excluded_noms,
 
-		IF(
-			'0' NOT IN (@NomenclatureCategory_include),
-			(SELECT COUNT(q.cat) FROM (SELECT COUNT(nomenclature.category) AS cat FROM nomenclature WHERE nomenclature.category IN(@NomenclatureCategory_include) GROUP BY nomenclature.category) AS q),
-			0
-		) AS included_nomtypes,
-		IF(
-			'0' NOT IN (@NomenclatureCategory_exclude),
-			(SELECT COUNT(q.cat) FROM (SELECT COUNT(nomenclature.category) AS cat FROM nomenclature WHERE nomenclature.category IN(@NomenclatureCategory_exclude) GROUP BY nomenclature.category) AS q),
-			0
-		) AS excluded_nomtypes,
+         IF(
+                     '0' NOT IN (@NomenclatureCategory_include),
+                     (SELECT COUNT(q.cat) FROM (SELECT COUNT(nomenclature.category) AS cat FROM nomenclature WHERE nomenclature.category IN(@NomenclatureCategory_include) GROUP BY nomenclature.category) AS q),
+                     0
+             ) AS included_nomtypes,
+         IF(
+                     '0' NOT IN (@NomenclatureCategory_exclude),
+                     (SELECT COUNT(q.cat) FROM (SELECT COUNT(nomenclature.category) AS cat FROM nomenclature WHERE nomenclature.category IN(@NomenclatureCategory_exclude) GROUP BY nomenclature.category) AS q),
+                     0
+             ) AS excluded_nomtypes,
 
-		IF(
-			0 NOT IN (@Counterparty_include),
-			(SELECT COUNT(id) FROM counterparty WHERE counterparty.id IN(@Counterparty_include)),
-			0
-		) AS included_client,
-		IF(
-			0 NOT IN (@Counterparty_exclude),
-			(SELECT COUNT(id) FROM counterparty WHERE counterparty.id IN(@Counterparty_exclude)),
-			0
-		) AS excluded_client,
+         IF(
+                     0 NOT IN (@Counterparty_include),
+                     (SELECT COUNT(id) FROM counterparty WHERE counterparty.id IN(@Counterparty_include)),
+                     0
+             ) AS included_client,
+         IF(
+                     0 NOT IN (@Counterparty_exclude),
+                     (SELECT COUNT(id) FROM counterparty WHERE counterparty.id IN(@Counterparty_exclude)),
+                     0
+             ) AS excluded_client,
+             
+         IF(
+                     '0' NOT IN (@CounterpartyType_include),
+                     (SELECT COUNT(q.cat) FROM (SELECT COUNT(counterparty.counterparty_type) AS cat FROM counterparty WHERE counterparty.counterparty_type IN(@CounterpartyType_include) GROUP BY counterparty.counterparty_type) AS q),
+                     0
+             ) AS included_client_type,
+         IF(
+                     '0' NOT IN (@CounterpartyType_exclude),
+                     (SELECT COUNT(q.cat) FROM (SELECT COUNT(counterparty.counterparty_type) AS cat FROM counterparty WHERE counterparty.counterparty_type IN(@CounterpartyType_exclude) GROUP BY counterparty.counterparty_type) AS q),
+                     0
+             ) AS excluded_client_type,
+             
+         IF(
+                     0 NOT IN (@CounterpartySubtype_include),
+                     (SELECT COUNT(id) FROM counterparty_subtypes WHERE counterparty_subtypes.id IN(@CounterpartySubtype_include)),
+                     0
+             ) AS included_client_subtype,
+         IF(
+                     0 NOT IN (@CounterpartySubtype_exclude),
+                     (SELECT COUNT(id) FROM counterparty_subtypes WHERE counterparty_subtypes.id IN(@CounterpartySubtype_exclude)),
+                     0
+             ) AS excluded_client_subtype,
 
-		IF(
-			0 NOT IN (@Organization_include),
-			(SELECT COUNT(id) FROM organizations WHERE organizations.id IN(@Organization_include)),
-			0
-		) AS included_org,
-		IF(
-			0 NOT IN (@Organization_exclude),
-			(SELECT COUNT(id) FROM organizations WHERE organizations.id IN(@Organization_exclude)),
-			0
-		) AS excluded_org,
+         IF(
+                     0 NOT IN (@Organization_include),
+                     (SELECT COUNT(id) FROM organizations WHERE organizations.id IN(@Organization_include)),
+                     0
+             ) AS included_org,
+         IF(
+                     0 NOT IN (@Organization_exclude),
+                     (SELECT COUNT(id) FROM organizations WHERE organizations.id IN(@Organization_exclude)),
+                     0
+             ) AS excluded_org,
 
-		IF(
-			0 NOT IN (@Subdivision_include),
-			(SELECT COUNT(id) FROM subdivisions WHERE subdivisions.id IN(@Subdivision_include)),
-			0
-		) AS included_subdivision,
-		IF(
-			0 NOT IN (@Subdivision_exclude),
-			(SELECT COUNT(id) FROM subdivisions WHERE subdivisions.id IN(@Subdivision_exclude)),
-			0
-		) AS excluded_subdivision,
+         IF(
+                     0 NOT IN (@Subdivision_include),
+                     (SELECT COUNT(id) FROM subdivisions WHERE subdivisions.id IN(@Subdivision_include)),
+                     0
+             ) AS included_subdivision,
+         IF(
+                     0 NOT IN (@Subdivision_exclude),
+                     (SELECT COUNT(id) FROM subdivisions WHERE subdivisions.id IN(@Subdivision_exclude)),
+                     0
+             ) AS excluded_subdivision,
 
-		IF(
-			0 NOT IN (@Employee_include),
-			(SELECT COUNT(id) FROM employees WHERE employees.id IN(@Employee_include)),
-			0
-		) AS included_orderauthor,
-		IF(
-			0 NOT IN (@Employee_exclude),
-			(SELECT COUNT(id) FROM employees WHERE employees.id IN(@Employee_exclude)),
-			0
-		) AS excluded_orderauthor,
+         IF(
+                     0 NOT IN (@Employee_include),
+                     (SELECT COUNT(id) FROM employees WHERE employees.id IN(@Employee_include)),
+                     0
+             ) AS included_orderauthor,
+         IF(
+                     0 NOT IN (@Employee_exclude),
+                     (SELECT COUNT(id) FROM employees WHERE employees.id IN(@Employee_exclude)),
+                     0
+             ) AS excluded_orderauthor,
 
-		IF(
-			0 NOT IN (@DiscountReason_include),
-			(SELECT COUNT(id) FROM discount_reasons WHERE discount_reasons.id IN(@DiscountReason_include)),
-			0
-		) AS included_discountreason,
-		IF(
-			0 NOT IN (@DiscountReason_exclude),
-			(SELECT COUNT(id) FROM discount_reasons WHERE discount_reasons.id IN(@DiscountReason_exclude)),
-			0
-		) AS excluded_discountreason,
+         IF(
+                     0 NOT IN (@DiscountReason_include),
+                     (SELECT COUNT(id) FROM discount_reasons WHERE discount_reasons.id IN(@DiscountReason_include)),
+                     0
+             ) AS included_discountreason,
+         IF(
+                     0 NOT IN (@DiscountReason_exclude),
+                     (SELECT COUNT(id) FROM discount_reasons WHERE discount_reasons.id IN(@DiscountReason_exclude)),
+                     0
+             ) AS excluded_discountreason,
 
-		IF(
-			0 NOT IN (@GeoGroup_include),
-			(SELECT COUNT(@GeoGroup_include)),
-			0
-		) AS included_geographic_groups,
-		IF(
-			0 NOT IN (@GeoGroup_exclude),
-			(SELECT COUNT(@GeoGroup_exclude)),
-			0
-		) AS excluded_geographic_groups,
-		
-		IF(
-			'0' NOT IN (@PaymentType_include),
-			(SELECT COUNT(q.pay) FROM (SELECT COUNT(orders.payment_type) AS pay FROM orders WHERE orders.payment_type IN(@PaymentType_include) GROUP BY orders.payment_type) AS q),
-			0
-		) AS included_payment_types,
-		IF(
-			'0' NOT IN (@PaymentType_exclude),
-			(SELECT COUNT(q.pay) FROM (SELECT COUNT(orders.payment_type) AS pay FROM orders WHERE orders.payment_type IN(@PaymentType_exclude) GROUP BY orders.payment_type) AS q),
-			0
-		) AS excluded_payment_types,
+         IF(
+                     0 NOT IN (@GeoGroup_include),
+                     (SELECT COUNT(id) FROM geo_groups WHERE geo_groups.id IN(@GeoGroup_include)),
+                     0
+             ) AS included_geographic_groups,
+         IF(
+                     0 NOT IN (@GeoGroup_exclude),
+                     (SELECT COUNT(id) FROM geo_groups WHERE geo_groups.id IN(@GeoGroup_exclude)),
+                     0
+             ) AS excluded_geographic_groups,
+
+         IF(
+                     '0' NOT IN (@PaymentType_include),
+                     (SELECT COUNT(q.pay) FROM (SELECT COUNT(orders.payment_type) AS pay FROM orders WHERE orders.payment_type IN(@PaymentType_include) GROUP BY orders.payment_type) AS q),
+                     0
+             ) AS included_payment_types,
+         IF(
+                     '0' NOT IN (@PaymentType_exclude),
+                     (SELECT COUNT(q.pay) FROM (SELECT COUNT(orders.payment_type) AS pay FROM orders WHERE orders.payment_type IN(@PaymentType_exclude) GROUP BY orders.payment_type) AS q),
+                     0
+             ) AS excluded_payment_types,
          IF(
                  '0' NOT IN (@PaymentByTerminalSource_include),
                  (SELECT COUNT(q.pay) FROM (SELECT COUNT(orders.terminal_subtype) AS pay FROM orders WHERE orders.terminal_subtype IN(@PaymentByTerminalSource_include) GROUP BY orders.terminal_subtype) AS q),
@@ -3800,36 +3844,36 @@ FROM
                      (SELECT COUNT(q.pay) FROM (SELECT COUNT(orders.terminal_subtype) AS pay FROM orders WHERE orders.terminal_subtype IN(@PaymentByTerminalSource_exclude) GROUP BY orders.terminal_subtype) AS q),
                      0
              ) AS excluded_terminal_subtypes,
-         IF(
-                 '0' NOT IN (@PaymentFrom_include),
-                 (SELECT COUNT(q.pay) FROM (SELECT COUNT(orders.payment_from_id) AS pay FROM orders WHERE orders.payment_from_id IN(@PaymentFrom_include) GROUP BY orders.payment_from_id) AS q),
-                 0
+      	 IF(
+                     0 NOT IN (@PaymentFrom_include),
+                     (SELECT COUNT(id) FROM payments_from WHERE payments_from.id IN(@PaymentFrom_include)),
+                     0
          ) AS included_payment_froms,
          IF(
-                     '0' NOT IN (@PaymentFrom_exclude),
-                     (SELECT COUNT(q.pay) FROM (SELECT COUNT(orders.payment_from_id) AS pay FROM orders WHERE orders.payment_from_id IN(@PaymentFrom_exclude) GROUP BY orders.payment_from_id) AS q),
+                     0 NOT IN (@PaymentFrom_exclude),
+                     (SELECT COUNT(id) FROM payments_from WHERE payments_from.id IN(@PaymentFrom_exclude)),
                      0
-         ) AS excluded_payment_froms,	
-		IF(
-			0 NOT IN (@PromotionalSet_include),
-			(SELECT COUNT(id) FROM promotional_sets WHERE promotional_sets.id IN(@PromotionalSet_include)),
-			0
-		) AS included_promo_sets,
-		IF(
-			0 NOT IN (@PromotionalSet_exclude),
-			(SELECT COUNT(id) FROM promotional_sets WHERE promotional_sets.id IN(@PromotionalSet_exclude)),
-			0
-		) AS excluded_promo_sets,
-		IF(
-            0 NOT IN (@ProductGroup_include),
-            (SELECT COUNT(id) FROM nomenclature_groups WHERE nomenclature_groups.id IN(@ProductGroup_include)),
-            0
-        ) AS included_product_groups,
-        IF(
-            0 NOT IN (@ProductGroup_exclude),
-            (SELECT COUNT(id) FROM nomenclature_groups WHERE nomenclature_groups.id IN(@ProductGroup_exclude)),
-            0
-        ) AS excluded_product_groups,
+             ) AS excluded_payment_froms,
+         IF(
+                     0 NOT IN (@PromotionalSet_include),
+                     (SELECT COUNT(id) FROM promotional_sets WHERE promotional_sets.id IN(@PromotionalSet_include)),
+                     0
+             ) AS included_promo_sets,
+         IF(
+                     0 NOT IN (@PromotionalSet_exclude),
+                     (SELECT COUNT(id) FROM promotional_sets WHERE promotional_sets.id IN(@PromotionalSet_exclude)),
+                     0
+             ) AS excluded_promo_sets,
+         IF(
+                     0 NOT IN (@ProductGroup_include),
+                     (SELECT COUNT(id) FROM nomenclature_groups WHERE nomenclature_groups.id IN(@ProductGroup_include)),
+                     0
+             ) AS included_product_groups,
+         IF(
+                     0 NOT IN (@ProductGroup_exclude),
+                     (SELECT COUNT(id) FROM nomenclature_groups WHERE nomenclature_groups.id IN(@ProductGroup_exclude)),
+                     0
+             ) AS excluded_product_groups,
         IF(
 			'0' NOT IN (@OrderStatus_include),
 			(SELECT COUNT(q.cat) FROM (SELECT COUNT(orders.order_status) AS cat FROM orders WHERE orders.order_status IN(@OrderStatus_include) GROUP BY orders.order_status) AS q),
@@ -3840,7 +3884,7 @@ FROM
 			(SELECT COUNT(q.cat) FROM (SELECT COUNT(orders.order_status) AS cat FROM orders WHERE orders.order_status IN(@OrderStatus_exclude) GROUP BY orders.order_status) AS q),
 			0
 		) AS excluded_order_statuses
-	) AS tbl
+    ) AS tbl
 ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
@@ -3932,6 +3976,18 @@ FROM
           </QueryParameter>
           <QueryParameter Name="PaymentFrom_exclude">
             <Value>={?PaymentFrom_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="CounterpartyType_include">
+            <Value>={?CounterpartyType_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="CounterpartyType_exclude">
+            <Value>={?CounterpartyType_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="CounterpartySubtype_include">
+            <Value>={?CounterpartySubtype_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="CounterpartySubtype_exclude">
+            <Value>={?CounterpartySubtype_exclude}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
