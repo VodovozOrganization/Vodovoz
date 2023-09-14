@@ -59,6 +59,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
 		private readonly bool _userHasAccessToRetail = false;
+		private readonly bool _userCanExportOrdersToExcel = false;
 		private readonly IOrderSelectorFactory _orderSelectorFactory;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
@@ -130,6 +131,7 @@ namespace Vodovoz.JournalViewModels
 			_userHasOnlyAccessToWarehouseAndComplaints =
 				commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
 				&& !commonServices.UserService.GetCurrentUser().IsAdmin;
+			_userCanExportOrdersToExcel = commonServices.CurrentPermissionService.ValidatePresetPermission("can_export_orders_to_excel");
 
 			SearchEnabled = false;
 
@@ -224,7 +226,7 @@ namespace Vodovoz.JournalViewModels
 			var createExportToExcelAction = new JournalAction(
 				"Выгрузить в Excel",
 				(selected) => true,
-				(selected) => true,
+				(selected) => _userCanExportOrdersToExcel,
 				(selected) => ExportToExcel()
 			);
 			NodeActionsList.Add(createExportToExcelAction);
