@@ -1102,7 +1102,6 @@
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Goods.NomenclatureCharacteristicsView.cs" />
     <Compile Include="ServiceDialogs\ImportPaymentsFromTinkoffDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.ImportPaymentsFromTinkoffDlg.cs" />
-    <Compile Include="ServiceDialogs\PaymentsFromTinkoffParser.cs" />
     <Compile Include="ReportsParameters\Payments\PaymentsFromTinkoffReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Payments.PaymentsFromTinkoffReport.cs" />
     <Compile Include="Dialogs\Logistic\OptimizingParametersDlg.cs" />
