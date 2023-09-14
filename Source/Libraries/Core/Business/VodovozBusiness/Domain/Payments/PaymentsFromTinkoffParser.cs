@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Vodovoz.Domain.Payments;
@@ -17,12 +18,19 @@ namespace Vodovoz.ServiceDialogs
 
 		public void Parse()
 		{
-			PaymentsFromTinkoff = File.ReadAllLines(DocumentPath)
-				.Skip(1)
-				.Select(x => x.Split(';'))
-				.Select(x => new PaymentByCardOnline(
-					x.Select(y => y.Trim('"')).ToArray()))
-				.ToList();
+			try
+			{
+				PaymentsFromTinkoff = File.ReadAllLines(DocumentPath)
+					.Skip(1)
+					.Select(x => x.Split(';'))
+					.Select(x => new PaymentByCardOnline(
+						x.Select(y => y.Trim('"')).ToArray()))
+					.ToList();
+			}
+			catch(Exception e)
+			{
+				throw new ArgumentException("Неправильный формат выгрузки.");
+			}
 		}
 	}
 }
