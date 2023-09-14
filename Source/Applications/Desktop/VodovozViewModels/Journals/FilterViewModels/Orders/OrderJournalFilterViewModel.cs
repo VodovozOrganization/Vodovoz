@@ -376,7 +376,6 @@ namespace Vodovoz.Filters.ViewModels
 
 		private GeoGroup _geographicGroup;
 		private string _counterpartyNameLike;
-		private string _deliveryPointAddressLike;
 
 		/// <summary>
 		/// Часть города
@@ -479,12 +478,6 @@ namespace Vodovoz.Filters.ViewModels
 		{
 			get => _counterpartyNameLike;
 			set => SetField(ref _counterpartyNameLike, value);
-		}
-
-		public virtual string DeliveryPointAddressLike
-		{
-			get => _deliveryPointAddressLike;
-			set => SetField(ref _deliveryPointAddressLike, value);
 		}
 
 		public bool ExcludeClosingDocumentDeliverySchedule
