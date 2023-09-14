@@ -56,6 +56,7 @@ namespace Vodovoz.Filters.ViewModels
 		private IEnumerable<PaymentFrom> _paymentsFrom;
 		private IEnumerable<GeoGroup> _geographicGroups;
 		private bool _excludeClosingDocumentDeliverySchedule;
+		private string _counterpartyInn;
 		private readonly CompositeSearchViewModel _searchByAddressViewModel;
 
 		#endregion
@@ -90,6 +91,8 @@ namespace Vodovoz.Filters.ViewModels
 		public virtual IEntityAutocompleteSelectorFactory AuthorSelectorFactory { get; }
 
 		#endregion
+
+		public CompositeSearchViewModel SearchByAddressViewModel => _searchByAddressViewModel;
 
 		public virtual Organization Organisation
 		{
@@ -255,6 +258,12 @@ namespace Vodovoz.Filters.ViewModels
 		{
 			get => _isForSalesDepartment;
 			set => UpdateFilterField(ref _isForSalesDepartment, value);
+		}
+
+		public string CounterpartyInn
+		{
+			get => _counterpartyInn;
+			set => SetField(ref _counterpartyInn, value);
 		}
 
 		#region Selfdelivery
