@@ -138,11 +138,7 @@ namespace Vodovoz.Filters.GtkViews
 				.InitializeFromSource();
 			entryCounteragentNameLike.KeyReleaseEvent += OnKeyReleased;
 
-			entryDeliveryPointAddressLike.Binding
-				.AddBinding(ViewModel, vm => vm.DeliveryPointAddressLike, w => w.Text)
-				.InitializeFromSource();
-			entryDeliveryPointAddressLike.KeyReleaseEvent += OnKeyReleased;
-		}
+			}
 
 		private void InitializeRestrictions()
 		{
