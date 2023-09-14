@@ -480,7 +480,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Sales">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
         <CommandText>SELECT
@@ -651,11 +651,11 @@ FROM
          )
        AND (
              ('0' IN (@NomenclatureCategory_include) OR (nomenclature.category IN (@NomenclatureCategory_include)))
-				AND NOT (nomenclature.category IN (@NomenclatureCategory_exclude))
+				AND (NOT (nomenclature.category IN (@NomenclatureCategory_exclude)) OR nomenclature.category IS NULL)
          )
        AND (
              (0 IN (@Counterparty_include) OR (orders.client_id IN (@Counterparty_include)))
-				AND NOT (orders.client_id IN (@Counterparty_exclude))
+				AND (NOT (orders.client_id IN (@Counterparty_exclude)) OR orders.client_id IS NULL)
          )
         AND
         (
@@ -692,8 +692,8 @@ FROM
 				AND NOT (orders.author_employee_id IN (@Employee_exclude))
          )
        AND (
-             (0 IN (@GeoGroup_include) OR (IFNULL(gg.id, 0) IN (@GeoGroup_include)))
-				AND (orders.delivery_point_id IS NULL OR NOT (IFNULL(gg.id, 0) IN (@GeoGroup_exclude)))
+             (0 IN (@GeoGroup_include) OR gg.id IN (@GeoGroup_include))
+				AND (orders.delivery_point_id IS NULL OR NOT gg.id IN (@GeoGroup_exclude) OR gg.id IS NULL)
          )
         AND
         (
@@ -735,7 +735,7 @@ FROM
          )
        AND (
              (0 IN (@ProductGroup_include) OR (IFNULL(nomenclature_groups.id, 0) IN (@ProductGroup_include)))
-				AND NOT (IFNULL(nomenclature_groups.id, 0) IN (@ProductGroup_exclude))
+				AND (NOT (nomenclature_groups.id IN (@ProductGroup_exclude)) OR nomenclature_groups.id IS NULL)
          )
        AND (
             (
@@ -874,7 +874,7 @@ GROUP BY T.order_items_id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="nomenclature_name">
           <DataField>nomenclature_name</DataField>
           <TypeName>System.String</TypeName>
@@ -974,7 +974,7 @@ GROUP BY T.order_items_id
       </Fields>
     </DataSet>
     <DataSet Name="Criterions">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
         <CommandText>SELECT
@@ -996,6 +996,18 @@ GROUP BY T.order_items_id
                 '')),
             (IF(excluded_client!=0,
                 CONCAT('Искл.клиентов: ',excluded_client,'\n'),
+                '')),
+            (IF(included_client!=0,
+                CONCAT('Вкл.типов клиентов: ',included_client_type,'\n'),
+                '')),
+            (IF(excluded_client!=0,
+                CONCAT('Искл.типов клиентов: ',excluded_client_type,'\n'),
+                '')),
+            (IF(included_client!=0,
+                CONCAT('Вкл.подтипов клиентов: ',included_client_subtype,'\n'),
+                '')),
+            (IF(excluded_client!=0,
+                CONCAT('Искл.подтипов клиентов: ',excluded_client_subtype,'\n'),
                 '')),
             (IF(included_org!=0,
                 CONCAT('Вкл.орг: ',included_org,'\n'),
@@ -1039,6 +1051,12 @@ GROUP BY T.order_items_id
             (IF(excluded_terminal_subtypes!=0,
                 CONCAT('Искл.источников оплаты по терминалу: ',excluded_terminal_subtypes,'\n'),
                 '')),
+            (IF(included_terminal_subtypes!=0,
+                CONCAT('Вкл.источников оплаты: ',included_payment_froms,'\n'),
+                '')),
+            (IF(excluded_terminal_subtypes!=0,
+                CONCAT('Искл.источников оплаты: ',excluded_payment_froms,'\n'),
+                '')),
             (IF(included_promo_sets!=0,
                 CONCAT('Вкл.промо-наборов: ',included_promo_sets,'\n'),
                 '')),
@@ -1047,7 +1065,16 @@ GROUP BY T.order_items_id
                 '')),
             (IF(included_product_groups!=0,
                 CONCAT('Вкл.групп товаров: ',included_product_groups,'\n'),
-                ''))
+                '')),
+            (IF(excluded_product_groups!=0,
+                CONCAT('Искл.групп товаров: ',excluded_product_groups,'\n'),
+                '')),
+        (IF(included_order_statuses!=0,
+		CONCAT('Вкл.статусов заказов: ',included_order_statuses,'\n'),
+		'')),
+		(IF(excluded_order_statuses!=0,
+		CONCAT('Искл.статусов заказов: ',excluded_order_statuses,'\n'),
+		''))
         ) AS criterions
 FROM
     (SELECT
@@ -1083,6 +1110,28 @@ FROM
                      (SELECT COUNT(id) FROM counterparty WHERE counterparty.id IN(@Counterparty_exclude)),
                      0
              ) AS excluded_client,
+             
+         IF(
+                     '0' NOT IN (@CounterpartyType_include),
+                     (SELECT COUNT(q.cat) FROM (SELECT COUNT(counterparty.counterparty_type) AS cat FROM counterparty WHERE counterparty.counterparty_type IN(@CounterpartyType_include) GROUP BY counterparty.counterparty_type) AS q),
+                     0
+             ) AS included_client_type,
+         IF(
+                     '0' NOT IN (@CounterpartyType_exclude),
+                     (SELECT COUNT(q.cat) FROM (SELECT COUNT(counterparty.counterparty_type) AS cat FROM counterparty WHERE counterparty.counterparty_type IN(@CounterpartyType_exclude) GROUP BY counterparty.counterparty_type) AS q),
+                     0
+             ) AS excluded_client_type,
+             
+         IF(
+                     0 NOT IN (@CounterpartySubtype_include),
+                     (SELECT COUNT(id) FROM counterparty_subtypes WHERE counterparty_subtypes.id IN(@CounterpartySubtype_include)),
+                     0
+             ) AS included_client_subtype,
+         IF(
+                     0 NOT IN (@CounterpartySubtype_exclude),
+                     (SELECT COUNT(id) FROM counterparty_subtypes WHERE counterparty_subtypes.id IN(@CounterpartySubtype_exclude)),
+                     0
+             ) AS excluded_client_subtype,
 
          IF(
                      0 NOT IN (@Organization_include),
@@ -1159,6 +1208,16 @@ FROM
                      (SELECT COUNT(q.pay) FROM (SELECT COUNT(orders.terminal_subtype) AS pay FROM orders WHERE orders.terminal_subtype IN(@PaymentByTerminalSource_exclude) GROUP BY orders.terminal_subtype) AS q),
                      0
              ) AS excluded_terminal_subtypes,
+      	 IF(
+                     0 NOT IN (@PaymentFrom_include),
+                     (SELECT COUNT(id) FROM payments_from WHERE payments_from.id IN(@PaymentFrom_include)),
+                     0
+         ) AS included_payment_froms,
+         IF(
+                     0 NOT IN (@PaymentFrom_exclude),
+                     (SELECT COUNT(id) FROM payments_from WHERE payments_from.id IN(@PaymentFrom_exclude)),
+                     0
+             ) AS excluded_payment_froms,
          IF(
                      0 NOT IN (@PromotionalSet_include),
                      (SELECT COUNT(id) FROM promotional_sets WHERE promotional_sets.id IN(@PromotionalSet_include)),
@@ -1178,7 +1237,17 @@ FROM
                      0 NOT IN (@ProductGroup_exclude),
                      (SELECT COUNT(id) FROM nomenclature_groups WHERE nomenclature_groups.id IN(@ProductGroup_exclude)),
                      0
-             ) AS excluded_product_groups
+             ) AS excluded_product_groups,
+        IF(
+			'0' NOT IN (@OrderStatus_include),
+			(SELECT COUNT(q.cat) FROM (SELECT COUNT(orders.order_status) AS cat FROM orders WHERE orders.order_status IN(@OrderStatus_include) GROUP BY orders.order_status) AS q),
+			0
+		) AS included_order_statuses,
+		IF(
+			'0' NOT IN (@OrderStatus_exclude),
+			(SELECT COUNT(q.cat) FROM (SELECT COUNT(orders.order_status) AS cat FROM orders WHERE orders.order_status IN(@OrderStatus_exclude) GROUP BY orders.order_status) AS q),
+			0
+		) AS excluded_order_statuses
     ) AS tbl
 ;</CommandText>
         <QueryParameters>
@@ -1260,9 +1329,33 @@ FROM
           <QueryParameter Name="PaymentByTerminalSource_exclude">
             <Value>={?PaymentByTerminalSource_exclude}</Value>
           </QueryParameter>
+          <QueryParameter Name="CounterpartyType_include">
+            <Value>={?CounterpartyType_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="CounterpartyType_exclude">
+            <Value>={?CounterpartyType_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="CounterpartySubtype_include">
+            <Value>={?CounterpartySubtype_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="CounterpartySubtype_exclude">
+            <Value>={?CounterpartySubtype_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="OrderStatus_include">
+            <Value>={?OrderStatus_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="OrderStatus_exclude">
+            <Value>={?OrderStatus_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="PaymentFrom_include">
+            <Value>={?PaymentFrom_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="PaymentFrom_exclude">
+            <Value>={?PaymentFrom_exclude}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="criterions">
           <DataField>criterions</DataField>
           <TypeName>System.String</TypeName>
@@ -1499,43 +1592,31 @@ FROM
     districts distr ON delivery_points.district_id = distr.id
         LEFT JOIN
     geo_groups gg ON gg.id = distr.geo_group_id
-WHERE
-    (order_status = 'Accepted'
-        OR order_status = 'InTravelList'
-        OR order_status = 'OnLoading'
-        OR order_status = 'OnTheWay'
-        OR order_status = 'Shipped'
-        OR order_status = 'UnloadingOnStock'
-        OR order_status = 'Closed'
-        OR (order_status = 'WaitForPayment' AND self_delivery AND pay_after_shipment)
-        )
-  AND (delivery_date &gt;= @start_date
-    AND delivery_date &lt;= @end_date)
-  AND !orders.is_contract_closer
-  AND (
-        ((nomenclature.id IN (@Nomenclature_include) AND 0 IN (@Nomenclature_exclude) )
-            OR
-         (nomenclature.id NOT IN (@Nomenclature_exclude) AND 0 IN (@Nomenclature_include)))
-        OR (0 IN (@Nomenclature_include) AND 0 IN (@Nomenclature_exclude))
-    )
-  AND (
-        ((nomenclature.category IN (@NomenclatureCategory_include) AND '0' IN (@NomenclatureCategory_exclude) )
-            OR
-         (nomenclature.category NOT IN (@NomenclatureCategory_exclude) AND '0' IN (@NomenclatureCategory_include)))
-        OR ('0' IN (@NomenclatureCategory_include) AND '0' IN (@NomenclatureCategory_exclude))
-    )
-  AND (
-        ((orders.client_id IN (@Counterparty_include) AND 0 IN (@Counterparty_exclude) )
-            OR
-         (orders.client_id NOT IN (@Counterparty_exclude) AND 0 IN (@Counterparty_include)))
-        OR (0 IN (@Counterparty_include) AND 0 IN (@Counterparty_exclude))
-    )
-  AND (
-        ((counterparty_contract.organization_id IN (@Organization_include) AND 0 IN (@Organization_exclude) )
-            OR
-         (counterparty_contract.organization_id NOT IN (@Organization_exclude) AND 0 IN (@Organization_include)))
-        OR (0 IN (@Organization_include) AND 0 IN (@Organization_exclude))
-    )
+		WHERE
+			(order_status = 'Accepted'
+             OR order_status = 'InTravelList'
+             OR order_status = 'OnLoading'
+             OR order_status = 'OnTheWay'
+             OR order_status = 'Shipped'
+             OR order_status = 'UnloadingOnStock'
+             OR order_status = 'Closed'
+             OR (order_status = 'WaitForPayment' AND self_delivery AND pay_after_shipment)
+             )
+       AND (delivery_date &gt;= @start_date
+         AND delivery_date &lt;= @end_date)
+       AND !orders.is_contract_closer
+       AND (
+             (0 IN (@Nomenclature_include) OR (nomenclature.id IN (@Nomenclature_include)))
+				AND NOT (nomenclature.id IN (@Nomenclature_exclude))
+         )
+       AND (
+             ('0' IN (@NomenclatureCategory_include) OR (nomenclature.category IN (@NomenclatureCategory_include)))
+				AND (NOT (nomenclature.category IN (@NomenclatureCategory_exclude)) OR nomenclature.category IS NULL)
+         )
+       AND (
+             (0 IN (@Counterparty_include) OR (orders.client_id IN (@Counterparty_include)))
+				AND (NOT (orders.client_id IN (@Counterparty_exclude)) OR orders.client_id IS NULL)
+         )
         AND
         (
             (
@@ -1554,30 +1635,26 @@ WHERE
                 AND (NOT (counterparty.counterparty_subtype_id IN (@CounterpartySubtype_exclude)) OR counterparty.counterparty_subtype_id IS NULL)
             )
         )
-  AND (
-        ((order_items.discount_reason_id IN (@DiscountReason_include) AND 0 IN (@DiscountReason_exclude) )
-            OR
-         (order_items.discount_reason_id NOT IN (@DiscountReason_exclude) AND 0 IN (@DiscountReason_include)))
-        OR (0 IN (@DiscountReason_include) AND 0 IN (@DiscountReason_exclude))
-    )
-  AND (
-        ((IF(employees.subdivision_id IS NULL, 0, employees.subdivision_id) IN (@Subdivision_include) AND 0 IN (@Subdivision_exclude) )
-            OR
-         (IF(employees.subdivision_id IS NULL, 0, employees.subdivision_id) NOT IN (@Subdivision_exclude) AND 0 IN (@Subdivision_include)))
-        OR (0 IN (@Subdivision_include) AND 0 IN (@Subdivision_exclude))
-    )
-  AND (
-        ((IF(orders.author_employee_id IS NULL, 0, orders.author_employee_id) IN (@Employee_include) AND 0 IN (@Employee_exclude) )
-            OR
-         (IF(orders.author_employee_id IS NULL, 0, orders.author_employee_id) NOT IN (@Employee_exclude) AND 0 IN (@Employee_include)))
-        OR (0 IN (@Employee_include) AND 0 IN (@Employee_exclude))
-    )
-  AND (
-        ((IFNULL(gg.id, 0) IN (@GeoGroup_include) AND 0 IN (@GeoGroup_exclude))
-            OR
-         (IFNULL(gg.id, 0) NOT IN (@GeoGroup_exclude) AND 0 IN (@GeoGroup_include)))
-        OR (0 IN (@GeoGroup_include) AND 0 IN (@GeoGroup_exclude))
-    )
+       AND (
+             (0 IN (@Organization_include) OR (counterparty_contract.organization_id IN (@Organization_include)))
+				AND NOT (counterparty_contract.organization_id IN (@Organization_exclude))
+         )
+       AND (
+             (0 IN (@DiscountReason_include) OR (order_items.discount_reason_id IN (@DiscountReason_include)))
+				AND (order_items.discount_reason_id IS NULL OR NOT (order_items.discount_reason_id IN (@DiscountReason_exclude)))
+         )
+       AND (
+             (0 IN (@Subdivision_include) OR (employees.subdivision_id IN (@Subdivision_include)))
+				AND NOT (employees.subdivision_id IN (@Subdivision_exclude))
+         )
+       AND (
+             (0 IN (@Employee_include) OR (orders.author_employee_id IN (@Employee_include)))
+				AND NOT (orders.author_employee_id IN (@Employee_exclude))
+         )
+       AND (
+             (0 IN (@GeoGroup_include) OR gg.id IN (@GeoGroup_include))
+				AND (orders.delivery_point_id IS NULL OR NOT gg.id IN (@GeoGroup_exclude) OR gg.id IS NULL)
+         )
         AND
         (
             (
@@ -1612,18 +1689,43 @@ WHERE
                 AND (NOT (orders.payment_from_id IN (@PaymentFrom_exclude)) OR orders.payment_from_id IS NULL)
             )
         )
-  AND (
-        ((IFNULL(order_items.promotional_set_id, 0) IN (@PromotionalSet_include) AND 0 IN (@PromotionalSet_exclude))
+       AND (
+             (0 IN (@PromotionalSet_include) OR (IFNULL(order_items.promotional_set_id, 0) IN (@PromotionalSet_include)))
+				AND (order_items.promotional_set_id IS NULL OR NOT order_items.promotional_set_id IN (@PromotionalSet_exclude))
+         )
+       AND (
+             (0 IN (@ProductGroup_include) OR (IFNULL(nomenclature_groups.id, 0) IN (@ProductGroup_include)))
+				AND (NOT (nomenclature_groups.id IN (@ProductGroup_exclude)) OR nomenclature_groups.id IS NULL)
+         )
+       AND (
+            (
+            (
+              (
+                (
+                  orders.order_status IN (@OrderStatus_include)
+                  AND
+                  orders.order_status != 'WaitForPayment'
+                )
+                OR
+                (
+                  orders.order_status = 'WaitForPayment' 
+                  AND 'WaitForPayment' IN (@OrderStatus_include) 
+                  AND self_delivery 
+                  AND pay_after_shipment
+                )
+              )
+              AND '0' IN (@OrderStatus_exclude) 
+            )
             OR
-         (IFNULL(order_items.promotional_set_id, 0) NOT IN (@PromotionalSet_exclude) AND 0 IN (@PromotionalSet_include)))
-        OR (0 IN (@PromotionalSet_include) AND 0 IN (@PromotionalSet_exclude))
-    )
-  AND (
-        ((IFNULL(nomenclature_groups.id , 0) IN (@ProductGroup_include) AND 0 IN (@ProductGroup_exclude))
-            OR
-         (IFNULL(nomenclature_groups.id , 0) NOT IN (@ProductGroup_exclude) AND 0 IN (@ProductGroup_include)))
-        OR (0 IN (@ProductGroup_include) AND 0 IN (@ProductGroup_exclude))
-    );</CommandText>
+            (orders.order_status NOT IN (@OrderStatus_exclude) AND '0' IN (@OrderStatus_include))
+          )
+	        OR ('0' IN (@OrderStatus_include) AND '0' IN (@OrderStatus_exclude))
+	    )
+       AND (
+       	     ('0' IN (@OrderStatus_include) OR (orders.order_status IN (@OrderStatus_include)))
+       	     	AND NOT (orders.order_status IN (@OrderStatus_exclude))
+         )
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -1720,6 +1822,12 @@ WHERE
           </QueryParameter>
           <QueryParameter Name="CounterpartySubtype_exclude">
             <Value>={?CounterpartySubtype_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="OrderStatus_include">
+            <Value>={?OrderStatus_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="OrderStatus_exclude">
+            <Value>={?OrderStatus_exclude}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
