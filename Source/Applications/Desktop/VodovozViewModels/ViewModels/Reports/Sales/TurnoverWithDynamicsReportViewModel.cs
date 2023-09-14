@@ -1,4 +1,4 @@
-using ClosedXML.Excel;
+﻿using ClosedXML.Excel;
 using ClosedXML.Report;
 using DateTimeHelpers;
 using NHibernate;
@@ -122,7 +122,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		}
 
 		public bool CanShowContacts => _userCanGetContactsInSalesReports
-			&& SelectedGroupings.LastOrDefault() == GroupingType.Counterparty;
+			&& SelectedGroupings.Contains(GroupingType.Counterparty);
 
 		public virtual DateTime? StartDate
 		{

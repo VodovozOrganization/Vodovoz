@@ -178,7 +178,9 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 				foreach(var key1 in firstLevelKeyValues)
 				{
-					var filtered = firstLevelGroup.Where(x => firstSelector.Invoke(x).Equals(key1));
+					var t = key1;
+
+					var filtered = firstLevelGroup.Where(x => firstSelector.Invoke(x)?.Equals(key1) ?? firstSelector.Invoke(x) == key1);
 
 					if(!filtered.Any())
 					{
@@ -232,7 +234,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 				foreach(var key1 in firstLevelKeyValues)
 				{
-					var filtered = secondLevelGroup.Where(x => firstSelector.Invoke(x).Equals(key1));
+					var filtered = secondLevelGroup.Where(x => firstSelector.Invoke(x)?.Equals(key1) ?? firstSelector.Invoke(x) == key1);
 
 					if(!filtered.Any())
 					{
@@ -268,7 +270,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 				foreach(var key1 in firstLevelKeyValues)
 				{
-					var filtered = thirdLevelGroup.Where(x => firstSelector.Invoke(x).Equals(key1));
+					var filtered = thirdLevelGroup.Where(x => firstSelector.Invoke(x)?.Equals(key1) ?? firstSelector.Invoke(x) == key1);
 
 					if(!filtered.Any())
 					{

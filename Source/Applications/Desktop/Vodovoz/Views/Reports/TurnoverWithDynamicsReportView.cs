@@ -164,7 +164,7 @@ namespace Vodovoz.ReportsParameters.Sales
 				.WrapWidth(350)
 				.WrapMode(Pango.WrapMode.Word);
 
-			if(ViewModel.Report.GroupingBy.LastOrDefault() == Reports.Editing.Modifiers.GroupingType.Counterparty && ViewModel.Report.ShowContacts)
+			if(ViewModel.Report.ShowContacts)
 			{
 				columnsConfig.AddColumn("Телефоны").AddTextRenderer(row => row.Phones);
 				columnsConfig.AddColumn("E-mail").AddTextRenderer(row => row.Emails);
