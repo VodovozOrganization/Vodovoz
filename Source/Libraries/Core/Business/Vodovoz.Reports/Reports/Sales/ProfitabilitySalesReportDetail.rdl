@@ -2862,7 +2862,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox49">
-                      <Value>={?grouping_title}</Value>
+                      <Value>={?grouping_title_comma_splitrted}</Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -2949,7 +2949,7 @@ or (First({missing_route_list_expenses_per_kg}, 'Sales') = True)
   </PageFooter>
   <DataSets>
     <DataSet Name="Sales">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>180</Timeout>
         <CommandText>
@@ -3430,7 +3430,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="counterparty">
           <DataField>counterparty</DataField>
           <TypeName>System.String</TypeName>
@@ -3610,7 +3610,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Criterions">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>180</Timeout>
         <CommandText>SELECT
@@ -3991,7 +3991,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="criterions">
           <DataField>criterions</DataField>
           <TypeName>System.String</TypeName>
@@ -4010,7 +4010,7 @@ FROM
   </DataSources>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
@@ -4285,6 +4285,13 @@ FROM
       <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="grouping_title">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="grouping_title_comma_splitrted">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>

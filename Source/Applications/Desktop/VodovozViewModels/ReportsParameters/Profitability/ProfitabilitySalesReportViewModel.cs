@@ -174,20 +174,27 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			}
 
 			var groupingTitle = string.Empty;
+			var groupingTitleCommaSplitted = string.Empty;
 
 			if(GroupingSelectViewModel.RightItems.Any())
 			{
 				groupingTitle = string
-				.Join(" | ", GroupingSelectViewModel
+					.Join(" | ", GroupingSelectViewModel
+					.GetRightItems()
+					.Select(x => x.GroupType.GetEnumTitle()));
+				groupingTitleCommaSplitted = string
+					.Join(", ", GroupingSelectViewModel
 					.GetRightItems()
 					.Select(x => x.GroupType.GetEnumTitle()));
 			}
 			else
 			{
 				groupingTitle = GroupingType.Nomenclature.GetEnumTitle();
+				groupingTitleCommaSplitted = GroupingType.Nomenclature.GetEnumTitle();
 			}
 
 			_parameters.Add("grouping_title", groupingTitle);
+			_parameters.Add("grouping_title_comma_splitrted", groupingTitleCommaSplitted);
 
 			_parameters.Add("groups_count", groupParameters.Count());
 

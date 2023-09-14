@@ -253,7 +253,9 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				groupingTitle = GroupingType.NomenclatureType.GetEnumTitle() + " | " + GroupingType.Nomenclature.GetEnumTitle();
 			}
 
-            _source = GetReportSource();
+			_parameters.Add("grouping_title", groupingTitle);
+
+			_source = GetReportSource();
 
 			LoadReport();
 		}
