@@ -237,6 +237,8 @@ namespace Vodovoz.JournalViewModels
 				_commonServices.InteractiveService.ShowMessage(
 					ImportanceLevel.Warning,
 					"Слишком много данных. Выберете временной диапазон для формирования выгрузки");
+
+				return;
 			}
 
 			var nodes = GetReportData();
@@ -246,6 +248,8 @@ namespace Vodovoz.JournalViewModels
 				FilterViewModel.EndDate.Value,
 				nodes,
 				_fileDialogService);
+
+			ordersReport.Export();
 		}
 
 		private IEnumerable<OrderJournalNode> GetReportData()
