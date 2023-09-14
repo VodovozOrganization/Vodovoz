@@ -3610,7 +3610,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Criterions">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>180</Timeout>
         <CommandText>SELECT
@@ -3633,16 +3633,16 @@ WHERE
             (IF(excluded_client!=0,
                 CONCAT('Искл.клиентов: ',excluded_client,'\n'),
                 '')),
-            (IF(included_client!=0,
+            (IF(included_client_type!=0,
                 CONCAT('Вкл.типов клиентов: ',included_client_type,'\n'),
                 '')),
-            (IF(excluded_client!=0,
+            (IF(excluded_client_type!=0,
                 CONCAT('Искл.типов клиентов: ',excluded_client_type,'\n'),
                 '')),
-            (IF(included_client!=0,
+            (IF(included_client_subtype!=0,
                 CONCAT('Вкл.подтипов клиентов: ',included_client_subtype,'\n'),
                 '')),
-            (IF(excluded_client!=0,
+            (IF(excluded_client_subtype!=0,
                 CONCAT('Искл.подтипов клиентов: ',excluded_client_subtype,'\n'),
                 '')),
             (IF(included_org!=0,
@@ -3687,10 +3687,10 @@ WHERE
             (IF(excluded_terminal_subtypes!=0,
                 CONCAT('Искл.источников оплаты по терминалу: ',excluded_terminal_subtypes,'\n'),
                 '')),
-            (IF(included_terminal_subtypes!=0,
+            (IF(included_payment_froms!=0,
                 CONCAT('Вкл.источников оплаты: ',included_payment_froms,'\n'),
                 '')),
-            (IF(excluded_terminal_subtypes!=0,
+            (IF(excluded_payment_froms!=0,
                 CONCAT('Искл.источников оплаты: ',excluded_payment_froms,'\n'),
                 '')),
             (IF(included_promo_sets!=0,
@@ -3885,7 +3885,7 @@ FROM
 			0
 		) AS excluded_order_statuses
     ) AS tbl
-;</CommandText>
+;;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -3991,7 +3991,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="criterions">
           <DataField>criterions</DataField>
           <TypeName>System.String</TypeName>
@@ -4010,7 +4010,7 @@ FROM
   </DataSources>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
