@@ -15,15 +15,13 @@ namespace Vodovoz.ViewWidgets.Users
 		private void Configure()
 		{
 			ytreeviewWarehouses.CreateFluentColumnsConfig<WarehouseNode>()
-				.AddColumn("Id склада")
+				.AddColumn("Номер")
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(n => n.WarehouseId)
-					.XAlign(0.5f)
-				.AddColumn("Название")
+				.AddColumn("Склад")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(n => n.WarehouseName)
 					.WrapWidth(250).WrapMode(Pango.WrapMode.WordChar)
-					.XAlign(0.5f)
 				.AddColumn("")
 				.Finish();
 

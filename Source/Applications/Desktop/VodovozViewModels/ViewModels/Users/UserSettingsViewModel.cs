@@ -35,6 +35,7 @@ namespace Vodovoz.ViewModels.Users
 		private decimal _incrementFixedPrices = 20;
 		private const double _progressStep = 0.25;
 		private readonly WarehousesUserSelectionViewModel _warehousesUserSelectionViewModel;
+		private bool _isWarehousesForNotificationsListChanged = false;
 
 		public UserSettingsViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -85,6 +86,8 @@ namespace Vodovoz.ViewModels.Users
 
 		private void OnWarehousesToNotifyListContentChanged(object sender, EventArgs e)
 		{
+			_isWarehousesForNotificationsListChanged = true;
+
 			Entity.MovementDocumentsNotificationUserSelectedWarehouses = 
 				WarehousesUserSelectionViewModel.ObservableWarehouses
 				.Select(w => w.WarehouseId)
@@ -166,7 +169,24 @@ namespace Vodovoz.ViewModels.Users
 		);
 
 		#endregion
-		
+
+		private void ShowNotifyIfWarehousesListChanged()
+		{
+			if(_isWarehousesForNotificationsListChanged)
+			{
+				InteractiveService.ShowMessage(
+					ImportanceLevel.Info,
+					"Внимание!\nСписок складов для получения уведомлений изменен.\nЧтобы изменения вступили в силу необходимо перезапустить ДВ!");
+			}
+		}
+
+		public override bool Save(bool close)
+		{
+			ShowNotifyIfWarehousesListChanged();
+
+			return base.Save(close);
+		}
+
 		public override void Close(bool askSave, CloseSource source)
 		{
 			if(_sortingSettingsUpdated && source == CloseSource.Cancel)
@@ -183,7 +203,7 @@ namespace Vodovoz.ViewModels.Users
 			}
 			base.Close(askSave, source);
 		}
-		
+
 		public bool CanClose()
 		{
 			if(IsFixedPricesUpdating)
