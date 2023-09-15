@@ -34,7 +34,6 @@ namespace Vodovoz.Domain.Logistic
 
 		public AtWorkDriver(Employee driver, DateTime date, Car car, DeliveryDaySchedule daySchedule = null)
 		{
-			Id = driver.Id;
 			Date = date;
 			Employee = driver;
 			PriorityAtDay = driver.TripPriority;
