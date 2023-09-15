@@ -720,17 +720,29 @@ namespace Vodovoz.ViewModels.Logistic
 			if(row is RouteListItem rli) {
 				string color;
 				if(rli.PlanTimeStart == null || rli.PlanTimeEnd == null)
-					color = "grey";
+				{
+					color = GdkColors.InsensitiveText.ToHtmlColor();
+				}
 				else if(rli.PlanTimeEnd.Value + TimeSpan.FromSeconds(rli.TimeOnPoint) > rli.Order.DeliverySchedule.To)
-					color = "red";
+				{
+					color = GdkColors.Red.ToHtmlColor();
+				}
 				else if(rli.PlanTimeStart.Value < rli.Order.DeliverySchedule.From)
-					color = "blue";
+				{
+					color = GdkColors.Blue.ToHtmlColor();
+				}
 				else if(rli.PlanTimeEnd.Value == rli.PlanTimeStart.Value)
-					color = "dark red";
+				{
+					color = GdkColors.DarkRed.ToHtmlColor();
+				}
 				else if(rli.PlanTimeEnd.Value - rli.PlanTimeStart.Value <= new TimeSpan(0, 30, 0))
-					color = "orange";
+				{
+					color = GdkColors.Orange.ToHtmlColor();
+				}
 				else
-					color = "dark green";
+				{
+					color = GdkColors.DarkGreen.ToHtmlColor();
+				}
 
 				return string.Format("<span foreground=\"{2}\">{0:hh\\:mm}-{1:hh\\:mm}</span> ({3} мин.)",
 									 rli.PlanTimeStart, rli.PlanTimeEnd, color, rli.TimeOnPoint / 60);
