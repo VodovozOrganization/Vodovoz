@@ -39,7 +39,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 			var query = uow.Session.QueryOver<MobileAppNomenclatureOnlineCatalog>()
 				.SelectList(list => list
 					.Select(oc => oc.Id).WithAlias(() => resultAlias.Id)
-					.Select(oc => oc.Name).WithAlias(() => resultAlias.Name))
+					.Select(oc => oc.Name).WithAlias(() => resultAlias.Name)
+					.Select(oc => oc.ExternalId).WithAlias(() => resultAlias.ExternalId))
 				.TransformUsing(Transformers.AliasToBean<NomenclatureOnlineCatalogsJournalNode>());
 
 			return query;

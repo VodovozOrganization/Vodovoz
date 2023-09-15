@@ -7,8 +7,6 @@ namespace Vodovoz.Domain.Goods
 		[Display(Name = "Защита от детей")]
 		BabyProtect,
 		[Display(Name = "Есть")]
-		WithProtect,
-		[Display(Name = "Нет")]
-		None
+		WithProtect
 	}
 }

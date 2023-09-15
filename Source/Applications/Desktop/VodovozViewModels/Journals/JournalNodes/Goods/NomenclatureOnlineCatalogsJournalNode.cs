@@ -1,4 +1,5 @@
-﻿using QS.Project.Journal;
+﻿using System;
+using QS.Project.Journal;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes.Goods
@@ -9,5 +10,6 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Goods
 
 		public int Id { get; set; }
 		public string Name { get; set; }
+		public Guid ExternalId { get; set; }
 	}
 }

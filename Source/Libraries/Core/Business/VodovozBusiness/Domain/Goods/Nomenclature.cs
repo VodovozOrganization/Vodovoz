@@ -37,6 +37,29 @@ namespace Vodovoz.Domain.Goods
 		private GenericObservableList<AlternativeNomenclaturePrice> _observableAlternativeNomenclaturePrices;
 		private bool _usingInGroupPriceSet;
 		private bool _hasInventoryAccounting;
+		private MobileAppNomenclatureOnlineCatalog _mobileAppNomenclatureOnlineCatalog;
+		private VodovozWebSiteNomenclatureOnlineCatalog _vodovozWebSiteNomenclatureOnlineCatalog;
+		private KulerSaleWebSiteNomenclatureOnlineCatalog _kulerSaleWebSiteNomenclatureOnlineCatalog;
+		private NomenclatureOnlineGroup _nomenclatureOnlineGroup;
+		private NomenclatureOnlineCategory _nomenclatureOnlineCategory;
+		private string _onlineName;
+		private EquipmentInstallationType? _equipmentInstallationType;
+		private EquipmentWorkloadType? _equipmentWorkloadType;
+		private PumpType? _pumpType;
+		private CupHolderBracingType? _cupHolderBracingType;
+		private bool? _hasHeating;
+		private int? _heatingPower;
+		private int? _heatingProductivity;
+		private ProtectionOnHotWaterTap? _protectionOnHotWaterTap;
+		private bool? _hasCooling;
+		private int? _coolingPower;
+		private int? _coolingProductivity;
+		private CoolingType? _coolingType;
+		private LockerRefrigeratorType? _lockerRefrigeratorType;
+		private int? _lockerRefrigeratorVolume;
+		private TapType? _tapType;
+		private BracingTypeForCupHolder? _bracingTypeForCupHolder;
+		private bool _isSparklingWater;
 		
 		private int _id;
 
@@ -1425,30 +1448,6 @@ namespace Vodovoz.Domain.Goods
 			NomenclatureCategory.Vehicle
 		};
 
-		private MobileAppNomenclatureOnlineCatalog _mobileAppNomenclatureOnlineCatalog;
-		private VodovozWebSiteNomenclatureOnlineCatalog _vodovozWebSiteNomenclatureOnlineCatalog;
-		private KulerSaleWebSiteNomenclatureOnlineCatalog _kulerSaleWebSiteNomenclatureOnlineCatalog;
-		private NomenclatureOnlineGroup _nomenclatureOnlineGroup;
-		private NomenclatureOnlineCategory _nomenclatureOnlineCategory;
-		private string _onlineName;
-		private EquipmentInstallationType? _equipmentInstallationType;
-		private EquipmentWorkloadType? _equipmentWorkloadType;
-		private PumpType? _pumpType;
-		private CupHolderBracingType? _cupHolderBracingType;
-		private bool? _hasHeating;
-		private int? _heatingPower;
-		private int? _heatingProductivity;
-		private ProtectionOnHotWaterTap? _protectionOnHotWaterTap;
-		private bool? _hasCooling;
-		private int? _coolingPower;
-		private int? _coolingProductivity;
-		private CoolingType? _coolingType;
-		private LockerRefrigeratorType? _lockerRefrigeratorType;
-		private int? _lockerRefrigeratorVolume;
-		private TapType? _tapType;
-		private BracingTypeForCupHolder? _bracingTypeForCupHolder;
-		private bool _isSparklingWater;
-
 		#endregion
 
 		public virtual void ResetNotWaterOnlineParameters()
@@ -1540,6 +1539,11 @@ namespace Vodovoz.Domain.Goods
 			HeatingPower2 = null;
 			HeatingProductivity = null;
 			ProtectionOnHotWaterTap = null;
+		}
+
+		public virtual void ResetLockerRefrigeratorVolume()
+		{
+			LockerRefrigeratorVolume = null;
 		}
 	}
 

@@ -16,6 +16,14 @@ namespace CustomerAppsApi.Factories
 			};
 		}
 		
+		public NomenclaturesDto CreateNomenclaturesDto(IList<NomenclatureCharacteristicsDto> nomenclatureCharacteristics)
+		{
+			return new NomenclaturesDto
+			{
+				NomenclatureCharacteristics = nomenclatureCharacteristics
+			};
+		}
+		
 		private IList<NomenclaturePricesAndStockDto> CreateNomenclaturePricesAndStockDto(NomenclatureOnlineParametersData parametersData)
 		{
 			return parametersData.NomenclatureOnlineParametersNodes.Select(parametersNode => new NomenclaturePricesAndStockDto
