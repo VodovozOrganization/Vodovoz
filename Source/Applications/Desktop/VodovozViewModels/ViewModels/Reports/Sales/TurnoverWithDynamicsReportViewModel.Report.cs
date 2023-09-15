@@ -333,9 +333,9 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					case GroupingType.Subdivision:
 						return x => x.SubdivisionName;
 					case GroupingType.DeliveryDate:
-						return x => x.OrderDeliveryDate?.ToString("yyyy-MM-dd");
+						return x => x.OrderDeliveryDate?.ToString("yyyy-MM-dd") ?? "Без даты доставки";
 					case GroupingType.RouteList:
-						return x => x.RouteListId.ToString();
+						return x => x.RouteListId?.ToString() ?? "Без маршрутного листа";
 					case GroupingType.Nomenclature:
 						return x => x.NomenclatureOfficialName;
 					case GroupingType.NomenclatureType:
