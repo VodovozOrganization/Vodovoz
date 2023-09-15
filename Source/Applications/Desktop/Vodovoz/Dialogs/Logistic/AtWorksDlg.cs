@@ -493,8 +493,12 @@ namespace Vodovoz.Dialogs.Logistic
 						driver.AuthorRemovedDriver = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 						driver.RemovedDate = DateTime.Now;
 					}
+					DriversAtDay.OnPropertyChanged(nameof(driver.Status));
 				}
-				DriversAtDay.OnPropertyChanged(nameof(driver.Status));
+				else
+				{
+					DriversAtDay.Remove(driver);
+				}
 			}
 		}
 
