@@ -18,6 +18,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.Extensions;
+using Vodovoz.Infrastructure;
 
 namespace Vodovoz.Views.Logistic
 {
@@ -163,7 +164,31 @@ namespace Vodovoz.Views.Logistic
 				.AddColumn("№").AddNumericRenderer(node => node.RowNumber)
 				.AddColumn("Имя").AddTextRenderer(node => node.ShortName)
 				.AddColumn("Машина").AddTextRenderer().AddSetter((c, node) => c.Markup = node.CarText)
-				.AddColumn("МЛ").AddTextRenderer().AddSetter((c, node) => c.Markup = node.RouteListsText)
+				.AddColumn("МЛ").AddTextRenderer().AddSetter((c, node) =>
+				{
+					var text = string.Empty;
+
+					for(var i = 0; i < node.RouteListsIds.Keys.Count; i++)
+					{
+						var routelistId = node.RouteListsIds.Keys.ElementAt(i);
+						var haveTracklist = node.RouteListsIds[routelistId] != null;
+						var online = node.RouteListsOnlineState[routelistId];
+						var last = i + 1 == node.RouteListsIds.Count;
+
+						text += !haveTracklist
+								? routelistId.ToString()
+								: online
+									? $"<span foreground=\"{GdkColors.Green.ToHtmlColor()}\"><b>{routelistId}</b></span>"
+									: $"<span foreground=\"{GdkColors.Blue.ToHtmlColor()}\"><b>{routelistId}</b></span>";
+
+						if(!last)
+						{
+							text += "; ";
+						}
+					}
+
+					c.Markup = text;
+				})
 				.AddColumn("Радиус").AddTextRenderer().AddSetter((c, node) => c.Markup = node.FastDeliveryMaxDistanceString)
 				.AddColumn("Макс.\nкол-во ДЗЧ").AddTextRenderer().AddSetter((c, node) => c.Markup = node.MaxFastDeliveryOrdersString)
 				.AddColumn("Выполнено").AddProgressRenderer(x => x.CompletedPercent).AddSetter((c, n) => c.Text = n.CompletedText)
