@@ -12,6 +12,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Undeliveries;
+using Vodovoz.Infrastructure;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using IUndeliveredOrdersInfoProvider = Vodovoz.ViewModels.Infrastructure.InfoProviders.IUndeliveredOrdersInfoProvider;
@@ -28,8 +29,8 @@ namespace Vodovoz.SidePanel.InfoViews
 		{
 			this.Build();
 
-			Gdk.Color wh = new Gdk.Color(255, 255, 255);
-			Gdk.Color gr = new Gdk.Color(223, 223, 223);
+			Gdk.Color wh = GdkColors.PrimaryBase;
+			Gdk.Color gr = GdkColors.SuccessBase;
 			yTreeView.ColumnsConfig = ColumnsConfigFactory.Create<object[]>()
 				.AddColumn("Ответственный")
 					.AddTextRenderer(n => n[0] != null ? n[0].ToString() : "")

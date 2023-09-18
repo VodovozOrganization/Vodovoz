@@ -20,6 +20,7 @@ using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation;
+using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 using Vodovoz.ViewModels.Logistic;
 
@@ -44,8 +45,8 @@ namespace Vodovoz.Views.Logistic
 		{
 			#region TreeViews
 
-			var colorRed = new Gdk.Color(255, 0, 0);
-			var colorWhite = new Gdk.Color(255, 255, 255);
+			var colorRed = GdkColors.DangerBase;
+			var colorWhite = GdkColors.PrimaryBase;
 
 			ytreeDistricts.ColumnsConfig = ColumnsConfigFactory.Create<District>()
 				.AddColumn("Код")

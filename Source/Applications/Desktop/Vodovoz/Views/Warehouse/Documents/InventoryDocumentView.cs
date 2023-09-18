@@ -131,10 +131,10 @@ namespace Vodovoz.Views.Warehouse.Documents
 				.RowCells()
 				.AddSetter<CellRenderer>((cell, node) =>
 				{
-					Gdk.Color color = new Gdk.Color(255, 255, 255);
+					Gdk.Color color = GdkColors.PrimaryBase;
 					if(ViewModel.NomenclaturesWithDiscrepancies.Any(x => x.Id == node.Nomenclature.Id))
 					{
-						color = new Gdk.Color(255, 125, 125);
+						color = GdkColors.DangerBase;
 					}
 					cell.CellBackgroundGdk = color;
 				})

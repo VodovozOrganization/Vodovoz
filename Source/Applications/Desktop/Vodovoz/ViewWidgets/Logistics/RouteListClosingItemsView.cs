@@ -168,11 +168,11 @@ namespace Vodovoz
 							.AddSetter((cell,node)=>cell.Markup = WaterToClientString(node,id));
 				}
 			}
-			var colorWhite = new Gdk.Color(0xff, 0xff, 0xff);
-			var colorRed = new Gdk.Color(0xee, 0x66, 0x66);
-			var colorDarkRed = new Gdk.Color(0xee, 0, 0);
-			var colorLightBlue = new Gdk.Color(0xbb, 0xbb, 0xff);
-			var colorYellow = new Gdk.Color(0xb3, 0xb3, 0x00);
+			var colorWhite = GdkColors.PrimaryBase;
+			var colorRed = GdkColors.DangerBase;
+			var colorDarkRed = GdkColors.DarkRed;
+			var colorLightBlue = GdkColors.InfoBase;
+			var colorYellow = GdkColors.DarkMustard;
 			config
 				.AddColumn("Пустых\nбутылей").HeaderAlignment(0.5f).EnterToNextCell()
 					.AddNumericRenderer(node => node.BottlesReturned)

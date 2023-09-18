@@ -55,13 +55,15 @@ namespace Vodovoz.Infrastructure
 
 		public static Color WarningText { get; } = new Color(255, 255, 40);
 
-		public static Color WarningBase { get; } = new Gdk.Color(0xe1, 0xd6, 0x70);
+		public static Color WarningBase { get; } = new Color(0xe1, 0xd6, 0x70);
 
 		#endregion Warning
 
 		#region Info
 
 		public static Color InfoText { get; } = IsLight ? new Color(0x00, 0x18, 0xf9) : new Color(0, 35, 164);
+
+		public static Color InfoBase { get; } = new Color(0xbb, 0xbb, 0xff);
 
 		#endregion Info
 
@@ -89,6 +91,12 @@ namespace Vodovoz.Infrastructure
 		public static Color LightPurple { get; } = new Color(199, 206, 255);
 		public static Color LightCoral { get; } = new Color(240, 128, 128);
 		public static Color Turquoise { get; } = new Color(64, 224, 208);
+
+		public static Color DarkMustard { get; } = IsLight ? new Color(0xb3, 0xb3, 0x00) : new Color(255, 219, 88);
+
+		public static Color CashFlowTotalColor { get; } = IsLight ? new Color(249, 191, 143) : new Color(233, 84, 32);
+
+		public static Color ComplaintDiscussionCommentBase { get; } = new Color(230, 230, 245);
 
 		#endregion AdditionalColors
 	}
