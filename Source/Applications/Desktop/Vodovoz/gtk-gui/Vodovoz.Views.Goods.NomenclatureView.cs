@@ -432,15 +432,15 @@ namespace Vodovoz.Views.Goods
 
 		private global::Gamma.GtkWidgets.yLabel lblWorkloadTypeOnlineTitle;
 
-		private global::Gamma.Widgets.yListComboBox listCmbKulerSaleWebSiteOnlineCatalog;
+		private global::QS.Widgets.GtkUI.SpecialListComboBox listCmbKulerSaleWebSiteOnlineCatalog;
 
-		private global::Gamma.Widgets.yListComboBox listCmbMobileAppOnlineCatalog;
+		private global::QS.Widgets.GtkUI.SpecialListComboBox listCmbMobileAppOnlineCatalog;
 
-		private global::Gamma.Widgets.yListComboBox listCmbOnlineCategory;
+		private global::QS.Widgets.GtkUI.SpecialListComboBox listCmbOnlineCategory;
 
-		private global::Gamma.Widgets.yListComboBox listCmbOnlineGroup;
+		private global::QS.Widgets.GtkUI.SpecialListComboBox listCmbOnlineGroup;
 
-		private global::Gamma.Widgets.yListComboBox listCmbVodovozWebSiteOnlineCatalog;
+		private global::QS.Widgets.GtkUI.SpecialListComboBox listCmbVodovozWebSiteOnlineCatalog;
 
 		private global::QS.Widgets.NullableCheckButton nullableChkCooling;
 
@@ -2928,10 +2928,12 @@ namespace Vodovoz.Views.Goods
 			w210.XOptions = ((global::Gtk.AttachOptions)(4));
 			w210.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
-			this.listCmbKulerSaleWebSiteOnlineCatalog = new global::Gamma.Widgets.yListComboBox();
+			this.listCmbKulerSaleWebSiteOnlineCatalog = new global::QS.Widgets.GtkUI.SpecialListComboBox();
 			this.listCmbKulerSaleWebSiteOnlineCatalog.Name = "listCmbKulerSaleWebSiteOnlineCatalog";
 			this.listCmbKulerSaleWebSiteOnlineCatalog.AddIfNotExist = false;
 			this.listCmbKulerSaleWebSiteOnlineCatalog.DefaultFirst = false;
+			this.listCmbKulerSaleWebSiteOnlineCatalog.ShowSpecialStateAll = false;
+			this.listCmbKulerSaleWebSiteOnlineCatalog.ShowSpecialStateNot = false;
 			this.tableOnlineCharacteristics.Add(this.listCmbKulerSaleWebSiteOnlineCatalog);
 			global::Gtk.Table.TableChild w211 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.listCmbKulerSaleWebSiteOnlineCatalog]));
 			w211.TopAttach = ((uint)(4));
@@ -2941,10 +2943,12 @@ namespace Vodovoz.Views.Goods
 			w211.XOptions = ((global::Gtk.AttachOptions)(4));
 			w211.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
-			this.listCmbMobileAppOnlineCatalog = new global::Gamma.Widgets.yListComboBox();
+			this.listCmbMobileAppOnlineCatalog = new global::QS.Widgets.GtkUI.SpecialListComboBox();
 			this.listCmbMobileAppOnlineCatalog.Name = "listCmbMobileAppOnlineCatalog";
 			this.listCmbMobileAppOnlineCatalog.AddIfNotExist = false;
 			this.listCmbMobileAppOnlineCatalog.DefaultFirst = false;
+			this.listCmbMobileAppOnlineCatalog.ShowSpecialStateAll = false;
+			this.listCmbMobileAppOnlineCatalog.ShowSpecialStateNot = false;
 			this.tableOnlineCharacteristics.Add(this.listCmbMobileAppOnlineCatalog);
 			global::Gtk.Table.TableChild w212 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.listCmbMobileAppOnlineCatalog]));
 			w212.TopAttach = ((uint)(2));
@@ -2954,10 +2958,12 @@ namespace Vodovoz.Views.Goods
 			w212.XOptions = ((global::Gtk.AttachOptions)(4));
 			w212.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
-			this.listCmbOnlineCategory = new global::Gamma.Widgets.yListComboBox();
+			this.listCmbOnlineCategory = new global::QS.Widgets.GtkUI.SpecialListComboBox();
 			this.listCmbOnlineCategory.Name = "listCmbOnlineCategory";
 			this.listCmbOnlineCategory.AddIfNotExist = false;
 			this.listCmbOnlineCategory.DefaultFirst = false;
+			this.listCmbOnlineCategory.ShowSpecialStateAll = false;
+			this.listCmbOnlineCategory.ShowSpecialStateNot = false;
 			this.tableOnlineCharacteristics.Add(this.listCmbOnlineCategory);
 			global::Gtk.Table.TableChild w213 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.listCmbOnlineCategory]));
 			w213.TopAttach = ((uint)(6));
@@ -2967,10 +2973,12 @@ namespace Vodovoz.Views.Goods
 			w213.XOptions = ((global::Gtk.AttachOptions)(4));
 			w213.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
-			this.listCmbOnlineGroup = new global::Gamma.Widgets.yListComboBox();
+			this.listCmbOnlineGroup = new global::QS.Widgets.GtkUI.SpecialListComboBox();
 			this.listCmbOnlineGroup.Name = "listCmbOnlineGroup";
 			this.listCmbOnlineGroup.AddIfNotExist = false;
 			this.listCmbOnlineGroup.DefaultFirst = false;
+			this.listCmbOnlineGroup.ShowSpecialStateAll = false;
+			this.listCmbOnlineGroup.ShowSpecialStateNot = false;
 			this.tableOnlineCharacteristics.Add(this.listCmbOnlineGroup);
 			global::Gtk.Table.TableChild w214 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.listCmbOnlineGroup]));
 			w214.TopAttach = ((uint)(5));
@@ -2980,10 +2988,12 @@ namespace Vodovoz.Views.Goods
 			w214.XOptions = ((global::Gtk.AttachOptions)(4));
 			w214.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
-			this.listCmbVodovozWebSiteOnlineCatalog = new global::Gamma.Widgets.yListComboBox();
+			this.listCmbVodovozWebSiteOnlineCatalog = new global::QS.Widgets.GtkUI.SpecialListComboBox();
 			this.listCmbVodovozWebSiteOnlineCatalog.Name = "listCmbVodovozWebSiteOnlineCatalog";
 			this.listCmbVodovozWebSiteOnlineCatalog.AddIfNotExist = false;
 			this.listCmbVodovozWebSiteOnlineCatalog.DefaultFirst = false;
+			this.listCmbVodovozWebSiteOnlineCatalog.ShowSpecialStateAll = false;
+			this.listCmbVodovozWebSiteOnlineCatalog.ShowSpecialStateNot = false;
 			this.tableOnlineCharacteristics.Add(this.listCmbVodovozWebSiteOnlineCatalog);
 			global::Gtk.Table.TableChild w215 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.listCmbVodovozWebSiteOnlineCatalog]));
 			w215.TopAttach = ((uint)(3));
