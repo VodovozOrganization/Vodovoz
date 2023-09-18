@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Criterion.Lambda;
 using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
@@ -406,6 +407,82 @@ namespace Vodovoz.EntityRepositories.Goods
 					.Select(() => nomenclaturePriceAlias.Price).WithAlias(() => resultAlias.Price))
 				.TransformUsing(Transformers.AliasToBean<NomenclatureOnlinePriceNode>())
 				.List<NomenclatureOnlinePriceNode>();
+		}
+		
+		public IList<NomenclatureCharacteristicsDto> GetNomenclaturesForSend(IUnitOfWork uow, NomenclatureOnlineParameterType parameterType)
+		{
+			Nomenclature nomenclatureAlias = null;
+			MobileAppNomenclatureOnlineCatalog mobileAppNomenclatureOnlineCatalogAlias = null;
+			VodovozWebSiteNomenclatureOnlineCatalog vodovozWebSiteNomenclatureOnlineCatalogAlias = null;
+			KulerSaleWebSiteNomenclatureOnlineCatalog kulerSaleWebSiteNomenclatureOnlineCatalogAlias = null;
+			NomenclatureOnlineGroup nomenclatureOnlineGroupAlias = null;
+			NomenclatureOnlineCategory nomenclatureOnlineCategoryAlias = null;
+			NomenclatureOnlineParameters onlineParametersAlias = null;
+			NomenclatureCharacteristicsDto resultAlias = null;
+			
+			var query = uow.Session.QueryOver(() => nomenclatureAlias)
+				.Left.JoinAlias(n => n.NomenclatureOnlineGroup, () => nomenclatureOnlineGroupAlias)
+				.Left.JoinAlias(n => n.NomenclatureOnlineCategory, () => nomenclatureOnlineCategoryAlias)
+				.Left.JoinAlias(n => n.MobileAppNomenclatureOnlineCatalog,
+					() => mobileAppNomenclatureOnlineCatalogAlias)
+				.Left.JoinAlias(n => n.VodovozWebSiteNomenclatureOnlineCatalog,
+					() => vodovozWebSiteNomenclatureOnlineCatalogAlias)
+				.Left.JoinAlias(n => n.KulerSaleWebSiteNomenclatureOnlineCatalog,
+					() => kulerSaleWebSiteNomenclatureOnlineCatalogAlias)
+				.JoinEntityAlias(
+					() => onlineParametersAlias,
+					() => onlineParametersAlias.Nomenclature.Id == nomenclatureAlias.Id)
+				.And(() => onlineParametersAlias.NomenclatureOnlineAvailability != null);
+			
+			var queryBuilder = new QueryOverProjectionBuilder<Nomenclature>()
+				.SelectGroup(n => n.Id).WithAlias(() => resultAlias.Id)
+				.Select(n => n.OnlineName).WithAlias(() => resultAlias.OnlineName)
+				.Select(() => nomenclatureOnlineGroupAlias.Name).WithAlias(() => resultAlias.OnlineGroup)
+				.Select(() => nomenclatureOnlineCategoryAlias.Name).WithAlias(() => resultAlias.OnlineCategory)
+				.Select(n => n.TareVolume).WithAlias(() => resultAlias.TareVolume)
+				.Select(n => n.IsDisposableTare).WithAlias(() => resultAlias.IsDisposableTare)
+				.Select(n => n.IsNewBottle).WithAlias(() => resultAlias.IsNewBottle)
+				.Select(n => n.IsSparklingWater).WithAlias(() => resultAlias.IsSparklingWater)
+				.Select(n => n.EquipmentInstallationType).WithAlias(() => resultAlias.EquipmentInstallationType)
+				.Select(n => n.EquipmentWorkloadType).WithAlias(() => resultAlias.EquipmentWorkloadType)
+				.Select(n => n.PumpType).WithAlias(() => resultAlias.PumpType)
+				.Select(n => n.CupHolderBracingType).WithAlias(() => resultAlias.CupHolderBracingType)
+				.Select(n => n.HasHeating).WithAlias(() => resultAlias.HasHeating)
+				.Select(n => n.HeatingPower2).WithAlias(() => resultAlias.HeatingPower)
+				.Select(n => n.HeatingProductivity).WithAlias(() => resultAlias.HeatingProductivity)
+				.Select(n => n.ProtectionOnHotWaterTap).WithAlias(() => resultAlias.ProtectionOnHotWaterTap)
+				.Select(n => n.HasCooling).WithAlias(() => resultAlias.HasCooling)
+				.Select(n => n.CoolingPower2).WithAlias(() => resultAlias.CoolingPower)
+				.Select(n => n.CoolingProductivity).WithAlias(() => resultAlias.CoolingProductivity)
+				.Select(n => n.CoolingType2).WithAlias(() => resultAlias.CoolingType)
+				.Select(n => n.LockerRefrigeratorType).WithAlias(() => resultAlias.LockerRefrigeratorType)
+				.Select(n => n.LockerRefrigeratorVolume).WithAlias(() => resultAlias.LockerRefrigeratorVolume)
+				.Select(n => n.TapType).WithAlias(() => resultAlias.TapType)
+				.Select(n => n.BracingTypeForCupHolder).WithAlias(() => resultAlias.BracingTypeForCupHolder);
+
+			switch(parameterType)
+			{
+				case NomenclatureOnlineParameterType.ForMobileApp:
+					query.And(n => n.MobileAppNomenclatureOnlineCatalog != null);
+					queryBuilder.Select(() => mobileAppNomenclatureOnlineCatalogAlias.ExternalId)
+						.WithAlias(() => resultAlias.OnlineCatalogGuid);
+					break;
+				case NomenclatureOnlineParameterType.ForVodovozWebSite:
+					query.And(n => n.VodovozWebSiteNomenclatureOnlineCatalog != null);
+					queryBuilder.Select(() => vodovozWebSiteNomenclatureOnlineCatalogAlias.ExternalId)
+						.WithAlias(() => resultAlias.OnlineCatalogGuid);
+					break;
+				case NomenclatureOnlineParameterType.ForKulerSaleWebSite:
+					query.And(n => n.KulerSaleWebSiteNomenclatureOnlineCatalog != null);
+					queryBuilder.Select(() => kulerSaleWebSiteNomenclatureOnlineCatalogAlias.ExternalId)
+						.WithAlias(() => resultAlias.OnlineCatalogGuid);
+					break;
+			}
+
+			query.SelectList(builder => queryBuilder)
+			.TransformUsing(Transformers.AliasToBean<NomenclatureCharacteristicsDto>());
+			
+			return query.List<NomenclatureCharacteristicsDto>();
 		}
 	}
 

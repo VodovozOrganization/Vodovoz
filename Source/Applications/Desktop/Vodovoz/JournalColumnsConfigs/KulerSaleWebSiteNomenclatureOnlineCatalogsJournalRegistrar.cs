@@ -13,6 +13,8 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddNumericRenderer(node => node.Id)
 				.AddColumn("Каталог")
 					.AddTextRenderer(node => node.Name)
+				.AddColumn("Внешний номер каталога")
+					.AddTextRenderer(node => node.ExternalId.ToString())
 				.AddColumn("")
 				.Finish();
 	}

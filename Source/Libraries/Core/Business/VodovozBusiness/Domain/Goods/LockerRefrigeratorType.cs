@@ -4,8 +4,6 @@ namespace Vodovoz.Domain.Goods
 {
 	public enum LockerRefrigeratorType
 	{
-		[Display(Name = "Нет")]
-		None,
 		[Display(Name = "Шкафчик")]
 		Locker,
 		[Display(Name = "Холодильник")]

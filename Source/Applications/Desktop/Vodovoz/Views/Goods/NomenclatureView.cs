@@ -514,7 +514,7 @@ namespace Vodovoz.Views.Goods
 			entryOnlineDiscountMobileApp.Binding
 				.AddBinding(ViewModel.MobileAppNomenclatureOnlineParameters, p => p.NomenclatureOnlineDiscount, w => w.Text, new NullableDecimalToStringConverter())
 				.InitializeFromSource();
-			entryOnlineDiscountMobileApp.Changed += OnEntryOnlineDiscountChanged;
+			entryOnlineDiscountMobileApp.Changed += OnNumericEntryChanged;
 		}
 		
 		private void ConfigureParametersForVodovozWebSite()
@@ -532,7 +532,7 @@ namespace Vodovoz.Views.Goods
 			entryOnlineDiscountVodovozWebSite.Binding
 				.AddBinding(ViewModel.VodovozWebSiteNomenclatureOnlineParameters, p => p.NomenclatureOnlineDiscount, w => w.Text, new NullableDecimalToStringConverter())
 				.InitializeFromSource();
-			entryOnlineDiscountVodovozWebSite.Changed += OnEntryOnlineDiscountChanged;
+			entryOnlineDiscountVodovozWebSite.Changed += OnNumericEntryChanged;
 		}
 		
 		private void ConfigureParametersForKulerSaleWebSite()
@@ -550,16 +550,7 @@ namespace Vodovoz.Views.Goods
 			entryOnlineDiscountKulerSaleWebSite.Binding
 				.AddBinding(ViewModel.KulerSaleWebSiteNomenclatureOnlineParameters, p => p.NomenclatureOnlineDiscount, w => w.Text, new NullableDecimalToStringConverter())
 				.InitializeFromSource();
-			entryOnlineDiscountKulerSaleWebSite.Changed += OnEntryOnlineDiscountChanged;
-		}
-		
-		private void OnEntryOnlineDiscountChanged(object sender, EventArgs e)
-		{
-			var entry = sender as Entry;
-			var chars = entry.Text.ToCharArray();
-			
-			var text = ViewModel.StringHandler.ConvertCharsArrayToNumericString(chars);
-			entry.Text = string.IsNullOrWhiteSpace(text) ? string.Empty : text;
+			entryOnlineDiscountKulerSaleWebSite.Changed += OnNumericEntryChanged;
 		}
 
 		private void ConfigureNotSpecialStateForOnlineAvailabilityWidgets()
@@ -631,7 +622,7 @@ namespace Vodovoz.Views.Goods
 				.AddBinding(ViewModel.Entity, vm => vm.KulerSaleWebSiteNomenclatureOnlineCatalog, w => w.SelectedItem)
 				.InitializeFromSource();
 			
-			entryName.Binding
+			entryNameOnline.Binding
 				.AddBinding(ViewModel.Entity, e => e.OnlineName, w => w.Text)
 				.InitializeFromSource();
 			
@@ -646,7 +637,7 @@ namespace Vodovoz.Views.Goods
 			listCmbOnlineCategory.SetRenderTextFunc<NomenclatureOnlineCategory>(x => x.Name);
 			listCmbOnlineCategory.Binding
 				.AddBinding(ViewModel, vm => vm.OnlineCategories, w => w.ItemsList)
-				.AddBinding(ViewModel.Entity, vm => vm.NomenclatureOnlineCategory, w => w.SelectedItem)
+				.AddBinding(ViewModel, vm => vm.SelectedOnlineCategory, w => w.SelectedItem)
 				.InitializeFromSource();
 
 			#region Онлайн характеристики воды
@@ -680,6 +671,7 @@ namespace Vodovoz.Views.Goods
 			lblInstallationTypeOnlineTitle.Binding
 				.AddFuncBinding(ViewModel, vm => vm.IsPurifierParameters || vm.IsWaterCoolerParameters, w => w.Visible)
 				.InitializeFromSource();
+			enumCmbInstallationTypeOnline.ShowSpecialStateNot = true;
 			enumCmbInstallationTypeOnline.ItemsEnum = typeof(EquipmentInstallationType);
 			enumCmbInstallationTypeOnline.ShowSpecialStateNot = true;
 			enumCmbInstallationTypeOnline.Binding
@@ -690,6 +682,7 @@ namespace Vodovoz.Views.Goods
 			lblWorkloadTypeOnlineTitle.Binding
 				.AddBinding(ViewModel, vm => vm.IsWaterCoolerParameters, w => w.Visible)
 				.InitializeFromSource();
+			enumCmbWorkloadTypeOnline.ShowSpecialStateNot = true;
 			enumCmbWorkloadTypeOnline.ItemsEnum = typeof(EquipmentWorkloadType);
 			enumCmbWorkloadTypeOnline.Binding
 				.AddBinding(ViewModel, vm => vm.IsWaterCoolerParameters, w => w.Visible)
@@ -708,6 +701,7 @@ namespace Vodovoz.Views.Goods
 			lblProtectionOnHotWaterTapOnlineTitle.Binding
 				.AddFuncBinding(ViewModel, vm => vm.IsPurifierParameters || vm.IsWaterCoolerParameters, w => w.Visible)
 				.InitializeFromSource();
+			enumCmbProtectionOnHotWaterTapOnline.ShowSpecialStateNot = true;
 			enumCmbProtectionOnHotWaterTapOnline.ItemsEnum = typeof(ProtectionOnHotWaterTap);
 			enumCmbProtectionOnHotWaterTapOnline.Binding
 				.AddFuncBinding(ViewModel, vm => vm.IsPurifierParameters || vm.IsWaterCoolerParameters, w => w.Visible)
@@ -718,20 +712,24 @@ namespace Vodovoz.Views.Goods
 			lblHeatingPowerOnlineTitle.Binding
 				.AddFuncBinding(ViewModel, vm => vm.IsPurifierParameters || vm.IsWaterCoolerParameters, w => w.Visible)
 				.InitializeFromSource();
+			entryHeatingPowerOnline.MaxLength = 5;
 			entryHeatingPowerOnline.Binding
 				.AddFuncBinding(ViewModel, vm => vm.IsPurifierParameters || vm.IsWaterCoolerParameters, w => w.Visible)
 				.AddBinding(ViewModel.Entity, e => e.HasHeating, w => w.Sensitive)
-				.AddBinding(ViewModel.Entity, e => e.HeatingPower2, w => w.NewText, new NullableIntToStringConverter())
+				.AddBinding(ViewModel.Entity, e => e.HeatingPower2, w => w.Text, new NullableIntToStringConverter())
 				.InitializeFromSource();
+			entryHeatingPowerOnline.Changed += OnNumericEntryChanged;
 			
 			lblHeatingProductivityOnlineTitle.Binding
 				.AddFuncBinding(ViewModel, vm => vm.IsPurifierParameters || vm.IsWaterCoolerParameters, w => w.Visible)
 				.InitializeFromSource();
+			entryHeatingProductivityOnline.MaxLength = 5;
 			entryHeatingProductivityOnline.Binding
 				.AddFuncBinding(ViewModel, vm => vm.IsPurifierParameters || vm.IsWaterCoolerParameters, w => w.Visible)
 				.AddBinding(ViewModel.Entity, e => e.HasHeating, w => w.Sensitive)
 				.AddBinding(ViewModel.Entity, e => e.HeatingProductivity, w => w.Text, new NullableIntToStringConverter())
 				.InitializeFromSource();
+			entryHeatingProductivityOnline.Changed += OnNumericEntryChanged;
 
 			lblCoolingOnlineTitle.Binding
 				.AddFuncBinding(ViewModel, vm => vm.IsPurifierParameters || vm.IsWaterCoolerParameters, w => w.Visible)
@@ -745,34 +743,40 @@ namespace Vodovoz.Views.Goods
 			lblCoolingTypeOnlineTitle.Binding
 				.AddFuncBinding(ViewModel, vm => vm.IsPurifierParameters || vm.IsWaterCoolerParameters, w => w.Visible)
 				.InitializeFromSource();
+			enumCmbCoolingTypeOnline.ShowSpecialStateNot = true;
 			enumCmbCoolingTypeOnline.ItemsEnum = typeof(CoolingType);
 			enumCmbCoolingTypeOnline.Binding
 				.AddFuncBinding(ViewModel, vm => vm.IsPurifierParameters || vm.IsWaterCoolerParameters, w => w.Visible)
 				.AddBinding(ViewModel.Entity, e => e.HasCooling, w => w.Sensitive)
-				.AddBinding(ViewModel.Entity, e => e.CoolingType, w => w.SelectedItemOrNull)
+				.AddBinding(ViewModel.Entity, e => e.CoolingType2, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 				
 			lblCoolingPowerOnlineTitle.Binding
 				.AddFuncBinding(ViewModel, vm => vm.IsPurifierParameters || vm.IsWaterCoolerParameters, w => w.Visible)
 				.InitializeFromSource();
+			entryCoolingPowerOnline.MaxLength = 5;
 			entryCoolingPowerOnline.Binding
 				.AddFuncBinding(ViewModel, vm => vm.IsPurifierParameters || vm.IsWaterCoolerParameters, w => w.Visible)
 				.AddBinding(ViewModel.Entity, e => e.HasCooling, w => w.Sensitive)
 				.AddBinding(ViewModel.Entity, e => e.CoolingPower2, w => w.Text, new NullableIntToStringConverter())
 				.InitializeFromSource();
+			entryCoolingPowerOnline.Changed += OnNumericEntryChanged;
 			
 			lblCoolingProductivityOnlineTitle.Binding
 				.AddFuncBinding(ViewModel, vm => vm.IsPurifierParameters || vm.IsWaterCoolerParameters, w => w.Visible)
 				.InitializeFromSource();
+			entryHeatingProductivityOnline1.MaxLength = 5;
 			entryHeatingProductivityOnline1.Binding
 				.AddFuncBinding(ViewModel, vm => vm.IsPurifierParameters || vm.IsWaterCoolerParameters, w => w.Visible)
 				.AddBinding(ViewModel.Entity, e => e.HasCooling, w => w.Sensitive)
 				.AddBinding(ViewModel.Entity, e => e.CoolingProductivity, w => w.Text, new NullableIntToStringConverter())
 				.InitializeFromSource();
+			entryHeatingProductivityOnline1.Changed += OnNumericEntryChanged;
 
 			lblLockerRefrigeratorOnlineTitle.Binding
 				.AddBinding(ViewModel, vm => vm.IsWaterCoolerParameters, w => w.Visible)
 				.InitializeFromSource();
+			enumCmbLockerRefrigeratorOnline.ShowSpecialStateNot = true;
 			enumCmbLockerRefrigeratorOnline.ItemsEnum = typeof(LockerRefrigeratorType);
 			enumCmbLockerRefrigeratorOnline.Binding
 				.AddBinding(ViewModel, vm => vm.IsWaterCoolerParameters, w => w.Visible)
@@ -782,14 +786,18 @@ namespace Vodovoz.Views.Goods
 			lblLockerRefrigeratorVolumeOnlineTitle.Binding
 				.AddBinding(ViewModel, vm => vm.IsWaterCoolerParameters, w => w.Visible)
 				.InitializeFromSource();
+			entryLockerRefrigeratorVolumeOnline.MaxLength = 5;
 			entryLockerRefrigeratorVolumeOnline.Binding
-				.AddFuncBinding(ViewModel.Entity, e => e.LockerRefrigeratorType == LockerRefrigeratorType.Locker, w => w.Sensitive)
+				.AddFuncBinding(ViewModel.Entity, e => e.LockerRefrigeratorType != null, w => w.Sensitive)
+				.AddBinding(ViewModel.Entity, e => e.LockerRefrigeratorVolume, w => w.Text, new NullableIntToStringConverter())
 				.AddBinding(ViewModel, vm => vm.IsWaterCoolerParameters, w => w.Visible)
 				.InitializeFromSource();
+			entryLockerRefrigeratorVolumeOnline.Changed += OnNumericEntryChanged;
 			
 			lblTapTypeOnlineTitle.Binding
 				.AddBinding(ViewModel, vm => vm.IsWaterCoolerParameters, w => w.Visible)
 				.InitializeFromSource();
+			enumCmbTapTypeOnline.ShowSpecialStateNot = true;
 			enumCmbTapTypeOnline.ItemsEnum = typeof(TapType);
 			enumCmbTapTypeOnline.Binding
 				.AddBinding(ViewModel, vm => vm.IsWaterCoolerParameters, w => w.Visible)
@@ -800,6 +808,7 @@ namespace Vodovoz.Views.Goods
 				.AddBinding(ViewModel, vm => vm.IsWaterCoolerParameters, w => w.Visible)
 				.InitializeFromSource();
 			
+			enumCmbCupHolderBracing.ShowSpecialStateNot = true;
 			enumCmbCupHolderBracing.ItemsEnum = typeof(BracingTypeForCupHolder);
 			enumCmbCupHolderBracing.Binding
 				.AddBinding(ViewModel, vm => vm.IsWaterCoolerParameters, w => w.Visible)
@@ -814,6 +823,7 @@ namespace Vodovoz.Views.Goods
 				.AddBinding(ViewModel, vm => vm.IsWaterPumpParameters, w => w.Visible)
 				.InitializeFromSource();
 			
+			enumPumpTypeOnline.ShowSpecialStateNot = true;
 			enumPumpTypeOnline.ItemsEnum = typeof(PumpType);
 			enumPumpTypeOnline.Binding
 				.AddBinding(ViewModel, vm => vm.IsWaterPumpParameters, w => w.Visible)
@@ -824,11 +834,21 @@ namespace Vodovoz.Views.Goods
 				.AddBinding(ViewModel, vm => vm.IsCupHolderParameters, w => w.Visible)
 				.InitializeFromSource();
 			
+			enumCupHolderBracingTypeOnline.ShowSpecialStateNot = true;
 			enumCupHolderBracingTypeOnline.ItemsEnum = typeof(CupHolderBracingType);
 			enumCupHolderBracingTypeOnline.Binding
 				.AddBinding(ViewModel, vm => vm.IsCupHolderParameters, w => w.Sensitive)
 				.AddBinding(ViewModel.Entity, e => e.CupHolderBracingType, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
+		}
+
+		private void OnNumericEntryChanged(object sender, EventArgs e)
+		{
+			var entry = sender as Entry;
+			var chars = entry.Text.ToCharArray();
+			
+			var text = ViewModel.StringHandler.ConvertCharsArrayToNumericString(chars);
+			entry.Text = string.IsNullOrWhiteSpace(text) ? string.Empty : text;
 		}
 
 		private void OnPriceWithoutDiscountStartedEditing(object o, EditingStartedArgs args)

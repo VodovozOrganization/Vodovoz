@@ -134,13 +134,18 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				if(Entity.NomenclatureOnlineGroup != value)
 				{
 					Entity.NomenclatureOnlineGroup = value;
-					OnlineCategories =
-						Entity.NomenclatureOnlineGroup != null
-							? Entity.NomenclatureOnlineGroup.NomenclatureOnlineCategories
-							: new List<NomenclatureOnlineCategory>();
+					UpdateOnlineCategories();
 					UpdateOnlineParameters();
 				}
 			}
+		}
+
+		private void UpdateOnlineCategories()
+		{
+			OnlineCategories =
+				Entity.NomenclatureOnlineGroup != null
+					? Entity.NomenclatureOnlineGroup.NomenclatureOnlineCategories
+					: new List<NomenclatureOnlineCategory>();
 		}
 
 		private void UpdateOnlineParameters()
@@ -441,6 +446,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			KulerSaleWebSiteNomenclatureOnlineCatalogs = UoW.GetAll<KulerSaleWebSiteNomenclatureOnlineCatalog>().ToList();
 			NomenclatureOnlineGroups = UoW.GetAll<NomenclatureOnlineGroup>().ToList();
 			
+			UpdateOnlineCategories();
 			UpdateNomenclatureOnlinePricesNodes();
 		}
 
