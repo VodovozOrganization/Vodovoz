@@ -545,6 +545,10 @@ namespace Vodovoz
 			}
 
 			_previousDeliveryDate = Entity.DeliveryDate;
+
+			CanFormOrderWithLiquidatedCounterparty = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
+				Vodovoz.Permissions.Order.CanFormOrderWithLiquidatedCounterparty);
+
 			_canChangeDiscountValue =
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_direct_discount_value");
 			_canChoosePremiumDiscount =
@@ -1019,7 +1023,7 @@ namespace Vodovoz
 						}
 						catch(Exception e)
 						{
-							MessageDialogHelper.RunWarningDialog($"Не удалось проверить статус контрагента в ФНС: {e.Message}", "Ошибка проверки статуса контрагента в ФНС");
+							MessageDialogHelper.RunWarningDialog($"Не удалось проверить статус контрагента в ФНС. {e.Message}", "Ошибка проверки статуса контрагента в ФНС");
 						}
 					}
 					UpdateAvailableEnumSignatureTypes();
@@ -3825,7 +3829,10 @@ namespace Vodovoz
 			}
 		}
 
-		private bool CanEditByPermission => permissionResult.CanUpdate || permissionResult.CanCreate && Entity.Id == 0;
+		public bool CanFormOrderWithLiquidatedCounterparty { get; private set; }
+
+		public bool CanEditByPermission => permissionResult.CanUpdate || (permissionResult.CanCreate && Entity.Id == 0);
+			
 
 		private void UpdateUIState()
 		{
@@ -3934,11 +3941,11 @@ namespace Vodovoz
 			}
 
 			buttonSave.Sensitive = CanEditByPermission;
-			btnForm.Sensitive = CanEditByPermission;
 			menubuttonActions.Sensitive = CanEditByPermission;
 			yBtnAddCurrentContract.Sensitive = CanEditByPermission;
 
-			if(Entity.CanSetOrderAsAccepted) {
+			if(Entity.CanSetOrderAsAccepted
+				&& (CanFormOrderWithLiquidatedCounterparty || !(Entity.Client?.IsLiquidating ?? false))) {
 				btnForm.Visible = true;
 				buttonEditOrder.Visible = false;
 			} else if(Entity.CanSetOrderAsEditable) {

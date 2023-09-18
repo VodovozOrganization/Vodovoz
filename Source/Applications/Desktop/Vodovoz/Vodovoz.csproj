@@ -1970,6 +1970,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Cash.MovementsPaymentControlView.cs" />
     <Compile Include="Views\Logistic\RouteListMaxFastDeliveryOrdersView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.RouteListMaxFastDeliveryOrdersView.cs" />
+    <Compile Include="AdministrationTools\RevenueServiceMassCounterpartyUpdateToolView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.AdministrationTools.RevenueServiceMassCounterpartyUpdateToolView.cs" />
     <Compile Include="Views\Settings\NamedDomainEntitiesSettingsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Settings.NamedDomainEntitiesSettingsView.cs" />
     <Compile Include="ViewWidgets\Search\CompositeSearchView.cs" />
@@ -1984,6 +1986,7 @@
     <Folder Include="QualityControl\" />
     <Folder Include="QualityControl\Reports\" />
     <Folder Include="ReportsParameters\Cash\" />
+    <Folder Include="AdministrationTools\" />
     <Folder Include="ViewWidgets\Search\" />
     <Folder Include="ViewWidgets\Users\" />
   </ItemGroup>

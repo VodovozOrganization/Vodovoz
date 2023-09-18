@@ -198,6 +198,11 @@ namespace Vodovoz.JournalViewModels
 				query.Where(c => !c.IsArchive);
 			}
 
+			if(!FilterViewModel.ShowLiquidating)
+			{
+				query.Where(c => !c.IsLiquidating);
+			}
+
 			if(!string.IsNullOrWhiteSpace(FilterViewModel?.CounterpartyName))
 			{
 				query.Where(Restrictions.InsensitiveLike(Projections.Property(() => counterpartyAlias.Name),
@@ -376,6 +381,11 @@ namespace Vodovoz.JournalViewModels
 
 			if (FilterViewModel != null && !FilterViewModel.RestrictIncludeArchive) {
 				query.Where(c => !c.IsArchive);
+			}
+
+			if(!FilterViewModel.ShowLiquidating)
+			{
+				query.Where(c => !c.IsLiquidating);
 			}
 
 			if(!string.IsNullOrWhiteSpace(FilterViewModel?.CounterpartyName))

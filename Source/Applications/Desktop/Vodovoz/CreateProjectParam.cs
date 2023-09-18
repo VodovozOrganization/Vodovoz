@@ -257,6 +257,8 @@ using Vodovoz.QualityControl.Reports;
 using Vodovoz.ReportsParameters.Cash;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.Application.Services;
+using Vodovoz.ViewModels.AdministrationTools;
+using Vodovoz.AdministrationTools;
 
 namespace Vodovoz
 {
@@ -533,6 +535,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<UndeliveredOrdersClassificationReportViewModel, UndeliveredOrdersClassificationReportView>()
 				.RegisterWidgetForWidgetViewModel<NumberOfComplaintsAgainstDriversReportViewModel, NumberOfComplaintsAgainstDriversReportView>()
 				.RegisterWidgetForWidgetViewModel<MovementsPaymentControlViewModel, MovementsPaymentControlView>()
+				.RegisterWidgetForWidgetViewModel<RevenueServiceMassCounterpartyUpdateToolViewModel, RevenueServiceMassCounterpartyUpdateToolView>()
 				.RegisterWidgetForWidgetViewModel<WarehousesSettingsViewModel, NamedDomainEntitiesSettingsView>()
 				;
 
