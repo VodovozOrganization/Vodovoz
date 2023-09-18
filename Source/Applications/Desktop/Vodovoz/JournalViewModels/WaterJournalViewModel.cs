@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
@@ -31,6 +31,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly ICounterpartyJournalFactory _counterpartySelectorFactory;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
+		private readonly INomenclatureOnlineParametersProvider _nomenclatureOnlineParametersProvider;
 		private readonly IStringHandler _stringHandler = new StringHandler();
 
 		public WaterJournalViewModel(
@@ -40,7 +41,8 @@ namespace Vodovoz.JournalViewModels
 			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
-			IUserRepository userRepository
+			IUserRepository userRepository,
+			INomenclatureOnlineParametersProvider nomenclatureOnlineParametersProvider
 		) : base(unitOfWorkFactory, commonServices)
 		{
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -48,6 +50,8 @@ namespace Vodovoz.JournalViewModels
 			_counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_nomenclatureOnlineParametersProvider =
+				nomenclatureOnlineParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureOnlineParametersProvider));
 
 			TabName = "Выбор номенклатуры воды";
 			SetOrder(x => x.Name);
@@ -144,6 +148,6 @@ namespace Vodovoz.JournalViewModels
 		protected override Func<WaterJournalNode, NomenclatureViewModel> OpenDialogFunction =>
 			node => new NomenclatureViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices,
 				_employeeService, _nomenclatureSelectorFactory, _counterpartySelectorFactory, _nomenclatureRepository,
-				_userRepository, _stringHandler);
+				_userRepository, _stringHandler, _nomenclatureOnlineParametersProvider);
 	}
 }

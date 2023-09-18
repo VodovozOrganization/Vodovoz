@@ -4,6 +4,7 @@ using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 using Vodovoz.Core;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain.Client;
@@ -17,6 +18,7 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
+using Vodovoz.Settings.Database;
 using Vodovoz.ViewModels.Factories;
 
 namespace Vodovoz.TempAdapters
@@ -98,7 +100,11 @@ namespace Vodovoz.TempAdapters
 						new SubdivisionParametersProvider(new ParametersProvider()),
 						new DeliveryScheduleParametersProvider(new ParametersProvider()),
 						new RdlPreviewOpener(),
-						new RouteListItemRepository());
+						new RouteListItemRepository(),
+						new NomenclatureOnlineParametersProvider(
+							new SettingsController(
+								UnitOfWorkFactory.GetDefaultFactory,
+								new Logger<SettingsController>(new LoggerFactory()))));
 				});
 		}
 
@@ -142,7 +148,11 @@ namespace Vodovoz.TempAdapters
 						new SubdivisionParametersProvider(new ParametersProvider()),
 						new DeliveryScheduleParametersProvider(new ParametersProvider()),
 						new RdlPreviewOpener(),
-						new RouteListItemRepository());
+						new RouteListItemRepository(),
+						new NomenclatureOnlineParametersProvider(
+							new SettingsController(
+								UnitOfWorkFactory.GetDefaultFactory,
+								new Logger<SettingsController>(new LoggerFactory()))));
 				});
 		}
 
@@ -182,7 +192,11 @@ namespace Vodovoz.TempAdapters
 				new SubdivisionParametersProvider(new ParametersProvider()),
 				new DeliveryScheduleParametersProvider(new ParametersProvider()),
 				new RdlPreviewOpener(),
-				new RouteListItemRepository());
+				new RouteListItemRepository(),
+				new NomenclatureOnlineParametersProvider(
+					new SettingsController(
+						UnitOfWorkFactory.GetDefaultFactory,
+						new Logger<SettingsController>(new LoggerFactory()))));
 		}
 	}
 }

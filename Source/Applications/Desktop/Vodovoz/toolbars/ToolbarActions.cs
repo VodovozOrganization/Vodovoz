@@ -536,7 +536,11 @@ public partial class MainWindow : Window
 				counterpartyJournalFactory,
 				new NomenclatureJournalFactory(),
 				nomenclatureRepository,
-				userRepository
+				userRepository,
+				new NomenclatureOnlineParametersProvider(
+					new SettingsController(
+						UnitOfWorkFactory.GetDefaultFactory,
+						new Logger<SettingsController>(new LoggerFactory())))
 			)
 		);
 	}
@@ -562,7 +566,11 @@ public partial class MainWindow : Window
 			counterpartyJournalFactory,
 			new NomenclatureJournalFactory(),
 			nomenclatureRepository,
-			userRepository
+			userRepository,
+			new NomenclatureOnlineParametersProvider(
+				new SettingsController(
+					UnitOfWorkFactory.GetDefaultFactory,
+					new Logger<SettingsController>(new LoggerFactory())))
 		);
 		tdiMain.AddTab(requestsJournal);
 	}

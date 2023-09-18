@@ -30,6 +30,7 @@ namespace Vodovoz.ViewModels.Suppliers
 		private readonly ISupplierPriceItemsRepository supplierPriceItemsRepository;
 		private readonly INomenclatureRepository nomenclatureRepository;
 		private readonly IUserRepository userRepository;
+		private readonly INomenclatureOnlineParametersProvider _nomenclatureOnlineParametersProvider;
 		private readonly IEmployeeService employeeService;
 		private readonly IUnitOfWorkFactory unitOfWorkFactory;
 		private readonly ICommonServices commonServices;
@@ -46,7 +47,9 @@ namespace Vodovoz.ViewModels.Suppliers
 			ICounterpartyJournalFactory counterpartySelectorFactory,
 			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
-			IUserRepository userRepository) : base(uoWBuilder, unitOfWorkFactory, commonServices)
+			IUserRepository userRepository,
+			INomenclatureOnlineParametersProvider nomenclatureOnlineParametersProvider)
+			: base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -54,6 +57,8 @@ namespace Vodovoz.ViewModels.Suppliers
 			this.supplierPriceItemsRepository = supplierPriceItemsRepository ?? throw new ArgumentNullException(nameof(supplierPriceItemsRepository));
 			this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_nomenclatureOnlineParametersProvider =
+				nomenclatureOnlineParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureOnlineParametersProvider));
 			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			
@@ -263,7 +268,8 @@ namespace Vodovoz.ViewModels.Suppliers
 						nomenclatureSelectorFactory,
 						counterpartySelectorFactory,
 						nomenclatureRepository,
-						userRepository
+						userRepository,
+						_nomenclatureOnlineParametersProvider
 					) {
 						SelectionMode = JournalSelectionMode.Single,
 						ExcludingNomenclatureIds = existingNomenclatures.ToArray()
@@ -322,7 +328,8 @@ namespace Vodovoz.ViewModels.Suppliers
 						counterpartySelectorFactory,
 						nomenclatureSelectorFactory,
 						nomenclatureRepository,
-						userRepository
+						userRepository,
+						_nomenclatureOnlineParametersProvider
 					);
 					foreach(var item in array) {
 						if(item is RequestToSupplierItem requestItem) {
@@ -358,7 +365,8 @@ namespace Vodovoz.ViewModels.Suppliers
 						var nom = requestItem.Nomenclature;
 						this.TabParent.AddSlaveTab(this, new NomenclatureViewModel(EntityUoWBuilder.ForOpen(nom.Id),
 							UnitOfWorkFactory, commonServices, employeeService, nomenclatureSelectorFactory,
-							counterpartySelectorFactory, nomenclatureRepository, userRepository, new StringHandler()));
+							counterpartySelectorFactory, nomenclatureRepository, userRepository, new StringHandler(),
+							_nomenclatureOnlineParametersProvider));
 						return;
 					}
 					if(item is SupplierNode supplierItem) {

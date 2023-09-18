@@ -458,6 +458,8 @@
     <Compile Include="JournalColumnsConfigs\ColumnsConfigRegistrarBase.cs" />
     <Compile Include="JournalColumnsConfigs\KulerSaleWebSiteNomenclatureOnlineCatalogsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\MobileAppNomenclatureOnlineCatalogsJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\NomenclatureOnlineCategoriesJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\NomenclatureOnlineGroupsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\UndeliveryDetalizationJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ComplaintDetalizationJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\UndeliveryKindJournalRegistrar.cs" />

@@ -35,6 +35,7 @@ using Vodovoz.Infrastructure.Print;
 using Vodovoz.JournalNodes;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Database;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
@@ -68,6 +69,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
+		private readonly INomenclatureOnlineParametersProvider _nomenclatureOnlineParametersProvider;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 		private readonly IRDLPreviewOpener _rdlPreviewOpener;
@@ -95,6 +97,7 @@ namespace Vodovoz.JournalViewModels
 			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider,
 			IRDLPreviewOpener rdlPreviewOpener,
 			IRouteListItemRepository routeListItemRepository,
+			INomenclatureOnlineParametersProvider nomenclatureOnlineParametersProvider,
 			Action<OrderJournalFilterViewModel> filterConfiguration = null) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -108,6 +111,8 @@ namespace Vodovoz.JournalViewModels
 			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			_gtkDialogsOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
+			_nomenclatureOnlineParametersProvider =
+				nomenclatureOnlineParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureOnlineParametersProvider));
 
 			_undeliveredOrdersJournalOpener =
 				undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
@@ -1008,11 +1013,10 @@ namespace Vodovoz.JournalViewModels
 						_nomenclatureRepository,
 						_userRepository,
 						new DiscountReasonRepository(),
-						new ParametersProvider(),
-						new OrderDiscountsController(new NomenclatureFixedPriceController(
-							new NomenclatureFixedPriceFactory())),
+						new OrderDiscountsController(new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory())),
 						new CommonMessages(_commonServices.InteractiveService),
-						_rdlPreviewOpener),
+						_rdlPreviewOpener,
+						_nomenclatureOnlineParametersProvider),
 					//функция диалога открытия документа
 					(OrderJournalNode node) => new OrderWithoutShipmentForAdvancePaymentViewModel(
 						EntityUoWBuilder.ForOpen(node.Id),
@@ -1024,11 +1028,10 @@ namespace Vodovoz.JournalViewModels
 						_nomenclatureRepository,
 						_userRepository,
 						new DiscountReasonRepository(),
-						new ParametersProvider(),
-						new OrderDiscountsController(new NomenclatureFixedPriceController(
-							new NomenclatureFixedPriceFactory())),
+						new OrderDiscountsController(new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory())),
 						new CommonMessages(_commonServices.InteractiveService),
-						_rdlPreviewOpener),
+						_rdlPreviewOpener,
+						_nomenclatureOnlineParametersProvider),
 					//функция идентификации документа 
 					(OrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForAdvancePayment),
 					"Счет без отгрузки на предоплату",

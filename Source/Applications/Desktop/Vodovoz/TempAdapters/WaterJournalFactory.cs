@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
@@ -9,6 +10,7 @@ using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
+using Vodovoz.Settings.Database;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 
@@ -39,10 +41,13 @@ namespace Vodovoz.TempAdapters
 				new NomenclatureJournalFactory(),
                 counterpartyJournalFactory,
                 nomenclatureRepository,
-                userRepository
-            );
+                userRepository,
+				new NomenclatureOnlineParametersProvider(
+					new SettingsController(
+						UnitOfWorkFactory.GetDefaultFactory,
+						new Logger<SettingsController>(new LoggerFactory()))));
 
-            waterJournal.SelectionMode = multipleSelect ? JournalSelectionMode.Multiple : JournalSelectionMode.Single;
+			waterJournal.SelectionMode = multipleSelect ? JournalSelectionMode.Multiple : JournalSelectionMode.Single;
             return waterJournal;
         }
     }

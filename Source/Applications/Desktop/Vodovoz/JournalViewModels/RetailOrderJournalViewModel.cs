@@ -61,6 +61,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 		private readonly IRDLPreviewOpener _rdlPreviewOpener;
 		private readonly IFileDialogService _fileDialogService;
+		private readonly INomenclatureOnlineParametersProvider _nomenclatureOnlineParametersProvider;
 		private readonly int _closingDocumentDeliveryScheduleId;
 
 		public RetailOrderJournalViewModel(
@@ -83,10 +84,15 @@ namespace Vodovoz.JournalViewModels
 			ISubdivisionParametersProvider subdivisionParametersProvider,
 			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider,
 			IRDLPreviewOpener rdlPreviewOpener,
-			IFileDialogService fileDialogService) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			IFileDialogService fileDialogService,
+			INomenclatureOnlineParametersProvider nomenclatureOnlineParametersProvider)
+			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
-			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService)); ;
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+			_nomenclatureOnlineParametersProvider =
+				nomenclatureOnlineParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureOnlineParametersProvider));
+			;
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
@@ -836,10 +842,10 @@ namespace Vodovoz.JournalViewModels
 						_nomenclatureRepository,
 						_userRepository,
 						new DiscountReasonRepository(),
-						new ParametersProvider(),
 						_discountsController,
 						new CommonMessages(_commonServices.InteractiveService),
-						_rdlPreviewOpener),
+						_rdlPreviewOpener,
+						_nomenclatureOnlineParametersProvider),
 					//функция диалога открытия документа
 					(RetailOrderJournalNode node) => new OrderWithoutShipmentForAdvancePaymentViewModel(
 						EntityUoWBuilder.ForOpen(node.Id),
@@ -851,10 +857,10 @@ namespace Vodovoz.JournalViewModels
 						_nomenclatureRepository,
 						_userRepository,
 						new DiscountReasonRepository(),
-						new ParametersProvider(),
 						_discountsController,
 						new CommonMessages(_commonServices.InteractiveService),
-						_rdlPreviewOpener),
+						_rdlPreviewOpener,
+						_nomenclatureOnlineParametersProvider),
 					//функция идентификации документа 
 					(RetailOrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForAdvancePayment),
 					"Счет без отгрузки на предоплату",

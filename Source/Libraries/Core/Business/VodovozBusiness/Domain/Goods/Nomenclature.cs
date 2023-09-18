@@ -846,6 +846,171 @@ namespace Vodovoz.Domain.Goods
 
 		#endregion
 
+		#region Онлайн характеристики для ИПЗ
+		
+		[Display(Name = "Онлайн каталог в мобильном приложении")]
+		public virtual MobileAppNomenclatureOnlineCatalog MobileAppNomenclatureOnlineCatalog
+		{
+			get => _mobileAppNomenclatureOnlineCatalog;
+			set => SetField(ref _mobileAppNomenclatureOnlineCatalog, value);
+		}
+		
+		[Display(Name = "Онлайн каталог на сайте ВВ")]
+		public virtual VodovozWebSiteNomenclatureOnlineCatalog VodovozWebSiteNomenclatureOnlineCatalog
+		{
+			get => _vodovozWebSiteNomenclatureOnlineCatalog;
+			set => SetField(ref _vodovozWebSiteNomenclatureOnlineCatalog, value);
+		}
+		
+		[Display(Name = "Онлайн каталог на сайте Кулер Сэйл")]
+		public virtual KulerSaleWebSiteNomenclatureOnlineCatalog KulerSaleWebSiteNomenclatureOnlineCatalog
+		{
+			get => _kulerSaleWebSiteNomenclatureOnlineCatalog;
+			set => SetField(ref _kulerSaleWebSiteNomenclatureOnlineCatalog, value);
+		}
+		
+		[Display(Name = "Онлайн вид товара")]
+		public virtual NomenclatureOnlineGroup NomenclatureOnlineGroup
+		{
+			get => _nomenclatureOnlineGroup;
+			set => SetField(ref _nomenclatureOnlineGroup, value);
+		}
+		
+		[Display(Name = "Онлайн тип товара")]
+		public virtual NomenclatureOnlineCategory NomenclatureOnlineCategory
+		{
+			get => _nomenclatureOnlineCategory;
+			set => SetField(ref _nomenclatureOnlineCategory, value);
+		}
+		
+		[Display(Name = "Название в ИПЗ")]
+		public virtual string OnlineName
+		{
+			get => _onlineName;
+			set => SetField(ref _onlineName, value);
+		}
+
+		[Display(Name = "Тип установки")]
+		public virtual EquipmentInstallationType? EquipmentInstallationType
+		{
+			get => _equipmentInstallationType;
+			set => SetField(ref _equipmentInstallationType, value);
+		}
+		
+		[Display(Name = "Тип загрузки")]
+		public virtual EquipmentWorkloadType? EquipmentWorkloadType
+		{
+			get => _equipmentWorkloadType;
+			set => SetField(ref _equipmentWorkloadType, value);
+		}
+		
+		[Display(Name = "Тип помпы")]
+		public virtual PumpType? PumpType
+		{
+			get => _pumpType;
+			set => SetField(ref _pumpType, value);
+		}
+		
+		[Display(Name = "Тип крепления(стаканодержатель)")]
+		public virtual CupHolderBracingType? CupHolderBracingType
+		{
+			get => _cupHolderBracingType;
+			set => SetField(ref _cupHolderBracingType, value);
+		}
+		
+		[Display(Name = "Нагрев")]
+		public virtual bool? HasHeating
+		{
+			get => _hasHeating;
+			set => SetField(ref _hasHeating, value);
+		}
+		
+		[Display(Name = "Мощность нагрева")]
+		public virtual int? HeatingPower2
+		{
+			get => _heatingPower;
+			set => SetField(ref _heatingPower, value);
+		}
+		
+		[Display(Name = "Производительность нагрева")]
+		public virtual int? HeatingProductivity
+		{
+			get => _heatingProductivity;
+			set => SetField(ref _heatingProductivity, value);
+		}
+		
+		[Display(Name = "Защита на кране горячей воды")]
+		public virtual ProtectionOnHotWaterTap? ProtectionOnHotWaterTap
+		{
+			get => _protectionOnHotWaterTap;
+			set => SetField(ref _protectionOnHotWaterTap, value);
+		}
+		
+		[Display(Name = "Охлаждение")]
+		public virtual bool? HasCooling
+		{
+			get => _hasCooling;
+			set => SetField(ref _hasCooling, value);
+		}
+		
+		[Display(Name = "Мощность охлаждения")]
+		public virtual int? CoolingPower2
+		{
+			get => _coolingPower;
+			set => SetField(ref _coolingPower, value);
+		}
+		
+		[Display(Name = "Производительность охлаждения")]
+		public virtual int? CoolingProductivity
+		{
+			get => _coolingProductivity;
+			set => SetField(ref _coolingProductivity, value);
+		}
+		
+		[Display(Name = "Тип охлаждения")]
+		public virtual CoolingType? CoolingType2
+		{
+			get => _coolingType;
+			set => SetField(ref _coolingType, value);
+		}
+		
+		[Display(Name = "Шкафчик/холодильник")]
+		public virtual LockerRefrigeratorType? LockerRefrigeratorType
+		{
+			get => _lockerRefrigeratorType;
+			set => SetField(ref _lockerRefrigeratorType, value);
+		}
+		
+		[Display(Name = "Объем шкафчика/холодильника")]
+		public virtual int? LockerRefrigeratorVolume
+		{
+			get => _lockerRefrigeratorVolume;
+			set => SetField(ref _lockerRefrigeratorVolume, value);
+		}
+		
+		[Display(Name = "Тип кранов")]
+		public virtual TapType? TapType
+		{
+			get => _tapType;
+			set => SetField(ref _tapType, value);
+		}
+		
+		[Display(Name = "Крепление для стаканодержателя")]
+		public virtual BracingTypeForCupHolder? BracingTypeForCupHolder
+		{
+			get => _bracingTypeForCupHolder;
+			set => SetField(ref _bracingTypeForCupHolder, value);
+		}
+
+		[Display(Name = "Газированная вода?")]
+		public virtual bool IsSparklingWater
+		{
+			get => _isSparklingWater;
+			set => SetField(ref _isSparklingWater, value);
+		}
+		
+		#endregion
+
 		#region Рассчетные
 
 		public virtual string CategoryString => Category.GetEnumTitle();
@@ -1260,7 +1425,122 @@ namespace Vodovoz.Domain.Goods
 			NomenclatureCategory.Vehicle
 		};
 
+		private MobileAppNomenclatureOnlineCatalog _mobileAppNomenclatureOnlineCatalog;
+		private VodovozWebSiteNomenclatureOnlineCatalog _vodovozWebSiteNomenclatureOnlineCatalog;
+		private KulerSaleWebSiteNomenclatureOnlineCatalog _kulerSaleWebSiteNomenclatureOnlineCatalog;
+		private NomenclatureOnlineGroup _nomenclatureOnlineGroup;
+		private NomenclatureOnlineCategory _nomenclatureOnlineCategory;
+		private string _onlineName;
+		private EquipmentInstallationType? _equipmentInstallationType;
+		private EquipmentWorkloadType? _equipmentWorkloadType;
+		private PumpType? _pumpType;
+		private CupHolderBracingType? _cupHolderBracingType;
+		private bool? _hasHeating;
+		private int? _heatingPower;
+		private int? _heatingProductivity;
+		private ProtectionOnHotWaterTap? _protectionOnHotWaterTap;
+		private bool? _hasCooling;
+		private int? _coolingPower;
+		private int? _coolingProductivity;
+		private CoolingType? _coolingType;
+		private LockerRefrigeratorType? _lockerRefrigeratorType;
+		private int? _lockerRefrigeratorVolume;
+		private TapType? _tapType;
+		private BracingTypeForCupHolder? _bracingTypeForCupHolder;
+		private bool _isSparklingWater;
+
 		#endregion
+
+		public virtual void ResetNotWaterOnlineParameters()
+		{
+			EquipmentInstallationType = null;
+			EquipmentWorkloadType = null;
+			PumpType = null;
+			CupHolderBracingType = null;
+			HasHeating = null;
+			HeatingPower = null;
+			HeatingProductivity = null;
+			ProtectionOnHotWaterTap = null;
+			HasCooling = null;
+			CoolingPower = null;
+			CoolingProductivity = null;
+			CoolingType = null;
+			LockerRefrigeratorType = null;
+			LockerRefrigeratorVolume = null;
+			TapType = null;
+			BracingTypeForCupHolder = null;
+		}
+		
+		public virtual void ResetNotKulerOnlineParameters()
+		{
+			IsSparklingWater = false;
+			PumpType = null;
+			CupHolderBracingType = null;
+		}
+		
+		public virtual void ResetNotPurifierOnlineParameters()
+		{
+			ResetNotKulerOnlineParameters();
+			EquipmentWorkloadType = null;
+			LockerRefrigeratorType = null;
+			LockerRefrigeratorVolume = null;
+			TapType = null;
+			BracingTypeForCupHolder = null;
+		}
+		
+		public virtual void ResetNotWaterPumpOnlineParameters()
+		{
+			IsSparklingWater = false;
+			EquipmentInstallationType = null;
+			EquipmentWorkloadType = null;
+			CupHolderBracingType = null;
+			HasHeating = null;
+			HeatingPower = null;
+			HeatingProductivity = null;
+			ProtectionOnHotWaterTap = null;
+			HasCooling = null;
+			CoolingPower = null;
+			CoolingProductivity = null;
+			CoolingType = null;
+			LockerRefrigeratorType = null;
+			LockerRefrigeratorVolume = null;
+			TapType = null;
+			BracingTypeForCupHolder = null;
+		}
+		
+		public virtual void ResetNotCupHolderOnlineParameters()
+		{
+			IsSparklingWater = false;
+			EquipmentInstallationType = null;
+			EquipmentWorkloadType = null;
+			PumpType = null;
+			HasHeating = null;
+			HeatingPower = null;
+			HeatingProductivity = null;
+			ProtectionOnHotWaterTap = null;
+			HasCooling = null;
+			CoolingPower = null;
+			CoolingProductivity = null;
+			CoolingType = null;
+			LockerRefrigeratorType = null;
+			LockerRefrigeratorVolume = null;
+			TapType = null;
+			BracingTypeForCupHolder = null;
+		}
+
+		public virtual void ResetCoolingParameters()
+		{
+			CoolingPower2 = null;
+			CoolingProductivity = null;
+			CoolingType2 = null;
+		}
+		
+		public virtual void ResetHeatingParameters()
+		{
+			HeatingPower2 = null;
+			HeatingProductivity = null;
+			ProtectionOnHotWaterTap = null;
+		}
 	}
 
 	public enum TareVolume

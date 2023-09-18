@@ -138,6 +138,8 @@
     <Compile Include="Journals\JournalNodes\Client\ExternalCounterpartyMatchingJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Client\PhonesJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Goods\NomenclatureOnlineCatalogsJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Goods\NomenclatureOnlineCategoriesJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Goods\NomenclatureOnlineGroupsJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Orders\UndeliveryDetalizationJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Orders\UndeliveryKindJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Orders\UndeliveryObjectJournalNode.cs" />
@@ -161,6 +163,8 @@
     <Compile Include="Journals\JournalViewModels\Employees\EmployeeRegistrationsJournalNode.cs" />
     <Compile Include="Journals\JournalViewModels\Goods\KulerSaleWebSiteNomenclatureOnlineCatalogsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Goods\MobileAppNomenclatureOnlineCatalogsJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Goods\NomenclatureOnlineCategoriesJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Goods\NomenclatureOnlineGroupsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Goods\VodovozWebSiteNomenclatureOnlineCatalogsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\UndeliveryDetalizationJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\UndeliveryKindJournalViewModel.cs" />
@@ -213,6 +217,8 @@
     <Compile Include="ViewModels\Goods\KulerSaleWebSiteNomenclatureOnlineCatalogViewModel.cs" />
     <Compile Include="ViewModels\Goods\MobileAppNomenclatureOnlineCatalogViewModel.cs" />
     <Compile Include="ViewModels\Goods\NomenclatureCostPricesViewModel.cs" />
+    <Compile Include="ViewModels\Goods\NomenclatureOnlineCategoryViewModel.cs" />
+    <Compile Include="ViewModels\Goods\NomenclatureOnlineGroupViewModel.cs" />
     <Compile Include="ViewModels\Goods\NomenclaturePurchasePriceViewModel.cs" />
     <Compile Include="ViewModels\Counterparty\PhoneViewModel.cs" />
     <Compile Include="ViewModels\Contacts\PhoneViewModel.cs" />

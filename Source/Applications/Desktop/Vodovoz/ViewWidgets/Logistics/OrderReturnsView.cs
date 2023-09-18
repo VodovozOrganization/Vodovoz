@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
@@ -41,6 +42,7 @@ using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Database;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -119,6 +121,9 @@ namespace Vodovoz
 		private readonly IDiscountReasonRepository _discountReasonRepository = new DiscountReasonRepository();
 		private readonly WageParameterService _wageParameterService =
 			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(_parametersProvider));
+		private readonly INomenclatureOnlineParametersProvider _nomenclatureOnlineParametersProvider =
+			new NomenclatureOnlineParametersProvider(
+				new SettingsController(UnitOfWorkFactory.GetDefaultFactory, new Logger<SettingsController>(new LoggerFactory())));
 		private readonly RouteListItem _routeListItem;
 		private readonly IOrderDiscountsController _discountsController;
 
@@ -216,7 +221,8 @@ namespace Vodovoz
 				new NomenclatureJournalFactory(),
 				new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
 				_nomenclatureRepository,
-				new UserRepository()
+				new UserRepository(),
+				_nomenclatureOnlineParametersProvider
 			) {
 				SelectionMode = JournalSelectionMode.Single
 			};

@@ -413,6 +413,8 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<UndeliveryObjectViewModel, UndeliveryObjectView>()
 				.RegisterWidgetForTabViewModel<UndeliveryKindViewModel, UndeliveryKindView>()
 				.RegisterWidgetForTabViewModel<UndeliveryDetalizationViewModel, UndeliveryDetalizationView>()
+				.RegisterWidgetForTabViewModel<NomenclatureOnlineGroupViewModel, NomenclatureOnlineGroupView>()
+				.RegisterWidgetForTabViewModel<NomenclatureOnlineCategoryViewModel, NomenclatureOnlineCategoryView>()
 				;
 
 			//Регистрация виджетов

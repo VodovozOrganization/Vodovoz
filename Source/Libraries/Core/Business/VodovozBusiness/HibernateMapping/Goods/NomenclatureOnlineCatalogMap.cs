@@ -14,6 +14,7 @@ namespace Vodovoz.HibernateMapping.Goods
 			
 			Map(x => x.Type).Column("type").Not.Update().Not.Insert().Access.ReadOnly();
 			Map(x => x.Name).Column("name");
+			Map(x => x.ExternalId).Column("external_id");
 		}
 	}
 }

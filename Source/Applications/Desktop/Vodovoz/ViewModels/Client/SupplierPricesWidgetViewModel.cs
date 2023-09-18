@@ -28,6 +28,7 @@ namespace Vodovoz.ViewModels.Client
 		private readonly IEmployeeService employeeService;
 		private readonly INomenclatureRepository nomenclatureRepository;
 		private readonly IUserRepository userRepository;
+		private readonly INomenclatureOnlineParametersProvider _nomenclatureOnlineParametersProvider;
 		private readonly ICounterpartyJournalFactory counterpartySelectorFactory;
 		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 
@@ -43,7 +44,8 @@ namespace Vodovoz.ViewModels.Client
 			ICounterpartyJournalFactory counterpartySelectorFactory,
 			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
-			IUserRepository userRepository)
+			IUserRepository userRepository,
+			INomenclatureOnlineParametersProvider nomenclatureOnlineParametersProvider)
 			: base(entity, commonServices)
 		{
 			this.dialogTab = dialogTab ?? throw new ArgumentNullException(nameof(dialogTab));
@@ -51,6 +53,8 @@ namespace Vodovoz.ViewModels.Client
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_nomenclatureOnlineParametersProvider =
+				nomenclatureOnlineParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureOnlineParametersProvider));
 			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 
@@ -107,7 +111,8 @@ namespace Vodovoz.ViewModels.Client
 						_nomenclatureSelectorFactory,
 						counterpartySelectorFactory,
 						nomenclatureRepository,
-						userRepository
+						userRepository,
+						_nomenclatureOnlineParametersProvider
 					) {
 						SelectionMode = JournalSelectionMode.Single,
 						ExcludingNomenclatureIds = existingNomenclatures.ToArray()

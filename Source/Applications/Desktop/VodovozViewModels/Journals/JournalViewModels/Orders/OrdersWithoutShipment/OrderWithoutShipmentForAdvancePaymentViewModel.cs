@@ -42,6 +42,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		private readonly IUserRepository _userRepository;
 		private readonly CommonMessages _commonMessages;
 		private readonly IRDLPreviewOpener _rdlPreviewOpener;
+		private readonly INomenclatureOnlineParametersProvider _nomenclatureOnlineParametersProvider;
 		private UserSettings _currentUserSettings;
 
 		private object selectedItem;
@@ -67,20 +68,18 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
 			IDiscountReasonRepository discountReasonRepository,
-			IParametersProvider parametersProvider,
 			IOrderDiscountsController discountsController,
 			CommonMessages commonMessages,
-			IRDLPreviewOpener rdlPreviewOpener) : base(uowBuilder, uowFactory, commonServices)
+			IRDLPreviewOpener rdlPreviewOpener,
+			INomenclatureOnlineParametersProvider nomenclatureOnlineParametersProvider) : base(uowBuilder, uowFactory, commonServices)
 		{
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_commonMessages = commonMessages ?? throw new ArgumentNullException(nameof(commonMessages));
 			_rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
-			if(parametersProvider == null)
-			{
-				throw new ArgumentNullException(nameof(parametersProvider));
-			}
+			_nomenclatureOnlineParametersProvider =
+				nomenclatureOnlineParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureOnlineParametersProvider));
 			if(discountReasonRepository == null)
 			{
 				throw new ArgumentNullException(nameof(discountReasonRepository));
@@ -171,7 +170,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 					_nomenclatureSelectorFactory,
 					CounterpartySelectorFactory,
 					_nomenclatureRepository,
-					_userRepository
+					_userRepository,
+					_nomenclatureOnlineParametersProvider
 				) {
 					SelectionMode = JournalSelectionMode.Single,
 				};
