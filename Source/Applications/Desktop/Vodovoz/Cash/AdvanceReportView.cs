@@ -4,6 +4,8 @@ using QS.Views.GtkUI;
 using System.ComponentModel;
 using System.Linq;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Extensions;
+using Vodovoz.Infrastructure;
 using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.ViewModels.Cash;
 
@@ -109,12 +111,11 @@ namespace Vodovoz.Cash
 
 			ylabelCreating.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.IsNew, w => w.Visible)
-				.AddBinding(vm => vm.CreatingMessage, w => w.LabelProp)
 				.InitializeFromSource();
 
 			ylabelCreating.UseMarkup = true;
 
-			ylabelChangeSum.Binding.AddBinding(ViewModel, vm => vm.ChangeSumMessage, w => w.LabelProp)
+			ylabelChangeSum.Binding.AddBinding(ViewModel, vm => vm.ChangeSumWarning ? $"<span foreground=\"{GdkColors.Red.ToHtmlColor()}\">{vm.ChangeSumMessage}</span>" : vm.ChangeSumMessage, w => w.LabelProp)
 				.InitializeFromSource();
 
 			ylabelChangeSum.UseMarkup = true;
@@ -173,6 +174,40 @@ namespace Vodovoz.Cash
 				.InitializeFromSource();
 
 			ViewModel.OnDebtsChanged += (_) => ytreeviewDebts.YTreeModel.EmitModelChanged();
+
+			ViewModel.PropertyChanged += OnViewModelPropertyCHanged;
+		}
+
+		private void OnViewModelPropertyCHanged(object sender, PropertyChangedEventArgs eventArgs)
+		{
+			if(eventArgs.PropertyName == nameof(ViewModel.CreatingMessageState)
+				|| eventArgs.PropertyName == nameof(ViewModel.CreatingMessage))
+			{
+				var message = ViewModel.CreatingMessage;
+
+				string formattedMessage;
+
+				switch(ViewModel.CreatingMessageState)
+				{
+					case CreatingMessageState.ClosingSumZero:
+						formattedMessage = $"<span foreground=\"{GdkColors.CadetBlue.ToHtmlColor()}\"{message}</span>";
+						break;
+					case CreatingMessageState.BalanceZero:
+						formattedMessage = $"<span foreground=\"{GdkColors.Green.ToHtmlColor()}\"{message}</span>";
+						break;
+					case CreatingMessageState.BalanceLessThanZero:
+						formattedMessage = $"<span foreground=\"{GdkColors.Blue.ToHtmlColor()}\"{message}</span>";
+						break;
+					case CreatingMessageState.BalanceGreaterThanZero:
+						formattedMessage = $"<span foreground=\"{GdkColors.Blue.ToHtmlColor()}\"{message}</span>";
+						break;
+					default:
+						formattedMessage = $"<span foreground=\"{GdkColors.PrimaryText.ToHtmlColor()}\"{message}</span>";
+						break;
+				}
+
+				ylabelCreating.LabelProp = formattedMessage;
+			}
 		}
 
 		public void UpdateSubdivision()
