@@ -4,12 +4,15 @@ using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using QS.Project.Services.FileDialog;
 using QS.Services;
+using QS.Tdi;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Vodovoz.Controllers;
@@ -37,6 +40,7 @@ using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
+using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
@@ -77,6 +81,7 @@ namespace Vodovoz.JournalViewModels
 			OrderJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
+			INavigationManager navigationManager,
 			IEmployeeService employeeService,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
@@ -121,6 +126,9 @@ namespace Vodovoz.JournalViewModels
 			_closingDocumentDeliveryScheduleId =
 				(deliveryScheduleParametersProvider ?? throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider)))
 				.ClosingDocumentDeliveryScheduleId;
+
+			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+
 			TabName = "Журнал заказов";
 
 			_userHasAccessToRetail = commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_to_retail");
@@ -163,6 +171,7 @@ namespace Vodovoz.JournalViewModels
 			CreateDefaultAddActions();
 			CreateCustomEditAction();
 			CreateDefaultDeleteAction();
+			CreatePrintOrdersDocumentsAction();
 		}
 
 		private void CreateCustomEditAction()
@@ -213,6 +222,22 @@ namespace Vodovoz.JournalViewModels
 				RowActivatedAction = editAction;
 			}
 			NodeActionsList.Add(editAction);
+		}
+
+		private void CreatePrintOrdersDocumentsAction()
+		{
+			var printOrdersDocumentsAction = new JournalAction(
+				"Печать документов",
+				(selected) => true,
+				(selected) => true,
+				(selected) => 
+				{
+					var orders = new List<VodovozOrder>();
+					NavigationManager.OpenViewModel<PrintOrdersDocumentsViewModel, List<VodovozOrder>>(null, orders);
+				}
+			);
+
+			NodeActionsList.Add(printOrdersDocumentsAction);
 		}
 
 		private IQueryOver<VodovozOrder> GetOrdersQuery(IUnitOfWork uow)

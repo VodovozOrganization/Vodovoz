@@ -1421,6 +1421,7 @@ namespace Vodovoz
 				orderJournalFilter,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
+				Startup.MainWin.NavigationManager,
 				new EmployeeService(),
 				NomenclatureRepository,
 				_userRepository,
