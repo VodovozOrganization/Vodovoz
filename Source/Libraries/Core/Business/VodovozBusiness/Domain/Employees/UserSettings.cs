@@ -45,15 +45,6 @@ namespace Vodovoz.Domain.Employees
 			set => SetField(ref _user, value);
 		}
 
-		/// <summary>
-		/// Тема оформления
-		/// </summary>
-		public virtual string ThemeName
-		{
-			get => _themeName;
-			set => SetField(ref _themeName, value);
-		}
-
 		private ToolbarStyle _toolbarStyle = ToolbarStyle.Both;
 
 		[Display(Name = "Стиль панели")]
