@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using Vodovoz;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Infrastructure;
 using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
 
 public partial class MainWindow
@@ -212,68 +213,59 @@ public partial class MainWindow
 
 	public void InitializeThemesMenuItem()
 	{
-		string themesPath = Rc.ThemeDir;
+		string currentTheme = Gtk.Settings.Default.ThemeName;
 
-		//if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-		//{
-		//	themesPath = @"C:\Program Files (x86)\GtkSharp\2.12\share\themes";
-		//}
-		//else
-		//{
-		//	themesPath = "/usr/share/themes/";
-		//}
+		string themesPath = Rc.ThemeDir;
 
 		var themes = System.IO.Directory.GetDirectories(themesPath)
 			.Select(x => x.Split(System.IO.Path.DirectorySeparatorChar).LastOrDefault());
 				
-		var t = Rc.GetStyle(this);
-
 		var viewMenuItem = menubarMain.Children.Where(x => x.Name == nameof(Action18)).Cast<ImageMenuItem>().FirstOrDefault();
 
 		var submenu = viewMenuItem.Submenu as Menu;
 
-		var themesSubmenuRoot = new Gtk.MenuItem("Тема оформления");
+		var themesSubmenuRoot = new MenuItem("Тема оформления");
 
 		var subsubmenu = new Menu();
 
 		themesSubmenuRoot.Submenu = subsubmenu;
 
+		RadioMenuItem lastitem = null;
+
 		foreach(var theme in themes)
 		{
-			var themeSubmenu = new Gtk.MenuItem(theme);
+			var themeSubmenu = lastitem is null ? new RadioMenuItem(theme) : new RadioMenuItem(lastitem, theme);
 
-			if(theme == CurrentUserSettings.Settings.ThemeName)
-			{
-				themeSubmenu.Name = "✔️ " + theme;
+			lastitem = themeSubmenu;
 
-			}
-			else
-			{
-				themeSubmenu.Name = theme;
-			}
+			themeSubmenu.Name = theme;
+
+			themeSubmenu.Active = theme == currentTheme;
 
 			themeSubmenu.Activated += ChangeTheme;
-
-			themeSubmenu.Show();
 
 			subsubmenu.Append(themeSubmenu);
 		}
 
 		submenu.Append(themesSubmenuRoot);
 
-		themesSubmenuRoot.Show();
+		themesSubmenuRoot.ShowAll();
 	}
 
 	private void ChangeTheme(object sender, EventArgs args)
 	{
-		if(sender is MenuItem menu
+
+		if(!(sender is RadioMenuItem menu))
+		{
+			return;
+		}
+
+		if(menu.Active
 			&& MessageDialogHelper.RunQuestionDialog("Для применения данной настройки программа будет закрыта.\n Вы уверены?"))
 		{
-			Gtk.Settings.Default.ThemeName = menu.Name;
+			var userGtkRc = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".gtkrc-2.0");
 
-			CurrentUserSettings.Settings.ThemeName = menu.Name;
-
-			CurrentUserSettings.SaveSettings();
+			System.IO.File.WriteAllText(userGtkRc, $"gtk-theme-name = \"{menu.Name}\"");
 
 			Gtk.Application.Quit();
 		}

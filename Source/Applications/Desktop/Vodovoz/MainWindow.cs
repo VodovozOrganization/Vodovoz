@@ -57,10 +57,8 @@ public partial class MainWindow : Gtk.Window
 	{
 		_passwordValidator = passwordValidator ?? throw new ArgumentNullException(nameof(passwordValidator));
 		_applicationConfigurator = applicationConfigurator ?? throw new ArgumentNullException(nameof(applicationConfigurator));
-
+		
 		Build();
-
-		Gtk.Settings.Default.ThemeName = CurrentUserSettings.Settings.ThemeName;
 
 		PerformanceHelper.AddTimePoint("Закончена стандартная сборка окна.");
 		_applicationInfo = new ApplicationVersionInfo();
