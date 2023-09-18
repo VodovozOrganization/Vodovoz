@@ -90,7 +90,7 @@ namespace Vodovoz
             labelTotalSum.Text = exportData.OrdersTotalSum.ToString("C", CultureInfo.GetCultureInfo("ru-RU"));
 
             labelExportedSum.Markup =
-                $"<span foreground=\"{(exportData.ExportedTotalSum == exportData.OrdersTotalSum ? GdkColors.Green.ToHtmlColor() : GdkColors.Red.ToHtmlColor())}\">" +
+                $"<span foreground=\"{(exportData.ExportedTotalSum == exportData.OrdersTotalSum ? GdkColors.SuccessText.ToHtmlColor() : GdkColors.DangerText.ToHtmlColor())}\">" +
                 $"{exportData.ExportedTotalSum.ToString("C", CultureInfo.GetCultureInfo("ru-RU"))}</span>";
 
             labelTotalInvoices.Text = exportData.Objects

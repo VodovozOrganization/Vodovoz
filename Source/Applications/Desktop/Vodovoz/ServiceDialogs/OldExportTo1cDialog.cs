@@ -61,7 +61,7 @@ namespace Vodovoz
 			this.labelTotalSum.Text = exportData.OrdersTotalSum.ToString("C");
 			this.labelExportedSum.Markup = string.Format("<span foreground=\"{1}\">{0:C}</span>",
 														 exportData.ExportedTotalSum,
-														 exportData.ExportedTotalSum == exportData.OrdersTotalSum ? GdkColors.Green.ToHtmlColor() : GdkColors.Red.ToHtmlColor());
+														 exportData.ExportedTotalSum == exportData.OrdersTotalSum ? GdkColors.SuccessText.ToHtmlColor() : GdkColors.DangerText.ToHtmlColor());
 
 			this.labelTotalInvoices.Text = exportData.Objects
 				.OfType<InvoiceDocumentNode>()

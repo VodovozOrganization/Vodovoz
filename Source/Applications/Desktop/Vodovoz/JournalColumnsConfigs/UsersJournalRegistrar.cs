@@ -29,7 +29,7 @@ namespace Vodovoz.JournalColumnsConfigs
 						}
 						else
 						{
-							c.ForegroundGdk = n.IsAdmin ? GdkColors.Blue : GdkColors.PrimaryText;
+							c.ForegroundGdk = n.IsAdmin ? GdkColors.InfoText : GdkColors.PrimaryText;
 						}
 					})
 				.Finish();

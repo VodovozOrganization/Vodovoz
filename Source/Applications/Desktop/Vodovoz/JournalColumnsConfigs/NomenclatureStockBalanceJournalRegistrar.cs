@@ -28,7 +28,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					var color = GdkColors.PrimaryText;
 					if(n.StockAmount < 0)
 					{
-						color = GdkColors.Red;
+						color = GdkColors.DangerText;
 					}
 					c.ForegroundGdk = color;
 				})

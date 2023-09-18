@@ -24,7 +24,7 @@ namespace Vodovoz.ViewWidgets.Permissions
 	public partial class PresetPermissionsView : WidgetViewBase<PresetPermissionsViewModelBase>, IUserPermissionTab
 	{
 		private static readonly Color _colorPrimaryText = GdkColors.PrimaryText;
-		private static readonly Color _colorBlue = GdkColors.Blue;
+		private static readonly Color _colorBlue = GdkColors.InfoText;
 		private static readonly Color _colorInsensitiveText = GdkColors.InsensitiveText;
 
 		private Menu _availablePresetPermissionsPopupMenu;

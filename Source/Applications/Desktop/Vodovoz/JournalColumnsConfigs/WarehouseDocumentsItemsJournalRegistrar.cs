@@ -36,7 +36,7 @@ namespace Vodovoz.JournalColumnsConfigs
 						switch(node.MovementDocumentStatus)
 						{
 							case MovementDocumentStatus.Sended:
-								color = GdkColors.Yellow;
+								color = GdkColors.WarningText;
 								break;
 							case MovementDocumentStatus.Discrepancy:
 								color = GdkColors.Pink;

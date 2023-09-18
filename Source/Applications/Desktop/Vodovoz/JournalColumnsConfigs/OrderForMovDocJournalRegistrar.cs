@@ -37,12 +37,12 @@ namespace Vodovoz.JournalColumnsConfigs
 
 					if(n.StatusEnum == OrderStatus.Closed)
 					{
-						color = GdkColors.Green;
+						color = GdkColors.SuccessText;
 					}
 
 					if(n.StatusEnum == OrderStatus.NotDelivered)
 					{
-						color = GdkColors.Blue;
+						color = GdkColors.InfoText;
 					}
 
 					c.ForegroundGdk = color;

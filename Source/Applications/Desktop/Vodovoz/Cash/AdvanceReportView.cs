@@ -115,7 +115,7 @@ namespace Vodovoz.Cash
 
 			ylabelCreating.UseMarkup = true;
 
-			ylabelChangeSum.Binding.AddBinding(ViewModel, vm => vm.ChangeSumWarning ? $"<span foreground=\"{GdkColors.Red.ToHtmlColor()}\">{vm.ChangeSumMessage}</span>" : vm.ChangeSumMessage, w => w.LabelProp)
+			ylabelChangeSum.Binding.AddBinding(ViewModel, vm => vm.ChangeSumWarning ? $"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">{vm.ChangeSumMessage}</span>" : vm.ChangeSumMessage, w => w.LabelProp)
 				.InitializeFromSource();
 
 			ylabelChangeSum.UseMarkup = true;
@@ -193,13 +193,13 @@ namespace Vodovoz.Cash
 						formattedMessage = $"<span foreground=\"{GdkColors.CadetBlue.ToHtmlColor()}\"{message}</span>";
 						break;
 					case CreatingMessageState.BalanceZero:
-						formattedMessage = $"<span foreground=\"{GdkColors.Green.ToHtmlColor()}\"{message}</span>";
+						formattedMessage = $"<span foreground=\"{GdkColors.SuccessText.ToHtmlColor()}\"{message}</span>";
 						break;
 					case CreatingMessageState.BalanceLessThanZero:
-						formattedMessage = $"<span foreground=\"{GdkColors.Blue.ToHtmlColor()}\"{message}</span>";
+						formattedMessage = $"<span foreground=\"{GdkColors.InfoText.ToHtmlColor()}\"{message}</span>";
 						break;
 					case CreatingMessageState.BalanceGreaterThanZero:
-						formattedMessage = $"<span foreground=\"{GdkColors.Blue.ToHtmlColor()}\"{message}</span>";
+						formattedMessage = $"<span foreground=\"{GdkColors.InfoText.ToHtmlColor()}\"{message}</span>";
 						break;
 					default:
 						formattedMessage = $"<span foreground=\"{GdkColors.PrimaryText.ToHtmlColor()}\"{message}</span>";

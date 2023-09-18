@@ -40,7 +40,7 @@ public partial class MainWindow
 
 	private void UpdateSendedMovementsNotification(SendedMovementsNotificationDetails notificationDetails)
 	{
-		var message = notificationDetails.SendedMovementsCount > 0 ? $"<span foreground=\"{GdkColors.Red.ToHtmlColor()}\">{notificationDetails.NotificationMessage}</span>" : notificationDetails.NotificationMessage;
+		var message = notificationDetails.SendedMovementsCount > 0 ? $"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">{notificationDetails.NotificationMessage}</span>" : notificationDetails.NotificationMessage;
 
 		lblMovementsNotification.Markup = message;
 	}

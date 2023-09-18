@@ -33,9 +33,9 @@ namespace Vodovoz.SidePanel.InfoViews
 		private readonly ComplaintParametersProvider _complaintParametersProvider;
 		private readonly Gdk.Color _primaryBg = GdkColors.PrimaryBase;
 		private readonly Gdk.Color _secondaryBg = GdkColors.PrimaryBG;
-		private readonly Gdk.Color _red = GdkColors.Red;
+		private readonly Gdk.Color _red = GdkColors.DangerText;
 		private readonly string _primaryTextHtmlColor = GdkColors.PrimaryText.ToHtmlColor();
-		private readonly string _redTextHtmlColor = GdkColors.Red.ToHtmlColor();
+		private readonly string _redTextHtmlColor = GdkColors.DangerText.ToHtmlColor();
 
 		public ComplaintPanelView(IComplaintsRepository complaintsRepository, IComplaintResultsRepository complaintResultsRepository, ComplaintParametersProvider complaintParametersProvider)
 		{

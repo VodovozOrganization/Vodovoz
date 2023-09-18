@@ -2,7 +2,6 @@
 using Gamma.Binding;
 using Gamma.Binding.Core.LevelTreeConfig;
 using Gamma.ColumnConfig;
-using Gdk;
 using Gtk;
 using QS.Journal.GtkUI;
 using QS.Navigation;
@@ -10,7 +9,6 @@ using QS.Tdi;
 using QS.Views;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
-using Vodovoz.Infrastructure;
 
 namespace Vodovoz.Views.Client
 {

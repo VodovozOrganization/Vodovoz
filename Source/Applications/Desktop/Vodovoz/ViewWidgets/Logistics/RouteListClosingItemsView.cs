@@ -330,9 +330,9 @@ namespace Vodovoz
 			}
 			if(node.DriverBottlesReturned.HasValue) {
 				if(node.BottlesReturned == node.DriverBottlesReturned) {
-					cell.ForegroundGdk = GdkColors.Green;
+					cell.ForegroundGdk = GdkColors.SuccessText;
 				} else {
-					cell.ForegroundGdk = GdkColors.Blue;
+					cell.ForegroundGdk = GdkColors.InfoText;
 				}
 			} else {
 				cell.ForegroundGdk = GdkColors.PrimaryText;

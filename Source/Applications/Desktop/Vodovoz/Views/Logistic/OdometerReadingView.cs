@@ -12,7 +12,7 @@ namespace Vodovoz.Views.Logistic
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class OdometerReadingView : WidgetViewBase<OdometerReadingsViewModel>
 	{
-		private static readonly Color _greenColor = GdkColors.Green;
+		private static readonly Color _greenColor = GdkColors.SuccessText;
 		private static readonly Color _primaryBaseColor = GdkColors.PrimaryBase;
 
 		public OdometerReadingView()

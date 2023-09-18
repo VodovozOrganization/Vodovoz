@@ -98,7 +98,7 @@ namespace Vodovoz.Views.Goods
 			if(e.PropertyName == nameof(ViewModel.PercentSum))
 			{
 				ylabelPercentSum.Markup = "Сумма процентов: " +
-					(ViewModel.PercentSum == 100m ? "100" : $"<span foreground = \"{GdkColors.Red.ToHtmlColor()}\">{ViewModel.PercentSum}</span>");
+					(ViewModel.PercentSum == 100m ? "100" : $"<span foreground = \"{GdkColors.DangerText.ToHtmlColor()}\">{ViewModel.PercentSum}</span>");
 			}
 		}
 

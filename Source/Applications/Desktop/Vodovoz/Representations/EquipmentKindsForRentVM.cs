@@ -63,7 +63,7 @@ namespace Vodovoz.ViewModel
 			.AddColumn ("На складе").AddTextRenderer (node => node.InStockText)
 			.AddColumn ("Зарезервировано").AddTextRenderer (node => node.ReservedText)
 			.AddColumn ("Доступно").AddTextRenderer (node => node.AvailableText)
-			.AddSetter ((cell, node) => cell.ForegroundGdk = node.Available > 0 ? GdkColors.PrimaryText : GdkColors.Red)
+			.AddSetter ((cell, node) => cell.ForegroundGdk = node.Available > 0 ? GdkColors.PrimaryText : GdkColors.DangerText)
 			.Finish ();
 
 		public override IColumnsConfig ColumnsConfig {

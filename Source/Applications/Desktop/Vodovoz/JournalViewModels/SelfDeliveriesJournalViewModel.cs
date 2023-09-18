@@ -217,7 +217,7 @@ namespace Vodovoz.Representations
 					if(difference == 0)
 						sb.Append("Расх.нал: <b>").Append(difference.ToShortCurrencyString()).Append("</b>\t\t");
 					else
-						sb.Append($"Расх.нал: <span foreground=\"{GdkColors.Red.ToHtmlColor()}\"><b>").Append(difference.ToShortCurrencyString()).Append("</b></span>\t\t");
+						sb.Append($"Расх.нал: <span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\"><b>").Append(difference.ToShortCurrencyString()).Append("</b></span>\t\t");
 					sb.Append($"<span foreground=\"{GdkColors.InsensitiveText.ToHtmlColor()}\"><b>").Append(base.FooterInfo).Append("</b></span>");
 				}
 				return sb.ToString();

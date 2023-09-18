@@ -33,12 +33,12 @@ namespace Vodovoz.JournalColumnsConfigs
 
 					if(n.CashPaid > 0 && n.HasCashDiff)
 					{
-						color = GdkColors.LightRed;
+						color = GdkColors.DangerBase;
 					}
 
 					if(n.StatusEnum == OrderStatus.Closed && n.HasCashDiff)
 					{
-						color = GdkColors.Red;
+						color = GdkColors.DangerText;
 					}
 
 					c.ForegroundGdk = color;

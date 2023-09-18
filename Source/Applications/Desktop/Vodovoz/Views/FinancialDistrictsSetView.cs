@@ -35,7 +35,7 @@ namespace Vodovoz.Views
 		{
 			#region TreeView
 
-			var colorRed = GdkColors.Red;
+			var colorRed = GdkColors.DangerText;
 			var colorPrimaryBase = GdkColors.PrimaryBase;
 
 			ytreeDistricts.ColumnsConfig = FluentColumnsConfig<FinancialDistrict>.Create()

@@ -92,7 +92,7 @@ namespace Vodovoz.ViewWidgets.Logistics
 			textTags.Add(_defaultTag);
 			
 			_redBoldTag = new TextTag("Red");
-			_redBoldTag.ForegroundGdk = GdkColors.Red;
+			_redBoldTag.ForegroundGdk = GdkColors.DangerText;
 			_redBoldTag.Weight = Weight.Bold;
 			textTags.Add(_redBoldTag);
 

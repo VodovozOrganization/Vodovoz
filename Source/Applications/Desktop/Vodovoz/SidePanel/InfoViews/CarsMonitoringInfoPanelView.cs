@@ -360,11 +360,11 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		private static string Bold(string input) => $"<b>{input}</b>";
 
-		private static string Red(string input) => $"<span color=\"{GdkColors.Red.ToHtmlColor()}\">{input}</span>";
+		private static string Red(string input) => $"<span color=\"{GdkColors.DangerText.ToHtmlColor()}\">{input}</span>";
 
-		private static string Blue(string input) => $"<span color=\"{GdkColors.Blue.ToHtmlColor()}\">{input}</span>";
+		private static string Blue(string input) => $"<span color=\"{GdkColors.InfoText.ToHtmlColor()}\">{input}</span>";
 
-		private static string Green(string input) => $"<span color=\"{GdkColors.Green.ToHtmlColor()}\">{input}</span>";
+		private static string Green(string input) => $"<span color=\"{GdkColors.SuccessText.ToHtmlColor()}\">{input}</span>";
 
 		public override void Destroy()
 		{

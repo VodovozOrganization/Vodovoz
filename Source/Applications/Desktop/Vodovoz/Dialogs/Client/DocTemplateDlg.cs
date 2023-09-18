@@ -53,7 +53,7 @@ namespace Vodovoz
 		{
 			if(e.PropertyName == Entity.GetPropertyName(x => x.TempalteFile))
 			{
-				labelFileChanged.Markup = $"<span foreground=\"{GdkColors.Green.ToHtmlColor()}\">(файл изменён)</span>";
+				labelFileChanged.Markup = $"<span foreground=\"{GdkColors.SuccessText.ToHtmlColor()}\">(файл изменён)</span>";
 			}
 		}
 

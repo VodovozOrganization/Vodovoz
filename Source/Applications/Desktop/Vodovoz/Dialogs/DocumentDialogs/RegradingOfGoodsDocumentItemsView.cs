@@ -50,7 +50,7 @@ namespace Vodovoz
 		{
 			this.Build();
 			var basePrimary = GdkColors.PrimaryBase;
-			var colorLightRed = GdkColors.LightRed;
+			var colorLightRed = GdkColors.DangerBase;
 
 			List<CullingCategory> types;
 			using(IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot()) {

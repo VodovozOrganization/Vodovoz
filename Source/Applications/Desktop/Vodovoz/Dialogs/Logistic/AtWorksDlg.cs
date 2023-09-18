@@ -73,7 +73,7 @@ namespace Vodovoz.Dialogs.Logistic
 		private readonly Color _colorPrimaryBase = GdkColors.PrimaryBase;
 		private readonly Color _colorPrimaryText = GdkColors.PrimaryText;
 		private readonly Color _colorInsensitiveText = GdkColors.InsensitiveText;
-		private readonly Color _colorLightRed = GdkColors.LightRed;
+		private readonly Color _colorLightRed = GdkColors.DangerBase;
 		private IList<RouteList> _routelists = new List<RouteList>();
 		private readonly HashSet<AtWorkDriver> _driversWithCommentChanged = new HashSet<AtWorkDriver>();
 		private bool _hasNewDrivers;

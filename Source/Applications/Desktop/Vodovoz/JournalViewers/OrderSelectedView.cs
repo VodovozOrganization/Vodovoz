@@ -33,7 +33,7 @@ namespace Vodovoz.JournalViewers
 		{
 			UoW = uow;
 			Client = client;
-			var colorGreen = GdkColors.Green;
+			var colorGreen = GdkColors.SuccessText;
 			var basePrimary = GdkColors.PrimaryBase;
 
 			datatreeviewOrderDocuments.ColumnsConfig = FluentColumnsConfig<SelectedOrdersDocumentVMNode>

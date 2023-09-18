@@ -74,7 +74,7 @@ namespace Vodovoz.ViewModel
 			.AddColumn ("Задолжность").AddTextRenderer(node => node.DebtText)
 			.RowCells ().AddSetter<Gtk.CellRendererText> ((c, n) =>
 			{
-				c.ForegroundGdk = n.Debt < 0 ? GdkColors.Red : GdkColors.PrimaryText;
+				c.ForegroundGdk = n.Debt < 0 ? GdkColors.DangerText : GdkColors.PrimaryText;
 			})
 			.Finish();
 

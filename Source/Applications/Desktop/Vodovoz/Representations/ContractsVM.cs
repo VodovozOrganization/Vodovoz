@@ -87,7 +87,7 @@ namespace Vodovoz.ViewModel
 
 				if(n.OnCancellation)
 				{
-					color = GdkColors.Blue;
+					color = GdkColors.InfoText;
 				}
 
 				c.ForegroundGdk = color;

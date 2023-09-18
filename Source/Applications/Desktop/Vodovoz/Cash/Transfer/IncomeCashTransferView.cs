@@ -114,7 +114,7 @@ namespace Vodovoz.Cash.Transfer
 				.AddColumn("Комментарий").AddTextRenderer(x => x.Comment).AddSetter((cell, node) => cell.Editable = ViewModel.CanEdit)
 				.RowCells().AddSetter<CellRenderer>((cell, node) => {
 					if(node.Income?.RouteListClosing != null && node.Income.RouteListClosing.Status == RouteListStatus.Closed) {
-						cell.CellBackgroundGdk = GdkColors.Green;
+						cell.CellBackgroundGdk = GdkColors.SuccessText;
 					} else {
 						cell.CellBackgroundGdk = GdkColors.PrimaryBase;
 					}

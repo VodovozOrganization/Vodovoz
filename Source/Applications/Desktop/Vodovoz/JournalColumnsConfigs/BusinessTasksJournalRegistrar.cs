@@ -22,9 +22,9 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Ответственный").AddTextRenderer(node => node.AssignedEmployeeName ?? string.Empty)
 				.AddColumn("Выполнить до").AddTextRenderer(node => node.Deadline.ToString("dd / MM / yyyy  HH:mm"))
 				.RowCells().AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsTaskComplete
-					? GdkColors.Green
+					? GdkColors.SuccessText
 					: DateTime.Now > n.Deadline
-						? GdkColors.Red
+						? GdkColors.DangerText
 						: GdkColors.PrimaryText)
 				.Finish();
 	}

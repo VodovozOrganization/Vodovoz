@@ -54,7 +54,7 @@ namespace Vodovoz.JournalColumnsConfigs
 						}
 						if(n.Status == PaymentState.distributed)
 						{
-							color = GdkColors.LightGreen;
+							color = GdkColors.SuccessBase;
 						}
 						if(n.Status == PaymentState.Cancelled)
 						{

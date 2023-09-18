@@ -222,7 +222,7 @@ public partial class MainWindow : Gtk.Window
 
 			var notificationDetails = _movementsNotificationsController.GetNotificationDetails(uow);
 
-			var message = notificationDetails.SendedMovementsCount > 0 ? $"<span foreground=\"{GdkColors.Red.ToHtmlColor()}\">{notificationDetails.NotificationMessage}</span>": notificationDetails.NotificationMessage;
+			var message = notificationDetails.SendedMovementsCount > 0 ? $"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">{notificationDetails.NotificationMessage}</span>": notificationDetails.NotificationMessage;
 
 			hboxMovementsNotification.Visible = notificationDetails.NeedNotify;
 			lblMovementsNotification.Markup = message;

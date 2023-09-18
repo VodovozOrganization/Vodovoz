@@ -28,31 +28,31 @@ namespace Vodovoz.Infrastructure
 
 		#region Success
 
-		public static Color Green { get; } = new Color(14, 135, 14);
+		public static Color SuccessText { get; } = new Color(14, 135, 14);
 
-		public static Color LightGreen { get; } = new Color(0xc0, 0xff, 0xc0);
+		public static Color SuccessBase { get; } = new Color(0xc0, 0xff, 0xc0);
 
 		#endregion Success
 
 		#region Danger
 
-		public static Color Red { get; } = IsLight ? new Color(0xff, 0, 0) : new Color(204, 0, 0);
+		public static Color DangerText { get; } = IsLight ? new Color(0xff, 0, 0) : new Color(204, 0, 0);
 
-		public static Color LightRed { get; } = new Color(0xff, 0x66, 0x66);
+		public static Color DangerBase { get; } = new Color(0xff, 0x66, 0x66);
 
 		#endregion Danger
 
 		#region Warning
 
-		public static Color Yellow { get; } = new Color(255, 255, 40);
+		public static Color WarningText { get; } = new Color(255, 255, 40);
 
-		public static Color LightYellow { get; } = new Gdk.Color(0xe1, 0xd6, 0x70);
+		public static Color WarningBase { get; } = new Gdk.Color(0xe1, 0xd6, 0x70);
 
 		#endregion Warning
 
 		#region Info
 
-		public static Color Blue { get; } = IsLight ? new Color(0x00, 0x18, 0xf9) : new Color(0, 35, 164);
+		public static Color InfoText { get; } = IsLight ? new Color(0x00, 0x18, 0xf9) : new Color(0, 35, 164);
 
 		#endregion Info
 

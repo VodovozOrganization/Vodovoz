@@ -227,7 +227,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 					.Adjustment(new Gtk.Adjustment(0, 0, 10000000, 1, 10, 10))
 					.AddSetter((w, x) => w.Digits = (x.Nomenclature.Unit != null ? (uint)x.Nomenclature.Unit.Digits : 1))
 				.AddColumn("Разница").AddTextRenderer(x => x.Difference != 0 && x.Nomenclature.Unit != null ? x.Nomenclature.Unit.MakeAmountShortStr(x.Difference) : String.Empty)
-					.AddSetter((w, x) => w.ForegroundGdk = x.Difference < 0 ? GdkColors.Red : GdkColors.Blue)
+					.AddSetter((w, x) => w.ForegroundGdk = x.Difference < 0 ? GdkColors.DangerText : GdkColors.InfoText)
 				.AddColumn("Сумма ущерба").AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.SumOfDamage))
 				.AddColumn("Что произошло").AddTextRenderer(x => x.Comment).Editable()
 				.Finish();

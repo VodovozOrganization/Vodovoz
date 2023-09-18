@@ -212,7 +212,7 @@ namespace Vodovoz
 					.AddToggleRenderer(x => x.Order.IsFastDelivery).Editing(false)
 				.AddColumn("");
 			ytreeviewItems.ColumnsConfig =
-				config.RowCells().AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.Order.PreviousOrder == null ? GdkColors.PrimaryText : GdkColors.Red)
+				config.RowCells().AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.Order.PreviousOrder == null ? GdkColors.PrimaryText : GdkColors.DangerText)
 				.Finish();
 		}
 
@@ -422,8 +422,8 @@ namespace Vodovoz
 					? RouteListUoW.Root.Car.CarModel.MaxWeight.ToString()
 					: " ?";
 				var weight = RouteListUoW.Root.HasOverweight()
-					? $"<span foreground = \"{GdkColors.Red.ToHtmlColor()}\">Перегруз на {RouteListUoW.Root.Overweight():0.###} кг.</span>"
-					: $"<span foreground = \"{GdkColors.Green.ToHtmlColor()}\">Вес груза: {RouteListUoW.Root.GetTotalWeight():0.###}/{maxWeight} кг.</span>";
+					? $"<span foreground = \"{GdkColors.DangerText.ToHtmlColor()}\">Перегруз на {RouteListUoW.Root.Overweight():0.###} кг.</span>"
+					: $"<span foreground = \"{GdkColors.SuccessText.ToHtmlColor()}\">Вес груза: {RouteListUoW.Root.GetTotalWeight():0.###}/{maxWeight} кг.</span>";
 				lblWeight.LabelProp = weight;
 			}
 			if(RouteListUoW?.Root?.Car == null)
@@ -440,11 +440,11 @@ namespace Vodovoz
 					? RouteListUoW.Root.Car.CarModel.MaxVolume.ToString("0.###")
 					: " ?";
 				var volume = RouteListUoW.Root.HasVolumeExecess()
-					? $"<span foreground = \"{GdkColors.Red.ToHtmlColor()}\">Объём груза превышен на {RouteListUoW.Root.VolumeExecess():0.###} м<sup>3</sup>.</span>"
-					: $"<span foreground = \"{GdkColors.Green.ToHtmlColor()}\">Объём груза: {RouteListUoW.Root.GetTotalVolume():0.###}/{maxVolume} м<sup>3</sup>.</span>";
+					? $"<span foreground = \"{GdkColors.DangerText.ToHtmlColor()}\">Объём груза превышен на {RouteListUoW.Root.VolumeExecess():0.###} м<sup>3</sup>.</span>"
+					: $"<span foreground = \"{GdkColors.SuccessText.ToHtmlColor()}\">Объём груза: {RouteListUoW.Root.GetTotalVolume():0.###}/{maxVolume} м<sup>3</sup>.</span>";
 				var reverseVolume = RouteListUoW.Root.HasReverseVolumeExcess()
-					? $"<span foreground = \"{GdkColors.Red.ToHtmlColor()}\">Объём возвращаемого груза превышен на {RouteListUoW.Root.ReverseVolumeExecess():0.###} м<sup>3</sup>.</span>"
-					: $"<span foreground = \"{GdkColors.Green.ToHtmlColor()}\">Объём возвращаемого груза: {RouteListUoW.Root.GetTotalReverseVolume():0.###}/{maxVolume} м<sup>3</sup>.</span>";
+					? $"<span foreground = \"{GdkColors.DangerText.ToHtmlColor()}\">Объём возвращаемого груза превышен на {RouteListUoW.Root.ReverseVolumeExecess():0.###} м<sup>3</sup>.</span>"
+					: $"<span foreground = \"{GdkColors.SuccessText.ToHtmlColor()}\">Объём возвращаемого груза: {RouteListUoW.Root.GetTotalReverseVolume():0.###}/{maxVolume} м<sup>3</sup>.</span>";
 				lblVolume.LabelProp = volume + " " + reverseVolume;
 			}
 			if(RouteListUoW?.Root?.Car == null)

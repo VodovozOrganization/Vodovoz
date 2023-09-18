@@ -26,8 +26,8 @@ namespace Vodovoz.Views
 
 			ylabelSubjectInfo.Binding
 				.AddFuncBinding(_bulkEmailViewModel, vm => vm.MailSubjectInfoDanger
-						? $"<span foreground='{GdkColors.Red.ToHtmlColor()}'>{vm.MailSubjectInfo}</span>"
-						: $"<span foreground='{GdkColors.Green.ToHtmlColor()}'>{vm.MailSubjectInfo}</span>", 
+						? $"<span foreground='{GdkColors.DangerText.ToHtmlColor()}'>{vm.MailSubjectInfo}</span>"
+						: $"<span foreground='{GdkColors.SuccessText.ToHtmlColor()}'>{vm.MailSubjectInfo}</span>", 
 					w => w.LabelProp)
 				.InitializeFromSource();
 
@@ -37,16 +37,16 @@ namespace Vodovoz.Views
 
 			ylabelAttachmentsInfo.Binding
 				.AddFuncBinding(_bulkEmailViewModel, vm => vm.AttachmentsSizeInfoDanger
-						? $"<span foreground='{GdkColors.Red.ToHtmlColor()}'>{vm.AttachmentsSizeInfo}</span>"
-						: $"<span foreground='{GdkColors.Green.ToHtmlColor()}'>{vm.AttachmentsSizeInfo}</span>", 
+						? $"<span foreground='{GdkColors.DangerText.ToHtmlColor()}'>{vm.AttachmentsSizeInfo}</span>"
+						: $"<span foreground='{GdkColors.SuccessText.ToHtmlColor()}'>{vm.AttachmentsSizeInfo}</span>", 
 					w => w.LabelProp)
 				.InitializeFromSource();
 
 			ylabelRecepientInfo.Binding.
 				AddFuncBinding(_bulkEmailViewModel,
 					vm => vm.RecepientInfoDanger
-					? $"<span foreground='{GdkColors.Red.ToHtmlColor()}'>{vm.RecepientInfo}</span>"
-					: $"<span foreground='{GdkColors.Green.ToHtmlColor()}'>{vm.RecepientInfo}</span>", 
+					? $"<span foreground='{GdkColors.DangerText.ToHtmlColor()}'>{vm.RecepientInfo}</span>"
+					: $"<span foreground='{GdkColors.SuccessText.ToHtmlColor()}'>{vm.RecepientInfo}</span>", 
 					w => w.LabelProp)
 				.InitializeFromSource();
 

@@ -136,7 +136,7 @@ namespace Vodovoz.Dialogs.Logistic
 				.AddColumn("")
 					.AddTextRenderer(x => x)
 				.RowCells()
-					.AddSetter<CellRendererText>((c,n) => c.ForegroundGdk = GdkColors.Red)
+					.AddSetter<CellRendererText>((c,n) => c.ForegroundGdk = GdkColors.DangerText)
 				.Finish();
 			yTreeViewWarnings.SetItemsSource(_warnings);
 

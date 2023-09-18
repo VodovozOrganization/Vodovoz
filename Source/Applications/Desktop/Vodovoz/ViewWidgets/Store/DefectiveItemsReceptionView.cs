@@ -53,7 +53,7 @@ namespace Vodovoz.ViewWidgets.Store
 						(c, n) => {
 							c.Editable = true;
 							c.BackgroundGdk = n.TypeOfDefect == null
-								? GdkColors.LightRed
+								? GdkColors.DangerBase
 								: GdkColors.PrimaryBase;
 						}
 					)
@@ -63,7 +63,7 @@ namespace Vodovoz.ViewWidgets.Store
 						(c, n) => {
 							c.Editable = true;
 							c.BackgroundGdk = n.Source == DefectSource.None
-								? GdkColors.LightRed
+								? GdkColors.DangerBase
 								: GdkColors.PrimaryBase;
 						}
 					)

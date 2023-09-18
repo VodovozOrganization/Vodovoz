@@ -143,10 +143,10 @@ namespace Vodovoz.Views.Logistic
 
 						switch(n.Status) {
 							case RouteListItemStatus.Overdue:
-								c.CellBackgroundGdk = GdkColors.LightRed;
+								c.CellBackgroundGdk = GdkColors.DangerBase;
 								break;
 							case RouteListItemStatus.Completed:
-								c.CellBackgroundGdk = GdkColors.LightGreen;
+								c.CellBackgroundGdk = GdkColors.SuccessBase;
 								break;
 							case RouteListItemStatus.Canceled:
 								c.CellBackgroundGdk = GdkColors.InsensitiveBase;

@@ -71,12 +71,12 @@ namespace Vodovoz.Representations
 
 				if(n.IsTaskComplete)
 				{
-					color = GdkColors.Green;
+					color = GdkColors.SuccessText;
 				}
 
 				if(DateTime.Now > n.Deadline)
 				{
-					color = GdkColors.Red;
+					color = GdkColors.DangerText;
 				}
 
 				c.ForegroundGdk = color;

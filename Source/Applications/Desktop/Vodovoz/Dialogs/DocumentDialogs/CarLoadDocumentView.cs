@@ -107,7 +107,7 @@ namespace Vodovoz
 
 			if(item.Amount > item.AmountInStock)
 			{
-				return GdkColors.Red;
+				return GdkColors.DangerText;
 			}
 
 			if(item.Equipment == null)
@@ -119,12 +119,12 @@ namespace Vodovoz
 
 				if(item.AmountInRouteList == item.AmountLoaded + item.Amount)
 				{
-					return GdkColors.Green;
+					return GdkColors.SuccessText;
 				}
 
 				if(item.AmountInRouteList > item.AmountLoaded + item.Amount)
 				{
-					return GdkColors.Blue;
+					return GdkColors.InfoText;
 				}
 			}
 			else
@@ -136,12 +136,12 @@ namespace Vodovoz
 
 				if(1 == item.AmountLoaded + item.Amount)
 				{
-					return GdkColors.Green;
+					return GdkColors.SuccessText;
 				}
 
 				if(1 > item.AmountLoaded + item.Amount)
 				{
-					return GdkColors.Blue;
+					return GdkColors.InfoText;
 				}
 			}
 			return GdkColors.PrimaryText;

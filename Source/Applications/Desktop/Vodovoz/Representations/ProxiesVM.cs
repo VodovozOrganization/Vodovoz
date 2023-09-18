@@ -72,7 +72,7 @@ namespace Vodovoz.ViewModel
 
 				if(DateTime.Today < n.StartDate)
 				{
-					color = GdkColors.Blue;
+					color = GdkColors.InfoText;
 				}
 
 				c.ForegroundGdk = color;

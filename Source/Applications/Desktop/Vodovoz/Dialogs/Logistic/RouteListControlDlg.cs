@@ -89,7 +89,7 @@ namespace Vodovoz.Dialogs.Logistic
 					.AddTextRenderer(x => x.Nomenclature.Name)
 				.AddColumn("Погружено")
 					.AddTextRenderer(x =>
-						$"<span foreground=\"{(x.CountLoaded > 0 ? GdkColors.Orange.ToHtmlColor() : GdkColors.Red.ToHtmlColor())}\">{x.CountLoaded}</span>", useMarkup: true)
+						$"<span foreground=\"{(x.CountLoaded > 0 ? GdkColors.Orange.ToHtmlColor() : GdkColors.DangerText.ToHtmlColor())}\">{x.CountLoaded}</span>", useMarkup: true)
 				.AddColumn("Всего")
 					.AddNumericRenderer(x => x.CountTotal)
 				.AddColumn("Осталось погрузить")
@@ -125,7 +125,7 @@ namespace Vodovoz.Dialogs.Logistic
 				MessageDialogHelper.RunQuestionWithTitleDialog(
 					"Оптправить в путь?",
 					string.Format(
-						$"{0} погружен <span foreground=\"{GdkColors.Red.ToHtmlColor()}\">НЕ ПОЛНОСТЬЮ</span> и будет переведён в статус \"{1}\". После сохранения изменений откат этого действия будет невозможен.\nВы уверены что хотите отправить МЛ в путь?",
+						$"{0} погружен <span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">НЕ ПОЛНОСТЬЮ</span> и будет переведён в статус \"{1}\". После сохранения изменений откат этого действия будет невозможен.\nВы уверены что хотите отправить МЛ в путь?",
 						Entity.Title,
 						RouteListStatus.EnRoute.GetEnumTitle()
 					)

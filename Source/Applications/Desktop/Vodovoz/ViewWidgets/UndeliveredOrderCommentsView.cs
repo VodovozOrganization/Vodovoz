@@ -77,14 +77,14 @@ namespace Vodovoz.ViewWidgets
 					.AddTextRenderer(c => "", useMarkup: true)
 					.AddSetter((c, n) =>
 					{
-						var color = Comments.IndexOf(n) % 2 == 0 ? GdkColors.Blue.ToHtmlColor() : GdkColors.Red.ToHtmlColor();
+						var color = Comments.IndexOf(n) % 2 == 0 ? GdkColors.InfoText.ToHtmlColor() : GdkColors.DangerText.ToHtmlColor();
 						c.Markup = $"<span foreground=\"{color}\"><b>{n.UserDateAndName}</b></span>";
 					})
 				.AddColumn("Комментарий")
 					.AddTextRenderer(n => "", useMarkup: true)
 					.AddSetter((c, n) =>
 					{
-						var color = Comments.IndexOf(n) % 2 == 0 ? GdkColors.Blue.ToHtmlColor() : GdkColors.Red.ToHtmlColor();
+						var color = Comments.IndexOf(n) % 2 == 0 ? GdkColors.InfoText.ToHtmlColor() : GdkColors.DangerText.ToHtmlColor();
 						c.Markup = $"<span foreground=\"{color}\"><b>{n.Comment}</b></span>";
 					})
 					.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)

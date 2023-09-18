@@ -725,11 +725,11 @@ namespace Vodovoz.ViewModels.Logistic
 				}
 				else if(rli.PlanTimeEnd.Value + TimeSpan.FromSeconds(rli.TimeOnPoint) > rli.Order.DeliverySchedule.To)
 				{
-					color = GdkColors.Red.ToHtmlColor();
+					color = GdkColors.DangerText.ToHtmlColor();
 				}
 				else if(rli.PlanTimeStart.Value < rli.Order.DeliverySchedule.From)
 				{
-					color = GdkColors.Blue.ToHtmlColor();
+					color = GdkColors.InfoText.ToHtmlColor();
 				}
 				else if(rli.PlanTimeEnd.Value == rli.PlanTimeStart.Value)
 				{
@@ -870,11 +870,11 @@ namespace Vodovoz.ViewModels.Logistic
 
 		string FormatOccupancy(int val, int? min, int? max)
 		{
-			string color = GdkColors.Green.ToHtmlColor();
+			string color = GdkColors.SuccessText.ToHtmlColor();
 			if(val > max)
-				color = GdkColors.Red.ToHtmlColor();
+				color = GdkColors.DangerText.ToHtmlColor();
 			if(val < min)
-				color = GdkColors.Blue.ToHtmlColor();
+				color = GdkColors.InfoText.ToHtmlColor();
 
 			if(min.HasValue && max.HasValue)
 				return string.Format("<span foreground=\"{0}\">{1}</span>({2}-{3})", color, val, min, max);
@@ -885,11 +885,11 @@ namespace Vodovoz.ViewModels.Logistic
 
 		string FormatOccupancy(decimal val, decimal? min, decimal? max)
 		{
-			string color = GdkColors.Green.ToHtmlColor();
+			string color = GdkColors.SuccessText.ToHtmlColor();
 			if(val > max)
-				color = GdkColors.Red.ToHtmlColor();
+				color = GdkColors.DangerText.ToHtmlColor();
 			if(val < min)
-				color = GdkColors.Blue.ToHtmlColor();
+				color = GdkColors.InfoText.ToHtmlColor();
 
 			if(min.HasValue && max.HasValue)
 				return string.Format("<span foreground=\"{0}\">{1}</span>({2}-{3})", color, val, min, max);

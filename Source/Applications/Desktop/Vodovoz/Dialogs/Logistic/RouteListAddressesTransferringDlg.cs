@@ -252,7 +252,7 @@ namespace Vodovoz
 
 		private IColumnsConfig GetColumnsConfig(bool isRightPanel)
 		{
-			var colorGreen = GdkColors.Green;
+			var colorGreen = GdkColors.SuccessText;
 			var basePrimary = GdkColors.PrimaryBase;
 
 			var config = ColumnsConfigFactory.Create<RouteListItemNode>()

@@ -38,7 +38,7 @@ namespace Vodovoz.Views.Mango
 				.AddPixbufRenderer(x => x.IsGroup ? groupIcon : userIcon)
 				.AddTextRenderer(entity => entity.Name).SearchHighlight()
 				.AddColumn("Статус")
-				.AddTextRenderer(entity => entity.IsReady ? $"<span foreground=\"{GdkColors.Green.ToHtmlColor()}\">☎ Свободен</span>" : $"<span foreground=\"{GdkColors.Red.ToHtmlColor()}\">☎ Занят</span>", useMarkup: true)
+				.AddTextRenderer(entity => entity.IsReady ? $"<span foreground=\"{GdkColors.SuccessText.ToHtmlColor()}\">☎ Свободен</span>" : $"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">☎ Занят</span>", useMarkup: true)
 				.AddColumn("Номер")
 				.AddTextRenderer(entity => entity.Extension).SearchHighlight()
 				.AddColumn("Отдел")

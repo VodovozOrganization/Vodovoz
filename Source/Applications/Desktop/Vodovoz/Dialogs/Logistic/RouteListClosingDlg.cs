@@ -884,7 +884,7 @@ namespace Vodovoz
 
 			ylabelUnclosedAdvancesMoney.Markup =
 				unclosedAdvanceMoney > 0m
-				? $"<span foreground='{GdkColors.Red.ToHtmlColor()}'><b>Общий долг водителя: {unclosedAdvanceMoney.ToShortCurrencyString()}</b></span>"
+				? $"<span foreground='{GdkColors.DangerText.ToHtmlColor()}'><b>Общий долг водителя: {unclosedAdvanceMoney.ToShortCurrencyString()}</b></span>"
 				: "";
 
 			if(defectiveBottlesReturnedToWarehouse > 0) {
@@ -1152,8 +1152,8 @@ namespace Vodovoz
 
 			StringBuilder resultMessageBuilder = new StringBuilder();
 			resultMessageBuilder.AppendLine($"<span size=\"x-large\">Приходные ордера на сумму { income.ToString("N2") } руб.</span>");
-			resultMessageBuilder.AppendLine($"<span color=\"{GdkColors.Red.ToHtmlColor()}\" size=\"x-large\">Расходные ордера на сумму { expenseWithoutEmployeeAdvance.ToString("N2") } руб.</span>");
-			resultMessageBuilder.AppendLine($"<span foreground=\"{GdkColors.Red.ToHtmlColor()}\" size=\"x-large\">Аванс на сумму {expenseWithEmployeeAdvance.ToString("N2")} руб.</span>");
+			resultMessageBuilder.AppendLine($"<span color=\"{GdkColors.DangerText.ToHtmlColor()}\" size=\"x-large\">Расходные ордера на сумму { expenseWithoutEmployeeAdvance.ToString("N2") } руб.</span>");
+			resultMessageBuilder.AppendLine($"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\" size=\"x-large\">Аванс на сумму {expenseWithEmployeeAdvance.ToString("N2")} руб.</span>");
 
 			MessageDialogHelper.RunInfoDialog(resultMessageBuilder.ToString());
 		}

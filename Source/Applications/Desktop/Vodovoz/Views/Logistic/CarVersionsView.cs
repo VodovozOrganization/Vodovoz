@@ -12,7 +12,7 @@ namespace Vodovoz.Views.Logistic
 	[ToolboxItem(true)]
 	public partial class CarVersionsView : WidgetViewBase<CarVersionsViewModel>
 	{
-		private static readonly Color _greenColor = GdkColors.Green;
+		private static readonly Color _greenColor = GdkColors.SuccessText;
 		private static readonly Color _primaryBaseColor = GdkColors.PrimaryBase;
 
 		public CarVersionsView()

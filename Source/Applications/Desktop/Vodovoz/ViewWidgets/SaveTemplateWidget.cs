@@ -92,16 +92,16 @@ namespace Vodovoz.ViewWidgets
 		void UpdateState()
 		{
 			if(Template == null) {
-				labelStatus.Markup = $"<span foreground=\"{GdkColors.Red.ToHtmlColor()}\">Шаблон не определен!</span>";
+				labelStatus.Markup = $"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">Шаблон не определен!</span>";
 				buttonEdit.Sensitive = buttonPrint.Sensitive = buttonOpen.Sensitive = false;
 			} else if(Template.DocParser == null) {
-				labelStatus.Markup = $"<span foreground=\"{GdkColors.Red.ToHtmlColor()}\">Парсер не задан!</span>";
+				labelStatus.Markup = $"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">Парсер не задан!</span>";
 				buttonEdit.Sensitive = buttonPrint.Sensitive = buttonOpen.Sensitive = false;
 			} else if(Template.ChangedDocFile == null) {
-				labelStatus.Markup = $"<span foreground=\"{GdkColors.Red.ToHtmlColor()}\">Документ не сформирован!</span>";
+				labelStatus.Markup = $"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">Документ не сформирован!</span>";
 				buttonEdit.Sensitive = buttonPrint.Sensitive = buttonOpen.Sensitive = false;
 			} else {
-				labelStatus.Markup = $"<span foreground=\"{GdkColors.Green.ToHtmlColor()}\">Собственный документ</span>";
+				labelStatus.Markup = $"<span foreground=\"{GdkColors.SuccessText.ToHtmlColor()}\">Собственный документ</span>";
 				buttonEdit.Sensitive = buttonPrint.Sensitive = buttonOpen.Sensitive = true;
 			}
 		}

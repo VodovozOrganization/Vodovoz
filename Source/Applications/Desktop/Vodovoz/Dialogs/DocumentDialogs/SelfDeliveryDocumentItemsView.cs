@@ -61,7 +61,7 @@ namespace Vodovoz
 		{
 			if(item.Amount > item.AmountInStock)
 			{
-				return GdkColors.Red;
+				return GdkColors.DangerText;
 			}
 
 			var cnt = item.Document.GetNomenclaturesCountInOrder(item.Nomenclature);
@@ -72,12 +72,12 @@ namespace Vodovoz
 
 			if(cnt == item.AmountUnloaded + item.Amount)
 			{
-				return GdkColors.Green;
+				return GdkColors.SuccessText;
 			}
 
 			if(cnt > item.AmountUnloaded + item.Amount)
 			{
-				return GdkColors.Blue;
+				return GdkColors.InfoText;
 			}
 
 			return GdkColors.PrimaryText;

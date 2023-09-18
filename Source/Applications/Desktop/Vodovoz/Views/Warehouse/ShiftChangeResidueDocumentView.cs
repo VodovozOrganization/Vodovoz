@@ -146,7 +146,7 @@ namespace Vodovoz.Views.Warehouse
 					.AddSetter((w, x) => w.Digits = (x.Nomenclature.Unit != null ? (uint)x.Nomenclature.Unit.Digits : 1))
 				.AddColumn("Разница")
 					.AddTextRenderer(x => x.Difference != 0 && x.Nomenclature.Unit != null ? x.Nomenclature.Unit.MakeAmountShortStr(x.Difference) : String.Empty)
-					.AddSetter((w, x) => w.ForegroundGdk = x.Difference < 0 ? GdkColors.Red : GdkColors.Blue)
+					.AddSetter((w, x) => w.ForegroundGdk = x.Difference < 0 ? GdkColors.DangerText : GdkColors.InfoText)
 				.AddColumn("Сумма ущерба")
 					.AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.SumOfDamage))
 				.AddColumn("Что произошло")
@@ -171,7 +171,7 @@ namespace Vodovoz.Views.Warehouse
 						x.Difference != 0 && x.InventoryNomenclatureInstance.Nomenclature.Unit != null
 							? x.InventoryNomenclatureInstance.Nomenclature.Unit.MakeAmountShortStr(x.Difference)
 							: string.Empty)
-					.AddSetter((w, x) => w.ForegroundGdk = x.Difference < 0 ? GdkColors.Red : GdkColors.Blue)
+					.AddSetter((w, x) => w.ForegroundGdk = x.Difference < 0 ? GdkColors.DangerText : GdkColors.InfoText)
 				.AddColumn("Экземпляр")
 					.AddTextRenderer(x => x.InventoryNomenclatureInstance.Name)
 				.AddColumn("Инвентарный номер")

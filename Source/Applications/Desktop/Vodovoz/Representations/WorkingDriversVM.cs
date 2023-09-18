@@ -116,7 +116,7 @@ namespace Vodovoz.ViewModel
 			int rowNum = 0;
 			foreach(var driver in result.GroupBy(x => x.Id).OrderBy(x => x.First().ShortName)) {
 				var savedRow = driver.First();
-				savedRow.RouteListsText = string.Join("; ", driver.Select(x => x.TrackId != null ? string.Format($"<span foreground=\"{GdkColors.Green.ToHtmlColor()}\"><b>{0}</b></span>", x.RouteListNumber) : x.RouteListNumber.ToString()));
+				savedRow.RouteListsText = string.Join("; ", driver.Select(x => x.TrackId != null ? string.Format($"<span foreground=\"{GdkColors.SuccessText.ToHtmlColor()}\"><b>{0}</b></span>", x.RouteListNumber) : x.RouteListNumber.ToString()));
 				savedRow.RouteListsIds = driver.ToDictionary(x => x.RouteListNumber, x => x.TrackId);
 				savedRow.AddressesAll = driver.Sum(x => x.AddressesAll);
 				savedRow.AddressesCompleted = driver.Sum(x => x.AddressesCompleted);

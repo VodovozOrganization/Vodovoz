@@ -47,13 +47,13 @@ namespace Vodovoz.Views.Complaints
 			string tabColor;
 			switch(discussionVM.Entity.Status) {
 				case Domain.Complaints.ComplaintDiscussionStatuses.Checking:
-					tabColor = GdkColors.Green.ToHtmlColor();
+					tabColor = GdkColors.SuccessText.ToHtmlColor();
 					break;
 				case Domain.Complaints.ComplaintDiscussionStatuses.Closed:
 					tabColor = GdkColors.PrimaryText.ToHtmlColor();
 					break;
 				default:
-					tabColor = GdkColors.Red.ToHtmlColor();
+					tabColor = GdkColors.DangerText.ToHtmlColor();
 					break;
 			}
 			return $"<span foreground = '{tabColor}'><b>{discussionVM.SubdivisionShortName}</b></span>";

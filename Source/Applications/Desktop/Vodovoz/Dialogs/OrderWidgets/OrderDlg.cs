@@ -1562,11 +1562,11 @@ namespace Vodovoz
 		private void ConfigureTrees()
 		{
 			var colorPrimaryText = GdkColors.PrimaryText;
-			var colorBlue = GdkColors.Blue;
-			var colorGreen = GdkColors.Green;
+			var colorBlue = GdkColors.InfoText;
+			var colorGreen = GdkColors.SuccessText;
 			var colorPrimaryBase = GdkColors.PrimaryBase;
-			var colorLightYellow = GdkColors.LightYellow;
-			var colorLightRed = GdkColors.LightRed;
+			var colorLightYellow = GdkColors.WarningBase;
+			var colorLightRed = GdkColors.DangerBase;
 
 			_discountReasons = _canChoosePremiumDiscount
 				? _discountReasonRepository.GetActiveDiscountReasons(UoW)
@@ -1761,7 +1761,7 @@ namespace Vodovoz
 				.AddColumn("Причина").AddTextRenderer(node => node.Reason)
 				.RowCells().AddSetter<CellRendererText>((c, n) =>
 				{
-					c.ForegroundGdk = n.RepeatedService ? GdkColors.Red : GdkColors.PrimaryText;
+					c.ForegroundGdk = n.RepeatedService ? GdkColors.DangerText : GdkColors.PrimaryText;
 				})
 				.Finish();
 
@@ -3064,7 +3064,7 @@ namespace Vodovoz
 		{
 			if(pickerDeliveryDate.Date < DateTime.Today && !_canCreateOrderInAdvance)
 			{
-				pickerDeliveryDate.ModifyBase(StateType.Normal, GdkColors.Red);
+				pickerDeliveryDate.ModifyBase(StateType.Normal, GdkColors.DangerText);
 			}
 			else
 			{
@@ -4061,7 +4061,7 @@ namespace Vodovoz
 				}
 			}
 			if(string.IsNullOrWhiteSpace(text.Text))
-				labelProxyInfo.Markup = $"<span foreground=\"{GdkColors.Red.ToHtmlColor()}\">Нет активной доверенности</span>";
+				labelProxyInfo.Markup = $"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">Нет активной доверенности</span>";
 			else
 				labelProxyInfo.LabelProp = text.Text;
 		}
@@ -4408,7 +4408,7 @@ namespace Vodovoz
 					&& Entity.PaymentType != Entity.Client.PaymentMethod;
 
 			ylblPaymentType.LabelProp = isIncorrectLegalClientPaymentType
-				? $"<span foreground='{GdkColors.Red.ToHtmlColor()}'>{paymentType}</span>"
+				? $"<span foreground='{GdkColors.DangerText.ToHtmlColor()}'>{paymentType}</span>"
 				: paymentType;
 
 			_summaryInfoBuilder.AppendLine($"{lblPaymentType.Text} {paymentType}").AppendLine();

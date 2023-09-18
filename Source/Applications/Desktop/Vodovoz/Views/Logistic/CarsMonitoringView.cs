@@ -178,8 +178,8 @@ namespace Vodovoz.Views.Logistic
 						text += !haveTracklist
 								? routelistId.ToString()
 								: online
-									? $"<span foreground=\"{GdkColors.Green.ToHtmlColor()}\"><b>{routelistId}</b></span>"
-									: $"<span foreground=\"{GdkColors.Blue.ToHtmlColor()}\"><b>{routelistId}</b></span>";
+									? $"<span foreground=\"{GdkColors.SuccessText.ToHtmlColor()}\"><b>{routelistId}</b></span>"
+									: $"<span foreground=\"{GdkColors.InfoText.ToHtmlColor()}\"><b>{routelistId}</b></span>";
 
 						if(!last)
 						{

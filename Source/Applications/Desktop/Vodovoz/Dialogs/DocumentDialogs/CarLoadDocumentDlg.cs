@@ -188,7 +188,7 @@ namespace Vodovoz
 			if(Entity.Items.Any(x => x.Amount == 0))
 			{
 				var res = MessageDialogHelper.RunQuestionYesNoCancelDialog(
-					$"<span foreground=\"{GdkColors.Red.ToHtmlColor()}\">В списке есть нулевые позиции. Убрать нулевые позиции перед сохранением?</span>");
+					$"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">В списке есть нулевые позиции. Убрать нулевые позиции перед сохранением?</span>");
 				switch(res)
 				{
 					case -4:			//DeleteEvent

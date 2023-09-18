@@ -15,7 +15,7 @@ namespace Vodovoz.Views.Organization
 	[ToolboxItem(true)]
 	public partial class OrganizationVersionsView : WidgetViewBase<OrganizationVersionsViewModel>
 	{
-		private static readonly Color _greenColor = GdkColors.Green;
+		private static readonly Color _greenColor = GdkColors.SuccessText;
 		private static readonly Color _primaryBaseColor = GdkColors.PrimaryBase;
 
 		public OrganizationVersionsView()

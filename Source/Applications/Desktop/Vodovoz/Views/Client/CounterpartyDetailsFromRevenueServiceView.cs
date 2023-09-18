@@ -14,7 +14,7 @@ namespace Vodovoz.Views.Client
 	[WindowSize(800, 600)]
 	public partial class CounterpartyDetailsFromRevenueServiceView : DialogViewBase<CounterpartyDetailsFromRevenueServiceViewModel>
 	{
-		private static readonly Color _redColor = GdkColors.Red;
+		private static readonly Color _redColor = GdkColors.DangerText;
 
 		public CounterpartyDetailsFromRevenueServiceView(CounterpartyDetailsFromRevenueServiceViewModel viewModel) : base(viewModel)
 		{
