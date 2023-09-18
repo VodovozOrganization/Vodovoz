@@ -2030,8 +2030,8 @@ Iif(
             <Value>= "ST00012|Name=" + First({org_name},'Organization') + "|PersonalAcc=" + First({account},'Organization') + "|BankName=" + First({name},'Organization') + "|BIC=" + First({bik},'Organization') + "|CorrespAcc="+First({cor_account},'Organization') + "|Sum=" + Format(Sum({total}, 'Goods'), "N0") * 100 + "|Purpose=Оплата заказа " + First({order_id},'Order') + "|PayeeINN=" + First({INN},'Organization') + "|KPP=" + First({KPP},'Organization')</Value>
           </CustomProperty>
         </CustomProperties>
-        <Left>415.0pt</Left>
-        <Top>74.4pt</Top>
+        <Left>415.5pt</Left>
+        <Top>75.0pt</Top>
         <ZIndex>10</ZIndex>
       </CustomReportItem>
     </ReportItems>

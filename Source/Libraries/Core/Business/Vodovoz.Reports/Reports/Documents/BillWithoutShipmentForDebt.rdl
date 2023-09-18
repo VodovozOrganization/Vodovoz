@@ -1,9 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>11.69in</PageHeight>
   <PageWidth>8.27in</PageWidth>
   <Width>.1pt</Width>
@@ -149,13 +147,14 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Organization">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     organizations.full_name,
     organizations.name as org_name,
     organizations.INN,
     organizations.KPP,
+    accounts.`number` as account,
     ov.jur_address AS address,
     organizations.email AS email,
     CONCAT('+7 ', phones.number) AS phone,
@@ -203,7 +202,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="full_name">
           <DataField>full_name</DataField>
           <TypeName>System.String</TypeName>
@@ -274,6 +273,10 @@ WHERE
         </Field>
         <Field Name="org_name">
           <DataField>org_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="account">
+          <DataField>account</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -486,7 +489,7 @@ WHERE
         <ReportItems>
           <Textbox Name="Textbox3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>30pt</Height>
-            <Width>280pt</Width>
+            <Width>220pt</Width>
             <Value>={name} + ' г.' + {city}</Value>
             <ZIndex>0</ZIndex>
             <Left>40pt</Left>
@@ -511,7 +514,7 @@ WHERE
           </Textbox>
           <Textbox Name="Textbox4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>15.00pt</Height>
-            <Width>140pt</Width>
+            <Width>110pt</Width>
             <Value>='ИНН ' + {INN}</Value>
             <ZIndex>0</ZIndex>
             <Left>40pt</Left>
@@ -536,7 +539,7 @@ WHERE
             <Width>40pt</Width>
             <Value>БИК</Value>
             <ZIndex>0</ZIndex>
-            <Left>320pt</Left>
+            <Left>260pt</Left>
             <Top>0.1pt</Top>
             <Style>
               <BorderStyle>
@@ -557,7 +560,7 @@ WHERE
             <Width>40pt</Width>
             <Value>Сч. №</Value>
             <ZIndex>0</ZIndex>
-            <Left>320pt</Left>
+            <Left>260pt</Left>
             <Top>15.1pt</Top>
             <Style>
               <BorderStyle>
@@ -575,10 +578,10 @@ WHERE
           </Textbox>
           <Textbox Name="Textbox7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>30pt</Height>
-            <Width>180pt</Width>
+            <Width>115pt</Width>
             <Value>={cor_account}</Value>
             <ZIndex>0</ZIndex>
-            <Left>360pt</Left>
+            <Left>300.00pt</Left>
             <Top>15.1pt</Top>
             <Style>
               <BorderStyle>
@@ -599,7 +602,7 @@ WHERE
             <Width>40.00pt</Width>
             <Value>Сч. №</Value>
             <ZIndex>0</ZIndex>
-            <Left>320pt</Left>
+            <Left>260pt</Left>
             <Top>45.1pt</Top>
             <Style>
               <BorderStyle>
@@ -617,7 +620,7 @@ WHERE
           </Textbox>
           <Textbox Name="Textbox9" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>30pt</Height>
-            <Width>280pt</Width>
+            <Width>220pt</Width>
             <Value>={full_name}</Value>
             <ZIndex>0</ZIndex>
             <Left>40pt</Left>
@@ -641,11 +644,11 @@ WHERE
           </Textbox>
           <Textbox Name="Textbox10" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>15pt</Height>
-            <Width>180pt</Width>
+            <Width>115pt</Width>
             <Value>={bik}</Value>
             <ZIndex>0</ZIndex>
-            <Left>360pt</Left>
-            <Top>0.6pt</Top>
+            <Left>300.00pt</Left>
+            <Top>0.1pt</Top>
             <Style>
               <BorderStyle>
                 <Default>Double</Default>
@@ -662,10 +665,10 @@ WHERE
           </Textbox>
           <Textbox Name="Textbox11" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>15.00pt</Height>
-            <Width>140pt</Width>
+            <Width>110pt</Width>
             <Value>='КПП ' + {KPP} </Value>
             <ZIndex>0</ZIndex>
-            <Left>180pt</Left>
+            <Left>150pt</Left>
             <Top>45.1pt</Top>
             <Style>
               <BorderStyle>
@@ -685,10 +688,10 @@ WHERE
           </Textbox>
           <Textbox Name="Textbox12" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>60pt</Height>
-            <Width>180pt</Width>
+            <Width>115pt</Width>
             <Value>={number}</Value>
             <ZIndex>0</ZIndex>
-            <Left>360pt</Left>
+            <Left>300.00pt</Left>
             <Top>45.1pt</Top>
             <Style>
               <BorderStyle>
@@ -706,7 +709,7 @@ WHERE
           </Textbox>
           <Textbox Name="Textbox13" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>15pt</Height>
-            <Width>280pt</Width>
+            <Width>220pt</Width>
             <Value>Получатель</Value>
             <ZIndex>0</ZIndex>
             <Left>40pt</Left>
@@ -727,7 +730,7 @@ WHERE
           </Textbox>
           <Textbox Name="Textbox14" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>15pt</Height>
-            <Width>280pt</Width>
+            <Width>220pt</Width>
             <Value>Банк получателя</Value>
             <ZIndex>0</ZIndex>
             <Left>40pt</Left>
@@ -748,15 +751,15 @@ WHERE
           </Textbox>
         </ReportItems>
         <Style>
-            <BorderStyle>
-                <Default>None</Default>
-                <Left>None</Left>
-                <Right>None</Right>
-                <Top>None</Top>
-                <Bottom>None</Bottom>
-            </BorderStyle>
-            <BorderColor />
-            <BorderWidth />
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <DataSetName>Organization</DataSetName>
       </List>
@@ -1408,15 +1411,15 @@ WHERE
           </Image>
         </ReportItems>
         <Style>
-            <BorderStyle>
-                <Default>None</Default>
-                <Left>None</Left>
-                <Right>None</Right>
-                <Top>None</Top>
-                <Bottom>None</Bottom>
-            </BorderStyle>
-            <BorderColor />
-            <BorderWidth />
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <DataSetName>Organization</DataSetName>
       </List>
@@ -1457,15 +1460,15 @@ WHERE
         <Left>120.3pt</Left>
         <Top>8.9pt</Top>
         <Style>
-            <BorderStyle>
-                <Default>None</Default>
-                <Left>None</Left>
-                <Right>None</Right>
-                <Top>None</Top>
-                <Bottom>None</Bottom>
-            </BorderStyle>
-            <BorderColor />
-            <BorderWidth />
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <ReportItems>
           <Textbox Name="Textbox39">
@@ -1662,8 +1665,7 @@ Iif(
         <Value>=First( {IM1} , "Images" )</Value>
         <Sizing>FitProportional</Sizing>
         <ZIndex>0</ZIndex>
-        <Visibility>
-        </Visibility>
+        <Visibility></Visibility>
         <MIMEType>image/jpeg</MIMEType>
       </Image>
       <Image Name="Image3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1685,6 +1687,20 @@ Iif(
         </Visibility>
         <ZIndex>0</ZIndex>
       </Image>
+      <CustomReportItem Name="CustomReportItem1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Type>QR Code</Type>
+        <Height>145.00pt</Height>
+        <Width>145.00pt</Width>
+        <CustomProperties>
+          <CustomProperty >
+            <Name>QrCode</Name>
+            <Value>= "ST00012|Name=" + First({org_name},'Organization') + "|PersonalAcc=" + First({account},'Organization') + "|BankName=" + First({name},'Organization') + "|BIC=" + First({bik},'Organization') + "|CorrespAcc="+First({cor_account},'Organization') + "|Sum=" + Format(Sum({total}, 'Order'), "N0") * 100 + "|Purpose=Оплата счета " + First({bwsfd_id},'Order') + "|PayeeINN=" + First({INN},'Organization') + "|KPP=" + First({KPP},'Organization')</Value>
+          </CustomProperty>
+        </CustomProperties>
+        <Left>415.5pt</Left>
+        <Top>75pt</Top>
+        <ZIndex>10</ZIndex>
+      </CustomReportItem>
     </ReportItems>
   </Body>
   <PageFooter>
@@ -2112,8 +2128,7 @@ Iif(
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="hide_signature">
       <DataType>Boolean</DataType>
@@ -2125,24 +2140,21 @@ Iif(
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="special">
       <DataType>Boolean</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="organization_id">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="special_contract_number">
       <DataType>String</DataType>
