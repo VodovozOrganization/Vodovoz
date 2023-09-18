@@ -26,6 +26,15 @@ namespace Vodovoz.Infrastructure
 
 		#endregion Primary
 
+		#region Active
+
+		public static Color ActiveBG => Rc.GetStyle(_dwfaultWidget).Background(StateType.Active);
+		public static Color ActiveFG => Rc.GetStyle(_dwfaultWidget).Foreground(StateType.Active);
+		public static Color ActiveText => Rc.GetStyle(_dwfaultWidget).Text(StateType.Active);
+		public static Color ActiveBase => Rc.GetStyle(_dwfaultWidget).Base(StateType.Active);
+
+		#endregion Active
+
 		#region Success
 
 		public static Color SuccessText { get; } = new Color(14, 135, 14);
