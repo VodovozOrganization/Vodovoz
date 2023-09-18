@@ -1981,6 +1981,10 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Users.WarehousesUserSelectionView.cs" />
     <Compile Include="Views\Goods\NomenclatureOnlineCatalogView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclatureOnlineCatalogView.cs" />
+    <Compile Include="Views\Goods\NomenclatureOnlineGroupView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclatureOnlineGroupView.cs" />
+    <Compile Include="Views\Goods\NomenclatureOnlineCategoryView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclatureOnlineCategoryView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
