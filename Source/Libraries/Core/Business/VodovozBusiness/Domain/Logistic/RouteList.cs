@@ -3327,6 +3327,5 @@ namespace Vodovoz.Domain.Logistic
 		public decimal CountNotLoaded { get; set; }
 		public decimal CountTotal { get; set; }
 		public decimal CountLoaded => CountTotal - CountNotLoaded;
-		public string CountLoadedString => string.Format("<span foreground=\"{0}\">{1}</span>", CountLoaded > 0 ? "Orange" : "Red", CountLoaded);
 	}
 }

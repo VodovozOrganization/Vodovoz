@@ -59,12 +59,8 @@ namespace Vodovoz.Controllers
 			return message;
 		}
 
-		private string GetNotificationForPositiveComplaintsCount(int sendedComplaints)
-		{
-			return string.Format("<span foreground=\"red\">Внимание! У Вашего отдела {0} {1}.</span>", 
-				sendedComplaints,
-				sendedComplaints == 1 ? "открытая рекламация" : "открытых рекламации");
-		}
+		private string GetNotificationForPositiveComplaintsCount(int sendedComplaints) =>
+			$"Внимание! У Вашего отдела {sendedComplaints} {(sendedComplaints == 1 ? "открытая рекламация" : "открытых рекламации")}.";
 
 		private void OnComplaintChanged(EntityChangeEvent[] changeEvents)
 		{

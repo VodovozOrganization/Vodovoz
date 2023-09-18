@@ -88,7 +88,8 @@ namespace Vodovoz.Dialogs.Logistic
 				.AddColumn("Номенклатура")
 					.AddTextRenderer(x => x.Nomenclature.Name)
 				.AddColumn("Погружено")
-					.AddTextRenderer(x => x.CountLoadedString, useMarkup: true)
+					.AddTextRenderer(x =>
+						$"<span foreground=\"{(x.CountLoaded > 0 ? GdkColors.Orange.ToHtmlColor() : GdkColors.Red.ToHtmlColor())}\">{x.CountLoaded}</span>", useMarkup: true)
 				.AddColumn("Всего")
 					.AddNumericRenderer(x => x.CountTotal)
 				.AddColumn("Осталось погрузить")
