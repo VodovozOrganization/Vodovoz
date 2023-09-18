@@ -41,7 +41,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 			_orders = orders ?? new List<Order>();
 			_warnings = new GenericObservableList<string>();
 
-			Title = "Печать документов заказа";
+			Title = "Печать документов заказов";
 
 			_isOrdersListValid = IsOrdersListValidCheck();
 		}
@@ -175,7 +175,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 			{
 				bool cancelPrinting = false;
 
-				PrintingDocumentInfo = $"Печать докуметов заказа №{order.Id}";
+				PrintingDocumentInfo = $"Печать документов заказа №{order.Id}";
 
 				var printer = _entityDocumentsPrinterFactory.CreateOrderDocumentsPrinter(
 					order,
