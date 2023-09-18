@@ -21,6 +21,8 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Permissions.Warehouses;
+using Vodovoz.Extensions;
+using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Mango;
 using Vodovoz.Parameters;
 using Vodovoz.SidePanel;
@@ -219,8 +221,11 @@ public partial class MainWindow : Gtk.Window
 					new TypedParameter(typeof(IEnumerable<int>), _curentUserMovementDocumentsNotificationWarehouses));
 
 			var notificationDetails = _movementsNotificationsController.GetNotificationDetails(uow);
+
+			var message = notificationDetails.SendedMovementsCount > 0 ? $"<span foreground=\"{GdkColors.Red.ToHtmlColor()}\">{notificationDetails.NotificationMessage}</span>": notificationDetails.NotificationMessage;
+
 			hboxMovementsNotification.Visible = notificationDetails.NeedNotify;
-			lblMovementsNotification.Markup = notificationDetails.NotificationMessage;
+			lblMovementsNotification.Markup = message;
 
 			if(notificationDetails.NeedNotify)
 			{
