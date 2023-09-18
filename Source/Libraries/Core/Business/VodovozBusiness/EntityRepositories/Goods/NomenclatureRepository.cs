@@ -409,7 +409,7 @@ namespace Vodovoz.EntityRepositories.Goods
 				.List<NomenclatureOnlinePriceNode>();
 		}
 		
-		public IList<NomenclatureCharacteristicsDto> GetNomenclaturesForSend(IUnitOfWork uow, NomenclatureOnlineParameterType parameterType)
+		public IList<OnlineNomenclatureNode> GetNomenclaturesForSend(IUnitOfWork uow, NomenclatureOnlineParameterType parameterType)
 		{
 			Nomenclature nomenclatureAlias = null;
 			MobileAppNomenclatureOnlineCatalog mobileAppNomenclatureOnlineCatalogAlias = null;
@@ -418,7 +418,7 @@ namespace Vodovoz.EntityRepositories.Goods
 			NomenclatureOnlineGroup nomenclatureOnlineGroupAlias = null;
 			NomenclatureOnlineCategory nomenclatureOnlineCategoryAlias = null;
 			NomenclatureOnlineParameters onlineParametersAlias = null;
-			NomenclatureCharacteristicsDto resultAlias = null;
+			OnlineNomenclatureNode resultAlias = null;
 			
 			var query = uow.Session.QueryOver(() => nomenclatureAlias)
 				.Left.JoinAlias(n => n.NomenclatureOnlineGroup, () => nomenclatureOnlineGroupAlias)
@@ -435,7 +435,7 @@ namespace Vodovoz.EntityRepositories.Goods
 				.And(() => onlineParametersAlias.NomenclatureOnlineAvailability != null);
 			
 			var queryBuilder = new QueryOverProjectionBuilder<Nomenclature>()
-				.SelectGroup(n => n.Id).WithAlias(() => resultAlias.Id)
+				.Select(n => n.Id).WithAlias(() => resultAlias.ErpId)
 				.Select(n => n.OnlineName).WithAlias(() => resultAlias.OnlineName)
 				.Select(() => nomenclatureOnlineGroupAlias.Name).WithAlias(() => resultAlias.OnlineGroup)
 				.Select(() => nomenclatureOnlineCategoryAlias.Name).WithAlias(() => resultAlias.OnlineCategory)
@@ -463,26 +463,29 @@ namespace Vodovoz.EntityRepositories.Goods
 			switch(parameterType)
 			{
 				case NomenclatureOnlineParameterType.ForMobileApp:
-					query.And(n => n.MobileAppNomenclatureOnlineCatalog != null);
+					query.And(n => n.MobileAppNomenclatureOnlineCatalog != null)
+						.And(() => onlineParametersAlias.Type == NomenclatureOnlineParameterType.ForMobileApp);
 					queryBuilder.Select(() => mobileAppNomenclatureOnlineCatalogAlias.ExternalId)
 						.WithAlias(() => resultAlias.OnlineCatalogGuid);
 					break;
 				case NomenclatureOnlineParameterType.ForVodovozWebSite:
-					query.And(n => n.VodovozWebSiteNomenclatureOnlineCatalog != null);
+					query.And(n => n.VodovozWebSiteNomenclatureOnlineCatalog != null)
+						.And(() => onlineParametersAlias.Type == NomenclatureOnlineParameterType.ForVodovozWebSite);
 					queryBuilder.Select(() => vodovozWebSiteNomenclatureOnlineCatalogAlias.ExternalId)
 						.WithAlias(() => resultAlias.OnlineCatalogGuid);
 					break;
 				case NomenclatureOnlineParameterType.ForKulerSaleWebSite:
-					query.And(n => n.KulerSaleWebSiteNomenclatureOnlineCatalog != null);
+					query.And(n => n.KulerSaleWebSiteNomenclatureOnlineCatalog != null)
+						.And(() => onlineParametersAlias.Type == NomenclatureOnlineParameterType.ForKulerSaleWebSite);
 					queryBuilder.Select(() => kulerSaleWebSiteNomenclatureOnlineCatalogAlias.ExternalId)
 						.WithAlias(() => resultAlias.OnlineCatalogGuid);
 					break;
 			}
 
 			query.SelectList(builder => queryBuilder)
-			.TransformUsing(Transformers.AliasToBean<NomenclatureCharacteristicsDto>());
+			.TransformUsing(Transformers.AliasToBean<OnlineNomenclatureNode>());
 			
-			return query.List<NomenclatureCharacteristicsDto>();
+			return query.List<OnlineNomenclatureNode>();
 		}
 	}
 

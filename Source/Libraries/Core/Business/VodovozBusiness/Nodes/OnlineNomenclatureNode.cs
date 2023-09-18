@@ -3,9 +3,9 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Nodes
 {
-	public class NomenclatureCharacteristicsDto
+	public class OnlineNomenclatureNode
 	{
-		public int Id { get; set; }
+		public int ErpId { get; set; }
 		public Guid OnlineCatalogGuid { get; set; }
 		public string OnlineGroup { get; set; }
 		public string OnlineCategory { get; set; }
