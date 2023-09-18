@@ -4,6 +4,12 @@ using Vodovoz.Extensions;
 
 namespace Vodovoz.Infrastructure
 {
+	/// <summary>
+	/// Text - цвет текста Entry, Label, Treeview и других текстовых элементов
+	/// Base - цвет заливки Entry, Label, Treeview и других текстовых элементов
+	/// FG - цвет текста Button и других не текстовых элементов
+	/// BG - цвет заливки Button и других не текстовых элементов
+	/// </summary>
 	public static class GdkColors
 	{
 		private static Widget _dwfaultWidget => new Label();
