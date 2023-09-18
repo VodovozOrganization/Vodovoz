@@ -69,6 +69,25 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods
 			Map(x => x.CharacteristicsOfCartridges).Column("characteristics_of_cartridges");
 			Map(x => x.CountryOfOrigin).Column("country_of_origin");
 			Map(x => x.AmountInAPackage).Column("amount_in_a_package");
+			
+			Map(x => x.OnlineName).Column("online_name");
+			Map(x => x.IsSparklingWater).Column("is_sparkling_water");
+			Map(x => x.EquipmentInstallationType).Column("equipment_installation_type");
+			Map(x => x.EquipmentWorkloadType).Column("equipment_workload_type");
+			Map(x => x.PumpType).Column("pump_type");
+			Map(x => x.CupHolderBracingType).Column("cup_holder_bracing_type");
+			Map(x => x.HasHeating).Column("has_heating");
+			Map(x => x.HeatingPower2).Column("new_heating_power");
+			Map(x => x.HeatingProductivity).Column("heating_productivity");
+			Map(x => x.ProtectionOnHotWaterTap).Column("protection_on_hot_water_tap");
+			Map(x => x.HasCooling).Column("has_cooling");
+			Map(x => x.CoolingPower2).Column("new_cooling_power");
+			Map(x => x.CoolingProductivity).Column("cooling_productivity");
+			Map(x => x.CoolingType2).Column("new_cooling_type");
+			Map(x => x.LockerRefrigeratorType).Column("locker_refrigerator_type");
+			Map(x => x.LockerRefrigeratorVolume).Column("locker_refrigerator_volume");
+			Map(x => x.TapType).Column("tap_type");
+			Map(x => x.BracingTypeForCupHolder).Column("bracing_type_for_cup_holder");
 
 			Map(x => x.StorageCell).Column("storage_cell");
 
@@ -92,7 +111,16 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods
 			References(x => x.ProductGroup).Column("group_id");
 			References(x => x.FuelType).Column("fuel_type_id");
 			References(x => x.OnlineStore).Column("online_store_id");
-
+			References(x => x.MobileAppNomenclatureOnlineCatalog)
+				.Column("mobile_app_nomenclature_online_catalog_id");
+			References(x => x.VodovozWebSiteNomenclatureOnlineCatalog)
+				.Column("vodovoz_web_site_nomenclature_online_catalog_id");
+			References(x => x.KulerSaleWebSiteNomenclatureOnlineCatalog)
+				.Column("kuler_sale_web_site_nomenclature_online_catalog_id");
+			References(x => x.NomenclatureOnlineGroup)
+				.Column("nomenclature_online_group_id");
+			References(x => x.NomenclatureOnlineCategory)
+				.Column("nomenclature_online_category_id");
 
 			HasMany(x => x.NomenclaturePrice)
 				.Where($"type='{NomenclaturePriceBase.NomenclaturePriceType.General}'")

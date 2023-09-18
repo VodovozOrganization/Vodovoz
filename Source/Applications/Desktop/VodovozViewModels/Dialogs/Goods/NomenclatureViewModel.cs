@@ -36,6 +36,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		private NomenclatureOnlineParameters _vodovozWebSiteNomenclatureOnlineParameters;
 		private NomenclatureOnlineParameters _kulerSaleWebSiteNomenclatureOnlineParameters;
 		private bool _needCheckOnlinePrices;
+		private bool _activeSitesAndAppsTab;
 		private IList<NomenclatureOnlineCategory> _onlineCategories;
 
 		public Action PricesViewSaveChanges;
@@ -520,7 +521,6 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		#region Commands
 
 		private DelegateCommand saveCommand = null;
-		private bool _activeSitesAndAppsTab;
 
 		public DelegateCommand SaveCommand =>
 			saveCommand ?? (saveCommand = new DelegateCommand(
