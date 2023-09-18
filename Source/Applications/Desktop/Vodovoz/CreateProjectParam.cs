@@ -532,6 +532,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<NumberOfComplaintsAgainstDriversReportViewModel, NumberOfComplaintsAgainstDriversReportView>()
 				.RegisterWidgetForWidgetViewModel<MovementsPaymentControlViewModel, MovementsPaymentControlView>()
 				.RegisterWidgetForWidgetViewModel<WarehousesSettingsViewModel, NamedDomainEntitiesSettingsView>()
+				.RegisterWidgetForWidgetViewModel<NomenclatureOnlineCatalogViewModel, NomenclatureOnlineCatalogView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;

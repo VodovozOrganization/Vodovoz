@@ -13,6 +13,7 @@ namespace Vodovoz.HibernateMapping.Goods
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			
 			Map(x => x.Type).Column("type").Not.Update().Not.Insert().Access.ReadOnly();
+			Map(x => x.Name).Column("name");
 		}
 	}
 }

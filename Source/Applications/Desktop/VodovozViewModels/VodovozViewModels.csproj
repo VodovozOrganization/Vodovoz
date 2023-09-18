@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -787,6 +787,7 @@
     <Compile Include="ViewModels\Warehouses\InventoryDocumentViewModel.cs" />
     <Compile Include="Widgets\Users\WarehousesUserSelectionViewModel.cs" />
     <Compile Include="Widgets\Users\WarehousesUserSelectionViewModel.WarehouseNode.cs" />
+    <Compile Include="ViewModels\Goods\NomenclatureOnlineCatalogViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Email\Mailjet.Api.Abstractions\Mailjet.Api.Abstractions.csproj">

@@ -1,5 +1,6 @@
 ﻿using QS.DomainModel.Entity;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
+using QS.HistoryLog;
 
 namespace Vodovoz.Domain.Goods
 {
@@ -9,7 +10,7 @@ namespace Vodovoz.Domain.Goods
 		
 		public virtual int Id { get; set; }
 
-		public string Name
+		public virtual string Name
 		{
 			get => _name;
 			set => SetField(ref _name, value);

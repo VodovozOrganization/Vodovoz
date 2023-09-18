@@ -7,13 +7,14 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.ViewModels.ViewModels.Goods
 {
-	public class VodovozWebSiteNomenclatureOnlineCatalogViewModel : EntityTabViewModelBase<VodovozWebSiteNomenclatureOnlineCatalog>
+	public class VodovozWebSiteNomenclatureOnlineCatalogViewModel : NomenclatureOnlineCatalogViewModel
 	{
 		public VodovozWebSiteNomenclatureOnlineCatalogViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
-			INavigationManager navigationManager) : base(uowBuilder, uowFactory, commonServices, navigationManager)
+			INavigationManager navigationManager)
+			: base(uowBuilder, typeof(VodovozWebSiteNomenclatureOnlineCatalog), uowFactory, commonServices.InteractiveService, navigationManager)
 		{
 
 		}
