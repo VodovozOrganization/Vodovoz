@@ -590,9 +590,9 @@ namespace Vodovoz
 			get {
 				switch(RouteListItem.Status) {
 					case RouteListItemStatus.Overdue:
-						return new Gdk.Color(0xee, 0x66, 0x66);
+						return GdkColors.DangerBase;
 					case RouteListItemStatus.Completed:
-						return new Gdk.Color(0x66, 0xee, 0x66);
+						return GdkColors.SuccessBase;
 					case RouteListItemStatus.Canceled:
 						return GdkColors.InsensitiveBase;
 					default:
