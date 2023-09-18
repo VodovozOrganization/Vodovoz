@@ -801,6 +801,14 @@ public partial class MainWindow
 		NavigationManager.OpenViewModel<KulerSaleWebSiteNomenclatureOnlineCatalogsJournalViewModel>(null);
 	}
 
+	protected void OnNomenclatureOnlineGroupsActionActivated(object sender, EventArgs e)
+	{
+	}
+
+	protected void OnNomenclatureOnlineCategoriesActionActivated(object sender, EventArgs e)
+	{
+	}
+
 	#endregion ТМЦ
 
 	#region Банки/Операторы ЭДО
