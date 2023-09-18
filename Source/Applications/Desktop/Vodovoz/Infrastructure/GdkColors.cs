@@ -39,7 +39,7 @@ namespace Vodovoz.Infrastructure
 
 		public static Color SuccessText { get; } = new Color(14, 135, 14);
 
-		public static Color SuccessBase { get; } = new Color(0xc0, 0xff, 0xc0);
+		public static Color SuccessBase { get; } = IsLight ? new Color(0xc0, 0xff, 0xc0) : new Color(69, 161, 69);
 
 		#endregion Success
 
