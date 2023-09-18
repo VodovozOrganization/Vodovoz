@@ -592,12 +592,12 @@ WHERE o.id = @order_id
         <Top>94.30pt</Top>
         <ReportItems>
           <Textbox Name="Textbox3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>30pt</Height>
-            <Width>230pt</Width>
+            <Height>30.00pt</Height>
+            <Width>220.00pt</Width>
             <Value>={name} + ' г.' + {city}</Value>
             <ZIndex>0</ZIndex>
-            <Left>40pt</Left>
-            <Top>0.1pt</Top>
+            <Left>40.00pt</Left>
+            <Top>0.10pt</Top>
             <Style>
               <BorderStyle>
                 <Left>Double</Left>
@@ -618,7 +618,7 @@ WHERE o.id = @order_id
           </Textbox>
           <Textbox Name="Textbox4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>15.00pt</Height>
-            <Width>115pt</Width>
+            <Width>110pt</Width>
             <Value>='ИНН ' + {INN}</Value>
             <ZIndex>0</ZIndex>
             <Left>40pt</Left>
@@ -643,7 +643,7 @@ WHERE o.id = @order_id
             <Width>40pt</Width>
             <Value>БИК</Value>
             <ZIndex>0</ZIndex>
-            <Left>270pt</Left>
+            <Left>260pt</Left>
             <Top>0.1pt</Top>
             <Style>
               <BorderStyle>
@@ -664,7 +664,7 @@ WHERE o.id = @order_id
             <Width>40pt</Width>
             <Value>Сч. №</Value>
             <ZIndex>0</ZIndex>
-            <Left>270pt</Left>
+            <Left>260pt</Left>
             <Top>15.1pt</Top>
             <Style>
               <BorderStyle>
@@ -682,10 +682,10 @@ WHERE o.id = @order_id
           </Textbox>
           <Textbox Name="Textbox7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>30.00pt</Height>
-            <Width>150.00pt</Width>
+            <Width>115.00pt</Width>
             <Value>={cor_account}</Value>
             <ZIndex>0</ZIndex>
-            <Left>310.00pt</Left>
+            <Left>300.00pt</Left>
             <Top>15.10pt</Top>
             <Style>
               <BorderStyle>
@@ -706,7 +706,7 @@ WHERE o.id = @order_id
             <Width>40.00pt</Width>
             <Value>Сч. №</Value>
             <ZIndex>0</ZIndex>
-            <Left>270pt</Left>
+            <Left>260pt</Left>
             <Top>45.1pt</Top>
             <Style>
               <BorderStyle>
@@ -724,7 +724,7 @@ WHERE o.id = @order_id
           </Textbox>
           <Textbox Name="Textbox9" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>30pt</Height>
-            <Width>230pt</Width>
+            <Width>220pt</Width>
             <Value>={full_name}</Value>
             <ZIndex>0</ZIndex>
             <Left>40pt</Left>
@@ -748,10 +748,10 @@ WHERE o.id = @order_id
           </Textbox>
           <Textbox Name="Textbox10" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>15.00pt</Height>
-            <Width>150.00pt</Width>
+            <Width>115.00pt</Width>
             <Value>={bik}</Value>
             <ZIndex>0</ZIndex>
-            <Left>310.00pt</Left>
+            <Left>300.00pt</Left>
             <Top>0.10pt</Top>
             <Style>
               <BorderStyle>
@@ -769,10 +769,10 @@ WHERE o.id = @order_id
           </Textbox>
           <Textbox Name="Textbox11" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>15.00pt</Height>
-            <Width>115.00pt</Width>
+            <Width>110.00pt</Width>
             <Value>='КПП ' + {KPP} </Value>
             <ZIndex>0</ZIndex>
-            <Left>155.00pt</Left>
+            <Left>150.00pt</Left>
             <Top>45.10pt</Top>
             <Style>
               <BorderStyle>
@@ -792,10 +792,10 @@ WHERE o.id = @order_id
           </Textbox>
           <Textbox Name="Textbox12" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>60pt</Height>
-            <Width>150pt</Width>
+            <Width>115.00pt</Width>
             <Value>={number}</Value>
             <ZIndex>0</ZIndex>
-            <Left>310pt</Left>
+            <Left>300.00pt</Left>
             <Top>45.1pt</Top>
             <Style>
               <BorderStyle>
@@ -813,7 +813,7 @@ WHERE o.id = @order_id
           </Textbox>
           <Textbox Name="Textbox13" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>15pt</Height>
-            <Width>230pt</Width>
+            <Width>220pt</Width>
             <Value>Получатель</Value>
             <ZIndex>0</ZIndex>
             <Left>40pt</Left>
@@ -834,7 +834,7 @@ WHERE o.id = @order_id
           </Textbox>
           <Textbox Name="Textbox14" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>15pt</Height>
-            <Width>230pt</Width>
+            <Width>220pt</Width>
             <Value>Банк получателя</Value>
             <ZIndex>0</ZIndex>
             <Left>40pt</Left>
@@ -853,20 +853,6 @@ WHERE o.id = @order_id
               <PaddingLeft>5pt</PaddingLeft>
             </Style>
           </Textbox>
-          <CustomReportItem Name="CustomReportItem1">
-            <Type>QR Code</Type>
-            <Height>100pt</Height>
-            <Width>100pt</Width>
-            <CustomProperties>
-              <CustomProperty >
-                <Name>QrCode</Name>
-                <Value>= "ST00012|Name=" + {org_name} + "|PersonalAcc=" + {account} + "|BankName=" + {name} + "|BIC="+{bik} + "|CorrespAcc="+{cor_account} + "|Sum=" + Format(Sum({total}, 'Goods'), "N0") * 100 + "|Purpose=Оплата заказа " + First({order_id},'Order') + "|PayeeINN=" + {INN} + "|KPP=" + {KPP}</Value>
-              </CustomProperty>
-            </CustomProperties>
-            <Left>460.8pt</Left>
-            <Top>2.4pt</Top>
-            <ZIndex>10</ZIndex>
-          </CustomReportItem>
         </ReportItems>
         <Style>
           <BorderStyle>
@@ -2034,6 +2020,20 @@ Iif(
           <FontFamily>Calibri</FontFamily>
         </Style>
       </Textbox>
+      <CustomReportItem Name="CustomReportItem1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Type>QR Code</Type>
+        <Height>145.00pt</Height>
+        <Width>145.00pt</Width>
+        <CustomProperties>
+          <CustomProperty>
+            <Name>QrCode</Name>
+            <Value>= "ST00012|Name=" + First({org_name},'Organization') + "|PersonalAcc=" + First({account},'Organization') + "|BankName=" + First({name},'Organization') + "|BIC=" + First({bik},'Organization') + "|CorrespAcc="+First({cor_account},'Organization') + "|Sum=" + Format(Sum({total}, 'Goods'), "N0") * 100 + "|Purpose=Оплата заказа " + First({order_id},'Order') + "|PayeeINN=" + First({INN},'Organization') + "|KPP=" + First({KPP},'Organization')</Value>
+          </CustomProperty>
+        </CustomProperties>
+        <Left>415.0pt</Left>
+        <Top>74.4pt</Top>
+        <ZIndex>10</ZIndex>
+      </CustomReportItem>
     </ReportItems>
   </Body>
   <PageFooter>
