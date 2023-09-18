@@ -85,6 +85,6 @@ namespace Vodovoz.EntityRepositories.Goods
 			IUnitOfWork uow, NomenclatureOnlineParameterType parameterType);
 		IList<NomenclatureOnlinePriceNode> GetNomenclaturesOnlinePricesByOnlineParameters(
 			IUnitOfWork uow, IEnumerable<int> onlineParametersIds);
-		IList<NomenclatureCharacteristicsDto> GetNomenclaturesForSend(IUnitOfWork uow, NomenclatureOnlineParameterType parameterType);
+		IList<OnlineNomenclatureNode> GetNomenclaturesForSend(IUnitOfWork uow, NomenclatureOnlineParameterType parameterType);
 	}
 }

@@ -7,6 +7,6 @@ namespace CustomerAppsApi.Factories
 	public interface INomenclatureFactory
 	{
 		NomenclaturesPricesAndStockDto CreateNomenclaturesPricesAndStockDto(NomenclatureOnlineParametersData parametersData);
-		NomenclaturesDto CreateNomenclaturesDto(IList<NomenclatureCharacteristicsDto> nomenclatureCharacteristics);
+		NomenclaturesDto CreateNomenclaturesDto(IList<OnlineNomenclatureNode> onlineNomenclatures);
 	}
 }

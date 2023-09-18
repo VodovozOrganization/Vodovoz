@@ -16,11 +16,11 @@ namespace CustomerAppsApi.Factories
 			};
 		}
 		
-		public NomenclaturesDto CreateNomenclaturesDto(IList<NomenclatureCharacteristicsDto> nomenclatureCharacteristics)
+		public NomenclaturesDto CreateNomenclaturesDto(IList<OnlineNomenclatureNode> onlineNomenclatures)
 		{
 			return new NomenclaturesDto
 			{
-				NomenclatureCharacteristics = nomenclatureCharacteristics
+				OnlineNomenclatures = new List<OnlineNomenclatureDto>(onlineNomenclatures.Select(OnlineNomenclatureDto.Create))
 			};
 		}
 		

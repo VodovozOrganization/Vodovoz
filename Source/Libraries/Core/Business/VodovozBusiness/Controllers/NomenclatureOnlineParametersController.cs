@@ -47,7 +47,7 @@ namespace Vodovoz.Controllers
 			return new NomenclatureOnlineParametersData(parameters, prices);
 		}
 		
-		public IList<NomenclatureCharacteristicsDto> GetNomenclaturesForSend(IUnitOfWork uow, NomenclatureOnlineParameterType parameterType)
+		public IList<OnlineNomenclatureNode> GetNomenclaturesForSend(IUnitOfWork uow, NomenclatureOnlineParameterType parameterType)
 		{
 			var nomenclatures = _nomenclatureRepository.GetNomenclaturesForSend(uow, parameterType);
 
