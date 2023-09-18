@@ -18,7 +18,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 	{
 		private readonly ICommonServices _commonServices;
 		private readonly IEntityDocumentsPrinterFactory _entityDocumentsPrinterFactory;
-		private readonly List<Order> _orders;
+		private readonly IList<Order> _orders;
 		private readonly bool _isOrdersListValid;
 		private const int _maxOrdersCount = 100;
 		private bool _isPrintBill;
@@ -33,7 +33,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 			INavigationManager navigation,
 			ICommonServices commonServices,
 			IEntityDocumentsPrinterFactory entityDocumentsPrinterFactory,
-			List<Order> orders
+			IList<Order> orders
 			) : base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			_commonServices = commonServices ?? throw new System.ArgumentNullException(nameof(commonServices));
@@ -86,7 +86,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 			.Distinct()
 			.Count();
 
-		public List<Order> Orders => _orders;
+		public IList<Order> Orders => _orders;
 
 		public GenericObservableList<string> Warnings => _warnings;
 

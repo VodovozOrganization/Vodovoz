@@ -232,8 +232,35 @@ namespace Vodovoz.JournalViewModels
 				(selected) => true,
 				(selected) => 
 				{
-					var orders = new List<VodovozOrder>();
-					NavigationManager.OpenViewModel<PrintOrdersDocumentsViewModel, List<VodovozOrder>>(null, orders);
+					var ordersCount = 
+						GetOrdersQuery(UoW)
+						.Take(101)
+						.List<OrderJournalNode>()
+						.Count();
+
+					if(ordersCount < 1)
+					{
+						_commonServices.InteractiveService.ShowMessage(
+							ImportanceLevel.Info,
+							"Для отправки на печать в списке должны быть заказы");
+
+						return;
+					}
+
+					if(ordersCount > 100)
+					{
+						_commonServices.InteractiveService.ShowMessage(
+							ImportanceLevel.Info,
+							"Слишком много заказов в списке. Количество заказов не должно превышать 100");
+
+						return;
+					}
+
+					var fileredOrderIds = GetOrdersQuery(UoW).List<OrderJournalNode>().Select(n => n.Id);
+
+					var orders = UoW.GetAll<VodovozOrder>().Where(o => fileredOrderIds.Contains(o.Id)).ToList();
+
+					NavigationManager.OpenViewModel<PrintOrdersDocumentsViewModel, IList<VodovozOrder>>(null, orders);
 				}
 			);
 
