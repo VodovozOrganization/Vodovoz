@@ -60,12 +60,12 @@ namespace Vodovoz.Views.Reports
 				}
 				catch(Exception ex)
 				{
-					Gtk.Application.Invoke((s, eventArgs) => throw ex);
+					Application.Invoke((s, eventArgs) => throw ex);
 				}
 
 				SetRunningState(false);
 
-				Gtk.Application.Invoke((s, a) =>
+				Application.Invoke((s, a) =>
 				{
 					ytreeviewReport.ItemsDataSource = ViewModel.Report.Rows;
 					ytreeviewReport.YTreeModel.EmitModelChanged();
@@ -105,7 +105,7 @@ namespace Vodovoz.Views.Reports
 
 		private void SetRunningState(bool isRunning)
 		{
-			Gtk.Application.Invoke((s, a) =>
+			Application.Invoke((s, a) =>
 			{
 				ViewModel.IsRunning = isRunning;
 			});

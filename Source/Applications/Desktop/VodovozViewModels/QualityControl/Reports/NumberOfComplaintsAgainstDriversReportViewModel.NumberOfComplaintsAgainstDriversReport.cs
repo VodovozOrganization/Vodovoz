@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.ViewModels.QualityControl.Reports
 {
@@ -27,23 +26,16 @@ namespace Vodovoz.ViewModels.QualityControl.Reports
 			public DateTime EndDate { get; }
 			public List<Row> Rows { get; }
 
-			public static NumberOfComplaintsAgainstDriversReport Generate(IUnitOfWork unitOfWork, DateTime startDate, DateTime endDate,
-				int geoGroupId, int complaintResultId, ReportSortOrder sortOrder)
+			public static NumberOfComplaintsAgainstDriversReport Generate(IUnitOfWork unitOfWork, DateTime startDate, DateTime endDate)
 			{
 				var complaints = (from complaint in unitOfWork.Session.Query<Complaint>()
-								  join complaintKind in unitOfWork.Session.Query<ComplaintKind>() 
-									  on complaint.ComplaintKind.Id equals complaintKind.Id
-								  join driver in unitOfWork.Session.Query<Employee>() 
-									  on complaint.Driver.Id equals driver.Id
-								  join order in unitOfWork.Session.Query<Order>() 
-									  on complaint.Order.Id equals order.Id
+								  join complaintKind in unitOfWork.Session.Query<ComplaintKind>()
+								  on complaint.ComplaintKind.Id equals complaintKind.Id
+								  join driver in unitOfWork.Session.Query<Employee>()
+								  on complaint.Driver.Id equals driver.Id
 								  where complaint.CreationDate >= startDate
 									&& complaint.CreationDate <= endDate
 									&& complaint.ComplaintType != ComplaintType.Driver
-									&& (geoGroupId == 0 ||  order.DeliveryPoint.District.GeographicGroup.Id == geoGroupId)
-									&& (complaintResultId == 0
-									    || complaint.ComplaintResultOfCounterparty.Id == complaintResultId
-									    || complaint.ComplaintResultOfEmployees.Id == complaintResultId)
 								  let driverFullName = $"{driver.LastName} {driver.Name} {driver.Patronymic}"
 								  select new
 								  {
@@ -68,10 +60,6 @@ namespace Vodovoz.ViewModels.QualityControl.Reports
 						ComplaintsList = string.Join(",\n", group.Select(x => $"{x.ComplaintId} - {x.ComplaintsKind}"))
 					});
 				}
-
-				result = sortOrder == ReportSortOrder.DriverName
-					? result.OrderBy(x => x.DriverFullName).ToList()
-					: result.OrderByDescending(x => x.ComplaintsCount).ToList();
 
 				return new NumberOfComplaintsAgainstDriversReport(startDate, endDate, result);
 			}

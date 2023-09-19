@@ -353,7 +353,7 @@ namespace Vodovoz.Views.Suppliers
 					{
 						var report = await ViewModel.GenerateActiveStoragesBalanceSummaryReportAsync(ViewModel.ReportGenerationCancellationTokenSource.Token);
 
-						Gtk.Application.Invoke((s, eventArgs) =>
+						Application.Invoke((s, eventArgs) =>
 						{
 							ViewModel.ActiveStoragesBalanceSummaryReport = report;
 						});
@@ -362,7 +362,7 @@ namespace Vodovoz.Views.Suppliers
 					{
 						var defaultReport = await ViewModel.ActionGenerateReportAsync(ViewModel.ReportGenerationCancellationTokenSource.Token);
 
-						Gtk.Application.Invoke((s, eventArgs) =>
+						Application.Invoke((s, eventArgs) =>
 						{
 							ViewModel.BalanceSummaryReport = defaultReport;
 						});
@@ -370,18 +370,18 @@ namespace Vodovoz.Views.Suppliers
 				}
 				catch(OperationCanceledException)
 				{
-					Gtk.Application.Invoke((s, eventArgs) =>
+					Application.Invoke((s, eventArgs) =>
 					{
 						ViewModel.ShowWarning("Формирование отчета было прервано");
 					});
 				}
 				catch(Exception ex)
 				{
-					Gtk.Application.Invoke((s, eventArgs) => throw ex);
+					Application.Invoke((s, eventArgs) => throw ex);
 				}
 				finally
 				{
-					Gtk.Application.Invoke((s, eventArgs) =>
+					Application.Invoke((s, eventArgs) =>
 					{
 						ViewModel.IsGenerating = false;
 					});

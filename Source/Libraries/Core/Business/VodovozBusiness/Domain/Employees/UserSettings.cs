@@ -21,7 +21,6 @@ namespace Vodovoz.Domain.Employees
 	{
 		private IList<CashSubdivisionSortingSettings> _cashSubdivisionSortingSettings;
 		private GenericObservableList<CashSubdivisionSortingSettings> _observableCashSubdivisionSortingSettings;
-		private string _movementDocumentsNotificationUserSelectedWarehousesString;
 
 		#region Свойства
 
@@ -227,13 +226,6 @@ namespace Vodovoz.Domain.Employees
 			set => SetField(ref _salesBySubdivisionsAnalitycsReportSubdivisionsString, value);
 		}
 
-		[Display(Name = "Выбранные пользователем склады для отслеживания наличия перемещений ожидающих приемки")]
-		public virtual string MovementDocumentsNotificationUserSelectedWarehousesString
-		{
-			get => _movementDocumentsNotificationUserSelectedWarehousesString;
-			set => SetField(ref _movementDocumentsNotificationUserSelectedWarehousesString, value);
-		}
-
 		[PropertyChangedAlso(nameof(SalesBySubdivisionsAnalitycsReportWarehousesString))]
 		public virtual IEnumerable<int> SalesBySubdivisionsAnalitycsReportWarehouses
 		{
@@ -250,15 +242,6 @@ namespace Vodovoz.Domain.Employees
 				.Split(new string[] { ", " }, StringSplitOptions.RemoveEmptyEntries)
 				.Select(x => int.Parse(x));
 			set => SalesBySubdivisionsAnalitycsReportSubdivisionsString = string.Join(", ", value);
-		}
-
-		[PropertyChangedAlso(nameof(MovementDocumentsNotificationUserSelectedWarehousesString))]
-		public virtual IEnumerable<int> MovementDocumentsNotificationUserSelectedWarehouses
-		{
-			get => string.IsNullOrWhiteSpace(MovementDocumentsNotificationUserSelectedWarehousesString) ? Enumerable.Empty<int>() : MovementDocumentsNotificationUserSelectedWarehousesString
-				.Split(new string[] { ", " }, StringSplitOptions.RemoveEmptyEntries)
-				.Select(x => int.Parse(x));
-			set => MovementDocumentsNotificationUserSelectedWarehousesString = string.Join(", ", value);
 		}
 
 		#endregion

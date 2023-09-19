@@ -84,7 +84,7 @@ namespace Vodovoz.Views.Logistic
 
 				if(!_isDestroyed)
 				{
-					Gtk.Application.Invoke((s, eventArgs) =>
+					Application.Invoke((s, eventArgs) =>
 					{
 						if(ViewModel.DriversInfoExportType == DriversInfoExportType.RouteListGrouping)
 						{
@@ -104,20 +104,20 @@ namespace Vodovoz.Views.Logistic
 			{
 				if(ex.FindExceptionTypeInInner<TimeoutException>() != null)
 				{
-					Gtk.Application.Invoke((s, eventArgs) =>
+					Application.Invoke((s, eventArgs) =>
 						MessageDialogHelper.RunWarningDialog("Превышено время ожидания выполнения запроса.\nПопробуйте уменьшить период",
 							"Таймаут"));
 				}
 				else
 				{
-					Gtk.Application.Invoke((s, eventArgs) => throw ex);
+					Application.Invoke((s, eventArgs) => throw ex);
 				}
 			}
 			finally
 			{
 				if(!_isDestroyed)
 				{
-					Gtk.Application.Invoke((s, eventArgs) =>
+					Application.Invoke((s, eventArgs) =>
 					{
 						ViewModel.DataIsLoading = false;
 						ViewModel.StatusMessage = loadedSuccessfully ? "Данные загружены" : "Ошибка при загрузке данных";

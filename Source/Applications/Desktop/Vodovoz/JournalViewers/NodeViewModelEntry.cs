@@ -313,7 +313,7 @@ namespace Vodovoz.JournalViewers
                                 return;
                             }
                         }
-                        Gtk.Application.Invoke((s, arg) => {
+                        Application.Invoke((s, arg) => {
                             FillAutocomplete();
                         });
                     } catch(Exception ex) {

@@ -1,18 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Text;
 using QS.Print;
 using QS.Report;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Orders.OrdersWithoutShipment;
-using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
-	public class UPDDocument : PrintableOrderDocument, IPrintableRDLDocument, IEmailableDocument
+	public class UPDDocument : PrintableOrderDocument, IPrintableRDLDocument, ISignableDocument
 	{
 		private static readonly DateTime _edition2017LastDate =
 			Convert.ToDateTime("2021-06-30T23:59:59", CultureInfo.CreateSpecificCulture("ru-RU"));
@@ -26,7 +23,6 @@ namespace Vodovoz.Domain.Orders.Documents
 		#endregion
 
 		#region implemented abstract members of IPrintableRDLDocument
-
 		public virtual ReportInfo GetReportInfo(string connectionString = null)
 		{
 			var identifier = Order.DeliveryDate <= _edition2017LastDate ? "Documents.UPD2017Edition" : "Documents.UPD";
@@ -41,50 +37,7 @@ namespace Vodovoz.Domain.Orders.Documents
 				RestrictedOutputPresentationTypes = RestrictedOutputPresentationTypes
 			};
 		}
-
 		public virtual Dictionary<object, object> Parameters { get; set; }
-		#endregion
-
-		#region implemented abstract members of IEmailableDocument
-
-		public virtual string Title => String.Format($"УПД №{Order.Id} от {Order.DeliveryDate:d}");
-		public virtual Counterparty Counterparty => Order?.Client;
-
-		public virtual EmailTemplate GetEmailTemplate()
-		{
-			var hasAgreeForEdo = Order.Client.ConsentForEdoStatus == ConsentForEdoStatus.Agree;
-			var isFastDelivery = Order.IsFastDelivery;
-
-			var reason = isFastDelivery ? "заказ был оформлен по экспресс-доставке" : "заказ был перенесен на другой маршрут";
-
-			var body = hasAgreeForEdo
-				? "Просьба подписать документ в ЭДО или ответным письмом выслать скан с Вашими печатью и подписью"
-				: "Просьба ответным письмом выслать скан с Вашими печатью и подписью." +
-				  "<br>Если компания использует ЭДО, прошу выслать приглашение по указанным данным ниже, это упростит обмен документами в будущем." +
-				  "<br>Наши данные:" +
-				  "<br>Оператор ЭДО - ТАКСКОМ" +
-				  "<br>ООО \"Веселый Водовоз\" (роуминг, Такском)" +
-				  "<br>ИНН 7816453294" +
-				  "<br>ИД 2AL-EF740B2F-CA2E-414B-A2A7-F8FA6824B4E4-00000";
-
-			var text = "Добрый день!" +
-			           $"<br>Во вложении {Title}" +
-			           $"<br>Т.к. {reason}, Вам не привезли закрывающие документы." +
-			           $"<br>{body}" +
-			           "<br>" +
-			           "<br>В случае отказа от обмена через ЭДО, я подготовлю документы для отправки по почте РФ. Напишите почтовый адрес, пожалуйста." +
-			           "<br>Жду обратной связи.";
-
-			var template = new EmailTemplate
-			{
-				Title = "ООО \"Веселый водовоз\"",
-				TextHtml = text,
-				Text = text
-			};
-
-			return template;
-		}
-
 		#endregion
 
 		public override string Name => String.Format("УПД №{0}", Order.Id);

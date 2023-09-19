@@ -31,7 +31,8 @@ namespace Vodovoz.JournalViewModels
 				typeof(CounterpartyContract),
 				typeof(Phone),
 				typeof(Tag),
-				typeof(DeliveryPoint));
+				typeof(DeliveryPoint)
+			);
 
 			SearchEnabled = false;
 		}
@@ -64,11 +65,6 @@ namespace Vodovoz.JournalViewModels
 			if (FilterViewModel != null && !FilterViewModel.RestrictIncludeArchive)
 			{
 				query.Where(c => !c.IsArchive);
-			}
-
-			if(!FilterViewModel.ShowLiquidating)
-			{
-				query.Where(c => !c.IsLiquidating);
 			}
 
 			if(FilterViewModel?.CounterpartyType != null)
@@ -237,11 +233,6 @@ namespace Vodovoz.JournalViewModels
 			if(FilterViewModel != null && !FilterViewModel.RestrictIncludeArchive)
 			{
 				query.Where(c => !c.IsArchive);
-			}
-
-			if(!FilterViewModel.ShowLiquidating)
-			{
-				query.Where(c => !c.IsLiquidating);
 			}
 
 			if(FilterViewModel?.CounterpartyType != null)

@@ -128,10 +128,6 @@ namespace Vodovoz.JournalViewModels
 				//sensetive
 				(selected) => {
 					var selectedNodes = selected.OfType<CounterpartyJournalNode>();
-					if(selectedNodes.Any(x => x.IsLiquidating))
-					{
-						return false;
-					}
 					if(selectedNodes == null || selectedNodes.Count() != 1)
 					{
 						return false;
@@ -198,18 +194,13 @@ namespace Vodovoz.JournalViewModels
 				query.Where(c => !c.IsArchive);
 			}
 
-			if(!FilterViewModel.ShowLiquidating)
-			{
-				query.Where(c => !c.IsLiquidating);
-			}
-
-			if(!string.IsNullOrWhiteSpace(FilterViewModel?.CounterpartyName))
+			if(!String.IsNullOrWhiteSpace(FilterViewModel?.CounterpartyName))
 			{
 				query.Where(Restrictions.InsensitiveLike(Projections.Property(() => counterpartyAlias.Name),
 					$"%{FilterViewModel.CounterpartyName}%"));
 			}
 
-			if(!string.IsNullOrWhiteSpace(FilterViewModel?.CounterpartyPhone))
+			if(!String.IsNullOrWhiteSpace(FilterViewModel?.CounterpartyPhone))
 			{
 				Phone counterpartyPhoneAlias = null;
 
@@ -289,10 +280,8 @@ namespace Vodovoz.JournalViewModels
 				));
 
 			if(FilterViewModel != null && FilterViewModel.Tag != null)
-			{
 				query.JoinAlias(c => c.Tags, () => tagAliasForSubquery)
 					 .Where(() => tagAliasForSubquery.Id == FilterViewModel.Tag.Id);
-			}
 
 			if(FilterViewModel != null && FilterViewModel.IsForSalesDepartment != null)
 			{
@@ -331,7 +320,6 @@ namespace Vodovoz.JournalViewModels
 					.Select(c => c.Name).WithAlias(() => resultAlias.Name)
 					.Select(c => c.INN).WithAlias(() => resultAlias.INN)
 					.Select(c => c.IsArchive).WithAlias(() => resultAlias.IsArhive)
-					.Select(c => c.IsLiquidating).WithAlias(() => resultAlias.IsLiquidating)
 					.SelectSubQuery(contractsSubquery).WithAlias(() => resultAlias.Contracts)
 					.Select(Projections.SqlFunction(
 						new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(DISTINCT ?1 SEPARATOR ?2)"),
@@ -383,18 +371,13 @@ namespace Vodovoz.JournalViewModels
 				query.Where(c => !c.IsArchive);
 			}
 
-			if(!FilterViewModel.ShowLiquidating)
-			{
-				query.Where(c => !c.IsLiquidating);
-			}
-
-			if(!string.IsNullOrWhiteSpace(FilterViewModel?.CounterpartyName))
+			if(!String.IsNullOrWhiteSpace(FilterViewModel?.CounterpartyName))
 			{
 				query.Where(Restrictions.InsensitiveLike(Projections.Property(() => counterpartyAlias.Name),
 					$"%{FilterViewModel.CounterpartyName}%"));
 			}
 
-			if(!string.IsNullOrWhiteSpace(FilterViewModel?.CounterpartyPhone))
+			if(!String.IsNullOrWhiteSpace(FilterViewModel?.CounterpartyPhone))
 			{
 				Phone counterpartyPhoneAlias = null;
 
@@ -406,7 +389,7 @@ namespace Vodovoz.JournalViewModels
 				query.Where(Subqueries.Exists(counterpartyPhonesSubquery.DetachedCriteria));
 			}
 
-			if(!string.IsNullOrWhiteSpace(FilterViewModel?.DeliveryPointPhone))
+			if(!String.IsNullOrWhiteSpace(FilterViewModel?.DeliveryPointPhone))
 			{
 				query.Where(() => deliveryPointPhoneAlias.DigitsNumber == FilterViewModel.DeliveryPointPhone);
 			}
@@ -474,10 +457,8 @@ namespace Vodovoz.JournalViewModels
 				));
 
 			if(FilterViewModel != null && FilterViewModel.Tag != null)
-			{
 				query.JoinAlias(c => c.Tags, () => tagAliasForSubquery)
 					 .Where(() => tagAliasForSubquery.Id == FilterViewModel.Tag.Id);
-			}
 
 			if(FilterViewModel != null && FilterViewModel.IsForSalesDepartment != null)
 			{

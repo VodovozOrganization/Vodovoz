@@ -223,7 +223,7 @@ namespace Vodovoz.Core.Journal
 
 		protected void UpdateSum()
 		{
-			Gtk.Application.Invoke((e, args) => {
+			Application.Invoke((e, args) => {
 				var text = representationModel.GetSummaryInfo();
 				if(text.Length > 180) {
 					labelSum.Hide();

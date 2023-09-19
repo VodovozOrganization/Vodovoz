@@ -33,7 +33,7 @@ namespace Vodovoz.Views.Logistic
 				}
 				catch(Exception ex)
 				{
-					Gtk.Application.Invoke((s, e) => throw ex);
+					Application.Invoke((s, e) => throw ex);
 				}
 			};
 
@@ -46,7 +46,7 @@ namespace Vodovoz.Views.Logistic
 
 			ViewModel.PropertyChanged += (sender, args) =>
 			{
-				Gtk.Application.Invoke((s, e) =>
+				Application.Invoke((s, e) =>
 				{
 					if(args.PropertyName == nameof(ViewModel.ActivationStatus))
 					{

@@ -143,7 +143,7 @@ namespace Vodovoz.Views.Reports
 
 			ViewModel.EmployeeDataLoader.ItemsListUpdated += (sender, args) =>
 			{
-				Gtk.Application.Invoke((s, arg) =>
+				Application.Invoke((s, arg) =>
 				{
 					if(!_isDestroyed)
 					{
@@ -203,7 +203,7 @@ namespace Vodovoz.Views.Reports
 
 			ViewModel.EquipmentKindDataLoader.ItemsListUpdated += (sender, args) =>
 			{
-				Gtk.Application.Invoke((s, arg) =>
+				Application.Invoke((s, arg) =>
 				{
 					if(!_isDestroyed)
 					{
@@ -310,7 +310,7 @@ namespace Vodovoz.Views.Reports
 
 			ViewModel.NomenclatureDataLoader.ItemsListUpdated += (sender, args) =>
 			{
-				Gtk.Application.Invoke((s, arg) =>
+				Application.Invoke((s, arg) =>
 				{
 					if(!_isDestroyed)
 					{
