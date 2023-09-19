@@ -1,8 +1,9 @@
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
 using CustomerAppsApi.Library.Dto;
 using ExternalCounterpartyAssignNotifier.Services;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -15,6 +16,7 @@ namespace ExternalCounterpartyAssignNotifier
 	public class ExternalCounterpartyAssignNotifier : BackgroundService
 	{
 		private readonly ILogger<ExternalCounterpartyAssignNotifier> _logger;
+		private readonly IConfiguration _configuration;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IExternalCounterpartyAssignNotificationRepository _externalCounterpartyAssignNotificationRepository;
 		private readonly IServiceScopeFactory _serviceScopeFactory;
@@ -22,11 +24,13 @@ namespace ExternalCounterpartyAssignNotifier
 
 		public ExternalCounterpartyAssignNotifier(
 			ILogger<ExternalCounterpartyAssignNotifier> logger,
+			IConfiguration configuration,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IExternalCounterpartyAssignNotificationRepository externalCounterpartyAssignNotificationRepository,
 			IServiceScopeFactory serviceScopeFactory)
 		{
 			_logger = logger;
+			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_externalCounterpartyAssignNotificationRepository =
 				externalCounterpartyAssignNotificationRepository
@@ -39,16 +43,18 @@ namespace ExternalCounterpartyAssignNotifier
 			while(!stoppingToken.IsCancellationRequested)
 			{
 				_logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-				await NotifyAsync();
+				var pastDaysForSend = _configuration.GetValue<int>("PastDaysForSend");
+				await NotifyAsync(pastDaysForSend);
 				await Task.Delay(1000 * _delayInSec, stoppingToken);
 			}
 		}
 
-		private async Task NotifyAsync()
+		private async Task NotifyAsync(int pastDaysForSend)
 		{
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 			{
-				var notificationsToSend = _externalCounterpartyAssignNotificationRepository.GetNotificationsForSend(uow, 3);
+				var notificationsToSend =
+					_externalCounterpartyAssignNotificationRepository.GetNotificationsForSend(uow, pastDaysForSend);
 
 				using(var scope = _serviceScopeFactory.CreateScope())
 				{
@@ -96,6 +102,7 @@ namespace ExternalCounterpartyAssignNotifier
 			try
 			{
 				notification.HttpCode = httpCode;
+				notification.SentDate = DateTime.Now;
 				uow.Save(notification);
 				uow.Commit();
 			}
