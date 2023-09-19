@@ -1,13 +1,13 @@
-﻿using Dadata;
-using Dadata.Model;
-using NLog;
-using RevenueService.Client.Dto;
-using RevenueService.Client.Parsers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Dadata;
+using Dadata.Model;
+using NLog;
+using RevenueService.Client.Dto;
+using RevenueService.Client.Parsers;
 
 namespace RevenueService.Client
 {
@@ -68,7 +68,7 @@ namespace RevenueService.Client
 					OpfFull = suggestion.data.opf?.@full,
 					Emails = suggestion.data.emails?.Select(x => x.value).ToArray(),
 					Phones = suggestion.data.phones?.Select(x => x.value).ToArray(),
-					State = suggestion.data.state.status
+					State = suggestion.data.state.status.ToString()
 				};
 
 				var postalCode = suggestion.data.address?.data.postal_code;
@@ -90,37 +90,6 @@ namespace RevenueService.Client
 			{
 				CounterpartyDetailsList = suggestionList
 			};
-		}
-
-		public async Task<PartyStatus> GetCounterpartyStatus(
-			string inn,
-			string kpp,
-			CancellationToken cancellationToken)
-		{
-			var query = new DadataRequestDto
-			{
-				Inn = inn,
-				Kpp = kpp
-			};
-
-			var response = await GetCounterpartyInfoAsync(query, cancellationToken);
-
-			try
-			{
-				var counterpartyDetails = response.CounterpartyDetailsList.Single();
-
-				return counterpartyDetails.State;
-			}
-			catch(InvalidOperationException ex) when(ex.Message == "Последовательность содержит более одного элемента"
-							&& ex.TargetSite.Name == "Single")
-			{
-				throw new InvalidOperationException($"Найдено несколько записей в ФНС с ИНН: \"{inn}\" и КПП: \"{kpp}\"", ex);
-			}
-			catch(InvalidOperationException ex) when(ex.Message == "Последовательность не содержит элементов"
-				&& ex.TargetSite.Name == "Single")
-			{
-				throw new InvalidOperationException($"Не найдено ни одной записи в ФНС с ИНН: \"{inn}\" и КПП: \"{kpp}\"", ex);
-			}
 		}
 	}
 }

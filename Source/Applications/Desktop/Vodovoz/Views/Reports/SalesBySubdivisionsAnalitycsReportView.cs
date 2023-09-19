@@ -99,11 +99,11 @@ namespace Vodovoz.Views.Reports
 				{
 					var report = await ViewModel.GenerateReport(ViewModel.ReportGenerationCancelationTokenSource.Token);
 
-					Gtk.Application.Invoke((s, eventArgs) => { ViewModel.Report = report; });
+					Application.Invoke((s, eventArgs) => { ViewModel.Report = report; });
 				}
 				catch(OperationCanceledException)
 				{
-					Gtk.Application.Invoke((s, eventArgs) => {
+					Application.Invoke((s, eventArgs) => {
 						if(ViewModel.LastGenerationErrors.Any())
 						{
 							ViewModel.ShowWarning(string.Join("\n", ViewModel.LastGenerationErrors));
@@ -117,11 +117,11 @@ namespace Vodovoz.Views.Reports
 				}
 				catch(Exception ex)
 				{
-					Gtk.Application.Invoke((s, eventArgs) => { throw ex; });
+					Application.Invoke((s, eventArgs) => { throw ex; });
 				}
 				finally
 				{
-					Gtk.Application.Invoke((s, eventArgs) => { ViewModel.IsGenerating = false; });
+					Application.Invoke((s, eventArgs) => { ViewModel.IsGenerating = false; });
 				}
 			}, ViewModel.ReportGenerationCancelationTokenSource.Token);
 
@@ -180,7 +180,7 @@ namespace Vodovoz.Views.Reports
 					}
 					finally
 					{
-						Gtk.Application.Invoke((s, eventArgs) =>
+						Application.Invoke((s, eventArgs) =>
 						{
 							ViewModel.IsSaving = false;
 							ybuttonSave.Label = "Сохранить";

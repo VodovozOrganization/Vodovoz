@@ -1,5 +1,4 @@
-﻿using Dadata.Model;
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using RevenueService.Client.Enums;
 using System.ComponentModel.DataAnnotations;
 using VodovozInfrastructure.Attributes;
@@ -85,10 +84,10 @@ namespace RevenueService.Client.Dto
 		public string ManagerFullName { get; set; }
 
 		[Display(Name = "Статус")]
-		public PartyStatus State { get; set; }
+		public string State { get; set; }
 
 		[ReportExportIgnore]
 		[Display(Name = "Активен")]
-		public bool IsActive => State == PartyStatus.ACTIVE;
+		public bool IsActive => State == "ACTIVE";
 	}
 }

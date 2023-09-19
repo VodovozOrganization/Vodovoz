@@ -40,10 +40,8 @@ namespace Vodovoz.Domain.StoredEmails
 
 	public enum CounterpartyEmailType
 	{
-		[Display(Name = "Счёт")]
-		BillDocument,
-		[Display(Name = "УПД")]
-		UpdDocument,
+		[Display(Name = "Документ заказа")]
+		OrderDocument,
 		[Display(Name = "Долг")]
 		DebtBill,
 		[Display(Name = "Массовая рассылка")]

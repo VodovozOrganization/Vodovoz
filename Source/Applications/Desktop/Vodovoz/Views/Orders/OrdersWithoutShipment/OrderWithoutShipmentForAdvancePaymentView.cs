@@ -129,7 +129,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 		
 		private void OnDiscountReasonComboEdited(object o, EditedArgs args)
 		{
-			Gtk.Application.Invoke((sender, eventArgs) =>
+			Application.Invoke((sender, eventArgs) =>
 			{
 				var node = treeItems.YTreeModel.NodeAtPath(new TreePath(args.Path));
 				

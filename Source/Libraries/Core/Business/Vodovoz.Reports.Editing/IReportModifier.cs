@@ -1,9 +1,10 @@
-﻿using System.Xml.Linq;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Xml.Linq;
 
 namespace Vodovoz.Reports.Editing
 {
 	public interface IReportModifier
 	{
-		void ApplyChanges(XDocument reportDocument);
+		void ApplyChanges(XDocument document);
 	}
 }

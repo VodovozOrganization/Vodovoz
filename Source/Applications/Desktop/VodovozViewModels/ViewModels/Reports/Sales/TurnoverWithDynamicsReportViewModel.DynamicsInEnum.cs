@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using DocumentFormat.OpenXml.Wordprocessing;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.ViewModels.Reports.Sales
 {
@@ -6,9 +7,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 	{
 		public enum DynamicsInEnum
 		{
-			[Display(Name = "Проценты")]
 			Percents,
-			[Display(Name = "Единицы измерения")]
 			MeasurementUnit
 		}
 	}

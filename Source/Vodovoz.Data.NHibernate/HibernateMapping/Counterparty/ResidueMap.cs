@@ -16,7 +16,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			Map(x => x.BottlesResidue).Column("bottles_residue");
 			Map(x => x.BottlesDeposit).Column("deposit_residue_bottles");
 			Map(x => x.DebtResidue).Column("money_debt_residue");
-			Map(x => x.DebtPaymentType).Column("debt_payment_type");
+			Map(x => x.DebtPaymentType).Column("debt_payment_type").CustomType<PaymentTypeStringType>();
 			Map(x => x.Comment).Column("comment");
 
 			References(x => x.Customer).Column("client_id");

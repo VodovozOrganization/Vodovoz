@@ -156,7 +156,6 @@ namespace Vodovoz.Domain.Client
 		private IList<ISupplierPriceNode> _priceNodes = new List<ISupplierPriceNode>();
 		private GenericObservableList<ISupplierPriceNode> _observablePriceNodes;
 		private CounterpartySubtype _counterpartySubtype;
-		private bool _isLiquidating;
 
 		#region Свойства
 
@@ -330,13 +329,6 @@ namespace Vodovoz.Domain.Client
 		{
 			get => _kPP;
 			set => SetField(ref _kPP, value);
-		}
-
-		[Display(Name = "Контрагент в статусе ликвидации")]
-		public virtual bool IsLiquidating
-		{
-			get => _isLiquidating;
-			set => SetField(ref _isLiquidating, value);
 		}
 
 		[Display(Name = "ОГРН")]
@@ -1086,32 +1078,22 @@ namespace Vodovoz.Domain.Client
 			CloseDeliveryComment = currentEmployee.ShortName + " " + DateTime.Now.ToString("dd/MM/yyyy HH:mm") + ": " + newComment;
 		}
 
-		protected virtual bool ManualCloseDelivery(Employee currentEmployee)
+		protected virtual bool CloseDelivery(Employee currentEmployee)
 		{
 			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_deliveries_for_counterparty"))
 			{
 				return false;
 			}
 
-			CloseDelivery(currentEmployee);
-
-			return true;
-		}
-
-		public virtual void CloseDelivery(Employee currentEmployee)
-		{
 			IsDeliveriesClosed = true;
 			CloseDeliveryDate = DateTime.Now;
 			CloseDeliveryPerson = currentEmployee;
+			return true;
 		}
+
 
 		protected virtual bool OpenDelivery()
 		{
-			if(IsLiquidating)
-			{
-				return false;
-			}
-
 			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_deliveries_for_counterparty"))
 			{
 				return false;
@@ -1127,7 +1109,7 @@ namespace Vodovoz.Domain.Client
 
 		public virtual bool ToggleDeliveryOption(Employee currentEmployee)
 		{
-			return IsDeliveriesClosed ? OpenDelivery() : ManualCloseDelivery(currentEmployee);
+			return IsDeliveriesClosed ? OpenDelivery() : CloseDelivery(currentEmployee);
 		}
 
 		public virtual string GetCloseDeliveryInfo()
@@ -1271,6 +1253,7 @@ namespace Vodovoz.Domain.Client
 			Comment = string.Empty;
 			INN = string.Empty;
 			OGRN = string.Empty;
+			KPP = string.Empty;
 			JurAddress = string.Empty;
 			PhoneFrom1c = string.Empty;
 		}

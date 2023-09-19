@@ -1,4 +1,4 @@
-using NHibernate.Transform;
+﻿using NHibernate.Transform;
 using QS.Project.Filter;
 using QS.RepresentationModel.GtkUI;
 using System;
@@ -28,8 +28,6 @@ namespace Vodovoz.Filters.ViewModels
 		private int? _counterpartyId;
 		private int? _counterpartyVodovozInternalId;
 		private string _counterpartyInn;
-		private string _deliveryPointAddressLike;
-		private bool _showLiquidating;
 		private readonly CompositeSearchViewModel _searchByAddressViewModel;
 
 		public CounterpartyJournalFilterViewModel()
@@ -41,43 +39,31 @@ namespace Vodovoz.Filters.ViewModels
 				x => x.CounterpartyType,
 				x => x.ReasonForLeaving,
 				x => x.RestrictIncludeArchive,
-				x => x.ShowLiquidating,
 				x => x.Tag,
-				x => x.IsNeedToSendBillByEdo);
+				x => x.IsNeedToSendBillByEdo
+			);
 		}
 
 		public CompositeSearchViewModel SearchByAddressViewModel => _searchByAddressViewModel;
 
-		public virtual CounterpartyType? CounterpartyType
-		{
+		public virtual CounterpartyType? CounterpartyType {
 			get => _counterpartyType;
-			set => SetField(ref _counterpartyType, value);
+			set => SetField(ref _counterpartyType, value, () => CounterpartyType);
 		}
 
-		public virtual bool RestrictIncludeArchive
-		{
+		public virtual bool RestrictIncludeArchive {
 			get => _restrictIncludeArchive;
-			set => SetField(ref _restrictIncludeArchive, value);
+			set => SetField(ref _restrictIncludeArchive, value, () => RestrictIncludeArchive);
 		}
 
-		public bool ShowLiquidating
-		{
-			get => _showLiquidating;
-			set => SetField(ref _showLiquidating, value);
-		}
-
-		public virtual Tag Tag
-		{
+		public virtual Tag Tag {
 			get => _tag;
-			set => SetField(ref _tag, value);
+			set => SetField(ref _tag, value, () => Tag);
 		}
 
-		public virtual IRepresentationModel TagVM
-		{
-			get
-			{
-				if(_tagVM == null)
-				{
+		public virtual IRepresentationModel TagVM {
+			get {
+				if(_tagVM == null) {
 					_tagVM = new TagVM(UoW);
 				}
 				return _tagVM;
@@ -108,9 +94,8 @@ namespace Vodovoz.Filters.ViewModels
 					var list = UoW.Session.QueryOver(() => salesChannelAlias)
 						.SelectList(scList => scList
 							.SelectGroup(() => salesChannelAlias.Id).WithAlias(() => salesChannelSelectableNodeAlias.Id)
-							.Select(() => salesChannelAlias.Name).WithAlias(() => salesChannelSelectableNodeAlias.Name))
-						.TransformUsing(Transformers.AliasToBean<SalesChannelSelectableNode>())
-						.List<SalesChannelSelectableNode>();
+							.Select(() => salesChannelAlias.Name).WithAlias(() => salesChannelSelectableNodeAlias.Name)
+						).TransformUsing(Transformers.AliasToBean<SalesChannelSelectableNode>()).List<SalesChannelSelectableNode>();
 
 					_salesChannels = new GenericObservableList<SalesChannelSelectableNode>(list);
 					SubscribeOnCheckChanged();
@@ -142,7 +127,6 @@ namespace Vodovoz.Filters.ViewModels
 			get => _reasonForLeaving;
 			set => SetField(ref _reasonForLeaving, value);
 		}
-
 		public override bool IsShow { get; set; } = true;
 
 		public bool IsNeedToSendBillByEdo
@@ -171,7 +155,7 @@ namespace Vodovoz.Filters.ViewModels
 
 		private void UnsubscribeOnCheckChanged()
 		{
-			foreach(SalesChannelSelectableNode selectableSalesChannel in SalesChannels)
+			foreach (SalesChannelSelectableNode selectableSalesChannel in SalesChannels)
 			{
 				selectableSalesChannel.PropertyChanged -= OnStatusCheckChanged;
 			}
@@ -179,7 +163,7 @@ namespace Vodovoz.Filters.ViewModels
 
 		private void SubscribeOnCheckChanged()
 		{
-			foreach(SalesChannelSelectableNode selectableSalesChannel in SalesChannels)
+			foreach (SalesChannelSelectableNode selectableSalesChannel in SalesChannels)
 			{
 				selectableSalesChannel.PropertyChanged += OnStatusCheckChanged;
 			}

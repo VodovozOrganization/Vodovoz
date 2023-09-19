@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -72,9 +72,6 @@
     <Compile Include="Cash\Transfer\Journal\TransferDocumentsJournalViewModel.cs" />
     <Compile Include="Cash\TransferExpenseViewModel.cs" />
     <Compile Include="Cash\TransferIncomeViewModel.cs" />
-    <Compile Include="Counterparties\SubtypesJournalViewModel.cs" />
-    <Compile Include="Counterparties\SubtypesJournalViewModel.Node.cs" />
-    <Compile Include="Counterparties\SubtypeViewModel.cs" />
     <Compile Include="Dialogs\Complaints\ComplaintsJournalsViewModel.cs" />
     <Compile Include="Dialogs\Complaints\ResponsibleViewModel.cs" />
     <Compile Include="Dialogs\Counterparty\CloseSupplyToCounterpartyViewModel.cs" />
@@ -100,12 +97,10 @@
     <Compile Include="Dialogs\Sale\GeoGroupViewModel.cs" />
     <Compile Include="Extensions\EntityTabViewModelBaseExtensions.cs" />
     <Compile Include="Factories\IIncludeExcludeSalesFilterFactory.cs" />
-    <Compile Include="Factories\ILeftRightListViewModelFactory.cs" />
     <Compile Include="Factories\IncludeExcludeSalesFilterFactory.cs" />
     <Compile Include="Factories\IRoboatsViewModelFactory.cs" />
     <Compile Include="Factories\CarManufacturerJournalFactory.cs" />
     <Compile Include="Factories\CarModelJournalFactory.cs" />
-    <Compile Include="Factories\LeftRightListViewModelFactory.cs" />
     <Compile Include="Factories\OdometerReadingsViewModelFactory.cs" />
     <Compile Include="Factories\IOdometerReadingsViewModelFactory.cs" />
     <Compile Include="FuelDocuments\FuelDocumentViewModel.cs" />
@@ -177,10 +172,7 @@
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.cs" />
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.NumberOfComplaintsAgainstDriversReport.cs" />
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.NumberOfComplaintsAgainstDriversReport.Row.cs" />
-    <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.ReportSortOrder.cs" />
     <Compile Include="ReportsParameters\Orders\UndeliveredOrdersClassificationReportViewModel.cs" />
-    <Compile Include="ReportsParameters\Profitability\GroupingNode.cs" />
-    <Compile Include="ReportsParameters\SalesReportViewModel.cs" />
     <Compile Include="ViewModels\Cash\CashRequestItemViewModel.CashRequestSumItemAcceptedEventArgs.cs" />
     <Compile Include="Logistic\RouteListAnalysisViewModel.cs" />
     <Compile Include="Logistic\RouteListJournalViewModel.cs" />
@@ -617,6 +609,7 @@
     <Compile Include="ViewModels\Reports\Sales\SalesBySubdivisionsAnalitycsWithDynamicsReport.SubTotalRow.cs" />
     <Compile Include="ViewModels\Reports\Sales\SalesBySubdivisionsAnalitycsWithDynamicsReport.TotalRow.cs" />
     <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.cs" />
+    <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.GroupingBy.cs" />
     <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.MeasurementUnit.cs" />
     <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.Report.cs" />
     <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.DynamicsInEnum.cs" />
@@ -624,9 +617,6 @@
     <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.TurnoverWithDynamicsReport.TurnoverWithDynamicsReportLastSaleDetails.cs" />
     <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.TurnoverWithDynamicsReport.TurnoverWithDynamicsReportRow.cs" />
     <Compile Include="ViewModels\Reports\SelectableParameterReportFilterSelectionChangedArgs.cs" />
-    <Compile Include="ViewModels\Reports\TrueMark\ProductCodesScanningReport.cs" />
-    <Compile Include="ViewModels\Reports\TrueMark\ProductCodesScanningReport.Row.cs" />
-    <Compile Include="ViewModels\Reports\TrueMark\ProductCodesScanningReport.ScannedCodeInfo.cs" />
     <Compile Include="ViewModels\Reports\UndeliveredOrdersJournalReport\UndeliveredOrdersClassificationSummaryReport.cs" />
     <Compile Include="ViewModels\Sale\DeliveryPriceRuleViewModel.cs" />
     <Compile Include="ViewModels\Security\RegisteredRMViewModel.cs" />
@@ -784,9 +774,6 @@
     <Compile Include="Journals\FilterViewModels\Store\InventoryInstancesStockBalanceJournalFilterViewModel.cs" />
     <Compile Include="ViewModels\Warehouses\InventoryInstanceMovementReportViewModel.cs" />
     <Compile Include="ViewModels\Warehouses\InventoryDocumentViewModel.cs" />
-    <Compile Include="AdministrationTools\RevenueServiceMassCounterpartyUpdateToolViewModel.cs" />
-    <Compile Include="Widgets\Users\WarehousesUserSelectionViewModel.cs" />
-    <Compile Include="Widgets\Users\WarehousesUserSelectionViewModel.WarehouseNode.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Email\Mailjet.Api.Abstractions\Mailjet.Api.Abstractions.csproj">
@@ -945,7 +932,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Journals\FilterViewModels\Sales\" />
-    <Folder Include="AdministrationTools\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

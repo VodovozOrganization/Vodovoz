@@ -339,7 +339,7 @@ namespace Vodovoz.Views.Logistic
 			#endregion
 
 			ViewModel.PropertyChanged += (sender, args) => {
-				Gtk.Application.Invoke((o, eventArgs) => {
+				Application.Invoke((o, eventArgs) => {
 					switch (args.PropertyName) {
 						case nameof(ViewModel.SelectedWeekDayName):
 							var column = ytreeScheduleRestrictions.ColumnsConfig.GetColumnsByTag(acceptBeforeColumnTag).First();
