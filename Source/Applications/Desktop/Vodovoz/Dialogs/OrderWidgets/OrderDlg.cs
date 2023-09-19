@@ -3187,8 +3187,12 @@ namespace Vodovoz
 		{
 			CheckSameOrders();
 
-			if(Entity.DeliveryDate.HasValue && Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
+			if(Entity.DeliveryDate.HasValue
+				&& Entity.DeliveryPoint != null
+				&& Entity.OrderStatus == OrderStatus.NewOrder)
+			{
 				OnFormOrderActions();
+			}
 
 			AddCommentsFromDeliveryPoint();
 
@@ -3211,7 +3215,6 @@ namespace Vodovoz
 
 		private void AddCommentFromDeliveryPoint()
 		{
-
 			if(DeliveryPoint.Id == _previousDeliveryPointId)
 			{
 				return;
@@ -3246,23 +3249,23 @@ namespace Vodovoz
 
 			if(string.IsNullOrWhiteSpace(trimmedCurrentComment))
 			{
-				Entity.Comment = trimmedNewDeliveryPointComment;
+				Entity.Comment = $"{trimmedNewDeliveryPointComment}\n";
 				return;
 			}
 
 			if(string.IsNullOrWhiteSpace(trimmedNewDeliveryPointComment))
 			{
-				Entity.Comment = trimmedCurrentComment;
+				Entity.Comment = $"{trimmedCurrentComment}\n";
 				return;
 			}
 
 			if(trimmedCurrentComment.StartsWith(previousCommentPrefix))
 			{
-				Entity.Comment = $"{trimmedNewDeliveryPointComment}\n{trimmedCurrentComment}";
+				Entity.Comment = $"{trimmedNewDeliveryPointComment}\n{trimmedCurrentComment}\n";
 				return;
 			}
 
-			Entity.Comment = $"{trimmedNewDeliveryPointComment}\n{previousCommentPrefix}{trimmedCurrentComment}";
+			Entity.Comment = $"{trimmedNewDeliveryPointComment}\n{previousCommentPrefix}{trimmedCurrentComment}\n";
 		}
 
 		protected void OnButtonPrintSelectedClicked(object c, EventArgs args)
