@@ -1,5 +1,6 @@
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using Gtk;
+using Vodovoz.Infrastructure;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
 using WrapMode = Pango.WrapMode;
@@ -19,8 +20,8 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Точки доставки").AddTextRenderer(x => x.Addresses)
 				.RowCells().AddSetter<CellRendererText>((c, n) => c.ForegroundGdk =
 					n.IsArhive || n.IsLiquidating || !n.Sensitive
-					? Rc.GetStyle(Startup.MainWin).Foreground(StateType.Insensitive)
-					: Rc.GetStyle(Startup.MainWin).Foreground(StateType.Normal)
+					? GdkColors.InsensitiveText
+					: GdkColors.PrimaryText
 				)
 				.Finish();
 	}
