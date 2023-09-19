@@ -149,7 +149,7 @@ namespace DriverAPI
 			
 			services.AddApiVersioning(config =>
 			{
-				config.DefaultApiVersion = new ApiVersion(1, 0);
+				config.DefaultApiVersion = new ApiVersion(4, 0);
 				config.AssumeDefaultVersionWhenUnspecified = true;
 				config.ReportApiVersions = true;
 				config.ApiVersionReader = new UrlSegmentApiVersionReader();
