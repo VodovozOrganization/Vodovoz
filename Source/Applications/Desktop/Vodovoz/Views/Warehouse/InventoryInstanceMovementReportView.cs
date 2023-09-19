@@ -107,7 +107,7 @@ namespace Vodovoz.Views.Warehouse
 				{
 					await ViewModel.ActionGenerateReportAsync(ViewModel.ReportGenerationCancellationTokenSource.Token);
 
-					Application.Invoke((s, eventArgs) =>
+					Gtk.Application.Invoke((s, eventArgs) =>
 					{
 						treeData.ItemsDataSource = ViewModel.MovementHistoryNodes;
 						treeData.YTreeModel.EmitModelChanged();
@@ -115,18 +115,18 @@ namespace Vodovoz.Views.Warehouse
 				}
 				catch(OperationCanceledException)
 				{
-					Application.Invoke((s, eventArgs) =>
+					Gtk.Application.Invoke((s, eventArgs) =>
 					{
 						ViewModel.ShowWarning("Формирование отчета было прервано");
 					});
 				}
 				catch(Exception ex)
 				{
-					Application.Invoke((s, eventArgs) => throw ex);
+					Gtk.Application.Invoke((s, eventArgs) => throw ex);
 				}
 				finally
 				{
-					Application.Invoke((s, eventArgs) =>
+					Gtk.Application.Invoke((s, eventArgs) =>
 					{
 						ViewModel.IsGenerating = false;
 					});

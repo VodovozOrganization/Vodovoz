@@ -289,7 +289,7 @@ namespace Vodovoz.SidePanel.InfoViews
 		{
 			if(_textviewcommentBufferChanged && buttonSaveComment.State != StateType.Prelight)
 			{
-				Application.Invoke((s, ea) =>
+				Gtk.Application.Invoke((s, ea) =>
 				{
 					bool isRequiredToSaveComment = MessageDialogHelper.RunQuestionDialog("Сохранить изменения в комментарии?");
 					if(isRequiredToSaveComment)

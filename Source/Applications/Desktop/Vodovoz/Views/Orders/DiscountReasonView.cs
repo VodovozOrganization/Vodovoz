@@ -65,7 +65,7 @@ namespace Vodovoz.Views.Orders
 
 		private void OnDiscountNomenclatureCategorySelected(object o, ToggledArgs args)
 		{
-			Application.Invoke((s, e) =>
+			Gtk.Application.Invoke((s, e) =>
 			{
 				var selectedCategory = treeViewNomenclatureCategories.GetSelectedObject<SelectableNomenclatureCategoryNode>();
 

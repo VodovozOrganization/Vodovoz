@@ -72,7 +72,7 @@ namespace Vodovoz.Infrastructure
 				RealErrorMessage(ex);
 			} else {
 				logger.Debug("From Another Thread");
-				Application.Invoke(delegate {
+				Gtk.Application.Invoke(delegate {
 					RealErrorMessage(ex);
 				});
 			}

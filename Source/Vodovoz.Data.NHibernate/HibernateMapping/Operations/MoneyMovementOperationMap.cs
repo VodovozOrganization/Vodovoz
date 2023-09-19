@@ -15,7 +15,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Operations
 			Map(x => x.Debt).Column("debt");
 			Map(x => x.Money).Column("money");
 			Map(x => x.Deposit).Column("deposit");
-			Map(x => x.PaymentType).Column("payment_type").CustomType<PaymentTypeStringType>();
+			Map(x => x.PaymentType).Column("payment_type");
 			References(x => x.Order).Column("order_id");
 			References(x => x.Counterparty).Column("counterparty_id");
 		}

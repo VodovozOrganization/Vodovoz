@@ -176,8 +176,8 @@ namespace Vodovoz.Views
 		#endregion
 		
 		private void UseFine_Toggled(object o, ToggledArgs args) =>
-			//Вызываем через Application.Invoke чтобы событие вызывалось уже после того как поле обновилось.
-			Application.Invoke((sender, eventArgs) => OnToggleClicked(this, EventArgs.Empty));
+			//Вызываем через Gtk.Application.Invoke чтобы событие вызывалось уже после того как поле обновилось.
+			Gtk.Application.Invoke((sender, eventArgs) => OnToggleClicked(this, EventArgs.Empty));
 
 		private void OnToggleClicked(object sender, EventArgs e)
 		{

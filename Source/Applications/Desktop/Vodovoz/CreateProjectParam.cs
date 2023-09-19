@@ -245,16 +245,23 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.ViewModels.ReportsParameters.Orders;
 using Vodovoz.ViewModels.Widgets;
 using static Vodovoz.Reports.CashFlow;
+using Vodovoz.ViewModels.Counterparties;
+using Vodovoz.Counterparties;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Domain.Client;
 using Vodovoz.CachingRepositories.Counterparty;
 using Vodovoz.ViewModels.BaseParameters;
 using Vodovoz.Views.BaseParameters;
+using RevenueService.Client;
 using Vodovoz.ViewModels.QualityControl.Reports;
 using Vodovoz.QualityControl.Reports;
 using Vodovoz.ReportsParameters.Cash;
 using Vodovoz.ViewModels.Factories;
+using Vodovoz.ViewModels.ReportsParameters;
+using Vodovoz.Application.Services;
+using Vodovoz.ViewModels.AdministrationTools;
+using Vodovoz.AdministrationTools;
 
 namespace Vodovoz
 {
@@ -528,10 +535,13 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<UndeliveryDetalizationJournalFilterViewModel, UndeliveryDetalizationFilterView>()
 				.RegisterWidgetForWidgetViewModel<UndeliveredOrderViewModel, UndeliveredOrderView>()
 				.RegisterWidgetForWidgetViewModel<DriverStopListRemovalViewModel, DriverStopListRemovalView>()
+				.RegisterWidgetForWidgetViewModel<SubtypeViewModel, SubtypeView>()
 				.RegisterWidgetForWidgetViewModel<BaseParametersViewModel, BaseParametersView>()
 				.RegisterWidgetForWidgetViewModel<UndeliveredOrdersClassificationReportViewModel, UndeliveredOrdersClassificationReportView>()
 				.RegisterWidgetForWidgetViewModel<NumberOfComplaintsAgainstDriversReportViewModel, NumberOfComplaintsAgainstDriversReportView>()
 				.RegisterWidgetForWidgetViewModel<MovementsPaymentControlViewModel, MovementsPaymentControlView>()
+				.RegisterWidgetForWidgetViewModel<SalesReportViewModel, SalesReportView>()
+				.RegisterWidgetForWidgetViewModel<RevenueServiceMassCounterpartyUpdateToolViewModel, RevenueServiceMassCounterpartyUpdateToolView>()
 				.RegisterWidgetForWidgetViewModel<WarehousesSettingsViewModel, NamedDomainEntitiesSettingsView>()
 				;
 
@@ -760,6 +770,7 @@ namespace Vodovoz
 				.SingleInstance();
 
 			builder.RegisterType<IncludeExcludeSalesFilterFactory>().As<IIncludeExcludeSalesFilterFactory>().InstancePerLifetimeScope();
+			builder.RegisterType<LeftRightListViewModelFactory>().As<ILeftRightListViewModelFactory>().InstancePerLifetimeScope();
 
 			#endregion
 
@@ -801,6 +812,8 @@ namespace Vodovoz
 			builder.RegisterType<WarehousePermissionValidator>().As<IWarehousePermissionValidator>();
 			builder.RegisterType<WageParameterService>().As<IWageParameterService>();
 			builder.RegisterType<SelfDeliveryCashOrganisationDistributor>().As<ISelfDeliveryCashOrganisationDistributor>();
+
+			builder.RegisterType<CounterpartyService>().As<ICounterpartyService>().InstancePerLifetimeScope();
 
 			#endregion
 
@@ -879,7 +892,7 @@ namespace Vodovoz
 			builder.RegisterType<PaymentsFromAvangardReport>().AsSelf();
 			builder.RegisterType<EmployeesTaxesSumReport>().AsSelf();
 			builder.RegisterType<EmployeesFines>().AsSelf();
-			builder.RegisterType<SalesReport>().AsSelf();
+			builder.RegisterType<SalesReportView>().AsSelf();
 			builder.RegisterType<SalesByDiscountReport>().AsSelf();
 			builder.RegisterType<DriverWagesReport>().AsSelf();
 			builder.RegisterType<FuelReport>().AsSelf();
@@ -1075,6 +1088,13 @@ namespace Vodovoz
 			builder.RegisterType<StoreDocumentHelper>().As<IStoreDocumentHelper>();
 
 			builder.RegisterType<CashFlowDdsReportRenderer>().AsSelf();
+
+			builder.Register((context) =>
+			{
+				var counterpartySettings = context.Resolve<ICounterpartySettings>();
+
+				return new RevenueServiceClient(counterpartySettings.RevenueServiceClientAccessToken);
+			}).As<IRevenueServiceClient>().InstancePerLifetimeScope();
 
 			#endregion
 
