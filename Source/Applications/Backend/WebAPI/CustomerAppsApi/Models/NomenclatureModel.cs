@@ -38,7 +38,8 @@ namespace CustomerAppsApi.Models
 		public NomenclaturesDto GetNomenclatures(Source source)
 		{
 			var parameterType = _sourceConverter.ConvertToNomenclatureOnlineParameterType(source);
-			var nomenclatureCharacteristics = _nomenclatureOnlineParametersController.GetNomenclaturesForSend(_uow, parameterType);
+			var nomenclatureCharacteristics =
+				_nomenclatureOnlineParametersController.GetNomenclaturesForSend(_unitOfWork, parameterType);
 
 			return _nomenclatureFactory.CreateNomenclaturesDto(nomenclatureCharacteristics);
 		}
