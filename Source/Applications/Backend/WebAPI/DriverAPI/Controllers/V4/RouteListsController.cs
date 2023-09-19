@@ -65,10 +65,9 @@ namespace DriverAPI.Controllers.V4
 		/// </summary>
 		/// <param name="routeListsIds">Список номеров маршрутных листов</param>
 		/// <returns>GetRouteListsDetailsResponseModel</returns>
-		[HttpPost]
-		[Produces("application/json")]
-		[Route("GetRouteListsDetails")]
-		public GetRouteListsDetailsResponseDto Get([FromBody] int[] routeListsIds)
+		[HttpPost("GetRouteListsDetails")]
+		[Produces("application/json", Type = typeof(GetRouteListsDetailsResponseDto))]
+		public IActionResult Get([FromBody] int[] routeListsIds)
 		{
 			_logger.LogInformation("Запрос МЛ-ов с деталями: {@RouteListIds} пользователем {Username} User token: {AccessToken}",
 				routeListsIds,
@@ -88,11 +87,11 @@ namespace DriverAPI.Controllers.V4
 				resortedOrders.Add(orders.Where(o => o.OrderId == orderId).First());
 			}
 
-			return new GetRouteListsDetailsResponseDto()
+			return Ok(new GetRouteListsDetailsResponseDto()
 			{
 				RouteLists = routeLists,
 				Orders = resortedOrders
-			};
+			});
 		}
 
 		/// <summary>
@@ -100,30 +99,28 @@ namespace DriverAPI.Controllers.V4
 		/// </summary>
 		/// <param name="routeListId">Номер маршрутного листа</param>
 		/// <returns><see cref="RouteListDto"/></returns>
-		[HttpGet]
-		[Produces("application/json")]
-		[Route("GetRouteList")]
+		[HttpGet("GetRouteList")]
+		[Produces("application/json", Type = typeof(RouteListDto))]
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		public RouteListDto Get(int routeListId)
+		public IActionResult Get(int routeListId)
 		{
 			var tokenStr = Request.Headers[HeaderNames.Authorization];
 			_logger.LogInformation("Запрос информации о МЛ {RouteListId} пользователем {Username} User token: {AccessToken}",
 				routeListId,
 				HttpContext.User.Identity?.Name ?? "Unknown",
-				Request.Headers[HeaderNames.Authorization]);
+				tokenStr);
 
-			return _aPIRouteListData.Get(routeListId);
+			return Ok(_aPIRouteListData.Get(routeListId));
 		}
 
 		/// <summary>
 		/// Получение номеров маршрутных листов текущего водителя
 		/// </summary>
-		/// <returns><see cref="IEnumerable&lt;int&gt;"/>Cписок номеров маршрутных листов водителя</returns>
-		[HttpGet]
-		[Produces("application/json")]
-		[Route("GetRouteListsIds")]
-		public async Task<IEnumerable<int>> GetIds()
+		/// <returns><see cref="IEnumerable{int}"/>Cписок номеров маршрутных листов водителя</returns>
+		[HttpGet("GetRouteListsIds")]
+		[Produces("application/json", Type = typeof(IEnumerable<int>))]
+		public async Task<IActionResult> GetIds()
 		{
 			_logger.LogInformation("Запрос доступных МЛ пользователем {Username} User token: {AccessToken}",
 				HttpContext.User.Identity?.Name ?? "Unknown",
@@ -132,17 +129,16 @@ namespace DriverAPI.Controllers.V4
 			var user = await _userManager.GetUserAsync(User);
 			var userName = await _userManager.GetUserNameAsync(user);
 
-			return _aPIRouteListData.GetRouteListsIdsForDriverByAndroidLogin(userName);
+			return Ok(_aPIRouteListData.GetRouteListsIdsForDriverByAndroidLogin(userName));
 		}
 
 		/// <summary>
 		/// Возвращения адреса маршрутного листа в статус В пути
 		/// </summary>
 		/// <returns></returns>
-		[HttpPost]
-		[Route("RollbackRouteListAddressStatusEnRoute")]
+		[HttpPost("RollbackRouteListAddressStatusEnRoute")]
 		[ProducesResponseType(StatusCodes.Status200OK)]
-		public async Task RollbackRouteListAddressStatusEnRouteAsync([FromBody] RollbackRouteListAddressStatusEnRouteRequestDto requestDto)
+		public async Task<IActionResult> RollbackRouteListAddressStatusEnRouteAsync([FromBody] RollbackRouteListAddressStatusEnRouteRequestDto requestDto)
 		{
 			var tokenStr = Request.Headers[HeaderNames.Authorization];
 			_logger.LogInformation("Запрос возврата в путь адреса МЛ {RoutelistAddressId} пользователем {Username} User token: {AccessToken}",
@@ -162,6 +158,8 @@ namespace DriverAPI.Controllers.V4
 			{
 				_actionTimeHelper.ThrowIfNotValid(recievedTime, localActionTime);
 				_aPIRouteListData.RollbackRouteListAddressStatusEnRoute(requestDto.RoutelistAddressId, driver.Id);
+
+				return Ok(resultMessage);
 			}
 			catch(Exception ex)
 			{
