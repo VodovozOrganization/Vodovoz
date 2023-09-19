@@ -1,6 +1,7 @@
 using System.Collections.Generic;
+using DriverAPI.Library.DTOs;
 
-namespace DriverAPI.Library.DTOs
+namespace DriverAPI.Library.Deprecated3.DTOs
 {
 	/// <summary>
 	/// Завершенный маршрутный лист

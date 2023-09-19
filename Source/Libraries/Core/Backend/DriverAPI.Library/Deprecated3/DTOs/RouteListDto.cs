@@ -1,4 +1,6 @@
-﻿namespace DriverAPI.Library.DTOs
+﻿using DriverAPI.Library.DTOs;
+
+namespace DriverAPI.Library.Deprecated3.DTOs
 {
 	/// <summary>
 	/// Маршрутный лист

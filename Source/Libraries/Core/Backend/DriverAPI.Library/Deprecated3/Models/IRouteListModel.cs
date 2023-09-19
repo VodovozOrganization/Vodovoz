@@ -1,8 +1,8 @@
-﻿using DriverAPI.Library.DTOs;
+﻿using DriverAPI.Library.Deprecated3.DTOs;
 using System;
 using System.Collections.Generic;
 
-namespace DriverAPI.Library.Models
+namespace DriverAPI.Library.Deprecated3.Models
 {
 	public interface IRouteListModel
 	{

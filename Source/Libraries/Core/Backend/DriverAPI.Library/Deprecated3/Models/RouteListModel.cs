@@ -7,9 +7,11 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
-using DriverAPI.Library.DTOs;
+using DriverAPI.Library.Deprecated3.DTOs;
+using DriverAPI.Library.Deprecated3.Converters;
+using DriverAPI.Library.Models;
 
-namespace DriverAPI.Library.Models
+namespace DriverAPI.Library.Deprecated3.Models
 {
 	internal class RouteListModel : IRouteListModel
 	{
@@ -43,7 +45,7 @@ namespace DriverAPI.Library.Models
 		public RouteListDto Get(int routeListId)
 		{
 			var routeList = _routeListRepository.GetRouteListById(_unitOfWork, routeListId)
-				?? throw new DataNotFoundException(nameof(routeListId), $"Маршрутный лист { routeListId } не найден");
+				?? throw new DataNotFoundException(nameof(routeListId), $"Маршрутный лист {routeListId} не найден");
 
 			return _routeListConverter.ConvertToAPIRouteList(routeList, _routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routeListId));
 		}
@@ -58,13 +60,13 @@ namespace DriverAPI.Library.Models
 			var vodovozRouteLists = _routeListRepository.GetRouteListsByIds(_unitOfWork, routeListsIds);
 			var routeLists = new List<RouteListDto>();
 
-			foreach (var routelist in vodovozRouteLists)
+			foreach(var routelist in vodovozRouteLists)
 			{
 				try
 				{
 					routeLists.Add(_routeListConverter.ConvertToAPIRouteList(routelist, _routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routelist.Id)));
 				}
-				catch (ConverterException e)
+				catch(ConverterException e)
 				{
 					_logger.LogWarning(e, "Ошибка конвертации маршрутного листа {RouteListId}", routelist.Id);
 				}

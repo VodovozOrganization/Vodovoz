@@ -1,10 +1,12 @@
-﻿using DriverAPI.Library.DTOs;
+﻿using DriverAPI.Library.Converters;
+using DriverAPI.Library.Deprecated3.DTOs;
+using DriverAPI.Library.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Logistic;
 
-namespace DriverAPI.Library.Converters
+namespace DriverAPI.Library.Deprecated3.Converters
 {
 	/// <summary>
 	/// Конвертер маршрутного листа
@@ -87,15 +89,15 @@ namespace DriverAPI.Library.Converters
 			}
 			else
 			{
-				if (result.CompletionStatus == RouteListDtoCompletionStatus.Incompleted)
+				if(result.CompletionStatus == RouteListDtoCompletionStatus.Incompleted)
 				{
 					var routelistAddresses = new List<RouteListAddressDto>();
 
-					foreach (var address in routeList.Addresses.OrderBy(address => address.IndexInRoute))
+					foreach(var address in routeList.Addresses.OrderBy(address => address.IndexInRoute))
 					{
 						routelistAddresses.Add(ConvertToAPIRouteListAddress(address));
 					}
-					
+
 					result.IncompletedRouteList = new IncompletedRouteListDto()
 					{
 						RouteListId = routeList.Id,
