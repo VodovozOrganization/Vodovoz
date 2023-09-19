@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
@@ -3250,21 +3250,19 @@ namespace Vodovoz
 				return;
 			}
 
-			if(!string.IsNullOrWhiteSpace(trimmedNewDeliveryPointComment))
-			{
-				if(trimmedCurrentComment.StartsWith(previousCommentPrefix))
-				{
-					Entity.Comment = $"{trimmedNewDeliveryPointComment}\n{trimmedCurrentComment}";
-				}
-				else
-				{
-					Entity.Comment = $"{trimmedNewDeliveryPointComment}\n{previousCommentPrefix}{trimmedCurrentComment}";
-				}
-			}
-			else
+			if(string.IsNullOrWhiteSpace(trimmedNewDeliveryPointComment))
 			{
 				Entity.Comment = trimmedCurrentComment;
+				return;
 			}
+
+			if(trimmedCurrentComment.StartsWith(previousCommentPrefix))
+			{
+				Entity.Comment = $"{trimmedNewDeliveryPointComment}\n{trimmedCurrentComment}";
+				return;
+			}
+
+			Entity.Comment = $"{trimmedNewDeliveryPointComment}\n{previousCommentPrefix}{trimmedCurrentComment}";
 		}
 
 		protected void OnButtonPrintSelectedClicked(object c, EventArgs args)
