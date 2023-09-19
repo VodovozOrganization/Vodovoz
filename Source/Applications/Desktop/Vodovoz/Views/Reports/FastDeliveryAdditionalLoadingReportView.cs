@@ -56,10 +56,10 @@ namespace Vodovoz.Views.Reports
 				}
 				catch(Exception ex)
 				{
-					Application.Invoke((s, eventArgs) => throw ex);
+					Gtk.Application.Invoke((s, eventArgs) => throw ex);
 				}
 
-				Application.Invoke((s, a) =>
+				Gtk.Application.Invoke((s, a) =>
 				{
 					ytreeviewReport.ItemsDataSource = ViewModel.Report.Rows;
 					ytreeviewReport.YTreeModel.EmitModelChanged();

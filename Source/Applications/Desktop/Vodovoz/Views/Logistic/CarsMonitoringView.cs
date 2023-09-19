@@ -436,7 +436,7 @@ namespace Vodovoz.Views.Logistic
 				var selectedRows = yTreeViewDrivers.Selection.GetSelectedRows();
 				var position = yTreeViewDrivers.Vadjustment.Value;
 
-				Application.Invoke((s, arg) => ViewModel.RefreshWorkingDriversCommand?.Execute());
+				Gtk.Application.Invoke((s, arg) => ViewModel.RefreshWorkingDriversCommand?.Execute());
 
 				GtkHelper.WaitRedraw();
 

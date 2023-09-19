@@ -17,11 +17,13 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Threading;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.EntityFactories;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -111,6 +113,16 @@ namespace Vodovoz
 
 		#region Поля и свойства
 
+		private readonly ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+		private ICounterpartyService _counterpartyService;
+
+		private readonly IEmployeeService _employeeService = VodovozGtkServicesConfig.EmployeeService;
+		private readonly IUserRepository _userRepository = new UserRepository();
+
+		private Employee _currentEmployee;
+
+		private Counterparty _lastCounterparty = null;
+
 		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
 		private static readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider =
 			new DeliveryRulesParametersProvider(_parametersProvider);
@@ -160,6 +172,7 @@ namespace Vodovoz
 		public OrderReturnsView(RouteListItem routeListItem, IUnitOfWork uow)
 		{
 			Build();
+
 			_routeListItem = routeListItem;
 			TabName = "Изменение заказа №" + routeListItem.Order.Id;
 
@@ -174,6 +187,9 @@ namespace Vodovoz
 			_discountsController = new OrderDiscountsController(_nomenclatureFixedPriceProvider);
 			UpdateButtonsState();
 		}
+
+		public bool CanFormOrderWithLiquidatedCounterparty { get; } = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
+			Vodovoz.Permissions.Order.CanFormOrderWithLiquidatedCounterparty);
 
 		private void UpdateListsSentivity()
 		{
@@ -278,6 +294,13 @@ namespace Vodovoz
 
 		protected void Configure()
 		{
+			if(_currentEmployee == null)
+			{
+				_currentEmployee = _employeeService.GetEmployeeForUser(UoW, _userRepository.GetCurrentUser(UoW).Id);
+			}
+
+			_counterpartyService = _lifetimeScope.Resolve<ICounterpartyService>();
+
 			_nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 			_nomenclatureFixedPriceProvider =
 				new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory());
@@ -428,7 +451,7 @@ namespace Vodovoz
 
 			var previousDiscountReason = orderItemNode.OrderItem.DiscountReason;
 			
-			Application.Invoke((sender, eventArgs) =>
+			Gtk.Application.Invoke((sender, eventArgs) =>
 			{
 				//Дополнительно проверяем основание скидки на null, т.к при двойном щелчке
 				//комбо-бокс не откроется, но событие сработает и прилетит null
@@ -574,6 +597,36 @@ namespace Vodovoz
 
 		protected void OnClientEntryViewModelChangedByUser(object sender, EventArgs e)
 		{
+			if(!(clientEntry.ViewModel.Entity is Counterparty counterparty))
+			{
+				return;
+			}
+
+			var cts = new CancellationTokenSource();
+
+			try
+			{
+				_counterpartyService.StopShipmentsIfNeeded(counterparty.Id, _currentEmployee.Id, cts.Token).GetAwaiter().GetResult();
+			}
+			catch(Exception)
+			{
+			}
+
+			if(counterparty.IsLiquidating)
+			{
+				if(!CanFormOrderWithLiquidatedCounterparty)
+				{
+					clientEntry.ViewModel.Entity = null;
+					MessageDialogHelper.RunWarningDialog("Нет прав для выбора ликвидированного контрагента!");
+					clientEntry.ViewModel.Entity = _lastCounterparty;
+					return;
+				}
+
+				MessageDialogHelper.RunWarningDialog("Контрагент в статусе ликвидации!");
+			}
+
+			_lastCounterparty = clientEntry.ViewModel.Entity as Counterparty;
+
 			ConfigureDeliveryPointRefference(clientEntry.ViewModel.Entity as Counterparty);
 			_orderNode.DeliveryPoint = null;
 
