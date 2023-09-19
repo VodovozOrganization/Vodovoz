@@ -14,10 +14,10 @@
 		/// <summary>
 		/// Контрагент не является юридическим лицом
 		/// </summary>
-		public static Error IsNotДegalУntity =>
+		public static Error IsNotLegalEntity =>
 			new Error(
 				typeof(Counterparty),
-				nameof(IsNotДegalУntity),
+				nameof(IsNotLegalEntity),
 				"Контрагент не является юридическим лицом");
 
 		/// <summary>
