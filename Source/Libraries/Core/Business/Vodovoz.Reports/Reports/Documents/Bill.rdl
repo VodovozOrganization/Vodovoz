@@ -16,7 +16,7 @@
         <CommandText>SELECT
     o.id AS order_id,
     DATE_FORMAT(o.delivery_date,'%d.%m.%y') AS order_date,
-    DATE_FORMAT(o.bill_date,'%d.%m.%y') AS bill_date,
+    DATE_FORMAT(o.bill_date,'%d.%m.%Y') AS bill_date,
     c.full_name AS client_name,
     c.jur_address AS client_address,
     c.inn,
