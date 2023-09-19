@@ -1,4 +1,4 @@
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using NHibernate.Linq;
 using NHibernate.Util;
 using QS.Commands;
@@ -350,7 +350,7 @@ namespace Vodovoz.Presentation.ViewModels.Common
 				"При выборе хотя бы одной ✔️ в текущем фильтре - в выборку попадут только указанные значения.\n" +
 				"При выборе X - из выборки будут исключены выбранные элементы.\n" +
 				"При выборе галочки \"Показать архивные\" будут доступны для выбора архивные элементы." +
-				"!Фильтр по статусу заказов сейчас работает только в отчете по рентабельности!", //Todo: убрать при релизе 4445
+				"!Фильтр по статусу заказов сейчас работает только в отчете по рентабельности!" + //Todo: убрать при релизе 4445
 				"Справка по фильтру");
 		}
 
@@ -424,7 +424,8 @@ namespace Vodovoz.Presentation.ViewModels.Common
 
 		private void UpdateFilteredElements()
 		{
-			if(ActiveFilter is IncludeExcludeFilter filter)
+			if(ActiveFilter != null
+				&& ActiveFilter is IncludeExcludeFilter filter)
 			{
 				filter.RefreshFilteredElements();
 			}

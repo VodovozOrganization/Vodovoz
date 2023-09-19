@@ -147,7 +147,7 @@ namespace Vodovoz.Views
 			.Finish();
 
 			ViewModel.PropertyChanged += (sender, e) => {
-				Gtk.Application.Invoke((s, args) => {
+				Application.Invoke((s, args) => {
 					if(e.PropertyName == nameof(ViewModel.ProgressBarValue))
 						progressbar.Adjustment.Value = ViewModel.ProgressBarValue;
 					if(e.PropertyName == nameof(ViewModel.ProgressBarUpper))
@@ -184,7 +184,7 @@ namespace Vodovoz.Views
 			textTags.Add(yellowTag);
 
 			ViewModel.ProgressBarMessagesUpdated += (aList, aIdx) => {
-				Gtk.Application.Invoke((s, args) => {
+				Application.Invoke((s, args) => {
 					TextBuffer tempBuffer = new TextBuffer(textTags);
 					foreach(ColoredMessage message in ViewModel.ProgressBarMessages) {
 						TextIter iter = tempBuffer.EndIter;
@@ -204,7 +204,7 @@ namespace Vodovoz.Views
 			};
 
 			ytreeviewNomenclatures.Selection.Changed += (sender, e) => {
-				Gtk.Application.Invoke((s, args) => {
+				Application.Invoke((s, args) => {
 					ytextviewNodeMessages.Buffer.Clear();
 					TextBuffer tempBuffer = new TextBuffer(textTags);
 					var node = ytreeviewNomenclatures.GetSelectedObject<NomenclatureCatalogNode>();

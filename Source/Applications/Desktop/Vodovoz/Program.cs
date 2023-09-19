@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using Gtk;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -11,7 +12,7 @@ namespace Vodovoz
 		[STAThread]
 		public static void Main (string[] args)
 		{
-			Gtk.Application.Init();
+			Application.Init();
 
 			var host = CreateHostBuilder(args).Build();
 

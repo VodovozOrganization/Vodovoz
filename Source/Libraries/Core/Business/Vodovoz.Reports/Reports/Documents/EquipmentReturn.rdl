@@ -323,7 +323,7 @@ WHERE orders.id = @order_id</CommandText>
       <Textbox Name="Textbox4">
         <Height>16.58pt</Height>
         <Width>558.69pt</Width>
-        <Value>АКТ</Value>
+        <Value>Акт</Value>
         <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>2.30pt</Top>
@@ -331,15 +331,14 @@ WHERE orders.id = @order_id</CommandText>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
-          <FontSize>12pt</FontSize>
+          <FontSize>14pt</FontSize>
           <TextAlign>Center</TextAlign>
-          <FontWeight >Bold</FontWeight>
         </Style>
       </Textbox>
       <Textbox Name="Textbox5">
         <Height>12.82pt</Height>
         <Width>559.39pt</Width>
-        <Value>ПРИЕМА-ПЕРЕДАЧИ АРЕНДОВАННОГО ОБОРУДОВАНИЯ</Value>
+        <Value>возврата оборудования из аренды</Value>
         <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>18.70pt</Top>
@@ -349,7 +348,7 @@ WHERE orders.id = @order_id</CommandText>
           <BorderWidth />
           <FontWeight>Bold</FontWeight>
           <TextAlign>Center</TextAlign>
-          <FontSize>12pt</FontSize>
+          <FontSize>11pt</FontSize>
         </Style>
       </Textbox>
       <Textbox Name="Textbox6">
@@ -1109,7 +1108,7 @@ ______________ /                                    /
       <Textbox Name="Textbox52" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>16.50pt</Height>
         <Width>255.27pt</Width>
-        <Value>Оборудование СДАЛ, претензий не имею</Value>
+        <Value>Оборудование принято, претензий не имею</Value>
         <ZIndex>0</ZIndex>
         <Left>17.8pt</Left>
         <Top>554.7pt</Top>
@@ -1124,7 +1123,7 @@ ______________ /                                    /
       <Textbox Name="Textbox53" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>15.75pt</Height>
         <Width>229.77pt</Width>
-        <Value>Оборудование ПРИНЯЛ</Value>
+        <Value>Оборудование передано клиенту</Value>
         <ZIndex>0</ZIndex>
         <Left>17.8pt</Left>
         <Top>585.9pt</Top>

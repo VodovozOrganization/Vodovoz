@@ -58,7 +58,6 @@ public partial class MainWindow
 			() => new UserSettingsViewModel(
 				EntityUoWBuilder.ForOpen(CurrentUserSettings.Settings.Id),
 				UnitOfWorkFactory.GetDefaultFactory,
-				NavigationManager,
 				ServicesConfig.CommonServices,
 				VodovozGtkServicesConfig.EmployeeService,
 				new SubdivisionParametersProvider(new ParametersProvider()),

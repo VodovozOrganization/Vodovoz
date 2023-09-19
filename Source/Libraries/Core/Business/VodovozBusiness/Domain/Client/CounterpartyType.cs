@@ -1,10 +1,7 @@
-﻿using QS.DomainModel.Entity;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.Client
 {
-	[Appellative(Nominative = "Тип контрагента",
-		NominativePlural = "Типы контрагента")]
 	public enum CounterpartyType
 	{
 		[Display(Name = "Покупатель")]

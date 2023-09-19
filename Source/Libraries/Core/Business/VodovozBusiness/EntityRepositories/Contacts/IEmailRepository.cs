@@ -15,8 +15,6 @@ namespace Vodovoz.EntityRepositories
 		List<CounterpartyEmail> GetEmailsForPreparingOrderDocuments(IUnitOfWork uow);
 		StoredEmail GetStoredEmailByMessageId(IUnitOfWork uow, string messageId);
 		bool HaveSendedEmailForBill(int orderId);
-		bool HasSendedEmailForUpd(int orderId);
-		bool NeedSendUpdByEmail(int id);
 		bool CanSendByTimeout(string address, int orderId, OrderDocumentType type);
 		int GetCurrentDatabaseId(IUnitOfWork uow);
 		int GetCounterpartyIdByEmailGuidForUnsubscribing(IUnitOfWork uow, Guid emailGuid);

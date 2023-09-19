@@ -17,7 +17,6 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.TrueMark
 			Map(x => x.IsDefectiveSourceCode).Column("is_defective_source_code");
 			Map(x => x.IsDuplicateSourceCode).Column("is_duplicate_source_code");
 			Map(x => x.DuplicatedIdentificationCodeId).Column("duplicated_identification_code_id");
-			Map(x => x.DuplicatesCount).Column("duplicates_count");
 			References(x => x.SourceCode).Column("source_identification_code_id");
 			References(x => x.ResultCode).Column("result_identification_code_id");
 		}

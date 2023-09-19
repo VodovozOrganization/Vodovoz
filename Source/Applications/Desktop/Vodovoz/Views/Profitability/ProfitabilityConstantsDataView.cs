@@ -227,7 +227,7 @@ namespace Vodovoz.Views.Profitability
 				return;
 			}
 
-			/* Не хочу делать через Gtk.Application.Invoke
+			/* Не хочу делать через Application.Invoke
 			 * поэтому здесь нет инвертированного условия, т.к. прилетает Active = false, при активации
 			 * и наоборот Active = true, при сбросе
 			*/

@@ -1,4 +1,6 @@
-﻿using QS.DomainModel.Entity;
+﻿using System.ComponentModel.DataAnnotations;
+using QS.DomainModel.Entity;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 
 namespace Vodovoz.Domain.StoredEmails

@@ -1,6 +1,7 @@
-﻿using QS.DomainModel.UoW;
+﻿using System;
+using QS.DomainModel.UoW;
+using QSOrmProject;
 using QSOrmProject.RepresentationModel;
-using System;
 using Vodovoz.Domain.Client;
 using Vodovoz.Representations;
 

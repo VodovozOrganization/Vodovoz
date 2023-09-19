@@ -1,7 +1,6 @@
 ﻿using Gamma.Binding;
 using Gtk;
 using QS.Views.GtkUI;
-using System;
 using System.ComponentModel;
 using Vodovoz.Presentation.ViewModels.Common;
 
@@ -64,6 +63,7 @@ namespace Vodovoz.ViewWidgets.Reports
 				.InitializeFromSource();
 
 			ytreeviewFilters.CreateFluentColumnsConfig<IncludeExcludeFilter>()
+				.AddColumn("")
 				.AddColumn("✔️")
 				.AddNumericRenderer(x => x.IncludedCount)
 				.AddSetter((c, n) =>
@@ -134,9 +134,9 @@ namespace Vodovoz.ViewWidgets.Reports
 				ytreeviewElements.YTreeModel = recursiveModel;
 
 				ytreeviewElements.CreateFluentColumnsConfig<IncludeExcludeElement>()
-					.AddColumn("\t✔️")
-					.AddToggleRenderer(x => x.Include).ToggledEvent(OnElementCheckboxToggled)
-					.AddColumn("X").AddToggleRenderer(x => x.Exclude).ToggledEvent(OnElementCheckboxToggled)
+					.AddColumn("")
+					.AddColumn("✔️").AddToggleRenderer(x => x.Include)
+					.AddColumn("X").AddToggleRenderer(x => x.Exclude)
 					.AddColumn("").AddTextRenderer(x => x.Title ?? "")
 					.AddSetter((cell, node) =>
 					{
@@ -152,11 +152,6 @@ namespace Vodovoz.ViewWidgets.Reports
 					})
 					.Finish();
 			}
-		}
-
-		private void OnElementCheckboxToggled(object o, ToggledArgs args)
-		{
-			ytreeviewElements.QueueDraw();
 		}
 	}
 }
