@@ -5,6 +5,7 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Services;
 using QS.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
@@ -23,8 +24,13 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 		private const int _maxOrdersCount = 100;
 		private bool _isPrintBill;
 		private bool _isPrintUpd;
+		private bool _isPrintSpecialBill;
+		private bool _isPrintSpecialUpd;
 		private bool _isPrintInProcess;
+		private bool _isShowWarnings;
 		private string _printingDocumentInfo;
+		private int _printCopiesCount;
+		private int _ordersPrintedCount;
 		private GenericObservableList<string> _warnings;
 
 		public PrintOrdersDocumentsViewModel(
@@ -41,9 +47,17 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 			_orders = orders ?? new List<Order>();
 			_warnings = new GenericObservableList<string>();
 
-			Title = "Печать документов заказов";
-
 			_isOrdersListValid = IsOrdersListValidCheck();
+
+			Title = _isOrdersListValid
+				? $"Печать документов заказов клиента \"{GetCounterpartyName()}\""
+				: "Печать документов заказов";
+
+			_printCopiesCount = 1;
+			_isPrintBill = true;
+			_isPrintSpecialBill = true;
+			_isPrintUpd = true;
+			_isPrintSpecialUpd = true;
 		}
 
 		#region Properties
@@ -69,16 +83,49 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 			set => SetField(ref _isPrintInProcess, value);
 		}
 
+		[PropertyChangedAlso(nameof(CanPrintDocuments))]
+		public bool IsPrintSpecialBill
+		{
+			get => _isPrintSpecialBill;
+			set => SetField(ref _isPrintSpecialBill, value);
+		}
+
+		[PropertyChangedAlso(nameof(CanPrintDocuments))]
+		public bool IsPrintSpecialUpd
+		{
+			get => _isPrintSpecialUpd;
+			set => SetField(ref _isPrintSpecialUpd, value);
+		}
+
+		public bool IsShowWarnings
+		{
+			get => _isShowWarnings;
+			set => SetField(ref _isShowWarnings, value);
+		}
+
 		public string PrintingDocumentInfo
 		{
 			get => _printingDocumentInfo;
 			set => SetField(ref _printingDocumentInfo, value);
 		}
 
+		public int PrintCopiesCount
+		{
+			get => _printCopiesCount;
+			set => SetField(ref _printCopiesCount, value);
+		}
+
+		public int OrdersPrintedCount
+		{
+			get => _ordersPrintedCount;
+			set => SetField(ref _ordersPrintedCount, value);
+		}
+
 		public bool CanPrintDocuments =>
 			_isOrdersListValid
 			&& !IsPrintInProcess
-			&& (IsPrintBill || IsPrintUpd);
+			&& PrintCopiesCount > 0
+			&& (IsPrintBill || IsPrintUpd || IsPrintSpecialBill || IsPrintSpecialUpd);
 
 		public int OrdersClientsCount =>
 			Orders
@@ -138,7 +185,57 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 				selectedTypes.Add(OrderDocumentType.UPD);
 			}
 
+			if(IsPrintSpecialBill)
+			{
+				selectedTypes.Add(OrderDocumentType.SpecialBill);
+			}
+
+			if(IsPrintSpecialUpd)
+			{
+				selectedTypes.Add(OrderDocumentType.SpecialUPD);
+			}
+
 			return selectedTypes;
+		}
+
+		private int GetPrintingDocsCount()
+		{
+			var selectedTypes = GetSelectedOrderDocumentTypes();
+
+			var docsIds =
+				UoW.GetAll<BillDocument>()
+				.Where(d => IsPrintBill && Orders.Contains(d.AttachedToOrder))
+				.Select(d => d.Id)
+				.ToList()
+				.Union(
+					UoW.GetAll<SpecialBillDocument>()
+					.Where(d => IsPrintSpecialBill && Orders.Contains(d.AttachedToOrder))
+					.Select(d => d.Id)
+					.ToList())
+				.Union(
+					UoW.GetAll<UPDDocument>()
+					.Where(d => IsPrintUpd && Orders.Contains(d.AttachedToOrder))
+					.Select(d => d.Id)
+					.ToList())
+				.Union(
+					UoW.GetAll<SpecialUPDDocument>()
+					.Where(d => IsPrintSpecialUpd && Orders.Contains(d.AttachedToOrder))
+					.Select(d => d.Id)
+					.ToList());
+
+			var docsCount = docsIds.Count();
+
+			return docsCount;
+		}
+
+		private string GetCounterpartyName()
+		{
+			var counterpartyName = Orders
+				.FirstOrDefault()?
+				.Client?
+				.FullName ?? string.Empty;
+
+			return counterpartyName;
 		}
 
 		#region Commands
@@ -167,43 +264,76 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 				return;
 			}
 
+			OrdersPrintedCount = 0;
+			PrintingDocumentInfo = "";
+			_warnings.Clear();
+			IsShowWarnings = false;
+
 			var selectedDocumentTypes = GetSelectedOrderDocumentTypes();
+			var printingDocumentsCount = GetPrintingDocsCount();
+
+			if(!_commonServices.InteractiveService.Question(
+				$"Будет распечатано:\n" +
+				$"{printingDocumentsCount} документов\n" +
+				$"по {PrintCopiesCount} копий\n" +
+				$"для {Orders.Count} заказов.\n\n" +
+				$"Продолжить?"))
+			{
+				return;
+			}
 
 			IsPrintInProcess = true;
 
-			foreach(var order in Orders)
+			try
 			{
-				bool cancelPrinting = false;
-
-				PrintingDocumentInfo = $"Печать документов заказа №{order.Id}";
-
-				var printer = _entityDocumentsPrinterFactory.CreateOrderDocumentsPrinter(
-					order,
-					false,
-					selectedDocumentTypes);
-
-				printer.PrintingCanceled += (s, ea) =>
+				foreach(var order in Orders)
 				{
-					cancelPrinting = true;
-				};
+					OrdersPrintedCount++;
 
-				printer.Print();
+					bool cancelPrinting = false;
 
-				if(!string.IsNullOrEmpty(printer.ODTTemplateNotFoundMessages))
-				{
-					_warnings.Add($"Заказ {order.Id}");
-					_warnings.Add(printer.ODTTemplateNotFoundMessages);
-				}
+					PrintingDocumentInfo = $"Печать документов заказа №{order.Id}";
 
-				if(cancelPrinting)
-				{
-					PrintingDocumentInfo = "Печать отменена";
-					break;
+					var printer = _entityDocumentsPrinterFactory.CreateOrderDocumentsPrinter(
+						order,
+						false,
+						selectedDocumentTypes);
+
+					printer.DocumentsToPrint.ForEach(d => d.Copies = PrintCopiesCount);
+
+					printer.PrintingCanceled += (s, ea) =>
+					{
+						cancelPrinting = true;
+					};
+
+					printer.Print();
+
+					if(!string.IsNullOrEmpty(printer.ODTTemplateNotFoundMessages))
+					{
+						_warnings.Add($"Заказ {order.Id}");
+						_warnings.Add(printer.ODTTemplateNotFoundMessages);
+						IsShowWarnings = true;
+					}
+
+					PrintingDocumentInfo = $"Выполнено!";
+
+					if(cancelPrinting)
+					{
+						PrintingDocumentInfo = "Печать отменена";
+						break;
+					}
 				}
 			}
-
-			PrintingDocumentInfo = $"Выполнено!";
-			IsPrintInProcess = false;
+			catch(Exception ex)
+			{
+				PrintingDocumentInfo = "Ошибка печати";
+				throw ex;
+			}
+			finally
+			{
+				OrdersPrintedCount = Orders.Count;
+				IsPrintInProcess = false;
+			}	
 		}
 		#endregion PrintCommand
 

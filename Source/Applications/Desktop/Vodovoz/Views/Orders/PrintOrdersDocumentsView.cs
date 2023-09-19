@@ -21,6 +21,8 @@ namespace Vodovoz.Views.Orders
 				.AddBinding(ViewModel, vm => vm.CanPrintDocuments, w => w.Sensitive)
 				.InitializeFromSource();
 
+			ybuttonCancel.Clicked += (sender, e) => ViewModel.CloseDialogCommand?.Execute();
+
 			ycheckbuttonBill.Binding
 				.AddBinding(ViewModel, vm => vm.IsPrintBill, w => w.Active)
 				.InitializeFromSource();
@@ -29,9 +31,21 @@ namespace Vodovoz.Views.Orders
 				.AddBinding(ViewModel, vm => vm.IsPrintUpd, w => w.Active)
 				.InitializeFromSource();
 
+			ycheckbuttonSpecialBill.Binding
+				.AddBinding(ViewModel, vm => vm.IsPrintSpecialBill, w => w.Active)
+				.InitializeFromSource();
+
+			ycheckbuttonSpecialUpd.Binding
+				.AddBinding(ViewModel, vm => vm.IsPrintSpecialUpd, w => w.Active)
+				.InitializeFromSource();
+
+			yspinbuttonCopiesCount.Binding
+				.AddBinding(ViewModel, vm => vm.PrintCopiesCount, w => w.ValueAsInt)
+				.InitializeFromSource();
+
 			ytreeviewOrders.ColumnsConfig = ColumnsConfigFactory.Create<Order>()
 				.AddColumn("Заказ").AddTextRenderer(o => o.Id.ToString())
-				.AddColumn("Дата").AddTextRenderer(o => o.DeliveryDate.ToString())
+				.AddColumn("Дата").AddTextRenderer(o => o.DeliveryDate.Value.ToString("dd.MM.yyyy"))
 				.AddColumn("")
 				.Finish();
 
@@ -46,6 +60,27 @@ namespace Vodovoz.Views.Orders
 				.Finish();
 
 			ytreeviewWarnings.ItemsDataSource = ViewModel.Warnings;
+
+			yhboxWarnings.Binding
+				.AddBinding(ViewModel, vm => vm.IsShowWarnings, w => w.Visible)
+				.InitializeFromSource();
+
+			yprogressbar.Adjustment = new Adjustment(0, 0, 0, 1, 1, 1);
+			yprogressbar.Adjustment.Upper = ViewModel.Orders.Count;
+
+			yprogressbar.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.PrintingDocumentInfo, w => w.Text)
+				.AddBinding(vm => vm.OrdersPrintedCount, w => w.Adjustment.Value)
+				.InitializeFromSource();
+		}
+
+		public override void Destroy()
+		{
+			ytreeviewOrders?.Destroy();
+			ytreeviewWarnings?.Destroy();
+
+			base.Destroy();
 		}
 	}
 }
