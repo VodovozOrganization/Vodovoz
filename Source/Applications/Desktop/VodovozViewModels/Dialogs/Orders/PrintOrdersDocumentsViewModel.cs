@@ -288,8 +288,6 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 			{
 				foreach(var order in Orders)
 				{
-					OrdersPrintedCount++;
-
 					bool cancelPrinting = false;
 
 					PrintingDocumentInfo = $"Печать документов заказа №{order.Id}";
@@ -322,6 +320,8 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 						PrintingDocumentInfo = "Печать отменена";
 						break;
 					}
+
+					OrdersPrintedCount++;
 				}
 			}
 			catch(Exception ex)
