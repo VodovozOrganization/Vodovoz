@@ -9,7 +9,7 @@ using System;
 using Microsoft.Net.Http.Headers;
 using Vodovoz.Domain.Logistic.Drivers;
 using System.Threading.Tasks;
-using DriverAPI.DTOs.V3;
+using DriverAPI.DTOs.V4;
 using DriverAPI.Library.Helpers;
 
 namespace DriverAPI.Controllers.V4
