@@ -1,3 +1,4 @@
+﻿using System;
 using System.Collections.Generic;
 using DriverAPI.Library.DTOs;
 
@@ -6,6 +7,7 @@ namespace DriverAPI.Library.Deprecated3.DTOs
 	/// <summary>
 	/// Завершенный маршрутный лист
 	/// </summary>
+	[Obsolete("Будет удален с прекращением поддержки API v3")]
 	public class CompletedRouteListDto
 	{
 		/// <summary>

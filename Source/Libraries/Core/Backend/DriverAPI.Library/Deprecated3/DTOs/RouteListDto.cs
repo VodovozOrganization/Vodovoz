@@ -1,10 +1,12 @@
 ﻿using DriverAPI.Library.DTOs;
+using System;
 
 namespace DriverAPI.Library.Deprecated3.DTOs
 {
 	/// <summary>
 	/// Маршрутный лист
 	/// </summary>
+	[Obsolete("Будет удален с прекращением поддержки API v3")]
 	public class RouteListDto
 	{
 		/// <summary>

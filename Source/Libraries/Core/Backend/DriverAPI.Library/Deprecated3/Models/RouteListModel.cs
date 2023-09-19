@@ -13,6 +13,7 @@ using DriverAPI.Library.Models;
 
 namespace DriverAPI.Library.Deprecated3.Models
 {
+	[Obsolete("Будет удален с прекращением поддержки API v3")]
 	internal class RouteListModel : IRouteListModel
 	{
 		private readonly ILogger<RouteListModel> _logger;

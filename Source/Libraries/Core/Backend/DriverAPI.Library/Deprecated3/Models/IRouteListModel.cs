@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 namespace DriverAPI.Library.Deprecated3.Models
 {
+	[Obsolete("Будет удален с прекращением поддержки API v3")]
 	public interface IRouteListModel
 	{
 		RouteListDto Get(int routeListId);

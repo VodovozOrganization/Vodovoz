@@ -11,6 +11,7 @@ namespace DriverAPI.Library.Deprecated3.Converters
 	/// <summary>
 	/// Конвертер маршрутного листа
 	/// </summary>
+	[Obsolete("Будет удален с прекращением поддержки API v3")]
 	public class RouteListConverter
 	{
 		private readonly DeliveryPointConverter _deliveryPointConverter;
