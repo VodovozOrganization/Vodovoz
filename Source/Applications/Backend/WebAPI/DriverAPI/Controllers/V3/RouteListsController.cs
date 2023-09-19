@@ -15,6 +15,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Logistic.Drivers;
+using IRouteListModel = DriverAPI.Library.Deprecated3.Models.IRouteListModel;
+using RouteListDto = DriverAPI.Library.Deprecated3.DTOs.RouteListDto;
 
 namespace DriverAPI.Controllers.V3
 {

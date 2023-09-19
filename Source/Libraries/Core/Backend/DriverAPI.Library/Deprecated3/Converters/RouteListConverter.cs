@@ -5,6 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Logistic;
+using CompletedRouteListDto = DriverAPI.Library.Deprecated3.DTOs.CompletedRouteListDto;
+using IncompletedRouteListDto = DriverAPI.Library.Deprecated3.DTOs.IncompletedRouteListDto;
+using RouteListDto = DriverAPI.Library.Deprecated3.DTOs.RouteListDto;
 
 namespace DriverAPI.Library.Deprecated3.Converters
 {
@@ -53,7 +56,7 @@ namespace DriverAPI.Library.Deprecated3.Converters
 				CompletionStatus = _routeListCompletionStatusConverter.ConvertToAPIRouteListCompletionStatus(routeList.Status)
 			};
 
-			if(result.CompletionStatus == RouteListDtoCompletionStatus.Completed)
+			if(result.CompletionStatus == Library.DTOs.RouteListDtoCompletionStatus.Completed)
 			{
 				var fullBottlesToReturn = routeList.ObservableDeliveryFreeBalanceOperations
 					.Where(x => x.Nomenclature.IsWater19L)

@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using System;
 using System.Threading.Tasks;
+using IRouteListModel = DriverAPI.Library.Deprecated3.Models.IRouteListModel;
 
 namespace DriverAPI.Controllers.V3
 {

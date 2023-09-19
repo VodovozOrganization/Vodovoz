@@ -1,4 +1,5 @@
 ﻿using DriverAPI.Library.Converters;
+using DriverAPI.Library.DTOs;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
@@ -7,25 +8,22 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
-using DriverAPI.Library.Deprecated3.DTOs;
-using DriverAPI.Library.Models;
 
-namespace DriverAPI.Library.Deprecated3.Models
+namespace DriverAPI.Library.Models
 {
-	[Obsolete("Будет удален с прекращением поддержки API v3")]
 	internal class RouteListModel : IRouteListModel
 	{
 		private readonly ILogger<RouteListModel> _logger;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
-		private readonly Converters.RouteListConverter _routeListConverter;
+		private readonly RouteListConverter _routeListConverter;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IUnitOfWork _unitOfWork;
 
 		public RouteListModel(ILogger<RouteListModel> logger,
 			IRouteListRepository routeListRepository,
 			IRouteListItemRepository routeListItemRepository,
-            Converters.RouteListConverter routeListConverter,
+			RouteListConverter routeListConverter,
 			IEmployeeRepository employeeRepository,
 			IUnitOfWork unitOfWork)
 		{

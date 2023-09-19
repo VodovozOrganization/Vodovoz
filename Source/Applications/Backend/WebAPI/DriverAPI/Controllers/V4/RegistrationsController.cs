@@ -1,5 +1,4 @@
 ﻿using DriverAPI.DTOs.V4;
-using DriverAPI.Library.Deprecated3.Models;
 using DriverAPI.Library.DTOs;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.Models;

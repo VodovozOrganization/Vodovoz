@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Logistic.Drivers;
+using IRouteListModel = DriverAPI.Library.Deprecated3.Models.IRouteListModel;
 
 namespace DriverAPI.Controllers.V3
 {

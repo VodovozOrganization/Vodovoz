@@ -1,6 +1,6 @@
-﻿using DriverAPI.Library.Deprecated3.DTOs;
-using DriverAPI.Library.DTOs;
+﻿using DriverAPI.Library.DTOs;
 using System.Collections.Generic;
+using RouteListDto = DriverAPI.Library.Deprecated3.DTOs.RouteListDto;
 
 namespace DriverAPI.DTOs.V3
 {

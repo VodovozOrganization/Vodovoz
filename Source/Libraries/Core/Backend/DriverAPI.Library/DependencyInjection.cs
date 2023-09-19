@@ -6,7 +6,10 @@ using IDeprecated2OrderModel = DriverAPI.Library.Deprecated2.Models.IOrderModel;
 using Deprecated2OrderModel = DriverAPI.Library.Deprecated2.Models.OrderModel;
 using IDeprecated2RouteListModel = DriverAPI.Library.Deprecated2.Models.IRouteListModel;
 using Deprecated2RouteListModel = DriverAPI.Library.Deprecated2.Models.RouteListModel;
-using DriverAPI.Library.Deprecated3.Models;
+using IDeprecated3RouteListModel = DriverAPI.Library.Deprecated3.Models.IRouteListModel;
+using Deprecated3RouteListModel = DriverAPI.Library.Deprecated3.Models.RouteListModel;
+using IRouteListModel = DriverAPI.Library.Models.IRouteListModel;
+using RouteListModel = DriverAPI.Library.Models.RouteListModel;
 
 namespace DriverAPI.Library
 {
@@ -33,6 +36,7 @@ namespace DriverAPI.Library
 			// DAL обертки
 			services.AddScoped<ITrackPointsModel, TrackPointsModel>();
 			services.AddScoped<IDriverMobileAppActionRecordModel, DriverMobileAppActionRecordModel>();
+			services.AddScoped<IDeprecated3RouteListModel, Deprecated3RouteListModel>();
 			services.AddScoped<IRouteListModel, RouteListModel>();
 			services.AddScoped<IOrderModel, OrderModel>();
 			services.AddScoped<IEmployeeModel, EmployeeModel>();
