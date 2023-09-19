@@ -43,12 +43,12 @@ namespace Vodovoz.Additions
 
 				#region OrderDocument
 
-				OrderDocumentEmail orderDocumentEmailAlias = null;
-				OrderDocumentEmail orderDocumentEmailInnerAlias = null;
+				BillDocumentEmail orderDocumentEmailAlias = null;
+				BillDocumentEmail orderDocumentEmailInnerAlias = null;
 				OrderDocument orderDocumentAlias = null;
 				OrderDocument orderDocumentAliasInner = null;
 
-				var resendedOrderDocumentQuery = QueryOver.Of<OrderDocumentEmail>(() => orderDocumentEmailInnerAlias)
+				var resendedOrderDocumentQuery = QueryOver.Of<BillDocumentEmail>(() => orderDocumentEmailInnerAlias)
 					.JoinQueryOver(ode => ode.StoredEmail)
 					.Where(x => x.State != StoredEmailStates.SendingError)
 					.And(dateResctictGe)
@@ -56,7 +56,7 @@ namespace Vodovoz.Additions
 					.Where(() => orderDocumentAliasInner.Order.Id == orderDocumentAlias.Order.Id)
 					.Select(o => o.Id);
 
-				var errorSendedOrderDocumentQuery = uowLocal.Session.QueryOver<OrderDocumentEmail>(() => orderDocumentEmailAlias)
+				var errorSendedOrderDocumentQuery = uowLocal.Session.QueryOver<BillDocumentEmail>(() => orderDocumentEmailAlias)
 					.JoinQueryOver(ode => ode.StoredEmail)
 					.Where(se => se.State == StoredEmailStates.SendingError)
 					.And(dateResctict)
@@ -173,15 +173,27 @@ namespace Vodovoz.Additions
 
 							switch(sendedEmail.Type)
 							{
-								case CounterpartyEmailType.OrderDocument:
-									var orderDocumentEmail = new OrderDocumentEmail
+								case CounterpartyEmailType.BillDocument:
+									var orderDocumentEmail = new BillDocumentEmail
 									{
 										StoredEmail = storedEmail,
 										Counterparty = sendedEmail.Counterparty,
-										OrderDocument = ((OrderDocumentEmail)sendedEmail).OrderDocument
+										OrderDocument = ((BillDocumentEmail)sendedEmail).OrderDocument
 									};
 
 									unitOfWork.Save(orderDocumentEmail);
+
+									break;
+
+								case CounterpartyEmailType.UpdDocument:
+									var updDocumentEmail = new UpdDocumentEmail()
+									{
+										StoredEmail = storedEmail,
+										Counterparty = sendedEmail.Counterparty,
+										OrderDocument = ((UpdDocumentEmail)sendedEmail).OrderDocument
+									};
+
+									unitOfWork.Save(updDocumentEmail);
 
 									break;
 

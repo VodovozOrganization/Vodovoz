@@ -145,7 +145,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			var resultsOfEmployees =
 				_complaintResultsRepository.GetComplaintsResultsOfEmployees(InfoProvider.UoW, StartDate, EndDate);
 
-			Application.Invoke((s, args) =>
+			Gtk.Application.Invoke((s, args) =>
 				DrawRefreshed(totalCount, overdueCount, levels, resultsOfCounterparty, resultsOfEmployees));
 		}
 

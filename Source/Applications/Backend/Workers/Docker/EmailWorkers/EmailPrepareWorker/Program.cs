@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using EmailPrepareWorker.Prepares;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -49,6 +50,8 @@ namespace EmailPrepareWorker
 					services.AddSingleton<ISettingsController, SettingsController>();
 					services.AddSingleton<IEmailParametersProvider, EmailParametersProvider>();
 					services.AddSingleton<IEmailRepository, EmailRepository>();
+					services.AddSingleton<IEmailDocumentPreparer, EmailDocumentPreparer>();
+					services.AddSingleton<IEmailSendMessagePreparer, EmailSendMessagePreparer>();
 
 					services.AddHostedService<EmailPrepareWorker>();
 				});

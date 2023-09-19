@@ -1,4 +1,4 @@
-﻿using Gamma.Widgets;
+using Gamma.Widgets;
 using GMap.NET;
 using GMap.NET.GtkSharp;
 using GMap.NET.GtkSharp.Markers;
@@ -474,8 +474,8 @@ namespace Vodovoz.Views.Client
 			{
 				coordinate = await ViewModel.UpdateCoordinatesFromGeoCoderAsync(entryBuilding.HousesDataLoader);
 			}
-
-			Application.Invoke((o, args) =>
+			
+			Gtk.Application.Invoke((o, args) =>
 			{
 				if(!ViewModel.IsDisposed)
 				{

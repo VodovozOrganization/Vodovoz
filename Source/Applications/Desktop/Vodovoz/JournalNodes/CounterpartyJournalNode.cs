@@ -11,6 +11,8 @@ namespace Vodovoz.JournalNodes
 
 		public bool IsArhive { get; set; }
 
+		public bool IsLiquidating { get; set; }
+
 		public string Name { get; set; }
 
 		public string INN { get; set; }
@@ -26,18 +28,5 @@ namespace Vodovoz.JournalNodes
 		public string PhonesDigits { get; set; }
 
 		public bool Sensitive { get; set; }
-
-		public string RowColor {
-			get {
-				if(IsArhive || !Sensitive)
-                {
-					return "grey";
-				}
-                else
-                {
-					return "black";
-				}
-			}
-		}
 	}
 }
