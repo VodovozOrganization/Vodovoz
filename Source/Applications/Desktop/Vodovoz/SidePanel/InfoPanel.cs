@@ -43,7 +43,7 @@ namespace Vodovoz.SidePanel
 
 		public void OnCurrentObjectChanged(object sender, CurrentObjectChangedArgs args)
 		{
-			Application.Invoke((s, arg) =>
+			Gtk.Application.Invoke((s, arg) =>
 			{
 				var provider = sender as IInfoProvider;
 				var views = GetListeners(provider);

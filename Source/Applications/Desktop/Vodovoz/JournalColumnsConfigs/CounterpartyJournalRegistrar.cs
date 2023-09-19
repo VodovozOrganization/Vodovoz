@@ -17,7 +17,11 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("ИНН").AddTextRenderer(x => x.INN)
 				.AddColumn("Договора").AddTextRenderer(x => x.Contracts)
 				.AddColumn("Точки доставки").AddTextRenderer(x => x.Addresses)
-				.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+				.RowCells().AddSetter<CellRendererText>((c, n) =>
+					c.ForegroundGdk = 
+						n.IsArhive || n.IsLiquidating || !n.Sensitive
+						? Rc.GetStyle(Startup.MainWin).Foreground(StateType.Insensitive)
+						: Rc.GetStyle(Startup.MainWin).Foreground(StateType.Normal))
 				.Finish();
 	}
 }

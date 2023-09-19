@@ -374,7 +374,6 @@
     <Compile Include="Domain\Orders\UndeliveredOrderResultComment.cs" />
     <Compile Include="Domain\Organizations\OrganizationOwnershipType.cs" />
     <Compile Include="Domain\Organizations\OrganizationVersion.cs" />
-    <Compile Include="Domain\Client\PaymentTypeStringType.cs" />
     <Compile Include="Domain\Permissions\AvailableDatabase.cs" />
     <Compile Include="Domain\Permissions\DatabasePrivilege.cs" />
     <Compile Include="Domain\Permissions\GlobalPrivilege.cs" />
@@ -619,6 +618,7 @@
     <Compile Include="EntityRepositories\Undeliveries\UndeliveredOrderCountNode.cs" />
     <Compile Include="EntityRepositories\Undeliveries\UndeliveredOrdersRepository.cs" />
     <Compile Include="EntityRepositories\Nodes\NomenclatureForRentNode.cs" />
+    <Compile Include="Errors\Clients\Counterparty.cs" />
     <Compile Include="Errors\Clients\DeliveryPoint.cs" />
     <Compile Include="Errors\Clients\DeliveryPoint.FastDelivery.cs" />
     <Compile Include="Errors\Error.cs" />
@@ -804,6 +804,7 @@
     <Compile Include="Permissions\User.cs" />
     <Compile Include="Permissions\Sales.cs" />
     <Compile Include="Services\IComplaintParametersProvider.cs" />
+    <Compile Include="Services\ICounterpartyService.cs" />
     <Compile Include="Services\IEmployeeService.cs" />
     <Compile Include="Services\IFastDeliveryAvailabilityHistoryParameterProvider.cs" />
     <Compile Include="Parameters\CarEventSettings.cs" />
@@ -966,6 +967,7 @@
     <Compile Include="Services\DriverApiParametersProvider.cs" />
     <Compile Include="Services\IUserRoleSettings.cs" />
     <Compile Include="Services\IUserSettings.cs" />
+    <Compile Include="Services\RevenueServiceInfo.cs" />
     <Compile Include="Services\UserRoleSettings.cs" />
     <Compile Include="Tools\GeoGroupVersionNotFoundException.cs" />
     <Compile Include="Tools\DataArchiver.cs" />
