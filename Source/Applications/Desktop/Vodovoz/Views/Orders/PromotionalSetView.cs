@@ -12,12 +12,18 @@ namespace Vodovoz.Views.Orders
 	{
 		public PromotionalSetView(PromotionalSetViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 			ConfigureDlg();
 		}
 
 		private void ConfigureDlg()
 		{
+			btnSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
+			btnSave.Binding
+				.AddBinding(ViewModel, vm => vm.CanCreateOrUpdate, w => w.Sensitive)
+				.InitializeFromSource();
+
+			btnCancel.Clicked += (sender, e) => ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
 
 			yentryPromotionalSetName.Binding.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text)
 											.AddBinding(ViewModel, vm => vm.CanUpdate, w => w.Sensitive)
@@ -34,7 +40,7 @@ namespace Vodovoz.Views.Orders
 			ycheckbCanEditNomCount.Binding.AddBinding(ViewModel.Entity, e => e.CanEditNomenclatureCount, w => w.Active)
 										  .AddBinding(ViewModel, vm => vm.CanUpdate, w => w.Sensitive)
 										  .InitializeFromSource();
-
+			/*
 			ycheckCanBeAddedWithOtherPromoSets.Binding.AddBinding(ViewModel.Entity, e => e.CanBeAddedWithOtherPromoSets, w => w.Active)
 													  .AddBinding(ViewModel, vm => vm.CanUpdate, w => w.Sensitive)
 													  .InitializeFromSource();
@@ -43,7 +49,7 @@ namespace Vodovoz.Views.Orders
 														  .AddBinding(ViewModel, vm => vm.CanUpdate, w => w.Sensitive)
 														  .InitializeFromSource();
 			ycheckForTheFirstOrderOnlyToTheAddress.Sensitive = ViewModel.CanChangeType;
-
+			*/
 			widgetcontainerview.Binding.AddBinding(ViewModel, vm => vm.SelectedActionViewModel, w => w.WidgetViewModel);
 
 			ybtnAddNomenclature.Clicked += (sender, e) => { ViewModel.AddNomenclatureCommand.Execute(); };
@@ -51,10 +57,6 @@ namespace Vodovoz.Views.Orders
 
 			ybtnRemoveNomenclature.Clicked += (sender, e) => { ViewModel.RemoveNomenclatureCommand.Execute(); };
 			ybtnRemoveNomenclature.Binding.AddBinding(ViewModel, vm => vm.CanRemoveNomenclature, b => b.Sensitive).InitializeFromSource();
-
-			ybuttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
-			ybuttonSave.Binding.AddBinding(ViewModel, vm => vm.CanCreateOrUpdate, w => w.Sensitive).InitializeFromSource();
-			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(true, QS.Navigation.CloseSource.Cancel); };
 
 			yEnumButtonAddAction.ItemsEnum = typeof(PromotionalSetActionType);
 			yEnumButtonAddAction.EnumItemClicked += (sender, e) => { ViewModel.AddActionCommand.Execute((PromotionalSetActionType)e.ItemEnum); };
