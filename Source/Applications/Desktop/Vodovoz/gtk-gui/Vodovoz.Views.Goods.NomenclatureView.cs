@@ -364,11 +364,11 @@ namespace Vodovoz.Views.Goods
 
 		private global::Gamma.GtkWidgets.yEntry entryCoolingPowerOnline;
 
+		private global::Gamma.GtkWidgets.yEntry entryCoolingProductivityOnline;
+
 		private global::Gamma.GtkWidgets.yEntry entryHeatingPowerOnline;
 
 		private global::Gamma.GtkWidgets.yEntry entryHeatingProductivityOnline;
-
-		private global::Gamma.GtkWidgets.yEntry entryHeatingProductivityOnline1;
 
 		private global::Gamma.GtkWidgets.yEntry entryLockerRefrigeratorVolumeOnline;
 
@@ -2491,19 +2491,33 @@ namespace Vodovoz.Views.Goods
 			w176.XOptions = ((global::Gtk.AttachOptions)(4));
 			w176.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.entryCoolingProductivityOnline = new global::Gamma.GtkWidgets.yEntry();
+			this.entryCoolingProductivityOnline.CanFocus = true;
+			this.entryCoolingProductivityOnline.Name = "entryCoolingProductivityOnline";
+			this.entryCoolingProductivityOnline.IsEditable = true;
+			this.entryCoolingProductivityOnline.InvisibleChar = '•';
+			this.tableOnlineCharacteristics.Add(this.entryCoolingProductivityOnline);
+			global::Gtk.Table.TableChild w177 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.entryCoolingProductivityOnline]));
+			w177.TopAttach = ((uint)(3));
+			w177.BottomAttach = ((uint)(4));
+			w177.LeftAttach = ((uint)(7));
+			w177.RightAttach = ((uint)(8));
+			w177.XOptions = ((global::Gtk.AttachOptions)(4));
+			w177.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
 			this.entryHeatingPowerOnline = new global::Gamma.GtkWidgets.yEntry();
 			this.entryHeatingPowerOnline.CanFocus = true;
 			this.entryHeatingPowerOnline.Name = "entryHeatingPowerOnline";
 			this.entryHeatingPowerOnline.IsEditable = true;
 			this.entryHeatingPowerOnline.InvisibleChar = '•';
 			this.tableOnlineCharacteristics.Add(this.entryHeatingPowerOnline);
-			global::Gtk.Table.TableChild w177 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.entryHeatingPowerOnline]));
-			w177.TopAttach = ((uint)(4));
-			w177.BottomAttach = ((uint)(5));
-			w177.LeftAttach = ((uint)(4));
-			w177.RightAttach = ((uint)(5));
-			w177.XOptions = ((global::Gtk.AttachOptions)(4));
-			w177.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w178 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.entryHeatingPowerOnline]));
+			w178.TopAttach = ((uint)(4));
+			w178.BottomAttach = ((uint)(5));
+			w178.LeftAttach = ((uint)(4));
+			w178.RightAttach = ((uint)(5));
+			w178.XOptions = ((global::Gtk.AttachOptions)(4));
+			w178.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
 			this.entryHeatingProductivityOnline = new global::Gamma.GtkWidgets.yEntry();
 			this.entryHeatingProductivityOnline.CanFocus = true;
@@ -2511,25 +2525,11 @@ namespace Vodovoz.Views.Goods
 			this.entryHeatingProductivityOnline.IsEditable = true;
 			this.entryHeatingProductivityOnline.InvisibleChar = '•';
 			this.tableOnlineCharacteristics.Add(this.entryHeatingProductivityOnline);
-			global::Gtk.Table.TableChild w178 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.entryHeatingProductivityOnline]));
-			w178.TopAttach = ((uint)(5));
-			w178.BottomAttach = ((uint)(6));
-			w178.LeftAttach = ((uint)(4));
-			w178.RightAttach = ((uint)(5));
-			w178.XOptions = ((global::Gtk.AttachOptions)(4));
-			w178.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
-			this.entryHeatingProductivityOnline1 = new global::Gamma.GtkWidgets.yEntry();
-			this.entryHeatingProductivityOnline1.CanFocus = true;
-			this.entryHeatingProductivityOnline1.Name = "entryHeatingProductivityOnline1";
-			this.entryHeatingProductivityOnline1.IsEditable = true;
-			this.entryHeatingProductivityOnline1.InvisibleChar = '•';
-			this.tableOnlineCharacteristics.Add(this.entryHeatingProductivityOnline1);
-			global::Gtk.Table.TableChild w179 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.entryHeatingProductivityOnline1]));
-			w179.TopAttach = ((uint)(3));
-			w179.BottomAttach = ((uint)(4));
-			w179.LeftAttach = ((uint)(7));
-			w179.RightAttach = ((uint)(8));
+			global::Gtk.Table.TableChild w179 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.entryHeatingProductivityOnline]));
+			w179.TopAttach = ((uint)(5));
+			w179.BottomAttach = ((uint)(6));
+			w179.LeftAttach = ((uint)(4));
+			w179.RightAttach = ((uint)(5));
 			w179.XOptions = ((global::Gtk.AttachOptions)(4));
 			w179.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
@@ -2678,7 +2678,7 @@ namespace Vodovoz.Views.Goods
 			this.lblCoolingPowerOnlineTitle = new global::Gamma.GtkWidgets.yLabel();
 			this.lblCoolingPowerOnlineTitle.Name = "lblCoolingPowerOnlineTitle";
 			this.lblCoolingPowerOnlineTitle.Xalign = 1F;
-			this.lblCoolingPowerOnlineTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Мощность нагрева:");
+			this.lblCoolingPowerOnlineTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Мощность охлаждения:");
 			this.tableOnlineCharacteristics.Add(this.lblCoolingPowerOnlineTitle);
 			global::Gtk.Table.TableChild w190 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.lblCoolingPowerOnlineTitle]));
 			w190.TopAttach = ((uint)(2));

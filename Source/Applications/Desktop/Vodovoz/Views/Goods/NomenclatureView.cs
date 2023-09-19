@@ -765,13 +765,13 @@ namespace Vodovoz.Views.Goods
 			lblCoolingProductivityOnlineTitle.Binding
 				.AddFuncBinding(ViewModel, vm => vm.IsPurifierParameters || vm.IsWaterCoolerParameters, w => w.Visible)
 				.InitializeFromSource();
-			entryHeatingProductivityOnline1.MaxLength = 5;
-			entryHeatingProductivityOnline1.Binding
+			entryCoolingProductivityOnline.MaxLength = 5;
+			entryCoolingProductivityOnline.Binding
 				.AddFuncBinding(ViewModel, vm => vm.IsPurifierParameters || vm.IsWaterCoolerParameters, w => w.Visible)
 				.AddBinding(ViewModel.Entity, e => e.HasCooling, w => w.Sensitive)
 				.AddBinding(ViewModel.Entity, e => e.CoolingProductivity, w => w.Text, new NullableIntToStringConverter())
 				.InitializeFromSource();
-			entryHeatingProductivityOnline1.Changed += OnNumericEntryChanged;
+			entryCoolingProductivityOnline.Changed += OnNumericEntryChanged;
 
 			lblLockerRefrigeratorOnlineTitle.Binding
 				.AddBinding(ViewModel, vm => vm.IsWaterCoolerParameters, w => w.Visible)
