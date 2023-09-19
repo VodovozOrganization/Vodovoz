@@ -256,9 +256,27 @@ namespace Vodovoz.JournalViewModels
 						return;
 					}
 
-					var fileredOrderIds = GetOrdersQuery(UoW).List<OrderJournalNode>().Select(n => n.Id);
+					var fileredOrderIds = GetOrdersQuery(UoW)
+						.List<OrderJournalNode>()
+						.Select(n => n.Id);
 
-					var orders = UoW.GetAll<VodovozOrder>().Where(o => fileredOrderIds.Contains(o.Id)).ToList();
+					var orders = UoW.GetAll<VodovozOrder>()
+						.Where(o => fileredOrderIds.Contains(o.Id))
+						.ToList();
+
+					var clientsCount = orders
+						.Select(o => o.Client.Id)
+						.Distinct()
+						.Count();
+
+					if(clientsCount > 1)
+					{
+						_commonServices.InteractiveService.ShowMessage(
+							ImportanceLevel.Info,
+							"В списке присутствуют заказы разных контрагентов. Необходимо выбрать заказы одного контрагента");
+
+						return;
+					}
 
 					NavigationManager.OpenViewModel<PrintOrdersDocumentsViewModel, IList<VodovozOrder>>(null, orders);
 				}
