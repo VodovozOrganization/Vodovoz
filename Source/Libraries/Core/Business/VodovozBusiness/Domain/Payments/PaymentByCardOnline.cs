@@ -1,9 +1,9 @@
-﻿using QS.DomainModel.Entity;
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
+using QS.DomainModel.Entity;
 
 namespace Vodovoz.Domain.Payments
 {
@@ -26,15 +26,7 @@ namespace Vodovoz.Domain.Payments
 
 		public PaymentByCardOnline(string[] data, PaymentByCardOnlineFrom paymentFrom)
 		{
-			switch(paymentFrom)
-			{
-				case PaymentByCardOnlineFrom.FromCloudPayments:
-					CreateInstanceFromCloudPayment(data, paymentFrom);
-					break;
-				default:
-					CreateInstanceFromYookassa(data, paymentFrom);
-					break;
-			}
+			CreateInstanceFromYookassa(data, paymentFrom);
 		}
 
 		/// <summary>
@@ -103,28 +95,6 @@ namespace Vodovoz.Domain.Payments
 			PaymentStatus = PaymentStatus.CONFIRMED;
 
 			Email = GetEmailFromDescription(data[6]);
-		}
-
-		void CreateInstanceFromCloudPayment(string[] data, PaymentByCardOnlineFrom paymentFrom)
-		{
-			var culture = CultureInfo.CreateSpecificCulture("ru-RU");
-			culture.NumberFormat.NumberDecimalSeparator = ",";
-
-			if(!decimal.TryParse(data[8].Trim(), NumberStyles.AllowDecimalPoint, culture.NumberFormat, out paymentRUR))
-			{
-				paymentRUR = 0m;
-			}
-
-			DateAndTime = ParseDate(data[1].Trim());
-
-			if(!int.TryParse(data[4], out paymentNr))
-			{
-				paymentNr = 0;
-			}
-
-			PaymentByCardFrom = paymentFrom;
-
-			PaymentStatus = PaymentStatus.CONFIRMED;
 		}
 
 		private DateTime ParseDate(string dateStr)
@@ -340,7 +310,6 @@ namespace Vodovoz.Domain.Payments
 		FromEShop,
 		FromSMS,
 		FromTinkoff,
-		FromMobileApp,
-		FromCloudPayments
+		FromMobileApp
 	}
 }

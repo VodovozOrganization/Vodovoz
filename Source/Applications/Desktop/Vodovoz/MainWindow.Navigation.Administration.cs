@@ -16,7 +16,6 @@ using Vodovoz.Parameters;
 using Vodovoz.ServiceDialogs;
 using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.Services;
-using Vodovoz.ViewModels.AdministrationTools;
 using Vodovoz.ViewModels.BaseParameters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Security;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
@@ -184,16 +183,6 @@ public partial class MainWindow
 	{
 		var dlg = new RecalculateDriverWageDlg();
 		tdiMain.AddTab(dlg);
-	}
-
-	/// <summary>
-	/// Обновление сведений Контрагентов из ФНС
-	/// </summary>
-	/// <param name="sender">Sender.</param>
-	/// <param name="e">E.</param>
-	protected void OnAction76Activated(object sender, EventArgs e)
-	{
-		NavigationManager.OpenViewModel<RevenueServiceMassCounterpartyUpdateToolViewModel>(null);
 	}
 
 	#endregion Обслуживание

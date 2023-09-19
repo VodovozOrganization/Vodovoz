@@ -46,7 +46,6 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Complaints;
-using Vodovoz.ViewModels.Counterparties;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Dialogs.Roboats;
@@ -1019,16 +1018,6 @@ public partial class MainWindow
 	protected void OnExternalCounterpartiesMatchingActionActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<ExternalCounterpartiesMatchingJournalViewModel>(null);
-	}
-
-	/// <summary>
-	/// Подтипы контрагентов
-	/// </summary>
-	/// <param name="sender"></param>
-	/// <param name="e"></param>
-	protected void OnActionCounterpartySubtypesActivated(object sender, EventArgs e)
-	{
-		NavigationManager.OpenViewModel<SubtypesJournalViewModel>(null);
 	}
 
 	#endregion Контрагенты

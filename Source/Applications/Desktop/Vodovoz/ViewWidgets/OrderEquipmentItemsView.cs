@@ -330,7 +330,7 @@ namespace Vodovoz.ViewWidgets
 
 			var column = treeView.Columns.First(x => x.Title == (MyTab is OrderReturnsView ? "Кол-во(недовоз)" : "Кол-во"));
 			var renderer = column.CellRenderers.First();
-			Gtk.Application.Invoke(delegate {
+			Application.Invoke(delegate {
 				treeView.SetCursorOnCell(path, column, renderer, true);
 			});
 			treeView.GrabFocus();

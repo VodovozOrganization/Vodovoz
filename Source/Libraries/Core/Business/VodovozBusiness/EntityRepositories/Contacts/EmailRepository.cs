@@ -1,17 +1,19 @@
-﻿using NHibernate;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Linq;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Parameters;
+using VodOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories
 {
@@ -24,7 +26,7 @@ namespace Vodovoz.EntityRepositories
 
 		public List<StoredEmail> GetAllEmailsForOrder(IUnitOfWork uow, int orderId)
 		{
-			return uow.Session.QueryOver<BillDocumentEmail>()
+			return uow.Session.QueryOver<OrderDocumentEmail>()
 				.JoinQueryOver(ode => ode.OrderDocument)
 					.Where(od => od.Order.Id == orderId)
 					.Select(ode => ode.StoredEmail)
@@ -47,13 +49,13 @@ namespace Vodovoz.EntityRepositories
 
 		public bool HaveSendedEmailForBill(int orderId)
 		{
-			IList<BillDocumentEmail> result;
+			IList<OrderDocumentEmail> result;
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"[ES]Получение списка отправленных писем"))
 			{
-				BillDocumentEmail orderDocumentEmailAlias = null;
+				OrderDocumentEmail orderDocumentEmailAlias = null;
 				OrderDocument orderDocumentAlias = null;
 
-				result = uow.Session.QueryOver<BillDocumentEmail>(() => orderDocumentEmailAlias)
+				result = uow.Session.QueryOver<OrderDocumentEmail>(() => orderDocumentEmailAlias)
 					.JoinAlias(() => orderDocumentEmailAlias.OrderDocument, () => orderDocumentAlias)
 					.Where(() => orderDocumentAlias.Order.Id == orderId)
 					.JoinQueryOver(ode => ode.StoredEmail)
@@ -69,37 +71,6 @@ namespace Vodovoz.EntityRepositories
 			return result.Any();
 		}
 
-		public bool HasSendedEmailForUpd(int orderId)
-		{
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"Получение списка отправленных писем c УПД"))
-			{
-				return (from documentEmail in uow.GetAll<UpdDocumentEmail>()
-						where documentEmail.OrderDocument.Order.Id == orderId
-							  && !new[] { StoredEmailStates.SendingError, StoredEmailStates.Undelivered }.Contains(documentEmail.StoredEmail.State)
-						let upd = uow.GetAll<UPDDocument>()
-							.Where(ud => ud.Id == documentEmail.OrderDocument.Id)
-						let specUpd = uow.GetAll<SpecialUPDDocument>()
-							.Where(ud => ud.Id == documentEmail.OrderDocument.Id)
-						where upd.Any() || specUpd.Any()
-						select documentEmail.Id)
-					.Any();
-			}
-		}
-
-		public bool NeedSendUpdByEmail(int orderId)
-		{
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"Проверка, нужно ли отправлять УПД по email?"))
-			{
-				return (from address in uow.GetAll<RouteListItem>()
-						where address.Order.Id == orderId
-							  && (address.Order.IsFastDelivery 
-							      || (address.WasTransfered && address.TransferedTo == null)
-							      )
-						select address.Id)
-					.Any();
-			}
-		}
-
 		public bool CanSendByTimeout(string address, int orderId, OrderDocumentType type)
 		{
 			// Время в минутах, по истечению которых будет возможна повторная отправка
@@ -110,7 +81,7 @@ namespace Vodovoz.EntityRepositories
 				{
 					StoredEmail storedEmailAlias = null;
 					OrderDocument orderDocumentAlias = null;
-					var lastSendTime = uow.Session.QueryOver<BillDocumentEmail>()
+					var lastSendTime = uow.Session.QueryOver<OrderDocumentEmail>()
 						.JoinAlias(ode => ode.OrderDocument, () => orderDocumentAlias)
 						.Where(() => orderDocumentAlias.Order.Id == orderId)
 						.JoinAlias(ode => ode.StoredEmail, () => storedEmailAlias)

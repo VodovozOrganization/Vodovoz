@@ -460,7 +460,6 @@ namespace DriverAPI.Library.Deprecated2.Models
 					//Позже при обработке этого заказа будет подобран подходящий код
 					orderProductCode.IsDuplicateSourceCode = true;
 					orderProductCode.DuplicatedIdentificationCodeId = codeEntity.Id;
-					orderProductCode.DuplicatesCount = GetCodeDuplicatesCount(codeEntity.Id) + 1;
 				}
 			}
 			else
@@ -483,7 +482,6 @@ namespace DriverAPI.Library.Deprecated2.Models
 					//Позже при обработке этого заказа будет подобран подходящий код
 					orderProductCode.IsDuplicateSourceCode = true;
 					orderProductCode.DuplicatedIdentificationCodeId = codeEntity.Id;
-					orderProductCode.DuplicatesCount = GetCodeDuplicatesCount(codeEntity.Id) + 1;
 				}
 			}
 
@@ -518,13 +516,6 @@ namespace DriverAPI.Library.Deprecated2.Models
 			return _uow.Session.QueryOver<TrueMarkWaterIdentificationCode>()
 				.Where(x => x.RawCode == code)
 				.SingleOrDefault();
-		}
-
-		private int GetCodeDuplicatesCount(int codeId)
-		{
-			return _uow.GetAll<CashReceiptProductCode>()
-				.Where(x => x.DuplicatedIdentificationCodeId == codeId)
-				.Count();
 		}
 
 		public void SendSmsPaymentRequest(

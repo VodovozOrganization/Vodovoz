@@ -27,7 +27,6 @@ using QS.ViewModels.Extension;
 using QSOrmProject;
 using QSProjectsLib;
 using QSWidgetLib;
-using RevenueService.Client.Extensions;
 using SmsPaymentService;
 using System;
 using System.Collections.Generic;
@@ -37,8 +36,6 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Vodovoz.Additions.Printing;
 using Vodovoz.Controllers;
 using Vodovoz.Core;
@@ -129,8 +126,6 @@ namespace Vodovoz
 	{
 		private readonly ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		static Logger logger = LogManager.GetCurrentClassLogger();
-		private CancellationTokenSource _cancellationTokenCheckLiquidationSource;
-
 		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
 		private static readonly INomenclatureParametersProvider _nomenclatureParametersProvider = new NomenclatureParametersProvider(_parametersProvider);
 		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(_parametersProvider);
@@ -174,7 +169,6 @@ namespace Vodovoz
 		private readonly IEmailRepository _emailRepository = new EmailRepository();
 		private readonly ICashRepository _cashRepository = new CashRepository();
 		private readonly IPromotionalSetRepository _promotionalSetRepository = new PromotionalSetRepository();
-		private ICounterpartyService _counterpartyService;
 
 		private readonly IRentPackagesJournalsViewModelsFactory _rentPackagesJournalsViewModelsFactory
 			= new RentPackagesJournalsViewModelsFactory(Startup.MainWin.NavigationManager);
@@ -535,8 +529,6 @@ namespace Vodovoz
 
 		public void ConfigureDlg()
 		{
-			_counterpartyService = _lifetimeScope.Resolve<ICounterpartyService>();
-
 			_justCreated = UoWGeneric.IsNew;
 
 			if(_currentEmployee == null)
@@ -545,10 +537,6 @@ namespace Vodovoz
 			}
 
 			_previousDeliveryDate = Entity.DeliveryDate;
-
-			CanFormOrderWithLiquidatedCounterparty = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
-				Vodovoz.Permissions.Order.CanFormOrderWithLiquidatedCounterparty);
-
 			_canChangeDiscountValue =
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_direct_discount_value");
 			_canChoosePremiumDiscount =
@@ -966,7 +954,30 @@ namespace Vodovoz
 
 			Entity.InteractiveService = new CastomInteractiveService();
 
-			Entity.PropertyChanged += OnEntityPropertyChanged;
+			Entity.PropertyChanged += (sender, args) =>
+			{
+				switch(args.PropertyName)
+				{
+					case nameof(Order.OrderStatus):
+						CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity.OrderStatus));
+						break;
+					case nameof(Order.Contract):
+						CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity.Contract));
+						OnContractChanged();
+						break;
+					case nameof(Order.Client):
+						UpdateAvailableEnumSignatureTypes();
+						UpdateOrderAddressTypeWithUI();
+						SetLogisticsRequirementsCheckboxes(true);
+						break;
+					case nameof(Entity.OrderAddressType):
+						UpdateOrderAddressTypeUI();
+						break;
+					case nameof(Entity.Client.IsChainStore):
+						UpdateOrderAddressTypeWithUI();
+						break;
+				}
+			};
 			OnContractChanged();
 
 			if(Entity != null && Entity.Id != 0)
@@ -1000,43 +1011,6 @@ namespace Vodovoz
 			logisticsRequirementsView.ViewModel = new LogisticsRequirementsViewModel(Entity.LogisticsRequirements ?? GetLogisticsRequirements(), ServicesConfig.CommonServices);
 			UpdateEntityLogisticsRequirements();
 			logisticsRequirementsView.ViewModel.Entity.PropertyChanged += OnLogisticsRequirementsSelectionChanged;
-		}
-
-		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs args)
-		{
-			switch(args.PropertyName)
-			{
-				case nameof(Order.OrderStatus):
-					CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity.OrderStatus));
-					break;
-				case nameof(Order.Contract):
-					CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity.Contract));
-					OnContractChanged();
-					break;
-				case nameof(Order.Client):
-					if(Entity.Client != null)
-					{
-						try
-						{
-							_cancellationTokenCheckLiquidationSource = new CancellationTokenSource();
-							_counterpartyService.StopShipmentsIfNeeded(Entity.Client.Id, _currentEmployee.Id, _cancellationTokenCheckLiquidationSource.Token).GetAwaiter().GetResult();
-						}
-						catch(Exception e)
-						{
-							MessageDialogHelper.RunWarningDialog($"Не удалось проверить статус контрагента в ФНС. {e.Message}", "Ошибка проверки статуса контрагента в ФНС");
-						}
-					}
-					UpdateAvailableEnumSignatureTypes();
-					UpdateOrderAddressTypeWithUI();
-					SetLogisticsRequirementsCheckboxes(true);
-					break;
-				case nameof(Entity.OrderAddressType):
-					UpdateOrderAddressTypeUI();
-					break;
-				case nameof(Entity.Client.IsChainStore):
-					UpdateOrderAddressTypeWithUI();
-					break;
-			}
 		}
 
 		private List<EdoContainer> GetOutgoingUpdDocuments()
@@ -1222,6 +1196,8 @@ namespace Vodovoz
 				return new LogisticsRequirements();
 			}
 
+			var logisticsRequirementsFromCounterpartyAndDeliveryPoint = new LogisticsRequirements();
+
 			var counterpartyLogisticsRequirements = new LogisticsRequirements();
 			var deliveryPointLogisticsRequirements = new LogisticsRequirements();
 
@@ -1237,7 +1213,7 @@ namespace Vodovoz
 				}
 			}
 
-			var logisticsRequirementsFromCounterpartyAndDeliveryPoint = new LogisticsRequirements
+			logisticsRequirementsFromCounterpartyAndDeliveryPoint = new LogisticsRequirements()
 			{
 				ForwarderRequired = counterpartyLogisticsRequirements.ForwarderRequired || deliveryPointLogisticsRequirements.ForwarderRequired,
 				DocumentsRequired = counterpartyLogisticsRequirements.DocumentsRequired || deliveryPointLogisticsRequirements.DocumentsRequired,
@@ -1246,9 +1222,9 @@ namespace Vodovoz
 				LargusRequired = counterpartyLogisticsRequirements.LargusRequired || deliveryPointLogisticsRequirements.LargusRequired
 			};
 
-			if(Entity.LogisticsRequirements != null)
+			if (Entity.LogisticsRequirements != null)
 			{
-				return new LogisticsRequirements
+				return new LogisticsRequirements()
 				{
 					ForwarderRequired = logisticsRequirementsFromCounterpartyAndDeliveryPoint.ForwarderRequired || Entity.LogisticsRequirements.ForwarderRequired,
 					DocumentsRequired = logisticsRequirementsFromCounterpartyAndDeliveryPoint.DocumentsRequired || Entity.LogisticsRequirements.DocumentsRequired,
@@ -1692,8 +1668,7 @@ namespace Vodovoz
 				.AddSetter((c, n) => c.Visible = n is ISignableDocument)
 				.AddSetter((toggle, document) =>
 				{
-					if(document.Type == OrderDocumentType.UPD
-						|| document.Type == OrderDocumentType.SpecialUPD)
+					if(document.Type == OrderDocumentType.UPD)
 					{
 						toggle.Activatable = CanEditByPermission && _canEditSealAndSignatureUpd;
 					}
@@ -1701,7 +1676,7 @@ namespace Vodovoz
 					{
 						toggle.Activatable = CanEditByPermission;
 					}
-				}) // Сделать только для  ISignableDocument, UDP и SpecialUPD
+				}) // Сделать только для  ISignableDocument и UDP
 				.AddColumn("")
 				.RowCells().AddSetter<CellRenderer>((c, n) => {
 					c.CellBackgroundGdk = colorWhite;
@@ -1770,7 +1745,7 @@ namespace Vodovoz
 
 			var previousDiscountReason = orderItem.DiscountReason;
 
-			Gtk.Application.Invoke((sender, eventArgs) =>
+			Application.Invoke((sender, eventArgs) =>
 			{
 				//Дополнительно проверяем основание скидки на null, т.к при двойном щелчке
 				//комбо-бокс не откроется, но событие сработает и прилетит null
@@ -2023,7 +1998,6 @@ namespace Vodovoz
 			}
 
 			var canContinue = Entity.DefaultWaterCheck(ServicesConfig.InteractiveService);
-
 			if(canContinue.HasValue && !canContinue.Value)
 			{
 				toggleGoods.Activate();
@@ -2042,13 +2016,10 @@ namespace Vodovoz
 				return Result.Failure(Errors.Orders.Order.HasNoValidCertificates);
 			}
 
-			var promosetDuplicateFinder = new PromosetDuplicateFinder(new CastomInteractiveService());
-			var phones = new List<Phone>();
-
+			PromosetDuplicateFinder promosetDuplicateFinder = new PromosetDuplicateFinder(new CastomInteractiveService());
+			List<Phone> phones = new List<Phone>();
 			phones.AddRange(Entity.Client.Phones);
-
-			if(Entity.DeliveryPoint != null)
-			{
+			if(Entity.DeliveryPoint != null) {
 				phones.AddRange(Entity.DeliveryPoint.Phones);
 			}
 
@@ -2118,11 +2089,9 @@ namespace Vodovoz
 			}
 
 			var edoLightsMatrixPanelView = Startup.MainWin.InfoPanel.GetWidget(typeof(EdoLightsMatrixPanelView)) as EdoLightsMatrixPanelView;
-
 			var edoLightsMatrixViewModel = edoLightsMatrixPanelView is null
 				? new EdoLightsMatrixViewModel()
 				: edoLightsMatrixPanelView.ViewModel.EdoLightsMatrixViewModel;
-
 			edoLightsMatrixViewModel.RefreshLightsMatrix(Entity.Client);
 
 			var edoLightsMatrixPaymentType = Entity.PaymentType == PaymentType.Cashless
@@ -3028,7 +2997,7 @@ namespace Vodovoz
 					return;
 				}
 				var renderer = column.CellRenderers.First();
-				Gtk.Application.Invoke(delegate {
+				Application.Invoke(delegate {
 					treeView.SetCursorOnCell(path, column, renderer, true);
 				});
 				treeView.GrabFocus();
@@ -3829,10 +3798,7 @@ namespace Vodovoz
 			}
 		}
 
-		public bool CanFormOrderWithLiquidatedCounterparty { get; private set; }
-
-		public bool CanEditByPermission => permissionResult.CanUpdate || (permissionResult.CanCreate && Entity.Id == 0);
-			
+		private bool CanEditByPermission => permissionResult.CanUpdate || permissionResult.CanCreate && Entity.Id == 0;
 
 		private void UpdateUIState()
 		{
@@ -3941,11 +3907,11 @@ namespace Vodovoz
 			}
 
 			buttonSave.Sensitive = CanEditByPermission;
+			btnForm.Sensitive = CanEditByPermission;
 			menubuttonActions.Sensitive = CanEditByPermission;
 			yBtnAddCurrentContract.Sensitive = CanEditByPermission;
 
-			if(Entity.CanSetOrderAsAccepted
-				&& (CanFormOrderWithLiquidatedCounterparty || !(Entity.Client?.IsLiquidating ?? false))) {
+			if(Entity.CanSetOrderAsAccepted) {
 				btnForm.Visible = true;
 				buttonEditOrder.Visible = false;
 			} else if(Entity.CanSetOrderAsEditable) {
@@ -4150,7 +4116,7 @@ namespace Vodovoz
 
 			uow.Save(storedEmail);
 
-			BillDocumentEmail orderDocumentEmail = new BillDocumentEmail
+			OrderDocumentEmail orderDocumentEmail = new OrderDocumentEmail
 			{
 				StoredEmail = storedEmail,
 				Counterparty = Counterparty,

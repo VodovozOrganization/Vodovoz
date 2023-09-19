@@ -1,4 +1,3 @@
-﻿using ClosedXML.Excel;
 using ClosedXML.Report;
 using DateTimeHelpers;
 using NHibernate;
@@ -14,7 +13,6 @@ using QS.Navigation;
 using QS.Project.DB;
 using QS.Services;
 using QS.ViewModels;
-using QS.ViewModels.Widgets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,21 +23,20 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Store;
+using Vodovoz.Extensions;
 using Vodovoz.NHibernateProjections.Contacts;
 using Vodovoz.NHibernateProjections.Goods;
 using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Presentation.ViewModels.Common;
-using Vodovoz.Reports.Editing.Modifiers;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Factories;
-using Vodovoz.ViewModels.ReportsParameters.Profitability;
 using static Vodovoz.ViewModels.Reports.Sales.TurnoverWithDynamicsReportViewModel.TurnoverWithDynamicsReport;
+using Enum = System.Enum;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Reports.Sales
@@ -47,7 +44,6 @@ namespace Vodovoz.ViewModels.Reports.Sales
 	public partial class TurnoverWithDynamicsReportViewModel : DialogTabViewModelBase
 	{
 		private readonly IIncludeExcludeSalesFilterFactory _includeExcludeSalesFilterFactory;
-		private readonly ILeftRightListViewModelFactory _leftRightListViewModelFactory;
 		private readonly ICommonServices _commonServices;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IUnitOfWork _unitOfWork;
@@ -56,12 +52,23 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 		private readonly string _templatePath = @".\Reports\Sales\TurnoverReport.xlsx";
 		private readonly string _templateWithDynamicsPath = @".\Reports\Sales\TurnoverWithDynamicsReport.xlsx";
+		private readonly string _templateFinancePath = @".\Reports\Sales\TurnoverFinanceReport.xlsx";
+		private readonly string _templateWithDynamicsFinancePath = @".\Reports\Sales\TurnoverWithDynamicsFinanceReport.xlsx";
+		private readonly string _templateByCounterpartyPath = @".\Reports\Sales\TurnoverByCounterpartyReport.xlsx";
+		private readonly string _templateByCounterpartyWithDynamicsPath = @".\Reports\Sales\TurnoverByCounterpartyWithDynamicsReport.xlsx";
+		private readonly string _templateByCounterpartyFinancePath = @".\Reports\Sales\TurnoverByCounterpartyFinanceReport.xlsx";
+		private readonly string _templateByCounterpartyWithDynamicsFinancePath = @".\Reports\Sales\TurnoverByCounterpartyWithDynamicsFinanceReport.xlsx";
+		private readonly string _templateByCounterpartyWithContactsPath = @".\Reports\Sales\TurnoverByCounterpartyWithContactsReport.xlsx";
+		private readonly string _templateByCounterpartyWithDynamicsWithContactsPath = @".\Reports\Sales\TurnoverByCounterpartyWithContactsWithDynamicsReport.xlsx";
+		private readonly string _templateByCounterpartyFinanceWithContactsPath = @".\Reports\Sales\TurnoverByCounterpartyWithContactsFinanceReport.xlsx";
+		private readonly string _templateByCounterpartyWithDynamicsFinanceWithContactsPath = @".\Reports\Sales\TurnoverByCounterpartyWithContactsWithDynamicsFinanceReport.xlsx";
 
 		private readonly bool _userIsSalesRepresentative;
 		private readonly bool _userCanGetContactsInSalesReports;
 		private DelegateCommand _showInfoCommand;
 		private DateTime? _startDate;
 		private DateTime? _endDate;
+		private GroupingByEnum _groupingBy;
 		private DateTimeSliceType _slice;
 		private MeasurementUnitEnum _measurementUnit;
 		private DynamicsInEnum _dynamicsIn;
@@ -74,8 +81,6 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		private bool _isGenerating;
 		private bool _canCancelGenerate;
 		private IEnumerable<string> _lastGenerationErrors;
-		private LeftRightListViewModel<GroupingNode> _groupViewModel;
-		private bool _showContacts;
 
 		public TurnoverWithDynamicsReportViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -83,14 +88,12 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			ICommonServices commonServices,
 			INavigationManager navigation,
 			IncludeExludeFiltersViewModel filterViewModel,
-			IIncludeExcludeSalesFilterFactory includeExcludeSalesFilterFactory,
-			ILeftRightListViewModelFactory leftRightListViewModelFactory)
+			IIncludeExcludeSalesFilterFactory includeExcludeSalesFilterFactory)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_interactiveService = commonServices.InteractiveService;
 			_includeExcludeSalesFilterFactory = includeExcludeSalesFilterFactory ?? throw new ArgumentNullException(nameof(includeExcludeSalesFilterFactory));
-			_leftRightListViewModelFactory = leftRightListViewModelFactory ?? throw new ArgumentNullException(nameof(leftRightListViewModelFactory));
 
 			Title = "Отчет по оборачиваемости с динамикой";
 
@@ -101,7 +104,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				&& !_commonServices.UserService.GetCurrentUser().IsAdmin;
 
 			_userCanGetContactsInSalesReports =
-				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Report.Sales.CanGetContactsInSalesReports);
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Sales.CanGetContactsInSalesReports);
 
 			StartDate = DateTime.Now.Date.AddDays(-6);
 			EndDate = DateTime.Now.Date;
@@ -110,19 +113,11 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			ConfigureFilter();
 
-			SetupGroupings();
 		}
 
 		public CancellationTokenSource ReportGenerationCancelationTokenSource { get; set; }
 
-		public bool ShowContacts
-		{
-			get => _showContacts;
-			set => SetField(ref _showContacts, value);
-		}
-
-		public bool CanShowContacts => _userCanGetContactsInSalesReports
-			&& SelectedGroupings.Contains(GroupingType.Counterparty);
+		public bool UserCanGetContactsInSalesReports => _userCanGetContactsInSalesReports;
 
 		public virtual DateTime? StartDate
 		{
@@ -140,6 +135,20 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		{
 			get => _showDynamics;
 			set => SetField(ref _showDynamics, value);
+		}
+
+		[PropertyChangedAlso(nameof(CanShowResidueForNomenclaturesWithoutSales))]
+		public GroupingByEnum GroupingBy
+		{
+			get => _groupingBy;
+			set
+			{
+				if(SetField(ref _groupingBy, value)
+					&& (value == GroupingByEnum.Counterparty || value == GroupingByEnum.CounterpartyShowContacts))
+				{
+					ShowResidueForNomenclaturesWithoutSales = false;
+				}
+			}
 		}
 
 		public MeasurementUnitEnum MeasurementUnit
@@ -174,8 +183,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		}
 
 		public bool CanShowResidueForNomenclaturesWithoutSales =>
-			ShowLastSale
-			&& SelectedGroupings.LastOrDefault() == GroupingType.Nomenclature;
+			ShowLastSale && GroupingBy == GroupingByEnum.Nomenclature;
 
 		public bool ShowResidueForNomenclaturesWithoutSales
 		{
@@ -248,16 +256,6 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 		public IncludeExludeFiltersViewModel FilterViewModel => _filterViewModel;
 
-		public virtual LeftRightListViewModel<GroupingNode> GroupingSelectViewModel
-		{
-			get => _groupViewModel;
-			set => SetField(ref _groupViewModel, value);
-		}
-
-		[PropertyChangedAlso(nameof(CanShowContacts))]
-		[PropertyChangedAlso(nameof(CanShowResidueForNomenclaturesWithoutSales))]
-		public IEnumerable<GroupingType> SelectedGroupings => GroupingSelectViewModel.GetRightItems().Select(x => x.GroupType);
-
 		public async Task<TurnoverWithDynamicsReport> ActionGenerateReport(CancellationToken cancellationToken)
 		{
 			try
@@ -276,20 +274,52 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			_filterViewModel = _includeExcludeSalesFilterFactory.CreateSalesReportIncludeExcludeFilter(_unitOfWork, _userIsSalesRepresentative);
 		}
 
-		private void SetupGroupings()
+		private void UpdateNomenclaturesSpecification()
 		{
-			GroupingSelectViewModel = _leftRightListViewModelFactory.CreateSalesWithDynamicsReportGroupingsConstructor();
+			var nomenclauresFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<Nomenclature>>();
 
-			GroupingSelectViewModel.RightItems.ListContentChanged += OnGroupingsRightItemsListContentChanged;
-		}
+			nomenclauresFilter.Specification = null;
 
-		private void OnGroupingsRightItemsListContentChanged(object sender, EventArgs e)
-		{
-			if(SelectedGroupings.LastOrDefault() != GroupingType.Nomenclature)
+			nomenclauresFilter.ClearIncludesCommand.Execute();
+			nomenclauresFilter.ClearExcludesCommand.Execute();
+
+			var nomenclatureCategoryFilter = FilterViewModel.GetFilter<IncludeExcludeEnumFilter<NomenclatureCategory>>();
+
+			if(nomenclatureCategoryFilter != null)
 			{
-				ShowResidueForNomenclaturesWithoutSales = false;
+				var nomenclatureCategoryIncluded = nomenclatureCategoryFilter?.GetIncluded().ToArray();
+
+				var nomenclatureCategoryExcluded = nomenclatureCategoryFilter?.GetExcluded().ToArray();
+
+				if(nomenclatureCategoryIncluded.Length > 0)
+				{
+					nomenclauresFilter.Specification = nomenclauresFilter.Specification.CombineWith(nomenclature => nomenclatureCategoryIncluded.Contains(nomenclature.Category));
+				}
+
+				if(nomenclatureCategoryExcluded.Length > 0)
+				{
+					nomenclauresFilter.Specification = nomenclauresFilter.Specification.CombineWith(nomenclature => !nomenclatureCategoryExcluded.Contains(nomenclature.Category));
+				}
 			}
-			OnPropertyChanged(nameof(SelectedGroupings));
+
+			var productGroupFilter = FilterViewModel.GetFilter<IncludeExcludeEntityWithHierarchyFilter<ProductGroup>>();
+
+			if(productGroupFilter != null)
+			{
+				var productGroupIncluded = productGroupFilter.GetIncluded().ToArray();
+
+				var productGroupExcluded = productGroupFilter.GetExcluded().ToArray();
+
+				if(productGroupIncluded.Length > 0)
+				{
+					nomenclauresFilter.Specification = nomenclauresFilter.Specification.CombineWith(nomenclature => productGroupIncluded.Contains(nomenclature.ProductGroup.Id));
+				}
+
+				if(productGroupExcluded.Length > 0)
+				{
+					nomenclauresFilter.Specification = nomenclauresFilter.Specification.CombineWith(nomenclature => !productGroupExcluded.Contains(nomenclature.ProductGroup.Id));
+				}
+			}
 		}
 
 		private void ShowInfo()
@@ -330,20 +360,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		{
 			var title = typeof(T).GetClassUserFriendlyName().NominativePlural.CapitalizeSentence();
 
-			var includedTitles = FilterViewModel.GetIncludedElements<T>().Select(x => x.Title.Trim('\n'));
-			var excludedTitles = FilterViewModel.GetExcludedElements<T>().Select(x => x.Title.Trim('\n'));
-
-			if(includedTitles.Any())
-			{
-				stringBuilder.Append(title + " включены " +
-					string.Join("\n\t", includedTitles));
-			}
-
-			if(excludedTitles.Any())
-			{
-				stringBuilder.Append(title + " исключены " +
-					string.Join("\n\t", excludedTitles));
-			}
+			stringBuilder.Append(title + " включены " +
+				string.Join("\n\t", FilterViewModel.GetIncludedElements<T>().Select(x => x.Title.Trim('\n'))));
+			stringBuilder.Append(title + " исключены " +
+				string.Join("\n\t", FilterViewModel.GetExcludedElements<T>().Select(x => x.Title.Trim('\n'))));
 		}
 
 		public async Task<TurnoverWithDynamicsReport> Generate(CancellationToken cancellationToken)
@@ -360,6 +380,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			var sb2 = new StringBuilder();
 
+			var sb = new StringBuilder();
+
 			GetParameterValues<NomenclatureCategory>(sb2);
 			GetParameterValues<Nomenclature>(sb2);
 			GetParameterValues<ProductGroup>(sb2);
@@ -374,27 +396,19 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			filters = sb2.ToString().Trim('\n');
 
-			var selectedGroupings = SelectedGroupings;
-
-			if(!selectedGroupings.Any())
-			{
-				selectedGroupings = new List<GroupingType>() { GroupingType.Nomenclature };
-			}
-
 			return await Task.Run(() =>
 			{
 				return TurnoverWithDynamicsReport.Create(
 					StartDate.Value,
 					EndDate.Value,
 					filters,
-					selectedGroupings,
+					GroupingBy,
 					SlicingType,
 					MeasurementUnit,
 					ShowDynamics,
 					DynamicsIn,
 					ShowLastSale,
 					ShowResidueForNomenclaturesWithoutSales,
-					ShowContacts,
 					GetWarehouseBalance,
 					GetData);
 			}, cancellationToken);
@@ -404,7 +418,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		{
 			string templatePath = GetTrmplatePath();
 
-			var template = GetTemplate(templatePath);
+			var template = new XLTemplate(templatePath);
 
 			template.AddVariable(Report);
 			template.Generate();
@@ -412,70 +426,83 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			template.SaveAs(path);
 		}
 
-		private XLTemplate GetTemplate(string templatePath)
-		{
-			var workbook = new XLWorkbook(templatePath);
-
-			var sheet = workbook.Worksheets.FirstOrDefault();
-
-			var namedRange = Report.ShowDynamics ?
-				workbook.NamedRanges.Where(x => x.Name == "Rows_DynamicColumns").FirstOrDefault()
-				: workbook.NamedRanges.Where(x => x.Name == "Rows_SliceColumnValues").FirstOrDefault();
-
-			var totalsRow = Report.ShowDynamics ?
-				workbook.NamedRanges.Where(x => x.Name == "ReportTotal_DynamicColumns").FirstOrDefault().Ranges.FirstOrDefault().RangeAddress.FirstAddress.RowNumber
-				: workbook.NamedRanges.Where(x => x.Name == "ReportTotal_SliceColumnValues").FirstOrDefault().Ranges.FirstOrDefault().RangeAddress.FirstAddress.RowNumber;
-
-			var slicesRange = namedRange?.Ranges.FirstOrDefault();
-
-			var firstRow = slicesRange.RangeAddress.FirstAddress.RowNumber;
-
-			var firstColumn = slicesRange.RangeAddress.FirstAddress.ColumnNumber;
-			var firstColumnTotal = slicesRange.RangeAddress.LastAddress.ColumnNumber + 1;
-
-			var cellFormat = string.Empty;
-
-			if(!Report.ShowContacts)
-			{
-				if(!Report.ShowDynamics)
-				{
-					sheet.Column(4).Delete();
-				}
-
-				sheet.Column(3).Delete();
-			}
-
-			if(Report?.MeasurementUnit == MeasurementUnitEnum.Amount)
-			{
-				cellFormat = "# ### ### ### ##0";
-			}
-			else if(Report?.MeasurementUnit == MeasurementUnitEnum.Price)
-			{
-				cellFormat = "# ### ### ##0,00 ₽";
-			}
-
-			sheet.Cell(firstRow, firstColumnTotal).Style.NumberFormat.SetFormat(cellFormat);
-			sheet.Cell(firstRow, firstColumn).Style.NumberFormat.SetFormat(cellFormat);
-
-			sheet.Cell(totalsRow, firstColumnTotal).Style.NumberFormat.SetFormat(cellFormat);
-			sheet.Cell(totalsRow, firstColumn).Style.NumberFormat.SetFormat(cellFormat);
-
-			var result = new XLTemplate(workbook);
-
-			return result;
-		}
-
 		private string GetTrmplatePath()
 		{
-			if(Report.ShowDynamics)
+			if(Report.GroupingBy == GroupingByEnum.Nomenclature)
 			{
-				return _templateWithDynamicsPath;
+				if(Report.ShowDynamics)
+				{
+					if(Report.MeasurementUnit == MeasurementUnitEnum.Amount)
+					{
+						return _templateWithDynamicsPath;
+					}
+					else
+					{
+						return _templateWithDynamicsFinancePath;
+					}
+				}
+				else
+				{
+					if(Report.MeasurementUnit == MeasurementUnitEnum.Amount)
+					{
+						return _templatePath;
+					}
+					else
+					{
+						return _templateFinancePath;
+					}
+				}
 			}
-			else
+			else if(Report.GroupingBy == GroupingByEnum.Counterparty)
 			{
-				return _templatePath;
+				if(Report.ShowDynamics)
+				{
+					if(Report.MeasurementUnit == MeasurementUnitEnum.Amount)
+					{
+						return _templateByCounterpartyWithDynamicsPath;
+					}
+					else
+					{
+						return _templateByCounterpartyWithDynamicsFinancePath;
+					}
+				}
+				else
+				{
+					if(Report.MeasurementUnit == MeasurementUnitEnum.Amount)
+					{
+						return _templateByCounterpartyPath;
+					}
+					else
+					{
+						return _templateByCounterpartyFinancePath;
+					}
+				}
 			}
-
+			else if(Report.GroupingBy == GroupingByEnum.CounterpartyShowContacts)
+			{
+				if(Report.ShowDynamics)
+				{
+					if(Report.MeasurementUnit == MeasurementUnitEnum.Amount)
+					{
+						return _templateByCounterpartyWithDynamicsWithContactsPath;
+					}
+					else
+					{
+						return _templateByCounterpartyWithDynamicsFinanceWithContactsPath;
+					}
+				}
+				else
+				{
+					if(Report.MeasurementUnit == MeasurementUnitEnum.Amount)
+					{
+						return _templateByCounterpartyWithContactsPath;
+					}
+					else
+					{
+						return _templateByCounterpartyFinanceWithContactsPath;
+					}
+				}
+			}
 			throw new InvalidOperationException("Что-то пошло не так. Не достижимая ветка ветвления");
 		}
 
@@ -524,109 +551,48 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			#region Сбор параметров
 
-			var nomenclaturesCategoriesFilter = FilterViewModel.GetFilter<IncludeExcludeEnumFilter<NomenclatureCategory>>();
-			var includedNomenclatureCategories = nomenclaturesCategoriesFilter.GetIncluded().ToArray();
-			var excludedNomenclatureCategories = nomenclaturesCategoriesFilter.GetExcluded().ToArray();
-
-			var nomenclaturesFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<Nomenclature>>();
-			var includedNomenclatures = nomenclaturesFilter.GetIncluded().ToArray();
-			var excludedNomenclatures = nomenclaturesFilter.GetExcluded().ToArray();
-
-			var productGroupsFilter = FilterViewModel.GetFilter<IncludeExcludeEntityWithHierarchyFilter<ProductGroup>>();
-			var includedProductGroups = productGroupsFilter.GetIncluded().ToArray();
-			var excludedProductGroups = productGroupsFilter.GetExcluded().ToArray();
-
-			var counterpartiesFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<Counterparty>>();
-			var includedCounterparties = counterpartiesFilter.GetIncluded().ToArray();
-			var excludedCounterparties = counterpartiesFilter.GetExcluded().ToArray();
-
-			#region CounterpartyTypes
-
-			var includedCounterpartyTypeElements = FilterViewModel.GetIncludedElements<CounterpartyType>();
-			var excludedCounterpartyTypeElements = FilterViewModel.GetExcludedElements<CounterpartyType>();
-
-			var includedCounterpartyTypes = includedCounterpartyTypeElements
-				.Where(x => x is IncludeExcludeElement<CounterpartyType, CounterpartyType>)
-				.Select(x => (x as IncludeExcludeElement<CounterpartyType, CounterpartyType>).Id)
-				.ToArray();
-
-			var excludedCounterpartyTypes = excludedCounterpartyTypeElements
-				.Where(x => x is IncludeExcludeElement<CounterpartyType, CounterpartyType>)
-				.Select(x => (x as IncludeExcludeElement<CounterpartyType, CounterpartyType>).Id)
-				.ToArray();
-
-			var includedCounterpartySubtypes = includedCounterpartyTypeElements
-				.Where(x => x is IncludeExcludeElement<int, CounterpartySubtype>)
-				.Select(x => (x as IncludeExcludeElement<int, CounterpartySubtype>).Id)
-				.ToArray();
-
-			var excludedCounterpartySubtypes = excludedCounterpartyTypeElements
-				.Where(x => x is IncludeExcludeElement<int, CounterpartySubtype>)
-				.Select(x => (x as IncludeExcludeElement<int, CounterpartySubtype>).Id)
-				.ToArray();
-
-			#endregion CounterpartyTypes
-
-			var organizationsFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<Organization>>();
-			var includedOrganizations = organizationsFilter.GetIncluded().ToArray();
-			var excludedOrganizations = organizationsFilter.GetExcluded().ToArray();
-
-			var discountReasonsFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<DiscountReason>>();
-			var includedDiscountReasons = discountReasonsFilter.GetIncluded().ToArray();
-			var excludedDiscountReasons = discountReasonsFilter.GetExcluded().ToArray();
-
-			var subdivisionsFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<Subdivision>>();
-			var includedSubdivisions = subdivisionsFilter.GetIncluded().ToArray();
-			var excludedSubdivisions = subdivisionsFilter.GetExcluded().ToArray();
-
-			var employeesFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<Employee>>();
-			var includedEmployees = employeesFilter.GetIncluded().ToArray();
-			var excludedEmployees = employeesFilter.GetExcluded().ToArray();
-
-			var geoGroupsFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<GeoGroup>>();
-			var includedGeoGroups = geoGroupsFilter.GetIncluded().ToArray();
-			var excludedGeoGroups = geoGroupsFilter.GetExcluded().ToArray();
-
-			#region PaymentTypes
+			var includedNomenclatureCategories = FilterViewModel.GetIncludedElements<NomenclatureCategory>().Select(x => Enum.Parse(typeof(NomenclatureCategory), x.Number)).Cast<NomenclatureCategory>().ToArray();
+			var excludedNomenclatureCategories = FilterViewModel.GetExcludedElements<NomenclatureCategory>().Select(x => Enum.Parse(typeof(NomenclatureCategory), x.Number)).Cast<NomenclatureCategory>().ToArray();
+			var includedNomenclatures = FilterViewModel.GetIncludedElements<Nomenclature>().Select(x => int.Parse(x.Number)).ToArray();
+			var excludedNomenclatures = FilterViewModel.GetExcludedElements<Nomenclature>().Select(x => int.Parse(x.Number)).ToArray();
+			var includedProductGroups = FilterViewModel.GetIncludedElements<ProductGroup>().Select(x => int.Parse(x.Number)).ToArray();
+			var excludedProductGroups = FilterViewModel.GetExcludedElements<ProductGroup>().Select(x => int.Parse(x.Number)).ToArray();
+			var includedCounterparties = FilterViewModel.GetIncludedElements<Counterparty>().Select(x => int.Parse(x.Number)).ToArray();
+			var excludedCounterparties = FilterViewModel.GetExcludedElements<Counterparty>().Select(x => int.Parse(x.Number)).ToArray();
+			var includedOrganizations = FilterViewModel.GetIncludedElements<Organization>().Select(x => int.Parse(x.Number)).ToArray();
+			var excludedOrganizations = FilterViewModel.GetExcludedElements<Organization>().Select(x => int.Parse(x.Number)).ToArray();
+			var includedDiscountReasons = FilterViewModel.GetIncludedElements<DiscountReason>().Select(x => int.Parse(x.Number)).ToArray();
+			var excludedDiscountReasons = FilterViewModel.GetExcludedElements<DiscountReason>().Select(x => int.Parse(x.Number)).ToArray();
+			var includedSubdivisions = FilterViewModel.GetIncludedElements<Subdivision>().Select(x => int.Parse(x.Number)).ToArray();
+			var excludedSubdivisions = FilterViewModel.GetExcludedElements<Subdivision>().Select(x => int.Parse(x.Number)).ToArray();
+			var includedEmployees = FilterViewModel.GetIncludedElements<Employee>().Select(x => int.Parse(x.Number)).ToArray();
+			var excludedEmployees = FilterViewModel.GetExcludedElements<Employee>().Select(x => int.Parse(x.Number)).ToArray();
+			var includedGeoGroups = FilterViewModel.GetIncludedElements<GeoGroup>().Select(x => int.Parse(x.Number)).ToArray();
+			var excludedGeoGroups = FilterViewModel.GetExcludedElements<GeoGroup>().Select(x => int.Parse(x.Number)).ToArray();
 
 			var includedPaymentTypeElements = FilterViewModel.GetIncludedElements<PaymentType>();
 			var excludedPaymentTypeElements = FilterViewModel.GetExcludedElements<PaymentType>();
 
-			var includedPaymentTypes = includedPaymentTypeElements
-				.Where(x => x is IncludeExcludeElement<PaymentType, PaymentType>)
-				.Select(x => (x as IncludeExcludeElement<PaymentType, PaymentType>).Id)
-				.ToArray();
+			var includedPaymentTypes = includedPaymentTypeElements.Where(x => x is IncludeExcludeElement<PaymentType, PaymentType>).Select(x => Enum.Parse(typeof(PaymentType), x.Number)).Cast<PaymentType>().ToArray();
+			var excludedPaymentTypes = excludedPaymentTypeElements.Where(x => x is IncludeExcludeElement<PaymentType, PaymentType>).Select(x => Enum.Parse(typeof(PaymentType), x.Number)).Cast<PaymentType>().ToArray();
 
-			var excludedPaymentTypes = excludedPaymentTypeElements
-				.Where(x => x is IncludeExcludeElement<PaymentType, PaymentType>)
-				.Select(x => (x as IncludeExcludeElement<PaymentType, PaymentType>).Id)
-				.ToArray();
-
-			var includedPaymentFroms = includedPaymentTypeElements
-				.Where(x => x is IncludeExcludeElement<int, PaymentFrom>)
-				.Select(x => (x as IncludeExcludeElement<int, PaymentFrom>).Id)
-				.ToArray();
-
-			var excludedPaymentFroms = excludedPaymentTypeElements
-				.Where(x => x is IncludeExcludeElement<int, PaymentFrom>)
-				.Select(x => (x as IncludeExcludeElement<int, PaymentFrom>).Id)
-				.ToArray();
+			var includedPaymentFroms = includedPaymentTypeElements.Where(x => x is IncludeExcludeElement<int, PaymentFrom>).Select(x => int.Parse(x.Number)).ToArray();
+			var excludedPaymentFroms = excludedPaymentTypeElements.Where(x => x is IncludeExcludeElement<int, PaymentFrom>).Select(x => int.Parse(x.Number)).ToArray();
 
 			var includedPaymentByTerminalSources = includedPaymentTypeElements
 				.Where(x => x is IncludeExcludeElement<PaymentByTerminalSource, PaymentByTerminalSource>)
-				.Select(x => (x as IncludeExcludeElement<PaymentByTerminalSource, PaymentByTerminalSource>).Id)
+				.Select(x => Enum.Parse(typeof(PaymentByTerminalSource), x.Number))
+				.Cast<PaymentByTerminalSource>()
 				.ToArray();
 
 			var excludedPaymentByTerminalSources = excludedPaymentTypeElements
 				.Where(x => x is IncludeExcludeElement<PaymentByTerminalSource, PaymentByTerminalSource>)
-				.Select(x => (x as IncludeExcludeElement<PaymentByTerminalSource, PaymentByTerminalSource>).Id)
+				.Select(x => Enum.Parse(typeof(PaymentByTerminalSource), x.Number))
+				.Cast<PaymentByTerminalSource>()
 				.ToArray();
 
-			#endregion PaymentTypes
-
-			var promotionalSetsFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<PromotionalSet>>();
-			var includedPromotionalSets = promotionalSetsFilter.GetIncluded().ToArray();
-			var excludedPromotionalSets = promotionalSetsFilter.GetExcluded().ToArray();
+			var includedPromotionalSets = FilterViewModel.GetIncludedElements<PromotionalSet>().Select(x => int.Parse(x.Number)).ToArray();
+			var excludedPromotionalSets = FilterViewModel.GetExcludedElements<PromotionalSet>().Select(x => int.Parse(x.Number)).ToArray();
 
 			#endregion Сбор параметров
 
@@ -636,13 +602,11 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			ProductGroup productGroupAlias = null;
 			GeoGroup geographicGroupAlias = null;
 			Employee authorAlias = null;
-			Subdivision subdivisionAlias = null;
 			PromotionalSet promotionalSetAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
 			District districtAlias = null;
 			Counterparty counterpartyAlias = null;
 			CounterpartyContract counterpartyContractAlias = null;
-			Organization organizationAlias = null;
 			Phone phoneAlias = null;
 			Phone orderContactPhoneAlias = null;
 			Email emailAlias = null;
@@ -709,20 +673,18 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						.Add(Restrictions.IsNull(Projections.Property(() => productGroupAlias.Id))));
 				}
 
-				nomenclaturesEmptyNodes = nomenclaturesEmptyQuery
-					.SelectList(list => list.SelectGroup(() => nomenclatureAlias.Id)
-						.Select(Projections.Constant(0).WithAlias(() => resultNodeAlias.Id))
-						.Select(Projections.Constant(0m).WithAlias(() => resultNodeAlias.Price))
-						.Select(Projections.Constant(0m).WithAlias(() => resultNodeAlias.ActualSum))
-						.Select(Projections.Constant(0m).WithAlias(() => resultNodeAlias.Count))
-						.Select(Projections.Constant(0m).WithAlias(() => resultNodeAlias.ActualCount))
-						.Select(Projections.Property(() => nomenclatureAlias.Id).WithAlias(() => resultNodeAlias.NomenclatureId))
-						.Select(Projections.Property(() => nomenclatureAlias.OfficialName).WithAlias(() => resultNodeAlias.NomenclatureOfficialName))
-						.Select(() => nomenclatureAlias.Category).WithAlias(() => resultNodeAlias.NomenclatureCategory)
-						.Select(Projections.Constant(0).WithAlias(() => resultNodeAlias.OrderId))
-						.Select(Projections.Max(() => orderAlias.DeliveryDate).WithAlias(() => resultNodeAlias.OrderDeliveryDate))
-						.Select(Projections.Property(() => productGroupAlias.Id).WithAlias(() => resultNodeAlias.ProductGroupId))
-						.Select(ProductGroupProjections.GetProductGroupNameWithEnclosureProjection().WithAlias(() => resultNodeAlias.ProductGroupName)))
+				nomenclaturesEmptyNodes = nomenclaturesEmptyQuery.SelectList(list => list.SelectGroup(() => nomenclatureAlias.Id)
+							.Select(Projections.Constant(0).WithAlias(() => resultNodeAlias.Id))
+							.Select(Projections.Constant(0m).WithAlias(() => resultNodeAlias.Price))
+							.Select(Projections.Constant(0m).WithAlias(() => resultNodeAlias.ActualSum))
+							.Select(Projections.Constant(0m).WithAlias(() => resultNodeAlias.Count))
+							.Select(Projections.Constant(0m).WithAlias(() => resultNodeAlias.ActualCount))
+							.Select(Projections.Property(() => nomenclatureAlias.Id).WithAlias(() => resultNodeAlias.NomenclatureId))
+							.Select(Projections.Property(() => nomenclatureAlias.OfficialName).WithAlias(() => resultNodeAlias.NomenclatureOfficialName))
+							.Select(Projections.Constant(0).WithAlias(() => resultNodeAlias.OrderId))
+							.Select(Projections.Max(() => orderAlias.DeliveryDate).WithAlias(() => resultNodeAlias.OrderDeliveryDate))
+							.Select(Projections.Property(() => productGroupAlias.Id).WithAlias(() => resultNodeAlias.ProductGroupId))
+							.Select(ProductGroupProjections.GetProductGroupNameWithEnclosureProjection().WithAlias(() => resultNodeAlias.ProductGroupName)))
 					.SetTimeout(0)
 					.TransformUsing(Transformers.AliasToBean<OrderItemNode>()).ReadOnly().List<OrderItemNode>();
 			}
@@ -732,10 +694,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				.JoinEntityAlias(() => orderAlias, () => orderItemAlias.Order.Id == orderAlias.Id)
 				.Left.JoinAlias(() => orderAlias.ContactPhone, () => orderContactPhoneAlias)
 				.Left.JoinAlias(() => orderAlias.Author, () => authorAlias)
-				.Left.JoinAlias(() => authorAlias.Subdivision, () => subdivisionAlias)
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.Left.JoinAlias(() => orderAlias.Contract, () => counterpartyContractAlias)
-				.Left.JoinAlias(() => counterpartyContractAlias.Organization, () => organizationAlias)
 				.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(() => orderAlias.PaymentByCardFrom, () => paymentFromAlias)
 				.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
@@ -757,16 +717,6 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					CustomProjections.GroupConcat(
 						Projections.Property(()=>emailAlias.Address),
 						separator: ",\n"));
-
-			var notDeliveredStatuses = RouteListItem.GetNotDeliveredStatuses();
-
-			RouteListItem routeListItemAlias = null;
-
-			var routeListIdSubquery = QueryOver.Of(() => routeListItemAlias)
-				.Where(() => routeListItemAlias.Order.Id == orderAlias.Id)
-				.And(Restrictions.In(Projections.Property(() => routeListItemAlias.Status), notDeliveredStatuses))
-				.Select(x => x.RouteList.Id)
-				.Take(1);
 
 			#region filter parameters
 
@@ -865,36 +815,6 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				query.Where(Restrictions.Not(Restrictions.In(
 					Projections.Property(() => orderAlias.Client.Id),
 					excludedCounterparties)));
-			}
-
-			if(includedCounterpartyTypes.Any())
-			{
-				query.Where(Restrictions.In(
-					Projections.Property(() => counterpartyAlias.CounterpartyType),
-					includedCounterpartyTypes));
-			}
-
-			if(excludedCounterpartyTypes.Any())
-			{
-				query.Where(Restrictions.Not(Restrictions.In(
-					Projections.Property(() => counterpartyAlias.CounterpartyType),
-					excludedCounterpartyTypes)));
-			}
-
-			if(includedCounterpartySubtypes.Any())
-			{
-				query.Where(Restrictions.In(
-					Projections.Property(() => counterpartyAlias.CounterpartySubtype.Id),
-					includedCounterpartySubtypes));
-			}
-
-			if(excludedCounterpartySubtypes.Any())
-			{
-				query.Where(Restrictions.Disjunction()
-					.Add(Restrictions.Not(Restrictions.In(
-						Projections.Property(() => counterpartyAlias.CounterpartySubtype.Id),
-						excludedCounterpartySubtypes)))
-					.Add(Restrictions.IsNull(Projections.Property(() => counterpartyAlias.CounterpartySubtype.Id))));
 			}
 
 			if(includedOrganizations.Any())
@@ -996,25 +916,17 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						.Select(() => orderItemAlias.Count).WithAlias(() => resultNodeAlias.Count)
 						.Select(() => orderItemAlias.ActualCount).WithAlias(() => resultNodeAlias.ActualCount)
 						.Select(() => nomenclatureAlias.Id).WithAlias(() => resultNodeAlias.NomenclatureId)
-						.Select(() => nomenclatureAlias.OfficialName).WithAlias(() => resultNodeAlias.NomenclatureOfficialName)
-						.Select(() => nomenclatureAlias.Category).WithAlias(() => resultNodeAlias.NomenclatureCategory)
 						.Select(() => counterpartyAlias.Id).WithAlias(() => resultNodeAlias.CounterpartyId)
-						.Select(() => counterpartyAlias.CounterpartyType).WithAlias(() => resultNodeAlias.CounterpartyType)
+						.Select(() => counterpartyAlias.FullName).WithAlias(() => resultNodeAlias.CounterpartyFullName)
 						.SelectSubQuery(counterpartyPhonesSubquery).WithAlias(() => resultNodeAlias.CounterpartyPhones)
 						.SelectSubQuery(counterpartyEmailsSubquery).WithAlias(() => resultNodeAlias.CounterpartyEmails)
 						.Select(Projections.Conditional(
 							Restrictions.IsNull(Projections.Property(() => orderAlias.ContactPhone)),
 							Projections.Constant(string.Empty),
 							PhoneProjections.GetOrderContactDigitNumberLeadsWith8())).WithAlias(() => resultNodeAlias.OrderContactPhone)
-						.Select(() => counterpartyAlias.FullName).WithAlias(() => resultNodeAlias.CounterpartyFullName)
-						.Select(() => organizationAlias.Id).WithAlias(() => resultNodeAlias.OrganizationId)
-						.Select(() => organizationAlias.Name).WithAlias(() => resultNodeAlias.OrganizationName)
-						.Select(() => subdivisionAlias.Id).WithAlias(() => resultNodeAlias.SubdivisionId)
-						.Select(() => subdivisionAlias.Name).WithAlias(() => resultNodeAlias.SubdivisionName)
-						.Select(() => orderAlias.PaymentType).WithAlias(() => resultNodeAlias.PaymentType)
+						.Select(() => nomenclatureAlias.OfficialName).WithAlias(() => resultNodeAlias.NomenclatureOfficialName)
 						.Select(() => orderAlias.Id).WithAlias(() => resultNodeAlias.OrderId)
 						.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultNodeAlias.OrderDeliveryDate)
-						.SelectSubQuery(routeListIdSubquery).WithAlias(() => resultNodeAlias.RouteListId)
 						.Select(() => productGroupAlias.Id).WithAlias(() => resultNodeAlias.ProductGroupId)
 						.Select(ProductGroupProjections.GetProductGroupNameWithEnclosureProjection()).WithAlias(() => resultNodeAlias.ProductGroupName))
 				.SetTimeout(0)

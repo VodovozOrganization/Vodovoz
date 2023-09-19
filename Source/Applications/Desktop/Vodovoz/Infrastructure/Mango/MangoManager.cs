@@ -132,7 +132,7 @@ namespace Vodovoz.Infrastructure.Mango
 
 		private void MangoServiceClientOnAppearedMessage(object sender, AppearedMessageEventArgs e)
 		{
-			Gtk.Application.Invoke((s, arg) => HandleMessage(e.Message));
+			Application.Invoke((s, arg) => HandleMessage(e.Message));
 		}
 
 		void MangoServiceClientChannelStateChanged(object sender, ConnectionStateEventArgs e)

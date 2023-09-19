@@ -19,20 +19,11 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.StoredEmails
 			References(x => x.Counterparty).Column("counterparty_id");
 		}
 
-		public class OrderDocumentEmailMap : SubclassMap<BillDocumentEmail>
+		public class OrderDocumentEmailMap : SubclassMap<OrderDocumentEmail>
 		{
 			public OrderDocumentEmailMap()
 			{
-				DiscriminatorValue(nameof(CounterpartyEmailType.BillDocument));
-				References(x => x.OrderDocument).Column("order_document_id");
-			}
-		}
-
-		public class UpdDocumentEmailMap : SubclassMap<UpdDocumentEmail>
-		{
-			public UpdDocumentEmailMap()
-			{
-				DiscriminatorValue(nameof(CounterpartyEmailType.UpdDocument));
+				DiscriminatorValue(nameof(CounterpartyEmailType.OrderDocument));
 				References(x => x.OrderDocument).Column("order_document_id");
 			}
 		}

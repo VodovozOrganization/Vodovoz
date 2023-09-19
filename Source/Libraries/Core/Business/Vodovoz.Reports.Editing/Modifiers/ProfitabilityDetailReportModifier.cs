@@ -9,7 +9,7 @@ namespace Vodovoz.Reports.Editing.Modifiers
 {
 	public class ProfitabilityDetailReportModifier : ReportModifierBase
 	{
-		private const string _tableName = "TableSales";
+		private const string _tableName = "TableProfitability";
 		private const string _firstItemDataTextboxName = "TextboxFirstItemData";
 		private const int _firstItemDataColumnSpan = 7;
 
@@ -184,13 +184,9 @@ namespace Vodovoz.Reports.Editing.Modifiers
 				case GroupingType.DeliveryDate: return "={delivery_date}";
 				case GroupingType.RouteList: return "=Iif(Fields!route_list.IsMissing, 'Без маршрутного листа', 'МЛ №' + {route_list})";
 				case GroupingType.Nomenclature: return "={nomenclature_name}";
-				case GroupingType.NomenclatureType: return "={nomenclature_category}";
 				case GroupingType.NomenclatureGroup1: return "={nomen_group_level_1_name}";
 				case GroupingType.NomenclatureGroup2: return "={nomen_group_level_2_name}";
 				case GroupingType.NomenclatureGroup3: return "={nomen_group_level_3_name}";
-				case GroupingType.CounterpartyType: return "={counterparty_type}";
-				case GroupingType.PaymentType: return "={payment_type}";
-				case GroupingType.Organization: return "={organization}";
 				default:
 					throw new NotSupportedException("Неизвестная группировка");
 			}
@@ -218,13 +214,9 @@ namespace Vodovoz.Reports.Editing.Modifiers
 				case GroupingType.DeliveryDate: return "{delivery_date}";
 				case GroupingType.RouteList: return "{route_list}";
 				case GroupingType.Nomenclature: return "{nomenclature_id}";
-				case GroupingType.NomenclatureType: return "{nomenclature_category}";
 				case GroupingType.NomenclatureGroup1: return "{nomen_group_level_1_id}";
 				case GroupingType.NomenclatureGroup2: return "{nomen_group_level_2_id}";
 				case GroupingType.NomenclatureGroup3: return "{nomen_group_level_3_id}";
-				case GroupingType.CounterpartyType: return "{counterparty_type}";
-				case GroupingType.PaymentType: return "{payment_type}";
-				case GroupingType.Organization: return "{organization}";
 				default:
 					throw new NotSupportedException("Неизвестная группировка");
 			}
