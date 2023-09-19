@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using EdoService;
 using EdoService.Converters;
 using EdoService.Dto;
@@ -420,7 +420,7 @@ namespace Vodovoz
 				return;
 			}
 
-			if(args.PropertyName == nameof(Entity.IsLiquidating))
+			if(e.PropertyName == nameof(Entity.IsLiquidating))
 			{
 				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsLiquidatingLabelText)));
 			}
