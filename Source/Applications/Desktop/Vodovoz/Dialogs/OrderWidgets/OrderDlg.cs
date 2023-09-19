@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
@@ -144,6 +144,8 @@ namespace Vodovoz
 			new DriverApiParametersProvider(_parametersProvider);
 
 		private static readonly IDeliveryRepository _deliveryRepository = new DeliveryRepository();
+
+		private string _lastDeliveryPointComment;
 
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 
@@ -535,6 +537,7 @@ namespace Vodovoz
 
 		public void ConfigureDlg()
 		{
+			_lastDeliveryPointComment = Entity.DeliveryPoint?.Comment.Trim('\n').Trim(' ') ?? string.Empty;
 			_counterpartyService = _lifetimeScope.Resolve<ICounterpartyService>();
 
 			_justCreated = UoWGeneric.IsNew;
@@ -3208,16 +3211,59 @@ namespace Vodovoz
 
 		private void AddCommentFromDeliveryPoint()
 		{
-			if(string.IsNullOrWhiteSpace(Entity.Comment))
+
+			if(DeliveryPoint.Id == _previousDeliveryPointId)
 			{
-				Entity.Comment = DeliveryPoint.Comment;
+				return;
+			}
+
+			const string previousCommentPrefix = "Предыдущий комментарий:";
+
+			string trimmedCurrentComment = Entity.Comment.Trim('\n').Trim(' ');
+
+			string trimmedNewDeliveryPointComment = DeliveryPoint.Comment.Trim('\n').Trim(' ');
+
+			var firstPreviousCommentIndex = trimmedCurrentComment.IndexOf(previousCommentPrefix);
+
+			if(!string.IsNullOrWhiteSpace(_lastDeliveryPointComment))
+			{
+				if(firstPreviousCommentIndex >= 0)
+				{
+					trimmedCurrentComment = trimmedCurrentComment
+						.Substring(0, firstPreviousCommentIndex)
+						.Replace(_lastDeliveryPointComment, "")
+						.Trim('\n')
+						.Trim(' ') +
+						trimmedCurrentComment.Substring(firstPreviousCommentIndex);
+				}
+				else
+				{
+					trimmedCurrentComment = trimmedCurrentComment.Replace(_lastDeliveryPointComment, "");
+				}
+			}
+
+			_lastDeliveryPointComment = trimmedNewDeliveryPointComment;
+
+			if(string.IsNullOrWhiteSpace(trimmedCurrentComment))
+			{
+				Entity.Comment = trimmedNewDeliveryPointComment;
+				return;
+			}
+
+			if(!string.IsNullOrWhiteSpace(trimmedNewDeliveryPointComment))
+			{
+				if(trimmedCurrentComment.StartsWith(previousCommentPrefix))
+				{
+					Entity.Comment = $"{trimmedNewDeliveryPointComment}\n{trimmedCurrentComment}";
+				}
+				else
+				{
+					Entity.Comment = $"{trimmedNewDeliveryPointComment}\n{previousCommentPrefix}{trimmedCurrentComment}";
+				}
 			}
 			else
 			{
-				if(!string.IsNullOrWhiteSpace(DeliveryPoint.Comment) && DeliveryPoint.Id != _previousDeliveryPointId)
-				{
-					Entity.Comment = string.Join("\n", DeliveryPoint.Comment, $"Предыдущий комментарий: {Entity.Comment}");
-				}
+				Entity.Comment = trimmedCurrentComment;
 			}
 		}
 
