@@ -141,7 +141,7 @@ namespace Vodovoz.Views
 
 							if(!result)
 							{
-								Application.Invoke((s, e) => ShowMessageAndClose(
+								Gtk.Application.Invoke((s, e) => ShowMessageAndClose(
 									QS.Dialog.ImportanceLevel.Warning,
 									CloseSource.Self,
 									"Ошибка при сохранении заказа.",
@@ -159,7 +159,7 @@ namespace Vodovoz.Views
 					UpdateProgress($"Сохранен {count} платеж из {totalPayments}", progress);
 				}
 
-				Application.Invoke((s, e) => ShowMessageAndClose(
+				Gtk.Application.Invoke((s, e) => ShowMessageAndClose(
 					QS.Dialog.ImportanceLevel.Info,
 					CloseSource.Save,
 					"Сохранение закончено...",
@@ -170,7 +170,7 @@ namespace Vodovoz.Views
 			catch(Exception ex)
 			{
 				_logger.Error(ex);
-				Application.Invoke((s, e) => ShowMessageAndClose(
+				Gtk.Application.Invoke((s, e) => ShowMessageAndClose(
 					QS.Dialog.ImportanceLevel.Warning,
 					CloseSource.Self,
 					"Ошибка при сохранении.",

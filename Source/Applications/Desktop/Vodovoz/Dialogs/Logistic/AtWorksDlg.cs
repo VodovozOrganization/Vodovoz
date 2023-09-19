@@ -1,4 +1,4 @@
-﻿using Gamma.ColumnConfig;
+using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gamma.Widgets.Additions;
 using Gdk;
@@ -302,7 +302,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private void OnGeographicGroupSelected(object o, ToggledArgs args)
 		{
-			Application.Invoke((s, e) =>
+			Gtk.Application.Invoke((s, e) =>
 			{
 				var selectedNode = ytreeviewGeographicGroup.GetSelectedObject<GeographicGroupNode>();
 

@@ -93,6 +93,16 @@ namespace Vodovoz.Reports.Editing.Providers
 			return rows;
 		}
 
+		public static IEnumerable<XElement> GetTableColumns(this XContainer container, string @namespace)
+		{
+			return container.Descendants(XName.Get("TableColumns", @namespace));
+		}
+
+		public static IEnumerable<XElement> GetRowCells(this XContainer container, string @namespace)
+		{
+			return container.Descendants(XName.Get("TableCells", @namespace));
+		}
+
 		public static XElement GetTextbox(this XContainer container, string textBoxName, string @namespace)
 		{
 			var textBoxes = container.Descendants(XName.Get("Textbox", @namespace));
@@ -113,6 +123,47 @@ namespace Vodovoz.Reports.Editing.Providers
 			}
 			var textBox = matchedTextBoxes.First();
 			return textBox;
+		}
+
+		public static int GetTextBoxColumnIndex(this XContainer container, string textBoxName, string @namespace)
+		{
+			var rowsSets = container.GetTableRows(@namespace);
+
+			foreach(var rowSet in rowsSets)
+			{
+				foreach(var row in rowSet.Elements())
+				{
+					var cells = row.GetRowCells(@namespace).Elements();
+
+					var cellsCount = cells.Count();
+
+					for(var i = 0; i < cellsCount; i++)
+					{
+						var element = cells.ElementAt(i);
+
+						var reportItems = element.Elements().FirstOrDefault();
+
+						if(reportItems is null)
+						{
+							continue;
+						}
+
+						var textbox = reportItems.Elements().FirstOrDefault();
+
+						if(textbox is null)
+						{
+							continue;
+						}
+
+						if(textbox.Attributes().FirstOrDefault(x => x.Name == "Name")?.Value == textBoxName)
+						{
+							return i;
+						}
+					}
+				}
+			}
+
+			return -1;
 		}
 
 		private static void ThrowMissingElementException(string element)

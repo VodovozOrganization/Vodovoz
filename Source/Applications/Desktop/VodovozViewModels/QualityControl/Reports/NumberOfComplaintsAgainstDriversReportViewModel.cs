@@ -1,5 +1,5 @@
-﻿using ClosedXML.Excel;
-using ClosedXML.Report;
+﻿using ClosedXML.Report;
+using DateTimeHelpers;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -8,8 +8,12 @@ using QS.Navigation;
 using QS.Project.Services.FileDialog;
 using QS.ViewModels;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using Vodovoz.Domain.Complaints;
+using Vodovoz.Domain.Sale;
+using Vodovoz.Services;
 using Vodovoz.Tools;
-using DateTimeHelpers;
 
 namespace Vodovoz.ViewModels.QualityControl.Reports
 {
@@ -22,12 +26,16 @@ namespace Vodovoz.ViewModels.QualityControl.Reports
 		private NumberOfComplaintsAgainstDriversReport _report;
 		private DateTime? _startDate;
 		private DateTime? _endDate;
+		private GeoGroup _selectedGeoGroup;
+		private ComplaintResultBase _selectedComplaintResult;
+		private ReportSortOrder _selectedReportSortOrder;
 
 		public NumberOfComplaintsAgainstDriversReportViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
 			INavigationManager navigation,
-			IFileDialogService fileDialogService)
+			IFileDialogService fileDialogService,
+			IComplaintParametersProvider complaintParametersProvider)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
@@ -36,6 +44,9 @@ namespace Vodovoz.ViewModels.QualityControl.Reports
 
 			GenerateReportCommand = new DelegateCommand(GenerateReport);
 			ExportReportCommand = new DelegateCommand(ExportReport, () => CanExportReport);
+			GeoGroups = UoW.GetAll<GeoGroup>().ToList();
+			ComplaintResults = UoW.GetAll<ComplaintResultBase>().ToList();
+			SelectedComplaintResult = ComplaintResults.FirstOrDefault(x => x.Id == complaintParametersProvider.GuiltProvenComplaintResultId);
 		}
 
 		public DateTime? StartDate
@@ -50,6 +61,24 @@ namespace Vodovoz.ViewModels.QualityControl.Reports
 			set => SetField(ref _endDate, value);
 		}
 
+		public GeoGroup SelectedGeoGroup
+		{
+			get => _selectedGeoGroup;
+			set => SetField(ref _selectedGeoGroup, value);
+		}
+
+		public ComplaintResultBase SelectedComplaintResult
+		{
+			get => _selectedComplaintResult;
+			set => SetField(ref _selectedComplaintResult, value);
+		}
+
+		public ReportSortOrder SelectedReportSortOrder
+		{
+			get => _selectedReportSortOrder;
+			set => SetField(ref _selectedReportSortOrder, value);
+		}
+
 		[PropertyChangedAlso(nameof(CanExportReport))]
 		public NumberOfComplaintsAgainstDriversReport Report
 		{
@@ -62,6 +91,8 @@ namespace Vodovoz.ViewModels.QualityControl.Reports
 		public DelegateCommand GenerateReportCommand { get; }
 
 		public DelegateCommand ExportReportCommand { get; }
+		public IList<GeoGroup> GeoGroups { get; }
+		public IList<ComplaintResultBase> ComplaintResults { get; }
 
 		private void GenerateReport()
 		{
@@ -71,7 +102,11 @@ namespace Vodovoz.ViewModels.QualityControl.Reports
 				return;
 			}
 
-			Report = NumberOfComplaintsAgainstDriversReport.Generate(UoW, StartDate.Value, EndDate.Value.LatestDayTime());
+			var selectedGeoGroupId = SelectedGeoGroup?.Id ?? 0;
+			var selectedComplaintResultId = SelectedComplaintResult?.Id ?? 0;
+
+			Report = NumberOfComplaintsAgainstDriversReport.Generate(UoW, StartDate.Value, EndDate.Value.LatestDayTime(), selectedGeoGroupId,
+				selectedComplaintResultId, SelectedReportSortOrder);
 		}
 
 		private void ExportReport()
