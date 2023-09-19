@@ -10,7 +10,6 @@ using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using QS.Project.Services.FileDialog;
 using QS.Services;
-using QS.Tdi;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -76,6 +75,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 		private readonly IRDLPreviewOpener _rdlPreviewOpener;
 		private readonly int _closingDocumentDeliveryScheduleId;
+		private readonly bool _userCanPrintManyOrdersDocuments;
 
 		public OrderJournalViewModel(
 			OrderJournalFilterViewModel filterViewModel,
@@ -135,6 +135,7 @@ namespace Vodovoz.JournalViewModels
 			_userHasOnlyAccessToWarehouseAndComplaints =
 				commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
 				&& !commonServices.UserService.GetCurrentUser().IsAdmin;
+			_userCanPrintManyOrdersDocuments = commonServices.CurrentPermissionService.ValidatePresetPermission("can_print_many_orders_documents");
 
 			SearchEnabled = false;
 
@@ -228,8 +229,8 @@ namespace Vodovoz.JournalViewModels
 		{
 			var printOrdersDocumentsAction = new JournalAction(
 				"Печать документов",
-				(selected) => true,
-				(selected) => true,
+				(selected) => _userCanPrintManyOrdersDocuments,
+				(selected) => _userCanPrintManyOrdersDocuments,
 				(selected) => 
 				{
 					var ordersCount = 
