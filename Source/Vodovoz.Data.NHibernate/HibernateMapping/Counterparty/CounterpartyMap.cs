@@ -56,7 +56,6 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			Map(x => x.ShetFacturaCount).Column("shet_factura_count");
 			Map(x => x.CarProxyCount).Column("car_proxy_count");
 			Map(x => x.CounterpartyType).Column("counterparty_type");
-			Map(x => x.CounterpartySubtype).Column("counterparty_subtype");
 			Map(x => x.IsChainStore).Column("is_chain_store");
 			Map(x => x.IsForRetail).Column("is_for_retail");
 			Map(x => x.IsForSalesDepartment).Column("is_for_sales_department");
@@ -99,6 +98,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			References(x => x.WorksThroughOrganization).Column("works_through_organization_id");
 			References(x => x.EdoOperator).Column("edo_operator_id");
 			References(x => x.LogisticsRequirements).Column("logistics_requirements_id").Cascade.All();
+			References(x => x.CounterpartySubtype).Column("counterparty_subtype_id");
 
 			HasMany(x => x.Phones).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("counterparty_id");
 			HasMany(x => x.Accounts).Cascade.AllDeleteOrphan().LazyLoad()
@@ -134,4 +134,3 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 		}
 	}
 }
-

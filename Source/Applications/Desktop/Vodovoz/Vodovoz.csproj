@@ -415,6 +415,7 @@
     <Compile Include="Core\DocumentPrinter.cs" />
     <Compile Include="Core\ViewFactory.cs" />
     <Compile Include="Core\WidgetResolveException.cs" />
+    <Compile Include="Counterparties\SubtypesJournalRegistrar.cs" />
     <Compile Include="Crutches\WrapLabel.cs" />
     <Compile Include="Configuration\ApplicationConfigurator.cs" />
     <Compile Include="Dialogs\CastomMessageDlg.cs" />
@@ -466,7 +467,7 @@
     <Compile Include="JournalColumnsConfigs\ComplaintResultsOfEmployeesJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ComplaintsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ComplaintsWithDepartmentsReactionJournalRegistrar.cs" />
-    <Compile Include="JournalColumnsConfigs\CounterpartyJournalRegistrar.cs" />
+    <Compile Include="Counterparties\CounterpartyJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\DebtorsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\DeliveryPointByClientJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\DeliveryPointJournalRegistrar.cs" />
@@ -626,7 +627,7 @@
     <Compile Include="ReportsParameters\CashBookReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.CashBookReport.cs" />
     <Compile Include="ReportsParameters\Orders\OrderChangesReport.cs" />
-    <Compile Include="ReportsParameters\Sales\SalesReport.cs" />
+    <Compile Include="ReportsParameters\Sales\SalesReportView.cs" />
     <Compile Include="ServiceDialogs\CastomInteractiveService.cs" />
     <Compile Include="ServiceDialogs\CastomMessageDialogHelper.cs" />
     <Compile Include="ServiceDialogs\Old1612ExportTo1c\Catalogs\AccountCatalog.cs" />
@@ -889,7 +890,7 @@
     <Compile Include="Dialogs\Employees\EmployeeWorkChartDlg.cs" />
     <Compile Include="gtk-gui\Dialogs.Employees.EmployeeWorkChartDlg.cs" />
     <Compile Include="ViewWidgets\WorkChartTable.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Reports.SalesReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Reports.SalesReportView.cs" />
     <Compile Include="Dialogs\SubdivisionDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.SubdivisionDlg.cs" />
     <Compile Include="ReportsParameters\DriverWagesReport.cs" />
@@ -1959,6 +1960,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriversStopListsView.cs" />
     <Compile Include="Views\Logistic\DriverStopListRemovalView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriverStopListRemovalView.cs" />
+    <Compile Include="Counterparties\SubtypeView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Counterparties.SubtypeView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Reports.IncludeExludeFiltersView.cs" />
     <Compile Include="Views\BaseParameters\BaseParametersView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.BaseParameters.BaseParametersView.cs" />
@@ -1982,6 +1985,7 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="ViewModels\Goods\" />
+    <Folder Include="Counterparties\" />
     <Folder Include="Views\BaseParameters\" />
     <Folder Include="QualityControl\" />
     <Folder Include="QualityControl\Reports\" />
@@ -2314,6 +2318,10 @@
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Sms\SmsPaymentService\SmsPaymentService.csproj">
       <Project>{ca429421-2cce-4f9f-8dce-379583ab297c}</Project>
       <Name>SmsPaymentService</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Reports.Editing\Vodovoz.Reports.Editing.csproj">
+      <Project>{EC80100E-0125-48C6-8D66-50EEBF26E320}</Project>
+      <Name>Vodovoz.Reports.Editing</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Application\Vodovoz.Application.csproj">
       <Project>{15a5975c-1f75-4023-a2e3-1d9b297b008f}</Project>

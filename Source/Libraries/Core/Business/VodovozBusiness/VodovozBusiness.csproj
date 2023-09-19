@@ -800,9 +800,8 @@
     <Compile Include="Permissions\Logistic.cs" />
     <Compile Include="Permissions\Order.UndeliveredOrder.cs" />
     <Compile Include="Permissions\Report.cs" />
-    <Compile Include="Permissions\Report.SalesReport.cs" />
     <Compile Include="Permissions\User.cs" />
-    <Compile Include="Permissions\Sales.cs" />
+    <Compile Include="Permissions\Report.Sales.cs" />
     <Compile Include="Services\IComplaintParametersProvider.cs" />
     <Compile Include="Services\ICounterpartyService.cs" />
     <Compile Include="Services\IEmployeeService.cs" />
