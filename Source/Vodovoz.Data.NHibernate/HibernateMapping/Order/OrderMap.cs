@@ -1,4 +1,4 @@
-using FluentNHibernate.Mapping;
+﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 
@@ -66,6 +66,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.DriverMobileAppComment).Column("driver_app_comment");
 			Map(x => x.DriverMobileAppCommentTime).Column("driver_app_comment_time");
 			Map(x => x.IsSecondOrder).Column("is_second_order");
+			Map(x => x.CounterpartyExternalOrderId).Column("counterparty_external_order_id");
 
 			Map(x => x.OrderStatus).Column("order_status")
 				.CustomType<OrderStatusStringType>();
