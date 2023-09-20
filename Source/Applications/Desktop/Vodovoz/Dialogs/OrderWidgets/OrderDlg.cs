@@ -939,6 +939,15 @@ namespace Vodovoz
 				.InitializeFromSource();
 			yvalidatedentryEShopOrder.Visible = !showEshop;
 
+			yhboxCounterpartyExternalOrderId.Binding
+				.AddFuncBinding(Entity, c => c.Client != null && c.Client.UseSpecialDocFields, w => w.Visible)
+				.InitializeFromSource();
+
+			yvalidatedentryCounterpartyExternalOrderId.ValidationMode = ValidationType.numeric;
+			yvalidatedentryCounterpartyExternalOrderId.Binding
+				.AddBinding(Entity, o => o.CounterpartyExternalOrderId, w => w.Text, new NullableIntToStringConverter())
+				.InitializeFromSource();
+
 			chkAddCertificates.Binding.AddBinding(Entity, c => c.AddCertificates, w => w.Active).InitializeFromSource();
 
 			ToggleVisibilityOfDeposits(Entity.ObservableOrderDepositItems.Any());
