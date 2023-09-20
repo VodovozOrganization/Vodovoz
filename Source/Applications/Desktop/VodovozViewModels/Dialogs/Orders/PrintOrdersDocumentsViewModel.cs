@@ -109,6 +109,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 			set => SetField(ref _printingDocumentInfo, value);
 		}
 
+		[PropertyChangedAlso(nameof(CanPrintDocuments))]
 		public int PrintCopiesCount
 		{
 			get => _printCopiesCount;
@@ -232,8 +233,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 		{
 			var counterpartyName = Orders
 				.FirstOrDefault()?
-				.Client?
-				.FullName ?? string.Empty;
+				.Client?.FullName ?? string.Empty;
 
 			return counterpartyName;
 		}
