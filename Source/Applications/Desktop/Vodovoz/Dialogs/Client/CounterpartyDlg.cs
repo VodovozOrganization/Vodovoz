@@ -453,7 +453,7 @@ namespace Vodovoz
 			yEnumCounterpartyType.ChangedByUser += OnEnumCounterpartyTypeChangedByUser;
 			OnEnumCounterpartyTypeChanged(this, EventArgs.Empty);
 
-			var vm = new LegacyEEVMBuilderFactory<Counterparty>(this, Entity, UoW, NavigationManager, _lifetimeScope)
+			var vm = new LegacyEEVMBuilderFactory<Counterparty>(this, Entity, UoW, Startup.MainWin.NavigationManager, _lifetimeScope)
 				.ForProperty(x => x.CounterpartySubtype)
 				.UseViewModelJournalAndAutocompleter<SubtypesJournalViewModel>()
 				.UseViewModelDialog<SubtypeViewModel>()
@@ -1407,8 +1407,6 @@ namespace Vodovoz
 		};
 
 		public IEntityEntryViewModel SubtypeEntryViewModel { get; private set; }
-
-		public INavigationManager NavigationManager { get; private set; }
 
 		private void CheckIsChainStoreOnToggled(object sender, EventArgs e)
 		{
