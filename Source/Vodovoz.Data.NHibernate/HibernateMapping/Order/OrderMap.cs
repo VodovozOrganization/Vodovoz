@@ -73,7 +73,6 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.SignatureType).Column("signature_type")
 				.CustomType<OrderSignatureTypeStringType>();
 			Map(x => x.PaymentType).Column("payment_type")
-				.CustomType<PaymentTypeStringType>()
 				.Access.CamelCaseField(Prefix.Underscore);
 			Map(x => x.PaymentByTerminalSource).Column("terminal_subtype");
 			Map(x => x.DocumentType).Column("document_type");

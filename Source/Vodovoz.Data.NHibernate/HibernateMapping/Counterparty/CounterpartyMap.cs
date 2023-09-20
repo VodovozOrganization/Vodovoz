@@ -22,6 +22,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			Map(x => x.Comment).Column("comment");
 			Map(x => x.INN).Column("inn");
 			Map(x => x.KPP).Column("kpp");
+			Map(x => x.IsLiquidating).Column("is_liquidating");
 			Map(x => x.OGRN).Column("ogrn");
 			Map(x => x.JurAddress).Column("jur_address");
 			Map(x => x.Address).Column("address");
@@ -29,7 +30,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			Map(x => x.SignatoryPost).Column("signatory_post");
 			Map(x => x.SignatoryBaseOf).Column("signatory_base_of");
 			Map(x => x.PhoneFrom1c).Column("phone_from_1c");
-			Map(x => x.PaymentMethod).Column("payment_method").CustomType<PaymentTypeStringType>();
+			Map(x => x.PaymentMethod).Column("payment_method");
 			Map(x => x.PersonType).Column("person_type");
 			Map(x => x.NewBottlesNeeded).Column("need_new_bottles");
 			Map(x => x.DefaultDocumentType).Column("default_document_type");
@@ -55,7 +56,6 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			Map(x => x.ShetFacturaCount).Column("shet_factura_count");
 			Map(x => x.CarProxyCount).Column("car_proxy_count");
 			Map(x => x.CounterpartyType).Column("counterparty_type");
-			Map(x => x.CounterpartySubtype).Column("counterparty_subtype");
 			Map(x => x.IsChainStore).Column("is_chain_store");
 			Map(x => x.IsForRetail).Column("is_for_retail");
 			Map(x => x.IsForSalesDepartment).Column("is_for_sales_department");
@@ -98,6 +98,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			References(x => x.WorksThroughOrganization).Column("works_through_organization_id");
 			References(x => x.EdoOperator).Column("edo_operator_id");
 			References(x => x.LogisticsRequirements).Column("logistics_requirements_id").Cascade.All();
+			References(x => x.CounterpartySubtype).Column("counterparty_subtype_id");
 
 			HasMany(x => x.Phones).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("counterparty_id");
 			HasMany(x => x.Accounts).Cascade.AllDeleteOrphan().LazyLoad()
@@ -133,4 +134,3 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 		}
 	}
 }
-
