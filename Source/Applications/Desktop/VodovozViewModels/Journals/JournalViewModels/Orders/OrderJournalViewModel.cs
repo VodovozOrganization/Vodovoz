@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using Vodovoz.Controllers;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -76,6 +77,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 		private readonly IRDLPreviewOpener _rdlPreviewOpener;
 		private readonly int _closingDocumentDeliveryScheduleId;
+		private bool _isOrdersExportToExcelInProcess;
 
 		public OrderJournalViewModel(
 			OrderJournalFilterViewModel filterViewModel,
@@ -161,6 +163,16 @@ namespace Vodovoz.JournalViewModels
 			}
 		}
 
+		public bool IsOrdersExportToExcelInProcess
+		{
+			get => _isOrdersExportToExcelInProcess;
+			private set
+			{
+				SetField(ref _isOrdersExportToExcelInProcess, value);
+				UpdateJournalActions();
+			}
+		}
+
 		protected override void CreateNodeActions()
 		{
 			NodeActionsList.Clear();
@@ -225,14 +237,14 @@ namespace Vodovoz.JournalViewModels
 		{
 			var createExportToExcelAction = new JournalAction(
 				"Выгрузить в Excel",
-				(selected) => true,
+				(selected) => !IsOrdersExportToExcelInProcess,
 				(selected) => _userCanExportOrdersToExcel,
-				(selected) => ExportToExcel()
+				async (selected) => await ExportToExcel()
 			);
 			NodeActionsList.Add(createExportToExcelAction);
 		}
 
-		private void ExportToExcel()
+		private async Task ExportToExcel()
 		{
 			if(FilterViewModel.StartDate == null || FilterViewModel.EndDate == null)
 			{
@@ -254,14 +266,21 @@ namespace Vodovoz.JournalViewModels
 				return;
 			}
 
-			var nodes = GetReportData();
+			IsOrdersExportToExcelInProcess = true;
 
-			var ordersReport = new OrdersReport(
-					FilterViewModel.StartDate.Value,
-					FilterViewModel.EndDate.Value,
-					nodes);
+			await Task.Run(() =>
+			{
+				var nodes = GetReportData();
 
-			ordersReport.Export(saveDialogResul.Path);
+				var ordersReport = new OrdersReport(
+						FilterViewModel.StartDate.Value,
+						FilterViewModel.EndDate.Value,
+						nodes);
+
+				ordersReport.Export(saveDialogResul.Path);
+			});
+
+			IsOrdersExportToExcelInProcess = false;
 		}
 
 		private IEnumerable<OrderJournalNode> GetReportData()
