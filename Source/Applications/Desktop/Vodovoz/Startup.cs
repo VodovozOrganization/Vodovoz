@@ -57,7 +57,7 @@ namespace Vodovoz
 		public void Start(string[] args)
 		{
 			CultureInfo.CurrentCulture = CultureInfo.CreateSpecificCulture("ru-RU");
-			Application.Init();
+			Gtk.Application.Init();
 			QSMain.GuiThread = System.Threading.Thread.CurrentThread;
 			applicationInfo = new ApplicationVersionInfo();
 
@@ -239,7 +239,7 @@ namespace Vodovoz
 			PerformanceHelper.AddTimePoint(logger, "Закончен старт SAAS. Конец загрузки.");
 			PerformanceHelper.Main.PrintAllPoints(logger);
 
-			Application.Run();
+			Gtk.Application.Run();
 			QSSaaS.Session.StopSessionRefresh();
 			ClearTempDir();
 		}
@@ -360,7 +360,7 @@ namespace Vodovoz
 
 		private void DeletedEvent(object o, DeleteEventArgs args)
 		{
-			Application.Quit();
+			Gtk.Application.Quit();
 		}
 	}
 }

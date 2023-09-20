@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -93,6 +93,8 @@
     <Compile Include="Domain\Orders\UndeliveryDetalization.cs" />
     <Compile Include="Domain\Orders\UndeliveryKind.cs" />
     <Compile Include="Domain\Orders\UndeliveryObject.cs" />
+    <Compile Include="Domain\Payments\PaymentsFromCloudPaymentsParser.cs" />
+    <Compile Include="Domain\Payments\PaymentsFromTinkoffParser.cs" />
     <Compile Include="Domain\StoredEmails\UpdDocumentEmail.cs" />
     <Compile Include="EntityRepositories\Cash\FinancialExpenseCategoriesRepository.cs" />
     <Compile Include="EntityRepositories\Cash\FinancialIncomeCategoriesRepository.cs" />
@@ -372,7 +374,6 @@
     <Compile Include="Domain\Orders\UndeliveredOrderResultComment.cs" />
     <Compile Include="Domain\Organizations\OrganizationOwnershipType.cs" />
     <Compile Include="Domain\Organizations\OrganizationVersion.cs" />
-    <Compile Include="Domain\Client\PaymentTypeStringType.cs" />
     <Compile Include="Domain\Permissions\AvailableDatabase.cs" />
     <Compile Include="Domain\Permissions\DatabasePrivilege.cs" />
     <Compile Include="Domain\Permissions\GlobalPrivilege.cs" />
@@ -617,6 +618,7 @@
     <Compile Include="EntityRepositories\Undeliveries\UndeliveredOrderCountNode.cs" />
     <Compile Include="EntityRepositories\Undeliveries\UndeliveredOrdersRepository.cs" />
     <Compile Include="EntityRepositories\Nodes\NomenclatureForRentNode.cs" />
+    <Compile Include="Errors\Clients\Counterparty.cs" />
     <Compile Include="Errors\Clients\DeliveryPoint.cs" />
     <Compile Include="Errors\Clients\DeliveryPoint.FastDelivery.cs" />
     <Compile Include="Errors\Error.cs" />
@@ -798,10 +800,10 @@
     <Compile Include="Permissions\Logistic.cs" />
     <Compile Include="Permissions\Order.UndeliveredOrder.cs" />
     <Compile Include="Permissions\Report.cs" />
-    <Compile Include="Permissions\Report.SalesReport.cs" />
     <Compile Include="Permissions\User.cs" />
-    <Compile Include="Permissions\Sales.cs" />
+    <Compile Include="Permissions\Report.Sales.cs" />
     <Compile Include="Services\IComplaintParametersProvider.cs" />
+    <Compile Include="Services\ICounterpartyService.cs" />
     <Compile Include="Services\IEmployeeService.cs" />
     <Compile Include="Services\IFastDeliveryAvailabilityHistoryParameterProvider.cs" />
     <Compile Include="Parameters\CarEventSettings.cs" />
@@ -964,6 +966,7 @@
     <Compile Include="Services\DriverApiParametersProvider.cs" />
     <Compile Include="Services\IUserRoleSettings.cs" />
     <Compile Include="Services\IUserSettings.cs" />
+    <Compile Include="Services\RevenueServiceInfo.cs" />
     <Compile Include="Services\UserRoleSettings.cs" />
     <Compile Include="Tools\GeoGroupVersionNotFoundException.cs" />
     <Compile Include="Tools\DataArchiver.cs" />

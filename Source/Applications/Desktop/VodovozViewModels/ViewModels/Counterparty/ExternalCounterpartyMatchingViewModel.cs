@@ -128,36 +128,42 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 						return;
 					}
 
-					if(counterpartyNode.PersonType == PersonType.legal)
+					if(!ValidateAssign(counterpartyNode))
 					{
-						ShowWarningMessage("Невозможно присвоить юридическое лицо.\n" +
-							"Выберете физическое лицо или создайте нового контрагента");
 						return;
 					}
+
+					ExternalCounterparty externalCounterparty = null;
 					
-					var externalCounterparty = _externalCounterpartyFactory.CreateNewExternalCounterparty(Entity.CounterpartyFrom);
-					var phone = GetPhone(counterpartyNode);
-					externalCounterparty.Phone = phone;
-					externalCounterparty.ExternalCounterpartyId = Entity.ExternalCounterpartyGuid;
-					externalCounterparty.Email = _emailRepository.GetEmailForExternalCounterparty(UoW, counterpartyNode.EntityId);
+					if(Discrepancies.Count == 1)
+					{
+						var discrepancy = Discrepancies.First();
+
+						if(discrepancy.ExternalCounterpartyGuid == Entity.ExternalCounterpartyGuid)
+						{
+							externalCounterparty = UoW.GetById<ExternalCounterparty>(discrepancy.ExternalCounterpartyId);
+							externalCounterparty.Phone = GetPhone(counterpartyNode);
+							
+						}
+						else
+						{
+							ShowWarningMessage("Ошибка регистрации пользователя\n" +
+								"Обратитесь в РПО");
+						}
+					}
+					else
+					{
+						externalCounterparty = _externalCounterpartyFactory.CreateNewExternalCounterparty(Entity.CounterpartyFrom);
+						externalCounterparty.Phone = GetPhone(counterpartyNode);
+						externalCounterparty.ExternalCounterpartyId = Entity.ExternalCounterpartyGuid;
+						externalCounterparty.Email = _emailRepository.GetEmailForExternalCounterparty(UoW, counterpartyNode.EntityId);
+					}
 					
 					Entity.AssignCounterparty(externalCounterparty);
 					_needCreateNotification = true;
-					
-					ArchiveOtherExternalCounterparties();
 					UpdateMatches();
 					UpdateDiscrepancies();
 				}));
-
-		private void ArchiveOtherExternalCounterparties()
-		{
-			foreach(var discrepancy in Discrepancies)
-			{
-				var externalCounterparty = UoW.GetById<ExternalCounterparty>(discrepancy.ExternalCounterpartyId);
-				externalCounterparty.IsArchive = true;
-				UoW.Save(externalCounterparty);
-			}
-		}
 
 		public DelegateCommand ReAssignCounterpartyCommand =>
 			_reAssignCounterpartyCommand ?? (_reAssignCounterpartyCommand = new DelegateCommand(
@@ -173,51 +179,6 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 					UpdateMatches();
 					UpdateDiscrepancies();
 				}));
-
-		private void ReAssignCounterparty(ExistingExternalCounterpartyNode selectedDiscrepancyNode)
-		{
-			if(Entity.ExternalCounterpartyGuid == selectedDiscrepancyNode.ExternalCounterpartyGuid)
-			{
-				ReAssignCounterpartyWithChangePhone(selectedDiscrepancyNode);
-			}
-			else if(DigitsPhoneNumber == selectedDiscrepancyNode.PhoneNumber)
-			{
-				ReAssignCounterpartyWithChangeExternalId(selectedDiscrepancyNode);
-			}
-		}
-
-		private Guid CreateNewGuidForExternalCounterparty(CounterpartyFrom counterpartyFrom)
-		{
-			Guid newGuid;
-			ExternalCounterparty externalCounterpartyWithSameGuid;
-			
-			do
-			{
-				newGuid = Guid.NewGuid();
-				externalCounterpartyWithSameGuid =
-					UoW.GetAll<ExternalCounterparty>()
-						.SingleOrDefault(x => x.ExternalCounterpartyId == newGuid && x.CounterpartyFrom == counterpartyFrom);
-			} while(externalCounterpartyWithSameGuid != null);
-
-			return newGuid;
-		}
-
-		private void ReAssignCounterpartyWithChangePhone(ExistingExternalCounterpartyNode selectedDiscrepancyNode)
-		{
-			var externalCounterparty = UoW.GetById<ExternalCounterparty>(selectedDiscrepancyNode.ExternalCounterpartyId);
-			selectedDiscrepancyNode.PhoneId = null;
-			externalCounterparty.Phone = GetPhone(selectedDiscrepancyNode);
-
-			Entity.AssignCounterparty(externalCounterparty);
-			_needCreateNotification = true;
-		}
-		
-		private void ReAssignCounterpartyWithChangeExternalId(ExistingExternalCounterpartyNode selectedDiscrepancyNode)
-		{
-			var externalCounterparty = UoW.GetById<ExternalCounterparty>(selectedDiscrepancyNode.ExternalCounterpartyId);
-			externalCounterparty.ExternalCounterpartyId = CreateNewGuidForExternalCounterparty(externalCounterparty.CounterpartyFrom);
-			Entity.AssignCounterparty(externalCounterparty);
-		}
 
 		public DelegateCommand OpenOrderJournalCommand => _openOrderJournalCommand ?? (_openOrderJournalCommand = new DelegateCommand(
 			() =>
@@ -328,6 +289,88 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			{
 				CreateNotification(Entity.AssignedExternalCounterparty);
 			}
+		}
+		
+		private bool ValidateAssign(CounterpartyMatchingNode counterpartyNode)
+		{
+			if(counterpartyNode.PersonType == PersonType.legal)
+			{
+				ShowWarningMessage("Невозможно присвоить юридическое лицо.\n" +
+					"Выберете физическое лицо или создайте нового контрагента");
+				return false;
+			}
+
+			if(Discrepancies.Count > 1)
+			{
+				ShowWarningMessage("Слишком много расхождений для одного пользователя\n" +
+					"Обратитесь в РПО");
+				return false;
+			}
+
+			return true;
+		}
+
+		private void ArchiveOtherExternalCounterparties()
+		{
+			foreach(var discrepancy in Discrepancies)
+			{
+				var externalCounterparty = UoW.GetById<ExternalCounterparty>(discrepancy.ExternalCounterpartyId);
+				externalCounterparty.IsArchive = true;
+				UoW.Save(externalCounterparty);
+			}
+		}
+		
+		private void ReAssignCounterparty(ExistingExternalCounterpartyNode selectedDiscrepancyNode)
+		{
+			if(Entity.ExternalCounterpartyGuid == selectedDiscrepancyNode.ExternalCounterpartyGuid)
+			{
+				ReAssignCounterpartyWithChangePhone(selectedDiscrepancyNode);
+			}
+			else if(DigitsPhoneNumber == selectedDiscrepancyNode.PhoneNumber)
+			{
+				ReAssignCounterpartyWithChangeExternalId(selectedDiscrepancyNode);
+			}
+		}
+
+		private Guid CreateNewGuidForExternalCounterparty(CounterpartyFrom counterpartyFrom)
+		{
+			Guid newGuid;
+			ExternalCounterparty externalCounterpartyWithSameGuid;
+			
+			do
+			{
+				newGuid = Guid.NewGuid();
+				externalCounterpartyWithSameGuid =
+					UoW.GetAll<ExternalCounterparty>()
+						.SingleOrDefault(x => x.ExternalCounterpartyId == newGuid && x.CounterpartyFrom == counterpartyFrom);
+			} while(externalCounterpartyWithSameGuid != null);
+
+			return newGuid;
+		}
+
+		private void ReAssignCounterpartyWithChangePhone(ExistingExternalCounterpartyNode selectedDiscrepancyNode)
+		{
+			var externalCounterparty = UoW.GetById<ExternalCounterparty>(selectedDiscrepancyNode.ExternalCounterpartyId);
+			externalCounterparty.Phone = GetPhoneForReAssign(selectedDiscrepancyNode.EntityId, Entity.PhoneNumber.Remove(0, 2));
+
+			Entity.AssignCounterparty(externalCounterparty);
+			_needCreateNotification = true;
+		}
+
+		private Phone GetPhoneForReAssign(int counterpartyId, string phoneNumber)
+		{
+			var counterparty = UoW.GetById<Domain.Client.Counterparty>(counterpartyId);
+			var phone = counterparty.Phones.FirstOrDefault(x => x.DigitsNumber == phoneNumber)
+				?? CreateAndFillContactPhone(counterparty);
+
+			return phone;
+		}
+
+		private void ReAssignCounterpartyWithChangeExternalId(ExistingExternalCounterpartyNode selectedDiscrepancyNode)
+		{
+			var externalCounterparty = UoW.GetById<ExternalCounterparty>(selectedDiscrepancyNode.ExternalCounterpartyId);
+			externalCounterparty.ExternalCounterpartyId = CreateNewGuidForExternalCounterparty(externalCounterparty.CounterpartyFrom);
+			Entity.AssignCounterparty(externalCounterparty);
 		}
 
 		private void FillMatches(IList<ExternalCounterpartyMatchingNode> result)
@@ -471,18 +514,24 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			if(!counterpartyWithPhoneNode.PhoneId.HasValue)
 			{
 				var counterparty = UoW.GetById<Domain.Client.Counterparty>(counterpartyWithPhoneNode.EntityId);
-				phone = new Phone
-				{
-					Counterparty = counterparty,
-					Number = new PhoneFormatter(PhoneFormat.DigitsTen).FormatString(Entity.PhoneNumber)
-				};
-				FillCounterpartyContact(phone, counterparty.FirstName, counterparty.Patronymic);
+				phone = CreateAndFillContactPhone(counterparty);
 			}
 			else
 			{
 				phone = UoW.GetById<Phone>(counterpartyWithPhoneNode.PhoneId.Value);
 			}
 
+			return phone;
+		}
+
+		private Phone CreateAndFillContactPhone(Domain.Client.Counterparty counterparty)
+		{
+			var phone = new Phone
+			{
+				Counterparty = counterparty,
+				Number = new PhoneFormatter(PhoneFormat.DigitsTen).FormatString(Entity.PhoneNumber)
+			};
+			FillCounterpartyContact(phone, counterparty.FirstName, counterparty.Patronymic);
 			return phone;
 		}
 
