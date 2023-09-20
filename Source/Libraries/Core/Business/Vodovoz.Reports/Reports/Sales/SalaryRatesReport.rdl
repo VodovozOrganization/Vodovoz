@@ -47,10 +47,10 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>73.7pt</Width>
+            <Width>69.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>39.3pt</Width>
+            <Width>36.1pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>25.0pt</Width>
@@ -142,6 +142,9 @@
           <TableColumn>
             <Width>23pt</Width>
           </TableColumn>
+          <TableColumn >
+            <Width>23pt</Width>
+          </TableColumn>
         </TableColumns>
         <Header>
           <TableRows>
@@ -230,7 +233,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>15</ColSpan>
+                  <ColSpan>16</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -914,6 +917,26 @@
                   <ReportItems>
                     <Textbox Name="Textbox60">
                       <Value>Экспресс доставка</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Lighter</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                        <WritingMode>tb-lr</WritingMode>
+                        <FontStyle>Italic</FontStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox62">
+                      <Value>Экспресс доставка с опозданием</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1643,6 +1666,28 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox63">
+                      <Value>={FastDeliveryWithLateSuburb}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <BackgroundColor></BackgroundColor>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>6pt</FontSize>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
@@ -1678,7 +1723,7 @@
   <DataElementStyle>AttributeNormal</DataElementStyle>
   <DataSets>
     <DataSet Name="GetSalaryRates">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT * FROM
 (SELECT
@@ -1718,7 +1763,8 @@
        SUM(IF(wr.wage_rate_type = 'Address' and wd.id = @suburbId, wr.for_driver_with_forwarder, 0)) as AddressSuburb,
        SUM(IF(wr.wage_rate_type = 'ForeignAddress' and wd.id = @suburbId, wr.for_driver_with_forwarder, 0)) as ForeignAddressSuburb,
        SUM(IF(wr.wage_rate_type = 'ContractCancelation' and wd.id = @suburbId, wr.for_driver_with_forwarder, 0)) as ContractCancelationSuburb,
-       SUM(IF(wr.wage_rate_type = 'FastDelivery' and wd.id = @suburbId, wr.for_driver_with_forwarder, 0)) as FastDeliverySuburb
+       SUM(IF(wr.wage_rate_type = 'FastDelivery' and wd.id = @suburbId, wr.for_driver_with_forwarder, 0)) as FastDeliverySuburb,
+       SUM(IF(wr.wage_rate_type = 'FastDeliveryWithLate' and wd.id = @suburbId, wr.for_driver_with_forwarder, 0)) as FastDeliveryWithLateSuburb
 from wage_rates wr
 left join wage_district_level_rate wdlr on wr.wage_district_level_rate_id = wdlr.id
 left join wage_district_level_rates wdlrs on wdlr.wage_district_level_rates_id = wdlrs.id
@@ -1763,7 +1809,8 @@ select
        SUM(IF(wr2.wage_rate_type = 'Address' and wd.id = @suburbId, wr2.for_driver_without_forwarder, 0)) as AddressSuburb,
        SUM(IF(wr2.wage_rate_type = 'ForeignAddress' and wd.id = @suburbId, wr2.for_driver_without_forwarder, 0)) as ForeignAddressSuburb,
        SUM(IF(wr2.wage_rate_type = 'ContractCancelation' and wd.id = @suburbId, wr2.for_driver_without_forwarder, 0)) as ContractCancelationSuburb,
-       SUM(IF(wr2.wage_rate_type = 'FastDelivery' and wd.id = @suburbId, wr2.for_driver_without_forwarder, 0)) as FastDeliverySuburb
+       SUM(IF(wr2.wage_rate_type = 'FastDelivery' and wd.id = @suburbId, wr2.for_driver_without_forwarder, 0)) as FastDeliverySuburb,
+       SUM(IF(wr2.wage_rate_type = 'FastDeliveryWithLate' and wd.id = @suburbId, wr2.for_driver_without_forwarder, 0)) as FastDeliveryFastDeliveryWithLateSuburb
 from wage_rates wr2
 left join wage_district_level_rate wdlr on wr2.wage_district_level_rate_id = wdlr.id
 left join wage_district_level_rates wdlrs on wdlr.wage_district_level_rates_id = wdlrs.id
@@ -1808,7 +1855,8 @@ SELECT
        SUM(IF(wr3.wage_rate_type = 'Address' and wd.id = @suburbId, wr3.for_forwarder, 0)) as AddressSuburb,
        SUM(IF(wr3.wage_rate_type = 'ForeignAddress' and wd.id = @suburbId, wr3.for_forwarder, 0)) as ForeignAddressSuburb,
        SUM(IF(wr3.wage_rate_type = 'ContractCancelation' and wd.id = @suburbId, wr3.for_forwarder, 0)) as ContractCancelationSuburb,
-       SUM(IF(wr3.wage_rate_type = 'FastDelivery' and wd.id = @suburbId, wr3.for_forwarder, 0)) as FastDeliverySuburb
+       SUM(IF(wr3.wage_rate_type = 'FastDelivery' and wd.id = @suburbId, wr3.for_forwarder, 0)) as FastDeliverySuburb,
+       SUM(IF(wr3.wage_rate_type = 'FastDeliveryWithLate' and wd.id = @suburbId, wr3.for_forwarder, 0)) as FastDeliveryWithLateSuburb
 from wage_rates wr3
 left join wage_district_level_rate wdlr on wr3.wage_district_level_rate_id = wdlr.id
 left join wage_district_level_rates wdlrs on wdlr.wage_district_level_rates_id = wdlrs.id
@@ -1833,7 +1881,7 @@ ORDER BY
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="name">
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>
@@ -1964,6 +2012,10 @@ ORDER BY
         </Field>
         <Field Name="FastDeliveryCity">
           <DataField>FastDeliveryCity</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="FastDeliveryWithLateSuburb">
+          <DataField>FastDeliveryWithLateSuburb</DataField>
           <TypeName>System.Int32</TypeName>
         </Field>
       </Fields>
