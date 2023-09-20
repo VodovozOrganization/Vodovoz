@@ -1,59 +1,40 @@
-﻿using ClosedXML.Excel;
+﻿using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Spreadsheet;
 using QS.DomainModel.Entity;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using Vodovoz.Domain.Orders;
 using Vodovoz.JournalNodes;
-using Vodovoz.Tools;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.Orders
 {
 	[Appellative(Nominative = "Отчет по заказам")]
 	public class OrdersReport
 	{
-		private readonly Report _report;
+		private const double _defaultColumnWidth = 12;
+		private uint _defaultCellFormatId;
+		private uint _tableHeadersCellFormatId;
+		private uint _tableTitleCellFormatId;
 
-		#region WorkSheet Config
-		private const int _defaultColumnWidth = 12;
-		private const int _defaultFontSize = 10;
-		private const int _worksheetTitleFontSize = 13;
-
-		private const int _orderIdColumnNumber = 1;
-		private const int _dateColumnNumber = 2;
-		private const int _authorColumnNumber = 3;
-		private const int _deliveryTimeColumnNumber = 4;
-		private const int _orderStatusColumnNumber = 5;
-		private const int _typeColumnNumber = 6;
-		private const int _bottleAmountCountColumnNumber = 7;
-		private const int _sanitisationAmountColumnNumber = 8;
-		private const int _counterpartyColumnNumber = 9;
-		private const int _innColumnNumber = 10;
-		private const int _sumColumnNumber = 11;
-		private const int _paymentStatusColumnNumber = 12;
-		private const int _edoDocFlowStatusColumnNumber = 13;
-		private const int _districtNameColumnNumber = 14;
-		private const int _addressColumnNumber = 15;
-		private const int _lastEditorColumnNumber = 16;
-		private const int _lastEditedTimeColumnNumber = 17;
-		private const int _driverCallIdColumnNumber = 18;
-		private const int _onLineNumberColumnNumber = 19;
-		private const int _eShopNumberColumnNumber = 20;
-		#endregion Column Config
+		private readonly IEnumerable<OrderJournalNode> _orderJournalNodes;
 
 		public OrdersReport(
-			DateTime createDateFrom, 
-			DateTime createDateTo, 
-			IEnumerable<OrderJournalNode> rows)
+			DateTime createDateFrom,
+			DateTime createDateTo,
+			IEnumerable<OrderJournalNode> orderJournalNodes)
 		{
-			_report = new Report(rows);
+			_orderJournalNodes = orderJournalNodes ?? new List<OrderJournalNode>();
 
 			CreateDateFrom = createDateFrom;
 			CreateDateTo = createDateTo;
 			ReportCreatedAt = DateTime.Now;
 		}
 
-		public string Title => typeof(OrdersReport).GetClassUserFriendlyName().Nominative;
+		public string Title => 
+			$"Список заказов " +
+			$"за период с {CreateDateFrom:dd.MM.yyyy} по {CreateDateTo:dd.MM.yyyy}";
 
 		public DateTime CreateDateFrom { get; }
 
@@ -63,183 +44,362 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Orders
 
 		public void Export(string path)
 		{
-			using(var workbook = new XLWorkbook())
+			using(var spreadsheet = SpreadsheetDocument.Create(path, SpreadsheetDocumentType.Workbook))
 			{
-				var worksheet = workbook.Worksheets.Add("Заказы");
+				spreadsheet.AddWorkbookPart();
+				spreadsheet.WorkbookPart.Workbook = new Workbook();
 
-				RenderReport(worksheet);
+				var worksheetPart = spreadsheet.WorkbookPart.AddNewPart<WorksheetPart>();
+				worksheetPart.Worksheet = new Worksheet();
 
-				workbook.SaveAs(path);
-			}
-		}
+				var stylesPart = spreadsheet.WorkbookPart.AddNewPart<WorkbookStylesPart>();
+				stylesPart.Stylesheet = GetStyleSheet();
+				stylesPart.Stylesheet.Save();
 
-		private void RenderReport(IXLWorksheet worksheet)
-		{
-			var sheetTitleRowNumber = 1;
-			var tableTitlesRowNumber = 3;
+				worksheetPart.Worksheet.Append(CreateColumns(_defaultColumnWidth));
 
-			SetColumnsWidth(worksheet);
+				var sheetData = new SheetData();
+				sheetData.Append(GetTableTitleRow());
+				sheetData.Append(GetBlankRow());
+				sheetData.Append(GetTableHeadersRow());
 
-			var reportTitle = $"{Title} за период с {CreateDateFrom:dd.MM.yyyy} по {CreateDateTo:dd.MM.yyyy}";
-
-			RenderWorksheetTitleCell(worksheet, sheetTitleRowNumber, 1, reportTitle);
-
-			RenderTableTitleRow(worksheet, tableTitlesRowNumber);
-
-			var excelRowCounter = ++tableTitlesRowNumber;
-
-			foreach(var row in _report.Rows)
-			{
-				RenderReportRow(worksheet, excelRowCounter, row);
-				excelRowCounter++;
-			}
-		}
-
-		private void SetColumnsWidth(IXLWorksheet worksheet)
-		{
-			worksheet.ColumnWidth = _defaultColumnWidth;
-
-			worksheet.Column(_authorColumnNumber).Width = _defaultColumnWidth * 2;
-			worksheet.Column(_counterpartyColumnNumber).Width = _defaultColumnWidth * 3;
-			worksheet.Column(_districtNameColumnNumber).Width = _defaultColumnWidth * 1.5;
-			worksheet.Column(_addressColumnNumber).Width = _defaultColumnWidth * 5;
-			worksheet.Column(_lastEditorColumnNumber).Width = _defaultColumnWidth * 2;
-			worksheet.Column(_lastEditedTimeColumnNumber).Width = _defaultColumnWidth * 2;
-		}
-
-		private void RenderTableTitleRow(IXLWorksheet worksheet, int rowNumber)
-		{
-			RenderTableTitleCell(worksheet, rowNumber, _orderIdColumnNumber, "Номер");
-			RenderTableTitleCell(worksheet, rowNumber, _dateColumnNumber, "Дата");
-			RenderTableTitleCell(worksheet, rowNumber, _authorColumnNumber, "Автор");
-			RenderTableTitleCell(worksheet, rowNumber, _deliveryTimeColumnNumber, "Время");
-			RenderTableTitleCell(worksheet, rowNumber, _orderStatusColumnNumber, "Статус");
-			RenderTableTitleCell(worksheet, rowNumber, _typeColumnNumber, "Тип");
-			RenderTableTitleCell(worksheet, rowNumber, _bottleAmountCountColumnNumber, "Бутыли");
-			RenderTableTitleCell(worksheet, rowNumber, _sanitisationAmountColumnNumber, "Кол-во с/о");
-			RenderTableTitleCell(worksheet, rowNumber, _counterpartyColumnNumber, "Клиент");
-			RenderTableTitleCell(worksheet, rowNumber, _innColumnNumber, "ИНН");
-			RenderTableTitleCell(worksheet, rowNumber, _sumColumnNumber, "Сумма");
-			RenderTableTitleCell(worksheet, rowNumber, _paymentStatusColumnNumber, "Статус оплаты");
-			RenderTableTitleCell(worksheet, rowNumber, _edoDocFlowStatusColumnNumber, "Статус документооборота");
-			RenderTableTitleCell(worksheet, rowNumber, _districtNameColumnNumber, "Район доставки");
-			RenderTableTitleCell(worksheet, rowNumber, _addressColumnNumber, "Адрес");
-			RenderTableTitleCell(worksheet, rowNumber, _lastEditorColumnNumber, "Изменил");
-			RenderTableTitleCell(worksheet, rowNumber, _lastEditedTimeColumnNumber, "Послед. изменения");
-			RenderTableTitleCell(worksheet, rowNumber, _driverCallIdColumnNumber, "Номер звонка");
-			RenderTableTitleCell(worksheet, rowNumber, _onLineNumberColumnNumber, "Online заказ №");
-			RenderTableTitleCell(worksheet, rowNumber, _eShopNumberColumnNumber, "Номер заказа интернет-магазина");
-		}
-
-		private void RenderReportRow(IXLWorksheet worksheet, int rowNumber, OrderJournalNode node)
-		{
-
-			RenderNumericCell(worksheet, rowNumber, _orderIdColumnNumber, node.Id);
-			RenderStringCell(worksheet, rowNumber, _dateColumnNumber, node.Date != null ? ((DateTime)node.Date).ToString("d") : string.Empty);
-			RenderStringCell(worksheet, rowNumber, _authorColumnNumber, node.Author);
-			RenderStringCell(worksheet, rowNumber, _deliveryTimeColumnNumber, node.IsSelfDelivery ? "-" : node.DeliveryTime);
-			RenderStringCell(worksheet, rowNumber, _orderStatusColumnNumber, node.StatusEnum.ToString());
-			RenderStringCell(worksheet, rowNumber, _typeColumnNumber, node.ViewType);
-			RenderNumericCell(worksheet, rowNumber, _bottleAmountCountColumnNumber, (int)node.BottleAmount);
-			RenderNumericCell(worksheet, rowNumber, _sanitisationAmountColumnNumber, (int)node.SanitisationAmount);
-			RenderStringCell(worksheet, rowNumber, _counterpartyColumnNumber, node.Counterparty);
-			RenderStringCell(worksheet, rowNumber, _innColumnNumber, node.Inn);
-			RenderNumericFloatingPointCell(worksheet, rowNumber, _sumColumnNumber, node.Sum);
-			RenderStringCell(worksheet, rowNumber, _paymentStatusColumnNumber, ((node.OrderPaymentStatus != OrderPaymentStatus.None) ? node.OrderPaymentStatus.ToString() : ""));
-			RenderStringCell(worksheet, rowNumber, _edoDocFlowStatusColumnNumber, node.EdoDocFlowStatus.ToString());
-			RenderStringCell(worksheet, rowNumber, _districtNameColumnNumber, node.IsSelfDelivery ? "-" : node.DistrictName);
-			RenderStringCell(worksheet, rowNumber, _addressColumnNumber, node.Address);
-			RenderStringCell(worksheet, rowNumber, _lastEditorColumnNumber, node.LastEditor);
-			RenderStringCell(worksheet, rowNumber, _lastEditedTimeColumnNumber, node.LastEditedTime != default(DateTime) ? node.LastEditedTime.ToString(CultureInfo.CurrentCulture) : string.Empty);
-			RenderStringCell(worksheet, rowNumber, _driverCallIdColumnNumber, node.DriverCallId.ToString());
-			RenderStringCell(worksheet, rowNumber, _onLineNumberColumnNumber, node.OnLineNumber);
-			RenderStringCell(worksheet, rowNumber, _eShopNumberColumnNumber, node.EShopNumber);
-		}
-
-		private void RenderWorksheetTitleCell(
-			IXLWorksheet worksheet,
-			int rowNumber,
-			int columnNumber,
-			string value)
-		{
-			RenderCell(worksheet, rowNumber, columnNumber, value, XLDataType.Number, isBold: true, isWrapText: false, fontSize: _worksheetTitleFontSize);
-		}
-
-		private void RenderTableTitleCell(
-			IXLWorksheet worksheet,
-			int rowNumber,
-			int columnNumber,
-			string value)
-		{
-			RenderCell(worksheet, rowNumber, columnNumber, value, XLDataType.Number, isBold: true);
-		}
-
-		private void RenderNumericCell(
-			IXLWorksheet worksheet,
-			int rowNumber,
-			int columnNumber,
-			int value)
-		{
-			RenderCell(worksheet, rowNumber, columnNumber, value, XLDataType.Number);
-		}
-
-		private void RenderNumericFloatingPointCell(
-			IXLWorksheet worksheet,
-			int rowNumber,
-			int columnNumber,
-			decimal value)
-		{
-			RenderCell(worksheet, rowNumber, columnNumber, value, XLDataType.Number, numericFormat: "##0.00");
-		}
-
-		private void RenderStringCell(
-			IXLWorksheet worksheet,
-			int rowNumber,
-			int columnNumber,
-			string value)
-		{
-			RenderCell(worksheet, rowNumber, columnNumber, value, XLDataType.Text);
-		}
-
-		private void RenderCell(
-			IXLWorksheet worksheet,
-			int rowNumber,
-			int columnNumber,
-			object value,
-			XLDataType dataType,
-			bool isBold = false,
-			bool isWrapText = true,
-			double? fontSize = null,
-			string numericFormat = "")
-		{
-			var cell = worksheet.Cell(rowNumber, columnNumber);
-
-			cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
-			cell.Style.Font.Bold = isBold;
-			cell.Style.Font.FontSize = fontSize != null ? fontSize.Value : _defaultFontSize;
-			cell.Style.Alignment.WrapText = isWrapText;
-
-			cell.DataType = dataType;
-
-			if(dataType == XLDataType.Number)
-			{
-				if(!string.IsNullOrWhiteSpace(numericFormat))
+				foreach(var node in _orderJournalNodes)
 				{
-					cell.Style.NumberFormat.Format = numericFormat;
+					sheetData.Append(GetTableDataRow(node));
 				}
-			}
 
-			cell.Value = value;
+				worksheetPart.Worksheet.Append(sheetData);
+
+				worksheetPart.Worksheet.Save();
+
+				var sheet = new Sheet() { Id = spreadsheet.WorkbookPart.GetIdOfPart(worksheetPart), SheetId = 1, Name = "Заказы" };
+				var sheets = spreadsheet.WorkbookPart.Workbook.AppendChild(new Sheets());
+				sheets.AppendChild(sheet);
+
+				spreadsheet.WorkbookPart.Workbook.Save();
+			}
 		}
 
-		private class Report
+		private Columns CreateColumns(double defaultColumnWidth)
 		{
-			public Report(IEnumerable<OrderJournalNode> rows)
-			{
-				Rows = rows;
-			}
+			var columns = new Columns();
 
-			public IEnumerable<OrderJournalNode> Rows { get; }
+			var orderIdColumn = CreateColumn(1, defaultColumnWidth);
+			var dateColumn = CreateColumn(2, defaultColumnWidth);
+			var authorColumn = CreateColumn(3, defaultColumnWidth * 2);
+			var deliveryTimeColumn = CreateColumn(4, defaultColumnWidth);
+			var orderStatusColumn = CreateColumn(5, defaultColumnWidth);
+			var typeColumn = CreateColumn(6, defaultColumnWidth * 1.5);
+			var bottleAmountCount = CreateColumn(7, defaultColumnWidth);
+			var sanitisationAmount = CreateColumn(8, defaultColumnWidth);
+			var counterpartyColumn = CreateColumn(9, defaultColumnWidth * 3);
+			var innColumn = CreateColumn(10, defaultColumnWidth);
+			var sumColumn = CreateColumn(11, defaultColumnWidth);
+			var paymentStatusColumn = CreateColumn(12, defaultColumnWidth);
+			var edoDocFlowStatusColumn = CreateColumn(13, defaultColumnWidth);
+			var districtNameColumn = CreateColumn(14, defaultColumnWidth * 2);
+			var addressColumn = CreateColumn(15, defaultColumnWidth * 5);
+			var lastEditorColumn = CreateColumn(16, defaultColumnWidth * 2);
+			var lastEditedTimeColumn = CreateColumn(17, defaultColumnWidth * 2);
+			var driverCallIdColumn = CreateColumn(18, defaultColumnWidth);
+			var onLineNumberColumn = CreateColumn(19, defaultColumnWidth);
+			var eShopNumberColumn = CreateColumn(20, defaultColumnWidth);
+
+			columns.Append(orderIdColumn);
+			columns.Append(dateColumn);
+			columns.Append(authorColumn);
+			columns.Append(deliveryTimeColumn);
+			columns.Append(orderStatusColumn);
+			columns.Append(typeColumn);
+			columns.Append(bottleAmountCount);
+			columns.Append(sanitisationAmount);
+			columns.Append(counterpartyColumn);
+			columns.Append(innColumn);
+			columns.Append(sumColumn);
+			columns.Append(paymentStatusColumn);
+			columns.Append(edoDocFlowStatusColumn);
+			columns.Append(districtNameColumn);
+			columns.Append(addressColumn);
+			columns.Append(lastEditorColumn);
+			columns.Append(lastEditedTimeColumn);
+			columns.Append(driverCallIdColumn);
+			columns.Append(onLineNumberColumn);
+			columns.Append(eShopNumberColumn);
+
+			return columns;
+		}
+
+		private Column CreateColumn(int columnId, double columnWidth)
+		{
+			var column = new Column
+			{
+				Min = (uint)columnId,
+				Max = (uint)columnId,
+				CustomWidth = true,
+				Width = columnWidth
+			};
+
+			return column;
+		}
+
+		private Row GetTableTitleRow()
+		{
+			var row = new Row();
+
+			row.AppendChild(GetTableTitleStringCell(Title));
+
+			return row;
+		}
+
+		private Row GetTableHeadersRow()
+		{
+			var row = new Row();
+
+			row.AppendChild(GetTableHeaderStringCell("Номер"));
+			row.AppendChild(GetTableHeaderStringCell("Дата"));
+			row.AppendChild(GetTableHeaderStringCell("Автор"));
+			row.AppendChild(GetTableHeaderStringCell("Время"));
+			row.AppendChild(GetTableHeaderStringCell("Статус"));
+			row.AppendChild(GetTableHeaderStringCell("Тип"));
+			row.AppendChild(GetTableHeaderStringCell("Бутыли"));
+			row.AppendChild(GetTableHeaderStringCell("Кол-во с/о"));
+			row.AppendChild(GetTableHeaderStringCell("Клиент"));
+			row.AppendChild(GetTableHeaderStringCell("ИНН"));
+			row.AppendChild(GetTableHeaderStringCell("Сумма"));
+			row.AppendChild(GetTableHeaderStringCell("Статус оплаты"));
+			row.AppendChild(GetTableHeaderStringCell("Статус документооборота"));
+			row.AppendChild(GetTableHeaderStringCell("Район доставки"));
+			row.AppendChild(GetTableHeaderStringCell("Адрес"));
+			row.AppendChild(GetTableHeaderStringCell("Изменил"));
+			row.AppendChild(GetTableHeaderStringCell("Послед. изменения"));
+			row.AppendChild(GetTableHeaderStringCell("Номер звонка"));
+			row.AppendChild(GetTableHeaderStringCell("Online заказ №"));
+			row.AppendChild(GetTableHeaderStringCell("Номер заказа интернет-магазина"));
+
+			return row;
+		}
+
+		private Row GetTableDataRow(OrderJournalNode node)
+		{
+			var row = new Row();
+
+			row.AppendChild(GetNumericCell(node.Id));
+			row.AppendChild(GetStringCell(node.Date != null ? ((DateTime)node.Date).ToString("d") : string.Empty));
+			row.AppendChild(GetStringCell(node.Author));
+			row.AppendChild(GetStringCell(node.IsSelfDelivery ? "-" : node.DeliveryTime));
+			row.AppendChild(GetStringCell(node.StatusEnum.ToString()));
+			row.AppendChild(GetStringCell(node.ViewType));
+			row.AppendChild(GetNumericCell((int)node.BottleAmount));
+			row.AppendChild(GetNumericCell((int)node.SanitisationAmount));
+			row.AppendChild(GetStringCell(node.Counterparty));
+			row.AppendChild(GetStringCell(node.Inn));
+			row.AppendChild(GetFloatingPointCell(node.Sum));
+			row.AppendChild(GetStringCell(((node.OrderPaymentStatus != OrderPaymentStatus.None) ? node.OrderPaymentStatus.ToString() : "")));
+			row.AppendChild(GetStringCell(node.EdoDocFlowStatus.ToString()));
+			row.AppendChild(GetStringCell(node.IsSelfDelivery ? "-" : node.DistrictName));
+			row.AppendChild(GetStringCell(node.Address));
+			row.AppendChild(GetStringCell(node.LastEditor));
+			row.AppendChild(GetStringCell(node.LastEditedTime != default(DateTime) ? node.LastEditedTime.ToString(CultureInfo.CurrentCulture) : string.Empty));
+			row.AppendChild(GetStringCell(node.DriverCallId.ToString()));
+			row.AppendChild(GetStringCell(node.OnLineNumber));
+			row.AppendChild(GetStringCell(node.EShopNumber));
+
+			return row;
+		}
+
+		private Row GetBlankRow()
+		{
+			var row = new Row();
+
+			return row;
+		}
+
+		private Stylesheet GetStyleSheet()
+		{
+			var stylesheet = new Stylesheet();
+
+			stylesheet.Fonts = new Fonts();
+			stylesheet.Fonts.AppendChild(GetDefaultFont());
+			stylesheet.Fonts.AppendChild(GetTableHeadersFont());
+			stylesheet.Fonts.AppendChild(GetWorksheetTitleFont());
+			stylesheet.Fonts.Count = 3;
+
+			stylesheet.Fills = new Fills();
+			stylesheet.Fills.AppendChild(new Fill { PatternFill = new PatternFill { PatternType = PatternValues.None } });
+			stylesheet.Fills.AppendChild(new Fill { PatternFill = new PatternFill { PatternType = PatternValues.Gray125 } });
+
+			stylesheet.Borders = new Borders();
+			stylesheet.Borders.AppendChild(new Border());
+			stylesheet.Borders.AppendChild(GetCellBorder());
+			stylesheet.Borders.Count = 2;
+
+			var defaultCellFormat = new CellFormat { FormatId = 0, FontId = 0, BorderId = 1 };
+			defaultCellFormat.Alignment = new Alignment { WrapText = true };
+
+			var tableHeadersCellFormat = new CellFormat { FormatId = 0, FontId = 1, BorderId = 1 };
+			tableHeadersCellFormat.Alignment = new Alignment { WrapText = true };
+
+			var tableTitleCellFormat = new CellFormat { FormatId = 0, FontId = 2 };
+
+			stylesheet.CellStyleFormats = new CellStyleFormats();
+			stylesheet.CellStyleFormats.AppendChild(new CellFormat());
+			stylesheet.CellFormats = new CellFormats();
+			stylesheet.CellFormats.AppendChild(new CellFormat());
+
+			stylesheet.CellFormats.AppendChild(defaultCellFormat);
+			_defaultCellFormatId = 1;
+
+			stylesheet.CellFormats.AppendChild(tableHeadersCellFormat);
+			_tableHeadersCellFormatId = 2;
+
+			stylesheet.CellFormats.AppendChild(tableTitleCellFormat);
+			_tableTitleCellFormatId = 3;
+
+			stylesheet.CellFormats.Count = 4;
+
+			return stylesheet;
+		}
+
+		private Border GetCellBorder()
+		{
+			var border = new Border();
+
+			var leftBorder = new LeftBorder() { Style = BorderStyleValues.Thin };
+			var leftBorderColor = new Color() { Indexed = (UInt32Value)64U };
+			leftBorder.Append(leftBorderColor);
+
+			var rightBorder = new RightBorder() { Style = BorderStyleValues.Thin };
+			var rightBorderColor = new Color() { Indexed = (UInt32Value)64U };
+			rightBorder.Append(rightBorderColor);
+
+			var topBorder = new TopBorder() { Style = BorderStyleValues.Thin };
+			var topBorderColor = new Color() { Indexed = (UInt32Value)64U };
+			topBorder.Append(topBorderColor);
+
+			var bottomBorder = new BottomBorder() { Style = BorderStyleValues.Thin };
+			var bottomBorderColor = new Color() { Indexed = (UInt32Value)64U };
+			bottomBorder.Append(bottomBorderColor);
+
+			var diagonalBorder = new DiagonalBorder();
+
+			border.Append(leftBorder);
+			border.Append(rightBorder);
+			border.Append(topBorder);
+			border.Append(bottomBorder);
+			border.Append(diagonalBorder);
+
+			return border;
+		}
+
+		private Cell GetTableTitleStringCell(string value)
+		{
+			var cell = new Cell
+			{
+				CellValue = new CellValue(value),
+				DataType = CellValues.String,
+				StyleIndex = _tableTitleCellFormatId
+			};
+
+			return cell;
+		}
+
+		private Cell GetTableHeaderStringCell(string value)
+		{
+			var cell = new Cell
+			{
+				CellValue = new CellValue(value),
+				DataType = CellValues.String,
+				StyleIndex = _tableHeadersCellFormatId
+			};
+
+			return cell;
+		}
+
+		private Cell GetStringCell(string value)
+		{
+			var cell = new Cell
+			{
+				CellValue = new CellValue(value),
+				DataType = CellValues.String,
+				StyleIndex = _defaultCellFormatId
+			};
+
+			return cell;
+		}
+
+		private Cell GetNumericCell(int value)
+		{
+			var cell = new Cell
+			{
+				CellValue = new CellValue(value),
+				DataType = CellValues.Number,
+				StyleIndex = _defaultCellFormatId
+			};
+
+			return cell;
+		}
+
+		private Cell GetFloatingPointCell(decimal value)
+		{
+			var cell = new Cell
+			{
+				CellValue = new CellValue(value),
+				DataType = CellValues.Number,
+				StyleIndex = _defaultCellFormatId
+			};
+
+			return cell;
+		}
+
+		private Font GetDefaultFont()
+		{
+			var fontSize = new FontSize
+			{
+				Val = 10
+			};
+
+			var font = new Font
+			{
+				FontSize = fontSize
+			};
+
+			return font;
+		}
+
+		private Font GetTableHeadersFont()
+		{
+			var bold = new Bold();
+
+			var fontSize = new FontSize
+			{
+				Val = 10
+			};
+
+			var font = new Font
+			{
+				Bold = bold,
+				FontSize = fontSize
+			};
+
+			return font;
+		}
+
+		private Font GetWorksheetTitleFont()
+		{
+			var bold = new Bold();
+
+			var fontSize = new FontSize
+			{
+				Val = 14
+			};
+
+			var font = new Font
+			{
+				Bold = bold,
+				FontSize = fontSize
+			};
+
+			return font;
 		}
 	}
 }
