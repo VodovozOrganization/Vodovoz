@@ -68,22 +68,16 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.IsSecondOrder).Column("is_second_order");
 			Map(x => x.CounterpartyExternalOrderId).Column("counterparty_external_order_id");
 
-			Map(x => x.OrderStatus).Column("order_status")
-				.CustomType<OrderStatusStringType>();
-			Map(x => x.SignatureType).Column("signature_type")
-				.CustomType<OrderSignatureTypeStringType>();
+			Map(x => x.OrderStatus).Column("order_status");
+			Map(x => x.SignatureType).Column("signature_type");
 			Map(x => x.PaymentType).Column("payment_type")
 				.Access.CamelCaseField(Prefix.Underscore);
 			Map(x => x.PaymentByTerminalSource).Column("terminal_subtype");
 			Map(x => x.DocumentType).Column("document_type");
-			Map(x => x.DriverCallType).Column("driver_call_type")
-				.CustomType<DriverCallTypeStringType>();
-			Map(x => x.OrderSource).Column("order_source")
-				.CustomType<OrderSourceStringType>();
-			Map(x => x.OrderPaymentStatus).Column("order_payment_status")
-				.CustomType<OrderPaymentStatusStringType>();
-			Map(x => x.OrderAddressType).Column("order_address_type")
-				.CustomType<OrderAddressTypeStringType>();
+			Map(x => x.DriverCallType).Column("driver_call_type");
+			Map(x => x.OrderSource).Column("order_source");
+			Map(x => x.OrderPaymentStatus).Column("order_payment_status");
+			Map(x => x.OrderAddressType).Column("order_address_type");
 
 			References(x => x.Client).Column("client_id");
 			References(x => x.Contract).Column("counterparty_contract_id").Cascade.SaveUpdate();
