@@ -60,7 +60,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 			guilties = new List<object[]>(GetGuilties(undeliveredOrdersFilter));
 
-			Application.Invoke((s, args) => DrawRefreshed(undeliveredOrdersFilter));
+			Gtk.Application.Invoke((s, args) => DrawRefreshed(undeliveredOrdersFilter));
 		}
 
 		#endregion

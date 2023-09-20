@@ -179,7 +179,7 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 				{
 					case OrderDocumentType.Bill:
 					case OrderDocumentType.SpecialBill:
-						listEmails = uow.Session.QueryOver<OrderDocumentEmail>()
+						listEmails = uow.Session.QueryOver<BillDocumentEmail>()
 							.Where(o => o.OrderDocument.Id == Document.Id)
 							.Select(o => o.StoredEmail)
 							.List<StoredEmail>();
@@ -323,7 +323,7 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 					{
 						case OrderDocumentType.Bill:
 						case OrderDocumentType.SpecialBill:
-							var orderDocumentEmail = new OrderDocumentEmail
+							var orderDocumentEmail = new BillDocumentEmail
 							{
 								StoredEmail = storedEmail,
 								Counterparty = client,

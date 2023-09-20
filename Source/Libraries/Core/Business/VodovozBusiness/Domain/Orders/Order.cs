@@ -29,6 +29,7 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Service;
+using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Counterparties;
@@ -75,6 +76,8 @@ namespace Vodovoz.Domain.Orders
 		private readonly ICashReceiptRepository _cashReceiptRepository = new CashReceiptRepository(UnitOfWorkFactory.GetDefaultFactory,
 			new OrderParametersProvider(new ParametersProvider()));
 
+		private readonly IEmailRepository _emailRepository = new EmailRepository();
+
 		private static readonly IGeneralSettingsParametersProvider _generalSettingsParameters =
 			new GeneralSettingsParametersProvider(new ParametersProvider());
 
@@ -112,7 +115,8 @@ namespace Vodovoz.Domain.Orders
 		private DateTime? _commentOPManagerUpdatedAt;
 		private Employee _commentOPManagerChangedBy;
 		private bool? _canCreateOrderInAdvance;
-		
+		private int? counterpartyExternalOrderId;
+
 		#region Cвойства
 
 		public virtual int Id { get; set; }
@@ -802,6 +806,13 @@ namespace Vodovoz.Domain.Orders
 		public virtual int? EShopOrder {
 			get => eShopOrder;
 			set => SetField(ref eShopOrder, value);
+		}
+
+		[Display(Name = "Идентификатор заказа в ИС контрагента")]
+		public virtual int? CounterpartyExternalOrderId
+		{
+			get => counterpartyExternalOrderId;
+			set => SetField(ref counterpartyExternalOrderId, value);
 		}
 
 		private bool isContractCloser;
@@ -3158,11 +3169,13 @@ namespace Vodovoz.Domain.Orders
 					OnChangeStatusToOnLoading();
 					break;
 				case OrderStatus.OnTheWay:
+					break;
 				case OrderStatus.Shipped:
-				case OrderStatus.InTravelList:
 				case OrderStatus.UnloadingOnStock:
+					SendUpdToEmail();
 					break;
 				case OrderStatus.Closed:
+					SendUpdToEmail();
 					OnChangeStatusToClosed();
 					break;
 				case OrderStatus.DeliveryCanceled:
@@ -3258,6 +3271,50 @@ namespace Vodovoz.Domain.Orders
 				ChangeStatusAndCreateTasks(OrderStatus.OnLoading, callTaskWorker);
 				LoadAllowedBy = employee;
 			}
+		}
+
+		public virtual void SendUpdToEmail()
+		{
+			if(!_emailRepository.NeedSendUpdByEmail(Id) || _emailRepository.HasSendedEmailForUpd(Id))
+			{
+				return;
+			}
+
+			var document = OrderDocuments.FirstOrDefault(x => x.Type == OrderDocumentType.UPD || x.Type == OrderDocumentType.SpecialUPD);
+
+			if(document == null)
+			{
+				return;
+			}
+
+			var emailAddress = GetEmailAddressForBill();
+
+			if(emailAddress == null)
+			{
+				return;
+			}
+
+			var storedEmail = new StoredEmail
+			{
+				SendDate = DateTime.Now,
+				StateChangeDate = DateTime.Now,
+				State = StoredEmailStates.PreparingToSend,
+				RecipientAddress = emailAddress.Address,
+				ManualSending = false,
+				Subject = document.Name,
+				Author = Author
+			};
+
+			UoW.Save(storedEmail);
+
+			var updDocumentEmail = new UpdDocumentEmail
+			{
+				StoredEmail = storedEmail,
+				Counterparty = Client,
+				OrderDocument = document
+			};
+
+			UoW.Save(updDocumentEmail);
 		}
 
 		public virtual void SetActualCountToSelfDelivery()

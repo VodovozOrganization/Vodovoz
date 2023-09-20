@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -95,7 +95,7 @@ namespace Vodovoz.Representations.ProductGroups
 			var delay = DateTime.Now.Subtract (searchStarted);
 			logger.Debug ($"Поиск нашел {groupsMatches.Count + childMatches.Count} элементов за {delay.TotalSeconds} секунд.");
 			logger.Info("Ок");
-			Application.Invoke(delegate {
+			Gtk.Application.Invoke(delegate {
 				OnItemsListUpdated ();
 			});
 		}

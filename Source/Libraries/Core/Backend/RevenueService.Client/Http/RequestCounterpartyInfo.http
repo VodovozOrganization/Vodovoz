@@ -1,0 +1,12 @@
+﻿@RequestUrl = https://suggestions.dadata.ru/suggestions/api/4_1/rs/findById/party
+@Token = Token <Ключ Api>
+@Inn = <ИНН>
+
+POST {{RequestUrl}}
+Content-Type: application/json
+Accept: application/json
+Authorization: {{Token}}
+
+{
+	"query": "{{Inn}}"
+}
