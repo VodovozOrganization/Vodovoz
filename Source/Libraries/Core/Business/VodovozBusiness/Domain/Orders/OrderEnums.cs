@@ -41,13 +41,6 @@ namespace Vodovoz.Domain.Orders
 		Closed,
 	}
 
-	public class OrderStatusStringType : NHibernate.Type.EnumStringType
-	{
-		public OrderStatusStringType () : base (typeof(OrderStatus))
-		{
-		}
-	}
-
 	public enum OrderPaymentStatus
 	{
 		[Display(Name = "Нет")]
@@ -58,13 +51,6 @@ namespace Vodovoz.Domain.Orders
 		PartiallyPaid,
 		[Display(Name = "Не оплачен")]
 		UnPaid
-	}
-
-	public class OrderPaymentStatusStringType : NHibernate.Type.EnumStringType
-	{
-		public OrderPaymentStatusStringType() : base(typeof(OrderPaymentStatus))
-		{
-		}
 	}
 
 	public enum OrderSignatureType
@@ -79,13 +65,6 @@ namespace Vodovoz.Domain.Orders
         SignatureTranscript
     }
 
-	public class OrderSignatureTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public OrderSignatureTypeStringType () : base (typeof(OrderSignatureType))
-		{
-		}
-	}
-
 	public enum OrderAddressType
 	{
 		[Display(Name = "Обычная доставка")]
@@ -96,13 +75,6 @@ namespace Vodovoz.Domain.Orders
 		ChainStore,
 		[Display(Name = "Складская логистика")]
 		StorageLogistics
-	}
-	
-	public class OrderAddressTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public OrderAddressTypeStringType () : base (typeof(OrderAddressType))
-		{
-		}
 	}
 
 	public enum DriverCallType
@@ -115,13 +87,6 @@ namespace Vodovoz.Domain.Orders
 		CallFromAnywhere,
 		[Display(Name = "Комментарий загружен из приложения")]
 		CommentFromMobileApp,
-	}
-
-	public class DriverCallTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public DriverCallTypeStringType() : base(typeof(DriverCallType))
-		{
-		}
 	}
 
 	public enum DiscountUnits
@@ -140,13 +105,6 @@ namespace Vodovoz.Domain.Orders
 		OnlineStore,
 		[Display(Name = "Мобильное приложение")]
 		MobileApp
-	}
-
-	public class OrderSourceStringType : NHibernate.Type.EnumStringType
-	{
-		public OrderSourceStringType() : base(typeof(OrderSource))
-		{
-		}
 	}
 
 	/// <summary>
