@@ -588,6 +588,7 @@ namespace Vodovoz.JournalViewModels
 					.Select(() => orderAlias.DriverCallId).WithAlias(() => resultAlias.DriverCallId)
 					.Select(() => orderAlias.OnlineOrder).WithAlias(() => resultAlias.OnlineOrder)
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Counterparty)
+					.Select(() => counterpartyAlias.INN).WithAlias(() => resultAlias.Inn)
 					.Select(() => districtAlias.DistrictName).WithAlias(() => resultAlias.DistrictName)
 					.Select(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.CompilledAddress)
 					.Select(() => deliveryPointAlias.City).WithAlias(() => resultAlias.City)
@@ -735,6 +736,7 @@ namespace Vodovoz.JournalViewModels
 				   .Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
 				   .Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
 				   .Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Counterparty)
+				   .Select(() => counterpartyAlias.INN).WithAlias(() => resultAlias.Inn)
 				   .Select(() => orderWSDAlias.DebtSum).WithAlias(() => resultAlias.Sum)
 				   .Select(
 						Projections.Conditional(
@@ -914,6 +916,7 @@ namespace Vodovoz.JournalViewModels
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
 					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Counterparty)
+					.Select(() => counterpartyAlias.INN).WithAlias(() => resultAlias.Inn)
 					.Select(
 						Projections.Conditional(
 							Restrictions.Or(
@@ -1086,6 +1089,7 @@ namespace Vodovoz.JournalViewModels
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
 					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Counterparty)
+					.Select(() => counterpartyAlias.INN).WithAlias(() => resultAlias.Inn)
 					.Select(
 						Projections.Conditional(
 							Restrictions.Or(
