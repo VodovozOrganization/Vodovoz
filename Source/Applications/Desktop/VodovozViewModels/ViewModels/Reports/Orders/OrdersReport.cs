@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Extensions;
 using Vodovoz.JournalNodes;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.Orders
@@ -187,15 +188,15 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Orders
 			row.AppendChild(GetStringCell(node.Date != null ? ((DateTime)node.Date).ToString("d") : string.Empty));
 			row.AppendChild(GetStringCell(node.Author));
 			row.AppendChild(GetStringCell(node.IsSelfDelivery ? "-" : node.DeliveryTime));
-			row.AppendChild(GetStringCell(node.StatusEnum.ToString()));
+			row.AppendChild(GetStringCell(node.StatusEnum.GetEnumDisplayName()));
 			row.AppendChild(GetStringCell(node.ViewType));
 			row.AppendChild(GetNumericCell((int)node.BottleAmount));
 			row.AppendChild(GetNumericCell((int)node.SanitisationAmount));
 			row.AppendChild(GetStringCell(node.Counterparty));
 			row.AppendChild(GetStringCell(node.Inn));
 			row.AppendChild(GetFloatingPointCell(node.Sum));
-			row.AppendChild(GetStringCell(((node.OrderPaymentStatus != OrderPaymentStatus.None) ? node.OrderPaymentStatus.ToString() : "")));
-			row.AppendChild(GetStringCell(node.EdoDocFlowStatus.ToString()));
+			row.AppendChild(GetStringCell(((node.OrderPaymentStatus != OrderPaymentStatus.None) ? node.OrderPaymentStatus.GetEnumDisplayName() : "")));
+			row.AppendChild(GetStringCell(node.EdoDocFlowStatus.GetEnumDisplayName()));
 			row.AppendChild(GetStringCell(node.IsSelfDelivery ? "-" : node.DistrictName));
 			row.AppendChild(GetStringCell(node.Address));
 			row.AppendChild(GetStringCell(node.LastEditor));
