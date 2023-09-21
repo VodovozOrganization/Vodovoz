@@ -45,7 +45,7 @@ namespace Vodovoz.Infrastructure
 
 		#region Danger
 
-		public static Color DangerText { get; } = IsLight ? new Color(0xff, 0, 0) : new Color(204, 0, 0);
+		public static Color DangerText { get; } = IsLight ? new Color(255, 0, 0) : new Color(209, 90, 90);
 
 		public static Color DangerBase { get; } = new Color(0xff, 0x66, 0x66);
 
@@ -61,7 +61,7 @@ namespace Vodovoz.Infrastructure
 
 		#region Info
 
-		public static Color InfoText { get; } = IsLight ? new Color(0x00, 0x18, 0xf9) : new Color(0, 35, 164);
+		public static Color InfoText { get; } = IsLight ? new Color(0x00, 0x18, 0xf9) : new Color(70, 90, 204);
 
 		public static Color InfoBase { get; } = new Color(0xbb, 0xbb, 0xff);
 
