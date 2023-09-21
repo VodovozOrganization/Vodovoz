@@ -4,6 +4,7 @@ using MoreLinq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Reports.Editing.Modifiers;
 
 namespace Vodovoz.ViewModels.Reports.Sales
@@ -12,7 +13,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 	{
 		public partial class TurnoverWithDynamicsReport
 		{
-			private readonly Func<int, decimal> _warehouseNomenclatureBalanceCallback;
+			private readonly Func<List<int>, List<NomenclatureStockNode>> _warehouseNomenclatureBalanceCallback;
+			private List<NomenclatureStockNode> _nomenclatureStockNodes;
 
 			private TurnoverWithDynamicsReport(
 				DateTime startDate,
@@ -26,7 +28,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				bool showLastSale,
 				bool showResidueForNomenclaturesWithoutSales,
 				bool showContacts,
-				Func<int, decimal> warehouseNomenclatureBalanceCallback,
+				Func<List<int>, List<NomenclatureStockNode>> warehouseNomenclatureBalanceCallback,
 				Func<TurnoverWithDynamicsReport, IList<OrderItemNode>> dataFetchCallback)
 			{
 				StartDate = startDate;
@@ -116,6 +118,12 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			private IList<TurnoverWithDynamicsReportRow> ProcessData(IList<OrderItemNode> ordersItemslist)
 			{
+				var nomenclatureIds = GroupingBy.LastOrDefault() == GroupingType.Nomenclature
+					? ordersItemslist.Select(r => r.NomenclatureId).Distinct().ToList()
+					: new List<int>();
+
+				_nomenclatureStockNodes = _warehouseNomenclatureBalanceCallback.Invoke(nomenclatureIds);
+
 				var groupingCount = GroupingBy.Count();
 
 				switch(groupingCount)
@@ -362,13 +370,13 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				}
 
 				var ordersContactPhones = counterpartyGroup
-					.OrderContactPhone
+					.OrderContactPhone?
 					.Where(ocp => !counterpartyPhones.Contains(ocp))
 					.Distinct();
 
 				string resultedOrderContactPhones = string.Empty;
 
-				if(ordersContactPhones.Any())
+				if(ordersContactPhones != null && ordersContactPhones.Any())
 				{
 					resultedOrderContactPhones = string.Join(",\n", ordersContactPhones);
 
@@ -402,7 +410,9 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						LastSaleDate = lastDelivery,
 						DaysFromLastShipment = Math.Floor((CreatedAt - lastDelivery).TotalDays),
 						WarhouseResidue = GroupingBy.LastOrDefault() == GroupingType.Nomenclature
-							? _warehouseNomenclatureBalanceCallback.Invoke(nomenclatureGroup.First().NomenclatureId)
+							? _nomenclatureStockNodes
+								.Where(n => n.NomenclatureId == nomenclatureGroup.First().NomenclatureId)
+								.Select(n => n.Stock).FirstOrDefault()
 							: 0
 					};
 				}
@@ -542,7 +552,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				bool showLastSale,
 				bool showResidueForNomenclaturesWithoutSales,
 				bool showContacts,
-				Func<int, decimal> warehouseNomenclatureBalanceCallback,
+				Func<List<int>, List<NomenclatureStockNode>> warehouseNomenclatureBalanceCallback,
 				Func<TurnoverWithDynamicsReport, IList<OrderItemNode>> dataFetchCallback)
 			{
 				return new TurnoverWithDynamicsReport(
