@@ -205,22 +205,22 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 
 			var docsIds =
 				UoW.GetAll<BillDocument>()
-				.Where(d => IsPrintBill && Orders.Contains(d.AttachedToOrder))
+				.Where(d => IsPrintBill && Orders.Contains(d.Order))
 				.Select(d => d.Id)
 				.ToList()
 				.Union(
 					UoW.GetAll<SpecialBillDocument>()
-					.Where(d => IsPrintSpecialBill && Orders.Contains(d.AttachedToOrder))
+					.Where(d => IsPrintSpecialBill && Orders.Contains(d.Order))
 					.Select(d => d.Id)
 					.ToList())
 				.Union(
 					UoW.GetAll<UPDDocument>()
-					.Where(d => IsPrintUpd && Orders.Contains(d.AttachedToOrder))
+					.Where(d => IsPrintUpd && Orders.Contains(d.Order))
 					.Select(d => d.Id)
 					.ToList())
 				.Union(
 					UoW.GetAll<SpecialUPDDocument>()
-					.Where(d => IsPrintSpecialUpd && Orders.Contains(d.AttachedToOrder))
+					.Where(d => IsPrintSpecialUpd && Orders.Contains(d.Order))
 					.Select(d => d.Id)
 					.ToList());
 
