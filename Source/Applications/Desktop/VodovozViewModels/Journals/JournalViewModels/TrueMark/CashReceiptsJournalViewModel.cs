@@ -1,10 +1,10 @@
-﻿using Gamma.Binding.Core.RecursiveTreeConfig;
+﻿using ClosedXML.Excel;
+using Gamma.Binding.Core.RecursiveTreeConfig;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.Dialog;
-using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Journal;
@@ -185,6 +185,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			CreateNodeRefreshFiscalDocAction();
 			CreateLoadCodesToPoolAction();
 			CreateProductCodesScanningReportAction();
+			CreateExportAction();
 		}
 
 		protected override void CreatePopupActions()
@@ -673,6 +674,100 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 
 			IsReportGeneratingInProcess = false;
 		}
+		#endregion
+
+		#region Export
+
+		private void CreateExportAction()
+		{
+			var exportAction = new JournalAction("Выгрузить в Excel",
+				(selected) => true,
+				(selected) => true,
+				(selected) => RunExportToExcel()
+			);
+
+			NodeActionsList.Add(exportAction);
+		}
+
+		private void RunExportToExcel()
+		{
+			StopAutoRefresh();
+			try
+			{
+				ExportToExcel();
+			}
+			finally
+			{
+				StartAutoRefresh();
+			}
+		}
+
+		private void ExportToExcel()
+		{
+			var dialogSettings = new DialogSettings();
+			dialogSettings.DefaultFileExtention = ".xlsx";
+			dialogSettings.FileFilters.Clear();
+			dialogSettings.FileFilters.Add(new DialogFileFilter("Excel", ".xlsx"));
+
+			var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
+			if(!result.Successful)
+			{
+				return;
+			}
+
+			using(var workbook = new XLWorkbook())
+			{
+				var colNumber = 1;
+				var worksheet = workbook.Worksheets.Add("Журнал чеков");
+				worksheet.Cell(1, colNumber++).Value = "Код чека";
+				worksheet.Cell(1, colNumber++).Value = "Id чека";
+				worksheet.Cell(1, colNumber++).Value = "Создан";
+				worksheet.Cell(1, colNumber++).Value = "Изменён";
+				worksheet.Cell(1, colNumber++).Value = "Статус";
+				worksheet.Cell(1, colNumber++).Value = "Сумма";
+				worksheet.Cell(1, colNumber++).Value = "Код МЛ";
+				worksheet.Cell(1, colNumber++).Value = "Водитель";
+				worksheet.Cell(1, colNumber++).Value = "Код заказа";
+				worksheet.Cell(1, colNumber++).Value = "Статус фикс.док.";
+				worksheet.Cell(1, colNumber++).Value = "Номер фикс.док.";
+				worksheet.Cell(1, colNumber++).Value = "Дата фикс.док.";
+				worksheet.Cell(1, colNumber++).Value = "Дата статуса фикс.док.";
+				worksheet.Cell(1, colNumber++).Value = "Ручная отправка";
+				worksheet.Cell(1, colNumber++).Value = "Отправлен на";
+				worksheet.Cell(1, colNumber++).Value = "Причина не отскан.бутылей";
+				worksheet.Cell(1, colNumber++).Value = "Описание ошибки";
+
+				var excelRowCounter = 2;
+
+				var nodes = Items.Cast<CashReceiptJournalNode>();
+
+				foreach(var call in nodes)
+				{
+					colNumber = 1;
+					worksheet.Cell(excelRowCounter, colNumber++).Value = call.ReceiptOrProductCodeId;
+					worksheet.Cell(excelRowCounter, colNumber++).Value = call.ReceiptDocId;
+					worksheet.Cell(excelRowCounter, colNumber++).Value = call.CreatedTime;
+					worksheet.Cell(excelRowCounter, colNumber++).Value = call.ChangedTime;
+					worksheet.Cell(excelRowCounter, colNumber++).Value = call.Status;
+					worksheet.Cell(excelRowCounter, colNumber++).Value = call.ReceiptSum;
+					worksheet.Cell(excelRowCounter, colNumber++).Value = call.RouteList;
+					worksheet.Cell(excelRowCounter, colNumber++).Value = call.DriverFIO;
+					worksheet.Cell(excelRowCounter, colNumber++).Value = call.OrderAndItemId;
+					worksheet.Cell(excelRowCounter, colNumber++).Value = call.FiscalDocStatusOrSourceGtin;
+					worksheet.Cell(excelRowCounter, colNumber++).Value = call.FiscalDocNumberOrSourceCodeInfo;
+					worksheet.Cell(excelRowCounter, colNumber++).Value = call.FiscalDocDateOrResultGtin;
+					worksheet.Cell(excelRowCounter, colNumber++).Value = call.FiscalDocStatusDateOrResultSerialnumber;
+					worksheet.Cell(excelRowCounter, colNumber++).Value = call.IsManualSentOrIsDefectiveCode;
+					worksheet.Cell(excelRowCounter, colNumber++).Value = call.Contact;
+					worksheet.Cell(excelRowCounter, colNumber++).Value = call.UnscannedReason;
+					worksheet.Cell(excelRowCounter, colNumber++).Value = call.ErrorDescription;
+					excelRowCounter++;
+				}
+
+				workbook.SaveAs(result.Path);
+			}
+		}
+
 		#endregion
 	}
 }
