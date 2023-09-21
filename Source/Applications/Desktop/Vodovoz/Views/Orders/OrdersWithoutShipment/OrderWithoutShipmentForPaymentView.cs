@@ -68,8 +68,8 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 		}
 
 		void UseFine_Toggled(object o, ToggledArgs args) =>
-			//Вызываем через Application.Invoke чтобы событие вызывалось уже после того как поле обновилось.
-			Application.Invoke(delegate { OnToggleClicked(this, EventArgs.Empty); });
+			//Вызываем через Gtk.Application.Invoke чтобы событие вызывалось уже после того как поле обновилось.
+			Gtk.Application.Invoke(delegate { OnToggleClicked(this, EventArgs.Empty); });
 
 		void OnToggleClicked(object sender, EventArgs e)
 		{

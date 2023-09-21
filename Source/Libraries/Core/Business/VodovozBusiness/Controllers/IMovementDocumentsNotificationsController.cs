@@ -6,7 +6,7 @@ namespace Vodovoz.Controllers
 	public interface IMovementDocumentsNotificationsController
 	{
 		SendedMovementsNotificationDetails GetNotificationDetails(IUnitOfWork uow);
-		string GetNotificationMessageBySubdivision(IUnitOfWork uow);
+		string GetNotificationMessage(IUnitOfWork uow);
 		event Action<string> UpdateNotificationAction;
 	}
 }

@@ -27,6 +27,7 @@ using QS.Services;
 using QS.Tdi;
 using QS.Utilities;
 using QS.Utilities.Text;
+using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using QSOrmProject;
 using QSProjectsLib;
@@ -76,14 +77,13 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
-using Vodovoz.Settings;
-using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Edo;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.Counterparties;
 using Vodovoz.ViewModels.Dialogs.Counterparty;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
@@ -102,7 +102,7 @@ using Type = Vodovoz.Domain.Orders.Documents.Type;
 namespace Vodovoz
 {
 	public partial class CounterpartyDlg : QS.Dialog.Gtk.EntityDialogBase<Counterparty>, ICounterpartyInfoProvider, ITDICloseControlTab,
-		IAskSaveOnCloseViewModel
+		IAskSaveOnCloseViewModel, INotifyPropertyChanged
 	{
 		private readonly ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
@@ -144,10 +144,12 @@ namespace Vodovoz
 		private IContactListService _contactListService;
 		private TrueMarkApiClient _trueMarkApiClient;
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+		private CancellationTokenSource _cancellationTokenCheckLiquidationSource = new CancellationTokenSource();
 		private IEdoSettings _edoSettings;
 		private ICounterpartySettings _counterpartySettings;
 		private IOrganizationParametersProvider _organizationParametersProvider = new OrganizationParametersProvider(new ParametersProvider());
 		private IRevenueServiceClient _revenueServiceClient;
+		private ICounterpartyService _counterpartyService;
 		private GenericObservableList<EdoContainer> _edoContainers = new GenericObservableList<EdoContainer>();
 
 		private bool _currentUserCanEditCounterpartyDetails = false;
@@ -237,6 +239,7 @@ namespace Vodovoz
 		#endregion
 
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
+		public event PropertyChangedEventHandler PropertyChanged;
 
 		public PanelViewType[] InfoWidgets => new[] { PanelViewType.CounterpartyView };
 
@@ -317,6 +320,8 @@ namespace Vodovoz
 		private Employee CurrentEmployee =>
 			_currentEmployee ?? (_currentEmployee = _employeeService.GetEmployeeForUser(UoW, _currentUserId));
 
+		public string IsLiquidatingLabelText => (Entity?.IsLiquidating ?? false) ? "<span foreground=\"Red\">Ликвидирован по данным ФНС</span>" : "Ликвидирован по данным ФНС";
+
 		private void ConfigureDlg()
 		{
 			var roboatsSettings = _lifetimeScope.Resolve<IRoboatsSettings>();
@@ -383,19 +388,57 @@ namespace Vodovoz
 
 			datatable4.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
 
-			Entity.PropertyChanged += (sender, args) =>
+			Entity.PropertyChanged += OnEntityPropertyChanged;
+		}
+
+		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Entity.SalesManager)
+				|| e.PropertyName == nameof(Entity.Accountant)
+				|| e.PropertyName == nameof(Entity.BottlesManager))
 			{
-				if(args.PropertyName == nameof(Entity.SalesManager)
-				|| args.PropertyName == nameof(Entity.Accountant)
-				|| args.PropertyName == nameof(Entity.BottlesManager))
+				CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity));
+				return;
+			}
+
+			if(e.PropertyName == nameof(Entity.CounterpartyType))
+			{
+				if(Entity.CounterpartyType != CounterpartyType.AdvertisingDepartmentClient)
 				{
-					CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity));
+					Entity.CounterpartySubtype = null;
+
+					return;
 				}
-			};
+
+				if(Entity.CounterpartySubtype is null)
+				{
+					var barterSubtype = UoW.GetById<CounterpartySubtype>(1);
+
+					Entity.CounterpartySubtype = barterSubtype;
+				}
+
+				return;
+			}
+
+			if(e.PropertyName == nameof(Entity.IsLiquidating))
+			{
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsLiquidatingLabelText)));
+			}
 		}
 
 		private void ConfigureTabInfo()
 		{
+			ycheckbuttonIsLiquidating.Binding
+				.AddBinding(Entity, e => e.IsLiquidating, w => w.Active)
+				.AddFuncBinding(c => c.PersonType == PersonType.legal, w => w.Visible)
+				.InitializeFromSource();
+
+			labelIsLiquidating.UseMarkup = true;
+			labelIsLiquidating.Binding
+				.AddBinding(this, dlg => dlg.IsLiquidatingLabelText, w => w.LabelProp)
+				.AddFuncBinding(dlg => dlg.Entity.PersonType == PersonType.legal, w => w.Visible)
+				.InitializeFromSource();
+
 			enumPersonType.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
 			enumPersonType.ItemsEnum = typeof(PersonType);
 			enumPersonType.Binding.AddBinding(Entity, s => s.PersonType, w => w.SelectedItemOrNull).InitializeFromSource();
@@ -410,11 +453,15 @@ namespace Vodovoz
 			yEnumCounterpartyType.ChangedByUser += OnEnumCounterpartyTypeChangedByUser;
 			OnEnumCounterpartyTypeChanged(this, EventArgs.Empty);
 
-			yEnumCounterpartySubtype.ItemsEnum = typeof(CounterpartySubtype);
-			yEnumCounterpartySubtype.Binding
-				.AddBinding(Entity, e => e.CounterpartySubtype, w => w.SelectedItem)
-				.InitializeFromSource();
-			yEnumCounterpartySubtype.Sensitive = CanEdit;
+			var vm = new LegacyEEVMBuilderFactory<Counterparty>(this, Entity, UoW, Startup.MainWin.NavigationManager, _lifetimeScope)
+				.ForProperty(x => x.CounterpartySubtype)
+				.UseViewModelJournalAndAutocompleter<SubtypesJournalViewModel>()
+				.UseViewModelDialog<SubtypeViewModel>()
+				.Finish();
+
+			SubtypeEntryViewModel = vm;
+
+			entryCounterpartySubtype.ViewModel = SubtypeEntryViewModel;
 
 			yhboxCounterpartySubtype.Binding
 				.AddFuncBinding<Counterparty>(
@@ -1040,7 +1087,7 @@ namespace Vodovoz
 
 			EmailDataLoader.ItemsListUpdated += (sender, args) =>
 			{
-				Application.Invoke((s, arg) =>
+				Gtk.Application.Invoke((s, arg) =>
 				{
 					ytreeviewEmails.ItemsDataSource = EmailDataLoader.Items;
 					GtkHelper.WaitRedraw();
@@ -1359,6 +1406,8 @@ namespace Vodovoz
 			return itemsQuery;
 		};
 
+		public IEntityEntryViewModel SubtypeEntryViewModel { get; private set; }
+
 		private void CheckIsChainStoreOnToggled(object sender, EventArgs e)
 		{
 		}
@@ -1499,6 +1548,16 @@ namespace Vodovoz
 				if(!ServicesConfig.ValidationService.Validate(Entity, _validationContext))
 				{
 					return false;
+				}
+
+				try
+				{
+					_counterpartyService.StopShipmentsIfNeeded(Entity, CurrentEmployee, _cancellationTokenCheckLiquidationSource.Token).GetAwaiter().GetResult();
+				}
+				catch(Exception ex)
+				{
+					_logger.Warn("Не удалось проверить контрагента в ФНС: {Reason}",
+					ex.Message);
 				}
 
 				_logger.Info("Сохраняем контрагента...");
@@ -2258,7 +2317,7 @@ namespace Vodovoz
 			Entity.FullName = revenueServiceRow.FullName ?? Entity.Name;
 			Entity.RawJurAddress = revenueServiceRow.Address;
 
-			if((revenueServiceRow.Opf ?? String.Empty).Length > 0 && (revenueServiceRow.OpfFull ?? String.Empty).Length > 0)
+			if((revenueServiceRow.Opf ?? string.Empty).Length > 0 && (revenueServiceRow.OpfFull ?? string.Empty).Length > 0)
 			{
 				Entity.TypeOfOwnership = revenueServiceRow.Opf;
 
@@ -2291,31 +2350,31 @@ namespace Vodovoz
 
 			if(revenueServiceRow.Phones != null)
 			{
-				foreach(var number in revenueServiceRow.Phones)
+				var phonesToAdd = revenueServiceRow.Phones
+					.Where(number => !Entity.Phones.Any(x => x.Number == number));
+
+				foreach(var number in phonesToAdd)
 				{
-					if(Entity.Phones.All(x => x.Number != number))
+					_phonesViewModel.PhonesList.Add(new Phone
 					{
-						_phonesViewModel.PhonesList.Add(new Phone
-						{
-							Counterparty = Entity,
-							Number = number
-						});
-					}
+						Counterparty = Entity,
+						Number = number
+					});
 				}
 			}
 
 			if(revenueServiceRow.Emails != null)
 			{
-				foreach(var email in revenueServiceRow.Emails)
+				var emailsToAdd = revenueServiceRow.Emails
+					.Where(email => Entity.Emails.All(x => x.Address != email));
+
+				foreach(var email in emailsToAdd)
 				{
-					if(Entity.Emails.All(x => x.Address != email))
+					emailsView.ViewModel.EmailsList.Add(new Email
 					{
-						emailsView.ViewModel.EmailsList.Add(new Email
-						{
-							Counterparty = Entity,
-							Address = email
-						});
-					}
+						Counterparty = Entity,
+						Address = email
+					});
 				}
 			}
 		}

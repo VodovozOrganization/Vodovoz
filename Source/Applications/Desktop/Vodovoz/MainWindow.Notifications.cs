@@ -25,7 +25,7 @@ public partial class MainWindow
 	{
 		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 		{
-			var movementsNotification = _movementsNotificationsController.GetNotificationMessageBySubdivision(uow);
+			var movementsNotification = _movementsNotificationsController.GetNotificationMessage(uow);
 			UpdateSendedMovementsNotification(movementsNotification);
 		}
 
