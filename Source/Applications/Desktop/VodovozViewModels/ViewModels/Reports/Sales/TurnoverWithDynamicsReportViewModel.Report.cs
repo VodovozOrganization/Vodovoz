@@ -4,6 +4,7 @@ using MoreLinq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Reports.Editing.Modifiers;
 
@@ -29,7 +30,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				bool showResidueForNomenclaturesWithoutSales,
 				bool showContacts,
 				Func<List<int>, List<NomenclatureStockNode>> warehouseNomenclatureBalanceCallback,
-				Func<TurnoverWithDynamicsReport, IList<OrderItemNode>> dataFetchCallback)
+				Func<TurnoverWithDynamicsReport, IList<OrderItemNode>> dataFetchCallback,
+				CancellationToken cancellationToken)
 			{
 				StartDate = startDate;
 				EndDate = endDate;
@@ -45,7 +47,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				_warehouseNomenclatureBalanceCallback = warehouseNomenclatureBalanceCallback;
 				Slices = DateTimeSliceFactory.CreateSlices(slicingType, startDate, endDate).ToList();
 				CreatedAt = DateTime.Now;
-				Rows = ProcessData(dataFetchCallback(this));
+				Rows = ProcessData(dataFetchCallback(this), cancellationToken);
 				DisplayRows = ProcessTreeViewDisplay();
 			}
 
@@ -116,7 +118,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			/// </summary>
 			public string MeasurementUnitFormat => MeasurementUnit == MeasurementUnitEnum.Amount ? "# ### ### ##0" : "# ### ### ##0.00";
 
-			private IList<TurnoverWithDynamicsReportRow> ProcessData(IList<OrderItemNode> ordersItemslist)
+			private IList<TurnoverWithDynamicsReportRow> ProcessData(IList<OrderItemNode> ordersItemslist, CancellationToken cancellationToken)
 			{
 				var nomenclatureIds = GroupingBy.LastOrDefault() == GroupingType.Nomenclature
 					? ordersItemslist.Select(r => r.NomenclatureId).Distinct().ToList()
@@ -129,7 +131,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				switch(groupingCount)
 				{
 					case 3:
-						var result3 = Process3rdLevelGroups(ordersItemslist);
+						var result3 = Process3rdLevelGroups(ordersItemslist, cancellationToken);
 
 						var group3Total = AddGroupTotals("Сводные данные по отчету", result3.Totals);
 
@@ -139,7 +141,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 						return result3.Rows;
 					case 2:
-						var result2nd = Process2ndLevelGroups(ordersItemslist);
+						var result2nd = Process2ndLevelGroups(ordersItemslist, cancellationToken);
 
 						var group2Total = AddGroupTotals("Сводные данные по отчету", result2nd.Totals);
 
@@ -149,7 +151,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 						return result2nd.Rows;
 					default:
-						var result = Process1stLevelGroups(ordersItemslist);
+						var result = Process1stLevelGroups(ordersItemslist, cancellationToken);
 
 						result.TotalRow.Title = "Сводные данные по отчету";
 
@@ -176,7 +178,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			}
 
 			private (IList<TurnoverWithDynamicsReportRow> Rows, TurnoverWithDynamicsReportRow TotalRow) Process1stLevelGroups(
-				IEnumerable<OrderItemNode> firstLevelGroup)
+				IEnumerable<OrderItemNode> firstLevelGroup,
+				CancellationToken cancellationToken)
 			{
 				var result = new List<TurnoverWithDynamicsReportRow>();
 
@@ -188,6 +191,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 				foreach(var group in groupedNodes)
 				{
+					cancellationToken.ThrowIfCancellationRequested();
+
 					var groupTitle = GetGroupTitle(GroupingBy.Last()).Invoke(group.Items.First());
 
 					string phones = string.Empty;
@@ -221,7 +226,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			}
 
 			private (IList<TurnoverWithDynamicsReportRow> Rows, IList<TurnoverWithDynamicsReportRow> Totals) Process2ndLevelGroups(
-				IEnumerable<OrderItemNode> secondLevelGroup)
+				IEnumerable<OrderItemNode> secondLevelGroup,
+				CancellationToken cancellationToken)
 			{
 				var result = new List<TurnoverWithDynamicsReportRow>();
 
@@ -239,9 +245,11 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 				foreach(var group in groupedNodes)
 				{
+					cancellationToken.ThrowIfCancellationRequested();
+
 					var groupTitle = GetGroupTitle(GroupingBy.ElementAt(preLast)).Invoke(group.Items.First());
 
-					var groupRows = Process1stLevelGroups(group.Items);
+					var groupRows = Process1stLevelGroups(group.Items, cancellationToken);
 
 					groupRows.TotalRow.Title = groupTitle;
 
@@ -254,8 +262,11 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			}
 
 			private (IList<TurnoverWithDynamicsReportRow> Rows, IList<TurnoverWithDynamicsReportRow> Totals) Process3rdLevelGroups(
-				IEnumerable<OrderItemNode> thirdLevelGroup)
+				IEnumerable<OrderItemNode> thirdLevelGroup,
+				CancellationToken cancellationToken)
 			{
+				cancellationToken.ThrowIfCancellationRequested();
+
 				var result = new List<TurnoverWithDynamicsReportRow>();
 
 				IList<TurnoverWithDynamicsReportRow> totalsRows = new List<TurnoverWithDynamicsReportRow>();
@@ -272,7 +283,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				{
 					var groupTitle = GetGroupTitle(GroupingBy.ElementAt(prePreLast)).Invoke(group.Items.First());
 
-					var groupRows = Process2ndLevelGroups(group.Items);
+					var groupRows = Process2ndLevelGroups(group.Items, cancellationToken);
 
 					var groupTotal = AddGroupTotals(groupTitle, groupRows.Totals);
 
@@ -553,7 +564,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				bool showResidueForNomenclaturesWithoutSales,
 				bool showContacts,
 				Func<List<int>, List<NomenclatureStockNode>> warehouseNomenclatureBalanceCallback,
-				Func<TurnoverWithDynamicsReport, IList<OrderItemNode>> dataFetchCallback)
+				Func<TurnoverWithDynamicsReport, IList<OrderItemNode>> dataFetchCallback,
+				CancellationToken cancellationToken)
 			{
 				return new TurnoverWithDynamicsReport(
 							startDate,
@@ -568,7 +580,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 							showResidueForNomenclaturesWithoutSales,
 							showContacts,
 							warehouseNomenclatureBalanceCallback,
-							dataFetchCallback);
+							dataFetchCallback,
+							cancellationToken);
 			}
 		}
 	}

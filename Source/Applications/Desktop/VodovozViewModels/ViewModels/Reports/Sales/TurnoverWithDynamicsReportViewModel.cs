@@ -396,7 +396,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					ShowResidueForNomenclaturesWithoutSales,
 					ShowContacts,
 					GetWarehouseBalance,
-					GetData);
+					GetData,
+					cancellationToken);
 			}, cancellationToken);
 		}
 
