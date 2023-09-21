@@ -103,19 +103,36 @@ namespace TaxcomEdoApi.Factories
 					DataDokOtgr = order.DeliveryDate.Value.ToShortDateString()
 				}
 			};
-			
+
+			var tekstInfTipList = new List<TekstInfTip>();
+
 			if(order.Client.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds)
+			{
+				tekstInfTipList.Add(
+					new TekstInfTip
+					{
+						Identif = "СвВыбытияМАРК",
+						Znachen = "1"
+					}
+				);
+			}
+
+			if(order.CounterpartyExternalOrderId != null && order.Client.UseSpecialDocFields)
+			{
+				tekstInfTipList.Add(
+					new TekstInfTip
+					{
+						Identif = "номер_заказа",
+						Znachen = $"N{order.CounterpartyExternalOrderId}"
+					}
+				);
+			}
+
+			if(tekstInfTipList.Any())
 			{
 				upd.Dokument.SvSchFakt.InfPolFHZh1 = new FajlDokumentSvSchFaktInfPolFHZh1
 				{
-					TekstInf = new[]
-					{
-						new TekstInfTip
-						{
-							Identif = "СвВыбытияМАРК",
-							Znachen = "1"
-						}
-					}
+					TekstInf = tekstInfTipList.ToArray()
 				};
 			}
 
