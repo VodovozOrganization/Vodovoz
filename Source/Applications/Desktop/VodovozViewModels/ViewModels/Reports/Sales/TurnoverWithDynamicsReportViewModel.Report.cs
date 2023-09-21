@@ -174,42 +174,35 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 				var firstSelector = GetSelector(GroupingBy.Last());
 
-				var firstLevelKeyValues = firstLevelGroup.Select(firstSelector).Distinct();
+				var groupedNodes = from oi in firstLevelGroup
+							  group oi by firstSelector.Invoke(oi) into g
+							  select new { Key = g.Key, Items = g.ToList() };
 
-				foreach(var key1 in firstLevelKeyValues)
+				foreach(var group in groupedNodes)
 				{
-					var t = key1;
-
-					var filtered = firstLevelGroup.Where(x => firstSelector.Invoke(x)?.Equals(key1) ?? firstSelector.Invoke(x) == key1);
-
-					if(!filtered.Any())
-					{
-						continue;
-					}
-
-					var groupTitle = GetGroupTitle(GroupingBy.Last()).Invoke(filtered.First());
+					var groupTitle = GetGroupTitle(GroupingBy.Last()).Invoke(group.Items.First());
 
 					string phones = string.Empty;
 					string emails = string.Empty;
 
 					if(ShowContacts)
 					{
-						phones = ProcessCounterpartyPhones(filtered.First());
-						emails = filtered.First().CounterpartyEmails;
+						phones = ProcessCounterpartyPhones(group.Items.First());
+						emails = group.Items.First().CounterpartyEmails;
 					}
 
 					var row = new TurnoverWithDynamicsReportRow
 					{
 						RowType = TurnoverWithDynamicsReportRow.RowTypes.Values,
-						Title = groupTitle,
+						Title = groupTitle.ToString(),
 						Phones = phones,
 						Emails = emails
 					};
 
-					row.SliceColumnValues = CalculateValuesRow(filtered);
+					row.SliceColumnValues = CalculateValuesRow(group.Items);
 
 					ProcessDynamics(row);
-					ProcessLastSale(filtered, row);
+					ProcessLastSale(group.Items, row);
 
 					result.Add(row);
 				}
@@ -230,20 +223,17 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 				var firstSelector = GetSelector(GroupingBy.ElementAt(preLast));
 
-				var firstLevelKeyValues = secondLevelGroup.Select(firstSelector).Distinct();
+				var groupedNodes1 = from oi in secondLevelGroup
+								   group oi by firstSelector.Invoke(oi) into g
+								   select new { Key = g.Key, Items = g.ToList() };
 
-				foreach(var key1 in firstLevelKeyValues)
+				var groupedNodes = groupedNodes1.ToList();
+
+				foreach(var group in groupedNodes)
 				{
-					var filtered = secondLevelGroup.Where(x => firstSelector.Invoke(x)?.Equals(key1) ?? firstSelector.Invoke(x) == key1);
+					var groupTitle = GetGroupTitle(GroupingBy.ElementAt(preLast)).Invoke(group.Items.First());
 
-					if(!filtered.Any())
-					{
-						continue;
-					}
-
-					var groupTitle = GetGroupTitle(GroupingBy.ElementAt(preLast)).Invoke(filtered.First());
-
-					var groupRows = Process1stLevelGroups(filtered);
+					var groupRows = Process1stLevelGroups(group.Items);
 
 					groupRows.TotalRow.Title = groupTitle;
 
@@ -266,20 +256,15 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 				var firstSelector = GetSelector(GroupingBy.ElementAt(prePreLast));
 
-				var firstLevelKeyValues = thirdLevelGroup.Select(firstSelector).Distinct();
+				var groupedNodes = from oi in thirdLevelGroup
+								   group oi by firstSelector.Invoke(oi) into g
+								   select new { Key = g.Key, Items = g.ToList() };
 
-				foreach(var key1 in firstLevelKeyValues)
+				foreach(var group in groupedNodes)
 				{
-					var filtered = thirdLevelGroup.Where(x => firstSelector.Invoke(x)?.Equals(key1) ?? firstSelector.Invoke(x) == key1);
+					var groupTitle = GetGroupTitle(GroupingBy.ElementAt(prePreLast)).Invoke(group.Items.First());
 
-					if(!filtered.Any())
-					{
-						continue;
-					}
-
-					var groupTitle = GetGroupTitle(GroupingBy.ElementAt(prePreLast)).Invoke(filtered.First());
-
-					var groupRows = Process2ndLevelGroups(filtered);
+					var groupRows = Process2ndLevelGroups(group.Items);
 
 					var groupTotal = AddGroupTotals(groupTitle, groupRows.Totals);
 
