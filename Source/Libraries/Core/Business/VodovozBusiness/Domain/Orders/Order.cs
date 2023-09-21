@@ -2641,12 +2641,11 @@ namespace Vodovoz.Domain.Orders
 		/// <param name="proSet">Рекламный набор (промо-набор)</param>
 		public virtual bool CanAddPromotionalSet(PromotionalSet proSet, IPromotionalSetRepository promotionalSetRepository)
 		{
-			if(PromotionalSets.Any(x => x.Id == proSet.Id)) {
-				InteractiveService.ShowMessage(ImportanceLevel.Warning, "В заказ нельзя добавить два одинаковых промо-набора");
-				return false;
-			}
-			if((PromotionalSets.Count(x => !x.CanBeAddedWithOtherPromoSets) + (proSet.CanBeAddedWithOtherPromoSets ? 0 : 1)) > 1) {
-				InteractiveService.ShowMessage(ImportanceLevel.Warning, "В заказ нельзя добавить больше 1 промо-набора, у которого нет свойства \"Может быть добавлен вместе с другими промонаборами\"");
+			if(PromotionalSets.Any(x => x.Id == proSet.Id && proSet.PromotionalSetForNewClients))
+			{
+				InteractiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					"В заказ нельзя добавить два одинаковых промо-набора для новых клиентов");
 				return false;
 			}
 
@@ -2655,34 +2654,33 @@ namespace Vodovoz.Domain.Orders
 				return true;
 			}
 
-			if(!proSet.CanBeReorderedWithoutRestriction && CanUsedPromo(promotionalSetRepository))
+			if(proSet.PromotionalSetForNewClients && CanUsedPromo(promotionalSetRepository))
 			{
-				string message = "По этому адресу уже была ранее отгрузка промонабора на другое физ.лицо.";
+				var message = "По этому адресу уже была ранее отгрузка промонабора на другое физ.лицо.";
 				InteractiveService.ShowMessage(ImportanceLevel.Warning, message);
 				return false;
 			}
 
 			var proSetDict = promotionalSetRepository.GetPromotionalSetsAndCorrespondingOrdersForDeliveryPoint(UoW, this);
-			
-			if(proSet.CanBeReorderedWithoutRestriction | !proSetDict.Any())
+
+			if(!proSet.PromotionalSetForNewClients | !proSetDict.Any())
 			{
 				return true;
 			}
 
 			var address = string.Join(", ", DeliveryPoint.City, DeliveryPoint.Street, DeliveryPoint.Building, DeliveryPoint.Room);
-			StringBuilder sb = new StringBuilder(string.Format("Для адреса \"{0}\", найдены схожие точки доставки, на которые уже создавались заказы с промо-наборами:\n", address));
+			var sb = new StringBuilder(
+				$"Для адреса \"{address}\", найдены схожие точки доставки, на которые уже создавались заказы с промо-наборами:\n");
 			foreach(var d in proSetDict) {
 				var proSetTitle = UoW.GetById<PromotionalSet>(d.Key).ShortTitle;
 				var orders = string.Join(
 					" ,",
 					UoW.GetById<Order>(d.Value).Select(o => o.Title)
 				);
-				sb.AppendLine(string.Format("– {0}: {1}", proSetTitle, orders));
+				sb.AppendLine($"– {proSetTitle}: {orders}");
 			}
 			sb.AppendLine($"Вы уверены, что хотите добавить \"{proSet.Title}\"");
-			if(InteractiveService.Question(sb.ToString()))
-				return true;
-			return false;
+			return InteractiveService.Question(sb.ToString());
 		}
 
 		/// <summary>
@@ -4272,7 +4270,7 @@ namespace Vodovoz.Domain.Orders
 			paymentFromBankClientController.UpdateAllocatedSum(UoW, this);
 			paymentFromBankClientController.ReturnAllocatedSumToClientBalanceIfChangedPaymentTypeFromCashless(UoW, this);
 
-			var hasPromotionalSetForNewClient = PromotionalSets.Any(x => !x.CanBeReorderedWithoutRestriction);
+			var hasPromotionalSetForNewClient = PromotionalSets.Any(x => x.PromotionalSetForNewClients);
 
 			if(hasPromotionalSetForNewClient
 			   && ContactlessDelivery

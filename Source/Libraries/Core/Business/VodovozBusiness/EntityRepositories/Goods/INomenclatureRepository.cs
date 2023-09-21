@@ -82,7 +82,7 @@ namespace Vodovoz.EntityRepositories.Goods
 		Nomenclature GetNomenclature(IUnitOfWork uow, int nomenclatureId);
 		bool Has19LWater(IUnitOfWork uow, int[] nomenclaturesIds);
 		IList<NomenclatureOnlineParametersNode> GetNomenclaturesOnlineParametersForSend(
-			IUnitOfWork uow, NomenclatureOnlineParameterType parameterType);
+			IUnitOfWork uow, GoodsOnlineParameterType parameterType);
 		IList<NomenclatureOnlinePriceNode> GetNomenclaturesOnlinePricesByOnlineParameters(
 			IUnitOfWork uow, IEnumerable<int> onlineParametersIds);
 	}

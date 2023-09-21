@@ -68,18 +68,20 @@ namespace Vodovoz.EntityRepositories.Orders
 			DeliveryPoint deliveryPointAlias = null;
 			PromotionalSet promotionalSetAlias = null;
 
-			var result = uow.Session.QueryOver(() => ordersAlias)
-									.JoinAlias(() => ordersAlias.DeliveryPoint, () => deliveryPointAlias)
-									.JoinAlias(() => ordersAlias.PromotionalSets, () => promotionalSetAlias)
-									.Where(() => deliveryPointAlias.City.IsLike(deliveryPoint.City, MatchMode.Anywhere)
-											   && deliveryPointAlias.Street.IsLike(deliveryPoint.Street, MatchMode.Anywhere)
-											   && deliveryPointAlias.Building.IsLike(building, MatchMode.Anywhere)
-											   && deliveryPointAlias.Room == deliveryPoint.Room
-											   && !promotionalSetAlias.CanBeReorderedWithoutRestriction
-											   && ordersAlias.OrderStatus.IsIn(GetAcceptableStatuses())
-											   && deliveryPointAlias.Id != deliveryPoint.Id)
-									.List<VodovozOrder>();
-			return result.Count() != 0;
+			var result =
+				uow.Session.QueryOver(() => ordersAlias)
+					.JoinAlias(() => ordersAlias.DeliveryPoint, () => deliveryPointAlias)
+					.JoinAlias(() => ordersAlias.PromotionalSets, () => promotionalSetAlias)
+					.Where(() => deliveryPointAlias.City.IsLike(deliveryPoint.City, MatchMode.Anywhere)
+						&& deliveryPointAlias.Street.IsLike(deliveryPoint.Street, MatchMode.Anywhere)
+						&& deliveryPointAlias.Building.IsLike(building, MatchMode.Anywhere)
+						&& deliveryPointAlias.Room == deliveryPoint.Room
+						&& promotionalSetAlias.PromotionalSetForNewClients
+						&& ordersAlias.OrderStatus.IsIn(GetAcceptableStatuses())
+						&& deliveryPointAlias.Id != deliveryPoint.Id)
+					.List<VodovozOrder>();
+			
+			return result.Count != 0;
 		}
 
 		private string GetBuildingNumber(string building)

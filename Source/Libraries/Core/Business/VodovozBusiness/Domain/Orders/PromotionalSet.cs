@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
-using System.Data.Bindings.Utilities;
 using System.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
+using Vodovoz.Domain.Goods.PromotionalSetsOnlineParameters;
 using Vodovoz.Services;
 
 namespace Vodovoz.Domain.Orders
@@ -26,8 +26,8 @@ namespace Vodovoz.Domain.Orders
 		private bool _isArchive;
 		private string _discountReasonInfo;
 		private bool _canEditNomenclatureCount;
-		private bool _canBeAddedWithOtherPromoSets;
-		private bool _canBeReorderedWithoutRestriction;
+		private bool _promotionalSetForNewClients;
+		private string _onlineName;
 		
 		private IList<PromotionalSetItem> _promotionalSetItems = new List<PromotionalSetItem>();
 		private GenericObservableList<PromotionalSetItem> _observablePromotionalSetItems;
@@ -35,6 +35,7 @@ namespace Vodovoz.Domain.Orders
 		private GenericObservableList<PromotionalSetActionBase> _observablePromotionalSetActions;
 		private IList<Order> _orders = new List<Order>();
 		private GenericObservableList<Order> _observableOrders;
+		private IList<PromotionalSetOnlineParameters> _promotionalSetOnlineParameters = new List<PromotionalSetOnlineParameters>();
 
 		#region Cвойства
 
@@ -75,19 +76,19 @@ namespace Vodovoz.Domain.Orders
 			get => _canEditNomenclatureCount;
 			set => SetField(ref _canEditNomenclatureCount, value);
 		}
-		
-		[Display(Name = "Может быть добавлен вместе с другими промонаборами")]
-		public virtual bool CanBeAddedWithOtherPromoSets
-		{
-			get => _canBeAddedWithOtherPromoSets;
-			set => SetField(ref _canBeAddedWithOtherPromoSets, value);
-		}
 
-		[Display(Name = "Можно заказывать повторно без ограничений")]
-		public virtual bool CanBeReorderedWithoutRestriction
+		[Display(Name = "Набор для новых клиентов")]
+		public virtual bool PromotionalSetForNewClients
 		{
-			get => _canBeReorderedWithoutRestriction;
-			set => SetField(ref _canBeReorderedWithoutRestriction, value);
+			get => _promotionalSetForNewClients;
+			set => SetField(ref _promotionalSetForNewClients, value);
+		}
+		
+		[Display(Name = "Название для ИПЗ")]
+		public virtual string OnlineName
+		{
+			get => _onlineName;
+			set => SetField(ref _onlineName, value);
 		}
 		
 		[Display(Name = "Строки рекламного набора")]
@@ -98,16 +99,10 @@ namespace Vodovoz.Domain.Orders
 		}
 		
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<PromotionalSetItem> ObservablePromotionalSetItems
-		{
-			get
-			{
-				if(_observablePromotionalSetItems == null)
-					_observablePromotionalSetItems = new GenericObservableList<PromotionalSetItem>(_promotionalSetItems);
-				return _observablePromotionalSetItems;
-			}
-		}
-		
+		public virtual GenericObservableList<PromotionalSetItem> ObservablePromotionalSetItems =>
+			_observablePromotionalSetItems ??
+			(_observablePromotionalSetItems = new GenericObservableList<PromotionalSetItem>(_promotionalSetItems));
+
 		[Display(Name = "Использован для заказов")]
 		public virtual IList<Order> Orders
 		{
@@ -118,6 +113,13 @@ namespace Vodovoz.Domain.Orders
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<Order> ObservableOrders => 
 			_observableOrders ?? (_observableOrders = new GenericObservableList<Order>(Orders));
+		
+		[Display(Name = "Онлайн параметры промонабора")]
+		public virtual IList<PromotionalSetOnlineParameters> PromotionalSetOnlineParameters
+		{
+			get => _promotionalSetOnlineParameters;
+			set => SetField(ref _promotionalSetOnlineParameters, value);
+		}
 
 		#endregion
 

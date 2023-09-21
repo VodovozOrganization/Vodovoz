@@ -22,7 +22,7 @@ namespace Vodovoz.Controllers
 		}
 		
 		public NomenclatureOnlineParametersData GetNomenclaturesOnlineParametersForSend(
-			IUnitOfWork uow, NomenclatureOnlineParameterType parameterType)
+			IUnitOfWork uow, GoodsOnlineParameterType parameterType)
 		{
 			var parameters =
 				_nomenclatureRepository.GetNomenclaturesOnlineParametersForSend(uow, parameterType)
@@ -33,14 +33,14 @@ namespace Vodovoz.Controllers
 					.ToLookup(x => x.NomenclatureOnlineParametersId);
 
 			var nomenclaturesIds =
-				parameters.Where(x => x.Value.AvailableForSale == NomenclatureOnlineAvailability.ShowAndSale)
+				parameters.Where(x => x.Value.AvailableForSale == GoodsOnlineAvailability.ShowAndSale)
 					.Select(x => x.Key);
 			
 			var stocksForShowAndSellParams = _stockRepository.NomenclatureInStock(uow, nomenclaturesIds.ToArray());
 
 			foreach(var keyPairValue in stocksForShowAndSellParams.Where(keyPairValue => keyPairValue.Value <= 0))
 			{
-				parameters[keyPairValue.Key].AvailableForSale = NomenclatureOnlineAvailability.Show;
+				parameters[keyPairValue.Key].AvailableForSale = GoodsOnlineAvailability.Show;
 			}
 
 			return new NomenclatureOnlineParametersData(parameters, prices);

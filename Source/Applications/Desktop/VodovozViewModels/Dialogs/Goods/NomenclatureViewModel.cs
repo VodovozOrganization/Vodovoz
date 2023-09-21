@@ -125,10 +125,10 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		public void AddNotKulerSaleOnlinePrice(NomenclaturePrice price)
 		{
 			MobileAppNomenclatureOnlineParameters.AddNewNomenclatureOnlinePrice(
-				CreateNomenclatureOnlinePrice(price, NomenclatureOnlineParameterType.ForMobileApp));
+				CreateNomenclatureOnlinePrice(price, GoodsOnlineParameterType.ForMobileApp));
 
 			VodovozWebSiteNomenclatureOnlineParameters.AddNewNomenclatureOnlinePrice(
-				CreateNomenclatureOnlinePrice(price, NomenclatureOnlineParameterType.ForVodovozWebSite));
+				CreateNomenclatureOnlinePrice(price, GoodsOnlineParameterType.ForVodovozWebSite));
 			
 			_needCheckOnlinePrices = true;
 		}
@@ -136,7 +136,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		public void AddKulerSaleOnlinePrice(AlternativeNomenclaturePrice price)
 		{
 			KulerSaleWebSiteNomenclatureOnlineParameters.AddNewNomenclatureOnlinePrice(
-				CreateNomenclatureOnlinePrice(price, NomenclatureOnlineParameterType.ForKulerSaleWebSite));
+				CreateNomenclatureOnlinePrice(price, GoodsOnlineParameterType.ForKulerSaleWebSite));
 				
 			_needCheckOnlinePrices = true;
 		}
@@ -286,25 +286,25 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		
 		private void ConfigureOnlineParameters()
 		{
-			MobileAppNomenclatureOnlineParameters = GetNomenclatureOnlineParameters(NomenclatureOnlineParameterType.ForMobileApp);
-			VodovozWebSiteNomenclatureOnlineParameters = GetNomenclatureOnlineParameters(NomenclatureOnlineParameterType.ForVodovozWebSite);
-			KulerSaleWebSiteNomenclatureOnlineParameters = GetNomenclatureOnlineParameters(NomenclatureOnlineParameterType.ForKulerSaleWebSite);
+			MobileAppNomenclatureOnlineParameters = GetNomenclatureOnlineParameters(GoodsOnlineParameterType.ForMobileApp);
+			VodovozWebSiteNomenclatureOnlineParameters = GetNomenclatureOnlineParameters(GoodsOnlineParameterType.ForVodovozWebSite);
+			KulerSaleWebSiteNomenclatureOnlineParameters = GetNomenclatureOnlineParameters(GoodsOnlineParameterType.ForKulerSaleWebSite);
 			
 			UpdateNomenclatureOnlinePricesNodes();
 		}
 
-		private NomenclatureOnlineParameters GetNomenclatureOnlineParameters(NomenclatureOnlineParameterType type)
+		private NomenclatureOnlineParameters GetNomenclatureOnlineParameters(GoodsOnlineParameterType type)
 		{
 			var parameters = Entity.NomenclatureOnlineParameters.SingleOrDefault(x => x.Type == type);
 			return parameters ?? CreateNomenclatureOnlineParameters(type);
 		}
 
-		private NomenclatureOnlineParameters CreateNomenclatureOnlineParameters(NomenclatureOnlineParameterType type)
+		private NomenclatureOnlineParameters CreateNomenclatureOnlineParameters(GoodsOnlineParameterType type)
 		{
 			NomenclatureOnlineParameters parameters = null;
 			switch(type)
 			{
-				case NomenclatureOnlineParameterType.ForMobileApp:
+				case GoodsOnlineParameterType.ForMobileApp:
 					parameters = new MobileAppNomenclatureOnlineParameters();
 
 					foreach(var nomenclaturePrice in Entity.NomenclaturePrice)
@@ -312,10 +312,10 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 						parameters.AddNewNomenclatureOnlinePrice(
 							CreateNomenclatureOnlinePrice(
 								nomenclaturePrice,
-								NomenclatureOnlineParameterType.ForMobileApp));
+								GoodsOnlineParameterType.ForMobileApp));
 					}
 					break;
-				case NomenclatureOnlineParameterType.ForVodovozWebSite:
+				case GoodsOnlineParameterType.ForVodovozWebSite:
 					parameters = new VodovozWebSiteNomenclatureOnlineParameters();
 					
 					foreach(var nomenclaturePrice in Entity.NomenclaturePrice)
@@ -323,10 +323,10 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 						parameters.AddNewNomenclatureOnlinePrice(
 							CreateNomenclatureOnlinePrice(
 								nomenclaturePrice,
-								NomenclatureOnlineParameterType.ForVodovozWebSite));
+								GoodsOnlineParameterType.ForVodovozWebSite));
 					}
 					break;
-				case NomenclatureOnlineParameterType.ForKulerSaleWebSite:
+				case GoodsOnlineParameterType.ForKulerSaleWebSite:
 					parameters = new KulerSaleWebSiteNomenclatureOnlineParameters();
 
 					foreach(var alternativeNomenclaturePrice in Entity.AlternativeNomenclaturePrices)
@@ -334,7 +334,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 						parameters.AddNewNomenclatureOnlinePrice(
 							CreateNomenclatureOnlinePrice(
 								alternativeNomenclaturePrice,
-								NomenclatureOnlineParameterType.ForKulerSaleWebSite));
+								GoodsOnlineParameterType.ForKulerSaleWebSite));
 					}
 					break;
 			}
@@ -420,19 +420,19 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 					{
 						switch(onlinePrice.Type)
 						{
-							case NomenclatureOnlineParameterType.ForMobileApp:
+							case GoodsOnlineParameterType.ForMobileApp:
 								nomenclatureOnlinePricesNode = new NomenclatureOnlinePricesNode
 								{
 									MobileAppNomenclatureOnlinePrice = onlinePrice
 								};
 								break;
-							case NomenclatureOnlineParameterType.ForVodovozWebSite:
+							case GoodsOnlineParameterType.ForVodovozWebSite:
 								nomenclatureOnlinePricesNode = new NomenclatureOnlinePricesNode
 								{
 									VodovozWebSiteNomenclatureOnlinePrice = onlinePrice
 								};
 								break;
-							case NomenclatureOnlineParameterType.ForKulerSaleWebSite:
+							case GoodsOnlineParameterType.ForKulerSaleWebSite:
 								nomenclatureOnlinePricesNode = new NomenclatureOnlinePricesNode
 								{
 									KulerSaleWebSiteNomenclatureOnlinePrice = onlinePrice
@@ -448,13 +448,13 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 					{
 						switch(onlinePrice.Type)
 						{
-							case NomenclatureOnlineParameterType.ForMobileApp:
+							case GoodsOnlineParameterType.ForMobileApp:
 								nomenclatureOnlinePricesNode.MobileAppNomenclatureOnlinePrice = onlinePrice;
 								break;
-							case NomenclatureOnlineParameterType.ForVodovozWebSite:
+							case GoodsOnlineParameterType.ForVodovozWebSite:
 								nomenclatureOnlinePricesNode.VodovozWebSiteNomenclatureOnlinePrice = onlinePrice;
 								break;
-							case NomenclatureOnlineParameterType.ForKulerSaleWebSite:
+							case GoodsOnlineParameterType.ForKulerSaleWebSite:
 								nomenclatureOnlinePricesNode.KulerSaleWebSiteNomenclatureOnlinePrice = onlinePrice;
 								break;
 						}
@@ -470,21 +470,21 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 
 		private NomenclatureOnlinePrice CreateNomenclatureOnlinePrice(
 			NomenclaturePriceBase nomenclaturePrice,
-			NomenclatureOnlineParameterType type)
+			GoodsOnlineParameterType type)
 		{
 			switch(type)
 			{
-				case NomenclatureOnlineParameterType.ForMobileApp:
+				case GoodsOnlineParameterType.ForMobileApp:
 					return new MobileAppNomenclatureOnlinePrice
 					{
 						NomenclaturePrice = nomenclaturePrice
 					};
-				case NomenclatureOnlineParameterType.ForVodovozWebSite:
+				case GoodsOnlineParameterType.ForVodovozWebSite:
 					return new VodovozWebSiteNomenclatureOnlinePrice
 					{
 						NomenclaturePrice = nomenclaturePrice
 					};
-				case NomenclatureOnlineParameterType.ForKulerSaleWebSite:
+				case GoodsOnlineParameterType.ForKulerSaleWebSite:
 					return new KulerSaleWebSiteNomenclatureOnlinePrice
 					{
 						NomenclaturePrice = nomenclaturePrice

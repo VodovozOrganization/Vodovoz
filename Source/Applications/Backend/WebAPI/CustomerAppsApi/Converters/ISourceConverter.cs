@@ -5,6 +5,6 @@ namespace CustomerAppsApi.Converters
 {
 	public interface ISourceConverter
 	{
-		NomenclatureOnlineParameterType ConvertToNomenclatureOnlineParameterType(Source source);
+		GoodsOnlineParameterType ConvertToNomenclatureOnlineParameterType(Source source);
 	}
 }

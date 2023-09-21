@@ -84,6 +84,10 @@
     <Compile Include="Domain\Client\TaxType.cs" />
     <Compile Include="Domain\Goods\NomenclatureCategory.cs" />
     <Compile Include="Domain\Goods\NomenclatureCategory.cs" />
+    <Compile Include="Domain\Goods\PromotionalSetsOnlineParameters\KulerSaleWebSitePromotionalSetOnlineParameters.cs" />
+    <Compile Include="Domain\Goods\PromotionalSetsOnlineParameters\MobileAppPromotionalSetOnlineParameters.cs" />
+    <Compile Include="Domain\Goods\PromotionalSetsOnlineParameters\PromotionalSetOnlineParameters.cs" />
+    <Compile Include="Domain\Goods\PromotionalSetsOnlineParameters\VodovozWebSitePromotionalSetOnlineParameters.cs" />
     <Compile Include="Domain\Logistic\Drivers\DriverStopListRemoval.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\RouteListMaxFastDeliveryOrders.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryChange.ChangeType.cs" />
@@ -133,10 +137,10 @@
     <Compile Include="Domain\Goods\NomenclaturesOnlineParameters\KulerSaleWebSiteNomenclatureOnlinePrice.cs" />
     <Compile Include="Domain\Goods\NomenclaturesOnlineParameters\MobileAppNomenclatureOnlineParameters.cs" />
     <Compile Include="Domain\Goods\NomenclaturesOnlineParameters\MobileAppNomenclatureOnlinePrice.cs" />
-    <Compile Include="Domain\Goods\NomenclaturesOnlineParameters\NomenclatureOnlineAvailability.cs" />
+    <Compile Include="Domain\Goods\NomenclaturesOnlineParameters\GoodsOnlineAvailability.cs" />
     <Compile Include="Domain\Goods\NomenclaturesOnlineParameters\NomenclatureOnlineMarker.cs" />
     <Compile Include="Domain\Goods\NomenclaturesOnlineParameters\NomenclatureOnlineParameters.cs" />
-    <Compile Include="Domain\Goods\NomenclaturesOnlineParameters\NomenclatureOnlineParameterType.cs" />
+    <Compile Include="Domain\Goods\NomenclaturesOnlineParameters\GoodsOnlineParameterType.cs" />
     <Compile Include="Domain\Goods\NomenclatureInstanceType.cs" />
     <Compile Include="Domain\Goods\NomenclaturesOnlineParameters\NomenclatureOnlinePrice.cs" />
     <Compile Include="Domain\Goods\NomenclaturesOnlineParameters\VodovozWebSiteNomenclatureOnlineParameters.cs" />
@@ -799,6 +803,7 @@
     <Compile Include="Permissions\Cash.Expense.cs" />
     <Compile Include="Permissions\Logistic.cs" />
     <Compile Include="Permissions\Order.UndeliveredOrder.cs" />
+    <Compile Include="Permissions\Order.PromotionalSet.cs" />
     <Compile Include="Permissions\Report.cs" />
     <Compile Include="Permissions\Report.SalesReport.cs" />
     <Compile Include="Permissions\User.cs" />

@@ -8,6 +8,6 @@ namespace Vodovoz.Controllers
 	public interface INomenclatureOnlineParametersController
 	{
 		NomenclatureOnlineParametersData GetNomenclaturesOnlineParametersForSend(
-			IUnitOfWork uow, NomenclatureOnlineParameterType parameterType);
+			IUnitOfWork uow, GoodsOnlineParameterType parameterType);
 	}
 }

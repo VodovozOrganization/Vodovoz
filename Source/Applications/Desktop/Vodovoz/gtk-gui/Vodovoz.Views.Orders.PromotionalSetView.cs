@@ -551,8 +551,6 @@ namespace Vodovoz.Views.Orders
 			this.entryOnlineName.CanFocus = true;
 			this.entryOnlineName.Name = "entryOnlineName";
 			this.entryOnlineName.IsEditable = true;
-			this.entryOnlineName.MaxLength = 2;
-			this.entryOnlineName.InvisibleChar = '•';
 			this.tableOnlineParameters.Add(this.entryOnlineName);
 			global::Gtk.Table.TableChild w43 = ((global::Gtk.Table.TableChild)(this.tableOnlineParameters[this.entryOnlineName]));
 			w43.TopAttach = ((uint)(1));

@@ -498,7 +498,7 @@ namespace Vodovoz.Views.Goods
 
 		private void ConfigureParametersForMobileApp()
 		{
-			enumCmbOnlineAvailabilityMobileApp.ItemsEnum = typeof(NomenclatureOnlineAvailability);
+			enumCmbOnlineAvailabilityMobileApp.ItemsEnum = typeof(GoodsOnlineAvailability);
 			enumCmbOnlineAvailabilityMobileApp.Binding
 				.AddBinding(ViewModel.MobileAppNomenclatureOnlineParameters, p => p.NomenclatureOnlineAvailability, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
@@ -516,7 +516,7 @@ namespace Vodovoz.Views.Goods
 		
 		private void ConfigureParametersForVodovozWebSite()
 		{
-			enumCmbOnlineAvailabilityVodovozWebSite.ItemsEnum = typeof(NomenclatureOnlineAvailability);
+			enumCmbOnlineAvailabilityVodovozWebSite.ItemsEnum = typeof(GoodsOnlineAvailability);
 			enumCmbOnlineAvailabilityVodovozWebSite.Binding
 				.AddBinding(ViewModel.VodovozWebSiteNomenclatureOnlineParameters, p => p.NomenclatureOnlineAvailability, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
@@ -534,7 +534,7 @@ namespace Vodovoz.Views.Goods
 		
 		private void ConfigureParametersForKulerSaleWebSite()
 		{
-			enumCmbOnlineAvailabilityKulerSaleWebSite.ItemsEnum = typeof(NomenclatureOnlineAvailability);
+			enumCmbOnlineAvailabilityKulerSaleWebSite.ItemsEnum = typeof(GoodsOnlineAvailability);
 			enumCmbOnlineAvailabilityKulerSaleWebSite.Binding
 				.AddBinding(ViewModel.KulerSaleWebSiteNomenclatureOnlineParameters, p => p.NomenclatureOnlineAvailability, w => w.SelectedItemOrNull)
 				.InitializeFromSource();

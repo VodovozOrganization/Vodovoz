@@ -2052,19 +2052,17 @@ namespace Vodovoz
 				phones.AddRange(Entity.DeliveryPoint.Phones);
 			}
 
-			bool hasPromoInOrders = Entity.PromotionalSets.Count != 0;
-			bool canBeReorderedWithoutRestriction = Entity.PromotionalSets.Any(x => x.CanBeReorderedWithoutRestriction);
+			var hasPromoInOrders = Entity.PromotionalSets.Count != 0;
+			var promoSetForNewClients = Entity.PromotionalSets.Any(x => x.PromotionalSetForNewClients);
 
-			if(!canBeReorderedWithoutRestriction && Entity.OrderItems.Any(x => x.PromoSet != null))
+			if(promoSetForNewClients && Entity.OrderItems.Any(x => x.PromoSet != null))
 			{
 				if(!promosetDuplicateFinder.RequestDuplicatePromosets(UoW, Entity.DeliveryPoint, phones))
 				{
 					return Result.Failure(Errors.Orders.Order.AcceptAbortedByUser);
 				}
 			}
-			if(hasPromoInOrders
-				&& !canBeReorderedWithoutRestriction
-				&& Entity.CanUsedPromo(_promotionalSetRepository))
+			if(hasPromoInOrders && promoSetForNewClients && Entity.CanUsedPromo(_promotionalSetRepository))
 			{
 				return Result.Failure(Errors.Orders.Order.UnableToShipPromoSet);
 			}

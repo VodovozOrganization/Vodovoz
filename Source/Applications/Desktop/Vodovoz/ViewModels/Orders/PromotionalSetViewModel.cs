@@ -7,6 +7,8 @@ using QS.Project.Journal;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
+using Vodovoz.Domain.Goods.PromotionalSetsOnlineParameters;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
@@ -15,6 +17,7 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using VodovozInfrastructure.StringHandlers;
 
 namespace Vodovoz.ViewModels.Orders
 {
@@ -25,12 +28,14 @@ namespace Vodovoz.ViewModels.Orders
 		private readonly IUserRepository _userRepository;
 		private readonly ICounterpartyJournalFactory _counterpartySelectorFactory;
 		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
-		
+
 		private PromotionalSetItem _selectedPromoItem;
 		private PromotionalSetActionBase _selectedAction;
 		private WidgetViewModelBase _selectedActionViewModel;
-
-
+		private bool _informationTabActive;
+		private bool _sitesAndAppsTabActive;
+		private int _currentPage;
+		
 		public PromotionalSetViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -48,16 +53,17 @@ namespace Vodovoz.ViewModels.Orders
 				counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			_nomenclatureSelectorFactory =
 				nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
-			CanChangeType = commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_the_type_of_promo_set");
+			CanChangeType =
+				commonServices.CurrentPermissionService.ValidatePresetPermission(
+					Vodovoz.Permissions.Order.PromotionalSet.CanChangeTypePromoSet);
 
 			if(!CanRead)
 			{
 				AbortOpening("У вас недостаточно прав для просмотра");
 			}
 
-			TabName = "Рекламные наборы";
-			//UoW = uowBuilder.CreateUoW<PromotionalSet>(unitOfWorkFactory);
 			CreateCommands();
+			ConfigureOnlineParameters();
 		}
 
 		public string CreationDate => Entity.Id != 0 ? Entity.CreateDate.ToString("dd-MM-yyyy") : string.Empty;
@@ -87,6 +93,40 @@ namespace Vodovoz.ViewModels.Orders
 			get => _selectedActionViewModel;
 			set => SetField(ref _selectedActionViewModel, value);
 		}
+		
+		public int CurrentPage
+		{
+			get => _currentPage;
+			set => SetField(ref _currentPage, value);
+		}
+
+		public bool InformationTabActive
+		{
+			get => _informationTabActive;
+			set
+			{
+				if(SetField(ref _informationTabActive, value) && value)
+				{
+					CurrentPage = 0;
+				}
+			}
+		}
+		
+		public bool SitesAndAppsTabActive
+		{
+			get => _sitesAndAppsTabActive;
+			set
+			{
+				if(SetField(ref _sitesAndAppsTabActive, value) && value)
+				{
+					CurrentPage = 1;
+				}
+			}
+		}
+		
+		public PromotionalSetOnlineParameters MobileAppPromotionalSetOnlineParameters { get; private set; }
+		public PromotionalSetOnlineParameters VodovozWebSitePromotionalSetOnlineParameters { get; private set; }
+		public PromotionalSetOnlineParameters KulerSaleWebSitePromotionalSetOnlineParameters { get; private set; }
 
 		#region Permissions
 
@@ -202,5 +242,39 @@ namespace Vodovoz.ViewModels.Orders
 		}
 
 		#endregion
+		
+		private void ConfigureOnlineParameters()
+		{
+			MobileAppPromotionalSetOnlineParameters = GetPromotionalSetOnlineParameters(GoodsOnlineParameterType.ForMobileApp);
+			VodovozWebSitePromotionalSetOnlineParameters = GetPromotionalSetOnlineParameters(GoodsOnlineParameterType.ForVodovozWebSite);
+			KulerSaleWebSitePromotionalSetOnlineParameters = GetPromotionalSetOnlineParameters(GoodsOnlineParameterType.ForKulerSaleWebSite);
+		}
+		
+		private PromotionalSetOnlineParameters GetPromotionalSetOnlineParameters(GoodsOnlineParameterType type)
+		{
+			var parameters = Entity.PromotionalSetOnlineParameters.SingleOrDefault(x => x.Type == type);
+			return parameters ?? CreatePromotionalSetOnlineParameters(type);
+		}
+		
+		private PromotionalSetOnlineParameters CreatePromotionalSetOnlineParameters(GoodsOnlineParameterType type)
+		{
+			PromotionalSetOnlineParameters parameters = null;
+			switch(type)
+			{
+				case GoodsOnlineParameterType.ForMobileApp:
+					parameters = new MobileAppPromotionalSetOnlineParameters();
+					break;
+				case GoodsOnlineParameterType.ForVodovozWebSite:
+					parameters = new VodovozWebSitePromotionalSetOnlineParameters();
+					break;
+				case GoodsOnlineParameterType.ForKulerSaleWebSite:
+					parameters = new KulerSaleWebSitePromotionalSetOnlineParameters();
+					break;
+			}
+
+			parameters.PromotionalSet = Entity;
+			Entity.PromotionalSetOnlineParameters.Add(parameters);
+			return parameters;
+		}
 	}
 }

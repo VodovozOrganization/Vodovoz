@@ -370,7 +370,7 @@ namespace Vodovoz.EntityRepositories.Goods
 		}
 
 		public IList<NomenclatureOnlineParametersNode> GetNomenclaturesOnlineParametersForSend(
-			IUnitOfWork uow, NomenclatureOnlineParameterType parameterType)
+			IUnitOfWork uow, GoodsOnlineParameterType parameterType)
 		{
 			Nomenclature nomenclatureAlias = null;
 			NomenclatureOnlineParametersNode resultAlias = null;

@@ -8,7 +8,7 @@ namespace CustomerAppsApi.Library.Dto
 	{
 		public int NomenclatureErpId { get; set; }
 		[JsonConverter(typeof(JsonStringEnumConverter))]
-		public NomenclatureOnlineAvailability? AvailableForSale { get; set; }
+		public GoodsOnlineAvailability? AvailableForSale { get; set; }
 		[JsonConverter(typeof(JsonStringEnumConverter))]
 		public NomenclatureOnlineMarker? Marker { get; set; }
 		public decimal? PercentDiscount { get; set; }
