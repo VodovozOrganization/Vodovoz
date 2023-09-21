@@ -115,7 +115,8 @@ namespace Vodovoz.Domain.Orders
 		private DateTime? _commentOPManagerUpdatedAt;
 		private Employee _commentOPManagerChangedBy;
 		private bool? _canCreateOrderInAdvance;
-		
+		private int? counterpartyExternalOrderId;
+
 		#region Cвойства
 
 		public virtual int Id { get; set; }
@@ -805,6 +806,13 @@ namespace Vodovoz.Domain.Orders
 		public virtual int? EShopOrder {
 			get => eShopOrder;
 			set => SetField(ref eShopOrder, value);
+		}
+
+		[Display(Name = "Идентификатор заказа в ИС контрагента")]
+		public virtual int? CounterpartyExternalOrderId
+		{
+			get => counterpartyExternalOrderId;
+			set => SetField(ref counterpartyExternalOrderId, value);
 		}
 
 		private bool isContractCloser;
