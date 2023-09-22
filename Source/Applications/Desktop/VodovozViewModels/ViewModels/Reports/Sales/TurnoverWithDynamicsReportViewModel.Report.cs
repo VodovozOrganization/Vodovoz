@@ -237,11 +237,9 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 				var firstSelector = GetSelector(GroupingBy.ElementAt(preLast));
 
-				var groupedNodes1 = from oi in secondLevelGroup
+				var groupedNodes = from oi in secondLevelGroup
 								   group oi by firstSelector.Invoke(oi) into g
 								   select new { Key = g.Key, Items = g.ToList() };
-
-				var groupedNodes = groupedNodes1.ToList();
 
 				foreach(var group in groupedNodes)
 				{
@@ -281,6 +279,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 				foreach(var group in groupedNodes)
 				{
+					cancellationToken.ThrowIfCancellationRequested();
+
 					var groupTitle = GetGroupTitle(GroupingBy.ElementAt(prePreLast)).Invoke(group.Items.First());
 
 					var groupRows = Process2ndLevelGroups(group.Items, cancellationToken);
