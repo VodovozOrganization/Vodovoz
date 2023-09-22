@@ -8,11 +8,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
+using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Logistic.Drivers;
+using Vodovoz.Services.Logistics;
 
 namespace DriverAPI.Controllers.V4
 {
@@ -23,40 +25,48 @@ namespace DriverAPI.Controllers.V4
 	public class RouteListsController : VersionedController
 	{
 		private readonly ILogger<RouteListsController> _logger;
+		private readonly IUnitOfWork _unitOfWork;
 		private readonly IRouteListModel _aPIRouteListData;
 		private readonly IOrderModel _aPIOrderData;
 		private readonly IEmployeeModel _employeeData;
 		private readonly IDriverMobileAppActionRecordModel _driverMobileAppActionRecordModel;
 		private readonly IActionTimeHelper _actionTimeHelper;
+		private readonly IRouteListService _routeListService;
 		private readonly UserManager<IdentityUser> _userManager;
 
 		/// <summary>
 		/// Конструктор
 		/// </summary>
 		/// <param name="logger">Логгер</param>
+		/// <param name="unitOfWork"></param>
 		/// <param name="aPIRouteListData"></param>
 		/// <param name="aPIOrderData"></param>
 		/// <param name="employeeData"></param>
 		/// <param name="driverMobileAppActionRecordModel"></param>
 		/// <param name="actionTimeHelper">Хелпер-класс для времени</param>
+		/// <param name="routeListService">Сервис маршрутных листов</param>
 		/// <param name="userManager">Менеджер пользователей</param>
 		/// <exception cref="ArgumentNullException"></exception>
 
 		public RouteListsController(
 			ILogger<RouteListsController> logger,
+			IUnitOfWork unitOfWork,
 			IRouteListModel aPIRouteListData,
 			IOrderModel aPIOrderData,
 			IEmployeeModel employeeData,
 			IDriverMobileAppActionRecordModel driverMobileAppActionRecordModel,
 			IActionTimeHelper actionTimeHelper,
+			IRouteListService routeListService,
 			UserManager<IdentityUser> userManager)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 			_aPIRouteListData = aPIRouteListData ?? throw new ArgumentNullException(nameof(aPIRouteListData));
 			_aPIOrderData = aPIOrderData ?? throw new ArgumentNullException(nameof(aPIOrderData));
 			_employeeData = employeeData ?? throw new ArgumentNullException(nameof(employeeData));
 			_driverMobileAppActionRecordModel = driverMobileAppActionRecordModel ?? throw new ArgumentNullException(nameof(driverMobileAppActionRecordModel));
 			_actionTimeHelper = actionTimeHelper ?? throw new ArgumentNullException(nameof(actionTimeHelper));
+			_routeListService = routeListService;
 			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 		}
 
@@ -144,7 +154,7 @@ namespace DriverAPI.Controllers.V4
 			_logger.LogInformation("Запрос возврата в путь адреса МЛ {RoutelistAddressId} пользователем {Username} User token: {AccessToken}",
 				requestDto.RoutelistAddressId,
 				HttpContext.User.Identity?.Name ?? "Unknown",
-				Request.Headers[HeaderNames.Authorization]);
+				tokenStr);
 
 			var recievedTime = DateTime.Now;
 			var resultMessage = "OK";
@@ -174,6 +184,29 @@ namespace DriverAPI.Controllers.V4
 					recievedTime,
 					resultMessage);
 			}
+		}
+
+		/// <summary>
+		/// Принятие условий МЛ
+		/// </summary>
+		/// <param name="specialConditionsIds">Идентификаторы специальных условий для принятия</param>
+		/// <returns></returns>
+		[HttpPost("AcceptRouteListSpecialConditions")]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		public async Task<IActionResult> AcceptSpecialConditionsAsync([FromBody] IEnumerable<int> specialConditionsIds)
+		{
+			_logger.LogInformation("Попытка принятия условий МЛ пользователем {Username} User token: {AccessToken}",
+				HttpContext.User.Identity?.Name ?? "Unknown",
+				Request.Headers[HeaderNames.Authorization]);
+
+			var user = await _userManager.GetUserAsync(User);
+			var userName = await _userManager.GetUserNameAsync(user);
+
+			var employee = _employeeData.GetByAPILogin(userName);
+
+			_routeListService.AcceptConditions(_unitOfWork, employee.Id, specialConditionsIds);
+
+			return Ok();
 		}
 	}
 }

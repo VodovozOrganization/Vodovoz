@@ -1,10 +1,12 @@
 ﻿using Microsoft.Extensions.Logging;
+using MoreLinq;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Logistic;
@@ -21,6 +23,7 @@ namespace Vodovoz.Application.Services.Logistics
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IGenericRepository<RouteListSpecialCondition> _routeListSpecialConditionRepository;
 		private readonly IGenericRepository<RouteListSpecialConditionType> _routeListSpecialConditionTypeRepository;
+		private readonly IGenericRepository<Employee> _employeeRepository;
 		private readonly ICallTaskWorker _callTaskWorker;
 
 		public RouteListService(
@@ -29,6 +32,7 @@ namespace Vodovoz.Application.Services.Logistics
 			IRouteListRepository routeListRepository,
 			IGenericRepository<RouteListSpecialCondition> routeListSpecialConditionRepository,
 			IGenericRepository<RouteListSpecialConditionType> routeListSpecialConditionTypeRepository,
+			IGenericRepository<Employee> employeeRepository,
 			ICallTaskWorker callTaskWorker)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -39,6 +43,7 @@ namespace Vodovoz.Application.Services.Logistics
 			_routeListSpecialConditionRepository = routeListSpecialConditionRepository
 				?? throw new ArgumentNullException(nameof(routeListSpecialConditionRepository));
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_routeListSpecialConditionTypeRepository = routeListSpecialConditionTypeRepository
 				?? throw new ArgumentNullException(nameof(routeListSpecialConditionTypeRepository));
 		}
@@ -229,6 +234,72 @@ namespace Vodovoz.Application.Services.Logistics
 					RouteListId = routeList.Id,
 					RouteListSpecialConditionTypeId = RouteListSpecialConditionType.RouteListRequireAdditionalLoading
 				});
+			}
+		}
+
+		public void AcceptConditions(
+			IUnitOfWork unitOfWork,
+			int driverId,
+			IEnumerable<int> specialConditionsIds)
+		{
+			var specialConditions = _routeListSpecialConditionRepository.Get(unitOfWork, sc => specialConditionsIds.Contains(sc.Id));
+
+			var firstRouteListId = specialConditions.FirstOrDefault()?.RouteListId;
+
+			if(!specialConditions.All(x => x.RouteListId == firstRouteListId))
+			{
+				var tooManyRouteListsErrorTemplate = "Нельзя принять сразу условия несколькоих Маршрутных Листов";
+
+				_logger.LogError(
+					"Попытка принять условия нескольких МЛ водителем {DriverId}. Идентификаторы специальных условий: {$SpecialConditionsIds}",
+					driverId,
+					specialConditions.Select(x => x.Id));
+
+				throw new ArgumentException(tooManyRouteListsErrorTemplate, nameof(specialConditions));
+			}
+
+			var driver = _employeeRepository.Get(unitOfWork, x => x.Id == driverId).FirstOrDefault();
+
+			if(driver is null)
+			{
+				var driverNotFoundErrorTemplate = "Не накйден водитель с идентификатором {DriverId}";
+
+				_logger.LogError(driverNotFoundErrorTemplate, driverId);
+
+				throw new ArgumentException(string.Format(driverNotFoundErrorTemplate, driverId), nameof(driverId));
+			}
+
+			var routewList = _routeListRepository.GetDriverRouteLists(unitOfWork, driver).Where(x => x.Id == firstRouteListId).FirstOrDefault();
+
+			if(routewList is null)
+			{
+				var driverRouteListNotFoundErrorTemplate = "Не найден МЛ водителя {DriverId} номер {RouteListId}";
+
+				_logger.LogError(driverRouteListNotFoundErrorTemplate, driverId, firstRouteListId);
+
+				throw new InvalidOperationException(string.Format(driverRouteListNotFoundErrorTemplate, driverId, firstRouteListId));
+			}
+
+			var routeListConditions = GetSpecialConditionsFor(unitOfWork, firstRouteListId.Value);
+
+			if(!routeListConditions.All(x => specialConditions.Any(sc => sc.Id == x.Id)))
+			{
+				throw new ArgumentException("Нельзя принять не все условия МЛ", nameof(specialConditionsIds));
+			}
+
+			using(var transaction = unitOfWork.Session.BeginTransaction())
+			{
+				foreach(var specialCondition in routeListConditions)
+				{
+					specialCondition.Accepted = true;
+					unitOfWork.Save(specialCondition);
+				}
+
+				routewList.SpecialConditionsAccepted = true;
+				routewList.SpecialConditionsAcceptedAt = DateTime.Now;
+				unitOfWork.Save(routewList);
+
+				transaction.Commit();
 			}
 		}
 	}

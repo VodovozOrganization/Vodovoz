@@ -8,6 +8,7 @@ namespace Vodovoz.Services.Logistics
 {
 	public interface IRouteListService
 	{
+		void AcceptConditions(IUnitOfWork unitOfWork, int driverId, IEnumerable<int> specialConditionsIds);
 		IDictionary<int, string> GetSpecialConditionsDictionaryFor(IUnitOfWork unitOfWork, int routeListId);
 		IEnumerable<RouteListSpecialCondition> GetSpecialConditionsFor(IUnitOfWork unitOfWork, int routeListId);
 		void SendEnRoute(IUnitOfWork unitOfWork, int routeListId);
