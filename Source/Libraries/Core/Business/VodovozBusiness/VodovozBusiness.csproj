@@ -88,6 +88,8 @@
     <Compile Include="Domain\Logistic\FastDelivery\RouteListMaxFastDeliveryOrders.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryChange.ChangeType.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryChange.cs" />
+    <Compile Include="Domain\Logistic\RouteListSpecialCondition.cs" />
+    <Compile Include="Domain\Logistic\RouteListSpecialConditionType.cs" />
     <Compile Include="Domain\Logistic\RouteListSpecialConditions.cs" />
     <Compile Include="Domain\Logistic\RegradingOfGoodsReason.cs" />
     <Compile Include="Domain\Payments\CombinedPaymentNode.cs" />
@@ -969,7 +971,7 @@
     <Compile Include="Services\DriverApiParametersProvider.cs" />
     <Compile Include="Services\IUserRoleSettings.cs" />
     <Compile Include="Services\IUserSettings.cs" />
-    <Compile Include="Services\Logistics\IRouteLostService.cs" />
+    <Compile Include="Services\Logistics\IRouteListService.cs" />
     <Compile Include="Services\RevenueServiceInfo.cs" />
     <Compile Include="Services\UserRoleSettings.cs" />
     <Compile Include="Tools\GeoGroupVersionNotFoundException.cs" />

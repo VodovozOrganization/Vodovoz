@@ -36,6 +36,8 @@ using System.Text;
 using Vodovoz.Core.DataService;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.Domain.Employees;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.FastPayments;
@@ -47,6 +49,7 @@ using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Settings.Database;
 using Vodovoz.Tools;
+using Vodovoz.Tools.CallTasks;
 
 namespace DriverAPI
 {
@@ -321,7 +324,18 @@ namespace DriverAPI
 			services.AddScoped<ITerminalNomenclatureProvider, BaseParametersProvider>();
 			services.AddScoped<INomenclatureParametersProvider, NomenclatureParametersProvider>();
 
+			services.AddScoped<IPersonProvider, BaseParametersProvider>();
+			services.AddScoped<ITerminalNomenclatureProvider, BaseParametersProvider>();
+
 			services.AddDriverApiLibrary();
+
+			services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+
+			services.AddScoped<ICallTaskWorker, CallTaskWorker>();
+			services.AddScoped<ICallTaskFactory>(context => CallTaskSingletonFactory.GetInstance());
+			services.AddScoped<ICallTaskRepository, CallTaskRepository>();
+
+			services.AddScoped<IUserService>(context => ServicesConfig.UserService);
 		}
 	}
 }

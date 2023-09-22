@@ -22,5 +22,10 @@ namespace DriverAPI.Library.DTOs
 		/// Адреса маршрутного листа
 		/// </summary>
 		public IEnumerable<RouteListAddressDto> RouteListAddresses { get; set; }
+
+		/// <summary>
+		/// Условия необходимые для принятия перед началом работы с МЛ
+		/// </summary>
+		public IEnumerable<RouteListSpecialConditionDto> SpecialConditions { get; set; }
 	}
 }

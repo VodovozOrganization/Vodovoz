@@ -10,6 +10,7 @@ using IDeprecated3RouteListModel = DriverAPI.Library.Deprecated3.Models.IRouteLi
 using Deprecated3RouteListModel = DriverAPI.Library.Deprecated3.Models.RouteListModel;
 using IRouteListModel = DriverAPI.Library.Models.IRouteListModel;
 using RouteListModel = DriverAPI.Library.Models.RouteListModel;
+using Vodovoz.Application;
 
 namespace DriverAPI.Library
 {
@@ -47,6 +48,9 @@ namespace DriverAPI.Library
 			// Deprecated2
 			services.AddScoped<IDeprecated2OrderModel, Deprecated2OrderModel>();
 			services.AddScoped<IDeprecated2RouteListModel, Deprecated2RouteListModel>();
+
+			services.AddApplication();
+
 			return services;
 		}
 	}

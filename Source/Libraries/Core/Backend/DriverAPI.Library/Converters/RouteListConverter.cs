@@ -42,7 +42,7 @@ namespace DriverAPI.Library.Converters
 		/// <param name="routeList">Маршрутный лист ДВ</param>
 		/// <param name="itemsToReturn">Оборудование на возврат</param>
 		/// <returns></returns>
-		public RouteListDto ConvertToAPIRouteList(RouteList routeList, IEnumerable<KeyValuePair<string, int>> itemsToReturn)
+		public RouteListDto ConvertToAPIRouteList(RouteList routeList, IEnumerable<KeyValuePair<string, int>> itemsToReturn, IEnumerable<KeyValuePair<int, string>> specialConditions)
 		{
 			var result = new RouteListDto()
 			{
@@ -100,7 +100,8 @@ namespace DriverAPI.Library.Converters
 					{
 						RouteListId = routeList.Id,
 						RouteListStatus = _routeListStatusConverter.ConvertToAPIRouteListStatus(routeList.Status),
-						RouteListAddresses = routelistAddresses
+						RouteListAddresses = routelistAddresses,
+						SpecialConditions = ConvertToApiDto(specialConditions)
 					};
 				}
 			}
@@ -119,6 +120,19 @@ namespace DriverAPI.Library.Converters
 				OrderId = routeListAddress.Order.Id,
 				Address = _deliveryPointConverter.ExtractAPIAddressFromDeliveryPoint(routeListAddress.Order.DeliveryPoint)
 			};
+		}
+
+		private IEnumerable<RouteListSpecialConditionDto> ConvertToApiDto(IEnumerable<KeyValuePair<int, string>> specialConditions)
+		{
+
+			foreach(var specialConditon in specialConditions)
+			{
+				yield return new RouteListSpecialConditionDto
+				{
+					Id = specialConditon.Key,
+					Name = specialConditon.Value
+				};
+			}
 		}
 	}
 }
