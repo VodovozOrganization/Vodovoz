@@ -7,32 +7,32 @@ using Vodovoz.Controllers;
 
 namespace CustomerAppsApi.Models
 {
-	public class NomenclatureModel : INomenclatureModel
+	public class PromotionalSetModel : IPromotionalSetModel
 	{
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly IGoodsOnlineParametersController _goodsOnlineParametersController;
 		private readonly ISourceConverter _sourceConverter;
-		private readonly INomenclatureFactory _nomenclatureFactory;
+		private readonly IPromotionalSetFactory _promotionalSetFactory;
 
-		public NomenclatureModel(
+		public PromotionalSetModel(
 			IUnitOfWork unitOfWork,
 			IGoodsOnlineParametersController goodsOnlineParametersController,
 			ISourceConverter sourceConverter,
-			INomenclatureFactory nomenclatureFactory)
+			IPromotionalSetFactory promotionalSetFactory)
 		{
 			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 			_goodsOnlineParametersController =
 				goodsOnlineParametersController ?? throw new ArgumentNullException(nameof(goodsOnlineParametersController));
 			_sourceConverter = sourceConverter ?? throw new ArgumentNullException(nameof(sourceConverter));
-			_nomenclatureFactory = nomenclatureFactory ?? throw new ArgumentNullException(nameof(nomenclatureFactory));
+			_promotionalSetFactory = promotionalSetFactory ?? throw new ArgumentNullException(nameof(promotionalSetFactory));
 		}
 
-		public NomenclaturesPricesAndStockDto GetNomenclaturesPricesAndStocks(Source source)
+		public PromotionalSetsDto GetPromotionalSets(Source source)
 		{
 			var parameterType = _sourceConverter.ConvertToNomenclatureOnlineParameterType(source);
-			var parametersData = _goodsOnlineParametersController.GetNomenclaturesOnlineParametersForSend(_unitOfWork, parameterType);
+			var parametersData = _goodsOnlineParametersController.GetPromotionalSetsOnlineParametersForSend(_unitOfWork, parameterType);
 
-			return _nomenclatureFactory.CreateNomenclaturesPricesAndStockDto(parametersData);
+			return _promotionalSetFactory.CreatePromotionalSetsDto(parametersData);
 		}
 	}
 }

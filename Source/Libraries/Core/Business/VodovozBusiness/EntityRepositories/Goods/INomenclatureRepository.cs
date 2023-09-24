@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using NHibernate.Criterion;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
@@ -85,5 +85,6 @@ namespace Vodovoz.EntityRepositories.Goods
 			IUnitOfWork uow, GoodsOnlineParameterType parameterType);
 		IList<NomenclatureOnlinePriceNode> GetNomenclaturesOnlinePricesByOnlineParameters(
 			IUnitOfWork uow, IEnumerable<int> onlineParametersIds);
+		IEnumerable<INamedDomainObject> GetPromoSetsWithNomenclature(IUnitOfWork unitOfWork, int nomenclatureId, bool notArchive = true);
 	}
 }

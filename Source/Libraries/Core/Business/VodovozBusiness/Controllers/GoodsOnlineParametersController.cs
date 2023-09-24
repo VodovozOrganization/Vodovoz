@@ -3,21 +3,25 @@ using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Nodes;
 
 namespace Vodovoz.Controllers
 {
-	public class NomenclatureOnlineParametersController : INomenclatureOnlineParametersController
+	public class GoodsOnlineParametersController : IGoodsOnlineParametersController
 	{
 		private readonly INomenclatureRepository _nomenclatureRepository;
+		private readonly IPromotionalSetRepository _promotionalSetRepository;
 		private readonly IStockRepository _stockRepository;
 
-		public NomenclatureOnlineParametersController(
+		public GoodsOnlineParametersController(
 			INomenclatureRepository nomenclatureRepository,
+			IPromotionalSetRepository promotionalSetRepository,
 			IStockRepository stockRepository)
 		{
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			_promotionalSetRepository = promotionalSetRepository ?? throw new ArgumentNullException(nameof(promotionalSetRepository));
 			_stockRepository = stockRepository ?? throw new ArgumentNullException(nameof(stockRepository));
 		}
 		
@@ -44,6 +48,29 @@ namespace Vodovoz.Controllers
 			}
 
 			return new NomenclatureOnlineParametersData(parameters, prices);
+		}
+		
+		public PromotionalSetOnlineParametersData GetPromotionalSetsOnlineParametersForSend(
+			IUnitOfWork uow, GoodsOnlineParameterType parameterType)
+		{
+			var parameters =
+				_promotionalSetRepository.GetPromotionalSetsOnlineParametersForSend(uow, parameterType)
+					.ToDictionary(x => x.PromotionalSetId);
+			
+			var promotionalSetItems =
+				_promotionalSetRepository.GetPromotionalSetsItemsWithBalanceForSend(uow, parameterType)
+					.ToLookup(x => x.PromotionalSetId);
+
+			var itemsWithZeroBalance =
+				promotionalSetItems.SelectMany(keyPairValue =>
+					keyPairValue.Where(x => x.Stock <= 0));
+
+			foreach(var item in itemsWithZeroBalance)
+			{
+				parameters[item.PromotionalSetId].AvailableForSale = GoodsOnlineAvailability.Show;
+			}
+			
+			return new PromotionalSetOnlineParametersData(parameters, promotionalSetItems);
 		}
 	}
 }

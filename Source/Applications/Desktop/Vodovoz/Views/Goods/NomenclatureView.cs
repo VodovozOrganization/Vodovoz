@@ -10,6 +10,7 @@ using QSOrmProject;
 using QSWidgetLib;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using Gamma.Binding;
@@ -27,7 +28,7 @@ using Vodovoz.ViewModels.Dialogs.Nodes;
 
 namespace Vodovoz.Views.Goods
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class NomenclatureView : TabViewBase<NomenclatureViewModel>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
@@ -411,6 +412,7 @@ namespace Vodovoz.Views.Goods
 			pricesView.PricesList.ElementAdded += PriceAdded;
 			pricesView.PricesList.ElementRemoved += PriceRemoved;
 			pricesView.PricesList.ElementChanged += PriceRowChanged;
+			pricesView.PricesList.PropertyOfElementChanged += PricePropertyChanged;
 			pricesView.Sensitive = ViewModel.CanCreateAndArcNomenclatures && ViewModel.CanEdit;
 			pricesView.NomenclaturePriceType = NomenclaturePriceBase.NomenclaturePriceType.General;
 
@@ -418,6 +420,7 @@ namespace Vodovoz.Views.Goods
 			alternativePricesView.PricesList.ElementAdded += PriceAdded;
 			alternativePricesView.PricesList.ElementRemoved += PriceRemoved;
 			alternativePricesView.PricesList.ElementChanged += PriceRowChanged;
+			alternativePricesView.PricesList.PropertyOfElementChanged += PricePropertyChanged;
 			alternativePricesView.Sensitive =
 				ViewModel.CanCreateAndArcNomenclatures
 				&& ViewModel.CanEditAlternativeNomenclaturePrices
@@ -452,6 +455,14 @@ namespace Vodovoz.Views.Goods
 
 			//make actions menu
 			ConfigureActionsMenu();
+		}
+
+		private void PricePropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(NomenclaturePrice.Price))
+			{
+				ViewModel.PriceChanged = true;
+			}
 		}
 
 		private void PriceRowChanged(object alist, int[] aidx)

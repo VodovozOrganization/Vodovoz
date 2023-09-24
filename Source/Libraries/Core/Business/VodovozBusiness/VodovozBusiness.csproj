@@ -60,8 +60,8 @@
     <Compile Include="CommonEnums\AllYesNo.cs" />
     <Compile Include="ConfigureDeletion.cs" />
     <Compile Include="Domain\Cash\CashTransfer\CashTransferDocumentStatuses.cs" />
-    <Compile Include="Controllers\INomenclatureOnlineParametersController.cs" />
-    <Compile Include="Controllers\NomenclatureOnlineParametersController.cs" />
+    <Compile Include="Controllers\IGoodsOnlineParametersController.cs" />
+    <Compile Include="Controllers\GoodsOnlineParametersController.cs" />
     <Compile Include="Domain\Cash\ExpenseInvoiceDocumentType.cs" />
     <Compile Include="Domain\Cash\ExpenseType.cs" />
     <Compile Include="Domain\Cash\FinancialCategoriesGroups\FinancialCategoriesGroup.cs" />
@@ -758,6 +758,9 @@
     <Compile Include="Nodes\NomenclatureOnlineParametersData.cs" />
     <Compile Include="Nodes\NomenclatureOnlineParametersNode.cs" />
     <Compile Include="Nodes\NomenclatureOnlinePriceNode.cs" />
+    <Compile Include="Nodes\PromotionalSetItemBalanceNode.cs" />
+    <Compile Include="Nodes\PromotionalSetOnlineParametersData.cs" />
+    <Compile Include="Nodes\PromotionalSetOnlineParametersNode.cs" />
     <Compile Include="Parameters\ArchiveDataSettings.cs" />
     <Compile Include="Parameters\CounterpartySettings.cs" />
     <Compile Include="Parameters\CashDistributionCommonOrganisationProvider.cs" />

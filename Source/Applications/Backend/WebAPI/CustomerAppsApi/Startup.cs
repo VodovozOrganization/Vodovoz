@@ -32,6 +32,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Operations;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Factories;
@@ -93,6 +94,7 @@ namespace CustomerAppsApi
 			services.AddSingleton<ICachedBottlesDebtRepository, CachedBottlesDebtRepository>();
 			services.AddSingleton<INomenclatureRepository, NomenclatureRepository>();
 			services.AddSingleton<IStockRepository, StockRepository>();
+			services.AddSingleton<IPromotionalSetRepository, PromotionalSetRepository>();
 			services.AddSingleton<IExternalCounterpartyRepository, ExternalCounterpartyRepository>();
 			services.AddSingleton<IExternalCounterpartyMatchingRepository, ExternalCounterpartyMatchingRepository>();
 			services.AddSingleton<IRegisteredNaturalCounterpartyDtoFactory, RegisteredNaturalCounterpartyDtoFactory>();
@@ -101,6 +103,7 @@ namespace CustomerAppsApi
 			services.AddSingleton<CounterpartyModelFactory>();
 			services.AddSingleton<ICounterpartyFactory, CounterpartyFactory>();
 			services.AddSingleton<INomenclatureFactory, NomenclatureFactory>();
+			services.AddSingleton<IPromotionalSetFactory, PromotionalSetFactory>();
 			services.AddSingleton<PhoneFormatter>(_ => new PhoneFormatter(PhoneFormat.DigitsTen));
 			services.AddSingleton<ICounterpartySettings, CounterpartySettings>();
 			services.AddSingleton<ICameFromConverter, CameFromConverter>();
@@ -109,11 +112,12 @@ namespace CustomerAppsApi
 			services.AddSingleton<ContactFinderForExternalCounterpartyFromTwo>();
 			services.AddSingleton<ContactFinderForExternalCounterpartyFromMany>();
 			services.AddSingleton<IContactManagerForExternalCounterparty, ContactManagerForExternalCounterparty>();
-			services.AddSingleton<INomenclatureOnlineParametersController, NomenclatureOnlineParametersController>();
+			services.AddSingleton<IGoodsOnlineParametersController, GoodsOnlineParametersController>();
 
 			services.AddScoped<IUnitOfWork>(_ => UnitOfWorkFactory.CreateWithoutRoot("Сервис интеграции"));
 			services.AddScoped<ICounterpartyModel, CounterpartyModel>();
 			services.AddScoped<INomenclatureModel, NomenclatureModel>();
+			services.AddScoped<IPromotionalSetModel, PromotionalSetModel>();
 			services.AddScoped<CounterpartyModelValidator>();
 		}
 

@@ -5,9 +5,11 @@ using Vodovoz.Nodes;
 
 namespace Vodovoz.Controllers
 {
-	public interface INomenclatureOnlineParametersController
+	public interface IGoodsOnlineParametersController
 	{
 		NomenclatureOnlineParametersData GetNomenclaturesOnlineParametersForSend(
+			IUnitOfWork uow, GoodsOnlineParameterType parameterType);
+		PromotionalSetOnlineParametersData GetPromotionalSetsOnlineParametersForSend(
 			IUnitOfWork uow, GoodsOnlineParameterType parameterType);
 	}
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using System.Text;
 using NLog;
 using QS.Commands;
 using QS.DomainModel.UoW;
@@ -35,8 +36,6 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		private NomenclatureOnlineParameters _vodovozWebSiteNomenclatureOnlineParameters;
 		private NomenclatureOnlineParameters _kulerSaleWebSiteNomenclatureOnlineParameters;
 		private bool _needCheckOnlinePrices;
-
-		public Action PricesViewSaveChanges;
 
 		public NomenclatureViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -77,6 +76,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		public GenericObservableList<NomenclatureOnlinePricesNode> NomenclatureOnlinePrices { get; private set; }
 			= new GenericObservableList<NomenclatureOnlinePricesNode>();
 
+		public bool PriceChanged { get; set; }
 		public bool ImageLoaded { get; set; }
 		public NomenclatureImage PopupMenuOn { get; set; }
 		public bool IsWaterCategory => Entity.Category == NomenclatureCategory.water;
@@ -356,7 +356,13 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		protected override bool BeforeSave() {
 			logger.Info("Сохраняем номенклатуру...");
 			Entity.SetNomenclatureCreationInfo(_userRepository);
-			PricesViewSaveChanges?.Invoke();
+			
+			if(PriceChanged && Entity.Id > 0)
+			{
+				logger.Info("Проверяем связанные с ней промонаборы...");
+				CheckPromoSetsWithNomenclature();
+			}
+			
 			return base.BeforeSave();
 		}
 
@@ -491,6 +497,24 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 					};
 				default:
 					throw new ArgumentOutOfRangeException(nameof(type), type, null);
+			}
+		}
+		
+		private void CheckPromoSetsWithNomenclature()
+		{
+			var promoSets = _nomenclatureRepository.GetPromoSetsWithNomenclature(UoW, Entity.Id);
+			
+			if(promoSets.Any())
+			{
+				var stringBuilder = new StringBuilder();
+				stringBuilder.Append("Изменены цены на товар, входящий в состав промонаборов:\n");
+				
+				foreach(var item in promoSets)
+				{
+					stringBuilder.Append($"Код: {item.Id} название: {item.Name}\n");
+				}
+				
+				ShowInfoMessage(stringBuilder.ToString());
 			}
 		}
 	}
