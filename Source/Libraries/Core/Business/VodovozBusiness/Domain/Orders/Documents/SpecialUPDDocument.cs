@@ -51,7 +51,9 @@ namespace Vodovoz.Domain.Orders.Documents
 			var hasAgreeForEdo = Order.Client.ConsentForEdoStatus == ConsentForEdoStatus.Agree;
 			var isFastDelivery = Order.IsFastDelivery;
 
-			var reason = isFastDelivery ? "заказ был оформлен по экспресс-доставке" : "заказ был перенесен на другой маршрут";
+			var reason = isFastDelivery ? "" : "<br>Т.к. заказ был перенесен на другой маршрут, Вам не привезли закрывающие документы.";
+
+			var fastDeliveryString = isFastDelivery ? "по экспресс-доставке." : "";
 
 			var body = hasAgreeForEdo
 				? "Просьба подписать документ в ЭДО или ответным письмом выслать скан с Вашими печатью и подписью"
@@ -64,11 +66,12 @@ namespace Vodovoz.Domain.Orders.Documents
 				  "<br>ИД 2AL-EF740B2F-CA2E-414B-A2A7-F8FA6824B4E4-00000";
 
 			var text = "Добрый день!" +
-			           $"<br>Во вложении {Title}" +
-			           $"<br>Т.к. {reason}, Вам не привезли закрывающие документы." +
+					   $"<br>" +
+			           $"<br>Во вложении {Title} {fastDeliveryString}" +
+			           $"{reason}" +
 			           $"<br>{body}" +
 			           "<br>" +
-			           "<br>В случае отказа от обмена через ЭДО, я подготовлю документы для отправки по почте РФ. Напишите почтовый адрес, пожалуйста." +
+			           "<br>В случае отказа от обмена через ЭДО, я подготовлю документы для отправки по почте РФ или со следующей поставкой." +
 			           "<br>Жду обратной связи.";
 
 			var template = new EmailTemplate
