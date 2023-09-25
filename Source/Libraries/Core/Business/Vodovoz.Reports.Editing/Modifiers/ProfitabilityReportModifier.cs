@@ -17,6 +17,9 @@ namespace Vodovoz.Reports.Editing.Modifiers
 		private const string _groupLevel2Name = "group2";
 		private const string _groupLevel3Name = "group3";
 
+		private const string _autoTypeTextBox = "TextboxAutoType";
+		private const string _autoOwnerTypeTextBox = "TextboxAutoOwnerType";
+
 		private readonly ExpressionRowProvider _expressionRowProvider;
 		private readonly SourceRowProvider _sourceRowProvider;
 
@@ -26,7 +29,7 @@ namespace Vodovoz.Reports.Editing.Modifiers
 			_sourceRowProvider = new DetailsSourceRowProvider();
 		}
 
-		public void Setup(IEnumerable<GroupingType> groupings)
+		public void Setup(IEnumerable<GroupingType> groupings, bool isShowRouteListInfo)
 		{
 			var groupingActions = GetGroupingActions(groupings);
 			foreach (var action in groupingActions)
@@ -45,6 +48,15 @@ namespace Vodovoz.Reports.Editing.Modifiers
 
 			var removeFooterAction = new RemoveFooter(_tableName);
 			AddAction(removeFooterAction);
+
+			if(!isShowRouteListInfo)
+			{
+				var removeAutoTypeColumn = new RemoveColumn(_tableName, _autoTypeTextBox);
+				AddAction(removeAutoTypeColumn);
+
+				var removeAutoOwnerTypeColumn = new RemoveColumn(_tableName, _autoOwnerTypeTextBox);
+				AddAction(removeAutoOwnerTypeColumn);
+			}
 		}
 
 		private IEnumerable<ModifierAction> GetGroupingActions(IEnumerable<GroupingType> groupings)
