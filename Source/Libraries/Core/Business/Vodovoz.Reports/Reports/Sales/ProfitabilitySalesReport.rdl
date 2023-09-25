@@ -46,11 +46,11 @@
           <BorderWidth />
         </Style>
         <TableColumns>
-          <TableColumn >
+          <TableColumn>
             <Width>65pt</Width>
             <Visibility></Visibility>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>65pt</Width>
             <Visibility></Visibility>
           </TableColumn>
@@ -81,7 +81,7 @@
             <TableRow>
               <Height>27.7pt</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="TextboxAutoType">
                       <Value>Тип авто</Value>
@@ -99,7 +99,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="TextboxAutoOwnerType">
                       <Value>Принадлежность авто</Value>
@@ -251,7 +251,7 @@
             <TableRow>
               <Height>13pt</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox38">
                       <Value></Value>
@@ -270,7 +270,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox45">
                       <Value></Value>
@@ -427,7 +427,7 @@
             <TableRow>
               <Height>7.4pt</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox39">
                       <Value></Value>
@@ -450,7 +450,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox46">
                       <Value></Value>
@@ -639,7 +639,7 @@
             <TableRow>
               <Height>18.6pt</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox40">
                       <Value></Value>
@@ -658,7 +658,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox47">
                       <Value></Value>
@@ -823,10 +823,10 @@
             <TableRow>
               <Height>12 pt</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox37">
-                      <Value></Value>
+                      <Value>={car_model}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -841,10 +841,10 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox43">
-                      <Value></Value>
+                      <Value>={car_own_type}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -874,6 +874,7 @@
                         <PaddingBottom>1pt</PaddingBottom>
                         <PaddingTop>1pt</PaddingTop>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -996,7 +997,7 @@
             <TableRow>
               <Height>13.7pt</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox42">
                       <Value></Value>
@@ -1008,7 +1009,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox52">
                       <Value></Value>
@@ -1395,7 +1396,7 @@ or (First({missing_route_list_expenses_per_kg}, 'Sales') = True)
   </PageFooter>
   <DataSets>
     <DataSet Name="Sales">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
         <CommandText>
@@ -1421,6 +1422,33 @@ SELECT
     org.name as organization,
     dp.compiled_address_short AS delivery_point,
     rla.route_list_id AS route_list,
+    (SELECT
+		CASE 
+			WHEN cm.car_type_of_use = 'Largus' THEN "Фургон (ларгус)"
+			WHEN cm.car_type_of_use = 'Truck' THEN "Фура"
+			WHEN cm.car_type_of_use = 'GAZelle' THEN "Грузовой (ГАЗель)"
+			ELSE ""
+			END as car_type_of_use
+		FROM route_lists rl 
+		LEFT JOIN cars c ON rl.car_id = c.id 
+		JOIN car_models cm ON c.model_id = cm.id 
+		WHERE rl.id = rla.route_list_id 
+		LIMIT 1) as car_model,
+	(SELECT
+		CASE 
+			WHEN cv.car_own_type = 'Company' THEN "ТС компании"
+			WHEN cv.car_own_type = 'Raskat' THEN "ТС в раскате"
+			WHEN cv.car_own_type = 'Driver' THEN "ТС водителя"
+			ELSE ""
+			END as car_own_type
+		FROM route_lists rl 
+		LEFT JOIN cars c ON rl.car_id = c.id 
+		LEFT JOIN car_versions cv 
+		ON cv.car_id = c.id 
+		WHERE  rl.id = rla.route_list_id 
+		AND cv.start_date &lt;= rl.`date` 
+		AND (cv.end_date &gt; rl.`date` OR ISNULL(cv.end_date))
+		LIMIT 1) as car_own_type,
     o.delivery_date AS delivery_date,
     e.id AS author_id,
     GET_PERSON_NAME_WITH_INITIALS(e.last_name, e.name, e.patronymic) AS author,
@@ -1876,7 +1904,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="counterparty">
           <DataField>counterparty</DataField>
           <TypeName>System.String</TypeName>
@@ -2051,6 +2079,14 @@ WHERE
         </Field>
         <Field Name="nomenclature_category">
           <DataField>nomenclature_category</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="car_model">
+          <DataField>car_model</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="car_own_type">
+          <DataField>car_own_type</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
