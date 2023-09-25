@@ -185,9 +185,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 				var firstSelector = GetSelector(GroupingBy.Last());
 
-				var groupedNodes = from oi in firstLevelGroup
-							  group oi by firstSelector.Invoke(oi) into g
-							  select new { Key = g.Key, Items = g.ToList() };
+				var groupedNodes = (from oi in firstLevelGroup
+									group oi by firstSelector.Invoke(oi) into g
+									select new { Key = g.Key, Items = g.ToList() })
+									.ToList();
 
 				foreach(var group in groupedNodes)
 				{
@@ -233,66 +234,175 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 				IList<TurnoverWithDynamicsReportRow> totalsRows = new List<TurnoverWithDynamicsReportRow>();
 
-				var preLast = GroupingBy.Count() - 2;
+				var firstGroupSelector = GroupingBy.Count() - 2;
+				var secondGroupSelector = GroupingBy.Count() - 1;
 
-				var firstSelector = GetSelector(GroupingBy.ElementAt(preLast));
+				var firstSelector = GetSelector(GroupingBy.ElementAt(firstGroupSelector));
+				var secondSelector = GetSelector(GroupingBy.ElementAt(secondGroupSelector));
 
-				var groupedNodes = from oi in secondLevelGroup
-								   group oi by firstSelector.Invoke(oi) into g
-								   select new { Key = g.Key, Items = g.ToList() };
+				var groupedNodes = (from oi in secondLevelGroup
+									group oi by new { Key1 = firstSelector.Invoke(oi), Key2 = secondSelector.Invoke(oi) } into g
+									select new { Key = g.Key, Items = g.ToList() })
+									.OrderBy(g => g.Key.Key1)
+									.ToList();
 
-				foreach(var group in groupedNodes)
+				var groupsCount = groupedNodes.Count;
+
+				for(var i = 0; i < groupsCount;)
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var groupTitle = GetGroupTitle(GroupingBy.ElementAt(preLast)).Invoke(group.Items.First());
+					var groupTitle = GetGroupTitle(GroupingBy.ElementAt(firstGroupSelector)).Invoke(groupedNodes[i].Items.First());
 
-					var groupRows = Process1stLevelGroups(group.Items, cancellationToken);
+					var currentFirstKeyValue = groupedNodes[i].Key.Key1;
 
-					groupRows.TotalRow.Title = groupTitle;
+					var groupRows = new List<TurnoverWithDynamicsReportRow>();
 
-					totalsRows.Add(groupRows.TotalRow);
-					groupRows.Rows.Insert(0, groupRows.TotalRow);
-					result = result.Union(groupRows.Rows).ToList();
+					while(true)
+					{
+						if(i == groupsCount || !groupedNodes[i].Key.Key1.Equals(currentFirstKeyValue))
+						{
+							break;
+						}
+
+						var row = CreateTurnoverWithDynamicsReportRow(
+							groupedNodes[i].Items,
+							GetGroupTitle(GroupingBy.Last()).Invoke(groupedNodes[i].Items.First()),
+							ShowContacts);
+
+						groupRows.Add(row);
+
+						i++;
+					}
+
+					var groupTotal = AddGroupTotals("", groupRows);
+					groupTotal.Title = groupTitle;
+					totalsRows.Add(groupTotal);
+
+					result.Add(groupTotal);
+					result.AddRange(groupRows);
 				}
 
 				return (result, totalsRows);
 			}
 
 			private (IList<TurnoverWithDynamicsReportRow> Rows, IList<TurnoverWithDynamicsReportRow> Totals) Process3rdLevelGroups(
-				IEnumerable<OrderItemNode> thirdLevelGroup,
+				IEnumerable<OrderItemNode> secondLevelGroup,
 				CancellationToken cancellationToken)
 			{
-				cancellationToken.ThrowIfCancellationRequested();
-
 				var result = new List<TurnoverWithDynamicsReportRow>();
+				var totalsRows = new List<TurnoverWithDynamicsReportRow>();
 
-				IList<TurnoverWithDynamicsReportRow> totalsRows = new List<TurnoverWithDynamicsReportRow>();
+				var firstLevelGroupSelector = GroupingBy.Count() - 3;
+				var secondLevelGroupSelector = GroupingBy.Count() - 2;
+				var thirdLevelGroupSelector = GroupingBy.Count() - 1;
 
-				var prePreLast = GroupingBy.Count() - 3;
+				var firstSelector = GetSelector(GroupingBy.ElementAt(firstLevelGroupSelector));
+				var secondSelector = GetSelector(GroupingBy.ElementAt(secondLevelGroupSelector));
+				var thirdSelector = GetSelector(GroupingBy.ElementAt(thirdLevelGroupSelector));
 
-				var firstSelector = GetSelector(GroupingBy.ElementAt(prePreLast));
+				var groupedNodes = (from oi in secondLevelGroup
+									group oi by new { Key1 = firstSelector.Invoke(oi), Key2 = secondSelector.Invoke(oi), Key3 = thirdSelector.Invoke(oi) } into g
+									select new { Key = g.Key, Items = g.ToList() })
+									.OrderBy(g => g.Key.Key1)
+									.ThenBy(g => g.Key.Key2)
+									.ToList();
 
-				var groupedNodes = from oi in thirdLevelGroup
-								   group oi by firstSelector.Invoke(oi) into g
-								   select new { Key = g.Key, Items = g.ToList() };
+				var groupsCount = groupedNodes.Count;
 
-				foreach(var group in groupedNodes)
+				for(var i = 0; i < groupsCount;)
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					var groupTitle = GetGroupTitle(GroupingBy.ElementAt(prePreLast)).Invoke(group.Items.First());
+					var groupTitle = GetGroupTitle(GroupingBy.ElementAt(firstLevelGroupSelector))
+						.Invoke(groupedNodes[i]
+						.Items
+						.First());
 
-					var groupRows = Process2ndLevelGroups(group.Items, cancellationToken);
+					var currentFirstKeyValue = groupedNodes[i].Key.Key1;
 
-					var groupTotal = AddGroupTotals(groupTitle, groupRows.Totals);
+					var groupRows = new List<TurnoverWithDynamicsReportRow>();
+					var secondLevelGroupTotals = new List<TurnoverWithDynamicsReportRow>();
 
+					while(true)
+					{
+						if(i == groupsCount || !groupedNodes[i].Key.Key1.Equals(currentFirstKeyValue))
+						{
+							break;
+						}
+
+						var currentSecondKeyValue = groupedNodes[i].Key.Key2;
+
+						var secondLevelTitle = GetGroupTitle(GroupingBy.ElementAt(secondLevelGroupSelector))
+							.Invoke(groupedNodes[i]
+							.Items
+							.First());
+
+						var secondLevelGroupRows = new List<TurnoverWithDynamicsReportRow>();
+
+						while(true)
+						{
+							if(i == groupsCount
+								|| !groupedNodes[i].Key.Key1.Equals(currentFirstKeyValue)
+								|| !groupedNodes[i].Key.Key2.Equals(currentSecondKeyValue))
+							{
+								break;
+							}
+
+							var row = CreateTurnoverWithDynamicsReportRow(
+								groupedNodes[i].Items,
+								GetGroupTitle(GroupingBy.Last()).Invoke(groupedNodes[i].Items.First()),
+								ShowContacts);
+
+							secondLevelGroupRows.Add(row);
+
+							i++;
+						}
+
+						var secondLevelGroupTotal = AddGroupTotals("", secondLevelGroupRows);
+						secondLevelGroupTotal.Title = secondLevelTitle;
+						secondLevelGroupTotals.Add(secondLevelGroupTotal);
+
+						groupRows.Add(secondLevelGroupTotal);
+						groupRows.AddRange(secondLevelGroupRows);
+					}
+
+					var groupTotal = AddGroupTotals("", secondLevelGroupTotals);
+					groupTotal.Title = groupTitle;
 					totalsRows.Add(groupTotal);
-					groupRows.Rows.Insert(0, groupTotal);
-					result = result.Union(groupRows.Rows).ToList();
+
+					result.Add(groupTotal);
+					result.AddRange(groupRows);
 				}
 
 				return (result, totalsRows);
+			}
+
+			private TurnoverWithDynamicsReportRow CreateTurnoverWithDynamicsReportRow(List<OrderItemNode> items, string title, bool isShowContacts)
+			{
+				var phones = string.Empty;
+				var emails = string.Empty;
+
+				if(isShowContacts)
+				{
+					phones = ProcessCounterpartyPhones(items.First());
+					emails = items.First().CounterpartyEmails;
+				}
+
+				var row = new TurnoverWithDynamicsReportRow
+				{
+					RowType = TurnoverWithDynamicsReportRow.RowTypes.Values,
+					Title = title,
+					Phones = phones,
+					Emails = emails
+				};
+
+				row.SliceColumnValues = CalculateValuesRow(items);
+
+				ProcessDynamics(row);
+				ProcessLastSale(items, row);
+
+				return row;
 			}
 
 			private Func<OrderItemNode, object> GetSelector(GroupingType groupingType)
