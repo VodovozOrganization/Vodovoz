@@ -27,7 +27,7 @@ namespace Vodovoz.Reports.Editing.ModifierActions
 		private readonly SourceRowProvider _detailsProvider;
 		private TableGroup _newGroup;
 		private int _groupNameSuffixCounter;
-		private readonly int? _sortByColumnId;
+		private readonly int? _sortByColumnIndex;
 		private readonly SortByTypeDirection? _sortByTypeDirection;
 
 		public NewTableGroupWithCellsFromDetails(
@@ -35,7 +35,7 @@ namespace Vodovoz.Reports.Editing.ModifierActions
 			SourceRowProvider sourceRowProvider, 
 			ExpressionRowProvider expressionRowProvider, 
 			IEnumerable<string> groupExpressions,
-			int? sortByColumnId = null,
+			int? sortByColumnIndex = null,
 			SortByTypeDirection? sortByTypeDirection = null)
 		{
 			if(string.IsNullOrWhiteSpace(tableName))
@@ -57,7 +57,7 @@ namespace Vodovoz.Reports.Editing.ModifierActions
 			_sourceRowProvider = sourceRowProvider ?? throw new ArgumentNullException(nameof(sourceRowProvider));
 			_expressionRowProvider = expressionRowProvider ?? throw new ArgumentNullException(nameof(expressionRowProvider));
 			_groupExpressions = groupExpressions;
-			_sortByColumnId = sortByColumnId;
+			_sortByColumnIndex = sortByColumnIndex;
 			_sortByTypeDirection = sortByTypeDirection;
 			_newGroup = new TableGroup();
 		}
@@ -88,9 +88,9 @@ namespace Vodovoz.Reports.Editing.ModifierActions
 					destTextbox.Value = sourceTextbox.Value;
 				}
 
-				if(_sortByColumnId != null 
-					&& i == _sortByColumnId.Value
-					&& !string.IsNullOrWhiteSpace(sourceTextbox.Value))
+				if(_sortByColumnIndex != null 
+					&& i == _sortByColumnIndex.Value
+					&& !string.IsNullOrWhiteSpace(sourceTextbox?.Value))
 				{
 					sortExpression = new SortExpression(
 						sourceTextbox.Value,
