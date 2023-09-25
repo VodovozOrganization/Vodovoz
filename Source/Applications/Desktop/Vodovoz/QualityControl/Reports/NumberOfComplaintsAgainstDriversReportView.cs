@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.ViewModels.QualityControl.Reports;
+using Vodovoz.ViewWidgets.Reports;
 using static Vodovoz.ViewModels.Logistic.DriversStopLists.DriversStopListsViewModel;
 using static Vodovoz.ViewModels.QualityControl.Reports.NumberOfComplaintsAgainstDriversReportViewModel;
 
@@ -10,6 +11,8 @@ namespace Vodovoz.QualityControl.Reports
 	[ToolboxItem(true)]
 	public partial class NumberOfComplaintsAgainstDriversReportView : TabViewBase<NumberOfComplaintsAgainstDriversReportViewModel>
 	{
+		private IncludeExludeFiltersView _filterView;
+
 		public NumberOfComplaintsAgainstDriversReportView(NumberOfComplaintsAgainstDriversReportViewModel viewModel) : base(viewModel)
 		{
 			Build();
@@ -56,6 +59,8 @@ namespace Vodovoz.QualityControl.Reports
 			ConfigureTreeView();
 
 			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+
+			ShowFilter();
 		}
 
 		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -74,6 +79,15 @@ namespace Vodovoz.QualityControl.Reports
 				.AddColumn("Номера рекламаций").AddTextRenderer(x => x.ComplaintsList)
 				.AddColumn("")
 				.Finish();
+		}
+
+		private void ShowFilter()
+		{
+			_filterView?.Destroy();
+			_filterView = new IncludeExludeFiltersView(ViewModel.IncludeExcludeFilterViewModel);
+			_filterView.HeightRequest = 400;
+			vboxParameters.Add(_filterView);
+			_filterView.Show();
 		}
 	}
 }
