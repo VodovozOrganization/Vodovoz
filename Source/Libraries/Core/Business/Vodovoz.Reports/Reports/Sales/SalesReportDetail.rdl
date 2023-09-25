@@ -1846,16 +1846,6 @@ FROM
         FROM
             orders
                 LEFT JOIN route_list_addresses ON route_list_addresses.order_id = orders.id AND route_list_addresses.transfered_to_id IS NULL
-                LEFT JOIN counterparty ON counterparty.id = orders.client_id
-                LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
-                LEFT JOIN districts distr ON delivery_points.district_id = distr.id
-                LEFT JOIN geo_groups gg ON gg.id = distr.geo_group_id
-                LEFT JOIN counterparty_contract ON counterparty_contract.counterparty_id = counterparty.id
-                LEFT JOIN employees ON employees.id = orders.author_employee_id
-                LEFT JOIN subdivisions ON subdivisions.id = employees.subdivision_id
-                LEFT JOIN order_items ON order_items.order_id = orders.id
-                LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
-                LEFT JOIN nomenclature_groups ON nomenclature.group_id = nomenclature_groups.id
                 LEFT JOIN
             (
                 SELECT
@@ -1878,131 +1868,9 @@ FROM
                 GROUP BY store_self_delivery_document.order_id
             ) AS self_delivery ON self_delivery.order_id = orders.id
         WHERE
-                orders.delivery_date &gt;= @start_date
-          AND orders.delivery_date &lt;= @end_date
-          AND !orders.is_contract_closer
-       AND (
-             (0 IN (@Nomenclature_include) OR (nomenclature.id IN (@Nomenclature_include)))
-				AND NOT (nomenclature.id IN (@Nomenclature_exclude))
-         )
-       AND (
-             ('0' IN (@NomenclatureCategory_include) OR (nomenclature.category IN (@NomenclatureCategory_include)))
-				AND (NOT (nomenclature.category IN (@NomenclatureCategory_exclude)) OR nomenclature.category IS NULL)
-         )
-       AND (
-             (0 IN (@Counterparty_include) OR (orders.client_id IN (@Counterparty_include)))
-				AND (NOT (orders.client_id IN (@Counterparty_exclude)) OR orders.client_id IS NULL)
-         )
-        AND
-        (
-            (
-                ((('0' IN (@CounterpartyType_include))
-                    AND (0 IN (@CounterpartySubtype_include)))
-                OR (counterparty.counterparty_type IN (@CounterpartyType_include)))
-                AND NOT (counterparty.counterparty_type IN (@CounterpartyType_exclude))
-                AND (NOT (counterparty.counterparty_subtype_id IN (@CounterpartySubtype_exclude)) OR counterparty.counterparty_subtype_id IS NULL)
-            )
-            OR
-            (
-                ('0' IN (@CounterpartyType_include) OR NOT ('0' IN (@CounterpartySubtype_include)))
-                AND counterparty.counterparty_type = 'AdvertisingDepartmentClient'
-                AND NOT ('AdvertisingDepartmentClient' IN (@CounterpartyType_exclude))
-                AND (0 IN (@CounterpartySubtype_include) OR counterparty.counterparty_subtype_id IN (@CounterpartySubtype_include))
-                AND (NOT (counterparty.counterparty_subtype_id IN (@CounterpartySubtype_exclude)) OR counterparty.counterparty_subtype_id IS NULL)
-            )
-        )
-       AND (
-             (0 IN (@Organization_include) OR (counterparty_contract.organization_id IN (@Organization_include)))
-				AND NOT (counterparty_contract.organization_id IN (@Organization_exclude))
-         )
-       AND (
-             (0 IN (@DiscountReason_include) OR (order_items.discount_reason_id IN (@DiscountReason_include)))
-				AND (order_items.discount_reason_id IS NULL OR NOT (order_items.discount_reason_id IN (@DiscountReason_exclude)))
-         )
-       AND (
-             (0 IN (@Subdivision_include) OR (employees.subdivision_id IN (@Subdivision_include)))
-				AND NOT (employees.subdivision_id IN (@Subdivision_exclude))
-         )
-       AND (
-             (0 IN (@Employee_include) OR (orders.author_employee_id IN (@Employee_include)))
-				AND NOT (orders.author_employee_id IN (@Employee_exclude))
-         )
-       AND (
-             (0 IN (@GeoGroup_include) OR gg.id IN (@GeoGroup_include))
-				AND (orders.delivery_point_id IS NULL OR NOT gg.id IN (@GeoGroup_exclude) OR gg.id IS NULL)
-         )
-        AND
-        (
-            (
-                ((('0' IN (@PaymentType_include))
-                        AND ('0' IN (@PaymentByTerminalSource_include))
-                        AND ('0' IN (@PaymentFrom_include)))
-                    OR (orders.payment_type IN (@PaymentType_include)))
-                AND NOT (orders.payment_type IN (@PaymentType_exclude))
-                AND (NOT (orders.terminal_subtype IN (@PaymentByTerminalSource_exclude)) OR orders.terminal_subtype IS NULL)
-                AND (NOT (orders.payment_from_id IN (@PaymentFrom_exclude)) OR orders.payment_from_id IS NULL)
-            )
-            OR
-            (
-                ((('0' IN (@PaymentType_include))
-                    AND ('0' IN (@PaymentFrom_include)))
-                    OR NOT ('0' IN (@PaymentByTerminalSource_include)))
-                AND orders.payment_type = 'Terminal'
-                AND NOT ('Terminal' IN (@PaymentType_exclude))
-                AND (('0' IN (@PaymentByTerminalSource_include))
-                        OR (orders.terminal_subtype IN (@PaymentByTerminalSource_include)))
-                AND (NOT (orders.terminal_subtype IN (@PaymentByTerminalSource_exclude)) OR orders.terminal_subtype IS NULL)
-            )
-            OR
-            (
-                ((('0' IN (@PaymentType_include))
-                    AND ('0' IN (@PaymentByTerminalSource_include)))
-                    OR NOT ('0' IN (@PaymentFrom_include)))
-                AND orders.payment_type = 'PaidOnline'
-                AND NOT ('PaidOnline' IN (@PaymentType_exclude))
-                AND ((0 IN (@PaymentFrom_include))
-                        OR (orders.payment_from_id IN (@PaymentFrom_include)))
-                AND (NOT (orders.payment_from_id IN (@PaymentFrom_exclude)) OR orders.payment_from_id IS NULL)
-            )
-        )
-       AND (
-             (0 IN (@PromotionalSet_include) OR (IFNULL(order_items.promotional_set_id, 0) IN (@PromotionalSet_include)))
-				AND (order_items.promotional_set_id IS NULL OR NOT order_items.promotional_set_id IN (@PromotionalSet_exclude))
-         )
-       AND (
-             (0 IN (@ProductGroup_include) OR (IFNULL(nomenclature_groups.id, 0) IN (@ProductGroup_include)))
-				AND (NOT (nomenclature_groups.id IN (@ProductGroup_exclude)) OR nomenclature_groups.id IS NULL)
-         )
-       AND (
-            (
-            (
-              (
-                (
-                  orders.order_status IN (@OrderStatus_include)
-                  AND
-                  orders.order_status != 'WaitForPayment'
-                )
-                OR
-                (
-                  orders.order_status = 'WaitForPayment' 
-                  AND 'WaitForPayment' IN (@OrderStatus_include) 
-                  AND self_delivery 
-                  AND pay_after_shipment
-                )
-              )
-              AND '0' IN (@OrderStatus_exclude) 
-            )
-            OR
-            (orders.order_status NOT IN (@OrderStatus_exclude) AND '0' IN (@OrderStatus_include))
-          )
-	        OR ('0' IN (@OrderStatus_include) AND '0' IN (@OrderStatus_exclude))
-	    )
-       AND (
-       	     ('0' IN (@OrderStatus_include) OR (orders.order_status IN (@OrderStatus_include)))
-       	     	AND NOT (orders.order_status IN (@OrderStatus_exclude))
-         )
+                orders.id IN (@OrderIds)
         GROUP BY orders.id
-    ) AS t</CommandText>
+    ) AS t;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>={?start_date}</Value>
@@ -2106,6 +1974,9 @@ FROM
           <QueryParameter Name="NomenclatureCategory_exclude">
             <Value>=Parameters!NomenclatureCategory_exclude</Value>
           </QueryParameter>
+          <QueryParameter Name="OrderIds">
+            <Value>=Parameters!order_ids</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
       <Fields >
@@ -2129,7 +2000,7 @@ FROM
   </DataSources>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
@@ -2345,38 +2216,51 @@ FROM
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt />
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="OrderStatus_exclude">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt />
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="CounterpartyType_include">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt />
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="CounterpartyType_exclude">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt />
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="CounterpartySubtype_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt />
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="CounterpartySubtype_exclude">
       <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="order_ids">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <DataSetReference>
+          <DataSetName>Sales</DataSetName>
+          <ValueField>order_id</ValueField>
+        </DataSetReference>
+      </DefaultValue>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
