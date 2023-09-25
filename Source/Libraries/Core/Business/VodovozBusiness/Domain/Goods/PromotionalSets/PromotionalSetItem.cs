@@ -3,9 +3,8 @@ using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using QS.Project.Repositories;
 using QS.Utilities.Text;
-using Vodovoz.Domain.Goods;
 
-namespace Vodovoz.Domain.Orders
+namespace Vodovoz.Domain.Goods.PromotionalSets
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки рекламного набора",

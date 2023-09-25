@@ -7,9 +7,10 @@ using System.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Services;
 
-namespace Vodovoz.Domain.Orders
+namespace Vodovoz.Domain.Goods.PromotionalSets
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "рекламные наборы",

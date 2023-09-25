@@ -2,6 +2,7 @@
 using QS.Project.Services;
 using QS.ViewModels;
 using System;
+using Vodovoz.Domain.Goods.PromotionalSets;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;

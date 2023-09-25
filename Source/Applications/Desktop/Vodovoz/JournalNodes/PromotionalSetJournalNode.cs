@@ -1,5 +1,6 @@
 ﻿using System;
 using QS.Project.Journal;
+using Vodovoz.Domain.Goods.PromotionalSets;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.JournalNodes

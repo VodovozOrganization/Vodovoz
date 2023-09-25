@@ -1,21 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using QS.DomainModel.Entity;
-using QS.DomainModel.UoW;
 using QS.HistoryLog;
-using Vodovoz.Core.DataService;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.Services;
+using Order = Vodovoz.Domain.Orders.Order;
 
-namespace Vodovoz.Domain.Orders
+namespace Vodovoz.Domain.Goods.PromotionalSets
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 	NominativePlural = "Спец. действия фиксированные цены",

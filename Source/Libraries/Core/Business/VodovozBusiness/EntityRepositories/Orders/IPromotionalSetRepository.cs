@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Contacts;
+using Vodovoz.Domain.Goods.PromotionalSets;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.EntityRepositories.Orders
@@ -20,6 +22,9 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="ignoreCurrentOrder">Если <c>true</c>, то в выборке будет
 		/// игнорироваться заказ передаваемы в качестве параметра <paramref name="currOrder"/></param>
 		Dictionary<int, int[]> GetPromotionalSetsAndCorrespondingOrdersForDeliveryPoint(IUnitOfWork uow, Order currOrder, bool ignoreCurrentOrder = false);
-		bool AddressHasAlreadyBeenUsedForPromo( IUnitOfWork uow, DeliveryPoint deliveryPoint );
+		bool AddressHasAlreadyBeenUsedForPromo( IUnitOfWork uow, DeliveryPoint deliveryPoint);
+		IEnumerable<PromoSetDuplicateInfoNode> GetPromoSetDuplicateInfoByAddress(IUnitOfWork uow, DeliveryPoint deliveryPoint);
+		IEnumerable<PromoSetDuplicateInfoNode> GetPromoSetDuplicateInfoByCounterpartyPhones(IUnitOfWork uow, IEnumerable<Phone> phones);
+		IEnumerable<PromoSetDuplicateInfoNode> GetPromoSetDuplicateInfoByDeliveryPointPhones(IUnitOfWork uow, IEnumerable<Phone> phones);
 	}
 }

@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Services;
 
-namespace Vodovoz.Domain.Orders
+namespace Vodovoz.Domain.Goods.PromotionalSets
 {
 	public abstract class PromotionalSetActionBase : PropertyChangedBase, IDomainObject
 	{

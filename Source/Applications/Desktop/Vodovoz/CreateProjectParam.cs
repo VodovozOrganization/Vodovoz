@@ -811,8 +811,8 @@ namespace Vodovoz
 			builder.RegisterType<WarehousePermissionValidator>().As<IWarehousePermissionValidator>();
 			builder.RegisterType<WageParameterService>().As<IWageParameterService>();
 			builder.RegisterType<SelfDeliveryCashOrganisationDistributor>().As<ISelfDeliveryCashOrganisationDistributor>();
-
 			builder.RegisterType<CounterpartyService>().As<ICounterpartyService>().InstancePerLifetimeScope();
+			builder.RegisterType<PromoSetDuplicateFinder>().As<IPromoSetDuplicateFinder>();
 
 			#endregion
 

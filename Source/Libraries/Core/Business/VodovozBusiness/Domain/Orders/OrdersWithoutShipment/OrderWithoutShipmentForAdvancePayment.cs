@@ -15,6 +15,7 @@ using QS.HistoryLog;
 using Vodovoz.Domain.Client;
 using Vodovoz.Parameters;
 using NPOI.SS.Formula.Functions;
+using Vodovoz.Domain.Goods.PromotionalSets;
 
 namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 {

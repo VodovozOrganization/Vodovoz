@@ -84,6 +84,12 @@
     <Compile Include="Domain\Client\TaxType.cs" />
     <Compile Include="Domain\Goods\NomenclatureCategory.cs" />
     <Compile Include="Domain\Goods\NomenclatureCategory.cs" />
+    <Compile Include="Domain\Goods\PromotionalSets\PromoSetDuplicateInfoComparer.cs" />
+    <Compile Include="Domain\Goods\PromotionalSets\PromoSetDuplicateInfoNode.cs" />
+    <Compile Include="Domain\Goods\PromotionalSets\PromotionalSet.cs" />
+    <Compile Include="Domain\Goods\PromotionalSets\PromotionalSetActionBase.cs" />
+    <Compile Include="Domain\Goods\PromotionalSets\PromotionalSetActionFixPrice.cs" />
+    <Compile Include="Domain\Goods\PromotionalSets\PromotionalSetItem.cs" />
     <Compile Include="Domain\Logistic\Drivers\DriverStopListRemoval.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\RouteListMaxFastDeliveryOrders.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryChange.ChangeType.cs" />
@@ -958,6 +964,7 @@
     <Compile Include="Services\IOrderParametersProvider.cs" />
     <Compile Include="Services\IOrganizationParametersProvider.cs" />
     <Compile Include="Services\IPremiumRaskatGAZelleParametersProvider.cs" />
+    <Compile Include="Services\IPromoSetDuplicateFinder.cs" />
     <Compile Include="Services\IRouteListParametersProvider.cs" />
     <Compile Include="Services\ISalesReceiptsParametersProvider.cs" />
     <Compile Include="Services\ITabsParametersProvider.cs" />
@@ -966,6 +973,7 @@
     <Compile Include="Services\DriverApiParametersProvider.cs" />
     <Compile Include="Services\IUserRoleSettings.cs" />
     <Compile Include="Services\IUserSettings.cs" />
+    <Compile Include="Services\PromoSetDuplicateFinder.cs" />
     <Compile Include="Services\RevenueServiceInfo.cs" />
     <Compile Include="Services\UserRoleSettings.cs" />
     <Compile Include="Tools\GeoGroupVersionNotFoundException.cs" />
@@ -1085,8 +1093,6 @@
     <Compile Include="Domain\Fuel\FuelIncomeInvoiceItem.cs" />
     <Compile Include="Tools\ValidationHelper.cs" />
     <Compile Include="ViewModelBased\TabViewModelBase.cs" />
-    <Compile Include="Domain\Orders\PromotionalSet.cs" />
-    <Compile Include="Domain\Orders\PromotionalSetItem.cs" />
     <Compile Include="Services\IStandartNomenclatures.cs" />
     <Compile Include="Services\IImageProvider.cs" />
     <Compile Include="Services\IStandartDiscountsService.cs" />
@@ -1229,8 +1235,6 @@
     <Compile Include="Services\ISalesReceiptsServiceSettings.cs" />
     <Compile Include="Services\IEmailServiceSettings.cs" />
     <Compile Include="Domain\Service\BaseParametersServices\BaseParametersProvider.cs" />
-    <Compile Include="Domain\Orders\PromotionalSetActionBase.cs" />
-    <Compile Include="Domain\Orders\PromotionalSetActionFixPrice.cs" />
     <Compile Include="Tools\PasswordGenerator.cs" />
     <Compile Include="Tools\IPasswordGenerator.cs" />
     <Compile Include="Domain\Contacts\PhoneType.cs" />

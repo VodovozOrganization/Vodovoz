@@ -11,6 +11,7 @@ using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Services;
 using Vodovoz.Core.DataService;
+using Vodovoz.Domain.Goods.PromotionalSets;
 using Vodovoz.Parameters;
 
 namespace Vodovoz.ReportsParameters

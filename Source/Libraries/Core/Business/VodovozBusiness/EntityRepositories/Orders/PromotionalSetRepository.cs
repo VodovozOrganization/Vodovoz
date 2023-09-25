@@ -1,9 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
+using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Contacts;
+using Vodovoz.Domain.Goods.PromotionalSets;
 using Vodovoz.Domain.Orders;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
@@ -80,6 +85,141 @@ namespace Vodovoz.EntityRepositories.Orders
 											   && deliveryPointAlias.Id != deliveryPoint.Id)
 									.List<VodovozOrder>();
 			return result.Count() != 0;
+		}
+		
+		public IEnumerable<PromoSetDuplicateInfoNode> GetPromoSetDuplicateInfoByAddress(IUnitOfWork uow, DeliveryPoint deliveryPoint)
+		{
+			DeliveryPoint deliveryPointAlias = null;
+			Domain.Orders.Order orderAlias = null;
+			OrderItem orderItemAlias = null;
+			Counterparty counterpartyAlias = null;
+			Phone counterpartyPhoneAlias = null;
+			Phone deliveryPointPhoneAlias = null;
+			PromoSetDuplicateInfoNode resultAlias = null;
+
+			var query = uow.Session.QueryOver(() => orderAlias)
+				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
+				.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
+				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
+				.Left.JoinAlias(() => counterpartyAlias.Phones, () => counterpartyPhoneAlias, () => !counterpartyPhoneAlias.IsArchive)
+				.Left.JoinAlias(() => deliveryPointAlias.Phones, () => deliveryPointPhoneAlias, () => !deliveryPointPhoneAlias.IsArchive)
+				.Where(
+					Restrictions.And(
+						Restrictions.Where(() =>
+							deliveryPointAlias.City == deliveryPoint.City
+							&& deliveryPointAlias.Street == deliveryPoint.Street
+							&& deliveryPointAlias.Building == deliveryPoint.Building
+							&& deliveryPointAlias.Room == deliveryPoint.Room
+						),
+						Restrictions.Ge(Projections.Property(() => deliveryPointAlias.Room), 1)
+					)
+				)
+				.Where(Restrictions.IsNotNull(Projections.Property(() => orderItemAlias.PromoSet)));
+
+			var deliveryPointsResult = query.SelectList(list => list
+					.SelectGroup(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
+					.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.Date)
+					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Client)
+					.Select(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.Address)
+				).TransformUsing(Transformers.AliasToBean<PromoSetDuplicateInfoNode>())
+				.List<PromoSetDuplicateInfoNode>();
+			return deliveryPointsResult;
+		}
+		
+		public IEnumerable<PromoSetDuplicateInfoNode> GetPromoSetDuplicateInfoByCounterpartyPhones(
+			IUnitOfWork uow, IEnumerable<Phone> phones)
+		{
+			Domain.Orders.Order orderAlias = null;
+			OrderItem orderItemAlias = null;
+			Counterparty counterpartyAlias = null;
+			DeliveryPoint deliveryPointAlias = null;
+			Phone counterpartyPhoneAlias = null;
+			Phone deliveryPointPhoneAlias = null;
+			PromoSetDuplicateInfoNode resultAlias = null;
+
+			var phonesArray = phones.Select(x => x.DigitsNumber).ToArray();
+			var nullProjection = Projections.SqlFunction( 
+				new SQLFunctionTemplate(NHibernateUtil.String, "NULLIF(1,1)"),
+				NHibernateUtil.String
+			);
+
+			var counterpartyPhoneProjection = Projections.Conditional(
+				Restrictions.In(Projections.Property(() => counterpartyPhoneAlias.DigitsNumber), phonesArray),
+				Projections.Property(() => counterpartyPhoneAlias.DigitsNumber),
+				nullProjection
+			);
+
+			var counterpartyConcatPhoneProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(DISTINCT ?1 SEPARATOR ?2)"),
+				NHibernateUtil.String,
+				counterpartyPhoneProjection,
+				Projections.Constant(", ")
+			);
+
+			var phoneResult = uow.Session.QueryOver(() => orderAlias)
+				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
+				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
+				.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
+				.Left.JoinAlias(() => counterpartyAlias.Phones, () => counterpartyPhoneAlias)
+				.Left.JoinAlias(() => deliveryPointAlias.Phones, () => deliveryPointPhoneAlias)
+				.WhereRestrictionOn(() => counterpartyPhoneAlias.DigitsNumber).IsInG(phonesArray)
+				.Where(Restrictions.IsNotNull(Projections.Property(() => orderItemAlias.PromoSet)))
+				.SelectList(list => list
+					.SelectGroup(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
+					.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.Date)
+					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Client)
+					.Select(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.Address)
+					.Select(counterpartyConcatPhoneProjection).WithAlias(() => resultAlias.Phone)
+				).TransformUsing(Transformers.AliasToBean<PromoSetDuplicateInfoNode>())
+			.List<PromoSetDuplicateInfoNode>();
+			return phoneResult;
+		}
+		
+		public IEnumerable<PromoSetDuplicateInfoNode> GetPromoSetDuplicateInfoByDeliveryPointPhones(
+			IUnitOfWork uow, IEnumerable<Phone> phones)
+		{
+			Domain.Orders.Order orderAlias = null;
+			OrderItem orderItemAlias = null;
+			Counterparty counterpartyAlias = null;
+			DeliveryPoint deliveryPointAlias = null;
+			Phone deliveryPointPhoneAlias = null;
+			PromoSetDuplicateInfoNode resultAlias = null;
+
+			var phonesArray = phones.Select(x => x.DigitsNumber).ToArray();
+			var nullProjection = Projections.SqlFunction( 
+				new SQLFunctionTemplate(NHibernateUtil.String, "NULLIF(1,1)"),
+				NHibernateUtil.String
+			);
+
+			var deliveryPointPhoneProjection = Projections.Conditional(
+				Restrictions.In(Projections.Property(() => deliveryPointPhoneAlias.DigitsNumber), phonesArray),
+				Projections.Property(() => deliveryPointPhoneAlias.DigitsNumber),
+				nullProjection
+			);
+
+			var deliveryPointConcatPhoneProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(DISTINCT ?1 SEPARATOR ?2)"),
+				NHibernateUtil.String,
+				deliveryPointPhoneProjection,
+				Projections.Constant(", ")
+			);
+
+			var phoneResult = uow.Session.QueryOver(() => orderAlias)
+				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
+				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
+				.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
+				.Left.JoinAlias(() => deliveryPointAlias.Phones, () => deliveryPointPhoneAlias)
+				.WhereRestrictionOn(() => deliveryPointPhoneAlias.DigitsNumber).IsInG(phonesArray)
+				.Where(Restrictions.IsNotNull(Projections.Property(() => orderItemAlias.PromoSet)))
+				.SelectList(list => list
+					.SelectGroup(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
+					.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.Date)
+					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Client)
+					.Select(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.Address)
+					.Select(deliveryPointConcatPhoneProjection).WithAlias(() => resultAlias.Phone)
+				).TransformUsing(Transformers.AliasToBean<PromoSetDuplicateInfoNode>())
+			.List<PromoSetDuplicateInfoNode>();
+			return phoneResult;
 		}
 
 		private string GetBuildingNumber(string building)

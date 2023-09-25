@@ -51,6 +51,7 @@ using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.EntityFactories;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Goods.PromotionalSets;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
@@ -87,6 +88,7 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.Models.Orders;
 using Vodovoz.Parameters;
+using Vodovoz.ServiceDialogs;
 using Vodovoz.Services;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
@@ -976,7 +978,7 @@ namespace Vodovoz
 
 			UpdateOrderAddressTypeUI();
 
-			Entity.InteractiveService = new CastomInteractiveService();
+			Entity.InteractiveService = new CustomInteractiveService();
 
 			Entity.PropertyChanged += OnEntityPropertyChanged;
 			OnContractChanged();
@@ -2054,7 +2056,7 @@ namespace Vodovoz
 				return Result.Failure(Errors.Orders.Order.HasNoValidCertificates);
 			}
 
-			var promosetDuplicateFinder = new PromosetDuplicateFinder(new CastomInteractiveService());
+			var promosetDuplicateFinder = new PromoSetDuplicateFinder(new CustomInteractiveService(), new PromotionalSetRepository());
 			var phones = new List<Phone>();
 
 			phones.AddRange(Entity.Client.Phones);
@@ -2069,7 +2071,7 @@ namespace Vodovoz
 
 			if(!canBeReorderedWithoutRestriction && Entity.OrderItems.Any(x => x.PromoSet != null))
 			{
-				if(!promosetDuplicateFinder.RequestDuplicatePromosets(UoW, Entity.DeliveryPoint, phones))
+				if(!promosetDuplicateFinder.CheckDuplicatePromoSets(UoW, Entity.DeliveryPoint, phones))
 				{
 					return Result.Failure(Errors.Orders.Order.AcceptAbortedByUser);
 				}

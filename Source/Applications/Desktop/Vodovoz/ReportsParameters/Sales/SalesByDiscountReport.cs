@@ -7,6 +7,7 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
+using Vodovoz.Domain.Goods.PromotionalSets;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.ViewModels.Reports;

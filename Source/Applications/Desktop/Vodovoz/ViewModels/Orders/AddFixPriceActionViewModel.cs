@@ -5,6 +5,7 @@ using QS.Services;
 using QS.ViewModels;
 using System;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Goods.PromotionalSets;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;

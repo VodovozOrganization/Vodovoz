@@ -3,6 +3,7 @@ using Gtk;
 using QS.Project.Services;
 using QS.Utilities;
 using QS.Views.GtkUI;
+using Vodovoz.Domain.Goods.PromotionalSets;
 using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModels.Orders;
 

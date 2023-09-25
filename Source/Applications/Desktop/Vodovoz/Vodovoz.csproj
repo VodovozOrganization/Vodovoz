@@ -603,6 +603,8 @@
     <Compile Include="Representations\ProductGroups\NomenclatureNode.cs" />
     <Compile Include="Representations\ProductGroups\ProductGroupVM.cs" />
     <Compile Include="Representations\ProductGroups\ProductGroupVMNode.cs" />
+    <Compile Include="ServiceDialogs\CustomInteractiveMessage.cs" />
+    <Compile Include="ServiceDialogs\CustomQuestion.cs" />
     <Compile Include="SidePanel\InfoProviders\IEdoLightsMatrixInfoProvider.cs" />
     <Compile Include="SidePanel\InfoViews\CarsMonitoringInfoPanelView.DataNode.cs" />
     <Compile Include="Startup.cs" />
@@ -628,7 +630,7 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.CashBookReport.cs" />
     <Compile Include="ReportsParameters\Orders\OrderChangesReport.cs" />
     <Compile Include="ReportsParameters\Sales\SalesReportView.cs" />
-    <Compile Include="ServiceDialogs\CastomInteractiveService.cs" />
+    <Compile Include="ServiceDialogs\CustomInteractiveService.cs" />
     <Compile Include="ServiceDialogs\CastomMessageDialogHelper.cs" />
     <Compile Include="ServiceDialogs\Old1612ExportTo1c\Catalogs\AccountCatalog.cs" />
     <Compile Include="ServiceDialogs\Old1612ExportTo1c\Catalogs\BankCatalog.cs" />
@@ -1454,7 +1456,6 @@
     <Compile Include="ServiceDialogs\OldExportTo1c\ExportNodes\TableRecordNode.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\ExportOperation.cs" />
     <Compile Include="ServiceDialogs\OldExportTo1c\ExportOperation.cs" />
-    <Compile Include="Core\PromosetDuplicateFinder.cs" />
     <Compile Include="ReportsParameters\WayBillReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.WayBillReport.cs" />
     <Compile Include="ViewModels\BusinessTasks\ClientTaskViewModel.cs" />
