@@ -20,6 +20,8 @@ namespace Vodovoz.Reports.Editing.Modifiers
 		private const string _autoTypeTextBox = "TextboxAutoType";
 		private const string _autoOwnerTypeTextBox = "TextboxAutoOwnerType";
 
+		private const int _profitabilityPercentColumnId = 8;
+
 		private readonly ExpressionRowProvider _expressionRowProvider;
 		private readonly SourceRowProvider _sourceRowProvider;
 
@@ -110,7 +112,23 @@ namespace Vodovoz.Reports.Editing.Modifiers
 			style.Format = "# ##0.00";
 
 			var groupExpression = GetGroupExpression(groupingType);
-			var groupModifyAction = new NewTableGroupWithCellsFromDetails(_tableName, _sourceRowProvider, _expressionRowProvider, groupExpression);
+
+			NewTableGroupWithCellsFromDetails groupModifyAction;
+
+			if(groupingType == GroupingType.RouteList && groupsCount == 1)
+			{
+				groupModifyAction = new NewTableGroupWithCellsFromDetails(
+					_tableName, 
+					_sourceRowProvider, 
+					_expressionRowProvider, 
+					groupExpression,
+					_profitabilityPercentColumnId);
+			}
+			else
+			{
+				groupModifyAction = new NewTableGroupWithCellsFromDetails(_tableName, _sourceRowProvider, _expressionRowProvider, groupExpression);
+			}
+
 			groupModifyAction.NewGroupName = _groupLevel1Name;
 			groupModifyAction.GroupCellsStyle = style;
 			return groupModifyAction;
