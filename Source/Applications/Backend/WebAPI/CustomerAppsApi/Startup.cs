@@ -93,6 +93,7 @@ namespace CustomerAppsApi
 			services.AddSingleton<IBottlesRepository, BottlesRepository>();
 			services.AddSingleton<ICachedBottlesDebtRepository, CachedBottlesDebtRepository>();
 			services.AddSingleton<INomenclatureRepository, NomenclatureRepository>();
+			services.AddSingleton<IOrderRepository, OrderRepository>();
 			services.AddSingleton<IStockRepository, StockRepository>();
 			services.AddSingleton<IPromotionalSetRepository, PromotionalSetRepository>();
 			services.AddSingleton<IExternalCounterpartyRepository, ExternalCounterpartyRepository>();
@@ -117,6 +118,7 @@ namespace CustomerAppsApi
 			services.AddScoped<IUnitOfWork>(_ => UnitOfWorkFactory.CreateWithoutRoot("Сервис интеграции"));
 			services.AddScoped<ICounterpartyModel, CounterpartyModel>();
 			services.AddScoped<INomenclatureModel, NomenclatureModel>();
+			services.AddScoped<IOrderModel, OrderModel>();
 			services.AddScoped<IPromotionalSetModel, PromotionalSetModel>();
 			services.AddScoped<CounterpartyModelValidator>();
 		}
