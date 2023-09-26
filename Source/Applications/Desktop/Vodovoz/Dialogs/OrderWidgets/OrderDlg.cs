@@ -145,6 +145,8 @@ namespace Vodovoz
 
 		private static readonly IDeliveryRepository _deliveryRepository = new DeliveryRepository();
 
+		private string _lastDeliveryPointComment;
+
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 
 		Order templateOrder;
@@ -535,6 +537,7 @@ namespace Vodovoz
 
 		public void ConfigureDlg()
 		{
+			_lastDeliveryPointComment = Entity.DeliveryPoint?.Comment.Trim('\n').Trim(' ') ?? string.Empty;
 			_counterpartyService = _lifetimeScope.Resolve<ICounterpartyService>();
 
 			_justCreated = UoWGeneric.IsNew;
@@ -3184,8 +3187,12 @@ namespace Vodovoz
 		{
 			CheckSameOrders();
 
-			if(Entity.DeliveryDate.HasValue && Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
+			if(Entity.DeliveryDate.HasValue
+				&& Entity.DeliveryPoint != null
+				&& Entity.OrderStatus == OrderStatus.NewOrder)
+			{
 				OnFormOrderActions();
+			}
 
 			AddCommentsFromDeliveryPoint();
 
@@ -3208,17 +3215,57 @@ namespace Vodovoz
 
 		private void AddCommentFromDeliveryPoint()
 		{
-			if(string.IsNullOrWhiteSpace(Entity.Comment))
+			if(DeliveryPoint.Id == _previousDeliveryPointId)
 			{
-				Entity.Comment = DeliveryPoint.Comment;
+				return;
 			}
-			else
+
+			const string previousCommentPrefix = "Предыдущий комментарий:";
+
+			string trimmedCurrentComment = Entity.Comment.Trim('\n').Trim(' ');
+
+			string trimmedNewDeliveryPointComment = DeliveryPoint.Comment.Trim('\n').Trim(' ');
+
+			var firstPreviousCommentIndex = trimmedCurrentComment.IndexOf(previousCommentPrefix);
+
+			if(!string.IsNullOrWhiteSpace(_lastDeliveryPointComment))
 			{
-				if(!string.IsNullOrWhiteSpace(DeliveryPoint.Comment) && DeliveryPoint.Id != _previousDeliveryPointId)
+				if(firstPreviousCommentIndex >= 0)
 				{
-					Entity.Comment = string.Join("\n", DeliveryPoint.Comment, $"Предыдущий комментарий: {Entity.Comment}");
+					trimmedCurrentComment = trimmedCurrentComment
+						.Substring(0, firstPreviousCommentIndex)
+						.Replace(_lastDeliveryPointComment, "")
+						.Trim('\n')
+						.Trim(' ') +
+						trimmedCurrentComment.Substring(firstPreviousCommentIndex);
+				}
+				else
+				{
+					trimmedCurrentComment = trimmedCurrentComment.Replace(_lastDeliveryPointComment, "");
 				}
 			}
+
+			_lastDeliveryPointComment = trimmedNewDeliveryPointComment;
+
+			if(string.IsNullOrWhiteSpace(trimmedCurrentComment))
+			{
+				Entity.Comment = $"{trimmedNewDeliveryPointComment}\n";
+				return;
+			}
+
+			if(string.IsNullOrWhiteSpace(trimmedNewDeliveryPointComment))
+			{
+				Entity.Comment = $"{trimmedCurrentComment}\n";
+				return;
+			}
+
+			if(trimmedCurrentComment.StartsWith(previousCommentPrefix))
+			{
+				Entity.Comment = $"{trimmedNewDeliveryPointComment}\n{trimmedCurrentComment}\n";
+				return;
+			}
+
+			Entity.Comment = $"{trimmedNewDeliveryPointComment}\n{previousCommentPrefix}{trimmedCurrentComment}\n";
 		}
 
 		protected void OnButtonPrintSelectedClicked(object c, EventArgs args)
