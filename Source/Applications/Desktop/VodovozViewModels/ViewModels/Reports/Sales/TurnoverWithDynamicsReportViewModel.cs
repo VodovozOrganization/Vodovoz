@@ -391,7 +391,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					ShowResidueForNomenclaturesWithoutSales,
 					ShowContacts,
 					GetWarehouseBalance,
-					GetData);
+					GetData,
+					cancellationToken);
 			}, cancellationToken);
 		}
 
@@ -400,11 +401,11 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			Report.Export(path);
 		}
 
-		private decimal GetWarehouseBalance(int nomenclatureId)
+		private List<NomenclatureStockNode> GetWarehouseBalance(List<int> nomenclatureIds)
 		{
-			if(!ShowLastSale)
+			if(!ShowLastSale || nomenclatureIds.Count < 1)
 			{
-				return 0;
+				return new List<NomenclatureStockNode>();
 			}
 			
 			WarehouseBulkGoodsAccountingOperation operationAlias = null;
@@ -420,14 +421,15 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				.JoinEntityAlias(() => operationAlias,
 					() => nomenclatureAlias.Id == operationAlias.Nomenclature.Id,
 					JoinType.LeftOuterJoin)
-				.Where(() => nomenclatureAlias.Id == nomenclatureId)
+				.Where(Restrictions.In(Projections.Property(() => nomenclatureAlias.Id), nomenclatureIds))
 				.SelectList(list => list
 					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
 					.Select(balanceProjection).WithAlias(() => resultAlias.Stock))
 				.TransformUsing(Transformers.AliasToBean<NomenclatureStockNode>())
-				.SingleOrDefault<NomenclatureStockNode>();
+				.List<NomenclatureStockNode>()
+				.ToList();
 
-			return result.Stock;
+			return result;
 		}
 
 		private IList<TurnoverWithDynamicsReport.OrderItemNode> GetData(TurnoverWithDynamicsReport report)
