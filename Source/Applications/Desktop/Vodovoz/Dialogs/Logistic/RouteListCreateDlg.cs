@@ -30,6 +30,7 @@ using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Profitability;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
@@ -59,6 +60,7 @@ namespace Vodovoz
 		private IAdditionalLoadingModel _additionalLoadingModel;
 		private IRouteListService _routeListService;
 		private IRouteListRepository _routeListRepository;
+		private IGenericRepository<RouteListSpecialConditionType> _routeListSpecialConditionTypeRepository;
 		private INomenclatureParametersProvider _nomenclatureParametersProvider;
 		private IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
 
@@ -120,6 +122,7 @@ namespace Vodovoz
 			_baseParametersProvider = _lifetimeScope.Resolve<BaseParametersProvider>();
 			_additionalLoadingModel = _lifetimeScope.Resolve<IAdditionalLoadingModel>();
 			_routeListRepository = _lifetimeScope.Resolve<IRouteListRepository>();
+			_routeListSpecialConditionTypeRepository = _lifetimeScope.Resolve<IGenericRepository<RouteListSpecialConditionType>>();
 			_routeListService = _lifetimeScope.Resolve<IRouteListService>();
 			_nomenclatureParametersProvider = _lifetimeScope.Resolve<INomenclatureParametersProvider>();
 			_deliveryRulesParametersProvider = _lifetimeScope.Resolve<IDeliveryRulesParametersProvider>();
@@ -146,6 +149,39 @@ namespace Vodovoz
 			datepickerDate.Binding.AddBinding(Entity, e => e.Date, w => w.Date).InitializeFromSource();
 			_previousSelectedDate = Entity.Date;
 			datepickerDate.DateChangedByUser += OnDatepickerDateDateChangedByUser;
+
+			ylblSpecialConditionsConfirmed.Binding
+				.AddBinding(Entity, e => e.SpecialConditionsAccepted, w => w.Visible)
+				.InitializeFromSource();
+
+			ylblSpecialConditionsConfirmedDateTime.Binding
+				.AddBinding(Entity, e => e.SpecialConditionsAccepted, w => w.Visible)
+				.AddFuncBinding(e => e.SpecialConditionsAcceptedAt.HasValue ? e.SpecialConditionsAcceptedAt.Value.ToString("yyyy-MM-dd HH:mm:ss") : "", w => w.Text)
+				.InitializeFromSource();
+
+			var specialConditions = _routeListService.GetSpecialConditionsFor(UoW, Entity.Id);
+
+			var specialConditionsTypesIds = specialConditions.Select(x => x.RouteListSpecialConditionTypeId);
+
+			var specialConditionsTypes = specialConditionsTypesIds.Any() ? _routeListSpecialConditionTypeRepository.Get(UoW, x => specialConditionsTypesIds.Contains(x.Id)) : Enumerable.Empty<RouteListSpecialConditionType>();
+
+			radioBtnSprcialConditions.Visible = specialConditions.Any();
+			radioBtnSprcialConditions.Toggled += OnButtonSpecialConditionsToggled;
+
+			ytreeviewSpecialConditions.CreateFluentColumnsConfig<RouteListSpecialCondition>()
+				.AddColumn("Название")
+				.AddTextRenderer(x => specialConditionsTypes
+					.Where(sct => sct.Id == x.RouteListSpecialConditionTypeId)
+					.Select(sct => sct.Name)
+					.FirstOrDefault() ?? "")
+				.AddColumn("Принято")
+				.AddTextRenderer(x => x.Accepted ? "Да" : "Нет")
+				.AddColumn("Создано")
+				.AddTextRenderer(x => x.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss"))
+				.AddColumn("")
+				.Finish();
+
+			ytreeviewSpecialConditions.ItemsDataSource = specialConditions;
 
 			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(Startup.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory());
 			entityviewmodelentryCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
@@ -318,6 +354,14 @@ namespace Vodovoz
 
 			btnCopyEntityId.Sensitive = Entity.Id > 0;
 			btnCopyEntityId.Clicked += OnBtnCopyEntityIdClicked;
+		}
+
+		private void OnButtonSpecialConditionsToggled(object sender, EventArgs e)
+		{
+			if(radioBtnSprcialConditions.Active)
+			{
+				ynotebook1.Page = 2;
+			}
 		}
 
 		protected void OnBtnCopyEntityIdClicked(object sender, EventArgs e)
