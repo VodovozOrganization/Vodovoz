@@ -428,7 +428,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			var completedSubquery = QueryOver.Of<RouteListItem>()
 				.Where(i => i.RouteList.Id == routeListAlias.Id)
-				.Where(i => i.Status != RouteListItemStatus.EnRoute);
+				.Where(i => i.Status != RouteListItemStatus.EnRoute)
+				.Where(i => i.Status != RouteListItemStatus.Transfered);
 
 			if(ShowHistory)
 			{
@@ -439,7 +440,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			completedSubquery.Select(Projections.RowCount());
 
 			var addressesSubquery = QueryOver.Of<RouteListItem>()
-				.Where(i => i.RouteList.Id == routeListAlias.Id);
+				.Where(i => i.RouteList.Id == routeListAlias.Id)
+				.Where(i => i.Status != RouteListItemStatus.Transfered);
 
 			if(ShowHistory)
 			{
