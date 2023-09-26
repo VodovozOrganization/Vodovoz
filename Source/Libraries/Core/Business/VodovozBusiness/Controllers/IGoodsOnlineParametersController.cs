@@ -9,6 +9,7 @@ namespace Vodovoz.Controllers
 	{
 		NomenclatureOnlineParametersData GetNomenclaturesOnlineParametersForSend(
 			IUnitOfWork uow, GoodsOnlineParameterType parameterType);
+		IList<OnlineNomenclatureNode> GetNomenclaturesForSend(IUnitOfWork uow, GoodsOnlineParameterType parameterType);
 		PromotionalSetOnlineParametersData GetPromotionalSetsOnlineParametersForSend(
 			IUnitOfWork uow, GoodsOnlineParameterType parameterType);
 	}

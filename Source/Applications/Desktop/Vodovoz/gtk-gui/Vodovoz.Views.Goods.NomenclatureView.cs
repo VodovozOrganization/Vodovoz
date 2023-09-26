@@ -356,6 +356,132 @@ namespace Vodovoz.Views.Goods
 
 		private global::Gamma.GtkWidgets.yTreeView treeViewOnlinePrices;
 
+		private global::Gamma.GtkWidgets.yLabel lblNomenclatureOnlineParametersTitle;
+
+		private global::Gtk.ScrolledWindow scrolledWindowOnlineCharacteristics;
+
+		private global::Gamma.GtkWidgets.yTable tableOnlineCharacteristics;
+
+		private global::Gamma.GtkWidgets.yEntry entryCoolingPowerOnline;
+
+		private global::Gamma.GtkWidgets.yEntry entryCoolingProductivityOnline;
+
+		private global::Gamma.GtkWidgets.yEntry entryHeatingPowerOnline;
+
+		private global::Gamma.GtkWidgets.yEntry entryHeatingProductivityOnline;
+
+		private global::Gamma.GtkWidgets.yEntry entryLockerRefrigeratorVolumeOnline;
+
+		private global::Gamma.GtkWidgets.yEntry entryNameOnline;
+
+		private global::Gamma.Widgets.yEnumComboBox enumCmbCoolingTypeOnline;
+
+		private global::Gamma.Widgets.yEnumComboBox enumCmbCupHolderBracing;
+
+		private global::Gamma.Widgets.yEnumComboBox enumCmbInstallationTypeOnline;
+
+		private global::Gamma.Widgets.yEnumComboBox enumCmbLockerRefrigeratorOnline;
+
+		private global::Gamma.Widgets.yEnumComboBox enumCmbProtectionOnHotWaterTapOnline;
+
+		private global::Gamma.Widgets.yEnumComboBox enumCmbTapTypeOnline;
+
+		private global::Gamma.Widgets.yEnumComboBox enumCmbWorkloadTypeOnline;
+
+		private global::Gamma.GtkWidgets.yLabel lblCoolingOnlineTitle;
+
+		private global::Gamma.GtkWidgets.yLabel lblCoolingPowerOnlineTitle;
+
+		private global::Gamma.GtkWidgets.yLabel lblCoolingProductivityOnlineTitle;
+
+		private global::Gamma.GtkWidgets.yLabel lblCoolingTypeOnlineTitle;
+
+		private global::Gamma.GtkWidgets.yLabel lblCupHolderBracingOnlineTitle;
+
+		private global::Gamma.GtkWidgets.yLabel lblErpIdTitle;
+
+		private global::Gamma.GtkWidgets.yLabel lblErpIdValue;
+
+		private global::Gamma.GtkWidgets.yLabel lblHeatingOnlineTitle;
+
+		private global::Gamma.GtkWidgets.yLabel lblHeatingPowerOnlineTitle;
+
+		private global::Gamma.GtkWidgets.yLabel lblHeatingProductivityOnlineTitle;
+
+		private global::Gamma.GtkWidgets.yLabel lblInstallationTypeOnlineTitle;
+
+		private global::Gamma.GtkWidgets.yLabel lblKulerSaleWebSiteOnlineCatalogTitle;
+
+		private global::Gamma.GtkWidgets.yLabel lblLockerRefrigeratorOnlineTitle;
+
+		private global::Gamma.GtkWidgets.yLabel lblLockerRefrigeratorVolumeOnlineTitle;
+
+		private global::Gamma.GtkWidgets.yLabel lblMobileAppOnlineCatalogTitle;
+
+		private global::Gamma.GtkWidgets.yLabel lblNameOnlineTitle;
+
+		private global::Gamma.GtkWidgets.yLabel lblOnlineCategoryTitle;
+
+		private global::Gamma.GtkWidgets.yLabel lblOnlineGroupTitle;
+
+		private global::Gamma.GtkWidgets.yLabel lblProtectionOnHotWaterTapOnlineTitle;
+
+		private global::Gamma.GtkWidgets.yLabel lblTapTypeOnlineTitle;
+
+		private global::Gamma.GtkWidgets.yLabel lblVodovozWebSiteOnlineCatalogTitle;
+
+		private global::Gamma.GtkWidgets.yLabel lblWorkloadTypeOnlineTitle;
+
+		private global::QS.Widgets.GtkUI.SpecialListComboBox listCmbKulerSaleWebSiteOnlineCatalog;
+
+		private global::QS.Widgets.GtkUI.SpecialListComboBox listCmbMobileAppOnlineCatalog;
+
+		private global::QS.Widgets.GtkUI.SpecialListComboBox listCmbOnlineCategory;
+
+		private global::QS.Widgets.GtkUI.SpecialListComboBox listCmbOnlineGroup;
+
+		private global::QS.Widgets.GtkUI.SpecialListComboBox listCmbVodovozWebSiteOnlineCatalog;
+
+		private global::QS.Widgets.NullableCheckButton nullableChkCooling;
+
+		private global::QS.Widgets.NullableCheckButton nullableChkHeating;
+
+		private global::Gamma.GtkWidgets.yVBox vboxOnlineParameters;
+
+		private global::Gamma.GtkWidgets.yVBox vboxWaterOnlineParameters;
+
+		private global::Gamma.GtkWidgets.yHBox yhbox1;
+
+		private global::Gamma.GtkWidgets.yLabel lblTareVolumeOnlineTitle;
+
+		private global::Gamma.Widgets.yEnumComboBox enumTareVolumeOnline;
+
+		private global::Gamma.GtkWidgets.yCheckButton chkIsDisposableTareOnline;
+
+		private global::Gamma.GtkWidgets.yCheckButton chkNewBottleOnline;
+
+		private global::Gamma.GtkWidgets.yCheckButton chkSparklingWaterOnline;
+
+		private global::Gamma.GtkWidgets.yVBox vboxPumpOnlineParameters;
+
+		private global::Gamma.GtkWidgets.yHBox hboxPumpTypeOnline;
+
+		private global::Gamma.GtkWidgets.yLabel lblPumpTypeOnlineTitle;
+
+		private global::Gamma.Widgets.yEnumComboBox enumPumpTypeOnline;
+
+		private global::Gamma.GtkWidgets.yVBox vboxCupHolderOnlineParameters;
+
+		private global::Gamma.GtkWidgets.yHBox hboxCupHolderBracingTypeOnline;
+
+		private global::Gamma.GtkWidgets.yLabel lblCupHolderBracingTypeOnlineTitle;
+
+		private global::Gamma.Widgets.yEnumComboBox enumCupHolderBracingTypeOnline;
+
+		private global::Gtk.VSeparator vseparator2;
+
+		private global::Gtk.VSeparator vseparator3;
+
 		private global::Gtk.Label lblSitesAndApps;
 
 		protected virtual void Build()
@@ -2324,9 +2450,777 @@ namespace Vodovoz.Views.Goods
 			this.vboxSitesAndApps.Add(this.GtkScrolledWindowOnlinePrices);
 			global::Gtk.Box.BoxChild w173 = ((global::Gtk.Box.BoxChild)(this.vboxSitesAndApps[this.GtkScrolledWindowOnlinePrices]));
 			w173.Position = 2;
+			// Container child vboxSitesAndApps.Gtk.Box+BoxChild
+			this.lblNomenclatureOnlineParametersTitle = new global::Gamma.GtkWidgets.yLabel();
+			this.lblNomenclatureOnlineParametersTitle.Name = "lblNomenclatureOnlineParametersTitle";
+			this.lblNomenclatureOnlineParametersTitle.Xalign = 0F;
+			this.lblNomenclatureOnlineParametersTitle.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Характеристики товара для мп и сайта:</b>");
+			this.lblNomenclatureOnlineParametersTitle.UseMarkup = true;
+			this.vboxSitesAndApps.Add(this.lblNomenclatureOnlineParametersTitle);
+			global::Gtk.Box.BoxChild w174 = ((global::Gtk.Box.BoxChild)(this.vboxSitesAndApps[this.lblNomenclatureOnlineParametersTitle]));
+			w174.Position = 3;
+			w174.Expand = false;
+			w174.Fill = false;
+			// Container child vboxSitesAndApps.Gtk.Box+BoxChild
+			this.scrolledWindowOnlineCharacteristics = new global::Gtk.ScrolledWindow();
+			this.scrolledWindowOnlineCharacteristics.CanFocus = true;
+			this.scrolledWindowOnlineCharacteristics.Name = "scrolledWindowOnlineCharacteristics";
+			this.scrolledWindowOnlineCharacteristics.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child scrolledWindowOnlineCharacteristics.Gtk.Container+ContainerChild
+			global::Gtk.Viewport w175 = new global::Gtk.Viewport();
+			w175.ShadowType = ((global::Gtk.ShadowType)(0));
+			// Container child GtkViewport2.Gtk.Container+ContainerChild
+			this.tableOnlineCharacteristics = new global::Gamma.GtkWidgets.yTable();
+			this.tableOnlineCharacteristics.Name = "tableOnlineCharacteristics";
+			this.tableOnlineCharacteristics.NRows = ((uint)(10));
+			this.tableOnlineCharacteristics.NColumns = ((uint)(8));
+			this.tableOnlineCharacteristics.RowSpacing = ((uint)(6));
+			this.tableOnlineCharacteristics.ColumnSpacing = ((uint)(6));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.entryCoolingPowerOnline = new global::Gamma.GtkWidgets.yEntry();
+			this.entryCoolingPowerOnline.CanFocus = true;
+			this.entryCoolingPowerOnline.Name = "entryCoolingPowerOnline";
+			this.entryCoolingPowerOnline.IsEditable = true;
+			this.entryCoolingPowerOnline.InvisibleChar = '•';
+			this.tableOnlineCharacteristics.Add(this.entryCoolingPowerOnline);
+			global::Gtk.Table.TableChild w176 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.entryCoolingPowerOnline]));
+			w176.TopAttach = ((uint)(2));
+			w176.BottomAttach = ((uint)(3));
+			w176.LeftAttach = ((uint)(7));
+			w176.RightAttach = ((uint)(8));
+			w176.XOptions = ((global::Gtk.AttachOptions)(4));
+			w176.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.entryCoolingProductivityOnline = new global::Gamma.GtkWidgets.yEntry();
+			this.entryCoolingProductivityOnline.CanFocus = true;
+			this.entryCoolingProductivityOnline.Name = "entryCoolingProductivityOnline";
+			this.entryCoolingProductivityOnline.IsEditable = true;
+			this.entryCoolingProductivityOnline.InvisibleChar = '•';
+			this.tableOnlineCharacteristics.Add(this.entryCoolingProductivityOnline);
+			global::Gtk.Table.TableChild w177 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.entryCoolingProductivityOnline]));
+			w177.TopAttach = ((uint)(3));
+			w177.BottomAttach = ((uint)(4));
+			w177.LeftAttach = ((uint)(7));
+			w177.RightAttach = ((uint)(8));
+			w177.XOptions = ((global::Gtk.AttachOptions)(4));
+			w177.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.entryHeatingPowerOnline = new global::Gamma.GtkWidgets.yEntry();
+			this.entryHeatingPowerOnline.CanFocus = true;
+			this.entryHeatingPowerOnline.Name = "entryHeatingPowerOnline";
+			this.entryHeatingPowerOnline.IsEditable = true;
+			this.entryHeatingPowerOnline.InvisibleChar = '•';
+			this.tableOnlineCharacteristics.Add(this.entryHeatingPowerOnline);
+			global::Gtk.Table.TableChild w178 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.entryHeatingPowerOnline]));
+			w178.TopAttach = ((uint)(4));
+			w178.BottomAttach = ((uint)(5));
+			w178.LeftAttach = ((uint)(4));
+			w178.RightAttach = ((uint)(5));
+			w178.XOptions = ((global::Gtk.AttachOptions)(4));
+			w178.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.entryHeatingProductivityOnline = new global::Gamma.GtkWidgets.yEntry();
+			this.entryHeatingProductivityOnline.CanFocus = true;
+			this.entryHeatingProductivityOnline.Name = "entryHeatingProductivityOnline";
+			this.entryHeatingProductivityOnline.IsEditable = true;
+			this.entryHeatingProductivityOnline.InvisibleChar = '•';
+			this.tableOnlineCharacteristics.Add(this.entryHeatingProductivityOnline);
+			global::Gtk.Table.TableChild w179 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.entryHeatingProductivityOnline]));
+			w179.TopAttach = ((uint)(5));
+			w179.BottomAttach = ((uint)(6));
+			w179.LeftAttach = ((uint)(4));
+			w179.RightAttach = ((uint)(5));
+			w179.XOptions = ((global::Gtk.AttachOptions)(4));
+			w179.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.entryLockerRefrigeratorVolumeOnline = new global::Gamma.GtkWidgets.yEntry();
+			this.entryLockerRefrigeratorVolumeOnline.CanFocus = true;
+			this.entryLockerRefrigeratorVolumeOnline.Name = "entryLockerRefrigeratorVolumeOnline";
+			this.entryLockerRefrigeratorVolumeOnline.IsEditable = true;
+			this.entryLockerRefrigeratorVolumeOnline.InvisibleChar = '•';
+			this.tableOnlineCharacteristics.Add(this.entryLockerRefrigeratorVolumeOnline);
+			global::Gtk.Table.TableChild w180 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.entryLockerRefrigeratorVolumeOnline]));
+			w180.TopAttach = ((uint)(6));
+			w180.BottomAttach = ((uint)(7));
+			w180.LeftAttach = ((uint)(7));
+			w180.RightAttach = ((uint)(8));
+			w180.XOptions = ((global::Gtk.AttachOptions)(4));
+			w180.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.entryNameOnline = new global::Gamma.GtkWidgets.yEntry();
+			this.entryNameOnline.CanFocus = true;
+			this.entryNameOnline.Name = "entryNameOnline";
+			this.entryNameOnline.IsEditable = true;
+			this.entryNameOnline.InvisibleChar = '•';
+			this.tableOnlineCharacteristics.Add(this.entryNameOnline);
+			global::Gtk.Table.TableChild w181 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.entryNameOnline]));
+			w181.TopAttach = ((uint)(1));
+			w181.BottomAttach = ((uint)(2));
+			w181.LeftAttach = ((uint)(1));
+			w181.RightAttach = ((uint)(2));
+			w181.XOptions = ((global::Gtk.AttachOptions)(4));
+			w181.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.enumCmbCoolingTypeOnline = new global::Gamma.Widgets.yEnumComboBox();
+			this.enumCmbCoolingTypeOnline.Name = "enumCmbCoolingTypeOnline";
+			this.enumCmbCoolingTypeOnline.ShowSpecialStateAll = false;
+			this.enumCmbCoolingTypeOnline.ShowSpecialStateNot = false;
+			this.enumCmbCoolingTypeOnline.UseShortTitle = false;
+			this.enumCmbCoolingTypeOnline.DefaultFirst = false;
+			this.tableOnlineCharacteristics.Add(this.enumCmbCoolingTypeOnline);
+			global::Gtk.Table.TableChild w182 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.enumCmbCoolingTypeOnline]));
+			w182.TopAttach = ((uint)(1));
+			w182.BottomAttach = ((uint)(2));
+			w182.LeftAttach = ((uint)(7));
+			w182.RightAttach = ((uint)(8));
+			w182.XOptions = ((global::Gtk.AttachOptions)(4));
+			w182.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.enumCmbCupHolderBracing = new global::Gamma.Widgets.yEnumComboBox();
+			this.enumCmbCupHolderBracing.Name = "enumCmbCupHolderBracing";
+			this.enumCmbCupHolderBracing.ShowSpecialStateAll = false;
+			this.enumCmbCupHolderBracing.ShowSpecialStateNot = false;
+			this.enumCmbCupHolderBracing.UseShortTitle = false;
+			this.enumCmbCupHolderBracing.DefaultFirst = false;
+			this.tableOnlineCharacteristics.Add(this.enumCmbCupHolderBracing);
+			global::Gtk.Table.TableChild w183 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.enumCmbCupHolderBracing]));
+			w183.TopAttach = ((uint)(6));
+			w183.BottomAttach = ((uint)(7));
+			w183.LeftAttach = ((uint)(4));
+			w183.RightAttach = ((uint)(5));
+			w183.XOptions = ((global::Gtk.AttachOptions)(4));
+			w183.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.enumCmbInstallationTypeOnline = new global::Gamma.Widgets.yEnumComboBox();
+			this.enumCmbInstallationTypeOnline.Name = "enumCmbInstallationTypeOnline";
+			this.enumCmbInstallationTypeOnline.ShowSpecialStateAll = false;
+			this.enumCmbInstallationTypeOnline.ShowSpecialStateNot = false;
+			this.enumCmbInstallationTypeOnline.UseShortTitle = false;
+			this.enumCmbInstallationTypeOnline.DefaultFirst = false;
+			this.tableOnlineCharacteristics.Add(this.enumCmbInstallationTypeOnline);
+			global::Gtk.Table.TableChild w184 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.enumCmbInstallationTypeOnline]));
+			w184.LeftAttach = ((uint)(4));
+			w184.RightAttach = ((uint)(5));
+			w184.XOptions = ((global::Gtk.AttachOptions)(4));
+			w184.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.enumCmbLockerRefrigeratorOnline = new global::Gamma.Widgets.yEnumComboBox();
+			this.enumCmbLockerRefrigeratorOnline.Name = "enumCmbLockerRefrigeratorOnline";
+			this.enumCmbLockerRefrigeratorOnline.ShowSpecialStateAll = false;
+			this.enumCmbLockerRefrigeratorOnline.ShowSpecialStateNot = false;
+			this.enumCmbLockerRefrigeratorOnline.UseShortTitle = false;
+			this.enumCmbLockerRefrigeratorOnline.DefaultFirst = false;
+			this.tableOnlineCharacteristics.Add(this.enumCmbLockerRefrigeratorOnline);
+			global::Gtk.Table.TableChild w185 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.enumCmbLockerRefrigeratorOnline]));
+			w185.TopAttach = ((uint)(5));
+			w185.BottomAttach = ((uint)(6));
+			w185.LeftAttach = ((uint)(7));
+			w185.RightAttach = ((uint)(8));
+			w185.XOptions = ((global::Gtk.AttachOptions)(4));
+			w185.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.enumCmbProtectionOnHotWaterTapOnline = new global::Gamma.Widgets.yEnumComboBox();
+			this.enumCmbProtectionOnHotWaterTapOnline.Name = "enumCmbProtectionOnHotWaterTapOnline";
+			this.enumCmbProtectionOnHotWaterTapOnline.ShowSpecialStateAll = false;
+			this.enumCmbProtectionOnHotWaterTapOnline.ShowSpecialStateNot = false;
+			this.enumCmbProtectionOnHotWaterTapOnline.UseShortTitle = false;
+			this.enumCmbProtectionOnHotWaterTapOnline.DefaultFirst = false;
+			this.tableOnlineCharacteristics.Add(this.enumCmbProtectionOnHotWaterTapOnline);
+			global::Gtk.Table.TableChild w186 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.enumCmbProtectionOnHotWaterTapOnline]));
+			w186.TopAttach = ((uint)(3));
+			w186.BottomAttach = ((uint)(4));
+			w186.LeftAttach = ((uint)(4));
+			w186.RightAttach = ((uint)(5));
+			w186.XOptions = ((global::Gtk.AttachOptions)(4));
+			w186.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.enumCmbTapTypeOnline = new global::Gamma.Widgets.yEnumComboBox();
+			this.enumCmbTapTypeOnline.Name = "enumCmbTapTypeOnline";
+			this.enumCmbTapTypeOnline.ShowSpecialStateAll = false;
+			this.enumCmbTapTypeOnline.ShowSpecialStateNot = false;
+			this.enumCmbTapTypeOnline.UseShortTitle = false;
+			this.enumCmbTapTypeOnline.DefaultFirst = false;
+			this.tableOnlineCharacteristics.Add(this.enumCmbTapTypeOnline);
+			global::Gtk.Table.TableChild w187 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.enumCmbTapTypeOnline]));
+			w187.TopAttach = ((uint)(4));
+			w187.BottomAttach = ((uint)(5));
+			w187.LeftAttach = ((uint)(7));
+			w187.RightAttach = ((uint)(8));
+			w187.XOptions = ((global::Gtk.AttachOptions)(4));
+			w187.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.enumCmbWorkloadTypeOnline = new global::Gamma.Widgets.yEnumComboBox();
+			this.enumCmbWorkloadTypeOnline.Name = "enumCmbWorkloadTypeOnline";
+			this.enumCmbWorkloadTypeOnline.ShowSpecialStateAll = false;
+			this.enumCmbWorkloadTypeOnline.ShowSpecialStateNot = false;
+			this.enumCmbWorkloadTypeOnline.UseShortTitle = false;
+			this.enumCmbWorkloadTypeOnline.DefaultFirst = false;
+			this.tableOnlineCharacteristics.Add(this.enumCmbWorkloadTypeOnline);
+			global::Gtk.Table.TableChild w188 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.enumCmbWorkloadTypeOnline]));
+			w188.TopAttach = ((uint)(1));
+			w188.BottomAttach = ((uint)(2));
+			w188.LeftAttach = ((uint)(4));
+			w188.RightAttach = ((uint)(5));
+			w188.XOptions = ((global::Gtk.AttachOptions)(4));
+			w188.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.lblCoolingOnlineTitle = new global::Gamma.GtkWidgets.yLabel();
+			this.lblCoolingOnlineTitle.Name = "lblCoolingOnlineTitle";
+			this.lblCoolingOnlineTitle.Xalign = 1F;
+			this.lblCoolingOnlineTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Охлаждение:");
+			this.tableOnlineCharacteristics.Add(this.lblCoolingOnlineTitle);
+			global::Gtk.Table.TableChild w189 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.lblCoolingOnlineTitle]));
+			w189.LeftAttach = ((uint)(6));
+			w189.RightAttach = ((uint)(7));
+			w189.XOptions = ((global::Gtk.AttachOptions)(4));
+			w189.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.lblCoolingPowerOnlineTitle = new global::Gamma.GtkWidgets.yLabel();
+			this.lblCoolingPowerOnlineTitle.Name = "lblCoolingPowerOnlineTitle";
+			this.lblCoolingPowerOnlineTitle.Xalign = 1F;
+			this.lblCoolingPowerOnlineTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Мощность охлаждения:");
+			this.tableOnlineCharacteristics.Add(this.lblCoolingPowerOnlineTitle);
+			global::Gtk.Table.TableChild w190 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.lblCoolingPowerOnlineTitle]));
+			w190.TopAttach = ((uint)(2));
+			w190.BottomAttach = ((uint)(3));
+			w190.LeftAttach = ((uint)(6));
+			w190.RightAttach = ((uint)(7));
+			w190.XOptions = ((global::Gtk.AttachOptions)(4));
+			w190.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.lblCoolingProductivityOnlineTitle = new global::Gamma.GtkWidgets.yLabel();
+			this.lblCoolingProductivityOnlineTitle.Name = "lblCoolingProductivityOnlineTitle";
+			this.lblCoolingProductivityOnlineTitle.Xalign = 1F;
+			this.lblCoolingProductivityOnlineTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Производительность охлаждения:");
+			this.tableOnlineCharacteristics.Add(this.lblCoolingProductivityOnlineTitle);
+			global::Gtk.Table.TableChild w191 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.lblCoolingProductivityOnlineTitle]));
+			w191.TopAttach = ((uint)(3));
+			w191.BottomAttach = ((uint)(4));
+			w191.LeftAttach = ((uint)(6));
+			w191.RightAttach = ((uint)(7));
+			w191.XOptions = ((global::Gtk.AttachOptions)(4));
+			w191.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.lblCoolingTypeOnlineTitle = new global::Gamma.GtkWidgets.yLabel();
+			this.lblCoolingTypeOnlineTitle.Name = "lblCoolingTypeOnlineTitle";
+			this.lblCoolingTypeOnlineTitle.Xalign = 1F;
+			this.lblCoolingTypeOnlineTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Тип охлаждения:");
+			this.tableOnlineCharacteristics.Add(this.lblCoolingTypeOnlineTitle);
+			global::Gtk.Table.TableChild w192 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.lblCoolingTypeOnlineTitle]));
+			w192.TopAttach = ((uint)(1));
+			w192.BottomAttach = ((uint)(2));
+			w192.LeftAttach = ((uint)(6));
+			w192.RightAttach = ((uint)(7));
+			w192.XOptions = ((global::Gtk.AttachOptions)(4));
+			w192.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.lblCupHolderBracingOnlineTitle = new global::Gamma.GtkWidgets.yLabel();
+			this.lblCupHolderBracingOnlineTitle.Name = "lblCupHolderBracingOnlineTitle";
+			this.lblCupHolderBracingOnlineTitle.Xalign = 1F;
+			this.lblCupHolderBracingOnlineTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Крепление для\nстаканодержателя:");
+			this.tableOnlineCharacteristics.Add(this.lblCupHolderBracingOnlineTitle);
+			global::Gtk.Table.TableChild w193 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.lblCupHolderBracingOnlineTitle]));
+			w193.TopAttach = ((uint)(6));
+			w193.BottomAttach = ((uint)(7));
+			w193.LeftAttach = ((uint)(3));
+			w193.RightAttach = ((uint)(4));
+			w193.XOptions = ((global::Gtk.AttachOptions)(4));
+			w193.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.lblErpIdTitle = new global::Gamma.GtkWidgets.yLabel();
+			this.lblErpIdTitle.Name = "lblErpIdTitle";
+			this.lblErpIdTitle.Xalign = 1F;
+			this.lblErpIdTitle.LabelProp = global::Mono.Unix.Catalog.GetString("ERP ID:");
+			this.tableOnlineCharacteristics.Add(this.lblErpIdTitle);
+			global::Gtk.Table.TableChild w194 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.lblErpIdTitle]));
+			w194.XOptions = ((global::Gtk.AttachOptions)(4));
+			w194.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.lblErpIdValue = new global::Gamma.GtkWidgets.yLabel();
+			this.lblErpIdValue.Name = "lblErpIdValue";
+			this.lblErpIdValue.Xalign = 0F;
+			this.lblErpIdValue.LabelProp = global::Mono.Unix.Catalog.GetString("Id Номенклатуры");
+			this.tableOnlineCharacteristics.Add(this.lblErpIdValue);
+			global::Gtk.Table.TableChild w195 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.lblErpIdValue]));
+			w195.LeftAttach = ((uint)(1));
+			w195.RightAttach = ((uint)(2));
+			w195.XOptions = ((global::Gtk.AttachOptions)(4));
+			w195.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.lblHeatingOnlineTitle = new global::Gamma.GtkWidgets.yLabel();
+			this.lblHeatingOnlineTitle.Name = "lblHeatingOnlineTitle";
+			this.lblHeatingOnlineTitle.Xalign = 1F;
+			this.lblHeatingOnlineTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Нагрев:");
+			this.tableOnlineCharacteristics.Add(this.lblHeatingOnlineTitle);
+			global::Gtk.Table.TableChild w196 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.lblHeatingOnlineTitle]));
+			w196.TopAttach = ((uint)(2));
+			w196.BottomAttach = ((uint)(3));
+			w196.LeftAttach = ((uint)(3));
+			w196.RightAttach = ((uint)(4));
+			w196.XOptions = ((global::Gtk.AttachOptions)(4));
+			w196.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.lblHeatingPowerOnlineTitle = new global::Gamma.GtkWidgets.yLabel();
+			this.lblHeatingPowerOnlineTitle.Name = "lblHeatingPowerOnlineTitle";
+			this.lblHeatingPowerOnlineTitle.Xalign = 1F;
+			this.lblHeatingPowerOnlineTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Мощность нагрева:");
+			this.tableOnlineCharacteristics.Add(this.lblHeatingPowerOnlineTitle);
+			global::Gtk.Table.TableChild w197 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.lblHeatingPowerOnlineTitle]));
+			w197.TopAttach = ((uint)(4));
+			w197.BottomAttach = ((uint)(5));
+			w197.LeftAttach = ((uint)(3));
+			w197.RightAttach = ((uint)(4));
+			w197.XOptions = ((global::Gtk.AttachOptions)(4));
+			w197.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.lblHeatingProductivityOnlineTitle = new global::Gamma.GtkWidgets.yLabel();
+			this.lblHeatingProductivityOnlineTitle.Name = "lblHeatingProductivityOnlineTitle";
+			this.lblHeatingProductivityOnlineTitle.Xalign = 1F;
+			this.lblHeatingProductivityOnlineTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Производительность нагрева:");
+			this.tableOnlineCharacteristics.Add(this.lblHeatingProductivityOnlineTitle);
+			global::Gtk.Table.TableChild w198 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.lblHeatingProductivityOnlineTitle]));
+			w198.TopAttach = ((uint)(5));
+			w198.BottomAttach = ((uint)(6));
+			w198.LeftAttach = ((uint)(3));
+			w198.RightAttach = ((uint)(4));
+			w198.XOptions = ((global::Gtk.AttachOptions)(4));
+			w198.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.lblInstallationTypeOnlineTitle = new global::Gamma.GtkWidgets.yLabel();
+			this.lblInstallationTypeOnlineTitle.Name = "lblInstallationTypeOnlineTitle";
+			this.lblInstallationTypeOnlineTitle.Xalign = 1F;
+			this.lblInstallationTypeOnlineTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Тип установки:");
+			this.tableOnlineCharacteristics.Add(this.lblInstallationTypeOnlineTitle);
+			global::Gtk.Table.TableChild w199 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.lblInstallationTypeOnlineTitle]));
+			w199.LeftAttach = ((uint)(3));
+			w199.RightAttach = ((uint)(4));
+			w199.XOptions = ((global::Gtk.AttachOptions)(4));
+			w199.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.lblKulerSaleWebSiteOnlineCatalogTitle = new global::Gamma.GtkWidgets.yLabel();
+			this.lblKulerSaleWebSiteOnlineCatalogTitle.Name = "lblKulerSaleWebSiteOnlineCatalogTitle";
+			this.lblKulerSaleWebSiteOnlineCatalogTitle.Xalign = 1F;
+			this.lblKulerSaleWebSiteOnlineCatalogTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Каталог на kuler-sale:");
+			this.tableOnlineCharacteristics.Add(this.lblKulerSaleWebSiteOnlineCatalogTitle);
+			global::Gtk.Table.TableChild w200 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.lblKulerSaleWebSiteOnlineCatalogTitle]));
+			w200.TopAttach = ((uint)(4));
+			w200.BottomAttach = ((uint)(5));
+			w200.XOptions = ((global::Gtk.AttachOptions)(4));
+			w200.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.lblLockerRefrigeratorOnlineTitle = new global::Gamma.GtkWidgets.yLabel();
+			this.lblLockerRefrigeratorOnlineTitle.Name = "lblLockerRefrigeratorOnlineTitle";
+			this.lblLockerRefrigeratorOnlineTitle.Xalign = 1F;
+			this.lblLockerRefrigeratorOnlineTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Шкафчик/Холодильник");
+			this.tableOnlineCharacteristics.Add(this.lblLockerRefrigeratorOnlineTitle);
+			global::Gtk.Table.TableChild w201 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.lblLockerRefrigeratorOnlineTitle]));
+			w201.TopAttach = ((uint)(5));
+			w201.BottomAttach = ((uint)(6));
+			w201.LeftAttach = ((uint)(6));
+			w201.RightAttach = ((uint)(7));
+			w201.XOptions = ((global::Gtk.AttachOptions)(4));
+			w201.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.lblLockerRefrigeratorVolumeOnlineTitle = new global::Gamma.GtkWidgets.yLabel();
+			this.lblLockerRefrigeratorVolumeOnlineTitle.Name = "lblLockerRefrigeratorVolumeOnlineTitle";
+			this.lblLockerRefrigeratorVolumeOnlineTitle.Xalign = 1F;
+			this.lblLockerRefrigeratorVolumeOnlineTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Объем шкафчика/\nхолодильника");
+			this.tableOnlineCharacteristics.Add(this.lblLockerRefrigeratorVolumeOnlineTitle);
+			global::Gtk.Table.TableChild w202 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.lblLockerRefrigeratorVolumeOnlineTitle]));
+			w202.TopAttach = ((uint)(6));
+			w202.BottomAttach = ((uint)(7));
+			w202.LeftAttach = ((uint)(6));
+			w202.RightAttach = ((uint)(7));
+			w202.XOptions = ((global::Gtk.AttachOptions)(4));
+			w202.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.lblMobileAppOnlineCatalogTitle = new global::Gamma.GtkWidgets.yLabel();
+			this.lblMobileAppOnlineCatalogTitle.Name = "lblMobileAppOnlineCatalogTitle";
+			this.lblMobileAppOnlineCatalogTitle.Xalign = 1F;
+			this.lblMobileAppOnlineCatalogTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Каталог в приложении:");
+			this.tableOnlineCharacteristics.Add(this.lblMobileAppOnlineCatalogTitle);
+			global::Gtk.Table.TableChild w203 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.lblMobileAppOnlineCatalogTitle]));
+			w203.TopAttach = ((uint)(2));
+			w203.BottomAttach = ((uint)(3));
+			w203.XOptions = ((global::Gtk.AttachOptions)(4));
+			w203.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.lblNameOnlineTitle = new global::Gamma.GtkWidgets.yLabel();
+			this.lblNameOnlineTitle.Name = "lblNameOnlineTitle";
+			this.lblNameOnlineTitle.Xalign = 1F;
+			this.lblNameOnlineTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Название:");
+			this.tableOnlineCharacteristics.Add(this.lblNameOnlineTitle);
+			global::Gtk.Table.TableChild w204 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.lblNameOnlineTitle]));
+			w204.TopAttach = ((uint)(1));
+			w204.BottomAttach = ((uint)(2));
+			w204.XOptions = ((global::Gtk.AttachOptions)(4));
+			w204.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.lblOnlineCategoryTitle = new global::Gamma.GtkWidgets.yLabel();
+			this.lblOnlineCategoryTitle.Name = "lblOnlineCategoryTitle";
+			this.lblOnlineCategoryTitle.Xalign = 1F;
+			this.lblOnlineCategoryTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Тип товара:");
+			this.tableOnlineCharacteristics.Add(this.lblOnlineCategoryTitle);
+			global::Gtk.Table.TableChild w205 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.lblOnlineCategoryTitle]));
+			w205.TopAttach = ((uint)(6));
+			w205.BottomAttach = ((uint)(7));
+			w205.XOptions = ((global::Gtk.AttachOptions)(4));
+			w205.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.lblOnlineGroupTitle = new global::Gamma.GtkWidgets.yLabel();
+			this.lblOnlineGroupTitle.Name = "lblOnlineGroupTitle";
+			this.lblOnlineGroupTitle.Xalign = 1F;
+			this.lblOnlineGroupTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Вид товара:");
+			this.tableOnlineCharacteristics.Add(this.lblOnlineGroupTitle);
+			global::Gtk.Table.TableChild w206 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.lblOnlineGroupTitle]));
+			w206.TopAttach = ((uint)(5));
+			w206.BottomAttach = ((uint)(6));
+			w206.XOptions = ((global::Gtk.AttachOptions)(4));
+			w206.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.lblProtectionOnHotWaterTapOnlineTitle = new global::Gamma.GtkWidgets.yLabel();
+			this.lblProtectionOnHotWaterTapOnlineTitle.Name = "lblProtectionOnHotWaterTapOnlineTitle";
+			this.lblProtectionOnHotWaterTapOnlineTitle.Xalign = 1F;
+			this.lblProtectionOnHotWaterTapOnlineTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Защита на кране\nгорячей воды:");
+			this.tableOnlineCharacteristics.Add(this.lblProtectionOnHotWaterTapOnlineTitle);
+			global::Gtk.Table.TableChild w207 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.lblProtectionOnHotWaterTapOnlineTitle]));
+			w207.TopAttach = ((uint)(3));
+			w207.BottomAttach = ((uint)(4));
+			w207.LeftAttach = ((uint)(3));
+			w207.RightAttach = ((uint)(4));
+			w207.XOptions = ((global::Gtk.AttachOptions)(4));
+			w207.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.lblTapTypeOnlineTitle = new global::Gamma.GtkWidgets.yLabel();
+			this.lblTapTypeOnlineTitle.Name = "lblTapTypeOnlineTitle";
+			this.lblTapTypeOnlineTitle.Xalign = 1F;
+			this.lblTapTypeOnlineTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Тип кранов:");
+			this.tableOnlineCharacteristics.Add(this.lblTapTypeOnlineTitle);
+			global::Gtk.Table.TableChild w208 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.lblTapTypeOnlineTitle]));
+			w208.TopAttach = ((uint)(4));
+			w208.BottomAttach = ((uint)(5));
+			w208.LeftAttach = ((uint)(6));
+			w208.RightAttach = ((uint)(7));
+			w208.XOptions = ((global::Gtk.AttachOptions)(4));
+			w208.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.lblVodovozWebSiteOnlineCatalogTitle = new global::Gamma.GtkWidgets.yLabel();
+			this.lblVodovozWebSiteOnlineCatalogTitle.Name = "lblVodovozWebSiteOnlineCatalogTitle";
+			this.lblVodovozWebSiteOnlineCatalogTitle.Xalign = 1F;
+			this.lblVodovozWebSiteOnlineCatalogTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Каталог на vodovoz-spb:");
+			this.tableOnlineCharacteristics.Add(this.lblVodovozWebSiteOnlineCatalogTitle);
+			global::Gtk.Table.TableChild w209 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.lblVodovozWebSiteOnlineCatalogTitle]));
+			w209.TopAttach = ((uint)(3));
+			w209.BottomAttach = ((uint)(4));
+			w209.XOptions = ((global::Gtk.AttachOptions)(4));
+			w209.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.lblWorkloadTypeOnlineTitle = new global::Gamma.GtkWidgets.yLabel();
+			this.lblWorkloadTypeOnlineTitle.Name = "lblWorkloadTypeOnlineTitle";
+			this.lblWorkloadTypeOnlineTitle.Xalign = 1F;
+			this.lblWorkloadTypeOnlineTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Тип загрузки:");
+			this.tableOnlineCharacteristics.Add(this.lblWorkloadTypeOnlineTitle);
+			global::Gtk.Table.TableChild w210 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.lblWorkloadTypeOnlineTitle]));
+			w210.TopAttach = ((uint)(1));
+			w210.BottomAttach = ((uint)(2));
+			w210.LeftAttach = ((uint)(3));
+			w210.RightAttach = ((uint)(4));
+			w210.XOptions = ((global::Gtk.AttachOptions)(4));
+			w210.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.listCmbKulerSaleWebSiteOnlineCatalog = new global::QS.Widgets.GtkUI.SpecialListComboBox();
+			this.listCmbKulerSaleWebSiteOnlineCatalog.Name = "listCmbKulerSaleWebSiteOnlineCatalog";
+			this.listCmbKulerSaleWebSiteOnlineCatalog.AddIfNotExist = false;
+			this.listCmbKulerSaleWebSiteOnlineCatalog.DefaultFirst = false;
+			this.listCmbKulerSaleWebSiteOnlineCatalog.ShowSpecialStateAll = false;
+			this.listCmbKulerSaleWebSiteOnlineCatalog.ShowSpecialStateNot = false;
+			this.tableOnlineCharacteristics.Add(this.listCmbKulerSaleWebSiteOnlineCatalog);
+			global::Gtk.Table.TableChild w211 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.listCmbKulerSaleWebSiteOnlineCatalog]));
+			w211.TopAttach = ((uint)(4));
+			w211.BottomAttach = ((uint)(5));
+			w211.LeftAttach = ((uint)(1));
+			w211.RightAttach = ((uint)(2));
+			w211.XOptions = ((global::Gtk.AttachOptions)(4));
+			w211.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.listCmbMobileAppOnlineCatalog = new global::QS.Widgets.GtkUI.SpecialListComboBox();
+			this.listCmbMobileAppOnlineCatalog.Name = "listCmbMobileAppOnlineCatalog";
+			this.listCmbMobileAppOnlineCatalog.AddIfNotExist = false;
+			this.listCmbMobileAppOnlineCatalog.DefaultFirst = false;
+			this.listCmbMobileAppOnlineCatalog.ShowSpecialStateAll = false;
+			this.listCmbMobileAppOnlineCatalog.ShowSpecialStateNot = false;
+			this.tableOnlineCharacteristics.Add(this.listCmbMobileAppOnlineCatalog);
+			global::Gtk.Table.TableChild w212 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.listCmbMobileAppOnlineCatalog]));
+			w212.TopAttach = ((uint)(2));
+			w212.BottomAttach = ((uint)(3));
+			w212.LeftAttach = ((uint)(1));
+			w212.RightAttach = ((uint)(2));
+			w212.XOptions = ((global::Gtk.AttachOptions)(4));
+			w212.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.listCmbOnlineCategory = new global::QS.Widgets.GtkUI.SpecialListComboBox();
+			this.listCmbOnlineCategory.Name = "listCmbOnlineCategory";
+			this.listCmbOnlineCategory.AddIfNotExist = false;
+			this.listCmbOnlineCategory.DefaultFirst = false;
+			this.listCmbOnlineCategory.ShowSpecialStateAll = false;
+			this.listCmbOnlineCategory.ShowSpecialStateNot = false;
+			this.tableOnlineCharacteristics.Add(this.listCmbOnlineCategory);
+			global::Gtk.Table.TableChild w213 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.listCmbOnlineCategory]));
+			w213.TopAttach = ((uint)(6));
+			w213.BottomAttach = ((uint)(7));
+			w213.LeftAttach = ((uint)(1));
+			w213.RightAttach = ((uint)(2));
+			w213.XOptions = ((global::Gtk.AttachOptions)(4));
+			w213.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.listCmbOnlineGroup = new global::QS.Widgets.GtkUI.SpecialListComboBox();
+			this.listCmbOnlineGroup.Name = "listCmbOnlineGroup";
+			this.listCmbOnlineGroup.AddIfNotExist = false;
+			this.listCmbOnlineGroup.DefaultFirst = false;
+			this.listCmbOnlineGroup.ShowSpecialStateAll = false;
+			this.listCmbOnlineGroup.ShowSpecialStateNot = false;
+			this.tableOnlineCharacteristics.Add(this.listCmbOnlineGroup);
+			global::Gtk.Table.TableChild w214 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.listCmbOnlineGroup]));
+			w214.TopAttach = ((uint)(5));
+			w214.BottomAttach = ((uint)(6));
+			w214.LeftAttach = ((uint)(1));
+			w214.RightAttach = ((uint)(2));
+			w214.XOptions = ((global::Gtk.AttachOptions)(4));
+			w214.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.listCmbVodovozWebSiteOnlineCatalog = new global::QS.Widgets.GtkUI.SpecialListComboBox();
+			this.listCmbVodovozWebSiteOnlineCatalog.Name = "listCmbVodovozWebSiteOnlineCatalog";
+			this.listCmbVodovozWebSiteOnlineCatalog.AddIfNotExist = false;
+			this.listCmbVodovozWebSiteOnlineCatalog.DefaultFirst = false;
+			this.listCmbVodovozWebSiteOnlineCatalog.ShowSpecialStateAll = false;
+			this.listCmbVodovozWebSiteOnlineCatalog.ShowSpecialStateNot = false;
+			this.tableOnlineCharacteristics.Add(this.listCmbVodovozWebSiteOnlineCatalog);
+			global::Gtk.Table.TableChild w215 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.listCmbVodovozWebSiteOnlineCatalog]));
+			w215.TopAttach = ((uint)(3));
+			w215.BottomAttach = ((uint)(4));
+			w215.LeftAttach = ((uint)(1));
+			w215.RightAttach = ((uint)(2));
+			w215.XOptions = ((global::Gtk.AttachOptions)(4));
+			w215.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.nullableChkCooling = new global::QS.Widgets.NullableCheckButton();
+			this.nullableChkCooling.CanFocus = true;
+			this.nullableChkCooling.Name = "nullableChkCooling";
+			this.nullableChkCooling.UseUnderline = true;
+			this.nullableChkCooling.Label = global::Mono.Unix.Catalog.GetString("nullablecheckbutton");
+			this.tableOnlineCharacteristics.Add(this.nullableChkCooling);
+			global::Gtk.Table.TableChild w216 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.nullableChkCooling]));
+			w216.LeftAttach = ((uint)(7));
+			w216.RightAttach = ((uint)(8));
+			w216.XOptions = ((global::Gtk.AttachOptions)(0));
+			w216.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.nullableChkHeating = new global::QS.Widgets.NullableCheckButton();
+			this.nullableChkHeating.CanFocus = true;
+			this.nullableChkHeating.Name = "nullableChkHeating";
+			this.nullableChkHeating.UseUnderline = true;
+			this.nullableChkHeating.Label = global::Mono.Unix.Catalog.GetString("nullablecheckbutton");
+			this.tableOnlineCharacteristics.Add(this.nullableChkHeating);
+			global::Gtk.Table.TableChild w217 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.nullableChkHeating]));
+			w217.TopAttach = ((uint)(2));
+			w217.BottomAttach = ((uint)(3));
+			w217.LeftAttach = ((uint)(4));
+			w217.RightAttach = ((uint)(5));
+			w217.XOptions = ((global::Gtk.AttachOptions)(0));
+			w217.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.vboxOnlineParameters = new global::Gamma.GtkWidgets.yVBox();
+			this.vboxOnlineParameters.Name = "vboxOnlineParameters";
+			this.vboxOnlineParameters.Spacing = 6;
+			// Container child vboxOnlineParameters.Gtk.Box+BoxChild
+			this.vboxWaterOnlineParameters = new global::Gamma.GtkWidgets.yVBox();
+			this.vboxWaterOnlineParameters.Name = "vboxWaterOnlineParameters";
+			this.vboxWaterOnlineParameters.Spacing = 6;
+			// Container child vboxWaterOnlineParameters.Gtk.Box+BoxChild
+			this.yhbox1 = new global::Gamma.GtkWidgets.yHBox();
+			this.yhbox1.Name = "yhbox1";
+			this.yhbox1.Spacing = 6;
+			// Container child yhbox1.Gtk.Box+BoxChild
+			this.lblTareVolumeOnlineTitle = new global::Gamma.GtkWidgets.yLabel();
+			this.lblTareVolumeOnlineTitle.Name = "lblTareVolumeOnlineTitle";
+			this.lblTareVolumeOnlineTitle.Xalign = 1F;
+			this.lblTareVolumeOnlineTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Объем тары:");
+			this.yhbox1.Add(this.lblTareVolumeOnlineTitle);
+			global::Gtk.Box.BoxChild w218 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.lblTareVolumeOnlineTitle]));
+			w218.Position = 0;
+			w218.Expand = false;
+			w218.Fill = false;
+			// Container child yhbox1.Gtk.Box+BoxChild
+			this.enumTareVolumeOnline = new global::Gamma.Widgets.yEnumComboBox();
+			this.enumTareVolumeOnline.Name = "enumTareVolumeOnline";
+			this.enumTareVolumeOnline.ShowSpecialStateAll = false;
+			this.enumTareVolumeOnline.ShowSpecialStateNot = true;
+			this.enumTareVolumeOnline.UseShortTitle = false;
+			this.enumTareVolumeOnline.DefaultFirst = false;
+			this.yhbox1.Add(this.enumTareVolumeOnline);
+			global::Gtk.Box.BoxChild w219 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.enumTareVolumeOnline]));
+			w219.Position = 1;
+			w219.Expand = false;
+			w219.Fill = false;
+			this.vboxWaterOnlineParameters.Add(this.yhbox1);
+			global::Gtk.Box.BoxChild w220 = ((global::Gtk.Box.BoxChild)(this.vboxWaterOnlineParameters[this.yhbox1]));
+			w220.Position = 0;
+			w220.Expand = false;
+			w220.Fill = false;
+			// Container child vboxWaterOnlineParameters.Gtk.Box+BoxChild
+			this.chkIsDisposableTareOnline = new global::Gamma.GtkWidgets.yCheckButton();
+			this.chkIsDisposableTareOnline.CanFocus = true;
+			this.chkIsDisposableTareOnline.Name = "chkIsDisposableTareOnline";
+			this.chkIsDisposableTareOnline.Label = global::Mono.Unix.Catalog.GetString("Одноразовая тара");
+			this.chkIsDisposableTareOnline.DrawIndicator = true;
+			this.chkIsDisposableTareOnline.UseUnderline = true;
+			this.vboxWaterOnlineParameters.Add(this.chkIsDisposableTareOnline);
+			global::Gtk.Box.BoxChild w221 = ((global::Gtk.Box.BoxChild)(this.vboxWaterOnlineParameters[this.chkIsDisposableTareOnline]));
+			w221.Position = 1;
+			w221.Expand = false;
+			w221.Fill = false;
+			// Container child vboxWaterOnlineParameters.Gtk.Box+BoxChild
+			this.chkNewBottleOnline = new global::Gamma.GtkWidgets.yCheckButton();
+			this.chkNewBottleOnline.CanFocus = true;
+			this.chkNewBottleOnline.Name = "chkNewBottleOnline";
+			this.chkNewBottleOnline.Label = global::Mono.Unix.Catalog.GetString("Новая бутыль");
+			this.chkNewBottleOnline.DrawIndicator = true;
+			this.chkNewBottleOnline.UseUnderline = true;
+			this.vboxWaterOnlineParameters.Add(this.chkNewBottleOnline);
+			global::Gtk.Box.BoxChild w222 = ((global::Gtk.Box.BoxChild)(this.vboxWaterOnlineParameters[this.chkNewBottleOnline]));
+			w222.Position = 2;
+			w222.Expand = false;
+			w222.Fill = false;
+			// Container child vboxWaterOnlineParameters.Gtk.Box+BoxChild
+			this.chkSparklingWaterOnline = new global::Gamma.GtkWidgets.yCheckButton();
+			this.chkSparklingWaterOnline.CanFocus = true;
+			this.chkSparklingWaterOnline.Name = "chkSparklingWaterOnline";
+			this.chkSparklingWaterOnline.Label = global::Mono.Unix.Catalog.GetString("Газированная вода");
+			this.chkSparklingWaterOnline.DrawIndicator = true;
+			this.chkSparklingWaterOnline.UseUnderline = true;
+			this.vboxWaterOnlineParameters.Add(this.chkSparklingWaterOnline);
+			global::Gtk.Box.BoxChild w223 = ((global::Gtk.Box.BoxChild)(this.vboxWaterOnlineParameters[this.chkSparklingWaterOnline]));
+			w223.Position = 3;
+			w223.Expand = false;
+			w223.Fill = false;
+			this.vboxOnlineParameters.Add(this.vboxWaterOnlineParameters);
+			global::Gtk.Box.BoxChild w224 = ((global::Gtk.Box.BoxChild)(this.vboxOnlineParameters[this.vboxWaterOnlineParameters]));
+			w224.Position = 0;
+			w224.Expand = false;
+			w224.Fill = false;
+			// Container child vboxOnlineParameters.Gtk.Box+BoxChild
+			this.vboxPumpOnlineParameters = new global::Gamma.GtkWidgets.yVBox();
+			this.vboxPumpOnlineParameters.Name = "vboxPumpOnlineParameters";
+			this.vboxPumpOnlineParameters.Spacing = 6;
+			// Container child vboxPumpOnlineParameters.Gtk.Box+BoxChild
+			this.hboxPumpTypeOnline = new global::Gamma.GtkWidgets.yHBox();
+			this.hboxPumpTypeOnline.Name = "hboxPumpTypeOnline";
+			this.hboxPumpTypeOnline.Spacing = 6;
+			// Container child hboxPumpTypeOnline.Gtk.Box+BoxChild
+			this.lblPumpTypeOnlineTitle = new global::Gamma.GtkWidgets.yLabel();
+			this.lblPumpTypeOnlineTitle.Name = "lblPumpTypeOnlineTitle";
+			this.lblPumpTypeOnlineTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Тип помпы:");
+			this.hboxPumpTypeOnline.Add(this.lblPumpTypeOnlineTitle);
+			global::Gtk.Box.BoxChild w225 = ((global::Gtk.Box.BoxChild)(this.hboxPumpTypeOnline[this.lblPumpTypeOnlineTitle]));
+			w225.Position = 0;
+			w225.Expand = false;
+			w225.Fill = false;
+			// Container child hboxPumpTypeOnline.Gtk.Box+BoxChild
+			this.enumPumpTypeOnline = new global::Gamma.Widgets.yEnumComboBox();
+			this.enumPumpTypeOnline.Name = "enumPumpTypeOnline";
+			this.enumPumpTypeOnline.ShowSpecialStateAll = false;
+			this.enumPumpTypeOnline.ShowSpecialStateNot = true;
+			this.enumPumpTypeOnline.UseShortTitle = false;
+			this.enumPumpTypeOnline.DefaultFirst = false;
+			this.hboxPumpTypeOnline.Add(this.enumPumpTypeOnline);
+			global::Gtk.Box.BoxChild w226 = ((global::Gtk.Box.BoxChild)(this.hboxPumpTypeOnline[this.enumPumpTypeOnline]));
+			w226.Position = 1;
+			w226.Expand = false;
+			w226.Fill = false;
+			this.vboxPumpOnlineParameters.Add(this.hboxPumpTypeOnline);
+			global::Gtk.Box.BoxChild w227 = ((global::Gtk.Box.BoxChild)(this.vboxPumpOnlineParameters[this.hboxPumpTypeOnline]));
+			w227.Position = 0;
+			w227.Expand = false;
+			w227.Fill = false;
+			this.vboxOnlineParameters.Add(this.vboxPumpOnlineParameters);
+			global::Gtk.Box.BoxChild w228 = ((global::Gtk.Box.BoxChild)(this.vboxOnlineParameters[this.vboxPumpOnlineParameters]));
+			w228.Position = 1;
+			w228.Expand = false;
+			w228.Fill = false;
+			// Container child vboxOnlineParameters.Gtk.Box+BoxChild
+			this.vboxCupHolderOnlineParameters = new global::Gamma.GtkWidgets.yVBox();
+			this.vboxCupHolderOnlineParameters.Name = "vboxCupHolderOnlineParameters";
+			this.vboxCupHolderOnlineParameters.Spacing = 6;
+			// Container child vboxCupHolderOnlineParameters.Gtk.Box+BoxChild
+			this.hboxCupHolderBracingTypeOnline = new global::Gamma.GtkWidgets.yHBox();
+			this.hboxCupHolderBracingTypeOnline.Name = "hboxCupHolderBracingTypeOnline";
+			this.hboxCupHolderBracingTypeOnline.Spacing = 6;
+			// Container child hboxCupHolderBracingTypeOnline.Gtk.Box+BoxChild
+			this.lblCupHolderBracingTypeOnlineTitle = new global::Gamma.GtkWidgets.yLabel();
+			this.lblCupHolderBracingTypeOnlineTitle.Name = "lblCupHolderBracingTypeOnlineTitle";
+			this.lblCupHolderBracingTypeOnlineTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Тип крепления:");
+			this.hboxCupHolderBracingTypeOnline.Add(this.lblCupHolderBracingTypeOnlineTitle);
+			global::Gtk.Box.BoxChild w229 = ((global::Gtk.Box.BoxChild)(this.hboxCupHolderBracingTypeOnline[this.lblCupHolderBracingTypeOnlineTitle]));
+			w229.Position = 0;
+			w229.Expand = false;
+			w229.Fill = false;
+			// Container child hboxCupHolderBracingTypeOnline.Gtk.Box+BoxChild
+			this.enumCupHolderBracingTypeOnline = new global::Gamma.Widgets.yEnumComboBox();
+			this.enumCupHolderBracingTypeOnline.Name = "enumCupHolderBracingTypeOnline";
+			this.enumCupHolderBracingTypeOnline.ShowSpecialStateAll = false;
+			this.enumCupHolderBracingTypeOnline.ShowSpecialStateNot = true;
+			this.enumCupHolderBracingTypeOnline.UseShortTitle = false;
+			this.enumCupHolderBracingTypeOnline.DefaultFirst = false;
+			this.hboxCupHolderBracingTypeOnline.Add(this.enumCupHolderBracingTypeOnline);
+			global::Gtk.Box.BoxChild w230 = ((global::Gtk.Box.BoxChild)(this.hboxCupHolderBracingTypeOnline[this.enumCupHolderBracingTypeOnline]));
+			w230.Position = 1;
+			w230.Expand = false;
+			w230.Fill = false;
+			this.vboxCupHolderOnlineParameters.Add(this.hboxCupHolderBracingTypeOnline);
+			global::Gtk.Box.BoxChild w231 = ((global::Gtk.Box.BoxChild)(this.vboxCupHolderOnlineParameters[this.hboxCupHolderBracingTypeOnline]));
+			w231.Position = 0;
+			w231.Expand = false;
+			w231.Fill = false;
+			this.vboxOnlineParameters.Add(this.vboxCupHolderOnlineParameters);
+			global::Gtk.Box.BoxChild w232 = ((global::Gtk.Box.BoxChild)(this.vboxOnlineParameters[this.vboxCupHolderOnlineParameters]));
+			w232.Position = 2;
+			w232.Expand = false;
+			w232.Fill = false;
+			this.tableOnlineCharacteristics.Add(this.vboxOnlineParameters);
+			global::Gtk.Table.TableChild w233 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.vboxOnlineParameters]));
+			w233.TopAttach = ((uint)(7));
+			w233.BottomAttach = ((uint)(10));
+			w233.RightAttach = ((uint)(2));
+			w233.XOptions = ((global::Gtk.AttachOptions)(0));
+			w233.YOptions = ((global::Gtk.AttachOptions)(0));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.vseparator2 = new global::Gtk.VSeparator();
+			this.vseparator2.Name = "vseparator2";
+			this.tableOnlineCharacteristics.Add(this.vseparator2);
+			global::Gtk.Table.TableChild w234 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.vseparator2]));
+			w234.BottomAttach = ((uint)(9));
+			w234.LeftAttach = ((uint)(2));
+			w234.RightAttach = ((uint)(3));
+			w234.XOptions = ((global::Gtk.AttachOptions)(4));
+			w234.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableOnlineCharacteristics.Gtk.Table+TableChild
+			this.vseparator3 = new global::Gtk.VSeparator();
+			this.vseparator3.Name = "vseparator3";
+			this.tableOnlineCharacteristics.Add(this.vseparator3);
+			global::Gtk.Table.TableChild w235 = ((global::Gtk.Table.TableChild)(this.tableOnlineCharacteristics[this.vseparator3]));
+			w235.BottomAttach = ((uint)(9));
+			w235.LeftAttach = ((uint)(5));
+			w235.RightAttach = ((uint)(6));
+			w235.XOptions = ((global::Gtk.AttachOptions)(4));
+			w235.YOptions = ((global::Gtk.AttachOptions)(4));
+			w175.Add(this.tableOnlineCharacteristics);
+			this.scrolledWindowOnlineCharacteristics.Add(w175);
+			this.vboxSitesAndApps.Add(this.scrolledWindowOnlineCharacteristics);
+			global::Gtk.Box.BoxChild w238 = ((global::Gtk.Box.BoxChild)(this.vboxSitesAndApps[this.scrolledWindowOnlineCharacteristics]));
+			w238.Position = 4;
 			this.notebook.Add(this.vboxSitesAndApps);
-			global::Gtk.Notebook.NotebookChild w174 = ((global::Gtk.Notebook.NotebookChild)(this.notebook[this.vboxSitesAndApps]));
-			w174.Position = 6;
+			global::Gtk.Notebook.NotebookChild w239 = ((global::Gtk.Notebook.NotebookChild)(this.notebook[this.vboxSitesAndApps]));
+			w239.Position = 6;
 			// Notebook tab
 			this.lblSitesAndApps = new global::Gtk.Label();
 			this.lblSitesAndApps.Name = "lblSitesAndApps";
@@ -2334,8 +3228,8 @@ namespace Vodovoz.Views.Goods
 			this.notebook.SetTabLabel(this.vboxSitesAndApps, this.lblSitesAndApps);
 			this.lblSitesAndApps.ShowAll();
 			this.vbox1.Add(this.notebook);
-			global::Gtk.Box.BoxChild w175 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.notebook]));
-			w175.Position = 1;
+			global::Gtk.Box.BoxChild w240 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.notebook]));
+			w240.Position = 1;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

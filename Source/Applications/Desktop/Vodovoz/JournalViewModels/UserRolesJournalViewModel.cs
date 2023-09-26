@@ -33,7 +33,7 @@ namespace Vodovoz.JournalViewModels
 		
 		protected override void CreateNodeActions()
 		{
-			 var userRolePermissionResult = CurrentPermissionService.ValidateEntityPermission(typeof(UserRole));
+			var userRolePermissionResult = CurrentPermissionService.ValidateEntityPermission(typeof(UserRole));
 			
 			NodeActionsList.Clear();
 

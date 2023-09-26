@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
+using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QSOrmProject;
@@ -27,6 +28,8 @@ using Vodovoz.Parameters;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.Services;
+using Vodovoz.Settings.Database;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
@@ -41,6 +44,10 @@ namespace Vodovoz
 		private readonly IStockRepository _stockRepository = new StockRepository();
 		private readonly INomenclatureRepository _nomenclatureRepository =
 			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+
+		private readonly INomenclatureOnlineParametersProvider _nomenclatureOnlineParametersProvider =
+			new NomenclatureOnlineParametersProvider(
+				new SettingsController(UnitOfWorkFactory.GetDefaultFactory, new Logger<SettingsController>(new LoggerFactory())));
 		
 		RegradingOfGoodsDocumentItem newRow;
 		RegradingOfGoodsDocumentItem FineEditItem;
@@ -215,7 +222,8 @@ namespace Vodovoz
 					new NomenclatureJournalFactory(),
 					counterpartySelectorFactory,
 					_nomenclatureRepository,
-					userRepository
+					userRepository,
+					_nomenclatureOnlineParametersProvider
 					);
 
 				nomenclaturesJournalViewModel.SelectionMode = JournalSelectionMode.Single;
@@ -307,7 +315,8 @@ namespace Vodovoz
 					new NomenclatureJournalFactory(),
 					counterpartyJournalFactory,
 					_nomenclatureRepository,
-					userRepository
+					userRepository,
+					_nomenclatureOnlineParametersProvider
 					);
 
 			nomenclaturesJournalViewModel.SelectionMode = JournalSelectionMode.Single;

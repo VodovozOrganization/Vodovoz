@@ -32,6 +32,7 @@ namespace Vodovoz.JournalViewModels.Suppliers
 		private readonly IEmployeeService employeeService;
 		private readonly INomenclatureRepository nomenclatureRepository;
 		private readonly IUserRepository userRepository;
+		private readonly INomenclatureOnlineParametersProvider _nomenclatureOnlineParametersProvider;
 		private readonly ICounterpartyJournalFactory counterpartySelectorFactory;
 		private readonly INomenclatureJournalFactory nomenclatureSelectorFactory;
 
@@ -44,12 +45,15 @@ namespace Vodovoz.JournalViewModels.Suppliers
 			ICounterpartyJournalFactory counterpartySelectorFactory,
 			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
-			IUserRepository userRepository
+			IUserRepository userRepository,
+			INomenclatureOnlineParametersProvider nomenclatureOnlineParametersProvider
 		) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_nomenclatureOnlineParametersProvider =
+				nomenclatureOnlineParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureOnlineParametersProvider));
 			this.supplierPriceItemsRepository = supplierPriceItemsRepository ?? throw new ArgumentNullException(nameof(supplierPriceItemsRepository));
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
@@ -175,7 +179,8 @@ namespace Vodovoz.JournalViewModels.Suppliers
 			counterpartySelectorFactory,
 			nomenclatureSelectorFactory,
 			nomenclatureRepository,
-			userRepository
+			userRepository,
+			_nomenclatureOnlineParametersProvider
 		);
 
 		protected override Func<RequestToSupplierJournalNode, RequestToSupplierViewModel> OpenDialogFunction => n => new RequestToSupplierViewModel(
@@ -187,7 +192,8 @@ namespace Vodovoz.JournalViewModels.Suppliers
 			counterpartySelectorFactory,
 			nomenclatureSelectorFactory,
 			nomenclatureRepository,
-			userRepository
+			userRepository,
+			_nomenclatureOnlineParametersProvider
 		);
 
 		protected override void CreatePopupActions()
@@ -211,7 +217,8 @@ namespace Vodovoz.JournalViewModels.Suppliers
 								counterpartySelectorFactory,
 								nomenclatureSelectorFactory,
 								nomenclatureRepository,
-								userRepository
+								userRepository,
+								_nomenclatureOnlineParametersProvider
 							);
 							newRequestVM.Entity.Name = currentRequest.Name;
 							newRequestVM.Entity.WithDelayOnly = currentRequest.WithDelayOnly;

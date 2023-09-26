@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using QS.Commands;
 using QS.DomainModel.UoW;
@@ -26,6 +26,7 @@ namespace Vodovoz.ViewModels.Orders
 		private readonly IEmployeeService _employeeService;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
+		private readonly INomenclatureOnlineParametersProvider _nomenclatureOnlineParametersProvider;
 		private readonly ICounterpartyJournalFactory _counterpartySelectorFactory;
 		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 
@@ -44,7 +45,9 @@ namespace Vodovoz.ViewModels.Orders
 			ICounterpartyJournalFactory counterpartySelectorFactory,
 			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
-			IUserRepository userRepository) : base(uowBuilder, unitOfWorkFactory, commonServices)
+			IUserRepository userRepository,
+			INomenclatureOnlineParametersProvider nomenclatureOnlineParametersProvider)
+			: base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
@@ -168,7 +171,7 @@ namespace Vodovoz.ViewModels.Orders
 
 					var nomenJournalViewModel = new NomenclaturesJournalViewModel(nomenFilter, UnitOfWorkFactory,
 						CommonServices, _employeeService, _nomenclatureSelectorFactory, _counterpartySelectorFactory,
-						_nomenclatureRepository, _userRepository)
+						_nomenclatureRepository, _userRepository, _nomenclatureOnlineParametersProvider)
 					{
 						SelectionMode = JournalSelectionMode.Single
 					};
