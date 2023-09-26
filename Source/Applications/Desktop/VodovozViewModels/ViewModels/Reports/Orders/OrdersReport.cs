@@ -194,7 +194,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Orders
 			row.AppendChild(GetNumericCell((int)node.SanitisationAmount));
 			row.AppendChild(GetStringCell(node.Counterparty));
 			row.AppendChild(GetStringCell(node.Inn));
-			row.AppendChild(GetFloatingPointCell(node.Sum));
+			row.AppendChild(GetStringCurrencyFormatCell(node.Sum));
 			row.AppendChild(GetStringCell(((node.OrderPaymentStatus != OrderPaymentStatus.None) ? node.OrderPaymentStatus.GetEnumDisplayName() : "")));
 			row.AppendChild(GetStringCell(node.EdoDocFlowStatus.GetEnumDisplayName()));
 			row.AppendChild(GetStringCell(node.IsSelfDelivery ? "-" : node.DistrictName));
@@ -346,6 +346,18 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Orders
 			{
 				CellValue = new CellValue(value),
 				DataType = CellValues.Number,
+				StyleIndex = _defaultCellFormatId
+			};
+
+			return cell;
+		}
+
+		private Cell GetStringCurrencyFormatCell(decimal value)
+		{
+			var cell = new Cell
+			{
+				CellValue = new CellValue(value.ToString("### ### ##0.00 ₽")),
+				DataType = CellValues.String,
 				StyleIndex = _defaultCellFormatId
 			};
 
