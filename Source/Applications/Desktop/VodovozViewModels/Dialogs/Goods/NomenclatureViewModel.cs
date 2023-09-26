@@ -40,6 +40,8 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		private bool _activeSitesAndAppsTab;
 		private IList<NomenclatureOnlineCategory> _onlineCategories;
 
+		private DelegateCommand _copyPricesWithoutDiscountFromMobileAppToVodovozWebSiteCommand;
+
 		public NomenclatureViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
@@ -549,6 +551,18 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				() => true
 			)
 		);
+		
+		public DelegateCommand CopyPricesWithoutDiscountFromMobileAppToVodovozWebSiteCommand =>
+			_copyPricesWithoutDiscountFromMobileAppToVodovozWebSiteCommand ?? (
+				_copyPricesWithoutDiscountFromMobileAppToVodovozWebSiteCommand = new DelegateCommand(
+					() =>
+					{
+						CopyPricesWithoutDiscountFromMobileAppToOtherParameters(VodovozWebSiteNomenclatureOnlineParameters);
+						UpdateNomenclatureOnlinePricesNodes();
+					},
+					() => true
+				)
+			);
 
 		public bool ActiveSitesAndAppsTab
 		{
@@ -672,6 +686,15 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				}
 				
 				ShowInfoMessage(stringBuilder.ToString());
+			}
+		}
+		
+		private void CopyPricesWithoutDiscountFromMobileAppToOtherParameters(NomenclatureOnlineParameters nomenclatureOnlineParameters)
+		{
+			for(var i = 0; i < MobileAppNomenclatureOnlineParameters.NomenclatureOnlinePrices.Count; i++)
+			{
+				var mobileAppPrice = MobileAppNomenclatureOnlineParameters.NomenclatureOnlinePrices[i];
+				nomenclatureOnlineParameters.NomenclatureOnlinePrices[i].PriceWithoutDiscount = mobileAppPrice.PriceWithoutDiscount;
 			}
 		}
 	}
