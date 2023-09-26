@@ -270,6 +270,23 @@ namespace Vodovoz.EntityRepositories.Orders
 			
 			return query.SingleOrDefault() != null;
 		}
+		
+		public bool HasCounterpartyOtherFirstRealOrder(IUnitOfWork uow, Counterparty counterparty, int orderId)
+		{
+			if(counterparty.FirstOrder != null && !GetUndeliveryAndNewStatuses().Contains(counterparty.FirstOrder.OrderStatus))
+			{
+				return true;
+			}
+
+			var query = uow.Session.QueryOver<VodovozOrder>()
+				.Where(o => o.Client == counterparty)
+				.And(o => o.Id != orderId)
+				.AndRestrictionOn(o => o.OrderStatus).Not.IsIn(GetUndeliveryAndNewStatuses())
+				.OrderBy(o => o.DeliveryDate).Asc
+				.Take(1);
+			
+			return query.SingleOrDefault() != null;
+		}
 
 		/// <summary>
 		/// Кол-во 19л. воды в заказе

@@ -2052,17 +2052,27 @@ namespace Vodovoz
 				phones.AddRange(Entity.DeliveryPoint.Phones);
 			}
 
-			var hasPromoInOrders = Entity.PromotionalSets.Count != 0;
-			var promoSetForNewClients = Entity.PromotionalSets.Any(x => x.PromotionalSetForNewClients);
+			var hasPromoSetForNewClients = Entity.PromotionalSets.Any(x => x.PromotionalSetForNewClients);
+			var otherFirstRealOrder = _orderRepository.HasCounterpartyOtherFirstRealOrder(UoW, Entity.Client, Entity.Id);
 
-			if(promoSetForNewClients && Entity.OrderItems.Any(x => x.PromoSet != null))
+			if(hasPromoSetForNewClients && otherFirstRealOrder)
+			{
+				if(!MessageDialogHelper.RunQuestionDialog(
+					"В заказ добавлен промонабор для новых клиентов, но это не первый заказ клиента\n" +
+					"Хотите продолжить сохранение?"))
+				{
+					return Result.Failure(Errors.Orders.Order.AcceptAbortedByUser);
+				}
+			}
+
+			if(hasPromoSetForNewClients && Entity.OrderItems.Any(x => x.PromoSet != null))
 			{
 				if(!promosetDuplicateFinder.RequestDuplicatePromosets(UoW, Entity.DeliveryPoint, phones))
 				{
 					return Result.Failure(Errors.Orders.Order.AcceptAbortedByUser);
 				}
 			}
-			if(hasPromoInOrders && promoSetForNewClients && Entity.CanUsedPromo(_promotionalSetRepository))
+			if(hasPromoSetForNewClients && Entity.CanUsedPromo(_promotionalSetRepository))
 			{
 				return Result.Failure(Errors.Orders.Order.UnableToShipPromoSet);
 			}
