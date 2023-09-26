@@ -1,4 +1,4 @@
-using FluentNHibernate.Data;
+﻿using FluentNHibernate.Data;
 using Autofac;
 using Gamma.Utilities;
 using Gtk;
@@ -70,43 +70,53 @@ namespace Vodovoz.Dialogs
 				new TypedParameter(typeof(IUnitOfWork), UoW),
 				new TypedParameter(typeof(ITdiTab), this as TdiTabBase));
 			undeliveryView.WidgetViewModel = _undeliveredOrderViewModel;
-			
+
+			_undeliveredOrderViewModel.IsSaved += IsSaved;
 		}
+
+		private bool IsSaved() => Save(false);
 
 		public event EventHandler<UndeliveryOnOrderCloseEventArgs> DlgSaved;
 
 		protected void OnButtonSaveClicked(object sender, EventArgs e)
+		{
+			Save();
+		}
+
+		public bool Save(bool needClose = true)
 		{
 			if(HasOrderStatusExternalChangesAndCancellationImpossible(undelivery.OldOrder, out OrderStatus actualOrderStatus))
 			{
 				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
 					$"Статус заказа был кем-то изменён на статус \"{actualOrderStatus.GetEnumTitle()}\" с момента открытия диалога, теперь отмена невозможна.");
 
-				return;
+				return false;
 			}
 
 			UoW.Session.Refresh(undelivery.OldOrder);
 
-			var saved = Save();
+			var saved = SaveUndelivery(needClose);
 
 			if(!saved && _addedCommentToOldUndelivery)
 			{
-				DlgSaved?.Invoke(this, new UndeliveryOnOrderCloseEventArgs(undelivery));
-				return;
+				DlgSaved?.Invoke(this, new UndeliveryOnOrderCloseEventArgs(undelivery, needClose));
+				return false;
 			}
 			if(!saved)
 			{
-				return;
+				return false;
 			}
 
 			if(undelivery.NewOrder != null
-				&& undelivery.OrderTransferType == TransferType.AutoTransferNotApproved
-				&& undelivery.NewOrder.OrderStatus != OrderStatus.Canceled)
+			   && undelivery.OrderTransferType == TransferType.AutoTransferNotApproved
+			   && undelivery.NewOrder.OrderStatus != OrderStatus.Canceled)
 			{
 				ProcessSmsNotification();
 			}
 
-			DlgSaved?.Invoke(this, new UndeliveryOnOrderCloseEventArgs(undelivery));
+			DlgSaved?.Invoke(this, new UndeliveryOnOrderCloseEventArgs(undelivery, needClose));
+
+			return true;
 		}
 
 		private bool HasOrderStatusExternalChangesAndCancellationImpossible(Order order, out OrderStatus actualOrderStatus)
@@ -125,7 +135,7 @@ namespace Vodovoz.Dialogs
 			       && !isSelfDeliveryOnLoadingOrder;
 		}
 
-		private bool Save()
+		private bool SaveUndelivery(bool needClose = true)
 		{
 			var validator = new ObjectValidator(new GtkValidationViewFactory());
 			if(!validator.Validate(undelivery))
@@ -141,7 +151,12 @@ namespace Vodovoz.Dialogs
 				return false;
 			}
 			UoW.Save(undelivery);
-			OnCloseTab(false);
+			
+			if(needClose)
+			{
+				OnCloseTab(false);
+			}
+
 			return true;
 		}
 
@@ -177,6 +192,7 @@ namespace Vodovoz.Dialogs
 
 		public override void Destroy()
 		{
+			_undeliveredOrderViewModel.IsSaved -= IsSaved;
 			_undeliveredOrderViewModel.Dispose();
 			base.Destroy();
 		}
@@ -185,9 +201,11 @@ namespace Vodovoz.Dialogs
 	public class UndeliveryOnOrderCloseEventArgs : EventArgs
 	{
 		public UndeliveredOrder UndeliveredOrder { get; private set; }
+		public bool NeedClose { get; }
 
-		public UndeliveryOnOrderCloseEventArgs(UndeliveredOrder undeliveredOrder)
+		public UndeliveryOnOrderCloseEventArgs(UndeliveredOrder undeliveredOrder, bool needClose = true)
 		{
+			NeedClose = needClose;
 			UndeliveredOrder = undeliveredOrder;
 		}
 	}
