@@ -533,6 +533,9 @@ namespace Vodovoz.Views.Goods
 				.AddBinding(ViewModel.VodovozWebSiteNomenclatureOnlineParameters, p => p.NomenclatureOnlineDiscount, w => w.Text, new NullableDecimalToStringConverter())
 				.InitializeFromSource();
 			entryOnlineDiscountVodovozWebSite.Changed += OnNumericEntryChanged;
+
+			btnCopyPricesFromMobileAppToVodovozWebSite.Clicked += (sender, args) =>
+				ViewModel.CopyPricesWithoutDiscountFromMobileAppToVodovozWebSiteCommand.Execute();
 		}
 		
 		private void ConfigureParametersForKulerSaleWebSite()
