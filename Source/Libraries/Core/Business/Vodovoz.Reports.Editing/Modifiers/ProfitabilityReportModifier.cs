@@ -17,8 +17,11 @@ namespace Vodovoz.Reports.Editing.Modifiers
 		private const string _groupLevel2Name = "group2";
 		private const string _groupLevel3Name = "group3";
 
-		private const string _autoTypeTextBox = "TextboxAutoType";
-		private const string _autoOwnerTypeTextBox = "TextboxAutoOwnerType";
+		private const string _autoTypeHeaderTextBox = "TextboxAutoType";
+		private const string _autoOwnerTypeHeaderTextBox = "TextboxAutoOwnerType";
+		private const string _itemDataHeaderTextBox = "TextboxItemHeader";
+
+		private const int _itemDataColumnIncreasedWidth = 190;
 
 		private const int _profitabilityPercentColumnId = 8;
 
@@ -53,10 +56,13 @@ namespace Vodovoz.Reports.Editing.Modifiers
 
 			if(!isShowRouteListInfo)
 			{
-				var removeAutoTypeColumn = new RemoveColumn(_tableName, _autoTypeTextBox);
+				var setColumnWidthAction = new SetColumnWidth(_tableName, _itemDataHeaderTextBox, _itemDataColumnIncreasedWidth);
+				AddAction(setColumnWidthAction);
+
+				var removeAutoTypeColumn = new RemoveColumn(_tableName, _autoTypeHeaderTextBox);
 				AddAction(removeAutoTypeColumn);
 
-				var removeAutoOwnerTypeColumn = new RemoveColumn(_tableName, _autoOwnerTypeTextBox);
+				var removeAutoOwnerTypeColumn = new RemoveColumn(_tableName, _autoOwnerTypeHeaderTextBox);
 				AddAction(removeAutoOwnerTypeColumn);
 			}
 		}
