@@ -708,6 +708,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			dialogSettings.DefaultFileExtention = ".xlsx";
 			dialogSettings.FileFilters.Clear();
 			dialogSettings.FileFilters.Add(new DialogFileFilter("Excel", ".xlsx"));
+			dialogSettings.FileName = $"{Title} {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx";
 
 			var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
 			if(!result.Successful)
@@ -741,6 +742,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 
 				var nodes = Items.Cast<CashReceiptJournalNode>();
 
+				worksheet.Column(6).Style.NumberFormat.SetFormat("# ##0.00");
+
 				foreach(var call in nodes)
 				{
 					colNumber = 1;
@@ -757,7 +760,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 					worksheet.Cell(excelRowCounter, colNumber++).Value = call.FiscalDocNumberOrSourceCodeInfo;
 					worksheet.Cell(excelRowCounter, colNumber++).Value = call.FiscalDocDateOrResultGtin;
 					worksheet.Cell(excelRowCounter, colNumber++).Value = call.FiscalDocStatusDateOrResultSerialnumber;
-					worksheet.Cell(excelRowCounter, colNumber++).Value = call.IsManualSentOrIsDefectiveCode;
+					worksheet.Cell(excelRowCounter, colNumber++).Value = call.IsManualSentOrIsDefectiveCode ? "Да" : null;
 					worksheet.Cell(excelRowCounter, colNumber++).Value = call.Contact;
 					worksheet.Cell(excelRowCounter, colNumber++).Value = call.UnscannedReason;
 					worksheet.Cell(excelRowCounter, colNumber++).Value = call.ErrorDescription;
