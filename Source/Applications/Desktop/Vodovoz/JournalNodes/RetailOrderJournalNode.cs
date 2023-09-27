@@ -49,6 +49,7 @@ namespace Vodovoz.JournalNodes
 		public decimal SanitisationAmount { get; set; }
 
 		public string Counterparty { get; set; }
+		public string Inn { get; set; }
 
 		public decimal Sum { get; set; }
 

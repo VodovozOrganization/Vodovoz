@@ -8,6 +8,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
+using Vodovoz.ViewWidgets.Search;
 using Key = Gdk.Key;
 
 namespace Vodovoz.Filters.GtkViews
@@ -138,10 +139,12 @@ namespace Vodovoz.Filters.GtkViews
 				.InitializeFromSource();
 			entryCounteragentNameLike.KeyReleaseEvent += OnKeyReleased;
 
-			entryDeliveryPointAddressLike.Binding
-				.AddBinding(ViewModel, vm => vm.DeliveryPointAddressLike, w => w.Text)
-				.InitializeFromSource();
-			entryDeliveryPointAddressLike.KeyReleaseEvent += OnKeyReleased;
+			entryInn.Binding.AddBinding(ViewModel, vm => vm.CounterpartyInn, w => w.Text).InitializeFromSource();
+			entryInn.KeyReleaseEvent += OnKeyReleased;
+
+			var searchByAddressView = new CompositeSearchView(ViewModel.SearchByAddressViewModel);
+			yhboxSearchByAddress.Add(searchByAddressView);
+			searchByAddressView.Show();
 		}
 
 		private void InitializeRestrictions()
