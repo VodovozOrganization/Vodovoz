@@ -107,7 +107,8 @@ namespace Vodovoz
 			datatablePrices.Attach (textFromLabel, (uint)0, (uint)1, RowNum, RowNum + 1, (AttachOptions)0, (AttachOptions)0, (uint)0, (uint)0);
 			textFromLabel.Show();
 
-			var countDataEntry = new ySpinButton(0, 9999, 1);
+			var countDataEntry = new ySpinButton(1, 9999, 1);
+			countDataEntry.Numeric = true;
 			countDataEntry.Binding.AddBinding (newPrice, e => e.MinCount, w => w.ValueAsInt).InitializeFromSource ();
 			datatablePrices.Attach (countDataEntry, (uint)1, (uint)2, RowNum, RowNum + 1, AttachOptions.Expand | AttachOptions.Fill, (AttachOptions)0, (uint)0, (uint)0);
 			countDataEntry.Show();
