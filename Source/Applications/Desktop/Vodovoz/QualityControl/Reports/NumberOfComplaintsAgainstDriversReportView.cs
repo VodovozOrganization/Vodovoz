@@ -85,7 +85,7 @@ namespace Vodovoz.QualityControl.Reports
 		{
 			_filterView?.Destroy();
 			_filterView = new IncludeExludeFiltersView(ViewModel.IncludeExcludeFilterViewModel);
-			_filterView.HeightRequest = 400;
+			_filterView.HeightRequest = 200;
 			vboxParameters.Add(_filterView);
 			_filterView.Show();
 		}
