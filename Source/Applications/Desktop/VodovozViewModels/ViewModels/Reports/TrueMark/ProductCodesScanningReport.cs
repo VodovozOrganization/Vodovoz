@@ -12,7 +12,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.Extensions;
@@ -55,7 +54,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 			RouteList routeListAlias = null;
 			Employee driverAlias = null;
 			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCodeAlias = null;
-			CarVersion carVersionAlias = null;
 			Subdivision subdivisionAlias = null;
 			GeoGroup geoGroupAlias = null;
 			ScannedCodeInfo resultAlias = null;
@@ -97,12 +95,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 				.JoinEntityAlias(() => routeListItemAlias, () => cashReceiptAlias.Order.Id == routeListItemAlias.Order.Id, JoinType.InnerJoin)
 				.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
 				.JoinAlias(() => routeListAlias.Driver, () => driverAlias)
-				//.JoinEntityAlias(
-				//		() => carVersionAlias,
-				//		() => carVersionAlias.Car.Id == routeListAlias.Car.Id
-				//			&& carVersionAlias.StartDate <= routeListAlias.Date
-				//			&& (carVersionAlias.EndDate == null || carVersionAlias.EndDate > routeListAlias.Date),
-				//		JoinType.LeftOuterJoin)
 				.Left.JoinAlias(() => driverAlias.Subdivision, () => subdivisionAlias)
 				.Left.JoinAlias(() => subdivisionAlias.GeographicGroup, () => geoGroupAlias)
 				.Where(() => cashReceiptAlias.CreateDate >= createDateFrom
@@ -111,7 +103,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 				.SelectList(list => list
 					.Select(() => driverAlias.Id).WithAlias(() => resultAlias.DriverId)
 					.Select(driverFioProjection).WithAlias(() => resultAlias.DriverFIO)
-					//.Select(() => carVersionAlias.CarOwnType).WithAlias(() => resultAlias.CarOwnType)
 					.Select(() => driverAlias.DriverOfCarOwnType).WithAlias(() => resultAlias.CarOwnType)
 					.Select(() => geoGroupAlias.Name).WithAlias(() => resultAlias.DriverSubdivisionGeoGroup)
 					.Select(() => cashReceiptProductCodeAlias.SourceCode.Id).WithAlias(() => resultAlias.SourceCodeId)
