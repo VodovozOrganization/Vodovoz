@@ -28,9 +28,6 @@ namespace Vodovoz.SidePanel.InfoViews
 		public UndeliveredOrdersPanelView()
 		{
 			this.Build();
-
-			Gdk.Color wh = GdkColors.PrimaryBase;
-			Gdk.Color gr = GdkColors.SuccessBase;
 			yTreeView.ColumnsConfig = ColumnsConfigFactory.Create<object[]>()
 				.AddColumn("Ответственный")
 					.AddTextRenderer(n => n[0] != null ? n[0].ToString() : "")
@@ -39,7 +36,7 @@ namespace Vodovoz.SidePanel.InfoViews
 					.AddTextRenderer(n => n[1].ToString())
 					.WrapWidth(50).WrapMode(Pango.WrapMode.WordChar)
 				.RowCells()
-					.AddSetter<CellRenderer>((c, n) => c.CellBackgroundGdk = (int)n[2] % 2 == 0 ? wh : gr)
+					.AddSetter<CellRenderer>((c, n) => c.CellBackgroundGdk = (int)n[2] % 2 == 0 ? GdkColors.PrimaryBase : GdkColors.InsensitiveBase)
 				.Finish();
 			
 			_uow = UnitOfWorkFactory.CreateWithoutRoot();

@@ -63,7 +63,7 @@ namespace Vodovoz.Infrastructure
 
 		public static Color InfoText { get; } = IsLight ? new Color(0x00, 0x18, 0xf9) : new Color(70, 90, 204);
 
-		public static Color InfoBase { get; } = new Color(0xbb, 0xbb, 0xff);
+		public static Color InfoBase { get; } = IsLight ? new Color(0xbb, 0xbb, 0xff) : new Color(52, 67, 153);
 
 		#endregion Info
 
@@ -83,20 +83,15 @@ namespace Vodovoz.Infrastructure
 		public static Color Pink { get; } = IsLight ? new Color(0xff, 0xc0, 0xc0) : new Color(164, 123, 123);
 		public static Color LightYellow2 { get; } = new Color(255, 243, 199);
 		public static Color Orange { get; } = new Color(0xfc, 0x66, 0x00);
-		public static Color LightGray { get; } = new Color(0xcc, 0xcc, 0xcc);
-		public static Color DarkGray { get; } = new Color(0x80, 0x80, 0x80);
 		public static Color DarkGreen { get; } = new Color(32, 100, 17);
 		public static Color CadetBlue { get; } = IsLight ? new Color(95, 158, 160) : new Color(140, 178, 179);
 		public static Color BabyBlue { get; } = new Color(0x89, 0xcf, 0xef);
 		public static Color LightPurple { get; } = new Color(199, 206, 255);
 		public static Color LightCoral { get; } = new Color(240, 128, 128);
 		public static Color Turquoise { get; } = new Color(64, 224, 208);
-
 		public static Color DarkMustard { get; } = IsLight ? new Color(0xb3, 0xb3, 0x00) : new Color(255, 219, 88);
-
 		public static Color CashFlowTotalColor { get; } = IsLight ? new Color(249, 191, 143) : new Color(233, 84, 32);
-
-		public static Color ComplaintDiscussionCommentBase { get; } = new Color(230, 230, 245);
+		public static Color ComplaintDiscussionCommentBase { get; } = IsLight ? new Color(230, 230, 245) : new Color(62, 62, 65);
 
 		#endregion AdditionalColors
 	}

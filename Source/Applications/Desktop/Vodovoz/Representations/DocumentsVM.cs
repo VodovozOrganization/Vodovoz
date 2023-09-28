@@ -809,7 +809,7 @@ namespace Vodovoz.ViewModel
 			.RowCells()
 			.AddSetter<CellRenderer>((cell, node) =>
 			{
-				Color color = GdkColors.PrimaryText;
+				Color color = GdkColors.PrimaryBase;
 				if(node.DocTypeEnum == DocumentType.MovementDocument)
 				{
 					switch(node.MovementDocumentStatus)
