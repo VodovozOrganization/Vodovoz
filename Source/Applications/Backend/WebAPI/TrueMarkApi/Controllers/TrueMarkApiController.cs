@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
@@ -166,8 +166,9 @@ namespace TrueMarkApi.Controllers
 					_logger.LogInformation($"responseBody: {responseBody}");
 
 					var productInstancesInfo = cisesInformation.Select(x =>
-						new ProductInstanceStatus { 
-							IdentificationCode = x.CisInfo.RequestedCis, 
+						new ProductInstanceStatus
+						{
+							IdentificationCode = x.CisInfo.RequestedCis,
 							Status = GetStatus(x.CisInfo.Status),
 							OwnerInn = x.CisInfo.OwnerInn,
 							OwnerName = x.CisInfo.OwnerName
@@ -195,7 +196,7 @@ namespace TrueMarkApi.Controllers
 				};
 			}
 		}
-		private ProductInstanceStatusEnum GetStatus(string statusName)
+		private ProductInstanceStatusEnum? GetStatus(string statusName)
 		{
 			switch(statusName)
 			{
@@ -220,7 +221,7 @@ namespace TrueMarkApi.Controllers
 				case "APPLIED_NOT_PAID":
 					return ProductInstanceStatusEnum.AppliedNotPaid;
 				default:
-					throw new InvalidOperationException($"Не известный статус экземпляра продукта: {statusName}");
+					return null;
 			}
 		}
 	}
