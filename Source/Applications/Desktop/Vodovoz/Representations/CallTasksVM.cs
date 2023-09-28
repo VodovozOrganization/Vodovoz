@@ -28,8 +28,8 @@ namespace Vodovoz.Representations
 {
 	public class CallTasksVM : QSOrmProject.RepresentationModel.RepresentationModelEntityBase<CallTask, CallTaskVMNode>
 	{
-		private readonly Pixbuf img;
-		private readonly Pixbuf emptyImg;
+		private readonly Pixbuf _emptyImg = new Pixbuf(typeof(Startup).Assembly, "Vodovoz.icons.common.empty16.png");
+		private readonly Pixbuf _fire = new Pixbuf(typeof(Startup).Assembly, "Vodovoz.icons.common.fire16.png");
 		private readonly IFileDialogService _fileDialogService;
 
 		private CallTaskFilterViewModel filter;
@@ -55,7 +55,7 @@ namespace Vodovoz.Representations
 
 		public override IColumnsConfig ColumnsConfig => FluentColumnsConfig<CallTaskVMNode>.Create()
 			.AddColumn("№").AddTextRenderer(node => node.Id.ToString())
-			.AddColumn("Срочность").AddPixbufRenderer(node => node.ImportanceDegree == ImportanceDegreeType.Important && !node.IsTaskComplete ? img : emptyImg)
+			.AddColumn("Срочность").AddPixbufRenderer(node => node.ImportanceDegree == ImportanceDegreeType.Important && !node.IsTaskComplete ? _fire : _emptyImg)
 			.AddColumn("Статус").AddEnumRenderer(node => node.TaskStatus)
 			.AddColumn("Клиент").AddTextRenderer(node => node.ClientName ?? String.Empty).WrapWidth(500).WrapMode(WrapMode.WordChar)
 			.AddColumn("Адрес").AddTextRenderer(node => node.AddressName ?? "Самовывоз").WrapWidth(500).WrapMode(WrapMode.WordChar)
@@ -86,9 +86,6 @@ namespace Vodovoz.Representations
 		public CallTasksVM(IImageProvider imageProvider, IFileDialogService fileDialogService)
 		{
 			_fileDialogService = fileDialogService;
-			img = new Pixbuf(UoW.GetById<StoredResource>(imageProvider.GetCrmIndicatorId()).BinaryFile);
-			emptyImg = img.Copy();
-			emptyImg.Fill(0xffffffff);
 		}
 
 		public override void UpdateNodes()
