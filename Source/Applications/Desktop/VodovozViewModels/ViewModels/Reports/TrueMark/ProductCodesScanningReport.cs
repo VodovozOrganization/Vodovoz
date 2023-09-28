@@ -12,7 +12,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.TrueMark;
+using Vodovoz.Extensions;
 using Vodovoz.Tools;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
@@ -52,6 +55,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 			RouteList routeListAlias = null;
 			Employee driverAlias = null;
 			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCodeAlias = null;
+			CarVersion carVersionAlias = null;
+			Subdivision subdivisionAlias = null;
+			GeoGroup geoGroupAlias = null;
 			ScannedCodeInfo resultAlias = null;
 
 			var driverFioProjection = CustomProjections.Concat_WS(
@@ -91,12 +97,23 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 				.JoinEntityAlias(() => routeListItemAlias, () => cashReceiptAlias.Order.Id == routeListItemAlias.Order.Id, JoinType.InnerJoin)
 				.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
 				.JoinAlias(() => routeListAlias.Driver, () => driverAlias)
+				//.JoinEntityAlias(
+				//		() => carVersionAlias,
+				//		() => carVersionAlias.Car.Id == routeListAlias.Car.Id
+				//			&& carVersionAlias.StartDate <= routeListAlias.Date
+				//			&& (carVersionAlias.EndDate == null || carVersionAlias.EndDate > routeListAlias.Date),
+				//		JoinType.LeftOuterJoin)
+				.Left.JoinAlias(() => driverAlias.Subdivision, () => subdivisionAlias)
+				.Left.JoinAlias(() => subdivisionAlias.GeographicGroup, () => geoGroupAlias)
 				.Where(() => cashReceiptAlias.CreateDate >= createDateFrom
 					&& cashReceiptAlias.CreateDate < createDateTo.AddDays(1)
 					&& !cashReceiptAlias.WithoutMarks)
 				.SelectList(list => list
 					.Select(() => driverAlias.Id).WithAlias(() => resultAlias.DriverId)
 					.Select(driverFioProjection).WithAlias(() => resultAlias.DriverFIO)
+					//.Select(() => carVersionAlias.CarOwnType).WithAlias(() => resultAlias.CarOwnType)
+					.Select(() => driverAlias.DriverOfCarOwnType).WithAlias(() => resultAlias.CarOwnType)
+					.Select(() => geoGroupAlias.Name).WithAlias(() => resultAlias.DriverSubdivisionGeoGroup)
 					.Select(() => cashReceiptProductCodeAlias.SourceCode.Id).WithAlias(() => resultAlias.SourceCodeId)
 					.Select(() => cashReceiptProductCodeAlias.IsDuplicateSourceCode).WithAlias(() => resultAlias.IsDuplicateSourceCode)
 					.Select(isProductCodeSingleDuplicatedProjection).WithAlias(() => resultAlias.IsProductCodeSingleDuplicated)
@@ -109,7 +126,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 				.ToList();
 
 			var groupedByDriverCodes = codesScannedByDrivers
-				.GroupBy(c => new { c.DriverId, c.DriverFIO })
+				.GroupBy(c => new { c.DriverId, c.DriverFIO, c.CarOwnType, c.DriverSubdivisionGeoGroup })
 				.ToDictionary(g => g.Key, g => g.ToList());
 
 			var rows = new List<Row>();
@@ -118,11 +135,15 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 			foreach(var item in groupedByDriverCodes)
 			{
 				var driver = item.Key.DriverFIO;
+				var carOwnType = item.Key.CarOwnType;
+				var driverSubdivisionGeoGroup = item.Key.DriverSubdivisionGeoGroup;
 				var codes = item.Value;
 
 				var row = new Row();
 
 				row.DriverFIO = driver;
+				row.CarOwnTypeString = carOwnType.GetEnumDisplayName();
+				row.DriverSubdivisionGeoGroup = driverSubdivisionGeoGroup;
 				row.TotalCodesCount = codes.Count;
 				row.SuccessfullyScannedCodesCount = GetSuccessfullyScannedCodesCount(codes);
 				row.UnscannedCodesCount = GetUnscannedCodesCount(codes);
@@ -220,6 +241,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 
 			RenderTableTitleCell(worksheet, rowNumber, colNumber++, "№");
 			RenderTableTitleCell(worksheet, rowNumber, colNumber++, "Водитель");
+			RenderTableTitleCell(worksheet, rowNumber, colNumber++, "Принадлежность ТС");
+			RenderTableTitleCell(worksheet, rowNumber, colNumber++, "Площадка");
 			RenderTableTitleCell(worksheet, rowNumber, colNumber++, "Требуется кодов в заказах за период, шт.");
 			RenderTableTitleCell(worksheet, rowNumber, colNumber++, "Успешно отсканировано кодов, шт.");
 			RenderTableTitleCell(worksheet, rowNumber, colNumber++, "Успешно отсканировано кодов, %");
@@ -239,6 +262,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 
 			RenderNumericCell(worksheet, rowNumber, colNumber++, dataNumber);
 			RenderStringCell(worksheet, rowNumber, colNumber++, values.DriverFIO);
+			RenderStringCell(worksheet, rowNumber, colNumber++, values.CarOwnTypeString);
+			RenderStringCell(worksheet, rowNumber, colNumber++, values.DriverSubdivisionGeoGroup);
 			RenderNumericCell(worksheet, rowNumber, colNumber++, values.TotalCodesCount);
 			RenderNumericCell(worksheet, rowNumber, colNumber++, values.SuccessfullyScannedCodesCount);
 			RenderNumericFloatingPointCell(worksheet, rowNumber, colNumber++, values.SuccessfullyScannedCodesPercent);
