@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz
 {
-	[Appellative(Gender = GrammaticalGender.Masculine
+	[Appellative(Gender = GrammaticalGender.Masculine,
 		Nominative = "тип подразделения",
 		NominativePlural = "типы подразделений")]
 	public enum SubdivisionType
