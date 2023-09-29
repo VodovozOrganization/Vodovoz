@@ -6,19 +6,23 @@ namespace Vodovoz.ViewWidgets.Reports
 	{
 		private global::Gamma.GtkWidgets.yVBox yvboxMain;
 
+		private global::Gamma.GtkWidgets.yHBox yhboxSelectionButtons;
+
+		private global::Gamma.GtkWidgets.yButton ybuttonClearIncludes;
+
+		private global::Gamma.GtkWidgets.yButton ybuttonClearExcludes;
+
+		private global::Gtk.VSeparator vseparator1;
+
+		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonShowArchive;
+
 		private global::Gamma.GtkWidgets.yHBox yhboxSearch;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelSearch;
 
 		private global::Gamma.GtkWidgets.yEntry yentrySearch;
 
-		private global::Gamma.GtkWidgets.yHBox yhboxSelectionButtons;
-
-		private global::Gamma.GtkWidgets.yButton ybuttonSelectAll;
-
-		private global::Gamma.GtkWidgets.yButton ybuttonRemoveAll;
-
-		private global::Gamma.GtkWidgets.yButton ybuttonInversSelected;
+		private global::Gamma.GtkWidgets.yButton ybuttonSearchClear;
 
 		private global::Gamma.GtkWidgets.yHBox yhbox3;
 
@@ -39,6 +43,59 @@ namespace Vodovoz.ViewWidgets.Reports
 			this.yvboxMain.Name = "yvboxMain";
 			this.yvboxMain.Spacing = 6;
 			// Container child yvboxMain.Gtk.Box+BoxChild
+			this.yhboxSelectionButtons = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxSelectionButtons.WidthRequest = 0;
+			this.yhboxSelectionButtons.HeightRequest = 0;
+			this.yhboxSelectionButtons.Name = "yhboxSelectionButtons";
+			this.yhboxSelectionButtons.Spacing = 6;
+			// Container child yhboxSelectionButtons.Gtk.Box+BoxChild
+			this.ybuttonClearIncludes = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonClearIncludes.CanFocus = true;
+			this.ybuttonClearIncludes.Name = "ybuttonClearIncludes";
+			this.ybuttonClearIncludes.UseUnderline = true;
+			this.ybuttonClearIncludes.Label = global::Mono.Unix.Catalog.GetString("Снять ✔");
+			this.yhboxSelectionButtons.Add(this.ybuttonClearIncludes);
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.yhboxSelectionButtons[this.ybuttonClearIncludes]));
+			w1.Position = 0;
+			w1.Expand = false;
+			w1.Fill = false;
+			// Container child yhboxSelectionButtons.Gtk.Box+BoxChild
+			this.ybuttonClearExcludes = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonClearExcludes.CanFocus = true;
+			this.ybuttonClearExcludes.Name = "ybuttonClearExcludes";
+			this.ybuttonClearExcludes.UseUnderline = true;
+			this.ybuttonClearExcludes.Label = global::Mono.Unix.Catalog.GetString("Снять X");
+			this.yhboxSelectionButtons.Add(this.ybuttonClearExcludes);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.yhboxSelectionButtons[this.ybuttonClearExcludes]));
+			w2.Position = 1;
+			w2.Expand = false;
+			w2.Fill = false;
+			// Container child yhboxSelectionButtons.Gtk.Box+BoxChild
+			this.vseparator1 = new global::Gtk.VSeparator();
+			this.vseparator1.Name = "vseparator1";
+			this.yhboxSelectionButtons.Add(this.vseparator1);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.yhboxSelectionButtons[this.vseparator1]));
+			w3.Position = 2;
+			w3.Expand = false;
+			w3.Fill = false;
+			// Container child yhboxSelectionButtons.Gtk.Box+BoxChild
+			this.ycheckbuttonShowArchive = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckbuttonShowArchive.CanFocus = true;
+			this.ycheckbuttonShowArchive.Name = "ycheckbuttonShowArchive";
+			this.ycheckbuttonShowArchive.Label = global::Mono.Unix.Catalog.GetString("Показать\nархивные");
+			this.ycheckbuttonShowArchive.DrawIndicator = true;
+			this.ycheckbuttonShowArchive.UseUnderline = true;
+			this.yhboxSelectionButtons.Add(this.ycheckbuttonShowArchive);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.yhboxSelectionButtons[this.ycheckbuttonShowArchive]));
+			w4.Position = 4;
+			w4.Expand = false;
+			w4.Fill = false;
+			this.yvboxMain.Add(this.yhboxSelectionButtons);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxSelectionButtons]));
+			w5.Position = 0;
+			w5.Expand = false;
+			w5.Fill = false;
+			// Container child yvboxMain.Gtk.Box+BoxChild
 			this.yhboxSearch = new global::Gamma.GtkWidgets.yHBox();
 			this.yhboxSearch.Name = "yhboxSearch";
 			this.yhboxSearch.Spacing = 6;
@@ -48,10 +105,10 @@ namespace Vodovoz.ViewWidgets.Reports
 			this.ylabelSearch.Xalign = 1F;
 			this.ylabelSearch.LabelProp = global::Mono.Unix.Catalog.GetString("Поиск:");
 			this.yhboxSearch.Add(this.ylabelSearch);
-			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.yhboxSearch[this.ylabelSearch]));
-			w1.Position = 0;
-			w1.Expand = false;
-			w1.Fill = false;
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.yhboxSearch[this.ylabelSearch]));
+			w6.Position = 0;
+			w6.Expand = false;
+			w6.Fill = false;
 			// Container child yhboxSearch.Gtk.Box+BoxChild
 			this.yentrySearch = new global::Gamma.GtkWidgets.yEntry();
 			this.yentrySearch.CanFocus = true;
@@ -59,55 +116,27 @@ namespace Vodovoz.ViewWidgets.Reports
 			this.yentrySearch.IsEditable = true;
 			this.yentrySearch.InvisibleChar = '•';
 			this.yhboxSearch.Add(this.yentrySearch);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.yhboxSearch[this.yentrySearch]));
-			w2.Position = 1;
-			this.yvboxMain.Add(this.yhboxSearch);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxSearch]));
-			w3.Position = 0;
-			w3.Expand = false;
-			w3.Fill = false;
-			// Container child yvboxMain.Gtk.Box+BoxChild
-			this.yhboxSelectionButtons = new global::Gamma.GtkWidgets.yHBox();
-			this.yhboxSelectionButtons.Name = "yhboxSelectionButtons";
-			this.yhboxSelectionButtons.Spacing = 6;
-			// Container child yhboxSelectionButtons.Gtk.Box+BoxChild
-			this.ybuttonSelectAll = new global::Gamma.GtkWidgets.yButton();
-			this.ybuttonSelectAll.CanFocus = true;
-			this.ybuttonSelectAll.Name = "ybuttonSelectAll";
-			this.ybuttonSelectAll.UseUnderline = true;
-			this.ybuttonSelectAll.Label = global::Mono.Unix.Catalog.GetString("Выбрать все");
-			this.yhboxSelectionButtons.Add(this.ybuttonSelectAll);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.yhboxSelectionButtons[this.ybuttonSelectAll]));
-			w4.Position = 0;
-			w4.Expand = false;
-			w4.Fill = false;
-			// Container child yhboxSelectionButtons.Gtk.Box+BoxChild
-			this.ybuttonRemoveAll = new global::Gamma.GtkWidgets.yButton();
-			this.ybuttonRemoveAll.CanFocus = true;
-			this.ybuttonRemoveAll.Name = "ybuttonRemoveAll";
-			this.ybuttonRemoveAll.UseUnderline = true;
-			this.ybuttonRemoveAll.Label = global::Mono.Unix.Catalog.GetString("Снять все");
-			this.yhboxSelectionButtons.Add(this.ybuttonRemoveAll);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.yhboxSelectionButtons[this.ybuttonRemoveAll]));
-			w5.Position = 1;
-			w5.Expand = false;
-			w5.Fill = false;
-			// Container child yhboxSelectionButtons.Gtk.Box+BoxChild
-			this.ybuttonInversSelected = new global::Gamma.GtkWidgets.yButton();
-			this.ybuttonInversSelected.CanFocus = true;
-			this.ybuttonInversSelected.Name = "ybuttonInversSelected";
-			this.ybuttonInversSelected.UseUnderline = true;
-			this.ybuttonInversSelected.Label = global::Mono.Unix.Catalog.GetString("Инвертировать");
-			this.yhboxSelectionButtons.Add(this.ybuttonInversSelected);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.yhboxSelectionButtons[this.ybuttonInversSelected]));
-			w6.Position = 2;
-			w6.Expand = false;
-			w6.Fill = false;
-			this.yvboxMain.Add(this.yhboxSelectionButtons);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxSelectionButtons]));
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.yhboxSearch[this.yentrySearch]));
 			w7.Position = 1;
-			w7.Expand = false;
-			w7.Fill = false;
+			// Container child yhboxSearch.Gtk.Box+BoxChild
+			this.ybuttonSearchClear = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonSearchClear.CanFocus = true;
+			this.ybuttonSearchClear.Name = "ybuttonSearchClear";
+			this.ybuttonSearchClear.UseUnderline = true;
+			global::Gtk.Image w8 = new global::Gtk.Image();
+			w8.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-clear", global::Gtk.IconSize.Menu);
+			this.ybuttonSearchClear.Image = w8;
+			this.yhboxSearch.Add(this.ybuttonSearchClear);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.yhboxSearch[this.ybuttonSearchClear]));
+			w9.PackType = ((global::Gtk.PackType)(1));
+			w9.Position = 2;
+			w9.Expand = false;
+			w9.Fill = false;
+			this.yvboxMain.Add(this.yhboxSearch);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxSearch]));
+			w10.Position = 1;
+			w10.Expand = false;
+			w10.Fill = false;
 			// Container child yvboxMain.Gtk.Box+BoxChild
 			this.yhbox3 = new global::Gamma.GtkWidgets.yHBox();
 			this.yhbox3.Name = "yhbox3";
@@ -118,15 +147,15 @@ namespace Vodovoz.ViewWidgets.Reports
 			this.ylabelSelectedInfo.Xalign = 0F;
 			this.ylabelSelectedInfo.LabelProp = global::Mono.Unix.Catalog.GetString("Выбрано:");
 			this.yhbox3.Add(this.ylabelSelectedInfo);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.yhbox3[this.ylabelSelectedInfo]));
-			w8.Position = 0;
-			w8.Expand = false;
-			w8.Fill = false;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.yhbox3[this.ylabelSelectedInfo]));
+			w11.Position = 0;
+			w11.Expand = false;
+			w11.Fill = false;
 			this.yvboxMain.Add(this.yhbox3);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhbox3]));
-			w9.Position = 2;
-			w9.Expand = false;
-			w9.Fill = false;
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhbox3]));
+			w12.Position = 2;
+			w12.Expand = false;
+			w12.Fill = false;
 			// Container child yvboxMain.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -137,8 +166,8 @@ namespace Vodovoz.ViewWidgets.Reports
 			this.ytreeviewCarModelsList.Name = "ytreeviewCarModelsList";
 			this.GtkScrolledWindow.Add(this.ytreeviewCarModelsList);
 			this.yvboxMain.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.GtkScrolledWindow]));
-			w11.Position = 3;
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.GtkScrolledWindow]));
+			w14.Position = 3;
 			this.Add(this.yvboxMain);
 			if ((this.Child != null))
 			{

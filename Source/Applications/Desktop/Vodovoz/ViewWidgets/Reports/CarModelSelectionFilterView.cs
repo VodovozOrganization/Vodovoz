@@ -20,9 +20,9 @@ namespace Vodovoz.ViewWidgets.Reports
 				.AddBinding(ViewModel, vm => vm.SearchString, w => w.Text)
 				.InitializeFromSource();
 
-			ybuttonSelectAll.Clicked += (s, e) => ViewModel.SelectAllRowsCommand?.Execute();
-			ybuttonRemoveAll.Clicked += (s, e) => ViewModel.RemoveAllRowsSelectionCommand?.Execute();
-			ybuttonInversSelected.Clicked += (s, e) => ViewModel.InverseSelectionCommand?.Execute();
+			//ybuttonSelectAll.Clicked += (s, e) => ViewModel.SelectAllRowsCommand?.Execute();
+			//ybuttonRemoveAll.Clicked += (s, e) => ViewModel.RemoveAllRowsSelectionCommand?.Execute();
+			//ybuttonInversSelected.Clicked += (s, e) => ViewModel.InverseSelectionCommand?.Execute();
 
 			ylabelSelectedInfo.Binding
 				.AddBinding(ViewModel, vm => vm.SelectedRowsCountInfo, w => w.Text)
