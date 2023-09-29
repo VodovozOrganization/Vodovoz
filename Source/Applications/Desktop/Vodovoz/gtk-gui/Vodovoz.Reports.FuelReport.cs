@@ -26,6 +26,12 @@ namespace Vodovoz.Reports
 
 		private global::Gamma.GtkWidgets.yCheckButton yCheckButtonDatailedSummary;
 
+		private global::Gamma.GtkWidgets.yVBox yvboxCarModel;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelCarModel;
+
+		private global::Gamma.GtkWidgets.yHBox yhboxCarModelContainer;
+
 		private global::Gtk.HBox hboxDriver;
 
 		private global::Gtk.Label labelDriver;
@@ -151,11 +157,37 @@ namespace Vodovoz.Reports
 			this.hbox5.Add(this.vbox3);
 			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.vbox3]));
 			w9.Position = 1;
+			w9.Expand = false;
+			w9.Fill = false;
 			this.vbox1.Add(this.hbox5);
 			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox5]));
 			w10.Position = 1;
 			w10.Expand = false;
 			w10.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.yvboxCarModel = new global::Gamma.GtkWidgets.yVBox();
+			this.yvboxCarModel.Name = "yvboxCarModel";
+			this.yvboxCarModel.Spacing = 6;
+			// Container child yvboxCarModel.Gtk.Box+BoxChild
+			this.ylabelCarModel = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelCarModel.Name = "ylabelCarModel";
+			this.ylabelCarModel.Xalign = 0F;
+			this.ylabelCarModel.LabelProp = global::Mono.Unix.Catalog.GetString("Модель:");
+			this.yvboxCarModel.Add(this.ylabelCarModel);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.yvboxCarModel[this.ylabelCarModel]));
+			w11.Position = 0;
+			w11.Expand = false;
+			w11.Fill = false;
+			// Container child yvboxCarModel.Gtk.Box+BoxChild
+			this.yhboxCarModelContainer = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxCarModelContainer.Name = "yhboxCarModelContainer";
+			this.yhboxCarModelContainer.Spacing = 6;
+			this.yvboxCarModel.Add(this.yhboxCarModelContainer);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.yvboxCarModel[this.yhboxCarModelContainer]));
+			w12.Position = 1;
+			this.vbox1.Add(this.yvboxCarModel);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.yvboxCarModel]));
+			w13.Position = 2;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hboxDriver = new global::Gtk.HBox();
 			this.hboxDriver.Name = "hboxDriver";
@@ -165,23 +197,24 @@ namespace Vodovoz.Reports
 			this.labelDriver.Name = "labelDriver";
 			this.labelDriver.LabelProp = global::Mono.Unix.Catalog.GetString("Водитель:");
 			this.hboxDriver.Add(this.labelDriver);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hboxDriver[this.labelDriver]));
-			w11.Position = 0;
-			w11.Expand = false;
-			w11.Fill = false;
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hboxDriver[this.labelDriver]));
+			w14.Position = 0;
+			w14.Expand = false;
+			w14.Fill = false;
 			// Container child hboxDriver.Gtk.Box+BoxChild
 			this.evmeDriver = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.evmeDriver.Events = ((global::Gdk.EventMask)(256));
 			this.evmeDriver.Name = "evmeDriver";
 			this.evmeDriver.CanEditReference = true;
+			this.evmeDriver.CanOpenWithoutTabParent = false;
 			this.hboxDriver.Add(this.evmeDriver);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hboxDriver[this.evmeDriver]));
-			w12.Position = 1;
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hboxDriver[this.evmeDriver]));
+			w15.Position = 1;
 			this.vbox1.Add(this.hboxDriver);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hboxDriver]));
-			w13.Position = 2;
-			w13.Expand = false;
-			w13.Fill = false;
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hboxDriver]));
+			w16.Position = 3;
+			w16.Expand = false;
+			w16.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hboxCar = new global::Gtk.HBox();
 			this.hboxCar.Name = "hboxCar";
@@ -191,23 +224,24 @@ namespace Vodovoz.Reports
 			this.label2.Name = "label2";
 			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("Автомобиль:");
 			this.hboxCar.Add(this.label2);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hboxCar[this.label2]));
-			w14.Position = 0;
-			w14.Expand = false;
-			w14.Fill = false;
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hboxCar[this.label2]));
+			w17.Position = 0;
+			w17.Expand = false;
+			w17.Fill = false;
 			// Container child hboxCar.Gtk.Box+BoxChild
 			this.entityviewmodelentryCar = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.entityviewmodelentryCar.Events = ((global::Gdk.EventMask)(256));
 			this.entityviewmodelentryCar.Name = "entityviewmodelentryCar";
 			this.entityviewmodelentryCar.CanEditReference = true;
+			this.entityviewmodelentryCar.CanOpenWithoutTabParent = false;
 			this.hboxCar.Add(this.entityviewmodelentryCar);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hboxCar[this.entityviewmodelentryCar]));
-			w15.Position = 1;
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hboxCar[this.entityviewmodelentryCar]));
+			w18.Position = 1;
 			this.vbox1.Add(this.hboxCar);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hboxCar]));
-			w16.Position = 3;
-			w16.Expand = false;
-			w16.Fill = false;
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hboxCar]));
+			w19.Position = 4;
+			w19.Expand = false;
+			w19.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hboxAuthor = new global::Gtk.HBox();
 			this.hboxAuthor.Name = "hboxAuthor";
@@ -217,23 +251,24 @@ namespace Vodovoz.Reports
 			this.labelAuthor.Name = "labelAuthor";
 			this.labelAuthor.LabelProp = global::Mono.Unix.Catalog.GetString("Автор:");
 			this.hboxAuthor.Add(this.labelAuthor);
-			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hboxAuthor[this.labelAuthor]));
-			w17.Position = 0;
-			w17.Expand = false;
-			w17.Fill = false;
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hboxAuthor[this.labelAuthor]));
+			w20.Position = 0;
+			w20.Expand = false;
+			w20.Fill = false;
 			// Container child hboxAuthor.Gtk.Box+BoxChild
 			this.evmeAuthor = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.evmeAuthor.Events = ((global::Gdk.EventMask)(256));
 			this.evmeAuthor.Name = "evmeAuthor";
 			this.evmeAuthor.CanEditReference = true;
+			this.evmeAuthor.CanOpenWithoutTabParent = false;
 			this.hboxAuthor.Add(this.evmeAuthor);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hboxAuthor[this.evmeAuthor]));
-			w18.Position = 1;
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.hboxAuthor[this.evmeAuthor]));
+			w21.Position = 1;
 			this.vbox1.Add(this.hboxAuthor);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hboxAuthor]));
-			w19.Position = 4;
-			w19.Expand = false;
-			w19.Fill = false;
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hboxAuthor]));
+			w22.Position = 5;
+			w22.Expand = false;
+			w22.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.buttonCreateReport = new global::Gtk.Button();
 			this.buttonCreateReport.CanFocus = true;
@@ -241,10 +276,10 @@ namespace Vodovoz.Reports
 			this.buttonCreateReport.UseUnderline = true;
 			this.buttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vbox1.Add(this.buttonCreateReport);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
-			w20.Position = 5;
-			w20.Expand = false;
-			w20.Fill = false;
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
+			w23.Position = 6;
+			w23.Expand = false;
+			w23.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
