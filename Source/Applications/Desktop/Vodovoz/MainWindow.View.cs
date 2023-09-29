@@ -1,17 +1,17 @@
-﻿using GLib;
-using Gtk;
+﻿using Gtk;
 using MoreLinq;
 using QS.Dialog.GtkUI;
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using Vodovoz;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Infrastructure;
 using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
 
 public partial class MainWindow
 {
+	private Dictionary<string, string> _themes;
+
 	#region Главная панель
 
 	/// <summary>
@@ -213,13 +213,15 @@ public partial class MainWindow
 
 	public void InitializeThemesMenuItem()
 	{
+		_themes = new Dictionary<string, string>();
+
 		string currentTheme = Gtk.Settings.Default.ThemeName;
 
 		string themesPath = Rc.ThemeDir;
 
-		var themes = System.IO.Directory.GetDirectories(themesPath)
-			.Select(x => x.Split(System.IO.Path.DirectorySeparatorChar).LastOrDefault());
-				
+		_themes.Add("Стандартная", "Breeze");
+		_themes.Add("Тёмная", "Fluent-round-Dark");
+
 		var viewMenuItem = menubarMain.Children.Where(x => x.Name == nameof(Action18)).Cast<ImageMenuItem>().FirstOrDefault();
 
 		var submenu = viewMenuItem.Submenu as Menu;
@@ -232,15 +234,15 @@ public partial class MainWindow
 
 		RadioMenuItem lastitem = null;
 
-		foreach(var theme in themes)
+		foreach(var theme in _themes)
 		{
-			var themeSubmenu = lastitem is null ? new RadioMenuItem(theme) : new RadioMenuItem(lastitem, theme);
+			var themeSubmenu = lastitem is null ? new RadioMenuItem(theme.Key) : new RadioMenuItem(lastitem, theme.Key);
 
 			lastitem = themeSubmenu;
 
-			themeSubmenu.Name = theme;
+			themeSubmenu.Name = theme.Key;
 
-			themeSubmenu.Active = theme == currentTheme;
+			themeSubmenu.Active = theme.Value == currentTheme;
 
 			themeSubmenu.Activated += ChangeTheme;
 
@@ -254,7 +256,6 @@ public partial class MainWindow
 
 	private void ChangeTheme(object sender, EventArgs args)
 	{
-
 		if(!(sender is RadioMenuItem menu))
 		{
 			return;
@@ -265,9 +266,18 @@ public partial class MainWindow
 		{
 			var userGtkRc = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".gtkrc-2.0");
 
-			System.IO.File.WriteAllText(userGtkRc, $"gtk-theme-name = \"{menu.Name}\"");
+			System.IO.File.WriteAllText(userGtkRc, $"gtk-theme-name = \"{_themes[menu.Name]}\"");
 
 			Gtk.Application.Quit();
+		}
+		else
+		{
+			string currentTheme = Gtk.Settings.Default.ThemeName;
+
+			foreach(RadioMenuItem menuItem in menu.Group)
+			{
+				menuItem.Active = _themes[menuItem.Name] == currentTheme;
+			}
 		}
 	}
 
