@@ -28,8 +28,8 @@ namespace Vodovoz.ViewWidgets.Reports
 				.AddBinding(ViewModel, vm => vm.SelectedRowsCountInfo, w => w.Text)
 				.InitializeFromSource();
 
-			ytreeviewCarModelsList.CreateFluentColumnsConfig<CarModelRow>()
-					.AddColumn("\t✔️")
+			ytreeviewCarModelsList.CreateFluentColumnsConfig<CarModelSelectableNode>()
+					.AddColumn("✔️")
 					.AddToggleRenderer(x => x.IsIncluded)
 					.AddColumn("X").AddToggleRenderer(x => x.IsExcluded)
 					.AddColumn("Модель").AddTextRenderer(x => x.ModelInfo)
@@ -47,6 +47,7 @@ namespace Vodovoz.ViewWidgets.Reports
 					})
 					.Finish();
 
+			ytreeviewCarModelsList.ItemsDataSource = ViewModel._carModelRows;
 		}
 	}
 }

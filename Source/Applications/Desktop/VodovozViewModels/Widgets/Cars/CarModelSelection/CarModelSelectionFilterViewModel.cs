@@ -1,4 +1,5 @@
 ﻿using QS.Commands;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.ViewModels;
 using System;
@@ -15,10 +16,9 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarModelSelection
 		private readonly IUnitOfWork _unitOfWork;
 
 		private string _searchString;
-		private string _selectedRowsCountInfo;
 		private bool _isShowArchiveCarModels;
 		private IEnumerable<CarTypeOfUse> _selectedCarTypesOfUse;
-		private GenericObservableList<CarModelRow> _carModelRows;
+		public GenericObservableList<CarModelSelectableNode> _carModelRows;
 
 		private DelegateCommand _selectAllRowsCommand;
 		private DelegateCommand _removeAllRowsSelectionCommand;
@@ -31,9 +31,29 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarModelSelection
 			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 
 			_carModels = GetCarModels();
-			_carModelRows.ListContentChanged += OnCarModelRowsListContentChanged;
+
+			_carModelRows = new GenericObservableList<CarModelSelectableNode>();
+			_carModelRows.ElementChanged += OnCarModelRowsElementChanged;
+			_carModelRows.ListContentChanged += _carModelRows_ListContentChanged;
+			_carModelRows.PropertyChanged += _carModelRows_PropertyChanged;
+			_carModelRows.PropertyOfElementChanged += _carModelRows_PropertyOfElementChanged;
 
 			UpdateCarModelsRows();
+		}
+
+		private void _carModelRows_PropertyOfElementChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			throw new NotImplementedException();
+		}
+
+		private void _carModelRows_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			throw new NotImplementedException();
+		}
+		 
+		private void _carModelRows_ListContentChanged(object sender, EventArgs e)
+		{
+			throw new NotImplementedException();
 		}
 
 		#region Properties
@@ -46,17 +66,21 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarModelSelection
 
 		public IEnumerable<CarTypeOfUse> SelectedCarTypesOfUse
 		{
-			get => _selectedCarTypesOfUse;
-			set => SetField(ref _selectedCarTypesOfUse, value);
+			get => _selectedCarTypesOfUse ?? new List<CarTypeOfUse>();
+			set
+			{
+				SetField(ref _selectedCarTypesOfUse, value);
+				UpdateCarModelsRows();
+			}
 		}
 
-		public GenericObservableList<CarModelRow> CarModelRows
+		public GenericObservableList<CarModelSelectableNode> CarModelRows
 		{
 			get
 			{
 				if(_carModelRows == null)
 				{
-					_carModelRows = new GenericObservableList<CarModelRow>();
+					_carModelRows = new GenericObservableList<CarModelSelectableNode>();
 				}
 
 				return _carModelRows;
@@ -69,11 +93,8 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarModelSelection
 			set => SetField(ref _isShowArchiveCarModels, value);
 		}
 
-		public string SelectedRowsCountInfo
-		{
-			get => _selectedRowsCountInfo;
-			set => SetField(ref _selectedRowsCountInfo, value);
-		}
+		public string SelectedRowsCountInfo =>
+			$"Выбрано: {IncludedCarModelRowsCount}\nИсключено: {ExcludedCarModelRowsCount}";
 
 		#endregion Properties
 
@@ -86,7 +107,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarModelSelection
 
 		public void UpdateCarModelsRows()
 		{
-			List<CarModelRow> carModelRows = new List<CarModelRow>();
+			List<CarModelSelectableNode> carModelRows = new List<CarModelSelectableNode>();
 
 			foreach(var carModel in _carModels)
 			{
@@ -96,9 +117,9 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarModelSelection
 						.Where(r => r.ModelId == carModel.Id)
 						.FirstOrDefault();
 
-					if(carModelRow != null)
+					if(carModelRow == null)
 					{
-						carModelRows.Add(CarModelRow.CreateCarModelRow(carModel));
+						carModelRow = CarModelSelectableNode.CreateCarModelRow(carModel);
 					}
 
 					carModelRows.Add(carModelRow);
@@ -107,7 +128,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarModelSelection
 
 			_carModelRows.Clear();
 
-			_carModelRows = new GenericObservableList<CarModelRow>(carModelRows);
+			_carModelRows = new GenericObservableList<CarModelSelectableNode>(carModelRows);
 
 			UpdateCarModelsRowsVisibility();
 		}
@@ -123,14 +144,19 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarModelSelection
 			}
 		}
 
-		public int SelectedCarModelRowsCount =>
+		public int IncludedCarModelRowsCount =>
 			_carModelRows
 				.Where(r => r.IsIncluded)
 				.Count();
 
-		private void OnCarModelRowsListContentChanged(object sender, EventArgs e)
+		public int ExcludedCarModelRowsCount =>
+			_carModelRows
+				.Where(r => r.IsIncluded)
+				.Count();
+
+		private void OnCarModelRowsElementChanged(object aList, int[] aIdx)
 		{
-			SelectedRowsCountInfo = $"Выбрано моделей: {SelectedCarModelRowsCount}";
+			OnPropertyChanged(nameof(SelectedRowsCountInfo));
 
 			FilterSelectionChanged?.Invoke(this, EventArgs.Empty);
 		}
@@ -223,18 +249,76 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarModelSelection
 
 		#endregion Commands
 
-		public class CarModelRow
+		public class CarModelSelectableNode : PropertyChangedBase
 		{
-			public int ModelId { get; set; }
-			public string ModelInfo { get; set; }
-			public bool IsArchive { get; set; }
-			public bool IsIncluded { get; set; }
-			public bool IsExcluded { get; set; }
-			public bool IsVisible { get; set; }
+			private int _modelId;
+			private string _modelInfo;
+			private bool _isArchive;
+			private bool _isIncluded;
+			private bool _isExcluded;
+			private bool _isVisible;
 
-			public static CarModelRow CreateCarModelRow(CarModel carModel)
+			public int ModelId
 			{
-				var carModelRow = new CarModelRow
+				get => _modelId;
+				set => SetField(ref _modelId, value);
+			}
+
+			public string ModelInfo
+			{
+				get => _modelInfo;
+				set => SetField(ref _modelInfo, value);
+			}
+
+			public bool IsArchive
+			{
+				get => _isArchive;
+				set => SetField(ref _isArchive, value);
+			}
+
+			public bool IsIncluded
+			{
+				get => _isIncluded;
+				set
+				{
+					if(_isIncluded != value)
+					{
+						SetField(ref _isIncluded, value);
+
+						if(_isIncluded)
+						{
+							IsExcluded = false;
+						}
+					}
+				}
+			}
+
+			public bool IsExcluded
+			{
+				get => _isExcluded;
+				set
+				{
+					if(_isExcluded != value)
+					{
+						SetField(ref _isExcluded, value);
+
+						if(_isExcluded)
+						{
+							IsIncluded = false;
+						}
+					}
+				}
+			}
+
+			public bool IsVisible
+			{
+				get => _isVisible;
+				set => SetField(ref _isVisible, value);
+			}
+
+			public static CarModelSelectableNode CreateCarModelRow(CarModel carModel)
+			{
+				var carModelRow = new CarModelSelectableNode
 				{
 					ModelId = carModel.Id,
 					ModelInfo = $"{carModel.CarManufacturer.Name} {carModel.Name}",
