@@ -94,9 +94,8 @@ namespace Vodovoz.EntityRepositories
 						where address.Order.Id == orderId
 							  && (address.Order.IsFastDelivery 
 							      || (
-								      address.WasTransfered 
-								      && address.Status != RouteListItemStatus.Transfered
-								      && address.AddressTransferType != AddressTransferType.FromHandToHand)
+								      address.Status != RouteListItemStatus.Transfered
+								      && address.AddressTransferType != null && address.AddressTransferType != AddressTransferType.FromHandToHand)
 							      )
 						select address.Id)
 					.Any();
