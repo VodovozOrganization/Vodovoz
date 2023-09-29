@@ -153,8 +153,8 @@ namespace DeliveryRulesService.Controllers
 					return response;
 				}
 
-				string message = ServiceConstants.DistrictNotFoundByCoordinates(latitude, longitude);
-				_logger.LogDebug(message);
+				var message = string.Format(ServiceConstants.DistrictNotFoundByCoordinates, latitude, longitude);
+				_logger.LogDebug(ServiceConstants.DistrictNotFoundByCoordinates, latitude, longitude);
 				return new DeliveryRulesDTO
 				{
 					StatusEnum = DeliveryRulesResponseStatus.RuleNotFound,
@@ -202,7 +202,7 @@ namespace DeliveryRulesService.Controllers
 						
 					if (!rulesToAdd.Any())
 					{
-						rulesToAdd = district.ObservableCommonDistrictRuleItems.Select((CommonDistrictRuleItem x) => x.Title).ToList();
+						rulesToAdd = district.ObservableCommonDistrictRuleItems.Select(x => x.Title).ToList();
 					}
 						
 					var scheduleRestrictions = GetScheduleRestrictions(district, weekDay, date, isStoppedOnlineDeliveriesToday);
@@ -226,8 +226,8 @@ namespace DeliveryRulesService.Controllers
 				return response;
 			}
 				
-			var message = ServiceConstants.DistrictNotFoundByCoordinates(latitude, longitude);
-			_logger.LogDebug(message);
+			var message = string.Format(ServiceConstants.DistrictNotFoundByCoordinates, latitude, longitude);
+			_logger.LogDebug(ServiceConstants.DistrictNotFoundByCoordinates, latitude, longitude);
 			
 			var result = new ExtendedDeliveryRulesDto();
 			result.RuleNotFoundState(message);
@@ -344,8 +344,9 @@ namespace DeliveryRulesService.Controllers
 					return FillDeliveryInfoDTO(district);
 				}
 
-				var message = ServiceConstants.DistrictNotFoundByCoordinates(latitude, longitude);
-				_logger.LogDebug(message);
+				var message = string.Format(ServiceConstants.DistrictNotFoundByCoordinates, latitude, longitude);
+				_logger.LogDebug(ServiceConstants.DistrictNotFoundByCoordinates, latitude, longitude);
+				
 				return new DeliveryInfoDTO
 				{
 					StatusEnum = DeliveryRulesResponseStatus.RuleNotFound,
