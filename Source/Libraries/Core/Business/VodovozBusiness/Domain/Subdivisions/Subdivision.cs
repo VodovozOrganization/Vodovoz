@@ -21,7 +21,7 @@ namespace Vodovoz
 		Nominative = "подразделение")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class Subdivision : PropertyChangedBase, IDomainObject, IValidatableObject, INamed
+	public class Subdivision : PropertyChangedBase, IDomainObject, IValidatableObject, INamed, IArchivable
 	{
 		private SalesPlan _defaultSalesPlan;
 		private string _name;
@@ -35,6 +35,7 @@ namespace Vodovoz
 		private GeoGroup _geographicGroup;
 		private SubdivisionType _subdivisionType;
 		private string _address;
+		private bool _isArchive;
 
 		#region Свойства
 
@@ -136,6 +137,13 @@ namespace Vodovoz
 		{
 			get => _address;
 			set => SetField(ref _address, value);
+		}
+
+		[Display(Name = "Архив")]
+		public virtual bool IsArchive
+		{
+			get => _isArchive;
+			set => SetField(ref _isArchive, value);
 		}
 
 		#endregion
