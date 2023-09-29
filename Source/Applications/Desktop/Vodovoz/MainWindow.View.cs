@@ -11,6 +11,7 @@ using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
 public partial class MainWindow
 {
 	private Dictionary<string, string> _themes;
+	private bool _themeResetInProcess = false;
 
 	#region Главная панель
 
@@ -244,7 +245,7 @@ public partial class MainWindow
 
 			themeSubmenu.Active = theme.Value == currentTheme;
 
-			themeSubmenu.Activated += ChangeTheme;
+			themeSubmenu.Toggled += ChangeTheme;
 
 			subsubmenu.Append(themeSubmenu);
 		}
@@ -261,8 +262,17 @@ public partial class MainWindow
 			return;
 		}
 
-		if(menu.Active
-			&& MessageDialogHelper.RunQuestionDialog("Для применения данной настройки программа будет закрыта.\n Вы уверены?"))
+		if(!menu.Active)
+		{
+			return;
+		}
+
+		if(_themeResetInProcess)
+		{
+			return;
+		}
+
+		if(MessageDialogHelper.RunQuestionDialog("Для применения данной настройки программа будет закрыта.\n Вы уверены?"))
 		{
 			var userGtkRc = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".gtkrc-2.0");
 
@@ -272,12 +282,16 @@ public partial class MainWindow
 		}
 		else
 		{
+			_themeResetInProcess = true;
+
 			string currentTheme = Gtk.Settings.Default.ThemeName;
 
 			foreach(RadioMenuItem menuItem in menu.Group)
 			{
 				menuItem.Active = _themes[menuItem.Name] == currentTheme;
 			}
+
+			_themeResetInProcess = false;
 		}
 	}
 
