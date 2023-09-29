@@ -36,6 +36,12 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		private global::Gtk.Label label5;
 
+		private global::Gamma.GtkWidgets.yVBox yvboxCarModel;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelCarModel;
+
+		private global::Gamma.GtkWidgets.yHBox yhboxCarModelContainer;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -43,7 +49,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.ReportsParameters.Logistic.GeneralSalaryInfoReport";
 			// Container child Vodovoz.ReportsParameters.Logistic.GeneralSalaryInfoReport.Gtk.Container+ContainerChild
-			this.table1 = new global::Gtk.Table(((uint)(7)), ((uint)(4)), false);
+			this.table1 = new global::Gtk.Table(((uint)(8)), ((uint)(4)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
@@ -72,8 +78,8 @@ namespace Vodovoz.ReportsParameters.Logistic
 			this.buttonRun.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.table1.Add(this.buttonRun);
 			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.buttonRun]));
-			w3.TopAttach = ((uint)(6));
-			w3.BottomAttach = ((uint)(7));
+			w3.TopAttach = ((uint)(7));
+			w3.BottomAttach = ((uint)(8));
 			w3.RightAttach = ((uint)(4));
 			w3.XOptions = ((global::Gtk.AttachOptions)(4));
 			w3.YOptions = ((global::Gtk.AttachOptions)(4));
@@ -156,8 +162,8 @@ namespace Vodovoz.ReportsParameters.Logistic
 			this.entryEmployee.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.entryEmployee);
 			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.entryEmployee]));
-			w9.TopAttach = ((uint)(5));
-			w9.BottomAttach = ((uint)(6));
+			w9.TopAttach = ((uint)(6));
+			w9.BottomAttach = ((uint)(7));
 			w9.LeftAttach = ((uint)(1));
 			w9.RightAttach = ((uint)(4));
 			w9.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -224,8 +230,8 @@ namespace Vodovoz.ReportsParameters.Logistic
 			this.label4.LabelProp = global::Mono.Unix.Catalog.GetString("Сотрудник:");
 			this.table1.Add(this.label4);
 			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.table1[this.label4]));
-			w15.TopAttach = ((uint)(5));
-			w15.BottomAttach = ((uint)(6));
+			w15.TopAttach = ((uint)(6));
+			w15.BottomAttach = ((uint)(7));
 			w15.XOptions = ((global::Gtk.AttachOptions)(4));
 			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -239,6 +245,33 @@ namespace Vodovoz.ReportsParameters.Logistic
 			w16.BottomAttach = ((uint)(5));
 			w16.XOptions = ((global::Gtk.AttachOptions)(4));
 			w16.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.yvboxCarModel = new global::Gamma.GtkWidgets.yVBox();
+			this.yvboxCarModel.Name = "yvboxCarModel";
+			this.yvboxCarModel.Spacing = 6;
+			// Container child yvboxCarModel.Gtk.Box+BoxChild
+			this.ylabelCarModel = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelCarModel.Name = "ylabelCarModel";
+			this.ylabelCarModel.Xalign = 0F;
+			this.ylabelCarModel.LabelProp = global::Mono.Unix.Catalog.GetString("Модель:");
+			this.yvboxCarModel.Add(this.ylabelCarModel);
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.yvboxCarModel[this.ylabelCarModel]));
+			w17.Position = 0;
+			w17.Expand = false;
+			w17.Fill = false;
+			// Container child yvboxCarModel.Gtk.Box+BoxChild
+			this.yhboxCarModelContainer = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxCarModelContainer.Name = "yhboxCarModelContainer";
+			this.yhboxCarModelContainer.Spacing = 6;
+			this.yvboxCarModel.Add(this.yhboxCarModelContainer);
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.yvboxCarModel[this.yhboxCarModelContainer]));
+			w18.Position = 1;
+			this.table1.Add(this.yvboxCarModel);
+			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.table1[this.yvboxCarModel]));
+			w19.TopAttach = ((uint)(5));
+			w19.BottomAttach = ((uint)(6));
+			w19.RightAttach = ((uint)(4));
+			w19.XOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add(this.table1);
 			if ((this.Child != null))
 			{
