@@ -30,5 +30,12 @@ namespace DeliveryRulesService.DTO
 			WeekDayDeliveryRules = null;
 			Message = ServiceConstants.InternalErrorFromGetDeliveryRule;
 		}
+		
+		public void RuleNotFoundState(string message)
+		{
+			StatusEnum = DeliveryRulesResponseStatus.RuleNotFound;
+			WeekDayDeliveryRules = null;
+			Message = message;
+		}
 	}
 }

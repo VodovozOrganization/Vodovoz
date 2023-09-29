@@ -171,6 +171,7 @@ namespace DeliveryRulesService.Controllers
 
 			using var uow = _uowFactory.CreateWithoutRoot();
 			District district;
+			
 			try
 			{
 				district = _deliveryRepository.GetDistrict(uow, latitude, longitude);
@@ -182,6 +183,7 @@ namespace DeliveryRulesService.Controllers
 				district = _districtCache.Districts
 					.FirstOrDefault(x => x.DistrictBorder.Contains(new Point((double)latitude, (double)longitude)));
 			}
+			
 			if(district != null)
 			{
 				_logger.LogInformation("Район получен " + district.DistrictName);
@@ -226,13 +228,11 @@ namespace DeliveryRulesService.Controllers
 				
 			var message = ServiceConstants.DistrictNotFoundByCoordinates(latitude, longitude);
 			_logger.LogDebug(message);
-				
-			return new ExtendedDeliveryRulesDto
-			{
-				StatusEnum = DeliveryRulesResponseStatus.RuleNotFound,
-				WeekDayDeliveryRules = null,
-				Message = message
-			};
+			
+			var result = new ExtendedDeliveryRulesDto();
+			result.RuleNotFoundState(message);
+
+			return result;
 		}
 
 		[HttpPost]
