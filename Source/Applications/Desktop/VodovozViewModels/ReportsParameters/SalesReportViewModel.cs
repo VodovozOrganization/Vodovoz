@@ -20,6 +20,7 @@ using System.Reflection;
 using System.IO;
 using Vodovoz.Reports.Editing;
 using QS.DomainModel.Entity;
+using DateTimeHelpers;
 
 namespace Vodovoz.ViewModels.ReportsParameters
 {
@@ -217,8 +218,8 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			}
 
 			_parameters = FilterViewModel.GetReportParametersSet();
-			_parameters.Add("start_date", StartDate);
-			_parameters.Add("end_date", EndDate);
+			_parameters.Add("start_date", StartDate.Value.ToString("yyyy-MM-ddTHH:mm:ss"));
+			_parameters.Add("end_date", EndDate.Value.LatestDayTime().ToString("yyyy-MM-ddTHH:mm:ss"));
 			_parameters.Add("creation_date", DateTime.Now);
 			_parameters.Add("show_phones", ShowPhones);
 
