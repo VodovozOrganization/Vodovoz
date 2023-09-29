@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using DeliveryRulesService.Constants;
 using Fias.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
@@ -31,6 +32,7 @@ namespace DeliveryRulesService.Controllers
 		private readonly FiasApiClientFactory _fiasApiClientFactory;
 		private readonly IFiasApiClient _fiasApiClient;
 		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
+		private readonly INomenclatureParametersProvider _nomenclatureParametersProvider;
 		private readonly FastDeliveryAvailabilityHistoryModel _fastDeliveryAvailabilityHistoryModel;
 		private readonly DistrictCache _districtCache;
 		private readonly DeliverySchedule _fastDeliverySchedule;
@@ -43,6 +45,7 @@ namespace DeliveryRulesService.Controllers
 			INomenclatureRepository nomenclatureRepository,
 			FiasApiClientFactory fiasApiClientFactory,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
+			INomenclatureParametersProvider nomenclatureParametersProvider,
 			FastDeliveryAvailabilityHistoryModel fastDeliveryAvailabilityHistoryModel,
 			DistrictCache districtCache)
 		{
@@ -56,6 +59,8 @@ namespace DeliveryRulesService.Controllers
 			_fastDeliveryAvailabilityHistoryModel =
 				fastDeliveryAvailabilityHistoryModel ?? throw new ArgumentNullException(nameof(fastDeliveryAvailabilityHistoryModel));
 			_districtCache = districtCache ?? throw new ArgumentNullException(nameof(districtCache));
+			_nomenclatureParametersProvider =
+				nomenclatureParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
 			_cancellationTokenSource = new CancellationTokenSource();
 
 			_fiasApiClient = _fiasApiClientFactory.CreateClient();
@@ -81,7 +86,7 @@ namespace DeliveryRulesService.Controllers
 				{
 					StatusEnum = DeliveryRulesResponseStatus.Error,
 					WeekDayDeliveryRules = null,
-					Message = "Возникла внутренняя ошибка при получении правила доставки"
+					Message = ServiceConstants.InternalErrorFromGetDeliveryRule
 				};
 				_logger.LogError(ex, errorResult.Message);
 				return errorResult;
@@ -91,7 +96,7 @@ namespace DeliveryRulesService.Controllers
 		private DeliveryRulesDTO ExecuteGetRulesByDistrict(decimal latitude, decimal longitude)
 		{
 			var date = DateTime.Now;
-			_logger.LogInformation("Поступил запрос на получение правил доставки");
+			_logger.LogInformation(ServiceConstants.RequestToGetDeliveryRules());
 
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
@@ -103,8 +108,8 @@ namespace DeliveryRulesService.Controllers
 				}
 				catch(Exception e)
 				{
-					_logger.LogError(e, "Ошибка при подборе района по координатам");
-					_logger.LogInformation("Подбор района из кэша...");
+					_logger.LogError(e, ServiceConstants.ErrorGetDistrictByCoordinates);
+					_logger.LogInformation(ServiceConstants.GetDistrictFromCache);
 					district = _districtCache.Districts
 						.FirstOrDefault(x => x.DistrictBorder.Contains(new Point((double)latitude, (double)longitude)));
 				}
@@ -148,7 +153,7 @@ namespace DeliveryRulesService.Controllers
 					return response;
 				}
 
-				string message = $"Невозможно получить информацию о правилах доставки так как по координатам {latitude}, {longitude} не был найден район";
+				string message = ServiceConstants.DistrictNotFoundByCoordinates(latitude, longitude);
 				_logger.LogDebug(message);
 				return new DeliveryRulesDTO
 				{
@@ -157,6 +162,77 @@ namespace DeliveryRulesService.Controllers
 					Message = message
 				};
 			}
+		}
+		
+		private ExtendedDeliveryRulesDto ExecuteGetExtendedRulesByDistrict(decimal latitude, decimal longitude)
+		{
+			var date = DateTime.Now;
+			_logger.LogInformation(ServiceConstants.RequestToGetDeliveryRules(extended: true));
+
+			using var uow = _uowFactory.CreateWithoutRoot();
+			District district;
+			try
+			{
+				district = _deliveryRepository.GetDistrict(uow, latitude, longitude);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, ServiceConstants.ErrorGetDistrictByCoordinates);
+				_logger.LogInformation(ServiceConstants.GetDistrictFromCache);
+				district = _districtCache.Districts
+					.FirstOrDefault(x => x.DistrictBorder.Contains(new Point((double)latitude, (double)longitude)));
+			}
+			if(district != null)
+			{
+				_logger.LogInformation("Район получен " + district.DistrictName);
+					
+				var response = new ExtendedDeliveryRulesDto
+				{
+					WeekDayDeliveryRules = new List<ExtendedWeekDayDeliveryRuleDto>()
+				};
+					
+				var isStoppedOnlineDeliveriesToday = _deliveryRulesParametersProvider.IsStoppedOnlineDeliveriesToday;
+					
+				foreach(WeekDayName weekDay in Enum.GetValues(typeof(WeekDayName)))
+				{
+					var rulesToAdd =
+						(from x in district.GetWeekDayRuleItemCollectionByWeekDayName(weekDay) select x.Title).ToList();
+						
+					if (!rulesToAdd.Any())
+					{
+						rulesToAdd = district.ObservableCommonDistrictRuleItems.Select((CommonDistrictRuleItem x) => x.Title).ToList();
+					}
+						
+					var scheduleRestrictions = GetScheduleRestrictions(district, weekDay, date, isStoppedOnlineDeliveriesToday);
+						
+					var item = new ExtendedWeekDayDeliveryRuleDto
+					{
+						WeekDayEnum = weekDay,
+						DeliveryRules = rulesToAdd,
+						ScheduleRestrictions = (from x in ReorderScheduleRestrictions(scheduleRestrictions)
+							select new ExtendedScheduleRestrictionDto
+							{
+								Id = x.Id,
+								ScheduleRestriction = x.Name
+							}).ToList()
+					};
+					response.WeekDayDeliveryRules.Add(item);
+				}
+					
+				response.StatusEnum = DeliveryRulesResponseStatus.Ok;
+				response.Message = "";
+				return response;
+			}
+				
+			var message = ServiceConstants.DistrictNotFoundByCoordinates(latitude, longitude);
+			_logger.LogDebug(message);
+				
+			return new ExtendedDeliveryRulesDto
+			{
+				StatusEnum = DeliveryRulesResponseStatus.RuleNotFound,
+				WeekDayDeliveryRules = null,
+				Message = message
+			};
 		}
 
 		[HttpPost]
@@ -169,7 +245,8 @@ namespace DeliveryRulesService.Controllers
 			{
 				return await ValueTask.FromResult(deliveryInfo);
 			}
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot("Проверка на доставку за час"))
+			
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot(ServiceConstants.CheckingFastDeliveryAvailable))
 			{
 				var fastDeliveryAllowed = await CheckIfFastDeliveryAllowedAsync(uow, request.Latitude, request.Longitude, request.SiteNomenclatures);
 
@@ -181,6 +258,37 @@ namespace DeliveryRulesService.Controllers
 				{
 					var todayInfo = deliveryInfo.WeekDayDeliveryRules.Single(x => x.WeekDayEnum == WeekDayName.Today);
 					todayInfo.ScheduleRestrictions.Insert(0, _fastDeliverySchedule.Name);
+				}
+			}
+			return await ValueTask.FromResult(deliveryInfo);
+		}
+		
+		[HttpPost]
+		[Route("GetExtendedRulesByDistrictAndNomenclatures")]
+		public async Task<ExtendedDeliveryRulesDto> GetExtendedRulesByDistrictAndNomenclatures([FromBody] DeliveryRulesRequest request)
+		{
+			var deliveryInfo = GetExtendedRulesByDistrict(request.Latitude, request.Longitude);
+			
+			if (deliveryInfo.StatusEnum != 0)
+			{
+				return await ValueTask.FromResult(deliveryInfo);
+			}
+			
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot(ServiceConstants.CheckingFastDeliveryAvailable))
+			{
+				var fastDeliveryAllowed = await CheckIfFastDeliveryAllowedAsync(uow, request.Latitude, request.Longitude, request.SiteNomenclatures);
+				
+				if(!_deliveryRulesParametersProvider.IsStoppedOnlineDeliveriesToday && fastDeliveryAllowed)
+				{
+					var todayInfo = deliveryInfo.WeekDayDeliveryRules.Single(x => x.WeekDayEnum == WeekDayName.Today);
+					todayInfo.ScheduleRestrictions.Insert(0, new ExtendedScheduleRestrictionDto
+					{
+						Id = _fastDeliverySchedule.Id,
+						ScheduleRestriction = _fastDeliverySchedule.Name
+					});
+					
+					var fastDeliveryNomenclature = _nomenclatureParametersProvider.GetFastDeliveryNomenclature(uow);
+					deliveryInfo.FastDeliveryPrice = fastDeliveryNomenclature.GetPrice(1);
 				}
 			}
 			return await ValueTask.FromResult(deliveryInfo);
@@ -202,7 +310,7 @@ namespace DeliveryRulesService.Controllers
 					StatusEnum = DeliveryRulesResponseStatus.Error,
 					WeekDayDeliveryInfos = null,
 					GeoGroup = null,
-					Message = "Возникла внутренняя ошибка при получении правила доставки"
+					Message = ServiceConstants.InternalErrorFromGetDeliveryRule
 				};
 				_logger.LogError(ex, errorResult.Message);
 				return errorResult;
@@ -211,7 +319,7 @@ namespace DeliveryRulesService.Controllers
 
 		private DeliveryInfoDTO ExecuteGetDeliveryInfo(decimal latitude, decimal longitude)
 		{
-			_logger.LogInformation("Поступил запрос на получение правил доставки");
+			_logger.LogInformation(ServiceConstants.RequestToGetDeliveryRules());
 
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 			{
@@ -223,8 +331,8 @@ namespace DeliveryRulesService.Controllers
 				}
 				catch(Exception e)
 				{
-					_logger.LogError(e, "Ошибка при подборе района по координатам.");
-					_logger.LogInformation("Пробую подобрать район из бэкапа...");
+					_logger.LogError(e, ServiceConstants.ErrorGetDistrictByCoordinates);
+					_logger.LogInformation(ServiceConstants.GetDistrictFromCache);
 					district = _districtCache.Districts
 						.FirstOrDefault(x => x.DistrictBorder.Contains(new Point((double)latitude, (double)longitude)));
 				}
@@ -236,7 +344,7 @@ namespace DeliveryRulesService.Controllers
 					return FillDeliveryInfoDTO(district);
 				}
 
-				string message = $"Невозможно получить информацию о правилах доставки так как по координатам {latitude}, {longitude} не был найден район";
+				var message = ServiceConstants.DistrictNotFoundByCoordinates(latitude, longitude);
 				_logger.LogDebug(message);
 				return new DeliveryInfoDTO
 				{
@@ -255,6 +363,21 @@ namespace DeliveryRulesService.Controllers
 			var response = GetDeliveryInfo(59.886134m, 30.394007m);
 			var response2 = GetRulesByDistrict(59.886134m, 30.394007m);
 			return response.StatusEnum != DeliveryRulesResponseStatus.Error && response2.StatusEnum != DeliveryRulesResponseStatus.Error;
+		}
+		
+		private ExtendedDeliveryRulesDto GetExtendedRulesByDistrict(decimal latitude, decimal longitude)
+		{
+			try
+			{
+				return ExecuteGetExtendedRulesByDistrict(latitude, longitude);
+			}
+			catch (Exception ex)
+			{
+				var errorResult = new ExtendedDeliveryRulesDto();
+				errorResult.SetErrorState();
+				_logger.LogError(ex, errorResult.Message);
+				return errorResult;
+			}
 		}
 
 		private DeliveryInfoDTO FillDeliveryInfoDTO(District district)
