@@ -1,6 +1,5 @@
-﻿using Gamma.ColumnConfig;
-using QS.Views.GtkUI;
-using Vodovoz.Presentation.ViewModels.Common;
+﻿using QS.Views.GtkUI;
+using System.Linq;
 using Vodovoz.ViewModels.Widgets.Cars.CarModelSelection;
 using static Vodovoz.ViewModels.Widgets.Cars.CarModelSelection.CarModelSelectionFilterViewModel;
 
@@ -20,13 +19,19 @@ namespace Vodovoz.ViewWidgets.Reports
 				.AddBinding(ViewModel, vm => vm.SearchString, w => w.Text)
 				.InitializeFromSource();
 
-			//ybuttonSelectAll.Clicked += (s, e) => ViewModel.SelectAllRowsCommand?.Execute();
-			//ybuttonRemoveAll.Clicked += (s, e) => ViewModel.RemoveAllRowsSelectionCommand?.Execute();
-			//ybuttonInversSelected.Clicked += (s, e) => ViewModel.InverseSelectionCommand?.Execute();
+			ybuttonSearchClear.Clicked += (s, e) => ViewModel.ClearSearchStringCommand?.Execute();
+			ybuttonClearIncludes.Clicked += (s, e) => ViewModel.ClearAllIncludesCommand?.Execute();
+			ybuttonClearExcludes.Clicked += (s, e) => ViewModel.ClearAllExcludesCommand?.Execute();
+
+			ycheckbuttonShowArchive.Binding
+				.AddBinding(ViewModel, vm => vm.IsShowArchiveCarModels, w => w.Active)
+				.InitializeFromSource();
 
 			ylabelSelectedInfo.Binding
-				.AddBinding(ViewModel, vm => vm.SelectedRowsCountInfo, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.IncludedExcludesNodesCountInfo, w => w.Text)
 				.InitializeFromSource();
+
+			ytreeviewCarModelsList.HeightRequest = 150;
 
 			ytreeviewCarModelsList.CreateFluentColumnsConfig<CarModelSelectableNode>()
 					.AddColumn("✔️")
@@ -42,12 +47,23 @@ namespace Vodovoz.ViewWidgets.Reports
 
 						if(!string.IsNullOrWhiteSpace(ViewModel.SearchString))
 						{
-							cell.Markup = node.ModelInfo.Replace(ViewModel.SearchString, $"<b>{ViewModel.SearchString}</b>");
+							if(ViewModel.IsModelInfoContainsSearchStringCheck(node))
+							{
+								var modelInfo = node.ModelInfo.ToLower();
+								var searchString = ViewModel.SearchString.Trim().ToLower();
+								var substringStartIndex = modelInfo.IndexOf(searchString);
+								var substringFromModelInfo = node.ModelInfo.Substring(substringStartIndex, searchString.Length);
+
+								cell.Markup = node.ModelInfo.Replace(substringFromModelInfo, $"<b>{substringFromModelInfo}</b>");
+							}
 						}
 					})
 					.Finish();
 
-			ytreeviewCarModelsList.ItemsDataSource = ViewModel._carModelRows;
+			ytreeviewCarModelsList.Binding
+				.AddSource(ViewModel)
+				.AddFuncBinding(vm => vm.CarModelNodes.Where(n => n.IsVisible).ToList(), w => w.ItemsDataSource)
+				.InitializeFromSource();
 		}
 	}
 }
