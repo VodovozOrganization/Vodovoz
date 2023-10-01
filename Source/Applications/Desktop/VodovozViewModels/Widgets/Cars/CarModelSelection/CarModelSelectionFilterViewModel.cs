@@ -86,17 +86,17 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarModelSelection
 				.Where(n => n.IsExcluded)
 				.Count();
 
-		public List<int> IncludedCarModelIds =>
+		public int[] IncludedCarModelIds =>
 			CarModelNodes
 				.Where(n => n.IsIncluded)
 				.Select(n => n.ModelId)
-			.ToList();
+			.ToArray() ?? new int[0];
 
-		public List<int> ExcludedCarModelIds =>
+		public int[] ExcludedCarModelIds =>
 			CarModelNodes
 				.Where(n => n.IsExcluded)
 				.Select(n => n.ModelId)
-			.ToList();
+			.ToArray() ?? new int[0];
 
 		public DelegateCommand ClearSearchStringCommand { get; }
 
