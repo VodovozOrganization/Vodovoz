@@ -186,13 +186,13 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarModelSelection
 
 			OnPropertyChanged(nameof(IncludedCarModelIds));
 			OnPropertyChanged(nameof(ExcludedCarModelIds));
-
-			OnPropertyChanged(nameof(CarModelNodes));
 		}
 
 		private void ClearSearchString()
 		{
 			SearchString = string.Empty;
+
+			OnPropertyChanged(nameof(CarModelNodes));
 		}
 
 		private void ClearAllExcludedNodes()
@@ -201,6 +201,8 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarModelSelection
 			{
 				node.IsExcluded = false;
 			}
+
+			OnPropertyChanged(nameof(CarModelNodes));
 		}
 
 		private void ClearAllIncludedNodes()
@@ -209,6 +211,8 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarModelSelection
 			{
 				node.IsIncluded = false;
 			}
+
+			OnPropertyChanged(nameof(CarModelNodes));
 		}
 
 		private void OnCarModelNodesPropertyOfElementChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
