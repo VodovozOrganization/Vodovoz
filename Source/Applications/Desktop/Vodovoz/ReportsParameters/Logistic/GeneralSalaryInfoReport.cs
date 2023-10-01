@@ -13,6 +13,8 @@ using Vodovoz.CommonEnums;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Widgets.Cars.CarModelSelection;
+using Vodovoz.ViewWidgets.Reports;
 using VodovozInfrastructure.Extensions;
 
 namespace Vodovoz.ReportsParameters.Logistic
@@ -21,6 +23,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 	{
 		private readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
 		private readonly IInteractiveService _interactiveService;
+		private CarModelSelectionFilterViewModel _carModelSelectionFilterViewModel;
 
 		public GeneralSalaryInfoReport(
 			IEmployeeJournalFactory employeeJournalFactory,
@@ -31,11 +34,38 @@ namespace Vodovoz.ReportsParameters.Logistic
 				?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+
+			ConfigureCarModelSelectionFilter();
+
 			Configure();
 		}
 
 		public string Title => "Основная информация по ЗП";
 		public event EventHandler<LoadReportEventArgs> LoadReport;
+
+		private void ConfigureCarModelSelectionFilter()
+		{
+			_carModelSelectionFilterViewModel = new CarModelSelectionFilterViewModel(UoW);
+			_carModelSelectionFilterViewModel.CarModelNodes.ListContentChanged += (s, e) => OnDriverOfSelected();
+			UpdateCarModelsList();
+		}
+
+		private void UpdateCarModelsList()
+		{
+			var carTypesOfUse = new List<CarTypeOfUse>();
+
+			if(comboDriverOfCarTypeOfUse.SelectedItemOrNull == null)
+			{
+				carTypesOfUse.Add(CarTypeOfUse.GAZelle);
+				carTypesOfUse.Add(CarTypeOfUse.Largus);
+			}
+			else
+			{
+				carTypesOfUse.Add((CarTypeOfUse)comboDriverOfCarTypeOfUse.SelectedItem);
+			}
+
+			_carModelSelectionFilterViewModel.SelectedCarTypesOfUse = carTypesOfUse;
+		}
 
 		private void Configure()
 		{
@@ -59,11 +89,19 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 			comboDriverOfCarTypeOfUse.ItemsEnum = typeof(CarTypeOfUse);
 			comboDriverOfCarTypeOfUse.AddEnumToHideList(CarTypeOfUse.Truck);
-			comboDriverOfCarTypeOfUse.ChangedByUser += (sender, args) => OnDriverOfSelected();
+			comboDriverOfCarTypeOfUse.ChangedByUser += (sender, args) =>
+			{
+				OnDriverOfSelected();
+				UpdateCarModelsList();
+			};
 
 			entryEmployee.SetEntityAutocompleteSelectorFactory(_employeeSelectorFactory);
 			entryEmployee.CanEditReference = true;
 			entryEmployee.Changed += (sender, args) => OnEmployeeSelected();
+
+			var carModelSelectionFilterView = new CarModelSelectionFilterView(_carModelSelectionFilterViewModel);
+			yhboxCarModelContainer.Add(carModelSelectionFilterView);
+			carModelSelectionFilterView.Show();
 		}
 
 		private void OnButtonRunClicked(object sender, EventArgs e)
@@ -93,7 +131,9 @@ namespace Vodovoz.ReportsParameters.Logistic
 					{ "employee_category", comboCategory.SelectedItemOrNull },
 					{ "employee_id", entryEmployee.Subject?.GetIdOrNull() },
 					{ "filters", GetSelectedFilters() },
-					{ "exclude_visiting_masters", chkBtnExcludeVisitingMasters.Active }
+					{ "exclude_visiting_masters", chkBtnExcludeVisitingMasters.Active },
+					{ "include_car_models", _carModelSelectionFilterViewModel.IncludedCarModelIds },
+					{ "exclude_car_models", _carModelSelectionFilterViewModel.ExcludedCarModelIds }
 				}
 			};
 		}
@@ -133,6 +173,18 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 				filters += "\n\t";
 				filters += $"{chkBtnExcludeVisitingMasters.Label}: {chkBtnExcludeVisitingMasters.Active.ConvertToYesOrNo()}";
+
+				if(_carModelSelectionFilterViewModel.IncludedCarModelIds.Any())
+				{
+					filters += "\n\t";
+					filters += $"Включенные модели авто: {GetCarModelsNamesByIds(_carModelSelectionFilterViewModel.IncludedCarModelIds)}";
+				}
+
+				if(_carModelSelectionFilterViewModel.ExcludedCarModelIds.Any())
+				{
+					filters += "\n\t";
+					filters += $"Исключенные модели авто: {GetCarModelsNamesByIds(_carModelSelectionFilterViewModel.ExcludedCarModelIds)}";
+				}
 			}
 			else
 			{
@@ -146,6 +198,16 @@ namespace Vodovoz.ReportsParameters.Logistic
 			}
 
 			return filters;
+		}
+
+		private string GetCarModelsNamesByIds(int[] carModelIds)
+		{
+			var caModelsNames = _carModelSelectionFilterViewModel.CarModelNodes
+				.Where(c => carModelIds.Contains(c.ModelId))
+				.Select(c => c.ModelInfo)
+				.ToArray();
+
+			return string.Join(", ", caModelsNames);
 		}
 
 		private void ShowInfoWindow(object sender, EventArgs e)
@@ -178,7 +240,10 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		private void OnDriverOfSelected()
 		{
-			if(comboDriverOfCarOwnType.SelectedItemOrNull != null || comboDriverOfCarTypeOfUse.SelectedItemOrNull != null)
+			if(comboDriverOfCarOwnType.SelectedItemOrNull != null 
+				|| comboDriverOfCarTypeOfUse.SelectedItemOrNull != null
+				|| _carModelSelectionFilterViewModel.IncludedCarModelIds.Any()
+				|| _carModelSelectionFilterViewModel.ExcludedCarModelIds.Any())
 			{
 				comboCategory.Sensitive = false;
 				comboCategory.SelectedItem = EmployeeCategory.driver;
@@ -214,6 +279,11 @@ namespace Vodovoz.ReportsParameters.Logistic
 				comboDriverOfCarTypeOfUse.Sensitive = false;
 				comboDriverOfCarTypeOfUse.SelectedItemOrNull = empl.DriverOfCarTypeOfUse;
 
+				yvboxCarModel.Sensitive = false;
+				_carModelSelectionFilterViewModel.ClearAllIncludesCommand?.Execute();
+				_carModelSelectionFilterViewModel.ClearAllExcludesCommand?.Execute();
+				_carModelSelectionFilterViewModel.ClearSearchStringCommand?.Execute();
+
 				comboCategory.Sensitive = false;
 				comboCategory.SelectedItem = empl.Category;
 
@@ -229,6 +299,8 @@ namespace Vodovoz.ReportsParameters.Logistic
 				{
 					hboxExcludeVisitingMasters.Visible = true;
 				}
+
+				yvboxCarModel.Sensitive = true;
 			}
 		}
 		
