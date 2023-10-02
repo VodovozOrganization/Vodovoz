@@ -815,7 +815,7 @@ namespace Vodovoz.ViewModel
 					switch(node.MovementDocumentStatus)
 					{
 						case MovementDocumentStatus.Sended:
-							color = GdkColors.WarningText;
+							color = GdkColors.WarningBase;
 							break;
 						case MovementDocumentStatus.Discrepancy:
 							color = GdkColors.Pink;

@@ -97,7 +97,7 @@ namespace Vodovoz.ServiceDialogs
 
 						if(n.Color == colorYellow)
 						{
-							color = GdkColors.WarningText;
+							color = GdkColors.WarningBase;
 						}
 
 						c.CellBackgroundGdk = color;

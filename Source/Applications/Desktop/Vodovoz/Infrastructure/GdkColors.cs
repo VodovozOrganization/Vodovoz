@@ -55,7 +55,7 @@ namespace Vodovoz.Infrastructure
 
 		public static Color WarningText { get; } = new Color(255, 255, 40);
 
-		public static Color WarningBase { get; } = new Color(0xe1, 0xd6, 0x70);
+		public static Color WarningBase { get; } = IsLight ? new Color(0xe1, 0xd6, 0x70) : new Color(123, 116, 60);
 
 		#endregion Warning
 

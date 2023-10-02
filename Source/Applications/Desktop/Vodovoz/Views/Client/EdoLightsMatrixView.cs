@@ -13,7 +13,7 @@ namespace Vodovoz.Views.Client
 	{
 		private static readonly Color _greenColor = GdkColors.SuccessText;
 		private static readonly Color _redColor = GdkColors.DangerText;
-		private static readonly Color _yellowColor = GdkColors.WarningText;
+		private static readonly Color _yellowColor = GdkColors.WarningBase;
 		private static readonly Color _primaryBaseColor = GdkColors.PrimaryBase;
 
 		public EdoLightsMatrixView()
