@@ -44,6 +44,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarModelSelection
 			{
 				SetField(ref _searchString, value);
 				UpdateCarModelsNodesVisibility();
+				OnPropertyChanged(nameof(CarModelNodes));
 			}
 		}
 
