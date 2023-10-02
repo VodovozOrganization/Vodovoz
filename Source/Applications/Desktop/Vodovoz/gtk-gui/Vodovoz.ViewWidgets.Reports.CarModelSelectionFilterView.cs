@@ -4,6 +4,10 @@ namespace Vodovoz.ViewWidgets.Reports
 {
 	public partial class CarModelSelectionFilterView
 	{
+		private global::Gtk.Frame frame1;
+
+		private global::Gtk.Alignment GtkAlignment;
+
 		private global::Gamma.GtkWidgets.yVBox yvboxMain;
 
 		private global::Gamma.GtkWidgets.yHBox yhboxSelectionButtons;
@@ -39,6 +43,14 @@ namespace Vodovoz.ViewWidgets.Reports
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.ViewWidgets.Reports.CarModelSelectionFilterView";
 			// Container child Vodovoz.ViewWidgets.Reports.CarModelSelectionFilterView.Gtk.Container+ContainerChild
+			this.frame1 = new global::Gtk.Frame();
+			this.frame1.Name = "frame1";
+			this.frame1.ShadowType = ((global::Gtk.ShadowType)(1));
+			this.frame1.LabelYalign = 0F;
+			// Container child frame1.Gtk.Container+ContainerChild
+			this.GtkAlignment = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
+			this.GtkAlignment.Name = "GtkAlignment";
+			// Container child GtkAlignment.Gtk.Container+ContainerChild
 			this.yvboxMain = new global::Gamma.GtkWidgets.yVBox();
 			this.yvboxMain.Name = "yvboxMain";
 			this.yvboxMain.Spacing = 6;
@@ -168,7 +180,9 @@ namespace Vodovoz.ViewWidgets.Reports
 			this.yvboxMain.Add(this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.GtkScrolledWindow]));
 			w14.Position = 3;
-			this.Add(this.yvboxMain);
+			this.GtkAlignment.Add(this.yvboxMain);
+			this.frame1.Add(this.GtkAlignment);
+			this.Add(this.frame1);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
