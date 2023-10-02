@@ -65,5 +65,12 @@ namespace Vodovoz.ViewWidgets.Reports
 				.AddFuncBinding(vm => vm.CarModelNodes.Where(n => n.IsVisible).ToList(), w => w.ItemsDataSource)
 				.InitializeFromSource();
 		}
+
+		public override void Destroy()
+		{
+			ytreeviewCarModelsList?.Destroy();
+
+			base.Destroy();
+		}
 	}
 }
