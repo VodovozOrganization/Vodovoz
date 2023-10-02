@@ -20,6 +20,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
+using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
@@ -57,6 +58,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		private Nomenclature _nomenclature;
 		private bool _showNotAffectedBalance = false;
 		private int? _documentId;
+		private IncludeExludeFiltersViewModel _includeExcludeFilterViewModel;
 
 		public WarehouseDocumentsItemsJournalFilterViewModel(
 			ICurrentPermissionService currentPermissionService,
@@ -165,6 +167,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			get => _filterViewModel;
 			set => UpdateFilterField(ref _filterViewModel, value);
 		}
+
+		public IncludeExludeFiltersViewModel IncludeExcludeFilterViewModel => _includeExcludeFilterViewModel;
 
 		public SelectableFilterType FilterType
 		{
@@ -323,6 +327,9 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 
 			FilterViewModel.SelectionChanged += OnFilterViewModelSelectionChanged;
 			FilterViewModel.FilterModeChanged += OnFilterViewModelFilterModeChanged;
+
+			_includeExcludeFilterViewModel = new IncludeExludeFiltersViewModel(_interactiveService);
+			//_includeExcludeFilterViewModel.AddFilter(UoW, _subdivisionRepository);
 		}
 
 		private void OnFilterViewModelFilterModeChanged(object sender, FilterTypeChangedArgs e)

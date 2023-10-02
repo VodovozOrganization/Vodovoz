@@ -1981,6 +1981,8 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Search.CompositeSearchView.cs" />
     <Compile Include="ViewWidgets\Users\WarehousesUserSelectionView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Users.WarehousesUserSelectionView.cs" />
+    <Compile Include="Views\Warehouse\RegradingOfGoodsReasonView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.RegradingOfGoodsReasonView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
