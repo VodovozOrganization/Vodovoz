@@ -162,8 +162,8 @@ namespace Vodovoz.ReportsParameters.Logistic
 			this.entryEmployee.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.entryEmployee);
 			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.entryEmployee]));
-			w9.TopAttach = ((uint)(6));
-			w9.BottomAttach = ((uint)(7));
+			w9.TopAttach = ((uint)(5));
+			w9.BottomAttach = ((uint)(6));
 			w9.LeftAttach = ((uint)(1));
 			w9.RightAttach = ((uint)(4));
 			w9.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -230,8 +230,8 @@ namespace Vodovoz.ReportsParameters.Logistic
 			this.label4.LabelProp = global::Mono.Unix.Catalog.GetString("Сотрудник:");
 			this.table1.Add(this.label4);
 			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.table1[this.label4]));
-			w15.TopAttach = ((uint)(6));
-			w15.BottomAttach = ((uint)(7));
+			w15.TopAttach = ((uint)(5));
+			w15.BottomAttach = ((uint)(6));
 			w15.XOptions = ((global::Gtk.AttachOptions)(4));
 			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -268,8 +268,8 @@ namespace Vodovoz.ReportsParameters.Logistic
 			w18.Position = 1;
 			this.table1.Add(this.yvboxCarModel);
 			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.table1[this.yvboxCarModel]));
-			w19.TopAttach = ((uint)(5));
-			w19.BottomAttach = ((uint)(6));
+			w19.TopAttach = ((uint)(6));
+			w19.BottomAttach = ((uint)(7));
 			w19.RightAttach = ((uint)(4));
 			w19.XOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add(this.table1);
