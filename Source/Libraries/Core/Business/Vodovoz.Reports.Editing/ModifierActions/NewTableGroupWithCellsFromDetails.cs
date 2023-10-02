@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using Vodovoz.RDL;
 using Vodovoz.RDL.Elements;
 using Vodovoz.RDL.Utilities;
 using Vodovoz.Reports.Editing.Providers;
@@ -26,8 +27,16 @@ namespace Vodovoz.Reports.Editing.ModifierActions
 		private readonly SourceRowProvider _detailsProvider;
 		private TableGroup _newGroup;
 		private int _groupNameSuffixCounter;
+		private readonly int? _sortByColumnIndex;
+		private readonly SortByTypeDirection? _sortByTypeDirection;
 
-		public NewTableGroupWithCellsFromDetails(string tableName, SourceRowProvider sourceRowProvider, ExpressionRowProvider expressionRowProvider, IEnumerable<string> groupExpressions)
+		public NewTableGroupWithCellsFromDetails(
+			string tableName, 
+			SourceRowProvider sourceRowProvider, 
+			ExpressionRowProvider expressionRowProvider, 
+			IEnumerable<string> groupExpressions,
+			int? sortByColumnIndex = null,
+			SortByTypeDirection? sortByTypeDirection = null)
 		{
 			if(string.IsNullOrWhiteSpace(tableName))
 			{
@@ -48,6 +57,8 @@ namespace Vodovoz.Reports.Editing.ModifierActions
 			_sourceRowProvider = sourceRowProvider ?? throw new ArgumentNullException(nameof(sourceRowProvider));
 			_expressionRowProvider = expressionRowProvider ?? throw new ArgumentNullException(nameof(expressionRowProvider));
 			_groupExpressions = groupExpressions;
+			_sortByColumnIndex = sortByColumnIndex;
+			_sortByTypeDirection = sortByTypeDirection;
 			_newGroup = new TableGroup();
 		}
 
@@ -58,6 +69,7 @@ namespace Vodovoz.Reports.Editing.ModifierActions
 		public override void Modify(XDocument report)
 		{
 			var @namespace = report.Root.Attribute("xmlns").Value;
+			SortExpression sortExpression = null;
 
 			//Копирование строки из деталей и установка формул
 			//Установка новых имен для текстовых боксов ячеек
@@ -74,6 +86,15 @@ namespace Vodovoz.Reports.Editing.ModifierActions
 				if(sourceTextbox?.Value != null && sourceTextbox.Value.StartsWith("="))
 				{
 					destTextbox.Value = sourceTextbox.Value;
+				}
+
+				if(_sortByColumnIndex != null 
+					&& i == _sortByColumnIndex.Value
+					&& !string.IsNullOrWhiteSpace(sourceTextbox?.Value))
+				{
+					sortExpression = new SortExpression(
+						sourceTextbox.Value,
+						_sortByTypeDirection ?? SortByTypeDirection.Ascending);
 				}
 
 				if(GroupCellsStyle != null)
@@ -99,7 +120,19 @@ namespace Vodovoz.Reports.Editing.ModifierActions
 			{
 				grouping.GroupExpressions.Add(groupExpression);
 			}
+
 			_newGroup.Grouping = grouping;
+
+			if(sortExpression != null)
+			{
+				var sorting = new Sorting();
+				var sortBy = new SortBy();
+
+				sortBy.AddSortExpression(sortExpression);
+
+				sorting.SortBy.Add(sortBy);
+				_newGroup.Sorting = sorting;
+			}
 
 			//Добавляем группировку в таблицу
 			AddGroupToTable(report, _newGroup, @namespace);

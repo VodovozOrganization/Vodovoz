@@ -47,7 +47,13 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>191.4pt</Width>
+            <Width>65pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>65pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>65pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>55.4pt</Width>
@@ -77,6 +83,42 @@
                   <ReportItems>
                     <Textbox Name="TextboxItemHeader">
                       <Value>={?grouping_title}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="TextboxAutoType">
+                      <Value>Тип авто</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="TextboxAutoOwnerType">
+                      <Value>Принадлежность авто</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -210,6 +252,48 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox4">
+                      <Value>=Iif(
+{?groups_count} = 1 and {?group1} = 'RouteList', 
+'', 
+'Итого:'
+)</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                        <Format></Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox51">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                        <Format></Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox59">
                       <Value>Итого:</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
@@ -348,6 +432,52 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox22">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                        <Format></Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox54">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                        <Format></Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox60">
                       <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
@@ -530,6 +660,44 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox55">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                        <Format></Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox61">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                        <Format></Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox30">
@@ -672,6 +840,43 @@
                         <PaddingBottom>1pt</PaddingBottom>
                         <PaddingTop>1pt</PaddingTop>
                       </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox56">
+                      <Value>={car_model}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>7pt</FontSize>
+                        <PaddingBottom>1pt</PaddingBottom>
+                        <PaddingTop>1pt</PaddingTop>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox62">
+                      <Value>={car_own_type}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>7pt</FontSize>
+                        <PaddingBottom>1pt</PaddingBottom>
+                        <PaddingTop>1pt</PaddingTop>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -803,6 +1008,30 @@
                         </BorderStyle>
                       </Style>
                       <Value></Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox57">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox63">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1195,6 +1424,33 @@ SELECT
     org.name as organization,
     dp.compiled_address_short AS delivery_point,
     rla.route_list_id AS route_list,
+    (SELECT
+		CASE 
+			WHEN cm.car_type_of_use = 'Largus' THEN "Фургон (ларгус)"
+			WHEN cm.car_type_of_use = 'Truck' THEN "Фура"
+			WHEN cm.car_type_of_use = 'GAZelle' THEN "Грузовой (ГАЗель)"
+			ELSE ""
+			END as car_type_of_use
+		FROM route_lists rl 
+		LEFT JOIN cars c ON rl.car_id = c.id 
+		JOIN car_models cm ON c.model_id = cm.id 
+		WHERE rl.id = rla.route_list_id 
+		LIMIT 1) as car_model,
+	(SELECT
+		CASE 
+			WHEN cv.car_own_type = 'Company' THEN "ТС компании"
+			WHEN cv.car_own_type = 'Raskat' THEN "ТС в раскате"
+			WHEN cv.car_own_type = 'Driver' THEN "ТС водителя"
+			ELSE ""
+			END as car_own_type
+		FROM route_lists rl 
+		LEFT JOIN cars c ON rl.car_id = c.id 
+		LEFT JOIN car_versions cv 
+		ON cv.car_id = c.id 
+		WHERE  rl.id = rla.route_list_id 
+		AND cv.start_date &lt;= rl.`date` 
+		AND (cv.end_date &gt; rl.`date` OR ISNULL(cv.end_date))
+		LIMIT 1) as car_own_type,
     o.delivery_date AS delivery_date,
     e.id AS author_id,
     GET_PERSON_NAME_WITH_INITIALS(e.last_name, e.name, e.patronymic) AS author,
@@ -1827,10 +2083,18 @@ WHERE
           <DataField>nomenclature_category</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="car_model">
+          <DataField>car_model</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="car_own_type">
+          <DataField>car_own_type</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="Criterions">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
         <CommandText>SELECT
@@ -2211,7 +2475,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="criterions">
           <DataField>criterions</DataField>
           <TypeName>System.String</TypeName>
