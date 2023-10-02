@@ -55,6 +55,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarModelSelection
 			{
 				SetField(ref _selectedCarTypesOfUse, value);
 				UpdateCarModelNodes();
+				OnPropertyChanged(nameof(CarModelNodes));
 			}
 		}
 
@@ -71,6 +72,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarModelSelection
 			{
 				SetField(ref _isShowArchiveCarModels, value);
 				UpdateCarModelNodes();
+				OnPropertyChanged(nameof(CarModelNodes));
 			}
 		}
 
@@ -131,7 +133,10 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarModelSelection
 						carModelRow = CarModelSelectableNode.CreateCarModelNode(carModel);
 					}
 
-					carModelNodes.Add(carModelRow);
+					if(IsShowArchiveCarModels || !carModelRow.IsArchive)
+					{
+						carModelNodes.Add(carModelRow);
+					}
 				}
 			}
 
@@ -153,6 +158,8 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarModelSelection
 			}
 
 			UpdateCarModelsNodesVisibility();
+
+			UpdateIncludedExcludedNodesInfo();
 		}
 
 		private void UpdateCarModelsNodesVisibility()
@@ -171,8 +178,6 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarModelSelection
 					isModelInfoMatchesSearchString
 					&& isModelInfoMatchesShowArchiveRequirement;
 			}
-
-			UpdateIncludedExcludedNodesInfo();
 		}
 
 		public bool IsModelInfoContainsSearchStringCheck(CarModelSelectableNode node) =>
