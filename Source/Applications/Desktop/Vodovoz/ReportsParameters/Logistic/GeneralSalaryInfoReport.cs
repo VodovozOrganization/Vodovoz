@@ -132,8 +132,8 @@ namespace Vodovoz.ReportsParameters.Logistic
 					{ "employee_id", entryEmployee.Subject?.GetIdOrNull() },
 					{ "filters", GetSelectedFilters() },
 					{ "exclude_visiting_masters", chkBtnExcludeVisitingMasters.Active },
-					{ "include_car_models", _carModelSelectionFilterViewModel.IncludedCarModelIds },
-					{ "exclude_car_models", _carModelSelectionFilterViewModel.ExcludedCarModelIds }
+					{ "include_car_models", _carModelSelectionFilterViewModel.IncludedCarModelNodesCount > 0 ? _carModelSelectionFilterViewModel.IncludedCarModelIds : new int[] { 0 } },
+					{ "exclude_car_models", _carModelSelectionFilterViewModel.ExcludedCarModelNodesCount > 0 ? _carModelSelectionFilterViewModel.ExcludedCarModelIds : new int[] { 0 } }
 				}
 			};
 		}
