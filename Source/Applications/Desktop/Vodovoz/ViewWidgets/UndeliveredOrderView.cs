@@ -1,4 +1,4 @@
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gtk;
 using QS.Journal.GtkUI;
@@ -158,6 +158,7 @@ namespace Vodovoz.ViewWidgets
 
 			yEnumCMBStatus.ItemsEnum = typeof(UndeliveryStatus);
 			yEnumCMBStatus.Binding.AddBinding(ViewModel.Entity, e => e.UndeliveryStatus, w => w.SelectedItem).InitializeFromSource();
+			ViewModel.RemoveItemsFromStatusEnumAction?.Invoke();
 
 			yentInProcessAtDepartment.SubjectType = typeof(Subdivision);
 			yentInProcessAtDepartment.Binding.AddBinding(ViewModel.Entity, d => d.InProcessAtDepartment, w => w.Subject).InitializeFromSource();
