@@ -67,5 +67,10 @@ namespace Vodovoz.Domain.Client
 			AssignedExternalCounterparty = externalCounterparty;
 			Status = ExternalCounterpartyMatchingStatus.Processed;
 		}
+
+		public virtual void SetLegalCounterpartyStatus()
+		{
+			Status = ExternalCounterpartyMatchingStatus.LegalCounterparty;
+		}
 	}
 }

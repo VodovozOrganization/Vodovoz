@@ -1,6 +1,4 @@
-﻿using ClosedXML.Excel;
-using ClosedXML.Report;
-using DateTimeHelpers;
+﻿using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -53,9 +51,6 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		private readonly IUnitOfWork _unitOfWork;
 
 		private IncludeExludeFiltersViewModel _filterViewModel;
-
-		private readonly string _templatePath = @".\Reports\Sales\TurnoverReport.xlsx";
-		private readonly string _templateWithDynamicsPath = @".\Reports\Sales\TurnoverWithDynamicsReport.xlsx";
 
 		private readonly bool _userIsSalesRepresentative;
 		private readonly bool _userCanGetContactsInSalesReports;
@@ -403,81 +398,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 		public void ExportReport(string path)
 		{
-			string templatePath = GetTrmplatePath();
-
-			var template = GetTemplate(templatePath);
-
-			template.AddVariable(Report);
-			template.Generate();
-
-			template.SaveAs(path);
-		}
-
-		private XLTemplate GetTemplate(string templatePath)
-		{
-			var workbook = new XLWorkbook(templatePath);
-
-			var sheet = workbook.Worksheets.FirstOrDefault();
-
-			var namedRange = Report.ShowDynamics ?
-				workbook.NamedRanges.Where(x => x.Name == "Rows_DynamicColumns").FirstOrDefault()
-				: workbook.NamedRanges.Where(x => x.Name == "Rows_SliceColumnValues").FirstOrDefault();
-
-			var totalsRow = Report.ShowDynamics ?
-				workbook.NamedRanges.Where(x => x.Name == "ReportTotal_DynamicColumns").FirstOrDefault().Ranges.FirstOrDefault().RangeAddress.FirstAddress.RowNumber
-				: workbook.NamedRanges.Where(x => x.Name == "ReportTotal_SliceColumnValues").FirstOrDefault().Ranges.FirstOrDefault().RangeAddress.FirstAddress.RowNumber;
-
-			var slicesRange = namedRange?.Ranges.FirstOrDefault();
-
-			var firstRow = slicesRange.RangeAddress.FirstAddress.RowNumber;
-
-			var firstColumn = slicesRange.RangeAddress.FirstAddress.ColumnNumber;
-			var firstColumnTotal = slicesRange.RangeAddress.LastAddress.ColumnNumber + 1;
-
-			var cellFormat = string.Empty;
-
-			if(!Report.ShowContacts)
-			{
-				if(!Report.ShowDynamics)
-				{
-					sheet.Column(4).Delete();
-				}
-
-				sheet.Column(3).Delete();
-			}
-
-			if(Report?.MeasurementUnit == MeasurementUnitEnum.Amount)
-			{
-				cellFormat = "# ### ### ### ##0";
-			}
-			else if(Report?.MeasurementUnit == MeasurementUnitEnum.Price)
-			{
-				cellFormat = "# ### ### ##0,00 ₽";
-			}
-
-			sheet.Cell(firstRow, firstColumnTotal).Style.NumberFormat.SetFormat(cellFormat);
-			sheet.Cell(firstRow, firstColumn).Style.NumberFormat.SetFormat(cellFormat);
-
-			sheet.Cell(totalsRow, firstColumnTotal).Style.NumberFormat.SetFormat(cellFormat);
-			sheet.Cell(totalsRow, firstColumn).Style.NumberFormat.SetFormat(cellFormat);
-
-			var result = new XLTemplate(workbook);
-
-			return result;
-		}
-
-		private string GetTrmplatePath()
-		{
-			if(Report.ShowDynamics)
-			{
-				return _templateWithDynamicsPath;
-			}
-			else
-			{
-				return _templatePath;
-			}
-
-			throw new InvalidOperationException("Что-то пошло не так. Не достижимая ветка ветвления");
+			Report.Export(path);
 		}
 
 		private List<NomenclatureStockNode> GetWarehouseBalance(List<int> nomenclatureIds)

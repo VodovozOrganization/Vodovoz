@@ -1,17 +1,17 @@
-﻿using System;
+﻿using QS.Project.Filter;
+using QS.Project.Journal.EntitySelector;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using QS.Project.Filter;
-using QS.Project.Journal.EntitySelector;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.Sale;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.TempAdapters;
-using Vodovoz.Domain.Sale;
-using Vodovoz.Domain.Employees;
-using QS.Project.Journal;
+using Vodovoz.ViewModels.Widgets.Search;
 
 namespace Vodovoz.Filters.ViewModels
 {
@@ -56,6 +56,8 @@ namespace Vodovoz.Filters.ViewModels
 		private IEnumerable<PaymentFrom> _paymentsFrom;
 		private IEnumerable<GeoGroup> _geographicGroups;
 		private bool _excludeClosingDocumentDeliverySchedule;
+		private string _counterpartyInn;
+		private readonly CompositeSearchViewModel _searchByAddressViewModel;
 
 		#endregion
 
@@ -74,6 +76,9 @@ namespace Vodovoz.Filters.ViewModels
 
 			AuthorSelectorFactory = employeeJournalFactory?.CreateEmployeeAutocompleteSelectorFactory()
 									?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+
+			_searchByAddressViewModel = new CompositeSearchViewModel();
+			_searchByAddressViewModel.OnSearch += OnSearchByAddressViewModel;
 		}
 
 		#region Автосвойства
@@ -86,6 +91,8 @@ namespace Vodovoz.Filters.ViewModels
 		public virtual IEntityAutocompleteSelectorFactory AuthorSelectorFactory { get; }
 
 		#endregion
+
+		public CompositeSearchViewModel SearchByAddressViewModel => _searchByAddressViewModel;
 
 		public virtual Organization Organisation
 		{
@@ -253,6 +260,12 @@ namespace Vodovoz.Filters.ViewModels
 			set => UpdateFilterField(ref _isForSalesDepartment, value);
 		}
 
+		public string CounterpartyInn
+		{
+			get => _counterpartyInn;
+			set => SetField(ref _counterpartyInn, value);
+		}
+
 		#region Selfdelivery
 
 		public virtual bool? RestrictOnlySelfDelivery
@@ -363,7 +376,6 @@ namespace Vodovoz.Filters.ViewModels
 
 		private GeoGroup _geographicGroup;
 		private string _counterpartyNameLike;
-		private string _deliveryPointAddressLike;
 
 		/// <summary>
 		/// Часть города
@@ -468,18 +480,23 @@ namespace Vodovoz.Filters.ViewModels
 			set => SetField(ref _counterpartyNameLike, value);
 		}
 
-		public virtual string DeliveryPointAddressLike
-		{
-			get => _deliveryPointAddressLike;
-			set => SetField(ref _deliveryPointAddressLike, value);
-		}
-
 		public bool ExcludeClosingDocumentDeliverySchedule
 		{
 			get => _excludeClosingDocumentDeliverySchedule;
 			set => UpdateFilterField(ref _excludeClosingDocumentDeliverySchedule, value);
 		}
 		public override bool IsShow { get; set; } = true;
+
+		private void OnSearchByAddressViewModel(object sender, EventArgs e)
+		{
+			Update();
+		}
+
+		public override void Dispose()
+		{
+			_searchByAddressViewModel.OnSearch -= OnSearchByAddressViewModel;
+			base.Dispose();
+		}
 	}
 
 	public enum PaymentOrder

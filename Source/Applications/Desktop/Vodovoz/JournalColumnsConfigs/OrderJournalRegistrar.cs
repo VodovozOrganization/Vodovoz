@@ -25,6 +25,7 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Бутыли").AddTextRenderer(node => $"{node.BottleAmount:N0}")
 				.AddColumn("Кол-во с/о").AddTextRenderer(node => $"{node.SanitisationAmount:N0}")
 				.AddColumn("Клиент").AddTextRenderer(node => node.Counterparty)
+				.AddColumn("ИНН").AddTextRenderer(node => node.Inn)
 				.AddColumn("Сумма").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.Sum))
 				.AddColumn("Статус оплаты").AddTextRenderer(x =>
 					(x.OrderPaymentStatus != OrderPaymentStatus.None) ? x.OrderPaymentStatus.GetEnumTitle() : "")
