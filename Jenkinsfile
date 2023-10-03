@@ -78,7 +78,7 @@ IS_MANUAL_BUILD = env.BRANCH_NAME ==~ /^manual-build(.*?)/
 // 105	Настройки. Сборка
 CAN_BUILD_DESKTOP = true
 CAN_BUILD_WEB = true
-CAN_PUBLISH_BUILD_WEB = IS_HOTFIX || IS_RELEASE
+CAN_PUBLISH_BUILD_WEB = true
 CAN_BUILD_WCF = true
 
 // 106	Настройки. Архивация
