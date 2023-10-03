@@ -495,6 +495,18 @@ namespace Vodovoz
 			};
 			menuItems.Add(PopupMenuAction.OpenOrder, openOrder);
 
+			var copyOrderId = new MenuItem(PopupMenuAction.CopyOrderId.GetEnumTitle());
+			copyOrderId.Activated += (s, args) =>
+			{
+				var selectedOrderId = GetSelectedRouteListItem().Order?.Id;
+
+				if(selectedOrderId != null)
+				{
+					GetClipboard(Gdk.Selection.Clipboard).Text = selectedOrderId.Value.ToString();
+				}
+			};
+			menuItems.Add(PopupMenuAction.CopyOrderId, copyOrderId);
+
 			foreach(var item in menuItems) {
 				menu.Append(item.Value);
 				item.Value.Show();
@@ -550,7 +562,9 @@ namespace Vodovoz
 			[Display(Name = "Открыть недовозы")]
 			OpenUndeliveries,
 			[Display(Name = "Открыть заказ")]
-			OpenOrder
+			OpenOrder,
+			[Display(Name = "Копировать номер заказа")]
+			CopyOrderId
 		}
 	}		
 }
