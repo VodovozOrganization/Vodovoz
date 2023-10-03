@@ -213,7 +213,7 @@ public partial class MainWindow : Gtk.Window
 			_curentUserMovementDocumentsNotificationWarehouses = CurrentUserSettings.Settings.MovementDocumentsNotificationUserSelectedWarehouses;
 			_movementsNotificationsController = _autofacScope
 				.Resolve<IMovementDocumentsNotificationsController>(
-					new TypedParameter(typeof(int), _currentUserSubdivisionId), 
+					new TypedParameter(typeof(int), _currentUserSubdivisionId),
 					new TypedParameter(typeof(IEnumerable<int>), _curentUserMovementDocumentsNotificationWarehouses));
 
 			var notificationDetails = _movementsNotificationsController.GetNotificationDetails(uow);
@@ -319,4 +319,8 @@ public partial class MainWindow : Gtk.Window
 		new DateTime(2000, 1, 1)
 			.AddDays(version.Build)
 			.AddSeconds(version.Revision * 2);
+
+	protected void OnActionRegradingOfGoodsReasonsActivated(object sender, EventArgs e)
+	{
+	}
 }
