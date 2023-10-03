@@ -59,6 +59,9 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		private bool _showNotAffectedBalance = false;
 		private int? _documentId;
 		private IncludeExludeFiltersViewModel _includeExcludeFilterViewModel;
+		private readonly IGenericRepository<Nomenclature> _nomenclatureRepository;
+		private readonly IGenericRepository<ProductGroup> _productGroupRepository;
+		private EntityEntryViewModel<Nomenclature> _nomenclatureEntityEntryViewModel;
 
 		public WarehouseDocumentsItemsJournalFilterViewModel(
 			ICurrentPermissionService currentPermissionService,
@@ -66,7 +69,9 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			ILifetimeScope lifetimeScope,
 			IUserService userService,
 			IUserRepository userRepository,
-			IInteractiveService interactiveService)
+			IInteractiveService interactiveService,
+			IGenericRepository<Nomenclature> nomenclatureRepository,
+			IGenericRepository<ProductGroup> productGroupRepository)
 		{
 			_currentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
@@ -74,6 +79,9 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			_userService = userService ?? throw new ArgumentNullException(nameof(userService));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			_productGroupRepository = productGroupRepository ?? throw new ArgumentNullException(nameof(productGroupRepository)); ;
+
 			StartDate = DateTime.Today.AddDays(-7);
 			EndDate = DateTime.Today.AddDays(1);
 			TargetSource = TargetSource.Both;
@@ -329,7 +337,9 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			FilterViewModel.FilterModeChanged += OnFilterViewModelFilterModeChanged;
 
 			_includeExcludeFilterViewModel = new IncludeExludeFiltersViewModel(_interactiveService);
-			//_includeExcludeFilterViewModel.AddFilter(UoW, _subdivisionRepository);
+			_includeExcludeFilterViewModel.AddFilter(UoW, _nomenclatureRepository);
+			_includeExcludeFilterViewModel.AddFilter(UoW, _productGroupRepository, x => x.Parent?.Id, x => x.Id);
+			_includeExcludeFilterViewModel.SetSelectionChangedAction(() => SetAndRefilterAtOnce());
 		}
 
 		private void OnFilterViewModelFilterModeChanged(object sender, FilterTypeChangedArgs e)

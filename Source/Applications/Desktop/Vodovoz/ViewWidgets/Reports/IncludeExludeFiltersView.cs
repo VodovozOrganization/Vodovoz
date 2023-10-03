@@ -157,6 +157,8 @@ namespace Vodovoz.ViewWidgets.Reports
 		private void OnElementCheckboxToggled(object o, ToggledArgs args)
 		{
 			ytreeviewElements.QueueDraw();
+
+			ViewModel.ActiveFilter?.SelectionChangedAction.Invoke();
 		}
 	}
 }

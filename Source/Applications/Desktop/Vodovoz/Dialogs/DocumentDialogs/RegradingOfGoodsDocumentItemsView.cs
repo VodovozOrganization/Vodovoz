@@ -22,6 +22,7 @@ using Vodovoz.Journals.JournalNodes;
 using Vodovoz.JournalSelector;
 using Vodovoz.Domain.Client;
 using QS.Project.Journal.EntitySelector;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.EntityRepositories;
@@ -52,8 +53,10 @@ namespace Vodovoz
 			var colorLightRed = new Gdk.Color(0xff, 0x66, 0x66);
 
 			List<CullingCategory> types;
+			List<RegradingOfGoodsReason> regradingReasons;
 			using(IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot()) {
 				types = uow.GetAll<CullingCategory>().OrderBy(c => c.Name).ToList();
+				regradingReasons = uow.GetAll<RegradingOfGoodsReason>().OrderBy(c => c.Name).ToList();
 			}
 
 			ytreeviewItems.ColumnsConfig = ColumnsConfigFactory.Create<RegradingOfGoodsDocumentItem>()
@@ -108,6 +111,11 @@ namespace Vodovoz
 						}
 					)
 				.AddColumn("Что произошло").AddTextRenderer(x => x.Comment).Editable()
+				.AddColumn("Причина пересортицы")
+					.AddComboRenderer(x => x.RegradingOfGoodsReason)
+					.SetDisplayFunc(x => x.Name)
+					.FillItems(regradingReasons)
+					.Editing()
 				.Finish();
 			ytreeviewItems.Selection.Changed += YtreeviewItems_Selection_Changed;
 		}

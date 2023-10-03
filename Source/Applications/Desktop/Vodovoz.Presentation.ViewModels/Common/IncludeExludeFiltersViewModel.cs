@@ -431,5 +431,13 @@ namespace Vodovoz.Presentation.ViewModels.Common
 
 			FilteredElementsChanged?.Invoke(this, EventArgs.Empty);
 		}
+
+		public void SetSelectionChangedAction(Action selectionChangedAction)
+		{
+			foreach(var filter in Filters)
+			{
+				filter.SelectionChangedAction = selectionChangedAction;
+			}
+		}
 	}
 }

@@ -150,6 +150,11 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Store
 		public ShiftChangeResidueDocumentType ShiftChangeResidueDocumentType { get; set; }
 
 		public bool MovementDocumentDiscrepancy { get; set; }
+		public string Fine { get; set; }
+		public string TypeOfDefect { get; set; }
+		public DefectSource DefectSource { get; set; }
+		public string DefectSourceString => DefectSource.GetEnumTitle();
+		public string RegradingOfGoodsReason { get; set; }
 
 		private string GetTitle(Type type) => type.GetAttribute<AppellativeAttribute>(true)?.Nominative;
 	}
