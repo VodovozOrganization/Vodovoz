@@ -263,6 +263,7 @@ namespace Vodovoz.JournalViewModels
 
 					var orders = UoW.GetAll<VodovozOrder>()
 						.Where(o => fileredOrderIds.Contains(o.Id))
+						.OrderByDescending(o => o.CreateDate)
 						.ToList();
 
 					var clientsCount = orders
