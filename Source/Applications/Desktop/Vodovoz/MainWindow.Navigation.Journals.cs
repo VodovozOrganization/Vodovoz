@@ -1213,6 +1213,16 @@ public partial class MainWindow
 		);
 	}
 
+	/// <summary>
+	/// Причины пересортицы
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionRegradingOfGoodsReasonsActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<RegradingOfGoodsReasonsJournalViewModel>(null);
+	}
+
 	#endregion Логистика
 
 	#region Помощники

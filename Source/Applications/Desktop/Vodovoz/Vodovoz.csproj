@@ -451,6 +451,7 @@
     <Compile Include="JournalColumnsConfigs\BulkEmailEventReasonJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\BusinessTasksJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\CarEventJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\RegradingOfGoodsReasonsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\CarEventTypeJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\CarJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\CarManufacturerJournalRegistrar.cs" />

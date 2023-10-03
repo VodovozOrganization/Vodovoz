@@ -320,7 +320,4 @@ public partial class MainWindow : Gtk.Window
 			.AddDays(version.Build)
 			.AddSeconds(version.Revision * 2);
 
-	protected void OnActionRegradingOfGoodsReasonsActivated(object sender, EventArgs e)
-	{
-	}
 }
