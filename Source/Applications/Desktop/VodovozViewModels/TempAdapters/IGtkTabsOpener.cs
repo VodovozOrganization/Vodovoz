@@ -14,7 +14,7 @@ namespace Vodovoz.TempAdapters
 		ITdiTab CreateOrderDlg(int? orderId);
 		void OpenOrderDlg(ITdiTab tab, int id);
 		void OpenCopyLesserOrderDlg(ITdiTab tab, int copiedOrderId);
-		ITdiTab OpenCopyOrderDlg(ITdiTab tab, int copiedOrderId);
+		ITdiTab OpenCopyOrderDlgFromUndelivery(ITdiTab tab, int copiedOrderId);
 		ITdiTab OpenRouteListCreateDlg(ITdiTab tab, int id);
 		ITdiTab OpenRouteListCreateDlg(ITdiTabParent tab, int id);
 		ITdiTab OpenRouteListKeepingDlg(ITdiTabParent tab, int routeListId);

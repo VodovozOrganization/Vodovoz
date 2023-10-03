@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -302,7 +302,7 @@ namespace Vodovoz.ViewModels.Widgets
 		/// <param name="order">Заказ, из которого копируются свойства.</param>
 		private void CreateNewOrder(Order order)
 		{
-			_newOrderDlg = _gtkTabsOpener.OpenCopyOrderDlg(_tab, order.Id);
+			_newOrderDlg = _gtkTabsOpener.OpenCopyOrderDlgFromUndelivery(_tab, order.Id);
 			_newOrderDlg.TabClosed -= OnNewOrderDlgClosed;
 			_newOrderDlg.TabClosed += OnNewOrderDlgClosed;
 		}

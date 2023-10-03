@@ -52,7 +52,7 @@ namespace Vodovoz.Dialogs.OrderWidgets
 			);
 		}
 
-		public ITdiTab OpenCopyOrderDlg(ITdiTab tab, int copiedOrderId)
+		public ITdiTab OpenCopyOrderDlgFromUndelivery(ITdiTab tab, int copiedOrderId)
 		{
 			var tag = $"NewCopyFromOrder_{copiedOrderId}_Dlg";
 
@@ -62,6 +62,7 @@ namespace Vodovoz.Dialogs.OrderWidgets
 			{
 				var dlg = new OrderDlg();
 				dlg.CopyOrderFrom(copiedOrderId);
+				dlg.CopiedSourceOrderId = copiedOrderId;
 				dlg.Tag = tag;
 				tab.TabParent.OpenTab(() => dlg, tab);
 				return FindTabByTag(tag);

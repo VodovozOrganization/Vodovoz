@@ -94,7 +94,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		OrderStatus[] GetOnClosingOrderStatuses();
 
 		Order GetOrderOnDateAndDeliveryPoint(IUnitOfWork uow, DateTime date, DeliveryPoint deliveryPoint);
-		IList<Order> GetSameOrderForDateAndDeliveryPoint(IUnitOfWorkFactory uow, DateTime date, DeliveryPoint deliveryPoint);
+		IList<Order> GetSameOrderForDateAndDeliveryPoint(IUnitOfWorkFactory uow, DateTime date, DeliveryPoint deliveryPoint, int? excludeOrderId = null);
 		Order GetOrder(IUnitOfWork unitOfWork, int orderId);
 		IList<Order> GetOrdersBetweenDates(IUnitOfWork UoW, DateTime startDate, DateTime endDate);
 

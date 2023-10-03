@@ -1292,14 +1292,15 @@ namespace Vodovoz.Domain.Orders
 					if(!SelfDelivery && DeliveryPoint != null
 									 && DeliveryDate.HasValue
 									 && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_several_orders_for_date_and_deliv_point")
-									 && validationContext.Items.ContainsKey("uowFactory")
-									 && !IsCopiedFromUndelivery)
+									 && validationContext.Items.ContainsKey("uowFactory"))
 					{
 						bool hasMaster = ObservableOrderItems.Any(i => i.Nomenclature.Category == NomenclatureCategory.master);
 
+						var excludeCopiedSourceOrderId = (int?)(validationContext.Items.ContainsKey("CopiedSourceOrderId") ? validationContext.Items["CopiedSourceOrderId"] : null);
+
 						var orderCheckedOutsideSession = _orderRepository
 							.GetSameOrderForDateAndDeliveryPoint((IUnitOfWorkFactory)validationContext.Items["uowFactory"],
-								DeliveryDate.Value, DeliveryPoint)
+								DeliveryDate.Value, DeliveryPoint, excludeCopiedSourceOrderId)
 							.Where(o => o.Id != Id
 										&& !_orderRepository.GetGrantedStatusesToCreateSeveralOrders().Contains(o.OrderStatus)
 										&& o.OrderAddressType != OrderAddressType.Service).ToList();

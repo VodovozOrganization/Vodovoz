@@ -353,6 +353,8 @@ namespace Vodovoz
 
 		public bool AskSaveOnClose => CanEditByPermission;
 
+		public int? CopiedSourceOrderId { get; set; }
+
 		#endregion
 
 		#region Конструкторы, настройка диалога
@@ -2308,7 +2310,8 @@ namespace Vodovoz
 			ValidationContext validationContext = new ValidationContext(Entity, null, new Dictionary<object, object>
 			{
 				{ "NewStatus", OrderStatus.Accepted },
-				{ "uowFactory", uowFactory }
+				{ "uowFactory", uowFactory },
+				{ "CopiedSourceOrderId", CopiedSourceOrderId }
 			});
 
 			if(!Validate(validationContext))

@@ -458,14 +458,20 @@ namespace Vodovoz.EntityRepositories.Orders
 		public IList<Domain.Orders.Order> GetSameOrderForDateAndDeliveryPoint(
 			IUnitOfWorkFactory uowFactory,
 			DateTime date,
-			DeliveryPoint deliveryPoint)
+			DeliveryPoint deliveryPoint, int? excludeOrderId = null)
 		{
 			using(var uow = uowFactory.CreateWithoutRoot())
 			{
-				return uow.Session.QueryOver<VodovozOrder>()
+				var query = uow.Session.QueryOver<VodovozOrder>()
 					.Where(x => x.DeliveryDate == date)
-					.Where(x => x.DeliveryPoint.Id == deliveryPoint.Id)
-					.List();
+					.Where(x => x.DeliveryPoint.Id == deliveryPoint.Id);
+
+				if(excludeOrderId != null)
+				{
+					query.Where(x => x.Id != excludeOrderId);
+				}
+
+				return query.List();
 			}
 		}
 
