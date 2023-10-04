@@ -95,14 +95,14 @@ namespace Vodovoz.ViewWidgets
 			treeEquipment.ColumnsConfig = ColumnsConfigFactory.Create<OrderEquipment>()
 				.AddColumn("Наименование").AddTextRenderer(node => node.FullNameString)
 				.AddColumn("Направление").AddTextRenderer(node => node.DirectionString)
-				.AddColumn("Кол-во")
+				.AddColumn("Кол-во (недовоз)")
 				.AddNumericRenderer(node => node.Count).WidthChars(10)
 				.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
 				.AddSetter((cell, node) => {
 					cell.Editable = !_activeFlyersNomenclaturesIds.Contains(node.Nomenclature.Id)
 					                && !(node.OrderItem != null && node.OwnType == OwnTypes.Rent);
 				})
-				.AddTextRenderer(node => $"({node.ReturnedCount})")
+				.AddTextRenderer(node => $"({node.UndeliveredCount})")
 				.AddColumn("Принадлежность").AddEnumRenderer(node => node.OwnType, true, new Enum[] { OwnTypes.None })
 				.AddSetter((c, n) => {
 					c.Editable = false;
@@ -190,7 +190,7 @@ namespace Vodovoz.ViewWidgets
 				.AddColumn("Кол-во(недовоз)")
 				.AddNumericRenderer(node => node.Count).WidthChars(10)
 				.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0)).Editing(false)
-				.AddTextRenderer(node => $"({node.ReturnedCount})")
+				.AddTextRenderer(node => $"({node.UndeliveredCount})")
 				.AddColumn("Кол-во по факту")
 					.AddNumericRenderer(node => node.ActualCount, new NullValueToZeroConverter(), false)
 					.AddSetter((cell, node) => {

@@ -170,8 +170,8 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual int CurrentCount => ActualCount ?? Count;
 
-		public virtual int ReturnedCount => Count - ActualCount ?? 0;
-		public virtual bool IsFullyDelivered => ReturnedCount == 0;
+		public virtual int UndeliveredCount => Count - ActualCount ?? 0;
+		public virtual bool IsFullyDelivered => UndeliveredCount == 0;
 
 		public virtual string DirectionString => Direction.GetEnumTitle();
 		public virtual string DirectionReasonString => DirectionReason.GetEnumTitle();
