@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -1987,14 +1987,6 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="ViewModels\Goods\" />
-    <Folder Include="Counterparties\" />
-    <Folder Include="Views\BaseParameters\" />
-    <Folder Include="QualityControl\" />
-    <Folder Include="QualityControl\Reports\" />
-    <Folder Include="ReportsParameters\Cash\" />
-    <Folder Include="AdministrationTools\" />
-    <Folder Include="ViewWidgets\Search\" />
-    <Folder Include="ViewWidgets\Users\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">
@@ -2548,6 +2540,9 @@
   <ItemGroup>
     <EmbeddedResource Include="icons\common\empty16.png" />
     <EmbeddedResource Include="icons\common\folder16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="icons\common\fire16.png" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>

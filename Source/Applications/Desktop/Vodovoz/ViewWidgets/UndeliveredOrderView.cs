@@ -8,6 +8,7 @@ using System;
 using System.Text;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Widgets;
 using CurrencyWorks = QSProjectsLib.CurrencyWorks;
 
@@ -242,7 +243,7 @@ namespace Vodovoz.ViewWidgets
 					.AddTextRenderer(x => x.Comment)
 						.WrapWidth(250)
 						.WrapMode(Pango.WrapMode.WordChar)
-				.RowCells().AddSetter<CellRenderer>((c, o) => c.CellBackgroundGdk = new Gdk.Color(230, 230, 245))
+				.RowCells().AddSetter<CellRenderer>((c, o) => c.CellBackgroundGdk = GdkColors.Pink)
 				.Finish();
 
 			ytreeviewResult.ItemsDataSource = ViewModel.Entity.ObservableResultComments;

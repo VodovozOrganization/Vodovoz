@@ -1,6 +1,8 @@
 ﻿using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Journals.JournalNodes.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using WrapMode = Pango.WrapMode;
@@ -25,7 +27,12 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Статус")
 					.AddEnumRenderer(n => n.Status)
 				.RowCells()
-					.AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+					.AddSetter<CellRendererText>((c, n) =>
+					{
+						c.ForegroundGdk = n.Status == EmployeeStatus.IsFired
+							? GdkColors.InsensitiveText
+							: GdkColors.PrimaryText;
+					})
 				.Finish();
 	}
 }

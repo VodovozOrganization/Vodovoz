@@ -5,6 +5,7 @@ using QSProjectsLib;
 using System;
 using System.Globalization;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Infrastructure;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
 using WrapMode = Pango.WrapMode;
@@ -38,7 +39,29 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Номер звонка").AddTextRenderer(node => node.DriverCallId.ToString())
 				.AddColumn("OnLine заказ №").AddTextRenderer(node => node.OnLineNumber)
 				.AddColumn("Номер заказа интернет-магазина").AddTextRenderer(node => node.EShopNumber)
-				.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+				.RowCells().AddSetter<CellRendererText>((c, n) =>
+				{
+					var color = GdkColors.PrimaryText;
+
+					if(n.StatusEnum == OrderStatus.Canceled
+						|| n.StatusEnum == OrderStatus.DeliveryCanceled
+						|| !n.Sensitive)
+					{
+						color = GdkColors.InsensitiveText;
+					}
+
+					if(n.StatusEnum == OrderStatus.Closed)
+					{
+						color = GdkColors.SuccessText;
+					}
+
+					if(n.StatusEnum == OrderStatus.NotDelivered)
+					{
+						color = GdkColors.InfoText;
+					}
+
+					c.ForegroundGdk = color;
+				})
 				.Finish();
 	}
 }

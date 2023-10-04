@@ -1,6 +1,7 @@
 ﻿using Gamma.GtkWidgets;
 using Gtk;
 using QS.Views.GtkUI;
+using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.Views.Logistic
@@ -15,8 +16,8 @@ namespace Vodovoz.Views.Logistic
 
 		private void Configure()
 		{
-			var colorBlue = new Gdk.Color(0xa8, 0xe8, 0xff);
-			var colorYellow = new Gdk.Color(0xf9, 0xfa, 0xb1);
+			var colorBlue = GdkColors.InfoBase;
+			var colorYellow = GdkColors.WarningBase;
 
 			ylabelDate.Binding.AddFuncBinding(ViewModel.Entity, e => e.Date.ToShortDateString(), w => w.Text).InitializeFromSource();
 			ylabelCar.Binding.AddFuncBinding(ViewModel.Entity.Car, c => $"{c.CarModel.Title} ({c.RegistrationNumber})", w => w.Text)

@@ -15,7 +15,7 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Объект рекламаций").AddTextRenderer(node => node.ComplaintObject).WrapWidth(400).WrapMode(WrapMode.WordChar)
 				.AddColumn("Вид рекламации").AddTextRenderer(node => node.ComplaintKind).WrapWidth(400).WrapMode(WrapMode.WordChar)
 				.AddColumn("В архиве").AddToggleRenderer(node => node.IsArchive).Editing(false).XAlign(0f)
-				.RowCells().AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? GdkColors.DarkGrayColor : GdkColors.BlackColor)
+				.RowCells().AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? GdkColors.InsensitiveText : GdkColors.PrimaryText)
 				.Finish();
 	}
 }
