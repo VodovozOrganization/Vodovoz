@@ -5,6 +5,7 @@ using Mango.Service.Services;
 using MangoService;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using NLog;
 using System;
 using System.Collections.Generic;
@@ -16,22 +17,24 @@ namespace Mango.Service.HostedServices
 {
 	public class NotificationHostedService : NotificationService.NotificationServiceBase, IHostedService
 	{
+		private readonly ILogger<NotificationHostedService> _logger;
 		private readonly PhonebookHostedService _phonebookService;
 		private readonly IConfiguration _configuration;
 		private readonly ICallerService _callerService;
-		private static Logger _logger = LogManager.GetCurrentClassLogger();
 
 		public readonly List<Subscription> Subscribers = new List<Subscription>();
 
 		public NotificationHostedService(
+			ILogger<NotificationHostedService> logger,
 			PhonebookHostedService phonebookService,
 			IConfiguration configuration,
 			ICallerService callerService)
 		{
-			_logger.Info("Создание службы уведомлений");
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_phonebookService = phonebookService ?? throw new ArgumentNullException(nameof(phonebookService));
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 			_callerService = callerService ?? throw new ArgumentNullException(nameof(callerService));
+			_logger.LogInformation("Создание службы уведомлений");
 		}
 
 		#region GRPC Requests
@@ -42,7 +45,7 @@ namespace Mango.Service.HostedServices
 			{
 				Subscribers.Add(subscription);
 			}
-			_logger.Debug($"Добавочный {request.Extension} зарегистрировался.");
+			_logger.LogDebug("Добавочный {RequestExtension} зарегистрировался.", request.Extension);
 
 			try
 			{
@@ -50,7 +53,7 @@ namespace Mango.Service.HostedServices
 				while(!context.CancellationToken.IsCancellationRequested)
 				{
 					var message = await reader.ReadAsync(context.CancellationToken);
-					_logger.Debug("Сообщение в очереди");
+					_logger.LogDebug("Сообщение в очереди");
 					if(message != null)
 					{
 						await responseStream.WriteAsync(message);
@@ -59,7 +62,7 @@ namespace Mango.Service.HostedServices
 			}
 			catch(Exception e)
 			{
-				_logger.Debug(e);
+				_logger.LogDebug(e, "");
 				throw;
 			}
 			finally
@@ -68,7 +71,7 @@ namespace Mango.Service.HostedServices
 				{
 					Subscribers.Remove(subscription);
 				}
-				_logger.Debug($"Добавочный {request.Extension} отвалился.");
+				_logger.LogDebug("Добавочный {RequestExtension} отвалился.", request.Extension);
 			}
 		}
 		#endregion
@@ -93,7 +96,7 @@ namespace Mango.Service.HostedServices
 
 			if(toDisconnet.Any())
 			{
-				_logger.Debug("toDisconnet:" + string.Join(",", info.ConnectedExtensions));
+				_logger.LogDebug("toDisconnet:" + string.Join(",", info.ConnectedExtensions));
 				IList<Subscription> subscriptions = null;
 				lock(Subscribers)
 				{
@@ -139,7 +142,8 @@ namespace Mango.Service.HostedServices
 			}
 
 #if DEBUG
-			_logger.Debug($"Для звонка на {extension} подходит {subscriptions.Count} из {Subscribers.Count} подписчиков.");
+			_logger.LogDebug("Для звонка на {Extension} подходит {SubscriptionsCount} из {SubscribersCount} подписчиков.",
+				extension, subscriptions.Count, Subscribers.Count);
 #endif
 
 			if(subscriptions.Count == 0)
@@ -159,7 +163,8 @@ namespace Mango.Service.HostedServices
 				else
 				{
 					caller = new Caller();
-					_logger.Error($"Не можем определить кто на линии from.extension и from.number пустые. Событие: {info.LastEvent}");
+					_logger.LogError("Не можем определить кто на линии from.extension и from.number пустые. " +
+						"Событие: {LastEvent}", info.LastEvent);
 				}
 			}
 			else
@@ -167,7 +172,7 @@ namespace Mango.Service.HostedServices
 				caller = GetInternalCaller(from.Extension);
 			}
 
-			_logger.Debug($"Caller:{caller}");
+			_logger.LogDebug("Caller:{Caller}", caller);
 			var message = MakeMessage(info, caller, info.LastEvent.From.Extension);
 			message.Direction = CallDirection.Incoming;
 			SendNotification(subscriptions, message, info);
@@ -192,7 +197,8 @@ namespace Mango.Service.HostedServices
 			}
 
 #if DEBUG
-			_logger.Debug($"Для исходящего с {extension} подходит {subscriptions.Count} из {Subscribers.Count} подписчиков.");
+			_logger.LogDebug("Для исходящего с {Extension} подходит {SubscriptionsCount} из {SubscribersCount} подписчиков.",
+				extension, subscriptions.Count, Subscribers.Count);
 #endif
 
 			if(subscriptions.Count == 0)
@@ -212,7 +218,8 @@ namespace Mango.Service.HostedServices
 				else
 				{
 					caller = new Caller();
-					_logger.Error($"Не можем определить кто кому звоним to.extension и to.number пустые. Событие: {info.LastEvent}");
+					_logger.LogError("Не можем определить кто кому звоним to.extension и to.number пустые. " +
+						"Событие: {LastEvent}", info.LastEvent);
 				}
 			}
 			else
@@ -220,7 +227,7 @@ namespace Mango.Service.HostedServices
 				caller = GetInternalCaller(to.Extension);
 			}
 
-			_logger.Debug($"Caller:{caller}");
+			_logger.LogDebug("Caller:{Caller}", caller);
 			var message = MakeMessage(info, caller, info.LastEvent.From.Extension);
 			message.Direction = CallDirection.Outgoing;
 			SendNotification(subscriptions, message, info);
@@ -248,7 +255,8 @@ namespace Mango.Service.HostedServices
 						}
 						else
 						{
-							_logger.Error($"Не можем определить кто на удержании to.extension и to.number пустые. Событие: {info.OnHoldCall.LastEvent}");
+							_logger.LogError("Не можем определить кто на удержании to.extension и to.number пустые. " +
+								"Событие: {LastEvent}", info.OnHoldCall.LastEvent);
 						}
 					}
 					else
@@ -266,8 +274,8 @@ namespace Mango.Service.HostedServices
 						}
 						else
 						{
-							_logger.Error(
-								$"Не можем определить кто на удержании from.extension и from.number пустые. Событие: {info.OnHoldCall.LastEvent}");
+							_logger.LogError("Не можем определить кто на удержании from.extension и from.number пустые. " +
+								"Событие: {LastEvent}", info.OnHoldCall.LastEvent);
 						}
 					}
 					else
@@ -282,7 +290,8 @@ namespace Mango.Service.HostedServices
 		private void SendNotification(IList<Subscription> subscriptions, NotificationMessage message, CallInfo info)
 		{
 #if DEBUG
-			_logger.Debug($"Отправляем {subscriptions.Count} подписчикам, сообщение: {message}.");
+			_logger.LogDebug("Отправляем {SubscriptionsCount} подписчикам, сообщение: {Message}.",
+				subscriptions.Count, message);
 #endif
 
 			// Отправляем уведомление о поступлении входящего
@@ -290,7 +299,8 @@ namespace Mango.Service.HostedServices
 			{
 				if(subscription.Queue.Reader.CanCount && subscription.Queue.Reader.Count > 5)
 				{
-					_logger.Error($"Подписчик {subscription.Extension} не читает уведомления, видимо сломался, удаляем его.");
+					_logger.LogError("Подписчик {SubscriptionExtension} не читает уведомления, видимо сломался, удаляем его.",
+						subscription.Extension);
 					lock(Subscribers)
 					{
 						Subscribers.Remove(subscription);
@@ -324,7 +334,7 @@ namespace Mango.Service.HostedServices
 			var user = _phonebookService.FindPhone(number);
 			if(user == null)
 			{
-				_logger.Warn($"Пришло событие для номера {number}, но его нет в списке пользователей Mango");
+				_logger.LogWarning("Пришло событие для номера {Number}, но его нет в списке пользователей Mango", number);
 			}
 
 			var caller = new Caller
@@ -351,7 +361,7 @@ namespace Mango.Service.HostedServices
 		private Server _server;
 		public async Task StartAsync(CancellationToken cancellationToken)
 		{
-			_logger.Info("Запуск сервера GRPC");
+			_logger.LogInformation("Запуск сервера GRPC");
 			_server = new Server
 			{
 				Services =
@@ -366,7 +376,7 @@ namespace Mango.Service.HostedServices
 
 		public async Task StopAsync(CancellationToken cancellationToken)
 		{
-			_logger.Info("Остановка сервера GRPC");
+			_logger.LogInformation("Остановка сервера GRPC");
 			await _server.ShutdownAsync();
 		}
 		#endregion

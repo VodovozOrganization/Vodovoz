@@ -9,17 +9,25 @@ using Mango.Client;
 using Mango.Service.Extensions;
 using MangoService;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using NLog;
 
 namespace Mango.Service.HostedServices
 {
 	public class PhonebookHostedService : PhonebookService.PhonebookServiceBase, IHostedService
 	{
+		private readonly ILogger<PhonebookHostedService> _logger;
 		private readonly MangoController _mangoController;
 		private readonly CallsHostedService _callsService;
-		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
 		private List<PhoneEntry> _phones = new List<PhoneEntry>();
+
+		public PhonebookHostedService(ILogger<PhonebookHostedService> logger, MangoController mangoController, CallsHostedService callsService)
+		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_mangoController = mangoController ?? throw new ArgumentNullException(nameof(mangoController));
+			_callsService = callsService ?? throw new ArgumentNullException(nameof(callsService));
+		}
 
 		#region GRPC
 
@@ -46,12 +54,6 @@ namespace Mango.Service.HostedServices
 		#region Timer
 		private Timer _timer;
 
-		public PhonebookHostedService(MangoController mangoController, CallsHostedService callsService)
-		{
-			_mangoController = mangoController ?? throw new ArgumentNullException(nameof(mangoController));
-			_callsService = callsService ?? throw new ArgumentNullException(nameof(callsService));
-		}
-
 		private void RefreshPhones(object state)
 		{
 			try
@@ -60,7 +62,7 @@ namespace Mango.Service.HostedServices
 			}
 			catch(Exception e)
 			{
-				_logger.Error(e, "Ошибка при обновлении телефонной книги манго");
+				_logger.LogError(e, "Ошибка при обновлении телефонной книги манго");
 				if(_phones.Any())
 				{
 					return;
@@ -136,14 +138,14 @@ namespace Mango.Service.HostedServices
 		#region IHostedService
 		public Task StartAsync(CancellationToken cancellationToken)
 		{
-			_logger.Info("Сервис телефонной книги запущен.");
+			_logger.LogInformation("Сервис телефонной книги запущен.");
 			_timer = new Timer(RefreshPhones, null, TimeSpan.Zero, TimeSpan.FromMinutes(30));
 			return Task.CompletedTask;
 		}
 
 		public Task StopAsync(CancellationToken cancellationToken)
 		{
-			_logger.Info("Сервис телефонной книги остановлен.");
+			_logger.LogInformation("Сервис телефонной книги остановлен.");
 
 			_timer?.Change(Timeout.Infinite, 0);
 

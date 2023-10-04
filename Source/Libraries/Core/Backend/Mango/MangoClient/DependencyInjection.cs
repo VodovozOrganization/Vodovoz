@@ -3,11 +3,11 @@ using Mango.Core.Sign;
 using Mango.Api.Validators;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Mango.Api.DependencyInjection
+namespace Mango.Api
 {
-	public static class RegistrationExtension
+	public static class DependencyInjection
 	{
-		public static void ConfigureMangoServices(this IServiceCollection serviceCollection)
+		public static IServiceCollection ConfigureMangoServices(this IServiceCollection serviceCollection)
 		{
 			serviceCollection.AddControllers();
 
@@ -19,6 +19,8 @@ namespace Mango.Api.DependencyInjection
 				.AddScoped<IValidator, KeyValidator>()
 				.AddScoped<IRequestValidator, RequestValidator>()
 				;
+
+			return serviceCollection;
 		}
 	}
 }

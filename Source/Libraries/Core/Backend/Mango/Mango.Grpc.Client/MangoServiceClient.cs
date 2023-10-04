@@ -1,7 +1,7 @@
 ﻿using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using MangoService;
-using NLog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,24 +13,24 @@ namespace Mango.Grpc.Client
 {
 	public class MangoServiceClient : IDisposable
 	{
-		private static Logger logger = LogManager.GetCurrentClassLogger ();
-		
-		private NotificationService.NotificationServiceClient notificationClient;
-		private Channel channel;
-		private readonly uint extension;
-		private readonly CancellationToken token;
+		private readonly ILogger<MangoServiceClient> _logger;
 		private readonly IMangoSettings _mangoSettings;
-		private DateTime? FailSince;
+		private readonly uint _extension;
+		private readonly CancellationToken _token;
+		private NotificationService.NotificationServiceClient _notificationClient;
+		private Channel _channel;
+		private DateTime? _failSince;
 
-		public bool IsNotificationActive => channel.State == ChannelState.Ready;
+		public bool IsNotificationActive => _channel.State == ChannelState.Ready;
 
 		public event EventHandler<ConnectionStateEventArgs> ChannelStateChanged;
 
-		public MangoServiceClient(uint extension, CancellationToken token, IMangoSettings mangoSettings)
+		public MangoServiceClient(ILogger<MangoServiceClient> logger, IMangoSettings mangoSettings, uint extension, CancellationToken token)
 		{
-			this.token = token;
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_mangoSettings = mangoSettings ?? throw new ArgumentNullException(nameof(mangoSettings));
-			this.extension = extension;
+			this._extension = extension;
+			this._token = token;
 			Connect();
 		}
 
@@ -39,41 +39,41 @@ namespace Mango.Grpc.Client
 		{
 			var url = $"{_mangoSettings.ServiceHost}:{_mangoSettings.ServicePort}";
 
-			channel = new Channel(url, ChannelCredentials.Insecure);
-			notificationClient = new NotificationService.NotificationServiceClient(channel);
+			_channel = new Channel(url, ChannelCredentials.Insecure);
+			_notificationClient = new NotificationService.NotificationServiceClient(_channel);
 
-			var request = new NotificationSubscribeRequest { Extension =  extension};
-			var response = notificationClient.Subscribe(request);
-			var watcher = new NotificationConnectionWatcher(channel, OnChanalStateChanged);
+			var request = new NotificationSubscribeRequest { Extension =  _extension};
+			var response = _notificationClient.Subscribe(request);
+			var watcher = new NotificationConnectionWatcher(_channel, OnChanalStateChanged);
 
 			var responseReaderTask = Task.Run(async () =>
 				{
-					while(await response.ResponseStream.MoveNext(token))
+					while(await response.ResponseStream.MoveNext(_token))
 					{
-						FailSince = null;
+						_failSince = null;
 						var message = response.ResponseStream.Current;
-						logger.Debug($"extension:{extension} Received:{message}");
+						_logger.LogDebug("Extension:{Extension} Received:{Message}", _extension, message);
 						OnAppearedMessage(message);
 					}
-					logger.Warn($"Соединение с NotificationService[{extension}] завершено.");
-				}, token).ContinueWith(task =>
+					_logger.LogWarning("Соединение с NotificationService[{Extension}] завершено.", _extension);
+				}, _token).ContinueWith(task =>
 				{
 					if(task.IsCanceled || (task.Exception?.InnerException as RpcException)?.StatusCode == StatusCode.Cancelled) {
-						logger.Info($"Соединение с NotificationService[{extension}] отменено.");
+						_logger.LogInformation("Соединение с NotificationService[{Extension}] отменено.", _extension);
 					}
 					else if (task.IsFaulted)
 					{
-						if (FailSince == null) 
-							FailSince = DateTime.Now;
-						var failedTime = (DateTime.Now - FailSince).Value;
+						if (_failSince == null) 
+							_failSince = DateTime.Now;
+						var failedTime = (DateTime.Now - _failSince).Value;
 						if(failedTime.Seconds < 10)
 							Thread.Sleep(1000);
 						else if(failedTime.Minutes < 10)
 							Thread.Sleep(4000);
 						else
 							Thread.Sleep(30000);
-						logger.Error(task.Exception);
-						logger.Info($"Соединение с NotificationService[{extension}] разорвано... Пробуем соединиться.");
+						_logger.LogError(task.Exception, "");
+						_logger.LogInformation("Соединение с NotificationService[{Extension}] разорвано... Пробуем соединиться.", _extension);
 						Connect();
 					} 
 				})
@@ -91,15 +91,15 @@ namespace Mango.Grpc.Client
 
 		public List<PhoneEntry> GetPhonebook()
 		{
-			var client = new PhonebookService.PhonebookServiceClient(channel);
-			return client.GetBook(new Empty()).Entries.Where(x => x.Extension != extension).ToList();
+			var client = new PhonebookService.PhonebookServiceClient(_channel);
+			return client.GetBook(new Empty()).Entries.Where(x => x.Extension != _extension).ToList();
 		}
 
 		#endregion
 
 		public void Dispose()
 		{
-			channel.ShutdownAsync();
+			_channel.ShutdownAsync();
 		}
 
 		protected virtual void OnChanalStateChanged(ChannelState state)

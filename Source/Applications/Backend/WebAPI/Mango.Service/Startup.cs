@@ -1,4 +1,4 @@
-﻿using Mango.Api.DependencyInjection;
+﻿using Mango.Api;
 using Mango.CallsPublishing;
 using Mango.Client;
 using Mango.Core.Handlers;
@@ -21,6 +21,7 @@ namespace Mango.Service
 	public class Startup
 	{
 		private const string _nLogSectionName = "NLog";
+		private ILoggerFactory _loggerFactory;
 
 		public Startup(IConfiguration configuration)
 		{
@@ -41,6 +42,9 @@ namespace Mango.Service
 					logging.AddConfiguration(nlogConfig);
 				});
 
+			_loggerFactory = LoggerFactory.Create(logging =>
+				logging.AddConfiguration(Configuration.GetSection(_nLogSectionName)));
+
 			var dbSection = Configuration.GetSection("DomainDB");
 			if(!dbSection.Exists())
 			{
@@ -58,8 +62,11 @@ namespace Mango.Service
 			services.AddSingleton(x =>
 				new MySqlConnection(connectionStringBuilder.ConnectionString));
 
-			services.AddSingleton(x =>
-				new MangoController(Configuration["Mango:VpbxApiKey"], Configuration["Mango:VpbxApiSalt"]));
+			services.AddSingleton(x => new MangoController(
+				_loggerFactory.CreateLogger<MangoController>(), 
+				Configuration["Mango:VpbxApiKey"], 
+				Configuration["Mango:VpbxApiSalt"])
+			);
 
 			services.AddSingleton<CallsHostedService>();
 			services.AddHostedService(provider => provider.GetService<CallsHostedService>());

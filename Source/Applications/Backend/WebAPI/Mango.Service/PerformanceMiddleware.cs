@@ -1,18 +1,25 @@
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Primitives;
+using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Primitives;
-using NLog;
 
 namespace Mango.Service
 {
 	public class PerformanceMiddleware
 	{
-		private static Logger logger = LogManager.GetLogger("Requests");
+		private readonly ILogger _logger;
 		private readonly RequestDelegate _next;
 
-		public PerformanceMiddleware(RequestDelegate requestDelegate)
+		public PerformanceMiddleware(ILoggerFactory loggerFactory, RequestDelegate requestDelegate)
 		{
+			if(loggerFactory is null)
+			{
+				throw new ArgumentNullException(nameof(loggerFactory));
+			}
+
+			_logger = loggerFactory.CreateLogger("Requests");
 			_next = requestDelegate;
 		}
 
@@ -28,7 +35,7 @@ namespace Mango.Service
 			if(httpRequest.Form.TryGetValue("json", out values))
 				json = values.ToString();
 
-			logger.Trace($"REQUEST: {requestString} JSON:{json}");
+			_logger.LogTrace("REQUEST: {RequestString} JSON:{Json}", requestString, json);
 
 			var nextTask = _next.Invoke(httpContext);
 			nextTask.ContinueWith(t =>
@@ -43,11 +50,12 @@ namespace Mango.Service
 
 				if(t.Status == TaskStatus.RanToCompletion)
 				{
-					logger.Info($"Time: {time}ms {requestString} JSON:{json}");
+					_logger.LogInformation("Time: {Time}ms {RequestString} JSON:{Json}", time, requestString, json);
 				}
 				else
 				{
-					logger.Error(t.Exception?.InnerException, $"Time: {time}ms [{t.Status}] - {requestString} JSON:{json}");
+					_logger.LogError(t.Exception?.InnerException, "Time: {Time}ms [{Status}] - {RequestString} JSON:{Json}",
+						time, t.Status, requestString, json);
 				}
 			});
 			return nextTask;

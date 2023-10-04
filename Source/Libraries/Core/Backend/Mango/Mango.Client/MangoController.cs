@@ -5,6 +5,7 @@ using Mango.Client.DTO.HangUp;
 using Mango.Client.DTO.MakeCall;
 using Mango.Client.DTO.User;
 using Mango.Core.Sign;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
@@ -26,8 +27,7 @@ namespace Mango.Client
 	/// </summary>
 	public class MangoController
 	{
-		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-
+		private readonly ILogger<MangoController> _logger;
 		private readonly ISignGenerator _signGenerator;
 		private string baseURL = "https://app.mango-office.ru/";
 		private string vpbx_api_key;
@@ -37,9 +37,11 @@ namespace Mango.Client
 
 		/// <param name="vpbx_api_key">Уникальный код вашей АТС.</param>
 		/// <param name="vpbx_api_salt">Ключ для создания подписи.</param>
-		public MangoController(string vpbx_api_key, string vpbx_api_salt)
+		public MangoController(ILogger<MangoController> logger, string vpbx_api_key, string vpbx_api_salt)
 		{
+			_logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
 			_signGenerator = new SignGenerator();
+
 			this.vpbx_api_key = vpbx_api_key;
 			this.vpbx_api_salt = vpbx_api_salt;
 		}
@@ -60,7 +62,7 @@ namespace Mango.Client
 
 				result = request.Post(command).ToString();
 			}
-			logger.Debug($"Ответ команды:{result}");
+			_logger.LogDebug("Ответ команды:{Result}", result);
 			return result;
 		}
 
@@ -83,7 +85,7 @@ namespace Mango.Client
 		/// <returns>ClientMangoService.DTO.Users.User type</returns>
 		public IEnumerable<User> GetAllVPBXUsers()
 		{
-			logger.Info("Запрашиваем пользователей манго");
+			_logger.LogInformation("Запрашиваем пользователей манго");
 			string command = "vpbx/config/users/request";
 			string response = PerformCommand(command);
 
@@ -96,7 +98,7 @@ namespace Mango.Client
 				User user = _result.ToObject<User>();
 				users.Add(user);
 			}
-			logger.Info($"Получено {users.Count} пользователей");
+			_logger.LogInformation("Получено {UserCount} пользователей", users.Count);
 			return users;
 		}
 		/// <summary>
@@ -105,7 +107,7 @@ namespace Mango.Client
 		/// <returns>ClientMangoService.DTO.Group.Group type</returns>
 		public IEnumerable<Group> GetAllVpbxGroups()
 		{
-			logger.Info("Запрашиваем группы манго");
+			_logger.LogInformation("Запрашиваем группы манго");
 			string command = "vpbx/groups";
 			string response = PerformCommand(command);
 
@@ -118,7 +120,7 @@ namespace Mango.Client
 				Group group = _result.ToObject<Group>();
 				groups.Add(group);
 			}
-			logger.Info($"Получено {groups.Count} групп");
+			_logger.LogInformation("Получено {GroupsCount} групп", groups.Count);
 			return groups;
 		}
 
@@ -131,7 +133,7 @@ namespace Mango.Client
 		/// <param name="commandId">Не обязательный параметр , обозначающий id комнды (может быть любым , по умолчанию : имя метода)</param>
 		public bool MakeCall(string from_extension, string to_extension, [CallerMemberName] string commandId = "")
 		{
-			logger.Info($"Выполняем звонок на {to_extension}");
+			_logger.LogInformation("Выполняем звонок на {ToExtension}", to_extension);
 			string command = @"vpbx/commands/callback";
 			MakeCallRequest options = new MakeCallRequest();
 			options.command_id = commandId;
@@ -141,7 +143,14 @@ namespace Mango.Client
 			string json = JsonConvert.SerializeObject(options, settings);
 			var result = PerformCommand(command, json);
 			var successfully = GetSimpleResult(result);
-			logger.Info(successfully ? "Ок" : $"Код ошибки: {GetParseResult(result).result}");
+			if(successfully)
+			{
+				_logger.LogInformation("Ок");
+			}
+			else
+			{
+				_logger.LogInformation("Код ошибки: {ErrorResult}", GetParseResult(result).result);
+			}
 			return successfully;
 		}
 
@@ -156,7 +165,7 @@ namespace Mango.Client
 		/// <param name="commandId">Не обязательный параметр , обозначающий id комнды (может быть любым , по умолчанию : имя метода)</param>
 		public bool ForwardCall(string call_id, string from_extension, string to_extension, ForwardingMethod method, [CallerMemberName] string commandId = "")
 		{
-			logger.Info($"Выполняем переадресацию на {to_extension}");
+			_logger.LogInformation("Выполняем переадресацию на {ToExtension}", to_extension);
 			string command = @"vpbx/commands/transfer";
 			ForwardCallRequest options = new ForwardCallRequest();
 			options.call_id = call_id;
@@ -168,7 +177,14 @@ namespace Mango.Client
 
 			var result = PerformCommand(command, json);
 			var successfully = GetSimpleResult(result);
-			logger.Info(successfully ? "Ок" : $"Код ошибки: {GetParseResult(result).result}");
+			if(successfully)
+			{
+				_logger.LogInformation("Ок");
+			}
+			else
+			{
+				_logger.LogInformation("Код ошибки: {ErrorResult}", GetParseResult(result).result);
+			}
 			return successfully;
 		}
 
@@ -180,7 +196,7 @@ namespace Mango.Client
 		/// <param name="commandId">Не обязательный параметр , обозначающий id комнды (может быть любым , по умолчанию : имя метода)</param>
 		public bool HangUp(string call_id, [CallerMemberName] string commandId = "")
 		{
-			logger.Info($"Выполняем завершение разговора.");
+			_logger.LogInformation("Выполняем завершение разговора.");
 			string command = "vpbx/commands/call/hangup";
 
 			HangUpRequest options = new HangUpRequest();
@@ -190,7 +206,14 @@ namespace Mango.Client
 
 			var result = PerformCommand(command, json);
 			var successfully = GetSimpleResult(result);
-			logger.Info(successfully ? "Ок" : $"Код ошибки: {GetParseResult(result).result}");
+			if(successfully)
+			{
+				_logger.LogInformation("Ок");
+			}
+			else
+			{
+				_logger.LogInformation("Код ошибки: {ErrorResult}", GetParseResult(result).result);
+			}
 			return successfully;
 		}
 	}

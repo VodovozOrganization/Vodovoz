@@ -6,23 +6,35 @@ using System.Threading.Tasks;
 using Mango.Service.Calling;
 using Mango.Service.Extensions;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using QS.Utilities;
 
 namespace Mango.Service.HostedServices
 {
 	public class CallsHostedService : IHostedService, IDisposable
 	{
-		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		private static NLog.Logger loggerLostEvents = NLog.LogManager.GetLogger("LostEvents");
+		private readonly ILogger<CallsHostedService> _logger;
+		private readonly ILogger _loggerLostEvents;
 
-		private Timer timer;
+		private Timer _timer;
+
+		public CallsHostedService(ILoggerFactory loggerFactory)
+		{
+			if(loggerFactory is null)
+			{
+				throw new ArgumentNullException(nameof(loggerFactory));
+			}
+
+			_logger = loggerFactory.CreateLogger<CallsHostedService>();
+			_loggerLostEvents = loggerFactory.CreateLogger("LostEvents");
+		}
 
 		public ConcurrentDictionary<string, CallInfo> Calls = new ConcurrentDictionary<string, CallInfo>();
 
 		public Task StartAsync(CancellationToken cancellationToken)
 		{
-			logger.Info("Сервис ведения звонков запущен.");
-			timer = new Timer(CleanWorks, null, TimeSpan.Zero,
+			_logger.LogInformation("Сервис ведения звонков запущен.");
+			_timer = new Timer(CleanWorks, null, TimeSpan.Zero,
 				TimeSpan.FromMinutes(1));
 
 			return Task.CompletedTask;
@@ -30,9 +42,9 @@ namespace Mango.Service.HostedServices
 
 		public Task StopAsync(CancellationToken cancellationToken)
 		{
-			logger.Info("Сервис ведения звонков остановлен.");
+			_logger.LogInformation("Сервис ведения звонков остановлен.");
 
-			timer?.Change(Timeout.Infinite, 0);
+			_timer?.Change(Timeout.Infinite, 0);
 
 			return Task.CompletedTask;
 		}
@@ -52,7 +64,7 @@ namespace Mango.Service.HostedServices
 					"Следующие {0} звонков не получили события Disconnected в течении 1 часа:\n"
 					);
 				noDisconnected.ForEach(info => text += $"* CallInfo {info.LastEvent.CallId}:\n{info.EventsToText()}\n");
-				loggerLostEvents.Error(text);
+				_loggerLostEvents.LogError(text);
 			}
 
 			var lostIncome = toRemove.Where(c => c.Events.Values.All(e => e.CallState.ParseCallState() == CallState.Disconnected)).ToList();
@@ -64,7 +76,7 @@ namespace Mango.Service.HostedServices
 					"У следующих {0} звонков было только событие Disconnected:\n"
 				);
 				lostIncome.ForEach(info => text += $"* CallInfo {info.LastEvent.CallId}:\n{info.EventsToText()}\n");
-				loggerLostEvents.Error(text);
+				_loggerLostEvents.LogError(text);
 			}
 			//Удаляем
 			foreach(var call in toRemove)
@@ -72,14 +84,17 @@ namespace Mango.Service.HostedServices
 				Calls.TryRemove(call.LastEvent.CallId, out var callNull);
 			}
 
-			var activeCallsCount =
-				Calls.Count(p => p.Value.Events.Values.All(e => e.CallState.ParseCallState() != CallState.Disconnected));
-			logger.Info($"Забыта информация о {toRemove.Count} звонках. Всего сервер знает о {Calls.Count} звонках, из них {activeCallsCount} активных.");
+			var activeCallsCount = Calls.Count(p => 
+				p.Value.Events.Values.All(e => e.CallState.ParseCallState() != CallState.Disconnected));
+
+			_logger.LogInformation("Забыта информация о {RemoveCount} звонках. Всего сервер знает " +
+				"о {CallsCount} звонках, из них {ActiveCallsCount} активных.",
+				toRemove.Count, Calls.Count, activeCallsCount);
 		}
 
 		public void Dispose()
 		{
-			timer?.Dispose();
+			_timer?.Dispose();
 		}
 	}
 }

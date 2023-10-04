@@ -1,6 +1,7 @@
 ﻿using Mango.Service.Calling;
 using Mango.Service.Extensions;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using MySqlConnector;
 using NLog;
 using Polly;
@@ -14,13 +15,13 @@ namespace Mango.Service.Services
 {
 	public class CallerService : ICallerService
 	{
+		private readonly ILogger<CallerService> _logger;
 		private readonly ConcurrentDictionary<string, CallerInfoCache> _externalCallers;
-		private readonly Logger _logger = LogManager.GetCurrentClassLogger();
 		private readonly string _connectionString;
 
-		public CallerService(
-			IConfiguration configuration)
+		public CallerService(ILogger<CallerService> logger, IConfiguration configuration)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_externalCallers = new ConcurrentDictionary<string, CallerInfoCache>();
 
 			var dbSection = configuration.GetSection("DomainDB");
@@ -47,7 +48,7 @@ namespace Mango.Service.Services
 			{
 				if(!_externalCallers.TryRemove(outdatedValue.Key, out var deletedPair))
 				{
-					_logger.Warn("Не удалось удалить устаревший номер {Number}", outdatedValue.Key);
+					_logger.LogWarning("Не удалось удалить устаревший номер {Number}", outdatedValue.Key);
 				}
 			}
 
@@ -67,7 +68,7 @@ namespace Mango.Service.Services
 					return cachedValue.Caller;
 				}
 
-				_logger.Debug("Поиск телефона: {Number}...", number);
+				_logger.LogDebug("Поиск телефона: {Number}...", number);
 
 				CallerInfoCache callerInfoCache;
 
@@ -94,7 +95,7 @@ namespace Mango.Service.Services
 
 				var list = (await connection.QueryAsyncWithRetry<PhoneWithDetailsResponseNode>(sql, retryPolicy, new { digits })).ToList();
 
-				_logger.Debug("{PhonesCount} телефонов в базе данных.", list.Count);
+				_logger.LogDebug("{PhonesCount} телефонов в базе данных.", list.Count);
 
 				//Очищаем контрагентов у которых номер соответсвует звонящей точке доставки
 				list.RemoveAll(x => !string.IsNullOrEmpty(x.counterparty_name) && string.IsNullOrEmpty(x.address)
@@ -123,7 +124,7 @@ namespace Mango.Service.Services
 			}
 			catch(Exception e)
 			{
-				_logger.Error(e, "Ошибка при выполнении запроса поиска контрагента по номеру телефона: {Message}.", e.Message);
+				_logger.LogError(e, "Ошибка при выполнении запроса поиска контрагента по номеру телефона: {Message}.", e.Message);
 			}
 
 			return result;

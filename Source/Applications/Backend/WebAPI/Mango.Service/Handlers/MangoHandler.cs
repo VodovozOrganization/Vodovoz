@@ -30,8 +30,8 @@ namespace Mango.Service.Handlers
 				if(call.Seq > callEvent.Seq)
 				{
 					//Пришло старое сообщение
-					_logger.LogWarning($"Пропускаем обработку сообщения с номером {callEvent.Seq} " +
-						$"так как уже получили сообщение с номером {call.Seq}");
+					_logger.LogWarning("Пропускаем обработку сообщения с номером {Seq} " +
+						"так как уже получили сообщение с номером {Seq}", callEvent.Seq, callEvent.Seq);
 					return Task.CompletedTask;
 				}
 

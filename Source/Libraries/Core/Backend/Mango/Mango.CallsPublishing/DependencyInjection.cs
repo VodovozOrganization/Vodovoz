@@ -8,7 +8,7 @@ namespace Mango.CallsPublishing
 {
 	public static class DependencyInjection
 	{
-		public static void AddCallsPublishing(this IServiceCollection services, IMessageTransportSettings transportSettings)
+		public static IServiceCollection AddCallsPublishing(this IServiceCollection services, IMessageTransportSettings transportSettings)
 		{
 			services
 				.AddScoped<ICallEventHandler, PublisherCallEventHandler>()
@@ -38,6 +38,8 @@ namespace Mango.CallsPublishing
 					cfg.ConfigureEndpoints(context);
 				});
 			});
+
+			return services;
 		}
 	}
 }

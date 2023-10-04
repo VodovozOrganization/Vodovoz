@@ -42,7 +42,6 @@ namespace Mango.Core.Sign
 				}
 
 				sign = sBuilder.ToString();
-				Console.WriteLine($"sign: {sign}");
 			}
 
 			return sign;
