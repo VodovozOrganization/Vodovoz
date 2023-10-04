@@ -11,8 +11,9 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.JournalFilters;
 using Vodovoz.ViewModel;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Factories;
+using Vodovoz.Extensions;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.Infrastructure;
 
 namespace Vodovoz.Dialogs
 {
@@ -20,6 +21,9 @@ namespace Vodovoz.Dialogs
 	{
 		Nomenclature selectedNomenclature;
 		GenericObservableList<Nomenclature> ObservableList { get; set; }
+
+		private readonly string _primaryTextHtmlColor = GdkColors.PrimaryText.ToHtmlColor();
+		private readonly string _insensitiveTextHtmlColor = GdkColors.InsensitiveText.ToHtmlColor();
 
 		public CertificateDlg()
 		{
@@ -124,8 +128,11 @@ namespace Vodovoz.Dialogs
 		{
 			bool isCertificateForNomenclatures = Entity.TypeOfCertificate.HasValue && Entity.TypeOfCertificate.Value == CertificateType.Nomenclature;
 			if(!isCertificateForNomenclatures)
+			{
 				Entity.ObservableNomenclatures.Clear();
-			lblNomenclatures.Markup = string.Format("<span foreground='{0}'><b>Номенклатуры</b></span>", isCertificateForNomenclatures ? "black" : "grey");
+			}
+
+			lblNomenclatures.Markup = string.Format("<span foreground='{0}'><b>Номенклатуры</b></span>", isCertificateForNomenclatures ? _primaryTextHtmlColor : _insensitiveTextHtmlColor);
 			vbxNomenclatures.Sensitive = isCertificateForNomenclatures;
 		}
 	}

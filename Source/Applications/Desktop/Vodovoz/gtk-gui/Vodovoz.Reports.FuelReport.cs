@@ -44,6 +44,12 @@ namespace Vodovoz.Reports
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeAuthor;
 
+		private global::Gamma.GtkWidgets.yVBox yvboxCarModel;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelCarModel;
+
+		private global::Gamma.GtkWidgets.yHBox yhboxCarModelContainer;
+
 		private global::Gtk.Button buttonCreateReport;
 
 		protected virtual void Build()
@@ -151,6 +157,8 @@ namespace Vodovoz.Reports
 			this.hbox5.Add(this.vbox3);
 			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.vbox3]));
 			w9.Position = 1;
+			w9.Expand = false;
+			w9.Fill = false;
 			this.vbox1.Add(this.hbox5);
 			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox5]));
 			w10.Position = 1;
@@ -174,6 +182,7 @@ namespace Vodovoz.Reports
 			this.evmeDriver.Events = ((global::Gdk.EventMask)(256));
 			this.evmeDriver.Name = "evmeDriver";
 			this.evmeDriver.CanEditReference = true;
+			this.evmeDriver.CanOpenWithoutTabParent = false;
 			this.hboxDriver.Add(this.evmeDriver);
 			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hboxDriver[this.evmeDriver]));
 			w12.Position = 1;
@@ -200,6 +209,7 @@ namespace Vodovoz.Reports
 			this.entityviewmodelentryCar.Events = ((global::Gdk.EventMask)(256));
 			this.entityviewmodelentryCar.Name = "entityviewmodelentryCar";
 			this.entityviewmodelentryCar.CanEditReference = true;
+			this.entityviewmodelentryCar.CanOpenWithoutTabParent = false;
 			this.hboxCar.Add(this.entityviewmodelentryCar);
 			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hboxCar[this.entityviewmodelentryCar]));
 			w15.Position = 1;
@@ -226,6 +236,7 @@ namespace Vodovoz.Reports
 			this.evmeAuthor.Events = ((global::Gdk.EventMask)(256));
 			this.evmeAuthor.Name = "evmeAuthor";
 			this.evmeAuthor.CanEditReference = true;
+			this.evmeAuthor.CanOpenWithoutTabParent = false;
 			this.hboxAuthor.Add(this.evmeAuthor);
 			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hboxAuthor[this.evmeAuthor]));
 			w18.Position = 1;
@@ -235,16 +246,40 @@ namespace Vodovoz.Reports
 			w19.Expand = false;
 			w19.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
+			this.yvboxCarModel = new global::Gamma.GtkWidgets.yVBox();
+			this.yvboxCarModel.Name = "yvboxCarModel";
+			this.yvboxCarModel.Spacing = 6;
+			// Container child yvboxCarModel.Gtk.Box+BoxChild
+			this.ylabelCarModel = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelCarModel.Name = "ylabelCarModel";
+			this.ylabelCarModel.Xalign = 0F;
+			this.ylabelCarModel.LabelProp = global::Mono.Unix.Catalog.GetString("Модель:");
+			this.yvboxCarModel.Add(this.ylabelCarModel);
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.yvboxCarModel[this.ylabelCarModel]));
+			w20.Position = 0;
+			w20.Expand = false;
+			w20.Fill = false;
+			// Container child yvboxCarModel.Gtk.Box+BoxChild
+			this.yhboxCarModelContainer = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxCarModelContainer.Name = "yhboxCarModelContainer";
+			this.yhboxCarModelContainer.Spacing = 6;
+			this.yvboxCarModel.Add(this.yhboxCarModelContainer);
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.yvboxCarModel[this.yhboxCarModelContainer]));
+			w21.Position = 1;
+			this.vbox1.Add(this.yvboxCarModel);
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.yvboxCarModel]));
+			w22.Position = 5;
+			// Container child vbox1.Gtk.Box+BoxChild
 			this.buttonCreateReport = new global::Gtk.Button();
 			this.buttonCreateReport.CanFocus = true;
 			this.buttonCreateReport.Name = "buttonCreateReport";
 			this.buttonCreateReport.UseUnderline = true;
 			this.buttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vbox1.Add(this.buttonCreateReport);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
-			w20.Position = 5;
-			w20.Expand = false;
-			w20.Fill = false;
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
+			w23.Position = 6;
+			w23.Expand = false;
+			w23.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

@@ -1984,18 +1984,14 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Users.WarehousesUserSelectionView.cs" />
     <Compile Include="Views\Warehouse\RegradingOfGoodsReasonView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.RegradingOfGoodsReasonView.cs" />
+    <Compile Include="ViewWidgets\Reports\CarModelSelectionFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Reports.CarModelSelectionFilterView.cs" />
+    <Compile Include="Views\Orders\PrintOrdersDocumentsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.PrintOrdersDocumentsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="ViewModels\Goods\" />
-    <Folder Include="Counterparties\" />
-    <Folder Include="Views\BaseParameters\" />
-    <Folder Include="QualityControl\" />
-    <Folder Include="QualityControl\Reports\" />
-    <Folder Include="ReportsParameters\Cash\" />
-    <Folder Include="AdministrationTools\" />
-    <Folder Include="ViewWidgets\Search\" />
-    <Folder Include="ViewWidgets\Users\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">
@@ -2306,7 +2302,11 @@
       <Project>{3032f22e-2c78-4fad-9936-552fd7de8d7f}</Project>
       <Name>RabbitMQ.Infrastructure</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Mango\ClientMangoService\ClientMangoService.csproj">
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Mango\Mango.Client\Mango.Client.csproj">
+      <Project>{2cbe5073-3035-43c5-a0ed-7580ffea8ffd}</Project>
+      <Name>Mango.Client</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Mango\Mango.Grpc.Client\Mango.Grpc.Client.csproj">
       <Project>{50993438-f358-4dcd-8e0a-ce1446c76487}</Project>
       <Name>ClientMangoService</Name>
     </ProjectReference>
@@ -2549,6 +2549,9 @@
   <ItemGroup>
     <EmbeddedResource Include="icons\common\empty16.png" />
     <EmbeddedResource Include="icons\common\folder16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="icons\common\fire16.png" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>

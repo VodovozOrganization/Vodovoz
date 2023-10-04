@@ -9,6 +9,7 @@ using QS.Project.Journal;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Flyers;
+using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Factories;
@@ -84,24 +85,24 @@ namespace Vodovoz.ViewWidgets
 		
 		private void SetColumnConfigForOrderDlg()
 		{
-			var colorBlack = new Gdk.Color(0, 0, 0);
-			var colorBlue = new Gdk.Color(0, 0, 0xff);
-			var colorGreen = new Gdk.Color(0, 0xff, 0);
-			var colorWhite = new Gdk.Color(0xff, 0xff, 0xff);
-			var colorLightYellow = new Gdk.Color(0xe1, 0xd6, 0x70);
-			var colorLightRed = new Gdk.Color(0xff, 0x66, 0x66);
+			var colorBlack = GdkColors.PrimaryText;
+			var colorBlue = GdkColors.InfoBase;
+			var colorGreen = GdkColors.SuccessBase;
+			var colorWhite = GdkColors.PrimaryBase;
+			var colorLightYellow = GdkColors.WarningBase;
+			var colorLightRed = GdkColors.DangerBase;
 
 			treeEquipment.ColumnsConfig = ColumnsConfigFactory.Create<OrderEquipment>()
 				.AddColumn("Наименование").AddTextRenderer(node => node.FullNameString)
 				.AddColumn("Направление").AddTextRenderer(node => node.DirectionString)
-				.AddColumn("Кол-во")
+				.AddColumn("Кол-во(недовоз)")
 				.AddNumericRenderer(node => node.Count).WidthChars(10)
 				.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
 				.AddSetter((cell, node) => {
 					cell.Editable = !_activeFlyersNomenclaturesIds.Contains(node.Nomenclature.Id)
 					                && !(node.OrderItem != null && node.OwnType == OwnTypes.Rent);
 				})
-				.AddTextRenderer(node => $"({node.ReturnedCount})")
+				.AddTextRenderer(node => $"({node.UndeliveredCount})")
 				.AddColumn("Принадлежность").AddEnumRenderer(node => node.OwnType, true, new Enum[] { OwnTypes.None })
 				.AddSetter((c, n) => {
 					c.Editable = false;
@@ -176,12 +177,12 @@ namespace Vodovoz.ViewWidgets
 
 		private void SetColumnConfigForReturnView()
 		{
-			var colorBlack = new Gdk.Color(0, 0, 0);
-			var colorBlue = new Gdk.Color(0, 0, 0xff);
-			var colorGreen = new Gdk.Color(0, 0xff, 0);
-			var colorWhite = new Gdk.Color(0xff, 0xff, 0xff);
-			var colorLightYellow = new Gdk.Color(0xe1, 0xd6, 0x70);
-			var colorLightRed = new Gdk.Color(0xff, 0x66, 0x66);
+			var colorBlack = GdkColors.PrimaryText;
+			var colorBlue = GdkColors.InfoBase;
+			var colorGreen = GdkColors.SuccessBase;
+			var colorWhite = GdkColors.PrimaryBase;
+			var colorLightYellow = GdkColors.WarningBase;
+			var colorLightRed = GdkColors.DangerBase;
 
 			treeEquipment.ColumnsConfig = ColumnsConfigFactory.Create<OrderEquipment>()
 				.AddColumn("Наименование").AddTextRenderer(node => node.FullNameString)
@@ -189,7 +190,7 @@ namespace Vodovoz.ViewWidgets
 				.AddColumn("Кол-во(недовоз)")
 				.AddNumericRenderer(node => node.Count).WidthChars(10)
 				.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0)).Editing(false)
-				.AddTextRenderer(node => $"({node.ReturnedCount})")
+				.AddTextRenderer(node => $"({node.UndeliveredCount})")
 				.AddColumn("Кол-во по факту")
 					.AddNumericRenderer(node => node.ActualCount, new NullValueToZeroConverter(), false)
 					.AddSetter((cell, node) => {
@@ -328,7 +329,7 @@ namespace Vodovoz.ViewWidgets
 			treeView.Model.IterNthChild(out TreeIter iter, index);
 			path = treeView.Model.GetPath(iter);
 
-			var column = treeView.Columns.First(x => x.Title == (MyTab is OrderReturnsView ? "Кол-во(недовоз)" : "Кол-во"));
+			var column = treeView.Columns.First(x => x.Title == "Кол-во(недовоз)");
 			var renderer = column.CellRenderers.First();
 			Gtk.Application.Invoke(delegate {
 				treeView.SetCursorOnCell(path, column, renderer, true);

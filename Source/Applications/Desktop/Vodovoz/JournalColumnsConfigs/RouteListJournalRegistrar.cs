@@ -41,18 +41,18 @@ namespace Vodovoz.JournalColumnsConfigs
 					.WrapMode(WrapMode.WordChar)
 				.RowCells()
 					.AddSetter<CellRendererText>((c, n) =>
-						c.ForegroundGdk = n.NotFullyLoaded ? GdkColors.OrangeColor : GdkColors.BlackColor)
+						c.ForegroundGdk = n.NotFullyLoaded ? GdkColors.Orange : GdkColors.PrimaryText)
 					.AddSetter<CellRenderer>(
 						(c, n) =>
 						{
-							var color = GdkColors.WhiteColor;
+							var color = GdkColors.PrimaryBase;
 
 							if(n.StatusEnum != RouteListStatus.New
 								&& n.GrossMarginPercents.HasValue
 								&& n.GrossMarginPercents.Value != 0
 								&& n.GrossMarginPercents.Value < n.RouteListProfitabilityIndicator)
 							{
-								color = GdkColors.LightGrayColor;
+								color = GdkColors.InsensitiveBase;
 							}
 
 							c.CellBackgroundGdk = color;

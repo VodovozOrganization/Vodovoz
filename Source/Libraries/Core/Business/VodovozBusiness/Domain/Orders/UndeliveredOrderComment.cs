@@ -58,24 +58,6 @@ namespace Vodovoz.Domain.Orders
 
 		#endregion
 
-		#region Методы
-
-		/// <summary>
-		/// Возврат цветного комментария
-		/// </summary>
-		/// <returns>Комментарий</returns>
-		/// <param name="color">Цвет комментария</param>
-		public virtual string GetMarkedUpComment(string color){
-			string fullComment = String.Format("<b>{0} {1}:</b> {2} ",
-			                                   commentDate.ToString("d MMM, hh:mm:ss"),
-			                                   PersonHelper.PersonNameWithInitials(Employee.LastName, Employee.Name, Employee.Patronymic),
-			                                   Comment
-			                                  );
-			return String.Format("<span foreground=\"{0}\">{1}</span>", color, fullComment);
-		}
-
-		#endregion
-
 		#region IValidatableObject implementation
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

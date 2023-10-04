@@ -8,8 +8,6 @@ namespace Vodovoz.Journals.JournalNodes
 	{
 		public override string Title => $"{EntityType.GetSubjectNames()} №{Id}";
 		public string IsArchiveString => IsArchive ? "Да" : "Нет";
-		public string RowColor => IsArchive ? "grey" : "black";
-
 		public string Name { get; set; }
 		public bool IsArchive { get; set; }
 	}

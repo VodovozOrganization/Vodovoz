@@ -17,6 +17,14 @@ namespace Vodovoz.Reports.Editing.Modifiers
 		private const string _groupLevel2Name = "group2";
 		private const string _groupLevel3Name = "group3";
 
+		private const string _autoTypeHeaderTextBox = "TextboxAutoType";
+		private const string _autoOwnerTypeHeaderTextBox = "TextboxAutoOwnerType";
+		private const string _itemDataHeaderTextBox = "TextboxItemHeader";
+
+		private const int _itemDataColumnIncreasedWidth = 190;
+
+		private const int _profitabilityPercentColumnId = 8;
+
 		private readonly ExpressionRowProvider _expressionRowProvider;
 		private readonly SourceRowProvider _sourceRowProvider;
 
@@ -26,7 +34,7 @@ namespace Vodovoz.Reports.Editing.Modifiers
 			_sourceRowProvider = new DetailsSourceRowProvider();
 		}
 
-		public void Setup(IEnumerable<GroupingType> groupings)
+		public void Setup(IEnumerable<GroupingType> groupings, bool isShowRouteListInfo)
 		{
 			var groupingActions = GetGroupingActions(groupings);
 			foreach (var action in groupingActions)
@@ -45,6 +53,18 @@ namespace Vodovoz.Reports.Editing.Modifiers
 
 			var removeFooterAction = new RemoveFooter(_tableName);
 			AddAction(removeFooterAction);
+
+			if(!isShowRouteListInfo)
+			{
+				var setColumnWidthAction = new SetColumnWidth(_tableName, _itemDataHeaderTextBox, _itemDataColumnIncreasedWidth);
+				AddAction(setColumnWidthAction);
+
+				var removeAutoTypeColumn = new RemoveColumn(_tableName, _autoTypeHeaderTextBox);
+				AddAction(removeAutoTypeColumn);
+
+				var removeAutoOwnerTypeColumn = new RemoveColumn(_tableName, _autoOwnerTypeHeaderTextBox);
+				AddAction(removeAutoOwnerTypeColumn);
+			}
 		}
 
 		private IEnumerable<ModifierAction> GetGroupingActions(IEnumerable<GroupingType> groupings)
@@ -98,7 +118,23 @@ namespace Vodovoz.Reports.Editing.Modifiers
 			style.Format = "# ##0.00";
 
 			var groupExpression = GetGroupExpression(groupingType);
-			var groupModifyAction = new NewTableGroupWithCellsFromDetails(_tableName, _sourceRowProvider, _expressionRowProvider, groupExpression);
+
+			NewTableGroupWithCellsFromDetails groupModifyAction;
+
+			if(groupingType == GroupingType.RouteList && groupsCount == 1)
+			{
+				groupModifyAction = new NewTableGroupWithCellsFromDetails(
+					_tableName, 
+					_sourceRowProvider, 
+					_expressionRowProvider, 
+					groupExpression,
+					_profitabilityPercentColumnId);
+			}
+			else
+			{
+				groupModifyAction = new NewTableGroupWithCellsFromDetails(_tableName, _sourceRowProvider, _expressionRowProvider, groupExpression);
+			}
+
 			groupModifyAction.NewGroupName = _groupLevel1Name;
 			groupModifyAction.GroupCellsStyle = style;
 			return groupModifyAction;

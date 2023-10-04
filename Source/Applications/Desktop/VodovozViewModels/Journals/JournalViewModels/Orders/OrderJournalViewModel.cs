@@ -1,10 +1,11 @@
-﻿using MoreLinq;
+using MoreLinq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
@@ -40,6 +41,7 @@ using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
+using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
@@ -77,12 +79,14 @@ namespace Vodovoz.JournalViewModels
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 		private readonly IRDLPreviewOpener _rdlPreviewOpener;
 		private readonly int _closingDocumentDeliveryScheduleId;
+		private readonly bool _userCanPrintManyOrdersDocuments;
 		private bool _isOrdersExportToExcelInProcess;
 
 		public OrderJournalViewModel(
 			OrderJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
+			INavigationManager navigationManager,
 			IEmployeeService employeeService,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
@@ -127,12 +131,16 @@ namespace Vodovoz.JournalViewModels
 			_closingDocumentDeliveryScheduleId =
 				(deliveryScheduleParametersProvider ?? throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider)))
 				.ClosingDocumentDeliveryScheduleId;
+
+			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+
 			TabName = "Журнал заказов";
 
 			_userHasAccessToRetail = commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_to_retail");
 			_userHasOnlyAccessToWarehouseAndComplaints =
 				commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
 				&& !commonServices.UserService.GetCurrentUser().IsAdmin;
+			_userCanPrintManyOrdersDocuments = commonServices.CurrentPermissionService.ValidatePresetPermission("can_print_many_orders_documents");
 			_userCanExportOrdersToExcel = commonServices.CurrentPermissionService.ValidatePresetPermission("can_export_orders_to_excel");
 
 			SearchEnabled = false;
@@ -180,6 +188,7 @@ namespace Vodovoz.JournalViewModels
 			CreateDefaultAddActions();
 			CreateCustomEditAction();
 			CreateDefaultDeleteAction();
+			CreatePrintOrdersDocumentsAction();
 			CreateExportToExcelAction();
 		}
 
@@ -231,6 +240,68 @@ namespace Vodovoz.JournalViewModels
 				RowActivatedAction = editAction;
 			}
 			NodeActionsList.Add(editAction);
+		}
+
+		private void CreatePrintOrdersDocumentsAction()
+		{
+			var printOrdersDocumentsAction = new JournalAction(
+				"Печать документов",
+				(selected) => _userCanPrintManyOrdersDocuments,
+				(selected) => _userCanPrintManyOrdersDocuments,
+				(selected) => 
+				{
+					var ordersCount = 
+						GetOrdersQuery(UoW)
+						.Take(101)
+						.List<OrderJournalNode>()
+						.Count();
+
+					if(ordersCount < 1)
+					{
+						_commonServices.InteractiveService.ShowMessage(
+							ImportanceLevel.Info,
+							"Для отправки на печать в списке должны быть заказы");
+
+						return;
+					}
+
+					if(ordersCount > 100)
+					{
+						_commonServices.InteractiveService.ShowMessage(
+							ImportanceLevel.Info,
+							"Слишком много заказов в списке. Количество заказов не должно превышать 100");
+
+						return;
+					}
+
+					var fileredOrderIds = GetOrdersQuery(UoW)
+						.List<OrderJournalNode>()
+						.Select(n => n.Id);
+
+					var orders = UoW.GetAll<VodovozOrder>()
+						.Where(o => fileredOrderIds.Contains(o.Id))
+						.OrderByDescending(o => o.CreateDate)
+						.ToList();
+
+					var clientsCount = orders
+						.Select(o => o.Client.Id)
+						.Distinct()
+						.Count();
+
+					if(clientsCount > 1)
+					{
+						_commonServices.InteractiveService.ShowMessage(
+							ImportanceLevel.Info,
+							"В списке присутствуют заказы разных контрагентов. Необходимо выбрать заказы одного контрагента");
+
+						return;
+					}
+
+					NavigationManager.OpenViewModel<PrintOrdersDocumentsViewModel, IList<VodovozOrder>>(null, orders);
+				}
+			);
+
+			NodeActionsList.Add(printOrdersDocumentsAction);
 		}
 
 		private void CreateExportToExcelAction()

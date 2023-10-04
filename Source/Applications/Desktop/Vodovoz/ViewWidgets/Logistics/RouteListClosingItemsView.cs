@@ -17,6 +17,7 @@ using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.Infrastructure;
 
 namespace Vodovoz
 {
@@ -167,11 +168,11 @@ namespace Vodovoz
 							.AddSetter((cell,node)=>cell.Markup = WaterToClientString(node,id));
 				}
 			}
-			var colorWhite = new Gdk.Color(0xff, 0xff, 0xff);
-			var colorRed = new Gdk.Color(0xee, 0x66, 0x66);
-			var colorDarkRed = new Gdk.Color(0xee, 0, 0);
-			var colorLightBlue = new Gdk.Color(0xbb, 0xbb, 0xff);
-			var colorYellow = new Gdk.Color(0xb3, 0xb3, 0x00);
+			var colorWhite = GdkColors.PrimaryBase;
+			var colorRed = GdkColors.DangerBase;
+			var colorDarkRed = GdkColors.DarkRed;
+			var colorLightBlue = GdkColors.InfoBase;
+			var colorYellow = GdkColors.DarkMustard;
 			config
 				.AddColumn("Пустых\nбутылей").HeaderAlignment(0.5f).EnterToNextCell()
 					.AddNumericRenderer(node => node.BottlesReturned)
@@ -329,12 +330,12 @@ namespace Vodovoz
 			}
 			if(node.DriverBottlesReturned.HasValue) {
 				if(node.BottlesReturned == node.DriverBottlesReturned) {
-					cell.Foreground = "Green";
+					cell.ForegroundGdk = GdkColors.SuccessText;
 				} else {
-					cell.Foreground = "Blue";
+					cell.ForegroundGdk = GdkColors.InfoText;
 				}
 			} else {
-				cell.Foreground = "Black";
+				cell.ForegroundGdk = GdkColors.PrimaryText;
 			}
 		}
 
@@ -345,7 +346,7 @@ namespace Vodovoz
 			var formatString = actual < planned
 				? "<b>{0:N0}</b>({1:N0})" 
 				: "<b>{0:N0}</b>";
-			return String.Format(formatString, actual, planned-actual);
+			return string.Format(formatString, actual, planned-actual);
 		}
 
 		public string ToClientString(RouteListItem item)
@@ -495,6 +496,18 @@ namespace Vodovoz
 			};
 			menuItems.Add(PopupMenuAction.OpenOrder, openOrder);
 
+			var copyOrderId = new MenuItem(PopupMenuAction.CopyOrderId.GetEnumTitle());
+			copyOrderId.Activated += (s, args) =>
+			{
+				var selectedOrderId = GetSelectedRouteListItem().Order?.Id;
+
+				if(selectedOrderId != null)
+				{
+					GetClipboard(Gdk.Selection.Clipboard).Text = selectedOrderId.Value.ToString();
+				}
+			};
+			menuItems.Add(PopupMenuAction.CopyOrderId, copyOrderId);
+
 			foreach(var item in menuItems) {
 				menu.Append(item.Value);
 				item.Value.Show();
@@ -550,7 +563,9 @@ namespace Vodovoz
 			[Display(Name = "Открыть недовозы")]
 			OpenUndeliveries,
 			[Display(Name = "Открыть заказ")]
-			OpenOrder
+			OpenOrder,
+			[Display(Name = "Копировать номер заказа")]
+			CopyOrderId
 		}
 	}		
 }

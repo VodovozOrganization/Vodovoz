@@ -8,7 +8,7 @@ using System.Linq.Expressions;
 using Pango;
 using Vodovoz.Domain.Operations;
 using Vodovoz.ViewModels.Widgets;
-using Color = Gdk.Color;
+using Vodovoz.Infrastructure;
 
 namespace Vodovoz.ViewWidgets.Logistics
 {
@@ -92,7 +92,7 @@ namespace Vodovoz.ViewWidgets.Logistics
 			textTags.Add(_defaultTag);
 			
 			_redBoldTag = new TextTag("Red");
-			_redBoldTag.ForegroundGdk = new Color(255, 0, 0);
+			_redBoldTag.ForegroundGdk = GdkColors.DangerText;
 			_redBoldTag.Weight = Weight.Bold;
 			textTags.Add(_redBoldTag);
 

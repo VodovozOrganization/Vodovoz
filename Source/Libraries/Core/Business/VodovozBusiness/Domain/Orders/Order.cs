@@ -1734,8 +1734,6 @@ namespace Vodovoz.Domain.Orders
 		public virtual decimal TotalVolume =>
 			OrderItems.Sum(x => x.Count * (decimal) x.Nomenclature.Volume);
 
-		public virtual string RowColor => PreviousOrder == null ? "black" : "red";
-
 		[Display(Name = "Наличных к получению")]
 		public virtual decimal OrderCashSum
 		{

@@ -32,7 +32,7 @@ namespace Vodovoz.Controllers
 			_userSelectedWarehouses = userSelectedWarehouses ?? throw new ArgumentNullException(nameof(userSelectedWarehouses));
 		}
 
-		public event Action<string> UpdateNotificationAction;
+		public event Action<SendedMovementsNotificationDetails> UpdateNotificationAction;
 
 		public SendedMovementsNotificationDetails GetNotificationDetails(IUnitOfWork uow)
 		{
@@ -100,16 +100,16 @@ namespace Vodovoz.Controllers
 
 		private string GetNotificationForPositiveMovementsCount(int sendedMovements)
 		{
-			return $"<span foreground=\"red\">Внимание! Для Вашего отдела " +
+			return "Внимание! Для Вашего отдела " +
 				$"{(_userSelectedWarehouses.Count() > 0 ? "и выбранных складов " : string.Empty)} " +
-				$"{sendedMovements} складских перемещений ожидают приемки</span>";
+				$"{sendedMovements} складских перемещений ожидают приемки";
 		}
 
 		private void OnMovementDocumentChanged(EntityChangeEvent[] changeEvents)
 		{
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 			{
-				UpdateNotificationAction?.Invoke(GetNotificationMessage(uow));
+				UpdateNotificationAction?.Invoke(GetNotificationDetails(uow));
 			}
 		}
 	}

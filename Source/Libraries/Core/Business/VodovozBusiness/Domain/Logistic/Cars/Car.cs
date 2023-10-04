@@ -310,6 +310,11 @@ namespace Vodovoz.Domain.Logistic.Cars
 			{
 				yield return new ValidationResult("Тип топлива должен быть заполнен", new[] { nameof(FuelType) });
 			}
+			
+			if(CarModel == null)
+			{
+				yield return new ValidationResult("Модель должна быть заполнена", new[] { nameof(CarModel) });
+			}
 
 			if(FuelConsumption <= 0)
 			{
@@ -324,11 +329,6 @@ namespace Vodovoz.Domain.Logistic.Cars
 			if(cars.Any())
 			{
 				yield return new ValidationResult("Автомобиль уже существует", new[] { "Duplication" });
-			}
-
-			if(CarModel == null)
-			{
-				yield return new ValidationResult("Модель должна быть заполнена", new[] { nameof(CarModel) });
 			}
 
 			if(!CarVersions.Any())
@@ -349,9 +349,14 @@ namespace Vodovoz.Domain.Logistic.Cars
 
 		private double GetFuelConsumption()
 		{
-			var result = CarModel.CarFuelVersions.OrderByDescending(x => x.StartDate)?.FirstOrDefault()?.FuelConsumption;
+			if(CarModel is null)
+			{
+				return 0;
+			}
+			
+			var result = CarModel.CarFuelVersions.OrderByDescending(x => x.StartDate).FirstOrDefault()?.FuelConsumption;
 
-			return result.HasValue ? result.Value : 0;
+			return result ?? 0;
 		}
 	}
 

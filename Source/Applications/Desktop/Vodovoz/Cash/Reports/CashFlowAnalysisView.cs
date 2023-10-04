@@ -6,6 +6,7 @@ using QS.Views.GtkUI;
 using System.Collections.Generic;
 using System.ComponentModel;
 using Vodovoz.Extensions;
+using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Cash.Reports;
 
 namespace Vodovoz.Cash.Reports
@@ -23,9 +24,7 @@ namespace Vodovoz.Cash.Reports
 
 			Initialize();
 
-			_defaultAccentColor = Rc.GetStyle(this).IsDark()
-				? new Gdk.Color(233, 84, 32)
-				: ViewModel.AccentColor.ToGdkColor();
+			_defaultAccentColor = GdkColors.CashFlowTotalColor;
 
 			_defaultTreeViewBackgroundColor = Rc.GetStyle(ytreeReportIndicatorsRows).Background(StateType.Normal);
 		}
