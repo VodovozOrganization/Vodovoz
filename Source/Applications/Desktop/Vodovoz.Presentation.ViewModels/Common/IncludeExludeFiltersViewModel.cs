@@ -38,7 +38,15 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			ClearAllExcludesCommand = new DelegateCommand(ClearAllExcludes);
 			ClearAllIncludesCommand = new DelegateCommand(ClearAllIncludes);
 			ShowInfoCommand = new DelegateCommand(ShowInfo);
+			RaiseSelectionChangedCommand = new DelegateCommand(RaiseSelectionChanged);
 		}
+
+		private void RaiseSelectionChanged()
+		{
+			SelectionChanged?.Invoke(this, null);
+		}
+
+		public event EventHandler SelectionChanged;
 
 		public string SearchString
 		{
@@ -96,6 +104,8 @@ namespace Vodovoz.Presentation.ViewModels.Common
 		public DelegateCommand ClearAllIncludesCommand { get; }
 
 		public DelegateCommand ShowInfoCommand { get; }
+
+		public DelegateCommand RaiseSelectionChangedCommand { get; }
 
 		public Dictionary<string, object> GetReportParametersSet()
 		{
@@ -194,6 +204,8 @@ namespace Vodovoz.Presentation.ViewModels.Common
 
 			includeExcludeFilter?.Invoke(newFilter);
 
+			newFilter.SelectionChanged = SelectionChanged;
+
 			Filters.Add(newFilter);
 		}
 
@@ -231,6 +243,8 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			};
 
 			includeExcludeFilter?.Invoke(newFilter);
+
+			newFilter.SelectionChanged = SelectionChanged;
 
 			Filters.Add(newFilter);
 		}
@@ -305,6 +319,8 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			};
 
 			includeExcludeFilter?.Invoke(newFilter);
+
+			newFilter.SelectionChanged = SelectionChanged;
 
 			Filters.Add(newFilter);
 		}
@@ -430,14 +446,6 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			}
 
 			FilteredElementsChanged?.Invoke(this, EventArgs.Empty);
-		}
-
-		public void SetSelectionChangedAction(Action selectionChangedAction)
-		{
-			foreach(var filter in Filters)
-			{
-				filter.SelectionChangedAction = selectionChangedAction;
-			}
 		}
 	}
 }

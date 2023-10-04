@@ -17,7 +17,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		public RegradingOfGoodsReasonsJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
 			: base(unitOfWorkFactory, commonServices)
 		{
-			TabName = "Виды событий ТС";
+			TabName = "Причины пересортицы";
 
 			UpdateOnChanges(typeof(RegradingOfGoodsReason));
 		}

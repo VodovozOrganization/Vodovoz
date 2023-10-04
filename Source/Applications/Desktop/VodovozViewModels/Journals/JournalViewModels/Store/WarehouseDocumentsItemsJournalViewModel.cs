@@ -3,6 +3,7 @@ using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.Commands;
 using QS.DomainModel.UoW;
@@ -18,8 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using NHibernate.SqlCommand;
-using QS.Project.DB;
+using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
@@ -35,15 +35,13 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.NHibernateProjections.Documents;
+using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalNodes.Store;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Warehouses;
 using Vodovoz.ViewModels.Warehouses;
-using Vodovoz.Presentation.ViewModels.Common;
-using QS.DomainModel.Entity;
-using Vodovoz.Domain;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 {
@@ -338,6 +336,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
 			Nomenclature nomenclatureAlias = null;
+			ProductGroup productGroupAlias = null;
 
 			var invoiceQuery = unitOfWork.Session.QueryOver(() => incomingInvoiceItemAlias)
 				.Left.JoinQueryOver(() => incomingInvoiceItemAlias.Document, () => invoiceAlias);
@@ -399,7 +398,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					invoiceQuery.Where(() => lastEditorAlias.Id == FilterViewModel.LastEditor.Id);
 				}
 
-				invoiceQuery.Where(GetIncludeExcludeRestriction(nomenclatureAlias));
+				invoiceQuery.Where(GetIncludeExcludeNomenclatureRestriction(nomenclatureAlias));
+				invoiceQuery.Where(GetIncludeExcludeProductGroupRestriction(productGroupAlias));
 			}
 			else
 			{
@@ -408,6 +408,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 			return invoiceQuery
 				.Left.JoinAlias(() => incomingInvoiceItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
 				.Left.JoinAlias(() => invoiceAlias.Contractor, () => counterpartyAlias)
 				.Left.JoinAlias(() => invoiceAlias.Warehouse, () => warehouseAlias)
 				.Left.JoinAlias(() => invoiceAlias.Author, () => authorAlias)
@@ -455,6 +456,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
 			Nomenclature nomenclatureAlias = null;
+			ProductGroup productGroupAlias = null;
 
 			var waterQuery = unitOfWork.Session.QueryOver(() => incomingWaterMaterialAlias)
 				.JoinQueryOver(() => incomingWaterMaterialAlias.Document, () => incomingWaterAlias);
@@ -509,7 +511,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					waterQuery.Where(() => lastEditorAlias.Id == FilterViewModel.LastEditor.Id);
 				}
 
-				waterQuery.Where(GetIncludeExcludeRestriction(nomenclatureAlias));
+				waterQuery.Where(GetIncludeExcludeNomenclatureRestriction(nomenclatureAlias));
+				waterQuery.Where(GetIncludeExcludeProductGroupRestriction(productGroupAlias));
 			}
 			else
 			{
@@ -522,6 +525,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.Left.JoinAlias(() => incomingWaterAlias.Author, () => authorAlias)
 				.Left.JoinAlias(() => incomingWaterAlias.LastEditor, () => lastEditorAlias)
 				.Left.JoinAlias(() => incomingWaterMaterialAlias.Nomenclature, () => nomenclatureAlias)
+				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
 				.SelectList(list => list
 					.Select(() => incomingWaterMaterialAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => incomingWaterAlias.Id).WithAlias(() => resultAlias.DocumentId)
@@ -565,6 +569,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
 			Nomenclature nomenclatureAlias = null;
+			ProductGroup productGroupAlias = null;
 
 			var waterQuery = unitOfWork.Session.QueryOver(() => incomingWaterMaterialAlias)
 				.JoinQueryOver(() => incomingWaterMaterialAlias.Document, () => incomingWaterAlias);
@@ -619,7 +624,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					waterQuery.Where(() => lastEditorAlias.Id == FilterViewModel.LastEditor.Id);
 				}
 
-				waterQuery.Where(GetIncludeExcludeRestriction(nomenclatureAlias));
+				waterQuery.Where(GetIncludeExcludeNomenclatureRestriction(nomenclatureAlias));
+				waterQuery.Where(GetIncludeExcludeProductGroupRestriction(productGroupAlias));
 			}
 			else
 			{
@@ -632,6 +638,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.Left.JoinAlias(() => incomingWaterAlias.Author, () => authorAlias)
 				.Left.JoinAlias(() => incomingWaterAlias.LastEditor, () => lastEditorAlias)
 				.Left.JoinAlias(() => incomingWaterAlias.Product, () => nomenclatureAlias)
+				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
+
 				.SelectList(list => list.SelectGroup(() => incomingWaterAlias.Id)
 					.Select(() => incomingWaterMaterialAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => incomingWaterAlias.Id).WithAlias(() => resultAlias.DocumentId)
@@ -682,10 +690,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Car toCarAlias = null;
 			CarModel toCarModelAlias = null;
 			Nomenclature nomenclatureAlias = null;
+			ProductGroup productGroupAlias = null;
 
 			var movementQuery = unitOfWork.Session.QueryOver(() => movementDocumentItemAlias)
 				.JoinQueryOver(() => movementDocumentItemAlias.Document, () => movementDocumentAlias)
 				.Left.JoinAlias(() => movementDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
 				.Left.JoinAlias(() => movementDocumentAlias.FromWarehouse, () => fromWarehouseAlias)
 				.Left.JoinAlias(() => movementDocumentAlias.ToWarehouse, () => toWarehouseAlias)
 				.Left.JoinAlias(() => movementDocumentAlias.FromEmployee, () => fromEmployeeAlias)
@@ -758,7 +768,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					movementQuery.Where(() => lastEditorAlias.Id == FilterViewModel.LastEditor.Id);
 				}
 
-				movementQuery.Where(GetIncludeExcludeRestriction(nomenclatureAlias));
+				movementQuery.Where(GetIncludeExcludeNomenclatureRestriction(nomenclatureAlias));
+				movementQuery.Where(GetIncludeExcludeProductGroupRestriction(productGroupAlias));
 			}
 			else
 			{
@@ -817,10 +828,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Car toCarAlias = null;
 			CarModel toCarModelAlias = null;
 			Nomenclature nomenclatureAlias = null;
+			ProductGroup productGroupAlias = null;
 
 			var movementQuery = unitOfWork.Session.QueryOver(() => movementDocumentItemAlias)
 				.JoinQueryOver(() => movementDocumentItemAlias.Document, () => movementDocumentAlias)
 				.Left.JoinAlias(() => movementDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
 				.Left.JoinAlias(() => movementDocumentAlias.FromWarehouse, () => fromWarehouseAlias)
 				.Left.JoinAlias(() => movementDocumentAlias.ToWarehouse, () => toWarehouseAlias)
 				.Left.JoinAlias(() => movementDocumentAlias.FromEmployee, () => fromEmployeeAlias)
@@ -892,7 +905,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					movementQuery.Where(() => lastEditorAlias.Id == FilterViewModel.LastEditor.Id);
 				}
 
-				movementQuery.Where(GetIncludeExcludeRestriction(nomenclatureAlias));
+				movementQuery.Where(GetIncludeExcludeNomenclatureRestriction(nomenclatureAlias));
+				movementQuery.Where(GetIncludeExcludeProductGroupRestriction(productGroupAlias));
 			}
 			else
 			{
@@ -942,6 +956,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Car fromCarAlias = null;
 			CarModel fromCarModelAlias = null;
 			Nomenclature nomenclatureAlias = null;
+			ProductGroup productGroupAlias = null;
 
 			var writeoffQuery = unitOfWork.Session.QueryOver(() => writeOffDocumentItemAlias)
 				.JoinQueryOver(() => writeOffDocumentItemAlias.Document, () => writeOffDocumentAlias);
@@ -991,7 +1006,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					writeoffQuery.Where(() => lastEditorAlias.Id == FilterViewModel.LastEditor.Id);
 				}
 
-				writeoffQuery.Where(GetIncludeExcludeRestriction(nomenclatureAlias));
+				writeoffQuery.Where(GetIncludeExcludeNomenclatureRestriction(nomenclatureAlias));
+				writeoffQuery.Where(GetIncludeExcludeProductGroupRestriction(productGroupAlias));
 			}
 			else
 			{
@@ -1000,6 +1016,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 			return writeoffQuery
 				.Left.JoinAlias(() => writeOffDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
 				.Left.JoinAlias(() => writeOffDocumentAlias.WriteOffFromWarehouse, () => fromWarehouseAlias)
 				.Left.JoinAlias(() => writeOffDocumentAlias.WriteOffFromEmployee, () => fromEmployeeAlias)
 				.Left.JoinAlias(() => writeOffDocumentAlias.WriteOffFromCar, () => fromCarAlias)
@@ -1042,6 +1059,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
 			Nomenclature nomenclatureAlias = null;
+			ProductGroup productGroupAlias = null;
 
 			var selfDeliveryQuery = unitOfWork.Session.QueryOver(() => selfDeliveryDocumentItemAlias)
 				.JoinQueryOver(() => selfDeliveryDocumentItemAlias.Document, () => selfDeliveryDocumentAlias);
@@ -1105,7 +1123,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					selfDeliveryQuery.Where(() => lastEditorAlias.Id == FilterViewModel.LastEditor.Id);
 				}
 
-				selfDeliveryQuery.Where(GetIncludeExcludeRestriction(nomenclatureAlias));
+				selfDeliveryQuery.Where(GetIncludeExcludeNomenclatureRestriction(nomenclatureAlias));
+				selfDeliveryQuery.Where(GetIncludeExcludeProductGroupRestriction(productGroupAlias));
 			}
 			else
 			{
@@ -1114,6 +1133,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 			return selfDeliveryQuery
 				.Left.JoinAlias(() => selfDeliveryDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
 				.Left.JoinAlias(() => selfDeliveryDocumentAlias.Warehouse, () => warehouseAlias)
 				.Left.JoinAlias(() => selfDeliveryDocumentAlias.Order, () => orderAlias)
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
@@ -1158,6 +1178,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
 			Nomenclature nomenclatureAlias = null;
+			ProductGroup productGroupAlias = null;
 
 			var carLoadQuery = unitOfWork.Session.QueryOver(() => carLoadDocumentItemAlias)
 				.JoinQueryOver(() => carLoadDocumentItemAlias.Document, () => carLoadDocumentAlias);
@@ -1211,7 +1232,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					carLoadQuery.Where(() => lastEditorAlias.Id == FilterViewModel.LastEditor.Id);
 				}
 
-				carLoadQuery.Where(GetIncludeExcludeRestriction(nomenclatureAlias));
+				carLoadQuery.Where(GetIncludeExcludeNomenclatureRestriction(nomenclatureAlias));
+				carLoadQuery.Where(GetIncludeExcludeProductGroupRestriction(productGroupAlias));
 			}
 			else
 			{
@@ -1220,6 +1242,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 			return carLoadQuery
 				.Left.JoinAlias(() => carLoadDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
 				.Left.JoinAlias(() => carLoadDocumentAlias.Warehouse, () => warehouseAlias)
 				.Left.JoinAlias(() => carLoadDocumentAlias.RouteList, () => routeListAlias)
 				.Left.JoinAlias(() => routeListAlias.Car, () => carAlias)
@@ -1256,45 +1279,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode>());
 		}
 
-		private Conjunction GetIncludeExcludeRestriction( Nomenclature nomenclatureAlias)
-		{
-			var restriction = Restrictions.Conjunction();
-
-			var nomenclatureFilter = FilterViewModel.IncludeExcludeFilterViewModel.GetFilter<IncludeExcludeEntityFilter<Nomenclature>>();
-			var includedNomenclatures = nomenclatureFilter.GetIncluded().ToArray();
-
-			if(includedNomenclatures.Any())
-			{
-				restriction.Add(Restrictions.In(Projections.Property(() => nomenclatureAlias.Id), includedNomenclatures));
-			}
-
-			var excludedNomenclatures = nomenclatureFilter.GetExcluded().ToArray();
-
-			if(excludedNomenclatures.Any())
-			{
-				restriction.Add(Restrictions.Not(Restrictions.In(Projections.Property(() => nomenclatureAlias.Id), excludedNomenclatures)));
-			}
-
-			var productGroupFilter = FilterViewModel.IncludeExcludeFilterViewModel.GetFilter<IncludeExcludeEntityWithHierarchyFilter<ProductGroup>>();
-
-			var includedProductGroups = productGroupFilter.GetIncluded().ToArray();
-
-			if(includedProductGroups.Any())
-			{
-				restriction.Add(Restrictions.In(Projections.Property(() => nomenclatureAlias.Id), includedProductGroups));
-			}
-
-			var excludedProductGroups = productGroupFilter.GetExcluded().ToArray();
-
-			if(excludedProductGroups.Any())
-			{
-				restriction.Add(Restrictions.Not(Restrictions.In(Projections.Property(() => nomenclatureAlias.Id), excludedProductGroups)));
-			}
-
-			return restriction;
-		}
-
-
 		private IQueryOver<CarUnloadDocumentItem> GetQueryCarUnloadDocumentItem(IUnitOfWork unitOfWork)
 		{
 			WarehouseDocumentsItemsJournalNode resultAlias = null;
@@ -1309,6 +1293,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
 			Nomenclature nomenclatureAlias = null;
+			ProductGroup productGroupAlias = null;
 			GoodsAccountingOperation goodsAccountingOperationAlias = null;
 
 			var carUnloadQuery = unitOfWork.Session.QueryOver(() => carUnLoadDocumentItemAlias)
@@ -1363,7 +1348,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					carUnloadQuery.Where(() => lastEditorAlias.Id == FilterViewModel.LastEditor.Id);
 				}
 
-				carUnloadQuery.Where(GetIncludeExcludeRestriction(nomenclatureAlias));
+				carUnloadQuery.Where(GetIncludeExcludeNomenclatureRestriction(nomenclatureAlias));
+				carUnloadQuery.Where(GetIncludeExcludeProductGroupRestriction(productGroupAlias));
 			}
 			else
 			{
@@ -1373,6 +1359,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			return carUnloadQuery
 				.Left.JoinAlias(() => carUnLoadDocumentItemAlias.GoodsAccountingOperation, () => goodsAccountingOperationAlias)
 				.Left.JoinAlias(() => goodsAccountingOperationAlias.Nomenclature, () => nomenclatureAlias)
+				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
 				.Left.JoinAlias(() => carUnLoadDocumentAlias.Warehouse, () => warehouseAlias)
 				.Left.JoinAlias(() => carUnLoadDocumentAlias.RouteList, () => routeListAlias)
 				.Left.JoinAlias(() => routeListAlias.Car, () => carAlias)
@@ -1422,6 +1409,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
 			Nomenclature nomenclatureAlias = null;
+			ProductGroup productGroupAlias = null;
 
 			var inventoryQuery = unitOfWork.Session.QueryOver(() => inventoryDocumentItemAlias)
 				.JoinQueryOver(() => inventoryDocumentItemAlias.Document, () => inventoryDocumentAlias);
@@ -1489,7 +1477,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					inventoryQuery.Where(() => lastEditorAlias.Id == FilterViewModel.LastEditor.Id);
 				}
 
-				inventoryQuery.Where(GetIncludeExcludeRestriction(nomenclatureAlias));
+				inventoryQuery.Where(GetIncludeExcludeNomenclatureRestriction(nomenclatureAlias));
+				inventoryQuery.Where(GetIncludeExcludeProductGroupRestriction(productGroupAlias));
 			}
 			else
 			{
@@ -1498,6 +1487,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 			return inventoryQuery
 				.Left.JoinAlias(() => inventoryDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
 				.Left.JoinAlias(() => inventoryDocumentAlias.Warehouse, () => warehouseAlias)
 				.Left.JoinAlias(() => inventoryDocumentAlias.Author, () => authorAlias)
 				.Left.JoinAlias(() => inventoryDocumentAlias.LastEditor, () => lastEditorAlias)
@@ -1577,6 +1567,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
 			Nomenclature nomenclatureAlias = null;
+			ProductGroup productGroupAlias = null;
 
 			var shiftchangeQuery = unitOfWork.Session.QueryOver(() => shiftChangeWarehouseDocumentItemAlias)
 				.JoinQueryOver(() => shiftChangeWarehouseDocumentItemAlias.Document, () => shiftChangeWarehouseDocumentAlias);
@@ -1639,7 +1630,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					shiftchangeQuery.Where(() => lastEditorAlias.Id == FilterViewModel.LastEditor.Id);
 				}
 
-				shiftchangeQuery.Where(GetIncludeExcludeRestriction(nomenclatureAlias));
+				shiftchangeQuery.Where(GetIncludeExcludeNomenclatureRestriction(nomenclatureAlias));
+				shiftchangeQuery.Where(GetIncludeExcludeProductGroupRestriction(productGroupAlias));
 			}
 			else
 			{
@@ -1648,6 +1640,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 			return shiftchangeQuery
 				.Left.JoinAlias(() => shiftChangeWarehouseDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
 				.Left.JoinAlias(() => shiftChangeWarehouseDocumentAlias.Warehouse, () => warehouseAlias)
 				.Left.JoinAlias(() => shiftChangeWarehouseDocumentAlias.Car, () => carAlias)
 				.Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
@@ -1728,6 +1721,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
 			Nomenclature nomenclatureAlias = null;
+			ProductGroup productGroupAlias = null;
 
 			Fine fineAlias = null;
 			CullingCategory cullingCategoryAlias = null;
@@ -1780,7 +1774,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					regrandingQuery.Where(() => lastEditorAlias.Id == FilterViewModel.LastEditor.Id);
 				}
 
-				regrandingQuery.Where(GetIncludeExcludeRestriction(nomenclatureAlias));
+				regrandingQuery.Where(GetIncludeExcludeNomenclatureRestriction(nomenclatureAlias));
+				regrandingQuery.Where(GetIncludeExcludeProductGroupRestriction(productGroupAlias));
 			}
 			else
 			{
@@ -1789,6 +1784,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 			return regrandingQuery
 				.Left.JoinAlias(() => regradingOfGoodsDocumentItemAlias.NomenclatureOld, () => nomenclatureAlias)
+				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
 				.Left.JoinAlias(() => regradingOfGoodsDocumentAlias.Warehouse, () => warehouseAlias)
 				.Left.JoinAlias(() => regradingOfGoodsDocumentAlias.Author, () => authorAlias)
 				.Left.JoinAlias(() => regradingOfGoodsDocumentAlias.LastEditor, () => lastEditorAlias)
@@ -1836,6 +1832,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
 			Nomenclature nomenclatureAlias = null;
+			ProductGroup productGroupAlias = null;
 
 			Fine fineAlias = null;
 			CullingCategory cullingCategoryAlias = null;
@@ -1888,7 +1885,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					regrandingQuery.Where(() => lastEditorAlias.Id == FilterViewModel.LastEditor.Id);
 				}
 
-				regrandingQuery.Where(GetIncludeExcludeRestriction(nomenclatureAlias));
+				regrandingQuery.Where(GetIncludeExcludeNomenclatureRestriction(nomenclatureAlias));
+				regrandingQuery.Where(GetIncludeExcludeProductGroupRestriction(productGroupAlias));
 			}
 			else
 			{
@@ -1897,6 +1895,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 			return regrandingQuery
 				.Left.JoinAlias(() => regradingOfGoodsDocumentItemAlias.NomenclatureNew, () => nomenclatureAlias)
+				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
 				.Left.JoinAlias(() => regradingOfGoodsDocumentAlias.Warehouse, () => warehouseAlias)
 				.Left.JoinAlias(() => regradingOfGoodsDocumentAlias.Author, () => authorAlias)
 				.Left.JoinAlias(() => regradingOfGoodsDocumentAlias.LastEditor, () => lastEditorAlias)
@@ -1939,6 +1938,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			WarehouseBulkGoodsAccountingOperation warehouseBulkOperationAlias = null;
 			Warehouse warehouseAlias = null;
 			Nomenclature nomenclatureAlias = null;
+			ProductGroup productGroupAlias = null;
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
 			
@@ -1988,7 +1988,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					queryDriverAttachedTerminalGiveout.Where(() => lastEditorAlias.Id == FilterViewModel.LastEditor.Id);
 				}
 
-				queryDriverAttachedTerminalGiveout.Where(GetIncludeExcludeRestriction(nomenclatureAlias));
+				queryDriverAttachedTerminalGiveout.Where(GetIncludeExcludeNomenclatureRestriction(nomenclatureAlias));
+				queryDriverAttachedTerminalGiveout.Where(GetIncludeExcludeProductGroupRestriction(productGroupAlias));
 			}
 			else
 			{
@@ -1998,6 +1999,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			return queryDriverAttachedTerminalGiveout
 				.Left.JoinAlias(() => driverAttachedTerminalGiveoutDocumentAlias.GoodsAccountingOperation, () => warehouseBulkOperationAlias)
 				.Left.JoinAlias(() => warehouseBulkOperationAlias.Nomenclature, () => nomenclatureAlias)
+				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
 				.Left.JoinAlias(() => driverAttachedTerminalGiveoutDocumentAlias.Author, () => authorAlias)
 				.Left.JoinAlias(() => driverAttachedTerminalGiveoutDocumentAlias.Author, () => lastEditorAlias)
 				.Left.JoinAlias(() => warehouseBulkOperationAlias.Warehouse, () => warehouseAlias)
@@ -2031,6 +2033,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			WarehouseBulkGoodsAccountingOperation warehouseBulkOperationAlias = null;
 			Warehouse warehouseAlias = null;
 			Nomenclature nomenclatureAlias = null;
+			ProductGroup productGroupAlias = null;
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
 
@@ -2080,7 +2083,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					queryDriverAttachedTerminalReturn.Where(() => lastEditorAlias.Id == FilterViewModel.LastEditor.Id);
 				}
 
-				queryDriverAttachedTerminalReturn.Where(GetIncludeExcludeRestriction(nomenclatureAlias));
+				queryDriverAttachedTerminalReturn.Where(GetIncludeExcludeNomenclatureRestriction(nomenclatureAlias));
+				queryDriverAttachedTerminalReturn.Where(GetIncludeExcludeProductGroupRestriction(productGroupAlias));
 			}
 			else
 			{
@@ -2090,6 +2094,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			return queryDriverAttachedTerminalReturn
 				.Left.JoinAlias(() => driverAttachedTerminalReturnDocumentAlias.GoodsAccountingOperation, () => warehouseBulkOperationAlias)
 				.Left.JoinAlias(() => warehouseBulkOperationAlias.Nomenclature, () => nomenclatureAlias)
+				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
 				.Left.JoinAlias(() => driverAttachedTerminalReturnDocumentAlias.Author, () => authorAlias)
 				.Left.JoinAlias(() => driverAttachedTerminalReturnDocumentAlias.Author, () => lastEditorAlias)
 				.Left.JoinAlias(() => warehouseBulkOperationAlias.Warehouse, () => warehouseAlias)
@@ -2113,6 +2118,52 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => driverAttachedTerminalReturnDocumentAlias.CreationDate).WithAlias(() => resultAlias.LastEditedTime))
 				.OrderBy(x => x.CreationDate).Desc
 				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode>());
+		}
+
+		private Conjunction GetIncludeExcludeNomenclatureRestriction(Nomenclature nomenclatureAlias)
+		{
+			var restriction = Restrictions.Conjunction();
+
+			var nomenclatureFilter = FilterViewModel.IncludeExcludeFilterViewModel.GetFilter<IncludeExcludeEntityFilter<Nomenclature>>();
+
+			var includedNomenclatures = nomenclatureFilter.GetIncluded().ToArray();
+
+			if(includedNomenclatures.Any())
+			{
+				restriction.Add(Restrictions.In(Projections.Property(() => nomenclatureAlias.Id), includedNomenclatures));
+			}
+
+			var excludedNomenclatures = nomenclatureFilter.GetExcluded().ToArray();
+
+			if(excludedNomenclatures.Any())
+			{
+				restriction.Add(Restrictions.Not(Restrictions.In(Projections.Property(() => nomenclatureAlias.Id), excludedNomenclatures)));
+			}
+
+			return restriction;
+		}
+
+		private Conjunction GetIncludeExcludeProductGroupRestriction(ProductGroup productGroupAlias)
+		{
+			var restriction = Restrictions.Conjunction();
+
+			var productGroupFilter = FilterViewModel.IncludeExcludeFilterViewModel.GetFilter<IncludeExcludeEntityWithHierarchyFilter<ProductGroup>>();
+
+			var includedProductGroups = productGroupFilter.GetIncluded().ToArray();
+
+			if(includedProductGroups.Any())
+			{
+				restriction.Add(Restrictions.In(Projections.Property(() => productGroupAlias.Id), includedProductGroups));
+			}
+
+			var excludedProductGroups = productGroupFilter.GetExcluded().ToArray();
+
+			if(excludedProductGroups.Any())
+			{
+				restriction.Add(Restrictions.Not(Restrictions.In(Projections.Property(() => productGroupAlias.Id), excludedProductGroups)));
+			}
+
+			return restriction;
 		}
 
 		#endregion

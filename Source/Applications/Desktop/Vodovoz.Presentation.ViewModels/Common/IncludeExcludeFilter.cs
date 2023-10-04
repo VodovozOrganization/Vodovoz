@@ -15,7 +15,6 @@ namespace Vodovoz.Presentation.ViewModels.Common
 		private string _title;
 
 		private Func<IncludeExcludeFilter, IDictionary<string, object>> _getReportParametersFunc;
-		public Action SelectionChangedAction;
 
 		internal IncludeExcludeFilter()
 		{
@@ -47,6 +46,8 @@ namespace Vodovoz.Presentation.ViewModels.Common
 
 		public Type Type { get; set; }
 
+		public EventHandler SelectionChanged;
+
 		public Func<IncludeExcludeFilter, IDictionary<string, object>> GetReportParametersFunc
 		{
 			get => _getReportParametersFunc;
@@ -71,7 +72,7 @@ namespace Vodovoz.Presentation.ViewModels.Common
 				}
 			}
 
-			SelectionChangedAction?.Invoke();
+			SelectionChanged?.Invoke(this, null);
 		}
 
 		protected virtual void ClearIncludes()
@@ -86,7 +87,7 @@ namespace Vodovoz.Presentation.ViewModels.Common
 				}
 			}
 
-			SelectionChangedAction?.Invoke();
+			SelectionChanged?.Invoke(this, null);
 		}
 
 		protected void BeforeRefreshFilteredElements()

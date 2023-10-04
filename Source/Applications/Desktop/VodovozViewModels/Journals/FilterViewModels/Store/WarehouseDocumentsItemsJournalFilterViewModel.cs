@@ -58,7 +58,6 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		private Nomenclature _nomenclature;
 		private bool _showNotAffectedBalance = false;
 		private int? _documentId;
-		private IncludeExludeFiltersViewModel _includeExcludeFilterViewModel;
 		private readonly IGenericRepository<Nomenclature> _nomenclatureRepository;
 		private readonly IGenericRepository<ProductGroup> _productGroupRepository;
 		private EntityEntryViewModel<Nomenclature> _nomenclatureEntityEntryViewModel;
@@ -176,7 +175,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			set => UpdateFilterField(ref _filterViewModel, value);
 		}
 
-		public IncludeExludeFiltersViewModel IncludeExcludeFilterViewModel => _includeExcludeFilterViewModel;
+		public IncludeExludeFiltersViewModel IncludeExcludeFilterViewModel { get; set; }
 
 		public SelectableFilterType FilterType
 		{
@@ -331,15 +330,21 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 					return query.List<SelectableParameter>();
 				}));
 
+
 			FilterViewModel = new SelectableParameterReportFilterViewModel(_filter);
 
 			FilterViewModel.SelectionChanged += OnFilterViewModelSelectionChanged;
 			FilterViewModel.FilterModeChanged += OnFilterViewModelFilterModeChanged;
 
-			_includeExcludeFilterViewModel = new IncludeExludeFiltersViewModel(_interactiveService);
-			_includeExcludeFilterViewModel.AddFilter(UoW, _nomenclatureRepository);
-			_includeExcludeFilterViewModel.AddFilter(UoW, _productGroupRepository, x => x.Parent?.Id, x => x.Id);
-			_includeExcludeFilterViewModel.SetSelectionChangedAction(() => SetAndRefilterAtOnce());
+			IncludeExcludeFilterViewModel = new IncludeExludeFiltersViewModel(_interactiveService);
+			IncludeExcludeFilterViewModel.SelectionChanged += OnIncludeExcludeFilterSelectionChanged;
+			IncludeExcludeFilterViewModel.AddFilter(UoW, _nomenclatureRepository);
+			IncludeExcludeFilterViewModel.AddFilter(UoW, _productGroupRepository, x => x.Parent?.Id, x => x.Id);
+		}
+
+		private void OnIncludeExcludeFilterSelectionChanged(object sender, EventArgs e)
+		{
+			SetAndRefilterAtOnce();
 		}
 
 		private void OnFilterViewModelFilterModeChanged(object sender, FilterTypeChangedArgs e)
@@ -415,6 +420,15 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 				"Доступен поиск по источникам/получателям/источнико-получателям(оба) номенклатур\n" +
 				"Галочка \"Отображать строки не влияющие на баланс\" -включает отображение документов/строк документов не влияющих на баланс остатков.",
 				"Справка");
+		}
+
+		public override void Dispose()
+		{
+			FilterViewModel.SelectionChanged -= OnFilterViewModelSelectionChanged;
+			FilterViewModel.FilterModeChanged -= OnFilterViewModelFilterModeChanged;
+			IncludeExcludeFilterViewModel.SelectionChanged -= OnIncludeExcludeFilterSelectionChanged;
+
+			base.Dispose();
 		}
 	}
 }
