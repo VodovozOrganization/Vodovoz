@@ -2,6 +2,7 @@
 using Gdk;
 using Gtk;
 using QS.Views.GtkUI;
+using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 using LightsMatrixRow = Vodovoz.ViewModels.Widgets.EdoLightsMatrix.LightsMatrixRow;
 
@@ -10,10 +11,10 @@ namespace Vodovoz.Views.Client
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class EdoLightsMatrixView : WidgetViewBase<EdoLightsMatrixViewModel>
 	{
-		private static readonly Color _greenColor = new Color(60, 255, 60);
-		private static readonly Color _redColor = new Color(255, 102, 102);
-		private static readonly Color _yellowColor = new Color(255, 255, 40);
-		private static readonly Color _whiteColor = new Color(255, 255, 255);
+		private static readonly Color _greenColor = GdkColors.SuccessText;
+		private static readonly Color _redColor = GdkColors.DangerText;
+		private static readonly Color _yellowColor = GdkColors.WarningBase;
+		private static readonly Color _primaryBaseColor = GdkColors.PrimaryBase;
 
 		public EdoLightsMatrixView()
 		{
@@ -69,7 +70,7 @@ namespace Vodovoz.Views.Client
 					return _yellowColor;
 			}
 
-			return _whiteColor;
+			return _primaryBaseColor;
 		}
 	}
 }

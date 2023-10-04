@@ -1,0 +1,64 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <UserSecretsId>aspnet-VodovozMangoService-50160E4A-C805-4B10-A720-750723284AB5</UserSecretsId>
+        <WebProject_DirectoryAccessLevelKey>0</WebProject_DirectoryAccessLevelKey>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+        <DockerfileContext>..\..\..\..</DockerfileContext>
+    </PropertyGroup>
+
+	<ItemGroup>
+		<Content Remove="appsettings.Development.json" />
+		<Content Remove="appsettings.Production.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="appsettings.Development.json">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</None>
+		<None Include="appsettings.Production.json">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Dapper" Version="2.0.123" />
+        <PackageReference Include="Google.Protobuf" Version="3.22.1" />
+		<PackageReference Include="Grpc.AspNetCore" Version="2.53.0" />
+		<PackageReference Include="Grpc.AspNetCore.Web" Version="2.53.0" />
+		<PackageReference Include="Grpc.Core" Version="2.46.6" />
+        <PackageReference Include="Grpc.Tools" Version="2.53.0">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.AzureAD.UI" Version="3.1.22" />
+        <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.4" />
+        <PackageReference Include="MySqlConnector" Version="2.2.6" />
+        <PackageReference Include="NLog" Version="5.1.2" />
+        <PackageReference Include="NLog.Web.AspNetCore" Version="5.2.1" />
+        <PackageReference Include="Polly" Version="7.2.3" />
+        <PackageReference Include="System.Threading.Channels" Version="7.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Infrastructure\MessageTransport\MessageTransport.csproj" />
+      <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Mango\Mango.CallsPublishing\Mango.CallsPublishing.csproj" />
+      <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Mango\Mango.Client\Mango.Client.csproj" />
+      <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Mango\Mango.Core\Mango.Core.csproj" />
+      <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Mango\MangoClient\Mango.Api.csproj" />
+      <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Utilities\QS.Utilities.csproj" />
+    </ItemGroup>
+
+	<ItemGroup>
+		<Protobuf Include="..\..\..\..\Libraries\Core\Backend\Mango\Mango.Grpc\PhonebookService.proto" GrpcServices="Server" />
+		<Protobuf Include="..\..\..\..\Libraries\Core\Backend\Mango\Mango.Grpc\NotificationService.proto" GrpcServices="Server" />
+	</ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Properties" />
+    </ItemGroup>
+
+    <Import Project="..\..\..\..\Libraries\Core\Backend\Mango\Mango.Grpc\Mango.Grpc.projitems" Label="Shared" />
+
+</Project>

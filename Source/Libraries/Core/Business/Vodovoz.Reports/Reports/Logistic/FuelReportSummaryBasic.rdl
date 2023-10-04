@@ -245,6 +245,8 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <Format>#,##0.00</Format>
+                        <BorderColor  />
+                        <BorderWidth  />
                       </Style>
                       <Value>=Sum({cashless_payed_for_fuel}, "Data")</Value>
                     </Textbox>
@@ -360,7 +362,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     CASE
@@ -384,7 +386,11 @@ INNER JOIN
         AND (cv.end_date IS NULL OR cv.end_date &gt;= fuel_documents.date)
 WHERE
     fuel_documents.date &gt;= @start_date
-  AND fuel_documents.date &lt; @end_date
+    AND fuel_documents.date &lt; @end_date
+    AND (
+ 			(0 IN (@include_car_models) OR (cm.id IN (@include_car_models)))
+				AND NOT (cm.id IN (@exclude_car_models))
+		)
 GROUP BY
     cv.car_own_type,
     (cm.car_type_of_use = 'GAZelle' AND cv.car_own_type = 'Company'),
@@ -402,7 +408,9 @@ FROM
         fuel_writeoff_document_items fwdi ON fwdi.fuel_writeoff_document_id = fwd.id
 WHERE
     fwd.date &gt;= @start_date
-  AND fwd.date &lt; @end_date
+  	AND fwd.date &lt; @end_date
+  	AND 0 IN (@include_car_models)
+HAVING COUNT(fwdi.id) &gt; 0
 ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
@@ -411,9 +419,15 @@ WHERE
           <QueryParameter Name="end_date">
             <Value>=Parameters!end_date</Value>
           </QueryParameter>
+          <QueryParameter Name="include_car_models">
+            <Value>={?include_car_models}</Value>
+          </QueryParameter>
+          <QueryParameter Name="exclude_car_models">
+            <Value>={?exclude_car_models}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="car_type">
           <DataField>car_type</DataField>
           <TypeName>System.String</TypeName>
@@ -452,7 +466,16 @@ FROM fuel_types ft </CommandText>
   </DataSets>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySqlConnector</DataProvider>
+        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+  <ReportParameters >
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <DefaultValue>
@@ -489,14 +512,19 @@ FROM fuel_types ft </CommandText>
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
+    <ReportParameter Name="include_car_models">
+      <DataType>Integer</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="exclude_car_models">
+      <DataType>Integer</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
   </ReportParameters>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySqlConnector</DataProvider>
-        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
 </Report>

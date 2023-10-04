@@ -16,6 +16,8 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.Extensions;
+using Vodovoz.Infrastructure;
 using Vodovoz.Parameters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -86,7 +88,8 @@ namespace Vodovoz.Dialogs.Logistic
 				.AddColumn("Номенклатура")
 					.AddTextRenderer(x => x.Nomenclature.Name)
 				.AddColumn("Погружено")
-					.AddTextRenderer(x => x.CountLoadedString, useMarkup: true)
+					.AddTextRenderer(x =>
+						$"<span foreground=\"{(x.CountLoaded > 0 ? GdkColors.Orange.ToHtmlColor() : GdkColors.DangerText.ToHtmlColor())}\">{x.CountLoaded}</span>", useMarkup: true)
 				.AddColumn("Всего")
 					.AddNumericRenderer(x => x.CountTotal)
 				.AddColumn("Осталось погрузить")
@@ -122,7 +125,7 @@ namespace Vodovoz.Dialogs.Logistic
 				MessageDialogHelper.RunQuestionWithTitleDialog(
 					"Оптправить в путь?",
 					string.Format(
-						"{0} погружен <span foreground=\"Red\">НЕ ПОЛНОСТЬЮ</span> и будет переведён в статус \"{1}\". После сохранения изменений откат этого действия будет невозможен.\nВы уверены что хотите отправить МЛ в путь?",
+						$"{0} погружен <span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">НЕ ПОЛНОСТЬЮ</span> и будет переведён в статус \"{1}\". После сохранения изменений откат этого действия будет невозможен.\nВы уверены что хотите отправить МЛ в путь?",
 						Entity.Title,
 						RouteListStatus.EnRoute.GetEnumTitle()
 					)

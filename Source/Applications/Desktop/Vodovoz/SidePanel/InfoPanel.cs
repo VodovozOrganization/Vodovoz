@@ -1,7 +1,9 @@
-﻿using Gtk;
+﻿using Autofac;
+using Gtk;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Infrastructure;
 using Vodovoz.SidePanel.InfoProviders;
 
 namespace Vodovoz.SidePanel
@@ -23,7 +25,7 @@ namespace Vodovoz.SidePanel
 			_content.WidthRequest = _defaultWithRequest;
 
 			var eventBox = new EventBox();
-			eventBox.ModifyBg(StateType.Normal, new Gdk.Color(0xff, 0xff, 0xff));
+			eventBox.ModifyBg(StateType.Normal, GdkColors.PrimaryBase);
 			eventBox.Add(_content);
 			eventBox.Show();
 

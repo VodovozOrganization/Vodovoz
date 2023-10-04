@@ -2,6 +2,8 @@
 using System;
 using Gdk;
 using Vodovoz.ViewModels.ViewModels;
+using Vodovoz.Infrastructure;
+using Vodovoz.Extensions;
 
 namespace Vodovoz.Views
 {
@@ -22,10 +24,13 @@ namespace Vodovoz.Views
 				.AddBinding(_bulkEmailViewModel, vm => vm.MailSubject, w => w.Text)
 				.InitializeFromSource();
 
+			var successTextColor = GdkColors.SuccessText.ToHtmlColor();
+			var dangerTextColor = GdkColors.DangerText.ToHtmlColor();
+
 			ylabelSubjectInfo.Binding
 				.AddFuncBinding(_bulkEmailViewModel, vm => vm.MailSubjectInfoDanger
-						? $"<span foreground='red'>{vm.MailSubjectInfo}</span>"
-						: $"<span foreground='green'>{vm.MailSubjectInfo}</span>", 
+						? $"<span foreground='{dangerTextColor}'>{vm.MailSubjectInfo}</span>"
+						: $"<span foreground='{successTextColor}'>{vm.MailSubjectInfo}</span>", 
 					w => w.LabelProp)
 				.InitializeFromSource();
 
@@ -35,16 +40,16 @@ namespace Vodovoz.Views
 
 			ylabelAttachmentsInfo.Binding
 				.AddFuncBinding(_bulkEmailViewModel, vm => vm.AttachmentsSizeInfoDanger
-						? $"<span foreground='red'>{vm.AttachmentsSizeInfo}</span>"
-						: $"<span foreground='green'>{vm.AttachmentsSizeInfo}</span>", 
+						? $"<span foreground='{dangerTextColor}'>{vm.AttachmentsSizeInfo}</span>"
+						: $"<span foreground='{successTextColor}'>{vm.AttachmentsSizeInfo}</span>", 
 					w => w.LabelProp)
 				.InitializeFromSource();
 
 			ylabelRecepientInfo.Binding.
 				AddFuncBinding(_bulkEmailViewModel,
 					vm => vm.RecepientInfoDanger
-					? $"<span foreground='red'>{vm.RecepientInfo}</span>"
-					: $"<span foreground='green'>{vm.RecepientInfo}</span>", 
+					? $"<span foreground='{dangerTextColor}'>{vm.RecepientInfo}</span>"
+					: $"<span foreground='{successTextColor}'>{vm.RecepientInfo}</span>", 
 					w => w.LabelProp)
 				.InitializeFromSource();
 

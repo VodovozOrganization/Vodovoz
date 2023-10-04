@@ -13,6 +13,7 @@ using Vodovoz.Factories;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using QS.DomainModel.UoW;
+using Vodovoz.Infrastructure;
 
 namespace Vodovoz
 {
@@ -34,7 +35,7 @@ namespace Vodovoz
 				.AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
 				.AddColumn("Фикс. цены").AddToggleRenderer(node => node.HasFixedPrices).Editing(false)
 				.AddColumn("")
-				.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.IsActive ? "black" : "red")
+				.RowCells().AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsActive ? GdkColors.PrimaryText : GdkColors.DangerText)
 				.Finish();
 			_canDeleteByPresetPermission =
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete_counterparty_and_deliverypoint");

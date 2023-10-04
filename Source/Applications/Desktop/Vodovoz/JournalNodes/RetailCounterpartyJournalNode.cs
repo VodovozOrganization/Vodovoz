@@ -1,4 +1,3 @@
-﻿using System;
 using QS.Project.Journal;
 using Vodovoz.Domain.Client;
 
@@ -27,7 +26,5 @@ namespace Vodovoz.JournalNodes
 		public string Phones { get; set; }
 
 		public string PhonesDigits { get; set; }
-
-		public string RowColor => IsArhive || IsLiquidating ? "grey" : "black";
 	}
 }

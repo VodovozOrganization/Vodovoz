@@ -6,6 +6,7 @@ using NHibernate.Transform;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Store;
 using Gamma.Binding;
+using Vodovoz.Infrastructure;
 
 namespace Vodovoz.Representations
 {
@@ -97,7 +98,7 @@ namespace Vodovoz.Representations
 			.AddColumn("Код").AddTextRenderer(node => node.WarehouseId.ToString())
 			.RowCells()
 				.AddSetter<CellRendererText>(
-					(c, n) => c.Foreground = n.WarehouseId.HasValue ? "black" : "grey"
+					(c, n) => c.ForegroundGdk = n.WarehouseId.HasValue ? GdkColors.PrimaryText : GdkColors.InsensitiveText
 				)
 			.Finish();
 

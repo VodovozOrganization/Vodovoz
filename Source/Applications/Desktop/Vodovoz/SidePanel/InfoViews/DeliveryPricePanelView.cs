@@ -1,4 +1,6 @@
 ﻿using Vodovoz.Domain.Client;
+using Vodovoz.Extensions;
+using Vodovoz.Infrastructure;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.Tools.Logistic;
 using IDeliveryPointInfoProvider = Vodovoz.ViewModels.Infrastructure.InfoProviders.IDeliveryPointInfoProvider;
@@ -38,7 +40,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 			var deliveryPrice = DeliveryPriceCalculator.Calculate(DeliveryPoint);
 			labelError.Visible = deliveryPrice.HasError;
-			labelError.Markup = $"<span foreground=\"red\"><b>{deliveryPrice.ErrorMessage}</b></span>";
+			labelError.Markup = $"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\"><b>{deliveryPrice.ErrorMessage}</b></span>";
 			deliverypriceview.Visible = !deliveryPrice.HasError;
 			deliverypriceview.DeliveryPrice = deliveryPrice;
 		}

@@ -8,6 +8,5 @@ namespace Vodovoz.JournalNodes
 		public override string Title => Name;
 		public bool IsArchive { get; set; }
 		public string Name { get; set; }
-		public string RowColor => IsArchive ? "grey" : "black";
 	}
 }

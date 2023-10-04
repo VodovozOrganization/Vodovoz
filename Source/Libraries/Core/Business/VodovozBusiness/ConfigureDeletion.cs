@@ -1026,7 +1026,9 @@ namespace Vodovoz
 				.AddDeleteDependence<AdvanceIncomeCashDistributionDocument>(x => x.AdvanceReport)
 				.AddDeleteDependence<AdvanceExpenseCashDistributionDocument>(x => x.AdvanceReport);
 
-			DeleteConfig.AddHibernateDeleteInfo<AdvanceClosing>();
+			DeleteConfig.AddHibernateDeleteInfo<AdvanceClosing>()
+				.AddRemoveFromDependence<Expense>(x => x.AdvanceCloseItems)
+				.AddUpdateInfo(x => x.AdvanceExpense, x => x.AdvanceClosed, false);
 
 			DeleteConfig.AddDeleteInfo(
 				new DeleteInfo {

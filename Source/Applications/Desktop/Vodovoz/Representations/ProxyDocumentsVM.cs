@@ -10,6 +10,7 @@ using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Infrastructure;
 
 namespace Vodovoz.ViewModel
 {
@@ -64,7 +65,7 @@ namespace Vodovoz.ViewModel
 			.AddColumn("Окончание действия")
 				.AddTextRenderer(node => $"{node.ExpirationDate:d}")
 			.RowCells()
-				.AddSetter<CellRendererText>((c, n) => c.Foreground = (DateTime.Today > n.ExpirationDate) ? "grey" : "black")
+				.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = (DateTime.Today > n.ExpirationDate) ? GdkColors.InsensitiveText : GdkColors.PrimaryText)
 		.Finish();
 		
 		public override IColumnsConfig ColumnsConfig => columnsConfig;
