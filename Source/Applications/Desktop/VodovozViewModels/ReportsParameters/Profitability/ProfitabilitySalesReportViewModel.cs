@@ -245,8 +245,12 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			}
 			else
 			{
+				var isRouteListGroupingTypeSelected = groupParameters.Select(x => (GroupingType)x.Value).First() == GroupingType.RouteList;
+				var isOnlyOneGroupingTypeSelected = groupParameters.Count() == 1;
+				var isShowRouteListInfo = isRouteListGroupingTypeSelected && isOnlyOneGroupingTypeSelected;
+
 				var modifier = new ProfitabilityReportModifier();
-				modifier.Setup(groupParameters.Select(x => (GroupingType)x.Value));
+				modifier.Setup(groupParameters.Select(x => (GroupingType)x.Value), isShowRouteListInfo);
 				result = modifier;
 			}
 			return result;

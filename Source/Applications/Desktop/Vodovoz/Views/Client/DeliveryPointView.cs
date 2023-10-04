@@ -1,4 +1,4 @@
-using Gamma.Widgets;
+﻿using Gamma.Widgets;
 using GMap.NET;
 using GMap.NET.GtkSharp;
 using GMap.NET.GtkSharp.Markers;
@@ -12,6 +12,8 @@ using System.ComponentModel;
 using System.Threading.Tasks;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Client;
+using Vodovoz.Extensions;
+using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Dialogs.Counterparty;
 
 namespace Vodovoz.Views.Client
@@ -231,10 +233,14 @@ namespace Vodovoz.Views.Client
 			lblCounterparty.LabelProp = ViewModel.Entity.Counterparty.FullName;
 			lblId.LabelProp = ViewModel.Entity.Id.ToString();
 
+			var successTextColor = GdkColors.SuccessText.ToHtmlColor();
+			var infoTextColor = GdkColors.InfoText.ToHtmlColor();
+			var dangerTextColor = GdkColors.DangerText.ToHtmlColor();
+
 			ylabelFoundOnOsm.Binding.AddFuncBinding(ViewModel.Entity,
 				e => e.CoordinatesExist
-					? string.Format("<span foreground='{1}'>{0}</span>", e.CoordinatesText, e.FoundOnOsm ? "green" : "blue")
-					: "<span foreground='red'>Не найден на карте.</span>",
+					? $"<span foreground='{(e.FoundOnOsm ? successTextColor : infoTextColor)}'>{e.CoordinatesText}</span>"
+					: $"<span foreground='{dangerTextColor}'>Не найден на карте.</span>",
 				w => w.LabelProp).InitializeFromSource();
 			ylabelChangedUser.Binding.AddFuncBinding(ViewModel,
 				vm => vm.CoordsWasChanged

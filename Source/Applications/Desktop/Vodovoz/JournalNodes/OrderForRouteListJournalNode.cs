@@ -18,19 +18,29 @@ namespace Vodovoz.JournalNodes
 		public OrderForRouteListJournalNode(Type entityType) : base(entityType)
 		{
 			if (entityType != typeof(Order))
+			{
 				StatusEnum = OrderStatus.Closed;
+			}
 
 			if(entityType == typeof(Order))
+			{
 				ViewType = "Заказ";
+			}
 
 			if(entityType == typeof(OrderWithoutShipmentForDebt))
+			{
 				ViewType = "Счет на долг";
+			}
 
 			if(entityType == typeof(OrderWithoutShipmentForPayment))
+			{
 				ViewType = "Счет на постоплату";
+			}
 
 			if(entityType == typeof(OrderWithoutShipmentForAdvancePayment))
+			{
 				ViewType = "Счет на предоплату";
+			}
 		}
 
 		public override string Title => $"{EntityType.GetSubjectNames()} №{Id}";
@@ -64,17 +74,5 @@ namespace Vodovoz.JournalNodes
 		public string AuthorPatronymic { get; set; }
 
 		public string Author => PersonHelper.PersonNameWithInitials(AuthorLastName, AuthorName, AuthorPatronymic);
-
-		public string RowColor {
-			get {
-				if(StatusEnum == OrderStatus.Canceled || StatusEnum == OrderStatus.DeliveryCanceled)
-					return "grey";
-				if(StatusEnum == OrderStatus.Closed)
-					return "green";
-				if(StatusEnum == OrderStatus.NotDelivered)
-					return "blue";
-				return "black";
-			}
-		}
 	}
 }

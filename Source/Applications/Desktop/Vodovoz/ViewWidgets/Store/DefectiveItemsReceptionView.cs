@@ -53,8 +53,8 @@ namespace Vodovoz.ViewWidgets.Store
 						(c, n) => {
 							c.Editable = true;
 							c.BackgroundGdk = n.TypeOfDefect == null
-								? GdkColors.LightRedColor
-								: GdkColors.WhiteColor;
+								? GdkColors.DangerBase
+								: GdkColors.PrimaryBase;
 						}
 					)
 				.AddColumn("Источник\nбрака")
@@ -63,8 +63,8 @@ namespace Vodovoz.ViewWidgets.Store
 						(c, n) => {
 							c.Editable = true;
 							c.BackgroundGdk = n.Source == DefectSource.None
-								? GdkColors.LightRedColor
-								: GdkColors.WhiteColor;
+								? GdkColors.DangerBase
+								: GdkColors.PrimaryBase;
 						}
 					)
 				.AddColumn("")

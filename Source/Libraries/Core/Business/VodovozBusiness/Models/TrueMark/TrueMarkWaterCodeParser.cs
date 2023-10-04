@@ -1,5 +1,4 @@
-﻿using iTextSharp.text.pdf;
-using System;
+﻿using System;
 using System.Text.RegularExpressions;
 
 namespace Vodovoz.Models.TrueMark
@@ -26,10 +25,12 @@ namespace Vodovoz.Models.TrueMark
 		private string _gtinGroupName = "GTIN";
 		private string _serialGroupName = "SerialNumber";
 		private string _checkGroupName = "CheckCode";
+		private static readonly string _restrictedChar = "\\u001d";
 
 		public TrueMarkWaterCodeParser()
 		{
-			var pattern = $"^(?<{_specialCodeName}>(\\\\u00e8)|(\\\\u001d)|([\\u00e8,\\u001d]{{1}}))(?<IdentificationCode>01(?<{_gtinGroupName}>.{{14}})21(?<{_serialGroupName}>.{{13}}))((\\\\u001d)|([\\u001d]{{1}}))93(?<{_checkGroupName}>.{{4}})$";
+			var pattern = $"^(?<{_specialCodeName}>(\\\\u00e8)|(\\\\u001d)|([\\u00e8,\\u001d]{{1}}))(?<IdentificationCode>01(?<{_gtinGroupName}>[^{_restrictedChar}]{{14}})21(?<{_serialGroupName}>[^{_restrictedChar}]{{13}}))((\\\\u001d)|([\\u001d]{{1}}))93(?<{_checkGroupName}>[^{_restrictedChar}]{{4}})$";
+
 			_regex = new Regex(pattern);
 		}
 		
@@ -112,9 +113,11 @@ namespace Vodovoz.Models.TrueMark
 
 		public TrueMarkWaterCode ParseCodeFrom1c(string code)
 		{
-			var cleanCode = code.Replace("\"\"", "\"");
+			var cleanCode = code
+				.Replace("\"\"", "\"")
+				.Replace("_x001d_", _restrictedChar);
 
-			var pattern = $@"(?<IdentificationCode>01(?<{_gtinGroupName}>.{{14}})21(?<{_serialGroupName}>.{{13}}))((\|ГС\|)|(\\u001d)|()|())93(?<{_checkGroupName}>.{{4}})";
+			var pattern = $@"(?<IdentificationCode>01(?<{_gtinGroupName}>[^{_restrictedChar}]{{14}})21(?<{_serialGroupName}>[^{_restrictedChar}]{{13}}))((\|ГС\|)|(\\u001d)|()|())93(?<{_checkGroupName}>[^{_restrictedChar}]{{4}})";
 			_regex = new Regex(pattern);
 
 			var match = _regex.Match(cleanCode);

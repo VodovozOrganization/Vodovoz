@@ -16,6 +16,7 @@ using System.Linq;
 using System.Text;
 using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories.Payments;
+using Vodovoz.Infrastructure;
 
 namespace Vodovoz.ServiceDialogs
 {
@@ -85,7 +86,22 @@ namespace Vodovoz.ServiceDialogs
 				.AddTextRenderer(x => x.PaymentStatus.GetEnumTitle())
 				.AddColumn("")
 				.RowCells()
-					.AddSetter<CellRenderer>((c, n) => c.CellBackground = n.Color)
+					.AddSetter<CellRenderer>((c, n) =>
+					{
+						var color = GdkColors.PrimaryBase;
+
+						if(n.Color == colorLightRed)
+						{
+							color = GdkColors.LightCoral;
+						}
+
+						if(n.Color == colorYellow)
+						{
+							color = GdkColors.WarningBase;
+						}
+
+						c.CellBackgroundGdk = color;
+					})
 				.Finish();
 
 			ConfigureButtonReadFile();

@@ -89,18 +89,6 @@ namespace Vodovoz.JournalNodes
 
 		public bool Sensitive { get; set; }
 
-		public string RowColor {
-			get {
-				if(StatusEnum == OrderStatus.Canceled || StatusEnum == OrderStatus.DeliveryCanceled || !Sensitive)
-					return "grey";
-				if(StatusEnum == OrderStatus.Closed)
-					return "green";
-				if(StatusEnum == OrderStatus.NotDelivered)
-					return "blue";
-				return "black";
-			}
-		}
-
 		public EdoDocFlowStatus EdoDocFlowStatus { get; set; }
 	}
 }

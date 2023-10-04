@@ -7,6 +7,7 @@ using System.Linq;
 using Gtk;
 using System;
 using Gamma.Binding.Core.LevelTreeConfig;
+using Vodovoz.Infrastructure;
 
 namespace Vodovoz.Views.Complaints
 {
@@ -120,9 +121,9 @@ namespace Vodovoz.Views.Complaints
 		private void SetColor(CellRenderer cell, object node)
 		{
 			if(node is ComplaintDiscussionComment) {
-				cell.CellBackgroundGdk = new Gdk.Color(230, 230, 245);
+				cell.CellBackgroundGdk = GdkColors.ComplaintDiscussionCommentBase;
 			} else {
-				cell.CellBackgroundGdk = new Gdk.Color(255, 255, 255);
+				cell.CellBackgroundGdk = GdkColors.PrimaryBase;
 			}
 		}
 	}
