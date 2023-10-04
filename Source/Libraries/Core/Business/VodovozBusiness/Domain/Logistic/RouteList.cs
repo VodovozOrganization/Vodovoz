@@ -1121,7 +1121,7 @@ namespace Vodovoz.Domain.Logistic
 					{
 						if(orderEquipment.Direction == Direction.Deliver)
 						{
-							discrepancy.ClientRejected = orderEquipment.ReturnedCount;
+							discrepancy.ClientRejected = orderEquipment.UndeliveredCount;
 						}
 						else
 						{
