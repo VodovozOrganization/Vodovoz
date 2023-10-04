@@ -115,7 +115,9 @@ namespace Vodovoz.Cash
 
 			ylabelCreating.UseMarkup = true;
 
-			ylabelChangeSum.Binding.AddBinding(ViewModel, vm => vm.ChangeSumWarning ? $"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">{vm.ChangeSumMessage}</span>" : vm.ChangeSumMessage, w => w.LabelProp)
+			var dangerTextColor = GdkColors.DangerText.ToHtmlColor();
+
+			ylabelChangeSum.Binding.AddFuncBinding(ViewModel, vm => vm.ChangeSumWarning ? $"<span foreground=\"{dangerTextColor}\">{vm.ChangeSumMessage}</span>" : vm.ChangeSumMessage, w => w.LabelProp)
 				.InitializeFromSource();
 
 			ylabelChangeSum.UseMarkup = true;
