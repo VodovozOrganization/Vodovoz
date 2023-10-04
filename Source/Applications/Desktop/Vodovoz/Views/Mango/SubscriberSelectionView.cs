@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Gamma.GtkWidgets;
-using MangoService;
+using Mango.Client;
 using QS.Views.Dialog;
 using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
