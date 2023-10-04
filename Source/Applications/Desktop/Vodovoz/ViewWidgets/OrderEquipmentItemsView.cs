@@ -94,7 +94,7 @@ namespace Vodovoz.ViewWidgets
 			treeEquipment.ColumnsConfig = ColumnsConfigFactory.Create<OrderEquipment>()
 				.AddColumn("Наименование").AddTextRenderer(node => node.FullNameString)
 				.AddColumn("Направление").AddTextRenderer(node => node.DirectionString)
-				.AddColumn("Кол-во (недовоз)")
+				.AddColumn("Кол-во(недовоз)")
 				.AddNumericRenderer(node => node.Count).WidthChars(10)
 				.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
 				.AddSetter((cell, node) => {
@@ -328,7 +328,7 @@ namespace Vodovoz.ViewWidgets
 			treeView.Model.IterNthChild(out TreeIter iter, index);
 			path = treeView.Model.GetPath(iter);
 
-			var column = treeView.Columns.First(x => x.Title == (MyTab is OrderReturnsView ? "Кол-во(недовоз)" : "Кол-во"));
+			var column = treeView.Columns.First(x => x.Title == "Кол-во(недовоз)");
 			var renderer = column.CellRenderers.First();
 			Gtk.Application.Invoke(delegate {
 				treeView.SetCursorOnCell(path, column, renderer, true);
