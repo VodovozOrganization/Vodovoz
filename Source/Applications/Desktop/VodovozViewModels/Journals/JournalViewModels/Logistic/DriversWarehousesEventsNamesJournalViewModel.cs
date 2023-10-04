@@ -52,10 +52,5 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			
 			return query;
 		}
-
-		private void OnFilterViewModelFiltered(object sender, EventArgs e)
-		{
-			Refresh();
-		}
 	}
 }

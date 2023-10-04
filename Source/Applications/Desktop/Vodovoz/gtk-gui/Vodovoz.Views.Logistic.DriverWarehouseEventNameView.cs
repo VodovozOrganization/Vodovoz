@@ -92,7 +92,7 @@ namespace Vodovoz.Views.Logistic
 			w5.BottomAttach = ((uint)(2));
 			w5.LeftAttach = ((uint)(1));
 			w5.RightAttach = ((uint)(2));
-			w5.XOptions = ((global::Gtk.AttachOptions)(0));
+			w5.XOptions = ((global::Gtk.AttachOptions)(4));
 			w5.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableProperties.Gtk.Table+TableChild
 			this.lblEventNameTitle = new global::Gamma.GtkWidgets.yLabel();

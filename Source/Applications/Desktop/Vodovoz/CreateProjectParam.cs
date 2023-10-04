@@ -420,6 +420,8 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<UndeliveryObjectViewModel, UndeliveryObjectView>()
 				.RegisterWidgetForTabViewModel<UndeliveryKindViewModel, UndeliveryKindView>()
 				.RegisterWidgetForTabViewModel<UndeliveryDetalizationViewModel, UndeliveryDetalizationView>()
+				.RegisterWidgetForTabViewModel<DriverWarehouseEventNameViewModel, DriverWarehouseEventNameView>()
+				.RegisterWidgetForTabViewModel<DriverWarehouseEventViewModel, DriverWarehouseEventView>()
 				;
 
 			//Регистрация виджетов

@@ -1,8 +1,10 @@
 ﻿using System;
 using Autofac;
 using NHibernate;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
@@ -60,6 +62,17 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				);
 			
 			return query;
+		}
+
+		protected override void CreateEntityDialog()
+		{
+			NavigationManager.OpenViewModel<DriverWarehouseEventViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
+		}
+
+		protected override void EditEntityDialog(DriversWarehousesEventsJournalNode node)
+		{
+			NavigationManager.OpenViewModel<DriverWarehouseEventViewModel, IEntityUoWBuilder>(
+				this, EntityUoWBuilder.ForOpen(DomainHelper.GetId(node)));
 		}
 
 		private void CreateFilter(Action<DriversWarehousesEventsJournalFilterViewModel> filterParams)

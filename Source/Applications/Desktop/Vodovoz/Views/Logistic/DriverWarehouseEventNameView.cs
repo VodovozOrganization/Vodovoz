@@ -28,7 +28,7 @@ namespace Vodovoz.Views.Logistic
 				.InitializeFromSource();
 
 			entryEventName.Binding
-				.AddBinding(ViewModel.Entity, e => e.EventName, w => w.Text)
+				.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text)
 				.InitializeFromSource();
 		}
 

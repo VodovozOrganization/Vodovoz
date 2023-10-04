@@ -7,7 +7,7 @@ using Vodovoz.Domain.Logistic.Drivers;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
-	public class DriverWarehouseEventNameViewModel : EntityTabViewModelBase<DriverWarehouseEvent>
+	public class DriverWarehouseEventNameViewModel : EntityTabViewModelBase<DriverWarehouseEventName>
 	{
 		public DriverWarehouseEventNameViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -20,7 +20,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public bool IdGtZero => Entity.Id > 0;
 
-		public void ConfigureEntityChangingRelations()
+		private void ConfigureEntityChangingRelations()
 		{
 			SetPropertyChangeRelation(e => e.Id, () => IdGtZero);
 		}

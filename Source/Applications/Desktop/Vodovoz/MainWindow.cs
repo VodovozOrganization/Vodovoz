@@ -27,296 +27,307 @@ using Vodovoz.SidePanel;
 using VodovozInfrastructure.Configuration;
 using Order = Vodovoz.Domain.Orders.Order;
 using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 
 public partial class MainWindow : Gtk.Window
 {
-	private static Logger _logger = LogManager.GetCurrentClassLogger();
-	private uint _lastUiId;
-	private readonly ILifetimeScope _autofacScope = Startup.AppDIContainer.BeginLifetimeScope();
-	private readonly IApplicationInfo _applicationInfo;
-	private readonly IPasswordValidator _passwordValidator;
-	private readonly IApplicationConfigurator _applicationConfigurator;
-	private readonly IMovementDocumentsNotificationsController _movementsNotificationsController;
-	private readonly IComplaintNotificationController _complaintNotificationController;
-	private readonly bool _hasAccessToSalariesForLogistics;
-	private readonly int _currentUserSubdivisionId;
-	private readonly IEnumerable<int> _curentUserMovementDocumentsNotificationWarehouses;
-	private readonly bool _hideComplaintsNotifications;
+    private static Logger _logger = LogManager.GetCurrentClassLogger();
+    private uint _lastUiId;
+    private readonly ILifetimeScope _autofacScope = Startup.AppDIContainer.BeginLifetimeScope();
+    private readonly IApplicationInfo _applicationInfo;
+    private readonly IPasswordValidator _passwordValidator;
+    private readonly IApplicationConfigurator _applicationConfigurator;
+    private readonly IMovementDocumentsNotificationsController _movementsNotificationsController;
+    private readonly IComplaintNotificationController _complaintNotificationController;
+    private readonly bool _hasAccessToSalariesForLogistics;
+    private readonly int _currentUserSubdivisionId;
+    private readonly IEnumerable<int> _curentUserMovementDocumentsNotificationWarehouses;
+    private readonly bool _hideComplaintsNotifications;
 
-	private bool _accessOnlyToWarehouseAndComplaints;
+    private bool _accessOnlyToWarehouseAndComplaints;
 
-	public TdiNotebook TdiMain => tdiMain;
-	public InfoPanel InfoPanel => infopanel;
+    public TdiNotebook TdiMain => tdiMain;
+    public InfoPanel InfoPanel => infopanel;
 
-	public readonly TdiNavigationManager NavigationManager;
-	public readonly MangoManager MangoManager;
+    public readonly TdiNavigationManager NavigationManager;
+    public readonly MangoManager MangoManager;
 
-	public MainWindow(IPasswordValidator passwordValidator, IApplicationConfigurator applicationConfigurator) : base(Gtk.WindowType.Toplevel)
-	{
-		_passwordValidator = passwordValidator ?? throw new ArgumentNullException(nameof(passwordValidator));
-		_applicationConfigurator = applicationConfigurator ?? throw new ArgumentNullException(nameof(applicationConfigurator));
+    public MainWindow(IPasswordValidator passwordValidator, IApplicationConfigurator applicationConfigurator) : base(Gtk.WindowType.Toplevel)
+    {
+        _passwordValidator = passwordValidator ?? throw new ArgumentNullException(nameof(passwordValidator));
+        _applicationConfigurator = applicationConfigurator ?? throw new ArgumentNullException(nameof(applicationConfigurator));
 
-		Build();
+        Build();
 
-		PerformanceHelper.AddTimePoint("Закончена стандартная сборка окна.");
-		_applicationInfo = new ApplicationVersionInfo();
+        PerformanceHelper.AddTimePoint("Закончена стандартная сборка окна.");
+        _applicationInfo = new ApplicationVersionInfo();
 
-		BuildToolbarActions();
+        BuildToolbarActions();
 
-		tdiMain.WidgetResolver = ViewModelWidgetResolver.Instance;
-		TDIMain.MainNotebook = tdiMain;
-		var highlightWColor = CurrentUserSettings.Settings.HighlightTabsWithColor;
-		var keepTabColor = CurrentUserSettings.Settings.KeepTabColor;
-		var reorderTabs = CurrentUserSettings.Settings.ReorderTabs;
-		_hideComplaintsNotifications = CurrentUserSettings.Settings.HideComplaintNotification;
-		var tabsParametersProvider = new TabsParametersProvider(new ParametersProvider());
-		TDIMain.SetTabsColorHighlighting(highlightWColor, keepTabColor, GetTabsColors(), tabsParametersProvider.TabsPrefix);
-		TDIMain.SetTabsReordering(reorderTabs);
+        tdiMain.WidgetResolver = ViewModelWidgetResolver.Instance;
+        TDIMain.MainNotebook = tdiMain;
+        var highlightWColor = CurrentUserSettings.Settings.HighlightTabsWithColor;
+        var keepTabColor = CurrentUserSettings.Settings.KeepTabColor;
+        var reorderTabs = CurrentUserSettings.Settings.ReorderTabs;
+        _hideComplaintsNotifications = CurrentUserSettings.Settings.HideComplaintNotification;
+        var tabsParametersProvider = new TabsParametersProvider(new ParametersProvider());
+        TDIMain.SetTabsColorHighlighting(highlightWColor, keepTabColor, GetTabsColors(), tabsParametersProvider.TabsPrefix);
+        TDIMain.SetTabsReordering(reorderTabs);
 
-		if(reorderTabs)
-		{
-			ReorderTabs.Activate();
-		}
+        if (reorderTabs)
+        {
+            ReorderTabs.Activate();
+        }
 
-		if(highlightWColor)
-		{
-			HighlightTabsWithColor.Activate();
-		}
+        if (highlightWColor)
+        {
+            HighlightTabsWithColor.Activate();
+        }
 
-		if(keepTabColor)
-		{
-			KeepTabColor.Activate();
-		}
+        if (keepTabColor)
+        {
+            KeepTabColor.Activate();
+        }
 
-		bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+        bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
-		if(isWindows)
-		{
-			KeyPressEvent += HotKeyHandler.HandleKeyPressEvent;
-		}
+        if (isWindows)
+        {
+            KeyPressEvent += HotKeyHandler.HandleKeyPressEvent;
+        }
 
-		Title = $"{_applicationInfo.ProductTitle} v{_applicationInfo.Version.Major}.{_applicationInfo.Version.Minor} от {GetDateTimeFGromVersion(_applicationInfo.Version):dd.MM.yyyy HH:mm}";
+        Title = $"{_applicationInfo.ProductTitle} v{_applicationInfo.Version.Major}.{_applicationInfo.Version.Minor} от {GetDateTimeFGromVersion(_applicationInfo.Version):dd.MM.yyyy HH:mm}";
 
-		//Настраиваем модули
-		ActionUsers.Sensitive = QSMain.User.Admin;
-		ActionAdministration.Sensitive = QSMain.User.Admin;
-		labelUser.LabelProp = QSMain.User.Name;
-		var commonServices = ServicesConfig.CommonServices;
-		var cashier = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.RoleCashier);
-		ActionCash.Sensitive = ActionIncomeBalanceReport.Sensitive = ActionCashBook.Sensitive = cashier;
-		ActionAccounting.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission("money_manage_bookkeeping");
-		ActionRouteListsAtDay.Sensitive =
-			ActionRouteListTracking.Sensitive =
-			ActionRouteListMileageCheck.Sensitive =
-			ActionRouteListAddressesTransferring.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
-		var currentWarehousePermissions = new CurrentWarehousePermissions();
-		ActionStock.Sensitive = currentWarehousePermissions.WarehousePermissions.Any(x => x.PermissionValue == true);
+        //Настраиваем модули
+        ActionUsers.Sensitive = QSMain.User.Admin;
+        ActionAdministration.Sensitive = QSMain.User.Admin;
+        labelUser.LabelProp = QSMain.User.Name;
+        var commonServices = ServicesConfig.CommonServices;
+        var cashier = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.RoleCashier);
+        ActionCash.Sensitive = ActionIncomeBalanceReport.Sensitive = ActionCashBook.Sensitive = cashier;
+        ActionAccounting.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission("money_manage_bookkeeping");
+        ActionRouteListsAtDay.Sensitive =
+            ActionRouteListTracking.Sensitive =
+            ActionRouteListMileageCheck.Sensitive =
+            ActionRouteListAddressesTransferring.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
+        var currentWarehousePermissions = new CurrentWarehousePermissions();
+        ActionStock.Sensitive = currentWarehousePermissions.WarehousePermissions.Any(x => x.PermissionValue == true);
 
-		bool hasAccessToCRM = commonServices.CurrentPermissionService.ValidatePresetPermission("access_to_crm");
-		bool hasAccessToSalaries = commonServices.CurrentPermissionService.ValidatePresetPermission("access_to_salaries");
-		_hasAccessToSalariesForLogistics =
-			commonServices.CurrentPermissionService.ValidatePresetPermission("access_to_salary_reports_for_logistics");
-		bool hasAccessToWagesAndBonuses = commonServices.CurrentPermissionService.ValidatePresetPermission("access_to_fines_bonuses");
-		ActionEmployeesBonuses.Sensitive = hasAccessToWagesAndBonuses; //Премии сотрудников
-		ActionEmployeeFines.Sensitive = hasAccessToWagesAndBonuses; //Штрафы сотрудников
-		ActionDriverWages.Sensitive = hasAccessToSalaries; //Зарплаты водителей
-		ActionWagesOperations.Sensitive = hasAccessToSalaries || _hasAccessToSalariesForLogistics; //Зарплаты сотрудников
-		ActionForwarderWageReport.Sensitive = hasAccessToSalaries; //Зарплаты экспедиторов
-		ActionDriversWageBalance.Visible = hasAccessToSalaries; //Баланс водителей
-		EmployeesTaxesAction.Sensitive = hasAccessToSalaries; //Налоги сотрудников
-		ActionCRM.Sensitive = hasAccessToCRM;
+        bool hasAccessToCRM = commonServices.CurrentPermissionService.ValidatePresetPermission("access_to_crm");
+        bool hasAccessToSalaries = commonServices.CurrentPermissionService.ValidatePresetPermission("access_to_salaries");
+        _hasAccessToSalariesForLogistics =
+            commonServices.CurrentPermissionService.ValidatePresetPermission("access_to_salary_reports_for_logistics");
+        bool hasAccessToWagesAndBonuses = commonServices.CurrentPermissionService.ValidatePresetPermission("access_to_fines_bonuses");
+        ActionEmployeesBonuses.Sensitive = hasAccessToWagesAndBonuses; //Премии сотрудников
+        ActionEmployeeFines.Sensitive = hasAccessToWagesAndBonuses; //Штрафы сотрудников
+        ActionDriverWages.Sensitive = hasAccessToSalaries; //Зарплаты водителей
+        ActionWagesOperations.Sensitive = hasAccessToSalaries || _hasAccessToSalariesForLogistics; //Зарплаты сотрудников
+        ActionForwarderWageReport.Sensitive = hasAccessToSalaries; //Зарплаты экспедиторов
+        ActionDriversWageBalance.Visible = hasAccessToSalaries; //Баланс водителей
+        EmployeesTaxesAction.Sensitive = hasAccessToSalaries; //Налоги сотрудников
+        ActionCRM.Sensitive = hasAccessToCRM;
 
-		bool canEditWage = commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_wage");
-		ActionWageDistrict.Sensitive = canEditWage;
-		ActionRates.Sensitive = canEditWage;
+        bool canEditWage = commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_wage");
+        ActionWageDistrict.Sensitive = canEditWage;
+        ActionRates.Sensitive = canEditWage;
 
-		bool canEditWageBySelfSubdivision =
-			commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_wage_by_self_subdivision");
-		ActionSalesPlans.Sensitive = canEditWageBySelfSubdivision;
+        bool canEditWageBySelfSubdivision =
+            commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_wage_by_self_subdivision");
+        ActionSalesPlans.Sensitive = canEditWageBySelfSubdivision;
 
-		ActionFinesJournal.Visible = ActionPremiumJournal.Visible =
-			commonServices.CurrentPermissionService.ValidatePresetPermission("access_to_fines_bonuses");
-		ActionReports.Sensitive = false;
-		//ActionServices.Visible = false;
-		ActionDocTemplates.Visible = QSMain.User.Admin;
-		ActionService.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission("database_maintenance");
-		ActionEmployeeWorkChart.Sensitive = false;
+        ActionFinesJournal.Visible = ActionPremiumJournal.Visible =
+            commonServices.CurrentPermissionService.ValidatePresetPermission("access_to_fines_bonuses");
+        ActionReports.Sensitive = false;
+        //ActionServices.Visible = false;
+        ActionDocTemplates.Visible = QSMain.User.Admin;
+        ActionService.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission("database_maintenance");
+        ActionEmployeeWorkChart.Sensitive = false;
 
-		//Скрываем справочник стажеров
-		ActionTrainee.Visible = false;
+        //Скрываем справочник стажеров
+        ActionTrainee.Visible = false;
 
-		ActionAddOrder.Sensitive = commonServices.PermissionService.ValidateUserPermission(typeof(Order), QSMain.User.Id)?.CanCreate ?? false;
-		ActionExportImportNomenclatureCatalog.Sensitive =
-			commonServices.CurrentPermissionService.ValidatePresetPermission("can_create_and_arc_nomenclatures");
-		ActionDistricts.Sensitive = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DistrictsSet)).CanRead;
-		ActionDriversStopLists.Sensitive = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DriverStopListRemoval)).CanRead;
+        ActionAddOrder.Sensitive = commonServices.PermissionService.ValidateUserPermission(typeof(Order), QSMain.User.Id)?.CanCreate ?? false;
+        ActionExportImportNomenclatureCatalog.Sensitive =
+            commonServices.CurrentPermissionService.ValidatePresetPermission("can_create_and_arc_nomenclatures");
+        ActionDistricts.Sensitive = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DistrictsSet)).CanRead;
+        ActionDriversStopLists.Sensitive = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DriverStopListRemoval)).CanRead;
 
-		//Читаем настройки пользователя
-		switch(CurrentUserSettings.Settings.ToolbarStyle)
-		{
-			case ToolbarStyle.Both:
-				ActionToolBarBoth.Activate();
-				break;
-			case ToolbarStyle.Icons:
-				ActionToolBarIcon.Activate();
-				break;
-			case ToolbarStyle.Text:
-				ActionToolBarText.Activate();
-				break;
-		}
+        //Читаем настройки пользователя
+        switch (CurrentUserSettings.Settings.ToolbarStyle)
+        {
+            case ToolbarStyle.Both:
+                ActionToolBarBoth.Activate();
+                break;
+            case ToolbarStyle.Icons:
+                ActionToolBarIcon.Activate();
+                break;
+            case ToolbarStyle.Text:
+                ActionToolBarText.Activate();
+                break;
+        }
 
-		switch(CurrentUserSettings.Settings.ToolBarIconsSize)
-		{
-			case IconsSize.ExtraSmall:
-				ActionIconsExtraSmall.Activate();
-				break;
-			case IconsSize.Small:
-				ActionIconsSmall.Activate();
-				break;
-			case IconsSize.Middle:
-				ActionIconsMiddle.Activate();
-				break;
-			case IconsSize.Large:
-				ActionIconsLarge.Activate();
-				break;
-		}
+        switch (CurrentUserSettings.Settings.ToolBarIconsSize)
+        {
+            case IconsSize.ExtraSmall:
+                ActionIconsExtraSmall.Activate();
+                break;
+            case IconsSize.Small:
+                ActionIconsSmall.Activate();
+                break;
+            case IconsSize.Middle:
+                ActionIconsMiddle.Activate();
+                break;
+            case IconsSize.Large:
+                ActionIconsLarge.Activate();
+                break;
+        }
 
-		NavigationManager = _autofacScope.Resolve<TdiNavigationManager>(new TypedParameter(typeof(TdiNotebook), tdiMain));
-		MangoManager = _autofacScope.Resolve<MangoManager>(new TypedParameter(typeof(Gtk.Action), MangoAction));
-		MangoManager.Connect();
+        NavigationManager = _autofacScope.Resolve<TdiNavigationManager>(new TypedParameter(typeof(TdiNotebook), tdiMain));
+        MangoManager = _autofacScope.Resolve<MangoManager>(new TypedParameter(typeof(Gtk.Action), MangoAction));
+        MangoManager.Connect();
 
-		// Отдел продаж
+        // Отдел продаж
 
-		ActionSalesDepartment.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission("access_to_sales_department");
+        ActionSalesDepartment.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission("access_to_sales_department");
 
-		#region Пользователь с правом работы только со складом и рекламациями
+        #region Пользователь с правом работы только со складом и рекламациями
 
-		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
-		{
-			_accessOnlyToWarehouseAndComplaints =
-				commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
-				&& !commonServices.UserService.GetCurrentUser().IsAdmin;
-		}
+        using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
+        {
+            _accessOnlyToWarehouseAndComplaints =
+                commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
+                && !commonServices.UserService.GetCurrentUser().IsAdmin;
+        }
 
-		menubarMain.Visible = ActionOrders.Visible = ActionServices.Visible = ActionLogistics.Visible = ActionCash.Visible =
-			ActionAccounting.Visible = ActionReports.Visible = ActionArchive.Visible = ActionStaff.Visible = ActionCRM.Visible =
-				ActionSuppliers.Visible = ActionCashRequest.Visible = ActionRetail.Visible = ActionCarService.Visible =
-					MangoAction.Visible = !_accessOnlyToWarehouseAndComplaints;
+        menubarMain.Visible = ActionOrders.Visible = ActionServices.Visible = ActionLogistics.Visible = ActionCash.Visible =
+            ActionAccounting.Visible = ActionReports.Visible = ActionArchive.Visible = ActionStaff.Visible = ActionCRM.Visible =
+                ActionSuppliers.Visible = ActionCashRequest.Visible = ActionRetail.Visible = ActionCarService.Visible =
+                    MangoAction.Visible = !_accessOnlyToWarehouseAndComplaints;
 
-		#endregion
+        #endregion
 
-		#region Уведомление об отправленных перемещениях для подразделения
+        #region Уведомление об отправленных перемещениях для подразделения
 
-		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
-		{
-			_currentUserSubdivisionId = GetEmployeeSubdivisionId(uow);
-			_curentUserMovementDocumentsNotificationWarehouses = CurrentUserSettings.Settings.MovementDocumentsNotificationUserSelectedWarehouses;
-			_movementsNotificationsController = _autofacScope
-				.Resolve<IMovementDocumentsNotificationsController>(
-					new TypedParameter(typeof(int), _currentUserSubdivisionId), 
-					new TypedParameter(typeof(IEnumerable<int>), _curentUserMovementDocumentsNotificationWarehouses));
+        using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
+        {
+            _currentUserSubdivisionId = GetEmployeeSubdivisionId(uow);
+            _curentUserMovementDocumentsNotificationWarehouses = CurrentUserSettings.Settings.MovementDocumentsNotificationUserSelectedWarehouses;
+            _movementsNotificationsController = _autofacScope
+                .Resolve<IMovementDocumentsNotificationsController>(
+                    new TypedParameter(typeof(int), _currentUserSubdivisionId),
+                    new TypedParameter(typeof(IEnumerable<int>), _curentUserMovementDocumentsNotificationWarehouses));
 
-			var notificationDetails = _movementsNotificationsController.GetNotificationDetails(uow);
-			hboxMovementsNotification.Visible = notificationDetails.NeedNotify;
-			lblMovementsNotification.Markup = notificationDetails.NotificationMessage;
+            var notificationDetails = _movementsNotificationsController.GetNotificationDetails(uow);
+            hboxMovementsNotification.Visible = notificationDetails.NeedNotify;
+            lblMovementsNotification.Markup = notificationDetails.NotificationMessage;
 
-			if(notificationDetails.NeedNotify)
-			{
-				_movementsNotificationsController.UpdateNotificationAction += UpdateSendedMovementsNotification;
-			}
-		}
+            if (notificationDetails.NeedNotify)
+            {
+                _movementsNotificationsController.UpdateNotificationAction += UpdateSendedMovementsNotification;
+            }
+        }
 
-		btnUpdateNotifications.Clicked += OnBtnUpdateNotificationClicked;
+        btnUpdateNotifications.Clicked += OnBtnUpdateNotificationClicked;
 
-		#endregion
+        #endregion
 
-		#region Уведомление о наличии незакрытых рекламаций без комментариев в добавленной дискуссии для отдела
+        #region Уведомление о наличии незакрытых рекламаций без комментариев в добавленной дискуссии для отдела
 
-		_complaintNotificationController = _autofacScope.Resolve<IComplaintNotificationController>(new TypedParameter(typeof(int), _currentUserSubdivisionId));
+        _complaintNotificationController = _autofacScope.Resolve<IComplaintNotificationController>(new TypedParameter(typeof(int), _currentUserSubdivisionId));
 
-		if(!_hideComplaintsNotifications)
-		{
-			_complaintNotificationController.UpdateNotificationAction += UpdateSendedComplaintsNotification;
+        if (!_hideComplaintsNotifications)
+        {
+            _complaintNotificationController.UpdateNotificationAction += UpdateSendedComplaintsNotification;
 
-			var complaintNotificationDetails = GetComplaintNotificationDetails();
-			UpdateSendedComplaintsNotification(complaintNotificationDetails);
+            var complaintNotificationDetails = GetComplaintNotificationDetails();
+            UpdateSendedComplaintsNotification(complaintNotificationDetails);
 
-			btnOpenComplaint.Clicked += OnBtnOpenComplaintClicked;
-		}
-		else
-		{
-			hboxComplaintsNotification.Visible = false;
-		}
-		#endregion
+            btnOpenComplaint.Clicked += OnBtnOpenComplaintClicked;
+        }
+        else
+        {
+            hboxComplaintsNotification.Visible = false;
+        }
+        #endregion
 
-		hboxNotifications.Visible = hboxMovementsNotification.Visible || !_hideComplaintsNotifications;
+        hboxNotifications.Visible = hboxMovementsNotification.Visible || !_hideComplaintsNotifications;
 
-		BanksUpdater.CheckBanksUpdate(false);
+        BanksUpdater.CheckBanksUpdate(false);
 
-		// Блокировка отчетов для торговых представителей
+        // Блокировка отчетов для торговых представителей
 
-		bool userIsSalesRepresentative;
+        bool userIsSalesRepresentative;
 
-		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
-		{
-			userIsSalesRepresentative = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.User.IsSalesRepresentative)
-				&& !commonServices.UserService.GetCurrentUser().IsAdmin;
-		}
+        using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
+        {
+            userIsSalesRepresentative = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.User.IsSalesRepresentative)
+                && !commonServices.UserService.GetCurrentUser().IsAdmin;
+        }
 
-		// Основные разделы отчетов
+        // Основные разделы отчетов
 
-		ActionReportOrders.Visible =
-			ActionReportsStock.Visible =
-			ActionOSKOKKReports.Visible =
-			ActionLogistic.Visible =
-			ActionReportEmployees.Visible =
-			ActionReportsDrivers.Visible =
-			ActionReportService.Visible =
-			ActionBookkeepping.Visible =
-			ActionCashMenubar.Visible = // Касса
-			ActionRetailMenubar.Visible =
-			ActionTransportMenuBar.Visible =
-			ActionProduction.Visible = !userIsSalesRepresentative;// Производство
+        ActionReportOrders.Visible =
+            ActionReportsStock.Visible =
+            ActionOSKOKKReports.Visible =
+            ActionLogistic.Visible =
+            ActionReportEmployees.Visible =
+            ActionReportsDrivers.Visible =
+            ActionReportService.Visible =
+            ActionBookkeepping.Visible =
+            ActionCashMenubar.Visible = // Касса
+            ActionRetailMenubar.Visible =
+            ActionTransportMenuBar.Visible =
+            ActionProduction.Visible = !userIsSalesRepresentative;// Производство
 
-		// Отчеты в Продажи
+        // Отчеты в Продажи
 
-		ActionOrderCreationDateReport.Visible =
-			ActionPlanImplementationReport.Visible =
-			ActionSetBillsReport.Visible = !userIsSalesRepresentative;
+        ActionOrderCreationDateReport.Visible =
+            ActionPlanImplementationReport.Visible =
+            ActionSetBillsReport.Visible = !userIsSalesRepresentative;
 
-		// Управление ограничением доступа через зарегистрированные RM
+        // Управление ограничением доступа через зарегистрированные RM
 
-		var userCanManageRegisteredRMs = commonServices.CurrentPermissionService.ValidatePresetPermission("user_can_manage_registered_rms");
+        var userCanManageRegisteredRMs = commonServices.CurrentPermissionService.ValidatePresetPermission("user_can_manage_registered_rms");
 
-		registeredRMAction.Visible = userCanManageRegisteredRMs;
+        registeredRMAction.Visible = userCanManageRegisteredRMs;
 
-		// Настройки розницы
+        // Настройки розницы
 
-		var userHaveAccessToRetail = commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_to_retail");
+        var userHaveAccessToRetail = commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_to_retail");
 
-		ActionRetail.Sensitive = userHaveAccessToRetail;
+        ActionRetail.Sensitive = userHaveAccessToRetail;
 
-		ActionRetailUndeliveredOrdersJournal.Sensitive = false; // Этот журнал не готов - выключено до реализации фичи
+        ActionRetailUndeliveredOrdersJournal.Sensitive = false; // Этот журнал не готов - выключено до реализации фичи
 
-		ActionAdditionalLoadSettings.Sensitive = commonServices.CurrentPermissionService
-			.ValidateEntityPermission(typeof(AdditionalLoadingNomenclatureDistribution)).CanRead;
+        ActionAdditionalLoadSettings.Sensitive = commonServices.CurrentPermissionService
+            .ValidateEntityPermission(typeof(AdditionalLoadingNomenclatureDistribution)).CanRead;
 
-		//Доступ к константам рентабельности (Справочники - Финансы - Константы рентабельности)
-		ProfitabilityConstantsAction.Sensitive =
-			commonServices.CurrentPermissionService.ValidatePresetPermission("can_read_and_edit_profitability_constants");
+        //Доступ к константам рентабельности (Справочники - Финансы - Константы рентабельности)
+        ProfitabilityConstantsAction.Sensitive =
+            commonServices.CurrentPermissionService.ValidatePresetPermission("can_read_and_edit_profitability_constants");
 
-		ExternalCounterpartiesMatchingAction.Label = "Сопоставление клиентов из внешних источников";
-		ExternalCounterpartiesMatchingAction.Sensitive =
-			commonServices.CurrentPermissionService.ValidatePresetPermission("can_matching_counterparties_from_external_sources");
+        ExternalCounterpartiesMatchingAction.Label = "Сопоставление клиентов из внешних источников";
+        ExternalCounterpartiesMatchingAction.Sensitive =
+            commonServices.CurrentPermissionService.ValidatePresetPermission("can_matching_counterparties_from_external_sources");
 
-		ActionGroupPricing.Activated += ActionGroupPricingActivated;
-		ActionProfitabilitySalesReport.Activated += ActionProfitabilitySalesReportActivated;
+        ActionGroupPricing.Activated += ActionGroupPricingActivated;
+        ActionProfitabilitySalesReport.Activated += ActionProfitabilitySalesReportActivated;
 
-		Action74.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.CanGenerateCashFlowDdsReport);
+        Action74.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.CanGenerateCashFlowDdsReport);
+    }
+
+    private DateTime GetDateTimeFGromVersion(Version version) =>
+        new DateTime(2000, 1, 1)
+            .AddDays(version.Build)
+            .AddSeconds(version.Revision * 2);
+
+    protected void OnDriversWarehousesEventsActionActivated(object sender, EventArgs e)
+    {
+		NavigationManager.OpenViewModel<DriversWarehousesEventsJournalViewModel>(null);
 	}
 
-	private DateTime GetDateTimeFGromVersion(Version version) =>
-		new DateTime(2000, 1, 1)
-			.AddDays(version.Build)
-			.AddSeconds(version.Revision * 2);
+    protected void OnDriversWarehousesEventsNamesActionActivated(object sender, EventArgs e)
+    {
+		NavigationManager.OpenViewModel<DriversWarehousesEventsNamesJournalViewModel>(null);
+    }
 }
