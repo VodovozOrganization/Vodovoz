@@ -1,4 +1,4 @@
-﻿using Vodovoz.Domain.TrueMark;
+﻿using Vodovoz.Domain.Logistic.Cars;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 {
@@ -8,6 +8,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 		{
 			public int DriverId { get; set; }
 			public string DriverFIO { get; set; }
+			public CarOwnType CarOwnType { get; set; }
+			public string DriverSubdivisionGeoGroup { get; set; }
 			public int? SourceCodeId { get; set; }
 			public int? DuplicatedCodeId { get; set; }
 			public bool IsProductCodeSingleDuplicated { get; set; }

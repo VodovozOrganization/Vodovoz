@@ -15,7 +15,6 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Employees
 		public EmployeeCategory EmpCatEnum { get; set; }
 		public EmployeeStatus Status { get; set; }
 		public string FullName => $"{EmpLastName} {EmpFirstName} {EmpMiddleName}";
-		public string RowColor => Status == EmployeeStatus.IsFired ? "grey" : "black";
 		/// <summary>
 		/// Стаж работы в месяцах
 		/// </summary>

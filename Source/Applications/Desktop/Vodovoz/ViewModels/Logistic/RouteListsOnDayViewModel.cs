@@ -33,6 +33,8 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Extensions;
+using Vodovoz.Infrastructure;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
@@ -702,7 +704,7 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			if(row is RouteList rl && rl.OnLoadTimeStart.HasValue) {
 				if(rl.OnloadTimeFixed)
-					return string.Format("<span foreground=\"Turquoise\">{0:hh\\:mm}</span>", rl.OnLoadTimeStart.Value);
+					return string.Format($"<span foreground=\"{GdkColors.Turquoise.ToHtmlColor()}\">{0:hh\\:mm}</span>", rl.OnLoadTimeStart.Value);
 				return rl.OnLoadTimeStart.Value.ToString("hh\\:mm");
 			}
 			return null;
@@ -718,17 +720,29 @@ namespace Vodovoz.ViewModels.Logistic
 			if(row is RouteListItem rli) {
 				string color;
 				if(rli.PlanTimeStart == null || rli.PlanTimeEnd == null)
-					color = "grey";
+				{
+					color = GdkColors.InsensitiveText.ToHtmlColor();
+				}
 				else if(rli.PlanTimeEnd.Value + TimeSpan.FromSeconds(rli.TimeOnPoint) > rli.Order.DeliverySchedule.To)
-					color = "red";
+				{
+					color = GdkColors.DangerText.ToHtmlColor();
+				}
 				else if(rli.PlanTimeStart.Value < rli.Order.DeliverySchedule.From)
-					color = "blue";
+				{
+					color = GdkColors.InfoText.ToHtmlColor();
+				}
 				else if(rli.PlanTimeEnd.Value == rli.PlanTimeStart.Value)
-					color = "dark red";
+				{
+					color = GdkColors.DarkRed.ToHtmlColor();
+				}
 				else if(rli.PlanTimeEnd.Value - rli.PlanTimeStart.Value <= new TimeSpan(0, 30, 0))
-					color = "orange";
+				{
+					color = GdkColors.Orange.ToHtmlColor();
+				}
 				else
-					color = "dark green";
+				{
+					color = GdkColors.DarkGreen.ToHtmlColor();
+				}
 
 				return string.Format("<span foreground=\"{2}\">{0:hh\\:mm}-{1:hh\\:mm}</span> ({3} мин.)",
 									 rli.PlanTimeStart, rli.PlanTimeEnd, color, rli.TimeOnPoint / 60);
@@ -856,11 +870,11 @@ namespace Vodovoz.ViewModels.Logistic
 
 		string FormatOccupancy(int val, int? min, int? max)
 		{
-			string color = "green";
+			string color = GdkColors.SuccessText.ToHtmlColor();
 			if(val > max)
-				color = "red";
+				color = GdkColors.DangerText.ToHtmlColor();
 			if(val < min)
-				color = "blue";
+				color = GdkColors.InfoText.ToHtmlColor();
 
 			if(min.HasValue && max.HasValue)
 				return string.Format("<span foreground=\"{0}\">{1}</span>({2}-{3})", color, val, min, max);
@@ -871,11 +885,11 @@ namespace Vodovoz.ViewModels.Logistic
 
 		string FormatOccupancy(decimal val, decimal? min, decimal? max)
 		{
-			string color = "green";
+			string color = GdkColors.SuccessText.ToHtmlColor();
 			if(val > max)
-				color = "red";
+				color = GdkColors.DangerText.ToHtmlColor();
 			if(val < min)
-				color = "blue";
+				color = GdkColors.InfoText.ToHtmlColor();
 
 			if(min.HasValue && max.HasValue)
 				return string.Format("<span foreground=\"{0}\">{1}</span>({2}-{3})", color, val, min, max);

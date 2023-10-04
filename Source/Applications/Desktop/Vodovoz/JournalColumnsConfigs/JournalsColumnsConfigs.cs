@@ -63,10 +63,10 @@ namespace Vodovoz.JournalColumnsConfigs
 					.RowCells()
 					.AddSetter<CellRenderer>(
 						(cell, node) => {
-							var color = GdkColors.WhiteColor;
+							var color = GdkColors.PrimaryBase;
 							if(node.NodeType == RoboatsCallNodeType.RoboatsCallDetail)
 							{
-								color = GdkColors.LightGrayColor;
+								color = GdkColors.InsensitiveBase;
 							}
 							cell.CellBackgroundGdk = color;
 						}
@@ -98,10 +98,10 @@ namespace Vodovoz.JournalColumnsConfigs
 					.RowCells()
 					.AddSetter<CellRenderer>(
 						(cell, node) => {
-							var color = GdkColors.WhiteColor;
+							var color = GdkColors.PrimaryBase;
 							if(node.NodeType == CashReceiptNodeType.Code)
 							{
-								color = GdkColors.LightGrayColor;
+								color = GdkColors.InsensitiveBase;
 							}
 							cell.CellBackgroundGdk = color;
 						}

@@ -10,6 +10,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Infrastructure;
 using Vodovoz.Parameters;
 
 namespace Vodovoz
@@ -36,7 +37,7 @@ namespace Vodovoz
 				.AddColumn("Отгружаемое кол-во").AddNumericRenderer(x => x.Amount ).Editing()
 				.Adjustment(new Gtk.Adjustment(0, 0, 10000000, 1, 10, 10))
 				.AddSetter((w, x) => w.Digits = (uint)x.Nomenclature.Unit.Digits)
-				.AddSetter((w, x) => w.Foreground = CalculateAmountAndColor(x))
+				.AddSetter((w, x) => w.ForegroundGdk = CalculateAmountAndColor(x))
 				.AddColumn("")
 				.Finish();
 
@@ -97,7 +98,7 @@ namespace Vodovoz
 			UpdateButtonState();
 		}
 
-		string CalculateAmountAndColor(CarLoadDocumentItem item)
+		Gdk.Color CalculateAmountAndColor(CarLoadDocumentItem item)
 		{
 			if(item.Nomenclature.OfficialName == "Терминал для оплаты" && item.Amount > 1)
 			{
@@ -106,44 +107,44 @@ namespace Vodovoz
 
 			if(item.Amount > item.AmountInStock)
 			{
-				return "red";
+				return GdkColors.DangerText;
 			}
 
 			if(item.Equipment == null)
 			{
 				if(item.AmountInRouteList < item.AmountLoaded + item.Amount)
 				{
-					return "orange";
+					return GdkColors.Orange;
 				}
 
 				if(item.AmountInRouteList == item.AmountLoaded + item.Amount)
 				{
-					return "green";
+					return GdkColors.SuccessText;
 				}
 
 				if(item.AmountInRouteList > item.AmountLoaded + item.Amount)
 				{
-					return "blue";
+					return GdkColors.InfoText;
 				}
 			}
 			else
 			{
 				if(1 < item.AmountLoaded + item.Amount)
 				{
-					return "orange";
+					return GdkColors.Orange;
 				}
 
 				if(1 == item.AmountLoaded + item.Amount)
 				{
-					return "green";
+					return GdkColors.SuccessText;
 				}
 
 				if(1 > item.AmountLoaded + item.Amount)
 				{
-					return "blue";
+					return GdkColors.InfoText;
 				}
 			}
-			return "black";
+			return GdkColors.PrimaryText;
 		}
 
 		protected void OnButtonDeleteClicked(object sender, EventArgs e)

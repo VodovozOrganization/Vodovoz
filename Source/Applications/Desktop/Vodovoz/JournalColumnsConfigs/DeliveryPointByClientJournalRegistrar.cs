@@ -1,5 +1,6 @@
 ﻿using Gamma.ColumnConfig;
 using Gtk;
+using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Journals.JournalNodes.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using WrapMode = Pango.WrapMode;
@@ -15,7 +16,10 @@ namespace Vodovoz.JournalColumnsConfigs
 					.WrapWidth(1000)
 				.AddColumn("Номер").AddTextRenderer(x => x.Id.ToString())
 				.AddColumn("")
-				.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+				.RowCells().AddSetter<CellRendererText>((c, n) =>
+				{
+					c.ForegroundGdk = n.IsActive ? GdkColors.PrimaryText : GdkColors.InsensitiveText;
+				})
 				.Finish();
 	}
 }

@@ -9,6 +9,7 @@ using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Infrastructure;
 
 namespace Vodovoz.JournalViewers
 {
@@ -32,8 +33,8 @@ namespace Vodovoz.JournalViewers
 		{
 			UoW = uow;
 			Client = client;
-			var colorGreen = new Gdk.Color(0x90, 0xee, 0x90);
-			var colorWhite = new Gdk.Color(0xff, 0xff, 0xff);
+			var colorGreen = GdkColors.SuccessText;
+			var basePrimary = GdkColors.PrimaryBase;
 
 			datatreeviewOrderDocuments.ColumnsConfig = FluentColumnsConfig<SelectedOrdersDocumentVMNode>
 				.Create()
@@ -48,7 +49,7 @@ namespace Vodovoz.JournalViewers
 					if(n.Selected) {
 						c.CellBackgroundGdk = colorGreen;
 					} else {
-						c.CellBackgroundGdk = colorWhite;
+						c.CellBackgroundGdk = basePrimary;
 					}
 				})
 				.Finish();

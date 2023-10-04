@@ -1,13 +1,13 @@
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Domain;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Sale;
@@ -24,91 +24,105 @@ namespace Vodovoz
 	public class Subdivision : PropertyChangedBase, IDomainObject, IValidatableObject, INamed
 	{
 		private SalesPlan _defaultSalesPlan;
+		private string _name;
+		private string _shortName;
+		private Employee _chief;
+		private Subdivision _parentSubdivision;
+		private IList<Subdivision> _childSubdivisions = new List<Subdivision>();
+		private GenericObservableList<Subdivision> _observableChildSubdivisions;
+		private IList<TypeOfEntity> _documentTypes = new List<TypeOfEntity>();
+		private GenericObservableList<TypeOfEntity> _observableDocumentTypes;
+		private GeoGroup _geographicGroup;
+		private SubdivisionType _subdivisionType;
+		private string _address;
 
 		#region Свойства
 
 		public virtual int Id { get; set; }
 
-		private string name;
-
 		[Display(Name = "Название подразделения")]
 		[Required(ErrorMessage = "Название подразделения должно быть заполнено.")]
-		public virtual string Name {
-			get => name;
-			set => SetField(ref name, value, () => Name);
+		public virtual string Name
+		{
+			get => _name;
+			set => SetField(ref _name, value);
 		}
 
-		private string shortName;
 		[Display(Name = "Сокращенное наименование")]
-		public virtual string ShortName {
-			get => shortName;
-			set => SetField(ref shortName, value, () => ShortName);
+		public virtual string ShortName
+		{
+			get => _shortName;
+			set => SetField(ref _shortName, value);
 		}
-
-		private Employee chief;
 
 		[Display(Name = "Начальник подразделения")]
-		public virtual Employee Chief {
-			get => chief;
-			set => SetField(ref chief, value, () => Chief);
+		public virtual Employee Chief
+		{
+			get => _chief;
+			set => SetField(ref _chief, value);
 		}
-
-		private Subdivision parentSubdivision;
 
 		[Display(Name = "Вышестоящее подразделение")]
-		public virtual Subdivision ParentSubdivision {
-			get => parentSubdivision;
-			set => SetField(ref parentSubdivision, value, () => ParentSubdivision);
+		public virtual Subdivision ParentSubdivision
+		{
+			get => _parentSubdivision;
+			set => SetField(ref _parentSubdivision, value);
 		}
-
-		IList<Subdivision> childSubdivisions = new List<Subdivision>();
 
 		[Display(Name = "Дочерние подразделения")]
-		public virtual IList<Subdivision> ChildSubdivisions {
-			get => childSubdivisions;
-			set => SetField(ref childSubdivisions, value, () => ChildSubdivisions);
+		public virtual IList<Subdivision> ChildSubdivisions
+		{
+			get => _childSubdivisions;
+			set => SetField(ref _childSubdivisions, value);
 		}
 
-		GenericObservableList<Subdivision> observableChildSubdivisions;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<Subdivision> ObservableChildSubdivisions {
-			get {
-				if(observableChildSubdivisions == null)
-					observableChildSubdivisions = new GenericObservableList<Subdivision>(ChildSubdivisions);
-				return observableChildSubdivisions;
+		public virtual GenericObservableList<Subdivision> ObservableChildSubdivisions
+		{
+			get
+			{
+				if(_observableChildSubdivisions == null)
+				{
+					_observableChildSubdivisions = new GenericObservableList<Subdivision>(ChildSubdivisions);
+				}
+
+				return _observableChildSubdivisions;
 			}
 		}
-
-		IList<TypeOfEntity> documentTypes = new List<TypeOfEntity>();
 
 		[Display(Name = "Документы используемые в подразделении")]
-		public virtual IList<TypeOfEntity> DocumentTypes {
-			get => documentTypes;
-			set => SetField(ref documentTypes, value, () => DocumentTypes);
+		public virtual IList<TypeOfEntity> DocumentTypes
+		{
+			get => _documentTypes;
+			set => SetField(ref _documentTypes, value);
 		}
 
-		GenericObservableList<TypeOfEntity> observableDocumentTypes;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<TypeOfEntity> ObservableDocumentTypes {
-			get {
-				if(observableDocumentTypes == null)
-					observableDocumentTypes = new GenericObservableList<TypeOfEntity>(DocumentTypes);
-				return observableDocumentTypes;
+		public virtual GenericObservableList<TypeOfEntity> ObservableDocumentTypes
+		{
+			get
+			{
+				if(_observableDocumentTypes == null)
+				{
+					_observableDocumentTypes = new GenericObservableList<TypeOfEntity>(DocumentTypes);
+				}
+
+				return _observableDocumentTypes;
 			}
 		}
 
-		GeoGroup geographicGroup;
 		[Display(Name = "Обслуживаемая часть города")]
-		public virtual GeoGroup GeographicGroup {
-			get => geographicGroup;
-			set => SetField(ref geographicGroup, value, () => GeographicGroup);
+		public virtual GeoGroup GeographicGroup
+		{
+			get => _geographicGroup;
+			set => SetField(ref _geographicGroup, value);
 		}
 
-		SubdivisionType subdivisionType;
 		[Display(Name = "Тип подразделения")]
-		public virtual SubdivisionType SubdivisionType {
-			get => subdivisionType;
-			set => SetField(ref subdivisionType, value, () => SubdivisionType);
+		public virtual SubdivisionType SubdivisionType
+		{
+			get => _subdivisionType;
+			set => SetField(ref _subdivisionType, value);
 		}
 
 		public virtual SalesPlan DefaultSalesPlan
@@ -117,12 +131,11 @@ namespace Vodovoz
 			set => SetField(ref _defaultSalesPlan, value);
 		}
 
-		private string address;
 		[Display(Name = "Адрес подразделения")]
 		public virtual string Address
 		{
-			get => address;
-			set => SetField(ref address, value, () => Address);
+			get => _address;
+			set => SetField(ref _address, value);
 		}
 
 		#endregion
@@ -142,117 +155,123 @@ namespace Vodovoz
 		public virtual bool IsChildOf(Subdivision subdivision)
 		{
 			if(this == subdivision)
+			{
 				return false;
+			}
+
 			Subdivision parent = ParentSubdivision;
-			while(parent != null) {
+
+			while(parent != null)
+			{
 				if(parent == subdivision)
+				{
 					return true;
+				}
+
 				parent = parent.ParentSubdivision;
 			}
+
 			return false;
 		}
 
 		public virtual string GetWarehousesNames(IUnitOfWork uow, ISubdivisionRepository subdivisionRepository)
 		{
-			string result = string.Empty;
-			if(Id != 0) {
+			var result = string.Empty;
+
+			if(Id != 0)
+			{
 				var whs = subdivisionRepository.GetWarehouses(uow, this).Select(w => w.Name);
 				result = string.Join(", ", whs);
 			}
+
 			return result;
 		}
 
 		public virtual GeoGroup GetGeographicGroup()
 		{
-			if(GeographicGroup == null) {
-				if(ParentSubdivision == null) {
-					return null;
-				}
-				return ParentSubdivision.GetGeographicGroup();
-			} else {
+			if(GeographicGroup != null)
+			{
 				return GeographicGroup;
 			}
+
+			if(ParentSubdivision == null)
+			{
+				return null;
+			}
+
+			return ParentSubdivision.GetGeographicGroup();
 		}
 
 		public virtual void SetChildsGeographicGroup(GeoGroup geographicGroup)
 		{
-			if(ParentSubdivision != null || ChildSubdivisions.Any())
-				foreach(var s in ChildSubdivisions) {
-					s.GeographicGroup = GeographicGroup;
-				}
+			if(ParentSubdivision == null && !ChildSubdivisions.Any())
+			{
+				return;
+			}
+
+			foreach(var s in ChildSubdivisions)
+			{
+				s.GeographicGroup = GeographicGroup;
+			}
 		}
 
 		public virtual void AddDocumentType(TypeOfEntity typeOfEntity)
 		{
-			if(ObservableDocumentTypes.Contains(typeOfEntity)) {
+			if(ObservableDocumentTypes.Contains(typeOfEntity))
+			{
 				return;
 			}
+
 			ObservableDocumentTypes.Add(typeOfEntity);
 		}
 
 		public virtual void DeleteDocumentType(TypeOfEntity typeOfEntity)
 		{
-			if(ObservableDocumentTypes.Contains(typeOfEntity)) {
+			if(ObservableDocumentTypes.Contains(typeOfEntity))
+			{
 				ObservableDocumentTypes.Remove(typeOfEntity);
 			}
 		}
 
 		#endregion
 
-		public virtual bool IsCashSubdivision
-		{
-			get
-			{
-				return DocumentTypes.Any(x => 
-					x.Type == nameof(Income) ||
-					x.Type == nameof(Expense) ||
-					x.Type == nameof(AdvanceReport)
-				);
-			}
-		}
-
+		public virtual bool IsCashSubdivision => DocumentTypes
+			.Any(x => x.Type == nameof(Income)
+				|| x.Type == nameof(Expense)
+				|| x.Type == nameof(AdvanceReport));
 
 		#region IValidatableObject implementation
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(string.IsNullOrWhiteSpace(Name))
+			{
 				yield return new ValidationResult("Название подразделения должно быть заполнено.",
 					new[] { this.GetPropertyName(o => o.Name) });
+			}
 
 			if(ParentSubdivision != null && ParentSubdivision.IsChildOf(this))
+			{
 				yield return new ValidationResult(
 					"Нельзя указывать 'Дочернее подразделение' в качестве родительского.",
 					new[] { this.GetPropertyName(o => o.ParentSubdivision) }
 				);
+			}
 
 			if(ShortName == null)
+			{
 				yield return new ValidationResult(
 					"Укажите сокращённое название отдела.",
 					new[] { this.GetPropertyName(o => o.ShortName) }
 				);
+			}
 
-			if(ShortName?.Length > 20) {
+			if(ShortName?.Length > 20)
+			{
 				yield return new ValidationResult("Сокращенное наименование не может превышать 20 символов");
 			}
 		}
 
 		#endregion
 	}
-
-	public enum SubdivisionType
-	{
-		[Display(Name = "Стандартный")]
-		Default,
-		[Display(Name = "Логистика")]
-		Logistic,
-		[Display(Name = "Офис")]
-		Office
-	}
-
-	public class SubdivisionTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public SubdivisionTypeStringType() : base(typeof(SubdivisionType)) { }
-	}
 }
-

@@ -25,8 +25,6 @@ namespace Vodovoz.JournalNodes
 
 		public int Reserve { get; set; }
 
-		public string RowColor { get; set; } = "black";
-
 		public DateTime? LastOrderDate { get; set; }
 
 		public int? LastOrderBottles { get; set; }
