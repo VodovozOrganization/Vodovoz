@@ -12,26 +12,26 @@ namespace Vodovoz.Infrastructure
 	/// </summary>
 	public static class GdkColors
 	{
-		private static Widget _dwfaultWidget => new Label();
+		private static Widget _defaultWidget => new Label();
 
-		public static bool IsDark => Rc.GetStyle(_dwfaultWidget).IsDark();
-		public static bool IsLight => Rc.GetStyle(_dwfaultWidget).IsLight();
+		public static bool IsDark => Rc.GetStyle(_defaultWidget).IsDark();
+		public static bool IsLight => Rc.GetStyle(_defaultWidget).IsLight();
 
 		#region Primary
 
-		public static Color PrimaryBG => Rc.GetStyle(_dwfaultWidget).Background(StateType.Normal);
-		public static Color PrimaryFG => Rc.GetStyle(_dwfaultWidget).Foreground(StateType.Normal);
-		public static Color PrimaryText => Rc.GetStyle(_dwfaultWidget).Text(StateType.Normal);
-		public static Color PrimaryBase => Rc.GetStyle(_dwfaultWidget).Base(StateType.Normal);
+		public static Color PrimaryBG => Rc.GetStyle(_defaultWidget).Background(StateType.Normal);
+		public static Color PrimaryFG => Rc.GetStyle(_defaultWidget).Foreground(StateType.Normal);
+		public static Color PrimaryText => Rc.GetStyle(_defaultWidget).Text(StateType.Normal);
+		public static Color PrimaryBase => Rc.GetStyle(_defaultWidget).Base(StateType.Normal);
 
 		#endregion Primary
 
 		#region Active
 
-		public static Color ActiveBG => Rc.GetStyle(_dwfaultWidget).Background(StateType.Active);
-		public static Color ActiveFG => Rc.GetStyle(_dwfaultWidget).Foreground(StateType.Active);
-		public static Color ActiveText => Rc.GetStyle(_dwfaultWidget).Text(StateType.Active);
-		public static Color ActiveBase => Rc.GetStyle(_dwfaultWidget).Base(StateType.Active);
+		public static Color ActiveBG => Rc.GetStyle(_defaultWidget).Background(StateType.Active);
+		public static Color ActiveFG => Rc.GetStyle(_defaultWidget).Foreground(StateType.Active);
+		public static Color ActiveText => Rc.GetStyle(_defaultWidget).Text(StateType.Active);
+		public static Color ActiveBase => Rc.GetStyle(_defaultWidget).Base(StateType.Active);
 
 		#endregion Active
 
@@ -69,10 +69,10 @@ namespace Vodovoz.Infrastructure
 
 		#region Insensitive
 
-		public static Color InsensitiveBG => Rc.GetStyle(_dwfaultWidget).Background(StateType.Insensitive);
-		public static Color InsensitiveFG => Rc.GetStyle(_dwfaultWidget).Foreground(StateType.Insensitive);
-		public static Color InsensitiveText => Rc.GetStyle(_dwfaultWidget).Text(StateType.Insensitive);
-		public static Color InsensitiveBase => Rc.GetStyle(_dwfaultWidget).Base(StateType.Insensitive);
+		public static Color InsensitiveBG => Rc.GetStyle(_defaultWidget).Background(StateType.Insensitive);
+		public static Color InsensitiveFG => Rc.GetStyle(_defaultWidget).Foreground(StateType.Insensitive);
+		public static Color InsensitiveText => Rc.GetStyle(_defaultWidget).Text(StateType.Insensitive);
+		public static Color InsensitiveBase => Rc.GetStyle(_defaultWidget).Base(StateType.Insensitive);
 
 		#endregion Insensitive
 
