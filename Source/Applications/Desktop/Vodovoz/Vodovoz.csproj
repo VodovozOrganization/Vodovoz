@@ -2297,7 +2297,11 @@
       <Project>{3032f22e-2c78-4fad-9936-552fd7de8d7f}</Project>
       <Name>RabbitMQ.Infrastructure</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Mango\ClientMangoService\ClientMangoService.csproj">
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Mango\Mango.Client\Mango.Client.csproj">
+      <Project>{2cbe5073-3035-43c5-a0ed-7580ffea8ffd}</Project>
+      <Name>Mango.Client</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Mango\Mango.Grpc.Client\Mango.Grpc.Client.csproj">
       <Project>{50993438-f358-4dcd-8e0a-ce1446c76487}</Project>
       <Name>ClientMangoService</Name>
     </ProjectReference>

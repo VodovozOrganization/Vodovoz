@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using ClientMangoService;
-using Gtk;
+﻿using Mango.Client;
+using Mango.Grpc.Client;
 using MangoService;
 using NLog;
 using QS.Dialog;
@@ -13,9 +9,13 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Services;
 using QS.Utilities.Debug;
-using Vodovoz.Core.DataService;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Services;
+using Vodovoz.Settings.Mango;
 using Vodovoz.ViewModels.Mango;
 using Vodovoz.ViewModels.Mango.Talks;
 using xNetStandard;
@@ -30,6 +30,7 @@ namespace Vodovoz.Infrastructure.Mango
 		private readonly IEmployeeService employeeService;
 		private readonly IUserService userService;
 		private readonly INavigationManager navigation;
+		private readonly IMangoSettings _mangoSettings;
 		private readonly IInteractiveService _interactiveService;
 		private ConnectionState connectionState;
 		private uint extension;
@@ -44,7 +45,7 @@ namespace Vodovoz.Infrastructure.Mango
 			IEmployeeService employeeService,
 			IUserService userService,
 			INavigationManager navigation,
-			BaseParametersProvider parameters,
+			IMangoSettings mangoSettings,
 			IInteractiveService interactiveService)
 		{
 			this.toolbarIcon = toolbarIcon;
@@ -52,8 +53,9 @@ namespace Vodovoz.Infrastructure.Mango
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
 			this.navigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
+			_mangoSettings = mangoSettings ?? throw new ArgumentNullException(nameof(mangoSettings));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
-			_mangoController = new MangoController(parameters.VpbxApiKey, parameters.VpbxApiSalt);
+			_mangoController = new MangoController(mangoSettings.VpbxApiKey, mangoSettings.VpbxApiSalt);
 
 			timer = GLib.Timeout.Add(1000, new GLib.TimeoutHandler(HandleTimeoutHandler));
 			toolbarIcon.Activated += ToolbarIcon_Activated;
@@ -64,16 +66,26 @@ namespace Vodovoz.Infrastructure.Mango
 
 		#region Current State
 		public ConnectionState ConnectionState {
-			get => connectionState; private set {
+			get => connectionState; 
+			private set {
 				if(connectionState == value)
+				{
 					return;
+				}
+
 				connectionState = value;
 				var iconName = $"phone-{value.ToString().ToLower()}";
 				toolbarIcon.StockId = iconName;
+
+				var testPrefixName = _mangoSettings.TestMode ? "[TEST] " : "";
 				if(ConnectionState != ConnectionState.Disable)
-					toolbarIcon.ShortLabel = extension.ToString();
+				{
+					toolbarIcon.ShortLabel = testPrefixName + extension.ToString();
+				}
 				else
-					toolbarIcon.ShortLabel = "Mango";
+				{
+					toolbarIcon.ShortLabel = testPrefixName + "Mango";
+				}
 			}
 		}
 
@@ -97,6 +109,12 @@ namespace Vodovoz.Infrastructure.Mango
 
 		public void Connect()
 		{
+			if(!_mangoSettings.MangoEnabled)
+			{
+				ConnectionState = ConnectionState.Disable;
+				return;
+			}
+
 			using(var uow = unitOfWorkFactory.CreateWithoutRoot("MangoManager Connect")) {
 				var employee = employeeService.GetEmployeeForUser(uow, userService.CurrentUserId);
 				if(employee?.InnerPhone == null) {
@@ -113,7 +131,7 @@ namespace Vodovoz.Infrastructure.Mango
 				extension = employee.InnerPhone.Value;
 				ConnectionState = ConnectionState.Disconnected;
 				notificationCancellation = new CancellationTokenSource();
-				mangoServiceClient = new MangoServiceClient(extension, notificationCancellation.Token);
+				mangoServiceClient = new MangoServiceClient(extension, notificationCancellation.Token, _mangoSettings);
 				mangoServiceClient.ChannelStateChanged += MangoServiceClientChannelStateChanged;
 				ConnectionState = mangoServiceClient.IsNotificationActive ? ConnectionState.Connected : ConnectionState.Disconnected;
 				mangoServiceClient.AppearedMessage += MangoServiceClientOnAppearedMessage;
@@ -139,25 +157,40 @@ namespace Vodovoz.Infrastructure.Mango
 		{
 			Gtk.Application.Invoke(delegate {
 				if(mangoServiceClient.IsNotificationActive)
+				{
 					ConnectionState = ConnectionState.Connected;
+				}
 				else if(ConnectionState != ConnectionState.Disable)
+				{
 					ConnectionState = ConnectionState.Disconnected;
+				}
 			});
 		}
 
 		void ToolbarIcon_Activated(object sender, EventArgs e)
 		{
 			if(connectionState == ConnectionState.Disable || connectionState == ConnectionState.Disconnected)
+			{
 				return;
+			}
+
 			if(CurrentPage == null) {
 				if(CurrentTalk != null)
+				{
 					OpenTalkDlg();
+				}
 				else if(RingingCalls.Any())
+				{
 					OpenRingDlg();
+				}
 				else
+				{
 					navigation.OpenViewModel<SubscriberSelectionViewModel, MangoManager, SubscriberSelectionViewModel.DialogType>(null, this, SubscriberSelectionViewModel.DialogType.Telephone);
+				}
 			} else
+			{
 				navigation.SwitchOn(CurrentPage);
+			}
 		}
 
 		void CurrentPage_PageClosed(object sender, PageClosedEventArgs e)
@@ -169,9 +202,14 @@ namespace Vodovoz.Infrastructure.Mango
 		bool HandleTimeoutHandler()
 		{
 			if(CurrentCall != null)
+			{
 				OnPropertyChanged(nameof(StageDuration));
+			}
+
 			if(RingingCalls.Any())
+			{
 				OnPropertyChanged("IncomingCalls.Time");
+			}
 
 			ActiveCalls.RemoveAll(x => (x.CallState == CallState.Appeared && x.StageDuration?.TotalSeconds > 120d) ||
 									   (x.CallState != CallState.Appeared && x.StageDuration?.TotalMinutes > 60));
@@ -208,10 +246,14 @@ namespace Vodovoz.Infrastructure.Mango
 				return;
 			}
 			if(CurrentPage?.ViewModel is IncomingCallViewModel)
+			{
 				return;
+			}
 
 			if(CurrentPage != null)
+			{
 				navigation.ForceClosePage(CurrentPage);
+			}
 
 			if(CurrentPage == null) {
 				OpenRingDlg();
@@ -231,9 +273,13 @@ namespace Vodovoz.Infrastructure.Mango
 			AddNewMessage(message);
 			if(CurrentPage != null) {
 				if(CurrentPage.ViewModel is TalkViewModelBase talkViewModel && talkViewModel.ActiveCall.CallId == message.CallId)
+				{
 					return;
+				}
 				else
+				{
 					navigation.ForceClosePage(CurrentPage);
+				}
 			}
 			OpenTalkDlg();
 		}
@@ -266,13 +312,21 @@ namespace Vodovoz.Infrastructure.Mango
 
 			//Если есть какие то другие текущие звонки, создаем соответсвующие диалоги в порядке приоритета.
 			if(CurrentTalk != null)
+			{
 				OpenTalkDlg();
+			}
 			else if(CurrentOutgoingRing != null)
+			{
 				OpenRingDlg();
+			}
 			else if(CurrentHold != null)
+			{
 				OpenTalkDlg();
+			}
 			else if(RingingCalls.Any())
+			{
 				OpenRingDlg();
+			}
 		}
 
 		private void HandleOnHold(NotificationMessage message)
@@ -280,9 +334,13 @@ namespace Vodovoz.Infrastructure.Mango
 			AddNewMessage(message);
 			if(CurrentPage != null) {
 				if(CurrentPage.ViewModel is TalkViewModelBase talkViewModel && talkViewModel.ActiveCall.CallId == message.CallId)
+				{
 					return;
+				}
 				else
+				{
 					navigation.ForceClosePage(CurrentPage);
+				}
 			}
 			OpenTalkDlg();
 		}
@@ -292,9 +350,14 @@ namespace Vodovoz.Infrastructure.Mango
 		{
 			var exist = ActiveCalls.FirstOrDefault(x => x.CallId == message.CallId);
 			if(exist != null)
+			{
 				exist.NewMessage(message);
+			}
 			else
+			{
 				ActiveCalls.Add(new ActiveCall(message));
+			}
+
 			OnPropertyChanged(nameof(RingingCalls));
 		}
 
@@ -302,7 +365,9 @@ namespace Vodovoz.Infrastructure.Mango
 		{
 			ActiveCalls.RemoveAll(x => x.CallState == forState);
 			if(forState == CallState.Appeared)
+			{
 				OnPropertyChanged(nameof(RingingCalls));
+			}
 		}
 
 		private bool TryRemoveCall(NotificationMessage message)
@@ -339,7 +404,9 @@ namespace Vodovoz.Infrastructure.Mango
 			if(toHangUpCall != null) {
 				_mangoController.HangUp(toHangUpCall.CallId);
 				if(CurrentPage != null)
+				{
 					navigation.ForceClosePage(CurrentPage);
+				}
 			}
 		}
 
@@ -383,7 +450,10 @@ namespace Vodovoz.Infrastructure.Mango
 			NotifyConfiguration.Instance.UnsubscribeAll(this);
 			notificationCancellation?.Cancel();
 			if(mangoServiceClient != null)
+			{
 				mangoServiceClient.Dispose();
+			}
+
 			GLib.Source.Remove(timer);
 		}
 
