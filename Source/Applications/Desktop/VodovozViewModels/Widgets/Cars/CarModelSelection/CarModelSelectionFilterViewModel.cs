@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Settings.Car;
 
 namespace Vodovoz.ViewModels.Widgets.Cars.CarModelSelection
 {
@@ -13,14 +14,21 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarModelSelection
 	{
 		private readonly List<CarModel> _carModels;
 		private readonly IUnitOfWork _unitOfWork;
-
+		private readonly int _firstInSelectionListCarModelId;
 		private string _searchString;
 		private bool _isShowArchiveCarModels;
 		private IEnumerable<CarTypeOfUse> _selectedCarTypesOfUse;
 
-		public CarModelSelectionFilterViewModel(IUnitOfWork unitOfWork)
+		public CarModelSelectionFilterViewModel(IUnitOfWork unitOfWork, ICarSettings carSettings)
 		{
+			if(carSettings is null)
+			{
+				throw new ArgumentNullException(nameof(carSettings));
+			}
+
 			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+
+			_firstInSelectionListCarModelId = carSettings.FirstInSelectionListCarModelId;
 
 			_carModels = GetAllCarModels();
 
@@ -147,7 +155,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarModelSelection
 
 			foreach(var item in carModelNodes)
 			{
-				if(item.ModelId == 3)
+				if(item.ModelId == _firstInSelectionListCarModelId)
 				{
 					CarModelNodes.Insert(0, item);
 					continue;

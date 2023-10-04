@@ -1,12 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Autofac;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Report;
 using QSProjectsLib;
 using QSReport;
+using System;
+using System.Collections.Generic;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Settings.Car;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Widgets.Cars.CarModelSelection;
@@ -60,7 +62,7 @@ namespace Vodovoz.Reports
 
 		private void ConfigureCarModelSelectionFilter()
 		{
-			_carModelSelectionFilterViewModel = new CarModelSelectionFilterViewModel(UoW);
+			_carModelSelectionFilterViewModel = new CarModelSelectionFilterViewModel(UoW, Startup.AppDIContainer.Resolve<ICarSettings>());
 			UpdateCarModelsList();
 		}
 

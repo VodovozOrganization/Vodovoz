@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Autofac;
 using Gamma.Utilities;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
@@ -12,6 +13,7 @@ using QSReport;
 using Vodovoz.CommonEnums;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Settings.Car;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Widgets.Cars.CarModelSelection;
 using Vodovoz.ViewWidgets.Reports;
@@ -45,7 +47,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		private void ConfigureCarModelSelectionFilter()
 		{
-			_carModelSelectionFilterViewModel = new CarModelSelectionFilterViewModel(UoW);
+			_carModelSelectionFilterViewModel = new CarModelSelectionFilterViewModel(UoW, Startup.AppDIContainer.Resolve<ICarSettings>());
 			_carModelSelectionFilterViewModel.CarModelNodes.ListContentChanged += (s, e) => OnDriverOfSelected();
 			UpdateCarModelsList();
 		}
