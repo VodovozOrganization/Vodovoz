@@ -214,6 +214,8 @@ public partial class MainWindow
 
 	public void InitializeThemesMenuItem()
 	{
+		return; //Отключено до разрешения проблем с темой
+
 		_themes = new Dictionary<string, string>();
 
 		string currentTheme = Gtk.Settings.Default.ThemeName;
