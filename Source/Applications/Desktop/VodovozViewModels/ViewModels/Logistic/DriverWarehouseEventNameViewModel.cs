@@ -15,7 +15,14 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			ICommonServices commonServices,
 			INavigationManager navigation) : base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
-			
+			ConfigureEntityChangingRelations();
+		}
+
+		public bool IdGtZero => Entity.Id > 0;
+
+		public void ConfigureEntityChangingRelations()
+		{
+			SetPropertyChangeRelation(e => e.Id, () => IdGtZero);
 		}
 	}
 }
