@@ -683,9 +683,9 @@ namespace Vodovoz.ViewModels.Logistic
 						return;
 					}
 
-					var routeList = UoW.GetById<RouteList>(selectedNode.Id);
+					var page = NavigationManager.OpenViewModel<FuelDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
 
-					NavigationManager.OpenViewModel<FuelDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(selectedNode.Id));
+					page.ViewModel.SetRouteListById(selectedNode.Id);
 				}
 			);
 		}
