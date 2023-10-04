@@ -84,7 +84,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarModelSelection
 		}
 
 		public string IncludedExcludesNodesCountInfo =>
-			$"Выбрано: {IncludedCarModelNodesCount}\nИсключено: {ExcludedCarModelNodesCount}";
+			$"Выбрано: {IncludedCarModelNodesCount}\tИсключено: {ExcludedCarModelNodesCount}";
 
 		public int IncludedCarModelNodesCount =>
 			CarModelNodes
