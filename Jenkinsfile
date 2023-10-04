@@ -216,7 +216,6 @@ stage('Build'){
 				stage('Build Linux WEB'){
 					if(CAN_PUBLISH_BUILD_WEB)
 					{
-						PublishBuildLinux("${APP_PATH}/Backend/WebAPI/VodovozMangoService/VodovozMangoService.csproj")
 					}
 					else
 					{
@@ -249,7 +248,6 @@ stage('Compress'){
 		"CashReceiptSendWorker" : { CompressWebArtifact("Backend/Workers/IIS/CashReceiptSendWorker") },
 		"TrueMarkCodePoolCheckWorker" : { CompressWebArtifact("Backend/Workers/IIS/TrueMarkCodePoolCheckWorker") },
 		//"PushNotificationsWorker" : { CompressWebArtifact("Backend/Workers/Docker/PushNotificationsWorker") },
-		"VodovozMangoService" : { CompressWebLinuxArtifact("Backend/WebAPI/VodovozMangoService") },
 
 		"VodovozSmsInformerService" : { CompressWcfArtifact("Backend/Workers/Mono/VodovozSmsInformerService") },
 		"VodovozSmsPaymentService" : { CompressWcfArtifact("Backend/WCF/VodovozSmsPaymentService") },
@@ -279,8 +277,6 @@ stage('Delivery'){
 		"CashReceiptSendWorker" : { DeliveryWebArtifact("CashReceiptSendWorker") },
 		"TrueMarkCodePoolCheckWorker" : { DeliveryWebArtifact("TrueMarkCodePoolCheckWorker") },
 		//"PushNotificationsWorker" : { DeliveryWebArtifact("PushNotificationsWorker") },
-
-		"VodovozMangoService" : { DeliveryWebLinuxArtifact("VodovozMangoService") },
 
 		"SmsInformerService" : { DeliveryWcfArtifact("VodovozSmsInformerService") },
 		"SmsPaymentService" : { DeliveryWcfArtifact("VodovozSmsPaymentService") },
@@ -315,7 +311,6 @@ stage('Publish'){
 		"CashReceiptSendWorker" : { PublishWeb("CashReceiptSendWorker") },
 		"TrueMarkCodePoolCheckWorker" : { PublishWeb("TrueMarkCodePoolCheckWorker") },
 		//"PushNotificationsWorker" : { PublishWeb("PushNotificationsWorker") },
-		"VodovozMangoService" : { PublishWebLinux("VodovozMangoService") },
 		"SmsInformerService" : { PublishWCF("VodovozSmsInformerService") },
 		"SmsPaymentService" : { PublishWCF("VodovozSmsPaymentService") },
 	)
