@@ -36,7 +36,8 @@
          (
              SELECT SUM(money)
              FROM cash_expense
-             WHERE cash_expense.route_list_id = route_lists.id),
+             WHERE cash_expense.route_list_id = route_lists.id
+             AND NOT cash_expense.type_operation = 'EmployeeAdvance'),
          0) as expense_money,
      IFNULL((SELECT
                      SUM(total_cash) + expense_money - income_money - ABS(SUM(deposits_collected)) - ABS(SUM(equipment_deposits_collected))
