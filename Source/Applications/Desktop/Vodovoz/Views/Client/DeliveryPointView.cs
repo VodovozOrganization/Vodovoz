@@ -21,6 +21,8 @@ namespace Vodovoz.Views.Client
 	[ToolboxItem(true)]
 	public partial class DeliveryPointView : TabViewBase<DeliveryPointViewModel>
 	{
+		private readonly bool _showMapByDefault = false;
+
 		private bool _addressIsMoving;
 		private VBox _vboxMap;
 		private yEnumComboBox _comboMapType;
@@ -40,6 +42,7 @@ namespace Vodovoz.Views.Client
 			notebook1.Binding
 				.AddBinding(ViewModel, vm => vm.CurrentPage, w => w.CurrentPage)
 				.InitializeFromSource();
+
 			notebook1.SwitchPage += (o, args) =>
 			{
 				if(args.PageNum == 1)
@@ -55,10 +58,12 @@ namespace Vodovoz.Views.Client
 			buttonSave.Binding
 				.AddFuncBinding(ViewModel, vm => !vm.IsInProcess && vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
+
 			buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
 			buttonCancel.Binding
 				.AddFuncBinding(ViewModel, vm => !vm.IsInProcess, w => w.Sensitive)
 				.InitializeFromSource();
+
 			buttonInsertFromBuffer.Clicked += (s, a) => ViewModel.SetCoordinatesFromBuffer(_clipboard.WaitForText());
 			buttonInsertFromBuffer.Sensitive = ViewModel.CanEdit;
 			buttonApplyLimitsToAllDeliveryPointsOfCounterparty.Clicked +=
@@ -306,7 +311,7 @@ namespace Vodovoz.Views.Client
 			_vboxMap.ShowAll();
 
 			sidePanelMap.Panel = _vboxMap;
-			sidePanelMap.IsHided = false;
+			sidePanelMap.IsHided = !_showMapByDefault;
 			ViewModel.Entity.PropertyChanged += ViewModelOnPropertyChanged;
 			UpdateAddressOnMap();
 
