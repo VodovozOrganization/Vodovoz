@@ -428,6 +428,16 @@ namespace Vodovoz.Views.Client
 					}
 				}
 
+				if(!ViewModel.UoWGeneric.IsNew)
+				{
+					if(!MessageDialogHelper.RunQuestionDialog(
+						"Координаты точки доставки уже были установлены. Вы уверены что хотите установить новые координаты?"))
+					{
+						UpdateAddressOnMap();
+						return;
+					}
+				}
+
 				ViewModel.WriteCoordinates((decimal) newPoint.Lat, (decimal) newPoint.Lng, true);
 			}
 		}
