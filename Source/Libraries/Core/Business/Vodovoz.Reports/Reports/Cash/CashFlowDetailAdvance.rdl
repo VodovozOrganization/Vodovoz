@@ -11,7 +11,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="DataAdvance">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	cash_expense.id as id,
@@ -19,6 +19,13 @@
 	category.title AS Category,
 	cash_expense.money as Sum,
 	cash_expense.description,
+    CASE WHEN cash_expense.type_operation = 'Expense' THEN "Прочий расход"
+         WHEN cash_expense.type_operation = 'ExpenseSelfDelivery' THEN "Возврат по самовывозу"
+         WHEN cash_expense.type_operation = 'Advance' THEN "Аванс подотчетному лицу"
+         WHEN cash_expense.type_operation = 'EmployeeAdvance' THEN "Аванс сотруднику"
+         WHEN cash_expense.type_operation = 'Salary' THEN "Выдача зарплаты"
+         ELSE ""
+    END as type_operation,
 	cash_expense.date as date,
 	CONCAT_WS('',
 			CONCAT(employees.last_name, ' '),
@@ -65,7 +72,7 @@ ORDER BY Category;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="CategoryId">
           <DataField>CategoryId</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -93,6 +100,10 @@ ORDER BY Category;</CommandText>
         <Field Name="id">
           <DataField>id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
+        </Field>
+        <Field Name="type_operation">
+          <DataField>type_operation</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -182,10 +193,13 @@ ORDER BY Category;</CommandText>
             <Width>58.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>130.6pt</Width>
+            <Width>100pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>233.1pt</Width>
+            <Width>200pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>72.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>72.9pt</Width>
@@ -265,6 +279,25 @@ ORDER BY Category;</CommandText>
                         <BackgroundColor>Silver</BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox21">
+                      <Value>Тип операции</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <BackgroundColor>Silver</BackgroundColor>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -365,6 +398,25 @@ ORDER BY Category;</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox22">
+                      <Value>={type_operation}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>General</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox18">
@@ -459,7 +511,25 @@ ORDER BY Category;</CommandText>
                         <TextAlign>Right</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <Value></Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox23">
                       <Value>Итого:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -520,6 +590,25 @@ ORDER BY Category;</CommandText>
                         </Textbox>
                       </ReportItems>
                       <ColSpan>4</ColSpan>
+                    </TableCell>
+                    <TableCell >
+                      <ReportItems>
+                        <Textbox Name="Textbox24">
+                          <Value></Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontWeight>Bold</FontWeight>
+                            <TextAlign>Right</TextAlign>
+                            <BackgroundColor>Lightgrey</BackgroundColor>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <Format>#,##0.00</Format>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
                     </TableCell>
                     <TableCell>
                       <ReportItems>
