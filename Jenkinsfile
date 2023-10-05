@@ -187,7 +187,7 @@ stage('Build'){
 						PublishBuild("${APP_PATH}/Backend/Workers/IIS/CashReceiptPrepareWorker/CashReceiptPrepareWorker.csproj")
 						PublishBuild("${APP_PATH}/Backend/Workers/IIS/CashReceiptSendWorker/CashReceiptSendWorker.csproj")
 						PublishBuild("${APP_PATH}/Backend/Workers/IIS/TrueMarkCodePoolCheckWorker/TrueMarkCodePoolCheckWorker.csproj")
-						//PublishBuild("${APP_PATH}/Backend/Workers/Docker/PushNotificationsWorker/PushNotificationsWorker.csproj")
+						PublishBuild("${APP_PATH}/Backend/Workers/Docker/PushNotificationsWorker/PushNotificationsWorker.csproj")
 					}
 					else if(CAN_BUILD_WEB)
 					{
@@ -247,7 +247,7 @@ stage('Compress'){
 		"CashReceiptPrepareWorker" : { CompressWebArtifact("Backend/Workers/IIS/CashReceiptPrepareWorker") },
 		"CashReceiptSendWorker" : { CompressWebArtifact("Backend/Workers/IIS/CashReceiptSendWorker") },
 		"TrueMarkCodePoolCheckWorker" : { CompressWebArtifact("Backend/Workers/IIS/TrueMarkCodePoolCheckWorker") },
-		//"PushNotificationsWorker" : { CompressWebArtifact("Backend/Workers/Docker/PushNotificationsWorker") },
+		"PushNotificationsWorker" : { CompressWebArtifact("Backend/Workers/Docker/PushNotificationsWorker") },
 
 		"VodovozSmsInformerService" : { CompressWcfArtifact("Backend/Workers/Mono/VodovozSmsInformerService") },
 		"VodovozSmsPaymentService" : { CompressWcfArtifact("Backend/WCF/VodovozSmsPaymentService") },
@@ -276,7 +276,7 @@ stage('Delivery'){
 		"CashReceiptPrepareWorker" : { DeliveryWebArtifact("CashReceiptPrepareWorker") },
 		"CashReceiptSendWorker" : { DeliveryWebArtifact("CashReceiptSendWorker") },
 		"TrueMarkCodePoolCheckWorker" : { DeliveryWebArtifact("TrueMarkCodePoolCheckWorker") },
-		//"PushNotificationsWorker" : { DeliveryWebArtifact("PushNotificationsWorker") },
+		"PushNotificationsWorker" : { DeliveryWebArtifact("PushNotificationsWorker") },
 
 		"SmsInformerService" : { DeliveryWcfArtifact("VodovozSmsInformerService") },
 		"SmsPaymentService" : { DeliveryWcfArtifact("VodovozSmsPaymentService") },
@@ -310,7 +310,7 @@ stage('Publish'){
 		"CashReceiptPrepareWorker" : { PublishWeb("CashReceiptPrepareWorker") },
 		"CashReceiptSendWorker" : { PublishWeb("CashReceiptSendWorker") },
 		"TrueMarkCodePoolCheckWorker" : { PublishWeb("TrueMarkCodePoolCheckWorker") },
-		//"PushNotificationsWorker" : { PublishWeb("PushNotificationsWorker") },
+		"PushNotificationsWorker" : { PublishWeb("PushNotificationsWorker") },
 		"SmsInformerService" : { PublishWCF("VodovozSmsInformerService") },
 		"SmsPaymentService" : { PublishWCF("VodovozSmsPaymentService") },
 	)
@@ -343,7 +343,7 @@ def PrepareSources() {
 // 303	Фукнции. Сборка
 
 def PublishBuild(projectPath){
-	bat "\"${WIN_BUILD_TOOL}\" ${projectPath} /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile /maxcpucount:2"
+	bat "\"${WIN_BUILD_TOOL}\" ${projectPath} /t:Publish /p:Configuration=Release /p:PublishProfile=FolderProfile /maxcpucount:2"
 }
 
 def Build(config){
