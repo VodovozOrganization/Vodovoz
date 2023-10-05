@@ -14,7 +14,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarModelSelection
 	{
 		private readonly List<CarModel> _carModels;
 		private readonly IUnitOfWork _unitOfWork;
-		private readonly int _firstInSelectionListCarModelId;
+		private readonly int[] _firstInSelectionListCarModelIds;
 		private string _searchString;
 		private bool _isShowArchiveCarModels;
 		private IEnumerable<CarTypeOfUse> _selectedCarTypesOfUse;
@@ -28,7 +28,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarModelSelection
 
 			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 
-			_firstInSelectionListCarModelId = carSettings.FirstInSelectionListCarModelId;
+			_firstInSelectionListCarModelIds = carSettings.FirstInSelectionListCarModelId;
 
 			_carModels = GetAllCarModels();
 
@@ -155,18 +155,34 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarModelSelection
 
 			foreach(var item in carModelNodes)
 			{
-				if(item.ModelId == _firstInSelectionListCarModelId)
-				{
-					CarModelNodes.Insert(0, item);
-					continue;
-				}
-
 				CarModelNodes.Add(item);
 			}
+
+			MoveSpecifiedCarModelsToTop();
 
 			UpdateCarModelsNodesVisibility();
 
 			UpdateIncludedExcludedNodesInfo();
+		}
+
+		private void MoveSpecifiedCarModelsToTop()
+		{
+			var index = _firstInSelectionListCarModelIds.Length;
+
+			while(index > 0)
+			{
+				index--;
+
+				var carModelNodeToMoveToTop = CarModelNodes
+					.Where(c => c.ModelId == _firstInSelectionListCarModelIds[index])
+					.FirstOrDefault();
+
+				if(carModelNodeToMoveToTop != null)
+				{
+					CarModelNodes.Remove(carModelNodeToMoveToTop);
+					CarModelNodes.Insert(0, carModelNodeToMoveToTop);
+				}
+			}
 		}
 
 		private void UpdateCarModelsNodesVisibility()
