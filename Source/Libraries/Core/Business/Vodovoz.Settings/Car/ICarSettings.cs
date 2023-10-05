@@ -2,6 +2,6 @@
 {
 	public interface ICarSettings
 	{
-		int FirstInSelectionListCarModelId { get; }
+		int[] FirstInSelectionListCarModelId { get; }
 	}
 }
