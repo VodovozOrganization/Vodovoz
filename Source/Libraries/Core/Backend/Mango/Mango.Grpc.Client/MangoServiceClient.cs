@@ -39,7 +39,16 @@ namespace Mango.Grpc.Client
 		{
 			var url = $"{_mangoSettings.ServiceHost}:{_mangoSettings.ServicePort}";
 
-			_channel = new Channel(url, ChannelCredentials.Insecure);
+			var options = new[]
+			{
+				new ChannelOption("grpc.keepalive_time_ms", 30000),
+				new ChannelOption("grpc.keepalive_timeout_ms", 15000),
+				new ChannelOption("grpc.keepalive_permit_without_calls", 1),
+				new ChannelOption("grpc.http2.min_time_between_pings_ms", 30000),
+				new ChannelOption("grpc.http2.max_pings_without_data", 0)
+			};
+
+			_channel = new Channel(url, ChannelCredentials.Insecure, options);
 			_notificationClient = new NotificationService.NotificationServiceClient(_channel);
 
 			var request = new NotificationSubscribeRequest { Extension =  _extension};
