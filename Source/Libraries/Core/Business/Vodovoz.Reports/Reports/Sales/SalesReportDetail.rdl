@@ -685,7 +685,7 @@
                         <FontWeight>Bold</FontWeight>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format>0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                       <Value>=Sum(Fields!total_count.Value)</Value>
                     </Textbox>
@@ -703,7 +703,7 @@
                         <FontWeight>Bold</FontWeight>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format>0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                       <Value>=Sum(Fields!total_sum.Value)</Value>
                     </Textbox>
@@ -1832,7 +1832,7 @@ FROM
       </Fields>
     </DataSet>
     <DataSet Name="bottles">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
         <CommandText>SELECT
@@ -1979,7 +1979,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="plan">
           <DataField>plan</DataField>
         </Field>
@@ -2000,7 +2000,7 @@ FROM
   </DataSources>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
