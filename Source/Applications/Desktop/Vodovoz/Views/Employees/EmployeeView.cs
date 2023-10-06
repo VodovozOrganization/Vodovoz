@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gamma.Widgets;
 using QS.Dialog;
@@ -10,15 +6,19 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services;
+using QS.Views.Control;
 using QS.Views.GtkUI;
-using QS.Widgets.GtkUI;
 using QSOrmProject;
+using System;
+using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Vodovoz.Dialogs.Employees;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.TempAdapters;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Employees;
 
 namespace Vodovoz.Views.Employees
@@ -716,34 +716,15 @@ namespace Vodovoz.Views.Employees
 
 		private void ConfigureSubdivision()
 		{
-			if(ViewModel.CanManageDriversAndForwarders && !ViewModel.CanManageOfficeWorkers)
-			{
-				var entityentrySubdivision = new EntityViewModelEntry();
-				entityentrySubdivision.SetEntityAutocompleteSelectorFactory(
-					ViewModel.SubdivisionJournalFactory.CreateLogisticSubdivisionAutocompleteSelectorFactory(
-						ViewModel.EmployeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory()));
-				entityentrySubdivision.Binding
-					.AddBinding(ViewModel.Entity, e => e.Subdivision, w => w.Subject)
-					.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
-					.InitializeFromSource();
-				hboxSubdivision.Add(entityentrySubdivision);
-				hboxSubdivision.ShowAll();
-				return;
-			}
+			var entityentrySubdivision = new EntityEntry();
 
-			var entrySubdivision = new yEntryReference();
-			entrySubdivision.SubjectType = typeof(Subdivision);
-			entrySubdivision.Binding
-				.AddBinding(ViewModel.Entity, e => e.Subdivision, w => w.Subject)
-				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
+			entityentrySubdivision.ViewModel = ViewModel.SubdivisionViewModel;
+			entityentrySubdivision.Binding
+				.AddBinding(ViewModel, vm => vm.CanEditSubdivision, w => w.Sensitive)
 				.InitializeFromSource();
-			hboxSubdivision.Add(entrySubdivision);
-			hboxSubdivision.ShowAll();
 
-			if(!ViewModel.CanManageOfficeWorkers && !ViewModel.CanManageDriversAndForwarders)
-			{
-				entrySubdivision.Sensitive = false;
-			}
+			hboxSubdivision.Add(entityentrySubdivision);
+			hboxSubdivision.ShowAll();
 		}
 
 		private void OnRussianCitizenToggled(object sender, EventArgs e)
