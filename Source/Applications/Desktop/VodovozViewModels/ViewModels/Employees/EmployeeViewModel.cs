@@ -1023,7 +1023,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		
 		public override void Dispose()
 		{
-			var t = TabParent;
 			UoW?.Dispose();
 			base.Dispose();
 		}

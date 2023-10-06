@@ -136,7 +136,10 @@ namespace Vodovoz.Views.Employees
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
 
-			ConfigureSubdivision();
+			entrySubdivision.ViewModel = ViewModel.SubdivisionViewModel;
+			entrySubdivision.Binding
+				.AddBinding(ViewModel, vm => vm.CanEditSubdivision, w => w.Sensitive)
+				.InitializeFromSource();
 
 			var usersJournalFactory = new UserJournalFactory();
 			entityviewmodelUser.SetEntityAutocompleteSelectorFactory(usersJournalFactory.CreateSelectUserAutocompleteSelectorFactory());
@@ -712,19 +715,6 @@ namespace Vodovoz.Views.Employees
 					comboDriverOfCarTypeOfUse.SelectedItemOrNull = null;
 				}
 			};
-		}
-
-		private void ConfigureSubdivision()
-		{
-			var entityentrySubdivision = new EntityEntry();
-
-			entityentrySubdivision.ViewModel = ViewModel.SubdivisionViewModel;
-			entityentrySubdivision.Binding
-				.AddBinding(ViewModel, vm => vm.CanEditSubdivision, w => w.Sensitive)
-				.InitializeFromSource();
-
-			hboxSubdivision.Add(entityentrySubdivision);
-			hboxSubdivision.ShowAll();
 		}
 
 		private void OnRussianCitizenToggled(object sender, EventArgs e)
