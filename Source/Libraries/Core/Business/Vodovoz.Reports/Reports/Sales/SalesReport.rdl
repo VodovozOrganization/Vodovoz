@@ -239,6 +239,8 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor  />
+                        <BorderWidth  />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -284,6 +286,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontWeight>Bold</FontWeight>
+                        <Format >#,##0.00</Format>
                       </Style>
                       <Value>=Sum(Fields!total_count.Value)</Value>
                     </Textbox>
@@ -299,6 +302,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontWeight>Bold</FontWeight>
+                        <Format >#,##0.00</Format>
                       </Style>
                       <Value>=Sum(Fields!total_sum.Value)</Value>
                     </Textbox>
