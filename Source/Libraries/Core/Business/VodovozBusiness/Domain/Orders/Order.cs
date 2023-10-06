@@ -186,7 +186,6 @@ namespace Vodovoz.Domain.Orders
 		private Employee author;
 
 		[Display(Name = "Создатель заказа")]
-		[IgnoreHistoryTrace]
 		public virtual Employee Author {
 			get => author;
 			set => SetField(ref author, value, () => Author);
