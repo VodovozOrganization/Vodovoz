@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -6,7 +6,6 @@ using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.Dialog;
 using QS.DomainModel.UoW;
-using QS.Navigation;
 using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Journal;
@@ -29,7 +28,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 	{
 		private readonly IAuthorizationServiceFactory _authorizationServiceFactory;
 		private readonly ILifetimeScope _lifetimeScope;
-		private readonly INavigationManager _navigationManager;
 		private readonly IAuthorizationService _authorizationService;
 
 		public EmployeesJournalViewModel(
@@ -45,7 +43,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			_authorizationServiceFactory =
 				authorizationServiceFactory ?? throw new ArgumentNullException(nameof(authorizationServiceFactory));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
-			_navigationManager = lifetimeScope.Resolve<INavigationManager>() ?? NavigationManager;
 			_authorizationService = _authorizationServiceFactory.CreateNewAuthorizationService();
 
 			if(filterparams != null)
@@ -414,7 +411,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 						return;
 					}
 
-					_navigationManager.OpenViewModel<EmployeeViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(selectedNode.Id));
+					var config = EntityConfigs[selectedNode.EntityType];
+					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
+					TabParent.OpenTab(() => foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode), this);
+
+					if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog)
+					{
+						HideJournal(TabParent);
+					}
 				}
 			);
 
