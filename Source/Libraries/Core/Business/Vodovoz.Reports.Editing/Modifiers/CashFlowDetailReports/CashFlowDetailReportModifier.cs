@@ -5,17 +5,17 @@ namespace Vodovoz.Reports.Editing.Modifiers.CashFlowDetailReports
 {
 	public class CashFlowDetailReportModifier : ReportModifierBase
 	{
-		private const string _tableIncomesName = "TableIncomes";
-		private const string _tableMlAtDaysName = "TableMLatDays";
-		private const string _tableIncomeReturnsName = "TableIncomeReturns";
-		private const string _tableExpensesName = "TableExpenses";
-		private const string _tableAdvancesName = "TableAdvances";
-		private const string _tableAdvanceReportsName = "TableAdvanceReports";
-		private const string _tableUnclosedAdvancesName = "TableUnclosedAdvances";
+		private const string _incomesIdentifier = "Incomes";
+		private const string _mlAtDaysIdentifier = "MLatDays";
+		private const string _incomeReturnsIdentifier = "IncomeReturns";
+		private const string _expensesIdentifier = "Expenses";
+		private const string _advancesIdentifier = "Advances";
+		private const string _advanceReportsIdentifier = "AdvanceReports";
+		private const string _unclosedAdvancesIdentifier = "UnclosedAdvances";
 		
 		public void Setup(ReportParts reportPart)
 		{
-			IEnumerable<ModifierAction> actions = null;
+			IEnumerable<ModifierAction> actions;
 
 			switch(reportPart)
 			{
@@ -44,12 +44,7 @@ namespace Vodovoz.Reports.Editing.Modifiers.CashFlowDetailReports
 					actions = GetUnclosedAdvanceActions();
 					break;
 				default:
-					break;
-			}
-
-			if(actions == null)
-			{
-				return;
+					return;
 			}
 
 			foreach(var action in actions)
@@ -60,106 +55,127 @@ namespace Vodovoz.Reports.Editing.Modifiers.CashFlowDetailReports
 
 		private static IEnumerable<ModifierAction> GetIncomeAllActions()
 		{
-			return new List<ModifierAction>
-			{
-				RemoveTableAction(_tableExpensesName),
-				RemoveTableAction(_tableAdvancesName),
-				RemoveTableAction(_tableAdvanceReportsName),
-				RemoveTableAction(_tableUnclosedAdvancesName)
-			};
+			var actions = new List<ModifierAction>();
+
+			actions.AddRange(RemoveTableWithTextboxTitleAction(_expensesIdentifier));
+			actions.AddRange(RemoveTableWithTextboxTitleAction(_advancesIdentifier));
+			actions.AddRange(RemoveTableWithTextboxTitleAction(_advanceReportsIdentifier));
+			actions.AddRange(RemoveTableWithTextboxTitleAction(_unclosedAdvancesIdentifier));
+
+			return actions;
 		}
 
 		private static IEnumerable<ModifierAction> GetIncomeActions()
 		{
-			return new List<ModifierAction>
-			{
-				RemoveTableAction(_tableIncomeReturnsName),
-				RemoveTableAction(_tableExpensesName),
-				RemoveTableAction(_tableAdvancesName),
-				RemoveTableAction(_tableAdvanceReportsName),
-				RemoveTableAction(_tableUnclosedAdvancesName)
-			};
+			var actions = new List<ModifierAction>();
+
+			actions.AddRange(RemoveTableWithTextboxTitleAction(_incomeReturnsIdentifier));
+			actions.AddRange(RemoveTableWithTextboxTitleAction(_expensesIdentifier));
+			actions.AddRange(RemoveTableWithTextboxTitleAction(_advancesIdentifier));
+			actions.AddRange(RemoveTableWithTextboxTitleAction(_advanceReportsIdentifier));
+			actions.AddRange(RemoveTableWithTextboxTitleAction(_unclosedAdvancesIdentifier));
+
+			return actions;
 		}
 
 		private static IEnumerable<ModifierAction> GetIncomeReturnActions()
 		{
-			return new List<ModifierAction>
-			{
-				RemoveTableAction(_tableIncomesName),
-				RemoveTableAction(_tableMlAtDaysName),
-				RemoveTableAction(_tableExpensesName),
-				RemoveTableAction(_tableAdvancesName),
-				RemoveTableAction(_tableAdvanceReportsName),
-				RemoveTableAction(_tableUnclosedAdvancesName)
-			};
+			var actions = new List<ModifierAction>();
+
+			actions.AddRange(RemoveTableWithTextboxTitleAction(_incomesIdentifier));
+			actions.Add(RemoveTableAction(_mlAtDaysIdentifier));
+			actions.AddRange(RemoveTableWithTextboxTitleAction(_expensesIdentifier));
+			actions.AddRange(RemoveTableWithTextboxTitleAction(_advancesIdentifier));
+			actions.AddRange(RemoveTableWithTextboxTitleAction(_advanceReportsIdentifier));
+			actions.AddRange(RemoveTableWithTextboxTitleAction(_unclosedAdvancesIdentifier));
+
+			return actions;
 		}
 
 		private static IEnumerable<ModifierAction> GetExpenseAllActions()
 		{
-			return new List<ModifierAction>
-			{
-				RemoveTableAction(_tableIncomesName),
-				RemoveTableAction(_tableMlAtDaysName),
-				RemoveTableAction(_tableIncomeReturnsName)
-			};
+			var actions = new List<ModifierAction>();
+
+			actions.AddRange(RemoveTableWithTextboxTitleAction(_incomesIdentifier));
+			actions.Add(RemoveTableAction(_mlAtDaysIdentifier));
+			actions.AddRange(RemoveTableWithTextboxTitleAction(_incomeReturnsIdentifier));
+
+			return actions;
 		}
 
 		private static IEnumerable<ModifierAction> GetExpenseActions()
 		{
-			return new List<ModifierAction>
-			{
-				RemoveTableAction(_tableIncomesName),
-				RemoveTableAction(_tableMlAtDaysName),
-				RemoveTableAction(_tableIncomeReturnsName),
-				RemoveTableAction(_tableAdvancesName),
-				RemoveTableAction(_tableAdvanceReportsName),
-				RemoveTableAction(_tableUnclosedAdvancesName)
-			};
+			var actions = new List<ModifierAction>();
+
+			actions.AddRange(RemoveTableWithTextboxTitleAction(_incomesIdentifier));
+			actions.Add(RemoveTableAction(_mlAtDaysIdentifier));
+			actions.AddRange(RemoveTableWithTextboxTitleAction(_incomeReturnsIdentifier));
+			actions.AddRange(RemoveTableWithTextboxTitleAction(_advancesIdentifier));
+			actions.AddRange(RemoveTableWithTextboxTitleAction(_advanceReportsIdentifier));
+			actions.AddRange(RemoveTableWithTextboxTitleAction(_unclosedAdvancesIdentifier));
+
+			return actions;
 		}
 
 		private static IEnumerable<ModifierAction> GetAdvanceActions()
 		{
-			return new List<ModifierAction>
-			{
-				RemoveTableAction(_tableIncomesName),
-				RemoveTableAction(_tableMlAtDaysName),
-				RemoveTableAction(_tableIncomeReturnsName),
-				RemoveTableAction(_tableExpensesName),
-				RemoveTableAction(_tableAdvanceReportsName),
-				RemoveTableAction(_tableUnclosedAdvancesName)
-			};
+			var actions = new List<ModifierAction>();
+
+			actions.AddRange(RemoveTableWithTextboxTitleAction(_incomesIdentifier));
+			actions.Add(RemoveTableAction(_mlAtDaysIdentifier));
+			actions.AddRange(RemoveTableWithTextboxTitleAction(_incomeReturnsIdentifier));
+			actions.AddRange(RemoveTableWithTextboxTitleAction(_expensesIdentifier));
+			actions.AddRange(RemoveTableWithTextboxTitleAction(_advanceReportsIdentifier));
+			actions.AddRange(RemoveTableWithTextboxTitleAction(_unclosedAdvancesIdentifier));
+
+			return actions;
 		}
 
 		private static IEnumerable<ModifierAction> GetAdvanceReportActions()
 		{
-			return new List<ModifierAction>
-			{
-				RemoveTableAction(_tableIncomesName),
-				RemoveTableAction(_tableMlAtDaysName),
-				RemoveTableAction(_tableIncomeReturnsName),
-				RemoveTableAction(_tableExpensesName),
-				RemoveTableAction(_tableAdvancesName),
-				RemoveTableAction(_tableUnclosedAdvancesName)
-			};
+			var actions = new List<ModifierAction>();
+
+			actions.AddRange(RemoveTableWithTextboxTitleAction(_incomesIdentifier));
+			actions.Add(RemoveTableAction(_mlAtDaysIdentifier));
+			actions.AddRange(RemoveTableWithTextboxTitleAction(_incomeReturnsIdentifier));
+			actions.AddRange(RemoveTableWithTextboxTitleAction(_expensesIdentifier));
+			actions.AddRange(RemoveTableWithTextboxTitleAction(_advancesIdentifier));
+			actions.AddRange(RemoveTableWithTextboxTitleAction(_unclosedAdvancesIdentifier));
+
+			return actions;
 		}
 
 		private static IEnumerable<ModifierAction> GetUnclosedAdvanceActions()
 		{
+			var actions = new List<ModifierAction>();
+
+			actions.AddRange(RemoveTableWithTextboxTitleAction(_incomesIdentifier));
+			actions.Add(RemoveTableAction(_mlAtDaysIdentifier));
+			actions.AddRange(RemoveTableWithTextboxTitleAction(_incomeReturnsIdentifier));
+			actions.AddRange(RemoveTableWithTextboxTitleAction(_expensesIdentifier));
+			actions.AddRange(RemoveTableWithTextboxTitleAction(_advancesIdentifier));
+			actions.AddRange(RemoveTableWithTextboxTitleAction(_advanceReportsIdentifier));
+
+			return actions;
+		}
+
+		private static IEnumerable<ModifierAction> RemoveTableWithTextboxTitleAction(string identifier)
+		{
 			return new List<ModifierAction>
 			{
-				RemoveTableAction(_tableIncomesName),
-				RemoveTableAction(_tableMlAtDaysName),
-				RemoveTableAction(_tableIncomeReturnsName),
-				RemoveTableAction(_tableExpensesName),
-				RemoveTableAction(_tableAdvancesName),
-				RemoveTableAction(_tableAdvanceReportsName)
+				RemoveTableAction(identifier),
+				RemoveTextboxAction(identifier)
 			};
 		}
 
-		private static ModifierAction RemoveTableAction(string tableName)
+		private static ModifierAction RemoveTableAction(string identifier)
 		{
-			return new RemoveTable(tableName);
+			return new RemoveTable($"Table{identifier}");
 		}
 
+		private static ModifierAction RemoveTextboxAction(string identifier)
+		{
+			return new RemoveTextbox($"Textbox{identifier}");
+		}
 	}
 }
