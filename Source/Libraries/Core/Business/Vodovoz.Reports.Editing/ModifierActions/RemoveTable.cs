@@ -23,10 +23,7 @@ namespace Vodovoz.Reports.Editing.ModifierActions
 			var @namespace = report.Root.Attribute("xmlns").Value;
 			var table = report.GetTable(_tableName, @namespace);
 			
-			if (table != null)
-			{
-				table.Remove();
-			}
+			table?.Remove();
 		}
 	}
 }
