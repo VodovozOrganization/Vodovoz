@@ -11,7 +11,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="DataIncome">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
         <CommandText>SELECT
@@ -77,7 +77,7 @@ ORDER BY Category;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="CategoryType">
           <DataField>CategoryType</DataField>
           <rd:TypeName>System.Int32</rd:TypeName>
@@ -160,7 +160,7 @@ GROUP BY rl.date</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="DataIncomeReturn">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
         <CommandText>SELECT
@@ -226,7 +226,7 @@ ORDER BY Category;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="Category">
           <DataField>Category</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -262,7 +262,7 @@ ORDER BY Category;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="DataExpense">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
         <CommandText>SELECT
@@ -328,7 +328,7 @@ ORDER BY Category;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="CategoryId">
           <DataField>CategoryId</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -364,7 +364,7 @@ ORDER BY Category;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="DataAdvance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
         <CommandText>SELECT
@@ -430,7 +430,7 @@ ORDER BY Category;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="CategoryId">
           <DataField>CategoryId</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -574,7 +574,7 @@ ORDER BY Category;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="DataAdvanceClosing">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
         <CommandText>SELECT
@@ -655,7 +655,7 @@ ORDER BY Category;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="expense_id">
           <DataField>expense_id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -774,7 +774,7 @@ ORDER BY Category;</CommandText>
   </PageHeader>
   <Body>
     <ReportItems>
-      <Textbox Name="Textbox1">
+      <Textbox Name="TextboxIncomes">
         <Height>21.11pt</Height>
         <Width>560.18pt</Width>
         <Value>Приход (наличка)</Value>
@@ -789,7 +789,7 @@ ORDER BY Category;</CommandText>
           <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
-      <Table Name="Table1">
+      <Table Name="TableIncomes">
         <DataSetName>DataIncome</DataSetName>
         <NoRows>За текущий период не было движений.</NoRows>
         <Style>
@@ -812,7 +812,7 @@ ORDER BY Category;</CommandText>
           <TableColumn>
             <Width>200pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>76.1pt</Width>
           </TableColumn>
           <TableColumn>
@@ -896,7 +896,7 @@ ORDER BY Category;</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox150">
                       <Value>Тип операции</Value>
@@ -1012,7 +1012,7 @@ ORDER BY Category;</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox151">
                       <Value>={type_operation}</Value>
@@ -1129,7 +1129,7 @@ ORDER BY Category;</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox152">
                       <Value>Итого:</Value>
@@ -1207,7 +1207,7 @@ ORDER BY Category;</CommandText>
                       </ReportItems>
                       <ColSpan>4</ColSpan>
                     </TableCell>
-                    <TableCell >
+                    <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox153">
                           <Value></Value>
@@ -1258,7 +1258,7 @@ ORDER BY Category;</CommandText>
           </TableGroup>
         </TableGroups>
       </Table>
-      <Table Name="Table2">
+      <Table Name="TableMLatDays">
         <DataSetName>MLatDay</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
         <Style>
@@ -1359,7 +1359,7 @@ ORDER BY Category;</CommandText>
         <Left>356.1pt</Left>
         <Top>114.8pt</Top>
       </Table>
-      <Textbox Name="Textbox26" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+      <Textbox Name="TextboxIncomeReturns" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>21.11pt</Height>
         <Width>560.18pt</Width>
         <Value>Сдача (наличка)</Value>
@@ -1374,7 +1374,7 @@ ORDER BY Category;</CommandText>
           <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
-      <Table Name="Table3">
+      <Table Name="TableIncomeReturns">
         <DataSetName>DataIncomeReturn</DataSetName>
         <NoRows>За текущий период не было движений.</NoRows>
         <Style>
@@ -1397,7 +1397,7 @@ ORDER BY Category;</CommandText>
           <TableColumn>
             <Width>196.8pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>74.6pt</Width>
           </TableColumn>
           <TableColumn>
@@ -1481,7 +1481,7 @@ ORDER BY Category;</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox132">
                       <Value>Тип операции</Value>
@@ -1597,7 +1597,7 @@ ORDER BY Category;</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox133">
                       <Value>={type_operation}</Value>
@@ -1714,7 +1714,7 @@ ORDER BY Category;</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox134">
                       <Value>Итого:</Value>
@@ -1791,7 +1791,7 @@ ORDER BY Category;</CommandText>
                       </ReportItems>
                       <ColSpan>4</ColSpan>
                     </TableCell>
-                    <TableCell >
+                    <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox135">
                           <Value></Value>
@@ -1842,7 +1842,7 @@ ORDER BY Category;</CommandText>
           </TableGroup>
         </TableGroups>
       </Table>
-      <Textbox Name="Textbox44">
+      <Textbox Name="TextboxExpenses">
         <Height>21.11pt</Height>
         <Width>560.18pt</Width>
         <Value>Расход (наличка)</Value>
@@ -1857,7 +1857,7 @@ ORDER BY Category;</CommandText>
           <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
-      <Table Name="Table4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+      <Table Name="TableExpenses" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>DataExpense</DataSetName>
         <NoRows>За текущий период не было движений.</NoRows>
         <Style>
@@ -1880,7 +1880,7 @@ ORDER BY Category;</CommandText>
           <TableColumn>
             <Width>196.8pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>77.8pt</Width>
           </TableColumn>
           <TableColumn>
@@ -1964,7 +1964,7 @@ ORDER BY Category;</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox136">
                       <Value>Тип операции</Value>
@@ -2082,7 +2082,7 @@ ORDER BY Category;</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox137">
                       <Value>={type_operation}</Value>
@@ -2199,7 +2199,7 @@ ORDER BY Category;</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox138">
                       <Value>Итого:</Value>
@@ -2275,7 +2275,7 @@ ORDER BY Category;</CommandText>
                       </ReportItems>
                       <ColSpan>4</ColSpan>
                     </TableCell>
-                    <TableCell >
+                    <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox139">
                           <Value></Value>
@@ -2326,7 +2326,7 @@ ORDER BY Category;</CommandText>
           </TableGroup>
         </TableGroups>
       </Table>
-      <Textbox Name="Textbox62" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+      <Textbox Name="TextboxAdvances" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>21.11pt</Height>
         <Width>560.18pt</Width>
         <Value>Выданные авансы</Value>
@@ -2341,7 +2341,7 @@ ORDER BY Category;</CommandText>
           <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
-      <Table Name="Table5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+      <Table Name="TableAdvances" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>DataAdvance</DataSetName>
         <NoRows>За текущий период не было движений.</NoRows>
         <Style>
@@ -2364,7 +2364,7 @@ ORDER BY Category;</CommandText>
           <TableColumn>
             <Width>196.8pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>81.5pt</Width>
           </TableColumn>
           <TableColumn>
@@ -2448,7 +2448,7 @@ ORDER BY Category;</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox140">
                       <Value>Тип операции</Value>
@@ -2564,7 +2564,7 @@ ORDER BY Category;</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox141">
                       <Value>={type_operation}</Value>
@@ -2681,7 +2681,7 @@ ORDER BY Category;</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox142">
                       <Value>Итого:</Value>
@@ -2757,7 +2757,7 @@ ORDER BY Category;</CommandText>
                       </ReportItems>
                       <ColSpan>4</ColSpan>
                     </TableCell>
-                    <TableCell >
+                    <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox143">
                           <Value></Value>
@@ -2808,7 +2808,7 @@ ORDER BY Category;</CommandText>
           </TableGroup>
         </TableGroups>
       </Table>
-      <Textbox Name="Textbox80" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+      <Textbox Name="TextboxAdvanceReports" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>21.11pt</Height>
         <Width>560.18pt</Width>
         <Value>Авансовые отчеты</Value>
@@ -2823,7 +2823,7 @@ ORDER BY Category;</CommandText>
           <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
-      <Table Name="Table6" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+      <Table Name="TableAdvanceReports" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>DataAdvanceReport</DataSetName>
         <NoRows>За текущий период не было движений.</NoRows>
         <Style>
@@ -3321,7 +3321,7 @@ ORDER BY Category;</CommandText>
           </TableGroup>
         </TableGroups>
       </Table>
-      <Textbox Name="Textbox103" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+      <Textbox Name="TextboxUnclosedAdvances" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>21.11pt</Height>
         <Width>560.18pt</Width>
         <Value>Незакрытые авансы</Value>
@@ -3336,7 +3336,7 @@ ORDER BY Category;</CommandText>
           <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
-      <Table Name="Table7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+      <Table Name="TableUnclosedAdvances" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>DataAdvanceClosing</DataSetName>
         <NoRows>За текущий период не было движений.</NoRows>
         <Style>
@@ -3359,7 +3359,7 @@ ORDER BY Category;</CommandText>
           <TableColumn>
             <Width>192.0pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>78.5pt</Width>
           </TableColumn>
           <TableColumn>
@@ -3443,7 +3443,7 @@ ORDER BY Category;</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox144">
                       <Value>Тип операции</Value>
@@ -3563,7 +3563,7 @@ ORDER BY Category;</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox145">
                       <Value>={type_operation_income}</Value>
@@ -3685,7 +3685,7 @@ ORDER BY Category;</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox146">
                       <Value>Итого:</Value>
@@ -3761,7 +3761,7 @@ ORDER BY Category;</CommandText>
                       </ReportItems>
                       <ColSpan>4</ColSpan>
                     </TableCell>
-                    <TableCell >
+                    <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox147">
                           <Value></Value>
@@ -3889,7 +3889,7 @@ ORDER BY Category;</CommandText>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
-                    <TableCell >
+                    <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox148">
                           <Value>={type_operation_expense}</Value>
@@ -3901,7 +3901,7 @@ ORDER BY Category;</CommandText>
                             <BorderWidth />
                             <VerticalAlign>Middle</VerticalAlign>
                             <Format>#,##0.00</Format>
-                            <TextAlign >General</TextAlign>
+                            <TextAlign>General</TextAlign>
                           </Style>
                           <CanGrow>true</CanGrow>
                         </Textbox>
@@ -3996,7 +3996,7 @@ ORDER BY Category;</CommandText>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
-                    <TableCell >
+                    <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox149">
                           <Value>Непогашено:</Value>

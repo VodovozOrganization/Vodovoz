@@ -554,7 +554,7 @@ ORDER BY Category;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="DataAdvanceUnclosed">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     cash_expense.id as expense_id,
@@ -633,7 +633,7 @@ ORDER BY Category;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="expense_id">
           <DataField>expense_id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -815,7 +815,7 @@ ORDER BY Category
   </PageHeader>
   <Body>
     <ReportItems>
-      <Textbox Name="Textbox1">
+      <Textbox Name="TextboxIncomes">
         <Height>21.11pt</Height>
         <Width>560.18pt</Width>
         <Value>Приход (наличка)</Value>
@@ -830,7 +830,7 @@ ORDER BY Category
           <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+      <Textbox Name="TextboxExpenses" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>21.11pt</Height>
         <Width>560.18pt</Width>
         <Value>Расход (наличка)</Value>
@@ -845,7 +845,7 @@ ORDER BY Category
           <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox14" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+      <Textbox Name="TextboxAdvances" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>21.11pt</Height>
         <Width>560.18pt</Width>
         <Value>Выданные авансы</Value>
@@ -860,7 +860,7 @@ ORDER BY Category
           <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
-      <Table Name="Table1">
+      <Table Name="TableIncomes">
         <DataSetName>DataIncome</DataSetName>
         <NoRows>За текущий период не было движений.</NoRows>
         <Style>
@@ -1329,7 +1329,7 @@ ORDER BY Category
           </TableGroup>
         </TableGroups>
       </Table>
-      <Table Name="Table2">
+      <Table Name="TableMLatDays">
         <DataSetName>MLatDay</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
         <Style>
@@ -1430,7 +1430,7 @@ ORDER BY Category
         <Left>357.7pt</Left>
         <Top>111.0pt</Top>
       </Table>
-      <Table Name="Table3">
+      <Table Name="TableIncomeReturns">
         <DataSetName>DataIncomeReturn</DataSetName>
         <NoRows>За период нет возвратов денег.</NoRows>
         <Style>
@@ -1552,7 +1552,7 @@ ORDER BY Category
                         <BackgroundColor>Silver</BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1898,7 +1898,7 @@ ORDER BY Category
           </TableGroup>
         </TableGroups>
       </Table>
-      <Table Name="Table5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+      <Table Name="TableExpenses" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>DataExpense</DataSetName>
         <NoRows>За текущий период не было движений.</NoRows>
         <Style>
@@ -2020,7 +2020,7 @@ ORDER BY Category
                         <BackgroundColor>Silver</BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -2367,7 +2367,7 @@ ORDER BY Category
           </TableGroup>
         </TableGroups>
       </Table>
-      <Table Name="Table6" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+      <Table Name="TableAdvances" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>DataAdvance</DataSetName>
         <NoRows>За текущий период не было движений.</NoRows>
         <Style>
@@ -2489,7 +2489,7 @@ ORDER BY Category
                         <BackgroundColor>Silver</BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -2834,7 +2834,7 @@ ORDER BY Category
           </TableGroup>
         </TableGroups>
       </Table>
-      <Table Name="Table7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+      <Table Name="TableAdvanceReports" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>DataAdvanceReport</DataSetName>
         <NoRows>За текущий период не было движений.</NoRows>
         <Style>
@@ -3332,7 +3332,7 @@ ORDER BY Category
           </TableGroup>
         </TableGroups>
       </Table>
-      <Table Name="Table8" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+      <Table Name="TableUnclosedAdvances" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>DataAdvanceUnclosed</DataSetName>
         <NoRows>За текущий период не было движений.</NoRows>
         <Style>
@@ -3454,7 +3454,7 @@ ORDER BY Category
                         <BackgroundColor>Silver</BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -3897,7 +3897,7 @@ ORDER BY Category
                             <BorderWidth />
                             <VerticalAlign>Middle</VerticalAlign>
                             <Format>#,##0.00</Format>
-                            <TextAlign >General</TextAlign>
+                            <TextAlign>General</TextAlign>
                           </Style>
                           <CanGrow>true</CanGrow>
                         </Textbox>
@@ -4004,7 +4004,7 @@ ORDER BY Category
                             <BorderWidth />
                             <VerticalAlign>Middle</VerticalAlign>
                             <Format>#,##0.00</Format>
-                            <TextAlign >Right</TextAlign>
+                            <TextAlign>Right</TextAlign>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -4032,7 +4032,7 @@ ORDER BY Category
           </TableGroup>
         </TableGroups>
       </Table>
-      <Textbox Name="Textbox128" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+      <Textbox Name="TextboxAdvanceReports" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>21.11pt</Height>
         <Width>560.18pt</Width>
         <Value>Авансовые отчеты</Value>
@@ -4047,7 +4047,7 @@ ORDER BY Category
           <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox129" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+      <Textbox Name="TextboxIncomeReturns" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>21.11pt</Height>
         <Width>560.18pt</Width>
         <Value>Сдача (наличка)</Value>
@@ -4062,7 +4062,7 @@ ORDER BY Category
           <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox130" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+      <Textbox Name="TextboxUnclosedAdvances" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>21.11pt</Height>
         <Width>560.18pt</Width>
         <Value>Незакрытые авансы</Value>
