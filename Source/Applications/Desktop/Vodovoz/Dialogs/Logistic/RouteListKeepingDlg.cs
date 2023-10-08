@@ -416,6 +416,8 @@ namespace Vodovoz
 					dlg.DlgSaved += (s, ea) =>
 					{
 						rli.UpdateStatus(newStatus, CallTaskWorker);
+						UoW.Save(rli.RouteListItem);
+						UoW.Commit();
 					};
 					return;
 				}

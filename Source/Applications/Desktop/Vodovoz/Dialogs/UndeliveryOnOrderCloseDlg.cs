@@ -74,7 +74,7 @@ namespace Vodovoz.Dialogs
 			_undeliveredOrderViewModel.IsSaved += IsSaved;
 		}
 
-		private bool IsSaved() => Save(false);
+		private bool IsSaved() => Save(false, true);
 
 		public event EventHandler<UndeliveryOnOrderCloseEventArgs> DlgSaved;
 
@@ -83,7 +83,7 @@ namespace Vodovoz.Dialogs
 			Save();
 		}
 
-		public bool Save(bool needClose = true)
+		public bool Save(bool needClose = true, bool forceSave = false)
 		{
 			if(HasOrderStatusExternalChangesAndCancellationImpossible(undelivery.OldOrder, out OrderStatus actualOrderStatus))
 			{
@@ -95,7 +95,7 @@ namespace Vodovoz.Dialogs
 
 			UoW.Session.Refresh(undelivery.OldOrder);
 
-			var saved = SaveUndelivery(needClose);
+			var saved = SaveUndelivery(needClose, forceSave);
 
 			if(!saved && _addedCommentToOldUndelivery)
 			{
@@ -135,7 +135,7 @@ namespace Vodovoz.Dialogs
 			       && !isSelfDeliveryOnLoadingOrder;
 		}
 
-		private bool SaveUndelivery(bool needClose = true)
+		private bool SaveUndelivery(bool needClose = true, bool forceSave = false)
 		{
 			var validator = new ObjectValidator(new GtkValidationViewFactory());
 			if(!validator.Validate(undelivery))
@@ -145,7 +145,7 @@ namespace Vodovoz.Dialogs
 
 			_undeliveredOrderViewModel.BeforeSaveCommand.Execute();
 
-			if(!CanCreateUndelivery())
+			if(!CanCreateUndelivery() && !forceSave)
 			{
 				OnCloseTab(false);
 				return false;
