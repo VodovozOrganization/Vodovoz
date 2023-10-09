@@ -587,9 +587,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionTransportationWagonActivated(object sender, EventArgs e)
 	{
-		var movingWagonFilter = new MovementWagonJournalFilterViewModel();
-		var movingWagonJournal = new MovementWagonJournalViewModel(movingWagonFilter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
-		tdiMain.AddTab(movingWagonJournal);
+		NavigationManager.OpenViewModel<MovementWagonJournalViewModel>(null);
 	}
 
 	/// <summary>
