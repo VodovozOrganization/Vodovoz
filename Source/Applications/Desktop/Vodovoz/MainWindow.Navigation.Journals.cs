@@ -459,22 +459,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionPromotionalSetsActivated(object sender, EventArgs e)
 	{
-		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
-		var userRepository = new UserRepository();
-
-		var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
-
-		tdiMain.AddTab(
-			new PromotionalSetsJournalViewModel(
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices,
-				VodovozGtkServicesConfig.EmployeeService,
-				counterpartyJournalFactory,
-				new NomenclatureJournalFactory(),
-				nomenclatureRepository,
-				userRepository
-			)
-		);
+		NavigationManager.OpenViewModel<PromotionalSetsJournalViewModel>(null);
 	}
 
 	/// <summary>
