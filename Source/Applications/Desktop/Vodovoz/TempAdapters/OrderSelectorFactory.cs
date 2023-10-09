@@ -1,5 +1,6 @@
 ﻿using QS.Dialog.GtkUI.FileDialog;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
@@ -23,10 +24,12 @@ namespace Vodovoz.TempAdapters
 {
 	public class OrderSelectorFactory : IOrderSelectorFactory
 	{
+		private readonly INavigationManager _navigationManager;
 		private OrderJournalFilterViewModel _orderJournalFilter;
 
-		public OrderSelectorFactory(OrderJournalFilterViewModel orderFilter = null)
+		public OrderSelectorFactory(INavigationManager navigationManager, OrderJournalFilterViewModel orderFilter = null)
 		{
+			_navigationManager = navigationManager ?? throw new System.ArgumentNullException(nameof(navigationManager));
 			_orderJournalFilter = orderFilter;
 		}
 
@@ -61,7 +64,7 @@ namespace Vodovoz.TempAdapters
 			var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
 			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 			var userRepository = new UserRepository();
-			var employeeJournalFactory = new EmployeeJournalFactory();
+			var employeeJournalFactory = new EmployeeJournalFactory(_navigationManager);
 
 			return new EntityAutocompleteSelectorFactory<OrderJournalViewModel>(
 				typeof(Order),
@@ -84,8 +87,8 @@ namespace Vodovoz.TempAdapters
 						VodovozGtkServicesConfig.EmployeeService,
 						nomenclatureRepository,
 						userRepository,
-						new OrderSelectorFactory(),
-						new EmployeeJournalFactory(),
+						new OrderSelectorFactory(_navigationManager),
+						new EmployeeJournalFactory(_navigationManager),
 						counterpartyJournalFactory,
 						new DeliveryPointJournalFactory(),
 						new GtkTabsOpener(),
@@ -106,7 +109,7 @@ namespace Vodovoz.TempAdapters
 			var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
 			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 			var userRepository = new UserRepository();
-			var employeeJournalFactory = new EmployeeJournalFactory();
+			var employeeJournalFactory = new EmployeeJournalFactory(_navigationManager);
 
 			return new EntityAutocompleteSelectorFactory<OrderJournalViewModel>(
 				typeof(Order),
@@ -126,8 +129,8 @@ namespace Vodovoz.TempAdapters
 						VodovozGtkServicesConfig.EmployeeService,
 						nomenclatureRepository,
 						userRepository,
-						new OrderSelectorFactory(),
-						new EmployeeJournalFactory(),
+						new OrderSelectorFactory(_navigationManager),
+						new EmployeeJournalFactory(_navigationManager),
 						counterpartyJournalFactory,
 						new DeliveryPointJournalFactory(),
 						new GtkTabsOpener(),
@@ -148,7 +151,7 @@ namespace Vodovoz.TempAdapters
 			var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
 			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 			var userRepository = new UserRepository();
-			var employeeJournalFactory = new EmployeeJournalFactory();
+			var employeeJournalFactory = new EmployeeJournalFactory(_navigationManager);
 
 			if(filterViewModel != null)
 			{
@@ -164,8 +167,8 @@ namespace Vodovoz.TempAdapters
 				VodovozGtkServicesConfig.EmployeeService,
 				nomenclatureRepository,
 				userRepository,
-				new OrderSelectorFactory(),
-				new EmployeeJournalFactory(),
+				new OrderSelectorFactory(_navigationManager),
+				new EmployeeJournalFactory(_navigationManager),
 				counterpartyJournalFactory,
 				new DeliveryPointJournalFactory(),
 				new GtkTabsOpener(),

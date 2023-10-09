@@ -72,7 +72,7 @@ namespace Vodovoz
 			yentryrefParentSubdivision.SubjectType = typeof(Subdivision);
 			yentryrefParentSubdivision.Binding.AddBinding(Entity, e => e.ParentSubdivision, w => w.Subject).InitializeFromSource();
 
-			var employeeFactory = new EmployeeJournalFactory();
+			var employeeFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager);
 			evmeChief.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
 			evmeChief.Binding.AddBinding(Entity, e => e.Chief, w => w.Subject).InitializeFromSource();
 

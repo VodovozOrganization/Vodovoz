@@ -751,7 +751,7 @@ namespace Vodovoz
 			emailsView.ViewModel = emailsViewModel;
 			emailsView.Sensitive = CanEdit;
 
-			var employeeJournalFactory = new EmployeeJournalFactory();
+			var employeeJournalFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager);
 			if(SetSensitivityByPermission("can_set_personal_sales_manager", entrySalesManager))
 			{
 				entrySalesManager.SetEntityAutocompleteSelectorFactory(GetEmployeeFactoryWithResetFilter(employeeJournalFactory));
@@ -1462,7 +1462,7 @@ namespace Vodovoz
 			var orderJournalFilter = new OrderJournalFilterViewModel(
 				new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
 				new DeliveryPointJournalFactory(),
-				new EmployeeJournalFactory())
+				new EmployeeJournalFactory(Startup.MainWin.NavigationManager))
 			{ RestrictCounterparty = Entity };
 			var orderJournalViewModel = new OrderJournalViewModel(
 				orderJournalFilter,
@@ -1472,8 +1472,8 @@ namespace Vodovoz
 				new EmployeeService(),
 				NomenclatureRepository,
 				_userRepository,
-				new OrderSelectorFactory(),
-				new EmployeeJournalFactory(),
+				new OrderSelectorFactory(Startup.MainWin.NavigationManager),
+				new EmployeeJournalFactory(Startup.MainWin.NavigationManager),
 				new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
 				new DeliveryPointJournalFactory(),
 				new GtkTabsOpener(),

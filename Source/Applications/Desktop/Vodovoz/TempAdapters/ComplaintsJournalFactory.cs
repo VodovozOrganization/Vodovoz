@@ -53,8 +53,8 @@ namespace Vodovoz.TempAdapters
 			_subdivisionParametersProvider = new SubdivisionParametersProvider(new ParametersProvider());
 			_gtkDlgOpener = new GtkTabsOpener();
 			_userRepository = new UserRepository();
-			_orderSelectorFactory = new OrderSelectorFactory();
-			_employeeJournalFactory = new EmployeeJournalFactory();
+			_orderSelectorFactory = new OrderSelectorFactory(_navigationManager);
+			_employeeJournalFactory = new EmployeeJournalFactory(_navigationManager);
 			_counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
 			_deliveryPointJournalFactory = new DeliveryPointJournalFactory();
 			_complaintParametersProvider = new ComplaintParametersProvider(new ParametersProvider());
