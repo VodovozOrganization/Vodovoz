@@ -1146,11 +1146,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionNomenclaturePlanActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(() => new NomenclaturesPlanJournalViewModel(
-					new NomenclaturePlanFilterViewModel() { HidenByDefault = true },
-					UnitOfWorkFactory.GetDefaultFactory,
-					ServicesConfig.CommonServices)
-		);
+		NavigationManager.OpenViewModel<NomenclaturesPlanJournalViewModel, Action<NomenclaturePlanFilterViewModel>>(null, filter => filter.HidenByDefault = true);
 	}
 
 	/// <summary>
