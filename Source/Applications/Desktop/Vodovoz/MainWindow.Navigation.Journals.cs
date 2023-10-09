@@ -501,10 +501,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionEquipmentKindsActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(() => new EquipmentKindJournalViewModel(
-			UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices)
-		);
+		NavigationManager.OpenViewModel<EquipmentKindJournalViewModel>(null);
 	}
 
 	/// <summary>
