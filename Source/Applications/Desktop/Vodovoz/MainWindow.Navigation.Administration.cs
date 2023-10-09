@@ -68,12 +68,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnRegisteredRMActionActivated(object sender, EventArgs e)
 	{
-		tdiMain.AddTab(
-			new RegisteredRMJournalViewModel(
-				new RegisteredRMJournalFilterViewModel(),
-				UnitOfWorkFactory.GetDefaultFactory,
-				new PermissionRepository(),
-				ServicesConfig.CommonServices));
+		NavigationManager.OpenViewModel<RegisteredRMJournalViewModel>(null);
 	}
 
 	/// <summary>
