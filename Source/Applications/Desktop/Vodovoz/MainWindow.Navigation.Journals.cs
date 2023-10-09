@@ -1084,10 +1084,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionCarEventTypeActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(() => new CarEventTypeJournalViewModel(
-			UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices)
-		);
+		NavigationManager.OpenViewModel<CarEventTypeJournalViewModel>(null);
 	}
 
 	#endregion Логистика
