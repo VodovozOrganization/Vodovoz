@@ -54,10 +54,6 @@ namespace Vodovoz.Filters.GtkViews
 			entryLastEditor.Binding.AddBinding(ViewModel, vm => vm.CanReadEmployee, w => w.ViewModel.IsEditable)
 				.InitializeFromSource();
 
-			entryNomenclature.ViewModel = ViewModel.NomenclatureEntityEntryViewModel;
-			entryNomenclature.Binding.AddBinding(ViewModel, vm => vm.CanReadNomenclature, w => w.ViewModel.IsEditable)
-				.InitializeFromSource();
-
 			yecmbMovementStatus.ItemsEnum = typeof(MovementDocumentStatus);
 			yecmbMovementStatus.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.ShowMovementDocumentFilterDetails, w => w.Visible)

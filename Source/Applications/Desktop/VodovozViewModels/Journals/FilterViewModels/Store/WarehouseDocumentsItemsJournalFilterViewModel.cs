@@ -21,11 +21,8 @@ using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.Presentation.ViewModels.Common;
-using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.ViewModels.Employees;
 
@@ -244,21 +241,6 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 				lastEditorEntryViewModel.CanViewEntity = false;
 
 				LastEditorEntityEntryViewModel = lastEditorEntryViewModel;
-
-				var nomenclatureEntryViewModel =
-					new CommonEEVMBuilderFactory<WarehouseDocumentsItemsJournalFilterViewModel>(value, this, UoW, _navigationManager, _lifetimeScope)
-					.ForProperty(x => x.Nomenclature)
-					.UseViewModelDialog<NomenclatureViewModel>()
-					.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(
-						filter =>
-						{
-						}
-					)
-					.Finish();
-
-				nomenclatureEntryViewModel.CanViewEntity = false;
-
-				NomenclatureEntityEntryViewModel = nomenclatureEntryViewModel;
 			}
 		}
 
@@ -274,11 +256,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 
 		public EntityEntryViewModel<Employee> LastEditorEntityEntryViewModel { get; private set; }
 
-		public EntityEntryViewModel<Nomenclature> NomenclatureEntityEntryViewModel { get; private set; }
-
 		public bool CanReadEmployee => _currentPermissionService.ValidateEntityPermission(typeof(Employee)).CanRead;
-
-		public bool CanReadNomenclature => _currentPermissionService.ValidateEntityPermission(typeof(Nomenclature)).CanRead;
 
 		private void ConfigureFilter()
 		{
