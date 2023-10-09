@@ -325,10 +325,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionDriversComplaintReasonsJournalActivated(object sender, EventArgs e)
 	{
-		var driversComplaintReasonsFilter = new DriverComplaintReasonJournalFilterViewModel();
-		var driversComplaintReasonsJournal = new DriverComplaintReasonsJournalViewModel(driversComplaintReasonsFilter,
-			UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
-		tdiMain.AddTab(driversComplaintReasonsJournal);
+		NavigationManager.OpenViewModel<DriverComplaintReasonsJournalViewModel>(null);
 	}
 
 	/// <summary>
