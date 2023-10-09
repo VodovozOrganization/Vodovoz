@@ -817,13 +817,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionResponsiblePersonTypesJournalActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			() => new DeliveryPointResponsiblePersonTypeJournalViewModel(
-					new DeliveryPointResponsiblePersonTypeJournalFilterViewModel(),
-					UnitOfWorkFactory.GetDefaultFactory,
-					ServicesConfig.CommonServices
-			)
-		);
+		NavigationManager.OpenViewModel<DeliveryPointResponsiblePersonTypeJournalViewModel>(null);
 	}
 
 	/// <summary>
