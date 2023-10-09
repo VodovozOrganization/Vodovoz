@@ -435,10 +435,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionProductGroupsActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<ProductGroupView>(),
-			() => new ProductGroupView()
-		);
+		NavigationManager.OpenTdiTab<ProductGroupView>(null);
 	}
 
 	/// <summary>
