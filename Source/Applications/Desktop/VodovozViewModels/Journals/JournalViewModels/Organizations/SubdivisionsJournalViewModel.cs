@@ -143,7 +143,7 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 					Name = subdivision.Name,
 					//ChiefName = chiefFIO,
 					ParentId = subdivision.ParentSubdivision.Id,
-					//Children = children.ToList()
+					Children = children.ToList()
 			   })
 				: Enumerable.Empty<SubdivisionJournalNode>().AsQueryable();
 		}
@@ -151,6 +151,12 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 		private void OnFilterViewModelFiltered(object sender, EventArgs e)
 		{
 			Refresh();
+		}
+
+		public override void Dispose()
+		{
+			_filterViewModel.OnFiltered -= OnFilterViewModelFiltered;
+			base.Dispose();
 		}
 	}
 }

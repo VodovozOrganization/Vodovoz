@@ -16,6 +16,9 @@ using Vodovoz.Domain.Cash;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
+using Vodovoz.Journals.JournalViewModels.Organizations;
+using Vodovoz.Journals.JournalNodes;
+using Gamma.Binding.Core.RecursiveTreeConfig;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
@@ -50,6 +53,14 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Название").AddTextRenderer(node => node.Name)
 					.Finish()
 				);
+
+			TreeViewColumnsConfigFactory.Register<SubdivisionsJournalViewModel>(
+				(vm) => FluentColumnsConfig<SubdivisionJournalNode>.Create()
+					.SetTreeModel(() => new RecursiveTreeModel<SubdivisionJournalNode>(vm.Items.Cast<SubdivisionJournalNode>(), vm.RecuresiveConfig))
+					.AddColumn("Название").AddTextRenderer(node => node.Name)
+					.AddColumn("Руководитель").AddTextRenderer(node => node.ChiefName)
+					.AddColumn("Код").AddNumericRenderer(node => node.Id)
+					.Finish());
 
 			TreeViewColumnsConfigFactory.Register<RoboatsCallsRegistryJournalViewModel>(
 				(vm) => FluentColumnsConfig<RoboatsCallJournalNode>.Create()
