@@ -8,6 +8,7 @@ using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Services;
+using QS.Services;
 using QS.Validation;
 using QSBanks;
 using QSOrmProject;
@@ -42,6 +43,7 @@ using Vodovoz.Journals.JournalViewModels.WageCalculation;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
@@ -997,15 +999,11 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionFuelTypeActivated(object sender, EventArgs e)
 	{
-		var parametersProvider = new ParametersProvider();
-		var nomenclatureParametersProvider = new NomenclatureParametersProvider(parametersProvider);
-		var routeListProfitabilityController = new RouteListProfitabilityController(
-			new RouteListProfitabilityFactory(), nomenclatureParametersProvider,
-			new ProfitabilityConstantsRepository(), new RouteListProfitabilityRepository(),
-			new RouteListRepository(new StockRepository(), new BaseParametersProvider(parametersProvider)),
-			new NomenclatureRepository(nomenclatureParametersProvider));
-		var commonServices = ServicesConfig.CommonServices;
-		var unitOfWorkFactory = UnitOfWorkFactory.GetDefaultFactory;
+		var scope = Startup.AppDIContainer.BeginLifetimeScope();
+		var nomenclatureParametersProvider = scope.Resolve<INomenclatureParametersProvider>();
+		var routeListProfitabilityController = scope.Resolve<IRouteListProfitabilityController>();
+		var commonServices = scope.Resolve<ICommonServices>();
+		var unitOfWorkFactory = scope.Resolve<IUnitOfWorkFactory>();
 
 		var fuelTypeJournalViewModel = new SimpleEntityJournalViewModel<FuelType, FuelTypeViewModel>(
 			x => x.Name,
@@ -1033,6 +1031,8 @@ public partial class MainWindow
 		}
 
 		tdiMain.AddTab(fuelTypeJournalViewModel);
+
+		fuelTypeJournalViewModel.TabClosed += (s, args) => scope.Dispose();
 	}
 
 	/// <summary>
