@@ -5,20 +5,13 @@ using Gtk;
 using QS.Journal.GtkUI;
 using System;
 using System.Linq;
-using System.Reflection;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
-using Vodovoz.Domain.StoredResources;
-using Vodovoz.Parameters;
-using Vodovoz.Representations.ProductGroups;
-using Vodovoz.Settings.Database;
 using Vodovoz.Infrastructure;
-using Vodovoz.Domain.Cash;
+using Vodovoz.Journals.JournalNodes;
+using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
-using Vodovoz.Journals.JournalViewModels.Organizations;
-using Vodovoz.Journals.JournalNodes;
-using Gamma.Binding.Core.RecursiveTreeConfig;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
@@ -57,9 +50,36 @@ namespace Vodovoz.JournalColumnsConfigs
 			TreeViewColumnsConfigFactory.Register<SubdivisionsJournalViewModel>(
 				(vm) => FluentColumnsConfig<SubdivisionJournalNode>.Create()
 					.SetTreeModel(() => new RecursiveTreeModel<SubdivisionJournalNode>(vm.Items.Cast<SubdivisionJournalNode>(), vm.RecuresiveConfig))
-					.AddColumn("Название").AddTextRenderer(node => node.Name)
-					.AddColumn("Руководитель").AddTextRenderer(node => node.ChiefName)
-					.AddColumn("Код").AddNumericRenderer(node => node.Id)
+					.AddColumn("Название").AddTextRenderer(node => node.Name).AddSetter((cell, node) =>
+					{
+						var color = GdkColors.PrimaryText;
+						if(node.IsArchive)
+						{
+							color = GdkColors.InsensitiveText;
+						}
+
+						cell.ForegroundGdk = color;
+					})
+					.AddColumn("Руководитель").AddTextRenderer(node => node.ChiefName).AddSetter((cell, node) =>
+					{
+						var color = GdkColors.PrimaryText;
+						if(node.IsArchive)
+						{
+							color = GdkColors.InsensitiveText;
+						}
+
+						cell.ForegroundGdk = color;
+					})
+					.AddColumn("Код").AddNumericRenderer(node => node.Id).AddSetter((cell, node) =>
+					{
+						var color = GdkColors.PrimaryText;
+						if(node.IsArchive)
+						{
+							color = GdkColors.InsensitiveText;
+						}
+
+						cell.ForegroundGdk = color;
+					})
 					.Finish());
 
 			TreeViewColumnsConfigFactory.Register<RoboatsCallsRegistryJournalViewModel>(

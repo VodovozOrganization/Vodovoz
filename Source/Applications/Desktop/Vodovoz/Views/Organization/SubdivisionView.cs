@@ -100,6 +100,10 @@ namespace Vodovoz.Views.Organization
 				.InitializeFromSource();
 
 			entryDefaultSalesPlan.ViewModel.IsEditable = false;
+
+			ycheckArchieve.Binding
+				.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active)
+				.InitializeFromSource();
 		}
 
 		void ButtonAddDocument_Clicked(object sender, EventArgs e)
