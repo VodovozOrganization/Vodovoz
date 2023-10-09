@@ -8,6 +8,7 @@ using NHibernate.Transform;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
@@ -1720,6 +1721,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Warehouse warehouseAlias = null;
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
+			Employee fineEmployeeAlias = null;
 			Nomenclature nomenclatureAlias = null;
 			ProductGroup productGroupAlias = null;
 
@@ -1729,6 +1731,19 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 			var regrandingQuery = unitOfWork.Session.QueryOver(() => regradingOfGoodsDocumentItemAlias)
 				.JoinQueryOver(() => regradingOfGoodsDocumentItemAlias.Document, () => regradingOfGoodsDocumentAlias);
+
+			var finesSubquery = QueryOver.Of<FineItem>()
+				.Where(x => x.Fine.Id == fineAlias.Id)
+				.JoinAlias(x => x.Employee, () => fineEmployeeAlias)
+				.Select(
+					CustomProjections.GroupConcat(
+						CustomProjections.Concat_WS(
+							" ",
+							Projections.Property(() => fineEmployeeAlias.LastName),
+							Projections.Property(() => fineEmployeeAlias.Name),
+							Projections.Property(() => fineEmployeeAlias.Patronymic)
+						),
+						separator: ", "));
 
 			if((FilterViewModel.DocumentType == null || FilterViewModel.DocumentType == DocumentType.RegradingOfGoodsDocument)
 				&& FilterViewModel.Driver == null
@@ -1811,7 +1826,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
 					.Select(() => regradingOfGoodsDocumentAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
 					.Select(() => regradingOfGoodsDocumentAlias.Comment).WithAlias(() => resultAlias.Comment)
-					.Select(() => fineAlias.FineReasonString).WithAlias(() => resultAlias.Fine)
+					.SelectSubQuery(finesSubquery).WithAlias(() => resultAlias.FineEmployees)
+					.Select(() => fineAlias.TotalMoney).WithAlias(() => resultAlias.FineTotalMoney)
 					.Select(() => cullingCategoryAlias.Name).WithAlias(() => resultAlias.TypeOfDefect)
 					.Select(() => regradingOfGoodsDocumentItemAlias.Source).WithAlias(() => resultAlias.DefectSource)
 					.Select(() => regradingOfGoodsReasonAlias.Name).WithAlias(() => resultAlias.RegradingOfGoodsReason)
@@ -1831,6 +1847,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Warehouse warehouseAlias = null;
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
+			Employee fineEmployeeAlias = null;
 			Nomenclature nomenclatureAlias = null;
 			ProductGroup productGroupAlias = null;
 
@@ -1840,6 +1857,19 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 			var regrandingQuery = unitOfWork.Session.QueryOver(() => regradingOfGoodsDocumentItemAlias)
 				.JoinQueryOver(() => regradingOfGoodsDocumentItemAlias.Document, () => regradingOfGoodsDocumentAlias);
+
+			var finesSubquery = QueryOver.Of<FineItem>()
+				.Where(x => x.Fine.Id == fineAlias.Id)
+				.JoinAlias(x => x.Employee, () => fineEmployeeAlias)
+				.Select(
+					CustomProjections.GroupConcat(
+						CustomProjections.Concat_WS(
+							" ",
+							Projections.Property(() => fineEmployeeAlias.LastName),
+							Projections.Property(() => fineEmployeeAlias.Name),
+							Projections.Property(() => fineEmployeeAlias.Patronymic)
+						),
+						separator: ", "));
 
 			if((FilterViewModel.DocumentType == null || FilterViewModel.DocumentType == DocumentType.RegradingOfGoodsDocument)
 				&& FilterViewModel.Driver == null
@@ -1922,7 +1952,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
 					.Select(() => regradingOfGoodsDocumentAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
 					.Select(() => regradingOfGoodsDocumentAlias.Comment).WithAlias(() => resultAlias.Comment)
-					.Select(() => fineAlias.FineReasonString).WithAlias(() => resultAlias.Fine)
+					.SelectSubQuery(finesSubquery).WithAlias(() => resultAlias.FineEmployees)
+					.Select(() => fineAlias.TotalMoney).WithAlias(() => resultAlias.FineTotalMoney)
 					.Select(() => cullingCategoryAlias.Name).WithAlias(() => resultAlias.TypeOfDefect)
 					.Select(() => regradingOfGoodsDocumentItemAlias.Source).WithAlias(() => resultAlias.DefectSource)
 					.Select(() => regradingOfGoodsReasonAlias.Name).WithAlias(() => resultAlias.RegradingOfGoodsReason))
@@ -2224,7 +2255,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				FilterViewModel.TargetSource,
 				FilterViewModel.CounterpartiesNames,
 				FilterViewModel.WarehousesNames,
-				lines.OrderByDescending(x => x.Date));
+				lines.OrderByDescending(x => x.Date),
+				FilterViewModel.IncludeExcludeFilterViewModel);
 
 			await Task.CompletedTask;
 		}
