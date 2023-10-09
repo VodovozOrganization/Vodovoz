@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.Banks.Domain;
 using QS.BusinessCommon.Domain;
 using QS.Dialog.Gtk;
@@ -355,15 +355,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionEMailTypesActivated(object sender, EventArgs e)
 	{
-		IEmailRepository emailRepository = new EmailRepository();
-
-		tdiMain.AddTab(
-			new EmailTypeJournalViewModel(
-				emailRepository,
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices
-			)
-		);
+		NavigationManager.OpenViewModel<EmailTypeJournalViewModel>(null);
 	}
 
 	/// <summary>
