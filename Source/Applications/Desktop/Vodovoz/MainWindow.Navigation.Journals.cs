@@ -949,10 +949,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionTariffZonesActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(() => new TariffZoneJournalViewModel(
-			UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices)
-		);
+		NavigationManager.OpenViewModel<TariffZoneJournalViewModel>(null);
 	}
 
 	/// <summary>
