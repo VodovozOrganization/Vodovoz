@@ -52,7 +52,6 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		private DialogViewModelBase _journalViewModel;
 		private Employee _author;
 		private Employee _lastEditor;
-		private Nomenclature _nomenclature;
 		private bool _showNotAffectedBalance = false;
 		private int? _documentId;
 		private readonly IGenericRepository<Nomenclature> _nomenclatureRepository;
@@ -144,10 +143,14 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			set => UpdateFilterField(ref _lastEditor, value);
 		}
 
-		public Nomenclature Nomenclature
+		public IncludeExcludeElement SelectedNomenclatureElement
 		{
-			get => _nomenclature;
-			set => UpdateFilterField(ref _nomenclature, value);
+			get
+			{
+				var nomenclatures = IncludeExcludeFilterViewModel.GetIncludedElements<Nomenclature>().ToArray();
+
+				return nomenclatures.Length == 1 ? nomenclatures[0] : null;
+			}
 		}
 
 		public List<int> CounterpartyIds

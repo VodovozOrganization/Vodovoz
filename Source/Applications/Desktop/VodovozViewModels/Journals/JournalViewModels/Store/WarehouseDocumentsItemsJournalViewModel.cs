@@ -129,23 +129,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			ExportJournalReportCommand = new DelegateCommand(ExportJournalReport);
 			CreateWarehouseAccountingCardCommand = new DelegateCommand(async () => await CreateWarehouseAccountingCard(_cancellationTokenSource.Token));
 			ExportWarehouseAccountingCardCommand = new DelegateCommand(ExportWarehouseAccountingCard);
-
-			FilterViewModel.PropertyChanged += OnFilterViewModelPropertyChanged;
-		}
-
-		private void OnFilterViewModelPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-		{
-			var canExportWarehouseAccountingCardPropertiesAffected = new string[]
-			{
-				nameof(FilterViewModel.Nomenclature),
-				nameof(FilterViewModel.WarehouseIds),
-				nameof(FilterViewModel.TargetSource)
-			};
-
-			if(canExportWarehouseAccountingCardPropertiesAffected.Contains(e.PropertyName))
-			{
-				OnPropertyChanged(nameof(CanExportWarehouseAccountingCard));
-			}
 		}
 
 		public DelegateCommand CreateJournalReportCommand { get; }
@@ -153,10 +136,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 		public DelegateCommand CreateWarehouseAccountingCardCommand { get; }
 		public DelegateCommand ExportWarehouseAccountingCardCommand { get; }
 
-		public bool CanExportWarehouseAccountingCard =>
-			FilterViewModel.Nomenclature != null
-			&& FilterViewModel.WarehouseIds.Count == 1
-			&& FilterViewModel.TargetSource == TargetSource.Both;
 
 		protected override void CreatePopupActions()
 		{
@@ -2250,7 +2229,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				FilterViewModel.Author?.FullName ?? string.Empty,
 				FilterViewModel.LastEditor?.FullName ?? string.Empty,
 				FilterViewModel.Driver?.FullName ?? string.Empty,
-				FilterViewModel.Nomenclature?.Name ?? string.Empty,
+				FilterViewModel.SelectedNomenclatureElement?.Title ?? string.Empty,
 				FilterViewModel.ShowNotAffectedBalance,
 				FilterViewModel.TargetSource,
 				FilterViewModel.CounterpartiesNames,
@@ -2292,7 +2271,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 		protected void CreateExportWarhouseAccountingCardAction()
 		{
 			var exportJournalReportAction = new JournalAction("Выгрузить карточку складского учета",
-				(selected) => FilterViewModel.Nomenclature != null
+				(selected) => FilterViewModel.SelectedNomenclatureElement != null
 					&& FilterViewModel.WarehouseIds.Count == 1
 					&& FilterViewModel.TargetSource == TargetSource.Both,
 				(selected) => true,
@@ -2343,8 +2322,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				FilterViewModel.EndDate.Value,
 				warehouseId,
 				warehouseName,
-				FilterViewModel.Nomenclature.Id,
-				FilterViewModel.Nomenclature.Name,
+				int.TryParse(FilterViewModel.SelectedNomenclatureElement.Number, out var id) ? id : 0,
+				FilterViewModel.SelectedNomenclatureElement.Title,
 				lines,
 				GetWarehouseBalance);
 
