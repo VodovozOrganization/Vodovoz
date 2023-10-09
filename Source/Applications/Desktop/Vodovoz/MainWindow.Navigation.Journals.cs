@@ -365,9 +365,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnUnsubscribingReasonsActionActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(() => new BulkEmailEventReasonJournalViewModel(
-			UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices));
+		NavigationManager.OpenViewModel<BulkEmailEventReasonJournalViewModel>(null);
 	}
 
 	/// <summary>
