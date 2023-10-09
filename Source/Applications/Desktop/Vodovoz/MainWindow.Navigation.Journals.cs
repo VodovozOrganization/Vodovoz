@@ -185,13 +185,11 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionEmployeeActivated(object sender, EventArgs e)
 	{
-		var employeeFilter = new EmployeeFilterViewModel();
-
-		employeeFilter.SetAndRefilterAtOnce(x => x.Status = EmployeeStatus.IsWorking);
-
-		var employeeJournalFactory = new EmployeeJournalFactory(employeeFilter);
-
-		tdiMain.AddTab(employeeJournalFactory.CreateEmployeesJournal());
+		NavigationManager.OpenViewModel<EmployeesJournalViewModel, Action<EmployeeFilterViewModel>>(null,
+			filter =>
+			{
+				filter.Status = EmployeeStatus.IsWorking;
+			});
 	}
 
 	/// <summary>
