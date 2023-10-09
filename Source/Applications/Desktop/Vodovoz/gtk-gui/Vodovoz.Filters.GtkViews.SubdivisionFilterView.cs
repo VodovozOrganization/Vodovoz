@@ -6,6 +6,12 @@ namespace Vodovoz.Filters.GtkViews
 	{
 		private global::Gtk.Table table1;
 
+		private global::Gtk.HBox hboxSearchBar;
+
+		private global::Gtk.Label labelSearch;
+
+		private global::Gamma.GtkWidgets.yEntry yentrySearch;
+
 		private global::Gamma.GtkWidgets.yCheckButton ycheckArchieve;
 
 		protected virtual void Build()
@@ -20,6 +26,36 @@ namespace Vodovoz.Filters.GtkViews
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
+			this.hboxSearchBar = new global::Gtk.HBox();
+			this.hboxSearchBar.Name = "hboxSearchBar";
+			this.hboxSearchBar.Spacing = 6;
+			// Container child hboxSearchBar.Gtk.Box+BoxChild
+			this.labelSearch = new global::Gtk.Label();
+			this.labelSearch.Name = "labelSearch";
+			this.labelSearch.Xalign = 1F;
+			this.labelSearch.LabelProp = global::Mono.Unix.Catalog.GetString("Поиск:");
+			this.hboxSearchBar.Add(this.labelSearch);
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hboxSearchBar[this.labelSearch]));
+			w1.Position = 0;
+			w1.Expand = false;
+			w1.Fill = false;
+			// Container child hboxSearchBar.Gtk.Box+BoxChild
+			this.yentrySearch = new global::Gamma.GtkWidgets.yEntry();
+			this.yentrySearch.CanFocus = true;
+			this.yentrySearch.Name = "yentrySearch";
+			this.yentrySearch.IsEditable = true;
+			this.yentrySearch.InvisibleChar = '•';
+			this.hboxSearchBar.Add(this.yentrySearch);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hboxSearchBar[this.yentrySearch]));
+			w2.Position = 1;
+			this.table1.Add(this.hboxSearchBar);
+			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.hboxSearchBar]));
+			w3.TopAttach = ((uint)(1));
+			w3.BottomAttach = ((uint)(2));
+			w3.RightAttach = ((uint)(3));
+			w3.XOptions = ((global::Gtk.AttachOptions)(4));
+			w3.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
 			this.ycheckArchieve = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckArchieve.CanFocus = true;
 			this.ycheckArchieve.Name = "ycheckArchieve";
@@ -27,10 +63,10 @@ namespace Vodovoz.Filters.GtkViews
 			this.ycheckArchieve.DrawIndicator = true;
 			this.ycheckArchieve.UseUnderline = true;
 			this.table1.Add(this.ycheckArchieve);
-			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckArchieve]));
-			w1.RightAttach = ((uint)(2));
-			w1.XOptions = ((global::Gtk.AttachOptions)(4));
-			w1.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckArchieve]));
+			w4.RightAttach = ((uint)(2));
+			w4.XOptions = ((global::Gtk.AttachOptions)(4));
+			w4.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add(this.table1);
 			if ((this.Child != null))
 			{
