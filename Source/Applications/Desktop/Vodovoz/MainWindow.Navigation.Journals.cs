@@ -264,14 +264,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionComplaintObjectActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(() => new ComplaintObjectJournalViewModel(
-			new ComplaintObjectJournalFilterViewModel()
-			{
-				HidenByDefault = true
-			},
-			UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices)
-		);
+		NavigationManager.OpenViewModel<ComplaintObjectJournalViewModel, Action<ComplaintObjectJournalFilterViewModel>>(null, filter => filter.HidenByDefault = true);
 	}
 
 	/// <summary>
