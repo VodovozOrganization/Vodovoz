@@ -926,10 +926,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionDeliveryScheduleActivated(object sender, EventArgs e)
 	{
-		var journal = _autofacScope.Resolve<DeliveryScheduleJournalViewModel>();
-
-		journal.SelectionMode = JournalSelectionMode.None;
-		tdiMain.AddTab(journal);
+		NavigationManager.OpenViewModel<DeliveryScheduleJournalViewModel>(null);
 	}
 
 	/// <summary>
