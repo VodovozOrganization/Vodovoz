@@ -988,8 +988,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionCarsActivated(object sender, EventArgs e)
 	{
-		var page = NavigationManager.OpenViewModel<CarJournalViewModel>(null);
-		page.ViewModel.NavigationManager = NavigationManager;
+		NavigationManager.OpenViewModel<CarJournalViewModel>(null);
 	}
 
 	/// <summary>
