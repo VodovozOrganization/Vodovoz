@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using QS.Banks.Domain;
 using QS.BusinessCommon.Domain;
 using QS.Dialog.Gtk;
@@ -127,12 +127,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionWageDistrictActivated(object sender, EventArgs e)
 	{
-		tdiMain.AddTab(
-			new WageDistrictsJournalViewModel(
-				 UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices
-			)
-		);
+		NavigationManager.OpenViewModel<WageDistrictsJournalViewModel>(null);
 	}
 
 	/// <summary>
