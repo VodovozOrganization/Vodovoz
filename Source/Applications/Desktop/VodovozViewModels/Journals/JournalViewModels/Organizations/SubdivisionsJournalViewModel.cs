@@ -56,6 +56,13 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 			_filterViewModel = filterViewModel ?? throw new ArgumentNullException(nameof(filterViewModel));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 
+			if(filterConfig != null)
+			{
+				_filterViewModel.SetAndRefilterAtOnce(filterConfig);
+			}
+
+			JournalFilter = _filterViewModel;
+
 			_filterViewModel.OnFiltered += OnFilterViewModelFiltered;
 
 			TabName = $"Журнал {typeof(Subdivision).GetClassUserFriendlyName().GenitivePlural}";
@@ -82,11 +89,6 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 			UpdateOnChanges(typeof(Subdivision));
 
 			(Search as SearchViewModel).PropertyChanged += OnSearchPropertyChanged;
-
-			if(filterConfig != null)
-			{
-				_filterViewModel.SetAndRefilterAtOnce(filterConfig);
-			}
 		}
 
 
@@ -135,13 +137,13 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 						|| subdivision.DocumentTypes.Any(x => x.Type == nameof(Expense))
 						|| subdivision.DocumentTypes.Any(x => x.Type == nameof(AdvanceReport)))
 			   let children = GetSubGroup(unitOfWork, subdivision.Id)
-			   //let chiefFIO = subdivision.Chief == null ? "" : $"{subdivision.Chief.LastName.Take(1)}. {subdivision.Chief.Name.Take(1)}. {subdivision.Chief.Patronymic}"
+			   let chiefFIO = subdivision.Chief == null ? "" : $"{subdivision.Chief.LastName.Substring(1, 1)}. {subdivision.Chief.Name.Substring(1, 1)}. {subdivision.Chief.Patronymic}"
 			   orderby subdivision.Name
 			   select new SubdivisionJournalNode
 			   {
 					Id = subdivision.Id,
 					Name = subdivision.Name,
-					//ChiefName = chiefFIO,
+					ChiefName = chiefFIO,
 					ParentId = subdivision.ParentSubdivision.Id,
 					Children = children.ToList()
 			   })
