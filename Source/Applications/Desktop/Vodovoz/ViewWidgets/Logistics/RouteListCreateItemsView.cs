@@ -1,4 +1,4 @@
-﻿using Gamma.GtkWidgets;
+using Gamma.GtkWidgets;
 using Gtk;
 using NHibernate.Criterion;
 using NLog;
@@ -34,6 +34,7 @@ using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Factories;
 using Order = Vodovoz.Domain.Orders.Order;
+using QS.Navigation;
 using Vodovoz.Infrastructure;
 using Vodovoz.Extensions;
 
@@ -59,6 +60,8 @@ namespace Vodovoz
 		private IList<RouteColumn> _columnsInfo;
 
 		private IList<RouteColumn> ColumnsInfo => _columnsInfo ?? _routeColumnRepository.ActiveColumns(RouteListUoW);
+
+		public INavigationManager NavigationManager { get; set; }
 
 		private IUnitOfWorkGeneric<RouteList> routeListUoW;
 
@@ -346,17 +349,12 @@ namespace Vodovoz
 				x => x.ExcludeClosingDocumentDeliverySchedule = true
 			);
 
-			var orderSelectDialog = new OrderForRouteListJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices, new OrderSelectorFactory(), new EmployeeJournalFactory(), new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
-				new DeliveryPointJournalFactory(), new SubdivisionJournalFactory(), new GtkTabsOpener(),
-				new UndeliveredOrdersJournalOpener(), new EmployeeService(), new UndeliveredOrdersRepository(),
-				new SubdivisionParametersProvider(_parametersProvider), _deliveryScheduleParametersProvider, new FileDialogService())
-			{
-				SelectionMode = JournalSelectionMode.Multiple
-			};
+			var page = NavigationManager.OpenViewModel<OrderForRouteListJournalViewModel>(null);
+
+			page.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
 
 			//Selected Callback
-			orderSelectDialog.OnEntitySelectedResult += (sender, ea) =>
+			page.ViewModel.OnEntitySelectedResult += (sender, ea) =>
 			{
 				var selectedIds = ea.SelectedNodes.Select(x => x.Id);
 				if(!selectedIds.Any()) {
@@ -370,9 +368,6 @@ namespace Vodovoz
 					RouteListUoW.Root.AddAddressFromOrder(order);
 				}
 			};
-
-			//OpenTab
-			MyTab.TabParent.AddSlaveTab(MyTab, orderSelectDialog);
 		}
 
 		protected void AddOrdersFromRegion()

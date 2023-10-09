@@ -1589,7 +1589,7 @@ namespace Vodovoz.Views.Employees
 			w107.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.yspinTripsPriority = new global::Gamma.GtkWidgets.ySpinButton(1D, 10D, 1D);
-			this.yspinTripsPriority.TooltipMarkup = "1 - максимальный приоритет\n10 - минимальный приоритет";
+			this.yspinTripsPriority.TooltipMarkup = "1 - максимальный приоритет\r\n10 - минимальный приоритет";
 			this.yspinTripsPriority.CanFocus = true;
 			this.yspinTripsPriority.Name = "yspinTripsPriority";
 			this.yspinTripsPriority.Adjustment.PageIncrement = 1D;

@@ -1,7 +1,7 @@
 ﻿using QS.Commands;
 using QS.Project.Filter;
-using QS.Project.Journal;
 using QS.Project.Services;
+using QS.ViewModels.Control.EEVM;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.Employees;
@@ -51,6 +51,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
 		}
 
 		#region Свойства
+
+		public IEntityEntryViewModel SubdivisionViewModel { get; private set; }
 
 		public DelegateCommand UpdateRestrictions { get; private set; }
 		

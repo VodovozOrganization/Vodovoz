@@ -1,4 +1,4 @@
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Services.FileDialog;
 using QS.Services;
@@ -24,7 +24,6 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly IEmployeeService _employeeService;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly IUserRepository _userRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
@@ -40,7 +39,6 @@ namespace Vodovoz.ViewModels.Complaints
 			ISubdivisionRepository subdivisionRepository,
 			ICommonServices commonServices,
 			IEmployeeJournalFactory employeeJournalFactory,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IFileDialogService fileDialogService,
 			IUserRepository userRepository,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
@@ -51,7 +49,6 @@ namespace Vodovoz.ViewModels.Complaints
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			Entity.ComplaintType = ComplaintType.Inner;
@@ -128,7 +125,7 @@ namespace Vodovoz.ViewModels.Complaints
 				if(guiltyItemsViewModel == null)
 				{
 					guiltyItemsViewModel =
-						new GuiltyItemsViewModel(Entity, UoW, CommonServices, _subdivisionRepository, _employeeJournalFactory, _subdivisionJournalFactory, _subdivisionParametersProvider);
+						new GuiltyItemsViewModel(Entity, UoW, CommonServices, _subdivisionRepository, _employeeJournalFactory, _subdivisionParametersProvider);
 				}
 
 				return guiltyItemsViewModel;

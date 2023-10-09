@@ -169,6 +169,8 @@ namespace Vodovoz
 			UpdateDateEditable();
 		}
 
+		public INavigationManager NavigationManager { get; set; }
+
 		private void UpdateDateEditable()
 		{
 			var dateEditable = UoW.IsNew && Entity.RouteList == null;
@@ -319,35 +321,14 @@ namespace Vodovoz
 
 		protected void OnBtnShowUndeliveryClicked(object sender, EventArgs e)
 		{
-			var undeliveredOrdersFilter = new UndeliveredOrdersFilterViewModel(
-				ServicesConfig.CommonServices,
-				new OrderSelectorFactory(),
-				new EmployeeJournalFactory(),
-				new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
-				new DeliveryPointJournalFactory(),
-				new SubdivisionJournalFactory())
+			var page = NavigationManager.OpenViewModel<UndeliveredOrdersJournalViewModel, Action<UndeliveredOrdersFilterViewModel>>(null, filter =>
 			{
-				HidenByDefault = true,
-				RestrictOldOrder = Entity.UndeliveredOrder.OldOrder,
-				RestrictOldOrderStartDate = Entity.UndeliveredOrder.OldOrder.DeliveryDate,
-				RestrictOldOrderEndDate = Entity.UndeliveredOrder.OldOrder.DeliveryDate,
-				RestrictUndeliveryStatus = Entity.UndeliveredOrder.UndeliveryStatus
-			};
-
-			var dlg = new UndeliveredOrdersJournalViewModel(
-				undeliveredOrdersFilter,
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices,
-				new GtkTabsOpener(),
-				new EmployeeJournalFactory(),
-				VodovozGtkServicesConfig.EmployeeService,
-				new UndeliveredOrdersJournalOpener(),
-				new UndeliveredOrdersRepository(),
-				new EmployeeSettings(new ParametersProvider()),
-				new SubdivisionParametersProvider(new ParametersProvider())
-			);
-
-			TabParent.AddSlaveTab(this, dlg);
+				filter.HidenByDefault = true;
+				filter.RestrictOldOrder = Entity.UndeliveredOrder.OldOrder;
+				filter.RestrictOldOrderStartDate = Entity.UndeliveredOrder.OldOrder.DeliveryDate;
+				filter.RestrictOldOrderEndDate = Entity.UndeliveredOrder.OldOrder.DeliveryDate;
+				filter.RestrictUndeliveryStatus = Entity.UndeliveredOrder.UndeliveryStatus;
+			});
 		}
 	}
 }

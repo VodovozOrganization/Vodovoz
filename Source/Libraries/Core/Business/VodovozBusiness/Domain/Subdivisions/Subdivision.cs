@@ -18,7 +18,8 @@ namespace Vodovoz
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "подразделения",
-		Nominative = "подразделение")]
+		Nominative = "подразделение",
+		GenitivePlural = "подразделений")]
 	[EntityPermission]
 	[HistoryTrace]
 	public class Subdivision : PropertyChangedBase, IDomainObject, IValidatableObject, INamed, IArchivable

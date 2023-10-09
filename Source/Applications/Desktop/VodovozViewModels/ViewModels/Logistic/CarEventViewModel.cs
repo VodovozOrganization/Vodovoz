@@ -24,9 +24,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
 	public class CarEventViewModel : EntityTabViewModelBase<CarEvent>
 	{
-		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
-		private readonly IEntitySelectorFactory _employeeSelectorFactory;
-		private readonly IEmployeeSettings _employeeSettings;
 		private readonly ICarEventSettings _carEventSettings;
 		public string CarEventTypeCompensation = "Компенсация от страховой, по суду";
 		public decimal RepairCost
@@ -77,17 +74,13 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			ICarEventJournalFactory carEventSelectorFactory,
 			IEmployeeService employeeService,
 			IEmployeeJournalFactory employeeJournalFactory,
-			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
 			IEmployeeSettings employeeSettings,
 			ICarEventSettings carEventSettings
 			)
 			: base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
-			_undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
 			EmployeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_employeeSelectorFactory = EmployeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
-			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
 			CanChangeWithClosedPeriod =
 				commonServices.CurrentPermissionService.ValidatePresetPermission("can_create_edit_car_events_in_closed_period");
@@ -335,11 +328,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			var fineViewModel = new FineViewModel(
 						   EntityUoWBuilder.ForCreate(),
 						   QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-						   _undeliveryViewOpener,
 						   EmployeeService,
 						   EmployeeJournalFactory,
-						   _employeeSettings,
-						   CommonServices
+						   CommonServices,
+						   NavigationManager
 					   )
 			{
 				FineReasonString = Entity.GetFineReason()
@@ -360,11 +352,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			return new FinesJournalViewModel(
 				fineFilter,
-				_undeliveryViewOpener,
 				EmployeeService,
 				EmployeeJournalFactory,
 				QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-				_employeeSettings,
 				CommonServices
 			)
 			{

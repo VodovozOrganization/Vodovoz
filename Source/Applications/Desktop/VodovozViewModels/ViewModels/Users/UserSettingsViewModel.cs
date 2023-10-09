@@ -7,6 +7,7 @@ using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +17,6 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Widgets.Users;
 
 namespace Vodovoz.ViewModels.Users
@@ -44,7 +44,6 @@ namespace Vodovoz.ViewModels.Users
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
 			ISubdivisionRepository subdivisionRepository,
 			INomenclaturePricesRepository nomenclatureFixedPriceRepository)
@@ -61,9 +60,6 @@ namespace Vodovoz.ViewModels.Users
 			_nomenclatureFixedPriceRepository =
 				nomenclatureFixedPriceRepository ?? throw new ArgumentNullException(nameof(nomenclatureFixedPriceRepository));
 			InteractiveService = commonServices.InteractiveService;
-			SubdivisionSelectorDefaultFactory =
-				(subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory)))
-				.CreateDefaultSubdivisionAutocompleteSelectorFactory();
 			CounterpartySelectorFactory =
 				(counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory();
@@ -94,6 +90,8 @@ namespace Vodovoz.ViewModels.Users
 				.ToList();
 		}
 
+		public IEntityEntryViewModel SubdivisionViewModel { get; private set; }
+
 		#region Свойства
 
 		public decimal IncrementFixedPrices
@@ -121,7 +119,6 @@ namespace Vodovoz.ViewModels.Users
 		}
 		
 		public IInteractiveService InteractiveService { get; }
-		public IEntityAutocompleteSelectorFactory SubdivisionSelectorDefaultFactory { get; }
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 
 		public bool IsUserFromOkk => _subdivisionParametersProvider.GetOkkId()

@@ -37,7 +37,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 
-		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
 		private readonly IEmployeeSettings _employeeSettings;
 		private readonly IEmployeeService _employeeService;
 
@@ -52,7 +51,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			ICallTaskWorker callTaskWorker,
 			IValidationContextFactory validationContextFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
-			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
 			IEmployeeSettings employeeSettings,
 			IEmployeeService employeeService,
 			ITdiTabParent tabParent,
@@ -67,7 +65,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			_validationContextFactory = validationContextFactory ?? throw new ArgumentNullException(nameof(validationContextFactory));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_tabParent = tabParent ?? throw new ArgumentNullException(nameof(tabParent));
@@ -302,11 +299,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					var fineViewModel = new FineViewModel(
 						EntityUoWBuilder.ForCreate(),
 						UnitOfWorkFactory,
-						_undeliveryViewOpener,
 						_employeeService,
 						_employeeJournalFactory,
-						_employeeSettings,
-						CommonServices
+						CommonServices,
+						NavigationManager
 					)
 					{
 						RouteList = selectedItem.RouteList,

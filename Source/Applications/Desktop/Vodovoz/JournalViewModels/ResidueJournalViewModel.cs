@@ -1,5 +1,4 @@
-﻿using System;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
@@ -8,6 +7,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
+using System;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Operations;
@@ -18,7 +18,6 @@ using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -38,14 +37,12 @@ namespace Vodovoz.JournalViewModels
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IEmployeeJournalFactory employeeJournalFactory,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
 			ICounterpartyJournalFactory counterpartyJournalFactory
 		) 
 		: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			TabName = "Журнал остатков";
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.representationEntityPicker = representationEntityPicker ?? throw new ArgumentNullException(nameof(representationEntityPicker));
@@ -70,7 +67,6 @@ namespace Vodovoz.JournalViewModels
 		private readonly IUnitOfWorkFactory unitOfWorkFactory;
 		private readonly ICommonServices commonServices;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
 
 		protected override Func<IUnitOfWork, IQueryOver<Residue>> ItemsSourceQueryFunction => (uow) => {
 			Counterparty counterpartyAlias = null;
@@ -140,7 +136,6 @@ namespace Vodovoz.JournalViewModels
 			moneyRepository, 
 			commonServices,
 			_employeeJournalFactory,
-			_subdivisionJournalFactory,
 			_subdivisionParametersProvider,
 			_counterpartyJournalFactory
 		);
@@ -155,7 +150,6 @@ namespace Vodovoz.JournalViewModels
 			moneyRepository, 
 			commonServices,
 			_employeeJournalFactory,
-			_subdivisionJournalFactory,
 			_subdivisionParametersProvider,
 			_counterpartyJournalFactory
 		);

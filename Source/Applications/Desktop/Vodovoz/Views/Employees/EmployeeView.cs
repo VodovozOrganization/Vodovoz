@@ -1,4 +1,4 @@
-﻿using Gamma.ColumnConfig;
+using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gamma.Widgets;
 using QS.Dialog;

@@ -37,7 +37,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		private readonly ICarEventJournalFactory _carEventJournalFactory;
 		private readonly IEmployeeService _employeeService;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
 		private readonly IEmployeeSettings _employeeSettings;
 		private readonly ICarEventSettings _carEventSettings;
 
@@ -53,7 +52,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			ICarEventJournalFactory carEventJournalFactory,
 			IEmployeeService employeeService,
 			IEmployeeJournalFactory employeeJournalFactory,
-			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
 			IEmployeeSettings employeeSettings,
 			ICarEventSettings carEventSettings)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
@@ -65,7 +63,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			_carEventJournalFactory = carEventJournalFactory ?? throw new ArgumentNullException(nameof(carEventJournalFactory));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
 			_canChangeWithClosedPeriod = commonServices.CurrentPermissionService.ValidatePresetPermission("can_create_edit_car_events_in_closed_period");
@@ -264,7 +261,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				_carEventJournalFactory,
 				_employeeService,
 				_employeeJournalFactory,
-				_undeliveryViewOpener,
 				_employeeSettings,
 				_carEventSettings);
 
@@ -278,7 +274,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				_carEventJournalFactory,
 				_employeeService,
 				_employeeJournalFactory,
-				_undeliveryViewOpener,
 				_employeeSettings,
 				_carEventSettings);
 

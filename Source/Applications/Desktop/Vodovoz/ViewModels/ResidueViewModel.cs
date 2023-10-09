@@ -1,15 +1,12 @@
-﻿using System;
-using System.ComponentModel;
-using System.Linq;
-using QS.Commands;
+﻿using QS.Commands;
 using QS.DomainModel.UoW;
-using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
-using QS.Project.Journal.EntitySelector;
-using QS.RepresentationModel.GtkUI;
 using QS.Services;
 using QS.Utilities;
 using QS.ViewModels;
+using System;
+using System.ComponentModel;
+using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
@@ -18,15 +15,11 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalFilters;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.Complaints;
-using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz.ViewModels
 {
@@ -49,7 +42,6 @@ namespace Vodovoz.ViewModels
 			IMoneyRepository moneyRepository,
 			ICommonServices commonServices,
 			IEmployeeJournalFactory employeeJournalFactory,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
 			ICounterpartyJournalFactory counterpartyJournalFactory
 		)
@@ -79,7 +71,6 @@ namespace Vodovoz.ViewModels
 				commonServices,
 				new SubdivisionRepository(new ParametersProvider()),
 				employeeJournalFactory,
-				subdivisionJournalFactory,
 				subdivisionParametersProvider);
 
 			Entity.ObservableEquipmentDepositItems.PropertyOfElementChanged += OnObservableEquipmentItemsPropertyOfElementChanged;

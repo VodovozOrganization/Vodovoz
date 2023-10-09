@@ -4,12 +4,34 @@ namespace Vodovoz.Filters.GtkViews
 {
 	public partial class SubdivisionFilterView
 	{
+		private global::Gtk.Table table1;
+
+		private global::Gamma.GtkWidgets.yCheckButton ycheckArchieve;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
 			// Widget Vodovoz.Filters.GtkViews.SubdivisionFilterView
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Filters.GtkViews.SubdivisionFilterView";
+			// Container child Vodovoz.Filters.GtkViews.SubdivisionFilterView.Gtk.Container+ContainerChild
+			this.table1 = new global::Gtk.Table(((uint)(2)), ((uint)(3)), false);
+			this.table1.Name = "table1";
+			this.table1.RowSpacing = ((uint)(6));
+			this.table1.ColumnSpacing = ((uint)(6));
+			// Container child table1.Gtk.Table+TableChild
+			this.ycheckArchieve = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckArchieve.CanFocus = true;
+			this.ycheckArchieve.Name = "ycheckArchieve";
+			this.ycheckArchieve.Label = global::Mono.Unix.Catalog.GetString("Архивный");
+			this.ycheckArchieve.DrawIndicator = true;
+			this.ycheckArchieve.UseUnderline = true;
+			this.table1.Add(this.ycheckArchieve);
+			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckArchieve]));
+			w1.RightAttach = ((uint)(2));
+			w1.XOptions = ((global::Gtk.AttachOptions)(4));
+			w1.YOptions = ((global::Gtk.AttachOptions)(4));
+			this.Add(this.table1);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();

@@ -34,7 +34,6 @@ namespace Vodovoz.ViewModels.Logistic
 {
 	public class RouteListAnalysisViewModel : EntityTabViewModelBase<RouteList>, IAskSaveOnCloseViewModel
 	{
-		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly IEmployeeService _employeeService;
 		private readonly IWageParameterService _wageParameterService;
@@ -42,9 +41,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private readonly IDeliveryPointJournalFactory _deliveryPointJournalFactory;
-		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
 		private readonly IGtkTabsOpener _gtkDialogsOpener;
-		private readonly IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private readonly IEmployeeSettings _employeeSettings;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
@@ -60,9 +57,7 @@ namespace Vodovoz.ViewModels.Logistic
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IGtkTabsOpener gtkDialogsOpener,
-			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
 			IDeliveryShiftRepository deliveryShiftRepository,
 			IEmployeeSettings employeeSettings,
 			IEmployeeService employeeService,
@@ -71,7 +66,6 @@ namespace Vodovoz.ViewModels.Logistic
 			IRouteListItemRepository routeListItemRepository,
 			IWageParameterService wageParameterService,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
-			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
 			IFileDialogService fileDialogService)
 			: base (uowBuilder, unitOfWorkFactory, commonServices)
 		{
@@ -80,17 +74,13 @@ namespace Vodovoz.ViewModels.Logistic
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			_deliveryPointJournalFactory = 
 				deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
-			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			_gtkDialogsOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
-			_undeliveredOrdersJournalOpener =
-				undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			_routeListProfitabilityController =
 				routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 			_subdivisionParametersProvider =
 				subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
-			_undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService)); ;
 			UndeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
@@ -166,37 +156,15 @@ namespace Vodovoz.ViewModels.Logistic
 		public DelegateCommand OpenUndeliveredOrderCommand => 
 			openUndeliveredOrderCommand ?? (openUndeliveredOrderCommand = new DelegateCommand(
 				() => {
-
-					var undeliveredOrdersFilter = new UndeliveredOrdersFilterViewModel(
-						_commonServices,
-						_orderSelectorFactory,
-						_employeeJournalFactory,
-						_counterpartyJournalFactory,
-						_deliveryPointJournalFactory,
-						_subdivisionJournalFactory)
+					var page = NavigationManager.OpenViewModel<UndeliveredOrdersJournalViewModel, Action<UndeliveredOrdersFilterViewModel>>(this, filter =>
 					{
-						HidenByDefault = true,
-						RestrictOldOrder = SelectedItem.Order,
-						RestrictOldOrderStartDate = SelectedItem.Order.DeliveryDate,
-						RestrictOldOrderEndDate = SelectedItem.Order.DeliveryDate
-					};
+						filter.HidenByDefault = true;
+						filter.RestrictOldOrder = SelectedItem.Order;
+						filter.RestrictOldOrderStartDate = SelectedItem.Order.DeliveryDate;
+						filter.RestrictOldOrderEndDate = SelectedItem.Order.DeliveryDate;
+					});
 
-					var dlg = new UndeliveredOrdersJournalViewModel(
-						undeliveredOrdersFilter,
-						UnitOfWorkFactory,
-						_commonServices,
-						_gtkDialogsOpener,
-						_employeeJournalFactory,
-						_employeeService,
-						_undeliveredOrdersJournalOpener,
-						UndeliveredOrdersRepository,
-						_employeeSettings,
-						_subdivisionParametersProvider
-					);
-
-					dlg.TabClosed += (s,e) => UpdateTreeAddresses?.Invoke();
-					
-					TabParent.AddTab(dlg, this);
+					page.PageClosed += (s,e) => UpdateTreeAddresses?.Invoke();
 				}, 
 				() => SelectedItem != null
 			)
@@ -209,11 +177,10 @@ namespace Vodovoz.ViewModels.Logistic
 				var fineViewModel = new FineViewModel(
 					EntityUoWBuilder.ForCreate(),
 					QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-					_undeliveryViewOpener,
 					_employeeService,
 					_employeeJournalFactory,
-					_employeeSettings,
-					CommonServices
+					CommonServices,
+					NavigationManager
 				);
 
 				fineViewModel.RouteList = SelectedItem.RouteList;
@@ -246,11 +213,9 @@ namespace Vodovoz.ViewModels.Logistic
 				fineFilter.ExcludedIds = SelectedItem.Fines.Select(x => x.Id).ToArray();
 				var fineJournalViewModel = new FinesJournalViewModel(
 					fineFilter,
-					_undeliveryViewOpener,
 					_employeeService,
 					_employeeJournalFactory,
 					UnitOfWorkFactory, 
-					_employeeSettings,
 					CommonServices
 				);
 				fineJournalViewModel.SelectionMode = JournalSelectionMode.Single;
@@ -299,11 +264,9 @@ namespace Vodovoz.ViewModels.Logistic
 				fineFilter.FindFinesWithIds = SelectedItem.Fines.Select(x => x.Id).ToArray();
 				var fineJournalViewModel = new FinesJournalViewModel(
 					fineFilter,
-					_undeliveryViewOpener,
 					_employeeService,
 					_employeeJournalFactory,
 					UnitOfWorkFactory, 
-					_employeeSettings,
 					CommonServices
 				);
 				fineJournalViewModel.SelectionMode = JournalSelectionMode.Single;

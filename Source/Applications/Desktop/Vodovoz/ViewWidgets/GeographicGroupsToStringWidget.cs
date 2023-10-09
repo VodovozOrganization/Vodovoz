@@ -79,11 +79,10 @@ namespace Vodovoz.ViewWidgets
 		{
 			var uowFactory = UnitOfWorkFactory.GetDefaultFactory;
 			var commonServices = ServicesConfig.CommonServices;
-			var subdivisionJournalFactory = new SubdivisionJournalFactory();
 			var warehouseJournalFactory = new WarehouseJournalFactory();
 			var employeeService = new EmployeeService();
 			var geoGroupVersionsModel = new GeoGroupVersionsModel(commonServices.UserService, employeeService);
-			var journal = new GeoGroupJournalViewModel(uowFactory, commonServices, subdivisionJournalFactory, warehouseJournalFactory, geoGroupVersionsModel);
+			var journal = new GeoGroupJournalViewModel(uowFactory, commonServices, warehouseJournalFactory, geoGroupVersionsModel);
 			journal.SelectionMode = JournalSelectionMode.Multiple;
 			journal.DisableChangeEntityActions();
 			journal.OnEntitySelectedResult += JournalOnEntitySelectedResult;
@@ -129,11 +128,10 @@ namespace Vodovoz.ViewWidgets
 		{
 			var uowFactory = UnitOfWorkFactory.GetDefaultFactory;
 			var commonServices = ServicesConfig.CommonServices;
-			var subdivisionJournalFactory = new SubdivisionJournalFactory();
 			var warehouseJournalFactory = new WarehouseJournalFactory();
 			var employeeService = new EmployeeService();
 			var geoGroupVersionsModel = new GeoGroupVersionsModel(commonServices.UserService, employeeService);
-			var journal = new GeoGroupJournalViewModel(uowFactory, commonServices, subdivisionJournalFactory, warehouseJournalFactory, geoGroupVersionsModel);
+			var journal = new GeoGroupJournalViewModel(uowFactory, commonServices,  warehouseJournalFactory, geoGroupVersionsModel);
 			journal.SelectionMode = JournalSelectionMode.Multiple;
 			journal.DisableChangeEntityActions();
 			journal.OnEntitySelectedResult += JournalOnRemoveEntitySelectedResult; ;

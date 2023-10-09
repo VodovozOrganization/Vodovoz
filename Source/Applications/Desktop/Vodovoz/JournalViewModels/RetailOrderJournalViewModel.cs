@@ -53,9 +53,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private readonly IDeliveryPointJournalFactory _deliveryPointJournalFactory;
-		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
 		private readonly IGtkTabsOpener _gtkDialogsOpener;
-		private readonly IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
 		private readonly IOrderDiscountsController _discountsController;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
@@ -74,9 +72,7 @@ namespace Vodovoz.JournalViewModels
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IGtkTabsOpener gtkDialogsOpener,
-			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
 			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
 			IOrderDiscountsController discountsController,
@@ -96,12 +92,9 @@ namespace Vodovoz.JournalViewModels
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			_deliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
-			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			_gtkDialogsOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
 
 			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
-			_undeliveredOrdersJournalOpener =
-				undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
 			_undeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 			_discountsController = discountsController ?? throw new ArgumentNullException(nameof(discountsController));
@@ -947,34 +940,13 @@ namespace Vodovoz.JournalViewModels
 						var selectedNodes = selectedItems.Cast<RetailOrderJournalNode>();
 						var order = UoW.GetById<VodovozOrder>(selectedNodes.FirstOrDefault().Id);
 
-						var undeliveredOrdersFilter = new UndeliveredOrdersFilterViewModel(
-							_commonServices,
-							_orderSelectorFactory,
-							_employeeJournalFactory,
-							_counterpartyJournalFactory,
-							_deliveryPointJournalFactory,
-							_subdivisionJournalFactory)
+						NavigationManager.OpenViewModel<UndeliveredOrdersJournalViewModel, Action<UndeliveredOrdersFilterViewModel>>(this, filter =>
 						{
-							HidenByDefault = true,
-							RestrictOldOrder = order,
-							RestrictOldOrderStartDate = order.DeliveryDate,
-							RestrictOldOrderEndDate = order.DeliveryDate
-						};
-
-						var dlg = new UndeliveredOrdersJournalViewModel(
-							undeliveredOrdersFilter,
-							UnitOfWorkFactory,
-							_commonServices,
-							_gtkDialogsOpener,
-							_employeeJournalFactory,
-							_employeeService,
-							_undeliveredOrdersJournalOpener,
-							_undeliveredOrdersRepository,
-							new EmployeeSettings(new ParametersProvider()),
-							_subdivisionParametersProvider
-						);
-
-						Startup.MainWin.TdiMain.AddTab(dlg);
+							filter.HidenByDefault = true;
+							filter.RestrictOldOrder = order;
+							filter.RestrictOldOrderStartDate = order.DeliveryDate;
+							filter.RestrictOldOrderEndDate = order.DeliveryDate;
+						});
 					}
 				)
 			);

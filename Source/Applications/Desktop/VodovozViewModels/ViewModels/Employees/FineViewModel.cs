@@ -2,6 +2,7 @@
 using QS.Commands;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
@@ -16,31 +17,31 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Widgets;
 
 namespace Vodovoz.ViewModels.Employees
 {
 	public class FineViewModel : EntityTabViewModelBase<Fine>, IAskSaveOnCloseViewModel
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
-		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
 		private readonly IEmployeeService _employeeService;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
+		private readonly INavigationManager _navigationManager;
 		private readonly IEntitySelectorFactory _employeeSelectorFactory;
 
 		public FineViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
-			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
 			IEmployeeService employeeService,
 			IEmployeeJournalFactory employeeJournalFactory,
-			IEmployeeSettings employeeSettings,
-			ICommonServices commonServices
+			ICommonServices commonServices,
+			INavigationManager navigationManager
 		) : base(uowBuilder, uowFactory, commonServices)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
-			_undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			_navigationManager = navigationManager;
 			_employeeSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 			CreateCommands();
 			ConfigureEntityPropertyChanges();
@@ -244,7 +245,10 @@ namespace Vodovoz.ViewModels.Employees
 		private void CreateAttachFineCommand()
 		{
 			OpenUndeliveryCommand = new DelegateCommand(
-				() => _undeliveryViewOpener.OpenFromFine(this, Entity.UndeliveredOrder.OldOrder, Entity.UndeliveredOrder.OldOrder.DeliveryDate, Entity.UndeliveredOrder.UndeliveryStatus),
+				() =>
+				{
+					//var page = _navigationManager.OpenViewModel<UndeliveredOrderViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(Entity.UndeliveredOrder.Id));
+				},
 				() => true
 			);
 		}

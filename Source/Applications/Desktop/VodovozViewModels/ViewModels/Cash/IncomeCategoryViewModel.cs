@@ -26,7 +26,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IEmployeeJournalFactory employeeJournalFactory,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IIncomeCategorySelectorFactory incomeCategorySelectorFactory,
 			INavigationManager navigationManager,
 			ILifetimeScope scope)
@@ -46,10 +45,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			var employeeAutocompleteSelector =
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
 				.CreateEmployeeAutocompleteSelectorFactory();
-
-			SubdivisionAutocompleteSelectorFactory =
-				(subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory)))
-				.CreateDefaultSubdivisionAutocompleteSelectorFactory(employeeAutocompleteSelector);
 
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 

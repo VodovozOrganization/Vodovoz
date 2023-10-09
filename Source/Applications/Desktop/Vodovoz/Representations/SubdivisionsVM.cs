@@ -12,15 +12,21 @@ namespace Vodovoz.Representations
 {
 	public class SubdivisionsVM : RepresentationModelEntityBase<Subdivision, SubdivisionVMNode>
 	{
-		public IList<SubdivisionVMNode> Result { get; set; }
-		private IList<SubdivisionVMNode> allSubdivisionNodes;
-		int? parentId;
+		private IList<SubdivisionVMNode> _allSubdivisionNodes;
+		private int? _parentId;
+		private IColumnsConfig _columnsConfig = FluentColumnsConfig<SubdivisionVMNode>.Create()
+			.AddColumn("Название").AddTextRenderer(node => node.Name)
+			.AddColumn("Руководитель").AddTextRenderer(node => node.ChiefName)
+			.AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
+			.Finish();
 
-		public SubdivisionsVM(IUnitOfWork uow) : base() => this.UoW = uow;
+		public SubdivisionsVM(IUnitOfWork uow) : base() => UoW = uow;
 
-		public SubdivisionsVM(IUnitOfWork uow, Subdivision parent) : this(uow) => parentId = parent.Id;
+		public SubdivisionsVM(IUnitOfWork uow, Subdivision parent) : this(uow) => _parentId = parent.Id;
 
 		public SubdivisionsVM() : this(UnitOfWorkFactory.CreateWithoutRoot()) { }
+
+		public IList<SubdivisionVMNode> Result { get; set; }
 
 		public bool WithLeveling { get; set; } = true;
 
@@ -30,16 +36,25 @@ namespace Vodovoz.Representations
 			SubdivisionVMNode resultAlias = null;
 			var query = UoW.Session.QueryOver<Subdivision>();
 
-			if(!WithLeveling) {
-				var firstLevelSubQuery = QueryOver.Of<Subdivision>().WhereRestrictionOn(x => x.ParentSubdivision).IsNull().Select(x => x.Id);
-				var secondLevelSubquery = QueryOver.Of<Subdivision>().WithSubquery.WhereProperty(x => x.ParentSubdivision.Id).In(firstLevelSubQuery).Select(x => x.Id);
+			if(!WithLeveling)
+			{
+				var firstLevelSubQuery = QueryOver.Of<Subdivision>()
+					.WhereRestrictionOn(x => x.ParentSubdivision)
+					.IsNull()
+					.Select(x => x.Id);
+
+				var secondLevelSubquery = QueryOver.Of<Subdivision>()
+					.WithSubquery.WhereProperty(x => x.ParentSubdivision.Id)
+						.In(firstLevelSubQuery)
+						.Select(x => x.Id);
 
 				query
 					.WithSubquery.WhereProperty(x => x.Id).NotIn(firstLevelSubQuery)
 					.WithSubquery.WhereProperty(x => x.Id).NotIn(secondLevelSubquery);
 			}
 
-			allSubdivisionNodes = query
+
+			_allSubdivisionNodes = query
 				.Left.JoinAlias(o => o.Chief, () => chiefAlias)
 				.SelectList(list => list
 				   .Select(s => s.Id).WithAlias(() => resultAlias.Id)
@@ -47,38 +62,43 @@ namespace Vodovoz.Representations
 				   .Select(() => chiefAlias.Name).WithAlias(() => resultAlias.ChiefFirstName)
 				   .Select(() => chiefAlias.Patronymic).WithAlias(() => resultAlias.ChiefMiddleName)
 				   .Select(() => chiefAlias.LastName).WithAlias(() => resultAlias.ChiefLastName)
-				   .Select(s => s.ParentSubdivision.Id).WithAlias(() => resultAlias.ParentId)
-				)
+				   .Select(s => s.ParentSubdivision.Id).WithAlias(() => resultAlias.ParentId))
 				.TransformUsing(Transformers.AliasToBean<SubdivisionVMNode>())
 				.List<SubdivisionVMNode>();
 
-			if(WithLeveling) {
-				Result = allSubdivisionNodes.Where(s => s.ParentId == parentId).ToList();
+			if(WithLeveling)
+			{
+				Result = _allSubdivisionNodes
+					.Where(s => s.ParentId == _parentId)
+					.ToList();
+
 				foreach(var r in Result)
+				{
 					SetChildren(r);
-			} else {
-				Result = allSubdivisionNodes;
+				}
 			}
+			else
+			{
+				Result = _allSubdivisionNodes;
+			}
+
 			SetItemsSource(Result);
 		}
 
-		void SetChildren(SubdivisionVMNode node)
+		private void SetChildren(SubdivisionVMNode node)
 		{
-			var children = allSubdivisionNodes.Where(s => s.ParentId == node.Id);
+			var children = _allSubdivisionNodes.Where(s => s.ParentId == node.Id);
 			node.Children = children.ToList();
-			foreach(var n in children) {
+
+			foreach(var n in children)
+			{
 				n.Parent = node;
 				SetChildren(n);
 			}
 		}
 
-		IColumnsConfig columnsConfig = FluentColumnsConfig<SubdivisionVMNode>.Create()
-			.AddColumn("Название").AddTextRenderer(node => node.Name)
-			.AddColumn("Руководитель").AddTextRenderer(node => node.ChiefName)
-			.AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
-			.Finish();
 
-		public override IColumnsConfig ColumnsConfig => columnsConfig;
+		public override IColumnsConfig ColumnsConfig => _columnsConfig;
 
 		#region implemented abstract members of RepresentationModelBase
 

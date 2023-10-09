@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Dialogs.Employees;
 using Gtk;
 using QS.Dialog.Gtk;
@@ -808,42 +808,51 @@ public partial class MainWindow : Window
 
 		tdiMain.OpenTab(() => new FinesJournalViewModel(
 			new FineFilterViewModel(true),
-			new UndeliveredOrdersJournalOpener(),
 			VodovozGtkServicesConfig.EmployeeService,
 			employeeJournalFactory,
 			UnitOfWorkFactory.GetDefaultFactory,
-			new EmployeeSettings(new ParametersProvider()),
 			ServicesConfig.CommonServices));
 	}
 
 	void ActionPremiumJournal_Activated(object sender, System.EventArgs e)
 	{
-		IEmployeeJournalFactory employeeJournalFactory = new EmployeeJournalFactory();
-		IPremiumTemplateJournalFactory premiumTemplateJournalFactory = new PremiumTemplateJournalFactory();
-
-		var subdivisionAutocompleteSelectorFactory =
-			new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(typeof(Subdivision), () =>
+		NavigationManager.OpenViewModel<PremiumJournalViewModel, Action<SubdivisionFilterViewModel>, Action<PremiumJournalFilterViewModel>>(
+			null,
+			subdivisionFilter =>
 			{
-				return new SubdivisionsJournalViewModel(
-					new SubdivisionFilterViewModel() { SubdivisionType = SubdivisionType.Default },
-					UnitOfWorkFactory.GetDefaultFactory,
-					ServicesConfig.CommonServices,
-					employeeJournalFactory,
-					new SalesPlanJournalFactory(),
-					new NomenclatureJournalFactory(),
-					_autofacScope.BeginLifetimeScope()
-				);
+				subdivisionFilter.SubdivisionType = SubdivisionType.Default;
+			},
+			premiumFilter =>
+			{
+				premiumFilter.HidenByDefault = true;
 			});
 
-		tdiMain.OpenTab(() => new PremiumJournalViewModel(
-			new PremiumJournalFilterViewModel(subdivisionAutocompleteSelectorFactory) { HidenByDefault = true },
-			UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices,
-			VodovozGtkServicesConfig.EmployeeService,
-			employeeJournalFactory,
-			premiumTemplateJournalFactory
-			)
-		);
+		//IEmployeeJournalFactory employeeJournalFactory = new EmployeeJournalFactory();
+		//IPremiumTemplateJournalFactory premiumTemplateJournalFactory = new PremiumTemplateJournalFactory();
+
+		//var subdivisionAutocompleteSelectorFactory =
+		//	new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(typeof(Subdivision), () =>
+		//	{
+		//		return new SubdivisionsJournalViewModel(
+		//			new SubdivisionFilterViewModel() { SubdivisionType = SubdivisionType.Default },
+		//			UnitOfWorkFactory.GetDefaultFactory,
+		//			ServicesConfig.CommonServices,
+		//			employeeJournalFactory,
+		//			new SalesPlanJournalFactory(),
+		//			new NomenclatureJournalFactory(),
+		//			_autofacScope.BeginLifetimeScope()
+		//		);
+		//	});
+
+		//tdiMain.OpenTab(() => new PremiumJournalViewModel(
+		//	new PremiumJournalFilterViewModel(subdivisionAutocompleteSelectorFactory) { HidenByDefault = true },
+		//	UnitOfWorkFactory.GetDefaultFactory,
+		//	ServicesConfig.CommonServices,
+		//	VodovozGtkServicesConfig.EmployeeService,
+		//	employeeJournalFactory,
+		//	premiumTemplateJournalFactory
+		//	)
+		//);
 	}
 
 	void ActionCarProxiesJournal_Activated(object sender, System.EventArgs e)
@@ -1022,46 +1031,17 @@ public partial class MainWindow : Window
 
 	void ActionUndeliveredOrdersActivated(object sender, System.EventArgs e)
 	{
-		ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
-
-		var undeliveredOrdersFilter = new UndeliveredOrdersFilterViewModel(ServicesConfig.CommonServices, new OrderSelectorFactory(),
-			new EmployeeJournalFactory(), new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()), new DeliveryPointJournalFactory(), subdivisionJournalFactory)
+		NavigationManager.OpenViewModel<UndeliveredOrdersJournalViewModel, Action<UndeliveredOrdersFilterViewModel>>(null, config =>
 		{
-			HidenByDefault = true,
-			RestrictUndeliveryStatus = UndeliveryStatus.InProcess,
-			RestrictNotIsProblematicCases = true
-		};
-
-		NavigationManager.OpenViewModel<UndeliveredOrdersJournalViewModel, UndeliveredOrdersFilterViewModel>(null, undeliveredOrdersFilter, OpenPageOptions.IgnoreHash);
+			config.HidenByDefault = true;
+			config.RestrictUndeliveryStatus = UndeliveryStatus.InProcess;
+			config.RestrictNotIsProblematicCases = true;
+		}, OpenPageOptions.IgnoreHash);
 	}
 
 	void ActionResidueActivated(object sender, System.EventArgs e)
 	{
-		ILifetimeScope scope = Startup.AppDIContainer.BeginLifetimeScope();
-
-		IMoneyRepository moneyRepository = new MoneyRepository();
-		IDepositRepository depositRepository = new DepositRepository();
-		IBottlesRepository bottlesRepository = new BottlesRepository();
-		ResidueFilterViewModel filter = new ResidueFilterViewModel();
-		var employeeJournalFactory = new EmployeeJournalFactory();
-		var subdivisionJournalFactory = new SubdivisionJournalFactory();
-		ISubdivisionParametersProvider subdivisionParametersProvider = new SubdivisionParametersProvider(new ParametersProvider());
-
-		var residueJournalViewModel = new ResidueJournalViewModel(
-			filter,
-			VodovozGtkServicesConfig.EmployeeService,
-			VodovozGtkServicesConfig.RepresentationEntityPicker,
-			moneyRepository,
-			depositRepository,
-			bottlesRepository,
-			UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices,
-			employeeJournalFactory,
-			subdivisionJournalFactory,
-			subdivisionParametersProvider,
-			new CounterpartyJournalFactory(scope)
-		);
-		tdiMain.AddTab(residueJournalViewModel);
+		NavigationManager.OpenViewModel<ResidueJournalViewModel>(null);
 	}
 
 	void ActionTransferOperationJournal_Activated(object sender, System.EventArgs e)
@@ -1108,7 +1088,6 @@ public partial class MainWindow : Window
 			carEventJournalFactory,
 			VodovozGtkServicesConfig.EmployeeService,
 			employeeFactory,
-			new UndeliveredOrdersJournalOpener(),
 			new EmployeeSettings(new ParametersProvider()),
 			new CarEventSettings(new ParametersProvider()))
 		);
@@ -1167,16 +1146,12 @@ public partial class MainWindow : Window
 
 	void OnActionSalesUndeliveredOrdersOrdersJournalActivated(object sender, EventArgs e)
 	{
-		ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
-		var undeliveredOrdersFilter = new UndeliveredOrdersFilterViewModel(ServicesConfig.CommonServices, new OrderSelectorFactory(),
-			new EmployeeJournalFactory(), new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()), new DeliveryPointJournalFactory(), subdivisionJournalFactory)
+		NavigationManager.OpenViewModel<UndeliveredOrdersJournalViewModel, Action<UndeliveredOrdersFilterViewModel>>(null, filter =>
 		{
-			RestrictUndeliveryStatus = UndeliveryStatus.InProcess,
-			RestrictNotIsProblematicCases = true,
-			IsForSalesDepartment  = true 
-		};
-
-		NavigationManager.OpenViewModel<UndeliveredOrdersJournalViewModel, UndeliveredOrdersFilterViewModel>(null, undeliveredOrdersFilter, OpenPageOptions.IgnoreHash);
+			filter.RestrictUndeliveryStatus = UndeliveryStatus.InProcess;
+			filter.RestrictNotIsProblematicCases = true;
+			filter.IsForSalesDepartment = true;
+		}, OpenPageOptions.IgnoreHash);
 	}
 
 	void OnActionSalesComplaintsJournalActivated(object sender, EventArgs e)

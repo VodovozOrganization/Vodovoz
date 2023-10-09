@@ -42,7 +42,6 @@ namespace Vodovoz.ViewModels.Journals.JournalFactories
 				carEventJournalFactory,
 				VodovozGtkServicesConfig.EmployeeService,
 				employeeFactory,
-				new UndeliveredOrdersJournalOpener(),
 				new EmployeeSettings(new ParametersProvider()),
 				new CarEventSettings(new ParametersProvider())));
 		}

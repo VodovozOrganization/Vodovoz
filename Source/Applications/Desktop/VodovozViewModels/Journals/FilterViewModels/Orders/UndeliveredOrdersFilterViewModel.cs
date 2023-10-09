@@ -1,20 +1,30 @@
-﻿using QS.Project.Filter;
+﻿using Autofac;
+using QS.Navigation;
+using QS.Project.Filter;
 using QS.Project.Journal.EntitySelector;
-using QS.Services;
+using QS.ViewModels.Control.EEVM;
+using QS.ViewModels.Dialog;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
+using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Enums;
-using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.ViewModels.Employees;
+using Vodovoz.ViewModels.ViewModels.Organizations;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 {
 	public class UndeliveredOrdersFilterViewModel : FilterViewModelBase<UndeliveredOrdersFilterViewModel>
 	{
+		private readonly INavigationManager _navigationManager;
+		private readonly ILifetimeScope _lifetimeScope;
 		private Order _restrictOldOrder;
 		private Employee _restrictDriver;
 		private Subdivision _restrictAuthorSubdivision;
@@ -36,10 +46,15 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 		private OrderStatus? _oldOrderStatus;
 		private bool _restrictGuiltyDepartmentVisible;
 		private bool? _isForSalesDepartment;
+		private DialogViewModelBase _journalViewModel;
 
-		public UndeliveredOrdersFilterViewModel(ICommonServices commonServices, IOrderSelectorFactory orderSelectorFactory,
-			IEmployeeJournalFactory employeeJournalFactory, ICounterpartyJournalFactory counterpartyJournalFactory,
-			IDeliveryPointJournalFactory deliveryPointJournalFactory, ISubdivisionJournalFactory subdivisionJournalFactory)
+		public UndeliveredOrdersFilterViewModel(
+			INavigationManager navigationManager,
+			ILifetimeScope lifetimeScope,
+			IOrderSelectorFactory orderSelectorFactory,
+			IEmployeeJournalFactory employeeJournalFactory,
+			ICounterpartyJournalFactory counterpartyJournalFactory,
+			IDeliveryPointJournalFactory deliveryPointJournalFactory)
 		{
 			OrderSelectorFactory = (orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory)))
 				.CreateOrderAutocompleteSelectorFactory();
@@ -47,32 +62,27 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 			DriverEmployeeSelectorFactory = (employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
 				.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
 
-			OfficeEmployeeSelectorFactory = employeeJournalFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory();
-
 			CounterpartySelectorFactory = (counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory();
 
 			DeliveryPointSelectorFactory = (deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory)))
 				.CreateDeliveryPointAutocompleteSelectorFactory();
 
-			AuthorSubdivisionSelectorFactory = (subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory)))
-				.CreateDefaultSubdivisionAutocompleteSelectorFactory(employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory());
-
-			InProcessAtSubdivisionSelectorFactory = (subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory)))
-				.CreateSubdivisionAutocompleteSelectorFactory();
-
 			Subdivisions = UoW.GetAll<Subdivision>();
 			RestrictOldOrderStartDate = DateTime.Today.AddMonths(-1);
 			RestrictOldOrderEndDate = DateTime.Today.AddMonths(1);
+			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 		}
 
 		public IEntityAutocompleteSelectorFactory OrderSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory DriverEmployeeSelectorFactory { get; }
-		public IEntityAutocompleteSelectorFactory OfficeEmployeeSelectorFactory { get; }
+		public IEntityEntryViewModel OldOrderAuthorViewModel { get; private set; }
+		public IEntityEntryViewModel UndeliveryAuthorViewModel { get; private set; }
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory DeliveryPointSelectorFactory { get; }
-		public IEntityAutocompleteSelectorFactory AuthorSubdivisionSelectorFactory { get; }
-		public IEntityAutocompleteSelectorFactory InProcessAtSubdivisionSelectorFactory { get; }
+		public IEntityEntryViewModel AuthorSubdivisionViewModel { get; private set; }
+		public IEntityEntryViewModel InProcessAtSubdivisionViewModel { get; private set; }
 
 		public Order RestrictOldOrder
 		{
@@ -242,5 +252,59 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 		public IEnumerable<Subdivision> Subdivisions { get; private set; }
 
 		public GuiltyTypes[] ExcludingGuiltiesForProblematicCases => new GuiltyTypes[] { GuiltyTypes.Client, GuiltyTypes.None };
+
+		public DialogViewModelBase JournalViewModel
+		{
+			get => _journalViewModel;
+			set
+			{
+				_journalViewModel = value;
+
+
+				var inProcessAtsubdivisionViewModelEntryViewModelBuilder = new CommonEEVMBuilderFactory<UndeliveredOrdersFilterViewModel>(value, this, UoW, _navigationManager, _lifetimeScope);
+
+				InProcessAtSubdivisionViewModel = inProcessAtsubdivisionViewModelEntryViewModelBuilder
+					.ForProperty(x => x.RestrictInProcessAtDepartment)
+					.UseViewModelDialog<SubdivisionViewModel>()
+					.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel, SubdivisionFilterViewModel>(
+						filter =>
+						{
+						})
+					.Finish();
+
+				var oldOrderAuthorSubdivisionViewModelEntryViewModelBuilder = new CommonEEVMBuilderFactory<UndeliveredOrdersFilterViewModel>(value, this, UoW, _navigationManager, _lifetimeScope);
+
+				OldOrderAuthorViewModel = oldOrderAuthorSubdivisionViewModelEntryViewModelBuilder
+					.ForProperty(x => x.RestrictOldOrderAuthor)
+					.UseViewModelDialog<EmployeeViewModel>()
+					.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(
+						filter =>
+						{
+						})
+					.Finish();
+
+				var undeliveryAuthorSubdivisionViewModelEntryViewModelBuilder = new CommonEEVMBuilderFactory<UndeliveredOrdersFilterViewModel>(value, this, UoW, _navigationManager, _lifetimeScope);
+
+				UndeliveryAuthorViewModel = undeliveryAuthorSubdivisionViewModelEntryViewModelBuilder
+					.ForProperty(x => x.RestrictUndeliveryAuthor)
+					.UseViewModelDialog<EmployeeViewModel>()
+					.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(
+						filter =>
+						{
+						})
+					.Finish();
+
+				var authorSubdivisionViewModelEntryViewModelBuilder = new CommonEEVMBuilderFactory<UndeliveredOrdersFilterViewModel>(value, this, UoW, _navigationManager, _lifetimeScope);
+
+				AuthorSubdivisionViewModel = authorSubdivisionViewModelEntryViewModelBuilder
+					.ForProperty(x => x.RestrictAuthorSubdivision)
+					.UseViewModelDialog<SubdivisionViewModel>()
+					.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel, SubdivisionFilterViewModel>(
+						filter =>
+						{
+						})
+					.Finish();
+			}
+		}
 	}
 }
