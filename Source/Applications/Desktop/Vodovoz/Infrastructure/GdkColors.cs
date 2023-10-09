@@ -12,7 +12,7 @@ namespace Vodovoz.Infrastructure
 	/// </summary>
 	public static class GdkColors
 	{
-		private static Widget _defaultWidget => new Label();
+		private static readonly Widget _defaultWidget = new Label();
 
 		public static bool IsDark => Rc.GetStyle(_defaultWidget).IsDark();
 		public static bool IsLight => Rc.GetStyle(_defaultWidget).IsLight();
