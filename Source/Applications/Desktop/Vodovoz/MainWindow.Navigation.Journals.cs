@@ -661,13 +661,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionFlyersActivated(object sender, EventArgs e)
 	{
-		var journal = new FlyersJournalViewModel(
-			UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices,
-			new NomenclatureJournalFactory(),
-			new FlyerRepository());
-
-		tdiMain.AddTab(journal);
+		NavigationManager.OpenViewModel<FlyersJournalViewModel>(null);
 	}
 
 	#endregion ТМЦ
