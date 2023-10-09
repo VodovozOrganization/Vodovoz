@@ -75,7 +75,7 @@ namespace Vodovoz.Reports
 				x => x.Status = EmployeeStatus.IsWorking,
 				x => x.RestrictCategory = EmployeeCategory.office);
 
-			var employeeFactory = new EmployeeJournalFactory(officeFilter);
+			var employeeFactory = new EmployeeJournalFactory(navigationManager, officeFilter);
 
 			evmeCashier.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory());
 			evmeCashier.CanOpenWithoutTabParent = true;

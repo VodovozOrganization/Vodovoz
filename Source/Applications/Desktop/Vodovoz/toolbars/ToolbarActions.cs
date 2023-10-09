@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Dialogs.Employees;
 using Gtk;
 using QS.Dialog.Gtk;
@@ -568,7 +568,7 @@ public partial class MainWindow : Window
 		tdiMain.OpenTab(
 			"CRM",
 			() => new TasksView(
-								new EmployeeJournalFactory(),
+								new EmployeeJournalFactory(NavigationManager),
 								new DeliveryPointRepository()), null
 		);
 	}
@@ -673,7 +673,7 @@ public partial class MainWindow : Window
 				NavigationManagerProvider.NavigationManager,
 				new UserRepository(),
 				baseParametersProvider,
-				new EmployeeJournalFactory(),
+				new EmployeeJournalFactory(NavigationManager),
 				new GeographicGroupRepository(),
 				new ScheduleRestrictionRepository(),
 				new CarModelJournalFactory()
@@ -735,7 +735,7 @@ public partial class MainWindow : Window
 		var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
 		var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
 		var parametersProvider = new ParametersProvider();
-		var employeeJournalFactory = new EmployeeJournalFactory();
+		var employeeJournalFactory = new EmployeeJournalFactory(NavigationManager);
 
 		var filter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, employeeJournalFactory);
 
@@ -788,7 +788,7 @@ public partial class MainWindow : Window
 			Status = EmployeeStatus.IsWorking,
 		};
 
-		var employeeJournalFactory = new EmployeeJournalFactory(employeeFilter);
+		var employeeJournalFactory = new EmployeeJournalFactory(NavigationManager, employeeFilter);
 
 		tdiMain.OpenTab(() => new OrganizationCashTransferDocumentJournalViewModel(
 			new OrganizationCashTransferDocumentFilterViewModel(employeeJournalFactory)
@@ -804,7 +804,7 @@ public partial class MainWindow : Window
 
 	void ActionFinesJournal_Activated(object sender, System.EventArgs e)
 	{
-		IEmployeeJournalFactory employeeJournalFactory = new EmployeeJournalFactory();
+		IEmployeeJournalFactory employeeJournalFactory = new EmployeeJournalFactory(NavigationManager);
 
 		tdiMain.OpenTab(() => new FinesJournalViewModel(
 			new FineFilterViewModel(true),
@@ -1019,7 +1019,7 @@ public partial class MainWindow : Window
 	{
 		var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
 		var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
-		var employeeJournalFactory = new EmployeeJournalFactory();
+		var employeeJournalFactory = new EmployeeJournalFactory(NavigationManager);
 
 		var filter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, employeeJournalFactory)
 		{
@@ -1069,14 +1069,14 @@ public partial class MainWindow : Window
 	void ActionCarEventsJournalActivated(object sender, EventArgs e)
 	{
 		ICarJournalFactory carJournalFactory = new CarJournalFactory(NavigationManager);
-		IEmployeeJournalFactory employeeFactory = new EmployeeJournalFactory();
+		IEmployeeJournalFactory employeeFactory = new EmployeeJournalFactory(NavigationManager);
 		ICarEventTypeJournalFactory carEventTypeJournalFactory = new CarEventTypeJournalFactory();
 		ICarEventJournalFactory carEventJournalFactory = new CarEventJournalFactory(NavigationManager);
 
 		var carEventFilter = new CarEventFilterViewModel(
 			carJournalFactory,
 			carEventTypeJournalFactory,
-			new EmployeeJournalFactory())
+			new EmployeeJournalFactory(NavigationManager))
 		{ HidenByDefault = true };
 
 		tdiMain.OpenTab(() => new CarEventJournalViewModel(
@@ -1095,7 +1095,7 @@ public partial class MainWindow : Window
 
 	void ActionFastDeliveryAvailabilityJournal_Activated(object sender, EventArgs e)
 	{
-		IEmployeeJournalFactory employeeJournalFactory = new EmployeeJournalFactory();
+		IEmployeeJournalFactory employeeJournalFactory = new EmployeeJournalFactory(NavigationManager);
 		IDistrictJournalFactory districtJournalFactory = new DistrictJournalFactory();
 		ICounterpartyJournalFactory counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
 		IFileDialogService fileDialogService = new FileDialogService();
@@ -1124,7 +1124,7 @@ public partial class MainWindow : Window
 	{
 		var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
 		var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
-		var employeeJournalFactory = new EmployeeJournalFactory();
+		var employeeJournalFactory = new EmployeeJournalFactory(NavigationManager);
 
 		var orderJournalFilter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, employeeJournalFactory)
 		{

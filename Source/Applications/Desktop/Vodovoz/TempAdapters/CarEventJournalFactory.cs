@@ -26,7 +26,7 @@ namespace Vodovoz.ViewModels.Journals.JournalFactories
 		public IEntityAutocompleteSelectorFactory CreateCarEventAutocompleteSelectorFactory()
 		{
 			ICarJournalFactory carJournalFactory = new CarJournalFactory(_navigationManager);
-			IEmployeeJournalFactory employeeFactory = new EmployeeJournalFactory();
+			IEmployeeJournalFactory employeeFactory = new EmployeeJournalFactory(_navigationManager);
 			ICarEventTypeJournalFactory carEventTypeJournalFactory = new CarEventTypeJournalFactory();
 			ICarEventJournalFactory carEventJournalFactory = new CarEventJournalFactory(_navigationManager);
 
@@ -34,7 +34,7 @@ namespace Vodovoz.ViewModels.Journals.JournalFactories
 				new CarEventFilterViewModel(
 					carJournalFactory,
 					carEventTypeJournalFactory,
-					new EmployeeJournalFactory()),
+					new EmployeeJournalFactory(_navigationManager)),
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				carJournalFactory,

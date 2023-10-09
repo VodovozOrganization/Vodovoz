@@ -1,4 +1,4 @@
-using Gamma.GtkWidgets;
+﻿using Gamma.GtkWidgets;
 using Gtk;
 using NHibernate.Criterion;
 using NLog;
@@ -314,7 +314,7 @@ namespace Vodovoz
 			var filter = new OrderJournalFilterViewModel(
 				new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
 				new DeliveryPointJournalFactory(),
-				new EmployeeJournalFactory())
+				new EmployeeJournalFactory(NavigationManager))
 			{
 				ExceptIds = RouteListUoW.Root.Addresses.Select(address => address.Order.Id).ToArray()
 			};

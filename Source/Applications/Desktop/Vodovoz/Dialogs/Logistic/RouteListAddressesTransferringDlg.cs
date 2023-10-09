@@ -999,7 +999,7 @@ namespace Vodovoz
 	        var filter = new OrderJournalFilterViewModel(
                 new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
                 new DeliveryPointJournalFactory(),
-                new EmployeeJournalFactory())
+                new EmployeeJournalFactory(Startup.MainWin.NavigationManager))
             {
 				ExceptIds = RouteListItemsFrom.Select(f => f.RouteListItem.Order.Id)
 					.Concat(routeListToItems)

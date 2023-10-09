@@ -14,7 +14,7 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class FineItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
-		private readonly IEmployeeJournalFactory _employeeFactory = new EmployeeJournalFactory();
+		private readonly IEmployeeJournalFactory _employeeFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager);
 		
 		public FineItemsView()
 		{
