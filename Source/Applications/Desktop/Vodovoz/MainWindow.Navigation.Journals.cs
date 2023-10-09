@@ -389,21 +389,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionNomenclatureActivated(object sender, EventArgs e)
 	{
-		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
-		var userRepository = new UserRepository();
-		var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
-
-		tdiMain.OpenTab(
-			() => new NomenclaturesJournalViewModel(
-				new NomenclatureFilterViewModel() { HidenByDefault = true },
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices,
-				VodovozGtkServicesConfig.EmployeeService,
-				new NomenclatureJournalFactory(),
-				counterpartyJournalFactory,
-				nomenclatureRepository,
-				userRepository
-			));
+		NavigationManager.OpenViewModel<NomenclaturesJournalViewModel>(null);
 	}
 
 	#region Инвентарный учет
