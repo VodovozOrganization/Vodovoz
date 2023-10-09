@@ -641,12 +641,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionReturnTareReasonsActivated(object sender, EventArgs e)
 	{
-		tdiMain.AddTab(
-			new ReturnTareReasonsJournalViewModel(
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices
-			)
-		);
+		NavigationManager.OpenViewModel<ReturnTareReasonsJournalViewModel>(null);
 	}
 
 	/// <summary>
