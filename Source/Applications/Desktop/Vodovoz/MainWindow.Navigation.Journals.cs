@@ -252,9 +252,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnComplaintResultsOfEmployeesActionActivated(object sender, EventArgs e)
 	{
-		var complaintResultsOfEmployeesViewModel =
-			new ComplaintResultsOfEmployeesJournalViewModel(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
-		tdiMain.AddTab(complaintResultsOfEmployeesViewModel);
+		NavigationManager.OpenViewModel<ComplaintResultsOfEmployeesJournalViewModel>(null);
 	}
 
 	#endregion Результаты рассмотрения рекламаций
