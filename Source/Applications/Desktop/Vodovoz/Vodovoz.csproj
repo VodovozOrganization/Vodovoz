@@ -545,7 +545,6 @@
     <Compile Include="JournalColumnsConfigs\SalesPlanJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\SelectUserJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\SelfDeliveriesJournalRegistrar.cs" />
-    <Compile Include="JournalColumnsConfigs\SubdivisionsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\TariffZoneJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\TrackPointJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\UnallocatedBalancesJournalRegistrar.cs" />
