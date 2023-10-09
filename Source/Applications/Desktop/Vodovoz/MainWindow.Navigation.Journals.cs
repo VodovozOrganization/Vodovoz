@@ -617,18 +617,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionDiscountReasonsActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			() =>
-			{
-				return new DiscountReasonJournalViewModel(
-					UnitOfWorkFactory.GetDefaultFactory,
-					ServicesConfig.CommonServices,
-					new DiscountReasonRepository(),
-					new ProductGroupJournalFactory(),
-					new NomenclatureJournalFactory()
-				);
-			}
-		);
+		NavigationManager.OpenViewModel<DiscountReasonJournalViewModel>(null);
 	}
 
 	/// <summary>
