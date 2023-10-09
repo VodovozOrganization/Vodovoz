@@ -1160,14 +1160,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionUndeliveryTransferAbsenceReasonActivated(object sender, EventArgs e)
 	{
-		var filterViewModel = new UndeliveryTransferAbsenceReasonJournalFilterViewModel();
-
-		var journal = new UndeliveryTransferAbsenceReasonJournalViewModel(
-			filterViewModel,
-			UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices);
-
-		tdiMain.AddTab(journal);
+		NavigationManager.OpenViewModel<UndeliveryTransferAbsenceReasonJournalViewModel>(null);
 	}
 
 	/// <summary>
