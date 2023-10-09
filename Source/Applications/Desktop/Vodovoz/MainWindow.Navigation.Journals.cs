@@ -137,12 +137,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionRatesActivated(object sender, EventArgs e)
 	{
-		tdiMain.AddTab(
-			new WageDistrictLevelRatesJournalViewModel(
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices
-			)
-		);
+		NavigationManager.OpenViewModel<WageDistrictLevelRatesJournalViewModel>(null);
 	}
 
 	/// <summary>
