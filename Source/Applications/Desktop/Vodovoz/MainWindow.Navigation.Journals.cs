@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using QS.Banks.Domain;
 using QS.BusinessCommon.Domain;
 using QS.Dialog.Gtk;
@@ -345,15 +345,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionPhoneTypesActivated(object sender, EventArgs e)
 	{
-		IPhoneRepository phoneRepository = new PhoneRepository();
-
-		tdiMain.AddTab(
-			new PhoneTypeJournalViewModel(
-				phoneRepository,
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices
-			)
-		);
+		NavigationManager.OpenViewModel<PhoneTypeJournalViewModel>(null);
 	}
 
 	/// <summary>
