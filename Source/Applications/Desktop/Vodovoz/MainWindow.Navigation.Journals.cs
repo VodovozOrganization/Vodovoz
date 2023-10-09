@@ -827,13 +827,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionSalesChannelsJournalActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			() => new SalesChannelJournalViewModel(
-					new SalesChannelJournalFilterViewModel(),
-					UnitOfWorkFactory.GetDefaultFactory,
-					ServicesConfig.CommonServices
-			)
-		);
+		NavigationManager.OpenViewModel<SalesChannelJournalViewModel>(null);
 	}
 
 	/// <summary>
