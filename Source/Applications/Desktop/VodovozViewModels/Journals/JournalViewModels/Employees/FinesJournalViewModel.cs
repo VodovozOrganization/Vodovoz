@@ -22,26 +22,20 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 {
 	public class FinesJournalViewModel : FilterableSingleEntityJournalViewModelBase<Fine, FineViewModel, FineJournalNode, FineFilterViewModel>
 	{
-		private readonly IUndeliveredOrdersJournalOpener undeliveryViewOpener;
 		private readonly IEmployeeService employeeService;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly IEmployeeSettings _employeeSettings;
 		private readonly ICommonServices commonServices;
 
 		public FinesJournalViewModel(
 			FineFilterViewModel filterViewModel,
-			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
 			IEmployeeService employeeService,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IEmployeeSettings employeeSettings,
 			ICommonServices commonServices)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
-			this.undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
 			TabName = "Журнал штрафов";
@@ -185,21 +179,19 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 		protected override Func<FineViewModel> CreateDialogFunction => () => new FineViewModel(
 			EntityUoWBuilder.ForCreate(),
 			QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-			undeliveryViewOpener,
 			employeeService,
 			_employeeJournalFactory,
-			_employeeSettings,
-			commonServices
+			commonServices,
+			NavigationManager
 		);
 
 		protected override Func<FineJournalNode, FineViewModel> OpenDialogFunction => (node) => new FineViewModel(
 			EntityUoWBuilder.ForOpen(node.Id),
 			QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-			undeliveryViewOpener,
 			employeeService,
 			_employeeJournalFactory,
-			_employeeSettings,
-			commonServices
+			commonServices,
+			NavigationManager
 		);
 	}
 }

@@ -15,21 +15,18 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Sale
 {
 	public class GeoGroupJournalViewModel : SingleEntityJournalViewModelBase<GeoGroup, GeoGroupViewModel, GeoGroupJournalNode>
 	{
-		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
 		private readonly IWarehouseJournalFactory _warehouseJournalFactory;
 		private readonly GeoGroupVersionsModel _geoGroupVersionsModel;
 
 		public GeoGroupJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IWarehouseJournalFactory warehouseJournalFactory,
 			GeoGroupVersionsModel geoGroupVersionsModel,
 			bool hideJournalForOpenDialog = false,
 			bool hideJournalForCreateDialog = false
 		) : base(unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
 		{
-			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			_warehouseJournalFactory = warehouseJournalFactory ?? throw new ArgumentNullException(nameof(warehouseJournalFactory));
 			_geoGroupVersionsModel = geoGroupVersionsModel ?? throw new ArgumentNullException(nameof(geoGroupVersionsModel));
 
@@ -66,7 +63,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Sale
 				EntityUoWBuilder.ForCreate(),
 				UnitOfWorkFactory,
 				_geoGroupVersionsModel,
-				_subdivisionJournalFactory,
 				_warehouseJournalFactory,
 				commonServices
 			);
@@ -76,7 +72,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Sale
 				EntityUoWBuilder.ForOpen(node.Id),
 				UnitOfWorkFactory,
 				_geoGroupVersionsModel,
-				_subdivisionJournalFactory,
 				_warehouseJournalFactory,
 				commonServices
 			);

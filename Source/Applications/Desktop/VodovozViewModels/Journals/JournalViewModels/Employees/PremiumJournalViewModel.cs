@@ -27,21 +27,28 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 		private readonly IEmployeeService _employeeService;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly IPremiumTemplateJournalFactory _premiumTemplateJournalFactory;
-		public PremiumJournalViewModel(PremiumJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices, IEmployeeService employeeService,
-			IEmployeeJournalFactory employeeJournalFactory, IPremiumTemplateJournalFactory premiumTemplateJournalFactory)
+		public PremiumJournalViewModel(
+			PremiumJournalFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			IEmployeeService employeeService,
+			IEmployeeJournalFactory employeeJournalFactory,
+			IPremiumTemplateJournalFactory premiumTemplateJournalFactory,
+			Action<PremiumJournalFilterViewModel> filterConfig = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_premiumTemplateJournalFactory = premiumTemplateJournalFactory 
-			                                     ?? throw new ArgumentNullException(nameof(premiumTemplateJournalFactory));
+			_premiumTemplateJournalFactory = premiumTemplateJournalFactory
+				?? throw new ArgumentNullException(nameof(premiumTemplateJournalFactory));
 
 			TabName = "Журнал премий";
 
 			RegisterPremiums();
 			RegisterPremiumsRaskatGAZelle();
+
+			FilterViewModel.JournalViewModel = this;
 
 			var threadLoader = DataLoader as ThreadDataLoader<PremiumJournalNode>;
 			threadLoader.MergeInOrderBy(x => x.Id, true);
@@ -53,6 +60,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 				typeof(PremiumRaskatGAZelle),
 				typeof(PremiumItem)
 			);
+
+			if(filterConfig != null)
+			{
+				FilterViewModel.SetAndRefilterAtOnce(filterConfig);
+			}
 		}
 
 		protected override void CreateNodeActions()

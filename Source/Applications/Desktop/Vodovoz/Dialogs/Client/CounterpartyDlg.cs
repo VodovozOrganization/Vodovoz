@@ -131,7 +131,6 @@ namespace Vodovoz
 		private RoboatsJournalsFactory _roboatsJournalsFactory;
 		private IEdoOperatorsJournalFactory _edoOperatorsJournalFactory;
 		private IEmailParametersProvider _emailParametersProvider;
-		private IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private ISubdivisionRepository _subdivisionRepository;
 		private IRouteListItemRepository _routeListItemRepository;
 		private IFileDialogService _fileDialogService;
@@ -159,9 +158,6 @@ namespace Vodovoz
 		private bool _documentsConfigured = false;
 
 		public ThreadDataLoader<EmailRow> EmailDataLoader { get; private set; }
-
-		public virtual IUndeliveredOrdersJournalOpener UndeliveredOrdersJournalOpener =>
-			_undeliveredOrdersJournalOpener ?? (_undeliveredOrdersJournalOpener = new UndeliveredOrdersJournalOpener());
 
 		public virtual ISubdivisionRepository SubdivisionRepository =>
 			_subdivisionRepository ?? (_subdivisionRepository = new SubdivisionRepository(new ParametersProvider()));
@@ -1461,8 +1457,6 @@ namespace Vodovoz
 
 		private void AllOrders_Activated(object sender, EventArgs e)
 		{
-			ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
-
 			var orderJournalFilter = new OrderJournalFilterViewModel(
 				new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
 				new DeliveryPointJournalFactory(),
@@ -1480,9 +1474,7 @@ namespace Vodovoz
 				new EmployeeJournalFactory(),
 				new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
 				new DeliveryPointJournalFactory(),
-				subdivisionJournalFactory,
 				new GtkTabsOpener(),
-				new UndeliveredOrdersJournalOpener(),
 				new NomenclatureJournalFactory(),
 				new UndeliveredOrdersRepository(),
 				new SubdivisionRepository(new ParametersProvider()),

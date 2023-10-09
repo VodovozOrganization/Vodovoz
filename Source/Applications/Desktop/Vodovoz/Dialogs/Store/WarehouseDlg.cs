@@ -1,23 +1,18 @@
 ﻿using QS.DomainModel.UoW;
 using QS.Navigation;
-using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Store;
 using QS.Project.Services;
+using QS.Validation;
+using QS.ViewModels.Control.EEVM;
+using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Parameters;
-using Vodovoz.ViewModels.Journals.JournalFactories;
-using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Factories;
-using QS.Validation;
 
 namespace Vodovoz
 {
 	public partial class WarehouseDlg : QS.Dialog.Gtk.EntityDialogBase<Warehouse>
 	{
 		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
-		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory = new SubdivisionJournalFactory();
 		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
-		private Nomenclature selectedNomenclature;
 
 		public WarehouseDlg()
 		{
@@ -77,12 +72,14 @@ namespace Vodovoz
 				.InitializeFromSource();
 			ySpecCmbOwner.Sensitive = CanEdit;
 
-			entityEntryMovementNotificationsRecipient
-				.SetEntityAutocompleteSelectorFactory(_subdivisionJournalFactory.CreateSubdivisionAutocompleteSelectorFactory());
+			//
+			
 			entityEntryMovementNotificationsRecipient.Binding
 				.AddBinding(Entity, e => e.MovementDocumentsNotificationsSubdivisionRecipient, w => w.Subject)
 				.InitializeFromSource();
 		}
+
+		public IEntityEntryViewModel SubdivisionViewModel { get; private set; }
 
 		#region implemented abstract members of OrmGtkDialogBase
 

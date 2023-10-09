@@ -61,7 +61,6 @@ namespace Vodovoz.FilterViewModels
 			ISubdivisionRepository subdivisionRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
 			Action<ComplaintFilterViewModel> filterParams = null)
 		{
@@ -81,7 +80,6 @@ namespace Vodovoz.FilterViewModels
 				commonServices,
 				subdivisionRepository,
 				employeeJournalFactory,
-				subdivisionJournalFactory,
 				_subdivisionParametersProvider,
 				UoW,
 				true);
@@ -109,12 +107,6 @@ namespace Vodovoz.FilterViewModels
 				SetAndRefilterAtOnce(filterParams);
 			}
 
-			CurrentSubdivisionSelectorFactory = (subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory)))
-				.CreateSubdivisionAutocompleteSelectorFactory();
-
-			InWorkSubdivisionSelectorFactory = (subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory)))
-				.CreateSubdivisionAutocompleteSelectorFactory();
-
 			UpdateWith(
 				x => x.ComplaintType,
 				x => x.ComplaintStatus,
@@ -139,9 +131,9 @@ namespace Vodovoz.FilterViewModels
 
 		public IEntityAutocompleteSelectorFactory EmployeeSelectorFactory { get; }
 
-		public IEntityAutocompleteSelectorFactory CurrentSubdivisionSelectorFactory { get; }
+		public IEntityEntryViewModel CurrentSubdivisionViewModel { get; private set; }
 
-		public IEntityAutocompleteSelectorFactory InWorkSubdivisionSelectorFactory { get; }
+		public IEntityEntryViewModel AtWorkInSubdivisionViewModel { get; private set; }
 
 		public IEntityAutocompleteSelectorFactory ComplaintKindSelectorFactory { get; private set; }
 

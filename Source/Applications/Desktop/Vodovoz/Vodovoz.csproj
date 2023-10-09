@@ -613,7 +613,6 @@
     <Compile Include="TempAdapters\RouteListJournalFactory.cs" />
     <Compile Include="TempAdapters\ComplaintKindJournalFactory.cs" />
     <Compile Include="TempAdapters\NomenclatureJournalFactory.cs" />
-    <Compile Include="TempAdapters\SubdivisionJournalFactory.cs" />
     <Compile Include="TreeModels\IModelConfig.cs" />
     <Compile Include="TreeModels\ModelConfig.cs" />
     <Compile Include="TreeModels\RecursiveTreeModelWithCustomModel.cs" />
@@ -1249,7 +1248,6 @@
     <Compile Include="Views\Complaints\ComplaintView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintView.cs" />
     <Compile Include="JournalViewModels\CounterpartyJournalViewModel.cs" />
-    <Compile Include="JournalViewers\UndeliveredOrdersJournalOpener.cs" />
     <Compile Include="Views\Employees\FineTemplateView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Employees.FineTemplateView.cs" />
     <Compile Include="Views\Employees\FineView.cs" />

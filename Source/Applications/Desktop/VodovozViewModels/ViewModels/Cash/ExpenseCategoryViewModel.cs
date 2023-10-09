@@ -11,7 +11,6 @@ using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModels.ViewModels.Cash
@@ -26,7 +25,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IEmployeeJournalFactory employeeJournalFactory,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IExpenseCategorySelectorFactory expenseCategorySelectorFactory,
 			INavigationManager navigationManager,
 			ILifetimeScope scope)
@@ -41,10 +39,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			var employeeSelectorFactory =
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
 				.CreateEmployeeAutocompleteSelectorFactory();
-
-			SubdivisionAutocompleteSelectorFactory =
-				(subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory)))
-			.CreateDefaultSubdivisionAutocompleteSelectorFactory(employeeSelectorFactory);
 
 			UpdateFinancialExpenseCategory();
 

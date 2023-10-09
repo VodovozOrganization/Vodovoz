@@ -53,7 +53,6 @@ namespace Vodovoz.ViewModels.Complaints
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
 			string phone = null) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
@@ -63,7 +62,6 @@ namespace Vodovoz.ViewModels.Complaints
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			_employeeSelectorFactory = employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 			CounterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			DeliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
@@ -105,11 +103,10 @@ namespace Vodovoz.ViewModels.Complaints
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
 			string phone = null) : this(uowBuilder, unitOfWorkFactory, employeeService,
 			subdivisionRepository, commonServices, userRepository, routeListItemRepository, filePickerService, orderSelectorFactory, employeeJournalFactory,
-			counterpartyJournalFactory, deliveryPointJournalFactory, subdivisionJournalFactory, subdivisionParametersProvider, phone)
+			counterpartyJournalFactory, deliveryPointJournalFactory, subdivisionParametersProvider, phone)
 		{
 			var currentClient = UoW.GetById<Counterparty>(client.Id);
 			Entity.Counterparty = currentClient;
@@ -129,11 +126,10 @@ namespace Vodovoz.ViewModels.Complaints
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
 			string phone = null) : this(uowBuilder, unitOfWorkFactory, employeeService, subdivisionRepository,
 			commonServices, userRepository, routeListItemRepository, filePickerService, orderSelectorFactory, employeeJournalFactory, counterpartyJournalFactory,
-			deliveryPointJournalFactory, subdivisionJournalFactory, subdivisionParametersProvider, phone)
+			deliveryPointJournalFactory, subdivisionParametersProvider, phone)
 		{
 			var currentOrder = UoW.GetById<Order>(order.Id);
 			Entity.Order = currentOrder;
@@ -249,7 +245,6 @@ namespace Vodovoz.ViewModels.Complaints
 						CommonServices,
 						_subdivisionRepository,
 						EmployeeJournalFactory,
-						_subdivisionJournalFactory,
 						_subdivisionParametersProvider);
 				}
 
@@ -317,7 +312,6 @@ namespace Vodovoz.ViewModels.Complaints
 		public IEntityAutocompleteSelectorFactory OrderAutocompleteSelectorFactory { get; private set; }
 		public bool UserHasOnlyAccessToWarehouseAndComplaints { get; }
 		private IEmployeeJournalFactory EmployeeJournalFactory { get; }
-		private ISubdivisionJournalFactory _subdivisionJournalFactory { get; }
 		private IDeliveryPointJournalFactory DeliveryPointJournalFactory { get; }
 	}
 }

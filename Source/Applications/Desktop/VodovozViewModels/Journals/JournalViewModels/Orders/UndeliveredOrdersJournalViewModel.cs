@@ -38,29 +38,38 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 		private readonly bool _canCloseUndeliveries;
 		private readonly IEmployeeJournalFactory _driverEmployeeJournalFactory;
 		private readonly IEmployeeService _employeeService;
-		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
 		private readonly ICommonServices _commonServices;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
 		private readonly IEmployeeSettings _employeeSettings;
 		private Employee _currentEmployee;
 
-		public UndeliveredOrdersJournalViewModel(UndeliveredOrdersFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices, IGtkTabsOpener gtkDialogsOpener, IEmployeeJournalFactory driverEmployeeJournalFactory,
-			IEmployeeService employeeService, IUndeliveredOrdersJournalOpener undeliveryViewOpener,
-			IUndeliveredOrdersRepository undeliveredOrdersRepository, IEmployeeSettings employeeSettings,
-			ISubdivisionParametersProvider subdivisionParametersProvider)
+		public UndeliveredOrdersJournalViewModel(
+			UndeliveredOrdersFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			IGtkTabsOpener gtkDialogsOpener,
+			IEmployeeJournalFactory driverEmployeeJournalFactory,
+			IEmployeeService employeeService,
+			IUndeliveredOrdersRepository undeliveredOrdersRepository,
+			IEmployeeSettings employeeSettings,
+			ISubdivisionParametersProvider subdivisionParametersProvider,
+			Action<UndeliveredOrdersFilterViewModel> filterConfig = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_gtkDlgOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
 			_driverEmployeeJournalFactory = driverEmployeeJournalFactory ?? throw new ArgumentNullException(nameof(driverEmployeeJournalFactory));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			_undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
 			_undeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
 			_canCloseUndeliveries = commonServices.CurrentPermissionService.ValidatePresetPermission("can_close_undeliveries");
+
+			if(filterConfig != null)
+			{
+				FilterViewModel.SetAndRefilterAtOnce(filterConfig);
+			}
 
 			TabName = "Журнал недовозов";
 
@@ -687,11 +696,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 						FineViewModel fineViewModel = new FineViewModel(
 							EntityUoWBuilder.ForCreate(),
 							UnitOfWorkFactory,
-							_undeliveryViewOpener,
 							_employeeService,
 							_driverEmployeeJournalFactory,
-							_employeeSettings,
-							_commonServices
+							_commonServices,
+							NavigationManager
 						);
 
 						var undeliveredOrder = UoW.GetById<UndeliveredOrder>(selectedNode.Id);

@@ -319,7 +319,6 @@
     <Compile Include="Journals\JournalFactories\CarEventTypeJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\ISalesPlanJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\ICarEventTypeJournalFactory.cs" />
-    <Compile Include="Journals\JournalFactories\ISubdivisionJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\WarehouseJournalFactory.cs" />
     <Compile Include="Journals\JournalNodes\AddressType.cs" />
     <Compile Include="Journals\JournalNodes\ApplicationDevelopmentProposalsJournalNode.cs" />
@@ -497,7 +496,6 @@
     <Compile Include="ViewModels\Employees\FineViewModel.cs" />
     <Compile Include="ViewModels\Employees\EmployeeViewModel.cs" />
     <Compile Include="Infrastructure\Services\EmployeeService.cs" />
-    <Compile Include="TempAdapters\IUndeliveredOrdersJournalOpener.cs" />
     <Compile Include="ViewModels\Employees\FineTemplateViewModel.cs" />
     <Compile Include="ViewModels\Complaints\CreateComplaintViewModel.cs" />
     <Compile Include="ViewModels\Complaints\CreateInnerComplaintViewModel.cs" />

@@ -2,25 +2,19 @@
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Report;
+using QS.ViewModels.Control.EEVM;
 using QSReport;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz.ReportsParameters
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class SetBillsReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
-
-		public SetBillsReport(
-			IUnitOfWorkFactory unitOfWorkFactory,
-			ISubdivisionJournalFactory subdivisionJournalFactory)
+		public SetBillsReport(IUnitOfWorkFactory unitOfWorkFactory)
 		{
-			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
-			
 			Build();
 
 			UoW = unitOfWorkFactory.CreateWithoutRoot();
@@ -30,18 +24,15 @@ namespace Vodovoz.ReportsParameters
 			ybuttonCreateReport.Clicked += (sender, e) => { OnUpdate(true); };
 			ybuttonCreateReport.TooltipText = $"Формирует отчет по заказам в статусе '{OrderStatus.WaitForPayment.GetEnumTitle()}'";
 
-			entrySubdivision.SetEntityAutocompleteSelectorFactory(_subdivisionJournalFactory.CreateSubdivisionAutocompleteSelectorFactory());
 		}
+
+		public IEntityEntryViewModel SubdivisionViewModel { get; private set; }
 
 		#region IParametersWidget implementation
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
-		public string Title {
-			get {
-				return "Отчет по выставленным счетам";
-			}
-		}
+		public string Title => "Отчет по выставленным счетам";
 
 		#endregion
 

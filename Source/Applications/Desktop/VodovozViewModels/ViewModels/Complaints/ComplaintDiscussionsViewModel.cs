@@ -2,6 +2,7 @@
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Journal;
 using QS.Project.Services.FileDialog;
 using QS.Services;
@@ -14,10 +15,12 @@ using System.Linq;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.EntityRepositories;
 using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.ViewModels.Organizations;
 
 namespace Vodovoz.ViewModels.Complaints
 {
@@ -30,6 +33,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
 		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 		private readonly IUserRepository _userRepository;
+		private readonly INavigationManager _navigationManager;
 		private readonly ILifetimeScope _scope;
 
 		public ComplaintDiscussionsViewModel(
@@ -43,6 +47,7 @@ namespace Vodovoz.ViewModels.Complaints
 			ISalesPlanJournalFactory salesPlanJournalFactory,
 			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			IUserRepository userRepository,
+			INavigationManager navigationManager,
 			ILifetimeScope scope) : base(entity, commonServices)
 		{
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
@@ -52,6 +57,7 @@ namespace Vodovoz.ViewModels.Complaints
 			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
 			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_navigationManager = navigationManager;
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 
 			UoW = uow;
@@ -134,27 +140,19 @@ namespace Vodovoz.ViewModels.Complaints
 			AttachSubdivisionCommand = new DelegateCommand(
 				() => {
 					var filter = new SubdivisionFilterViewModel();
-					filter.ExcludedSubdivisions = Entity.ObservableComplaintDiscussions.Select(x => x.Subdivision.Id).ToArray();
-					var subdivisionSelector = new SubdivisionsJournalViewModel(
-						filter,
-						UnitOfWorkFactory.GetDefaultFactory,
-						CommonServices,
-						_employeeJournalFactory,
-						_salesPlanJournalFactory,
-						_nomenclatureSelectorFactory,
-						_scope.BeginLifetimeScope()
-					) {
-						SelectionMode = JournalSelectionMode.Single
-					};
-					subdivisionSelector.OnEntitySelectedResult += (sender, e) => {
-						var selectedNode = e.SelectedNodes.FirstOrDefault();
-						if(selectedNode == null) {
-							return;
-						}
-						Subdivision subdivision = UoW.GetById<Subdivision>(selectedNode.Id);
+					filter.ExcludedSubdivisionsIds = Entity.ObservableComplaintDiscussions.Select(x => x.Subdivision.Id).ToArray();
+
+					var page = _navigationManager.OpenViewModel<SubdivisionsJournalViewModel>(null);
+
+					page.ViewModel.SelectionMode = JournalSelectionMode.Single;
+
+					page.ViewModel.OnSelectResult += (s, e) =>
+					{
+						SubdivisionJournalNode selected = e.SelectedObjects.Where(x => x is SubdivisionJournalNode).Select(x => (x as SubdivisionJournalNode)).FirstOrDefault();
+
+						Subdivision subdivision = UoW.GetById<Subdivision>(selected.Id);
 						Entity.AttachSubdivisionToDiscussions(subdivision);
 					};
-					_dialogTab.TabParent.AddSlaveTab(_dialogTab, subdivisionSelector);
 				},
 				() => CanAttachSubdivision
 			);

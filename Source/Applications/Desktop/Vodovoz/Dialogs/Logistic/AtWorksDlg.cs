@@ -1,4 +1,4 @@
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gamma.Widgets.Additions;
 using Gdk;
@@ -59,7 +59,6 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private readonly IDefaultDeliveryDayScheduleSettings _defaultDeliveryDayScheduleSettings;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly ICarRepository _carRepository;
 		private readonly IGeographicGroupRepository _geographicGroupRepository;
@@ -88,7 +87,6 @@ namespace Vodovoz.Dialogs.Logistic
 			IRouteListRepository routeListRepository,
 			ICarRepository carRepository,
 			IEmployeeRepository employeeRepository,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IGeographicGroupRepository geographicGroupRepository,
 			IScheduleRestrictionRepository scheduleRestrictionRepository,
 			IAttachmentsViewModelFactory attachmentsViewModelFactory,
@@ -112,7 +110,6 @@ namespace Vodovoz.Dialogs.Logistic
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_carRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
-			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			_geographicGroupRepository = geographicGroupRepository ?? throw new ArgumentNullException(nameof(geographicGroupRepository));
 			_scheduleRestrictionRepository = scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
 			_attachmentsViewModelFactory = attachmentsViewModelFactory ?? throw new ArgumentNullException(nameof(attachmentsViewModelFactory));
@@ -634,7 +631,7 @@ namespace Vodovoz.Dialogs.Logistic
 			var warehouseJournalFactory = new WarehouseJournalFactory();
 			var employeeService = new EmployeeService();
 			var geoGroupVersionsModel = new GeoGroupVersionsModel(commonServices.UserService, employeeService);
-			var geoGroupJournalFactory = new GeoGroupJournalFactory(uowFactory, commonServices, _subdivisionJournalFactory, warehouseJournalFactory, geoGroupVersionsModel);
+			var geoGroupJournalFactory = new GeoGroupJournalFactory(uowFactory, commonServices, warehouseJournalFactory, geoGroupVersionsModel);
 
 			TabParent.OpenTab(
 				DialogHelper.GenerateDialogHashName<Car>(selected.Car.Id),

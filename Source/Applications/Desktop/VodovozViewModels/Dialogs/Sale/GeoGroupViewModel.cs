@@ -6,6 +6,7 @@ using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using System;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
@@ -19,7 +20,6 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 	public class GeoGroupViewModel : EntityTabViewModelBase<GeoGroup>
 	{
 		private readonly GeoGroupVersionsModel _geoGroupVersionsModel;
-		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
 		private readonly IWarehouseJournalFactory _warehouseJournalFactory;
 		private bool _canEdit;
 		private IPermissionResult _versionsPermissionResult;
@@ -39,13 +39,11 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			GeoGroupVersionsModel geoGroupVersionsModel,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IWarehouseJournalFactory warehouseJournalFactory,
 			ICommonServices commonServices
 		) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			_geoGroupVersionsModel = geoGroupVersionsModel ?? throw new ArgumentNullException(nameof(geoGroupVersionsModel));
-			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			_warehouseJournalFactory = warehouseJournalFactory ?? throw new ArgumentNullException(nameof(warehouseJournalFactory));
 
 			CheckPermissions();
@@ -54,6 +52,8 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 			Entity.PropertyChanged += EntityPropertyChanged;
 			Versions.ElementRemoved += VersionsElementRemoved;
 		}
+		
+		public IEntityEntryViewModel CashSubdivisionViewModel { get; private set; }
 
 		private void CheckPermissions()
 		{
@@ -82,18 +82,6 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 
 		public bool CanEdit => _canEdit;
 		public bool CanReadVersions => _versionsPermissionResult.CanRead;
-
-		public IEntityAutocompleteSelectorFactory CashSelectorFactory
-		{
-			get
-			{
-				if(_cashSelectorFactory == null)
-				{
-					_cashSelectorFactory = _subdivisionJournalFactory.CreateCashSubdivisionAutocompleteSelectorFactory();
-				}
-				return _cashSelectorFactory;
-			}
-		}
 
 		public IEntityAutocompleteSelectorFactory WarehouseSelectorFactory
 		{

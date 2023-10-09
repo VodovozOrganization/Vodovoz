@@ -57,7 +57,6 @@ namespace Vodovoz.TempAdapters
 
 		public IEntityAutocompleteSelectorFactory CreateCashSelfDeliveryOrderAutocompleteSelector()
 		{
-			var subdivisionJournalFactory = new SubdivisionJournalFactory();
 			var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
 			var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
 			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
@@ -89,9 +88,7 @@ namespace Vodovoz.TempAdapters
 						new EmployeeJournalFactory(),
 						counterpartyJournalFactory,
 						new DeliveryPointJournalFactory(),
-						subdivisionJournalFactory,
 						new GtkTabsOpener(),
-						new UndeliveredOrdersJournalOpener(),
 						new NomenclatureJournalFactory(),
 						new UndeliveredOrdersRepository(),
 						new SubdivisionRepository(new ParametersProvider()),
@@ -105,7 +102,6 @@ namespace Vodovoz.TempAdapters
 
 		public IEntityAutocompleteSelectorFactory CreateSelfDeliveryDocumentOrderAutocompleteSelector()
 		{
-			var subdivisionJournalFactory = new SubdivisionJournalFactory();
 			var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
 			var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
 			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
@@ -134,9 +130,7 @@ namespace Vodovoz.TempAdapters
 						new EmployeeJournalFactory(),
 						counterpartyJournalFactory,
 						new DeliveryPointJournalFactory(),
-						subdivisionJournalFactory,
 						new GtkTabsOpener(),
-						new UndeliveredOrdersJournalOpener(),
 						new NomenclatureJournalFactory(),
 						new UndeliveredOrdersRepository(),
 						new SubdivisionRepository(new ParametersProvider()),
@@ -150,7 +144,6 @@ namespace Vodovoz.TempAdapters
 
 		public OrderJournalViewModel CreateOrderJournalViewModel(OrderJournalFilterViewModel filterViewModel = null)
 		{
-			var subdivisionJournalFactory = new SubdivisionJournalFactory();
 			var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
 			var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
 			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
@@ -175,9 +168,7 @@ namespace Vodovoz.TempAdapters
 				new EmployeeJournalFactory(),
 				counterpartyJournalFactory,
 				new DeliveryPointJournalFactory(),
-				subdivisionJournalFactory,
 				new GtkTabsOpener(),
-				new UndeliveredOrdersJournalOpener(),
 				new NomenclatureJournalFactory(),
 				new UndeliveredOrdersRepository(),
 				new SubdivisionRepository(new ParametersProvider()),

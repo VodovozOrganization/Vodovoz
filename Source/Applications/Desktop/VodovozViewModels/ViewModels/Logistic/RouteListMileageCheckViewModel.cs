@@ -56,7 +56,6 @@ namespace Vodovoz.ViewModels.Logistic
 		private DelegateCommand _checkDriversRouteListsDebtCommand;
 		private readonly IValidationContextFactory _validationContextFactory;
 
-		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
 		private readonly IEmployeeSettings _employeeSettings;
 		private readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
 		private readonly IEmployeeService _employeeService;
@@ -81,7 +80,6 @@ namespace Vodovoz.ViewModels.Logistic
 			IValidationContextFactory validationContextFactory,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			INavigationManager navigationManager,
-			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
 			IEmployeeSettings employeeSettings,
 			IEmployeeService employeeService,
 			IRouteListProfitabilityController routeListProfitabilityController)
@@ -101,7 +99,6 @@ namespace Vodovoz.ViewModels.Logistic
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_validationContextFactory = validationContextFactory ?? throw new ArgumentNullException(nameof(validationContextFactory));
-			_undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_routeListProfitabilityController =
@@ -325,11 +322,10 @@ namespace Vodovoz.ViewModels.Logistic
 					var fineViewModel = new FineViewModel(
 						EntityUoWBuilder.ForCreate(),
 						UnitOfWorkFactory,
-						_undeliveryViewOpener,
 						_employeeService,
 						_employeeJournalFactory,
-						_employeeSettings,
-						CommonServices
+						CommonServices,
+						NavigationManager
 					)
 					{
 						RouteList = Entity,

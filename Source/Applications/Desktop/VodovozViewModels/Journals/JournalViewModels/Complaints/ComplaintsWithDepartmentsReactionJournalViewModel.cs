@@ -50,7 +50,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
-		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
 		private readonly IGtkTabsOpener _gtkDlgOpener;
 		private readonly IUserRepository _userRepository;
 		private readonly IOrderSelectorFactory _orderSelectorFactory;
@@ -82,7 +81,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 			ComplaintFilterViewModel filterViewModel,
 			IFileDialogService fileDialogService,
 			ISubdivisionRepository subdivisionRepository,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IGtkTabsOpener gtkDialogsOpener,
 			IUserRepository userRepository,
 			IOrderSelectorFactory orderSelectorFactory,
@@ -101,7 +99,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
-			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			_gtkDlgOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
@@ -743,7 +740,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 						_employeeJournalFactory,
 						_counterpartyJournalFactory,
 						_deliveryPointJournalFactory,
-						_subdivisionJournalFactory,
 						_subdivisionParametersProvider
 					),
 					//функция диалога открытия документа
@@ -765,7 +761,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 						_subdivisionRepository,
 						_commonServices,
 						_employeeJournalFactory,
-						_subdivisionJournalFactory,
 						_fileDialogService,
 						new UserRepository(),
 						_subdivisionParametersProvider,
