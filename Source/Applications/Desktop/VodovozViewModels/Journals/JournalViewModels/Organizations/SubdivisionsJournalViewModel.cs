@@ -1,8 +1,11 @@
 ﻿using Autofac;
+using FluentNHibernate.Conventions;
 using Gamma.Binding.Core.RecursiveTreeConfig;
 using NHibernate.Linq;
+using QS.Deletion;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using QS.Project.Journal.DataLoader.Hierarchy;
@@ -12,12 +15,16 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Windows.Input;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
+using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.ViewModels.Organizations;
 
 namespace Vodovoz.Journals.JournalViewModels.Organizations
 {
@@ -128,7 +135,7 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 					   || subdivision.Name.ToLower().Like(searchString)
 					   || subdivision.ShortName.ToLower().Like(searchString)
 					   || subdivision.Id.ToString().Like(searchString))
-				   && (!_filterViewModel.ShowArchieved || !subdivision.IsArchive)
+				   && (_filterViewModel.ShowArchieved || !subdivision.IsArchive)
 				   && !_filterViewModel.ExcludedSubdivisionsIds.Contains(subdivision.Id)
 				   && (_filterViewModel.SubdivisionType == null
 					|| subdivision.SubdivisionType == _filterViewModel.SubdivisionType)
@@ -145,9 +152,94 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 					Name = subdivision.Name,
 					ChiefName = chiefFIO,
 					ParentId = subdivision.ParentSubdivision.Id,
-					Children = children.ToList()
+					Children = children.ToList(),
+					IsArchive = subdivision.IsArchive
 			   })
 				: Enumerable.Empty<SubdivisionJournalNode>().AsQueryable();
+		}
+
+		protected override void CreateNodeActions()
+		{
+			NodeActionsList.Clear();
+
+			CreateSelectAction();
+			CreateAddActions();
+			CreateEditAction();
+			CreateDeleteAction();
+		}
+
+		private void CreateSelectAction()
+		{
+			var selectAction = new JournalAction("Выбрать",
+				(selected) => selected.Any(),
+				(selected) => SelectionMode != JournalSelectionMode.None,
+				(selected) => OnItemsSelected(selected)
+			);
+
+			if(SelectionMode == JournalSelectionMode.Single
+				|| SelectionMode == JournalSelectionMode.Multiple)
+			{
+				RowActivatedAction = selectAction;
+			}
+
+			NodeActionsList.Add(selectAction);
+		}
+
+		private void CreateDeleteAction()
+		{
+			var deleteAction = new JournalAction("Удалить",
+				(selected) => selected.Length == 1
+					&& selected.FirstOrDefault() is SubdivisionJournalNode node
+					&& _domainObjectsPermissions[typeof(Subdivision)].CanDelete
+					&& selected.Any(),
+				(selected) => true,
+				(selected) =>
+				{
+					if(selected.FirstOrDefault() is SubdivisionJournalNode node
+						&& _domainObjectsPermissions[typeof(Subdivision)].CanDelete)
+					{
+						DeleteHelper.DeleteEntity(typeof(Subdivision), node.Id);
+					}
+				},
+				Key.Delete.ToString());
+			NodeActionsList.Add(deleteAction);
+		}
+
+		private void CreateEditAction()
+		{
+			var editAction = new JournalAction("Изменить",
+				(selected) => selected.Length == 1
+					&& selected.FirstOrDefault() is SubdivisionJournalNode node
+					&& _domainObjectsPermissions[typeof(Subdivision)].CanUpdate
+					&& selected.Any(),
+				(selected) => true,
+				(selected) =>
+				{
+					if(selected.FirstOrDefault() is SubdivisionJournalNode node)
+					{
+						var page = NavigationManager.OpenViewModel<SubdivisionViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id), OpenPageOptions.AsSlave);
+					}
+				});
+
+			NodeActionsList.Add(editAction);
+
+			if(SelectionMode == JournalSelectionMode.None)
+			{
+				RowActivatedAction = editAction;
+			}
+		}
+
+		protected void CreateAddActions()
+		{
+			var createAction = new JournalAction("Добавить",
+				(selected) => _domainObjectsPermissions[typeof(Subdivision)].CanCreate,
+				(selected) => true,
+				(selected) =>
+				{
+					var page = NavigationManager.OpenViewModel<SubdivisionViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate(), OpenPageOptions.AsSlave);
+				});
+
+			NodeActionsList.Add(createAction);
 		}
 
 		private void OnFilterViewModelFiltered(object sender, EventArgs e)
