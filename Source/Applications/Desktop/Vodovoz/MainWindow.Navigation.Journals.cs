@@ -242,9 +242,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnComplaintResultsOfCounterpartyActionActivated(object sender, EventArgs e)
 	{
-		var complaintResultsOfCounterpartyViewModel =
-			new ComplaintResultsOfCounterpartyJournalViewModel(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
-		tdiMain.AddTab(complaintResultsOfCounterpartyViewModel);
+		NavigationManager.OpenViewModel<ComplaintResultsOfCounterpartyJournalViewModel>(null);
 	}
 
 	/// <summary>
