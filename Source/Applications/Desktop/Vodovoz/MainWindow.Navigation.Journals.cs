@@ -274,22 +274,12 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionComplaintKindActivated(object sender, EventArgs e)
 	{
-		var employeeJournalFactory = new EmployeeJournalFactory();
-		var salesPlanJournalFactory = new SalesPlanJournalFactory();
-		var nomenclatureSelectorFactory = new NomenclatureJournalFactory();
-
-		tdiMain.OpenTab(() => new ComplaintKindJournalViewModel(
-			new ComplaintKindJournalFilterViewModel
+		NavigationManager.OpenViewModel<ComplaintKindJournalViewModel, Action<ComplaintKindJournalFilterViewModel>>(
+			null,
+			filter =>
 			{
-				HidenByDefault = true
-			},
-			UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices,
-			employeeJournalFactory,
-			salesPlanJournalFactory,
-			nomenclatureSelectorFactory,
-			_autofacScope.BeginLifetimeScope())
-		);
+				filter.HidenByDefault = true;
+			});
 	}
 
 	/// <summary>
