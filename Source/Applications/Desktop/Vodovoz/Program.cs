@@ -123,7 +123,7 @@ namespace Vodovoz
 			{
 				Gtk.Application.Init();
 
-				var host = CreateHostBuilder(args).Build();
+				var host = CreateHostBuilder().Build();
 
 				host.Services.GetService<Startup>().Start(args);
 			}
@@ -134,11 +134,17 @@ namespace Vodovoz
 			}
 		}
 
-		public static IHostBuilder CreateHostBuilder(string[] args) =>
+		public static IHostBuilder CreateHostBuilder() =>
 			new HostBuilder()
 				.ConfigureAppConfiguration((hostingContext, config) =>
 				{
 					config.AddJsonFile("appsettings.json");
+				})
+				.ConfigureLogging((hostContext, logging) =>
+				{
+					logging.ClearProviders();
+					logging.AddNLog();
+					logging.AddConfiguration(hostContext.Configuration.GetSection(_nLogSectionName));
 				})
 				.UseServiceProviderFactory(new AutofacServiceProviderFactory(builder =>
 				{
@@ -626,11 +632,6 @@ namespace Vodovoz
 				.ConfigureServices((hostingContext, services) =>
 				{
 					services.AddSingleton<Startup>();
-				})
-				.ConfigureLogging((hostContext, logging) =>
-				{
-					logging.ClearProviders();
-					logging.AddNLog(hostContext.Configuration.GetSection(_nLogSectionName));
 				});
 	}
 }
