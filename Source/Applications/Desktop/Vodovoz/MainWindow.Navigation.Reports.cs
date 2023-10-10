@@ -273,11 +273,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionOrderAnalyticsReportActivated(object sender, EventArgs e)
 	{
-		var uowFactory = _autofacScope.Resolve<IUnitOfWorkFactory>();
-		var interactiveService = _autofacScope.Resolve<IInteractiveService>();
-
-		NavigationManager.OpenViewModel<OrderAnalyticsReportViewModel, INavigationManager, IUnitOfWorkFactory, IInteractiveService>(
-			null, NavigationManager, uowFactory, interactiveService);
+		NavigationManager.OpenViewModel<OrderAnalyticsReportViewModel>(null);
 	}
 
 	/// <summary>
