@@ -167,8 +167,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionRecalculateDriverWagesActivated(object sender, EventArgs e)
 	{
-		var dlg = new RecalculateDriverWageDlg();
-		tdiMain.AddTab(dlg);
+		NavigationManager.OpenTdiTab<RecalculateDriverWageDlg>(null);
 	}
 
 	/// <summary>
