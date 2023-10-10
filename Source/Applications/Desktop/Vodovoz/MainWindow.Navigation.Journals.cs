@@ -134,13 +134,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionSalesPlansActivated(object sender, EventArgs e)
 	{
-		tdiMain.AddTab(
-			new SalesPlanJournalViewModel(
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices,
-				new NomenclatureJournalFactory()
-			)
-		);
+		NavigationManager.OpenViewModel<SalesPlanJournalViewModel>(null);
 	}
 
 	/// <summary>
