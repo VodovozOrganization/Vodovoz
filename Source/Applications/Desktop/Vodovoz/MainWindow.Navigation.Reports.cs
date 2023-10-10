@@ -654,14 +654,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionBulkEmailEventsReportActivated(object sender, EventArgs e)
 	{
-		ICounterpartyJournalFactory counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
-		IBulkEmailEventReasonJournalFactory bulkEmailEventReasonJournalFactory = new BulkEmailEventReasonJournalFactory();
-		IFileDialogService fileDialogService = new FileDialogService();
-
-		BulkEmailEventReportViewModel viewModel = new BulkEmailEventReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.InteractiveService, NavigationManager, fileDialogService, bulkEmailEventReasonJournalFactory, counterpartyJournalFactory);
-
-		tdiMain.AddTab(viewModel);
+		NavigationManager.OpenViewModel<BulkEmailEventReportViewModel>(null);
 	}
 
 	#endregion Отчеты ОСК/ОКК
