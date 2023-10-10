@@ -50,23 +50,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnPropertiesActionActivated(object sender, EventArgs e)
 	{
-		var subdivisionJournalFactory = new SubdivisionJournalFactory();
-		var subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
-		var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
-
-		tdiMain.OpenTab(
-			() => new UserSettingsViewModel(
-				EntityUoWBuilder.ForOpen(CurrentUserSettings.Settings.Id),
-				UnitOfWorkFactory.GetDefaultFactory,
-				NavigationManager,
-				ServicesConfig.CommonServices,
-				VodovozGtkServicesConfig.EmployeeService,
-				new SubdivisionParametersProvider(new ParametersProvider()),
-				subdivisionJournalFactory,
-				counterpartyJournalFactory,
-				subdivisionRepository,
-				new NomenclaturePricesRepository()
-			));
+		NavigationManager.OpenViewModel<UserSettingsViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(CurrentUserSettings.Settings.Id));
 	}
 
 	/// <summary>
