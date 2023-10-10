@@ -9,7 +9,6 @@ using QS.Services;
 using QS.Tdi;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Proposal;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.Services;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Proposal;
 using Vodovoz.ViewModels.Journals.JournalNodes;
@@ -31,7 +30,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Proposal
 		    ApplicationDevelopmentProposalsJournalFilterViewModel filterViewModel,
 		    IEmployeeService employeeService,
 		    IUnitOfWorkFactory uowFactory,
-		    ICommonServices commonServices) : base(filterViewModel, uowFactory, commonServices)
+		    ICommonServices commonServices,
+			Action<ApplicationDevelopmentProposalsJournalFilterViewModel> filterConfig = null)
+			: base(filterViewModel, uowFactory, commonServices)
 	    {
 		    this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 		    this.uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
@@ -42,8 +43,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Proposal
 		    
 		    UpdateOnChanges(
 			    typeof(ApplicationDevelopmentProposal),
-			    typeof(Employee)
-		    );
+			    typeof(Employee));
+
+			if(filterConfig != null)
+			{
+				FilterViewModel.SetAndRefilterAtOnce(filterConfig);
+			}
 	    }
 	    
         protected override Func<IUnitOfWork, IQueryOver<ApplicationDevelopmentProposal>> ItemsSourceQueryFunction => uow => {
