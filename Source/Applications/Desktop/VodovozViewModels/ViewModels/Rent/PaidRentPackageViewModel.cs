@@ -8,6 +8,7 @@ using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Goods.Rent;
 using Vodovoz.EntityRepositories.RentPackages;
 using Vodovoz.TempAdapters;
 

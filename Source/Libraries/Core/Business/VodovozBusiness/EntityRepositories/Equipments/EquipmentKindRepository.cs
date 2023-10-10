@@ -2,6 +2,7 @@
 using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Goods.Rent;
 
 namespace Vodovoz.EntityRepositories.Equipments
 {

@@ -3,10 +3,9 @@ using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
-using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories.RentPackages;
 
-namespace Vodovoz.Domain
+namespace Vodovoz.Domain.Goods.Rent
 {
 	[Appellative (Gender = GrammaticalGender.Neuter,
 		NominativePlural = "условия платной аренды",

@@ -84,6 +84,12 @@
     <Compile Include="Domain\Client\TaxType.cs" />
     <Compile Include="Domain\Goods\NomenclatureCategory.cs" />
     <Compile Include="Domain\Goods\NomenclatureCategory.cs" />
+    <Compile Include="Domain\Goods\Rent\FreeRentPackage.cs" />
+    <Compile Include="Domain\Goods\Rent\FreeRentPackageOnlineParameters.cs" />
+    <Compile Include="Domain\Goods\Rent\KulerSaleWebSiteFreeRentPackageOnlineParameters.cs" />
+    <Compile Include="Domain\Goods\Rent\MobileAppFreeRentPackageOnlineParameters.cs" />
+    <Compile Include="Domain\Goods\Rent\PaidRentPackage.cs" />
+    <Compile Include="Domain\Goods\Rent\VodovozWebSiteFreeRentPackageOnlineParameters.cs" />
     <Compile Include="Domain\Logistic\Drivers\DriverStopListRemoval.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\RouteListMaxFastDeliveryOrders.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryChange.ChangeType.cs" />
@@ -752,6 +758,7 @@
     <Compile Include="NHibernateProjections\Goods\ProductGroupProjections.cs" />
     <Compile Include="NHibernateProjections\Logistics\CarProjections.cs" />
     <Compile Include="NHibernateProjections\Orders\OrderProjections.cs" />
+    <Compile Include="Nodes\FreeRentPackageWithOnlineParametersNode.cs" />
     <Compile Include="Nodes\NomenclatureOnlineParametersData.cs" />
     <Compile Include="Nodes\NomenclatureOnlineParametersNode.cs" />
     <Compile Include="Nodes\NomenclatureOnlinePriceNode.cs" />
@@ -877,7 +884,6 @@
     <Compile Include="Domain\Employees\Nationality.cs" />
     <Compile Include="Domain\Employees\User.cs" />
     <Compile Include="Domain\Employees\UserSettings.cs" />
-    <Compile Include="Domain\FreeRentPackage.cs" />
     <Compile Include="Domain\Goods\Equipment.cs" />
     <Compile Include="Domain\Goods\Nomenclature.cs" />
     <Compile Include="Domain\Goods\NomenclaturePrice.cs" />
@@ -908,7 +914,6 @@
     <Compile Include="Domain\Orders\OrderEnums.cs" />
     <Compile Include="Domain\Orders\OrderEquipment.cs" />
     <Compile Include="Domain\Orders\OrderItem.cs" />
-    <Compile Include="Domain\PaidRentPackage.cs" />
     <Compile Include="Domain\Service\ServiceClaim.cs" />
     <Compile Include="Domain\Service\ServiceClaimHistory.cs" />
     <Compile Include="Domain\Service\ServiceClaimItem.cs" />
