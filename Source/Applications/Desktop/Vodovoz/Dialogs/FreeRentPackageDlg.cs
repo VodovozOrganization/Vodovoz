@@ -5,6 +5,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Services;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Goods.Rent;
 using Vodovoz.EntityRepositories.RentPackages;
 using Vodovoz.Factories;
 

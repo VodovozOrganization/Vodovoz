@@ -14,6 +14,7 @@ using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.StoredResources;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.Infrastructure;
 using Vodovoz.Parameters;
 using Vodovoz.Settings.Database;
 using Vodovoz.TreeModels;
@@ -129,7 +130,7 @@ namespace Vodovoz.Representations.ProductGroups
 			.AddColumn("Название").AddTextRenderer(node => node.Name)
 			.RowCells()
 			.AddSetter<CellRendererText>(
-				(c, n) => c.Foreground = n.IsArchive ? "grey" : "black"
+				(c, n) => c.ForegroundGdk = n.IsArchive ? GdkColors.InsensitiveText : GdkColors.PrimaryText
 			)
 			.Finish();
 

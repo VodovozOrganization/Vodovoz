@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using Gdk;
 using Gamma.GtkWidgets;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Infrastructure;
 
 namespace Vodovoz
 {
@@ -22,7 +23,7 @@ namespace Vodovoz
 				.AddColumn("Количество").AddNumericRenderer(x => x.Amount).Editing()
 				.Adjustment(new Gtk.Adjustment(0, 0, 10000000, 1, 10, 10))
 				.AddSetter((w, x) => w.Digits = (uint)x.Nomenclature.Unit.Digits)
-				.AddSetter((w, x) => w.Foreground = CalculateAmountColor(x))
+				.AddSetter((w, x) => w.ForegroundGdk = CalculateAmountColor(x))
 				.AddColumn("")
 				.Finish();
 
@@ -56,20 +57,30 @@ namespace Vodovoz
 			}
 		}
 
-		string CalculateAmountColor(SelfDeliveryDocumentItem item)
+		Color CalculateAmountColor(SelfDeliveryDocumentItem item)
 		{
 			if(item.Amount > item.AmountInStock)
-				return "red";
+			{
+				return GdkColors.DangerText;
+			}
 
 			var cnt = item.Document.GetNomenclaturesCountInOrder(item.Nomenclature);
 			if(cnt < item.AmountUnloaded + item.Amount)
-				return "orange";
-			if(cnt == item.AmountUnloaded + item.Amount)
-				return "green";
-			if(cnt > item.AmountUnloaded + item.Amount)
-				return "blue";
+			{
+				return GdkColors.Orange;
+			}
 
-			return "black";
+			if(cnt == item.AmountUnloaded + item.Amount)
+			{
+				return GdkColors.SuccessText;
+			}
+
+			if(cnt > item.AmountUnloaded + item.Amount)
+			{
+				return GdkColors.InfoText;
+			}
+
+			return GdkColors.PrimaryText;
 		}
 
 		protected void OnButtonDeleteClicked(object sender, EventArgs e)

@@ -14,6 +14,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Infrastructure;
 using Vodovoz.Parameters;
 using Vodovoz.ViewModels.Permissions;
 
@@ -22,9 +23,9 @@ namespace Vodovoz.ViewWidgets.Permissions
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class PresetPermissionsView : WidgetViewBase<PresetPermissionsViewModelBase>, IUserPermissionTab
 	{
-		private static readonly Color _colorBlack = new Color(0, 0, 0);
-		private static readonly Color _colorBlue = new Color(0x00, 0x18, 0xf9);
-		private static readonly Color _colorDarkGrey = new Color(0x80, 0x80, 0x80);
+		private static readonly Color _colorPrimaryText = GdkColors.PrimaryText;
+		private static readonly Color _colorBlue = GdkColors.InfoText;
+		private static readonly Color _colorInsensitiveText = GdkColors.InsensitiveText;
 
 		private Menu _availablePresetPermissionsPopupMenu;
 		private Menu _userPresetPermissionsPopupMenu;
@@ -77,11 +78,11 @@ namespace Vodovoz.ViewWidgets.Permissions
 					{
 						if(node.IsLostPermission)
 						{
-							cell.ForegroundGdk = _colorDarkGrey;
+							cell.ForegroundGdk = _colorInsensitiveText;
 						}
 						else
 						{
-							cell.ForegroundGdk = node.Id > 0 ? _colorBlack : _colorBlue;
+							cell.ForegroundGdk = node.Id > 0 ? _colorPrimaryText : _colorBlue;
 						}
 					})
 				.Finish();

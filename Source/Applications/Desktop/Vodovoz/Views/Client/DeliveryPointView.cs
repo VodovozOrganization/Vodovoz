@@ -1,4 +1,4 @@
-using Gamma.Widgets;
+﻿using Gamma.Widgets;
 using GMap.NET;
 using GMap.NET.GtkSharp;
 using GMap.NET.GtkSharp.Markers;
@@ -12,6 +12,8 @@ using System.ComponentModel;
 using System.Threading.Tasks;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Client;
+using Vodovoz.Extensions;
+using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Dialogs.Counterparty;
 
 namespace Vodovoz.Views.Client
@@ -19,6 +21,8 @@ namespace Vodovoz.Views.Client
 	[ToolboxItem(true)]
 	public partial class DeliveryPointView : TabViewBase<DeliveryPointViewModel>
 	{
+		private readonly bool _showMapByDefault = false;
+
 		private bool _addressIsMoving;
 		private VBox _vboxMap;
 		private yEnumComboBox _comboMapType;
@@ -38,6 +42,7 @@ namespace Vodovoz.Views.Client
 			notebook1.Binding
 				.AddBinding(ViewModel, vm => vm.CurrentPage, w => w.CurrentPage)
 				.InitializeFromSource();
+
 			notebook1.SwitchPage += (o, args) =>
 			{
 				if(args.PageNum == 1)
@@ -53,10 +58,12 @@ namespace Vodovoz.Views.Client
 			buttonSave.Binding
 				.AddFuncBinding(ViewModel, vm => !vm.IsInProcess && vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
+
 			buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
 			buttonCancel.Binding
 				.AddFuncBinding(ViewModel, vm => !vm.IsInProcess, w => w.Sensitive)
 				.InitializeFromSource();
+
 			buttonInsertFromBuffer.Clicked += (s, a) => ViewModel.SetCoordinatesFromBuffer(_clipboard.WaitForText());
 			buttonInsertFromBuffer.Sensitive = ViewModel.CanEdit;
 			buttonApplyLimitsToAllDeliveryPointsOfCounterparty.Clicked +=
@@ -231,10 +238,14 @@ namespace Vodovoz.Views.Client
 			lblCounterparty.LabelProp = ViewModel.Entity.Counterparty.FullName;
 			lblId.LabelProp = ViewModel.Entity.Id.ToString();
 
+			var successTextColor = GdkColors.SuccessText.ToHtmlColor();
+			var infoTextColor = GdkColors.InfoText.ToHtmlColor();
+			var dangerTextColor = GdkColors.DangerText.ToHtmlColor();
+
 			ylabelFoundOnOsm.Binding.AddFuncBinding(ViewModel.Entity,
 				e => e.CoordinatesExist
-					? string.Format("<span foreground='{1}'>{0}</span>", e.CoordinatesText, e.FoundOnOsm ? "green" : "blue")
-					: "<span foreground='red'>Не найден на карте.</span>",
+					? $"<span foreground='{(e.FoundOnOsm ? successTextColor : infoTextColor)}'>{e.CoordinatesText}</span>"
+					: $"<span foreground='{dangerTextColor}'>Не найден на карте.</span>",
 				w => w.LabelProp).InitializeFromSource();
 			ylabelChangedUser.Binding.AddFuncBinding(ViewModel,
 				vm => vm.CoordsWasChanged
@@ -300,7 +311,7 @@ namespace Vodovoz.Views.Client
 			_vboxMap.ShowAll();
 
 			sidePanelMap.Panel = _vboxMap;
-			sidePanelMap.IsHided = false;
+			sidePanelMap.IsHided = !_showMapByDefault;
 			ViewModel.Entity.PropertyChanged += ViewModelOnPropertyChanged;
 			UpdateAddressOnMap();
 
@@ -411,6 +422,16 @@ namespace Vodovoz.Views.Client
 				{
 					if(!MessageDialogHelper.RunQuestionDialog(
 						"Координаты точки установлены по адресу. Вы уверены что хотите установить новые координаты?"))
+					{
+						UpdateAddressOnMap();
+						return;
+					}
+				}
+
+				if(!ViewModel.UoWGeneric.IsNew)
+				{
+					if(!MessageDialogHelper.RunQuestionDialog(
+						"Координаты точки доставки уже были установлены. Вы уверены что хотите установить новые координаты?"))
 					{
 						UpdateAddressOnMap();
 						return;

@@ -14,7 +14,7 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Аббревиатура").AddTextRenderer(n => n.Abbreviation)
 				.AddColumn("Полное название").AddTextRenderer(n => n.FullName)
 				.AddColumn("В архиве").AddTextRenderer(n => n.IsArchive.ConvertToYesOrNo())
-				.RowCells().AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? GdkColors.DarkGrayColor : GdkColors.BlackColor)
+				.RowCells().AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? GdkColors.InsensitiveText : GdkColors.PrimaryText)
 				.Finish();
 	}
 }

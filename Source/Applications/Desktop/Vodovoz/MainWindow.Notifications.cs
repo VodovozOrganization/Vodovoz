@@ -7,6 +7,8 @@ using Vodovoz.Controllers;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz;
 using System.Linq;
+using Vodovoz.Infrastructure;
+using Vodovoz.Extensions;
 
 public partial class MainWindow
 {
@@ -25,7 +27,7 @@ public partial class MainWindow
 	{
 		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 		{
-			var movementsNotification = _movementsNotificationsController.GetNotificationMessage(uow);
+			var movementsNotification = _movementsNotificationsController.GetNotificationDetails(uow);
 			UpdateSendedMovementsNotification(movementsNotification);
 		}
 
@@ -36,9 +38,11 @@ public partial class MainWindow
 		}
 	}
 
-	private void UpdateSendedMovementsNotification(string notification)
+	private void UpdateSendedMovementsNotification(SendedMovementsNotificationDetails notificationDetails)
 	{
-		lblMovementsNotification.Markup = notification;
+		var message = notificationDetails.SendedMovementsCount > 0 ? $"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">{notificationDetails.NotificationMessage}</span>" : notificationDetails.NotificationMessage;
+
+		lblMovementsNotification.Markup = message;
 	}
 	#endregion
 

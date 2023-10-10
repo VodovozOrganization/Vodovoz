@@ -39,6 +39,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.Reports.Sales;
+using Vodovoz.ViewModels.ReportsParameters;
 using Vodovoz.ViewModels.ReportsParameters.Cash;
 using Vodovoz.ViewModels.ReportsParameters.Profitability;
 using Vodovoz.ViewModels.TempAdapters;
@@ -321,11 +322,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionSalesReportActivated(object sender, EventArgs e)
 	{
-		var scope = _autofacScope.BeginLifetimeScope();
-
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.SalesReport>(),
-			() => new QSReport.ReportViewDlg(scope.Resolve<Vodovoz.Reports.SalesReport>()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(SalesReportViewModel));
 	}
 
 	/// <summary>

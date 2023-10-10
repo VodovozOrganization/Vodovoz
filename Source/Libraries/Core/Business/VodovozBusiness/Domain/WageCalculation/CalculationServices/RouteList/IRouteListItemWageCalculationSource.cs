@@ -121,5 +121,7 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		EmployeeCategory EmployeeCategory { get; }
 
 		bool IsFastDelivery { get; }
+
+		WageRateTypes GetFastDeliveryWageRateType();
 	}
 }

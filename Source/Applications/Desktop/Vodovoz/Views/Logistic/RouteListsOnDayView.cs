@@ -34,6 +34,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using System.Text;
 using static Vodovoz.EntityRepositories.Orders.OrderRepository;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Infrastructure;
 
 namespace Vodovoz.Views.Logistic
 {
@@ -105,9 +106,9 @@ namespace Vodovoz.Views.Logistic
 
 			LoadDistrictsGeometry();
 
-			var colorPink = new Gdk.Color(0xff, 0xc0, 0xc0);
-			var colorWhite = new Gdk.Color(0xff, 0xff, 0xff);
-			var colorLightRed = new Gdk.Color(0xff, 0x66, 0x66);
+			var colorPink = GdkColors.Pink;
+			var colorWhite = GdkColors.PrimaryBase;
+			var colorLightRed = GdkColors.DangerBase;
 
 			ytreeRoutes.ColumnsConfig = FluentColumnsConfig<object>
 				.Create()

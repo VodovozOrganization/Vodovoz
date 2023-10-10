@@ -58,6 +58,8 @@ namespace Vodovoz.Views.Client
 
 		private global::Gamma.GtkWidgets.yButton btnOrdersJournal;
 
+		private global::Gamma.GtkWidgets.yButton btnLegalCounterparty;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -313,11 +315,22 @@ namespace Vodovoz.Views.Client
 			w24.Position = 2;
 			w24.Expand = false;
 			w24.Fill = false;
-			this.vboxMain.Add(this.hbox);
-			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hbox]));
-			w25.Position = 4;
+			// Container child hbox.Gtk.Box+BoxChild
+			this.btnLegalCounterparty = new global::Gamma.GtkWidgets.yButton();
+			this.btnLegalCounterparty.CanFocus = true;
+			this.btnLegalCounterparty.Name = "btnLegalCounterparty";
+			this.btnLegalCounterparty.UseUnderline = true;
+			this.btnLegalCounterparty.Label = global::Mono.Unix.Catalog.GetString("Юр лицо");
+			this.hbox.Add(this.btnLegalCounterparty);
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.hbox[this.btnLegalCounterparty]));
+			w25.Position = 3;
 			w25.Expand = false;
 			w25.Fill = false;
+			this.vboxMain.Add(this.hbox);
+			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hbox]));
+			w26.Position = 4;
+			w26.Expand = false;
+			w26.Fill = false;
 			this.Add(this.vboxMain);
 			if ((this.Child != null))
 			{

@@ -9,6 +9,7 @@ using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Client;
+using Vodovoz.Infrastructure;
 
 namespace Vodovoz.ViewModel
 {
@@ -118,7 +119,10 @@ namespace Vodovoz.ViewModel
 			.AddColumn("ИНН").AddTextRenderer(x => x.INN)
 			.AddColumn("Договора").AddTextRenderer(x => x.Contracts)
 			.AddColumn("Точки доставки").AddTextRenderer(x => x.Addresses)
-			.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+			.RowCells().AddSetter<CellRendererText>((c, n) =>
+			{
+				c.ForegroundGdk = n.IsArhive ? GdkColors.InsensitiveText : GdkColors.PrimaryText;
+			})
 			.Finish();
 
 		public override IColumnsConfig ColumnsConfig {
@@ -195,16 +199,6 @@ namespace Vodovoz.ViewModel
 
 		[UseForSearch]
 		public string PhonesDigits { get; set; }
-
-		public string RowColor {
-			get {
-				if(IsArhive)
-					return "grey";
-				else
-					return "black";
-
-			}
-		}
 
 		public string EntityTitle => Name;
 	}

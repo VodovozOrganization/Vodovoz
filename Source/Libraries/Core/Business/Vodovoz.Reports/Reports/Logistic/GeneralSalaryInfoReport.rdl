@@ -140,6 +140,10 @@ FROM
             AND (@driver_of_car_own_type = '' OR empl.driver_of_car_own_type = @driver_of_car_own_type)
             AND (@driver_of_car_type_of_use = '' AND empl.driver_of_car_type_of_use != 'Truck'
                 OR empl.driver_of_car_type_of_use = @driver_of_car_type_of_use)
+            AND (
+         			(0 IN (@include_car_models) OR (cm.id IN (@include_car_models)))
+						AND NOT (cm.id IN (@exclude_car_models))
+     			)
         GROUP BY empl.id
         ) as drivers_info_and_wages
     INNER JOIN
@@ -352,6 +356,12 @@ ORDER BY T.empl_name;</CommandText>
           <QueryParameter Name="exclude_visiting_masters">
             <Value>={?exclude_visiting_masters}</Value>
           </QueryParameter>
+          <QueryParameter Name="include_car_models">
+            <Value>={?include_car_models}</Value>
+          </QueryParameter>
+          <QueryParameter Name="exclude_car_models">
+            <Value>={?exclude_car_models}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
       <Fields >
@@ -506,7 +516,7 @@ ORDER BY T.empl_name;</CommandText>
           <TableColumn>
             <Width>47.7pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>47.7pt</Width>
           </TableColumn>
           <TableColumn>
@@ -599,7 +609,7 @@ ORDER BY T.empl_name;</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox38">
                       <Value>МЛ</Value>
@@ -890,7 +900,7 @@ ORDER BY T.empl_name;</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox39">
                       <Value>Кол-во МЛ</Value>
@@ -1223,7 +1233,7 @@ ORDER BY T.empl_name;</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox40">
                       <Value>=Fields!route_lists_count.Value</Value>
@@ -1463,7 +1473,7 @@ ORDER BY T.empl_name;</CommandText>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
@@ -1504,7 +1514,7 @@ ORDER BY T.empl_name;</CommandText>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="employee_category">
       <DataType>String</DataType>
@@ -1525,6 +1535,20 @@ ORDER BY T.empl_name;</CommandText>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="include_car_models">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="exclude_car_models">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>

@@ -35,6 +35,7 @@ using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.Infrastructure;
 
 namespace Vodovoz
 {
@@ -55,8 +56,8 @@ namespace Vodovoz
 		public RegradingOfGoodsDocumentItemsView()
 		{
 			this.Build();
-			var colorWhite = new Gdk.Color(0xff, 0xff, 0xff);
-			var colorLightRed = new Gdk.Color(0xff, 0x66, 0x66);
+			var basePrimary = GdkColors.PrimaryBase;
+			var colorLightRed = GdkColors.DangerBase;
 
 			List<CullingCategory> types;
 			using(IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot()) {
@@ -98,7 +99,7 @@ namespace Vodovoz
 							c.Editable = n.NomenclatureNew.IsDefectiveBottle;
 							c.BackgroundGdk = n.NomenclatureNew.IsDefectiveBottle && n.TypeOfDefect == null
 								? colorLightRed
-								: colorWhite;
+								: basePrimary;
 						}
 					)
 				.AddColumn("Источник\nбрака")
@@ -111,7 +112,7 @@ namespace Vodovoz
 							c.Editable = n.NomenclatureNew.IsDefectiveBottle;
 							c.BackgroundGdk = n.NomenclatureNew.IsDefectiveBottle && n.Source == DefectSource.None
 								? colorLightRed
-								: colorWhite;
+								: basePrimary;
 						}
 					)
 				.AddColumn("Что произошло").AddTextRenderer(x => x.Comment).Editable()

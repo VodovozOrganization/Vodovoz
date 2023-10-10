@@ -20,6 +20,7 @@ using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.Infrastructure;
 using Vodovoz.Parameters;
 using Vodovoz.ViewModels.Infrastructure.Print;
 
@@ -80,7 +81,7 @@ namespace Vodovoz.Dialogs.Logistic
 				.AddColumn("")
 				.RowCells()
 					.AddSetter<CellRendererText>((c, n) =>
-					c.Foreground = (n.Document as RouteListPrintableDocs).routeList.PrintsHistory?.Any() ?? false ? "grey" : "black")
+					c.ForegroundGdk = (n.Document as RouteListPrintableDocs).routeList.PrintsHistory?.Any() ?? false ? GdkColors.InsensitiveText : GdkColors.PrimaryText)
 				.Finish();
 
 			geograficGroup.UoW = _uow;
@@ -135,7 +136,7 @@ namespace Vodovoz.Dialogs.Logistic
 				.AddColumn("")
 					.AddTextRenderer(x => x)
 				.RowCells()
-					.AddSetter<CellRendererText>((c,n)=>c.Foreground = "red")
+					.AddSetter<CellRendererText>((c,n) => c.ForegroundGdk = GdkColors.DangerText)
 				.Finish();
 			yTreeViewWarnings.SetItemsSource(_warnings);
 

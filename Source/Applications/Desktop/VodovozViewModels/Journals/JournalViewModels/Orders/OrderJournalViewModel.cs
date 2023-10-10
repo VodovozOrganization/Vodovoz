@@ -1,17 +1,21 @@
-﻿using NHibernate;
+using MoreLinq;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using QS.Project.Services.FileDialog;
 using QS.Services;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using Vodovoz.Controllers;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -38,11 +42,13 @@ using Vodovoz.Services;
 using Vodovoz.Settings.Database;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
+using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.ViewModels.Reports.Orders;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
@@ -57,6 +63,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
 		private readonly bool _userHasAccessToRetail = false;
+		private readonly bool _userCanExportOrdersToExcel = false;
 		private readonly IOrderSelectorFactory _orderSelectorFactory;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
@@ -74,11 +81,14 @@ namespace Vodovoz.JournalViewModels
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 		private readonly IRDLPreviewOpener _rdlPreviewOpener;
 		private readonly int _closingDocumentDeliveryScheduleId;
+		private readonly bool _userCanPrintManyOrdersDocuments;
+		private bool _isOrdersExportToExcelInProcess;
 
 		public OrderJournalViewModel(
 			OrderJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
+			INavigationManager navigationManager,
 			IEmployeeService employeeService,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
@@ -126,12 +136,17 @@ namespace Vodovoz.JournalViewModels
 			_closingDocumentDeliveryScheduleId =
 				(deliveryScheduleParametersProvider ?? throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider)))
 				.ClosingDocumentDeliveryScheduleId;
+
+			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+
 			TabName = "Журнал заказов";
 
 			_userHasAccessToRetail = commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_to_retail");
 			_userHasOnlyAccessToWarehouseAndComplaints =
 				commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
 				&& !commonServices.UserService.GetCurrentUser().IsAdmin;
+			_userCanPrintManyOrdersDocuments = commonServices.CurrentPermissionService.ValidatePresetPermission("can_print_many_orders_documents");
+			_userCanExportOrdersToExcel = commonServices.CurrentPermissionService.ValidatePresetPermission("can_export_orders_to_excel");
 
 			SearchEnabled = false;
 
@@ -161,6 +176,16 @@ namespace Vodovoz.JournalViewModels
 			}
 		}
 
+		public bool IsOrdersExportToExcelInProcess
+		{
+			get => _isOrdersExportToExcelInProcess;
+			private set
+			{
+				SetField(ref _isOrdersExportToExcelInProcess, value);
+				UpdateJournalActions();
+			}
+		}
+
 		protected override void CreateNodeActions()
 		{
 			NodeActionsList.Clear();
@@ -168,6 +193,8 @@ namespace Vodovoz.JournalViewModels
 			CreateDefaultAddActions();
 			CreateCustomEditAction();
 			CreateDefaultDeleteAction();
+			CreatePrintOrdersDocumentsAction();
+			CreateExportToExcelAction();
 		}
 
 		private void CreateCustomEditAction()
@@ -218,6 +245,144 @@ namespace Vodovoz.JournalViewModels
 				RowActivatedAction = editAction;
 			}
 			NodeActionsList.Add(editAction);
+		}
+
+		private void CreatePrintOrdersDocumentsAction()
+		{
+			var printOrdersDocumentsAction = new JournalAction(
+				"Печать документов",
+				(selected) => _userCanPrintManyOrdersDocuments,
+				(selected) => _userCanPrintManyOrdersDocuments,
+				(selected) => 
+				{
+					var ordersCount = 
+						GetOrdersQuery(UoW)
+						.Take(101)
+						.List<OrderJournalNode>()
+						.Count();
+
+					if(ordersCount < 1)
+					{
+						_commonServices.InteractiveService.ShowMessage(
+							ImportanceLevel.Info,
+							"Для отправки на печать в списке должны быть заказы");
+
+						return;
+					}
+
+					if(ordersCount > 100)
+					{
+						_commonServices.InteractiveService.ShowMessage(
+							ImportanceLevel.Info,
+							"Слишком много заказов в списке. Количество заказов не должно превышать 100");
+
+						return;
+					}
+
+					var fileredOrderIds = GetOrdersQuery(UoW)
+						.List<OrderJournalNode>()
+						.Select(n => n.Id);
+
+					var orders = UoW.GetAll<VodovozOrder>()
+						.Where(o => fileredOrderIds.Contains(o.Id))
+						.OrderByDescending(o => o.CreateDate)
+						.ToList();
+
+					var clientsCount = orders
+						.Select(o => o.Client.Id)
+						.Distinct()
+						.Count();
+
+					if(clientsCount > 1)
+					{
+						_commonServices.InteractiveService.ShowMessage(
+							ImportanceLevel.Info,
+							"В списке присутствуют заказы разных контрагентов. Необходимо выбрать заказы одного контрагента");
+
+						return;
+					}
+
+					NavigationManager.OpenViewModel<PrintOrdersDocumentsViewModel, IList<VodovozOrder>>(null, orders);
+				}
+			);
+
+			NodeActionsList.Add(printOrdersDocumentsAction);
+		}
+
+		private void CreateExportToExcelAction()
+		{
+			var createExportToExcelAction = new JournalAction(
+				"Выгрузить в Excel",
+				(selected) => !IsOrdersExportToExcelInProcess,
+				(selected) => _userCanExportOrdersToExcel,
+				async (selected) => await ExportToExcel()
+			);
+			NodeActionsList.Add(createExportToExcelAction);
+		}
+
+		private async Task ExportToExcel()
+		{
+			if(FilterViewModel.StartDate == null || FilterViewModel.EndDate == null)
+			{
+				_commonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					"Слишком много данных. Выберете временной диапазон для формирования выгрузки");
+
+				return;
+			}
+
+			var dialogSettings = new DialogSettings();
+			dialogSettings.Title = "Сохранить";
+			dialogSettings.DefaultFileExtention = ".xlsx";
+			dialogSettings.FileName = $"{Title} {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx";
+
+			var saveDialogResul = _fileDialogService.RunSaveFileDialog(dialogSettings);
+			if(!saveDialogResul.Successful)
+			{
+				return;
+			}
+
+			IsOrdersExportToExcelInProcess = true;
+
+			await Task.Run(() =>
+			{
+				var nodes = GetReportData();
+
+				var ordersReport = new OrdersReport(
+						FilterViewModel.StartDate.Value,
+						FilterViewModel.EndDate.Value,
+						nodes);
+
+				ordersReport.Export(saveDialogResul.Path);
+			});
+
+			IsOrdersExportToExcelInProcess = false;
+		}
+
+		private IEnumerable<OrderJournalNode> GetReportData()
+		{
+			var ordersRows = 
+				GetOrdersQuery(UoW).List<OrderJournalNode<VodovozOrder>>();
+
+			var ordersWithoutShipmentForDebtRows = 
+				GetOrdersWithoutShipmentForDebtQuery(UoW).List<OrderJournalNode<OrderWithoutShipmentForDebt>>();
+
+			var ordersWithoutShipmentForPaymentRows = 
+				GetOrdersWithoutShipmentForPaymentQuery(UoW).List<OrderJournalNode<OrderWithoutShipmentForPayment>>();
+
+			var ordersWithoutShipmentForAdvancePaymentRows = 
+				GetOrdersWithoutShipmentForAdvancePaymentQuery(UoW).List<OrderJournalNode<OrderWithoutShipmentForAdvancePayment>>();
+
+			IEnumerable<OrderJournalNode> orderJournalNodes = new List<OrderJournalNode>();
+			orderJournalNodes = orderJournalNodes.SortedMerge(
+					OrderByDirection.Descending,
+					Comparer<OrderJournalNode>.Create((x, y) => x.CreateDate > y.CreateDate ? 1 : x.CreateDate < y.CreateDate ? -1 : 0),
+					ordersRows,
+					ordersWithoutShipmentForDebtRows,
+					ordersWithoutShipmentForPaymentRows,
+					ordersWithoutShipmentForAdvancePaymentRows);
+
+			return orderJournalNodes;
 		}
 
 		private IQueryOver<VodovozOrder> GetOrdersQuery(IUnitOfWork uow)
@@ -415,16 +580,20 @@ namespace Vodovoz.JournalViewModels
 			{
 				query.Where(Restrictions.Like(Projections.Property(() => counterpartyAlias.FullName), FilterViewModel.CounterpartyNameLike, MatchMode.Anywhere));
 			}
-
-			if(!string.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointAddressLike) && FilterViewModel.DeliveryPointAddressLike.Length >= _minLengthLikeSearch)
-			{
-				query.Where(Restrictions.Like(Projections.Property(() => deliveryPointAlias.CompiledAddress), FilterViewModel.DeliveryPointAddressLike, MatchMode.Anywhere));
-			}
 			
 			if(FilterViewModel.ExcludeClosingDocumentDeliverySchedule)
 			{
 				query.Where(o => o.DeliverySchedule.Id == null || o.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId);
 			}
+
+			if(!string.IsNullOrWhiteSpace(FilterViewModel?.CounterpartyInn))
+			{
+				query.Where(() => counterpartyAlias.INN == FilterViewModel.CounterpartyInn);
+			}
+
+			query.Where(FilterViewModel?.SearchByAddressViewModel?.GetSearchCriterion(
+				() => deliveryPointAlias.CompiledAddress
+			));
 
 			var bottleCountSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
 				.Where(() => orderAlias.Id == orderItemAlias.Order.Id)
@@ -495,6 +664,7 @@ namespace Vodovoz.JournalViewModels
 					.Select(() => orderAlias.DriverCallId).WithAlias(() => resultAlias.DriverCallId)
 					.Select(() => orderAlias.OnlineOrder).WithAlias(() => resultAlias.OnlineOrder)
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Counterparty)
+					.Select(() => counterpartyAlias.INN).WithAlias(() => resultAlias.Inn)
 					.Select(() => districtAlias.DistrictName).WithAlias(() => resultAlias.DistrictName)
 					.Select(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.CompilledAddress)
 					.Select(() => deliveryPointAlias.City).WithAlias(() => resultAlias.City)
@@ -563,7 +733,7 @@ namespace Vodovoz.JournalViewModels
 				|| FilterViewModel.Organisation != null
 				|| FilterViewModel.PaymentByCardFrom != null
 				|| FilterViewModel.SortDeliveryDate == true
-				|| !string.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointAddressLike)
+				|| FilterViewModel.SearchByAddressViewModel?.SearchValues?.Length > 0
 				|| FilterViewModel.ExcludeClosingDocumentDeliverySchedule)
 			{
 				query.Where(o => o.Id == -1);
@@ -619,6 +789,11 @@ namespace Vodovoz.JournalViewModels
 				query.Where(Restrictions.Like(Projections.Property(() => counterpartyAlias.FullName), FilterViewModel.CounterpartyNameLike, MatchMode.Anywhere));
 			}
 
+			if(!string.IsNullOrWhiteSpace(FilterViewModel?.CounterpartyInn))
+			{
+				query.Where(() => counterpartyAlias.INN == FilterViewModel.CounterpartyInn);
+			}
+
 			query.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
 				 .Left.JoinAlias(o => o.Author, () => authorAlias);
 
@@ -637,6 +812,7 @@ namespace Vodovoz.JournalViewModels
 				   .Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
 				   .Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
 				   .Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Counterparty)
+				   .Select(() => counterpartyAlias.INN).WithAlias(() => resultAlias.Inn)
 				   .Select(() => orderWSDAlias.DebtSum).WithAlias(() => resultAlias.Sum)
 				   .Select(
 						Projections.Conditional(
@@ -715,7 +891,7 @@ namespace Vodovoz.JournalViewModels
 				|| FilterViewModel.Organisation != null
 				|| FilterViewModel.PaymentByCardFrom != null
 				|| FilterViewModel.SortDeliveryDate == true
-				|| !string.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointAddressLike)
+				|| FilterViewModel.SearchByAddressViewModel?.SearchValues?.Length > 0
 				|| FilterViewModel.ExcludeClosingDocumentDeliverySchedule)
 			{
 				query.Where(o => o.Id == -1);
@@ -736,6 +912,11 @@ namespace Vodovoz.JournalViewModels
 			if(FilterViewModel.Author != null)
 			{
 				query.Where(o => o.Author == FilterViewModel.Author);
+			}
+
+			if(!string.IsNullOrWhiteSpace(FilterViewModel?.CounterpartyInn))
+			{
+				query.Where(() => counterpartyAlias.INN == FilterViewModel.CounterpartyInn);
 			}
 
 			var bottleCountSubquery = QueryOver.Of(() => orderWSPItemAlias)
@@ -811,6 +992,7 @@ namespace Vodovoz.JournalViewModels
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
 					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Counterparty)
+					.Select(() => counterpartyAlias.INN).WithAlias(() => resultAlias.Inn)
 					.Select(
 						Projections.Conditional(
 							Restrictions.Or(
@@ -890,7 +1072,7 @@ namespace Vodovoz.JournalViewModels
 				|| FilterViewModel.Organisation != null
 				|| FilterViewModel.PaymentByCardFrom != null
 				|| FilterViewModel.SortDeliveryDate == true
-				|| !string.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointAddressLike)
+				|| FilterViewModel.SearchByAddressViewModel?.SearchValues?.Length > 0
 				|| FilterViewModel.ExcludeClosingDocumentDeliverySchedule)
 			{
 				query.Where(o => o.Id == -1);
@@ -911,6 +1093,11 @@ namespace Vodovoz.JournalViewModels
 			if(FilterViewModel.Author != null)
 			{
 				query.Where(o => o.Author == FilterViewModel.Author);
+			}
+
+			if(!string.IsNullOrWhiteSpace(FilterViewModel?.CounterpartyInn))
+			{
+				query.Where(() => counterpartyAlias.INN == FilterViewModel.CounterpartyInn);
 			}
 
 			var bottleCountSubquery = QueryOver.Of(() => orderWSAPItemAlias)
@@ -978,6 +1165,7 @@ namespace Vodovoz.JournalViewModels
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
 					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Counterparty)
+					.Select(() => counterpartyAlias.INN).WithAlias(() => resultAlias.Inn)
 					.Select(
 						Projections.Conditional(
 							Restrictions.Or(

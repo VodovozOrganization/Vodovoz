@@ -1,4 +1,4 @@
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gtk;
 using QS.Journal.GtkUI;
@@ -8,6 +8,7 @@ using System;
 using System.Text;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Widgets;
 using CurrencyWorks = QSProjectsLib.CurrencyWorks;
 
@@ -158,6 +159,7 @@ namespace Vodovoz.ViewWidgets
 
 			yEnumCMBStatus.ItemsEnum = typeof(UndeliveryStatus);
 			yEnumCMBStatus.Binding.AddBinding(ViewModel.Entity, e => e.UndeliveryStatus, w => w.SelectedItem).InitializeFromSource();
+			ViewModel.RemoveItemsFromStatusEnumAction?.Invoke();
 
 			yentInProcessAtDepartment.SubjectType = typeof(Subdivision);
 			yentInProcessAtDepartment.Binding.AddBinding(ViewModel.Entity, d => d.InProcessAtDepartment, w => w.Subject).InitializeFromSource();
@@ -241,7 +243,7 @@ namespace Vodovoz.ViewWidgets
 					.AddTextRenderer(x => x.Comment)
 						.WrapWidth(250)
 						.WrapMode(Pango.WrapMode.WordChar)
-				.RowCells().AddSetter<CellRenderer>((c, o) => c.CellBackgroundGdk = new Gdk.Color(230, 230, 245))
+				.RowCells().AddSetter<CellRenderer>((c, o) => c.CellBackgroundGdk = GdkColors.Pink)
 				.Finish();
 
 			ytreeviewResult.ItemsDataSource = ViewModel.Entity.ObservableResultComments;

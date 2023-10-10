@@ -102,7 +102,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 		Largus,
 		[Display(Name = "Фура")]
 		Truck,
-		[Display(Name = "Грузовой (ГАЗель)")]
+		[Display(Name = "Грузовой")]
 		GAZelle
 	}
 }

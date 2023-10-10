@@ -292,6 +292,7 @@ namespace Vodovoz.ViewModels.Cash
 			nameof(CreatingMessage),
 			nameof(ChangeSumMessage),
 			nameof(ChangeTypeMessage),
+			nameof(CreatingMessageState),
 			nameof(ClosingSumString))]
 		public decimal ClosingSum
 		{
@@ -308,7 +309,9 @@ namespace Vodovoz.ViewModels.Cash
 		[PropertyChangedAlso(
 			nameof(CreatingMessage),
 			nameof(ChangeSumMessage),
-			nameof(ChangeTypeMessage))]
+			nameof(ChangeTypeMessage),
+			nameof(CreatingMessageState),
+			nameof(ChangeSumWarning))]
 		public decimal Balance
 		{
 			get => _balance;
@@ -317,12 +320,22 @@ namespace Vodovoz.ViewModels.Cash
 
 		public string CreatingMessage =>
 			ClosingSum == 0
-			? "<span foreground=\"Cadet Blue\">Нет выбранных авансов.</span>"
+			? "Нет выбранных авансов."
 			: Balance == 0
-				? "<span foreground=\"green\">Аванс будет закрыт полностью.</span>"
+				? "Аванс будет закрыт полностью."
 				: Balance < 0
-					? $"<span foreground=\"blue\">Будет создан расходный ордер на сумму {Math.Abs(Balance):C}, в качестве доплаты.</span>"
-					: $"<span foreground=\"blue\">Будет создан приходный ордер на сумму {Math.Abs(Balance):C}, в качестве сдачи от подотчетного лица.</span>";
+					? $"Будет создан расходный ордер на сумму {Math.Abs(Balance):C}, в качестве доплаты."
+					: $"Будет создан приходный ордер на сумму {Math.Abs(Balance):C}, в качестве сдачи от подотчетного лица.";
+
+
+		public CreatingMessageState CreatingMessageState =>
+			ClosingSum == 0
+			? CreatingMessageState.ClosingSumZero
+			: Balance == 0
+				? CreatingMessageState.BalanceZero 
+				: Balance < 0
+					? CreatingMessageState.BalanceLessThanZero
+					: CreatingMessageState.BalanceGreaterThanZero;
 
 		public string ChangeTypeMessage =>
 			ClosingSum == 0 || ClosingSumEqualsMoney
@@ -337,8 +350,10 @@ namespace Vodovoz.ViewModels.Cash
 				: Balance == 0
 					? string.Empty
 					: Balance < 0
-						? $"<span foreground=\"red\">{Math.Abs(Balance):C}</span>"
+						? $"{Math.Abs(Balance):C}"
 						: $"{Balance:C}";
+
+		public bool ChangeSumWarning => ClosingSum != 0 && Balance < 0;
 
 		public string CurrencySymbol => NumberFormatInfo.CurrentInfo.CurrencySymbol;
 
@@ -603,5 +618,13 @@ namespace Vodovoz.ViewModels.Cash
 
 		public string GetCachedExpenseCategoryTitle(int id) =>
 			_financialExpenseCategoryNodeInMemoryCacheRepository.GetTitleById(id);
+	}
+
+	public enum CreatingMessageState
+	{
+		ClosingSumZero,
+		BalanceZero,
+		BalanceLessThanZero,
+		BalanceGreaterThanZero
 	}
 }

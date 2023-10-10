@@ -1,6 +1,7 @@
 ﻿using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
+using Vodovoz.Infrastructure;
 using Vodovoz.Representations;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 
@@ -20,7 +21,12 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Долг по таре (по клиенту)").AddNumericRenderer(node => node.DebtByClient)
 				.AddColumn("Ввод остат.").AddTextRenderer(node => node.IsResidueExist)
 				.AddColumn("Резерв").AddNumericRenderer(node => node.Reserve)
-				.RowCells().AddSetter((CellRendererText c, DebtorJournalNode n) => c.Foreground = n.RowColor)
+				.RowCells().AddSetter((CellRendererText c, DebtorJournalNode n) =>
+				{
+					c.ForegroundGdk = n.TaskId.HasValue
+						? GdkColors.InsensitiveText
+						: GdkColors.PrimaryText;
+				})
 				.Finish();
 	}
 }

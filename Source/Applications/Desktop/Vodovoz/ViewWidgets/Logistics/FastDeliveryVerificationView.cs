@@ -2,6 +2,7 @@
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Logistic.FastDelivery;
 using Vodovoz.EntityRepositories.Delivery;
+using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Widgets;
 
 namespace Vodovoz.ViewWidgets.Logistics
@@ -9,8 +10,8 @@ namespace Vodovoz.ViewWidgets.Logistics
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class FastDeliveryVerificationView : WidgetViewBase<FastDeliveryVerificationViewModel>
 	{
-		private readonly Gdk.Color _colorWhite = new Gdk.Color(0xff, 0xff, 0xff);
-		private readonly Gdk.Color _colorLightRed = new Gdk.Color(0xff, 0x66, 0x66);
+		private readonly Gdk.Color _colorWhite = GdkColors.PrimaryBase;
+		private readonly Gdk.Color _colorLightRed = GdkColors.DangerBase;
 		public FastDeliveryVerificationView(FastDeliveryVerificationViewModel viewModel) : base(viewModel)
 		{
 			Build();

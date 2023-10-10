@@ -18,7 +18,7 @@ namespace Vodovoz.Domain.Goods
 	[EntityPermission]
 	public class NomenclaturePurchasePrice : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
-
+		private const decimal _purchasePriceMax = 999999;
 		private Nomenclature _nomenclature;
 		private DateTime _startDate;
 		private DateTime? _endDate;
@@ -59,6 +59,12 @@ namespace Vodovoz.Domain.Goods
 			if(PurchasePrice <= 0)
 			{
 				yield return new ValidationResult("Должна быть указана цена закупки", new[] { nameof(PurchasePrice) });
+			}
+
+			if(PurchasePrice > _purchasePriceMax)
+			{
+				yield return new ValidationResult(
+					$"Цена закупки не может быть больше {_purchasePriceMax}", new[] { nameof(PurchasePrice) });
 			}
 
 			if(Nomenclature == null)

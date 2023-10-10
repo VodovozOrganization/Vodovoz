@@ -34,6 +34,8 @@ using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Factories;
 using Order = Vodovoz.Domain.Orders.Order;
+using Vodovoz.Infrastructure;
+using Vodovoz.Extensions;
 
 namespace Vodovoz
 {
@@ -181,7 +183,7 @@ namespace Vodovoz
 			var goodsColumns = items.SelectMany(i => i.GoodsByRouteColumns.Keys).Distinct().ToArray();
 
 			var config = ColumnsConfigFactory.Create<RouteListItem>()
-			.AddColumn("Заказ").AddTextRenderer( node => node.Order.Id.ToString())
+			.AddColumn("Заказ").AddTextRenderer(node => node.Order.Id.ToString())
 			.AddColumn("Адрес").AddTextRenderer(node => node.Order.DeliveryPoint == null ? "Точка доставки не установлена" : string.Format("{0} д.{1}", node.Order.DeliveryPoint.Street, node.Order.DeliveryPoint.Building))
 			.AddColumn("Время").AddTextRenderer(node => node.Order.DeliverySchedule == null ? string.Empty : node.Order.DeliverySchedule.Name);
 			if(goodsColumnsCount != goodsColumns.Length) {
@@ -210,7 +212,7 @@ namespace Vodovoz
 					.AddToggleRenderer(x => x.Order.IsFastDelivery).Editing(false)
 				.AddColumn("");
 			ytreeviewItems.ColumnsConfig =
-				config.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.Order.RowColor)
+				config.RowCells().AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.Order.PreviousOrder == null ? GdkColors.PrimaryText : GdkColors.DangerText)
 				.Finish();
 		}
 
@@ -420,8 +422,8 @@ namespace Vodovoz
 					? RouteListUoW.Root.Car.CarModel.MaxWeight.ToString()
 					: " ?";
 				var weight = RouteListUoW.Root.HasOverweight()
-					? $"<span foreground = \"red\">Перегруз на {RouteListUoW.Root.Overweight():0.###} кг.</span>"
-					: $"<span foreground = \"green\">Вес груза: {RouteListUoW.Root.GetTotalWeight():0.###}/{maxWeight} кг.</span>";
+					? $"<span foreground = \"{GdkColors.DangerText.ToHtmlColor()}\">Перегруз на {RouteListUoW.Root.Overweight():0.###} кг.</span>"
+					: $"<span foreground = \"{GdkColors.SuccessText.ToHtmlColor()}\">Вес груза: {RouteListUoW.Root.GetTotalWeight():0.###}/{maxWeight} кг.</span>";
 				lblWeight.LabelProp = weight;
 			}
 			if(RouteListUoW?.Root?.Car == null)
@@ -438,11 +440,11 @@ namespace Vodovoz
 					? RouteListUoW.Root.Car.CarModel.MaxVolume.ToString("0.###")
 					: " ?";
 				var volume = RouteListUoW.Root.HasVolumeExecess()
-					? $"<span foreground = \"red\">Объём груза превышен на {RouteListUoW.Root.VolumeExecess():0.###} м<sup>3</sup>.</span>"
-					: $"<span foreground = \"green\">Объём груза: {RouteListUoW.Root.GetTotalVolume():0.###}/{maxVolume} м<sup>3</sup>.</span>";
+					? $"<span foreground = \"{GdkColors.DangerText.ToHtmlColor()}\">Объём груза превышен на {RouteListUoW.Root.VolumeExecess():0.###} м<sup>3</sup>.</span>"
+					: $"<span foreground = \"{GdkColors.SuccessText.ToHtmlColor()}\">Объём груза: {RouteListUoW.Root.GetTotalVolume():0.###}/{maxVolume} м<sup>3</sup>.</span>";
 				var reverseVolume = RouteListUoW.Root.HasReverseVolumeExcess()
-					? $"<span foreground = \"red\">Объём возвращаемого груза превышен на {RouteListUoW.Root.ReverseVolumeExecess():0.###} м<sup>3</sup>.</span>"
-					: $"<span foreground = \"green\">Объём возвращаемого груза: {RouteListUoW.Root.GetTotalReverseVolume():0.###}/{maxVolume} м<sup>3</sup>.</span>";
+					? $"<span foreground = \"{GdkColors.DangerText.ToHtmlColor()}\">Объём возвращаемого груза превышен на {RouteListUoW.Root.ReverseVolumeExecess():0.###} м<sup>3</sup>.</span>"
+					: $"<span foreground = \"{GdkColors.SuccessText.ToHtmlColor()}\">Объём возвращаемого груза: {RouteListUoW.Root.GetTotalReverseVolume():0.###}/{maxVolume} м<sup>3</sup>.</span>";
 				lblVolume.LabelProp = volume + " " + reverseVolume;
 			}
 			if(RouteListUoW?.Root?.Car == null)

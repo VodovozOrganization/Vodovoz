@@ -1,5 +1,6 @@
 ﻿using Gamma.ColumnConfig;
 using Gtk;
+using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Journals.JournalNodes.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using VodovozInfrastructure.Extensions;
@@ -19,7 +20,10 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Адрес из 1с").AddTextRenderer(x => x.Address1c)
 				.AddColumn("Клиент").AddTextRenderer(x => x.Counterparty)
 				.AddColumn("Номер").AddTextRenderer(x => x.IdString)
-				.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+				.RowCells().AddSetter<CellRendererText>((c, n) =>
+				{
+					c.ForegroundGdk = n.IsActive ? GdkColors.PrimaryText : GdkColors.InsensitiveText;
+				})
 				.Finish();
 	}
 }

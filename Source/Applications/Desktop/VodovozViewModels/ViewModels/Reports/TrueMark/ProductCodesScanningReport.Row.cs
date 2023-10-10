@@ -5,6 +5,8 @@
 		public class Row
 		{
 			public string DriverFIO { get; set; }
+			public string CarOwnTypeString { get; set; }
+			public string DriverSubdivisionGeoGroup { get; set; }
 			public int TotalCodesCount { get; set; }
 			public int SuccessfullyScannedCodesCount { get; set; }
 			public decimal SuccessfullyScannedCodesPercent => ((decimal)SuccessfullyScannedCodesCount / TotalCodesCount) * 100;

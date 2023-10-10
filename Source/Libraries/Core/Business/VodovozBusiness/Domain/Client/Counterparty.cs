@@ -1086,9 +1086,9 @@ namespace Vodovoz.Domain.Client
 			CloseDeliveryComment = currentEmployee.ShortName + " " + DateTime.Now.ToString("dd/MM/yyyy HH:mm") + ": " + newComment;
 		}
 
-		protected virtual bool ManualCloseDelivery(Employee currentEmployee)
+		protected virtual bool ManualCloseDelivery(Employee currentEmployee, bool canOpenCloseDeliveries)
 		{
-			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_deliveries_for_counterparty"))
+			if(!canOpenCloseDeliveries)
 			{
 				return false;
 			}
@@ -1105,14 +1105,9 @@ namespace Vodovoz.Domain.Client
 			CloseDeliveryPerson = currentEmployee;
 		}
 
-		protected virtual bool OpenDelivery()
+		protected virtual bool OpenDelivery(bool canOpenCloseDeliveries)
 		{
-			if(IsLiquidating)
-			{
-				return false;
-			}
-
-			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_deliveries_for_counterparty"))
+			if(!canOpenCloseDeliveries)
 			{
 				return false;
 			}
@@ -1125,9 +1120,9 @@ namespace Vodovoz.Domain.Client
 			return true;
 		}
 
-		public virtual bool ToggleDeliveryOption(Employee currentEmployee)
+		public virtual bool ToggleDeliveryOption(Employee currentEmployee, bool canOpenCloseDeliveries)
 		{
-			return IsDeliveriesClosed ? OpenDelivery() : ManualCloseDelivery(currentEmployee);
+			return IsDeliveriesClosed ? OpenDelivery(canOpenCloseDeliveries) : ManualCloseDelivery(currentEmployee, canOpenCloseDeliveries);
 		}
 
 		public virtual string GetCloseDeliveryInfo()

@@ -8,6 +8,5 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Client
 		public override string Title => CompiledAddress;
 		public string CompiledAddress { get; set; }
 		public bool IsActive { get; set; }
-		public string RowColor => IsActive ? "black" : "grey";
 	}
 }

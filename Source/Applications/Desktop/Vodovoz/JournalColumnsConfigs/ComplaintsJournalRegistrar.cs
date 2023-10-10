@@ -88,10 +88,10 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddSetter<CellRenderer>(
 					(cell, node) =>
 					{
-						var color = GdkColors.WhiteColor;
+						var color = GdkColors.PrimaryBase;
 						if(node.Status != Domain.Complaints.ComplaintStatuses.Closed && node.LastPlannedCompletionDate.Date < DateTime.Today)
 						{
-							color = GdkColors.PinkColor;
+							color = GdkColors.Pink;
 						}
 						cell.CellBackgroundGdk = color;
 					})

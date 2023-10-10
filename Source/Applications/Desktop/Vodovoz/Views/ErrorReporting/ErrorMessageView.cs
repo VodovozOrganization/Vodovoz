@@ -1,6 +1,7 @@
 ﻿using System;
 using Gtk;
 using QS.ErrorReporting;
+using Vodovoz.Infrastructure;
 using Vodovoz.Tools;
 
 namespace Vodovoz.Views
@@ -41,7 +42,7 @@ namespace Vodovoz.Views
 				if(ViewModel.IsEmailValid)
 					entryEmail.ModifyText(StateType.Normal);
 				else
-					entryEmail.ModifyText(StateType.Normal, new Gdk.Color(255, 0, 0));
+					entryEmail.ModifyText(StateType.Normal, GdkColors.DangerBase);
 			}
 		}
 

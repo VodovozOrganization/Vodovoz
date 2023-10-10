@@ -22,7 +22,7 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Комментарий").AddTextRenderer(node => node.Comment).WrapMode(WrapMode.WordChar).WrapWidth(500).XAlign(0.5f)
 				.AddColumn("")
 				.RowCells().AddSetter<CellRendererText>((c, n) =>
-					c.ForegroundGdk = n.Status == DistrictsSetStatus.Closed ? GdkColors.DarkGrayColor : GdkColors.BlackColor)
+					c.ForegroundGdk = n.Status == DistrictsSetStatus.Closed ? GdkColors.InsensitiveText : GdkColors.PrimaryText)
 				.Finish();
 	}
 }

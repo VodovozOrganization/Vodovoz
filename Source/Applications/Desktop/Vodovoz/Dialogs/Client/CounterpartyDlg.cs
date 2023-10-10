@@ -27,6 +27,7 @@ using QS.Services;
 using QS.Tdi;
 using QS.Utilities;
 using QS.Utilities.Text;
+using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using QSOrmProject;
 using QSProjectsLib;
@@ -65,9 +66,11 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Undeliveries;
+using Vodovoz.Extensions;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels;
+using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalSelector;
@@ -82,6 +85,7 @@ using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.Counterparties;
 using Vodovoz.ViewModels.Dialogs.Counterparty;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
@@ -318,11 +322,10 @@ namespace Vodovoz
 		private Employee CurrentEmployee =>
 			_currentEmployee ?? (_currentEmployee = _employeeService.GetEmployeeForUser(UoW, _currentUserId));
 
-		public string IsLiquidatingLabelText => (Entity?.IsLiquidating ?? false) ? "<span foreground=\"Red\">Ликвидирован по данным ФНС</span>" : "Ликвидирован по данным ФНС";
+		public string IsLiquidatingLabelText => (Entity?.IsLiquidating ?? false) ? $"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">Ликвидирован по данным ФНС</span>" : "Ликвидирован по данным ФНС";
 
 		private void ConfigureDlg()
 		{
-			_counterpartyService = _lifetimeScope.Resolve<ICounterpartyService>();
 			var roboatsSettings = _lifetimeScope.Resolve<IRoboatsSettings>();
 			_edoSettings = _lifetimeScope.Resolve<IEdoSettings>();
 			_counterpartySettings = _lifetimeScope.Resolve<ICounterpartySettings>();
@@ -387,20 +390,42 @@ namespace Vodovoz
 
 			datatable4.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
 
-			Entity.PropertyChanged += (sender, args) =>
+			Entity.PropertyChanged += OnEntityPropertyChanged;
+		}
+
+		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Entity.SalesManager)
+				|| e.PropertyName == nameof(Entity.Accountant)
+				|| e.PropertyName == nameof(Entity.BottlesManager))
 			{
-				if(args.PropertyName == nameof(Entity.SalesManager)
-				|| args.PropertyName == nameof(Entity.Accountant)
-				|| args.PropertyName == nameof(Entity.BottlesManager))
+				CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity));
+				return;
+			}
+
+			if(e.PropertyName == nameof(Entity.CounterpartyType))
+			{
+				if(Entity.CounterpartyType != CounterpartyType.AdvertisingDepartmentClient)
 				{
-					CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity));
+					Entity.CounterpartySubtype = null;
+
+					return;
 				}
 
-				if(args.PropertyName == nameof(Entity.IsLiquidating))
+				if(Entity.CounterpartySubtype is null)
 				{
-					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsLiquidatingLabelText)));
+					var barterSubtype = UoW.GetById<CounterpartySubtype>(1);
+
+					Entity.CounterpartySubtype = barterSubtype;
 				}
-			};
+
+				return;
+			}
+
+			if(e.PropertyName == nameof(Entity.IsLiquidating))
+			{
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsLiquidatingLabelText)));
+			}
 		}
 
 		private void ConfigureTabInfo()
@@ -430,11 +455,15 @@ namespace Vodovoz
 			yEnumCounterpartyType.ChangedByUser += OnEnumCounterpartyTypeChangedByUser;
 			OnEnumCounterpartyTypeChanged(this, EventArgs.Empty);
 
-			yEnumCounterpartySubtype.ItemsEnum = typeof(CounterpartySubtype);
-			yEnumCounterpartySubtype.Binding
-				.AddBinding(Entity, e => e.CounterpartySubtype, w => w.SelectedItem)
-				.InitializeFromSource();
-			yEnumCounterpartySubtype.Sensitive = CanEdit;
+			var vm = new LegacyEEVMBuilderFactory<Counterparty>(this, Entity, UoW, Startup.MainWin.NavigationManager, _lifetimeScope)
+				.ForProperty(x => x.CounterpartySubtype)
+				.UseViewModelJournalAndAutocompleter<SubtypesJournalViewModel>()
+				.UseViewModelDialog<SubtypeViewModel>()
+				.Finish();
+
+			SubtypeEntryViewModel = vm;
+
+			entryCounterpartySubtype.ViewModel = SubtypeEntryViewModel;
 
 			yhboxCounterpartySubtype.Binding
 				.AddFuncBinding<Counterparty>(
@@ -857,7 +886,7 @@ namespace Vodovoz
 			ytreeviewTags.ColumnsConfig = ColumnsConfigFactory.Create<Tag>()
 				.AddColumn("Название").AddTextRenderer(node => node.Name)
 				.AddColumn("Цвет").AddTextRenderer()
-				.AddSetter((cell, node) => { cell.Markup = $"<span foreground=\" {node.ColorText}\">♥</span>"; })
+				.AddSetter((cell, node) => { cell.Markup = $"<span foreground=\"{node.ColorText}\">♥</span>"; })
 				.AddColumn("")
 				.Finish();
 
@@ -1380,6 +1409,8 @@ namespace Vodovoz
 			return itemsQuery;
 		};
 
+		public IEntityEntryViewModel SubtypeEntryViewModel { get; private set; }
+
 		private void CheckIsChainStoreOnToggled(object sender, EventArgs e)
 		{
 		}
@@ -1442,6 +1473,7 @@ namespace Vodovoz
 				orderJournalFilter,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
+				Startup.MainWin.NavigationManager,
 				new EmployeeService(),
 				NomenclatureRepository,
 				_userRepository,

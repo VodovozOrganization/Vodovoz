@@ -5,6 +5,7 @@ using Gtk;
 using QS.Navigation;
 using QS.Views.Dialog;
 using RevenueService.Client.Dto;
+using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using WrapMode = Pango.WrapMode;
 
@@ -13,7 +14,7 @@ namespace Vodovoz.Views.Client
 	[WindowSize(800, 600)]
 	public partial class CounterpartyDetailsFromRevenueServiceView : DialogViewBase<CounterpartyDetailsFromRevenueServiceViewModel>
 	{
-		private static readonly Color _redColor = new Color(200, 0, 0);
+		private static readonly Color _redColor = GdkColors.DangerText;
 
 		public CounterpartyDetailsFromRevenueServiceView(CounterpartyDetailsFromRevenueServiceViewModel viewModel) : base(viewModel)
 		{

@@ -18,7 +18,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.Editing(false)
 				.AddColumn("")
 				.RowCells()
-					.AddSetter<CellRendererText>((cell, node) => cell.ForegroundGdk = node.IsArchive ? GdkColors.DarkGrayColor : GdkColors.BlackColor)
+					.AddSetter<CellRendererText>((cell, node) => cell.ForegroundGdk = node.IsArchive ? GdkColors.InsensitiveText : GdkColors.PrimaryText)
 				.Finish();
 	}
 }

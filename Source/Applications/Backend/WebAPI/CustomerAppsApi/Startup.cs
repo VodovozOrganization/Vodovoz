@@ -32,6 +32,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Operations;
+using Vodovoz.EntityRepositories.RentPackages;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.EntityRepositories.Stock;
@@ -95,6 +96,7 @@ namespace CustomerAppsApi
 			services.AddSingleton<INomenclatureRepository, NomenclatureRepository>();
 			services.AddSingleton<IOrderRepository, OrderRepository>();
 			services.AddSingleton<IStockRepository, StockRepository>();
+			services.AddSingleton<IRentPackageRepository, RentPackageRepository>();
 			services.AddSingleton<IPromotionalSetRepository, PromotionalSetRepository>();
 			services.AddSingleton<IExternalCounterpartyRepository, ExternalCounterpartyRepository>();
 			services.AddSingleton<IExternalCounterpartyMatchingRepository, ExternalCounterpartyMatchingRepository>();
@@ -104,6 +106,7 @@ namespace CustomerAppsApi
 			services.AddSingleton<CounterpartyModelFactory>();
 			services.AddSingleton<ICounterpartyFactory, CounterpartyFactory>();
 			services.AddSingleton<INomenclatureFactory, NomenclatureFactory>();
+			services.AddSingleton<IRentPackageFactory, RentPackageFactory>();
 			services.AddSingleton<IPromotionalSetFactory, PromotionalSetFactory>();
 			services.AddSingleton<PhoneFormatter>(_ => new PhoneFormatter(PhoneFormat.DigitsTen));
 			services.AddSingleton<ICounterpartySettings, CounterpartySettings>();
@@ -118,6 +121,7 @@ namespace CustomerAppsApi
 			services.AddScoped<IUnitOfWork>(_ => UnitOfWorkFactory.CreateWithoutRoot("Сервис интеграции"));
 			services.AddScoped<ICounterpartyModel, CounterpartyModel>();
 			services.AddScoped<INomenclatureModel, NomenclatureModel>();
+			services.AddScoped<IRentPackageModel, RentPackageModel>();
 			services.AddScoped<IOrderModel, OrderModel>();
 			services.AddScoped<IPromotionalSetModel, PromotionalSetModel>();
 			services.AddScoped<CounterpartyModelValidator>();

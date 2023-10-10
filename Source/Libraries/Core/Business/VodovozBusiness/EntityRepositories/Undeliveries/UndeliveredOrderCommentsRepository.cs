@@ -39,12 +39,6 @@ namespace Vodovoz.EntityRepositories.Undeliveries
 			               .TransformUsing(Transformers.AliasToBean<UndeliveredOrderCommentsNode>())
 			               .List<UndeliveredOrderCommentsNode>();
 			
-			foreach(var node in nodes)
-			{
-				node.Color = clr ? "red" : "blue";
-				clr = !clr;
-			}
-			
 			return nodes;
 		}
 	}

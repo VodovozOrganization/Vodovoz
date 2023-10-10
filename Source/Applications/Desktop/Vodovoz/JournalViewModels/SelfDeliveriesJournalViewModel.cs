@@ -22,7 +22,9 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.Extensions;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.Infrastructure;
 using Vodovoz.JournalNodes;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
@@ -215,8 +217,8 @@ namespace Vodovoz.Representations
 					if(difference == 0)
 						sb.Append("Расх.нал: <b>").Append(difference.ToShortCurrencyString()).Append("</b>\t\t");
 					else
-						sb.Append("Расх.нал: <span foreground=\"Red\"><b>").Append(difference.ToShortCurrencyString()).Append("</b></span>\t\t");
-					sb.Append("<span foreground=\"Grey\"><b>").Append(base.FooterInfo).Append("</b></span>");
+						sb.Append($"Расх.нал: <span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\"><b>").Append(difference.ToShortCurrencyString()).Append("</b></span>\t\t");
+					sb.Append($"<span foreground=\"{GdkColors.InsensitiveText.ToHtmlColor()}\"><b>").Append(base.FooterInfo).Append("</b></span>");
 				}
 				return sb.ToString();
 			}

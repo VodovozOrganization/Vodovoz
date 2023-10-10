@@ -3,6 +3,7 @@ using Gtk;
 using QS.Views.GtkUI;
 using System;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Logistic;
@@ -114,13 +115,13 @@ namespace Vodovoz.Views.Logistic
 			switch(routeListItemStatus)
 			{
 				case RouteListItemStatus.Overdue:
-					return new Gdk.Color(0xee, 0x66, 0x66);
+					return GdkColors.DangerBase;
 				case RouteListItemStatus.Completed:
-					return new Gdk.Color(0x66, 0xee, 0x66);
+					return GdkColors.SuccessBase;
 				case RouteListItemStatus.Canceled:
-					return new Gdk.Color(0xaf, 0xaf, 0xaf);
+					return GdkColors.InsensitiveBase;
 				default:
-					return new Gdk.Color(0xff, 0xff, 0xff);
+					return GdkColors.PrimaryBase;
 			}
 		}
 	}

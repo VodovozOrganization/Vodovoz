@@ -9,7 +9,7 @@ namespace TrueMarkApi.Library.Dto
 		public string IdentificationCode { get; set; }
 
 		[JsonPropertyName("status")]
-		public ProductInstanceStatusEnum Status { get; set; }
+		public ProductInstanceStatusEnum? Status { get; set; }
 
 		[JsonPropertyName("ownerInn")]
 		public string OwnerInn { get; set; }

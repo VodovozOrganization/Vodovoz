@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Data.Bindings.Collections.Generic;
 using Gamma.GtkWidgets;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Undeliveries;
+using Vodovoz.Extensions;
+using Vodovoz.Infrastructure;
 
 namespace Vodovoz.ViewWidgets
 {
@@ -21,6 +24,8 @@ namespace Vodovoz.ViewWidgets
 
 		IUnitOfWork UoW { get; set; }
 		UndeliveredOrderComment Comment { get; set; }
+		GenericObservableList<UndeliveredOrderCommentsNode> Comments { get; } = new GenericObservableList<UndeliveredOrderCommentsNode>();
+
 		CommentedFields Field { get; set; }
 		UndeliveredOrder UndeliveredOrder { get; set; }
 		Employee Employee { get; set; }
@@ -30,7 +35,9 @@ namespace Vodovoz.ViewWidgets
 		void OnCommentAdded()
 		{
 			if(CommentAdded != null)
+			{
 				CommentAdded(this, new EventArgs());
+			}
 		}
 
 		public void Configure(IUnitOfWork uow, UndeliveredOrder undeliveredOrder, CommentedFields field)
@@ -39,14 +46,8 @@ namespace Vodovoz.ViewWidgets
 			UndeliveredOrder = undeliveredOrder;
 			Employee = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			Field = field;
-			yTreeComments.ColumnsConfig = ColumnsConfigFactory.Create<UndeliveredOrderCommentsNode>()
-				.AddColumn("Дата - Имя")
-					.AddTextRenderer(n => n.UserDateAndName, useMarkup: true)
-				.AddColumn("Комментарий")
-					.AddTextRenderer(n => n.MarkedupComment, useMarkup: true)
-					.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
-				.Finish();
-			GetComments();
+			
+			UpdateCommentsTreeview();
 		}
 
 		void CreateComment()
@@ -57,22 +58,52 @@ namespace Vodovoz.ViewWidgets
 			Comment.Employee = Employee;
 			Comment.CommentDate = DateTime.Now;
 			Comment.Comment = txtAddComment.Buffer.Text;
-			txtAddComment.Buffer.Text = String.Empty;
+			txtAddComment.Buffer.Text = string.Empty;
 		}
 
-		void GetComments()
+		void UpdateCommentsTreeview()
 		{
-			yTreeComments.ItemsDataSource = _undeliveredOrderCommentsRepository.GetCommentNodes(UoW, UndeliveredOrder, Field);
+			var comments = _undeliveredOrderCommentsRepository.GetCommentNodes(UoW, UndeliveredOrder, Field);
+
+			Comments.Clear();
+
+			foreach(var comment in comments)
+			{
+				Comments.Add(comment);
+			}
+
+			yTreeComments.ColumnsConfig = ColumnsConfigFactory.Create<UndeliveredOrderCommentsNode>()
+				.AddColumn("Дата - Имя")
+					.AddTextRenderer(c => "", useMarkup: true)
+					.AddSetter((c, n) =>
+					{
+						var color = Comments.IndexOf(n) % 2 == 0 ? GdkColors.InfoText.ToHtmlColor() : GdkColors.DangerText.ToHtmlColor();
+						c.Markup = $"<span foreground=\"{color}\"><b>{n.UserDateAndName}</b></span>";
+					})
+				.AddColumn("Комментарий")
+					.AddTextRenderer(n => "", useMarkup: true)
+					.AddSetter((c, n) =>
+					{
+						var color = Comments.IndexOf(n) % 2 == 0 ? GdkColors.InfoText.ToHtmlColor() : GdkColors.DangerText.ToHtmlColor();
+						c.Markup = $"<span foreground=\"{color}\"><b>{n.Comment}</b></span>";
+					})
+					.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
+				.Finish();
+
+			yTreeComments.ItemsDataSource = Comments;
 		}
 
 		protected void OnBtnAddCommentClicked(object sender, EventArgs e)
 		{
-			if(String.IsNullOrWhiteSpace(txtAddComment.Buffer.Text))
+			if(string.IsNullOrWhiteSpace(txtAddComment.Buffer.Text))
+			{
 				return;
+			}
+
 			CreateComment();
 			UoW.Save(Comment);
 			UoW.Commit();
-			GetComments();
+			UpdateCommentsTreeview();
 			Comment = null;
 			OnCommentAdded();
 		}

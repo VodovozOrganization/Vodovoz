@@ -1,12 +1,18 @@
 ﻿using Gtk;
+using MoreLinq;
 using QS.Dialog.GtkUI;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz;
 using Vodovoz.Domain.Employees;
 using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
 
 public partial class MainWindow
 {
+	private Dictionary<string, string> _themes;
+	private bool _themeResetInProcess = false;
+
 	#region Главная панель
 
 	/// <summary>
@@ -203,4 +209,93 @@ public partial class MainWindow
 		new[] { "#F81919", "#009F6B", "#1F8BFF", "#FF9F00", "#FA7A7A", "#B46034", "#99B6FF", "#8F2BE1", "#00CC44" };
 
 	#endregion Вкладки
+
+	#region Темы оформления
+
+	public void InitializeThemesMenuItem()
+	{
+		return; //Отключено до разрешения проблем с темой
+
+		_themes = new Dictionary<string, string>();
+
+		string currentTheme = Gtk.Settings.Default.ThemeName;
+
+		string themesPath = Rc.ThemeDir;
+
+		_themes.Add("Стандартная", "Breeze");
+		_themes.Add("Тёмная", "Fluent-round-Dark");
+
+		var viewMenuItem = menubarMain.Children.Where(x => x.Name == nameof(Action18)).Cast<ImageMenuItem>().FirstOrDefault();
+
+		var submenu = viewMenuItem.Submenu as Menu;
+
+		var themesSubmenuRoot = new MenuItem("Тема оформления");
+
+		var subsubmenu = new Menu();
+
+		themesSubmenuRoot.Submenu = subsubmenu;
+
+		RadioMenuItem lastitem = null;
+
+		foreach(var theme in _themes)
+		{
+			var themeSubmenu = lastitem is null ? new RadioMenuItem(theme.Key) : new RadioMenuItem(lastitem, theme.Key);
+
+			lastitem = themeSubmenu;
+
+			themeSubmenu.Name = theme.Key;
+
+			themeSubmenu.Active = theme.Value == currentTheme;
+
+			themeSubmenu.Toggled += ChangeTheme;
+
+			subsubmenu.Append(themeSubmenu);
+		}
+
+		submenu.Append(themesSubmenuRoot);
+
+		themesSubmenuRoot.ShowAll();
+	}
+
+	private void ChangeTheme(object sender, EventArgs args)
+	{
+		if(!(sender is RadioMenuItem menu))
+		{
+			return;
+		}
+
+		if(!menu.Active)
+		{
+			return;
+		}
+
+		if(_themeResetInProcess)
+		{
+			return;
+		}
+
+		if(MessageDialogHelper.RunQuestionDialog("Для применения данной настройки программа будет закрыта.\n Вы уверены?"))
+		{
+			var userGtkRc = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".gtkrc-2.0");
+
+			System.IO.File.WriteAllText(userGtkRc, $"gtk-theme-name = \"{_themes[menu.Name]}\"");
+
+			Gtk.Application.Quit();
+		}
+		else
+		{
+			_themeResetInProcess = true;
+
+			string currentTheme = Gtk.Settings.Default.ThemeName;
+
+			foreach(RadioMenuItem menuItem in menu.Group)
+			{
+				menuItem.Active = _themes[menuItem.Name] == currentTheme;
+			}
+
+			_themeResetInProcess = false;
+		}
+	}
+
+	#endregion Темы оформления
 }

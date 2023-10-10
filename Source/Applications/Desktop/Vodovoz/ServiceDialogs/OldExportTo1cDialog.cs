@@ -4,6 +4,8 @@ using System.Xml;
 using Gtk;
 using QSProjectsLib;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Extensions;
+using Vodovoz.Infrastructure;
 using Vodovoz.OldExportTo1c;
 using Vodovoz.Parameters;
 
@@ -57,9 +59,9 @@ namespace Vodovoz
 				.Count()
 				.ToString();
 			this.labelTotalSum.Text = exportData.OrdersTotalSum.ToString("C");
-			this.labelExportedSum.Markup = String.Format("<span foreground=\"{1}\">{0:C}</span>",
+			this.labelExportedSum.Markup = string.Format("<span foreground=\"{1}\">{0:C}</span>",
 														 exportData.ExportedTotalSum,
-														 exportData.ExportedTotalSum == exportData.OrdersTotalSum ? "green" : "red");
+														 exportData.ExportedTotalSum == exportData.OrdersTotalSum ? GdkColors.SuccessText.ToHtmlColor() : GdkColors.DangerText.ToHtmlColor());
 
 			this.labelTotalInvoices.Text = exportData.Objects
 				.OfType<InvoiceDocumentNode>()

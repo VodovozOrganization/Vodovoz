@@ -23,5 +23,11 @@
 		}
 
 		public static bool IsDark(this Gtk.Style style) => !IsLight(style);
+
+		public static string ToHtmlColor(this Gdk.Color color) =>
+			System.Drawing.ColorTranslator.ToHtml(color.ToDrawingsColor());
+
+		public static string ToHtmlColor(this System.Drawing.Color color) =>
+			System.Drawing.ColorTranslator.ToHtml(color);
 	}
 }

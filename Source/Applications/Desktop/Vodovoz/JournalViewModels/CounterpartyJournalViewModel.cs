@@ -21,6 +21,7 @@ namespace Vodovoz.JournalViewModels
 		<Counterparty, CounterpartyDlg, CounterpartyJournalNode, CounterpartyJournalFilterViewModel>
 	{
 		private readonly bool _userHaveAccessToRetail;
+		private readonly bool _canOpenCloseDeliveries;
 
 		public CounterpartyJournalViewModel(
 			CounterpartyJournalFilterViewModel filterViewModel,
@@ -31,6 +32,8 @@ namespace Vodovoz.JournalViewModels
 			TabName = "Журнал контрагентов";
 
 			_userHaveAccessToRetail = commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_to_retail");
+			_canOpenCloseDeliveries =
+				commonServices.CurrentPermissionService.ValidatePresetPermission("can_close_deliveries_for_counterparty");
 
 			if(filterConfiguration != null)
 			{
@@ -128,7 +131,7 @@ namespace Vodovoz.JournalViewModels
 				//sensetive
 				(selected) => {
 					var selectedNodes = selected.OfType<CounterpartyJournalNode>();
-					if(selectedNodes.Any(x => x.IsLiquidating))
+					if(!_canOpenCloseDeliveries)
 					{
 						return false;
 					}
@@ -142,7 +145,7 @@ namespace Vodovoz.JournalViewModels
 						return false;
 					}
 					var config = EntityConfigs[selectedNode.EntityType];
-					return config.PermissionResult.CanUpdate && commonServices.CurrentPermissionService.ValidatePresetPermission("can_close_deliveries_for_counterparty");
+					return config.PermissionResult.CanUpdate;
 				},
 				//visible
 				(selected) => selected.All(x => (x as CounterpartyJournalNode).Sensitive),

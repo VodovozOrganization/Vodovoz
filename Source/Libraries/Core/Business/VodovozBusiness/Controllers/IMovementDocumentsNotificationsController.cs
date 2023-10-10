@@ -7,6 +7,6 @@ namespace Vodovoz.Controllers
 	{
 		SendedMovementsNotificationDetails GetNotificationDetails(IUnitOfWork uow);
 		string GetNotificationMessage(IUnitOfWork uow);
-		event Action<string> UpdateNotificationAction;
+		event Action<SendedMovementsNotificationDetails> UpdateNotificationAction;
 	}
 }

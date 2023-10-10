@@ -45,17 +45,6 @@ namespace Vodovoz.JournalNodes
 		public bool IsTaskComplete { get; set; }
 
 		public int TareReturn { get; set; }
-
-		public string RowColor {
-			get {
-				if(IsTaskComplete)
-					return "green";
-				if(DateTime.Now > Deadline)
-					return "red";
-
-				return "black";
-			}
-		}
 	}
 
 	public class BusinessTaskJournalNode<TEntity> : BusinessTaskJournalNode

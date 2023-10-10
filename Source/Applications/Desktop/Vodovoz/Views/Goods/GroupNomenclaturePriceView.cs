@@ -6,6 +6,7 @@ using QS.Views.Dialog;
 using QS.Views.GtkUI;
 using System;
 using System.Linq;
+using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Dialogs.Goods;
 
 namespace Vodovoz.Views.Goods
@@ -13,8 +14,8 @@ namespace Vodovoz.Views.Goods
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class NomenclatureGroupPricingView : DialogViewBase<NomenclatureGroupPricingViewModel>
 	{
-		private static Gdk.Color _white = new Gdk.Color(255, 255, 255);
-		private static Gdk.Color _red = new Gdk.Color(237, 55, 55);
+		private static Gdk.Color _white = GdkColors.PrimaryBase;
+		private static Gdk.Color _red = GdkColors.DangerBase;
 		private TreeViewColumn _nomenclatureColumn;
 
 		public NomenclatureGroupPricingView(NomenclatureGroupPricingViewModel viewModel) : base(viewModel)

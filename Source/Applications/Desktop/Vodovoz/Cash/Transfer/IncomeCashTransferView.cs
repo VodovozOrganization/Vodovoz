@@ -10,6 +10,7 @@ using System.ComponentModel;
 using Vodovoz.Domain.Cash.CashTransfer;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModels.Cash.Transfer;
+using Vodovoz.Infrastructure;
 
 namespace Vodovoz.Cash.Transfer
 {
@@ -113,9 +114,9 @@ namespace Vodovoz.Cash.Transfer
 				.AddColumn("Комментарий").AddTextRenderer(x => x.Comment).AddSetter((cell, node) => cell.Editable = ViewModel.CanEdit)
 				.RowCells().AddSetter<CellRenderer>((cell, node) => {
 					if(node.Income?.RouteListClosing != null && node.Income.RouteListClosing.Status == RouteListStatus.Closed) {
-						cell.CellBackgroundGdk = new Gdk.Color(84, 158, 91);
+						cell.CellBackgroundGdk = GdkColors.SuccessText;
 					} else {
-						cell.CellBackgroundGdk = new Gdk.Color(255, 255, 255);
+						cell.CellBackgroundGdk = GdkColors.PrimaryBase;
 					}
 				})
 				.Finish();

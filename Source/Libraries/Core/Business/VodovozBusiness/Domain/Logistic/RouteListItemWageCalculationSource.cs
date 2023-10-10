@@ -6,6 +6,8 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -13,11 +15,14 @@ namespace Vodovoz.Domain.Logistic
 	{
 		private readonly RouteListItem item;
 		private readonly EmployeeCategory employeeCategory;
+		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
 
-		public RouteListItemWageCalculationSource(RouteListItem item, EmployeeCategory employeeCategory)
+		public RouteListItemWageCalculationSource(RouteListItem item, EmployeeCategory employeeCategory,
+			IDeliveryRulesParametersProvider deliveryRulesParametersProvider)
 		{
 			this.employeeCategory = employeeCategory;
 			this.item = item ?? throw new ArgumentNullException(nameof(item));
+			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider)); ;
 		}
 
 		#region IRouteListItemWageCalculationSource implementation
@@ -96,6 +101,14 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		public bool IsFastDelivery => item.Order.IsFastDelivery;
+
+		public WageRateTypes GetFastDeliveryWageRateType()
+		{
+			var hasFastDeliveryLate =
+				(item.Order.TimeDelivered ?? item.StatusLastUpdate) - item.CreationDate > _deliveryRulesParametersProvider.MaxTimeForFastDelivery;
+
+			return hasFastDeliveryLate ? WageRateTypes.FastDeliveryWithLate : WageRateTypes.FastDelivery;
+		}
 
 		#region Для старого расчета оплаты за оборудование
 

@@ -27,8 +27,6 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes
 
 		public int? TaskId { get; set; }
 
-		public string RowColor => TaskId.HasValue ? "grey" : "black";
-
 		public DateTime? LastOrderDate { get; set; }
 
 		public int? LastOrderBottles { get; set; }

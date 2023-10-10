@@ -18,6 +18,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
 using Order = Vodovoz.Domain.Orders.Order;
+using Type = Vodovoz.Domain.Orders.Documents.Type;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 {
@@ -65,6 +66,20 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 			var orderStatuses = new[] { OrderStatus.OnTheWay, OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
 			var edoDocFlowStatuses = new[] { EdoDocFlowStatus.Succeed, EdoDocFlowStatus.CompletedWithDivergences };
 
+			var edoContainerMaxDateSubquery = QueryOver.Of(() => edoContainerAlias)
+					.Where(() => edoContainerAlias.Order.Id == orderAlias.Id)
+					.And(() => edoContainerAlias.Type == Type.Upd)
+					.OrderBy(() => edoContainerAlias.Created).Desc
+				.Select(Projections.Max(() => edoContainerAlias.Created))
+				.Take(1);
+
+			var trueApiMaxDateSubquery = QueryOver.Of(() => trueMarkApiDocumentAlias)
+				.Where(() => trueMarkApiDocumentAlias.Order.Id == orderAlias.Id)
+				.And(() => trueMarkApiDocumentAlias.Type == TrueMarkApiDocument.TrueMarkApiDocumentType.Withdrawal)
+				.OrderBy(() => trueMarkApiDocumentAlias.CreationDate).Desc
+				.Select(Projections.Max(() => trueMarkApiDocumentAlias.CreationDate))
+				.Take(1);
+
 			var query = UoW.Session.QueryOver(() => orderAlias)
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.JoinAlias(() => orderAlias.Contract, () => counterpartyContractAlias)
@@ -73,15 +88,46 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 				.JoinEntityAlias(() => trueMarkApiDocumentAlias, () => orderAlias.Id == trueMarkApiDocumentAlias.Order.Id, JoinType.LeftOuterJoin)
 				.JoinEntityAlias(() => edoContainerAlias, () => orderAlias.Id == edoContainerAlias.Order.Id, JoinType.LeftOuterJoin);
 
+			Junction reportTypeRestriction = null;
+
+			switch(ReportType)
+			{
+				case EdoUpdReportType.Successfull:
+					reportTypeRestriction =Restrictions.Disjunction()
+						.Add(() => trueMarkApiDocumentAlias.IsSuccess)
+						.Add(Restrictions.On(() => edoContainerAlias.EdoDocFlowStatus).IsIn(edoDocFlowStatuses));//);
+					break;
+
+				case EdoUpdReportType.Missing:
+					reportTypeRestriction = Restrictions.Conjunction()
+						.Add(Restrictions.Disjunction()
+							.Add(Restrictions.IsNull(Projections.Property(() => trueMarkApiDocumentAlias.Id)))
+							.Add(() => !trueMarkApiDocumentAlias.IsSuccess))
+						.Add(Restrictions.Disjunction()
+							.Add(Restrictions.IsNull(Projections.Property(() => edoContainerAlias.Id)))
+							.Add(Restrictions.On(() => edoContainerAlias.EdoDocFlowStatus).Not.IsIn(edoDocFlowStatuses)));//);
+					break;
+			}
+
+			var lastDateRecordOnlyRestriction = Restrictions.Conjunction()
+				.Add(Restrictions.Disjunction()
+					.Add(Restrictions.IsNull(Projections.SubQuery(trueApiMaxDateSubquery)))
+					.Add(Restrictions.EqProperty(Projections.SubQuery(trueApiMaxDateSubquery), Projections.Property(() => trueMarkApiDocumentAlias.CreationDate))))
+				.Add(Restrictions.Disjunction()
+					.Add(Restrictions.IsNull(Projections.SubQuery(edoContainerMaxDateSubquery)))
+					.Add(Restrictions.EqProperty(Projections.SubQuery(edoContainerMaxDateSubquery), Projections.Property(() => edoContainerAlias.Created))));
+
 			query
-				.Where(() => orderAlias.DeliveryDate >= DateFrom && orderAlias.DeliveryDate <= DateTo)
 				.WhereRestrictionOn(() => orderAlias.OrderStatus).IsIn(orderStatuses)
+				.Where(reportTypeRestriction)
+				.And(lastDateRecordOnlyRestriction)
+				.And(() => orderAlias.DeliveryDate >= DateFrom && orderAlias.DeliveryDate <= DateTo)
 				.And(() => counterpartyAlias.PersonType == PersonType.legal)
 				.And(() => nomenclatureAlias.IsAccountableInTrueMark)
 				.And(() => nomenclatureAlias.Gtin != null)
 				.And(() => counterpartyContractAlias.Organization.Id == Organization.Id)
 				.And(() => counterpartyAlias.OrderStatusForSendingUpd != OrderStatusForSendingUpd.Delivered
-				           || orderAlias.OrderStatus != OrderStatus.OnTheWay)
+						   || orderAlias.OrderStatus != OrderStatus.OnTheWay)
 				.And(Restrictions.Disjunction()
 					.Add(Restrictions.Conjunction()
 						.Add(() => counterpartyAlias.PersonType == PersonType.legal)
@@ -90,24 +136,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 						.Add(() => orderAlias.PaymentType == PaymentType.Barter)
 						.Add(Restrictions.Gt(Projections.Property(() => counterpartyAlias.INN), 0))))
 				.And(() => orderAlias.PaymentType != PaymentType.ContractDocumentation);
-
-			switch(ReportType)
-			{
-				case EdoUpdReportType.Successfull:
-					query.Where(Restrictions.Disjunction()
-						.Add(() => trueMarkApiDocumentAlias.IsSuccess)
-						.Add(Restrictions.On(() => edoContainerAlias.EdoDocFlowStatus).IsIn(edoDocFlowStatuses)));
-					break;
-				case EdoUpdReportType.Missing:
-					query.Where(Restrictions.Conjunction()
-						.Add(Restrictions.Disjunction()
-							.Add(Restrictions.IsNull(Projections.Property(() => trueMarkApiDocumentAlias.Id)))
-							.Add(() => !trueMarkApiDocumentAlias.IsSuccess))
-						.Add(Restrictions.Disjunction()
-							.Add(Restrictions.IsNull(Projections.Property(() => edoContainerAlias.Id)))
-							.Add(Restrictions.On(() => edoContainerAlias.EdoDocFlowStatus).Not.IsIn(edoDocFlowStatuses))));
-					break;
-			}
 
 			var result = query
 				.SelectList(list => list

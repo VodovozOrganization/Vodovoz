@@ -13,16 +13,16 @@ namespace Vodovoz.Presentation.ViewModels.Common
 
 		public Action<IncludeExcludeEntityFilter<TEntity>> RefreshFunc { get; set; }
 
-		private IEnumerable<IncludeExcludeElement<int?, TEntity>> IncludedEntityElements => IncludedElements.Cast<IncludeExcludeElement<int?, TEntity>>();
+		private IEnumerable<IncludeExcludeElement<int, TEntity>> IncludedEntityElements => IncludedElements.Cast<IncludeExcludeElement<int, TEntity>>();
 
-		private IEnumerable<IncludeExcludeElement<int?, TEntity>> ExcludedEntityElements => ExcludedElements.Cast<IncludeExcludeElement<int?, TEntity>>();
+		private IEnumerable<IncludeExcludeElement<int, TEntity>> ExcludedEntityElements => ExcludedElements.Cast<IncludeExcludeElement<int, TEntity>>();
 
-		public IEnumerable<int?> GetIncluded()
+		public IEnumerable<int> GetIncluded()
 		{
 			return IncludedEntityElements.Select(x => x.Id);
 		}
 
-		public IEnumerable<int?> GetExcluded()
+		public IEnumerable<int> GetExcluded()
 		{
 			return ExcludedEntityElements.Select(x => x.Id);
 		}

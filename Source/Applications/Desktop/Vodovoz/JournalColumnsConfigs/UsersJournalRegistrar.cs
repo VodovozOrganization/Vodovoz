@@ -25,11 +25,11 @@ namespace Vodovoz.JournalColumnsConfigs
 					{
 						if(n.Deactivated)
 						{
-							c.ForegroundGdk = n.IsAdmin ? GdkColors.BabyBlueColor : GdkColors.DarkGrayColor;
+							c.ForegroundGdk = n.IsAdmin ? GdkColors.BabyBlue : GdkColors.InsensitiveText;
 						}
 						else
 						{
-							c.ForegroundGdk = n.IsAdmin ? GdkColors.BlueColor : GdkColors.BlackColor;
+							c.ForegroundGdk = n.IsAdmin ? GdkColors.InfoText : GdkColors.PrimaryText;
 						}
 					})
 				.Finish();

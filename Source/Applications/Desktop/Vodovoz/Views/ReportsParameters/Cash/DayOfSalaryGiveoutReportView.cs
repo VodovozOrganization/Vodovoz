@@ -2,6 +2,7 @@
 using Gtk;
 using QS.Views;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.ReportsParameters.Cash;
 using EmployeeNode  = Vodovoz.ViewModels.ReportsParameters.Cash.DayOfSalaryGiveoutReportViewModel.EmployeeNode;
 
@@ -21,7 +22,7 @@ namespace Vodovoz.Views.ReportsParameters.Cash
 				.AddColumn("Имя").AddTextRenderer(d => d.FullName)
 				.AddColumn("Выбрать").AddToggleRenderer(d => d.IsSelected)
 				.RowCells().AddSetter<CellRenderer>(
-					(c, n) => c.CellBackground = n.Category == EmployeeCategory.forwarder ? "Light Gray" : "white")
+					(c, n) => c.CellBackgroundGdk = n.Category == EmployeeCategory.forwarder ? GdkColors.InsensitiveBG : GdkColors.PrimaryBase)
 				.Finish();
 			ytreeviewEmployees.SetItemsSource(ViewModel.EmployeeNodes);
 

@@ -13,6 +13,8 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Extensions;
+using Vodovoz.Infrastructure;
 using Vodovoz.Services;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModels.ViewModels.Logistic;
@@ -358,11 +360,11 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		private static string Bold(string input) => $"<b>{input}</b>";
 
-		private static string Red(string input) => $"<span color=\"Red\">{input}</span>";
+		private static string Red(string input) => $"<span color=\"{GdkColors.DangerText.ToHtmlColor()}\">{input}</span>";
 
-		private static string Blue(string input) => $"<span color=\"Blue\">{input}</span>";
+		private static string Blue(string input) => $"<span color=\"{GdkColors.InfoText.ToHtmlColor()}\">{input}</span>";
 
-		private static string Green(string input) => $"<span color=\"Green\">{input}</span>";
+		private static string Green(string input) => $"<span color=\"{GdkColors.SuccessText.ToHtmlColor()}\">{input}</span>";
 
 		public override void Destroy()
 		{

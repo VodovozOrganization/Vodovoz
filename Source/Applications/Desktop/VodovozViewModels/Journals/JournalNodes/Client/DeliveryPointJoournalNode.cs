@@ -13,7 +13,6 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Client
 		public bool IsActive { get; set; }
 		public bool FoundInFias { get; set; }
 		public bool FixedInFias { get; set; }
-		public string RowColor => IsActive ? "black" : "grey";
 		public string IdString => Id.ToString();
 	}
 }

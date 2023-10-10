@@ -25,6 +25,7 @@ using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Documents.WriteOffDocuments;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Infrastructure;
 
 namespace Vodovoz.ViewModel
 {
@@ -808,19 +809,19 @@ namespace Vodovoz.ViewModel
 			.RowCells()
 			.AddSetter<CellRenderer>((cell, node) =>
 			{
-				Color color = new Color(255, 255, 255);
+				Color color = GdkColors.PrimaryBase;
 				if(node.DocTypeEnum == DocumentType.MovementDocument)
 				{
 					switch(node.MovementDocumentStatus)
 					{
 						case MovementDocumentStatus.Sended:
-							color = new Color(255, 255, 125);
+							color = GdkColors.WarningBase;
 							break;
 						case MovementDocumentStatus.Discrepancy:
-							color = new Color(255, 125, 125);
+							color = GdkColors.Pink;
 							break;
 						case MovementDocumentStatus.Accepted:
-							color = node.MovementDocumentDiscrepancy ? new Color(125, 125, 255) : color;
+							color = node.MovementDocumentDiscrepancy ? GdkColors.BabyBlue : color;
 							break;
 					}
 				}

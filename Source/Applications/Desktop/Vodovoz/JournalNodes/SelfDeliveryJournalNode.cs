@@ -47,15 +47,5 @@ namespace Vodovoz.JournalNodes
 		public string AuthorPatronymic { get; set; }
 
 		public string Author => PersonHelper.PersonNameWithInitials(AuthorLastName, AuthorName, AuthorPatronymic);
-
-		public string RowColor {
-			get {
-				if(CashPaid > 0 && HasCashDiff)
-					return "#f97777";//light red
-				if(StatusEnum == OrderStatus.Closed && HasCashDiff)
-					return "#ee0000";//red
-				return "black";
-			}
-		}
 	}
 }

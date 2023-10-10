@@ -1,0 +1,46 @@
+
+//Сформировать подпись для json в запросе можно тут: https://www.mango-office.ru/support/integratsiya-api/spisok_integratsiy/emulyator_api_virtualnoy_ats/
+###
+POST http://<HOST_NAME>:<PORT>/mango/events/call
+Content-Type: multipart/form-data; boundary=Boundary
+
+--Boundary
+Content-Disposition: form-data; name="vpbx_api_key"
+Content-Type: text/plain
+
+<vpbx_api_key_без_скобок>
+--Boundary
+Content-Disposition: form-data; name="sign"
+Content-Type: text/plain
+
+15dfa262a2e505ceadac84e7afe36fb5a86f7e556d712e4c8ba3efe561d59031
+--Boundary
+Content-Disposition: form-data; name="json"
+Content-Type: application/json
+
+{
+"entry_id":"1MN0Q1MDOQ==",
+"call_id":"MIxEyNTzTo6NDxkzNMMOzNQ==",
+"timestamp":1558422128,
+"seq":2,
+"call_state":"Connected",
+"location":"abonent",
+"from":
+{
+"number":"79876543210"
+},
+"to":
+{
+"extension":"55221",
+"number":"sip:user00000@tech.mangosip.ru",
+"line_number":"sip:line00000@tech.mangosip.ru",
+"acd_group":"333"
+},
+"disconnect_reason":1131,
+"dct":
+{
+"number":"74001234567",
+"type":1
+}
+}
+--Boundary--

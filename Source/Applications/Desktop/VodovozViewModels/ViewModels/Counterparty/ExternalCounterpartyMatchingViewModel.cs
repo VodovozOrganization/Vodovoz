@@ -39,6 +39,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 		private DelegateCommand _openOrderJournalCommand;
 		private DelegateCommand _assignCounterpartyCommand;
 		private DelegateCommand _reAssignCounterpartyCommand;
+		private DelegateCommand _legalCounterpartyCommand;
 		private bool _needCreateNotification;
 		
 		public ExternalCounterpartyMatchingViewModel(
@@ -203,7 +204,15 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				NavigationManager.OpenViewModel<OrderJournalViewModel, OrderJournalFilterViewModel>(this, filter, OpenPageOptions.AsSlave);
 			}
 			));
-		
+
+		public DelegateCommand LegalCounterpartyCommand => _legalCounterpartyCommand ?? (_legalCounterpartyCommand = new DelegateCommand(
+			() =>
+			{
+				Entity.SetLegalCounterpartyStatus();
+				SaveAndClose();
+			}
+			));
+
 		public void UpdateMatches()
 		{
 			ContactMatches.Clear();

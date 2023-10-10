@@ -6,7 +6,6 @@ namespace Vodovoz.Journals.JournalNodes
 	public class SalesPlanJournalNode : JournalEntityNodeBase<SalesPlan>
 	{
 		public string IsArchiveString => IsArchive ? "Да" : "Нет";
-		public string RowColor => IsArchive ? "grey" : "black";
 		public override string Title {
 			get {
 				return string.Format(

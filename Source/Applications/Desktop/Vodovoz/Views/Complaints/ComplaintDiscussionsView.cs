@@ -1,5 +1,7 @@
 ﻿using Gtk;
 using QS.Views.GtkUI;
+using Vodovoz.Extensions;
+using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Complaints;
 
 namespace Vodovoz.Views.Complaints
@@ -45,13 +47,13 @@ namespace Vodovoz.Views.Complaints
 			string tabColor;
 			switch(discussionVM.Entity.Status) {
 				case Domain.Complaints.ComplaintDiscussionStatuses.Checking:
-					tabColor = "green";
+					tabColor = GdkColors.SuccessText.ToHtmlColor();
 					break;
 				case Domain.Complaints.ComplaintDiscussionStatuses.Closed:
-					tabColor = "black";
+					tabColor = GdkColors.PrimaryText.ToHtmlColor();
 					break;
 				default:
-					tabColor = "red";
+					tabColor = GdkColors.DangerText.ToHtmlColor();
 					break;
 			}
 			return $"<span foreground = '{tabColor}'><b>{discussionVM.SubdivisionShortName}</b></span>";

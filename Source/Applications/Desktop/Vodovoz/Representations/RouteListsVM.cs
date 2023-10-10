@@ -241,7 +241,10 @@ namespace Vodovoz.ViewModel
 				.WrapWidth(300)
 				.WrapMode(Pango.WrapMode.WordChar)
 			.RowCells()
-				.AddSetter<CellRendererText>((c, n) => c.Foreground = n.NotFullyLoaded ? "Orange" : "Black")
+				.AddSetter<CellRendererText>((c, n) =>
+				{
+					c.ForegroundGdk = n.NotFullyLoaded ? GdkColors.Orange : GdkColors.PrimaryText;
+				})
 			.Finish();
 
 		#endregion

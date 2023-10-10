@@ -24,6 +24,7 @@ using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Goods.Rent;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders.Documents;
@@ -115,7 +116,8 @@ namespace Vodovoz.Domain.Orders
 		private DateTime? _commentOPManagerUpdatedAt;
 		private Employee _commentOPManagerChangedBy;
 		private bool? _canCreateOrderInAdvance;
-		
+		private int? counterpartyExternalOrderId;
+
 		#region Cвойства
 
 		public virtual int Id { get; set; }
@@ -185,7 +187,6 @@ namespace Vodovoz.Domain.Orders
 		private Employee author;
 
 		[Display(Name = "Создатель заказа")]
-		[IgnoreHistoryTrace]
 		public virtual Employee Author {
 			get => author;
 			set => SetField(ref author, value, () => Author);
@@ -805,6 +806,13 @@ namespace Vodovoz.Domain.Orders
 		public virtual int? EShopOrder {
 			get => eShopOrder;
 			set => SetField(ref eShopOrder, value);
+		}
+
+		[Display(Name = "Идентификатор заказа в ИС контрагента")]
+		public virtual int? CounterpartyExternalOrderId
+		{
+			get => counterpartyExternalOrderId;
+			set => SetField(ref counterpartyExternalOrderId, value);
 		}
 
 		private bool isContractCloser;
@@ -1725,8 +1733,6 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual decimal TotalVolume =>
 			OrderItems.Sum(x => x.Count * (decimal) x.Nomenclature.Volume);
-
-		public virtual string RowColor => PreviousOrder == null ? "black" : "red";
 
 		[Display(Name = "Наличных к получению")]
 		public virtual decimal OrderCashSum

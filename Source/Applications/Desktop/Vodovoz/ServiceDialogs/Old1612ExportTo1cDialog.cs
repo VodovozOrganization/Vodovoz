@@ -6,6 +6,8 @@ using Gtk;
 using QS.DomainModel.UoW;
 using QSProjectsLib;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Extensions;
+using Vodovoz.Infrastructure;
 using Vodovoz.Parameters;
 
 namespace Vodovoz.Old1612ExportTo1c
@@ -61,7 +63,7 @@ namespace Vodovoz.Old1612ExportTo1c
             labelTotalSum.Text = exportData.OrdersTotalSum.ToString("C", CultureInfo.GetCultureInfo("ru-RU"));
 
             labelExportedSum.Markup =
-                $"<span foreground=\"{(exportData.ExportedTotalSum == exportData.OrdersTotalSum ? "green" : "red")}\">" +
+                $"<span foreground=\"{(exportData.ExportedTotalSum == exportData.OrdersTotalSum ? GdkColors.SuccessText.ToHtmlColor() : GdkColors.DangerText.ToHtmlColor())}\">" +
                 $"{exportData.ExportedTotalSum.ToString("C", CultureInfo.GetCultureInfo("ru-RU"))}</span>";
 
             labelTotalInvoices.Text = exportData.Objects

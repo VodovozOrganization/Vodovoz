@@ -9,6 +9,7 @@ using System.Text;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Complaints;
 
 namespace Vodovoz.Views.Complaints
@@ -376,11 +377,11 @@ namespace Vodovoz.Views.Complaints
 		{
 			if(node is ComplaintArrangementComment || node is ComplaintResultComment)
 			{
-				cell.CellBackgroundGdk = new Gdk.Color(230, 230, 245);
+				cell.CellBackgroundGdk = GdkColors.ComplaintDiscussionCommentBase;
 			}
 			else
 			{
-				cell.CellBackgroundGdk = new Gdk.Color(255, 255, 255);
+				cell.CellBackgroundGdk = GdkColors.PrimaryBase;
 			}
 		}
 	}

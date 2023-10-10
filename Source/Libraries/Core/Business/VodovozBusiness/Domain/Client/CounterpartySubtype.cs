@@ -1,14 +1,26 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using QS.DomainModel.Entity;
 
 namespace Vodovoz.Domain.Client
 {
-	public enum CounterpartySubtype
+	[Appellative(
+		Nominative = "подтип контрагента",
+		NominativePlural = "подтипы контрагента",
+		GenitivePlural = "подтипов контрагента")]
+	public class CounterpartySubtype : PropertyChangedBase, IDomainObject
 	{
-		[Display(Name = "Бартер")]
-		Barter,
-		[Display(Name = "Благотворительность")]
-		Charity,
-		[Display(Name = "Мероприятия")]
-		Events
+		private int _id;
+		private string _name;
+
+		public virtual int Id
+		{
+			get => _id;
+			set => SetField(ref _id, value);
+		}
+
+		public virtual string Name
+		{
+			get => _name;
+			set => SetField(ref _name, value);
+		}
 	}
 }

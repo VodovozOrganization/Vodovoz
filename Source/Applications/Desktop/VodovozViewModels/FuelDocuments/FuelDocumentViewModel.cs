@@ -48,105 +48,6 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		private decimal _fuelBalance;
 		private decimal _fuelOutlayed;
 
-		public virtual IUnitOfWork UoW { get; set; }
-
-		protected IFuelRepository FuelRepository { get; set; }
-		protected ISubdivisionRepository SubdivisionsRepository { get; }
-		protected IEmployeeRepository EmployeeRepository { get; }
-		protected ICommonServices CommonServices { get; }
-
-		[PropertyChangedAlso(nameof(Balance), nameof(FuelInfo), nameof(ResultInfo))]
-		public virtual FuelDocument FuelDocument
-		{
-			get => _fuelDocument;
-			set => SetField(ref _fuelDocument, value);
-		}
-
-		public RouteList RouteList { get; set; }
-
-		[PropertyChangedAlso(nameof(CanEdit))]
-		public virtual Employee Cashier
-		{
-			get => _cashier;
-			set => SetField(ref _cashier, value);
-		}
-
-		public virtual Track Track
-		{
-			get => _track;
-			set => SetField(ref _track, value);
-		}
-
-		public virtual bool CanEdit
-		{
-			get => _canEdit;
-			set
-			{
-				SetField(ref _canEdit, value);
-				OnPropertyChanged(nameof(CanChangeDate));
-			}
-		}
-
-		public virtual bool FuelInMoney
-		{
-			get => _fuelInMoney;
-			set => SetField(ref _fuelInMoney, value);
-		}
-
-		public virtual bool CanOpenExpense
-		{
-			get => _canOpenExpense;
-			set => SetField(ref _canOpenExpense, value);
-		}
-
-		public virtual string CashExpenseInfo => UpdateCashExpenseInfo();
-
-		public virtual string BalanceState => $"Доступно к выдаче: {Balance} л.";
-
-		public virtual bool IsNewEditable => FuelDocument.Id <= 0 && CanEdit;
-
-		public virtual bool CanChangeDate =>
-			CanEdit
-			&& CommonServices.PermissionService.ValidateUserPresetPermission("can_change_fuel_card_number",
-				CommonServices.UserService.CurrentUserId);
-
-		public virtual decimal Balance
-		{
-			get
-			{
-				if(FuelDocument.Subdivision != null && FuelDocument.Fuel != null)
-				{
-					return FuelRepository?.GetFuelBalanceForSubdivision(UoW, FuelDocument.Subdivision, FuelDocument.Fuel) ?? 0m;
-				}
-
-				return 0m;
-			}
-		}
-
-		public IList<Subdivision> AvailableSubdivisionsForUser
-		{
-			get
-			{
-				var user = CommonServices.UserService.GetCurrentUser();
-				var employee = EmployeeRepository.GetEmployeesForUser(UoW, user.Id).FirstOrDefault();
-				var subdivisions = SubdivisionsRepository.GetCashSubdivisionsAvailableForUser(UoW, user).ToList();
-
-				if(subdivisions.Any(x => x.Id == employee.Subdivision.Id))
-				{
-					FuelDocument.Subdivision = employee.Subdivision;
-				}
-
-				return subdivisions;
-			}
-		}
-
-		public string FuelInfo => UpdateFuelInfo();
-
-		public string ResultInfo => UpdateResutlInfo();
-
-
-		public IEntityAutocompleteSelectorFactory EmployeeAutocompleteSelector { get; }
-		public IEntityAutocompleteSelectorFactory CarAutocompleteSelector { get; }
 
 		#region ctor
 
@@ -263,6 +164,59 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 			Configure();
 		}
+		
+		/// <summary>
+		/// Открывает диалог выдачи топлива, с автоматическим коммитом всех изменений
+		/// </summary>
+		public FuelDocumentViewModel
+		(
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IEntityUoWBuilder entityUoWBuilder,
+			ICommonServices commonServices,
+			ISubdivisionRepository subdivisionsRepository,
+			IEmployeeRepository employeeRepository,
+			IFuelRepository fuelRepository,
+			INavigationManager navigationManager,
+			ITrackRepository trackRepository,
+			IEmployeeJournalFactory employeeJournalFactory,
+			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
+			ICarJournalFactory carJournalFactory) : base(commonServices?.InteractiveService, navigationManager)
+		{
+			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			SubdivisionsRepository = subdivisionsRepository ?? throw new ArgumentNullException(nameof(subdivisionsRepository));
+			FuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
+			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
+			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings ?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
+			EmployeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			EmployeeAutocompleteSelector =
+				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
+				.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
+			CarAutocompleteSelector =
+				(carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory)))
+				.CreateCarAutocompleteSelectorFactory();
+
+			var uow = entityUoWBuilder.CreateUoW<FuelDocument>(unitOfWorkFactory);
+			UoW = uow;
+			FuelDocument = uow.Root;
+			FuelDocument.UoW = UoW;
+			_autoCommit = true;
+
+			TabName = "Выдача топлива";
+
+			if(!InitActualCashier())
+			{
+				AbortOpening();
+				return;
+			}
+
+			_fuelCashOrganisationDistributor = new FuelCashOrganisationDistributor(_commonOrganisationProvider);
+
+			CreateCommands();
+
+			FuelDocument.PropertyChanged += FuelDocument_PropertyChanged;
+
+			OpenExpenseCommand = new DelegateCommand(OpenExpense);
+		}
 
 		private void Configure()
 		{
@@ -288,6 +242,118 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		}
 
 		#endregion ctor
+
+		public virtual IUnitOfWork UoW { get; set; }
+
+		protected IFuelRepository FuelRepository { get; set; }
+		protected ISubdivisionRepository SubdivisionsRepository { get; }
+		protected IEmployeeRepository EmployeeRepository { get; }
+		protected ICommonServices CommonServices { get; }
+
+		[PropertyChangedAlso(nameof(Balance), nameof(FuelInfo), nameof(ResultInfo))]
+		public virtual FuelDocument FuelDocument
+		{
+			get => _fuelDocument;
+			set => SetField(ref _fuelDocument, value);
+		}
+
+		public RouteList RouteList { get; set; }
+
+		[PropertyChangedAlso(nameof(CanEdit))]
+		public virtual Employee Cashier
+		{
+			get => _cashier;
+			set => SetField(ref _cashier, value);
+		}
+
+		public virtual Track Track
+		{
+			get => _track;
+			set => SetField(ref _track, value);
+		}
+
+		public virtual bool CanEdit
+		{
+			get => _canEdit;
+			set
+			{
+				SetField(ref _canEdit, value);
+				OnPropertyChanged(nameof(CanChangeDate));
+			}
+		}
+
+		public virtual bool FuelInMoney
+		{
+			get => _fuelInMoney;
+			set => SetField(ref _fuelInMoney, value);
+		}
+
+		public virtual bool CanOpenExpense
+		{
+			get => _canOpenExpense;
+			set => SetField(ref _canOpenExpense, value);
+		}
+
+		public virtual string CashExpenseInfo => UpdateCashExpenseInfo();
+
+		public virtual string BalanceState => $"Доступно к выдаче: {Balance} л.";
+
+		public virtual bool IsNewEditable => FuelDocument.Id <= 0 && CanEdit;
+
+		public virtual bool CanChangeDate =>
+			CanEdit
+			&& CommonServices.PermissionService.ValidateUserPresetPermission("can_change_fuel_card_number",
+				CommonServices.UserService.CurrentUserId);
+
+		public virtual decimal Balance
+		{
+			get
+			{
+				if(FuelDocument.Subdivision != null && FuelDocument.Fuel != null)
+				{
+					return FuelRepository?.GetFuelBalanceForSubdivision(UoW, FuelDocument.Subdivision, FuelDocument.Fuel) ?? 0m;
+				}
+
+				return 0m;
+			}
+		}
+
+		public IList<Subdivision> AvailableSubdivisionsForUser
+		{
+			get
+			{
+				var user = CommonServices.UserService.GetCurrentUser();
+				var employee = EmployeeRepository.GetEmployeesForUser(UoW, user.Id).FirstOrDefault();
+				var subdivisions = SubdivisionsRepository.GetCashSubdivisionsAvailableForUser(UoW, user).ToList();
+
+				if(subdivisions.Any(x => x.Id == employee.Subdivision.Id))
+				{
+					FuelDocument.Subdivision = employee.Subdivision;
+				}
+
+				return subdivisions;
+			}
+		}
+
+		public string FuelInfo => UpdateFuelInfo();
+
+		public string ResultInfo => UpdateResutlInfo();
+
+
+		public IEntityAutocompleteSelectorFactory EmployeeAutocompleteSelector { get; }
+		public IEntityAutocompleteSelectorFactory CarAutocompleteSelector { get; }
+
+		public void SetRouteListById(int routeListId)
+		{
+			RouteList = UoW.GetById<RouteList>(routeListId);
+			Track = _trackRepository.GetTrackByRouteListId(UoW, RouteList.Id);
+
+
+			if(UoW.IsNew)
+			{
+				FuelDocument.FillEntity(RouteList);
+			}
+		}
 
 		private bool InitActualCashier()
 		{

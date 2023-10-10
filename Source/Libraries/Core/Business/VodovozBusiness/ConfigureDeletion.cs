@@ -26,6 +26,7 @@ using Vodovoz.Domain.Documents.WriteOffDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Goods.Rent;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Logistic.FastDelivery;
@@ -1026,7 +1027,9 @@ namespace Vodovoz
 				.AddDeleteDependence<AdvanceIncomeCashDistributionDocument>(x => x.AdvanceReport)
 				.AddDeleteDependence<AdvanceExpenseCashDistributionDocument>(x => x.AdvanceReport);
 
-			DeleteConfig.AddHibernateDeleteInfo<AdvanceClosing>();
+			DeleteConfig.AddHibernateDeleteInfo<AdvanceClosing>()
+				.AddRemoveFromDependence<Expense>(x => x.AdvanceCloseItems)
+				.AddUpdateInfo(x => x.AdvanceExpense, x => x.AdvanceClosed, false);
 
 			DeleteConfig.AddDeleteInfo(
 				new DeleteInfo {
