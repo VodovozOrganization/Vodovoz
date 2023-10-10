@@ -1280,14 +1280,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnProductionWarehouseMovementReportActivated(object sender, EventArgs e)
 	{
-		IFileDialogService fileDialogService = new FileDialogService();
-		IParametersProvider parametersProvider = new ParametersProvider();
-		IProductionWarehouseMovementReportProvider productionWarehouseMovementReportProvider = new ProductionWarehouseMovementReportProvider(parametersProvider);
-
-		ProductionWarehouseMovementReportViewModel viewModel = new ProductionWarehouseMovementReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.InteractiveService, NavigationManager, fileDialogService, productionWarehouseMovementReportProvider);
-
-		tdiMain.AddTab(viewModel);
+		NavigationManager.OpenViewModel<ProductionWarehouseMovementReportViewModel>(null);
 	}
 
 	/// <summary>
