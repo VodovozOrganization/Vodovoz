@@ -74,19 +74,19 @@ namespace Vodovoz.Views.Rent
 				.InitializeFromSource();
 
 			enumCmbOnlineAvailabilityMobileApp.ShowSpecialStateNot = true;
-			enumCmbOnlineAvailabilityMobileApp.ItemsEnum = typeof(NomenclatureOnlineAvailability);
+			enumCmbOnlineAvailabilityMobileApp.ItemsEnum = typeof(GoodsOnlineAvailability);
 			enumCmbOnlineAvailabilityMobileApp.Binding
 				.AddBinding(ViewModel.MobileAppFreeRentPackageOnlineParameters, p => p.PackageOnlineAvailability, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 			
 			enumCmbOnlineAvailabilityVodovozWebSite.ShowSpecialStateNot = true;
-			enumCmbOnlineAvailabilityVodovozWebSite.ItemsEnum = typeof(NomenclatureOnlineAvailability);
+			enumCmbOnlineAvailabilityVodovozWebSite.ItemsEnum = typeof(GoodsOnlineAvailability);
 			enumCmbOnlineAvailabilityVodovozWebSite.Binding
 				.AddBinding(ViewModel.VodovozWebSiteFreeRentPackageOnlineParameters, p => p.PackageOnlineAvailability, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 			
 			enumCmbOnlineAvailabilityKulerSaleWebSite.ShowSpecialStateNot = true;
-			enumCmbOnlineAvailabilityKulerSaleWebSite.ItemsEnum = typeof(NomenclatureOnlineAvailability);
+			enumCmbOnlineAvailabilityKulerSaleWebSite.ItemsEnum = typeof(GoodsOnlineAvailability);
 			enumCmbOnlineAvailabilityKulerSaleWebSite.Binding
 				.AddBinding(ViewModel.KulerSaleWebSiteFreeRentPackageOnlineParameters, p => p.PackageOnlineAvailability, w => w.SelectedItemOrNull)
 				.InitializeFromSource();

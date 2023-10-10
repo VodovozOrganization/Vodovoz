@@ -4,6 +4,6 @@ namespace Vodovoz.Domain.Goods.Rent
 {
 	public class MobileAppFreeRentPackageOnlineParameters : FreeRentPackageOnlineParameters
 	{
-		public override NomenclatureOnlineParameterType Type => NomenclatureOnlineParameterType.ForMobileApp;
+		public override GoodsOnlineParameterType Type => GoodsOnlineParameterType.ForMobileApp;
 	}
 }

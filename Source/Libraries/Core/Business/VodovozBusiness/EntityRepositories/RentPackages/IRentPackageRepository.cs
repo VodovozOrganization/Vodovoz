@@ -11,7 +11,7 @@ namespace Vodovoz.EntityRepositories.RentPackages
 	{
 		FreeRentPackage GetFreeRentPackage(IUnitOfWork uow, EquipmentKind equipmentKind);
 		IEnumerable<FreeRentPackageWithOnlineParametersNode> GetFreeRentPackagesForSend(
-			IUnitOfWork uow, NomenclatureOnlineParameterType parameterType);
+			IUnitOfWork uow, GoodsOnlineParameterType parameterType);
 		PaidRentPackage GetPaidRentPackage(IUnitOfWork uow, EquipmentKind equipmentKind);
 		List<EquipmentKind> GetPaidRentEquipmentKinds(IUnitOfWork uow);
 	}

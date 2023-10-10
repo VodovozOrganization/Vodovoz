@@ -4,6 +4,6 @@ namespace Vodovoz.Domain.Goods.Rent
 {
 	public class KulerSaleWebSiteFreeRentPackageOnlineParameters : FreeRentPackageOnlineParameters
 	{
-		public override NomenclatureOnlineParameterType Type => NomenclatureOnlineParameterType.ForKulerSaleWebSite;
+		public override GoodsOnlineParameterType Type => GoodsOnlineParameterType.ForKulerSaleWebSite;
 	}
 }

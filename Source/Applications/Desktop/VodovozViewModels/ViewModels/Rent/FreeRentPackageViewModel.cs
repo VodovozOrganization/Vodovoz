@@ -106,30 +106,30 @@ namespace Vodovoz.ViewModels.ViewModels.Rent
 		
 		private void ConfigureOnlineParameters()
 		{
-			MobileAppFreeRentPackageOnlineParameters = GetPackageOnlineParameters(NomenclatureOnlineParameterType.ForMobileApp);
-			VodovozWebSiteFreeRentPackageOnlineParameters = GetPackageOnlineParameters(NomenclatureOnlineParameterType.ForVodovozWebSite);
-			KulerSaleWebSiteFreeRentPackageOnlineParameters = GetPackageOnlineParameters(NomenclatureOnlineParameterType.ForKulerSaleWebSite);
+			MobileAppFreeRentPackageOnlineParameters = GetPackageOnlineParameters(GoodsOnlineParameterType.ForMobileApp);
+			VodovozWebSiteFreeRentPackageOnlineParameters = GetPackageOnlineParameters(GoodsOnlineParameterType.ForVodovozWebSite);
+			KulerSaleWebSiteFreeRentPackageOnlineParameters = GetPackageOnlineParameters(GoodsOnlineParameterType.ForKulerSaleWebSite);
 		}
 
-		private FreeRentPackageOnlineParameters GetPackageOnlineParameters(NomenclatureOnlineParameterType parameterType)
+		private FreeRentPackageOnlineParameters GetPackageOnlineParameters(GoodsOnlineParameterType parameterType)
 		{
 			var parameters = Entity.OnlineParameters.SingleOrDefault(x => x.Type == parameterType);
 			return parameters ?? CreatePackageOnlineParameters(parameterType);
 		}
 
-		private FreeRentPackageOnlineParameters CreatePackageOnlineParameters(NomenclatureOnlineParameterType parameterType)
+		private FreeRentPackageOnlineParameters CreatePackageOnlineParameters(GoodsOnlineParameterType parameterType)
 		{
 			FreeRentPackageOnlineParameters parameters = null;
 			
 			switch(parameterType)
 			{
-				case NomenclatureOnlineParameterType.ForMobileApp:
+				case GoodsOnlineParameterType.ForMobileApp:
 					parameters = new MobileAppFreeRentPackageOnlineParameters();
 					break;
-				case NomenclatureOnlineParameterType.ForVodovozWebSite:
+				case GoodsOnlineParameterType.ForVodovozWebSite:
 					parameters = new VodovozWebSiteFreeRentPackageOnlineParameters();
 					break;
-				case NomenclatureOnlineParameterType.ForKulerSaleWebSite:
+				case GoodsOnlineParameterType.ForKulerSaleWebSite:
 					parameters = new KulerSaleWebSiteFreeRentPackageOnlineParameters();
 					break;
 			}
