@@ -54,7 +54,7 @@ namespace Vodovoz.Views.Rent
 
 		private global::Gamma.GtkWidgets.yTable tableOnlineParameters;
 
-		private global::Gamma.GtkWidgets.yEntry entryOnlineDiscountMobileApp;
+		private global::Gamma.GtkWidgets.yEntry entryOnlineName;
 
 		private global::Gamma.Widgets.yEnumComboBox enumCmbOnlineAvailabilityKulerSaleWebSite;
 
@@ -336,14 +336,14 @@ namespace Vodovoz.Views.Rent
 			this.tableOnlineParameters.RowSpacing = ((uint)(6));
 			this.tableOnlineParameters.ColumnSpacing = ((uint)(6));
 			// Container child tableOnlineParameters.Gtk.Table+TableChild
-			this.entryOnlineDiscountMobileApp = new global::Gamma.GtkWidgets.yEntry();
-			this.entryOnlineDiscountMobileApp.CanFocus = true;
-			this.entryOnlineDiscountMobileApp.Name = "entryOnlineDiscountMobileApp";
-			this.entryOnlineDiscountMobileApp.IsEditable = true;
-			this.entryOnlineDiscountMobileApp.MaxLength = 2;
-			this.entryOnlineDiscountMobileApp.InvisibleChar = '•';
-			this.tableOnlineParameters.Add(this.entryOnlineDiscountMobileApp);
-			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.tableOnlineParameters[this.entryOnlineDiscountMobileApp]));
+			this.entryOnlineName = new global::Gamma.GtkWidgets.yEntry();
+			this.entryOnlineName.CanFocus = true;
+			this.entryOnlineName.Name = "entryOnlineName";
+			this.entryOnlineName.IsEditable = true;
+			this.entryOnlineName.MaxLength = 2;
+			this.entryOnlineName.InvisibleChar = '•';
+			this.tableOnlineParameters.Add(this.entryOnlineName);
+			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.tableOnlineParameters[this.entryOnlineName]));
 			w23.TopAttach = ((uint)(1));
 			w23.BottomAttach = ((uint)(2));
 			w23.LeftAttach = ((uint)(1));
