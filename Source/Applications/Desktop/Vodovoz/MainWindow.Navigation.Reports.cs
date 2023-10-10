@@ -788,15 +788,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionDriversInfoExportActivated(object sender, EventArgs e)
 	{
-		var wageParameterService =
-			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(new ParametersProvider()));
-
-		tdiMain.AddTab(
-			new DriversInfoExportViewModel(
-				wageParameterService,
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.InteractiveService,
-				null));
+		NavigationManager.OpenViewModel<DriversInfoExportViewModel>(null);
 	}
 
 	/// <summary>
