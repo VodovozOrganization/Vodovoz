@@ -1,4 +1,4 @@
-﻿using Fias.Client;
+using Fias.Client;
 using Fias.Client.Cache;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
@@ -90,9 +90,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnAction45Activated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<ReplaceEntityLinksDlg>(),
-			() => new ReplaceEntityLinksDlg());
+		NavigationManager.OpenTdiTab<ReplaceEntityLinksDlg>(null);
 	}
 
 	/// <summary>
