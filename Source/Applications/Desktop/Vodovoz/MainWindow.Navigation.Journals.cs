@@ -849,8 +849,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionLoad1cActivated(object sender, EventArgs e)
 	{
-		var win = new LoadFrom1cDlg();
-		tdiMain.AddTab(win);
+		NavigationManager.OpenTdiTab<LoadFrom1cDlg>(null);
 	}
 
 	/// <summary>
