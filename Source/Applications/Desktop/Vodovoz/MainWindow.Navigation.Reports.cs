@@ -283,16 +283,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionNomenclaturePlanReportActivated(object sender, EventArgs e)
 	{
-		IProductGroupJournalFactory productGroupJournalFactory = new ProductGroupJournalFactory();
-		IParametersProvider parametersProvider = new ParametersProvider();
-		INomenclaturePlanParametersProvider nomenclaturePlanParametersProvider = new NomenclaturePlanParametersProvider(parametersProvider);
-		IFileDialogService fileDialogService = new FileDialogService();
-
-		NomenclaturePlanReportViewModel viewModel = new NomenclaturePlanReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.InteractiveService, NavigationManager, ServicesConfig.CommonServices, productGroupJournalFactory, nomenclaturePlanParametersProvider,
-			fileDialogService);
-
-		tdiMain.AddTab(viewModel);
+		NavigationManager.OpenViewModel<NomenclaturePlanReportViewModel>(null);
 	}
 
 	/// <summary>
