@@ -147,9 +147,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionToOnlineStoreActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<ExportToSiteDlg>(),
-			() => new ExportToSiteDlg());
+		NavigationManager.OpenTdiTab<ExportToSiteDlg>(null);
 	}
 
 	/// <summary>
