@@ -117,9 +117,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionDistanceFromCenterActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<CalculateDistanceToPointsDlg>(),
-			() => new CalculateDistanceToPointsDlg());
+		NavigationManager.OpenTdiTab<CalculateDistanceToPointsDlg>(null);
 	}
 
 	/// <summary>
