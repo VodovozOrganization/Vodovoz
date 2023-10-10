@@ -815,14 +815,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionDeliveryAnalyticsActivated(object sender, EventArgs e)
 	{
-		var districtJournalFactory = new DistrictJournalFactory();
-
-		tdiMain.AddTab(
-			new DeliveryAnalyticsViewModel(
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.InteractiveService,
-				NavigationManager,
-				districtJournalFactory));
+		NavigationManager.OpenViewModel<DeliveryAnalyticsViewModel>(null);
 	}
 
 	/// <summary>
