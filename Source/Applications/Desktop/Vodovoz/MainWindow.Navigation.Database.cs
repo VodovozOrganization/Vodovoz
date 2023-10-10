@@ -86,7 +86,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionHistoryLogActivated(object sender, EventArgs e)
 	{
-		tdiMain.AddTab(new Vodovoz.Dialogs.HistoryView(new UserJournalFactory()));
+		NavigationManager.OpenTdiTab<Vodovoz.Dialogs.HistoryView>(null);
 	}
 
 	/// <summary>
