@@ -1143,12 +1143,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionEdoUpdReportActivated(object sender, EventArgs e)
 	{
-		IFileDialogService fileDialogService = new FileDialogService();
-
-		var edoUpdReportViewModel = new EdoUpdReportViewModel(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.InteractiveService, NavigationManager,
-			fileDialogService);
-
-		tdiMain.AddTab(edoUpdReportViewModel);
+		NavigationManager.OpenViewModel<EdoUpdReportViewModel>(null);
 	}
 
 	#endregion Бухгалтерия
