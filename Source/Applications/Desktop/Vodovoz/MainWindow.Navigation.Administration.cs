@@ -137,8 +137,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionLoad1cCounterpartyAndDeliveryPointsActivated(object sender, EventArgs e)
 	{
-		var widget = new LoadFrom1cClientsAndDeliveryPoints();
-		tdiMain.AddTab(widget);
+		NavigationManager.OpenTdiTab<LoadFrom1cClientsAndDeliveryPoints>(null);
 	}
 
 	/// <summary>
