@@ -127,9 +127,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionOrdersWithoutBottlesOperationActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<OrdersWithoutBottlesOperationDlg>(),
-			() => new OrdersWithoutBottlesOperationDlg());
+		NavigationManager.OpenTdiTab<OrdersWithoutBottlesOperationDlg>(null);
 	}
 
 	/// <summary>
