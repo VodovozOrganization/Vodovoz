@@ -157,8 +157,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnAction62Activated(object sender, EventArgs e)
 	{
-		var widget = new ResendEmailsDialog();
-		tdiMain.AddTab(widget);
+		NavigationManager.OpenTdiTab<ResendEmailsDialog>(null);
 	}
 
 	/// <summary>
