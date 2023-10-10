@@ -17,6 +17,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Gamma.Utilities;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
@@ -423,7 +424,7 @@ namespace Vodovoz
 					return;
 				}
 
-				ILifetimeScope autofacScope = Startup.AppDIContainer.BeginLifetimeScope();
+				var autofacScope = Startup.AppDIContainer.BeginLifetimeScope();
 				var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
 
 				ValidationContext validationContext = new ValidationContext(Entity, null, new Dictionary<object, object>
@@ -436,7 +437,7 @@ namespace Vodovoz
 
 				if(canCreateSeveralOrdersValidationResult != ValidationResult.Success)
 				{
-					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, $"Нельзя перевести адрес в статус {newStatus}: {canCreateSeveralOrdersValidationResult.ErrorMessage} ");
+					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, $"Нельзя перевести адрес в статус \"{newStatus.GetEnumTitle()}\": {canCreateSeveralOrdersValidationResult.ErrorMessage} ");
 
 					return;
 				}
