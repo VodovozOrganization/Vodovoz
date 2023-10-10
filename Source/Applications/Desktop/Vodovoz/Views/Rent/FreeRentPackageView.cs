@@ -1,7 +1,6 @@
 ﻿using QS.Navigation;
 using QS.Views.GtkUI;
 using Vodovoz.Domain;
-using Vodovoz.Domain.Goods;
 using Vodovoz.ViewModels.ViewModels.Rent;
 
 namespace Vodovoz.Views.Rent
@@ -16,6 +15,8 @@ namespace Vodovoz.Views.Rent
 
         private void Configure()
         {
+			notebook.ShowTabs = false;
+
             buttonSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
             buttonCancel.Clicked += (sender, e) => ViewModel.Close(false, CloseSource.Cancel);
 
