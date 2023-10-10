@@ -847,12 +847,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnFastDeliveryAdditionalLoadingReportActionActivated(object sender, EventArgs e)
 	{
-		IFileDialogService fileDialogService = new FileDialogService();
-
-		FastDeliveryAdditionalLoadingReportViewModel viewModel = new FastDeliveryAdditionalLoadingReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.InteractiveService, NavigationManager, fileDialogService);
-
-		tdiMain.AddTab(viewModel);
+		NavigationManager.OpenViewModel<FastDeliveryAdditionalLoadingReportViewModel>(null);
 	}
 
 	/// <summary>
