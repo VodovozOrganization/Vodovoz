@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Dialogs.Employees;
 using Gtk;
 using QS.Dialog.Gtk;
@@ -519,26 +519,14 @@ public partial class MainWindow : Window
 		NavigationManager.OpenViewModel<WarehousesBalanceSummaryViewModel>(null);
 	}
 
+	/// <summary>
+	/// Новая заявка поставщику
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
 	void ActionNewRequestToSupplier_Activated(object sender, System.EventArgs e)
 	{
-		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
-		var userRepository = new UserRepository();
-		var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
-
-		tdiMain.OpenTab(
-			DialogHelper.GenerateDialogHashName<RequestToSupplier>(0),
-			() => new RequestToSupplierViewModel(
-				EntityUoWBuilder.ForCreate(),
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices,
-				VodovozGtkServicesConfig.EmployeeService,
-				new SupplierPriceItemsRepository(),
-				counterpartyJournalFactory,
-				new NomenclatureJournalFactory(),
-				nomenclatureRepository,
-				userRepository
-			)
-		);
+		NavigationManager.OpenViewModel<RequestToSupplierViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForCreate());
 	}
 
 	void ActionJournalOfRequestsToSuppliers_Activated(object sender, System.EventArgs e)
