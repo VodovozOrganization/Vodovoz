@@ -67,6 +67,7 @@ namespace Vodovoz.Filters.GtkViews
 			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.tableMain[this.dateEventRangePicker]));
 			w2.LeftAttach = ((uint)(4));
 			w2.RightAttach = ((uint)(5));
+			w2.XOptions = ((global::Gtk.AttachOptions)(4));
 			w2.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
 			this.driverEntry = new global::QS.Views.Control.EntityEntry();

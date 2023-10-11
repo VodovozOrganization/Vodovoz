@@ -330,4 +330,8 @@ public partial class MainWindow : Gtk.Window
     {
 		NavigationManager.OpenViewModel<DriversWarehousesEventsNamesJournalViewModel>(null);
     }
+
+	protected void OnCompletedDriversWarehousesEventsActionActivated(object sender, EventArgs e)
+	{
+	}
 }
