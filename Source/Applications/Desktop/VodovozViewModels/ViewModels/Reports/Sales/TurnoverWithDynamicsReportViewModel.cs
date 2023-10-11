@@ -564,6 +564,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			DeliveryPoint deliveryPointAlias = null;
 			District districtAlias = null;
 			Counterparty counterpartyAlias = null;
+			CounterpartySubtype counterpartySubtypeAlias = null;
 			CounterpartyContract counterpartyContractAlias = null;
 			Organization organizationAlias = null;
 			Phone phoneAlias = null;
@@ -657,6 +658,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				.Left.JoinAlias(() => orderAlias.Author, () => authorAlias)
 				.Left.JoinAlias(() => authorAlias.Subdivision, () => subdivisionAlias)
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
+				.Left.JoinAlias(() => counterpartyAlias.CounterpartySubtype, () => counterpartySubtypeAlias)
 				.Left.JoinAlias(() => orderAlias.Contract, () => counterpartyContractAlias)
 				.Left.JoinAlias(() => counterpartyContractAlias.Organization, () => organizationAlias)
 				.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
@@ -923,6 +925,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						.Select(() => nomenclatureAlias.Category).WithAlias(() => resultNodeAlias.NomenclatureCategory)
 						.Select(() => counterpartyAlias.Id).WithAlias(() => resultNodeAlias.CounterpartyId)
 						.Select(() => counterpartyAlias.CounterpartyType).WithAlias(() => resultNodeAlias.CounterpartyType)
+						.Select(() => counterpartySubtypeAlias.Id).WithAlias(() => resultNodeAlias.CounterpartySubtypeId)
+						.Select(() => counterpartySubtypeAlias.Name).WithAlias(() => resultNodeAlias.CounterpartySubtype)
 						.SelectSubQuery(counterpartyPhonesSubquery).WithAlias(() => resultNodeAlias.CounterpartyPhones)
 						.SelectSubQuery(counterpartyEmailsSubquery).WithAlias(() => resultNodeAlias.CounterpartyEmails)
 						.Select(Projections.Conditional(
