@@ -554,8 +554,6 @@ namespace Vodovoz
 							.First())
 						.SingleInstance();
 
-					builder.RegisterType<RdlViewerViewModel>().AsSelf();
-
 					#endregion
 
 					#region Фильтры
