@@ -1,4 +1,4 @@
-using Fias.Client;
+﻿using Fias.Client;
 using Fias.Client.Cache;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
@@ -97,14 +97,12 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionAddressDuplicetesActivated(object sender, EventArgs e)
 	{
+		var geoCoderCache = new GeocoderCache(UnitOfWorkFactory.GetDefaultFactory);
 		IParametersProvider parametersProvider = new ParametersProvider();
 		IFiasApiParametersProvider fiasApiParametersProvider = new FiasApiParametersProvider(parametersProvider);
-		var geoCoderCache = new GeocoderCache(UnitOfWorkFactory.GetDefaultFactory);
 		IFiasApiClient fiasApiClient = new FiasApiClient(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken, geoCoderCache);
 
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<MergeAddressesDlg>(),
-			() => new MergeAddressesDlg(fiasApiClient));
+		NavigationManager.OpenTdiTab<MergeAddressesDlg, IFiasApiClient>(null, fiasApiClient);
 	}
 
 	/// <summary>
