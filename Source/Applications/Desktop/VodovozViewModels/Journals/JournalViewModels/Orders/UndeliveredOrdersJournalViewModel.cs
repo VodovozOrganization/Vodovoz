@@ -40,7 +40,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 		private readonly IEmployeeService _employeeService;
 		private readonly ICommonServices _commonServices;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
-		private readonly IEmployeeSettings _employeeSettings;
 		private Employee _currentEmployee;
 
 		public UndeliveredOrdersJournalViewModel(
@@ -51,7 +50,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			IEmployeeJournalFactory driverEmployeeJournalFactory,
 			IEmployeeService employeeService,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
-			IEmployeeSettings employeeSettings,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
 			Action<UndeliveredOrdersFilterViewModel> filterConfig = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
@@ -61,17 +59,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_undeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
-			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
 			_canCloseUndeliveries = commonServices.CurrentPermissionService.ValidatePresetPermission("can_close_undeliveries");
 
-			if(filterConfig != null)
-			{
-				FilterViewModel.SetAndRefilterAtOnce(filterConfig);
-			}
-
 			TabName = "Журнал недовозов";
+
+			FilterViewModel.JournalViewModel = this;
 
 			UpdateOnChanges(
 				typeof(UndeliveredOrder)
@@ -89,6 +83,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			}
 
 			FinishJournalConfiguration();
+
+			if(filterConfig != null)
+			{
+				FilterViewModel.SetAndRefilterAtOnce(filterConfig);
+			}
 		}
 
 		private Employee CurrentEmployee => _currentEmployee ??

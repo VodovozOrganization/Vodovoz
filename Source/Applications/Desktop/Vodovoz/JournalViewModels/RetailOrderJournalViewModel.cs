@@ -79,7 +79,9 @@ namespace Vodovoz.JournalViewModels
 			ISubdivisionParametersProvider subdivisionParametersProvider,
 			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider,
 			IRDLPreviewOpener rdlPreviewOpener,
-			IFileDialogService fileDialogService) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			IFileDialogService fileDialogService,
+			Action<OrderJournalFilterViewModel> filterConfig = null)
+			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService)); ;
@@ -124,8 +126,12 @@ namespace Vodovoz.JournalViewModels
 				typeof(OrderWithoutShipmentForAdvancePayment),
 				typeof(OrderWithoutShipmentForPaymentItem),
 				typeof(OrderWithoutShipmentForAdvancePaymentItem),
-				typeof(OrderItem)
-			);
+				typeof(OrderItem));
+
+			if(filterConfig != null)
+			{
+				FilterViewModel.SetAndRefilterAtOnce(filterConfig);
+			}
 		}
 		
 		protected override void CreateNodeActions()
