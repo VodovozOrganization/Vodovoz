@@ -29,6 +29,10 @@ using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Infrastructure.InfoProviders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalNodes;
+using Vodovoz.ViewModels.ReportsParameters.Orders;
+using QS.Report.ViewModels;
+using Vodovoz.ViewModels.ViewModels.Flyers;
+using QS.Navigation;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 {
@@ -51,6 +55,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			IEmployeeService employeeService,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
+            INavigationManager navigationManager,
 			Action<UndeliveredOrdersFilterViewModel> filterConfig = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
@@ -59,11 +64,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_undeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
+			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
 			_canCloseUndeliveries = commonServices.CurrentPermissionService.ValidatePresetPermission("can_close_undeliveries");
 
 			TabName = "Журнал недовозов";
+
+            UseSlider = false;
 
 			FilterViewModel.JournalViewModel = this;
 
@@ -583,7 +591,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			NodeActionsList.Add(new JournalAction("Сводка по классификации недовозов", x => true, x => true,
 				selectedItems =>
 				{
-					_gtkDlgOpener.OpenUndeliveredOrdersClassificationReport(FilterViewModel, false);
+                    var page = NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(this, typeof(UndeliveredOrdersClassificationReportViewModel));
+
+                    ((UndeliveredOrdersClassificationReportViewModel)page.ViewModel.ReportParametersViewModel).Load(FilterViewModel, false);
 				}));
 		}
 
@@ -592,8 +602,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			NodeActionsList.Add(new JournalAction("Сводка по классификации недовозов с переносами", x => true, x => true,
 				selectedItems =>
 				{
-					_gtkDlgOpener.OpenUndeliveredOrdersClassificationReport( FilterViewModel, true);
-				}));
+                    var page = NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(this, typeof(UndeliveredOrdersClassificationReportViewModel));
+
+                    ((UndeliveredOrdersClassificationReportViewModel)page.ViewModel.ReportParametersViewModel).Load(FilterViewModel, true);
+                }));
 		}
 
 		protected void BeforeItemsUpdated(IList items, uint start)

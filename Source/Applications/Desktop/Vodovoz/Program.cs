@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
 using Microsoft.Extensions.Configuration;
@@ -551,8 +551,6 @@ namespace Vodovoz
 							.Where(i => i.Name == $"I{s.Name}")
 							.First())
 						.SingleInstance();
-
-					builder.RegisterType<RdlViewerViewModel>().AsSelf();
 
 					#endregion
 
