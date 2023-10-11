@@ -34,7 +34,7 @@ namespace Vodovoz.Filters.GtkViews
 			this.tableMain.RowSpacing = ((uint)(6));
 			this.tableMain.ColumnSpacing = ((uint)(6));
 			// Container child tableMain.Gtk.Table+TableChild
-			this.enumCmbEventType = global::Gtk.ComboBox.NewText();
+			this.enumCmbEventType = new global::Gamma.Widgets.yEnumComboBox();
 			this.enumCmbEventType.Name = "enumCmbEventType";
 			this.enumCmbEventType.ShowSpecialStateAll = false;
 			this.enumCmbEventType.ShowSpecialStateNot = false;
