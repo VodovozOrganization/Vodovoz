@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Dialogs.Employees;
 using Gtk;
 using QS.Dialog.Gtk;
@@ -943,24 +943,7 @@ public partial class MainWindow : Window
 
 	void ActionRouteListTracking_Activated(object sender, System.EventArgs e)
 	{
-		var trackRepository = new TrackRepository();
-		var stockRepository = new StockRepository();
-		var terminalNomenclatureProvider = new BaseParametersProvider(new ParametersProvider());
-		var routeListRepository = new RouteListRepository(stockRepository, terminalNomenclatureProvider);
-		var scheduleRestrictionRepository = new ScheduleRestrictionRepository();
-		var deliveryRulesParametersProvider = new DeliveryRulesParametersProvider(new ParametersProvider());
-
-		var carsMonitoringViewModel = new CarsMonitoringViewModel(
-			UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.InteractiveService,
-			NavigationManager,
-			trackRepository,
-			routeListRepository,
-			scheduleRestrictionRepository,
-			deliveryRulesParametersProvider,
-			new GtkTabsOpener());
-
-		tdiMain.AddTab(carsMonitoringViewModel);
+		NavigationManager.OpenViewModel<CarsMonitoringViewModel>(null);
 	}
 
 	void ActionRouteListDistanceValidation_Activated(object sender, System.EventArgs e)
