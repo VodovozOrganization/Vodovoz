@@ -529,7 +529,14 @@ namespace Vodovoz
 				_routeListItem.SetOrderActualCountsToZeroOnCanceled();
 				_routeListItem.BottlesReturned = 0;
 				UpdateButtonsState();
-				OnCloseTab(false);
+
+				if(ea.NeedClose)
+				{
+					OnCloseTab(false);
+				}
+
+				UoW.Save(_routeListItem);
+				UoW.Commit();
 			};
 		}
 
@@ -543,7 +550,14 @@ namespace Vodovoz
 				_routeListItem.SetOrderActualCountsToZeroOnCanceled();
 				_routeListItem.BottlesReturned = 0;
 				UpdateButtonsState();
-				OnCloseTab(false);
+
+				if(ea.NeedClose)
+				{
+					OnCloseTab(false);
+				}
+
+				UoW.Save(_routeListItem);
+				UoW.Commit();
 			};
 		}
 
