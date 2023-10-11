@@ -1988,6 +1988,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriverWarehouseEventNameView.cs" />
     <Compile Include="Views\Logistic\DriverWarehouseEventView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriverWarehouseEventView.cs" />
+    <Compile Include="Filters\GtkViews\DriversWarehousesEventsJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.DriversWarehousesEventsJournalFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
