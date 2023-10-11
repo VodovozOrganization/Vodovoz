@@ -943,7 +943,7 @@ public partial class MainWindow : Window
 
 	void ActionRouteListTracking_Activated(object sender, System.EventArgs e)
 	{
-		NavigationManager.OpenViewModel<CarsMonitoringViewModel>(null);
+		NavigationManager.OpenViewModel<CarsMonitoringViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	void ActionRouteListDistanceValidation_Activated(object sender, System.EventArgs e)

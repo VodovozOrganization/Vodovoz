@@ -64,7 +64,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionHistoryLogActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenTdiTab<Vodovoz.Dialogs.HistoryView>(null);
+		NavigationManager.OpenTdiTab<Vodovoz.Dialogs.HistoryView>(null, QS.Navigation.OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>

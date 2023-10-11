@@ -65,7 +65,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnRegisteredRMActionActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<RegisteredRMJournalViewModel>(null);
+		NavigationManager.OpenViewModel<RegisteredRMJournalViewModel>(null, QS.Navigation.OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -132,7 +132,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionLoad1cCounterpartyAndDeliveryPointsActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenTdiTab<LoadFrom1cClientsAndDeliveryPoints>(null);
+		NavigationManager.OpenTdiTab<LoadFrom1cClientsAndDeliveryPoints>(null, QS.Navigation.OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -152,7 +152,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnAction62Activated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenTdiTab<ResendEmailsDialog>(null);
+		NavigationManager.OpenTdiTab<ResendEmailsDialog>(null, QS.Navigation.OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -162,7 +162,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionRecalculateDriverWagesActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenTdiTab<RecalculateDriverWageDlg>(null);
+		NavigationManager.OpenTdiTab<RecalculateDriverWageDlg>(null, QS.Navigation.OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>

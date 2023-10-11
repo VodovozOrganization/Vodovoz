@@ -12,7 +12,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionOpenProposalsJournalActivated(object sender, EventArgs e)
 	{
-		var page = NavigationManager.OpenViewModel<ApplicationDevelopmentProposalsJournalViewModel, Action<ApplicationDevelopmentProposalsJournalFilterViewModel>>(null, filter => filter.HidenByDefault = true);
+		var page = NavigationManager.OpenViewModel<ApplicationDevelopmentProposalsJournalViewModel, Action<ApplicationDevelopmentProposalsJournalFilterViewModel>>(null, filter => filter.HidenByDefault = true, QS.Navigation.OpenPageOptions.IgnoreHash);
 
 		page.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
 	}

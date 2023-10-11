@@ -277,7 +277,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionNomenclaturePlanReportActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<NomenclaturePlanReportViewModel>(null);
+		NavigationManager.OpenViewModel<NomenclaturePlanReportViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -648,7 +648,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionBulkEmailEventsReportActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<BulkEmailEventReportViewModel>(null);
+		NavigationManager.OpenViewModel<BulkEmailEventReportViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	#endregion Отчеты ОСК/ОКК
@@ -782,7 +782,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionDriversInfoExportActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<DriversInfoExportViewModel>(null);
+		NavigationManager.OpenViewModel<DriversInfoExportViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -809,7 +809,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionDeliveryAnalyticsActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<DeliveryAnalyticsViewModel>(null);
+		NavigationManager.OpenViewModel<DeliveryAnalyticsViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -831,7 +831,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnFastDeliverySalesReportActionActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<FastDeliverySalesReportViewModel>(null);
+		NavigationManager.OpenViewModel<FastDeliverySalesReportViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -841,7 +841,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnFastDeliveryAdditionalLoadingReportActionActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<FastDeliveryAdditionalLoadingReportViewModel>(null);
+		NavigationManager.OpenViewModel<FastDeliveryAdditionalLoadingReportViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -1137,7 +1137,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionEdoUpdReportActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<EdoUpdReportViewModel>(null);
+		NavigationManager.OpenViewModel<EdoUpdReportViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	#endregion Бухгалтерия
@@ -1274,7 +1274,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnProductionWarehouseMovementReportActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<ProductionWarehouseMovementReportViewModel>(null);
+		NavigationManager.OpenViewModel<ProductionWarehouseMovementReportViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>

@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.Banks.Domain;
 using QS.BusinessCommon.Domain;
 using QS.Dialog.Gtk;
@@ -114,7 +114,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionWageDistrictActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<WageDistrictsJournalViewModel>(null);
+		NavigationManager.OpenViewModel<WageDistrictsJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -124,7 +124,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionRatesActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<WageDistrictLevelRatesJournalViewModel>(null);
+		NavigationManager.OpenViewModel<WageDistrictLevelRatesJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -134,7 +134,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionSalesPlansActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<SalesPlanJournalViewModel>(null);
+		NavigationManager.OpenViewModel<SalesPlanJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -160,7 +160,7 @@ public partial class MainWindow
 			filter =>
 			{
 				filter.Status = EmployeeStatus.IsWorking;
-			});
+			}, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -213,7 +213,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnComplaintResultsOfCounterpartyActionActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<ComplaintResultsOfCounterpartyJournalViewModel>(null);
+		NavigationManager.OpenViewModel<ComplaintResultsOfCounterpartyJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -223,7 +223,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnComplaintResultsOfEmployeesActionActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<ComplaintResultsOfEmployeesJournalViewModel>(null);
+		NavigationManager.OpenViewModel<ComplaintResultsOfEmployeesJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	#endregion Результаты рассмотрения рекламаций
@@ -296,7 +296,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionDriversComplaintReasonsJournalActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<DriverComplaintReasonsJournalViewModel>(null);
+		NavigationManager.OpenViewModel<DriverComplaintReasonsJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -316,7 +316,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionPhoneTypesActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<PhoneTypeJournalViewModel>(null);
+		NavigationManager.OpenViewModel<PhoneTypeJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -326,7 +326,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionEMailTypesActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<EmailTypeJournalViewModel>(null);
+		NavigationManager.OpenViewModel<EmailTypeJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -430,7 +430,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionPromotionalSetsActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<PromotionalSetsJournalViewModel>(null);
+		NavigationManager.OpenViewModel<PromotionalSetsJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -558,7 +558,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionTransportationWagonActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<MovementWagonJournalViewModel>(null);
+		NavigationManager.OpenViewModel<MovementWagonJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -612,7 +612,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionReturnTareReasonsActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<ReturnTareReasonsJournalViewModel>(null);
+		NavigationManager.OpenViewModel<ReturnTareReasonsJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -622,7 +622,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionReturnTareReasonCategoriesActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<ReturnTareReasonCategoriesJournalViewModel>(null);
+		NavigationManager.OpenViewModel<ReturnTareReasonCategoriesJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -632,7 +632,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionFlyersActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<FlyersJournalViewModel>(null);
+		NavigationManager.OpenViewModel<FlyersJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	#endregion ТМЦ
@@ -727,7 +727,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionCounterpartyHandbookActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<CounterpartyJournalViewModel, Action<CounterpartyJournalFilterViewModel>>(null, filter => filter.IsForRetail = false);
+		NavigationManager.OpenViewModel<CounterpartyJournalViewModel, Action<CounterpartyJournalFilterViewModel>>(null, filter => filter.IsForRetail = false, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -749,7 +749,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionCameFromActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<ClientCameFromJournalViewModel, Action<ClientCameFromFilterViewModel>>(null, filter => filter.HidenByDefault = true);
+		NavigationManager.OpenViewModel<ClientCameFromJournalViewModel, Action<ClientCameFromFilterViewModel>>(null, filter => filter.HidenByDefault = true, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -849,7 +849,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionLoad1cActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenTdiTab<LoadFrom1cDlg>(null);
+		NavigationManager.OpenTdiTab<LoadFrom1cDlg>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -883,7 +883,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionDeliveryScheduleActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<DeliveryScheduleJournalViewModel>(null);
+		NavigationManager.OpenViewModel<DeliveryScheduleJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -1024,7 +1024,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionLateArrivalReasonsActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<LateArrivalReasonsJournalViewModel>(null);
+		NavigationManager.OpenViewModel<LateArrivalReasonsJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -1106,7 +1106,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionUndeliveryTransferAbsenceReasonActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<UndeliveryTransferAbsenceReasonJournalViewModel>(null);
+		NavigationManager.OpenViewModel<UndeliveryTransferAbsenceReasonJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
