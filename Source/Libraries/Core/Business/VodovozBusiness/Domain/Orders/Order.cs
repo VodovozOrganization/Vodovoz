@@ -4339,6 +4339,33 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		public virtual void RestoreOrder()
+		{
+			foreach(var item in OrderItems)
+			{
+				if(item.OriginalDiscountMoney.HasValue || item.OriginalDiscount.HasValue)
+				{
+					item.DiscountMoney = item.OriginalDiscountMoney ?? 0;
+					item.DiscountReason = item.OriginalDiscountReason;
+					item.Discount = item.OriginalDiscount ?? 0;
+					item.OriginalDiscountMoney = null;
+					item.OriginalDiscountReason = null;
+					item.OriginalDiscount = null;
+				}
+				item.ActualCount = null;
+			}
+			foreach(var equip in OrderEquipments)
+			{
+				equip.ActualCount = null;
+			}
+
+			foreach(var deposit in OrderDepositItems)
+			{
+				deposit.ActualCount = null;
+			}
+		}
+
+
 		/// <summary>
 		/// Возвращает список со всеми товарами, которые нужно доставить клиенту
 		/// </summary>
