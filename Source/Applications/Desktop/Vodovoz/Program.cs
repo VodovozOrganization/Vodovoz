@@ -239,12 +239,13 @@ namespace Vodovoz
 					// Классы водовоза
 
 					builder.RegisterType<WaterFixedPricesGenerator>().AsSelf();
-					builder.RegisterInstance(ViewModelWidgetResolver.Instance)
+					builder.Register(c => ViewModelWidgetResolver.Instance)
 						.AsSelf()
 						.As<ITDIWidgetResolver>()
 						.As<IFilterWidgetResolver>()
 						.As<IWidgetResolver>()
-						.As<IGtkViewResolver>();
+						.As<IGtkViewResolver>()
+						.SingleInstance();
 
 					builder.RegisterType<TrueMarkCodesPool>()
 						.AsSelf()
