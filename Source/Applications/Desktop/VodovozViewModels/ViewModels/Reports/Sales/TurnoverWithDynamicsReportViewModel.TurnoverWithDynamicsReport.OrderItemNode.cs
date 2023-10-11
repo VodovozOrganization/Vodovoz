@@ -21,6 +21,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				public int? CounterpartyId { get; set; }
 
 				public CounterpartyType? CounterpartyType { get; set; }
+				public string CounterpartySubtype { get; set; }
+				public int? CounterpartySubtypeId { get; set; }
 
 				public string CounterpartyPhones { get; set; }
 
