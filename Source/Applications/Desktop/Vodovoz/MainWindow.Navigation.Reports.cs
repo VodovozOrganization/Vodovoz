@@ -315,7 +315,7 @@ public partial class MainWindow
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<OrderCreationDateReport>(),
-			() => new QSReport.ReportViewDlg(new OrderCreationDateReport()));
+			() => new QSReport.ReportViewDlg(new OrderCreationDateReport(NavigationManager)));
 	}
 
 	/// <summary>
@@ -337,13 +337,9 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionSetBillsReportActivated(object sender, EventArgs e)
 	{
-		var subdivisionJournalFactory = new SubdivisionJournalFactory();
-
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<SetBillsReport>(),
-			() => new QSReport.ReportViewDlg(new SetBillsReport(
-				UnitOfWorkFactory.GetDefaultFactory,
-				subdivisionJournalFactory)));
+			() => new QSReport.ReportViewDlg(new SetBillsReport(UnitOfWorkFactory.GetDefaultFactory)));
 	}
 
 	/// <summary>
@@ -423,7 +419,7 @@ public partial class MainWindow
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<DefectiveItemsReport>(),
-			() => new QSReport.ReportViewDlg(new DefectiveItemsReport()));
+			() => new QSReport.ReportViewDlg(new DefectiveItemsReport(NavigationManager)));
 	}
 
 	/// <summary>
@@ -523,7 +519,7 @@ public partial class MainWindow
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<ShortfallBattlesReport>(),
-			() => new QSReport.ReportViewDlg(new ShortfallBattlesReport()));
+			() => new QSReport.ReportViewDlg(new ShortfallBattlesReport(NavigationManager)));
 	}
 
 	/// <summary>
@@ -602,7 +598,7 @@ public partial class MainWindow
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<FirstSecondClientReport>(),
-			() => new QSReport.ReportViewDlg(new FirstSecondClientReport(new DiscountReasonRepository())));
+			() => new QSReport.ReportViewDlg(new FirstSecondClientReport(NavigationManager, new DiscountReasonRepository())));
 	}
 
 	/// <summary>
@@ -768,7 +764,7 @@ public partial class MainWindow
 			Category = EmployeeCategory.driver
 		};
 
-		var employeeJournalFactory = new EmployeeJournalFactory(filter);
+		var employeeJournalFactory = new EmployeeJournalFactory(NavigationManager, filter);
 
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<GeneralSalaryInfoReport>(),
@@ -793,7 +789,7 @@ public partial class MainWindow
 	protected void OnActionAddressesOverpaymentsReportActivated(object sender, EventArgs e)
 	{
 		var driverFilter = new EmployeeFilterViewModel { RestrictCategory = EmployeeCategory.driver };
-		var employeeJournalFactory = new EmployeeJournalFactory(driverFilter);
+		var employeeJournalFactory = new EmployeeJournalFactory(NavigationManager, driverFilter);
 
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<AddressesOverpaymentsReport>(),
@@ -1029,7 +1025,7 @@ public partial class MainWindow
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<MastersReport>(),
-			() => new QSReport.ReportViewDlg(new MastersReport()));
+			() => new QSReport.ReportViewDlg(new MastersReport(NavigationManager)));
 	}
 
 	/// <summary>
@@ -1051,7 +1047,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionMastersVisitReportActivated(object sender, EventArgs e)
 	{
-		var employeeFactory = new EmployeeJournalFactory();
+		var employeeFactory = new EmployeeJournalFactory(NavigationManager);
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<MastersVisitReport>(),
 			() => new QSReport.ReportViewDlg(new MastersVisitReport(employeeFactory)));
@@ -1093,7 +1089,7 @@ public partial class MainWindow
 	protected void OnActionNetworkDelayReportActivated(object sender, EventArgs e)
 	{
 		ILifetimeScope lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
-		var employeeJournalFactory = new EmployeeJournalFactory();
+		var employeeJournalFactory = new EmployeeJournalFactory(NavigationManager);
 
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<ChainStoreDelayReport>(),
@@ -1165,7 +1161,7 @@ public partial class MainWindow
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.DriverWagesReport>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.DriverWagesReport()));
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.DriverWagesReport(NavigationManager)));
 	}
 
 	/// <summary>
@@ -1189,7 +1185,7 @@ public partial class MainWindow
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.FuelReport>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.FuelReport()));
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.FuelReport(NavigationManager)));
 	}
 
 	/// <summary>
@@ -1201,7 +1197,7 @@ public partial class MainWindow
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.ForwarderWageReport>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.ForwarderWageReport()));
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.ForwarderWageReport(NavigationManager)));
 	}
 
 	/// <summary>
@@ -1227,7 +1223,7 @@ public partial class MainWindow
 		}
 
 		employeeFilter.HidenByDefault = true;
-		var employeeJournalFactory = new EmployeeJournalFactory(employeeFilter);
+		var employeeJournalFactory = new EmployeeJournalFactory(NavigationManager, employeeFilter);
 
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.WagesOperationsReport>(),
@@ -1346,7 +1342,7 @@ public partial class MainWindow
 			QSReport.ReportViewDlg.GenerateHashName<QualityReport>(),
 			() => new QSReport.ReportViewDlg(new QualityReport(
 				new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
-				new EmployeeJournalFactory(),
+				new EmployeeJournalFactory(NavigationManager),
 				new SalesChannelJournalFactory(),
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.InteractiveService)));
@@ -1366,6 +1362,7 @@ public partial class MainWindow
 				new DistrictJournalFactory(),
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.InteractiveService)));
+
 	}
 
 	#endregion Розница
