@@ -429,7 +429,7 @@ namespace Vodovoz.Views.Organization
 			w32.TopAttach = ((uint)(7));
 			w32.BottomAttach = ((uint)(8));
 			w32.RightAttach = ((uint)(5));
-			w32.XOptions = ((global::Gtk.AttachOptions)(0));
+			w32.XOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.speciallistcomboboxGeoGrpoup = new global::QS.Widgets.GtkUI.SpecialListComboBox();
 			this.speciallistcomboboxGeoGrpoup.Name = "speciallistcomboboxGeoGrpoup";
