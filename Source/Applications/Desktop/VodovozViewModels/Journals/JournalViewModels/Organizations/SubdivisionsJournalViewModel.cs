@@ -122,7 +122,9 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 		}
 
 		private IQueryable<SubdivisionJournalNode> GetChunk(IUnitOfWork unitOfWork, int? parentId) =>
-			GetSubGroup(unitOfWork, parentId);
+			_filterViewModel.RestrictParentId is null
+			? GetSubGroup(unitOfWork, parentId)
+			: GetSubGroup(unitOfWork, _filterViewModel.RestrictParentId);
 
 		private IQueryable<SubdivisionJournalNode> GetSubGroup(IUnitOfWork unitOfWork, int? parentId)
 		{

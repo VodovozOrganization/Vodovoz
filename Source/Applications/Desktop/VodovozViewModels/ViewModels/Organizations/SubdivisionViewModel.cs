@@ -13,6 +13,7 @@ using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
@@ -35,12 +36,15 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 			IPermissionRepository permissionRepository,
 			ISubdivisionRepository subdivisionRepository,
 			INavigationManager navigationManager,
-			ILifetimeScope scope) : base(uoWBuilder, unitOfWorkFactory, commonServices)
+			ILifetimeScope scope,
+			SubdivisionsJournalViewModel subdivisionsJournalViewModel) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
-
+			SubdivisionsJournalViewModel = subdivisionsJournalViewModel ?? throw new ArgumentNullException(nameof(subdivisionsJournalViewModel));
+			SubdivisionsJournalViewModel.JournalFilter.SetAndRefilterAtOnce<SubdivisionFilterViewModel>(filter => filter.RestrictParentId = Entity.Id);
+			SubdivisionsJournalViewModel.Refresh();
 			SubdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			PresetSubdivisionPermissionVM =
 				_scope.Resolve<PresetSubdivisionPermissionsViewModel>(
@@ -80,6 +84,7 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 		}
 
 		public ISubdivisionRepository SubdivisionRepository { get; }
+		public SubdivisionsJournalViewModel SubdivisionsJournalViewModel { get; }
 		public IEntityEntryViewModel ChiefViewModel { get; private set; }
 		public IEntityEntryViewModel ParentSubdivisionViewModel { get; private set; }
 		public IEntityEntryViewModel DefaultSalesPlanViewModel { get; private set; }

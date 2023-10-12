@@ -5,8 +5,11 @@ using QS.Views.GtkUI;
 using QSOrmProject;
 using System;
 using System.ComponentModel;
+using System.Linq;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Representations;
+using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.Journals.JournalNodes;
+using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.ViewModels.ViewModels.Organizations;
 
 namespace Vodovoz.Views.Organization
@@ -14,7 +17,9 @@ namespace Vodovoz.Views.Organization
 	[ToolboxItem(true)]
 	public partial class SubdivisionView : TabViewBase<SubdivisionViewModel>
 	{
-		public SubdivisionView(SubdivisionViewModel viewModel) : base(viewModel)
+		public SubdivisionView(
+			SubdivisionViewModel viewModel)
+			: base(viewModel)
 		{
 			Build();
 			ConfigureDlg();
@@ -41,10 +46,13 @@ namespace Vodovoz.Views.Organization
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.ViewModel.IsEditable)
 				.InitializeFromSource();
 
-			var subdivisionsVM = new SubdivisionsVM(ViewModel.UoW, ViewModel.Entity);
-			repTreeChildSubdivisions.RepresentationModel = subdivisionsVM;
-			repTreeChildSubdivisions.YTreeModel = new RecursiveTreeModel<SubdivisionVMNode>(subdivisionsVM.Result, x => x.Parent, x => x.Children);
-			repTreeChildSubdivisions.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			ytreeviewChildSubdivisions.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			ytreeviewChildSubdivisions.CreateFluentColumnsConfig<SubdivisionJournalNode>()
+				.AddColumn("Название")
+				.AddTextRenderer(x => x.Name)
+				.Finish();
+
+			ViewModel.SubdivisionsJournalViewModel.DataLoader.ItemsListUpdated += ChildSubdivisionsReloaded;
 
 			speciallistcomboboxGeoGrpoup.ItemsList = ViewModel.UoW.Session.QueryOver<GeoGroup>().List();
 			speciallistcomboboxGeoGrpoup.Binding.AddBinding(ViewModel, e => e.GeographicGroup, w => w.SelectedItem).InitializeFromSource();
@@ -104,6 +112,11 @@ namespace Vodovoz.Views.Organization
 			ycheckArchieve.Binding
 				.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active)
 				.InitializeFromSource();
+		}
+
+		private void ChildSubdivisionsReloaded(object sender, EventArgs e)
+		{
+			ytreeviewChildSubdivisions.YTreeModel = new RecursiveTreeModel<SubdivisionJournalNode>(ViewModel.SubdivisionsJournalViewModel.Items.Cast<SubdivisionJournalNode>(), ViewModel.SubdivisionsJournalViewModel.RecuresiveConfig);
 		}
 
 		void ButtonAddDocument_Clicked(object sender, EventArgs e)

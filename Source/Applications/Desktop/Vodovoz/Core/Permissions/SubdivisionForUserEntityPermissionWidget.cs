@@ -112,7 +112,7 @@ namespace Vodovoz.Core.Permissions
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
 		{
-			var subdivisionNode = treeviewSubdivisions.GetSelectedObject() as SubdivisionVMNode;
+			var subdivisionNode = treeviewSubdivisions.GetSelectedObject() as SubdivisionJournalNode;
 			if(subdivisionNode == null) {
 				return;
 			}
