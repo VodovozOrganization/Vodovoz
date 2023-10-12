@@ -67,10 +67,7 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(vm => vm.DeliveryPointSelectorFactory, w => w.EntitySelectorAutocompleteFactory)
 				.InitializeFromSource();
 
-			//evmeAuthor.Binding.AddSource(ViewModel)
-			//	.AddBinding(vm => vm.Author, w => w.Subject)
-			//	.AddBinding(vm => vm.AuthorSelectorFactory, w => w.EntitySelectorAutocompleteFactory)
-			//	.InitializeFromSource();
+			entryAuthor.ViewModel = ViewModel.AuthorViewModel;
 
 			yenumcomboboxDateType.ItemsEnum = typeof(OrdersDateFilterType);
 			yenumcomboboxDateType.Binding

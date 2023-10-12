@@ -15,10 +15,8 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
-using Vodovoz.ViewModels.Factories;
 
 namespace Vodovoz.TempAdapters
 {
@@ -60,7 +58,8 @@ namespace Vodovoz.TempAdapters
 
 		public IEntityAutocompleteSelectorFactory CreateCashSelfDeliveryOrderAutocompleteSelector()
 		{
-			var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
+			var scope = Startup.AppDIContainer.BeginLifetimeScope();
+			var counterpartyJournalFactory = new CounterpartyJournalFactory(scope);
 			var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
 			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 			var userRepository = new UserRepository();
@@ -83,7 +82,8 @@ namespace Vodovoz.TempAdapters
 						filter,
 						UnitOfWorkFactory.GetDefaultFactory,
 						ServicesConfig.CommonServices,
-						Startup.MainWin.NavigationManager,
+						_navigationManager,
+						scope,
 						VodovozGtkServicesConfig.EmployeeService,
 						nomenclatureRepository,
 						userRepository,
@@ -105,7 +105,9 @@ namespace Vodovoz.TempAdapters
 
 		public IEntityAutocompleteSelectorFactory CreateSelfDeliveryDocumentOrderAutocompleteSelector()
 		{
-			var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
+			var scope = Startup.AppDIContainer.BeginLifetimeScope();
+
+			var counterpartyJournalFactory = new CounterpartyJournalFactory(scope);
 			var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
 			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 			var userRepository = new UserRepository();
@@ -125,7 +127,8 @@ namespace Vodovoz.TempAdapters
 						filter,
 						UnitOfWorkFactory.GetDefaultFactory,
 						ServicesConfig.CommonServices,
-						Startup.MainWin.NavigationManager,
+						_navigationManager,
+						scope,
 						VodovozGtkServicesConfig.EmployeeService,
 						nomenclatureRepository,
 						userRepository,
@@ -147,7 +150,9 @@ namespace Vodovoz.TempAdapters
 
 		public OrderJournalViewModel CreateOrderJournalViewModel(OrderJournalFilterViewModel filterViewModel = null)
 		{
-			var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
+			var scope = Startup.AppDIContainer.BeginLifetimeScope();
+
+			var counterpartyJournalFactory = new CounterpartyJournalFactory(scope);
 			var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
 			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 			var userRepository = new UserRepository();
@@ -163,7 +168,8 @@ namespace Vodovoz.TempAdapters
 					?? new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, employeeJournalFactory),
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
-				Startup.MainWin.NavigationManager,
+				_navigationManager,
+				scope,
 				VodovozGtkServicesConfig.EmployeeService,
 				nomenclatureRepository,
 				userRepository,
