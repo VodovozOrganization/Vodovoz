@@ -232,6 +232,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 					})
 				.UseViewModelDialog<SubdivisionViewModel>()
 				.Finish();
+
+			SubdivisionViewModel.IsEditable = CanEditEmployee && (CanManageOfficeWorkers || CanManageDriversAndForwarders);
 		}
 
 		private Employee EmployeeForCurrentUser => 
