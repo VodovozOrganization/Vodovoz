@@ -1,4 +1,5 @@
-﻿using MoreLinq;
+﻿using Autofac;
+using MoreLinq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -58,6 +59,7 @@ namespace Vodovoz.JournalViewModels
 		private const int _minLengthLikeSearch = 3;
 
 		private readonly ICommonServices _commonServices;
+		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IEmployeeService _employeeService;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
@@ -85,6 +87,7 @@ namespace Vodovoz.JournalViewModels
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
+			ILifetimeScope lifetimeScope,
 			IEmployeeService employeeService,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
@@ -104,6 +107,7 @@ namespace Vodovoz.JournalViewModels
 			Action<OrderJournalFilterViewModel> filterConfiguration = null) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
@@ -136,6 +140,8 @@ namespace Vodovoz.JournalViewModels
 			_userCanExportOrdersToExcel = commonServices.CurrentPermissionService.ValidatePresetPermission("can_export_orders_to_excel");
 
 			SearchEnabled = false;
+
+			filterViewModel.Journal = this;
 
 			RegisterOrders();
 			RegisterOrdersWithoutShipmentForDebt();
@@ -172,6 +178,8 @@ namespace Vodovoz.JournalViewModels
 				UpdateJournalActions();
 			}
 		}
+
+		public ILifetimeScope Scope => _lifetimeScope;
 
 		protected override void CreateNodeActions()
 		{
