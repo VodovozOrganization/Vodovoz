@@ -50,9 +50,9 @@ namespace Vodovoz.Views.Organization
 
 		private global::Gtk.Label labelPermissions;
 
-		private global::Gtk.ScrolledWindow GtkScrolledWindow2;
+		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
-		private global::QSOrmProject.RepresentationTreeView repTreeChildSubdivisions;
+		private global::Gamma.GtkWidgets.yTreeView ytreeviewChildSubdivisions;
 
 		private global::Gtk.Label labelChildSubdivizions;
 
@@ -312,7 +312,7 @@ namespace Vodovoz.Views.Organization
 			this.notebook1 = new global::Gtk.Notebook();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 0;
+			this.notebook1.CurrentPage = 1;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.subdivisionentitypermissionwidget = new global::Vodovoz.Core.Permissions.SubdivisionEntityPermissionWidget();
 			this.subdivisionentitypermissionwidget.Events = ((global::Gdk.EventMask)(256));
@@ -325,22 +325,22 @@ namespace Vodovoz.Views.Organization
 			this.notebook1.SetTabLabel(this.subdivisionentitypermissionwidget, this.labelPermissions);
 			this.labelPermissions.ShowAll();
 			// Container child notebook1.Gtk.Notebook+NotebookChild
-			this.GtkScrolledWindow2 = new global::Gtk.ScrolledWindow();
-			this.GtkScrolledWindow2.Name = "GtkScrolledWindow2";
-			this.GtkScrolledWindow2.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child GtkScrolledWindow2.Gtk.Container+ContainerChild
-			this.repTreeChildSubdivisions = new global::QSOrmProject.RepresentationTreeView();
-			this.repTreeChildSubdivisions.CanFocus = true;
-			this.repTreeChildSubdivisions.Name = "repTreeChildSubdivisions";
-			this.GtkScrolledWindow2.Add(this.repTreeChildSubdivisions);
-			this.notebook1.Add(this.GtkScrolledWindow2);
-			global::Gtk.Notebook.NotebookChild w23 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.GtkScrolledWindow2]));
+			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
+			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
+			this.ytreeviewChildSubdivisions = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeviewChildSubdivisions.CanFocus = true;
+			this.ytreeviewChildSubdivisions.Name = "ytreeviewChildSubdivisions";
+			this.GtkScrolledWindow.Add(this.ytreeviewChildSubdivisions);
+			this.notebook1.Add(this.GtkScrolledWindow);
+			global::Gtk.Notebook.NotebookChild w23 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.GtkScrolledWindow]));
 			w23.Position = 1;
 			// Notebook tab
 			this.labelChildSubdivizions = new global::Gtk.Label();
 			this.labelChildSubdivizions.Name = "labelChildSubdivizions";
 			this.labelChildSubdivizions.LabelProp = global::Mono.Unix.Catalog.GetString("Дочерние подразделения");
-			this.notebook1.SetTabLabel(this.GtkScrolledWindow2, this.labelChildSubdivizions);
+			this.notebook1.SetTabLabel(this.GtkScrolledWindow, this.labelChildSubdivizions);
 			this.labelChildSubdivizions.ShowAll();
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.vboxDocuments = new global::Gtk.VBox();
@@ -429,7 +429,7 @@ namespace Vodovoz.Views.Organization
 			w32.TopAttach = ((uint)(7));
 			w32.BottomAttach = ((uint)(8));
 			w32.RightAttach = ((uint)(5));
-			w32.XOptions = ((global::Gtk.AttachOptions)(4));
+			w32.XOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child table1.Gtk.Table+TableChild
 			this.speciallistcomboboxGeoGrpoup = new global::QS.Widgets.GtkUI.SpecialListComboBox();
 			this.speciallistcomboboxGeoGrpoup.Name = "speciallistcomboboxGeoGrpoup";
