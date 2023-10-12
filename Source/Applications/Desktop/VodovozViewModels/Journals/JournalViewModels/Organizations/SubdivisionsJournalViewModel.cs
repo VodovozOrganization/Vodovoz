@@ -17,12 +17,10 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows.Input;
 using Vodovoz.Domain.Cash;
-using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
-using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.ViewModels.Organizations;
 
@@ -75,6 +73,8 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 			TabName = $"Журнал {typeof(Subdivision).GetClassUserFriendlyName().GenitivePlural}";
 
 			SearchEnabled = false;
+
+			UseSlider = true;
 
 			_hierarchicalChunkLinqLoader = new HierarchicalChunkLinqLoader<Subdivision, SubdivisionJournalNode>(UnitOfWorkFactory);
 
@@ -146,7 +146,7 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 						|| subdivision.DocumentTypes.Any(x => x.Type == nameof(Expense))
 						|| subdivision.DocumentTypes.Any(x => x.Type == nameof(AdvanceReport)))
 			   let children = GetSubGroup(unitOfWork, subdivision.Id)
-			   let chiefFIO = subdivision.Chief == null ? "" : $"{subdivision.Chief.LastName.Substring(1, 1)}. {subdivision.Chief.Name.Substring(1, 1)}. {subdivision.Chief.Patronymic}"
+			   let chiefFIO = subdivision.Chief == null ? "" : $"{subdivision.Chief.LastName} {subdivision.Chief.Name.Substring(0, 1)}. {subdivision.Chief.Patronymic.Substring(0, 1)}."
 			   orderby subdivision.Name
 			   select new SubdivisionJournalNode
 			   {
@@ -219,7 +219,7 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 				{
 					if(selected.FirstOrDefault() is SubdivisionJournalNode node)
 					{
-						var page = NavigationManager.OpenViewModel<SubdivisionViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id), OpenPageOptions.AsSlave);
+						var page = NavigationManager.OpenViewModel<SubdivisionViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id));
 					}
 				});
 
@@ -238,7 +238,7 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 				(selected) => true,
 				(selected) =>
 				{
-					var page = NavigationManager.OpenViewModel<SubdivisionViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate(), OpenPageOptions.AsSlave);
+					var page = NavigationManager.OpenViewModel<SubdivisionViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
 				});
 
 			NodeActionsList.Add(createAction);
