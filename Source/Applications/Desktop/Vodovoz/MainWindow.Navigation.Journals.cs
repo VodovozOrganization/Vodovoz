@@ -30,6 +30,7 @@ using Vodovoz.Domain.Store;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Journals;
 using Vodovoz.Journals.JournalViewModels;
+using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.Journals.JournalViewModels.WageCalculation;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
@@ -86,10 +87,7 @@ public partial class MainWindow
 	[Obsolete("Старый диалог, заменить")]
 	protected void OnSubdivisionsActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			OrmReference.GenerateHashName<Subdivision>(),
-			() => new OrmReference(typeof(Subdivision))
-		);
+		NavigationManager.OpenViewModel<SubdivisionsJournalViewModel>(null);
 	}
 
 	/// <summary>
