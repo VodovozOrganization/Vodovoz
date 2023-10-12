@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Autofac;
+using Autofac.Core.Lifetime;
 using FluentNHibernate.Conventions;
 using Gamma.Binding;
 using Gamma.GtkWidgets;
@@ -13,6 +15,9 @@ using QS.Widgets.GtkUI;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Permissions;
+using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.Journals.JournalNodes;
+using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.Representations;
 
 namespace Vodovoz.Core.Permissions
@@ -20,8 +25,10 @@ namespace Vodovoz.Core.Permissions
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class SubdivisionForUserEntityPermissionWidget : Gtk.Bin, IUserPermissionTab
 	{
+		private readonly ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		
+		private SubdivisionsJournalViewModel _subdivisionJVM;
+
 		public string Title => "Особые права на подразделения";
 
 		Subdivision employeeSubdivision;
@@ -47,9 +54,15 @@ namespace Vodovoz.Core.Permissions
 
 			ViewModel = new EntitySubdivisionForUserPermissionViewModel(uow, user);
 
-			var subdivisionsVM = new SubdivisionsVM(ViewModel.Uow);
-			treeviewSubdivisions.RepresentationModel = subdivisionsVM;
-			treeviewSubdivisions.YTreeModel = new RecursiveTreeModel<SubdivisionVMNode>(subdivisionsVM.Result, x => x.Parent, x => x.Children);
+			_subdivisionJVM = _lifetimeScope.Resolve<SubdivisionsJournalViewModel>();
+
+			_subdivisionJVM.Refresh();
+			
+			treeviewSubdivisions.CreateFluentColumnsConfig<SubdivisionJournalNode>()
+				.AddColumn("Подразделение").AddTextRenderer(x => x.Name)
+				.Finish();
+
+			_subdivisionJVM.DataLoader.ItemsListUpdated += SubdivisionsListReloaded;
 
 			ytreeviewPermissions.ColumnsConfig = ColumnsConfigFactory.Create<EntitySubdivisionForUserPermission>()
 				.AddColumn("Подразделение").AddTextRenderer(x => x.Subdivision.Name)
@@ -75,28 +88,19 @@ namespace Vodovoz.Core.Permissions
 			
 			Sensitive = true;
 		}
-		
+
+		private void SubdivisionsListReloaded(object sender, EventArgs e)
+		{
+			treeviewSubdivisions.CollapseAll();
+			treeviewSubdivisions.YTreeModel = new RecursiveTreeModel<SubdivisionJournalNode>(_subdivisionJVM.Items.Cast<SubdivisionJournalNode>(), _subdivisionJVM.RecuresiveConfig);
+			treeviewSubdivisions.ExpandAll();
+		}
+
 		public EntitySubdivisionForUserPermissionViewModel ViewModel { get; set; }
 
 		private void SearchSubdivisionsOnTextChanged(object sender, EventArgs e)
 		{
-			treeviewSubdivisions.CollapseAll();
-			
-			//возвращаем начальное состояние
-			var subdivisionsVM = new SubdivisionsVM(ViewModel.Uow);
-			subdivisionsVM.UpdateNodes();
-			treeviewSubdivisions.RepresentationModel.ItemsList.Clear();
-			foreach(var item in subdivisionsVM.ItemsList)
-			{
-				treeviewSubdivisions.RepresentationModel.ItemsList.Add(item);
-			}
-			
-			if(!searchSubdivisions.Text.IsEmpty())
-			{
-				ViewModel.SearchSubdivisions(searchSubdivisions.Text,treeviewSubdivisions);
-			}
-
-			treeviewSubdivisions.ExpandAll();
+			_subdivisionJVM.Search.SearchValues = searchSubdivisions.Text.ToLower().Split(' ');
 		}
 		
 		private void SearchPermissionsOnTextChanged(object sender, EventArgs e)
@@ -239,70 +243,6 @@ namespace Vodovoz.Core.Permissions
 		}
 
 		#region Search
-
-		public void SearchSubdivisions(string searchString, RepresentationTreeView treeToSearch)
-		{
-			if(!searchString.IsEmpty())
-			{
-				if(treeToSearch.RepresentationModel.ItemsList is IList<SubdivisionVMNode> items)
-				{
-					for(int i = 0; i < items.Count; i++)
-					{
-						for(int j = 0; j < items[i].Children.Count; j++)
-						{
-							var itemToSearch = items[i].Children; 
-							RecursiveSearch(ref itemToSearch, searchString);
-							items[i].Children = itemToSearch;
-						}
-					}
-				}
-			}
-		}
-
-		/// <summary>
-		/// Рекурсивный поиск, если у элемента (SubdivisionVMNode) списка есть Children -
-		/// функция запускается рекурсивно и проходится по всем зависимым Children
-		/// </summary>
-		/// <param name="node">Нода - список зависимых объектов предыдущей ноды</param>
-		/// <param name="searchString">Строка, по которой производится поиск</param>
-		private void RecursiveSearch(ref IList<SubdivisionVMNode> node, string searchString)
-		{
-			for(int i = 0; i < node.Count; i++)
-			{
-				if(node[i].Children.Count > 0)
-				{
-					for(int j = 0; j < node[i].Children.Count; j++)
-					{
-						if(node[i].Children[j].Children.Count > 0)
-						{
-							var nodes = node[i].Children;
-							RecursiveSearch(ref nodes, searchString);
-							node[i].Children = nodes;
-						}
-						else
-						{
-							//Поиск и удаление не подходящих подэлементов списка (без учета регистра),
-							//если у них нет зависимых подэлементов
-							if (node[i].Children[j].Name.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) == -1)
-							{
-								node[i].Children.Remove(node[i].Children[j]);
-								j--;
-							}
-						}
-					}
-				}
-				else
-				{
-					//Поиск и удаление не подходящих элементов списка (без учета регистра), если нет подэлементов
-					if (node[i].Name.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) == -1)
-					{
-						node.Remove(node[i]);
-						i--;
-					}
-				}
-				
-			}
-		}
 		
 		public void SearchPermissions(string searchString)
 		{
