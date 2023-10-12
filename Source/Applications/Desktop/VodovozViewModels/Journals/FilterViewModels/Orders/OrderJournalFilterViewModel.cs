@@ -79,9 +79,6 @@ namespace Vodovoz.Filters.ViewModels
 			CounterpartySelectorFactory = counterpartyJournalFactory?.CreateCounterpartyAutocompleteSelectorFactory()
 										  ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 
-			//AuthorSelectorFactory = employeeJournalFactory?.CreateEmployeeAutocompleteSelectorFactory()
-			//						?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-
 			_searchByAddressViewModel = new CompositeSearchViewModel();
 			_searchByAddressViewModel.OnSearch += OnSearchByAddressViewModel;
 		}
@@ -94,7 +91,6 @@ namespace Vodovoz.Filters.ViewModels
 		public virtual IEntityAutocompleteSelectorFactory DeliveryPointSelectorFactory { get; }
 		public virtual IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 		public IEntityEntryViewModel AuthorViewModel { get; private set; }
-		//public virtual IEntityAutocompleteSelectorFactory AuthorSelectorFactory { get; }
 
 		#endregion
 
