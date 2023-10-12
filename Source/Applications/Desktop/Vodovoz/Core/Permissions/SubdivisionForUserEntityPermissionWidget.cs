@@ -16,6 +16,7 @@ using Vodovoz.Domain.Permissions;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.Infrastructure;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.Representations;
@@ -59,7 +60,36 @@ namespace Vodovoz.Core.Permissions
 			_subdivisionJVM.Refresh();
 			
 			treeviewSubdivisions.CreateFluentColumnsConfig<SubdivisionJournalNode>()
-				.AddColumn("Подразделение").AddTextRenderer(x => x.Name)
+				.AddColumn("Название").AddTextRenderer(node => node.Name).AddSetter((cell, node) =>
+				{
+					var color = GdkColors.PrimaryText;
+					if(node.IsArchive)
+					{
+						color = GdkColors.InsensitiveText;
+					}
+
+					cell.ForegroundGdk = color;
+				})
+				.AddColumn("Руководитель").AddTextRenderer(node => node.ChiefName).AddSetter((cell, node) =>
+				{
+					var color = GdkColors.PrimaryText;
+					if(node.IsArchive)
+					{
+						color = GdkColors.InsensitiveText;
+					}
+
+					cell.ForegroundGdk = color;
+				})
+				.AddColumn("Код").AddNumericRenderer(node => node.Id).AddSetter((cell, node) =>
+				{
+					var color = GdkColors.PrimaryText;
+					if(node.IsArchive)
+					{
+						color = GdkColors.InsensitiveText;
+					}
+
+					cell.ForegroundGdk = color;
+				})
 				.Finish();
 
 			_subdivisionJVM.DataLoader.ItemsListUpdated += SubdivisionsListReloaded;
