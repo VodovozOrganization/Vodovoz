@@ -9,6 +9,7 @@ namespace Vodovoz.FilterViewModels.Organization
 		private SubdivisionType? _subdivisionType;
 		private bool _onlyCashSubdivisions;
 		private bool _showArchieved = false;
+		private int? _restrictParentId;
 
 		public int[] ExcludedSubdivisionsIds
 		{
@@ -32,6 +33,12 @@ namespace Vodovoz.FilterViewModels.Organization
 		{
 			get => _showArchieved;
 			set => UpdateFilterField(ref _showArchieved, value);
+		}
+
+		public int? RestrictParentId
+		{
+			get => _restrictParentId;
+			set => UpdateFilterField(ref _restrictParentId, value);
 		}
 
 		public override bool IsShow { get; set; } = true;
