@@ -38,6 +38,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			ICommonServices commonServices,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ILifetimeScope lifetimeScope,
+			INavigationManager navigationManager,
 			Action<EmployeeFilterViewModel> filterparams = null) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал сотрудников";
@@ -45,7 +46,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			_authorizationServiceFactory =
 				authorizationServiceFactory ?? throw new ArgumentNullException(nameof(authorizationServiceFactory));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
-			_navigationManager = lifetimeScope.Resolve<INavigationManager>() ?? NavigationManager;
+			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_authorizationService = _authorizationServiceFactory.CreateNewAuthorizationService();
 
 			if(filterparams != null)

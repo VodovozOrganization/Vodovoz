@@ -1,4 +1,4 @@
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using Vodovoz.Core.DataService;
@@ -76,7 +76,8 @@ namespace Vodovoz.TempAdapters
 				_authorizationServiceFactory,
 				ServicesConfig.CommonServices,
 				UnitOfWorkFactory.GetDefaultFactory,
-				Startup.AppDIContainer
+				Startup.AppDIContainer,
+				_navigationManager
 			);
 		}
 
@@ -160,7 +161,8 @@ namespace Vodovoz.TempAdapters
 						_authorizationServiceFactory,
 						ServicesConfig.CommonServices,
 						UnitOfWorkFactory.GetDefaultFactory,
-						Startup.AppDIContainer
+						Startup.AppDIContainer,
+						_navigationManager
 					);
 				}
 			);
