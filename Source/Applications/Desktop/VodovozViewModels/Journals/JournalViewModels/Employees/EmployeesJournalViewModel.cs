@@ -29,7 +29,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 	{
 		private readonly IAuthorizationServiceFactory _authorizationServiceFactory;
 		private readonly ILifetimeScope _lifetimeScope;
-		private readonly INavigationManager _navigationManager;
 		private readonly IAuthorizationService _authorizationService;
 
 		public EmployeesJournalViewModel(
@@ -39,14 +38,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ILifetimeScope lifetimeScope,
 			INavigationManager navigationManager,
-			Action<EmployeeFilterViewModel> filterparams = null) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			Action<EmployeeFilterViewModel> filterparams = null)
+			: base(filterViewModel, unitOfWorkFactory, commonServices, false, false, navigationManager)
 		{
 			TabName = "Журнал сотрудников";
 
 			_authorizationServiceFactory =
 				authorizationServiceFactory ?? throw new ArgumentNullException(nameof(authorizationServiceFactory));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
-			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_authorizationService = _authorizationServiceFactory.CreateNewAuthorizationService();
 
 			if(filterparams != null)
@@ -415,7 +414,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 						return;
 					}
 
-					_navigationManager.OpenViewModel<EmployeeViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(selectedNode.Id));
+					NavigationManager.OpenViewModel<EmployeeViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(selectedNode.Id));
 				}
 			);
 
