@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Linq;
 using Vodovoz.Domain.Sale;
 using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.Infrastructure;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.ViewModels.ViewModels.Organizations;
@@ -38,7 +39,7 @@ namespace Vodovoz.Views.Organization
 
 			entrySubdivision.ViewModel = ViewModel.ParentSubdivisionViewModel;
 			entrySubdivision.Binding
-				.AddBinding(ViewModel, vm=>vm.CanEdit, w => w.ViewModel.IsEditable)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.ViewModel.IsEditable)
 				.InitializeFromSource();
 
 			entryChief.ViewModel = ViewModel.ChiefViewModel;
@@ -48,8 +49,36 @@ namespace Vodovoz.Views.Organization
 
 			ytreeviewChildSubdivisions.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 			ytreeviewChildSubdivisions.CreateFluentColumnsConfig<SubdivisionJournalNode>()
-				.AddColumn("Название")
-				.AddTextRenderer(x => x.Name)
+				.AddColumn("Название").AddTextRenderer(node => node.Name).AddSetter((cell, node) =>
+				{
+					var color = GdkColors.PrimaryText;
+					if(node.IsArchive)
+					{
+						color = GdkColors.InsensitiveText;
+					}
+
+					cell.ForegroundGdk = color;
+				})
+				.AddColumn("Руководитель").AddTextRenderer(node => node.ChiefName).AddSetter((cell, node) =>
+				{
+					var color = GdkColors.PrimaryText;
+					if(node.IsArchive)
+					{
+						color = GdkColors.InsensitiveText;
+					}
+
+					cell.ForegroundGdk = color;
+				})
+				.AddColumn("Код").AddNumericRenderer(node => node.Id).AddSetter((cell, node) =>
+				{
+					var color = GdkColors.PrimaryText;
+					if(node.IsArchive)
+					{
+						color = GdkColors.InsensitiveText;
+					}
+
+					cell.ForegroundGdk = color;
+				})
 				.Finish();
 
 			ViewModel.SubdivisionsJournalViewModel.DataLoader.ItemsListUpdated += ChildSubdivisionsReloaded;
@@ -121,7 +150,8 @@ namespace Vodovoz.Views.Organization
 
 		void ButtonAddDocument_Clicked(object sender, EventArgs e)
 		{
-			var docTypesJournal = new OrmReference(typeof(TypeOfEntity), ViewModel.UoW) {
+			var docTypesJournal = new OrmReference(typeof(TypeOfEntity), ViewModel.UoW)
+			{
 				Mode = OrmReferenceMode.Select
 			};
 			docTypesJournal.ObjectSelected += DocTypesJournal_ObjectSelected;
