@@ -1115,7 +1115,6 @@
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Employees.EmployeeContractDlg.cs" />
     <Compile Include="ViewWidgets\SaveTemplateWidget.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.SaveTemplateWidget.cs" />
-    <Compile Include="Representations\SubdivisionsVM.cs" />
     <Compile Include="Representations\WarehousesVM.cs" />
     <Compile Include="JournalViewers\WarehousesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalViewers.WarehousesView.cs" />
