@@ -3104,7 +3104,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public virtual void RecalculateAllWages(WageParameterService wageParameterService)
+		public virtual void RecalculateAllWages(IWageParameterService wageParameterService)
 		{
 			if(wageParameterService == null) {
 				throw new ArgumentNullException(nameof(wageParameterService));

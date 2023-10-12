@@ -1,7 +1,8 @@
-﻿using GMap.NET.MapProviders;
+﻿using Autofac;
+using GMap.NET.MapProviders;
 using Gtk;
+using Microsoft.Extensions.Logging;
 using MySqlConnector;
-using NLog;
 using QS.BaseParameters;
 using QS.ChangePassword.Views;
 using QS.Configuration;
@@ -47,27 +48,36 @@ namespace Vodovoz
 {
 	public partial class Startup
 	{
-		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+		private readonly ILogger<Startup> _logger;
+		private readonly IApplicationInfo _applicationInfo;
 		private static IErrorReportingSettings _errorReportingSettings;
-		private static IApplicationInfo applicationInfo;
 		private static IPasswordValidator passwordValidator;
 
 		public static MainWindow MainWin;
+
+		public Startup(
+			ILogger<Startup> logger,
+			ILifetimeScope lifetimeScope,
+			IApplicationInfo applicationInfo,
+			IErrorReportingSettings errorReportingSettings)
+		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			AppDIContainer = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_applicationInfo = applicationInfo ?? throw new ArgumentNullException(nameof(applicationInfo));
+			_errorReportingSettings = errorReportingSettings ?? throw new ArgumentNullException(nameof(errorReportingSettings));
+		}
 
 		public void Start(string[] args)
 		{
 			CultureInfo.CurrentCulture = CultureInfo.CreateSpecificCulture("ru-RU");
 			Gtk.Application.Init();
 			QSMain.GuiThread = System.Threading.Thread.CurrentThread;
-			applicationInfo = new ApplicationVersionInfo();
-
-			_errorReportingSettings = new ErrorReportingSettings(false, false, true, 100);
 
 			#region Первоначальная настройка обработки ошибок
 			ErrorReporter.Instance.AutomaticallySendEnabled = false;
 			ErrorReporter.Instance.SendedLogRowCount = 100;
 			var errorMessageModelFactoryWithoutUserService = new DefaultErrorMessageModelFactory(ErrorReporter.Instance, null, null);
-			var exceptionHandler = new DefaultUnhandledExceptionHandler(errorMessageModelFactoryWithoutUserService, applicationInfo);
+			var exceptionHandler = new DefaultUnhandledExceptionHandler(errorMessageModelFactoryWithoutUserService, _applicationInfo);
 
 			exceptionHandler.SubscribeToUnhandledExceptions();
 			exceptionHandler.GuiThread = System.Threading.Thread.CurrentThread;
@@ -109,7 +119,7 @@ namespace Vodovoz
 			applicationConfigurator.ConfigureOrm();
 			applicationConfigurator.CreateApplicationConfig();
 
-			PerformanceHelper.AddTimePoint(logger, "Закончена настройка базы");
+			PerformanceHelper.AddTimePoint("Закончена настройка базы");
 			VodovozGtkServicesConfig.CreateVodovozDefaultServices();
 
 			var parametersProvider = new ParametersProvider();
@@ -144,8 +154,8 @@ namespace Vodovoz
 			IGMapParametersProviders gMapParametersProviders = new GMapPararmetersProviders(parametersProvider);
 
 			GMapProvider.UserAgent = string.Format("{0}/{1} used GMap.Net/{2} ({3})",
-				applicationInfo.ProductName,
-				applicationInfo.Version.VersionToShortString(),
+				_applicationInfo.ProductName,
+				_applicationInfo.Version.VersionToShortString(),
 				Assembly.GetAssembly(typeof(GMapProvider)).GetName().Version.VersionToShortString(),
 				Environment.OSVersion.VersionString
 			);
@@ -161,28 +171,27 @@ namespace Vodovoz
 					if(httpClient.GetAsync($"{squidServer}/squid-internal-static/icons/SN.png").Result.IsSuccessStatusCode)
 					{
 						GMapProvider.WebProxy = new WebProxy(gMapParametersProviders.SquidServer);
-						logger.Info("Используется прокси сервер карт: {MapsProxyServerUrl}", squidServer);
+						_logger.LogInformation("Используется прокси сервер карт: {MapsProxyServerUrl}", squidServer);
 					}
 					else
 					{
-						logger.Warn("Прокси сервер карт недоступен: {MapsProxyServerUrl}", squidServer);
+						_logger.LogWarning("Прокси сервер карт недоступен: {MapsProxyServerUrl}", squidServer);
 					}
 				}
 			}
 			catch(Exception ex)
 			{
-				logger.Error(ex, "Прокси сервер карт недоступен: {MapsProxyServerUrl}", squidServer);
+				_logger.LogError(ex, "Прокси сервер карт недоступен: {MapsProxyServerUrl}", squidServer);
 			}
 
-
-			PerformanceHelper.AddTimePoint(logger, "Закончена настройка карты.");
+			PerformanceHelper.AddTimePoint("Закончена настройка карты.");
 
 			DatePicker.CalendarFontSize = 16;
 			DateRangePicker.CalendarFontSize = 16;
 
 			PerformanceHelper.StartPointsGroup("Главное окно");
 
-			var baseVersionChecker = new CheckBaseVersion(applicationInfo, new ParametersService(QS.Project.DB.Connection.ConnectionDB));
+			var baseVersionChecker = new CheckBaseVersion(_applicationInfo, new ParametersService(QS.Project.DB.Connection.ConnectionDB));
 			if(baseVersionChecker.Check())
 			{
 				ServicesConfig.CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, baseVersionChecker.TextMessage, "Несовпадение версии");
@@ -191,9 +200,6 @@ namespace Vodovoz
 			QSMain.CheckServer(null); // Проверяем настройки сервера
 
 			PerformanceHelper.AddTimePoint("Закончена загрузка параметров базы и проверка версии.");
-
-			AutofacClassConfig();
-			PerformanceHelper.AddTimePoint("Закончена настройка AutoFac.");
 
 			UnhandledExceptionHandler unhandledExceptionHandler = new UnhandledExceptionHandler();
 			//Передаем в настройки GUI поток, чтобы обработчик мог отличать вызовы исключений из других потоков и не падал при этом в момент попытки отобразить диалог пользователю.
@@ -232,12 +238,12 @@ namespace Vodovoz
 
 			PerformanceHelper.EndPointsGroup();
 
-			PerformanceHelper.AddTimePoint(logger, "Закончен старт SAAS. Конец загрузки.");
+			PerformanceHelper.AddTimePoint("Закончен старт SAAS. Конец загрузки.");
 
 			QSSaaS.Session.StartSessionRefresh();
 
-			PerformanceHelper.AddTimePoint(logger, "Закончен старт SAAS. Конец загрузки.");
-			PerformanceHelper.Main.PrintAllPoints(logger);
+			PerformanceHelper.AddTimePoint("Закончен старт SAAS. Конец загрузки.");
+			//PerformanceHelper.Main.PrintAllPoints();
 
 			Gtk.Application.Run();
 			QSSaaS.Session.StopSessionRefresh();
@@ -317,7 +323,7 @@ namespace Vodovoz
 		{
 			//Настрока удаления
 			Configure.ConfigureDeletion();
-			PerformanceHelper.AddTimePoint(logger, "Закончена настройка удаления");
+			PerformanceHelper.AddTimePoint("Закончена настройка удаления");
 
 			if(parametersProvider.ContainsParameter("sms_payment_send_enabled_database") && parametersProvider.ContainsParameter("sms_payment_send_service_address"))
 			{
