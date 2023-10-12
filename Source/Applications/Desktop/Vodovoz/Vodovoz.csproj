@@ -890,8 +890,6 @@
     <Compile Include="gtk-gui\Dialogs.Employees.EmployeeWorkChartDlg.cs" />
     <Compile Include="ViewWidgets\WorkChartTable.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.SalesReportView.cs" />
-    <Compile Include="Dialogs\SubdivisionDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.SubdivisionDlg.cs" />
     <Compile Include="ReportsParameters\DriverWagesReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.DriverWagesReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.FuelReport.cs" />
