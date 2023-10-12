@@ -1993,8 +1993,6 @@ namespace Vodovoz
 					MessageDialogHelper.RunInfoDialog("Было изменено количество оборудования в заказе, оно также будет изменено в дополнительном соглашении");
 				}
 
-				RestoreOrderIfNeeded();
-
 				logger.Info("Сохраняем заказ...");
 
 				Entity.SaveEntity(UoWGeneric, _currentEmployee, _dailyNumberController, _paymentFromBankClientController);
@@ -2011,19 +2009,6 @@ namespace Vodovoz
 				return true;
 			} finally {
 				SetSensitivity(true);
-			}
-		}
-
-		private void RestoreOrderIfNeeded()
-		{
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot("Проверка прежнего статуса заказа"))
-			{
-				var prevOrder = uow.GetById<Order>(Entity.Id);
-
-				if(prevOrder?.OrderStatus == OrderStatus.Canceled && Entity.OrderStatus != OrderStatus.Canceled)
-				{
-					Entity.RestoreOrder();
-				}
 			}
 		}
 

@@ -3515,7 +3515,14 @@ namespace Vodovoz.Domain.Orders
 				return;
 
 			if(CanSetOrderAsEditable)
+			{
+				if(OrderStatus == OrderStatus.Canceled)
+				{
+					RestoreOrder();
+				}
+
 				ChangeStatusAndCreateTasks(OrderStatus.NewOrder, callTaskWorker);
+			}
 		}
 
 		/// <summary>
