@@ -1,4 +1,4 @@
-﻿using ClosedXML.Report;
+using ClosedXML.Report;
 using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
@@ -1715,14 +1715,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.Where(x => x.Fine.Id == fineAlias.Id)
 				.JoinAlias(x => x.Employee, () => fineEmployeeAlias)
 				.Select(
-					CustomProjections.GroupConcat(
-						CustomProjections.Concat_WS(
-							" ",
-							Projections.Property(() => fineEmployeeAlias.LastName),
-							Projections.Property(() => fineEmployeeAlias.Name),
-							Projections.Property(() => fineEmployeeAlias.Patronymic)
-						),
-						separator: ", "));
+					Projections.SqlFunction(
+						new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(CONCAT(?1, ' ', LEFT(?2, 1), '.', LEFT(?3, 1), '.') SEPARATOR ', ')"),
+						NHibernateUtil.String,
+						Projections.Property(() => fineEmployeeAlias.LastName),
+						Projections.Property(() => fineEmployeeAlias.Name),
+						Projections.Property(() => fineEmployeeAlias.Patronymic)
+					));
 
 			if((FilterViewModel.DocumentType == null || FilterViewModel.DocumentType == DocumentType.RegradingOfGoodsDocument)
 				&& FilterViewModel.Driver == null
@@ -1841,14 +1840,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.Where(x => x.Fine.Id == fineAlias.Id)
 				.JoinAlias(x => x.Employee, () => fineEmployeeAlias)
 				.Select(
-					CustomProjections.GroupConcat(
-						CustomProjections.Concat_WS(
-							" ",
-							Projections.Property(() => fineEmployeeAlias.LastName),
-							Projections.Property(() => fineEmployeeAlias.Name),
-							Projections.Property(() => fineEmployeeAlias.Patronymic)
-						),
-						separator: ", "));
+					Projections.SqlFunction(
+						new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(CONCAT(?1, ' ', LEFT(?2, 1), '.', LEFT(?3, 1), '.') SEPARATOR ', ')"),
+						NHibernateUtil.String,
+						Projections.Property(() => fineEmployeeAlias.LastName),
+						Projections.Property(() => fineEmployeeAlias.Name),
+						Projections.Property(() => fineEmployeeAlias.Patronymic)
+					));
 
 			if((FilterViewModel.DocumentType == null || FilterViewModel.DocumentType == DocumentType.RegradingOfGoodsDocument)
 				&& FilterViewModel.Driver == null

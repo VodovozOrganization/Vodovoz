@@ -42,10 +42,17 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			TargetSource = targetSource;
 			Counterparties = counterparties;
 			Warhouses = warhouses;
-			NomenclaturesIncluded = string.Join(", ", includeExcludeFilterViewModel.GetIncludedElements<Nomenclature>().Select(x => x.Title));
-			NomenclaturesExcluded = string.Join(", ", includeExcludeFilterViewModel.GetExcludedElements<Nomenclature>().Select(x => x.Title));
-			ProductGroupsIncluded = string.Join(", ", includeExcludeFilterViewModel.GetIncludedElements<ProductGroup>().Select(x => x.Title));
-			ProductGroupsExcluded = string.Join(", ", includeExcludeFilterViewModel.GetExcludedElements<ProductGroup>().Select(x => x.Title));
+
+			var nomenclatureElementsIncluded = includeExcludeFilterViewModel.GetIncludedElements<Nomenclature>().ToArray();
+			var nomenclatureElementsExcluded = includeExcludeFilterViewModel.GetExcludedElements<Nomenclature>().ToArray();
+			var productGroupElementsIncluded = includeExcludeFilterViewModel.GetIncludedElements<ProductGroup>().ToArray();
+			var productGroupElementsExcluded = includeExcludeFilterViewModel.GetExcludedElements<ProductGroup>().ToArray();
+
+			NomenclaturesIncluded = nomenclatureElementsIncluded.Length > 5 ? $"{nomenclatureElementsIncluded.Length} шт." : string.Join(", ", nomenclatureElementsIncluded.Select(x => x.Title));
+			NomenclaturesExcluded = nomenclatureElementsExcluded.Length > 5 ? $"{nomenclatureElementsExcluded.Length} шт." : string.Join(", ", nomenclatureElementsExcluded.Select(x => x.Title));
+			ProductGroupsIncluded = productGroupElementsIncluded.Length > 5 ? $"{productGroupElementsIncluded.Length} шт." : string.Join(", ", productGroupElementsIncluded.Select(x => x.Title));
+			ProductGroupsExcluded = productGroupElementsExcluded.Length > 5 ? $"{productGroupElementsExcluded.Length} шт." : string.Join(", ", productGroupElementsExcluded.Select(x => x.Title));
+
 			_rows.AddRange(rows);
 		}
 
