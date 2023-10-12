@@ -1017,16 +1017,10 @@ public partial class MainWindow : Window
 
 	void ActionOrdersTableActivated(object sender, System.EventArgs e)
 	{
-		var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
-		var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
-		var employeeJournalFactory = new EmployeeJournalFactory(NavigationManager);
-
-		var filter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, employeeJournalFactory)
+		NavigationManager.OpenViewModel<OrderJournalViewModel, Action<OrderJournalFilterViewModel>>(null, filter =>
 		{
-			IsForRetail = false
-		};
-
-		NavigationManager.OpenViewModel<OrderJournalViewModel, OrderJournalFilterViewModel>(null, filter, OpenPageOptions.IgnoreHash);
+			filter.IsForRetail = false;
+		}, OpenPageOptions.IgnoreHash);
 	}
 
 	void ActionUndeliveredOrdersActivated(object sender, System.EventArgs e)
