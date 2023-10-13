@@ -9,6 +9,7 @@ namespace MessageTransport
 		string VirtualHost { get; }
 		string User { get; }
 		string Password { get; }
+		bool UseSSL { get; }
 		IEnumerable<MessageTTLSetting> MessagesTTL { get; }
 	}
 }

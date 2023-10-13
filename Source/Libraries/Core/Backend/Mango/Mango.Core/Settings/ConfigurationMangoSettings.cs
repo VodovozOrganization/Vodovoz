@@ -11,6 +11,7 @@ namespace Mango.Core.Settings
 
 		private string _vpbxApiKey;
 		private string _vpbxApiSalt;
+		private GrpcConnectionSettings _grpcConnectionSettings = new GrpcConnectionSettings();
 
 		public ConfigurationMangoSettings(IConfiguration configuration)
 		{
@@ -32,10 +33,14 @@ namespace Mango.Core.Settings
 			{
 				throw new ArgumentException($"Настройка {_saltSettingName} не определена в конфигурации");
 			}
+
+			mangoSection.Bind("GrpcConnectionSettings", _grpcConnectionSettings);
 		}
 
 		public string VpbxApiKey => _vpbxApiKey;
 
 		public string VpbxApiSalt => _vpbxApiSalt;
+
+		public GrpcConnectionSettings GrpcConnectionSettings => _grpcConnectionSettings;
 	}
 }

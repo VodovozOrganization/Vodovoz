@@ -80,5 +80,10 @@ namespace Vodovoz.Settings.Database.Mango
 				return testDatabase == _dataBaseInfo.Name;
 			}
 		}
+
+		public int GrpcKeepAliveTimeMs => _settingsController.GetIntValue("Mango.Grpc.KeepAliveTimeMs");
+		public int GrpcKeepAliveTimeoutMs => _settingsController.GetIntValue("Mango.Grpc.KeepAliveTimeoutMs");
+		public bool GrpcKeepAlivePermitWithoutCalls => _settingsController.GetBoolValue("Mango.Grpc.KeepAlivePermitWithoutCalls");
+		public int GrpcMaxPingWithoutData => _settingsController.GetIntValue("Mango.Grpc.MaxPingWithoutData");
 	}
 }

@@ -68,15 +68,6 @@ namespace Mango.Service
 				Configuration["Mango:VpbxApiSalt"])
 			);
 
-			services.AddSingleton<CallsHostedService>();
-			services.AddHostedService(provider => provider.GetService<CallsHostedService>());
-
-			services.AddSingleton<PhonebookHostedService>();
-			services.AddHostedService(provider => provider.GetService<PhonebookHostedService>());
-
-			services.AddSingleton<NotificationHostedService>();
-			services.AddHostedService(provider => provider.GetService<NotificationHostedService>());
-
 			services.AddSingleton<ICallerService, CallerService>();
 			services.AddScoped<ICallEventHandler, MangoHandler>();
 
@@ -85,6 +76,15 @@ namespace Mango.Service
 
 			services.ConfigureMangoServices();
 			services.AddCallsPublishing(messageTransportSettings);
+
+			services.AddSingleton<CallsHostedService>();
+			services.AddHostedService(provider => provider.GetService<CallsHostedService>());
+
+			services.AddSingleton<PhonebookHostedService>();
+			services.AddHostedService(provider => provider.GetService<PhonebookHostedService>());
+
+			services.AddSingleton<NotificationHostedService>();
+			services.AddHostedService(provider => provider.GetService<NotificationHostedService>());
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
