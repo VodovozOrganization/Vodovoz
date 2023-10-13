@@ -12,7 +12,9 @@ namespace Vodovoz.Domain.Logistic.Drivers
 	{
 		private decimal? _latitude;
 		private decimal? _longitude;
+		private bool _isArchive;
 		private DriverWarehouseEventName _eventName;
+		private DriverWarehouseEventType _type;
 
 		public virtual int Id { get; set; }
 
@@ -28,13 +30,23 @@ namespace Vodovoz.Domain.Logistic.Drivers
 			set => SetField(ref _longitude, value);
 		}
 		
+		public bool IsArchive
+		{
+			get => _isArchive;
+			set => SetField(ref _isArchive, value);
+		}
+
 		public virtual DriverWarehouseEventName EventName
 		{
 			get => _eventName;
 			set => SetField(ref _eventName, value);
 		}
 		
-		public virtual DriverWarehouseEventType Type { get; set; }
+		public virtual DriverWarehouseEventType Type
+		{
+			get => _type;
+			set => SetField(ref _type, value);
+		}
 		
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{

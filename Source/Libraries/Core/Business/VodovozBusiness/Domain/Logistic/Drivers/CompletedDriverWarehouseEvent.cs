@@ -13,7 +13,7 @@ namespace Vodovoz.Domain.Logistic.Drivers
 		private decimal? _latitude;
 		private decimal? _longitude;
 		private DateTime _completedDate;
-		private decimal? _distanceMetersBetweenPoints;
+		private decimal? _distanceMetersFromScanningLocation;
 		private DriverWarehouseEvent _driverWarehouseEvent;
 		private Employee _driver;
 		private Car _car;
@@ -38,11 +38,11 @@ namespace Vodovoz.Domain.Logistic.Drivers
 			set => SetField(ref _longitude, value);
 		}
 		
-		[Display(Name = "Расстояние между точками(сканирования и QR кода)")]
-		public virtual decimal? DistanceMetersBetweenPoints
+		[Display(Name = "Расстояние от места сканирования (м))")]
+		public virtual decimal? DistanceMetersFromScanningLocation
 		{
-			get => _distanceMetersBetweenPoints;
-			set => SetField(ref _distanceMetersBetweenPoints, value);
+			get => _distanceMetersFromScanningLocation;
+			set => SetField(ref _distanceMetersFromScanningLocation, value);
 		}
 
 		public virtual DriverWarehouseEvent DriverWarehouseEvent

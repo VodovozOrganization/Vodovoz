@@ -1,6 +1,7 @@
 ﻿using System;
 using Autofac;
 using NHibernate;
+using NHibernate.Transform;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -54,12 +55,24 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			DriversWarehousesEventsJournalNode resultAlias = null;
 			
 			var query = uow.Session.QueryOver<DriverWarehouseEvent>()
-				.JoinAlias(e => e.EventName, () => eventNameAlias)
-				.SelectList(list => list
-					.Select(e => e.Id).WithAlias(() => resultAlias.Id)
-					.Select(() => eventNameAlias.Name).WithAlias(() => resultAlias.EventName)
-					.Select(e => e.Type).WithAlias(() => resultAlias.Type)
-				);
+				.JoinAlias(e => e.EventName, () => eventNameAlias);
+
+			if(_filterViewModel.EventName != null)
+			{
+				query.Where(e => eventNameAlias.Id == _filterViewModel.EventName.Id);
+			}
+
+			if(_filterViewModel.SelectedEventType.HasValue)
+			{
+				query.Where(e => e.Type == _filterViewModel.SelectedEventType);
+			}
+				
+			query.SelectList(list => list
+				.Select(e => e.Id).WithAlias(() => resultAlias.Id)
+				.Select(() => eventNameAlias.Name).WithAlias(() => resultAlias.EventName)
+				.Select(e => e.Type).WithAlias(() => resultAlias.Type)
+				.Select(e => e.IsArchive).WithAlias(() => resultAlias.IsArchive))
+				.TransformUsing(Transformers.AliasToBean<DriversWarehousesEventsJournalNode>());
 			
 			return query;
 		}

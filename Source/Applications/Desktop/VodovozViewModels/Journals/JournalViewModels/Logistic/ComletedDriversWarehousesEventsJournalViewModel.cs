@@ -2,6 +2,7 @@
 using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.DB;
@@ -80,8 +81,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				.Select(() => driverEventAlias.Type).WithAlias(() => resultAlias.Type)
 				.Select(EmployeeProjections.GetDriverFullNameProjection()).WithAlias(() => resultAlias.DriverName)
 				.Select(carModelWithNumber).WithAlias(() => resultAlias.Car)
-				.Select(ce => ce.DistanceMetersBetweenPoints).WithAlias(() => resultAlias.DistanceMetersBetweenPoints)
-			);
+				.Select(ce => ce.DistanceMetersFromScanningLocation)
+					.WithAlias(() => resultAlias.DistanceMetersFromScanningLocation))
+				.TransformUsing(Transformers.AliasToBean<CompletedDriversWarehousesEventsJournalNode>());
 			
 			return query;
 		}

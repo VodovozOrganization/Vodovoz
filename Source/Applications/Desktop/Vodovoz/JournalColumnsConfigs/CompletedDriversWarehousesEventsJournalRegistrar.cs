@@ -13,7 +13,7 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Тип").AddComboRenderer(x => x.Type).Editing(false)
 				.AddColumn("Водитель").AddTextRenderer(x => x.DriverName)
 				.AddColumn("Автомобиль").AddTextRenderer(x => x.Car)
-				.AddColumn("Расстояние между точками").AddNumericRenderer(x => x.DistanceMetersBetweenPoints)
+				.AddColumn("Расстояние между точками").AddNumericRenderer(x => x.DistanceMetersFromScanningLocation)
 				.AddColumn("")
 				.Finish();
 	}

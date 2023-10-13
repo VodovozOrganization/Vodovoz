@@ -104,9 +104,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Libraries\External\Taxcom\TISystems.TTC.CRM.BE.dll</HintPath>
     </Reference>
-    <Reference Include="GammaBinding">
-      <HintPath>..\..\..\..\..\..\Rep1\QSProjects\QS.Project.Gtk\bin\Debug\GammaBinding.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">

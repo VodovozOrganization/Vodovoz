@@ -11,7 +11,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Logistic
 		public string DriverName { get; set; }
 		public string Car { get; set; }
 		public DateTime CompletedDate { get; set; }
-		public decimal? DistanceMetersBetweenPoints { get; set; }
+		public decimal? DistanceMetersFromScanningLocation { get; set; }
 		public override string Title => EventName;
 	}
 }

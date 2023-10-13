@@ -1,4 +1,5 @@
 ﻿using QS.Views.GtkUI;
+using Vodovoz.Domain.Logistic.Drivers;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 
 namespace Vodovoz.Filters.GtkViews
@@ -16,7 +17,15 @@ namespace Vodovoz.Filters.GtkViews
 
 		private void Configure()
 		{
+			eventNameEntry.ViewModel = ViewModel.DriverWarehouseEventNameViewModel;
+			driverEntry.ViewModel = ViewModel.DriverViewModel;
+			carEntry.ViewModel = ViewModel.CarViewModel;
 
+			enumCmbEventType.ShowSpecialStateAll = true;
+			enumCmbEventType.ItemsEnum = typeof(DriverWarehouseEventType);
+			enumCmbEventType.Binding
+				.AddBinding(ViewModel, vm => vm.SelectedEventType, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
 		}
 	}
 }

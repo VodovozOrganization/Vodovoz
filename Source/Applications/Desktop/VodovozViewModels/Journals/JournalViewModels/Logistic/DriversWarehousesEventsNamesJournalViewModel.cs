@@ -1,6 +1,7 @@
 ﻿using System;
 using Autofac;
 using NHibernate;
+using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Journal;
@@ -47,8 +48,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			var query = uow.Session.QueryOver<DriverWarehouseEventName>()
 				.SelectList(list => list
 					.Select(en => en.Id).WithAlias(() => resultAlias.Id)
-					.Select(en => en.Name).WithAlias(() => resultAlias.EventName)
-				);
+					.Select(en => en.Name).WithAlias(() => resultAlias.EventName))
+				.TransformUsing(Transformers.AliasToBean<DriversWarehousesEventsNamesJournalNode>());
 			
 			return query;
 		}

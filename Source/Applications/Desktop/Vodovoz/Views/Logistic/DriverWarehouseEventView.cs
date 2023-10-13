@@ -31,6 +31,10 @@ namespace Vodovoz.Views.Logistic
 			entityEvent.ViewModel = ViewModel.DriverWarehouseEventNameViewModel;
 
 			enumCmbType.ItemsEnum = typeof(DriverWarehouseEventType);
+			enumCmbType.DefaultFirst = true;
+			enumCmbType.Binding
+				.AddBinding(ViewModel.Entity, e => e.Type, w => w.SelectedItem)
+				.InitializeFromSource();
 		}
 
 		private void OnSaveClicked(object sender, EventArgs e)

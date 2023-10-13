@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using NLog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
