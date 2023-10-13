@@ -338,6 +338,7 @@ namespace Vodovoz
 
 			//Запускаем программу
 			MainWin = new MainWindow(passwordValidator, applicationConfigurator);
+			MainWin.InitializeManagers();
 			MainWin.Title += $" (БД: {loginDialogName})";
 			QSMain.ErrorDlgParrent = MainWin;
 			MainWin.Show();
