@@ -26,7 +26,10 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Детали").AddTextRenderer(node => node.Description).SearchHighlight()
 				.AddColumn("Источник").AddTextRenderer(node => node.Source)
 				.AddColumn("Получатель").AddTextRenderer(node => node.Target)
-				.AddColumn("Комментарий").AddTextRenderer(node => node.Comment)
+				.AddColumn("Штраф").AddTextRenderer(node => node.FinesDescription).WrapWidth(300)
+				.AddColumn("Тип брака").AddTextRenderer(node => node.TypeOfDefect)
+				.AddColumn("Источник брака").AddTextRenderer(node => node.DefectSourceString)
+				.AddColumn("Причина пересортицы").AddTextRenderer(node => node.RegradingOfGoodsReason)
 				.RowCells()
 				.AddSetter<CellRenderer>((cell, node) =>
 				{

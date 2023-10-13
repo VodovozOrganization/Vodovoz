@@ -451,6 +451,7 @@
     <Compile Include="JournalColumnsConfigs\BulkEmailEventReasonJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\BusinessTasksJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\CarEventJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\RegradingOfGoodsReasonsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\CarEventTypeJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\CarJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\CarManufacturerJournalRegistrar.cs" />
@@ -1981,6 +1982,8 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Search.CompositeSearchView.cs" />
     <Compile Include="ViewWidgets\Users\WarehousesUserSelectionView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Users.WarehousesUserSelectionView.cs" />
+    <Compile Include="Views\Warehouse\RegradingOfGoodsReasonView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.RegradingOfGoodsReasonView.cs" />
     <Compile Include="ViewWidgets\Reports\CarModelSelectionFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Reports.CarModelSelectionFilterView.cs" />
     <Compile Include="Views\Orders\PrintOrdersDocumentsView.cs" />

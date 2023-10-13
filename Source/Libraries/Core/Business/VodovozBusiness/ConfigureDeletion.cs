@@ -185,6 +185,11 @@ namespace Vodovoz
 				;
 
 			DeleteConfig.AddHibernateDeleteInfo<DriverStopListRemoval>();
+
+			DeleteConfig.AddHibernateDeleteInfo<RegradingOfGoodsReason>()
+				.AddClearDependence<RegradingOfGoodsDocumentItem>(x => x.RegradingOfGoodsReason);
+
+
 			#endregion
 
 			#region Rent
