@@ -334,4 +334,8 @@ public partial class MainWindow : Gtk.Window
 	protected void OnCompletedDriversWarehousesEventsActionActivated(object sender, EventArgs e)
 	{
 	}
+
+	protected void OnDriversWarehousesEventsReportActionActivated(object sender, EventArgs e)
+	{
+	}
 }
