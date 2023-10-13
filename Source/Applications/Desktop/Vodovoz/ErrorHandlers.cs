@@ -102,5 +102,20 @@ namespace Vodovoz
 			interactiveService.ShowMessage(ImportanceLevel.Warning, $"{geoGroupExceprion.Message}\nВыберите актуальную часть города или обратитесь в техподдержку для проверки актуальности данных указанной части города.");
 			return true;
 		}
+		
+		public static bool SystemOutOfMemoryExceptionHandler(Exception exception, IApplicationInfo application, UserBase user, IInteractiveMessage interactiveMessage)
+		{
+			var staleObjectStateException = exception.FindExceptionTypeInInner<OutOfMemoryException>();
+			
+			if(staleObjectStateException is null)
+			{
+				return false;
+			}
+			
+			interactiveMessage.ShowMessage(
+				ImportanceLevel.Error,
+				"У приложения закончилась память.\nДля продолжения работы перезапустите программу");
+			return true;
+		}
 	}
 }
