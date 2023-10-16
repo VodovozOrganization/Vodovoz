@@ -1,31 +1,28 @@
-﻿using NHibernate;
+﻿using Autofac;
+using NHibernate;
+using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
+using NHibernate.SqlCommand;
 using NHibernate.Transform;
+using QS.Deletion;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using System;
-using NHibernate.Criterion;
-using NHibernate.Dialect.Function;
-using NHibernate.SqlCommand;
+using System.Linq;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Infrastructure.Services;
-using Vodovoz.EntityRepositories.Undeliveries;
+using Vodovoz.Services;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Logistic;
-using Vodovoz.Services;
-using Vodovoz.TempAdapters;
-using Vodovoz.EntityRepositories.Logistic;
-using System.Linq;
-using QS.Deletion;
-using Vodovoz.Parameters;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 {
@@ -37,9 +34,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		private readonly ICarEventJournalFactory _carEventJournalFactory;
 		private readonly IEmployeeService _employeeService;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly IEmployeeSettings _employeeSettings;
 		private readonly ICarEventSettings _carEventSettings;
-
+		private readonly ILifetimeScope _lifetimeScope;
 		private bool _canChangeWithClosedPeriod;
 		private int _startNewPeriodDay;
 
@@ -52,8 +48,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			ICarEventJournalFactory carEventJournalFactory,
 			IEmployeeService employeeService,
 			IEmployeeJournalFactory employeeJournalFactory,
-			IEmployeeSettings employeeSettings,
-			ICarEventSettings carEventSettings)
+			ICarEventSettings carEventSettings,
+			ILifetimeScope lifetimeScope)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал событий ТС";
@@ -63,15 +59,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			_carEventJournalFactory = carEventJournalFactory ?? throw new ArgumentNullException(nameof(carEventJournalFactory));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_canChangeWithClosedPeriod = commonServices.CurrentPermissionService.ValidatePresetPermission("can_create_edit_car_events_in_closed_period");
 			_startNewPeriodDay = _carEventSettings.CarEventStartNewPeriodDay;
 
 			UpdateOnChanges(
 				typeof(CarEvent),
-				typeof(CarEventType)
-				);
+				typeof(CarEventType));
 		}
 
 		protected override void CreateNodeActions()
@@ -261,8 +256,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				_carEventJournalFactory,
 				_employeeService,
 				_employeeJournalFactory,
-				_employeeSettings,
-				_carEventSettings);
+				_carEventSettings,
+				_lifetimeScope);
 
 		protected override Func<CarEventJournalNode, CarEventViewModel> OpenDialogFunction =>
 			node => new CarEventViewModel(
@@ -274,8 +269,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				_carEventJournalFactory,
 				_employeeService,
 				_employeeJournalFactory,
-				_employeeSettings,
-				_carEventSettings);
+				_carEventSettings,
+				_lifetimeScope);
 
 		private bool CanDelete(DateTime endDate)
 		{

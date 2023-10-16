@@ -29,12 +29,14 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.TempAdapters;
+using Autofac;
 
 namespace Vodovoz.ViewModels.Logistic
 {
 	public class RouteListAnalysisViewModel : EntityTabViewModelBase<RouteList>, IAskSaveOnCloseViewModel
 	{
 		private readonly IFileDialogService _fileDialogService;
+		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IEmployeeService _employeeService;
 		private readonly IWageParameterService _wageParameterService;
 		private readonly IOrderSelectorFactory _orderSelectorFactory;
@@ -66,7 +68,8 @@ namespace Vodovoz.ViewModels.Logistic
 			IRouteListItemRepository routeListItemRepository,
 			IWageParameterService wageParameterService,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
-			IFileDialogService fileDialogService)
+			IFileDialogService fileDialogService,
+			ILifetimeScope lifetimeScope)
 			: base (uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
@@ -81,7 +84,8 @@ namespace Vodovoz.ViewModels.Logistic
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 			_subdivisionParametersProvider =
 				subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
-			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService)); ;
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService)); _lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			;
 			UndeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -216,8 +220,9 @@ namespace Vodovoz.ViewModels.Logistic
 					_employeeService,
 					_employeeJournalFactory,
 					UnitOfWorkFactory, 
-					CommonServices
-				);
+					CommonServices,
+					_lifetimeScope);
+
 				fineJournalViewModel.SelectionMode = JournalSelectionMode.Single;
 				fineJournalViewModel.OnEntitySelectedResult +=
 					(sender, e) =>
@@ -267,8 +272,9 @@ namespace Vodovoz.ViewModels.Logistic
 					_employeeService,
 					_employeeJournalFactory,
 					UnitOfWorkFactory, 
-					CommonServices
-				);
+					CommonServices,
+					_lifetimeScope);
+
 				fineJournalViewModel.SelectionMode = JournalSelectionMode.Single;
 				fineJournalViewModel.OnEntitySelectedResult +=
 					(sender, e) =>
