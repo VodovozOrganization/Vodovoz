@@ -39,18 +39,18 @@ namespace Vodovoz.Views.Client
 
 		private void Configure()
 		{
-			notebook1.Binding
+			notebook.Binding
 				.AddBinding(ViewModel, vm => vm.CurrentPage, w => w.CurrentPage)
 				.InitializeFromSource();
 
-			notebook1.SwitchPage += (o, args) =>
+			notebook.SwitchPage += (o, args) =>
 			{
 				if(args.PageNum == 1)
 				{
 					radioFixedPrices.Active = true;
 				}
 			};
-			notebook1.ShowTabs = false;
+			notebook.ShowTabs = false;
 			buttonSave.Clicked += (sender, args) =>
 			{
 				ViewModel.Save(true);
@@ -556,7 +556,7 @@ namespace Vodovoz.Views.Client
 		{
 			if(radioInformation.Active)
 			{
-				notebook1.CurrentPage = 0;
+				notebook.CurrentPage = 0;
 			}
 		}
 
@@ -570,7 +570,7 @@ namespace Vodovoz.Views.Client
 					fixedpricesview.Sensitive = ViewModel.CanEditNomenclatureFixedPrice && ViewModel.CanEdit;
 				}
 
-				notebook1.CurrentPage = 1;
+				notebook.CurrentPage = 1;
 			}
 		}
 
