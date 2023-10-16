@@ -16,7 +16,7 @@ namespace Vodovoz.ReportsParameters.Payments
 
 		private global::Gtk.Label label1;
 
-		private global::Gamma.Widgets.yEntryReference yentryRefSubdivision;
+		private global::QS.Views.Control.EntityEntry entrySubdivision;
 
 		private global::Gtk.HBox hbox4;
 
@@ -54,6 +54,7 @@ namespace Vodovoz.ReportsParameters.Payments
 			this.entryCounterparty.Events = ((global::Gdk.EventMask)(256));
 			this.entryCounterparty.Name = "entryCounterparty";
 			this.entryCounterparty.CanEditReference = true;
+			this.entryCounterparty.CanOpenWithoutTabParent = false;
 			this.hbox2.Add(this.entryCounterparty);
 			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.entryCounterparty]));
 			w2.Position = 1;
@@ -76,14 +77,12 @@ namespace Vodovoz.ReportsParameters.Payments
 			w4.Expand = false;
 			w4.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.yentryRefSubdivision = new global::Gamma.Widgets.yEntryReference();
-			this.yentryRefSubdivision.Events = ((global::Gdk.EventMask)(256));
-			this.yentryRefSubdivision.Name = "yentryRefSubdivision";
-			this.hbox3.Add(this.yentryRefSubdivision);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.yentryRefSubdivision]));
+			this.entrySubdivision = new global::QS.Views.Control.EntityEntry();
+			this.entrySubdivision.Events = ((global::Gdk.EventMask)(256));
+			this.entrySubdivision.Name = "entrySubdivision";
+			this.hbox3.Add(this.entrySubdivision);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.entrySubdivision]));
 			w5.Position = 1;
-			w5.Expand = false;
-			w5.Fill = false;
 			this.vbox1.Add(this.hbox3);
 			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox3]));
 			w6.Position = 2;
