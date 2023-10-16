@@ -45,7 +45,7 @@ namespace Vodovoz.ReportsParameters
 					{ "creationDate", DateTime.Now },
 					{ "startDate", daterangepickerOrderCreation.StartDate.Date },
 					{ "endDate", daterangepickerOrderCreation.EndDate.Date.AddHours(23).AddMinutes(59).AddSeconds(59) },
-					{ "authorSubdivision", (entrySubdivision.Subject as Subdivision)?.Id }
+					{ "authorSubdivision", (entrySubdivision.ViewModel.Entity as Subdivision)?.Id }
 				}
 			};
 		}

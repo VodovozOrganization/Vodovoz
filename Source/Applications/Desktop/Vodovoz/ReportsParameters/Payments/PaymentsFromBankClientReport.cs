@@ -28,7 +28,7 @@ namespace Vodovoz.ReportsParameters.Payments
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			btnCreateReport.Clicked += (sender, e) => Validate();
-			yentryRefSubdivision.SubjectType = typeof(Subdivision);
+
             entryCounterparty.SetEntityAutocompleteSelectorFactory(_counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory());
             var currentUserSettings = userRepository.GetUserSettings(UoW, commonServices.UserService.CurrentUserId);
             var defaultCounterparty = currentUserSettings.DefaultCounterparty;
@@ -54,7 +54,7 @@ namespace Vodovoz.ReportsParameters.Payments
 				reportName = "Payments.PaymentsFromBankClientAllSubdivisionsReport";
 			} else {
 				reportName = "Payments.PaymentsFromBankClientBySubdivisionReport";
-				parameters.Add("subdivision_id", ((Subdivision)yentryRefSubdivision.Subject).Id);
+				parameters.Add("subdivision_id", ((Subdivision)entrySubdivision.ViewModel.Entity).Id);
 			}
 
 			parameters.Add("date", DateTime.Today);
@@ -68,10 +68,16 @@ namespace Vodovoz.ReportsParameters.Payments
 		void Validate()
 		{
 			string errorString = string.Empty;
-			if(yentryRefSubdivision.Subject == null && !checkAllSubdivisions.Active)
+			if(entrySubdivision.ViewModel.Entity == null && !checkAllSubdivisions.Active)
+			{
 				errorString += "Не заполнено подразделение!\n";
-			if(yentryRefSubdivision.Subject != null && checkAllSubdivisions.Active)
+			}
+
+			if(entrySubdivision.ViewModel.Entity != null && checkAllSubdivisions.Active)
+			{
 				errorString += "Данные установки протеворечат логике работы!\n";
+			}
+
 			if(!string.IsNullOrWhiteSpace(errorString)) {
 				MessageDialogHelper.RunErrorDialog(errorString);
 				return;
