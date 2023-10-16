@@ -209,26 +209,24 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 			SetPermissions();
 
-			var subdivisionEntryViewModelBuilder = new CommonEEVMBuilderFactory<Employee>(this, Entity, UoW, NavigationManager, _scope);
-
 			InitializeSubdivisionEntryViewModel();
 		}
 
 		private void InitializeSubdivisionEntryViewModel()
 		{
+			var subdivisionEntryViewModelBuilder = new CommonEEVMBuilderFactory<Employee>(this, Entity, UoW, NavigationManager, _scope);
+
+			var canSetOnlyLogisticsSubdivision = CanManageDriversAndForwarders && !CanManageOfficeWorkers;
+
 			SubdivisionViewModel = subdivisionEntryViewModelBuilder
 				.ForProperty(x => x.Subdivision)
 				.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel, SubdivisionFilterViewModel>(
 					filter =>
 					{
-						SubdivisionType? subdivisionType = null;
-
-						if(CanManageDriversAndForwarders && !CanManageOfficeWorkers)
+						if(canSetOnlyLogisticsSubdivision)
 						{
-							subdivisionType = SubdivisionType.Logistic;
+							filter.SubdivisionType  = SubdivisionType.Logistic;
 						}
-
-						filter.SubdivisionType = subdivisionType;
 					})
 				.UseViewModelDialog<SubdivisionViewModel>()
 				.Finish();
@@ -263,7 +261,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		public IEmployeeJournalFactory EmployeeJournalFactory { get; }
 		public IEmployeePostsJournalFactory EmployeePostsJournalFactory { get; }
 		public IEntityEntryViewModel SubdivisionViewModel { get; private set; }
-		public bool CanEditSubdivision => CanEditEmployee && (CanManageOfficeWorkers || CanManageDriversAndForwarders);
 
 		public bool HasChanges
 		{
