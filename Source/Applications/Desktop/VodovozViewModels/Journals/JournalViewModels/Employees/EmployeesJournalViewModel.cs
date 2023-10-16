@@ -36,7 +36,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			IAuthorizationServiceFactory authorizationServiceFactory,
 			ICommonServices commonServices,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope,
 			INavigationManager navigationManager,
 			Action<EmployeeFilterViewModel> filterparams = null)
