@@ -9,10 +9,11 @@ using QS.ViewModels.Control.EEVM;
 using System;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
+using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.ViewModels.Organizations;
 
 namespace Vodovoz.ViewModels.ViewModels.Cash
 {
@@ -66,6 +67,17 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				.Finish();
 
 			TabName = uowBuilder.IsNewEntity ? "Создание новой категории дохода" : $"{Entity.Title}";
+
+			BuildSubdivisionViewModel();
+		}
+
+		private void BuildSubdivisionViewModel()
+		{
+			SubdivisionViewModel = new CommonEEVMBuilderFactory<IncomeCategoryViewModel>(this, this, UoW, NavigationManager, _scope)
+				.ForProperty<Subdivision>(x => x.Entity.Subdivision)
+				.UseViewModelDialog<SubdivisionViewModel>()
+				.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel>()
+				.Finish();
 		}
 
 		private void OnEntityPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -88,7 +100,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			}
 		}
 
-		public IEntityAutocompleteSelectorFactory SubdivisionAutocompleteSelectorFactory { get; }
+		public IEntityEntryViewModel SubdivisionViewModel { get; private set; }
 		public IEntityAutocompleteSelectorFactory IncomeCategoryAutocompleteSelectorFactory { get; }
 		public IEntityEntryViewModel ParentFinancialCategoriesGroupViewModel { get; }
 
