@@ -97,6 +97,8 @@ namespace Vodovoz.Domain.Client
 		private decimal _fixPrice5;
 		private bool _addCertificatesAlways;
 		private DeliveryPointCategory _category;
+		private string _onlineComment;
+		private string _intercom;
 
 		//FIXME вынести зависимость
 		private readonly IDeliveryRepository _deliveryRepository = new DeliveryRepository();
@@ -762,6 +764,24 @@ namespace Vodovoz.Domain.Client
 		}
 
 		#endregion Временные поля для хранения фиксированных цен из 1с
+
+		#region Свойства для интеграции
+
+		[Display(Name = "Комментарий к ТД из ИПЗ")]
+		public string OnlineComment
+		{
+			get => _onlineComment;
+			set => SetField(ref _onlineComment, value);
+		}
+		
+		[Display(Name = "Домофон")]
+		public string Intercom
+		{
+			get => _intercom;
+			set => SetField(ref _intercom, value);
+		}
+
+		#endregion
 
 		#endregion Свойства
 
