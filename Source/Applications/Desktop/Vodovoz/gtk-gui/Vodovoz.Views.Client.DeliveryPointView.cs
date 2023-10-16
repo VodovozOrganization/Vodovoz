@@ -16,11 +16,11 @@ namespace Vodovoz.Views.Client
 
 		private global::Gtk.HBox hbox13;
 
-		private global::Gtk.RadioButton radioInformation;
+		private global::Gamma.GtkWidgets.yRadioButton radioInformation;
 
-		private global::Gtk.RadioButton radioFixedPrices;
+		private global::Gamma.GtkWidgets.yRadioButton radioFixedPrices;
 
-		private global::Gtk.RadioButton radioSitesAndApps;
+		private global::Gamma.GtkWidgets.yRadioButton radioSitesAndApps;
 
 		private global::Gtk.VSeparator vseparator3;
 
@@ -289,39 +289,49 @@ namespace Vodovoz.Views.Client
 			this.hbox13.Name = "hbox13";
 			this.hbox13.Spacing = 6;
 			// Container child hbox13.Gtk.Box+BoxChild
-			this.radioInformation = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Информация"));
+			this.radioInformation = new global::Gamma.GtkWidgets.yRadioButton();
 			this.radioInformation.CanFocus = true;
 			this.radioInformation.Name = "radioInformation";
+			this.radioInformation.Label = global::Mono.Unix.Catalog.GetString("Информация");
 			this.radioInformation.DrawIndicator = false;
 			this.radioInformation.UseUnderline = true;
 			this.radioInformation.Group = new global::GLib.SList(global::System.IntPtr.Zero);
 			this.hbox13.Add(this.radioInformation);
 			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox13[this.radioInformation]));
 			w7.Position = 0;
+			w7.Expand = false;
+			w7.Fill = false;
 			// Container child hbox13.Gtk.Box+BoxChild
-			this.radioFixedPrices = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Фикс. цены"));
+			this.radioFixedPrices = new global::Gamma.GtkWidgets.yRadioButton();
 			this.radioFixedPrices.CanFocus = true;
 			this.radioFixedPrices.Name = "radioFixedPrices";
+			this.radioFixedPrices.Label = global::Mono.Unix.Catalog.GetString("Фикс. цены");
 			this.radioFixedPrices.DrawIndicator = false;
 			this.radioFixedPrices.UseUnderline = true;
 			this.radioFixedPrices.Group = this.radioInformation.Group;
 			this.hbox13.Add(this.radioFixedPrices);
 			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox13[this.radioFixedPrices]));
 			w8.Position = 1;
+			w8.Expand = false;
+			w8.Fill = false;
 			// Container child hbox13.Gtk.Box+BoxChild
-			this.radioSitesAndApps = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Сайты и приложения"));
+			this.radioSitesAndApps = new global::Gamma.GtkWidgets.yRadioButton();
 			this.radioSitesAndApps.CanFocus = true;
 			this.radioSitesAndApps.Name = "radioSitesAndApps";
+			this.radioSitesAndApps.Label = global::Mono.Unix.Catalog.GetString("Сайты и приложения");
 			this.radioSitesAndApps.DrawIndicator = false;
 			this.radioSitesAndApps.UseUnderline = true;
 			this.radioSitesAndApps.Group = this.radioInformation.Group;
 			this.hbox13.Add(this.radioSitesAndApps);
 			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox13[this.radioSitesAndApps]));
 			w9.Position = 2;
+			w9.Expand = false;
+			w9.Fill = false;
 			this.hbox1.Add(this.hbox13);
 			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.hbox13]));
-			w10.PackType = ((global::Gtk.PackType)(1));
 			w10.Position = 3;
+			w10.Expand = false;
+			w10.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.vseparator3 = new global::Gtk.VSeparator();
 			this.vseparator3.Name = "vseparator3";
@@ -1402,7 +1412,7 @@ namespace Vodovoz.Views.Client
 			this.lblIntercom = new global::Gamma.GtkWidgets.yLabel();
 			this.lblIntercom.Name = "lblIntercom";
 			this.lblIntercom.Xalign = 1F;
-			this.lblIntercom.LabelProp = global::Mono.Unix.Catalog.GetString("Онлайн комментарий:");
+			this.lblIntercom.LabelProp = global::Mono.Unix.Catalog.GetString("Домофон:");
 			this.tableSitesAndApps.Add(this.lblIntercom);
 			global::Gtk.Table.TableChild w109 = ((global::Gtk.Table.TableChild)(this.tableSitesAndApps[this.lblIntercom]));
 			w109.TopAttach = ((uint)(1));
