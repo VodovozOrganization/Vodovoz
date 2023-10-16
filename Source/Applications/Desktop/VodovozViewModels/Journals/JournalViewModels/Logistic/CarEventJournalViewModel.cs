@@ -48,7 +48,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			ICarEventJournalFactory carEventJournalFactory,
 			IEmployeeService employeeService,
 			IEmployeeJournalFactory employeeJournalFactory,
-			IEmployeeSettings employeeSettings,
 			ICarEventSettings carEventSettings,
 			ILifetimeScope lifetimeScope)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
@@ -67,8 +66,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 			UpdateOnChanges(
 				typeof(CarEvent),
-				typeof(CarEventType)
-				);
+				typeof(CarEventType));
 		}
 
 		protected override void CreateNodeActions()
