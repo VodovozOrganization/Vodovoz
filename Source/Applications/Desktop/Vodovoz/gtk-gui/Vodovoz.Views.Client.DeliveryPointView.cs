@@ -218,7 +218,7 @@ namespace Vodovoz.Views.Client
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow4;
 
-		private global::Gamma.GtkWidgets.yTextView ytextview1;
+		private global::Gamma.GtkWidgets.yTextView textViewOnlineComment;
 
 		private global::Gamma.GtkWidgets.yLabel lblIntercom;
 
@@ -1399,10 +1399,10 @@ namespace Vodovoz.Views.Client
 			this.GtkScrolledWindow4.Name = "GtkScrolledWindow4";
 			this.GtkScrolledWindow4.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow4.Gtk.Container+ContainerChild
-			this.ytextview1 = new global::Gamma.GtkWidgets.yTextView();
-			this.ytextview1.CanFocus = true;
-			this.ytextview1.Name = "ytextview1";
-			this.GtkScrolledWindow4.Add(this.ytextview1);
+			this.textViewOnlineComment = new global::Gamma.GtkWidgets.yTextView();
+			this.textViewOnlineComment.CanFocus = true;
+			this.textViewOnlineComment.Name = "textViewOnlineComment";
+			this.GtkScrolledWindow4.Add(this.textViewOnlineComment);
 			this.tableSitesAndApps.Add(this.GtkScrolledWindow4);
 			global::Gtk.Table.TableChild w108 = ((global::Gtk.Table.TableChild)(this.tableSitesAndApps[this.GtkScrolledWindow4]));
 			w108.LeftAttach = ((uint)(1));
