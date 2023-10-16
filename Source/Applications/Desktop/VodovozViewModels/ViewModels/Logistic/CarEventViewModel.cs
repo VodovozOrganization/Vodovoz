@@ -1,11 +1,13 @@
 ﻿using Autofac;
 using QS.Commands;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +19,9 @@ using Vodovoz.Journals.JournalViewModels.Employees;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Employees;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
@@ -72,16 +76,17 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			ICommonServices commonServices,
 			ICarJournalFactory carJournalFactory,
 			ICarEventTypeJournalFactory carEventTypeJournalFactory,
-			ICarEventJournalFactory carEventSelectorFactory,
 			IEmployeeService employeeService,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICarEventSettings carEventSettings,
+			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope)
 			: base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			EmployeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
+			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			CanChangeWithClosedPeriod =
 				commonServices.CurrentPermissionService.ValidatePresetPermission("can_create_edit_car_events_in_closed_period");
@@ -98,7 +103,18 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			CarSelectorFactory = carJournalFactory.CreateCarAutocompleteSelectorFactory();
 			CarEventTypeSelectorFactory = carEventTypeJournalFactory.CreateCarEventTypeAutocompleteSelectorFactory();
-			CarEventSelectorFactory = carEventSelectorFactory.CreateCarEventAutocompleteSelectorFactory();
+			
+			OriginalCarEventViewModel = new CommonEEVMBuilderFactory<CarEvent>(this, Entity, UoW, NavigationManager, _lifetimeScope)
+				.ForProperty(x => x.OriginalCarEvent)
+				.UseViewModelDialog<CarEventViewModel>()
+				.UseViewModelJournalAndAutocompleter<CarEventJournalViewModel, CarEventFilterViewModel>(filter =>
+				{
+					filter.ExcludeEventIds.Add(Entity.Id);
+				})
+				.Finish();
+
+			OriginalCarEventViewModel.IsEditable = CanEdit;
+
 			EmployeeSelectorFactory =
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
 				.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
@@ -213,7 +229,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public IEntityAutocompleteSelectorFactory CarSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory CarEventTypeSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory EmployeeSelectorFactory { get; }
-		public IEntityAutocompleteSelectorFactory CarEventSelectorFactory { get; }
+		public IEntityEntryViewModel OriginalCarEventViewModel { get; private set; }
 
 		private void SetCar(Car car)
 		{

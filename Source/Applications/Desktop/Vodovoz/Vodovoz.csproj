@@ -606,7 +606,6 @@
     <Compile Include="SidePanel\InfoViews\CarsMonitoringInfoPanelView.DataNode.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="TempAdapters\AttachmentsViewModelFactory.cs" />
-    <Compile Include="TempAdapters\CarEventJournalFactory.cs" />
     <Compile Include="TempAdapters\ComplaintsJournalFactory.cs" />
     <Compile Include="TempAdapters\RouteListJournalFactory.cs" />
     <Compile Include="TempAdapters\ComplaintKindJournalFactory.cs" />

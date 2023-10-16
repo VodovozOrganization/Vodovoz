@@ -1028,29 +1028,7 @@ public partial class MainWindow : Window
 
 	void ActionCarEventsJournalActivated(object sender, EventArgs e)
 	{
-		ICarJournalFactory carJournalFactory = new CarJournalFactory(NavigationManager);
-		IEmployeeJournalFactory employeeFactory = new EmployeeJournalFactory(NavigationManager);
-		ICarEventTypeJournalFactory carEventTypeJournalFactory = new CarEventTypeJournalFactory();
-		ICarEventJournalFactory carEventJournalFactory = new CarEventJournalFactory(NavigationManager);
-
-		var carEventFilter = new CarEventFilterViewModel(
-			carJournalFactory,
-			carEventTypeJournalFactory,
-			new EmployeeJournalFactory(NavigationManager))
-		{ HidenByDefault = true };
-
-		tdiMain.OpenTab(() => new CarEventJournalViewModel(
-			carEventFilter,
-			UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices,
-			carJournalFactory,
-			carEventTypeJournalFactory,
-			carEventJournalFactory,
-			VodovozGtkServicesConfig.EmployeeService,
-			employeeFactory,
-			new EmployeeSettings(new ParametersProvider()),
-			new CarEventSettings(new ParametersProvider()))
-		);
+		NavigationManager.OpenViewModel<CarEventJournalViewModel, Action<CarEventFilterViewModel>>(null, filter => filter.HidenByDefault = true);
 	}
 
 	void ActionFastDeliveryAvailabilityJournal_Activated(object sender, EventArgs e)

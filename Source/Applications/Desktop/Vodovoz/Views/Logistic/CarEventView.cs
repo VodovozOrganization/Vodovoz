@@ -2,7 +2,6 @@
 using QS.Navigation;
 using QS.Views.GtkUI;
 using QSProjectsLib;
-using System;
 using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 
@@ -11,10 +10,10 @@ namespace Vodovoz.Views.Logistic
 	public partial class CarEventView : TabViewBase<CarEventViewModel>
 	{
 
-		public CarEventView(CarEventViewModel viewModel) :
-			base(viewModel)
+		public CarEventView(CarEventViewModel viewModel)
+			: base(viewModel)
 		{
-			this.Build();
+			Build();
 			Configure();
 			CheckPeriod();
 		}
@@ -35,9 +34,11 @@ namespace Vodovoz.Views.Logistic
 			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(ViewModel.CarSelectorFactory);
 			entityviewmodelentryCar.Binding.AddBinding(ViewModel, e => e.Car, w => w.Subject).InitializeFromSource();
 
-			originalCarEvent.SetEntityAutocompleteSelectorFactory(ViewModel.CarEventSelectorFactory);
-			originalCarEvent.Binding.AddBinding(ViewModel.Entity, e => e.OriginalCarEvent, w => w.Subject)
-				.AddBinding(ViewModel, vm => vm.CompensationFromInsuranceByCourt, w => w.Visible).InitializeFromSource();
+			entryOriginalCarEvent.ViewModel = ViewModel.OriginalCarEventViewModel;
+
+			entryOriginalCarEvent.Binding
+				.AddBinding(ViewModel, vm => vm.CompensationFromInsuranceByCourt, w => w.Visible)
+				.InitializeFromSource();
 
 			evmeDriver.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeSelectorFactory);
 			evmeDriver.Binding.AddBinding(ViewModel.Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
@@ -91,7 +92,6 @@ namespace Vodovoz.Views.Logistic
 				ytextviewFoundation.Sensitive =
 				ytextviewCommnet.Sensitive =
 				ytreeviewFines.Sensitive =
-				originalCarEvent.Sensitive =
 				buttonAddFine.Sensitive =
 				buttonAttachFine.Sensitive =
 				buttonSave.Sensitive = false;
