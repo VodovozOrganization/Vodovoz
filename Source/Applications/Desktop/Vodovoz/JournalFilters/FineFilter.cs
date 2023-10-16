@@ -10,7 +10,6 @@ namespace Vodovoz
 	{
 		protected override void ConfigureWithUow()
 		{
-			yentryreferenceSubdivisions.SubjectType = typeof(Subdivision);
 		}
 
 		public FineFilter()
@@ -26,11 +25,12 @@ namespace Vodovoz
 		#region Свойства
 
 		public Subdivision RestrictionSubdivision {
-			get { return yentryreferenceSubdivisions.Subject as Subdivision; }
-			set {
-				yentryreferenceSubdivisions.Subject = value;
-				yentryreferenceSubdivisions.Sensitive = false;
-			}
+			get; set;
+			//get { return yentryreferenceSubdivisions.Subject as Subdivision; }
+			//set {
+			//	yentryreferenceSubdivisions.Subject = value;
+			//	yentryreferenceSubdivisions.Sensitive = false;
+			//}
 		}
 
 		public DateTime? RestrictionFineDateStart {
