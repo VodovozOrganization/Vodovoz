@@ -768,14 +768,14 @@ namespace Vodovoz.Domain.Client
 		#region Свойства для интеграции
 
 		[Display(Name = "Комментарий к ТД из ИПЗ")]
-		public string OnlineComment
+		public virtual string OnlineComment
 		{
 			get => _onlineComment;
 			set => SetField(ref _onlineComment, value);
 		}
 		
 		[Display(Name = "Домофон")]
-		public string Intercom
+		public virtual string Intercom
 		{
 			get => _intercom;
 			set => SetField(ref _intercom, value);

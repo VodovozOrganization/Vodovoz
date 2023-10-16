@@ -51,6 +51,9 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 		private readonly RoboatsJournalsFactory _roboatsJournalsFactory;
 		private readonly IPromotionalSetRepository _promotionalSetRepository = new PromotionalSetRepository();
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+		private bool _isInformationActive;
+		private bool _isFixedPricesActive;
+		private bool _isSitesAndAppsActive;
 
 		public DeliveryPointViewModel(
 			IUserRepository userRepository,
@@ -68,7 +71,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			RoboatsJournalsFactory roboatsJournalsFactory,
-		 	Domain.Client.Counterparty client = null)
+			Domain.Client.Counterparty client = null)
 			: base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			if(client != null && uowBuilder.IsNewEntity)
@@ -130,7 +133,8 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			Entity.PropertyChanged += (sender, e) =>
 			{
 				switch(e.PropertyName)
-				{ // от этого события зависит панель цен доставки, которые в свою очередь зависят от района и, возможно, фиксов
+				{
+					// от этого события зависит панель цен доставки, которые в свою очередь зависят от района и, возможно, фиксов
 					case nameof(Entity.District):
 						CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity));
 						break;
@@ -158,6 +162,48 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 		{
 			get => _currentPage;
 			private set => SetField(ref _currentPage, value);
+		}
+		
+		public bool IsInformationActive
+		{
+			get => _isInformationActive;
+			set
+			{
+				if(SetField(ref _isInformationActive, value) && value)
+				{
+					CurrentPage = 0;
+					_isFixedPricesActive = false;
+					_isSitesAndAppsActive = false;
+				}
+			}
+		}
+		
+		public bool IsFixedPricesActive
+		{
+			get => _isFixedPricesActive;
+			set
+			{
+				if(SetField(ref _isFixedPricesActive, value) && value)
+				{
+					CurrentPage = 1;
+					_isInformationActive = false;
+					_isSitesAndAppsActive = false;
+				}
+			}
+		}
+
+		public bool IsSitesAndAppsActive
+		{
+			get => _isSitesAndAppsActive;
+			set
+			{
+				if(SetField(ref _isSitesAndAppsActive, value) && value)
+				{
+					CurrentPage = 2;
+					_isInformationActive = false;
+					_isFixedPricesActive = false;
+				}
+			}
 		}
 
 		public bool IsInProcess => _isEntityInSavingProcess || _isBuildingsInLoadingProcess;
@@ -217,7 +263,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 
 		public void OpenFixedPrices()
 		{
-			CurrentPage = 1;
+			IsFixedPricesActive = true;
 		}
 
 		public override bool Save(bool close)
