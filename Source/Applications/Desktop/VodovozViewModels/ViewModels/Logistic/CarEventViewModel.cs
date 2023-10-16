@@ -1,4 +1,5 @@
-﻿using QS.Commands;
+﻿using Autofac;
+using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
@@ -13,7 +14,6 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.Journals.JournalViewModels.Employees;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Employees;
@@ -25,6 +25,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 	public class CarEventViewModel : EntityTabViewModelBase<CarEvent>
 	{
 		private readonly ICarEventSettings _carEventSettings;
+		private readonly ILifetimeScope _lifetimeScope;
 		public string CarEventTypeCompensation = "Компенсация от страховой, по суду";
 		public decimal RepairCost
 		{
@@ -74,14 +75,14 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			ICarEventJournalFactory carEventSelectorFactory,
 			IEmployeeService employeeService,
 			IEmployeeJournalFactory employeeJournalFactory,
-			IEmployeeSettings employeeSettings,
-			ICarEventSettings carEventSettings
-			)
+			ICarEventSettings carEventSettings,
+			ILifetimeScope lifetimeScope)
 			: base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			EmployeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			CanChangeWithClosedPeriod =
 				commonServices.CurrentPermissionService.ValidatePresetPermission("can_create_edit_car_events_in_closed_period");
 			_startNewPeriodDay = _carEventSettings.CarEventStartNewPeriodDay;
@@ -355,7 +356,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				EmployeeService,
 				EmployeeJournalFactory,
 				QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-				CommonServices
+				CommonServices,
+				_lifetimeScope
 			)
 			{
 				SelectionMode = JournalSelectionMode.Single

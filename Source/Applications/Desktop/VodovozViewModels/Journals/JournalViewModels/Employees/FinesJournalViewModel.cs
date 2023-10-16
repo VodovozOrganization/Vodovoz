@@ -1,4 +1,5 @@
-﻿using NHibernate;
+﻿using Autofac;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
@@ -22,26 +23,38 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 {
 	public class FinesJournalViewModel : FilterableSingleEntityJournalViewModelBase<Fine, FineViewModel, FineJournalNode, FineFilterViewModel>
 	{
-		private readonly IEmployeeService employeeService;
+		private readonly IEmployeeService _employeeService;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly ICommonServices commonServices;
+		private readonly ICommonServices _commonServices;
+		private readonly ILifetimeScope _lifetimeScope;
 
 		public FinesJournalViewModel(
 			FineFilterViewModel filterViewModel,
 			IEmployeeService employeeService,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices)
+			ICommonServices commonServices,
+			ILifetimeScope lifetimeScope,
+			Action<FineFilterViewModel> filterConfig = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
-			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			filterViewModel.JournalViewModel = this;
+
+			if(filterConfig != null)
+			{
+				FilterViewModel.SetAndRefilterAtOnce(filterConfig);
+			}
 
 			TabName = "Журнал штрафов";
 			UpdateOnChanges(typeof(Fine), typeof(FineItem));
 		}
-		
+
+		public ILifetimeScope Scope => _lifetimeScope;
+
 		protected override void CreateNodeActions()
 		{
 			NodeActionsList.Clear();
@@ -179,18 +192,18 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 		protected override Func<FineViewModel> CreateDialogFunction => () => new FineViewModel(
 			EntityUoWBuilder.ForCreate(),
 			QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-			employeeService,
+			_employeeService,
 			_employeeJournalFactory,
-			commonServices,
+			_commonServices,
 			NavigationManager
 		);
 
 		protected override Func<FineJournalNode, FineViewModel> OpenDialogFunction => (node) => new FineViewModel(
 			EntityUoWBuilder.ForOpen(node.Id),
 			QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-			employeeService,
+			_employeeService,
 			_employeeJournalFactory,
-			commonServices,
+			_commonServices,
 			NavigationManager
 		);
 	}

@@ -804,14 +804,7 @@ public partial class MainWindow : Window
 
 	void ActionFinesJournal_Activated(object sender, System.EventArgs e)
 	{
-		IEmployeeJournalFactory employeeJournalFactory = new EmployeeJournalFactory(NavigationManager);
-
-		tdiMain.OpenTab(() => new FinesJournalViewModel(
-			new FineFilterViewModel(true),
-			VodovozGtkServicesConfig.EmployeeService,
-			employeeJournalFactory,
-			UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices));
+		NavigationManager.OpenViewModel<FinesJournalViewModel, Action<FineFilterViewModel>>(null, filter => filter.CanEditFilter = true);
 	}
 
 	void ActionPremiumJournal_Activated(object sender, System.EventArgs e)
@@ -826,33 +819,6 @@ public partial class MainWindow : Window
 			{
 				premiumFilter.HidenByDefault = true;
 			});
-
-		//IEmployeeJournalFactory employeeJournalFactory = new EmployeeJournalFactory();
-		//IPremiumTemplateJournalFactory premiumTemplateJournalFactory = new PremiumTemplateJournalFactory();
-
-		//var subdivisionAutocompleteSelectorFactory =
-		//	new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(typeof(Subdivision), () =>
-		//	{
-		//		return new SubdivisionsJournalViewModel(
-		//			new SubdivisionFilterViewModel() { SubdivisionType = SubdivisionType.Default },
-		//			UnitOfWorkFactory.GetDefaultFactory,
-		//			ServicesConfig.CommonServices,
-		//			employeeJournalFactory,
-		//			new SalesPlanJournalFactory(),
-		//			new NomenclatureJournalFactory(),
-		//			_autofacScope.BeginLifetimeScope()
-		//		);
-		//	});
-
-		//tdiMain.OpenTab(() => new PremiumJournalViewModel(
-		//	new PremiumJournalFilterViewModel(subdivisionAutocompleteSelectorFactory) { HidenByDefault = true },
-		//	UnitOfWorkFactory.GetDefaultFactory,
-		//	ServicesConfig.CommonServices,
-		//	VodovozGtkServicesConfig.EmployeeService,
-		//	employeeJournalFactory,
-		//	premiumTemplateJournalFactory
-		//	)
-		//);
 	}
 
 	void ActionCarProxiesJournal_Activated(object sender, System.EventArgs e)
