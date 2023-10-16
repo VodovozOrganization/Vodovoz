@@ -133,6 +133,7 @@ namespace Vodovoz
 			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.SocketTimeoutException);
 			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.MysqlCommandTimeoutException);
 			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.GeoGroupVersionNotFoundException);
+			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.SystemOutOfMemoryExceptionHandler);
 
 			#endregion
 
@@ -194,14 +195,6 @@ namespace Vodovoz
 
 			AutofacClassConfig();
 			PerformanceHelper.AddTimePoint("Закончена настройка AutoFac.");
-
-			UnhandledExceptionHandler unhandledExceptionHandler = new UnhandledExceptionHandler();
-			//Передаем в настройки GUI поток, чтобы обработчик мог отличать вызовы исключений из других потоков и не падал при этом в момент попытки отобразить диалог пользователю.
-			GtkGuiDispatcher.GuiThread = System.Threading.Thread.CurrentThread;
-			//Получаем все необходимые зависимости из контейнера.
-			unhandledExceptionHandler.UpdateDependencies(AppDIContainer);
-			//Подписываемся на необработанные исключения текущего приложения.
-			unhandledExceptionHandler.SubscribeToUnhandledExceptions();
 
 			if(QSMain.User.Login == "root")
 			{
