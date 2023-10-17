@@ -1558,7 +1558,6 @@
     <Compile Include="Views\Goods\NomenclatureView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclatureView.cs" />
     <Compile Include="ReportsParameters\ChainStoreDelay.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.NetworkDelayReport.cs" />
     <Compile Include="ReportsParameters\Logistic\DriverRoutesListRegisterReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.DriverRoutesListRegisterReport.cs" />
     <Compile Include="ReportsParameters\Production\ProducedProductionReport.cs" />
@@ -1985,6 +1984,7 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Reports.CarModelSelectionFilterView.cs" />
     <Compile Include="Views\Orders\PrintOrdersDocumentsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.PrintOrdersDocumentsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.ChainStoreDelayReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
