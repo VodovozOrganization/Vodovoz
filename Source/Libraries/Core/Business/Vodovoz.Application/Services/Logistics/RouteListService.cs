@@ -147,7 +147,6 @@ namespace Vodovoz.Application.Services.Logistics
 			IUnitOfWork unitOfWork,
 			int routeListId)
 		{
-
 			using(var transaction = unitOfWork.Session.BeginTransaction())
 			{
 				var routeList = _routeListRepository.GetRouteListById(unitOfWork, routeListId);
