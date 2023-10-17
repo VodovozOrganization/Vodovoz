@@ -1059,7 +1059,11 @@ namespace Vodovoz
                 newRouteListItem.FirstFillClosing(_wageParameterService);
             }
 
-            UoW.Save(newRouteListItem);
+			order.ChangeStatus(OrderStatus.OnTheWay);
+
+			UoW.Save(order);
+
+			UoW.Save(newRouteListItem);
 
             _routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(UoW, newRouteListItem, DeliveryFreeBalanceType.Decrease, needRouteListUpdate: true);
 

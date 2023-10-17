@@ -604,30 +604,7 @@ public partial class MainWindow : Window
 
 	void ActionRouteListAddressesTransferring_Activated(object sender, System.EventArgs e)
 	{
-		var scope = Startup.AppDIContainer.BeginLifetimeScope();
-		var parametersProvider = new ParametersProvider();
-		var employeeNomenclatureMovementRepository = new EmployeeNomenclatureMovementRepository();
-		var terminalNomenclatureProvider = new BaseParametersProvider(parametersProvider);
-		var routeListRepository = new RouteListRepository(new StockRepository(), new BaseParametersProvider(parametersProvider));
-		var routeListItemRepository = new RouteListItemRepository();
-		var employeeService = new EmployeeService();
-		var employeeRepository = new EmployeeRepository();
-		var nomenclatureParametersProvider = new NomenclatureParametersProvider(parametersProvider);
-
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<RouteListAddressesTransferringDlg>(),
-			() => new RouteListAddressesTransferringDlg(
-				employeeNomenclatureMovementRepository,
-				terminalNomenclatureProvider,
-				routeListRepository,
-				routeListItemRepository,
-				employeeService,
-				ServicesConfig.CommonServices,
-				scope.Resolve<IFinancialCategoriesGroupsSettings>(),
-				employeeRepository,
-				nomenclatureParametersProvider
-			)
-		);
+		NavigationManager.OpenTdiTab<RouteListAddressesTransferringDlg>(null);
 	}
 
 	void ActionEmployeeWorkChart_Activated(object sender, System.EventArgs e)
