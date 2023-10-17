@@ -5,7 +5,7 @@ using static Vodovoz.ViewModels.ViewModels.Logistic.FastDeliveryOrderTransferVie
 
 namespace Vodovoz.Views.Logistic
 {
-	[WindowSize(400, 600)]
+	[WindowSize(500, 600)]
 	public partial class FastDeliveryOrderTransferView : DialogViewBase<FastDeliveryOrderTransferViewModel>
 	{
 		public FastDeliveryOrderTransferFilterView Filter { get; }
@@ -36,12 +36,13 @@ namespace Vodovoz.Views.Logistic
 				.AddColumn("№").AddTextRenderer(x => x.RowNumber.ToString())
 				.AddColumn("Водитель").AddTextRenderer(x => x.DriverFullName)
 				.AddColumn("Машина").AddTextRenderer(x => x.CarRegistrationNumber)
+				.AddColumn("Расстояние").AddTextRenderer(x => $"{x.Distance:F2} км")
 				.AddColumn("МЛ").AddTextRenderer(x => x.RouteListId.ToString())
 				.Finish();
 
 			ytreeviewDriversList.Binding.AddBinding(ViewModel, v => v.RouteListToSelectedNode, t => t.SelectedRow).InitializeFromSource();
 
-			ytreeviewDriversList.ItemsDataSource = ViewModel.RouteListNodes;
+			ytreeviewDriversList.Binding.AddBinding(ViewModel, v => v.RouteListNodes, w => w.ItemsDataSource).InitializeFromSource();
 
 			ybuttonTransfer.Clicked += (s, e) => ViewModel.TransferCommand.Execute();
 			ybuttonCancel.Clicked += (s, e) => ViewModel.CancelCommand.Execute();

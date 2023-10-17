@@ -20,26 +20,39 @@ namespace Vodovoz.Views.Logistic
 
 		private void Initialize()
 		{
-			ycheckRouteListsAll.Toggled += OnModeChanged;
-			ycheckRouteListsFastDelivery.Toggled += OnModeChanged;
-			ycheckRouteListsShifted.Toggled += OnModeChanged;
+			switch(ViewModel.Mode)
+			{
+				case FastDeliveryOrderTransferMode.All:
+					yradiobuttonModeAll.Active = true;
+					break;
+				case FastDeliveryOrderTransferMode.FastDelivery:
+					yradiobuttonModeFastDelivery.Active = true;
+					break;
+				case FastDeliveryOrderTransferMode.Shifted:
+					yradiobuttonModeShifted.Active = true;
+					break;
+			}
+
+			yradiobuttonModeAll.Toggled += OnModeChanged;
+			yradiobuttonModeFastDelivery.Toggled += OnModeChanged;
+			yradiobuttonModeShifted.Toggled += OnModeChanged;
 		}
 
 		private void OnModeChanged(object sender, EventArgs e)
 		{
-			if(sender == ycheckRouteListsAll && ycheckRouteListsAll.Active)
+			if(sender == yradiobuttonModeAll && yradiobuttonModeAll.Active)
 			{
 				ViewModel.Mode = FastDeliveryOrderTransferMode.All;
 				return;
 			}
 
-			if(sender == ycheckRouteListsFastDelivery && ycheckRouteListsFastDelivery.Active)
+			if(sender == yradiobuttonModeFastDelivery && yradiobuttonModeFastDelivery.Active)
 			{
 				ViewModel.Mode = FastDeliveryOrderTransferMode.FastDelivery;
 				return;
 			}
 
-			if(sender == ycheckRouteListsShifted && ycheckRouteListsShifted.Active)
+			if(sender == yradiobuttonModeShifted && yradiobuttonModeShifted.Active)
 			{
 				ViewModel.Mode = FastDeliveryOrderTransferMode.Shifted;
 				return;

@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using NHibernate.Transform;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -8,35 +7,28 @@ using QS.Services;
 using QS.ViewModels.Dialog;
 using System;
 using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Controllers;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.Services;
 using FastDeliveryOrderTransferMode = Vodovoz.ViewModels.ViewModels.Logistic.FastDeliveryOrderTransferFilterViewModel.FastDeliveryOrderTransferMode;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
 	public partial class FastDeliveryOrderTransferViewModel : WindowDialogViewModelBase, IDisposable
 	{
+		private readonly ILogger<FastDeliveryOrderTransferViewModel> _logger;
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly ICommonServices _commonServices;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
-		private readonly ILogger<FastDeliveryOrderTransferViewModel> _logger;
-		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
 		private readonly IWageParameterService _wageParameterService;
-
-		RouteList _routeListFrom;
-		RouteListItem _routeListItemToTransfer;
-
-		private DelegateCommand _transferCommand;
-		private DelegateCommand _cancelCommand;
+		private RouteList _routeListFrom;
+		private RouteListItem _routeListItemToTransfer;
 
 		public FastDeliveryOrderTransferViewModel(
 			ILogger<FastDeliveryOrderTransferViewModel> logger,
@@ -47,9 +39,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			FastDeliveryOrderTransferFilterViewModel filterViewModel,
 			IRouteListItemRepository routeListItemRepository,
 			IRouteListProfitabilityController routeListProfitabilityController,
-			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
 			IWageParameterService wageParameterService,
-			int routeListAddressId) : base(navigationManager)
+			int routeListAddressId)
+			: base(navigationManager)
 		{
 			Title = "Перенос заказа с доставкой за час";
 
@@ -64,17 +56,28 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_routeListProfitabilityController = routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot(Title);
 
-			FilterViewModel.OnFiltered += OnFiltered;
+			CancelCommand = new DelegateCommand(Cancel, () => CanCancel);
+			TransferCommand = new DelegateCommand(Transfer, () => CanTransfer);
+
 			GetRouteListFromInfo(routeListAddressId);
+
+			FilterViewModel.OnFiltered += OnFiltered;
+			FilterViewModel.Update();
 		}
 
 		private void OnFiltered(object sender, EventArgs e)
 		{
-			
+			var newRouteLists = GetFastDeliveryRouteLists();
+
+			RouteListNodes.Clear();
+
+			foreach(var routeList in newRouteLists)
+			{
+				RouteListNodes.Add(routeList);
+			}
 		}
 
 		private void GetRouteListFromInfo(int routeListAddressId)
@@ -209,30 +212,21 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private bool HasAddressChanges(RouteListItem address)
 		{
-			RouteListItemStatus actualStatus;
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot("Получение статуса адреса"))
 			{
-				actualStatus = uow.GetById<RouteListItem>(address.Id).Status;
+				return uow.GetById<RouteListItem>(address.Id).Status != address.Status;
 			}
-
-			if(actualStatus == address.Status)
-			{
-				return false;
-			}
-
-			return true;
 		}
 
 		private int GetFastDeliveryOrdersCountInRouteList(RouteList routeList)
 		{
 			var fastDeliveryOrdersCount = 0;
+
+			foreach(var address in routeList.Addresses)
 			{
-				foreach(var address in routeList.Addresses)
+				if(address.Order.IsFastDelivery && address.Status == RouteListItemStatus.EnRoute)
 				{
-					if(address.Order.IsFastDelivery && address.Status == RouteListItemStatus.EnRoute)
-					{
-						fastDeliveryOrdersCount++;
-					}
+					fastDeliveryOrdersCount++;
 				}
 			}
 
@@ -248,29 +242,26 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			var routeListFromId = _routeListFrom.Id;
 
-			RouteList routeListAlias = null;
-			Employee driverAlias = null;
-			Car carAlias = null;
-			RouteListNode routeListNodeAlias = null;
+			var routeLists = (from routeList in _unitOfWork.Session.Query<RouteList>()
+							  where routeList.Id != routeListFromId
+								 && routeList.Status == RouteListStatus.EnRoute
+								 && ((FilterViewModel.Mode == FastDeliveryOrderTransferMode.FastDelivery && routeList.AdditionalLoadingDocument.Id != null)
+									|| (FilterViewModel.Mode == FastDeliveryOrderTransferMode.Shifted && routeList.AdditionalLoadingDocument.Id == null)
+									|| FilterViewModel.Mode == FastDeliveryOrderTransferMode.All)
+							  let driverFIO = $"{routeList.Driver.LastName} {routeList.Driver.Name[0]}. {routeList.Driver.Patronymic[0]}."
+							  select new RouteListNode
+							  {
+								  RouteListId = routeList.Id,
+								  DriverFullName = driverFIO,
+								  CarRegistrationNumber = routeList.Car.RegistrationNumber,
+								  Distance = 0m
+							  })
+							 .ToList();
 
-			var routeLists = _unitOfWork.Session.QueryOver(() => routeListAlias)
-				.Left.JoinAlias(() => routeListAlias.Driver, () => driverAlias)
-				.Left.JoinAlias(() => routeListAlias.Car, () => carAlias)
-				.Where(() => routeListAlias.AdditionalLoadingDocument != null)
-				.Where(rl => routeListAlias.Status == RouteListStatus.EnRoute && routeListAlias.Id != routeListFromId)
-				.SelectList(list => list
-					.Select(() => routeListAlias.Id).WithAlias(() => routeListNodeAlias.RouteListId)
-					.Select(() => driverAlias.LastName).WithAlias(() => routeListNodeAlias.LastName)
-					.Select(() => driverAlias.Name).WithAlias(() => routeListNodeAlias.Name)
-					.Select(() => driverAlias.Patronymic).WithAlias(() => routeListNodeAlias.Patronymic)
-					.Select(() => carAlias.RegistrationNumber).WithAlias(() => routeListNodeAlias.CarRegistrationNumber))
-				.TransformUsing(Transformers.AliasToBean<RouteListNode>())
-				.List<RouteListNode>()
-				.ToList();
-
-			var rowNumber = 0;
-			routeLists = routeLists.OrderBy(x => x.LastName).ToList();
-			routeLists.ForEach(x => x.RowNumber = ++rowNumber);
+			for(int i = 0; i < routeLists.Count; i++)
+			{
+				routeLists[i].RowNumber = i + 1;
+			}
 
 			return routeLists;
 		}
@@ -278,23 +269,13 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public RouteListNode RouteListToSelectedNode { get; set; }
 		public string AddressInfo => _routeListItemToTransfer?.Order?.DeliveryPoint?.ShortAddress;
 		public string DriverInfo => $"от {_routeListFrom?.Driver?.ShortName} {_routeListFrom?.Car?.RegistrationNumber}";
-		public List<RouteListNode> RouteListNodes => GetFastDeliveryRouteLists();
+		public GenericObservableList<RouteListNode> RouteListNodes { get; } = new GenericObservableList<RouteListNode>();
 
 		#region Commands
 
 		#region TransferCommand
-		public DelegateCommand TransferCommand
-		{
-			get
-			{
-				if(_transferCommand == null)
-				{
-					_transferCommand = new DelegateCommand(Transfer, () => CanTransfer);
-					_transferCommand.CanExecuteChangedWith(this, x => x.CanTransfer);
-				}
-				return _transferCommand;
-			}
-		}
+
+		public DelegateCommand TransferCommand { get; }
 
 		public bool CanTransfer => _routeListFrom != null && _routeListItemToTransfer != null || false;
 
@@ -311,33 +292,25 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			var routeListTo = _unitOfWork.GetById<RouteList>(RouteListToSelectedNode.RouteListId);
 
-			if(routeListTo != null)
+			if(routeListTo == null)
 			{
-				var isTransferSuccessful = MakeAddressTransfer(_routeListItemToTransfer, _routeListFrom, routeListTo);
+				return;
+			}
 
-				if(isTransferSuccessful)
-				{
-					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Заказ успешно перенесен!");
-					Close(false, CloseSource.Cancel);
-				}
+			var isTransferSuccessful = MakeAddressTransfer(_routeListItemToTransfer, _routeListFrom, routeListTo);
+
+			if(isTransferSuccessful)
+			{
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Заказ успешно перенесен!");
+				Close(false, CloseSource.Cancel);
 			}
 		}
 
 		#endregion
 
 		#region CancelCommand
-		public DelegateCommand CancelCommand
-		{
-			get
-			{
-				if(_cancelCommand == null)
-				{
-					_cancelCommand = new DelegateCommand(Cancel, () => CanCancel);
-					_cancelCommand.CanExecuteChangedWith(this, x => x.CanCancel);
-				}
-				return _cancelCommand;
-			}
-		}
+
+		public DelegateCommand CancelCommand { get; }
 
 		public bool CanCancel => true;
 
@@ -347,6 +320,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		{
 			Close(false, CloseSource.Cancel);
 		}
+
 		#endregion
 
 		#endregion
@@ -357,4 +331,3 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		}
 	}
 }
-

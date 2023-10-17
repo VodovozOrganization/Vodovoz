@@ -5,7 +5,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 	public partial class FastDeliveryOrderTransferFilterViewModel
 		: FilterViewModelBase<FastDeliveryOrderTransferFilterViewModel>
 	{
-		private FastDeliveryOrderTransferMode _mode;
+		private FastDeliveryOrderTransferMode _mode = FastDeliveryOrderTransferMode.FastDelivery;
 
 		public FastDeliveryOrderTransferMode Mode
 		{
