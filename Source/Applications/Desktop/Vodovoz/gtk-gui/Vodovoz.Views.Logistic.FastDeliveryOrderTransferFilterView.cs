@@ -10,11 +10,11 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gtk.HBox hbox1;
 
-		private global::Gamma.GtkWidgets.yCheckButton ycheckRouteListsAll;
+		private global::Gamma.GtkWidgets.yRadioButton yradiobuttonModeAll;
 
-		private global::Gamma.GtkWidgets.yCheckButton ycheckRouteListsFastDelivery;
+		private global::Gamma.GtkWidgets.yRadioButton yradiobuttonModeFastDelivery;
 
-		private global::Gamma.GtkWidgets.yCheckButton ycheckRouteListsShifted;
+		private global::Gamma.GtkWidgets.yRadioButton yradiobuttonModeShifted;
 
 		protected virtual void Build()
 		{
@@ -41,37 +41,39 @@ namespace Vodovoz.Views.Logistic
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.ycheckRouteListsAll = new global::Gamma.GtkWidgets.yCheckButton();
-			this.ycheckRouteListsAll.CanFocus = true;
-			this.ycheckRouteListsAll.Name = "ycheckRouteListsAll";
-			this.ycheckRouteListsAll.Label = global::Mono.Unix.Catalog.GetString("Всех");
-			this.ycheckRouteListsAll.Active = true;
-			this.ycheckRouteListsAll.DrawIndicator = true;
-			this.ycheckRouteListsAll.UseUnderline = true;
-			this.hbox1.Add(this.ycheckRouteListsAll);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.ycheckRouteListsAll]));
+			this.yradiobuttonModeAll = new global::Gamma.GtkWidgets.yRadioButton();
+			this.yradiobuttonModeAll.CanFocus = true;
+			this.yradiobuttonModeAll.Name = "yradiobuttonModeAll";
+			this.yradiobuttonModeAll.Label = global::Mono.Unix.Catalog.GetString("Все");
+			this.yradiobuttonModeAll.DrawIndicator = true;
+			this.yradiobuttonModeAll.UseUnderline = true;
+			this.yradiobuttonModeAll.Group = new global::GLib.SList(global::System.IntPtr.Zero);
+			this.hbox1.Add(this.yradiobuttonModeAll);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.yradiobuttonModeAll]));
 			w2.Position = 0;
 			w2.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.ycheckRouteListsFastDelivery = new global::Gamma.GtkWidgets.yCheckButton();
-			this.ycheckRouteListsFastDelivery.CanFocus = true;
-			this.ycheckRouteListsFastDelivery.Name = "ycheckRouteListsFastDelivery";
-			this.ycheckRouteListsFastDelivery.Label = global::Mono.Unix.Catalog.GetString("ДЗЧ");
-			this.ycheckRouteListsFastDelivery.DrawIndicator = true;
-			this.ycheckRouteListsFastDelivery.UseUnderline = true;
-			this.hbox1.Add(this.ycheckRouteListsFastDelivery);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.ycheckRouteListsFastDelivery]));
+			this.yradiobuttonModeFastDelivery = new global::Gamma.GtkWidgets.yRadioButton();
+			this.yradiobuttonModeFastDelivery.CanFocus = true;
+			this.yradiobuttonModeFastDelivery.Name = "yradiobuttonModeFastDelivery";
+			this.yradiobuttonModeFastDelivery.Label = global::Mono.Unix.Catalog.GetString("ДЗЧ");
+			this.yradiobuttonModeFastDelivery.DrawIndicator = true;
+			this.yradiobuttonModeFastDelivery.UseUnderline = true;
+			this.yradiobuttonModeFastDelivery.Group = this.yradiobuttonModeAll.Group;
+			this.hbox1.Add(this.yradiobuttonModeFastDelivery);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.yradiobuttonModeFastDelivery]));
 			w3.Position = 1;
 			w3.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.ycheckRouteListsShifted = new global::Gamma.GtkWidgets.yCheckButton();
-			this.ycheckRouteListsShifted.CanFocus = true;
-			this.ycheckRouteListsShifted.Name = "ycheckRouteListsShifted";
-			this.ycheckRouteListsShifted.Label = global::Mono.Unix.Catalog.GetString("Рейсовые машины");
-			this.ycheckRouteListsShifted.DrawIndicator = true;
-			this.ycheckRouteListsShifted.UseUnderline = true;
-			this.hbox1.Add(this.ycheckRouteListsShifted);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.ycheckRouteListsShifted]));
+			this.yradiobuttonModeShifted = new global::Gamma.GtkWidgets.yRadioButton();
+			this.yradiobuttonModeShifted.CanFocus = true;
+			this.yradiobuttonModeShifted.Name = "yradiobuttonModeShifted";
+			this.yradiobuttonModeShifted.Label = global::Mono.Unix.Catalog.GetString("Рейсовые машины");
+			this.yradiobuttonModeShifted.DrawIndicator = true;
+			this.yradiobuttonModeShifted.UseUnderline = true;
+			this.yradiobuttonModeShifted.Group = this.yradiobuttonModeAll.Group;
+			this.hbox1.Add(this.yradiobuttonModeShifted);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.yradiobuttonModeShifted]));
 			w4.Position = 2;
 			w4.Fill = false;
 			this.vbox2.Add(this.hbox1);
