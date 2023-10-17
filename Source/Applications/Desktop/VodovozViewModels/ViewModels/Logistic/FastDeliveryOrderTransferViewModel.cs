@@ -17,6 +17,7 @@ using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Services;
+using FastDeliveryOrderTransferMode = Vodovoz.ViewModels.ViewModels.Logistic.FastDeliveryOrderTransferFilterViewModel.FastDeliveryOrderTransferMode;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
@@ -38,32 +39,42 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private DelegateCommand _cancelCommand;
 
 		public FastDeliveryOrderTransferViewModel(
+			ILogger<FastDeliveryOrderTransferViewModel> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			INavigationManager navigationManager,
 			IRouteListRepository routeListRepository,
 			ICommonServices commonServices,
+			FastDeliveryOrderTransferFilterViewModel filterViewModel,
 			IRouteListItemRepository routeListItemRepository,
 			IRouteListProfitabilityController routeListProfitabilityController,
-			ILogger<FastDeliveryOrderTransferViewModel> logger,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
 			IWageParameterService wageParameterService,
 			int routeListAddressId) : base(navigationManager)
 		{
+			Title = "Перенос заказа с доставкой за час";
+
 			if(unitOfWorkFactory is null)
 			{
 				throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			}
 
-			_routeListRepository = routeListRepository ?? throw new System.ArgumentNullException(nameof(routeListRepository));
-			_commonServices = commonServices ?? throw new System.ArgumentNullException(nameof(commonServices));
-			_routeListItemRepository = routeListItemRepository ?? throw new System.ArgumentNullException(nameof(routeListItemRepository));
-			_routeListProfitabilityController = routeListProfitabilityController ?? throw new System.ArgumentNullException(nameof(routeListProfitabilityController));
-			_logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
+			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			FilterViewModel = filterViewModel ?? throw new ArgumentNullException(nameof(filterViewModel));
+			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
+			_routeListProfitabilityController = routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
-			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot();
+			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot(Title);
 
+			FilterViewModel.OnFiltered += OnFiltered;
 			GetRouteListFromInfo(routeListAddressId);
+		}
+
+		private void OnFiltered(object sender, EventArgs e)
+		{
+			
 		}
 
 		private void GetRouteListFromInfo(int routeListAddressId)
@@ -329,6 +340,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		}
 
 		public bool CanCancel => true;
+
+		public FastDeliveryOrderTransferFilterViewModel FilterViewModel { get; }
 
 		private void Cancel()
 		{

@@ -1,4 +1,5 @@
 ﻿using QS.Views.Dialog;
+using System;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using static Vodovoz.ViewModels.ViewModels.Logistic.FastDeliveryOrderTransferViewModel;
 
@@ -7,18 +8,26 @@ namespace Vodovoz.Views.Logistic
 	[WindowSize(400, 600)]
 	public partial class FastDeliveryOrderTransferView : DialogViewBase<FastDeliveryOrderTransferViewModel>
 	{
-		public FastDeliveryOrderTransferView(FastDeliveryOrderTransferViewModel viewModel) : base(viewModel)
+		public FastDeliveryOrderTransferFilterView Filter { get; }
+
+		public FastDeliveryOrderTransferView(
+			FastDeliveryOrderTransferViewModel viewModel)
+			: base(viewModel)
 		{
-			this.Build();
+			if(viewModel is null)
+			{
+				throw new ArgumentNullException(nameof(viewModel));
+			}
+
+			Filter = new FastDeliveryOrderTransferFilterView(ViewModel.FilterViewModel);
+			Build();
 			Configure();
 		}
 
 		private void Configure()
 		{
-			if(ViewModel == null)
-			{
-				return;
-			}
+			vboxFilterContainer.Add(Filter);
+			Filter.ShowAll();
 
 			ylabelInfoAddress.Text = ViewModel.AddressInfo;
 			ylabelInfoDriverFrom.Text = ViewModel.DriverInfo;
