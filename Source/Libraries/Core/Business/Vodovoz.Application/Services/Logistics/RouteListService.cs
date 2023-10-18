@@ -268,9 +268,9 @@ namespace Vodovoz.Application.Services.Logistics
 				throw new ArgumentException(string.Format(driverNotFoundErrorTemplate, driverId), nameof(driverId));
 			}
 
-			var routewList = _routeListRepository.GetDriverRouteLists(unitOfWork, driver).Where(x => x.Id == firstRouteListId).FirstOrDefault();
+			var routeList = _routeListRepository.GetDriverRouteLists(unitOfWork, driver).Where(x => x.Id == firstRouteListId).FirstOrDefault();
 
-			if(routewList is null)
+			if(routeList is null)
 			{
 				var driverRouteListNotFoundErrorTemplate = "Не найден МЛ водителя {DriverId} номер {RouteListId}";
 
@@ -294,9 +294,9 @@ namespace Vodovoz.Application.Services.Logistics
 					unitOfWork.Save(specialCondition);
 				}
 
-				routewList.SpecialConditionsAccepted = true;
-				routewList.SpecialConditionsAcceptedAt = DateTime.Now;
-				unitOfWork.Save(routewList);
+				routeList.SpecialConditionsAccepted = true;
+				routeList.SpecialConditionsAcceptedAt = DateTime.Now;
+				unitOfWork.Save(routeList);
 
 				transaction.Commit();
 			}
