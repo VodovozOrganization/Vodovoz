@@ -15,6 +15,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.Services;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.Extensions;
 using FastDeliveryOrderTransferMode = Vodovoz.ViewModels.ViewModels.Logistic.FastDeliveryOrderTransferFilterViewModel.FastDeliveryOrderTransferMode;
@@ -25,6 +26,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 	{
 		private readonly ILogger<FastDeliveryOrderTransferViewModel> _logger;
 		private readonly IUnitOfWork _unitOfWork;
+		private readonly TimeSpan _driverOfflineTimeSpan;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly ICommonServices _commonServices;
 		private readonly IRouteListItemRepository _routeListItemRepository;
@@ -32,6 +34,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly IWageParameterService _wageParameterService;
 		private readonly ITrackRepository _trackRepository;
 		private readonly IFastDeliveryDistanceChecker _fastDeliveryDistanceChecker;
+		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
 		private readonly OsrmClient _osrmClient;
 		private RouteList _routeListFrom;
 		private RouteListItem _routeListItemToTransfer;
@@ -49,6 +52,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			ITrackRepository trackRepository,
 			IFastDeliveryDistanceChecker fastDeliveryDistanceChecker,
 			OsrmClient osrmClient,
+			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
 			int routeListAddressId)
 			: base(navigationManager)
 		{
@@ -69,7 +73,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
 			_fastDeliveryDistanceChecker = fastDeliveryDistanceChecker ?? throw new ArgumentNullException(nameof(fastDeliveryDistanceChecker));
 			_osrmClient = osrmClient ?? throw new ArgumentNullException(nameof(osrmClient));
+			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
 			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot(Title);
+
+			_driverOfflineTimeSpan = _deliveryRulesParametersProvider.MaxTimeOffsetForLatestTrackPoint;
 
 			CancelCommand = new DelegateCommand(Cancel, () => CanCancel);
 			TransferCommand = new DelegateCommand(Transfer, () => CanTransfer);
@@ -78,6 +85,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			FilterViewModel.OnFiltered += OnFiltered;
 			FilterViewModel.Update();
+
 		}
 
 		private void OnFiltered(object sender, EventArgs e)
@@ -128,13 +136,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			{
 				_logger.LogDebug("Данный заказ уже был перенесен");
 				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Данный заказ уже был перенесен");
-				return false;
-			}
-
-			if(routeListTo.AdditionalLoadingDocument == null)
-			{
-				_logger.LogDebug("В выбранном маршрутном листе отсутствуют дополнительная загрузка");
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "В выбранном маршрутном листе отсутствуют дополнительная загрузка");
 				return false;
 			}
 
@@ -261,43 +262,58 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 									|| (FilterViewModel.Mode == FastDeliveryOrderTransferMode.Shifted && routeList.AdditionalLoadingDocument.Id == null)
 									|| FilterViewModel.Mode == FastDeliveryOrderTransferMode.All)
 							  let driverFIO = $"{routeList.Driver.LastName} {routeList.Driver.Name[0]}. {routeList.Driver.Patronymic[0]}."
-							  select new RouteListNode
-							  {
-								  RouteListId = routeList.Id,
-								  DriverFullName = driverFIO,
-								  CarRegistrationNumber = routeList.Car.RegistrationNumber,
-								  Distance = null
-							  })
+							  select routeList)
 							 .ToList();
 
 			PointOnEarth point = _routeListItemToTransfer.Order.DeliveryPoint.GetPointOnEarth();
 
 			var lastTrackPointsWithRadiuses = _trackRepository
-				.GetLastPointForRouteListsWithRadius(_unitOfWork, routeLists.Select(x => x.RouteListId).ToArray());
+				.GetLastPointForRouteListsWithRadius(_unitOfWork, routeLists.Select(x => x.Id).ToArray());
+
+			List<RouteListNode> routeListNodes = new List<RouteListNode>();
+
+			var rowNumber = 1;
 
 			for(int i = 0; i < routeLists.Count; i++)
 			{
 				var currentLastTrackPointWithRadius = lastTrackPointsWithRadiuses
-						.FirstOrDefault(x => x.RouteListId == routeLists[i].RouteListId);
+						.FirstOrDefault(x => x.RouteListId == routeLists[i].Id);
 
 				if(currentLastTrackPointWithRadius != null
+					&& (DateTime.Now - currentLastTrackPointWithRadius.Time) < _driverOfflineTimeSpan
 					&& _fastDeliveryDistanceChecker.DeliveryPointInFastDeliveryRadius(
 						_routeListItemToTransfer.Order.DeliveryPoint,
-						currentLastTrackPointWithRadius))
+						currentLastTrackPointWithRadius)
+					&& _routeListRepository.HasFreeBalanceForOrder(_unitOfWork, _routeListItemToTransfer.Order, routeLists[i]))
 				{
 					PointOnEarth currentRouteListLastTrackPoint = new PointOnEarth(
 						Convert.ToDouble(currentLastTrackPointWithRadius.Latitude),
 						Convert.ToDouble(currentLastTrackPointWithRadius.Longitude));
 
-					var route = _osrmClient.GetRoute(new List<PointOnEarth> { point, currentRouteListLastTrackPoint });
+					RouteResponse route = null;
 
-					routeLists[i].Distance = route.Routes.First().TotalDistanceKm;
+					try
+					{
+						route = _osrmClient.GetRoute(new List<PointOnEarth> { point, currentRouteListLastTrackPoint });
+					}
+					catch(Exception e)
+					{
+						_logger.LogError(e, "Ошибка получения результатов вычисления маршрута");
+					}
+
+					var distance = route?.Routes.First().TotalDistanceKm;
+
+					routeListNodes.Add(new RouteListNode
+					{
+						RowNumber = rowNumber++,
+						RouteListId = routeLists[i].Id,
+						CarRegistrationNumber = routeLists[i].Car.RegistrationNumber,
+						DriverFullName = routeLists[i].Driver.ShortName,
+					});
 				}
-
-				routeLists[i].RowNumber = i + 1;
 			}
 
-			return routeLists;
+			return routeListNodes.OrderBy(x => (x.Distance, x.DriverFullName)).ToList();
 		}
 
 		public RouteListNode RouteListToSelectedNode { get; set; }
