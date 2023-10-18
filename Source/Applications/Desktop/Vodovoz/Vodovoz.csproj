@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -451,6 +451,7 @@
     <Compile Include="JournalColumnsConfigs\BulkEmailEventReasonJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\BusinessTasksJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\CarEventJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\RegradingOfGoodsReasonsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\CarEventTypeJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\CarJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\CarManufacturerJournalRegistrar.cs" />
@@ -1980,6 +1981,8 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Search.CompositeSearchView.cs" />
     <Compile Include="ViewWidgets\Users\WarehousesUserSelectionView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Users.WarehousesUserSelectionView.cs" />
+    <Compile Include="Views\Warehouse\RegradingOfGoodsReasonView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.RegradingOfGoodsReasonView.cs" />
     <Compile Include="ViewWidgets\Reports\CarModelSelectionFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Reports.CarModelSelectionFilterView.cs" />
     <Compile Include="Views\Orders\PrintOrdersDocumentsView.cs" />
@@ -1992,9 +1995,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="NLog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="RdlEngineConfig.xml">
@@ -2026,6 +2026,9 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Antlr3.Runtime" Version="3.5.1" />
+    <PackageReference Include="Autofac.Extensions.DependencyInjection">
+      <Version>8.0.0</Version>
+    </PackageReference>
     <PackageReference Include="BouncyCastle" Version="1.8.9" />
     <PackageReference Include="DiffPlex" Version="1.7.1" />
     <PackageReference Include="FluentNHibernate" Version="3.1.0" />
@@ -2061,6 +2064,9 @@
     <PackageReference Include="NLog" Version="5.1.2" />
     <PackageReference Include="NLog.Extensions.Logging">
       <Version>5.2.2</Version>
+    </PackageReference>
+    <PackageReference Include="NLog.Web">
+      <Version>5.2.1</Version>
     </PackageReference>
     <PackageReference Include="OneOf">
       <Version>3.0.243</Version>

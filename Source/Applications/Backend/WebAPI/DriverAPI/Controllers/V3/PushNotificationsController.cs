@@ -1,4 +1,5 @@
 ﻿using DriverAPI.DTOs.V3;
+using DriverAPI.Library.Deprecated3.Models;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.Models;
 using DriverAPI.Services;
@@ -9,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using System;
 using System.Threading.Tasks;
+using IRouteListModel = DriverAPI.Library.Deprecated3.Models.IRouteListModel;
 
 namespace DriverAPI.Controllers.V3
 {

@@ -16,7 +16,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 {
 	public class ComplaintObjectJournalViewModel : FilterableSingleEntityJournalViewModelBase<ComplaintObject, ComplaintObjectViewModel, ComplaintObjectJournalNode, ComplaintObjectJournalFilterViewModel>
 	{
-		public ComplaintObjectJournalViewModel(ComplaintObjectJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
+		public ComplaintObjectJournalViewModel(
+			ComplaintObjectJournalFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			Action<ComplaintObjectJournalFilterViewModel> filterConfig = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Объекты рекламаций";
@@ -25,6 +29,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 				typeof(ComplaintObject),
 				typeof(ComplaintKind)
 			);
+
+			if(filterConfig != null)
+			{
+				FilterViewModel.SetAndRefilterAtOnce(filterConfig);
+			}
 		}
 
 		protected override Func<IUnitOfWork, IQueryOver<ComplaintObject>> ItemsSourceQueryFunction => (uow) =>
