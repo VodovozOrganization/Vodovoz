@@ -80,7 +80,7 @@ namespace DriverAPI.Library.Deprecated2.Converters
 						routelistAddresses.Add(convertToAPIRouteListAddress(address));
 					}
 					
-					result.IncompletedRouteList = new IncompletedRouteListDto()
+					result.IncompletedRouteList = new Deprecated3.DTOs.IncompletedRouteListDto()
 					{
 						RouteListId = routeList.Id,
 						RouteListStatus = _routeListStatusConverter.ConvertToAPIRouteListStatus(routeList.Status),

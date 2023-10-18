@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>net5.0</TargetFramework>
@@ -20,7 +20,12 @@
 		<ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
 		<ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Project\QS.Project.csproj" />
 		<ProjectReference Include="..\..\..\External\Gtk.DataBindings\System.Data.Bindings\System.Data.Bindings.csproj" />
+		<ProjectReference Include="..\..\Business\Vodovoz.Application\Vodovoz.Application.csproj" />
 		<ProjectReference Include="..\..\Business\VodovozBusiness\VodovozBusiness.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Deprecated3\Converters\" />
 	</ItemGroup>
 
 </Project>
