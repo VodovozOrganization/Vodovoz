@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using MoreLinq;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -272,8 +273,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			List<RouteListNode> routeListNodes = new List<RouteListNode>();
 
-			var rowNumber = 1;
-
 			for(int i = 0; i < routeLists.Count; i++)
 			{
 				var currentLastTrackPointWithRadius = lastTrackPointsWithRadiuses
@@ -306,15 +305,23 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 					routeListNodes.Add(new RouteListNode
 					{
-						RowNumber = rowNumber++,
 						RouteListId = routeLists[i].Id,
 						CarRegistrationNumber = routeLists[i].Car.RegistrationNumber,
 						DriverFullName = routeLists[i].Driver.ShortName,
+						Distance = distance
 					});
 				}
 			}
 
-			return routeListNodes.OrderBy(x => (x.Distance, x.DriverFullName)).ToList();
+			var resortedRouteLists = routeListNodes
+				.OrderByDescending(x => x.Distance.HasValue)
+				.ThenBy(x => (x.Distance, x.DriverFullName));
+
+			var rowNumber = 1;
+
+			resortedRouteLists.ForEach(x => x.RowNumber = rowNumber++);
+
+			return resortedRouteLists.ToList();
 		}
 
 		public RouteListNode RouteListToSelectedNode { get; set; }
