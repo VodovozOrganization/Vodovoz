@@ -3,6 +3,7 @@ using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Osrm;
 using QS.Services;
 using QS.ViewModels.Dialog;
 using System;
@@ -14,6 +15,8 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.Tools.Logistic;
+using Vodovoz.ViewModels.Extensions;
 using FastDeliveryOrderTransferMode = Vodovoz.ViewModels.ViewModels.Logistic.FastDeliveryOrderTransferFilterViewModel.FastDeliveryOrderTransferMode;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
@@ -27,6 +30,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 		private readonly IWageParameterService _wageParameterService;
+		private readonly ITrackRepository _trackRepository;
+		private readonly IFastDeliveryDistanceChecker _fastDeliveryDistanceChecker;
+		private readonly OsrmClient _osrmClient;
 		private RouteList _routeListFrom;
 		private RouteListItem _routeListItemToTransfer;
 
@@ -40,6 +46,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IRouteListItemRepository routeListItemRepository,
 			IRouteListProfitabilityController routeListProfitabilityController,
 			IWageParameterService wageParameterService,
+			ITrackRepository trackRepository,
+			IFastDeliveryDistanceChecker fastDeliveryDistanceChecker,
+			OsrmClient osrmClient,
 			int routeListAddressId)
 			: base(navigationManager)
 		{
@@ -57,6 +66,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_routeListProfitabilityController = routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
+			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
+			_fastDeliveryDistanceChecker = fastDeliveryDistanceChecker ?? throw new ArgumentNullException(nameof(fastDeliveryDistanceChecker));
+			_osrmClient = osrmClient ?? throw new ArgumentNullException(nameof(osrmClient));
 			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot(Title);
 
 			CancelCommand = new DelegateCommand(Cancel, () => CanCancel);
@@ -155,7 +167,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			var transferredAddressFromRouteListTo =
 				_routeListItemRepository.GetTransferredRouteListItemFromRouteListForOrder(_unitOfWork, routeListTo.Id, address.Order.Id);
 
-			RouteListItem newItem = null;
+			RouteListItem newItem;
 
 			if(transferredAddressFromRouteListTo != null)
 			{
@@ -254,12 +266,34 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 								  RouteListId = routeList.Id,
 								  DriverFullName = driverFIO,
 								  CarRegistrationNumber = routeList.Car.RegistrationNumber,
-								  Distance = 0m
+								  Distance = null
 							  })
 							 .ToList();
 
+			PointOnEarth point = _routeListItemToTransfer.Order.DeliveryPoint.GetPointOnEarth();
+
+			var lastTrackPointsWithRadiuses = _trackRepository
+				.GetLastPointForRouteListsWithRadius(_unitOfWork, routeLists.Select(x => x.RouteListId).ToArray());
+
 			for(int i = 0; i < routeLists.Count; i++)
 			{
+				var currentLastTrackPointWithRadius = lastTrackPointsWithRadiuses
+						.FirstOrDefault(x => x.RouteListId == routeLists[i].RouteListId);
+
+				if(currentLastTrackPointWithRadius != null
+					&& _fastDeliveryDistanceChecker.DeliveryPointInFastDeliveryRadius(
+						_routeListItemToTransfer.Order.DeliveryPoint,
+						currentLastTrackPointWithRadius))
+				{
+					PointOnEarth currentRouteListLastTrackPoint = new PointOnEarth(
+						Convert.ToDouble(currentLastTrackPointWithRadius.Latitude),
+						Convert.ToDouble(currentLastTrackPointWithRadius.Longitude));
+
+					var route = _osrmClient.GetRoute(new List<PointOnEarth> { point, currentRouteListLastTrackPoint });
+
+					routeLists[i].Distance = route.Routes.First().TotalDistanceKm;
+				}
+
 				routeLists[i].RowNumber = i + 1;
 			}
 

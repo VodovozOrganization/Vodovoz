@@ -17,7 +17,7 @@ namespace Vodovoz.Tools.Logistic
 	/// Класс предназначен для расчета расстояний между точками.
 	/// Расчет происходит напрямую без учета дорожной сети.
 	/// </summary>
-	public class DistanceCalculator : IDistanceCalculator
+	public class DistanceCalculator : IDistanceCalculator, IFastDeliveryDistanceChecker
 	{
 		const double _radiusEarthKilometers = 6371.01d;
 
@@ -167,6 +167,13 @@ namespace Vodovoz.Tools.Logistic
 		public int DistanceToBaseMeter(DeliveryPoint fromDP, GeoGroupVersion toBase)
 		{
 			return (int)(GetDistanceToBase(fromDP, toBase) * 1000);
+		}
+
+		public bool DeliveryPointInFastDeliveryRadius(DeliveryPoint deliveryPoint, DriverPositionWithFastDeliveryRadius driverPosition)
+		{
+			var circle = CreateCircle(new Coordinate(driverPosition.Latitude, driverPosition.Longitude), driverPosition.FastDeliveryRadius);
+
+			return circle.Contains(new Point(Convert.ToDouble(deliveryPoint.Latitude), Convert.ToDouble(deliveryPoint.Longitude)));
 		}
 	}
 }

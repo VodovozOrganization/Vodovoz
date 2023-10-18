@@ -36,7 +36,9 @@ namespace Vodovoz.Views.Logistic
 				.AddColumn("№").AddTextRenderer(x => x.RowNumber.ToString())
 				.AddColumn("Водитель").AddTextRenderer(x => x.DriverFullName)
 				.AddColumn("Машина").AddTextRenderer(x => x.CarRegistrationNumber)
-				.AddColumn("Расстояние").AddTextRenderer(x => $"{x.Distance:F2} км")
+				.AddColumn("Расстояние").AddTextRenderer(x => x.Distance.HasValue
+					? $"{x.Distance:F2} км"
+					: "Ошибка")
 				.AddColumn("МЛ").AddTextRenderer(x => x.RouteListId.ToString())
 				.Finish();
 
