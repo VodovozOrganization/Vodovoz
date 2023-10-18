@@ -97,6 +97,7 @@ using Vodovoz.SidePanel.InfoViews;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.Tools.Logistic;
 using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Factories;
@@ -635,7 +636,9 @@ namespace Vodovoz
 				.ConfigureServices((hostingContext, services) =>
 				{
 					services.AddSingleton<Startup>()
-							.AddScoped<IRouteListService, RouteListService>();
+							.AddScoped<IRouteListService, RouteListService>()
+							.AddScoped<RouteGeometryCalculator>()
+							;
 				});
 	}
 }

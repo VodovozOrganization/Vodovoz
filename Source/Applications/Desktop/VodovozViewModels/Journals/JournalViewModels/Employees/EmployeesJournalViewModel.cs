@@ -369,7 +369,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 		{
 			NodeActionsList.Clear();
 			CreateDefaultSelectAction();
-			CreateDefaultAddActions();
+			CreateCustomAddActions();
 			CreateCustomEditAction();
 			CreateDefaultDeleteAction();
 		}
@@ -424,6 +424,30 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			}
 
 			NodeActionsList.Add(editAction);
+		}
+
+		private void CreateCustomAddActions()
+		{
+			var createAction = new JournalAction("Создать",
+				(selected) =>
+				{
+					var config = EntityConfigs[typeof(Employee)];
+
+					return config.PermissionResult.CanCreate;
+				},
+				(selected) => true,
+				(selected) =>
+				{
+					if(!EntityConfigs.ContainsKey(typeof(Employee)))
+					{
+						return;
+					}
+
+					NavigationManager.OpenViewModel<EmployeeViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
+				}
+			);
+
+			NodeActionsList.Add(createAction);
 		}
 
 		protected override Func<EmployeeViewModel> CreateDialogFunction =>
