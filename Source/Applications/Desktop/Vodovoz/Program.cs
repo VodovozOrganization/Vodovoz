@@ -47,6 +47,7 @@ using System.Linq;
 using System.Reflection;
 using Vodovoz.Additions;
 using Vodovoz.Application.Services;
+using Vodovoz.Application.Services.Logistics;
 using Vodovoz.CachingRepositories.Cash;
 using Vodovoz.CachingRepositories.Common;
 using Vodovoz.CachingRepositories.Counterparty;
@@ -89,6 +90,7 @@ using Vodovoz.ReportsParameters.Retail;
 using Vodovoz.ReportsParameters.Sales;
 using Vodovoz.ReportsParameters.Store;
 using Vodovoz.Services;
+using Vodovoz.Services.Logistics;
 using Vodovoz.Services.Permissions;
 using Vodovoz.Settings.Database;
 using Vodovoz.SidePanel.InfoViews;
@@ -632,7 +634,8 @@ namespace Vodovoz
 				}))
 				.ConfigureServices((hostingContext, services) =>
 				{
-					services.AddSingleton<Startup>();
+					services.AddSingleton<Startup>()
+							.AddScoped<IRouteListService, RouteListService>();
 				});
 	}
 }
