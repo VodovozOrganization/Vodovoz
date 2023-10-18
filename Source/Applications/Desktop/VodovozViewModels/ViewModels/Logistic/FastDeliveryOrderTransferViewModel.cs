@@ -284,6 +284,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					&& _fastDeliveryDistanceChecker.DeliveryPointInFastDeliveryRadius(
 						_routeListItemToTransfer.Order.DeliveryPoint,
 						currentLastTrackPointWithRadius)
+					&& GetFastDeliveryOrdersCountInRouteList(routeLists[i]) >= routeLists[i].GetMaxFastDeliveryOrdersValue()
 					&& _routeListRepository.HasFreeBalanceForOrder(_unitOfWork, _routeListItemToTransfer.Order, routeLists[i]))
 				{
 					PointOnEarth currentRouteListLastTrackPoint = new PointOnEarth(
