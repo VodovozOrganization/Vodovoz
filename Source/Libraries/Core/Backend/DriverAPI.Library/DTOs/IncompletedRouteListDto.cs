@@ -26,6 +26,6 @@ namespace DriverAPI.Library.DTOs
 		/// <summary>
 		/// Условия необходимые для принятия перед началом работы с МЛ
 		/// </summary>
-		public IEnumerable<RouteListSpecialConditionDto> SpecialConditions { get; set; }
+		public IEnumerable<RouteListSpecialConditionDto> SpecialConditionsToAccept { get; set; }
 	}
 }
