@@ -7,6 +7,7 @@ using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
+using Vodovoz.ViewWidgets.Reports;
 using Key = Gdk.Key;
 
 namespace Vodovoz.Filters.GtkViews
@@ -16,6 +17,7 @@ namespace Vodovoz.Filters.GtkViews
 		private const string _radioButtonPrefix = "yrbtn";
 		private const string _targetSourcePrefix = "TargetSource";
 		private SelectableParameterReportFilterView _filterView;
+		private IncludeExludeFiltersView _includeExcludefilterView;
 
 		public WarehouseDocumentsItemsJournalFilterView(WarehouseDocumentsItemsJournalFilterViewModel filterViewModel)
 			: base(filterViewModel)
@@ -50,10 +52,6 @@ namespace Vodovoz.Filters.GtkViews
 
 			entryLastEditor.ViewModel = ViewModel.LastEditorEntityEntryViewModel;
 			entryLastEditor.Binding.AddBinding(ViewModel, vm => vm.CanReadEmployee, w => w.ViewModel.IsEditable)
-				.InitializeFromSource();
-
-			entryNomenclature.ViewModel = ViewModel.NomenclatureEntityEntryViewModel;
-			entryNomenclature.Binding.AddBinding(ViewModel, vm => vm.CanReadNomenclature, w => w.ViewModel.IsEditable)
 				.InitializeFromSource();
 
 			yecmbMovementStatus.ItemsEnum = typeof(MovementDocumentStatus);
@@ -107,6 +105,12 @@ namespace Vodovoz.Filters.GtkViews
 			_filterView = new SelectableParameterReportFilterView(ViewModel.FilterViewModel);
 			vboxParameters.Add(_filterView);
 			_filterView.Show();
+
+			_includeExcludefilterView?.Destroy();
+			_includeExcludefilterView = new IncludeExludeFiltersView(ViewModel.IncludeExcludeFilterViewModel);
+			_includeExcludefilterView.HeightRequest = 200;
+			yvboxParameters.Add(_includeExcludefilterView);
+			_includeExcludefilterView.Show();
 		}
 
 		private void TargetSourceGroupSelectionChanged(object sender, EventArgs e)

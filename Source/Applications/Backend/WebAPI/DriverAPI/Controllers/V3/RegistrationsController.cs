@@ -1,4 +1,5 @@
 ﻿using DriverAPI.DTOs.V3;
+using DriverAPI.Library.Deprecated3.Models;
 using DriverAPI.Library.DTOs;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.Models;
@@ -12,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Logistic.Drivers;
+using IRouteListModel = DriverAPI.Library.Deprecated3.Models.IRouteListModel;
 
 namespace DriverAPI.Controllers.V3
 {

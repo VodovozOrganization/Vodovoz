@@ -1,6 +1,6 @@
 ﻿using System;
 using RouteListDtoCompletionStatus = DriverAPI.Library.DTOs.RouteListDtoCompletionStatus;
-using IncompletedRouteListDto = DriverAPI.Library.DTOs.IncompletedRouteListDto;
+using IncompletedRouteListDto = DriverAPI.Library.Deprecated3.DTOs.IncompletedRouteListDto;
 
 namespace DriverAPI.Library.Deprecated2.DTOs
 {

@@ -90,7 +90,9 @@ namespace Vodovoz.Journals.JournalViewModels
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
 			IComplaintParametersProvider complaintParametersProvider,
 			IGeneralSettingsParametersProvider generalSettingsParametersProvider,
-			ILifetimeScope scope) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			ILifetimeScope scope,
+			Action<ComplaintFilterViewModel> filterConfig = null)
+			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -170,6 +172,11 @@ namespace Vodovoz.Journals.JournalViewModels
 
 			DataLoader.PostLoadProcessingFunc = BeforeItemsUpdated;
 			UseSlider = false;
+
+			if(filterConfig != null)
+			{
+				FilterViewModel.SetAndRefilterAtOnce(filterConfig);
+			}
 		}
 
 		private ITdiTab _parrentTab;

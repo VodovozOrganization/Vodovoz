@@ -1,8 +1,5 @@
-﻿using QS.DomainModel.UoW;
-using QS.Project.Journal;
-using QS.Project.Services;
+﻿using QS.Project.Journal;
 using System;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Proposal;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Proposal;
 
@@ -15,15 +12,8 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionOpenProposalsJournalActivated(object sender, EventArgs e)
 	{
-		var filter = new ApplicationDevelopmentProposalsJournalFilterViewModel { HidenByDefault = true };
+		var page = NavigationManager.OpenViewModel<ApplicationDevelopmentProposalsJournalViewModel, Action<ApplicationDevelopmentProposalsJournalFilterViewModel>>(null, filter => filter.HidenByDefault = true, QS.Navigation.OpenPageOptions.IgnoreHash);
 
-		tdiMain.AddTab(
-			new ApplicationDevelopmentProposalsJournalViewModel(
-				filter,
-				new EmployeeService(),
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices)
-			{ SelectionMode = JournalSelectionMode.Multiple }
-		);
+		page.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
 	}
 }
