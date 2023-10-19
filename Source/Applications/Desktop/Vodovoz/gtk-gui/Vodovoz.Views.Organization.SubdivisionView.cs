@@ -6,9 +6,11 @@ namespace Vodovoz.Views.Organization
 	{
 		private global::Gtk.Table table1;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryChief;
+		private global::QS.Views.Control.EntityEntry entryChief;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryDefaultSalesPlan;
+		private global::QS.Views.Control.EntityEntry entryDefaultSalesPlan;
+
+		private global::QS.Views.Control.EntityEntry entrySubdivision;
 
 		private global::Gtk.Frame frmWarehoses;
 
@@ -17,8 +19,6 @@ namespace Vodovoz.Views.Organization
 		private global::Gtk.Label lblWarehouses;
 
 		private global::Gtk.Label GtkLabel8;
-
-		private global::Gtk.HBox hbox3;
 
 		private global::Gtk.HBox hbox4;
 
@@ -78,15 +78,13 @@ namespace Vodovoz.Views.Organization
 
 		private global::Gtk.Label lblWarehousesPermissions;
 
+		private global::QS.Widgets.GtkUI.SpecialListComboBox speciallistcomboboxGeoGrpoup;
+
 		private global::Gamma.GtkWidgets.yCheckButton ycheckArchieve;
 
 		private global::Gamma.GtkWidgets.yEntry yentryName;
 
-		private global::Gamma.Widgets.yEntryReference yentryrefParentSubdivision;
-
 		private global::Gamma.GtkWidgets.yEntry yentryShortName;
-
-		private global::Gamma.Widgets.ySpecComboBox ySpecCmbGeographicGroup;
 
 		protected virtual void Build()
 		{
@@ -100,11 +98,9 @@ namespace Vodovoz.Views.Organization
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
-			this.entryChief = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.entryChief = new global::QS.Views.Control.EntityEntry();
 			this.entryChief.Events = ((global::Gdk.EventMask)(256));
 			this.entryChief.Name = "entryChief";
-			this.entryChief.CanEditReference = false;
-			this.entryChief.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.entryChief);
 			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.entryChief]));
 			w1.TopAttach = ((uint)(3));
@@ -114,11 +110,9 @@ namespace Vodovoz.Views.Organization
 			w1.XOptions = ((global::Gtk.AttachOptions)(4));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.entryDefaultSalesPlan = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.entryDefaultSalesPlan = new global::QS.Views.Control.EntityEntry();
 			this.entryDefaultSalesPlan.Events = ((global::Gdk.EventMask)(256));
 			this.entryDefaultSalesPlan.Name = "entryDefaultSalesPlan";
-			this.entryDefaultSalesPlan.CanEditReference = false;
-			this.entryDefaultSalesPlan.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.entryDefaultSalesPlan);
 			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.entryDefaultSalesPlan]));
 			w2.TopAttach = ((uint)(6));
@@ -127,6 +121,18 @@ namespace Vodovoz.Views.Organization
 			w2.RightAttach = ((uint)(4));
 			w2.XOptions = ((global::Gtk.AttachOptions)(4));
 			w2.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.entrySubdivision = new global::QS.Views.Control.EntityEntry();
+			this.entrySubdivision.Events = ((global::Gdk.EventMask)(256));
+			this.entrySubdivision.Name = "entrySubdivision";
+			this.table1.Add(this.entrySubdivision);
+			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.entrySubdivision]));
+			w3.TopAttach = ((uint)(4));
+			w3.BottomAttach = ((uint)(5));
+			w3.LeftAttach = ((uint)(3));
+			w3.RightAttach = ((uint)(4));
+			w3.XOptions = ((global::Gtk.AttachOptions)(4));
+			w3.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.frmWarehoses = new global::Gtk.Frame();
 			this.frmWarehoses.Name = "frmWarehoses";
@@ -150,22 +156,12 @@ namespace Vodovoz.Views.Organization
 			this.GtkLabel8.UseMarkup = true;
 			this.frmWarehoses.LabelWidget = this.GtkLabel8;
 			this.table1.Add(this.frmWarehoses);
-			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.frmWarehoses]));
-			w5.TopAttach = ((uint)(2));
-			w5.BottomAttach = ((uint)(6));
-			w5.LeftAttach = ((uint)(4));
-			w5.RightAttach = ((uint)(5));
-			w5.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.hbox3 = new global::Gtk.HBox();
-			this.hbox3.Name = "hbox3";
-			this.hbox3.Spacing = 6;
-			this.table1.Add(this.hbox3);
-			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.hbox3]));
-			w6.TopAttach = ((uint)(7));
-			w6.BottomAttach = ((uint)(8));
-			w6.LeftAttach = ((uint)(2));
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.frmWarehoses]));
+			w6.TopAttach = ((uint)(2));
+			w6.BottomAttach = ((uint)(6));
+			w6.LeftAttach = ((uint)(4));
 			w6.RightAttach = ((uint)(5));
+			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.hbox4 = new global::Gtk.HBox();
 			this.hbox4.Name = "hbox4";
@@ -434,7 +430,21 @@ namespace Vodovoz.Views.Organization
 			w32.BottomAttach = ((uint)(8));
 			w32.RightAttach = ((uint)(5));
 			w32.XOptions = ((global::Gtk.AttachOptions)(4));
-			w32.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.speciallistcomboboxGeoGrpoup = new global::QS.Widgets.GtkUI.SpecialListComboBox();
+			this.speciallistcomboboxGeoGrpoup.Name = "speciallistcomboboxGeoGrpoup";
+			this.speciallistcomboboxGeoGrpoup.AddIfNotExist = false;
+			this.speciallistcomboboxGeoGrpoup.DefaultFirst = false;
+			this.speciallistcomboboxGeoGrpoup.ShowSpecialStateAll = false;
+			this.speciallistcomboboxGeoGrpoup.ShowSpecialStateNot = false;
+			this.table1.Add(this.speciallistcomboboxGeoGrpoup);
+			global::Gtk.Table.TableChild w33 = ((global::Gtk.Table.TableChild)(this.table1[this.speciallistcomboboxGeoGrpoup]));
+			w33.TopAttach = ((uint)(5));
+			w33.BottomAttach = ((uint)(6));
+			w33.LeftAttach = ((uint)(3));
+			w33.RightAttach = ((uint)(4));
+			w33.XOptions = ((global::Gtk.AttachOptions)(4));
+			w33.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ycheckArchieve = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckArchieve.CanFocus = true;
@@ -443,12 +453,12 @@ namespace Vodovoz.Views.Organization
 			this.ycheckArchieve.DrawIndicator = true;
 			this.ycheckArchieve.UseUnderline = true;
 			this.table1.Add(this.ycheckArchieve);
-			global::Gtk.Table.TableChild w33 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckArchieve]));
-			w33.TopAttach = ((uint)(1));
-			w33.BottomAttach = ((uint)(2));
-			w33.RightAttach = ((uint)(2));
-			w33.XOptions = ((global::Gtk.AttachOptions)(0));
-			w33.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w34 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckArchieve]));
+			w34.TopAttach = ((uint)(1));
+			w34.BottomAttach = ((uint)(2));
+			w34.RightAttach = ((uint)(2));
+			w34.XOptions = ((global::Gtk.AttachOptions)(0));
+			w34.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.yentryName = new global::Gamma.GtkWidgets.yEntry();
 			this.yentryName.CanFocus = true;
@@ -456,20 +466,9 @@ namespace Vodovoz.Views.Organization
 			this.yentryName.IsEditable = true;
 			this.yentryName.InvisibleChar = '●';
 			this.table1.Add(this.yentryName);
-			global::Gtk.Table.TableChild w34 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryName]));
-			w34.TopAttach = ((uint)(1));
-			w34.BottomAttach = ((uint)(2));
-			w34.LeftAttach = ((uint)(3));
-			w34.RightAttach = ((uint)(4));
-			w34.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.yentryrefParentSubdivision = new global::Gamma.Widgets.yEntryReference();
-			this.yentryrefParentSubdivision.Events = ((global::Gdk.EventMask)(256));
-			this.yentryrefParentSubdivision.Name = "yentryrefParentSubdivision";
-			this.table1.Add(this.yentryrefParentSubdivision);
-			global::Gtk.Table.TableChild w35 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryrefParentSubdivision]));
-			w35.TopAttach = ((uint)(4));
-			w35.BottomAttach = ((uint)(5));
+			global::Gtk.Table.TableChild w35 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryName]));
+			w35.TopAttach = ((uint)(1));
+			w35.BottomAttach = ((uint)(2));
 			w35.LeftAttach = ((uint)(3));
 			w35.RightAttach = ((uint)(4));
 			w35.YOptions = ((global::Gtk.AttachOptions)(4));
@@ -488,21 +487,6 @@ namespace Vodovoz.Views.Organization
 			w36.RightAttach = ((uint)(4));
 			w36.XOptions = ((global::Gtk.AttachOptions)(4));
 			w36.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.ySpecCmbGeographicGroup = new global::Gamma.Widgets.ySpecComboBox();
-			this.ySpecCmbGeographicGroup.Name = "ySpecCmbGeographicGroup";
-			this.ySpecCmbGeographicGroup.AddIfNotExist = false;
-			this.ySpecCmbGeographicGroup.DefaultFirst = false;
-			this.ySpecCmbGeographicGroup.ShowSpecialStateAll = false;
-			this.ySpecCmbGeographicGroup.ShowSpecialStateNot = true;
-			this.table1.Add(this.ySpecCmbGeographicGroup);
-			global::Gtk.Table.TableChild w37 = ((global::Gtk.Table.TableChild)(this.table1[this.ySpecCmbGeographicGroup]));
-			w37.TopAttach = ((uint)(5));
-			w37.BottomAttach = ((uint)(6));
-			w37.LeftAttach = ((uint)(3));
-			w37.RightAttach = ((uint)(4));
-			w37.XOptions = ((global::Gtk.AttachOptions)(4));
-			w37.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add(this.table1);
 			if ((this.Child != null))
 			{
