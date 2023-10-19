@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using QS.Dialog.GtkUI;
+﻿using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QS.Navigation;
 using QS.Report;
 using QSReport;
+using System;
+using System.Collections.Generic;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.TempAdapters;
@@ -15,13 +14,8 @@ namespace Vodovoz.ReportsParameters.Store
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class DefectiveItemsReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public DefectiveItemsReport(INavigationManager navigationManager)
+		public DefectiveItemsReport()
 		{
-			if(navigationManager is null)
-			{
-				throw new ArgumentNullException(nameof(navigationManager));
-			}
-
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
@@ -32,7 +26,7 @@ namespace Vodovoz.ReportsParameters.Store
 			driverFilter.SetAndRefilterAtOnce(
 				x => x.Status = EmployeeStatus.IsWorking,
 				x => x.RestrictCategory = EmployeeCategory.driver);
-			var employeeFactory = new EmployeeJournalFactory(navigationManager, driverFilter);
+			var employeeFactory = new EmployeeJournalFactory(driverFilter);
 			evmeDriver.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateEmployeeAutocompleteSelectorFactory());
 
 			datePeriod.StartDate = datePeriod.EndDate = DateTime.Today;

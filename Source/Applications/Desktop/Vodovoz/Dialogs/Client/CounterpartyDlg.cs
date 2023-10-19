@@ -749,7 +749,7 @@ namespace Vodovoz
 			emailsView.ViewModel = emailsViewModel;
 			emailsView.Sensitive = CanEdit;
 
-			var employeeJournalFactory = new EmployeeJournalFactory(NavigationManager);
+			var employeeJournalFactory = new EmployeeJournalFactory();
 			if(SetSensitivityByPermission("can_set_personal_sales_manager", entrySalesManager))
 			{
 				entrySalesManager.SetEntityAutocompleteSelectorFactory(GetEmployeeFactoryWithResetFilter(employeeJournalFactory));

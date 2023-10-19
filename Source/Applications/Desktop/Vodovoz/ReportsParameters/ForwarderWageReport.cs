@@ -14,20 +14,15 @@ namespace Vodovoz.Reports
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ForwarderWageReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public ForwarderWageReport(INavigationManager navigationManager)
+		public ForwarderWageReport()
 		{
-			if(navigationManager is null)
-			{
-				throw new ArgumentNullException(nameof(navigationManager));
-			}
-
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			var forwarderFilter = new EmployeeFilterViewModel();
 			forwarderFilter.SetAndRefilterAtOnce(
 				x => x.Status = EmployeeStatus.IsWorking,
 				x => x.RestrictCategory = EmployeeCategory.forwarder);
-			var employeeFactory = new EmployeeJournalFactory(navigationManager, forwarderFilter);
+			var employeeFactory = new EmployeeJournalFactory(forwarderFilter);
 			evmeForwarder.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateEmployeeAutocompleteSelectorFactory());
 			evmeForwarder.Changed += (sender, e) => CanRun();
 			dateperiodpicker.PeriodChanged += (sender, e) => CanRun();

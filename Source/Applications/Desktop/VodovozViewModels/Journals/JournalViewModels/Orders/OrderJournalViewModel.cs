@@ -44,7 +44,6 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 using Vodovoz.ViewModels.TempAdapters;
@@ -86,7 +85,6 @@ namespace Vodovoz.JournalViewModels
 			OrderJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope,
 			IEmployeeService employeeService,
 			INomenclatureRepository nomenclatureRepository,
@@ -127,8 +125,6 @@ namespace Vodovoz.JournalViewModels
 			_closingDocumentDeliveryScheduleId =
 				(deliveryScheduleParametersProvider ?? throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider)))
 				.ClosingDocumentDeliveryScheduleId;
-
-			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 
 			TabName = "Журнал заказов";
 

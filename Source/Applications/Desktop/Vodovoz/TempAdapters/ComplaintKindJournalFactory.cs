@@ -26,7 +26,7 @@ namespace Vodovoz.TempAdapters
 
 		private void CreateNewDependencies()
 		{
-			_employeeJournalFactory = new EmployeeJournalFactory(_navigationManager);
+			_employeeJournalFactory = new EmployeeJournalFactory();
 			_salesPlanJournalFactory = new SalesPlanJournalFactory();
 			_nomenclatureSelectorFactory = new NomenclatureJournalFactory();
 		}

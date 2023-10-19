@@ -315,7 +315,7 @@ public partial class MainWindow
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<OrderCreationDateReport>(),
-			() => new QSReport.ReportViewDlg(new OrderCreationDateReport(NavigationManager)));
+			() => new QSReport.ReportViewDlg(new OrderCreationDateReport()));
 	}
 
 	/// <summary>
@@ -419,7 +419,7 @@ public partial class MainWindow
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<DefectiveItemsReport>(),
-			() => new QSReport.ReportViewDlg(new DefectiveItemsReport(NavigationManager)));
+			() => new QSReport.ReportViewDlg(new DefectiveItemsReport()));
 	}
 
 	/// <summary>
@@ -764,7 +764,7 @@ public partial class MainWindow
 			Category = EmployeeCategory.driver
 		};
 
-		var employeeJournalFactory = new EmployeeJournalFactory(NavigationManager, filter);
+		var employeeJournalFactory = new EmployeeJournalFactory(filter);
 
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<GeneralSalaryInfoReport>(),
@@ -789,7 +789,7 @@ public partial class MainWindow
 	protected void OnActionAddressesOverpaymentsReportActivated(object sender, EventArgs e)
 	{
 		var driverFilter = new EmployeeFilterViewModel { RestrictCategory = EmployeeCategory.driver };
-		var employeeJournalFactory = new EmployeeJournalFactory(NavigationManager, driverFilter);
+		var employeeJournalFactory = new EmployeeJournalFactory(driverFilter);
 
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<AddressesOverpaymentsReport>(),
@@ -1025,7 +1025,7 @@ public partial class MainWindow
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<MastersReport>(),
-			() => new QSReport.ReportViewDlg(new MastersReport(NavigationManager)));
+			() => new QSReport.ReportViewDlg(new MastersReport()));
 	}
 
 	/// <summary>
@@ -1047,7 +1047,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionMastersVisitReportActivated(object sender, EventArgs e)
 	{
-		var employeeFactory = new EmployeeJournalFactory(NavigationManager);
+		var employeeFactory = new EmployeeJournalFactory();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<MastersVisitReport>(),
 			() => new QSReport.ReportViewDlg(new MastersVisitReport(employeeFactory)));
@@ -1089,7 +1089,7 @@ public partial class MainWindow
 	protected void OnActionNetworkDelayReportActivated(object sender, EventArgs e)
 	{
 		ILifetimeScope lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
-		var employeeJournalFactory = new EmployeeJournalFactory(NavigationManager);
+		var employeeJournalFactory = new EmployeeJournalFactory();
 
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<ChainStoreDelayReport>(),
@@ -1161,7 +1161,7 @@ public partial class MainWindow
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.DriverWagesReport>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.DriverWagesReport(NavigationManager)));
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.DriverWagesReport()));
 	}
 
 	/// <summary>
@@ -1197,7 +1197,7 @@ public partial class MainWindow
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.ForwarderWageReport>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.ForwarderWageReport(NavigationManager)));
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.ForwarderWageReport()));
 	}
 
 	/// <summary>
@@ -1223,7 +1223,7 @@ public partial class MainWindow
 		}
 
 		employeeFilter.HidenByDefault = true;
-		var employeeJournalFactory = new EmployeeJournalFactory(NavigationManager, employeeFilter);
+		var employeeJournalFactory = new EmployeeJournalFactory(employeeFilter);
 
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.WagesOperationsReport>(),
@@ -1342,7 +1342,7 @@ public partial class MainWindow
 			QSReport.ReportViewDlg.GenerateHashName<QualityReport>(),
 			() => new QSReport.ReportViewDlg(new QualityReport(
 				new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
-				new EmployeeJournalFactory(NavigationManager),
+				new EmployeeJournalFactory(),
 				new SalesChannelJournalFactory(),
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.InteractiveService)));

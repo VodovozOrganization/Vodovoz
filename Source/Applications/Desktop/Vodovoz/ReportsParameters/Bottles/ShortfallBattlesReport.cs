@@ -30,7 +30,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 				x => x.RestrictCategory = EmployeeCategory.driver,
 				x => x.Status = EmployeeStatus.IsWorking
 			);
-			var driverFactory = new EmployeeJournalFactory(_navigationManager, filter);
+			var driverFactory = new EmployeeJournalFactory(filter);
 			evmeDriver.SetEntityAutocompleteSelectorFactory(driverFactory.CreateEmployeeAutocompleteSelectorFactory());
 			ySpecCmbNonReturnReason.ItemsList = UoW.Session.QueryOver<NonReturnReason>().List();
 			buttonCreateRepot.Clicked += (s, a) => OnUpdate(true);

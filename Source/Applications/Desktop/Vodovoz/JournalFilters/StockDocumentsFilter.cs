@@ -41,7 +41,7 @@ namespace Vodovoz
 				x => x.RestrictCategory = EmployeeCategory.driver,
 				x => x.Status = EmployeeStatus.IsWorking
 			);
-			var driverFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager, filter);
+			var driverFactory = new EmployeeJournalFactory(filter);
 			evmeDriver.SetEntityAutocompleteSelectorFactory(driverFactory.CreateEmployeeAutocompleteSelectorFactory());
 			dateperiodDocs.StartDate = DateTime.Today.AddDays(-7);
 			dateperiodDocs.EndDate = DateTime.Today.AddDays(1);

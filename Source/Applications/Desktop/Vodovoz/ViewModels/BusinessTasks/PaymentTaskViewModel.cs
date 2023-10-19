@@ -55,7 +55,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 
 		private void Initialize()
 		{
-			EmployeeSelectorFactory = new EmployeeJournalFactory(NavigationManager).CreateWorkingOfficeEmployeeAutocompleteSelectorFactory();
+			EmployeeSelectorFactory = new EmployeeJournalFactory().CreateWorkingOfficeEmployeeAutocompleteSelectorFactory();
 
 			OrderSelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Order,
 																				OrderJournalViewModel,

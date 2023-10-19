@@ -14,18 +14,15 @@ namespace Vodovoz.Reports
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class DriverWagesReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		private readonly INavigationManager _navigationManager;
-
-		public DriverWagesReport(INavigationManager navigationManager)
+		public DriverWagesReport()
 		{
 			this.Build();
-			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			var driverFilter = new EmployeeFilterViewModel();
 			driverFilter.SetAndRefilterAtOnce(
 				x => x.Status = EmployeeStatus.IsWorking,
 				x => x.RestrictCategory = EmployeeCategory.driver);
-			var employeeFactory = new EmployeeJournalFactory(_navigationManager, driverFilter);
+			var employeeFactory = new EmployeeJournalFactory(driverFilter);
 			evmeDriver.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateEmployeeAutocompleteSelectorFactory());
 			evmeDriver.Changed += (sender, args) =>
 			{

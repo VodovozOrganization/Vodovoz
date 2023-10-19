@@ -14,20 +14,15 @@ namespace Vodovoz.ReportsParameters
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class MastersReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public MastersReport(INavigationManager navigationManager)
+		public MastersReport()
 		{
-			if(navigationManager is null)
-			{
-				throw new ArgumentNullException(nameof(navigationManager));
-			}
-
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			var driverFilter = new EmployeeFilterViewModel();
 			driverFilter.SetAndRefilterAtOnce(
 				x => x.Status = EmployeeStatus.IsWorking,
 				x => x.RestrictCategory = EmployeeCategory.driver);
-			var employeeFactory = new EmployeeJournalFactory(navigationManager, driverFilter);
+			var employeeFactory = new EmployeeJournalFactory(driverFilter);
 			evmeDriver.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateEmployeeAutocompleteSelectorFactory());
 			evmeDriver.Changed += (sender, e) => CanRun();
 			dateperiodpicker.PeriodChanged += (sender, e) => CanRun();

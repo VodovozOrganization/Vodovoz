@@ -35,7 +35,7 @@ namespace Vodovoz.Reports
 				x => x.RestrictCategory = EmployeeCategory.driver,
 				x => x.Status = EmployeeStatus.IsWorking
 			);
-			var driverFactory = new EmployeeJournalFactory(navigationManager, filterDriver);
+			var driverFactory = new EmployeeJournalFactory(filterDriver);
 			evmeDriver.SetEntityAutocompleteSelectorFactory(driverFactory.CreateEmployeeAutocompleteSelectorFactory());
 			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(Startup.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory());
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
@@ -45,7 +45,7 @@ namespace Vodovoz.Reports
 				x => x.RestrictCategory = EmployeeCategory.office,
 				x => x.Status = EmployeeStatus.IsWorking
 			);
-			var officeFactory = new EmployeeJournalFactory(navigationManager, officeFilter);
+			var officeFactory = new EmployeeJournalFactory(officeFilter);
 			evmeAuthor.SetEntityAutocompleteSelectorFactory(officeFactory.CreateEmployeeAutocompleteSelectorFactory());
 			dateperiodpicker.StartDate = dateperiodpicker.EndDate = DateTime.Today;
 			buttonCreateReport.Clicked += OnButtonCreateReportClicked;

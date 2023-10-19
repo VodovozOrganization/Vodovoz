@@ -13,20 +13,15 @@ namespace Vodovoz.ReportsParameters.Sales
 {
 	public partial class OrderCreationDateReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public OrderCreationDateReport(INavigationManager navigationManager)
+		public OrderCreationDateReport()
 		{
-			if(navigationManager is null)
-			{
-				throw new ArgumentNullException(nameof(navigationManager));
-			}
-
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			var officeFilter = new EmployeeFilterViewModel();
 			officeFilter.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.office,
 				x => x.Status = EmployeeStatus.IsWorking);
-			var employeeFactory = new EmployeeJournalFactory(navigationManager, officeFilter);
+			var employeeFactory = new EmployeeJournalFactory(officeFilter);
 			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateEmployeeAutocompleteSelectorFactory());
 			datePeriodPicker.PeriodChanged += (sender, e) => CanRun();
 			buttonCreateReport.Clicked += (sender, e) => OnUpdate(true);

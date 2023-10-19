@@ -34,7 +34,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 			daterangepicker.StartDate = DateTime.Now.AddDays(-7);
 			daterangepicker.EndDate = DateTime.Now.AddDays(1);
 
-			var employeeFactory = new EmployeeJournalFactory(navigationManager);
+			var employeeFactory = new EmployeeJournalFactory();
 			evmeAuthor.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory());
 			buttonCreateReport.Clicked += (sender, e) => OnUpdate(true);
 		}

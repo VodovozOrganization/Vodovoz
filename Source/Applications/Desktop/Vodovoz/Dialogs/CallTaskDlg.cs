@@ -120,7 +120,7 @@ namespace Vodovoz.Dialogs
 			vboxOldComments.Visible = true;
 
 			var employeeFilterViewModel = new EmployeeFilterViewModel { RestrictCategory = EmployeeCategory.office };
-			var employeeJournalFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager, employeeFilterViewModel);
+			var employeeJournalFactory = new EmployeeJournalFactory(employeeFilterViewModel);
 			entryAttachedEmployee.SetEntityAutocompleteSelectorFactory(employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory());
 			entryAttachedEmployee.Binding.AddBinding(Entity, e => e.AssignedEmployee, w => w.Subject).InitializeFromSource();
 

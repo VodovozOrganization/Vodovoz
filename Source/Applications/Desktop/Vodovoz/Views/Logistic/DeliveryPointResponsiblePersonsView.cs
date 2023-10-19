@@ -17,7 +17,7 @@ namespace Vodovoz.Views.Logistic
     public partial class DeliveryPointResponsiblePersonsView : Gtk.Bin
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
-        private readonly IEmployeeJournalFactory _employeeJournalFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager);
+        private readonly IEmployeeJournalFactory _employeeJournalFactory = new EmployeeJournalFactory();
         private GenericObservableList<DeliveryPointResponsiblePerson> responsiblePersonsList;
         private IList<DeliveryPointResponsiblePersonType> responsiblePersonTypes;
         private IUnitOfWork uow;

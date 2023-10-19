@@ -85,7 +85,7 @@ namespace Vodovoz.JournalViewModels
 			_contactsParameters = contactsParameters ?? throw new ArgumentNullException(nameof(contactsParameters));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
-			actionsViewModel = new BusinessTasksJournalActionsViewModel(new EmployeeJournalFactory(_navigationManager));
+			actionsViewModel = new BusinessTasksJournalActionsViewModel(new EmployeeJournalFactory());
 
 			RegisterTasks();
 

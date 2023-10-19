@@ -437,7 +437,7 @@ namespace Vodovoz.JournalViewModels
 								_fuelRepository,
 								NavigationManagerProvider.NavigationManager,
 								new TrackRepository(),
-								new EmployeeJournalFactory(NavigationManager),
+								new EmployeeJournalFactory(),
 								_financialCategoriesGroupsSettings,
 								new CarJournalFactory(NavigationManager)
 							)

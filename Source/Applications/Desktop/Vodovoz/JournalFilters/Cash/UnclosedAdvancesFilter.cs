@@ -46,7 +46,7 @@ namespace Vodovoz
 
 		protected override void ConfigureWithUow()
 		{
-			var employeeFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager);
+			var employeeFactory = new EmployeeJournalFactory();
 			evmeAccountable.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
 			evmeAccountable.Changed += (sender, e) => OnRefiltered();
 			yAdvancePeriod.PeriodChanged += (sender, e) => OnRefiltered();

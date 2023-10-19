@@ -51,7 +51,7 @@ namespace Dialogs.Employees
 		{
 			DateTime now = DateTime.Now;
 
-			var employeeFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager);
+			var employeeFactory = new EmployeeJournalFactory();
 			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
 			evmeEmployee.Changed += YentryEmployee_Changed;
 

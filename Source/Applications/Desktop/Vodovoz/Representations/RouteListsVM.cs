@@ -681,7 +681,7 @@ namespace Vodovoz.ViewModel
 														new FuelRepository(),
 														NavigationManagerProvider.NavigationManager,
 														new TrackRepository(),
-														new EmployeeJournalFactory(Startup.MainWin.NavigationManager),
+														new EmployeeJournalFactory(),
 														_financialCategoriesGroupsSettings,
 														new CarJournalFactory(Startup.MainWin.NavigationManager)
 									)

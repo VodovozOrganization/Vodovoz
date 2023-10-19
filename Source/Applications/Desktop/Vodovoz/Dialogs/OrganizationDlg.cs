@@ -16,7 +16,7 @@ namespace Vodovoz
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
 
 		private readonly IOrganizationVersionsViewModelFactory _organizationVersionsViewModelFactory 
-			= new OrganizationVersionsViewModelFactory(ServicesConfig.CommonServices, new EmployeeJournalFactory(Startup.MainWin.NavigationManager));
+			= new OrganizationVersionsViewModelFactory(ServicesConfig.CommonServices, new EmployeeJournalFactory());
 
 		public override bool HasChanges {
 			get {

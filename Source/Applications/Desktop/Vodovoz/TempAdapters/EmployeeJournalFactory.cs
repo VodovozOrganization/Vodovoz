@@ -1,5 +1,4 @@
-using QS.DomainModel.UoW;
-using QS.Navigation;
+﻿using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using Vodovoz.Domain.Employees;
@@ -11,13 +10,11 @@ namespace Vodovoz.TempAdapters
 {
 	public class EmployeeJournalFactory : IEmployeeJournalFactory
 	{
-		private readonly INavigationManager _navigationManager;
 		private EmployeeFilterViewModel _employeeJournalFilter;
 		private readonly IAuthorizationServiceFactory _authorizationServiceFactory;
 
-		public EmployeeJournalFactory(INavigationManager navigationManager, EmployeeFilterViewModel employeeJournalFilter = null)
+		public EmployeeJournalFactory(EmployeeFilterViewModel employeeJournalFilter = null)
 		{
-			_navigationManager = navigationManager ?? throw new System.ArgumentNullException(nameof(navigationManager));
 			_employeeJournalFilter = employeeJournalFilter;
 			_authorizationServiceFactory = new AuthorizationServiceFactory();
 		}
