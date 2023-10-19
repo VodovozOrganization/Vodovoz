@@ -315,7 +315,7 @@ public partial class MainWindow : Gtk.Window
 		InitializeThemesMenuItem();
 	}
 	
-	public TdiNavigationManager NavigationManager { get; private set; }
+	public ITdiCompatibilityNavigation NavigationManager { get; private set; }
 	public MangoManager MangoManager { get; private set; }
 
 	/// <summary>
@@ -324,7 +324,7 @@ public partial class MainWindow : Gtk.Window
 	/// </summary>
 	public void InitializeManagers()
 	{
-		NavigationManager = _autofacScope.Resolve<TdiNavigationManager>(new TypedParameter(typeof(TdiNotebook), tdiMain));
+		NavigationManager = _autofacScope.Resolve<ITdiCompatibilityNavigation>(new TypedParameter(typeof(TdiNotebook), tdiMain));
 		MangoManager = _autofacScope.Resolve<MangoManager>(new TypedParameter(typeof(Gtk.Action), MangoAction));
 		MangoManager.Connect();
 	}
