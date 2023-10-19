@@ -93,7 +93,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Order">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     orders.id AS order_id,
@@ -186,7 +186,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -1229,7 +1229,7 @@ WHERE o.id = @order_id
               <TextAlign>Center</TextAlign>
               <FontSize>8pt</FontSize>
             </Style>
-            <Visibility >
+            <Visibility>
               <Hidden>=Fields!counterparty_external_order_id.IsMissing</Hidden>
             </Visibility>
           </Textbox>
@@ -2627,7 +2627,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox58">
-                      <Value>=Fields!item_price / Fields!vat * (1 - Fields!item_discount/100)</Value>
+                      <Value>=({item_price} * {count} - Iif({count}&gt;0, {include_nds}, 0) - {item_discount_money}) / {count}</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
