@@ -50,9 +50,14 @@ namespace DriverAPI.Library.Models
 			var routeList = _routeListRepository.GetRouteListById(_unitOfWork, routeListId)
 				?? throw new DataNotFoundException(nameof(routeListId), $"Маршрутный лист {routeListId} не найден");
 
-			var specialConditions = _routeListService.GetSpecialConditionsDictionaryFor(_unitOfWork, routeListId);
+			IDictionary<int, string> spectiaConditionsToAccept = new Dictionary<int, string>();
 
-			return _routeListConverter.ConvertToAPIRouteList(routeList, _routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routeListId), specialConditions);
+			if(!routeList.SpecialConditionsAccepted)
+			{
+				spectiaConditionsToAccept = _routeListService.GetSpecialConditionsDictionaryFor(_unitOfWork, routeListId);
+			}
+
+			return _routeListConverter.ConvertToAPIRouteList(routeList, _routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routeListId), spectiaConditionsToAccept);
 		}
 
 		/// <summary>
@@ -65,17 +70,22 @@ namespace DriverAPI.Library.Models
 			var vodovozRouteLists = _routeListRepository.GetRouteListsByIds(_unitOfWork, routeListsIds);
 			var routeLists = new List<RouteListDto>();
 
-			foreach(var routelist in vodovozRouteLists)
+			foreach(var routeList in vodovozRouteLists)
 			{
 				try
 				{
-					var specialConditions = _routeListService.GetSpecialConditionsDictionaryFor(_unitOfWork, routelist.Id);
+					IDictionary<int, string> spectiaConditionsToAccept = new Dictionary<int, string>();
 
-					routeLists.Add(_routeListConverter.ConvertToAPIRouteList(routelist, _routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routelist.Id), specialConditions));
+					if(!routeList.SpecialConditionsAccepted)
+					{
+						spectiaConditionsToAccept = _routeListService.GetSpecialConditionsDictionaryFor(_unitOfWork, routeList.Id);
+					}
+
+					routeLists.Add(_routeListConverter.ConvertToAPIRouteList(routeList, _routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routeList.Id), spectiaConditionsToAccept));
 				}
 				catch(ConverterException e)
 				{
-					_logger.LogWarning(e, "Ошибка конвертации маршрутного листа {RouteListId}", routelist.Id);
+					_logger.LogWarning(e, "Ошибка конвертации маршрутного листа {RouteListId}", routeList.Id);
 				}
 			}
 
