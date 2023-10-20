@@ -611,7 +611,6 @@
     <Compile Include="TempAdapters\ComplaintKindJournalFactory.cs" />
     <Compile Include="TempAdapters\NomenclatureJournalFactory.cs" />
     <Compile Include="TempAdapters\TdiNavigationManagerAdapter.cs" />
-    <Compile Include="TempAdapters\SubdivisionJournalFactory.cs" />
     <Compile Include="TreeModels\IModelConfig.cs" />
     <Compile Include="TreeModels\ModelConfig.cs" />
     <Compile Include="TreeModels\RecursiveTreeModelWithCustomModel.cs" />
