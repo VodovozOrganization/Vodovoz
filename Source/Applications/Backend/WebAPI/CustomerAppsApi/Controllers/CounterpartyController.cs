@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using CustomerAppsApi.Library.Dto;
 using CustomerAppsApi.Models;
 using Microsoft.AspNetCore.Mvc;

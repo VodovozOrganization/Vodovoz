@@ -500,6 +500,7 @@
     <Compile Include="EntityRepositories\Complaints\ComplaintResults\IComplaintResultsRepository.cs" />
     <Compile Include="EntityRepositories\Counterparties\CounterpartyRepository.cs" />
     <Compile Include="EntityRepositories\Counterparties\CounterpartyTo1CNode.cs" />
+    <Compile Include="EntityRepositories\Counterparties\DeliveryPointForSendNode.cs" />
     <Compile Include="EntityRepositories\Counterparties\DeliveryPointRepository.cs" />
     <Compile Include="EntityRepositories\Counterparties\DocTemplateRepository.cs" />
     <Compile Include="EntityRepositories\Counterparties\ExternalCounterpartyAssignNotificationRepository.cs" />

@@ -91,6 +91,7 @@ namespace CustomerAppsApi
 			services.AddSingleton<IRoboatsRepository, RoboatsRepository>();
 			services.AddSingleton<IBottlesRepository, BottlesRepository>();
 			services.AddSingleton<ICachedBottlesDebtRepository, CachedBottlesDebtRepository>();
+			services.AddSingleton<IDeliveryPointRepository, DeliveryPointRepository>();
 			services.AddSingleton<INomenclatureRepository, NomenclatureRepository>();
 			services.AddSingleton<IStockRepository, StockRepository>();
 			services.AddSingleton<IExternalCounterpartyRepository, ExternalCounterpartyRepository>();
@@ -101,6 +102,7 @@ namespace CustomerAppsApi
 			services.AddSingleton<CounterpartyModelFactory>();
 			services.AddSingleton<ICounterpartyFactory, CounterpartyFactory>();
 			services.AddSingleton<INomenclatureFactory, NomenclatureFactory>();
+			services.AddSingleton<IDeliveryPointFactory, DeliveryPointFactory>();
 			services.AddSingleton<PhoneFormatter>(_ => new PhoneFormatter(PhoneFormat.DigitsTen));
 			services.AddSingleton<ICounterpartySettings, CounterpartySettings>();
 			services.AddSingleton<ICameFromConverter, CameFromConverter>();
@@ -114,12 +116,16 @@ namespace CustomerAppsApi
 			services.AddScoped<IUnitOfWork>(_ => UnitOfWorkFactory.CreateWithoutRoot("Сервис интеграции"));
 			services.AddScoped<ICounterpartyModel, CounterpartyModel>();
 			services.AddScoped<INomenclatureModel, NomenclatureModel>();
+			services.AddScoped<IDeliveryPointModel, DeliveryPointModel>();
 			services.AddScoped<CounterpartyModelValidator>();
+			services.AddScoped<IDeliveryPointModelValidator, DeliveryPointModelValidator>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
+			app.ApplicationServices.GetService<ISettingsController>().RefreshSettings();
+			
 			if(env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
