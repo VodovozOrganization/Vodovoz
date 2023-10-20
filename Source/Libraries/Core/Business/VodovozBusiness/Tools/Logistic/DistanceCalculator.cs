@@ -171,9 +171,15 @@ namespace Vodovoz.Tools.Logistic
 
 		public bool DeliveryPointInFastDeliveryRadius(DeliveryPoint deliveryPoint, DriverPositionWithFastDeliveryRadius driverPosition)
 		{
-			var circle = CreateCircle(new Coordinate(driverPosition.Latitude, driverPosition.Longitude), driverPosition.FastDeliveryRadius);
+			var geometryFactory = new GeometryFactory(new PrecisionModel(), 3857);
 
-			return circle.Contains(new Point(Convert.ToDouble(deliveryPoint.Latitude), Convert.ToDouble(deliveryPoint.Longitude)));
+			var line = geometryFactory.CreateLineString(new Coordinate[]
+			{
+				new Coordinate(driverPosition.Latitude, driverPosition.Longitude),
+				new Coordinate(Convert.ToDouble(deliveryPoint.Latitude), Convert.ToDouble(deliveryPoint.Longitude))
+			});
+
+			return line.Length <= driverPosition.FastDeliveryRadius;
 		}
 	}
 }
