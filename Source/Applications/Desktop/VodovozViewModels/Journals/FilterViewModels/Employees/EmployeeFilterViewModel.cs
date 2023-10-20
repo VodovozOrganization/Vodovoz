@@ -1,10 +1,7 @@
-﻿using FluentNHibernate.Data;
-using QS.Commands;
-using QS.Navigation;
+﻿using QS.Commands;
 using QS.Project.Filter;
 using QS.Project.Services;
 using QS.ViewModels.Control.EEVM;
-using QS.ViewModels.Dialog;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.Employees;

@@ -3,6 +3,7 @@ using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
@@ -27,6 +28,7 @@ namespace Vodovoz.JournalViewModels
 			CounterpartyJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
+			INavigationManager navigationManager,
 			Action<CounterpartyJournalFilterViewModel> filterConfiguration = null) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал контрагентов";
@@ -49,16 +51,37 @@ namespace Vodovoz.JournalViewModels
 			);
 
 			SearchEnabled = false;
+			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 		}
 
 		protected override void CreateNodeActions()
 		{
 			NodeActionsList.Clear();
 			CreateCustomSelectAction();
-			CreateDefaultAddActions();
+			CreateAddActions();
 			CreateCustomEditAction();
 			CreateDefaultDeleteAction();
 			CreateOpenCloseSupplyAction();
+		}
+
+		private void CreateAddActions()
+		{
+			var createAction = new JournalAction("Создать",
+				(selected) => EntityConfigs[typeof(Counterparty)].PermissionResult.CanCreate,
+				(selected) => true,
+				(selected) => {
+					var foundDocumentConfig = EntityConfigs[typeof(Counterparty)].EntityDocumentConfigurations.FirstOrDefault();
+
+					CreateDialogFunction();
+
+					if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog)
+					{
+						HideJournal(TabParent);
+					}
+				}
+			);
+
+			NodeActionsList.Add(createAction);
 		}
 
 		private void CreateCustomEditAction()
@@ -80,7 +103,7 @@ namespace Vodovoz.JournalViewModels
 				},
 				(selected) => selected.All(x => (x as CounterpartyJournalNode).Sensitive),
 				(selected) => {
-					if (!selected.All(x => (x as CounterpartyJournalNode).Sensitive))
+					if(!selected.All(x => (x as CounterpartyJournalNode).Sensitive))
 					{
 						return;
 					}
@@ -90,18 +113,14 @@ namespace Vodovoz.JournalViewModels
 						return;
 					}
 					CounterpartyJournalNode selectedNode = selectedNodes.First();
-					if (!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
 					{
 						return;
 					}
 					var config = EntityConfigs[selectedNode.EntityType];
 					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
 
-					TabParent.OpenTab(() => foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode), this);
-					if (foundDocumentConfig.JournalParameters.HideJournalForOpenDialog)
-					{
-						HideJournal(TabParent);
-					}
+					OpenDialogFunction(selectedNode);
 				}
 			);
 			if (SelectionMode == JournalSelectionMode.None)
@@ -520,8 +539,18 @@ namespace Vodovoz.JournalViewModels
 			return resultCountQuery;
 		};
 
-		protected override Func<CounterpartyDlg> CreateDialogFunction => () => new CounterpartyDlg();
+		protected override Func<CounterpartyDlg> CreateDialogFunction =>
+			() =>
+			{
+				var master = this;
+				return ((ITdiCompatibilityNavigation)NavigationManager).OpenTdiTab<CounterpartyDlg>(master).TdiTab as CounterpartyDlg;
+			};
 
-		protected override Func<CounterpartyJournalNode, CounterpartyDlg> OpenDialogFunction => (node) => new CounterpartyDlg(node.Id);
+		protected override Func<CounterpartyJournalNode, CounterpartyDlg> OpenDialogFunction =>
+			(node) =>
+			{
+				var master = this;
+				return ((ITdiCompatibilityNavigation)NavigationManager).OpenTdiTab<CounterpartyDlg, int>(master, node.Id).TdiTab as CounterpartyDlg;
+			};
 	}
 }

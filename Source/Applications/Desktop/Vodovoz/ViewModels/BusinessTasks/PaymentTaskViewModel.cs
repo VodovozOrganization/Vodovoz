@@ -28,7 +28,8 @@ namespace Vodovoz.ViewModels.BusinessTasks
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			ICounterpartyJournalFactory counterpartyJournalFactory) : base(uowBuilder, unitOfWorkFactory, commonServices)
+			ICounterpartyJournalFactory counterpartyJournalFactory)
+			: base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			if(uowBuilder.IsNewEntity) {
 				TabName = "Новая задача";

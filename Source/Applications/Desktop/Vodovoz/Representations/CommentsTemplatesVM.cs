@@ -63,13 +63,7 @@ namespace Vodovoz.Representations
 			CommentsTemplates commentsTemplatesAlias = null;
 			CommentsGroups commentsGroupsAlias = null;
 
-
 			var query = UoW.Session.QueryOver<CommentsTemplates>(() => commentsTemplatesAlias);
-
-			//if(Filter.RestrictionFineDateStart.HasValue) {
-			//	query.Where(() => fineAlias.Date >= Filter.RestrictionFineDateStart.Value);
-			//}
-
 
 			var result = query
 							.JoinAlias(() => commentsTemplatesAlias.CommentsTmpGroups, () => commentsGroupsAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)

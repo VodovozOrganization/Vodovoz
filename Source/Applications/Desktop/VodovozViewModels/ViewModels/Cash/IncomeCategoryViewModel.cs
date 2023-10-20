@@ -47,8 +47,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
 				.CreateEmployeeAutocompleteSelectorFactory();
 
-			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
-
 			UpdateFinancialIncomeCategory();
 
 			var complaintDetalizationEntryViewModelBuilder = new CommonEEVMBuilderFactory<IncomeCategoryViewModel>(this, this, UoW, NavigationManager, _scope);

@@ -32,6 +32,11 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			ILifetimeScope scope)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
+			if(navigationManager is null)
+			{
+				throw new ArgumentNullException(nameof(navigationManager));
+			}
+
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 
 			ExpenseCategoryAutocompleteSelectorFactory =
@@ -60,7 +65,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				.Finish();
 
 			TabName = uowBuilder.IsNewEntity ? "Создание новой категории расхода" : $"{Entity.Title}";
-			_scope = scope;
 
 			Entity.PropertyChanged += OnEntityPropertyChanged;
 			BuildSubdivisionViewModel();
