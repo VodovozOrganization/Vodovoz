@@ -5,6 +5,8 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.Core.Domain.Employees;
 
 namespace Vodovoz.TempAdapters
 {

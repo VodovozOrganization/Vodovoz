@@ -4,6 +4,7 @@ using QS.HistoryLog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Logistic

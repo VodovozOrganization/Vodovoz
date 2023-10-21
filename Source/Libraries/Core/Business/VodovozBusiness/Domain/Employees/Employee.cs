@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using MySqlConnector;
 using NHibernate;
+using QS.Attachments.Domain;
+using QS.Banks.Domain;
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -14,6 +10,14 @@ using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Services;
 using QS.Utilities.Text;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
+using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Organizations;
@@ -31,314 +35,158 @@ namespace Vodovoz.Domain.Employees
 		Nominative = "сотрудник")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class Employee : Personnel, IEmployee
+	public class Employee : Core.Domain.Employees.EmployeeEntity, IBusinessObject, IAccountOwner, IValidatableObject
 	{
 		private const int _commentLimit = 255;
-		private string _comment;
-		
+
+		private Citizenship _citizenship;
+		private Nationality _nationality;
+		private EmployeePost _post;
+		private User _user;
+		private Subdivision _subdivision;
+		private Employee _defaultForwarder;
+		private Organization _organisationForSalary;
+		private CarTypeOfUse? _driverOfCarTypeOfUse;
+		private CarOwnType? _driverOfCarOwnType;
+
+		private IList<Phone> _phones = new List<Phone>();
+		private IList<EmployeeDocument> _documents = new List<EmployeeDocument>();
+		private IList<Account> _accounts = new List<Account>();
+		private IList<Attachment> _attachments = new List<Attachment>();
+		private IList<EmployeeContract> _contracts = new List<EmployeeContract>();
+		private IList<EmployeeWageParameter> wageParameters = new List<EmployeeWageParameter>();
 		private IList<EmployeeRegistrationVersion> _employeeRegistrationVersions = new List<EmployeeRegistrationVersion>();
+		private IList<DriverDistrictPrioritySet> _driverDistrictPrioritySets = new List<DriverDistrictPrioritySet>();
+		private IList<DriverWorkScheduleSet> _driverWorkScheduleSets = new List<DriverWorkScheduleSet>();
+
+		private GenericObservableList<EmployeeDocument> _observableDocuments;
+		private GenericObservableList<Account> _observableAccounts;
+		private GenericObservableList<Attachment> _observableAttachments;
+		private GenericObservableList<EmployeeContract> _observableContracts;
+		private GenericObservableList<EmployeeWageParameter> _observableWageParameters;
 		private GenericObservableList<EmployeeRegistrationVersion> _observableEmployeeRegistrationVersions;
+		private GenericObservableList<DriverDistrictPrioritySet> _observableDriverDistrictPrioritySets;
+		private GenericObservableList<DriverWorkScheduleSet> _observableDriverWorkScheduleSets;
 
-		#region Свойства
+		public virtual IUnitOfWork UoW { set; get; }
 
-		public override EmployeeType EmployeeType {
-			get { return EmployeeType.Employee; }
-			set { }
+		[Display(Name = "Иностранное граждансво")]
+		public virtual Citizenship Citizenship
+		{
+			get => _citizenship;
+			set => SetField(ref _citizenship, value);
 		}
 
-		EmployeeCategory category;
-
-		[Display(Name = "Категория")]
-		public virtual EmployeeCategory Category {
-			get => category;
-			set => SetField(ref category, value);
-		}
-		
-		uint? innerPhone;
-
-		[Display(Name = "Внутренний номер")]
-		public virtual uint? InnerPhone {
-			get { return innerPhone; }
-			set { SetField(ref innerPhone, value, () => InnerPhone); }
+		[Display(Name = "Национальность")]
+		public virtual Nationality Nationality
+		{
+			get => _nationality;
+			set => SetField(ref _nationality, value);
 		}
 
-		string androidLogin;
-
-		[Display(Name = "Логин для Android приложения")]
-		public virtual string AndroidLogin {
-			get { return androidLogin; }
-			set { SetField(ref androidLogin, value, () => AndroidLogin); }
+		[Display(Name = "Должность")]
+		public virtual EmployeePost Post
+		{
+			get => _post;
+			set => SetField(ref _post, value);
 		}
-
-		string androidPassword;
-
-		[Display(Name = "Пароль для Android приложения")]
-		public virtual string AndroidPassword {
-			get { return androidPassword; }
-			set { SetField(ref androidPassword, value, () => AndroidPassword); }
-		}
-
-		string androidSessionKey;
-
-		[Display(Name = "Ключ сессии для Android приложения")]
-		public virtual string AndroidSessionKey {
-			get { return androidSessionKey; }
-			set { SetField(ref androidSessionKey, value, () => AndroidSessionKey); }
-		}
-
-		string androidToken;
-
-		[Display(Name = "Токен Android приложения пользователя для отправки Push-сообщений")]
-		public virtual string AndroidToken {
-			get { return androidToken; }
-			set { SetField(ref androidToken, value, () => AndroidToken); }
-		}
-
-		EmployeeStatus status;
-
-		[Display(Name = "Статус сотрудника")]
-		public virtual EmployeeStatus Status {
-			get { return status; }
-			set { SetField(ref status, value, () => Status); }
-		}
-
-		User user;
 
 		[Display(Name = "Пользователь")]
-		public virtual User User {
-			get { return user; }
-			set { SetField(ref user, value, () => User); }
+		public virtual User User
+		{
+			get { return _user; }
+			set { SetField(ref _user, value, () => User); }
 		}
-
-		private Subdivision subdivision;
 
 		[Display(Name = "Подразделение")]
-		public virtual Subdivision Subdivision {
-			get { return subdivision; }
-			set { SetField(ref subdivision, value, () => Subdivision); }
+		public virtual Subdivision Subdivision
+		{
+			get { return _subdivision; }
+			set { SetField(ref _subdivision, value, () => Subdivision); }
 		}
-
-		private DateTime? firstWorkDay;
-		[Display(Name = "Первый день работы")]
-		public virtual DateTime? FirstWorkDay {
-			get { return firstWorkDay; }
-			set { SetField(ref firstWorkDay, value, () => FirstWorkDay); }
-		}
-
-		private DateTime? dateHired;
-		[Display(Name = "Дата приема")]
-		public virtual DateTime? DateHired {
-			get { return dateHired; }
-			set { SetField(ref dateHired, value, () => DateHired); }
-		}
-
-		private DateTime? dateFired;
-		[Display(Name = "Дата увольнения")]
-		public virtual DateTime? DateFired {
-			get { return dateFired; }
-			set { SetField(ref dateFired, value, () => DateFired); }
-		}
-
-		private DateTime? dateCalculated;
-		[Display(Name = "Дата расчета")]
-		public virtual DateTime? DateCalculated {
-			get { return dateCalculated; }
-			set { SetField(ref dateCalculated, value, () => DateCalculated); }
-		}
-
-		IList<EmployeeContract> contracts = new List<EmployeeContract>();
-
-		[Display(Name = "Договора")]
-		public virtual IList<EmployeeContract> Contracts {
-			get { return contracts; }
-			set { SetField(ref contracts, value, () => Contracts); }
-		}
-
-		GenericObservableList<EmployeeContract> observableContracts;
-		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<EmployeeContract> ObservableContracts {
-			get {
-				if(observableContracts == null) {
-					observableContracts = new GenericObservableList<EmployeeContract>(Contracts);
-				}
-				return observableContracts;
-			}
-		}
-
-		private Employee defaultForwarder;
 
 		[Display(Name = "Экспедитор по умолчанию")]
-		public virtual Employee DefaultForwarder {
-			get { return defaultForwarder; }
-			set { SetField(ref defaultForwarder, value, () => DefaultForwarder); }
+		public virtual Employee DefaultForwarder
+		{
+			get { return _defaultForwarder; }
+			set { SetField(ref _defaultForwarder, value, () => DefaultForwarder); }
 		}
 
-		private DriverType? driverType;
-		public virtual DriverType? DriverType {
-			get => driverType;
-			set => SetField(ref driverType, value);
+		[Display(Name = "Зарплатная организация")]
+		public virtual Organization OrganisationForSalary
+		{
+			get => _organisationForSalary;
+			set => SetField(ref _organisationForSalary, value);
 		}
 
-		private bool largusDriver;
-		[Display(Name = "Сотрудник - водитель Ларгуса")]
-		public virtual bool LargusDriver {
-			get { return largusDriver; }
-			set { SetField(ref largusDriver, value, () => LargusDriver); }
-		}
-
-		private CarTypeOfUse? _driverOfCarTypeOfUse;
 		[Display(Name = "Водитель автомобиля типа")]
-		public virtual CarTypeOfUse? DriverOfCarTypeOfUse {
+		public virtual CarTypeOfUse? DriverOfCarTypeOfUse
+		{
 			get => _driverOfCarTypeOfUse;
 			set => SetField(ref _driverOfCarTypeOfUse, value);
 		}
 
-		private CarOwnType? _driverOfCarOwnType;
 		[Display(Name = "Водитель автомобиля принадлежности")]
-		public virtual CarOwnType? DriverOfCarOwnType {
+		public virtual CarOwnType? DriverOfCarOwnType
+		{
 			get => _driverOfCarOwnType;
 			set => SetField(ref _driverOfCarOwnType, value);
 		}
 
-		private Gender? gender;
-		[Display(Name = "Пол сотрудника")]
-		public virtual Gender? Gender {
-			get { return gender; }
-			set { SetField(ref gender, value); }
-		}
-
-		private float driverSpeed = 1;
-
-		[Display(Name = "Скорость работы водителя")]
-		public virtual float DriverSpeed {
-			get { return driverSpeed; }
-			set { SetField(ref driverSpeed, value, () => DriverSpeed); }
-		}
-
-		private short tripPriority = 6;
-
-		/// <summary>
-		/// Приорите(1-10) чем меньше тем лучше. Фактически это штраф.
-		/// </summary>
-		[Display(Name = "Приоритет для маршрутов")]
-		public virtual short TripPriority {
-			get { return tripPriority; }
-			set { SetField(ref tripPriority, value, () => TripPriority); }
-		}
-
-		int minRouteAddresses;
-
-		[Display(Name = "Минимум адресов")]
-		public virtual int MinRouteAddresses {
-			get { return minRouteAddresses; }
-			set { SetField(ref minRouteAddresses, value, () => MinRouteAddresses); }
-		}
-
-		int maxRouteAddresses;
-
-		[Display(Name = "Максимум адресов")]
-		public virtual int MaxRouteAddresses {
-			get { return maxRouteAddresses; }
-			set { SetField(ref maxRouteAddresses, value, () => MaxRouteAddresses); }
-		}
-
-		#region DriverDistrictPrioritySets
-
-		private IList<DriverDistrictPrioritySet> driverDistrictPrioritySets = new List<DriverDistrictPrioritySet>();
-		[Display(Name = "Версии приоритетов районов водителя")]
-		public virtual IList<DriverDistrictPrioritySet> DriverDistrictPrioritySets {
-			get => driverDistrictPrioritySets;
-			set => SetField(ref driverDistrictPrioritySets, value);
-		}
-
-		private GenericObservableList<DriverDistrictPrioritySet> observableDriverDistrictPrioritySets;
-		public virtual GenericObservableList<DriverDistrictPrioritySet> ObservableDriverDistrictPrioritySets =>
-			observableDriverDistrictPrioritySets ?? (observableDriverDistrictPrioritySets =
-				new GenericObservableList<DriverDistrictPrioritySet>(DriverDistrictPrioritySets));
-
-		#endregion
-
-		#region ObservableDriverWorkScheduleSets
-
-		private IList<DriverWorkScheduleSet> driverWorkScheduleSets = new List<DriverWorkScheduleSet>();
-		[Display(Name = "Версии графиков работы водителя")]
-		public virtual IList<DriverWorkScheduleSet> DriverWorkScheduleSets {
-			get => driverWorkScheduleSets;
-			set => SetField(ref driverWorkScheduleSets, value);
-		}
-
-		private GenericObservableList<DriverWorkScheduleSet> observableDriverWorkScheduleSets;
-		public virtual GenericObservableList<DriverWorkScheduleSet> ObservableDriverWorkScheduleSets
-			=> observableDriverWorkScheduleSets ?? (observableDriverWorkScheduleSets =
-				new GenericObservableList<DriverWorkScheduleSet>(DriverWorkScheduleSets));
-
-		#endregion
-
-		IList<EmployeeWageParameter> wageParameters = new List<EmployeeWageParameter>();
-		[Display(Name = "Параметры расчета зарплаты")]
-		public virtual IList<EmployeeWageParameter> WageParameters {
-			get => wageParameters;
-			set => SetField(ref wageParameters, value, () => WageParameters);
-		}
-
-		GenericObservableList<EmployeeWageParameter> observableWageParameters;
-		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<EmployeeWageParameter> ObservableWageParameters {
-			get {
-				if(observableWageParameters == null)
-					observableWageParameters = new GenericObservableList<EmployeeWageParameter>(WageParameters);
-				return observableWageParameters;
-			}
-		}
-
-		bool visitingMaster;
-		[Display(Name = "Выездной мастер")]
-		public virtual bool VisitingMaster {
-			get => visitingMaster;
-			set => SetField(ref visitingMaster, value);
-		}
-
-		private bool isChainStoreDriver;
-		[Display(Name = "Водитель для сетей")]
-		public virtual bool IsChainStoreDriver {
-			get => isChainStoreDriver;
-			set => SetField(ref isChainStoreDriver, value);
-		}
-
-		bool isDriverForOneDay;
-		public virtual bool IsDriverForOneDay {
-			get => isDriverForOneDay;
-			set => SetField(ref isDriverForOneDay, value);
-		}
-
-		private string loginForNewUser;
-		[Display(Name = "Логин нового пользователя")]
-		public virtual string LoginForNewUser {
-			get { return loginForNewUser; }
-			set { SetField(ref loginForNewUser, value, () => LoginForNewUser); }
-		}
-		
-		Organization organisationForSalary;
-		public virtual Organization OrganisationForSalary {
-			get => organisationForSalary;
-			set => SetField(ref organisationForSalary, value);
-		}
-
-		private string email;
-
-		[Display(Name = "Электронная почта пользователя")]
-		public virtual string Email
+		[Display(Name = "Телефоны")]
+		public virtual IList<Phone> Phones
 		{
-			get => email;
-			set => SetField(ref email, value);
+			get => _phones;
+			set => SetField(ref _phones, value);
 		}
-		
-		[Display(Name = "Комментарий по сотруднику")]
-		public virtual string Comment {
-			get => _comment;
-			set => SetField(ref _comment, value);
+
+		[Display(Name = "Документы")]
+		public virtual IList<EmployeeDocument> Documents
+		{
+			get => _documents;
+			set => SetField(ref _documents, value);
 		}
-		
+
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<EmployeeDocument> ObservableDocuments =>
+			_observableDocuments ?? (_observableDocuments = new GenericObservableList<EmployeeDocument>(Documents));
+
+		[Display(Name = "Прикрепленные файлы")]
+		public virtual IList<Attachment> Attachments
+		{
+			get => _attachments;
+			set => SetField(ref _attachments, value);
+		}
+
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<Attachment> ObservableAttachments =>
+			_observableAttachments ?? (_observableAttachments = new GenericObservableList<Attachment>(Attachments));
+
+
+		[Display(Name = "Договора")]
+		public virtual IList<EmployeeContract> Contracts
+		{
+			get { return _contracts; }
+			set { SetField(ref _contracts, value); }
+		}
+
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<EmployeeContract> ObservableContracts =>
+			_observableContracts ?? (_observableContracts = new GenericObservableList<EmployeeContract>(Contracts));
+
+
+		[Display(Name = "Параметры расчета зарплаты")]
+		public virtual IList<EmployeeWageParameter> WageParameters
+		{
+			get => wageParameters;
+			set => SetField(ref wageParameters, value);
+		}
+
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<EmployeeWageParameter> ObservableWageParameters =>
+			_observableWageParameters ?? (_observableWageParameters = new GenericObservableList<EmployeeWageParameter>(WageParameters));
+
+
 		[Display(Name = "Версии видов оформлений")]
 		public virtual IList<EmployeeRegistrationVersion> EmployeeRegistrationVersions
 		{
@@ -351,22 +199,73 @@ namespace Vodovoz.Domain.Employees
 			_observableEmployeeRegistrationVersions ?? (_observableEmployeeRegistrationVersions =
 				new GenericObservableList<EmployeeRegistrationVersion>(EmployeeRegistrationVersions));
 
-		#endregion
-
-		public Employee()
+		[Display(Name = "Версии приоритетов районов водителя")]
+		public virtual IList<DriverDistrictPrioritySet> DriverDistrictPrioritySets
 		{
-			Name = String.Empty;
-			LastName = String.Empty;
-			Patronymic = String.Empty;
-			DrivingLicense = String.Empty;
-			Category = EmployeeCategory.office;
-			AddressRegistration = String.Empty;
-			AddressCurrent = String.Empty;
+			get => _driverDistrictPrioritySets;
+			set => SetField(ref _driverDistrictPrioritySets, value);
 		}
+
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<DriverDistrictPrioritySet> ObservableDriverDistrictPrioritySets =>
+			_observableDriverDistrictPrioritySets ?? (_observableDriverDistrictPrioritySets =
+				new GenericObservableList<DriverDistrictPrioritySet>(DriverDistrictPrioritySets));
+
+		[Display(Name = "Версии графиков работы водителя")]
+		public virtual IList<DriverWorkScheduleSet> DriverWorkScheduleSets
+		{
+			get => _driverWorkScheduleSets;
+			set => SetField(ref _driverWorkScheduleSets, value);
+		}
+		
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<DriverWorkScheduleSet> ObservableDriverWorkScheduleSets
+			=> _observableDriverWorkScheduleSets ?? (_observableDriverWorkScheduleSets =
+				new GenericObservableList<DriverWorkScheduleSet>(DriverWorkScheduleSets));
+
+		#region IAccountOwner implementation
+
+		public virtual IList<Account> Accounts
+		{
+			get => _accounts;
+			set => SetField(ref _accounts, value);
+		}
+
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<Account> ObservableAccounts =>
+			_observableAccounts ?? (_observableAccounts = new GenericObservableList<Account>(Accounts));
+
+		[Display(Name = "Основной счет")]
+		public virtual Account DefaultAccount
+		{
+			get
+			{
+				return ObservableAccounts.FirstOrDefault(x => x.IsDefault);
+			}
+			set
+			{
+				Account oldDefAccount = ObservableAccounts.FirstOrDefault(x => x.IsDefault);
+				if(oldDefAccount != null && value != null && oldDefAccount.Id != value.Id)
+				{
+					oldDefAccount.IsDefault = false;
+				}
+				value.IsDefault = true;
+			}
+		}
+
+		public virtual void AddAccount(Account account)
+		{
+			ObservableAccounts.Add(account);
+			account.Owner = this;
+			if(DefaultAccount == null)
+				account.IsDefault = true;
+		}
+
+		#endregion
 
 		#region IValidatableObject implementation
 
-		public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(!(validationContext.ServiceContainer.GetService(typeof(IEmployeeRepository)) is IEmployeeRepository employeeRepository))
 			{
@@ -384,8 +283,19 @@ namespace Vodovoz.Domain.Employees
 				throw new ArgumentNullException($"Не найден репозиторий { nameof(userRepository) }");
 			}
 
-			foreach(var item in base.Validate(validationContext)) {
-				yield return item;
+			if(String.IsNullOrEmpty(LastName))
+			{
+				yield return new ValidationResult("Фамилия должна быть заполнена", new[] { "LastName" });
+			}
+
+			var employees = UoW.Session.QueryOver<Employee>()
+				.Where(p => p.Name == this.Name && p.LastName == this.LastName && p.Patronymic == this.Patronymic)
+				.WhereNot(p => p.Id == this.Id)
+				.List();
+
+			if(employees.Count > 0)
+			{
+				yield return new ValidationResult("Сотрудник уже существует", new[] { "Duplication" });
 			}
 
 			if(!string.IsNullOrEmpty(AndroidLogin))
@@ -519,6 +429,27 @@ namespace Vodovoz.Domain.Employees
 		}
 
 		#endregion
+
+		#region Без маппинга
+
+		[Display(Name = "ФИО")]
+		public virtual string FullName
+		{
+			get => String.Format("{0} {1} {2}", LastName, Name, Patronymic);
+		}
+
+		[Display(Name = "Фамилия и инициалы")]
+		public virtual string ShortName
+		{
+			get => PersonHelper.PersonNameWithInitials(LastName, Name, Patronymic);
+		}
+
+		public virtual string Title
+		{
+			get => ShortName;
+		}
+
+		#endregion Без маппинга
 
 		#region Функции
 
@@ -751,97 +682,19 @@ namespace Vodovoz.Domain.Employees
 				.Any();
 		}
 
+		public virtual List<int> GetSkillLevels() => new List<int> { 0, 1, 2, 3, 4, 5 };
+
+		public virtual List<EmployeeDocument> GetMainDocuments()
+		{
+			List<EmployeeDocument> mainDocuments = new List<EmployeeDocument>();
+			foreach(var doc in Documents)
+			{
+				if(doc.MainDocument == true)
+					mainDocuments.Add(doc);
+			}
+			return mainDocuments;
+		}
+
 		#endregion
-	}
-
-	public enum EmployeeCategory
-	{
-		[Display(Name = "Офисный работник")]
-		office,
-		[Display(Name = "Водитель")]
-		driver,
-		[Display(Name = "Экспедитор")]
-		forwarder
-	}
-
-	public enum DriverType
-	{
-		[Display(Name = "Управляет ТС компании")]
-		companydriver,
-		[Display(Name = "Управляет ТС в раскате")]
-		raskat,
-		[Display(Name = "Управляет ТС личным")]
-		hireddriver
-	}
-
-	public enum EmployeeType
-	{
-		[Display(Name = "Сотрудник")]
-		Employee,
-		[Display(Name = "Стажер")]
-		Trainee
-	}
-
-	public enum EmployeeStatus
-	{
-		[Display(Name = "Работает")]
-		IsWorking,
-		[Display(Name = "На расчете")]
-		OnCalculation,
-		[Display(Name = "В декрете")]
-		OnMaternityLeave,
-		[Display(Name = "Уволен")]
-		IsFired
-	}
-	
-	public enum Gender
-	{
-		[Display(Name = "М")]
-		male,
-		[Display(Name = "Ж")]
-		female
-	}
-
-	public enum DriverTerminalRelation
-	{
-		[Display(Name = "Водители с терминалами")]
-		WithTerminal,
-		[Display(Name = "Водители без терминалов")]
-		WithoutTerminal
-	}
-
-	public class EmployeeCategoryStringType : NHibernate.Type.EnumStringType
-	{
-		public EmployeeCategoryStringType() : base(typeof(EmployeeCategory))
-		{
-		}
-	}
-
-	public class RegistrationTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public RegistrationTypeStringType() : base(typeof(RegistrationType))
-		{
-		}
-	}
-
-	public class EmployeeTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public EmployeeTypeStringType() : base(typeof(EmployeeType))
-		{
-		}
-	}
-
-	public class EmployeeStatusStringType : NHibernate.Type.EnumStringType
-	{
-		public EmployeeStatusStringType() : base(typeof(EmployeeStatus))
-		{
-		}
-	}	
-
-	public class DriverTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public DriverTypeStringType() : base(typeof(DriverType))
-		{
-		}
 	}
 }

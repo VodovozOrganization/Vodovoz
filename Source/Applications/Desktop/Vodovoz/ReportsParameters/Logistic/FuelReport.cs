@@ -6,6 +6,7 @@ using QSProjectsLib;
 using QSReport;
 using System;
 using System.Collections.Generic;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Settings.Car;

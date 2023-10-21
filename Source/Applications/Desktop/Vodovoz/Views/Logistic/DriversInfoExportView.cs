@@ -9,6 +9,7 @@ using QS.Dialog.GtkUI;
 using QS.ErrorReporting;
 using QS.Utilities;
 using QS.Views.GtkUI;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.ViewModels.ViewModels.Logistic;

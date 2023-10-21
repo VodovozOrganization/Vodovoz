@@ -748,7 +748,7 @@ namespace Vodovoz.Domain.Orders
 		[Display(Name = "Количество бутылей по акции")]
 		public virtual int BottlesByStockCount {
 			get => bottlesByStockCount;
-			set => SetField(ref bottlesByStockCount, value, () => BottlesByStockCount);
+			set => SetField(ref bottlesByStockCount, value);
 		}
 
 		private int bottlesByStockActualCount;

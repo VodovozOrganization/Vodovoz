@@ -20,6 +20,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Employees;
+using Vodovoz.Core.Domain.Employees;
 
 namespace Vodovoz.Views.Employees
 {

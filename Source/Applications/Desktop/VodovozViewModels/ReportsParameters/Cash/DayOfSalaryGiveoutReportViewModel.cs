@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using MoreLinq;
+﻿using MoreLinq;
 using NHibernate.Transform;
 using QS.Commands;
 using QS.Dialog;
@@ -10,6 +7,10 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Report.ViewModels;
 using QS.Services;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Cash

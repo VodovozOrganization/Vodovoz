@@ -117,7 +117,6 @@
     <Compile Include="Counterparties\CounterpartyTests.cs" />
     <Compile Include="Domain\NomenclatureFixedPriceControllerTests.cs" />
     <Compile Include="Domain\WaterFixedPricesGeneratorTests.cs" />
-    <Compile Include="Employees\PersonnelTests.cs" />
     <Compile Include="Goods\NomenclaturePropertiesTest.cs" />
     <Compile Include="Deletion\ConfigTests.cs" />
     <Compile Include="ConfigureOneTime.cs" />

@@ -8,6 +8,7 @@ using QSOrmProject;
 using System;
 using Vodovoz;
 using Vodovoz.Core.DataService;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;

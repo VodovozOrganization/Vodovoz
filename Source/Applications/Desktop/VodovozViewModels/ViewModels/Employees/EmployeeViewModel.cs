@@ -22,6 +22,7 @@ using System.Linq;
 using System.Text;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;

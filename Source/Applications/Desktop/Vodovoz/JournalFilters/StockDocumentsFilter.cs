@@ -4,6 +4,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Employees;

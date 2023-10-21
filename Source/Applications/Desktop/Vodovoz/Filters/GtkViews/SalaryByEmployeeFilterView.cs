@@ -1,4 +1,5 @@
 ﻿using QS.Views.GtkUI;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Cash;
 

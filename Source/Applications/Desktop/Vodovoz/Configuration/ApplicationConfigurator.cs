@@ -277,11 +277,6 @@ namespace Vodovoz.Configuration
                 .SearchColumn("Имя класса", x => x.Type)
                 .OrderAsc(x => x.CustomName)
                 .End();
-            OrmMain.AddObjectDescription<Trainee>().Dialog<TraineeDlg>().DefaultTableView()
-                .Column("Код", x => x.Id.ToString())
-                .SearchColumn("Ф.И.О.", x => x.FullName)
-                .OrderAsc(x => x.LastName).OrderAsc(x => x.Name).OrderAsc(x => x.Patronymic)
-                .End();
             OrmMain.AddObjectDescription<Certificate>().Dialog<CertificateDlg>().DefaultTableView()
                 .SearchColumn("Имя", x => x.Name)
                 .Column("Тип", x => x.TypeOfCertificate.GetEnumTitle())

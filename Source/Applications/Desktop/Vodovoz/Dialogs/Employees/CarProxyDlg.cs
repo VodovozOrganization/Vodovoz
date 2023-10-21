@@ -11,6 +11,7 @@ using QS.Project.Services;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.Core.Domain.Employees;
 
 namespace Vodovoz.Dialogs.Employees
 {

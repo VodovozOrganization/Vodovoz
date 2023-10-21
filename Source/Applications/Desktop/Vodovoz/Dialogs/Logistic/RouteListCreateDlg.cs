@@ -48,6 +48,16 @@ using Vodovoz.ViewModels.Infrastructure.Print;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewWidgets.Logistics;
+using Vodovoz.EntityRepositories.Sale;
+using Vodovoz.Factories;
+using Gamma.ColumnConfig;
+using Vodovoz.Domain.Profitability;
+using System.Data.Bindings.Collections.Generic;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.Services;
+using Vodovoz.ViewModels.Factories;
+using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Employees;
 
 namespace Vodovoz
 {

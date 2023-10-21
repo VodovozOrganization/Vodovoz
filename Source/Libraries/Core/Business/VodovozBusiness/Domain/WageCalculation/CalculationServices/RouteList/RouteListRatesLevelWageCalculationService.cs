@@ -1,9 +1,8 @@
-﻿using System;
+﻿using Gamma.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Gamma.Utilities;
-using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Logistic;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 
 namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList

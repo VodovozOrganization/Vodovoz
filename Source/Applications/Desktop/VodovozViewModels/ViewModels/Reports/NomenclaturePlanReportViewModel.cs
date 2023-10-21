@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -655,7 +656,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 		{
 			get => _callCenterEmployeesCount ?? (_callCenterEmployeesCount = UoW.Session.QueryOver<Employee>()
 				.Where(e => e.Subdivision.Id == _nomenclaturePlanParametersProvider.CallCenterSubdivisionId)
-				.And(e => e.Status == Domain.Employees.EmployeeStatus.IsWorking)
+				.And(e => e.Status == Vodovoz.Core.Domain.Employees.EmployeeStatus.IsWorking)
 				.Select(Projections.Count<Employee>(e => e.Id))
 				.SingleOrDefault<int>());
 			set {; }
@@ -1066,7 +1067,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 		public IEntityAutocompleteSelectorFactory ProductGroupSelectorFactory { get; }
 		public ProductGroup ProductGroup { get; set; }
 		public NomenclatureCategory? NomenclatureCategory { get; set; }
-		public EmployeeStatus? EmployeeStatus { get; set; } = Domain.Employees.EmployeeStatus.IsWorking;
+		public EmployeeStatus? EmployeeStatus { get; set; } = Vodovoz.Core.Domain.Employees.EmployeeStatus.IsWorking;
 		public IEnumerable<SubdivisionReportColumn> Subdivisions { get; private set; }
 		public SubdivisionReportColumn Subdivision { get; private set; }
 		public int PageSize => 100;

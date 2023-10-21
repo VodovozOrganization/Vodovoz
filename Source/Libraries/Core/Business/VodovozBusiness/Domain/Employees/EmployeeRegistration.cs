@@ -14,7 +14,7 @@ namespace Vodovoz.Domain.Employees
 		NominativePlural = "виды оформлений сотрудников")]
 	[HistoryTrace]
 	[EntityPermission]
-	public class EmployeeRegistration : PropertyChangedBase, IDomainObject, IEmployeeRegistration, IValidatableObject
+	public class EmployeeRegistration : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		private RegistrationType _registrationType;
 		private PaymentForm _paymentForm;

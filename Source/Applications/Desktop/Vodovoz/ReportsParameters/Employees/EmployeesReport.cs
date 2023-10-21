@@ -6,6 +6,7 @@ using QS.DomainModel.UoW;
 using QS.Report;
 using QS.Services;
 using QSReport;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.ReportsParameters.Employees

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -1098,9 +1098,6 @@
     <Compile Include="ReportsParameters\Store\DefectiveItemsReport.cs" />
     <Compile Include="Dialogs\Logistic\RouresAtDayInfoWnd.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.RouresAtDayInfoWnd.cs" />
-    <Compile Include="Dialogs\Employees\TraineeDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Dialogs.Employees.TraineeDlg.cs" />
-    <Compile Include="Representations\TraineeVM.cs" />
     <Compile Include="Dialogs\Goods\NomenclatureCharacteristicsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Goods.NomenclatureCharacteristicsView.cs" />
     <Compile Include="ServiceDialogs\ImportPaymentsFromTinkoffDlg.cs" />
@@ -2312,11 +2309,7 @@
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Mango\Mango.Grpc.Client\Mango.Grpc.Client.csproj">
       <Project>{50993438-f358-4dcd-8e0a-ce1446c76487}</Project>
-      <Name>ClientMangoService</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Mango\MangoController\MangoController.csproj">
-      <Project>{3c82a870-3f2f-4f5e-9b7b-15710141fd93}</Project>
-      <Name>MangoController</Name>
+      <Name>Mango.Grpc.Client</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Sms\Sms.Internal.Client.Famework\Sms.Internal.Client.Framework.csproj">
       <Project>{e6465994-0f46-4c9f-8ce4-bcb98f916b17}</Project>
@@ -2325,6 +2318,10 @@
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Sms\SmsPaymentService\SmsPaymentService.csproj">
       <Project>{ca429421-2cce-4f9f-8dce-379583ab297c}</Project>
       <Name>SmsPaymentService</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj">
+      <Project>{67F08744-55FB-4169-809E-82F7424775F4}</Project>
+      <Name>Vodovoz.Core.Domain</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Reports.Editing\Vodovoz.Reports.Editing.csproj">
       <Project>{EC80100E-0125-48C6-8D66-50EEBF26E320}</Project>

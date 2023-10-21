@@ -7,6 +7,7 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.Core.Domain.Employees;
 
 namespace Vodovoz.Reports
 {

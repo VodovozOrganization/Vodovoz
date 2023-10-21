@@ -50,6 +50,7 @@ using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
 using Order = Vodovoz.Domain.Orders.Order;
 using Vodovoz.Settings.Cash;
+using Vodovoz.Core.Domain.Employees;
 
 namespace Vodovoz.Domain.Logistic
 {

@@ -9,6 +9,7 @@ using Vodovoz.Domain.Orders;
 using QS.Dialog.GtkUI;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.Core.Domain.Employees;
 
 namespace Vodovoz.ReportsParameters.Bottles
 {

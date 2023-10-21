@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using QS.Views.GtkUI;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.TempAdapters;

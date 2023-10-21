@@ -26,6 +26,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using CounterpartyContractFactory = Vodovoz.Factories.CounterpartyContractFactory;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.Core.Domain.Employees;
 
 namespace Vodovoz.Dialogs
 {

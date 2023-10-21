@@ -314,7 +314,6 @@
     <Compile Include="Domain\Documents\WriteOffDocuments\WriteOffDocumentItemType.cs" />
     <Compile Include="Domain\Documents\WriteOffDocuments\WriteOffType.cs" />
     <Compile Include="Domain\Employees\CashSubdivisionSortingSettings.cs" />
-    <Compile Include="Domain\Employees\IEmployeeRegistration.cs" />
     <Compile Include="Domain\Employees\PremiumBase.cs" />
     <Compile Include="Domain\Employees\PremiumRaskatGAZelle.cs" />
     <Compile Include="Domain\Employees\EmployeeRegistration.cs" />
@@ -1032,9 +1031,6 @@
     <Compile Include="Domain\StoredEmails\EmailTemplate.cs" />
     <Compile Include="Domain\StoredEmails\EmailAttachment.cs" />
     <Compile Include="Tools\AdditionalAgreements\WaterFixedPriceGenerator.cs" />
-    <Compile Include="Domain\Employees\Personnel.cs" />
-    <Compile Include="Domain\Employees\Trainee.cs" />
-    <Compile Include="Domain\Employees\IEmployee.cs" />
     <Compile Include="Domain\Orders\Documents\SpecialBill.cs" />
     <Compile Include="Domain\Orders\Documents\SpecialUPDDocument.cs" />
     <Compile Include="Domain\Goods\NomenclatureProperties.cs" />
@@ -1453,6 +1449,10 @@
     <ProjectReference Include="..\..\Infrastructure\VodovozInfrastructure\VodovozInfrastructure.csproj">
       <Project>{42efc426-2c88-4608-8191-dbca4172a695}</Project>
       <Name>VodovozInfrastructure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj">
+      <Project>{67f08744-55fb-4169-809e-82f7424775f4}</Project>
+      <Name>Vodovoz.Core.Domain</Name>
     </ProjectReference>
     <ProjectReference Include="..\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj">
       <Project>{E79B382D-7E61-42D7-B14D-CD1247E586C2}</Project>

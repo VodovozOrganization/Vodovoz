@@ -9,6 +9,7 @@ using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QS.Report;
 using QSReport;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.WageCalculation;

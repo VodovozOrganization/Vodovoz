@@ -62,6 +62,7 @@ using Vodovoz.ViewWidgets.Logistics;
 using QS.DomainModel.NotifyChange;
 using QS.Utilities.Debug;
 using Vodovoz.Extensions;
+using Vodovoz.Core.Domain.Employees;
 
 namespace Vodovoz
 {
