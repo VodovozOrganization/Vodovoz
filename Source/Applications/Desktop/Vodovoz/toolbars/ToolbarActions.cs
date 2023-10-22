@@ -519,26 +519,14 @@ public partial class MainWindow : Window
 		NavigationManager.OpenViewModel<WarehousesBalanceSummaryViewModel>(null);
 	}
 
+	/// <summary>
+	/// Новая заявка поставщику
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
 	void ActionNewRequestToSupplier_Activated(object sender, System.EventArgs e)
 	{
-		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
-		var userRepository = new UserRepository();
-		var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
-
-		tdiMain.OpenTab(
-			DialogHelper.GenerateDialogHashName<RequestToSupplier>(0),
-			() => new RequestToSupplierViewModel(
-				EntityUoWBuilder.ForCreate(),
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices,
-				VodovozGtkServicesConfig.EmployeeService,
-				new SupplierPriceItemsRepository(),
-				counterpartyJournalFactory,
-				new NomenclatureJournalFactory(),
-				nomenclatureRepository,
-				userRepository
-			)
-		);
+		NavigationManager.OpenViewModel<RequestToSupplierViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForCreate());
 	}
 
 	void ActionJournalOfRequestsToSuppliers_Activated(object sender, System.EventArgs e)
@@ -604,30 +592,7 @@ public partial class MainWindow : Window
 
 	void ActionRouteListAddressesTransferring_Activated(object sender, System.EventArgs e)
 	{
-		var scope = Startup.AppDIContainer.BeginLifetimeScope();
-		var parametersProvider = new ParametersProvider();
-		var employeeNomenclatureMovementRepository = new EmployeeNomenclatureMovementRepository();
-		var terminalNomenclatureProvider = new BaseParametersProvider(parametersProvider);
-		var routeListRepository = new RouteListRepository(new StockRepository(), new BaseParametersProvider(parametersProvider));
-		var routeListItemRepository = new RouteListItemRepository();
-		var employeeService = new EmployeeService();
-		var employeeRepository = new EmployeeRepository();
-		var nomenclatureParametersProvider = new NomenclatureParametersProvider(parametersProvider);
-
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<RouteListAddressesTransferringDlg>(),
-			() => new RouteListAddressesTransferringDlg(
-				employeeNomenclatureMovementRepository,
-				terminalNomenclatureProvider,
-				routeListRepository,
-				routeListItemRepository,
-				employeeService,
-				ServicesConfig.CommonServices,
-				scope.Resolve<IFinancialCategoriesGroupsSettings>(),
-				employeeRepository,
-				nomenclatureParametersProvider
-			)
-		);
+		NavigationManager.OpenTdiTab<RouteListAddressesTransferringDlg>(null);
 	}
 
 	void ActionEmployeeWorkChart_Activated(object sender, System.EventArgs e)
@@ -955,24 +920,7 @@ public partial class MainWindow : Window
 
 	void ActionRouteListTracking_Activated(object sender, System.EventArgs e)
 	{
-		var trackRepository = new TrackRepository();
-		var stockRepository = new StockRepository();
-		var terminalNomenclatureProvider = new BaseParametersProvider(new ParametersProvider());
-		var routeListRepository = new RouteListRepository(stockRepository, terminalNomenclatureProvider);
-		var scheduleRestrictionRepository = new ScheduleRestrictionRepository();
-		var deliveryRulesParametersProvider = new DeliveryRulesParametersProvider(new ParametersProvider());
-
-		var carsMonitoringViewModel = new CarsMonitoringViewModel(
-			UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.InteractiveService,
-			NavigationManager,
-			trackRepository,
-			routeListRepository,
-			scheduleRestrictionRepository,
-			deliveryRulesParametersProvider,
-			new GtkTabsOpener());
-
-		tdiMain.AddTab(carsMonitoringViewModel);
+		NavigationManager.OpenViewModel<CarsMonitoringViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	void ActionRouteListDistanceValidation_Activated(object sender, System.EventArgs e)

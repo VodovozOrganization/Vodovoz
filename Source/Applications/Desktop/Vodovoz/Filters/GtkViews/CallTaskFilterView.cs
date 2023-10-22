@@ -40,5 +40,17 @@ namespace Vodovoz.Filters.GtkViews
 			buttonThisWeek.Clicked += (sender, e) => ViewModel.ChangeDateOnThisWeekCommand.Execute();
 			buttonNextWeek.Clicked += (sender, e) => ViewModel.ChangeDateOnNextWeekCommand.Execute();
 		}
+
+		public override void Destroy()
+		{
+			comboboxDateType.Destroy();
+			specialListCmbboxDlvPointCategory.ItemsList = null;
+			specialListCmbboxDlvPointCategory.Destroy();
+			yenumcomboboxSortingParam.Destroy();
+			yenumcomboboxSortingDirection.Destroy();
+			ySpecCmbGeographicGroup.ItemsList = null;
+			ySpecCmbGeographicGroup.Destroy();
+			base.Destroy();
+		}
 	}
 }

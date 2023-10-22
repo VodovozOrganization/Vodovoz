@@ -186,7 +186,6 @@ namespace Vodovoz.Domain.Orders
 		private Employee author;
 
 		[Display(Name = "Создатель заказа")]
-		[IgnoreHistoryTrace]
 		public virtual Employee Author {
 			get => author;
 			set => SetField(ref author, value, () => Author);
@@ -1289,34 +1288,18 @@ namespace Vodovoz.Domain.Orders
 					// Конец проверки цен
 
 					//создание нескольких заказов на одну дату и точку доставки
-					if(!SelfDelivery && DeliveryPoint != null
-									 && DeliveryDate.HasValue
-									 && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_several_orders_for_date_and_deliv_point")
-									 && validationContext.Items.ContainsKey("uowFactory")
-									 && !IsCopiedFromUndelivery)
+
+					var canCreateSeveralOrdersValidationResult = ValidateCanCreateSeveralOrderForDateAndDeliveryPoint(validationContext);
+
+					if(canCreateSeveralOrdersValidationResult != ValidationResult.Success)
 					{
-						bool hasMaster = ObservableOrderItems.Any(i => i.Nomenclature.Category == NomenclatureCategory.master);
-
-						var orderCheckedOutsideSession = _orderRepository
-							.GetSameOrderForDateAndDeliveryPoint((IUnitOfWorkFactory)validationContext.Items["uowFactory"],
-								DeliveryDate.Value, DeliveryPoint)
-							.Where(o => o.Id != Id
-										&& !_orderRepository.GetGrantedStatusesToCreateSeveralOrders().Contains(o.OrderStatus)
-										&& o.OrderAddressType != OrderAddressType.Service).ToList();
-
-						if(!hasMaster
-						   && orderCheckedOutsideSession.Any())
-						{
-							yield return new ValidationResult(
-								string.Format("Создать заказ нельзя, т.к. для этой даты и точки доставки уже был создан заказ {0}",orderCheckedOutsideSession.FirstOrDefault().Id),
-								new[] { this.GetPropertyName(o => o.OrderEquipments) });
-						}
+						yield return canCreateSeveralOrdersValidationResult;
 					}
 
 					if(Client.IsDeliveriesClosed
-						&& PaymentType != PaymentType.Cash
-						&& PaymentType != PaymentType.PaidOnline
-						&& PaymentType != PaymentType.Terminal)
+					   && PaymentType != PaymentType.Cash
+					   && PaymentType != PaymentType.PaidOnline
+					   && PaymentType != PaymentType.Terminal)
 						yield return new ValidationResult(
 							"В заказе неверно указан тип оплаты (для данного клиента закрыты поставки)",
 							new[] { nameof(PaymentType) }
@@ -3532,7 +3515,14 @@ namespace Vodovoz.Domain.Orders
 				return;
 
 			if(CanSetOrderAsEditable)
+			{
+				if(OrderStatus == OrderStatus.Canceled)
+				{
+					RestoreOrder();
+				}
+
 				ChangeStatusAndCreateTasks(OrderStatus.NewOrder, callTaskWorker);
+			}
 		}
 
 		/// <summary>
@@ -3624,6 +3614,38 @@ namespace Vodovoz.Domain.Orders
 						loadedDictionary.Remove(item.Nomenclature.Id);
 				}
 			}
+		}
+
+		/// <summary>
+		/// Проверка возможности создания нескольких заказов на одну дату и точку доставки
+		/// </summary>
+		public virtual ValidationResult ValidateCanCreateSeveralOrderForDateAndDeliveryPoint(ValidationContext validationContext)
+		{
+			if(!SelfDelivery && DeliveryPoint != null
+			                 && DeliveryDate.HasValue
+			                 && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_several_orders_for_date_and_deliv_point")
+			                 && validationContext.Items.ContainsKey("uowFactory"))
+			{
+				bool hasMaster = ObservableOrderItems.Any(i => i.Nomenclature.Category == NomenclatureCategory.master);
+
+				var orderCheckedOutsideSession = _orderRepository
+					.GetSameOrderForDateAndDeliveryPoint((IUnitOfWorkFactory)validationContext.Items["uowFactory"],
+						DeliveryDate.Value, DeliveryPoint)
+					.Where(o => o.Id != Id
+					            && !_orderRepository.GetGrantedStatusesToCreateSeveralOrders().Contains(o.OrderStatus)
+					            && o.OrderAddressType != OrderAddressType.Service).ToList();
+
+				if(!hasMaster
+				   && orderCheckedOutsideSession.Any())
+				{
+					return new ValidationResult(
+						string.Format("Создать заказ нельзя, т.к. для этой даты и точки доставки уже был создан заказ {0}", orderCheckedOutsideSession.FirstOrDefault().Id),
+						new[] { this.GetPropertyName(o => o.OrderEquipments) });
+
+				}
+			}
+
+			return ValidationResult.Success;
 		}
 
 
@@ -4323,6 +4345,33 @@ namespace Vodovoz.Domain.Orders
 				deposit.ActualCount = 0;
 			}
 		}
+
+		public virtual void RestoreOrder()
+		{
+			foreach(var item in OrderItems)
+			{
+				if(item.OriginalDiscountMoney.HasValue || item.OriginalDiscount.HasValue)
+				{
+					item.DiscountMoney = item.OriginalDiscountMoney ?? 0;
+					item.DiscountReason = item.OriginalDiscountReason;
+					item.Discount = item.OriginalDiscount ?? 0;
+					item.OriginalDiscountMoney = null;
+					item.OriginalDiscountReason = null;
+					item.OriginalDiscount = null;
+				}
+				item.ActualCount = null;
+			}
+			foreach(var equip in OrderEquipments)
+			{
+				equip.ActualCount = null;
+			}
+
+			foreach(var deposit in OrderDepositItems)
+			{
+				deposit.ActualCount = null;
+			}
+		}
+
 
 		/// <summary>
 		/// Возвращает список со всеми товарами, которые нужно доставить клиенту

@@ -1,29 +1,26 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using Gtk;
+using Autofac;
+using Microsoft.Extensions.Logging;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
+using QS.Report;
+using QS.Validation;
 using QSOrmProject;
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.PermissionExtensions;
-using QS.Project.Services;
-using QS.Report;
-using Vodovoz.Controllers;
-using Vodovoz.Tools.CallTasks;
-using Vodovoz.EntityRepositories.CallTasks;
-using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.Stock;
-using Vodovoz.Parameters;
-using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Models;
-using Vodovoz.Tools;
+using Vodovoz.PermissionExtensions;
+using Vodovoz.Services;
+using Vodovoz.Services.Logistics;
 using Vodovoz.Tools.Store;
 using QS.Validation;
 using Vodovoz.Infrastructure;
@@ -33,35 +30,20 @@ namespace Vodovoz
 {
 	public partial class CarLoadDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<CarLoadDocument>
 	{
-		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		private IStockRepository _stockRepository = new StockRepository();
-		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private readonly IRouteListRepository _routeListRepository =
-			new RouteListRepository(new StockRepository(), new BaseParametersProvider(new ParametersProvider()));
-		private readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(new ParametersProvider());
-		private readonly IRouteListDailyNumberProvider _routeListDailyNumberProvider = new RouteListDailyNumberProvider(UnitOfWorkFactory.GetDefaultFactory);
+		private ILifetimeScope _lifetimeScope;
 
-		private CallTaskWorker callTaskWorker;
-		public virtual CallTaskWorker CallTaskWorker {
-			get {
-				if(callTaskWorker == null) {
-					callTaskWorker = new CallTaskWorker(
-						CallTaskSingletonFactory.GetInstance(),
-						new CallTaskRepository(),
-						new OrderRepository(),
-						_employeeRepository,
-						new BaseParametersProvider(new ParametersProvider()),
-						ServicesConfig.CommonServices.UserService,
-						ErrorReporter.Instance);
-				}
-				return callTaskWorker;
-			}
-			set { callTaskWorker = value; }
-		}
+		private ILogger<CarLoadDocumentDlg> _logger;
+		private IStockRepository _stockRepository;
+		private IEmployeeRepository _employeeRepository;
+		private IRouteListRepository _routeListRepository;
+		private IRouteListService _routeListService;
+		private ITerminalNomenclatureProvider _terminalNomenclatureProvider;
+		private IRouteListDailyNumberProvider _routeListDailyNumberProvider;
 
 		public CarLoadDocumentDlg()
 		{
-			this.Build();
+			ResolveDependencies();
+			Build();
 
 			ConfigureNewDoc();
 			ConfigureDlg();
@@ -69,10 +51,12 @@ namespace Vodovoz
 
 		public CarLoadDocumentDlg(int routeListId, int? warehouseId)
 		{
-			this.Build();
+			ResolveDependencies();
+			Build();
 			ConfigureNewDoc();
 
-			if(warehouseId.HasValue) {
+			if(warehouseId.HasValue)
+			{
 				Entity.Warehouse = UoW.GetById<Warehouse>(warehouseId.Value);
 
 			}
@@ -82,18 +66,32 @@ namespace Vodovoz
 
 		public CarLoadDocumentDlg(int id)
 		{
-			this.Build();
+			ResolveDependencies();
+			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<CarLoadDocument>(id);
 			ConfigureDlg();
 		}
 
 		public CarLoadDocumentDlg(CarLoadDocument sub) : this(sub.Id) { }
 
-		void ConfigureNewDoc()
+		private void ResolveDependencies()
+		{
+			_lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+			_logger = _lifetimeScope.Resolve<ILogger<CarLoadDocumentDlg>>();
+			_stockRepository = _lifetimeScope.Resolve<IStockRepository>();
+			_employeeRepository = _lifetimeScope.Resolve<IEmployeeRepository>();
+			_routeListRepository = _lifetimeScope.Resolve<IRouteListRepository>();
+			_routeListService = _lifetimeScope.Resolve<IRouteListService>();
+			_terminalNomenclatureProvider = _lifetimeScope.Resolve<ITerminalNomenclatureProvider>();
+			_routeListDailyNumberProvider = _lifetimeScope.Resolve<IRouteListDailyNumberProvider>();
+		}
+
+		private void ConfigureNewDoc()
 		{
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<CarLoadDocument>();
 			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
-			if(Entity.Author == null) {
+			if(Entity.Author == null)
+			{
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
 				FailInitialize = true;
 				return;
@@ -103,20 +101,21 @@ namespace Vodovoz
 			Entity.Warehouse = storeDocument.GetDefaultWarehouse(UoW, WarehousePermissionsType.CarLoadEdit);
 		}
 
-		void ConfigureDlg()
+		private void ConfigureDlg()
 		{
-			
+
 			var storeDocument = new StoreDocumentHelper(new UserSettingsGetter());
-			if(storeDocument.CheckAllPermissions(UoW.IsNew, WarehousePermissionsType.CarLoadEdit, Entity.Warehouse)) {
+			if(storeDocument.CheckAllPermissions(UoW.IsNew, WarehousePermissionsType.CarLoadEdit, Entity.Warehouse))
+			{
 				FailInitialize = true;
 				return;
 			}
 
 			var currentUserId = ServicesConfig.CommonServices.UserService.CurrentUserId;
-			var hasPermitionToEditDocWithClosedRL = 
+			var hasPermitionToEditDocWithClosedRL =
 				ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission(
 					"can_change_car_load_and_unload_docs", currentUserId);
-			
+
 			var editing = storeDocument.CanEditDocument(WarehousePermissionsType.CarLoadEdit, Entity.Warehouse);
 			editing &= Entity.RouteList?.Status != RouteListStatus.Closed || hasPermitionToEditDocWithClosedRL;
 			yentryrefRouteList.IsEditable = ySpecCmbWarehouses.Sensitive = ytextviewCommnet.Editable = editing;
@@ -142,18 +141,25 @@ namespace Vodovoz
 			carloaddocumentview1.SetButtonEditing(editing);
 			buttonSave.Sensitive = editing;
 			if(!editing)
+			{
 				HasChanges = false;
+			}
+
 			if(UoW.IsNew && Entity.Warehouse != null)
+			{
 				carloaddocumentview1.FillItemsByWarehouse();
+			}
+
 			ySpecCmbWarehouses.ItemSelected += OnYSpecCmbWarehousesItemSelected;
 
 			var permmissionValidator =
 				new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
-			
+
 			Entity.CanEdit =
 				permmissionValidator.Validate(typeof(CarLoadDocument), currentUserId, nameof(RetroactivelyClosePermission));
-			
-			if(!Entity.CanEdit && Entity.TimeStamp.Date != DateTime.Now.Date) {
+
+			if(!Entity.CanEdit && Entity.TimeStamp.Date != DateTime.Now.Date)
+			{
 				ytextviewCommnet.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				yentryrefRouteList.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				ySpecCmbWarehouses.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
@@ -161,7 +167,9 @@ namespace Vodovoz
 				carloaddocumentview1.Sensitive = false;
 
 				buttonSave.Sensitive = false;
-			} else {
+			}
+			else
+			{
 				Entity.CanEdit = true;
 			}
 		}
@@ -169,8 +177,10 @@ namespace Vodovoz
 		public override bool Save()
 		{
 			if(!Entity.CanEdit)
+			{
 				return false;
-			
+			}
+
 			Entity.UpdateAlreadyLoaded(UoW, _routeListRepository);
 			var validator = new ObjectValidator(new GtkValidationViewFactory());
 			if(!validator.Validate(Entity))
@@ -180,7 +190,8 @@ namespace Vodovoz
 
 			Entity.LastEditor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			Entity.LastEditedTime = DateTime.Now;
-			if(Entity.LastEditor == null) {
+			if(Entity.LastEditor == null)
+			{
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
 				return false;
 			}
@@ -191,37 +202,41 @@ namespace Vodovoz
 					$"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">В списке есть нулевые позиции. Убрать нулевые позиции перед сохранением?</span>");
 				switch(res)
 				{
-					case -4:			//DeleteEvent
-					case -6:			//Cancel
+					case -4:            //DeleteEvent
+					case -6:            //Cancel
 						return false;
-					case -8:			//Yes
+					case -8:            //Yes
 						Entity.ClearItemsFromZero();
 						break;
-					case -9:			//No
+					case -9:            //No
 						break;
 				}
 			}
 
-			Entity.UpdateOperations(UoW, _baseParametersProvider.GetNomenclatureIdForTerminal);
+			Entity.UpdateOperations(UoW, _terminalNomenclatureProvider.GetNomenclatureIdForTerminal);
 
-			logger.Info("Сохраняем погрузочный талон...");
+			_logger.LogInformation("Сохраняем погрузочный талон...");
 			UoWGeneric.Save();
 
-			logger.Info("Меняем статус маршрутного листа...");
-			if(Entity.RouteList.ShipIfCan(UoW, CallTaskWorker, out _))
+			_logger.LogInformation("Меняем статус маршрутного листа...");
+			if(_routeListService.TrySendEnRoute(UoW, Entity.RouteList, out _))
+			{
 				MessageDialogHelper.RunInfoDialog("Маршрутный лист отгружен полностью.");
+			}
+
 			UoW.Save(Entity.RouteList);
 
 			UoW.Commit();
 
-			logger.Info("Ok.");
+			_logger.LogInformation("Ok.");
 
 			return true;
 		}
 
-		void UpdateRouteListInfo()
+		private void UpdateRouteListInfo()
 		{
-			if(Entity.RouteList == null) {
+			if(Entity.RouteList == null)
+			{
 				ytextviewRouteListInfo.Buffer.Text = string.Empty;
 				return;
 			}
@@ -241,7 +256,9 @@ namespace Vodovoz
 		{
 			UpdateRouteListInfo();
 			if(Entity.Warehouse != null && Entity.RouteList != null)
+			{
 				carloaddocumentview1.FillItemsByWarehouse();
+			}
 		}
 
 		protected void OnYSpecCmbWarehousesItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
@@ -269,7 +286,8 @@ namespace Vodovoz
 
 			_routeListDailyNumberProvider.GetOrCreateDailyNumber(Entity.RouteList.Id, Entity.RouteList.Date);
 
-			var reportInfo = new QS.Report.ReportInfo {
+			var reportInfo = new QS.Report.ReportInfo
+			{
 				Title = Entity.Title,
 				Identifier = "Store.CarLoadDocument",
 				Parameters = new System.Collections.Generic.Dictionary<string, object>
@@ -283,6 +301,12 @@ namespace Vodovoz
 				QSReport.ReportViewDlg.GenerateHashName(reportInfo),
 				() => new QSReport.ReportViewDlg(reportInfo),
 				this);
+		}
+
+		public override void Destroy()
+		{
+			base.Destroy();
+			_lifetimeScope?.Dispose();
 		}
 	}
 

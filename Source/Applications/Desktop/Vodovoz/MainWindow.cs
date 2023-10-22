@@ -50,9 +50,6 @@ public partial class MainWindow : Gtk.Window
 	public TdiNotebook TdiMain => tdiMain;
 	public InfoPanel InfoPanel => infopanel;
 
-	public readonly TdiNavigationManager NavigationManager;
-	public readonly MangoManager MangoManager;
-
 	public MainWindow(IPasswordValidator passwordValidator, IApplicationConfigurator applicationConfigurator) : base(Gtk.WindowType.Toplevel)
 	{
 		_passwordValidator = passwordValidator ?? throw new ArgumentNullException(nameof(passwordValidator));
@@ -182,10 +179,6 @@ public partial class MainWindow : Gtk.Window
 				ActionIconsLarge.Activate();
 				break;
 		}
-
-		NavigationManager = _autofacScope.Resolve<TdiNavigationManager>(new TypedParameter(typeof(TdiNotebook), tdiMain));
-		MangoManager = _autofacScope.Resolve<MangoManager>(new TypedParameter(typeof(Gtk.Action), MangoAction));
-		MangoManager.Connect();
 
 		// Отдел продаж
 
@@ -320,6 +313,20 @@ public partial class MainWindow : Gtk.Window
 		Action74.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.CanGenerateCashFlowDdsReport);
 
 		InitializeThemesMenuItem();
+	}
+	
+	public ITdiCompatibilityNavigation NavigationManager { get; private set; }
+	public MangoManager MangoManager { get; private set; }
+
+	/// <summary>
+	/// Пока в <see cref="EmployeeJournalFactory"/> есть получение <see cref="NavigationManager"/> через <see cref="MainWindow"/>
+	/// то инициализируем менеджеры после инициализации главного окна
+	/// </summary>
+	public void InitializeManagers()
+	{
+		NavigationManager = _autofacScope.Resolve<ITdiCompatibilityNavigation>(new TypedParameter(typeof(TdiNotebook), tdiMain));
+		MangoManager = _autofacScope.Resolve<MangoManager>(new TypedParameter(typeof(Gtk.Action), MangoAction));
+		MangoManager.Connect();
 	}
 
 	private DateTime GetDateTimeFGromVersion(Version version) =>
