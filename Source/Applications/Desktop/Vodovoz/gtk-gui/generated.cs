@@ -62,6 +62,8 @@ namespace Stetic
 				w1.Add("sales_department", w25);
 				global::Gtk.IconSet w26 = new global::Gtk.IconSet(global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.toolbar.undelivered_orders.png"));
 				w1.Add("undelivered_orders", w26);
+				global::Gtk.IconSet w27 = new global::Gtk.IconSet(global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.pacs.pacs-disabled.png"));
+				w1.Add("pacs-disabled", w27);
 				w1.AddDefault();
 			}
 		}

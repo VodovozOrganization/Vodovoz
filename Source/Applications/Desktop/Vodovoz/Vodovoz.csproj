@@ -382,7 +382,6 @@
     <EmbeddedResource Include="icons\phone\phone-talk.png" />
     <EmbeddedResource Include="icons\phone\phone-ring.png" />
     <EmbeddedResource Include="icons\phone\phone-disconnected.png" />
-    <EmbeddedResource Include="icons\phone\phone-disable.png" />
     <EmbeddedResource Include="icons\phone\phone-connected.png" />
     <EmbeddedResource Include="icons\phone\decline-call.png" />
     <EmbeddedResource Include="icons\phone\make-call.png" />
@@ -396,6 +395,8 @@
     <EmbeddedResource Include="icons\toolbar\car_service.png" />
     <EmbeddedResource Include="icons\toolbar\sales_department.png" />
     <EmbeddedResource Include="icons\toolbar\undelivered_orders.png" />
+    <EmbeddedResource Include="icons\phone\phone-disable.png" />
+    <EmbeddedResource Include="icons\pacs\pacs-disabled.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Additions\Accounting\WayBillDocumentGenerator.cs" />
@@ -1986,10 +1987,14 @@
     <Compile Include="Views\Orders\PrintOrdersDocumentsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.PrintOrdersDocumentsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.ChainStoreDelayReport.cs" />
+    <Compile Include="Views\Pacs\PacsPanel.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Pacs.PacsPanel.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="ViewModels\Goods\" />
+    <Folder Include="Views\Pacs\" />
+    <Folder Include="icons\pacs\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">
