@@ -6,6 +6,7 @@ using GMap.NET.MapProviders;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Operation.Union;
 using NHibernate.Util;
+using QS.Utilities.Spatial;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
@@ -169,17 +170,11 @@ namespace Vodovoz.Tools.Logistic
 			return (int)(GetDistanceToBase(fromDP, toBase) * 1000);
 		}
 
-		public bool DeliveryPointInFastDeliveryRadius(DeliveryPoint deliveryPoint, DriverPositionWithFastDeliveryRadius driverPosition)
+		public bool DeliveryPointInFastDeliveryRadius(DeliveryPoint deliveryPoint, DriverPosition driverPosition, decimal radius)
 		{
-			var geometryFactory = new GeometryFactory(new PrecisionModel(), 3857);
+			var distance = DistanceHelper.GetDistanceKm(driverPosition.Latitude, driverPosition.Longitude, Convert.ToDouble(deliveryPoint.Latitude), Convert.ToDouble(deliveryPoint.Longitude));
 
-			var line = geometryFactory.CreateLineString(new Coordinate[]
-			{
-				new Coordinate(driverPosition.Latitude, driverPosition.Longitude),
-				new Coordinate(Convert.ToDouble(deliveryPoint.Latitude), Convert.ToDouble(deliveryPoint.Longitude))
-			});
-
-			return line.Length <= driverPosition.FastDeliveryRadius;
+			return distance <= Convert.ToDouble(radius);
 		}
 	}
 }

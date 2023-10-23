@@ -89,6 +89,24 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		}
 
+		public GenericObservableList<RouteListNode> RouteListNodes { get; } = new GenericObservableList<RouteListNode>();
+
+		public FastDeliveryOrderTransferFilterViewModel FilterViewModel { get; }
+
+		public DelegateCommand TransferCommand { get; }
+
+		public DelegateCommand CancelCommand { get; }
+
+		public RouteListNode RouteListToSelectedNode { get; set; }
+
+		public string AddressInfo => _routeListItemToTransfer?.Order?.DeliveryPoint?.ShortAddress;
+
+		public string DriverInfo => $"от {_routeListFrom?.Driver?.ShortName} {_routeListFrom?.Car?.RegistrationNumber}";
+
+		public bool CanCancel => true;
+
+		public bool CanTransfer => _routeListFrom != null && _routeListItemToTransfer != null || false;
+
 		private void OnFiltered(object sender, EventArgs e)
 		{
 			var newRouteLists = GetFastDeliveryRouteLists();
@@ -269,20 +287,21 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			PointOnEarth point = _routeListItemToTransfer.Order.DeliveryPoint.GetPointOnEarth();
 
 			var lastTrackPointsWithRadiuses = _trackRepository
-				.GetLastPointForRouteListsWithRadius(_unitOfWork, routeLists.Select(x => x.Id).ToArray());
+				.GetLastPointForRouteLists(_unitOfWork, routeLists.Select(x => x.Id).ToArray());
 
-			List<RouteListNode> routeListNodes = new List<RouteListNode>();
+			var routeListNodes = new List<RouteListNode>();
 
 			for(int i = 0; i < routeLists.Count; i++)
 			{
 				var currentLastTrackPointWithRadius = lastTrackPointsWithRadiuses
-						.FirstOrDefault(x => x.RouteListId == routeLists[i].Id);
+					.FirstOrDefault(x => x.RouteListId == routeLists[i].Id);
 
 				if(currentLastTrackPointWithRadius != null
 					&& (DateTime.Now - currentLastTrackPointWithRadius.Time) < _driverOfflineTimeSpan
 					&& _fastDeliveryDistanceChecker.DeliveryPointInFastDeliveryRadius(
 						_routeListItemToTransfer.Order.DeliveryPoint,
-						currentLastTrackPointWithRadius)
+						currentLastTrackPointWithRadius,
+						routeLists[i].GetFastDeliveryMaxDistanceValue())
 					&& GetFastDeliveryOrdersCountInRouteList(routeLists[i]) < routeLists[i].GetMaxFastDeliveryOrdersValue()
 					&& _routeListRepository.HasFreeBalanceForOrder(_unitOfWork, _routeListItemToTransfer.Order, routeLists[i]))
 				{
@@ -324,19 +343,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			return resortedRouteLists.ToList();
 		}
 
-		public RouteListNode RouteListToSelectedNode { get; set; }
-		public string AddressInfo => _routeListItemToTransfer?.Order?.DeliveryPoint?.ShortAddress;
-		public string DriverInfo => $"от {_routeListFrom?.Driver?.ShortName} {_routeListFrom?.Car?.RegistrationNumber}";
-		public GenericObservableList<RouteListNode> RouteListNodes { get; } = new GenericObservableList<RouteListNode>();
-
-		#region Commands
-
-		#region TransferCommand
-
-		public DelegateCommand TransferCommand { get; }
-
-		public bool CanTransfer => _routeListFrom != null && _routeListItemToTransfer != null || false;
-
 		private void Transfer()
 		{
 			if(_routeListFrom == null
@@ -364,24 +370,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 		}
 
-		#endregion
-
-		#region CancelCommand
-
-		public DelegateCommand CancelCommand { get; }
-
-		public bool CanCancel => true;
-
-		public FastDeliveryOrderTransferFilterViewModel FilterViewModel { get; }
-
 		private void Cancel()
 		{
 			Close(false, CloseSource.Cancel);
 		}
-
-		#endregion
-
-		#endregion
 
 		public void Dispose()
 		{

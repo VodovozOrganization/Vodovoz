@@ -5,6 +5,6 @@ namespace Vodovoz.Tools.Logistic
 {
 	public interface IFastDeliveryDistanceChecker
 	{
-		bool DeliveryPointInFastDeliveryRadius(DeliveryPoint deliveryPoint, DriverPositionWithFastDeliveryRadius driverPosition);
+		bool DeliveryPointInFastDeliveryRadius(DeliveryPoint deliveryPoint, DriverPosition driverPosition, decimal radius);
 	}
 }
