@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Xml.Serialization;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -13,6 +14,7 @@ using QS.ViewModels.Dialog;
 using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Factories;
+using Vodovoz.Nodes;
 
 namespace Vodovoz.ViewModels
 {
@@ -155,7 +157,7 @@ namespace Vodovoz.ViewModels
 		public override bool Save()
 		{
 			ProgressTitle = _loadingProgress;
-			foreach(PaymentFromAvangard payment in AvangardPayments)
+			foreach(var payment in AvangardPayments)
 			{
 				UoW.Save(payment);
 			}
@@ -165,30 +167,34 @@ namespace Vodovoz.ViewModels
 			return true;
 		}
 
-		private IList<ImportPaymentsFromAvangardSbpNode> ParseData()
+		private AvangardOperations ParseData()
 		{
-			return File.ReadAllLines(_selectedFilePath)
-				.Skip(1)
-				.Select(x => x.Split(','))
-				.Select(x => _paymentFromAvangardFactory.CreateImportPaymentsFromAvangardSbpNode(x.Select(y => y.Trim('"')).ToArray()))
-				.ToList();
+			var serializer = new XmlSerializer(typeof(AvangardOperations));
+			AvangardOperations avangardOperations;
+
+			using(var reader = new StreamReader(_selectedFilePath))
+			{
+				avangardOperations = (AvangardOperations)serializer.Deserialize(reader);
+			}
+
+			return avangardOperations;
 		}
 
-		private void CheckForDuplicates(IList<ImportPaymentsFromAvangardSbpNode> parsedData)
+		private void CheckForDuplicates(AvangardOperations avangardOperations)
 		{
-			foreach(var node in parsedData)
+			foreach(var node in avangardOperations.Operations)
 			{
-				if(node.TotalSum < 0)
+				if(node.Amount < 0)
 				{
 					continue;
 				}
 
 				var curPayment = AvangardPayments.SingleOrDefault(
-					x => x.PaidDate == node.PaidDate
-						&& x.OrderNum == node.OrderNum
-						&& x.TotalSum == node.TotalSum);
+					x => x.PaidDate == node.TransDate
+						&& x.OrderNum == node.OrderNumber
+						&& x.TotalSum == node.Amount);
 
-				if(curPayment != null || _paymentsRepository.PaymentFromAvangardExists(UoW, node.PaidDate, node.OrderNum, node.TotalSum))
+				if(curPayment != null || _paymentsRepository.PaymentFromAvangardExists(UoW, node.TransDate, node.OrderNumber, node.Amount))
 				{
 					_countDuplicates++;
 					continue;
@@ -204,8 +210,8 @@ namespace Vodovoz.ViewModels
 			{
 				Title = "Открыть",
 			};
-			dialogSettings.FileFilters.Add(new DialogFileFilter("Comma Separated Values File (*.csv)", "*.csv"));
-			
+			dialogSettings.FileFilters.Add(new DialogFileFilter("XML", "*.xml"));
+
 			return dialogSettings;
 		}
 		

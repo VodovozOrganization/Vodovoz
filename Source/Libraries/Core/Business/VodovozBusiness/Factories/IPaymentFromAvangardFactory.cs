@@ -1,10 +1,10 @@
 ﻿using Vodovoz.Domain.Payments;
+using Vodovoz.Nodes;
 
 namespace Vodovoz.Factories
 {
 	public interface IPaymentFromAvangardFactory
 	{
-		PaymentFromAvangard CreateNewPaymentFromAvangard(ImportPaymentsFromAvangardSbpNode node);
-		ImportPaymentsFromAvangardSbpNode CreateImportPaymentsFromAvangardSbpNode(string[] data);
+		PaymentFromAvangard CreateNewPaymentFromAvangard(AvangardOperation node);
 	}
 }
