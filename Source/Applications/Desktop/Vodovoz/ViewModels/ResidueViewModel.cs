@@ -1,5 +1,7 @@
-﻿using QS.Commands;
+﻿using Autofac;
+using QS.Commands;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Services;
 using QS.Utilities;
@@ -25,12 +27,13 @@ namespace Vodovoz.ViewModels
 {
 	public class ResidueViewModel : EntityTabViewModelBase<Residue>
 	{
-		private readonly IEmployeeService employeeService;
-		private readonly IRepresentationEntityPicker entityPicker;
-		private readonly IBottlesRepository bottlesRepository;
-		private readonly IDepositRepository depositRepository;
-		private readonly IMoneyRepository moneyRepository;
+		private readonly IEmployeeService _employeeService;
+		private readonly IRepresentationEntityPicker _entityPicker;
+		private readonly IBottlesRepository _bottlesRepository;
+		private readonly IDepositRepository _depositRepository;
+		private readonly IMoneyRepository _moneyRepository;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
+		private readonly ILifetimeScope _lifetimeScope;
 
 		public ResidueViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -43,31 +46,46 @@ namespace Vodovoz.ViewModels
 			ICommonServices commonServices,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
-			ICounterpartyJournalFactory counterpartyJournalFactory
-		)
-		: base(uowBuilder, uowFactory, commonServices)
+			ICounterpartyJournalFactory counterpartyJournalFactory,
+			ILifetimeScope lifetimeScope,
+			INavigationManager navigationManager)
+			: base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
-			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			this.entityPicker = entityPicker ?? throw new ArgumentNullException(nameof(entityPicker));
-			this.bottlesRepository = bottlesRepository ?? throw new ArgumentNullException(nameof(bottlesRepository));
-			this.depositRepository = depositRepository ?? throw new ArgumentNullException(nameof(depositRepository));
-			this.moneyRepository = moneyRepository ?? throw new ArgumentNullException(nameof(moneyRepository));
+			if(navigationManager is null)
+			{
+				throw new ArgumentNullException(nameof(navigationManager));
+			}
+
+			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			_entityPicker = entityPicker ?? throw new ArgumentNullException(nameof(entityPicker));
+			_bottlesRepository = bottlesRepository ?? throw new ArgumentNullException(nameof(bottlesRepository));
+			_depositRepository = depositRepository ?? throw new ArgumentNullException(nameof(depositRepository));
+			_moneyRepository = moneyRepository ?? throw new ArgumentNullException(nameof(moneyRepository));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+
 			TabName = "Ввод остатков";
-			if(CurrentEmployee == null) {
+			if(CurrentEmployee == null)
+			{
 				AbortOpening("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, " +
 					"так как некого указывать в качестве кладовщика.", "Невозможно открыть ввод остатков");
 			}
-			if(UoW.IsNew) {
+
+			if(UoW.IsNew)
+			{
 				Entity.Author = CurrentEmployee;
 				Entity.Date = new DateTime(2017, 4, 23);
 			}
+
 			CreateCommands();
 			ConfigureEntityPropertyChanges();
 			UpdateResidue();
+
 			GuiltyItemsVM = new GuiltyItemsViewModel(
 				new Complaint(),
 				UoW,
+				this,
+				_lifetimeScope,
 				commonServices,
 				new SubdivisionRepository(new ParametersProvider()),
 				employeeJournalFactory,
@@ -79,7 +97,10 @@ namespace Vodovoz.ViewModels
 		public void OnObservableEquipmentItemsPropertyOfElementChanged(object sender, PropertyChangedEventArgs e)
 		{
 			if(!(sender is ResidueEquipmentDepositItem item))
+			{
 				return;
+			}
+
 			if(nameof(ResidueEquipmentDepositItem.EquipmentCount) == e.PropertyName) {
 				item.DepositCount = item.EquipmentCount;
 			}
@@ -100,7 +121,7 @@ namespace Vodovoz.ViewModels
 		public Employee CurrentEmployee {
 			get {
 				if(currentEmployee == null) {
-					currentEmployee = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
+					currentEmployee = _employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
 				}
 				return currentEmployee;
 			}
@@ -114,27 +135,27 @@ namespace Vodovoz.ViewModels
 			Entity.LastEditTime = DateTime.Now;
 			if(Entity.DeliveryPoint != null)
 				Entity.DeliveryPoint.HaveResidue = true;
-			Entity.UpdateOperations(UoW, bottlesRepository, moneyRepository, depositRepository, CommonServices.ValidationService);
+			Entity.UpdateOperations(UoW, _bottlesRepository, _moneyRepository, _depositRepository, CommonServices.ValidationService);
 
 			return base.BeforeSave();
 		}
 
-		private string currentBottlesDebt;
+		private string _currentBottlesDebt;
 		public virtual string CurrentBottlesDebt {
-			get => currentBottlesDebt;
-			set => SetField(ref currentBottlesDebt, value, () => CurrentBottlesDebt);
+			get => _currentBottlesDebt;
+			set => SetField(ref _currentBottlesDebt, value);
 		}
 
-		private string currentBottlesDeposit;
+		private string _currentBottlesDeposit;
 		public virtual string CurrentBottlesDeposit {
-			get => currentBottlesDeposit;
-			set => SetField(ref currentBottlesDeposit, value, () => CurrentBottlesDeposit);
+			get => _currentBottlesDeposit;
+			set => SetField(ref _currentBottlesDeposit, value);
 		}
 
-		private string currentEquipmentDeposit;
+		private string _currentEquipmentDeposit;
 		public virtual string CurrentEquipmentDeposit {
-			get => currentEquipmentDeposit;
-			set => SetField(ref currentEquipmentDeposit, value, () => CurrentEquipmentDeposit);
+			get => _currentEquipmentDeposit;
+			set => SetField(ref _currentEquipmentDeposit, value, () => CurrentEquipmentDeposit);
 		}
 
 		private string currentMoneyDebt;
@@ -150,26 +171,26 @@ namespace Vodovoz.ViewModels
 
 			int bottleDebt;
 			bottleDebt = Entity.DeliveryPoint == null
-				? bottlesRepository.GetBottlesDebtAtCounterparty(UoW, Entity.Customer, Entity.Date)
-				: bottlesRepository.GetBottlesDebtAtDeliveryPoint(UoW, Entity.DeliveryPoint, Entity.Date);
+				? _bottlesRepository.GetBottlesDebtAtCounterparty(UoW, Entity.Customer, Entity.Date)
+				: _bottlesRepository.GetBottlesDebtAtDeliveryPoint(UoW, Entity.DeliveryPoint, Entity.Date);
 
 			CurrentBottlesDebt = NumberToTextRus.FormatCase(bottleDebt, "{0} бутыль", "{0} бутыли", "{0} бутылей");
 
 			decimal bottleDeposit;
 			if(Entity.DeliveryPoint == null)
-				bottleDeposit = depositRepository.GetDepositsAtCounterparty(UoW, Entity.Customer, DepositType.Bottles, Entity.Date);
+				bottleDeposit = _depositRepository.GetDepositsAtCounterparty(UoW, Entity.Customer, DepositType.Bottles, Entity.Date);
 			else
-				bottleDeposit = depositRepository.GetDepositsAtDeliveryPoint(UoW, Entity.DeliveryPoint, DepositType.Bottles, Entity.Date);
+				bottleDeposit = _depositRepository.GetDepositsAtDeliveryPoint(UoW, Entity.DeliveryPoint, DepositType.Bottles, Entity.Date);
 			CurrentBottlesDeposit = CurrencyWorks.GetShortCurrencyString(bottleDeposit);
 
 			decimal equipDeposit;
 			if(Entity.DeliveryPoint == null)
-				equipDeposit = depositRepository.GetDepositsAtCounterparty(UoW, Entity.Customer, DepositType.Equipment, Entity.Date);
+				equipDeposit = _depositRepository.GetDepositsAtCounterparty(UoW, Entity.Customer, DepositType.Equipment, Entity.Date);
 			else
-				equipDeposit = depositRepository.GetDepositsAtDeliveryPoint(UoW, Entity.DeliveryPoint, DepositType.Equipment, Entity.Date);
+				equipDeposit = _depositRepository.GetDepositsAtDeliveryPoint(UoW, Entity.DeliveryPoint, DepositType.Equipment, Entity.Date);
 			CurrentEquipmentDeposit = CurrencyWorks.GetShortCurrencyString(equipDeposit);
 
-			decimal debt = moneyRepository.GetCounterpartyDebt(UoW, Entity.Customer, Entity.Date);
+			decimal debt = _moneyRepository.GetCounterpartyDebt(UoW, Entity.Customer, Entity.Date);
 			CurrentMoneyDebt = CurrencyWorks.GetShortCurrencyString(debt);
 		}
 

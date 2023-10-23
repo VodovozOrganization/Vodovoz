@@ -1408,26 +1408,12 @@ namespace Vodovoz.JournalViewModels
 						}
 						var selectedOrder = selectedNodes.First();
 
-						var complaintViewModel = new CreateComplaintViewModel(
-							EntityUoWBuilder.ForCreate(),
-							UnitOfWorkFactory,
-							_employeeService,
-							_subdivisionRepository,
-							_commonServices,
-							_userRepository,
-							_routeListItemRepository,
-							_fileDialogService,
-							_orderSelectorFactory,
-							_employeeJournalFactory,
-							_counterpartyJournalFactory,
-							_deliveryPointJournalFactory,
-							_subdivisionParametersProvider
-						);
+						var complaintViewModel = NavigationManager.OpenViewModel<CreateComplaintViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()).ViewModel;
+
 						var order = complaintViewModel.UoW.GetById<VodovozOrder>(selectedOrder.Id);
 						complaintViewModel.Entity.Counterparty = order.Client;
 						complaintViewModel.Entity.Order = order;
 						complaintViewModel.Entity.DeliveryPoint = order.DeliveryPoint;
-						TabParent.OpenTab(() => complaintViewModel, this);
 					}
 				)
 			);

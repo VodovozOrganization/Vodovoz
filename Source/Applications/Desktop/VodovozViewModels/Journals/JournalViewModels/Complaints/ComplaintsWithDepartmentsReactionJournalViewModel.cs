@@ -727,21 +727,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 			var complaintConfig = RegisterEntity<Complaint>(GetComplaintQuery, GetItemsCount)
 				.AddDocumentConfiguration(
 					//функция диалога создания документа
-					() => new CreateComplaintViewModel(
-						EntityUoWBuilder.ForCreate(),
-						_unitOfWorkFactory,
-						_employeeService,
-						_subdivisionRepository,
-						_commonServices,
-						_userRepository,
-						_routeListItemRepository,
-						_fileDialogService,
-						_orderSelectorFactory,
-						_employeeJournalFactory,
-						_counterpartyJournalFactory,
-						_deliveryPointJournalFactory,
-						_subdivisionParametersProvider
-					),
+					() => NavigationManager.OpenViewModel<CreateComplaintViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()).ViewModel,
 					//функция диалога открытия документа
 					(ComplaintJournalNode node) =>
 						(ITdiTab)NavigationManager.OpenViewModel<ComplaintViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(node.Id)),
@@ -754,18 +740,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 				)
 				.AddDocumentConfiguration(
 					//функция диалога создания документа
-					() => new CreateInnerComplaintViewModel(
-						EntityUoWBuilder.ForCreate(),
-						_unitOfWorkFactory,
-						_employeeService,
-						_subdivisionRepository,
-						_commonServices,
-						_employeeJournalFactory,
-						_fileDialogService,
-						new UserRepository(),
-						_subdivisionParametersProvider,
-						_routeListItemRepository
-					),
+					() => NavigationManager.OpenViewModel<CreateInnerComplaintViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()).ViewModel,
 					//функция диалога открытия документа
 					(ComplaintJournalNode node) =>
 						(ITdiTab)NavigationManager.OpenViewModel<ComplaintViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(node.Id)),
@@ -982,7 +957,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 								(selected) => entityConfig.PermissionResult.CanCreate,
 								(selected) => entityConfig.PermissionResult.CanCreate,
 								(selected) => {
-									ParentTab.TabParent.AddSlaveTab(ParentTab, createDlgConfig.OpenEntityDialogFunction());
+									createDlgConfig.OpenEntityDialogFunction.Invoke();
 								}
 							);
 							addParentNodeAction.ChildActionsList.Add(childNodeAction);
@@ -999,12 +974,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 					(selected) => entityConfig.PermissionResult.CanCreate,
 					(selected) => {
 						var docConfig = entityConfig.EntityDocumentConfigurations.First();
-						ITdiTab tab = docConfig.GetCreateEntityDlgConfigs().First().OpenEntityDialogFunction();
+						ITdiTab tab = docConfig.GetCreateEntityDlgConfigs().First().OpenEntityDialogFunction.Invoke();
 
 						if(tab is ITdiDialog)
+						{
 							((ITdiDialog)tab).EntitySaved += Tab_EntitySaved;
-
-						ParentTab.TabParent.AddSlaveTab(ParentTab, tab);
+						}
 					},
 					"Insert"
 					);
@@ -1049,9 +1024,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 							(DialogViewModelBase)ParentTab, EntityUoWBuilder.ForOpen(selectedNode.Id), OpenPageOptions.AsSlave);
 						return;
 					}
-
-					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
-					ParentTab.TabParent.AddSlaveTab(ParentTab, foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode));
 				}
 			);
 			if(SelectionMode == JournalSelectionMode.None)

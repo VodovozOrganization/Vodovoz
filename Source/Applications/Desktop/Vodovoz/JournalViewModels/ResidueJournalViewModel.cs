@@ -1,8 +1,10 @@
-﻿using NHibernate;
+﻿using Autofac;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
@@ -23,12 +25,22 @@ namespace Vodovoz.JournalViewModels
 {
 	public class ResidueJournalViewModel : FilterableSingleEntityJournalViewModelBase<Residue, ResidueViewModel, ResidueJournalNode, ResidueFilterViewModel>
 	{
-		readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
+		private readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
+		private readonly ILifetimeScope _lifetimeScope;
+		private readonly IEmployeeService employeeService;
+		private readonly IRepresentationEntityPicker representationEntityPicker;
+		private readonly IMoneyRepository moneyRepository;
+		private readonly IDepositRepository depositRepository;
+		private readonly IBottlesRepository bottlesRepository;
+		private readonly IUnitOfWorkFactory unitOfWorkFactory;
+		private readonly ICommonServices commonServices;
+		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 
 		public ResidueJournalViewModel(
 			ResidueFilterViewModel filterViewModel,
+			INavigationManager navigationManager,
 			IEmployeeService employeeService,
 			IRepresentationEntityPicker representationEntityPicker,
 			IMoneyRepository moneyRepository,
@@ -38,12 +50,11 @@ namespace Vodovoz.JournalViewModels
 			ICommonServices commonServices,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
-			ICounterpartyJournalFactory counterpartyJournalFactory
-		) 
-		: base(filterViewModel, unitOfWorkFactory, commonServices)
+			ICounterpartyJournalFactory counterpartyJournalFactory,
+			ILifetimeScope lifetimeScope) 
+		: base(filterViewModel, unitOfWorkFactory, commonServices, navigation: navigationManager)
 		{
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			TabName = "Журнал остатков";
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.representationEntityPicker = representationEntityPicker ?? throw new ArgumentNullException(nameof(representationEntityPicker));
 			this.moneyRepository = moneyRepository ?? throw new ArgumentNullException(nameof(moneyRepository));
@@ -53,20 +64,14 @@ namespace Vodovoz.JournalViewModels
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			TabName = "Журнал остатков";
+			
 			SetOrder(x => x.Date, true);
 			UpdateOnChanges(
 				typeof(Residue)
 			);
 		}
-
-		private readonly IEmployeeService employeeService;
-		private readonly IRepresentationEntityPicker representationEntityPicker;
-		private readonly IMoneyRepository moneyRepository;
-		private readonly IDepositRepository depositRepository;
-		private readonly IBottlesRepository bottlesRepository;
-		private readonly IUnitOfWorkFactory unitOfWorkFactory;
-		private readonly ICommonServices commonServices;
-		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 
 		protected override Func<IUnitOfWork, IQueryOver<Residue>> ItemsSourceQueryFunction => (uow) => {
 			Counterparty counterpartyAlias = null;
@@ -126,32 +131,36 @@ namespace Vodovoz.JournalViewModels
 			return resultQuery;
 		};
 
-		protected override Func<ResidueViewModel> CreateDialogFunction => () => new ResidueViewModel(
-			EntityUoWBuilder.ForCreate(),
-			unitOfWorkFactory,
-			employeeService, 
-			representationEntityPicker, 
-			bottlesRepository, 
-			depositRepository, 
-			moneyRepository, 
-			commonServices,
-			_employeeJournalFactory,
-			_subdivisionParametersProvider,
-			_counterpartyJournalFactory
-		);
+		protected override Func<ResidueViewModel> CreateDialogFunction =>
+			() => new ResidueViewModel(
+				EntityUoWBuilder.ForCreate(),
+				unitOfWorkFactory,
+				employeeService, 
+				representationEntityPicker, 
+				bottlesRepository, 
+				depositRepository, 
+				moneyRepository, 
+				commonServices,
+				_employeeJournalFactory,
+				_subdivisionParametersProvider,
+				_counterpartyJournalFactory,
+				_lifetimeScope,
+				NavigationManager);
 
-		protected override Func<ResidueJournalNode, ResidueViewModel> OpenDialogFunction => (node) => new ResidueViewModel(
-			EntityUoWBuilder.ForOpen(node.Id),
-			unitOfWorkFactory,
-			employeeService, 
-			representationEntityPicker, 
-			bottlesRepository, 
-			depositRepository, 
-			moneyRepository, 
-			commonServices,
-			_employeeJournalFactory,
-			_subdivisionParametersProvider,
-			_counterpartyJournalFactory
-		);
+		protected override Func<ResidueJournalNode, ResidueViewModel> OpenDialogFunction =>
+			(node) => new ResidueViewModel(
+				EntityUoWBuilder.ForOpen(node.Id),
+				unitOfWorkFactory,
+				employeeService, 
+				representationEntityPicker, 
+				bottlesRepository, 
+				depositRepository, 
+				moneyRepository, 
+				commonServices,
+				_employeeJournalFactory,
+				_subdivisionParametersProvider,
+				_counterpartyJournalFactory,
+				_lifetimeScope,
+				NavigationManager);
 	}
 }

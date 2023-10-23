@@ -1,5 +1,7 @@
-﻿using QS.Commands;
+﻿using Autofac;
+using QS.Commands;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
@@ -30,6 +32,7 @@ namespace Vodovoz.ViewModels.Complaints
 	{
 		private readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
 		private readonly IList<ComplaintKind> _complaintKinds;
+		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IEmployeeService _employeeService;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IUserRepository _userRepository;
@@ -43,6 +46,8 @@ namespace Vodovoz.ViewModels.Complaints
 		public CreateComplaintViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
+			INavigationManager navigationManager,
+			ILifetimeScope lifetimeScope,
 			IEmployeeService employeeService,
 			ISubdivisionRepository subdivisionRepository,
 			ICommonServices commonServices,
@@ -54,8 +59,9 @@ namespace Vodovoz.ViewModels.Complaints
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
-			string phone = null) : base(uowBuilder, unitOfWorkFactory, commonServices)
+			string phone = null) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
+			_lifetimeScope = lifetimeScope;
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
@@ -93,6 +99,8 @@ namespace Vodovoz.ViewModels.Complaints
 		public CreateComplaintViewModel(Counterparty client,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
+			INavigationManager navigationManager,
+			ILifetimeScope lifetimeScope,
 			IEmployeeService employeeService,
 			ISubdivisionRepository subdivisionRepository,
 			ICommonServices commonServices,
@@ -104,7 +112,7 @@ namespace Vodovoz.ViewModels.Complaints
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
-			string phone = null) : this(uowBuilder, unitOfWorkFactory, employeeService,
+			string phone = null) : this(uowBuilder, unitOfWorkFactory, navigationManager, lifetimeScope, employeeService,
 			subdivisionRepository, commonServices, userRepository, routeListItemRepository, filePickerService, orderSelectorFactory, employeeJournalFactory,
 			counterpartyJournalFactory, deliveryPointJournalFactory, subdivisionParametersProvider, phone)
 		{
@@ -116,6 +124,8 @@ namespace Vodovoz.ViewModels.Complaints
 		public CreateComplaintViewModel(Order order,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
+			INavigationManager navigationManager,
+			ILifetimeScope lifetimeScope,
 			IEmployeeService employeeService,
 			ISubdivisionRepository subdivisionRepository,
 			ICommonServices commonServices,
@@ -127,7 +137,7 @@ namespace Vodovoz.ViewModels.Complaints
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
-			string phone = null) : this(uowBuilder, unitOfWorkFactory, employeeService, subdivisionRepository,
+			string phone = null) : this(uowBuilder, unitOfWorkFactory, navigationManager, lifetimeScope, employeeService, subdivisionRepository,
 			commonServices, userRepository, routeListItemRepository, filePickerService, orderSelectorFactory, employeeJournalFactory, counterpartyJournalFactory,
 			deliveryPointJournalFactory, subdivisionParametersProvider, phone)
 		{
@@ -242,6 +252,8 @@ namespace Vodovoz.ViewModels.Complaints
 					guiltyItemsViewModel = new GuiltyItemsViewModel(
 						Entity,
 						UoW,
+						this,
+						_lifetimeScope,
 						CommonServices,
 						_subdivisionRepository,
 						EmployeeJournalFactory,

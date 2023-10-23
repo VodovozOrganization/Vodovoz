@@ -271,7 +271,15 @@ namespace Vodovoz.ViewModels.Complaints
 				if(_guiltyItemsViewModel == null)
 				{
 					_guiltyItemsViewModel =
-						new GuiltyItemsViewModel(Entity, UoW, CommonServices, _subdivisionRepository, EmployeeJournalFactory, SubdivisionParametersProvider);
+						new GuiltyItemsViewModel(
+							Entity,
+							UoW,
+							this,
+							_scope,
+							CommonServices,
+							_subdivisionRepository,
+							EmployeeJournalFactory,
+							SubdivisionParametersProvider);
 				}
 
 				return _guiltyItemsViewModel;

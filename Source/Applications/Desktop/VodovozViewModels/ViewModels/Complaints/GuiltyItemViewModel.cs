@@ -11,7 +11,6 @@ using Vodovoz.Domain.Complaints;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz.ViewModels.Complaints
 {
@@ -72,9 +71,9 @@ namespace Vodovoz.ViewModels.Complaints
 
 		public IEntityAutocompleteSelectorFactory EmployeeSelectorFactory { get; }
 
-		public IEntityEntryViewModel SubdivisionViewModel { get; private set; }
+		public IEntityEntryViewModel SubdivisionViewModel { get; set; }
 
-		void ConfigureEntityPropertyChanges()
+		private void ConfigureEntityPropertyChanges()
 		{
 			SetPropertyChangeRelation(
 				e => e.Responsible,
