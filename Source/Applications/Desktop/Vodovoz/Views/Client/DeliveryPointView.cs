@@ -473,14 +473,25 @@ namespace Vodovoz.Views.Client
 
 		private async void EntryEntranceOnFocusOutEvent(object sender, EventArgs e)
 		{
-			await UpdateCoordinates();
+			await UpdateCoordinates(true);
 		}
 
-		private async Task UpdateCoordinates()
+		private async Task UpdateCoordinates(bool updatedEntrance = false)
 		{
 			if(!ViewModel.IsAddressChanged)
 			{
 				return;
+			}
+
+			if(ViewModel.Entity.ManualCoordinates && updatedEntrance)
+			{
+				if(!MessageDialogHelper.RunQuestionDialog(
+					"В точке доставке установлены координаты пользователем\n" +
+						"Вы уверены, что хотите обновить координаты, т.к. адрес может быть не найден и они слетят?"))
+				{
+					ViewModel.ResetAddressChanges();
+					return;
+				}
 			}
 
 			ViewModel.ResetAddressChanges();
