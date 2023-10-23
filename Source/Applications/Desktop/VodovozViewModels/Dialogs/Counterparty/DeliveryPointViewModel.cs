@@ -429,8 +429,10 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			{
 				_isBuildingsInLoadingProcess = true;
 
+				int.TryParse(Entity.Entrance, out var parsedEntrance);
+
 				var address =
-					string.IsNullOrWhiteSpace(Entity.Entrance)
+					parsedEntrance <= 0
 					? $"{Entity.LocalityType} {Entity.City}, {Entity.StreetDistrict}, {Entity.Street} {Entity.StreetType}, {Entity.Building}"
 					: $"{Entity.LocalityType} {Entity.City}, {Entity.StreetDistrict}, {Entity.Street} {Entity.StreetType}, {Entity.Building}" +
 						$", {(Entity.EntranceType == EntranceType.Entrance ? "парадная" : "вход")} {Entity.Entrance}";
