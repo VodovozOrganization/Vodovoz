@@ -540,17 +540,9 @@ namespace Vodovoz.JournalViewModels
 		};
 
 		protected override Func<CounterpartyDlg> CreateDialogFunction =>
-			() =>
-			{
-				var master = this;
-				return ((ITdiCompatibilityNavigation)NavigationManager).OpenTdiTab<CounterpartyDlg>(master).TdiTab as CounterpartyDlg;
-			};
+			() => ((ITdiCompatibilityNavigation)NavigationManager).OpenTdiTab<CounterpartyDlg>(this).TdiTab as CounterpartyDlg;
 
 		protected override Func<CounterpartyJournalNode, CounterpartyDlg> OpenDialogFunction =>
-			(node) =>
-			{
-				var master = this;
-				return ((ITdiCompatibilityNavigation)NavigationManager).OpenTdiTab<CounterpartyDlg, int>(master, node.Id).TdiTab as CounterpartyDlg;
-			};
+			(node) => ((ITdiCompatibilityNavigation)NavigationManager).OpenTdiTab<CounterpartyDlg, int>(this, node.Id).TdiTab as CounterpartyDlg;
 	}
 }
