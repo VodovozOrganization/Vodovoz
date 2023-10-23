@@ -1,4 +1,5 @@
-﻿using NHibernate;
+﻿using Autofac;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
@@ -29,9 +30,10 @@ namespace Vodovoz.JournalViewModels
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
-			Action<CounterpartyJournalFilterViewModel> filterConfiguration = null) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			Action<CounterpartyJournalFilterViewModel> filterConfiguration = null)
+            : base(filterViewModel, unitOfWorkFactory, commonServices, navigation: navigationManager)
 		{
-			TabName = "Журнал контрагентов";
+            TabName = "Журнал контрагентов";
 
 			_userHaveAccessToRetail = commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_to_retail");
 			_canOpenCloseDeliveries =
@@ -51,7 +53,6 @@ namespace Vodovoz.JournalViewModels
 			);
 
 			SearchEnabled = false;
-			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 		}
 
 		protected override void CreateNodeActions()
@@ -539,10 +540,8 @@ namespace Vodovoz.JournalViewModels
 			return resultCountQuery;
 		};
 
-		protected override Func<CounterpartyDlg> CreateDialogFunction =>
-			() => ((ITdiCompatibilityNavigation)NavigationManager).OpenTdiTab<CounterpartyDlg>(this).TdiTab as CounterpartyDlg;
+		protected override Func<CounterpartyDlg> CreateDialogFunction => () => new CounterpartyDlg();
 
-		protected override Func<CounterpartyJournalNode, CounterpartyDlg> OpenDialogFunction =>
-			(node) => ((ITdiCompatibilityNavigation)NavigationManager).OpenTdiTab<CounterpartyDlg, int>(this, node.Id).TdiTab as CounterpartyDlg;
-	}
+        protected override Func<CounterpartyJournalNode, CounterpartyDlg> OpenDialogFunction => (node) => new CounterpartyDlg(node.Id);
+    }
 }
