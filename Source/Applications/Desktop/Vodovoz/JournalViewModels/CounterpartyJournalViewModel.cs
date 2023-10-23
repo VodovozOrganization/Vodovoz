@@ -72,7 +72,7 @@ namespace Vodovoz.JournalViewModels
 				(selected) => {
 					var foundDocumentConfig = EntityConfigs[typeof(Counterparty)].EntityDocumentConfigurations.FirstOrDefault();
 
-					CreateDialogFunction();
+					CreateDialogFunction.Invoke();
 
 					if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog)
 					{
@@ -120,7 +120,7 @@ namespace Vodovoz.JournalViewModels
 					var config = EntityConfigs[selectedNode.EntityType];
 					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
 
-					OpenDialogFunction(selectedNode);
+					OpenDialogFunction.Invoke(selectedNode);
 				}
 			);
 			if (SelectionMode == JournalSelectionMode.None)
