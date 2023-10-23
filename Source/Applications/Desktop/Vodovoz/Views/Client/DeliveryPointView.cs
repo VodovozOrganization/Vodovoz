@@ -486,9 +486,10 @@ namespace Vodovoz.Views.Client
 			if(ViewModel.Entity.ManualCoordinates && updatedEntrance)
 			{
 				if(!MessageDialogHelper.RunQuestionDialog(
-					"В точке доставке установлены координаты поьзователем\n" +
+					"В точке доставке установлены координаты пользователем\n" +
 						"Вы уверены, что хотите обновить координаты, т.к. адрес может быть не найден и они слетят?"))
 				{
+					ViewModel.ResetAddressChanges();
 					return;
 				}
 			}
