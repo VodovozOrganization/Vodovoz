@@ -69,9 +69,15 @@ namespace Vodovoz.ViewModels.Logistic
 			IWageParameterService wageParameterService,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
 			IFileDialogService fileDialogService,
-			ILifetimeScope lifetimeScope)
-			: base (uowBuilder, unitOfWorkFactory, commonServices)
+			ILifetimeScope lifetimeScope,
+			INavigationManager navigationManager)
+			: base (uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
+			if(navigationManager is null)
+			{
+				throw new ArgumentNullException(nameof(navigationManager));
+			}
+
 			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
@@ -221,7 +227,8 @@ namespace Vodovoz.ViewModels.Logistic
 					_employeeJournalFactory,
 					UnitOfWorkFactory, 
 					CommonServices,
-					_lifetimeScope);
+					_lifetimeScope,
+					NavigationManager);
 
 				fineJournalViewModel.SelectionMode = JournalSelectionMode.Single;
 				fineJournalViewModel.OnEntitySelectedResult +=
@@ -273,7 +280,8 @@ namespace Vodovoz.ViewModels.Logistic
 					_employeeJournalFactory,
 					UnitOfWorkFactory, 
 					CommonServices,
-					_lifetimeScope);
+					_lifetimeScope,
+					NavigationManager);
 
 				fineJournalViewModel.SelectionMode = JournalSelectionMode.Single;
 				fineJournalViewModel.OnEntitySelectedResult +=

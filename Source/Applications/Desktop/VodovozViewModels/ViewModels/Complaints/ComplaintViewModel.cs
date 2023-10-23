@@ -468,7 +468,8 @@ namespace Vodovoz.ViewModels.Complaints
 						EmployeeJournalFactory,
 						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 						CommonServices,
-						_scope);
+						_scope,
+						NavigationManager);
 
 					fineJournalViewModel.SelectionMode = JournalSelectionMode.Single;
 					fineJournalViewModel.OnEntitySelectedResult += (sender, e) =>

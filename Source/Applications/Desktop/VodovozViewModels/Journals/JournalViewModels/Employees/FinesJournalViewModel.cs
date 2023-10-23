@@ -4,6 +4,7 @@ using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Journal;
@@ -35,9 +36,15 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			ILifetimeScope lifetimeScope,
+			INavigationManager navigationManager,
 			Action<FineFilterViewModel> filterConfig = null)
-			: base(filterViewModel, unitOfWorkFactory, commonServices)
+			: base(filterViewModel, unitOfWorkFactory, commonServices, navigation: navigationManager)
 		{
+			if(navigationManager is null)
+			{
+				throw new ArgumentNullException(nameof(navigationManager));
+			}
+
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));

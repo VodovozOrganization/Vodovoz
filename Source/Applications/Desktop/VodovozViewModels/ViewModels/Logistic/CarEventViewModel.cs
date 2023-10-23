@@ -81,12 +81,16 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			ICarEventSettings carEventSettings,
 			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope)
-			: base(uowBuilder, unitOfWorkFactory, commonServices)
+			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
+			if(navigationManager is null)
+			{
+				throw new ArgumentNullException(nameof(navigationManager));
+			}
+
 			EmployeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
-			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			CanChangeWithClosedPeriod =
 				commonServices.CurrentPermissionService.ValidatePresetPermission("can_create_edit_car_events_in_closed_period");
@@ -373,7 +377,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				EmployeeJournalFactory,
 				QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 				CommonServices,
-				_lifetimeScope
+				_lifetimeScope,
+				NavigationManager
 			)
 			{
 				SelectionMode = JournalSelectionMode.Single

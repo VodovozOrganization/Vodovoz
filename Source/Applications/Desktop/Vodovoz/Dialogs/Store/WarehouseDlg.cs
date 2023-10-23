@@ -73,7 +73,7 @@ namespace Vodovoz
 			ySpecCmbOwner.Sensitive = CanEdit;
 
 			//
-			
+
 			entityEntryMovementNotificationsRecipient.Binding
 				.AddBinding(Entity, e => e.MovementDocumentsNotificationsSubdivisionRecipient, w => w.Subject)
 				.InitializeFromSource();
