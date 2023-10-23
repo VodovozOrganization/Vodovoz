@@ -193,7 +193,7 @@ public partial class MainWindow : Gtk.Window
 		menubarMain.Visible = ActionOrders.Visible = ActionServices.Visible = ActionLogistics.Visible = ActionCash.Visible =
 			ActionAccounting.Visible = ActionReports.Visible = ActionArchive.Visible = ActionStaff.Visible = ActionCRM.Visible =
 				ActionSuppliers.Visible = ActionCashRequest.Visible = ActionRetail.Visible = ActionCarService.Visible =
-					MangoAction.Visible = !_accessOnlyToWarehouseAndComplaints;
+					/*MangoAction.Visible =*/ !_accessOnlyToWarehouseAndComplaints;
 
 		#endregion
 
@@ -321,9 +321,9 @@ public partial class MainWindow : Gtk.Window
 	/// </summary>
 	public void InitializeManagers()
 	{
-		NavigationManager = _autofacScope.Resolve<ITdiCompatibilityNavigation>(new TypedParameter(typeof(TdiNotebook), tdiMain));
+		/*NavigationManager = _autofacScope.Resolve<ITdiCompatibilityNavigation>(new TypedParameter(typeof(TdiNotebook), tdiMain));
 		MangoManager = _autofacScope.Resolve<MangoManager>(new TypedParameter(typeof(Gtk.Action), MangoAction));
-		MangoManager.Connect();
+		MangoManager.Connect();*/
 	}
 
 	private DateTime GetDateTimeFGromVersion(Version version) =>
