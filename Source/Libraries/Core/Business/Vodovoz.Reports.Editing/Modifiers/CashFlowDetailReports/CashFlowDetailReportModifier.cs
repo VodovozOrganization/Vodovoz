@@ -16,7 +16,7 @@ namespace Vodovoz.Reports.Editing.Modifiers.CashFlowDetailReports
 		private const double _tableHeight = 110.0;
 		private const double _firstTableTopPositionValue = 30.0;
 		private const double _firstTextboxTopPositionValue = 7.0;
-		
+
 		public void Setup(ReportParts reportPart)
 		{
 			IEnumerable<ModifierAction> actions;
@@ -193,7 +193,7 @@ namespace Vodovoz.Reports.Editing.Modifiers.CashFlowDetailReports
 			{
 				SetTextboxPositionAction(identifier, textboxLeftPosition, textboxTopPosition),
 				SetTablePositionAction(identifier, tableLeftPosition, tableTopPosition)
-		};
+			};
 		}
 
 		private static ModifierAction RemoveTableAction(string identifier)
