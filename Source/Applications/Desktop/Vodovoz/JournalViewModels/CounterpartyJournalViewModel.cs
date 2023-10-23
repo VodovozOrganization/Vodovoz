@@ -59,30 +59,10 @@ namespace Vodovoz.JournalViewModels
 		{
 			NodeActionsList.Clear();
 			CreateCustomSelectAction();
-			CreateAddActions();
+			CreateDefaultAddActions();
 			CreateCustomEditAction();
 			CreateDefaultDeleteAction();
 			CreateOpenCloseSupplyAction();
-		}
-
-		private void CreateAddActions()
-		{
-			var createAction = new JournalAction("Создать",
-				(selected) => EntityConfigs[typeof(Counterparty)].PermissionResult.CanCreate,
-				(selected) => true,
-				(selected) => {
-					var foundDocumentConfig = EntityConfigs[typeof(Counterparty)].EntityDocumentConfigurations.FirstOrDefault();
-
-					CreateDialogFunction.Invoke();
-
-					if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog)
-					{
-						HideJournal(TabParent);
-					}
-				}
-			);
-
-			NodeActionsList.Add(createAction);
 		}
 
 		private void CreateCustomEditAction()
@@ -121,8 +101,12 @@ namespace Vodovoz.JournalViewModels
 					var config = EntityConfigs[selectedNode.EntityType];
 					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
 
-					OpenDialogFunction.Invoke(selectedNode);
-				}
+                    TabParent.OpenTab(() => foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode), this);
+                    if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog)
+                    {
+                        HideJournal(TabParent);
+                    }
+                }
 			);
 			if (SelectionMode == JournalSelectionMode.None)
 			{
