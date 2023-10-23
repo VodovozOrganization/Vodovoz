@@ -6,6 +6,7 @@ using GMap.NET.MapProviders;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Operation.Union;
 using NHibernate.Util;
+using QS.Utilities.Spatial;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
@@ -17,7 +18,7 @@ namespace Vodovoz.Tools.Logistic
 	/// Класс предназначен для расчета расстояний между точками.
 	/// Расчет происходит напрямую без учета дорожной сети.
 	/// </summary>
-	public class DistanceCalculator : IDistanceCalculator
+	public class DistanceCalculator : IDistanceCalculator, IFastDeliveryDistanceChecker
 	{
 		const double _radiusEarthKilometers = 6371.01d;
 
@@ -167,6 +168,13 @@ namespace Vodovoz.Tools.Logistic
 		public int DistanceToBaseMeter(DeliveryPoint fromDP, GeoGroupVersion toBase)
 		{
 			return (int)(GetDistanceToBase(fromDP, toBase) * 1000);
+		}
+
+		public bool DeliveryPointInFastDeliveryRadius(DeliveryPoint deliveryPoint, DriverPosition driverPosition, decimal radius)
+		{
+			var distance = DistanceHelper.GetDistanceKm(driverPosition.Latitude, driverPosition.Longitude, Convert.ToDouble(deliveryPoint.Latitude), Convert.ToDouble(deliveryPoint.Longitude));
+
+			return distance <= Convert.ToDouble(radius);
 		}
 	}
 }
