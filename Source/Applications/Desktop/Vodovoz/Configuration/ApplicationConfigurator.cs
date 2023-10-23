@@ -92,13 +92,14 @@ namespace Vodovoz.Configuration
                 dbConfig,
                 new[] {
                     Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
-                    Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
                     Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
                     Assembly.GetAssembly(typeof(Bank)),
                     Assembly.GetAssembly(typeof(HistoryMain)),
                     Assembly.GetAssembly(typeof(QS.Attachments.Domain.Attachment)),
                     Assembly.GetAssembly(typeof(QS.Report.Domain.UserPrintSettings)),
-					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
+					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder)),
+					Assembly.GetAssembly(typeof(Vodovoz.Core.Data.NHibernate.AssemblyFinder)),
+                    Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder))
 				},
 				cnf => {
                     cnf.DataBaseIntegration(

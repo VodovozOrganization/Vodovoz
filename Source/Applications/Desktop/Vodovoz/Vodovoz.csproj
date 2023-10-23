@@ -1993,8 +1993,6 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="ViewModels\Goods\" />
-    <Folder Include="Views\Pacs\" />
-    <Folder Include="icons\pacs\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">
@@ -2323,6 +2321,10 @@
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Sms\SmsPaymentService\SmsPaymentService.csproj">
       <Project>{ca429421-2cce-4f9f-8dce-379583ab297c}</Project>
       <Name>SmsPaymentService</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Core.Data.NHibernate\Vodovoz.Core.Data.NHibernate.csproj">
+      <Project>{2c01f582-c2ac-4785-9934-e32ae57645d2}</Project>
+      <Name>Vodovoz.Core.Data.NHibernate</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj">
       <Project>{67F08744-55FB-4169-809E-82F7424775F4}</Project>
