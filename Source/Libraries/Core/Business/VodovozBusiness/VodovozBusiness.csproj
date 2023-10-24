@@ -72,6 +72,8 @@
     <Compile Include="Domain\Client\CargoReceiverSource.cs" />
     <Compile Include="Domain\Client\ConsentForEdoStatus.cs" />
     <Compile Include="Domain\Client\CounterpartyClassification\CounterpartyClassification.cs" />
+    <Compile Include="Domain\Client\CounterpartyClassification\CounterpartyClassificationByBottlesCount.cs" />
+    <Compile Include="Domain\Client\CounterpartyClassification\CounterpartyClassificationByOrdersCount.cs" />
     <Compile Include="Domain\Client\CounterpartyClassification\CounterpartyClassificationCalculationSettings.cs" />
     <Compile Include="Domain\Client\CounterpartySubtype.cs" />
     <Compile Include="Domain\Client\CounterpartyType.cs" />

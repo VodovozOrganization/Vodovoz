@@ -9,8 +9,8 @@ namespace Vodovoz.Domain.Client.CounterpartyClassification
 		Nominative = "классификация контрагента")]
 	public class CounterpartyClassification : PropertyChangedBase, IDomainObject
 	{
-		private ClientClassificationByBottlesCount _classificationByBottlesCount;
-		private ClientClassificationByOrdersCount _classificationByOrdersCount;
+		private CounterpartyClassificationByBottlesCount _classificationByBottlesCount;
+		private CounterpartyClassificationByOrdersCount _classificationByOrdersCount;
 		private int _bottlesPerMonthAverageCount;
 		private int _ordersPerMonthAverageCount;
 		private decimal _moneyTurnoverPerMonthAverageSum;
@@ -19,14 +19,14 @@ namespace Vodovoz.Domain.Client.CounterpartyClassification
 		public virtual int Id { get; }
 
 		[Display(Name = "Классификация по среднему количеству бутылей")]
-		public virtual ClientClassificationByBottlesCount ClassificationByBottlesCount
+		public virtual CounterpartyClassificationByBottlesCount ClassificationByBottlesCount
 		{
 			get => _classificationByBottlesCount;
 			set => SetField(ref _classificationByBottlesCount, value);
 		}
 
 		[Display(Name = "Классификация по среднему количеству заказов")]
-		public virtual ClientClassificationByOrdersCount ClassificationByOrdersCount
+		public virtual CounterpartyClassificationByOrdersCount ClassificationByOrdersCount
 		{
 			get => _classificationByOrdersCount;
 			set => SetField(ref _classificationByOrdersCount, value);
@@ -59,25 +59,5 @@ namespace Vodovoz.Domain.Client.CounterpartyClassification
 			get => _classificationCalculationDate;
 			set => SetField(ref _classificationCalculationDate, value);
 		}
-	}
-
-	public enum ClientClassificationByBottlesCount
-	{
-		[Display(Name = "A")]
-		A,
-		[Display(Name = "B")]
-		B,
-		[Display(Name = "C")]
-		C
-	}
-
-	public enum ClientClassificationByOrdersCount
-	{
-		[Display(Name = "X")]
-		X,
-		[Display(Name = "Y")]
-		Y,
-		[Display(Name = "Z")]
-		Z
 	}
 }
