@@ -1403,8 +1403,14 @@ namespace Vodovoz.JournalViewModels
 					selectedItems => selectedItems.All(x => (x as OrderJournalNode).Sensitive),
 					(selectedItems) =>
 					{
-						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
-						var order = UoW.GetById<VodovozOrder>(selectedNodes.FirstOrDefault().Id);
+						var selectedNode = selectedItems.Cast<OrderJournalNode>().FirstOrDefault();
+
+						if(selectedNode is null)
+						{
+							return;
+						}
+						
+						var order = UoW.GetById<VodovozOrder>(selectedNode.Id);
 						_gtkDialogsOpener.OpenCopyLesserOrderDlg(this, order.Id);
 					}
 				)
