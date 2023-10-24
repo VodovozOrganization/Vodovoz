@@ -93,6 +93,7 @@ namespace Vodovoz.Views.Pacs
 			this.buttonBreak.Name = "buttonBreak";
 			this.buttonBreak.UseUnderline = true;
 			this.buttonBreak.Relief = ((global::Gtk.ReliefStyle)(2));
+			this.buttonBreak.Active = true;
 			global::Gtk.Image w7 = new global::Gtk.Image();
 			w7.Pixbuf = global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.pacs.coffee-break-allowed.png");
 			this.buttonBreak.Image = w7;
