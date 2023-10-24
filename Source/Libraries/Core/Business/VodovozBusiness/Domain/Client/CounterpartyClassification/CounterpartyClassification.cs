@@ -9,6 +9,7 @@ namespace Vodovoz.Domain.Client.CounterpartyClassification
 		Nominative = "классификация контрагента")]
 	public class CounterpartyClassification : PropertyChangedBase, IDomainObject
 	{
+		private int _counterpartyId;
 		private CounterpartyClassificationByBottlesCount _classificationByBottlesCount;
 		private CounterpartyClassificationByOrdersCount _classificationByOrdersCount;
 		private int _bottlesPerMonthAverageCount;
@@ -17,6 +18,13 @@ namespace Vodovoz.Domain.Client.CounterpartyClassification
 		private DateTime _classificationCalculationDate;
 
 		public virtual int Id { get; }
+
+		[Display(Name = "Id контрагента")]
+		public virtual int CounterpartyId
+		{
+			get => _counterpartyId;
+			set => SetField(ref _counterpartyId, value);
+		}
 
 		[Display(Name = "Классификация по среднему количеству бутылей")]
 		public virtual CounterpartyClassificationByBottlesCount ClassificationByBottlesCount
