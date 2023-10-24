@@ -107,8 +107,9 @@ namespace Vodovoz.Views.Pacs
 			this.buttonRefresh.Name = "buttonRefresh";
 			this.buttonRefresh.UseUnderline = true;
 			this.buttonRefresh.Relief = ((global::Gtk.ReliefStyle)(2));
+			this.buttonRefresh.Active = true;
 			global::Gtk.Image w9 = new global::Gtk.Image();
-			w9.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-refresh", global::Gtk.IconSize.Menu);
+			w9.Pixbuf = global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.pacs.pacs-active.png");
 			this.buttonRefresh.Image = w9;
 			this.vboxFastButtons.Add(this.buttonRefresh);
 			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vboxFastButtons[this.buttonRefresh]));

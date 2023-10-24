@@ -401,6 +401,10 @@
     <EmbeddedResource Include="icons\phone\phone-disable.png" />
     <EmbeddedResource Include="icons\pacs\pacs-disabled.png" />
     <EmbeddedResource Include="icons\pacs\coffee-break-allowed.png" />
+    <EmbeddedResource Include="icons\pacs\coffee-break-active.png" />
+    <EmbeddedResource Include="icons\pacs\coffee-break-default.png" />
+    <EmbeddedResource Include="icons\pacs\coffee-break-denied.png" />
+    <EmbeddedResource Include="icons\pacs\pacs-active.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Additions\Accounting\WayBillDocumentGenerator.cs" />
