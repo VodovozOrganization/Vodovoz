@@ -34,7 +34,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 		private readonly IWageParameterService _wageParameterService;
 		private readonly ITrackRepository _trackRepository;
-		private readonly IFastDeliveryDistanceChecker _fastDeliveryDistanceChecker;
 		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
 		private readonly OsrmClient _osrmClient;
 		private RouteList _routeListFrom;
@@ -51,7 +50,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IRouteListProfitabilityController routeListProfitabilityController,
 			IWageParameterService wageParameterService,
 			ITrackRepository trackRepository,
-			IFastDeliveryDistanceChecker fastDeliveryDistanceChecker,
 			OsrmClient osrmClient,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
 			int routeListAddressId)
@@ -72,7 +70,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
-			_fastDeliveryDistanceChecker = fastDeliveryDistanceChecker ?? throw new ArgumentNullException(nameof(fastDeliveryDistanceChecker));
 			_osrmClient = osrmClient ?? throw new ArgumentNullException(nameof(osrmClient));
 			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
 			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot(Title);
@@ -298,10 +295,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 				if(currentLastTrackPointWithRadius != null
 					&& (DateTime.Now - currentLastTrackPointWithRadius.Time) < _driverOfflineTimeSpan
-					&& _fastDeliveryDistanceChecker.DeliveryPointInFastDeliveryRadius(
-						_routeListItemToTransfer.Order.DeliveryPoint,
-						currentLastTrackPointWithRadius,
-						routeLists[i].GetFastDeliveryMaxDistanceValue())
 					&& GetFastDeliveryOrdersCountInRouteList(routeLists[i]) < routeLists[i].GetMaxFastDeliveryOrdersValue()
 					&& _routeListRepository.HasFreeBalanceForOrder(_unitOfWork, _routeListItemToTransfer.Order, routeLists[i]))
 				{
