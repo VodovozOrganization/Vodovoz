@@ -121,7 +121,7 @@ namespace DriverAPI.Controllers.V4
 		/// <returns></returns>
 		[HttpPost("CreateDeliveryPointCoordinatesComplaint")]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		public async Task<IActionResult> CreateDeliveryPointCoordinatesComplaintAsync([FromBody] CompletedOrderRequestDto completedOrderRequestModel)
+		public async Task<IActionResult> CreateDeliveryPointCoordinatesComplaintAsync([FromBody] CreateDeliveryPointCoordinatesComplaintForOrderRequestDto completedOrderRequestModel)
 		{
 			_logger.LogInformation("(Создание рекламации по координатам точки доставки заказа: {OrderId}) пользователем {Username} | User token: {AccessToken}",
 				completedOrderRequestModel.OrderId,
@@ -140,7 +140,9 @@ namespace DriverAPI.Controllers.V4
 			_aPIOrderData.CreateDeliveryPointCoordinatesComplaint(
 				recievedTime,
 				driver,
-				completedOrderRequestModel);
+				completedOrderRequestModel,
+				completedOrderRequestModel.Latitude,
+				completedOrderRequestModel.Longitude);
 
 			return NoContent();
 		}

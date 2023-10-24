@@ -352,7 +352,12 @@ namespace DriverAPI.Library.Models
 			_uow.Commit();
 		}
 
-		public void CreateDeliveryPointCoordinatesComplaint(DateTime actionTime, Employee driver, IDriverCompleteOrderInfo completeOrderInfo)
+		public void CreateDeliveryPointCoordinatesComplaint(
+			DateTime actionTime,
+			Employee driver,
+			IDriverCompleteOrderInfo completeOrderInfo,
+			decimal currentDriverLatitude,
+			decimal currentDriverLongitude)
 		{
 			var orderId = completeOrderInfo.OrderId;
 			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId);
@@ -419,7 +424,7 @@ namespace DriverAPI.Library.Models
 					CreatedBy = driver,
 					ChangedBy = driver,
 					ComplaintText = $"Заказ номер {orderId}\n" +
-						$"Неверные координаты точки доставки: ({vodovozOrder.DeliveryPoint.Latitude}, {vodovozOrder.DeliveryPoint.Longitude}) \n" +
+						$"Водитель закрыл заказ с координатами ({currentDriverLatitude}, {currentDriverLongitude}) вместо ({vodovozOrder.DeliveryPoint.Latitude}, {vodovozOrder.DeliveryPoint.Longitude}) \n" +
 						$"По причине {reason}"
 				};
 
@@ -439,7 +444,7 @@ namespace DriverAPI.Library.Models
 					CreatedBy = driver,
 					ChangedBy = driver,
 					ComplaintText = $"Заказ номер {orderId}\n" +
-						$"Неверные координаты точки доставки: ({vodovozOrder.DeliveryPoint.Latitude}, {vodovozOrder.DeliveryPoint.Longitude}) \n"
+						$"Водитель закрыл заказ с координатами ({currentDriverLatitude}, {currentDriverLongitude}) вместо ({vodovozOrder.DeliveryPoint.Latitude}, {vodovozOrder.DeliveryPoint.Longitude})"
 				};
 
 				_uow.Save(complaint);
