@@ -3,6 +3,8 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.ViewModels.Dialog;
 using System;
+using System.Linq;
+using System.Linq.Dynamic.Core;
 using Vodovoz.Domain.Client.CounterpartyClassification;
 
 namespace Vodovoz.ViewModels.Counterparties.CounterpartyClassification
@@ -27,10 +29,29 @@ namespace Vodovoz.ViewModels.Counterparties.CounterpartyClassification
 
 			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot();
 
-			CalculationSettings = new CounterpartyClassificationCalculationSettings();
+			CreateCalculationSettings();
 		}
 
 		public CounterpartyClassificationCalculationSettings CalculationSettings { get; set; }
+
+		private void CreateCalculationSettings()
+		{
+			CalculationSettings = new CounterpartyClassificationCalculationSettings();
+
+			var lastSettings = _unitOfWork.GetAll<CounterpartyClassificationCalculationSettings>()
+				.OrderByDescending(x => x.SettingsCreationDate)
+				.FirstOrDefault();
+
+			if (lastSettings != null)
+			{
+				CalculationSettings.PeriodInMonths = lastSettings.PeriodInMonths;
+				CalculationSettings.BottlesCountAClassificationFrom = lastSettings.BottlesCountAClassificationFrom;
+				CalculationSettings.BottlesCountCClassificationTo = lastSettings.BottlesCountCClassificationTo;
+				CalculationSettings.OrdersCountXClassificationFrom = lastSettings.OrdersCountXClassificationFrom;
+				CalculationSettings.OrdersCountZClassificationTo = lastSettings.OrdersCountZClassificationTo;
+				CalculationSettings.SettingsCreationDate = DateTime.Now;
+			}
+		}
 
 		#region IDisposable implementation
 		public void Dispose()
