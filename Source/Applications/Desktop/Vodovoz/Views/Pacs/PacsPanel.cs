@@ -15,11 +15,9 @@ namespace Vodovoz.Views.Pacs
 
 		public IconSize IconSize
 		{
-			get => toolbarPacs.IconSize;
+			get => default(IconSize);
 			set
 			{
-				toolbarPacs.IconSize = value;
-				SetFastButtonsIconSize(value);
 			}
 		}
 

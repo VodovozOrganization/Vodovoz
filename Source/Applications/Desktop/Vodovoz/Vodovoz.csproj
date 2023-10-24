@@ -104,6 +104,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Libraries\External\Taxcom\TISystems.TTC.CRM.BE.dll</HintPath>
     </Reference>
+    <Reference Include="GammaBinding">
+      <HintPath>..\..\..\..\..\Vodovoz1_UI\QSProjects\Binding\Gamma.Binding\bin\Debug\GammaBinding.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
@@ -397,6 +400,7 @@
     <EmbeddedResource Include="icons\toolbar\undelivered_orders.png" />
     <EmbeddedResource Include="icons\phone\phone-disable.png" />
     <EmbeddedResource Include="icons\pacs\pacs-disabled.png" />
+    <EmbeddedResource Include="icons\pacs\coffee-break-allowed.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Additions\Accounting\WayBillDocumentGenerator.cs" />

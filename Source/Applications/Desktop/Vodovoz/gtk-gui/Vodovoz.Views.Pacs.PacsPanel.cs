@@ -4,23 +4,15 @@ namespace Vodovoz.Views.Pacs
 {
 	public partial class PacsPanel
 	{
-		private global::Gtk.UIManager UIManager;
-
-		private global::Gtk.Action PacsAction;
-
-		private global::Gtk.Action mangoAction;
-
-		private global::Gtk.Action Pacs1111Action;
-
-		private global::Gtk.Action refreshAction;
-
-		private global::Gtk.Action breakAction;
-
-		private global::Gtk.Action pacsAction;
-
 		private global::Gtk.Table tablePacsPanel;
 
-		private global::Gtk.Toolbar toolbarPacs;
+		private global::Gamma.GtkWidgets.yToggleButton buttonMango;
+
+		private global::Gamma.GtkWidgets.yToggleButton buttonPacs;
+
+		private global::Gamma.GtkWidgets.yLabel labelMango;
+
+		private global::Gamma.GtkWidgets.yLabel labelPacs;
 
 		private global::Gtk.VBox vboxFastButtons;
 
@@ -32,87 +24,109 @@ namespace Vodovoz.Views.Pacs
 		{
 			global::Stetic.Gui.Initialize(this);
 			// Widget Vodovoz.Views.Pacs.PacsPanel
-			Stetic.BinContainer w1 = global::Stetic.BinContainer.Attach(this);
-			this.UIManager = new global::Gtk.UIManager();
-			global::Gtk.ActionGroup w2 = new global::Gtk.ActionGroup("Default");
-			this.PacsAction = new global::Gtk.Action("PacsAction", global::Mono.Unix.Catalog.GetString("Pacs"), null, "pacs-disabled");
-			this.PacsAction.ShortLabel = global::Mono.Unix.Catalog.GetString("Pacs");
-			w2.Add(this.PacsAction, null);
-			this.mangoAction = new global::Gtk.Action("mangoAction", global::Mono.Unix.Catalog.GetString("Mango"), null, "phone-disable");
-			this.mangoAction.ShortLabel = global::Mono.Unix.Catalog.GetString("Mango");
-			w2.Add(this.mangoAction, null);
-			this.Pacs1111Action = new global::Gtk.Action("Pacs1111Action", global::Mono.Unix.Catalog.GetString("Pacs1111"), null, "pacs-disabled");
-			this.Pacs1111Action.ShortLabel = global::Mono.Unix.Catalog.GetString("Pacs1111");
-			w2.Add(this.Pacs1111Action, null);
-			this.refreshAction = new global::Gtk.Action("refreshAction", global::Mono.Unix.Catalog.GetString(" "), null, "gtk-refresh");
-			this.refreshAction.ShortLabel = global::Mono.Unix.Catalog.GetString(" ");
-			w2.Add(this.refreshAction, null);
-			this.breakAction = new global::Gtk.Action("breakAction", global::Mono.Unix.Catalog.GetString(" "), null, "gtk-dialog-info");
-			this.breakAction.ShortLabel = global::Mono.Unix.Catalog.GetString(" ");
-			w2.Add(this.breakAction, null);
-			this.pacsAction = new global::Gtk.Action("pacsAction", global::Mono.Unix.Catalog.GetString("Pacs"), null, "pacs-disabled");
-			this.pacsAction.ShortLabel = global::Mono.Unix.Catalog.GetString("Pacs");
-			w2.Add(this.pacsAction, null);
-			this.UIManager.InsertActionGroup(w2, 0);
+			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Views.Pacs.PacsPanel";
 			// Container child Vodovoz.Views.Pacs.PacsPanel.Gtk.Container+ContainerChild
-			this.tablePacsPanel = new global::Gtk.Table(((uint)(1)), ((uint)(2)), false);
+			this.tablePacsPanel = new global::Gtk.Table(((uint)(2)), ((uint)(5)), false);
 			this.tablePacsPanel.Name = "tablePacsPanel";
 			// Container child tablePacsPanel.Gtk.Table+TableChild
-			this.UIManager.AddUiFromString(@"<ui><toolbar name='toolbarPacs'><toolitem/><toolitem name='breakAction' action='breakAction'/><toolitem name='refreshAction' action='refreshAction'/><toolitem name='pacsAction' action='pacsAction'/><toolitem name='mangoAction' action='mangoAction'/></toolbar></ui>");
-			this.toolbarPacs = ((global::Gtk.Toolbar)(this.UIManager.GetWidget("/toolbarPacs")));
-			this.toolbarPacs.Name = "toolbarPacs";
-			this.toolbarPacs.ShowArrow = false;
-			this.toolbarPacs.ToolbarStyle = ((global::Gtk.ToolbarStyle)(2));
-			this.toolbarPacs.IconSize = ((global::Gtk.IconSize)(2));
-			this.tablePacsPanel.Add(this.toolbarPacs);
-			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.tablePacsPanel[this.toolbarPacs]));
-			w3.LeftAttach = ((uint)(1));
-			w3.RightAttach = ((uint)(2));
-			w3.XOptions = ((global::Gtk.AttachOptions)(4));
-			w3.YOptions = ((global::Gtk.AttachOptions)(4));
+			this.buttonMango = new global::Gamma.GtkWidgets.yToggleButton();
+			this.buttonMango.CanFocus = true;
+			this.buttonMango.Name = "buttonMango";
+			this.buttonMango.UseUnderline = true;
+			this.buttonMango.Relief = ((global::Gtk.ReliefStyle)(2));
+			global::Gtk.Image w1 = new global::Gtk.Image();
+			w1.Pixbuf = global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.phone.phone-disable.png");
+			this.buttonMango.Image = w1;
+			this.tablePacsPanel.Add(this.buttonMango);
+			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.tablePacsPanel[this.buttonMango]));
+			w2.LeftAttach = ((uint)(3));
+			w2.RightAttach = ((uint)(4));
+			w2.XOptions = ((global::Gtk.AttachOptions)(4));
+			w2.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tablePacsPanel.Gtk.Table+TableChild
+			this.buttonPacs = new global::Gamma.GtkWidgets.yToggleButton();
+			this.buttonPacs.CanFocus = true;
+			this.buttonPacs.Name = "buttonPacs";
+			this.buttonPacs.UseUnderline = true;
+			this.buttonPacs.Relief = ((global::Gtk.ReliefStyle)(2));
+			global::Gtk.Image w3 = new global::Gtk.Image();
+			w3.Pixbuf = global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.pacs.pacs-disabled.png");
+			this.buttonPacs.Image = w3;
+			this.tablePacsPanel.Add(this.buttonPacs);
+			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.tablePacsPanel[this.buttonPacs]));
+			w4.LeftAttach = ((uint)(2));
+			w4.RightAttach = ((uint)(3));
+			w4.XOptions = ((global::Gtk.AttachOptions)(4));
+			w4.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tablePacsPanel.Gtk.Table+TableChild
+			this.labelMango = new global::Gamma.GtkWidgets.yLabel();
+			this.labelMango.Name = "labelMango";
+			this.labelMango.LabelProp = global::Mono.Unix.Catalog.GetString("Mango");
+			this.tablePacsPanel.Add(this.labelMango);
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.tablePacsPanel[this.labelMango]));
+			w5.TopAttach = ((uint)(1));
+			w5.BottomAttach = ((uint)(2));
+			w5.LeftAttach = ((uint)(3));
+			w5.RightAttach = ((uint)(4));
+			w5.XOptions = ((global::Gtk.AttachOptions)(4));
+			w5.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tablePacsPanel.Gtk.Table+TableChild
+			this.labelPacs = new global::Gamma.GtkWidgets.yLabel();
+			this.labelPacs.Name = "labelPacs";
+			this.labelPacs.LabelProp = global::Mono.Unix.Catalog.GetString("Pacs");
+			this.tablePacsPanel.Add(this.labelPacs);
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.tablePacsPanel[this.labelPacs]));
+			w6.TopAttach = ((uint)(1));
+			w6.BottomAttach = ((uint)(2));
+			w6.LeftAttach = ((uint)(2));
+			w6.RightAttach = ((uint)(3));
+			w6.XOptions = ((global::Gtk.AttachOptions)(4));
+			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tablePacsPanel.Gtk.Table+TableChild
 			this.vboxFastButtons = new global::Gtk.VBox();
 			this.vboxFastButtons.Name = "vboxFastButtons";
-			this.vboxFastButtons.Spacing = -3;
+			this.vboxFastButtons.Homogeneous = true;
 			// Container child vboxFastButtons.Gtk.Box+BoxChild
 			this.buttonBreak = new global::Gamma.GtkWidgets.yToggleButton();
 			this.buttonBreak.CanFocus = true;
 			this.buttonBreak.Name = "buttonBreak";
 			this.buttonBreak.UseUnderline = true;
 			this.buttonBreak.Relief = ((global::Gtk.ReliefStyle)(2));
-			global::Gtk.Image w4 = new global::Gtk.Image();
-			w4.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-refresh", global::Gtk.IconSize.Menu);
-			this.buttonBreak.Image = w4;
+			global::Gtk.Image w7 = new global::Gtk.Image();
+			w7.Pixbuf = global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.pacs.coffee-break-allowed.png");
+			this.buttonBreak.Image = w7;
 			this.vboxFastButtons.Add(this.buttonBreak);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vboxFastButtons[this.buttonBreak]));
-			w5.Position = 0;
-			w5.Expand = false;
-			w5.Fill = false;
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vboxFastButtons[this.buttonBreak]));
+			w8.Position = 0;
+			w8.Expand = false;
+			w8.Fill = false;
 			// Container child vboxFastButtons.Gtk.Box+BoxChild
 			this.buttonRefresh = new global::Gamma.GtkWidgets.yToggleButton();
 			this.buttonRefresh.CanFocus = true;
 			this.buttonRefresh.Name = "buttonRefresh";
 			this.buttonRefresh.UseUnderline = true;
 			this.buttonRefresh.Relief = ((global::Gtk.ReliefStyle)(2));
-			global::Gtk.Image w6 = new global::Gtk.Image();
-			w6.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-refresh", global::Gtk.IconSize.Menu);
-			this.buttonRefresh.Image = w6;
+			global::Gtk.Image w9 = new global::Gtk.Image();
+			w9.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-refresh", global::Gtk.IconSize.Menu);
+			this.buttonRefresh.Image = w9;
 			this.vboxFastButtons.Add(this.buttonRefresh);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vboxFastButtons[this.buttonRefresh]));
-			w7.Position = 1;
-			w7.Expand = false;
-			w7.Fill = false;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vboxFastButtons[this.buttonRefresh]));
+			w10.Position = 1;
+			w10.Expand = false;
+			w10.Fill = false;
 			this.tablePacsPanel.Add(this.vboxFastButtons);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.tablePacsPanel[this.vboxFastButtons]));
-			w8.XOptions = ((global::Gtk.AttachOptions)(2));
-			w8.YOptions = ((global::Gtk.AttachOptions)(2));
+			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.tablePacsPanel[this.vboxFastButtons]));
+			w11.BottomAttach = ((uint)(2));
+			w11.LeftAttach = ((uint)(1));
+			w11.RightAttach = ((uint)(2));
+			w11.XOptions = ((global::Gtk.AttachOptions)(0));
+			w11.YOptions = ((global::Gtk.AttachOptions)(0));
 			this.Add(this.tablePacsPanel);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
 			}
-			w1.SetUiManager(UIManager);
 			this.Show();
 		}
 	}
