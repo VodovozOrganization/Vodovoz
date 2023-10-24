@@ -97,10 +97,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionWarehousesActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<WarehousesView>(),
-			() => new WarehousesView()
-		);
+		NavigationManager.OpenTdiTab<WarehousesView>(null);
 	}
 
 	#region Зарплата
