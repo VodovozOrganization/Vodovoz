@@ -319,20 +319,10 @@ namespace Vodovoz.ViewModels.Logistic
 		public DelegateCommand AcceptFineCommand =>
 			_acceptFineCommand ?? (_acceptFineCommand = new DelegateCommand(() =>
 				{
-					var fineViewModel = new FineViewModel(
-						EntityUoWBuilder.ForCreate(),
-						UnitOfWorkFactory,
-						_employeeService,
-						_employeeJournalFactory,
-						CommonServices,
-						NavigationManager
-					)
-					{
-						RouteList = Entity,
-						FineReasonString = "Перерасход топлива"
-					};
+					var page = NavigationManager.OpenViewModel<FineViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate(), OpenPageOptions.AsSlave);
 
-					TabParent.AddSlaveTab(this, fineViewModel);
+					page.ViewModel.RouteList = Entity;
+					page.ViewModel.FineReasonString = "Перерасход топлива";
 				}
 			));
 

@@ -8,7 +8,6 @@ using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Services;
-using QS.Tools;
 using QS.Utilities.Extensions;
 using QS.Validation;
 using QS.ViewModels.Extension;
@@ -59,9 +58,10 @@ using Vodovoz.ViewModels.FuelDocuments;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewWidgets.Logistics;
-using QS.DomainModel.NotifyChange;
 using QS.Utilities.Debug;
 using Vodovoz.Extensions;
+using QS.Navigation;
+using Vodovoz.ViewModels.Employees;
 
 namespace Vodovoz
 {
@@ -146,6 +146,8 @@ namespace Vodovoz
 			}
 			set { callTaskWorker = value; }
 		}
+
+		public ITdiCompatibilityNavigation NavigationManager => Startup.MainWin.NavigationManager;
 
 		#endregion
 
@@ -633,9 +635,9 @@ namespace Vodovoz
 		{
 			switch((RouteListActions)e.ItemEnum) {
 				case RouteListActions.CreateNewFine:
-					this.TabParent.AddSlaveTab(
-						this, new FineDlg(Entity)
-					);
+					var page = NavigationManager.OpenViewModelOnTdi<FineViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate(), OpenPageOptions.IgnoreHash);
+
+					page.ViewModel.Entity.RouteList = Entity;
 					break;
 				case RouteListActions.TransferReceptionToAnotherRL:
 					this.TabParent.AddSlaveTab(
