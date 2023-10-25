@@ -258,7 +258,7 @@ namespace DriverAPI.Library.Models
 			_uow.Commit();
 		}
 
-		public void CompleteOrderDelivery(DateTime actionTime, Employee driver, IDriverCompleteOrderInfo completeOrderInfo)
+		public void CompleteOrderDelivery(DateTime actionTime, Employee driver, IDriverOrderShipmentInfo completeOrderInfo, IDriverComplaintInfo driverComplaintInfo)
 		{
 			var orderId = completeOrderInfo.OrderId;
 			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId);
@@ -308,30 +308,7 @@ namespace DriverAPI.Library.Models
 
 			routeList.ChangeAddressStatus(_uow, routeListAddress.Id, RouteListItemStatus.Completed);
 
-			if(completeOrderInfo.Rating < _maxClosingRating)
-			{
-				var complaintReason = _complaintsRepository.GetDriverComplaintReasonById(_uow, completeOrderInfo.DriverComplaintReasonId);
-				var complaintSource = _complaintsRepository.GetComplaintSourceById(_uow, _webApiParametersProvider.ComplaintSourceId);
-				var reason = complaintReason?.Name ?? completeOrderInfo.OtherDriverComplaintReasonComment;
-
-				var complaint = new Complaint
-				{
-					ComplaintSource = complaintSource,
-					ComplaintType = ComplaintType.Driver,
-					Order = vodovozOrder,
-					DriverRating = completeOrderInfo.Rating,
-					DeliveryPoint = vodovozOrder.DeliveryPoint,
-					CreationDate = actionTime,
-					ChangedDate = actionTime,
-					Driver = driver,
-					CreatedBy = driver,
-					ChangedBy = driver,
-					ComplaintText = $"Заказ номер {orderId}\n" +
-						$"По причине {reason}"
-				};
-
-				_uow.Save(complaint);
-			}
+			CreateComplaintIfNeeded(driverComplaintInfo, vodovozOrder, driver, actionTime);
 
 			if(completeOrderInfo.BottlesReturnCount != vodovozOrder.BottlesReturn)
 			{
@@ -352,12 +329,38 @@ namespace DriverAPI.Library.Models
 			_uow.Commit();
 		}
 
-		public void CreateDeliveryPointCoordinatesComplaint(
+		private void CreateComplaintIfNeeded(IDriverComplaintInfo driverComplaintInfo, Order order, Employee driver, DateTime actionTime)
+		{
+			if(driverComplaintInfo.Rating < _maxClosingRating)
+			{
+				var complaintReason = _complaintsRepository.GetDriverComplaintReasonById(_uow, driverComplaintInfo.DriverComplaintReasonId);
+				var complaintSource = _complaintsRepository.GetComplaintSourceById(_uow, _webApiParametersProvider.ComplaintSourceId);
+				var reason = complaintReason?.Name ?? driverComplaintInfo.OtherDriverComplaintReasonComment;
+
+				var complaint = new Complaint
+				{
+					ComplaintSource = complaintSource,
+					ComplaintType = ComplaintType.Driver,
+					Order = order,
+					DriverRating = driverComplaintInfo.Rating,
+					DeliveryPoint = order.DeliveryPoint,
+					CreationDate = actionTime,
+					ChangedDate = actionTime,
+					Driver = driver,
+					CreatedBy = driver,
+					ChangedBy = driver,
+					ComplaintText = $"Заказ номер {order.Id}\n" +
+						$"По причине {reason}"
+				};
+
+				_uow.Save(complaint);
+			}
+		}
+
+		public void UpdateOrderShipmentInfo(
 			DateTime actionTime,
 			Employee driver,
-			IDriverCompleteOrderInfo completeOrderInfo,
-			decimal currentDriverLatitude,
-			decimal currentDriverLongitude)
+			IDriverOrderShipmentInfo completeOrderInfo)
 		{
 			var orderId = completeOrderInfo.OrderId;
 			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId);
@@ -384,71 +387,26 @@ namespace DriverAPI.Library.Models
 
 			if(routeList.Driver.Id != driver.Id)
 			{
-				_logger.LogWarning("Сотрудник {EmployeeId} попытался создать рекламацию на заказ {OrderId} водителя {DriverId}",
+				_logger.LogWarning("Сотрудник {EmployeeId} попытался изменить заказ {OrderId} водителя {DriverId}",
 					driver.Id, orderId, routeList.Driver.Id);
-				throw new InvalidOperationException("Нельзя создать рекламацию на заказ другого водителя");
+				throw new InvalidOperationException("Нельзя изменить заказ другого водителя");
 			}
 
 			if(routeList.Status != RouteListStatus.EnRoute)
 			{
-				_logger.LogWarning("Нельзя создать рекламацию на заказ: {OrderId}, МЛ не в пути", orderId);
-				throw new ArgumentOutOfRangeException(nameof(orderId), $"Нельзя создать рекламацию на заказ: {orderId}, МЛ не в пути");
+				_logger.LogWarning("Нельзя изменить: {OrderId}, МЛ не в пути", orderId);
+				throw new ArgumentOutOfRangeException(nameof(orderId), $"Нельзя изменить заказ: {orderId}, МЛ не в пути");
 			}
 
 			if(routeListAddress.Status != RouteListItemStatus.EnRoute)
 			{
-				_logger.LogWarning("Нельзя создать рекламацию на заказ: {OrderId}, адрес МЛ не в пути", orderId);
-				throw new ArgumentOutOfRangeException(nameof(orderId), $"Нельзя создать рекламацию на заказ: {orderId}, адрес МЛ не в пути");
+				_logger.LogWarning("Нельзя изменить заказ: {OrderId}, адрес МЛ не в пути", orderId);
+				throw new ArgumentOutOfRangeException(nameof(orderId), $"Нельзя изменить заказ: {orderId}, адрес МЛ не в пути");
 			}
 
 			SaveScannedCodes(actionTime, completeOrderInfo);
 
 			routeListAddress.DriverBottlesReturned = completeOrderInfo.BottlesReturnCount;
-
-			if(completeOrderInfo.Rating < _maxClosingRating)
-			{
-				var complaintReason = _complaintsRepository.GetDriverComplaintReasonById(_uow, completeOrderInfo.DriverComplaintReasonId);
-				var complaintSource = _complaintsRepository.GetComplaintSourceById(_uow, _webApiParametersProvider.ComplaintSourceId);
-				var reason = complaintReason?.Name ?? completeOrderInfo.OtherDriverComplaintReasonComment;
-
-				var complaint = new Complaint
-				{
-					ComplaintSource = complaintSource,
-					ComplaintType = ComplaintType.Driver,
-					Order = vodovozOrder,
-					DriverRating = completeOrderInfo.Rating,
-					DeliveryPoint = vodovozOrder.DeliveryPoint,
-					CreationDate = actionTime,
-					ChangedDate = actionTime,
-					Driver = driver,
-					CreatedBy = driver,
-					ChangedBy = driver,
-					ComplaintText = $"Заказ номер {orderId}\n" +
-						$"Водитель закрыл заказ с координатами ({currentDriverLatitude}, {currentDriverLongitude}) вместо ({vodovozOrder.DeliveryPoint.Latitude}, {vodovozOrder.DeliveryPoint.Longitude}) \n" +
-						$"По причине {reason}"
-				};
-
-				_uow.Save(complaint);
-			}
-			else
-			{
-				var complaint = new Complaint
-				{
-					ComplaintType = ComplaintType.Driver,
-					Order = vodovozOrder,
-					DriverRating = completeOrderInfo.Rating,
-					DeliveryPoint = vodovozOrder.DeliveryPoint,
-					CreationDate = actionTime,
-					ChangedDate = actionTime,
-					Driver = driver,
-					CreatedBy = driver,
-					ChangedBy = driver,
-					ComplaintText = $"Заказ номер {orderId}\n" +
-						$"Водитель закрыл заказ с координатами ({currentDriverLatitude}, {currentDriverLongitude}) вместо ({vodovozOrder.DeliveryPoint.Latitude}, {vodovozOrder.DeliveryPoint.Longitude})"
-				};
-
-				_uow.Save(complaint);
-			}
 
 			if(completeOrderInfo.BottlesReturnCount != vodovozOrder.BottlesReturn)
 			{
@@ -469,7 +427,7 @@ namespace DriverAPI.Library.Models
 			_uow.Commit();
 		}
 
-		private void SaveScannedCodes(DateTime actionTime, IDriverCompleteOrderInfo completeOrderInfo)
+		private void SaveScannedCodes(DateTime actionTime, IDriverOrderShipmentInfo completeOrderInfo)
 		{
 			if(completeOrderInfo.ScannedItems == null)
 			{

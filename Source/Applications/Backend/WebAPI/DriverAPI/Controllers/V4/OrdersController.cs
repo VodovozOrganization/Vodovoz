@@ -100,8 +100,8 @@ namespace DriverAPI.Controllers.V4
 				_aPIOrderData.CompleteOrderDelivery(
 					recievedTime,
 					driver,
-					completedOrderRequestModel
-				);
+					completedOrderRequestModel,
+					completedOrderRequestModel);
 			}
 			catch(Exception ex)
 			{
@@ -119,9 +119,9 @@ namespace DriverAPI.Controllers.V4
 		/// </summary>
 		/// <param name="completedOrderRequestModel"></param>
 		/// <returns></returns>
-		[HttpPost("CreateDeliveryPointCoordinatesComplaint")]
+		[HttpPost("UpdateOrderShipmentInfo")]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		public async Task<IActionResult> CreateDeliveryPointCoordinatesComplaintAsync([FromBody] CreateDeliveryPointCoordinatesComplaintForOrderRequestDto completedOrderRequestModel)
+		public async Task<IActionResult> UpdateOrderShipmentInfoAsync([FromBody] UpdateOrderShipmentInfoRequestDto completedOrderRequestModel)
 		{
 			_logger.LogInformation("(Создание рекламации по координатам точки доставки заказа: {OrderId}) пользователем {Username} | User token: {AccessToken}",
 				completedOrderRequestModel.OrderId,
@@ -137,12 +137,10 @@ namespace DriverAPI.Controllers.V4
 
 			_actionTimeHelper.ThrowIfNotValid(recievedTime, localActionTime);
 
-			_aPIOrderData.CreateDeliveryPointCoordinatesComplaint(
+			_aPIOrderData.UpdateOrderShipmentInfo(
 				recievedTime,
 				driver,
-				completedOrderRequestModel,
-				completedOrderRequestModel.Latitude,
-				completedOrderRequestModel.Longitude);
+				completedOrderRequestModel);
 
 			return NoContent();
 		}

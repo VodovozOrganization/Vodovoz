@@ -1,5 +1,4 @@
-﻿using DriverAPI.Library.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Models.TrueMark;
@@ -9,7 +8,7 @@ namespace DriverAPI.DTOs.V4
 	/// <summary>
 	/// Запрос на завершение заказа
 	/// </summary>
-	public class CreateDeliveryPointCoordinatesComplaintForOrderRequestDto : IDriverCompleteOrderInfo
+	public class UpdateOrderShipmentInfoRequestDto : ITrueMarkOrderScannedInfo
 	{
 		/// <summary>
 		/// Номер заказа
@@ -22,22 +21,6 @@ namespace DriverAPI.DTOs.V4
 		/// </summary>
 		[Required]
 		public int BottlesReturnCount { get; set; }
-
-		/// <summary>
-		/// Рейтинг адреса от водителя
-		/// </summary>
-		[Required]
-		public int Rating { get; set; }
-
-		/// <summary>
-		/// Причина низкого рейтинга адреса
-		/// </summary>
-		public int DriverComplaintReasonId { get; set; }
-
-		/// <summary>
-		/// Комментарий низкого рейтинга адреса
-		/// </summary>
-		public string OtherDriverComplaintReasonComment { get; set; }
 
 		/// <summary>
 		/// Комментарий в случае меньшего количества бутылей на возврат
@@ -59,16 +42,6 @@ namespace DriverAPI.DTOs.V4
 		/// </summary>
 		[Required]
 		public DateTime ActionTimeUtc { get; set; }
-
-		/// <summary>
-		/// Широта
-		/// </summary>
-		public decimal Latitude { get; set; }
-
-		/// <summary>
-		/// Долгота
-		/// </summary>
-		public decimal Longitude { get; set; }
 
 		IEnumerable<ITrueMarkOrderItemScannedInfo> ITrueMarkOrderScannedInfo.ScannedItems => ScannedBottles;
 

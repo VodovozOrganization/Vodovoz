@@ -9,7 +9,7 @@ namespace DriverAPI.DTOs.V4
 	/// <summary>
 	/// Запрос на завершение заказа
 	/// </summary>
-	public class CompletedOrderRequestDto : IDriverCompleteOrderInfo
+	public class CompletedOrderRequestDto : IDriverOrderShipmentInfo, IDriverComplaintInfo
 	{
 		/// <summary>
 		/// Номер заказа
