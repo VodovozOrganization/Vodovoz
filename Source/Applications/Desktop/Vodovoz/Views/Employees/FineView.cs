@@ -12,7 +12,7 @@ namespace Vodovoz.Views.Employees
 	{
 		public FineView(FineViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 			ConfigureDlg();
 		}
 
