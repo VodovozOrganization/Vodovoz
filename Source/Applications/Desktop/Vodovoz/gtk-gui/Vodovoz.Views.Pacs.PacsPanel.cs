@@ -6,9 +6,9 @@ namespace Vodovoz.Views.Pacs
 	{
 		private global::Gtk.Table tablePacsPanel;
 
-		private global::Gamma.GtkWidgets.yToggleButton buttonMango;
+		private global::Gtk.Button buttonMango;
 
-		private global::Gamma.GtkWidgets.yToggleButton buttonPacs;
+		private global::Gtk.Button buttonPacs;
 
 		private global::Gamma.GtkWidgets.yLabel labelMango;
 
@@ -16,9 +16,9 @@ namespace Vodovoz.Views.Pacs
 
 		private global::Gtk.VBox vboxFastButtons;
 
-		private global::Gamma.GtkWidgets.yToggleButton buttonBreak;
+		private global::Gtk.Button buttonBreak;
 
-		private global::Gamma.GtkWidgets.yToggleButton buttonRefresh;
+		private global::Gtk.Button buttonRefresh;
 
 		protected virtual void Build()
 		{
@@ -30,7 +30,7 @@ namespace Vodovoz.Views.Pacs
 			this.tablePacsPanel = new global::Gtk.Table(((uint)(2)), ((uint)(5)), false);
 			this.tablePacsPanel.Name = "tablePacsPanel";
 			// Container child tablePacsPanel.Gtk.Table+TableChild
-			this.buttonMango = new global::Gamma.GtkWidgets.yToggleButton();
+			this.buttonMango = new global::Gtk.Button();
 			this.buttonMango.CanFocus = true;
 			this.buttonMango.Name = "buttonMango";
 			this.buttonMango.UseUnderline = true;
@@ -45,7 +45,7 @@ namespace Vodovoz.Views.Pacs
 			w2.XOptions = ((global::Gtk.AttachOptions)(4));
 			w2.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tablePacsPanel.Gtk.Table+TableChild
-			this.buttonPacs = new global::Gamma.GtkWidgets.yToggleButton();
+			this.buttonPacs = new global::Gtk.Button();
 			this.buttonPacs.CanFocus = true;
 			this.buttonPacs.Name = "buttonPacs";
 			this.buttonPacs.UseUnderline = true;
@@ -88,12 +88,11 @@ namespace Vodovoz.Views.Pacs
 			this.vboxFastButtons.Name = "vboxFastButtons";
 			this.vboxFastButtons.Homogeneous = true;
 			// Container child vboxFastButtons.Gtk.Box+BoxChild
-			this.buttonBreak = new global::Gamma.GtkWidgets.yToggleButton();
+			this.buttonBreak = new global::Gtk.Button();
 			this.buttonBreak.CanFocus = true;
 			this.buttonBreak.Name = "buttonBreak";
 			this.buttonBreak.UseUnderline = true;
 			this.buttonBreak.Relief = ((global::Gtk.ReliefStyle)(2));
-			this.buttonBreak.Active = true;
 			global::Gtk.Image w7 = new global::Gtk.Image();
 			w7.Pixbuf = global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.pacs.coffee-break-allowed.png");
 			this.buttonBreak.Image = w7;
@@ -101,22 +100,19 @@ namespace Vodovoz.Views.Pacs
 			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vboxFastButtons[this.buttonBreak]));
 			w8.Position = 0;
 			w8.Expand = false;
-			w8.Fill = false;
 			// Container child vboxFastButtons.Gtk.Box+BoxChild
-			this.buttonRefresh = new global::Gamma.GtkWidgets.yToggleButton();
+			this.buttonRefresh = new global::Gtk.Button();
 			this.buttonRefresh.CanFocus = true;
 			this.buttonRefresh.Name = "buttonRefresh";
 			this.buttonRefresh.UseUnderline = true;
 			this.buttonRefresh.Relief = ((global::Gtk.ReliefStyle)(2));
-			this.buttonRefresh.Active = true;
 			global::Gtk.Image w9 = new global::Gtk.Image();
-			w9.Pixbuf = global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.pacs.pacs-active.png");
+			w9.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-refresh", global::Gtk.IconSize.Dnd);
 			this.buttonRefresh.Image = w9;
 			this.vboxFastButtons.Add(this.buttonRefresh);
 			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vboxFastButtons[this.buttonRefresh]));
 			w10.Position = 1;
 			w10.Expand = false;
-			w10.Fill = false;
 			this.tablePacsPanel.Add(this.vboxFastButtons);
 			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.tablePacsPanel[this.vboxFastButtons]));
 			w11.BottomAttach = ((uint)(2));
