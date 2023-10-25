@@ -6,9 +6,9 @@ namespace Vodovoz.Views.Pacs
 	{
 		private global::Gtk.Table tablePacsPanel;
 
-		private global::Gtk.Button buttonMango;
+		private global::Gamma.GtkWidgets.yButton buttonMango;
 
-		private global::Gtk.Button buttonPacs;
+		private global::Gamma.GtkWidgets.yButton buttonPacs;
 
 		private global::Gamma.GtkWidgets.yLabel labelMango;
 
@@ -16,9 +16,9 @@ namespace Vodovoz.Views.Pacs
 
 		private global::Gtk.VBox vboxFastButtons;
 
-		private global::Gtk.Button buttonBreak;
+		private global::Gamma.GtkWidgets.yButton buttonBreak;
 
-		private global::Gtk.Button buttonRefresh;
+		private global::Gamma.GtkWidgets.yButton buttonRefresh;
 
 		protected virtual void Build()
 		{
@@ -30,7 +30,7 @@ namespace Vodovoz.Views.Pacs
 			this.tablePacsPanel = new global::Gtk.Table(((uint)(2)), ((uint)(5)), false);
 			this.tablePacsPanel.Name = "tablePacsPanel";
 			// Container child tablePacsPanel.Gtk.Table+TableChild
-			this.buttonMango = new global::Gtk.Button();
+			this.buttonMango = new global::Gamma.GtkWidgets.yButton();
 			this.buttonMango.CanFocus = true;
 			this.buttonMango.Name = "buttonMango";
 			this.buttonMango.UseUnderline = true;
@@ -45,7 +45,7 @@ namespace Vodovoz.Views.Pacs
 			w2.XOptions = ((global::Gtk.AttachOptions)(4));
 			w2.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tablePacsPanel.Gtk.Table+TableChild
-			this.buttonPacs = new global::Gtk.Button();
+			this.buttonPacs = new global::Gamma.GtkWidgets.yButton();
 			this.buttonPacs.CanFocus = true;
 			this.buttonPacs.Name = "buttonPacs";
 			this.buttonPacs.UseUnderline = true;
@@ -88,7 +88,7 @@ namespace Vodovoz.Views.Pacs
 			this.vboxFastButtons.Name = "vboxFastButtons";
 			this.vboxFastButtons.Homogeneous = true;
 			// Container child vboxFastButtons.Gtk.Box+BoxChild
-			this.buttonBreak = new global::Gtk.Button();
+			this.buttonBreak = new global::Gamma.GtkWidgets.yButton();
 			this.buttonBreak.CanFocus = true;
 			this.buttonBreak.Name = "buttonBreak";
 			this.buttonBreak.UseUnderline = true;
@@ -101,7 +101,7 @@ namespace Vodovoz.Views.Pacs
 			w8.Position = 0;
 			w8.Expand = false;
 			// Container child vboxFastButtons.Gtk.Box+BoxChild
-			this.buttonRefresh = new global::Gtk.Button();
+			this.buttonRefresh = new global::Gamma.GtkWidgets.yButton();
 			this.buttonRefresh.CanFocus = true;
 			this.buttonRefresh.Name = "buttonRefresh";
 			this.buttonRefresh.UseUnderline = true;
