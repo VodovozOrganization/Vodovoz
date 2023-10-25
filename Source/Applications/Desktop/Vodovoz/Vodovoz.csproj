@@ -1990,10 +1990,13 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.ChainStoreDelayReport.cs" />
     <Compile Include="Views\Logistic\FastDeliveryOrderTransferFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.FastDeliveryOrderTransferFilterView.cs" />
+    <Compile Include="Views\Client\CounterpartyClassification\CounterpartyClassificationCalculationView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Client.CounterpartyClassification.CounterpartyClassificationCalculationView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="ViewModels\Goods\" />
+    <Folder Include="Views\Client\CounterpartyClassification\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">
