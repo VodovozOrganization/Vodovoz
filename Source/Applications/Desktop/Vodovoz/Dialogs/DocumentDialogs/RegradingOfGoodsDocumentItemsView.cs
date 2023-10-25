@@ -82,7 +82,7 @@ namespace Vodovoz
 					: x.Amount
 				)
 				.AddColumn("Сумма ущерба").AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.SumOfDamage))
-				.AddColumn("Штраф").AddTextRenderer(x => x.Fine != null ? x.Fine.Description : String.Empty)
+				.AddColumn("Штраф").AddTextRenderer(x => x.Fine != null ? x.Fine.Description : string.Empty)
 				.AddColumn("Тип брака")
 					.AddComboRenderer(x => x.TypeOfDefect)
 					.SetDisplayFunc(x => x.Name)
