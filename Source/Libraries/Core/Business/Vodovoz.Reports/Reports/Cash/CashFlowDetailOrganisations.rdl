@@ -715,7 +715,7 @@ ORDER BY Category;</CommandText>
       <Textbox Name="Textbox17">
         <Height>18.03pt</Height>
         <Width>560.17pt</Width>
-        <Value>="Доходы и расходы за период " + Format(CDate({?StartDate}), "dd.MM H:mm") + " - " + Format(CDate({?EndDate}), "dd.MM H:mm")</Value>
+        <Value>="Доходы и расходы по юр лицам за период " + Format(CDate({?StartDate}), "dd.MM H:mm") + " - " + Format(CDate({?EndDate}), "dd.MM H:mm")</Value>
         <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>2.80pt</Top>
@@ -1008,8 +1008,8 @@ ORDER BY Category;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingBottom >3pt</PaddingBottom>
-                        <PaddingTop >3pt</PaddingTop>
+                        <PaddingBottom>3pt</PaddingBottom>
+                        <PaddingTop>3pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1028,8 +1028,9 @@ ORDER BY Category;</CommandText>
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <Format>#,##0.00</Format>
-                        <PaddingBottom >3pt</PaddingBottom>
-                        <PaddingTop >3pt</PaddingTop>
+                        <PaddingBottom>3pt</PaddingBottom>
+                        <PaddingTop>3pt</PaddingTop>
+                        <PaddingLeft >2pt</PaddingLeft>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -1597,8 +1598,8 @@ ORDER BY Category;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingBottom >3pt</PaddingBottom>
-                        <PaddingTop >3pt</PaddingTop>
+                        <PaddingBottom>3pt</PaddingBottom>
+                        <PaddingTop>3pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1617,8 +1618,9 @@ ORDER BY Category;</CommandText>
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <Format>#,##0.00</Format>
-                        <PaddingBottom >3pt</PaddingBottom>
-                        <PaddingTop >3pt</PaddingTop>
+                        <PaddingBottom>3pt</PaddingBottom>
+                        <PaddingTop>3pt</PaddingTop>
+                        <PaddingLeft >2pt</PaddingLeft>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -2104,8 +2106,9 @@ ORDER BY Category;</CommandText>
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <Format>#,##0.00</Format>
-                        <PaddingBottom >3pt</PaddingBottom>
-                        <PaddingTop >3pt</PaddingTop>
+                        <PaddingBottom>3pt</PaddingBottom>
+                        <PaddingTop>3pt</PaddingTop>
+                        <PaddingLeft >2pt</PaddingLeft>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -2570,8 +2573,8 @@ ORDER BY Category;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingBottom >=Len({description}) / 20 + "pt"</PaddingBottom>
-                        <PaddingTop >=Len({description}) / 20 + "pt"</PaddingTop>
+                        <PaddingBottom>=Len({description}) / 20 + "pt"</PaddingBottom>
+                        <PaddingTop>=Len({description}) / 20 + "pt"</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2590,8 +2593,9 @@ ORDER BY Category;</CommandText>
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <Format>#,##0.00</Format>
-                        <PaddingBottom >3pt</PaddingBottom>
-                        <PaddingTop >3pt</PaddingTop>
+                        <PaddingBottom>3pt</PaddingBottom>
+                        <PaddingTop>3pt</PaddingTop>
+                        <PaddingLeft >2pt</PaddingLeft>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -2883,10 +2887,10 @@ ORDER BY Category;</CommandText>
                         <BorderWidth />
                         <BackgroundColor>Silver</BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingBottom >3pt</PaddingBottom>
-                        <PaddingTop >3pt</PaddingTop>
+                        <PaddingBottom>3pt</PaddingBottom>
+                        <PaddingTop>3pt</PaddingTop>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -2904,10 +2908,10 @@ ORDER BY Category;</CommandText>
                         <BorderWidth />
                         <BackgroundColor>Silver</BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingBottom >3pt</PaddingBottom>
-                        <PaddingTop >3pt</PaddingTop>
+                        <PaddingBottom>3pt</PaddingBottom>
+                        <PaddingTop>3pt</PaddingTop>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -2925,10 +2929,10 @@ ORDER BY Category;</CommandText>
                         <BorderWidth />
                         <BackgroundColor>Silver</BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingBottom >3pt</PaddingBottom>
-                        <PaddingTop >3pt</PaddingTop>
+                        <PaddingBottom>3pt</PaddingBottom>
+                        <PaddingTop>3pt</PaddingTop>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -2946,10 +2950,10 @@ ORDER BY Category;</CommandText>
                         <BorderWidth />
                         <BackgroundColor>Silver</BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingBottom >3pt</PaddingBottom>
-                        <PaddingTop >3pt</PaddingTop>
+                        <PaddingBottom>3pt</PaddingBottom>
+                        <PaddingTop>3pt</PaddingTop>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -2967,10 +2971,10 @@ ORDER BY Category;</CommandText>
                         <BorderWidth />
                         <BackgroundColor>Silver</BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingBottom >3pt</PaddingBottom>
-                        <PaddingTop >3pt</PaddingTop>
+                        <PaddingBottom>3pt</PaddingBottom>
+                        <PaddingTop>3pt</PaddingTop>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -3053,8 +3057,8 @@ ORDER BY Category;</CommandText>
                         <BorderWidth />
                         <BackgroundColor>LightCyan</BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingBottom >=Len({expense_desc}) / 10 + "pt"</PaddingBottom>
-                        <PaddingTop >=Len({expense_desc}) / 10 + "pt"</PaddingTop>
+                        <PaddingBottom>=Len({expense_desc}) / 10 + "pt"</PaddingBottom>
+                        <PaddingTop>=Len({expense_desc}) / 10 + "pt"</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -3075,8 +3079,8 @@ ORDER BY Category;</CommandText>
                         <BackgroundColor>LightCyan</BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                         <Format>#,##0.00</Format>
-                        <PaddingBottom >3pt</PaddingBottom>
-                        <PaddingTop >3pt</PaddingTop>
+                        <PaddingBottom>3pt</PaddingBottom>
+                        <PaddingTop>3pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -3324,11 +3328,11 @@ ORDER BY Category;</CommandText>
                             <BorderWidth />
                             <PaddingLeft>2pt</PaddingLeft>
                             <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingBottom >=Len({description}) / 20 + "pt"</PaddingBottom>
-                            <PaddingTop >=Len({description}) / 20 + "pt"</PaddingTop>
+                            <PaddingBottom>=Len({description}) / 20 + "pt"</PaddingBottom>
+                            <PaddingTop>=Len({description}) / 20 + "pt"</PaddingTop>
                           </Style>
                           <Value>={description}</Value>
-                          <CanGrow >true</CanGrow>
+                          <CanGrow>true</CanGrow>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -3345,11 +3349,11 @@ ORDER BY Category;</CommandText>
                             <TextAlign>Right</TextAlign>
                             <VerticalAlign>Middle</VerticalAlign>
                             <Format>#,##0.00</Format>
-                            <PaddingBottom >3pt</PaddingBottom>
-                            <PaddingTop >3pt</PaddingTop>
+                            <PaddingBottom>3pt</PaddingBottom>
+                            <PaddingTop>3pt</PaddingTop>
                           </Style>
                           <Value>={Sum}</Value>
-                          <CanGrow >true</CanGrow>
+                          <CanGrow>true</CanGrow>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -3598,8 +3602,8 @@ ORDER BY Category;</CommandText>
                         <BorderWidth />
                         <BackgroundColor>Lightcyan</BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingBottom >6pt</PaddingBottom>
-                        <PaddingTop >6pt</PaddingTop>
+                        <PaddingBottom>6pt</PaddingBottom>
+                        <PaddingTop>6pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -3619,8 +3623,9 @@ ORDER BY Category;</CommandText>
                         <BackgroundColor>Lightcyan</BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                         <Format>#,##0.00</Format>
-                        <PaddingBottom >3pt</PaddingBottom>
-                        <PaddingTop >3pt</PaddingTop>
+                        <PaddingBottom>3pt</PaddingBottom>
+                        <PaddingTop>3pt</PaddingTop>
+                        <PaddingLeft >2pt</PaddingLeft>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -3926,8 +3931,8 @@ ORDER BY Category;</CommandText>
                             <BorderColor />
                             <BorderWidth />
                             <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingBottom >=Len({description}) / 20 + "pt"</PaddingBottom>
-                            <PaddingTop >=Len({description}) / 20 + "pt"</PaddingTop>
+                            <PaddingBottom>=Len({description}) / 20 + "pt"</PaddingBottom>
+                            <PaddingTop>=Len({description}) / 20 + "pt"</PaddingTop>
                           </Style>
                           <Value>={description}</Value>
                           <CanGrow>true</CanGrow>
@@ -3947,8 +3952,9 @@ ORDER BY Category;</CommandText>
                             <VerticalAlign>Middle</VerticalAlign>
                             <Format>#,##0.00</Format>
                             <TextAlign>General</TextAlign>
-                            <PaddingBottom >3pt</PaddingBottom>
-                            <PaddingTop >3pt</PaddingTop>
+                            <PaddingBottom>3pt</PaddingBottom>
+                            <PaddingTop>3pt</PaddingTop>
+                            <PaddingLeft >2pt</PaddingLeft>
                           </Style>
                           <CanGrow>true</CanGrow>
                         </Textbox>
@@ -4055,6 +4061,7 @@ ORDER BY Category;</CommandText>
                             <BorderWidth />
                             <VerticalAlign>Middle</VerticalAlign>
                             <Format>#,##0.00</Format>
+                            <TextAlign >Right</TextAlign>
                           </Style>
                         </Textbox>
                       </ReportItems>
