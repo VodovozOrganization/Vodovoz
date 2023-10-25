@@ -133,22 +133,22 @@ public partial class MainWindow
 			case IconsSize.ExtraSmall:
 				toolbarMain.IconSize = IconSize.SmallToolbar;
 				tlbComplaints.IconSize = IconSize.SmallToolbar;
-				pacspanel.IconSize = IconSize.SmallToolbar;
+				pacspanel.SetIconSize(IconSize.SmallToolbar);
 				break;
 			case IconsSize.Small:
 				toolbarMain.IconSize = IconSize.LargeToolbar;
 				tlbComplaints.IconSize = IconSize.LargeToolbar;
-				pacspanel.IconSize = IconSize.LargeToolbar;
+				pacspanel.SetIconSize(IconSize.LargeToolbar);
 				break;
 			case IconsSize.Middle:
 				toolbarMain.IconSize = IconSize.Dnd;
 				tlbComplaints.IconSize = IconSize.Dnd;
-				pacspanel.IconSize = IconSize.Dnd;
+				pacspanel.SetIconSize(IconSize.Dnd);
 				break;
 			case IconsSize.Large:
 				toolbarMain.IconSize = IconSize.Dialog;
 				tlbComplaints.IconSize = IconSize.Dialog;
-				pacspanel.IconSize = IconSize.Dialog;
+				pacspanel.SetIconSize(IconSize.Dialog);
 				break;
 		}
 	}
