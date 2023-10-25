@@ -18,7 +18,9 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
+using static Vodovoz.ViewModels.Journals.JournalViewModels.Employees.FineTemplateJournalViewModel;
 
 namespace Vodovoz.ViewModels.Employees
 {
@@ -289,25 +291,20 @@ namespace Vodovoz.ViewModels.Employees
 			SelectReasonTemplateCommand = new DelegateCommand(
 				() =>
 				{
-					var fineTemplatesJournalViewModel = new SimpleEntityJournalViewModel<FineTemplate, FineTemplateViewModel>(x => x.Reason,
-						() => new FineTemplateViewModel(EntityUoWBuilder.ForCreate(), _uowFactory, CommonServices),
-						(node) => new FineTemplateViewModel(EntityUoWBuilder.ForOpen(node.Id), _uowFactory, CommonServices),
-						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-						CommonServices
-					);
-					fineTemplatesJournalViewModel.SelectionMode = JournalSelectionMode.Single;
-					fineTemplatesJournalViewModel.OnEntitySelectedResult += (sender, args) =>
+					var page = NavigationManager.OpenViewModel<FineTemplateJournalViewModel>(this);
+
+					page.ViewModel.SelectionMode = JournalSelectionMode.Single;
+					page.ViewModel.OnSelectResult += (sender, args) =>
 					{
-						var selectedNode = args.SelectedNodes.FirstOrDefault();
+						var selectedNode = args.SelectedObjects.FirstOrDefault();
 						if(selectedNode == null || Entity.FineType == FineTypes.FuelOverspending)
 						{
 							return;
 						}
-						var selectedFineTemplate = UoW.GetById<FineTemplate>(selectedNode.Id);
+						var selectedFineTemplate = UoW.GetById<FineTemplate>((selectedNode as FineTemplateJournalNode).Id);
 						Entity.FineReasonString = selectedFineTemplate.Reason;
 						Entity.TotalMoney = selectedFineTemplate.FineMoney;
 					};
-					TabParent.AddSlaveTab(this, fineTemplatesJournalViewModel);
 				},
 				() => true
 			);
