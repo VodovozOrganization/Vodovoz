@@ -4,12 +4,12 @@ using System;
 
 namespace Vodovoz.ViewModels.Counterparties.CounterpartyClassification
 {
-	public class CounterpartyClassificationCalculationSettingsViewModel : WindowDialogViewModelBase
+	public class CounterpartyClassificationCalculationEmailSettingsViewModel : WindowDialogViewModelBase
 	{
 		private string _userEmail;
 		private string _emailForReportCopy;
 
-		public CounterpartyClassificationCalculationSettingsViewModel(
+		public CounterpartyClassificationCalculationEmailSettingsViewModel(
 			INavigationManager navigation,
 			string userEmail
 			) : base(navigation)
