@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using DateTimeHelpers;
+using Org.BouncyCastle.Security;
 using QS.Dialog;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
@@ -14,12 +15,16 @@ using QSReport;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Parameters;
+using Vodovoz.Reports.Editing;
+using Vodovoz.Reports.Editing.Modifiers.CashFlowDetailReports;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
@@ -32,6 +37,11 @@ namespace Vodovoz.Reports
 		private readonly ICommonServices _commonServices;
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IFileDialogService _fileDialogService;
+
+		private const string _defaultReportFileName = "CashFlow.rdl";
+		private const string _organisationsReportFileName = "CashFlowOrganisations.rdl";
+		private const string _defaultDetailReportFileName = "CashFlowDetail.rdl";
+		private const string _organisationsDetailReportFileName = "CashFlowDetailOrganisations.rdl";
 
 		private bool _canGenerateCashReportsForOrganisations;
 
@@ -240,110 +250,7 @@ namespace Vodovoz.Reports
 
 		private ReportInfo GetReportInfo()
 		{
-			string ReportName;
-			switch(checkOrganisations.Active)
-			{
-				case true:
-					if(checkDetail.Active)
-					{
-						if(comboPart.SelectedItem.Equals(Gamma.Widgets.SpecialComboState.All))
-						{
-							ReportName = "Cash.CashFlowDetailOrganisations";
-						}
-						else if(comboPart.SelectedItem.Equals(ReportParts.IncomeAll))
-						{
-							ReportName = "Cash.CashFlowDetailIncomeAllOrganisations";
-						}
-						else if(comboPart.SelectedItem.Equals(ReportParts.Income))
-						{
-							ReportName = "Cash.CashFlowDetailIncomeOrganisations";
-						}
-						else if(comboPart.SelectedItem.Equals(ReportParts.IncomeReturn))
-						{
-							ReportName = "Cash.CashFlowDetailIncomeReturnOrganisations";
-						}
-						else if(comboPart.SelectedItem.Equals(ReportParts.ExpenseAll))
-						{
-							ReportName = "Cash.CashFlowDetailExpenseAllOrganisations";
-						}
-						else if(comboPart.SelectedItem.Equals(ReportParts.Expense))
-						{
-							ReportName = "Cash.CashFlowDetailExpenseOrganisations";
-						}
-						else if(comboPart.SelectedItem.Equals(ReportParts.Advance))
-						{
-							ReportName = "Cash.CashFlowDetailAdvanceOrganisations";
-						}
-						else if(comboPart.SelectedItem.Equals(ReportParts.AdvanceReport))
-						{
-							ReportName = "Cash.CashFlowDetailAdvanceReportOrganisations";
-						}
-						else if(comboPart.SelectedItem.Equals(ReportParts.UnclosedAdvance))
-						{
-							ReportName = "Cash.CashFlowDetailUnclosedAdvanceOrganisations";
-						}
-						else
-						{
-							throw new InvalidOperationException("Неизвестный раздел.");
-						}
-					}
-					else
-					{
-						ReportName = "Cash.CashFlowOrganisations";
-					}
-
-					break;
-				default:
-					if(checkDetail.Active)
-					{
-						if(comboPart.SelectedItem.Equals(Gamma.Widgets.SpecialComboState.All))
-						{
-							ReportName = "Cash.CashFlowDetail";
-						}
-						else if(comboPart.SelectedItem.Equals(ReportParts.IncomeAll))
-						{
-							ReportName = "Cash.CashFlowDetailIncomeAll";
-						}
-						else if(comboPart.SelectedItem.Equals(ReportParts.Income))
-						{
-							ReportName = "Cash.CashFlowDetailIncome";
-						}
-						else if(comboPart.SelectedItem.Equals(ReportParts.IncomeReturn))
-						{
-							ReportName = "Cash.CashFlowDetailIncomeReturn";
-						}
-						else if(comboPart.SelectedItem.Equals(ReportParts.ExpenseAll))
-						{
-							ReportName = "Cash.CashFlowDetailExpenseAll";
-						}
-						else if(comboPart.SelectedItem.Equals(ReportParts.Expense))
-						{
-							ReportName = "Cash.CashFlowDetailExpense";
-						}
-						else if(comboPart.SelectedItem.Equals(ReportParts.Advance))
-						{
-							ReportName = "Cash.CashFlowDetailAdvance";
-						}
-						else if(comboPart.SelectedItem.Equals(ReportParts.AdvanceReport))
-						{
-							ReportName = "Cash.CashFlowDetailAdvanceReport";
-						}
-						else if(comboPart.SelectedItem.Equals(ReportParts.UnclosedAdvance))
-						{
-							ReportName = "Cash.CashFlowDetailUnclosedAdvance";
-						}
-						else
-						{
-							throw new InvalidOperationException("Неизвестный раздел.");
-						}
-					}
-					else
-					{
-						ReportName = "Cash.CashFlow";
-					}
-
-					break;
-			}
+			var source = GetReportSource();
 
 			var inCat =
 				FinancialIncomeCategory is null
@@ -396,7 +303,7 @@ namespace Vodovoz.Reports
 
 			var reportInfo = new ReportInfo
 			{
-				Identifier = ReportName,
+				Source = source,
 				Parameters = new Dictionary<string, object> {
 					{ "StartDate", dateStart.DateOrNull.Value },
 					{ "EndDate", dateEnd.DateOrNull.Value },
@@ -429,6 +336,74 @@ namespace Vodovoz.Reports
 			reportInfo.Parameters.Add("cash_expense_category_transfer_id", cashCategoryParametersProvider.CashExpenseCategoryTransferId);
 
 			return reportInfo;
+		}
+
+		private string GetReportSource()
+		{
+			string source;
+
+			if(checkDetail.Active)
+			{
+				var reportFileName = checkOrganisations.Active
+					? _organisationsDetailReportFileName
+					: _defaultDetailReportFileName;
+
+				var modifier = new CashFlowDetailReportModifier();
+
+				if(comboPart.SelectedItem.Equals(Gamma.Widgets.SpecialComboState.All))
+				{
+					source = ModifyReport(reportFileName, null);
+				}
+				else
+				{
+					if(comboPart.SelectedItem is ReportParts reportPart)
+					{
+						modifier.Setup(reportPart);
+					}
+					else
+					{
+						throw new InvalidOperationException("Неизвестный раздел.");
+					}
+
+					source = ModifyReport(reportFileName, modifier);
+				}
+			}
+			else
+			{
+				var reportFileName = checkOrganisations.Active
+					? _organisationsReportFileName
+					: _defaultReportFileName;
+
+				source = ModifyReport(reportFileName, null);
+			}
+
+			return source;
+		}
+
+		private string ModifyReport(string reportFileName, ReportModifierBase modifier)
+		{
+			if(string.IsNullOrWhiteSpace(reportFileName))
+			{
+				throw new InvalidParameterException("Для загрузки шаблона отчета необходимо указанть имя файла");
+			}
+
+			var root = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+			var path = System.IO.Path.Combine(root, "Reports", "Cash", reportFileName);
+
+			using(ReportController reportController = new ReportController(path))
+			using(var reportStream = new MemoryStream())
+			{
+				reportController.AddModifier(modifier);
+				reportController.Modify();
+				reportController.Save(reportStream);
+
+				using(var reader = new StreamReader(reportStream))
+				{
+					reportStream.Position = 0;
+					var outputSource = reader.ReadToEnd();
+					return outputSource;
+				}
+			}
 		}
 
 		private void FineIds(IList<int> result, int categoryId)
