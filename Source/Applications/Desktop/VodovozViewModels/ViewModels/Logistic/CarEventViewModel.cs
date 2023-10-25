@@ -346,22 +346,14 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private void CreateAddFine()
 		{
-			var fineViewModel = new FineViewModel(
-						   EntityUoWBuilder.ForCreate(),
-						   QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-						   EmployeeService,
-						   EmployeeJournalFactory,
-						   CommonServices,
-						   NavigationManager
-					   )
-			{
-				FineReasonString = Entity.GetFineReason()
-			};
-			fineViewModel.EntitySaved += (sender, e) =>
+			var page = NavigationManager.OpenViewModel<FineViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate(), OpenPageOptions.AsSlave);
+
+			page.ViewModel.FineReasonString = Entity.GetFineReason();
+
+			page.ViewModel.EntitySaved += (sender, e) =>
 			{
 				Entity.AddFine(e.Entity as Fine);
 			};
-			TabParent.AddSlaveTab(this, fineViewModel);
 		}
 
 		private FinesJournalViewModel CreateFinesJournalViewModel()

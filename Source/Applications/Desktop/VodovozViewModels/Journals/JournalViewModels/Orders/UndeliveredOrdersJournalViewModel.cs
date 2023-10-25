@@ -704,19 +704,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 							return;
 						}
 
-						FineViewModel fineViewModel = new FineViewModel(
-							EntityUoWBuilder.ForCreate(),
-							UnitOfWorkFactory,
-							_employeeService,
-							_driverEmployeeJournalFactory,
-							_commonServices,
-							NavigationManager
-						);
+						var page = NavigationManager.OpenViewModel<FineViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate(), OpenPageOptions.AsSlave);
 
-						var undeliveredOrder = UoW.GetById<UndeliveredOrder>(selectedNode.Id);
-						fineViewModel.UndeliveredOrder = undeliveredOrder;
-						fineViewModel.RouteList = new RouteListItemRepository().GetRouteListItemForOrder(UoW, undeliveredOrder.OldOrder)?.RouteList;
-						TabParent.AddSlaveTab(this, fineViewModel);
+						var undeliveredOrder = page.ViewModel.UoW.GetById<UndeliveredOrder>(selectedNode.Id);
+						page.ViewModel.UndeliveredOrder = undeliveredOrder;
+						page.ViewModel.RouteList = new RouteListItemRepository().GetRouteListItemForOrder(page.ViewModel.UoW, undeliveredOrder.OldOrder)?.RouteList;
 					}
 				)
 			);

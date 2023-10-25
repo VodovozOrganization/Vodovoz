@@ -499,20 +499,13 @@ namespace Vodovoz.ViewModels.Complaints
 			AddFineCommand = new DelegateCommand<ITdiTab>(
 				t =>
 				{
-					FineViewModel fineViewModel = new FineViewModel(
-						EntityUoWBuilder.ForCreate(),
-						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-						_employeeService,
-						EmployeeJournalFactory,
-						CommonServices,
-						NavigationManager);
+					var page = NavigationManager.OpenViewModel<FineViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate(), OpenPageOptions.AsSlave);
 
-					fineViewModel.FineReasonString = Entity.GetFineReason();
-					fineViewModel.EntitySaved += (sender, e) =>
+					page.ViewModel.FineReasonString = Entity.GetFineReason();
+					page.ViewModel.EntitySaved += (sender, e) =>
 					{
 						Entity.AddFine(e.Entity as Fine);
 					};
-					t.TabParent.AddSlaveTab(t, fineViewModel);
 				},
 				t => CanAddFine
 			);

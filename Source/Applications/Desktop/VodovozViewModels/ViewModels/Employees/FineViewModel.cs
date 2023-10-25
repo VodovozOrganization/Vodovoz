@@ -1,4 +1,5 @@
-﻿using Gamma.Utilities;
+using Autofac;
+using Gamma.Utilities;
 using QS.Commands;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -8,6 +9,7 @@ using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using System;
 using System.Linq;
@@ -29,6 +31,7 @@ namespace Vodovoz.ViewModels.Employees
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IEmployeeService _employeeService;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
+		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IEntitySelectorFactory _employeeSelectorFactory;
 
 		private Employee _currentEmployee;
@@ -39,8 +42,9 @@ namespace Vodovoz.ViewModels.Employees
 			IEmployeeService employeeService,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICommonServices commonServices,
-			INavigationManager navigationManager)
-			: base(uowBuilder, uowFactory, commonServices, navigationManager)
+			INavigationManager navigationManager,
+			ILifetimeScope lifetimeScope
+		) : base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
 			if(navigationManager is null)
 			{
@@ -50,9 +54,12 @@ namespace Vodovoz.ViewModels.Employees
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_employeeSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 			CreateCommands();
 			ConfigureEntityPropertyChanges();
+
+			RouteListViewModel = BuildRouteListEntityViewModel();
 		}
 
 		private void ConfigureEntityPropertyChanges()
@@ -178,6 +185,22 @@ namespace Vodovoz.ViewModels.Employees
 				Entity.LitersOverspending = value;
 				CalculateMoneyFromLiters();
 			}
+		}
+
+		public IEntityEntryViewModel RouteListViewModel { get; }
+
+		private IEntityEntryViewModel BuildRouteListEntityViewModel()
+		{
+			var routeListEntryViewModelBuilder = new CommonEEVMBuilderFactory<Fine>(this, Entity, UoW, NavigationManager, _lifetimeScope);
+
+			var viewModel = routeListEntryViewModelBuilder
+				.ForProperty(x => x.RouteList)
+				.UseViewModelJournalAndAutocompleter<RouteListJournalViewModel>()
+				.Finish();
+
+			viewModel.IsEditable = CanEdit;
+
+			return viewModel;
 		}
 
 		private void SetDefaultReason()

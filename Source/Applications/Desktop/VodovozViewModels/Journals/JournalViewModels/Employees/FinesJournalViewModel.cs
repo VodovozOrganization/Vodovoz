@@ -202,7 +202,8 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 			_employeeService,
 			_employeeJournalFactory,
 			_commonServices,
-			NavigationManager
+			NavigationManager,
+			_lifetimeScope
 		);
 
 		protected override Func<FineJournalNode, FineViewModel> OpenDialogFunction => (node) => new FineViewModel(
@@ -211,7 +212,8 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 			_employeeService,
 			_employeeJournalFactory,
 			_commonServices,
-			NavigationManager
+			NavigationManager,
+			_lifetimeScope
 		);
 	}
 }

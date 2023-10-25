@@ -183,35 +183,25 @@ namespace Vodovoz.ViewModels.Logistic
 		private DelegateCommand createFineCommand;
 		public DelegateCommand CreateFineCommand => createFineCommand ?? (createFineCommand = new DelegateCommand(
 			() => {
-				
-				var fineViewModel = new FineViewModel(
-					EntityUoWBuilder.ForCreate(),
-					QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-					_employeeService,
-					_employeeJournalFactory,
-					CommonServices,
-					NavigationManager
-				);
+				var page = NavigationManager.OpenViewModel<FineViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate(), OpenPageOptions.AsSlave);
 
-				fineViewModel.RouteList = SelectedItem.RouteList;
+				page.ViewModel.RouteList = SelectedItem.RouteList;
 
 				var undeliveredOrder = GetUndeliveredOrder();
 
 				if (undeliveredOrder != null)
 				{
-					fineViewModel.UndeliveredOrder = undeliveredOrder;
+					page.ViewModel.UndeliveredOrder = undeliveredOrder;
 				}
 
 				if(SelectedItem.CalculateTimeLateArrival() != null)
-					fineViewModel.FineReasonString = $"Опоздание по заказу №{SelectedItem.Order.Id} от {SelectedItem.Order.DeliveryDate:d}";
+					page.ViewModel.FineReasonString = $"Опоздание по заказу №{SelectedItem.Order.Id} от {SelectedItem.Order.DeliveryDate:d}";
 
-				fineViewModel.EntitySaved += (sender, args) =>
+				page.ViewModel.EntitySaved += (sender, args) =>
 				{
 					SelectedItem.AddFine(args.Entity as Fine);
 					UpdateTreeAddresses?.Invoke();
 				}; 
-				
-				TabParent.AddSlaveTab(this, fineViewModel);
 			}, () => SelectedItem != null
 		));
 		

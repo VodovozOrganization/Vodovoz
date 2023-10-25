@@ -44,12 +44,8 @@ namespace Vodovoz.Views.Employees
 
 			var filterRouteList = new RouteListsFilter(ViewModel.UoW);
 			filterRouteList.SetFilterDates(DateTime.Today.AddDays(-7), DateTime.Today.AddDays(1));
-			yentryreferenceRouteList.RepresentationModel = new ViewModel.RouteListsVM(filterRouteList);
-			yentryreferenceRouteList.Binding
-				.AddSource(ViewModel)
-				.AddBinding(vm => vm.RouteList, w => w.Subject)
-				.AddBinding(vm => vm.CanEdit, w => w.Sensitive)
-				.InitializeFromSource();
+
+			entryRouteList.ViewModel = ViewModel.RouteListViewModel;
 
 			ylabelDate.Binding
 				.AddFuncBinding(ViewModel.Entity, e => e.Date.ToString("D"), w => w.LabelProp)

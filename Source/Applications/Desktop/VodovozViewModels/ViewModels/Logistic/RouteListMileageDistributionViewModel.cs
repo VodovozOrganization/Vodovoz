@@ -296,20 +296,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public DelegateCommand<RouteListMileageDistributionNode> AcceptFineCommand =>
 			_acceptFineCommand ?? (_acceptFineCommand = new DelegateCommand<RouteListMileageDistributionNode>((selectedItem) =>
 				{
-					var fineViewModel = new FineViewModel(
-						EntityUoWBuilder.ForCreate(),
-						UnitOfWorkFactory,
-						_employeeService,
-						_employeeJournalFactory,
-						CommonServices,
-						NavigationManager
-					)
-					{
-						RouteList = selectedItem.RouteList,
-						FineReasonString = "Перерасход топлива"
-					};
+					var page = NavigationManager.OpenViewModel<FineViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate(), OpenPageOptions.AsSlave);
 
-					TabParent.AddSlaveTab(this, fineViewModel);
+					page.ViewModel.RouteList = selectedItem.RouteList;
+					page.ViewModel.FineReasonString = "Перерасход топлива";
 				}
 			));
 
