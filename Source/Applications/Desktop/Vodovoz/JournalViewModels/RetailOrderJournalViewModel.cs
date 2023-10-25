@@ -1074,8 +1074,14 @@ namespace Vodovoz.JournalViewModels
 					CanCreateOrder,
 					selectedItems => true,
 					(selectedItems) => {
-						var selectedNodes = selectedItems.Cast<RetailOrderJournalNode>();
-						var order = UoW.GetById<VodovozOrder>(selectedNodes.FirstOrDefault().Id);
+						var selectedNode = selectedItems.Cast<RetailOrderJournalNode>().FirstOrDefault();
+
+						if(selectedNode is null)
+						{
+							return;
+						}
+						
+						var order = UoW.GetById<VodovozOrder>(selectedNode.Id);
 					
 						var dlg = new OrderDlg();
 						dlg.CopyLesserOrderFrom(order.Id);

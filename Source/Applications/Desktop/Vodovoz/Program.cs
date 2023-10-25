@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
 using Microsoft.Extensions.Configuration;
@@ -21,6 +21,7 @@ using QS.DomainModel.UoW;
 using QS.ErrorReporting;
 using QS.ErrorReporting.Handlers;
 using QS.Navigation;
+using QS.Osrm;
 using QS.Permissions;
 using QS.Project.DB;
 using QS.Project.Domain;
@@ -65,6 +66,7 @@ using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Mango;
 using Vodovoz.Infrastructure.Print;
@@ -638,7 +640,8 @@ namespace Vodovoz
 					services.AddSingleton<Startup>()
 							.AddScoped<IRouteListService, RouteListService>()
 							.AddScoped<RouteGeometryCalculator>()
-							;
+							.AddSingleton<OsrmClient>(sp => OsrmClientFactory.Instance)
+							.AddSingleton<IFastDeliveryDistanceChecker, DistanceCalculator>();
 				});
 	}
 }
