@@ -21,6 +21,6 @@ namespace DriverAPI.Library.Models
 		void SendSmsPaymentRequest(int orderId, string phoneNumber, int driverId);
 		Task<PayByQRResponseDTO> SendQRPaymentRequestAsync(int orderId, int driverId);
 		void UpdateBottlesByStockActualCount(int orderId, int bottlesByStockActualCount);
-		void UpdateOrderShipmentInfo(DateTime actionTime, Employee driver, ITrueMarkOrderScannedInfo completeOrderInfo);
+		void UpdateOrderShipmentInfo(DateTime actionTime, Employee driver, IDriverOrderShipmentInfo completeOrderInfo);
 	}
 }
