@@ -136,6 +136,10 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
+			createroutelistitemsview1.NavigationManager = Startup.MainWin.NavigationManager;
+			createroutelistitemsview1.LifetimeScope = _lifetimeScope;
+			createroutelistitemsview1.Container = this;
+
 			ynotebook1.ShowTabs = false;
 			radioBtnInformation.Toggled += OnInformationToggled;
 			radioBtnInformation.Active = true;

@@ -2,6 +2,7 @@
 using System.Linq;
 using Gtk;
 using NLog;
+using QS.ViewModels.Dialog;
 using QS.Views.GtkUI;
 using QS.Widgets;
 using Vodovoz.Domain.Client;
@@ -17,10 +18,11 @@ namespace Vodovoz.Filters.GtkViews
 	public partial class OrderFilterView : FilterViewBase<OrderJournalFilterViewModel>
 	{
 		private static readonly Logger _logger =  LogManager.GetCurrentClassLogger();
-		
+		private DialogViewModelBase _journal;
+
 		public OrderFilterView(OrderJournalFilterViewModel orderJournalFilterViewModel) : base(orderJournalFilterViewModel)
 		{
-			this.Build();
+			Build();
 			Configure();
 			InitializeRestrictions();
 		}
@@ -117,7 +119,6 @@ namespace Vodovoz.Filters.GtkViews
 			yenumСmbboxOrderPaymentStatus.ItemsEnum = typeof(OrderPaymentStatus);
 			yenumСmbboxOrderPaymentStatus.Binding.AddBinding(ViewModel, vm => vm.OrderPaymentStatus, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
-			
 
 			speciallistCmbOrganisations.ItemsList = ViewModel.Organisations;
 			speciallistCmbOrganisations.Binding.AddBinding(ViewModel, vm => vm.Organisation, w => w.SelectedItem).InitializeFromSource();

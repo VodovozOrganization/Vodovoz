@@ -173,7 +173,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private void InitializeOrderAutocompleteSelectorFactory(IOrderSelectorFactory orderSelectorFactory)
 		{
 			var orderFilter =
-				new OrderJournalFilterViewModel(CounterpartyJournalFactory, DeliveryPointJournalFactory, EmployeeJournalFactory);
+				new OrderJournalFilterViewModel(CounterpartyJournalFactory, DeliveryPointJournalFactory, _lifetimeScope);
 			
 			if(Entity.Counterparty != null)
 			{

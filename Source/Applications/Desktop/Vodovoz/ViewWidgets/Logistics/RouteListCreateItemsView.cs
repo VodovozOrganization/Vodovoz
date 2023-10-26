@@ -1,42 +1,38 @@
-﻿using Gamma.GtkWidgets;
+﻿using Autofac;
+using Gamma.GtkWidgets;
 using Gtk;
 using NHibernate.Criterion;
 using NLog;
 using QS.Dialog;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
+using QS.Tdi;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using QS.Dialog.GtkUI.FileDialog;
-using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.Undeliveries;
+using Vodovoz.Extensions;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Infrastructure.Services;
+using Vodovoz.Infrastructure;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Journals.JournalViewModels;
-using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Factories;
 using Order = Vodovoz.Domain.Orders.Order;
-using QS.Navigation;
-using Vodovoz.Infrastructure;
-using Vodovoz.Extensions;
 
 namespace Vodovoz
 {
@@ -61,7 +57,9 @@ namespace Vodovoz
 
 		private IList<RouteColumn> ColumnsInfo => _columnsInfo ?? _routeColumnRepository.ActiveColumns(RouteListUoW);
 
-		public INavigationManager NavigationManager { get; set; }
+		public ITdiTab Container { get; set; }
+		public ITdiCompatibilityNavigation NavigationManager { get; set; }
+		public ILifetimeScope LifetimeScope { get; set; }
 
 		private IUnitOfWorkGeneric<RouteList> routeListUoW;
 
@@ -314,7 +312,7 @@ namespace Vodovoz
 			var filter = new OrderJournalFilterViewModel(
 				new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
 				new DeliveryPointJournalFactory(),
-				new EmployeeJournalFactory(NavigationManager))
+				LifetimeScope)
 			{
 				ExceptIds = RouteListUoW.Root.Addresses.Select(address => address.Order.Id).ToArray()
 			};
@@ -349,7 +347,7 @@ namespace Vodovoz
 				x => x.ExcludeClosingDocumentDeliverySchedule = true
 			);
 
-			var page = NavigationManager.OpenViewModel<OrderForRouteListJournalViewModel>(null);
+			var page = NavigationManager.OpenViewModelOnTdi<OrderForRouteListJournalViewModel>(Container);
 
 			page.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
 

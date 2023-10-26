@@ -63,13 +63,12 @@ namespace Vodovoz.TempAdapters
 			var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
 			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 			var userRepository = new UserRepository();
-			var employeeJournalFactory = new EmployeeJournalFactory(_navigationManager);
 
 			return new EntityAutocompleteSelectorFactory<OrderJournalViewModel>(
 				typeof(Order),
 				() =>
 				{
-					var filter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, employeeJournalFactory);
+					var filter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, scope);
 					filter.SetAndRefilterAtOnce(
 						x => x.RestrictStatus = OrderStatus.WaitForPayment,
 						x => x.AllowPaymentTypes = new[] { PaymentType.Cash },
@@ -111,13 +110,12 @@ namespace Vodovoz.TempAdapters
 			var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
 			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 			var userRepository = new UserRepository();
-			var employeeJournalFactory = new EmployeeJournalFactory(_navigationManager);
 
 			return new EntityAutocompleteSelectorFactory<OrderJournalViewModel>(
 				typeof(Order),
 				() =>
 				{
-					var filter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, employeeJournalFactory);
+					var filter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, scope);
 					filter.SetAndRefilterAtOnce(
 						x => x.RestrictOnlySelfDelivery = true,
 						x => x.RestrictStatus = OrderStatus.OnLoading
@@ -156,7 +154,6 @@ namespace Vodovoz.TempAdapters
 			var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
 			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 			var userRepository = new UserRepository();
-			var employeeJournalFactory = new EmployeeJournalFactory(_navigationManager);
 
 			if(filterViewModel != null)
 			{
@@ -165,7 +162,7 @@ namespace Vodovoz.TempAdapters
 
 			return new OrderJournalViewModel(
 				_orderJournalFilter
-					?? new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, employeeJournalFactory),
+					?? new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, scope),
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				_navigationManager,

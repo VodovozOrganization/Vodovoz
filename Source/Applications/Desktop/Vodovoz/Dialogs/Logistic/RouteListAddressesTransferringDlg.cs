@@ -1,5 +1,7 @@
-﻿using Gamma.ColumnConfig;
+﻿using Autofac;
+using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
+using Gamma.GtkWidgets.Cells;
 using Gamma.Utilities;
 using Gtk;
 using QS.Commands;
@@ -14,7 +16,6 @@ using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Gamma.GtkWidgets.Cells;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Client;
@@ -26,7 +27,6 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
-using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
@@ -35,22 +35,23 @@ using Vodovoz.EntityRepositories.Profitability;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.Infrastructure;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Cash;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewWidgets.Logistics;
 using Order = Vodovoz.Domain.Orders.Order;
-using Vodovoz.Settings.Cash;
-using Vodovoz.Infrastructure;
 
 namespace Vodovoz
 {
 	public partial class RouteListAddressesTransferringDlg : TdiTabBase, ISingleUoWDialog
 	{
+		private readonly ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
 
@@ -999,7 +1000,7 @@ namespace Vodovoz
 	        var filter = new OrderJournalFilterViewModel(
                 new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
                 new DeliveryPointJournalFactory(),
-                new EmployeeJournalFactory(Startup.MainWin.NavigationManager))
+				_lifetimeScope)
             {
 				ExceptIds = RouteListItemsFrom.Select(f => f.RouteListItem.Order.Id)
 					.Concat(routeListToItems)

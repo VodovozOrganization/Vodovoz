@@ -1,6 +1,8 @@
-﻿using QS.Project.Filter;
+﻿using Autofac;
+using QS.Project.Filter;
 using QS.Project.Journal.EntitySelector;
 using QS.ViewModels.Control.EEVM;
+using QS.ViewModels.Dialog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -10,7 +12,6 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Sale;
-using Vodovoz.JournalViewModels;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
@@ -63,13 +64,14 @@ namespace Vodovoz.Filters.ViewModels
 		private bool _excludeClosingDocumentDeliverySchedule;
 		private string _counterpartyInn;
 		private readonly CompositeSearchViewModel _searchByAddressViewModel;
+		private readonly ILifetimeScope _lifetimeScope;
 
 		#endregion
 
 		public OrderJournalFilterViewModel(
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
-			IEmployeeJournalFactory employeeJournalFactory)
+			ILifetimeScope lifetimeScope)
 		{
 			_deliveryPointJournalFilterViewModel = new DeliveryPointJournalFilterViewModel();
 			deliveryPointJournalFactory?.SetDeliveryPointJournalFilterViewModel(_deliveryPointJournalFilterViewModel);
@@ -79,6 +81,7 @@ namespace Vodovoz.Filters.ViewModels
 			CounterpartySelectorFactory = counterpartyJournalFactory?.CreateCounterpartyAutocompleteSelectorFactory()
 										  ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_searchByAddressViewModel = new CompositeSearchViewModel();
 			_searchByAddressViewModel.OnSearch += OnSearchByAddressViewModel;
 		}
@@ -378,7 +381,7 @@ namespace Vodovoz.Filters.ViewModels
 
 		private GeoGroup _geographicGroup;
 		private string _counterpartyNameLike;
-		private OrderJournalViewModel _journal;
+		private DialogViewModelBase _journal;
 
 		/// <summary>
 		/// Часть города
@@ -490,16 +493,16 @@ namespace Vodovoz.Filters.ViewModels
 		}
 		public override bool IsShow { get; set; } = true;
 
-		public OrderJournalViewModel Journal
+		public DialogViewModelBase Journal
 		{
 			get => _journal;
-			internal set
+			set
 			{
 				if(_journal is null)
 				{
 					_journal = value;
 
-					AuthorViewModel = new CommonEEVMBuilderFactory<OrderJournalFilterViewModel>(_journal, this, _journal.UoW, _journal.NavigationManager, _journal.Scope)
+					AuthorViewModel = new CommonEEVMBuilderFactory<OrderJournalFilterViewModel>(_journal, this, UoW, _journal.NavigationManager, _lifetimeScope)
 						.ForProperty(x => x.Author)
 						.UseViewModelDialog<EmployeeViewModel>()
 						.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(filter =>
