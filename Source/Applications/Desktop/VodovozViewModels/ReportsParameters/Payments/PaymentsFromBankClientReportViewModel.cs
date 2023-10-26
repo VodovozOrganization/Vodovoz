@@ -32,6 +32,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Payments
 		public PaymentsFromBankClientReportViewModel(
 			RdlViewerViewModel rdlViewerViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
+			INavigationManager navigationManager,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IUserRepository userRepository,
 			ICommonServices commonServices,
@@ -40,6 +41,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Payments
 		{
 			_interactiveService = commonServices.InteractiveService;
 			_rdlViewerViewModel = rdlViewerViewModel ?? throw new ArgumentNullException(nameof(rdlViewerViewModel));
+			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 
 			Title = "Отчет по оплатам";
@@ -92,7 +94,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Payments
 
 		protected override Dictionary<string, object> Parameters => new Dictionary<string, object>
 		{
-			{ "counterparty_id", Counterparty?.Id },
+			{ "counterparty_id", Counterparty?.Id ?? 0 },
 			{ "subdivision_id", Subdivision?.Id },
 			{ "sort_date", SortByDate },
 			{ "date", DateTime.Today }

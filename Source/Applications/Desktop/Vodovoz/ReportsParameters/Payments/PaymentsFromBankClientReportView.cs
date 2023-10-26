@@ -20,6 +20,13 @@ namespace Vodovoz.ReportsParameters.Payments
 			entryCounterparty.Binding.AddBinding(ViewModel, vm => vm.Counterparty, w => w.Subject)
 				.InitializeFromSource();
 
+			checkAllSubdivisions.Binding
+				.AddBinding(ViewModel, vm => vm.AllSubdivisions, w => w.Active)
+				.InitializeFromSource();
+
+			checkSortDate.Binding.AddBinding(ViewModel, vm => vm.SortByDate, w => w.Active)
+				.InitializeFromSource();
+
 			entrySubdivision.ViewModel = ViewModel.SubdivisionViewModel;
 		}
 
