@@ -21,43 +21,42 @@
  */
 SELECT *
 FROM
-(
-    SELECT
-        drivers_info_and_wages.emplID as empl_id,
-        drivers_info_and_wages.frlDate as first_rl,
-        drivers_info_and_wages.emplName as empl_name,
-        drivers_info_and_wages.emplCategory as category,
-        drivers_info_and_wages.emplDriverOf as driver_of,
-        drivers_info_and_wages.works_withName as works_with_name,
-        -- Рабочие дни, МЛ и адреса
-        drivers_bottles_and_work_days.countWD as days_worked,
-        drivers_bottles_and_work_days.rlCount as route_lists_count,
-        drivers_bottles_and_work_days.addrCount as addresses_total,
-        ROUND(drivers_bottles_and_work_days.addrCount / drivers_bottles_and_work_days.countWD, 0) as addresses_avg,
-        -- Полные бутыли
-        IFNULL(drivers_bottles_and_work_days.delCount, 0) as filled_bottles,
-        ROUND(IFNULL(drivers_bottles_and_work_days.delCount, 0) / drivers_bottles_and_work_days.countWD, 0) as filled_avg,
-        -- Пустые бутыли
-        IFNULL(drivers_bottles_and_work_days.retCount, 0) as empty_bottles,
-        ROUND(IFNULL(drivers_bottles_and_work_days.retCount, 0) / drivers_bottles_and_work_days.countWD, 0) as empty_avg,
-        -- Расчет зп
-        ROUND(drivers_info_and_wages.moneySum, 0) as salary_fact,
-        ROUND(drivers_info_and_wages.moneySum / drivers_bottles_and_work_days.countWD, 0) as salary_fact_avg,
-        ROUND(drivers_info_and_wages.moneySum / drivers_bottles_and_work_days.countWD, 0) * 22 as estimated_salary
-    FROM
-    (
-        SELECT empl.id as emplID,
-        frl.date as frlDate,
-        CONCAT_WS('', CONCAT(empl.last_name, ' '), if(empl.name = '', '', CONCAT(LEFT(empl.name, 1), '.')),
-                 if(empl.patronymic = '', '', CONCAT(LEFT(empl.patronymic, 1), '.'))
-           ) as emplName,
-        (
-            CASE empl.category
+	(SELECT
+		drivers_info_and_wages.emplID AS empl_id,
+		drivers_info_and_wages.frlDate AS first_rl,
+		drivers_info_and_wages.emplName AS empl_name,
+		drivers_info_and_wages.emplCategory AS category,
+		drivers_info_and_wages.emplDriverOf AS driver_of,
+		drivers_info_and_wages.works_withName AS works_with_name,
+		-- Рабочие дни, МЛ и адреса
+		drivers_bottles_and_work_days.countWD AS days_worked,
+		drivers_bottles_and_work_days.rlCount AS route_lists_count,
+		drivers_bottles_and_work_days.addrCount AS addresses_total,
+		ROUND(drivers_bottles_and_work_days.addrCount / drivers_bottles_and_work_days.countWD, 0) AS addresses_avg,
+		-- Полные бутыли
+		IFNULL(drivers_bottles_and_work_days.delCount, 0) AS filled_bottles,
+		ROUND(IFNULL(drivers_bottles_and_work_days.delCount, 0) / drivers_bottles_and_work_days.countWD, 0) AS filled_avg,
+		-- Пустые бутыли
+		IFNULL(drivers_bottles_and_work_days.retCount, 0) AS empty_bottles,
+		ROUND(IFNULL(drivers_bottles_and_work_days.retCount, 0) / drivers_bottles_and_work_days.countWD, 0) AS empty_avg,
+		-- Расчет зп
+		ROUND(drivers_info_and_wages.moneySum, 0) AS salary_fact,
+		ROUND(drivers_info_and_wages.moneySum / drivers_bottles_and_work_days.countWD, 0) AS salary_fact_avg,
+		ROUND(drivers_info_and_wages.moneySum / drivers_bottles_and_work_days.countWD, 0) * 22 AS estimated_salary
+	FROM
+		(SELECT
+			empl.id AS emplID,
+			frl.date AS frlDate,
+			CONCAT_WS('', CONCAT(empl.last_name, ' '), IF(empl.name = '', '', CONCAT(LEFT(empl.name, 1), '.')),
+                 IF(empl.patronymic = '', '', CONCAT(LEFT(empl.patronymic, 1), '.'))
+           	) AS emplName,
+			(CASE
+				empl.category
             WHEN 'driver' THEN 'Вод.'
-            WHEN 'forwarder' THEN 'Эксп.'
-           END) as emplCategory,
-        IF(cm.id IS NOT NULL AND cv.id IS NOT NULL,
-          CONCAT(
+				WHEN 'forwarder' THEN 'Эксп.'
+			END) as emplCategory,
+			IF(cm.id IS NOT NULL AND cv.id IS NOT NULL,
+				CONCAT(
                   CASE cm.car_type_of_use
                       WHEN 'Largus' THEN 'Л'
                       WHEN 'Truck' THEN 'Ф'
@@ -69,9 +68,8 @@ FROM
                       WHEN 'Raskat' THEN 'Р'
                       WHEN 'Driver' THEN 'В'
                       ELSE 'Неизв.'
-                      END
-              ),
-          CONCAT(
+                      END),
+				CONCAT(
                   CASE empl.driver_of_car_type_of_use
                       WHEN 'Largus' THEN 'Л'
                       WHEN 'Truck' THEN 'Ф'
@@ -85,252 +83,321 @@ FROM
                       WHEN 'Driver' THEN 'В'
                       WHEN NULL THEN '-'
                       ELSE 'Неизв.'
-                      END
-              )
+                      END)
            ) AS emplDriverOf,
-        CONCAT_WS('', CONCAT(works_with.last_name, ' '), IF(works_with.name = '', '', CONCAT(LEFT(works_with.name, 1), '.')),
+			CONCAT_WS('', CONCAT(works_with.last_name, ' '), IF(works_with.name = '', '', CONCAT(LEFT(works_with.name, 1), '.')),
                  IF(works_with.patronymic = '', '', CONCAT(LEFT(works_with.patronymic, 1), '.'))
-           ) as works_withName,
-        (
-            Select SUM(
-                IF(rl.`status` = 'Closed',
-                    wmo.money,
-                    (SELECT SUM(rla.driver_wage + rla.driver_wage_surcharge)
-                    FROM route_list_addresses rla
-                    WHERE rla.status IN ('Completed', 'EnRoute')
-                        and rla.route_list_id = rl.id
-                    GROUP BY rla.route_list_id)
-        ))) AS moneySum
-        FROM employees empl
-            LEFT JOIN
-        employees works_with ON works_with.id = empl.default_forwarder_id
-            INNER JOIN
-        route_lists rl ON rl.status &lt;&gt; 'New'
-            AND rl.date &gt;= @start_date AND rl.date &lt;= @end_date
-            AND rl.driver_id = empl.id
-            LEFT JOIN
-            route_lists frl ON frl.id = (SELECT rl1.id FROM route_lists AS rl1 WHERE empl.id = rl1.driver_id ORDER BY rl1.date limit 1)
-            LEFT JOIN
-        wages_movement_operations wmo ON wmo.id = rl.driver_wages_movement_operations_id
-            LEFT JOIN
-        cars c ON c.driver_id = empl.id
-            LEFT JOIN
-        car_models cm ON c.model_id = cm.id
-            LEFT JOIN
-        car_versions cv ON c.id = cv.car_id
-            AND cv.start_date &lt;= CURRENT_TIMESTAMP()
-            AND (cv.end_date IS NULL OR cv.end_date &gt;= CURRENT_TIMESTAMP())
-        WHERE
-            (
-                CASE
-                    WHEN @employee_id != '' AND @employee_category = 'forwarder' THEN empl.id = -1
-                    WHEN @employee_id != '' THEN empl.id = @employee_id
-                    ELSE TRUE
-                    END
-            )
-            AND
-            (
-                CASE 
-                    WHEN @employee_category = '' THEN empl.category IN ('driver')
-                    WHEN @employee_category = 'driver' AND @exclude_visiting_masters THEN empl.category = 'driver' AND !empl.visiting_master
-                    WHEN @employee_category = 'driver' AND !@exclude_visiting_masters THEN empl.category = 'driver'
-                    ELSE empl.id = -1
-                END
-            )
-            AND (@driver_of_car_own_type = '' OR empl.driver_of_car_own_type = @driver_of_car_own_type)
-            AND (@driver_of_car_type_of_use = '' AND empl.driver_of_car_type_of_use != 'Truck'
-                OR empl.driver_of_car_type_of_use = @driver_of_car_type_of_use)
-            AND (
-         			(0 IN (@include_car_models) OR (cm.id IN (@include_car_models)))
-						AND NOT (cm.id IN (@exclude_car_models))
-     			)
-        GROUP BY empl.id
+           ) AS works_withName,
+		   (SELECT
+				SUM(
+					IF(rl.`status` = 'Closed',
+						wmo.money,
+	                	(SELECT SUM(rla.driver_wage + rla.driver_wage_surcharge)
+		                 FROM route_list_addresses rla
+		                 WHERE rla.status IN ('Completed', 'EnRoute')
+	                    	AND rla.route_list_id = rl.id
+	                	GROUP BY rla.route_list_id)))
+    		) AS moneySum
+		FROM 
+			employees empl
+		LEFT JOIN
+        	employees works_with
+        	ON works_with.id = empl.default_forwarder_id
+		INNER JOIN
+        	route_lists rl
+        	ON rl.status &lt;&gt; 'New'
+			AND rl.date &gt;= @start_date
+			AND rl.date &lt;= @end_date
+			AND rl.driver_id = empl.id
+		LEFT JOIN
+            route_lists frl
+            ON frl.id = (
+				SELECT
+					rl1.id
+				FROM
+					route_lists AS rl1
+				WHERE
+					empl.id = rl1.driver_id
+				ORDER BY
+					rl1.date
+				limit 1)
+		LEFT JOIN
+        	wages_movement_operations wmo
+        	ON wmo.id = rl.driver_wages_movement_operations_id
+		LEFT JOIN
+			cars c
+			ON c.driver_id = empl.id
+		LEFT JOIN
+			car_models cm
+			ON c.model_id = cm.id
+		LEFT JOIN
+        	car_versions cv
+        	ON c.id = cv.car_id
+			AND cv.start_date &lt;= CURRENT_TIMESTAMP()
+			AND (cv.end_date IS NULL
+				OR cv.end_date &gt;= CURRENT_TIMESTAMP())
+		WHERE
+			(CASE
+				WHEN @employee_id != ''
+					AND @employee_category = 'forwarder' THEN empl.id = -1
+					WHEN @employee_id != '' THEN empl.id = @employee_id
+					ELSE TRUE
+				END)
+		AND
+        (CASE
+			WHEN @employee_category = '' THEN empl.category IN ('driver')
+			WHEN @employee_category = 'driver'
+				AND @exclude_visiting_masters THEN empl.category = 'driver'
+				AND ! empl.visiting_master
+				WHEN @employee_category = 'driver'
+				AND ! @exclude_visiting_masters THEN empl.category = 'driver'
+				ELSE empl.id = -1
+			END
+        )
+		AND (@driver_of_car_own_type = ''
+			OR empl.driver_of_car_own_type = @driver_of_car_own_type)
+		AND (@driver_of_car_type_of_use = ''
+			AND empl.driver_of_car_type_of_use != 'Truck'
+			OR empl.driver_of_car_type_of_use = @driver_of_car_type_of_use)
+		AND (
+     			(0 IN (@include_car_models)
+			OR (cm.id IN (@include_car_models)))
+			AND NOT (cm.id IN (@exclude_car_models)))
+		GROUP BY empl.id
         ) as drivers_info_and_wages
-    INNER JOIN
-    (
-        SELECT
-            T.*,
-            COUNT(DISTINCT  T.rl_id) as rlCount,
-            COUNT(T.rl_id) as addrCount,
-            SUM(IF(rl_status = 'Closed', bmo_delivered, orderBottles)) as delCount,
-            SUM(IF(rl_status = 'Closed', bmo_returned, o_bottles_return)) as retCount,
-            COUNT(DISTINCT (DAY(rl_date))) as countWD
-        FROM
-        (
-            SELECT
-                empl.id as emplID,
-                rl.id as rl_id,
-                rl.status as rl_status,
-                rl.date as rl_date,
-                bmo.delivered as bmo_delivered,
-                bmo.returned as bmo_returned,
-                o.bottles_return as o_bottles_return,
-                (
-                    Select SUM(oi.count)
-                    From order_items oi
-                        Join nomenclature n on n.id = oi.nomenclature_id and n.category = 'water' and !n.is_disposable_tare
-                    where oi.order_id = o.id) as orderBottles
-            FROM employees empl
-                INNER JOIN
-            route_lists rl ON rl.status &lt;&gt; 'New'
-                AND rl.date &gt;= @start_date AND rl.date &lt;= @end_date
-                AND rl.driver_id = empl.id
-                INNER JOIN
-            route_list_addresses rla ON rla.route_list_id = rl.id AND rla.status IN ('Completed', 'EnRoute')
-                LEFT JOIN
-            bottles_movement_operations bmo ON bmo.order_id = rla.order_id
-                LEFT JOIN
-            orders o ON o.id = rla.order_id
-            WHERE
-                (   
-                    CASE 
-                        WHEN @employee_id != '' AND @employee_category = 'forwarder' THEN empl.id = -1
-                        WHEN @employee_id != '' THEN empl.id = @employee_id
-                        ELSE TRUE
-                    END
-                )
-                AND
-                (
-                    CASE
-                        WHEN @employee_category = '' THEN empl.category IN ('driver')
-                        WHEN @employee_category = 'driver' AND @exclude_visiting_masters THEN empl.category = 'driver' AND !empl.visiting_master
-                        WHEN @employee_category = 'driver' AND !@exclude_visiting_masters THEN empl.category = 'driver'
-                        ELSE empl.id = -1
-                    END
-                )
-                AND (@driver_of_car_own_type = '' OR empl.driver_of_car_own_type = @driver_of_car_own_type)
-                AND (@driver_of_car_type_of_use = '' AND empl.driver_of_car_type_of_use != 'Truck'
-                    OR empl.driver_of_car_type_of_use = @driver_of_car_type_of_use)
-        ) as T GROUP BY emplID
-    ) as drivers_bottles_and_work_days on drivers_bottles_and_work_days.emplID = drivers_info_and_wages.emplID
-          
-    UNION
-
-    SELECT
-        forwarders_info_and_wages.emplID as empl_id,
-        forwarders_info_and_wages.frlDate as first_rl,
-        forwarders_info_and_wages.emplName as empl_name,
-        forwarders_info_and_wages.emplCategory as category,
-        forwarders_info_and_wages.emplDriverOf as driver_of,
-        forwarders_info_and_wages.works_withName as works_with_name,
-        -- Рабочие дни, МЛ и адреса
-        forwarders_bottles_and_work_days.countWD as days_worked,
-        forwarders_bottles_and_work_days.rlCount as route_lists_count,
-        forwarders_bottles_and_work_days.addrCount as addresses_total,
-        ROUND(forwarders_bottles_and_work_days.addrCount / forwarders_bottles_and_work_days.countWD, 0) as addresses_avg,
-        -- Полные бутыли
-        IFNULL(forwarders_bottles_and_work_days.delCount, 0) as filled_bottles,
-        ROUND(IFNULL(forwarders_bottles_and_work_days.delCount, 0) / forwarders_bottles_and_work_days.countWD, 0) as filled_avg,
-        -- Пустые бутыли
-        IFNULL(forwarders_bottles_and_work_days.retCount, 0)  as empty_bottles,
-        ROUND(IFNULL(forwarders_bottles_and_work_days.retCount, 0) / forwarders_bottles_and_work_days.countWD, 0) as empty_avg,
-        -- Расчет зп
-        #master.planDriverSum,
-        ROUND(forwarders_info_and_wages.moneySum, 0) as salary_fact,
-        ROUND(forwarders_info_and_wages.moneySum / forwarders_bottles_and_work_days.countWD, 0) as salary_fact_avg,
-        ROUND(forwarders_info_and_wages.moneySum / forwarders_bottles_and_work_days.countWD, 0) * 22 as estimated_salary
-    FROM
-    (
-        SELECT
-            empl.id as emplID,
-            frl.date as frlDate,
-            CONCAT_WS('', CONCAT(empl.last_name, ' '), if(empl.name = '', '', CONCAT(LEFT(empl.name, 1), '.')),
-                     if(empl.patronymic = '', '', CONCAT(LEFT(empl.patronymic, 1), '.'))
-               ) as emplName,
-            (CASE empl.category
-                WHEN 'driver' THEN 'Вод.'
-                WHEN 'forwarder' THEN 'Эксп.'
-               END) as emplCategory,
-            '-' AS emplDriverOf,
-            CONCAT_WS('', CONCAT(works_with.last_name, ' '), IF(works_with.name = '', '', CONCAT(LEFT(works_with.name, 1), '.')),
-                     IF(works_with.patronymic = '', '', CONCAT(LEFT(works_with.patronymic, 1), '.'))
-               ) as works_withName,
-            (Select SUM(IF(rl.`status` = 'Closed',
-                          wmo.money,
-                          (SELECT SUM(rla.forwarder_wage) AS planForwarderSum
-                           FROM route_list_addresses rla
-                           WHERE rla.status IN ('Completed', 'EnRoute')
-                             and rla.route_list_id = rl.id
-                           GROUP BY rla.route_list_id)
-               ))) AS moneySum
-        FROM employees empl
-            LEFT JOIN
-        employees works_with ON works_with.default_forwarder_id = empl.id
-            INNER JOIN
-        route_lists rl ON rl.status &lt;&gt; 'New'
-            AND rl.date &gt;= @start_date AND rl.date &lt;= @end_date
-            AND rl.forwarder_id = empl.id
-            LEFT JOIN
-        route_lists frl ON frl.id = (SELECT rl1.id FROM route_lists AS rl1 WHERE empl.id = rl1.forwarder_id ORDER BY rl1.date limit 1)
-            LEFT JOIN
-        wages_movement_operations wmo ON wmo.id = rl.forwarder_wages_movement_operations_id
-        WHERE
-            (
-                CASE
-                    WHEN @employee_id != '' AND @employee_category = 'driver' THEN empl.id = -1
-                    WHEN @employee_id != '' THEN empl.id = @employee_id
-                    ELSE TRUE
-                END
+	INNER JOIN
+    (SELECT
+		T.*,
+		COUNT(DISTINCT T.rl_id) AS rlCount,
+		COUNT(T.rl_id) AS addrCount,
+		SUM(IF(rl_status = 'Closed', bmo_delivered, orderBottles)) AS delCount,
+		SUM(IF(rl_status = 'Closed', bmo_returned, o_bottles_return)) AS retCount,
+		COUNT(DISTINCT (DAY(rl_date))) AS countWD
+	 FROM
+		(SELECT
+			empl.id AS emplID,
+			rl.id AS rl_id,
+			rl.status AS rl_status,
+			rl.date AS rl_date,
+			bmo.delivered AS bmo_delivered,
+			bmo.returned AS bmo_returned,
+			o.bottles_return AS o_bottles_return,
+			(SELECT
+				SUM(oi.count)
+			FROM
+				order_items oi
+			JOIN nomenclature n ON
+				n.id = oi.nomenclature_id
+				and n.category = 'water'
+				and ! n.is_disposable_tare
+			WHERE
+				oi.order_id = o.id) AS orderBottles
+		FROM
+			employees empl
+		INNER JOIN
+        	route_lists rl
+        	ON rl.status &lt;&gt; 'New'
+			AND rl.date &gt;= @start_date
+			AND rl.date &lt;= @end_date
+			AND rl.driver_id = empl.id
+		INNER JOIN
+        	route_list_addresses rla
+        	ON rla.route_list_id = rl.id
+			AND rla.status IN ('Completed', 'EnRoute')
+		LEFT JOIN
+       		bottles_movement_operations bmo
+        	ON bmo.order_id = rla.order_id
+		LEFT JOIN
+        	orders o
+        	ON o.id = rla.order_id
+		WHERE
+			(CASE
+				WHEN @employee_id != ''
+					AND @employee_category = 'forwarder' THEN empl.id = -1
+					WHEN @employee_id != '' THEN empl.id = @employee_id
+					ELSE TRUE
+				END
             )
-            AND
+			AND
+            (CASE
+				WHEN @employee_category = '' THEN empl.category IN ('driver')
+				WHEN @employee_category = 'driver'
+					AND @exclude_visiting_masters THEN empl.category = 'driver'
+					AND ! empl.visiting_master
+					WHEN @employee_category = 'driver'
+					AND ! @exclude_visiting_masters THEN empl.category = 'driver'
+					ELSE empl.id = -1
+				END
+            )
+			AND (@driver_of_car_own_type = ''
+				OR empl.driver_of_car_own_type = @driver_of_car_own_type)
+			AND (@driver_of_car_type_of_use = ''
+				AND empl.driver_of_car_type_of_use != 'Truck'
+				OR empl.driver_of_car_type_of_use = @driver_of_car_type_of_use)
+    	) AS T
+	GROUP BY
+		emplID
+	) AS drivers_bottles_and_work_days
+		ON drivers_bottles_and_work_days.emplID = drivers_info_and_wages.emplID
+	UNION
+	SELECT
+		forwarders_info_and_wages.emplID AS empl_id,
+		forwarders_info_and_wages.frlDate AS first_rl,
+		forwarders_info_and_wages.emplName AS empl_name,
+		forwarders_info_and_wages.emplCategory AS category,
+		forwarders_info_and_wages.emplDriverOf AS driver_of,
+		forwarders_info_and_wages.works_withName AS works_with_name,
+		-- Рабочие дни, МЛ и адреса
+		forwarders_bottles_and_work_days.countWD AS days_worked,
+		forwarders_bottles_and_work_days.rlCount AS route_lists_count,
+		forwarders_bottles_and_work_days.addrCount AS addresses_total,
+		ROUND(forwarders_bottles_and_work_days.addrCount / forwarders_bottles_and_work_days.countWD, 0) AS addresses_avg,
+		-- Полные бутыли
+		IFNULL(forwarders_bottles_and_work_days.delCount, 0) AS filled_bottles,
+		ROUND(IFNULL(forwarders_bottles_and_work_days.delCount, 0) / forwarders_bottles_and_work_days.countWD, 0) AS filled_avg,
+		-- Пустые бутыли
+		IFNULL(forwarders_bottles_and_work_days.retCount, 0) AS empty_bottles,
+		ROUND(IFNULL(forwarders_bottles_and_work_days.retCount, 0) / forwarders_bottles_and_work_days.countWD, 0) AS empty_avg,
+		-- Расчет зп
+		#master.planDriverSum,
+		ROUND(forwarders_info_and_wages.moneySum, 0) AS salary_fact,
+		ROUND(forwarders_info_and_wages.moneySum / forwarders_bottles_and_work_days.countWD, 0) AS salary_fact_avg,
+		ROUND(forwarders_info_and_wages.moneySum / forwarders_bottles_and_work_days.countWD, 0) * 22 AS estimated_salary
+	FROM
+		(SELECT
+			empl.id AS emplID,
+			frl.date AS frlDate,
+			CONCAT_WS('', CONCAT(empl.last_name, ' '), IF(empl.name = '', '', CONCAT(LEFT(empl.name, 1), '.')),
+               IF(empl.patronymic = '', '', CONCAT(LEFT(empl.patronymic, 1), '.'))
+            ) AS emplName,
+			(CASE
+				empl.category
+                WHEN 'driver' THEN 'Вод.'
+				WHEN 'forwarder' THEN 'Эксп.'
+				END
+			) AS emplCategory,
+			'-' AS emplDriverOf,
+			CONCAT_WS('', CONCAT(works_with.last_name, ' '), IF(works_with.name = '', '', CONCAT(LEFT(works_with.name, 1), '.')),
+                     IF(works_with.patronymic = '', '', CONCAT(LEFT(works_with.patronymic, 1), '.'))
+            ) AS works_withName,
+			(SELECT
+				SUM(IF(rl.`status` = 'Closed',
+                      wmo.money,
+                      (SELECT SUM(rla.forwarder_wage) AS planForwarderSum
+                       FROM route_list_addresses rla
+                       WHERE rla.status IN ('Completed', 'EnRoute')
+                         and rla.route_list_id = rl.id
+                       GROUP BY rla.route_list_id)))
+            ) AS moneySum
+		FROM
+			employees empl
+		LEFT JOIN
+        	employees works_with
+        	ON works_with.default_forwarder_id = empl.id
+		INNER JOIN
+        	route_lists rl
+        	ON rl.status &lt;&gt; 'New'
+			AND rl.date &gt;= @start_date
+			AND rl.date &lt;= @end_date
+			AND rl.forwarder_id = empl.id
+		LEFT JOIN
+        	route_lists frl
+        	ON frl.id = (
+				SELECT
+					rl1.id
+				FROM
+					route_lists AS rl1
+				WHERE
+					empl.id = rl1.forwarder_id
+				ORDER BY
+					rl1.date
+				limit 1)
+		LEFT JOIN
+        	wages_movement_operations wmo
+        	ON wmo.id = rl.forwarder_wages_movement_operations_id
+		WHERE
+			(CASE
+				WHEN @employee_id != ''
+					AND @employee_category = 'driver' THEN empl.id = -1
+					WHEN @employee_id != '' THEN empl.id = @employee_id
+					ELSE TRUE
+				END
+            )
+			AND
             (
                 IF(@employee_category IN ('', 'forwarder'), empl.category = 'forwarder', empl.id = -1)
             )
-        GROUP BY empl.id
+		GROUP BY
+			empl.id
     ) as forwarders_info_and_wages
-    INNER JOIN
+	INNER JOIN
     (
-        SELECT
-            T.*,
-            COUNT(DISTINCT  T.rl_id) as rlCount,
-            COUNT(T.rl_id) as addrCount,
-            SUM(IF(rl_status = 'Closed', bmo_delivered, orderBottles)) as delCount,
-            SUM(IF(rl_status = 'Closed', bmo_returned, o_bottles_return)) as retCount,
-            COUNT(DISTINCT (DAY(rl_date))) as countWD
-        FROM
-        (
-            SELECT
-                empl.id as emplID,
-                rl.id as rl_id,
-                rl.status as rl_status,
-                rl.date as rl_date,
-                bmo.delivered as bmo_delivered,
-                bmo.returned as bmo_returned,
-                o.bottles_return as o_bottles_return,
-                (
-                    Select SUM(oi.count)
-                    From order_items oi
-                        Join nomenclature n on n.id = oi.nomenclature_id and n.category = 'water' and !n.is_disposable_tare
-                    where oi.order_id = o.id
-                ) as orderBottles
-            FROM employees empl
-                INNER JOIN
-            route_lists rl ON rl.status &lt;&gt; 'New'
-                AND rl.date &gt;= @start_date AND rl.date &lt;= @end_date
-                AND rl.forwarder_id = empl.id
-                INNER JOIN
-            route_list_addresses rla ON rla.route_list_id = rl.id AND rla.status IN ('Completed', 'EnRoute')
-                LEFT JOIN
-            bottles_movement_operations bmo ON bmo.order_id = rla.order_id
-                LEFT JOIN
-            orders o ON o.id = rla.order_id
-            WHERE
-                (
-                    CASE
-                        WHEN @employee_id != '' AND @employee_category = 'driver' THEN empl.id = -1
-                        WHEN @employee_id != '' THEN empl.id = @employee_id
-                        ELSE TRUE
-                    END
+		SELECT
+			T.*,
+			COUNT(DISTINCT T.rl_id) AS rlCount,
+			COUNT(T.rl_id) AS addrCount,
+			SUM(IF(rl_status = 'Closed', bmo_delivered, orderBottles)) AS delCount,
+			SUM(IF(rl_status = 'Closed', bmo_returned, o_bottles_return)) AS retCount,
+			COUNT(DISTINCT (DAY(rl_date))) AS countWD
+		FROM
+			(SELECT
+				empl.id AS emplID,
+				rl.id AS rl_id,
+				rl.status AS rl_status,
+				rl.date AS rl_date,
+				bmo.delivered AS bmo_delivered,
+				bmo.returned AS bmo_returned,
+				o.bottles_return AS o_bottles_return,
+				(SELECT
+						SUM(oi.count)
+					FROM
+								order_items oi
+					JOIN
+						nomenclature n
+						ON n.id = oi.nomenclature_id
+						AND n.category = 'water'
+						AND ! n.is_disposable_tare
+					WHERE
+						oi.order_id = o.id
+	            ) AS orderBottles
+			FROM
+				employees empl
+			INNER JOIN
+            	route_lists rl
+            	ON rl.status &lt;&gt; 'New'
+				AND rl.date &gt;= @start_date
+				AND rl.date &lt;= @end_date
+				AND rl.forwarder_id = empl.id
+			INNER JOIN
+            	route_list_addresses rla
+            	ON rla.route_list_id = rl.id
+				AND rla.status IN ('Completed', 'EnRoute')
+			LEFT JOIN
+            	bottles_movement_operations bmo
+            	ON bmo.order_id = rla.order_id
+			LEFT JOIN
+            	orders o
+            	ON o.id = rla.order_id
+			WHERE
+				(CASE
+					WHEN @employee_id != ''
+						AND @employee_category = 'driver' THEN empl.id = -1
+						WHEN @employee_id != '' THEN empl.id = @employee_id
+						ELSE TRUE
+					END
                 )
-                AND
+				AND
                 (
                     IF(@employee_category IN ('', 'forwarder'), empl.category = 'forwarder', empl.id = -1)
                 )
-       ) as T
-    GROUP BY emplID
-    ) as forwarders_bottles_and_work_days on forwarders_bottles_and_work_days.emplID = forwarders_info_and_wages.emplID
-) as T
-ORDER BY T.empl_name;</CommandText>
+       ) AS T
+		GROUP BY
+			emplID
+    ) AS forwarders_bottles_and_work_days
+	ON forwarders_bottles_and_work_days.emplID = forwarders_info_and_wages.emplID
+) AS T
+ORDER BY
+	T.empl_name;</CommandText>
         <QueryParameters>
           <QueryParameter Name="@start_date">
             <Value>={?start_date}</Value>
@@ -1473,7 +1540,7 @@ ORDER BY T.empl_name;</CommandText>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
