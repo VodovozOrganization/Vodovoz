@@ -6,11 +6,12 @@ using QS.ViewModels.Control.EEVM;
 using QSReport;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.ReportsParameters
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class SetBillsReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		public SetBillsReport(IUnitOfWorkFactory unitOfWorkFactory)
@@ -23,7 +24,6 @@ namespace Vodovoz.ReportsParameters
 			daterangepickerOrderCreation.EndDate = DateTime.Now;
 			ybuttonCreateReport.Clicked += (sender, e) => { OnUpdate(true); };
 			ybuttonCreateReport.TooltipText = $"Формирует отчет по заказам в статусе '{OrderStatus.WaitForPayment.GetEnumTitle()}'";
-
 		}
 
 		public IEntityEntryViewModel SubdivisionViewModel { get; private set; }
