@@ -126,7 +126,7 @@ FROM
         	ON wmo.id = rl.driver_wages_movement_operations_id
 		LEFT JOIN
 			cars c
-			ON c.driver_id = empl.id
+			ON c.id = rl.car_id
 		LEFT JOIN
 			car_models cm
 			ON c.model_id = cm.id
@@ -160,7 +160,7 @@ FROM
 			AND empl.driver_of_car_type_of_use != 'Truck'
 			OR empl.driver_of_car_type_of_use = @driver_of_car_type_of_use)
 		AND (
-     			(0 IN (@include_car_models)
+     		(0 IN (@include_car_models)
 			OR (cm.id IN (@include_car_models)))
 			AND NOT (cm.id IN (@exclude_car_models)))
 		GROUP BY empl.id
