@@ -3,10 +3,6 @@ using DriverAPI.Library.Models;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 using Vodovoz.Application;
-using Deprecated3RouteListModel = DriverAPI.Library.Deprecated3.Models.RouteListModel;
-using IDeprecated3RouteListModel = DriverAPI.Library.Deprecated3.Models.IRouteListModel;
-using IRouteListModel = DriverAPI.Library.Models.IRouteListModel;
-using RouteListModel = DriverAPI.Library.Models.RouteListModel;
 
 namespace DriverAPI.Library
 {
@@ -47,8 +43,6 @@ namespace DriverAPI.Library
 			services.AddScoped<ISmsPaymentModel, SmsPaymentModel>();
 			services.AddScoped<IDriverComplaintModel, DriverComplaintModel>();
 			services.AddScoped<IFastPaymentModel, FastPaymentModel>();
-
-			services.AddScoped<IDeprecated3RouteListModel, Deprecated3RouteListModel>();
 
 			services.AddApplication();
 
