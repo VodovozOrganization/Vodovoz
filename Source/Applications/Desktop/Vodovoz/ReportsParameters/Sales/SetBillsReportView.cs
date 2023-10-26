@@ -8,19 +8,19 @@ namespace Vodovoz.ReportsParameters
 {
 	[ToolboxItem(true)]
 	public partial class SetBillsReportView : ViewBase<SetBillsReportViewModel>
-    {
+	{
 		public SetBillsReportView(SetBillsReportViewModel viewModel)
-            : base(viewModel)
+			: base(viewModel)
 		{
 			Build();
 
-            daterangepickerOrderCreation.Binding
-                .AddSource(ViewModel)
-                .AddBinding(vm => vm.StartDate, w => w.StartDateOrNull)
-                .AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
-                .InitializeFromSource();
+			daterangepickerOrderCreation.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.StartDate, w => w.StartDateOrNull)
+				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
+				.InitializeFromSource();
 
-            entrySubdivision.ViewModel = ViewModel.SubdivisionViewModel;
+			entrySubdivision.ViewModel = ViewModel.SubdivisionViewModel;
 
 			ybuttonCreateReport.Clicked += (sender, e) => ViewModel.LoadReport();
 			ybuttonCreateReport.TooltipText = $"Формирует отчет по заказам в статусе '{OrderStatus.WaitForPayment.GetEnumTitle()}'";

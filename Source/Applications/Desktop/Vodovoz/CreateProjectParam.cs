@@ -193,6 +193,8 @@ using Vodovoz.ViewModels.AdministrationTools;
 using Vodovoz.AdministrationTools;
 using Vodovoz.Application.Services.Logistics;
 using Vodovoz.Services.Logistics;
+using Vodovoz.ViewModels.ReportsParameters.Payments;
+using Vodovoz.ReportsParameters.Payments;
 
 namespace Vodovoz
 {
@@ -474,6 +476,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<MovementsPaymentControlViewModel, MovementsPaymentControlView>()
 				.RegisterWidgetForWidgetViewModel<SalesReportViewModel, SalesReportView>()
 				.RegisterWidgetForWidgetViewModel<SetBillsReportViewModel, SetBillsReportView>()
+				.RegisterWidgetForWidgetViewModel<PaymentsFromBankClientReportViewModel, PaymentsFromBankClientReportView>()
 				.RegisterWidgetForWidgetViewModel<RevenueServiceMassCounterpartyUpdateToolViewModel, RevenueServiceMassCounterpartyUpdateToolView>()
 				.RegisterWidgetForWidgetViewModel<FastDeliveryOrderTransferFilterViewModel, FastDeliveryOrderTransferFilterView>()
 				.RegisterWidgetForWidgetViewModel<WarehousesSettingsViewModel, NamedDomainEntitiesSettingsView>()

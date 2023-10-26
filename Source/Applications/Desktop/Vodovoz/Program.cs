@@ -483,7 +483,7 @@ namespace Vodovoz
 					builder.RegisterType<ZeroDebtClientReport>().AsSelf();
 					builder.RegisterType<OrdersCreationTimeReport>().AsSelf();
 					builder.RegisterType<PotentialFreePromosetsReport>().AsSelf();
-					builder.RegisterType<PaymentsFromBankClientReport>().AsSelf();
+					builder.RegisterType<PaymentsFromBankClientReportView>().AsSelf();
 					builder.RegisterType<PaymentsFromBankClientFinDepartmentReport>().AsSelf();
 					builder.RegisterType<ChainStoreDelayReport>().AsSelf();
 					builder.RegisterType<ReturnedTareReport>().AsSelf();

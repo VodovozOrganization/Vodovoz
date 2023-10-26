@@ -1460,8 +1460,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.BusinessTasks.PaymentTaskView.cs" />
     <Compile Include="Views\BusinessTasksJournalActionsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.BusinessTasksJournalActionsView.cs" />
-    <Compile Include="ReportsParameters\Payments\PaymentsFromBankClientReport.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Payments.PaymentsFromBankClientReport.cs" />
+    <Compile Include="ReportsParameters\Payments\PaymentsFromBankClientReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Payments.PaymentsFromBankClientReportView.cs" />
     <Compile Include="ReportsParameters\Payments\PaymentsFromBankClientFinDepartmentReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Payments.PaymentsFromBankClientFinDepartmentReport.cs" />
     <Compile Include="ServiceDialogs\LargeMessageDialog.cs" />
