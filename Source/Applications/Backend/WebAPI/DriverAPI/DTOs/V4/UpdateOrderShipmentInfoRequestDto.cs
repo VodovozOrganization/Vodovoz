@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DriverAPI.Library.Models;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Models.TrueMark;
@@ -8,7 +9,7 @@ namespace DriverAPI.DTOs.V4
 	/// <summary>
 	/// Запрос на завершение заказа
 	/// </summary>
-	public class UpdateOrderShipmentInfoRequestDto : ITrueMarkOrderScannedInfo
+	public class UpdateOrderShipmentInfoRequestDto : IDriverOrderShipmentInfo
 	{
 		/// <summary>
 		/// Номер заказа
