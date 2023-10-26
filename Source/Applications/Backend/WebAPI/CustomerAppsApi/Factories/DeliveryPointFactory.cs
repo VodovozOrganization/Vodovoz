@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using CustomerAppsApi.Library.Dto;
 using Vodovoz.Domain.Client;
@@ -8,6 +9,17 @@ namespace CustomerAppsApi.Factories
 {
 	public class DeliveryPointFactory : IDeliveryPointFactory
 	{
+
+		public ExternalCreatingDeliveryPoint CreateNewExternalCreatingDeliveryPoint(Source source, string uniqueKey)
+		{
+			return new ExternalCreatingDeliveryPoint
+			{
+				Source = (int)source,
+				UniqueKey = uniqueKey,
+				CreatingDate = DateTime.Today
+			};
+		}
+		
 		public DeliveryPoint CreateNewDeliveryPoint(NewDeliveryPointInfoDto newDeliveryPointInfoDto)
 		{
 			return new DeliveryPoint
@@ -21,13 +33,17 @@ namespace CustomerAppsApi.Factories
 					Id = newDeliveryPointInfoDto.DeliveryPointCategoryId
 				},
 				City = newDeliveryPointInfoDto.City,
+				LocalityType = newDeliveryPointInfoDto.LocalityType,
+				LocalityTypeShort = newDeliveryPointInfoDto.LocalityTypeShort,
 				Street = newDeliveryPointInfoDto.Street,
+				StreetType = newDeliveryPointInfoDto.StreetType,
+				StreetTypeShort = newDeliveryPointInfoDto.StreetTypeShort,
 				Building = newDeliveryPointInfoDto.Building,
 				Floor = newDeliveryPointInfoDto.Floor,
 				Entrance = newDeliveryPointInfoDto.Entrance,
 				Room = newDeliveryPointInfoDto.Room,
 				OnlineComment = newDeliveryPointInfoDto.OnlineComment,
-				Intercom = newDeliveryPointInfoDto.Intercom,
+				Intercom = newDeliveryPointInfoDto.Intercom
 			};
 		}
 		
@@ -44,23 +60,6 @@ namespace CustomerAppsApi.Factories
 			return new DeliveryPointsDto
 			{
 				ErrorDescription = errorMessage
-			};
-		}
-
-		public AddedDeliveryPointDto CreateAddedDeliveryPointDto()
-		{
-			return new AddedDeliveryPointDto
-			{
-				Status = AddedDeliveryPointStatus.DeliveryPointAdded
-			};
-		}
-
-		public AddedDeliveryPointDto CreateErrorAddedDeliveryPointDto(string errorMessage)
-		{
-			return new AddedDeliveryPointDto
-			{
-				ErrorDescription = errorMessage,
-				Status = AddedDeliveryPointStatus.Error
 			};
 		}
 
@@ -96,7 +95,11 @@ namespace CustomerAppsApi.Factories
 				DeliveryPointErpId = deliveryPointForSend.Id,
 				DeliveryPointCategoryId = deliveryPointForSend.CategoryId,
 				City = deliveryPointForSend.City,
+				LocalityType = deliveryPointForSend.LocalityType,
+				LocalityTypeShort = deliveryPointForSend.LocalityTypeShort,
 				Street = deliveryPointForSend.Street,
+				StreetType = deliveryPointForSend.StreetType,
+				StreetTypeShort = deliveryPointForSend.StreetTypeShort,
 				Building = deliveryPointForSend.Building,
 				Room = deliveryPointForSend.Room,
 				Floor = deliveryPointForSend.Floor,

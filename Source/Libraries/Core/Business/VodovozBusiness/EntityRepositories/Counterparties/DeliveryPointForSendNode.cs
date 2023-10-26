@@ -4,7 +4,11 @@
 	{
 		public int Id { get; set; }
 		public string City { get; set; }
+		public string LocalityType { get; set; }
+		public string LocalityTypeShort { get; set; }
 		public string Street { get; set; }
+		public string StreetType { get; set; }
+		public string StreetTypeShort { get; set; }
 		public string Building { get; set; }
 		public string Floor { get; set; }
 		public string Entrance { get; set; }

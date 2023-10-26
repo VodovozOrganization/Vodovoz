@@ -4,8 +4,16 @@ namespace CustomerAppsApi.Library.Dto
 {
 	public class DeliveryPointInfoDto
 	{
+		[Display(Name = "Тип населенного пункта")]
+		public string LocalityType { get; set; }
+		[Display(Name = "Тип населенного пункта(сокр.)")]
+		public string LocalityTypeShort { get; set; }
 		[Display(Name = "Город")]
 		public string City { get; set; }
+		[Display(Name = "Тип улицы")]
+		public string StreetType { get; set; }
+		[Display(Name = "Тип улицы(сокр.)")]
+		public string StreetTypeShort { get; set; }
 		[Display(Name = "Улица")]
 		public string Street { get; set; }
 		[Display(Name = "Дом/Строение")]

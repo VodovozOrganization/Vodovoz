@@ -7,11 +7,10 @@ namespace CustomerAppsApi.Factories
 {
 	public interface IDeliveryPointFactory
 	{
+		ExternalCreatingDeliveryPoint CreateNewExternalCreatingDeliveryPoint(Source source, string uniqueKey);
 		DeliveryPoint CreateNewDeliveryPoint(NewDeliveryPointInfoDto newDeliveryPointInfoDto);
 		DeliveryPointsDto CreateDeliveryPointsInfo(IEnumerable<DeliveryPointForSendNode> deliveryPointsForSend);
 		DeliveryPointsDto CreateErrorDeliveryPointsInfo(string errorMessage);
-		AddedDeliveryPointDto CreateAddedDeliveryPointDto();
-		AddedDeliveryPointDto CreateErrorAddedDeliveryPointDto(string errorMessage);
 		UpdatedDeliveryPointCommentDto CreateSuccessUpdatedDeliveryPointCommentsDto();
 		UpdatedDeliveryPointCommentDto CreateNotFoundUpdatedDeliveryPointCommentsDto();
 		UpdatedDeliveryPointCommentDto CreateErrorUpdatedDeliveryPointCommentsDto(string errorMessage);

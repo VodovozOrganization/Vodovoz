@@ -28,11 +28,21 @@ namespace CustomerAppsApi.Controllers
 		}
 		
 		[HttpPost("AddDeliveryPoint")]
-		public AddedDeliveryPointDto AddDeliveryPoint(NewDeliveryPointInfoDto newDeliveryPointInfoDto)
+		public IActionResult AddDeliveryPoint(NewDeliveryPointInfoDto newDeliveryPointInfoDto)
 		{
-			return _deliveryPointModel.AddDeliveryPoint(newDeliveryPointInfoDto);
+			var code = _deliveryPointModel.AddDeliveryPoint(newDeliveryPointInfoDto);
+
+			switch(code)
+			{
+				case 200:
+					return Ok();
+				case 202:
+					return Accepted();
+				default:
+					return StatusCode(500);
+			}
 		}
-		
+
 		[HttpPost("UpdateOnlineComment")]
 		public UpdatedDeliveryPointCommentDto UpdateOnlineComment(UpdatingDeliveryPointCommentDto updatingComment)
 		{

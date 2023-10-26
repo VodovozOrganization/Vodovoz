@@ -39,6 +39,7 @@ using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Settings;
 using Vodovoz.Settings.Database;
+using VodovozInfrastructure.Cryptography;
 using UserRepository = QS.Project.Repositories.UserRepository;
 
 namespace CustomerAppsApi
@@ -117,6 +118,7 @@ namespace CustomerAppsApi
 			services.AddScoped<ICounterpartyModel, CounterpartyModel>();
 			services.AddScoped<INomenclatureModel, NomenclatureModel>();
 			services.AddScoped<IDeliveryPointModel, DeliveryPointModel>();
+			services.AddScoped<IMD5HexHashFromString, MD5HexHashFromString>();
 			services.AddScoped<CounterpartyModelValidator>();
 			services.AddScoped<IDeliveryPointModelValidator, DeliveryPointModelValidator>();
 		}

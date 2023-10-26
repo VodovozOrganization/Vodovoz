@@ -145,7 +145,11 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				.SelectList(list => list
 					.Select(dp => dp.Id).WithAlias(() => resultAlias.Id)
 					.Select(dp => dp.City).WithAlias(() => resultAlias.City)
+					.Select(dp => dp.LocalityType).WithAlias(() => resultAlias.LocalityType)
+					.Select(dp => dp.LocalityTypeShort).WithAlias(() => resultAlias.LocalityTypeShort)
 					.Select(dp => dp.Street).WithAlias(() => resultAlias.Street)
+					.Select(dp => dp.StreetType).WithAlias(() => resultAlias.StreetType)
+					.Select(dp => dp.StreetTypeShort).WithAlias(() => resultAlias.StreetTypeShort)
 					.Select(dp => dp.Building).WithAlias(() => resultAlias.Building)
 					.Select(dp => dp.Floor).WithAlias(() => resultAlias.Floor)
 					.Select(dp => dp.Entrance).WithAlias(() => resultAlias.Entrance)
