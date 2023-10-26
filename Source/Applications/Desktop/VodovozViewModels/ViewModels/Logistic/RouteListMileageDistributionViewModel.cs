@@ -1,6 +1,7 @@
 ﻿using Gamma.Utilities;
 using QS.Commands;
 using QS.Dialog;
+using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Services;
@@ -44,7 +45,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public RouteListMileageDistributionViewModel(
 			IEntityUoWBuilder uowBuilder,
+			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
+			INavigationManager navigationManager,
 			IRouteListRepository routeListRepository,
 			IRouteListItemRepository routeListItemRepository,
 			WageParameterService wageParameterService,
@@ -55,8 +58,13 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IEmployeeService employeeService,
 			ITdiTabParent tabParent,
 			ITdiTab tdiTab)
-			: base(uowBuilder, commonServices)
+			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
+			if(navigationManager is null)
+			{
+				throw new ArgumentNullException(nameof(navigationManager));
+			}
+
 			TabName = $"Разнос километража";
 
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
