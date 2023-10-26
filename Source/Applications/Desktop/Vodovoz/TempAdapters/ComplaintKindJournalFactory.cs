@@ -41,7 +41,8 @@ namespace Vodovoz.TempAdapters
 					var journalViewModel = new ComplaintKindJournalViewModel(
 						_filterViewModel ?? new ComplaintKindJournalFilterViewModel(), 
 						UnitOfWorkFactory.GetDefaultFactory, 
-						ServicesConfig.CommonServices, 
+						ServicesConfig.CommonServices,
+						_navigationManager,
 						_employeeJournalFactory, 
 						_salesPlanJournalFactory, 
 						_nomenclatureSelectorFactory, 
