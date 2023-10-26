@@ -71,8 +71,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 		private void BuildSubdivisionViewModel()
 		{
-			SubdivisionViewModel = new CommonEEVMBuilderFactory<IncomeCategoryViewModel>(this, this, UoW, NavigationManager, _scope)
-				.ForProperty<Subdivision>(x => x.Entity.Subdivision)
+			SubdivisionViewModel = new CommonEEVMBuilderFactory<IncomeCategory>(this, Entity, UoW, NavigationManager, _scope)
+				.ForProperty(x => x.Subdivision)
 				.UseViewModelDialog<SubdivisionViewModel>()
 				.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel>()
 				.Finish();

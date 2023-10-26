@@ -94,8 +94,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 			ConfigureEntityChangingRelations();
 
-			SubdivisionViewModel = new CommonEEVMBuilderFactory<CashlessRequestViewModel>(this, this, UoW, NavigationManager, _lifetimeScope)
-				.ForProperty(x => x.Entity.Subdivision)
+			SubdivisionViewModel = new CommonEEVMBuilderFactory<CashlessRequest>(this, Entity, UoW, NavigationManager, _lifetimeScope)
+				.ForProperty(x => x.Subdivision)
 				.UseViewModelDialog<SubdivisionViewModel>()
 				.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel>()
 				.Finish();
