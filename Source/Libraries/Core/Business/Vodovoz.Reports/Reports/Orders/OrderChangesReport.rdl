@@ -759,6 +759,8 @@ FROM
                       WHEN 'Cashless' THEN 'Безналичная'
                       WHEN 'barter' THEN 'Бартер'
                       WHEN 'Barter' THEN 'Бартер'
+                      WHEN 'DriverApplicationQR' THEN 'МП вод.'
+                      WHEN 'SmsQR' THEN 'Cмс qr'
                       WHEN 'ByCard' THEN CONCAT('По карте, ', payment_from.name)
                       WHEN 'PaidOnline' THEN CONCAT('Оплачено онлайн, ', payment_from.name)
                       WHEN 'ContractDoc' THEN 'Контракт. док.'
@@ -777,6 +779,8 @@ FROM
                       WHEN 'Cashless' THEN 'Безналичная'
                       WHEN 'barter' THEN 'Бартер'
                       WHEN 'Barter' THEN 'Бартер'
+                      WHEN 'DriverApplicationQR' THEN 'МП вод.'
+                      WHEN 'SmsQR' THEN 'Cмс qr'
                       WHEN 'ByCard' THEN CONCAT('По карте, ', payment_from.name)
                       WHEN 'PaidOnline' THEN CONCAT('Оплачено онлайн, ', payment_from.name)
                       WHEN 'ContractDoc' THEN 'Контракт. док.'
@@ -904,6 +908,8 @@ FROM
                       WHEN 'Cashless' THEN 'Безналичная'
                       WHEN 'barter' THEN 'Бартер'
                       WHEN 'Barter' THEN 'Бартер'
+                      WHEN 'DriverApplicationQR' THEN 'МП вод.'
+                      WHEN 'SmsQR' THEN 'Cмс qr'
                       WHEN 'ByCard' THEN CONCAT('По карте, ', payment_from.name)
                       WHEN 'PaidOnline' THEN CONCAT('Оплачено онлайн, ', payment_from.name)
                       WHEN 'ContractDoc' THEN 'Контракт. док.'
@@ -922,6 +928,8 @@ FROM
                       WHEN 'Cashless' THEN 'Безналичная'
                       WHEN 'barter' THEN 'Бартер'
                       WHEN 'Barter' THEN 'Бартер'
+                      WHEN 'DriverApplicationQR' THEN 'МП вод.'
+                      WHEN 'SmsQR' THEN 'Cмс qr'
                       WHEN 'ByCard' THEN CONCAT('По карте, ', payment_from.name)
                       WHEN 'PaidOnline' THEN CONCAT('Оплачено онлайн, ', payment_from.name)
                       WHEN 'ContractDoc' THEN 'Контракт. док.'
