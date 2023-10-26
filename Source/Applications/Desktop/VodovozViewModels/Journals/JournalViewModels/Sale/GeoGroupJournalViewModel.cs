@@ -1,4 +1,5 @@
-﻿using NHibernate;
+﻿using Autofac;
+using NHibernate;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
@@ -15,18 +16,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Sale
 {
 	public class GeoGroupJournalViewModel : SingleEntityJournalViewModelBase<GeoGroup, GeoGroupViewModel, GeoGroupJournalNode>
 	{
+		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IWarehouseJournalFactory _warehouseJournalFactory;
 		private readonly GeoGroupVersionsModel _geoGroupVersionsModel;
 
 		public GeoGroupJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
+			ILifetimeScope lifetimeScope,
 			IWarehouseJournalFactory warehouseJournalFactory,
 			GeoGroupVersionsModel geoGroupVersionsModel,
 			bool hideJournalForOpenDialog = false,
 			bool hideJournalForCreateDialog = false
 		) : base(unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
 		{
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_warehouseJournalFactory = warehouseJournalFactory ?? throw new ArgumentNullException(nameof(warehouseJournalFactory));
 			_geoGroupVersionsModel = geoGroupVersionsModel ?? throw new ArgumentNullException(nameof(geoGroupVersionsModel));
 
@@ -64,8 +68,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Sale
 				UnitOfWorkFactory,
 				_geoGroupVersionsModel,
 				_warehouseJournalFactory,
-				commonServices
-			);
+				commonServices,
+				_lifetimeScope);
 
 		protected override Func<GeoGroupJournalNode, GeoGroupViewModel> OpenDialogFunction => node =>
 			new GeoGroupViewModel(
@@ -73,7 +77,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Sale
 				UnitOfWorkFactory,
 				_geoGroupVersionsModel,
 				_warehouseJournalFactory,
-				commonServices
-			);
+				commonServices,
+				_lifetimeScope);
 	}
 }

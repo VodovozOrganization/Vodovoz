@@ -626,28 +626,7 @@ namespace Vodovoz.Dialogs.Logistic
 		{
 			var selected = ytreeviewAtWorkDrivers.GetSelectedObjects<AtWorkDriver>().First();
 
-			var uowFactory = UnitOfWorkFactory.GetDefaultFactory;
-			var commonServices = ServicesConfig.CommonServices;
-			var warehouseJournalFactory = new WarehouseJournalFactory();
-			var employeeService = new EmployeeService();
-			var geoGroupVersionsModel = new GeoGroupVersionsModel(commonServices.UserService, employeeService);
-			var geoGroupJournalFactory = new GeoGroupJournalFactory(uowFactory, commonServices, warehouseJournalFactory, geoGroupVersionsModel);
-
-			TabParent.OpenTab(
-				DialogHelper.GenerateDialogHashName<Car>(selected.Car.Id),
-				() => new CarViewModel(
-					EntityUoWBuilder.ForOpen(selected.Car.Id),
-					UnitOfWorkFactory.GetDefaultFactory,
-					ServicesConfig.CommonServices,
-					_employeeJournalFactory,
-					_attachmentsViewModelFactory,
-					new CarModelJournalFactory(),
-					new CarVersionsViewModelFactory(ServicesConfig.CommonServices),
-					new OdometerReadingsViewModelFactory(ServicesConfig.CommonServices),
-					new RouteListsWageController(new WageParameterService(new WageCalculationRepository(),
-						new BaseParametersProvider(new ParametersProvider()))),
-					geoGroupJournalFactory,
-					Startup.MainWin.NavigationManager));
+			Startup.MainWin.NavigationManager.OpenViewModelOnTdi<CarViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(selected.Car.Id));
 		}
 
 		protected void OnButtonEditDistrictsClicked(object sender, EventArgs e)
