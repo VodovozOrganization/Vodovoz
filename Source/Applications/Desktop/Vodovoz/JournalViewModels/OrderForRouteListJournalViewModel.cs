@@ -29,6 +29,7 @@ using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.Services;
+using QS.Navigation;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -49,6 +50,7 @@ namespace Vodovoz.JournalViewModels
 			OrderJournalFilterViewModel filterViewModel, 
 			IUnitOfWorkFactory unitOfWorkFactory, 
 			ICommonServices commonServices,
+			INavigationManager navigationManager,
 			IOrderSelectorFactory orderSelectorFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
@@ -61,6 +63,8 @@ namespace Vodovoz.JournalViewModels
 			IFileDialogService fileDialogService,
 			Action<OrderJournalFilterViewModel> filterConfig = null) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
+			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+
 			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
@@ -74,7 +78,9 @@ namespace Vodovoz.JournalViewModels
 			_closingDocumentDeliveryScheduleId =
 				(deliveryScheduleParametersProvider ?? throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider)))
 				.ClosingDocumentDeliveryScheduleId;
-				
+
+			filterViewModel.Journal = this;
+
 			if(filterConfig != null)
 			{
 				FilterViewModel.SetAndRefilterAtOnce(filterConfig);
