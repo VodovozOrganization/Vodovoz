@@ -1,12 +1,16 @@
-﻿using System;
+﻿using QS.Views.Dialog;
+using Vodovoz.ViewModels.Counterparties.CounterpartyClassification;
+
 namespace Vodovoz.Views.Client.CounterpartyClassification
 {
-	[System.ComponentModel.ToolboxItem(true)]
-	public partial class CounterpartyClassificationCalculationEmailSettingsView : Gtk.Bin
+	[WindowSize(300, 400)]
+	public partial class CounterpartyClassificationCalculationEmailSettingsView : DialogViewBase<CounterpartyClassificationCalculationEmailSettingsViewModel>
 	{
-		public CounterpartyClassificationCalculationEmailSettingsView()
+		public CounterpartyClassificationCalculationEmailSettingsView(
+			CounterpartyClassificationCalculationEmailSettingsViewModel viewModel
+			) : base(viewModel)
 		{
-			this.Build();
+			Build();
 		}
 	}
 }

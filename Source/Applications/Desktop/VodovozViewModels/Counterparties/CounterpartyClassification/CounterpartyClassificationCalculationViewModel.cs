@@ -1,7 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
-using QS.ViewModels.Dialog;
+using QS.ViewModels;
 using System;
 using System.Linq;
 using System.Linq.Dynamic.Core;
@@ -9,16 +10,17 @@ using Vodovoz.Domain.Client.CounterpartyClassification;
 
 namespace Vodovoz.ViewModels.Counterparties.CounterpartyClassification
 {
-	public class CounterpartyClassificationCalculationViewModel : WindowDialogViewModelBase, IDisposable
+	public class CounterpartyClassificationCalculationViewModel : DialogTabViewModelBase
 	{
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly ILogger<CounterpartyClassificationCalculationViewModel> _logger;
 
 		public CounterpartyClassificationCalculationViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
+			IInteractiveService interactiveService,
 			INavigationManager navigation,
 			ILogger<CounterpartyClassificationCalculationViewModel> logger
-			) : base(navigation)
+			) : base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			if(unitOfWorkFactory is null)
 			{
@@ -28,6 +30,8 @@ namespace Vodovoz.ViewModels.Counterparties.CounterpartyClassification
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
 			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot();
+
+			Title = "Пересчёт классификации контрагентов";
 
 			CreateCalculationSettings();
 		}
@@ -42,7 +46,7 @@ namespace Vodovoz.ViewModels.Counterparties.CounterpartyClassification
 				.OrderByDescending(x => x.SettingsCreationDate)
 				.FirstOrDefault();
 
-			if (lastSettings != null)
+			if(lastSettings != null)
 			{
 				CalculationSettings.PeriodInMonths = lastSettings.PeriodInMonths;
 				CalculationSettings.BottlesCountAClassificationFrom = lastSettings.BottlesCountAClassificationFrom;
@@ -54,9 +58,11 @@ namespace Vodovoz.ViewModels.Counterparties.CounterpartyClassification
 		}
 
 		#region IDisposable implementation
-		public void Dispose()
+		public override void Dispose()
 		{
 			_unitOfWork?.Dispose();
+
+			base.Dispose();
 		}
 		#endregion
 	}

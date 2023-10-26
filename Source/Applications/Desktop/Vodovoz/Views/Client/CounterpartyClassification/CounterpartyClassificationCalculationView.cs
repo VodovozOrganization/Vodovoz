@@ -1,12 +1,13 @@
-﻿using System;
+﻿using QS.Views.GtkUI;
+using Vodovoz.ViewModels.Counterparties.CounterpartyClassification;
+
 namespace Vodovoz.Views.Client.CounterpartyClassification
 {
-	[System.ComponentModel.ToolboxItem(true)]
-	public partial class CounterpartyClassificationCalculationView : Gtk.Bin
+	public partial class CounterpartyClassificationCalculationView : TabViewBase<CounterpartyClassificationCalculationViewModel>
 	{
-		public CounterpartyClassificationCalculationView()
+		public CounterpartyClassificationCalculationView(CounterpartyClassificationCalculationViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 		}
 	}
 }
