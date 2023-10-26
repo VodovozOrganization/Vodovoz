@@ -9,7 +9,6 @@ namespace CustomerAppsApi.Factories
 {
 	public class DeliveryPointFactory : IDeliveryPointFactory
 	{
-
 		public ExternalCreatingDeliveryPoint CreateNewExternalCreatingDeliveryPoint(Source source, string uniqueKey)
 		{
 			return new ExternalCreatingDeliveryPoint
@@ -47,11 +46,11 @@ namespace CustomerAppsApi.Factories
 			};
 		}
 		
-		public DeliveryPointsDto CreateDeliveryPointsInfo(IEnumerable<DeliveryPointForSendNode> deliveryPointsForSend)
+		public DeliveryPointsDto CreateDeliveryPointsDto(IEnumerable<DeliveryPointForSendNode> deliveryPointsForSend)
 		{
 			return new DeliveryPointsDto
 			{
-				DeliveryPointsInfo = deliveryPointsForSend.Select(CreateDeliveryPointInfoDto).ToList()
+				DeliveryPointsInfo = deliveryPointsForSend.Select(CreateDeliveryPointDto).ToList()
 			};
 		}
 		
@@ -63,36 +62,36 @@ namespace CustomerAppsApi.Factories
 			};
 		}
 
-		public UpdatedDeliveryPointCommentDto CreateSuccessUpdatedDeliveryPointCommentsDto()
+		public DeliveryPointDto CreateDeliveryPointDto(NewDeliveryPointInfoDto newDeliveryPointInfoDto, int deliveryPointId)
 		{
-			return new UpdatedDeliveryPointCommentDto
+			return new DeliveryPointDto
 			{
-				Status = UpdatedDeliveryPointCommentStatus.CommentUpdated
-			};
-		}
-		
-		public UpdatedDeliveryPointCommentDto CreateNotFoundUpdatedDeliveryPointCommentsDto()
-		{
-			return new UpdatedDeliveryPointCommentDto
-			{
-				Status = UpdatedDeliveryPointCommentStatus.DeliveryPointNotFound
-			};
-		}
-		
-		public UpdatedDeliveryPointCommentDto CreateErrorUpdatedDeliveryPointCommentsDto(string errorMessage)
-		{
-			return new UpdatedDeliveryPointCommentDto
-			{
-				ErrorDescription = errorMessage,
-				Status = UpdatedDeliveryPointCommentStatus.Error
+				DeliveryPointErpId = deliveryPointId,
+				CounterpartyErpId = newDeliveryPointInfoDto.CounterpartyErpId,
+				DeliveryPointCategoryId = newDeliveryPointInfoDto.DeliveryPointCategoryId,
+				City = newDeliveryPointInfoDto.City,
+				LocalityType = newDeliveryPointInfoDto.LocalityType,
+				LocalityTypeShort = newDeliveryPointInfoDto.LocalityTypeShort,
+				Street = newDeliveryPointInfoDto.Street,
+				StreetType = newDeliveryPointInfoDto.StreetType,
+				StreetTypeShort = newDeliveryPointInfoDto.StreetTypeShort,
+				Building = newDeliveryPointInfoDto.Building,
+				Room = newDeliveryPointInfoDto.Room,
+				Floor = newDeliveryPointInfoDto.Floor,
+				Entrance = newDeliveryPointInfoDto.Entrance,
+				Latitude = newDeliveryPointInfoDto.Latitude,
+				Longitude = newDeliveryPointInfoDto.Longitude,
+				OnlineComment = newDeliveryPointInfoDto.OnlineComment,
+				Intercom = newDeliveryPointInfoDto.Intercom
 			};
 		}
 
-		private DeliveryPointDto CreateDeliveryPointInfoDto(DeliveryPointForSendNode deliveryPointForSend)
+		private DeliveryPointDto CreateDeliveryPointDto(DeliveryPointForSendNode deliveryPointForSend)
 		{
 			return new DeliveryPointDto
 			{
 				DeliveryPointErpId = deliveryPointForSend.Id,
+				CounterpartyErpId = deliveryPointForSend.CounterpartyId,
 				DeliveryPointCategoryId = deliveryPointForSend.CategoryId,
 				City = deliveryPointForSend.City,
 				LocalityType = deliveryPointForSend.LocalityType,

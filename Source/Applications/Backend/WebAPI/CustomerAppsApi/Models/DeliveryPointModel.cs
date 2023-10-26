@@ -21,7 +21,7 @@ namespace CustomerAppsApi.Models
 		private readonly IDeliveryPointFactory _deliveryPointFactory;
 		private readonly IDeliveryPointRepository _deliveryPointRepository;
 		private readonly IMD5HexHashFromString _md5HexHashFromString;
-		private object _locker = new object();
+		private readonly object _locker = new object();
 
 		public DeliveryPointModel(
 			ILogger<DeliveryPointModel> logger,
@@ -50,7 +50,7 @@ namespace CustomerAppsApi.Models
 			{
 				var deliveryPoints =
 					_deliveryPointRepository.GetDeliveryPointsForSendByCounterpartyId(_uow, counterpartyErpId);
-				return _deliveryPointFactory.CreateDeliveryPointsInfo(deliveryPoints);
+				return _deliveryPointFactory.CreateDeliveryPointsDto(deliveryPoints);
 			}
 			catch(Exception e)
 			{
@@ -65,7 +65,7 @@ namespace CustomerAppsApi.Models
 			}
 		}
 
-		public int AddDeliveryPoint(NewDeliveryPointInfoDto newDeliveryPointInfoDto)
+		public DeliveryPointDto AddDeliveryPoint(NewDeliveryPointInfoDto newDeliveryPointInfoDto, out int statusCode)
 		{
 			_logger.LogInformation("Поступил запрос добавления ТД клиенту {CounterpartyId} от {Source}",
 				newDeliveryPointInfoDto.CounterpartyErpId,
@@ -81,7 +81,8 @@ namespace CustomerAppsApi.Models
 					newDeliveryPointInfoDto.CounterpartyErpId,
 					validationResult);
 
-				return StatusCodes.Status500InternalServerError;
+				statusCode = 500;
+				return null;
 			}
 
 			try
@@ -107,7 +108,8 @@ namespace CustomerAppsApi.Models
 							newDeliveryPointInfoDto.CounterpartyErpId,
 							uniqueKey);
 
-						return StatusCodes.Status202Accepted;
+						statusCode = 202;
+						return null;
 					}
 
 					try
@@ -130,7 +132,8 @@ namespace CustomerAppsApi.Models
 							SourceTitle(newDeliveryPointInfoDto.Source),
 							newDeliveryPointInfoDto.CounterpartyErpId);
 
-						return StatusCodes.Status500InternalServerError;
+						statusCode = 500;
+						return null;
 					}
 				}
 
@@ -140,7 +143,8 @@ namespace CustomerAppsApi.Models
 				_uow.Save(deliveryPoint);
 				_uow.Commit();
 
-				return StatusCodes.Status200OK;
+				statusCode = 201;
+				return _deliveryPointFactory.CreateDeliveryPointDto(newDeliveryPointInfoDto, deliveryPoint.Id);
 			}
 			catch(Exception e)
 			{
@@ -150,11 +154,12 @@ namespace CustomerAppsApi.Models
 					newDeliveryPointInfoDto.CounterpartyErpId,
 					SourceTitle(newDeliveryPointInfoDto.Source));
 
-				return StatusCodes.Status500InternalServerError;
+				statusCode = 500;
+				return null;
 			}
 		}
 
-		public UpdatedDeliveryPointCommentDto UpdateDeliveryPointOnlineComment(UpdatingDeliveryPointCommentDto updatingComment)
+		public int UpdateDeliveryPointOnlineComment(UpdatingDeliveryPointCommentDto updatingComment)
 		{
 			_logger.LogInformation("Поступил запрос обновления комментрия ТД {DeliveryPointId} от {Source}",
 				updatingComment.DeliveryPointErpId,
@@ -170,14 +175,15 @@ namespace CustomerAppsApi.Models
 						"Запрос по обновлению комментария от {Source} для несуществующей ТД {DeliveryPointId}",
 						SourceTitle(updatingComment.Source),
 						updatingComment.DeliveryPointErpId);
-					return _deliveryPointFactory.CreateNotFoundUpdatedDeliveryPointCommentsDto();
+					
+					return StatusCodes.Status404NotFound;
 				}
 				
 				deliveryPoint.OnlineComment = updatingComment.Comment;
 				_uow.Save(deliveryPoint);
 				_uow.Commit();
 				
-				return _deliveryPointFactory.CreateSuccessUpdatedDeliveryPointCommentsDto();
+				return StatusCodes.Status200OK;
 			}
 			catch(Exception e)
 			{
@@ -186,7 +192,8 @@ namespace CustomerAppsApi.Models
 					"При обновлении комментария от {Source} для ТД {DeliveryPointId} произошла ошибка",
 					SourceTitle(updatingComment.Source),
 					updatingComment.DeliveryPointErpId);
-				return _deliveryPointFactory.CreateErrorUpdatedDeliveryPointCommentsDto("При обновлении комментария произошла ошибка");
+				
+				return StatusCodes.Status500InternalServerError;
 			}
 		}
 

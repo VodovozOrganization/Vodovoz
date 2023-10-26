@@ -3,6 +3,7 @@
 	public class DeliveryPointForSendNode
 	{
 		public int Id { get; set; }
+		public int CounterpartyId { get; set; }
 		public string City { get; set; }
 		public string LocalityType { get; set; }
 		public string LocalityTypeShort { get; set; }

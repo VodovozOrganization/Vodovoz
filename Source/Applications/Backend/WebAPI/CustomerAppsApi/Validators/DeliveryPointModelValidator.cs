@@ -11,7 +11,7 @@ namespace CustomerAppsApi.Validators
 	public class DeliveryPointModelValidator : IDeliveryPointModelValidator
 	{
 		private const int _cityLimit = 45;
-		private const int _streetLimit = 50;
+		private const int _streetLimit = 500;
 		private const int _buildingLimit = 20;
 		private const int _floorLimit = 20;
 		private const int _roomLimit = 20;

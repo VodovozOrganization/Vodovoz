@@ -144,6 +144,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				.Where(dp => dp.Counterparty.Id == counterpartyId)
 				.SelectList(list => list
 					.Select(dp => dp.Id).WithAlias(() => resultAlias.Id)
+					.Select(dp => dp.Counterparty.Id).WithAlias(() => resultAlias.CounterpartyId)
 					.Select(dp => dp.City).WithAlias(() => resultAlias.City)
 					.Select(dp => dp.LocalityType).WithAlias(() => resultAlias.LocalityType)
 					.Select(dp => dp.LocalityTypeShort).WithAlias(() => resultAlias.LocalityTypeShort)

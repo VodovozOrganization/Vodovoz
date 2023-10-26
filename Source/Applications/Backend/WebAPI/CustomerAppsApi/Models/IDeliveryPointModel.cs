@@ -5,7 +5,7 @@ namespace CustomerAppsApi.Models
 	public interface IDeliveryPointModel
 	{
 		DeliveryPointsDto GetDeliveryPoints(Source source, int counterpartyErpId);
-		int AddDeliveryPoint(NewDeliveryPointInfoDto newDeliveryPointInfoDto);
-		UpdatedDeliveryPointCommentDto UpdateDeliveryPointOnlineComment(UpdatingDeliveryPointCommentDto updatingComments);
+		DeliveryPointDto AddDeliveryPoint(NewDeliveryPointInfoDto newDeliveryPointInfoDto, out int statusCode);
+		int UpdateDeliveryPointOnlineComment(UpdatingDeliveryPointCommentDto updatingComments);
 	}
 }

@@ -30,23 +30,36 @@ namespace CustomerAppsApi.Controllers
 		[HttpPost("AddDeliveryPoint")]
 		public IActionResult AddDeliveryPoint(NewDeliveryPointInfoDto newDeliveryPointInfoDto)
 		{
-			var code = _deliveryPointModel.AddDeliveryPoint(newDeliveryPointInfoDto);
+			var deliveryPointDto = _deliveryPointModel.AddDeliveryPoint(newDeliveryPointInfoDto, out var statusCode);
 
-			switch(code)
+			if(deliveryPointDto is null)
 			{
-				case 200:
-					return Ok();
-				case 202:
-					return Accepted();
-				default:
-					return StatusCode(500);
+				switch(statusCode)
+				{
+					case 202:
+						return Accepted();
+					default:
+						return StatusCode(500);
+				}
 			}
+			
+			return Created("", deliveryPointDto);
 		}
 
 		[HttpPost("UpdateOnlineComment")]
-		public UpdatedDeliveryPointCommentDto UpdateOnlineComment(UpdatingDeliveryPointCommentDto updatingComment)
+		public IActionResult UpdateOnlineComment(UpdatingDeliveryPointCommentDto updatingComment)
 		{
-			return _deliveryPointModel.UpdateDeliveryPointOnlineComment(updatingComment);
+			var code = _deliveryPointModel.UpdateDeliveryPointOnlineComment(updatingComment);
+			
+			switch(code)
+			{
+				case 404:
+					return NotFound();
+				case 500:
+					return StatusCode(500);
+				default:
+					return Ok();
+			}
 		}
 	}
 }
