@@ -1,42 +1,76 @@
 ﻿using Microsoft.Extensions.Logging;
+using QS.Commands;
 using QS.Dialog;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Services;
 using QS.ViewModels;
 using System;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using Vodovoz.Domain.Client.CounterpartyClassification;
+using Vodovoz.Services;
+using static Vodovoz.ViewModels.Counterparties.CounterpartyClassification.CounterpartyClassificationCalculationEmailSettingsViewModel;
 
 namespace Vodovoz.ViewModels.Counterparties.CounterpartyClassification
 {
 	public class CounterpartyClassificationCalculationViewModel : DialogTabViewModelBase
 	{
 		private readonly IUnitOfWork _unitOfWork;
+		private readonly IInteractiveService _interactiveService;
 		private readonly ILogger<CounterpartyClassificationCalculationViewModel> _logger;
+		private readonly IEmployeeService _employeeService;
+		private readonly IUserService _userService;
+		private bool _isCalculationInProcess;
+		private bool _isCalculationCompleted;
+		private string _currentUserEmail;
+		private string _additionalEmail;
 
 		public CounterpartyClassificationCalculationViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
 			INavigationManager navigation,
-			ILogger<CounterpartyClassificationCalculationViewModel> logger
+			ILogger<CounterpartyClassificationCalculationViewModel> logger,
+			IEmployeeService employeeService,
+			IUserService userService
 			) : base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			if(unitOfWorkFactory is null)
 			{
 				throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			}
-
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-
+			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			_userService = userService ?? throw new ArgumentNullException(nameof(userService));
 			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot();
 
 			Title = "Пересчёт классификации контрагентов";
 
 			CreateCalculationSettings();
+			GetCurrentUserEmail();
 		}
 
-		public CounterpartyClassificationCalculationSettings CalculationSettings { get; set; }
+		#region Properties
+
+		public CounterpartyClassificationCalculationSettings CalculationSettings { get; private set; }
+
+		[PropertyChangedAlso(nameof(CanOpenEmailSettingsDialog), nameof(CanCancel), nameof(CanSaveReport), nameof(CanQuite))]
+		public bool IsCalculationInProcess
+		{
+			get => _isCalculationInProcess;
+			set => SetField(ref _isCalculationInProcess, value);
+		}
+
+		[PropertyChangedAlso(nameof(CanOpenEmailSettingsDialog), nameof(CanCancel), nameof(CanSaveReport), nameof(CanQuite))]
+		public bool IsCalculationCompleted
+		{
+			get => _isCalculationCompleted;
+			set => SetField(ref _isCalculationCompleted, value);
+		}
+
+		#endregion Properties
 
 		private void CreateCalculationSettings()
 		{
@@ -53,9 +87,142 @@ namespace Vodovoz.ViewModels.Counterparties.CounterpartyClassification
 				CalculationSettings.BottlesCountCClassificationTo = lastSettings.BottlesCountCClassificationTo;
 				CalculationSettings.OrdersCountXClassificationFrom = lastSettings.OrdersCountXClassificationFrom;
 				CalculationSettings.OrdersCountZClassificationTo = lastSettings.OrdersCountZClassificationTo;
-				CalculationSettings.SettingsCreationDate = DateTime.Now;
 			}
 		}
+
+		private void GetCurrentUserEmail()
+		{
+			var currentEmployee = _employeeService.GetEmployeeForUser(_unitOfWork, _userService.CurrentUserId);
+
+			_currentUserEmail = currentEmployee?.Email ?? string.Empty;
+		}
+
+		private void OnEmailSettingsDialogStartClassificationCalculationClicked(object sender, StartClassificationCalculationEventArgs e)
+		{
+			_currentUserEmail = e.CurrentUserEmail;
+			_additionalEmail = e.AdditionalEmail;
+
+			IsCalculationInProcess = true;
+
+			UpdateCalculationSettingsCreationDate();
+
+			_unitOfWork.Save(CalculationSettings);
+			_unitOfWork.Commit();
+
+			_interactiveService.ShowMessage(
+				ImportanceLevel.Info,
+				$"Пересчёт классификации контрагентов завершен"
+				);
+
+			IsCalculationInProcess = false;
+			IsCalculationCompleted = true;
+		}
+
+		private void UpdateCalculationSettingsCreationDate()
+		{
+			CalculationSettings.SettingsCreationDate = DateTime.Now;
+		}
+
+		#region Commands
+
+		#region OpenEmailSettingsDialog
+		private DelegateCommand _openEmailSettingsDialogCommand;
+		public DelegateCommand OpenEmailSettingsDialogCommand
+		{
+			get
+			{
+				if(_openEmailSettingsDialogCommand == null)
+				{
+					_openEmailSettingsDialogCommand = new DelegateCommand(OpenEmailSettingsDialog, () => CanOpenEmailSettingsDialog);
+					_openEmailSettingsDialogCommand.CanExecuteChangedWith(this, x => x.CanOpenEmailSettingsDialog);
+				}
+				return _openEmailSettingsDialogCommand;
+			}
+		}
+
+		public bool CanOpenEmailSettingsDialog => !IsCalculationInProcess && !IsCalculationCompleted;
+
+		private void OpenEmailSettingsDialog()
+		{
+			var emailSettingsDialog =
+				NavigationManager.OpenViewModel<CounterpartyClassificationCalculationEmailSettingsViewModel, string>(this, _currentUserEmail)
+				.ViewModel;
+
+			emailSettingsDialog.StartClassificationCalculationClicked += OnEmailSettingsDialogStartClassificationCalculationClicked;
+		}
+		#endregion OpenEmailSettingsDialog
+
+		#region Cancel
+		private DelegateCommand _cancelCommand;
+		public DelegateCommand CancelCommand
+		{
+			get
+			{
+				if(_cancelCommand == null)
+				{
+					_cancelCommand = new DelegateCommand(Cancel, () => CanCancel);
+					_cancelCommand.CanExecuteChangedWith(this, x => x.CanCancel);
+				}
+				return _cancelCommand;
+			}
+		}
+
+		public bool CanCancel => IsCalculationInProcess && !IsCalculationCompleted;
+
+		private void Cancel()
+		{
+
+		}
+		#endregion Cancel
+
+		#region SaveReport
+		private DelegateCommand _saveReportCommand;
+		public DelegateCommand SaveReportCommand
+		{
+			get
+			{
+				if(_saveReportCommand == null)
+				{
+					_saveReportCommand = new DelegateCommand(SaveReport, () => CanSaveReport);
+					_saveReportCommand.CanExecuteChangedWith(this, x => x.CanSaveReport);
+				}
+				return _saveReportCommand;
+			}
+		}
+
+		public bool CanSaveReport => !IsCalculationInProcess && IsCalculationCompleted;
+
+		private void SaveReport()
+		{
+
+		}
+		#endregion SaveReport
+
+		#region Quite
+		private DelegateCommand _quiteCommand;
+		public DelegateCommand QuiteCommand
+		{
+			get
+			{
+				if(_quiteCommand == null)
+				{
+					_quiteCommand = new DelegateCommand(Quite, () => CanQuite);
+					_quiteCommand.CanExecuteChangedWith(this, x => x.CanQuite);
+				}
+				return _quiteCommand;
+			}
+		}
+
+		public bool CanQuite => !IsCalculationInProcess && IsCalculationCompleted;
+
+		private void Quite()
+		{
+			this.Close(false, CloseSource.Self);
+		}
+		#endregion Quite
+
+
+		#endregion
 
 		#region IDisposable implementation
 		public override void Dispose()
