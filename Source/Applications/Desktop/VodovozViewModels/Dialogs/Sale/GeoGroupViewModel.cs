@@ -1,4 +1,4 @@
-﻿using Gamma.Utilities;
+﻿using Autofac;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -11,8 +11,10 @@ using System;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.Models;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.ViewModels.Organizations;
 using VodovozInfrastructure.Versions;
 
 namespace Vodovoz.ViewModels.Dialogs.Sales
@@ -21,6 +23,7 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 	{
 		private readonly GeoGroupVersionsModel _geoGroupVersionsModel;
 		private readonly IWarehouseJournalFactory _warehouseJournalFactory;
+		private readonly ILifetimeScope _lifetimeScope;
 		private bool _canEdit;
 		private IPermissionResult _versionsPermissionResult;
 		private IEntityAutocompleteSelectorFactory _cashSelectorFactory;
@@ -40,20 +43,32 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 			IUnitOfWorkFactory unitOfWorkFactory,
 			GeoGroupVersionsModel geoGroupVersionsModel,
 			IWarehouseJournalFactory warehouseJournalFactory,
-			ICommonServices commonServices
+			ICommonServices commonServices,
+			ILifetimeScope lifetimeScope
 		) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			_geoGroupVersionsModel = geoGroupVersionsModel ?? throw new ArgumentNullException(nameof(geoGroupVersionsModel));
 			_warehouseJournalFactory = warehouseJournalFactory ?? throw new ArgumentNullException(nameof(warehouseJournalFactory));
-
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			CheckPermissions();
 			BindVersions();
+
+			CashSubdivisionViewModel = BuildCashSubdivisionViewModel();
 
 			Entity.PropertyChanged += EntityPropertyChanged;
 			Versions.ElementRemoved += VersionsElementRemoved;
 		}
 		
 		public IEntityEntryViewModel CashSubdivisionViewModel { get; private set; }
+
+		private IEntityEntryViewModel BuildCashSubdivisionViewModel()
+		{
+			return new CommonEEVMBuilderFactory<GeoGroupVersionViewModel>(this, SelectedVersion, UoW, NavigationManager, _lifetimeScope)
+				.ForProperty(x => x.CashSubdivision)
+				.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel>()
+				.UseViewModelDialog<SubdivisionViewModel>()
+				.Finish();
+		}
 
 		private void CheckPermissions()
 		{
