@@ -104,9 +104,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Libraries\External\Taxcom\TISystems.TTC.CRM.BE.dll</HintPath>
     </Reference>
-    <Reference Include="GammaBinding">
-      <HintPath>..\..\..\..\..\Vodovoz1_UI\QSProjects\Binding\Gamma.Binding\bin\Debug\GammaBinding.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
@@ -1995,8 +1992,8 @@
     <Compile Include="Views\Orders\PrintOrdersDocumentsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.PrintOrdersDocumentsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.ChainStoreDelayReport.cs" />
-    <Compile Include="Views\Pacs\PacsPanel.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.Pacs.PacsPanel.cs" />
+    <Compile Include="Views\Pacs\PacsPanelView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Pacs.PacsPanelView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
