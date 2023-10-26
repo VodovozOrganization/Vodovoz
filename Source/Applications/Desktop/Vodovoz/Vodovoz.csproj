@@ -973,11 +973,8 @@
     <Compile Include="Additions\Logistic\MapDrawingHelper.cs" />
     <Compile Include="ReportsParameters\Logistic\MileageReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.MileageReport.cs" />
-    <Compile Include="Dialogs\NuanceDlg.cs" />
     <Compile Include="Dialogs\CommentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.CommentDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Dialogs.NuanceDlg.cs" />
-    <Compile Include="Representations\CommentsTemplatesVM.cs" />
     <Compile Include="ReportsParameters\MastersReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.MastersReport.cs" />
     <Compile Include="Dialogs\Sale\DeliveryPriceDlg.cs" />
