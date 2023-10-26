@@ -4,6 +4,18 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 {
 	public partial class CounterpartyClassificationCalculationEmailSettingsView
 	{
+		private global::Gamma.GtkWidgets.yVBox yvboxMain;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelInfo;
+
+		private global::Gamma.GtkWidgets.yEntry yentryMainMail;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelEmailForCopy;
+
+		private global::Gamma.GtkWidgets.yEntry yentryEmailForCopy;
+
+		private global::Gamma.GtkWidgets.yButton ybuttonStart;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -11,6 +23,71 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Views.Client.CounterpartyClassification.CounterpartyClassificationCalcula" +
 				"tionEmailSettingsView";
+			// Container child Vodovoz.Views.Client.CounterpartyClassification.CounterpartyClassificationCalculationEmailSettingsView.Gtk.Container+ContainerChild
+			this.yvboxMain = new global::Gamma.GtkWidgets.yVBox();
+			this.yvboxMain.Name = "yvboxMain";
+			this.yvboxMain.Spacing = 6;
+			// Container child yvboxMain.Gtk.Box+BoxChild
+			this.ylabelInfo = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelInfo.Name = "ylabelInfo";
+			this.ylabelInfo.Xpad = 5;
+			this.ylabelInfo.Ypad = 10;
+			this.ylabelInfo.Xalign = 0F;
+			this.ylabelInfo.LabelProp = global::Mono.Unix.Catalog.GetString("Пересчёт классификации займет\nпродождительное время, по завершению\nоперации отчет" +
+					" будет отправлен на почту:");
+			this.ylabelInfo.UseMarkup = true;
+			this.yvboxMain.Add(this.ylabelInfo);
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.ylabelInfo]));
+			w1.Position = 0;
+			w1.Expand = false;
+			w1.Fill = false;
+			// Container child yvboxMain.Gtk.Box+BoxChild
+			this.yentryMainMail = new global::Gamma.GtkWidgets.yEntry();
+			this.yentryMainMail.CanFocus = true;
+			this.yentryMainMail.Name = "yentryMainMail";
+			this.yentryMainMail.IsEditable = true;
+			this.yentryMainMail.InvisibleChar = '•';
+			this.yvboxMain.Add(this.yentryMainMail);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yentryMainMail]));
+			w2.Position = 1;
+			w2.Expand = false;
+			w2.Fill = false;
+			// Container child yvboxMain.Gtk.Box+BoxChild
+			this.ylabelEmailForCopy = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelEmailForCopy.Name = "ylabelEmailForCopy";
+			this.ylabelEmailForCopy.Xpad = 5;
+			this.ylabelEmailForCopy.Ypad = 10;
+			this.ylabelEmailForCopy.Xalign = 0F;
+			this.ylabelEmailForCopy.LabelProp = global::Mono.Unix.Catalog.GetString("Направить копию отчета на почту:");
+			this.yvboxMain.Add(this.ylabelEmailForCopy);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.ylabelEmailForCopy]));
+			w3.Position = 2;
+			w3.Expand = false;
+			w3.Fill = false;
+			// Container child yvboxMain.Gtk.Box+BoxChild
+			this.yentryEmailForCopy = new global::Gamma.GtkWidgets.yEntry();
+			this.yentryEmailForCopy.CanFocus = true;
+			this.yentryEmailForCopy.Name = "yentryEmailForCopy";
+			this.yentryEmailForCopy.IsEditable = true;
+			this.yentryEmailForCopy.InvisibleChar = '•';
+			this.yvboxMain.Add(this.yentryEmailForCopy);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yentryEmailForCopy]));
+			w4.Position = 3;
+			w4.Expand = false;
+			w4.Fill = false;
+			// Container child yvboxMain.Gtk.Box+BoxChild
+			this.ybuttonStart = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonStart.CanFocus = true;
+			this.ybuttonStart.Name = "ybuttonStart";
+			this.ybuttonStart.UseUnderline = true;
+			this.ybuttonStart.Label = global::Mono.Unix.Catalog.GetString("Начать пересчёт");
+			this.yvboxMain.Add(this.ybuttonStart);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.ybuttonStart]));
+			w5.Position = 4;
+			w5.Expand = false;
+			w5.Fill = false;
+			w5.Padding = ((uint)(10));
+			this.Add(this.yvboxMain);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
