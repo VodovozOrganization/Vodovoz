@@ -2310,6 +2310,11 @@ namespace Vodovoz
 				{
 					FillEntityDetailsFromRevenueService(a);
 				}
+
+				if(Entity.IsLiquidating && a.IsActive)
+				{
+					Entity.IsLiquidating = false;
+				}
 			};
 		}
 
