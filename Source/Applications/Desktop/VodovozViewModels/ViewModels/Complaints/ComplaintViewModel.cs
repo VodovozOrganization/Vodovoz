@@ -257,8 +257,9 @@ namespace Vodovoz.ViewModels.Complaints
 			{
 				if(_discussionsViewModel == null)
 				{
-					_scope.BeginLifetimeScope();
-					_discussionsViewModel = _scope.Resolve<ComplaintDiscussionsViewModel>();
+					_discussionsViewModel = _scope.Resolve<ComplaintDiscussionsViewModel>(
+						new TypedParameter(typeof(Complaint), Entity),
+						new TypedParameter(typeof(IUnitOfWork), UoW));
 				}
 				return _discussionsViewModel;
 			}

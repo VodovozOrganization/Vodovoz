@@ -6,7 +6,6 @@ using QS.Navigation;
 using QS.Project.Journal;
 using QS.Project.Services.FileDialog;
 using QS.Services;
-using QS.Tdi;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -18,47 +17,29 @@ using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.Services;
-using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.JournalFactories;
-using Vodovoz.ViewModels.ViewModels.Organizations;
 
 namespace Vodovoz.ViewModels.Complaints
 {
 	public class ComplaintDiscussionsViewModel : EntityWidgetViewModelBase<Complaint>
 	{
-		private readonly ITdiTab _dialogTab;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly IEmployeeService _employeeService;
-		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
-		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 		private readonly IUserRepository _userRepository;
 		private readonly INavigationManager _navigationManager;
-		private readonly ILifetimeScope _scope;
 
 		public ComplaintDiscussionsViewModel(
 			Complaint entity,
-			ITdiTab dialogTab,
 			IUnitOfWork uow,
 			IFileDialogService fileDialogService,
 			IEmployeeService employeeService,
 			ICommonServices commonServices,
-			IEmployeeJournalFactory employeeJournalFactory,
-			ISalesPlanJournalFactory salesPlanJournalFactory,
-			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			IUserRepository userRepository,
-			INavigationManager navigationManager,
-			ILifetimeScope scope) : base(entity, commonServices)
+			INavigationManager navigationManager) : base(entity, commonServices)
 		{
-			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			_dialogTab = dialogTab ?? throw new ArgumentNullException(nameof(dialogTab));
-			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
-			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_navigationManager = navigationManager;
-			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 
 			UoW = uow;
 			CreateCommands();
