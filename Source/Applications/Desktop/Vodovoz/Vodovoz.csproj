@@ -1364,8 +1364,8 @@
     <Compile Include="JournalSelector\NomenclatureSelectorFactory.cs" />
     <Compile Include="Filters\GtkViews\CarFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CarFilterView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.SetBillsReport.cs" />
-    <Compile Include="ReportsParameters\Sales\SetBillsReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.SetBillsReportView.cs" />
+    <Compile Include="ReportsParameters\Sales\SetBillsReportView.cs" />
     <Compile Include="Views\Contacts\EmailsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Contacts.EmailsView.cs" />
     <Compile Include="Views\Contacts\PersonsView.cs" />

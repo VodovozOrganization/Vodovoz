@@ -481,7 +481,7 @@ namespace Vodovoz
 					builder.RegisterType<ProfitabilityBottlesByStockReport>().AsSelf();
 					builder.RegisterType<PlanImplementationReport>().AsSelf();
 					builder.RegisterType<ZeroDebtClientReport>().AsSelf();
-					builder.RegisterType<SetBillsReport>().AsSelf();
+					builder.RegisterType<SetBillsReportView>().AsSelf();
 					builder.RegisterType<OrdersCreationTimeReport>().AsSelf();
 					builder.RegisterType<PotentialFreePromosetsReport>().AsSelf();
 					builder.RegisterType<PaymentsFromBankClientReport>().AsSelf();

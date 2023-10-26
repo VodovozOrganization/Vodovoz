@@ -337,9 +337,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionSetBillsReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<SetBillsReport>(),
-			() => new QSReport.ReportViewDlg(new SetBillsReport(UnitOfWorkFactory.GetDefaultFactory)));
+        NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(SetBillsReportViewModel));
 	}
 
 	/// <summary>

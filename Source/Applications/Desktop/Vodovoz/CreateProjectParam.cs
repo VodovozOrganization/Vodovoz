@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.Dialog.Gtk;
 using QS.Permissions;
 using QS.Project.DB;
@@ -473,6 +473,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<NumberOfComplaintsAgainstDriversReportViewModel, NumberOfComplaintsAgainstDriversReportView>()
 				.RegisterWidgetForWidgetViewModel<MovementsPaymentControlViewModel, MovementsPaymentControlView>()
 				.RegisterWidgetForWidgetViewModel<SalesReportViewModel, SalesReportView>()
+				.RegisterWidgetForWidgetViewModel<SetBillsReportViewModel, SetBillsReportView>()
 				.RegisterWidgetForWidgetViewModel<RevenueServiceMassCounterpartyUpdateToolViewModel, RevenueServiceMassCounterpartyUpdateToolView>()
 				.RegisterWidgetForWidgetViewModel<FastDeliveryOrderTransferFilterViewModel, FastDeliveryOrderTransferFilterView>()
 				.RegisterWidgetForWidgetViewModel<WarehousesSettingsViewModel, NamedDomainEntitiesSettingsView>()
