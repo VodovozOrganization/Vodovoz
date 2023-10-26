@@ -203,7 +203,6 @@ namespace Vodovoz.Configuration
                     .TreeConfig(new RecursiveTreeConfig<ExpenseCategory>(x => x.Parent, x => x.Childs)).End(),
                 OrmObjectMapping<Expense>.Create().Dialog<ExpenseViewModel>(),
                 OrmObjectMapping<AdvanceReport>.Create().Dialog<AdvanceReportViewModel>(),
-                OrmObjectMapping<Fine>.Create().Dialog<FineDlg>(),
                 OrmObjectMapping<IncomeCashTransferDocument>.Create().Dialog<IncomeCashTransferView>(),
                 OrmObjectMapping<CommonCashTransferDocument>.Create().Dialog<CommonCashTransferView>(),
                 //Склад

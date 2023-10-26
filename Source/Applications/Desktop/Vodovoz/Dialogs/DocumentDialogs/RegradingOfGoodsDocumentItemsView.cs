@@ -1,39 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Gamma.GtkWidgets;
+﻿using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.Domain;
+using QS.Project.Journal;
+using QS.Project.Services;
+using QS.Tdi;
 using QSOrmProject;
 using QSProjectsLib;
-using QS.Tdi;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Store;
-using Vodovoz.FilterViewModels.Goods;
-using Vodovoz.EntityRepositories.Store;
-using QS.Project.Services;
-using QS.Project.Journal;
-using Vodovoz.JournalViewModels;
-using Vodovoz.Journals.JournalNodes;
-using Vodovoz.JournalSelector;
-using Vodovoz.Domain.Client;
-using QS.Project.Journal.EntitySelector;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.Parameters;
+using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.FilterViewModels.Goods;
+using Vodovoz.Infrastructure;
+using Vodovoz.Journals.JournalNodes;
+using Vodovoz.JournalSelector;
+using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Factories;
+using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
-using Vodovoz.ViewModels.Journals.JournalFactories;
-using Vodovoz.Infrastructure;
 
 namespace Vodovoz
 {
@@ -121,6 +116,10 @@ namespace Vodovoz
 			ytreeviewItems.Selection.Changed += YtreeviewItems_Selection_Changed;
 		}
 
+		public ITdiTab Container { get; set; }
+
+		public ITdiCompatibilityNavigation NavigationManager { get; set; }
+
 		double GetMaxValueForAdjustmentSetting(RegradingOfGoodsDocumentItem item){
 			if(item.NomenclatureOld.Category == NomenclatureCategory.bottle
 			   && item.NomenclatureNew.Category == NomenclatureCategory.water)
@@ -180,8 +179,7 @@ namespace Vodovoz
 		{
 			Action<NomenclatureStockFilterViewModel> filterParams = f => f.RestrictWarehouse = DocumentUoW.Root.Warehouse;
 
-			var vm = Startup.MainWin.NavigationManager
-				.OpenViewModel<NomenclatureStockBalanceJournalViewModel, Action<NomenclatureStockFilterViewModel>>(null, filterParams)
+			var vm = NavigationManager.OpenViewModelOnTdi<NomenclatureStockBalanceJournalViewModel, Action<NomenclatureStockFilterViewModel>>(Container, filterParams)
 				.ViewModel;
 			
 			vm.SelectionMode = JournalSelectionMode.Single;
@@ -367,20 +365,23 @@ namespace Vodovoz
 		protected void OnButtonFineClicked(object sender, EventArgs e)
 		{
 			var selected = ytreeviewItems.GetSelectedObject<RegradingOfGoodsDocumentItem>();
-			FineDlg fineDlg;
+
 			if (selected.Fine != null)
 			{
-				fineDlg = new FineDlg(selected.Fine);
-				fineDlg.EntitySaved += FineDlgExist_EntitySaved;
+				var page = NavigationManager.OpenViewModelOnTdi<FineViewModel, IEntityUoWBuilder>(Container, EntityUoWBuilder.ForOpen(selected.Fine.Id), OpenPageOptions.AsSlave);
+
+				page.ViewModel.Entity.TotalMoney = selected.SumOfDamage;
+				page.ViewModel.EntitySaved += FineDlgExist_EntitySaved;
 			}
 			else
 			{
-				fineDlg = new FineDlg("Недостача");
-				fineDlg.EntitySaved += FineDlgNew_EntitySaved;
+				var page = NavigationManager.OpenViewModelOnTdi<FineViewModel, IEntityUoWBuilder>(Container, EntityUoWBuilder.ForCreate(), OpenPageOptions.AsSlave);
+
+				page.ViewModel.Entity.FineReasonString = "Недостача";
+				page.ViewModel.Entity.TotalMoney = selected.SumOfDamage;
+				page.ViewModel.EntitySaved += FineDlgNew_EntitySaved;
 			}
-			fineDlg.Entity.TotalMoney = selected.SumOfDamage;
 			FineEditItem = selected;
-			MyTab.TabParent.AddSlaveTab(MyTab, fineDlg);
 		}
 
 		void FineDlgNew_EntitySaved (object sender, EntitySavedEventArgs e)

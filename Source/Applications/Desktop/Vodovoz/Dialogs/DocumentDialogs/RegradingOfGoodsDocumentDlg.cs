@@ -2,6 +2,7 @@
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Services;
 using QS.Validation;
 using Vodovoz.Domain.Documents;
@@ -53,6 +54,9 @@ namespace Vodovoz
 
 		void ConfigureDlg ()
 		{
+			regradingofgoodsitemsview.NavigationManager = Startup.MainWin.NavigationManager;
+			regradingofgoodsitemsview.Container = this;
+
 			if(_storeDocumentHelper.CheckAllPermissions(UoW.IsNew, WarehousePermissionsType.RegradingOfGoodsEdit, Entity.Warehouse)) {
 				FailInitialize = true;
 				return;

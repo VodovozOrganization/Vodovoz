@@ -298,7 +298,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				{
 					var page = NavigationManager.OpenViewModel<FineViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate(), OpenPageOptions.AsSlave);
 
-					page.ViewModel.RouteList = selectedItem.RouteList;
+					page.ViewModel.SetRouteListById(selectedItem.RouteList.Id);
 					page.ViewModel.FineReasonString = "Перерасход топлива";
 				}
 			));

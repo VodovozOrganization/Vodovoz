@@ -637,7 +637,7 @@ namespace Vodovoz
 				case RouteListActions.CreateNewFine:
 					var page = NavigationManager.OpenViewModelOnTdi<FineViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate(), OpenPageOptions.IgnoreHash);
 
-					page.ViewModel.Entity.RouteList = Entity;
+					page.ViewModel.SetRouteListById(Entity.Id);
 					break;
 				case RouteListActions.TransferReceptionToAnotherRL:
 					this.TabParent.AddSlaveTab(
@@ -1212,26 +1212,30 @@ namespace Vodovoz
 		{
 			string fineReason = "Недосдача";
 			var bottleDifference = bottlesReturnedTotal - bottlesReturnedToWarehouse;
-			var summ = DefaultBottle.SumOfDamage * (bottleDifference > 0 ? bottleDifference : (decimal)0);
+			var summ = DefaultBottle.SumOfDamage * (bottleDifference > 0 ? bottleDifference : 0m);
 			summ += routelistdiscrepancyview.Items.Where(x => x.UseFine).Sum(x => x.SumOfDamage);
+
 			var nomenclatures = routelistdiscrepancyview.Items.Where(x => x.UseFine)
 				.ToDictionary(x => x.Nomenclature, x => -x.Remainder);
-			if(checkUseBottleFine.Active)
-				nomenclatures.Add(DefaultBottle, bottleDifference);
 
-			FineDlg fineDlg;
+			if(checkUseBottleFine.Active)
+			{
+				nomenclatures.Add(DefaultBottle, bottleDifference);
+			}
+
 			if(Entity.BottleFine != null) {
-				fineDlg = new FineDlg(Entity.BottleFine);
+				var page = NavigationManager.OpenViewModelOnTdi<FineViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(Entity.BottleFine.Id), OpenPageOptions.AsSlave);
 
 				Entity.BottleFine.UpdateNomenclature(nomenclatures);
-				fineDlg.Entity.TotalMoney = summ;
-				fineDlg.EntitySaved += FineDlgExist_EntitySaved;
+				page.ViewModel.Entity.TotalMoney = summ;
+				page.ViewModel.EntitySaved += FineDlgExist_EntitySaved;
 			} else {
-				fineDlg = new FineDlg(summ, Entity, fineReason, DateTime.Now, Entity.Driver);
-				fineDlg.Entity.AddNomenclature(nomenclatures);
-				fineDlg.EntitySaved += FineDlgNew_EntitySaved;
+				var page = NavigationManager.OpenViewModelOnTdi<FineViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate(), OpenPageOptions.AsSlave);
+
+				page.ViewModel.Entity.Fill(summ, Entity, fineReason, DateTime.Now, Entity.Driver);
+				page.ViewModel.Entity.AddNomenclature(nomenclatures);
+				page.ViewModel.EntitySaved += FineDlgNew_EntitySaved;
 			}
-			TabParent.AddSlaveTab(this, fineDlg);
 		}
 
 		void FineDlgNew_EntitySaved(object sender, QS.Tdi.EntitySavedEventArgs e)

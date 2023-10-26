@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using Gamma.Utilities;
 using QS.Dialog.GtkUI;
@@ -28,6 +28,7 @@ using QS.Validation;
 
 namespace Vodovoz
 {
+	[Obsolete("Убрать последним коммитом по поэкземплярному учету")]
 	public partial class FineDlg : QS.Dialog.Gtk.EntityDialogBase<Fine>, IAskSaveOnCloseViewModel
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();

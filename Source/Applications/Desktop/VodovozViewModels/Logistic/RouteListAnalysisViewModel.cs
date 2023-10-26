@@ -185,7 +185,7 @@ namespace Vodovoz.ViewModels.Logistic
 			() => {
 				var page = NavigationManager.OpenViewModel<FineViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate(), OpenPageOptions.AsSlave);
 
-				page.ViewModel.RouteList = SelectedItem.RouteList;
+				page.ViewModel.SetRouteListById(SelectedItem.RouteList.Id);
 
 				var undeliveredOrder = GetUndeliveredOrder();
 

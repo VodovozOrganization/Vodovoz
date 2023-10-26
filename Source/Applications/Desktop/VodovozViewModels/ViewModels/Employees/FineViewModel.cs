@@ -63,49 +63,6 @@ namespace Vodovoz.ViewModels.Employees
 			RouteListViewModel = BuildRouteListEntityViewModel();
 		}
 
-		private void ConfigureEntityPropertyChanges()
-		{
-			SetPropertyChangeRelation(e => e.FineType,
-				() => IsFuelOverspendingFine,
-				() => IsStandartFine);
-
-			SetPropertyChangeRelation(e => e.FineReasonString,
-				() => FineReasonString);
-
-			SetPropertyChangeRelation(e => e.RouteList,
-				() => CanShowRequestRouteListMessage,
-				() => DateEditable);
-
-			OnEntityPropertyChanged(SetDefaultReason,
-				x => x.FineType);
-
-			OnEntityPropertyChanged(Entity.UpdateItems,
-				x => x.FineType);
-
-			Entity.ObservableItems.ListChanged += aList => OnPropertyChanged(() => CanEditFineType);
-		}
-
-		private void CalculateMoneyFromLiters()
-		{
-			if(Entity.ObservableItems.Count() > 1)
-			{
-				throw new Exception("При типе штрафа \"Перерасход топлива\" недопустимо наличие более одного сотрудника в списке.");
-			}
-
-			if(RouteList != null)
-			{
-				decimal fuelCost = RouteList.Car.FuelType.Cost;
-				Entity.TotalMoney = Math.Round(Entity.LitersOverspending * fuelCost, 0, MidpointRounding.ToEven);
-				var item = Entity.ObservableItems.FirstOrDefault();
-
-				if(item != null)
-				{
-					item.Money = Entity.TotalMoney;
-					item.LitersOverspending = Entity.LitersOverspending;
-				}
-			}
-		}
-
 		public Employee CurrentEmployee
 		{
 			get
@@ -189,6 +146,54 @@ namespace Vodovoz.ViewModels.Employees
 		}
 
 		public IEntityEntryViewModel RouteListViewModel { get; }
+
+		public void SetRouteListById(int routeListId)
+		{
+			RouteList = UoW.GetById<RouteList>(routeListId);
+		}
+
+		private void ConfigureEntityPropertyChanges()
+		{
+			SetPropertyChangeRelation(e => e.FineType,
+				() => IsFuelOverspendingFine,
+				() => IsStandartFine);
+
+			SetPropertyChangeRelation(e => e.FineReasonString,
+				() => FineReasonString);
+
+			SetPropertyChangeRelation(e => e.RouteList,
+				() => CanShowRequestRouteListMessage,
+				() => DateEditable);
+
+			OnEntityPropertyChanged(SetDefaultReason,
+				x => x.FineType);
+
+			OnEntityPropertyChanged(Entity.UpdateItems,
+				x => x.FineType);
+
+			Entity.ObservableItems.ListChanged += aList => OnPropertyChanged(() => CanEditFineType);
+		}
+
+		private void CalculateMoneyFromLiters()
+		{
+			if(Entity.ObservableItems.Count() > 1)
+			{
+				throw new Exception("При типе штрафа \"Перерасход топлива\" недопустимо наличие более одного сотрудника в списке.");
+			}
+
+			if(RouteList != null)
+			{
+				decimal fuelCost = RouteList.Car.FuelType.Cost;
+				Entity.TotalMoney = Math.Round(Entity.LitersOverspending * fuelCost, 0, MidpointRounding.ToEven);
+				var item = Entity.ObservableItems.FirstOrDefault();
+
+				if(item != null)
+				{
+					item.Money = Entity.TotalMoney;
+					item.LitersOverspending = Entity.LitersOverspending;
+				}
+			}
+		}
 
 		private IEntityEntryViewModel BuildRouteListEntityViewModel()
 		{

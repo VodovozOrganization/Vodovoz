@@ -46,6 +46,9 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewWidgets.Logistics;
 using Vodovoz.ViewWidgets.Mango;
+using QS.Navigation;
+using Vodovoz.ViewModels.Employees;
+using QS.Project.Domain;
 
 namespace Vodovoz
 {
@@ -102,6 +105,9 @@ namespace Vodovoz
 				ytreeviewAddresses.ScrollToCell(path, ytreeviewAddresses.Columns[0], true, 0.5f, 0.5f);
 			}
 		}
+
+		public ITdiCompatibilityNavigation NavigationManager { get; } = Startup.MainWin.NavigationManager;
+
 
 		public override bool HasChanges
 		{
@@ -581,10 +587,9 @@ namespace Vodovoz
 
 		protected void OnButtonNewFineClicked(object sender, EventArgs e)
 		{
-			this.TabParent.AddSlaveTab(
-				this,
-				new FineDlg(Entity)
-			);
+			var page = NavigationManager.OpenViewModelOnTdi<FineViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate(), OpenPageOptions.AsSlave);
+
+			page.ViewModel.SetRouteListById(Entity.Id);
 		}
 
 		protected void OnButtonMadeCallClicked(object sender, EventArgs e)
