@@ -12,8 +12,8 @@ namespace Vodovoz.Domain.Client.CounterpartyClassification
 		private int _counterpartyId;
 		private CounterpartyClassificationByBottlesCount _classificationByBottlesCount;
 		private CounterpartyClassificationByOrdersCount _classificationByOrdersCount;
-		private int _bottlesPerMonthAverageCount;
-		private int _ordersPerMonthAverageCount;
+		private decimal _bottlesPerMonthAverageCount;
+		private decimal _ordersPerMonthAverageCount;
 		private decimal _moneyTurnoverPerMonthAverageSum;
 		private DateTime _classificationCalculationDate;
 
@@ -41,14 +41,14 @@ namespace Vodovoz.Domain.Client.CounterpartyClassification
 		}
 
 		[Display(Name = "Среднее количество бутылей в месяц")]
-		public virtual int BottlesPerMonthAverageCount
+		public virtual decimal BottlesPerMonthAverageCount
 		{
 			get => _bottlesPerMonthAverageCount;
 			set => SetField(ref _bottlesPerMonthAverageCount, value);
 		}
 
 		[Display(Name = "Среднее количество заказов в месяц")]
-		public virtual int OrdersPerMonthAverageCount
+		public virtual decimal OrdersPerMonthAverageCount
 		{
 			get => _ordersPerMonthAverageCount;
 			set => SetField(ref _ordersPerMonthAverageCount, value);
