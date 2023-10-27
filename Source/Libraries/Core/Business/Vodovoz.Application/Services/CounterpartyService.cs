@@ -95,6 +95,11 @@ namespace Vodovoz.Application.Services
 				return;
 			}
 
+			if(counterparty.IsDeliveriesClosed)
+			{
+				return;
+			}
+
 			counterparty.CloseDelivery(employee);
 			counterparty.AddCloseDeliveryComment($"Автоматическое закрытие поставок: контрагент в статусе \"{statusName}\" в ФНС. Оформление заказа невозможно.", employee);
 		}
