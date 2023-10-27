@@ -33,6 +33,7 @@ using QSOrmProject;
 using QSProjectsLib;
 using RevenueService.Client;
 using RevenueService.Client.Dto;
+using RevenueService.Client.Extensions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -2316,6 +2317,8 @@ namespace Vodovoz
 				{
 					Entity.IsLiquidating = false;
 				}
+
+				_counterpartyService.StopShipmentsIfNeeded(Entity, CurrentEmployee, a.State != Dadata.Model.PartyStatus.ACTIVE, a.State.GetUserFriendlyName());
 			};
 		}
 
