@@ -2,7 +2,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace Vodovoz.Domain.Client.CounterpartyClassification
+namespace Vodovoz.Domain.Client.ClientClassification
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "классификации контрагентов",

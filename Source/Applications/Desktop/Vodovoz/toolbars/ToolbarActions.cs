@@ -96,7 +96,7 @@ using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
 using Action = Gtk.Action;
-using Vodovoz.ViewModels.Counterparties.CounterpartyClassification;
+using Vodovoz.ViewModels.Counterparties.ClientClassification;
 
 public partial class MainWindow : Window
 {

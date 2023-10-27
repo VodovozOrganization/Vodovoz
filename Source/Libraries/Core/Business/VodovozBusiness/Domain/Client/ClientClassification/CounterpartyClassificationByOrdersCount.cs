@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Vodovoz.Domain.Client.CounterpartyClassification
+namespace Vodovoz.Domain.Client.ClientClassification
 {
 	public enum CounterpartyClassificationByOrdersCount
 	{

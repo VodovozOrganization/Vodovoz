@@ -9,11 +9,14 @@ using QS.ViewModels;
 using System;
 using System.Linq;
 using System.Linq.Dynamic.Core;
-using Vodovoz.Domain.Client.CounterpartyClassification;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Client.ClientClassification;
+using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Services;
-using static Vodovoz.ViewModels.Counterparties.CounterpartyClassification.CounterpartyClassificationCalculationEmailSettingsViewModel;
+using static Vodovoz.ViewModels.Counterparties.ClientClassification.CounterpartyClassificationCalculationEmailSettingsViewModel;
 
-namespace Vodovoz.ViewModels.Counterparties.CounterpartyClassification
+namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 {
 	public class CounterpartyClassificationCalculationViewModel : DialogTabViewModelBase
 	{
@@ -106,6 +109,23 @@ namespace Vodovoz.ViewModels.Counterparties.CounterpartyClassification
 
 			UpdateCalculationSettingsCreationDate();
 
+			var allCounterpartiesIds = GetAllCounterpartiesIds(_unitOfWork).ToList();
+			var classificationsByOrders = GetClassificationsByOrdersPerCounterparty(_unitOfWork).ToList();
+
+			foreach(var classification in classificationsByOrders)
+			{
+				classification.ClassificationByBottlesCount = GetClassificationByBottlesCount(classification.BottlesPerMonthAverageCount);
+				classification.ClassificationByOrdersCount = GetClassificationByOrdersCount(classification.OrdersPerMonthAverageCount);
+				classification.ClassificationCalculationDate = DateTime.Now;
+
+				if(classification.CounterpartyId < 100)
+				{
+					_unitOfWork.Save(classification);
+				}
+
+				//_unitOfWork.Save(classification);
+			}
+
 			_unitOfWork.Save(CalculationSettings);
 			_unitOfWork.Commit();
 
@@ -116,6 +136,79 @@ namespace Vodovoz.ViewModels.Counterparties.CounterpartyClassification
 
 			IsCalculationInProcess = false;
 			IsCalculationCompleted = true;
+		}
+
+		private IQueryable<int> GetAllCounterpartiesIds(IUnitOfWork unitOfWork)
+		{
+			var ids = unitOfWork.GetAll<Counterparty>()
+				.Select(c => c.Id);
+
+			return ids;
+		}
+
+		private IQueryable<CounterpartyClassification> GetClassificationsByOrdersPerCounterparty(IUnitOfWork unitOfWork)
+		{
+			var dateFrom = DateTime.Now.Date.AddMonths(-CalculationSettings.PeriodInMonths);
+			var dateTo = DateTime.Now.Date.AddDays(1);
+
+			var ordersPerCounterparty = from o in unitOfWork.Session.Query<Order>()
+										join oi in unitOfWork.GetAll<OrderItem>() on o.Id equals oi.Order.Id
+										join n in unitOfWork.GetAll<Nomenclature>() on oi.Nomenclature.Id equals n.Id
+										where
+											o.DeliveryDate < dateTo
+											&& o.DeliveryDate >= dateFrom
+											&& o.OrderStatus == OrderStatus.Closed
+
+										group new { Order = o, Item = oi, Nomenclature = n } by new { CleintId = o.Client.Id } into clientsGroups
+
+										select new CounterpartyClassification
+										{
+											CounterpartyId = clientsGroups.Key.CleintId,
+
+											BottlesPerMonthAverageCount =
+												clientsGroups.Sum(data =>
+													data.Nomenclature.Category == NomenclatureCategory.water && data.Nomenclature.TareVolume == TareVolume.Vol19L
+													? data.Item.Count
+													: 0) / CalculationSettings.PeriodInMonths,
+
+											OrdersPerMonthAverageCount =
+												(decimal)(clientsGroups.Select(data => data.Order.Id).Distinct().Count()) / CalculationSettings.PeriodInMonths,
+
+											MoneyTurnoverPerMonthAverageSum =
+												clientsGroups.Sum(data => (data.Item.ActualCount ?? data.Item.Count) * data.Item.Price - data.Item.DiscountMoney) / CalculationSettings.PeriodInMonths
+										};
+
+			return ordersPerCounterparty;
+		}
+
+		private CounterpartyClassificationByBottlesCount GetClassificationByBottlesCount(decimal bottlesPerMonthAverageCount)
+		{
+			if(bottlesPerMonthAverageCount <= CalculationSettings.BottlesCountCClassificationTo)
+			{
+				return CounterpartyClassificationByBottlesCount.C;
+			}
+
+			if(bottlesPerMonthAverageCount >= CalculationSettings.BottlesCountAClassificationFrom)
+			{
+				return CounterpartyClassificationByBottlesCount.A;
+			}
+
+			return CounterpartyClassificationByBottlesCount.B;
+		}
+
+		private CounterpartyClassificationByOrdersCount GetClassificationByOrdersCount(decimal ordersPerMonthAverageCount)
+		{
+			if(ordersPerMonthAverageCount <= CalculationSettings.OrdersCountZClassificationTo)
+			{
+				return CounterpartyClassificationByOrdersCount.Z;
+			}
+
+			if(ordersPerMonthAverageCount >= CalculationSettings.OrdersCountXClassificationFrom)
+			{
+				return CounterpartyClassificationByOrdersCount.X;
+			}
+
+			return CounterpartyClassificationByOrdersCount.Y;
 		}
 
 		private void UpdateCalculationSettingsCreationDate()

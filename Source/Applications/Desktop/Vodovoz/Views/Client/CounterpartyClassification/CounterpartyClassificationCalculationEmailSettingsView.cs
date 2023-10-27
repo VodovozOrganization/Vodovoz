@@ -1,7 +1,7 @@
 ﻿using QS.Views.Dialog;
 using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
-using Vodovoz.ViewModels.Counterparties.CounterpartyClassification;
+using Vodovoz.ViewModels.Counterparties.ClientClassification;
 
 namespace Vodovoz.Views.Client.CounterpartyClassification
 {

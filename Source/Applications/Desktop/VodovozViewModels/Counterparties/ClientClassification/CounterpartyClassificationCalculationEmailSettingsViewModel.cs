@@ -3,7 +3,7 @@ using QS.Navigation;
 using QS.ViewModels.Dialog;
 using System;
 
-namespace Vodovoz.ViewModels.Counterparties.CounterpartyClassification
+namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 {
 	public class CounterpartyClassificationCalculationEmailSettingsViewModel : WindowDialogViewModelBase
 	{

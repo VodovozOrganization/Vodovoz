@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace Vodovoz.Domain.Client.CounterpartyClassification
+namespace Vodovoz.Domain.Client.ClientClassification
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "параметры расчета классификаций контрагентов",

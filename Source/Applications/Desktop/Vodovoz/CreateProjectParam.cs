@@ -193,7 +193,7 @@ using Vodovoz.ViewModels.AdministrationTools;
 using Vodovoz.AdministrationTools;
 using Vodovoz.Application.Services.Logistics;
 using Vodovoz.Services.Logistics;
-using Vodovoz.ViewModels.Counterparties.CounterpartyClassification;
+using Vodovoz.ViewModels.Counterparties.ClientClassification;
 using Vodovoz.Views.Client.CounterpartyClassification;
 
 namespace Vodovoz

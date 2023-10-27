@@ -1,5 +1,5 @@
 ﻿using QS.Views.GtkUI;
-using Vodovoz.ViewModels.Counterparties.CounterpartyClassification;
+using Vodovoz.ViewModels.Counterparties.ClientClassification;
 
 namespace Vodovoz.Views.Client.CounterpartyClassification
 {
