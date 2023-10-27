@@ -549,6 +549,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			var promotionalSetsFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<PromotionalSet>>();
 			var includedPromotionalSets = promotionalSetsFilter.GetIncluded().ToArray();
 			var excludedPromotionalSets = promotionalSetsFilter.GetExcluded().ToArray();
+			
+			var orderStatusesFilter = FilterViewModel.GetFilter<IncludeExcludeEnumFilter<OrderStatus>>();
+			var includedOrderStatuses = orderStatusesFilter.GetIncluded().ToArray();
+			var excludedOrderStatuses = orderStatusesFilter.GetExcluded().ToArray();
 
 			#endregion Сбор параметров
 
@@ -694,6 +698,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			#region filter parameters
 
+			#region NomenclatureCategories
+
 			if(includedNomenclatureCategories.Any())
 			{
 				query.Where(Restrictions.In(
@@ -708,6 +714,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					excludedNomenclatureCategories)));
 			}
 
+			#endregion NomenclatureCategories
+
+			#region Nomenclatures
+
 			if(includedNomenclatures.Any())
 			{
 				query.Where(Restrictions.In(
@@ -721,6 +731,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					Projections.Property(() => nomenclatureAlias.Id),
 					excludedNomenclatures)));
 			}
+
+			#endregion Nomenclatures
+
+			#region ProductGroups
 
 			if(includedProductGroups.Any())
 			{
@@ -737,6 +751,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						excludedProductGroups)))
 					.Add(Restrictions.IsNull(Projections.Property(() => productGroupAlias.Id))));
 			}
+
+			#endregion ProductGroups
+
+			#region PaymentTypes
 
 			if(includedPaymentTypeElements.Any())
 			{
@@ -777,6 +795,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 							.Add(paymentTerminalFormsRestriction)));
 			}
 
+			#endregion PaymentTypes
+
+			#region Counterparties
+
 			if(includedCounterparties.Any())
 			{
 				query.Where(Restrictions.In(
@@ -791,6 +813,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					excludedCounterparties)));
 			}
 
+			#endregion Counterparties
+
+			#region CounterpartyTypes
+
 			if(includedCounterpartyTypes.Any())
 			{
 				query.Where(Restrictions.In(
@@ -804,6 +830,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					Projections.Property(() => counterpartyAlias.CounterpartyType),
 					excludedCounterpartyTypes)));
 			}
+
+			#endregion CounterpartyTypes
+
+			#region CounterpartySubtypes
 
 			if(includedCounterpartySubtypes.Any())
 			{
@@ -821,6 +851,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					.Add(Restrictions.IsNull(Projections.Property(() => counterpartyAlias.CounterpartySubtype.Id))));
 			}
 
+			#endregion CounterpartySubtypes
+
+			#region Organizations
+
 			if(includedOrganizations.Any())
 			{
 				query.Where(Restrictions.In(
@@ -834,6 +868,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					Projections.Property(() => counterpartyContractAlias.Organization.Id),
 					excludedOrganizations)));
 			}
+
+			#endregion Organizations
+
+			#region DiscountReasons
 
 			if(includedDiscountReasons.Any())
 			{
@@ -849,6 +887,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					excludedDiscountReasons)));
 			}
 
+			#endregion DiscountReasons
+
+			#region Subdivisions
+
 			if(includedSubdivisions.Any())
 			{
 				query.Where(Restrictions.In(
@@ -863,6 +905,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					excludedSubdivisions)));
 			}
 
+			#endregion Subdivisions
+
+			#region Employees
+
 			if(includedEmployees.Any())
 			{
 				query.Where(Restrictions.In(
@@ -876,6 +922,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					Projections.Property(() => authorAlias.Id),
 					excludedEmployees)));
 			}
+
+			#endregion Employees
+
+			#region GeoGroups
 
 			if(includedGeoGroups.Any())
 			{
@@ -893,6 +943,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					.Add(Restrictions.IsNull(Projections.Property(() => geographicGroupAlias.Id))));
 			}
 
+			#endregion GeoGroups
+
+			#region PromotionalSets
+
 			if(includedPromotionalSets.Any())
 			{
 				query.Where(Restrictions.In(
@@ -908,6 +962,22 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						excludedPromotionalSets)))
 					.Add(Restrictions.IsNull(Projections.Property(() => promotionalSetAlias.Id))));
 			}
+
+			#endregion PromotionalSets
+
+			#region OrderStatuses
+
+			if(includedOrderStatuses.Any())
+			{
+				query.WhereRestrictionOn(() => orderAlias.OrderStatus).IsIn(includedOrderStatuses);
+			}
+
+			if(excludedPromotionalSets.Any())
+			{
+				query.WhereRestrictionOn(() => orderAlias.OrderStatus).Not.IsIn(excludedOrderStatuses);
+			}
+
+			#endregion OrderStatuses
 
 			#endregion
 
