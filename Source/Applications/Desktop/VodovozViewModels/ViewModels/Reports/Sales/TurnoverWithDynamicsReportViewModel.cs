@@ -37,7 +37,6 @@ using Vodovoz.Reports.Editing.Modifiers;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.ReportsParameters.Profitability;
-using static Vodovoz.ViewModels.Reports.Sales.TurnoverWithDynamicsReportViewModel.TurnoverWithDynamicsReport;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Reports.Sales
@@ -572,9 +571,9 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			Email emailAlias = null;
 			PaymentFrom paymentFromAlias = null;
 
-			OrderItemNode resultNodeAlias = null;
+			TurnoverWithDynamicsReport.OrderItemNode resultNodeAlias = null;
 
-			IList<OrderItemNode> nomenclaturesEmptyNodes = new List<OrderItemNode>();
+			IList<TurnoverWithDynamicsReport.OrderItemNode> nomenclaturesEmptyNodes = new List<TurnoverWithDynamicsReport.OrderItemNode>();
 
 			if(ShowResidueForNomenclaturesWithoutSales)
 			{
@@ -648,7 +647,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						.Select(Projections.Property(() => productGroupAlias.Id).WithAlias(() => resultNodeAlias.ProductGroupId))
 						.Select(ProductGroupProjections.GetProductGroupNameWithEnclosureProjection().WithAlias(() => resultNodeAlias.ProductGroupName)))
 					.SetTimeout(0)
-					.TransformUsing(Transformers.AliasToBean<OrderItemNode>()).ReadOnly().List<OrderItemNode>();
+					.TransformUsing(Transformers.AliasToBean<TurnoverWithDynamicsReport.OrderItemNode>()).ReadOnly().List<TurnoverWithDynamicsReport.OrderItemNode>();
 			}
 
 			var query = _unitOfWork.Session.QueryOver(() => orderItemAlias)
@@ -689,7 +688,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			var routeListIdSubquery = QueryOver.Of(() => routeListItemAlias)
 				.Where(() => routeListItemAlias.Order.Id == orderAlias.Id)
-				.And(Restrictions.In(Projections.Property(() => routeListItemAlias.Status), notDeliveredStatuses))
+				.AndRestrictionOn(() => routeListItemAlias.Status).Not.IsIn(notDeliveredStatuses)
 				.Select(x => x.RouteList.Id)
 				.Take(1);
 
@@ -945,9 +944,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						.Select(() => productGroupAlias.Id).WithAlias(() => resultNodeAlias.ProductGroupId)
 						.Select(ProductGroupProjections.GetProductGroupNameWithEnclosureProjection()).WithAlias(() => resultNodeAlias.ProductGroupName))
 				.SetTimeout(0)
-				.TransformUsing(Transformers.AliasToBean<OrderItemNode>()).List<OrderItemNode>();
+				.TransformUsing(Transformers.AliasToBean<TurnoverWithDynamicsReport.OrderItemNode>())
+				.List<TurnoverWithDynamicsReport.OrderItemNode>();
 
-			return nomenclaturesEmptyNodes.Union(result.AsEnumerable()).ToList();
+			return nomenclaturesEmptyNodes.Union(result).ToList();
 		}
 
 		private AbstractCriterion GetOrderCriterion(OrderStatus[] filterOrderStatusInclude, Order orderAlias)
