@@ -2318,7 +2318,7 @@ namespace Vodovoz
 					Entity.IsLiquidating = false;
 				}
 
-				_counterpartyService.StopShipmentsIfNeeded(Entity, CurrentEmployee, a.State != Dadata.Model.PartyStatus.ACTIVE, a.State.GetUserFriendlyName());
+				_counterpartyService.StopShipmentsIfNeeded(Entity, CurrentEmployee, !a.IsActive, a.State.GetUserFriendlyName());
 			};
 		}
 
