@@ -16,13 +16,23 @@ namespace Vodovoz.JournalViewModels
 	{
 		private readonly IUnitOfWorkFactory unitOfWorkFactory;
 
-		public ClientCameFromJournalViewModel(ClientCameFromFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		public ClientCameFromJournalViewModel(
+			ClientCameFromFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			Action<ClientCameFromFilterViewModel> filterConfig = null)
+			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 
 			TabName = "Откуда клиент";
 			SetOrder(x => x.Name);
 			UpdateOnChanges(typeof(ClientCameFrom));
+
+			if(filterConfig != null)
+			{
+				FilterViewModel.SetAndRefilterAtOnce(filterConfig);
+			}
 		}
 
 		protected override Func<IUnitOfWork, IQueryOver<ClientCameFrom>> ItemsSourceQueryFunction => (uow) => {

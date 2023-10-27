@@ -3486,7 +3486,7 @@ namespace Vodovoz
 
 				UpdateUIState();
 
-				if(Save())
+				if(Save() && e.NeedClose)
 				{
 					OnCloseTab(false);
 				}

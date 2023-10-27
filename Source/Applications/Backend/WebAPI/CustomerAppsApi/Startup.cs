@@ -41,6 +41,7 @@ using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Settings;
 using Vodovoz.Settings.Database;
+using VodovozInfrastructure.Cryptography;
 using UserRepository = QS.Project.Repositories.UserRepository;
 
 namespace CustomerAppsApi
@@ -93,6 +94,7 @@ namespace CustomerAppsApi
 			services.AddSingleton<IRoboatsRepository, RoboatsRepository>();
 			services.AddSingleton<IBottlesRepository, BottlesRepository>();
 			services.AddSingleton<ICachedBottlesDebtRepository, CachedBottlesDebtRepository>();
+			services.AddSingleton<IDeliveryPointRepository, DeliveryPointRepository>();
 			services.AddSingleton<INomenclatureRepository, NomenclatureRepository>();
 			services.AddSingleton<IOrderRepository, OrderRepository>();
 			services.AddSingleton<IStockRepository, StockRepository>();
@@ -108,6 +110,7 @@ namespace CustomerAppsApi
 			services.AddSingleton<INomenclatureFactory, NomenclatureFactory>();
 			services.AddSingleton<IRentPackageFactory, RentPackageFactory>();
 			services.AddSingleton<IPromotionalSetFactory, PromotionalSetFactory>();
+			services.AddSingleton<IDeliveryPointFactory, DeliveryPointFactory>();
 			services.AddSingleton<PhoneFormatter>(_ => new PhoneFormatter(PhoneFormat.DigitsTen));
 			services.AddSingleton<ICounterpartySettings, CounterpartySettings>();
 			services.AddSingleton<ICameFromConverter, CameFromConverter>();
@@ -124,12 +127,17 @@ namespace CustomerAppsApi
 			services.AddScoped<IRentPackageModel, RentPackageModel>();
 			services.AddScoped<IOrderModel, OrderModel>();
 			services.AddScoped<IPromotionalSetModel, PromotionalSetModel>();
+			services.AddScoped<IDeliveryPointModel, DeliveryPointModel>();
+			services.AddScoped<IMD5HexHashFromString, MD5HexHashFromString>();
 			services.AddScoped<CounterpartyModelValidator>();
+			services.AddScoped<IDeliveryPointModelValidator, DeliveryPointModelValidator>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
+			app.ApplicationServices.GetService<ISettingsController>().RefreshSettings();
+			
 			if(env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();

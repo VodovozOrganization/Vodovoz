@@ -30,7 +30,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 			IEmployeeJournalFactory employeeJournalFactory,
 			ISalesPlanJournalFactory salesPlanJournalFactory, 
 			INomenclatureJournalFactory nomenclatureSelectorFactory,
-			ILifetimeScope scope)
+			ILifetimeScope scope,
+			Action<ComplaintKindJournalFilterViewModel> filterConfig = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
@@ -42,8 +43,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 
 			UpdateOnChanges(
 				typeof(ComplaintKind),
-				typeof(ComplaintObject)
-				);
+				typeof(ComplaintObject));
+
+			if(filterConfig != null)
+			{
+				FilterViewModel.SetAndRefilterAtOnce(filterConfig);
+			}
 		}
 
 		protected override Func<IUnitOfWork, IQueryOver<ComplaintKind>> ItemsSourceQueryFunction => (uow) =>

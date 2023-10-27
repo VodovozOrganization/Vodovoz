@@ -143,9 +143,9 @@ namespace Vodovoz.Views.Client
 		private void CreateDiscrepanciesPopUpMenu()
 		{
 			_discrepanciesPopUpMenu = new Menu();
-			var menuItem = new MenuItem("Переприсвоить контрагента");
-			menuItem.Activated += ReAssignCounterparty;
-			_discrepanciesPopUpMenu.Add(menuItem);
+			var reAssignItem = new MenuItem("Переприсвоить контрагента");
+			reAssignItem.Activated += ReAssignCounterparty;
+			_discrepanciesPopUpMenu.Add(reAssignItem);
 			_discrepanciesPopUpMenu.ShowAll();
 		}
 

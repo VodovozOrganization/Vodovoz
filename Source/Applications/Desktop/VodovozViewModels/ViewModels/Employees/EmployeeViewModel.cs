@@ -1,4 +1,5 @@
-﻿using NLog;
+﻿using Autofac;
+using NLog;
 using QS.Attachments.ViewModels.Widgets;
 using QS.Commands;
 using QS.Dialog;
@@ -11,6 +12,7 @@ using QS.Project.Journal;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using System;
 using System.Collections.Generic;
@@ -30,6 +32,8 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
+using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
@@ -40,6 +44,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
+using Vodovoz.ViewModels.ViewModels.Organizations;
 using VodovozInfrastructure.Endpoints;
 using EmployeeSettings = Vodovoz.Settings.Employee;
 
@@ -60,6 +65,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly IUserRepository _userRepository;
 		private readonly BaseParametersProvider _baseParametersProvider;
 		private readonly EmployeeSettings.IEmployeeSettings _employeeSettings;
+		private readonly ILifetimeScope _scope;
 		private readonly IEmployeeRegistrationVersionController _employeeRegistrationVersionController;
 		private IPermissionResult _employeeDocumentsPermissionsSet;
 		private readonly IPermissionResult _employeePermissionSet;
@@ -117,6 +123,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			IAttachmentsViewModelFactory attachmentsViewModelFactory,
 			INavigationManager navigationManager,
 			EmployeeSettings.IEmployeeSettings employeeSettings,
+			ILifetimeScope scope,
 			bool traineeToEmployee = false) : base(commonServices?.InteractiveService, navigationManager)
 		{
 			if(unitOfWorkFactory is null)
@@ -144,6 +151,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_baseParametersProvider = baseParametersProvider ?? throw new ArgumentNullException(nameof(baseParametersProvider));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
+			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
+			
 			_employeeRegistrationVersionController = new EmployeeRegistrationVersionController(Entity, new EmployeeRegistrationVersionFactory());
 
 			if(commonOrganisationProvider == null)
@@ -198,6 +207,25 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			}
 
 			SetPermissions();
+
+			var subdivisionEntryViewModelBuilder = new CommonEEVMBuilderFactory<Employee>(this, Entity, UoW, NavigationManager, _scope);
+
+			SubdivisionViewModel = subdivisionEntryViewModelBuilder
+				.ForProperty(x => x.Subdivision)
+				.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel, SubdivisionFilterViewModel>(
+					filter =>
+					{
+						SubdivisionType? subdivisionType = null;
+
+						if(CanManageDriversAndForwarders && !CanManageOfficeWorkers)
+						{
+							subdivisionType = SubdivisionType.Logistic;
+						}
+
+						filter.SubdivisionType = subdivisionType;
+					})
+				.UseViewModelDialog<SubdivisionViewModel>()
+				.Finish();
 		}
 
 		private Employee EmployeeForCurrentUser => 
@@ -227,7 +255,9 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		public IEmployeeJournalFactory EmployeeJournalFactory { get; }
 		public IEmployeePostsJournalFactory EmployeePostsJournalFactory { get; }
 		public ISubdivisionJournalFactory SubdivisionJournalFactory { get; }
-		
+		public IEntityEntryViewModel SubdivisionViewModel { get; }
+		public bool CanEditSubdivision => CanEditEmployee && (CanManageOfficeWorkers || CanManageDriversAndForwarders);
+
 		public bool HasChanges
 		{
 			get

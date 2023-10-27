@@ -784,8 +784,6 @@ namespace Vodovoz.Views.Logistic
 			Source.Remove(_timerId);
 			gmapWidget.Destroy();
 			_mapSeparateWindow?.Destroy();
-			yTreeViewDrivers?.Destroy();
-			yTreeAddresses?.Destroy();
 			yspeccomboboxHistoryHour.Destroy();
 			yenumcomboMapType.Destroy();
 			base.Destroy();

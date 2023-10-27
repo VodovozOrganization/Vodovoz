@@ -150,6 +150,14 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Store
 		public ShiftChangeResidueDocumentType ShiftChangeResidueDocumentType { get; set; }
 
 		public bool MovementDocumentDiscrepancy { get; set; }
+		public string FineEmployees { get; set; }
+		public decimal FineTotalMoney { get; set; }
+		public string FinesDescription => string.IsNullOrWhiteSpace(FineEmployees) ? "" : $"({FineEmployees}) = {FineTotalMoney:# ### ### ##0.00 ₽}";
+		public string FinesDescriptionForReport => string.IsNullOrWhiteSpace(FineEmployees) ? "" : $"({FineEmployees}) = {FineTotalMoney:# ### ### ##0.00}";
+		public string TypeOfDefect { get; set; }
+		public DefectSource DefectSource { get; set; }
+		public string DefectSourceString => DefectSource.GetEnumTitle();
+		public string RegradingOfGoodsReason { get; set; }
 
 		private string GetTitle(Type type) => type.GetAttribute<AppellativeAttribute>(true)?.Nominative;
 	}

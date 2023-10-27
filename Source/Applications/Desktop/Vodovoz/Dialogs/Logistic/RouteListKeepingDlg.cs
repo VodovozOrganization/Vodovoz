@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using Gamma.GtkWidgets;
 using Gtk;
+using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.Dialog.GtkUI.FileDialog;
 using QS.DomainModel.Entity;
@@ -12,9 +13,11 @@ using QS.Tdi;
 using QS.ViewModels.Extension;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Gamma.Utilities;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
@@ -35,7 +38,6 @@ using Vodovoz.Factories;
 using Vodovoz.Infrastructure;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
-using Vodovoz.Settings.Database;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -417,9 +419,30 @@ namespace Vodovoz
 					dlg.DlgSaved += (s, ea) =>
 					{
 						rli.UpdateStatus(newStatus, CallTaskWorker);
+						UoW.Save(rli.RouteListItem);
+						UoW.Commit();
 					};
 					return;
 				}
+
+				var autofacScope = Startup.AppDIContainer.BeginLifetimeScope();
+				var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
+
+				ValidationContext validationContext = new ValidationContext(Entity, null, new Dictionary<object, object>
+				{
+					{ "uowFactory", uowFactory }
+				});
+
+				var canCreateSeveralOrdersValidationResult =
+					rli.RouteListItem.Order.ValidateCanCreateSeveralOrderForDateAndDeliveryPoint(validationContext);
+
+				if(canCreateSeveralOrdersValidationResult != ValidationResult.Success)
+				{
+					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, $"Нельзя перевести адрес в статус \"{newStatus.GetEnumTitle()}\": {canCreateSeveralOrdersValidationResult.ErrorMessage} ");
+
+					return;
+				}
+
 				rli.UpdateStatus(newStatus, CallTaskWorker);
 			}
 		}

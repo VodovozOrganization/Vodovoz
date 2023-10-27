@@ -36,7 +36,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 	public sealed class DriversInfoExportViewModel : DialogTabViewModelBase, ITDICloseControlTab
 	{
 		private readonly IInteractiveService _interactiveService;
-		private readonly WageParameterService _wageParameterService;
+		private readonly IWageParameterService _wageParameterService;
 
 		private EmployeeStatus? _employeeStatus;
 		private DateTime? _endDate;
@@ -52,7 +52,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private DelegateCommand _helpCommand;
 
 		public DriversInfoExportViewModel(
-			WageParameterService wageParameterService,
+			IWageParameterService wageParameterService,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
 			INavigationManager navigation)
@@ -333,7 +333,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		}
 
 		private static IEnumerable<DriverInfoNode> GroupAndGetAdditionalDataForDriverInfoNodes(IUnitOfWork uow,
-			IEnumerable<DriverInfoNode> nodes, WageParameterService wageParameterService)
+			IEnumerable<DriverInfoNode> nodes, IWageParameterService wageParameterService)
 		{
 			#region Aliases
 
@@ -590,7 +590,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		}
 
 		private static IEnumerable<DriverInfoNode> GroupByDriverCarAndGetAdditionalDataForDriverInfoNodes(IUnitOfWork uow, DateTime? startDate, DateTime? endDate,
-			IEnumerable<DriverInfoNode> nodes, WageParameterService wageParameterService)
+			IEnumerable<DriverInfoNode> nodes, IWageParameterService wageParameterService)
 		{
 			#region Aliases
 

@@ -21,7 +21,7 @@ namespace Vodovoz.ViewModels.Factories
 				new GroupingNode { Name = "Группа уровень 1", GroupType = GroupingType.NomenclatureGroup1 },
 				new GroupingNode { Name = "Группа уровень 2", GroupType = GroupingType.NomenclatureGroup2 },
 				new GroupingNode { Name = "Группа уровень 3", GroupType = GroupingType.NomenclatureGroup3 },
-				new GroupingNode { Name = "Тип контрагента", GroupType = GroupingType.CounterpartyType },
+				new GroupingNode { Name = "Тип контрагента/подтип", GroupType = GroupingType.CounterpartyType },
 				new GroupingNode { Name = "Тип оплаты", GroupType = GroupingType.PaymentType },
 				new GroupingNode { Name = "Организация", GroupType = GroupingType.Organization },
 			}.AsReadOnly();
@@ -29,17 +29,17 @@ namespace Vodovoz.ViewModels.Factories
 		private static ReadOnlyCollection<GroupingNode> _defaultSalesWithDynamicsReportsGroupingNodes =>
 			new List<GroupingNode>
 			{
-						new GroupingNode { Name = "Заказ", GroupType = GroupingType.Order },
-						new GroupingNode { Name = "Контрагент", GroupType = GroupingType.Counterparty },
-						new GroupingNode { Name = "Подразделение", GroupType = GroupingType.Subdivision },
-						new GroupingNode { Name = "Дата доставки", GroupType = GroupingType.DeliveryDate },
-						new GroupingNode { Name = "Маршрутный лист", GroupType = GroupingType.RouteList },
-						new GroupingNode { Name = "Номенклатура", GroupType = GroupingType.Nomenclature },
-						new GroupingNode { Name = "Тип номенклатуры", GroupType = GroupingType.NomenclatureType },
-						new GroupingNode { Name = "Группа товаров", GroupType = GroupingType.NomenclatureGroup },
-						new GroupingNode { Name = "Тип контрагента", GroupType = GroupingType.CounterpartyType },
-						new GroupingNode { Name = "Тип оплаты", GroupType = GroupingType.PaymentType },
-						new GroupingNode { Name = "Организация", GroupType = GroupingType.Organization },
+				new GroupingNode { Name = "Заказ", GroupType = GroupingType.Order },
+				new GroupingNode { Name = "Контрагент", GroupType = GroupingType.Counterparty },
+				new GroupingNode { Name = "Подразделение", GroupType = GroupingType.Subdivision },
+				new GroupingNode { Name = "Дата доставки", GroupType = GroupingType.DeliveryDate },
+				new GroupingNode { Name = "Маршрутный лист", GroupType = GroupingType.RouteList },
+				new GroupingNode { Name = "Номенклатура", GroupType = GroupingType.Nomenclature },
+				new GroupingNode { Name = "Тип номенклатуры", GroupType = GroupingType.NomenclatureType },
+				new GroupingNode { Name = "Группа товаров", GroupType = GroupingType.NomenclatureGroup },
+				new GroupingNode { Name = "Тип контрагента/подтип", GroupType = GroupingType.CounterpartyType },
+				new GroupingNode { Name = "Тип оплаты", GroupType = GroupingType.PaymentType },
+				new GroupingNode { Name = "Организация", GroupType = GroupingType.Organization },
 			}.AsReadOnly();
 
 		public LeftRightListViewModel<GroupingNode> CreateSalesReportGroupingsConstructor()

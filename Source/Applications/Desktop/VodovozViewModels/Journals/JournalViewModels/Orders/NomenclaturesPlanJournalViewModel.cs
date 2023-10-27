@@ -21,11 +21,17 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
         public NomenclaturesPlanJournalViewModel(
 	        NomenclaturePlanFilterViewModel filterViewModel,
 	        IUnitOfWorkFactory unitOfWorkFactory,
-	        ICommonServices commonServices)
+	        ICommonServices commonServices,
+			Action<NomenclaturePlanFilterViewModel> filterConfig = null)
             : base(filterViewModel, unitOfWorkFactory, commonServices)
         {
             TabName = "Журнал План продаж для КЦ";
             UpdateOnChanges(typeof(Nomenclature));
+
+			if(filterConfig != null)
+			{
+				FilterViewModel.SetAndRefilterAtOnce(filterConfig);
+			}
         }
 
         protected override void CreateNodeActions()

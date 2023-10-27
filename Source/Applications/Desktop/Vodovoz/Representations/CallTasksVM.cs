@@ -15,7 +15,6 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Domain.StoredResources;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Services;
 using ClosedXML.Excel;
@@ -28,8 +27,8 @@ namespace Vodovoz.Representations
 {
 	public class CallTasksVM : QSOrmProject.RepresentationModel.RepresentationModelEntityBase<CallTask, CallTaskVMNode>
 	{
-		private readonly Pixbuf _emptyImg = new Pixbuf(typeof(Startup).Assembly, "Vodovoz.icons.common.empty16.png");
-		private readonly Pixbuf _fire = new Pixbuf(typeof(Startup).Assembly, "Vodovoz.icons.common.fire16.png");
+		private static readonly Pixbuf _emptyImg = new Pixbuf(typeof(Startup).Assembly, "Vodovoz.icons.common.empty16.png");
+		private static readonly Pixbuf _fire = new Pixbuf(typeof(Startup).Assembly, "Vodovoz.icons.common.fire16.png");
 		private readonly IFileDialogService _fileDialogService;
 
 		private CallTaskFilterViewModel filter;

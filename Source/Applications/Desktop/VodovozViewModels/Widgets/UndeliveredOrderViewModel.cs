@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -477,6 +477,15 @@ namespace Vodovoz.ViewModels.Widgets
 			{
 				if(Entity.NewOrder == null)
 				{
+					if(Entity.Id == 0)
+					{
+						var saved = IsSaved?.Invoke();
+						if(!saved.HasValue || !saved.Value)
+						{
+							return;
+						}
+					}
+
 					CreateNewOrder(Entity.OldOrder);
 				}
 				else

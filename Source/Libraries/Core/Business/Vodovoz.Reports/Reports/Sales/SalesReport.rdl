@@ -239,8 +239,8 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -286,7 +286,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontWeight>Bold</FontWeight>
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                       <Value>=Sum(Fields!total_count.Value)</Value>
                     </Textbox>
@@ -302,7 +302,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontWeight>Bold</FontWeight>
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                       <Value>=Sum(Fields!total_sum.Value)</Value>
                     </Textbox>
@@ -540,9 +540,14 @@ FROM
          CASE WHEN counterparty.counterparty_type = 'Buyer' THEN "Покупатель"
               WHEN counterparty.counterparty_type = 'Supplier' THEN "Поставщик"
               WHEN counterparty.counterparty_type = 'Dealer' THEN "Дилер"
-              WHEN counterparty.counterparty_type = 'AdvertisingDepartmentClient' THEN "Клиент РО"
+              WHEN counterparty.counterparty_type = 'AdvertisingDepartmentClient' AND counterparty.counterparty_subtype_id is null
+              	THEN "Клиент РО"
+              WHEN counterparty.counterparty_type = 'AdvertisingDepartmentClient' AND counterparty.counterparty_subtype_id is NOT null
+              	THEN CONCAT("Клиент РО | ", cst.name)
          	  ELSE ""
          	  END as counterparty_type,
+         cst.name AS counterparty_subtype,
+         cst.id AS counterparty_subtype_id,
          org.name AS organization,
          delivery_points.compiled_address as delivery_point,
          orders.id as order_id,
@@ -600,6 +605,8 @@ FROM
          nomenclature_groups ON nomenclature.group_id = nomenclature_groups.id
              LEFT JOIN
          counterparty ON orders.client_id = counterparty.id
+             LEFT JOIN
+         counterparty_subtypes cst ON counterparty.counterparty_subtype_id = cst.id
              LEFT JOIN
          delivery_points ON orders.delivery_point_id = delivery_points.id
              LEFT JOIN

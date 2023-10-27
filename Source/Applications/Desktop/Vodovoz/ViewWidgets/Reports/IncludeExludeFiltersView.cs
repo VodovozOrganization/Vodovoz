@@ -1,4 +1,4 @@
-﻿using Gamma.Binding;
+using Gamma.Binding;
 using Gtk;
 using QS.Views.GtkUI;
 using System;
@@ -23,11 +23,13 @@ namespace Vodovoz.ViewWidgets.Reports
 			ybuttonClearAllIncludes.Clicked += (s, e) =>
 			{
 				ViewModel.ClearAllIncludesCommand.Execute();
+				ytreeviewElements.QueueDraw();
 			};
 
 			ybuttonClearAllExcludes.Clicked += (s, e) =>
 			{
 				ViewModel.ClearAllExcludesCommand.Execute();
+				ytreeviewElements.QueueDraw();
 			};
 
 			ybuttonClearExcludes.Clicked += (s, e) =>
@@ -156,6 +158,7 @@ namespace Vodovoz.ViewWidgets.Reports
 
 		private void OnElementCheckboxToggled(object o, ToggledArgs args)
 		{
+			Gtk.Application.Invoke((s, a) => ViewModel.RaiseSelectionChangedCommand.Execute());
 			ytreeviewElements.QueueDraw();
 		}
 	}

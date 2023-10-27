@@ -214,8 +214,6 @@ public partial class MainWindow
 
 	public void InitializeThemesMenuItem()
 	{
-		return; //Отключено до разрешения проблем с темой
-
 		_themes = new Dictionary<string, string>();
 
 		string currentTheme = Gtk.Settings.Default.ThemeName;
@@ -223,7 +221,7 @@ public partial class MainWindow
 		string themesPath = Rc.ThemeDir;
 
 		_themes.Add("Стандартная", "Breeze");
-		_themes.Add("Тёмная", "Fluent-round-Dark");
+		_themes.Add("Тёмная", "Mint-Y-Yltra-Dark");
 
 		var viewMenuItem = menubarMain.Children.Where(x => x.Name == nameof(Action18)).Cast<ImageMenuItem>().FirstOrDefault();
 

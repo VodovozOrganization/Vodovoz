@@ -20,11 +20,9 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
-using Vodovoz.ViewModels.Dialogs.Goods;
+using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.ViewModels.Employees;
 
@@ -54,9 +52,11 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		private DialogViewModelBase _journalViewModel;
 		private Employee _author;
 		private Employee _lastEditor;
-		private Nomenclature _nomenclature;
 		private bool _showNotAffectedBalance = false;
 		private int? _documentId;
+		private readonly IGenericRepository<Nomenclature> _nomenclatureRepository;
+		private readonly IGenericRepository<ProductGroup> _productGroupRepository;
+		private EntityEntryViewModel<Nomenclature> _nomenclatureEntityEntryViewModel;
 
 		public WarehouseDocumentsItemsJournalFilterViewModel(
 			ICurrentPermissionService currentPermissionService,
@@ -64,7 +64,9 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			ILifetimeScope lifetimeScope,
 			IUserService userService,
 			IUserRepository userRepository,
-			IInteractiveService interactiveService)
+			IInteractiveService interactiveService,
+			IGenericRepository<Nomenclature> nomenclatureRepository,
+			IGenericRepository<ProductGroup> productGroupRepository)
 		{
 			_currentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
@@ -72,6 +74,9 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			_userService = userService ?? throw new ArgumentNullException(nameof(userService));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			_productGroupRepository = productGroupRepository ?? throw new ArgumentNullException(nameof(productGroupRepository)); ;
+
 			StartDate = DateTime.Today.AddDays(-7);
 			EndDate = DateTime.Today.AddDays(1);
 			TargetSource = TargetSource.Both;
@@ -138,10 +143,14 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			set => UpdateFilterField(ref _lastEditor, value);
 		}
 
-		public Nomenclature Nomenclature
+		public IncludeExcludeElement SelectedNomenclatureElement
 		{
-			get => _nomenclature;
-			set => UpdateFilterField(ref _nomenclature, value);
+			get
+			{
+				var nomenclatures = IncludeExcludeFilterViewModel.GetIncludedElements<Nomenclature>().ToArray();
+
+				return nomenclatures.Length == 1 ? nomenclatures[0] : null;
+			}
 		}
 
 		public List<int> CounterpartyIds
@@ -165,6 +174,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			get => _filterViewModel;
 			set => UpdateFilterField(ref _filterViewModel, value);
 		}
+
+		public IncludeExludeFiltersViewModel IncludeExcludeFilterViewModel { get; set; }
 
 		public SelectableFilterType FilterType
 		{
@@ -233,21 +244,6 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 				lastEditorEntryViewModel.CanViewEntity = false;
 
 				LastEditorEntityEntryViewModel = lastEditorEntryViewModel;
-
-				var nomenclatureEntryViewModel =
-					new CommonEEVMBuilderFactory<WarehouseDocumentsItemsJournalFilterViewModel>(value, this, UoW, _navigationManager, _lifetimeScope)
-					.ForProperty(x => x.Nomenclature)
-					.UseViewModelDialog<NomenclatureViewModel>()
-					.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(
-						filter =>
-						{
-						}
-					)
-					.Finish();
-
-				nomenclatureEntryViewModel.CanViewEntity = false;
-
-				NomenclatureEntityEntryViewModel = nomenclatureEntryViewModel;
 			}
 		}
 
@@ -263,11 +259,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 
 		public EntityEntryViewModel<Employee> LastEditorEntityEntryViewModel { get; private set; }
 
-		public EntityEntryViewModel<Nomenclature> NomenclatureEntityEntryViewModel { get; private set; }
-
 		public bool CanReadEmployee => _currentPermissionService.ValidateEntityPermission(typeof(Employee)).CanRead;
-
-		public bool CanReadNomenclature => _currentPermissionService.ValidateEntityPermission(typeof(Nomenclature)).CanRead;
 
 		private void ConfigureFilter()
 		{
@@ -319,10 +311,21 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 					return query.List<SelectableParameter>();
 				}));
 
+
 			FilterViewModel = new SelectableParameterReportFilterViewModel(_filter);
 
 			FilterViewModel.SelectionChanged += OnFilterViewModelSelectionChanged;
 			FilterViewModel.FilterModeChanged += OnFilterViewModelFilterModeChanged;
+
+			IncludeExcludeFilterViewModel = new IncludeExludeFiltersViewModel(_interactiveService);
+			IncludeExcludeFilterViewModel.SelectionChanged += OnIncludeExcludeFilterSelectionChanged;
+			IncludeExcludeFilterViewModel.AddFilter(UoW, _nomenclatureRepository);
+			IncludeExcludeFilterViewModel.AddFilter(UoW, _productGroupRepository, x => x.Parent?.Id, x => x.Id);
+		}
+
+		private void OnIncludeExcludeFilterSelectionChanged(object sender, EventArgs e)
+		{
+			SetAndRefilterAtOnce();
 		}
 
 		private void OnFilterViewModelFilterModeChanged(object sender, FilterTypeChangedArgs e)
@@ -398,6 +401,15 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 				"Доступен поиск по источникам/получателям/источнико-получателям(оба) номенклатур\n" +
 				"Галочка \"Отображать строки не влияющие на баланс\" -включает отображение документов/строк документов не влияющих на баланс остатков.",
 				"Справка");
+		}
+
+		public override void Dispose()
+		{
+			FilterViewModel.SelectionChanged -= OnFilterViewModelSelectionChanged;
+			FilterViewModel.FilterModeChanged -= OnFilterViewModelFilterModeChanged;
+			IncludeExcludeFilterViewModel.SelectionChanged -= OnIncludeExcludeFilterSelectionChanged;
+
+			base.Dispose();
 		}
 	}
 }

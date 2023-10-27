@@ -1,18 +1,12 @@
 ﻿using Gtk;
 using MySqlConnector;
 using QS.ChangePassword.Views;
-using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Repositories;
-using QS.Project.Services;
 using QS.ViewModels;
 using System;
 using Vodovoz;
-using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Parameters;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Users;
 using Vodovoz.ViewModels.ViewModels.Settings;
 using VodovozInfrastructure.Passwords;
@@ -50,23 +44,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnPropertiesActionActivated(object sender, EventArgs e)
 	{
-		var subdivisionJournalFactory = new SubdivisionJournalFactory();
-		var subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
-		var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
-
-		tdiMain.OpenTab(
-			() => new UserSettingsViewModel(
-				EntityUoWBuilder.ForOpen(CurrentUserSettings.Settings.Id),
-				UnitOfWorkFactory.GetDefaultFactory,
-				NavigationManager,
-				ServicesConfig.CommonServices,
-				VodovozGtkServicesConfig.EmployeeService,
-				new SubdivisionParametersProvider(new ParametersProvider()),
-				subdivisionJournalFactory,
-				counterpartyJournalFactory,
-				subdivisionRepository,
-				new NomenclaturePricesRepository()
-			));
+		NavigationManager.OpenViewModel<UserSettingsViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(CurrentUserSettings.Settings.Id));
 	}
 
 	/// <summary>
@@ -86,7 +64,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionHistoryLogActivated(object sender, EventArgs e)
 	{
-		tdiMain.AddTab(new Vodovoz.Dialogs.HistoryView(new UserJournalFactory()));
+		NavigationManager.OpenTdiTab<Vodovoz.Dialogs.HistoryView>(null, QS.Navigation.OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>

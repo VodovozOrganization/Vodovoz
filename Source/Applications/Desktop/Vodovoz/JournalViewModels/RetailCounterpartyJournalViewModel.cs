@@ -25,7 +25,9 @@ namespace Vodovoz.JournalViewModels
 		public RetailCounterpartyJournalViewModel(
 			CounterpartyJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			ICommonServices commonServices,
+			Action<CounterpartyJournalFilterViewModel> filterConfig = null)
+			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал контрагентов";
 			
@@ -40,6 +42,11 @@ namespace Vodovoz.JournalViewModels
 				typeof(DeliveryPoint));
 
 			SearchEnabled = false;
+
+			if(filterConfig != null)
+			{
+				FilterViewModel.SetAndRefilterAtOnce(filterConfig);
+			}
 		}
 
 		protected override Func<IUnitOfWork, IQueryOver<Counterparty>> ItemsSourceQueryFunction => (uow) => {
