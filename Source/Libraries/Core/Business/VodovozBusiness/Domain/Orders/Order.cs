@@ -117,6 +117,8 @@ namespace Vodovoz.Domain.Orders
 		private bool? _canCreateOrderInAdvance;
 		private int? counterpartyExternalOrderId;
 
+		private int? _callBeforeArrivalMinutes;
+
 		#region Cвойства
 
 		public virtual int Id { get; set; }
@@ -417,6 +419,13 @@ namespace Vodovoz.Domain.Orders
 		public virtual string Comment {
 			get => comment;
 			set => SetField(ref comment, value, () => Comment);
+		}
+
+		[Display(Name = "Отзвон за")]
+		public virtual int? CallBeforeArrivalMinutes
+		{
+			get => _callBeforeArrivalMinutes;
+			set => SetField(ref _callBeforeArrivalMinutes, value);
 		}
 
 		private string commentLogist;
@@ -5056,6 +5065,7 @@ namespace Vodovoz.Domain.Orders
 		#region Точка доставки
 
 		private int _educationalInstitutionDeliveryPointCategoryId;
+
 		private int EducationalInstitutionDeliveryPointCategoryId
 		{
 			get
