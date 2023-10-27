@@ -766,7 +766,7 @@ FROM
                       WHEN 'ContractDoc' THEN 'Контракт. док.'
                       WHEN 'ContractDocumentation' THEN 'Контракт. док.'
                       WHEN 'BeveragesWorld' THEN 'Мир напитков'
-                      WHEN 'Terminal' THEN CONCAT('Терминал', IF(o.terminal_subtype = 'ByCard', "По карте", "По QR-коду"))
+                      WHEN 'Terminal' THEN CONCAT('Терминал, ', IF(o.terminal_subtype = 'ByCard', "По карте", "По QR-коду"))
                       ELSE hc.old_value
                       END
                    ) as old_value,
@@ -786,7 +786,7 @@ FROM
                       WHEN 'ContractDoc' THEN 'Контракт. док.'
                       WHEN 'ContractDocumentation' THEN 'Контракт. док.'
                       WHEN 'BeveragesWorld' THEN 'Мир напитков'
-                      WHEN 'Terminal' THEN CONCAT('Терминал', IF(o.terminal_subtype = 'ByCard', "По карте", "По QR-коду"))
+                      WHEN 'Terminal' THEN CONCAT('Терминал, ', IF(o.terminal_subtype = 'ByCard', "По карте", "По QR-коду"))
                       ELSE hc.new_value
                       END
                    ) as new_value,
@@ -915,7 +915,7 @@ FROM
                       WHEN 'ContractDoc' THEN 'Контракт. док.'
                       WHEN 'ContractDocumentation' THEN 'Контракт. док.'
                       WHEN 'BeveragesWorld' THEN 'Мир напитков'
-                      WHEN 'Terminal' THEN CONCAT('Терминал', IF(o.terminal_subtype = 'ByCard', "По карте", "По QR-коду"))
+                      WHEN 'Terminal' THEN CONCAT('Терминал, ', IF(o.terminal_subtype = 'ByCard', "По карте", "По QR-коду"))
                       ELSE hc.old_value
                       END
                    ) as old_value,
@@ -935,7 +935,7 @@ FROM
                       WHEN 'ContractDoc' THEN 'Контракт. док.'
                       WHEN 'ContractDocumentation' THEN 'Контракт. док.'
                       WHEN 'BeveragesWorld' THEN 'Мир напитков'
-                      WHEN 'Terminal' THEN CONCAT('Терминал', IF(o.terminal_subtype = 'ByCard', "По карте", "По QR-коду"))
+                      WHEN 'Terminal' THEN CONCAT('Терминал, ', IF(o.terminal_subtype = 'ByCard', "По карте", "По QR-коду"))
                       ELSE hc.new_value
                       END
                    ) as new_value,
