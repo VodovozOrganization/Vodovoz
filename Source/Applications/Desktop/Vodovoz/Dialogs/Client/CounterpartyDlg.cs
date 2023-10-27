@@ -1559,6 +1559,7 @@ namespace Vodovoz
 				}
 				catch(Exception ex)
 				{
+					MessageDialogHelper.RunWarningDialog($"Не удалось проверить контрагента в ФНС: {ex.Message}", "Ошибка проверки статуса в ФНС");
 					_logger.Warn("Не удалось проверить контрагента в ФНС: {Reason}",
 					ex.Message);
 				}
