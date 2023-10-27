@@ -111,5 +111,10 @@ namespace DriverAPI.Library.DTOs
 		/// Подписание документов
 		/// </summary>
 		public SignatureDtoType? SignatureType { get; set; }
+
+		/// <summary>
+		/// Отзвон за
+		/// </summary>
+		public int? CallBeforeArrivalMinutes { get; internal set; }
 	}
 }
