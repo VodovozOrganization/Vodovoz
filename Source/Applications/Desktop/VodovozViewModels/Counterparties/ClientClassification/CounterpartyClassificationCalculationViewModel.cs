@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using MoreLinq;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -109,24 +110,58 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 
 			UpdateCalculationSettingsCreationDate();
 
-			var allCounterpartiesIds = GetAllCounterpartiesIds(_unitOfWork).ToList();
-			var classificationsByOrders = GetClassificationsByOrdersPerCounterparty(_unitOfWork).ToList();
+			var allCounterpartiesIds = GetAllCounterpartyIds(_unitOfWork).ToList();
+			var newCounterpartyClassifications = GetClassificationsByOrdersPerCounterparty(_unitOfWork)
+				.ToDictionary(c => c.CounterpartyId);
 
-			foreach(var classification in classificationsByOrders)
+			foreach(var counterpartyId in allCounterpartiesIds)
 			{
-				classification.ClassificationByBottlesCount = GetClassificationByBottlesCount(classification.BottlesPerMonthAverageCount);
-				classification.ClassificationByOrdersCount = GetClassificationByOrdersCount(classification.OrdersPerMonthAverageCount);
-				classification.ClassificationCalculationDate = DateTime.Now;
+				bool counterpartyHasNewCaculatedClassification = newCounterpartyClassifications.ContainsKey(counterpartyId);
 
-				if(classification.CounterpartyId < 100)
+				var classification =
+					counterpartyHasNewCaculatedClassification
+					? newCounterpartyClassifications[counterpartyId]
+					: new CounterpartyClassification();
+
+				if(!counterpartyHasNewCaculatedClassification)
 				{
-					_unitOfWork.Save(classification);
+					classification.CounterpartyId = counterpartyId;
+					classification.ClassificationByBottlesCount = CounterpartyClassificationByBottlesCount.C;
+					classification.ClassificationByOrdersCount = CounterpartyClassificationByOrdersCount.Z;
+					classification.BottlesPerMonthAverageCount = 0;
+					classification.OrdersPerMonthAverageCount = 0;
+					classification.MoneyTurnoverPerMonthAverageSum = 0;
+					classification.ClassificationCalculationDate = DateTime.Now;
+
+					newCounterpartyClassifications.Add(counterpartyId, classification);
+
+					continue;
 				}
 
-				//_unitOfWork.Save(classification);
+				classification.ClassificationByBottlesCount =
+						GetClassificationByBottlesCount(classification.BottlesPerMonthAverageCount);
+
+				classification.ClassificationByOrdersCount =
+					GetClassificationByOrdersCount(classification.OrdersPerMonthAverageCount);
+
+				classification.ClassificationCalculationDate = DateTime.Now;
+			}
+
+			var oldCounterpartyClassifications = GetLastExistingClassificationsForCounterparties(_unitOfWork)
+				.ToDictionary(c => c.CounterpartyId);
+
+			foreach(var classification in newCounterpartyClassifications)
+			{
+				if(classification.Value.CounterpartyId < 100)
+				{
+					_unitOfWork.Save(classification.Value);
+				}
+
+				//_unitOfWork.Session.Save(classification.Value);
 			}
 
 			_unitOfWork.Save(CalculationSettings);
+
 			_unitOfWork.Commit();
 
 			_interactiveService.ShowMessage(
@@ -138,12 +173,18 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			IsCalculationCompleted = true;
 		}
 
-		private IQueryable<int> GetAllCounterpartiesIds(IUnitOfWork unitOfWork)
+		private IQueryable<int> GetAllCounterpartyIds(IUnitOfWork unitOfWork)
 		{
-			var ids = unitOfWork.GetAll<Counterparty>()
+			return unitOfWork.GetAll<Counterparty>()
 				.Select(c => c.Id);
+		}
 
-			return ids;
+		private IQueryable<CounterpartyClassification> GetLastExistingClassificationsForCounterparties(IUnitOfWork unitOfWork)
+		{
+			return unitOfWork.GetAll<CounterpartyClassification>()
+				.OrderByDescending(c => c.ClassificationCalculationDate)
+				.DistinctBy(c => c.CounterpartyId)
+				.AsQueryable();
 		}
 
 		private IQueryable<CounterpartyClassification> GetClassificationsByOrdersPerCounterparty(IUnitOfWork unitOfWork)
@@ -167,15 +208,17 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 
 											BottlesPerMonthAverageCount =
 												clientsGroups.Sum(data =>
-													data.Nomenclature.Category == NomenclatureCategory.water && data.Nomenclature.TareVolume == TareVolume.Vol19L
+													(data.Nomenclature.Category == NomenclatureCategory.water
+														&& data.Nomenclature.TareVolume == TareVolume.Vol19L)
 													? data.Item.Count
 													: 0) / CalculationSettings.PeriodInMonths,
 
 											OrdersPerMonthAverageCount =
-												(decimal)(clientsGroups.Select(data => data.Order.Id).Distinct().Count()) / CalculationSettings.PeriodInMonths,
+												(decimal)(clientsGroups.Select(data =>
+													data.Order.Id).Distinct().Count()) / CalculationSettings.PeriodInMonths,
 
-											MoneyTurnoverPerMonthAverageSum =
-												clientsGroups.Sum(data => (data.Item.ActualCount ?? data.Item.Count) * data.Item.Price - data.Item.DiscountMoney) / CalculationSettings.PeriodInMonths
+											MoneyTurnoverPerMonthAverageSum = clientsGroups.Sum(data =>
+													(data.Item.ActualCount ?? data.Item.Count) * data.Item.Price - data.Item.DiscountMoney) / CalculationSettings.PeriodInMonths
 										};
 
 			return ordersPerCounterparty;
