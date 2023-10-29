@@ -8,6 +8,7 @@ using QS.Navigation;
 using QS.Services;
 using QS.ViewModels;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using Vodovoz.Domain.Client;
@@ -19,7 +20,7 @@ using static Vodovoz.ViewModels.Counterparties.ClientClassification.Counterparty
 
 namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 {
-	public class CounterpartyClassificationCalculationViewModel : DialogTabViewModelBase
+	public partial class CounterpartyClassificationCalculationViewModel : DialogTabViewModelBase
 	{
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly IInteractiveService _interactiveService;
@@ -30,6 +31,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 		private bool _isCalculationCompleted;
 		private string _currentUserEmail;
 		private string _additionalEmail;
+		private DateTime _creationDate;
 
 		public CounterpartyClassificationCalculationViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -49,6 +51,8 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_userService = userService ?? throw new ArgumentNullException(nameof(userService));
 			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot();
+
+			_creationDate = DateTime.Now;
 
 			Title = "Пересчёт классификации контрагентов";
 
@@ -103,6 +107,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 
 		private void OnEmailSettingsDialogStartClassificationCalculationClicked(object sender, StartClassificationCalculationEventArgs e)
 		{
+			_creationDate = DateTime.Now;
 			_currentUserEmail = e.CurrentUserEmail;
 			_additionalEmail = e.AdditionalEmail;
 
@@ -110,55 +115,48 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 
 			UpdateCalculationSettingsCreationDate();
 
-			var allCounterpartiesIds = GetAllCounterpartyIds(_unitOfWork).ToList();
-			var newCounterpartyClassifications = GetClassificationsByOrdersPerCounterparty(_unitOfWork)
-				.ToDictionary(c => c.CounterpartyId);
-
-			foreach(var counterpartyId in allCounterpartiesIds)
-			{
-				bool counterpartyHasNewCaculatedClassification = newCounterpartyClassifications.ContainsKey(counterpartyId);
-
-				var classification =
-					counterpartyHasNewCaculatedClassification
-					? newCounterpartyClassifications[counterpartyId]
-					: new CounterpartyClassification();
-
-				if(!counterpartyHasNewCaculatedClassification)
-				{
-					classification.CounterpartyId = counterpartyId;
-					classification.ClassificationByBottlesCount = CounterpartyClassificationByBottlesCount.C;
-					classification.ClassificationByOrdersCount = CounterpartyClassificationByOrdersCount.Z;
-					classification.BottlesPerMonthAverageCount = 0;
-					classification.OrdersPerMonthAverageCount = 0;
-					classification.MoneyTurnoverPerMonthAverageSum = 0;
-					classification.ClassificationCalculationDate = DateTime.Now;
-
-					newCounterpartyClassifications.Add(counterpartyId, classification);
-
-					continue;
-				}
-
-				classification.ClassificationByBottlesCount =
-						GetClassificationByBottlesCount(classification.BottlesPerMonthAverageCount);
-
-				classification.ClassificationByOrdersCount =
-					GetClassificationByOrdersCount(classification.OrdersPerMonthAverageCount);
-
-				classification.ClassificationCalculationDate = DateTime.Now;
-			}
+			var allCounterpartiesIdsNames = GetAllCounterpartyIdsNames(_unitOfWork);
 
 			var oldCounterpartyClassifications = GetLastExistingClassificationsForCounterparties(_unitOfWork)
 				.ToDictionary(c => c.CounterpartyId);
 
+			var newCounterpartyClassifications =
+				CalculateCounterpartyClassifications(_unitOfWork, CalculationSettings)
+				.ToDictionary(c => c.CounterpartyId);
+
+			foreach(var counterpartyId in allCounterpartiesIdsNames.Keys)
+			{
+				bool counterpartyHasNewCaculatedClassification = newCounterpartyClassifications.ContainsKey(counterpartyId);
+
+				if(!counterpartyHasNewCaculatedClassification)
+				{
+					var classification = new CounterpartyClassification(
+						counterpartyId,
+						0,
+						0,
+						0,
+						_creationDate,
+						CalculationSettings);
+
+					newCounterpartyClassifications.Add(counterpartyId, classification);
+				}
+			}
+
 			foreach(var classification in newCounterpartyClassifications)
 			{
-				if(classification.Value.CounterpartyId < 100)
-				{
-					_unitOfWork.Save(classification.Value);
-				}
+
+				//if(classification.Value.CounterpartyId < 100)
+				//{
+				//	_unitOfWork.Save(classification.Value);
+				//}
 
 				//_unitOfWork.Session.Save(classification.Value);
 			}
+
+			ClassificationCalculationReport.GenerateReport(
+				newCounterpartyClassifications,
+				oldCounterpartyClassifications,
+				allCounterpartiesIdsNames);
 
 			_unitOfWork.Save(CalculationSettings);
 
@@ -173,10 +171,11 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			IsCalculationCompleted = true;
 		}
 
-		private IQueryable<int> GetAllCounterpartyIds(IUnitOfWork unitOfWork)
+		private IDictionary<int, string> GetAllCounterpartyIdsNames(IUnitOfWork unitOfWork)
 		{
-			return unitOfWork.GetAll<Counterparty>()
-				.Select(c => c.Id);
+			return (from c in unitOfWork.GetAll<Counterparty>()
+					select new { c.Id, c.Name })
+					.ToDictionary(c => c.Id, c => c.Name);
 		}
 
 		private IQueryable<CounterpartyClassification> GetLastExistingClassificationsForCounterparties(IUnitOfWork unitOfWork)
@@ -187,76 +186,44 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 				.AsQueryable();
 		}
 
-		private IQueryable<CounterpartyClassification> GetClassificationsByOrdersPerCounterparty(IUnitOfWork unitOfWork)
+		private IQueryable<CounterpartyClassification> CalculateCounterpartyClassifications(
+			IUnitOfWork unitOfWork,
+			CounterpartyClassificationCalculationSettings calculationSettings)
 		{
-			var dateFrom = DateTime.Now.Date.AddMonths(-CalculationSettings.PeriodInMonths);
-			var dateTo = DateTime.Now.Date.AddDays(1);
+			var dateFrom = _creationDate.Date.AddMonths(-calculationSettings.PeriodInMonths);
+			var dateTo = _creationDate.Date.AddDays(1);
 
-			var ordersPerCounterparty = from o in unitOfWork.Session.Query<Order>()
-										join oi in unitOfWork.GetAll<OrderItem>() on o.Id equals oi.Order.Id
-										join n in unitOfWork.GetAll<Nomenclature>() on oi.Nomenclature.Id equals n.Id
-										where
-											o.DeliveryDate < dateTo
-											&& o.DeliveryDate >= dateFrom
-											&& o.OrderStatus == OrderStatus.Closed
+			var classifications = from o in unitOfWork.Session.Query<Order>()
+								  join oi in unitOfWork.GetAll<OrderItem>() on o.Id equals oi.Order.Id
+								  join n in unitOfWork.GetAll<Nomenclature>() on oi.Nomenclature.Id equals n.Id
+								  where
+									  o.DeliveryDate < dateTo
+									  && o.DeliveryDate >= dateFrom
+									  && o.OrderStatus == OrderStatus.Closed
 
-										group new { Order = o, Item = oi, Nomenclature = n } by new { CleintId = o.Client.Id } into clientsGroups
+								  group new { Order = o, Item = oi, Nomenclature = n } by new { CleintId = o.Client.Id } into clientsGroups
 
-										select new CounterpartyClassification
-										{
-											CounterpartyId = clientsGroups.Key.CleintId,
+								  select new CounterpartyClassification
+								  (
+									  clientsGroups.Key.CleintId,
+									  clientsGroups.Sum(data =>
+											  (data.Nomenclature.Category == NomenclatureCategory.water
+												  && data.Nomenclature.TareVolume == TareVolume.Vol19L)
+											  ? data.Item.Count
+											  : 0),
+									  clientsGroups.Select(data =>
+											  data.Order.Id).Distinct().Count(),
+									  clientsGroups.Sum(data =>
+											  (data.Item.ActualCount ?? data.Item.Count) * data.Item.Price - data.Item.DiscountMoney),
+									  _creationDate,
+									  calculationSettings);
 
-											BottlesPerMonthAverageCount =
-												clientsGroups.Sum(data =>
-													(data.Nomenclature.Category == NomenclatureCategory.water
-														&& data.Nomenclature.TareVolume == TareVolume.Vol19L)
-													? data.Item.Count
-													: 0) / CalculationSettings.PeriodInMonths,
-
-											OrdersPerMonthAverageCount =
-												(decimal)(clientsGroups.Select(data =>
-													data.Order.Id).Distinct().Count()) / CalculationSettings.PeriodInMonths,
-
-											MoneyTurnoverPerMonthAverageSum = clientsGroups.Sum(data =>
-													(data.Item.ActualCount ?? data.Item.Count) * data.Item.Price - data.Item.DiscountMoney) / CalculationSettings.PeriodInMonths
-										};
-
-			return ordersPerCounterparty;
-		}
-
-		private CounterpartyClassificationByBottlesCount GetClassificationByBottlesCount(decimal bottlesPerMonthAverageCount)
-		{
-			if(bottlesPerMonthAverageCount <= CalculationSettings.BottlesCountCClassificationTo)
-			{
-				return CounterpartyClassificationByBottlesCount.C;
-			}
-
-			if(bottlesPerMonthAverageCount >= CalculationSettings.BottlesCountAClassificationFrom)
-			{
-				return CounterpartyClassificationByBottlesCount.A;
-			}
-
-			return CounterpartyClassificationByBottlesCount.B;
-		}
-
-		private CounterpartyClassificationByOrdersCount GetClassificationByOrdersCount(decimal ordersPerMonthAverageCount)
-		{
-			if(ordersPerMonthAverageCount <= CalculationSettings.OrdersCountZClassificationTo)
-			{
-				return CounterpartyClassificationByOrdersCount.Z;
-			}
-
-			if(ordersPerMonthAverageCount >= CalculationSettings.OrdersCountXClassificationFrom)
-			{
-				return CounterpartyClassificationByOrdersCount.X;
-			}
-
-			return CounterpartyClassificationByOrdersCount.Y;
+			return classifications;
 		}
 
 		private void UpdateCalculationSettingsCreationDate()
 		{
-			CalculationSettings.SettingsCreationDate = DateTime.Now;
+			CalculationSettings.SettingsCreationDate = _creationDate;
 		}
 
 		#region Commands
@@ -358,7 +325,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 		#endregion Quite
 
 
-		#endregion
+		#endregion Commands
 
 		#region IDisposable implementation
 		public override void Dispose()
@@ -367,6 +334,6 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 
 			base.Dispose();
 		}
-		#endregion
+		#endregion IDisposable implementation
 	}
 }

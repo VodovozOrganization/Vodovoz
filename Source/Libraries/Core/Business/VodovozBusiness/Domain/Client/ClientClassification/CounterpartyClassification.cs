@@ -17,6 +17,41 @@ namespace Vodovoz.Domain.Client.ClientClassification
 		private decimal _moneyTurnoverPerMonthAverageSum;
 		private DateTime _classificationCalculationDate;
 
+		public CounterpartyClassification(
+			int counterpartyId,
+			decimal bottlesCount,
+			decimal ordersCount,
+			decimal moneyTurnoverSum,
+			DateTime creationDate,
+			CounterpartyClassificationCalculationSettings calculationSettings)
+		{
+			if(calculationSettings is null)
+			{
+				throw new ArgumentNullException(nameof(calculationSettings));
+			}
+
+			CounterpartyId = counterpartyId;
+
+			ClassificationByBottlesCount = GetClassificationByBottlesCount(bottlesCount, calculationSettings);
+			ClassificationByOrdersCount = GetClassificationByOrdersCount(ordersCount, calculationSettings);
+
+			if(calculationSettings.PeriodInMonths > 0)
+			{
+				BottlesPerMonthAverageCount = bottlesCount / calculationSettings.PeriodInMonths;
+				OrdersPerMonthAverageCount = bottlesCount / calculationSettings.PeriodInMonths;
+				MoneyTurnoverPerMonthAverageSum = moneyTurnoverSum / calculationSettings.PeriodInMonths;
+			}
+
+			ClassificationCalculationDate = creationDate;
+		}
+
+		public CounterpartyClassification()
+		{
+			ClassificationByBottlesCount = CounterpartyClassificationByBottlesCount.C;
+			ClassificationByOrdersCount = CounterpartyClassificationByOrdersCount.Z;
+		}
+
+		#region Properties
 		public virtual int Id { get; }
 
 		[Display(Name = "Id контрагента")]
@@ -66,6 +101,50 @@ namespace Vodovoz.Domain.Client.ClientClassification
 		{
 			get => _classificationCalculationDate;
 			set => SetField(ref _classificationCalculationDate, value);
+		}
+		#endregion Properties
+
+		public static CounterpartyClassificationByBottlesCount GetClassificationByBottlesCount(
+			decimal bottlesCount,
+			CounterpartyClassificationCalculationSettings calculationSettings)
+		{
+			var bottlesPerMonthAverageCount = (calculationSettings.PeriodInMonths > 0)
+				? bottlesCount / calculationSettings.PeriodInMonths
+				: 0;
+
+			if(bottlesPerMonthAverageCount <= calculationSettings.BottlesCountCClassificationTo)
+			{
+				return CounterpartyClassificationByBottlesCount.C;
+			}
+
+			if(bottlesPerMonthAverageCount >= calculationSettings.BottlesCountAClassificationFrom)
+			{
+				return CounterpartyClassificationByBottlesCount.A;
+			}
+
+			return CounterpartyClassificationByBottlesCount.B;
+		}
+
+		public static CounterpartyClassificationByOrdersCount GetClassificationByOrdersCount(
+			decimal ordersCount,
+			CounterpartyClassificationCalculationSettings calculationSettings)
+		{
+			var ordersPerMonthAverageCount =
+				(calculationSettings.PeriodInMonths > 0)
+				? ordersCount / calculationSettings.PeriodInMonths
+				: 0;
+
+			if(ordersPerMonthAverageCount <= calculationSettings.OrdersCountZClassificationTo)
+			{
+				return CounterpartyClassificationByOrdersCount.Z;
+			}
+
+			if(ordersPerMonthAverageCount >= calculationSettings.OrdersCountXClassificationFrom)
+			{
+				return CounterpartyClassificationByOrdersCount.X;
+			}
+
+			return CounterpartyClassificationByOrdersCount.Y;
 		}
 	}
 }
