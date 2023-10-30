@@ -2066,9 +2066,9 @@ namespace Vodovoz
 					TabParent.OpenTab(() => new OrderDlg(Entity.Id));
 
 					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
-						"Возникла ошибка при подтверждении заказа, вкладка переоткрыта");
+						"Возникла ошибка при подтверждении заказа, заказ был сохранён в виде черновика, вкладка переоткрыта.");
 
-					return Result.Failure(Errors.Orders.Order.AcceptException($"Не удалось подтвердить заказ.\n{e}"));
+					return Result.Failure(Errors.Orders.Order.AcceptException);
 				}
 			}
 		}
@@ -2305,7 +2305,11 @@ namespace Vodovoz
 
 		private void ReturnToNew(IEnumerable<Error> errors)
 		{
-			EditOrder();
+			if(errors.All(x => x != Errors.Orders.Order.AcceptException))
+			{
+				EditOrder();
+			}
+
 			ShowErrorsWindow(errors);
 		}
 
