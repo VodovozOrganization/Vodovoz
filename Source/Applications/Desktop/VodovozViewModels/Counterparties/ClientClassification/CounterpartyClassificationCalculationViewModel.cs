@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using MoreLinq;
+using NHibernate;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -9,12 +10,16 @@ using QS.Services;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Dynamic.Core;
+using System.Threading.Tasks;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Services;
 using static Vodovoz.ViewModels.Counterparties.ClientClassification.CounterpartyClassificationCalculationEmailSettingsViewModel;
 
@@ -22,11 +27,13 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 {
 	public partial class CounterpartyClassificationCalculationViewModel : DialogTabViewModelBase
 	{
-		private readonly IUnitOfWork _unitOfWork;
-		private readonly IInteractiveService _interactiveService;
+		private const int _insertQueryElementsMaxCount = 20_000;
+
+		private readonly IUnitOfWork _uow;
 		private readonly ILogger<CounterpartyClassificationCalculationViewModel> _logger;
 		private readonly IEmployeeService _employeeService;
 		private readonly IUserService _userService;
+		private readonly ICounterpartyRepository _counterpartyRepository;
 		private bool _isCalculationInProcess;
 		private bool _isCalculationCompleted;
 		private string _currentUserEmail;
@@ -34,23 +41,25 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 		private DateTime _creationDate;
 
 		public CounterpartyClassificationCalculationViewModel(
-			IUnitOfWorkFactory unitOfWorkFactory,
+			IUnitOfWorkFactory uowFactory,
 			IInteractiveService interactiveService,
 			INavigationManager navigation,
 			ILogger<CounterpartyClassificationCalculationViewModel> logger,
 			IEmployeeService employeeService,
-			IUserService userService
-			) : base(unitOfWorkFactory, interactiveService, navigation)
+			IUserService userService,
+			ICounterpartyRepository counterpartyRepository
+			) : base(uowFactory, interactiveService, navigation)
 		{
-			if(unitOfWorkFactory is null)
+			if(uowFactory is null)
 			{
-				throw new ArgumentNullException(nameof(unitOfWorkFactory));
+				throw new ArgumentNullException(nameof(uowFactory));
 			}
-			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_userService = userService ?? throw new ArgumentNullException(nameof(userService));
-			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot();
+			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
+			_uow = uowFactory.CreateWithoutRoot();
 
 			_creationDate = DateTime.Now;
 
@@ -61,6 +70,8 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 		}
 
 		#region Properties
+
+		public event EventHandler<CalculationCompletedEventArgs> CalculationCompleted;
 
 		public CounterpartyClassificationCalculationSettings CalculationSettings { get; private set; }
 
@@ -84,7 +95,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 		{
 			CalculationSettings = new CounterpartyClassificationCalculationSettings();
 
-			var lastSettings = _unitOfWork.GetAll<CounterpartyClassificationCalculationSettings>()
+			var lastSettings = _uow.GetAll<CounterpartyClassificationCalculationSettings>()
 				.OrderByDescending(x => x.SettingsCreationDate)
 				.FirstOrDefault();
 
@@ -100,100 +111,103 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 
 		private void GetCurrentUserEmail()
 		{
-			var currentEmployee = _employeeService.GetEmployeeForUser(_unitOfWork, _userService.CurrentUserId);
+			var currentEmployee = _employeeService.GetEmployeeForUser(_uow, _userService.CurrentUserId);
 
 			_currentUserEmail = currentEmployee?.Email ?? string.Empty;
 		}
 
-		private void OnEmailSettingsDialogStartClassificationCalculationClicked(object sender, StartClassificationCalculationEventArgs e)
+		private async void OnEmailSettingsDialogStartClassificationCalculationClicked(object sender, StartClassificationCalculationEventArgs e)
 		{
 			_creationDate = DateTime.Now;
 			_currentUserEmail = e.CurrentUserEmail;
 			_additionalEmail = e.AdditionalEmail;
 
+			var task = Task.Run(() =>
+			{
+				StartClassificationCalculation();
+			});
+
+			await task;
+		}
+
+		private void StartClassificationCalculation()
+		{
+			bool isCalculationSuccessful = false;
+
 			IsCalculationInProcess = true;
 
 			UpdateCalculationSettingsCreationDate();
 
-			var allCounterpartiesIdsNames = GetAllCounterpartyIdsNames(_unitOfWork);
+			var allCounterpartiesIds = UoW.GetAll<Counterparty>().Select(c => c.Id);
 
-			var oldCounterpartyClassifications = GetLastExistingClassificationsForCounterparties(_unitOfWork)
-				.ToDictionary(c => c.CounterpartyId);
+			//var oldCounterpartyClassifications = _counterpartyRepository.GetLastExistingClassificationsForCounterparties(_uow)
+			//	.ToDictionary(c => c.CounterpartyId);
 
-			var newCounterpartyClassifications =
-				CalculateCounterpartyClassifications(_unitOfWork, CalculationSettings)
-				.ToDictionary(c => c.CounterpartyId);
+			var newCounterpartyClassifications = CalculateCounterpartyClassifications(_uow, CalculationSettings)
+				.ToList();
+				//.ToDictionary(c => c.CounterpartyId);
 
-			foreach(var counterpartyId in allCounterpartiesIdsNames.Keys)
+			//foreach(var counterpartyId in allCounterpartiesIds)
+			//{
+			//	bool counterpartyHasNewCaculatedClassification = newCounterpartyClassifications.ContainsKey(counterpartyId);
+
+			//	if(!counterpartyHasNewCaculatedClassification)
+			//	{
+			//		var classification = new CounterpartyClassification(
+			//			counterpartyId,
+			//			0,
+			//			0,
+			//			0,
+			//			_creationDate,
+			//			CalculationSettings);
+
+			//		newCounterpartyClassifications.Add(counterpartyId, classification);
+			//	}
+			//}
+
+			try
 			{
-				bool counterpartyHasNewCaculatedClassification = newCounterpartyClassifications.ContainsKey(counterpartyId);
-
-				if(!counterpartyHasNewCaculatedClassification)
+				using(var transaction = _uow.Session.BeginTransaction())
 				{
-					var classification = new CounterpartyClassification(
-						counterpartyId,
-						0,
-						0,
-						0,
-						_creationDate,
-						CalculationSettings);
+					//InsertClassificationValuesToDatabase(_uow.Session, newCounterpartyClassifications, _insertQueryElementsMaxCount);
 
-					newCounterpartyClassifications.Add(counterpartyId, classification);
+					_uow.Save(CalculationSettings);
+
+					//ClassificationCalculationReport.GenerateReport(
+					//	newCounterpartyClassifications,
+					//	oldCounterpartyClassifications,
+					//	allCounterpartiesIdsNames);
+
+					transaction.Commit();
 				}
-			}
 
-			foreach(var classification in newCounterpartyClassifications)
+				isCalculationSuccessful = true;
+				IsCalculationInProcess = false;
+				IsCalculationCompleted = true;
+			}
+			catch(Exception ex)
 			{
+				_logger.LogError(ex.Message);
 
-				//if(classification.Value.CounterpartyId < 100)
-				//{
-				//	_unitOfWork.Save(classification.Value);
-				//}
-
-				//_unitOfWork.Session.Save(classification.Value);
+				return;
 			}
-
-			ClassificationCalculationReport.GenerateReport(
-				newCounterpartyClassifications,
-				oldCounterpartyClassifications,
-				allCounterpartiesIdsNames);
-
-			_unitOfWork.Save(CalculationSettings);
-
-			_unitOfWork.Commit();
-
-			_interactiveService.ShowMessage(
-				ImportanceLevel.Info,
-				$"Пересчёт классификации контрагентов завершен"
-				);
-
-			IsCalculationInProcess = false;
-			IsCalculationCompleted = true;
+			finally
+			{
+				CalculationCompleted?.Invoke(
+					this,
+					 new CalculationCompletedEventArgs { IsCalculationSuccessful = isCalculationSuccessful });
+			}
 		}
-
-		private IDictionary<int, string> GetAllCounterpartyIdsNames(IUnitOfWork unitOfWork)
-		{
-			return (from c in unitOfWork.GetAll<Counterparty>()
-					select new { c.Id, c.Name })
-					.ToDictionary(c => c.Id, c => c.Name);
-		}
-
-		private IQueryable<CounterpartyClassification> GetLastExistingClassificationsForCounterparties(IUnitOfWork unitOfWork)
-		{
-			return unitOfWork.GetAll<CounterpartyClassification>()
-				.OrderByDescending(c => c.ClassificationCalculationDate)
-				.DistinctBy(c => c.CounterpartyId)
-				.AsQueryable();
-		}
-
-		private IQueryable<CounterpartyClassification> CalculateCounterpartyClassifications(
+		public IList<CounterpartyClassification> CalculateCounterpartyClassifications(
 			IUnitOfWork unitOfWork,
 			CounterpartyClassificationCalculationSettings calculationSettings)
 		{
-			var dateFrom = _creationDate.Date.AddMonths(-calculationSettings.PeriodInMonths);
-			var dateTo = _creationDate.Date.AddDays(1);
+			var creationDate = DateTime.Now;
 
-			var classifications = from o in unitOfWork.Session.Query<Order>()
+			var dateFrom = creationDate.Date.AddMonths(-calculationSettings.PeriodInMonths);
+			var dateTo = creationDate.Date.AddDays(1);
+
+			var classifications = (from o in unitOfWork.Session.Query<Domain.Orders.Order>()
 								  join oi in unitOfWork.GetAll<OrderItem>() on o.Id equals oi.Order.Id
 								  join n in unitOfWork.GetAll<Nomenclature>() on oi.Nomenclature.Id equals n.Id
 								  where
@@ -215,10 +229,62 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 											  data.Order.Id).Distinct().Count(),
 									  clientsGroups.Sum(data =>
 											  (data.Item.ActualCount ?? data.Item.Count) * data.Item.Price - data.Item.DiscountMoney),
-									  _creationDate,
-									  calculationSettings);
+									  creationDate,
+									  calculationSettings)).ToList();
 
-			return classifications;
+			var ccc = (from c in unitOfWork.Session.Query<Counterparty>()
+					   join cl in classifications on c.Id equals cl.CounterpartyId into ccl
+					   from ccll in ccl.DefaultIfEmpty()
+					   select ccll ?? new CounterpartyClassification() { CounterpartyId = c.Id })
+					   .ToList();
+
+			return ccc;
+		}
+
+		private void InsertClassificationValuesToDatabase(
+			ISession session, 
+			IDictionary<int, CounterpartyClassification> classifications, 
+			int insertQueryElementsMaxCount)
+		{
+			var classificationValuesSubsets = classifications.Values.Subsets(insertQueryElementsMaxCount).ToList();
+
+			foreach(var classificationsSubset in classificationValuesSubsets)
+			{
+				var sql = GetSqlInsertQuery(classificationsSubset);
+
+				session.CreateSQLQuery(sql)
+					.ExecuteUpdate();
+			}
+		}
+
+		private string GetSqlInsertQuery(IEnumerable<CounterpartyClassification> classifications)
+		{
+			var valuesData = new List<string>();
+
+			foreach(var classification in classifications)
+			{
+				var c = classification;
+
+				valuesData.Add($"({c.CounterpartyId}, " +
+					$"'{c.ClassificationByBottlesCount}', " +
+					$"'{c.ClassificationByOrdersCount}', " +
+					$"{c.BottlesPerMonthAverageCount.ToString(CultureInfo.InvariantCulture)}, " +
+					$"{c.OrdersPerMonthAverageCount.ToString(CultureInfo.InvariantCulture)}, " +
+					$"{c.MoneyTurnoverPerMonthAverageSum.ToString(CultureInfo.InvariantCulture)}, " +
+					$"'{c.ClassificationCalculationDate.ToString("yyyy-MM-dd HH:mm:ss")}') ");
+			}
+
+			var insertQuery = $"INSERT INTO counterparty_classification " +
+				$"(counterparty_id, " +
+				$"classification_by_bottles_count, " +
+				$"classification_by_orders_count, " +
+				$"bottles_per_month_average_count, " +
+				$"orders_per_month_average_count, " +
+				$"money_turnover_per_month_average_sum, " +
+				$"calculation_date) " +
+				$"VALUES ";
+
+			return $"{insertQuery} {string.Join(",", valuesData)};";
 		}
 
 		private void UpdateCalculationSettingsCreationDate()
@@ -330,10 +396,15 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 		#region IDisposable implementation
 		public override void Dispose()
 		{
-			_unitOfWork?.Dispose();
+			_uow?.Dispose();
 
 			base.Dispose();
 		}
 		#endregion IDisposable implementation
+
+		public class CalculationCompletedEventArgs : EventArgs
+		{
+			public bool IsCalculationSuccessful;
+		}
 	}
 }

@@ -146,5 +146,25 @@ namespace Vodovoz.Domain.Client.ClientClassification
 
 			return CounterpartyClassificationByOrdersCount.Y;
 		}
+
+		public static bool operator ==(CounterpartyClassification classification1, CounterpartyClassification classification2)
+		{
+			return IsClassificationsEquals(classification1, classification2);
+		}
+
+		public static bool operator !=(CounterpartyClassification classification1, CounterpartyClassification classification2)
+		{
+			return !IsClassificationsEquals(classification1, classification2);
+		}
+
+		private static bool IsClassificationsEquals(CounterpartyClassification classification1, CounterpartyClassification classification2)
+		{
+			return classification1.CounterpartyId == classification2.CounterpartyId
+				&& classification1.ClassificationByBottlesCount == classification2.ClassificationByBottlesCount
+				&& classification1.ClassificationByOrdersCount == classification2.ClassificationByOrdersCount
+				&& classification1.BottlesPerMonthAverageCount == classification2.BottlesPerMonthAverageCount
+				&& classification1.OrdersPerMonthAverageCount == classification2.OrdersPerMonthAverageCount
+				&& classification1.MoneyTurnoverPerMonthAverageSum == classification2.MoneyTurnoverPerMonthAverageSum;
+		}
 	}
 }

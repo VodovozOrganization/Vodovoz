@@ -1,4 +1,5 @@
-﻿using NHibernate;
+﻿using MoreLinq;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
@@ -8,7 +9,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Domain.Contacts;
+using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 
 namespace Vodovoz.EntityRepositories.Counterparties
@@ -31,13 +35,13 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		public IList<ClientCameFrom> GetPlacesClientCameFrom(IUnitOfWork uow, bool doNotShowArchive, bool orderByDescending = false)
 		{
 			var query = uow.Session.QueryOver<ClientCameFrom>();
-			
+
 			if(doNotShowArchive)
 			{
 				query.Where(f => !f.IsArchive);
 			}
 
-			return orderByDescending 
+			return orderByDescending
 				? query.OrderBy(f => f.Name).Desc().List()
 				: query.OrderBy(f => f.Name).Asc().List();
 		}
@@ -160,7 +164,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			var allRequiredPhoneNumbers = phones.Select(p => p.DigitsNumber).Distinct();
 
 			var allPhonesItemsHavingRequiredNumbers = uow.GetAll<Phone>().Where(p => allRequiredPhoneNumbers.Contains(p.DigitsNumber) && !p.IsArchive);
-			
+
 			var counterpartiesHavingRequiredNumbers = allPhonesItemsHavingRequiredNumbers
 				.Where(p => p.Counterparty != null && p.Counterparty.Id != currentCounterpartyId && !p.Counterparty.IsArchive)
 				.Select(p => new { Number = p.Number, Message = $"Карточка контрагента {p.Counterparty.FullName}" })
@@ -168,18 +172,18 @@ namespace Vodovoz.EntityRepositories.Counterparties
 
 			var counterpartiesByDeliveryPointsHavingRequiredNumbers = allPhonesItemsHavingRequiredNumbers
 				.Where(p => p.DeliveryPoint != null && p.DeliveryPoint.IsActive && p.DeliveryPoint.Counterparty != null)
-				.Select(c => new { Number = c.Number, DeliveryPoint = c.DeliveryPoint } )
-				.Join(uow.GetAll<Counterparty>(), d => d.DeliveryPoint.Counterparty, c => c, (d,c) => new { Number = d.Number, DeliveryPoint = d.DeliveryPoint, Counterparty = c })
+				.Select(c => new { Number = c.Number, DeliveryPoint = c.DeliveryPoint })
+				.Join(uow.GetAll<Counterparty>(), d => d.DeliveryPoint.Counterparty, c => c, (d, c) => new { Number = d.Number, DeliveryPoint = d.DeliveryPoint, Counterparty = c })
 				.Where(dc => dc.Counterparty != null && !dc.Counterparty.IsArchive && dc.Counterparty.Id != currentCounterpartyId)
-				.Select(dc => new { Number = dc.Number, Message = $"Точка доставки контрагента \"{dc.Counterparty.FullName}\" по адресу: {dc.DeliveryPoint.ShortAddress}" } )
-				.ToList().Distinct();	
-			
+				.Select(dc => new { Number = dc.Number, Message = $"Точка доставки контрагента \"{dc.Counterparty.FullName}\" по адресу: {dc.DeliveryPoint.ShortAddress}" })
+				.ToList().Distinct();
+
 
 			foreach(var phone in counterpartiesHavingRequiredNumbers)
 			{
 				if(!phoneWithMessages.ContainsKey(phone.Number))
 				{
-					phoneWithMessages.Add(phone.Number, new List<string> { phone.Message } );
+					phoneWithMessages.Add(phone.Number, new List<string> { phone.Message });
 				}
 				else
 				{
@@ -280,7 +284,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			}
 			return result;
 		}
-		
+
 		public Counterparty GetCounterpartyByPersonalAccountIdInEdo(IUnitOfWork uow, string edxClientId)
 		{
 			return uow.Session.QueryOver<Counterparty>()
@@ -301,6 +305,58 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				.Where(x => x.Counterparty.Id == counterpartyId)
 				.OrderBy(x => x.Created).Desc
 				.List();
+		}
+
+		public IDictionary<int, string> GetAllCounterpartyIdsAndNames(IUnitOfWork unitOfWork)
+		{
+			return (from c in unitOfWork.GetAll<Counterparty>()
+					select new { c.Id, c.Name })
+					.ToDictionary(c => c.Id, c => c.Name);
+		}
+
+		public IQueryable<CounterpartyClassification> GetLastExistingClassificationsForCounterparties(IUnitOfWork unitOfWork)
+		{
+			return unitOfWork.GetAll<CounterpartyClassification>()
+				.OrderByDescending(c => c.ClassificationCalculationDate)
+				.DistinctBy(c => c.CounterpartyId)
+				.AsQueryable();
+		}
+
+		public IQueryable<CounterpartyClassification> CalculateCounterpartyClassifications(
+			IUnitOfWork unitOfWork,
+			CounterpartyClassificationCalculationSettings calculationSettings)
+		{
+			var creationDate = DateTime.Now;
+
+			var dateFrom = creationDate.Date.AddMonths(-calculationSettings.PeriodInMonths);
+			var dateTo = creationDate.Date.AddDays(1);
+
+			var classifications = from o in unitOfWork.Session.Query<Domain.Orders.Order>()
+								  join oi in unitOfWork.GetAll<OrderItem>() on o.Id equals oi.Order.Id
+								  join n in unitOfWork.GetAll<Nomenclature>() on oi.Nomenclature.Id equals n.Id
+								  where
+									  o.DeliveryDate < dateTo
+									  && o.DeliveryDate >= dateFrom
+									  && o.OrderStatus == OrderStatus.Closed
+
+								  group new { Order = o, Item = oi, Nomenclature = n } by new { CleintId = o.Client.Id } into clientsGroups
+
+								  select new CounterpartyClassification
+								  (
+									  clientsGroups.Key.CleintId,
+									  clientsGroups.Sum(data =>
+											  (data.Nomenclature.Category == NomenclatureCategory.water
+												  && data.Nomenclature.TareVolume == TareVolume.Vol19L)
+											  ? data.Item.Count
+											  : 0),
+									  clientsGroups.Select(data =>
+											  data.Order.Id).Distinct().Count(),
+									  clientsGroups.Sum(data =>
+											  (data.Item.ActualCount ?? data.Item.Count) * data.Item.Price - data.Item.DiscountMoney),
+									  creationDate,
+									  calculationSettings);
+
+			return classifications;
 		}
 	}
 }

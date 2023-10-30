@@ -1,5 +1,8 @@
-﻿using QS.Views.GtkUI;
+﻿using QS.Dialog.GtkUI;
+using QS.Utilities;
+using QS.Views.GtkUI;
 using Vodovoz.ViewModels.Counterparties.ClientClassification;
+using static Vodovoz.ViewModels.Counterparties.ClientClassification.CounterpartyClassificationCalculationViewModel;
 
 namespace Vodovoz.Views.Client.CounterpartyClassification
 {
@@ -56,6 +59,36 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 				.AddBinding(vm => vm.CanQuite, w => w.Sensitive)
 				.InitializeFromSource();
 			ybuttonQuite.Clicked += (s, e) => ViewModel.QuiteCommand.Execute();
+
+			ViewModel.CalculationCompleted += OnCalculationCompleted;
+		}
+
+		private void OnCalculationCompleted(object sender, System.EventArgs e)
+		{
+			if(e is CalculationCompletedEventArgs args)
+			{
+				var isCalculationSuccessful = args.IsCalculationSuccessful;
+
+				Gtk.Application.Invoke((s, arg) =>
+				{
+					if(isCalculationSuccessful)
+					{
+						MessageDialogHelper.RunInfoDialog($"Пересчёт классификации контрагентов завершен");
+
+						return;
+					}
+
+					MessageDialogHelper.RunErrorDialog(
+						$"Ошибка при выполнении пересчёта классификации контрагентов. Закройте окно диалога и попробуйте снова.");
+				});
+			}
+		}
+
+		public override void Destroy()
+		{
+			ViewModel.CalculationCompleted -= OnCalculationCompleted;
+
+			base.Destroy();
 		}
 	}
 }
