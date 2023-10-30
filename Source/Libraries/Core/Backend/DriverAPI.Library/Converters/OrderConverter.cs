@@ -190,6 +190,28 @@ namespace DriverAPI.Library.Converters
 				DiscountReason = saleItem.DiscountReason?.Name
 			};
 
+			if(saleItem.Nomenclature.TareVolume != null)
+			{
+				switch(saleItem.Nomenclature.TareVolume)
+				{
+					case Vodovoz.Domain.Goods.TareVolume.Vol19L:
+						result.TareVolume = 19;
+						break;
+					case Vodovoz.Domain.Goods.TareVolume.Vol6L:
+						result.TareVolume = 6;
+						break;
+					case Vodovoz.Domain.Goods.TareVolume.Vol1500ml:
+						result.TareVolume = 1.5m;
+						break;
+					case Vodovoz.Domain.Goods.TareVolume.Vol600ml:
+						result.TareVolume = 0.6m;
+						break;
+					case Vodovoz.Domain.Goods.TareVolume.Vol500ml:
+						result.TareVolume = 0.5m;
+						break;
+				}
+			}
+
 			return result;
 		}
 
