@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -15,12 +15,12 @@ using TrueMarkApi.Dto;
 using TrueMarkApi.Dto.Documents;
 using TrueMarkApi.Enums;
 using TrueMarkApi.Factories;
+using TrueMarkApi.HealthChecks;
 using TrueMarkApi.Library;
 using TrueMarkApi.Models;
 using TrueMarkApi.Services.Authorization;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
@@ -33,6 +33,7 @@ namespace TrueMarkApi.Services
 	{
 		private readonly IAuthorizationService _authorizationService;
 		private readonly IEdoSettings _edoSettings;
+		private readonly TrueMarkHealthCheck _trueMarkDocumentServiceHealthCheck;
 		private readonly IHttpClientFactory _httpClientClientFactory;
 		private readonly IConfigurationSection _apiSection;
 		private readonly ILogger<DocumentService> _logger;
@@ -41,7 +42,7 @@ namespace TrueMarkApi.Services
 		private readonly IOrganizationRepository _organizationRepository;
 		private readonly OrganizationCertificate[] _organizationsCertificates;
 		private readonly TrueMarkApiClient _trueMarkApiClient;
-		private const int _workerDelaySec = 300;
+		private const int _workerDelaySec = 10;
 		private const int _createDocumentDelaySec = 5;
 
 		public DocumentService(
@@ -52,7 +53,8 @@ namespace TrueMarkApi.Services
 			IConfiguration configuration,
 			IHttpClientFactory httpClientFactory,
 			IAuthorizationService authorizationService,
-			IEdoSettings edoSettings)
+			IEdoSettings edoSettings,
+			TrueMarkHealthCheck trueMarkDocumentServiceHealthCheck)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -60,6 +62,7 @@ namespace TrueMarkApi.Services
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
 			_edoSettings = edoSettings ?? throw new ArgumentNullException(nameof(edoSettings));
+			_trueMarkDocumentServiceHealthCheck = trueMarkDocumentServiceHealthCheck ?? throw new ArgumentNullException(nameof(trueMarkDocumentServiceHealthCheck)); ;
 			_apiSection = (configuration ?? throw new ArgumentNullException(nameof(configuration))).GetSection("Api");
 			_httpClientClientFactory = httpClientFactory;
 
@@ -123,7 +126,7 @@ namespace TrueMarkApi.Services
 
 				var httpClient = GetHttpClient(token);
 
-				await ProcessNewOrders(uow, httpClient, startDate, organization, organizationCertificate.CertificateThumbPrint, cancellationToken);
+				_trueMarkDocumentServiceHealthCheck.IsHealthy = await ProcessNewOrders(uow, httpClient, startDate, organization, organizationCertificate.CertificateThumbPrint, cancellationToken);
 
 				await ProcessOldOrdersWithErrors(uow, httpClient, startDate, organization, organizationCertificate.CertificateThumbPrint, cancellationToken);
 
@@ -201,9 +204,10 @@ namespace TrueMarkApi.Services
 			}
 		}
 
-		private async Task ProcessNewOrders(IUnitOfWork uow, HttpClient httpClient, DateTime startDate, Organization organization,
+		private async Task<bool> ProcessNewOrders(IUnitOfWork uow, HttpClient httpClient, DateTime startDate, Organization organization,
 			string organizationCertificateThumbPrint, CancellationToken cancellationToken)
 		{
+			var isHealthy = true;
 			_logger.LogInformation("Получаем заказы для организации {OrganizationId}, " +
 			                       "отпечаток сертификата {OrganizationCertificateThumbPrint}, " +
 			                       "код личного кабинета {OrganizationTaxcomEdoAccountId}, по которым надо осуществить вывод из оборота", 
@@ -215,11 +219,20 @@ namespace TrueMarkApi.Services
 
 			if(!orders.Any())
 			{
-				return;
+				return true;
 			}
 
-			await CheckAndSaveRegistrationInTrueApi(orders, uow, cancellationToken);
+			try
+			{
+				await CheckAndSaveRegistrationInTrueApi(orders, uow, cancellationToken);
+			}
+			catch(Exception e)
+			{
+				isHealthy = false;
 
+				_logger.LogError(e, "Ошибка в процессе проверки региатрации контрагента № и его отправки");
+			}
+			
 			foreach(var order in orders)
 			{
 				_logger.LogInformation("Создаем вывод из оборота по заказу №{OrderId} для организации {OrganizationId}, " +
@@ -245,9 +258,13 @@ namespace TrueMarkApi.Services
 				}
 				catch(Exception e)
 				{
+					isHealthy = false;
+
 					_logger.LogError(e, "Ошибка в процессе формирования документа вывода из оборота для заказа №{OrderId} и его отправки", order.Id);
 				}
 			}
+
+			return isHealthy;
 		}
 
 		private async Task ProcessOldOrdersWithErrors(IUnitOfWork uow, HttpClient httpClient, DateTime startDate, Organization organization,
