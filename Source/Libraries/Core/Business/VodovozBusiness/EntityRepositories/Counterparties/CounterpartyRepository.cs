@@ -314,15 +314,25 @@ namespace Vodovoz.EntityRepositories.Counterparties
 					.ToDictionary(c => c.Id, c => c.Name);
 		}
 
-		public IQueryable<CounterpartyClassification> GetLastExistingClassificationsForCounterparties(IUnitOfWork unitOfWork)
+		public IDictionary<int, CounterpartyClassification> GetLastExistingClassificationsForCounterparties(IUnitOfWork unitOfWork)
 		{
-			return unitOfWork.GetAll<CounterpartyClassification>()
-				.OrderByDescending(c => c.ClassificationCalculationDate)
-				.DistinctBy(c => c.CounterpartyId)
-				.AsQueryable();
+			var classifications =
+				(from cl in unitOfWork.GetAll<CounterpartyClassification>()
+				 group cl by cl.CounterpartyId into groups
+				 select new
+				 {
+					 CounterpartyId = groups.Key,
+					 Classification = groups
+						 .Select(c => c)
+						 .OrderByDescending(c => c.ClassificationCalculationDate)
+						 .First()
+				 })
+				 .ToDictionary(c => c.CounterpartyId, c => c.Classification);
+
+			return classifications;
 		}
 
-		public IQueryable<CounterpartyClassification> CalculateCounterpartyClassifications(
+		public IEnumerable<CounterpartyClassification> CalculateCounterpartyClassifications(
 			IUnitOfWork unitOfWork,
 			CounterpartyClassificationCalculationSettings calculationSettings)
 		{
@@ -331,32 +341,37 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			var dateFrom = creationDate.Date.AddMonths(-calculationSettings.PeriodInMonths);
 			var dateTo = creationDate.Date.AddDays(1);
 
-			var classifications = from o in unitOfWork.Session.Query<Domain.Orders.Order>()
-								  join oi in unitOfWork.GetAll<OrderItem>() on o.Id equals oi.Order.Id
-								  join n in unitOfWork.GetAll<Nomenclature>() on oi.Nomenclature.Id equals n.Id
-								  where
-									  o.DeliveryDate < dateTo
-									  && o.DeliveryDate >= dateFrom
-									  && o.OrderStatus == OrderStatus.Closed
+			var calculatedClassifications =
+				(from o in unitOfWork.Session.Query<Domain.Orders.Order>()
+				 join oi in unitOfWork.GetAll<OrderItem>() on o.Id equals oi.Order.Id
+				 join n in unitOfWork.GetAll<Nomenclature>() on oi.Nomenclature.Id equals n.Id
+				 where
+					 o.DeliveryDate < dateTo
+					 && o.DeliveryDate >= dateFrom
+					 && o.OrderStatus == OrderStatus.Closed
+				 group new { Order = o, Item = oi, Nomenclature = n } by new { CleintId = o.Client.Id } into clientsGroups
+				 select new CounterpartyClassification
+				 (
+					 clientsGroups.Key.CleintId,
+					 clientsGroups.Sum(data =>
+							 (data.Nomenclature.Category == NomenclatureCategory.water
+								 && data.Nomenclature.TareVolume == TareVolume.Vol19L)
+							 ? data.Item.Count
+							 : 0),
+					 clientsGroups.Select(data =>
+							 data.Order.Id).Distinct().Count(),
+					 clientsGroups.Sum(data =>
+							 (data.Item.ActualCount ?? data.Item.Count) * data.Item.Price - data.Item.DiscountMoney),
+					 creationDate,
+					 calculationSettings)).ToList();
 
-								  group new { Order = o, Item = oi, Nomenclature = n } by new { CleintId = o.Client.Id } into clientsGroups
+			var classificationsForAllExistingCounterparties =
+				from c in unitOfWork.Session.Query<Counterparty>().Select(c => c.Id).ToList()
+				join cl in calculatedClassifications on c equals cl.CounterpartyId into counterpartyClassifications
+				from counterpartyClassification in counterpartyClassifications.DefaultIfEmpty()
+				select counterpartyClassification ?? new CounterpartyClassification() { CounterpartyId = c, ClassificationCalculationDate = creationDate };
 
-								  select new CounterpartyClassification
-								  (
-									  clientsGroups.Key.CleintId,
-									  clientsGroups.Sum(data =>
-											  (data.Nomenclature.Category == NomenclatureCategory.water
-												  && data.Nomenclature.TareVolume == TareVolume.Vol19L)
-											  ? data.Item.Count
-											  : 0),
-									  clientsGroups.Select(data =>
-											  data.Order.Id).Distinct().Count(),
-									  clientsGroups.Sum(data =>
-											  (data.Item.ActualCount ?? data.Item.Count) * data.Item.Price - data.Item.DiscountMoney),
-									  creationDate,
-									  calculationSettings);
-
-			return classifications;
+			return classificationsForAllExistingCounterparties;
 		}
 	}
 }

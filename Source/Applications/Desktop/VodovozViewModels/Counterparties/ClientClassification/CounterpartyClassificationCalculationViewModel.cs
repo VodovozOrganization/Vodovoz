@@ -27,7 +27,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 {
 	public partial class CounterpartyClassificationCalculationViewModel : DialogTabViewModelBase
 	{
-		private const int _insertQueryElementsMaxCount = 20_000;
+		private const int _insertQueryElementsMaxCount = 10_000;
 
 		private readonly IUnitOfWork _uow;
 		private readonly ILogger<CounterpartyClassificationCalculationViewModel> _logger;
@@ -138,45 +138,29 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 
 			UpdateCalculationSettingsCreationDate();
 
-			var allCounterpartiesIds = UoW.GetAll<Counterparty>().Select(c => c.Id);
+			var allCounterpartiesIdsAndNames = _counterpartyRepository
+				.GetAllCounterpartyIdsAndNames(_uow);
 
-			//var oldCounterpartyClassifications = _counterpartyRepository.GetLastExistingClassificationsForCounterparties(_uow)
-			//	.ToDictionary(c => c.CounterpartyId);
+			var oldCounterpartyClassifications = _counterpartyRepository
+				.GetLastExistingClassificationsForCounterparties(_uow);
 
-			var newCounterpartyClassifications = CalculateCounterpartyClassifications(_uow, CalculationSettings)
-				.ToList();
-				//.ToDictionary(c => c.CounterpartyId);
-
-			//foreach(var counterpartyId in allCounterpartiesIds)
-			//{
-			//	bool counterpartyHasNewCaculatedClassification = newCounterpartyClassifications.ContainsKey(counterpartyId);
-
-			//	if(!counterpartyHasNewCaculatedClassification)
-			//	{
-			//		var classification = new CounterpartyClassification(
-			//			counterpartyId,
-			//			0,
-			//			0,
-			//			0,
-			//			_creationDate,
-			//			CalculationSettings);
-
-			//		newCounterpartyClassifications.Add(counterpartyId, classification);
-			//	}
-			//}
+			var newCounterpartyClassifications = _counterpartyRepository
+				.CalculateCounterpartyClassifications(_uow, CalculationSettings)
+				.ToDictionary(c => c.CounterpartyId);
 
 			try
 			{
 				using(var transaction = _uow.Session.BeginTransaction())
 				{
-					//InsertClassificationValuesToDatabase(_uow.Session, newCounterpartyClassifications, _insertQueryElementsMaxCount);
+					InsertClassificationValuesToDatabase(_uow.Session, newCounterpartyClassifications, _insertQueryElementsMaxCount);
 
 					_uow.Save(CalculationSettings);
 
-					//ClassificationCalculationReport.GenerateReport(
-					//	newCounterpartyClassifications,
-					//	oldCounterpartyClassifications,
-					//	allCounterpartiesIdsNames);
+					ClassificationCalculationReport.GenerateReport(
+						newCounterpartyClassifications,
+						oldCounterpartyClassifications,
+						allCounterpartiesIdsAndNames,
+						CalculationSettings.PeriodInMonths);
 
 					transaction.Commit();
 				}
@@ -198,58 +182,19 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 					 new CalculationCompletedEventArgs { IsCalculationSuccessful = isCalculationSuccessful });
 			}
 		}
-		public IList<CounterpartyClassification> CalculateCounterpartyClassifications(
-			IUnitOfWork unitOfWork,
-			CounterpartyClassificationCalculationSettings calculationSettings)
-		{
-			var creationDate = DateTime.Now;
-
-			var dateFrom = creationDate.Date.AddMonths(-calculationSettings.PeriodInMonths);
-			var dateTo = creationDate.Date.AddDays(1);
-
-			var classifications = (from o in unitOfWork.Session.Query<Domain.Orders.Order>()
-								  join oi in unitOfWork.GetAll<OrderItem>() on o.Id equals oi.Order.Id
-								  join n in unitOfWork.GetAll<Nomenclature>() on oi.Nomenclature.Id equals n.Id
-								  where
-									  o.DeliveryDate < dateTo
-									  && o.DeliveryDate >= dateFrom
-									  && o.OrderStatus == OrderStatus.Closed
-
-								  group new { Order = o, Item = oi, Nomenclature = n } by new { CleintId = o.Client.Id } into clientsGroups
-
-								  select new CounterpartyClassification
-								  (
-									  clientsGroups.Key.CleintId,
-									  clientsGroups.Sum(data =>
-											  (data.Nomenclature.Category == NomenclatureCategory.water
-												  && data.Nomenclature.TareVolume == TareVolume.Vol19L)
-											  ? data.Item.Count
-											  : 0),
-									  clientsGroups.Select(data =>
-											  data.Order.Id).Distinct().Count(),
-									  clientsGroups.Sum(data =>
-											  (data.Item.ActualCount ?? data.Item.Count) * data.Item.Price - data.Item.DiscountMoney),
-									  creationDate,
-									  calculationSettings)).ToList();
-
-			var ccc = (from c in unitOfWork.Session.Query<Counterparty>()
-					   join cl in classifications on c.Id equals cl.CounterpartyId into ccl
-					   from ccll in ccl.DefaultIfEmpty()
-					   select ccll ?? new CounterpartyClassification() { CounterpartyId = c.Id })
-					   .ToList();
-
-			return ccc;
-		}
 
 		private void InsertClassificationValuesToDatabase(
-			ISession session, 
-			IDictionary<int, CounterpartyClassification> classifications, 
+			ISession session,
+			IDictionary<int, CounterpartyClassification> classifications,
 			int insertQueryElementsMaxCount)
 		{
-			var classificationValuesSubsets = classifications.Values.Subsets(insertQueryElementsMaxCount).ToList();
-
-			foreach(var classificationsSubset in classificationValuesSubsets)
+			for(int i = 0; i < classifications.Values.Count; i += insertQueryElementsMaxCount)
 			{
+				var classificationsSubset = classifications.Values
+					.Skip(i)
+					.Take(insertQueryElementsMaxCount)
+					.ToList();
+
 				var sql = GetSqlInsertQuery(classificationsSubset);
 
 				session.CreateSQLQuery(sql)
