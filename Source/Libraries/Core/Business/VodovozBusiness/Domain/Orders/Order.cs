@@ -1297,9 +1297,11 @@ namespace Vodovoz.Domain.Orders
 					}
 
 					if(Client.IsDeliveriesClosed
-					   && PaymentType != PaymentType.Cash
-					   && PaymentType != PaymentType.PaidOnline
-					   && PaymentType != PaymentType.Terminal)
+						&& PaymentType != PaymentType.Cash
+						&& PaymentType != PaymentType.PaidOnline
+						&& PaymentType != PaymentType.Terminal
+						&& PaymentType != PaymentType.DriverApplicationQR
+						&& PaymentType != PaymentType.SmsQR)
 						yield return new ValidationResult(
 							"В заказе неверно указан тип оплаты (для данного клиента закрыты поставки)",
 							new[] { nameof(PaymentType) }
