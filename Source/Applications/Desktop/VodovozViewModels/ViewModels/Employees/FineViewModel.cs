@@ -19,6 +19,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
@@ -201,7 +202,11 @@ namespace Vodovoz.ViewModels.Employees
 
 			var viewModel = routeListEntryViewModelBuilder
 				.ForProperty(x => x.RouteList)
-				.UseViewModelJournalAndAutocompleter<RouteListJournalViewModel>()
+				.UseViewModelJournalAndAutocompleter<RouteListJournalViewModel, RouteListJournalFilterViewModel>(filter =>
+				{
+					filter.StartDate = DateTime.Today.AddDays(-7);
+					filter.EndDate = DateTime.Today.AddDays(1);
+				})
 				.Finish();
 
 			viewModel.IsEditable = CanEdit;
