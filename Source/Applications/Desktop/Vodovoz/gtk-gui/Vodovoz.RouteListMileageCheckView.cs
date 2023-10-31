@@ -6,7 +6,7 @@ namespace Vodovoz
 	{
 		private global::Gtk.VBox vbox2;
 
-		private global::Vodovoz.RouteListsFilter routelistsfilter1;
+		private global::Vodovoz.JournalViewers.RouteListJournalFilterView routelistjournalfilterview;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
@@ -27,11 +27,11 @@ namespace Vodovoz
 			this.vbox2.Name = "vbox2";
 			this.vbox2.Spacing = 6;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.routelistsfilter1 = new global::Vodovoz.RouteListsFilter();
-			this.routelistsfilter1.Events = ((global::Gdk.EventMask)(256));
-			this.routelistsfilter1.Name = "routelistsfilter1";
-			this.vbox2.Add(this.routelistsfilter1);
-			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.routelistsfilter1]));
+			this.routelistjournalfilterview = new global::Vodovoz.JournalViewers.RouteListJournalFilterView();
+			this.routelistjournalfilterview.Events = ((global::Gdk.EventMask)(256));
+			this.routelistjournalfilterview.Name = "routelistjournalfilterview";
+			this.vbox2.Add(this.routelistjournalfilterview);
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.routelistjournalfilterview]));
 			w1.Position = 0;
 			w1.Expand = false;
 			w1.Fill = false;
