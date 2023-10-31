@@ -710,7 +710,6 @@
     <Compile Include="ViewWidgets\ProductSpecificationMaterialsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ProductSpecificationDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ProductSpecificationMaterialsView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.WriteoffDocumentItemsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.IncomingWaterMaterialView.cs" />
     <Compile Include="Dialogs\CommentTemplateDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.CommentTemplateDlg.cs" />
@@ -846,9 +845,6 @@
     <Compile Include="Dialogs\DocumentDialogs\RegradingOfGoodsDocumentItemsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.RegradingOfGoodsDocumentItemsView.cs" />
     <Compile Include="Dialogs\DocumentDialogs\IncomingWaterMaterialView.cs" />
-    <Compile Include="Dialogs\DocumentDialogs\WriteoffDocumentItemsView.cs" />
-    <Compile Include="Dialogs\Employees\FineDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.FineDlg.cs" />
     <Compile Include="Dialogs\Employees\FineItemsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.FineItemsView.cs" />
     <Compile Include="Dialogs\Store\RegradingOfGoodsTemplateItemsView.cs" />
