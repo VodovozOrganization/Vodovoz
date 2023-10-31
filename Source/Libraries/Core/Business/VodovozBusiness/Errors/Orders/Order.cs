@@ -26,6 +26,11 @@
 				nameof(AcceptAbortedByUser),
 				"Подтверждение заказа отменено пользователем.");
 
+		public static Error AcceptException => new Error(
+			typeof(Order),
+			nameof(AcceptException),
+			"Исключение при подтверждении заказа");
+
 		public static Error UnableToShipPromoSet =>
 			new Error(
 				typeof(Order),
