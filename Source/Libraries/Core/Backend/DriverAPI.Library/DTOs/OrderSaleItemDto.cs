@@ -36,6 +36,11 @@
 		public decimal? TareVolume { get; set; }
 
 		/// <summary>
+		/// Цвет пробки 19Л бутылки
+		/// </summary>
+		public string CapColor { get; set; }
+
+		/// <summary>
 		/// Нужно просканировать код
 		/// </summary>
 		public bool NeedScanCode { get; set; }
