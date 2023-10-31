@@ -778,9 +778,6 @@
     <Compile Include="Dialogs\Store\WarehouseDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.WarehouseDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentKindDlg.cs" />
-    <Compile Include="Representations\RouteListsVM.cs" />
-    <Compile Include="JournalFilters\RouteListsFilter.cs" />
-    <Compile Include="gtk-gui\Vodovoz.RouteListsFilter.cs" />
     <Compile Include="ViewWidgets\Logistics\OrderReturnsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.OrderReturnsView.cs" />
     <Compile Include="Commons\OrderPopupMenu.cs" />
