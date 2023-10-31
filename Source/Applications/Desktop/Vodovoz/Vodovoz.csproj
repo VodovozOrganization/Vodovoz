@@ -459,6 +459,7 @@
     <Compile Include="JournalColumnsConfigs\CarModelJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ClientCameFromJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ColumnsConfigRegistrarBase.cs" />
+    <Compile Include="JournalColumnsConfigs\RouteListMileageCheckJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\UndeliveryDetalizationJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ComplaintDetalizationJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\UndeliveryKindJournalRegistrar.cs" />
@@ -785,8 +786,6 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriversInfoExportView.cs" />
     <Compile Include="Dialogs\Logistic\RouteListKeepingDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListKeepingDlg.cs" />
-    <Compile Include="JournalViewers\RouteListMileageCheckView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.RouteListMileageCheckView.cs" />
     <Compile Include="ViewWidgets\Logistics\RouteListDiscrepancyView.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListDiscrepancyView.cs" />
     <Compile Include="SidePanel\PanelViewContainer.cs" />
@@ -842,8 +841,6 @@
     <Compile Include="Dialogs\DocumentDialogs\RegradingOfGoodsDocumentItemsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.RegradingOfGoodsDocumentItemsView.cs" />
     <Compile Include="Dialogs\DocumentDialogs\IncomingWaterMaterialView.cs" />
-    <Compile Include="Dialogs\Employees\FineItemsView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.FineItemsView.cs" />
     <Compile Include="Dialogs\Store\RegradingOfGoodsTemplateItemsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.RegradingOfGoodsTemplateItemsView.cs" />
     <Compile Include="Dialogs\Store\RegradingOfGoodsTemplateDlg.cs" />

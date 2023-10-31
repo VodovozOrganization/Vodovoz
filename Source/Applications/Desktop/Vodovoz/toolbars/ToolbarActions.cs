@@ -900,7 +900,7 @@ public partial class MainWindow : Window
 
 	void ActionRouteListDistanceValidation_Activated(object sender, System.EventArgs e)
 	{
-		NavigationManager.OpenTdiTab<RouteListMileageCheckView>(null);
+		NavigationManager.OpenTdiTab<RouteListMileageCheckJournalViewModel>(null);
 	}
 
 	void ActionCashDocuments_Activated(object sender, System.EventArgs e) =>
