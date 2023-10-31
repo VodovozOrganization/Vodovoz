@@ -759,7 +759,7 @@ FROM
                       WHEN 'Cashless' THEN 'Безналичная'
                       WHEN 'barter' THEN 'Бартер'
                       WHEN 'Barter' THEN 'Бартер'
-                      WHEN 'DriverApplicationQR' THEN 'МП вод.'
+                      WHEN 'DriverApplicationQR' THEN 'МП вод. по QR'
                       WHEN 'SmsQR' THEN 'Cмс qr'
                       WHEN 'ByCard' THEN CONCAT('По карте, ', payment_from.name)
                       WHEN 'PaidOnline' THEN CONCAT('Оплачено онлайн, ', payment_from.name)
@@ -779,7 +779,7 @@ FROM
                       WHEN 'Cashless' THEN 'Безналичная'
                       WHEN 'barter' THEN 'Бартер'
                       WHEN 'Barter' THEN 'Бартер'
-                      WHEN 'DriverApplicationQR' THEN 'МП вод.'
+                      WHEN 'DriverApplicationQR' THEN 'МП вод. по QR'
                       WHEN 'SmsQR' THEN 'Cмс qr'
                       WHEN 'ByCard' THEN CONCAT('По карте, ', payment_from.name)
                       WHEN 'PaidOnline' THEN CONCAT('Оплачено онлайн, ', payment_from.name)
@@ -908,7 +908,7 @@ FROM
                       WHEN 'Cashless' THEN 'Безналичная'
                       WHEN 'barter' THEN 'Бартер'
                       WHEN 'Barter' THEN 'Бартер'
-                      WHEN 'DriverApplicationQR' THEN 'МП вод.'
+                      WHEN 'DriverApplicationQR' THEN 'МП вод. по QR'
                       WHEN 'SmsQR' THEN 'Cмс qr'
                       WHEN 'ByCard' THEN CONCAT('По карте, ', payment_from.name)
                       WHEN 'PaidOnline' THEN CONCAT('Оплачено онлайн, ', payment_from.name)
@@ -928,7 +928,7 @@ FROM
                       WHEN 'Cashless' THEN 'Безналичная'
                       WHEN 'barter' THEN 'Бартер'
                       WHEN 'Barter' THEN 'Бартер'
-                      WHEN 'DriverApplicationQR' THEN 'МП вод.'
+                      WHEN 'DriverApplicationQR' THEN 'МП вод. по QR'
                       WHEN 'SmsQR' THEN 'Cмс qr'
                       WHEN 'ByCard' THEN CONCAT('По карте, ', payment_from.name)
                       WHEN 'PaidOnline' THEN CONCAT('Оплачено онлайн, ', payment_from.name)
