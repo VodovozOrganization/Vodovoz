@@ -122,12 +122,14 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			_currentUserEmail = e.CurrentUserEmail;
 			_additionalEmail = e.AdditionalEmail;
 
-			var task = Task.Run(() =>
-			{
-				StartClassificationCalculation();
-			});
+			StartClassificationCalculation();
 
-			await task;
+			//var task = Task.Run(() =>
+			//{
+			//	StartClassificationCalculation();
+			//});
+
+			//await task;
 		}
 
 		private void StartClassificationCalculation()
@@ -143,7 +145,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 
 			var oldCounterpartyClassifications = _counterpartyRepository
 				.GetLastExistingClassificationsForCounterparties(_uow);
-
+			return;
 			var newCounterpartyClassifications = _counterpartyRepository
 				.CalculateCounterpartyClassifications(_uow, CalculationSettings)
 				.ToDictionary(c => c.CounterpartyId);

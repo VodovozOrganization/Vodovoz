@@ -316,6 +316,29 @@ namespace Vodovoz.EntityRepositories.Counterparties
 
 		public IDictionary<int, CounterpartyClassification> GetLastExistingClassificationsForCounterparties(IUnitOfWork unitOfWork)
 		{
+			var classifications1 =
+				(from cl in unitOfWork.GetAll<CounterpartyClassification>()
+				 group cl by cl.CounterpartyId)
+				 .ToList();
+
+			var dl = (from o1 in unitOfWork.GetAll<CounterpartyClassification>()
+					  group o1 by o1.CounterpartyId into og
+					  select new { CustomerId = og.Key, Latest = og.First() })
+					  .ToList();
+
+			var classifications2 =
+				(from cl in unitOfWork.GetAll<CounterpartyClassification>()
+				 group cl by cl.CounterpartyId)
+				 .ToDictionary(g => g.Key, g => g.First());
+
+			var cl2 = classifications1
+				.Select(g => new
+				 {
+					 CounterpatyId = g.Key,
+					 Classification = g.First()
+				 })
+				 .ToList();
+
 			var classifications =
 				(from cl in unitOfWork.GetAll<CounterpartyClassification>()
 				 group cl by cl.CounterpartyId into groups

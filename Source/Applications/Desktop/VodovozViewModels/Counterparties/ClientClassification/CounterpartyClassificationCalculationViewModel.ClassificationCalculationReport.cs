@@ -1,12 +1,12 @@
-﻿using DocumentFormat.OpenXml.Packaging;
+﻿using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
-using DocumentFormat.OpenXml;
 using MoreLinq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using Vodovoz.Domain.Client.ClientClassification;
-using System;
 
 namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 {
@@ -17,7 +17,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			private int _period;
 			private string _lastReportDate;
 
-			private const double _defaultColumnWidth = 12;
+			private const double _defaultColumnWidth = 16;
 			private uint _defaultCellFormatId;
 			private uint _tableHeadersCellFormatId;
 			private uint _tableTitleCellFormatId;
@@ -30,10 +30,13 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			{
 				_period = periodInMonth;
 
-				var lastReportDate = oldClassifications.Select(c => c.Value.ClassificationCalculationDate).Max();
-				_lastReportDate = 
-					lastReportDate ==  DateTime.MinValue 
-					? "не выполнялось" 
+				var lastReportDate = oldClassifications.Select(c => c.Value.ClassificationCalculationDate)
+					.OrderByDescending(c => c)
+					.FirstOrDefault();
+
+				_lastReportDate =
+					lastReportDate == DateTime.MinValue
+					? "не выполнялось"
 					: lastReportDate.ToString("dd.MM.yyyy");
 
 				var rows = CreateRows(newClassifications, oldClassifications, counterpartyNames);
@@ -41,7 +44,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 				Export(rows);
 			}
 
-			public string Title => 
+			public string Title =>
 				$"ОТЧЁТ ОБ ИЗМЕНЕНИИ КАТЕГОРИИ КЛИЕНТОВ ОТ {DateTime.Now.ToString("dd.MM.yyyy")} за Период в {_period} месяца";
 
 			public static ClassificationCalculationReport GenerateReport(
@@ -120,7 +123,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 													 .ToDictionary(g => g.Key, g => g.ToList());
 
 
-				using(var spreadsheet = SpreadsheetDocument.Create("D:\\new.xmls", SpreadsheetDocumentType.Workbook))
+				using(var spreadsheet = SpreadsheetDocument.Create("D:\\new.xlsx", SpreadsheetDocumentType.Workbook))
 				{
 					spreadsheet.AddWorkbookPart();
 					spreadsheet.WorkbookPart.Workbook = new Workbook();
@@ -137,12 +140,45 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 					var sheetData = new SheetData();
 					sheetData.Append(GetTableTitleRow());
 					sheetData.Append(GetLastReportInfoRow(_lastReportDate));
-					sheetData.Append(GetBlankRow());
-					sheetData.Append(GetTableHeadersRow());
+					sheetData.Append(GetEmptyRow());
 
-					//foreach(var node in _orderJournalNodes)
+					sheetData.Append(GetTableHeadersRow("По среднему количеству бутылей 19л за месяц"));
+
+					foreach(var item in groupedByBottlesClassification)
+					{
+						var oldCategoryStringValue =
+							(item.Key.OldClassificationByBottles.HasValue
+							? item.Key.OldClassificationByBottles.ToString()
+							: "Новый");
+
+						var newCategoryStringValue = item.Key.NewClassificationByBottles.ToString();
+
+						if(oldCategoryStringValue == newCategoryStringValue)
+						{
+							continue;
+						}
+
+						var categoryChangedValue = $"{oldCategoryStringValue} -> {newCategoryStringValue}";
+
+						sheetData.Append(GetTableSubheaderDataRow(categoryChangedValue));
+						sheetData.Append(GetTableDataRow(item.Value));
+						sheetData.Append(GetEmptyRow());
+					}
+
+					sheetData.Append(GetTableHeadersRow("По среднему количеству заказов"));
+
+					//foreach(var item in groupedByOrdersClassification)
 					//{
-					//	sheetData.Append(GetTableDataRow(node));
+					//	var oldCategoryStringValue =
+					//		(item.Key.OldClassificationByOrders.HasValue
+					//		? item.Key.OldClassificationByOrders.ToString()
+					//		: "Новый");
+
+					//	var categoryChangedValue = $"{oldCategoryStringValue}->{item.Key.NewClassificationByOrders.ToString()}";
+
+					//	sheetData.Append(GetTableSubheaderDataRow(categoryChangedValue));
+					//	sheetData.Append(GetTableDataRow(item.Value));
+					//	sheetData.Append(GetEmptyRow());
 					//}
 
 					worksheetPart.Worksheet.Append(sheetData);
@@ -157,15 +193,14 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 				}
 			}
 
-
-
+			#region Rows AndColumns
 			private Columns CreateColumns(double defaultColumnWidth)
 			{
 				var columns = new Columns();
 
 				var emptyColumn = CreateColumn(1, defaultColumnWidth);
-				var categoryFromToColumn = CreateColumn(2, defaultColumnWidth * 0.5);
-				var counterpartyColumn = CreateColumn(3, defaultColumnWidth * 1.5);
+				var categoryFromToColumn = CreateColumn(2, defaultColumnWidth);
+				var counterpartyColumn = CreateColumn(3, defaultColumnWidth * 2);
 				var bottlesCountOldColumn = CreateColumn(4, defaultColumnWidth);
 				var bottlesCountNewColumn = CreateColumn(5, defaultColumnWidth);
 				var turnowerSumOldColumn = CreateColumn(6, defaultColumnWidth);
@@ -216,69 +251,81 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			{
 				var row = new Row();
 
-				var value = $"Дата последнего пересчета {lastReportDate}";
+				var value = $"Дата последнего пересчета: {lastReportDate}";
 				row.AppendChild(GetTableTitleStringCell(value));
 
 				return row;
 			}
 
-			private Row GetTableHeadersRow()
+			private Row GetTableHeadersRow(string value)
 			{
 				var row = new Row();
 
-				row.AppendChild(GetTableHeaderStringCell(""));
-				row.AppendChild(GetTableHeaderStringCell("Дата"));
-				row.AppendChild(GetTableHeaderStringCell("Автор"));
-				row.AppendChild(GetTableHeaderStringCell("Время"));
-				row.AppendChild(GetTableHeaderStringCell("Статус"));
-				row.AppendChild(GetTableHeaderStringCell("Тип"));
-				row.AppendChild(GetTableHeaderStringCell("Бутыли"));
-				row.AppendChild(GetTableHeaderStringCell("Кол-во с/о"));
-				row.AppendChild(GetTableHeaderStringCell("Клиент"));
-				row.AppendChild(GetTableHeaderStringCell("ИНН"));
-				row.AppendChild(GetTableHeaderStringCell("Сумма"));
-				row.AppendChild(GetTableHeaderStringCell("Статус оплаты"));
-				row.AppendChild(GetTableHeaderStringCell("Статус документооборота"));
-				row.AppendChild(GetTableHeaderStringCell("Район доставки"));
-				row.AppendChild(GetTableHeaderStringCell("Адрес"));
-				row.AppendChild(GetTableHeaderStringCell("Изменил"));
-				row.AppendChild(GetTableHeaderStringCell("Послед. изменения"));
-				row.AppendChild(GetTableHeaderStringCell("Номер звонка"));
-				row.AppendChild(GetTableHeaderStringCell("Online заказ №"));
-				row.AppendChild(GetTableHeaderStringCell("Номер заказа интернет-магазина"));
+				row.AppendChild(GetTableHeaderStringCell(value));
+
+				for(int i = 0; i < 10; i++)
+				{
+					row.AppendChild(GetTableHeaderEmptyCell());
+				}
 
 				return row;
 			}
 
-			//private Row GetTableDataRow(OrderJournalNode node)
-			//{
-			//	var row = new Row();
+			private Row GetTableSubheaderDataRow(string categoryChangedValue)
+			{
+				var row = new Row();
 
-			//	row.AppendChild(GetNumericCell(node.Id));
-			//	row.AppendChild(GetStringCell(node.Date != null ? ((DateTime)node.Date).ToString("d") : string.Empty));
-			//	row.AppendChild(GetStringCell(node.Author));
-			//	row.AppendChild(GetStringCell(node.IsSelfDelivery ? "-" : node.DeliveryTime));
-			//	row.AppendChild(GetStringCell(node.StatusEnum.GetEnumDisplayName()));
-			//	row.AppendChild(GetStringCell(node.ViewType));
-			//	row.AppendChild(GetNumericCell((int)node.BottleAmount));
-			//	row.AppendChild(GetNumericCell((int)node.SanitisationAmount));
-			//	row.AppendChild(GetStringCell(node.Counterparty));
-			//	row.AppendChild(GetStringCell(node.Inn));
-			//	row.AppendChild(GetStringCurrencyFormatCell(node.Sum));
-			//	row.AppendChild(GetStringCell(((node.OrderPaymentStatus != OrderPaymentStatus.None) ? node.OrderPaymentStatus.GetEnumDisplayName() : "")));
-			//	row.AppendChild(GetStringCell(node.EdoDocFlowStatus.GetEnumDisplayName()));
-			//	row.AppendChild(GetStringCell(node.IsSelfDelivery ? "-" : node.DistrictName));
-			//	row.AppendChild(GetStringCell(node.Address));
-			//	row.AppendChild(GetStringCell(node.LastEditor));
-			//	row.AppendChild(GetStringCell(node.LastEditedTime != default(DateTime) ? node.LastEditedTime.ToString(CultureInfo.CurrentCulture) : string.Empty));
-			//	row.AppendChild(GetStringCell(node.DriverCallId.ToString()));
-			//	row.AppendChild(GetStringCell(node.OnLineNumber));
-			//	row.AppendChild(GetStringCell(node.EShopNumber));
+				row.AppendChild(GetStringCell(""));
+				row.AppendChild(GetStringCell(categoryChangedValue));
+				row.AppendChild(GetStringCell("Контрагент"));
+				row.AppendChild(GetStringCell("Кол бутылей"));
+				row.AppendChild(GetStringCell("Кол бутылей нов"));
+				row.AppendChild(GetStringCell("Оборот"));
+				row.AppendChild(GetStringCell("Оборот нов"));
+				row.AppendChild(GetStringCell("Частота"));
+				row.AppendChild(GetStringCell("Частота нов"));
+				row.AppendChild(GetStringCell("Категория"));
+				row.AppendChild(GetStringCell("Категория нов"));
 
-			//	return row;
-			//}
+				return row;
+			}
 
-			private Row GetBlankRow()
+			private IEnumerable<Row> GetTableDataRow(IEnumerable<ClassificationCalculationReportRow> items)
+			{
+				var rows = new List<Row>();
+				var counter = 0;
+
+				foreach(var item in items)
+				{
+					counter++;
+					var row = new Row();
+
+					var oldCategory = item.OldClassificationByBottles == null || item.OldClassificationByOrders == null
+						? "Новый"
+						: item.OldClassificationByBottles.Value.ToString() + item.OldClassificationByOrders.Value.ToString();
+
+					var newCategory =
+						item.NewClassificationByBottles.ToString() + item.NewClassificationByOrders.ToString();
+
+					row.AppendChild(GetStringCell(""));
+					row.AppendChild(GetNumericCell(counter));
+					row.AppendChild(GetStringCell(item.CounterpartyName));
+					row.AppendChild(GetFloatingPointCell(item.OldAverageBottlesCount.HasValue ? item.OldAverageBottlesCount.Value : 0));
+					row.AppendChild(GetFloatingPointCell(item.NewAverageBottlesCount));
+					row.AppendChild(GetFloatingPointCell(item.OldAverageMoneyTurnoverSum.HasValue ? item.OldAverageMoneyTurnoverSum.Value : 0));
+					row.AppendChild(GetFloatingPointCell(item.NewAverageMoneyTurnoverSum));
+					row.AppendChild(GetFloatingPointCell(item.OldAverageOrdersCount.HasValue ? item.OldAverageOrdersCount.Value : 0));
+					row.AppendChild(GetFloatingPointCell(item.NewAverageOrdersCount));
+					row.AppendChild(GetStringCell(oldCategory));
+					row.AppendChild(GetStringCell(newCategory));
+
+					rows.Add(row);
+				}
+
+				return rows;
+			}
+
+			private Row GetEmptyRow()
 			{
 				var row = new Row();
 
@@ -295,9 +342,15 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 				stylesheet.Fonts.AppendChild(GetWorksheetTitleFont());
 				stylesheet.Fonts.Count = 3;
 
+				var solidYellow = new PatternFill() { PatternType = PatternValues.Solid };
+				solidYellow.ForegroundColor = new ForegroundColor { Rgb = HexBinaryValue.FromString("FFFF00") };
+				solidYellow.BackgroundColor = new BackgroundColor { Indexed = 64 };
+
 				stylesheet.Fills = new Fills();
 				stylesheet.Fills.AppendChild(new Fill { PatternFill = new PatternFill { PatternType = PatternValues.None } });
 				stylesheet.Fills.AppendChild(new Fill { PatternFill = new PatternFill { PatternType = PatternValues.Gray125 } });
+				stylesheet.Fills.AppendChild(new Fill { PatternFill = solidYellow });
+				stylesheet.Fills.Count = 3;
 
 				stylesheet.Borders = new Borders();
 				stylesheet.Borders.AppendChild(new Border());
@@ -307,8 +360,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 				var defaultCellFormat = new CellFormat { FormatId = 0, FontId = 0, BorderId = 1 };
 				defaultCellFormat.Alignment = new Alignment { WrapText = true };
 
-				var tableHeadersCellFormat = new CellFormat { FormatId = 0, FontId = 1, BorderId = 1 };
-				tableHeadersCellFormat.Alignment = new Alignment { WrapText = true };
+				var tableHeadersCellFormat = new CellFormat { FormatId = 0, FontId = 1, FillId = 2 };
 
 				var tableTitleCellFormat = new CellFormat { FormatId = 0, FontId = 2 };
 
@@ -386,6 +438,16 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 				return cell;
 			}
 
+			private Cell GetTableHeaderEmptyCell()
+			{
+				var cell = new Cell
+				{
+					StyleIndex = _tableHeadersCellFormatId
+				};
+
+				return cell;
+			}
+
 			private Cell GetStringCell(string value)
 			{
 				var cell = new Cell
@@ -451,6 +513,21 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 
 			private Font GetTableHeadersFont()
 			{
+				var fontSize = new FontSize
+				{
+					Val = 10
+				};
+
+				var font = new Font
+				{
+					FontSize = fontSize
+				};
+
+				return font;
+			}
+
+			private Font GetWorksheetTitleFont()
+			{
 				var bold = new Bold();
 
 				var fontSize = new FontSize
@@ -466,24 +543,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 
 				return font;
 			}
-
-			private Font GetWorksheetTitleFont()
-			{
-				var bold = new Bold();
-
-				var fontSize = new FontSize
-				{
-					Val = 14
-				};
-
-				var font = new Font
-				{
-					Bold = bold,
-					FontSize = fontSize
-				};
-
-				return font;
-			}
+			#endregion Rows AndColumns
 		}
 	}
 }
