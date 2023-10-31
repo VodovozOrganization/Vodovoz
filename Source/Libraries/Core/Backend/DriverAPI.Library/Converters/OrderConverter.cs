@@ -77,6 +77,7 @@ namespace DriverAPI.Library.Converters
 				OrderDeliveryItems = pairOfSplitedLists.orderDeliveryItems,
 				OrderReceptionItems = pairOfSplitedLists.orderReceptionItems,
 				IsFastDelivery = vodovozOrder.IsFastDelivery,
+				ContactlessDelivery = vodovozOrder.ContactlessDelivery,
 				AddedToRouteListTime = addedToRouteListTime.ToString("dd.MM.yyyyTHH:mm:ss"),
 				Trifle = vodovozOrder.Trifle ?? 0,
 				SignatureType = _signatureTypeConverter.ConvertToApiSignatureType(vodovozOrder.SignatureType)

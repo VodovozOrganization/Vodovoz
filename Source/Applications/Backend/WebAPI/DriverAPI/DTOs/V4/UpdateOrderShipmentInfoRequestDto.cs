@@ -9,7 +9,7 @@ namespace DriverAPI.DTOs.V4
 	/// <summary>
 	/// Запрос на завершение заказа
 	/// </summary>
-	public class CompletedOrderRequestDto : IDriverOrderShipmentInfo, IDriverComplaintInfo
+	public class UpdateOrderShipmentInfoRequestDto : IDriverOrderShipmentInfo
 	{
 		/// <summary>
 		/// Номер заказа
@@ -22,22 +22,6 @@ namespace DriverAPI.DTOs.V4
 		/// </summary>
 		[Required]
 		public int BottlesReturnCount { get; set; }
-
-		/// <summary>
-		/// Рейтинг адреса от водителя
-		/// </summary>
-		[Required]
-		public int Rating { get; set; }
-
-		/// <summary>
-		/// Причина низкого рейтинга адреса
-		/// </summary>
-		public int DriverComplaintReasonId { get; set; }
-
-		/// <summary>
-		/// Комментарий низкого рейтинга адреса
-		/// </summary>
-		public string OtherDriverComplaintReasonComment { get; set; }
 
 		/// <summary>
 		/// Комментарий в случае меньшего количества бутылей на возврат
