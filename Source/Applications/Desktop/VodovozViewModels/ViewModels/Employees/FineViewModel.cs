@@ -30,7 +30,6 @@ namespace Vodovoz.ViewModels.Employees
 {
 	public class FineViewModel : EntityTabViewModelBase<Fine>, IAskSaveOnCloseViewModel
 	{
-		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IEmployeeService _employeeService;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ILifetimeScope _lifetimeScope;
@@ -53,7 +52,6 @@ namespace Vodovoz.ViewModels.Employees
 				throw new ArgumentNullException(nameof(navigationManager));
 			}
 
-			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));

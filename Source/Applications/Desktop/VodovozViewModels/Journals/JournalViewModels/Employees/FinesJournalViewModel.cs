@@ -168,7 +168,8 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 					var config = EntityConfigs[selectedNode.EntityType];
 					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
 
-					TabParent.OpenTab(() => foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode), this);
+					foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode);
+
 					if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog) {
 						HideJournal(TabParent);
 					}
