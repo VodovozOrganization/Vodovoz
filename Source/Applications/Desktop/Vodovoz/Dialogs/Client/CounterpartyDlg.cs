@@ -2318,6 +2318,11 @@ namespace Vodovoz
 					Entity.IsLiquidating = false;
 				}
 
+				if(Entity.IsDeliveriesClosed && !a.IsActive)
+				{
+					Entity.IsLiquidating = true;
+				}
+
 				_counterpartyService.StopShipmentsIfNeeded(Entity, CurrentEmployee, !a.IsActive, a.State.GetUserFriendlyName());
 			};
 		}
