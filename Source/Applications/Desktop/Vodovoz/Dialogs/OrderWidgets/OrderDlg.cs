@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
@@ -412,7 +412,6 @@ namespace Vodovoz
 					Entity.DeliveryPoint = UoW.GetById<DeliveryPoint>(contactPhone.DeliveryPoint.Id);
 				}
 			}
-
 
 			AddCommentsFromDeliveryPoint();
 			CheckForStopDelivery();
