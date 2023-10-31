@@ -208,19 +208,13 @@ namespace Vodovoz.ViewModels.Logistic
 		public DelegateCommand AttachFineCommand => attachFineCommand ?? (attachFineCommand = new DelegateCommand(
 			() =>
 			{
-				var fineFilter = new FineFilterViewModel();
-				fineFilter.ExcludedIds = SelectedItem.Fines.Select(x => x.Id).ToArray();
-				var fineJournalViewModel = new FinesJournalViewModel(
-					fineFilter,
-					_employeeService,
-					_employeeJournalFactory,
-					UnitOfWorkFactory, 
-					CommonServices,
-					_lifetimeScope,
-					NavigationManager);
+				var page = NavigationManager.OpenViewModel<FinesJournalViewModel, Action<FineFilterViewModel>>(this, filter =>
+				{
+					filter.ExcludedIds = SelectedItem.Fines.Select(x => x.Id).ToArray();
+				});
 
-				fineJournalViewModel.SelectionMode = JournalSelectionMode.Single;
-				fineJournalViewModel.OnEntitySelectedResult +=
+				page.ViewModel.SelectionMode = JournalSelectionMode.Single;
+				page.ViewModel.OnEntitySelectedResult +=
 					(sender, e) =>
 					{
 						var selectedNode = e.SelectedNodes.FirstOrDefault();
@@ -240,7 +234,6 @@ namespace Vodovoz.ViewModels.Logistic
 						SelectedItem.AddFine(fine);
 						UpdateTreeAddresses?.Invoke();
 					};
-				TabParent.AddSlaveTab(this, fineJournalViewModel);
 			}, () => SelectedItem != null
 		));
 		
@@ -261,19 +254,13 @@ namespace Vodovoz.ViewModels.Logistic
 			createDetachFineCommand ?? (createDetachFineCommand = new DelegateCommand(
 			() =>
 			{
-				var fineFilter = new FineFilterViewModel();
-				fineFilter.FindFinesWithIds = SelectedItem.Fines.Select(x => x.Id).ToArray();
-				var fineJournalViewModel = new FinesJournalViewModel(
-					fineFilter,
-					_employeeService,
-					_employeeJournalFactory,
-					UnitOfWorkFactory, 
-					CommonServices,
-					_lifetimeScope,
-					NavigationManager);
+				var page = NavigationManager.OpenViewModel<FinesJournalViewModel, Action<FineFilterViewModel>>(this, filter =>
+				{
+					filter.ExcludedIds = SelectedItem.Fines.Select(x => x.Id).ToArray();
+				});
 
-				fineJournalViewModel.SelectionMode = JournalSelectionMode.Single;
-				fineJournalViewModel.OnEntitySelectedResult +=
+				page.ViewModel.SelectionMode = JournalSelectionMode.Single;
+				page.ViewModel.OnEntitySelectedResult +=
 					(sender, e) =>
 					{
 						var selectedNode = e.SelectedNodes.FirstOrDefault();
@@ -286,7 +273,6 @@ namespace Vodovoz.ViewModels.Logistic
 						SelectedItem.RemoveFine(fine);
 						UpdateTreeAddresses?.Invoke();
 					};
-				TabParent.AddSlaveTab(this, fineJournalViewModel);
 			}, () => SelectedItem != null
 		));
 		 

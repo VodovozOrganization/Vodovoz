@@ -331,8 +331,15 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private void CreateAttachFine()
 		{
-			var fineJournalViewModel = CreateFinesJournalViewModel();
-			fineJournalViewModel.OnEntitySelectedResult += (sender, e) =>
+			var page = NavigationManager.OpenViewModel<FinesJournalViewModel, Action<FineFilterViewModel>>(this, filter =>
+			{
+				filter.CanEditFilter = true;
+				filter.ExcludedIds = Entity.Fines.Select(x => x.Id).ToArray();
+			});
+
+			page.ViewModel.SelectionMode = JournalSelectionMode.Single;
+
+			page.ViewModel.OnEntitySelectedResult += (sender, e) =>
 			{
 				var selectedNode = e.SelectedNodes.FirstOrDefault();
 				if(selectedNode == null)
@@ -341,7 +348,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				}
 				Entity.AddFine(UoW.GetById<Fine>(selectedNode.Id));
 			};
-			TabParent.AddSlaveTab(this, fineJournalViewModel);
 		}
 
 		private void CreateAddFine()
@@ -353,27 +359,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			page.ViewModel.EntitySaved += (sender, e) =>
 			{
 				Entity.AddFine(e.Entity as Fine);
-			};
-		}
-
-		private FinesJournalViewModel CreateFinesJournalViewModel()
-		{
-			var fineFilter = new FineFilterViewModel(true)
-			{
-				ExcludedIds = Entity.Fines.Select(x => x.Id).ToArray()
-			};
-
-			return new FinesJournalViewModel(
-				fineFilter,
-				EmployeeService,
-				EmployeeJournalFactory,
-				QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-				CommonServices,
-				_lifetimeScope,
-				NavigationManager
-			)
-			{
-				SelectionMode = JournalSelectionMode.Single
 			};
 		}
 

@@ -461,19 +461,13 @@ namespace Vodovoz.ViewModels.Complaints
 			AttachFineCommand = new DelegateCommand(
 				() =>
 				{
-					var fineFilter = new FineFilterViewModel();
-					fineFilter.ExcludedIds = Entity.Fines.Select(x => x.Id).ToArray();
-					var fineJournalViewModel = new FinesJournalViewModel(
-						fineFilter,
-						_employeeService,
-						EmployeeJournalFactory,
-						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-						CommonServices,
-						_scope,
-						NavigationManager);
+					var page = NavigationManager.OpenViewModel<FinesJournalViewModel, Action<FineFilterViewModel>>(this, filter =>
+					{
+						filter.ExcludedIds = Entity.Fines.Select(x => x.Id).ToArray();
+					});
 
-					fineJournalViewModel.SelectionMode = JournalSelectionMode.Single;
-					fineJournalViewModel.OnEntitySelectedResult += (sender, e) =>
+					page.ViewModel.SelectionMode = JournalSelectionMode.Single;
+					page.ViewModel.OnEntitySelectedResult += (sender, e) =>
 					{
 						var selectedNode = e.SelectedNodes.FirstOrDefault();
 						if(selectedNode == null)
@@ -482,7 +476,6 @@ namespace Vodovoz.ViewModels.Complaints
 						}
 						Entity.AddFine(UoW.GetById<Fine>(selectedNode.Id));
 					};
-					TabParent.AddSlaveTab(this, fineJournalViewModel);
 				},
 				() => CanAttachFine
 			);
