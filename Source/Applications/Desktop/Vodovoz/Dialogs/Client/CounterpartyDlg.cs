@@ -330,6 +330,7 @@ namespace Vodovoz
 			var roboatsSettings = _lifetimeScope.Resolve<IRoboatsSettings>();
 			_edoSettings = _lifetimeScope.Resolve<IEdoSettings>();
 			_counterpartySettings = _lifetimeScope.Resolve<ICounterpartySettings>();
+			_counterpartyService = _lifetimeScope.Resolve<ICounterpartyService>();
 
 			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			var fileDialogService = new FileDialogService();
