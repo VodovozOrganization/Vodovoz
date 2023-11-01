@@ -33,6 +33,7 @@ using QSOrmProject;
 using QSProjectsLib;
 using RevenueService.Client;
 using RevenueService.Client.Dto;
+using RevenueService.Client.Extensions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -329,6 +330,7 @@ namespace Vodovoz
 			var roboatsSettings = _lifetimeScope.Resolve<IRoboatsSettings>();
 			_edoSettings = _lifetimeScope.Resolve<IEdoSettings>();
 			_counterpartySettings = _lifetimeScope.Resolve<ICounterpartySettings>();
+			_counterpartyService = _lifetimeScope.Resolve<ICounterpartyService>();
 
 			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			var fileDialogService = new FileDialogService();
@@ -1559,6 +1561,7 @@ namespace Vodovoz
 				}
 				catch(Exception ex)
 				{
+					MessageDialogHelper.RunWarningDialog($"Не удалось проверить контрагента в ФНС: {ex.Message}", "Ошибка проверки статуса в ФНС");
 					_logger.Warn("Не удалось проверить контрагента в ФНС: {Reason}",
 					ex.Message);
 				}
@@ -2310,6 +2313,18 @@ namespace Vodovoz
 				{
 					FillEntityDetailsFromRevenueService(a);
 				}
+
+				if(Entity.IsLiquidating && a.IsActive)
+				{
+					Entity.IsLiquidating = false;
+				}
+
+				if(Entity.IsDeliveriesClosed && !a.IsActive)
+				{
+					Entity.IsLiquidating = true;
+				}
+
+				_counterpartyService.StopShipmentsIfNeeded(Entity, CurrentEmployee, !a.IsActive, a.State.GetUserFriendlyName());
 			};
 		}
 
