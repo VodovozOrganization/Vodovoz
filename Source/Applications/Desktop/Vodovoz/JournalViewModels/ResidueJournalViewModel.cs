@@ -30,7 +30,6 @@ namespace Vodovoz.JournalViewModels
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IEmployeeService employeeService;
-		private readonly IRepresentationEntityPicker representationEntityPicker;
 		private readonly IMoneyRepository moneyRepository;
 		private readonly IDepositRepository depositRepository;
 		private readonly IBottlesRepository bottlesRepository;
@@ -42,7 +41,6 @@ namespace Vodovoz.JournalViewModels
 			ResidueFilterViewModel filterViewModel,
 			INavigationManager navigationManager,
 			IEmployeeService employeeService,
-			IRepresentationEntityPicker representationEntityPicker,
 			IMoneyRepository moneyRepository,
 			IDepositRepository depositRepository,
 			IBottlesRepository bottlesRepository,
@@ -56,7 +54,6 @@ namespace Vodovoz.JournalViewModels
 		{
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			this.representationEntityPicker = representationEntityPicker ?? throw new ArgumentNullException(nameof(representationEntityPicker));
 			this.moneyRepository = moneyRepository ?? throw new ArgumentNullException(nameof(moneyRepository));
 			this.depositRepository = depositRepository ?? throw new ArgumentNullException(nameof(depositRepository));
 			this.bottlesRepository = bottlesRepository ?? throw new ArgumentNullException(nameof(bottlesRepository));
@@ -136,7 +133,6 @@ namespace Vodovoz.JournalViewModels
 				EntityUoWBuilder.ForCreate(),
 				unitOfWorkFactory,
 				employeeService, 
-				representationEntityPicker, 
 				bottlesRepository, 
 				depositRepository, 
 				moneyRepository, 
@@ -152,7 +148,6 @@ namespace Vodovoz.JournalViewModels
 				EntityUoWBuilder.ForOpen(node.Id),
 				unitOfWorkFactory,
 				employeeService, 
-				representationEntityPicker, 
 				bottlesRepository, 
 				depositRepository, 
 				moneyRepository, 
