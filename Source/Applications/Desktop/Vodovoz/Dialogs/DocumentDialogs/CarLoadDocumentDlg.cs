@@ -317,8 +317,9 @@ namespace Vodovoz
 
 		public override void Destroy()
 		{
-			base.Destroy();
 			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
+			base.Destroy();
 		}
 	}
 

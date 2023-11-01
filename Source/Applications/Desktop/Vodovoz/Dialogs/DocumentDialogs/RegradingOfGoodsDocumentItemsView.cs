@@ -38,9 +38,8 @@ namespace Vodovoz
 		private readonly IStockRepository _stockRepository = new StockRepository();
 		private readonly INomenclatureRepository _nomenclatureRepository =
 			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
-		
-		RegradingOfGoodsDocumentItem newRow;
-		RegradingOfGoodsDocumentItem FineEditItem;
+		private RegradingOfGoodsDocumentItem newRow;
+		private RegradingOfGoodsDocumentItem FineEditItem;
 
 		public RegradingOfGoodsDocumentItemsView()
 		{
@@ -116,18 +115,18 @@ namespace Vodovoz
 			ytreeviewItems.Selection.Changed += YtreeviewItems_Selection_Changed;
 		}
 
-		public ITdiTab Container { get; set; }
+		public ITdiTab ParrentDlg { get; set; }
 
 		public ITdiCompatibilityNavigation NavigationManager { get; set; }
 
-		double GetMaxValueForAdjustmentSetting(RegradingOfGoodsDocumentItem item){
+		private double GetMaxValueForAdjustmentSetting(RegradingOfGoodsDocumentItem item){
 			if(item.NomenclatureOld.Category == NomenclatureCategory.bottle
 			   && item.NomenclatureNew.Category == NomenclatureCategory.water)
 				return 39;
 			return (double)item.AmountInStock;
 		}
 
-		void YtreeviewItems_Selection_Changed (object sender, EventArgs e)
+		private void YtreeviewItems_Selection_Changed (object sender, EventArgs e)
 		{
 			UpdateButtonState();
 		}
@@ -169,7 +168,7 @@ namespace Vodovoz
 			buttonDeleteFine.Sensitive = selected != null && selected.Fine != null;
 		}
 
-		void DocumentUoW_Root_PropertyChanged (object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		private void DocumentUoW_Root_PropertyChanged (object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
 			if (e.PropertyName == DocumentUoW.Root.GetPropertyName(x => x.Warehouse))
 				UpdateButtonState();
@@ -179,7 +178,7 @@ namespace Vodovoz
 		{
 			Action<NomenclatureStockFilterViewModel> filterParams = f => f.RestrictWarehouse = DocumentUoW.Root.Warehouse;
 
-			var vm = NavigationManager.OpenViewModelOnTdi<NomenclatureStockBalanceJournalViewModel, Action<NomenclatureStockFilterViewModel>>(Container, filterParams)
+			var vm = NavigationManager.OpenViewModelOnTdi<NomenclatureStockBalanceJournalViewModel, Action<NomenclatureStockFilterViewModel>>(ParrentDlg, filterParams)
 				.ViewModel;
 			
 			vm.SelectionMode = JournalSelectionMode.Single;
@@ -232,7 +231,7 @@ namespace Vodovoz
 			};
 		}
 
-        void SelectNewNomenclature_ObjectSelected (object sender, JournalSelectedNodesEventArgs e)
+		private void SelectNewNomenclature_ObjectSelected (object sender, JournalSelectedNodesEventArgs e)
 		{
 			var journalNode = e?.SelectedNodes?.FirstOrDefault();
 			if (journalNode != null)
@@ -368,29 +367,29 @@ namespace Vodovoz
 
 			if (selected.Fine != null)
 			{
-				var page = NavigationManager.OpenViewModelOnTdi<FineViewModel, IEntityUoWBuilder>(Container, EntityUoWBuilder.ForOpen(selected.Fine.Id), OpenPageOptions.AsSlave);
+				var page = NavigationManager.OpenViewModelOnTdi<FineViewModel, IEntityUoWBuilder>(ParrentDlg, EntityUoWBuilder.ForOpen(selected.Fine.Id), OpenPageOptions.AsSlave);
 
 				page.ViewModel.Entity.TotalMoney = selected.SumOfDamage;
-				page.ViewModel.EntitySaved += FineDlgExist_EntitySaved;
+				page.ViewModel.EntitySaved += OnFineDlgExistEntitySaved;
 			}
 			else
 			{
-				var page = NavigationManager.OpenViewModelOnTdi<FineViewModel, IEntityUoWBuilder>(Container, EntityUoWBuilder.ForCreate(), OpenPageOptions.AsSlave);
+				var page = NavigationManager.OpenViewModelOnTdi<FineViewModel, IEntityUoWBuilder>(ParrentDlg, EntityUoWBuilder.ForCreate(), OpenPageOptions.AsSlave);
 
 				page.ViewModel.Entity.FineReasonString = "Недостача";
 				page.ViewModel.Entity.TotalMoney = selected.SumOfDamage;
-				page.ViewModel.EntitySaved += FineDlgNew_EntitySaved;
+				page.ViewModel.EntitySaved += OnFineDlgNewEntitySaved;
 			}
 			FineEditItem = selected;
 		}
 
-		void FineDlgNew_EntitySaved (object sender, EntitySavedEventArgs e)
+		private void OnFineDlgNewEntitySaved (object sender, EntitySavedEventArgs e)
 		{
 			FineEditItem.Fine = e.Entity as Fine;
 			FineEditItem = null;
 		}
 
-		void FineDlgExist_EntitySaved (object sender, EntitySavedEventArgs e)
+		private void OnFineDlgExistEntitySaved (object sender, EntitySavedEventArgs e)
 		{
 			DocumentUoW.Session.Refresh(FineEditItem.Fine);
 		}
@@ -411,7 +410,7 @@ namespace Vodovoz
 			MyTab.TabParent.AddSlaveTab(MyTab, selectTemplate);
 		}
 
-		void SelectTemplate_ObjectSelected (object sender, OrmReferenceObjectSectedEventArgs e)
+		private void SelectTemplate_ObjectSelected (object sender, OrmReferenceObjectSectedEventArgs e)
 		{
 			if (DocumentUoW.Root.Items.Count > 0)
 			{

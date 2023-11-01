@@ -25,5 +25,11 @@ namespace Vodovoz.ReportsParameters
 			ybuttonCreateReport.Clicked += (sender, e) => ViewModel.LoadReport();
 			ybuttonCreateReport.TooltipText = $"Формирует отчет по заказам в статусе '{OrderStatus.WaitForPayment.GetEnumTitle()}'";
 		}
+
+		public override void Destroy()
+		{
+			ViewModel?.Dispose();
+			base.Destroy();
+		}
 	}
 }

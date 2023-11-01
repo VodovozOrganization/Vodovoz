@@ -51,7 +51,7 @@ namespace Vodovoz
 {
 	public partial class RouteListAddressesTransferringDlg : TdiTabBase, ISingleUoWDialog
 	{
-		private readonly ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
 
@@ -169,7 +169,6 @@ namespace Vodovoz
 			
 
 			IRouteListJournalFactory routeListJournalFactory = new RouteListJournalFactory();
-			var scope = Startup.AppDIContainer.BeginLifetimeScope();
 
 			_routeListJournalFilterViewModelFrom = new RouteListJournalFilterViewModel()
 			{
@@ -181,7 +180,7 @@ namespace Vodovoz
 			_routeListJournalFilterViewModelFrom.AddressTypeNodes.ForEach(x => x.Selected = true);
 
 			evmeRouteListFrom.SetEntityAutocompleteSelectorFactory(routeListJournalFactory
-				.CreateRouteListJournalAutocompleteSelectorFactory(scope, _routeListJournalFilterViewModelFrom));
+				.CreateRouteListJournalAutocompleteSelectorFactory(_lifetimeScope, _routeListJournalFilterViewModelFrom));
 
 			_routeListJournalFilterViewModelTo = new RouteListJournalFilterViewModel()
 			{
@@ -198,7 +197,7 @@ namespace Vodovoz
 			_routeListJournalFilterViewModelTo.AddressTypeNodes.ForEach(x => x.Selected = true);
 
 			evmeRouteListTo.SetEntityAutocompleteSelectorFactory(routeListJournalFactory
-				.CreateRouteListJournalAutocompleteSelectorFactory(scope, _routeListJournalFilterViewModelTo));
+				.CreateRouteListJournalAutocompleteSelectorFactory(_lifetimeScope, _routeListJournalFilterViewModelTo));
 
 			evmeRouteListFrom.Changed += OnRouteListFromChanged;
 			evmeRouteListTo.Changed += OnRouteListToChanged;
@@ -828,6 +827,8 @@ namespace Vodovoz
 			UoW?.Dispose();
 			_routeListJournalFilterViewModelFrom?.Dispose();
 			_routeListJournalFilterViewModelTo?.Dispose();
+			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
 			base.Destroy();
 		}
 
@@ -998,7 +999,7 @@ namespace Vodovoz
 	        var routeListToItems = routeListItemsTo?.Addresses.Select(t => t.Order.Id) ?? new List<int>();
 
 	        var filter = new OrderJournalFilterViewModel(
-                new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
+                new CounterpartyJournalFactory(_lifetimeScope),
                 new DeliveryPointJournalFactory(),
 				_lifetimeScope)
             {

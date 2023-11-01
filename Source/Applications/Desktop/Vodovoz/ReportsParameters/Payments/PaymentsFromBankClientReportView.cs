@@ -37,5 +37,11 @@ namespace Vodovoz.ReportsParameters.Payments
 				ViewModel.LoadReport();
 			}
 		}
+
+		public override void Destroy()
+		{
+			ViewModel?.Dispose();
+			base.Destroy();
+		}
 	}
 }

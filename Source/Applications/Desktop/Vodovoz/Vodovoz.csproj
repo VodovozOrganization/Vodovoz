@@ -413,6 +413,7 @@
     <Compile Include="Commons\FileChooser.cs" />
     <Compile Include="Commons\HotkeyHandler.cs" />
     <Compile Include="Core\DocumentPrinter.cs" />
+    <Compile Include="Core\Permissions\EntitySubdivisionForUserPermissionViewModel.cs" />
     <Compile Include="Core\ViewFactory.cs" />
     <Compile Include="Core\WidgetResolveException.cs" />
     <Compile Include="Counterparties\SubtypesJournalRegistrar.cs" />

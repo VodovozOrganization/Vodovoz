@@ -15,7 +15,6 @@ namespace Vodovoz.Views.Logistic
 		{
 			Build();
 			Configure();
-			CheckPeriod();
 		}
 
 		private void Configure()
@@ -65,7 +64,6 @@ namespace Vodovoz.Views.Logistic
 				.Finish();
 			ytreeviewFines.Binding.AddBinding(ViewModel, vm => vm.FineItems, w => w.ItemsDataSource).InitializeFromSource();
 
-
 			buttonAddFine.Clicked += (sender, e) => { ViewModel.AddFineCommand.Execute(); };
 			buttonAddFine.Binding.AddBinding(ViewModel, vm => vm.CanAddFine, w => w.Sensitive).InitializeFromSource();
 
@@ -74,11 +72,13 @@ namespace Vodovoz.Views.Logistic
 
 			buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
 			buttonCancel.Clicked += (sender, args) => ViewModel.Close(true, CloseSource.Cancel);
+
+			UpdateSensitivity();
 		}
 
-		private void CheckPeriod()
+		private void UpdateSensitivity()
 		{
-			if (!ViewModel.CanEdit)
+			if(!ViewModel.CanEdit)
 			{
 				ylabelCreateDate.Sensitive =
 				ylabelAuthor.Sensitive =

@@ -12,7 +12,7 @@ using QS.Report;
 
 namespace Vodovoz.ViewModels.ReportsParameters
 {
-	public class SetBillsReportViewModel : ReportParametersViewModelBase
+	public class SetBillsReportViewModel : ReportParametersViewModelBase, IDisposable
 	{
 		private readonly RdlViewerViewModel _rdlViewerViewModel;
 		private readonly ILifetimeScope _lifetimeScope;
@@ -78,7 +78,12 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			{ "endDate", EndDate.Value.LatestDayTime() },
 			{ "authorSubdivision", AuthorSubdivision?.Id }
 		};
-		
+
+		public void Dispose()
+		{
+			_unitOfWork?.Dispose();
+		}
+
 		private IEntityEntryViewModel CreateSubdivisionViewModel()
 		{
 			return new CommonEEVMBuilderFactory<SetBillsReportViewModel>(_rdlViewerViewModel, this, _unitOfWork, NavigationManager, _lifetimeScope)

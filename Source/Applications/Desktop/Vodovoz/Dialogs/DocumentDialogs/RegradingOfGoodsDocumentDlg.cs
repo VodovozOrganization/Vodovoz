@@ -55,7 +55,7 @@ namespace Vodovoz
 		void ConfigureDlg ()
 		{
 			regradingofgoodsitemsview.NavigationManager = Startup.MainWin.NavigationManager;
-			regradingofgoodsitemsview.Container = this;
+			regradingofgoodsitemsview.ParrentDlg = this;
 
 			if(_storeDocumentHelper.CheckAllPermissions(UoW.IsNew, WarehousePermissionsType.RegradingOfGoodsEdit, Entity.Warehouse)) {
 				FailInitialize = true;

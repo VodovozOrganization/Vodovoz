@@ -17,7 +17,7 @@ using Vodovoz.ViewModels.ViewModels.Organizations;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Payments
 {
-	public class PaymentsFromBankClientReportViewModel : ReportParametersViewModelBase
+	public class PaymentsFromBankClientReportViewModel : ReportParametersViewModelBase, IDisposable
 	{
 		private readonly IInteractiveService _interactiveService;
 		private readonly IUnitOfWork _unitOfWork;
@@ -99,6 +99,11 @@ namespace Vodovoz.ViewModels.ReportsParameters.Payments
 			{ "sort_date", SortByDate },
 			{ "date", DateTime.Today }
 		};
+
+		public void Dispose()
+		{
+			_unitOfWork?.Dispose();
+		}
 
 		public bool Validate()
 		{
