@@ -1023,6 +1023,15 @@ namespace Vodovoz
 			logisticsRequirementsView.ViewModel = new LogisticsRequirementsViewModel(Entity.LogisticsRequirements ?? GetLogisticsRequirements(), ServicesConfig.CommonServices);
 			UpdateEntityLogisticsRequirements();
 			logisticsRequirementsView.ViewModel.Entity.PropertyChanged += OnLogisticsRequirementsSelectionChanged;
+
+			UpdateCallBeforeArrivalVisibility();
+		}
+
+		private void UpdateCallBeforeArrivalVisibility()
+		{
+			var isNotFastDeliveryOrSelfDelivery = !(Entity.SelfDelivery || Entity.IsFastDelivery);
+
+			hboxCallBeforeArrival.Visible = isNotFastDeliveryOrSelfDelivery;
 		}
 
 		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs args)
@@ -1063,7 +1072,7 @@ namespace Vodovoz
 				case nameof(Entity.IsFastDelivery):
 					var isNotFastDeliveryOrSelfDelivery = !(Entity.SelfDelivery || Entity.IsFastDelivery);
 
-					hboxCallBeforeArrival.Visible = isNotFastDeliveryOrSelfDelivery;
+					UpdateCallBeforeArrivalVisibility();
 
 					if(isNotFastDeliveryOrSelfDelivery)
 					{
