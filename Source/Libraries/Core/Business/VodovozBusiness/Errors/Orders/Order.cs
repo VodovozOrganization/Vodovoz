@@ -1,4 +1,4 @@
-﻿namespace Vodovoz.Errors.Orders
+namespace Vodovoz.Errors.Orders
 {
 	public static partial class Order
 	{
