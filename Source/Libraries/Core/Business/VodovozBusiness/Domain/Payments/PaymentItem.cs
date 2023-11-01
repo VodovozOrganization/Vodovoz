@@ -1,9 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
-using QS.DomainModel.Entity;
-using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Operations;
-using System;
+﻿using QS.DomainModel.Entity;
 using QS.HistoryLog;
+using System;
+using System.ComponentModel.DataAnnotations;
+using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.Payments
 {
@@ -49,7 +49,7 @@ namespace Vodovoz.Domain.Payments
 			get => _sum;
 			set => SetField(ref _sum, value);
 		}
-		
+
 		public virtual AllocationStatus PaymentItemStatus
 		{
 			get => _paymentItemStatus;
@@ -62,7 +62,7 @@ namespace Vodovoz.Domain.Payments
 			{
 				CashlessMovementOperation = new CashlessMovementOperation
 				{
-					Expense = _sum, 
+					Expense = _sum,
 					Counterparty = Payment.Counterparty,
 					Organization = Payment.Organization,
 					OperationTime = DateTime.Now,
@@ -85,11 +85,11 @@ namespace Vodovoz.Domain.Payments
 				CashlessMovementOperation.OperationTime = DateTime.Now;
 			}
 		}
-		
+
 		public virtual void UpdateSum(decimal newSum)
 		{
 			Sum = newSum;
-			
+
 			if(CashlessMovementOperation != null)
 			{
 				UpdateExpenseOperation();
@@ -105,7 +105,7 @@ namespace Vodovoz.Domain.Payments
 				Order.UpdateOrderPaymentStatus(Sum);
 			}
 		}
-		
+
 		public virtual void ReturnFromCancelled()
 		{
 			UpdateStatuses(AllocationStatus.Accepted);
