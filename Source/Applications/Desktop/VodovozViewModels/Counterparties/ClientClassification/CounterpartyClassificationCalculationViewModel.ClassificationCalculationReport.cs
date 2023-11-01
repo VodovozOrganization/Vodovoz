@@ -2,6 +2,7 @@
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using MoreLinq;
+using MoreLinq.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +22,8 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			private uint _defaultCellFormatId;
 			private uint _tableHeadersCellFormatId;
 			private uint _tableTitleCellFormatId;
+			private uint _integerFormatId;
+			private uint _doublePrecisionDecimalFormatId;
 
 			public ClassificationCalculationReport(
 				IDictionary<int, CounterpartyClassification> newClassifications,
@@ -35,7 +38,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 					.FirstOrDefault();
 
 				_lastReportDate =
-					lastReportDate == DateTime.MinValue
+					lastReportDate == default
 					? "не выполнялось"
 					: lastReportDate.ToString("dd.MM.yyyy");
 
@@ -113,16 +116,6 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 
 			private void Export(IEnumerable<ClassificationCalculationReportRow> rows)
 			{
-
-				var groupedByBottlesClassification = (from r in rows
-													  group r by new { r.NewClassificationByBottles, r.OldClassificationByBottles })
-													 .ToDictionary(g => g.Key, g => g.ToList());
-
-				var groupedByOrdersClassification = (from r in rows
-													 group r by new { r.NewClassificationByOrders, r.OldClassificationByOrders })
-													 .ToDictionary(g => g.Key, g => g.ToList());
-
-
 				using(var spreadsheet = SpreadsheetDocument.Create("D:\\new.xlsx", SpreadsheetDocumentType.Workbook))
 				{
 					spreadsheet.AddWorkbookPart();
@@ -141,46 +134,8 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 					sheetData.Append(GetTableTitleRow());
 					sheetData.Append(GetLastReportInfoRow(_lastReportDate));
 					sheetData.Append(GetEmptyRow());
-
-					sheetData.Append(GetTableHeadersRow("По среднему количеству бутылей 19л за месяц"));
-
-					foreach(var item in groupedByBottlesClassification)
-					{
-						var oldCategoryStringValue =
-							(item.Key.OldClassificationByBottles.HasValue
-							? item.Key.OldClassificationByBottles.ToString()
-							: "Новый");
-
-						var newCategoryStringValue = item.Key.NewClassificationByBottles.ToString();
-
-						if(oldCategoryStringValue == newCategoryStringValue)
-						{
-							continue;
-						}
-
-						var categoryChangedValue = $"{oldCategoryStringValue} -> {newCategoryStringValue}";
-
-						sheetData.Append(GetTableSubheaderDataRow(categoryChangedValue));
-						sheetData.Append(GetTableDataRow(item.Value));
-						sheetData.Append(GetEmptyRow());
-					}
-
-					sheetData.Append(GetTableHeadersRow("По среднему количеству заказов"));
-
-					//foreach(var item in groupedByOrdersClassification)
-					//{
-					//	var oldCategoryStringValue =
-					//		(item.Key.OldClassificationByOrders.HasValue
-					//		? item.Key.OldClassificationByOrders.ToString()
-					//		: "Новый");
-
-					//	var categoryChangedValue = $"{oldCategoryStringValue}->{item.Key.NewClassificationByOrders.ToString()}";
-
-					//	sheetData.Append(GetTableSubheaderDataRow(categoryChangedValue));
-					//	sheetData.Append(GetTableDataRow(item.Value));
-					//	sheetData.Append(GetEmptyRow());
-					//}
-
+					sheetData.Append(GetGroupedByBottlesClassificationsRows(rows));
+					sheetData.Append(GetGroupedByOrdersClassificationsRows(rows));
 					worksheetPart.Worksheet.Append(sheetData);
 
 					worksheetPart.Worksheet.Save();
@@ -191,6 +146,76 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 
 					spreadsheet.WorkbookPart.Workbook.Save();
 				}
+			}
+
+			private IEnumerable<Row> GetGroupedByBottlesClassificationsRows(IEnumerable<ClassificationCalculationReportRow> reportRows)
+			{
+				var groupedByBottlesClassification = (from r in reportRows
+													  group r by new { r.NewClassificationByBottles, r.OldClassificationByBottles })
+													 .ToDictionary(g => g.Key, g => g.ToList());
+
+				var rows = new List<Row>
+				{
+					GetTableHeadersRow("По среднему количеству бутылей 19л за месяц")
+				};
+
+				foreach(var item in groupedByBottlesClassification)
+				{
+					var oldCategoryStringValue =
+						(item.Key.OldClassificationByBottles.HasValue
+						? item.Key.OldClassificationByBottles.ToString()
+						: "Новый");
+
+					var newCategoryStringValue = item.Key.NewClassificationByBottles.ToString();
+
+					if(oldCategoryStringValue == newCategoryStringValue)
+					{
+						continue;
+					}
+
+					var categoryChangedValue = $"{oldCategoryStringValue} -> {newCategoryStringValue}";
+
+					rows.Add(GetTableSubheaderDataRow(categoryChangedValue));
+					rows.AddRange(GetTableDataRows(item.Value));
+					rows.Add(GetEmptyRow());
+				}
+
+				return rows;
+			}
+
+			private IEnumerable<Row> GetGroupedByOrdersClassificationsRows(IEnumerable<ClassificationCalculationReportRow> reportRows)
+			{
+				var groupedByOrdersClassification = (from r in reportRows
+													 group r by new { r.NewClassificationByOrders, r.OldClassificationByOrders })
+													 .ToDictionary(g => g.Key, g => g.ToList());
+
+				var rows = new List<Row>
+				{
+					GetTableHeadersRow("По среднему количеству заказов")
+				};
+
+				foreach(var item in groupedByOrdersClassification)
+				{
+					var oldCategoryStringValue =
+						(item.Key.OldClassificationByOrders.HasValue
+						? item.Key.OldClassificationByOrders.ToString()
+						: "Новый");
+
+					var newCategoryStringValue = item.Key.NewClassificationByOrders.ToString();
+
+					if(oldCategoryStringValue == newCategoryStringValue)
+					{
+						continue;
+					}
+
+					var categoryChangedValue = $"{oldCategoryStringValue} -> {newCategoryStringValue}";
+
+					rows.Add(GetTableSubheaderDataRow(categoryChangedValue));
+					rows.AddRange(GetTableDataRows(item.Value));
+					rows.Add(GetEmptyRow());
+				}
+
+				return rows;
 			}
 
 			#region Rows AndColumns
@@ -290,7 +315,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 				return row;
 			}
 
-			private IEnumerable<Row> GetTableDataRow(IEnumerable<ClassificationCalculationReportRow> items)
+			private IEnumerable<Row> GetTableDataRows(IEnumerable<ClassificationCalculationReportRow> items)
 			{
 				var rows = new List<Row>();
 				var counter = 0;
@@ -342,6 +367,11 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 				stylesheet.Fonts.AppendChild(GetWorksheetTitleFont());
 				stylesheet.Fonts.Count = 3;
 
+				stylesheet.NumberingFormats = new NumberingFormats();
+				stylesheet.NumberingFormats.Append(GetIntegegFormat());
+				stylesheet.NumberingFormats.Append(GetDoublePrecisionDecimalFormat());
+				stylesheet.NumberingFormats.Count = 2;
+
 				var solidYellow = new PatternFill() { PatternType = PatternValues.Solid };
 				solidYellow.ForegroundColor = new ForegroundColor { Rgb = HexBinaryValue.FromString("FFFF00") };
 				solidYellow.BackgroundColor = new BackgroundColor { Indexed = 64 };
@@ -364,6 +394,12 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 
 				var tableTitleCellFormat = new CellFormat { FormatId = 0, FontId = 2 };
 
+				var integerValuesCellFormat = new CellFormat { FormatId = 0, FontId = 0, BorderId = 1, NumberFormatId = 1 };
+				integerValuesCellFormat.Alignment = new Alignment { WrapText = true };
+
+				var decimalValuesCellFormat = new CellFormat { FormatId = 0, FontId = 0, BorderId = 1, NumberFormatId = 0 };
+				decimalValuesCellFormat.Alignment = new Alignment { WrapText = true };
+
 				stylesheet.CellStyleFormats = new CellStyleFormats();
 				stylesheet.CellStyleFormats.AppendChild(new CellFormat());
 				stylesheet.CellFormats = new CellFormats();
@@ -378,7 +414,13 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 				stylesheet.CellFormats.AppendChild(tableTitleCellFormat);
 				_tableTitleCellFormatId = 3;
 
-				stylesheet.CellFormats.Count = 4;
+				stylesheet.CellFormats.AppendChild(integerValuesCellFormat);
+				_integerFormatId = 4;
+
+				stylesheet.CellFormats.AppendChild(decimalValuesCellFormat);
+				_doublePrecisionDecimalFormatId = 5;
+
+				stylesheet.CellFormats.Count = 6;
 
 				return stylesheet;
 			}
@@ -466,7 +508,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 				{
 					CellValue = new CellValue(value),
 					DataType = CellValues.Number,
-					StyleIndex = _defaultCellFormatId
+					StyleIndex = _integerFormatId
 				};
 
 				return cell;
@@ -478,7 +520,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 				{
 					CellValue = new CellValue(value),
 					DataType = CellValues.Number,
-					StyleIndex = _defaultCellFormatId
+					StyleIndex = _doublePrecisionDecimalFormatId
 				};
 
 				return cell;
@@ -494,6 +536,28 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 				};
 
 				return cell;
+			}
+
+			private NumberingFormat GetDoublePrecisionDecimalFormat()
+			{
+				var format = new NumberingFormat
+				{
+					NumberFormatId = UInt32Value.FromUInt32(0),
+					FormatCode = StringValue.FromString("# ### ### ##0.00")
+				};
+
+				return format;
+			}
+
+			private NumberingFormat GetIntegegFormat()
+			{
+				var format = new NumberingFormat
+				{
+					NumberFormatId = UInt32Value.FromUInt32(1),
+					FormatCode = StringValue.FromString("# ### ### ##0")
+				};
+
+				return format;
 			}
 
 			private Font GetDefaultFont()

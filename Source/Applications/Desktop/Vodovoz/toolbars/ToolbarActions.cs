@@ -495,7 +495,7 @@ public partial class MainWindow : Window
 
 	private void ActionOrdersWithReceiptJournalActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<OrdersWithReceiptsJournalViewModel>(null);
+		//NavigationManager.OpenViewModel<OrdersWithReceiptsJournalViewModel>(null);
 		NavigationManager.OpenViewModel<CounterpartyClassificationCalculationViewModel>(null);
 	}
 

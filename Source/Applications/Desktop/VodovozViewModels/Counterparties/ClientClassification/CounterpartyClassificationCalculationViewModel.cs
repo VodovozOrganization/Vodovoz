@@ -14,11 +14,7 @@ using System.Data;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Dynamic.Core;
-using System.Threading.Tasks;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
-using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Services;
 using static Vodovoz.ViewModels.Counterparties.ClientClassification.CounterpartyClassificationCalculationEmailSettingsViewModel;
@@ -39,6 +35,8 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 		private string _currentUserEmail;
 		private string _additionalEmail;
 		private DateTime _creationDate;
+		private double _calculationProgress;
+		private bool _isCommandToStartCalculationReceived;
 
 		public CounterpartyClassificationCalculationViewModel(
 			IUnitOfWorkFactory uowFactory,
@@ -75,18 +73,44 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 
 		public CounterpartyClassificationCalculationSettings CalculationSettings { get; private set; }
 
-		[PropertyChangedAlso(nameof(CanOpenEmailSettingsDialog), nameof(CanCancel), nameof(CanSaveReport), nameof(CanQuite))]
+		public string ProgressInfoLabelValue =>
+			IsCalculationCompleted
+			? "<span font='large' weight='bold'>Пересчёт завершен, отчет был отправлен Вам на почту</span>"
+			: "<span font='large' weight='bold'>Пересчёт займет некоторое время, не закрывайте окно до завершения</span>";
+
+		[PropertyChangedAlso(
+			nameof(CanOpenEmailSettingsDialog),
+			nameof(CanCancel),
+			nameof(CanSaveReport),
+			nameof(CanQuite))]
 		public bool IsCalculationInProcess
 		{
 			get => _isCalculationInProcess;
 			set => SetField(ref _isCalculationInProcess, value);
 		}
 
-		[PropertyChangedAlso(nameof(CanOpenEmailSettingsDialog), nameof(CanCancel), nameof(CanSaveReport), nameof(CanQuite))]
+		[PropertyChangedAlso(
+			nameof(CanOpenEmailSettingsDialog),
+			nameof(CanCancel),
+			nameof(CanSaveReport),
+			nameof(CanQuite),
+			nameof(ProgressInfoLabelValue))]
 		public bool IsCalculationCompleted
 		{
 			get => _isCalculationCompleted;
 			set => SetField(ref _isCalculationCompleted, value);
+		}
+
+		public double CalculationProgress
+		{
+			get => _calculationProgress;
+			set => SetField(ref _calculationProgress, value);
+		}
+
+		public bool IsCommandToStartCalculationReceived
+		{
+			get => _isCommandToStartCalculationReceived;
+			set => SetField(ref _isCommandToStartCalculationReceived, value);
 		}
 
 		#endregion Properties
@@ -116,13 +140,11 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			_currentUserEmail = currentEmployee?.Email ?? string.Empty;
 		}
 
-		private async void OnEmailSettingsDialogStartClassificationCalculationClicked(object sender, StartClassificationCalculationEventArgs e)
+		private void OnEmailSettingsDialogStartClassificationCalculationClicked(object sender, StartClassificationCalculationEventArgs e)
 		{
 			_creationDate = DateTime.Now;
 			_currentUserEmail = e.CurrentUserEmail;
 			_additionalEmail = e.AdditionalEmail;
-
-			StartClassificationCalculation();
 
 			//var task = Task.Run(() =>
 			//{
@@ -130,59 +152,6 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			//});
 
 			//await task;
-		}
-
-		private void StartClassificationCalculation()
-		{
-			bool isCalculationSuccessful = false;
-
-			IsCalculationInProcess = true;
-
-			UpdateCalculationSettingsCreationDate();
-
-			var allCounterpartiesIdsAndNames = _counterpartyRepository
-				.GetAllCounterpartyIdsAndNames(_uow);
-
-			var oldCounterpartyClassifications = _counterpartyRepository
-				.GetLastExistingClassificationsForCounterparties(_uow);
-			return;
-			var newCounterpartyClassifications = _counterpartyRepository
-				.CalculateCounterpartyClassifications(_uow, CalculationSettings)
-				.ToDictionary(c => c.CounterpartyId);
-
-			try
-			{
-				using(var transaction = _uow.Session.BeginTransaction())
-				{
-					InsertClassificationValuesToDatabase(_uow.Session, newCounterpartyClassifications, _insertQueryElementsMaxCount);
-
-					_uow.Save(CalculationSettings);
-
-					ClassificationCalculationReport.GenerateReport(
-						newCounterpartyClassifications,
-						oldCounterpartyClassifications,
-						allCounterpartiesIdsAndNames,
-						CalculationSettings.PeriodInMonths);
-
-					transaction.Commit();
-				}
-
-				isCalculationSuccessful = true;
-				IsCalculationInProcess = false;
-				IsCalculationCompleted = true;
-			}
-			catch(Exception ex)
-			{
-				_logger.LogError(ex.Message);
-
-				return;
-			}
-			finally
-			{
-				CalculationCompleted?.Invoke(
-					this,
-					 new CalculationCompletedEventArgs { IsCalculationSuccessful = isCalculationSuccessful });
-			}
 		}
 
 		private void InsertClassificationValuesToDatabase(
@@ -241,6 +210,82 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 
 		#region Commands
 
+		#region StartClassificationCalculation
+		private DelegateCommand _startClassificationCalculationCommand;
+		public DelegateCommand StartClassificationCalculationCommand
+		{
+			get
+			{
+				if(_startClassificationCalculationCommand == null)
+				{
+					_startClassificationCalculationCommand = new DelegateCommand(StartClassificationCalculation, () => CanStartClassificationCalculation);
+					_startClassificationCalculationCommand.CanExecuteChangedWith(this, x => x.CanStartClassificationCalculation);
+				}
+				return _startClassificationCalculationCommand;
+			}
+		}
+
+		public bool CanStartClassificationCalculation => true;
+
+		private void StartClassificationCalculation()
+		{
+			bool isCalculationSuccessful = false;
+
+			UpdateCalculationSettingsCreationDate();
+
+			var allCounterpartiesIdsAndNames = _counterpartyRepository
+				.GetAllCounterpartyIdsAndNames(_uow);
+
+			CalculationProgress = 15;
+
+			var oldCounterpartyClassifications = _counterpartyRepository
+				.GetLastExistingClassificationsForCounterparties(_uow);
+
+			CalculationProgress = 30;
+
+			var newCounterpartyClassifications = _counterpartyRepository
+				.CalculateCounterpartyClassifications(_uow, CalculationSettings);
+
+			CalculationProgress = 45;
+
+			try
+			{
+				using(var transaction = _uow.Session.BeginTransaction())
+				{
+					InsertClassificationValuesToDatabase(_uow.Session, newCounterpartyClassifications, _insertQueryElementsMaxCount);
+
+					CalculationProgress = 70;
+
+					_uow.Save(CalculationSettings);
+
+					ClassificationCalculationReport.GenerateReport(
+						newCounterpartyClassifications,
+						oldCounterpartyClassifications,
+						allCounterpartiesIdsAndNames,
+						CalculationSettings.PeriodInMonths);
+
+					transaction.Commit();
+
+					CalculationProgress = 100;
+				}
+
+				isCalculationSuccessful = true;
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex.Message);
+
+				throw ex;
+			}
+			finally
+			{
+				CalculationCompleted?.Invoke(
+					this,
+					 new CalculationCompletedEventArgs { IsCalculationSuccessful = isCalculationSuccessful });
+			}
+		}
+		#endregion StartClassificationCalculation
+
 		#region OpenEmailSettingsDialog
 		private DelegateCommand _openEmailSettingsDialogCommand;
 		public DelegateCommand OpenEmailSettingsDialogCommand
@@ -256,7 +301,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			}
 		}
 
-		public bool CanOpenEmailSettingsDialog => !IsCalculationInProcess && !IsCalculationCompleted;
+		public bool CanOpenEmailSettingsDialog => !IsCalculationInProcess;
 
 		private void OpenEmailSettingsDialog()
 		{
@@ -336,7 +381,6 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			this.Close(false, CloseSource.Self);
 		}
 		#endregion Quite
-
 
 		#endregion Commands
 

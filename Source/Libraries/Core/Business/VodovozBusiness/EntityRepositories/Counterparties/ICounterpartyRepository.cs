@@ -3,6 +3,7 @@ using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Domain.Contacts;
@@ -32,8 +33,8 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		Counterparty GetCounterpartyByPersonalAccountIdInEdo(IUnitOfWork uow, string edxClientId);
 		EdoOperator GetEdoOperatorByCode(IUnitOfWork uow, string edoOperatorCode);
 		IList<EdoContainer> GetEdoContainersByCounterpartyId(IUnitOfWork uow, int counterpartyId);
-		IDictionary<int, string> GetAllCounterpartyIdsAndNames(IUnitOfWork unitOfWork);
-		IDictionary<int, CounterpartyClassification> GetLastExistingClassificationsForCounterparties(IUnitOfWork unitOfWork);
-		IEnumerable<CounterpartyClassification> CalculateCounterpartyClassifications(IUnitOfWork unitOfWork, CounterpartyClassificationCalculationSettings calculationSettings);
+		IDictionary<int, string> GetAllCounterpartyIdsAndNames(IUnitOfWork uow);
+		IDictionary<int, CounterpartyClassification> GetLastExistingClassificationsForCounterparties(IUnitOfWork uow);
+		IDictionary<int, CounterpartyClassification> CalculateCounterpartyClassifications(IUnitOfWork uow, CounterpartyClassificationCalculationSettings calculationSettings);
 	}
 }
