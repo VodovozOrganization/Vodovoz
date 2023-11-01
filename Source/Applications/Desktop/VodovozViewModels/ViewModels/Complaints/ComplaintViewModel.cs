@@ -44,7 +44,6 @@ namespace Vodovoz.ViewModels.Complaints
 	public class ComplaintViewModel : EntityTabViewModelBase<Complaint>, IAskSaveOnCloseViewModel
 	{
 		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
-		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
 		private IList<ComplaintObject> _complaintObjectSource;
 		private ComplaintObject _complaintObject;
 		private readonly IList<ComplaintKind> _complaintKinds;
@@ -78,7 +77,6 @@ namespace Vodovoz.ViewModels.Complaints
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
-			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
 			IEmployeeService employeeService,
 			IFileDialogService fileDialogService,
 			ISubdivisionRepository subdivisionRepository,
@@ -86,7 +84,6 @@ namespace Vodovoz.ViewModels.Complaints
 			IOrderSelectorFactory orderSelectorFactory,
 			IEmployeeJournalFactory driverJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
 			ISalesPlanJournalFactory salesPlanJournalFactory,
 			INomenclatureJournalFactory nomenclatureJournalFactory,
@@ -101,7 +98,6 @@ namespace Vodovoz.ViewModels.Complaints
 		{
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
-			_undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
@@ -110,7 +106,6 @@ namespace Vodovoz.ViewModels.Complaints
 			NomenclatureJournalFactory = nomenclatureJournalFactory ?? throw new ArgumentNullException(nameof(nomenclatureJournalFactory));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			EmployeeJournalFactory = driverJournalFactory ?? throw new ArgumentNullException(nameof(driverJournalFactory));
-			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			CounterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			DeliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 			SubdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
@@ -262,19 +257,9 @@ namespace Vodovoz.ViewModels.Complaints
 			{
 				if(_discussionsViewModel == null)
 				{
-					_discussionsViewModel = new ComplaintDiscussionsViewModel(
-						Entity,
-						this,
-						UoW,
-						_fileDialogService,
-						_employeeService,
-						CommonServices,
-						EmployeeJournalFactory,
-						_salesPlanJournalFactory,
-						NomenclatureJournalFactory,
-						_userRepository,
-						_scope.BeginLifetimeScope()
-					);
+					_discussionsViewModel = _scope.Resolve<ComplaintDiscussionsViewModel>(
+						new TypedParameter(typeof(Complaint), Entity),
+						new TypedParameter(typeof(IUnitOfWork), UoW));
 				}
 				return _discussionsViewModel;
 			}
@@ -287,7 +272,15 @@ namespace Vodovoz.ViewModels.Complaints
 				if(_guiltyItemsViewModel == null)
 				{
 					_guiltyItemsViewModel =
-						new GuiltyItemsViewModel(Entity, UoW, CommonServices, _subdivisionRepository, EmployeeJournalFactory, _subdivisionJournalFactory, SubdivisionParametersProvider);
+						new GuiltyItemsViewModel(
+							Entity,
+							UoW,
+							this,
+							_scope,
+							CommonServices,
+							_subdivisionRepository,
+							EmployeeJournalFactory,
+							SubdivisionParametersProvider);
 				}
 
 				return _guiltyItemsViewModel;
@@ -468,19 +461,16 @@ namespace Vodovoz.ViewModels.Complaints
 			AttachFineCommand = new DelegateCommand(
 				() =>
 				{
-					var fineFilter = new FineFilterViewModel();
-					fineFilter.ExcludedIds = Entity.Fines.Select(x => x.Id).ToArray();
-					var fineJournalViewModel = new FinesJournalViewModel(
-						fineFilter,
-						_undeliveryViewOpener,
-						_employeeService,
-						EmployeeJournalFactory,
-						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-						_employeeSettings,
-						CommonServices
-					);
-					fineJournalViewModel.SelectionMode = JournalSelectionMode.Single;
-					fineJournalViewModel.OnEntitySelectedResult += (sender, e) =>
+					var page = NavigationManager.OpenViewModel<FinesJournalViewModel, Action<FineFilterViewModel>>(
+						this,
+						filter =>
+						{
+							filter.CanEditFilter = false;
+							filter.ExcludedIds = Entity.Fines.Select(x => x.Id).ToArray();
+						});
+
+					page.ViewModel.SelectionMode = JournalSelectionMode.Single;
+					page.ViewModel.OnEntitySelectedResult += (sender, e) =>
 					{
 						var selectedNode = e.SelectedNodes.FirstOrDefault();
 						if(selectedNode == null)
@@ -489,7 +479,6 @@ namespace Vodovoz.ViewModels.Complaints
 						}
 						Entity.AddFine(UoW.GetById<Fine>(selectedNode.Id));
 					};
-					TabParent.AddSlaveTab(this, fineJournalViewModel);
 				},
 				() => CanAttachFine
 			);
@@ -507,21 +496,13 @@ namespace Vodovoz.ViewModels.Complaints
 			AddFineCommand = new DelegateCommand<ITdiTab>(
 				t =>
 				{
-					FineViewModel fineViewModel = new FineViewModel(
-						EntityUoWBuilder.ForCreate(),
-						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-						_undeliveryViewOpener,
-						_employeeService,
-						EmployeeJournalFactory,
-						_employeeSettings,
-						CommonServices
-					);
-					fineViewModel.FineReasonString = Entity.GetFineReason();
-					fineViewModel.EntitySaved += (sender, e) =>
+					var page = NavigationManager.OpenViewModel<FineViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate(), OpenPageOptions.AsSlave);
+
+					page.ViewModel.FineReasonString = Entity.GetFineReason();
+					page.ViewModel.EntitySaved += (sender, e) =>
 					{
 						Entity.AddFine(e.Entity as Fine);
 					};
-					t.TabParent.AddSlaveTab(t, fineViewModel);
 				},
 				t => CanAddFine
 			);
@@ -601,7 +582,7 @@ namespace Vodovoz.ViewModels.Complaints
 
 		public IEntityAutocompleteSelectorFactory OrderAutocompleteSelectorFactory { get; private set; }
 		private IEmployeeJournalFactory EmployeeJournalFactory { get; }
-		private ISubdivisionJournalFactory _subdivisionJournalFactory { get; }
+		public IEntityEntryViewModel SubdivisionViewModel { get; private set; }
 		public ICounterpartyJournalFactory CounterpartyJournalFactory { get; }
 		private IDeliveryPointJournalFactory DeliveryPointJournalFactory { get; }
 		private INomenclatureJournalFactory NomenclatureJournalFactory { get; }
@@ -610,7 +591,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private void InitializeOrderAutocompleteSelectorFactory(IOrderSelectorFactory orderSelectorFactory)
 		{
 			var orderFilter =
-				new OrderJournalFilterViewModel(CounterpartyJournalFactory, DeliveryPointJournalFactory, EmployeeJournalFactory);
+				new OrderJournalFilterViewModel(CounterpartyJournalFactory, DeliveryPointJournalFactory, _scope);
 
 			if(Entity.Counterparty != null)
 			{

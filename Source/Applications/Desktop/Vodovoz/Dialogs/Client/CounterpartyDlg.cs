@@ -132,7 +132,6 @@ namespace Vodovoz
 		private RoboatsJournalsFactory _roboatsJournalsFactory;
 		private IEdoOperatorsJournalFactory _edoOperatorsJournalFactory;
 		private IEmailParametersProvider _emailParametersProvider;
-		private IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private ISubdivisionRepository _subdivisionRepository;
 		private IRouteListItemRepository _routeListItemRepository;
 		private IFileDialogService _fileDialogService;
@@ -160,9 +159,6 @@ namespace Vodovoz
 		private bool _documentsConfigured = false;
 
 		public ThreadDataLoader<EmailRow> EmailDataLoader { get; private set; }
-
-		public virtual IUndeliveredOrdersJournalOpener UndeliveredOrdersJournalOpener =>
-			_undeliveredOrdersJournalOpener ?? (_undeliveredOrdersJournalOpener = new UndeliveredOrdersJournalOpener());
 
 		public virtual ISubdivisionRepository SubdivisionRepository =>
 			_subdivisionRepository ?? (_subdivisionRepository = new SubdivisionRepository(new ParametersProvider()));
@@ -457,7 +453,7 @@ namespace Vodovoz
 			yEnumCounterpartyType.ChangedByUser += OnEnumCounterpartyTypeChangedByUser;
 			OnEnumCounterpartyTypeChanged(this, EventArgs.Empty);
 
-			var vm = new LegacyEEVMBuilderFactory<Counterparty>(this, Entity, UoW, Startup.MainWin.NavigationManager, _lifetimeScope)
+			var vm = new LegacyEEVMBuilderFactory<Counterparty>(this, Entity, UoW, NavigationManager, _lifetimeScope)
 				.ForProperty(x => x.CounterpartySubtype)
 				.UseViewModelJournalAndAutocompleter<SubtypesJournalViewModel>()
 				.UseViewModelDialog<SubtypeViewModel>()
@@ -755,7 +751,7 @@ namespace Vodovoz
 			emailsView.ViewModel = emailsViewModel;
 			emailsView.Sensitive = CanEdit;
 
-			var employeeJournalFactory = new EmployeeJournalFactory();
+			var employeeJournalFactory = new EmployeeJournalFactory(NavigationManager);
 			if(SetSensitivityByPermission("can_set_personal_sales_manager", entrySalesManager))
 			{
 				entrySalesManager.SetEntityAutocompleteSelectorFactory(GetEmployeeFactoryWithResetFilter(employeeJournalFactory));
@@ -1411,6 +1407,7 @@ namespace Vodovoz
 		};
 
 		public IEntityEntryViewModel SubtypeEntryViewModel { get; private set; }
+		public INavigationManager NavigationManager => Startup.MainWin.NavigationManager;
 
 		private void CheckIsChainStoreOnToggled(object sender, EventArgs e)
 		{
@@ -1463,39 +1460,7 @@ namespace Vodovoz
 
 		private void AllOrders_Activated(object sender, EventArgs e)
 		{
-			ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
-
-			var orderJournalFilter = new OrderJournalFilterViewModel(
-				new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
-				new DeliveryPointJournalFactory(),
-				new EmployeeJournalFactory())
-			{ RestrictCounterparty = Entity };
-			var orderJournalViewModel = new OrderJournalViewModel(
-				orderJournalFilter,
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices,
-				Startup.MainWin.NavigationManager,
-				new EmployeeService(),
-				NomenclatureRepository,
-				_userRepository,
-				new OrderSelectorFactory(),
-				new EmployeeJournalFactory(),
-				new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
-				new DeliveryPointJournalFactory(),
-				subdivisionJournalFactory,
-				new GtkTabsOpener(),
-				new UndeliveredOrdersJournalOpener(),
-				new NomenclatureJournalFactory(),
-				new UndeliveredOrdersRepository(),
-				new SubdivisionRepository(new ParametersProvider()),
-				new FileDialogService(),
-				new SubdivisionParametersProvider(new ParametersProvider()),
-				new DeliveryScheduleParametersProvider(new ParametersProvider()),
-				new RdlPreviewOpener(),
-				new RouteListItemRepository()
-			);
-
-			TabParent.AddTab(orderJournalViewModel, this, false);
+			NavigationManager.OpenViewModel<OrderJournalViewModel, Action<OrderJournalFilterViewModel>>(null, filter => filter.RestrictCounterparty = Entity, OpenPageOptions.IgnoreHash);
 		}
 
 		private void ComplaintViewOnActivated(object sender, EventArgs e)
@@ -1504,7 +1469,7 @@ namespace Vodovoz
 
 			var filter = Startup.AppDIContainer.BeginLifetimeScope().Resolve<ComplaintFilterViewModel>(new TypedParameter(typeof(Action<ComplaintFilterViewModel>), action));
 
-			Startup.MainWin.NavigationManager.OpenViewModel<ComplaintsJournalViewModel, ComplaintFilterViewModel>(
+			NavigationManager.OpenViewModel<ComplaintsJournalViewModel, ComplaintFilterViewModel>(
 			   null,
 			   filter,
 			   OpenPageOptions.IgnoreHash);
@@ -2303,7 +2268,7 @@ namespace Vodovoz
 
 		private void OpenRevenueServicePage(DadataRequestDto dadataRequestDto)
 		{
-			var revenueServicePage = Startup.MainWin.NavigationManager.OpenViewModel<CounterpartyDetailsFromRevenueServiceViewModel, DadataRequestDto,
+			var revenueServicePage = NavigationManager.OpenViewModel<CounterpartyDetailsFromRevenueServiceViewModel, DadataRequestDto,
 				IRevenueServiceClient, CancellationToken>(null, dadataRequestDto, _revenueServiceClient, _cancellationTokenSource.Token);
 
 			revenueServicePage.ViewModel.OnSelectResult += (o, a) =>

@@ -18,7 +18,7 @@ namespace Vodovoz
 
 		private global::Gamma.Widgets.yEnumComboBox comboTypeOfUse;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityEntryMovementNotificationsRecipient;
+		private global::QS.Views.Control.EntityEntry entryMovementNotificationsSubdivisionRecipient;
 
 		private global::Gtk.HSeparator hseparator1;
 
@@ -121,19 +121,17 @@ namespace Vodovoz
 			w6.XOptions = ((global::Gtk.AttachOptions)(4));
 			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.entityEntryMovementNotificationsRecipient = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entityEntryMovementNotificationsRecipient.Events = ((global::Gdk.EventMask)(256));
-			this.entityEntryMovementNotificationsRecipient.Name = "entityEntryMovementNotificationsRecipient";
-			this.entityEntryMovementNotificationsRecipient.CanEditReference = false;
-			this.entityEntryMovementNotificationsRecipient.CanOpenWithoutTabParent = false;
-			this.table1.Add(this.entityEntryMovementNotificationsRecipient);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.entityEntryMovementNotificationsRecipient]));
+			this.entryMovementNotificationsSubdivisionRecipient = new global::QS.Views.Control.EntityEntry();
+			this.entryMovementNotificationsSubdivisionRecipient.Events = ((global::Gdk.EventMask)(256));
+			this.entryMovementNotificationsSubdivisionRecipient.Name = "entryMovementNotificationsSubdivisionRecipient";
+			this.table1.Add(this.entryMovementNotificationsSubdivisionRecipient);
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.entryMovementNotificationsSubdivisionRecipient]));
 			w7.TopAttach = ((uint)(9));
 			w7.BottomAttach = ((uint)(10));
 			w7.LeftAttach = ((uint)(1));
 			w7.RightAttach = ((uint)(2));
 			w7.XOptions = ((global::Gtk.AttachOptions)(4));
-			w7.YOptions = ((global::Gtk.AttachOptions)(0));
+			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.hseparator1 = new global::Gtk.HSeparator();
 			this.hseparator1.Name = "hseparator1";
@@ -188,8 +186,8 @@ namespace Vodovoz
 			// Container child table1.Gtk.Table+TableChild
 			this.lblMovementNotificationsRecipient = new global::Gamma.GtkWidgets.yLabel();
 			this.lblMovementNotificationsRecipient.Name = "lblMovementNotificationsRecipient";
-			this.lblMovementNotificationsRecipient.LabelProp = global::Mono.Unix.Catalog.GetString("Подразделение-получатель\nуведомлений о создании\nскладских перемещений на данный с" +
-					"клад");
+			this.lblMovementNotificationsRecipient.LabelProp = global::Mono.Unix.Catalog.GetString("Подразделение-получатель\r\nуведомлений о создании\r\nскладских перемещений на данный" +
+					" склад");
 			this.table1.Add(this.lblMovementNotificationsRecipient);
 			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.table1[this.lblMovementNotificationsRecipient]));
 			w13.TopAttach = ((uint)(9));

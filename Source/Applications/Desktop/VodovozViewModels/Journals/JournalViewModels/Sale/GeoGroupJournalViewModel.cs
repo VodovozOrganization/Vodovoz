@@ -1,4 +1,5 @@
-﻿using NHibernate;
+﻿using Autofac;
+using NHibernate;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
@@ -15,21 +16,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Sale
 {
 	public class GeoGroupJournalViewModel : SingleEntityJournalViewModelBase<GeoGroup, GeoGroupViewModel, GeoGroupJournalNode>
 	{
-		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
+		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IWarehouseJournalFactory _warehouseJournalFactory;
 		private readonly GeoGroupVersionsModel _geoGroupVersionsModel;
 
 		public GeoGroupJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
+			ILifetimeScope lifetimeScope,
 			IWarehouseJournalFactory warehouseJournalFactory,
 			GeoGroupVersionsModel geoGroupVersionsModel,
 			bool hideJournalForOpenDialog = false,
 			bool hideJournalForCreateDialog = false
 		) : base(unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
 		{
-			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_warehouseJournalFactory = warehouseJournalFactory ?? throw new ArgumentNullException(nameof(warehouseJournalFactory));
 			_geoGroupVersionsModel = geoGroupVersionsModel ?? throw new ArgumentNullException(nameof(geoGroupVersionsModel));
 
@@ -66,19 +67,17 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Sale
 				EntityUoWBuilder.ForCreate(),
 				UnitOfWorkFactory,
 				_geoGroupVersionsModel,
-				_subdivisionJournalFactory,
 				_warehouseJournalFactory,
-				commonServices
-			);
+				commonServices,
+				_lifetimeScope);
 
 		protected override Func<GeoGroupJournalNode, GeoGroupViewModel> OpenDialogFunction => node =>
 			new GeoGroupViewModel(
 				EntityUoWBuilder.ForOpen(node.Id),
 				UnitOfWorkFactory,
 				_geoGroupVersionsModel,
-				_subdivisionJournalFactory,
 				_warehouseJournalFactory,
-				commonServices
-			);
+				commonServices,
+				_lifetimeScope);
 	}
 }

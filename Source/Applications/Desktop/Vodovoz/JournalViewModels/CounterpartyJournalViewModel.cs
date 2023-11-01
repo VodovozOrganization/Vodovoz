@@ -1,8 +1,10 @@
-﻿using NHibernate;
+﻿using Autofac;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
@@ -27,9 +29,11 @@ namespace Vodovoz.JournalViewModels
 			CounterpartyJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			Action<CounterpartyJournalFilterViewModel> filterConfiguration = null) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			INavigationManager navigationManager,
+			Action<CounterpartyJournalFilterViewModel> filterConfiguration = null)
+            : base(filterViewModel, unitOfWorkFactory, commonServices, navigation: navigationManager)
 		{
-			TabName = "Журнал контрагентов";
+            TabName = "Журнал контрагентов";
 
 			_userHaveAccessToRetail = commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_to_retail");
 			_canOpenCloseDeliveries =
@@ -80,7 +84,7 @@ namespace Vodovoz.JournalViewModels
 				},
 				(selected) => selected.All(x => (x as CounterpartyJournalNode).Sensitive),
 				(selected) => {
-					if (!selected.All(x => (x as CounterpartyJournalNode).Sensitive))
+					if(!selected.All(x => (x as CounterpartyJournalNode).Sensitive))
 					{
 						return;
 					}
@@ -90,19 +94,19 @@ namespace Vodovoz.JournalViewModels
 						return;
 					}
 					CounterpartyJournalNode selectedNode = selectedNodes.First();
-					if (!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
 					{
 						return;
 					}
 					var config = EntityConfigs[selectedNode.EntityType];
 					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
 
-					TabParent.OpenTab(() => foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode), this);
-					if (foundDocumentConfig.JournalParameters.HideJournalForOpenDialog)
-					{
-						HideJournal(TabParent);
-					}
-				}
+                    TabParent.OpenTab(() => foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode), this);
+                    if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog)
+                    {
+                        HideJournal(TabParent);
+                    }
+                }
 			);
 			if (SelectionMode == JournalSelectionMode.None)
 			{
@@ -522,6 +526,6 @@ namespace Vodovoz.JournalViewModels
 
 		protected override Func<CounterpartyDlg> CreateDialogFunction => () => new CounterpartyDlg();
 
-		protected override Func<CounterpartyJournalNode, CounterpartyDlg> OpenDialogFunction => (node) => new CounterpartyDlg(node.Id);
-	}
+        protected override Func<CounterpartyJournalNode, CounterpartyDlg> OpenDialogFunction => (node) => new CounterpartyDlg(node.Id);
+    }
 }

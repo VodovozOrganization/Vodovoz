@@ -1,110 +1,258 @@
 ﻿using Autofac;
-using NHibernate;
-using NHibernate.Criterion;
-using NHibernate.Dialect.Function;
-using NHibernate.Transform;
+using FluentNHibernate.Conventions;
+using Gamma.Binding.Core.RecursiveTreeConfig;
+using NHibernate.Linq;
+using QS.Deletion;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Project.Journal.DataLoader;
+using QS.Project.Journal.DataLoader.Hierarchy;
+using QS.Project.Search;
 using QS.Services;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Windows.Input;
 using Vodovoz.Domain.Cash;
-using Vodovoz.Domain.Employees;
-using Vodovoz.EntityRepositories.Permissions;
-using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalNodes;
-using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
+using Vodovoz.Tools;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.ViewModels.Organizations;
 
 namespace Vodovoz.Journals.JournalViewModels.Organizations
 {
-	public class SubdivisionsJournalViewModel : FilterableSingleEntityJournalViewModelBase<Subdivision, SubdivisionViewModel, SubdivisionJournalNode, SubdivisionFilterViewModel>
+	public class SubdivisionsJournalViewModel
+		: JournalViewModelBase
 	{
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
+		private readonly ICurrentPermissionService _currentPermissionService;
 		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
 		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
+		private readonly SubdivisionFilterViewModel _filterViewModel;
 		private readonly ILifetimeScope _scope;
+		private HierarchicalChunkLinqLoader<Subdivision, SubdivisionJournalNode> _hierarchicalChunkLinqLoader;
+		private Dictionary<Type, IPermissionResult> _domainObjectsPermissions = new Dictionary<Type, IPermissionResult>();
 
 		public SubdivisionsJournalViewModel(
 			SubdivisionFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
+			INavigationManager navigation,
+			ILifetimeScope scope,
+			ICurrentPermissionService currentPermissionService,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ISalesPlanJournalFactory salesPlanJournalFactory,
 			INomenclatureJournalFactory nomenclatureSelectorFactory,
-			ILifetimeScope scope) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			Action<SubdivisionFilterViewModel> filterConfig = null)
+			: base(unitOfWorkFactory, commonServices.InteractiveService, navigation)
 		{
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			_currentPermissionService = currentPermissionService
+				?? throw new ArgumentNullException(nameof(currentPermissionService));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
 			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+			_filterViewModel = filterViewModel ?? throw new ArgumentNullException(nameof(filterViewModel));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
-			TabName = "Выбор подразделения";
+
+			if(filterConfig != null)
+			{
+				_filterViewModel.SetAndRefilterAtOnce(filterConfig);
+			}
+
+			JournalFilter = _filterViewModel;
+
+			_filterViewModel.OnFiltered += OnFilterViewModelFiltered;
+
+			TabName = $"Журнал {typeof(Subdivision).GetClassUserFriendlyName().GenitivePlural}";
+
+			SearchEnabled = false;
+
+			UseSlider = true;
+
+			_hierarchicalChunkLinqLoader = new HierarchicalChunkLinqLoader<Subdivision, SubdivisionJournalNode>(UnitOfWorkFactory);
+
+			RecuresiveConfig = _hierarchicalChunkLinqLoader.TreeConfig;
+
+			_hierarchicalChunkLinqLoader.SetRecursiveModel(GetChunk);
+
+			var threadDataLoader = new ThreadDataLoader<SubdivisionJournalNode>(unitOfWorkFactory);
+
+			threadDataLoader.QueryLoaders.Add(_hierarchicalChunkLinqLoader);
+			DataLoader = threadDataLoader;
+			DataLoader.DynamicLoadingEnabled = false;
+
+			InitializePermissionsMatrix();
+
+			CreateNodeActions();
+			CreatePopupActions();
+
+			UpdateOnChanges(typeof(Subdivision));
+
+			(Search as SearchViewModel).PropertyChanged += OnSearchPropertyChanged;
 		}
 
-		protected override Func<IUnitOfWork, IQueryOver<Subdivision>> ItemsSourceQueryFunction => (uow) => {
-			Subdivision subdivisionAlias = null;
-			Employee chiefAlias = null;
-			TypeOfEntity documentAlias = null;
-			SubdivisionJournalNode resultAlias = null;
 
-			var query = uow.Session.QueryOver<Subdivision>(() => subdivisionAlias);
+		public IRecursiveConfig RecuresiveConfig { get; }
 
-			var firstLevelSubQuery = QueryOver.Of<Subdivision>().WhereRestrictionOn(x => x.ParentSubdivision).IsNull().Select(x => x.Id);
-			var secondLevelSubquery = QueryOver.Of<Subdivision>().WithSubquery.WhereProperty(x => x.ParentSubdivision.Id).In(firstLevelSubQuery).Select(x => x.Id);
+		public override string FooterInfo
+		{
+			get => DataLoader.TotalCount.HasValue ? $" | Загружено: {DataLoader.TotalCount.Value}" : "";
 
-			query
-				.WithSubquery.WhereProperty(x => x.Id).NotIn(firstLevelSubQuery)
-				.WithSubquery.WhereProperty(x => x.Id).NotIn(secondLevelSubquery);
+			set => base.FooterInfo = value;
+		}
 
-			if(FilterViewModel?.ExcludedSubdivisions?.Any() ?? false) {
-				query.WhereRestrictionOn(() => subdivisionAlias.Id).Not.IsIn(FilterViewModel.ExcludedSubdivisions);
-			}
-			if(FilterViewModel?.SubdivisionType != null) {
-				query.Where(Restrictions.Eq(Projections.Property<Subdivision>(x => x.SubdivisionType), FilterViewModel.SubdivisionType));
-			}
-			if(FilterViewModel != null && FilterViewModel.OnlyCashSubdivisions) 
+		private void InitializePermissionsMatrix()
+		{
+			_domainObjectsPermissions.Add(typeof(Subdivision),  _currentPermissionService.ValidateEntityPermission(typeof(Subdivision)));
+		}
+
+		private void OnSearchPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Search.SearchValues))
 			{
-				var cashDocumentTypes = new[] { nameof(Income), nameof(Expense), nameof(AdvanceReport) };
-				query.Left.JoinAlias(() => subdivisionAlias.DocumentTypes, () => documentAlias)
-					.Where(Restrictions.In(Projections.Property(() => documentAlias.Type), cashDocumentTypes));
+				_filterViewModel.SearchString = string.Join(" ", Search.SearchValues);
 			}
+		}
 
-			var chiefProjection = Projections.SqlFunction(
-				new SQLFunctionTemplate(NHibernateUtil.String, "GET_PERSON_NAME_WITH_INITIALS(?1, ?2, ?3)"),
-				NHibernateUtil.String,
-				Projections.Property(() => chiefAlias.LastName),
-				Projections.Property(() => chiefAlias.Name),
-				Projections.Property(() => chiefAlias.Patronymic)
+		private IQueryable<SubdivisionJournalNode> GetChunk(IUnitOfWork unitOfWork, int? parentId) =>
+			_filterViewModel.RestrictParentId is null
+			? GetSubGroup(unitOfWork, parentId)
+			: GetSubGroup(unitOfWork, _filterViewModel.RestrictParentId);
+
+		private IQueryable<SubdivisionJournalNode> GetSubGroup(IUnitOfWork unitOfWork, int? parentId)
+		{
+			var searchString = string.IsNullOrWhiteSpace(_filterViewModel.SearchString) ? string.Empty : $"%{_filterViewModel.SearchString.ToLower()}%";
+
+			return (string.IsNullOrWhiteSpace(searchString) || parentId == null)
+			? (from subdivision in unitOfWork.Session.Query<Subdivision>()
+			   where ((string.IsNullOrWhiteSpace(searchString)
+				   && subdivision.ParentSubdivision.Id == parentId)
+					   || subdivision.Name.ToLower().Like(searchString)
+					   || subdivision.ShortName.ToLower().Like(searchString)
+					   || subdivision.Id.ToString().Like(searchString))
+				   && (_filterViewModel.ShowArchieved || !subdivision.IsArchive)
+				   && !_filterViewModel.ExcludedSubdivisionsIds.Contains(subdivision.Id)
+				   && (_filterViewModel.SubdivisionType == null
+					|| subdivision.SubdivisionType == _filterViewModel.SubdivisionType)
+					&& (!_filterViewModel.OnlyCashSubdivisions
+						|| subdivision.DocumentTypes.Any(x => x.Type == nameof(Income))
+						|| subdivision.DocumentTypes.Any(x => x.Type == nameof(Expense))
+						|| subdivision.DocumentTypes.Any(x => x.Type == nameof(AdvanceReport)))
+			   let children = GetSubGroup(unitOfWork, subdivision.Id)
+			   let chiefFIO = subdivision.Chief == null ? "" : $"{subdivision.Chief.LastName} {subdivision.Chief.Name.Substring(0, 1)}. {subdivision.Chief.Patronymic.Substring(0, 1)}."
+			   orderby subdivision.Name
+			   select new SubdivisionJournalNode
+			   {
+					Id = subdivision.Id,
+					Name = subdivision.Name,
+					ChiefName = chiefFIO,
+					ParentId = subdivision.ParentSubdivision.Id,
+					Children = children.ToList(),
+					IsArchive = subdivision.IsArchive
+			   })
+				: Enumerable.Empty<SubdivisionJournalNode>().AsQueryable();
+		}
+
+		protected override void CreateNodeActions()
+		{
+			NodeActionsList.Clear();
+
+			CreateSelectAction();
+			CreateAddActions();
+			CreateEditAction();
+			CreateDeleteAction();
+		}
+
+		private void CreateSelectAction()
+		{
+			var selectAction = new JournalAction("Выбрать",
+				(selected) => selected.Any(),
+				(selected) => SelectionMode != JournalSelectionMode.None,
+				(selected) => OnItemsSelected(selected)
 			);
 
-			query.Where(GetSearchCriterion(() => subdivisionAlias.Name));
+			if(SelectionMode == JournalSelectionMode.Single
+				|| SelectionMode == JournalSelectionMode.Multiple)
+			{
+				RowActivatedAction = selectAction;
+			}
 
-			return query
-				.Left.JoinAlias(o => o.Chief, () => chiefAlias)
-				.SelectList(list => list
-				   .SelectGroup(s => s.Id).WithAlias(() => resultAlias.Id)
-				   .Select(s => s.Name).WithAlias(() => resultAlias.Name)
-				   .Select(chiefProjection).WithAlias(() => resultAlias.ChiefName)
-				   .Select(s => s.ParentSubdivision.Id).WithAlias(() => resultAlias.ParentId)
-				)
-				.TransformUsing(Transformers.AliasToBean<SubdivisionJournalNode>());
+			NodeActionsList.Add(selectAction);
+		}
 
-		};
+		private void CreateDeleteAction()
+		{
+			var deleteAction = new JournalAction("Удалить",
+				(selected) => selected.Length == 1
+					&& selected.FirstOrDefault() is SubdivisionJournalNode node
+					&& _domainObjectsPermissions[typeof(Subdivision)].CanDelete
+					&& selected.Any(),
+				(selected) => true,
+				(selected) =>
+				{
+					if(selected.FirstOrDefault() is SubdivisionJournalNode node
+						&& _domainObjectsPermissions[typeof(Subdivision)].CanDelete)
+					{
+						DeleteHelper.DeleteEntity(typeof(Subdivision), node.Id);
+					}
+				},
+				Key.Delete.ToString());
+			NodeActionsList.Add(deleteAction);
+		}
 
-		protected override Func<SubdivisionViewModel> CreateDialogFunction =>
-			() => new SubdivisionViewModel(EntityUoWBuilder.ForCreate(), _unitOfWorkFactory, commonServices, _employeeJournalFactory,
-				new PermissionRepository(), _salesPlanJournalFactory, _nomenclatureSelectorFactory,
-				new SubdivisionRepository(new ParametersProvider()), _scope.BeginLifetimeScope());
+		private void CreateEditAction()
+		{
+			var editAction = new JournalAction("Изменить",
+				(selected) => selected.Length == 1
+					&& selected.FirstOrDefault() is SubdivisionJournalNode node
+					&& _domainObjectsPermissions[typeof(Subdivision)].CanUpdate
+					&& selected.Any(),
+				(selected) => true,
+				(selected) =>
+				{
+					if(selected.FirstOrDefault() is SubdivisionJournalNode node)
+					{
+						var page = NavigationManager.OpenViewModel<SubdivisionViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id));
+					}
+				});
 
-		protected override Func<SubdivisionJournalNode, SubdivisionViewModel> OpenDialogFunction =>
-			node => new SubdivisionViewModel(EntityUoWBuilder.ForOpen(node.Id), _unitOfWorkFactory, commonServices, _employeeJournalFactory,
-				new PermissionRepository(), _salesPlanJournalFactory, _nomenclatureSelectorFactory,
-				new SubdivisionRepository(new ParametersProvider()), _scope.BeginLifetimeScope());
+			NodeActionsList.Add(editAction);
+
+			if(SelectionMode == JournalSelectionMode.None)
+			{
+				RowActivatedAction = editAction;
+			}
+		}
+
+		protected void CreateAddActions()
+		{
+			var createAction = new JournalAction("Добавить",
+				(selected) => _domainObjectsPermissions[typeof(Subdivision)].CanCreate,
+				(selected) => true,
+				(selected) =>
+				{
+					var page = NavigationManager.OpenViewModel<SubdivisionViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
+				});
+
+			NodeActionsList.Add(createAction);
+		}
+
+		private void OnFilterViewModelFiltered(object sender, EventArgs e)
+		{
+			Refresh();
+		}
+
+		public override void Dispose()
+		{
+			_filterViewModel.OnFiltered -= OnFilterViewModelFiltered;
+			base.Dispose();
+		}
 	}
 }

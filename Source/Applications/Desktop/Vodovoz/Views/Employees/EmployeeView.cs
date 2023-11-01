@@ -1,4 +1,4 @@
-﻿using Gamma.ColumnConfig;
+using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gamma.Widgets;
 using QS.Dialog;
@@ -138,9 +138,6 @@ namespace Vodovoz.Views.Employees
 				.InitializeFromSource();
 
 			entrySubdivision.ViewModel = ViewModel.SubdivisionViewModel;
-			entrySubdivision.Binding
-				.AddBinding(ViewModel, vm => vm.CanEditSubdivision, w => w.Sensitive)
-				.InitializeFromSource();
 
 			var usersJournalFactory = new UserJournalFactory();
 			entityviewmodelUser.SetEntityAutocompleteSelectorFactory(usersJournalFactory.CreateSelectUserAutocompleteSelectorFactory());

@@ -1,43 +1,47 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
+﻿using Autofac;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
+using QS.Navigation;
+using QS.Project.Services;
+using QS.Validation;
+using QS.ViewModels.Control.EEVM;
 using QSOrmProject;
+using System;
+using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using Vodovoz.Core.DataService;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Store;
-using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.PermissionExtensions;
-using Vodovoz.Repository.Store;
-using Vodovoz.ViewWidgets.Store;
-using QS.Project.Services;
-using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Permissions.Warehouses;
+using Vodovoz.Domain.Store;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.CallTasks;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Equipments;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.WageCalculation;
+using Vodovoz.Parameters;
+using Vodovoz.PermissionExtensions;
+using Vodovoz.Repository.Store;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
-using Vodovoz.Parameters;
-using Vodovoz.Domain.Operations;
 using Vodovoz.Tools.Store;
-using QS.Validation;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.Logistic;
+using Vodovoz.ViewWidgets.Store;
 
 namespace Vodovoz
 {
 	public partial class CarUnloadDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<CarUnloadDocument>
 	{
-		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
 		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(_parametersProvider);
 
@@ -47,9 +51,10 @@ namespace Vodovoz
 		private readonly ICarUnloadRepository _carUnloadRepository = new CarUnloadRepository();
 		private readonly IRouteListRepository
 			_routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
-		private WageParameterService wageParameterService =
+		private IWageParameterService _wageParameterService =
 			new WageParameterService(new WageCalculationRepository(), _baseParametersProvider);
-		private CallTaskWorker callTaskWorker;
+		private ICallTaskWorker _callTaskWorker;
+		private ILifetimeScope _lifetimeScope;
 
 		#region Конструкторы
 		public CarUnloadDocumentDlg()
@@ -66,7 +71,10 @@ namespace Vodovoz
 			ConfigureNewDoc();
 
 			if(warehouseId.HasValue)
+			{
 				Entity.Warehouse = UoW.GetById<Warehouse>(warehouseId.Value);
+			}
+
 			Entity.RouteList = UoW.GetById<RouteList>(routeListId);
 			ConfigureDlg();
 		}
@@ -86,9 +94,11 @@ namespace Vodovoz
 		public CarUnloadDocumentDlg(CarUnloadDocument sub) : this(sub.Id) { }
 		#endregion
 
+		public INavigationManager NavigationManager { get; private set; }
+
 		#region Методы
 
-		void ConfigureNewDoc()
+		private void ConfigureNewDoc()
 		{
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<CarUnloadDocument>();
 			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
@@ -102,10 +112,13 @@ namespace Vodovoz
 			Entity.Warehouse = storeDocument.GetDefaultWarehouse(UoW, WarehousePermissionsType.CarUnloadEdit);
 		}
 
-		void ConfigureDlg()
+		private void ConfigureDlg()
 		{
+			_lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+			NavigationManager = Startup.MainWin.NavigationManager;
+
 			var storeDocument = new StoreDocumentHelper(new UserSettingsGetter());
-			callTaskWorker = new CallTaskWorker(
+			_callTaskWorker = new CallTaskWorker(
 				CallTaskSingletonFactory.GetInstance(),
 				new CallTaskRepository(),
 				new OrderRepository(),
@@ -127,7 +140,16 @@ namespace Vodovoz
 			var editing = storeDocument.CanEditDocument(WarehousePermissionsType.CarUnloadEdit, Entity.Warehouse);
 			editing &= Entity.RouteList?.Status != RouteListStatus.Closed || hasPermitionToEditDocWithClosedRL;
 			Entity.InitializeDefaultValues(UoW, new NomenclatureRepository(new NomenclatureParametersProvider(_parametersProvider)));
-			yentryrefRouteList.IsEditable = ySpecCmbWarehouses.Sensitive = ytextviewCommnet.Editable = editing;
+
+			entryRouteList.ViewModel = new LegacyEEVMBuilderFactory<CarUnloadDocument>(this, Entity, UoW, NavigationManager, _lifetimeScope)
+				.ForProperty(x => x.RouteList)
+				.UseViewModelJournalAndAutocompleter<RouteListJournalViewModel, RouteListJournalFilterViewModel>(filter =>
+				{
+					filter.RestrictedByStatuses = new[] { RouteListStatus.EnRoute };
+				})
+				.Finish();
+
+			entryRouteList.Sensitive = ySpecCmbWarehouses.Sensitive = ytextviewCommnet.Editable = editing;
 			returnsreceptionview.Sensitive =
 				hbxTareToReturn.Sensitive =
 					nonserialequipmentreceptionview1.Sensitive =
@@ -143,18 +165,22 @@ namespace Vodovoz
 			ySpecCmbWarehouses.ItemsList = storeDocument.GetRestrictedWarehousesList(UoW, WarehousePermissionsType.CarUnloadEdit);
 			ySpecCmbWarehouses.Binding.AddBinding(Entity, e => e.Warehouse, w => w.SelectedItem).InitializeFromSource();
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
-			var filter = new RouteListsFilter(UoW);
-			filter.SetAndRefilterAtOnce(x => x.RestrictedStatuses = new[]{ RouteListStatus.EnRoute});
-			yentryrefRouteList.RepresentationModel = new ViewModel.RouteListsVM(filter);
-			yentryrefRouteList.Binding.AddBinding(Entity, e => e.RouteList, w => w.Subject).InitializeFromSource();
-			yentryrefRouteList.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
+
+			entryRouteList.ViewModel.IsEditable = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 
 			Entity.PropertyChanged += (sender, e) => {
-                if (e.PropertyName == nameof(Entity.Warehouse)) OnWarehouseChanged();
-                if (e.PropertyName == nameof(Entity.RouteList)) UpdateWidgetsVisible();
-            };
+				if (e.PropertyName == nameof(Entity.Warehouse))
+				{
+					OnWarehouseChanged();
+				}
 
-            lblTareReturnedBefore.Binding.AddFuncBinding(Entity, e => e.ReturnedTareBeforeText, w => w.Text).InitializeFromSource();
+				if (e.PropertyName == nameof(Entity.RouteList))
+				{
+					UpdateWidgetsVisible();
+				}
+			};
+
+			lblTareReturnedBefore.Binding.AddFuncBinding(Entity, e => e.ReturnedTareBeforeText, w => w.Text).InitializeFromSource();
 			spnTareToReturn.Binding.AddBinding(Entity, e => e.TareToReturn, w => w.ValueAsInt).InitializeFromSource();
 
 			defectiveitemsreceptionview1.Warehouse = returnsreceptionview.Warehouse = Entity.Warehouse;
@@ -162,9 +188,14 @@ namespace Vodovoz
 			UpdateWidgetsVisible();
 			buttonSave.Sensitive = editing;
 			if(!editing)
+			{
 				HasChanges = false;
+			}
+
 			if(!UoW.IsNew)
+			{
 				LoadReception();
+			}
 
 			var permmissionValidator =
 				new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
@@ -174,7 +205,7 @@ namespace Vodovoz
 			
 			if(!Entity.CanEdit && Entity.TimeStamp.Date != DateTime.Now.Date) {
 				ytextviewCommnet.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
-				yentryrefRouteList.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				entryRouteList.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				ySpecCmbWarehouses.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				ytextviewRouteListInfo.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				spnTareToReturn.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
@@ -197,10 +228,14 @@ namespace Vodovoz
 		public override bool Save()
 		{
 			if(!Entity.CanEdit)
+			{
 				return false;
+			}
 
 			if(!UpdateReceivedItemsOnEntity(_baseParametersProvider.GetNomenclatureIdForTerminal))
+			{
 				return false;
+			}
 
 			var validator = new ObjectValidator(new GtkValidationViewFactory());
 			if(!validator.Validate(Entity))
@@ -222,16 +257,16 @@ namespace Vodovoz
 
 			if (Entity.RouteList.Status == RouteListStatus.Delivered)
 			{
-				Entity.RouteList.CompleteRouteAndCreateTask(wageParameterService, callTaskWorker, _trackRepository);
+				Entity.RouteList.CompleteRouteAndCreateTask(_wageParameterService, _callTaskWorker, _trackRepository);
 			}
 			
-			logger.Info("Сохраняем разгрузочный талон...");
+			_logger.Info("Сохраняем разгрузочный талон...");
 			UoWGeneric.Save();
-			logger.Info("Ok.");
+			_logger.Info("Ok.");
 			return true;
 		}
 
-		void UpdateRouteListInfo()
+		private void UpdateRouteListInfo()
 		{
 			if(Entity.RouteList == null) {
 				ytextviewRouteListInfo.Buffer.Text = string.Empty;
@@ -249,10 +284,13 @@ namespace Vodovoz
 				);
 		}
 
-		void FillOtherReturnsTable()
+		private void FillOtherReturnsTable()
 		{
 			if(Entity.RouteList == null || Entity.Warehouse == null)
+			{
 				return;
+			}
+
 			Dictionary<int, decimal> returns = _carUnloadRepository.NomenclatureUnloaded(UoW, Entity.RouteList, Entity.Warehouse, Entity);
 
 			treeOtherReturns.ColumnsConfig = Gamma.GtkWidgets.ColumnsConfigFactory.Create<Nomenclature>()
@@ -270,7 +308,7 @@ namespace Vodovoz
 			treeOtherReturns.ItemsDataSource = query;
 		}
 
-		void SetupForNewRouteList()
+		private void SetupForNewRouteList()
 		{
 			UpdateRouteListInfo();
 			
@@ -286,11 +324,13 @@ namespace Vodovoz
 			nonserialequipmentreceptionview1.Visible = Entity.Warehouse != null && Entity.Warehouse.CanReceiveEquipment;
 		}
 
-		void LoadReception()
+		private void LoadReception()
 		{
 			foreach(var item in Entity.Items) {
 				if(defectiveitemsreceptionview1.Items.Any(x => x.NomenclatureId == item.GoodsAccountingOperation.Nomenclature.Id))
+				{
 					continue;
+				}
 
 				var returned = 
 					returnsreceptionview.Items.FirstOrDefault(x => x.NomenclatureId == item.GoodsAccountingOperation.Nomenclature.Id);
@@ -341,17 +381,18 @@ namespace Vodovoz
 						continue;
 				}
 
-				logger.Warn("Номенклатура {0} не найдена в заказа мл, добавляем отдельно...", item.GoodsAccountingOperation.Nomenclature);
+				_logger.Warn("Номенклатура {0} не найдена в заказа мл, добавляем отдельно...", item.GoodsAccountingOperation.Nomenclature);
 				var newItem = new ReceptionItemNode(item);
 				returnsreceptionview.AddItem(newItem);
 			}
 		}
 
-		bool UpdateReceivedItemsOnEntity(int terminalId)
+		private bool UpdateReceivedItemsOnEntity(int terminalId)
 		{
 			//Собираем список всего на возврат из разных виджетов.
 			var tempItemList = new List<InternalItem>();
 			if(Entity.TareToReturn > 0)
+			{
 				tempItemList.Add(
 					new InternalItem {
 						ReciveType = ReciveTypes.Bottle,
@@ -359,11 +400,14 @@ namespace Vodovoz
 						Amount = Entity.TareToReturn
 					}
 				);
+			}
 
 			var defectiveItemsList = new List<InternalItem>();
 			foreach(var node in defectiveitemsreceptionview1.Items) {
 				if(node.Amount == 0)
+				{
 					continue;
+				}
 
 				var item = new InternalItem {
 					ReciveType = ReciveTypes.Defective,
@@ -375,12 +419,16 @@ namespace Vodovoz
 				};
 
 				if(!defectiveItemsList.Any(i => i.EqualsToAnotherInternalItem(item)))
+				{
 					defectiveItemsList.Add(item);
+				}
 			}
 
 			foreach(var node in returnsreceptionview.Items) {
 				if(node.Amount == 0)
+				{
 					continue;
+				}
 
 				var item = new InternalItem {
 					ReciveType = node.NomenclatureId == terminalId
@@ -396,7 +444,9 @@ namespace Vodovoz
 
 			foreach(var node in nonserialequipmentreceptionview1.Items) {
 				if(node.Amount == 0)
+				{
 					continue;
+				}
 
 				var item = new InternalItem {
 					ReciveType = ReciveTypes.Equipment,
@@ -416,7 +466,9 @@ namespace Vodovoz
 
 				//проверка на дубли. если несколько одинаковых, то устанавливаем кол-во в 0 для последующего удаления из коллекции
 				if(tempItem.Amount > 0 && defectiveItemsList.Count(i => i.EqualsToAnotherInternalItem(tempItem)) > 1)
+				{
 					tempItem.Amount = 0;
+				}
 			}
 
 			foreach(var tempItem in defectiveItemsList) {
@@ -435,11 +487,19 @@ namespace Vodovoz
 					);
 				} else {
 					if(item.GoodsAccountingOperation.Amount != tempItem.Amount)
+					{
 						item.GoodsAccountingOperation.Amount = tempItem.Amount;
+					}
+
 					if(item.TypeOfDefect != tempItem.TypeOfDefect)
+					{
 						item.TypeOfDefect = tempItem.TypeOfDefect;
+					}
+
 					if(item.DefectSource != tempItem.Source)
+					{
 						item.DefectSource = tempItem.Source;
+					}
 				}
 			}
 
@@ -459,12 +519,19 @@ namespace Vodovoz
 					);
 				} else {
 					if(item.GoodsAccountingOperation.Amount != tempItem.Amount)
+					{
 						item.GoodsAccountingOperation.Amount = tempItem.Amount;
+					}
+
 					if(item.EmployeeNomenclatureMovementOperation != null && item.EmployeeNomenclatureMovementOperation.Amount != -tempItem.Amount)
+					{
 						item.EmployeeNomenclatureMovementOperation.Amount = -tempItem.Amount;
+					}
 
 					if(item.Redhead != tempItem.Redhead)
+					{
 						item.Redhead = tempItem.Redhead;
+					}
 
 					item.CreateOrUpdateDeliveryFreeBalanceOperation(terminalId);
 				}
@@ -473,9 +540,13 @@ namespace Vodovoz
 			foreach(var item in Entity.Items.ToList()) {
 				bool exist = true;
 				if(item.ReciveType != ReciveTypes.Defective)
+				{
 					exist = tempItemList.Any(x => x.NomenclatureId == item.GoodsAccountingOperation.Nomenclature?.Id);
+				}
 				else
+				{
 					exist = defectiveItemsList.Any(x => x.MovementOperationId == item.GoodsAccountingOperation.Id && x.Amount > 0);
+				}
 
 				if(!exist) {
 					UoW.Delete(item.GoodsAccountingOperation);
@@ -491,7 +562,9 @@ namespace Vodovoz
 		protected void OnButtonPrintClicked(object sender, EventArgs e)
 		{
 			if(UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint(typeof(CarUnloadDocument), "талона"))
+			{
 				Save();
+			}
 
 			var reportInfo = new QS.Report.ReportInfo {
 				Title = Entity.Title,
@@ -523,7 +596,7 @@ namespace Vodovoz
 		}
 		#endregion
 
-		class InternalItem
+		private class InternalItem
 		{
 			public ReciveTypes ReciveType;
 			public int NomenclatureId;
@@ -539,7 +612,10 @@ namespace Vodovoz
 			public bool EqualsToAnotherInternalItem(InternalItem item)
 			{
 				if(item.TypeOfDefect == null || TypeOfDefect == null)
+				{
 					return false;
+				}
+
 				bool eq = item.ReciveType == ReciveType;
 				eq &= item.Source == Source;
 				eq &= item.NomenclatureId == NomenclatureId;

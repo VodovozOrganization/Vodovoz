@@ -1,19 +1,14 @@
-﻿using System;
-using QS.Commands;
+﻿using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
+using System;
 using Vodovoz.Domain.BusinessTasks;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Journals.JournalViewModels;
-using Vodovoz.Journals.JournalViewModels.Organizations;
-using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.JournalViewModels;
 using Vodovoz.TempAdapters;
 
@@ -33,7 +28,8 @@ namespace Vodovoz.ViewModels.BusinessTasks
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			ICounterpartyJournalFactory counterpartyJournalFactory) : base(uowBuilder, unitOfWorkFactory, commonServices)
+			ICounterpartyJournalFactory counterpartyJournalFactory)
+			: base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			if(uowBuilder.IsNewEntity) {
 				TabName = "Новая задача";
@@ -59,7 +55,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 
 		private void Initialize()
 		{
-			EmployeeSelectorFactory = new EmployeeJournalFactory().CreateWorkingOfficeEmployeeAutocompleteSelectorFactory();
+			EmployeeSelectorFactory = new EmployeeJournalFactory(NavigationManager).CreateWorkingOfficeEmployeeAutocompleteSelectorFactory();
 
 			OrderSelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Order,
 																				OrderJournalViewModel,

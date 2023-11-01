@@ -9,10 +9,10 @@ namespace Vodovoz.Filters.GtkViews
 	{
 		public UndeliveredOrdersFilterView(UndeliveredOrdersFilterViewModel filterViewModel) : base(filterViewModel)
 		{
-			this.Build();
-			Configure();
+			Build();
+			Initialize();
 		}
-		private void Configure()
+		private void Initialize()
 		{
 			chkProblematicCases.Binding.AddBinding(ViewModel, vm => vm.RestrictIsProblematicCases, w => w.Active).InitializeFromSource();
 
@@ -25,8 +25,7 @@ namespace Vodovoz.Filters.GtkViews
 			yEnumStatusOnOldOrderCancels.ItemsEnum = typeof(OrderStatus);
 			yEnumStatusOnOldOrderCancels.Binding.AddBinding(ViewModel, vm => vm.OldOrderStatus, w => w.SelectedItemOrNull).InitializeFromSource();
 
-			entityInProcessAtSubdivision.SetEntityAutocompleteSelectorFactory(ViewModel.InProcessAtSubdivisionSelectorFactory);
-			entityInProcessAtSubdivision.Binding.AddBinding(ViewModel, vm => vm.RestrictInProcessAtDepartment, w => w.Subject).InitializeFromSource();
+			entryInProcessAtSubdivision.ViewModel = ViewModel.InProcessAtSubdivisionViewModel;
 
 			ySpecCMBGuiltyDep.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.Subdivisions, w => w.ItemsList)
@@ -45,7 +44,6 @@ namespace Vodovoz.Filters.GtkViews
 			entryOldOrder.SetEntityAutocompleteSelectorFactory(ViewModel.OrderSelectorFactory);
 			entryOldOrder.Binding.AddBinding(ViewModel, vm => vm.RestrictOldOrder, w => w.Subject).InitializeFromSource();
 
-
 			entryDriver.SetEntityAutocompleteSelectorFactory(ViewModel.DriverEmployeeSelectorFactory);
 			entryDriver.Binding.AddBinding(ViewModel, vm => vm.RestrictDriver, w => w.Subject).InitializeFromSource();
 
@@ -55,11 +53,9 @@ namespace Vodovoz.Filters.GtkViews
 			entryDeliveryPoint.SetEntityAutocompleteSelectorFactory(ViewModel.DeliveryPointSelectorFactory);
 			entryDeliveryPoint.Binding.AddBinding(ViewModel, vm => vm.RestrictAddress, w => w.Subject).InitializeFromSource();
 
-			entryOldOrderAuthor.SetEntityAutocompleteSelectorFactory(ViewModel.OfficeEmployeeSelectorFactory);
-			entryOldOrderAuthor.Binding.AddBinding(ViewModel, vm => vm.RestrictOldOrderAuthor, w => w.Subject).InitializeFromSource();
+			entryOldOrderAuthor.ViewModel = ViewModel.OldOrderAuthorViewModel;
 
-			entryUndeliveryAuthor.SetEntityAutocompleteSelectorFactory(ViewModel.OfficeEmployeeSelectorFactory);
-			entryUndeliveryAuthor.Binding.AddBinding(ViewModel, vm => vm.RestrictUndeliveryAuthor, w => w.Subject).InitializeFromSource();
+			entryUndeliveryAuthor.ViewModel = ViewModel.UndeliveryAuthorViewModel;
 
 			dateperiodOldOrderDate.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.RestrictOldOrderStartDate, w => w.StartDateOrNull)
@@ -71,8 +67,7 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(vm => vm.RestrictNewOrderEndDate, w => w.EndDateOrNull)
 				.InitializeFromSource();
 
-			entryAuthorSubdivision.SetEntityAutocompleteSelectorFactory(ViewModel.AuthorSubdivisionSelectorFactory);
-			entryAuthorSubdivision.Binding.AddBinding(ViewModel, vm => vm.RestrictAuthorSubdivision, w => w.Subject).InitializeFromSource();
+			entryAuthorSubdivision.ViewModel = ViewModel.AuthorSubdivisionViewModel;
 		}
 	}
 }

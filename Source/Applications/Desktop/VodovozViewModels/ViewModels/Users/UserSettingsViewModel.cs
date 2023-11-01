@@ -1,4 +1,5 @@
-﻿using QS.Commands;
+﻿using Autofac;
+using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -7,22 +8,25 @@ using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.ViewModels.Organizations;
 using Vodovoz.ViewModels.Widgets.Users;
 
 namespace Vodovoz.ViewModels.Users
 {
 	public class UserSettingsViewModel : EntityTabViewModelBase<UserSettings>, ITDICloseControlTab
 	{
+		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IEmployeeService _employeeService;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 		private readonly ISubdivisionRepository _subdivisionRepository;
@@ -42,28 +46,26 @@ namespace Vodovoz.ViewModels.Users
 			IUnitOfWorkFactory unitOfWorkFactory,
 			INavigationManager navigationManager,
 			ICommonServices commonServices,
+			ILifetimeScope lifetimeScope,
 			IEmployeeService employeeService,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
 			ISubdivisionRepository subdivisionRepository,
 			INomenclaturePricesRepository nomenclatureFixedPriceRepository)
-			: base(uowBuilder, unitOfWorkFactory, commonServices)
+			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(navigationManager is null)
 			{
 				throw new ArgumentNullException(nameof(navigationManager));
 			}
 
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_nomenclatureFixedPriceRepository =
 				nomenclatureFixedPriceRepository ?? throw new ArgumentNullException(nameof(nomenclatureFixedPriceRepository));
 			InteractiveService = commonServices.InteractiveService;
-			SubdivisionSelectorDefaultFactory =
-				(subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory)))
-				.CreateDefaultSubdivisionAutocompleteSelectorFactory();
 			CounterpartySelectorFactory =
 				(counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory();
@@ -82,6 +84,8 @@ namespace Vodovoz.ViewModels.Users
 				Entity.MovementDocumentsNotificationUserSelectedWarehouses);
 
 			_warehousesUserSelectionViewModel.ObservableWarehouses.ListContentChanged += OnWarehousesToNotifyListContentChanged;
+
+			SubdivisionViewModel = BuildSubdivisionViewModel();
 		}
 
 		private void OnWarehousesToNotifyListContentChanged(object sender, EventArgs e)
@@ -92,6 +96,17 @@ namespace Vodovoz.ViewModels.Users
 				WarehousesUserSelectionViewModel.ObservableWarehouses
 				.Select(w => w.WarehouseId)
 				.ToList();
+		}
+
+		public IEntityEntryViewModel SubdivisionViewModel { get; }
+
+		public IEntityEntryViewModel BuildSubdivisionViewModel()
+		{
+			return new CommonEEVMBuilderFactory<UserSettings>(this, Entity, UoW, NavigationManager, _lifetimeScope)
+				.ForProperty(x => x.DefaultSubdivision)
+				.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel>()
+				.UseViewModelDialog<SubdivisionViewModel>()
+				.Finish();
 		}
 
 		#region Свойства
@@ -121,7 +136,6 @@ namespace Vodovoz.ViewModels.Users
 		}
 		
 		public IInteractiveService InteractiveService { get; }
-		public IEntityAutocompleteSelectorFactory SubdivisionSelectorDefaultFactory { get; }
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 
 		public bool IsUserFromOkk => _subdivisionParametersProvider.GetOkkId()

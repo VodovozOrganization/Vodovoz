@@ -12,7 +12,7 @@ namespace Vodovoz.ViewWidgets
 
 		private global::Gtk.Label lblInProcAtDep;
 
-		private global::Gamma.Widgets.yEntryReference yentInProcessAtDepartment;
+		private global::QS.Views.Control.EntityEntry entryInProcessAtSubdivision;
 
 		private global::Gamma.GtkWidgets.yHBox hbxStatus;
 
@@ -40,7 +40,7 @@ namespace Vodovoz.ViewWidgets
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
 
-		private global::Gtk.Alignment GtkAlignment8;
+		private global::Gtk.Alignment GtkAlignment10;
 
 		private global::Gamma.GtkWidgets.yLabel lblInfo;
 
@@ -98,7 +98,7 @@ namespace Vodovoz.ViewWidgets
 
 		private global::Gtk.Frame frame2;
 
-		private global::Gtk.Alignment GtkAlignment15;
+		private global::Gtk.Alignment GtkAlignment17;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow2;
 
@@ -108,7 +108,7 @@ namespace Vodovoz.ViewWidgets
 
 		private global::Gtk.Frame frameResults;
 
-		private global::Gtk.Alignment GtkAlignment16;
+		private global::Gtk.Alignment GtkAlignment18;
 
 		private global::Gamma.GtkWidgets.yTable ytableResults;
 
@@ -130,7 +130,7 @@ namespace Vodovoz.ViewWidgets
 
 		private global::Gtk.Frame frame3;
 
-		private global::Gtk.Alignment GtkAlignment17;
+		private global::Gtk.Alignment GtkAlignment19;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow3;
 
@@ -168,11 +168,11 @@ namespace Vodovoz.ViewWidgets
 			w1.Position = 0;
 			w1.Expand = false;
 			// Container child hbxInProcessAtDepartment.Gtk.Box+BoxChild
-			this.yentInProcessAtDepartment = new global::Gamma.Widgets.yEntryReference();
-			this.yentInProcessAtDepartment.Events = ((global::Gdk.EventMask)(256));
-			this.yentInProcessAtDepartment.Name = "yentInProcessAtDepartment";
-			this.hbxInProcessAtDepartment.Add(this.yentInProcessAtDepartment);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbxInProcessAtDepartment[this.yentInProcessAtDepartment]));
+			this.entryInProcessAtSubdivision = new global::QS.Views.Control.EntityEntry();
+			this.entryInProcessAtSubdivision.Events = ((global::Gdk.EventMask)(256));
+			this.entryInProcessAtSubdivision.Name = "entryInProcessAtSubdivision";
+			this.hbxInProcessAtDepartment.Add(this.entryInProcessAtSubdivision);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbxInProcessAtDepartment[this.entryInProcessAtSubdivision]));
 			w2.Position = 1;
 			this.hbox4.Add(this.hbxInProcessAtDepartment);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.hbxInProcessAtDepartment]));
@@ -240,8 +240,10 @@ namespace Vodovoz.ViewWidgets
 			w10.Expand = false;
 			w10.Fill = false;
 			// Container child vbxWithControls.Gtk.Box+BoxChild
-			this.tblUndeliveryFields = new global::Gamma.GtkWidgets.yTable(((uint)(9)), ((uint)(3)), false);
+			this.tblUndeliveryFields = new global::Gamma.GtkWidgets.yTable();
 			this.tblUndeliveryFields.Name = "tblUndeliveryFields";
+			this.tblUndeliveryFields.NRows = ((uint)(9));
+			this.tblUndeliveryFields.NColumns = ((uint)(3));
 			this.tblUndeliveryFields.RowSpacing = ((uint)(6));
 			this.tblUndeliveryFields.ColumnSpacing = ((uint)(6));
 			// Container child tblUndeliveryFields.Gtk.Table+TableChild
@@ -299,18 +301,18 @@ namespace Vodovoz.ViewWidgets
 			global::Gtk.Viewport w14 = new global::Gtk.Viewport();
 			w14.ShadowType = ((global::Gtk.ShadowType)(0));
 			// Container child GtkViewport.Gtk.Container+ContainerChild
-			this.GtkAlignment8 = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
-			this.GtkAlignment8.Name = "GtkAlignment8";
-			this.GtkAlignment8.LeftPadding = ((uint)(12));
-			// Container child GtkAlignment8.Gtk.Container+ContainerChild
+			this.GtkAlignment10 = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
+			this.GtkAlignment10.Name = "GtkAlignment10";
+			this.GtkAlignment10.LeftPadding = ((uint)(12));
+			// Container child GtkAlignment10.Gtk.Container+ContainerChild
 			this.lblInfo = new global::Gamma.GtkWidgets.yLabel();
 			this.lblInfo.Name = "lblInfo";
 			this.lblInfo.Xalign = 0F;
 			this.lblInfo.LabelProp = global::Mono.Unix.Catalog.GetString("<b>?</b>");
 			this.lblInfo.UseMarkup = true;
 			this.lblInfo.Selectable = true;
-			this.GtkAlignment8.Add(this.lblInfo);
-			w14.Add(this.GtkAlignment8);
+			this.GtkAlignment10.Add(this.lblInfo);
+			w14.Add(this.GtkAlignment10);
 			this.GtkScrolledWindow1.Add(w14);
 			this.frame1.Add(this.GtkScrolledWindow1);
 			this.lblInfoCaption = new global::Gtk.Label();
@@ -338,7 +340,7 @@ namespace Vodovoz.ViewWidgets
 			// Container child hbxForNewOrder.Gtk.Box+BoxChild
 			this.lblTransferDate = new global::Gamma.GtkWidgets.yLabel();
 			this.lblTransferDate.Name = "lblTransferDate";
-			this.lblTransferDate.LabelProp = global::Mono.Unix.Catalog.GetString("Заказ не\nсоздан ");
+			this.lblTransferDate.LabelProp = global::Mono.Unix.Catalog.GetString("Заказ не\r\nсоздан ");
 			this.lblTransferDate.Justify = ((global::Gtk.Justification)(2));
 			this.hbxForNewOrder.Add(this.lblTransferDate);
 			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.hbxForNewOrder[this.lblTransferDate]));
@@ -469,6 +471,7 @@ namespace Vodovoz.ViewWidgets
 			this.yDateDispatcherCallTime.Date = new global::System.DateTime(0);
 			this.yDateDispatcherCallTime.IsEditable = true;
 			this.yDateDispatcherCallTime.AutoSeparation = true;
+			this.yDateDispatcherCallTime.HideButtonClearDate = false;
 			this.tblUndeliveryFields.Add(this.yDateDispatcherCallTime);
 			global::Gtk.Table.TableChild w33 = ((global::Gtk.Table.TableChild)(this.tblUndeliveryFields[this.yDateDispatcherCallTime]));
 			w33.TopAttach = ((uint)(3));
@@ -486,6 +489,7 @@ namespace Vodovoz.ViewWidgets
 			this.yDateDriverCallTime.Date = new global::System.DateTime(0);
 			this.yDateDriverCallTime.IsEditable = true;
 			this.yDateDriverCallTime.AutoSeparation = true;
+			this.yDateDriverCallTime.HideButtonClearDate = false;
 			this.tblUndeliveryFields.Add(this.yDateDriverCallTime);
 			global::Gtk.Table.TableChild w34 = ((global::Gtk.Table.TableChild)(this.tblUndeliveryFields[this.yDateDriverCallTime]));
 			w34.TopAttach = ((uint)(2));
@@ -601,10 +605,10 @@ namespace Vodovoz.ViewWidgets
 			this.frame2.Name = "frame2";
 			this.frame2.BorderWidth = ((uint)(3));
 			// Container child frame2.Gtk.Container+ContainerChild
-			this.GtkAlignment15 = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
-			this.GtkAlignment15.Name = "GtkAlignment15";
-			this.GtkAlignment15.LeftPadding = ((uint)(12));
-			// Container child GtkAlignment15.Gtk.Container+ContainerChild
+			this.GtkAlignment17 = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
+			this.GtkAlignment17.Name = "GtkAlignment17";
+			this.GtkAlignment17.LeftPadding = ((uint)(12));
+			// Container child GtkAlignment17.Gtk.Container+ContainerChild
 			this.GtkScrolledWindow2 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow2.Name = "GtkScrolledWindow2";
 			this.GtkScrolledWindow2.ShadowType = ((global::Gtk.ShadowType)(1));
@@ -614,8 +618,8 @@ namespace Vodovoz.ViewWidgets
 			this.txtReason.Name = "txtReason";
 			this.txtReason.WrapMode = ((global::Gtk.WrapMode)(2));
 			this.GtkScrolledWindow2.Add(this.txtReason);
-			this.GtkAlignment15.Add(this.GtkScrolledWindow2);
-			this.frame2.Add(this.GtkAlignment15);
+			this.GtkAlignment17.Add(this.GtkScrolledWindow2);
+			this.frame2.Add(this.GtkAlignment17);
 			this.lblReason = new global::Gtk.Label();
 			this.lblReason.Name = "lblReason";
 			this.lblReason.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Что случилось?</b>");
@@ -628,10 +632,10 @@ namespace Vodovoz.ViewWidgets
 			this.frameResults = new global::Gtk.Frame();
 			this.frameResults.Name = "frameResults";
 			// Container child frameResults.Gtk.Container+ContainerChild
-			this.GtkAlignment16 = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
-			this.GtkAlignment16.Name = "GtkAlignment16";
-			this.GtkAlignment16.LeftPadding = ((uint)(12));
-			// Container child GtkAlignment16.Gtk.Container+ContainerChild
+			this.GtkAlignment18 = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
+			this.GtkAlignment18.Name = "GtkAlignment18";
+			this.GtkAlignment18.LeftPadding = ((uint)(12));
+			// Container child GtkAlignment18.Gtk.Container+ContainerChild
 			this.ytableResults = new global::Gamma.GtkWidgets.yTable();
 			this.ytableResults.Name = "ytableResults";
 			this.ytableResults.NRows = ((uint)(3));
@@ -706,8 +710,8 @@ namespace Vodovoz.ViewWidgets
 			global::Gtk.Table.TableChild w55 = ((global::Gtk.Table.TableChild)(this.ytableResults[this.ylabelResults]));
 			w55.XOptions = ((global::Gtk.AttachOptions)(4));
 			w55.YOptions = ((global::Gtk.AttachOptions)(4));
-			this.GtkAlignment16.Add(this.ytableResults);
-			this.frameResults.Add(this.GtkAlignment16);
+			this.GtkAlignment18.Add(this.ytableResults);
+			this.frameResults.Add(this.GtkAlignment18);
 			this.GtkLabelFrameResults = new global::Gtk.Label();
 			this.GtkLabelFrameResults.Name = "GtkLabelFrameResults";
 			this.GtkLabelFrameResults.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Результаты</b>");
@@ -723,10 +727,10 @@ namespace Vodovoz.ViewWidgets
 			this.frame3.Name = "frame3";
 			this.frame3.BorderWidth = ((uint)(3));
 			// Container child frame3.Gtk.Container+ContainerChild
-			this.GtkAlignment17 = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
-			this.GtkAlignment17.Name = "GtkAlignment17";
-			this.GtkAlignment17.LeftPadding = ((uint)(12));
-			// Container child GtkAlignment17.Gtk.Container+ContainerChild
+			this.GtkAlignment19 = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
+			this.GtkAlignment19.Name = "GtkAlignment19";
+			this.GtkAlignment19.LeftPadding = ((uint)(12));
+			// Container child GtkAlignment19.Gtk.Container+ContainerChild
 			this.GtkScrolledWindow3 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow3.Name = "GtkScrolledWindow3";
 			this.GtkScrolledWindow3.ShadowType = ((global::Gtk.ShadowType)(1));
@@ -735,8 +739,8 @@ namespace Vodovoz.ViewWidgets
 			this.yTreeFines.CanFocus = true;
 			this.yTreeFines.Name = "yTreeFines";
 			this.GtkScrolledWindow3.Add(this.yTreeFines);
-			this.GtkAlignment17.Add(this.GtkScrolledWindow3);
-			this.frame3.Add(this.GtkAlignment17);
+			this.GtkAlignment19.Add(this.GtkScrolledWindow3);
+			this.frame3.Add(this.GtkAlignment19);
 			this.lblFines = new global::Gtk.Label();
 			this.lblFines.Name = "lblFines";
 			this.lblFines.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Штрафы</b>");

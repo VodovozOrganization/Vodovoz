@@ -30,6 +30,7 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using CounterpartyContractFactory = Vodovoz.Factories.CounterpartyContractFactory;
+using QS.Navigation;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -48,6 +49,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly RoboatsJournalsFactory _roboAtsCounterpartyJournalFactory;
 		private readonly IContactParametersProvider _contactsParameters;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
+		private readonly INavigationManager _navigationManager;
 
 		public BusinessTasksJournalActionsViewModel actionsViewModel { get; set; }
 
@@ -65,7 +67,8 @@ namespace Vodovoz.JournalViewModels
 			CounterpartyContractFactory counterpartyContractFactory,
 			RoboatsJournalsFactory roboAtsCounterpartyJournalFactory,
 			IContactParametersProvider contactsParameters,
-			ICounterpartyJournalFactory counterpartyJournalFactory
+			ICounterpartyJournalFactory counterpartyJournalFactory,
+			INavigationManager navigationManager
 		) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал задач для обзвона";
@@ -81,7 +84,8 @@ namespace Vodovoz.JournalViewModels
 			_roboAtsCounterpartyJournalFactory = roboAtsCounterpartyJournalFactory ?? throw new ArgumentNullException(nameof(roboAtsCounterpartyJournalFactory));
 			_contactsParameters = contactsParameters ?? throw new ArgumentNullException(nameof(contactsParameters));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
-			actionsViewModel = new BusinessTasksJournalActionsViewModel(new EmployeeJournalFactory());
+			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+			actionsViewModel = new BusinessTasksJournalActionsViewModel(new EmployeeJournalFactory(_navigationManager));
 
 			RegisterTasks();
 

@@ -203,7 +203,6 @@ namespace Vodovoz.Configuration
                     .TreeConfig(new RecursiveTreeConfig<ExpenseCategory>(x => x.Parent, x => x.Childs)).End(),
                 OrmObjectMapping<Expense>.Create().Dialog<ExpenseViewModel>(),
                 OrmObjectMapping<AdvanceReport>.Create().Dialog<AdvanceReportViewModel>(),
-                OrmObjectMapping<Fine>.Create().Dialog<FineDlg>(),
                 OrmObjectMapping<IncomeCashTransferDocument>.Create().Dialog<IncomeCashTransferView>(),
                 OrmObjectMapping<CommonCashTransferDocument>.Create().Dialog<CommonCashTransferView>(),
                 //Склад
@@ -264,9 +263,6 @@ namespace Vodovoz.Configuration
 
             #region неПростые справочники
 
-            OrmMain.AddObjectDescription<Subdivision>().Dialog<SubdivisionDlg>().DefaultTableView().SearchColumn("Название", x => x.Name)
-                .Column("Руководитель", x => x.Chief == null ? "" : x.Chief.ShortName).SearchColumn("Номер", x => x.Id.ToString())
-                .TreeConfig(new RecursiveTreeConfig<Subdivision>(x => x.ParentSubdivision, x => x.ChildSubdivisions)).End();
             OrmMain.AddObjectDescription<TypeOfEntity>()
                 .Dialog<TypeOfEntityDlg>()
                 .DefaultTableView()
