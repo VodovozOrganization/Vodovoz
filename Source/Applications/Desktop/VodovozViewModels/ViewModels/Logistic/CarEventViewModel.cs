@@ -333,7 +333,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		{
 			var page = NavigationManager.OpenViewModel<FinesJournalViewModel, Action<FineFilterViewModel>>(this, filter =>
 			{
-				filter.CanEditFilter = true;
 				filter.ExcludedIds = Entity.Fines.Select(x => x.Id).ToArray();
 			});
 

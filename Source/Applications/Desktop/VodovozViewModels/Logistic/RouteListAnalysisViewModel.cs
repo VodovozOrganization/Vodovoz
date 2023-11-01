@@ -208,10 +208,13 @@ namespace Vodovoz.ViewModels.Logistic
 		public DelegateCommand AttachFineCommand => attachFineCommand ?? (attachFineCommand = new DelegateCommand(
 			() =>
 			{
-				var page = NavigationManager.OpenViewModel<FinesJournalViewModel, Action<FineFilterViewModel>>(this, filter =>
-				{
-					filter.ExcludedIds = SelectedItem.Fines.Select(x => x.Id).ToArray();
-				});
+				var page = NavigationManager.OpenViewModel<FinesJournalViewModel, Action<FineFilterViewModel>>(
+					this,
+					filter =>
+					{
+						filter.CanEditFilter = false;
+						filter.ExcludedIds = SelectedItem.Fines.Select(x => x.Id).ToArray();
+					});
 
 				page.ViewModel.SelectionMode = JournalSelectionMode.Single;
 				page.ViewModel.OnEntitySelectedResult +=
@@ -254,10 +257,13 @@ namespace Vodovoz.ViewModels.Logistic
 			createDetachFineCommand ?? (createDetachFineCommand = new DelegateCommand(
 			() =>
 			{
-				var page = NavigationManager.OpenViewModel<FinesJournalViewModel, Action<FineFilterViewModel>>(this, filter =>
-				{
-					filter.ExcludedIds = SelectedItem.Fines.Select(x => x.Id).ToArray();
-				});
+				var page = NavigationManager.OpenViewModel<FinesJournalViewModel, Action<FineFilterViewModel>>(
+					this,
+					filter =>
+					{
+						filter.CanEditFilter = false;
+						filter.ExcludedIds = SelectedItem.Fines.Select(x => x.Id).ToArray();
+					});
 
 				page.ViewModel.SelectionMode = JournalSelectionMode.Single;
 				page.ViewModel.OnEntitySelectedResult +=
@@ -265,9 +271,11 @@ namespace Vodovoz.ViewModels.Logistic
 					{
 						var selectedNode = e.SelectedNodes.FirstOrDefault();
 						
-						if (selectedNode == null)
+						if(selectedNode == null)
+						{
 							return;
-						
+						}
+
 						var fine = UoW.GetById<Fine>(selectedNode.Id);
 
 						SelectedItem.RemoveFine(fine);

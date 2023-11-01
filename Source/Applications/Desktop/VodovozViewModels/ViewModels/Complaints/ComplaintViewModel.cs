@@ -461,10 +461,13 @@ namespace Vodovoz.ViewModels.Complaints
 			AttachFineCommand = new DelegateCommand(
 				() =>
 				{
-					var page = NavigationManager.OpenViewModel<FinesJournalViewModel, Action<FineFilterViewModel>>(this, filter =>
-					{
-						filter.ExcludedIds = Entity.Fines.Select(x => x.Id).ToArray();
-					});
+					var page = NavigationManager.OpenViewModel<FinesJournalViewModel, Action<FineFilterViewModel>>(
+						this,
+						filter =>
+						{
+							filter.CanEditFilter = false;
+							filter.ExcludedIds = Entity.Fines.Select(x => x.Id).ToArray();
+						});
 
 					page.ViewModel.SelectionMode = JournalSelectionMode.Single;
 					page.ViewModel.OnEntitySelectedResult += (sender, e) =>

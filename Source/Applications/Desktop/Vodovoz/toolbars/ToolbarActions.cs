@@ -804,7 +804,7 @@ public partial class MainWindow : Window
 
 	void ActionFinesJournal_Activated(object sender, System.EventArgs e)
 	{
-		NavigationManager.OpenViewModel<FinesJournalViewModel, Action<FineFilterViewModel>>(null, filter => filter.CanEditFilter = true);
+		NavigationManager.OpenViewModel<FinesJournalViewModel>(null);
 	}
 
 	void ActionPremiumJournal_Activated(object sender, System.EventArgs e)

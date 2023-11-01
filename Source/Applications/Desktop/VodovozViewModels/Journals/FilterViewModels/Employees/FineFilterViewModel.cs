@@ -22,9 +22,9 @@ namespace Vodovoz.FilterViewModels.Employees
 		private FinesJournalViewModel _journalViewModel;
 		private bool _canEditFilter;
 
-		public FineFilterViewModel(bool canEditFilter = false)
+		public FineFilterViewModel()
 		{
-			CanEditFilter = canEditFilter;
+			CanEditFilter = true;
 		}
 
 		public FinesJournalViewModel JournalViewModel
@@ -38,8 +38,8 @@ namespace Vodovoz.FilterViewModels.Employees
 
 				SubdivisionViewModel = subdivisionViewModelEntryViewModelBuilder
 					.ForProperty(x => x.Subdivision)
-					.UseViewModelDialog<SubdivisionViewModel>()
 					.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel>()
+					.UseViewModelDialog<SubdivisionViewModel>()
 					.Finish();
 
 				SubdivisionViewModel.IsEditable = CanEditSubdivision;
