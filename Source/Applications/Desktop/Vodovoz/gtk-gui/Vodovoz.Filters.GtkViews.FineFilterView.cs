@@ -37,6 +37,7 @@ namespace Vodovoz.Filters.GtkViews
 			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.entrySubdivision]));
 			w1.LeftAttach = ((uint)(1));
 			w1.RightAttach = ((uint)(2));
+			w1.XOptions = ((global::Gtk.AttachOptions)(0));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.label1 = new global::Gtk.Label();
@@ -59,6 +60,7 @@ namespace Vodovoz.Filters.GtkViews
 			w3.BottomAttach = ((uint)(2));
 			w3.LeftAttach = ((uint)(1));
 			w3.RightAttach = ((uint)(2));
+			w3.XOptions = ((global::Gtk.AttachOptions)(4));
 			w3.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ydateperiodpickerRouteList = new global::QS.Widgets.GtkUI.DateRangePicker();
@@ -72,6 +74,7 @@ namespace Vodovoz.Filters.GtkViews
 			w4.BottomAttach = ((uint)(3));
 			w4.LeftAttach = ((uint)(1));
 			w4.RightAttach = ((uint)(2));
+			w4.XOptions = ((global::Gtk.AttachOptions)(4));
 			w4.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ylabel1 = new global::Gamma.GtkWidgets.yLabel();
