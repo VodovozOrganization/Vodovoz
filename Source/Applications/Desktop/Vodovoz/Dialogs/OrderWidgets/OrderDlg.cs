@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
@@ -128,6 +128,8 @@ namespace Vodovoz
 		IAskSaveOnCloseViewModel,
 		IEdoLightsMatrixInfoProvider
 	{
+		private readonly int? _defaultCallBeforeArrival = 15;
+
 		private readonly ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		static Logger logger = LogManager.GetCurrentClassLogger();
 		private CancellationTokenSource _cancellationTokenCheckLiquidationSource;
@@ -654,6 +656,17 @@ namespace Vodovoz
 
 			chkCommentForDriver.Binding.AddBinding(Entity, c => c.HasCommentForDriver, w => w.Active).InitializeFromSource();
 
+			speciallistcomboboxCallBeforeArrivalMinutes.ItemsList = new int?[] { null, 15, 30, 60 };
+
+			speciallistcomboboxCallBeforeArrivalMinutes.Binding
+				.AddBinding(Entity, x => x.CallBeforeArrivalMinutes, x => x.SelectedItem)
+				.InitializeFromSource();
+
+			if(UoWGeneric.IsNew)
+			{
+				speciallistcomboboxCallBeforeArrivalMinutes.SelectedItem = _defaultCallBeforeArrival;
+			}
+
 			specialListCmbOurOrganization.ItemsList = UoW.GetAll<Organization>();
 			specialListCmbOurOrganization.Binding.AddBinding(Entity, o => o.OurOrganization, w => w.SelectedItem).InitializeFromSource();
 			specialListCmbOurOrganization.Sensitive = _canSetOurOrganization;
@@ -1013,6 +1026,15 @@ namespace Vodovoz
 			logisticsRequirementsView.ViewModel = new LogisticsRequirementsViewModel(Entity.LogisticsRequirements ?? GetLogisticsRequirements(), ServicesConfig.CommonServices);
 			UpdateEntityLogisticsRequirements();
 			logisticsRequirementsView.ViewModel.Entity.PropertyChanged += OnLogisticsRequirementsSelectionChanged;
+
+			UpdateCallBeforeArrivalVisibility();
+		}
+
+		private void UpdateCallBeforeArrivalVisibility()
+		{
+			var isNotFastDeliveryOrSelfDelivery = !(Entity.SelfDelivery || Entity.IsFastDelivery);
+
+			hboxCallBeforeArrival.Visible = isNotFastDeliveryOrSelfDelivery;
 		}
 
 		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs args)
@@ -1048,6 +1070,17 @@ namespace Vodovoz
 					break;
 				case nameof(Entity.Client.IsChainStore):
 					UpdateOrderAddressTypeWithUI();
+					break;
+				case nameof(Entity.SelfDelivery):
+				case nameof(Entity.IsFastDelivery):
+					var isNotFastDeliveryOrSelfDelivery = !(Entity.SelfDelivery || Entity.IsFastDelivery);
+
+					UpdateCallBeforeArrivalVisibility();
+
+					if(isNotFastDeliveryOrSelfDelivery)
+					{
+						Entity.CallBeforeArrivalMinutes = _defaultCallBeforeArrival;
+					}
 					break;
 			}
 		}

@@ -79,6 +79,7 @@ namespace DriverAPI.Library.Converters
 				IsFastDelivery = vodovozOrder.IsFastDelivery,
 				ContactlessDelivery = vodovozOrder.ContactlessDelivery,
 				AddedToRouteListTime = addedToRouteListTime.ToString("dd.MM.yyyyTHH:mm:ss"),
+				CallBeforeArrivalMinutes = vodovozOrder.CallBeforeArrivalMinutes,
 				Trifle = vodovozOrder.Trifle ?? 0,
 				SignatureType = _signatureTypeConverter.ConvertToApiSignatureType(vodovozOrder.SignatureType)
 			};
