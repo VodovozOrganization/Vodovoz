@@ -309,45 +309,38 @@ namespace Vodovoz
 
 		protected void AddOrders()
 		{
-			var filter = new OrderJournalFilterViewModel(
-				new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
-				new DeliveryPointJournalFactory(),
-				LifetimeScope)
-			{
-				ExceptIds = RouteListUoW.Root.Addresses.Select(address => address.Order.Id).ToArray()
-			};
-
 			var geoGrpIds = RouteListUoW.Root.GeographicGroups.Select(x => x.Id).ToArray();
-			if(geoGrpIds.Any()) {
-				GeoGroup geographicGroupAlias = null;
-				var districtIds = RouteListUoW.Session.QueryOver<District>()
-					.Left.JoinAlias(d => d.GeographicGroup, () => geographicGroupAlias)
-					.Where(() => geographicGroupAlias.Id.IsIn(geoGrpIds))
-					.Select
-					  (
-						  Projections.Distinct(
-						  Projections.Property<District>(x => x.Id)
-					  )
-					)
-					.List<int>()
-					.ToArray();
 
-				filter.IncludeDistrictsIds = districtIds;
-			}
+			var page = NavigationManager.OpenViewModelOnTdi<OrderForRouteListJournalViewModel, Action<OrderJournalFilterViewModel>>(Container, filter =>
+			{
+				filter.ExceptIds = RouteListUoW.Root.Addresses.Select(address => address.Order.Id).ToArray();
+				filter.RestrictStartDate = RouteListUoW.Root.Date.Date;
+				filter.RestrictEndDate = RouteListUoW.Root.Date.Date;
+				filter.RestrictFilterDateType = OrdersDateFilterType.DeliveryDate;
+				filter.RestrictStatus = OrderStatus.Accepted;
+				filter.RestrictWithoutSelfDelivery = true;
+				filter.RestrictOnlySelfDelivery = false;
+				filter.RestrictHideService = true;
+				filter.ExcludeClosingDocumentDeliverySchedule = true;
 
-			//Filter Creating
-			filter.SetAndRefilterAtOnce(
-				x => x.RestrictStartDate = RouteListUoW.Root.Date.Date,
-				x => x.RestrictEndDate = RouteListUoW.Root.Date.Date,
-				x => x.RestrictFilterDateType = OrdersDateFilterType.DeliveryDate,
-				x => x.RestrictStatus = OrderStatus.Accepted,
-				x => x.RestrictWithoutSelfDelivery = true,
-				x => x.RestrictOnlySelfDelivery = false,
-				x => x.RestrictHideService = true,
-				x => x.ExcludeClosingDocumentDeliverySchedule = true
-			);
+				if(geoGrpIds.Any())
+				{
+					GeoGroup geographicGroupAlias = null;
+					var districtIds = RouteListUoW.Session.QueryOver<District>()
+						.Left.JoinAlias(d => d.GeographicGroup, () => geographicGroupAlias)
+						.Where(() => geographicGroupAlias.Id.IsIn(geoGrpIds))
+						.Select
+						  (
+							  Projections.Distinct(
+							  Projections.Property<District>(x => x.Id)
+						  )
+						)
+						.List<int>()
+						.ToArray();
 
-			var page = NavigationManager.OpenViewModelOnTdi<OrderForRouteListJournalViewModel>(Container);
+					filter.IncludeDistrictsIds = districtIds;
+				}
+			});
 
 			page.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
 
@@ -355,14 +348,21 @@ namespace Vodovoz
 			page.ViewModel.OnEntitySelectedResult += (sender, ea) =>
 			{
 				var selectedIds = ea.SelectedNodes.Select(x => x.Id);
-				if(!selectedIds.Any()) {
+
+				if(!selectedIds.Any())
+				{
 					return;
 				}
-				foreach(var selectedId in selectedIds) {
+
+				foreach(var selectedId in selectedIds)
+				{
 					var order = RouteListUoW.GetById<Order>(selectedId);
-					if(order == null) {
+
+					if(order == null)
+					{
 						return;
 					}
+
 					RouteListUoW.Root.AddAddressFromOrder(order);
 				}
 			};
