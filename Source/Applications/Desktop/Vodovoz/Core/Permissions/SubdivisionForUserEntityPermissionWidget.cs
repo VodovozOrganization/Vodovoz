@@ -19,7 +19,7 @@ namespace Vodovoz.Core.Permissions
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class SubdivisionForUserEntityPermissionWidget : Gtk.Bin, IUserPermissionTab
 	{
-		private readonly ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private SubdivisionsJournalViewModel _subdivisionJVM;
 
@@ -184,7 +184,7 @@ namespace Vodovoz.Core.Permissions
 		public override void Destroy()
 		{
 			_lifetimeScope?.Dispose();
-
+			_lifetimeScope = null;
 			base.Destroy();
 		}
 	}
