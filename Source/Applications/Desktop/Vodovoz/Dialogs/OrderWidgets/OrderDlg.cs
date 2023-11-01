@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
@@ -2031,7 +2031,7 @@ namespace Vodovoz
 				return Result.Failure(Errors.Orders.Order.Save);
 			}
 
-			using(var transaction = UoW.Session.BeginTransaction())
+			//using(var transaction = UoW.Session.BeginTransaction())
 			{
 				try
 				{
@@ -2040,6 +2040,7 @@ namespace Vodovoz
 					if(acceptResult.IsSuccess)
 					{
 						UoW.Commit();
+						//transaction.Commit();
 					}
 
 					return acceptResult;
@@ -2047,19 +2048,19 @@ namespace Vodovoz
 				}
 				catch(Exception e)
 				{
-					if(!transaction.WasCommitted
-					   && !transaction.WasRolledBack
-					   && transaction.IsActive
-					   && UoW.Session.Connection.State == ConnectionState.Open)
-					{
-						try
-						{
-							transaction.Rollback();
-						}
-						catch { }
-					}
+					//if(!transaction.WasCommitted
+					//   && !transaction.WasRolledBack
+					//   && transaction.IsActive
+					//   && UoW.Session.Connection.State == ConnectionState.Open)
+					//{
+					//	try
+					//	{
+					//		transaction.Rollback();
+					//	}
+					//	catch { }
+					//}
 
-					transaction.Dispose();
+					//transaction.Dispose();
 
 					OnCloseTab(false);
 
