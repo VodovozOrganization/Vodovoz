@@ -159,7 +159,13 @@ namespace Vodovoz.Domain.Orders
 		public virtual bool IsFastDelivery
 		{
 			get => _isFastDelivery;
-			set => SetField(ref _isFastDelivery, value);
+			set
+			{
+				if(SetField(ref _isFastDelivery, value) && value)
+				{
+					CallBeforeArrivalMinutes = null;
+				}
+			}
 		}
 
 		private OrderStatus orderStatus;
@@ -334,11 +340,16 @@ namespace Vodovoz.Domain.Orders
 		private bool selfDelivery;
 
 		[Display(Name = "Самовывоз")]
-		public virtual bool SelfDelivery {
+		public virtual bool SelfDelivery
+		{
 			get => selfDelivery;
-			set {
-				if(SetField(ref selfDelivery, value, () => SelfDelivery) && value)
+			set
+			{
+				if(SetField(ref selfDelivery, value) && value)
+				{
 					IsContractCloser = false;
+					CallBeforeArrivalMinutes = null;
+				}
 			}
 		}
 
