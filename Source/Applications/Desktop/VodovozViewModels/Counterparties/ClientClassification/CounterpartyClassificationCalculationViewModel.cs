@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using MoreLinq;
 using NHibernate;
+using NHibernate.Linq;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -14,6 +15,9 @@ using System.Data;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Dynamic.Core;
+using System.Threading;
+using System.Threading.Tasks;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Services;
@@ -72,6 +76,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 		public event EventHandler<CalculationCompletedEventArgs> CalculationCompleted;
 
 		public CounterpartyClassificationCalculationSettings CalculationSettings { get; private set; }
+		public CancellationTokenSource ReportCancelationTokenSource { get; set; }
 
 		public string ProgressInfoLabelValue =>
 			IsCalculationCompleted
@@ -146,22 +151,99 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			_currentUserEmail = e.CurrentUserEmail;
 			_additionalEmail = e.AdditionalEmail;
 
-			//var task = Task.Run(() =>
-			//{
-			//	StartClassificationCalculation();
-			//});
+			IsCommandToStartCalculationReceived = true;
+		}
 
-			//await task;
+		public async Task StartClassificationCalculation(CancellationToken cancellationToken)
+		{
+			UpdateCalculationSettingsCreationDate();
+
+			var allCounterpartiesIdsAndNames =
+				_counterpartyRepository
+				.GetAllCounterpartyIdsAndNames(_uow);
+
+			CalculationProgress = 15;
+
+			var calculatedClassificationsForCounterpartiesWithOrders = await _counterpartyRepository
+				.CalculateCounterpartyClassifications(_uow, CalculationSettings)
+				.ToListAsync(cancellationToken);
+
+			CalculationProgress = 30;
+
+			var newClassificationsForAllCounterparties = (await GetNewClassificationsForAllCounterparties(
+				_uow,
+				calculatedClassificationsForCounterpartiesWithOrders,
+				cancellationToken))
+				.ToList();
+
+			CalculationProgress = 45;
+
+			var report = await ClassificationCalculationReport.CreateReport(
+				_uow,
+				_counterpartyRepository,
+				newClassificationsForAllCounterparties,
+				CalculationSettings.PeriodInMonths,
+				cancellationToken);
+
+			CalculationProgress = 60;
+
+			using(var transaction = _uow.Session.BeginTransaction())
+			{
+				InsertClassificationValuesToDatabase(_uow.Session,
+					newClassificationsForAllCounterparties,
+					_insertQueryElementsMaxCount,
+					cancellationToken);
+
+				CalculationProgress = 90;
+
+				cancellationToken.ThrowIfCancellationRequested();
+
+				_uow.Save(CalculationSettings);
+
+				cancellationToken.ThrowIfCancellationRequested();
+
+				transaction.Commit();
+			}
+
+			report.Export();
+
+			CalculationProgress = 100;
+		}
+
+		private async Task<IEnumerable<CounterpartyClassification>> GetNewClassificationsForAllCounterparties(
+			IUnitOfWork uow,
+			IEnumerable<CounterpartyClassification> calculatedClassifications,
+			CancellationToken cancellationToken)
+		{
+			var allCounterpartyIds = await uow.GetAll<Counterparty>().Select(co => co.Id).ToListAsync(cancellationToken);
+
+			var classificationForAllCounterparties =
+				from counterpartyId in allCounterpartyIds
+				join classification in calculatedClassifications on counterpartyId equals classification.CounterpartyId into classifications
+				from counterpartyClassification in classifications.DefaultIfEmpty()
+				select counterpartyClassification ??
+				new CounterpartyClassification
+				{
+					CounterpartyId = counterpartyId,
+					ClassificationCalculationDate = _creationDate
+				};
+
+			return classificationForAllCounterparties;
 		}
 
 		private void InsertClassificationValuesToDatabase(
 			ISession session,
-			IDictionary<int, CounterpartyClassification> classifications,
-			int insertQueryElementsMaxCount)
+			IEnumerable<CounterpartyClassification> classifications,
+			int insertQueryElementsMaxCount,
+			CancellationToken cancellationToken)
 		{
-			for(int i = 0; i < classifications.Values.Count; i += insertQueryElementsMaxCount)
+			var classificationsCount = classifications.Count();
+
+			for(int i = 0; i < classificationsCount; i += insertQueryElementsMaxCount)
 			{
-				var classificationsSubset = classifications.Values
+				cancellationToken.ThrowIfCancellationRequested();
+
+				var classificationsSubset = classifications
 					.Skip(i)
 					.Take(insertQueryElementsMaxCount)
 					.ToList();
@@ -208,83 +290,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			CalculationSettings.SettingsCreationDate = _creationDate;
 		}
 
-		#region Commands
-
-		#region StartClassificationCalculation
-		private DelegateCommand _startClassificationCalculationCommand;
-		public DelegateCommand StartClassificationCalculationCommand
-		{
-			get
-			{
-				if(_startClassificationCalculationCommand == null)
-				{
-					_startClassificationCalculationCommand = new DelegateCommand(StartClassificationCalculation, () => CanStartClassificationCalculation);
-					_startClassificationCalculationCommand.CanExecuteChangedWith(this, x => x.CanStartClassificationCalculation);
-				}
-				return _startClassificationCalculationCommand;
-			}
-		}
-
-		public bool CanStartClassificationCalculation => true;
-
-		private void StartClassificationCalculation()
-		{
-			bool isCalculationSuccessful = false;
-
-			UpdateCalculationSettingsCreationDate();
-
-			var allCounterpartiesIdsAndNames = _counterpartyRepository
-				.GetAllCounterpartyIdsAndNames(_uow);
-
-			CalculationProgress = 15;
-
-			var oldCounterpartyClassifications = _counterpartyRepository
-				.GetLastExistingClassificationsForCounterparties(_uow);
-
-			CalculationProgress = 30;
-
-			var newCounterpartyClassifications = _counterpartyRepository
-				.CalculateCounterpartyClassifications(_uow, CalculationSettings);
-
-			CalculationProgress = 45;
-
-			try
-			{
-				using(var transaction = _uow.Session.BeginTransaction())
-				{
-					InsertClassificationValuesToDatabase(_uow.Session, newCounterpartyClassifications, _insertQueryElementsMaxCount);
-
-					CalculationProgress = 70;
-
-					_uow.Save(CalculationSettings);
-
-					ClassificationCalculationReport.GenerateReport(
-						newCounterpartyClassifications,
-						oldCounterpartyClassifications,
-						allCounterpartiesIdsAndNames,
-						CalculationSettings.PeriodInMonths);
-
-					transaction.Commit();
-
-					CalculationProgress = 100;
-				}
-
-				isCalculationSuccessful = true;
-			}
-			catch(Exception ex)
-			{
-				_logger.LogError(ex.Message);
-
-				throw ex;
-			}
-			finally
-			{
-				CalculationCompleted?.Invoke(
-					this,
-					 new CalculationCompletedEventArgs { IsCalculationSuccessful = isCalculationSuccessful });
-			}
-		}
-		#endregion StartClassificationCalculation
+		#region Commands		
 
 		#region OpenEmailSettingsDialog
 		private DelegateCommand _openEmailSettingsDialogCommand;
@@ -332,7 +338,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 
 		private void Cancel()
 		{
-
+			ReportCancelationTokenSource?.Cancel();
 		}
 		#endregion Cancel
 

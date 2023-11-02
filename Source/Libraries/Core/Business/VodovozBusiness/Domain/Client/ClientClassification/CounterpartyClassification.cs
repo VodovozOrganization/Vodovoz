@@ -38,7 +38,7 @@ namespace Vodovoz.Domain.Client.ClientClassification
 			if(calculationSettings.PeriodInMonths > 0)
 			{
 				BottlesPerMonthAverageCount = bottlesCount / calculationSettings.PeriodInMonths;
-				OrdersPerMonthAverageCount = bottlesCount / calculationSettings.PeriodInMonths;
+				OrdersPerMonthAverageCount = ordersCount / calculationSettings.PeriodInMonths;
 				MoneyTurnoverPerMonthAverageSum = moneyTurnoverSum / calculationSettings.PeriodInMonths;
 			}
 
@@ -149,22 +149,27 @@ namespace Vodovoz.Domain.Client.ClientClassification
 
 		public static bool operator ==(CounterpartyClassification classification1, CounterpartyClassification classification2)
 		{
-			return IsClassificationsEquals(classification1, classification2);
+			return classification1.Equals(classification2);
 		}
 
 		public static bool operator !=(CounterpartyClassification classification1, CounterpartyClassification classification2)
 		{
-			return !IsClassificationsEquals(classification1, classification2);
+			return !classification1.Equals(classification2);
 		}
 
-		private static bool IsClassificationsEquals(CounterpartyClassification classification1, CounterpartyClassification classification2)
+		public override bool Equals(object obj)
 		{
-			return classification1.CounterpartyId == classification2.CounterpartyId
-				&& classification1.ClassificationByBottlesCount == classification2.ClassificationByBottlesCount
-				&& classification1.ClassificationByOrdersCount == classification2.ClassificationByOrdersCount
-				&& classification1.BottlesPerMonthAverageCount == classification2.BottlesPerMonthAverageCount
-				&& classification1.OrdersPerMonthAverageCount == classification2.OrdersPerMonthAverageCount
-				&& classification1.MoneyTurnoverPerMonthAverageSum == classification2.MoneyTurnoverPerMonthAverageSum;
+			if(obj is CounterpartyClassification c)
+			{
+				return this.CounterpartyId == c.CounterpartyId
+					&& this.ClassificationByBottlesCount == c.ClassificationByBottlesCount
+					&& this.ClassificationByOrdersCount == c.ClassificationByOrdersCount
+					&& this.BottlesPerMonthAverageCount == c.BottlesPerMonthAverageCount
+					&& this.OrdersPerMonthAverageCount == c.OrdersPerMonthAverageCount
+					&& this.MoneyTurnoverPerMonthAverageSum == c.MoneyTurnoverPerMonthAverageSum;
+			}
+
+			return false;
 		}
 	}
 }

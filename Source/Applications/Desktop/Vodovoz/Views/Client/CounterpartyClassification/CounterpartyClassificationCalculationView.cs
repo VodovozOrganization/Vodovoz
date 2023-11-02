@@ -1,11 +1,9 @@
-﻿using Gamma.GtkWidgets;
-using Gtk;
+﻿using Gtk;
 using QS.Dialog.GtkUI;
-using QS.Utilities;
 using QS.Views.GtkUI;
 using System;
 using System.ComponentModel;
-using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.ViewModels.Counterparties.ClientClassification;
 using static Vodovoz.ViewModels.Counterparties.ClientClassification.CounterpartyClassificationCalculationViewModel;
@@ -80,52 +78,17 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 			ylabelCalculationinfo.Binding
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.ProgressInfoLabelValue, w => w.Text)
-				.AddFuncBinding(vm => vm.IsCalculationInProcess ||  vm.IsCalculationCompleted, w => w.Visible)
+				.AddFuncBinding(vm => vm.IsCalculationInProcess || vm.IsCalculationCompleted, w => w.Visible)
 				.InitializeFromSource();
 
 			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
 		}
 
-		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+		private async void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
 			if(e.PropertyName == nameof(ViewModel.IsCommandToStartCalculationReceived))
 			{
-				var task = Task.Run(() =>
-				{
-					ViewModel.IsCalculationInProcess = true;
-					ViewModel.CalculationProgress = 0;
-
-					try
-					{
-						ViewModel.StartClassificationCalculationCommand.Execute();
-					}
-					catch(OperationCanceledException)
-					{
-						Gtk.Application.Invoke((s, eventArgs) => {
-							//if(ViewModel.LastGenerationErrors.Any())
-							//{
-							//	ViewModel.ShowWarning(string.Join("\n", ViewModel.LastGenerationErrors));
-							//	ViewModel.LastGenerationErrors = Enumerable.Empty<string>();
-							//}
-							//else
-							//{
-							//	ViewModel.ShowWarning("Формирование отчета было прервано");
-							//}
-						});
-					}
-					catch(Exception ex)
-					{
-						Gtk.Application.Invoke((s, eventArgs) => { throw ex; });
-					}
-					finally
-					{
-						Gtk.Application.Invoke((s, eventArgs) => 
-						{
-							ViewModel.IsCalculationInProcess = false;
-							ViewModel.IsCalculationCompleted = true;
-						});
-					}
-				});
+				await StartCalculation();
 			}
 			if(e.PropertyName == nameof(ViewModel.CalculationProgress))
 			{
@@ -134,6 +97,47 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 					yprogressbarCalculationProgress.Adjustment.Value = ViewModel.CalculationProgress;
 				});
 			}
+		}
+
+		private async Task StartCalculation()
+		{
+			if(ViewModel.ReportCancelationTokenSource != null)
+			{
+				return;
+			}
+
+			var task = Task.Run(async () =>
+			{
+				ViewModel.IsCalculationInProcess = true;
+				ViewModel.CalculationProgress = 0;
+
+				ViewModel.ReportCancelationTokenSource = new CancellationTokenSource();
+
+				try
+				{
+					await ViewModel.StartClassificationCalculation(ViewModel.ReportCancelationTokenSource.Token);
+				}
+				catch(OperationCanceledException)
+				{
+					Gtk.Application.Invoke((s, eventArgs) =>
+					{
+						MessageDialogHelper.RunInfoDialog($"Операция отменена!");
+					});
+				}
+				catch(Exception ex)
+				{
+					Gtk.Application.Invoke((s, eventArgs) => { throw ex; });
+				}
+				finally
+				{
+					ViewModel.IsCalculationInProcess = false;
+					ViewModel.IsCalculationCompleted = true;
+
+					ViewModel.ReportCancelationTokenSource?.Dispose();
+				}
+			});
+
+			await task;
 		}
 
 		private void OnCalculationCompleted(object sender, System.EventArgs e)

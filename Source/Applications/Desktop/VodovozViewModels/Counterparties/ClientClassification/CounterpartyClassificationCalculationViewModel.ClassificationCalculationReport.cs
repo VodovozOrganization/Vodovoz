@@ -3,11 +3,17 @@ using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using MoreLinq;
 using MoreLinq.Extensions;
+using NHibernate.Linq;
+using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
+using System.Threading;
+using System.Threading.Tasks;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
+using Vodovoz.EntityRepositories.Counterparties;
 
 namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 {
@@ -15,8 +21,9 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 	{
 		public class ClassificationCalculationReport
 		{
-			private int _period;
-			private string _lastReportDate;
+			private readonly IEnumerable<ClassificationCalculationReportRow> _reportRows;
+			private readonly int _periodInMonth;
+			private readonly DateTime _lastCalculationDate;
 
 			private const double _defaultColumnWidth = 16;
 			private uint _defaultCellFormatId;
@@ -26,92 +33,104 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			private uint _doublePrecisionDecimalFormatId;
 
 			public ClassificationCalculationReport(
-				IDictionary<int, CounterpartyClassification> newClassifications,
-				IDictionary<int, CounterpartyClassification> oldClassifications,
-				IDictionary<int, string> counterpartyNames,
-				int periodInMonth)
+				IEnumerable<ClassificationCalculationReportRow> reportRows,
+				int periodInMonth,
+				DateTime lastCalculationDate)
 			{
-				_period = periodInMonth;
-
-				var lastReportDate = oldClassifications.Select(c => c.Value.ClassificationCalculationDate)
-					.OrderByDescending(c => c)
-					.FirstOrDefault();
-
-				_lastReportDate =
-					lastReportDate == default
-					? "не выполнялось"
-					: lastReportDate.ToString("dd.MM.yyyy");
-
-				var rows = CreateRows(newClassifications, oldClassifications, counterpartyNames);
-
-				Export(rows);
+				_reportRows = reportRows ?? new List<ClassificationCalculationReportRow>();
+				_periodInMonth = periodInMonth;
+				_lastCalculationDate = lastCalculationDate;
 			}
 
 			public string Title =>
-				$"ОТЧЁТ ОБ ИЗМЕНЕНИИ КАТЕГОРИИ КЛИЕНТОВ ОТ {DateTime.Now.ToString("dd.MM.yyyy")} за Период в {_period} месяца";
+				$"ОТЧЁТ ОБ ИЗМЕНЕНИИ КАТЕГОРИИ КЛИЕНТОВ ОТ {DateTime.Now.ToString("dd.MM.yyyy")} за Период в {_periodInMonth} месяца";
 
-			public static ClassificationCalculationReport GenerateReport(
-				IDictionary<int, CounterpartyClassification> newClassifications,
-				IDictionary<int, CounterpartyClassification> oldClassifications,
-				IDictionary<int, string> counterpartyNames,
-				int periodInMonth)
+			public void Export()
 			{
-				var report = new ClassificationCalculationReport(
+				Export(_reportRows);
+			}
+
+			public static async Task<ClassificationCalculationReport> CreateReport(
+				IUnitOfWork uow,
+				ICounterpartyRepository counterpartyRepository,
+				IEnumerable<CounterpartyClassification> newClassifications,
+				int periodInMonth,
+				CancellationToken cancellationToken)
+			{
+				var lastCalculationDate = (await counterpartyRepository
+					.GetCounterpartyClassificationLastCalculationDate(uow)
+					.ToListAsync(cancellationToken))
+					.FirstOrDefault();
+
+				var oldClassifications = GetLasExistingClassifications(
+					uow,
+					counterpartyRepository,
+					lastCalculationDate);
+
+				var rows = await CreateRows(
+					uow,
 					newClassifications,
 					oldClassifications,
-					counterpartyNames,
-					periodInMonth);
+					cancellationToken);
+
+				var report = new ClassificationCalculationReport(
+					rows,
+					periodInMonth,
+					lastCalculationDate);
 
 				return report;
 			}
 
-			private IEnumerable<ClassificationCalculationReportRow> CreateRows(
-				IDictionary<int, CounterpartyClassification> newClassifications,
-				IDictionary<int, CounterpartyClassification> oldClassifications,
-				IDictionary<int, string> counterpartyNames)
+			private static async Task<IEnumerable<ClassificationCalculationReportRow>> CreateRows(
+				IUnitOfWork uow,
+				IEnumerable<CounterpartyClassification> newClassifications,
+				IEnumerable<CounterpartyClassification> oldClassifications,
+				CancellationToken cancellationToken)
 			{
-				var rows = new List<ClassificationCalculationReportRow>();
+				var counterpartiesNames = await uow.GetAll<Counterparty>()
+					.Select(c => new { Id = c.Id, Name = c.Name })
+					.ToListAsync(cancellationToken);
 
-				foreach(var classification in newClassifications.Values)
-				{
-					var hasOldClassification =
-						oldClassifications.TryGetValue(classification.CounterpartyId, out CounterpartyClassification oldClassification);
-
-					if(hasOldClassification
-						&& classification.ClassificationByBottlesCount == oldClassification.ClassificationByBottlesCount
-						&& classification.ClassificationByOrdersCount == oldClassification.ClassificationByOrdersCount)
-					{
-						continue;
-					}
-
-					var row = new ClassificationCalculationReportRow();
-
-					row.CounterpartyId = classification.CounterpartyId;
-
-					row.CounterpartyName =
-						counterpartyNames.TryGetValue(classification.CounterpartyId, out string name)
-						? name
-						: $"Имя не указано. Id = {classification.CounterpartyId}";
-
-					row.NewAverageBottlesCount = classification.BottlesPerMonthAverageCount;
-					row.NewAverageOrdersCount = classification.OrdersPerMonthAverageCount;
-					row.NewAverageMoneyTurnoverSum = classification.MoneyTurnoverPerMonthAverageSum;
-					row.NewClassificationByBottles = classification.ClassificationByBottlesCount;
-					row.NewClassificationByOrders = classification.ClassificationByOrdersCount;
-
-					if(hasOldClassification)
-					{
-						row.OldAverageBottlesCount = oldClassification.BottlesPerMonthAverageCount;
-						row.OldAverageOrdersCount = oldClassification.OrdersPerMonthAverageCount;
-						row.OldAverageMoneyTurnoverSum = oldClassification.MoneyTurnoverPerMonthAverageSum;
-						row.OldClassificationByBottles = oldClassification.ClassificationByBottlesCount;
-						row.OldClassificationByOrders = oldClassification.ClassificationByOrdersCount;
-					}
-
-					rows.Add(row);
-				}
+				var rows = from newClassification in newClassifications
+						   join counterpartyName in counterpartiesNames on newClassification.CounterpartyId equals counterpartyName.Id
+						   join oc in oldClassifications on newClassification.CounterpartyId equals oc.CounterpartyId into merged
+						   from oldClassification in merged.DefaultIfEmpty()
+						   where newClassification.ClassificationByBottlesCount != oldClassification?.ClassificationByBottlesCount
+							  || newClassification.ClassificationByOrdersCount != oldClassification?.ClassificationByOrdersCount
+						   select new ClassificationCalculationReportRow
+						   {
+							   CounterpartyId = newClassification.CounterpartyId,
+							   CounterpartyName = counterpartyName.Name,
+							   NewAverageBottlesCount = newClassification.BottlesPerMonthAverageCount,
+							   NewAverageOrdersCount = newClassification.OrdersPerMonthAverageCount,
+							   NewAverageMoneyTurnoverSum = newClassification.MoneyTurnoverPerMonthAverageSum,
+							   NewClassificationByBottles = newClassification.ClassificationByBottlesCount,
+							   NewClassificationByOrders = newClassification.ClassificationByOrdersCount,
+							   OldAverageBottlesCount = oldClassification?.BottlesPerMonthAverageCount,
+							   OldAverageOrdersCount = oldClassification?.OrdersPerMonthAverageCount,
+							   OldAverageMoneyTurnoverSum = oldClassification?.MoneyTurnoverPerMonthAverageSum,
+							   OldClassificationByBottles = oldClassification?.ClassificationByBottlesCount,
+							   OldClassificationByOrders = oldClassification?.ClassificationByOrdersCount
+						   };
 
 				return rows;
+			}
+
+			private static IEnumerable<CounterpartyClassification> GetLasExistingClassifications(
+				IUnitOfWork uow,
+				ICounterpartyRepository counterpartyRepository,
+				DateTime lastCalculationDate)
+			{
+				if(lastCalculationDate == default)
+				{
+					return new List<CounterpartyClassification>();
+				}
+
+				var lastExistingClassifications = counterpartyRepository
+					.GetLastExistingClassificationsForCounterparties(uow, lastCalculationDate)
+					.ToList();
+
+				return lastExistingClassifications;
 			}
 
 			private void Export(IEnumerable<ClassificationCalculationReportRow> rows)
@@ -132,9 +151,10 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 
 					var sheetData = new SheetData();
 					sheetData.Append(GetTableTitleRow());
-					sheetData.Append(GetLastReportInfoRow(_lastReportDate));
+					sheetData.Append(GetLastReportInfoRow(_lastCalculationDate));
 					sheetData.Append(GetEmptyRow());
 					sheetData.Append(GetGroupedByBottlesClassificationsRows(rows));
+					sheetData.Append(GetEmptyRow());
 					sheetData.Append(GetGroupedByOrdersClassificationsRows(rows));
 					worksheetPart.Worksheet.Append(sheetData);
 
@@ -272,11 +292,17 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 				return row;
 			}
 
-			private Row GetLastReportInfoRow(string lastReportDate)
+			private Row GetLastReportInfoRow(DateTime lastCalculationDate)
 			{
 				var row = new Row();
 
-				var value = $"Дата последнего пересчета: {lastReportDate}";
+				var lastCalculationDateString =
+					lastCalculationDate == default
+					? "не выполнялся"
+					: lastCalculationDate.ToString("dd.MM.yyyy");
+
+				var value = $"Дата последнего пересчета: {lastCalculationDateString}";
+
 				row.AppendChild(GetTableTitleStringCell(value));
 
 				return row;

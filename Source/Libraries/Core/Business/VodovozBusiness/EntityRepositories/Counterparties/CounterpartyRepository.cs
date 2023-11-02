@@ -312,75 +312,66 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			var query = from c in uow.GetAll<Counterparty>()
 						select new { c.Id, c.Name };
 
-			var ids = query.ToDictionary(c => c.Id, c => c.Name);
+			var ids = query.ToList().ToDictionary(c => c.Id, c => c.Name);
 
 			return ids;
 		}
 
-		public IDictionary<int, CounterpartyClassification> GetLastExistingClassificationsForCounterparties(IUnitOfWork uow)
+		public IQueryable<DateTime> GetCounterpartyClassificationLastCalculationDate(IUnitOfWork uow)
 		{
-			var lastCalculationDate = uow.Session.Query<CounterpartyClassification>()
+			var query = uow.Session.Query<CounterpartyClassification>()
 				.OrderByDescending(c => c.Id)
 				.Select(c => c.ClassificationCalculationDate)
-				.FirstOrDefault();
+				.Take(1);
 
-			if(lastCalculationDate == default)
-			{
-				return new Dictionary<int, CounterpartyClassification>();
-			}
-
-			var query =
-				from c in uow.Session.Query<CounterpartyClassification>()
-				where c.ClassificationCalculationDate == lastCalculationDate
-				group c by c.CounterpartyId into groups
-				select groups.First();
-
-			var classifications = query.ToDictionary(c => c.CounterpartyId);
-
-			return classifications;
+			return query;
 		}
 
-		public IDictionary<int, CounterpartyClassification> CalculateCounterpartyClassifications(
+		public IQueryable<CounterpartyClassification> GetLastExistingClassificationsForCounterparties(
+			IUnitOfWork uow,
+			DateTime lastCalculationDate)
+		{
+			var query = uow.GetAll<CounterpartyClassification>()
+				.Where(c => c.ClassificationCalculationDate == lastCalculationDate)
+				.Select(c => c);
+
+			return query;
+		}
+
+		public IQueryable<CounterpartyClassification> CalculateCounterpartyClassifications(
 			IUnitOfWork uow,
 			CounterpartyClassificationCalculationSettings calculationSettings)
 		{
-			var creationDate = DateTime.Now;
+			var creationDate = calculationSettings.SettingsCreationDate;
 
 			var dateFrom = creationDate.Date.AddMonths(-calculationSettings.PeriodInMonths);
 			var dateTo = creationDate.Date.AddDays(1);
 
-			var calculatedClassifications =
-				(from o in uow.Session.Query<Domain.Orders.Order>()
-				 join oi in uow.GetAll<OrderItem>() on o.Id equals oi.Order.Id
-				 join n in uow.GetAll<Nomenclature>() on oi.Nomenclature.Id equals n.Id
-				 where
-					 o.DeliveryDate < dateTo
-					 && o.DeliveryDate >= dateFrom
-					 && o.OrderStatus == OrderStatus.Closed
-				 group new { Order = o, Item = oi, Nomenclature = n } by new { CleintId = o.Client.Id } into clientsGroups
-				 select new CounterpartyClassification
-				 (
-					 clientsGroups.Key.CleintId,
-					 clientsGroups.Sum(data =>
-							 (data.Nomenclature.Category == NomenclatureCategory.water
-								 && data.Nomenclature.TareVolume == TareVolume.Vol19L)
-							 ? data.Item.Count
-							 : 0),
-					 clientsGroups.Select(data =>
-							 data.Order.Id).Distinct().Count(),
-					 clientsGroups.Sum(data =>
-							 (data.Item.ActualCount ?? data.Item.Count) * data.Item.Price - data.Item.DiscountMoney),
-					 creationDate,
-					 calculationSettings)).ToList();
+			var query =
+				from o in uow.Session.Query<Domain.Orders.Order>()
+				join oi in uow.GetAll<OrderItem>() on o.Id equals oi.Order.Id
+				join n in uow.GetAll<Nomenclature>() on oi.Nomenclature.Id equals n.Id
+				where
+					o.DeliveryDate < dateTo
+					&& o.DeliveryDate >= dateFrom
+					&& o.OrderStatus == OrderStatus.Closed
+				group new { Order = o, Item = oi, Nomenclature = n } by new { CleintId = o.Client.Id } into clientsGroups
+				select new CounterpartyClassification
+				(
+					clientsGroups.Key.CleintId,
+					clientsGroups.Sum(data =>
+							(data.Nomenclature.Category == NomenclatureCategory.water
+								&& data.Nomenclature.TareVolume == TareVolume.Vol19L)
+							? data.Item.Count
+							: 0),
+					clientsGroups.Select(data =>
+							data.Order.Id).Distinct().Count(),
+					clientsGroups.Sum(data =>
+							(data.Item.ActualCount ?? data.Item.Count) * data.Item.Price - data.Item.DiscountMoney),
+					creationDate,
+					calculationSettings);
 
-			var classificationsForAllExistingCounterparties =
-				(from c in uow.Session.Query<Counterparty>().Select(c => c.Id).ToList()
-				 join cl in calculatedClassifications on c equals cl.CounterpartyId into counterpartyClassifications
-				 from counterpartyClassification in counterpartyClassifications.DefaultIfEmpty()
-				 select counterpartyClassification ?? new CounterpartyClassification() { CounterpartyId = c, ClassificationCalculationDate = creationDate })
-				.ToDictionary(c => c.CounterpartyId);
-
-			return classificationsForAllExistingCounterparties;
+			return query;
 		}
 	}
 }
