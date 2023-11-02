@@ -156,6 +156,7 @@ namespace Vodovoz
 				.Finish();
 
 			entryRouteList.ViewModel.Changed += OnYentryrefRouteListChanged;
+			OnYentryrefRouteListChanged(null, EventArgs.Empty);
 
 			entryRouteList.Sensitive = ySpecCmbWarehouses.Sensitive = ytextviewCommnet.Editable = editing;
 			returnsreceptionview.Sensitive =
