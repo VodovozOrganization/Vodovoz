@@ -1,4 +1,4 @@
-using NHibernate.Transform;
+﻿using NHibernate.Transform;
 using QS.Project.Filter;
 using QS.RepresentationModel.GtkUI;
 using System;
@@ -28,7 +28,6 @@ namespace Vodovoz.Filters.ViewModels
 		private int? _counterpartyId;
 		private int? _counterpartyVodovozInternalId;
 		private string _counterpartyInn;
-		private string _deliveryPointAddressLike;
 		private bool _showLiquidating;
 		private readonly CompositeSearchViewModel _searchByAddressViewModel;
 

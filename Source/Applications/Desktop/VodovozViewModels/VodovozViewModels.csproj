@@ -75,6 +75,9 @@
     <Compile Include="Counterparties\SubtypesJournalViewModel.cs" />
     <Compile Include="Counterparties\SubtypesJournalViewModel.Node.cs" />
     <Compile Include="Counterparties\SubtypeViewModel.cs" />
+    <Compile Include="Counterparties\TagJournalViewModel.cs" />
+    <Compile Include="Counterparties\TagJournalViewModel.TagJournalNode.cs" />
+    <Compile Include="Counterparties\TagViewModel.cs" />
     <Compile Include="Dialogs\Complaints\ComplaintsJournalsViewModel.cs" />
     <Compile Include="Dialogs\Complaints\ResponsibleViewModel.cs" />
     <Compile Include="Dialogs\Counterparty\CloseSupplyToCounterpartyViewModel.cs" />

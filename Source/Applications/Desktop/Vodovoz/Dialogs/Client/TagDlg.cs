@@ -1,46 +1,28 @@
-﻿using NLog;
-using QS.Dialog.Gtk;
-using QS.DomainModel.UoW;
-using Vodovoz.Domain.Client;
+﻿using QS.Views.GtkUI;
+using System.ComponentModel;
 using Vodovoz.Infrastructure.Converters;
+using Vodovoz.ViewModels.Counterparties;
 
 namespace Vodovoz.Dialogs.Client
 {
-	[System.ComponentModel.ToolboxItem(true)]
-	public partial class TagDlg : EntityDialogBase<Tag>
+	[ToolboxItem(true)]
+	public partial class TagDlg : TabViewBase<TagViewModel>
 	{
-		protected static Logger logger = LogManager.GetCurrentClassLogger();
-
-		public TagDlg()
+		public TagDlg(TagViewModel viewModel)
+			: base(viewModel)
 		{
-			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Tag>();
-			ConfigureDlg();
+			Initialize();
 		}
 
-		public TagDlg(int id)
+		private void Initialize()
 		{
-			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Tag>(id);
-			ConfigureDlg();
-		}
+			entryName1.Binding
+				.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text)
+				.InitializeFromSource();
 
-		public TagDlg(Tag entity) : this(entity.Id)
-		{
-		}
-
-		public override bool Save()
-		{
-			logger.Info("Сохраняем  тег контрагента...");
-			UoWGeneric.Save();
-			logger.Info("Ok");
-			return true;
-		}
-
-		private void ConfigureDlg()
-		{
-			entryName1.Binding.AddBinding(Entity, x => x.Name, x => x.Text).InitializeFromSource();
-			ycolorbutton.Binding.AddBinding(Entity, x => x.ColorText, x => x.Color, new ColorTextToGdkColorConverter()).InitializeFromSource();
+			ycolorbutton.Binding
+				.AddBinding(ViewModel.Entity, e => e.ColorText, w => w.Color, new ColorTextToGdkColorConverter())
+				.InitializeFromSource();
 		}
 	}
 }
