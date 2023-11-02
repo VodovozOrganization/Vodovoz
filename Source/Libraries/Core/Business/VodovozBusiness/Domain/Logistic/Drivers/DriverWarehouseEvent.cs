@@ -30,7 +30,7 @@ namespace Vodovoz.Domain.Logistic.Drivers
 			set => SetField(ref _longitude, value);
 		}
 		
-		public bool IsArchive
+		public virtual bool IsArchive
 		{
 			get => _isArchive;
 			set => SetField(ref _isArchive, value);
@@ -47,12 +47,23 @@ namespace Vodovoz.Domain.Logistic.Drivers
 			get => _type;
 			set => SetField(ref _type, value);
 		}
+
+		public virtual void WriteCoordinates(decimal? latitude, decimal? longitude)
+		{
+			Latitude = latitude;
+			Longitude = longitude;
+		}
 		
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(EventName is null)
 			{
 				yield return new ValidationResult(DriverWarehouseEventName.EventNameIsNull);
+			}
+
+			if(Type == DriverWarehouseEventType.OnLocation && (Latitude is null || Longitude is null))
+			{
+				yield return new ValidationResult("Не заполнены или неправильно заполнены координаты");
 			}
 		}
 	}

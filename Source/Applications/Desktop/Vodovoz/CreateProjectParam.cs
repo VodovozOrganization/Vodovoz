@@ -262,6 +262,8 @@ using Vodovoz.ViewModels.ReportsParameters;
 using Vodovoz.Application.Services;
 using Vodovoz.ViewModels.AdministrationTools;
 using Vodovoz.AdministrationTools;
+using Vodovoz.ViewModels.ViewModels.Reports.Logistics;
+using VodovozInfrastructure.Services;
 
 namespace Vodovoz
 {
@@ -422,6 +424,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<UndeliveryDetalizationViewModel, UndeliveryDetalizationView>()
 				.RegisterWidgetForTabViewModel<DriverWarehouseEventNameViewModel, DriverWarehouseEventNameView>()
 				.RegisterWidgetForTabViewModel<DriverWarehouseEventViewModel, DriverWarehouseEventView>()
+				.RegisterWidgetForTabViewModel<DriversWarehousesEventsReportViewModel, DriversWarehousesEventsReportView>()
 				;
 
 			//Регистрация виджетов
@@ -817,6 +820,7 @@ namespace Vodovoz
 			builder.RegisterType<SelfDeliveryCashOrganisationDistributor>().As<ISelfDeliveryCashOrganisationDistributor>();
 
 			builder.RegisterType<CounterpartyService>().As<ICounterpartyService>().InstancePerLifetimeScope();
+			builder.RegisterType<CoordinatesParser>().As<ICoordinatesParser>();
 
 			#endregion
 

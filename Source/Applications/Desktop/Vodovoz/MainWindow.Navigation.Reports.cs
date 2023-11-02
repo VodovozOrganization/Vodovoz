@@ -48,6 +48,7 @@ using Vodovoz.ViewModels.ViewModels.Reports;
 using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
 using Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport;
 using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
+using Vodovoz.ViewModels.ViewModels.Reports.Logistics;
 using Vodovoz.ViewModels.ViewModels.Reports.Sales;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
 using Vodovoz.ViewModels.ViewModels.Warehouses;
@@ -903,6 +904,16 @@ public partial class MainWindow
 	protected void OnActionFastDeliveryPercentCoverageReportActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<FastDeliveryPercentCoverageReportViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+	
+	/// <summary>
+	/// Отчет по событиям нахождения волителей на складе
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnDriversWarehousesEventsReportActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<DriversWarehousesEventsReportViewModel>(null);
 	}
 
 	#endregion Логистика

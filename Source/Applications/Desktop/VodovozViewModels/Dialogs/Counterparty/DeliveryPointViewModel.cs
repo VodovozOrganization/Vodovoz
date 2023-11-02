@@ -32,6 +32,7 @@ using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.Domain.Logistic;
+using VodovozInfrastructure.Services;
 
 namespace Vodovoz.ViewModels.Dialogs.Counterparty
 {
@@ -49,6 +50,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 		private readonly IFixedPricesModel _fixedPricesModel;
 		private readonly IDeliveryPointRepository _deliveryPointRepository;
 		private readonly RoboatsJournalsFactory _roboatsJournalsFactory;
+		private readonly ICoordinatesParser _coordinatesParser;
 		private readonly IPromotionalSetRepository _promotionalSetRepository = new PromotionalSetRepository();
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
@@ -68,6 +70,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			RoboatsJournalsFactory roboatsJournalsFactory,
+			ICoordinatesParser coordinatesParser,
 		 	Domain.Client.Counterparty client = null)
 			: base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
@@ -96,6 +99,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			}
 
 			_roboatsJournalsFactory = roboatsJournalsFactory ?? throw new ArgumentNullException(nameof(roboatsJournalsFactory));
+			_coordinatesParser = coordinatesParser ?? throw new ArgumentNullException(nameof(coordinatesParser));;
 			_deliveryPointRepository = deliveryPointRepository ?? throw new ArgumentNullException(nameof(deliveryPointRepository));
 
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
@@ -293,27 +297,16 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 
 		public void SetCoordinatesFromBuffer(string buffer)
 		{
-			var error = true;
-			var coordinates = buffer?.Split(',');
-			if(coordinates?.Length == 2)
+			var result = _coordinatesParser.GetCoordinatesFromBuffer(buffer);
+			
+			if(!result.ParsedCoordinates.HasValue)
 			{
-				coordinates[0] = coordinates[0].Replace('.', ',');
-				coordinates[1] = coordinates[1].Replace('.', ',');
-
-				var goodLat = decimal.TryParse(coordinates[0].Trim(), out decimal latitude);
-				var goodLon = decimal.TryParse(coordinates[1].Trim(), out decimal longitude);
-
-				if(goodLat && goodLon)
-				{
-					WriteCoordinates(latitude, longitude, true);
-					error = false;
-				}
+				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, result.ErrorMessage);
 			}
-
-			if(error)
+			else
 			{
-				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
-					"Буфер обмена не содержит координат или содержит неправильные координаты");
+				var parsedCoordinates = result.ParsedCoordinates.Value;
+				WriteCoordinates(parsedCoordinates.Latitude, parsedCoordinates.Longitude, true);
 			}
 		}
 

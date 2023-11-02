@@ -10,7 +10,7 @@ namespace Vodovoz.JournalColumnsConfigs
 		public override IColumnsConfig Configure(FluentColumnsConfig<DriversWarehousesEventsJournalNode> config) =>
 			config.AddColumn("Код").AddNumericRenderer(x => x.Id)
 				.AddColumn("Название").AddTextRenderer(x => x.EventName)
-				.AddColumn("Тип").AddComboRenderer(x => x.Type).Editing(false)
+				.AddColumn("Тип").AddEnumRenderer(x => x.Type).Editing(false)
 				.AddColumn("В архиве?").AddToggleRenderer(x => x.IsArchive).Editing(false)
 				.AddColumn("")
 				.Finish();

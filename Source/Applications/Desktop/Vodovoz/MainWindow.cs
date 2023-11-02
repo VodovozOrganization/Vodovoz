@@ -27,7 +27,6 @@ using Vodovoz.SidePanel;
 using VodovozInfrastructure.Configuration;
 using Order = Vodovoz.Domain.Orders.Order;
 using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -320,22 +319,4 @@ public partial class MainWindow : Gtk.Window
         new DateTime(2000, 1, 1)
             .AddDays(version.Build)
             .AddSeconds(version.Revision * 2);
-
-    protected void OnDriversWarehousesEventsActionActivated(object sender, EventArgs e)
-    {
-		NavigationManager.OpenViewModel<DriversWarehousesEventsJournalViewModel>(null);
-	}
-
-    protected void OnDriversWarehousesEventsNamesActionActivated(object sender, EventArgs e)
-    {
-		NavigationManager.OpenViewModel<DriversWarehousesEventsNamesJournalViewModel>(null);
-    }
-
-	protected void OnCompletedDriversWarehousesEventsActionActivated(object sender, EventArgs e)
-	{
-	}
-
-	protected void OnDriversWarehousesEventsReportActionActivated(object sender, EventArgs e)
-	{
-	}
 }

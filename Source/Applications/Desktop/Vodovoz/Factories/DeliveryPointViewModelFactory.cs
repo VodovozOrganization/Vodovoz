@@ -20,6 +20,7 @@ using Vodovoz.Tools;
 using Vodovoz.ViewModels.Dialogs.Counterparty;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.TempAdapters;
+using VodovozInfrastructure.Services;
 
 namespace Vodovoz.Factories
 {
@@ -73,7 +74,8 @@ namespace Vodovoz.Factories
 				EntityUoWBuilder.ForOpen(id),
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
-				_roboatsJournalsFactory
+				_roboatsJournalsFactory,
+				new CoordinatesParser()
 				);
 
 			return dpViewModel;
@@ -99,6 +101,7 @@ namespace Vodovoz.Factories
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				_roboatsJournalsFactory,
+				new CoordinatesParser(),
 				client);
 
 			return dpViewModel;
