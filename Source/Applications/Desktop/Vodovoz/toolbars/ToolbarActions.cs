@@ -568,7 +568,7 @@ public partial class MainWindow : Window
 		tdiMain.OpenTab(
 			"CRM",
 			() => new TasksView(
-								new EmployeeJournalFactory(),
+								new EmployeeJournalFactory(NavigationManager),
 								new DeliveryPointRepository()), null
 		);
 	}
@@ -673,7 +673,7 @@ public partial class MainWindow : Window
 				NavigationManagerProvider.NavigationManager,
 				new UserRepository(),
 				baseParametersProvider,
-				new EmployeeJournalFactory(),
+				new EmployeeJournalFactory(NavigationManager),
 				new GeographicGroupRepository(),
 				new ScheduleRestrictionRepository(),
 				new CarModelJournalFactory()
@@ -732,12 +732,12 @@ public partial class MainWindow : Window
 
 	void ActionSelfdeliveryOrders_Activated(object sender, System.EventArgs e)
 	{
-		var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
+		var scope = Startup.AppDIContainer.BeginLifetimeScope();
+		var counterpartyJournalFactory = new CounterpartyJournalFactory(scope);
 		var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
 		var parametersProvider = new ParametersProvider();
-		var employeeJournalFactory = new EmployeeJournalFactory();
 
-		var filter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, employeeJournalFactory);
+		var filter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, scope);
 
 		filter.SetAndRefilterAtOnce(
 			x => x.AllowStatuses = new[] { OrderStatus.WaitForPayment, OrderStatus.OnLoading, OrderStatus.Accepted, OrderStatus.Closed },
@@ -788,7 +788,7 @@ public partial class MainWindow : Window
 			Status = EmployeeStatus.IsWorking,
 		};
 
-		var employeeJournalFactory = new EmployeeJournalFactory(employeeFilter);
+		var employeeJournalFactory = new EmployeeJournalFactory(NavigationManager, employeeFilter);
 
 		tdiMain.OpenTab(() => new OrganizationCashTransferDocumentJournalViewModel(
 			new OrganizationCashTransferDocumentFilterViewModel(employeeJournalFactory)
@@ -804,46 +804,21 @@ public partial class MainWindow : Window
 
 	void ActionFinesJournal_Activated(object sender, System.EventArgs e)
 	{
-		IEmployeeJournalFactory employeeJournalFactory = new EmployeeJournalFactory();
-
-		tdiMain.OpenTab(() => new FinesJournalViewModel(
-			new FineFilterViewModel(true),
-			new UndeliveredOrdersJournalOpener(),
-			VodovozGtkServicesConfig.EmployeeService,
-			employeeJournalFactory,
-			UnitOfWorkFactory.GetDefaultFactory,
-			new EmployeeSettings(new ParametersProvider()),
-			ServicesConfig.CommonServices));
+		NavigationManager.OpenViewModel<FinesJournalViewModel>(null);
 	}
 
 	void ActionPremiumJournal_Activated(object sender, System.EventArgs e)
 	{
-		IEmployeeJournalFactory employeeJournalFactory = new EmployeeJournalFactory();
-		IPremiumTemplateJournalFactory premiumTemplateJournalFactory = new PremiumTemplateJournalFactory();
-
-		var subdivisionAutocompleteSelectorFactory =
-			new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(typeof(Subdivision), () =>
+		NavigationManager.OpenViewModel<PremiumJournalViewModel, Action<SubdivisionFilterViewModel>, Action<PremiumJournalFilterViewModel>>(
+			null,
+			subdivisionFilter =>
 			{
-				return new SubdivisionsJournalViewModel(
-					new SubdivisionFilterViewModel() { SubdivisionType = SubdivisionType.Default },
-					UnitOfWorkFactory.GetDefaultFactory,
-					ServicesConfig.CommonServices,
-					employeeJournalFactory,
-					new SalesPlanJournalFactory(),
-					new NomenclatureJournalFactory(),
-					_autofacScope.BeginLifetimeScope()
-				);
+				subdivisionFilter.SubdivisionType = SubdivisionType.Default;
+			},
+			premiumFilter =>
+			{
+				premiumFilter.HidenByDefault = true;
 			});
-
-		tdiMain.OpenTab(() => new PremiumJournalViewModel(
-			new PremiumJournalFilterViewModel(subdivisionAutocompleteSelectorFactory) { HidenByDefault = true },
-			UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices,
-			VodovozGtkServicesConfig.EmployeeService,
-			employeeJournalFactory,
-			premiumTemplateJournalFactory
-			)
-		);
 	}
 
 	void ActionCarProxiesJournal_Activated(object sender, System.EventArgs e)
@@ -925,7 +900,7 @@ public partial class MainWindow : Window
 
 	void ActionRouteListDistanceValidation_Activated(object sender, System.EventArgs e)
 	{
-		NavigationManager.OpenTdiTab<RouteListMileageCheckView>(null);
+		NavigationManager.OpenTdiTab<RouteListMileageCheckJournalViewModel>(null);
 	}
 
 	void ActionCashDocuments_Activated(object sender, System.EventArgs e) =>
@@ -1008,60 +983,25 @@ public partial class MainWindow : Window
 
 	void ActionOrdersTableActivated(object sender, System.EventArgs e)
 	{
-		var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
-		var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
-		var employeeJournalFactory = new EmployeeJournalFactory();
-
-		var filter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, employeeJournalFactory)
+		NavigationManager.OpenViewModel<OrderJournalViewModel, Action<OrderJournalFilterViewModel>>(null, filter =>
 		{
-			IsForRetail = false
-		};
-
-		NavigationManager.OpenViewModel<OrderJournalViewModel, OrderJournalFilterViewModel>(null, filter, OpenPageOptions.IgnoreHash);
+			filter.IsForRetail = false;
+		}, OpenPageOptions.IgnoreHash);
 	}
 
 	void ActionUndeliveredOrdersActivated(object sender, System.EventArgs e)
 	{
-		ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
-
-		var undeliveredOrdersFilter = new UndeliveredOrdersFilterViewModel(ServicesConfig.CommonServices, new OrderSelectorFactory(),
-			new EmployeeJournalFactory(), new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()), new DeliveryPointJournalFactory(), subdivisionJournalFactory)
+		NavigationManager.OpenViewModel<UndeliveredOrdersJournalViewModel, Action<UndeliveredOrdersFilterViewModel>>(null, config =>
 		{
-			HidenByDefault = true,
-			RestrictUndeliveryStatus = UndeliveryStatus.InProcess,
-			RestrictNotIsProblematicCases = true
-		};
-
-		NavigationManager.OpenViewModel<UndeliveredOrdersJournalViewModel, UndeliveredOrdersFilterViewModel>(null, undeliveredOrdersFilter, OpenPageOptions.IgnoreHash);
+			config.HidenByDefault = true;
+			config.RestrictUndeliveryStatus = UndeliveryStatus.InProcess;
+			config.RestrictNotIsProblematicCases = true;
+		}, OpenPageOptions.IgnoreHash);
 	}
 
 	void ActionResidueActivated(object sender, System.EventArgs e)
 	{
-		ILifetimeScope scope = Startup.AppDIContainer.BeginLifetimeScope();
-
-		IMoneyRepository moneyRepository = new MoneyRepository();
-		IDepositRepository depositRepository = new DepositRepository();
-		IBottlesRepository bottlesRepository = new BottlesRepository();
-		ResidueFilterViewModel filter = new ResidueFilterViewModel();
-		var employeeJournalFactory = new EmployeeJournalFactory();
-		var subdivisionJournalFactory = new SubdivisionJournalFactory();
-		ISubdivisionParametersProvider subdivisionParametersProvider = new SubdivisionParametersProvider(new ParametersProvider());
-
-		var residueJournalViewModel = new ResidueJournalViewModel(
-			filter,
-			VodovozGtkServicesConfig.EmployeeService,
-			VodovozGtkServicesConfig.RepresentationEntityPicker,
-			moneyRepository,
-			depositRepository,
-			bottlesRepository,
-			UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices,
-			employeeJournalFactory,
-			subdivisionJournalFactory,
-			subdivisionParametersProvider,
-			new CounterpartyJournalFactory(scope)
-		);
-		tdiMain.AddTab(residueJournalViewModel);
+		NavigationManager.OpenViewModel<ResidueJournalViewModel>(null);
 	}
 
 	void ActionTransferOperationJournal_Activated(object sender, System.EventArgs e)
@@ -1088,35 +1028,12 @@ public partial class MainWindow : Window
 
 	void ActionCarEventsJournalActivated(object sender, EventArgs e)
 	{
-		ICarJournalFactory carJournalFactory = new CarJournalFactory(NavigationManager);
-		IEmployeeJournalFactory employeeFactory = new EmployeeJournalFactory();
-		ICarEventTypeJournalFactory carEventTypeJournalFactory = new CarEventTypeJournalFactory();
-		ICarEventJournalFactory carEventJournalFactory = new CarEventJournalFactory(NavigationManager);
-
-		var carEventFilter = new CarEventFilterViewModel(
-			carJournalFactory,
-			carEventTypeJournalFactory,
-			new EmployeeJournalFactory())
-		{ HidenByDefault = true };
-
-		tdiMain.OpenTab(() => new CarEventJournalViewModel(
-			carEventFilter,
-			UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices,
-			carJournalFactory,
-			carEventTypeJournalFactory,
-			carEventJournalFactory,
-			VodovozGtkServicesConfig.EmployeeService,
-			employeeFactory,
-			new UndeliveredOrdersJournalOpener(),
-			new EmployeeSettings(new ParametersProvider()),
-			new CarEventSettings(new ParametersProvider()))
-		);
+		NavigationManager.OpenViewModel<CarEventJournalViewModel, Action<CarEventFilterViewModel>>(null, filter => filter.HidenByDefault = true);
 	}
 
 	void ActionFastDeliveryAvailabilityJournal_Activated(object sender, EventArgs e)
 	{
-		IEmployeeJournalFactory employeeJournalFactory = new EmployeeJournalFactory();
+		IEmployeeJournalFactory employeeJournalFactory = new EmployeeJournalFactory(NavigationManager);
 		IDistrictJournalFactory districtJournalFactory = new DistrictJournalFactory();
 		ICounterpartyJournalFactory counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
 		IFileDialogService fileDialogService = new FileDialogService();
@@ -1143,11 +1060,11 @@ public partial class MainWindow : Window
 
 	void OnActionSalesOrdersJournalActivated(object sender, EventArgs e)
 	{
-		var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
+		var scope = Startup.AppDIContainer.BeginLifetimeScope();
+		var counterpartyJournalFactory = new CounterpartyJournalFactory(scope);
 		var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
-		var employeeJournalFactory = new EmployeeJournalFactory();
 
-		var orderJournalFilter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, employeeJournalFactory)
+		var orderJournalFilter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, scope)
 		{
 			IsForSalesDepartment = true
 		};
@@ -1167,16 +1084,12 @@ public partial class MainWindow : Window
 
 	void OnActionSalesUndeliveredOrdersOrdersJournalActivated(object sender, EventArgs e)
 	{
-		ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
-		var undeliveredOrdersFilter = new UndeliveredOrdersFilterViewModel(ServicesConfig.CommonServices, new OrderSelectorFactory(),
-			new EmployeeJournalFactory(), new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()), new DeliveryPointJournalFactory(), subdivisionJournalFactory)
+		NavigationManager.OpenViewModel<UndeliveredOrdersJournalViewModel, Action<UndeliveredOrdersFilterViewModel>>(null, filter =>
 		{
-			RestrictUndeliveryStatus = UndeliveryStatus.InProcess,
-			RestrictNotIsProblematicCases = true,
-			IsForSalesDepartment  = true 
-		};
-
-		NavigationManager.OpenViewModel<UndeliveredOrdersJournalViewModel, UndeliveredOrdersFilterViewModel>(null, undeliveredOrdersFilter, OpenPageOptions.IgnoreHash);
+			filter.RestrictUndeliveryStatus = UndeliveryStatus.InProcess;
+			filter.RestrictNotIsProblematicCases = true;
+			filter.IsForSalesDepartment = true;
+		}, OpenPageOptions.IgnoreHash);
 	}
 
 	void OnActionSalesComplaintsJournalActivated(object sender, EventArgs e)

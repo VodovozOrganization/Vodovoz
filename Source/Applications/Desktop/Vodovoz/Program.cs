@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
 using Microsoft.Extensions.Configuration;
@@ -206,7 +206,7 @@ namespace Vodovoz
 					builder.Register(context => new AutofacViewModelsTdiPageFactory(context.Resolve<ILifetimeScope>())).As<IViewModelsPageFactory>();
 					builder.Register(context => new AutofacTdiPageFactory(context.Resolve<ILifetimeScope>())).As<ITdiPageFactory>();
 					builder.Register(context => new AutofacViewModelsGtkPageFactory(context.Resolve<ILifetimeScope>())).AsSelf();
-					builder.RegisterType<TdiNavigationManager>().AsSelf().As<INavigationManager>().As<ITdiCompatibilityNavigation>()
+					builder.RegisterType<TdiNavigationManagerAdapter>().AsSelf().As<INavigationManager>().As<ITdiCompatibilityNavigation>()
 						.SingleInstance();
 					builder.Register(context => new ClassNamesBaseGtkViewResolver(context.Resolve<IGtkViewFactory>(),
 						typeof(InternalTalkView),
@@ -281,7 +281,6 @@ namespace Vodovoz
 					#region Adapters & Factories
 
 					builder.RegisterType<GtkTabsOpener>().As<IGtkTabsOpener>();
-					builder.RegisterType<UndeliveredOrdersJournalOpener>().As<IUndeliveredOrdersJournalOpener>();
 					builder.RegisterType<RdlPreviewOpener>().As<IRDLPreviewOpener>();
 					builder.RegisterType<GtkReportViewOpener>().As<IReportViewOpener>().SingleInstance();
 					builder.RegisterType<RoboatsJournalsFactory>().AsSelf().InstancePerLifetimeScope();
@@ -482,10 +481,8 @@ namespace Vodovoz
 					builder.RegisterType<ProfitabilityBottlesByStockReport>().AsSelf();
 					builder.RegisterType<PlanImplementationReport>().AsSelf();
 					builder.RegisterType<ZeroDebtClientReport>().AsSelf();
-					builder.RegisterType<SetBillsReport>().AsSelf();
 					builder.RegisterType<OrdersCreationTimeReport>().AsSelf();
 					builder.RegisterType<PotentialFreePromosetsReport>().AsSelf();
-					builder.RegisterType<PaymentsFromBankClientReport>().AsSelf();
 					builder.RegisterType<PaymentsFromBankClientFinDepartmentReport>().AsSelf();
 					builder.RegisterType<ChainStoreDelayReport>().AsSelf();
 					builder.RegisterType<ReturnedTareReport>().AsSelf();
@@ -554,8 +551,6 @@ namespace Vodovoz
 							.Where(i => i.Name == $"I{s.Name}")
 							.First())
 						.SingleInstance();
-
-					builder.RegisterType<RdlViewerViewModel>().AsSelf();
 
 					#endregion
 

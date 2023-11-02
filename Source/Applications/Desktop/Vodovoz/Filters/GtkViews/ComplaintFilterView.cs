@@ -10,11 +10,11 @@ namespace Vodovoz.Filters.GtkViews
 	{
 		public ComplaintFilterView(ComplaintFilterViewModel filterViewModel) : base(filterViewModel)
 		{
-			this.Build();
-			ConfigureDlg();
+			Build();
+			Initialize();
 		}
 
-		private void ConfigureDlg()
+		private void Initialize()
 		{
 			evmeAuthor.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeSelectorFactory);
 			evmeAuthor.Binding.AddBinding(ViewModel, x => x.Employee, v => v.Subject).InitializeFromSource();
@@ -46,19 +46,8 @@ namespace Vodovoz.Filters.GtkViews
 			entryComplaintDetalization.Binding.AddBinding(ViewModel, vm => vm.CanReadDetalization, w => w.ViewModel.IsEditable)
 				.InitializeFromSource();
 
-			entityentryCurrentSubdivision.SetEntityAutocompleteSelectorFactory(ViewModel.CurrentSubdivisionSelectorFactory);
-			entityentryCurrentSubdivision.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.CurrentUserSubdivision, w => w.Subject)
-				.AddBinding(vm => vm.CanChangeSubdivision, w => w.Sensitive)
-				.InitializeFromSource();
-			entityentryCurrentSubdivision.CanOpenWithoutTabParent = true;
-
-			entityentryInWorkSubdivision.SetEntityAutocompleteSelectorFactory(ViewModel.InWorkSubdivisionSelectorFactory);
-			entityentryInWorkSubdivision.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.Subdivision, w => w.Subject)
-				.InitializeFromSource();
-			entityentryInWorkSubdivision.CanOpenWithoutTabParent = true;
-
+			entryCurrentSubdivision.ViewModel = ViewModel.CurrentSubdivisionViewModel;
+			entryAtWorkInSubdivision.ViewModel = ViewModel.AtWorkInSubdivisionViewModel;
 
 			daterangepicker.Binding
 				.AddSource(ViewModel)
@@ -83,7 +72,6 @@ namespace Vodovoz.Filters.GtkViews
 			yenumcomboboxCurrentSubdivisionStatus.Destroy();
 			entityentryComplaintKind.Destroy();
 			yspeccomboboxComplaintObject.Destroy();
-			entityentryCurrentSubdivision.Destroy();
 			yenumcomboboxDateType.Destroy();
 			guiltyItemView.Destroy();
 			base.Destroy();

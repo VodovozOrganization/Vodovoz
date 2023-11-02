@@ -1,6 +1,7 @@
 ﻿using Gamma.Utilities;
 using QS.Commands;
 using QS.Dialog;
+using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Services;
@@ -37,7 +38,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 
-		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
 		private readonly IEmployeeSettings _employeeSettings;
 		private readonly IEmployeeService _employeeService;
 
@@ -45,20 +45,26 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public RouteListMileageDistributionViewModel(
 			IEntityUoWBuilder uowBuilder,
+			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
+			INavigationManager navigationManager,
 			IRouteListRepository routeListRepository,
 			IRouteListItemRepository routeListItemRepository,
 			WageParameterService wageParameterService,
 			ICallTaskWorker callTaskWorker,
 			IValidationContextFactory validationContextFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
-			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
 			IEmployeeSettings employeeSettings,
 			IEmployeeService employeeService,
 			ITdiTabParent tabParent,
 			ITdiTab tdiTab)
-			: base(uowBuilder, commonServices)
+			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
+			if(navigationManager is null)
+			{
+				throw new ArgumentNullException(nameof(navigationManager));
+			}
+
 			TabName = $"Разнос километража";
 
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
@@ -67,7 +73,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			_validationContextFactory = validationContextFactory ?? throw new ArgumentNullException(nameof(validationContextFactory));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_tabParent = tabParent ?? throw new ArgumentNullException(nameof(tabParent));
@@ -299,21 +304,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public DelegateCommand<RouteListMileageDistributionNode> AcceptFineCommand =>
 			_acceptFineCommand ?? (_acceptFineCommand = new DelegateCommand<RouteListMileageDistributionNode>((selectedItem) =>
 				{
-					var fineViewModel = new FineViewModel(
-						EntityUoWBuilder.ForCreate(),
-						UnitOfWorkFactory,
-						_undeliveryViewOpener,
-						_employeeService,
-						_employeeJournalFactory,
-						_employeeSettings,
-						CommonServices
-					)
-					{
-						RouteList = selectedItem.RouteList,
-						FineReasonString = "Перерасход топлива"
-					};
+					var page = NavigationManager.OpenViewModel<FineViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate(), OpenPageOptions.AsSlave);
 
-					TabParent.AddSlaveTab(this, fineViewModel);
+					page.ViewModel.SetRouteListById(selectedItem.RouteList.Id);
+					page.ViewModel.FineReasonString = "Перерасход топлива";
 				}
 			));
 

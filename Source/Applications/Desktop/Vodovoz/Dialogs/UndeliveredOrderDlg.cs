@@ -1,4 +1,4 @@
-using FluentNHibernate.Data;
+﻿using FluentNHibernate.Data;
 using Autofac;
 using Gtk;
 using QS.Dialog.Gtk;
@@ -20,6 +20,9 @@ using Vodovoz.Parameters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Widgets;
+using QS.ViewModels.Control.EEVM;
+using Vodovoz.ViewModels.ViewModels.Organizations;
+using Vodovoz.Journals.JournalViewModels.Organizations;
 
 namespace Vodovoz.Dialogs
 {
@@ -99,11 +102,11 @@ namespace Vodovoz.Dialogs
 				UndeliveredOrder.InProcessAtDepartment = UoW.GetById<Subdivision>(salesDepartmentId);
 			}
 
-
 			_undeliveredOrderViewModel = Startup.AppDIContainer.BeginLifetimeScope().Resolve<UndeliveredOrderViewModel>(
 				new TypedParameter(typeof(UndeliveredOrder), UndeliveredOrder),
 				new TypedParameter(typeof(IUnitOfWork), UoW),
 				new TypedParameter(typeof(ITdiTab), this as TdiTabBase));
+
 			undeliveryView.WidgetViewModel = _undeliveredOrderViewModel;
 
 			_undeliveredOrderViewModel.IsSaved += IsSaved;

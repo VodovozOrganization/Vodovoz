@@ -59,9 +59,8 @@ namespace DriverAPI.Controllers.V4
 		/// Получение информации о заказе
 		/// </summary>
 		/// <param name="orderId">Номер заказа</param>
-		[HttpGet]
+		[HttpGet("GetOrder")]
 		[Produces("application/json")]
-		[Route("GetOrder")]
 		public OrderDto Get(int orderId)
 		{
 			_logger.LogInformation("(OrderId: {OrderId}) User token: {AccessToken}",
@@ -76,8 +75,7 @@ namespace DriverAPI.Controllers.V4
 		/// </summary>
 		/// <param name="completedOrderRequestModel"><see cref="CompletedOrderRequestDto"/></param>
 		/// <returns></returns>
-		[HttpPost]
-		[Route("CompleteOrderDelivery")]
+		[HttpPost("CompleteOrderDelivery")]
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		public async Task CompleteOrderDeliveryAsync([FromBody] CompletedOrderRequestDto completedOrderRequestModel)
 		{
@@ -102,8 +100,8 @@ namespace DriverAPI.Controllers.V4
 				_aPIOrderData.CompleteOrderDelivery(
 					recievedTime,
 					driver,
-					completedOrderRequestModel
-				);
+					completedOrderRequestModel,
+					completedOrderRequestModel);
 			}
 			catch(Exception ex)
 			{
@@ -114,6 +112,37 @@ namespace DriverAPI.Controllers.V4
 			{
 				_driverMobileAppActionRecordModel.RegisterAction(driver, DriverMobileAppActionType.CompleteOrderClicked, localActionTime, recievedTime, resultMessage);
 			}
+		}
+
+		/// <summary>
+		/// Создание рекламации по координатам точки доставки заказа
+		/// </summary>
+		/// <param name="completedOrderRequestModel"></param>
+		/// <returns></returns>
+		[HttpPost("UpdateOrderShipmentInfo")]
+		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		public async Task<IActionResult> UpdateOrderShipmentInfoAsync([FromBody] UpdateOrderShipmentInfoRequestDto completedOrderRequestModel)
+		{
+			_logger.LogInformation("(Создание рекламации по координатам точки доставки заказа: {OrderId}) пользователем {Username} | User token: {AccessToken}",
+				completedOrderRequestModel.OrderId,
+				HttpContext.User.Identity?.Name ?? "Unknown",
+				Request.Headers[HeaderNames.Authorization]);
+
+			var recievedTime = DateTime.Now;
+
+			var user = await _userManager.GetUserAsync(User);
+			var driver = _employeeData.GetByAPILogin(user.UserName);
+
+			var localActionTime = completedOrderRequestModel.ActionTimeUtc.ToLocalTime();
+
+			_actionTimeHelper.ThrowIfNotValid(recievedTime, localActionTime);
+
+			_aPIOrderData.UpdateOrderShipmentInfo(
+				recievedTime,
+				driver,
+				completedOrderRequestModel);
+
+			return NoContent();
 		}
 
 		/// <summary>
