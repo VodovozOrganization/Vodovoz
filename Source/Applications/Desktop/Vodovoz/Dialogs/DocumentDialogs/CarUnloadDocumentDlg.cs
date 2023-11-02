@@ -600,7 +600,10 @@ namespace Vodovoz
 		{
 			SetupForNewRouteList();
 			FillOtherReturnsTable();
-			Entity.ReturnedEmptyBottlesBefore(UoW, _routeListRepository);
+			if(Entity.RouteList != null)
+			{
+				Entity.ReturnedEmptyBottlesBefore(UoW, _routeListRepository);
+			}
 		}
 		#endregion
 
