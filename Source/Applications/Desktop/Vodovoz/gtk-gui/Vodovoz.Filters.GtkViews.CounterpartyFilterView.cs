@@ -68,7 +68,7 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gtk.Label label2;
 
-		private global::QS.Widgets.GtkUI.RepresentationEntry yentryTag;
+		private global::QS.Views.Control.EntityEntry entryTag;
 
 		private global::Gamma.GtkWidgets.yHBox yhboxSearchFields2;
 
@@ -397,11 +397,11 @@ namespace Vodovoz.Filters.GtkViews
 			w28.Expand = false;
 			w28.Fill = false;
 			// Container child yhboxSearchFields1.Gtk.Box+BoxChild
-			this.yentryTag = new global::QS.Widgets.GtkUI.RepresentationEntry();
-			this.yentryTag.Events = ((global::Gdk.EventMask)(256));
-			this.yentryTag.Name = "yentryTag";
-			this.yhboxSearchFields1.Add(this.yentryTag);
-			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.yhboxSearchFields1[this.yentryTag]));
+			this.entryTag = new global::QS.Views.Control.EntityEntry();
+			this.entryTag.Events = ((global::Gdk.EventMask)(256));
+			this.entryTag.Name = "entryTag";
+			this.yhboxSearchFields1.Add(this.entryTag);
+			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.yhboxSearchFields1[this.entryTag]));
 			w29.Position = 5;
 			this.table1.Add(this.yhboxSearchFields1);
 			global::Gtk.Table.TableChild w30 = ((global::Gtk.Table.TableChild)(this.table1[this.yhboxSearchFields1]));
