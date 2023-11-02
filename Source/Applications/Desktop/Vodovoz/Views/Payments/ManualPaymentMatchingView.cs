@@ -1,26 +1,24 @@
 ﻿using Gamma.ColumnConfig;
-using QS.Views.GtkUI;
 using Gtk;
-using Vodovoz.Domain.Orders;
-using QS.Project.Journal.EntitySelector;
-using Vodovoz.Domain.Client;
-using Vodovoz.Filters.ViewModels;
-using System;
 using QS.Navigation;
-using Vodovoz.Infrastructure.Converters;
-using QS.Project.Search.GtkUI;
 using QS.Project.Search;
-using Vodovoz.JournalViewModels;
+using QS.Project.Search.GtkUI;
+using QS.Views.GtkUI;
+using System;
+using System.ComponentModel;
+using Vodovoz.Domain.Orders;
+using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewModels.ViewModels.Payments;
 
 namespace Vodovoz.Views
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class ManualPaymentMatchingView : TabViewBase<ManualPaymentMatchingViewModel>
 	{
-		public ManualPaymentMatchingView(ManualPaymentMatchingViewModel manualPaymentLoaderViewModel) : base(manualPaymentLoaderViewModel)
+		public ManualPaymentMatchingView(ManualPaymentMatchingViewModel manualPaymentLoaderViewModel)
+			: base(manualPaymentLoaderViewModel)
 		{
-			this.Build();
+			Build();
 			Configure();
 		}
 
@@ -88,10 +86,23 @@ namespace Vodovoz.Views
             hboxSearch.Add(searchView);
             searchView.Show();
 
+			hbox6.Sensitive = ViewModel.CanChangeCounterparty;
+
+			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+
             ConfigureTrees();
         }
 
-        private void ConfigureTrees()
+		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(ViewModel.CanChangeCounterparty))
+			{
+				hbox6.Sensitive = ViewModel.CanChangeCounterparty;
+				return;
+			}
+		}
+
+		private void ConfigureTrees()
         {
             ytreeviewOrdersAllocate.ColumnsConfig = FluentColumnsConfig<ManualPaymentMatchingViewModelNode>.Create()
                 .AddColumn("№ заказа")

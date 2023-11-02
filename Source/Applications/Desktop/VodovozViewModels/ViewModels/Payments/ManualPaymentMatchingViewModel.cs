@@ -460,6 +460,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 		public ICounterpartyJournalFactory CounterpartyJournalFactory => _counterpartyJournalFactory;
 
+		public bool CanChangeCounterparty => !Entity.ObservableItems.Any(x => x.PaymentItemStatus == AllocationStatus.Accepted);
+
 		#endregion Commands
 
 		private void CompleteAllocation()
