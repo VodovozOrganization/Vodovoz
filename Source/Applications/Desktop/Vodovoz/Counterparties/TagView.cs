@@ -3,12 +3,12 @@ using System.ComponentModel;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewModels.Counterparties;
 
-namespace Vodovoz.Dialogs.Client
+namespace Vodovoz.Counterparties
 {
 	[ToolboxItem(true)]
-	public partial class TagDlg : TabViewBase<TagViewModel>
+	public partial class TagView : TabViewBase<TagViewModel>
 	{
-		public TagDlg(TagViewModel viewModel)
+		public TagView(TagViewModel viewModel)
 			: base(viewModel)
 		{
 			Initialize();

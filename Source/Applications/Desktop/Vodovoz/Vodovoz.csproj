@@ -1004,8 +1004,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.ShortfallBattlesReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.BottlesMovementReport.cs" />
     <Compile Include="ReportsParameters\MastersVisitReport.cs" />
-    <Compile Include="Dialogs\Client\TagDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Dialogs.Client.TagDlg.cs" />
+    <Compile Include="Counterparties\TagView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Counterparties.TagView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.DeliveryPriceView.cs" />
     <Compile Include="SidePanel\InfoViews\DeliveryPricePanelView.cs" />
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.DeliveryPricePanelView.cs" />
