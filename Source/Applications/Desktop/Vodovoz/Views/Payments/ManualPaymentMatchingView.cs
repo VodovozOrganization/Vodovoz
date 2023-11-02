@@ -75,6 +75,7 @@ namespace Vodovoz.Views
             entryCounterparty.Binding.AddBinding(ViewModel.Entity, vm => vm.Counterparty, w => w.Subject).InitializeFromSource();
             entryCounterparty.ChangedByUser += (sender, e) =>
             {
+				ViewModel.UpdateCMOCounterparty();
                 ViewModel.UpdateNodes();
                 ViewModel.GetLastBalance();
 				ViewModel.UpdateSumToAllocate();

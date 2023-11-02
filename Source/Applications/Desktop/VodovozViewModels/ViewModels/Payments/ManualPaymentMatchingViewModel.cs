@@ -812,6 +812,14 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 			base.Close(askSave, source);
 		}
+
+		public void UpdateCMOCounterparty()
+		{
+			if(Entity.CashlessMovementOperation != null && Entity.Counterparty?.Id != Entity.CashlessMovementOperation.Counterparty?.Id)
+			{
+				Entity.CashlessMovementOperation.Counterparty = Entity.Counterparty;
+			}
+		}
 	}
 
 	public class ManualPaymentMatchingViewModelNode : JournalEntityNodeBase<VodOrder>
