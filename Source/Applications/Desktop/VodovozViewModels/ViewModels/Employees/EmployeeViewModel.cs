@@ -1,4 +1,5 @@
-﻿using NLog;
+using Autofac;
+using NLog;
 using QS.Attachments.ViewModels.Widgets;
 using QS.Commands;
 using QS.Dialog;
@@ -11,6 +12,7 @@ using QS.Project.Journal;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using System;
 using System.Collections.Generic;
@@ -30,6 +32,8 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
+using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
@@ -40,6 +44,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
+using Vodovoz.ViewModels.ViewModels.Organizations;
 using VodovozInfrastructure.Endpoints;
 using EmployeeSettings = Vodovoz.Settings.Employee;
 
@@ -59,7 +64,9 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly UserSettings _userSettings;
 		private readonly IUserRepository _userRepository;
 		private readonly BaseParametersProvider _baseParametersProvider;
+		private readonly ILifetimeScope _lifetimeScope;
 		private readonly EmployeeSettings.IEmployeeSettings _employeeSettings;
+		private readonly ILifetimeScope _scope;
 		private readonly IEmployeeRegistrationVersionController _employeeRegistrationVersionController;
 		private IPermissionResult _employeeDocumentsPermissionsSet;
 		private readonly IPermissionResult _employeePermissionSet;
@@ -99,7 +106,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			IAuthorizationService authorizationService,
 			IEmployeeWageParametersFactory employeeWageParametersFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IEmployeePostsJournalFactory employeePostsJournalFactory,
 			ICashDistributionCommonOrganisationProvider commonOrganisationProvider,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
@@ -116,7 +122,9 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			BaseParametersProvider baseParametersProvider,
 			IAttachmentsViewModelFactory attachmentsViewModelFactory,
 			INavigationManager navigationManager,
+			ILifetimeScope lifetimeScope,
 			EmployeeSettings.IEmployeeSettings employeeSettings,
+			ILifetimeScope scope,
 			bool traineeToEmployee = false) : base(commonServices?.InteractiveService, navigationManager)
 		{
 			if(unitOfWorkFactory is null)
@@ -130,7 +138,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			EmployeePostsJournalFactory =
 				employeePostsJournalFactory ?? throw new ArgumentNullException(nameof(employeePostsJournalFactory)); 
-			SubdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory)); 
 			_subdivisionParametersProvider =
 				subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
 			_wageCalculationRepository = wageCalculationRepository ?? throw new ArgumentNullException(nameof(wageCalculationRepository));
@@ -143,7 +150,10 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_baseParametersProvider = baseParametersProvider ?? throw new ArgumentNullException(nameof(baseParametersProvider));
+			_lifetimeScope = lifetimeScope;
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
+			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
+			
 			_employeeRegistrationVersionController = new EmployeeRegistrationVersionController(Entity, new EmployeeRegistrationVersionFactory());
 
 			if(commonOrganisationProvider == null)
@@ -198,6 +208,30 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			}
 
 			SetPermissions();
+
+			InitializeSubdivisionEntryViewModel();
+		}
+
+		private void InitializeSubdivisionEntryViewModel()
+		{
+			var subdivisionEntryViewModelBuilder = new CommonEEVMBuilderFactory<Employee>(this, Entity, UoW, NavigationManager, _scope);
+
+			var canSetOnlyLogisticsSubdivision = CanManageDriversAndForwarders && !CanManageOfficeWorkers;
+
+			SubdivisionViewModel = subdivisionEntryViewModelBuilder
+				.ForProperty(x => x.Subdivision)
+				.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel, SubdivisionFilterViewModel>(
+					filter =>
+					{
+						if(canSetOnlyLogisticsSubdivision)
+						{
+							filter.SubdivisionType  = SubdivisionType.Logistic;
+						}
+					})
+				.UseViewModelDialog<SubdivisionViewModel>()
+				.Finish();
+
+			SubdivisionViewModel.IsEditable = CanEditEmployee && (CanManageOfficeWorkers || CanManageDriversAndForwarders);
 		}
 
 		private Employee EmployeeForCurrentUser => 
@@ -226,8 +260,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		public IEmployeeWageParametersFactory EmployeeWageParametersFactory { get; }
 		public IEmployeeJournalFactory EmployeeJournalFactory { get; }
 		public IEmployeePostsJournalFactory EmployeePostsJournalFactory { get; }
-		public ISubdivisionJournalFactory SubdivisionJournalFactory { get; }
-		
+		public IEntityEntryViewModel SubdivisionViewModel { get; private set; }
+
 		public bool HasChanges
 		{
 			get

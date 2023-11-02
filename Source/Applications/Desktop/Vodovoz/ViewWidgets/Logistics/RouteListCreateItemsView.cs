@@ -1,38 +1,37 @@
-﻿using Gamma.GtkWidgets;
+﻿using Autofac;
+using Gamma.GtkWidgets;
 using Gtk;
 using NHibernate.Criterion;
 using NLog;
 using QS.Dialog;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
+using QS.Tdi;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using QS.Dialog.GtkUI.FileDialog;
-using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.Undeliveries;
+using Vodovoz.Extensions;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Infrastructure.Services;
+using Vodovoz.Infrastructure;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Journals.JournalViewModels;
-using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Factories;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz
@@ -57,6 +56,10 @@ namespace Vodovoz
 		private IList<RouteColumn> _columnsInfo;
 
 		private IList<RouteColumn> ColumnsInfo => _columnsInfo ?? _routeColumnRepository.ActiveColumns(RouteListUoW);
+
+		public ITdiTab Container { get; set; }
+		public ITdiCompatibilityNavigation NavigationManager { get; set; }
+		public ILifetimeScope LifetimeScope { get; set; }
 
 		private IUnitOfWorkGeneric<RouteList> routeListUoW;
 
@@ -181,7 +184,7 @@ namespace Vodovoz
 			var goodsColumns = items.SelectMany(i => i.GoodsByRouteColumns.Keys).Distinct().ToArray();
 
 			var config = ColumnsConfigFactory.Create<RouteListItem>()
-			.AddColumn("Заказ").AddTextRenderer( node => node.Order.Id.ToString())
+			.AddColumn("Заказ").AddTextRenderer(node => node.Order.Id.ToString())
 			.AddColumn("Адрес").AddTextRenderer(node => node.Order.DeliveryPoint == null ? "Точка доставки не установлена" : string.Format("{0} д.{1}", node.Order.DeliveryPoint.Street, node.Order.DeliveryPoint.Building))
 			.AddColumn("Время").AddTextRenderer(node => node.Order.DeliverySchedule == null ? string.Empty : node.Order.DeliverySchedule.Name);
 			if(goodsColumnsCount != goodsColumns.Length) {
@@ -210,7 +213,7 @@ namespace Vodovoz
 					.AddToggleRenderer(x => x.Order.IsFastDelivery).Editing(false)
 				.AddColumn("");
 			ytreeviewItems.ColumnsConfig =
-				config.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.Order.RowColor)
+				config.RowCells().AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.Order.PreviousOrder == null ? GdkColors.PrimaryText : GdkColors.DangerText)
 				.Finish();
 		}
 
@@ -306,71 +309,63 @@ namespace Vodovoz
 
 		protected void AddOrders()
 		{
-			var filter = new OrderJournalFilterViewModel(
-				new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
-				new DeliveryPointJournalFactory(),
-				new EmployeeJournalFactory())
-			{
-				ExceptIds = RouteListUoW.Root.Addresses.Select(address => address.Order.Id).ToArray()
-			};
-
 			var geoGrpIds = RouteListUoW.Root.GeographicGroups.Select(x => x.Id).ToArray();
-			if(geoGrpIds.Any()) {
-				GeoGroup geographicGroupAlias = null;
-				var districtIds = RouteListUoW.Session.QueryOver<District>()
-					.Left.JoinAlias(d => d.GeographicGroup, () => geographicGroupAlias)
-					.Where(() => geographicGroupAlias.Id.IsIn(geoGrpIds))
-					.Select
-					  (
-						  Projections.Distinct(
-						  Projections.Property<District>(x => x.Id)
-					  )
-					)
-					.List<int>()
-					.ToArray();
 
-				filter.IncludeDistrictsIds = districtIds;
-			}
-
-			//Filter Creating
-			filter.SetAndRefilterAtOnce(
-				x => x.RestrictStartDate = RouteListUoW.Root.Date.Date,
-				x => x.RestrictEndDate = RouteListUoW.Root.Date.Date,
-				x => x.RestrictFilterDateType = OrdersDateFilterType.DeliveryDate,
-				x => x.RestrictStatus = OrderStatus.Accepted,
-				x => x.RestrictWithoutSelfDelivery = true,
-				x => x.RestrictOnlySelfDelivery = false,
-				x => x.RestrictHideService = true,
-				x => x.ExcludeClosingDocumentDeliverySchedule = true
-			);
-
-			var orderSelectDialog = new OrderForRouteListJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices, new OrderSelectorFactory(), new EmployeeJournalFactory(), new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
-				new DeliveryPointJournalFactory(), new SubdivisionJournalFactory(), new GtkTabsOpener(),
-				new UndeliveredOrdersJournalOpener(), new EmployeeService(), new UndeliveredOrdersRepository(),
-				new SubdivisionParametersProvider(_parametersProvider), _deliveryScheduleParametersProvider, new FileDialogService())
+			var page = NavigationManager.OpenViewModelOnTdi<OrderForRouteListJournalViewModel, Action<OrderJournalFilterViewModel>>(Container, filter =>
 			{
-				SelectionMode = JournalSelectionMode.Multiple
-			};
+				filter.ExceptIds = RouteListUoW.Root.Addresses.Select(address => address.Order.Id).ToArray();
+				filter.RestrictStartDate = RouteListUoW.Root.Date.Date;
+				filter.RestrictEndDate = RouteListUoW.Root.Date.Date;
+				filter.RestrictFilterDateType = OrdersDateFilterType.DeliveryDate;
+				filter.RestrictStatus = OrderStatus.Accepted;
+				filter.RestrictWithoutSelfDelivery = true;
+				filter.RestrictOnlySelfDelivery = false;
+				filter.RestrictHideService = true;
+				filter.ExcludeClosingDocumentDeliverySchedule = true;
+
+				if(geoGrpIds.Any())
+				{
+					GeoGroup geographicGroupAlias = null;
+					var districtIds = RouteListUoW.Session.QueryOver<District>()
+						.Left.JoinAlias(d => d.GeographicGroup, () => geographicGroupAlias)
+						.Where(() => geographicGroupAlias.Id.IsIn(geoGrpIds))
+						.Select
+						  (
+							  Projections.Distinct(
+							  Projections.Property<District>(x => x.Id)
+						  )
+						)
+						.List<int>()
+						.ToArray();
+
+					filter.IncludeDistrictsIds = districtIds;
+				}
+			});
+
+			page.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
 
 			//Selected Callback
-			orderSelectDialog.OnEntitySelectedResult += (sender, ea) =>
+			page.ViewModel.OnEntitySelectedResult += (sender, ea) =>
 			{
 				var selectedIds = ea.SelectedNodes.Select(x => x.Id);
-				if(!selectedIds.Any()) {
+
+				if(!selectedIds.Any())
+				{
 					return;
 				}
-				foreach(var selectedId in selectedIds) {
+
+				foreach(var selectedId in selectedIds)
+				{
 					var order = RouteListUoW.GetById<Order>(selectedId);
-					if(order == null) {
+
+					if(order == null)
+					{
 						return;
 					}
+
 					RouteListUoW.Root.AddAddressFromOrder(order);
 				}
 			};
-
-			//OpenTab
-			MyTab.TabParent.AddSlaveTab(MyTab, orderSelectDialog);
 		}
 
 		protected void AddOrdersFromRegion()
@@ -420,8 +415,8 @@ namespace Vodovoz
 					? RouteListUoW.Root.Car.CarModel.MaxWeight.ToString()
 					: " ?";
 				var weight = RouteListUoW.Root.HasOverweight()
-					? $"<span foreground = \"red\">Перегруз на {RouteListUoW.Root.Overweight():0.###} кг.</span>"
-					: $"<span foreground = \"green\">Вес груза: {RouteListUoW.Root.GetTotalWeight():0.###}/{maxWeight} кг.</span>";
+					? $"<span foreground = \"{GdkColors.DangerText.ToHtmlColor()}\">Перегруз на {RouteListUoW.Root.Overweight():0.###} кг.</span>"
+					: $"<span foreground = \"{GdkColors.SuccessText.ToHtmlColor()}\">Вес груза: {RouteListUoW.Root.GetTotalWeight():0.###}/{maxWeight} кг.</span>";
 				lblWeight.LabelProp = weight;
 			}
 			if(RouteListUoW?.Root?.Car == null)
@@ -438,11 +433,11 @@ namespace Vodovoz
 					? RouteListUoW.Root.Car.CarModel.MaxVolume.ToString("0.###")
 					: " ?";
 				var volume = RouteListUoW.Root.HasVolumeExecess()
-					? $"<span foreground = \"red\">Объём груза превышен на {RouteListUoW.Root.VolumeExecess():0.###} м<sup>3</sup>.</span>"
-					: $"<span foreground = \"green\">Объём груза: {RouteListUoW.Root.GetTotalVolume():0.###}/{maxVolume} м<sup>3</sup>.</span>";
+					? $"<span foreground = \"{GdkColors.DangerText.ToHtmlColor()}\">Объём груза превышен на {RouteListUoW.Root.VolumeExecess():0.###} м<sup>3</sup>.</span>"
+					: $"<span foreground = \"{GdkColors.SuccessText.ToHtmlColor()}\">Объём груза: {RouteListUoW.Root.GetTotalVolume():0.###}/{maxVolume} м<sup>3</sup>.</span>";
 				var reverseVolume = RouteListUoW.Root.HasReverseVolumeExcess()
-					? $"<span foreground = \"red\">Объём возвращаемого груза превышен на {RouteListUoW.Root.ReverseVolumeExecess():0.###} м<sup>3</sup>.</span>"
-					: $"<span foreground = \"green\">Объём возвращаемого груза: {RouteListUoW.Root.GetTotalReverseVolume():0.###}/{maxVolume} м<sup>3</sup>.</span>";
+					? $"<span foreground = \"{GdkColors.DangerText.ToHtmlColor()}\">Объём возвращаемого груза превышен на {RouteListUoW.Root.ReverseVolumeExecess():0.###} м<sup>3</sup>.</span>"
+					: $"<span foreground = \"{GdkColors.SuccessText.ToHtmlColor()}\">Объём возвращаемого груза: {RouteListUoW.Root.GetTotalReverseVolume():0.###}/{maxVolume} м<sup>3</sup>.</span>";
 				lblVolume.LabelProp = volume + " " + reverseVolume;
 			}
 			if(RouteListUoW?.Root?.Car == null)

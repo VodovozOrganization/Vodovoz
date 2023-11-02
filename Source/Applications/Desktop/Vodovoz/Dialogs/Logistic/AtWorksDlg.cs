@@ -1,4 +1,4 @@
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gamma.Widgets.Additions;
 using Gdk;
@@ -31,6 +31,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
+using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
@@ -58,7 +59,6 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private readonly IDefaultDeliveryDayScheduleSettings _defaultDeliveryDayScheduleSettings;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly ICarRepository _carRepository;
 		private readonly IGeographicGroupRepository _geographicGroupRepository;
@@ -69,10 +69,10 @@ namespace Vodovoz.Dialogs.Logistic
 		private readonly EmployeeFilterViewModel _forwarderFilter;
 		private readonly AtWorkFilterViewModel _filterViewModel;
 
-		private readonly Color _colorBackgroundDefault;
-		private readonly Color _colorForegroundDefault;
-		private readonly Color _colorForegroundInsensitive;
-		private readonly Color _colorLightRed;
+		private readonly Color _colorPrimaryBase = GdkColors.PrimaryBase;
+		private readonly Color _colorPrimaryText = GdkColors.PrimaryText;
+		private readonly Color _colorInsensitiveText = GdkColors.InsensitiveText;
+		private readonly Color _colorLightRed = GdkColors.DangerBase;
 		private IList<RouteList> _routelists = new List<RouteList>();
 		private readonly HashSet<AtWorkDriver> _driversWithCommentChanged = new HashSet<AtWorkDriver>();
 		private bool _hasNewDrivers;
@@ -87,7 +87,6 @@ namespace Vodovoz.Dialogs.Logistic
 			IRouteListRepository routeListRepository,
 			ICarRepository carRepository,
 			IEmployeeRepository employeeRepository,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IGeographicGroupRepository geographicGroupRepository,
 			IScheduleRestrictionRepository scheduleRestrictionRepository,
 			IAttachmentsViewModelFactory attachmentsViewModelFactory,
@@ -111,7 +110,6 @@ namespace Vodovoz.Dialogs.Logistic
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_carRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
-			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			_geographicGroupRepository = geographicGroupRepository ?? throw new ArgumentNullException(nameof(geographicGroupRepository));
 			_scheduleRestrictionRepository = scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
 			_attachmentsViewModelFactory = attachmentsViewModelFactory ?? throw new ArgumentNullException(nameof(attachmentsViewModelFactory));
@@ -126,11 +124,6 @@ namespace Vodovoz.Dialogs.Logistic
 				UoW.GetById<DeliveryDaySchedule>(_defaultDeliveryDayScheduleSettings.GetDefaultDeliveryDayScheduleId());
 
 			_cachedGeographicGroups = _geographicGroupRepository.GeographicGroupsWithCoordinates(UoW, isActiveOnly: true);
-
-			_colorBackgroundDefault = Rc.GetStyle(this).Background(StateType.Normal);
-			_colorForegroundDefault = Rc.GetStyle(this).Foreground(StateType.Normal);
-			_colorForegroundInsensitive = Rc.GetStyle(this).Foreground(StateType.Insensitive);
-			_colorLightRed = new Color(0xff, 0x66, 0x66);
 
 			_forwarderFilter = new EmployeeFilterViewModel();
 
@@ -274,7 +267,7 @@ namespace Vodovoz.Dialogs.Logistic
 							c.Editable = true;
 							c.BackgroundGdk = n.GeographicGroup == null
 								? _colorLightRed
-								: _colorBackgroundDefault;
+								: _colorPrimaryBase;
 						}
 					)
 				.AddColumn("Грузоп.")
@@ -291,8 +284,8 @@ namespace Vodovoz.Dialogs.Logistic
 					.AddTextRenderer(x => x.CarTypeOfUseDisplayName)
 				.RowCells().AddSetter<CellRendererText>((c, n) =>
 					c.ForegroundGdk = n.Status == AtWorkDriver.DriverStatus.NotWorking
-					? _colorForegroundInsensitive
-					: _colorForegroundDefault)
+					? _colorInsensitiveText
+					: _colorPrimaryText)
 				.Finish();
 
 			ytreeviewAtWorkDrivers.ItemsDataSource = DriversAtDay;
@@ -633,28 +626,7 @@ namespace Vodovoz.Dialogs.Logistic
 		{
 			var selected = ytreeviewAtWorkDrivers.GetSelectedObjects<AtWorkDriver>().First();
 
-			var uowFactory = UnitOfWorkFactory.GetDefaultFactory;
-			var commonServices = ServicesConfig.CommonServices;
-			var warehouseJournalFactory = new WarehouseJournalFactory();
-			var employeeService = new EmployeeService();
-			var geoGroupVersionsModel = new GeoGroupVersionsModel(commonServices.UserService, employeeService);
-			var geoGroupJournalFactory = new GeoGroupJournalFactory(uowFactory, commonServices, _subdivisionJournalFactory, warehouseJournalFactory, geoGroupVersionsModel);
-
-			TabParent.OpenTab(
-				DialogHelper.GenerateDialogHashName<Car>(selected.Car.Id),
-				() => new CarViewModel(
-					EntityUoWBuilder.ForOpen(selected.Car.Id),
-					UnitOfWorkFactory.GetDefaultFactory,
-					ServicesConfig.CommonServices,
-					_employeeJournalFactory,
-					_attachmentsViewModelFactory,
-					new CarModelJournalFactory(),
-					new CarVersionsViewModelFactory(ServicesConfig.CommonServices),
-					new OdometerReadingsViewModelFactory(ServicesConfig.CommonServices),
-					new RouteListsWageController(new WageParameterService(new WageCalculationRepository(),
-						new BaseParametersProvider(new ParametersProvider()))),
-					geoGroupJournalFactory,
-					Startup.MainWin.NavigationManager));
+			Startup.MainWin.NavigationManager.OpenViewModelOnTdi<CarViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(selected.Car.Id));
 		}
 
 		protected void OnButtonEditDistrictsClicked(object sender, EventArgs e)

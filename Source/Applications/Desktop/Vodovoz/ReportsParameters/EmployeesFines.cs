@@ -18,7 +18,7 @@ namespace Vodovoz.Reports
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			var employeeFactory = new EmployeeJournalFactory(_employeeFilter);
+			var employeeFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager, _employeeFilter);
 			evmeDriver.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateEmployeeAutocompleteSelectorFactory());
 			buttonRun.Clicked += (sender, e) => OnUpdate(true);
 			dateperiodpicker1.PeriodChanged += (sender, e) => ValidateParameters();

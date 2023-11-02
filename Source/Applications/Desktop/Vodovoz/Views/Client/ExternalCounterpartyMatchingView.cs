@@ -2,14 +2,13 @@
 using Gamma.Binding;
 using Gamma.Binding.Core.LevelTreeConfig;
 using Gamma.ColumnConfig;
-using Gdk;
 using Gtk;
 using QS.Journal.GtkUI;
 using QS.Navigation;
 using QS.Tdi;
 using QS.Views;
-using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.Infrastructure;
+using Vodovoz.ViewModels.ViewModels.Counterparty;
 
 namespace Vodovoz.Views.Client
 {
@@ -70,15 +69,15 @@ namespace Vodovoz.Views.Client
 				.AddColumn("")
 				.RowCells()
 					.AddSetter<CellRendererText>((c, n) =>
-						c.ForegroundGdk = n.HasOtherExternalCounterparty ? GdkColors.OrangeColor : GdkColors.BlackColor)
+						c.ForegroundGdk = n.HasOtherExternalCounterparty ? GdkColors.Orange : GdkColors.PrimaryText)
 					.AddSetter<CellRenderer>(
 						(c, n) =>
 						{
-							var color = GdkColors.WhiteColor;
+							var color = GdkColors.PrimaryBase;
 									
 							if(n.ExternalCounterpartyId.HasValue && !n.HasOtherExternalCounterparty)
 							{
-								color = GdkColors.LightGreenColor;
+								color = GdkColors.SuccessBase;
 							}
 
 							c.CellBackgroundGdk = color;
@@ -120,14 +119,14 @@ namespace Vodovoz.Views.Client
 					.AddTextRenderer(n => n.ExternalCounterpartyGuid.ToString())
 					.AddSetter((c, n) =>
 						c.ForegroundGdk = n.ExternalCounterpartyGuid != ViewModel.Entity.ExternalCounterpartyGuid
-							? GdkColors.RedColor2
-							: GdkColors.BlackColor)
+							? GdkColors.Red2
+							: GdkColors.PrimaryText)
 				.AddColumn("Телефон")
 					.AddTextRenderer(n => n.PhoneNumber)
 					.AddSetter((c, n) =>
 						c.ForegroundGdk = n.PhoneNumber != ViewModel.DigitsPhoneNumber
-							? GdkColors.RedColor2
-							: GdkColors.BlackColor)
+							? GdkColors.Red2
+							: GdkColors.PrimaryText)
 				.AddColumn("")
 				.Finish();
 
@@ -144,9 +143,9 @@ namespace Vodovoz.Views.Client
 		private void CreateDiscrepanciesPopUpMenu()
 		{
 			_discrepanciesPopUpMenu = new Menu();
-			var menuItem = new MenuItem("Переприсвоить контрагента");
-			menuItem.Activated += ReAssignCounterparty;
-			_discrepanciesPopUpMenu.Add(menuItem);
+			var reAssignItem = new MenuItem("Переприсвоить контрагента");
+			reAssignItem.Activated += ReAssignCounterparty;
+			_discrepanciesPopUpMenu.Add(reAssignItem);
 			_discrepanciesPopUpMenu.ShowAll();
 		}
 

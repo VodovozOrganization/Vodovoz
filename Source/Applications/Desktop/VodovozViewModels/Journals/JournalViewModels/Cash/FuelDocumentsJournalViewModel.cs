@@ -1,5 +1,4 @@
-﻿using System;
-using Autofac;
+﻿using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
@@ -9,8 +8,8 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using QS.Services;
+using System;
 using Vodovoz.Controllers;
-using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
@@ -25,7 +24,7 @@ using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 {
-    public class FuelDocumentsJournalViewModel : MultipleEntityJournalViewModelBase<FuelDocumentJournalNode>
+	public class FuelDocumentsJournalViewModel : MultipleEntityJournalViewModelBase<FuelDocumentJournalNode>
     {
 	    private readonly ICommonServices _commonServices;
 	    private readonly IEmployeeService _employeeService;
@@ -34,7 +33,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 	    private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 	    private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 	    private readonly IEmployeeJournalFactory _employeeJournalFactory;
-	    private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
 	    private readonly ICarJournalFactory _carJournalFactory;
 	    private readonly IReportViewOpener _reportViewOpener;
 	    private readonly IRouteListProfitabilityController _routeListProfitabilityController;
@@ -49,7 +47,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             ICounterpartyJournalFactory counterpartyJournalFactory,
             INomenclatureJournalFactory nomenclatureSelectorFactory,
             IEmployeeJournalFactory employeeJournalFactory,
-            ISubdivisionJournalFactory subdivisionJournalFactory,
             ICarJournalFactory carJournalFactory,
             IReportViewOpener reportViewOpener,
             IRouteListProfitabilityController routeListProfitabilityController,
@@ -64,7 +61,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 	        _nomenclatureSelectorFactory =
 		        nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 	        _employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-	        _subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 	        _carJournalFactory = carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory));
 	        _reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
 	        _routeListProfitabilityController =
@@ -335,7 +331,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					    _commonServices,
 					    _employeeJournalFactory,
 					    _reportViewOpener,
-					    _subdivisionJournalFactory,
 					    _routeListProfitabilityController,
 						NavigationManager,
 						_lifetimeScope),
@@ -349,7 +344,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					    _commonServices,
 					    _employeeJournalFactory,
 					    _reportViewOpener,
-					    _subdivisionJournalFactory,
 					    _routeListProfitabilityController,
 						NavigationManager,
 						_lifetimeScope),

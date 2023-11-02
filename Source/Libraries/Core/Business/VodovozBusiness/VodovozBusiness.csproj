@@ -92,6 +92,9 @@
     <Compile Include="Domain\Logistic\FastDelivery\RouteListMaxFastDeliveryOrders.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryChange.ChangeType.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryChange.cs" />
+    <Compile Include="Domain\Logistic\RouteListSpecialCondition.cs" />
+    <Compile Include="Domain\Logistic\RouteListSpecialConditionType.cs" />
+    <Compile Include="Domain\Logistic\RegradingOfGoodsReason.cs" />
     <Compile Include="Domain\Payments\CombinedPaymentNode.cs" />
     <Compile Include="Domain\Orders\OrderEdoTrueMarkDocumentsActions.cs" />
     <Compile Include="Domain\Orders\UndeliveryDetalization.cs" />
@@ -756,6 +759,8 @@
     <Compile Include="NHibernateProjections\Goods\ProductGroupProjections.cs" />
     <Compile Include="NHibernateProjections\Logistics\CarProjections.cs" />
     <Compile Include="NHibernateProjections\Orders\OrderProjections.cs" />
+    <Compile Include="Nodes\AvangardOperation.cs" />
+    <Compile Include="Nodes\AvangardOperations.cs" />
     <Compile Include="Nodes\NomenclatureOnlineParametersData.cs" />
     <Compile Include="Nodes\NomenclatureOnlineParametersNode.cs" />
     <Compile Include="Nodes\NomenclatureOnlinePriceNode.cs" />
@@ -971,6 +976,7 @@
     <Compile Include="Services\DriverApiParametersProvider.cs" />
     <Compile Include="Services\IUserRoleSettings.cs" />
     <Compile Include="Services\IUserSettings.cs" />
+    <Compile Include="Services\Logistics\IRouteListService.cs" />
     <Compile Include="Services\RevenueServiceInfo.cs" />
     <Compile Include="Services\UserRoleSettings.cs" />
     <Compile Include="Tools\GeoGroupVersionNotFoundException.cs" />
@@ -980,6 +986,7 @@
     <Compile Include="Tools\Logistic\DriverDistrictPriorityHelper.cs" />
     <Compile Include="Tools\Logistic\IDistanceCalculator.cs" />
     <Compile Include="Domain\Logistic\CachedDistance.cs" />
+    <Compile Include="Tools\Logistic\IFastDeliveryDistanceChecker.cs" />
     <Compile Include="Tools\Logistic\RouteGeometryCalculator.cs" />
     <Compile Include="Domain\Logistic\AtWorkDriverDistrictPriority.cs" />
     <Compile Include="Domain\Logistic\DeliveryDaySchedule.cs" />

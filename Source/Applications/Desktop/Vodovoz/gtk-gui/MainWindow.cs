@@ -607,6 +607,8 @@ public partial class MainWindow
 
 	private global::Gtk.Action Action76;
 
+	private global::Gtk.Action ActionRegradingOfGoodsReasons;
+
 	private global::Gtk.Action DriversWarehousesEventsActions;
 
 	private global::Gtk.Action DriversWarehousesEventsNamesAction;
@@ -843,7 +845,7 @@ public partial class MainWindow
 		this.ActionToolBarIcon.ShortLabel = global::Mono.Unix.Catalog.GetString("Только иконки");
 		w1.Add(this.ActionToolBarIcon, null);
 		this.ActionToolBarBoth = new global::Gtk.RadioAction("ActionToolBarBoth", global::Mono.Unix.Catalog.GetString("Иконки и Текст"), null, null, 0);
-		this.ActionToolBarBoth.Group = this.ActionToolBarIcon.Group;
+		this.ActionToolBarBoth.Group = this.ActionToolBarText.Group;
 		this.ActionToolBarBoth.ShortLabel = global::Mono.Unix.Catalog.GetString("Иконки и Текст");
 		w1.Add(this.ActionToolBarBoth, null);
 		this.ActionIconsExtraSmall = new global::Gtk.RadioAction("ActionIconsExtraSmall", global::Mono.Unix.Catalog.GetString("Очень маленькие иконки"), null, null, 0);
@@ -1336,7 +1338,7 @@ public partial class MainWindow
 		this.registeredRMAction.ShortLabel = global::Mono.Unix.Catalog.GetString("Зарегистрированные RM");
 		w1.Add(this.registeredRMAction, null);
 		this.ActionRetail = new global::Gtk.RadioAction("ActionRetail", global::Mono.Unix.Catalog.GetString("Розница"), null, "retail", 0);
-		this.ActionRetail.Group = this.ActionStaff.Group;
+		this.ActionRetail.Group = this.ActionCashRequest.Group;
 		this.ActionRetail.ShortLabel = global::Mono.Unix.Catalog.GetString("Розница");
 		w1.Add(this.ActionRetail, null);
 		this.ActionRetailOrdersJournal = new global::Gtk.Action("ActionRetailOrdersJournal", global::Mono.Unix.Catalog.GetString("Журнал заказов"), null, null);
@@ -1415,7 +1417,7 @@ public partial class MainWindow
 		this.ActionDeliveryAnalytics.ShortLabel = global::Mono.Unix.Catalog.GetString("Аналитика объёмов доставки");
 		w1.Add(this.ActionDeliveryAnalytics, null);
 		this.ActionCarService = new global::Gtk.RadioAction("ActionCarService", global::Mono.Unix.Catalog.GetString("ТрО"), null, "car_events", 0);
-		this.ActionCarService.Group = this.ActionStaff.Group;
+		this.ActionCarService.Group = this.ActionCashRequest.Group;
 		this.ActionCarService.ShortLabel = global::Mono.Unix.Catalog.GetString("ТрО");
 		w1.Add(this.ActionCarService, null);
 		this.ActionCarEventType = new global::Gtk.Action("ActionCarEventType", global::Mono.Unix.Catalog.GetString("Виды событий ТС"), null, null);
@@ -1503,7 +1505,7 @@ public partial class MainWindow
 		this.ActionGroupPricing.ShortLabel = global::Mono.Unix.Catalog.GetString("Групповое заполнение себестоимости");
 		w1.Add(this.ActionGroupPricing, null);
 		this.ActionSalesDepartment = new global::Gtk.RadioAction("ActionSalesDepartment", global::Mono.Unix.Catalog.GetString("Отдел продаж"), null, "sales_department", 0);
-		this.ActionSalesDepartment.Group = this.ActionStaff.Group;
+		this.ActionSalesDepartment.Group = this.ActionCashRequest.Group;
 		this.ActionSalesDepartment.ShortLabel = global::Mono.Unix.Catalog.GetString("Отдел продаж");
 		w1.Add(this.ActionSalesDepartment, null);
 		this.ActionResponsible = new global::Gtk.Action("ActionResponsible", global::Mono.Unix.Catalog.GetString("Ответственные за рекламации"), null, null);
@@ -1593,6 +1595,9 @@ public partial class MainWindow
 		this.Action76 = new global::Gtk.Action("Action76", global::Mono.Unix.Catalog.GetString("Обновление сведений Контрагентов из ФНС"), null, null);
 		this.Action76.ShortLabel = global::Mono.Unix.Catalog.GetString("Обновление сведений Контрагентов из ФНС");
 		w1.Add(this.Action76, null);
+		this.ActionRegradingOfGoodsReasons = new global::Gtk.Action("ActionRegradingOfGoodsReasons", global::Mono.Unix.Catalog.GetString("Причины пересортицы"), null, null);
+		this.ActionRegradingOfGoodsReasons.ShortLabel = global::Mono.Unix.Catalog.GetString("Причины пересортицы");
+		w1.Add(this.ActionRegradingOfGoodsReasons, null);
 		this.DriversWarehousesEventsActions = new global::Gtk.Action("DriversWarehousesEventsActions", global::Mono.Unix.Catalog.GetString("События нахождения водителей на складе"), null, null);
 		this.DriversWarehousesEventsActions.ShortLabel = global::Mono.Unix.Catalog.GetString("События нахождения водителей на складе");
 		w1.Add(this.DriversWarehousesEventsActions, null);
@@ -2327,6 +2332,7 @@ public partial class MainWindow
 		this.ActionCounterpartySubtypes.Activated += new global::System.EventHandler(this.OnActionCounterpartySubtypesActivated);
 		this.ActionMovementsPaymentControlReport.Activated += new global::System.EventHandler(this.OnActionMovementsPaymentControlReportActivated);
 		this.Action76.Activated += new global::System.EventHandler(this.OnAction76Activated);
+		this.ActionRegradingOfGoodsReasons.Activated += new global::System.EventHandler(this.OnActionRegradingOfGoodsReasonsActivated);
 		this.DriversWarehousesEventsNamesAction.Activated += new global::System.EventHandler(this.OnDriversWarehousesEventsNamesActionActivated);
 		this.DriversWarehousesEventsAction.Activated += new global::System.EventHandler(this.OnDriversWarehousesEventsActionActivated);
 		this.CompletedDriversWarehousesEventsAction.Activated += new global::System.EventHandler(this.OnCompletedDriversWarehousesEventsActionActivated);

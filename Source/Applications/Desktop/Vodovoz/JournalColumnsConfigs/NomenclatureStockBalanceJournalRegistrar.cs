@@ -25,10 +25,10 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("")
 				.RowCells().AddSetter<CellRendererText>((c, n) =>
 				{
-					var color = GdkColors.BlackColor;
+					var color = GdkColors.PrimaryText;
 					if(n.StockAmount < 0)
 					{
-						color = new Color(255, 30, 30);
+						color = GdkColors.DangerText;
 					}
 					c.ForegroundGdk = color;
 				})

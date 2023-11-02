@@ -22,7 +22,9 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.Extensions;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.Infrastructure;
 using Vodovoz.JournalNodes;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
@@ -50,8 +52,9 @@ namespace Vodovoz.Representations
 			OrderParametersProvider orderParametersProvider,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
 			IEmployeeService employeeService,
-			INavigationManager navigationManager) 
-			: base(filterViewModel, unitOfWorkFactory, commonServices)
+			INavigationManager navigationManager,
+			Action<OrderJournalFilterViewModel> filterConfig = null) 
+			: base(filterViewModel, unitOfWorkFactory, commonServices, navigation: navigationManager)
 		{
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			_orderPaymentSettings = orderPaymentSettings ?? throw new ArgumentNullException(nameof(orderPaymentSettings));
@@ -64,11 +67,20 @@ namespace Vodovoz.Representations
 					commonServices.UserService.CurrentUserId);
 
 			TabName = "Журнал самовывозов";
+
+			filterViewModel.Journal = this;
+
+			if(filterConfig != null)
+			{
+				filterViewModel.SetAndRefilterAtOnce(filterConfig);
+			}
+
 			SetOrder(x => x.Date, true);
+			
 			UpdateOnChanges(
 				typeof(VodovozOrder),
-				typeof(OrderItem)
-			);
+				typeof(OrderItem));
+
 			_userCanChangePayTypeToByCard = commonServices.CurrentPermissionService.ValidatePresetPermission("allow_load_selfdelivery");
 		}
 
@@ -215,8 +227,8 @@ namespace Vodovoz.Representations
 					if(difference == 0)
 						sb.Append("Расх.нал: <b>").Append(difference.ToShortCurrencyString()).Append("</b>\t\t");
 					else
-						sb.Append("Расх.нал: <span foreground=\"Red\"><b>").Append(difference.ToShortCurrencyString()).Append("</b></span>\t\t");
-					sb.Append("<span foreground=\"Grey\"><b>").Append(base.FooterInfo).Append("</b></span>");
+						sb.Append($"Расх.нал: <span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\"><b>").Append(difference.ToShortCurrencyString()).Append("</b></span>\t\t");
+					sb.Append($"<span foreground=\"{GdkColors.InsensitiveText.ToHtmlColor()}\"><b>").Append(base.FooterInfo).Append("</b></span>");
 				}
 				return sb.ToString();
 			}

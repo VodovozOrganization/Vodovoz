@@ -32,6 +32,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 		private List<string> _allOrganizationOwnershipTypesAbbreviations;
 		private List<Domain.Organizations.Organization> _allOrganizations;
 		private List<SalesChannelNode> _salesChannels;
+		private bool _canOpenCloseDeliveries;
 
 		private DelegateCommand _closeDeliveryCommand;
 		private DelegateCommand _saveCloseCommentCommand;
@@ -49,7 +50,9 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			CloseDeliveryComment = Entity.CloseDeliveryComment ?? string.Empty;
-
+			_canOpenCloseDeliveries =
+				_commonServices.CurrentPermissionService.ValidatePresetPermission("can_close_deliveries_for_counterparty");
+				
 			Title = $"Открытие/закрытие поставок {Entity.Name}";
 		}
 
@@ -130,15 +133,13 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			}
 		}
 
-		public bool CanCloseDelivery =>
-			PermissionResult.CanUpdate
-			&& _commonServices.CurrentPermissionService.ValidatePresetPermission("can_close_deliveries_for_counterparty");
+		public bool CanCloseDelivery => PermissionResult.CanUpdate && _canOpenCloseDeliveries;
 
 		private void CloseDelivery()
 		{
 			if(CanCloseDelivery)
 			{
-				Entity.ToggleDeliveryOption(CurrentEmployee);
+				Entity.ToggleDeliveryOption(CurrentEmployee, _canOpenCloseDeliveries);
 				CloseDeliveryComment = string.Empty;
 				OnPropertyChanged(nameof(CloseDeliveryLabelInfo));
 			}

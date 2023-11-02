@@ -12,6 +12,8 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::QS.Widgets.GtkUI.DateRangePicker dateperiodOrders;
 
+		private global::QS.Views.Control.EntityEntry entryAuthor;
+
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryCounterparty;
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryDeliveryPoint;
@@ -19,8 +21,6 @@ namespace Vodovoz.Filters.GtkViews
 		private global::Gamma.Widgets.yEnumComboBox enumcomboPaymentType;
 
 		private global::Gamma.Widgets.yEnumComboBox enumcomboStatus;
-
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeAuthor;
 
 		private global::Gtk.HBox hboxCheckBoxFilters;
 
@@ -145,19 +145,31 @@ namespace Vodovoz.Filters.GtkViews
 			w2.XOptions = ((global::Gtk.AttachOptions)(4));
 			w2.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
+			this.entryAuthor = new global::QS.Views.Control.EntityEntry();
+			this.entryAuthor.Events = ((global::Gdk.EventMask)(256));
+			this.entryAuthor.Name = "entryAuthor";
+			this.table1.Add(this.entryAuthor);
+			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.entryAuthor]));
+			w3.TopAttach = ((uint)(4));
+			w3.BottomAttach = ((uint)(5));
+			w3.LeftAttach = ((uint)(1));
+			w3.RightAttach = ((uint)(2));
+			w3.XOptions = ((global::Gtk.AttachOptions)(4));
+			w3.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
 			this.entryCounterparty = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.entryCounterparty.Events = ((global::Gdk.EventMask)(256));
 			this.entryCounterparty.Name = "entryCounterparty";
 			this.entryCounterparty.CanEditReference = true;
 			this.entryCounterparty.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.entryCounterparty);
-			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.entryCounterparty]));
-			w3.TopAttach = ((uint)(3));
-			w3.BottomAttach = ((uint)(4));
-			w3.LeftAttach = ((uint)(1));
-			w3.RightAttach = ((uint)(2));
-			w3.XOptions = ((global::Gtk.AttachOptions)(4));
-			w3.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.entryCounterparty]));
+			w4.TopAttach = ((uint)(3));
+			w4.BottomAttach = ((uint)(4));
+			w4.LeftAttach = ((uint)(1));
+			w4.RightAttach = ((uint)(2));
+			w4.XOptions = ((global::Gtk.AttachOptions)(4));
+			w4.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.entryDeliveryPoint = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.entryDeliveryPoint.Events = ((global::Gdk.EventMask)(256));
@@ -165,13 +177,13 @@ namespace Vodovoz.Filters.GtkViews
 			this.entryDeliveryPoint.CanEditReference = true;
 			this.entryDeliveryPoint.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.entryDeliveryPoint);
-			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.entryDeliveryPoint]));
-			w4.TopAttach = ((uint)(3));
-			w4.BottomAttach = ((uint)(4));
-			w4.LeftAttach = ((uint)(3));
-			w4.RightAttach = ((uint)(6));
-			w4.XOptions = ((global::Gtk.AttachOptions)(4));
-			w4.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.entryDeliveryPoint]));
+			w5.TopAttach = ((uint)(3));
+			w5.BottomAttach = ((uint)(4));
+			w5.LeftAttach = ((uint)(3));
+			w5.RightAttach = ((uint)(6));
+			w5.XOptions = ((global::Gtk.AttachOptions)(4));
+			w5.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.enumcomboPaymentType = new global::Gamma.Widgets.yEnumComboBox();
 			this.enumcomboPaymentType.Name = "enumcomboPaymentType";
@@ -180,13 +192,13 @@ namespace Vodovoz.Filters.GtkViews
 			this.enumcomboPaymentType.UseShortTitle = false;
 			this.enumcomboPaymentType.DefaultFirst = false;
 			this.table1.Add(this.enumcomboPaymentType);
-			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.enumcomboPaymentType]));
-			w5.TopAttach = ((uint)(1));
-			w5.BottomAttach = ((uint)(2));
-			w5.LeftAttach = ((uint)(3));
-			w5.RightAttach = ((uint)(4));
-			w5.XOptions = ((global::Gtk.AttachOptions)(4));
-			w5.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.enumcomboPaymentType]));
+			w6.TopAttach = ((uint)(1));
+			w6.BottomAttach = ((uint)(2));
+			w6.LeftAttach = ((uint)(3));
+			w6.RightAttach = ((uint)(4));
+			w6.XOptions = ((global::Gtk.AttachOptions)(4));
+			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.enumcomboStatus = new global::Gamma.Widgets.yEnumComboBox();
 			this.enumcomboStatus.Name = "enumcomboStatus";
@@ -195,23 +207,9 @@ namespace Vodovoz.Filters.GtkViews
 			this.enumcomboStatus.UseShortTitle = false;
 			this.enumcomboStatus.DefaultFirst = false;
 			this.table1.Add(this.enumcomboStatus);
-			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.enumcomboStatus]));
-			w6.TopAttach = ((uint)(1));
-			w6.BottomAttach = ((uint)(2));
-			w6.LeftAttach = ((uint)(1));
-			w6.RightAttach = ((uint)(2));
-			w6.XOptions = ((global::Gtk.AttachOptions)(4));
-			w6.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.evmeAuthor = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.evmeAuthor.Events = ((global::Gdk.EventMask)(256));
-			this.evmeAuthor.Name = "evmeAuthor";
-			this.evmeAuthor.CanEditReference = true;
-			this.evmeAuthor.CanOpenWithoutTabParent = false;
-			this.table1.Add(this.evmeAuthor);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeAuthor]));
-			w7.TopAttach = ((uint)(4));
-			w7.BottomAttach = ((uint)(5));
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.enumcomboStatus]));
+			w7.TopAttach = ((uint)(1));
+			w7.BottomAttach = ((uint)(2));
 			w7.LeftAttach = ((uint)(1));
 			w7.RightAttach = ((uint)(2));
 			w7.XOptions = ((global::Gtk.AttachOptions)(4));

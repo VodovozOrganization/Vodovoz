@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -6,6 +6,7 @@ using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Journal;
@@ -36,14 +37,20 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			ICommonServices commonServices,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ILifetimeScope lifetimeScope,
-			Action<EmployeeFilterViewModel> filterparams = null) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			INavigationManager navigationManager,
+			Action<EmployeeFilterViewModel> filterparams = null)
+			: base(filterViewModel, unitOfWorkFactory, commonServices, false, false, navigationManager)
 		{
 			TabName = "Журнал сотрудников";
 
 			_authorizationServiceFactory =
 				authorizationServiceFactory ?? throw new ArgumentNullException(nameof(authorizationServiceFactory));
+			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_authorizationService = _authorizationServiceFactory.CreateNewAuthorizationService();
+
+			filterViewModel.JournalViewModel = this;
+			JournalFilter = filterViewModel;
 
 			if(filterparams != null)
 			{
@@ -366,7 +373,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 		{
 			NodeActionsList.Clear();
 			CreateDefaultSelectAction();
-			CreateDefaultAddActions();
+			CreateCustomAddActions();
 			CreateCustomEditAction();
 			CreateDefaultDeleteAction();
 		}
@@ -411,14 +418,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 						return;
 					}
 
-					var config = EntityConfigs[selectedNode.EntityType];
-					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
-					TabParent.OpenTab(() => foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode), this);
-
-					if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog)
-					{
-						HideJournal(TabParent);
-					}
+					NavigationManager.OpenViewModel<EmployeeViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(selectedNode.Id));
 				}
 			);
 
@@ -430,10 +430,36 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			NodeActionsList.Add(editAction);
 		}
 
+		private void CreateCustomAddActions()
+		{
+			var createAction = new JournalAction("Создать",
+				(selected) =>
+				{
+					var config = EntityConfigs[typeof(Employee)];
+
+					return config.PermissionResult.CanCreate;
+				},
+				(selected) => true,
+				(selected) =>
+				{
+					if(!EntityConfigs.ContainsKey(typeof(Employee)))
+					{
+						return;
+					}
+
+					NavigationManager.OpenViewModel<EmployeeViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
+				}
+			);
+
+			NodeActionsList.Add(createAction);
+		}
+
 		protected override Func<EmployeeViewModel> CreateDialogFunction =>
 			() => _lifetimeScope.Resolve<EmployeeViewModel>(new TypedParameter[] { new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForCreate()) });
 
 		protected override Func<EmployeeJournalNode, EmployeeViewModel> OpenDialogFunction =>
 			(node) => _lifetimeScope.Resolve<EmployeeViewModel>(new TypedParameter[] { new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(node.Id)) });
+
+		public ILifetimeScope Scope => _lifetimeScope;
 	}
 }

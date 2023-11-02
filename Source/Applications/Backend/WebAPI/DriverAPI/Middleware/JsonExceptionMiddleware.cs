@@ -1,4 +1,4 @@
-﻿using DriverAPI.DTOs.V2;
+﻿using DriverAPI.DTOs.V4;
 using DriverAPI.Library.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -68,7 +68,7 @@ namespace DriverAPI.Middleware
 
 			await context.Response.Body
 				.WriteAsync(Encoding.UTF8.GetBytes(JsonSerializer
-					.Serialize(new ErrorResponseDto(exception.Message))));
+					.Serialize(new ErrorResponseDto(exception.Message)))); // TODO: Сделать централизованный DTO для ошибок, лучше всего ProblemDetails
 		}
 	}
 }

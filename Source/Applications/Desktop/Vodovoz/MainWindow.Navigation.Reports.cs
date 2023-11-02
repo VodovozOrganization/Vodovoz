@@ -1,10 +1,8 @@
 ﻿using Autofac;
 using QS.Dialog;
-using QS.Dialog.GtkUI.FileDialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services;
-using QS.Project.Services.FileDialog;
 using QS.Report.ViewModels;
 using QSOrmProject;
 using System;
@@ -12,14 +10,11 @@ using Vodovoz;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Parameters;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ReportsParameters.Bookkeeping;
@@ -32,7 +27,6 @@ using Vodovoz.ReportsParameters.Production;
 using Vodovoz.ReportsParameters.Retail;
 using Vodovoz.ReportsParameters.Sales;
 using Vodovoz.ReportsParameters.Store;
-using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Cash.Reports;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
@@ -41,6 +35,7 @@ using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.Reports.Sales;
 using Vodovoz.ViewModels.ReportsParameters;
 using Vodovoz.ViewModels.ReportsParameters.Cash;
+using Vodovoz.ViewModels.ReportsParameters.Payments;
 using Vodovoz.ViewModels.ReportsParameters.Profitability;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Logistic;
@@ -249,10 +244,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionPaymentsReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<PaymentsFromBankClientReport>(),
-			() => new QSReport.ReportViewDlg(
-				new PaymentsFromBankClientReport(new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()), new UserRepository(), ServicesConfig.CommonServices)));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(PaymentsFromBankClientReportViewModel));
 	}
 
 	/// <summary>
@@ -274,11 +266,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionOrderAnalyticsReportActivated(object sender, EventArgs e)
 	{
-		var uowFactory = _autofacScope.Resolve<IUnitOfWorkFactory>();
-		var interactiveService = _autofacScope.Resolve<IInteractiveService>();
-
-		NavigationManager.OpenViewModel<OrderAnalyticsReportViewModel, INavigationManager, IUnitOfWorkFactory, IInteractiveService>(
-			null, NavigationManager, uowFactory, interactiveService);
+		NavigationManager.OpenViewModel<OrderAnalyticsReportViewModel>(null);
 	}
 
 	/// <summary>
@@ -288,16 +276,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionNomenclaturePlanReportActivated(object sender, EventArgs e)
 	{
-		IProductGroupJournalFactory productGroupJournalFactory = new ProductGroupJournalFactory();
-		IParametersProvider parametersProvider = new ParametersProvider();
-		INomenclaturePlanParametersProvider nomenclaturePlanParametersProvider = new NomenclaturePlanParametersProvider(parametersProvider);
-		IFileDialogService fileDialogService = new FileDialogService();
-
-		NomenclaturePlanReportViewModel viewModel = new NomenclaturePlanReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.InteractiveService, NavigationManager, ServicesConfig.CommonServices, productGroupJournalFactory, nomenclaturePlanParametersProvider,
-			fileDialogService);
-
-		tdiMain.AddTab(viewModel);
+		NavigationManager.OpenViewModel<NomenclaturePlanReportViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -335,7 +314,7 @@ public partial class MainWindow
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<OrderCreationDateReport>(),
-			() => new QSReport.ReportViewDlg(new OrderCreationDateReport()));
+			() => new QSReport.ReportViewDlg(new OrderCreationDateReport(NavigationManager)));
 	}
 
 	/// <summary>
@@ -357,13 +336,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionSetBillsReportActivated(object sender, EventArgs e)
 	{
-		var subdivisionJournalFactory = new SubdivisionJournalFactory();
-
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<SetBillsReport>(),
-			() => new QSReport.ReportViewDlg(new SetBillsReport(
-				UnitOfWorkFactory.GetDefaultFactory,
-				subdivisionJournalFactory)));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(SetBillsReportViewModel));
 	}
 
 	/// <summary>
@@ -443,7 +416,7 @@ public partial class MainWindow
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<DefectiveItemsReport>(),
-			() => new QSReport.ReportViewDlg(new DefectiveItemsReport()));
+			() => new QSReport.ReportViewDlg(new DefectiveItemsReport(NavigationManager)));
 	}
 
 	/// <summary>
@@ -543,7 +516,7 @@ public partial class MainWindow
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<ShortfallBattlesReport>(),
-			() => new QSReport.ReportViewDlg(new ShortfallBattlesReport()));
+			() => new QSReport.ReportViewDlg(new ShortfallBattlesReport(NavigationManager)));
 	}
 
 	/// <summary>
@@ -622,7 +595,7 @@ public partial class MainWindow
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<FirstSecondClientReport>(),
-			() => new QSReport.ReportViewDlg(new FirstSecondClientReport(new DiscountReasonRepository())));
+			() => new QSReport.ReportViewDlg(new FirstSecondClientReport(NavigationManager, new DiscountReasonRepository())));
 	}
 
 	/// <summary>
@@ -668,14 +641,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionBulkEmailEventsReportActivated(object sender, EventArgs e)
 	{
-		ICounterpartyJournalFactory counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
-		IBulkEmailEventReasonJournalFactory bulkEmailEventReasonJournalFactory = new BulkEmailEventReasonJournalFactory();
-		IFileDialogService fileDialogService = new FileDialogService();
-
-		BulkEmailEventReportViewModel viewModel = new BulkEmailEventReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.InteractiveService, NavigationManager, fileDialogService, bulkEmailEventReasonJournalFactory, counterpartyJournalFactory);
-
-		tdiMain.AddTab(viewModel);
+		NavigationManager.OpenViewModel<BulkEmailEventReportViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	#endregion Отчеты ОСК/ОКК
@@ -795,7 +761,7 @@ public partial class MainWindow
 			Category = EmployeeCategory.driver
 		};
 
-		var employeeJournalFactory = new EmployeeJournalFactory(filter);
+		var employeeJournalFactory = new EmployeeJournalFactory(NavigationManager, filter);
 
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<GeneralSalaryInfoReport>(),
@@ -809,15 +775,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionDriversInfoExportActivated(object sender, EventArgs e)
 	{
-		var wageParameterService =
-			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(new ParametersProvider()));
-
-		tdiMain.AddTab(
-			new DriversInfoExportViewModel(
-				wageParameterService,
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.InteractiveService,
-				null));
+		NavigationManager.OpenViewModel<DriversInfoExportViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -828,7 +786,7 @@ public partial class MainWindow
 	protected void OnActionAddressesOverpaymentsReportActivated(object sender, EventArgs e)
 	{
 		var driverFilter = new EmployeeFilterViewModel { RestrictCategory = EmployeeCategory.driver };
-		var employeeJournalFactory = new EmployeeJournalFactory(driverFilter);
+		var employeeJournalFactory = new EmployeeJournalFactory(NavigationManager, driverFilter);
 
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<AddressesOverpaymentsReport>(),
@@ -844,14 +802,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionDeliveryAnalyticsActivated(object sender, EventArgs e)
 	{
-		var districtJournalFactory = new DistrictJournalFactory();
-
-		tdiMain.AddTab(
-			new DeliveryAnalyticsViewModel(
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.InteractiveService,
-				NavigationManager,
-				districtJournalFactory));
+		NavigationManager.OpenViewModel<DeliveryAnalyticsViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -873,12 +824,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnFastDeliverySalesReportActionActivated(object sender, EventArgs e)
 	{
-		IFileDialogService fileDialogService = new FileDialogService();
-
-		FastDeliverySalesReportViewModel viewModel = new FastDeliverySalesReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.InteractiveService, NavigationManager, fileDialogService);
-
-		tdiMain.AddTab(viewModel);
+		NavigationManager.OpenViewModel<FastDeliverySalesReportViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -888,12 +834,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnFastDeliveryAdditionalLoadingReportActionActivated(object sender, EventArgs e)
 	{
-		IFileDialogService fileDialogService = new FileDialogService();
-
-		FastDeliveryAdditionalLoadingReportViewModel viewModel = new FastDeliveryAdditionalLoadingReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.InteractiveService, NavigationManager, fileDialogService);
-
-		tdiMain.AddTab(viewModel);
+		NavigationManager.OpenViewModel<FastDeliveryAdditionalLoadingReportViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -1091,7 +1032,7 @@ public partial class MainWindow
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<MastersReport>(),
-			() => new QSReport.ReportViewDlg(new MastersReport()));
+			() => new QSReport.ReportViewDlg(new MastersReport(NavigationManager)));
 	}
 
 	/// <summary>
@@ -1113,7 +1054,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionMastersVisitReportActivated(object sender, EventArgs e)
 	{
-		var employeeFactory = new EmployeeJournalFactory();
+		var employeeFactory = new EmployeeJournalFactory(NavigationManager);
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<MastersVisitReport>(),
 			() => new QSReport.ReportViewDlg(new MastersVisitReport(employeeFactory)));
@@ -1155,7 +1096,7 @@ public partial class MainWindow
 	protected void OnActionNetworkDelayReportActivated(object sender, EventArgs e)
 	{
 		ILifetimeScope lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
-		var employeeJournalFactory = new EmployeeJournalFactory();
+		var employeeJournalFactory = new EmployeeJournalFactory(NavigationManager);
 
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<ChainStoreDelayReport>(),
@@ -1199,12 +1140,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionEdoUpdReportActivated(object sender, EventArgs e)
 	{
-		IFileDialogService fileDialogService = new FileDialogService();
-
-		var edoUpdReportViewModel = new EdoUpdReportViewModel(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.InteractiveService, NavigationManager,
-			fileDialogService);
-
-		tdiMain.AddTab(edoUpdReportViewModel);
+		NavigationManager.OpenViewModel<EdoUpdReportViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	#endregion Бухгалтерия
@@ -1232,7 +1168,7 @@ public partial class MainWindow
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.DriverWagesReport>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.DriverWagesReport()));
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.DriverWagesReport(NavigationManager)));
 	}
 
 	/// <summary>
@@ -1256,7 +1192,7 @@ public partial class MainWindow
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.FuelReport>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.FuelReport()));
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.FuelReport(NavigationManager)));
 	}
 
 	/// <summary>
@@ -1268,7 +1204,7 @@ public partial class MainWindow
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.ForwarderWageReport>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.ForwarderWageReport()));
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.ForwarderWageReport(NavigationManager)));
 	}
 
 	/// <summary>
@@ -1294,7 +1230,7 @@ public partial class MainWindow
 		}
 
 		employeeFilter.HidenByDefault = true;
-		var employeeJournalFactory = new EmployeeJournalFactory(employeeFilter);
+		var employeeJournalFactory = new EmployeeJournalFactory(NavigationManager, employeeFilter);
 
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.WagesOperationsReport>(),
@@ -1341,14 +1277,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnProductionWarehouseMovementReportActivated(object sender, EventArgs e)
 	{
-		IFileDialogService fileDialogService = new FileDialogService();
-		IParametersProvider parametersProvider = new ParametersProvider();
-		IProductionWarehouseMovementReportProvider productionWarehouseMovementReportProvider = new ProductionWarehouseMovementReportProvider(parametersProvider);
-
-		ProductionWarehouseMovementReportViewModel viewModel = new ProductionWarehouseMovementReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.InteractiveService, NavigationManager, fileDialogService, productionWarehouseMovementReportProvider);
-
-		tdiMain.AddTab(viewModel);
+		NavigationManager.OpenViewModel<ProductionWarehouseMovementReportViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -1420,7 +1349,7 @@ public partial class MainWindow
 			QSReport.ReportViewDlg.GenerateHashName<QualityReport>(),
 			() => new QSReport.ReportViewDlg(new QualityReport(
 				new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
-				new EmployeeJournalFactory(),
+				new EmployeeJournalFactory(NavigationManager),
 				new SalesChannelJournalFactory(),
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.InteractiveService)));
@@ -1440,6 +1369,7 @@ public partial class MainWindow
 				new DistrictJournalFactory(),
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.InteractiveService)));
+
 	}
 
 	#endregion Розница

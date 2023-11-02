@@ -38,6 +38,7 @@ using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalViewModels;
@@ -349,7 +350,7 @@ namespace Vodovoz
 				.AddColumn("Скидка")
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.ManualChangingDiscount)
-						.AddSetter((cell, node) => cell.Editable =  _canEditPrices)
+						.AddSetter((cell, node) => cell.Editable = _canEditPrices)
 						.AddSetter(
 							(c, n) => c.Adjustment = n.IsDiscountInMoney
 								? new Adjustment(0, 0, (double)(n.Price * n.ActualCount), 1, 100, 1)
@@ -372,12 +373,12 @@ namespace Vodovoz
 							return list;
 						})
 						.EditedEvent(OnDiscountReasonComboEdited)
-						.AddSetter((c, n) => c.Editable =  _canEditPrices)
+						.AddSetter((c, n) => c.Editable = _canEditPrices)
 						.AddSetter(
 							(c, n) =>
 								c.BackgroundGdk = n.Discount > 0 && n.DiscountReason == null && n.OrderItem?.PromoSet == null
-									? new Gdk.Color(0xff, 0x66, 0x66)
-									: new Gdk.Color(0xff, 0xff, 0xff)
+									? GdkColors.DangerBase
+									: GdkColors.PrimaryBase
 						)
 						.AddSetter((c, n) =>
 							{
@@ -528,7 +529,14 @@ namespace Vodovoz
 				_routeListItem.SetOrderActualCountsToZeroOnCanceled();
 				_routeListItem.BottlesReturned = 0;
 				UpdateButtonsState();
-				OnCloseTab(false);
+
+				if(ea.NeedClose)
+				{
+					OnCloseTab(false);
+				}
+
+				UoW.Save(_routeListItem);
+				UoW.Commit();
 			};
 		}
 
@@ -542,7 +550,14 @@ namespace Vodovoz
 				_routeListItem.SetOrderActualCountsToZeroOnCanceled();
 				_routeListItem.BottlesReturned = 0;
 				UpdateButtonsState();
-				OnCloseTab(false);
+
+				if(ea.NeedClose)
+				{
+					OnCloseTab(false);
+				}
+
+				UoW.Save(_routeListItem);
+				UoW.Commit();
 			};
 		}
 

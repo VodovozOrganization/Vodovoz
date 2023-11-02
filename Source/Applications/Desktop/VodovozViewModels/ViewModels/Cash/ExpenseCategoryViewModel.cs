@@ -9,10 +9,11 @@ using QS.ViewModels.Control.EEVM;
 using System;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
+using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.ViewModels.Organizations;
 
 namespace Vodovoz.ViewModels.ViewModels.Cash
 {
@@ -26,12 +27,16 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IEmployeeJournalFactory employeeJournalFactory,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IExpenseCategorySelectorFactory expenseCategorySelectorFactory,
 			INavigationManager navigationManager,
 			ILifetimeScope scope)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
+			if(navigationManager is null)
+			{
+				throw new ArgumentNullException(nameof(navigationManager));
+			}
+
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 
 			ExpenseCategoryAutocompleteSelectorFactory =
@@ -41,10 +46,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			var employeeSelectorFactory =
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
 				.CreateEmployeeAutocompleteSelectorFactory();
-
-			SubdivisionAutocompleteSelectorFactory =
-				(subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory)))
-			.CreateDefaultSubdivisionAutocompleteSelectorFactory(employeeSelectorFactory);
 
 			UpdateFinancialExpenseCategory();
 
@@ -64,9 +65,18 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				.Finish();
 
 			TabName = uowBuilder.IsNewEntity ? "Создание новой категории расхода" : $"{Entity.Title}";
-			_scope = scope;
 
 			Entity.PropertyChanged += OnEntityPropertyChanged;
+			BuildSubdivisionViewModel();
+		}
+
+		private void BuildSubdivisionViewModel()
+		{
+			SubdivisionViewModel = new CommonEEVMBuilderFactory<ExpenseCategory>(this, Entity, UoW, NavigationManager, _scope)
+				.ForProperty(x => x.Subdivision)
+				.UseViewModelDialog<SubdivisionViewModel>()
+				.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel>()
+				.Finish();
 		}
 
 		private void OnEntityPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -89,7 +99,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			}
 		}
 
-		public IEntityAutocompleteSelectorFactory SubdivisionAutocompleteSelectorFactory { get; }
+		public IEntityEntryViewModel SubdivisionViewModel { get; private set; }
 		public IEntityAutocompleteSelectorFactory ExpenseCategoryAutocompleteSelectorFactory { get; }
 		public IEntityEntryViewModel ParentFinancialCategoriesGroupViewModel { get; }
 

@@ -431,7 +431,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					case GroupingType.NomenclatureGroup:
 						return x => x.ProductGroupId;
 					case GroupingType.CounterpartyType:
-						return x => x.CounterpartyType;
+						return x => (x.CounterpartyType, x.CounterpartySubtypeId);
 					case GroupingType.PaymentType:
 						return x => x.PaymentType;
 					case GroupingType.Organization:
@@ -454,7 +454,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					case GroupingType.DeliveryDate:
 						return x => x.OrderDeliveryDate?.ToString("yyyy-MM-dd") ?? "Без даты доставки";
 					case GroupingType.RouteList:
-						return x => x.RouteListId?.ToString() ?? "Без маршрутного листа";
+						return x => x.RouteListId == 0 ? "Без маршрутного листа" : x.RouteListId.ToString();
 					case GroupingType.Nomenclature:
 						return x => x.NomenclatureOfficialName;
 					case GroupingType.NomenclatureType:
@@ -462,7 +462,9 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					case GroupingType.NomenclatureGroup:
 						return x => x.ProductGroupName;
 					case GroupingType.CounterpartyType:
-						return x => x.CounterpartyType.GetEnumTitle();
+						return x => x.CounterpartySubtypeId == null
+							? x.CounterpartyType.GetEnumTitle()
+							: $"{x.CounterpartyType.GetEnumTitle()} | {x.CounterpartySubtype}";
 					case GroupingType.PaymentType:
 						return x => x.PaymentType.GetEnumTitle();
 					case GroupingType.Organization:

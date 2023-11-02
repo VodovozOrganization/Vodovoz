@@ -1,23 +1,21 @@
-﻿using System;
-using QS.Views.GtkUI;
+﻿using QS.Views.GtkUI;
+using System.ComponentModel;
 using Vodovoz.FilterViewModels.Employees;
 
 namespace Vodovoz.Filters.GtkViews
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class FineFilterView : FilterViewBase<FineFilterViewModel>
 	{
 		public FineFilterView(FineFilterViewModel filterViewModel) : base(filterViewModel)
 		{
-			this.Build();
+			Build();
 			ConfigureDlg();
 		}
 
 		private void ConfigureDlg()
 		{
-			yentryreferenceSubdivisions.SubjectType = typeof(Subdivision);
-			yentryreferenceSubdivisions.Binding.AddBinding(ViewModel, vm => vm.Subdivision, w => w.Subject).InitializeFromSource();
-			yentryreferenceSubdivisions.Binding.AddBinding(ViewModel, vm => vm.CanEditSubdivision, w => w.Sensitive).InitializeFromSource();
+			entrySubdivision.ViewModel = ViewModel.SubdivisionViewModel;
 
 			ydateperiodpickerFineDate.Binding.AddBinding(ViewModel, vm => vm.FineDateStart, w => w.StartDateOrNull).InitializeFromSource();
 			ydateperiodpickerFineDate.Binding.AddBinding(ViewModel, vm => vm.FineDateEnd, w => w.EndDateOrNull).InitializeFromSource();

@@ -58,7 +58,7 @@ ARCHIVE_EXTENTION = '.7z'
 APP_PATH = "Vodovoz/Source/Applications"
 WCF_BUILD_OUTPUT_CATALOG = "bin/Debug"
 WEB_BUILD_OUTPUT_CATALOG = "bin/Release/net5.0_publish"
-WIN_BUILD_TOOL = "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe"
+WIN_BUILD_TOOL = "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/MSBuild.exe"
 DESKTOP_WATER_DELIVERY_PATH = "C:/Program Files (x86)/Vodovoz/WaterDelivery"
 DESKTOP_WORK_PATH = "${DESKTOP_WATER_DELIVERY_PATH}/Work"
 UPDATE_LOCK_FILE = "${DESKTOP_WORK_PATH}/current.lock"
@@ -187,7 +187,7 @@ stage('Build'){
 						PublishBuild("${APP_PATH}/Backend/Workers/IIS/CashReceiptPrepareWorker/CashReceiptPrepareWorker.csproj")
 						PublishBuild("${APP_PATH}/Backend/Workers/IIS/CashReceiptSendWorker/CashReceiptSendWorker.csproj")
 						PublishBuild("${APP_PATH}/Backend/Workers/IIS/TrueMarkCodePoolCheckWorker/TrueMarkCodePoolCheckWorker.csproj")
-						//PublishBuild("${APP_PATH}/Backend/Workers/Docker/PushNotificationsWorker/PushNotificationsWorker.csproj")
+						PublishBuild("${APP_PATH}/Backend/Workers/Docker/PushNotificationsWorker/PushNotificationsWorker.csproj")
 					}
 					else if(CAN_BUILD_WEB)
 					{
@@ -216,7 +216,6 @@ stage('Build'){
 				stage('Build Linux WEB'){
 					if(CAN_PUBLISH_BUILD_WEB)
 					{
-						PublishBuildLinux("${APP_PATH}/Backend/WebAPI/VodovozMangoService/VodovozMangoService.csproj")
 					}
 					else
 					{
@@ -248,8 +247,7 @@ stage('Compress'){
 		"CashReceiptPrepareWorker" : { CompressWebArtifact("Backend/Workers/IIS/CashReceiptPrepareWorker") },
 		"CashReceiptSendWorker" : { CompressWebArtifact("Backend/Workers/IIS/CashReceiptSendWorker") },
 		"TrueMarkCodePoolCheckWorker" : { CompressWebArtifact("Backend/Workers/IIS/TrueMarkCodePoolCheckWorker") },
-		//"PushNotificationsWorker" : { CompressWebArtifact("Backend/Workers/Docker/PushNotificationsWorker") },
-		"VodovozMangoService" : { CompressWebLinuxArtifact("Backend/WebAPI/VodovozMangoService") },
+		"PushNotificationsWorker" : { CompressWebArtifact("Backend/Workers/Docker/PushNotificationsWorker") },
 
 		"VodovozSmsInformerService" : { CompressWcfArtifact("Backend/Workers/Mono/VodovozSmsInformerService") },
 		"VodovozSmsPaymentService" : { CompressWcfArtifact("Backend/WCF/VodovozSmsPaymentService") },
@@ -278,9 +276,7 @@ stage('Delivery'){
 		"CashReceiptPrepareWorker" : { DeliveryWebArtifact("CashReceiptPrepareWorker") },
 		"CashReceiptSendWorker" : { DeliveryWebArtifact("CashReceiptSendWorker") },
 		"TrueMarkCodePoolCheckWorker" : { DeliveryWebArtifact("TrueMarkCodePoolCheckWorker") },
-		//"PushNotificationsWorker" : { DeliveryWebArtifact("PushNotificationsWorker") },
-
-		"VodovozMangoService" : { DeliveryWebLinuxArtifact("VodovozMangoService") },
+		"PushNotificationsWorker" : { DeliveryWebArtifact("PushNotificationsWorker") },
 
 		"SmsInformerService" : { DeliveryWcfArtifact("VodovozSmsInformerService") },
 		"SmsPaymentService" : { DeliveryWcfArtifact("VodovozSmsPaymentService") },
@@ -314,8 +310,7 @@ stage('Publish'){
 		"CashReceiptPrepareWorker" : { PublishWeb("CashReceiptPrepareWorker") },
 		"CashReceiptSendWorker" : { PublishWeb("CashReceiptSendWorker") },
 		"TrueMarkCodePoolCheckWorker" : { PublishWeb("TrueMarkCodePoolCheckWorker") },
-		//"PushNotificationsWorker" : { PublishWeb("PushNotificationsWorker") },
-		"VodovozMangoService" : { PublishWebLinux("VodovozMangoService") },
+		"PushNotificationsWorker" : { PublishWeb("PushNotificationsWorker") },
 		"SmsInformerService" : { PublishWCF("VodovozSmsInformerService") },
 		"SmsPaymentService" : { PublishWCF("VodovozSmsPaymentService") },
 	)
@@ -348,7 +343,7 @@ def PrepareSources() {
 // 303	Фукнции. Сборка
 
 def PublishBuild(projectPath){
-	bat "\"${WIN_BUILD_TOOL}\" ${projectPath} /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile /maxcpucount:2"
+	bat "\"${WIN_BUILD_TOOL}\" ${projectPath} /t:Publish /p:Configuration=Release /p:PublishProfile=FolderProfile /maxcpucount:2"
 }
 
 def Build(config){

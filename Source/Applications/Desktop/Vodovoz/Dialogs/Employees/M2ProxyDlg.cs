@@ -66,7 +66,7 @@ namespace Vodovoz.Dialogs.Employees
 				GetDocument();
 
 			ylabelNumber.Binding.AddBinding(Entity, x => x.Title, x => x.LabelProp).InitializeFromSource();
-			var orderFactory = new OrderSelectorFactory();
+			var orderFactory = new OrderSelectorFactory(Startup.MainWin.NavigationManager);
 			evmeOrder.SetEntityAutocompleteSelectorFactory(orderFactory.CreateOrderAutocompleteSelectorFactory());
 			evmeOrder.Binding.AddBinding(Entity, x => x.Order, x => x.Subject).InitializeFromSource();
 			evmeOrder.Changed += (sender, e) => {
@@ -84,7 +84,7 @@ namespace Vodovoz.Dialogs.Employees
 			yDPDatesRange.Binding.AddBinding(Entity, x => x.Date, x => x.StartDate).InitializeFromSource();
 			yDPDatesRange.Binding.AddBinding(Entity, x => x.ExpirationDate, x => x.EndDate).InitializeFromSource();
 
-			var employeeFactory = new EmployeeJournalFactory();
+			var employeeFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager);
 			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
 			evmeEmployee.Binding.AddBinding(Entity, x => x.Employee, x => x.Subject).InitializeFromSource();
 

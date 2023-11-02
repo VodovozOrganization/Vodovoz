@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using Gamma.GtkWidgets;
 using Gtk;
+using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.Dialog.GtkUI.FileDialog;
 using QS.DomainModel.Entity;
@@ -12,9 +13,11 @@ using QS.Tdi;
 using QS.ViewModels.Extension;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Gamma.Utilities;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
@@ -32,9 +35,9 @@ using Vodovoz.EntityRepositories.Profitability;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
+using Vodovoz.Infrastructure;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
-using Vodovoz.Settings.Database;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -43,6 +46,9 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewWidgets.Logistics;
 using Vodovoz.ViewWidgets.Mango;
+using QS.Navigation;
+using Vodovoz.ViewModels.Employees;
+using QS.Project.Domain;
 
 namespace Vodovoz
 {
@@ -99,6 +105,9 @@ namespace Vodovoz
 				ytreeviewAddresses.ScrollToCell(path, ytreeviewAddresses.Columns[0], true, 0.5f, 0.5f);
 			}
 		}
+
+		public ITdiCompatibilityNavigation NavigationManager { get; } = Startup.MainWin.NavigationManager;
+
 
 		public override bool HasChanges
 		{
@@ -160,7 +169,7 @@ namespace Vodovoz
 			driverFilter.SetAndRefilterAtOnce(
 				x => x.Status = EmployeeStatus.IsWorking,
 				x => x.RestrictCategory = EmployeeCategory.driver);
-			var driverFactory = new EmployeeJournalFactory(driverFilter);
+			var driverFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager, driverFilter);
 			evmeDriver.SetEntityAutocompleteSelectorFactory(driverFactory.CreateEmployeeAutocompleteSelectorFactory());
 			evmeDriver.Binding.AddBinding(Entity, rl => rl.Driver, widget => widget.Subject).InitializeFromSource();
 			evmeDriver.Sensitive = _logisticanEditing;
@@ -170,7 +179,7 @@ namespace Vodovoz
 			forwarderFilter.SetAndRefilterAtOnce(
 				x => x.Status = EmployeeStatus.IsWorking,
 				x => x.RestrictCategory = EmployeeCategory.forwarder);
-			var forwarderFactory = new EmployeeJournalFactory(forwarderFilter);
+			var forwarderFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager, forwarderFilter);
 			evmeForwarder.SetEntityAutocompleteSelectorFactory(forwarderFactory.CreateEmployeeAutocompleteSelectorFactory());
 			evmeForwarder.Binding.AddSource(Entity)
 				.AddBinding(rl => rl.Forwarder, widget => widget.Subject)
@@ -179,7 +188,7 @@ namespace Vodovoz
 
 			evmeForwarder.Changed += ReferenceForwarder_Changed;
 
-			var employeeFactory = new EmployeeJournalFactory();
+			var employeeFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager);
 			evmeLogistician.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
 			evmeLogistician.Binding.AddBinding(Entity, rl => rl.Logistician, widget => widget.Subject).InitializeFromSource();
 			evmeLogistician.Sensitive = _logisticanEditing;
@@ -416,9 +425,30 @@ namespace Vodovoz
 					dlg.DlgSaved += (s, ea) =>
 					{
 						rli.UpdateStatus(newStatus, CallTaskWorker);
+						UoW.Save(rli.RouteListItem);
+						UoW.Commit();
 					};
 					return;
 				}
+
+				var autofacScope = Startup.AppDIContainer.BeginLifetimeScope();
+				var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
+
+				ValidationContext validationContext = new ValidationContext(Entity, null, new Dictionary<object, object>
+				{
+					{ "uowFactory", uowFactory }
+				});
+
+				var canCreateSeveralOrdersValidationResult =
+					rli.RouteListItem.Order.ValidateCanCreateSeveralOrderForDateAndDeliveryPoint(validationContext);
+
+				if(canCreateSeveralOrdersValidationResult != ValidationResult.Success)
+				{
+					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, $"Нельзя перевести адрес в статус \"{newStatus.GetEnumTitle()}\": {canCreateSeveralOrdersValidationResult.ErrorMessage} ");
+
+					return;
+				}
+
 				rli.UpdateStatus(newStatus, CallTaskWorker);
 			}
 		}
@@ -557,10 +587,9 @@ namespace Vodovoz
 
 		protected void OnButtonNewFineClicked(object sender, EventArgs e)
 		{
-			this.TabParent.AddSlaveTab(
-				this,
-				new FineDlg(Entity)
-			);
+			var page = NavigationManager.OpenViewModelOnTdi<FineViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate(), OpenPageOptions.AsSlave);
+
+			page.ViewModel.SetRouteListById(Entity.Id);
 		}
 
 		protected void OnButtonMadeCallClicked(object sender, EventArgs e)
@@ -589,13 +618,13 @@ namespace Vodovoz
 			get {
 				switch(RouteListItem.Status) {
 					case RouteListItemStatus.Overdue:
-						return new Gdk.Color(0xee, 0x66, 0x66);
+						return GdkColors.DangerBase;
 					case RouteListItemStatus.Completed:
-						return new Gdk.Color(0x66, 0xee, 0x66);
+						return GdkColors.SuccessBase;
 					case RouteListItemStatus.Canceled:
-						return new Gdk.Color(0xaf, 0xaf, 0xaf);
+						return GdkColors.InsensitiveBase;
 					default:
-						return new Gdk.Color(0xff, 0xff, 0xff);
+						return GdkColors.PrimaryBase;
 				}
 			}
 		}

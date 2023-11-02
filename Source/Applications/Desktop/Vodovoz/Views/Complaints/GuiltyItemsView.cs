@@ -1,10 +1,13 @@
 ﻿using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using QS.Dialog.GtkUI;
+using QS.ViewModels.Control.EEVM;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Complaints;
+using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Complaints;
+using Vodovoz.ViewModels.ViewModels.Organizations;
 
 namespace Vodovoz.Views.Complaints
 {
@@ -69,6 +72,7 @@ namespace Vodovoz.Views.Complaints
 		void CreateGuiltyWidget(ref GuiltyItemView wGuiltyItem)
 		{
 			wGuiltyItem = new GuiltyItemView { ViewModel = ViewModel.CurrentGuiltyVM };
+
 			hbxGuiltyContainer.Add(wGuiltyItem);
 			hbxGuiltyContainer.ShowAll();
 		}

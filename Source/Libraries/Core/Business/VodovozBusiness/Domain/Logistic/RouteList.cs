@@ -634,6 +634,8 @@ namespace Vodovoz.Domain.Logistic
 
 		private AdditionalLoadingDocument _additionalLoadingDocument;
 		private DateTime? _deliveredAt;
+		private bool _specialConditionsAccepted;
+		private DateTime? _specialConditionsAcceptedAt;
 
 		[Display(Name = "Документ запаса")]
 		public virtual AdditionalLoadingDocument AdditionalLoadingDocument
@@ -647,6 +649,19 @@ namespace Vodovoz.Domain.Logistic
 		{
 			get => _routeListProfitability;
 			set => SetField(ref _routeListProfitability, value);
+		}
+
+		[Display(Name = "Специальные условия МЛ приняты")]
+		public virtual bool SpecialConditionsAccepted
+		{
+			get => _specialConditionsAccepted;
+			set => SetField(ref _specialConditionsAccepted, value);
+		}
+
+		public virtual DateTime? SpecialConditionsAcceptedAt
+		{
+			get => _specialConditionsAcceptedAt;
+			set => SetField(ref _specialConditionsAcceptedAt, value);
 		}
 
 		#endregion Свойства
@@ -952,68 +967,6 @@ namespace Vodovoz.Domain.Logistic
 			UoW.Save(this);
 		}
 
-		public virtual bool ShipIfCan(
-			IUnitOfWork uow,
-			ICallTaskWorker callTaskWorker,
-			out IList<GoodsInRouteListResult> notLoadedGoods,
-			CarLoadDocument withDocument = null)
-		{
-			notLoadedGoods = new List<GoodsInRouteListResult>();
-			var terminalId = _baseParametersProvider.GetNomenclatureIdForTerminal;
-
-			var terminalsTransferedToThisRL = _routeListRepository.TerminalTransferedCountToRouteList(uow, this);
-
-			var itemsInLoadDocuments = _routeListRepository.AllGoodsLoaded(uow, this);
-
-			if(withDocument != null)
-			{
-				foreach(var item in withDocument.Items)
-				{
-					var found = itemsInLoadDocuments.FirstOrDefault(x => x.NomenclatureId == item.Nomenclature.Id);
-					if(found != null)
-					{
-						found.Amount += item.Amount;
-					}
-					else
-					{
-						itemsInLoadDocuments.Add(new GoodsInRouteListResult { NomenclatureId = item.Nomenclature.Id, Amount = item.Amount });
-					}
-				}
-			}
-
-			var allItemsToLoad = _routeListRepository.GetGoodsAndEquipsInRL(uow, this);
-
-			bool closed = true;
-			foreach(var itemToLoad in allItemsToLoad) {
-				var loaded = itemsInLoadDocuments.FirstOrDefault(x => x.NomenclatureId == itemToLoad.NomenclatureId);
-
-				if(itemToLoad.NomenclatureId == terminalId
-					&& ((loaded?.Amount ?? 0) + terminalsTransferedToThisRL == itemToLoad.Amount
-						|| _routeListRepository.GetSelfDriverTerminalTransferDocument(uow, Driver, this) != null))
-				{
-					continue;
-				}
-
-				var notLoadedAmount = itemToLoad.Amount - (loaded?.Amount ?? 0);
-				if(notLoadedAmount == 0)
-				{
-					continue;
-				}
-
-				notLoadedGoods.Add(new GoodsInRouteListResult { NomenclatureId = itemToLoad.NomenclatureId, Amount = notLoadedAmount });
-				closed = false;
-			}
-
-			if(closed) {
-				if(NotFullyLoaded.HasValue)
-					NotFullyLoaded = false;
-				if(new[] { RouteListStatus.Confirmed, RouteListStatus.InLoading }.Contains(Status))
-					ChangeStatusAndCreateTask(RouteListStatus.EnRoute, callTaskWorker);
-			}
-
-			return closed;
-		}
-
 		public virtual List<Discrepancy> GetDiscrepancies()
 		{
 			List<Discrepancy> result = new List<Discrepancy>();
@@ -1121,7 +1074,7 @@ namespace Vodovoz.Domain.Logistic
 					{
 						if(orderEquipment.Direction == Direction.Deliver)
 						{
-							discrepancy.ClientRejected = orderEquipment.ReturnedCount;
+							discrepancy.ClientRejected = orderEquipment.UndeliveredCount;
 						}
 						else
 						{
@@ -1997,7 +1950,7 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		public virtual void CompleteRouteAndCreateTask(
-			WageParameterService wageParameterService,
+			IWageParameterService wageParameterService,
 			ICallTaskWorker callTaskWorker,
 			ITrackRepository trackRepository)
 		{
@@ -2042,7 +1995,7 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		//FIXME потом метод скрыть. Должен вызываться только при переходе в статус на закрытии.
-		public virtual void FirstFillClosing(WageParameterService wageParameterService)
+		public virtual void FirstFillClosing(IWageParameterService wageParameterService)
 		{
 			if(wageParameterService == null) {
 				throw new ArgumentNullException(nameof(wageParameterService));
@@ -3024,7 +2977,7 @@ namespace Vodovoz.Domain.Logistic
 			return Addresses.Sum(item => item.ForwarderWage);
 		}
 
-		public virtual void RecalculateWagesForRouteListItem(RouteListItem address, WageParameterService wageParameterService)
+		public virtual void RecalculateWagesForRouteListItem(RouteListItem address, IWageParameterService wageParameterService)
 		{
 			if(!Addresses.Contains(address)) {
 				throw new InvalidOperationException("Расчет зарплаты возможен только для адресов текущего маршрутного листа.");
@@ -3104,7 +3057,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public virtual void RecalculateAllWages(WageParameterService wageParameterService)
+		public virtual void RecalculateAllWages(IWageParameterService wageParameterService)
 		{
 			if(wageParameterService == null) {
 				throw new ArgumentNullException(nameof(wageParameterService));
@@ -3280,6 +3233,8 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		#endregion Зарплата
+
+		public static RouteListStatus[] AvailableToSendEnRouteStatuses => new RouteListStatus[] { RouteListStatus.Confirmed, RouteListStatus.InLoading };
 	}
 
 	public enum RouteListStatus
@@ -3327,6 +3282,5 @@ namespace Vodovoz.Domain.Logistic
 		public decimal CountNotLoaded { get; set; }
 		public decimal CountTotal { get; set; }
 		public decimal CountLoaded => CountTotal - CountNotLoaded;
-		public string CountLoadedString => string.Format("<span foreground=\"{0}\">{1}</span>", CountLoaded > 0 ? "Orange" : "Red", CountLoaded);
 	}
 }

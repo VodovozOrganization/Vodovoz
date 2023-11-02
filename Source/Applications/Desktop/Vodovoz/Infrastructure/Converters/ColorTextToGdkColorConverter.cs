@@ -20,7 +20,7 @@ namespace Vodovoz.Infrastructure.Converters
 		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
 		{
 			Gdk.Color color = (Gdk.Color)value;
-			return String.Format("#{0:x4}{1:x4}{2:x4}", color.Red, color.Green, color.Blue);
+			return string.Format("#{0:x4}{1:x4}{2:x4}", color.Red, color.Green, color.Blue);
 		}
 	}
 }
