@@ -30,6 +30,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 		private const int _insertQueryElementsMaxCount = 10_000;
 
 		private readonly IUnitOfWork _uow;
+		private readonly IInteractiveService _interactiveService;
 		private readonly ILogger<CounterpartyClassificationCalculationViewModel> _logger;
 		private readonly IEmployeeService _employeeService;
 		private readonly IUserService _userService;
@@ -39,8 +40,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 		private string _currentUserEmail;
 		private string _additionalEmail;
 		private DateTime _creationDate;
-		private double _calculationProgress;
-		private bool _isCommandToStartCalculationReceived;
+		private double _calculationProgressValue;
 
 		public CounterpartyClassificationCalculationViewModel(
 			IUnitOfWorkFactory uowFactory,
@@ -56,7 +56,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			{
 				throw new ArgumentNullException(nameof(uowFactory));
 			}
-
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_userService = userService ?? throw new ArgumentNullException(nameof(userService));
@@ -73,15 +73,16 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 
 		#region Properties
 
-		public event EventHandler<CalculationCompletedEventArgs> CalculationCompleted;
+		public event EventHandler CommandToStartCalculationReceived;
 
 		public CounterpartyClassificationCalculationSettings CalculationSettings { get; private set; }
 		public CancellationTokenSource ReportCancelationTokenSource { get; set; }
+		public IInteractiveService InteractiveService => _interactiveService;
 
 		public string ProgressInfoLabelValue =>
 			IsCalculationCompleted
-			? "<span font='large' weight='bold'>Пересчёт завершен, отчет был отправлен Вам на почту</span>"
-			: "<span font='large' weight='bold'>Пересчёт займет некоторое время, не закрывайте окно до завершения</span>";
+			? "Пересчёт завершен, отчет\nбыл отправлен Вам на почту"
+			: "Пересчёт займет некоторое\nвремя, не закрывайте окно до завершения";
 
 		[PropertyChangedAlso(
 			nameof(CanOpenEmailSettingsDialog),
@@ -106,16 +107,10 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			set => SetField(ref _isCalculationCompleted, value);
 		}
 
-		public double CalculationProgress
+		public double CalculationProgressValue
 		{
-			get => _calculationProgress;
-			set => SetField(ref _calculationProgress, value);
-		}
-
-		public bool IsCommandToStartCalculationReceived
-		{
-			get => _isCommandToStartCalculationReceived;
-			set => SetField(ref _isCommandToStartCalculationReceived, value);
+			get => _calculationProgressValue;
+			set => SetField(ref _calculationProgressValue, value);
 		}
 
 		#endregion Properties
@@ -148,27 +143,25 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 		private void OnEmailSettingsDialogStartClassificationCalculationClicked(object sender, StartClassificationCalculationEventArgs e)
 		{
 			_creationDate = DateTime.Now;
+
 			_currentUserEmail = e.CurrentUserEmail;
 			_additionalEmail = e.AdditionalEmail;
 
-			IsCommandToStartCalculationReceived = true;
+			CommandToStartCalculationReceived?.Invoke(this, e);
 		}
 
 		public async Task StartClassificationCalculation(CancellationToken cancellationToken)
 		{
+			IsCalculationInProcess = true;
+			CalculationProgressValue = 0;
+
 			UpdateCalculationSettingsCreationDate();
 
-			var allCounterpartiesIdsAndNames =
-				_counterpartyRepository
-				.GetAllCounterpartyIdsAndNames(_uow);
-
-			CalculationProgress = 15;
-
 			var calculatedClassificationsForCounterpartiesWithOrders = await _counterpartyRepository
-				.CalculateCounterpartyClassifications(_uow, CalculationSettings)
-				.ToListAsync(cancellationToken);
+					.CalculateCounterpartyClassifications(_uow, CalculationSettings)
+					.ToListAsync(cancellationToken);
 
-			CalculationProgress = 30;
+			CalculationProgressValue = 20;
 
 			var newClassificationsForAllCounterparties = (await GetNewClassificationsForAllCounterparties(
 				_uow,
@@ -176,7 +169,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 				cancellationToken))
 				.ToList();
 
-			CalculationProgress = 45;
+			CalculationProgressValue = 40;
 
 			var report = await ClassificationCalculationReport.CreateReport(
 				_uow,
@@ -185,7 +178,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 				CalculationSettings.PeriodInMonths,
 				cancellationToken);
 
-			CalculationProgress = 60;
+			CalculationProgressValue = 60;
 
 			using(var transaction = _uow.Session.BeginTransaction())
 			{
@@ -194,7 +187,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 					_insertQueryElementsMaxCount,
 					cancellationToken);
 
-				CalculationProgress = 90;
+				CalculationProgressValue = 90;
 
 				cancellationToken.ThrowIfCancellationRequested();
 
@@ -205,9 +198,18 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 				transaction.Commit();
 			}
 
+			if(string.IsNullOrEmpty(_currentUserEmail)
+				|| string.IsNullOrEmpty(_additionalEmail))
+			{
+				//send report
+			}
+
 			report.Export();
 
-			CalculationProgress = 100;
+			CalculationProgressValue = 100;
+
+			IsCalculationInProcess = false;
+			IsCalculationCompleted = true;
 		}
 
 		private async Task<IEnumerable<CounterpartyClassification>> GetNewClassificationsForAllCounterparties(
@@ -272,15 +274,15 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 					$"'{c.ClassificationCalculationDate.ToString("yyyy-MM-dd HH:mm:ss")}') ");
 			}
 
-			var insertQuery = $"INSERT INTO counterparty_classification " +
-				$"(counterparty_id, " +
-				$"classification_by_bottles_count, " +
-				$"classification_by_orders_count, " +
-				$"bottles_per_month_average_count, " +
-				$"orders_per_month_average_count, " +
-				$"money_turnover_per_month_average_sum, " +
-				$"calculation_date) " +
-				$"VALUES ";
+			var insertQuery = @"INSERT INTO counterparty_classification 
+				(counterparty_id, 
+				classification_by_bottles_count, 
+				classification_by_orders_count, 
+				bottles_per_month_average_count, 
+				orders_per_month_average_count, 
+				money_turnover_per_month_average_sum, 
+				calculation_date) 
+				VALUES ";
 
 			return $"{insertQuery} {string.Join(",", valuesData)};";
 		}
@@ -398,10 +400,5 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			base.Dispose();
 		}
 		#endregion IDisposable implementation
-
-		public class CalculationCompletedEventArgs : EventArgs
-		{
-			public bool IsCalculationSuccessful;
-		}
 	}
 }

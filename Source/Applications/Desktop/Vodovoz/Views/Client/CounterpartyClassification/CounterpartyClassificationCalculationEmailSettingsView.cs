@@ -18,16 +18,22 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 
 		private void ConfigureDlg()
 		{
-			ylabelInfo.ForegroundColor = GdkColors.DangerText.ToHtmlColor();
+			var primaryTextColor = GdkColors.PrimaryText.ToHtmlColor();
+			var dangerTextColor = GdkColors.DangerText.ToHtmlColor();
+
+			ylabelInfo.ForegroundColor = dangerTextColor;
 
 			yentryMainMail.Binding
-				.AddBinding(ViewModel, vm => vm.CurrentUserEmail, w => w.Text)
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.CurrentUserEmail, w => w.Text)
+				.AddFuncBinding(vm => vm.IsCurrentUserEmailValid ? primaryTextColor : dangerTextColor, w => w.TextColor)
 				.InitializeFromSource();
 
 			yentryMainMail.Sensitive = false;
 
 			yentryEmailForCopy.Binding
 				.AddBinding(ViewModel, vm => vm.AdditionalEmail, w => w.Text)
+				.AddFuncBinding(vm => vm.IsAdditionalEmailValid ? primaryTextColor : dangerTextColor, w => w.TextColor)
 				.InitializeFromSource();
 
 			ybuttonStart.Clicked += (s, e) => ViewModel.StartCalculationCommand.Execute();

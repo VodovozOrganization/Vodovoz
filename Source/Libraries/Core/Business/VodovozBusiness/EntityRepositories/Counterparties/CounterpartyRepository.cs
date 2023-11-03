@@ -307,16 +307,6 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				.List();
 		}
 
-		public IDictionary<int, string> GetAllCounterpartyIdsAndNames(IUnitOfWork uow)
-		{
-			var query = from c in uow.GetAll<Counterparty>()
-						select new { c.Id, c.Name };
-
-			var ids = query.ToList().ToDictionary(c => c.Id, c => c.Name);
-
-			return ids;
-		}
-
 		public IQueryable<DateTime> GetCounterpartyClassificationLastCalculationDate(IUnitOfWork uow)
 		{
 			var query = uow.Session.Query<CounterpartyClassification>()

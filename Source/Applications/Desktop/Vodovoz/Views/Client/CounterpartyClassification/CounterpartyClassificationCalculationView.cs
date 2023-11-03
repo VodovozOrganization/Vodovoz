@@ -2,11 +2,11 @@
 using QS.Dialog.GtkUI;
 using QS.Views.GtkUI;
 using System;
-using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Extensions;
+using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Counterparties.ClientClassification;
-using static Vodovoz.ViewModels.Counterparties.ClientClassification.CounterpartyClassificationCalculationViewModel;
 
 namespace Vodovoz.Views.Client.CounterpartyClassification
 {
@@ -20,6 +20,9 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 
 		private void ConfigureDlg()
 		{
+			var redColor = GdkColors.DangerText.ToHtmlColor();
+			var greenColor = GdkColors.DarkGreen.ToHtmlColor();
+
 			yspinbuttonPeriod.Binding
 				.AddBinding(ViewModel.CalculationSettings, s => s.PeriodInMonths, w => w.ValueAsInt)
 				.InitializeFromSource();
@@ -64,39 +67,27 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 				.InitializeFromSource();
 			ybuttonQuite.Clicked += (s, e) => ViewModel.QuiteCommand.Execute();
 
-			ViewModel.CalculationCompleted += OnCalculationCompleted;
-
 			yprogressbarCalculationProgress.Adjustment = new Adjustment(0, 0, 100, 1, 1, 1);
 
 			yprogressbarCalculationProgress.Binding
 				.AddSource(ViewModel)
+				.AddBinding(vm => vm.CalculationProgressValue, w => w.Adjustment.Value)
 				.AddBinding(vm => vm.IsCalculationInProcess, w => w.Visible)
 				.InitializeFromSource();
-
-			ylabelCalculationinfo.UseMarkup = true;
 
 			ylabelCalculationinfo.Binding
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.ProgressInfoLabelValue, w => w.Text)
 				.AddFuncBinding(vm => vm.IsCalculationInProcess || vm.IsCalculationCompleted, w => w.Visible)
+				.AddFuncBinding(vm => vm.IsCalculationInProcess ? redColor : greenColor, w => w.ForegroundColor)
 				.InitializeFromSource();
 
-			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+			ViewModel.CommandToStartCalculationReceived += OnCommandToStartCalculationReceived;
 		}
 
-		private async void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+		private async void OnCommandToStartCalculationReceived(object sender, EventArgs e)
 		{
-			if(e.PropertyName == nameof(ViewModel.IsCommandToStartCalculationReceived))
-			{
-				await StartCalculation();
-			}
-			if(e.PropertyName == nameof(ViewModel.CalculationProgress))
-			{
-				Gtk.Application.Invoke((s, arg) =>
-				{
-					yprogressbarCalculationProgress.Adjustment.Value = ViewModel.CalculationProgress;
-				});
-			}
+			await StartCalculation();
 		}
 
 		private async Task StartCalculation()
@@ -106,16 +97,18 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 				return;
 			}
 
+			ViewModel.ReportCancelationTokenSource = new CancellationTokenSource();
+
 			var task = Task.Run(async () =>
 			{
-				ViewModel.IsCalculationInProcess = true;
-				ViewModel.CalculationProgress = 0;
-
-				ViewModel.ReportCancelationTokenSource = new CancellationTokenSource();
-
 				try
 				{
 					await ViewModel.StartClassificationCalculation(ViewModel.ReportCancelationTokenSource.Token);
+
+					Gtk.Application.Invoke((s, eventArgs) =>
+					{
+						MessageDialogHelper.RunInfoDialog($"Пересчёт классификации контрагентов завершен");
+					});
 				}
 				catch(OperationCanceledException)
 				{
@@ -126,45 +119,23 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 				}
 				catch(Exception ex)
 				{
-					Gtk.Application.Invoke((s, eventArgs) => { throw ex; });
+					Gtk.Application.Invoke((s, eventArgs) =>
+					{
+						throw ex;
+					});
 				}
 				finally
 				{
-					ViewModel.IsCalculationInProcess = false;
-					ViewModel.IsCalculationCompleted = true;
-
 					ViewModel.ReportCancelationTokenSource?.Dispose();
+					ViewModel.ReportCancelationTokenSource = null;
 				}
-			});
+			}, ViewModel.ReportCancelationTokenSource.Token);
 
 			await task;
 		}
 
-		private void OnCalculationCompleted(object sender, System.EventArgs e)
-		{
-			if(e is CalculationCompletedEventArgs args)
-			{
-				var isCalculationSuccessful = args.IsCalculationSuccessful;
-
-				Gtk.Application.Invoke((s, arg) =>
-				{
-					if(isCalculationSuccessful)
-					{
-						MessageDialogHelper.RunInfoDialog($"Пересчёт классификации контрагентов завершен");
-
-						return;
-					}
-
-					MessageDialogHelper.RunErrorDialog(
-						$"Ошибка при выполнении пересчёта классификации контрагентов. Закройте окно диалога и попробуйте снова.");
-				});
-			}
-		}
-
 		public override void Destroy()
 		{
-			ViewModel.CalculationCompleted -= OnCalculationCompleted;
-
 			base.Destroy();
 		}
 	}

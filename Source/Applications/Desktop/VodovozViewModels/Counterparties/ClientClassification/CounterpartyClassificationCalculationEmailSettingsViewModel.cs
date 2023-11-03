@@ -1,12 +1,16 @@
 ﻿using QS.Commands;
+using QS.Dialog;
+using QS.DomainModel.Entity;
 using QS.Navigation;
 using QS.ViewModels.Dialog;
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 {
 	public class CounterpartyClassificationCalculationEmailSettingsViewModel : WindowDialogViewModelBase
 	{
+		private readonly IInteractiveService _interactiveService;
 		private string _currentUserEmail;
 		private string _additionalEmail;
 
@@ -14,6 +18,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 
 		public CounterpartyClassificationCalculationEmailSettingsViewModel(
 			INavigationManager navigation,
+			IInteractiveService interactiveService,
 			string userEmail
 			) : base(navigation)
 		{
@@ -22,24 +27,43 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 				throw new ArgumentException($"'{nameof(userEmail)}' cannot be null or whitespace.", nameof(userEmail));
 			}
 
-			Title = "Пересчёт классификации";
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 
+			Title = "Пересчёт классификации";
 			_currentUserEmail = userEmail;
 		}
 
 		#region Properties
 
+		[PropertyChangedAlso(nameof(IsCurrentUserEmailValid))]
 		public string CurrentUserEmail
 		{
 			get => _currentUserEmail;
-			set => SetField(ref _currentUserEmail, value);
+			set
+			{
+				value.Trim();
+
+				SetField(ref _currentUserEmail, value);
+			}
 		}
 
+		[PropertyChangedAlso(nameof(IsAdditionalEmailValid))]
 		public string AdditionalEmail
 		{
 			get => _additionalEmail;
-			set => SetField(ref _additionalEmail, value);
+			set
+			{
+				value.Trim();
+
+				SetField(ref _additionalEmail, value);
+			}
 		}
+
+		public bool IsCurrentUserEmailValid =>
+			string.IsNullOrEmpty(CurrentUserEmail) || new EmailAddressAttribute().IsValid(CurrentUserEmail);
+
+		public bool IsAdditionalEmailValid =>
+			string.IsNullOrEmpty(AdditionalEmail) || new EmailAddressAttribute().IsValid(AdditionalEmail);
 
 		#endregion Properties
 
@@ -63,10 +87,45 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 
 		private void StartCalculation()
 		{
-			var currentUserEmail = _currentUserEmail;
-			var additionalEmail = _additionalEmail ?? string.Empty;
+			if(!string.IsNullOrEmpty(CurrentUserEmail) 
+				&& !new EmailAddressAttribute().IsValid(CurrentUserEmail))
+			{
+				if(!_interactiveService.Question(
+					 $"Введенный основной адрес электронной почты '{CurrentUserEmail}' имеет неправильный формат." +
+					 "\nОтчет на данную почту не может быть отправлен." +
+					 "\n\nПродолжить?"))
+				{
+					return;
+				}
 
-			var clickedEventArgs = new StartClassificationCalculationEventArgs(currentUserEmail, additionalEmail);
+				CurrentUserEmail = string.Empty;
+			}
+
+			if(!string.IsNullOrEmpty(AdditionalEmail) 
+				&& !new EmailAddressAttribute().IsValid(AdditionalEmail))
+			{
+				if(!_interactiveService.Question(
+					 $"Введенный дополнитель адрес электронной почты '{AdditionalEmail}' имеет неправильный формат." +
+					 "\nОтчет на данную почту не может быть отправлен." +
+					 "\n\nПродолжить?"))
+				{
+					return;
+				}
+
+				AdditionalEmail = string.Empty;
+			}
+
+			if(string.IsNullOrEmpty(CurrentUserEmail) && string.IsNullOrEmpty(AdditionalEmail))
+			{
+				if(!_interactiveService.Question(
+					 $"Вы не ввели ни одного адреса электронной почты." +
+					 "\n\nПродолжить?"))
+				{
+					return;
+				}
+			}
+
+			var clickedEventArgs = new StartClassificationCalculationEventArgs(CurrentUserEmail, AdditionalEmail);
 
 			StartClassificationCalculationClicked?.Invoke(this, clickedEventArgs);
 

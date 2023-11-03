@@ -34,7 +34,6 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		Counterparty GetCounterpartyByPersonalAccountIdInEdo(IUnitOfWork uow, string edxClientId);
 		EdoOperator GetEdoOperatorByCode(IUnitOfWork uow, string edoOperatorCode);
 		IList<EdoContainer> GetEdoContainersByCounterpartyId(IUnitOfWork uow, int counterpartyId);
-		IDictionary<int, string> GetAllCounterpartyIdsAndNames(IUnitOfWork uow);
 		IQueryable<DateTime> GetCounterpartyClassificationLastCalculationDate(IUnitOfWork uow);
 		IQueryable<CounterpartyClassification> GetLastExistingClassificationsForCounterparties(IUnitOfWork uow, DateTime lastCalculationDate);
 		IQueryable<CounterpartyClassification> CalculateCounterpartyClassifications(IUnitOfWork uow, CounterpartyClassificationCalculationSettings calculationSettings);
