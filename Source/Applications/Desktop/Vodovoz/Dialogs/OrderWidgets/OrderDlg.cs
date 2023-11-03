@@ -13,6 +13,7 @@ using QS.Dialog.GtkUI.FileDialog;
 using QS.DocTemplates;
 using QS.DomainModel.Entity;
 using QS.DomainModel.NotifyChange;
+using QS.DomainModel.Tracking;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Print;
@@ -36,6 +37,7 @@ using System.Data;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.ServiceModel;
 using System.Text;
 using System.Threading;
 using Vodovoz.Additions.Printing;
@@ -2039,11 +2041,12 @@ namespace Vodovoz
 
 					if(acceptResult.IsSuccess)
 					{
-						UoW.Commit();
+						transaction.Commit();
+						GlobalUowEventsTracker.OnPostCommit((IUnitOfWorkTracked)UoW);
+						Save();
 					}
 
 					return acceptResult;
-
 				}
 				catch(Exception e)
 				{
