@@ -413,6 +413,7 @@
     <Compile Include="Commons\FileChooser.cs" />
     <Compile Include="Commons\HotkeyHandler.cs" />
     <Compile Include="Core\DocumentPrinter.cs" />
+    <Compile Include="Core\Permissions\EntitySubdivisionForUserPermissionViewModel.cs" />
     <Compile Include="Core\ViewFactory.cs" />
     <Compile Include="Core\WidgetResolveException.cs" />
     <Compile Include="Counterparties\SubtypesJournalRegistrar.cs" />
@@ -451,6 +452,7 @@
     <Compile Include="JournalColumnsConfigs\BulkEmailEventReasonJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\BusinessTasksJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\CarEventJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\FineTemplateJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\RegradingOfGoodsReasonsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\CarEventTypeJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\CarJournalRegistrar.cs" />
@@ -458,6 +460,7 @@
     <Compile Include="JournalColumnsConfigs\CarModelJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ClientCameFromJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ColumnsConfigRegistrarBase.cs" />
+    <Compile Include="JournalColumnsConfigs\RouteListMileageCheckJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\UndeliveryDetalizationJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ComplaintDetalizationJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\UndeliveryKindJournalRegistrar.cs" />
@@ -545,7 +548,6 @@
     <Compile Include="JournalColumnsConfigs\SalesPlanJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\SelectUserJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\SelfDeliveriesJournalRegistrar.cs" />
-    <Compile Include="JournalColumnsConfigs\SubdivisionsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\TariffZoneJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\TrackPointJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\UnallocatedBalancesJournalRegistrar.cs" />
@@ -607,13 +609,11 @@
     <Compile Include="SidePanel\InfoViews\CarsMonitoringInfoPanelView.DataNode.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="TempAdapters\AttachmentsViewModelFactory.cs" />
-    <Compile Include="TempAdapters\CarEventJournalFactory.cs" />
     <Compile Include="TempAdapters\ComplaintsJournalFactory.cs" />
     <Compile Include="TempAdapters\RouteListJournalFactory.cs" />
     <Compile Include="TempAdapters\ComplaintKindJournalFactory.cs" />
     <Compile Include="TempAdapters\NomenclatureJournalFactory.cs" />
     <Compile Include="TempAdapters\TdiNavigationManagerAdapter.cs" />
-    <Compile Include="TempAdapters\SubdivisionJournalFactory.cs" />
     <Compile Include="TreeModels\IModelConfig.cs" />
     <Compile Include="TreeModels\ModelConfig.cs" />
     <Compile Include="TreeModels\RecursiveTreeModelWithCustomModel.cs" />
@@ -712,7 +712,6 @@
     <Compile Include="ViewWidgets\ProductSpecificationMaterialsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ProductSpecificationDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ProductSpecificationMaterialsView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.WriteoffDocumentItemsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.IncomingWaterMaterialView.cs" />
     <Compile Include="Dialogs\CommentTemplateDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.CommentTemplateDlg.cs" />
@@ -781,9 +780,6 @@
     <Compile Include="Dialogs\Store\WarehouseDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.WarehouseDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentKindDlg.cs" />
-    <Compile Include="Representations\RouteListsVM.cs" />
-    <Compile Include="JournalFilters\RouteListsFilter.cs" />
-    <Compile Include="gtk-gui\Vodovoz.RouteListsFilter.cs" />
     <Compile Include="ViewWidgets\Logistics\OrderReturnsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.OrderReturnsView.cs" />
     <Compile Include="Commons\OrderPopupMenu.cs" />
@@ -791,8 +787,6 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriversInfoExportView.cs" />
     <Compile Include="Dialogs\Logistic\RouteListKeepingDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListKeepingDlg.cs" />
-    <Compile Include="JournalViewers\RouteListMileageCheckView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.RouteListMileageCheckView.cs" />
     <Compile Include="ViewWidgets\Logistics\RouteListDiscrepancyView.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListDiscrepancyView.cs" />
     <Compile Include="SidePanel\PanelViewContainer.cs" />
@@ -848,11 +842,6 @@
     <Compile Include="Dialogs\DocumentDialogs\RegradingOfGoodsDocumentItemsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.RegradingOfGoodsDocumentItemsView.cs" />
     <Compile Include="Dialogs\DocumentDialogs\IncomingWaterMaterialView.cs" />
-    <Compile Include="Dialogs\DocumentDialogs\WriteoffDocumentItemsView.cs" />
-    <Compile Include="Dialogs\Employees\FineDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.FineDlg.cs" />
-    <Compile Include="Dialogs\Employees\FineItemsView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.FineItemsView.cs" />
     <Compile Include="Dialogs\Store\RegradingOfGoodsTemplateItemsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.RegradingOfGoodsTemplateItemsView.cs" />
     <Compile Include="Dialogs\Store\RegradingOfGoodsTemplateDlg.cs" />
@@ -892,14 +881,9 @@
     <Compile Include="gtk-gui\Dialogs.Employees.EmployeeWorkChartDlg.cs" />
     <Compile Include="ViewWidgets\WorkChartTable.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.SalesReportView.cs" />
-    <Compile Include="Dialogs\SubdivisionDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.SubdivisionDlg.cs" />
     <Compile Include="ReportsParameters\DriverWagesReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.DriverWagesReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.FuelReport.cs" />
-    <Compile Include="Representations\FinesVM.cs" />
-    <Compile Include="JournalFilters\FineFilter.cs" />
-    <Compile Include="gtk-gui\Vodovoz.FineFilter.cs" />
     <Compile Include="ReportsParameters\WagesOperationsReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.WagesOperationsReport.cs" />
     <Compile Include="ReportsParameters\EquipmentReport.cs" />
@@ -977,11 +961,8 @@
     <Compile Include="Additions\Logistic\MapDrawingHelper.cs" />
     <Compile Include="ReportsParameters\Logistic\MileageReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.MileageReport.cs" />
-    <Compile Include="Dialogs\NuanceDlg.cs" />
     <Compile Include="Dialogs\CommentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.CommentDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Dialogs.NuanceDlg.cs" />
-    <Compile Include="Representations\CommentsTemplatesVM.cs" />
     <Compile Include="ReportsParameters\MastersReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.MastersReport.cs" />
     <Compile Include="Dialogs\Sale\DeliveryPriceDlg.cs" />
@@ -1118,7 +1099,6 @@
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Employees.EmployeeContractDlg.cs" />
     <Compile Include="ViewWidgets\SaveTemplateWidget.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.SaveTemplateWidget.cs" />
-    <Compile Include="Representations\SubdivisionsVM.cs" />
     <Compile Include="Representations\WarehousesVM.cs" />
     <Compile Include="JournalViewers\WarehousesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalViewers.WarehousesView.cs" />
@@ -1249,7 +1229,6 @@
     <Compile Include="Views\Complaints\ComplaintView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintView.cs" />
     <Compile Include="JournalViewModels\CounterpartyJournalViewModel.cs" />
-    <Compile Include="JournalViewers\UndeliveredOrdersJournalOpener.cs" />
     <Compile Include="Views\Employees\FineTemplateView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Employees.FineTemplateView.cs" />
     <Compile Include="Views\Employees\FineView.cs" />
@@ -1376,8 +1355,8 @@
     <Compile Include="JournalSelector\NomenclatureSelectorFactory.cs" />
     <Compile Include="Filters\GtkViews\CarFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CarFilterView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.SetBillsReport.cs" />
-    <Compile Include="ReportsParameters\Sales\SetBillsReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.SetBillsReportView.cs" />
+    <Compile Include="ReportsParameters\Sales\SetBillsReportView.cs" />
     <Compile Include="Views\Contacts\EmailsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Contacts.EmailsView.cs" />
     <Compile Include="Views\Contacts\PersonsView.cs" />
@@ -1472,8 +1451,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.BusinessTasks.PaymentTaskView.cs" />
     <Compile Include="Views\BusinessTasksJournalActionsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.BusinessTasksJournalActionsView.cs" />
-    <Compile Include="ReportsParameters\Payments\PaymentsFromBankClientReport.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Payments.PaymentsFromBankClientReport.cs" />
+    <Compile Include="ReportsParameters\Payments\PaymentsFromBankClientReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Payments.PaymentsFromBankClientReportView.cs" />
     <Compile Include="ReportsParameters\Payments\PaymentsFromBankClientFinDepartmentReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Payments.PaymentsFromBankClientFinDepartmentReport.cs" />
     <Compile Include="ServiceDialogs\LargeMessageDialog.cs" />

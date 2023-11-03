@@ -8,7 +8,6 @@ using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Services;
-using QS.Tools;
 using QS.Utilities.Extensions;
 using QS.Validation;
 using QS.ViewModels.Extension;
@@ -59,9 +58,10 @@ using Vodovoz.ViewModels.FuelDocuments;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewWidgets.Logistics;
-using QS.DomainModel.NotifyChange;
 using QS.Utilities.Debug;
 using Vodovoz.Extensions;
+using QS.Navigation;
+using Vodovoz.ViewModels.Employees;
 
 namespace Vodovoz
 {
@@ -147,6 +147,8 @@ namespace Vodovoz
 			set { callTaskWorker = value; }
 		}
 
+		public ITdiCompatibilityNavigation NavigationManager => Startup.MainWin.NavigationManager;
+
 		#endregion
 
 		#region Конструкторы и конфигурирование диалога
@@ -209,7 +211,7 @@ namespace Vodovoz
 			driverFilter.SetAndRefilterAtOnce(
 				x => x.Status = EmployeeStatus.IsWorking,
 				x => x.RestrictCategory = EmployeeCategory.driver);
-			var driverFactory = new EmployeeJournalFactory(driverFilter);
+			var driverFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager, driverFilter);
 			evmeDriver.SetEntityAutocompleteSelectorFactory(driverFactory.CreateEmployeeAutocompleteSelectorFactory());
 			evmeDriver.Binding.AddBinding(Entity, rl => rl.Driver, widget => widget.Subject).InitializeFromSource();
 			evmeDriver.Changed += OnEvmeDriverChanged;
@@ -219,7 +221,7 @@ namespace Vodovoz
 			forwarderFilter.SetAndRefilterAtOnce(
 				x => x.Status = EmployeeStatus.IsWorking,
 				x => x.RestrictCategory = EmployeeCategory.forwarder);
-			var forwarderFactory = new EmployeeJournalFactory(forwarderFilter);
+			var forwarderFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager, forwarderFilter);
 			evmeForwarder.SetEntityAutocompleteSelectorFactory(forwarderFactory.CreateEmployeeAutocompleteSelectorFactory());
 			evmeForwarder.Binding.AddSource(Entity)
 				.AddBinding(rl => rl.Forwarder, widget => widget.Subject)
@@ -227,7 +229,7 @@ namespace Vodovoz
 				.InitializeFromSource();
 			evmeForwarder.Changed += ReferenceForwarder_Changed;
 
-			var employeeFactory = new EmployeeJournalFactory();
+			var employeeFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager);
 			evmeLogistician.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
 			evmeLogistician.Binding.AddBinding(Entity, rl => rl.Logistician, widget => widget.Subject).InitializeFromSource();
 
@@ -633,9 +635,9 @@ namespace Vodovoz
 		{
 			switch((RouteListActions)e.ItemEnum) {
 				case RouteListActions.CreateNewFine:
-					this.TabParent.AddSlaveTab(
-						this, new FineDlg(Entity)
-					);
+					var page = NavigationManager.OpenViewModelOnTdi<FineViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate(), OpenPageOptions.IgnoreHash);
+
+					page.ViewModel.SetRouteListById(Entity.Id);
 					break;
 				case RouteListActions.TransferReceptionToAnotherRL:
 					this.TabParent.AddSlaveTab(
@@ -1210,26 +1212,30 @@ namespace Vodovoz
 		{
 			string fineReason = "Недосдача";
 			var bottleDifference = bottlesReturnedTotal - bottlesReturnedToWarehouse;
-			var summ = DefaultBottle.SumOfDamage * (bottleDifference > 0 ? bottleDifference : (decimal)0);
+			var summ = DefaultBottle.SumOfDamage * (bottleDifference > 0 ? bottleDifference : 0m);
 			summ += routelistdiscrepancyview.Items.Where(x => x.UseFine).Sum(x => x.SumOfDamage);
+
 			var nomenclatures = routelistdiscrepancyview.Items.Where(x => x.UseFine)
 				.ToDictionary(x => x.Nomenclature, x => -x.Remainder);
-			if(checkUseBottleFine.Active)
-				nomenclatures.Add(DefaultBottle, bottleDifference);
 
-			FineDlg fineDlg;
+			if(checkUseBottleFine.Active)
+			{
+				nomenclatures.Add(DefaultBottle, bottleDifference);
+			}
+
 			if(Entity.BottleFine != null) {
-				fineDlg = new FineDlg(Entity.BottleFine);
+				var page = NavigationManager.OpenViewModelOnTdi<FineViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(Entity.BottleFine.Id), OpenPageOptions.AsSlave);
 
 				Entity.BottleFine.UpdateNomenclature(nomenclatures);
-				fineDlg.Entity.TotalMoney = summ;
-				fineDlg.EntitySaved += FineDlgExist_EntitySaved;
+				page.ViewModel.Entity.TotalMoney = summ;
+				page.ViewModel.EntitySaved += FineDlgExist_EntitySaved;
 			} else {
-				fineDlg = new FineDlg(summ, Entity, fineReason, DateTime.Now, Entity.Driver);
-				fineDlg.Entity.AddNomenclature(nomenclatures);
-				fineDlg.EntitySaved += FineDlgNew_EntitySaved;
+				var page = NavigationManager.OpenViewModelOnTdi<FineViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate(), OpenPageOptions.AsSlave);
+
+				page.ViewModel.Entity.Fill(summ, Entity, fineReason, DateTime.Now, Entity.Driver);
+				page.ViewModel.Entity.AddNomenclature(nomenclatures);
+				page.ViewModel.EntitySaved += FineDlgNew_EntitySaved;
 			}
-			TabParent.AddSlaveTab(this, fineDlg);
 		}
 
 		void FineDlgNew_EntitySaved(object sender, QS.Tdi.EntitySavedEventArgs e)
@@ -1531,7 +1537,7 @@ namespace Vodovoz
 					  new FuelRepository(),
 					  NavigationManagerProvider.NavigationManager,
 					  _trackRepository,
-					  new EmployeeJournalFactory(),
+					  new EmployeeJournalFactory(Startup.MainWin.NavigationManager),
 					  _financialCategoriesGroupsSettings,
 					  new CarJournalFactory(Startup.MainWin.NavigationManager)
 			);
@@ -1549,7 +1555,7 @@ namespace Vodovoz
 				  new FuelRepository(),
 				  NavigationManagerProvider.NavigationManager,
 				  _trackRepository,
-				  new EmployeeJournalFactory(),
+				  new EmployeeJournalFactory(Startup.MainWin.NavigationManager),
 				  _financialCategoriesGroupsSettings,
 				  new CarJournalFactory(Startup.MainWin.NavigationManager)
 			);

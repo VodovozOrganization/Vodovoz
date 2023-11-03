@@ -44,7 +44,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 				public DateTime? OrderDeliveryDate { get; set; }
 
-				public int? RouteListId { get; set; }
+				public int RouteListId { get; set; }
 
 				public int ProductGroupId { get; set; }
 

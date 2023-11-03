@@ -158,7 +158,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 			ClientPhonesVM = CreatePhonesViewModel();
 			DeliveryPointPhonesVM = CreatePhonesViewModel();
 
-			EmployeeSelectorFactory = new EmployeeJournalFactory().CreateWorkingOfficeEmployeeAutocompleteSelectorFactory();
+			EmployeeSelectorFactory = new EmployeeJournalFactory(NavigationManager).CreateWorkingOfficeEmployeeAutocompleteSelectorFactory();
 
 			DeliveryPointFactory = CreateDeliveryPointFactory();
 		}

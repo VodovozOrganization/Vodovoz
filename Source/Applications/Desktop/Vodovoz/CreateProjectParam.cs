@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using QS.Dialog.Gtk;
 using QS.Permissions;
 using QS.Project.DB;
@@ -195,6 +195,8 @@ using Vodovoz.Application.Services.Logistics;
 using Vodovoz.Services.Logistics;
 using Vodovoz.ViewModels.Counterparties.ClientClassification;
 using Vodovoz.Views.Client.CounterpartyClassification;
+using Vodovoz.ViewModels.ReportsParameters.Payments;
+using Vodovoz.ReportsParameters.Payments;
 
 namespace Vodovoz
 {
@@ -476,6 +478,8 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<NumberOfComplaintsAgainstDriversReportViewModel, NumberOfComplaintsAgainstDriversReportView>()
 				.RegisterWidgetForWidgetViewModel<MovementsPaymentControlViewModel, MovementsPaymentControlView>()
 				.RegisterWidgetForWidgetViewModel<SalesReportViewModel, SalesReportView>()
+				.RegisterWidgetForWidgetViewModel<SetBillsReportViewModel, SetBillsReportView>()
+				.RegisterWidgetForWidgetViewModel<PaymentsFromBankClientReportViewModel, PaymentsFromBankClientReportView>()
 				.RegisterWidgetForWidgetViewModel<RevenueServiceMassCounterpartyUpdateToolViewModel, RevenueServiceMassCounterpartyUpdateToolView>()
 				.RegisterWidgetForWidgetViewModel<FastDeliveryOrderTransferFilterViewModel, FastDeliveryOrderTransferFilterView>()
 				.RegisterWidgetForWidgetViewModel<WarehousesSettingsViewModel, NamedDomainEntitiesSettingsView>()

@@ -1,5 +1,4 @@
 ﻿using QS.Views.GtkUI;
-using System;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.Filters.GtkViews
@@ -8,14 +7,13 @@ namespace Vodovoz.Filters.GtkViews
 	{
 		public PremiumJournalFilterView(PremiumJournalFilterViewModel filterViewModel) : base(filterViewModel)
 		{
-			this.Build();
-			Configure();
+			Build();
+			Initialize();
 		}
 
-		private void Configure()
+		private void Initialize()
 		{
-			yentrySubdivision.SetEntityAutocompleteSelectorFactory(ViewModel.SubdivisionAutocompleteSelectorFactory);
-			yentrySubdivision.Binding.AddBinding(ViewModel, vm => vm.Subdivision, w => w.Subject).InitializeFromSource();
+			entrySubdivision.ViewModel = ViewModel.SubdivisionViewModel;
 
 			dateperiodpickerPremiumDate.Binding.AddBinding(ViewModel, vm => vm.StartDate, w => w.StartDateOrNull).InitializeFromSource();
 			dateperiodpickerPremiumDate.Binding.AddBinding(ViewModel, vm => vm.EndDate, w => w.EndDateOrNull).InitializeFromSource();
