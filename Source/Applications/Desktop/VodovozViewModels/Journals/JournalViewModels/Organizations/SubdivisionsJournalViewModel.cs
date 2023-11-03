@@ -74,6 +74,8 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 
 			SearchEnabled = false;
 
+			ExpandAfterReloading = true;
+
 			UseSlider = true;
 
 			_hierarchicalChunkLinqLoader = new HierarchicalChunkLinqLoader<Subdivision, SubdivisionJournalNode>(UnitOfWorkFactory);
