@@ -1,24 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using QS.Dialog.GtkUI;
+﻿using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QS.Project.Journal.EntitySelector;
-using QS.Project.Services;
 using QS.Report;
 using QSReport;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.JournalViewModels;
 using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ReportsParameters
 {
-	[System.ComponentModel.ToolboxItem(true)]
-	public partial class ChainStoreDelayReport : SingleUoWWidgetBase, IParametersWidget
+	[ToolboxItem(true)]
+	public partial class ChainStoreDelayReport : SingleUoWWidgetBase, IParametersWidget, INotifyPropertyChanged
 	{
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
+		private string _mode;
 
 		public ChainStoreDelayReport(
 			IEmployeeJournalFactory employeeJournalFactory,
@@ -29,6 +27,33 @@ namespace Vodovoz.ReportsParameters
 			Build();
 			Configure();
 		}
+
+		public string Mode
+		{
+			get => _mode;
+			set
+			{
+				if(_mode != value)
+				{
+					_mode = value;
+				}
+			}
+		}
+
+		public Dictionary<string, string> Modes = new Dictionary<string, string>
+		{
+			{ "Networks", "Сетям" },
+			{ "Tenders", "Тендерам" }
+		};
+
+		#region IParametersWidget implementation
+
+		public string Title => "Отсрочка сети";
+
+		public event EventHandler<LoadReportEventArgs> LoadReport;
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		#endregion
 
 		private void Configure()
 		{
@@ -44,33 +69,32 @@ namespace Vodovoz.ReportsParameters
 		{
 			entityviewmodelentryCounterparty.SetEntityAutocompleteSelectorFactory(
 				_counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory());
-			
+
 			entityviewmodelentrySellManager.SetEntityAutocompleteSelectorFactory(
 				_employeeJournalFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory());
 
 			entityviewmodelentryOrderAuthor.SetEntityAutocompleteSelectorFactory(
 				_employeeJournalFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory());
+
+			speciallistcomboboxReportBy.ItemsList = Modes;
+			speciallistcomboboxReportBy.Binding
+				.AddBinding(this, r => r.Mode, w => w.SelectedItem)
+				.InitializeFromSource();
 		}
 
-		void OnButtonCreateReportClicked (object sender, EventArgs e)
+		private void OnButtonCreateReportClicked(object sender, EventArgs e)
 		{
-			OnUpdate (true);
+			OnUpdate(true);
 		}
-
-		#region IParametersWidget implementation
-
-		public string Title => "Отсрочка сети";
-
-		public event EventHandler<LoadReportEventArgs> LoadReport;
-
-		#endregion
 
 		private ReportInfo GetReportInfo()
 		{
-			return new ReportInfo {
+			return new ReportInfo
+			{
 				Identifier = "Payments.PaymentsDelayNetwork",
 				Parameters = new Dictionary<string, object> {
 					{ "date", ydatepicker.Date },
+					{ "mode", Mode },
 					{ "counterparty_id", (entityviewmodelentryCounterparty.Subject as Counterparty)?.Id ?? -1},
 					{ "sell_manager_id", (entityviewmodelentrySellManager.Subject as Employee)?.Id ?? -1},
 					{ "order_author_id", (entityviewmodelentryOrderAuthor.Subject as Employee)?.Id ?? -1}
@@ -78,6 +102,6 @@ namespace Vodovoz.ReportsParameters
 			};
 		}
 
-		void OnUpdate(bool hide = false) => LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
+		private void OnUpdate(bool hide = false) => LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
 	}
 }

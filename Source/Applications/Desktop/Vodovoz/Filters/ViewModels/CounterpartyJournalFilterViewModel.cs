@@ -1,4 +1,5 @@
-﻿using NHibernate.Transform;
+﻿using Gamma.Widgets;
+using NHibernate.Transform;
 using QS.Project.Filter;
 using QS.ViewModels.Control.EEVM;
 using System;
@@ -33,6 +34,8 @@ namespace Vodovoz.Filters.ViewModels
 		private bool _showLiquidating;
 		private CounterpartyJournalViewModel _journal;
 		private ClientCameFrom _clientCameFrom;
+		private bool _clientCameFromIsEmpty;
+		private object _selectedCameFrom;
 		private readonly CompositeSearchViewModel _searchByAddressViewModel;
 
 		public CounterpartyJournalFilterViewModel(IGenericRepository<ClientCameFrom> clientCameFromRepository)
@@ -191,6 +194,12 @@ namespace Vodovoz.Filters.ViewModels
 		{
 			get => _clientCameFrom;
 			set => UpdateFilterField(ref _clientCameFrom, value);
+		}
+
+		public bool ClientCameFromIsEmpty
+		{
+			get => _clientCameFromIsEmpty;
+			set => UpdateFilterField(ref _clientCameFromIsEmpty, value);
 		}
 
 		private void UnsubscribeOnCheckChanged()

@@ -270,9 +270,16 @@ namespace Vodovoz.JournalViewModels
 				query.Where(c => c.INN == FilterViewModel.CounterpartyInn);
 			}
 
-			if(FilterViewModel?.ClientCameFrom != null)
+			if(FilterViewModel != null
+				&& FilterViewModel.ClientCameFrom != null
+				&& !FilterViewModel.ClientCameFromIsEmpty)
 			{
 				query.Where(c => c.CameFrom.Id == FilterViewModel.ClientCameFrom.Id);
+			}
+
+			if(FilterViewModel != null && FilterViewModel.ClientCameFromIsEmpty)
+			{
+				query.Where(c => c.CameFrom == null);
 			}
 
 			query.Where(FilterViewModel?.SearchByAddressViewModel?.GetSearchCriterion(

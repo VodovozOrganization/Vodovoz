@@ -1,8 +1,11 @@
 ﻿using Gamma.GtkWidgets;
+using Gamma.Widgets;
 using Gtk;
 using QS.ViewModels;
 using QS.Views.GtkUI;
 using QS.Widgets;
+using QS.Widgets.GtkUI;
+using System;
 using System.ComponentModel;
 using Vodovoz.Domain.Client;
 using Vodovoz.Filters.ViewModels;
@@ -96,15 +99,26 @@ namespace Vodovoz.Filters.GtkViews
 			}
 
 			speciallistcomboboxCounterpartySource.ItemsList = ViewModel.ClientCameFromCache;
+			speciallistcomboboxCounterpartySource.ShowSpecialStateNot = true;
 			speciallistcomboboxCounterpartySource.ShowSpecialStateAll = true;
 
 			speciallistcomboboxCounterpartySource.Binding
 				.AddBinding(ViewModel, vm => vm.ClientCameFrom, w => w.SelectedItem)
 				.InitializeFromSource();
 
+			speciallistcomboboxCounterpartySource.Changed += OnSpeciallistcomboboxCounterpartySourceChanged;
+
 			var searchByAddressView = new CompositeSearchView(ViewModel.SearchByAddressViewModel);
 			yhboxSearchByAddress.Add(searchByAddressView);
 			searchByAddressView.Show();
+		}
+
+		private void OnSpeciallistcomboboxCounterpartySourceChanged(object sender, EventArgs e)
+		{
+			if(speciallistcomboboxCounterpartySource.IsSelectedNot != ViewModel.ClientCameFromIsEmpty)
+			{
+				ViewModel.ClientCameFromIsEmpty = speciallistcomboboxCounterpartySource.IsSelectedNot;
+			}
 		}
 
 		private void OnKeyReleased(object sender, KeyReleaseEventArgs args)
