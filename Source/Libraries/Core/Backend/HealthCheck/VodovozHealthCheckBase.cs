@@ -1,7 +1,8 @@
-﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using VodovozHealthCheck.Utils;
 
 namespace VodovozHealthCheck
 {
@@ -9,7 +10,7 @@ namespace VodovozHealthCheck
 	{
 		public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = new CancellationToken())
 		{
-			VodovozHealthResult healthResult = null;
+			VodovozHealthResultDto healthResult = null;
 			try
 			{
 				healthResult = GetHealthResult();
@@ -35,7 +36,7 @@ namespace VodovozHealthCheck
 			return Task.FromResult(HealthCheckResult.Unhealthy("Проверка не пройдена.", null, unhealthyDictionary));
 		}
 
-		public abstract VodovozHealthResult GetHealthResult();
+		protected abstract VodovozHealthResultDto GetHealthResult();
 
 	}
 }

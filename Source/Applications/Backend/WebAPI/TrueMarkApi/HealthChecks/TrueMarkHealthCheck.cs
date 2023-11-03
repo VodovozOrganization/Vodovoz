@@ -15,9 +15,9 @@ namespace TrueMarkApi.HealthChecks
 			_edoSettings = edoSettings ?? throw new ArgumentNullException(nameof(edoSettings));
 		}
 
-		public override VodovozHealthResult GetHealthResult()
+		protected override VodovozHealthResultDto GetHealthResult()
 		{
-			var healthResult = new VodovozHealthResult();
+			var healthResult = new VodovozHealthResultDto();
 
 			var controllerIsHealthy = CheckControllerIsHealthy();
 

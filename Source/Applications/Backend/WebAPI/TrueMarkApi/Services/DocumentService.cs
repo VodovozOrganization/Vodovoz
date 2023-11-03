@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -62,7 +62,7 @@ namespace TrueMarkApi.Services
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
 			_edoSettings = edoSettings ?? throw new ArgumentNullException(nameof(edoSettings));
-			_trueMarkDocumentServiceHealthCheck = trueMarkDocumentServiceHealthCheck ?? throw new ArgumentNullException(nameof(trueMarkDocumentServiceHealthCheck)); ;
+			_trueMarkDocumentServiceHealthCheck = trueMarkDocumentServiceHealthCheck ?? throw new ArgumentNullException(nameof(trueMarkDocumentServiceHealthCheck));
 			_apiSection = (configuration ?? throw new ArgumentNullException(nameof(configuration))).GetSection("Api");
 			_httpClientClientFactory = httpClientFactory;
 

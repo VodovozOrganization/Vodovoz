@@ -6,11 +6,11 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace VodovozHealthCheck
+namespace VodovozHealthCheck.Utils.ResponseWriter
 {
-	internal static class JsonResponseWriter
+	public class JsonResponseWriter : IResponseWriter
 	{
-		public static Task WriteResponse(HttpContext context, HealthReport healthReport)
+		public Task WriteResponse(HttpContext context, HealthReport healthReport)
 		{
 			context.Response.ContentType = "application/json; charset=utf-8";
 
