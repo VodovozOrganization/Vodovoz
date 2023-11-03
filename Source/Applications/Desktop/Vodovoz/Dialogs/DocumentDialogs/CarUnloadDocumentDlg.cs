@@ -11,7 +11,6 @@ using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Vodovoz.Core.DataService;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
@@ -19,18 +18,13 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
-using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Equipments;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.Stock;
-using Vodovoz.EntityRepositories.WageCalculation;
-using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Repository.Store;
-using Vodovoz.Tools;
+using Vodovoz.Services;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
@@ -41,25 +35,28 @@ namespace Vodovoz
 {
 	public partial class CarUnloadDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<CarUnloadDocument>
 	{
-		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
-		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
-		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(_parametersProvider);
+		private static NLog.Logger _logger;
 
-		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private readonly ITrackRepository _trackRepository = new TrackRepository();
-		private readonly IEquipmentRepository _equipmentRepository = new EquipmentRepository();
-		private readonly ICarUnloadRepository _carUnloadRepository = new CarUnloadRepository();
-		private readonly IRouteListRepository
-			_routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
-		private IWageParameterService _wageParameterService =
-			new WageParameterService(new WageCalculationRepository(), _baseParametersProvider);
+		private ITerminalNomenclatureProvider _terminalNomenclatureProvider;
+
+		private IEmployeeRepository _employeeRepository;
+		private ITrackRepository _trackRepository;
+		private IEquipmentRepository _equipmentRepository;
+		private ICarUnloadRepository _carUnloadRepository;
+		private IRouteListRepository _routeListRepository;
+		private INomenclatureRepository _nomenclatureRepository;
+
+		private IWageParameterService _wageParameterService;
 		private ICallTaskWorker _callTaskWorker;
 		private ILifetimeScope _lifetimeScope;
+
+		private IStoreDocumentHelper _storeDocumentHelper;
 
 		#region Конструкторы
 		public CarUnloadDocumentDlg()
 		{
-			this.Build();
+			ResolveDependencies();
+			Build();
 			ConfigureNewDoc();
 			ConfigureDlg();
 		}
@@ -67,7 +64,8 @@ namespace Vodovoz
 
 		public CarUnloadDocumentDlg(int routeListId, int? warehouseId)
 		{
-			this.Build();
+			ResolveDependencies();
+			Build();
 			ConfigureNewDoc();
 
 			if(warehouseId.HasValue)
@@ -86,7 +84,8 @@ namespace Vodovoz
 
 		public CarUnloadDocumentDlg(int id)
 		{
-			this.Build();
+			ResolveDependencies();
+			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<CarUnloadDocument>(id);
 			ConfigureDlg();
 		}
@@ -98,6 +97,27 @@ namespace Vodovoz
 
 		#region Методы
 
+		private void ResolveDependencies()
+		{
+			_logger = NLog.LogManager.GetCurrentClassLogger();
+			_lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+			NavigationManager = _lifetimeScope.Resolve<INavigationManager>();
+
+			_terminalNomenclatureProvider = _lifetimeScope.Resolve<ITerminalNomenclatureProvider>();
+
+			_employeeRepository = _lifetimeScope.Resolve<IEmployeeRepository>();
+			_trackRepository = _lifetimeScope.Resolve<ITrackRepository>();
+			_equipmentRepository = _lifetimeScope.Resolve<IEquipmentRepository>();
+			_carUnloadRepository = _lifetimeScope.Resolve<ICarUnloadRepository>();
+			_routeListRepository = _lifetimeScope.Resolve<IRouteListRepository>();
+			_nomenclatureRepository = _lifetimeScope.Resolve<INomenclatureRepository>();
+
+			_wageParameterService = _lifetimeScope.Resolve<IWageParameterService>();
+			_callTaskWorker = _lifetimeScope.Resolve<ICallTaskWorker>();
+
+			_storeDocumentHelper = _lifetimeScope.Resolve<IStoreDocumentHelper>();
+		}
+
 		private void ConfigureNewDoc()
 		{
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<CarUnloadDocument>();
@@ -108,26 +128,12 @@ namespace Vodovoz
 				return;
 			}
 
-			var storeDocument = new StoreDocumentHelper(new UserSettingsGetter());
-			Entity.Warehouse = storeDocument.GetDefaultWarehouse(UoW, WarehousePermissionsType.CarUnloadEdit);
+			Entity.Warehouse = _storeDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissionsType.CarUnloadEdit);
 		}
 
 		private void ConfigureDlg()
 		{
-			_lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
-			NavigationManager = Startup.MainWin.NavigationManager;
-
-			var storeDocument = new StoreDocumentHelper(new UserSettingsGetter());
-			_callTaskWorker = new CallTaskWorker(
-				CallTaskSingletonFactory.GetInstance(),
-				new CallTaskRepository(),
-				new OrderRepository(),
-				_employeeRepository,
-				_baseParametersProvider,
-				ServicesConfig.CommonServices.UserService,
-				ErrorReporter.Instance);
-
-			if(storeDocument.CheckAllPermissions(UoW.IsNew, WarehousePermissionsType.CarUnloadEdit, Entity.Warehouse)) {
+			if(_storeDocumentHelper.CheckAllPermissions(UoW.IsNew, WarehousePermissionsType.CarUnloadEdit, Entity.Warehouse)) {
 				FailInitialize = true;
 				return;
 			}
@@ -137,17 +143,20 @@ namespace Vodovoz
 				ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission(
 					"can_change_car_load_and_unload_docs", currentUserId);
 			
-			var editing = storeDocument.CanEditDocument(WarehousePermissionsType.CarUnloadEdit, Entity.Warehouse);
+			var editing = _storeDocumentHelper.CanEditDocument(WarehousePermissionsType.CarUnloadEdit, Entity.Warehouse);
 			editing &= Entity.RouteList?.Status != RouteListStatus.Closed || hasPermitionToEditDocWithClosedRL;
-			Entity.InitializeDefaultValues(UoW, new NomenclatureRepository(new NomenclatureParametersProvider(_parametersProvider)));
+			Entity.InitializeDefaultValues(UoW, _nomenclatureRepository);
 
 			entryRouteList.ViewModel = new LegacyEEVMBuilderFactory<CarUnloadDocument>(this, Entity, UoW, NavigationManager, _lifetimeScope)
 				.ForProperty(x => x.RouteList)
 				.UseViewModelJournalAndAutocompleter<RouteListJournalViewModel, RouteListJournalFilterViewModel>(filter =>
 				{
-					filter.RestrictedByStatuses = new[] { RouteListStatus.EnRoute };
+					filter.DisplayableStatuses = new[] { RouteListStatus.EnRoute };
 				})
 				.Finish();
+
+			entryRouteList.ViewModel.Changed += OnYentryrefRouteListChanged;
+			OnYentryrefRouteListChanged(null, EventArgs.Empty);
 
 			entryRouteList.Sensitive = ySpecCmbWarehouses.Sensitive = ytextviewCommnet.Editable = editing;
 			returnsreceptionview.Sensitive =
@@ -162,7 +171,7 @@ namespace Vodovoz
 				returnsreceptionview.UoW = UoW;
 
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.TimeStamp.ToString("g"), w => w.LabelProp).InitializeFromSource();
-			ySpecCmbWarehouses.ItemsList = storeDocument.GetRestrictedWarehousesList(UoW, WarehousePermissionsType.CarUnloadEdit);
+			ySpecCmbWarehouses.ItemsList = _storeDocumentHelper.GetRestrictedWarehousesList(UoW, WarehousePermissionsType.CarUnloadEdit);
 			ySpecCmbWarehouses.Binding.AddBinding(Entity, e => e.Warehouse, w => w.SelectedItem).InitializeFromSource();
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 
@@ -232,7 +241,7 @@ namespace Vodovoz
 				return false;
 			}
 
-			if(!UpdateReceivedItemsOnEntity(_baseParametersProvider.GetNomenclatureIdForTerminal))
+			if(!UpdateReceivedItemsOnEntity(_terminalNomenclatureProvider.GetNomenclatureIdForTerminal))
 			{
 				return false;
 			}
@@ -592,9 +601,19 @@ namespace Vodovoz
 		{
 			SetupForNewRouteList();
 			FillOtherReturnsTable();
-			Entity.ReturnedEmptyBottlesBefore(UoW, _routeListRepository);
+			if(Entity.RouteList != null)
+			{
+				Entity.ReturnedEmptyBottlesBefore(UoW, _routeListRepository);
+			}
 		}
 		#endregion
+
+		public override void Destroy()
+		{
+			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
+			base.Destroy();
+		}
 
 		private class InternalItem
 		{

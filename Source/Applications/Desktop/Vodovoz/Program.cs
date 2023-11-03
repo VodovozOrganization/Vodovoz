@@ -587,7 +587,7 @@ namespace Vodovoz
 								}
 								), "");
 
-							cs["BaseUri"] = "https://driverapi.vod.qsolution.ru:7090/api/v2/";
+							cs["BaseUri"] = "https://driverapi.vod.qsolution.ru:7090/api/v4/";
 
 							var clientProvider = new ApiClientProvider.ApiClientProvider(cs);
 

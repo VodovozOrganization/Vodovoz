@@ -496,7 +496,7 @@ namespace Vodovoz.ViewModels.Complaints
 			AddFineCommand = new DelegateCommand<ITdiTab>(
 				t =>
 				{
-					var page = NavigationManager.OpenViewModel<FineViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate(), OpenPageOptions.AsSlave);
+					var page = ((ITdiCompatibilityNavigation)NavigationManager).OpenViewModelOnTdi<FineViewModel, IEntityUoWBuilder>(t, EntityUoWBuilder.ForCreate(), OpenPageOptions.AsSlave);
 
 					page.ViewModel.FineReasonString = Entity.GetFineReason();
 					page.ViewModel.EntitySaved += (sender, e) =>
