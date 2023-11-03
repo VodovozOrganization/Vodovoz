@@ -1058,9 +1058,9 @@ WHERE
         DATE_ADD(orders.delivery_date, INTERVAL IFNULL(counterparty.delay_days_for_buyers, 0) DAY) &lt; DATE(@date)
   AND orders.order_payment_status IN ('UnPaid', 'PartiallyPaid')
   AND (
-    (@mode = "Networks" AND counterparty.is_chain_store = 1)
+    (@mode = 'Networks' AND counterparty.is_chain_store = 1)
      OR
-    (@mode = "Tenders" AND counterparty.counterparty_camefrom_id = 46)
+    (@mode = 'Tenders' AND counterparty.counterparty_camefrom_id = 46)
   )
   AND orders.payment_type = 'Cashless'
   AND orders.order_status NOT IN ('Canceled', 'NotDelivered', 'DeliveryCanceled')
@@ -1155,7 +1155,7 @@ ORDER BY estimated_payment_date;</CommandText>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="date">
       <DataType>String</DataType>
       <DefaultValue>

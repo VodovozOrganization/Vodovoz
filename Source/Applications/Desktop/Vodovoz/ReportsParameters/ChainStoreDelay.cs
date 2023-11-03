@@ -78,7 +78,7 @@ namespace Vodovoz.ReportsParameters
 				_employeeJournalFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory());
 
 			speciallistcomboboxReportBy.ItemsList = Modes;
-			speciallistcomboboxReportBy.RenderTextFunc = (node) => node is KeyValuePair<string, string> pair ? pair.Value : "";
+			speciallistcomboboxReportBy.SetRenderTextFunc<KeyValuePair<string, string>>(node => node.Value);
 			speciallistcomboboxReportBy.Binding
 				.AddBinding(this, r => r.Mode, w => w.SelectedItem)
 				.InitializeFromSource();
