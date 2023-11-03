@@ -833,13 +833,6 @@ public partial class MainWindow : Window
 
 	void ActionRevision_Activated(object sender, System.EventArgs e)
 	{
-		//tdiMain.OpenTab(
-		//	QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.Revision>(),
-		//	() => new QSReport.ReportViewDlg(new Vodovoz.Reports.Revision())
-
-
-		//);
-
 		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(RevisionReportViewModel));
 	}
 
