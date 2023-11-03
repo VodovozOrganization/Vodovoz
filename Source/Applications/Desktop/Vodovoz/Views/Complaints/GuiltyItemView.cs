@@ -38,6 +38,7 @@ namespace Vodovoz.Views.Complaints
 
 			Shown += (s, ea) => {
 				entVmEmployee.Visible = ViewModel.CanChooseEmployee;
+				entrySubdivision.Visible = ViewModel.CanChooseSubdivision;
 			};
 		}
 
