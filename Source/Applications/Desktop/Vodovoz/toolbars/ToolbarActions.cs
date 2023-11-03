@@ -1059,16 +1059,10 @@ public partial class MainWindow : Window
 
 	void OnActionSalesOrdersJournalActivated(object sender, EventArgs e)
 	{
-		var scope = Startup.AppDIContainer.BeginLifetimeScope();
-		var counterpartyJournalFactory = new CounterpartyJournalFactory(scope);
-		var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
-
-		var orderJournalFilter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, scope)
+		NavigationManager.OpenViewModel<OrderJournalViewModel, Action<OrderJournalFilterViewModel>>(null, filter =>
 		{
-			IsForSalesDepartment = true
-		};
-
-		NavigationManager.OpenViewModel<OrderJournalViewModel, OrderJournalFilterViewModel>(null, orderJournalFilter);
+			filter.IsForSalesDepartment = true;
+		});
 	}
 
 	void OnActionSalesCounterpartiesJournalActivated(object sender, EventArgs e)
