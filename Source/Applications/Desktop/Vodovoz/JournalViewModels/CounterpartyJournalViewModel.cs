@@ -37,7 +37,9 @@ namespace Vodovoz.JournalViewModels
 		{
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 
-            TabName = "Журнал контрагентов";
+			filterViewModel.Journal = this;
+
+			TabName = "Журнал контрагентов";
 
 			_userHaveAccessToRetail = commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_to_retail");
 			_canOpenCloseDeliveries =

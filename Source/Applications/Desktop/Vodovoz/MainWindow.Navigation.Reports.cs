@@ -29,6 +29,7 @@ using Vodovoz.ReportsParameters.Sales;
 using Vodovoz.ReportsParameters.Store;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Cash.Reports;
+using Vodovoz.ViewModels.Counterparties;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Reports;
@@ -140,11 +141,9 @@ public partial class MainWindow
 	/// </summary>
 	/// <param name="sender"></param>
 	/// <param name="e"></param>
-	[Obsolete("Старый диалог, заменить")]
 	protected void OnActionCounterpartyTagsActivated(object sender, EventArgs e)
 	{
-		var refWin = new OrmReference(typeof(Tag));
-		tdiMain.AddTab(refWin);
+		NavigationManager.OpenViewModel<TagJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
