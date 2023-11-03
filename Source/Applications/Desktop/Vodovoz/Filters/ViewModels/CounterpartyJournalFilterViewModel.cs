@@ -2,10 +2,12 @@
 using QS.Project.Filter;
 using QS.ViewModels.Control.EEVM;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Retail;
+using Vodovoz.EntityRepositories;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Counterparties;
 using Vodovoz.ViewModels.Widgets.Search;
@@ -30,10 +32,18 @@ namespace Vodovoz.Filters.ViewModels
 		private string _counterpartyInn;
 		private bool _showLiquidating;
 		private CounterpartyJournalViewModel _journal;
+		private ClientCameFrom _clientCameFrom;
 		private readonly CompositeSearchViewModel _searchByAddressViewModel;
 
-		public CounterpartyJournalFilterViewModel()
+		public CounterpartyJournalFilterViewModel(IGenericRepository<ClientCameFrom> clientCameFromRepository)
 		{
+			if(clientCameFromRepository is null)
+			{
+				throw new ArgumentNullException(nameof(clientCameFromRepository));
+			}
+
+			ClientCameFromCache = clientCameFromRepository.Get(UoW);
+
 			_searchByAddressViewModel = new CompositeSearchViewModel();
 			_searchByAddressViewModel.OnSearch += OnSearchByAddressViewModel;
 
@@ -175,6 +185,14 @@ namespace Vodovoz.Filters.ViewModels
 			set => SetField(ref _counterpartyInn, value);
 		}
 
+		public IEnumerable<ClientCameFrom> ClientCameFromCache { get; }
+
+		public ClientCameFrom ClientCameFrom
+		{
+			get => _clientCameFrom;
+			set => UpdateFilterField(ref _clientCameFrom, value);
+		}
+
 		private void UnsubscribeOnCheckChanged()
 		{
 			foreach(SalesChannelSelectableNode selectableSalesChannel in SalesChannels)
@@ -203,6 +221,7 @@ namespace Vodovoz.Filters.ViewModels
 
 		public override void Dispose()
 		{
+			UnsubscribeOnCheckChanged();
 			_searchByAddressViewModel.OnSearch -= OnSearchByAddressViewModel;
 			base.Dispose();
 		}

@@ -1,5 +1,6 @@
 ﻿using Gamma.GtkWidgets;
 using Gtk;
+using QS.ViewModels;
 using QS.Views.GtkUI;
 using QS.Widgets;
 using System.ComponentModel;
@@ -93,6 +94,13 @@ namespace Vodovoz.Filters.GtkViews
 			{
 				frame2.Visible = false;
 			}
+
+			speciallistcomboboxCounterpartySource.ItemsList = ViewModel.ClientCameFromCache;
+			speciallistcomboboxCounterpartySource.ShowSpecialStateAll = true;
+
+			speciallistcomboboxCounterpartySource.Binding
+				.AddBinding(ViewModel, vm => vm.ClientCameFrom, w => w.SelectedItem)
+				.InitializeFromSource();
 
 			var searchByAddressView = new CompositeSearchView(ViewModel.SearchByAddressViewModel);
 			yhboxSearchByAddress.Add(searchByAddressView);

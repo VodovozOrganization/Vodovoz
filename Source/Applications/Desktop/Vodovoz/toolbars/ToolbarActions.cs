@@ -1073,12 +1073,10 @@ public partial class MainWindow : Window
 
 	void OnActionSalesCounterpartiesJournalActivated(object sender, EventArgs e)
 	{
-		CounterpartyJournalFilterViewModel counterpartyJournalFilter = new CounterpartyJournalFilterViewModel()
+		NavigationManager.OpenViewModel<CounterpartyJournalViewModel, Action<CounterpartyJournalFilterViewModel>>(null, filter =>
 		{
-			IsForSalesDepartment = true
-		};
-
-		NavigationManager.OpenViewModel<CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(null, counterpartyJournalFilter);
+			filter.IsForSalesDepartment = true;
+		});
 	}
 
 	void OnActionSalesUndeliveredOrdersOrdersJournalActivated(object sender, EventArgs e)
