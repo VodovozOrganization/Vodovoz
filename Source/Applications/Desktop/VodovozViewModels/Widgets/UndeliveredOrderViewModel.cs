@@ -11,6 +11,7 @@ using QS.Services;
 using QS.Tdi;
 using QS.Utilities;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -49,8 +50,6 @@ namespace Vodovoz.ViewModels.Widgets
 		private IList<GuiltyInUndelivery> _initialGuiltyList = new List<GuiltyInUndelivery>();
 		private readonly bool _canReadDetalization;
 		private string _newResultText;
-		private readonly INavigationManager _navigationManager;
-		private readonly ILifetimeScope _scope;
 		private DelegateCommand _addFineCommand;
 		private DelegateCommand _chooseOrderCommand;
 		private DelegateCommand _oldOrderSelectCommand;
@@ -59,19 +58,28 @@ namespace Vodovoz.ViewModels.Widgets
 		private DelegateCommand _addResultCommand;
 		private DelegateCommand _addCommentToTheFieldCommand;
 		private DelegateCommand _clearDetalizationCommand;
-		private readonly ITdiTab _tab;
 		private ITdiTab _newOrderDlg;
-		
 
-		public UndeliveredOrderViewModel(UndeliveredOrder entity, ICommonServices commonServices,
-			IUndeliveryDetalizationJournalFactory undeliveryDetalizationJournalFactory, IUnitOfWork uow, INavigationManager navigationManager, ILifetimeScope scope,
-			ITdiTab tab, IOrderRepository orderRepository, IOrderSelectorFactory orderSelectorFactory, IDeliveryScheduleJournalFactory deliveryScheduleJournalFactory,
-			ISubdivisionRepository subdivisionRepository, IEmployeeJournalFactory employeeJournalFactory, IEmployeeRepository employeeRepository, IGtkTabsOpener gtkTabsOpener)
+		public UndeliveredOrderViewModel(
+			UndeliveredOrder entity,
+			ICommonServices commonServices,
+			IUndeliveryDetalizationJournalFactory undeliveryDetalizationJournalFactory,
+			IUnitOfWork uow,
+			INavigationManager navigationManager,
+			ILifetimeScope scope,
+			ITdiTab tab,
+			IOrderRepository orderRepository,
+			IOrderSelectorFactory orderSelectorFactory,
+			IDeliveryScheduleJournalFactory deliveryScheduleJournalFactory,
+			ISubdivisionRepository subdivisionRepository,
+			IEmployeeJournalFactory employeeJournalFactory,
+			IEmployeeRepository employeeRepository,
+			IGtkTabsOpener gtkTabsOpener)
 			: base(entity, commonServices)
 		{
-			_navigationManager = navigationManager ?? throw new ArgumentException(nameof(navigationManager));
-			_scope = scope ?? throw new ArgumentException(nameof(scope));
-			_tab = tab ?? throw new ArgumentException(nameof(tab));
+			NavigationManager = navigationManager ?? throw new ArgumentException(nameof(navigationManager));
+			Scope = scope ?? throw new ArgumentException(nameof(scope));
+			Tab = tab ?? throw new ArgumentException(nameof(tab));
 			_orderRepository = orderRepository ?? throw new ArgumentException(nameof(orderRepository));
 			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentException(nameof(orderSelectorFactory));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentException(nameof(subdivisionRepository));
@@ -90,10 +98,12 @@ namespace Vodovoz.ViewModels.Widgets
 				CanChangeFilter = false
 			};
 
-			UndeliveryDetalizationSelectorFactory = (undeliveryDetalizationJournalFactory ?? throw new ArgumentException(nameof(undeliveryDetalizationJournalFactory)))
+			UndeliveryDetalizationSelectorFactory = undeliveryDetalizationJournalFactory
 				.CreateUndeliveryDetalizationAutocompleteSelectorFactory(_entityDetalizationJournalFilterViewModel);
 
 			ConfigureView();
+
+			ChooseOrderCommand = CreateChooseOrderCommand();
 		}
 
 		private void ConfigureView()
@@ -151,7 +161,7 @@ namespace Vodovoz.ViewModels.Widgets
 				}
 			}
 
-			var filterOrders = _scope.Resolve<OrderJournalFilterViewModel>();
+			var filterOrders = Scope.Resolve<OrderJournalFilterViewModel>();
 			filterOrders.SetAndRefilterAtOnce(x => x.HideStatuses = hiddenStatusesList.Cast<Enum>().ToArray());
 
 			return filterOrders;
@@ -272,7 +282,7 @@ namespace Vodovoz.ViewModels.Widgets
 					sb.AppendLine("добавил(а) ответственных:");
 					foreach(var a in addedGuiltyList)
 					{
-						sb.AppendLine(String.Format("\t- {0}", a));
+						sb.AppendLine($"\t- {a}");
 					}
 				}
 
@@ -281,7 +291,7 @@ namespace Vodovoz.ViewModels.Widgets
 					sb.AppendLine("удалил(а) ответственных:");
 					foreach(var r in removedGuiltyList)
 					{
-						sb.AppendLine(String.Format("\t- {0}", r));
+						sb.AppendLine($"\t- {r}");
 					}
 				}
 
@@ -302,7 +312,7 @@ namespace Vodovoz.ViewModels.Widgets
 		/// <param name="order">Заказ, из которого копируются свойства.</param>
 		private void CreateNewOrder(Order order)
 		{
-			_newOrderDlg = _gtkTabsOpener.OpenCopyOrderDlg(_tab, order.Id);
+			_newOrderDlg = _gtkTabsOpener.OpenCopyOrderDlg(Tab, order.Id);
 			_newOrderDlg.TabClosed -= OnNewOrderDlgClosed;
 			_newOrderDlg.TabClosed += OnNewOrderDlgClosed;
 		}
@@ -327,7 +337,7 @@ namespace Vodovoz.ViewModels.Widgets
 			{
 				UoW.Save();
 				UoW.Commit();
-				_gtkTabsOpener.OpenOrderDlg(_tab, order.Id);
+				_gtkTabsOpener.OpenOrderDlg(Tab, order.Id);
 			}
 		}
 
@@ -350,10 +360,10 @@ namespace Vodovoz.ViewModels.Widgets
 
 		public UndeliveryObject UndeliveryObject
 		{
-			get => _entityObject;
+			get => _undeliveryObject;
 			set
 			{
-				if(SetField(ref _entityObject, value))
+				if(SetField(ref _undeliveryObject, value))
 				{
 					UndeliveryKindSource = value == null ? _entityKinds : _entityKinds.Where(x => x.UndeliveryObject == value).ToList();
 					_entityDetalizationJournalFilterViewModel.UndeliveryObject = value;
@@ -416,6 +426,8 @@ namespace Vodovoz.ViewModels.Widgets
 		public bool CanEditReference => CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.RouteList.CanDelete);
 		public IDeliveryScheduleJournalFactory DeliveryScheduleJournalFactory { get; }
 		public Func<bool> IsSaved;
+		private UndeliveryObject _undeliveryObject;
+
 		public IEntityAutocompleteSelectorFactory WorkingEmployeeAutocompleteSelectorFactory { get; }
 		public virtual IEnumerable<UndeliveryTransferAbsenceReason> UndeliveryTransferAbsenceReasonItems =>
 			_entityTransferAbsenceReasonItems ?? (_entityTransferAbsenceReasonItems =
@@ -434,11 +446,7 @@ namespace Vodovoz.ViewModels.Widgets
 				Entity.AddCommentToTheField(
 					UoW,
 					CommentedFields.Reason,
-					String.Format(
-						"сменил(а) \"в работе у отдела\" \nс \"{0}\" на \"{1}\"",
-						_initialProcDepartmentName,
-						Entity.InProcessAtDepartment.Name
-					)
+					$"сменил(а) \"в работе у отдела\" \nс \"{_initialProcDepartmentName}\" на \"{Entity.InProcessAtDepartment.Name}\""
 				);
 			}));
 
@@ -504,7 +512,7 @@ namespace Vodovoz.ViewModels.Widgets
 					var orderJournal = _orderSelectorFactory.CreateOrderJournalViewModel(CreateDefaultFilter());
 					orderJournal.SelectionMode = JournalSelectionMode.Single;
 
-					_tab.TabParent.AddTab(orderJournal, _tab, false);
+					Tab.TabParent.AddTab(orderJournal, Tab, false);
 
 					orderJournal.OnEntitySelectedResult += (s, ea) =>
 					{
@@ -519,12 +527,12 @@ namespace Vodovoz.ViewModels.Widgets
 				}
 			}));
 
-
-
-		public DelegateCommand ChooseOrderCommand => _chooseOrderCommand ?? (_chooseOrderCommand = new DelegateCommand(
+		public DelegateCommand CreateChooseOrderCommand()
+		{
+			return new DelegateCommand(
 			() =>
 			{
-				var filter = _scope.Resolve<OrderJournalFilterViewModel>();
+				var filter = Scope.Resolve<OrderJournalFilterViewModel>();
 				filter.SetAndRefilterAtOnce(
 					x => x.RestrictCounterparty = Entity.OldOrder?.Client,
 					x => x.HideStatuses = new Enum[] { OrderStatus.WaitForPayment }
@@ -533,7 +541,7 @@ namespace Vodovoz.ViewModels.Widgets
 				var orderJournal = _orderSelectorFactory.CreateOrderJournalViewModel(filter);
 				orderJournal.SelectionMode = JournalSelectionMode.Single;
 
-				_tab.TabParent.AddTab(orderJournal, _tab, false);
+				Tab.TabParent.AddTab(orderJournal, Tab, false);
 
 				orderJournal.OnEntitySelectedResult += (s, ea) =>
 				{
@@ -566,7 +574,10 @@ namespace Vodovoz.ViewModels.Widgets
 						Entity.NewOrder.PaymentByCardFrom = Entity.OldOrder.PaymentByCardFrom;
 					}
 				};
-			}));
+			});
+		}
+
+		public DelegateCommand ChooseOrderCommand { get; }
 
 		public DelegateCommand AddFineCommand => _addFineCommand ?? (_addFineCommand = new DelegateCommand(
 			() =>
@@ -586,7 +597,7 @@ namespace Vodovoz.ViewModels.Widgets
 				}
 
 				var entityUoWBuilder = EntityUoWBuilder.ForCreate();
-				var fineViewModel = _navigationManager.OpenViewModel<FineViewModel, IEntityUoWBuilder>(null, entityUoWBuilder).ViewModel;
+				var fineViewModel = NavigationManager.OpenViewModel<FineViewModel, IEntityUoWBuilder>(null, entityUoWBuilder).ViewModel;
 
 				using(IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot())
 				{
@@ -615,6 +626,12 @@ namespace Vodovoz.ViewModels.Widgets
 				Entity.UndeliveryDetalization = null;
 			}
 		));
+
+		public INavigationManager NavigationManager { get; }
+
+		public ILifetimeScope Scope { get; }
+
+		public ITdiTab Tab { get; }
 
 		#endregion
 

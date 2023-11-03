@@ -62,7 +62,7 @@ namespace Vodovoz.Views.Users
 
 		private global::Gtk.Label label5;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry yentrySubdivision;
+		private global::QS.Views.Control.EntityEntry entrySubdivision;
 
 		private global::Gamma.GtkWidgets.yLabel labelStatus;
 
@@ -358,13 +358,11 @@ namespace Vodovoz.Views.Users
 			w21.Expand = false;
 			w21.Fill = false;
 			// Container child vbox9.Gtk.Box+BoxChild
-			this.yentrySubdivision = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.yentrySubdivision.Events = ((global::Gdk.EventMask)(256));
-			this.yentrySubdivision.Name = "yentrySubdivision";
-			this.yentrySubdivision.CanEditReference = false;
-			this.yentrySubdivision.CanOpenWithoutTabParent = false;
-			this.vbox9.Add(this.yentrySubdivision);
-			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox9[this.yentrySubdivision]));
+			this.entrySubdivision = new global::QS.Views.Control.EntityEntry();
+			this.entrySubdivision.Events = ((global::Gdk.EventMask)(256));
+			this.entrySubdivision.Name = "entrySubdivision";
+			this.vbox9.Add(this.entrySubdivision);
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox9[this.entrySubdivision]));
 			w22.Position = 3;
 			w22.Expand = false;
 			w22.Fill = false;

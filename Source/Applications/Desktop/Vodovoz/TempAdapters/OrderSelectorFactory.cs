@@ -1,5 +1,6 @@
 ﻿using QS.Dialog.GtkUI.FileDialog;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
@@ -14,19 +15,19 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
-using Vodovoz.ViewModels.Factories;
 
 namespace Vodovoz.TempAdapters
 {
 	public class OrderSelectorFactory : IOrderSelectorFactory
 	{
+		private readonly INavigationManager _navigationManager;
 		private OrderJournalFilterViewModel _orderJournalFilter;
 
-		public OrderSelectorFactory(OrderJournalFilterViewModel orderFilter = null)
+		public OrderSelectorFactory(INavigationManager navigationManager, OrderJournalFilterViewModel orderFilter = null)
 		{
+			_navigationManager = navigationManager ?? throw new System.ArgumentNullException(nameof(navigationManager));
 			_orderJournalFilter = orderFilter;
 		}
 
@@ -57,18 +58,17 @@ namespace Vodovoz.TempAdapters
 
 		public IEntityAutocompleteSelectorFactory CreateCashSelfDeliveryOrderAutocompleteSelector()
 		{
-			var subdivisionJournalFactory = new SubdivisionJournalFactory();
-			var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
+			var scope = Startup.AppDIContainer.BeginLifetimeScope();
+			var counterpartyJournalFactory = new CounterpartyJournalFactory(scope);
 			var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
 			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 			var userRepository = new UserRepository();
-			var employeeJournalFactory = new EmployeeJournalFactory();
 
 			return new EntityAutocompleteSelectorFactory<OrderJournalViewModel>(
 				typeof(Order),
 				() =>
 				{
-					var filter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, employeeJournalFactory);
+					var filter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, scope);
 					filter.SetAndRefilterAtOnce(
 						x => x.RestrictStatus = OrderStatus.WaitForPayment,
 						x => x.AllowPaymentTypes = new[] { PaymentType.Cash },
@@ -81,17 +81,16 @@ namespace Vodovoz.TempAdapters
 						filter,
 						UnitOfWorkFactory.GetDefaultFactory,
 						ServicesConfig.CommonServices,
-						Startup.MainWin.NavigationManager,
+						_navigationManager,
+						scope,
 						VodovozGtkServicesConfig.EmployeeService,
 						nomenclatureRepository,
 						userRepository,
-						new OrderSelectorFactory(),
-						new EmployeeJournalFactory(),
+						new OrderSelectorFactory(_navigationManager),
+						new EmployeeJournalFactory(_navigationManager),
 						counterpartyJournalFactory,
 						new DeliveryPointJournalFactory(),
-						subdivisionJournalFactory,
 						new GtkTabsOpener(),
-						new UndeliveredOrdersJournalOpener(),
 						new NomenclatureJournalFactory(),
 						new UndeliveredOrdersRepository(),
 						new SubdivisionRepository(new ParametersProvider()),
@@ -105,18 +104,18 @@ namespace Vodovoz.TempAdapters
 
 		public IEntityAutocompleteSelectorFactory CreateSelfDeliveryDocumentOrderAutocompleteSelector()
 		{
-			var subdivisionJournalFactory = new SubdivisionJournalFactory();
-			var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
+			var scope = Startup.AppDIContainer.BeginLifetimeScope();
+
+			var counterpartyJournalFactory = new CounterpartyJournalFactory(scope);
 			var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
 			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 			var userRepository = new UserRepository();
-			var employeeJournalFactory = new EmployeeJournalFactory();
 
 			return new EntityAutocompleteSelectorFactory<OrderJournalViewModel>(
 				typeof(Order),
 				() =>
 				{
-					var filter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, employeeJournalFactory);
+					var filter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, scope);
 					filter.SetAndRefilterAtOnce(
 						x => x.RestrictOnlySelfDelivery = true,
 						x => x.RestrictStatus = OrderStatus.OnLoading
@@ -126,17 +125,16 @@ namespace Vodovoz.TempAdapters
 						filter,
 						UnitOfWorkFactory.GetDefaultFactory,
 						ServicesConfig.CommonServices,
-						Startup.MainWin.NavigationManager,
+						_navigationManager,
+						scope,
 						VodovozGtkServicesConfig.EmployeeService,
 						nomenclatureRepository,
 						userRepository,
-						new OrderSelectorFactory(),
-						new EmployeeJournalFactory(),
+						new OrderSelectorFactory(_navigationManager),
+						new EmployeeJournalFactory(_navigationManager),
 						counterpartyJournalFactory,
 						new DeliveryPointJournalFactory(),
-						subdivisionJournalFactory,
 						new GtkTabsOpener(),
-						new UndeliveredOrdersJournalOpener(),
 						new NomenclatureJournalFactory(),
 						new UndeliveredOrdersRepository(),
 						new SubdivisionRepository(new ParametersProvider()),
@@ -150,12 +148,12 @@ namespace Vodovoz.TempAdapters
 
 		public OrderJournalViewModel CreateOrderJournalViewModel(OrderJournalFilterViewModel filterViewModel = null)
 		{
-			var subdivisionJournalFactory = new SubdivisionJournalFactory();
-			var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
+			var scope = Startup.AppDIContainer.BeginLifetimeScope();
+
+			var counterpartyJournalFactory = new CounterpartyJournalFactory(scope);
 			var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
 			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 			var userRepository = new UserRepository();
-			var employeeJournalFactory = new EmployeeJournalFactory();
 
 			if(filterViewModel != null)
 			{
@@ -164,20 +162,19 @@ namespace Vodovoz.TempAdapters
 
 			return new OrderJournalViewModel(
 				_orderJournalFilter
-					?? new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, employeeJournalFactory),
+					?? new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, scope),
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
-				Startup.MainWin.NavigationManager,
+				_navigationManager,
+				scope,
 				VodovozGtkServicesConfig.EmployeeService,
 				nomenclatureRepository,
 				userRepository,
-				new OrderSelectorFactory(),
-				new EmployeeJournalFactory(),
+				new OrderSelectorFactory(_navigationManager),
+				new EmployeeJournalFactory(_navigationManager),
 				counterpartyJournalFactory,
 				new DeliveryPointJournalFactory(),
-				subdivisionJournalFactory,
 				new GtkTabsOpener(),
-				new UndeliveredOrdersJournalOpener(),
 				new NomenclatureJournalFactory(),
 				new UndeliveredOrdersRepository(),
 				new SubdivisionRepository(new ParametersProvider()),

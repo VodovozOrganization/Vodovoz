@@ -28,7 +28,6 @@ namespace Vodovoz.TempAdapters
 		private ISubdivisionRepository _subdivisionRepository;
 		private IRouteListItemRepository _routeListItemRepository;
 		private ISubdivisionParametersProvider _subdivisionParametersProvider;
-		private ISubdivisionJournalFactory _subdivisionJournalFactory;
 		private IGtkTabsOpener _gtkDlgOpener;
 		private IUserRepository _userRepository;
 		private IOrderSelectorFactory _orderSelectorFactory;
@@ -52,11 +51,10 @@ namespace Vodovoz.TempAdapters
 			_subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
 			_routeListItemRepository = new RouteListItemRepository();
 			_subdivisionParametersProvider = new SubdivisionParametersProvider(new ParametersProvider());
-			_subdivisionJournalFactory = new SubdivisionJournalFactory();
 			_gtkDlgOpener = new GtkTabsOpener();
 			_userRepository = new UserRepository();
-			_orderSelectorFactory = new OrderSelectorFactory();
-			_employeeJournalFactory = new EmployeeJournalFactory();
+			_orderSelectorFactory = new OrderSelectorFactory(_navigationManager);
+			_employeeJournalFactory = new EmployeeJournalFactory(_navigationManager);
 			_counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
 			_deliveryPointJournalFactory = new DeliveryPointJournalFactory();
 			_complaintParametersProvider = new ComplaintParametersProvider(new ParametersProvider());
@@ -75,7 +73,6 @@ namespace Vodovoz.TempAdapters
 				filterViewModel,
 				_fileDialogService,
 				_subdivisionRepository,
-				_subdivisionJournalFactory,
 				_gtkDlgOpener,
 				_userRepository,
 				_orderSelectorFactory,
@@ -100,7 +97,6 @@ namespace Vodovoz.TempAdapters
 				filterViewModel,
 				_fileDialogService,
 				_subdivisionRepository,
-				_subdivisionJournalFactory,
 				_gtkDlgOpener,
 				_userRepository,
 				_orderSelectorFactory,

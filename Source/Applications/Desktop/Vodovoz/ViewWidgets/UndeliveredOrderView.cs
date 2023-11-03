@@ -3,12 +3,16 @@ using Gamma.GtkWidgets;
 using Gtk;
 using QS.Journal.GtkUI;
 using QS.Project.Services;
+using QS.ViewModels.Control.EEVM;
 using QS.Views.GtkUI;
 using System;
+using System.ComponentModel;
 using System.Text;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Infrastructure;
+using Vodovoz.Journals.JournalViewModels.Organizations;
+using Vodovoz.ViewModels.ViewModels.Organizations;
 using Vodovoz.ViewModels.Widgets;
 using CurrencyWorks = QSProjectsLib.CurrencyWorks;
 
@@ -161,9 +165,14 @@ namespace Vodovoz.ViewWidgets
 			yEnumCMBStatus.Binding.AddBinding(ViewModel.Entity, e => e.UndeliveryStatus, w => w.SelectedItem).InitializeFromSource();
 			ViewModel.RemoveItemsFromStatusEnumAction?.Invoke();
 
-			yentInProcessAtDepartment.SubjectType = typeof(Subdivision);
-			yentInProcessAtDepartment.Binding.AddBinding(ViewModel.Entity, d => d.InProcessAtDepartment, w => w.Subject).InitializeFromSource();
-			yentInProcessAtDepartment.ChangedByUser += OnYentInProcessAtDepartmentChangedByUser;
+			entryInProcessAtSubdivision.ViewModel =
+				new LegacyEEVMBuilderFactory<UndeliveredOrder>(ViewModel.Tab, ViewModel.Entity, ViewModel.UoW, ViewModel.NavigationManager, ViewModel.Scope)
+					.ForProperty(x => x.InProcessAtDepartment)
+					.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel>()
+					.UseViewModelDialog<SubdivisionViewModel>()
+					.Finish();
+
+			entryInProcessAtSubdivision.ViewModel.ChangedByUser += OnYentInProcessAtDepartmentChangedByUser;
 
 			evmeRegisteredBy.SetEntityAutocompleteSelectorFactory(ViewModel.WorkingEmployeeAutocompleteSelectorFactory);
 			evmeRegisteredBy.Binding.AddBinding(ViewModel.Entity, s => s.EmployeeRegistrator, w => w.Subject).InitializeFromSource();
@@ -332,7 +341,7 @@ namespace Vodovoz.ViewWidgets
 
 		public override void Dispose()
 		{
-			yentInProcessAtDepartment.ChangedByUser -= OnYentInProcessAtDepartmentChangedByUser;
+			entryInProcessAtSubdivision.ViewModel.ChangedByUser -= OnYentInProcessAtDepartmentChangedByUser;
 			evmeOldUndeliveredOrder.Changed -= OnUndeliveredOrderChanged;
 			ytreeviewResult.ButtonReleaseEvent -= OnYtreeviewResultButtonReleaseEvent;
 			cmbUndeliveryObject.Changed -= OnDetalizationParentObjectChanged;

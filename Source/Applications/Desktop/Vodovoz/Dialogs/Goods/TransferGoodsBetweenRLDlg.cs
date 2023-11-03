@@ -1,30 +1,37 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using QS.Dialog;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Services;
 using QS.Tdi;
+using QS.ViewModels.Control.EEVM;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.Parameters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.Logistic;
 
 namespace Vodovoz
 {
-	public partial class TransferGoodsBetweenRLDlg : QS.Dialog.Gtk.TdiTabBase, ITdiDialog, ISingleUoWDialog
+	public partial class TransferGoodsBetweenRLDlg : QS.Dialog.Gtk.TdiTabBase, ITdiDialog, ISingleUoWDialog, INotifyPropertyChanged
 	{
 		#region Поля
 
-		public IUnitOfWork UoW { get; } = UnitOfWorkFactory.CreateWithoutRoot();
-		private readonly IEmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository;
+		private readonly ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+
+		private readonly IEmployeeNomenclatureMovementRepository _employeeNomenclatureMovementRepository;
 		private readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(new ParametersProvider());
 
-		IColumnsConfig colConfigFrom = ColumnsConfigFactory.Create<CarUnloadDocumentNode>()
+		private IColumnsConfig _colConfigFrom = ColumnsConfigFactory.Create<CarUnloadDocumentNode>()
 			.AddColumn("Номенклатура").AddTextRenderer(d => d.Nomenclature)
 			.AddColumn("Кол-во").AddNumericRenderer(d => d.ItemsCount)
 			.AddColumn("Перенести").AddNumericRenderer(d => d.TransferCount)
@@ -32,10 +39,13 @@ namespace Vodovoz
 			.AddColumn("Остаток").AddNumericRenderer(d => d.Residue)
 			.Finish();
 
-		IColumnsConfig colConfigTo = ColumnsConfigFactory.Create<CarUnloadDocumentNode>()
+		private IColumnsConfig _colConfigTo = ColumnsConfigFactory.Create<CarUnloadDocumentNode>()
 			.AddColumn("Номенклатура").AddTextRenderer(d => d.Nomenclature)
 			.AddColumn("Кол-во").AddNumericRenderer(d => d.ItemsCount)
 			.Finish();
+
+		private RouteList _routeListFrom;
+		private RouteList _routeListTo;
 
 		#endregion
 
@@ -43,32 +53,37 @@ namespace Vodovoz
 
 		public TransferGoodsBetweenRLDlg(IEmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository)
 		{
-			this.Build();
-			this.employeeNomenclatureMovementRepository = employeeNomenclatureMovementRepository ??
-			                                              throw new ArgumentNullException(nameof(employeeNomenclatureMovementRepository));
-			this.TabName = "Перенос разгрузок";
+			Build();
+			_employeeNomenclatureMovementRepository = employeeNomenclatureMovementRepository
+				?? throw new ArgumentNullException(nameof(employeeNomenclatureMovementRepository));
+			TabName = "Перенос разгрузок";
 			ConfigureDlg();
 		}
 
-		public TransferGoodsBetweenRLDlg(RouteList routeList, 
-		                                 OpenParameter param, 
-		                                 IEmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository) : this(employeeNomenclatureMovementRepository)
+		public TransferGoodsBetweenRLDlg(
+			RouteList routeList,
+			OpenParameter param,
+			IEmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository)
+			: this(employeeNomenclatureMovementRepository)
 		{
 			switch(param) {
 				case OpenParameter.Sender:
-					yentryreferenceRouteListFrom.Subject = routeList;
+					RouteListFrom = routeList;
 					break;
 				case OpenParameter.Receiver:
-					yentryreferenceRouteListTo.Subject = routeList;
+					RouteListTo = routeList;
 					break;
 			}
 		}
 
 		#endregion
 
+		public IUnitOfWork UoW { get; } = UnitOfWorkFactory.CreateWithoutRoot();
+
 		#region ITdiDialog implementation
 
 		public event EventHandler<EntitySavedEventArgs> EntitySaved;
+		public event PropertyChangedEventHandler PropertyChanged;
 
 		public bool Save()
 		{
@@ -85,45 +100,95 @@ namespace Vodovoz
 
 		public bool HasChanges => UoW.HasChanges;
 
+		public ITdiCompatibilityNavigation NavigationManager { get; private set; }
+
+		public RouteList RouteListFrom
+		{
+			get => _routeListFrom;
+			set
+			{
+				if(_routeListFrom != value)
+				{
+					_routeListFrom = value;
+					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RouteListFrom)));
+				}
+			}
+		}
+
+		public RouteList RouteListTo
+		{
+			get => _routeListTo;
+			set
+			{
+				if(_routeListTo != value)
+				{
+					_routeListTo = value;
+					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RouteListTo)));
+				}
+			}
+		}
+
 		#endregion
 
 		#region Методы
 
 		private void ConfigureDlg()
 		{
+			NavigationManager = Startup.MainWin.NavigationManager;
+
 			//Настройка элементов откуда переносим
-			RouteListsFilter filterFrom = new RouteListsFilter(UoW);
-			filterFrom.SetFilterDates(DateTime.Today.AddDays(-7), DateTime.Today.AddDays(1));
-			yentryreferenceRouteListFrom.RepresentationModel = new ViewModel.RouteListsVM(filterFrom);
-			yentryreferenceRouteListFrom.Changed += YentryreferenceRouteListFrom_Changed;
-			yentryreferenceRouteListFrom.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
+
+			entryRouteListFrom.ViewModel = new LegacyEEVMBuilderFactory<TransferGoodsBetweenRLDlg>(this, this, UoW, NavigationManager, _lifetimeScope)
+				.ForProperty(x => x.RouteListFrom)
+				.UseViewModelJournalAndAutocompleter<RouteListJournalViewModel, RouteListJournalFilterViewModel>(filter =>
+				{
+					filter.StartDate = DateTime.Today.AddDays(-7);
+					filter.EndDate = DateTime.Today.AddDays(1);
+				})
+				.Finish();
+
+			entryRouteListFrom.ViewModel.IsEditable = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
+
+			entryRouteListFrom.ViewModel.Changed += YentryreferenceRouteListFrom_Changed;
 
 			ylistcomboReceptionTicketFrom.SetRenderTextFunc<CarUnloadDocument>(d => $"Талон разгрузки №{d.Id}. {d.Warehouse.Name}");
 			ylistcomboReceptionTicketFrom.ItemSelected += YlistcomboReceptionTicketFrom_ItemSelected;
 
-			ytreeviewFrom.ColumnsConfig = colConfigFrom;
+			ytreeviewFrom.ColumnsConfig = _colConfigFrom;
 
 			//Настройка компонентов куда переносим
-			RouteListsFilter filterTo = new RouteListsFilter(UoW);
-			filterTo.SetFilterDates(DateTime.Today.AddDays(-7), DateTime.Today.AddDays(1));
-			yentryreferenceRouteListTo.RepresentationModel = new ViewModel.RouteListsVM(filterTo);
-			yentryreferenceRouteListTo.Changed += YentryreferenceRouteListTo_Changed;
-			yentryreferenceRouteListTo.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
+			entryRouteListTo.ViewModel = new LegacyEEVMBuilderFactory<TransferGoodsBetweenRLDlg>(this, this, UoW, NavigationManager, _lifetimeScope)
+				.ForProperty(x => x.RouteListTo)
+				.UseViewModelJournalAndAutocompleter<RouteListJournalViewModel, RouteListJournalFilterViewModel>(filter =>
+				{
+					filter.StartDate = DateTime.Today.AddDays(-7);
+					filter.EndDate = DateTime.Today.AddDays(1);
+				})
+				.Finish();
+
+			entryRouteListTo.ViewModel.IsEditable = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
+
+			entryRouteListTo.ViewModel.Changed += YentryreferenceRouteListTo_Changed;
 
 			ylistcomboReceptionTicketTo.SetRenderTextFunc<CarUnloadDocument>(d => $"Талон разгрузки №{d.Id}. {d.Warehouse.Name}");
 			ylistcomboReceptionTicketTo.ItemSelected += YlistcomboReceptionTicketTo_ItemSelected;
 
-			ytreeviewTo.ColumnsConfig = colConfigTo;
+			ytreeviewTo.ColumnsConfig = _colConfigTo;
 
 			CheckSensitivities();
 
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<CarUnloadDocument>(
 				s => {
 					foreach(var doc in s.Select(x => x.GetEntity<CarUnloadDocument>())) {
-						if(yentryreferenceRouteListFrom.Subject is RouteList rlFrom && doc.RouteList.Id == rlFrom.Id)
+						if(RouteListFrom != null && doc.RouteList.Id == RouteListFrom.Id)
+						{
 							YentryreferenceRouteListFrom_Changed(this, new EventArgs());
-						if(yentryreferenceRouteListTo.Subject is RouteList rlTo && doc.RouteList.Id == rlTo.Id)
+						}
+
+						if(RouteListTo != null && doc.RouteList.Id == RouteListTo.Id)
+						{
 							YentryreferenceRouteListTo_Changed(this, new EventArgs());
+						}
 					}
 				}
 			);
@@ -134,10 +199,10 @@ namespace Vodovoz
 			buttonTransfer.Sensitive =
 				ylistcomboReceptionTicketFrom.SelectedItem != null && ylistcomboReceptionTicketTo.SelectedItem != null;
 
-			buttonCreateNewReceptionTicket.Sensitive = yentryreferenceRouteListTo.Subject != null && ylistcomboReceptionTicketFrom.SelectedItem != null;
+			buttonCreateNewReceptionTicket.Sensitive = RouteListTo != null && ylistcomboReceptionTicketFrom.SelectedItem != null;
 
-			yentryreferenceRouteListFrom.Sensitive = !HasChanges;
-			yentryreferenceRouteListTo.Sensitive = !HasChanges;
+			entryRouteListFrom.Sensitive = !HasChanges;
+			entryRouteListTo.Sensitive = !HasChanges;
 
 			ylistcomboReceptionTicketFrom.Sensitive = !HasChanges;
 			ylistcomboReceptionTicketTo.Sensitive = !HasChanges;
@@ -150,41 +215,47 @@ namespace Vodovoz
 
 		#region Обработчики событий
 
-		void YentryreferenceRouteListFrom_Changed(object sender, EventArgs e)
+		private void YentryreferenceRouteListFrom_Changed(object sender, EventArgs e)
 		{
-			if(yentryreferenceRouteListFrom.Subject == null)
+			if(RouteListFrom == null)
+			{
 				return;
-
-			RouteList routeList = (RouteList)yentryreferenceRouteListFrom.Subject;
+			}
 
 			var unloadDocs = UoW.Session.QueryOver<CarUnloadDocument>()
-				.Where(cud => cud.RouteList.Id == routeList.Id).List();
+				.Where(cud => cud.RouteList.Id == RouteListFrom.Id).List();
 
 			ylistcomboReceptionTicketFrom.ItemsList = unloadDocs;
+
 			if(unloadDocs.Count == 1)
+			{
 				ylistcomboReceptionTicketFrom.Active = 0;
+			}
 
 			CheckSensitivities();
 		}
 
-		void YentryreferenceRouteListTo_Changed(object sender, EventArgs e)
+		private void YentryreferenceRouteListTo_Changed(object sender, EventArgs e)
 		{
-			if(yentryreferenceRouteListTo.Subject == null)
+			if(RouteListTo == null)
+			{
 				return;
-
-			RouteList routeList = (RouteList)yentryreferenceRouteListTo.Subject;
+			}
 
 			var unloadDocs = UoW.Session.QueryOver<CarUnloadDocument>()
-				.Where(cud => cud.RouteList.Id == routeList.Id).List();
+				.Where(cud => cud.RouteList.Id == RouteListTo.Id).List();
 
 			ylistcomboReceptionTicketTo.ItemsList = unloadDocs;
+
 			if(unloadDocs.Count == 1)
+			{
 				ylistcomboReceptionTicketTo.Active = 0;
+			}
 
 			CheckSensitivities();
 		}
 
-		void YlistcomboReceptionTicketFrom_ItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
+		private void YlistcomboReceptionTicketFrom_ItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
 			CarUnloadDocument selectedItem = (CarUnloadDocument)e.SelectedItem;
 
@@ -193,7 +264,7 @@ namespace Vodovoz
 			CheckSensitivities();
 		}
 
-		void YlistcomboReceptionTicketTo_ItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
+		private void YlistcomboReceptionTicketTo_ItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
 			CarUnloadDocument selectedItem = (CarUnloadDocument)e.SelectedItem;
 			
@@ -206,7 +277,7 @@ namespace Vodovoz
 			var result = new List<CarUnloadDocumentNode>();
 
 			var driverBalanceNomenclatures =
-				employeeNomenclatureMovementRepository.GetNomenclaturesFromDriverBalance(UoW, selectedItem.RouteList.Driver.Id);
+				_employeeNomenclatureMovementRepository.GetNomenclaturesFromDriverBalance(UoW, selectedItem.RouteList.Driver.Id);
 
 			foreach(var item in selectedItem.Items) {
 				var nomenclature = driverBalanceNomenclatures.SingleOrDefault(x =>
@@ -230,6 +301,7 @@ namespace Vodovoz
 			foreach(var from in itemsFrom.Where(i => i.TransferCount > 0))
 			{
 				int transfer = from.TransferCount;
+
 				//Заполняем для краткости
 				var nomenclature = from.DocumentItem.GoodsAccountingOperation.Nomenclature;
 				var receiveType = from.DocumentItem.ReciveType;
@@ -246,7 +318,9 @@ namespace Vodovoz
 					{
 						var exist = itemsTo.FirstOrDefault(i => i.DocumentItem.Id == item.Id);
 						if(exist == null)
+						{
 							itemsTo.Add(new CarUnloadDocumentNode { DocumentItem = item });
+						}
 					}
 				}
 				else
@@ -293,7 +367,7 @@ namespace Vodovoz
 			TabParent.AddSlaveTab(
 				this,
 				new CarUnloadDocumentDlg(
-					(yentryreferenceRouteListTo.Subject as RouteList).Id,
+					RouteListTo.Id,
 					(ylistcomboReceptionTicketFrom.SelectedItem as CarUnloadDocument).Id,
 					(ylistcomboReceptionTicketFrom.SelectedItem as CarUnloadDocument).TimeStamp
 				)
@@ -313,23 +387,31 @@ namespace Vodovoz
 
 		private class CarUnloadDocumentNode
 		{
-			public string Id { get { return DocumentItem.Id.ToString(); } }
-			public string Nomenclature { get { return DocumentItem.GoodsAccountingOperation.Nomenclature.OfficialName; } }
-			public int ItemsCount { get { return (int)DocumentItem.GoodsAccountingOperation.Amount; } }
+			private int _transferCount = 0;
 
-			private int transferCount = 0;
-			public int TransferCount {
-				get { return transferCount; }
-				set {
-					transferCount = value;
+			public string Id => DocumentItem.Id.ToString();
+			public string Nomenclature => DocumentItem.GoodsAccountingOperation.Nomenclature.OfficialName;
+			public int ItemsCount => (int)DocumentItem.GoodsAccountingOperation.Amount;
+
+			public int TransferCount
+			{
+				get => _transferCount;
+				set
+				{
+					_transferCount = value;
 					if(value < 0)
-						transferCount = 0;
+					{
+						_transferCount = 0;
+					}
+
 					if(value > ItemsCount)
-						transferCount = ItemsCount;
+					{
+						_transferCount = ItemsCount;
+					}
 				}
 			}
 
-			public int Residue { get { return ItemsCount - TransferCount; } }
+			public int Residue => ItemsCount - TransferCount;
 
 			public CarUnloadDocumentItem DocumentItem { get; set; }
 		}
