@@ -1,4 +1,4 @@
-using Gamma.GtkWidgets;
+﻿using Gamma.GtkWidgets;
 using Gtk;
 using QS.Views.GtkUI;
 using QS.Widgets;
@@ -39,10 +39,7 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(ViewModel, vm => vm.DeliveryPointPhone, w => w.Text)
 				.InitializeFromSource();
 
-			yentryTag.RepresentationModel = ViewModel.TagVM;
-			yentryTag.Binding
-				.AddBinding(ViewModel, vm => vm.Tag, w => w.Subject)
-				.InitializeFromSource();
+			entryTag.ViewModel = ViewModel.TagViewModel;
 
 			yenumCounterpartyType.ItemsEnum = typeof(CounterpartyType);
 			yenumCounterpartyType.Binding

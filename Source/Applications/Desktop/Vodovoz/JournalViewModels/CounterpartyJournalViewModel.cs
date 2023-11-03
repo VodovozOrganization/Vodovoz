@@ -24,15 +24,19 @@ namespace Vodovoz.JournalViewModels
 	{
 		private readonly bool _userHaveAccessToRetail;
 		private readonly bool _canOpenCloseDeliveries;
+		private readonly ILifetimeScope _lifetimeScope;
 
 		public CounterpartyJournalViewModel(
 			CounterpartyJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
+			ILifetimeScope lifetimeScope,
 			Action<CounterpartyJournalFilterViewModel> filterConfiguration = null)
             : base(filterViewModel, unitOfWorkFactory, commonServices, navigation: navigationManager)
 		{
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+
             TabName = "Журнал контрагентов";
 
 			_userHaveAccessToRetail = commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_to_retail");
@@ -54,6 +58,8 @@ namespace Vodovoz.JournalViewModels
 
 			SearchEnabled = false;
 		}
+
+		public ILifetimeScope LifetimeScope => _lifetimeScope;
 
 		protected override void CreateNodeActions()
 		{
@@ -527,5 +533,5 @@ namespace Vodovoz.JournalViewModels
 		protected override Func<CounterpartyDlg> CreateDialogFunction => () => new CounterpartyDlg();
 
         protected override Func<CounterpartyJournalNode, CounterpartyDlg> OpenDialogFunction => (node) => new CounterpartyDlg(node.Id);
-    }
+	}
 }
