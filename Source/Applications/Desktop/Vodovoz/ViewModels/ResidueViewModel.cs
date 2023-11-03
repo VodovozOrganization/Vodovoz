@@ -28,7 +28,6 @@ namespace Vodovoz.ViewModels
 	public class ResidueViewModel : EntityTabViewModelBase<Residue>
 	{
 		private readonly IEmployeeService _employeeService;
-		private readonly IRepresentationEntityPicker _entityPicker;
 		private readonly IBottlesRepository _bottlesRepository;
 		private readonly IDepositRepository _depositRepository;
 		private readonly IMoneyRepository _moneyRepository;
@@ -39,7 +38,6 @@ namespace Vodovoz.ViewModels
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
 			IEmployeeService employeeService,
-			IRepresentationEntityPicker entityPicker,
 			IBottlesRepository bottlesRepository,
 			IDepositRepository depositRepository,
 			IMoneyRepository moneyRepository,
@@ -57,7 +55,6 @@ namespace Vodovoz.ViewModels
 			}
 
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			_entityPicker = entityPicker ?? throw new ArgumentNullException(nameof(entityPicker));
 			_bottlesRepository = bottlesRepository ?? throw new ArgumentNullException(nameof(bottlesRepository));
 			_depositRepository = depositRepository ?? throw new ArgumentNullException(nameof(depositRepository));
 			_moneyRepository = moneyRepository ?? throw new ArgumentNullException(nameof(moneyRepository));

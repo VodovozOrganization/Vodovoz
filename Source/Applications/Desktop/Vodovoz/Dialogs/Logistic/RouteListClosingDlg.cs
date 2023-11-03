@@ -203,7 +203,7 @@ namespace Vodovoz
 			Entity.ObservableFuelDocuments.ElementAdded += ObservableFuelDocuments_ElementAdded;
 			Entity.ObservableFuelDocuments.ElementRemoved += ObservableFuelDocuments_ElementRemoved;
 
-			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(Startup.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory());
+			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(NavigationManager).CreateCarAutocompleteSelectorFactory());
 			entityviewmodelentryCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 
@@ -211,7 +211,7 @@ namespace Vodovoz
 			driverFilter.SetAndRefilterAtOnce(
 				x => x.Status = EmployeeStatus.IsWorking,
 				x => x.RestrictCategory = EmployeeCategory.driver);
-			var driverFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager, driverFilter);
+			var driverFactory = new EmployeeJournalFactory(NavigationManager, driverFilter);
 			evmeDriver.SetEntityAutocompleteSelectorFactory(driverFactory.CreateEmployeeAutocompleteSelectorFactory());
 			evmeDriver.Binding.AddBinding(Entity, rl => rl.Driver, widget => widget.Subject).InitializeFromSource();
 			evmeDriver.Changed += OnEvmeDriverChanged;
@@ -221,7 +221,7 @@ namespace Vodovoz
 			forwarderFilter.SetAndRefilterAtOnce(
 				x => x.Status = EmployeeStatus.IsWorking,
 				x => x.RestrictCategory = EmployeeCategory.forwarder);
-			var forwarderFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager, forwarderFilter);
+			var forwarderFactory = new EmployeeJournalFactory(NavigationManager, forwarderFilter);
 			evmeForwarder.SetEntityAutocompleteSelectorFactory(forwarderFactory.CreateEmployeeAutocompleteSelectorFactory());
 			evmeForwarder.Binding.AddSource(Entity)
 				.AddBinding(rl => rl.Forwarder, widget => widget.Subject)
@@ -229,7 +229,7 @@ namespace Vodovoz
 				.InitializeFromSource();
 			evmeForwarder.Changed += ReferenceForwarder_Changed;
 
-			var employeeFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager);
+			var employeeFactory = new EmployeeJournalFactory(NavigationManager);
 			evmeLogistician.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
 			evmeLogistician.Binding.AddBinding(Entity, rl => rl.Logistician, widget => widget.Subject).InitializeFromSource();
 
@@ -381,7 +381,7 @@ namespace Vodovoz
 
 		private void OnYbuttonCashChangeReturnClicked(object sender, EventArgs e)
 		{
-			var page = Startup.MainWin.NavigationManager.OpenViewModel<IncomeViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForCreate());
+			var page = NavigationManager.OpenViewModel<IncomeViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForCreate());
 			page.ViewModel.ConFigureForReturnChange(Entity.Id);
 		}
 
@@ -1537,9 +1537,9 @@ namespace Vodovoz
 					  new FuelRepository(),
 					  NavigationManagerProvider.NavigationManager,
 					  _trackRepository,
-					  new EmployeeJournalFactory(Startup.MainWin.NavigationManager),
+					  new EmployeeJournalFactory(NavigationManager),
 					  _financialCategoriesGroupsSettings,
-					  new CarJournalFactory(Startup.MainWin.NavigationManager)
+					  new CarJournalFactory(NavigationManager)
 			);
 			TabParent.AddSlaveTab(this, tab);
 		}
@@ -1555,9 +1555,9 @@ namespace Vodovoz
 				  new FuelRepository(),
 				  NavigationManagerProvider.NavigationManager,
 				  _trackRepository,
-				  new EmployeeJournalFactory(Startup.MainWin.NavigationManager),
+				  new EmployeeJournalFactory(NavigationManager),
 				  _financialCategoriesGroupsSettings,
-				  new CarJournalFactory(Startup.MainWin.NavigationManager)
+				  new CarJournalFactory(NavigationManager)
 			);
 			TabParent.AddSlaveTab(this, tab);
 		}
@@ -1611,5 +1611,4 @@ namespace Vodovoz
 
 		#endregion
 	}
-
 }
