@@ -5,6 +5,7 @@ using QSReport;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.TempAdapters;
@@ -16,7 +17,7 @@ namespace Vodovoz.ReportsParameters
 	{
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
-		private string _mode;
+		private KeyValuePair<string, string> _mode;
 
 		public ChainStoreDelayReport(
 			IEmployeeJournalFactory employeeJournalFactory,
@@ -28,12 +29,12 @@ namespace Vodovoz.ReportsParameters
 			Configure();
 		}
 
-		public string Mode
+		public KeyValuePair<string, string> Mode
 		{
 			get => _mode;
 			set
 			{
-				if(_mode != value)
+				if(!_mode.Equals(value))
 				{
 					_mode = value;
 				}
@@ -77,9 +78,12 @@ namespace Vodovoz.ReportsParameters
 				_employeeJournalFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory());
 
 			speciallistcomboboxReportBy.ItemsList = Modes;
+			speciallistcomboboxReportBy.RenderTextFunc = (node) => node is KeyValuePair<string, string> pair ? pair.Value : "";
 			speciallistcomboboxReportBy.Binding
 				.AddBinding(this, r => r.Mode, w => w.SelectedItem)
 				.InitializeFromSource();
+
+			speciallistcomboboxReportBy.SelectedItem = Modes.FirstOrDefault();
 		}
 
 		private void OnButtonCreateReportClicked(object sender, EventArgs e)
@@ -94,7 +98,7 @@ namespace Vodovoz.ReportsParameters
 				Identifier = "Payments.PaymentsDelayNetwork",
 				Parameters = new Dictionary<string, object> {
 					{ "date", ydatepicker.Date },
-					{ "mode", Mode },
+					{ "mode", Mode.Key },
 					{ "counterparty_id", (entityviewmodelentryCounterparty.Subject as Counterparty)?.Id ?? -1},
 					{ "sell_manager_id", (entityviewmodelentrySellManager.Subject as Employee)?.Id ?? -1},
 					{ "order_author_id", (entityviewmodelentryOrderAuthor.Subject as Employee)?.Id ?? -1}
