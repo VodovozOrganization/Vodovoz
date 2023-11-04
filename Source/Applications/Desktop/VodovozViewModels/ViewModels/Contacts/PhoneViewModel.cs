@@ -1,9 +1,11 @@
 ﻿using QS.Services;
 using QS.ViewModels;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Controllers;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Services;
 
@@ -17,6 +19,7 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		private readonly IPhoneTypeSettings _phoneTypeSettings;
 		private readonly IExternalCounterpartyController _externalCounterpartyController;
 		private readonly ICommonServices _commonServices;
+		private IList<ExternalCounterparty> _externalCounterparties;
 
 		public PhoneType SelectedPhoneType
 		{
@@ -65,6 +68,7 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 			if(phoneType.Id == _phoneTypeSettings.ArchiveId)
 			{
 				_externalCounterpartyController.HasActiveExternalCounterparties(_uow, _phone.Id, out var externalCounterparties);
+
 				var question = externalCounterparties.Any()
 					? "Данный номер телефона привязан к внешнему пользователю сайта/приложения\n" +
 					"Вы действительно хотите его заархивировать?"
@@ -75,14 +79,22 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 					return;
 				}
 
-				_externalCounterpartyController.ArchiveExternalCounterparty(externalCounterparties);
+				_externalCounterparties = externalCounterparties;
+				_externalCounterpartyController.ArchiveExternalCounterparties(_externalCounterparties);
 				PhoneIsArchive = true;
 			}
 			else
 			{
-				if(PhoneIsArchive)
+				if(!PhoneIsArchive)
 				{
-					PhoneIsArchive = false;
+					return;
+				}
+
+				PhoneIsArchive = false;
+
+				if(_externalCounterparties != null && _externalCounterparties.Any())
+				{
+					_externalCounterpartyController.UndoArchiveExternalCounterparties(_externalCounterparties);
 				}
 			}
 		}

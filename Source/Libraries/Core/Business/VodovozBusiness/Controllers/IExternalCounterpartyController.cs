@@ -6,8 +6,9 @@ namespace Vodovoz.Controllers
 {
 	public interface IExternalCounterpartyController
 	{
-		bool ArchiveExternalCounterparty(IUnitOfWork uow, int phoneId);
-		void ArchiveExternalCounterparty(IList<ExternalCounterparty> externalCounterparties);
+		bool ArchiveExternalCounterparties(IUnitOfWork uow, int phoneId);
+		void ArchiveExternalCounterparties(IEnumerable<ExternalCounterparty> externalCounterparties);
+		void UndoArchiveExternalCounterparties(IEnumerable<ExternalCounterparty> externalCounterparties);
 		bool HasActiveExternalCounterparties(IUnitOfWork uow, int phoneId, out IList<ExternalCounterparty> externalCounterparties);
 	}
 }

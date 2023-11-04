@@ -2,7 +2,6 @@
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using Vodovoz.Domain.Contacts;
-using Vodovoz.Parameters;
 
 namespace Vodovoz.Domain.Client
 {
@@ -52,12 +51,6 @@ namespace Vodovoz.Domain.Client
 		}
 
 		public virtual CounterpartyFrom CounterpartyFrom { get; }
-
-		public virtual void Archive()
-		{
-			Phone = null;
-			IsArchive = true;
-		}
 	}
 
 	public enum CounterpartyFrom

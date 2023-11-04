@@ -140,7 +140,7 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 				{
 					if(phone.Id != 0
 						&& phone.Counterparty != null
-						&& !_externalCounterpartyController.ArchiveExternalCounterparty(_uow, phone.Id))
+						&& !_externalCounterpartyController.ArchiveExternalCounterparties(_uow, phone.Id))
 					{
 						return;
 					}
