@@ -22,6 +22,7 @@ using System.Threading.Tasks;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.Parameters;
 using Vodovoz.Services;
 using static Vodovoz.ViewModels.Counterparties.ClientClassification.CounterpartyClassificationCalculationEmailSettingsViewModel;
 
@@ -38,8 +39,10 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 		private readonly IUserService _userService;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly ICounterpartyRepository _counterpartyRepository;
+		private readonly IEmailParametersProvider _emailParametersProvider;
 		private bool _isCalculationInProcess;
 		private bool _isCalculationCompleted;
+		private string _currentUserName;
 		private string _currentUserEmail;
 		private string _additionalEmail;
 		private DateTime _creationDate;
@@ -61,7 +64,8 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			IEmployeeService employeeService,
 			IUserService userService,
 			IFileDialogService fileDialogService,
-			ICounterpartyRepository counterpartyRepository
+			ICounterpartyRepository counterpartyRepository,
+			IEmailParametersProvider emailParametersProvider
 			) : base(uowFactory, interactiveService, navigation)
 		{
 			if(uowFactory is null)
@@ -74,6 +78,8 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			_userService = userService ?? throw new ArgumentNullException(nameof(userService));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
+			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));
+
 			_uow = uowFactory.CreateWithoutRoot();
 
 			_creationDate = DateTime.Now;
@@ -151,6 +157,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			var currentEmployee = _employeeService.GetEmployeeForUser(_uow, _userService.CurrentUserId);
 
 			_currentUserEmail = currentEmployee?.Email ?? string.Empty;
+			_currentUserName = currentEmployee?.Name ?? string.Empty;
 		}
 
 		private void OnEmailSettingsDialogStartClassificationCalculationClicked(object sender, StartClassificationCalculationEventArgs e)
@@ -167,6 +174,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 		{
 			IsCalculationInProcess = true;
 			CalculationProgressValue = 0;
+			_reportData = null;
 
 			UpdateCalculationSettingsCreationDate();
 
@@ -212,9 +220,22 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 
 			_reportData = report.Export();
 
-			if(string.IsNullOrEmpty(_currentUserEmail)
-				|| string.IsNullOrEmpty(_additionalEmail))
+			if(!string.IsNullOrEmpty(_currentUserEmail)
+				|| !string.IsNullOrEmpty(_additionalEmail))
 			{
+				if(_reportData?.Length == 0)
+				{
+					InteractiveService.ShowMessage(ImportanceLevel.Error,"Ошибка отправки отчета. Данные отсутствуют.");
+				}
+				else
+				{
+					_employeeService.SendCounterpartyClassificationCalculationReportToEmail(
+						_uow,
+						_emailParametersProvider,
+						_currentUserName,
+						_additionalEmail,
+						_reportData);
+				}
 			}
 
 			CalculationProgressValue = 100;
