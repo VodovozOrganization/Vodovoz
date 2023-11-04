@@ -1,5 +1,5 @@
 ﻿using Gtk;
-using QS.Dialog.GtkUI;
+using QS.Dialog;
 using QS.Views.GtkUI;
 using System;
 using System.Threading;
@@ -58,6 +58,7 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 			ybuttonSaveXls.Binding
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.CanSaveReport, w => w.Sensitive)
+				.AddBinding(vm => vm.CanSaveReport, w => w.Visible)
 				.InitializeFromSource();
 			ybuttonSaveXls.Clicked += (s, e) => ViewModel.SaveReportCommand.Execute();
 
@@ -107,18 +108,26 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 
 					Gtk.Application.Invoke((s, eventArgs) =>
 					{
-						MessageDialogHelper.RunInfoDialog($"Пересчёт классификации контрагентов завершен");
+						ViewModel.InteractiveService.ShowMessage(
+							ImportanceLevel.Info,
+							  $"Пересчёт классификации контрагентов завершен");
 					});
 				}
 				catch(OperationCanceledException)
 				{
+					ViewModel.UpdatePropertiesAfterCancellationCommand.Execute();
+
 					Gtk.Application.Invoke((s, eventArgs) =>
 					{
-						MessageDialogHelper.RunInfoDialog($"Операция отменена!");
+						ViewModel.InteractiveService.ShowMessage(
+							ImportanceLevel.Error,
+							   $"Операция отменена!");
 					});
 				}
 				catch(Exception ex)
 				{
+					ViewModel.UpdatePropertiesAfterExceptionCommand.Execute();
+
 					Gtk.Application.Invoke((s, eventArgs) =>
 					{
 						throw ex;

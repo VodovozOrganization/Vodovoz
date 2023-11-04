@@ -44,7 +44,14 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 		private string _additionalEmail;
 		private DateTime _creationDate;
 		private double _calculationProgressValue;
-		byte[] _reportData;
+		private byte[] _reportData;
+
+		private DelegateCommand _openEmailSettingsDialogCommand;
+		private DelegateCommand _cancelCommand;
+		private DelegateCommand _saveReportCommand;
+		private DelegateCommand _quiteCommand;
+		private DelegateCommand _updatePropertiesAfterCancellationCommand;
+		private DelegateCommand _updatePropertiesAfterExceptionCommand;
 
 		public CounterpartyClassificationCalculationViewModel(
 			IUnitOfWorkFactory uowFactory,
@@ -169,11 +176,10 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 
 			CalculationProgressValue = 20;
 
-			var newClassificationsForAllCounterparties = (await GetNewClassificationsForAllCounterparties(
+			var newClassificationsForAllCounterparties = await GetNewClassificationsForAllCounterparties(
 				_uow,
 				calculatedClassificationsForCounterpartiesWithOrders,
-				cancellationToken))
-				.ToList();
+				cancellationToken);
 
 			CalculationProgressValue = 40;
 
@@ -300,7 +306,6 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 		#region Commands		
 
 		#region OpenEmailSettingsDialog
-		private DelegateCommand _openEmailSettingsDialogCommand;
 		public DelegateCommand OpenEmailSettingsDialogCommand
 		{
 			get
@@ -327,7 +332,6 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 		#endregion OpenEmailSettingsDialog
 
 		#region Cancel
-		private DelegateCommand _cancelCommand;
 		public DelegateCommand CancelCommand
 		{
 			get
@@ -350,7 +354,6 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 		#endregion Cancel
 
 		#region SaveReport
-		private DelegateCommand _saveReportCommand;
 		public DelegateCommand SaveReportCommand
 		{
 			get
@@ -394,7 +397,6 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 		#endregion SaveReport
 
 		#region Quite
-		private DelegateCommand _quiteCommand;
 		public DelegateCommand QuiteCommand
 		{
 			get
@@ -408,13 +410,59 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			}
 		}
 
-		public bool CanQuite => !IsCalculationInProcess && IsCalculationCompleted;
+		public bool CanQuite => !IsCalculationInProcess;
 
 		private void Quite()
 		{
 			this.Close(false, CloseSource.Self);
 		}
 		#endregion Quite
+
+		#region UpdatePropertiesAfterCancellation
+		public DelegateCommand UpdatePropertiesAfterCancellationCommand
+		{
+			get
+			{
+				if(_updatePropertiesAfterCancellationCommand == null)
+				{
+					_updatePropertiesAfterCancellationCommand = new DelegateCommand(UpdatePropertiesAfterCancellation, () => CanUpdatePropertiesAfterCancellation);
+					_updatePropertiesAfterCancellationCommand.CanExecuteChangedWith(this, x => x.CanUpdatePropertiesAfterCancellation);
+				}
+				return _updatePropertiesAfterCancellationCommand;
+			}
+		}
+
+		public bool CanUpdatePropertiesAfterCancellation => true;
+
+		private void UpdatePropertiesAfterCancellation()
+		{
+			IsCalculationInProcess = false;
+			IsCalculationCompleted = false;
+		}
+		#endregion UpdatePropertiesAfterCancellation
+
+		#region UpdatePropertiesAfterException
+		public DelegateCommand UpdatePropertiesAfterExceptionCommand
+		{
+			get
+			{
+				if(_updatePropertiesAfterExceptionCommand == null)
+				{
+					_updatePropertiesAfterExceptionCommand = new DelegateCommand(UpdatePropertiesAfterException, () => CanUpdatePropertiesAfterException);
+					_updatePropertiesAfterExceptionCommand.CanExecuteChangedWith(this, x => x.CanUpdatePropertiesAfterException);
+				}
+				return _updatePropertiesAfterExceptionCommand;
+			}
+		}
+
+		public bool CanUpdatePropertiesAfterException => true;
+
+		private void UpdatePropertiesAfterException()
+		{
+			IsCalculationInProcess = false;
+			IsCalculationCompleted = false;
+		}
+		#endregion UpdatePropertiesAfterException
 
 		#endregion Commands
 
