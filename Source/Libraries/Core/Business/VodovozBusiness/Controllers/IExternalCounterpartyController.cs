@@ -8,6 +8,6 @@ namespace Vodovoz.Controllers
 	{
 		bool ArchiveExternalCounterparty(IUnitOfWork uow, int phoneId);
 		void ArchiveExternalCounterparty(IList<ExternalCounterparty> externalCounterparties);
-		bool HasExternalCounterparties(IUnitOfWork uow, int phoneId, out IList<ExternalCounterparty> externalCounterparties);
+		bool HasActiveExternalCounterparties(IUnitOfWork uow, int phoneId, out IList<ExternalCounterparty> externalCounterparties);
 	}
 }

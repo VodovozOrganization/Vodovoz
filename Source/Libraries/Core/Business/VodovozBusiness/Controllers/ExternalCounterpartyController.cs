@@ -24,14 +24,14 @@ namespace Vodovoz.Controllers
 		
 		public bool ArchiveExternalCounterparty(IUnitOfWork uow, int phoneId)
 		{
-			if(!HasExternalCounterparties(uow, phoneId, out var externalCounterparties))
+			if(!HasActiveExternalCounterparties(uow, phoneId, out var externalCounterparties))
 			{
 				return true;
 			}
 
 			if(!_interactiveService.Question(
-					"Данный номер телефона привязан к внешнему пользователю сайта/приложения\n" +
-					"Вы действительно хотите его удалить?"))
+				"Данный номер телефона привязан к внешнему пользователю сайта/приложения\n" +
+				"Вы действительно хотите его удалить?"))
 			{
 				return false;
 			}
@@ -49,10 +49,10 @@ namespace Vodovoz.Controllers
 			}
 		}
 
-		public bool HasExternalCounterparties(IUnitOfWork uow, int phoneId, out IList<ExternalCounterparty> externalCounterparties)
+		public bool HasActiveExternalCounterparties(IUnitOfWork uow, int phoneId, out IList<ExternalCounterparty> externalCounterparties)
 		{
 			externalCounterparties = _externalCounterpartyRepository.GetActiveExternalCounterpartiesByPhone(uow, phoneId);
-			return !externalCounterparties.Any();
+			return externalCounterparties.Any();
 		}
 	}
 }

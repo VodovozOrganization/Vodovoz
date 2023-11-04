@@ -64,7 +64,7 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		{
 			if(phoneType.Id == _phoneTypeSettings.ArchiveId)
 			{
-				_externalCounterpartyController.HasExternalCounterparties(_uow, _phone.Id, out var externalCounterparties);
+				_externalCounterpartyController.HasActiveExternalCounterparties(_uow, _phone.Id, out var externalCounterparties);
 				var question = externalCounterparties.Any()
 					? "Данный номер телефона привязан к внешнему пользователю сайта/приложения\n" +
 					"Вы действительно хотите его заархивировать?"
