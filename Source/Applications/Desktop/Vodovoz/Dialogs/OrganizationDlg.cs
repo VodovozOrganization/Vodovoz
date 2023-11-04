@@ -3,11 +3,15 @@ using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Validation;
 using System;
-using System.Collections.Generic;
-using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Factories;
+using Vodovoz.ViewModels.ViewModels.Contacts;
+using QS.Services;
 
 namespace Vodovoz
 {
@@ -17,10 +21,16 @@ namespace Vodovoz
 
 		private readonly IOrganizationVersionsViewModelFactory _organizationVersionsViewModelFactory 
 			= new OrganizationVersionsViewModelFactory(ServicesConfig.CommonServices, new EmployeeJournalFactory(Startup.MainWin.NavigationManager));
+		private readonly IPhoneRepository _phoneRepository = new PhoneRepository();
+		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
+		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository = new ExternalCounterpartyRepository();
+		private readonly IContactParametersProvider _contactsParameters = new ContactParametersProvider(new ParametersProvider());
+
+		private PhonesViewModel _phonesViewModel;
 
 		public override bool HasChanges {
 			get {
-				phonesview1.RemoveEmpty();
+				_phonesViewModel.RemoveEmpty();
 				return base.HasChanges;
 			}
 			set => base.HasChanges = value;
@@ -66,10 +76,16 @@ namespace Vodovoz
 			notebookMain.ShowTabs = false;
 			accountsview1.SetAccountOwner(UoW, Entity);
 
-			phonesview1.UoW = UoWGeneric;
-			if (UoWGeneric.Root.Phones == null)
-				UoWGeneric.Root.Phones = new List<Phone> ();
-			phonesview1.Phones = UoWGeneric.Root.Phones;
+			_phonesViewModel =
+				new PhonesViewModel(
+					_phoneRepository,
+					UoW,
+					_contactsParameters,
+					_commonServices)
+					{
+						PhonesList = UoWGeneric.Root.ObservablePhones
+					};
+			phonesView.ViewModel = _phonesViewModel;
 
 			var organizationVersionsViewModel = _organizationVersionsViewModelFactory.CreateOrganizationVersionsViewModel(Entity);
 			versionsView.ViewModel = organizationVersionsViewModel;
@@ -85,7 +101,7 @@ namespace Vodovoz
 
 			logger.Info ("Сохраняем организацию...");
 			try {
-				phonesview1.RemoveEmpty();
+				_phonesViewModel.RemoveEmpty();
 				UoWGeneric.Save ();
 				return true;
 			} catch (Exception ex) {

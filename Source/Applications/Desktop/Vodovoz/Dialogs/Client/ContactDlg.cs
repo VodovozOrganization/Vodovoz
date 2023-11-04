@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Autofac;
+﻿using Autofac;
 using NLog;
 using QS.Dialog;
 using Vodovoz.Domain.Contacts;
@@ -19,6 +18,8 @@ namespace Vodovoz
 		private readonly ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		private readonly IInteractiveService _interactiveService = ServicesConfig.InteractiveService;
 		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository = new ExternalCounterpartyRepository();
+
+		private PhonesViewModel _phonesViewModel;
 
 		public ContactDlg (Counterparty counterparty)
 		{
@@ -61,10 +62,10 @@ namespace Vodovoz
 					_interactiveService,
 					Entity.Counterparty.PersonType);
 			emailsView.ViewModel = emailsViewModel;
-			phonesView.UoW = UoWGeneric;
-			if (UoWGeneric.Root.Phones == null)
-				UoWGeneric.Root.Phones = new List<Phone> ();
-			phonesView.Phones = UoWGeneric.Root.Phones;
+
+			_phonesViewModel = _lifetimeScope.Resolve<PhonesViewModel>();
+			_phonesViewModel.PhonesList = UoWGeneric.Root.ObservablePhones;
+			phonesView.ViewModel = _phonesViewModel;
 		}
 
 		public override bool Save ()
@@ -76,7 +77,7 @@ namespace Vodovoz
 			}
 
 			logger.Info ("Сохраняем  контактное лицо...");
-			phonesView.RemoveEmpty();
+			_phonesViewModel.RemoveEmpty();
 			emailsView.ViewModel.RemoveEmpty();
 			UoWGeneric.Save ();
 			logger.Info ("Ok");

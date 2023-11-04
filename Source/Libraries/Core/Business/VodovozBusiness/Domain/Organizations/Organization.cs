@@ -23,6 +23,8 @@ namespace Vodovoz.Domain.Organizations
 	{
 		private int? _avangardShopId;
 		private string _taxcomEdoAccountId;
+		private IList<Phone> _phones = new List<Phone>();
+		private GenericObservableList<Phone> _observablePhones;
 		private IList<OrganizationVersion> _organizationVersions = new List<OrganizationVersion>();
 		private OrganizationVersion _activeOrganizationVersion;
 		private GenericObservableList<OrganizationVersion> _observableOrganizationVersions;
@@ -100,12 +102,14 @@ namespace Vodovoz.Domain.Organizations
 			set => SetField(ref _oKVED, value);
 		}
 
-		private IList<Phone> _phones;
 		[Display(Name = "Телефоны")]
 		public virtual IList<Phone> Phones {
 			get => _phones;
 			set => SetField(ref _phones, value);
 		}
+
+		public virtual GenericObservableList<Phone> ObservablePhones => _observablePhones
+			?? (_observablePhones = new GenericObservableList<Phone>(Phones));
 
 		private string _email;
 		[Display(Name = "E-mail адреса")]

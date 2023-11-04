@@ -17,6 +17,8 @@ namespace Vodovoz.Domain.Employees
 	public abstract class Personnel : PropertyChangedBase, IValidatableObject, IPersonnel
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
+		private IList<Phone> _phones = new List<Phone>();
+		private GenericObservableList<Phone> _observablePhones;
 		private IList<Attachment> _attachments = new List<Attachment>();
 		private GenericObservableList<Attachment> _observableAttachments;
 		
@@ -134,13 +136,14 @@ namespace Vodovoz.Domain.Employees
 			set { SetField(ref inn, value, () => INN); }
 		}
 
-		IList<Phone> phones = new List<Phone>();
-
 		[Display(Name = "Телефоны")]
 		public virtual IList<Phone> Phones {
-			get { return phones; }
-			set { SetField(ref phones, value, () => Phones); }
+			get { return _phones; }
+			set { SetField(ref _phones, value, () => Phones); }
 		}
+
+		public virtual GenericObservableList<Phone> ObservablePhones =>
+			_observablePhones ?? (_observablePhones = new GenericObservableList<Phone>(Phones));
 
 		EmployeePost post;
 

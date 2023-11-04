@@ -62,7 +62,7 @@ namespace Vodovoz.Dialogs.Employees
 
 		private global::Gtk.Label labelCitizenship;
 
-		private global::Vodovoz.Views.Contacts.PhonesView phonesView;
+		private global::Vodovoz.Dialogs.Phones.PhonesView phonesView;
 
 		private global::QS.Widgets.GtkUI.PhotoView photoviewEmployee;
 
@@ -432,10 +432,9 @@ namespace Vodovoz.Dialogs.Employees
 			w28.XOptions = ((global::Gtk.AttachOptions)(4));
 			w28.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
-			this.phonesView = new global::Vodovoz.Views.Contacts.PhonesView();
+			this.phonesView = new global::Vodovoz.Dialogs.Phones.PhonesView();
 			this.phonesView.Events = ((global::Gdk.EventMask)(256));
 			this.phonesView.Name = "phonesView";
-			this.phonesView.IsReadOnly = false;
 			this.datatableMain.Add(this.phonesView);
 			global::Gtk.Table.TableChild w29 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.phonesView]));
 			w29.TopAttach = ((uint)(6));
@@ -525,7 +524,7 @@ namespace Vodovoz.Dialogs.Employees
 			this.accountsView = new global::QSBanks.AccountsView();
 			this.accountsView.Events = ((global::Gdk.EventMask)(256));
 			this.accountsView.Name = "accountsView";
-			this.accountsView.CanEdit = true;
+			this.accountsView.CanEdit = false;
 			this.vbox5.Add(this.accountsView);
 			global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.accountsView]));
 			w39.Position = 1;

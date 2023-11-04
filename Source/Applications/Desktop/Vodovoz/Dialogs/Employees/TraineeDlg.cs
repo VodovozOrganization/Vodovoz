@@ -13,10 +13,13 @@ using Vodovoz.Factories;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using QS.Attachments.ViewModels.Widgets;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.Memory;
 using QS.Project.Domain;
-using VodovozInfrastructure.Endpoints;
+using Vodovoz.EntityRepositories;
+using QS.Services;
+using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.Services;
+using Vodovoz.Parameters;
+using Vodovoz.ViewModels.ViewModels.Contacts;
 
 namespace Vodovoz.Dialogs.Employees
 {
@@ -25,8 +28,13 @@ namespace Vodovoz.Dialogs.Employees
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 		private readonly IAttachmentsViewModelFactory _attachmentsViewModelFactory = new AttachmentsViewModelFactory();
+		private readonly IPhoneRepository _phoneRepository = new PhoneRepository();
+		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
+		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository = new ExternalCounterpartyRepository();
+		private readonly IContactParametersProvider _contactsParameters = new ContactParametersProvider(new ParametersProvider());
 
 		private AttachmentsViewModel _attachmentsViewModel;
+		private PhonesViewModel _phonesViewModel;
 		private bool canEdit;
 
 		public TraineeDlg()
@@ -76,12 +84,22 @@ namespace Vodovoz.Dialogs.Employees
 			referenceCitizenship.Binding.AddBinding(Entity, e => e.Citizenship, w => w.Subject).InitializeFromSource();
 			photoviewEmployee.Binding.AddBinding(Entity, e => e.Photo, w => w.ImageFile).InitializeFromSource();
 			photoviewEmployee.GetSaveFileName = () => Entity.FullName;
-			phonesView.UoW = UoWGeneric;
+
 			checkbuttonRussianCitizen.Binding.AddBinding(Entity, e => e.IsRussianCitizen, w => w.Active).InitializeFromSource();
 			if(Entity.Phones == null) {
 				Entity.Phones = new List<Vodovoz.Domain.Contacts.Phone>();
 			}
-			phonesView.Phones = Entity.Phones;
+
+			_phonesViewModel =
+				new PhonesViewModel(
+					_phoneRepository,
+					UoW,
+					_contactsParameters,
+					_commonServices)
+				{
+					PhonesList = UoWGeneric.Root.ObservablePhones
+				};
+			phonesView.ViewModel = _phonesViewModel;
 
 			ytreeviewEmployeeDocument.ColumnsConfig = FluentColumnsConfig<EmployeeDocument>.Create()
 				.AddColumn("Документ").AddTextRenderer(x => x.Document.GetEnumTitle())
@@ -90,6 +108,7 @@ namespace Vodovoz.Dialogs.Employees
 			ytreeviewEmployeeDocument.SetItemsSource(Entity.ObservableDocuments);
 
 			//Реквизиты
+			accountsView.CanEdit = true;
 			accountsView.SetAccountOwner(UoW, Entity);
 			accountsView.SetTitle("Банковские счета стажера");
 
@@ -114,7 +133,7 @@ namespace Vodovoz.Dialogs.Employees
 				return false;
 			}
 
-			phonesView.RemoveEmpty();
+			_phonesViewModel.RemoveEmpty();
 			logger.Info("Сохраняем стажера...");
 			try
 			{
