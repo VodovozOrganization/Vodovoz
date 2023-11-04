@@ -7,12 +7,14 @@ using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Threading;
@@ -34,6 +36,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 		private readonly ILogger<CounterpartyClassificationCalculationViewModel> _logger;
 		private readonly IEmployeeService _employeeService;
 		private readonly IUserService _userService;
+		private readonly IFileDialogService _fileDialogService;
 		private readonly ICounterpartyRepository _counterpartyRepository;
 		private bool _isCalculationInProcess;
 		private bool _isCalculationCompleted;
@@ -41,6 +44,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 		private string _additionalEmail;
 		private DateTime _creationDate;
 		private double _calculationProgressValue;
+		byte[] _reportData;
 
 		public CounterpartyClassificationCalculationViewModel(
 			IUnitOfWorkFactory uowFactory,
@@ -49,6 +53,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			ILogger<CounterpartyClassificationCalculationViewModel> logger,
 			IEmployeeService employeeService,
 			IUserService userService,
+			IFileDialogService fileDialogService,
 			ICounterpartyRepository counterpartyRepository
 			) : base(uowFactory, interactiveService, navigation)
 		{
@@ -60,6 +65,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_userService = userService ?? throw new ArgumentNullException(nameof(userService));
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
 			_uow = uowFactory.CreateWithoutRoot();
 
@@ -198,13 +204,12 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 				transaction.Commit();
 			}
 
+			_reportData = report.Export();
+
 			if(string.IsNullOrEmpty(_currentUserEmail)
 				|| string.IsNullOrEmpty(_additionalEmail))
 			{
-				//send report
 			}
-
-			report.Export();
 
 			CalculationProgressValue = 100;
 
@@ -363,7 +368,28 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 
 		private void SaveReport()
 		{
+			if(_reportData == null || _reportData.Length == 0)
+			{
+				InteractiveService.ShowMessage(
+					ImportanceLevel.Error,
+					"Отсутствую данные для сохранения. Возможно, отчет не сформирован!");
 
+				return;
+			}
+
+			var dialogSettings = new DialogSettings();
+			dialogSettings.Title = "Сохранить";
+			dialogSettings.DefaultFileExtention = ".xlsx";
+			dialogSettings.FileName = $"{Title} {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx";
+
+			var saveDialogResul = _fileDialogService.RunSaveFileDialog(dialogSettings);
+
+			if(!saveDialogResul.Successful)
+			{
+				return;
+			}
+
+			File.WriteAllBytes(saveDialogResul.Path, _reportData);
 		}
 		#endregion SaveReport
 

@@ -7,6 +7,7 @@ using NHibernate.Linq;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Threading;
@@ -45,9 +46,11 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			public string Title =>
 				$"ОТЧЁТ ОБ ИЗМЕНЕНИИ КАТЕГОРИИ КЛИЕНТОВ ОТ {DateTime.Now.ToString("dd.MM.yyyy")} за Период в {_periodInMonth} месяца";
 
-			public void Export()
+			public byte[] Export()
 			{
-				Export(_reportRows);
+				var data = Export(_reportRows);
+
+				return data;
 			}
 
 			public static async Task<ClassificationCalculationReport> CreateReport(
@@ -133,39 +136,48 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 				return lastExistingClassifications;
 			}
 
-			private void Export(IEnumerable<ClassificationCalculationReportRow> rows)
+			private byte[] Export(IEnumerable<ClassificationCalculationReportRow> rows)
 			{
-				using(var spreadsheet = SpreadsheetDocument.Create("D:\\new.xlsx", SpreadsheetDocumentType.Workbook))
+				Byte[] reportData = null;
+
+				using(var stream = new MemoryStream())
 				{
-					spreadsheet.AddWorkbookPart();
-					spreadsheet.WorkbookPart.Workbook = new Workbook();
+					using(var spreadsheet = SpreadsheetDocument.Create(stream, SpreadsheetDocumentType.Workbook))
+					{
+						spreadsheet.AddWorkbookPart();
+						spreadsheet.WorkbookPart.Workbook = new Workbook();
 
-					var worksheetPart = spreadsheet.WorkbookPart.AddNewPart<WorksheetPart>();
-					worksheetPart.Worksheet = new Worksheet();
+						var worksheetPart = spreadsheet.WorkbookPart.AddNewPart<WorksheetPart>();
+						worksheetPart.Worksheet = new Worksheet();
 
-					var stylesPart = spreadsheet.WorkbookPart.AddNewPart<WorkbookStylesPart>();
-					stylesPart.Stylesheet = GetStyleSheet();
-					stylesPart.Stylesheet.Save();
+						var stylesPart = spreadsheet.WorkbookPart.AddNewPart<WorkbookStylesPart>();
+						stylesPart.Stylesheet = GetStyleSheet();
+						stylesPart.Stylesheet.Save();
 
-					worksheetPart.Worksheet.Append(CreateColumns(_defaultColumnWidth));
+						worksheetPart.Worksheet.Append(CreateColumns(_defaultColumnWidth));
 
-					var sheetData = new SheetData();
-					sheetData.Append(GetTableTitleRow());
-					sheetData.Append(GetLastReportInfoRow(_lastCalculationDate));
-					sheetData.Append(GetEmptyRow());
-					sheetData.Append(GetGroupedByBottlesClassificationsRows(rows));
-					sheetData.Append(GetEmptyRow());
-					sheetData.Append(GetGroupedByOrdersClassificationsRows(rows));
-					worksheetPart.Worksheet.Append(sheetData);
+						var sheetData = new SheetData();
+						sheetData.Append(GetTableTitleRow());
+						sheetData.Append(GetLastReportInfoRow(_lastCalculationDate));
+						sheetData.Append(GetEmptyRow());
+						sheetData.Append(GetGroupedByBottlesClassificationsRows(rows));
+						sheetData.Append(GetEmptyRow());
+						sheetData.Append(GetGroupedByOrdersClassificationsRows(rows));
+						worksheetPart.Worksheet.Append(sheetData);
 
-					worksheetPart.Worksheet.Save();
+						worksheetPart.Worksheet.Save();
 
-					var sheet = new Sheet() { Id = spreadsheet.WorkbookPart.GetIdOfPart(worksheetPart), SheetId = 1, Name = "Заказы" };
-					var sheets = spreadsheet.WorkbookPart.Workbook.AppendChild(new Sheets());
-					sheets.AppendChild(sheet);
+						var sheet = new Sheet() { Id = spreadsheet.WorkbookPart.GetIdOfPart(worksheetPart), SheetId = 1, Name = "Заказы" };
+						var sheets = spreadsheet.WorkbookPart.Workbook.AppendChild(new Sheets());
+						sheets.AppendChild(sheet);
 
-					spreadsheet.WorkbookPart.Workbook.Save();
+						spreadsheet.WorkbookPart.Workbook.Save();
+					}
+
+					reportData = stream.ToArray();
 				}
+
+				return reportData ?? Array.Empty<byte>();
 			}
 
 			private IEnumerable<Row> GetGroupedByBottlesClassificationsRows(IEnumerable<ClassificationCalculationReportRow> reportRows)
