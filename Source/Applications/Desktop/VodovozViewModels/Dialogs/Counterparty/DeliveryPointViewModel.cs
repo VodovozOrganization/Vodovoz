@@ -14,6 +14,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Fias.Client.Loaders;
+using Vodovoz.Controllers;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -105,7 +106,13 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 				nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 
 			_fixedPricesModel = new DeliveryPointFixedPricesModel(UoW, Entity, nomenclatureFixedPriceController);
-			PhonesViewModel = new PhonesViewModel(phoneRepository, UoW, contactsParameters, _roboatsJournalsFactory, CommonServices)
+			PhonesViewModel = new PhonesViewModel(
+				phoneRepository,
+				UoW,
+				contactsParameters,
+				_roboatsJournalsFactory,
+				CommonServices,
+				new ExternalCounterpartyController(new ExternalCounterpartyRepository(), CommonServices.InteractiveService))
 			{
 				PhonesList = Entity.ObservablePhones,
 				DeliveryPoint = Entity,

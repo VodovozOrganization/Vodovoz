@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Vodovoz.Controllers;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.EntityRepositories;
@@ -18,37 +19,44 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 {
 	public class PhonesViewModel : WidgetViewModelBase
 	{
+		private readonly ICommonServices _commonServices;
+		private readonly IUnitOfWork _uow;
+		private readonly IExternalCounterpartyController _externalCounterpartyController;
+		private readonly IContactParametersProvider _contactsParameters;
+		
+		private bool _readOnly;
+		private GenericObservableList<Phone> _phonesList;
+
 		#region Properties
-		private ICommonServices commonServices;
 
 		public IList<PhoneType> PhoneTypes;
-		public event Action PhonesListReplaced; //Убрать
 		public DeliveryPoint DeliveryPoint { get; set; }
 		public Domain.Client.Counterparty Counterparty { get; set; }
-
-		private GenericObservableList<Phone> phonesList;
+		
 		public virtual GenericObservableList<Phone> PhonesList
 		{
-			get => phonesList;
-			set
-			{
-				SetField(ref phonesList, value, () => PhonesList);
-				PhonesListReplaced?.Invoke();
-			}
+			get => _phonesList;
+			set => SetField(ref _phonesList, value);
 		}
 
-		private bool readOnly = false;
 		public virtual bool ReadOnly
 		{
-			get => readOnly;
-			set => SetField(ref readOnly, value, () => ReadOnly);
+			get => _readOnly;
+			set => SetField(ref _readOnly, value);
 		}
 
-		public PhonesViewModel(IPhoneRepository phoneRepository, IUnitOfWork uow, IContactParametersProvider contactsParameters, ICommonServices commonServices)
+		public PhonesViewModel(
+			IPhoneRepository phoneRepository,
+			IUnitOfWork uow,
+			IContactParametersProvider contactsParameters,
+			ICommonServices commonServices,
+			IExternalCounterpartyController externalCounterpartyController)
 		{
-			this.phoneRepository = phoneRepository ?? throw new ArgumentNullException(nameof(phoneRepository));
-			this.contactsParameters = contactsParameters ?? throw new ArgumentNullException(nameof(contactsParameters));
-			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_contactsParameters = contactsParameters ?? throw new ArgumentNullException(nameof(contactsParameters));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_externalCounterpartyController =
+				externalCounterpartyController ?? throw new ArgumentNullException(nameof(externalCounterpartyController));
+			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 
 			var roboAtsCounterpartyNamePermissions = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(RoboAtsCounterpartyName));
 			CanReadCounterpartyName = roboAtsCounterpartyNamePermissions.CanRead;
@@ -62,8 +70,14 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 			CreateCommands();
 		}
 
-		public PhonesViewModel(IPhoneRepository phoneRepository, IUnitOfWork uow, IContactParametersProvider contactsParameters, RoboatsJournalsFactory roboatsJournalsFactory,
-			ICommonServices commonServices) : this(phoneRepository, uow, contactsParameters, commonServices)
+		public PhonesViewModel(
+			IPhoneRepository phoneRepository,
+			IUnitOfWork uow,
+			IContactParametersProvider contactsParameters,
+			RoboatsJournalsFactory roboatsJournalsFactory,
+			ICommonServices commonServices,
+			IExternalCounterpartyController externalCounterpartyController)
+			: this(phoneRepository, uow, contactsParameters, commonServices, externalCounterpartyController)
 		{
 			if(roboatsJournalsFactory == null)
 			{
@@ -74,8 +88,6 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 			RoboAtsCounterpartyPatronymicSelectorFactory = roboatsJournalsFactory.CreateCounterpartyPatronymicSelectorFactory();
 		}
 
-		IContactParametersProvider contactsParameters;
-
 		public IEntityAutocompleteSelectorFactory RoboAtsCounterpartyNameSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory RoboAtsCounterpartyPatronymicSelectorFactory { get; }
 		public bool CanReadCounterpartyName { get; }
@@ -83,17 +95,20 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		public bool CanReadCounterpartyPatronymic { get; }
 		public bool CanEditCounterpartyPatronymic { get; }
 
-		IPhoneRepository phoneRepository;
-
 		#endregion Prorerties
 
 		#region Methods
+		
 		public PhoneViewModel GetPhoneViewModel(Phone phone)
 		{
-			return new PhoneViewModel(phone,
-				commonServices,
-				new PhoneTypeSettings(new ParametersProvider()));
+			return new PhoneViewModel(
+				phone,
+				_uow,
+				_commonServices,
+				new PhoneTypeSettings(new ParametersProvider()),
+				_externalCounterpartyController);
 		}
+		
 		#endregion
 
 		#region Commands
@@ -106,36 +121,45 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 			AddItemCommand = new DelegateCommand(
 				() =>
 				{
-					var phone = new Phone().Init(contactsParameters);
+					var phone = new Phone().Init(_contactsParameters);
 					phone.DeliveryPoint = DeliveryPoint;
 					phone.Counterparty = Counterparty;
+					
 					if(PhonesList == null)
+					{
 						PhonesList = new GenericObservableList<Phone>();
+					}
+
 					PhonesList.Add(phone);
 				},
-				() => { return !ReadOnly; }
+				() => !ReadOnly
 			);
 
 			DeleteItemCommand = new DelegateCommand<Phone>(
 				(phone) =>
 				{
+					if(phone.Id != 0
+						&& phone.Counterparty != null
+						&& !_externalCounterpartyController.ArchiveExternalCounterparty(_uow, phone.Id))
+					{
+						return;
+					}
+					
 					PhonesList.Remove(phone);
 				},
-				(phone) => { return !ReadOnly; }
+				phone => !ReadOnly
 			);
 		}
 
 		#endregion Commands
-
 
 		/// <summary>
 		/// Необходимо выполнить перед сохранением или в геттере HasChanges
 		/// </summary>
 		public void RemoveEmpty()
 		{
-			PhonesList.Where(p => p.DigitsNumber.Length < contactsParameters.MinSavePhoneLength)
+			PhonesList.Where(p => p.DigitsNumber.Length < _contactsParameters.MinSavePhoneLength)
 					.ToList().ForEach(p => PhonesList.Remove(p));
 		}
-
 	}
 }

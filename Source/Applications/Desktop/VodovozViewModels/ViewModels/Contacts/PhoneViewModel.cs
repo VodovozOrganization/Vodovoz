@@ -1,6 +1,9 @@
 ﻿using QS.Services;
 using QS.ViewModels;
 using System;
+using System.Linq;
+using QS.DomainModel.UoW;
+using Vodovoz.Controllers;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Services;
 
@@ -8,10 +11,12 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 {
 	public class PhoneViewModel : WidgetViewModelBase
 	{
-		private Phone _phone;
-		private bool _canArchivateNumber;
+		private readonly Phone _phone;
+		private readonly IUnitOfWork _uow;
+		private readonly bool _canArchiveNumber;
 		private readonly IPhoneTypeSettings _phoneTypeSettings;
-		private ICommonServices _commonServices;
+		private readonly IExternalCounterpartyController _externalCounterpartyController;
+		private readonly ICommonServices _commonServices;
 
 		public PhoneType SelectedPhoneType
 		{
@@ -24,25 +29,53 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 			set => _phone.IsArchive = value;
 		}
 
-		public PhoneViewModel(Phone Phone,
+		public PhoneViewModel(
+			Phone phone,
+			IUnitOfWork uow,
 			ICommonServices commonServices,
-			IPhoneTypeSettings phoneTypeSettings)
+			IPhoneTypeSettings phoneTypeSettings,
+			IExternalCounterpartyController externalCounterpartyController)
 		{
-			_phone = Phone;
+			_phone = phone;
+			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 
 			_phoneTypeSettings = phoneTypeSettings ?? throw new ArgumentNullException(nameof(phoneTypeSettings));
+			_externalCounterpartyController =
+				externalCounterpartyController ?? throw new ArgumentNullException(nameof(externalCounterpartyController));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			_canArchivateNumber = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Phone)).CanUpdate;
+			_canArchiveNumber = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Phone)).CanUpdate;
 		}
 
 		private void SetPhoneType(PhoneType phoneType)
 		{
+			if(_phone.Counterparty != null)
+			{
+				SetPhoneTypeToCounterpartyPhone(phoneType);
+			}
+			else
+			{
+				DefaultSetPhoneType(phoneType);
+			}
+			
+			_phone.PhoneType = phoneType;
+		}
+
+		private void SetPhoneTypeToCounterpartyPhone(PhoneType phoneType)
+		{
 			if(phoneType.Id == _phoneTypeSettings.ArchiveId)
 			{
-				if(_canArchivateNumber && !_commonServices.InteractiveService.Question("Номер будет переведен в архив и пропадет в списке активных. Продолжить?"))
+				_externalCounterpartyController.HasExternalCounterparties(_uow, _phone.Id, out var externalCounterparties);
+				var question = externalCounterparties.Any()
+					? "Данный номер телефона привязан к внешнему пользователю сайта/приложения\n" +
+					"Вы действительно хотите его заархивировать?"
+					: "Номер будет переведен в архив и пропадет в списке активных. Продолжить?";
+				
+				if(_canArchiveNumber && !_commonServices.InteractiveService.Question(question))
 				{
 					return;
 				}
+
+				_externalCounterpartyController.ArchiveExternalCounterparty(externalCounterparties);
 				PhoneIsArchive = true;
 			}
 			else
@@ -52,7 +85,28 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 					PhoneIsArchive = false;
 				}
 			}
-			_phone.PhoneType = phoneType;
+		}
+		
+		private void DefaultSetPhoneType(PhoneType phoneType)
+		{
+			if(phoneType.Id == _phoneTypeSettings.ArchiveId)
+			{
+				var question = "Номер будет переведен в архив и пропадет в списке активных. Продолжить?";
+				
+				if(_canArchiveNumber && !_commonServices.InteractiveService.Question(question))
+				{
+					return;
+				}
+				
+				PhoneIsArchive = true;
+			}
+			else
+			{
+				if(PhoneIsArchive)
+				{
+					PhoneIsArchive = false;
+				}
+			}
 		}
 	}
 }

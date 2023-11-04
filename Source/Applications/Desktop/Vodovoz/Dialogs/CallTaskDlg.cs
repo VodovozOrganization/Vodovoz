@@ -11,6 +11,7 @@ using QSReport;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Operations;
 using QSWidgetLib;
+using Vodovoz.Controllers;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.Tools.CallTasks;
@@ -44,6 +45,7 @@ namespace Vodovoz.Dialogs
 		private readonly ICommonServices _commonServices;
 		private IParametersProvider _parametersProvider;
 		private IContactParametersProvider _contactsParameters;
+		private IExternalCounterpartyController _externalCounterpartyController;
 
 		public CallTaskDlg()
 		{
@@ -99,6 +101,8 @@ namespace Vodovoz.Dialogs
 			var cashReceiptRepository = new CashReceiptRepository(UnitOfWorkFactory.GetDefaultFactory, orderParametersProvider);
 			_counterpartyContractRepository = new CounterpartyContractRepository(_organizationProvider, cashReceiptRepository);
 			_counterpartyContractFactory = new CounterpartyContractFactory(_organizationProvider, _counterpartyContractRepository);
+			_externalCounterpartyController =
+				new ExternalCounterpartyController(new ExternalCounterpartyRepository(), _commonServices.InteractiveService);
 
 			buttonReportByClient.Sensitive = Entity.Counterparty != null;
 			buttonReportByDP.Sensitive = Entity.DeliveryPoint != null;
@@ -134,10 +138,20 @@ namespace Vodovoz.Dialogs
 				.SetEntityAutocompleteSelectorFactory(counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory());
 			entityVMEntryCounterparty.Binding.AddBinding(Entity, s => s.Counterparty, w => w.Subject).InitializeFromSource();
 
-			ClientPhonesView.ViewModel = new PhonesViewModel(_phoneRepository, UoW, _contactsParameters,  _commonServices);
+			ClientPhonesView.ViewModel = new PhonesViewModel(
+				_phoneRepository,
+				UoW,
+				_contactsParameters,
+				_commonServices,
+				_externalCounterpartyController);
 			ClientPhonesView.ViewModel.ReadOnly = true;
 
-			DeliveryPointPhonesView.ViewModel = new PhonesViewModel(_phoneRepository, UoW, _contactsParameters, _commonServices);
+			DeliveryPointPhonesView.ViewModel = new PhonesViewModel(
+				_phoneRepository,
+				UoW,
+				_contactsParameters,
+				_commonServices,
+				_externalCounterpartyController);
 			DeliveryPointPhonesView.ViewModel.ReadOnly = true;
 
 			if(Entity.Counterparty != null)

@@ -18,6 +18,7 @@ using Vodovoz.Dialogs.Phones;
 using Vodovoz.Parameters;
 using Vodovoz.Filters.ViewModels;
 using QS.Project.Journal.EntitySelector;
+using Vodovoz.Controllers;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
@@ -171,7 +172,14 @@ namespace Vodovoz.ViewModels.BusinessTasks
 
 		private PhonesViewModel CreatePhonesViewModel()
 		{
-			return new PhonesViewModel(phoneRepository, UoW, _contactsParameters, _roboAtsCounterpartyJournalFactory, CommonServices) {
+			return new PhonesViewModel(
+				phoneRepository,
+				UoW,
+				_contactsParameters,
+				_roboAtsCounterpartyJournalFactory,
+				CommonServices,
+				new ExternalCounterpartyController(new ExternalCounterpartyRepository(), CommonServices.InteractiveService))
+			{
 				ReadOnly = true
 			};
 		}

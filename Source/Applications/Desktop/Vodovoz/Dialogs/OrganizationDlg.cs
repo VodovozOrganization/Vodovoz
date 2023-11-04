@@ -12,6 +12,7 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using QS.Services;
+using Vodovoz.Controllers;
 
 namespace Vodovoz
 {
@@ -23,7 +24,8 @@ namespace Vodovoz
 			= new OrganizationVersionsViewModelFactory(ServicesConfig.CommonServices, new EmployeeJournalFactory(Startup.MainWin.NavigationManager));
 		private readonly IPhoneRepository _phoneRepository = new PhoneRepository();
 		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
-		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository = new ExternalCounterpartyRepository();
+		private readonly IExternalCounterpartyController _externalCounterpartyController =
+			new ExternalCounterpartyController(new ExternalCounterpartyRepository(), ServicesConfig.InteractiveService);
 		private readonly IContactParametersProvider _contactsParameters = new ContactParametersProvider(new ParametersProvider());
 
 		private PhonesViewModel _phonesViewModel;
@@ -81,7 +83,8 @@ namespace Vodovoz
 					_phoneRepository,
 					UoW,
 					_contactsParameters,
-					_commonServices)
+					_commonServices,
+					_externalCounterpartyController)
 					{
 						PhonesList = UoWGeneric.Root.ObservablePhones
 					};

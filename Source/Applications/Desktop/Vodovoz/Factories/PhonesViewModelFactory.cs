@@ -4,7 +4,9 @@ using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Project.Services.FileDialog;
 using System;
+using Vodovoz.Controllers;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
@@ -38,7 +40,8 @@ namespace Vodovoz.Factories
 				uow,
 				new ContactParametersProvider(new ParametersProvider()),
 				_roboatsJournalsFactory,
-				ServicesConfig.CommonServices
+				ServicesConfig.CommonServices,
+				new ExternalCounterpartyController(new ExternalCounterpartyRepository(), ServicesConfig.InteractiveService)
 			);
 	}
 }

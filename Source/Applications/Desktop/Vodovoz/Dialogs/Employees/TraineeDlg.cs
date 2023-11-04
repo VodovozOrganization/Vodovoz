@@ -16,6 +16,7 @@ using QS.Attachments.ViewModels.Widgets;
 using QS.Project.Domain;
 using Vodovoz.EntityRepositories;
 using QS.Services;
+using Vodovoz.Controllers;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Services;
 using Vodovoz.Parameters;
@@ -30,7 +31,8 @@ namespace Vodovoz.Dialogs.Employees
 		private readonly IAttachmentsViewModelFactory _attachmentsViewModelFactory = new AttachmentsViewModelFactory();
 		private readonly IPhoneRepository _phoneRepository = new PhoneRepository();
 		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
-		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository = new ExternalCounterpartyRepository();
+		private readonly IExternalCounterpartyController _externalCounterpartyController =
+			new ExternalCounterpartyController(new ExternalCounterpartyRepository(), ServicesConfig.InteractiveService);
 		private readonly IContactParametersProvider _contactsParameters = new ContactParametersProvider(new ParametersProvider());
 
 		private AttachmentsViewModel _attachmentsViewModel;
@@ -95,7 +97,8 @@ namespace Vodovoz.Dialogs.Employees
 					_phoneRepository,
 					UoW,
 					_contactsParameters,
-					_commonServices)
+					_commonServices,
+					_externalCounterpartyController)
 				{
 					PhonesList = UoWGeneric.Root.ObservablePhones
 				};

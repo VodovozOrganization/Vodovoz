@@ -45,6 +45,7 @@ using System.Threading;
 using TISystems.TTC.CRM.BE.Serialization;
 using TrueMarkApi.Library.Converters;
 using TrueMarkApi.Library.Dto;
+using Vodovoz.Controllers;
 using Vodovoz.Core;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain;
@@ -126,6 +127,8 @@ namespace Vodovoz
 		private readonly IOrganizationRepository _organizationRepository = new OrganizationRepository();
 		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository = new ExternalCounterpartyRepository();
 		private readonly IContactParametersProvider _contactsParameters = new ContactParametersProvider(new ParametersProvider());
+		private readonly IExternalCounterpartyController _externalCounterpartyController =
+			new ExternalCounterpartyController(new ExternalCounterpartyRepository(), ServicesConfig.InteractiveService);
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider =
 			new SubdivisionParametersProvider(new ParametersProvider());
 		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
@@ -733,7 +736,13 @@ namespace Vodovoz
 		private void ConfigureTabContacts()
 		{
 			_phonesViewModel =
-				new PhonesViewModel(_phoneRepository, UoW, _contactsParameters, _roboatsJournalsFactory, _commonServices)
+				new PhonesViewModel(
+					_phoneRepository,
+					UoW,
+					_contactsParameters,
+					_roboatsJournalsFactory,
+					_commonServices,
+					_externalCounterpartyController)
 				{
 					PhonesList = Entity.ObservablePhones,
 					Counterparty = Entity,
