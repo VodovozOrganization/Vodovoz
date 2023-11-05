@@ -29,29 +29,31 @@ namespace Vodovoz.Infrastructure.Services
 				.SingleOrDefault();
 		}
 
-		public bool SendCounterpartyClassificationCalculationReportToEmail(
-			IUnitOfWork unitOfWork,
+		public void SendCounterpartyClassificationCalculationReportToEmail(
+			IUnitOfWork uow,
 			IEmailParametersProvider emailParametersProvider,
 			string employeeName,
-			string emailAddress,
+			IEnumerable<string> emailAddresses,
 			byte[] attachmentData)
 		{
-			var instanceId = Convert.ToInt32(unitOfWork.Session
+			var instanceId = Convert.ToInt32(uow.Session
 				.CreateSQLQuery("SELECT GET_CURRENT_DATABASE_ID()")
 				.List<object>()
 				.FirstOrDefault());
-
-			var configuration = unitOfWork.GetAll<InstanceMailingConfiguration>().FirstOrDefault();
 
 			string messageText = "Отчет об изменении категории клиентов";
 
 			var attachment = new Attachment
 			{
-				FileName = $"Отчет об изменении категории клиентов от {DateTime.Now:dd.MM.yyyy}",
+				FileName = $"Отчет об изменении категории клиентов от {DateTime.Now:dd.MM.yyyy}.xlsx",
 				ByteFile = attachmentData
 			};
 
-			var sendEmailMessage = new SendEmailMessage()
+			var emailContacts = emailAddresses
+				.Select(e => new EmailContact { Name = employeeName, Email = e })
+				.ToList();
+
+			var message = new SendEmailMessage()
 			{
 				From = new EmailContact
 				{
@@ -59,25 +61,21 @@ namespace Vodovoz.Infrastructure.Services
 					Email = emailParametersProvider.DocumentEmailSenderAddress
 				},
 
-				To = new List<EmailContact>
-				{
-					new EmailContact
-					{
-						Name = employeeName,
-						Email = emailAddress
-					}
-				},
+				To = emailContacts,
 
 				Subject = $"Отчет об изменении категории клиентов от {DateTime.Now:dd.MM.yyyy}",
 
 				TextPart = messageText,
+
 				HTMLPart = messageText,
+
 				Payload = new EmailPayload
 				{
 					Id = 0,
 					Trackable = false,
 					InstanceId = instanceId
 				},
+
 				Attachments = new List<EmailAttachment>
 				{
 					new EmailAttachment
@@ -89,7 +87,14 @@ namespace Vodovoz.Infrastructure.Services
 				}
 			};
 
-			var serializedMessage = JsonSerializer.Serialize(sendEmailMessage);
+			SendMessageToEmail(uow, message);
+		}
+
+		private void SendMessageToEmail(IUnitOfWork uow, SendEmailMessage message)
+		{
+			var configuration = uow.GetAll<InstanceMailingConfiguration>().FirstOrDefault();
+
+			var serializedMessage = JsonSerializer.Serialize(message);
 			var sendingBody = Encoding.UTF8.GetBytes(serializedMessage);
 
 			var Logger = new Logger<RabbitMQConnectionFactory>(new NLogLoggerFactory());
@@ -108,8 +113,6 @@ namespace Vodovoz.Infrastructure.Services
 			properties.Persistent = true;
 
 			channel.BasicPublish(configuration.EmailSendExchange, configuration.EmailSendKey, false, properties, sendingBody);
-
-			return true;
 		}
 	}
 }

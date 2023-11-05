@@ -164,6 +164,8 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 		{
 			_creationDate = DateTime.Now;
 
+			UpdateCalculationSettingsCreationDate();
+
 			_currentUserEmail = e.CurrentUserEmail;
 			_additionalEmail = e.AdditionalEmail;
 
@@ -176,17 +178,11 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			CalculationProgressValue = 0;
 			_reportData = null;
 
-			UpdateCalculationSettingsCreationDate();
-
-			var calculatedClassificationsForCounterpartiesWithOrders = await _counterpartyRepository
-					.CalculateCounterpartyClassifications(_uow, CalculationSettings)
-					.ToListAsync(cancellationToken);
-
-			CalculationProgressValue = 20;
+			CalculationProgressValue = 10;
 
 			var newClassificationsForAllCounterparties = await GetNewClassificationsForAllCounterparties(
 				_uow,
-				calculatedClassificationsForCounterpartiesWithOrders,
+				_counterpartyRepository,
 				cancellationToken);
 
 			CalculationProgressValue = 40;
@@ -200,43 +196,16 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 
 			CalculationProgressValue = 60;
 
-			using(var transaction = _uow.Session.BeginTransaction())
-			{
-				InsertClassificationValuesToDatabase(_uow.Session,
-					newClassificationsForAllCounterparties,
-					_insertQueryElementsMaxCount,
-					cancellationToken);
+			WriteNewClassificationsDataToDb(
+				_uow, 
+				newClassificationsForAllCounterparties, 
+				cancellationToken);
 
-				CalculationProgressValue = 90;
-
-				cancellationToken.ThrowIfCancellationRequested();
-
-				_uow.Save(CalculationSettings);
-
-				cancellationToken.ThrowIfCancellationRequested();
-
-				transaction.Commit();
-			}
+			CalculationProgressValue = 90;
 
 			_reportData = report.Export();
 
-			if(!string.IsNullOrEmpty(_currentUserEmail)
-				|| !string.IsNullOrEmpty(_additionalEmail))
-			{
-				if(_reportData?.Length == 0)
-				{
-					InteractiveService.ShowMessage(ImportanceLevel.Error,"Ошибка отправки отчета. Данные отсутствуют.");
-				}
-				else
-				{
-					_employeeService.SendCounterpartyClassificationCalculationReportToEmail(
-						_uow,
-						_emailParametersProvider,
-						_currentUserName,
-						_additionalEmail,
-						_reportData);
-				}
-			}
+			SendReportToEmails();
 
 			CalculationProgressValue = 100;
 
@@ -246,9 +215,13 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 
 		private async Task<IEnumerable<CounterpartyClassification>> GetNewClassificationsForAllCounterparties(
 			IUnitOfWork uow,
-			IEnumerable<CounterpartyClassification> calculatedClassifications,
+			ICounterpartyRepository counterpartyRepository,
 			CancellationToken cancellationToken)
 		{
+			var calculatedClassifications = await counterpartyRepository
+					.CalculateCounterpartyClassifications(_uow, CalculationSettings)
+					.ToListAsync(cancellationToken);
+
 			var allCounterpartyIds = await uow.GetAll<Counterparty>().Select(co => co.Id).ToListAsync(cancellationToken);
 
 			var classificationForAllCounterparties =
@@ -263,6 +236,26 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 				};
 
 			return classificationForAllCounterparties;
+		}
+
+		private void WriteNewClassificationsDataToDb(
+			IUnitOfWork uow,
+			IEnumerable<CounterpartyClassification> newClassificationsForAllCounterparties,
+			CancellationToken cancellationToken)
+		{
+			cancellationToken.ThrowIfCancellationRequested();
+
+			using(var transaction = uow.Session.BeginTransaction())
+			{
+				InsertClassificationValuesToDatabase(_uow.Session,
+					newClassificationsForAllCounterparties,
+					_insertQueryElementsMaxCount,
+					cancellationToken);
+
+				_uow.Save(CalculationSettings);
+
+				transaction.Commit();
+			}
 		}
 
 		private void InsertClassificationValuesToDatabase(
@@ -317,6 +310,40 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 				VALUES ";
 
 			return $"{insertQuery} {string.Join(",", valuesData)};";
+		}
+
+		private void SendReportToEmails()
+		{
+			if(_reportData?.Length == 0)
+			{
+				InteractiveService.ShowMessage(ImportanceLevel.Error, "Ошибка отправки отчета. Данные отсутствуют.");
+
+				return;
+			}
+
+			var emails = new List<string>();
+
+			if(!string.IsNullOrEmpty(_currentUserEmail))
+			{
+				emails.Add(_currentUserEmail);
+			}
+
+			if(!string.IsNullOrEmpty(_additionalEmail))
+			{
+				emails.Add(_additionalEmail);
+			}
+
+			if(emails.Count == 0)
+			{
+				return;
+			}
+
+			_employeeService.SendCounterpartyClassificationCalculationReportToEmail(
+				_uow,
+				_emailParametersProvider,
+				_currentUserName,
+				emails,
+				_reportData);
 		}
 
 		private void UpdateCalculationSettingsCreationDate()
