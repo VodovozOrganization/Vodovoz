@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Counterparties.ClientClassification;
+using static Vodovoz.ViewModels.Counterparties.ClientClassification.CounterpartyClassificationCalculationViewModel;
 
 namespace Vodovoz.Views.Client.CounterpartyClassification
 {
@@ -84,6 +85,17 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 				.InitializeFromSource();
 
 			ViewModel.CommandToStartCalculationReceived += OnCommandToStartCalculationReceived;
+			ViewModel.CalculationMessageReceived += OnCalculationMessageReceived;
+		}
+
+		private void OnCalculationMessageReceived(object sender, CalculationMessageEventArgs e)
+		{
+			Gtk.Application.Invoke((s, eventArgs) =>
+			{
+				ViewModel.InteractiveService.ShowMessage(
+							e.ImportanceLevel,
+							  e.ErrorMessage);
+			});
 		}
 
 		private async void OnCommandToStartCalculationReceived(object sender, EventArgs e)

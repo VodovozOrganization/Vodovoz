@@ -93,6 +93,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 		#region Properties
 
 		public event EventHandler CommandToStartCalculationReceived;
+		public event EventHandler<CalculationMessageEventArgs> CalculationMessageReceived;
 
 		public CounterpartyClassificationCalculationSettings CalculationSettings { get; private set; }
 		public CancellationTokenSource ReportCancelationTokenSource { get; set; }
@@ -316,7 +317,13 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 		{
 			if(_reportData?.Length == 0)
 			{
-				InteractiveService.ShowMessage(ImportanceLevel.Error, "Ошибка отправки отчета. Данные отсутствуют.");
+				var errorMessage = "Ошибка отправки отчета. Данные отсутствуют.";
+
+				ShowMessage(
+					ImportanceLevel.Error,
+					errorMessage);
+
+				_logger.LogDebug(errorMessage);
 
 				return;
 			}
@@ -335,20 +342,52 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 
 			if(emails.Count == 0)
 			{
+				var errorMessage = "Адреса электронной почты не указаны. Отчет не будет отправлен.";
+
+				ShowMessage(
+					ImportanceLevel.Info,
+					errorMessage);
+
+				_logger.LogDebug(errorMessage);
+
 				return;
 			}
 
-			_employeeService.SendCounterpartyClassificationCalculationReportToEmail(
-				_uow,
-				_emailParametersProvider,
-				_currentUserName,
-				emails,
-				_reportData);
+			try
+			{
+				_employeeService.SendCounterpartyClassificationCalculationReportToEmail(
+					_uow,
+					_emailParametersProvider,
+					_currentUserName,
+					emails,
+					_reportData);
+			}
+			catch (Exception ex)
+			{
+				var errorMessage = "Ошибка отправки отчета на электронную почту";
+
+				ShowMessage(
+					ImportanceLevel.Error,
+					errorMessage);
+
+				_logger.LogDebug(ex, errorMessage);
+			}
 		}
 
 		private void UpdateCalculationSettingsCreationDate()
 		{
 			CalculationSettings.SettingsCreationDate = _creationDate;
+		}
+
+		private void ShowMessage(ImportanceLevel importanceLevel, string message)
+		{
+			var eventArgs = new CalculationMessageEventArgs
+			{
+				ImportanceLevel = importanceLevel,
+				ErrorMessage = message
+			};
+
+			CalculationMessageReceived?.Invoke(this, eventArgs);
 		}
 
 		#region Commands		
@@ -421,7 +460,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 		{
 			if(_reportData == null || _reportData.Length == 0)
 			{
-				InteractiveService.ShowMessage(
+				ShowMessage(
 					ImportanceLevel.Error,
 					"Отсутствую данные для сохранения. Возможно, отчет не сформирован!");
 
@@ -522,5 +561,11 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			base.Dispose();
 		}
 		#endregion IDisposable implementation
+
+		public class CalculationMessageEventArgs : EventArgs
+		{
+			public ImportanceLevel ImportanceLevel;
+			public string ErrorMessage { get; set; }
+		}
 	}
 }
