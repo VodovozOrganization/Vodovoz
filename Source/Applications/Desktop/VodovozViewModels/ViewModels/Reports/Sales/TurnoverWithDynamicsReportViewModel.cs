@@ -702,11 +702,6 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				.Select(x => x.RouteList.Id)
 				.Take(1);
 
-			var counterpartyClassificationSubQuery = QueryOver.Of(() => counterpartyClassificationAlias)
-				.Where(() => counterpartyAlias.Id == counterpartyClassificationAlias.CounterpartyId)
-				.OrderBy(() => counterpartyClassificationAlias.ClassificationCalculationDate).Desc
-				.Take(1);
-
 			#region filter parameters
 
 			#region NomenclatureCategories
@@ -992,34 +987,46 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			#region CounterpartyClassifications
 
+			if(includedCounterpartyClassifications.Any() || excludedCounterpartyClassifications.Any())
+			{
+				var lastCounterpartyClassificationCalculationDate = _unitOfWork.Session.QueryOver<CounterpartyClassification>()
+					.Select(c => c.ClassificationCalculationDate)
+					.OrderBy(c => c.ClassificationCalculationDate).Desc
+					.Take(1)
+					.List<DateTime>()
+					.FirstOrDefault();
+
+				query.JoinEntityAlias(
+					() => counterpartyClassificationAlias,
+					() => counterpartyAlias.Id == counterpartyClassificationAlias.CounterpartyId
+						&& counterpartyClassificationAlias.ClassificationCalculationDate == lastCounterpartyClassificationCalculationDate,
+					JoinType.LeftOuterJoin);
+			}
+
 			if(includedCounterpartyClassifications.Any())
 			{
-				var includedClassificationByBottlesCount =
-					CounterpartyClassification.ConvertToClassificationByBottlesCount(includedCounterpartyClassifications);
-
-				var includedClassificationByOrdersCount =
-					CounterpartyClassification.ConvertToClassificationByOrdersCount(includedCounterpartyClassifications);
-
-				var includeNotClassificatedCounterparties =
-					includedCounterpartyClassifications
-					.Any(c => c == CounterpartyCompositeClassification.New);
-
 				var includeRestriction = Restrictions.Disjunction();
 
-				if(includedClassificationByBottlesCount.Any() || includedClassificationByOrdersCount.Any())
+				foreach(var classification in includedCounterpartyClassifications)
 				{
+					if(classification == CounterpartyCompositeClassification.New)
+					{
+						includeRestriction.Add(
+							Restrictions.IsNull(Projections.Property(() => counterpartyClassificationAlias.ClassificationByBottlesCount)));
+
+						includeRestriction.Add(
+							Restrictions.IsNull(Projections.Property(() => counterpartyClassificationAlias.ClassificationByOrdersCount)));
+
+						continue;
+					}
+
 					includeRestriction.Add(Restrictions.And(
-						Restrictions.In(Projections.Property(() => counterpartyClassificationAlias.ClassificationByBottlesCount), includedClassificationByBottlesCount),
-						Restrictions.In(Projections.Property(() => counterpartyClassificationAlias.ClassificationByOrdersCount), includedClassificationByOrdersCount)));
-				}
-
-				if(includeNotClassificatedCounterparties)
-				{
-					includeRestriction.Add(
-						Restrictions.IsNull(Projections.Property(() => counterpartyClassificationAlias.ClassificationByBottlesCount)));
-
-					includeRestriction.Add(
-						Restrictions.IsNull(Projections.Property(() => counterpartyClassificationAlias.ClassificationByOrdersCount)));
+						Restrictions.Eq(
+							Projections.Property(() => counterpartyClassificationAlias.ClassificationByBottlesCount),
+							CounterpartyClassification.ConvertToClassificationByBottlesCount(classification)),
+						Restrictions.Eq(
+							Projections.Property(() => counterpartyClassificationAlias.ClassificationByOrdersCount),
+							CounterpartyClassification.ConvertToClassificationByOrdersCount(classification))));
 				}
 
 				query.Where(includeRestriction);
@@ -1027,32 +1034,30 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			if(excludedCounterpartyClassifications.Any())
 			{
-				var excludedClassificationByBottlesCount =
-					CounterpartyClassification.ConvertToClassificationByBottlesCount(excludedCounterpartyClassifications);
-
-				var excludedClassificationByOrdersCount =
-					CounterpartyClassification.ConvertToClassificationByOrdersCount(excludedCounterpartyClassifications);
-
-				var excludeNotClassificatedCounterparties =
-					excludedCounterpartyClassifications
-					.Any(c => c == CounterpartyCompositeClassification.New);
-
 				var excludeRestriction = Restrictions.Conjunction();
 
-				if(excludedClassificationByBottlesCount.Any() || excludedClassificationByOrdersCount.Any())
+				foreach(var classification in excludedCounterpartyClassifications)
 				{
-					excludeRestriction.Add(Restrictions.Not(
-						Restrictions.In(Projections.Property(() => counterpartyClassificationAlias.ClassificationByBottlesCount), excludedClassificationByBottlesCount)));
+					if(classification == CounterpartyCompositeClassification.New)
+					{
+						excludeRestriction.Add(
+							Restrictions.IsNotNull(Projections.Property(() => counterpartyClassificationAlias.ClassificationByBottlesCount)));
 
-					excludeRestriction.Add(Restrictions.Not(
-						Restrictions.In(Projections.Property(() => counterpartyClassificationAlias.ClassificationByOrdersCount), excludedClassificationByOrdersCount)));
-				}
+						excludeRestriction.Add(
+							Restrictions.IsNotNull(Projections.Property(() => counterpartyClassificationAlias.ClassificationByOrdersCount)));
 
-				if(excludeNotClassificatedCounterparties)
-				{
+						continue;
+					}
+
 					excludeRestriction.Add(Restrictions.Disjunction()
-						.Add(Restrictions.IsNotNull(Projections.Property(() => counterpartyClassificationAlias.ClassificationByBottlesCount)))
-						.Add(Restrictions.IsNotNull(Projections.Property(() => counterpartyClassificationAlias.ClassificationByOrdersCount))));
+						.Add(Restrictions.Not(Restrictions.Eq(
+								Projections.Property(() => counterpartyClassificationAlias.ClassificationByBottlesCount),
+								CounterpartyClassification.ConvertToClassificationByBottlesCount(classification))))
+						.Add(Restrictions.Not(Restrictions.Eq(
+								Projections.Property(() => counterpartyClassificationAlias.ClassificationByOrdersCount),
+								CounterpartyClassification.ConvertToClassificationByOrdersCount(classification))))
+						.Add(Restrictions.IsNull(Projections.Property(() => counterpartyClassificationAlias.ClassificationByBottlesCount)))
+						.Add(Restrictions.IsNull(Projections.Property(() => counterpartyClassificationAlias.ClassificationByOrdersCount))));
 				}
 
 				query.Where(excludeRestriction);
