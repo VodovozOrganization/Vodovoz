@@ -319,9 +319,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			{
 				var errorMessage = "Ошибка отправки отчета. Данные отсутствуют.";
 
-				ShowMessage(
-					ImportanceLevel.Error,
-					errorMessage);
+				ShowMessage(ImportanceLevel.Error, errorMessage);
 
 				_logger.LogDebug(errorMessage);
 
@@ -344,9 +342,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			{
 				var errorMessage = "Адреса электронной почты не указаны. Отчет не будет отправлен.";
 
-				ShowMessage(
-					ImportanceLevel.Info,
-					errorMessage);
+				ShowMessage(ImportanceLevel.Info, errorMessage);
 
 				_logger.LogDebug(errorMessage);
 
@@ -366,9 +362,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			{
 				var errorMessage = "Ошибка отправки отчета на электронную почту";
 
-				ShowMessage(
-					ImportanceLevel.Error,
-					errorMessage);
+				ShowMessage(ImportanceLevel.Error, errorMessage);
 
 				_logger.LogDebug(ex, errorMessage);
 			}
