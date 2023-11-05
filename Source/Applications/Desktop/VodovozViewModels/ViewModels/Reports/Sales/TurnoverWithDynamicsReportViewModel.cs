@@ -20,6 +20,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -406,7 +407,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			{
 				return new List<NomenclatureStockNode>();
 			}
-			
+
 			WarehouseBulkGoodsAccountingOperation operationAlias = null;
 			Nomenclature nomenclatureAlias = null;
 			NomenclatureStockNode resultAlias = null;
@@ -549,10 +550,14 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			var promotionalSetsFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<PromotionalSet>>();
 			var includedPromotionalSets = promotionalSetsFilter.GetIncluded().ToArray();
 			var excludedPromotionalSets = promotionalSetsFilter.GetExcluded().ToArray();
-			
+
 			var orderStatusesFilter = FilterViewModel.GetFilter<IncludeExcludeEnumFilter<OrderStatus>>();
 			var includedOrderStatuses = orderStatusesFilter.GetIncluded().ToArray();
 			var excludedOrderStatuses = orderStatusesFilter.GetExcluded().ToArray();
+
+			var counterpartyClassificationsFilter = FilterViewModel.GetFilter<IncludeExcludeEnumFilter<CounterpartyCompositeClassification>>();
+			var includedCounterpartyClassifications = counterpartyClassificationsFilter.GetIncluded().ToArray();
+			var excludedCounterpartyClassifications = counterpartyClassificationsFilter.GetExcluded().ToArray();
 
 			#endregion Сбор параметров
 
@@ -574,6 +579,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			Phone orderContactPhoneAlias = null;
 			Email emailAlias = null;
 			PaymentFrom paymentFromAlias = null;
+			CounterpartyClassification counterpartyClassificationAlias = null;
 
 			TurnoverWithDynamicsReport.OrderItemNode resultNodeAlias = null;
 
@@ -683,7 +689,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				.Where(() => emailAlias.Counterparty.Id == orderAlias.Client.Id)
 				.Select(
 					CustomProjections.GroupConcat(
-						Projections.Property(()=>emailAlias.Address),
+						Projections.Property(() => emailAlias.Address),
 						separator: ",\n"));
 
 			var notDeliveredStatuses = RouteListItem.GetNotDeliveredStatuses();
@@ -694,6 +700,11 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				.Where(() => routeListItemAlias.Order.Id == orderAlias.Id)
 				.AndRestrictionOn(() => routeListItemAlias.Status).Not.IsIn(notDeliveredStatuses)
 				.Select(x => x.RouteList.Id)
+				.Take(1);
+
+			var counterpartyClassificationSubQuery = QueryOver.Of(() => counterpartyClassificationAlias)
+				.Where(() => counterpartyAlias.Id == counterpartyClassificationAlias.CounterpartyId)
+				.OrderBy(() => counterpartyClassificationAlias.ClassificationCalculationDate).Desc
 				.Take(1);
 
 			#region filter parameters
@@ -978,6 +989,76 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			}
 
 			#endregion OrderStatuses
+
+			#region CounterpartyClassifications
+
+			if(includedCounterpartyClassifications.Any())
+			{
+				var includedClassificationByBottlesCount =
+					CounterpartyClassification.ConvertToClassificationByBottlesCount(includedCounterpartyClassifications);
+
+				var includedClassificationByOrdersCount =
+					CounterpartyClassification.ConvertToClassificationByOrdersCount(includedCounterpartyClassifications);
+
+				var includeNotClassificatedCounterparties =
+					includedCounterpartyClassifications
+					.Any(c => c == CounterpartyCompositeClassification.New);
+
+				var includeRestriction = Restrictions.Disjunction();
+
+				if(includedClassificationByBottlesCount.Any() || includedClassificationByOrdersCount.Any())
+				{
+					includeRestriction.Add(Restrictions.And(
+						Restrictions.In(Projections.Property(() => counterpartyClassificationAlias.ClassificationByBottlesCount), includedClassificationByBottlesCount),
+						Restrictions.In(Projections.Property(() => counterpartyClassificationAlias.ClassificationByOrdersCount), includedClassificationByOrdersCount)));
+				}
+
+				if(includeNotClassificatedCounterparties)
+				{
+					includeRestriction.Add(
+						Restrictions.IsNull(Projections.Property(() => counterpartyClassificationAlias.ClassificationByBottlesCount)));
+
+					includeRestriction.Add(
+						Restrictions.IsNull(Projections.Property(() => counterpartyClassificationAlias.ClassificationByOrdersCount)));
+				}
+
+				query.Where(includeRestriction);
+			}
+
+			if(excludedCounterpartyClassifications.Any())
+			{
+				var excludedClassificationByBottlesCount =
+					CounterpartyClassification.ConvertToClassificationByBottlesCount(excludedCounterpartyClassifications);
+
+				var excludedClassificationByOrdersCount =
+					CounterpartyClassification.ConvertToClassificationByOrdersCount(excludedCounterpartyClassifications);
+
+				var excludeNotClassificatedCounterparties =
+					excludedCounterpartyClassifications
+					.Any(c => c == CounterpartyCompositeClassification.New);
+
+				var excludeRestriction = Restrictions.Conjunction();
+
+				if(excludedClassificationByBottlesCount.Any() || excludedClassificationByOrdersCount.Any())
+				{
+					excludeRestriction.Add(Restrictions.Not(
+						Restrictions.In(Projections.Property(() => counterpartyClassificationAlias.ClassificationByBottlesCount), excludedClassificationByBottlesCount)));
+
+					excludeRestriction.Add(Restrictions.Not(
+						Restrictions.In(Projections.Property(() => counterpartyClassificationAlias.ClassificationByOrdersCount), excludedClassificationByOrdersCount)));
+				}
+
+				if(excludeNotClassificatedCounterparties)
+				{
+					excludeRestriction.Add(Restrictions.Disjunction()
+						.Add(Restrictions.IsNotNull(Projections.Property(() => counterpartyClassificationAlias.ClassificationByBottlesCount)))
+						.Add(Restrictions.IsNotNull(Projections.Property(() => counterpartyClassificationAlias.ClassificationByOrdersCount))));
+				}
+
+				query.Where(excludeRestriction);
+			}
+
+			#endregion CounterpartyClassifications
 
 			#endregion
 
