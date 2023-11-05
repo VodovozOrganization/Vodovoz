@@ -29,8 +29,6 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 				.AddFuncBinding(vm => vm.IsCurrentUserEmailValid ? primaryTextColor : dangerTextColor, w => w.TextColor)
 				.InitializeFromSource();
 
-			yentryMainMail.Sensitive = false;
-
 			yentryEmailForCopy.Binding
 				.AddBinding(ViewModel, vm => vm.AdditionalEmail, w => w.Text)
 				.AddFuncBinding(vm => vm.IsAdditionalEmailValid ? primaryTextColor : dangerTextColor, w => w.TextColor)
