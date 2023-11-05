@@ -148,88 +148,58 @@ namespace Vodovoz.Domain.Client.ClientClassification
 			return CounterpartyClassificationByOrdersCount.Y;
 		}
 
-		public static List<CounterpartyClassificationByBottlesCount> ConvertToClassificationByBottlesCount(CounterpartyCompositeClassification[] classifications)
+		public static CounterpartyClassificationByBottlesCount? ConvertToClassificationByBottlesCount(CounterpartyCompositeClassification classification)
 		{
-			var classificationsByBottlesCount = new List<CounterpartyClassificationByBottlesCount>();
-
-			if(classifications.Length == 0)
+			switch(classification)
 			{
-				return classificationsByBottlesCount;
+				case CounterpartyCompositeClassification.AX:
+				case CounterpartyCompositeClassification.AY:
+				case CounterpartyCompositeClassification.AZ:
+					return CounterpartyClassificationByBottlesCount.A;
+
+				case CounterpartyCompositeClassification.BX:
+				case CounterpartyCompositeClassification.BY:
+				case CounterpartyCompositeClassification.BZ:
+					return CounterpartyClassificationByBottlesCount.B;
+
+				case CounterpartyCompositeClassification.CX:
+				case CounterpartyCompositeClassification.CY:
+				case CounterpartyCompositeClassification.CZ:
+					return CounterpartyClassificationByBottlesCount.C;
+
+				case CounterpartyCompositeClassification.New:
+					return null;
+
+				default:
+					throw new ArgumentException("Неизвестное значение классификации контрагента");
 			}
-
-			for(var i = 0; i < classifications.Length; i++)
-			{
-				switch(classifications[i])
-				{
-					case CounterpartyCompositeClassification.AX:
-					case CounterpartyCompositeClassification.AY:
-					case CounterpartyCompositeClassification.AZ:
-						classificationsByBottlesCount.Add(CounterpartyClassificationByBottlesCount.A);
-						break;
-
-					case CounterpartyCompositeClassification.BX:
-					case CounterpartyCompositeClassification.BY:
-					case CounterpartyCompositeClassification.BZ:
-						classificationsByBottlesCount.Add(CounterpartyClassificationByBottlesCount.B);
-						break;
-
-					case CounterpartyCompositeClassification.CX:
-					case CounterpartyCompositeClassification.CY:
-					case CounterpartyCompositeClassification.CZ:
-						classificationsByBottlesCount.Add(CounterpartyClassificationByBottlesCount.C);
-						break;
-
-					case CounterpartyCompositeClassification.New:
-						break;
-
-					default:
-						throw new ArgumentException("Неизвестное значение классификации контрагента");
-				}
-			}
-
-			return classificationsByBottlesCount;
 		}
 
-		public static List<CounterpartyClassificationByOrdersCount> ConvertToClassificationByOrdersCount(CounterpartyCompositeClassification[] classifications)
+		public static CounterpartyClassificationByOrdersCount? ConvertToClassificationByOrdersCount(CounterpartyCompositeClassification classification)
 		{
-			var classificationsByOrdersCount = new List<CounterpartyClassificationByOrdersCount>();
-
-			if(classifications.Length == 0)
+			switch(classification)
 			{
-				return classificationsByOrdersCount;
+				case CounterpartyCompositeClassification.AX:
+				case CounterpartyCompositeClassification.BX:
+				case CounterpartyCompositeClassification.CX:
+					return CounterpartyClassificationByOrdersCount.X;
+
+				case CounterpartyCompositeClassification.AY:
+				case CounterpartyCompositeClassification.BY:
+				case CounterpartyCompositeClassification.CY:
+					return CounterpartyClassificationByOrdersCount.Y;
+
+				case CounterpartyCompositeClassification.AZ:
+				case CounterpartyCompositeClassification.BZ:
+				case CounterpartyCompositeClassification.CZ:
+					return CounterpartyClassificationByOrdersCount.Z;
+
+				case CounterpartyCompositeClassification.New:
+					return null;
+
+				default:
+					throw new ArgumentException("Неизвестное значение классификации контрагента");
 			}
-
-			foreach(var classification in classifications)
-			{
-				switch(classification)
-				{
-					case CounterpartyCompositeClassification.AX:
-					case CounterpartyCompositeClassification.BX:
-					case CounterpartyCompositeClassification.CX:
-						classificationsByOrdersCount.Add(CounterpartyClassificationByOrdersCount.X);
-						break;
-
-					case CounterpartyCompositeClassification.AY:
-					case CounterpartyCompositeClassification.BY:
-					case CounterpartyCompositeClassification.CY:
-						classificationsByOrdersCount.Add(CounterpartyClassificationByOrdersCount.Y);
-						break;
-
-					case CounterpartyCompositeClassification.AZ:
-					case CounterpartyCompositeClassification.BZ:
-					case CounterpartyCompositeClassification.CZ:
-						classificationsByOrdersCount.Add(CounterpartyClassificationByOrdersCount.Z);
-						break;
-
-					case CounterpartyCompositeClassification.New:
-						break;
-
-					default:
-						throw new ArgumentException("Неизвестное значение классификации контрагента");
-				}
-			}
-
-			return classificationsByOrdersCount;
 		}
 
 		public static bool operator ==(CounterpartyClassification classification1, CounterpartyClassification classification2)
