@@ -990,16 +990,16 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			if(includedCounterpartyClassifications.Any() || excludedCounterpartyClassifications.Any())
 			{
+				var lastCalculationDate = _unitOfWork.GetAll<CounterpartyClassification>()
+					.Select(c => c.ClassificationCalculationDate)
+					.OrderByDescending(d => d)
+					.FirstOrDefault();
+
 				query.JoinEntityAlias(
 						() => counterpartyClassificationAlias,
-						() => counterpartyAlias.Id == counterpartyClassificationAlias.CounterpartyId,
-						JoinType.LeftOuterJoin)
-					.JoinEntityAlias(
-						() => counterpartyClassificationAlias2,
-						() => counterpartyClassificationAlias.CounterpartyId == counterpartyClassificationAlias2.CounterpartyId
-							&& counterpartyClassificationAlias.Id < counterpartyClassificationAlias2.Id,
-						JoinType.LeftOuterJoin)
-				.Where(Restrictions.IsNull(Projections.Property(() => counterpartyClassificationAlias2.ClassificationCalculationDate)));
+						() => counterpartyAlias.Id == counterpartyClassificationAlias.CounterpartyId
+							&& counterpartyClassificationAlias.ClassificationCalculationDate == lastCalculationDate,
+						JoinType.LeftOuterJoin);
 			}
 
 			if(includedCounterpartyClassifications.Any())
