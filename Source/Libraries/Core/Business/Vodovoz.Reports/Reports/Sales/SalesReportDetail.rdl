@@ -1795,7 +1795,7 @@ FROM
 			0
 		) AS included_counterparty_classifications,		
         IF(
-			'0' NOT IN (@CounterpartyCompositeClassification_include),
+			'0' NOT IN (@CounterpartyCompositeClassification_exclude),
 			(SELECT total_excludes
 			FROM
 			(
