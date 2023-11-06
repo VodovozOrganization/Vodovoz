@@ -1,24 +1,17 @@
-﻿using Fias.Client;
-using Fias.Client.Cache;
-using QS.DomainModel.UoW;
+﻿using Autofac;
 using QS.Tdi;
 using Vodovoz.Factories;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
 
 namespace Vodovoz.TempAdapters
 {
 	public class FixedPricesDialogOpener : IFixedPricesDialogOpener
 	{
+		private readonly ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory;
 
 		public FixedPricesDialogOpener()
 		{
-			IParametersProvider parametersProvider = new ParametersProvider();
-			IFiasApiParametersProvider fiasApiParametersProvider = new FiasApiParametersProvider(parametersProvider);
-			var geoCoderCache = new GeocoderCache(UnitOfWorkFactory.GetDefaultFactory);
-			IFiasApiClient fiasApiClient = new FiasApiClient(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken, geoCoderCache);
-			_deliveryPointViewModelFactory = new DeliveryPointViewModelFactory(fiasApiClient);
+			_deliveryPointViewModelFactory = new DeliveryPointViewModelFactory(_lifetimeScope);
 		}
 		public void OpenFixedPricesForSelfDelivery(int counterpartyId)
 		{

@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
+using Fias.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
 using Microsoft.Extensions.DependencyInjection;
@@ -72,7 +73,6 @@ using Vodovoz.Infrastructure.Mango;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalViewers;
 using Vodovoz.Models;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Parameters;
@@ -636,7 +636,8 @@ namespace Vodovoz
 							.AddScoped<IRouteListService, RouteListService>()
 							.AddScoped<RouteGeometryCalculator>()
 							.AddSingleton<OsrmClient>(sp => OsrmClientFactory.Instance)
-							.AddSingleton<IFastDeliveryDistanceChecker, DistanceCalculator>();
+							.AddSingleton<IFastDeliveryDistanceChecker, DistanceCalculator>()
+							.AddFiasClient();
 				});
 	}
 }
