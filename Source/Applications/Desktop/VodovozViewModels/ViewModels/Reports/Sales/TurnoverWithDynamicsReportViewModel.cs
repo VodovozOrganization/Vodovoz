@@ -990,22 +990,16 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			if(includedCounterpartyClassifications.Any() || excludedCounterpartyClassifications.Any())
 			{
-				var lastCounterpartyClassificationCalculationDateSubquery = QueryOver.Of(() => counterpartyClassificationAlias2)
-						.Select(Projections.Property(() => counterpartyClassificationAlias2.ClassificationCalculationDate))
-						.OrderBy(() => counterpartyClassificationAlias2.ClassificationCalculationDate).Desc
-						.Take(1);
-
-				var classificationCalculationDateRestriction = Restrictions.Disjunction()
-					.Add(Restrictions.EqProperty(
-						Projections.Property(() => counterpartyClassificationAlias.ClassificationCalculationDate),
-						Projections.SubQuery(lastCounterpartyClassificationCalculationDateSubquery)))
-					.Add(Restrictions.IsNull(Projections.Property(() => counterpartyClassificationAlias.ClassificationCalculationDate)));
-
 				query.JoinEntityAlias(
-					() => counterpartyClassificationAlias,
-					() => counterpartyAlias.Id == counterpartyClassificationAlias.CounterpartyId,
-					JoinType.LeftOuterJoin)
-				.Where(classificationCalculationDateRestriction);
+						() => counterpartyClassificationAlias,
+						() => counterpartyAlias.Id == counterpartyClassificationAlias.CounterpartyId,
+						JoinType.LeftOuterJoin)
+					.JoinEntityAlias(
+						() => counterpartyClassificationAlias2,
+						() => counterpartyClassificationAlias.CounterpartyId == counterpartyClassificationAlias2.CounterpartyId
+							&& counterpartyClassificationAlias.Id < counterpartyClassificationAlias2.Id,
+						JoinType.LeftOuterJoin)
+				.Where(Restrictions.IsNull(Projections.Property(() => counterpartyClassificationAlias2.ClassificationCalculationDate)));
 			}
 
 			if(includedCounterpartyClassifications.Any())
