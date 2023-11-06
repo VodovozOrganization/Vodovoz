@@ -580,7 +580,6 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			Email emailAlias = null;
 			PaymentFrom paymentFromAlias = null;
 			CounterpartyClassification counterpartyClassificationAlias = null;
-			CounterpartyClassification counterpartyClassificationAlias2 = null;
 
 			TurnoverWithDynamicsReport.OrderItemNode resultNodeAlias = null;
 
