@@ -580,6 +580,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			Email emailAlias = null;
 			PaymentFrom paymentFromAlias = null;
 			CounterpartyClassification counterpartyClassificationAlias = null;
+			CounterpartyClassification counterpartyClassificationAlias2 = null;
 
 			TurnoverWithDynamicsReport.OrderItemNode resultNodeAlias = null;
 
@@ -989,18 +990,22 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			if(includedCounterpartyClassifications.Any() || excludedCounterpartyClassifications.Any())
 			{
-				var lastCounterpartyClassificationCalculationDate = _unitOfWork.Session.QueryOver<CounterpartyClassification>()
-					.Select(c => c.ClassificationCalculationDate)
-					.OrderBy(c => c.ClassificationCalculationDate).Desc
-					.Take(1)
-					.List<DateTime>()
-					.FirstOrDefault();
+				var lastCounterpartyClassificationCalculationDateSubquery = QueryOver.Of(() => counterpartyClassificationAlias2)
+						.Select(Projections.Property(() => counterpartyClassificationAlias2.ClassificationCalculationDate))
+						.OrderBy(() => counterpartyClassificationAlias2.ClassificationCalculationDate).Desc
+						.Take(1);
+
+				var classificationCalculationDateRestriction = Restrictions.Disjunction()
+					.Add(Restrictions.EqProperty(
+						Projections.Property(() => counterpartyClassificationAlias.ClassificationCalculationDate),
+						Projections.SubQuery(lastCounterpartyClassificationCalculationDateSubquery)))
+					.Add(Restrictions.IsNull(Projections.Property(() => counterpartyClassificationAlias.ClassificationCalculationDate)));
 
 				query.JoinEntityAlias(
 					() => counterpartyClassificationAlias,
-					() => counterpartyAlias.Id == counterpartyClassificationAlias.CounterpartyId
-						&& counterpartyClassificationAlias.ClassificationCalculationDate == lastCounterpartyClassificationCalculationDate,
-					JoinType.LeftOuterJoin);
+					() => counterpartyAlias.Id == counterpartyClassificationAlias.CounterpartyId,
+					JoinType.LeftOuterJoin)
+				.Where(classificationCalculationDateRestriction);
 			}
 
 			if(includedCounterpartyClassifications.Any())
