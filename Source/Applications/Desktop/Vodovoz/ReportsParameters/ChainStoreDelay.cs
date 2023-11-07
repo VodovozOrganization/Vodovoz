@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Settings.Counterparty;
 using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ReportsParameters
@@ -17,14 +18,17 @@ namespace Vodovoz.ReportsParameters
 	{
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
+		private readonly ICounterpartySettings _counterpartySettings;
 		private KeyValuePair<string, string> _mode;
 
 		public ChainStoreDelayReport(
 			IEmployeeJournalFactory employeeJournalFactory,
-			ICounterpartyJournalFactory counterpartyJournalFactory)
+			ICounterpartyJournalFactory counterpartyJournalFactory,
+			ICounterpartySettings counterpartySettings)
 		{
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
+			_counterpartySettings = counterpartySettings;
 			Build();
 			Configure();
 		}
@@ -101,7 +105,8 @@ namespace Vodovoz.ReportsParameters
 					{ "mode", Mode.Key },
 					{ "counterparty_id", (entityviewmodelentryCounterparty.Subject as Counterparty)?.Id ?? -1},
 					{ "sell_manager_id", (entityviewmodelentrySellManager.Subject as Employee)?.Id ?? -1},
-					{ "order_author_id", (entityviewmodelentryOrderAuthor.Subject as Employee)?.Id ?? -1}
+					{ "order_author_id", (entityviewmodelentryOrderAuthor.Subject as Employee)?.Id ?? -1},
+					{ "counterparty_from_tender_id", _counterpartySettings.CounterpartyFromTenderId }
 				}
 			};
 		}

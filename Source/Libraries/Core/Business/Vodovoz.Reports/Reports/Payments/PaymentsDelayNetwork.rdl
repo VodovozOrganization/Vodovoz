@@ -1060,7 +1060,7 @@ WHERE
   AND (
     (@mode = 'Networks' AND counterparty.is_chain_store = 1)
      OR
-    (@mode = 'Tenders' AND counterparty.counterparty_camefrom_id = 46)
+    (@mode = 'Tenders' AND counterparty.counterparty_camefrom_id = @counterparty_from_tender_id)
   )
   AND orders.payment_type = 'Cashless'
   AND orders.order_status NOT IN ('Canceled', 'NotDelivered', 'DeliveryCanceled')
@@ -1086,6 +1086,9 @@ ORDER BY estimated_payment_date;</CommandText>
           </QueryParameter>
           <QueryParameter Name="mode">
             <Value>=Parameters!mode</Value>
+          </QueryParameter>
+          <QueryParameter Name="counterparty_from_tender_id">
+            <Value>=Paremeters!counterparty_from_tender_id</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1155,7 +1158,7 @@ ORDER BY estimated_payment_date;</CommandText>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="date">
       <DataType>String</DataType>
       <DefaultValue>
@@ -1191,6 +1194,13 @@ ORDER BY estimated_payment_date;</CommandText>
     </ReportParameter>
     <ReportParameter Name="mode">
       <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="counterparty_from_tender_id">
+      <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
