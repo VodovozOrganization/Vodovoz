@@ -1,8 +1,6 @@
 ﻿using Gamma.Utilities;
 using NHibernate.Criterion;
 using NHibernate.Transform;
-using QS.Banks.Domain;
-using QS.Banks.Repositories;
 using QS.Commands;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -111,6 +109,13 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			}
 			
 			TabClosed += OnTabClosed;
+
+			Entity.ObservableItems.ListChanged += OnObservableItemsListChanged;
+		}
+
+		private void OnObservableItemsListChanged(object aList)
+		{
+			OnPropertyChanged(nameof(CanChangeCounterparty));
 		}
 
 		#region Свойства
@@ -423,8 +428,10 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 								: PersonType.natural;
 					}
 
-					var bank = FillBank(Entity);
-					parameters.Account = new Account { Number = Entity.CounterpartyCurrentAcc, InBank = bank };
+					parameters.CounterpartyBik = Entity.CounterpartyBik;
+					parameters.CounterpartyBank = Entity.CounterpartyBank;
+					parameters.CounterpartyCorrespondentAcc = Entity.CounterpartyCorrespondentAcc;
+					parameters.CounterpartyCurrentAcc = Entity.CounterpartyCurrentAcc;
 
 					var dlg = _dialogsFactory.CreateCounterpartyDlg(parameters);
 
@@ -528,26 +535,6 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			}
 		}
 		
-		private Bank FillBank(Payment payment)
-		{
-			var bank = BankRepository.GetBankByBik(UoW, payment.CounterpartyBik);
-
-			if(bank == null)
-			{
-				bank = new Bank
-				{
-					Bik = payment.CounterpartyBik,
-					Name = payment.CounterpartyBank
-				};
-				var corAcc = new CorAccount { CorAccountNumber = payment.CounterpartyCorrespondentAcc };
-				bank.CorAccounts.Add(corAcc);
-				bank.DefaultCorAccount = corAcc;
-				UoW.Save(bank);
-			}
-
-			return bank;
-		}
-		
 		private void ConfigureEntityChangingRelations()
 		{
 			SetPropertyChangeRelation(
@@ -557,10 +544,15 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 		private void NewCounterpartySaved(object sender, QS.Tdi.EntitySavedEventArgs e)
 		{
-			var client = e.Entity as Domain.Client.Counterparty;
+			if(!(e.Entity is Domain.Client.Counterparty counterparty))
+			{
+				return;
+			}
 
-			Entity.Counterparty = client;
-			Entity.CounterpartyAccount = client.DefaultAccount;
+			var savedCounterparty = UoW.GetById<Domain.Client.Counterparty>(counterparty.Id);
+
+			Entity.Counterparty = savedCounterparty;
+			Entity.CounterpartyAccount = savedCounterparty.DefaultAccount;
 		}
 
 		private void CreateOperations()
