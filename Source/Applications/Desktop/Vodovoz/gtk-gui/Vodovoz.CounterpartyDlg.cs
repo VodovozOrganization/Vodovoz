@@ -1628,27 +1628,20 @@ namespace Vodovoz
 			// Container child yhboxClassification.Gtk.Box+BoxChild
 			this.ylabelClassificationBottlesCount = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelClassificationBottlesCount.Name = "ylabelClassificationBottlesCount";
-			this.ylabelClassificationBottlesCount.Xalign = 0F;
 			this.ylabelClassificationBottlesCount.LabelProp = global::Mono.Unix.Catalog.GetString("Кол-во бут");
 			this.yhboxClassification.Add(this.ylabelClassificationBottlesCount);
 			global::Gtk.Box.BoxChild w96 = ((global::Gtk.Box.BoxChild)(this.yhboxClassification[this.ylabelClassificationBottlesCount]));
 			w96.Position = 1;
-			w96.Expand = false;
-			w96.Fill = false;
 			// Container child yhboxClassification.Gtk.Box+BoxChild
 			this.ylabelClassificationTurnoverSum = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelClassificationTurnoverSum.Name = "ylabelClassificationTurnoverSum";
-			this.ylabelClassificationTurnoverSum.Xalign = 0F;
 			this.ylabelClassificationTurnoverSum.LabelProp = global::Mono.Unix.Catalog.GetString("Оборот(инфо)");
 			this.yhboxClassification.Add(this.ylabelClassificationTurnoverSum);
 			global::Gtk.Box.BoxChild w97 = ((global::Gtk.Box.BoxChild)(this.yhboxClassification[this.ylabelClassificationTurnoverSum]));
 			w97.Position = 2;
-			w97.Expand = false;
-			w97.Fill = false;
 			// Container child yhboxClassification.Gtk.Box+BoxChild
 			this.ylabelClassificationOrdersCount = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelClassificationOrdersCount.Name = "ylabelClassificationOrdersCount";
-			this.ylabelClassificationOrdersCount.Xalign = 0F;
 			this.ylabelClassificationOrdersCount.LabelProp = global::Mono.Unix.Catalog.GetString("Частота покупок");
 			this.yhboxClassification.Add(this.ylabelClassificationOrdersCount);
 			global::Gtk.Box.BoxChild w98 = ((global::Gtk.Box.BoxChild)(this.yhboxClassification[this.ylabelClassificationOrdersCount]));
@@ -1658,13 +1651,10 @@ namespace Vodovoz
 			// Container child yhboxClassification.Gtk.Box+BoxChild
 			this.ylabelClassificationCalculationDate = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelClassificationCalculationDate.Name = "ylabelClassificationCalculationDate";
-			this.ylabelClassificationCalculationDate.Xalign = 0F;
 			this.ylabelClassificationCalculationDate.LabelProp = global::Mono.Unix.Catalog.GetString("Дата последнего пересчета");
 			this.yhboxClassification.Add(this.ylabelClassificationCalculationDate);
 			global::Gtk.Box.BoxChild w99 = ((global::Gtk.Box.BoxChild)(this.yhboxClassification[this.ylabelClassificationCalculationDate]));
 			w99.Position = 4;
-			w99.Expand = false;
-			w99.Fill = false;
 			this.table1.Add(this.yhboxClassification);
 			global::Gtk.Table.TableChild w100 = ((global::Gtk.Table.TableChild)(this.table1[this.yhboxClassification]));
 			w100.TopAttach = ((uint)(4));
