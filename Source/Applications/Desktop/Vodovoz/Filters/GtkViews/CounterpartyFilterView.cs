@@ -83,6 +83,14 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(ViewModel, vm => vm.CounterpartyInn, w => w.Text)
 				.InitializeFromSource();
 
+			yenumClassification.Binding
+				.AddFuncBinding(ViewModel, vm => !vm.IsForRetail.HasValue || !vm.IsForRetail.Value, w => w.Visible)
+				.InitializeFromSource();
+
+			ylabelClassification.Binding
+				.AddFuncBinding(ViewModel, vm => !vm.IsForRetail.HasValue || !vm.IsForRetail.Value, w => w.Visible)
+				.InitializeFromSource();
+
 			if(ViewModel?.IsForRetail ?? false)
 			{
 				ytreeviewSalesChannels.ColumnsConfig = ColumnsConfigFactory.Create<SalesChannelSelectableNode>()
