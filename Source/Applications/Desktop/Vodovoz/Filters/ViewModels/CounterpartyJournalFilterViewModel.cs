@@ -1,10 +1,11 @@
-using NHibernate.Transform;
+﻿using NHibernate.Transform;
 using QS.Project.Filter;
 using QS.RepresentationModel.GtkUI;
 using System;
 using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Domain.Retail;
 using Vodovoz.Representations;
 using Vodovoz.ViewModels.Widgets.Search;
@@ -28,8 +29,8 @@ namespace Vodovoz.Filters.ViewModels
 		private int? _counterpartyId;
 		private int? _counterpartyVodovozInternalId;
 		private string _counterpartyInn;
-		private string _deliveryPointAddressLike;
 		private bool _showLiquidating;
+		private CounterpartyCompositeClassification? _counterpartyClassification;
 		private readonly CompositeSearchViewModel _searchByAddressViewModel;
 
 		public CounterpartyJournalFilterViewModel()
@@ -43,7 +44,8 @@ namespace Vodovoz.Filters.ViewModels
 				x => x.RestrictIncludeArchive,
 				x => x.ShowLiquidating,
 				x => x.Tag,
-				x => x.IsNeedToSendBillByEdo);
+				x => x.IsNeedToSendBillByEdo,
+				x => x.CounterpartyClassification);
 		}
 
 		public CompositeSearchViewModel SearchByAddressViewModel => _searchByAddressViewModel;
@@ -94,6 +96,12 @@ namespace Vodovoz.Filters.ViewModels
 		{
 			get => _isForSalesDepartment;
 			set => SetField(ref _isForSalesDepartment, value);
+		}
+
+		public CounterpartyCompositeClassification? CounterpartyClassification
+		{
+			get => _counterpartyClassification;
+			set => SetField(ref _counterpartyClassification, value);
 		}
 
 		public GenericObservableList<SalesChannelSelectableNode> SalesChannels
