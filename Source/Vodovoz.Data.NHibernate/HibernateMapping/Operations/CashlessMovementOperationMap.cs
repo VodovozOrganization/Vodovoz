@@ -1,6 +1,5 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Operations;
-using Vodovoz.Domain.Payments;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Operations
 {
@@ -15,8 +14,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Operations
 			Map(x => x.Income).Column("income");
 			Map(x => x.Expense).Column("expense");
 			Map(x => x.CashlessMovementOperationStatus)
-				.Column("cashless_movement_operation_status")
-				.CustomType<AllocationStatusStringType>();
+				.Column("cashless_movement_operation_status");
 
 			References(x => x.Counterparty).Column("counterparty_id");
 			References(x => x.Organization).Column("organization_id");
