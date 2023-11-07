@@ -110,12 +110,9 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			
 			TabClosed += OnTabClosed;
 
-			Entity.ObservableItems.ListChanged += OnObservableItemsListChanged;
-		}
+			Entity.ObservableItems.ElementRemoved += (_, _1, _2) => OnPropertyChanged(nameof(CanChangeCounterparty));
 
-		private void OnObservableItemsListChanged(object aList)
-		{
-			OnPropertyChanged(nameof(CanChangeCounterparty));
+			Entity.ObservableItems.ElementAdded += (_, _1) => OnPropertyChanged(nameof(CanChangeCounterparty));
 		}
 
 		#region Свойства
