@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Threading.Tasks;
 using TrueMarkApi.Library;
 using Vodovoz.Settings.Edo;
 using VodovozHealthCheck;
@@ -15,7 +16,7 @@ namespace TrueMarkApi.HealthChecks
 			_edoSettings = edoSettings ?? throw new ArgumentNullException(nameof(edoSettings));
 		}
 
-		protected override VodovozHealthResultDto GetHealthResult()
+		protected override Task<VodovozHealthResultDto> GetHealthResult()
 		{
 			var healthResult = new VodovozHealthResultDto();
 
@@ -35,7 +36,7 @@ namespace TrueMarkApi.HealthChecks
 
 			healthResult.IsHealthy = controllerIsHealthy && serviceIsHealthy;
 
-			return healthResult;
+			return Task.FromResult(healthResult);
 		}
 
 		private bool CheckControllerIsHealthy()

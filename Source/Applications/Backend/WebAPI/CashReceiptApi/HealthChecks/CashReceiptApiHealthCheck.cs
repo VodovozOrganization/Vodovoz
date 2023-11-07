@@ -1,9 +1,9 @@
 ﻿using System.Threading.Tasks;
 using VodovozHealthCheck;
 
-namespace TaxcomEdoApi.HealthChecks
+namespace CashReceiptApi.HealthChecks
 {
-	public class TaxcomEdoApiHealthCheck : VodovozHealthCheckBase
+	public class CashReceiptApiHealthCheck : VodovozHealthCheckBase
 	{
 		protected override Task<VodovozHealthResultDto> GetHealthResult() => Task.FromResult<VodovozHealthResultDto>(new() { IsHealthy = IsHealthy });
 
