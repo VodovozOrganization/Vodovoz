@@ -96,7 +96,6 @@ using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
 using Action = Gtk.Action;
-using Vodovoz.ViewModels.Counterparties.ClientClassification;
 
 public partial class MainWindow : Window
 {
@@ -495,8 +494,7 @@ public partial class MainWindow : Window
 
 	private void ActionOrdersWithReceiptJournalActivated(object sender, EventArgs e)
 	{
-		//NavigationManager.OpenViewModel<OrdersWithReceiptsJournalViewModel>(null);
-		NavigationManager.OpenViewModel<CounterpartyClassificationCalculationViewModel>(null);
+		NavigationManager.OpenViewModel<OrdersWithReceiptsJournalViewModel>(null);
 	}
 
 	private void OnActionIncomingCallsAnalysisReportActivated(object sender, EventArgs e)
