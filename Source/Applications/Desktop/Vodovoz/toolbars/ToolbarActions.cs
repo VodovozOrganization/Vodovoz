@@ -643,44 +643,6 @@ public partial class MainWindow : Window
 		);
 	}
 
-	void ActionAtWorks_Activated(object sender, EventArgs e)
-	{
-		var localScope = _autofacScope.BeginLifetimeScope();
-
-		var dlg = localScope.Resolve<AtWorksDlg>();
-
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<AtWorksDlg>(),
-			() => dlg);
-	}
-
-	void ActionRouteListsAtDay_Activated(object sender, System.EventArgs e)
-	{
-		var parametersProvider = new ParametersProvider();
-		var baseParametersProvider = new BaseParametersProvider(parametersProvider);
-
-		tdiMain.OpenTab(
-			"AutoRouting",
-			() => new RouteListsOnDayViewModel(
-				ServicesConfig.CommonServices,
-				new DeliveryScheduleParametersProvider(parametersProvider),
-				new GtkTabsOpener(),
-				new RouteListRepository(new StockRepository(), baseParametersProvider),
-				new SubdivisionRepository(parametersProvider),
-				new OrderRepository(),
-				new AtWorkRepository(),
-				new CarRepository(),
-				NavigationManagerProvider.NavigationManager,
-				new UserRepository(),
-				baseParametersProvider,
-				new EmployeeJournalFactory(NavigationManager),
-				new GeographicGroupRepository(),
-				new ScheduleRestrictionRepository(),
-				new CarModelJournalFactory()
-			)
-		);
-	}
-
 	void ActionUnclosedAdvances_Activated(object sender, System.EventArgs e)
 	{
 		NavigationManager.OpenTdiTab<UnclosedAdvancesView>(null);
@@ -872,15 +834,6 @@ public partial class MainWindow : Window
 	void ActionAccountableDebt_Activated(object sender, System.EventArgs e)
 	{
 		NavigationManager.OpenTdiTab<AccountableDebts>(null);
-	}
-
-	void ActionRouteListTable_Activated(object sender, System.EventArgs e)
-	{
-		var filter = new RouteListJournalFilterViewModel();
-		filter.StartDate = DateTime.Today.AddMonths(-2);
-		filter.EndDate = DateTime.Today;
-
-		NavigationManager.OpenViewModel<RouteListJournalViewModel, RouteListJournalFilterViewModel>(null, filter);
 	}
 
 	void ActionRouteListClosingTable_Activated(object sender, EventArgs e)
