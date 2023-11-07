@@ -49,6 +49,7 @@ using Vodovoz.Core;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.EntityFactories;
@@ -725,9 +726,43 @@ namespace Vodovoz
 			}
 
 			SetVisibilityForCloseDeliveryComments();
+			UpdateCounterpartyClassificationValues();
 
 			logisticsRequirementsView.ViewModel = new LogisticsRequirementsViewModel(Entity.LogisticsRequirements ?? new LogisticsRequirements(), _commonServices);
 			logisticsRequirementsView.ViewModel.Entity.PropertyChanged += OnLogisticsRequirementsSelectionChanged;
+		}
+
+		private void UpdateCounterpartyClassificationValues()
+		{
+			var classification = UoW.GetAll<CounterpartyClassification>()
+				.Where(c => c.CounterpartyId == Entity.Id)
+				.OrderByDescending(c => c.Id)
+				.FirstOrDefault();
+
+			ylabelClassificationValue.Text =
+				classification != null
+				? $"{classification.ClassificationByBottlesCount}{classification.ClassificationByOrdersCount}"
+				: "Новый";
+
+			ylabelClassificationBottlesCount.Text =
+				classification != null
+				? $"Кол-во бут. 19л: {classification.BottlesPerMonthAverageCount} бут/мес"
+				: "Кол-во бут. 19л: не рассчитывалось";
+
+			ylabelClassificationTurnoverSum.Text =
+				classification != null
+				? $"Оборот (инфо): {classification.MoneyTurnoverPerMonthAverageSum} руб/мес"
+				: "Оборот (инфо): не рассчитывалось";
+
+			ylabelClassificationOrdersCount.Text =
+				classification != null
+				? $"Частота покупок: {classification.OrdersPerMonthAverageCount} зак/мес"
+				: "Частота покупок: не рассчитывалось";
+
+			ylabelClassificationCalculationDate.Text =
+				classification != null
+				? $"Дата последнего пересчёта: {classification.ClassificationCalculationDate:dd.MM.yyyy}"
+				: "Дата последнего пересчёта: не рассчитывалось";
 		}
 
 		private void ConfigureTabContacts()

@@ -201,30 +201,5 @@ namespace Vodovoz.Domain.Client.ClientClassification
 					throw new ArgumentException("Неизвестное значение классификации контрагента");
 			}
 		}
-
-		public static bool operator ==(CounterpartyClassification classification1, CounterpartyClassification classification2)
-		{
-			return classification1.Equals(classification2);
-		}
-
-		public static bool operator !=(CounterpartyClassification classification1, CounterpartyClassification classification2)
-		{
-			return !classification1.Equals(classification2);
-		}
-
-		public override bool Equals(object obj)
-		{
-			if(obj is CounterpartyClassification c)
-			{
-				return this.CounterpartyId == c.CounterpartyId
-					&& this.ClassificationByBottlesCount == c.ClassificationByBottlesCount
-					&& this.ClassificationByOrdersCount == c.ClassificationByOrdersCount
-					&& this.BottlesPerMonthAverageCount == c.BottlesPerMonthAverageCount
-					&& this.OrdersPerMonthAverageCount == c.OrdersPerMonthAverageCount
-					&& this.MoneyTurnoverPerMonthAverageSum == c.MoneyTurnoverPerMonthAverageSum;
-			}
-
-			return false;
-		}
 	}
 }
