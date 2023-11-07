@@ -198,8 +198,8 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			CalculationProgressValue = 60;
 
 			WriteNewClassificationsDataToDb(
-				_uow, 
-				newClassificationsForAllCounterparties, 
+				_uow,
+				newClassificationsForAllCounterparties,
 				cancellationToken);
 
 			CalculationProgressValue = 90;
@@ -358,7 +358,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 					emails,
 					_reportData);
 			}
-			catch (Exception ex)
+			catch(Exception ex)
 			{
 				var errorMessage = "Ошибка отправки отчета на электронную почту";
 
@@ -551,15 +551,10 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 		public override void Dispose()
 		{
 			_uow?.Dispose();
+			ReportCancelationTokenSource?.Dispose();
 
 			base.Dispose();
 		}
 		#endregion IDisposable implementation
-
-		public class CalculationMessageEventArgs : EventArgs
-		{
-			public ImportanceLevel ImportanceLevel;
-			public string ErrorMessage { get; set; }
-		}
 	}
 }

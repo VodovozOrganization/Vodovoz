@@ -93,8 +93,8 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 			Gtk.Application.Invoke((s, eventArgs) =>
 			{
 				ViewModel.InteractiveService.ShowMessage(
-							e.ImportanceLevel,
-							  e.ErrorMessage);
+					e.ImportanceLevel,
+					e.ErrorMessage);
 			});
 		}
 
@@ -110,10 +110,10 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 				return;
 			}
 
-			ViewModel.ReportCancelationTokenSource = new CancellationTokenSource();
-
 			var task = Task.Run(async () =>
 			{
+				ViewModel.ReportCancelationTokenSource = new CancellationTokenSource();
+
 				try
 				{
 					await ViewModel.StartClassificationCalculation(ViewModel.ReportCancelationTokenSource.Token);
@@ -150,14 +150,9 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 					ViewModel.ReportCancelationTokenSource?.Dispose();
 					ViewModel.ReportCancelationTokenSource = null;
 				}
-			}, ViewModel.ReportCancelationTokenSource.Token);
+			});
 
 			await task;
-		}
-
-		public override void Destroy()
-		{
-			base.Destroy();
 		}
 	}
 }
