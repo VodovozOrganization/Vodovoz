@@ -28,7 +28,7 @@ namespace Vodovoz.ReportsParameters
 		{
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
-			_counterpartySettings = counterpartySettings;
+			_counterpartySettings = counterpartySettings ?? throw new ArgumentNullException(nameof(counterpartySettings));
 			Build();
 			Configure();
 		}

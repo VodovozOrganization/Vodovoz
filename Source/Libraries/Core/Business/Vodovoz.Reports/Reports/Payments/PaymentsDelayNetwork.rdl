@@ -1088,7 +1088,7 @@ ORDER BY estimated_payment_date;</CommandText>
             <Value>=Parameters!mode</Value>
           </QueryParameter>
           <QueryParameter Name="counterparty_from_tender_id">
-            <Value>=Paremeters!counterparty_from_tender_id</Value>
+            <Value>=Parameters!counterparty_from_tender_id</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1204,7 +1204,7 @@ ORDER BY estimated_payment_date;</CommandText>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

@@ -1088,7 +1088,7 @@ public partial class MainWindow
 
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<ChainStoreDelayReport>(),
-			() => new QSReport.ReportViewDlg(new ChainStoreDelayReport(employeeJournalFactory, lifetimeScope.Resolve<ICounterpartyJournalFactory>())));
+			() => new QSReport.ReportViewDlg(new ChainStoreDelayReport(employeeJournalFactory, lifetimeScope.Resolve<ICounterpartyJournalFactory>(), lifetimeScope.Resolve<Vodovoz.Settings.Counterparty.ICounterpartySettings>())));
 	}
 
 	/// <summary>
