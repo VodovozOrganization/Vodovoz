@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using QS.Commands;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
@@ -10,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
@@ -33,11 +35,12 @@ namespace Vodovoz.ViewModels.Complaints
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
+			INavigationManager navigationManager,
 			IEmployeeJournalFactory employeeJournalFactory,
 			Action updateJournalAction,
 			ISalesPlanJournalFactory salesPlanJournalFactory,
 			INomenclatureJournalFactory nomenclatureSelectorFactory,
-			ILifetimeScope scope) : base(uowBuilder, unitOfWorkFactory, commonServices)
+			ILifetimeScope scope) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -72,26 +75,19 @@ namespace Vodovoz.ViewModels.Complaints
 		public DelegateCommand AttachSubdivisionCommand => _attachSubdivisionCommand ?? (_attachSubdivisionCommand = new DelegateCommand(() =>
 				{
 					var subdivisionFilter = new SubdivisionFilterViewModel();
-					var subdivisionJournalViewModel = new SubdivisionsJournalViewModel(
-						subdivisionFilter,
-						_unitOfWorkFactory,
-						_commonServices,
-						_employeeJournalFactory,
-						_salesPlanJournalFactory,
-						_nomenclatureSelectorFactory,
-						_scope.BeginLifetimeScope()
-					);
-					subdivisionJournalViewModel.SelectionMode = JournalSelectionMode.Single;
-					subdivisionJournalViewModel.OnEntitySelectedResult += (sender, e) =>
+
+					var page = NavigationManager.OpenViewModel<SubdivisionsJournalViewModel>(this);
+
+					page.ViewModel.SelectionMode = JournalSelectionMode.Single;
+					page.ViewModel.OnSelectResult += (sender, e) =>
 					{
-						var selectedNode = e.SelectedNodes.FirstOrDefault();
+						var selectedNode = e.SelectedObjects.FirstOrDefault();
 						if(selectedNode == null)
 						{
 							return;
 						}
-						Entity.AddSubdivision(UoW.GetById<Subdivision>(selectedNode.Id));
+						Entity.AddSubdivision(UoW.GetById<Subdivision>(((SubdivisionJournalNode)selectedNode).Id));
 					};
-					TabParent.AddSlaveTab(this, subdivisionJournalViewModel);
 				},
 				() => true));
 

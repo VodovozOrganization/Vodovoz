@@ -29,6 +29,10 @@ using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Infrastructure.InfoProviders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalNodes;
+using Vodovoz.ViewModels.ReportsParameters.Orders;
+using QS.Report.ViewModels;
+using Vodovoz.ViewModels.ViewModels.Flyers;
+using QS.Navigation;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 {
@@ -38,31 +42,38 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 		private readonly bool _canCloseUndeliveries;
 		private readonly IEmployeeJournalFactory _driverEmployeeJournalFactory;
 		private readonly IEmployeeService _employeeService;
-		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
 		private readonly ICommonServices _commonServices;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
-		private readonly IEmployeeSettings _employeeSettings;
 		private Employee _currentEmployee;
 
-		public UndeliveredOrdersJournalViewModel(UndeliveredOrdersFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices, IGtkTabsOpener gtkDialogsOpener, IEmployeeJournalFactory driverEmployeeJournalFactory,
-			IEmployeeService employeeService, IUndeliveredOrdersJournalOpener undeliveryViewOpener,
-			IUndeliveredOrdersRepository undeliveredOrdersRepository, IEmployeeSettings employeeSettings,
-			ISubdivisionParametersProvider subdivisionParametersProvider)
+		public UndeliveredOrdersJournalViewModel(
+			UndeliveredOrdersFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			IGtkTabsOpener gtkDialogsOpener,
+			IEmployeeJournalFactory driverEmployeeJournalFactory,
+			IEmployeeService employeeService,
+			IUndeliveredOrdersRepository undeliveredOrdersRepository,
+			ISubdivisionParametersProvider subdivisionParametersProvider,
+            INavigationManager navigationManager,
+			Action<UndeliveredOrdersFilterViewModel> filterConfig = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_gtkDlgOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
 			_driverEmployeeJournalFactory = driverEmployeeJournalFactory ?? throw new ArgumentNullException(nameof(driverEmployeeJournalFactory));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			_undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
 			_undeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
-			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
+			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
 			_canCloseUndeliveries = commonServices.CurrentPermissionService.ValidatePresetPermission("can_close_undeliveries");
 
 			TabName = "Журнал недовозов";
+
+            UseSlider = false;
+
+			FilterViewModel.JournalViewModel = this;
 
 			UpdateOnChanges(
 				typeof(UndeliveredOrder)
@@ -80,6 +91,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			}
 
 			FinishJournalConfiguration();
+
+			if(filterConfig != null)
+			{
+				FilterViewModel.SetAndRefilterAtOnce(filterConfig);
+			}
 		}
 
 		private Employee CurrentEmployee => _currentEmployee ??
@@ -575,7 +591,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			NodeActionsList.Add(new JournalAction("Сводка по классификации недовозов", x => true, x => true,
 				selectedItems =>
 				{
-					_gtkDlgOpener.OpenUndeliveredOrdersClassificationReport(FilterViewModel, false);
+                    var page = NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(this, typeof(UndeliveredOrdersClassificationReportViewModel));
+
+                    ((UndeliveredOrdersClassificationReportViewModel)page.ViewModel.ReportParametersViewModel).Load(FilterViewModel, false);
 				}));
 		}
 
@@ -584,8 +602,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			NodeActionsList.Add(new JournalAction("Сводка по классификации недовозов с переносами", x => true, x => true,
 				selectedItems =>
 				{
-					_gtkDlgOpener.OpenUndeliveredOrdersClassificationReport( FilterViewModel, true);
-				}));
+                    var page = NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(this, typeof(UndeliveredOrdersClassificationReportViewModel));
+
+                    ((UndeliveredOrdersClassificationReportViewModel)page.ViewModel.ReportParametersViewModel).Load(FilterViewModel, true);
+                }));
 		}
 
 		protected void BeforeItemsUpdated(IList items, uint start)
@@ -684,20 +704,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 							return;
 						}
 
-						FineViewModel fineViewModel = new FineViewModel(
-							EntityUoWBuilder.ForCreate(),
-							UnitOfWorkFactory,
-							_undeliveryViewOpener,
-							_employeeService,
-							_driverEmployeeJournalFactory,
-							_employeeSettings,
-							_commonServices
-						);
+						var page = NavigationManager.OpenViewModel<FineViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate(), OpenPageOptions.AsSlave);
 
-						var undeliveredOrder = UoW.GetById<UndeliveredOrder>(selectedNode.Id);
-						fineViewModel.UndeliveredOrder = undeliveredOrder;
-						fineViewModel.RouteList = new RouteListItemRepository().GetRouteListItemForOrder(UoW, undeliveredOrder.OldOrder)?.RouteList;
-						TabParent.AddSlaveTab(this, fineViewModel);
+						var undeliveredOrder = page.ViewModel.UoW.GetById<UndeliveredOrder>(selectedNode.Id);
+						page.ViewModel.UndeliveredOrder = undeliveredOrder;
+						page.ViewModel.RouteList = new RouteListItemRepository().GetRouteListItemForOrder(page.ViewModel.UoW, undeliveredOrder.OldOrder)?.RouteList;
 					}
 				)
 			);

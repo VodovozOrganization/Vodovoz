@@ -56,7 +56,6 @@ namespace Vodovoz.ViewModels.Logistic
 		private DelegateCommand _checkDriversRouteListsDebtCommand;
 		private readonly IValidationContextFactory _validationContextFactory;
 
-		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
 		private readonly IEmployeeSettings _employeeSettings;
 		private readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
 		private readonly IEmployeeService _employeeService;
@@ -81,7 +80,6 @@ namespace Vodovoz.ViewModels.Logistic
 			IValidationContextFactory validationContextFactory,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			INavigationManager navigationManager,
-			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
 			IEmployeeSettings employeeSettings,
 			IEmployeeService employeeService,
 			IRouteListProfitabilityController routeListProfitabilityController)
@@ -101,7 +99,6 @@ namespace Vodovoz.ViewModels.Logistic
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_validationContextFactory = validationContextFactory ?? throw new ArgumentNullException(nameof(validationContextFactory));
-			_undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_routeListProfitabilityController =
@@ -125,6 +122,116 @@ namespace Vodovoz.ViewModels.Logistic
 			ConfigureAndCheckPermissions();
 		}
 
+		public IEntityAutocompleteSelectorFactory CarSelectorFactory { get; }
+		public IEntityAutocompleteSelectorFactory LogisticianSelectorFactory { get; }
+		public IEntityAutocompleteSelectorFactory DriverSelectorFactory { get; }
+		public IEntityAutocompleteSelectorFactory ForwarderSelectorFactory { get; }
+		
+		public bool CanEdit
+		{
+			get => _canEdit;
+			set
+			{
+				if(SetField(ref _canEdit, value))
+				{
+					OnPropertyChanged(nameof(IsAcceptAvailable));
+				}
+			}
+		}
+
+		public IList<DeliveryShift> DeliveryShifts { get; }
+		public IList<RouteListKeepingNode> RouteListItems { get; }
+
+		public bool IsAcceptAvailable => Entity.Status == RouteListStatus.OnClosing || Entity.Status == RouteListStatus.MileageCheck;
+
+		public bool AskSaveOnClose => CanEdit;
+
+		public virtual CallTaskWorker CallTaskWorker =>
+			_callTaskWorker ?? (_callTaskWorker = new CallTaskWorker(
+				CallTaskSingletonFactory.GetInstance(),
+				_callTaskRepository,
+				_orderRepository,
+				_employeeRepository,
+				_baseParametersProvider,
+				CommonServices.UserService,
+				_errorReporter));
+
+		public DelegateCommand AcceptCommand =>
+			_acceptCommand ?? (_acceptCommand = new DelegateCommand(() =>
+			{
+				if(!CommonServices.ValidationService.Validate(Entity, ValidationContext))
+				{
+					return;
+				}
+
+				if(Entity.Status == RouteListStatus.Delivered)
+				{
+					ChangeStatusAndCreateTaskFromDelivered();
+					OnPropertyChanged(nameof(CanEdit));
+				}
+
+				Entity.AcceptMileage(CallTaskWorker);
+
+				SaveWithClose();
+			}
+			));
+
+		public DelegateCommand OpenMapCommand =>
+			_openMapCommand ?? (_openMapCommand = new DelegateCommand(() =>
+			{
+				_gtkTabsOpener.OpenTrackOnMapWnd(Entity.Id);
+			}
+			));
+
+		public DelegateCommand FromTrackCommand =>
+			_fromTrackCommand ?? (_fromTrackCommand = new DelegateCommand(() =>
+			{
+				var track = _trackRepository.GetTrackByRouteListId(UoW, Entity.Id);
+				if(track == null)
+				{
+					CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Невозможно расчитать растояние, так как в маршрутном листе нет трека");
+					return;
+				}
+
+				Entity.ConfirmedDistance = track.TotalDistance.HasValue ? (decimal)track.TotalDistance.Value : 0;
+			}
+			));
+
+		public DelegateCommand AcceptFineCommand =>
+			_acceptFineCommand ?? (_acceptFineCommand = new DelegateCommand(() =>
+			{
+				var page = NavigationManager.OpenViewModel<FineViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate(), OpenPageOptions.AsSlave);
+
+				page.ViewModel.SetRouteListById(Entity.Id);
+				page.ViewModel.FineReasonString = "Перерасход топлива";
+			}
+			));
+
+		public DelegateCommand DistributeMileageCommand =>
+			_distributeMileageCommand ?? (_distributeMileageCommand = new DelegateCommand(() =>
+			{
+				if(HasChanges && !SaveBeforeContinue())
+				{
+					return;
+				}
+
+				NavigationManager.OpenViewModel<RouteListMileageDistributionViewModel, IEntityUoWBuilder, ITdiTabParent, ITdiTab>(
+					this, EntityUoWBuilder.ForOpen(Entity.Id), TabParent, this, OpenPageOptions.AsSlave);
+			}
+			));
+
+		public DelegateCommand CheckDriversRouteListsDebtCommand =>
+			_checkDriversRouteListsDebtCommand ?? (_checkDriversRouteListsDebtCommand = new DelegateCommand(() =>
+			{
+				if(Entity.Driver != null)
+				{
+					if(!Entity.IsDriversDebtInPermittedRangeVerification())
+					{
+						Entity.Driver = null;
+					}
+				}
+			}
+			));
 
 		private void ConfigureAndCheckPermissions()
 		{
@@ -245,125 +352,5 @@ namespace Vodovoz.ViewModels.Logistic
 			UoW.Commit();
 			base.AfterSave();
 		}
-
-		public IEntityAutocompleteSelectorFactory CarSelectorFactory { get; }
-		public IEntityAutocompleteSelectorFactory LogisticianSelectorFactory { get; }
-		public IEntityAutocompleteSelectorFactory DriverSelectorFactory { get; }
-		public IEntityAutocompleteSelectorFactory ForwarderSelectorFactory { get; }
-
-		public bool CanEdit
-		{
-			get => _canEdit;
-			set
-			{
-				if(SetField(ref _canEdit, value))
-				{
-					OnPropertyChanged(nameof(IsAcceptAvailable));
-				}
-			}
-		}
-
-		public bool IsAcceptAvailable => Entity.Status == RouteListStatus.OnClosing || Entity.Status == RouteListStatus.MileageCheck;
-		public bool AskSaveOnClose => CanEdit;
-		public IList<DeliveryShift> DeliveryShifts { get; }
-		public IList<RouteListKeepingNode> RouteListItems { get; }
-
-		public virtual CallTaskWorker CallTaskWorker =>
-			_callTaskWorker ?? (_callTaskWorker = new CallTaskWorker(
-				CallTaskSingletonFactory.GetInstance(),
-				_callTaskRepository,
-				_orderRepository,
-				_employeeRepository,
-				_baseParametersProvider,
-				CommonServices.UserService,
-				_errorReporter));
-
-		public DelegateCommand AcceptCommand =>
-			_acceptCommand ?? (_acceptCommand = new DelegateCommand(() =>
-				{
-					if(!CommonServices.ValidationService.Validate(Entity, ValidationContext))
-					{
-						return;
-					}
-
-					if(Entity.Status == RouteListStatus.Delivered)
-					{
-						ChangeStatusAndCreateTaskFromDelivered();
-						OnPropertyChanged(nameof(CanEdit));
-					}
-
-					Entity.AcceptMileage(CallTaskWorker);
-
-					SaveWithClose();
-				}
-			));
-
-		public DelegateCommand OpenMapCommand =>
-			_openMapCommand ?? (_openMapCommand = new DelegateCommand(() =>
-				{
-					_gtkTabsOpener.OpenTrackOnMapWnd(Entity.Id);
-				}
-			));
-
-		public DelegateCommand FromTrackCommand =>
-			_fromTrackCommand ?? (_fromTrackCommand = new DelegateCommand(() =>
-				{
-					var track = _trackRepository.GetTrackByRouteListId(UoW, Entity.Id);
-					if(track == null)
-					{
-						CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Невозможно расчитать растояние, так как в маршрутном листе нет трека");
-						return;
-					}
-
-					Entity.ConfirmedDistance = track.TotalDistance.HasValue ? (decimal)track.TotalDistance.Value : 0;
-				}
-			));
-
-		public DelegateCommand AcceptFineCommand =>
-			_acceptFineCommand ?? (_acceptFineCommand = new DelegateCommand(() =>
-				{
-					var fineViewModel = new FineViewModel(
-						EntityUoWBuilder.ForCreate(),
-						UnitOfWorkFactory,
-						_undeliveryViewOpener,
-						_employeeService,
-						_employeeJournalFactory,
-						_employeeSettings,
-						CommonServices
-					)
-					{
-						RouteList = Entity,
-						FineReasonString = "Перерасход топлива"
-					};
-
-					TabParent.AddSlaveTab(this, fineViewModel);
-				}
-			));
-
-		public DelegateCommand DistributeMileageCommand =>
-			_distributeMileageCommand ?? (_distributeMileageCommand = new DelegateCommand(() =>
-				{
-					if(HasChanges && !SaveBeforeContinue())
-					{
-						return;
-					}
-
-					NavigationManager.OpenViewModel<RouteListMileageDistributionViewModel, IEntityUoWBuilder, ITdiTabParent, ITdiTab>(
-						this, EntityUoWBuilder.ForOpen(Entity.Id), TabParent, this, OpenPageOptions.AsSlave);
-				}
-			));
-
-		public DelegateCommand CheckDriversRouteListsDebtCommand =>
-			_checkDriversRouteListsDebtCommand ?? (_checkDriversRouteListsDebtCommand = new DelegateCommand(() =>
-				{
-					if(Entity.Driver != null)
-					{
-						if(!Entity.IsDriversDebtInPermittedRangeVerification())
-						{
-							Entity.Driver = null;
-						}
-					}
-				}
-			));
 	}
 }

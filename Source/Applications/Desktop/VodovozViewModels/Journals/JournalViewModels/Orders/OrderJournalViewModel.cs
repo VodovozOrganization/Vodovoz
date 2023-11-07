@@ -1,3 +1,4 @@
+﻿using Autofac;
 using MoreLinq;
 using NHibernate;
 using NHibernate.Criterion;
@@ -58,6 +59,7 @@ namespace Vodovoz.JournalViewModels
 		private const int _minLengthLikeSearch = 3;
 
 		private readonly ICommonServices _commonServices;
+		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IEmployeeService _employeeService;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
@@ -67,9 +69,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private readonly IDeliveryPointJournalFactory _deliveryPointJournalFactory;
-		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
 		private readonly IGtkTabsOpener _gtkDialogsOpener;
-		private readonly IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 		private readonly bool _userHasOnlyAccessToWarehouseAndComplaints;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
@@ -87,6 +87,7 @@ namespace Vodovoz.JournalViewModels
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
+			ILifetimeScope lifetimeScope,
 			IEmployeeService employeeService,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
@@ -94,9 +95,7 @@ namespace Vodovoz.JournalViewModels
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IGtkTabsOpener gtkDialogsOpener,
-			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
 			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
 			ISubdivisionRepository subdivisionRepository,
@@ -108,6 +107,7 @@ namespace Vodovoz.JournalViewModels
 			Action<OrderJournalFilterViewModel> filterConfiguration = null) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
@@ -115,12 +115,8 @@ namespace Vodovoz.JournalViewModels
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			_deliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
-			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			_gtkDialogsOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
-
-			_undeliveredOrdersJournalOpener =
-				undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
 			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			_undeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
@@ -144,6 +140,8 @@ namespace Vodovoz.JournalViewModels
 			_userCanExportOrdersToExcel = commonServices.CurrentPermissionService.ValidatePresetPermission("can_export_orders_to_excel");
 
 			SearchEnabled = false;
+
+			filterViewModel.Journal = this;
 
 			RegisterOrders();
 			RegisterOrdersWithoutShipmentForDebt();
@@ -180,6 +178,8 @@ namespace Vodovoz.JournalViewModels
 				UpdateJournalActions();
 			}
 		}
+
+		public ILifetimeScope Scope => _lifetimeScope;
 
 		protected override void CreateNodeActions()
 		{
@@ -1278,34 +1278,13 @@ namespace Vodovoz.JournalViewModels
 						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
 						var order = UoW.GetById<VodovozOrder>(selectedNodes.FirstOrDefault().Id);
 
-						var undeliveredOrdersFilter = new UndeliveredOrdersFilterViewModel(
-							_commonServices,
-							_orderSelectorFactory,
-							_employeeJournalFactory, 
-							_counterpartyJournalFactory, 
-							_deliveryPointJournalFactory, 
-							_subdivisionJournalFactory)
+						var page = NavigationManager.OpenViewModel<UndeliveredOrdersJournalViewModel, Action<UndeliveredOrdersFilterViewModel>>(this, filter =>
 						{
-							HidenByDefault = true,
-							RestrictOldOrder = order,
-							RestrictOldOrderStartDate = order.DeliveryDate,
-							RestrictOldOrderEndDate = order.DeliveryDate
-						};
-
-						var dlg = new UndeliveredOrdersJournalViewModel(
-							undeliveredOrdersFilter,
-							UnitOfWorkFactory,
-							_commonServices,
-							_gtkDialogsOpener,
-							_employeeJournalFactory,
-							_employeeService,
-							_undeliveredOrdersJournalOpener,
-							_undeliveredOrdersRepository,
-							new EmployeeSettings(new ParametersProvider()),
-							_subdivisionParametersProvider
-						);
-
-						TabParent.AddTab(dlg, this, false);
+							filter.HidenByDefault = true;
+							filter.RestrictOldOrder = order;
+							filter.RestrictOldOrderStartDate = order.DeliveryDate;
+							filter.RestrictOldOrderEndDate = order.DeliveryDate;
+						});
 					}
 				)
 			);
@@ -1429,27 +1408,12 @@ namespace Vodovoz.JournalViewModels
 						}
 						var selectedOrder = selectedNodes.First();
 
-						var complaintViewModel = new CreateComplaintViewModel(
-							EntityUoWBuilder.ForCreate(),
-							UnitOfWorkFactory,
-							_employeeService,
-							_subdivisionRepository,
-							_commonServices,
-							_userRepository,
-							_routeListItemRepository,
-							_fileDialogService,
-							_orderSelectorFactory,
-							_employeeJournalFactory,
-							_counterpartyJournalFactory,
-							_deliveryPointJournalFactory,
-							_subdivisionJournalFactory,
-							_subdivisionParametersProvider
-						);
+						var complaintViewModel = NavigationManager.OpenViewModel<CreateComplaintViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()).ViewModel;
+
 						var order = complaintViewModel.UoW.GetById<VodovozOrder>(selectedOrder.Id);
 						complaintViewModel.Entity.Counterparty = order.Client;
 						complaintViewModel.Entity.Order = order;
 						complaintViewModel.Entity.DeliveryPoint = order.DeliveryPoint;
-						TabParent.OpenTab(() => complaintViewModel, this);
 					}
 				)
 			);

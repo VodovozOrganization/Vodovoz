@@ -112,8 +112,11 @@ namespace Vodovoz.ViewModels.Warehouses
 			var instancePermissionResult =
 				CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(InventoryNomenclatureInstance));
 			_canDuplicateInstance = instancePermissionResult.CanUpdate || instancePermissionResult.CanCreate;
+			
+			Entity.ObservableItems.ListContentChanged += OnObservableItemsContentChanged;
 		}
-        #endregion
+
+		#endregion
 
 		#region Properties
         
@@ -439,8 +442,13 @@ namespace Vodovoz.ViewModels.Warehouses
             OnPropertyChanged(nameof(AllowedWarehousesFrom));
             OnPropertyChanged(nameof(Warehouses));
         }
-        
-        public override bool Save(bool close)
+		
+		private void OnObservableItemsContentChanged(object sender, EventArgs e)
+		{
+			OnPropertyChanged(nameof(TotalSum));
+		}
+
+		public override bool Save(bool close)
         {
             if(!CanEdit)
 			{

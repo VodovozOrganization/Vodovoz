@@ -89,7 +89,8 @@ namespace Vodovoz.ViewModels.Logistic
 			IRouteListDailyNumberProvider routeListDailyNumberProvider,
 			IUserSettings userSettings,
 			IStoreDocumentHelper storeDocumentHelper,
-			IRouteListService routeListService)
+			IRouteListService routeListService,
+			Action<RouteListJournalFilterViewModel> filterConfig = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
@@ -119,6 +120,11 @@ namespace Vodovoz.ViewModels.Logistic
 
 			UpdateOnChanges(typeof(RouteList), typeof(RouteListProfitability), typeof(RouteListDebt));
 			InitPopupActions();
+
+			if(filterConfig != null)
+			{
+				FilterViewModel.SetAndRefilterAtOnce(filterConfig);
+			}
 		}
 
 		protected override Func<IUnitOfWork, IQueryOver<RouteList>> ItemsSourceQueryFunction => (uow) =>

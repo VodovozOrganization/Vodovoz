@@ -1,11 +1,13 @@
-using Autofac;
+﻿using Autofac;
 using Microsoft.Extensions.Logging;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Services;
 using QS.Report;
 using QS.Validation;
+using QS.ViewModels.Control.EEVM;
 using QSOrmProject;
 using System;
 using System.ComponentModel.DataAnnotations;
@@ -17,14 +19,15 @@ using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.Extensions;
+using Vodovoz.Infrastructure;
 using Vodovoz.Models;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Tools.Store;
-using QS.Validation;
-using Vodovoz.Infrastructure;
-using Vodovoz.Extensions;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.Logistic;
 
 namespace Vodovoz
 {
@@ -39,6 +42,8 @@ namespace Vodovoz
 		private IRouteListService _routeListService;
 		private ITerminalNomenclatureProvider _terminalNomenclatureProvider;
 		private IRouteListDailyNumberProvider _routeListDailyNumberProvider;
+
+		public INavigationManager NavigationManager { get; private set; }
 
 		public CarLoadDocumentDlg()
 		{
@@ -103,6 +108,7 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
+			NavigationManager = Startup.MainWin.NavigationManager;
 
 			var storeDocument = new StoreDocumentHelper(new UserSettingsGetter());
 			if(storeDocument.CheckAllPermissions(UoW.IsNew, WarehousePermissionsType.CarLoadEdit, Entity.Warehouse))
@@ -118,18 +124,26 @@ namespace Vodovoz
 
 			var editing = storeDocument.CanEditDocument(WarehousePermissionsType.CarLoadEdit, Entity.Warehouse);
 			editing &= Entity.RouteList?.Status != RouteListStatus.Closed || hasPermitionToEditDocWithClosedRL;
-			yentryrefRouteList.IsEditable = ySpecCmbWarehouses.Sensitive = ytextviewCommnet.Editable = editing;
+
+			entryRouteList.ViewModel = new LegacyEEVMBuilderFactory<CarLoadDocument>(this, Entity, UoW, NavigationManager, _lifetimeScope)
+				.ForProperty(x => x.RouteList)
+				.UseViewModelJournalAndAutocompleter<RouteListJournalViewModel, RouteListJournalFilterViewModel>(filter =>
+				{
+					filter.DisplayableStatuses = new[] { RouteListStatus.InLoading };
+				})
+				.Finish();
+
+			entryRouteList.ViewModel.ChangedByUser += OnYentryrefRouteListChangedByUser;
+
+			entryRouteList.ViewModel.IsEditable = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
+
+			entryRouteList.Sensitive = ySpecCmbWarehouses.Sensitive = ytextviewCommnet.Editable = editing;
 			carloaddocumentview1.Sensitive = editing;
 
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.TimeStamp.ToString("g"), w => w.LabelProp).InitializeFromSource();
 			ySpecCmbWarehouses.ItemsList = storeDocument.GetRestrictedWarehousesList(UoW, WarehousePermissionsType.CarLoadEdit);
 			ySpecCmbWarehouses.Binding.AddBinding(Entity, e => e.Warehouse, w => w.SelectedItem).InitializeFromSource();
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
-			var filter = new RouteListsFilter(UoW);
-			filter.SetAndRefilterAtOnce(x => x.RestrictedStatuses = new[] { RouteListStatus.InLoading });
-			yentryrefRouteList.RepresentationModel = new ViewModel.RouteListsVM(filter);
-			yentryrefRouteList.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
-			yentryrefRouteList.Binding.AddBinding(Entity, e => e.RouteList, w => w.Subject).InitializeFromSource();
 
 			enumPrint.ItemsEnum = typeof(CarLoadPrintableDocuments);
 
@@ -161,7 +175,7 @@ namespace Vodovoz
 			if(!Entity.CanEdit && Entity.TimeStamp.Date != DateTime.Now.Date)
 			{
 				ytextviewCommnet.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
-				yentryrefRouteList.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				entryRouteList.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				ySpecCmbWarehouses.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				ytextviewRouteListInfo.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				carloaddocumentview1.Sensitive = false;
@@ -305,8 +319,9 @@ namespace Vodovoz
 
 		public override void Destroy()
 		{
-			base.Destroy();
 			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
+			base.Destroy();
 		}
 	}
 

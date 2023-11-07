@@ -37,7 +37,7 @@ namespace Vodovoz
 {
 	public partial class SelfDeliveryDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<SelfDeliveryDocument>
 	{
-		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory = new NomenclatureJournalFactory();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IStockRepository _stockRepository = new StockRepository();
@@ -46,8 +46,7 @@ namespace Vodovoz
 
 		private readonly INomenclatureRepository _nomenclatureRepository =
 			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
-		
-		GenericObservableList<GoodsReceptionVMNode> GoodsReceptionList = new GenericObservableList<GoodsReceptionVMNode>();
+		private GenericObservableList<GoodsReceptionVMNode> GoodsReceptionList = new GenericObservableList<GoodsReceptionVMNode>();
 
 		public SelfDeliveryDocumentDlg()
 		{
@@ -106,7 +105,7 @@ namespace Vodovoz
 
 		private bool canEditDocument;
 
-		void ConfigureDlg()
+		private void ConfigureDlg()
 		{
 			if(_storeDocumentHelper.CheckAllPermissions(UoW.IsNew, WarehousePermissionsType.SelfDeliveryEdit, Entity.Warehouse)) {
 				FailInitialize = true;
@@ -126,7 +125,7 @@ namespace Vodovoz
 			lstWarehouse.Binding.AddBinding(Entity, e => e.Warehouse, w => w.SelectedItem).InitializeFromSource();
 			lstWarehouse.ItemSelected += OnWarehouseSelected;
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
-			var orderFactory = new OrderSelectorFactory();
+			var orderFactory = new OrderSelectorFactory(Startup.MainWin.NavigationManager);
 			evmeOrder.SetEntityAutocompleteSelectorFactory(orderFactory.CreateSelfDeliveryDocumentOrderAutocompleteSelector());
 			evmeOrder.Binding.AddBinding(Entity, e => e.Order, w => w.Subject).InitializeFromSource();
 			evmeOrder.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
@@ -230,7 +229,7 @@ namespace Vodovoz
 			}
 		}
 
-		void LoadReturned()
+		private void LoadReturned()
 		{
 			GoodsReceptionList.Clear();
 			foreach(var item in Entity.ReturnedItems) {
@@ -292,7 +291,7 @@ namespace Vodovoz
 			return true;
 		}
 
-		void UpdateOrderInfo()
+		private void UpdateOrderInfo()
 		{
 			if(Entity.Order == null) {
 				ytextviewOrderInfo.Buffer.Text = String.Empty;
@@ -317,13 +316,13 @@ namespace Vodovoz
 			FillTrees();
 		}
 
-		void UpdateAmounts()
+		private void UpdateAmounts()
 		{
 			foreach(var item in Entity.Items)
 				item.Amount = Math.Min(Entity.GetNomenclaturesCountInOrder(item.Nomenclature) - item.AmountUnloaded, item.AmountInStock);
 		}
 
-		void UpdateWidgets()
+		private void UpdateWidgets()
 		{
 			bool bottles = Entity.Warehouse != null && Entity.Warehouse.CanReceiveBottles;
 			bool goods = Entity.Warehouse != null && Entity.Warehouse.CanReceiveEquipment;

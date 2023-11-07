@@ -79,6 +79,7 @@ namespace DriverAPI.Library.Converters
 				IsFastDelivery = vodovozOrder.IsFastDelivery,
 				ContactlessDelivery = vodovozOrder.ContactlessDelivery,
 				AddedToRouteListTime = addedToRouteListTime.ToString("dd.MM.yyyyTHH:mm:ss"),
+				CallBeforeArrivalMinutes = vodovozOrder.CallBeforeArrivalMinutes,
 				Trifle = vodovozOrder.Trifle ?? 0,
 				SignatureType = _signatureTypeConverter.ConvertToApiSignatureType(vodovozOrder.SignatureType)
 			};
@@ -177,7 +178,7 @@ namespace DriverAPI.Library.Converters
 
 		private OrderSaleItemDto ConvertToAPIOrderSaleItem(OrderItem saleItem)
 		{
-			var result = new OrderSaleItemDto()
+			var result = new OrderSaleItemDto
 			{
 				OrderSaleItemId = saleItem.Id,
 				Name = saleItem.Nomenclature.Name,
@@ -188,7 +189,8 @@ namespace DriverAPI.Library.Converters
 				IsBottleStock = saleItem.Order.IsBottleStock && saleItem.DiscountByStock > 0,
 				IsDiscountInMoney = saleItem.IsDiscountInMoney,
 				Discount = saleItem.IsDiscountInMoney ? saleItem.DiscountMoney : saleItem.Discount,
-				DiscountReason = saleItem.DiscountReason?.Name
+				DiscountReason = saleItem.DiscountReason?.Name,
+				CapColor = saleItem.Nomenclature.BottleCapColor
 			};
 
 			if(saleItem.Nomenclature.TareVolume != null)

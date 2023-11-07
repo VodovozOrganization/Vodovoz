@@ -1,5 +1,7 @@
-﻿using QS.Commands;
+﻿using Autofac;
+using QS.Commands;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
@@ -30,6 +32,7 @@ namespace Vodovoz.ViewModels.Complaints
 	{
 		private readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
 		private readonly IList<ComplaintKind> _complaintKinds;
+		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IEmployeeService _employeeService;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IUserRepository _userRepository;
@@ -43,6 +46,8 @@ namespace Vodovoz.ViewModels.Complaints
 		public CreateComplaintViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
+			INavigationManager navigationManager,
+			ILifetimeScope lifetimeScope,
 			IEmployeeService employeeService,
 			ISubdivisionRepository subdivisionRepository,
 			ICommonServices commonServices,
@@ -53,17 +58,16 @@ namespace Vodovoz.ViewModels.Complaints
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
-			string phone = null) : base(uowBuilder, unitOfWorkFactory, commonServices)
+			string phone = null) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
+			_lifetimeScope = lifetimeScope;
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			_employeeSelectorFactory = employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 			CounterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			DeliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
@@ -95,6 +99,8 @@ namespace Vodovoz.ViewModels.Complaints
 		public CreateComplaintViewModel(Counterparty client,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
+			INavigationManager navigationManager,
+			ILifetimeScope lifetimeScope,
 			IEmployeeService employeeService,
 			ISubdivisionRepository subdivisionRepository,
 			ICommonServices commonServices,
@@ -105,11 +111,10 @@ namespace Vodovoz.ViewModels.Complaints
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
-			string phone = null) : this(uowBuilder, unitOfWorkFactory, employeeService,
+			string phone = null) : this(uowBuilder, unitOfWorkFactory, navigationManager, lifetimeScope, employeeService,
 			subdivisionRepository, commonServices, userRepository, routeListItemRepository, filePickerService, orderSelectorFactory, employeeJournalFactory,
-			counterpartyJournalFactory, deliveryPointJournalFactory, subdivisionJournalFactory, subdivisionParametersProvider, phone)
+			counterpartyJournalFactory, deliveryPointJournalFactory, subdivisionParametersProvider, phone)
 		{
 			var currentClient = UoW.GetById<Counterparty>(client.Id);
 			Entity.Counterparty = currentClient;
@@ -119,6 +124,8 @@ namespace Vodovoz.ViewModels.Complaints
 		public CreateComplaintViewModel(Order order,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
+			INavigationManager navigationManager,
+			ILifetimeScope lifetimeScope,
 			IEmployeeService employeeService,
 			ISubdivisionRepository subdivisionRepository,
 			ICommonServices commonServices,
@@ -129,11 +136,10 @@ namespace Vodovoz.ViewModels.Complaints
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
-			string phone = null) : this(uowBuilder, unitOfWorkFactory, employeeService, subdivisionRepository,
+			string phone = null) : this(uowBuilder, unitOfWorkFactory, navigationManager, lifetimeScope, employeeService, subdivisionRepository,
 			commonServices, userRepository, routeListItemRepository, filePickerService, orderSelectorFactory, employeeJournalFactory, counterpartyJournalFactory,
-			deliveryPointJournalFactory, subdivisionJournalFactory, subdivisionParametersProvider, phone)
+			deliveryPointJournalFactory, subdivisionParametersProvider, phone)
 		{
 			var currentOrder = UoW.GetById<Order>(order.Id);
 			Entity.Order = currentOrder;
@@ -167,7 +173,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private void InitializeOrderAutocompleteSelectorFactory(IOrderSelectorFactory orderSelectorFactory)
 		{
 			var orderFilter =
-				new OrderJournalFilterViewModel(CounterpartyJournalFactory, DeliveryPointJournalFactory, EmployeeJournalFactory);
+				new OrderJournalFilterViewModel(CounterpartyJournalFactory, DeliveryPointJournalFactory, _lifetimeScope);
 			
 			if(Entity.Counterparty != null)
 			{
@@ -246,10 +252,11 @@ namespace Vodovoz.ViewModels.Complaints
 					guiltyItemsViewModel = new GuiltyItemsViewModel(
 						Entity,
 						UoW,
+						this,
+						_lifetimeScope,
 						CommonServices,
 						_subdivisionRepository,
 						EmployeeJournalFactory,
-						_subdivisionJournalFactory,
 						_subdivisionParametersProvider);
 				}
 
@@ -317,7 +324,6 @@ namespace Vodovoz.ViewModels.Complaints
 		public IEntityAutocompleteSelectorFactory OrderAutocompleteSelectorFactory { get; private set; }
 		public bool UserHasOnlyAccessToWarehouseAndComplaints { get; }
 		private IEmployeeJournalFactory EmployeeJournalFactory { get; }
-		private ISubdivisionJournalFactory _subdivisionJournalFactory { get; }
 		private IDeliveryPointJournalFactory DeliveryPointJournalFactory { get; }
 	}
 }

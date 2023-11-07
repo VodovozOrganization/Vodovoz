@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
 using Microsoft.Extensions.Configuration;
@@ -281,7 +281,6 @@ namespace Vodovoz
 					#region Adapters & Factories
 
 					builder.RegisterType<GtkTabsOpener>().As<IGtkTabsOpener>();
-					builder.RegisterType<UndeliveredOrdersJournalOpener>().As<IUndeliveredOrdersJournalOpener>();
 					builder.RegisterType<RdlPreviewOpener>().As<IRDLPreviewOpener>();
 					builder.RegisterType<GtkReportViewOpener>().As<IReportViewOpener>().SingleInstance();
 					builder.RegisterType<RoboatsJournalsFactory>().AsSelf().InstancePerLifetimeScope();
@@ -482,10 +481,8 @@ namespace Vodovoz
 					builder.RegisterType<ProfitabilityBottlesByStockReport>().AsSelf();
 					builder.RegisterType<PlanImplementationReport>().AsSelf();
 					builder.RegisterType<ZeroDebtClientReport>().AsSelf();
-					builder.RegisterType<SetBillsReport>().AsSelf();
 					builder.RegisterType<OrdersCreationTimeReport>().AsSelf();
 					builder.RegisterType<PotentialFreePromosetsReport>().AsSelf();
-					builder.RegisterType<PaymentsFromBankClientReport>().AsSelf();
 					builder.RegisterType<PaymentsFromBankClientFinDepartmentReport>().AsSelf();
 					builder.RegisterType<ChainStoreDelayReport>().AsSelf();
 					builder.RegisterType<ReturnedTareReport>().AsSelf();
@@ -555,8 +552,6 @@ namespace Vodovoz
 							.First())
 						.SingleInstance();
 
-					builder.RegisterType<RdlViewerViewModel>().AsSelf();
-
 					#endregion
 
 					#region Фильтры
@@ -592,7 +587,7 @@ namespace Vodovoz
 								}
 								), "");
 
-							cs["BaseUri"] = "https://driverapi.vod.qsolution.ru:7090/api/v2/";
+							cs["BaseUri"] = "https://driverapi.vod.qsolution.ru:7090/api/v4/";
 
 							var clientProvider = new ApiClientProvider.ApiClientProvider(cs);
 
