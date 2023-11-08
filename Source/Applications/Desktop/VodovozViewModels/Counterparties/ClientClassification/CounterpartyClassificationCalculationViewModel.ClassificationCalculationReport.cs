@@ -66,7 +66,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 					.FirstOrDefault();
 
 				var lastCalculationDate = GetCalculationSettingsDateById(
-					uow, 
+					uow,
 					lastCalculationSettingsId);
 
 				var oldClassifications = GetLastExistingClassifications(
@@ -193,9 +193,10 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 
 			private IEnumerable<Row> GetGroupedByBottlesClassificationsRows(IEnumerable<ClassificationCalculationReportRow> reportRows)
 			{
-				var groupedByBottlesClassification = (from r in reportRows
-													  group r by new { r.NewClassificationByBottles, r.OldClassificationByBottles })
-													 .ToDictionary(g => g.Key, g => g.ToList());
+				var groupedByBottlesClassification =
+					(from r in reportRows
+					 group r by new { r.NewClassificationByBottles, r.OldClassificationByBottles })
+					 .ToDictionary(g => g.Key, g => g.ToList());
 
 				var rows = new List<Row>
 				{
@@ -228,9 +229,10 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 
 			private IEnumerable<Row> GetGroupedByOrdersClassificationsRows(IEnumerable<ClassificationCalculationReportRow> reportRows)
 			{
-				var groupedByOrdersClassification = (from r in reportRows
-													 group r by new { r.NewClassificationByOrders, r.OldClassificationByOrders })
-													 .ToDictionary(g => g.Key, g => g.ToList());
+				var groupedByOrdersClassification = 
+					(from r in reportRows
+					 group r by new { r.NewClassificationByOrders, r.OldClassificationByOrders })
+					 .ToDictionary(g => g.Key, g => g.ToList());
 
 				var rows = new List<Row>
 				{

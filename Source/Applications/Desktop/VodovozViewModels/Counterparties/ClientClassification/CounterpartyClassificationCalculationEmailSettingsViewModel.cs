@@ -8,11 +8,13 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 {
-	public class CounterpartyClassificationCalculationEmailSettingsViewModel : WindowDialogViewModelBase
+	public partial class CounterpartyClassificationCalculationEmailSettingsViewModel : WindowDialogViewModelBase
 	{
 		private readonly IInteractiveService _interactiveService;
 		private string _currentUserEmail;
 		private string _additionalEmail;
+
+		private DelegateCommand _startCalculationCommand;
 
 		public event EventHandler<StartClassificationCalculationEventArgs> StartClassificationCalculationClicked;
 
@@ -69,7 +71,6 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 
 		#region Commands
 		#region StartCalculation
-		private DelegateCommand _startCalculationCommand;
 		public DelegateCommand StartCalculationCommand
 		{
 			get
@@ -133,17 +134,5 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 		}
 		#endregion StartCalculation
 		#endregion Commands
-
-		public class StartClassificationCalculationEventArgs : EventArgs
-		{
-			public string CurrentUserEmail { get; }
-			public string AdditionalEmail { get; }
-
-			public StartClassificationCalculationEventArgs(string currentUserEmail, string additionalEmail)
-			{
-				CurrentUserEmail = currentUserEmail;
-				AdditionalEmail = additionalEmail;
-			}
-		}
 	}
 }
