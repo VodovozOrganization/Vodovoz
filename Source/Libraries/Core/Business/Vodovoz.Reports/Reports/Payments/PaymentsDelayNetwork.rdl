@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -1061,6 +1061,8 @@ WHERE
     (@mode = 'Networks' AND counterparty.is_chain_store = 1)
      OR
     (@mode = 'Tenders' AND counterparty.counterparty_camefrom_id = @counterparty_from_tender_id)
+     OR
+    (@counterparty_id &lt;&gt; -1)
   )
   AND orders.payment_type = 'Cashless'
   AND orders.order_status NOT IN ('Canceled', 'NotDelivered', 'DeliveryCanceled')

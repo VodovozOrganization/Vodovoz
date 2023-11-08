@@ -75,6 +75,8 @@ namespace Vodovoz.ReportsParameters
 			entityviewmodelentryCounterparty.SetEntityAutocompleteSelectorFactory(
 				_counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory());
 
+			entityviewmodelentryCounterparty.ChangedByUser += OnEntityviewmodelentryCounterpartyChangedByUser;
+
 			entityviewmodelentrySellManager.SetEntityAutocompleteSelectorFactory(
 				_employeeJournalFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory());
 
@@ -88,6 +90,11 @@ namespace Vodovoz.ReportsParameters
 				.InitializeFromSource();
 
 			speciallistcomboboxReportBy.SelectedItem = Modes.FirstOrDefault();
+		}
+
+		private void OnEntityviewmodelentryCounterpartyChangedByUser(object sender, EventArgs e)
+		{
+			speciallistcomboboxReportBy.Sensitive = entityviewmodelentryCounterparty.Subject == null;
 		}
 
 		private void OnButtonCreateReportClicked(object sender, EventArgs e)
