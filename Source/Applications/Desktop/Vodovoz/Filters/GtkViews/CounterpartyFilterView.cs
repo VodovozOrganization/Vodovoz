@@ -1,9 +1,10 @@
-using Gamma.GtkWidgets;
+﻿using Gamma.GtkWidgets;
 using Gtk;
 using QS.Views.GtkUI;
 using QS.Widgets;
 using System.ComponentModel;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewWidgets.Search;
@@ -52,6 +53,11 @@ namespace Vodovoz.Filters.GtkViews
 			yenumReasonForLeaving.ItemsEnum = typeof(ReasonForLeaving);
 			yenumReasonForLeaving.Binding
 				.AddBinding(ViewModel, vm => vm.ReasonForLeaving, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
+
+			yenumClassification.ItemsEnum = typeof(CounterpartyCompositeClassification);
+			yenumClassification.Binding
+				.AddBinding(ViewModel, vm => vm.CounterpartyClassification, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 
 			checkIncludeArhive.Binding

@@ -309,7 +309,7 @@ namespace Vodovoz.JournalViewModels
 							&& counterpartyClassificationAlias.ClassificationByOrdersCount == CounterpartyClassificationByOrdersCount.Z);
 						break;
 					case (CounterpartyCompositeClassification.New):
-						query.Where(() => counterpartyClassificationAlias == null);
+						query.Where(() => counterpartyClassificationAlias.Id == null);
 						break;
 					default:
 						throw new ArgumentException("Выбран неизвестный тип классификации контрагента");
@@ -552,7 +552,7 @@ namespace Vodovoz.JournalViewModels
 							&& counterpartyClassificationAlias.ClassificationByOrdersCount == CounterpartyClassificationByOrdersCount.Z);
 						break;
 					case (CounterpartyCompositeClassification.New):
-						query.Where(() => counterpartyClassificationAlias == null);
+						query.Where(() => counterpartyClassificationAlias.Id == null);
 						break;
 					default:
 						throw new ArgumentException("Выбран неизвестный тип классификации контрагента");
