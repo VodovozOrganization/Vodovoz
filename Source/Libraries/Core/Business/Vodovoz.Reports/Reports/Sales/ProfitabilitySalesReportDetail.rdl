@@ -3195,8 +3195,8 @@ FROM
     ) group_levels ON group_levels.group_id = n.group_id
 	LEFT JOIN 
 	counterparty_classification ccl ON ccl.counterparty_id = c.id 
-		AND ccl.calculation_date = 
-			(SELECT cc2.calculation_date as calc_date 
+		AND ccl.calculation_settings_id = 
+			(SELECT cc2.calculation_settings_id as calc_settings_id 
 			FROM counterparty_classification cc2
 			ORDER BY cc2.id DESC 
 			LIMIT 1)

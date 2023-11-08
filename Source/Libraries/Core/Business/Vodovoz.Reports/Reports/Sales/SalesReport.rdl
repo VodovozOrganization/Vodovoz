@@ -666,8 +666,8 @@ FROM
 		    ) group_levels ON group_levels.group_id = nomenclature.group_id
 		    	LEFT JOIN 
 		    counterparty_classification cc ON cc.counterparty_id = counterparty.id 
-		    	AND cc.calculation_date = 
-					(SELECT cc2.calculation_date as calc_date 
+		    	AND cc.calculation_settings_id = 
+					(SELECT cc2.calculation_settings_id as calc_settings_id 
 					FROM counterparty_classification cc2
 					ORDER BY cc2.id DESC 
 					LIMIT 1)
