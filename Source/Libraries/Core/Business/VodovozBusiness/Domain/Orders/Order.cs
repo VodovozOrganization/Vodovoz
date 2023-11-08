@@ -117,6 +117,8 @@ namespace Vodovoz.Domain.Orders
 		private bool? _canCreateOrderInAdvance;
 		private int? counterpartyExternalOrderId;
 
+		private int? _callBeforeArrivalMinutes;
+
 		#region Cвойства
 
 		public virtual int Id { get; set; }
@@ -157,7 +159,13 @@ namespace Vodovoz.Domain.Orders
 		public virtual bool IsFastDelivery
 		{
 			get => _isFastDelivery;
-			set => SetField(ref _isFastDelivery, value);
+			set
+			{
+				if(SetField(ref _isFastDelivery, value) && value)
+				{
+					CallBeforeArrivalMinutes = null;
+				}
+			}
 		}
 
 		private OrderStatus orderStatus;
@@ -332,11 +340,16 @@ namespace Vodovoz.Domain.Orders
 		private bool selfDelivery;
 
 		[Display(Name = "Самовывоз")]
-		public virtual bool SelfDelivery {
+		public virtual bool SelfDelivery
+		{
 			get => selfDelivery;
-			set {
-				if(SetField(ref selfDelivery, value, () => SelfDelivery) && value)
+			set
+			{
+				if(SetField(ref selfDelivery, value) && value)
+				{
 					IsContractCloser = false;
+					CallBeforeArrivalMinutes = null;
+				}
 			}
 		}
 
@@ -417,6 +430,13 @@ namespace Vodovoz.Domain.Orders
 		public virtual string Comment {
 			get => comment;
 			set => SetField(ref comment, value, () => Comment);
+		}
+
+		[Display(Name = "Отзвон за")]
+		public virtual int? CallBeforeArrivalMinutes
+		{
+			get => _callBeforeArrivalMinutes;
+			set => SetField(ref _callBeforeArrivalMinutes, value);
 		}
 
 		private string commentLogist;
@@ -1297,9 +1317,11 @@ namespace Vodovoz.Domain.Orders
 					}
 
 					if(Client.IsDeliveriesClosed
-					   && PaymentType != PaymentType.Cash
-					   && PaymentType != PaymentType.PaidOnline
-					   && PaymentType != PaymentType.Terminal)
+						&& PaymentType != PaymentType.Cash
+						&& PaymentType != PaymentType.PaidOnline
+						&& PaymentType != PaymentType.Terminal
+						&& PaymentType != PaymentType.DriverApplicationQR
+						&& PaymentType != PaymentType.SmsQR)
 						yield return new ValidationResult(
 							"В заказе неверно указан тип оплаты (для данного клиента закрыты поставки)",
 							new[] { nameof(PaymentType) }
@@ -5054,6 +5076,7 @@ namespace Vodovoz.Domain.Orders
 		#region Точка доставки
 
 		private int _educationalInstitutionDeliveryPointCategoryId;
+
 		private int EducationalInstitutionDeliveryPointCategoryId
 		{
 			get

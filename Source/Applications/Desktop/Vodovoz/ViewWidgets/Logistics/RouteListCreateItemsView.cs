@@ -1,41 +1,38 @@
-﻿using Gamma.GtkWidgets;
+﻿using Autofac;
+using Gamma.GtkWidgets;
 using Gtk;
 using NHibernate.Criterion;
 using NLog;
 using QS.Dialog;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
+using QS.Tdi;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using QS.Dialog.GtkUI.FileDialog;
-using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.Undeliveries;
+using Vodovoz.Extensions;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Infrastructure.Services;
+using Vodovoz.Infrastructure;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Journals.JournalViewModels;
-using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Factories;
 using Order = Vodovoz.Domain.Orders.Order;
-using Vodovoz.Infrastructure;
-using Vodovoz.Extensions;
 
 namespace Vodovoz
 {
@@ -59,6 +56,10 @@ namespace Vodovoz
 		private IList<RouteColumn> _columnsInfo;
 
 		private IList<RouteColumn> ColumnsInfo => _columnsInfo ?? _routeColumnRepository.ActiveColumns(RouteListUoW);
+
+		public ITdiTab Container { get; set; }
+		public ITdiCompatibilityNavigation NavigationManager { get; set; }
+		public ILifetimeScope LifetimeScope { get; set; }
 
 		private IUnitOfWorkGeneric<RouteList> routeListUoW;
 
@@ -308,71 +309,63 @@ namespace Vodovoz
 
 		protected void AddOrders()
 		{
-			var filter = new OrderJournalFilterViewModel(
-				new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
-				new DeliveryPointJournalFactory(),
-				new EmployeeJournalFactory())
-			{
-				ExceptIds = RouteListUoW.Root.Addresses.Select(address => address.Order.Id).ToArray()
-			};
-
 			var geoGrpIds = RouteListUoW.Root.GeographicGroups.Select(x => x.Id).ToArray();
-			if(geoGrpIds.Any()) {
-				GeoGroup geographicGroupAlias = null;
-				var districtIds = RouteListUoW.Session.QueryOver<District>()
-					.Left.JoinAlias(d => d.GeographicGroup, () => geographicGroupAlias)
-					.Where(() => geographicGroupAlias.Id.IsIn(geoGrpIds))
-					.Select
-					  (
-						  Projections.Distinct(
-						  Projections.Property<District>(x => x.Id)
-					  )
-					)
-					.List<int>()
-					.ToArray();
 
-				filter.IncludeDistrictsIds = districtIds;
-			}
-
-			//Filter Creating
-			filter.SetAndRefilterAtOnce(
-				x => x.RestrictStartDate = RouteListUoW.Root.Date.Date,
-				x => x.RestrictEndDate = RouteListUoW.Root.Date.Date,
-				x => x.RestrictFilterDateType = OrdersDateFilterType.DeliveryDate,
-				x => x.RestrictStatus = OrderStatus.Accepted,
-				x => x.RestrictWithoutSelfDelivery = true,
-				x => x.RestrictOnlySelfDelivery = false,
-				x => x.RestrictHideService = true,
-				x => x.ExcludeClosingDocumentDeliverySchedule = true
-			);
-
-			var orderSelectDialog = new OrderForRouteListJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices, new OrderSelectorFactory(), new EmployeeJournalFactory(), new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
-				new DeliveryPointJournalFactory(), new SubdivisionJournalFactory(), new GtkTabsOpener(),
-				new UndeliveredOrdersJournalOpener(), new EmployeeService(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.UserService), new UndeliveredOrdersRepository(),
-				new SubdivisionParametersProvider(_parametersProvider), _deliveryScheduleParametersProvider, new FileDialogService())
+			var page = NavigationManager.OpenViewModelOnTdi<OrderForRouteListJournalViewModel, Action<OrderJournalFilterViewModel>>(Container, filter =>
 			{
-				SelectionMode = JournalSelectionMode.Multiple
-			};
+				filter.ExceptIds = RouteListUoW.Root.Addresses.Select(address => address.Order.Id).ToArray();
+				filter.RestrictStartDate = RouteListUoW.Root.Date.Date;
+				filter.RestrictEndDate = RouteListUoW.Root.Date.Date;
+				filter.RestrictFilterDateType = OrdersDateFilterType.DeliveryDate;
+				filter.RestrictStatus = OrderStatus.Accepted;
+				filter.RestrictWithoutSelfDelivery = true;
+				filter.RestrictOnlySelfDelivery = false;
+				filter.RestrictHideService = true;
+				filter.ExcludeClosingDocumentDeliverySchedule = true;
+
+				if(geoGrpIds.Any())
+				{
+					GeoGroup geographicGroupAlias = null;
+					var districtIds = RouteListUoW.Session.QueryOver<District>()
+						.Left.JoinAlias(d => d.GeographicGroup, () => geographicGroupAlias)
+						.Where(() => geographicGroupAlias.Id.IsIn(geoGrpIds))
+						.Select
+						  (
+							  Projections.Distinct(
+							  Projections.Property<District>(x => x.Id)
+						  )
+						)
+						.List<int>()
+						.ToArray();
+
+					filter.IncludeDistrictsIds = districtIds;
+				}
+			});
+
+			page.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
 
 			//Selected Callback
-			orderSelectDialog.OnEntitySelectedResult += (sender, ea) =>
+			page.ViewModel.OnEntitySelectedResult += (sender, ea) =>
 			{
 				var selectedIds = ea.SelectedNodes.Select(x => x.Id);
-				if(!selectedIds.Any()) {
+
+				if(!selectedIds.Any())
+				{
 					return;
 				}
-				foreach(var selectedId in selectedIds) {
+
+				foreach(var selectedId in selectedIds)
+				{
 					var order = RouteListUoW.GetById<Order>(selectedId);
-					if(order == null) {
+
+					if(order == null)
+					{
 						return;
 					}
+
 					RouteListUoW.Root.AddAddressFromOrder(order);
 				}
 			};
-
-			//OpenTab
-			MyTab.TabParent.AddSlaveTab(MyTab, orderSelectDialog);
 		}
 
 		protected void AddOrdersFromRegion()

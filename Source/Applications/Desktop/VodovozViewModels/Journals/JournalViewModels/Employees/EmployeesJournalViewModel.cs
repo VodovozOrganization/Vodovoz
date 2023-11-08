@@ -46,8 +46,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 
 			_authorizationServiceFactory =
 				authorizationServiceFactory ?? throw new ArgumentNullException(nameof(authorizationServiceFactory));
+			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_authorizationService = _authorizationServiceFactory.CreateNewAuthorizationService();
+
+			filterViewModel.JournalViewModel = this;
+			JournalFilter = filterViewModel;
 
 			if(filterparams != null)
 			{
@@ -456,5 +460,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 
 		protected override Func<EmployeeJournalNode, EmployeeViewModel> OpenDialogFunction =>
 			(node) => _lifetimeScope.Resolve<EmployeeViewModel>(new TypedParameter[] { new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(node.Id)) });
+
+		public ILifetimeScope Scope => _lifetimeScope;
 	}
 }

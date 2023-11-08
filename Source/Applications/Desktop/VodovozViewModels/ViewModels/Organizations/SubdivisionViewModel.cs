@@ -2,25 +2,29 @@
 using QS.Commands;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
-using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using System;
 using System.Linq;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.Journals.JournalViewModels.Organizations;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
 using Vodovoz.ViewModels.Permissions;
+using Vodovoz.ViewModels.ViewModels.Employees;
+using Vodovoz.ViewModels.WageCalculation;
 
 namespace Vodovoz.ViewModels.ViewModels.Organizations
 {
 	public class SubdivisionViewModel : EntityTabViewModelBase<Subdivision>
 	{
-		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ILifetimeScope _scope;
 		private PresetSubdivisionPermissionsViewModel _presetSubdivisionPermissionVm;
 		private WarehousePermissionsViewModel _warehousePermissionsVm;
@@ -29,15 +33,18 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 			IEntityUoWBuilder uoWBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			IEmployeeJournalFactory employeeJournalFactory,
 			IPermissionRepository permissionRepository,
-			ISalesPlanJournalFactory salesPlanJournalFactory,
-			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			ISubdivisionRepository subdivisionRepository,
-			ILifetimeScope scope) : base(uoWBuilder, unitOfWorkFactory, commonServices)
+			INavigationManager navigationManager,
+			ILifetimeScope scope,
+			SubdivisionsJournalViewModel subdivisionsJournalViewModel) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
+			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
-			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			SubdivisionsJournalViewModel = subdivisionsJournalViewModel ?? throw new ArgumentNullException(nameof(subdivisionsJournalViewModel));
+			SubdivisionsJournalViewModel.JournalFilter.SetAndRefilterAtOnce<SubdivisionFilterViewModel>(filter => filter.RestrictParentId = Entity.Id);
+			SubdivisionsJournalViewModel.Refresh();
 			SubdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			PresetSubdivisionPermissionVM =
 				_scope.Resolve<PresetSubdivisionPermissionsViewModel>(
@@ -51,9 +58,25 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 			var permissionListViewModel = new PermissionListViewModel(PermissionExtensionSingletonStore.GetInstance());
 			EntitySubdivisionPermissionViewModel = new EntitySubdivisionPermissionViewModel(
 				UoW, Entity, permissionListViewModel, permissionRepository);
-			EmployeeSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
-			SalesPlanSelectorFactory = (salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory)))
-				.CreateSalesPlanAutocompleteSelectorFactory(nomenclatureSelectorFactory);
+
+			ChiefViewModel = new CommonEEVMBuilderFactory<Subdivision>(this, Entity, UoW, NavigationManager, scope)
+				.ForProperty(x => x.Chief)
+				.UseViewModelDialog<EmployeeViewModel>()
+				.UseViewModelJournal<EmployeesJournalViewModel>()
+				.Finish();
+
+			ParentSubdivisionViewModel = new CommonEEVMBuilderFactory<Subdivision>(this, Entity, UoW, NavigationManager, scope)
+				.ForProperty(x => x.ParentSubdivision)
+				.UseViewModelDialog<SubdivisionViewModel>()
+				.UseViewModelJournal<SubdivisionsJournalViewModel>()
+				.Finish();
+
+			DefaultSalesPlanViewModel = new CommonEEVMBuilderFactory<Subdivision>(this, Entity, UoW, NavigationManager, scope)
+				.ForProperty(x => x.DefaultSalesPlan)
+				.UseViewModelDialog<SalesPlanViewModel>()
+				.UseViewModelJournal<SalesChannelJournalViewModel>()
+				.Finish();
+
 			ConfigureEntityChangingRelations();
 			CreateCommands();
 
@@ -61,7 +84,11 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 		}
 
 		public ISubdivisionRepository SubdivisionRepository { get; }
-		public IEntityAutocompleteSelectorFactory EmployeeSelectorFactory { get; }
+		public SubdivisionsJournalViewModel SubdivisionsJournalViewModel { get; }
+		public IEntityEntryViewModel ChiefViewModel { get; private set; }
+		public IEntityEntryViewModel ParentSubdivisionViewModel { get; private set; }
+		public IEntityEntryViewModel DefaultSalesPlanViewModel { get; private set; }
+
 		public EntitySubdivisionPermissionViewModel EntitySubdivisionPermissionViewModel { get; }
 
 		public PresetSubdivisionPermissionsViewModel PresetSubdivisionPermissionVM
@@ -104,8 +131,6 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 				Entity.SetChildsGeographicGroup(Entity.GeographicGroup);
 			}
 		}
-
-		public IEntityAutocompleteSelectorFactory SalesPlanSelectorFactory { get; }
 
 		#region Commands
 

@@ -9,14 +9,16 @@ using MySqlConnector;
 using NLog.Web;
 using QS.Attachments.Domain;
 using QS.Banks.Domain;
+using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.DB;
 using System;
 using System.Reflection;
-using QS.DomainModel.UoW;
-using Vodovoz;
-using Vodovoz.Settings.Database;
+using UnsubscribePage.Controllers;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
+using Vodovoz.EntityRepositories;
+using Vodovoz.Parameters;
+using Vodovoz.Settings.Database;
 
 namespace UnsubscribePage
 {
@@ -33,7 +35,6 @@ namespace UnsubscribePage
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
-
 			_logger = new Logger<Startup>(LoggerFactory.Create(logging =>
 				logging.AddNLogWeb(NLogBuilder.ConfigureNLog("NLog.config").Configuration)));
 
@@ -54,25 +55,26 @@ namespace UnsubscribePage
 		public void ConfigureContainer(ContainerBuilder builder)
 		{
 			builder.RegisterModule<DatabaseSettingsModule>();
-			
+
+			builder.RegisterType<DefaultSessionProvider>()
+				.As<ISessionProvider>()
+				.SingleInstance();
+
 			builder.RegisterType<DefaultUnitOfWorkFactory>()
 				.As<IUnitOfWorkFactory>()
 				.SingleInstance();
-			
-			builder.RegisterAssemblyTypes(typeof(VodovozBusinessAssemblyFinder).Assembly)
-				.Where(t => t.Name.EndsWith("Provider"))
-				.AsSelf()
-				.AsImplementedInterfaces();
 
-			builder.RegisterAssemblyTypes(typeof(VodovozBusinessAssemblyFinder).Assembly)
-				.Where(t => t.Name.EndsWith("Repository"))
-				.AsSelf()
-				.AsImplementedInterfaces();
+			builder.RegisterType<UnsubscribeViewModelFactory>()
+				.As<IUnsubscribeViewModelFactory>()
+				.SingleInstance();
 
-			builder.RegisterAssemblyTypes(typeof(VodovozBusinessAssemblyFinder).Assembly, Assembly.GetExecutingAssembly())
-				.Where(t => t.Name.EndsWith("Factory"))
-				.AsSelf()
-				.AsImplementedInterfaces();
+			builder.RegisterType<EmailRepository>()
+				.As<IEmailRepository>()
+				.SingleInstance();
+
+			builder.RegisterType<EmailParametersProvider>()
+				.As<IEmailParametersProvider>()
+				.SingleInstance();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -21,6 +21,7 @@ using QS.DomainModel.UoW;
 using QS.ErrorReporting;
 using QS.ErrorReporting.Handlers;
 using QS.Navigation;
+using QS.Osrm;
 using QS.Permissions;
 using QS.Project.DB;
 using QS.Project.Domain;
@@ -65,6 +66,7 @@ using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Mango;
 using Vodovoz.Infrastructure.Print;
@@ -279,7 +281,6 @@ namespace Vodovoz
 					#region Adapters & Factories
 
 					builder.RegisterType<GtkTabsOpener>().As<IGtkTabsOpener>();
-					builder.RegisterType<UndeliveredOrdersJournalOpener>().As<IUndeliveredOrdersJournalOpener>();
 					builder.RegisterType<RdlPreviewOpener>().As<IRDLPreviewOpener>();
 					builder.RegisterType<GtkReportViewOpener>().As<IReportViewOpener>().SingleInstance();
 					builder.RegisterType<RoboatsJournalsFactory>().AsSelf().InstancePerLifetimeScope();
@@ -480,10 +481,8 @@ namespace Vodovoz
 					builder.RegisterType<ProfitabilityBottlesByStockReport>().AsSelf();
 					builder.RegisterType<PlanImplementationReport>().AsSelf();
 					builder.RegisterType<ZeroDebtClientReport>().AsSelf();
-					builder.RegisterType<SetBillsReport>().AsSelf();
 					builder.RegisterType<OrdersCreationTimeReport>().AsSelf();
 					builder.RegisterType<PotentialFreePromosetsReport>().AsSelf();
-					builder.RegisterType<PaymentsFromBankClientReport>().AsSelf();
 					builder.RegisterType<PaymentsFromBankClientFinDepartmentReport>().AsSelf();
 					builder.RegisterType<ChainStoreDelayReport>().AsSelf();
 					builder.RegisterType<ReturnedTareReport>().AsSelf();
@@ -553,8 +552,6 @@ namespace Vodovoz
 							.First())
 						.SingleInstance();
 
-					builder.RegisterType<RdlViewerViewModel>().AsSelf();
-
 					#endregion
 
 					#region Фильтры
@@ -590,7 +587,7 @@ namespace Vodovoz
 								}
 								), "");
 
-							cs["BaseUri"] = "https://driverapi.vod.qsolution.ru:7090/api/v2/";
+							cs["BaseUri"] = "https://driverapi.vod.qsolution.ru:7090/api/v4/";
 
 							var clientProvider = new ApiClientProvider.ApiClientProvider(cs);
 
@@ -638,7 +635,8 @@ namespace Vodovoz
 					services.AddSingleton<Startup>()
 							.AddScoped<IRouteListService, RouteListService>()
 							.AddScoped<RouteGeometryCalculator>()
-							;
+							.AddSingleton<OsrmClient>(sp => OsrmClientFactory.Instance)
+							.AddSingleton<IFastDeliveryDistanceChecker, DistanceCalculator>();
 				});
 	}
 }

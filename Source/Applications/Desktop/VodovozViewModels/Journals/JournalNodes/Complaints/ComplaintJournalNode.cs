@@ -17,9 +17,13 @@ namespace Vodovoz.Journals.JournalNodes
 		public override string Title => $"{TypeString} №{Id} от {DateString}";
 
 		public ComplaintType Type { get; set; }
-		public string TypeString {
-			get {
-				switch(Type) {
+
+		public string TypeString
+		{
+			get
+			{
+				switch(Type)
+				{
 					case ComplaintType.Inner:
 						return "ВН";
 					case ComplaintType.Client:
@@ -59,9 +63,12 @@ namespace Vodovoz.Journals.JournalNodes
 		public DateTime? ActualCompletionDate { get; set; }
 		public string ActualCompletionDateString => ActualCompletionDate.HasValue ? ActualCompletionDate.Value.ToString("dd.MM.yy") : "-";
 
-		public string DaysInWork {
-			get {
-				if(ActualCompletionDate.HasValue) {
+		public string DaysInWork
+		{
+			get
+			{
+				if(ActualCompletionDate.HasValue)
+				{
 					return (ActualCompletionDate.Value - Date).TotalDays.ToString("F0");
 				}
 				return "-";
@@ -70,7 +77,8 @@ namespace Vodovoz.Journals.JournalNodes
 
 		public bool ComplaintKindIsArchive { get; set; }
 
-		public string ComplaintKindString {
+		public string ComplaintKindString
+		{
 			get => ComplaintKindIsArchive ? string.Format("(Архив) {0}", _complaintKindString) : _complaintKindString;
 			set => _complaintKindString = value;
 		}
@@ -100,7 +108,7 @@ namespace Vodovoz.Journals.JournalNodes
 			? $"{DepartmentConnectionTime.Value.ToString("dd.MM.yy")} {DepartmentConnectionTime.Value.ToString("t")}"
 			: "-";
 
-		public string DepartmentFirstCommentTimeString => 
+		public string DepartmentFirstCommentTimeString =>
 			DepartmentFirstCommentTime.HasValue
 			? $"{DepartmentFirstCommentTime.Value.ToString("dd.MM.yy")} {DepartmentFirstCommentTime.Value.ToString("t")}"
 			: "-";
@@ -113,7 +121,7 @@ namespace Vodovoz.Journals.JournalNodes
 				{
 					var reactionTime = DepartmentFirstCommentTime.Value - DepartmentConnectionTime.Value;
 
-					if(reactionTime.Minutes % 10 !=  (DepartmentFirstCommentTime.Value.Minute - DepartmentConnectionTime.Value.Minute) % 10)
+					if(reactionTime.Minutes % 10 != (DepartmentFirstCommentTime.Value.Minute - DepartmentConnectionTime.Value.Minute) % 10)
 					{
 						reactionTime = reactionTime + TimeSpan.FromMinutes(1);
 					}
@@ -124,6 +132,7 @@ namespace Vodovoz.Journals.JournalNodes
 
 					return $"{daysCountStr}:{hoursCountStr}:{minutesCountStr}";
 				}
+
 				return "-";
 			}
 		}

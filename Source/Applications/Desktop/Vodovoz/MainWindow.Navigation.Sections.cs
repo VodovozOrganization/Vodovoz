@@ -206,15 +206,10 @@ public partial class MainWindow
 
 	protected void OnActionRetailOrdersJournalActivated(object sender, EventArgs e)
 	{
-		var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
-		var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
-		var employeeJournalFactory = new EmployeeJournalFactory();
-
-		var orderJournalFilter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, employeeJournalFactory)
+		NavigationManager.OpenViewModel<RetailOrderJournalViewModel, Action<OrderJournalFilterViewModel>>(null, filter =>
 		{
-			IsForRetail = true
-		};
-		NavigationManager.OpenViewModel<RetailOrderJournalViewModel, OrderJournalFilterViewModel>(null, orderJournalFilter);
+			filter.IsForRetail = true;
+		});
 	}
 
 	#region Заказы
@@ -226,16 +221,15 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnUndeliveredOrdersActionActivated(object sender, EventArgs e)
 	{
-		var undeliveredOrdersFilter = new UndeliveredOrdersFilterViewModel(ServicesConfig.CommonServices, new OrderSelectorFactory(),
-			new EmployeeJournalFactory(), new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
-			new DeliveryPointJournalFactory(), new SubdivisionJournalFactory())
-		{
-			HidenByDefault = true,
-			RestrictUndeliveryStatus = UndeliveryStatus.InProcess,
-			RestrictNotIsProblematicCases = true
-		};
-
-		NavigationManager.OpenViewModel<UndeliveredOrdersJournalViewModel, UndeliveredOrdersFilterViewModel>(null, undeliveredOrdersFilter, OpenPageOptions.IgnoreHash);
+		NavigationManager.OpenViewModel<UndeliveredOrdersJournalViewModel, Action<UndeliveredOrdersFilterViewModel>>(
+			null,
+			filter =>
+			{
+				filter.HidenByDefault = true;
+				filter.RestrictUndeliveryStatus = UndeliveryStatus.InProcess;
+				filter.RestrictNotIsProblematicCases = true;
+			},
+			OpenPageOptions.IgnoreHash);
 	}
 
 	#endregion

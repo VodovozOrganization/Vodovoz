@@ -37,7 +37,6 @@ using Vodovoz.Reports.Editing.Modifiers;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.ReportsParameters.Profitability;
-using static Vodovoz.ViewModels.Reports.Sales.TurnoverWithDynamicsReportViewModel.TurnoverWithDynamicsReport;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Reports.Sales
@@ -550,6 +549,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			var promotionalSetsFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<PromotionalSet>>();
 			var includedPromotionalSets = promotionalSetsFilter.GetIncluded().ToArray();
 			var excludedPromotionalSets = promotionalSetsFilter.GetExcluded().ToArray();
+			
+			var orderStatusesFilter = FilterViewModel.GetFilter<IncludeExcludeEnumFilter<OrderStatus>>();
+			var includedOrderStatuses = orderStatusesFilter.GetIncluded().ToArray();
+			var excludedOrderStatuses = orderStatusesFilter.GetExcluded().ToArray();
 
 			#endregion Сбор параметров
 
@@ -572,9 +575,9 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			Email emailAlias = null;
 			PaymentFrom paymentFromAlias = null;
 
-			OrderItemNode resultNodeAlias = null;
+			TurnoverWithDynamicsReport.OrderItemNode resultNodeAlias = null;
 
-			IList<OrderItemNode> nomenclaturesEmptyNodes = new List<OrderItemNode>();
+			IList<TurnoverWithDynamicsReport.OrderItemNode> nomenclaturesEmptyNodes = new List<TurnoverWithDynamicsReport.OrderItemNode>();
 
 			if(ShowResidueForNomenclaturesWithoutSales)
 			{
@@ -648,7 +651,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						.Select(Projections.Property(() => productGroupAlias.Id).WithAlias(() => resultNodeAlias.ProductGroupId))
 						.Select(ProductGroupProjections.GetProductGroupNameWithEnclosureProjection().WithAlias(() => resultNodeAlias.ProductGroupName)))
 					.SetTimeout(0)
-					.TransformUsing(Transformers.AliasToBean<OrderItemNode>()).ReadOnly().List<OrderItemNode>();
+					.TransformUsing(Transformers.AliasToBean<TurnoverWithDynamicsReport.OrderItemNode>()).ReadOnly().List<TurnoverWithDynamicsReport.OrderItemNode>();
 			}
 
 			var query = _unitOfWork.Session.QueryOver(() => orderItemAlias)
@@ -689,11 +692,13 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			var routeListIdSubquery = QueryOver.Of(() => routeListItemAlias)
 				.Where(() => routeListItemAlias.Order.Id == orderAlias.Id)
-				.And(Restrictions.In(Projections.Property(() => routeListItemAlias.Status), notDeliveredStatuses))
+				.AndRestrictionOn(() => routeListItemAlias.Status).Not.IsIn(notDeliveredStatuses)
 				.Select(x => x.RouteList.Id)
 				.Take(1);
 
 			#region filter parameters
+
+			#region NomenclatureCategories
 
 			if(includedNomenclatureCategories.Any())
 			{
@@ -709,6 +714,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					excludedNomenclatureCategories)));
 			}
 
+			#endregion NomenclatureCategories
+
+			#region Nomenclatures
+
 			if(includedNomenclatures.Any())
 			{
 				query.Where(Restrictions.In(
@@ -722,6 +731,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					Projections.Property(() => nomenclatureAlias.Id),
 					excludedNomenclatures)));
 			}
+
+			#endregion Nomenclatures
+
+			#region ProductGroups
 
 			if(includedProductGroups.Any())
 			{
@@ -738,6 +751,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						excludedProductGroups)))
 					.Add(Restrictions.IsNull(Projections.Property(() => productGroupAlias.Id))));
 			}
+
+			#endregion ProductGroups
+
+			#region PaymentTypes
 
 			if(includedPaymentTypeElements.Any())
 			{
@@ -778,6 +795,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 							.Add(paymentTerminalFormsRestriction)));
 			}
 
+			#endregion PaymentTypes
+
+			#region Counterparties
+
 			if(includedCounterparties.Any())
 			{
 				query.Where(Restrictions.In(
@@ -792,6 +813,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					excludedCounterparties)));
 			}
 
+			#endregion Counterparties
+
+			#region CounterpartyTypes
+
 			if(includedCounterpartyTypes.Any())
 			{
 				query.Where(Restrictions.In(
@@ -805,6 +830,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					Projections.Property(() => counterpartyAlias.CounterpartyType),
 					excludedCounterpartyTypes)));
 			}
+
+			#endregion CounterpartyTypes
+
+			#region CounterpartySubtypes
 
 			if(includedCounterpartySubtypes.Any())
 			{
@@ -822,6 +851,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					.Add(Restrictions.IsNull(Projections.Property(() => counterpartyAlias.CounterpartySubtype.Id))));
 			}
 
+			#endregion CounterpartySubtypes
+
+			#region Organizations
+
 			if(includedOrganizations.Any())
 			{
 				query.Where(Restrictions.In(
@@ -835,6 +868,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					Projections.Property(() => counterpartyContractAlias.Organization.Id),
 					excludedOrganizations)));
 			}
+
+			#endregion Organizations
+
+			#region DiscountReasons
 
 			if(includedDiscountReasons.Any())
 			{
@@ -850,6 +887,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					excludedDiscountReasons)));
 			}
 
+			#endregion DiscountReasons
+
+			#region Subdivisions
+
 			if(includedSubdivisions.Any())
 			{
 				query.Where(Restrictions.In(
@@ -864,6 +905,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					excludedSubdivisions)));
 			}
 
+			#endregion Subdivisions
+
+			#region Employees
+
 			if(includedEmployees.Any())
 			{
 				query.Where(Restrictions.In(
@@ -877,6 +922,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					Projections.Property(() => authorAlias.Id),
 					excludedEmployees)));
 			}
+
+			#endregion Employees
+
+			#region GeoGroups
 
 			if(includedGeoGroups.Any())
 			{
@@ -894,6 +943,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					.Add(Restrictions.IsNull(Projections.Property(() => geographicGroupAlias.Id))));
 			}
 
+			#endregion GeoGroups
+
+			#region PromotionalSets
+
 			if(includedPromotionalSets.Any())
 			{
 				query.Where(Restrictions.In(
@@ -909,6 +962,22 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						excludedPromotionalSets)))
 					.Add(Restrictions.IsNull(Projections.Property(() => promotionalSetAlias.Id))));
 			}
+
+			#endregion PromotionalSets
+
+			#region OrderStatuses
+
+			if(includedOrderStatuses.Any())
+			{
+				query.WhereRestrictionOn(() => orderAlias.OrderStatus).IsIn(includedOrderStatuses);
+			}
+
+			if(excludedPromotionalSets.Any())
+			{
+				query.WhereRestrictionOn(() => orderAlias.OrderStatus).Not.IsIn(excludedOrderStatuses);
+			}
+
+			#endregion OrderStatuses
 
 			#endregion
 
@@ -945,9 +1014,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						.Select(() => productGroupAlias.Id).WithAlias(() => resultNodeAlias.ProductGroupId)
 						.Select(ProductGroupProjections.GetProductGroupNameWithEnclosureProjection()).WithAlias(() => resultNodeAlias.ProductGroupName))
 				.SetTimeout(0)
-				.TransformUsing(Transformers.AliasToBean<OrderItemNode>()).List<OrderItemNode>();
+				.TransformUsing(Transformers.AliasToBean<TurnoverWithDynamicsReport.OrderItemNode>())
+				.List<TurnoverWithDynamicsReport.OrderItemNode>();
 
-			return nomenclaturesEmptyNodes.Union(result.AsEnumerable()).ToList();
+			return nomenclaturesEmptyNodes.Union(result).ToList();
 		}
 
 		private AbstractCriterion GetOrderCriterion(OrderStatus[] filterOrderStatusInclude, Order orderAlias)

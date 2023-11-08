@@ -17,7 +17,7 @@ namespace Vodovoz.ReportsParameters
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			var employeeFactory = new EmployeeJournalFactory();
+			var employeeFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager);
 			evmeDriver.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
 			evmeDriver.Changed += (sender, args) => ValidateParameters();
 		}

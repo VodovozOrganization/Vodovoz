@@ -58,7 +58,7 @@ namespace Vodovoz.Dialogs.Employees
 			driverFilter.SetAndRefilterAtOnce(
 				x => x.Status = EmployeeStatus.IsWorking,
 				x => x.RestrictCategory = EmployeeCategory.driver);
-			var employeeFactory = new EmployeeJournalFactory(driverFilter);
+			var employeeFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager, driverFilter);
 			evmeDriver.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateEmployeeAutocompleteSelectorFactory());
 			evmeDriver.Binding.AddBinding(Entity, x => x.Driver, x => x.Subject).InitializeFromSource();
 			evmeDriver.Changed += (sender, e) => UpdateStates();

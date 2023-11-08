@@ -60,7 +60,6 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private readonly IDefaultDeliveryDayScheduleSettings _defaultDeliveryDayScheduleSettings;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly ICarRepository _carRepository;
 		private readonly IGeographicGroupRepository _geographicGroupRepository;
@@ -89,7 +88,6 @@ namespace Vodovoz.Dialogs.Logistic
 			IRouteListRepository routeListRepository,
 			ICarRepository carRepository,
 			IEmployeeRepository employeeRepository,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IGeographicGroupRepository geographicGroupRepository,
 			IScheduleRestrictionRepository scheduleRestrictionRepository,
 			IAttachmentsViewModelFactory attachmentsViewModelFactory,
@@ -113,7 +111,6 @@ namespace Vodovoz.Dialogs.Logistic
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_carRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
-			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			_geographicGroupRepository = geographicGroupRepository ?? throw new ArgumentNullException(nameof(geographicGroupRepository));
 			_scheduleRestrictionRepository = scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
 			_attachmentsViewModelFactory = attachmentsViewModelFactory ?? throw new ArgumentNullException(nameof(attachmentsViewModelFactory));
@@ -630,28 +627,7 @@ namespace Vodovoz.Dialogs.Logistic
 		{
 			var selected = ytreeviewAtWorkDrivers.GetSelectedObjects<AtWorkDriver>().First();
 
-			var uowFactory = UnitOfWorkFactory.GetDefaultFactory;
-			var commonServices = ServicesConfig.CommonServices;
-			var warehouseJournalFactory = new WarehouseJournalFactory();
-			var employeeService = new EmployeeService(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.UserService);
-			var geoGroupVersionsModel = new GeoGroupVersionsModel(commonServices.UserService, employeeService);
-			var geoGroupJournalFactory = new GeoGroupJournalFactory(uowFactory, commonServices, _subdivisionJournalFactory, warehouseJournalFactory, geoGroupVersionsModel);
-
-			TabParent.OpenTab(
-				DialogHelper.GenerateDialogHashName<Car>(selected.Car.Id),
-				() => new CarViewModel(
-					EntityUoWBuilder.ForOpen(selected.Car.Id),
-					UnitOfWorkFactory.GetDefaultFactory,
-					ServicesConfig.CommonServices,
-					_employeeJournalFactory,
-					_attachmentsViewModelFactory,
-					new CarModelJournalFactory(),
-					new CarVersionsViewModelFactory(ServicesConfig.CommonServices),
-					new OdometerReadingsViewModelFactory(ServicesConfig.CommonServices),
-					new RouteListsWageController(new WageParameterService(new WageCalculationRepository(),
-						new BaseParametersProvider(new ParametersProvider()))),
-					geoGroupJournalFactory,
-					Startup.MainWin.NavigationManager));
+			Startup.MainWin.NavigationManager.OpenViewModelOnTdi<CarViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(selected.Car.Id));
 		}
 
 		protected void OnButtonEditDistrictsClicked(object sender, EventArgs e)

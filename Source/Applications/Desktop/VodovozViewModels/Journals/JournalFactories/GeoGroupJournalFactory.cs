@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.UoW;
+﻿using Autofac;
+using QS.DomainModel.UoW;
 using QS.Services;
 using System;
 using System.Collections.Generic;
@@ -14,27 +15,27 @@ namespace Vodovoz.ViewModels.Journals.JournalFactories
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly ICommonServices _commonServices;
-		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
+		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IWarehouseJournalFactory _warehouseJournalFactory;
 		private readonly GeoGroupVersionsModel _geoGroupVersionsModel;
 
 		public GeoGroupJournalFactory(
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
+			ILifetimeScope lifetimeScope,
 			IWarehouseJournalFactory warehouseJournalFactory,
 			GeoGroupVersionsModel geoGroupVersionsModel)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_warehouseJournalFactory = warehouseJournalFactory ?? throw new ArgumentNullException(nameof(warehouseJournalFactory));
 			_geoGroupVersionsModel = geoGroupVersionsModel ?? throw new ArgumentNullException(nameof(geoGroupVersionsModel));
 		}
 
 		public GeoGroupJournalViewModel CreateJournal()
 		{
-			var journal = new GeoGroupJournalViewModel(_uowFactory, _commonServices, _subdivisionJournalFactory, _warehouseJournalFactory, _geoGroupVersionsModel);
+			var journal = new GeoGroupJournalViewModel(_uowFactory, _commonServices, _lifetimeScope, _warehouseJournalFactory, _geoGroupVersionsModel);
 			return journal;
 		}
 	}

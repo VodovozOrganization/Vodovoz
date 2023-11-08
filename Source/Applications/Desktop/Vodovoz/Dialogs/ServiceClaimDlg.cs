@@ -134,7 +134,7 @@ namespace Vodovoz
 			evmeClient.Binding.AddBinding(Entity, e => e.Counterparty, w => w.Subject).InitializeFromSource();
 			evmeClient.Changed += OnReferenceCounterpartyChanged;
 
-			var employeeFactory = new EmployeeJournalFactory();
+			var employeeFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager);
 			evmeEngineer.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
 			evmeEngineer.Binding.AddBinding(Entity, e => e.Engineer, w => w.Subject).InitializeFromSource();
 

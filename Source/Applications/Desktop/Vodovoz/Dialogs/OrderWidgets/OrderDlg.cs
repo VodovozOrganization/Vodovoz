@@ -13,6 +13,7 @@ using QS.Dialog.GtkUI.FileDialog;
 using QS.DocTemplates;
 using QS.DomainModel.Entity;
 using QS.DomainModel.NotifyChange;
+using QS.DomainModel.Tracking;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Print;
@@ -27,18 +28,18 @@ using QS.ViewModels.Extension;
 using QSOrmProject;
 using QSProjectsLib;
 using QSWidgetLib;
-using RevenueService.Client.Extensions;
 using SmsPaymentService;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Data;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.ServiceModel;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using Vodovoz.Additions.Printing;
 using Vodovoz.Controllers;
 using Vodovoz.Core;
@@ -129,6 +130,8 @@ namespace Vodovoz
 		IAskSaveOnCloseViewModel,
 		IEdoLightsMatrixInfoProvider
 	{
+		private readonly int? _defaultCallBeforeArrival = 15;
+
 		private readonly ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		static Logger logger = LogManager.GetCurrentClassLogger();
 		private CancellationTokenSource _cancellationTokenCheckLiquidationSource;
@@ -655,6 +658,17 @@ namespace Vodovoz
 
 			chkCommentForDriver.Binding.AddBinding(Entity, c => c.HasCommentForDriver, w => w.Active).InitializeFromSource();
 
+			speciallistcomboboxCallBeforeArrivalMinutes.ItemsList = new int?[] { null, 15, 30, 60 };
+
+			speciallistcomboboxCallBeforeArrivalMinutes.Binding
+				.AddBinding(Entity, x => x.CallBeforeArrivalMinutes, x => x.SelectedItem)
+				.InitializeFromSource();
+
+			if(UoWGeneric.IsNew)
+			{
+				speciallistcomboboxCallBeforeArrivalMinutes.SelectedItem = _defaultCallBeforeArrival;
+			}
+
 			specialListCmbOurOrganization.ItemsList = UoW.GetAll<Organization>();
 			specialListCmbOurOrganization.Binding.AddBinding(Entity, o => o.OurOrganization, w => w.SelectedItem).InitializeFromSource();
 			specialListCmbOurOrganization.Sensitive = _canSetOurOrganization;
@@ -746,7 +760,7 @@ namespace Vodovoz
 			entityVMEntryClient.SetEntityAutocompleteSelectorFactory(
 				new EntityAutocompleteSelectorFactory<CounterpartyJournalViewModel>(typeof(Counterparty),
 					() => new CounterpartyJournalViewModel(counterpartyFilter, UnitOfWorkFactory.GetDefaultFactory,
-						ServicesConfig.CommonServices))
+						ServicesConfig.CommonServices, Startup.MainWin.NavigationManager))
 			);
 			entityVMEntryClient.Binding.AddBinding(Entity, s => s.Client, w => w.Subject).InitializeFromSource();
 			entityVMEntryClient.CanEditReference = true;
@@ -1014,6 +1028,15 @@ namespace Vodovoz
 			logisticsRequirementsView.ViewModel = new LogisticsRequirementsViewModel(Entity.LogisticsRequirements ?? GetLogisticsRequirements(), ServicesConfig.CommonServices);
 			UpdateEntityLogisticsRequirements();
 			logisticsRequirementsView.ViewModel.Entity.PropertyChanged += OnLogisticsRequirementsSelectionChanged;
+
+			UpdateCallBeforeArrivalVisibility();
+		}
+
+		private void UpdateCallBeforeArrivalVisibility()
+		{
+			var isNotFastDeliveryOrSelfDelivery = !(Entity.SelfDelivery || Entity.IsFastDelivery);
+
+			hboxCallBeforeArrival.Visible = isNotFastDeliveryOrSelfDelivery;
 		}
 
 		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs args)
@@ -1049,6 +1072,17 @@ namespace Vodovoz
 					break;
 				case nameof(Entity.Client.IsChainStore):
 					UpdateOrderAddressTypeWithUI();
+					break;
+				case nameof(Entity.SelfDelivery):
+				case nameof(Entity.IsFastDelivery):
+					var isNotFastDeliveryOrSelfDelivery = !(Entity.SelfDelivery || Entity.IsFastDelivery);
+
+					UpdateCallBeforeArrivalVisibility();
+
+					if(isNotFastDeliveryOrSelfDelivery)
+					{
+						Entity.CallBeforeArrivalMinutes = _defaultCallBeforeArrival;
+					}
 					break;
 			}
 		}
@@ -1977,13 +2011,6 @@ namespace Vodovoz
 					return false;
 				}
 
-				if(Entity.OrderStatus == OrderStatus.NewOrder) {
-					if(!MessageDialogHelper.RunQuestionDialog("Вы не подтвердили заказ. Вы уверены что хотите оставить его в качестве черновика?"))
-					{
-						return false;
-					}
-				}
-
 				if(Entity.Id == 0 &&
 					Entity.PaymentType == PaymentType.Cashless) {
 					Entity.OrderPaymentStatus = OrderPaymentStatus.UnPaid;
@@ -1995,7 +2022,7 @@ namespace Vodovoz
 
 				logger.Info("Сохраняем заказ...");
 
-				Entity.SaveEntity(UoWGeneric, _currentEmployee, _dailyNumberController, _paymentFromBankClientController);
+				Entity.SaveEntity(UoW, _currentEmployee, _dailyNumberController, _paymentFromBankClientController);
 
 				if(_isNeedSendBill)
 				{
@@ -2033,6 +2060,56 @@ namespace Vodovoz
 		}
 
 		private Result AcceptOrder()
+		{
+			if(!Save())
+			{
+				return Result.Failure(Errors.Orders.Order.Save);
+			}
+
+			using(var transaction = UoW.Session.BeginTransaction())
+			{
+				try
+				{
+					var acceptResult = TryAcceptOrder();
+
+					if(acceptResult.IsSuccess)
+					{
+						transaction.Commit();
+						GlobalUowEventsTracker.OnPostCommit((IUnitOfWorkTracked)UoW);
+						Save();
+					}
+
+					return acceptResult;
+				}
+				catch(Exception e)
+				{
+					if(!transaction.WasCommitted
+					   && !transaction.WasRolledBack
+					   && transaction.IsActive
+					   && UoW.Session.Connection.State == ConnectionState.Open)
+					{
+						try
+						{
+							transaction.Rollback();
+						}
+						catch { }
+					}
+
+					transaction.Dispose();
+
+					OnCloseTab(false);
+
+					TabParent.OpenTab(() => new OrderDlg(Entity.Id));
+
+					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+						"Возникла ошибка при подтверждении заказа, заказ был сохранён в виде черновика, вкладка переоткрыта.");
+
+					return Result.Failure(Errors.Orders.Order.AcceptException);
+				}
+			}
+		}
+
+		private Result TryAcceptOrder()
 		{
 			if(!Entity.CanSetOrderAsAccepted)
 			{
@@ -2195,26 +2272,12 @@ namespace Vodovoz
 				Entity.UpdateDocuments();
 			}
 
-			try
+			if(fastDeliveryAddress != null)
 			{
-				if(!Save())
-				{
-					return Result.Failure(Errors.Orders.Order.Save);
-				}
+				UoW.Session.Save(fastDeliveryAddress);
 
-				if(fastDeliveryAddress != null)
-				{
-					_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(
-						UoW, fastDeliveryAddress, DeliveryFreeBalanceType.Decrease);
-
-					UoW.Commit();
-				}
-			}
-			catch(Exception e)
-			{
-				logger.Log(LogLevel.Error, e.Message);
-
-				return Result.Failure(Errors.Orders.Order.Save);
+				_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(
+					UoW, fastDeliveryAddress, DeliveryFreeBalanceType.Decrease);
 			}
 
 			OpenNewOrderForDailyRentEquipmentReturnIfNeeded();
@@ -2278,7 +2341,11 @@ namespace Vodovoz
 
 		private void ReturnToNew(IEnumerable<Error> errors)
 		{
-			EditOrder();
+			if(errors.All(x => x != Errors.Orders.Order.AcceptException))
+			{
+				EditOrder();
+			}
+
 			ShowErrorsWindow(errors);
 		}
 

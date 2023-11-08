@@ -1,22 +1,28 @@
-﻿using System;
-using Gamma.Binding;
+﻿using Gamma.Binding;
 using Gamma.GtkWidgets;
 using QS.Project.Domain;
 using QS.Views.GtkUI;
 using QSOrmProject;
+using System;
+using System.ComponentModel;
+using System.Linq;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Representations;
+using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.Infrastructure;
+using Vodovoz.Journals.JournalNodes;
+using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.ViewModels.ViewModels.Organizations;
 
 namespace Vodovoz.Views.Organization
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class SubdivisionView : TabViewBase<SubdivisionViewModel>
 	{
-		
-		public SubdivisionView(SubdivisionViewModel viewModel) : base(viewModel)
+		public SubdivisionView(
+			SubdivisionViewModel viewModel)
+			: base(viewModel)
 		{
-			this.Build();
+			Build();
 			ConfigureDlg();
 		}
 
@@ -31,23 +37,56 @@ namespace Vodovoz.Views.Organization
 			yentryShortName.Binding.AddBinding(ViewModel.Entity, e => e.ShortName, w => w.Text).InitializeFromSource();
 			yentryShortName.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
-			yentryrefParentSubdivision.SubjectType = typeof(Subdivision);
-			yentryrefParentSubdivision.Binding.AddBinding(ViewModel.Entity, e => e.ParentSubdivision, w => w.Subject).InitializeFromSource();
-			yentryrefParentSubdivision.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			entrySubdivision.ViewModel = ViewModel.ParentSubdivisionViewModel;
+			entrySubdivision.Binding
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.ViewModel.IsEditable)
+				.InitializeFromSource();
 
-			entryChief.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeSelectorFactory);
-			entryChief.Binding.AddBinding(ViewModel.Entity, e => e.Chief, w => w.Subject).InitializeFromSource();
-			entryChief.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			entryChief.ViewModel = ViewModel.ChiefViewModel;
+			entryChief.Binding
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.ViewModel.IsEditable)
+				.InitializeFromSource();
 
-			var subdivisionsVM = new SubdivisionsVM(ViewModel.UoW, ViewModel.Entity);
-			repTreeChildSubdivisions.RepresentationModel = subdivisionsVM;
-			repTreeChildSubdivisions.YTreeModel = new RecursiveTreeModel<SubdivisionVMNode>(subdivisionsVM.Result, x => x.Parent, x => x.Children);
-			repTreeChildSubdivisions.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			ytreeviewChildSubdivisions.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			ytreeviewChildSubdivisions.CreateFluentColumnsConfig<SubdivisionJournalNode>()
+				.AddColumn("Название").AddTextRenderer(node => node.Name).AddSetter((cell, node) =>
+				{
+					var color = GdkColors.PrimaryText;
+					if(node.IsArchive)
+					{
+						color = GdkColors.InsensitiveText;
+					}
 
-			ySpecCmbGeographicGroup.ItemsList = ViewModel.UoW.Session.QueryOver<GeoGroup>().List();
-			ySpecCmbGeographicGroup.Binding.AddBinding(ViewModel, e => e.GeographicGroup, w => w.SelectedItem).InitializeFromSource();
-			ySpecCmbGeographicGroup.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
-			ySpecCmbGeographicGroup.Binding.AddBinding(ViewModel, vm => vm.GeographicGroupVisible, w => w.Visible).InitializeFromSource();
+					cell.ForegroundGdk = color;
+				})
+				.AddColumn("Руководитель").AddTextRenderer(node => node.ChiefName).AddSetter((cell, node) =>
+				{
+					var color = GdkColors.PrimaryText;
+					if(node.IsArchive)
+					{
+						color = GdkColors.InsensitiveText;
+					}
+
+					cell.ForegroundGdk = color;
+				})
+				.AddColumn("Код").AddNumericRenderer(node => node.Id).AddSetter((cell, node) =>
+				{
+					var color = GdkColors.PrimaryText;
+					if(node.IsArchive)
+					{
+						color = GdkColors.InsensitiveText;
+					}
+
+					cell.ForegroundGdk = color;
+				})
+				.Finish();
+
+			ViewModel.SubdivisionsJournalViewModel.DataLoader.ItemsListUpdated += ChildSubdivisionsReloaded;
+
+			speciallistcomboboxGeoGrpoup.ItemsList = ViewModel.UoW.Session.QueryOver<GeoGroup>().List();
+			speciallistcomboboxGeoGrpoup.Binding.AddBinding(ViewModel, e => e.GeographicGroup, w => w.SelectedItem).InitializeFromSource();
+			speciallistcomboboxGeoGrpoup.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			speciallistcomboboxGeoGrpoup.Binding.AddBinding(ViewModel, vm => vm.GeographicGroupVisible, w => w.Visible).InitializeFromSource();
 			lblGeographicGroup.Binding.AddBinding(ViewModel, vm => vm.GeographicGroupVisible, w => w.Visible).InitializeFromSource();
 
 			yenumcomboType.ItemsEnum = typeof(SubdivisionType);
@@ -92,14 +131,27 @@ namespace Vodovoz.Views.Organization
 				.InitializeFromSource();
 			warehousesPermissionsContainerView.Visible = ViewModel.CurrentUser.IsAdmin;
 
-			entryDefaultSalesPlan.SetEntityAutocompleteSelectorFactory(ViewModel.SalesPlanSelectorFactory);
-			entryDefaultSalesPlan.Binding.AddBinding(ViewModel.Entity, e => e.DefaultSalesPlan, w => w.Subject).InitializeFromSource();
-			entryDefaultSalesPlan.CanEditReference = false;
+			entryDefaultSalesPlan.ViewModel = ViewModel.DefaultSalesPlanViewModel;
+			entryDefaultSalesPlan.Binding
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.ViewModel.IsEditable)
+				.InitializeFromSource();
+
+			entryDefaultSalesPlan.ViewModel.IsEditable = false;
+
+			ycheckArchieve.Binding
+				.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active)
+				.InitializeFromSource();
+		}
+
+		private void ChildSubdivisionsReloaded(object sender, EventArgs e)
+		{
+			ytreeviewChildSubdivisions.YTreeModel = new RecursiveTreeModel<SubdivisionJournalNode>(ViewModel.SubdivisionsJournalViewModel.Items.Cast<SubdivisionJournalNode>(), ViewModel.SubdivisionsJournalViewModel.RecuresiveConfig);
 		}
 
 		void ButtonAddDocument_Clicked(object sender, EventArgs e)
 		{
-			var docTypesJournal = new OrmReference(typeof(TypeOfEntity), ViewModel.UoW) {
+			var docTypesJournal = new OrmReference(typeof(TypeOfEntity), ViewModel.UoW)
+			{
 				Mode = OrmReferenceMode.Select
 			};
 			docTypesJournal.ObjectSelected += DocTypesJournal_ObjectSelected;

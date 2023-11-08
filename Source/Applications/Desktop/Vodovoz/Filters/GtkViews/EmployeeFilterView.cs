@@ -1,10 +1,7 @@
-﻿using System.Linq;
 using QS.Views.GtkUI;
-using Vodovoz.Core.Domain.Employees;
+using System.Linq;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.Filters.GtkViews
@@ -57,13 +54,7 @@ namespace Vodovoz.Filters.GtkViews
 				.InitializeFromSource();
 			checkSortByPriority.Toggled += (sender, args) => ViewModel.UpdateRestrictions.Execute();
 
-			evmeSubdivision.SetEntityAutocompleteSelectorFactory(
-				new SubdivisionJournalFactory()
-				.CreateSubdivisionAutocompleteSelectorFactory());
-
-			evmeSubdivision.Binding
-				.AddBinding(ViewModel, vm => vm.Subdivision, w => w.Subject)
-				.InitializeFromSource();
+			entrySubdivision.ViewModel = ViewModel.SubdivisionViewModel;
 
 			cmbDriverOfCarTypeOfUse.ItemsEnum = typeof(CarTypeOfUse);
 			cmbDriverOfCarTypeOfUse.Binding

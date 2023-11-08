@@ -7,22 +7,25 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
-using Vodovoz.Core.Domain.Employees;
+using QS.Navigation;
 
 namespace Vodovoz.Reports
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class DriverWagesReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public DriverWagesReport()
+		private readonly INavigationManager _navigationManager;
+
+		public DriverWagesReport(INavigationManager navigationManager)
 		{
 			this.Build();
+			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			var driverFilter = new EmployeeFilterViewModel();
 			driverFilter.SetAndRefilterAtOnce(
 				x => x.Status = EmployeeStatus.IsWorking,
 				x => x.RestrictCategory = EmployeeCategory.driver);
-			var employeeFactory = new EmployeeJournalFactory(driverFilter);
+			var employeeFactory = new EmployeeJournalFactory(_navigationManager, driverFilter);
 			evmeDriver.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateEmployeeAutocompleteSelectorFactory());
 			evmeDriver.Changed += (sender, args) =>
 			{
