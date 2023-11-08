@@ -691,15 +691,15 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionWayBillReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
+		var scope = Startup.AppDIContainer.BeginLifetimeScope();
+
+		var viewModel = scope.Resolve<WayBillReportGroupPrint>();
+
+		var tab = tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<WayBillReport>(),
-			() => new QSReport.ReportViewDlg(
-				new WayBillReportGroupPrint(
-					_autofacScope.Resolve<IEmployeeJournalFactory>(),
-					_autofacScope.Resolve<ICarJournalFactory>(),
-					_autofacScope.Resolve<IOrganizationJournalFactory>(),
-					_autofacScope.Resolve<IInteractiveService>(),
-					_autofacScope.Resolve<ISubdivisionRepository>())));
+			() => new QSReport.ReportViewDlg(viewModel));
+
+		tab.TabClosed += (s, args) => scope?.Dispose();
 	}
 
 	/// <summary>
@@ -976,12 +976,15 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionMileageReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
+		var scope = Startup.AppDIContainer.BeginLifetimeScope();
+
+		var report = scope.Resolve<MileageReport>();
+
+		var tab = tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<MileageReport>(),
-			() => new QSReport.ReportViewDlg(
-				new MileageReport(
-					_autofacScope.Resolve<IEmployeeJournalFactory>(),
-					_autofacScope.Resolve<ICarJournalFactory>())));
+			() => new QSReport.ReportViewDlg(report));
+
+		tab.TabClosed += (_, _2) => scope?.Dispose();
 	}
 
 	/// <summary>
@@ -1179,9 +1182,15 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionFuelReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
+		var scope = Startup.AppDIContainer.BeginLifetimeScope();
+
+		var report = scope.Resolve<Vodovoz.Reports.FuelReport>();
+
+		var tab = tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.FuelReport>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.FuelReport(NavigationManager)));
+			() => new QSReport.ReportViewDlg(report));
+
+		tab.TabClosed += (_, _2) => scope?.Dispose();
 	}
 
 	/// <summary>

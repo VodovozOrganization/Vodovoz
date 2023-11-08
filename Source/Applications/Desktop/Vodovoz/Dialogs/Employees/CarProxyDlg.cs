@@ -11,19 +11,20 @@ using QS.Project.Services;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Autofac;
 
 namespace Vodovoz.Dialogs.Employees
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class CarProxyDlg : QS.Dialog.Gtk.EntityDialogBase<CarProxyDocument>
 	{
-		private static Logger logger = LogManager.GetCurrentClassLogger();
-
-		private readonly IDocTemplateRepository _docTemplateRepository = new DocTemplateRepository();
+		private ILifetimeScope _lifetimeScope;
+		private IDocTemplateRepository _docTemplateRepository;
 
 		public CarProxyDlg()
 		{
-			this.Build();
+			ResolveDependencies();
+			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<CarProxyDocument>();
 			Entity.Date = DateTime.Now;
 			TabName = "Новая доверенность на ТС";
@@ -35,10 +36,18 @@ namespace Vodovoz.Dialogs.Employees
 
 		public CarProxyDlg(int id)
 		{
-			this.Build();
+			ResolveDependencies();
+			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<CarProxyDocument>(id);
 			TabName = "Изменение доверенности на ТС";
 			ConfigureDlg();
+		}
+
+		private void ResolveDependencies()
+		{
+			_lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+
+			_docTemplateRepository = _lifetimeScope.Resolve<IDocTemplateRepository>();
 		}
 
 		void ConfigureDlg()
@@ -62,7 +71,7 @@ namespace Vodovoz.Dialogs.Employees
 			evmeDriver.Binding.AddBinding(Entity, x => x.Driver, x => x.Subject).InitializeFromSource();
 			evmeDriver.Changed += (sender, e) => UpdateStates();
 
-			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(Startup.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory());
+			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(Startup.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory(_lifetimeScope));
 			entityviewmodelentryCar.Binding.AddBinding(Entity, x => x.Car, x => x.Subject).InitializeFromSource();
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 			entityviewmodelentryCar.Changed += (sender, e) => UpdateStates();
@@ -154,6 +163,13 @@ namespace Vodovoz.Dialogs.Employees
 
 			UoWGeneric.Save();
 			return true;
+		}
+
+		public override void Destroy()
+		{
+			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
+			base.Destroy();
 		}
 	}
 }
