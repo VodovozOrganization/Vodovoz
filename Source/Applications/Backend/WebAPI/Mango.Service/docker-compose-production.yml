@@ -1,0 +1,19 @@
+﻿# stack name: mango-production
+
+version: "3.8"
+
+services:
+
+  service:
+    image: docker.vod.qsolution.ru:5100/mango.service:latest
+    ports:
+      - 7988:7988
+      - 7989:7989
+    volumes:
+      - /etc/vodovoz/mango.service/production/appsettings.Production.json:/app/appsettings.Production.json
+      - /var/log/vodovoz/mango.service/production/:/var/log/mango.service
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:7989
+    restart: unless-stopped
