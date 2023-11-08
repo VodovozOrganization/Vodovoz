@@ -192,7 +192,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			query.Where(
 				GetSearchCriterion(
 					() => cashReceiptAlias.Id,
-					() => cashReceiptAlias.Order.Id,
+					() => orderAlias.Id,
 					() => cashReceiptAlias.UnscannedCodesReason
 				)
 			);
