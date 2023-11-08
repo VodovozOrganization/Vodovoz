@@ -1,4 +1,5 @@
-﻿using Gamma.Utilities;
+using Autofac;
+using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using NHibernate;
 using NHibernate.Criterion;
@@ -19,6 +20,7 @@ using System.Linq;
 using System.Text;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Additions.Logistic.RouteOptimization;
+using Vodovoz.Controllers;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -48,7 +50,6 @@ namespace Vodovoz.ViewModels.Logistic
 	public class RouteListsOnDayViewModel : TabViewModelBase
 	{
 		private readonly IRouteListRepository _routeListRepository;
-		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IAtWorkRepository _atWorkRepository;
 		private readonly ILogger<RouteListsOnDayViewModel> _logger;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
@@ -56,12 +57,13 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly DeliveryDaySchedule _defaultDeliveryDaySchedule;
 		private readonly int _closingDocumentDeliveryScheduleId;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-
+		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 		public IUnitOfWork UoW;
 
 		public RouteListsOnDayViewModel(
 			ILogger<RouteListsOnDayViewModel> logger,
 			ICommonServices commonServices,
+			ILifetimeScope lifetimeScope,
 			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider,
 			IGtkTabsOpener gtkTabsOpener,
 			IRouteListRepository routeListRepository,
@@ -75,7 +77,8 @@ namespace Vodovoz.ViewModels.Logistic
 			IEmployeeJournalFactory employeeJournalFactory,
 			IGeographicGroupRepository geographicGroupRepository,
 			IScheduleRestrictionRepository scheduleRestrictionRepository,
-			ICarModelJournalFactory carModelJournalFactory)
+			ICarModelJournalFactory carModelJournalFactory,
+			IRouteListProfitabilityController routeListProfitabilityController)
 			: base(commonServices?.InteractiveService, navigationManager)
 		{
 			if(defaultDeliveryDayScheduleSettings == null)
@@ -86,17 +89,18 @@ namespace Vodovoz.ViewModels.Logistic
 			{
 				throw new ArgumentNullException(nameof(geographicGroupRepository));
 			}
-			_logger = logger;
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			CarRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			ScheduleRestrictionRepository = scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
 			CarModelJournalFactory = carModelJournalFactory;
+			_routeListProfitabilityController = routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_atWorkRepository = atWorkRepository ?? throw new ArgumentNullException(nameof(atWorkRepository));
 			OrderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 
 			_closingDocumentDeliveryScheduleId = deliveryScheduleParametersProvider?.ClosingDocumentDeliveryScheduleId ??
@@ -194,6 +198,7 @@ namespace Vodovoz.ViewModels.Logistic
 		}
 
 		public ICommonServices CommonServices { get; }
+		public ILifetimeScope LifetimeScope { get; }
 		public ICarRepository CarRepository { get; }
 		public IList<GeoGroup> GeographicGroupsExceptEast { get; }
 		public IScheduleRestrictionRepository ScheduleRestrictionRepository { get; }
