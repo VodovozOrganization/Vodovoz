@@ -45,7 +45,6 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
 using Vodovoz.Infrastructure;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
@@ -656,50 +655,34 @@ namespace Vodovoz
 				case RouteListActions.TransferAddressesToThisRL:
 					if(UoW.HasChanges) {
 						if(MessageDialogHelper.RunQuestionDialog("Необходимо сохранить документ.\nСохранить?"))
-							this.Save();
+						{
+							Save();
+						}
 						else
+						{
 							return;
+						}
 					}
-					this.TabParent.AddSlaveTab(
-						this, 
-						new RouteListAddressesTransferringDlg(
-							Entity.Id, 
-							RouteListAddressesTransferringDlg.OpenParameter.Receiver,
-							employeeNomenclatureMovementRepository,
-							_baseParametersProvider,
-							_routeListRepository,
-							_routeListItemRepository,
-							new EmployeeService(),
-							ServicesConfig.CommonServices,
-							_financialCategoriesGroupsSettings,
-							_employeeRepository,
-							_nomenclatureParametersProvider
-						)
-					);
+					NavigationManager.OpenTdiTabOnTdi<RouteListAddressesTransferringDlg, int, RouteListAddressesTransferringDlg.OpenParameter>(
+						this,
+						Entity.Id,
+						RouteListAddressesTransferringDlg.OpenParameter.Receiver);
 					break;
 				case RouteListActions.TransferAddressesToAnotherRL:
 					if(UoW.HasChanges) {
 						if(MessageDialogHelper.RunQuestionDialog("Необходимо сохранить документ.\nСохранить?"))
-							this.Save();
+						{
+							Save();
+						}
 						else
+						{
 							return;
+						}
 					}
-					this.TabParent.AddSlaveTab(
-						this, 
-						new RouteListAddressesTransferringDlg(
-							Entity.Id, 
-							RouteListAddressesTransferringDlg.OpenParameter.Sender,
-							employeeNomenclatureMovementRepository,
-							_baseParametersProvider,
-							_routeListRepository,
-							_routeListItemRepository,
-							new EmployeeService(),
-							ServicesConfig.CommonServices,
-							_financialCategoriesGroupsSettings,
-							_employeeRepository,
-							_nomenclatureParametersProvider
-						)
-					);
+					NavigationManager.OpenTdiTabOnTdi<RouteListAddressesTransferringDlg, int, RouteListAddressesTransferringDlg.OpenParameter>(
+						this,
+						Entity.Id,
+						RouteListAddressesTransferringDlg.OpenParameter.Sender);
 					break;
 				default:
 					break;
