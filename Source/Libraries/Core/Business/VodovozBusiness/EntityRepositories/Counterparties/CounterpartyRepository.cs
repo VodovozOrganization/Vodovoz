@@ -307,11 +307,11 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				.List();
 		}
 
-		public IQueryable<DateTime> GetCounterpartyClassificationLastCalculationDate(IUnitOfWork uow)
+		public IQueryable<int> GetLastClassificationCalculationSettingsId(IUnitOfWork uow)
 		{
 			var query = uow.Session.Query<CounterpartyClassification>()
 				.OrderByDescending(c => c.Id)
-				.Select(c => c.ClassificationCalculationDate)
+				.Select(c => c.ClassificationCalculationSettingsId)
 				.Take(1);
 
 			return query;
@@ -319,10 +319,10 @@ namespace Vodovoz.EntityRepositories.Counterparties
 
 		public IQueryable<CounterpartyClassification> GetLastExistingClassificationsForCounterparties(
 			IUnitOfWork uow,
-			DateTime lastCalculationDate)
+			int lastCalculationSettingsId)
 		{
 			var query = uow.GetAll<CounterpartyClassification>()
-				.Where(c => c.ClassificationCalculationDate == lastCalculationDate)
+				.Where(c => c.ClassificationCalculationSettingsId == lastCalculationSettingsId)
 				.Select(c => c);
 
 			return query;
@@ -358,7 +358,6 @@ namespace Vodovoz.EntityRepositories.Counterparties
 							data.Order.Id).Distinct().Count(),
 					clientsGroups.Sum(data =>
 							(data.Item.ActualCount ?? data.Item.Count) * data.Item.Price - data.Item.DiscountMoney),
-					creationDate,
 					calculationSettings);
 
 			return query;

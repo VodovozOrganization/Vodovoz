@@ -179,11 +179,15 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			CalculationProgressValue = 0;
 			_reportData = null;
 
+			_uow.Save(CalculationSettings);
+			_uow.Session.Update(CalculationSettings);
+
 			CalculationProgressValue = 10;
 
 			var newClassificationsForAllCounterparties = await GetNewClassificationsForAllCounterparties(
 				_uow,
 				_counterpartyRepository,
+				CalculationSettings,
 				cancellationToken);
 
 			CalculationProgressValue = 40;
@@ -217,10 +221,11 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 		private async Task<IEnumerable<CounterpartyClassification>> GetNewClassificationsForAllCounterparties(
 			IUnitOfWork uow,
 			ICounterpartyRepository counterpartyRepository,
+			CounterpartyClassificationCalculationSettings calculationSettings,
 			CancellationToken cancellationToken)
 		{
 			var calculatedClassifications = await counterpartyRepository
-					.CalculateCounterpartyClassifications(_uow, CalculationSettings)
+					.CalculateCounterpartyClassifications(_uow, calculationSettings)
 					.ToListAsync(cancellationToken);
 
 			var allCounterpartyIds = await uow.GetAll<Counterparty>().Select(co => co.Id).ToListAsync(cancellationToken);
@@ -233,7 +238,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 				new CounterpartyClassification
 				{
 					CounterpartyId = counterpartyId,
-					ClassificationCalculationDate = _creationDate
+					ClassificationCalculationSettingsId = calculationSettings.Id
 				};
 
 			return classificationForAllCounterparties;
@@ -252,8 +257,6 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 					newClassificationsForAllCounterparties,
 					_insertQueryElementsMaxCount,
 					cancellationToken);
-
-				_uow.Save(CalculationSettings);
 
 				transaction.Commit();
 			}
@@ -297,7 +300,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 					$"{c.BottlesPerMonthAverageCount.ToString(CultureInfo.InvariantCulture)}, " +
 					$"{c.OrdersPerMonthAverageCount.ToString(CultureInfo.InvariantCulture)}, " +
 					$"{c.MoneyTurnoverPerMonthAverageSum.ToString(CultureInfo.InvariantCulture)}, " +
-					$"'{c.ClassificationCalculationDate.ToString("yyyy-MM-dd HH:mm:ss")}') ");
+					$"'{c.ClassificationCalculationSettingsId}') ");
 			}
 
 			var insertQuery = @"INSERT INTO counterparty_classification 
@@ -307,7 +310,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 				bottles_per_month_average_count, 
 				orders_per_month_average_count, 
 				money_turnover_per_month_average_sum, 
-				calculation_date) 
+				calculation_settings_id) 
 				VALUES ";
 
 			return $"{insertQuery} {string.Join(",", valuesData)};";

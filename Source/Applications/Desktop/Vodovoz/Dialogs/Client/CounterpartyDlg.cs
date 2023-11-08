@@ -45,8 +45,6 @@ using System.Threading;
 using TISystems.TTC.CRM.BE.Serialization;
 using TrueMarkApi.Library.Converters;
 using TrueMarkApi.Library.Dto;
-using Vodovoz.Core;
-using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
@@ -67,16 +65,13 @@ using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Extensions;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels;
 using Vodovoz.Infrastructure;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalSelector;
-using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
@@ -734,35 +729,36 @@ namespace Vodovoz
 
 		private void UpdateCounterpartyClassificationValues()
 		{
-			var classification = UoW.GetAll<CounterpartyClassification>()
-				.Where(c => c.CounterpartyId == Entity.Id)
-				.OrderByDescending(c => c.Id)
-				.FirstOrDefault();
+			var classification =
+				(from c in UoW.GetAll<CounterpartyClassification>()
+				 join s in UoW.GetAll<CounterpartyClassificationCalculationSettings>()
+				 on c.ClassificationCalculationSettingsId equals s.Id
+				 where c.CounterpartyId == Entity.Id
+				 orderby c.Id descending
+				 select new
+				 {
+					 ClassificationValue = $"{c.ClassificationByBottlesCount}{c.ClassificationByOrdersCount}",
+					 BottlesCount = $"{c.BottlesPerMonthAverageCount} бут/мес",
+					 TurnoverSum = $"{c.MoneyTurnoverPerMonthAverageSum} руб/мес",
+					 OrdersCount = $"{c.OrdersPerMonthAverageCount} зак/мес",
+					 CalculationDate = $"{s.SettingsCreationDate:dd.MM.yyyy}"
+				 })
+				 .FirstOrDefault();
 
-			ylabelClassificationValue.Text =
-				classification != null
-				? $"{classification.ClassificationByBottlesCount}{classification.ClassificationByOrdersCount}"
-				: "Новый";
+			ylabelClassificationValue.Text = 
+				$"{classification?.ClassificationValue ?? "Новый"}";
 
-			ylabelClassificationBottlesCount.Text =
-				classification != null
-				? $"Кол-во бут. 19л: {classification.BottlesPerMonthAverageCount} бут/мес"
-				: "Кол-во бут. 19л: не рассчитывалось";
+			ylabelClassificationBottlesCount.Text = 
+				$"Кол-во бут. 19л: {classification?.BottlesCount ?? "не рассчитывалось"}";
 
-			ylabelClassificationTurnoverSum.Text =
-				classification != null
-				? $"Оборот (инфо): {classification.MoneyTurnoverPerMonthAverageSum} руб/мес"
-				: "Оборот (инфо): не рассчитывалось";
+			ylabelClassificationTurnoverSum.Text = 
+				$"Оборот (инфо): {classification?.TurnoverSum ?? "не рассчитывалось"}";
 
-			ylabelClassificationOrdersCount.Text =
-				classification != null
-				? $"Частота покупок: {classification.OrdersPerMonthAverageCount} зак/мес"
-				: "Частота покупок: не рассчитывалось";
+			ylabelClassificationOrdersCount.Text = 
+				$"Частота покупок: {classification?.OrdersCount ?? "не рассчитывалось"}";
 
 			ylabelClassificationCalculationDate.Text =
-				classification != null
-				? $"Дата последнего пересчёта: {classification.ClassificationCalculationDate:dd.MM.yyyy}"
-				: "Дата последнего пересчёта: не рассчитывалось";
+				$"Дата последнего пересчёта: {classification?.CalculationDate ?? "не рассчитывалось"}";
 		}
 
 		private void ConfigureTabContacts()
@@ -2497,7 +2493,7 @@ namespace Vodovoz
 
 			return false;
 		}
-		
+
 		private void OnEnumPersonTypeChangedByUser(object sender, EventArgs e)
 		{
 			emailsView.ViewModel.UpdatePersonType(Entity.PersonType);

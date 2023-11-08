@@ -60,15 +60,19 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 				int periodInMonth,
 				CancellationToken cancellationToken)
 			{
-				var lastCalculationDate = (await counterpartyRepository
-					.GetCounterpartyClassificationLastCalculationDate(uow)
+				var lastCalculationSettingsId = (await counterpartyRepository
+					.GetLastClassificationCalculationSettingsId(uow)
 					.ToListAsync(cancellationToken))
 					.FirstOrDefault();
 
-				var oldClassifications = GetLasExistingClassifications(
+				var lastCalculationDate = GetCalculationSettingsDateById(
+					uow, 
+					lastCalculationSettingsId);
+
+				var oldClassifications = GetLastExistingClassifications(
 					uow,
 					counterpartyRepository,
-					lastCalculationDate);
+					lastCalculationSettingsId);
 
 				var rows = await CreateRows(
 					uow,
@@ -119,21 +123,28 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 				return rows;
 			}
 
-			private static IEnumerable<CounterpartyClassification> GetLasExistingClassifications(
+			private static IEnumerable<CounterpartyClassification> GetLastExistingClassifications(
 				IUnitOfWork uow,
 				ICounterpartyRepository counterpartyRepository,
-				DateTime lastCalculationDate)
+				int lastCalculationSettingsId)
 			{
-				if(lastCalculationDate == default)
+				if(lastCalculationSettingsId == default)
 				{
 					return new List<CounterpartyClassification>();
 				}
 
 				var lastExistingClassifications = counterpartyRepository
-					.GetLastExistingClassificationsForCounterparties(uow, lastCalculationDate)
+					.GetLastExistingClassificationsForCounterparties(uow, lastCalculationSettingsId)
 					.ToList();
 
 				return lastExistingClassifications;
+			}
+
+			private static DateTime GetCalculationSettingsDateById(IUnitOfWork uow, int settingsId)
+			{
+				var settings = uow.GetById<CounterpartyClassificationCalculationSettings>(settingsId);
+
+				return settings?.SettingsCreationDate ?? default;
 			}
 
 			private byte[] Export(IEnumerable<ClassificationCalculationReportRow> rows)

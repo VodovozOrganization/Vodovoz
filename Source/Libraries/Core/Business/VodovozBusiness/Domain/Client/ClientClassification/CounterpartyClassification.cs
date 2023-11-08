@@ -16,14 +16,13 @@ namespace Vodovoz.Domain.Client.ClientClassification
 		private decimal _bottlesPerMonthAverageCount;
 		private decimal _ordersPerMonthAverageCount;
 		private decimal _moneyTurnoverPerMonthAverageSum;
-		private DateTime _classificationCalculationDate;
+		private int _classificationCalculationSettingsId;
 
 		public CounterpartyClassification(
 			int counterpartyId,
 			decimal bottlesCount,
 			decimal ordersCount,
 			decimal moneyTurnoverSum,
-			DateTime creationDate,
 			CounterpartyClassificationCalculationSettings calculationSettings)
 		{
 			if(calculationSettings is null)
@@ -43,7 +42,7 @@ namespace Vodovoz.Domain.Client.ClientClassification
 				MoneyTurnoverPerMonthAverageSum = moneyTurnoverSum / calculationSettings.PeriodInMonths;
 			}
 
-			ClassificationCalculationDate = creationDate;
+			ClassificationCalculationSettingsId = calculationSettings.Id;
 		}
 
 		public CounterpartyClassification()
@@ -97,11 +96,11 @@ namespace Vodovoz.Domain.Client.ClientClassification
 			set => SetField(ref _moneyTurnoverPerMonthAverageSum, value);
 		}
 
-		[Display(Name = "Дата выполнения расчета классификации")]
-		public virtual DateTime ClassificationCalculationDate
+		[Display(Name = "Id записи настроек рассчета классификации")]
+		public virtual int ClassificationCalculationSettingsId
 		{
-			get => _classificationCalculationDate;
-			set => SetField(ref _classificationCalculationDate, value);
+			get => _classificationCalculationSettingsId;
+			set => SetField(ref _classificationCalculationSettingsId, value);
 		}
 		#endregion Properties
 

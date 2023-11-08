@@ -17,7 +17,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			Map(x => x.BottlesPerMonthAverageCount).Column("bottles_per_month_average_count");
 			Map(x => x.OrdersPerMonthAverageCount).Column("orders_per_month_average_count");
 			Map(x => x.MoneyTurnoverPerMonthAverageSum).Column("money_turnover_per_month_average_sum");
-			Map(x => x.ClassificationCalculationDate).Column("calculation_date");
+			Map(x => x.ClassificationCalculationSettingsId).Column("calculation_settings_id");
 		}
 	}
 }

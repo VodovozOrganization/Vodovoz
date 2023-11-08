@@ -194,7 +194,7 @@ namespace Vodovoz.JournalViewModels
 			SalesChannel salesChannelAlias = null;
 			CounterpartyClassification counterpartyClassificationAlias = null;
 
-			var counterpartyClassificationLastCalculationDate = GetCounterpartyClassificationLastCalculationDate;
+			var counterpartyClassificationLastCalculationId = GetCounterpartyClassificationLastCalculationId;
 
 			var query = uow.Session.QueryOver<Counterparty>(() => counterpartyAlias);
 
@@ -367,7 +367,7 @@ namespace Vodovoz.JournalViewModels
 				.JoinEntityAlias(
 						() => counterpartyClassificationAlias,
 						() => counterpartyAlias.Id == counterpartyClassificationAlias.CounterpartyId
-							&& counterpartyClassificationAlias.ClassificationCalculationDate == counterpartyClassificationLastCalculationDate,
+							&& counterpartyClassificationAlias.ClassificationCalculationSettingsId == counterpartyClassificationLastCalculationId,
 						JoinType.LeftOuterJoin);
 
 			var searchHealperNew = new TempAdapters.SearchHelper(Search);
@@ -437,7 +437,7 @@ namespace Vodovoz.JournalViewModels
 			SalesChannel salesChannelAlias = null;
 			CounterpartyClassification counterpartyClassificationAlias = null;
 
-			var counterpartyClassificationLastCalculationDate = GetCounterpartyClassificationLastCalculationDate;
+			var counterpartyClassificationLastCalculationId = GetCounterpartyClassificationLastCalculationId;
 
 			var query = uow.Session.QueryOver<Counterparty>(() => counterpartyAlias);
 
@@ -630,7 +630,7 @@ namespace Vodovoz.JournalViewModels
 				.JoinEntityAlias(
 						() => counterpartyClassificationAlias,
 						() => counterpartyAlias.Id == counterpartyClassificationAlias.CounterpartyId
-							&& counterpartyClassificationAlias.ClassificationCalculationDate == counterpartyClassificationLastCalculationDate,
+							&& counterpartyClassificationAlias.ClassificationCalculationSettingsId == counterpartyClassificationLastCalculationId,
 						JoinType.LeftOuterJoin);
 
 			var resultCountQuery = query
@@ -645,9 +645,9 @@ namespace Vodovoz.JournalViewModels
 
 		protected override Func<CounterpartyJournalNode, CounterpartyDlg> OpenDialogFunction => (node) => new CounterpartyDlg(node.Id);
 
-		private DateTime GetCounterpartyClassificationLastCalculationDate => UoW.GetAll<CounterpartyClassification>()
-				.Select(c => c.ClassificationCalculationDate)
-				.OrderByDescending(d => d)
+		private int GetCounterpartyClassificationLastCalculationId => UoW.GetAll<CounterpartyClassification>()
+				.Select(c => c.ClassificationCalculationSettingsId)
+				.OrderByDescending(c => c)
 				.FirstOrDefault();
 
 	}
