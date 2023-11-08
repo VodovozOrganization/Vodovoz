@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
@@ -1515,40 +1515,12 @@ namespace Vodovoz
 
 		protected void OnButtonAddFuelDocumentClicked(object sender, EventArgs e)
 		{
-			var tab = new FuelDocumentViewModel(
-				UoW,
-				Entity,
-				ServicesConfig.CommonServices,
-				_subdivisionRepository,
-				_employeeRepository,
-				new FuelRepository(),
-				NavigationManagerProvider.NavigationManager,
-				_trackRepository,
-				new EmployeeJournalFactory(NavigationManager),
-				_financialCategoriesGroupsSettings,
-				new CarJournalFactory(NavigationManager),
-				_lifetimeScope
-			);
-			TabParent.AddSlaveTab(this, tab);
+			NavigationManager.OpenViewModelOnTdi<FuelDocumentViewModel, IUnitOfWork, RouteList>(this, UoW, Entity);
 		}
 
 		protected void OnYtreeviewFuelDocumentsRowActivated(object o, RowActivatedArgs args)
 		{
-			var tab = new FuelDocumentViewModel(
-				UoW,
-				ytreeviewFuelDocuments.GetSelectedObject<FuelDocument>(),
-				ServicesConfig.CommonServices,
-				_subdivisionRepository,
-				_employeeRepository,
-				new FuelRepository(),
-				NavigationManagerProvider.NavigationManager,
-				_trackRepository,
-				new EmployeeJournalFactory(NavigationManager),
-				_financialCategoriesGroupsSettings,
-				new CarJournalFactory(NavigationManager),
-				_lifetimeScope
-			);
-			TabParent.AddSlaveTab(this, tab);
+			NavigationManager.OpenViewModelOnTdi<FuelDocumentViewModel, IUnitOfWork, FuelDocument>(this, UoW, ytreeviewFuelDocuments.GetSelectedObject<FuelDocument>());
 		}
 
 		protected void OnButtonCalculateCashClicked(object sender, EventArgs e)
