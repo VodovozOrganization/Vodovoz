@@ -1516,17 +1516,18 @@ namespace Vodovoz
 		protected void OnButtonAddFuelDocumentClicked(object sender, EventArgs e)
 		{
 			var tab = new FuelDocumentViewModel(
-					  UoW,
-					  Entity,
-					  ServicesConfig.CommonServices,
-					  _subdivisionRepository,
-					  _employeeRepository,
-					  new FuelRepository(),
-					  NavigationManagerProvider.NavigationManager,
-					  _trackRepository,
-					  new EmployeeJournalFactory(NavigationManager),
-					  _financialCategoriesGroupsSettings,
-					  new CarJournalFactory(NavigationManager)
+				UoW,
+				Entity,
+				ServicesConfig.CommonServices,
+				_subdivisionRepository,
+				_employeeRepository,
+				new FuelRepository(),
+				NavigationManagerProvider.NavigationManager,
+				_trackRepository,
+				new EmployeeJournalFactory(NavigationManager),
+				_financialCategoriesGroupsSettings,
+				new CarJournalFactory(NavigationManager),
+				_lifetimeScope
 			);
 			TabParent.AddSlaveTab(this, tab);
 		}
@@ -1534,17 +1535,18 @@ namespace Vodovoz
 		protected void OnYtreeviewFuelDocumentsRowActivated(object o, RowActivatedArgs args)
 		{
 			var tab = new FuelDocumentViewModel(
-				  UoW,
-				  ytreeviewFuelDocuments.GetSelectedObject<FuelDocument>(),
-				  ServicesConfig.CommonServices,
-				  _subdivisionRepository,
-				  _employeeRepository,
-				  new FuelRepository(),
-				  NavigationManagerProvider.NavigationManager,
-				  _trackRepository,
-				  new EmployeeJournalFactory(NavigationManager),
-				  _financialCategoriesGroupsSettings,
-				  new CarJournalFactory(NavigationManager)
+				UoW,
+				ytreeviewFuelDocuments.GetSelectedObject<FuelDocument>(),
+				ServicesConfig.CommonServices,
+				_subdivisionRepository,
+				_employeeRepository,
+				new FuelRepository(),
+				NavigationManagerProvider.NavigationManager,
+				_trackRepository,
+				new EmployeeJournalFactory(NavigationManager),
+				_financialCategoriesGroupsSettings,
+				new CarJournalFactory(NavigationManager),
+				_lifetimeScope
 			);
 			TabParent.AddSlaveTab(this, tab);
 		}
