@@ -11,6 +11,8 @@ using NHibernate;
 using NHibernate.Transform;
 using NLog;
 using QS.Attachments.Domain;
+using QS.Banks.Domain;
+using QS.Banks.Repositories;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.Dialog.GtkUI.FileDialog;
@@ -55,6 +57,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Retail;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
@@ -291,7 +294,16 @@ namespace Vodovoz
 			Entity.PaymentMethod = parameters.PaymentMethod;
 			Entity.TypeOfOwnership = parameters.TypeOfOwnership;
 			Entity.PersonType = parameters.PersonType;
-			Entity.AddAccount(parameters.Account);
+
+			if(!(string.IsNullOrWhiteSpace(parameters.CounterpartyCorrespondentAcc)
+				|| string.IsNullOrWhiteSpace(parameters.CounterpartyCurrentAcc)
+				|| string.IsNullOrWhiteSpace(parameters.CounterpartyBank)
+				|| string.IsNullOrWhiteSpace(parameters.CounterpartyBik)))
+			{
+				var bank = FillBank(parameters);
+				var account = new Account { Number = parameters.CounterpartyCurrentAcc, InBank = bank };
+				Entity.AddAccount(account);
+			}
 
 			ConfigureDlg();
 		}
@@ -2497,6 +2509,26 @@ namespace Vodovoz
 		private void OnEnumPersonTypeChangedByUser(object sender, EventArgs e)
 		{
 			emailsView.ViewModel.UpdatePersonType(Entity.PersonType);
+		}
+
+		private Bank FillBank(NewCounterpartyParameters parameters)
+		{
+			var bank = BankRepository.GetBankByBik(UoW, parameters.CounterpartyBik);
+
+			if(bank == null)
+			{
+				bank = new Bank
+				{
+					Bik = parameters.CounterpartyBik,
+					Name = parameters.CounterpartyBank
+				};
+				var corAcc = new CorAccount { CorAccountNumber = parameters.CounterpartyCorrespondentAcc };
+				bank.CorAccounts.Add(corAcc);
+				bank.DefaultCorAccount = corAcc;
+				UoW.Save(bank);
+			}
+
+			return bank;
 		}
 	}
 
