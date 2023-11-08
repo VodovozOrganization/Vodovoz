@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -393,7 +393,7 @@ namespace Vodovoz.JournalViewModels
 			var counterpartyResultQuery = query
 				.SelectList(list => list
 					.SelectGroup(c => c.Id).WithAlias(() => resultAlias.Id)
-					.SelectGroup(c => c.VodovozInternalId).WithAlias(() => resultAlias.InternalId)
+					.Select(c => c.VodovozInternalId).WithAlias(() => resultAlias.InternalId)
 					.Select(c => c.Name).WithAlias(() => resultAlias.Name)
 					.Select(c => c.INN).WithAlias(() => resultAlias.INN)
 					.Select(c => c.IsArchive).WithAlias(() => resultAlias.IsArhive)
