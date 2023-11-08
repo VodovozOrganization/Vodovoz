@@ -311,8 +311,6 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		public override void Dispose()
 		{
-			_lifetimeScope?.Dispose();
-			_lifetimeScope = null;
 			Dispose(true);
 		}
 
@@ -335,5 +333,12 @@ namespace Vodovoz.SidePanel.InfoViews
 			_disposed = true;
 		}
 		#endregion
+
+		public override void Destroy()
+		{
+			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
+			base.Destroy();
+		}
 	}
 }
