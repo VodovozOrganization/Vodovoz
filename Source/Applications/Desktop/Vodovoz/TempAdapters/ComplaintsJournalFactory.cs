@@ -47,7 +47,7 @@ namespace Vodovoz.TempAdapters
 
 		private void CreateNewDependencies()
 		{
-			_employeeService = new EmployeeService();
+			_employeeService = new EmployeeService(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.UserService);
 			_fileDialogService = new FileDialogService();
 			_subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
 			_routeListItemRepository = new RouteListItemRepository();

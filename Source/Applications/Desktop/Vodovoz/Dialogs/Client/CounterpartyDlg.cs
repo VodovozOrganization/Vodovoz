@@ -1474,7 +1474,7 @@ namespace Vodovoz
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				Startup.MainWin.NavigationManager,
-				new EmployeeService(),
+				new EmployeeService(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.UserService),
 				NomenclatureRepository,
 				_userRepository,
 				new OrderSelectorFactory(),

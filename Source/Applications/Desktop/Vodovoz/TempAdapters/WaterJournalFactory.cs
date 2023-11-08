@@ -35,7 +35,7 @@ namespace Vodovoz.TempAdapters
 			WaterJournalViewModel waterJournal = new WaterJournalViewModel(
                 UnitOfWorkFactory.GetDefaultFactory,
                 ServicesConfig.CommonServices,
-                new EmployeeService(),
+                new EmployeeService(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.UserService),
 				new NomenclatureJournalFactory(),
                 counterpartyJournalFactory,
                 nomenclatureRepository,

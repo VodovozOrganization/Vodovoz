@@ -349,7 +349,7 @@ namespace Vodovoz
 			var orderSelectDialog = new OrderForRouteListJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices, new OrderSelectorFactory(), new EmployeeJournalFactory(), new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
 				new DeliveryPointJournalFactory(), new SubdivisionJournalFactory(), new GtkTabsOpener(),
-				new UndeliveredOrdersJournalOpener(), new EmployeeService(), new UndeliveredOrdersRepository(),
+				new UndeliveredOrdersJournalOpener(), new EmployeeService(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.UserService), new UndeliveredOrdersRepository(),
 				new SubdivisionParametersProvider(_parametersProvider), _deliveryScheduleParametersProvider, new FileDialogService())
 			{
 				SelectionMode = JournalSelectionMode.Multiple

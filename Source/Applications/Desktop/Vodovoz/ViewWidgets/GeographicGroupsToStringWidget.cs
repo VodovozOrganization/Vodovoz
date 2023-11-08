@@ -81,7 +81,7 @@ namespace Vodovoz.ViewWidgets
 			var commonServices = ServicesConfig.CommonServices;
 			var subdivisionJournalFactory = new SubdivisionJournalFactory();
 			var warehouseJournalFactory = new WarehouseJournalFactory();
-			var employeeService = new EmployeeService();
+			var employeeService = new EmployeeService(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.UserService);
 			var geoGroupVersionsModel = new GeoGroupVersionsModel(commonServices.UserService, employeeService);
 			var journal = new GeoGroupJournalViewModel(uowFactory, commonServices, subdivisionJournalFactory, warehouseJournalFactory, geoGroupVersionsModel);
 			journal.SelectionMode = JournalSelectionMode.Multiple;
@@ -131,7 +131,7 @@ namespace Vodovoz.ViewWidgets
 			var commonServices = ServicesConfig.CommonServices;
 			var subdivisionJournalFactory = new SubdivisionJournalFactory();
 			var warehouseJournalFactory = new WarehouseJournalFactory();
-			var employeeService = new EmployeeService();
+			var employeeService = new EmployeeService(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.UserService);
 			var geoGroupVersionsModel = new GeoGroupVersionsModel(commonServices.UserService, employeeService);
 			var journal = new GeoGroupJournalViewModel(uowFactory, commonServices, subdivisionJournalFactory, warehouseJournalFactory, geoGroupVersionsModel);
 			journal.SelectionMode = JournalSelectionMode.Multiple;

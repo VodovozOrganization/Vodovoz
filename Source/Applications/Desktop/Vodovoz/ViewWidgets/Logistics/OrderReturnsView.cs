@@ -229,7 +229,7 @@ namespace Vodovoz
 				nomenclatureFilter,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
-				new EmployeeService(),
+				new EmployeeService(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.UserService),
 				new NomenclatureJournalFactory(),
 				new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
 				_nomenclatureRepository,

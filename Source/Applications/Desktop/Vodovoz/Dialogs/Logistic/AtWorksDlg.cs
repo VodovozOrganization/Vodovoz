@@ -633,7 +633,7 @@ namespace Vodovoz.Dialogs.Logistic
 			var uowFactory = UnitOfWorkFactory.GetDefaultFactory;
 			var commonServices = ServicesConfig.CommonServices;
 			var warehouseJournalFactory = new WarehouseJournalFactory();
-			var employeeService = new EmployeeService();
+			var employeeService = new EmployeeService(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.UserService);
 			var geoGroupVersionsModel = new GeoGroupVersionsModel(commonServices.UserService, employeeService);
 			var geoGroupJournalFactory = new GeoGroupJournalFactory(uowFactory, commonServices, _subdivisionJournalFactory, warehouseJournalFactory, geoGroupVersionsModel);
 

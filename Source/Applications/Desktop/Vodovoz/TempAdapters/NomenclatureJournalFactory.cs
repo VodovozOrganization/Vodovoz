@@ -31,7 +31,7 @@ namespace Vodovoz.TempAdapters
 				filter ?? new NomenclatureFilterViewModel(),
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
-				new EmployeeService(),
+				new EmployeeService(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.UserService),
 				new NomenclatureJournalFactory(),
 				counterpartyJournalFactory,
 				nomenclatureRepository,

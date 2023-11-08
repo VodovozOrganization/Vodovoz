@@ -26,7 +26,7 @@ namespace Vodovoz
 			ServicesConfig.InteractiveService = new GtkInteractiveService();
 			ServicesConfig.ValidationService = new ObjectValidator(new GtkValidationViewFactory());
 			ServicesConfig.UserService = new UserService(LoadCurrentUser());
-			EmployeeService = new EmployeeService();
+			EmployeeService = new EmployeeService(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.UserService);
 
 			IRepresentationJournalFactory journalFactory = new PermissionControlledRepresentationJournalFactory();
 			RepresentationEntityPicker = new RepresentationEntityPickerGtk(journalFactory);
