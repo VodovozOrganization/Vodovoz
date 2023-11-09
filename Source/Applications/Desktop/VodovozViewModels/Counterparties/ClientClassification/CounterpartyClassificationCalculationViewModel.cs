@@ -10,6 +10,7 @@ using QS.Navigation;
 using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.ViewModels;
+using RabbitMQ.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -40,12 +41,12 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 		private readonly IFileDialogService _fileDialogService;
 		private readonly ICounterpartyRepository _counterpartyRepository;
 		private readonly IEmailParametersProvider _emailParametersProvider;
+		private readonly ILogger<RabbitMQConnectionFactory> _rabbitLogger;
 		private bool _isCalculationInProcess;
 		private bool _isCalculationCompleted;
 		private string _currentUserName;
 		private string _currentUserEmail;
 		private string _additionalEmail;
-		private DateTime _creationDate;
 		private double _calculationProgressValue;
 		private byte[] _reportData;
 
@@ -61,6 +62,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			IInteractiveService interactiveService,
 			INavigationManager navigation,
 			ILogger<CounterpartyClassificationCalculationViewModel> logger,
+			ILogger<RabbitMQConnectionFactory> rabbitLogger,
 			IEmployeeService employeeService,
 			IUserService userService,
 			IFileDialogService fileDialogService,
@@ -74,19 +76,17 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			}
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_rabbitLogger = rabbitLogger ?? throw new ArgumentNullException(nameof(rabbitLogger));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_userService = userService ?? throw new ArgumentNullException(nameof(userService));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
 			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));
-
 			_uow = uowFactory.CreateWithoutRoot();
-
-			_creationDate = DateTime.Now;
 
 			Title = "Пересчёт классификации контрагентов";
 
-			CreateCalculationSettings();
+			CalculationSettings = GetCalculationSettings();
 			GetCurrentUserEmail();
 		}
 
@@ -135,9 +135,21 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 
 		#endregion Properties
 
-		private void CreateCalculationSettings()
+		private CounterpartyClassificationCalculationSettings GetCalculationSettings()
 		{
-			CalculationSettings = new CounterpartyClassificationCalculationSettings();
+			var calculationSettings = new CounterpartyClassificationCalculationSettings();
+
+			if(CalculationSettings != null)
+			{
+				calculationSettings.PeriodInMonths = CalculationSettings.PeriodInMonths;
+				calculationSettings.BottlesCountAClassificationFrom = CalculationSettings.BottlesCountAClassificationFrom;
+				calculationSettings.BottlesCountCClassificationTo = CalculationSettings.BottlesCountCClassificationTo;
+				calculationSettings.OrdersCountXClassificationFrom = CalculationSettings.OrdersCountXClassificationFrom;
+				calculationSettings.OrdersCountZClassificationTo = CalculationSettings.OrdersCountZClassificationTo;
+				calculationSettings.SettingsCreationDate = DateTime.Now;
+
+				return calculationSettings;
+			}
 
 			var lastSettings = _uow.GetAll<CounterpartyClassificationCalculationSettings>()
 				.OrderByDescending(x => x.SettingsCreationDate)
@@ -145,12 +157,14 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 
 			if(lastSettings != null)
 			{
-				CalculationSettings.PeriodInMonths = lastSettings.PeriodInMonths;
-				CalculationSettings.BottlesCountAClassificationFrom = lastSettings.BottlesCountAClassificationFrom;
-				CalculationSettings.BottlesCountCClassificationTo = lastSettings.BottlesCountCClassificationTo;
-				CalculationSettings.OrdersCountXClassificationFrom = lastSettings.OrdersCountXClassificationFrom;
-				CalculationSettings.OrdersCountZClassificationTo = lastSettings.OrdersCountZClassificationTo;
+				calculationSettings.PeriodInMonths = lastSettings.PeriodInMonths;
+				calculationSettings.BottlesCountAClassificationFrom = lastSettings.BottlesCountAClassificationFrom;
+				calculationSettings.BottlesCountCClassificationTo = lastSettings.BottlesCountCClassificationTo;
+				calculationSettings.OrdersCountXClassificationFrom = lastSettings.OrdersCountXClassificationFrom;
+				calculationSettings.OrdersCountZClassificationTo = lastSettings.OrdersCountZClassificationTo;
 			}
+
+			return calculationSettings;
 		}
 
 		private void GetCurrentUserEmail()
@@ -163,10 +177,6 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 
 		private void OnEmailSettingsDialogStartClassificationCalculationClicked(object sender, StartClassificationCalculationEventArgs e)
 		{
-			_creationDate = DateTime.Now;
-
-			UpdateCalculationSettingsCreationDate();
-
 			_currentUserEmail = e.CurrentUserEmail;
 			_additionalEmail = e.AdditionalEmail;
 
@@ -176,18 +186,20 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 		public async Task StartClassificationCalculation(CancellationToken cancellationToken)
 		{
 			IsCalculationInProcess = true;
+			IsCalculationCompleted = false;
 			CalculationProgressValue = 0;
 			_reportData = null;
 
-			_uow.Save(CalculationSettings);
-			_uow.Session.Update(CalculationSettings);
+			var calculationSettings = GetCalculationSettings();
+
+			_uow.Save(calculationSettings);
 
 			CalculationProgressValue = 10;
 
 			var newClassificationsForAllCounterparties = await GetNewClassificationsForAllCounterparties(
 				_uow,
 				_counterpartyRepository,
-				CalculationSettings,
+				calculationSettings,
 				cancellationToken);
 
 			CalculationProgressValue = 40;
@@ -196,7 +208,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 				_uow,
 				_counterpartyRepository,
 				newClassificationsForAllCounterparties,
-				CalculationSettings.PeriodInMonths,
+				calculationSettings.PeriodInMonths,
 				cancellationToken);
 
 			CalculationProgressValue = 60;
@@ -357,6 +369,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 				_employeeService.SendCounterpartyClassificationCalculationReportToEmail(
 					_uow,
 					_emailParametersProvider,
+					_rabbitLogger,
 					_currentUserName,
 					emails,
 					_reportData);
@@ -369,11 +382,6 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 
 				_logger.LogDebug(ex, errorMessage);
 			}
-		}
-
-		private void UpdateCalculationSettingsCreationDate()
-		{
-			CalculationSettings.SettingsCreationDate = _creationDate;
 		}
 
 		private void ShowMessage(ImportanceLevel importanceLevel, string message)
@@ -554,9 +562,9 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 		public override void Dispose()
 		{
 			if(ReportCancelationTokenSource != null
-				&& !ReportCancelationTokenSource.IsCancellationRequested) 
-			{ 
-				ReportCancelationTokenSource?.Cancel(); 
+				&& !ReportCancelationTokenSource.IsCancellationRequested)
+			{
+				ReportCancelationTokenSource?.Cancel();
 			}
 
 			ReportCancelationTokenSource?.Dispose();

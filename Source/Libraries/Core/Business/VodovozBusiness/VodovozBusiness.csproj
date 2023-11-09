@@ -1451,6 +1451,10 @@
       <Project>{d3b6592d-6dcf-40f7-8627-3b4a6cbb040c}</Project>
       <Name>CashReceiptApi.Client.Framework</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Backend\Infrastructure\RabbitMQ.Infrastructure\RabbitMQ.Infrastructure.csproj">
+      <Project>{3032F22E-2C78-4FAD-9936-552FD7DE8D7F}</Project>
+      <Name>RabbitMQ.Infrastructure</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Backend\Sms\Sms.Internal.Client.Famework\Sms.Internal.Client.Framework.csproj">
       <Project>{e6465994-0f46-4c9f-8ce4-bcb98f916b17}</Project>
       <Name>Sms.Internal.Client.Framework</Name>

@@ -32,6 +32,7 @@ namespace Vodovoz.Infrastructure.Services
 		public void SendCounterpartyClassificationCalculationReportToEmail(
 			IUnitOfWork uow,
 			IEmailParametersProvider emailParametersProvider,
+			ILogger<RabbitMQConnectionFactory> logger,
 			string employeeName,
 			IEnumerable<string> emailAddresses,
 			byte[] attachmentData)
@@ -87,19 +88,17 @@ namespace Vodovoz.Infrastructure.Services
 				}
 			};
 
-			SendMessageToEmail(uow, message);
+			SendMessageToEmail(uow, message, logger);
 		}
 
-		private void SendMessageToEmail(IUnitOfWork uow, SendEmailMessage message)
+		private void SendMessageToEmail(IUnitOfWork uow, SendEmailMessage message, ILogger<RabbitMQConnectionFactory> logger)
 		{
 			var configuration = uow.GetAll<InstanceMailingConfiguration>().FirstOrDefault();
 
 			var serializedMessage = JsonSerializer.Serialize(message);
 			var sendingBody = Encoding.UTF8.GetBytes(serializedMessage);
 
-			var Logger = new Logger<RabbitMQConnectionFactory>(new NLogLoggerFactory());
-
-			var connectionFactory = new RabbitMQConnectionFactory(Logger);
+			var connectionFactory = new RabbitMQConnectionFactory(logger);
 
 			var connection = connectionFactory.CreateConnection(
 				configuration.MessageBrokerHost,
