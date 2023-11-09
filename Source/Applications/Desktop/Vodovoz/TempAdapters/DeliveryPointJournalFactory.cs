@@ -13,13 +13,14 @@ namespace Vodovoz.TempAdapters
 {
 	public class DeliveryPointJournalFactory : IDeliveryPointJournalFactory
 	{
-		private readonly ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+		private readonly ILifetimeScope _lifetimeScope;
 		private DeliveryPointJournalFilterViewModel _deliveryPointJournalFilter;
 		
 		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory;
 
-		public DeliveryPointJournalFactory(DeliveryPointJournalFilterViewModel deliveryPointJournalFilter = null)
+		public DeliveryPointJournalFactory(ILifetimeScope lifetimeScope, DeliveryPointJournalFilterViewModel deliveryPointJournalFilter = null)
 		{
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_deliveryPointJournalFilter = deliveryPointJournalFilter; 
 			_deliveryPointViewModelFactory = new DeliveryPointViewModelFactory(_lifetimeScope);
 		}

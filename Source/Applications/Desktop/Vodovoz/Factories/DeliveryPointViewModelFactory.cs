@@ -11,7 +11,7 @@ namespace Vodovoz.Factories
 
 		public DeliveryPointViewModelFactory(ILifetimeScope lifetimeScope)
 		{
-			_lifetimeScope = lifetimeScope;
+			_lifetimeScope = lifetimeScope ?? throw new System.ArgumentNullException(nameof(lifetimeScope));
 		}
 
 		public DeliveryPointViewModel GetForOpenDeliveryPointViewModel(int id)

@@ -732,9 +732,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionDeliveryPointsActivated(object sender, EventArgs e)
 	{
-		var dpJournalFactory = new DeliveryPointJournalFactory();
-		var deliveryPointJournal = dpJournalFactory.CreateDeliveryPointJournal();
-		tdiMain.AddTab(deliveryPointJournal);
+		NavigationManager.OpenViewModel<DeliveryPointJournalViewModel>(null);
 	}
 
 	/// <summary>

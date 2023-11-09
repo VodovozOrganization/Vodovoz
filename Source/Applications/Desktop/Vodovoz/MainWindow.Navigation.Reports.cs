@@ -524,9 +524,13 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnReportKungolovoActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
+		var scope = Startup.AppDIContainer.BeginLifetimeScope();
+
+		var tab = tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<ReportForBigClient>(),
-			() => new QSReport.ReportViewDlg(new ReportForBigClient()));
+			() => new QSReport.ReportViewDlg(scope.Resolve<ReportForBigClient>()));
+
+		tab.TabClosed += (s, args) => scope.Dispose();
 	}
 
 	/// <summary>

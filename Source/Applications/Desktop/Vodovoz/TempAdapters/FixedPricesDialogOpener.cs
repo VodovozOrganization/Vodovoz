@@ -6,13 +6,14 @@ namespace Vodovoz.TempAdapters
 {
 	public class FixedPricesDialogOpener : IFixedPricesDialogOpener
 	{
-		private readonly ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory;
 
 		public FixedPricesDialogOpener()
 		{
 			_deliveryPointViewModelFactory = new DeliveryPointViewModelFactory(_lifetimeScope);
 		}
+
 		public void OpenFixedPricesForSelfDelivery(int counterpartyId)
 		{
 			CounterpartyDlg counterpartyDlg = new CounterpartyDlg(counterpartyId);
@@ -25,6 +26,12 @@ namespace Vodovoz.TempAdapters
 			var dpViewModel = _deliveryPointViewModelFactory.GetForOpenDeliveryPointViewModel(deliveryPointId);
 			TDIMain.MainNotebook.AddTab(dpViewModel);
 			dpViewModel.OpenFixedPrices();
+		}
+
+		public void Dispose()
+		{
+			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
 		}
 	}
 }

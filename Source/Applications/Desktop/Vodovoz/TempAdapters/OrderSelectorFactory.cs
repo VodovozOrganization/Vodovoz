@@ -1,9 +1,12 @@
-﻿using QS.Dialog.GtkUI.FileDialog;
+﻿using Autofac;
+using QS.Dialog.GtkUI.FileDialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
+using QS.Project.Services.FileDialog;
+using QS.Services;
 using System.Collections.Generic;
 using Vodovoz.Core;
 using Vodovoz.Dialogs.OrderWidgets;
@@ -15,19 +18,27 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.Infrastructure.Print;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.TempAdapters
 {
 	public class OrderSelectorFactory : IOrderSelectorFactory
 	{
 		private readonly INavigationManager _navigationManager;
+		private readonly ILifetimeScope _lifetimeScope;
 		private OrderJournalFilterViewModel _orderJournalFilter;
 
-		public OrderSelectorFactory(INavigationManager navigationManager, OrderJournalFilterViewModel orderFilter = null)
+		public OrderSelectorFactory(
+			INavigationManager navigationManager,
+			ILifetimeScope lifetimeScope,
+			OrderJournalFilterViewModel orderFilter = null)
 		{
 			_navigationManager = navigationManager ?? throw new System.ArgumentNullException(nameof(navigationManager));
+			_lifetimeScope = lifetimeScope ?? throw new System.ArgumentNullException(nameof(lifetimeScope));
 			_orderJournalFilter = orderFilter;
 		}
 
@@ -58,17 +69,30 @@ namespace Vodovoz.TempAdapters
 
 		public IEntityAutocompleteSelectorFactory CreateCashSelfDeliveryOrderAutocompleteSelector()
 		{
-			var scope = Startup.AppDIContainer.BeginLifetimeScope();
-			var counterpartyJournalFactory = new CounterpartyJournalFactory(scope);
-			var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
-			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
-			var userRepository = new UserRepository();
+			var unitOfWorkFactory = _lifetimeScope.Resolve<IUnitOfWorkFactory>();
+			var commonServices = _lifetimeScope.Resolve<ICommonServices>();
+			var employeeService = _lifetimeScope.Resolve<IEmployeeService>();
+			var nomenclatureRepository = _lifetimeScope.Resolve<INomenclatureRepository>();
+			var userRepository = _lifetimeScope.Resolve<IUserRepository>();
+			var orderSelectorFactory = _lifetimeScope.Resolve<IOrderSelectorFactory>();
+			var employeeJournalFactory = _lifetimeScope.Resolve<IEmployeeJournalFactory>();
+			var counterpartyJournalFactory = _lifetimeScope.Resolve<ICounterpartyJournalFactory>();
+			var deliveryPointJournalFactory = _lifetimeScope.Resolve<IDeliveryPointJournalFactory>();
+			var gtkTabsOpener = _lifetimeScope.Resolve<IGtkTabsOpener>();
+			var nomenclatureJournalFactory = _lifetimeScope.Resolve<INomenclatureJournalFactory>();
+			var undeliveredOrdersRepository = _lifetimeScope.Resolve<IUndeliveredOrdersRepository>();
+			var subdivisionRepository = _lifetimeScope.Resolve<ISubdivisionRepository>();
+			var fileDialogService = _lifetimeScope.Resolve<IFileDialogService>();
+			var subdivisionParametersProvider = _lifetimeScope.Resolve<ISubdivisionParametersProvider>();
+			var deliveryScheduleParametersProvider = _lifetimeScope.Resolve<IDeliveryScheduleParametersProvider>();
+			var rdlPreviewOpener = _lifetimeScope.Resolve<IRDLPreviewOpener>();
+			var routeListItemRepository = _lifetimeScope.Resolve<IRouteListItemRepository>();
 
 			return new EntityAutocompleteSelectorFactory<OrderJournalViewModel>(
 				typeof(Order),
 				() =>
 				{
-					var filter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, scope);
+					var filter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, _lifetimeScope);
 					filter.SetAndRefilterAtOnce(
 						x => x.RestrictStatus = OrderStatus.WaitForPayment,
 						x => x.AllowPaymentTypes = new[] { PaymentType.Cash },
@@ -79,43 +103,55 @@ namespace Vodovoz.TempAdapters
 
 					return new OrderJournalViewModel(
 						filter,
-						UnitOfWorkFactory.GetDefaultFactory,
-						ServicesConfig.CommonServices,
+						unitOfWorkFactory,
+						commonServices,
 						_navigationManager,
-						scope,
-						VodovozGtkServicesConfig.EmployeeService,
+						_lifetimeScope,
+						employeeService,
 						nomenclatureRepository,
 						userRepository,
-						new OrderSelectorFactory(_navigationManager),
-						new EmployeeJournalFactory(_navigationManager),
+						orderSelectorFactory,
+						employeeJournalFactory,
 						counterpartyJournalFactory,
-						new DeliveryPointJournalFactory(),
-						new GtkTabsOpener(),
-						new NomenclatureJournalFactory(),
-						new UndeliveredOrdersRepository(),
-						new SubdivisionRepository(new ParametersProvider()),
-						new FileDialogService(),
-						new SubdivisionParametersProvider(new ParametersProvider()),
-						new DeliveryScheduleParametersProvider(new ParametersProvider()),
-						new RdlPreviewOpener(),
-						new RouteListItemRepository());
+						deliveryPointJournalFactory,
+						gtkTabsOpener,
+						nomenclatureJournalFactory,
+						undeliveredOrdersRepository,
+						subdivisionRepository,
+						fileDialogService,
+						subdivisionParametersProvider,
+						deliveryScheduleParametersProvider,
+						rdlPreviewOpener,
+						routeListItemRepository);
 				});
 		}
 
 		public IEntityAutocompleteSelectorFactory CreateSelfDeliveryDocumentOrderAutocompleteSelector()
 		{
-			var scope = Startup.AppDIContainer.BeginLifetimeScope();
-
-			var counterpartyJournalFactory = new CounterpartyJournalFactory(scope);
-			var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
-			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
-			var userRepository = new UserRepository();
+			var unitOfWorkFactory = _lifetimeScope.Resolve<IUnitOfWorkFactory>();
+			var commonServices = _lifetimeScope.Resolve<ICommonServices>();
+			var employeeService = _lifetimeScope.Resolve<IEmployeeService>();
+			var nomenclatureRepository = _lifetimeScope.Resolve<INomenclatureRepository>();
+			var userRepository = _lifetimeScope.Resolve<IUserRepository>();
+			var orderSelectorFactory = _lifetimeScope.Resolve<IOrderSelectorFactory>();
+			var employeeJournalFactory = _lifetimeScope.Resolve<IEmployeeJournalFactory>();
+			var counterpartyJournalFactory = _lifetimeScope.Resolve<ICounterpartyJournalFactory>();
+			var deliveryPointJournalFactory = _lifetimeScope.Resolve<IDeliveryPointJournalFactory>();
+			var gtkTabsOpener = _lifetimeScope.Resolve<IGtkTabsOpener>();
+			var nomenclatureJournalFactory = _lifetimeScope.Resolve<INomenclatureJournalFactory>();
+			var undeliveredOrdersRepository = _lifetimeScope.Resolve<IUndeliveredOrdersRepository>();
+			var subdivisionRepository = _lifetimeScope.Resolve<ISubdivisionRepository>();
+			var fileDialogService = _lifetimeScope.Resolve<IFileDialogService>();
+			var subdivisionParametersProvider = _lifetimeScope.Resolve<ISubdivisionParametersProvider>();
+			var deliveryScheduleParametersProvider = _lifetimeScope.Resolve<IDeliveryScheduleParametersProvider>();
+			var rdlPreviewOpener = _lifetimeScope.Resolve<IRDLPreviewOpener>();
+			var routeListItemRepository = _lifetimeScope.Resolve<IRouteListItemRepository>();
 
 			return new EntityAutocompleteSelectorFactory<OrderJournalViewModel>(
 				typeof(Order),
 				() =>
 				{
-					var filter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, scope);
+					var filter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, _lifetimeScope);
 					filter.SetAndRefilterAtOnce(
 						x => x.RestrictOnlySelfDelivery = true,
 						x => x.RestrictStatus = OrderStatus.OnLoading
@@ -123,37 +159,49 @@ namespace Vodovoz.TempAdapters
 
 					return new OrderJournalViewModel(
 						filter,
-						UnitOfWorkFactory.GetDefaultFactory,
-						ServicesConfig.CommonServices,
+						unitOfWorkFactory,
+						commonServices,
 						_navigationManager,
-						scope,
-						VodovozGtkServicesConfig.EmployeeService,
+						_lifetimeScope,
+						employeeService,
 						nomenclatureRepository,
 						userRepository,
-						new OrderSelectorFactory(_navigationManager),
-						new EmployeeJournalFactory(_navigationManager),
+						orderSelectorFactory,
+						employeeJournalFactory,
 						counterpartyJournalFactory,
-						new DeliveryPointJournalFactory(),
-						new GtkTabsOpener(),
-						new NomenclatureJournalFactory(),
-						new UndeliveredOrdersRepository(),
-						new SubdivisionRepository(new ParametersProvider()),
-						new FileDialogService(),
-						new SubdivisionParametersProvider(new ParametersProvider()),
-						new DeliveryScheduleParametersProvider(new ParametersProvider()),
-						new RdlPreviewOpener(),
-						new RouteListItemRepository());
+						deliveryPointJournalFactory,
+						gtkTabsOpener,
+						nomenclatureJournalFactory,
+						undeliveredOrdersRepository,
+						subdivisionRepository,
+						fileDialogService,
+						subdivisionParametersProvider,
+						deliveryScheduleParametersProvider,
+						rdlPreviewOpener,
+						routeListItemRepository);
 				});
 		}
 
 		public OrderJournalViewModel CreateOrderJournalViewModel(OrderJournalFilterViewModel filterViewModel = null)
 		{
-			var scope = Startup.AppDIContainer.BeginLifetimeScope();
-
-			var counterpartyJournalFactory = new CounterpartyJournalFactory(scope);
-			var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
-			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
-			var userRepository = new UserRepository();
+			var unitOfWorkFactory = _lifetimeScope.Resolve<IUnitOfWorkFactory>();
+			var commonServices = _lifetimeScope.Resolve<ICommonServices>();
+			var employeeService = _lifetimeScope.Resolve<IEmployeeService>();
+			var nomenclatureRepository = _lifetimeScope.Resolve<INomenclatureRepository>();
+			var userRepository = _lifetimeScope.Resolve<IUserRepository>();
+			var orderSelectorFactory = _lifetimeScope.Resolve<IOrderSelectorFactory>();
+			var employeeJournalFactory = _lifetimeScope.Resolve<IEmployeeJournalFactory>();
+			var counterpartyJournalFactory = _lifetimeScope.Resolve<ICounterpartyJournalFactory>();
+			var deliveryPointJournalFactory = _lifetimeScope.Resolve<IDeliveryPointJournalFactory>();
+			var gtkTabsOpener = _lifetimeScope.Resolve<IGtkTabsOpener>();
+			var nomenclatureJournalFactory = _lifetimeScope.Resolve<INomenclatureJournalFactory>();
+			var undeliveredOrdersRepository = _lifetimeScope.Resolve<IUndeliveredOrdersRepository>();
+			var subdivisionRepository = _lifetimeScope.Resolve<ISubdivisionRepository>();
+			var fileDialogService = _lifetimeScope.Resolve<IFileDialogService>();
+			var subdivisionParametersProvider = _lifetimeScope.Resolve<ISubdivisionParametersProvider>();
+			var deliveryScheduleParametersProvider = _lifetimeScope.Resolve<IDeliveryScheduleParametersProvider>();
+			var rdlPreviewOpener = _lifetimeScope.Resolve<IRDLPreviewOpener>();
+			var routeListItemRepository = _lifetimeScope.Resolve<IRouteListItemRepository>();
 
 			if(filterViewModel != null)
 			{
@@ -161,28 +209,27 @@ namespace Vodovoz.TempAdapters
 			}
 
 			return new OrderJournalViewModel(
-				_orderJournalFilter
-					?? new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, scope),
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices,
+				filterViewModel,
+				unitOfWorkFactory,
+				commonServices,
 				_navigationManager,
-				scope,
-				VodovozGtkServicesConfig.EmployeeService,
+				_lifetimeScope,
+				employeeService,
 				nomenclatureRepository,
 				userRepository,
-				new OrderSelectorFactory(_navigationManager),
-				new EmployeeJournalFactory(_navigationManager),
+				orderSelectorFactory,
+				employeeJournalFactory,
 				counterpartyJournalFactory,
-				new DeliveryPointJournalFactory(),
-				new GtkTabsOpener(),
-				new NomenclatureJournalFactory(),
-				new UndeliveredOrdersRepository(),
-				new SubdivisionRepository(new ParametersProvider()),
-				new FileDialogService(),
-				new SubdivisionParametersProvider(new ParametersProvider()),
-				new DeliveryScheduleParametersProvider(new ParametersProvider()),
-				new RdlPreviewOpener(),
-				new RouteListItemRepository());
+				deliveryPointJournalFactory,
+				gtkTabsOpener,
+				nomenclatureJournalFactory,
+				undeliveredOrdersRepository,
+				subdivisionRepository,
+				fileDialogService,
+				subdivisionParametersProvider,
+				deliveryScheduleParametersProvider,
+				rdlPreviewOpener,
+				routeListItemRepository);
 		}
 	}
 }

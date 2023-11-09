@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
@@ -1002,29 +1002,25 @@ namespace Vodovoz
 			var routeListItemsTo = evmeRouteListTo.Subject as RouteList;
 			var routeListToItems = routeListItemsTo?.Addresses.Select(t => t.Order.Id) ?? new List<int>();
 
-			var filter = new OrderJournalFilterViewModel(
-				new CounterpartyJournalFactory(_lifetimeScope),
-				new DeliveryPointJournalFactory(),
-				_lifetimeScope)
+			var exeptIds = RouteListItemsFrom
+				.Select(f => f.RouteListItem.Order.Id)
+				.Concat(routeListToItems)
+				.ToArray();
+
+			var orderPage = Startup.MainWin.NavigationManager.OpenViewModel<OrderForRouteListJournalViewModel, Action<OrderJournalFilterViewModel>>(null, filter =>
 			{
-				ExceptIds = RouteListItemsFrom.Select(f => f.RouteListItem.Order.Id)
-					.Concat(routeListToItems)
-					.ToArray()
-			};
+				filter.RestrictFilterDateType = OrdersDateFilterType.DeliveryDate;
+                filter.RestrictStatus = OrderStatus.Accepted;
+                filter.RestrictWithoutSelfDelivery = true;
+                filter.RestrictOnlySelfDelivery = false;
+                filter.RestrictHideService = true;
+				filter.ExcludeClosingDocumentDeliverySchedule = true;
+				filter.ExceptIds = exeptIds;
+			});
 
-			filter.SetAndRefilterAtOnce(
-				x => x.RestrictFilterDateType = OrdersDateFilterType.DeliveryDate,
-				x => x.RestrictStatus = OrderStatus.Accepted,
-				x => x.RestrictWithoutSelfDelivery = true,
-				x => x.RestrictOnlySelfDelivery = false,
-				x => x.RestrictHideService = true,
-				x => x.ExcludeClosingDocumentDeliverySchedule = true
-			);
-
-			var orderPage = Startup.MainWin.NavigationManager.OpenViewModel<OrderForRouteListJournalViewModel, OrderJournalFilterViewModel>(null, filter);
-			orderPage.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
-			orderPage.ViewModel.OnEntitySelectedResult += OnOrderSelectedResult;
-		}
+            orderPage.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
+            orderPage.ViewModel.OnEntitySelectedResult += OnOrderSelectedResult;
+        }
 
 		private void OnOrderSelectedResult(object sender, JournalSelectedNodesEventArgs e)
 		{

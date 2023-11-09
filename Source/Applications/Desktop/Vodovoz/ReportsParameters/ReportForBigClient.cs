@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
-using QS.Dialog;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Client;
 using QS.Dialog.GtkUI;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.TempAdapters;
+using Autofac;
 
 namespace Vodovoz.ReportsParameters
 {
@@ -18,14 +17,16 @@ namespace Vodovoz.ReportsParameters
 		private readonly IDeliveryPointJournalFactory _deliveryPointJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilterViewModel;
+		private readonly ILifetimeScope _lifetimeScope;
 
-		public ReportForBigClient()
+		public ReportForBigClient(ILifetimeScope lifetimeScope)
 		{
-			this.Build();
+			Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
 			_deliveryPointJournalFilterViewModel = new DeliveryPointJournalFilterViewModel();
-			_deliveryPointJournalFactory = new DeliveryPointJournalFactory(_deliveryPointJournalFilterViewModel);
+			_deliveryPointJournalFactory = _lifetimeScope.Resolve<IDeliveryPointJournalFactory>(new TypedParameter(typeof(DeliveryPointJournalFilterViewModel), _deliveryPointJournalFilterViewModel));
 
 			evmeCounterparty
 				.SetEntityAutocompleteSelectorFactory(_counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory());
