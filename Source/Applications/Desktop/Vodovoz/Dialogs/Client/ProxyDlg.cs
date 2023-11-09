@@ -119,5 +119,12 @@ namespace Vodovoz
 				Entity.ObservableDeliveryPoints.Remove(toDelete);
 			}
 		}
+
+		public override void Destroy()
+		{
+			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
+			base.Destroy();
+		}
 	}
 }
