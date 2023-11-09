@@ -56,10 +56,10 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(ViewModel, vm => vm.ReasonForLeaving, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 
-			//yenumClassification.ItemsEnum = typeof(CounterpartyCompositeClassification);
-			//yenumClassification.Binding
-			//	.AddBinding(ViewModel, vm => vm.CounterpartyClassification, w => w.SelectedItemOrNull)
-			//	.InitializeFromSource();
+			yenumClassification.ItemsEnum = typeof(CounterpartyCompositeClassification);
+			yenumClassification.Binding
+				.AddBinding(ViewModel, vm => vm.CounterpartyClassification, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
 
 			checkIncludeArhive.Binding
 				.AddBinding(ViewModel, vm => vm.RestrictIncludeArchive, w => w.Active)
