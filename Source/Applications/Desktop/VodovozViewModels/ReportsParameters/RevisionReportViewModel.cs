@@ -11,8 +11,6 @@ namespace Vodovoz.ViewModels.ReportsParameters
 {
 	public class RevisionReportViewModel : ReportParametersViewModelBase, IDisposable
 	{
-		private IUnitOfWork _unitOfWork;
-
 		public RevisionReportViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			INavigationManager navigationManager,
@@ -33,11 +31,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 
 		public Counterparty Counterparty { get; set; }
 
-		public IUnitOfWork UnitOfWork
-		{
-			get => _unitOfWork;
-			set => _unitOfWork = value;
-		}
+		public IUnitOfWork UnitOfWork { get; private set; }
 		public INavigationManager NavigationManager { get; }
 		public ILifetimeScope LifetimeScope { get; private set; }
 		public RdlViewerViewModel RdlViewerViewModel { get; }
