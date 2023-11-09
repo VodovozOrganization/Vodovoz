@@ -1375,6 +1375,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+	<ProjectReference Include="..\Backend\Infrastructure\RabbitMQ.Infrastructure\RabbitMQ.Infrastructure.csproj" />
     <ProjectReference Include="..\..\..\External\GMap.NET\GMap.NET.Core\GMap.NET.Core.csproj">
       <Project>{d0c39d9d-bed0-418b-9a5e-713176caf40c}</Project>
       <Name>GMap.NET.Core</Name>
