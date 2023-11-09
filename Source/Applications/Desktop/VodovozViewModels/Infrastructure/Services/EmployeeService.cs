@@ -1,4 +1,6 @@
 ﻿using Mailjet.Api.Abstractions;
+using Microsoft.Extensions.Logging;
+using NLog.Extensions.Logging;
 using QS.Attachments.Domain;
 using QS.DomainModel.UoW;
 using RabbitMQ.Infrastructure;
@@ -30,7 +32,6 @@ namespace Vodovoz.Infrastructure.Services
 		public void SendCounterpartyClassificationCalculationReportToEmail(
 			IUnitOfWork uow,
 			IEmailParametersProvider emailParametersProvider,
-			RabbitMQConnectionFactory rabbitMqConnectionFactory,
 			string employeeName,
 			IEnumerable<string> emailAddresses,
 			byte[] attachmentData)
@@ -86,17 +87,21 @@ namespace Vodovoz.Infrastructure.Services
 				}
 			};
 
-			SendMessageToEmail(uow, message, rabbitMqConnectionFactory);
+			SendMessageToEmail(uow, message);
 		}
 
-		private void SendMessageToEmail(IUnitOfWork uow, SendEmailMessage message, RabbitMQConnectionFactory rabbitMqConnectionFactory)
+		private void SendMessageToEmail(IUnitOfWork uow, SendEmailMessage message)
 		{
 			var configuration = uow.GetAll<InstanceMailingConfiguration>().FirstOrDefault();
 
 			var serializedMessage = JsonSerializer.Serialize(message);
 			var sendingBody = Encoding.UTF8.GetBytes(serializedMessage);
 
-			var connection = rabbitMqConnectionFactory.CreateConnection(
+			var Logger = new Logger<RabbitMQConnectionFactory>(new NLogLoggerFactory());
+
+			var connectionFactory = new RabbitMQConnectionFactory(Logger);
+
+			var connection = connectionFactory.CreateConnection(
 				configuration.MessageBrokerHost,
 				configuration.MessageBrokerUsername,
 				configuration.MessageBrokerPassword,

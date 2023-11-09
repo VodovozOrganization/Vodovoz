@@ -10,7 +10,6 @@ using QS.Navigation;
 using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.ViewModels;
-using RabbitMQ.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -41,7 +40,6 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 		private readonly IFileDialogService _fileDialogService;
 		private readonly ICounterpartyRepository _counterpartyRepository;
 		private readonly IEmailParametersProvider _emailParametersProvider;
-		private readonly RabbitMQConnectionFactory _rabbitMqConnectionFactory;
 		private bool _isCalculationInProcess;
 		private bool _isCalculationCompleted;
 		private string _currentUserName;
@@ -66,8 +64,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			IUserService userService,
 			IFileDialogService fileDialogService,
 			ICounterpartyRepository counterpartyRepository,
-			IEmailParametersProvider emailParametersProvider,
-			RabbitMQConnectionFactory rabbitMqConnectionFactory
+			IEmailParametersProvider emailParametersProvider
 			) : base(uowFactory, interactiveService, navigation)
 		{
 			if(uowFactory is null)
@@ -81,7 +78,6 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
 			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));
-			_rabbitMqConnectionFactory = rabbitMqConnectionFactory ?? throw new ArgumentNullException(nameof(rabbitMqConnectionFactory));
 			_uow = uowFactory.CreateWithoutRoot();
 
 			Title = "Пересчёт классификации контрагентов";
@@ -369,7 +365,6 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 				_employeeService.SendCounterpartyClassificationCalculationReportToEmail(
 					_uow,
 					_emailParametersProvider,
-					_rabbitMqConnectionFactory,
 					_currentUserName,
 					emails,
 					_reportData);
