@@ -322,5 +322,12 @@ namespace Vodovoz.Dialogs
 
 			UpdateAddressFields();
 		}
+
+		public override void Destroy()
+		{
+			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
+			base.Destroy();
+		}
 	}
 }

@@ -611,6 +611,8 @@ public partial class MainWindow : Window
 		var reportViewDlg = new QSReport.ReportViewDlg(report);
 
 		tdiMain.AddTab(reportViewDlg);
+
+		report.Destroyed += (s, args) => scope.Dispose();
 	}
 
 	void ActionReportDebtorsBottles_Activated(object sender, System.EventArgs e)

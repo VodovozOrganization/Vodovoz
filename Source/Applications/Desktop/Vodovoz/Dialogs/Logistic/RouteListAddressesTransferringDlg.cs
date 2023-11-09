@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
@@ -1010,17 +1010,17 @@ namespace Vodovoz
 			var orderPage = Startup.MainWin.NavigationManager.OpenViewModel<OrderForRouteListJournalViewModel, Action<OrderJournalFilterViewModel>>(null, filter =>
 			{
 				filter.RestrictFilterDateType = OrdersDateFilterType.DeliveryDate;
-                filter.RestrictStatus = OrderStatus.Accepted;
-                filter.RestrictWithoutSelfDelivery = true;
-                filter.RestrictOnlySelfDelivery = false;
-                filter.RestrictHideService = true;
+				filter.RestrictStatus = OrderStatus.Accepted;
+				filter.RestrictWithoutSelfDelivery = true;
+				filter.RestrictOnlySelfDelivery = false;
+				filter.RestrictHideService = true;
 				filter.ExcludeClosingDocumentDeliverySchedule = true;
 				filter.ExceptIds = exeptIds;
 			});
 
-            orderPage.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
-            orderPage.ViewModel.OnEntitySelectedResult += OnOrderSelectedResult;
-        }
+			orderPage.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
+			orderPage.ViewModel.OnEntitySelectedResult += OnOrderSelectedResult;
+		}
 
 		private void OnOrderSelectedResult(object sender, JournalSelectedNodesEventArgs e)
 		{
