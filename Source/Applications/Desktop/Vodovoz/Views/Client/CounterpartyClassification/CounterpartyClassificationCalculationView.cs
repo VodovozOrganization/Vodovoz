@@ -21,8 +21,8 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 
 		private void ConfigureDlg()
 		{
-			var redColor = GdkColors.DangerText.ToHtmlColor();
-			var greenColor = GdkColors.DarkGreen.ToHtmlColor();
+			var dangerTextColor = GdkColors.DangerText.ToHtmlColor();
+			var successTextColor = GdkColors.SuccessText.ToHtmlColor();
 
 			yspinbuttonPeriod.Binding
 				.AddBinding(ViewModel.CalculationSettings, s => s.PeriodInMonths, w => w.ValueAsInt)
@@ -65,9 +65,9 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 
 			ybuttonQuite.Binding
 				.AddSource(ViewModel)
-				.AddBinding(vm => vm.CanQuite, w => w.Sensitive)
+				.AddBinding(vm => vm.CanQuit, w => w.Sensitive)
 				.InitializeFromSource();
-			ybuttonQuite.Clicked += (s, e) => ViewModel.QuiteCommand.Execute();
+			ybuttonQuite.Clicked += (s, e) => ViewModel.QuitCommand.Execute();
 
 			yprogressbarCalculationProgress.Adjustment = new Adjustment(0, 0, 100, 1, 1, 1);
 
@@ -81,7 +81,7 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.ProgressInfoLabelValue, w => w.Text)
 				.AddFuncBinding(vm => vm.IsCalculationInProcess || vm.IsCalculationCompleted, w => w.Visible)
-				.AddFuncBinding(vm => vm.IsCalculationInProcess ? redColor : greenColor, w => w.ForegroundColor)
+				.AddFuncBinding(vm => vm.IsCalculationInProcess ? dangerTextColor : successTextColor, w => w.ForegroundColor)
 				.InitializeFromSource();
 
 			ViewModel.CommandToStartCalculationReceived += OnCommandToStartCalculationReceived;
@@ -105,15 +105,10 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 
 		private async Task StartCalculation()
 		{
-			if(ViewModel.ReportCancelationTokenSource != null)
-			{
-				return;
-			}
+			ViewModel.ReportCancelationTokenSource = new CancellationTokenSource();
 
 			var task = Task.Run(async () =>
 			{
-				ViewModel.ReportCancelationTokenSource = new CancellationTokenSource();
-
 				try
 				{
 					await ViewModel.StartClassificationCalculation(ViewModel.ReportCancelationTokenSource.Token);
@@ -145,12 +140,7 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 						throw ex;
 					});
 				}
-				finally
-				{
-					ViewModel.ReportCancelationTokenSource?.Dispose();
-					ViewModel.ReportCancelationTokenSource = null;
-				}
-			});
+			}, ViewModel.ReportCancelationTokenSource.Token);
 
 			await task;
 		}

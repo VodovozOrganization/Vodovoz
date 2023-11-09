@@ -14,8 +14,6 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 		private string _currentUserEmail;
 		private string _additionalEmail;
 
-		private DelegateCommand _startCalculationCommand;
-
 		public event EventHandler<StartClassificationCalculationEventArgs> StartClassificationCalculationClicked;
 
 		public CounterpartyClassificationCalculationEmailSettingsViewModel(
@@ -33,9 +31,13 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 
 			Title = "Пересчёт классификации";
 			_currentUserEmail = userEmail;
+
+			StartCalculationCommand = new DelegateCommand(StartCalculation);
 		}
 
 		#region Properties
+
+		public DelegateCommand StartCalculationCommand { get; }
 
 		[PropertyChangedAlso(nameof(IsCurrentUserEmailValid))]
 		public string CurrentUserEmail
@@ -69,26 +71,9 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 
 		#endregion Properties
 
-		#region Commands
-		#region StartCalculation
-		public DelegateCommand StartCalculationCommand
-		{
-			get
-			{
-				if(_startCalculationCommand == null)
-				{
-					_startCalculationCommand = new DelegateCommand(StartCalculation, () => CanStartCalculation);
-					_startCalculationCommand.CanExecuteChangedWith(this, x => x.CanStartCalculation);
-				}
-				return _startCalculationCommand;
-			}
-		}
-
-		public bool CanStartCalculation => true;
-
 		private void StartCalculation()
 		{
-			if(!string.IsNullOrEmpty(CurrentUserEmail) 
+			if(!string.IsNullOrEmpty(CurrentUserEmail)
 				&& !new EmailAddressAttribute().IsValid(CurrentUserEmail))
 			{
 				if(!_interactiveService.Question(
@@ -102,7 +87,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 				CurrentUserEmail = string.Empty;
 			}
 
-			if(!string.IsNullOrEmpty(AdditionalEmail) 
+			if(!string.IsNullOrEmpty(AdditionalEmail)
 				&& !new EmailAddressAttribute().IsValid(AdditionalEmail))
 			{
 				if(!_interactiveService.Question(
@@ -132,7 +117,5 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 
 			this.Close(false, CloseSource.Self);
 		}
-		#endregion StartCalculation
-		#endregion Commands
 	}
 }

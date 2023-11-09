@@ -44,7 +44,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			}
 
 			public string Title =>
-				$"ОТЧЁТ ОБ ИЗМЕНЕНИИ КАТЕГОРИИ КЛИЕНТОВ ОТ {DateTime.Now.ToString("dd.MM.yyyy")} за Период в {_periodInMonth} месяца";
+				$"ОТЧЁТ ОБ ИЗМЕНЕНИИ КАТЕГОРИИ КЛИЕНТОВ ОТ {DateTime.Today.Date:dd.MM.yyyy} за Период в {_periodInMonth} месяца";
 
 			public byte[] Export()
 			{

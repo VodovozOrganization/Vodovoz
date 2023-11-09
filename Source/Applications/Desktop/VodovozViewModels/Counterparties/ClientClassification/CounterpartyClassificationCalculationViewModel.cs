@@ -52,7 +52,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 		private DelegateCommand _openEmailSettingsDialogCommand;
 		private DelegateCommand _cancelCommand;
 		private DelegateCommand _saveReportCommand;
-		private DelegateCommand _quiteCommand;
+		private DelegateCommand _quitCommand;
 		private DelegateCommand _updatePropertiesAfterCancellationCommand;
 		private DelegateCommand _updatePropertiesAfterExceptionCommand;
 
@@ -108,7 +108,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			nameof(CanOpenEmailSettingsDialog),
 			nameof(CanCancel),
 			nameof(CanSaveReport),
-			nameof(CanQuite))]
+			nameof(CanQuit))]
 		public bool IsCalculationInProcess
 		{
 			get => _isCalculationInProcess;
@@ -119,7 +119,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			nameof(CanOpenEmailSettingsDialog),
 			nameof(CanCancel),
 			nameof(CanSaveReport),
-			nameof(CanQuite),
+			nameof(CanQuit),
 			nameof(ProgressInfoLabelValue))]
 		public bool IsCalculationCompleted
 		{
@@ -322,9 +322,9 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			{
 				var errorMessage = "Ошибка отправки отчета. Данные отсутствуют.";
 
-				ShowMessage(ImportanceLevel.Error, errorMessage);
-
 				_logger.LogDebug(errorMessage);
+
+				ShowMessage(ImportanceLevel.Error, errorMessage);
 
 				return;
 			}
@@ -480,23 +480,23 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 		}
 		#endregion SaveReport
 
-		#region Quite
-		public DelegateCommand QuiteCommand
+		#region Quit
+		public DelegateCommand QuitCommand
 		{
 			get
 			{
-				if(_quiteCommand == null)
+				if(_quitCommand == null)
 				{
-					_quiteCommand = new DelegateCommand(Quite, () => CanQuite);
-					_quiteCommand.CanExecuteChangedWith(this, x => x.CanQuite);
+					_quitCommand = new DelegateCommand(Quit, () => CanQuit);
+					_quitCommand.CanExecuteChangedWith(this, x => x.CanQuit);
 				}
-				return _quiteCommand;
+				return _quitCommand;
 			}
 		}
 
-		public bool CanQuite => !IsCalculationInProcess;
+		public bool CanQuit => !IsCalculationInProcess;
 
-		private void Quite()
+		private void Quit()
 		{
 			this.Close(false, CloseSource.Self);
 		}
@@ -553,8 +553,15 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 		#region IDisposable implementation
 		public override void Dispose()
 		{
-			_uow?.Dispose();
+			if(ReportCancelationTokenSource != null
+				&& !ReportCancelationTokenSource.IsCancellationRequested) 
+			{ 
+				ReportCancelationTokenSource?.Cancel(); 
+			}
+
 			ReportCancelationTokenSource?.Dispose();
+
+			_uow?.Dispose();
 
 			base.Dispose();
 		}
