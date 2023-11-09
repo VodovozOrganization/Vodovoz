@@ -27,15 +27,21 @@ namespace Vodovoz.JournalViewModels
 	{
 		private readonly bool _userHaveAccessToRetail;
 		private readonly bool _canOpenCloseDeliveries;
+		private readonly ILifetimeScope _lifetimeScope;
 
 		public CounterpartyJournalViewModel(
 			CounterpartyJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
+			ILifetimeScope lifetimeScope,
 			Action<CounterpartyJournalFilterViewModel> filterConfiguration = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices, navigation: navigationManager)
 		{
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+
+			filterViewModel.Journal = this;
+
 			TabName = "Журнал контрагентов";
 
 			_userHaveAccessToRetail = commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_to_retail");
@@ -57,6 +63,8 @@ namespace Vodovoz.JournalViewModels
 
 			SearchEnabled = false;
 		}
+
+		public ILifetimeScope LifetimeScope => _lifetimeScope;
 
 		protected override void CreateNodeActions()
 		{
@@ -314,6 +322,18 @@ namespace Vodovoz.JournalViewModels
 					default:
 						throw new ArgumentException("Выбран неизвестный тип классификации контрагента");
 				}
+			}
+
+			if(FilterViewModel != null
+				&& FilterViewModel.ClientCameFrom != null
+				&& !FilterViewModel.ClientCameFromIsEmpty)
+			{
+				query.Where(c => c.CameFrom.Id == FilterViewModel.ClientCameFrom.Id);
+			}
+
+			if(FilterViewModel != null && FilterViewModel.ClientCameFromIsEmpty)
+			{
+				query.Where(c => c.CameFrom == null);
 			}
 
 			query.Where(FilterViewModel?.SearchByAddressViewModel?.GetSearchCriterion(

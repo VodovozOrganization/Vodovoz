@@ -28,6 +28,7 @@ using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using Autofac;
 
 namespace Vodovoz.ViewModels.Logistic
 {
@@ -41,7 +42,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IErrorReporter _errorReporter;
-		private readonly WageParameterService _wageParameterService;
+		private readonly IWageParameterService _wageParameterService;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 
@@ -74,17 +75,23 @@ namespace Vodovoz.ViewModels.Logistic
 			IEmployeeRepository employeeRepository,
 			IOrderRepository orderRepository,
 			IErrorReporter errorReporter,
-			WageParameterService wageParameterService,
+			IWageParameterService wageParameterService,
 			IRouteListRepository routeListRepository,
 			IRouteListItemRepository routeListItemRepository,
 			IValidationContextFactory validationContextFactory,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			INavigationManager navigationManager,
+			ILifetimeScope lifetimeScope,
 			IEmployeeSettings employeeSettings,
 			IEmployeeService employeeService,
 			IRouteListProfitabilityController routeListProfitabilityController)
 			:base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
+			if(lifetimeScope is null)
+			{
+				throw new ArgumentNullException(nameof(lifetimeScope));
+			}
+
 			TabName = $"Контроль за километражем маршрутного листа №{Entity.Id}";
 
 			_baseParametersProvider = baseParametersProvider ?? throw new ArgumentNullException(nameof(baseParametersProvider));
@@ -105,7 +112,7 @@ namespace Vodovoz.ViewModels.Logistic
 				routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
 
 			CarSelectorFactory = (carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory)))
-				.CreateCarAutocompleteSelectorFactory();
+				.CreateCarAutocompleteSelectorFactory(lifetimeScope);
 
 			LogisticianSelectorFactory = employeeJournalFactory.CreateWorkingEmployeeAutocompleteSelectorFactory();
 			DriverSelectorFactory = employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();

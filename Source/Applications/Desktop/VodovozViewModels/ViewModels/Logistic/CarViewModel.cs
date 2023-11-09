@@ -22,6 +22,7 @@ using Vodovoz.ViewModels.Journals.JournalFactories;
 using QS.Project.Journal;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.Domain.Sale;
+using Autofac;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
@@ -48,7 +49,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IOdometerReadingsViewModelFactory odometerReadingsViewModelFactory,
 			IRouteListsWageController routeListsWageController,
 			IGeoGroupJournalFactory geoGroupJournalFactory,
-			INavigationManager navigationManager)
+			INavigationManager navigationManager,
+			ILifetimeScope lifetimeScope)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(navigationManager == null)
@@ -57,6 +59,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 			_routeListsWageController = routeListsWageController ?? throw new ArgumentNullException(nameof(routeListsWageController));
 			_geoGroupJournalFactory = geoGroupJournalFactory ?? throw new ArgumentNullException(nameof(geoGroupJournalFactory));
+			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			CarModelJournalFactory = carModelJournalFactory ?? throw new ArgumentNullException(nameof(carModelJournalFactory));
 
 			TabName = "Автомобиль";
@@ -110,6 +113,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public bool CanEditFuelCardNumber { get; }
 		public IEmployeeJournalFactory EmployeeJournalFactory { get; }
 		public ICarModelJournalFactory CarModelJournalFactory { get; }
+		public ILifetimeScope LifetimeScope { get; }
 		public CarVersionsViewModel CarVersionsViewModel { get; }
 		public OdometerReadingsViewModel OdometerReadingsViewModel { get; }
 

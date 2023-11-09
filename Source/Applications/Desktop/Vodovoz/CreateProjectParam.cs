@@ -456,6 +456,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<MovementsPaymentControlViewModel, MovementsPaymentControlView>()
 				.RegisterWidgetForWidgetViewModel<SalesReportViewModel, SalesReportView>()
 				.RegisterWidgetForWidgetViewModel<SetBillsReportViewModel, SetBillsReportView>()
+				.RegisterWidgetForWidgetViewModel<RevisionReportViewModel, Revision>()
 				.RegisterWidgetForWidgetViewModel<PaymentsFromBankClientReportViewModel, PaymentsFromBankClientReportView>()
 				.RegisterWidgetForWidgetViewModel<RevenueServiceMassCounterpartyUpdateToolViewModel, RevenueServiceMassCounterpartyUpdateToolView>()
 				.RegisterWidgetForWidgetViewModel<FastDeliveryOrderTransferFilterViewModel, FastDeliveryOrderTransferFilterView>()

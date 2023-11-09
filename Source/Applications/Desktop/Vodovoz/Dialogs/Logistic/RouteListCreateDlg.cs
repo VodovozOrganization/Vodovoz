@@ -187,7 +187,7 @@ namespace Vodovoz
 
 			ytreeviewSpecialConditions.ItemsDataSource = specialConditions;
 
-			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(Startup.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory());
+			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(Startup.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory(_lifetimeScope));
 			entityviewmodelentryCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 			entityviewmodelentryCar.ChangedByUser += (sender, e) =>
@@ -948,6 +948,7 @@ namespace Vodovoz
 		{
 			base.Destroy();
 			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
 		}
 	}
 }

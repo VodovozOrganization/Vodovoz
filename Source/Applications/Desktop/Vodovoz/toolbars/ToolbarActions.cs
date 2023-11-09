@@ -96,6 +96,8 @@ using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
 using Action = Gtk.Action;
+using QS.Report.ViewModels;
+using Vodovoz.ViewModels.ReportsParameters;
 
 public partial class MainWindow : Window
 {
@@ -643,44 +645,6 @@ public partial class MainWindow : Window
 		);
 	}
 
-	void ActionAtWorks_Activated(object sender, EventArgs e)
-	{
-		var localScope = _autofacScope.BeginLifetimeScope();
-
-		var dlg = localScope.Resolve<AtWorksDlg>();
-
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<AtWorksDlg>(),
-			() => dlg);
-	}
-
-	void ActionRouteListsAtDay_Activated(object sender, System.EventArgs e)
-	{
-		var parametersProvider = new ParametersProvider();
-		var baseParametersProvider = new BaseParametersProvider(parametersProvider);
-
-		tdiMain.OpenTab(
-			"AutoRouting",
-			() => new RouteListsOnDayViewModel(
-				ServicesConfig.CommonServices,
-				new DeliveryScheduleParametersProvider(parametersProvider),
-				new GtkTabsOpener(),
-				new RouteListRepository(new StockRepository(), baseParametersProvider),
-				new SubdivisionRepository(parametersProvider),
-				new OrderRepository(),
-				new AtWorkRepository(),
-				new CarRepository(),
-				NavigationManagerProvider.NavigationManager,
-				new UserRepository(),
-				baseParametersProvider,
-				new EmployeeJournalFactory(NavigationManager),
-				new GeographicGroupRepository(),
-				new ScheduleRestrictionRepository(),
-				new CarModelJournalFactory()
-			)
-		);
-	}
-
 	void ActionUnclosedAdvances_Activated(object sender, System.EventArgs e)
 	{
 		NavigationManager.OpenTdiTab<UnclosedAdvancesView>(null);
@@ -831,10 +795,7 @@ public partial class MainWindow : Window
 
 	void ActionRevision_Activated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.Revision>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.Revision())
-		);
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(RevisionReportViewModel));
 	}
 
 	void ActionExportTo1c_Activated(object sender, System.EventArgs e)
@@ -872,15 +833,6 @@ public partial class MainWindow : Window
 	void ActionAccountableDebt_Activated(object sender, System.EventArgs e)
 	{
 		NavigationManager.OpenTdiTab<AccountableDebts>(null);
-	}
-
-	void ActionRouteListTable_Activated(object sender, System.EventArgs e)
-	{
-		var filter = new RouteListJournalFilterViewModel();
-		filter.StartDate = DateTime.Today.AddMonths(-2);
-		filter.EndDate = DateTime.Today;
-
-		NavigationManager.OpenViewModel<RouteListJournalViewModel, RouteListJournalFilterViewModel>(null, filter);
 	}
 
 	void ActionRouteListClosingTable_Activated(object sender, EventArgs e)
@@ -1060,26 +1012,18 @@ public partial class MainWindow : Window
 
 	void OnActionSalesOrdersJournalActivated(object sender, EventArgs e)
 	{
-		var scope = Startup.AppDIContainer.BeginLifetimeScope();
-		var counterpartyJournalFactory = new CounterpartyJournalFactory(scope);
-		var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
-
-		var orderJournalFilter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, scope)
+		NavigationManager.OpenViewModel<OrderJournalViewModel, Action<OrderJournalFilterViewModel>>(null, filter =>
 		{
-			IsForSalesDepartment = true
-		};
-
-		NavigationManager.OpenViewModel<OrderJournalViewModel, OrderJournalFilterViewModel>(null, orderJournalFilter);
+			filter.IsForSalesDepartment = true;
+		});
 	}
 
 	void OnActionSalesCounterpartiesJournalActivated(object sender, EventArgs e)
 	{
-		CounterpartyJournalFilterViewModel counterpartyJournalFilter = new CounterpartyJournalFilterViewModel()
+		NavigationManager.OpenViewModel<CounterpartyJournalViewModel, Action<CounterpartyJournalFilterViewModel>>(null, filter =>
 		{
-			IsForSalesDepartment = true
-		};
-
-		NavigationManager.OpenViewModel<CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(null, counterpartyJournalFilter);
+			filter.IsForSalesDepartment = true;
+		});
 	}
 
 	void OnActionSalesUndeliveredOrdersOrdersJournalActivated(object sender, EventArgs e)

@@ -311,6 +311,8 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public bool AskSaveOnClose => CanEditRouteList;
 
+		public ILifetimeScope LifetimeScope => _lifetimeScope;
+
 		protected override bool BeforeSave()
 		{
 			SetLogisticianCommentAuthor();
