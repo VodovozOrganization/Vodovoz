@@ -41,6 +41,7 @@ using QS.ViewModels.Extension;
 using QS.ViewModels.Resolve;
 using QS.Views.Resolve;
 using QSReport;
+using RabbitMQ.Infrastructure;
 using RevenueService.Client;
 using System;
 using System.Collections.Generic;
@@ -636,7 +637,8 @@ namespace Vodovoz
 							.AddScoped<IRouteListService, RouteListService>()
 							.AddScoped<RouteGeometryCalculator>()
 							.AddSingleton<OsrmClient>(sp => OsrmClientFactory.Instance)
-							.AddSingleton<IFastDeliveryDistanceChecker, DistanceCalculator>();
+							.AddSingleton<IFastDeliveryDistanceChecker, DistanceCalculator>()
+							.AddScoped<RabbitMQConnectionFactory>();
 				});
 	}
 }

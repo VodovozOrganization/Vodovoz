@@ -41,7 +41,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 		private readonly IFileDialogService _fileDialogService;
 		private readonly ICounterpartyRepository _counterpartyRepository;
 		private readonly IEmailParametersProvider _emailParametersProvider;
-		private readonly ILogger<RabbitMQConnectionFactory> _rabbitLogger;
+		private readonly RabbitMQConnectionFactory _rabbitMqConnectionFactory;
 		private bool _isCalculationInProcess;
 		private bool _isCalculationCompleted;
 		private string _currentUserName;
@@ -62,12 +62,12 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			IInteractiveService interactiveService,
 			INavigationManager navigation,
 			ILogger<CounterpartyClassificationCalculationViewModel> logger,
-			ILogger<RabbitMQConnectionFactory> rabbitLogger,
 			IEmployeeService employeeService,
 			IUserService userService,
 			IFileDialogService fileDialogService,
 			ICounterpartyRepository counterpartyRepository,
-			IEmailParametersProvider emailParametersProvider
+			IEmailParametersProvider emailParametersProvider,
+			RabbitMQConnectionFactory rabbitMqConnectionFactory
 			) : base(uowFactory, interactiveService, navigation)
 		{
 			if(uowFactory is null)
@@ -76,12 +76,12 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			}
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_rabbitLogger = rabbitLogger ?? throw new ArgumentNullException(nameof(rabbitLogger));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_userService = userService ?? throw new ArgumentNullException(nameof(userService));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
 			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));
+			_rabbitMqConnectionFactory = rabbitMqConnectionFactory ?? throw new ArgumentNullException(nameof(rabbitMqConnectionFactory));
 			_uow = uowFactory.CreateWithoutRoot();
 
 			Title = "Пересчёт классификации контрагентов";
@@ -369,7 +369,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 				_employeeService.SendCounterpartyClassificationCalculationReportToEmail(
 					_uow,
 					_emailParametersProvider,
-					_rabbitLogger,
+					_rabbitMqConnectionFactory,
 					_currentUserName,
 					emails,
 					_reportData);

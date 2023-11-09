@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using RabbitMQ.Infrastructure;
 using System.Collections.Generic;
 using Vodovoz.Domain.Employees;
@@ -13,7 +12,7 @@ namespace Vodovoz.Services
 		void SendCounterpartyClassificationCalculationReportToEmail(
 			IUnitOfWork unitOfWork,
 			IEmailParametersProvider emailParametersProvider,
-			ILogger<RabbitMQConnectionFactory> logger,
+			RabbitMQConnectionFactory rabbitMqConnectionFactory,
 			string employeeName,
 			IEnumerable<string> emailAddresses,
 			byte[] attachmentData);
