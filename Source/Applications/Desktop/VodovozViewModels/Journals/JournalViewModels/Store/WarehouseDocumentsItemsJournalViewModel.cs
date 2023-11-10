@@ -8,7 +8,6 @@ using NHibernate.Transform;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
-using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
@@ -241,6 +240,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					() => null,
 					(node) => _gtkTabsOpener.OpenSelfDeliveryDocumentDlg(node.DocumentId),
 					(node) => node.EntityType == typeof(SelfDeliveryDocumentItem))
+					.FinishConfiguration();
+
+			RegisterEntity(GetQuerySelfDeliveryReturnedDocumentItem)
+				.AddDocumentConfiguration<ITdiTab>(
+					() => null,
+					(node) => _gtkTabsOpener.OpenSelfDeliveryDocumentDlg(node.DocumentId),
+					(node) => node.EntityType == typeof(SelfDeliveryDocumentReturned))
 					.FinishConfiguration();
 
 			RegisterEntity(GetQueryCarLoadDocumentItem)
@@ -1132,6 +1138,125 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => warehouseAlias.Id).WithAlias(() => resultAlias.FromStorageId)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
 					.Select(() => selfDeliveryDocumentItemAlias.Amount).WithAlias(() => resultAlias.Amount)
+					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
+					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
+					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
+					.Select(() => lastEditorAlias.LastName).WithAlias(() => resultAlias.LastEditorSurname)
+					.Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditorName)
+					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
+					.Select(() => selfDeliveryDocumentAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
+					.Select(() => selfDeliveryDocumentAlias.Comment).WithAlias(() => resultAlias.Comment))
+				.OrderBy(x => x.TimeStamp).Desc
+				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode>());
+		}
+
+
+		private IQueryOver<SelfDeliveryDocumentReturned> GetQuerySelfDeliveryReturnedDocumentItem(IUnitOfWork unitOfWork)
+		{
+			WarehouseDocumentsItemsJournalNode resultAlias = null;
+
+			SelfDeliveryDocument selfDeliveryDocumentAlias = null;
+			SelfDeliveryDocumentReturned selfDeliveryDocumentReturnedAlias = null;
+
+			Warehouse warehouseAlias = null;
+			Domain.Orders.Order orderAlias = null;
+			Counterparty counterpartyAlias = null;
+			Employee authorAlias = null;
+			Employee lastEditorAlias = null;
+			Nomenclature nomenclatureAlias = null;
+			ProductGroup productGroupAlias = null;
+
+			var selfDeliveryReturnedQuery = unitOfWork.Session.QueryOver(() => selfDeliveryDocumentReturnedAlias)
+				.JoinQueryOver(() => selfDeliveryDocumentReturnedAlias.Document, () => selfDeliveryDocumentAlias);
+
+			if((FilterViewModel.DocumentType == null
+				|| FilterViewModel.DocumentType == DocumentType.SelfDeliveryDocument)
+				&& FilterViewModel.Driver == null
+				&& (!FilterViewModel.CounterpartyIds.Any() || FilterViewModel.TargetSource != TargetSource.Source)
+				&& (!FilterViewModel.WarehouseIds.Any() || FilterViewModel.TargetSource != TargetSource.Target))
+			{
+				if(FilterViewModel.DocumentId != null)
+				{
+					selfDeliveryReturnedQuery.Where(() => selfDeliveryDocumentAlias.Id == FilterViewModel.DocumentId);
+				}
+
+				if(FilterViewModel.StartDate != null)
+				{
+					selfDeliveryReturnedQuery.Where(() => selfDeliveryDocumentAlias.TimeStamp >= FilterViewModel.StartDate);
+				}
+
+				if(FilterViewModel.EndDate != null)
+				{
+					selfDeliveryReturnedQuery.Where(() => selfDeliveryDocumentAlias.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
+				}
+
+				if(FilterViewModel.CounterpartyIds.Any() && FilterViewModel.TargetSource != TargetSource.Source)
+				{
+					var counterpartyCriterion = Restrictions.In(Projections.Property(() => counterpartyAlias.Id), FilterViewModel.CounterpartyIds);
+
+					if(FilterViewModel.FilterType == Vodovoz.Infrastructure.Report.SelectableParametersFilter.SelectableFilterType.Include)
+					{
+						selfDeliveryReturnedQuery.Where(counterpartyCriterion);
+					}
+					else
+					{
+						selfDeliveryReturnedQuery.Where(Restrictions.Not(counterpartyCriterion));
+					}
+				}
+
+				if(FilterViewModel.WarehouseIds.Any() && FilterViewModel.TargetSource != TargetSource.Target)
+				{
+					var warehouseCriterion = Restrictions.In(Projections.Property(() => warehouseAlias.Id), FilterViewModel.WarehouseIds);
+
+					if(FilterViewModel.FilterType == Vodovoz.Infrastructure.Report.SelectableParametersFilter.SelectableFilterType.Include)
+					{
+						selfDeliveryReturnedQuery.Where(warehouseCriterion);
+					}
+					else
+					{
+						selfDeliveryReturnedQuery.Where(Restrictions.Not(warehouseCriterion));
+					}
+				}
+
+				if(FilterViewModel.Author != null)
+				{
+					selfDeliveryReturnedQuery.Where(() => authorAlias.Id == FilterViewModel.Author.Id);
+				}
+
+				if(FilterViewModel.LastEditor != null)
+				{
+					selfDeliveryReturnedQuery.Where(() => lastEditorAlias.Id == FilterViewModel.LastEditor.Id);
+				}
+
+				selfDeliveryReturnedQuery.Where(GetIncludeExcludeNomenclatureRestriction(nomenclatureAlias));
+				selfDeliveryReturnedQuery.Where(GetIncludeExcludeProductGroupRestriction(productGroupAlias));
+			}
+			else
+			{
+				selfDeliveryReturnedQuery.Where(() => selfDeliveryDocumentAlias.Id == -1);
+			}
+
+			return selfDeliveryReturnedQuery
+				.Left.JoinAlias(() => selfDeliveryDocumentReturnedAlias.Nomenclature, () => nomenclatureAlias)
+				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
+				.Left.JoinAlias(() => selfDeliveryDocumentAlias.Warehouse, () => warehouseAlias)
+				.Left.JoinAlias(() => selfDeliveryDocumentAlias.Order, () => orderAlias)
+				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
+				.Left.JoinAlias(() => selfDeliveryDocumentAlias.Author, () => authorAlias)
+				.Left.JoinAlias(() => selfDeliveryDocumentAlias.LastEditor, () => lastEditorAlias)
+				.SelectList(list => list
+					.Select(() => selfDeliveryDocumentReturnedAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => selfDeliveryDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
+					.Select(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
+					.Select(() => selfDeliveryDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
+					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.Source)
+					.Select(() => DocumentType.SelfDeliveryDocument).WithAlias(() => resultAlias.DocumentTypeEnum)
+					.Select(() => typeof(SelfDeliveryDocumentReturned)).WithAlias(() => resultAlias.EntityType)
+					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Counterparty)
+					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.FromStorage)
+					.Select(() => warehouseAlias.Id).WithAlias(() => resultAlias.FromStorageId)
+					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
+					.Select(() => selfDeliveryDocumentReturnedAlias.Amount).WithAlias(() => resultAlias.Amount)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
 					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
@@ -2210,6 +2335,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			lines.AddRange(GetQueryMovementToDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
 			lines.AddRange(GetQueryWriteOffDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
 			lines.AddRange(GetQuerySelfDeliveryDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
+			lines.AddRange(GetQuerySelfDeliveryReturnedDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
 			lines.AddRange(GetQueryCarLoadDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
 			lines.AddRange(GetQueryCarUnloadDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
 			lines.AddRange(GetQueryInventoryDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
@@ -2300,6 +2426,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			lines.AddRange(GetQueryMovementToDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
 			lines.AddRange(GetQueryWriteOffDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
 			lines.AddRange(GetQuerySelfDeliveryDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
+			lines.AddRange(GetQuerySelfDeliveryReturnedDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
 			lines.AddRange(GetQueryCarLoadDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
 			lines.AddRange(GetQueryCarUnloadDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
 			lines.AddRange(GetQueryInventoryDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
@@ -2363,17 +2490,18 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			var balanceProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, 0)"),
 				NHibernateUtil.Decimal,
-				Projections.Sum(() => warehouseBulkOperationAlias.Amount));
+				Projections.Property(() => warehouseBulkOperationAlias.Amount));
 
 			var result = UoW.Session.QueryOver(() => nomenclatureAlias)
 				.JoinEntityAlias(() => warehouseBulkOperationAlias,
 					() => nomenclatureAlias.Id == warehouseBulkOperationAlias.Nomenclature.Id
 						&& warehouseBulkOperationAlias.Warehouse.Id == warehouseId,
-					JoinType.LeftOuterJoin)
+					JoinType.InnerJoin)
 				.Where(() => nomenclatureAlias.Id == nomenclatureId)
+				.And(() => warehouseBulkOperationAlias.OperationTime <= upToDateTime)
 				.SelectList(list => list
 					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
-					.Select(balanceProjection).WithAlias(() => resultAlias.Stock))
+					.Select(Projections.Sum(balanceProjection)).WithAlias(() => resultAlias.Stock))
 				.TransformUsing(Transformers.AliasToBean<NomenclatureStockNode>())
 				.SingleOrDefault<NomenclatureStockNode>();
 
