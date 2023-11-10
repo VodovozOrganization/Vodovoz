@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using GMap.NET.MapProviders;
 using Gtk;
 using Microsoft.Extensions.Logging;
@@ -236,7 +236,7 @@ namespace Vodovoz
 			QSSaaS.Session.StartSessionRefresh();
 
 			PerformanceHelper.AddTimePoint("Закончен старт SAAS. Конец загрузки.");
-			//PerformanceHelper.Main.PrintAllPoints();
+			PerformanceHelper.Main.PrintAllPoints(_logger);
 
 			Gtk.Application.Run();
 			QSSaaS.Session.StopSessionRefresh();
