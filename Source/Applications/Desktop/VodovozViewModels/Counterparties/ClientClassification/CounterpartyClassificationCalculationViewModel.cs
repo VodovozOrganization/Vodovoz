@@ -9,6 +9,7 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services.FileDialog;
 using QS.Services;
+using QS.Tdi;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -28,7 +29,7 @@ using static Vodovoz.ViewModels.Counterparties.ClientClassification.Counterparty
 
 namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 {
-	public partial class CounterpartyClassificationCalculationViewModel : DialogTabViewModelBase
+	public partial class CounterpartyClassificationCalculationViewModel : DialogTabViewModelBase, ITDICloseControlTab
 	{
 		private const int _insertQueryElementsMaxCount = 10_000;
 
@@ -388,6 +389,22 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			};
 
 			CalculationMessageReceived?.Invoke(this, eventArgs);
+		}
+
+		public bool CanClose()
+		{
+			if(!IsCalculationInProcess)
+			{
+				return true;
+			}
+
+			ShowMessage(
+				ImportanceLevel.Info,
+				   "Пересчет классификаций в процессе.\n\n" +
+				   "Чтобы закрыть вкладку необходимо либо дождаться завершения пересчета,\n" +
+				   "либо отменить выполнение пересчета");
+
+			return false;
 		}
 
 		#region Commands		
