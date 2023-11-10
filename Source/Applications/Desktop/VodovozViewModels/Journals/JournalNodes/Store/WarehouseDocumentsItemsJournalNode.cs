@@ -1,4 +1,4 @@
-﻿using Gamma.Utilities;
+using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.Project.Journal;
 using QS.Utilities.Text;
@@ -74,7 +74,9 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Store
 					case DocumentType.RegradingOfGoodsDocument:
 						return $"По складу: {FromStorage}";
 					case DocumentType.SelfDeliveryDocument:
-						return $"Склад: {FromStorage}, Заказ №: {OrderId}, Клиент: {Counterparty}";
+						return string.IsNullOrWhiteSpace(FromStorage)
+							? $"Склад: {ToStorage}, Заказ №: {OrderId}, Клиент: {Counterparty}"
+							: $"Склад: {FromStorage}, Заказ №: {OrderId}, Клиент: {Counterparty}";
 					case DocumentType.DriverTerminalGiveout:
 						return "Выдача терминала водителю " +
 							   $"{PersonHelper.PersonNameWithInitials(DriverSurname, DriverName, DriverPatronymic)} со склада {FromStorage}";
