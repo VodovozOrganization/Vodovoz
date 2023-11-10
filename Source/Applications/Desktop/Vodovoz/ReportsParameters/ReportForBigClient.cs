@@ -26,8 +26,8 @@ namespace Vodovoz.ReportsParameters
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
 			_deliveryPointJournalFilterViewModel = new DeliveryPointJournalFilterViewModel();
-			_deliveryPointJournalFactory = _lifetimeScope.Resolve<IDeliveryPointJournalFactory>(new TypedParameter(typeof(DeliveryPointJournalFilterViewModel), _deliveryPointJournalFilterViewModel));
-
+			_deliveryPointJournalFactory = _lifetimeScope.Resolve<IDeliveryPointJournalFactory>();
+			_deliveryPointJournalFactory.SetDeliveryPointJournalFilterViewModel(_deliveryPointJournalFilterViewModel);
 			evmeCounterparty
 				.SetEntityAutocompleteSelectorFactory(_counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory());
 			evmeCounterparty.Changed += OnCounterpartyChanged;

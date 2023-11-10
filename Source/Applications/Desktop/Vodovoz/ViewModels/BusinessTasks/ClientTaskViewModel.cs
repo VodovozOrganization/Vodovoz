@@ -174,7 +174,10 @@ namespace Vodovoz.ViewModels.BusinessTasks
 		private IEntityAutocompleteSelectorFactory CreateDeliveryPointFactory()
 		{
 			var dpFilter = new DeliveryPointJournalFilterViewModel{Counterparty = Entity.Counterparty, HidenByDefault = true};
-			return _lifetimeScope.Resolve<IDeliveryPointJournalFactory>(new TypedParameter(typeof(DeliveryPointJournalFilterViewModel), dpFilter))
+			var deliveryPointFactory = _lifetimeScope.Resolve<IDeliveryPointJournalFactory>();
+			deliveryPointFactory.SetDeliveryPointJournalFilterViewModel(dpFilter);
+
+			return deliveryPointFactory
 				.CreateDeliveryPointByClientAutocompleteSelectorFactory();
 		}
 

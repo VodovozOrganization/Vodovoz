@@ -516,8 +516,8 @@ namespace Vodovoz
 				Counterparty = client
 			};
 
-			var deliveryPointJournalFactory = _lifetimeScope.Resolve<IDeliveryPointJournalFactory>(new TypedParameter(typeof(DeliveryPointJournalFilterViewModel), deliveryPointFilter));
-
+			var deliveryPointJournalFactory = _lifetimeScope.Resolve<IDeliveryPointJournalFactory>();
+			deliveryPointJournalFactory.SetDeliveryPointJournalFilterViewModel(deliveryPointFilter);
 			entityVMEntryDeliveryPoint.SetEntityAutocompleteSelectorFactory(deliveryPointJournalFactory.CreateDeliveryPointByClientAutocompleteSelectorFactory());
 			entityVMEntryDeliveryPoint.Binding.AddBinding(_orderNode, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
 		}

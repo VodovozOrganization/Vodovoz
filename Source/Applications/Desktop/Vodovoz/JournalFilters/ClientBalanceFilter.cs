@@ -35,7 +35,8 @@ namespace Vodovoz
 			nomenclatureEntry.ChangedByUser += NomenclatureEntryOnChangedByUser;
 
 			entryClient.SetEntityAutocompleteSelectorFactory(_lifetimeScope.Resolve<ICounterpartyJournalFactory>().CreateCounterpartyAutocompleteSelectorFactory());
-			var dpFactory = _lifetimeScope.Resolve<IDeliveryPointJournalFactory>(new TypedParameter(typeof(DeliveryPointJournalFilterViewModel) , _deliveryPointJournalFilter));
+			var dpFactory = _lifetimeScope.Resolve<IDeliveryPointJournalFactory>();
+			dpFactory.SetDeliveryPointJournalFilterViewModel(_deliveryPointJournalFilter);
 			evmeDeliveryPoint.SetEntityAutocompleteSelectorFactory(dpFactory.CreateDeliveryPointByClientAutocompleteSelectorFactory());
 			evmeDeliveryPoint.Changed += (sender, args) => OnRefiltered();
 

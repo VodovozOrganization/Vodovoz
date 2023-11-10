@@ -526,11 +526,13 @@ public partial class MainWindow
 	{
 		var scope = Startup.AppDIContainer.BeginLifetimeScope();
 
+		var report = scope.Resolve<ReportForBigClient>();
+
+		report.Destroyed += (s, args) => scope?.Dispose();
+
 		var tab = tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<ReportForBigClient>(),
-			() => new QSReport.ReportViewDlg(scope.Resolve<ReportForBigClient>()));
-
-		tab.TabClosed += (s, args) => scope.Dispose();
+			() => new QSReport.ReportViewDlg(report));
 	}
 
 	/// <summary>

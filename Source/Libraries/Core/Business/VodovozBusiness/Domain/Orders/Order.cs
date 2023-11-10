@@ -3265,7 +3265,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual void SelfDeliveryToLoading(
 			Employee employee,
 			ICurrentPermissionService permissionService,
-			CallTaskWorker callTaskWorker)
+			ICallTaskWorker callTaskWorker)
 		{
 			if(!SelfDelivery) {
 				return;
@@ -3931,13 +3931,13 @@ namespace Vodovoz.Domain.Orders
 			UpdateBottleMovementOperation(uow, standartNomenclatures, ReturnedTare ?? 0, forfeitQuantity ?? 0);
 		}
 
-		public virtual void ChangePaymentTypeToByCardTerminal (CallTaskWorker callTaskWorker)
+		public virtual void ChangePaymentTypeToByCardTerminal (ICallTaskWorker callTaskWorker)
 		{
 			PaymentType = PaymentType.Terminal;
 			ChangeStatusAndCreateTasks(!PayAfterShipment ? OrderStatus.Accepted : OrderStatus.Closed, callTaskWorker);
 		}
 
-		public virtual void ChangePaymentTypeToOnline(CallTaskWorker callTaskWorker)
+		public virtual void ChangePaymentTypeToOnline(ICallTaskWorker callTaskWorker)
 		{
 			PaymentType = PaymentType.PaidOnline;
 			ChangeStatusAndCreateTasks(!PayAfterShipment ? OrderStatus.Accepted : OrderStatus.Closed, callTaskWorker);

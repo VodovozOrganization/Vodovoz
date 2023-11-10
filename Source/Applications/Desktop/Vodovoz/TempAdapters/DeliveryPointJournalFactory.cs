@@ -18,10 +18,10 @@ namespace Vodovoz.TempAdapters
 		
 		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory;
 
-		public DeliveryPointJournalFactory(ILifetimeScope lifetimeScope, DeliveryPointJournalFilterViewModel deliveryPointJournalFilter = null)
+		public DeliveryPointJournalFactory(ILifetimeScope lifetimeScope, DeliveryPointJournalFilterViewModel deliveryPointJournalFilter)
 		{
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
-			_deliveryPointJournalFilter = deliveryPointJournalFilter; 
+			_deliveryPointJournalFilter = deliveryPointJournalFilter ?? throw new ArgumentNullException(nameof(deliveryPointJournalFilter)); 
 			_deliveryPointViewModelFactory = new DeliveryPointViewModelFactory(_lifetimeScope);
 		}
 
