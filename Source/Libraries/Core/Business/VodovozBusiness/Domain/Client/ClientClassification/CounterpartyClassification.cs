@@ -52,7 +52,7 @@ namespace Vodovoz.Domain.Client.ClientClassification
 		}
 
 		#region Properties
-		public virtual int Id { get; }
+		public virtual int Id { get; set; }
 
 		[Display(Name = "Id контрагента")]
 		public virtual int CounterpartyId

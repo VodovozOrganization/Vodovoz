@@ -322,7 +322,17 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		{
 			var query = uow.GetAll<CounterpartyClassification>()
 				.Where(c => c.ClassificationCalculationSettingsId == lastCalculationSettingsId)
-				.Select(c => c);
+				.Select(c => new CounterpartyClassification
+				{
+					Id = c.Id,
+					CounterpartyId = c.CounterpartyId,
+					ClassificationByBottlesCount = c.ClassificationByBottlesCount,
+					ClassificationByOrdersCount = c.ClassificationByOrdersCount,
+					BottlesPerMonthAverageCount = c.BottlesPerMonthAverageCount,
+					OrdersPerMonthAverageCount = c.OrdersPerMonthAverageCount,
+					MoneyTurnoverPerMonthAverageSum = c.MoneyTurnoverPerMonthAverageSum,
+					ClassificationCalculationSettingsId = c.ClassificationCalculationSettingsId
+				});
 
 			return query;
 		}

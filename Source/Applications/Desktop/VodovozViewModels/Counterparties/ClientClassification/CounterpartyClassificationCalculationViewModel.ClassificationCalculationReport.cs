@@ -65,14 +65,16 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 					.ToListAsync(cancellationToken))
 					.FirstOrDefault();
 
-				var lastCalculationDate = GetCalculationSettingsDateById(
+				var lastCalculationDate = await GetCalculationSettingsDateById(
 					uow,
-					lastCalculationSettingsId);
+					lastCalculationSettingsId,
+					cancellationToken);
 
-				var oldClassifications = GetLastExistingClassifications(
+				var oldClassifications = await GetLastExistingClassifications(
 					uow,
 					counterpartyRepository,
-					lastCalculationSettingsId);
+					lastCalculationSettingsId,
+					cancellationToken);
 
 				var rows = await CreateRows(
 					uow,
@@ -123,28 +125,34 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 				return rows;
 			}
 
-			private static IEnumerable<CounterpartyClassification> GetLastExistingClassifications(
+			private async static Task<IEnumerable<CounterpartyClassification>> GetLastExistingClassifications(
 				IUnitOfWork uow,
 				ICounterpartyRepository counterpartyRepository,
-				int lastCalculationSettingsId)
+				int lastCalculationSettingsId,
+				CancellationToken cancellationToken
+				)
 			{
 				if(lastCalculationSettingsId == default)
 				{
 					return new List<CounterpartyClassification>();
 				}
 
-				var lastExistingClassifications = counterpartyRepository
+				var lastExistingClassifications = await counterpartyRepository
 					.GetLastExistingClassificationsForCounterparties(uow, lastCalculationSettingsId)
-					.ToList();
+					.ToListAsync(cancellationToken);
 
 				return lastExistingClassifications;
 			}
 
-			private static DateTime GetCalculationSettingsDateById(IUnitOfWork uow, int settingsId)
+			private static async Task<DateTime> GetCalculationSettingsDateById(IUnitOfWork uow, int settingsId, CancellationToken cancellationToken)
 			{
-				var settings = uow.GetById<CounterpartyClassificationCalculationSettings>(settingsId);
+				var settingCreationDate = (await uow.GetAll<CounterpartyClassificationCalculationSettings>()
+					.Where(s => s.Id == settingsId)
+					.Select(s => s.SettingsCreationDate)
+					.ToListAsync(cancellationToken))
+					.FirstOrDefault();
 
-				return settings?.SettingsCreationDate ?? default;
+				return settingCreationDate;
 			}
 
 			private byte[] Export(IEnumerable<ClassificationCalculationReportRow> rows)
