@@ -410,6 +410,8 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 
 		private void OpenEmailSettingsDialog()
 		{
+			GetCurrentUserEmail();
+
 			var emailSettingsDialog =
 				NavigationManager.OpenViewModel<CounterpartyClassificationCalculationEmailSettingsViewModel, string>(this, _currentUserEmail)
 				.ViewModel;

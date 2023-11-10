@@ -22,15 +22,13 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			string userEmail
 			) : base(navigation)
 		{
-			if(string.IsNullOrWhiteSpace(userEmail))
-			{
-				throw new ArgumentException($"'{nameof(userEmail)}' cannot be null or whitespace.", nameof(userEmail));
-			}
-
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 
 			Title = "Пересчёт классификации";
-			_currentUserEmail = userEmail;
+			_currentUserEmail = 
+				string.IsNullOrWhiteSpace(userEmail)
+				? string.Empty
+				: userEmail;
 
 			StartCalculationCommand = new DelegateCommand(StartCalculation);
 		}
