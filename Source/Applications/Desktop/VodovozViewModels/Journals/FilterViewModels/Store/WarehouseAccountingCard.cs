@@ -44,17 +44,17 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 					.Where(x => x.Date >= startDate
 						&& x.Date <= endDate
 						&& !string.IsNullOrWhiteSpace(x.Target)
-						&& x.ToWarehouseId == WarehouseId
+						&& x.ToStorageId == WarehouseId
 						&& x.NomenclatureName == NomenclatureName)
-					.Sum(x => x.Amount);
+					.Sum(x => Math.Abs(x.Amount));
 
 				var outcome = rows
 					.Where(x => x.Date >= startDate
 						&& x.Date <= endDate
 						&& !string.IsNullOrWhiteSpace(x.Source)
-						&& x.FromWarehouseId == WarehouseId
+						&& x.FromStorageId == WarehouseId
 						&& x.NomenclatureName == NomenclatureName)
-					.Sum(x => x.Amount);
+					.Sum(x => Math.Abs(x.Amount));
 
 				var residue = _getWarehouseBalance(NomenclatureId, WarehouseId, slice.EndDate);
 

@@ -91,17 +91,13 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Store
 
 		public int OrderId { get; set; }
 
-		public string FromWarehouse { get; set; }
 		public string FromStorage { get; set; }
 
-		public int FromWarehouseId { get; set; }
 		public int FromStorageId { get; set; }
 		public StorageType StorageFromType { get; set; }
 
-		public string ToWarehouse { get; set; }
 		public string ToStorage { get; set; }
 
-		public int ToWarehouseId { get; set; }
 		public int ToStorageId { get; set; }
 
 		public decimal Amount { get; set; }
