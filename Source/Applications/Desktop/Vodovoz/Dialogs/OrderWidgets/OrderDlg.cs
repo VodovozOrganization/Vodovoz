@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
@@ -37,7 +37,6 @@ using System.Data;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.ServiceModel;
 using System.Text;
 using System.Threading;
 using Vodovoz.Additions.Printing;
@@ -45,6 +44,7 @@ using Vodovoz.Controllers;
 using Vodovoz.Core;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
+using Vodovoz.Dialogs.Client;
 using Vodovoz.Dialogs.Email;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -4868,6 +4868,17 @@ namespace Vodovoz
 		private void OnBtnCopySummaryInfoClicked(object sender, EventArgs e)
 		{
 			GetClipboard(Gdk.Selection.Clipboard).Text = _summaryInfoBuilder.ToString();
+		}
+
+		private int ShowOrderCancellationAdditionalConfirmationDialog()
+		{
+			var dlg = new OrderCancellationConfirmationDlg();
+			dlg.SetPosition(WindowPosition.CenterAlways);
+			dlg.Title = "Подтверждение отмены заказа";
+			var result = dlg.Run();
+			dlg.Destroy();
+
+			return result;
 		}
 	}
 }
