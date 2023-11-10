@@ -781,8 +781,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(Projections.Conditional(
 						Restrictions.Eq(
 							Projections.Property(() => movementDocumentAlias.Status), MovementDocumentStatus.Accepted),
-							Projections.Property(() => movementDocumentItemAlias.ReceivedAmount),
-							Projections.Property(() => movementDocumentItemAlias.SentAmount)))
+							Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "- ?1"),
+								NHibernateUtil.Decimal,
+								Projections.Property(() => movementDocumentItemAlias.ReceivedAmount)),
+							Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "- ?1"),
+								NHibernateUtil.Decimal,
+								Projections.Property(() => movementDocumentItemAlias.SentAmount))))
 					.WithAlias(() => resultAlias.Amount)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
@@ -1370,7 +1374,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.FromStorage)
 					.Select(() => warehouseAlias.Id).WithAlias(() => resultAlias.FromStorageId)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
-					.Select(() => carLoadDocumentItemAlias.Amount).WithAlias(() => resultAlias.Amount)
+					.Select(() => -carLoadDocumentItemAlias.Amount).WithAlias(() => resultAlias.Amount)
 					.Select(() => routeListAlias.Id).WithAlias(() => resultAlias.RouteListId)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
