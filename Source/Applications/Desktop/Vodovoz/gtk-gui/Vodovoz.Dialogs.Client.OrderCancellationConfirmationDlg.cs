@@ -41,7 +41,6 @@ namespace Vodovoz.Dialogs.Client
 			this.ylabelMainQuestion = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelMainQuestion.Name = "ylabelMainQuestion";
 			this.ylabelMainQuestion.Xpad = 10;
-			this.ylabelMainQuestion.Ypad = 10;
 			this.ylabelMainQuestion.Xalign = 0F;
 			this.ylabelMainQuestion.LabelProp = global::Mono.Unix.Catalog.GetString("Хотите ли вы сохранить заказ?");
 			this.yvboxMainContainer.Add(this.ylabelMainQuestion);
@@ -58,7 +57,7 @@ namespace Vodovoz.Dialogs.Client
 			this.imageQuestion = new global::Gtk.Image();
 			this.imageQuestion.Name = "imageQuestion";
 			this.imageQuestion.Xpad = 10;
-			this.imageQuestion.Ypad = 10;
+			this.imageQuestion.Ypad = 3;
 			this.imageQuestion.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-dialog-question", global::Gtk.IconSize.Dialog);
 			this.yhboxConfirmationInfo.Add(this.imageQuestion);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.yhboxConfirmationInfo[this.imageQuestion]));
@@ -72,7 +71,7 @@ namespace Vodovoz.Dialogs.Client
 			// Container child yvboxConfirmationQuestion.Gtk.Box+BoxChild
 			this.ylabelConfimationQuestion = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelConfimationQuestion.Name = "ylabelConfimationQuestion";
-			this.ylabelConfimationQuestion.Ypad = 10;
+			this.ylabelConfimationQuestion.Ypad = 3;
 			this.ylabelConfimationQuestion.Xalign = 0F;
 			this.ylabelConfimationQuestion.LabelProp = global::Mono.Unix.Catalog.GetString("Клиент отказался от заказа? ");
 			this.yvboxConfirmationQuestion.Add(this.ylabelConfimationQuestion);
@@ -116,7 +115,6 @@ namespace Vodovoz.Dialogs.Client
 			w9.LayoutStyle = ((global::Gtk.ButtonBoxStyle)(1));
 			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
 			this.buttonOk = new global::Gtk.Button();
-			this.buttonOk.Sensitive = false;
 			this.buttonOk.CanDefault = true;
 			this.buttonOk.CanFocus = true;
 			this.buttonOk.Name = "buttonOk";
@@ -131,6 +129,7 @@ namespace Vodovoz.Dialogs.Client
 			w11.Fill = false;
 			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
 			this.buttonCancel = new global::Gtk.Button();
+			this.buttonCancel.Sensitive = false;
 			this.buttonCancel.CanDefault = true;
 			this.buttonCancel.CanFocus = true;
 			this.buttonCancel.Name = "buttonCancel";
@@ -149,7 +148,7 @@ namespace Vodovoz.Dialogs.Client
 				this.Child.ShowAll();
 			}
 			this.DefaultWidth = 315;
-			this.DefaultHeight = 161;
+			this.DefaultHeight = 136;
 			this.Show();
 		}
 	}
