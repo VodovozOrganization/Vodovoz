@@ -6,8 +6,6 @@ namespace Vodovoz.Dialogs.Client
 	{
 		private global::Gamma.GtkWidgets.yVBox yvboxMainContainer;
 
-		private global::Gamma.GtkWidgets.yLabel ylabelMainQuestion;
-
 		private global::Gamma.GtkWidgets.yHBox yhboxConfirmationInfo;
 
 		private global::Gtk.Image imageQuestion;
@@ -17,6 +15,8 @@ namespace Vodovoz.Dialogs.Client
 		private global::Gamma.GtkWidgets.yLabel ylabelConfimationQuestion;
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonConfirmation;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelMainQuestion;
 
 		private global::Gtk.Button buttonOk;
 
@@ -38,18 +38,6 @@ namespace Vodovoz.Dialogs.Client
 			this.yvboxMainContainer.Name = "yvboxMainContainer";
 			this.yvboxMainContainer.Spacing = 6;
 			// Container child yvboxMainContainer.Gtk.Box+BoxChild
-			this.ylabelMainQuestion = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelMainQuestion.Name = "ylabelMainQuestion";
-			this.ylabelMainQuestion.Xpad = 10;
-			this.ylabelMainQuestion.Xalign = 0F;
-			this.ylabelMainQuestion.LabelProp = global::Mono.Unix.Catalog.GetString("Хотите ли вы сохранить заказ?");
-			this.yvboxMainContainer.Add(this.ylabelMainQuestion);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.yvboxMainContainer[this.ylabelMainQuestion]));
-			w2.PackType = ((global::Gtk.PackType)(1));
-			w2.Position = 0;
-			w2.Expand = false;
-			w2.Fill = false;
-			// Container child yvboxMainContainer.Gtk.Box+BoxChild
 			this.yhboxConfirmationInfo = new global::Gamma.GtkWidgets.yHBox();
 			this.yhboxConfirmationInfo.Name = "yhboxConfirmationInfo";
 			this.yhboxConfirmationInfo.Spacing = 6;
@@ -60,10 +48,10 @@ namespace Vodovoz.Dialogs.Client
 			this.imageQuestion.Ypad = 3;
 			this.imageQuestion.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-dialog-question", global::Gtk.IconSize.Dialog);
 			this.yhboxConfirmationInfo.Add(this.imageQuestion);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.yhboxConfirmationInfo[this.imageQuestion]));
-			w3.Position = 0;
-			w3.Expand = false;
-			w3.Fill = false;
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.yhboxConfirmationInfo[this.imageQuestion]));
+			w2.Position = 0;
+			w2.Expand = false;
+			w2.Fill = false;
 			// Container child yhboxConfirmationInfo.Gtk.Box+BoxChild
 			this.yvboxConfirmationQuestion = new global::Gamma.GtkWidgets.yVBox();
 			this.yvboxConfirmationQuestion.Name = "yvboxConfirmationQuestion";
@@ -75,10 +63,10 @@ namespace Vodovoz.Dialogs.Client
 			this.ylabelConfimationQuestion.Xalign = 0F;
 			this.ylabelConfimationQuestion.LabelProp = global::Mono.Unix.Catalog.GetString("Клиент отказался от заказа? ");
 			this.yvboxConfirmationQuestion.Add(this.ylabelConfimationQuestion);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.yvboxConfirmationQuestion[this.ylabelConfimationQuestion]));
-			w4.Position = 0;
-			w4.Expand = false;
-			w4.Fill = false;
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.yvboxConfirmationQuestion[this.ylabelConfimationQuestion]));
+			w3.Position = 0;
+			w3.Expand = false;
+			w3.Fill = false;
 			// Container child yvboxConfirmationQuestion.Gtk.Box+BoxChild
 			this.ycheckbuttonConfirmation = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckbuttonConfirmation.CanFocus = true;
@@ -87,8 +75,19 @@ namespace Vodovoz.Dialogs.Client
 			this.ycheckbuttonConfirmation.DrawIndicator = true;
 			this.ycheckbuttonConfirmation.UseUnderline = true;
 			this.yvboxConfirmationQuestion.Add(this.ycheckbuttonConfirmation);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.yvboxConfirmationQuestion[this.ycheckbuttonConfirmation]));
-			w5.Position = 1;
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.yvboxConfirmationQuestion[this.ycheckbuttonConfirmation]));
+			w4.Position = 1;
+			w4.Expand = false;
+			w4.Fill = false;
+			// Container child yvboxConfirmationQuestion.Gtk.Box+BoxChild
+			this.ylabelMainQuestion = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelMainQuestion.Name = "ylabelMainQuestion";
+			this.ylabelMainQuestion.Xalign = 0F;
+			this.ylabelMainQuestion.LabelProp = global::Mono.Unix.Catalog.GetString("Хотите ли вы сохранить заказ?");
+			this.yvboxConfirmationQuestion.Add(this.ylabelMainQuestion);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.yvboxConfirmationQuestion[this.ylabelMainQuestion]));
+			w5.PackType = ((global::Gtk.PackType)(1));
+			w5.Position = 2;
 			w5.Expand = false;
 			w5.Fill = false;
 			this.yhboxConfirmationInfo.Add(this.yvboxConfirmationQuestion);
@@ -99,7 +98,7 @@ namespace Vodovoz.Dialogs.Client
 			this.yvboxMainContainer.Add(this.yhboxConfirmationInfo);
 			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.yvboxMainContainer[this.yhboxConfirmationInfo]));
 			w7.PackType = ((global::Gtk.PackType)(1));
-			w7.Position = 1;
+			w7.Position = 0;
 			w7.Expand = false;
 			w7.Fill = false;
 			w1.Add(this.yvboxMainContainer);
@@ -147,8 +146,8 @@ namespace Vodovoz.Dialogs.Client
 			{
 				this.Child.ShowAll();
 			}
-			this.DefaultWidth = 315;
-			this.DefaultHeight = 136;
+			this.DefaultWidth = 341;
+			this.DefaultHeight = 137;
 			this.Show();
 		}
 	}
