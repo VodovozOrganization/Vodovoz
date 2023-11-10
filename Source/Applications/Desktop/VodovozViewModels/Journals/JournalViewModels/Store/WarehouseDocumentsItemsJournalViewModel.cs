@@ -766,7 +766,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.SelectList(list => list
 					.Select(() => movementDocumentItemAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => movementDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
-					.Select(() => movementDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
+					.Select(() => movementDocumentAlias.SendTime).WithAlias(() => resultAlias.Date)
 					.Select(WarehouseDocumentsProjections.GetFromStorageProjection(_notSpecified)).WithAlias(() => resultAlias.Source)
 					.Select(() => DocumentType.MovementDocument).WithAlias(() => resultAlias.DocumentTypeEnum)
 					.Select(() => typeof(MovementDocumentItem)).WithAlias(() => resultAlias.EntityType)
@@ -907,7 +907,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.SelectList(list => list
 					.Select(() => movementDocumentItemAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => movementDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
-					.Select(() => movementDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
+					.Select(() => movementDocumentAlias.ReceiveTime).WithAlias(() => resultAlias.Date)
 					.Select(WarehouseDocumentsProjections.GetToStorageProjection(_notSpecified)).WithAlias(() => resultAlias.Target)
 					.Select(() => DocumentType.MovementDocument).WithAlias(() => resultAlias.DocumentTypeEnum)
 					.Select(() => typeof(MovementDocumentItem)).WithAlias(() => resultAlias.EntityType)
