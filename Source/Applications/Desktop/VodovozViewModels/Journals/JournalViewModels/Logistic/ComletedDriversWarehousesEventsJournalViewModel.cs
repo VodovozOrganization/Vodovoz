@@ -64,7 +64,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			CompletedDriversWarehousesEventsJournalNode resultAlias = null;
 
 			var query = uow.Session.QueryOver<CompletedDriverWarehouseEvent>()
-				.JoinAlias(ce => ce.Driver, () => driverAlias)
+				.JoinAlias(ce => ce.Employee, () => driverAlias)
 				.JoinAlias(ce => ce.Car, () => carAlias)
 				.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
 				.JoinAlias(ce => ce.DriverWarehouseEvent, () => driverEventAlias);

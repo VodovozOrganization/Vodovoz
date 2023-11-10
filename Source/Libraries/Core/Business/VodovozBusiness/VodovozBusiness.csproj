@@ -547,10 +547,12 @@
     <Compile Include="EntityRepositories\Logistic\CarEventRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\DeliveryShiftRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\DriverPosition.cs" />
+    <Compile Include="EntityRepositories\Logistic\DriverWarehouseEventRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\ICachedDistanceRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\ICarEventRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\IDeliveryShiftRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\IArchivedTrackPointRepository.cs" />
+    <Compile Include="EntityRepositories\Logistic\IDriverWarehouseEventRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\IRouteColumnRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\ITrackRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\IWayBillDocumentRepository.cs" />
@@ -979,6 +981,7 @@
     <Compile Include="Services\Logistics\IRouteListService.cs" />
     <Compile Include="Services\RevenueServiceInfo.cs" />
     <Compile Include="Services\UserRoleSettings.cs" />
+    <Compile Include="Tools\DocumentsHelper.cs" />
     <Compile Include="Tools\GeoGroupVersionNotFoundException.cs" />
     <Compile Include="Tools\DataArchiver.cs" />
     <Compile Include="Tools\IDataArchiver.cs" />

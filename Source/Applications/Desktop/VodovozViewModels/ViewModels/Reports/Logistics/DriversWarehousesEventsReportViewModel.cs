@@ -175,7 +175,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics
 			var query = _unitOfWork.Session.QueryOver(() => completedEventAlias)
 				.JoinAlias(ce => ce.DriverWarehouseEvent, () => eventAlias)
 				.JoinAlias(() => eventAlias.EventName, () => eventNameAlias)
-				.JoinAlias(ce => ce.Driver, () => driverAlias)
+				.JoinAlias(ce => ce.Employee, () => driverAlias)
 				.Left.JoinAlias(ce => ce.Car, () => carAlias)
 				.Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
 				.WhereRestrictionOn(() => eventNameAlias.Id).IsIn(eventNameIds);
@@ -187,7 +187,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics
 			
 			if(Driver != null)
 			{
-				query.And(ce => ce.Driver.Id == Driver.Id);
+				query.And(ce => ce.Employee.Id == Driver.Id);
 			}
 			
 			if(StartDate.HasValue)

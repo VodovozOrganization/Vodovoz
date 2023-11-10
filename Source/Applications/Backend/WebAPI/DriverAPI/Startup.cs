@@ -316,6 +316,7 @@ namespace DriverAPI
 			services.AddScoped<IOrderRepository, OrderRepository>();
 			services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 			services.AddScoped<IFastPaymentRepository, FastPaymentRepository>();
+			services.AddScoped<ICarRepository, CarRepository>();
 
 			// Провайдеры параметров
 			services.AddScoped<IParametersProvider, ParametersProvider>();

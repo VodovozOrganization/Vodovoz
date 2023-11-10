@@ -4,6 +4,7 @@ using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Tools;
 
 namespace Vodovoz.Domain.Logistic.Drivers
 {
@@ -15,52 +16,74 @@ namespace Vodovoz.Domain.Logistic.Drivers
 		private DateTime _completedDate;
 		private decimal? _distanceMetersFromScanningLocation;
 		private DriverWarehouseEvent _driverWarehouseEvent;
-		private Employee _driver;
+		private Employee _employee;
 		private Car _car;
+		private DocumentType? _documentType;
+		private int? _documentId;
 
 		public virtual int Id { get; set; }
 
+		[Display(Name = "Время события")]
 		public virtual DateTime CompletedDate
 		{
 			get => _completedDate;
 			set => SetField(ref _completedDate, value);
 		}
 		
+		[Display(Name = "Широта")]
 		public virtual decimal? Latitude
 		{
 			get => _latitude;
 			set => SetField(ref _latitude, value);
 		}
 		
+		[Display(Name = "Долгота")]
 		public virtual decimal? Longitude
 		{
 			get => _longitude;
 			set => SetField(ref _longitude, value);
 		}
 		
-		[Display(Name = "Расстояние от места сканирования (м))")]
+		[Display(Name = "Расстояние от места сканирования (м)")]
 		public virtual decimal? DistanceMetersFromScanningLocation
 		{
 			get => _distanceMetersFromScanningLocation;
 			set => SetField(ref _distanceMetersFromScanningLocation, value);
 		}
 
+		[Display(Name = "Событие")]
 		public virtual DriverWarehouseEvent DriverWarehouseEvent
 		{
 			get => _driverWarehouseEvent;
 			set => SetField(ref _driverWarehouseEvent, value);
 		}
 
-		public virtual Employee Driver
+		[Display(Name = "Автор")]
+		public virtual Employee Employee
 		{
-			get => _driver;
-			set => SetField(ref _driver, value);
+			get => _employee;
+			set => SetField(ref _employee, value);
 		}
 
+		[Display(Name = "Автомобиль")]
 		public virtual Car Car
 		{
 			get => _car;
 			set => SetField(ref _car, value);
+		}
+		
+		[Display(Name = "Документ на котором размещен Qr")]
+		public virtual DocumentType? DocumentType
+		{
+			get => _documentType;
+			set => SetField(ref _documentType, value);
+		}
+		
+		[Display(Name = "Номер документа")]
+		public virtual int? DocumentId
+		{
+			get => _documentId;
+			set => SetField(ref _documentId, value);
 		}
 	}
 }
