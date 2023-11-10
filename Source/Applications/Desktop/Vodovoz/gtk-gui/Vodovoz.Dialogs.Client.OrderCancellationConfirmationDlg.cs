@@ -10,7 +10,7 @@ namespace Vodovoz.Dialogs.Client
 
 		private global::Gamma.GtkWidgets.yHBox yhboxConfirmationInfo;
 
-		private global::Gtk.Image imageWarning;
+		private global::Gtk.Image imageQuestion;
 
 		private global::Gamma.GtkWidgets.yVBox yvboxConfirmationQuestion;
 
@@ -55,13 +55,13 @@ namespace Vodovoz.Dialogs.Client
 			this.yhboxConfirmationInfo.Name = "yhboxConfirmationInfo";
 			this.yhboxConfirmationInfo.Spacing = 6;
 			// Container child yhboxConfirmationInfo.Gtk.Box+BoxChild
-			this.imageWarning = new global::Gtk.Image();
-			this.imageWarning.Name = "imageWarning";
-			this.imageWarning.Xpad = 10;
-			this.imageWarning.Ypad = 10;
-			this.imageWarning.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-dialog-warning", global::Gtk.IconSize.Dialog);
-			this.yhboxConfirmationInfo.Add(this.imageWarning);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.yhboxConfirmationInfo[this.imageWarning]));
+			this.imageQuestion = new global::Gtk.Image();
+			this.imageQuestion.Name = "imageQuestion";
+			this.imageQuestion.Xpad = 10;
+			this.imageQuestion.Ypad = 10;
+			this.imageQuestion.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-dialog-question", global::Gtk.IconSize.Dialog);
+			this.yhboxConfirmationInfo.Add(this.imageQuestion);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.yhboxConfirmationInfo[this.imageQuestion]));
 			w3.Position = 0;
 			w3.Expand = false;
 			w3.Fill = false;
@@ -149,7 +149,6 @@ namespace Vodovoz.Dialogs.Client
 			}
 			this.DefaultWidth = 315;
 			this.DefaultHeight = 161;
-			this.imageWarning.Hide();
 			this.Show();
 		}
 	}
