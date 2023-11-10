@@ -1,4 +1,4 @@
-using ClosedXML.Report;
+﻿using ClosedXML.Report;
 using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
@@ -2494,18 +2494,18 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			var balanceProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, 0)"),
 				NHibernateUtil.Decimal,
-				Projections.Property(() => warehouseBulkOperationAlias.Amount));
+				Projections.Sum(() => warehouseBulkOperationAlias.Amount));
 
 			var result = UoW.Session.QueryOver(() => nomenclatureAlias)
 				.JoinEntityAlias(() => warehouseBulkOperationAlias,
 					() => nomenclatureAlias.Id == warehouseBulkOperationAlias.Nomenclature.Id
 						&& warehouseBulkOperationAlias.Warehouse.Id == warehouseId,
-					JoinType.InnerJoin)
+					JoinType.LeftOuterJoin)
 				.Where(() => nomenclatureAlias.Id == nomenclatureId)
 				.And(() => warehouseBulkOperationAlias.OperationTime <= upToDateTime)
 				.SelectList(list => list
 					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
-					.Select(Projections.Sum(balanceProjection)).WithAlias(() => resultAlias.Stock))
+					.Select(balanceProjection).WithAlias(() => resultAlias.Stock))
 				.TransformUsing(Transformers.AliasToBean<NomenclatureStockNode>())
 				.SingleOrDefault<NomenclatureStockNode>();
 
