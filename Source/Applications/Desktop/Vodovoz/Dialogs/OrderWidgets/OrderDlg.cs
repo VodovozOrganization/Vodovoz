@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
@@ -4870,6 +4870,10 @@ namespace Vodovoz
 			GetClipboard(Gdk.Selection.Clipboard).Text = _summaryInfoBuilder.ToString();
 		}
 
+		#region CustomCancellationConfirmationDialog
+		public override bool HasCustomCancellationConfirmationDialog => UoW.IsNew;
+		public override Func<int> CustomCancellationConfirmationDialogFunc => ShowOrderCancellationAdditionalConfirmationDialog;
+
 		private int ShowOrderCancellationAdditionalConfirmationDialog()
 		{
 			var dlg = new OrderCancellationConfirmationDlg();
@@ -4880,5 +4884,6 @@ namespace Vodovoz
 
 			return result;
 		}
+		#endregion CustomCancellationConfirmationDialog
 	}
 }

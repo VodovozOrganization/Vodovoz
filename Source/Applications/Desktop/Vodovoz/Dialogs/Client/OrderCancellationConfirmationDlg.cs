@@ -14,8 +14,8 @@
 
 		private void OnCheckbuttonConfirmationStateChanged(object o, Gtk.StateChangedArgs args)
 		{
-			buttonOk.Sensitive = ycheckbuttonConfirmation.Active;
-			buttonCancel.Sensitive = !ycheckbuttonConfirmation.Active;
+			buttonOk.Sensitive = !ycheckbuttonConfirmation.Active;
+			buttonCancel.Sensitive = ycheckbuttonConfirmation.Active;
 		}
 	}
 }
