@@ -1253,7 +1253,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => selfDeliveryDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
 					.Select(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
 					.Select(() => selfDeliveryDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
-					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.Source)
+					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.Target)
 					.Select(() => DocumentType.SelfDeliveryDocument).WithAlias(() => resultAlias.DocumentTypeEnum)
 					.Select(() => typeof(SelfDeliveryDocumentReturned)).WithAlias(() => resultAlias.EntityType)
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Counterparty)

@@ -1,4 +1,4 @@
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.Project.Journal;
 using QS.Utilities.Text;
