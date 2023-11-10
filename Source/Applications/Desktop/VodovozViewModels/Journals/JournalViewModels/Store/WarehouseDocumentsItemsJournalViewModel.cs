@@ -717,12 +717,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 				if(FilterViewModel.StartDate != null)
 				{
-					movementQuery.Where(() => movementDocumentAlias.TimeStamp >= FilterViewModel.StartDate);
+					movementQuery.Where(() => movementDocumentAlias.SendTime >= FilterViewModel.StartDate);
 				}
 
 				if(FilterViewModel.EndDate != null)
 				{
-					movementQuery.Where(() => movementDocumentAlias.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
+					movementQuery.Where(() => movementDocumentAlias.SendTime <= FilterViewModel.EndDate.Value.LatestDayTime());
 				}
 
 				if(FilterViewModel.WarehouseIds.Any())
@@ -858,12 +858,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 				if(FilterViewModel.StartDate != null)
 				{
-					movementQuery.Where(() => movementDocumentAlias.TimeStamp >= FilterViewModel.StartDate);
+					movementQuery.Where(() => movementDocumentAlias.ReceiveTime >= FilterViewModel.StartDate);
 				}
 
 				if(FilterViewModel.EndDate != null)
 				{
-					movementQuery.Where(() => movementDocumentAlias.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
+					movementQuery.Where(() => movementDocumentAlias.ReceiveTime <= FilterViewModel.EndDate.Value.LatestDayTime());
 				}
 
 				if(FilterViewModel.WarehouseIds.Any())
