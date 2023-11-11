@@ -436,6 +436,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						return x => x.PaymentType;
 					case GroupingType.Organization:
 						return x => x.OrganizationId;
+					case GroupingType.CounterpartyClassification:
+						return x => x.CounterpartyClassification;
 					default:
 						return x => x.Id;
 				}
@@ -469,6 +471,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						return x => x.PaymentType.GetEnumTitle();
 					case GroupingType.Organization:
 						return x => x.OrganizationName;
+					case GroupingType.CounterpartyClassification:
+						return x => x.CounterpartyClassification.GetEnumTitle();
 					default:
 						return x => x.Id.ToString();
 				}

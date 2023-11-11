@@ -366,6 +366,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			GetParameterValues<GeoGroup>(sb2);
 			GetParameterValues<PaymentType>(sb2);
 			GetParameterValues<PromotionalSet>(sb2);
+			GetParameterValues<CounterpartyCompositeClassification>(sb2);
 
 			filters = sb2.ToString().Trim('\n');
 
@@ -1096,6 +1097,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultNodeAlias.OrderDeliveryDate)
 						.SelectSubQuery(routeListIdSubquery).WithAlias(() => resultNodeAlias.RouteListId)
 						.Select(() => productGroupAlias.Id).WithAlias(() => resultNodeAlias.ProductGroupId)
+						.Select(Projections.Constant(0)).WithAlias(() => resultNodeAlias.CounterpartyClassification)
 						.Select(ProductGroupProjections.GetProductGroupNameWithEnclosureProjection()).WithAlias(() => resultNodeAlias.ProductGroupName))
 				.SetTimeout(0)
 				.TransformUsing(Transformers.AliasToBean<TurnoverWithDynamicsReport.OrderItemNode>())
