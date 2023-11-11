@@ -37,6 +37,7 @@ namespace Vodovoz.Domain.Goods
 		private GenericObservableList<AlternativeNomenclaturePrice> _observableAlternativeNomenclaturePrices;
 		private bool _usingInGroupPriceSet;
 		private bool _hasInventoryAccounting;
+		private GlassHolderType? _glassHolderType;
 		
 		private int _id;
 
@@ -634,6 +635,13 @@ namespace Vodovoz.Domain.Goods
 		{
 			get => _hasInventoryAccounting;
 			set => SetField(ref _hasInventoryAccounting, value);
+		}
+		
+		[Display(Name = "Тип стаканодержателя")]
+		public virtual GlassHolderType? GlassHolderType
+		{
+			get => _glassHolderType;
+			set => SetField(ref _glassHolderType, value);
 		}
 		#endregion
 
@@ -1297,6 +1305,21 @@ namespace Vodovoz.Domain.Goods
 		BottleDeposit,
 		[Display(Name = "Залог за оборудование")]
 		EquipmentDeposit
+	}
+	
+	[Appellative(
+		Nominative = "Тип стаканодержателя",
+		NominativePlural = "Типы стаканодержателей")]
+	public enum GlassHolderType
+	{
+		[Display(Name = "Стаканодержатель отсутствует")]
+		None,
+		[Display(Name = "Стаканодержатель магнитный")]
+		Magnet,
+		[Display(Name = "Стаканодержатель на шурупе")]
+		Screw,
+		[Display(Name = "Стаканодержатель универсальный")]
+		Universal
 	}
 }
 
