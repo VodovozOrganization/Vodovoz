@@ -641,7 +641,7 @@ namespace Vodovoz.ServiceDialogs
 			UoW.Session.SetBatchSize(500);
 			foreach(var item in CounterpatiesList) {
 				try {
-					UoW.Save<Counterparty>(item);
+					UoW.Save(item);
 				} catch(Exception ex) {
 					ErrorLog("Ошибка сохранения", item.Code1c, string.Format("{0}", item.Id), string.Format("{0}", ex.Message));
 					ErrorsCounterparties.Add(string.Format("{0}", item.Id));

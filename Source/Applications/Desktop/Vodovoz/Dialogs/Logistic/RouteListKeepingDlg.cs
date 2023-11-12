@@ -41,6 +41,7 @@ using Vodovoz.ViewWidgets.Mango;
 using QS.Navigation;
 using Vodovoz.ViewModels.Employees;
 using QS.Project.Domain;
+using Vodovoz.Core.Domain.Employees;
 
 namespace Vodovoz
 {

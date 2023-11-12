@@ -1419,7 +1419,7 @@
       <Name>QS.Project.Abstract</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj">
-      <Project>{C01AE5A4-3CFF-4C7B-884D-45B07ACDE761}</Project>
+      <Project>{c01ae5a4-3cff-4c7b-884d-45b07acde761}</Project>
       <Name>QS.Project.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\External\QSProjects\QS.Project.Desktop\QS.Project.Desktop.csproj">

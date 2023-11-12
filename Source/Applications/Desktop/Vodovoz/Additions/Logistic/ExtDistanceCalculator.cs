@@ -356,7 +356,7 @@ namespace Vodovoz.Tools.Logistic
 			}
 			if(MultiTaskLoad && ok) {
 				lock(UoW) {
-					UoW.TrySave(cachedValue as CachedDistance, false);
+					UoW.Save(cachedValue as CachedDistance, false);
 					unsavedItems++;
 					if(unsavedItems >= SaveBy)
 						FlushCache();

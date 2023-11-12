@@ -10,6 +10,7 @@ using QS.Dialog.GtkUI;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using QS.Navigation;
+using Vodovoz.Core.Domain.Employees;
 
 namespace Vodovoz.ReportsParameters.Bottles
 {

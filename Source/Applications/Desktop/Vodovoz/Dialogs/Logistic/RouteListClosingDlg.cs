@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
@@ -53,6 +53,7 @@ using Vodovoz.Extensions;
 using QS.Navigation;
 using Vodovoz.ViewModels.Employees;
 using Microsoft.Extensions.Logging;
+using Vodovoz.Core.Domain.Employees;
 
 namespace Vodovoz
 {

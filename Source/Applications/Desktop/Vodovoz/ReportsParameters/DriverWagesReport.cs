@@ -8,6 +8,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using QS.Navigation;
+using Vodovoz.Core.Domain.Employees;
 
 namespace Vodovoz.Reports
 {
