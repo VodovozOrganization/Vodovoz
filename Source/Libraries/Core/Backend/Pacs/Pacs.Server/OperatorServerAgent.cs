@@ -1,17 +1,19 @@
-﻿using QS.DomainModel.UoW;
+﻿using Pacs.Core;
+using QS.DomainModel.UoW;
 using Stateless;
 using System;
 using System.Threading.Tasks;
 using System.Timers;
+using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Pacs;
 using StateMachine = Stateless.StateMachine<
 	Vodovoz.Core.Domain.Pacs.OperatorStateType,
-	Pacs.Server.OperatorAgent.Trigger>;
+	Pacs.Core.OperatorStateTrigger>;
 using Timer = System.Timers.Timer;
 
 namespace Pacs.Server
 {
-	public class OperatorAgent : IDisposable
+	public class OperatorServerAgent : IDisposable
 	{
 		private readonly IPacsSettings _pacsSettings;
 		private readonly IOperatorRepository _operatorRepository;
@@ -37,7 +39,7 @@ namespace Pacs.Server
 		public OperatorSession Session { get; private set; }
 		public int OperatorId => Operator.Id;
 
-		public OperatorAgent(
+		public OperatorServerAgent(
 			int operatorId,
 			IPacsSettings pacsSettings,
 			IOperatorRepository operatorRepository,
@@ -99,44 +101,31 @@ namespace Pacs.Server
 		{
 			_machine = new StateMachine(() => OperatorState.State, ChangeState, FiringMode.Queued);
 
-			//_connectTrigger = _machine.SetTriggerParameters<int>(Trigger.Connect);
-			_takeCallTrigger = _machine.SetTriggerParameters<string>(Trigger.TakeCall);
-			_changePhoneTrigger = _machine.SetTriggerParameters<string>(Trigger.ChangePhone);
-			_startWorkShiftTrigger = _machine.SetTriggerParameters<string>(Trigger.StartWorkShift);
-			_disconnectTrigger = _machine.SetTriggerParameters<DisconnectionType>(Trigger.Disconnect);
+			OperatorStateAgent.ConfigureBaseStates(_machine);
 
-			_machine.Configure(OperatorStateType.New)
-				.Permit(Trigger.Connect, OperatorStateType.Connected);
+			_takeCallTrigger = _machine.SetTriggerParameters<string>(OperatorStateTrigger.TakeCall);
+			_changePhoneTrigger = _machine.SetTriggerParameters<string>(OperatorStateTrigger.ChangePhone);
+			_startWorkShiftTrigger = _machine.SetTriggerParameters<string>(OperatorStateTrigger.StartWorkShift);
+			_disconnectTrigger = _machine.SetTriggerParameters<DisconnectionType>(OperatorStateTrigger.Disconnect);
 
 			_machine.Configure(OperatorStateType.Connected)
-				.OnEntryFrom(Trigger.Connect, OnConnect)
-				.OnEntryFrom(Trigger.EndWorkShift, ClearPhoneNumber)
-				.InternalTransition(Trigger.KeepAlive, OnKeepAlive)
-				.Permit(Trigger.StartWorkShift, OperatorStateType.WaitingForCall)
-				.Permit(Trigger.Disconnect, OperatorStateType.Disconnected);
+				.OnEntryFrom(OperatorStateTrigger.Connect, OnConnect)
+				.OnEntryFrom(OperatorStateTrigger.EndWorkShift, ClearPhoneNumber)
+				.InternalTransition(OperatorStateTrigger.KeepAlive, OnKeepAlive);
 
 			_machine.Configure(OperatorStateType.WaitingForCall)
-				.OnEntryFrom(Trigger.StartWorkShift, OnStartWorkShift)
-				.InternalTransitionAsync(Trigger.ChangePhone, OnChangePhone)
-				.InternalTransition(Trigger.KeepAlive, OnKeepAlive)
-				.Permit(Trigger.TakeCall, OperatorStateType.Talk)
-				.Permit(Trigger.StartBreak, OperatorStateType.Break)
-				.Permit(Trigger.EndWorkShift, OperatorStateType.Connected)
-				.Permit(Trigger.Disconnect, OperatorStateType.Disconnected);
+				.OnEntryFrom(OperatorStateTrigger.StartWorkShift, OnStartWorkShift)
+				.InternalTransitionAsync(OperatorStateTrigger.ChangePhone, OnChangePhone)
+				.InternalTransition(OperatorStateTrigger.KeepAlive, OnKeepAlive);
 
 			_machine.Configure(OperatorStateType.Talk)
 				.OnEntryFrom(_takeCallTrigger, SetCall)
 				.OnExit(ClearCall)
-				.InternalTransition(Trigger.KeepAlive, OnKeepAlive)
-				.Permit(Trigger.EndCall, OperatorStateType.WaitingForCall)
-				.Permit(Trigger.Disconnect, OperatorStateType.Disconnected);
+				.InternalTransition(OperatorStateTrigger.KeepAlive, OnKeepAlive);
 
 			_machine.Configure(OperatorStateType.Break)
-				.InternalTransitionAsync(Trigger.ChangePhone, OnChangePhone)
-				.InternalTransition(Trigger.KeepAlive, OnKeepAlive)
-				.Permit(Trigger.EndBreak, OperatorStateType.WaitingForCall)
-				.Permit(Trigger.EndWorkShift, OperatorStateType.Connected)
-				.Permit(Trigger.Disconnect, OperatorStateType.Disconnected);
+				.InternalTransitionAsync(OperatorStateTrigger.ChangePhone, OnChangePhone)
+				.InternalTransition(OperatorStateTrigger.KeepAlive, OnKeepAlive);
 
 			_machine.Configure(OperatorStateType.Disconnected)
 				.OnEntry(OnDisconnected);
@@ -195,12 +184,12 @@ namespace Pacs.Server
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
-				await uow.TrySaveAsync(Operator);
-				await uow.TrySaveAsync(Session);
-				await uow.TrySaveAsync(OperatorState);
+				await uow.SaveAsync(Operator);
+				await uow.SaveAsync(Session);
+				await uow.SaveAsync(OperatorState);
 				if(_previuosState.State != OperatorStateType.New)
 				{
-					await uow.TrySaveAsync(_previuosState);
+					await uow.SaveAsync(_previuosState);
 				}
 
 				await uow.CommitAsync();
@@ -217,7 +206,7 @@ namespace Pacs.Server
 			{
 				return;
 			}
-			await _machine.FireAsync(Trigger.Connect);
+			await _machine.FireAsync(OperatorStateTrigger.Connect);
 		}
 
 		private void OnConnect()
@@ -299,7 +288,7 @@ namespace Pacs.Server
 
 		public async Task KeepAlive()
 		{
-			await _machine.FireAsync(Trigger.KeepAlive);
+			await _machine.FireAsync(OperatorStateTrigger.KeepAlive);
 		}
 
 		private void OnKeepAlive()
@@ -324,7 +313,7 @@ namespace Pacs.Server
 
 		public async Task EndWorkShift()
 		{
-			await _machine.FireAsync(Trigger.EndWorkShift);
+			await _machine.FireAsync(OperatorStateTrigger.EndWorkShift);
 		}
 
 		#endregion Work shift
@@ -333,12 +322,12 @@ namespace Pacs.Server
 
 		public async Task StartBreak()
 		{
-			await _machine.FireAsync(Trigger.StartBreak);
+			await _machine.FireAsync(OperatorStateTrigger.StartBreak);
 		}
 
 		public async Task EndBreak()
 		{
-			await _machine.FireAsync(Trigger.EndBreak);
+			await _machine.FireAsync(OperatorStateTrigger.EndBreak);
 		}
 
 		#endregion Break
@@ -383,7 +372,7 @@ namespace Pacs.Server
 
 		public async Task EndCallEvent()
 		{
-			await _machine.FireAsync(Trigger.EndCall);
+			await _machine.FireAsync(OperatorStateTrigger.EndCall);
 		}
 
 		private void ClearCall()
@@ -395,45 +384,30 @@ namespace Pacs.Server
 
 		#region Private Enum
 
-		internal enum Trigger
-		{
-			Connect,
-			StartWorkShift,
-			TakeCall,
-			EndCall,
-			StartBreak,
-			EndBreak,
-			ChangePhone,
-			EndWorkShift,
-			Disconnect,
-			KeepAlive,
-			CheckInactivity
-		}
-
-		private OperatorTrigger ConvertTrigger(Trigger trigger)
+		private OperatorTrigger ConvertTrigger(OperatorStateTrigger trigger)
 		{
 			switch(trigger)
 			{
-				case Trigger.Connect:
+				case OperatorStateTrigger.Connect:
 					return OperatorTrigger.Connect;
-				case Trigger.StartWorkShift:
+				case OperatorStateTrigger.StartWorkShift:
 					return OperatorTrigger.StartWorkShift;
-				case Trigger.TakeCall:
+				case OperatorStateTrigger.TakeCall:
 					return OperatorTrigger.TakeCall;
-				case Trigger.EndCall:
+				case OperatorStateTrigger.EndCall:
 					return OperatorTrigger.EndCall;
-				case Trigger.StartBreak:
+				case OperatorStateTrigger.StartBreak:
 					return OperatorTrigger.StartBreak;
-				case Trigger.EndBreak:
+				case OperatorStateTrigger.EndBreak:
 					return OperatorTrigger.EndBreak;
-				case Trigger.ChangePhone:
+				case OperatorStateTrigger.ChangePhone:
 					return OperatorTrigger.ChangePhone;
-				case Trigger.EndWorkShift:
+				case OperatorStateTrigger.EndWorkShift:
 					return OperatorTrigger.EndWorkShift;
-				case Trigger.Disconnect:
+				case OperatorStateTrigger.Disconnect:
 					return OperatorTrigger.Disconnect;
-				case Trigger.KeepAlive:
-				case Trigger.CheckInactivity:
+				case OperatorStateTrigger.KeepAlive:
+				case OperatorStateTrigger.CheckInactivity:
 				default:
 					throw new InvalidOperationException(
 						$"Триггер {trigger} не конвертируется в тип {nameof(OperatorTrigger)}, " +
@@ -442,28 +416,28 @@ namespace Pacs.Server
 			}
 		}
 
-		private Trigger ConvertTrigger(OperatorTrigger trigger)
+		private OperatorStateTrigger ConvertTrigger(OperatorTrigger trigger)
 		{
 			switch(trigger)
 			{
 				case OperatorTrigger.Connect:
-					return Trigger.Connect;
+					return OperatorStateTrigger.Connect;
 				case OperatorTrigger.StartWorkShift:
-					return Trigger.StartWorkShift;
+					return OperatorStateTrigger.StartWorkShift;
 				case OperatorTrigger.TakeCall:
-					return Trigger.TakeCall;
+					return OperatorStateTrigger.TakeCall;
 				case OperatorTrigger.EndCall:
-					return Trigger.EndCall;
+					return OperatorStateTrigger.EndCall;
 				case OperatorTrigger.StartBreak:
-					return Trigger.StartBreak;
+					return OperatorStateTrigger.StartBreak;
 				case OperatorTrigger.EndBreak:
-					return Trigger.EndBreak;
+					return OperatorStateTrigger.EndBreak;
 				case OperatorTrigger.ChangePhone:
-					return Trigger.ChangePhone;
+					return OperatorStateTrigger.ChangePhone;
 				case OperatorTrigger.EndWorkShift:
-					return Trigger.EndWorkShift;
+					return OperatorStateTrigger.EndWorkShift;
 				case OperatorTrigger.Disconnect:
-					return Trigger.Disconnect;
+					return OperatorStateTrigger.Disconnect;
 				default:
 					throw new InvalidOperationException(
 						$"Неизвестный триггер {trigger}. " +

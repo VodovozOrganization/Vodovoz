@@ -1,5 +1,6 @@
 ﻿using QS.DomainModel.UoW;
 using System;
+using Vodovoz.Core.Data.Repositories;
 
 namespace Pacs.Server
 {
@@ -25,9 +26,9 @@ namespace Pacs.Server
 			_uowFactory = uowFactory;
 		}
 
-		public OperatorAgent CreateOperatorAgent(int operatorId)
+		public OperatorServerAgent CreateOperatorAgent(int operatorId)
 		{
-			return new OperatorAgent(operatorId,
+			return new OperatorServerAgent(operatorId,
 				_pacsSettings,
 				_operatorRepository,
 				_operatorNotifier,

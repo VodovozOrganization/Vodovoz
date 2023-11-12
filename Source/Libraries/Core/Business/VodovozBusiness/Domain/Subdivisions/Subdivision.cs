@@ -37,6 +37,7 @@ namespace Vodovoz
 		private SubdivisionType _subdivisionType;
 		private string _address;
 		private bool _isArchive;
+		private bool _pacsTimeManagementEnabled;
 
 		#region Свойства
 
@@ -145,6 +146,13 @@ namespace Vodovoz
 		{
 			get => _isArchive;
 			set => SetField(ref _isArchive, value);
+		}
+
+		[Display(Name = "Контроль времени по СКУД")]
+		public virtual bool PacsTimeManagementEnabled
+		{
+			get => _pacsTimeManagementEnabled;
+			set => SetField(ref _pacsTimeManagementEnabled, value);
 		}
 
 		#endregion

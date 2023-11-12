@@ -2511,17 +2511,17 @@
       <Project>{0107f13c-46e0-4008-8302-0b5cd71df14c}</Project>
       <Name>Vodovoz.Data.NHibernate</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Vodovoz.Presentation.ViewModels\Vodovoz.Presentation.ViewModels.csproj">
-      <Project>{396CC0BB-294B-44E0-8428-31677419B8BE}</Project>
-      <Name>Vodovoz.Presentation.ViewModels</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\VodovozViewModels\VodovozViewModels.csproj">
-      <Project>{6E56E39A-F886-4645-98E1-8619F75F7AEA}</Project>
-      <Name>VodovozViewModels</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\RevenueService.Client\RevenueService.Client.csproj">
       <Project>{AFA4490E-F4DA-461D-9B55-F565F61C1DEA}</Project>
       <Name>RevenueService.Client</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Vodovoz.Presentation.ViewModels\Vodovoz.Presentation.ViewModels.csproj">
+      <Project>{396cc0bb-294b-44e0-8428-31677419b8be}</Project>
+      <Name>Vodovoz.Presentation.ViewModels</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VodovozViewModels\VodovozViewModels.csproj">
+      <Project>{6e56e39a-f886-4645-98e1-8619f75f7aea}</Project>
+      <Name>VodovozViewModels</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

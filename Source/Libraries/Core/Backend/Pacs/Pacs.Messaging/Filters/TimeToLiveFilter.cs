@@ -11,14 +11,14 @@ namespace Pacs.Messaging.Filters
 	{
 		public async Task Send(PublishContext<T> context, IPipe<PublishContext<T>> next)
 		{
-			if(typeof(T) == typeof(ClientAvailable))
-			{
-				context.TimeToLive = TimeSpan.FromSeconds(2);
-			}
-			else
-			{
-				context.TimeToLive = TimeSpan.FromSeconds(1);
-			}
+			//if(typeof(T) == typeof(ClientAvailable))
+			//{
+			//	context.TimeToLive = TimeSpan.FromSeconds(2);
+			//}
+			//else
+			//{
+			//	context.TimeToLive = TimeSpan.FromSeconds(1);
+			//}
 
 			await next.Send(context);
 		}

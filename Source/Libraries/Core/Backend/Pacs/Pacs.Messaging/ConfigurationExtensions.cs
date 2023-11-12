@@ -1,13 +1,10 @@
 ﻿using MassTransit;
-using Pacs.Core.Dto.Calls;
+using Pacs.Core.Messages.Events;
 using RabbitMQ.Client;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Pacs.Messaging
 {
-    public static class ConfigurationExtensions
+	public static class ConfigurationExtensions
     {
 		public static void ConfigureMessageTopology(this IRabbitMqBusFactoryConfigurator configurator, IBusRegistrationContext context)
 		{
@@ -20,7 +17,7 @@ namespace Pacs.Messaging
 			});
 
 			//configurator.UsePublishFilter(typeof(MyPublishFilter<>), context);
-			configurator.UsePublishFilter(typeof(ValidateOrderStatusFilter<>), context);
+			//configurator.UsePublishFilter(typeof(ValidateOrderStatusFilter<>), context);
 
 			/*configurator.ConfigurePublish(x => x.UseExecuteAsync(f => {
                 if (f.HasPayloadType(typeof(ClientAvailable)))

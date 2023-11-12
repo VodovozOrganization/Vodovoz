@@ -5,6 +5,7 @@ using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using NSubstitute;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Core.Domain.Employees;
 
 namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteList
 {

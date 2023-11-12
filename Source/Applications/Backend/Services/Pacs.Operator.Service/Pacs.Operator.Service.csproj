@@ -33,5 +33,6 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Pacs\Pacs.Server\Pacs.Server.csproj" />
 	  <ProjectReference Include="..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj" />
+	  <ProjectReference Include="..\Pacs.Admin.Service\Pacs.Admin.Service.csproj" />
 	</ItemGroup>
 </Project>

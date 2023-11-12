@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -6,15 +6,11 @@
 
   <ItemGroup>
     <PackageReference Include="MassTransit.RabbitMQ" Version="8.1.0" />
+	  <PackageReference Include="Stateless" Version="5.13.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\Business\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj" />
-    <ProjectReference Include="..\..\..\Business\Vodovoz.Domain\Vodovoz.Domain.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Messages\Events\" />
   </ItemGroup>
 
 </Project>

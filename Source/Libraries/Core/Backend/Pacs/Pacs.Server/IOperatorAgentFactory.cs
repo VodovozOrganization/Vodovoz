@@ -2,6 +2,6 @@
 {
 	public interface IOperatorAgentFactory
 	{
-		OperatorAgent CreateOperatorAgent(int operatorId);
+		OperatorServerAgent CreateOperatorAgent(int operatorId);
 	}
 }

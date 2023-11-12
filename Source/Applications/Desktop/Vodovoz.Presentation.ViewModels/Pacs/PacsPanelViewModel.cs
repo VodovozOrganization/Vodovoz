@@ -1,39 +1,75 @@
-﻿using Autofac;
+﻿using Microsoft.Extensions.Logging;
+using Pacs.Operator.Client;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.Navigation;
 using QS.ViewModels;
-using QS.ViewModels.Dialog;
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Pacs;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Services;
+using Vodovoz.Settings.Pacs;
 
 namespace Vodovoz.Presentation.ViewModels.Pacs
 {
 	public class PacsPanelViewModel : WidgetViewModelBase
 	{
+		private static TimeSpan _commandTimeout = TimeSpan.FromSeconds(10);
+
+		private readonly ILogger<PacsPanelViewModel> _logger;
+		private readonly IEmployeeService _employeeService;
 		private readonly IOperatorClient _operatorClient;
 		private readonly IGuiDispatcher _guiDispatcher;
 		private readonly INavigationManager _navigationManager;
+		private readonly Employee _employee;
 
+		private bool _canChange;
 		private bool _pacsEnabled;
-		private Operator _operatorState;
+		private OperatorState _operatorState;
 		private MangoState _mangoState;
+		private bool _breakInProgress;
 
 		public DelegateCommand BreakCommand { get; }
 		public DelegateCommand RefreshCommand { get; }
 		public DelegateCommand OpenPacsDialogCommand { get; }
 		public DelegateCommand OpenMangoDialogCommand { get; }
 
-		public PacsPanelViewModel(IOperatorClient operatorClient, IGuiDispatcher guiDispatcher, INavigationManager navigationManager)
+		public PacsPanelViewModel(
+			ILogger<PacsPanelViewModel> logger,
+			IEmployeeService employeeService, 
+			IOperatorClient operatorClient,
+			IPacsSettings pacsSettings,
+			IGuiDispatcher guiDispatcher, 
+			INavigationManager navigationManager)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_operatorClient = operatorClient ?? throw new ArgumentNullException(nameof(operatorClient));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 
-			BreakCommand = new DelegateCommand(Break);
+			_employee = _employeeService.GetEmployeeForCurrentUser();
+			if(_employee == null)
+			{
+				CanChange = false;
+				PacsEnabled = false;
+				return;
+			}
+
+			if(_employee.Subdivision.PacsTimeManagementEnabled)
+			{
+				PacsEnabled = true;
+			}
+			else
+			{
+				PacsEnabled = false;
+				//Отдельная инициализация Манго по номеру сотрудника
+			}
+
+			BreakCommand = new DelegateCommand(() => Break(), () => CanBreak);
 			BreakCommand.CanExecuteChangedWith(this, x => x.CanBreak);
 
 			RefreshCommand = new DelegateCommand(Refresh);
@@ -48,11 +84,17 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			_operatorClient.StateChanged += OperatorStateChanged;
 		}
 
+		public virtual bool CanChange
+		{
+			get => _canChange;
+			set => SetField(ref _canChange, value);
+		}
+
 		#region Pacs
 
 		[PropertyChangedAlso(nameof(BreakState))]
 		[PropertyChangedAlso(nameof(PacsState))]
-		public virtual Operator Operator
+		public virtual OperatorState OperatorState
 		{
 			get => _operatorState;
 			set => SetField(ref _operatorState, value);
@@ -64,10 +106,10 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			set => SetField(ref _pacsEnabled, value);
 		}
 
-		private void OperatorStateChanged(object sender, Operator state)
+		private void OperatorStateChanged(object sender, OperatorState state)
 		{
 			_guiDispatcher.RunInGuiTread(() => {
-				Operator = state;
+				OperatorState = state;
 			});
 		}
 
@@ -76,17 +118,17 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		{
 			get
 			{
-				switch(Operator.State)
+				switch(OperatorState.State)
 				{
-					case OperatorState.Connected:
+					case OperatorStateType.Connected:
 						return PacsState.Connected;
-					case OperatorState.WaitingForCall:
+					case OperatorStateType.WaitingForCall:
 						return PacsState.WorkShift;
-					case OperatorState.Talk:
+					case OperatorStateType.Talk:
 						return PacsState.Talk;
-					case OperatorState.Break:
+					case OperatorStateType.Break:
 						return PacsState.Break;
-					case OperatorState.Disconnected:
+					case OperatorStateType.Disconnected:
 					default:
 						return PacsState.Disconnected;
 				}
@@ -108,38 +150,71 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		public virtual BreakState BreakState
 		{
 			get {
-				switch(Operator.State)
+				switch(OperatorState.State)
 				{
-					case OperatorState.WaitingForCall:
+					case OperatorStateType.WaitingForCall:
 						return BreakState.CanStartBreak;
-					case OperatorState.Break:
+					case OperatorStateType.Break:
 						return BreakState.CanEndBreak;
-					case OperatorState.New:
-					case OperatorState.Connected:
-					case OperatorState.Disconnected:
-					case OperatorState.Talk:
+					case OperatorStateType.New:
+					case OperatorStateType.Connected:
+					case OperatorStateType.Disconnected:
+					case OperatorStateType.Talk:
 					default:
 						return BreakState.BreakDenied;
 				}
 			}
 		}
 
-		public bool CanBreak =>
-			BreakState == BreakState.CanStartBreak ||
-			BreakState == BreakState.CanEndBreak;
-
-		private void Break()
+		public bool CanBreak
 		{
-			if(BreakState == BreakState.CanStartBreak)
+			get
 			{
-				_operatorClient.StartBreak();
-				return;
-			}
+				if(_breakInProgress)
+				{
+					return false;
+				}
 
-			if(BreakState == BreakState.CanEndBreak)
+				return BreakState == BreakState.CanStartBreak || BreakState == BreakState.CanEndBreak;
+			}
+		}
+
+
+		private async Task Break()
+		{
+			_guiDispatcher.RunInGuiTread(() => {
+				_breakInProgress = true;
+				OnPropertyChanged(nameof(CanBreak));
+			});
+
+			try
 			{
-				_operatorClient.EndBreak();
-				return;
+				OperatorState state;
+				var cts = new CancellationTokenSource(_commandTimeout);
+				if(BreakState == BreakState.CanStartBreak)
+				{
+					state = await _operatorClient.StartBreak(cts.Token);
+				}
+				else
+				{
+					state = await _operatorClient.EndBreak(cts.Token);
+				}
+
+				_guiDispatcher.RunInGuiTread(() => {
+					OperatorState = state;
+				});
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Ошибка во время выполнения команды начала/завершения перерыва оператора");
+				throw;
+			}
+			finally
+			{
+				_guiDispatcher.RunInGuiTread(() => {
+					_breakInProgress = false;
+					OnPropertyChanged(nameof(CanBreak));
+				});
 			}
 		}
 
@@ -151,7 +226,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 		private void Refresh()
 		{
-			_operatorState = _operatorClient.GetState();
+			OperatorState = _operatorClient.GetState().Result;
 		}
 
 		#endregion Refresh
@@ -198,156 +273,5 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		Connected,
 		Ring,
 		Talk
-	}
-
-	public interface IOperatorClient : IObservable<Operator>
-	{
-		event EventHandler<Operator> StateChanged;
-		Operator GetState();
-
-		Operator StartWorkshift(string phoneNumber);
-		Operator ChangeNumber(string phoneNumber);
-		Operator EndWorkshift();
-		Operator StartBreak();
-		Operator EndBreak();
-	}
-
-	/*
-	public class Producer : IObservable<string>
-	{
-		private List<IObserver<string>> _observers;
-
-		public Producer()
-		{
-			_observers = new List<IObserver<string>>();
-		}
-
-		public IDisposable Subscribe(IObserver<string> observer)
-		{
-			return new Unsubscriber(_observers, observer);
-		}
-
-		private class Unsubscriber : IDisposable
-		{
-			private readonly List<IObserver<string>> _observers;
-			private readonly IObserver<string> _observer;
-
-			public Unsubscriber(List<IObserver<string>> observers, IObserver<string> observer)
-			{
-				this._observers = observers;
-				this._observer = observer;
-			}
-
-			public void Dispose()
-			{
-				if(_observer == null)
-				{
-					return;
-				}
-
-				if(!_observers.Contains(_observer))
-				{
-					return;
-				}
-				
-				_observers.Remove(_observer);
-			}
-		}
-	}
-
-	public class Consumer : IObserver<string>
-	{
-		public void OnCompleted()
-		{
-			throw new NotImplementedException();
-		}
-
-		public void OnError(Exception error)
-		{
-			throw new NotImplementedException();
-		}
-
-		public void OnNext(string value)
-		{
-			throw new NotImplementedException();
-		}
-	}*/
-
-	public class PacsViewModel : DialogViewModelBase
-	{
-		private readonly IPacsViewModelFactory _pacsViewModelFactory;
-		private readonly Employee _employee;
-		private bool _isOperator;
-		private bool _isAdmin;
-
-		public PacsViewModel(IPacsViewModelFactory pacsViewModelFactory, IEmployeeService employeeService, INavigationManager navigation) : base(navigation)
-		{
-			if(employeeService is null)
-			{
-				throw new ArgumentNullException(nameof(employeeService));
-			}
-			_pacsViewModelFactory = pacsViewModelFactory ?? throw new ArgumentNullException(nameof(pacsViewModelFactory));
-
-			_employee = employeeService.GetEmployeeForCurrentUser();
-			if(_employee == null)
-			{
-				throw new AbortCreatingPageException("Должен быть привязан сотрудник к пользователю. Обратитесь в отдел кадров.", "На настроен пользователь");
-			}
-
-			//Открытие диалога оператора, администратора, (отчетов?)
-
-			if(_isOperator)
-			{
-				OperatorViewModel = _pacsViewModelFactory.CreateOperatorViewModel();
-			}
-
-			if(_isAdmin)
-			{
-				AdminViewModel = _pacsViewModelFactory.CreateAdminViewModel();
-			}
-		}
-
-		public PacsOperatorViewModel OperatorViewModel { get; private set; }
-		public PacsAdminViewModel AdminViewModel { get; private set; }
-		public bool CanEdit { get; private set; }
-	}
-
-	public class PacsOperatorViewModel : WidgetViewModelBase
-	{
-		//Состояние оператора
-		//Доступные действия
-	}
-
-	public class PacsAdminViewModel : WidgetViewModelBase
-	{
-		//Сводка по всем операторам
-		//Сводка по последним звонкам
-		//Отчеты
-	}
-
-	public interface IPacsViewModelFactory
-	{
-		PacsOperatorViewModel CreateOperatorViewModel();
-		PacsAdminViewModel CreateAdminViewModel();
-	}
-
-	public class PacsViewModelFactory : IPacsViewModelFactory
-	{
-		private readonly ILifetimeScope _scope;
-
-		public PacsViewModelFactory(ILifetimeScope scope)
-		{
-			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
-		}
-
-		public PacsAdminViewModel CreateAdminViewModel()
-		{
-			return _scope.Resolve<PacsAdminViewModel>();
-		}
-
-		public PacsOperatorViewModel CreateOperatorViewModel()
-		{
-			return _scope.Resolve<PacsOperatorViewModel>();
-		}
 	}
 }

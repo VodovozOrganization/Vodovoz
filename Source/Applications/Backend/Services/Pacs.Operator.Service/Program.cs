@@ -8,9 +8,7 @@ using Pacs.Server.Consumers;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
 using System.Reflection;
-using System.Security.Authentication;
 using Vodovoz.Core.Data.NHibernate.Mapping.Pacs;
-using Vodovoz.Core.Domain.Pacs;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 
 namespace Pacs.Operator.Service

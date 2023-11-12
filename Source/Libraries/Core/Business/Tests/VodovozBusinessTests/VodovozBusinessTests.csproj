@@ -100,6 +100,10 @@
       <Project>{ca429421-2cce-4f9f-8dce-379583ab297c}</Project>
       <Name>SmsPaymentService</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj">
+      <Project>{67f08744-55fb-4169-809e-82f7424775f4}</Project>
+      <Name>Vodovoz.Core.Domain</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj">
       <Project>{E79B382D-7E61-42D7-B14D-CD1247E586C2}</Project>
       <Name>Vodovoz.Settings.Database</Name>

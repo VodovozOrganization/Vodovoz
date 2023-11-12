@@ -1,6 +1,8 @@
 ﻿using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using System;
+using System.Collections.Generic;
+using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Pacs;
 
 namespace Pacs.Server
@@ -12,6 +14,11 @@ namespace Pacs.Server
 		public OperatorRepository(IUnitOfWorkFactory uowFactory)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+		}
+
+		public IEnumerable<OperatorState> GetOperatorHistory(int operatorId)
+		{
+			throw new NotImplementedException();
 		}
 
 		public OperatorState GetOperatorState(int operatorId)

@@ -9,4 +9,11 @@
 		Break,
 		Disconnected
 	}
+
+	public enum AdministratorStateType
+	{
+		New,
+		Connected,
+		Disconnected
+	}
 }

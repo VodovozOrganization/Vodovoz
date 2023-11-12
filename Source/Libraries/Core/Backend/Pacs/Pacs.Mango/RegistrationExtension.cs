@@ -10,9 +10,9 @@ namespace Pacs.Mango
 	{
 		public static void ConfigurePacsServices(this IServiceCollection serviceCollection)
 		{
-			serviceCollection
+			/*serviceCollection
 				.AddScoped<ICallEventHandler, PacsMangoCallEventHandler>()
-				;
+				;*/
 		}
 	}
 }

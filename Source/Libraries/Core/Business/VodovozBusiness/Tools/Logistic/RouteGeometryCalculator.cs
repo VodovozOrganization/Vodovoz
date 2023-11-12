@@ -276,7 +276,7 @@ namespace Vodovoz.Tools.Logistic
 				lock(uow)
 				{
 					AddNewCacheDistance(distance);
-					uow.TrySave(distance);
+					uow.Save(distance);
 					uow.Commit();
 				}
 			}
@@ -312,7 +312,7 @@ namespace Vodovoz.Tools.Logistic
 			{
 				lock(uow) {
 					AddNewCacheDistance(distance);
-					uow.TrySave(distance);
+					uow.Save(distance);
 					uow.Commit();
 				}
 				addedCached++;

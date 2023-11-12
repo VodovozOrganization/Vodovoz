@@ -4,6 +4,7 @@ using System.Linq;
 using NSubstitute;
 using NSubstitute.ReturnsExtensions;
 using NUnit.Framework;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Domain.WageCalculation.AdvancedWageParameters;
@@ -310,7 +311,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			routeListItemWageCalculationSource4.IsDelivered.Returns(true);
 
 			IRouteListWageCalculationSource src = Substitute.For<IRouteListWageCalculationSource>();
-			src.EmployeeCategory.Returns(Vodovoz.Domain.Employees.EmployeeCategory.driver);
+			src.EmployeeCategory.Returns(EmployeeCategory.driver);
 			src.ItemSources.Returns(
 				new List<IRouteListItemWageCalculationSource> {
 					routeListItemWageCalculationSource1,
@@ -408,7 +409,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			routeListItemWageCalculationSource4.IsDelivered.Returns(true);
 
 			IRouteListWageCalculationSource src = Substitute.For<IRouteListWageCalculationSource>();
-			src.EmployeeCategory.Returns(Vodovoz.Domain.Employees.EmployeeCategory.driver);
+			src.EmployeeCategory.Returns(EmployeeCategory.driver);
 			src.ItemSources.Returns(
 				new List<IRouteListItemWageCalculationSource> {
 					routeListItemWageCalculationSource1,
@@ -507,7 +508,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			routeListItemWageCalculationSource4.IsDelivered.Returns(true);
 
 			IRouteListWageCalculationSource src = Substitute.For<IRouteListWageCalculationSource>();
-			src.EmployeeCategory.Returns(Vodovoz.Domain.Employees.EmployeeCategory.forwarder);
+			src.EmployeeCategory.Returns(EmployeeCategory.forwarder);
 			src.ItemSources.Returns(
 				new List<IRouteListItemWageCalculationSource> {
 					routeListItemWageCalculationSource1,
@@ -567,7 +568,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			routeListItemWageCalculationSource1.IsDelivered.Returns(true);
 
 			IRouteListWageCalculationSource src = Substitute.For<IRouteListWageCalculationSource>();
-			src.EmployeeCategory.Returns(Vodovoz.Domain.Employees.EmployeeCategory.forwarder);
+			src.EmployeeCategory.Returns(EmployeeCategory.forwarder);
 			src.ItemSources.Returns(
 				new List<IRouteListItemWageCalculationSource> {
 					routeListItemWageCalculationSource1
@@ -721,7 +722,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			routeListItemWageCalculationSource1.IsDelivered.Returns(true);
 
 			IRouteListWageCalculationSource src = Substitute.For<IRouteListWageCalculationSource>();
-			src.EmployeeCategory.Returns(Vodovoz.Domain.Employees.EmployeeCategory.driver);
+			src.EmployeeCategory.Returns(EmployeeCategory.driver);
 			src.ItemSources.Returns(
 				new List<IRouteListItemWageCalculationSource> {routeListItemWageCalculationSource1}
 			);
@@ -867,7 +868,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			routeListItemWageCalculationSource1.DeliverySchedule.Returns((new TimeSpan(0, 0, 0), new TimeSpan(12, 0, 0)));
 
 			IRouteListWageCalculationSource src = Substitute.For<IRouteListWageCalculationSource>();
-			src.EmployeeCategory.Returns(Vodovoz.Domain.Employees.EmployeeCategory.driver);
+			src.EmployeeCategory.Returns(EmployeeCategory.driver);
 			src.ItemSources.Returns(
 				new List<IRouteListItemWageCalculationSource> { routeListItemWageCalculationSource1 }
 			);
@@ -1053,7 +1054,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			routeListItemWageCalculationSource1.DeliverySchedule.Returns((new TimeSpan(3, 0, 0), new TimeSpan(4, 0, 0)));
 
 			IRouteListWageCalculationSource src = Substitute.For<IRouteListWageCalculationSource>();
-			src.EmployeeCategory.Returns(Vodovoz.Domain.Employees.EmployeeCategory.forwarder);
+			src.EmployeeCategory.Returns(EmployeeCategory.forwarder);
 			src.ItemSources.Returns(
 				new List<IRouteListItemWageCalculationSource> { routeListItemWageCalculationSource1 }
 			);
@@ -1239,7 +1240,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			routeListItemWageCalculationSource1.DeliverySchedule.Returns((new TimeSpan(3, 0, 0), new TimeSpan(4, 0, 0)));
 
 			IRouteListWageCalculationSource src = Substitute.For<IRouteListWageCalculationSource>();
-			src.EmployeeCategory.Returns(Vodovoz.Domain.Employees.EmployeeCategory.forwarder);
+			src.EmployeeCategory.Returns(EmployeeCategory.forwarder);
 			src.ItemSources.Returns(
 				new List<IRouteListItemWageCalculationSource> { routeListItemWageCalculationSource1 }
 			);

@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Vodovoz.Core.Domain.Pacs;
 
-namespace Pacs.Core.Dto.Calls
+namespace Pacs.Core.Messages.Events
 {
-    public class CallEvent
-    {
-		public int Id{ get; set; }
+	public class CallEvent
+	{
+		public int Id { get; set; }
 		public string CallId { get; set; }
 		public DateTime Timestamp { get; set; }
 		public uint Seq { get; set; }

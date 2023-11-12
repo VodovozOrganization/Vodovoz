@@ -47,7 +47,7 @@ namespace Vodovoz.Domain.Permissions.Warehouses
 			var permissionForDelete = AllPermission.SingleOrDefault(x => x.Warehouse == warehouse && x.WarehousePermissionType == warehousePermissionType);
 			if(permissionForDelete != null)
 			{
-				_uow.TryDelete(permissionForDelete);
+				_uow.Delete(permissionForDelete);
 			}
 		}
 

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using MessageTransport;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 
@@ -37,5 +38,15 @@ namespace Pacs.Mango.Settings
 		}
 
 		public IEnumerable<MessageTTLSetting> MessagesTTL => _messageTTLSettings;
+
+		public string Host => throw new NotImplementedException();
+
+		public int Port => throw new NotImplementedException();
+
+		public string VirtualHost => throw new NotImplementedException();
+
+		public string User => throw new NotImplementedException();
+
+		public string Password => throw new NotImplementedException();
 	}
 }

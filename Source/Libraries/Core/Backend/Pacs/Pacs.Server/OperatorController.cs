@@ -9,12 +9,12 @@ namespace Pacs.Server
 	public class OperatorController : IDisposable
 	{
 		private readonly ILogger<OperatorController> _logger;
-		private readonly OperatorAgent _operatorAgent;
+		private readonly OperatorServerAgent _operatorAgent;
 		private readonly IPhoneController _phoneController;
 
 		public event EventHandler<int> OnDisconnect;
 
-		public OperatorController(ILogger<OperatorController> logger, OperatorAgent operatorAgent, IPhoneController phoneController)
+		public OperatorController(ILogger<OperatorController> logger, OperatorServerAgent operatorAgent, IPhoneController phoneController)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_operatorAgent = operatorAgent ?? throw new ArgumentNullException(nameof(operatorAgent));

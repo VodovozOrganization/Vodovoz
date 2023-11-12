@@ -25,6 +25,7 @@ using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Mango;
 using Vodovoz.Parameters;
+using Vodovoz.Presentation.ViewModels.Pacs;
 using Vodovoz.SidePanel;
 using VodovozInfrastructure.Configuration;
 using Order = Vodovoz.Domain.Orders.Order;
@@ -97,6 +98,9 @@ public partial class MainWindow : Gtk.Window
 		Title = $"{_applicationInfo.ProductTitle} v{_applicationInfo.Version.Major}.{_applicationInfo.Version.Minor} от {GetDateTimeFGromVersion(_applicationInfo.Version):dd.MM.yyyy HH:mm}";
 
 		//Настраиваем модули
+
+		pacspanel.ViewModel = _autofacScope.Resolve<PacsPanelViewModel>();
+
 		ActionUsers.Sensitive = QSMain.User.Admin;
 		ActionAdministration.Sensitive = QSMain.User.Admin;
 		labelUser.LabelProp = QSMain.User.Name;
