@@ -661,6 +661,11 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					.TransformUsing(Transformers.AliasToBean<TurnoverWithDynamicsReport.OrderItemNode>()).ReadOnly().List<TurnoverWithDynamicsReport.OrderItemNode>();
 			}
 
+			var lastCalculationSettingsId = _unitOfWork.GetAll<CounterpartyClassification>()
+				.Select(c => c.ClassificationCalculationSettingsId)
+				.OrderByDescending(d => d)
+				.FirstOrDefault();
+
 			var query = _unitOfWork.Session.QueryOver(() => orderItemAlias)
 				.Left.JoinAlias(() => orderItemAlias.PromoSet, () => promotionalSetAlias)
 				.JoinEntityAlias(() => orderAlias, () => orderItemAlias.Order.Id == orderAlias.Id)
@@ -676,7 +681,12 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
 				.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicGroupAlias)
 				.Inner.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
-				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias);
+				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
+				.JoinEntityAlias(
+					() => counterpartyClassificationAlias,
+					() => counterpartyAlias.Id == counterpartyClassificationAlias.CounterpartyId
+						&& counterpartyClassificationAlias.ClassificationCalculationSettingsId == lastCalculationSettingsId,
+					JoinType.LeftOuterJoin);
 
 			var counterpartyPhonesSubquery = QueryOver.Of(() => phoneAlias)
 				.Where(() => phoneAlias.Counterparty.Id == orderAlias.Client.Id)
@@ -702,6 +712,74 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				.AndRestrictionOn(() => routeListItemAlias.Status).Not.IsIn(notDeliveredStatuses)
 				.Select(x => x.RouteList.Id)
 				.Take(1);
+
+			#region Classifications Restrictions
+
+			var classificationByBottlesCountProjection =
+				Projections.Property(() => counterpartyClassificationAlias.ClassificationByBottlesCount);
+
+			var classificationByOrdersCountProjection =
+				Projections.Property(() => counterpartyClassificationAlias.ClassificationByOrdersCount);
+
+			var classificationIsAXRestriction =
+				Restrictions.And(
+					Restrictions.Eq(classificationByBottlesCountProjection, CounterpartyClassificationByBottlesCount.A),
+					Restrictions.Eq(classificationByOrdersCountProjection, CounterpartyClassificationByOrdersCount.X));
+
+			var classificationIsAYRestriction =
+				Restrictions.And(
+					Restrictions.Eq(classificationByBottlesCountProjection, CounterpartyClassificationByBottlesCount.A),
+					Restrictions.Eq(classificationByOrdersCountProjection, CounterpartyClassificationByOrdersCount.Y));
+
+			var classificationIsAZRestriction =
+				Restrictions.And(
+					Restrictions.Eq(classificationByBottlesCountProjection, CounterpartyClassificationByBottlesCount.A),
+					Restrictions.Eq(classificationByOrdersCountProjection, CounterpartyClassificationByOrdersCount.Z));
+
+			var classificationIsBXRestriction =
+				Restrictions.And(
+					Restrictions.Eq(classificationByBottlesCountProjection, CounterpartyClassificationByBottlesCount.B),
+					Restrictions.Eq(classificationByOrdersCountProjection, CounterpartyClassificationByOrdersCount.X));
+
+			var classificationIsBYRestriction =
+				Restrictions.And(
+					Restrictions.Eq(classificationByBottlesCountProjection, CounterpartyClassificationByBottlesCount.B),
+					Restrictions.Eq(classificationByOrdersCountProjection, CounterpartyClassificationByOrdersCount.Y));
+
+			var classificationIsBZRestriction =
+				Restrictions.And(
+					Restrictions.Eq(classificationByBottlesCountProjection, CounterpartyClassificationByBottlesCount.B),
+					Restrictions.Eq(classificationByOrdersCountProjection, CounterpartyClassificationByOrdersCount.Z));
+
+			var classificationIsCXRestriction =
+				Restrictions.And(
+					Restrictions.Eq(classificationByBottlesCountProjection, CounterpartyClassificationByBottlesCount.C),
+					Restrictions.Eq(classificationByOrdersCountProjection, CounterpartyClassificationByOrdersCount.X));
+
+			var classificationIsCYRestriction =
+				Restrictions.And(
+					Restrictions.Eq(classificationByBottlesCountProjection, CounterpartyClassificationByBottlesCount.C),
+					Restrictions.Eq(classificationByOrdersCountProjection, CounterpartyClassificationByOrdersCount.Y));
+
+			var classificationIsCZRestriction =
+				Restrictions.And(
+					Restrictions.Eq(classificationByBottlesCountProjection, CounterpartyClassificationByBottlesCount.C),
+					Restrictions.Eq(classificationByOrdersCountProjection, CounterpartyClassificationByOrdersCount.Z));
+
+			#endregion Classifications Restrictions
+
+			var counterpartyClassificationProjection =
+				Projections.Conditional(
+					classificationIsAXRestriction,  Projections.Constant(CounterpartyCompositeClassification.AX),
+						Projections.Conditional(classificationIsAYRestriction, Projections.Constant(CounterpartyCompositeClassification.AY),
+						Projections.Conditional(classificationIsAZRestriction, Projections.Constant(CounterpartyCompositeClassification.AZ),
+						Projections.Conditional(classificationIsBXRestriction, Projections.Constant(CounterpartyCompositeClassification.BX),
+						Projections.Conditional(classificationIsBYRestriction, Projections.Constant(CounterpartyCompositeClassification.BY),
+						Projections.Conditional(classificationIsBZRestriction, Projections.Constant(CounterpartyCompositeClassification.BZ),
+						Projections.Conditional(classificationIsCXRestriction, Projections.Constant(CounterpartyCompositeClassification.CX),
+						Projections.Conditional(classificationIsCYRestriction, Projections.Constant(CounterpartyCompositeClassification.CY),
+						Projections.Conditional(classificationIsCZRestriction, Projections.Constant(CounterpartyCompositeClassification.CZ),
+					Projections.Constant(CounterpartyCompositeClassification.New))))))))));
 
 			#region filter parameters
 
@@ -988,20 +1066,6 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			#region CounterpartyClassifications
 
-			if(includedCounterpartyClassifications.Any() || excludedCounterpartyClassifications.Any())
-			{
-				var lastCalculationSettingsId = _unitOfWork.GetAll<CounterpartyClassification>()
-					.Select(c => c.ClassificationCalculationSettingsId)
-					.OrderByDescending(d => d)
-					.FirstOrDefault();
-
-				query.JoinEntityAlias(
-						() => counterpartyClassificationAlias,
-						() => counterpartyAlias.Id == counterpartyClassificationAlias.CounterpartyId
-							&& counterpartyClassificationAlias.ClassificationCalculationSettingsId == lastCalculationSettingsId,
-						JoinType.LeftOuterJoin);
-			}
-
 			if(includedCounterpartyClassifications.Any())
 			{
 				var includeRestriction = Restrictions.Disjunction();
@@ -1097,7 +1161,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultNodeAlias.OrderDeliveryDate)
 						.SelectSubQuery(routeListIdSubquery).WithAlias(() => resultNodeAlias.RouteListId)
 						.Select(() => productGroupAlias.Id).WithAlias(() => resultNodeAlias.ProductGroupId)
-						.Select(Projections.Constant(0)).WithAlias(() => resultNodeAlias.CounterpartyClassification)
+						.Select(counterpartyClassificationProjection).WithAlias(() => resultNodeAlias.CounterpartyClassification)
 						.Select(ProductGroupProjections.GetProductGroupNameWithEnclosureProjection()).WithAlias(() => resultNodeAlias.ProductGroupName))
 				.SetTimeout(0)
 				.TransformUsing(Transformers.AliasToBean<TurnoverWithDynamicsReport.OrderItemNode>())
