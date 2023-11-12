@@ -3115,7 +3115,8 @@ SELECT
 	) AS spending_per_item,
 	(SELECT CAST((spending_per_item * items_count) AS DECIMAL(12,2))) AS total_spending,
 	(SELECT CAST((total_price - total_spending)  AS DECIMAL(12,2))) AS profitability,
-	(SELECT CAST(IFNULL((profitability / total_price * 100), 0) AS DECIMAL(12,2))) AS profitability_percent
+	(SELECT CAST(IFNULL((profitability / total_price * 100), 0) AS DECIMAL(12,2))) AS profitability_percent,
+    IFNULL(CONCAT(ccl.classification_by_bottles_count, ccl.classification_by_orders_count), 'Новый') as counterparty_classification
 FROM
     order_items oi
     LEFT JOIN
@@ -3656,10 +3657,14 @@ WHERE
           <DataField>nomenclature_category</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="counterparty_classification">
+          <DataField>counterparty_classification</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="Criterions">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>180</Timeout>
         <CommandText>SET @classification_include = 0;
@@ -4094,7 +4099,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="criterions">
           <DataField>criterions</DataField>
           <TypeName>System.String</TypeName>
@@ -4113,7 +4118,7 @@ FROM
   </DataSources>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
