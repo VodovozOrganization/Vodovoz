@@ -147,7 +147,7 @@ namespace Vodovoz
 			editing &= Entity.RouteList?.Status != RouteListStatus.Closed || hasPermitionToEditDocWithClosedRL;
 			Entity.InitializeDefaultValues(UoW, _nomenclatureRepository);
 
-			entryRouteList.ViewModel = new LegacyEEVMBuilderFactory<CarUnloadDocument>(this, Entity, UoW, NavigationManager, _lifetimeScope)
+			var routeListViewModel = new LegacyEEVMBuilderFactory<CarUnloadDocument>(this, Entity, UoW, NavigationManager, _lifetimeScope)
 				.ForProperty(x => x.RouteList)
 				.UseViewModelJournalAndAutocompleter<RouteListJournalViewModel, RouteListJournalFilterViewModel>(filter =>
 				{
@@ -155,6 +155,7 @@ namespace Vodovoz
 				})
 				.Finish();
 
+			entryRouteList.ViewModel = routeListViewModel;
 			entryRouteList.ViewModel.Changed += OnYentryrefRouteListChanged;
 			OnYentryrefRouteListChanged(null, EventArgs.Empty);
 
@@ -175,7 +176,7 @@ namespace Vodovoz
 			ySpecCmbWarehouses.Binding.AddBinding(Entity, e => e.Warehouse, w => w.SelectedItem).InitializeFromSource();
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 
-			entryRouteList.ViewModel.IsEditable = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
+			routeListViewModel.CanViewEntity = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 
 			Entity.PropertyChanged += (sender, e) => {
 				if (e.PropertyName == nameof(Entity.Warehouse))

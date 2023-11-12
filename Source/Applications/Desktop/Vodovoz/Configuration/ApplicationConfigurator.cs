@@ -46,6 +46,7 @@ using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredResources;
 using Vodovoz.Settings.Database;
 using Vodovoz.ViewModels.Cash;
+using Vodovoz.ViewModels.Counterparties;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using Vodovoz.ViewModels.ViewModels.Logistic;
@@ -170,7 +171,7 @@ namespace Vodovoz.Configuration
                     .End(),
                 OrmObjectMapping<Counterparty>.Create().Dialog<CounterpartyDlg>().DefaultTableView()
                     .SearchColumn("Название", x => x.FullName).End(),
-                OrmObjectMapping<Tag>.Create().Dialog<TagDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
+                OrmObjectMapping<Tag>.Create().Dialog<TagViewModel>().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
                 OrmObjectMapping<CounterpartyContract>.Create().Dialog<CounterpartyContractDlg>(),
                 OrmObjectMapping<DocTemplate>.Create().Dialog<DocTemplateDlg>().DefaultTableView().SearchColumn("Название", x => x.Name)
                     .Column("Тип", x => x.TemplateType.GetEnumTitle()).End(),

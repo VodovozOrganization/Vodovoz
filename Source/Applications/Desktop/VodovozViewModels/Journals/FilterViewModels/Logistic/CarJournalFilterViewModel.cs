@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Autofac;
 using QS.Project.Filter;
 using QS.Utilities.Enums;
 using Vodovoz.Domain.Logistic.Cars;
@@ -21,14 +22,18 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		private bool _canChangeVisitingMasters;
 		private bool _canChangeRestrictedCarTypesOfUse;
 
-		public CarJournalFilterViewModel(ICarModelJournalFactory carModelJournalFactory)
+		public CarJournalFilterViewModel(
+			ILifetimeScope lifetimeScope,
+			ICarModelJournalFactory carModelJournalFactory)
 		{
+			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			CarModelJournalFactory = carModelJournalFactory ?? throw new ArgumentNullException(nameof(carModelJournalFactory));
 			_restrictedCarTypesOfUse = EnumHelper.GetValuesList<CarTypeOfUse>();
 			_restrictedCarOwnTypes = EnumHelper.GetValuesList<CarOwnType>();
 			SetFilterSensitivity(true);
 		}
 
+		public ILifetimeScope LifetimeScope { get; }
 		public ICarModelJournalFactory CarModelJournalFactory { get; }
 
 		public virtual bool? Archive

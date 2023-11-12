@@ -1,4 +1,5 @@
-﻿using Gamma.ColumnConfig;
+﻿using Autofac;
+using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gamma.Widgets.Additions;
 using Gdk;
@@ -26,23 +27,18 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Sale;
-using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
 using Vodovoz.Infrastructure;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.Models;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Logistic;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic;
@@ -57,7 +53,7 @@ namespace Vodovoz.Dialogs.Logistic
 		private readonly Gtk.Adjustment _driversAtWorksPriorityAdjustment = new Gtk.Adjustment(6, 1, 10, 1, 1, 1);
 
 		private readonly ILogger<AtWorksDlg> _logger;
-
+		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IDefaultDeliveryDayScheduleSettings _defaultDeliveryDayScheduleSettings;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly IEmployeeRepository _employeeRepository;
@@ -83,6 +79,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 		public AtWorksDlg(
 			ILogger<AtWorksDlg> logger,
+			ILifetimeScope lifetimeScope,
 			IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IRouteListRepository routeListRepository,
@@ -106,6 +103,7 @@ namespace Vodovoz.Dialogs.Logistic
 			}
 
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_defaultDeliveryDayScheduleSettings = defaultDeliveryDayScheduleSettings ?? throw new ArgumentNullException(nameof(defaultDeliveryDayScheduleSettings));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
@@ -521,7 +519,7 @@ namespace Vodovoz.Dialogs.Logistic
 				return;
 			}
 
-			var filter = new CarJournalFilterViewModel(new CarModelJournalFactory());
+			var filter = new CarJournalFilterViewModel(_lifetimeScope, new CarModelJournalFactory());
 
 			filter.SetAndRefilterAtOnce(
 				x => x.Archive = false,
