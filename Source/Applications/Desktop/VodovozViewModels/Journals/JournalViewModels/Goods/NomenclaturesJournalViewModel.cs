@@ -44,15 +44,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 			Action<NomenclatureFilterViewModel> filterParams = null
 		) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
-			this._employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			this._nomenclatureSelectorFactory =
+			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			_nomenclatureSelectorFactory =
 				nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
-			this._counterpartySelectorFactory =
+			_counterpartySelectorFactory =
 				counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
-			this._nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
-			this._userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 
 			TabName = "Журнал ТМЦ";
+
 			SetOrder(x => x.Name);
 
 			if(filterParams != null)

@@ -1,16 +1,17 @@
 ﻿using Gamma.Utilities;
 using QS.Views.GtkUI;
+using System.ComponentModel;
 using Vodovoz.Domain.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 
 namespace Vodovoz.Filters.GtkViews
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class NomenclaturesFilterView : FilterViewBase<NomenclatureFilterViewModel>
 	{
 		public NomenclaturesFilterView(NomenclatureFilterViewModel filterViewModel) : base(filterViewModel)
 		{
-			this.Build();
+			Build();
 			Configure();
 			InitializeRestrictions();
 		}
