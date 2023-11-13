@@ -98,6 +98,7 @@ using Vodovoz.ViewModels.ViewModels.Suppliers;
 using Action = Gtk.Action;
 using QS.Report.ViewModels;
 using Vodovoz.ViewModels.ReportsParameters;
+using Vodovoz.Settings.Nomenclature;
 
 public partial class MainWindow : Window
 {
@@ -541,6 +542,8 @@ public partial class MainWindow : Window
 			new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
 				new NomenclatureFilterViewModel(), counterpartyJournalFactory, nomenclatureRepository, userRepository);
 
+		var nomenclatureSettings = Startup.AppDIContainer.BeginLifetimeScope().Resolve<INomenclatureSettings>();
+
 		RequestsToSuppliersFilterViewModel filter = new RequestsToSuppliersFilterViewModel(nomenclatureSelectorFactory);
 
 		var requestsJournal = new RequestsToSuppliersJournalViewModel(
@@ -552,7 +555,8 @@ public partial class MainWindow : Window
 			counterpartyJournalFactory,
 			new NomenclatureJournalFactory(),
 			nomenclatureRepository,
-			userRepository
+			userRepository,
+			nomenclatureSettings
 		);
 		tdiMain.AddTab(requestsJournal);
 	}

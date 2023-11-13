@@ -17,6 +17,7 @@ using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
@@ -28,6 +29,7 @@ namespace Vodovoz.ViewModels.Orders
 	{
 		private readonly IEmployeeService _employeeService;
 		private readonly INomenclatureRepository _nomenclatureRepository;
+		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IUserRepository _userRepository;
 		private readonly ICounterpartyJournalFactory _counterpartySelectorFactory;
 		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
@@ -40,10 +42,12 @@ namespace Vodovoz.ViewModels.Orders
 			ICounterpartyJournalFactory counterpartySelectorFactory,
 			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
+			INomenclatureSettings nomenclatureSettings,
 			IUserRepository userRepository) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
@@ -124,7 +128,7 @@ namespace Vodovoz.ViewModels.Orders
 
 				var nomenJournalViewModel = new NomenclaturesJournalViewModel(nomenFilter, UnitOfWorkFactory,
 					CommonServices, _employeeService, _nomenclatureSelectorFactory, _counterpartySelectorFactory,
-					_nomenclatureRepository, _userRepository) {
+					_nomenclatureRepository, _userRepository, _nomenclatureSettings) {
 					SelectionMode = JournalSelectionMode.Single
 				};
 

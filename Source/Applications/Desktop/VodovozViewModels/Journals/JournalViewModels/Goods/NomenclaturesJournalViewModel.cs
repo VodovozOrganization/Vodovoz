@@ -15,6 +15,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Infrastructure;
 using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
@@ -31,6 +32,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 		private readonly ICounterpartyJournalFactory _counterpartySelectorFactory;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
+		private readonly INomenclatureSettings _nomenclatureSettings;
 
 		public NomenclaturesJournalViewModel(
 			NomenclatureFilterViewModel filterViewModel,
@@ -41,6 +43,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 			ICounterpartyJournalFactory counterpartySelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
+			INomenclatureSettings nomenclatureSettings,
 			Action<NomenclatureFilterViewModel> filterParams = null
 		) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
@@ -51,7 +54,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 				counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-
+			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			TabName = "Журнал ТМЦ";
 
 			SetOrder(x => x.Name);
@@ -254,11 +257,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 		protected override Func<NomenclatureViewModel> CreateDialogFunction =>
 			() => new NomenclatureViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices,
 				_employeeService, _nomenclatureSelectorFactory, _counterpartySelectorFactory, _nomenclatureRepository,
-				_userRepository, new StringHandler());
+				_userRepository, new StringHandler(), _nomenclatureSettings);
 
 		protected override Func<NomenclatureJournalNode, NomenclatureViewModel> OpenDialogFunction =>
 			node => new NomenclatureViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices,
 				_employeeService, _nomenclatureSelectorFactory, _counterpartySelectorFactory, _nomenclatureRepository,
-				_userRepository, new StringHandler());
+				_userRepository, new StringHandler(), _nomenclatureSettings);
 	}
 }

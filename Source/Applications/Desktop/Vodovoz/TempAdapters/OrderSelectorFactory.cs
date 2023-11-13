@@ -1,4 +1,5 @@
-﻿using QS.Dialog.GtkUI.FileDialog;
+﻿using Autofac;
+using QS.Dialog.GtkUI.FileDialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Journal;
@@ -17,6 +18,7 @@ using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
+using Vodovoz.Settings.Nomenclature;
 
 namespace Vodovoz.TempAdapters
 {
@@ -98,7 +100,8 @@ namespace Vodovoz.TempAdapters
 						new SubdivisionParametersProvider(new ParametersProvider()),
 						new DeliveryScheduleParametersProvider(new ParametersProvider()),
 						new RdlPreviewOpener(),
-						new RouteListItemRepository());
+						new RouteListItemRepository(),
+						Startup.AppDIContainer.BeginLifetimeScope().Resolve<INomenclatureSettings>());
 				});
 		}
 
@@ -142,7 +145,8 @@ namespace Vodovoz.TempAdapters
 						new SubdivisionParametersProvider(new ParametersProvider()),
 						new DeliveryScheduleParametersProvider(new ParametersProvider()),
 						new RdlPreviewOpener(),
-						new RouteListItemRepository());
+						new RouteListItemRepository(),
+						Startup.AppDIContainer.BeginLifetimeScope().Resolve<INomenclatureSettings>());
 				});
 		}
 
@@ -182,7 +186,8 @@ namespace Vodovoz.TempAdapters
 				new SubdivisionParametersProvider(new ParametersProvider()),
 				new DeliveryScheduleParametersProvider(new ParametersProvider()),
 				new RdlPreviewOpener(),
-				new RouteListItemRepository());
+				new RouteListItemRepository(),
+				Startup.AppDIContainer.BeginLifetimeScope().Resolve<INomenclatureSettings>());
 		}
 	}
 }

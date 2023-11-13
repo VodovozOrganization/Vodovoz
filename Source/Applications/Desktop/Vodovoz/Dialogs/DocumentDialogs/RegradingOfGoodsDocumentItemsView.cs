@@ -1,4 +1,5 @@
-﻿using Gamma.GtkWidgets;
+﻿using Autofac;
+using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -25,6 +26,7 @@ using Vodovoz.Infrastructure;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.JournalSelector;
 using Vodovoz.Parameters;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
@@ -201,7 +203,9 @@ namespace Vodovoz
 
 				var employeeService = VodovozGtkServicesConfig.EmployeeService;
 
-				var counterpartySelectorFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
+				var lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+				var counterpartySelectorFactory = new CounterpartyJournalFactory(lifetimeScope);
+				var nomenclatureSettings = lifetimeScope.Resolve<INomenclatureSettings>();
 
 				var nomenclatureAutoCompleteSelectorFactory =
 					new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
@@ -221,7 +225,8 @@ namespace Vodovoz
 					new NomenclatureJournalFactory(),
 					counterpartySelectorFactory,
 					_nomenclatureRepository,
-					userRepository
+					userRepository,
+					nomenclatureSettings
 					);
 
 				nomenclaturesJournalViewModel.SelectionMode = JournalSelectionMode.Single;
@@ -291,6 +296,7 @@ namespace Vodovoz
 			var filter = new NomenclatureFilterViewModel();
 
 			var userRepository = new UserRepository();
+			var nomenclatureSettings = Startup.AppDIContainer.BeginLifetimeScope().Resolve<INomenclatureSettings>();
 
 			var employeeService = VodovozGtkServicesConfig.EmployeeService;
 			var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
@@ -313,7 +319,8 @@ namespace Vodovoz
 					new NomenclatureJournalFactory(),
 					counterpartyJournalFactory,
 					_nomenclatureRepository,
-					userRepository
+					userRepository,
+					nomenclatureSettings
 					);
 
 			nomenclaturesJournalViewModel.SelectionMode = JournalSelectionMode.Single;

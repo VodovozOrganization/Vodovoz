@@ -44,6 +44,7 @@ using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -225,15 +226,18 @@ namespace Vodovoz
 				x => x.RestrictArchive = false
 			);
 
+			var lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+
 			NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
 				nomenclatureFilter,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				new EmployeeService(),
 				new NomenclatureJournalFactory(),
-				new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
+				new CounterpartyJournalFactory(lifetimeScope),
 				_nomenclatureRepository,
-				new UserRepository()
+				new UserRepository(),
+				lifetimeScope.Resolve<INomenclatureSettings>()
 			) {
 				SelectionMode = JournalSelectionMode.Single
 			};

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
@@ -21,6 +21,7 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Nodes;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using VodovozInfrastructure.StringHandlers;
+using Vodovoz.Settings.Nomenclature;
 
 namespace Vodovoz.ViewModels.Dialogs.Goods
 {
@@ -31,6 +32,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		private readonly IEmployeeService _employeeService;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
+		private readonly INomenclatureSettings _nomenclatureSettings;
 		private NomenclatureOnlineParameters _mobileAppNomenclatureOnlineParameters;
 		private NomenclatureOnlineParameters _vodovozWebSiteNomenclatureOnlineParameters;
 		private NomenclatureOnlineParameters _kulerSaleWebSiteNomenclatureOnlineParameters;
@@ -47,7 +49,8 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			ICounterpartyJournalFactory counterpartySelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
-			IStringHandler stringHandler) : base(uowBuilder, uowFactory, commonServices)
+			IStringHandler stringHandler,
+			INomenclatureSettings nomenclatureSettings) : base(uowBuilder, uowFactory, commonServices)
 		{
 			if(nomenclatureSelectorFactory is null)
 			{
@@ -55,6 +58,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			}
 
 			StringHandler = stringHandler ?? throw new ArgumentNullException(nameof(stringHandler));
+			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));

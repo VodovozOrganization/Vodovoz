@@ -1,4 +1,5 @@
 ﻿using System;
+using Autofac;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
@@ -9,6 +10,7 @@ using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 
@@ -31,6 +33,7 @@ namespace Vodovoz.TempAdapters
             var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
             var userRepository = new UserRepository();
             var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
+			var nomenclatureSettings = Startup.AppDIContainer.BeginLifetimeScope().Resolve<INomenclatureSettings>();
 
 			WaterJournalViewModel waterJournal = new WaterJournalViewModel(
                 UnitOfWorkFactory.GetDefaultFactory,
@@ -39,8 +42,9 @@ namespace Vodovoz.TempAdapters
 				new NomenclatureJournalFactory(),
                 counterpartyJournalFactory,
                 nomenclatureRepository,
-                userRepository
-            );
+                userRepository,
+				nomenclatureSettings
+			);
 
             waterJournal.SelectionMode = multipleSelect ? JournalSelectionMode.Multiple : JournalSelectionMode.Single;
             return waterJournal;

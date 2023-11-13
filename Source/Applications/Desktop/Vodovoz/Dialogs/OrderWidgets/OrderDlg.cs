@@ -91,6 +91,7 @@ using Vodovoz.Models;
 using Vodovoz.Models.Orders;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.SidePanel.InfoViews;
@@ -182,6 +183,7 @@ namespace Vodovoz
 		private readonly ICashRepository _cashRepository = new CashRepository();
 		private readonly IPromotionalSetRepository _promotionalSetRepository = new PromotionalSetRepository();
 		private ICounterpartyService _counterpartyService;
+		private INomenclatureSettings _nomenclatureSettings;
 
 		private readonly IRentPackagesJournalsViewModelsFactory _rentPackagesJournalsViewModelsFactory
 			= new RentPackagesJournalsViewModelsFactory(Startup.MainWin.NavigationManager);
@@ -544,6 +546,7 @@ namespace Vodovoz
 		{
 			_lastDeliveryPointComment = Entity.DeliveryPoint?.Comment.Trim('\n').Trim(' ') ?? string.Empty;
 			_counterpartyService = _lifetimeScope.Resolve<ICounterpartyService>();
+			_nomenclatureSettings = _lifetimeScope.Resolve<INomenclatureSettings>();
 
 			_justCreated = UoWGeneric.IsNew;
 
@@ -2787,7 +2790,8 @@ namespace Vodovoz
 				new NomenclatureJournalFactory(),
 				CounterpartySelectorFactory,
 				NomenclatureRepository,
-				_userRepository
+				_userRepository,
+				_nomenclatureSettings
 			) {
 				SelectionMode = JournalSelectionMode.Single,
 			};
@@ -2828,7 +2832,8 @@ namespace Vodovoz
 				new NomenclatureJournalFactory(),
 				CounterpartySelectorFactory,
 				NomenclatureRepository,
-				_userRepository
+				_userRepository,
+				_nomenclatureSettings
 			) {
 				SelectionMode = JournalSelectionMode.Single,
 			};

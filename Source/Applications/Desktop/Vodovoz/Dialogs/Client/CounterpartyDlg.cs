@@ -84,6 +84,7 @@ using Vodovoz.Models;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Settings.Edo;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
@@ -1053,7 +1054,8 @@ namespace Vodovoz
 					CounterpartySelectorFactory,
 					new NomenclatureJournalFactory(),
 					NomenclatureRepository,
-					_userRepository);
+					_userRepository,
+					_lifetimeScope.Resolve<INomenclatureSettings>());
 			supplierPricesWidget.Sensitive = CanEdit;
 		}
 
