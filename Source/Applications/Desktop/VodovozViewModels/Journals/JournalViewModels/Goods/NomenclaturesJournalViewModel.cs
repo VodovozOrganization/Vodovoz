@@ -225,6 +225,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 						.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.Id)
 						.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
 						.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.Category)
+						.Select(() => nomenclatureAlias.GlassHolderType).WithAlias(() => resultAlias.GlassHolderType)
 						.Select(() => unitAlias.Name).WithAlias(() => resultAlias.UnitName)
 						.Select(() => unitAlias.Digits).WithAlias(() => resultAlias.UnitDigits)
 						.Select(() => nomenclatureAlias.OnlineStoreExternalId).WithAlias(() => resultAlias.OnlineStoreExternalId)
@@ -240,6 +241,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 						.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.Id)
 						.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
 						.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.Category)
+						.Select(() => nomenclatureAlias.GlassHolderType).WithAlias(() => resultAlias.GlassHolderType)
 						.Select(() => nomenclatureAlias.OnlineStoreExternalId).WithAlias(() => resultAlias.OnlineStoreExternalId)
 						.Select(() => false).WithAlias(() => resultAlias.CalculateQtyOnStock))
 					.OrderBy(x => x.Name).Asc
