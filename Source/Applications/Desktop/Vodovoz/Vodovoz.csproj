@@ -104,6 +104,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Libraries\External\Taxcom\TISystems.TTC.CRM.BE.dll</HintPath>
     </Reference>
+    <Reference Include="GammaBinding">
+      <HintPath>..\..\..\..\..\Vodovoz1_UI\QSProjects\Binding\Gamma.Binding\bin\Debug\GammaBinding.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
@@ -1971,10 +1974,27 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Pacs.PacsPanelView.cs" />
     <Compile Include="Views\Logistic\FastDeliveryOrderTransferFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.FastDeliveryOrderTransferFilterView.cs" />
+    <Compile Include="Views\Pacs\PacsOperatorView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Pacs.PacsOperatorView.cs" />
+    <Compile Include="Views\Pacs\PacsSettingsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Pacs.PacsSettingsView.cs" />
+    <Compile Include="Views\Pacs\PacsDomainSettingsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Pacs.PacsDomainSettingsView.cs" />
+    <Compile Include="Views\Pacs\PacsDashboardView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Pacs.PacsDashboardView.cs" />
+    <Compile Include="Views\Pacs\PacsDashboardFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Pacs.PacsDashboardFilterView.cs" />
+    <Compile Include="Views\Pacs\OperatorDetailsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Pacs.OperatorDetailsView.cs" />
+    <Compile Include="Views\Pacs\CallDetailsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Pacs.CallDetailsView.cs" />
+    <Compile Include="Views\Pacs\MissedCallDetailsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Pacs.MissedCallDetailsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="ViewModels\Goods\" />
+    <Folder Include="Views\Pacs\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">
