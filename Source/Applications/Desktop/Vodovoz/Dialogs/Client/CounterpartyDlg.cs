@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using EdoService;
 using EdoService.Converters;
 using EdoService.Dto;
@@ -111,7 +111,7 @@ namespace Vodovoz
 	public partial class CounterpartyDlg : QS.Dialog.Gtk.EntityDialogBase<Counterparty>, ICounterpartyInfoProvider, ITDICloseControlTab,
 		IAskSaveOnCloseViewModel, INotifyPropertyChanged
 	{
-		private readonly ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
 		private readonly bool _canSetWorksThroughOrganization =
@@ -383,7 +383,7 @@ namespace Vodovoz
 			var menu = new Gtk.Menu();
 
 			var menuItem = new Gtk.MenuItem("Все заказы контрагента");
-			menuItem.Activated += AllOrders_Activated;
+			menuItem.Activated += OnAllCounterpartyOrdersActivated;
 			menu.Add(menuItem);
 
 			var menuItemFixedPrices = new Gtk.MenuItem("Фикс. цены для самовывоза");
@@ -391,7 +391,7 @@ namespace Vodovoz
 			menu.Add(menuItemFixedPrices);
 
 			var menuComplaint = new Gtk.MenuItem("Рекламации контрагента");
-			menuComplaint.Activated += ComplaintViewOnActivated;
+			menuComplaint.Activated += OnCounterpartyComplaintsActivated;
 			menu.Add(menuComplaint);
 
 			menuActions.Menu = menu;
@@ -1472,21 +1472,20 @@ namespace Vodovoz
 			}
 		}
 
-		private void AllOrders_Activated(object sender, EventArgs e)
+		private void OnAllCounterpartyOrdersActivated(object sender, EventArgs e)
 		{
-			NavigationManager.OpenViewModel<OrderJournalViewModel, Action<OrderJournalFilterViewModel>>(null, filter => filter.RestrictCounterparty = Entity, OpenPageOptions.IgnoreHash);
+			NavigationManager.OpenViewModel<OrderJournalViewModel, Action<OrderJournalFilterViewModel>>(
+				null,
+				filter => filter.RestrictCounterparty = Entity,
+				OpenPageOptions.IgnoreHash);
 		}
 
-		private void ComplaintViewOnActivated(object sender, EventArgs e)
+		private void OnCounterpartyComplaintsActivated(object sender, EventArgs e)
 		{
-			Action<ComplaintFilterViewModel> action = (filterConfig) => filterConfig.Counterparty = Entity;
-
-			var filter = Startup.AppDIContainer.BeginLifetimeScope().Resolve<ComplaintFilterViewModel>(new TypedParameter(typeof(Action<ComplaintFilterViewModel>), action));
-
-			NavigationManager.OpenViewModel<ComplaintsJournalViewModel, ComplaintFilterViewModel>(
-			   null,
-			   filter,
-			   OpenPageOptions.IgnoreHash);
+			NavigationManager.OpenViewModel<ComplaintsJournalViewModel, Action<ComplaintFilterViewModel>>(
+				null,
+				filterConfig => filterConfig.Counterparty = Entity,
+				OpenPageOptions.IgnoreHash);
 		}
 
 		private void OnLogisticsRequirementsSelectionChanged(object sender, PropertyChangedEventArgs e)
@@ -2500,6 +2499,16 @@ namespace Vodovoz
 			}
 
 			return bank;
+		}
+
+		public override void Destroy()
+		{
+			if(_lifetimeScope != null)
+			{
+				_lifetimeScope.Dispose();
+				_lifetimeScope = null;
+			}
+			base.Destroy();
 		}
 	}
 

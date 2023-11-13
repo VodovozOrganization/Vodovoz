@@ -1966,6 +1966,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.ChainStoreDelayReport.cs" />
     <Compile Include="Views\Logistic\FastDeliveryOrderTransferFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.FastDeliveryOrderTransferFilterView.cs" />
+    <Compile Include="Dialogs\Client\OrderCancellationConfirmationDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Client.OrderCancellationConfirmationDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
