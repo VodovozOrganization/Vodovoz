@@ -2,6 +2,7 @@
 using Gtk;
 using QS.Views.Dialog;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Dialogs.Orders;
 
 namespace Vodovoz.Views.Orders
@@ -10,7 +11,7 @@ namespace Vodovoz.Views.Orders
 	{
 		public PrintOrdersDocumentsView(PrintOrdersDocumentsViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 			Configure();
 		}
 
@@ -18,7 +19,7 @@ namespace Vodovoz.Views.Orders
 		{
 			ybuttonPrint.Clicked += (sender, e) => ViewModel.PrintCommand?.Execute();
 			ybuttonPrint.Binding
-				.AddBinding(ViewModel, vm => vm.CanPrintDocuments, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.CanPrintOrSaveDocuments, w => w.Sensitive)
 				.InitializeFromSource();
 
 			ybuttonCancel.Clicked += (sender, e) => ViewModel.CloseDialogCommand?.Execute();
@@ -27,16 +28,32 @@ namespace Vodovoz.Views.Orders
 				.AddBinding(ViewModel, vm => vm.IsPrintBill, w => w.Active)
 				.InitializeFromSource();
 
+			ycheckbuttonBillWithSignatureAndStamp.Binding
+				.AddBinding(ViewModel, vm => vm.IsPrintBillWithSignatureAndStamp, w => w.Active)
+				.InitializeFromSource();
+
 			ycheckbuttonUpd.Binding
 				.AddBinding(ViewModel, vm => vm.IsPrintUpd, w => w.Active)
+				.InitializeFromSource();
+
+			ycheckbuttonUpdWithSignatureAndStamp.Binding
+				.AddBinding(ViewModel, vm => vm.IsPrintUpdWithSignatureAndStamp, w => w.Active)
 				.InitializeFromSource();
 
 			ycheckbuttonSpecialBill.Binding
 				.AddBinding(ViewModel, vm => vm.IsPrintSpecialBill, w => w.Active)
 				.InitializeFromSource();
 
+			ycheckbuttonSpecialBillWithSignatureAndStamp.Binding
+				.AddBinding(ViewModel, vm => vm.IsPrintSpecialBillWithSignatureAndStamp, w => w.Active)
+				.InitializeFromSource();
+
 			ycheckbuttonSpecialUpd.Binding
 				.AddBinding(ViewModel, vm => vm.IsPrintSpecialUpd, w => w.Active)
+				.InitializeFromSource();
+
+			ycheckbuttonSpecialUpdWithSignatureAndStamp.Binding
+				.AddBinding(ViewModel, vm => vm.IsPrintSpecialUpdWithSignatureAndStamp, w => w.Active)
 				.InitializeFromSource();
 
 			yspinbuttonCopiesCount.Binding
@@ -56,7 +73,7 @@ namespace Vodovoz.Views.Orders
 				.AddColumn("")
 					.AddTextRenderer(x => x)
 				.RowCells()
-					.AddSetter<CellRendererText>((c, n) => c.Foreground = "red")
+					.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = GdkColors.DangerText)
 				.Finish();
 
 			ytreeviewWarnings.ItemsDataSource = ViewModel.Warnings;
