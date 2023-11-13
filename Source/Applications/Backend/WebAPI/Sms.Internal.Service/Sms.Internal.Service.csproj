@@ -16,11 +16,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Grpc.AspNetCore" Version="2.53.0" />
+    <PackageReference Include="Grpc.AspNetCore" Version="2.52.0" />
     <PackageReference Include="Grpc.AspNetCore.Web" Version="2.53.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.4" />
 	<PackageReference Include="Autofac" Version="7.0.0" />
-	<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="8.0.0" />
+	<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />
 	<PackageReference Include="NLog.Targets.Seq" Version="2.1.0" />
 	<PackageReference Include="NLog.Web.AspNetCore" Version="5.2.1" />
   </ItemGroup>

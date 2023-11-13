@@ -13,7 +13,7 @@
     <PackageReference Include="MySqlConnector" Version="2.2.6" />
     <PackageReference Include="NHibernate.Spatial.MySQL" Version="6.0.0" />
     <PackageReference Include="NLog.Extensions.Logging" Version="5.2.2" />
-    <PackageReference Include="RabbitMQ.Client" Version="6.2.4" />
+    <PackageReference Include="RabbitMQ.Client" Version="6.4.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Email\Mailjet.Api.Abstractions\Mailjet.Api.Abstractions.csproj" />
