@@ -1,33 +1,21 @@
 ﻿using System;
-using Autofac;
-using QS.Navigation;
 using QS.Project.Filter;
 using QS.ViewModels.Control.EEVM;
-using QS.ViewModels.Dialog;
 using Vodovoz.Domain.Logistic.Drivers;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
-using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 {
 	public class DriversWarehousesEventsJournalFilterViewModel : FilterViewModelBase<DriversWarehousesEventsJournalFilterViewModel>
 	{
-		private readonly DialogViewModelBase _journalViewModel;
-		private readonly INavigationManager _navigationManager;
-		private readonly ILifetimeScope _scope;
+		private int _eventId;
 		private string _eventName;
+		private decimal? _eventLatitude;
+		private decimal? _eventLongitude;
 		private DriverWarehouseEventType? _selectedEventType;
 
 		public DriversWarehousesEventsJournalFilterViewModel(
-			DialogViewModelBase journalViewModel,
-			INavigationManager navigationManager,
-			ILifetimeScope scope,
 			Action<DriversWarehousesEventsJournalFilterViewModel> filterParameters = null)
 		{
-			_journalViewModel = journalViewModel ?? throw new ArgumentNullException(nameof(journalViewModel));
-			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
-			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
-
 			if(filterParameters != null)
 			{
 				SetAndRefilterAtOnce(filterParameters);
@@ -36,16 +24,34 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		
 		public IEntityEntryViewModel DriverWarehouseEventNameViewModel { get; private set; }
 
+		public int EventId
+		{
+			get => _eventId;
+			set => SetField(ref _eventId, value);
+		}
+
 		public string EventName
 		{
 			get => _eventName;
-			set => UpdateFilterField(ref _eventName, value);
+			set => SetField(ref _eventName, value);
 		}
 
 		public DriverWarehouseEventType? SelectedEventType
 		{
 			get => _selectedEventType;
 			set => UpdateFilterField(ref _selectedEventType, value);
+		}
+
+		public decimal? EventLatitude
+		{
+			get => _eventLatitude;
+			set => SetField(ref _eventLatitude, value);
+		}
+
+		public decimal? EventLongitude
+		{
+			get => _eventLongitude;
+			set => SetField(ref _eventLongitude, value);
 		}
 	}
 }

@@ -7,7 +7,6 @@ using QS.ViewModels;
 using Vodovoz.Domain.Logistic.Drivers;
 using Autofac;
 using QS.Commands;
-using QS.ViewModels.Control.EEVM;
 using VodovozInfrastructure.Services;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
@@ -58,7 +57,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				OnPropertyChanged(nameof(IsCoordinatesVisible));
 			}
 		}
-		public IEntityEntryViewModel DriverWarehouseEventNameViewModel { get; private set; }
 
 		public DelegateCommand<string> SetCoordinatesFromBufferCommand =>
 			_setCoordinatesFromBufferCommand ?? (_setCoordinatesFromBufferCommand = new DelegateCommand<string>(

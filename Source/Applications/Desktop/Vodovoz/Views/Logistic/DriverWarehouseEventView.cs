@@ -20,7 +20,7 @@ namespace Vodovoz.Views.Logistic
 			btnSave.Clicked += OnSaveClicked;
 			btnCancel.Clicked += OnCancelClicked;
 			btnQrCode.Clicked += OnQrCodeClicked;
-			btn.Clicked += OnCopyFromClipboard;
+			btnCopyFromClipboard.Clicked += OnCopyFromClipboard;
 
 			lblIdTitle.Binding
 				.AddBinding(ViewModel, vm => vm.IdGtZero, w => w.Visible)
@@ -32,8 +32,10 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(ViewModel.Entity, e => e.Id, w => w.Text, new IntToStringConverter())
 				.InitializeFromSource();
 
-			entityEvent.ViewModel = ViewModel.DriverWarehouseEventNameViewModel;
-			
+			entryEvent.Binding
+				.AddBinding(ViewModel.Entity, e => e.EventName, w => w.Text)
+				.InitializeFromSource();
+
 			lblLatitude.Binding
 				.AddBinding(ViewModel, vm => vm.IsCoordinatesVisible, w => w.Visible)
 				.InitializeFromSource();
@@ -54,7 +56,7 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(ViewModel, vm => vm.IsCoordinatesVisible, w => w.Visible)
 				.InitializeFromSource();
 			
-			btn.Binding
+			btnCopyFromClipboard.Binding
 				.AddBinding(ViewModel, vm => vm.IsCoordinatesVisible, w => w.Visible)
 				.InitializeFromSource();
 
