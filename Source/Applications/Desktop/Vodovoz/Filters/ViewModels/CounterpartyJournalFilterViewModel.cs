@@ -1,6 +1,8 @@
-﻿using Gamma.Widgets;
+﻿using Autofac;
+using Gamma.Widgets;
 using NHibernate.Transform;
 using QS.Project.Filter;
+using QS.Project.Journal;
 using QS.ViewModels.Control.EEVM;
 using System;
 using System.Collections.Generic;
@@ -32,14 +34,19 @@ namespace Vodovoz.Filters.ViewModels
 		private int? _counterpartyVodovozInternalId;
 		private string _counterpartyInn;
 		private bool _showLiquidating;
-		private CounterpartyJournalViewModel _journal;
+		private JournalViewModelBase _journal;
 		private ClientCameFrom _clientCameFrom;
 		private bool _clientCameFromIsEmpty;
 		private object _selectedCameFrom;
 		private readonly CompositeSearchViewModel _searchByAddressViewModel;
+		private readonly ILifetimeScope _lifetimeScope;
 
-		public CounterpartyJournalFilterViewModel(IGenericRepository<ClientCameFrom> clientCameFromRepository)
+		public CounterpartyJournalFilterViewModel(
+			IGenericRepository<ClientCameFrom> clientCameFromRepository,
+			ILifetimeScope lifetimeScope)
 		{
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+
 			if(clientCameFromRepository is null)
 			{
 				throw new ArgumentNullException(nameof(clientCameFromRepository));
@@ -87,14 +94,14 @@ namespace Vodovoz.Filters.ViewModels
 
 		public IEntityEntryViewModel TagViewModel { get; private set; }
 
-		public CounterpartyJournalViewModel Journal
+		public JournalViewModelBase Journal
 		{
 			get => _journal;
 			set
 			{
 				if(SetField(ref _journal, value) && value != null)
 				{
-					TagViewModel = new CommonEEVMBuilderFactory<CounterpartyJournalFilterViewModel>(_journal, this, _journal.UoW, _journal.NavigationManager, _journal.LifetimeScope)
+					TagViewModel = new CommonEEVMBuilderFactory<CounterpartyJournalFilterViewModel>(_journal, this, _journal.UoW, _journal.NavigationManager, _lifetimeScope)
 						.ForProperty(x => x.Tag)
 						.UseViewModelJournalAndAutocompleter<TagJournalViewModel>()
 						.UseViewModelDialog<TagViewModel>()
