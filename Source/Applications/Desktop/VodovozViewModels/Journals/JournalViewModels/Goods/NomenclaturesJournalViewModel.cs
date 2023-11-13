@@ -26,11 +26,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 {
 	public class NomenclaturesJournalViewModel : FilterableSingleEntityJournalViewModelBase<Nomenclature, NomenclatureViewModel, NomenclatureJournalNode, NomenclatureFilterViewModel>
 	{
-		private readonly IEmployeeService employeeService;
-		private readonly INomenclatureJournalFactory nomenclatureSelectorFactory;
-		private readonly ICounterpartyJournalFactory counterpartySelectorFactory;
-		private readonly INomenclatureRepository nomenclatureRepository;
-		private readonly IUserRepository userRepository;
+		private readonly IEmployeeService _employeeService;
+		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
+		private readonly ICounterpartyJournalFactory _counterpartySelectorFactory;
+		private readonly INomenclatureRepository _nomenclatureRepository;
+		private readonly IUserRepository _userRepository;
 
 		public NomenclaturesJournalViewModel(
 			NomenclatureFilterViewModel filterViewModel,
@@ -44,13 +44,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 			Action<NomenclatureFilterViewModel> filterParams = null
 		) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
-			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			this.nomenclatureSelectorFactory =
+			this._employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			this._nomenclatureSelectorFactory =
 				nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
-			this.counterpartySelectorFactory =
+			this._counterpartySelectorFactory =
 				counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
-			this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
-			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			this._nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			this._userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 
 			TabName = "Журнал ТМЦ";
 			SetOrder(x => x.Name);
@@ -158,14 +158,18 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 			itemsQuery.Where(() => !nomenclatureAlias.HasInventoryAccounting);
 			
 			if(!FilterViewModel.RestrictArchive)
+			{
 				itemsQuery.Where(() => !nomenclatureAlias.IsArchive);
+			}
 
 			if(FilterViewModel.RestrictedExcludedIds != null && FilterViewModel.RestrictedExcludedIds.Any()) {
 				itemsQuery.WhereRestrictionOn(() => nomenclatureAlias.Id).Not.IsInG(FilterViewModel.RestrictedExcludedIds);
 			}
 
 			if(ExcludingNomenclatureIds != null && ExcludingNomenclatureIds.Any())
+			{
 				itemsQuery.WhereNot(() => nomenclatureAlias.Id.IsIn(ExcludingNomenclatureIds));
+			}
 
 			itemsQuery.Where(
 				GetSearchCriterion(
@@ -176,23 +180,41 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 			);
 
 			if(!FilterViewModel.RestrictDilers)
+			{
 				itemsQuery.Where(() => !nomenclatureAlias.IsDiler);
+			}
+
 			if(FilterViewModel.RestrictCategory == NomenclatureCategory.water)
+			{
 				itemsQuery.Where(() => nomenclatureAlias.IsDisposableTare == FilterViewModel.RestrictDisposbleTare);
+			}
 
 			if(FilterViewModel.RestrictCategory.HasValue)
+			{
 				itemsQuery.Where(n => n.Category == FilterViewModel.RestrictCategory.Value);
+			}
 
 			if(FilterViewModel.SelectCategory.HasValue && FilterViewModel.SelectSaleCategory.HasValue && Nomenclature.GetCategoriesWithSaleCategory().Contains(FilterViewModel.SelectCategory.Value))
+			{
 				itemsQuery.Where(n => n.SaleCategory == FilterViewModel.SelectSaleCategory);
+			}
 
 			if(AdditionalJournalRestriction != null)
+			{
 				foreach(var expr in AdditionalJournalRestriction.ExternalRestrictions)
+				{
 					itemsQuery.Where(expr);
+				}
+			}
 
 			if(FilterViewModel.IsDefectiveBottle)
 			{
 				itemsQuery.Where(x => x.IsDefectiveBottle);
+			}
+
+			if(FilterViewModel.GlassHolderType.HasValue)
+			{
+				itemsQuery.Where(x => x.GlassHolderType == FilterViewModel.GlassHolderType.Value);
 			}
 
 			if(CalculateQuantityOnStock) {
@@ -228,12 +250,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 
 		protected override Func<NomenclatureViewModel> CreateDialogFunction =>
 			() => new NomenclatureViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices,
-				employeeService, nomenclatureSelectorFactory, counterpartySelectorFactory, nomenclatureRepository,
-				userRepository, new StringHandler());
+				_employeeService, _nomenclatureSelectorFactory, _counterpartySelectorFactory, _nomenclatureRepository,
+				_userRepository, new StringHandler());
 
 		protected override Func<NomenclatureJournalNode, NomenclatureViewModel> OpenDialogFunction =>
 			node => new NomenclatureViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices,
-				employeeService, nomenclatureSelectorFactory, counterpartySelectorFactory, nomenclatureRepository,
-				userRepository, new StringHandler());
+				_employeeService, _nomenclatureSelectorFactory, _counterpartySelectorFactory, _nomenclatureRepository,
+				_userRepository, new StringHandler());
 	}
 }

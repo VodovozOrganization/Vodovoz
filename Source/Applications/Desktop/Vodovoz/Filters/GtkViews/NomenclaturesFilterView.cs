@@ -1,7 +1,6 @@
-﻿using QS.Views.GtkUI;
+﻿using Gamma.Utilities;
+using QS.Views.GtkUI;
 using Vodovoz.Domain.Goods;
-using Vodovoz.FilterViewModels.Goods;
-using Gamma.Utilities;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 
 namespace Vodovoz.Filters.GtkViews
@@ -35,6 +34,11 @@ namespace Vodovoz.Filters.GtkViews
 
 			ViewModel.RestrictArchive = false;
 			chkShowArchive.Binding.AddBinding(ViewModel, vm => vm.RestrictArchive, w => w.Active).InitializeFromSource();
+
+			yenumcomboboxAdditionalInfo.ItemsEnum = typeof(GlassHolderType);
+			yenumcomboboxAdditionalInfo.Binding
+				.AddBinding(ViewModel, vm => vm.GlassHolderType, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
 		}
 
 		void InitializeRestrictions()
