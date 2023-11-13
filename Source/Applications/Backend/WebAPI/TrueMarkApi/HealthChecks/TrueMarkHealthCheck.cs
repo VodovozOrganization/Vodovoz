@@ -24,14 +24,14 @@ namespace TrueMarkApi.HealthChecks
 
 			if(!controllerIsHealthy)
 			{
-				healthResult.AdditionalResults.Add("Не пройдена проверка контроллера.");
+				healthResult.AdditionalUnhealthyResults.Add("Не пройдена проверка контроллера.");
 			}
 
 			var serviceIsHealthy = CheckDocumentServiceIsHealthy();
 
 			if(!serviceIsHealthy)
 			{
-				healthResult.AdditionalResults.Add("Не пройдена проверка сервиса документов.");
+				healthResult.AdditionalUnhealthyResults.Add("Не пройдена проверка сервиса документов.");
 			}
 
 			healthResult.IsHealthy = controllerIsHealthy && serviceIsHealthy;

@@ -5,6 +5,6 @@ namespace VodovozHealthCheck
 	public class VodovozHealthResultDto
 	{
 		public bool IsHealthy { get; set; }
-		public List<string> AdditionalResults { get; set; } = new ();
+		public List<string> AdditionalUnhealthyResults { get; set; } = new ();
 	}
 }

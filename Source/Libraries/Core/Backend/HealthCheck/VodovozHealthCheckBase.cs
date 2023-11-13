@@ -44,7 +44,7 @@ namespace VodovozHealthCheck
 
 			var unhealthyDictionary = new Dictionary<string, object>
 			{
-				{ "results", healthResult.AdditionalResults }
+				{ "results", healthResult.AdditionalUnhealthyResults }
 			};
 
 			var failedMessage = "Проверка не пройдена";
