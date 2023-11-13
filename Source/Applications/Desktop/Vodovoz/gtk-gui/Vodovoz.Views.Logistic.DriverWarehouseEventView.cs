@@ -20,9 +20,9 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gamma.GtkWidgets.yTable tableProperties;
 
-		private global::Gamma.GtkWidgets.yButton btn;
+		private global::Gamma.GtkWidgets.yButton btnCopyFromClipboard;
 
-		private global::QS.Views.Control.EntityEntry entityEvent;
+		private global::Gamma.GtkWidgets.yEntry entryEvent;
 
 		private global::Gamma.Widgets.yEnumComboBox enumCmbType;
 
@@ -119,13 +119,13 @@ namespace Vodovoz.Views.Logistic
 			this.tableProperties.RowSpacing = ((uint)(6));
 			this.tableProperties.ColumnSpacing = ((uint)(6));
 			// Container child tableProperties.Gtk.Table+TableChild
-			this.btn = new global::Gamma.GtkWidgets.yButton();
-			this.btn.CanFocus = true;
-			this.btn.Name = "btn";
-			this.btn.UseUnderline = true;
-			this.btn.Label = global::Mono.Unix.Catalog.GetString("Вставить из\nбуфера обмена");
-			this.tableProperties.Add(this.btn);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.tableProperties[this.btn]));
+			this.btnCopyFromClipboard = new global::Gamma.GtkWidgets.yButton();
+			this.btnCopyFromClipboard.CanFocus = true;
+			this.btnCopyFromClipboard.Name = "btnCopyFromClipboard";
+			this.btnCopyFromClipboard.UseUnderline = true;
+			this.btnCopyFromClipboard.Label = global::Mono.Unix.Catalog.GetString("Вставить из\nбуфера обмена");
+			this.tableProperties.Add(this.btnCopyFromClipboard);
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.tableProperties[this.btnCopyFromClipboard]));
 			w7.TopAttach = ((uint)(2));
 			w7.BottomAttach = ((uint)(4));
 			w7.LeftAttach = ((uint)(2));
@@ -133,16 +133,18 @@ namespace Vodovoz.Views.Logistic
 			w7.XOptions = ((global::Gtk.AttachOptions)(4));
 			w7.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child tableProperties.Gtk.Table+TableChild
-			this.entityEvent = new global::QS.Views.Control.EntityEntry();
-			this.entityEvent.Events = ((global::Gdk.EventMask)(256));
-			this.entityEvent.Name = "entityEvent";
-			this.tableProperties.Add(this.entityEvent);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.tableProperties[this.entityEvent]));
+			this.entryEvent = new global::Gamma.GtkWidgets.yEntry();
+			this.entryEvent.CanFocus = true;
+			this.entryEvent.Name = "entryEvent";
+			this.entryEvent.IsEditable = true;
+			this.entryEvent.InvisibleChar = '•';
+			this.tableProperties.Add(this.entryEvent);
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.tableProperties[this.entryEvent]));
 			w8.TopAttach = ((uint)(1));
 			w8.BottomAttach = ((uint)(2));
 			w8.LeftAttach = ((uint)(1));
 			w8.RightAttach = ((uint)(3));
-			w8.XOptions = ((global::Gtk.AttachOptions)(0));
+			w8.XOptions = ((global::Gtk.AttachOptions)(4));
 			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableProperties.Gtk.Table+TableChild
 			this.enumCmbType = new global::Gamma.Widgets.yEnumComboBox();
