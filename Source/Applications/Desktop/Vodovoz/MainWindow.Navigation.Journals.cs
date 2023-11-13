@@ -1045,23 +1045,13 @@ public partial class MainWindow
 	#region События нахождения на складе водителей
 
 	/// <summary>
-	/// Названия событий
+	/// События
 	/// </summary>
 	/// <param name="sender"></param>
 	/// <param name="e"></param>
 	protected void OnDriversWarehousesEventsActionActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<DriversWarehousesEventsJournalViewModel>(null);
-	}
-
-	/// <summary>
-	/// События
-	/// </summary>
-	/// <param name="sender"></param>
-	/// <param name="e"></param>
-	protected void OnDriversWarehousesEventsNamesActionActivated(object sender, EventArgs e)
-	{
-		NavigationManager.OpenViewModel<DriversWarehousesEventsNamesJournalViewModel>(null);
 	}
 
 	/// <summary>

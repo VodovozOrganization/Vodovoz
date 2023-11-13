@@ -48,8 +48,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics
 		private Employee _driver;
 		private Car _car;
 		private bool _isGenerating;
-		private DriverWarehouseEventName _firstEventName;
-		private DriverWarehouseEventName _secondEventName;
+		private DriverWarehouseEvent _firstEvent;
+		private DriverWarehouseEvent _secondEvent;
 
 		private DelegateCommand _generateReportCommand;
 		private DelegateCommand _abortGenerateReportCommand;
@@ -96,16 +96,16 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics
 			set => SetField(ref _endDate, value);
 		}
 		
-		public DriverWarehouseEventName FirstEventName
+		public DriverWarehouseEvent FirstEvent
 		{
-			get => _firstEventName;
-			set => SetField(ref _firstEventName, value);
+			get => _firstEvent;
+			set => SetField(ref _firstEvent, value);
 		}
 		
-		public DriverWarehouseEventName SecondEventName
+		public DriverWarehouseEvent SecondEvent
 		{
-			get => _secondEventName;
-			set => SetField(ref _secondEventName, value);
+			get => _secondEvent;
+			set => SetField(ref _secondEvent, value);
 		}
 		
 		public Employee Driver
@@ -164,21 +164,19 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics
 			
 			CompletedDriverWarehouseEvent completedEventAlias = null;
 			DriverWarehouseEvent eventAlias = null;
-			DriverWarehouseEventName eventNameAlias = null;
 			Employee driverAlias = null;
 			Car carAlias = null;
 			CarModel carModelAlias = null;
 			DriversWarehousesEventNode resultAlias = null;
 
-			var eventNameIds = new int[] { FirstEventName.Id, SecondEventName.Id };
+			var eventIds = new int[] { FirstEvent.Id, SecondEvent.Id };
 
 			var query = _unitOfWork.Session.QueryOver(() => completedEventAlias)
 				.JoinAlias(ce => ce.DriverWarehouseEvent, () => eventAlias)
-				.JoinAlias(() => eventAlias.EventName, () => eventNameAlias)
 				.JoinAlias(ce => ce.Employee, () => driverAlias)
 				.Left.JoinAlias(ce => ce.Car, () => carAlias)
 				.Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
-				.WhereRestrictionOn(() => eventNameAlias.Id).IsIn(eventNameIds);
+				.WhereRestrictionOn(() => eventAlias.Id).IsIn(eventIds);
 
 			if(Car != null)
 			{
@@ -204,8 +202,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics
 				.Select(() => completedEventAlias.CompletedDate).WithAlias(() => resultAlias.EventDateTime)
 				.Select(EmployeeProjections.GetDriverFullNameProjection()).WithAlias(() => resultAlias.DriverFio)
 				.Select(CarProjections.GetCarModelWithRegistrationNumber()).WithAlias(() => resultAlias.CarModelWithNumber)
-				.Select(() => eventNameAlias.Id).WithAlias(() => resultAlias.EventNameId)
-				.Select(() => eventNameAlias.Name).WithAlias(() => resultAlias.EventName)
+				.Select(() => eventAlias.EventName).WithAlias(() => resultAlias.EventName)
 				.Select(ce => ce.DistanceMetersFromScanningLocation).WithAlias(() => resultAlias.Distance)
 				)
 				.OrderBy(ce => ce.CompletedDate).Asc
@@ -288,15 +285,15 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics
 				this, this, _unitOfWork, NavigationManager, _scope);
 			
 			StartEventNameViewModel =
-				builder.ForProperty(x => x.FirstEventName)
-					.UseViewModelJournalAndAutocompleter<DriversWarehousesEventsNamesJournalViewModel>()
-					.UseViewModelDialog<DriverWarehouseEventNameViewModel>()
+				builder.ForProperty(x => x.FirstEvent)
+					.UseViewModelJournalAndAutocompleter<DriversWarehousesEventsJournalViewModel>()
+					.UseViewModelDialog<DriverWarehouseEventViewModel>()
 					.Finish();
 			
 			EndEventNameViewModel =
-				builder.ForProperty(x => x.SecondEventName)
-					.UseViewModelJournalAndAutocompleter<DriversWarehousesEventsNamesJournalViewModel>()
-					.UseViewModelDialog<DriverWarehouseEventNameViewModel>()
+				builder.ForProperty(x => x.SecondEvent)
+					.UseViewModelJournalAndAutocompleter<DriversWarehousesEventsJournalViewModel>()
+					.UseViewModelDialog<DriverWarehouseEventViewModel>()
 					.Finish();
 
 			DriverViewModel =
@@ -330,7 +327,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics
 			for(var i = 1; i < nodes.Count; i++)
 			{
 				var node = nodes[i];
-				if(date == node.EventDate && driver == node.DriverFio && eventNameId == FirstEventName.Id && eventNameId != node.EventNameId)
+				if(date == node.EventDate && driver == node.DriverFio && eventNameId == FirstEvent.Id && eventNameId != node.EventNameId)
 				{
 					nextNode.SecondEventName = node.EventName;
 					nextNode.SecondEventDistance = node.Distance;
@@ -362,7 +359,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics
 				CarModelWithNumber = node.CarModelWithNumber
 			};
 
-			if(node.EventNameId == FirstEventName.Id)
+			if(node.EventNameId == FirstEvent.Id)
 			{
 				nextNode.FirstEventName = node.EventName;
 				nextNode.FirstEventDistance = node.Distance;

@@ -17,7 +17,7 @@ namespace Vodovoz.Filters.GtkViews
 
 		private void Configure()
 		{
-			eventNameEntry.ViewModel = ViewModel.DriverWarehouseEventNameViewModel;
+			eventNameEntry.ViewModel = ViewModel.DriverWarehouseEventViewModel;
 			driverEntry.ViewModel = ViewModel.DriverViewModel;
 			carEntry.ViewModel = ViewModel.CarViewModel;
 

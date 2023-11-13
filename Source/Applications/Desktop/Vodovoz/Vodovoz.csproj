@@ -463,7 +463,6 @@
     <Compile Include="JournalColumnsConfigs\RouteListMileageCheckJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\CompletedDriversWarehousesEventsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\DriversWarehousesEventsJournalRegistrar.cs" />
-    <Compile Include="JournalColumnsConfigs\DriversWarehousesEventsNamesJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\UndeliveryDetalizationJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ComplaintDetalizationJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\UndeliveryKindJournalRegistrar.cs" />
@@ -1972,8 +1971,6 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.ChainStoreDelayReport.cs" />
     <Compile Include="Views\Logistic\FastDeliveryOrderTransferFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.FastDeliveryOrderTransferFilterView.cs" />
-    <Compile Include="Views\Logistic\DriverWarehouseEventNameView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriverWarehouseEventNameView.cs" />
     <Compile Include="Views\Logistic\DriverWarehouseEventView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriverWarehouseEventView.cs" />
     <Compile Include="Filters\GtkViews\DriversWarehousesEventsJournalFilterView.cs" />

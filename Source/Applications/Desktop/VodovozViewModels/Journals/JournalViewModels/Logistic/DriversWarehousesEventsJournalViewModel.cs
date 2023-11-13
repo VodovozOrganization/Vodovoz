@@ -1,6 +1,7 @@
 ﻿using System;
 using Autofac;
 using NHibernate;
+using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -51,15 +52,17 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 		protected override IQueryOver<DriverWarehouseEvent> ItemsQuery(IUnitOfWork uow)
 		{
-			DriverWarehouseEventName eventNameAlias = null;
+			DriverWarehouseEvent eventAlias = null;
 			DriversWarehousesEventsJournalNode resultAlias = null;
 			
-			var query = uow.Session.QueryOver<DriverWarehouseEvent>()
-				.JoinAlias(e => e.EventName, () => eventNameAlias);
+			var query = uow.Session.QueryOver(() => eventAlias);
 
-			if(_filterViewModel.EventName != null)
+			if(!string.IsNullOrWhiteSpace(_filterViewModel.EventName))
 			{
-				query.Where(e => eventNameAlias.Id == _filterViewModel.EventName.Id);
+				query.Where(Restrictions.Like(
+					Projections.Property(() => eventAlias.EventName),
+					_filterViewModel.EventName,
+					MatchMode.Anywhere));
 			}
 
 			if(_filterViewModel.SelectedEventType.HasValue)
@@ -69,7 +72,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				
 			query.SelectList(list => list
 				.Select(e => e.Id).WithAlias(() => resultAlias.Id)
-				.Select(() => eventNameAlias.Name).WithAlias(() => resultAlias.EventName)
+				.Select(e => e.EventName).WithAlias(() => resultAlias.EventName)
 				.Select(e => e.Type).WithAlias(() => resultAlias.Type)
 				.Select(e => e.IsArchive).WithAlias(() => resultAlias.IsArchive))
 				.TransformUsing(Transformers.AliasToBean<DriversWarehousesEventsJournalNode>());

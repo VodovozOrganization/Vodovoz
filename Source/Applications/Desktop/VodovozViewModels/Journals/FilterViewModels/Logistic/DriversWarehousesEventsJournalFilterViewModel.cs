@@ -15,7 +15,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		private readonly DialogViewModelBase _journalViewModel;
 		private readonly INavigationManager _navigationManager;
 		private readonly ILifetimeScope _scope;
-		private DriverWarehouseEventName _eventName;
+		private string _eventName;
 		private DriverWarehouseEventType? _selectedEventType;
 
 		public DriversWarehousesEventsJournalFilterViewModel(
@@ -28,8 +28,6 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 
-			ConfigureEntryViewModels();
-			
 			if(filterParameters != null)
 			{
 				SetAndRefilterAtOnce(filterParameters);
@@ -38,7 +36,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		
 		public IEntityEntryViewModel DriverWarehouseEventNameViewModel { get; private set; }
 
-		public DriverWarehouseEventName EventName
+		public string EventName
 		{
 			get => _eventName;
 			set => UpdateFilterField(ref _eventName, value);
@@ -48,18 +46,6 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		{
 			get => _selectedEventType;
 			set => UpdateFilterField(ref _selectedEventType, value);
-		}
-		
-		private void ConfigureEntryViewModels()
-		{
-			var builder = new CommonEEVMBuilderFactory<DriversWarehousesEventsJournalFilterViewModel>(
-				_journalViewModel, this, UoW, _navigationManager, _scope);
-
-			DriverWarehouseEventNameViewModel =
-				builder.ForProperty(x => x.EventName)
-					.UseViewModelJournalAndAutocompleter<DriversWarehousesEventsNamesJournalViewModel>()
-					.UseViewModelDialog<DriverWarehouseEventNameViewModel>()
-					.Finish();
 		}
 	}
 }

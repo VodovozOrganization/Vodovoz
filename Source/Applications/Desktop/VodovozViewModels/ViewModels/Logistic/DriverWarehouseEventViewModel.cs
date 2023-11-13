@@ -8,7 +8,6 @@ using Vodovoz.Domain.Logistic.Drivers;
 using Autofac;
 using QS.Commands;
 using QS.ViewModels.Control.EEVM;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using VodovozInfrastructure.Services;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
@@ -36,7 +35,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private void Configure()
 		{
 			ConfigureEntityChangingRelations();
-			ConfigureEntryViewModels();
 		}
 
 		public bool IdGtZero => Entity.Id > 0;
@@ -83,16 +81,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private void ConfigureEntityChangingRelations()
 		{
 			SetPropertyChangeRelation(e => e.Id, () => IdGtZero);
-		}
-
-		private void ConfigureEntryViewModels()
-		{
-			var builder = new CommonEEVMBuilderFactory<DriverWarehouseEvent>(this, Entity, UoW, NavigationManager, _scope);
-
-			DriverWarehouseEventNameViewModel = builder.ForProperty(x => x.EventName)
-				.UseViewModelJournalAndAutocompleter<DriversWarehousesEventsJournalViewModel>()
-				.UseViewModelDialog<DriverWarehouseEventViewModel>()
-				.Finish();
 		}
 	}
 }

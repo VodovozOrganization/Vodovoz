@@ -14,7 +14,7 @@ namespace Vodovoz.Domain.Logistic.Drivers
 		private decimal? _latitude;
 		private decimal? _longitude;
 		private bool _isArchive;
-		private DriverWarehouseEventName _eventName;
+		private string _eventName;
 		private DriverWarehouseEventType _type;
 		private DocumentType? _documentType;
 		private int? _documentId;
@@ -43,7 +43,7 @@ namespace Vodovoz.Domain.Logistic.Drivers
 		}
 
 		[Display(Name = "Имя события")]
-		public virtual DriverWarehouseEventName EventName
+		public virtual string EventName
 		{
 			get => _eventName;
 			set => SetField(ref _eventName, value);
@@ -78,9 +78,9 @@ namespace Vodovoz.Domain.Logistic.Drivers
 		
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(EventName is null)
+			if(string.IsNullOrWhiteSpace(EventName))
 			{
-				yield return new ValidationResult(DriverWarehouseEventName.EventNameIsNull);
+				yield return new ValidationResult("Имя события должно быть заполнено");
 			}
 
 			if(Type == DriverWarehouseEventType.OnLocation && (Latitude is null || Longitude is null))

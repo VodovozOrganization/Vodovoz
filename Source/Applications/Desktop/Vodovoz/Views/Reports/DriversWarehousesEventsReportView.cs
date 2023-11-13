@@ -79,7 +79,7 @@ namespace Vodovoz.Views.Reports
 
 		private async void OnLoadReportClicked(object sender, EventArgs e)
         {
-			if(ViewModel.FirstEventName is null || ViewModel.SecondEventName is null)
+			if(ViewModel.FirstEvent is null || ViewModel.SecondEvent is null)
 			{
 				ViewModel.ShowWarning("Для работы отчета надо выбрать оба события!");
 				return;

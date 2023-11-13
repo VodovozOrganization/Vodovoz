@@ -20,7 +20,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		private readonly DialogViewModelBase _journalViewModel;
 		private readonly INavigationManager _navigationManager;
 		private readonly ILifetimeScope _scope;
-		private DriverWarehouseEventName _eventName;
+		private DriverWarehouseEvent _driverWarehouseEvent;
 		private DriverWarehouseEventType? _selectedEventType;
 		private DateTime? _startDate;
 		private DateTime? _endDate;
@@ -45,14 +45,14 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 			}
 		}
 
-		public IEntityEntryViewModel DriverWarehouseEventNameViewModel { get; private set; }
+		public IEntityEntryViewModel DriverWarehouseEventViewModel { get; private set; }
 		public IEntityEntryViewModel DriverViewModel { get; private set; }
 		public IEntityEntryViewModel CarViewModel { get; private set; }
 
-		public DriverWarehouseEventName EventName
+		public DriverWarehouseEvent DriverWarehouseEvent
 		{
-			get => _eventName;
-			set => UpdateFilterField(ref _eventName, value);
+			get => _driverWarehouseEvent;
+			set => UpdateFilterField(ref _driverWarehouseEvent, value);
 		}
 
 		public DriverWarehouseEventType? SelectedEventType
@@ -76,13 +76,13 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		public Employee Driver
 		{
 			get => _driver;
-			set => SetField(ref _driver, value);
+			set => UpdateFilterField(ref _driver, value);
 		}
 		
 		public Car Car
 		{
 			get => _car;
-			set => SetField(ref _car, value);
+			set => UpdateFilterField(ref _car, value);
 		}
 		
 		private void ConfigureEntryViewModels()
@@ -90,10 +90,10 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 			var builder = new CommonEEVMBuilderFactory<CompletedDriversWarehousesEventsJournalFilterViewModel>(
 				_journalViewModel, this, UoW, _navigationManager, _scope);
 
-			DriverWarehouseEventNameViewModel =
-				builder.ForProperty(x => x.EventName)
-					.UseViewModelJournalAndAutocompleter<DriversWarehousesEventsNamesJournalViewModel>()
-					.UseViewModelDialog<DriverWarehouseEventNameViewModel>()
+			DriverWarehouseEventViewModel =
+				builder.ForProperty(x => x.DriverWarehouseEvent)
+					.UseViewModelJournalAndAutocompleter<DriversWarehousesEventsJournalViewModel>()
+					.UseViewModelDialog<DriverWarehouseEventViewModel>()
 					.Finish();
 			
 			DriverViewModel =

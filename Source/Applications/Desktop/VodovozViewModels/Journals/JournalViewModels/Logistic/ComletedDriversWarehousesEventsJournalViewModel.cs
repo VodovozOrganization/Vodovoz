@@ -7,7 +7,7 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.DB;
 using QS.Project.Journal;
-using QS.Project.Services;
+using QS.Project.Journal.DataLoader;
 using QS.Services;
 using QS.ViewModels.Dialog;
 using Vodovoz.Domain.Employees;
@@ -16,15 +16,10 @@ using Vodovoz.Domain.Logistic.Drivers;
 using Vodovoz.NHibernateProjections.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
-using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 {
-	public class CompletedDriversWarehousesEventsJournalViewModel :
-		EntityJournalViewModelBase<
-			CompletedDriverWarehouseEvent,
-			CompletedDriverWarehouseEventViewModel,
-			CompletedDriversWarehousesEventsJournalNode>
+	public class CompletedDriversWarehousesEventsJournalViewModel : JournalViewModelBase
 	{
 		private readonly ILifetimeScope _scope;
 		private CompletedDriversWarehousesEventsJournalFilterViewModel _filterViewModel;
@@ -34,10 +29,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
 			ILifetimeScope scope,
-			IDeleteEntityService deleteEntityService = null,
 			Action<CompletedDriversWarehousesEventsJournalFilterViewModel> filterParams = null)
-			: base(unitOfWorkFactory, commonServices.InteractiveService, navigationManager, deleteEntityService,
-				commonServices.CurrentPermissionService)
+			: base(unitOfWorkFactory, commonServices.InteractiveService, navigationManager)
 		{
 			if(unitOfWorkFactory is null)
 			{
@@ -50,12 +43,25 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			
-			TabName = "Журнал завершенных событий";
-
+			ConfigureLoader();
 			CreateFilter(filterParams);
+
+			TabName = "Журнал завершенных событий";
 		}
 
-		protected override IQueryOver<CompletedDriverWarehouseEvent> ItemsQuery(IUnitOfWork uow)
+		protected override void CreateNodeActions()
+		{
+			NodeActionsList.Clear();
+		}
+
+		private void ConfigureLoader()
+		{
+			var loader = new ThreadDataLoader<CompletedDriversWarehousesEventsJournalNode>(UnitOfWorkFactory);
+			loader.AddQuery(GetCompletedEvents);
+			DataLoader = loader;
+		}
+
+		private IQueryOver<CompletedDriverWarehouseEvent> GetCompletedEvents(IUnitOfWork uow)
 		{
 			Employee driverAlias = null;
 			Car carAlias = null;
