@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
@@ -100,6 +100,8 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		public bool AskSaveOnClose => CanEdit;
 		public bool UserCanCreateNomenclaturesWithInventoryAccounting =>
 			IsNewEntity && CanCreateNomenclaturesWithInventoryAccountingPermission;
+
+		public bool IsShowGlassHolderSelectionControls => true; 
 
 		public NomenclatureOnlineParameters MobileAppNomenclatureOnlineParameters
 		{
@@ -254,13 +256,18 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			PopupMenuOn = null;
 		}
 
-		public void OnEnumKindChanged(object sender, EventArgs e) {
+		public void OnEnumCategoryChanged(object sender, EventArgs e) {
 			if(Entity.Category != NomenclatureCategory.deposit) {
 				Entity.TypeOfDepositCategory = null;
 			}
+
+			if(Entity.Category != NomenclatureCategory.equipment)
+			{
+				Entity.GlassHolderType = null;
+			}
 		}
 
-		public void OnEnumKindChangedByUser(object sender, EventArgs e) {
+		public void OnEnumCategoryChangedByUser(object sender, EventArgs e) {
 			if(Entity.Id == 0 && IsSaleCategory)
 			{
 				Entity.SaleCategory = SaleCategory.notForSale;
