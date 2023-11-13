@@ -376,17 +376,19 @@ namespace Vodovoz.Views.Goods
 
 			ycheckbuttonMagnetGlassHolder.Binding
 				.AddSource(ViewModel)
-				.AddFuncBinding(vm => vm.Entity.Kind.Id == 4, w => w.Visible)
+				.AddBinding(vm => vm.IsMagnetGlassHolderSelected, w => w.Active)
+				.AddFuncBinding(vm => vm.IsShowGlassHolderSelectionControls, w => w.Visible)
 				.InitializeFromSource();
 
 			ycheckbuttonScrewGlassHolder.Binding
 				.AddSource(ViewModel)
-				.AddFuncBinding(vm => vm.Entity.Kind.Id == 4, w => w.Visible)
+				.AddBinding(vm => vm.IsScrewGlassHolderSelected, w => w.Active)
+				.AddFuncBinding(vm => vm.IsShowGlassHolderSelectionControls, w => w.Visible)
 				.InitializeFromSource();
 
 			ylabelGlassHolderType.Binding
 				.AddSource(ViewModel)
-				.AddFuncBinding(vm => vm.Entity.Kind.Id == 4, w => w.Visible)
+				.AddBinding(vm => vm.IsShowGlassHolderSelectionControls, w => w.Visible)
 				.InitializeFromSource();
 
 			#endregion

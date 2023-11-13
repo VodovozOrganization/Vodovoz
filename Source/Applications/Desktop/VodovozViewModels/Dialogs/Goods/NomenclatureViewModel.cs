@@ -22,6 +22,7 @@ using Vodovoz.ViewModels.Dialogs.Nodes;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using VodovozInfrastructure.StringHandlers;
 using Vodovoz.Settings.Nomenclature;
+using System.ComponentModel;
 
 namespace Vodovoz.ViewModels.Dialogs.Goods
 {
@@ -32,11 +33,13 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		private readonly IEmployeeService _employeeService;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
-		private readonly INomenclatureSettings _nomenclatureSettings;
+		private readonly int[] _equipmentKindsHavingGlassHolder;
 		private NomenclatureOnlineParameters _mobileAppNomenclatureOnlineParameters;
 		private NomenclatureOnlineParameters _vodovozWebSiteNomenclatureOnlineParameters;
 		private NomenclatureOnlineParameters _kulerSaleWebSiteNomenclatureOnlineParameters;
 		private bool _needCheckOnlinePrices;
+		private bool _isMagnetGlassHolderSelected;
+		private bool _isScrewGlassHolderSelected;
 
 		public Action PricesViewSaveChanges;
 
@@ -57,8 +60,12 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			}
 
+			if(nomenclatureSettings is null)
+			{
+				throw new ArgumentNullException(nameof(nomenclatureSettings));
+			}
+
 			StringHandler = stringHandler ?? throw new ArgumentNullException(nameof(stringHandler));
-			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
@@ -72,6 +79,11 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			ConfigureEntityPropertyChanges();
 			ConfigureValidationContext();
 			SetPermissions();
+
+			_equipmentKindsHavingGlassHolder = nomenclatureSettings.EquipmentKindsHavingGlassHolder;
+			SetGlassHolderCheckboxesSelection();
+
+			Entity.PropertyChanged += OnEntityPropertyChanged;
 		}
 
 		public IStringHandler StringHandler { get; }
@@ -105,7 +117,32 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		public bool UserCanCreateNomenclaturesWithInventoryAccounting =>
 			IsNewEntity && CanCreateNomenclaturesWithInventoryAccountingPermission;
 
-		public bool IsShowGlassHolderSelectionControls => true; 
+		public bool IsShowGlassHolderSelectionControls => 
+			_equipmentKindsHavingGlassHolder.Any(i => i == Entity.Kind?.Id);
+
+		public bool IsMagnetGlassHolderSelected
+		{
+			get => _isMagnetGlassHolderSelected;
+			set
+			{
+				if(SetField(ref _isMagnetGlassHolderSelected, value))
+				{
+					SetEntityGlassHolderType();
+				}
+			}
+		}
+
+		public bool IsScrewGlassHolderSelected
+		{
+			get => _isScrewGlassHolderSelected;
+			set
+			{
+				if(SetField(ref _isScrewGlassHolderSelected, value))
+				{
+					SetEntityGlassHolderType();
+				}
+			}
+		}
 
 		public NomenclatureOnlineParameters MobileAppNomenclatureOnlineParameters
 		{
@@ -127,7 +164,78 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		public NomenclatureInnerDeliveryPricesViewModel NomenclatureInnerDeliveryPricesViewModel { get; private set; }
 		private bool IsNewEntity => Entity.Id == 0;
 		private bool CanCreateNomenclaturesWithInventoryAccountingPermission { get; set; }
-		
+
+		private void SetGlassHolderCheckboxesSelection()
+		{
+			if(Entity.Category != NomenclatureCategory.equipment
+				|| !IsShowGlassHolderSelectionControls
+				|| Entity.GlassHolderType == null
+				|| Entity.GlassHolderType == GlassHolderType.None)
+			{
+				IsMagnetGlassHolderSelected = false;
+				IsScrewGlassHolderSelected = false;
+
+				return;
+			}
+
+			if(Entity.GlassHolderType == GlassHolderType.Magnet)
+			{
+				IsMagnetGlassHolderSelected = true;
+				IsScrewGlassHolderSelected = false;
+
+				return;
+			}
+
+			if(Entity.GlassHolderType == GlassHolderType.Screw)
+			{
+				IsMagnetGlassHolderSelected = false;
+				IsScrewGlassHolderSelected = true;
+
+				return;
+			}
+		}
+
+		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Entity.Category)
+				|| e.PropertyName == nameof(Entity.Kind))
+			{
+				SetEntityGlassHolderType();
+
+				OnPropertyChanged(nameof(IsShowGlassHolderSelectionControls));
+			}
+		}
+
+		private void SetEntityGlassHolderType()
+		{
+			if(Entity.Category == NomenclatureCategory.equipment
+					&& IsShowGlassHolderSelectionControls)
+			{
+				if(!IsMagnetGlassHolderSelected && !IsScrewGlassHolderSelected)
+				{
+					Entity.GlassHolderType = GlassHolderType.None;
+				}
+				else if(IsMagnetGlassHolderSelected && !IsScrewGlassHolderSelected)
+				{
+					Entity.GlassHolderType = GlassHolderType.Magnet;
+				}
+				else if(!IsMagnetGlassHolderSelected && IsScrewGlassHolderSelected)
+				{
+					Entity.GlassHolderType = GlassHolderType.Screw;
+				}
+				else
+				{
+					Entity.GlassHolderType = GlassHolderType.Universal;
+				}
+
+				return;
+			}
+
+			Entity.GlassHolderType = null;
+			IsMagnetGlassHolderSelected = false;
+			IsScrewGlassHolderSelected = false;
+		}
+
 		public void AddNotKulerSaleOnlinePrice(NomenclaturePrice price)
 		{
 			MobileAppNomenclatureOnlineParameters.AddNewNomenclatureOnlinePrice(
