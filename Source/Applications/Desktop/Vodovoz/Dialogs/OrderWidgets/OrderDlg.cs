@@ -37,7 +37,6 @@ using System.Data;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.ServiceModel;
 using System.Text;
 using System.Threading;
 using Vodovoz.Additions.Printing;
@@ -45,6 +44,7 @@ using Vodovoz.Controllers;
 using Vodovoz.Core;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
+using Vodovoz.Dialogs.Client;
 using Vodovoz.Dialogs.Email;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -4869,5 +4869,21 @@ namespace Vodovoz
 		{
 			GetClipboard(Gdk.Selection.Clipboard).Text = _summaryInfoBuilder.ToString();
 		}
+
+		#region CustomCancellationConfirmationDialog
+		public override bool HasCustomCancellationConfirmationDialog => UoW.IsNew;
+		public override Func<int> CustomCancellationConfirmationDialogFunc => ShowOrderCancellationAdditionalConfirmationDialog;
+
+		private int ShowOrderCancellationAdditionalConfirmationDialog()
+		{
+			var dlg = new OrderCancellationConfirmationDlg();
+			dlg.SetPosition(WindowPosition.CenterAlways);
+			dlg.Title = "Подтверждение отмены заказа";
+			var result = dlg.Run();
+			dlg.Destroy();
+
+			return result;
+		}
+		#endregion CustomCancellationConfirmationDialog
 	}
 }
