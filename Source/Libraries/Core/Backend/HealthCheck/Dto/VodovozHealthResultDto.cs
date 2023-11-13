@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace VodovozHealthCheck
+namespace VodovozHealthCheck.Dto
 {
 	public class VodovozHealthResultDto
 	{

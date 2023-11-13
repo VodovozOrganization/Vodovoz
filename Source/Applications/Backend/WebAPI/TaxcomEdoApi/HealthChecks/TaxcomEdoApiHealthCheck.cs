@@ -1,5 +1,7 @@
 ﻿using System.Threading.Tasks;
 using VodovozHealthCheck;
+using VodovozHealthCheck.Dto;
+using VodovozHealthCheck.Dto;
 
 namespace TaxcomEdoApi.HealthChecks
 {

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.IO;
 using System.Linq;
@@ -32,6 +33,12 @@ namespace VodovozHealthCheck.Utils.ResponseWriter
 						jsonWriter.WritePropertyName(item.Key);
 
 						JsonSerializer.Serialize(jsonWriter, item.Value, item.Value?.GetType() ?? typeof(object));
+					}
+
+					if(healthReportEntry.Value.Exception is { } exception)
+					{
+						jsonWriter.WritePropertyName("exception");
+						jsonWriter.WriteStringValue(exception.ToString());
 					}
 
 					jsonWriter.WriteEndObject();

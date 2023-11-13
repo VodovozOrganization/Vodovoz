@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -55,6 +55,8 @@ namespace VodovozHealthCheck
 
 			//serviceCollection.AddSingleton<UrlExistsChecker>();
 			//serviceCollection.AddSingleton<JsonResponseWriter>();
+
+			//serviceCollection.AddHttpClient<VodovozHealthCheckBase>();
 
 			return serviceCollection;
 		}

@@ -1,6 +1,8 @@
-﻿using System.Threading.Tasks;
+using System.Net.Http;
+using System.Threading.Tasks;
 using VodovozHealthCheck;
 using VodovozHealthCheck.Utils;
+using VodovozHealthCheck.Dto;
 
 namespace UnsubscribePage.HealthChecks
 {

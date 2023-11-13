@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using VodovozHealthCheck;
+using VodovozHealthCheck.Dto;
 
 namespace CustomerAppsApi.HealthChecks
 {

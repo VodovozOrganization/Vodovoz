@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using TrueMarkApi.Library;
 using Vodovoz.Settings.Edo;
 using VodovozHealthCheck;
+using VodovozHealthCheck.Dto;
 
 namespace TrueMarkApi.HealthChecks
 {
