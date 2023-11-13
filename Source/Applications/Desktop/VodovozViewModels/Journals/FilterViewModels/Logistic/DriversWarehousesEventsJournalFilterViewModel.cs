@@ -7,7 +7,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 {
 	public class DriversWarehousesEventsJournalFilterViewModel : FilterViewModelBase<DriversWarehousesEventsJournalFilterViewModel>
 	{
-		private int _eventId;
+		private int? _eventId;
 		private string _eventName;
 		private decimal? _eventLatitude;
 		private decimal? _eventLongitude;
@@ -24,7 +24,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		
 		public IEntityEntryViewModel DriverWarehouseEventNameViewModel { get; private set; }
 
-		public int EventId
+		public int? EventId
 		{
 			get => _eventId;
 			set => SetField(ref _eventId, value);

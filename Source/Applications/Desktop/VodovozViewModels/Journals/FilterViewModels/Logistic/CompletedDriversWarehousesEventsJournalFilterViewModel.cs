@@ -20,11 +20,13 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		private readonly DialogViewModelBase _journalViewModel;
 		private readonly INavigationManager _navigationManager;
 		private readonly ILifetimeScope _scope;
+		private int? _completedEventId;
+		private decimal? _distanceFromScanning;
 		private DriverWarehouseEvent _driverWarehouseEvent;
 		private DriverWarehouseEventType? _selectedEventType;
 		private DateTime? _startDate;
 		private DateTime? _endDate;
-		private Employee _driver;
+		private Employee _employee;
 		private Car _car;
 
 		public CompletedDriversWarehousesEventsJournalFilterViewModel(
@@ -48,6 +50,18 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		public IEntityEntryViewModel DriverWarehouseEventViewModel { get; private set; }
 		public IEntityEntryViewModel DriverViewModel { get; private set; }
 		public IEntityEntryViewModel CarViewModel { get; private set; }
+
+		public int? CompletedEventId
+		{
+			get => _completedEventId;
+			set => SetField(ref _completedEventId, value);
+		}
+
+		public decimal? DistanceFromScanning
+		{
+			get => _distanceFromScanning;
+			set => SetField(ref _distanceFromScanning, value);
+		}
 
 		public DriverWarehouseEvent DriverWarehouseEvent
 		{
@@ -73,10 +87,10 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 			set => UpdateFilterField(ref _endDate, value);
 		}
 		
-		public Employee Driver
+		public Employee Employee
 		{
-			get => _driver;
-			set => UpdateFilterField(ref _driver, value);
+			get => _employee;
+			set => UpdateFilterField(ref _employee, value);
 		}
 		
 		public Car Car
@@ -97,7 +111,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 					.Finish();
 			
 			DriverViewModel =
-				builder.ForProperty(x => x.Driver)
+				builder.ForProperty(x => x.Employee)
 					.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel>()
 					.UseViewModelDialog<EmployeeViewModel>()
 					.Finish();

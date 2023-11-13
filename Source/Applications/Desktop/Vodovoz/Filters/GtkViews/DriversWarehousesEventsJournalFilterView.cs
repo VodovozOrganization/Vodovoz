@@ -19,7 +19,7 @@ namespace Vodovoz.Filters.GtkViews
 		{
 			entryEventId.KeyReleaseEvent += UpdateFilter;
 			entryEventId.Binding
-				.AddBinding(ViewModel, vm => vm.EventId, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.EventId, w => w.Text, new NullableIntToStringConverter())
 				.InitializeFromSource();
 
 			entryEvent.KeyReleaseEvent += UpdateFilter;

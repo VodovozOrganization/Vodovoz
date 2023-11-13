@@ -57,6 +57,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			
 			var query = uow.Session.QueryOver(() => eventAlias);
 
+			if(_filterViewModel.EventId.HasValue)
+			{
+				query.Where(e => e.Id == _filterViewModel.EventId);
+			}
+
 			if(!string.IsNullOrWhiteSpace(_filterViewModel.EventName))
 			{
 				query.Where(Restrictions.Like(
@@ -69,7 +74,17 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			{
 				query.Where(e => e.Type == _filterViewModel.SelectedEventType);
 			}
-				
+
+			if(_filterViewModel.EventLatitude.HasValue)
+			{
+				query.Where(e => e.Latitude == _filterViewModel.EventLatitude);
+			}
+
+			if(_filterViewModel.EventLongitude.HasValue)
+			{
+				query.Where(e => e.Longitude == _filterViewModel.EventLongitude);
+			}
+
 			query.SelectList(list => list
 				.Select(e => e.Id).WithAlias(() => resultAlias.Id)
 				.Select(e => e.EventName).WithAlias(() => resultAlias.EventName)

@@ -66,14 +66,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			Employee driverAlias = null;
 			Car carAlias = null;
 			CarModel carModelAlias = null;
-			DriverWarehouseEvent driverEventAlias = null;
+			DriverWarehouseEvent eventAlias = null;
 			CompletedDriversWarehousesEventsJournalNode resultAlias = null;
 
 			var query = uow.Session.QueryOver<CompletedDriverWarehouseEvent>()
 				.JoinAlias(ce => ce.Employee, () => driverAlias)
 				.JoinAlias(ce => ce.Car, () => carAlias)
 				.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
-				.JoinAlias(ce => ce.DriverWarehouseEvent, () => driverEventAlias);
+				.JoinAlias(ce => ce.DriverWarehouseEvent, () => eventAlias);
 
 			var carModelWithNumber = CustomProjections.Concat(
 				Projections.Property(() => carModelAlias.Name),
@@ -81,10 +81,45 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				Projections.Property(() => carAlias.RegistrationNumber),
 				Projections.Constant(")"));
 
+			if(_filterViewModel.CompletedEventId.HasValue)
+			{
+				query.Where(ce => ce.Id == _filterViewModel.CompletedEventId);
+			}
+
+			if(_filterViewModel.StartDate.HasValue)
+			{
+				query.Where(ce => ce.CompletedDate >= _filterViewModel.StartDate);
+			}
+
+			if(_filterViewModel.EndDate.HasValue)
+			{
+				query.Where(ce => ce.CompletedDate <= _filterViewModel.EndDate);
+			}
+
+			if(_filterViewModel.SelectedEventType.HasValue)
+			{
+				query.Where(() => eventAlias.Type == _filterViewModel.SelectedEventType);
+			}
+
+			if(_filterViewModel.DriverWarehouseEvent != null)
+			{
+				query.Where(ce => ce.DriverWarehouseEvent == _filterViewModel.DriverWarehouseEvent);
+			}
+
+			if(_filterViewModel.Car != null)
+			{
+				query.Where(ce => ce.Car == _filterViewModel.Car);
+			}
+
+			if(_filterViewModel.DistanceFromScanning.HasValue)
+			{
+				query.Where(ce => ce.DistanceMetersFromScanningLocation == _filterViewModel.DistanceFromScanning);
+			}
+
 			query.SelectList(list => list
 				.Select(ce => ce.Id).WithAlias(() => resultAlias.Id)
-				.Select(() => driverEventAlias.EventName).WithAlias(() => resultAlias.EventName)
-				.Select(() => driverEventAlias.Type).WithAlias(() => resultAlias.Type)
+				.Select(() => eventAlias.EventName).WithAlias(() => resultAlias.EventName)
+				.Select(() => eventAlias.Type).WithAlias(() => resultAlias.Type)
 				.Select(EmployeeProjections.GetDriverFullNameProjection()).WithAlias(() => resultAlias.DriverName)
 				.Select(carModelWithNumber).WithAlias(() => resultAlias.Car)
 				.Select(ce => ce.DistanceMetersFromScanningLocation)
