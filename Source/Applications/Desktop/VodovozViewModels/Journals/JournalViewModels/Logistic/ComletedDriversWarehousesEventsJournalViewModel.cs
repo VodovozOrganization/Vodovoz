@@ -119,9 +119,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			query.SelectList(list => list
 				.Select(ce => ce.Id).WithAlias(() => resultAlias.Id)
 				.Select(() => eventAlias.EventName).WithAlias(() => resultAlias.EventName)
-				.Select(() => eventAlias.Type).WithAlias(() => resultAlias.Type)
+				.Select(() => eventAlias.Type).WithAlias(() => resultAlias.EventType)
 				.Select(EmployeeProjections.GetDriverFullNameProjection()).WithAlias(() => resultAlias.DriverName)
 				.Select(carModelWithNumber).WithAlias(() => resultAlias.Car)
+				.Select(ce => ce.CompletedDate).WithAlias(() => resultAlias.CompletedDate)
 				.Select(ce => ce.DistanceMetersFromScanningLocation)
 					.WithAlias(() => resultAlias.DistanceMetersFromScanningLocation))
 				.TransformUsing(Transformers.AliasToBean<CompletedDriversWarehousesEventsJournalNode>());

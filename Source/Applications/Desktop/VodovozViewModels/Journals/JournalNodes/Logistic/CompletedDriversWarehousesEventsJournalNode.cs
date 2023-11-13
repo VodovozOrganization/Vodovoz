@@ -7,7 +7,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Logistic
 	public class CompletedDriversWarehousesEventsJournalNode : JournalEntityNodeBase<CompletedDriverWarehouseEvent>
 	{
 		public string EventName { get; set; }
-		public DriverWarehouseEventType Type { get; set; }
+		public DriverWarehouseEventType EventType { get; set; }
 		public string DriverName { get; set; }
 		public string Car { get; set; }
 		public DateTime CompletedDate { get; set; }

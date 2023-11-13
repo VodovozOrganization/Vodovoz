@@ -15,8 +15,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Drivers
 			Map(x => x.Longitude).Column("longitude");
 			Map(x => x.Type).Column("type");
 			Map(x => x.IsArchive).Column("is_archive");
-
-			References(x => x.EventName).Column("driver_warehouse_event_name_id");
+			Map(x => x.EventName).Column("event_name");
 		}
 	}
 }

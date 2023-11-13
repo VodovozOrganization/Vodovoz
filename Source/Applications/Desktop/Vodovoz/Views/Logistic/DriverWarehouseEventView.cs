@@ -21,6 +21,10 @@ namespace Vodovoz.Views.Logistic
 			btnCancel.Clicked += OnCancelClicked;
 			btnQrCode.Clicked += OnQrCodeClicked;
 			btnCopyFromClipboard.Clicked += OnCopyFromClipboard;
+			
+			btnSave.Binding
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
 
 			lblIdTitle.Binding
 				.AddBinding(ViewModel, vm => vm.IdGtZero, w => w.Visible)
@@ -34,6 +38,7 @@ namespace Vodovoz.Views.Logistic
 
 			entryEvent.Binding
 				.AddBinding(ViewModel.Entity, e => e.EventName, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.IsEditable)
 				.InitializeFromSource();
 
 			lblLatitude.Binding
@@ -44,6 +49,7 @@ namespace Vodovoz.Views.Logistic
 			spinBtnLatitude.Binding
 				.AddBinding(ViewModel.Entity, e => e.Latitude, w => w.ValueAsDecimal)
 				.AddBinding(ViewModel, vm => vm.IsCoordinatesVisible, w => w.Visible)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 			
 			lblLongitude.Binding
@@ -54,16 +60,19 @@ namespace Vodovoz.Views.Logistic
 			spinBtnLongitude.Binding
 				.AddBinding(ViewModel.Entity, e => e.Longitude, w => w.ValueAsDecimal)
 				.AddBinding(ViewModel, vm => vm.IsCoordinatesVisible, w => w.Visible)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 			
 			btnCopyFromClipboard.Binding
 				.AddBinding(ViewModel, vm => vm.IsCoordinatesVisible, w => w.Visible)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 
 			enumCmbType.ItemsEnum = typeof(DriverWarehouseEventType);
 			enumCmbType.DefaultFirst = true;
 			enumCmbType.Binding
 				.AddBinding(ViewModel, vm => vm.EventType, w => w.SelectedItem)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 		}
 

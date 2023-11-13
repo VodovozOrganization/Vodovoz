@@ -38,6 +38,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public bool IdGtZero => Entity.Id > 0;
 
+		public bool CanEdit => Entity.Id == 0;
+
 		public bool IsCoordinatesVisible => Entity.Type == DriverWarehouseEventType.OnLocation;
 
 		public DriverWarehouseEventType EventType
@@ -78,7 +80,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private void ConfigureEntityChangingRelations()
 		{
-			SetPropertyChangeRelation(e => e.Id, () => IdGtZero);
+			SetPropertyChangeRelation(
+				e => e.Id,
+				() => IdGtZero,
+				() => CanEdit);
 		}
 	}
 }
