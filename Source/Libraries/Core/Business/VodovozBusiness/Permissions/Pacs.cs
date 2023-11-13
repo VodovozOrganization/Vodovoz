@@ -1,0 +1,7 @@
+﻿namespace Vodovoz.Permissions
+{
+	public static class Pacs
+	{
+		public static string IsAdministrator => "pacs.is_admin";
+	}
+}

@@ -25,7 +25,8 @@ namespace Pacs.Admin.Client
 		{
 			var uri = $"{_pacsSettings.AdministratorApiUrl}/{_url}/set";
 			var content = new StringContent(JsonSerializer.Serialize(settings));
-			content.Headers.Add("ApiKey", _pacsSettings.AdministratorApiKey);
+			_httpClient.DefaultRequestHeaders.Clear();
+			_httpClient.DefaultRequestHeaders.Add("ApiKey", _pacsSettings.AdministratorApiKey);
 
 			try
 			{
@@ -37,5 +38,33 @@ namespace Pacs.Admin.Client
 				throw;
 			}
 		}
-    }
+
+		public async Task<IPacsDomainSettings> GetSettings()
+		{
+			var uri = $"{_pacsSettings.AdministratorApiUrl}/{_url}/set";
+			_httpClient.DefaultRequestHeaders.Clear();
+			_httpClient.DefaultRequestHeaders.Add("ApiKey", _pacsSettings.AdministratorApiKey);
+
+			try
+			{
+				var response = await _httpClient.GetAsync(uri);
+				if(response.IsSuccessStatusCode)
+				{
+					var responseBody = await response.Content.ReadAsStringAsync();
+					var registrationResult = JsonSerializer.Deserialize<PacsDomainSettings>(responseBody);
+					return registrationResult;
+				}
+				else
+				{
+					throw new InvalidOperationException($"Code: {response.StatusCode}. {response.ReasonPhrase}");
+				}
+				
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Ошибка при установке новых настроек");
+				throw;
+			}
+		}
+	}
 }

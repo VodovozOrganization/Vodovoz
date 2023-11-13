@@ -1,15 +1,68 @@
 ﻿using MassTransit;
 using Pacs.Core.Messages.Events;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Pacs.Admin.Client
 {
-	public class SettingsConsumer : IConsumer<SettingsEvent>
+	public class SettingsConsumer : IConsumer<SettingsEvent>, IObservable<SettingsEvent>, IDisposable
 	{
-		public Task Consume(ConsumeContext<SettingsEvent> context)
+		private List<IObserver<SettingsEvent>> _observers;
+
+		public SettingsConsumer()
 		{
-			throw new NotImplementedException();
+			_observers = new List<IObserver<SettingsEvent>>();
+		}
+
+		public async Task Consume(ConsumeContext<SettingsEvent> context)
+		{
+			foreach(var observer in _observers)
+			{
+				observer.OnNext(context.Message);
+			}
+
+			await Task.CompletedTask;
+		}
+
+		public IDisposable Subscribe(IObserver<SettingsEvent> observer)
+		{
+			return new Unsubscriber(_observers, observer);
+		}
+
+		private class Unsubscriber : IDisposable
+		{
+			private readonly List<IObserver<SettingsEvent>> _observers;
+			private readonly IObserver<SettingsEvent> _observer;
+
+			public Unsubscriber(List<IObserver<SettingsEvent>> observers, IObserver<SettingsEvent> observer)
+			{
+				_observers = observers;
+				_observer = observer;
+			}
+
+			public void Dispose()
+			{
+				if(_observer == null)
+				{
+					return;
+				}
+
+				if(!_observers.Contains(_observer))
+				{
+					return;
+				}
+
+				_observers.Remove(_observer);
+			}
+		}
+
+		public void Dispose()
+		{
+			foreach(var observer in _observers)
+			{
+				observer.OnCompleted();
+			}
 		}
 	}
 }

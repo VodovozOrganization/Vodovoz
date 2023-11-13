@@ -17,11 +17,9 @@ namespace Pacs.Operator.Client
 
 		public async Task Consume(ConsumeContext<OperatorState> context)
 		{
-			var state = context.Message;
-
 			foreach(var observer in _observers)
 			{
-				observer.OnNext(state);
+				observer.OnNext(context.Message);
 			}
 
 			await Task.CompletedTask;
