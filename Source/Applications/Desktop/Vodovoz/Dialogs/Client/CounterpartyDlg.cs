@@ -1431,7 +1431,7 @@ namespace Vodovoz
 			{
 				Counterparty = Entity
 			};
-			var dpFactory = new DeliveryPointJournalFactory(filter);
+			var dpFactory = _lifetimeScope.Resolve<IDeliveryPointJournalFactory>(new TypedParameter(typeof(DeliveryPointJournalFilterViewModel), filter));
 			var dpJournal = dpFactory.CreateDeliveryPointByClientJournal();
 			dpJournal.SelectionMode = JournalSelectionMode.Single;
 			dpJournal.OnEntitySelectedResult += OnDeliveryPointJournalEntitySelected;

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Services;
@@ -15,13 +15,13 @@ namespace Vodovoz.ViewModels.Cash
 	public class PaymentByCardViewModel: EntityTabViewModelBase<Order> 
 	{
 		private readonly Employee _currentEmployee;
-		private readonly CallTaskWorker _callTaskWorker;
+		private readonly ICallTaskWorker _callTaskWorker;
 
 		public PaymentByCardViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			CallTaskWorker callTaskWorker,
+			ICallTaskWorker callTaskWorker,
 			IOrderPaymentSettings orderPaymentSettings,
 			IOrderParametersProvider orderParametersProvider,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,

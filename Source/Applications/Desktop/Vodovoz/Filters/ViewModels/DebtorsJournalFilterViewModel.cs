@@ -15,11 +15,13 @@ using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.Filters.ViewModels
 {
 	public class DebtorsJournalFilterViewModel : FilterViewModelBase<DebtorsJournalFilterViewModel>
 	{
+		private readonly ILifetimeScope _lifetimeScope;
 		private Counterparty _client;
 		private DeliveryPoint _address;
 		private PersonType? _opf;
@@ -46,8 +48,10 @@ namespace Vodovoz.Filters.ViewModels
 		private IEntityAutocompleteSelectorFactory _nomenclatureSelectorFactory;
 		private IEntityAutocompleteSelectorFactory _deliveryPointSelectorFactory;
 
-		public DebtorsJournalFilterViewModel()
+		public DebtorsJournalFilterViewModel(ILifetimeScope lifetimeScope)
 		{
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+
 			UpdateWith(
 				x => x.Client,
 				x => x.Address,
@@ -206,7 +210,7 @@ namespace Vodovoz.Filters.ViewModels
 
 		public virtual IEntityAutocompleteSelectorFactory DeliveryPointSelectorFactory =>
 			_deliveryPointSelectorFactory ?? (_deliveryPointSelectorFactory =
-				new DeliveryPointJournalFactory(DeliveryPointJournalFilterViewModel)
+				_lifetimeScope.Resolve<IDeliveryPointJournalFactory>(new TypedParameter(typeof(DeliveryPointJournalFilterViewModel), DeliveryPointJournalFilterViewModel))
 					.CreateDeliveryPointAutocompleteSelectorFactory());
 
 		public virtual IEntityAutocompleteSelectorFactory CounterpartySelectorFactory =>
