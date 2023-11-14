@@ -56,6 +56,11 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 			_entityDocumentsPrinterFactory = entityDocumentsPrinterFactory ?? throw new ArgumentNullException(nameof(entityDocumentsPrinterFactory));
 			_orders = orders ?? new List<Order>();
 
+			OrdersClientsCount = _orders
+				.Select(o => o.Client.Id)
+				.Distinct()
+				.Count();
+
 			foreach(var order in _orders)
 			{
 				OrdersToPrint.Add(new OrdersToPrintNode
@@ -65,6 +70,8 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 					Selected = true
 				});
 			}
+
+			OrdersToPrint.ElementChanged += (s, e) => OnPropertyChanged(nameof(CanPrintOrSaveDocuments));
 
 			_isOrdersListValid = IsOrdersListValidCheck();
 
@@ -176,13 +183,10 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 			_isOrdersListValid
 			&& !IsPrintOrSaveInProcess
 			&& PrintCopiesCount > 0
-			&& (IsPrintBill || IsPrintUpd || IsPrintSpecialBill || IsPrintSpecialUpd);
+			&& (IsPrintBill || IsPrintUpd || IsPrintSpecialBill || IsPrintSpecialUpd)
+			&& OrdersToPrint.Any(x => x.Selected);
 
-		public int OrdersClientsCount =>
-			_orders
-			.Select(o => o.Client.Id)
-			.Distinct()
-			.Count();
+		public int OrdersClientsCount { get; }
 
 		public GenericObservableList<string> Warnings { get; } = new GenericObservableList<string>();
 
@@ -220,7 +224,10 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 
 			var printingDocumentsCount = GetPrintingDocsCount();
 
-			var ordersToPrintIds = OrdersToPrint.Where(x => x.Selected).Select(x => x.Id).ToList();
+			var ordersToPrintIds = OrdersToPrint
+				.Where(x => x.Selected)
+				.Select(x => x.Id)
+				.ToList();
 
 			int ordersToPrintCount = ordersToPrintIds.Count;
 
@@ -352,7 +359,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 
 		private bool IsOrdersListValidCheck()
 		{
-			if(SelectedToPrintCount < 1)
+			if(!OrdersToPrint.Any(x => x.Selected))
 			{
 				_commonServices.InteractiveService.ShowMessage(
 					ImportanceLevel.Error,
