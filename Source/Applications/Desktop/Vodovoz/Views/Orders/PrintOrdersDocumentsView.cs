@@ -21,12 +21,17 @@ namespace Vodovoz.Views.Orders
 
 		private void Configure()
 		{
-			ybuttonPrint.Clicked += (sender, e) => ViewModel.PrintCommand?.Execute();
+			ybuttonPrint.Clicked += (_, _2) => ViewModel.PrintCommand.Execute();
 			ybuttonPrint.Binding
 				.AddBinding(ViewModel, vm => vm.CanPrintOrSaveDocuments, w => w.Sensitive)
 				.InitializeFromSource();
 
-			ybuttonCancel.Clicked += (sender, e) => ViewModel.CloseDialogCommand?.Execute();
+			ybuttonSave.Clicked += (_, _2) => ViewModel.SaveCommand.Execute();
+			ybuttonSave.Binding
+				.AddBinding(ViewModel, vm => vm.CanPrintOrSaveDocuments, w => w.Sensitive)
+				.InitializeFromSource();
+
+			ybuttonCancel.Clicked += (_, _2) => ViewModel.CloseDialogCommand.Execute();
 
 			ycheckbuttonBill.Binding
 				.AddBinding(ViewModel, vm => vm.IsPrintBill, w => w.Active)
