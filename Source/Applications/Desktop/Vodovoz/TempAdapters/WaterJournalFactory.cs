@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using NPOI.SS.Formula.Functions;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using System;
