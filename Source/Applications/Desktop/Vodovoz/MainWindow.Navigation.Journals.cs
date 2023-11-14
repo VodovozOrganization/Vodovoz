@@ -732,7 +732,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionDeliveryPointsActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<DeliveryPointJournalViewModel>(null);
+		NavigationManager.OpenViewModel<DeliveryPointJournalViewModel, bool, bool>(null, true, true);
 	}
 
 	/// <summary>
