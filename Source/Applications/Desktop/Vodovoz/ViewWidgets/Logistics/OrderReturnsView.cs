@@ -227,25 +227,12 @@ namespace Vodovoz
 				x => x.RestrictArchive = false
 			);
 
-			var lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+			var journalViewModel = Startup.MainWin.NavigationManager.OpenViewModel<NomenclaturesJournalViewModel>(null).ViewModel;
 
-			NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
-				nomenclatureFilter,
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices,
-				new EmployeeService(),
-				new NomenclatureJournalFactory(),
-				new CounterpartyJournalFactory(lifetimeScope),
-				_nomenclatureRepository,
-				new UserRepository(),
-				lifetimeScope.Resolve<INomenclatureSettings>()
-			) {
-				SelectionMode = JournalSelectionMode.Single
-			};
-			journalViewModel.TabName = "Номенклатура на продажу";
+			journalViewModel.SelectionMode = JournalSelectionMode.Single;
+			journalViewModel.TabName = "Номенклатура на продажу1";
 			journalViewModel.CalculateQuantityOnStock = true;
 			journalViewModel.OnEntitySelectedResult += OnNomenclatureSelected;
-			TabParent.AddSlaveTab(this, journalViewModel);
 		}
 
 		private void OnNomenclatureSelected(object sender, JournalSelectedNodesEventArgs e)
