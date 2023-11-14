@@ -3,15 +3,19 @@ using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Report;
 using QS.Services;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.ViewModels.Infrastructure.Print;
+using Vodovoz.ViewModels.TempAdapters;
+using VodovozInfrastructure.Interfaces;
 
 namespace Vodovoz.ViewModels.Dialogs.Orders
 {
@@ -19,6 +23,8 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 	{
 		private readonly ICommonServices _commonServices;
 		private readonly IEntityDocumentsPrinterFactory _entityDocumentsPrinterFactory;
+		private readonly IReportExporter _reportExporter;
+		private readonly IFileChooserProvider _fileChooserProvider;
 		private readonly IList<Order> _orders;
 
 		private readonly bool _isOrdersListValid;
@@ -49,11 +55,15 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 			INavigationManager navigation,
 			ICommonServices commonServices,
 			IEntityDocumentsPrinterFactory entityDocumentsPrinterFactory,
+			IReportExporter reportExporter,
+			IFileChooserProvider fileChooserProvider,
 			IList<Order> orders)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_entityDocumentsPrinterFactory = entityDocumentsPrinterFactory ?? throw new ArgumentNullException(nameof(entityDocumentsPrinterFactory));
+			_reportExporter = reportExporter;
+			_fileChooserProvider = fileChooserProvider ?? throw new ArgumentNullException(nameof(fileChooserProvider));
 			_orders = orders ?? new List<Order>();
 
 			OrdersClientsCount = _orders
@@ -80,6 +90,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 				: "Печать документов заказов";
 
 			_printCopiesCount = 1;
+
 			_isPrintBill = true;
 			_isPrintSpecialBill = true;
 			_isPrintUpd = true;
@@ -312,7 +323,93 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 
 		private void SaveHandler()
 		{
+			if(!CanPrintOrSaveDocuments)
+			{
+				return;
+			}
 
+			OrdersPrintedCount = 0;
+			PrintingDocumentInfo = "";
+			Warnings.Clear();
+			IsShowWarnings = false;
+
+			var signaturesAndStampsOfDocument = GetSignaturesAndStampsOfDocument();
+
+			var printingDocumentsCount = GetPrintingDocsCount();
+
+			var ordersToPrintIds = OrdersToPrint
+				.Where(x => x.Selected)
+				.Select(x => x.Id)
+				.ToList();
+
+			int ordersToPrintCount = ordersToPrintIds.Count;
+
+			SelectedToPrintCount = ordersToPrintCount;
+
+			if(!_commonServices.InteractiveService.Question(
+				$"Будет экспортировано:\n" +
+				$"{printingDocumentsCount} документов\n" +
+				$"для {ordersToPrintCount} заказов.\n\n" +
+				$"Продолжить?"))
+			{
+				return;
+			}
+
+			var path = _fileChooserProvider.GetExportFolderPath();
+
+			IsPrintOrSaveInProcess = true;
+
+			var ordersToPrint = _orders
+				.Where(order => ordersToPrintIds.Contains(order.Id))
+				.ToList();
+
+			try
+			{
+				foreach(var order in ordersToPrint)
+				{
+					bool cancelPrinting = false;
+
+					PrintingDocumentInfo = $"Экспорт документов заказа №{order.Id}";
+
+					var documentsToSave = order.OrderDocuments
+						.Where(x => signaturesAndStampsOfDocument.Keys.Contains(x.Type))
+						.ToList();
+
+					foreach(var document in order.OrderDocuments)
+					{
+						if(signaturesAndStampsOfDocument.TryGetValue(document.Type, out bool showSignature)
+							&& document is IPrintableRDLDocument printableRDLDocument)
+						{
+							_reportExporter.ExportReport(
+								printableRDLDocument,
+								$"{path}{Path.DirectorySeparatorChar}{document.Name}.pdf",
+								!showSignature);
+						}
+					}
+
+					PrintingDocumentInfo = $"Выполнено!";
+
+					if(cancelPrinting)
+					{
+						PrintingDocumentInfo = "Экспорт отменен";
+						break;
+					}
+
+					OrdersPrintedCount++;
+				}
+			}
+			catch(Exception)
+			{
+				PrintingDocumentInfo = "Ошибка печати";
+				throw;
+			}
+			finally
+			{
+				OrdersPrintedCount = ordersToPrintCount;
+				IsPrintOrSaveInProcess = false;
+
+				ordersToPrint.Clear();
+			}
 		}
 
 		#endregion SaveCommand
