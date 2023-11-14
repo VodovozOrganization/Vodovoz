@@ -400,7 +400,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 			}
 			catch(Exception)
 			{
-				PrintingDocumentInfo = "Ошибка печати";
+				PrintingDocumentInfo = "Ошибка экспорта";
 				throw;
 			}
 			finally
