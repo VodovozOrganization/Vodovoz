@@ -412,6 +412,7 @@
     <Compile Include="Cash\TransferDocumentsJournal\TransferDocumentsJournalRegistrar.cs" />
     <Compile Include="Commons\FileChooser.cs" />
     <Compile Include="Commons\HotkeyHandler.cs" />
+    <Compile Include="Commons\ThemmedDiffFormater.cs" />
     <Compile Include="Core\DocumentPrinter.cs" />
     <Compile Include="Core\Permissions\EntitySubdivisionForUserPermissionViewModel.cs" />
     <Compile Include="Core\ViewFactory.cs" />
