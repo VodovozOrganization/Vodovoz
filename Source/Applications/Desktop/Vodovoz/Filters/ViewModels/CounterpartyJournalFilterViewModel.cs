@@ -1,5 +1,4 @@
-using Autofac;
-using Gamma.Widgets;
+﻿using Autofac;
 using NHibernate.Transform;
 using QS.Project.Filter;
 using QS.Project.Journal;
@@ -12,7 +11,6 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Domain.Retail;
 using Vodovoz.EntityRepositories;
-using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Counterparties;
 using Vodovoz.ViewModels.Widgets.Search;
 
