@@ -98,6 +98,9 @@ namespace Vodovoz.Filters.GtkViews
 					.Finish();
 
 				ytreeviewSalesChannels.ItemsDataSource = ViewModel.SalesChannels;
+
+				yenumClassification.Visible = false;
+				labelClassification.Visible = false;
 			}
 			else
 			{
