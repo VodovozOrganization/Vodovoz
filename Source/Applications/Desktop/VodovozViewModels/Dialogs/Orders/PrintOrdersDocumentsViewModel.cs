@@ -41,7 +41,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 		private int _printCopiesCount;
 		private int _ordersPrintedCount;
 
-		private GenericObservableList<string> _warnings = new GenericObservableList<string>();
+		private int _selectedToPrintCount;
 
 		public PrintOrdersDocumentsViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -65,8 +65,6 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 					Selected = true
 				});
 			}
-
-			OrdersToPrint.ElementChanged += (s, e) => OnPropertyChanged(nameof(SelectedToPrintCount));
 
 			_isOrdersListValid = IsOrdersListValidCheck();
 
@@ -186,7 +184,15 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 			.Distinct()
 			.Count();
 
-		public GenericObservableList<string> Warnings => _warnings;
+		public GenericObservableList<string> Warnings { get; } = new GenericObservableList<string>();
+
+		public int SelectedToPrintCount
+		{
+			get => _selectedToPrintCount;
+			set => SetField(ref _selectedToPrintCount, value);
+		}
+
+		public GenericObservableList<OrdersToPrintNode> OrdersToPrint { get; } = new GenericObservableList<OrdersToPrintNode>();
 
 		#endregion Properties
 
@@ -207,7 +213,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 
 			OrdersPrintedCount = 0;
 			PrintingDocumentInfo = "";
-			_warnings.Clear();
+			Warnings.Clear();
 			IsShowWarnings = false;
 
 			var signaturesAndStampsOfDocument = GetSignaturesAndStampsOfDocument();
@@ -232,11 +238,13 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 
 			IsPrintOrSaveInProcess = true;
 
+			var ordersToPrint = _orders
+				.Where(order => ordersToPrintIds.Contains(order.Id))
+				.ToList();
+
 			try
 			{
-				var ordersTOPrint = _orders.Where(order => ordersToPrintIds.Contains(order.Id)).ToList();
-
-				foreach(var order in ordersTOPrint)
+				foreach(var order in ordersToPrint)
 				{
 					bool cancelPrinting = false;
 
@@ -257,8 +265,8 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 
 					if(!string.IsNullOrEmpty(printer.ODTTemplateNotFoundMessages))
 					{
-						_warnings.Add($"Заказ {order.Id}");
-						_warnings.Add(printer.ODTTemplateNotFoundMessages);
+						Warnings.Add($"Заказ {order.Id}");
+						Warnings.Add(printer.ODTTemplateNotFoundMessages);
 						IsShowWarnings = true;
 					}
 
@@ -282,7 +290,9 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 			{
 				OrdersPrintedCount = ordersToPrintCount;
 				IsPrintOrSaveInProcess = false;
-			}	
+
+				ordersToPrint.Clear();
+			}
 		}
 
 		#endregion PrintCommand
@@ -306,9 +316,6 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 
 		public bool CanCloseDialog => true;
 
-		public int SelectedToPrintCount { get; set; }
-
-		public GenericObservableList<OrdersToPrintNode> OrdersToPrint { get; } = new GenericObservableList<OrdersToPrintNode>();
 
 		private void CloseDialog()
 		{
