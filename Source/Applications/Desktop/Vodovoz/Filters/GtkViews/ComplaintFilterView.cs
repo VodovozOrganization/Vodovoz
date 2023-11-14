@@ -19,10 +19,12 @@ namespace Vodovoz.Filters.GtkViews
 			evmeAuthor.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeSelectorFactory);
 			evmeAuthor.Binding.AddBinding(ViewModel, x => x.Employee, v => v.Subject).InitializeFromSource();
 			evmeAuthor.CanOpenWithoutTabParent = true;
-			
+			evmeAuthor.CanEditReference = false;
+
 			entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartySelectorFactory);
 			entryCounterparty.Binding.AddBinding(ViewModel, x => x.Counterparty, v => v.Subject).InitializeFromSource();
 			entryCounterparty.CanOpenWithoutTabParent = true;
+			entryCounterparty.CanEditReference = false;
 
 			yenumcomboboxType.ItemsEnum = typeof(ComplaintType);
 			yenumcomboboxType.Binding.AddBinding(ViewModel, x => x.ComplaintType, v => v.SelectedItemOrNull).InitializeFromSource();
