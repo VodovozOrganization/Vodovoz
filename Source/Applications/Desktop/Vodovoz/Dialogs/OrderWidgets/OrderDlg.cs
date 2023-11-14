@@ -757,14 +757,15 @@ namespace Vodovoz
 
 			var counterpartyFilter = _lifetimeScope.Resolve<CounterpartyJournalFilterViewModel>();
 
-			counterpartyFilter.IsForRetail = IsForRetail;
-			counterpartyFilter.IsForSalesDepartment = IsForSalesDepartment;
-			counterpartyFilter.RestrictIncludeArchive = false;
-
 			entityVMEntryClient.SetEntityAutocompleteSelectorFactory(
 				new EntityAutocompleteSelectorFactory<CounterpartyJournalViewModel>(typeof(Counterparty),
 					() => new CounterpartyJournalViewModel(counterpartyFilter, UnitOfWorkFactory.GetDefaultFactory,
-						ServicesConfig.CommonServices, Startup.MainWin.NavigationManager, _lifetimeScope))
+						ServicesConfig.CommonServices, Startup.MainWin.NavigationManager, filter =>
+						{
+							filter.IsForRetail = IsForRetail;
+							filter.IsForSalesDepartment = IsForSalesDepartment;
+							filter.RestrictIncludeArchive = false;
+						}))
 			);
 			entityVMEntryClient.Binding.AddBinding(Entity, s => s.Client, w => w.Subject).InitializeFromSource();
 			entityVMEntryClient.CanEditReference = true;
