@@ -1,4 +1,5 @@
 ﻿using QS.DomainModel.Entity;
+using QS.HistoryLog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -8,6 +9,7 @@ namespace Vodovoz.Domain.Client.ClientClassification
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "параметры расчета классификаций контрагентов",
 		Nominative = "параметры расчета классификации контрагента")]
+	[HistoryTrace]
 	public class CounterpartyClassificationCalculationSettings : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		private int _periodInMonths;
@@ -18,6 +20,8 @@ namespace Vodovoz.Domain.Client.ClientClassification
 		private DateTime _settingsCreationDate;
 
 		public virtual int Id { get; }
+
+		public virtual string Title => "Параметры расчета классификации контрагента";
 
 		[Display(Name = "Значение периода в месяцах для выполнения расчета")]
 		public virtual int PeriodInMonths

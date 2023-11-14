@@ -190,6 +190,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			var calculationSettings = GetCalculationSettings();
 
 			_uow.Save(calculationSettings);
+			_uow.Commit();
 
 			CalculationProgressValue = 10;
 
