@@ -520,23 +520,14 @@ public partial class MainWindow : Window
 			new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
 				new NomenclatureFilterViewModel(), counterpartyJournalFactory, nomenclatureRepository, userRepository);
 
-		var nomenclatureSettings = Startup.AppDIContainer.BeginLifetimeScope().Resolve<INomenclatureSettings>();
-
 		RequestsToSuppliersFilterViewModel filter = new RequestsToSuppliersFilterViewModel(nomenclatureSelectorFactory);
 
-		var requestsJournal = new RequestsToSuppliersJournalViewModel(
-			filter,
-			UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices,
-			VodovozGtkServicesConfig.EmployeeService,
-			new SupplierPriceItemsRepository(),
-			counterpartyJournalFactory,
-			new NomenclatureJournalFactory(),
-			nomenclatureRepository,
-			userRepository,
-			nomenclatureSettings
-		);
-		tdiMain.AddTab(requestsJournal);
+		var requestsJournal = NavigationManager.OpenViewModel<RequestsToSuppliersJournalViewModel, RequestsToSuppliersFilterViewModel>(
+			  null,
+			  filter,
+			  OpenPageOptions.IgnoreHash);
+
+		tdiMain.AddTab(requestsJournal.ViewModel);
 	}
 
 	void ActionRouteListsPrint_Activated(object sender, System.EventArgs e)
