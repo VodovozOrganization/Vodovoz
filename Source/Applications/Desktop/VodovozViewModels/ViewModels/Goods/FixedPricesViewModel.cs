@@ -14,6 +14,7 @@ using QS.HistoryLog.Domain;
 using QS.Project.Journal;
 using QS.Tdi;
 using Vodovoz.TempAdapters;
+using Autofac;
 
 namespace Vodovoz.ViewModels.ViewModels.Goods
 {
@@ -22,14 +23,15 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 		private readonly IFixedPricesModel _fixedPricesModel;
 		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 		private readonly ITdiTab _parentTab;
+		private readonly ILifetimeScope _lifetimeScope;
 
-		public FixedPricesViewModel(IUnitOfWork uow, IFixedPricesModel fixedPricesModel, INomenclatureJournalFactory nomenclatureSelectorFactory, ITdiTab parentTab)
+		public FixedPricesViewModel(IUnitOfWork uow, IFixedPricesModel fixedPricesModel, INomenclatureJournalFactory nomenclatureSelectorFactory, ITdiTab parentTab, ILifetimeScope lifetimeScope)
 		{
 			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
 			this._fixedPricesModel = fixedPricesModel ?? throw new ArgumentNullException(nameof(fixedPricesModel));
 			this._nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			this._parentTab = parentTab ?? throw new ArgumentNullException(nameof(parentTab));
-
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			fixedPricesModel.FixedPricesUpdated += (sender, args) => UpdateFixedPrices();
 			UpdateFixedPrices();
 
@@ -189,7 +191,7 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 
 		private void SelectWaterNomenclature()
 		{
-			var waterJournalFactory = _nomenclatureSelectorFactory.GetWaterJournalFactory();
+			var waterJournalFactory = _nomenclatureSelectorFactory.GetWaterJournalFactory(_lifetimeScope);
 			var selector = waterJournalFactory.CreateAutocompleteSelector();
 			selector.OnEntitySelectedResult += OnWaterSelected;
 			_parentTab.TabParent.AddSlaveTab(_parentTab, selector);

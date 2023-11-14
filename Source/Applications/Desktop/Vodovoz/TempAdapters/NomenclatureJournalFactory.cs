@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Autofac;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
@@ -74,9 +75,9 @@ namespace Vodovoz.TempAdapters
 			return CreateNomenclaturesJournalViewModel(filter, true);
 		}
 
-		public IEntityAutocompleteSelectorFactory GetWaterJournalFactory()
+		public IEntityAutocompleteSelectorFactory GetWaterJournalFactory(ILifetimeScope lifetimeScope)
 		{
-			return new WaterJournalFactory();
+			return new WaterJournalFactory(lifetimeScope);
 		}
 
 		public IEntityAutocompleteSelectorFactory GetDefaultWaterSelectorFactory()

@@ -1,4 +1,5 @@
-﻿using QS.Project.Journal.EntitySelector;
+﻿using Autofac;
+using QS.Project.Journal.EntitySelector;
 using System.Collections.Generic;
 using Vodovoz.Domain.Store;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
@@ -11,7 +12,7 @@ namespace Vodovoz.TempAdapters
 		IEntitySelector CreateNomenclatureSelector(IEnumerable<int> excludedNomenclatures = null, bool multipleSelect = true);
 		IEntitySelector CreateNomenclatureOfGoodsWithoutEmptyBottlesSelector(IEnumerable<int> excludedNomenclatures = null);
 		IEntitySelector CreateNomenclatureSelectorForFuelSelect();
-		IEntityAutocompleteSelectorFactory GetWaterJournalFactory();
+		IEntityAutocompleteSelectorFactory GetWaterJournalFactory(ILifetimeScope lifetimeScope);
 		IEntityAutocompleteSelectorFactory GetRoboatsWaterJournalFactory();
 		IEntityAutocompleteSelectorFactory GetDefaultWaterSelectorFactory();
 		IEntityAutocompleteSelectorFactory GetDepositSelectorFactory();

@@ -162,34 +162,34 @@ namespace Vodovoz
 					c.Editable = false;
 					c.Editable = n.Category == NomenclatureCategory.equipment;
 				})
-                .AddColumn("Причина").AddEnumRenderer(
-                    node => node.DirectionReason
-                    ,true
-                ).AddSetter((c, n) =>
-                {
-                    switch (n.DirectionReason)
-                    {
-                        case DirectionReason.Rent:
-                            c.Text = "Закрытие аренды";
-                            break;
-                        case DirectionReason.Repair:
-                            c.Text = "В ремонт";
-                            break;
-                        case DirectionReason.Cleaning:
-                            c.Text = "На санобработку";
-                            break;
-                        case DirectionReason.RepairAndCleaning:
-                            c.Text = "В ремонт и санобработку";
-                            break;
-                        default:
-                            break;
-                    }
+				.AddColumn("Причина").AddEnumRenderer(
+					node => node.DirectionReason
+					,true
+				).AddSetter((c, n) =>
+				{
+					switch (n.DirectionReason)
+					{
+						case DirectionReason.Rent:
+							c.Text = "Закрытие аренды";
+							break;
+						case DirectionReason.Repair:
+							c.Text = "В ремонт";
+							break;
+						case DirectionReason.Cleaning:
+							c.Text = "На санобработку";
+							break;
+						case DirectionReason.RepairAndCleaning:
+							c.Text = "В ремонт и санобработку";
+							break;
+						default:
+							break;
+					}
 					c.Editable = false;
 					c.Editable = n.Category == NomenclatureCategory.equipment;
 				})
 
 
-                .AddColumn("")
+				.AddColumn("")
 				.Finish();
 			yTreeOtherGoods.ColumnsConfig = goodsColumnsConfig;
 			yTreeOtherGoods.ItemsDataSource = GoodsReceptionList;
