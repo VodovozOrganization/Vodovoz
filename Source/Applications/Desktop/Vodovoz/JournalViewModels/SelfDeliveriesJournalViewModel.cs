@@ -15,7 +15,6 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using QSProjectsLib;
-using Vodovoz.Dialogs.Cash;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -26,7 +25,6 @@ using Vodovoz.Extensions;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure;
 using Vodovoz.JournalNodes;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Cash;
@@ -36,10 +34,10 @@ namespace Vodovoz.Representations
 {
 	public class SelfDeliveriesJournalViewModel : FilterableSingleEntityJournalViewModelBase<VodovozOrder, OrderDlg, SelfDeliveryJournalNode, OrderJournalFilterViewModel>
 	{
-		private readonly CallTaskWorker _callTaskWorker;
+		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly Employee _currentEmployee;
-		private readonly OrderPaymentSettings _orderPaymentSettings;
-		private readonly OrderParametersProvider _orderParametersProvider;
+		private readonly IOrderPaymentSettings _orderPaymentSettings;
+		private readonly IOrderParametersProvider _orderParametersProvider;
 		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
 		private readonly bool _userCanChangePayTypeToByCard;
 
@@ -47,9 +45,9 @@ namespace Vodovoz.Representations
 			OrderJournalFilterViewModel filterViewModel, 
 			IUnitOfWorkFactory unitOfWorkFactory, 
 			ICommonServices commonServices, 
-			CallTaskWorker callTaskWorker,
-			OrderPaymentSettings orderPaymentSettings,
-			OrderParametersProvider orderParametersProvider,
+			ICallTaskWorker callTaskWorker,
+			IOrderPaymentSettings orderPaymentSettings,
+			IOrderParametersProvider orderParametersProvider,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
 			IEmployeeService employeeService,
 			INavigationManager navigationManager,

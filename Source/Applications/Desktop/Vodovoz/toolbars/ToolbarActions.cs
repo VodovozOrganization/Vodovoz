@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Dialogs.Employees;
 using Gtk;
 using QS.Dialog.Gtk;
@@ -98,7 +98,7 @@ using Vodovoz.ViewModels.ViewModels.Suppliers;
 using Action = Gtk.Action;
 using QS.Report.ViewModels;
 using Vodovoz.ViewModels.ReportsParameters;
-using Vodovoz.Settings.Nomenclature;
+using Vodovoz.Reports;
 
 public partial class MainWindow : Window
 {
@@ -581,19 +581,7 @@ public partial class MainWindow : Window
 
 	void ActionBottleDebtors_Activate(object sender, System.EventArgs e)
 	{
-		DebtorsJournalFilterViewModel filter = new DebtorsJournalFilterViewModel();
-		var loggerFactory = new NLogLoggerFactory();
-		var settingsController =
-			new SettingsController(UnitOfWorkFactory.GetDefaultFactory, new Logger<SettingsController>(loggerFactory));
-		IEmailParametersProvider emailParametersProvider = new EmailParametersProvider(settingsController);
-		IAttachmentsViewModelFactory attachmentsViewModelFactory = new AttachmentsViewModelFactory();
-		IEmailRepository emailRepository = new EmailRepository();
-		IFileDialogService fileDialogService = new FileDialogService();
-		var debtorsJournal = new DebtorsJournalViewModel(
-			filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, new EmployeeRepository(), new GtkTabsOpener(),
-			new DebtorsParameters(new ParametersProvider()), emailParametersProvider, attachmentsViewModelFactory, emailRepository, fileDialogService);
-
-		tdiMain.AddTab(debtorsJournal);
+		NavigationManager.OpenViewModel<DebtorsJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	void ActionRouteListAddressesTransferring_Activated(object sender, System.EventArgs e)
@@ -619,10 +607,15 @@ public partial class MainWindow : Window
 
 	void ActionRevisionBottlesAndDeposits_Activated(object sender, System.EventArgs e)
 	{
-		var reportViewDlg = new QSReport.ReportViewDlg(new Vodovoz.Reports.RevisionBottlesAndDeposits(
-				new OrderRepository(), new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()), new DeliveryPointJournalFactory()));
+		var scope = Startup.AppDIContainer.BeginLifetimeScope();
+
+		var report = scope.Resolve<RevisionBottlesAndDeposits>();
+
+		var reportViewDlg = new QSReport.ReportViewDlg(report);
 
 		tdiMain.AddTab(reportViewDlg);
+
+		report.Destroyed += (s, args) => scope.Dispose();
 	}
 
 	void ActionReportDebtorsBottles_Activated(object sender, System.EventArgs e)
@@ -700,42 +693,16 @@ public partial class MainWindow : Window
 
 	void ActionSelfdeliveryOrders_Activated(object sender, System.EventArgs e)
 	{
-		var scope = Startup.AppDIContainer.BeginLifetimeScope();
-		var counterpartyJournalFactory = new CounterpartyJournalFactory(scope);
-		var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
-		var parametersProvider = new ParametersProvider();
-
-		var filter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, scope);
-
-		filter.SetAndRefilterAtOnce(
-			x => x.AllowStatuses = new[] { OrderStatus.WaitForPayment, OrderStatus.OnLoading, OrderStatus.Accepted, OrderStatus.Closed },
-			x => x.RestrictOnlySelfDelivery = true,
-			x => x.RestrictWithoutSelfDelivery = false,
-			x => x.RestrictHideService = true,
-			x => x.RestrictOnlyService = false,
-			x => x.RestrictLessThreeHours = false,
-			x => x.SortDeliveryDate = false
-		);
-		filter.HidenByDefault = true;
-		var selfDeliveriesJournal = new SelfDeliveriesJournalViewModel(
-			filter,
-			UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices,
-			new CallTaskWorker(CallTaskSingletonFactory.GetInstance(),
-				new CallTaskRepository(),
-				new OrderRepository(),
-				new EmployeeRepository(),
-				new BaseParametersProvider(parametersProvider),
-				ServicesConfig.CommonServices.UserService,
-				ErrorReporter.Instance),
-			new OrderPaymentSettings(parametersProvider),
-			new OrderParametersProvider(parametersProvider),
-			new DeliveryRulesParametersProvider(parametersProvider),
-			VodovozGtkServicesConfig.EmployeeService,
-			NavigationManager
-		);
-
-		tdiMain.AddTab(selfDeliveriesJournal);
+		NavigationManager.OpenViewModel<SelfDeliveriesJournalViewModel, Action<OrderJournalFilterViewModel>>(null, filter =>
+		{
+			filter.AllowStatuses = new[] { OrderStatus.WaitForPayment, OrderStatus.OnLoading, OrderStatus.Accepted, OrderStatus.Closed };
+			filter.RestrictOnlySelfDelivery = true;
+			filter.RestrictWithoutSelfDelivery = false;
+			filter.RestrictHideService = true;
+			filter.RestrictOnlyService = false;
+			filter.RestrictLessThreeHours = false;
+			filter.SortDeliveryDate = false;
+		}, OpenPageOptions.IgnoreHash);
 	}
 
 	void ActionCashTransferDocuments_Activated(object sender, System.EventArgs e) =>

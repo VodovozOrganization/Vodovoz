@@ -4,39 +4,24 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Fias.Search.DTO;
-using NLog;
+using Microsoft.Extensions.Logging;
 
 namespace Fias.Client.Loaders
 {
-	public interface ICitiesDataLoader
+	internal class CitiesDataLoader : FiasDataLoader, ICitiesDataLoader
 	{
-		/// <summary>
-		///     Delay before query was executed (in millisecond)
-		/// </summary>
-		int Delay { get; set; }
-
-		event Action CitiesLoaded;
-
-		CityDTO GetCity(string cityName);
-
-		/// <summary>
-		///     Initialize loading geodata from service
-		/// </summary>
-		void LoadCities(string searchString, int limit = 50);
-
-		CityDTO[] GetCities();
-	}
-
-	public class CitiesDataLoader : FiasDataLoader, ICitiesDataLoader
-	{
-		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
-
-		private CityDTO[] Cities;
+		private readonly ILogger<CitiesDataLoader> _logger;
+		
+		private CityDTO[] _cities;
 
 		protected Task<IEnumerable<CityDTO>> CurrentLoadTask;
 
-		public CitiesDataLoader(IFiasApiClient fiasApiClient) : base(fiasApiClient)
+		public CitiesDataLoader(
+			ILogger<CitiesDataLoader> logger,
+			IFiasApiClient fiasApiClient)
+			: base(fiasApiClient)
 		{
+			_logger = logger;
 		}
 
 		public event Action CitiesLoaded;
@@ -54,12 +39,12 @@ namespace Fias.Client.Loaders
 			CancelLoading();
 			CurrentLoadTask = Task.Run(() => GetFiasCities(searchString, limit, cancelTokenSource.Token));
 			CurrentLoadTask.ContinueWith(SaveCities, cancelTokenSource.Token, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.Default);
-			CurrentLoadTask.ContinueWith(arg => logger.Error(arg.Exception, "Ошибка при загрузке городов"), TaskContinuationOptions.OnlyOnFaulted);
+			CurrentLoadTask.ContinueWith(arg => _logger.LogError(arg.Exception, "Ошибка при загрузке городов"), TaskContinuationOptions.OnlyOnFaulted);
 		}
 
 		public CityDTO[] GetCities()
 		{
-			return Cities?.Clone() as CityDTO[];
+			return _cities?.Clone() as CityDTO[];
 		}
 
 		private IEnumerable<CityDTO> GetFiasCities(string searchString, int limit, CancellationToken token)
@@ -67,7 +52,8 @@ namespace Fias.Client.Loaders
 			try
 			{
 				Task.Delay(Delay, token).Wait();
-				logger.Info($"Запрос городов... Строка поиска : { searchString } , Кол-во записей { limit }");
+				_logger.LogInformation("Запрос городов... Строка поиска : {SearchString} , Кол-во записей {Limit}", searchString, limit);
+
 				return Fias.GetCitiesByCriteria(searchString, limit);
 			}
 			catch(AggregateException ae)
@@ -76,7 +62,7 @@ namespace Fias.Client.Loaders
 				{
 					if(ex is TaskCanceledException)
 					{
-						logger.Info("Запрос городов отменен");
+						_logger.LogInformation("Запрос городов отменен");
 					}
 
 					return ex is TaskCanceledException;
@@ -88,8 +74,8 @@ namespace Fias.Client.Loaders
 
 		private void SaveCities(Task<IEnumerable<CityDTO>> newCities)
 		{
-			Cities = newCities.Result.ToArray();
-			logger.Info($"Городов загружено : { Cities.Length }");
+			_cities = newCities.Result.ToArray();
+			_logger.LogInformation($"Городов загружено : { _cities.Length }");
 			CitiesLoaded?.Invoke();
 		}
 
@@ -102,7 +88,7 @@ namespace Fias.Client.Loaders
 
 			if(!CurrentLoadTask.IsCompleted)
 			{
-				logger.Debug("Отмена предыдущей загрузки городов");
+				_logger.LogDebug("Отмена предыдущей загрузки городов");
 			}
 
 			cancelTokenSource.Cancel();

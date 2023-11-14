@@ -1,7 +1,6 @@
 ﻿using Autofac;
 using DeliveryRulesService.Cache;
 using Fias.Client;
-using Fias.Client.Cache;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -50,6 +49,8 @@ namespace DeliveryRulesService
 
 			NLogBuilder.ConfigureNLog("NLog.config");
 
+			services.AddFiasClient();
+
 			CreateBaseConfig();
 		}
 
@@ -62,8 +63,6 @@ namespace DeliveryRulesService
 			builder.RegisterType<DefaultUnitOfWorkFactory>().AsImplementedInterfaces();
 			builder.RegisterType<BaseParametersProvider>().AsImplementedInterfaces();
 			builder.RegisterType<DistrictCache>().AsSelf().AsImplementedInterfaces();
-			builder.RegisterType<GeocoderCache>().AsSelf().AsImplementedInterfaces();
-			builder.RegisterType<FiasApiClientFactory>().AsSelf().AsImplementedInterfaces();
 			
 			builder.RegisterType<CallTaskWorker>()
 				.AsSelf()

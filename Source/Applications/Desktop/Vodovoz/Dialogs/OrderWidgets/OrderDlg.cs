@@ -108,6 +108,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 using Vodovoz.ViewModels.Orders;
+using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
@@ -133,7 +134,7 @@ namespace Vodovoz
 	{
 		private readonly int? _defaultCallBeforeArrival = 15;
 
-		private readonly ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		static Logger logger = LogManager.GetCurrentClassLogger();
 		private CancellationTokenSource _cancellationTokenCheckLiquidationSource;
 
@@ -367,6 +368,8 @@ namespace Vodovoz
 		public override void Destroy()
 		{
 			NotifyConfiguration.Instance.UnsubscribeAll(this);
+			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
 			_driverApiHelper?.Dispose();
 			base.Destroy();
 		}
@@ -760,14 +763,15 @@ namespace Vodovoz
 
 			var counterpartyFilter = _lifetimeScope.Resolve<CounterpartyJournalFilterViewModel>();
 
-			counterpartyFilter.IsForRetail = IsForRetail;
-			counterpartyFilter.IsForSalesDepartment = IsForSalesDepartment;
-			counterpartyFilter.RestrictIncludeArchive = false;
-
 			entityVMEntryClient.SetEntityAutocompleteSelectorFactory(
 				new EntityAutocompleteSelectorFactory<CounterpartyJournalViewModel>(typeof(Counterparty),
 					() => new CounterpartyJournalViewModel(counterpartyFilter, UnitOfWorkFactory.GetDefaultFactory,
-						ServicesConfig.CommonServices, Startup.MainWin.NavigationManager, _lifetimeScope))
+						ServicesConfig.CommonServices, Startup.MainWin.NavigationManager, filter =>
+						{
+							filter.IsForRetail = IsForRetail;
+							filter.IsForSalesDepartment = IsForSalesDepartment;
+							filter.RestrictIncludeArchive = false;
+						}))
 			);
 			entityVMEntryClient.Binding.AddBinding(Entity, s => s.Client, w => w.Subject).InitializeFromSource();
 			entityVMEntryClient.CanEditReference = true;
@@ -3162,8 +3166,11 @@ namespace Vodovoz
 			if(Entity.Client != null)
 			{
 				var filter = new DeliveryPointJournalFilterViewModel() { Counterparty = Entity.Client, HidenByDefault = true };
-				evmeDeliveryPoint.SetEntityAutocompleteSelectorFactory(new DeliveryPointJournalFactory(filter)
-					.CreateDeliveryPointByClientAutocompleteSelectorFactory());
+
+				var deliveryPointFactory = _lifetimeScope.Resolve<IDeliveryPointJournalFactory>();
+				deliveryPointFactory.SetDeliveryPointJournalFilterViewModel(filter);
+
+				evmeDeliveryPoint.SetEntityAutocompleteSelectorFactory(deliveryPointFactory.CreateDeliveryPointByClientAutocompleteSelectorFactory());
 				evmeDeliveryPoint.Sensitive = Entity.OrderStatus == OrderStatus.NewOrder;
 
 				PaymentType? previousPaymentType = enumPaymentType.SelectedItem as PaymentType?;

@@ -1,6 +1,8 @@
-﻿using QS.Commands;
+﻿using Fias.Client.Loaders;
+using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
@@ -13,13 +15,12 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Fias.Client.Loaders;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Models;
 using Vodovoz.Services;
 using Vodovoz.SidePanel;
@@ -31,11 +32,10 @@ using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
-using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.ViewModels.Dialogs.Counterparty
 {
-	public class DeliveryPointViewModel : EntityTabViewModelBase<DeliveryPoint>, IDeliveryPointInfoProvider, ITDICloseControlTab,
+	public partial class DeliveryPointViewModel : EntityTabViewModelBase<DeliveryPoint>, IDeliveryPointInfoProvider, ITDICloseControlTab,
 		IAskSaveOnCloseViewModel
 	{
 		private int _currentPage = 0;
@@ -49,11 +49,12 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 		private readonly IFixedPricesModel _fixedPricesModel;
 		private readonly IDeliveryPointRepository _deliveryPointRepository;
 		private readonly RoboatsJournalsFactory _roboatsJournalsFactory;
-		private readonly IPromotionalSetRepository _promotionalSetRepository = new PromotionalSetRepository();
+		private readonly PanelViewType[] _infoWidgets = new[] { PanelViewType.DeliveryPricePanelView };
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
 		public DeliveryPointViewModel(
 			IUserRepository userRepository,
+			INavigationManager navigationManager,
 			IGtkTabsOpener gtkTabsOpener,
 			IPhoneRepository phoneRepository,
 			IContactParametersProvider contactsParameters,
@@ -68,8 +69,8 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			RoboatsJournalsFactory roboatsJournalsFactory,
-		 	Domain.Client.Counterparty client = null)
-			: base(uowBuilder, unitOfWorkFactory, commonServices)
+			Domain.Client.Counterparty client = null)
+			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(client != null && uowBuilder.IsNewEntity)
 			{
@@ -78,6 +79,11 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			else if(client == null && uowBuilder.IsNewEntity)
 			{
 				throw new ArgumentNullException(nameof(client), "Нельзя создать точку доставки без указания клиента");
+			}
+
+			if(navigationManager is null)
+			{
+				throw new ArgumentNullException(nameof(navigationManager));
 			}
 
 			if(phoneRepository == null)
@@ -126,7 +132,9 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			DeliveryPointCategories =
 				deliveryPointRepository?.GetActiveDeliveryPointCategories(UoW)
 				?? throw new ArgumentNullException(nameof(deliveryPointRepository));
+
 			DeliveryScheduleSelectorFactory = deliveryScheduleSelectorFactory;
+
 			Entity.PropertyChanged += (sender, e) =>
 			{
 				switch(e.PropertyName)
@@ -143,6 +151,10 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			}
 
 			_logisticsRequirementsVM = new LogisticsRequirementsViewModel(Entity.LogisticsRequirements, commonServices);
+
+			OpenCounterpartyCommand = new DelegateCommand(
+				OpenCounterparty,
+				() => Entity.Counterparty != null);
 		}
 
 		#region Свойства
@@ -210,7 +222,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 		#region IDeliveryPointInfoProvider
 
 		public DeliveryPoint DeliveryPoint => Entity;
-		public PanelViewType[] InfoWidgets => new[] { PanelViewType.DeliveryPricePanelView };
+		public PanelViewType[] InfoWidgets => _infoWidgets;
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 
 		#endregion
@@ -253,7 +265,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 					return false;
 				}
 
-				if(Entity.Counterparty.PersonType == PersonType.natural 
+				if(Entity.Counterparty.PersonType == PersonType.natural
 					&& ((Entity.RoomType == RoomType.Office) || (Entity.RoomType == RoomType.Store))
 					&& !_deliveryPointRepository.CheckingAnAddressForDeliveryForNewCustomers(UoW, Entity))
 				{
@@ -295,6 +307,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 		{
 			var error = true;
 			var coordinates = buffer?.Split(',');
+
 			if(coordinates?.Length == 2)
 			{
 				coordinates[0] = coordinates[0].Replace('.', ',');
@@ -364,7 +377,6 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			|| Entity.Building != BuildingBeforeChange
 			|| Entity.Entrance != EntranceBeforeChange;
 
-
 		#region ITDICloseControlTab
 
 		public bool CanClose()
@@ -388,12 +400,12 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 
 		#region Commands
 
-		private DelegateCommand _openCounterpartyCommand;
+		public DelegateCommand OpenCounterpartyCommand { get; }
 
-		public DelegateCommand OpenCounterpartyCommand => _openCounterpartyCommand ?? (_openCounterpartyCommand = new DelegateCommand(
-			() => _gtkTabsOpener.OpenCounterpartyDlg(this, Entity.Counterparty.Id),
-			() => Entity.Counterparty != null
-		));
+		private void OpenCounterparty()
+		{
+			_gtkTabsOpener.OpenCounterpartyDlg(this, Entity.Counterparty.Id);
+		}
 
 		private DelegateCommand _openOnMapCommand;
 
@@ -424,7 +436,9 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 
 		public async Task<Coordinate> UpdateCoordinatesFromGeoCoderAsync(IHousesDataLoader entryBuildingHousesDataLoader)
 		{
-			decimal? latitude = null, longitude = null;
+			decimal? latitude = null;
+			decimal? longitude = null;
+
 			try
 			{
 				_isBuildingsInLoadingProcess = true;
@@ -438,6 +452,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 						$", {(Entity.EntranceType == EntranceType.Entrance ? "парадная" : "вход")} {Entity.Entrance}";
 
 				var findedByGeoCoder = await entryBuildingHousesDataLoader.GetCoordinatesByGeocoderAsync(address, _cancellationTokenSource.Token);
+
 				if(findedByGeoCoder != null)
 				{
 					var culture = CultureInfo.CreateSpecificCulture("ru-RU");
@@ -456,12 +471,6 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 				Latitude = latitude,
 				Longitude = longitude
 			};
-		}
-
-		public class Coordinate
-		{
-			public decimal? Latitude { get; set; }
-			public decimal? Longitude { get; set; }
 		}
 
 		public bool IsDisposed { get; private set; }
