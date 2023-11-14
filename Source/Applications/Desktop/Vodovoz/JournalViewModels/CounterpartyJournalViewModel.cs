@@ -27,19 +27,15 @@ namespace Vodovoz.JournalViewModels
 	{
 		private readonly bool _userHaveAccessToRetail;
 		private readonly bool _canOpenCloseDeliveries;
-		private readonly ILifetimeScope _lifetimeScope;
 
 		public CounterpartyJournalViewModel(
 			CounterpartyJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
-			ILifetimeScope lifetimeScope,
 			Action<CounterpartyJournalFilterViewModel> filterConfiguration = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices, navigation: navigationManager)
 		{
-			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
-
 			filterViewModel.Journal = this;
 
 			TabName = "Журнал контрагентов";
@@ -63,8 +59,6 @@ namespace Vodovoz.JournalViewModels
 
 			SearchEnabled = false;
 		}
-
-		public ILifetimeScope LifetimeScope => _lifetimeScope;
 
 		protected override void CreateNodeActions()
 		{
