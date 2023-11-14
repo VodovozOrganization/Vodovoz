@@ -1,15 +1,19 @@
 ﻿using Gamma.GtkWidgets;
 using Gtk;
 using QS.Views.Dialog;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Dialogs.Orders;
+using static Vodovoz.ViewModels.Dialogs.Orders.PrintOrdersDocumentsViewModel;
 
 namespace Vodovoz.Views.Orders
 {
 	public partial class PrintOrdersDocumentsView : DialogViewBase<PrintOrdersDocumentsViewModel>
 	{
-		public PrintOrdersDocumentsView(PrintOrdersDocumentsViewModel viewModel) : base(viewModel)
+		private readonly Adjustment _progressBarAdjustment =
+			new Adjustment(0, 0, 0, 1, 1, 1);
+
+		public PrintOrdersDocumentsView(PrintOrdersDocumentsViewModel viewModel)
+			: base(viewModel)
 		{
 			Build();
 			Configure();
@@ -60,13 +64,14 @@ namespace Vodovoz.Views.Orders
 				.AddBinding(ViewModel, vm => vm.PrintCopiesCount, w => w.ValueAsInt)
 				.InitializeFromSource();
 
-			ytreeviewOrders.ColumnsConfig = ColumnsConfigFactory.Create<Order>()
-				.AddColumn("Заказ").AddTextRenderer(o => o.Id.ToString())
-				.AddColumn("Дата").AddTextRenderer(o => o.DeliveryDate.Value.ToString("dd.MM.yyyy"))
+			ytreeviewOrders.ColumnsConfig = ColumnsConfigFactory.Create<OrdersToPrintNode>()
+				.AddColumn("Заказ").AddNumericRenderer(node => node.Id)
+				.AddColumn("Дата").AddTextRenderer(o => $"{o.DeliveryDate:dd.MM.yyyy}")
+				.AddColumn("Выбрано").AddToggleRenderer(x => x.Selected)
 				.AddColumn("")
 				.Finish();
 
-			ytreeviewOrders.ItemsDataSource = ViewModel.Orders;
+			ytreeviewOrders.ItemsDataSource = ViewModel.OrdersToPrint;
 
 			ytreeviewWarnings.HeadersVisible = false;
 			ytreeviewWarnings.ColumnsConfig = ColumnsConfigFactory.Create<string>()
@@ -82,11 +87,11 @@ namespace Vodovoz.Views.Orders
 				.AddBinding(ViewModel, vm => vm.IsShowWarnings, w => w.Visible)
 				.InitializeFromSource();
 
-			yprogressbar.Adjustment = new Adjustment(0, 0, 0, 1, 1, 1);
-			yprogressbar.Adjustment.Upper = ViewModel.Orders.Count;
+			yprogressbar.Adjustment = _progressBarAdjustment;
 
 			yprogressbar.Binding
 				.AddSource(ViewModel)
+				.AddBinding(vm => vm.SelectedToPrintCount, w => w.Adjustment.Upper)
 				.AddBinding(vm => vm.PrintingDocumentInfo, w => w.Text)
 				.AddBinding(vm => vm.OrdersPrintedCount, w => w.Adjustment.Value)
 				.InitializeFromSource();

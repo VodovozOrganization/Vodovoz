@@ -15,7 +15,7 @@ using Vodovoz.ViewModels.Infrastructure.Print;
 
 namespace Vodovoz.ViewModels.Dialogs.Orders
 {
-	public class PrintOrdersDocumentsViewModel : DialogTabViewModelBase
+	public partial class PrintOrdersDocumentsViewModel : DialogTabViewModelBase
 	{
 		private readonly ICommonServices _commonServices;
 		private readonly IEntityDocumentsPrinterFactory _entityDocumentsPrinterFactory;
@@ -41,7 +41,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 		private int _printCopiesCount;
 		private int _ordersPrintedCount;
 
-		private GenericObservableList<string> _warnings;
+		private GenericObservableList<string> _warnings = new GenericObservableList<string>();
 
 		public PrintOrdersDocumentsViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -56,7 +56,17 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 			_entityDocumentsPrinterFactory = entityDocumentsPrinterFactory ?? throw new ArgumentNullException(nameof(entityDocumentsPrinterFactory));
 			_orders = orders ?? new List<Order>();
 
-			_warnings = new GenericObservableList<string>();
+			foreach(var order in _orders)
+			{
+				OrdersToPrint.Add(new OrdersToPrintNode
+				{
+					Id = order.Id,
+					DeliveryDate = order.DeliveryDate.Value,
+					Selected = true
+				});
+			}
+
+			OrdersToPrint.ElementChanged += (s, e) => OnPropertyChanged(nameof(SelectedToPrintCount));
 
 			_isOrdersListValid = IsOrdersListValidCheck();
 
@@ -171,12 +181,10 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 			&& (IsPrintBill || IsPrintUpd || IsPrintSpecialBill || IsPrintSpecialUpd);
 
 		public int OrdersClientsCount =>
-			Orders
+			_orders
 			.Select(o => o.Client.Id)
 			.Distinct()
 			.Count();
-
-		public IList<Order> Orders => _orders;
 
 		public GenericObservableList<string> Warnings => _warnings;
 
@@ -206,11 +214,17 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 
 			var printingDocumentsCount = GetPrintingDocsCount();
 
+			var ordersToPrintIds = OrdersToPrint.Where(x => x.Selected).Select(x => x.Id).ToList();
+
+			int ordersToPrintCount = ordersToPrintIds.Count;
+
+			SelectedToPrintCount = ordersToPrintCount;
+
 			if(!_commonServices.InteractiveService.Question(
 				$"Будет распечатано:\n" +
 				$"{printingDocumentsCount} документов\n" +
 				$"по {PrintCopiesCount} копий\n" +
-				$"для {Orders.Count} заказов.\n\n" +
+				$"для {ordersToPrintCount} заказов.\n\n" +
 				$"Продолжить?"))
 			{
 				return;
@@ -220,7 +234,9 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 
 			try
 			{
-				foreach(var order in Orders)
+				var ordersTOPrint = _orders.Where(order => ordersToPrintIds.Contains(order.Id)).ToList();
+
+				foreach(var order in ordersTOPrint)
 				{
 					bool cancelPrinting = false;
 
@@ -264,7 +280,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 			}
 			finally
 			{
-				OrdersPrintedCount = Orders.Count;
+				OrdersPrintedCount = ordersToPrintCount;
 				IsPrintOrSaveInProcess = false;
 			}	
 		}
@@ -289,6 +305,10 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 		public DelegateCommand CloseDialogCommand { get; }
 
 		public bool CanCloseDialog => true;
+
+		public int SelectedToPrintCount { get; set; }
+
+		public GenericObservableList<OrdersToPrintNode> OrdersToPrint { get; } = new GenericObservableList<OrdersToPrintNode>();
 
 		private void CloseDialog()
 		{
@@ -325,7 +345,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 
 		private bool IsOrdersListValidCheck()
 		{
-			if(Orders.Count < 1)
+			if(SelectedToPrintCount < 1)
 			{
 				_commonServices.InteractiveService.ShowMessage(
 					ImportanceLevel.Error,
@@ -343,7 +363,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 				return false;
 			}
 
-			if(Orders.Count > _maxOrdersCount)
+			if(SelectedToPrintCount > _maxOrdersCount)
 			{
 				_commonServices.InteractiveService.ShowMessage(
 					ImportanceLevel.Error,
@@ -392,25 +412,27 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 
 		private int GetPrintingDocsCount()
 		{
+			var ordersIds = OrdersToPrint.Where(x => x.Selected).Select(x => x.Id).ToList();
+
 			var docsIds =
-				UoW.GetAll<BillDocument>()
-				.Where(d => IsPrintBill && Orders.Contains(d.Order))
-				.Select(d => d.Id)
+				UoW.Session.Query<BillDocument>()
+				.Where(document => IsPrintBill && ordersIds.Contains(document.Order.Id))
+				.Select(document => document.Id)
 				.ToList()
 				.Union(
-					UoW.GetAll<SpecialBillDocument>()
-					.Where(d => IsPrintSpecialBill && Orders.Contains(d.Order))
-					.Select(d => d.Id)
+					UoW.Session.Query<SpecialBillDocument>()
+					.Where(document => IsPrintSpecialBill && ordersIds.Contains(document.Order.Id))
+					.Select(document => document.Id)
 					.ToList())
 				.Union(
-					UoW.GetAll<UPDDocument>()
-					.Where(d => IsPrintUpd && Orders.Contains(d.Order))
-					.Select(d => d.Id)
+					UoW.Session.Query<UPDDocument>()
+					.Where(document => IsPrintUpd && ordersIds.Contains(document.Order.Id))
+					.Select(document => document.Id)
 					.ToList())
 				.Union(
-					UoW.GetAll<SpecialUPDDocument>()
-					.Where(d => IsPrintSpecialUpd && Orders.Contains(d.Order))
-					.Select(d => d.Id)
+					UoW.Session.Query<SpecialUPDDocument>()
+					.Where(document => IsPrintSpecialUpd && ordersIds.Contains(document.Order.Id))
+					.Select(document => document.Id)
 					.ToList());
 
 			var docsCount = docsIds.Count();
@@ -418,13 +440,8 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 			return docsCount;
 		}
 
-		private string GetCounterpartyName()
-		{
-			var counterpartyName = Orders
-				.FirstOrDefault()?
-				.Client?.FullName ?? string.Empty;
-
-			return counterpartyName;
-		}
+		private string GetCounterpartyName() => _orders
+			.FirstOrDefault()?
+			.Client?.FullName ?? string.Empty;
 	}
 }
