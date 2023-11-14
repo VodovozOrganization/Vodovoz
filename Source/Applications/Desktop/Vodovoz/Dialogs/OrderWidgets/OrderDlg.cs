@@ -1038,6 +1038,8 @@ namespace Vodovoz
 			logisticsRequirementsView.ViewModel.Entity.PropertyChanged += OnLogisticsRequirementsSelectionChanged;
 
 			UpdateCallBeforeArrivalVisibility();
+
+			hboxCallBeforeArrival.Visible = false; // Удалить при выпуске МП водителей
 		}
 
 		private void UpdateCallBeforeArrivalVisibility()
