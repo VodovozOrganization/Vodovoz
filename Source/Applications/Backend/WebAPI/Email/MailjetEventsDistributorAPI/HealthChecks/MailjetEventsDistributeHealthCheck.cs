@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
-using VodovozHealthCheck.Utils;
+using VodovozHealthCheck.Helpers;
 
 namespace MailjetEventsDistributorAPI.HealthChecks
 {
@@ -21,7 +21,7 @@ namespace MailjetEventsDistributorAPI.HealthChecks
 			var healthSection = _configuration.GetSection("Health");
 			var baseAddress = healthSection.GetValue<string>("BaseAddress");
 
-			var isHealthy = UrlExistsChecker.UrlExists($"{baseAddress}/Test");
+			var isHealthy = ResponseHelper.CheckUriExists($"{baseAddress}/Test");
 
 			return new VodovozHealthResultDto
 			{

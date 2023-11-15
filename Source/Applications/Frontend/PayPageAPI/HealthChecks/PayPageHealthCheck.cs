@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
-using VodovozHealthCheck.Utils;
+using VodovozHealthCheck.Helpers;
 
 namespace PayPageAPI.HealthChecks
 {
@@ -20,7 +20,7 @@ namespace PayPageAPI.HealthChecks
 		{
 			var healthSection = _configuration.GetSection("Health");
 			var baseAddress = healthSection.GetValue<string>("BaseAddress");
-			var isHealthy = UrlExistsChecker.UrlExists($"{baseAddress}/f9758536-733e-479d-9190-888d76572400");
+			var isHealthy = ResponseHelper.CheckUriExists($"{baseAddress}/f9758536-733e-479d-9190-888d76572400");
 
 			return Task.FromResult(new VodovozHealthResultDto
 			{

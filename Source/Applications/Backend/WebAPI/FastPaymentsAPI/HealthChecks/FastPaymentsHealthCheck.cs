@@ -6,7 +6,7 @@ using FastPaymentsAPI.Library.DTO_s.Requests;
 using Microsoft.Extensions.Configuration;
 using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
-using VodovozHealthCheck.Utils;
+using VodovozHealthCheck.Helpers;
 
 namespace FastPaymentsAPI.HealthChecks
 {

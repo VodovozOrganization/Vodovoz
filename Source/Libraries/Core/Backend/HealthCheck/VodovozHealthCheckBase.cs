@@ -1,12 +1,10 @@
-﻿using System;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
+﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
+using System;
 using System.Collections.Generic;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Hosting.Internal;
 using VodovozHealthCheck.Dto;
 
 namespace VodovozHealthCheck
@@ -14,27 +12,13 @@ namespace VodovozHealthCheck
 	public abstract class VodovozHealthCheckBase : IHealthCheck
 	{
 		private readonly ILogger<VodovozHealthCheckBase> _logger =  new Logger<VodovozHealthCheckBase>(new NLogLoggerFactory());
-		private readonly IHttpClientFactory _httpClientFactory;
 
-		//public static HttpClient HttpClient { get; set; }
-
-		//public VodovozHealthCheckBase(ILogger<VodovozHealthCheckBase> logger )
-		//{
-		//	_logger = logger?? throw new ArgumentNullException(nameof(logger));
-		//}
-
-
-		public VodovozHealthCheckBase(IHttpClientFactory httpClientFactory = null)
-		{
-			_httpClientFactory = httpClientFactory;
-			
-		}
-
-		public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = new CancellationToken())
+		public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = new ())
 		{
 			_logger.LogInformation("Поступил запрос на информацию о здоровье.");
 
-			VodovozHealthResultDto healthResult = null;
+			VodovozHealthResultDto healthResult;
+
 			try
 			{
 				healthResult = await GetHealthResult();
@@ -67,6 +51,5 @@ namespace VodovozHealthCheck
 		}
 
 		protected abstract Task<VodovozHealthResultDto> GetHealthResult();
-
 	}
 }

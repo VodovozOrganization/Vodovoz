@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
+using VodovozHealthCheck.Helpers;
 
 namespace DeliveryRulesService.HealthChecks
 {
@@ -27,24 +28,22 @@ namespace DeliveryRulesService.HealthChecks
 			var baseAddress = healthSection.GetValue<string>("BaseAddress");
 			var healthResult = new VodovozHealthResultDto();
 
-			var httpClient = _httpClientFactory.CreateClient();
-			httpClient.BaseAddress = new Uri($"{baseAddress}");
-			httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+			var deliveryInfo = await ResponseHelper.GetJsonByUri<DeliveryInfoDTO>(
+				$"{baseAddress}/DeliveryRules/GetDeliveryInfo?latitude=59.886134&longitude=30.394007", 
+				_httpClientFactory);
 
-			var responseDeliveryInfo = await httpClient.GetAsync("GetDeliveryInfo?latitude=59.886134&longitude=30.394007");
-			var responseDeliveryInfoBody = await responseDeliveryInfo.Content.ReadAsStreamAsync();
-			var responseDeliveryInfoResult = await JsonSerializer.DeserializeAsync<DeliveryInfoDTO>(responseDeliveryInfoBody);
-			var deliveryInfoIsHealthy = responseDeliveryInfoResult?.StatusEnum != DeliveryRulesResponseStatus.Error;
+			var deliveryInfoIsHealthy = deliveryInfo?.StatusEnum != DeliveryRulesResponseStatus.Error;
 
 			if(!deliveryInfoIsHealthy)
 			{
 				healthResult.AdditionalUnhealthyResults.Add("Не пройдена проверка GetDeliveryInfo.");
 			}
 
-			var responseRulesByDistrict = await httpClient.GetAsync("GetRulesByDistrict?latitude=59.886134&longitude=30.394007");
-			var responseRulesByDistrictBody = await responseRulesByDistrict.Content.ReadAsStreamAsync();
-			var responseRulesByDistrictResult = await JsonSerializer.DeserializeAsync<DeliveryInfoDTO>(responseRulesByDistrictBody);
-			var rulesByDistrictIsHealthy = responseRulesByDistrictResult?.StatusEnum != DeliveryRulesResponseStatus.Error;
+			var rulesByDistrict = await ResponseHelper.GetJsonByUri<DeliveryInfoDTO>(
+				$"{baseAddress}/DeliveryRules/GetRulesByDistrict?latitude=59.886134&longitude=30.394007",
+				_httpClientFactory);
+
+			var rulesByDistrictIsHealthy = rulesByDistrict?.StatusEnum != DeliveryRulesResponseStatus.Error;
 
 			if(!rulesByDistrictIsHealthy)
 			{

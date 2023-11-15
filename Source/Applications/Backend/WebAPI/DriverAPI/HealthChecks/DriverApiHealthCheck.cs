@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
-using VodovozHealthCheck.Utils;
+using VodovozHealthCheck.Helpers;
 
 namespace DriverAPI.HealthChecks
 {
@@ -24,13 +24,18 @@ namespace DriverAPI.HealthChecks
 		protected override async Task<VodovozHealthResultDto> GetHealthResult()
 		{
 			var healthSection = _configuration.GetSection("Health");
+
 			var baseAddress = healthSection.GetValue<string>("BaseAddress");
+
+			var user = healthSection.GetValue<string>("Authorization:User");
+			var password = healthSection.GetValue<string>("Authorization:Password");
+
 			var healthResult = new VodovozHealthResultDto();
 
 			var loginRequestDto = new LoginRequestDto
 			{
-				Username = "rab",
-				Password = "123"
+				Username = user,
+				Password = password
 			};
 
 			var tokenResponse = await ResponseHelper.PostJsonByUri<LoginRequestDto, TokenResponseDto>(

@@ -3,7 +3,7 @@ using System;
 using System.Threading.Tasks;
 using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
-using VodovozHealthCheck.Utils;
+using VodovozHealthCheck.Helpers;
 
 namespace UnsubscribePage.HealthChecks
 {
@@ -21,7 +21,7 @@ namespace UnsubscribePage.HealthChecks
 			var healthSection = _configuration.GetSection("Health");
 			var baseAddress = healthSection.GetValue<string>("BaseAddress");
 
-			var isHealthy = UrlExistsChecker.UrlExists($"{baseAddress}/1049b7ef-825b-46b7-87c9-b234af7f6d5e");
+			var isHealthy = ResponseHelper.CheckUriExists($"{baseAddress}/1049b7ef-825b-46b7-87c9-b234af7f6d5e");
 
 			return Task.FromResult(new VodovozHealthResultDto
 			{
