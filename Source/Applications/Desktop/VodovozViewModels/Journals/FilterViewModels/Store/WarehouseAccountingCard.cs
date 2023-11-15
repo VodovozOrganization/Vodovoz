@@ -7,6 +7,9 @@ using Vodovoz.ViewModels.Journals.JournalNodes.Store;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 {
+	/// <summary>
+	/// Карточка складского учета
+	/// </summary>
 	public class WarehouseAccountingCard
 	{
 		private readonly List<WarehouseAccountingCardRow> _rows = new List<WarehouseAccountingCardRow>();

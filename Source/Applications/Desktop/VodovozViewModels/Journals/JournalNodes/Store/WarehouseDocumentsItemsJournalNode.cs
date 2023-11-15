@@ -108,8 +108,16 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Store
 
 		public string Comment { get; set; }
 
+		/// <summary>
+		/// Откуда списалась номенклатура
+		/// Исключает <see cref="Target"/>
+		/// </summary>
 		public string Source { get; set; } = string.Empty;
 
+		/// <summary>
+		/// Куда пришла номенклатура
+		/// Исключает <see cref="Source"/>
+		/// </summary>
 		public string Target { get; set; } = string.Empty;
 
 		public string CarNumber { get; set; }
