@@ -1,48 +1,188 @@
-﻿using System.Drawing;
-using System.Linq;
-using Gamma.GtkWidgets;
+﻿using Gamma.GtkWidgets;
 using Gamma.Utilities;
-using Gdk;
 using GMap.NET;
 using GMap.NET.GtkSharp;
 using GMap.NET.GtkSharp.Markers;
 using Gtk;
+using MoreLinq;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Journal.GtkUI;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Utilities;
 using QS.Views.GtkUI;
-using QSOrmProject;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Infrastructure;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 using Vodovoz.ViewModels.Logistic;
 
 namespace Vodovoz.Views.Logistic
 {
 	public partial class DistrictsSetView : TabViewBase<DistrictsSetViewModel>
 	{
-        private readonly GMapOverlay bordersOverlay = new GMapOverlay("district_borders");
-        private readonly GMapOverlay newBordersPreviewOverlay = new GMapOverlay("district_preview_borders");
-        private readonly GMapOverlay verticeOverlay = new GMapOverlay("district_vertice");
-        private readonly Pen selectedDistrictBorderPen = new Pen(System.Drawing.Color.Red, 2);
+		private readonly GMapOverlay bordersOverlay = new GMapOverlay("district_borders");
+		private readonly GMapOverlay newBordersPreviewOverlay = new GMapOverlay("district_preview_borders");
+		private readonly GMapOverlay verticeOverlay = new GMapOverlay("district_vertice");
+		private readonly Pen selectedDistrictBorderPen = new Pen(System.Drawing.Color.Red, 2);
 
-        private const string acceptBeforeColumnTag = "Прием до";
+		private const string acceptBeforeColumnTag = "Прием до";
 
-        public DistrictsSetView(DistrictsSetViewModel viewModel) : base(viewModel)
+		private Menu _popupCopyPasteDistrictScheduleMenu;
+		private List<System.Action> _actionsSensitiveFunctons;
+		IEnumerable<DeliveryScheduleRestriction> _copiedScheduleRestrictions;
+
+		public DistrictsSetView(DistrictsSetViewModel viewModel) : base(viewModel)
 		{
 			this.Build();
 			Configure();
-		}	
-		
+		}
+
+		private void AddCopyPasteDistrictPopupActions()
+		{
+			_popupCopyPasteDistrictScheduleMenu = new Menu();
+			_actionsSensitiveFunctons = new List<System.Action>();
+
+			var copyDistrictScheduleMenuEntry = new MenuItem("Копировать график доставки");
+			copyDistrictScheduleMenuEntry.ButtonPressEvent += CopyDistrictScheduleMenuEntryActivated;
+			copyDistrictScheduleMenuEntry.Visible = true;
+			_popupCopyPasteDistrictScheduleMenu.Add(copyDistrictScheduleMenuEntry);
+
+			var pasteScheduleToDistrictMenuEntry = new MenuItem("Вставить график доставки в район");
+			pasteScheduleToDistrictMenuEntry.ButtonPressEvent += PasteScheduleToDistrictMenuEntryActivated;
+			pasteScheduleToDistrictMenuEntry.Visible = true;
+			_popupCopyPasteDistrictScheduleMenu.Add(pasteScheduleToDistrictMenuEntry);
+
+			var pasteScheduleToZoneMenuEntry = new MenuItem("Вставить график доставки в тарифную зону");
+			pasteScheduleToZoneMenuEntry.ButtonPressEvent += PasteScheduleToZoneMenuEntryActivated;
+			pasteScheduleToZoneMenuEntry.Visible = true;
+			_popupCopyPasteDistrictScheduleMenu.Add(pasteScheduleToZoneMenuEntry);
+
+			_actionsSensitiveFunctons.Add(CopyDistrictScheduleSensitiveActions(copyDistrictScheduleMenuEntry));
+			_actionsSensitiveFunctons.Add(SetPasteScheduleToDistrictSensitiveActions(pasteScheduleToDistrictMenuEntry));
+			_actionsSensitiveFunctons.Add(SetPasteScheduleToZoneSensitiveActions(pasteScheduleToZoneMenuEntry));
+		}
+
+		private void UpdateActionsSensitivity()
+		{
+			_actionsSensitiveFunctons.ForEach(x => x.Invoke());
+		}
+
+		private System.Action CopyDistrictScheduleSensitiveActions(MenuItem createMenuItem)
+		{
+			System.Action action = () =>
+			{
+				createMenuItem.Sensitive = true;
+			};
+
+			return action;
+		}
+
+		private System.Action SetPasteScheduleToDistrictSensitiveActions(MenuItem createMenuItem)
+		{
+			System.Action action = () =>
+			{
+				createMenuItem.Sensitive = _copiedScheduleRestrictions != null;
+			};
+
+			return action;
+		}
+
+		private System.Action SetPasteScheduleToZoneSensitiveActions(MenuItem createMenuItem)
+		{
+			System.Action action = () =>
+			{
+				createMenuItem.Sensitive = _copiedScheduleRestrictions != null;
+			};
+
+			return action;
+		}
+
+		private void CopyDistrictScheduleMenuEntryActivated(object o, ButtonPressEventArgs args)
+		{
+			if(ytreeDistricts.SelectedRow is District district)
+			{
+				_copiedScheduleRestrictions = district.GetAllDeliveryScheduleRestrictions();
+			}
+		}
+
+		private void PasteCopiedScheduleToDistrict(District district)
+		{
+			var restrictionsToSet = new List<DeliveryScheduleRestriction>();
+
+			foreach(var restriction in _copiedScheduleRestrictions)
+			{
+				var newRestriction = restriction.Clone() as DeliveryScheduleRestriction;
+
+				newRestriction.District = district;
+
+				restrictionsToSet.Add(newRestriction);
+			}
+
+			district.TodayDeliveryScheduleRestrictions.Clear();
+
+			foreach(var r in restrictionsToSet)
+			{
+				if(r.WeekDay == WeekDayName.Today)
+				{
+					district.ObservableTodayDeliveryScheduleRestrictions.Add(r);
+				}
+			}
+		}
+
+		private void PasteScheduleToDistrictMenuEntryActivated(object o, ButtonPressEventArgs args)
+		{
+			if(ytreeDistricts.SelectedRow is District selectedDistrict)
+			{
+				PasteCopiedScheduleToDistrict(selectedDistrict);
+			}
+		}
+
+		private void PasteScheduleToZoneMenuEntryActivated(object o, ButtonPressEventArgs args)
+		{
+			if(ytreeDistricts.SelectedRow is District selectedDistrict)
+			{
+				var districtsToPasteCopiedSchedule = ViewModel.Entity.ObservableDistricts
+					.Where(d => d.TariffZone == selectedDistrict.TariffZone)
+					.Select(d => d);
+
+				foreach(var district in districtsToPasteCopiedSchedule)
+				{
+					PasteCopiedScheduleToDistrict(district);
+				}
+			}
+		}
+
+		private void OnButtonDistrictsRelease(object o, ButtonReleaseEventArgs args)
+		{
+			if(args.Event.Button != (uint)GtkMouseButton.Right)
+			{
+				return;
+			}
+
+			UpdateActionsSensitivity();
+
+			_popupCopyPasteDistrictScheduleMenu.Show();
+
+			if(_popupCopyPasteDistrictScheduleMenu.Children.Length == 0)
+			{
+				return;
+			}
+
+			_popupCopyPasteDistrictScheduleMenu.Popup();
+		}
+
 		private void Configure()
 		{
+			AddCopyPasteDistrictPopupActions();
+
 			#region TreeViews
 
 			var colorRed = GdkColors.DangerBase;
@@ -74,14 +214,19 @@ namespace Vodovoz.Views.Logistic
 				.Finish();
 			
 			ytreeDistricts.Binding.AddBinding(ViewModel.Entity, e => e.ObservableDistricts, w => w.ItemsDataSource).InitializeFromSource();
-			ytreeDistricts.Selection.Changed += (sender, args) => {
-				if(ViewModel.IsCreatingNewBorder) {
+			ytreeDistricts.Selection.Changed += (sender, args) => 
+			{
+				if(ViewModel.IsCreatingNewBorder) 
+				{
 					ViewModel.CancelNewBorderCommand.Execute();
 					toggleNewBorderPreview.Active = false;
 				}
+
 				ViewModel.SelectedDistrict = ytreeDistricts.GetSelectedObject() as District;
 			};
 
+			ytreeDistricts.ButtonReleaseEvent += OnButtonDistrictsRelease;	
+			
 			ytreeScheduleRestrictions.ColumnsConfig = ColumnsConfigFactory.Create<DeliveryScheduleRestriction>()
 				.AddColumn("График")
 					.MinWidth(100)
@@ -367,10 +512,10 @@ namespace Vodovoz.Views.Logistic
 						case nameof(ViewModel.SelectedDistrictBorderVertices):
 							verticeOverlay.Clear();
 							if(ViewModel.SelectedDistrictBorderVertices != null){
-                                GMapPolygon polygon = new GMapPolygon(ViewModel.SelectedDistrictBorderVertices.ToList(), "polygon");
-                                polygon.Stroke = selectedDistrictBorderPen;
-                                verticeOverlay.Polygons.Add(polygon);
-                            }
+								GMapPolygon polygon = new GMapPolygon(ViewModel.SelectedDistrictBorderVertices.ToList(), "polygon");
+								polygon.Stroke = selectedDistrictBorderPen;
+								verticeOverlay.Polygons.Add(polygon);
+							}
 							break;
 						case nameof(ViewModel.NewBorderVertices):
 							verticeOverlay.Clear();
