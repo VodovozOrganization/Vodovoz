@@ -1505,6 +1505,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode>());
 		}
 
+		/// <summary>
+		/// Запрос строк документа инвентаризации
+		/// </summary>
+		/// <param name="unitOfWork"></param>
+		/// <returns></returns>
 		private IQueryOver<InventoryDocumentItem> GetQueryInventoryDocumentItem(IUnitOfWork unitOfWork)
 		{
 			WarehouseDocumentsItemsJournalNode resultAlias = null;
@@ -1522,6 +1527,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 			var inventoryQuery = unitOfWork.Session.QueryOver(() => inventoryDocumentItemAlias)
 				.JoinQueryOver(() => inventoryDocumentItemAlias.Document, () => inventoryDocumentAlias);
+
+			var restrictionIncome = Restrictions.GtProperty(
+							Projections.Property(() => inventoryDocumentItemAlias.AmountInFact),
+							Projections.Property(() => inventoryDocumentItemAlias.AmountInDB));
+
+			var restrictionWriteoff = Restrictions.LtProperty(
+							Projections.Property(() => inventoryDocumentItemAlias.AmountInFact),
+							Projections.Property(() => inventoryDocumentItemAlias.AmountInDB));
 
 			if((FilterViewModel.DocumentType == null || FilterViewModel.DocumentType == DocumentType.InventoryDocument)
 				&& FilterViewModel.Driver == null
@@ -1567,12 +1580,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				{
 					if(FilterViewModel.TargetSource == TargetSource.Target)
 					{
-						inventoryQuery.Where(() => inventoryDocumentItemAlias.AmountInFact - inventoryDocumentItemAlias.AmountInDB >= 0);
+						inventoryQuery.Where(restrictionIncome);
 					}
 
 					if(FilterViewModel.TargetSource == TargetSource.Source)
 					{
-						inventoryQuery.Where(() => inventoryDocumentItemAlias.AmountInFact - inventoryDocumentItemAlias.AmountInDB < 0);
+						inventoryQuery.Where(restrictionWriteoff);
 					}
 				}
 
@@ -1608,48 +1621,40 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => inventoryDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
 					.Select(() => inventoryDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
 					.Select(
-						Projections.Conditional(
-							Restrictions.GeProperty(
-								Projections.Property(() => inventoryDocumentItemAlias.AmountInFact),
-								Projections.Property(() => inventoryDocumentItemAlias.AmountInDB)),
-						WarehouseDocumentsProjections.GetStorageProjection(),
-						Projections.Constant(string.Empty))).WithAlias(() => resultAlias.Source)
-					.Select(
-						Projections.Conditional(
-							Restrictions.LtProperty(
-								Projections.Property(() => inventoryDocumentItemAlias.AmountInFact),
-								Projections.Property(() => inventoryDocumentItemAlias.AmountInDB)),
+						Projections.Conditional(restrictionWriteoff,
 							WarehouseDocumentsProjections.GetStorageProjection(),
-						Projections.Constant(string.Empty))).WithAlias(() => resultAlias.Target)
+							Projections.Constant(string.Empty)))
+					.WithAlias(() => resultAlias.Source)
+					.Select(
+						Projections.Conditional(restrictionIncome,
+							WarehouseDocumentsProjections.GetStorageProjection(),
+							Projections.Constant(string.Empty)))
+					.WithAlias(() => resultAlias.Target)
 					.Select(() => DocumentType.InventoryDocument).WithAlias(() => resultAlias.DocumentTypeEnum)
 					.Select(() => typeof(InventoryDocumentItem)).WithAlias(() => resultAlias.EntityType)
-					.Select(Projections.Conditional(
-						Restrictions.GeProperty(
-							Projections.Property(() => inventoryDocumentItemAlias.AmountInFact),
-							Projections.Property(() => inventoryDocumentItemAlias.AmountInDB)),
-						WarehouseDocumentsProjections.GetStorageProjection(),
-						Projections.Constant(string.Empty))).WithAlias(() => resultAlias.FromStorage)
-					.Select(Projections.Conditional(
-						Restrictions.GeProperty(
-							Projections.Property(() => inventoryDocumentItemAlias.AmountInFact),
-							Projections.Property(() => inventoryDocumentItemAlias.AmountInDB)),
-						WarehouseDocumentsProjections.GetStorageIdProjection(),
-						Projections.Constant(0))).WithAlias(() => resultAlias.FromStorageId)
-					.Select(Projections.Conditional(
-						Restrictions.LtProperty(
-							Projections.Property(() => inventoryDocumentItemAlias.AmountInFact),
-							Projections.Property(() => inventoryDocumentItemAlias.AmountInDB)),
-						WarehouseDocumentsProjections.GetStorageProjection(),
-						Projections.Constant(string.Empty))).WithAlias(() => resultAlias.ToStorage)
-					.Select(Projections.Conditional(
-						Restrictions.LtProperty(
-							Projections.Property(() => inventoryDocumentItemAlias.AmountInFact),
-							Projections.Property(() => inventoryDocumentItemAlias.AmountInDB)),
-						WarehouseDocumentsProjections.GetStorageIdProjection(),
-						Projections.Constant(0))).WithAlias(() => resultAlias.ToStorageId)
+					.Select(
+						Projections.Conditional(restrictionWriteoff,
+							WarehouseDocumentsProjections.GetStorageProjection(),
+							Projections.Constant(string.Empty)))
+					.WithAlias(() => resultAlias.FromStorage)
+					.Select(
+						Projections.Conditional(restrictionWriteoff,
+							WarehouseDocumentsProjections.GetStorageIdProjection(),
+							Projections.Constant(0)))
+					.WithAlias(() => resultAlias.FromStorageId)
+					.Select(
+						Projections.Conditional(restrictionIncome,
+							WarehouseDocumentsProjections.GetStorageProjection(),
+							Projections.Constant(string.Empty)))
+					.WithAlias(() => resultAlias.ToStorage)
+					.Select(
+						Projections.Conditional(restrictionIncome,
+							WarehouseDocumentsProjections.GetStorageIdProjection(),
+							Projections.Constant(0)))
+					.WithAlias(() => resultAlias.ToStorageId)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
 					.Select(() => inventoryDocumentItemAlias.AmountInFact - inventoryDocumentItemAlias.AmountInDB)
-						.WithAlias(() => resultAlias.Amount)
+					.WithAlias(() => resultAlias.Amount)
 					.Select(() => inventoryDocumentAlias.InventoryDocumentType).WithAlias(() => resultAlias.InventoryDocumentType)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
