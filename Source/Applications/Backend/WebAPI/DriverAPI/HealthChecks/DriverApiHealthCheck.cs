@@ -3,6 +3,7 @@ using DriverAPI.Library.DTOs;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
 using VodovozHealthCheck.Utils;
@@ -12,14 +13,18 @@ namespace DriverAPI.HealthChecks
 	public class DriverApiHealthCheck : VodovozHealthCheckBase
 	{
 		private readonly IHttpClientFactory _httpClientFactory;
+		private readonly IConfiguration _configuration;
 
-		public DriverApiHealthCheck(IHttpClientFactory httpClientFactory)
+		public DriverApiHealthCheck(IHttpClientFactory httpClientFactory, IConfiguration configuration)
 		{
 			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 		}
 
 		protected override async Task<VodovozHealthResultDto> GetHealthResult()
 		{
+			var healthSection = _configuration.GetSection("Health");
+			var baseAddress = healthSection.GetValue<string>("BaseAddress");
 			var healthResult = new VodovozHealthResultDto();
 
 			var loginRequestDto = new LoginRequestDto
@@ -29,12 +34,12 @@ namespace DriverAPI.HealthChecks
 			};
 
 			var tokenResponse = await ResponseHelper.PostJsonByUri<LoginRequestDto, TokenResponseDto>(
-				"https://localhost:5001/api/v4/Authenticate",
+				$"{baseAddress}/api/v4/Authenticate",
 				_httpClientFactory,
 				loginRequestDto);
 
 			var orderQrPaymentStatus = await ResponseHelper.GetJsonByUri<OrderQRPaymentStatusResponseDto>(
-				"https://localhost:5001/api/v4/GetOrderQRPaymentStatus?orderId=3282267",
+				$"{baseAddress}/api/v4/GetOrderQRPaymentStatus?orderId=3282267",
 				_httpClientFactory,
 				tokenResponse.AccessToken);
 
@@ -46,7 +51,7 @@ namespace DriverAPI.HealthChecks
 			}
 
 			var routeList = await ResponseHelper.GetJsonByUri<RouteListDto>(
-				"https://localhost:5001/api/v4/GetRouteList?routeListId=288409",
+				$"{baseAddress}/api/v4/GetRouteList?routeListId=288409",
 				_httpClientFactory,
 				tokenResponse.AccessToken);
 

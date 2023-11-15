@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
 
@@ -12,18 +13,22 @@ namespace DeliveryRulesService.HealthChecks
 	public class DeliveryRulesServiceHealthCheck : VodovozHealthCheckBase
 	{
 		private readonly IHttpClientFactory _httpClientFactory;
+		private readonly IConfiguration _configuration;
 
-		public DeliveryRulesServiceHealthCheck(IHttpClientFactory httpClientFactory)
+		public DeliveryRulesServiceHealthCheck(IHttpClientFactory httpClientFactory, IConfiguration configuration)
 		{
-			_httpClientFactory = httpClientFactory;
+			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 		}
 
 		protected override async Task<VodovozHealthResultDto> GetHealthResult()
 		{
+			var healthSection = _configuration.GetSection("Health");
+			var baseAddress = healthSection.GetValue<string>("BaseAddress");
 			var healthResult = new VodovozHealthResultDto();
 
 			var httpClient = _httpClientFactory.CreateClient();
-			httpClient.BaseAddress = new Uri("https://localhost:44393/DeliveryRules/");
+			httpClient.BaseAddress = new Uri($"{baseAddress}");
 			httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
 			var responseDeliveryInfo = await httpClient.GetAsync("GetDeliveryInfo?latitude=59.886134&longitude=30.394007");

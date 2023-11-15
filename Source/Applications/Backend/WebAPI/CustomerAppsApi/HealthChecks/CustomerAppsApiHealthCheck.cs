@@ -5,6 +5,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
 
@@ -13,16 +14,20 @@ namespace CustomerAppsApi.HealthChecks
 	public class CustomerAppsApiHealthCheck : VodovozHealthCheckBase
 	{
 		private readonly IHttpClientFactory _httpClientFactory;
+		private readonly IConfiguration _configuration;
 
-		public CustomerAppsApiHealthCheck(IHttpClientFactory httpClientFactory)
+		public CustomerAppsApiHealthCheck(IHttpClientFactory httpClientFactory, IConfiguration configuration)
 		{
-			_httpClientFactory = httpClientFactory;
+			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 		}
 
 		protected override async Task<VodovozHealthResultDto> GetHealthResult()
 		{
+			var healthSection = _configuration.GetSection("Health");
+			var baseAddress = healthSection.GetValue<string>("BaseAddress");
 			var httpClient = _httpClientFactory.CreateClient();
-			httpClient.BaseAddress = new Uri("https://localhost:5001/api/");
+			httpClient.BaseAddress = new Uri($"{baseAddress}/api/");
 			httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
 			var request = new CounterpartyContactInfoDto

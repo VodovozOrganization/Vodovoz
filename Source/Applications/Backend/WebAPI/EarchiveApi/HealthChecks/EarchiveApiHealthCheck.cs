@@ -1,8 +1,8 @@
-﻿using Grpc.Net.Client;
-using Grpc.Net.Client.Web;
-using System.Net.Http;
+﻿using System;
+using Grpc.Net.Client;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
 
@@ -10,16 +10,19 @@ namespace EarchiveApi.HealthChecks
 {
 	public class EarchiveApiHealthCheck : VodovozHealthCheckBase
 	{
+		private readonly IConfiguration _configuration;
+
+		public EarchiveApiHealthCheck(IConfiguration configuration)
+		{
+			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+		}
+
 		protected override async Task<VodovozHealthResultDto> GetHealthResult()
 		{
-			var serviceAddress = $"https://localhost:7101/";
+			var healthSection = _configuration.GetSection("Health");
+			var serviceAddress = healthSection.GetValue<string>("BaseAddress");
 
-			var grpcChannelOptions = new GrpcChannelOptions
-			{
-				HttpHandler = new GrpcWebHandler(new HttpClientHandler())
-			};
-
-			var channel = GrpcChannel.ForAddress(serviceAddress, grpcChannelOptions);
+			var channel = GrpcChannel.ForAddress(serviceAddress);
 
 			var earchiveUpdClient = new EarchiveApiTestClient.EarchiveUpd.EarchiveUpdClient(channel);
 

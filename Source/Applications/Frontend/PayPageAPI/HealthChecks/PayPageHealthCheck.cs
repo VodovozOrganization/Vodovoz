@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
 using VodovozHealthCheck.Utils;
@@ -7,9 +9,18 @@ namespace PayPageAPI.HealthChecks
 {
 	public class PayPageHealthCheck : VodovozHealthCheckBase
 	{
-		protected override Task<VodovozHealthResultDto> GetHealthResult()
+		private readonly IConfiguration _configuration;
+
+		public PayPageHealthCheck(IConfiguration configuration)
 		{
-			var isHealthy = UrlExistsChecker.UrlExists("https://sbp.vodovoz-spb.ru:4001/f9758536-733e-479d-9190-888d76572400");
+			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+		}
+
+		protected override  Task<VodovozHealthResultDto> GetHealthResult()
+		{
+			var healthSection = _configuration.GetSection("Health");
+			var baseAddress = healthSection.GetValue<string>("BaseAddress");
+			var isHealthy = UrlExistsChecker.UrlExists($"{baseAddress}/f9758536-733e-479d-9190-888d76572400");
 
 			return Task.FromResult(new VodovozHealthResultDto
 			{
