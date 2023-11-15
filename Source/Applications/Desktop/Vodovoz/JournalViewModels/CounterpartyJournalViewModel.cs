@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -196,7 +196,7 @@ namespace Vodovoz.JournalViewModels
 			SalesChannel salesChannelAlias = null;
 			CounterpartyClassification counterpartyClassificationAlias = null;
 
-			var counterpartyClassificationLastCalculationId = GetCounterpartyClassificationLastCalculationId;
+			var counterpartyClassificationLastCalculationId = GetCounterpartyClassificationLastCalculationId(uow);
 
 			var query = uow.Session.QueryOver<Counterparty>(() => counterpartyAlias);
 
@@ -451,7 +451,7 @@ namespace Vodovoz.JournalViewModels
 			SalesChannel salesChannelAlias = null;
 			CounterpartyClassification counterpartyClassificationAlias = null;
 
-			var counterpartyClassificationLastCalculationId = GetCounterpartyClassificationLastCalculationId;
+			var counterpartyClassificationLastCalculationId = GetCounterpartyClassificationLastCalculationId(uow);
 
 			var query = uow.Session.QueryOver<Counterparty>(() => counterpartyAlias);
 
@@ -659,7 +659,7 @@ namespace Vodovoz.JournalViewModels
 
 		protected override Func<CounterpartyJournalNode, CounterpartyDlg> OpenDialogFunction => (node) => new CounterpartyDlg(node.Id);
 
-		private int GetCounterpartyClassificationLastCalculationId => UoW.GetAll<CounterpartyClassification>()
+		private int GetCounterpartyClassificationLastCalculationId(IUnitOfWork uow) => uow.GetAll<CounterpartyClassification>()
 				.Select(c => c.ClassificationCalculationSettingsId)
 				.OrderByDescending(c => c)
 				.FirstOrDefault();
