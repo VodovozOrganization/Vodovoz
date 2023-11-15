@@ -348,8 +348,10 @@ namespace Vodovoz.EntityRepositories.Counterparties
 
 			var query =
 				from o in uow.Session.Query<Domain.Orders.Order>()
-				join oi in uow.GetAll<OrderItem>() on o.Id equals oi.Order.Id
-				join n in uow.GetAll<Nomenclature>() on oi.Nomenclature.Id equals n.Id
+				join item in uow.GetAll<OrderItem>() on o.Id equals item.Order.Id into items
+				from oi in items.DefaultIfEmpty()
+				join nomenclature in uow.GetAll<Nomenclature>() on oi.Nomenclature.Id equals nomenclature.Id into nomenclatures
+				from n in nomenclatures.DefaultIfEmpty()
 				where
 					o.DeliveryDate < dateTo
 					&& o.DeliveryDate >= dateFrom
