@@ -40,7 +40,7 @@ namespace Vodovoz
 		private readonly IStockRepository _stockRepository = new StockRepository();
 		private readonly INomenclatureRepository _nomenclatureRepository =
 			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
-		private readonly ILifetimeScope _lifetimeScope;
+		private ILifetimeScope _lifetimeScope;
 		private RegradingOfGoodsDocumentItem newRow;
 		private RegradingOfGoodsDocumentItem FineEditItem;
 
@@ -443,7 +443,11 @@ namespace Vodovoz
 
 		public override void Destroy()
 		{
-			_lifetimeScope?.Dispose();
+			if(_lifetimeScope != null)
+			{
+				_lifetimeScope.Dispose();
+				_lifetimeScope = null;
+			}
 
 			base.Destroy();
 		}
