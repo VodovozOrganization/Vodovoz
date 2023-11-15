@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -1969,10 +1969,15 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.FastDeliveryOrderTransferFilterView.cs" />
     <Compile Include="Dialogs\Client\OrderCancellationConfirmationDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Client.OrderCancellationConfirmationDlg.cs" />
+    <Compile Include="Views\Client\CounterpartyClassification\CounterpartyClassificationCalculationView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Client.CounterpartyClassification.CounterpartyClassificationCalculationView.cs" />
+    <Compile Include="Views\Client\CounterpartyClassification\CounterpartyClassificationCalculationEmailSettingsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Client.CounterpartyClassification.CounterpartyClassificationCalculationEmailSettingsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="ViewModels\Goods\" />
+    <Folder Include="Views\Client\CounterpartyClassification\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">

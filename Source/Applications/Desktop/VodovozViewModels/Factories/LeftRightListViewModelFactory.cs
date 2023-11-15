@@ -24,6 +24,7 @@ namespace Vodovoz.ViewModels.Factories
 				new GroupingNode { Name = "Тип контрагента/подтип", GroupType = GroupingType.CounterpartyType },
 				new GroupingNode { Name = "Тип оплаты", GroupType = GroupingType.PaymentType },
 				new GroupingNode { Name = "Организация", GroupType = GroupingType.Organization },
+				new GroupingNode { Name = "Классификация контрагента", GroupType = GroupingType.CounterpartyClassification }
 			}.AsReadOnly();
 
 		private static ReadOnlyCollection<GroupingNode> _defaultSalesWithDynamicsReportsGroupingNodes =>
@@ -40,6 +41,7 @@ namespace Vodovoz.ViewModels.Factories
 				new GroupingNode { Name = "Тип контрагента/подтип", GroupType = GroupingType.CounterpartyType },
 				new GroupingNode { Name = "Тип оплаты", GroupType = GroupingType.PaymentType },
 				new GroupingNode { Name = "Организация", GroupType = GroupingType.Organization },
+				new GroupingNode { Name = "Классификация контрагента", GroupType = GroupingType.CounterpartyClassification }
 			}.AsReadOnly();
 
 		public LeftRightListViewModel<GroupingNode> CreateSalesReportGroupingsConstructor()

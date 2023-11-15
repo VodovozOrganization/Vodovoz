@@ -31,6 +31,8 @@ namespace Vodovoz.Reports.Editing.Modifiers
 		[Display(Name = "Тип оплаты")]
 		PaymentType,
 		[Display(Name = "Организация")]
-		Organization
+		Organization,
+		[Display(Name = "Классификация контрагента")]
+		CounterpartyClassification
 	}
 }

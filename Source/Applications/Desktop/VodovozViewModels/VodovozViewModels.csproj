@@ -72,6 +72,12 @@
     <Compile Include="Cash\Transfer\Journal\TransferDocumentsJournalViewModel.cs" />
     <Compile Include="Cash\TransferExpenseViewModel.cs" />
     <Compile Include="Cash\TransferIncomeViewModel.cs" />
+    <Compile Include="Counterparties\ClientClassification\CounterpartyClassificationCalculationEmailSettingsViewModel.cs" />
+    <Compile Include="Counterparties\ClientClassification\CounterpartyClassificationCalculationEmailSettingsViewModel.StartClassificationCalculationEventArgs.cs" />
+    <Compile Include="Counterparties\ClientClassification\CounterpartyClassificationCalculationViewModel.CalculationMessageEventArgs.cs" />
+    <Compile Include="Counterparties\ClientClassification\CounterpartyClassificationCalculationViewModel.ClassificationCalculationReport.cs" />
+    <Compile Include="Counterparties\ClientClassification\CounterpartyClassificationCalculationViewModel.ClassificationCalculationReportRow.cs" />
+    <Compile Include="Counterparties\ClientClassification\CounterpartyClassificationCalculationViewModel.cs" />
     <Compile Include="Counterparties\SubtypesJournalViewModel.cs" />
     <Compile Include="Counterparties\SubtypesJournalViewModel.Node.cs" />
     <Compile Include="Counterparties\SubtypeViewModel.cs" />

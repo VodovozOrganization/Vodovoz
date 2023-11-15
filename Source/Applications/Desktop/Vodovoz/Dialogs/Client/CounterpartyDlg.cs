@@ -47,10 +47,9 @@ using System.Threading;
 using TISystems.TTC.CRM.BE.Serialization;
 using TrueMarkApi.Library.Converters;
 using TrueMarkApi.Library.Dto;
-using Vodovoz.Core;
-using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.EntityFactories;
@@ -69,16 +68,13 @@ using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Extensions;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels;
 using Vodovoz.Infrastructure;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalSelector;
-using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
@@ -737,9 +733,44 @@ namespace Vodovoz
 			}
 
 			SetVisibilityForCloseDeliveryComments();
+			UpdateCounterpartyClassificationValues();
 
 			logisticsRequirementsView.ViewModel = new LogisticsRequirementsViewModel(Entity.LogisticsRequirements ?? new LogisticsRequirements(), _commonServices);
 			logisticsRequirementsView.ViewModel.Entity.PropertyChanged += OnLogisticsRequirementsSelectionChanged;
+		}
+
+		private void UpdateCounterpartyClassificationValues()
+		{
+			var classification =
+				(from c in UoW.GetAll<CounterpartyClassification>()
+				 join s in UoW.GetAll<CounterpartyClassificationCalculationSettings>()
+				 on c.ClassificationCalculationSettingsId equals s.Id
+				 where c.CounterpartyId == Entity.Id
+				 orderby c.Id descending
+				 select new
+				 {
+					 ClassificationValue = $"{c.ClassificationByBottlesCount}{c.ClassificationByOrdersCount}",
+					 BottlesCount = $"{c.BottlesPerMonthAverageCount} бут/мес",
+					 TurnoverSum = $"{c.MoneyTurnoverPerMonthAverageSum} руб/мес",
+					 OrdersCount = $"{c.OrdersPerMonthAverageCount} зак/мес",
+					 CalculationDate = $"{s.SettingsCreationDate:dd.MM.yyyy}"
+				 })
+				 .FirstOrDefault();
+
+			ylabelClassificationValue.Text = 
+				$"{classification?.ClassificationValue ?? "Новый"}";
+
+			ylabelClassificationBottlesCount.Text = 
+				$"Кол-во бут. 19л: {classification?.BottlesCount ?? "не рассчитывалось"}";
+
+			ylabelClassificationTurnoverSum.Text = 
+				$"Оборот (инфо): {classification?.TurnoverSum ?? "не рассчитывалось"}";
+
+			ylabelClassificationOrdersCount.Text = 
+				$"Частота покупок: {classification?.OrdersCount ?? "не рассчитывалось"}";
+
+			ylabelClassificationCalculationDate.Text =
+				$"Дата последнего пересчёта: {classification?.CalculationDate ?? "не рассчитывалось"}";
 		}
 
 		private void ConfigureTabContacts()
@@ -2473,7 +2504,7 @@ namespace Vodovoz
 
 			return false;
 		}
-		
+
 		private void OnEnumPersonTypeChangedByUser(object sender, EventArgs e)
 		{
 			emailsView.ViewModel.UpdatePersonType(Entity.PersonType);
