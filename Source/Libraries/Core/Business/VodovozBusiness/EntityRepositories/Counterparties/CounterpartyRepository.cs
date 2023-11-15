@@ -361,14 +361,17 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				(
 					clientsGroups.Key.CleintId,
 					clientsGroups.Sum(data =>
-							(data.Nomenclature.Category == NomenclatureCategory.water
+							(data.Nomenclature != null && data.Item != null
+								&& data.Nomenclature.Category == NomenclatureCategory.water
 								&& data.Nomenclature.TareVolume == TareVolume.Vol19L)
 							? data.Item.Count
 							: 0),
 					clientsGroups.Select(data =>
 							data.Order.Id).Distinct().Count(),
 					clientsGroups.Sum(data =>
-							(data.Item.ActualCount ?? data.Item.Count) * data.Item.Price - data.Item.DiscountMoney),
+							(data.Item != null
+							?  (data.Item.ActualCount ?? data.Item.Count) * data.Item.Price - data.Item.DiscountMoney
+							: 0)),
 					calculationSettings);
 
 			return query;
