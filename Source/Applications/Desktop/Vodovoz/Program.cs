@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
 using Fias.Client;
@@ -641,6 +641,7 @@ namespace Vodovoz
 							.AddScoped<IDebtorsParameters, DebtorsParameters>()
 							.AddFiasClient()
 							.AddSingleton<IFastDeliveryDistanceChecker, DistanceCalculator>()
+							.AddScoped<RevisionBottlesAndDeposits>()
 							.AddTransient<IReportExporter, ReportExporterAdapter>();
 				});
 	}
