@@ -40,6 +40,7 @@ using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Counterparties;
+using Vodovoz.ViewModels.Counterparties.ClientClassification;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Dialogs.Roboats;
@@ -732,9 +733,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionDeliveryPointsActivated(object sender, EventArgs e)
 	{
-		var dpJournalFactory = new DeliveryPointJournalFactory();
-		var deliveryPointJournal = dpJournalFactory.CreateDeliveryPointJournal();
-		tdiMain.AddTab(deliveryPointJournal);
+		NavigationManager.OpenViewModel<DeliveryPointJournalViewModel, bool, bool>(null, true, true);
 	}
 
 	/// <summary>
@@ -865,6 +864,16 @@ public partial class MainWindow
 	protected void OnActionCounterpartySubtypesActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<SubtypesJournalViewModel>(null);
+	}
+
+	/// <summary>
+	/// Пересчёт классификации контрагентов
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionCounterpartyClassificationCalculationActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<CounterpartyClassificationCalculationViewModel>(null);
 	}
 
 	#endregion Контрагенты

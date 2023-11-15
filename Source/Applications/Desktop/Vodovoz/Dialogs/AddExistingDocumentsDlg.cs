@@ -4,7 +4,6 @@ using System.Linq;
 using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
-using QS.Tdi;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
@@ -20,7 +19,7 @@ namespace Vodovoz.Dialogs
 			this.Build();
 			UoW = uow;
 			counterpartydocumentsview1.Config(uow, client, true);
-			orderselectedview1.Config(uow, client);
+			orderselectedview1.Config(uow, client, this, Startup.MainWin.NavigationManager, Startup.AppDIContainer.BeginLifetimeScope());
 			orderselectedview1.OrderActivated += Orderselectedview1_OrderActivated;
 			TabName = "Добавление документов";
 		}
@@ -65,11 +64,6 @@ namespace Vodovoz.Dialogs
 				return;
 			}
 			TabParent.AddTab(DocumentPrinter.GetPreviewTab(doc), this, false);
-		}
-
-		private void OpenOrder()
-		{
-			
 		}
 	}
 }

@@ -1,5 +1,4 @@
-﻿using QS.Banks.Domain;
-using QS.Tdi;
+﻿using QS.Tdi;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.ViewModels.TempAdapters
@@ -19,6 +18,9 @@ namespace Vodovoz.ViewModels.TempAdapters
 		public PaymentType PaymentMethod { get; set; }
 		public string TypeOfOwnership { get; set; }
 		public PersonType PersonType { get; set; }
-		public Account Account { get; set; }
+		public string CounterpartyCurrentAcc { get; set; }
+		public string CounterpartyBik { get; set; }
+		public string CounterpartyBank { get; set; }
+		public string CounterpartyCorrespondentAcc { get; set; }
 	}
 }

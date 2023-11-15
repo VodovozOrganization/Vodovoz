@@ -25,11 +25,15 @@ using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModel;
 using IDeliveryPointInfoProvider = Vodovoz.ViewModels.Infrastructure.InfoProviders.IDeliveryPointInfoProvider;
+using Autofac;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz
 {
 	public partial class ServiceClaimDlg : QS.Dialog.Gtk.EntityDialogBase<ServiceClaim>, ICounterpartyInfoProvider, IDeliveryPointInfoProvider
 	{
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IEquipmentRepository _equipmentRepository = new EquipmentRepository();
 		private readonly INomenclatureRepository _nomenclatureRepository =
@@ -147,7 +151,7 @@ namespace Vodovoz
 			evmeDeliveryPoint.Sensitive = (UoWGeneric.Root.Counterparty != null);
 			evmeDeliveryPoint.Binding.AddBinding(Entity, e => e.DeliveryPoint, w => w.Subject).InitializeFromSource();
 			evmeDeliveryPoint.Changed += OnReferenceDeliveryPointChanged;
-			var dpFactory = new DeliveryPointJournalFactory();
+			var dpFactory = _lifetimeScope.Resolve<IDeliveryPointJournalFactory>();
 			dpFactory.SetDeliveryPointJournalFilterViewModel(_deliveryPointJournalFilterViewModel);
 			evmeDeliveryPoint.SetEntityAutocompleteSelectorFactory(dpFactory.CreateDeliveryPointByClientAutocompleteSelectorFactory());
 
@@ -438,6 +442,13 @@ namespace Vodovoz
 			referenceEquipment.Sensitive = withSerial && UoWGeneric.Root.Counterparty!=null && 
 				(UoWGeneric.Root.DeliveryPoint !=null || UoWGeneric.Root.ServiceClaimType==ServiceClaimType.JustService);
 			nomenclatureVMEntry.Sensitive = !withSerial && UoWGeneric.Root.Counterparty != null;
+		}
+
+		public override void Destroy()
+		{
+			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
+			base.Destroy();
 		}
 	}
 }

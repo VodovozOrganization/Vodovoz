@@ -70,7 +70,12 @@
     <Compile Include="Domain\Cash\FinancialCategoriesGroups\FinancialSubType.cs" />
     <Compile Include="Domain\Cash\FinancialCategoriesGroups\GroupType.cs" />
     <Compile Include="Domain\Client\CargoReceiverSource.cs" />
+    <Compile Include="Domain\Client\ClientClassification\CounterpartyCompositeClassification.cs" />
     <Compile Include="Domain\Client\ConsentForEdoStatus.cs" />
+    <Compile Include="Domain\Client\ClientClassification\CounterpartyClassification.cs" />
+    <Compile Include="Domain\Client\ClientClassification\CounterpartyClassificationByBottlesCount.cs" />
+    <Compile Include="Domain\Client\ClientClassification\CounterpartyClassificationByOrdersCount.cs" />
+    <Compile Include="Domain\Client\ClientClassification\CounterpartyClassificationCalculationSettings.cs" />
     <Compile Include="Domain\Client\CounterpartySubtype.cs" />
     <Compile Include="Domain\Client\CounterpartyType.cs" />
     <Compile Include="Domain\Client\DefaultDocumentType.cs" />
@@ -98,6 +103,7 @@
     <Compile Include="Domain\Orders\UndeliveryObject.cs" />
     <Compile Include="Domain\Payments\PaymentsFromCloudPaymentsParser.cs" />
     <Compile Include="Domain\Payments\PaymentsFromTinkoffParser.cs" />
+    <Compile Include="Domain\Payments\PaymentState.cs" />
     <Compile Include="Domain\StoredEmails\UpdDocumentEmail.cs" />
     <Compile Include="Domain\Subdivisions\SubdivisionType.cs" />
     <Compile Include="EntityRepositories\Cash\FinancialExpenseCategoriesRepository.cs" />

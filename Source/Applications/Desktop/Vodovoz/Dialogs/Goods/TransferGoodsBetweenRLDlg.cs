@@ -100,6 +100,10 @@ namespace Vodovoz
 
 		public bool HasChanges => UoW.HasChanges;
 
+		public virtual bool HasCustomCancellationConfirmationDialog => false;
+
+		public virtual Func<int> CustomCancellationConfirmationDialogFunc => null;
+
 		public ITdiCompatibilityNavigation NavigationManager { get; private set; }
 
 		public RouteList RouteListFrom
