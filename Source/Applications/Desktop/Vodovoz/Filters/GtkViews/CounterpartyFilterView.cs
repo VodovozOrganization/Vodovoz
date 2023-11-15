@@ -8,6 +8,7 @@ using QS.Widgets.GtkUI;
 using System;
 using System.ComponentModel;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewWidgets.Search;
@@ -55,6 +56,11 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(ViewModel, vm => vm.ReasonForLeaving, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 
+			yenumClassification.ItemsEnum = typeof(CounterpartyCompositeClassification);
+			yenumClassification.Binding
+				.AddBinding(ViewModel, vm => vm.CounterpartyClassification, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
+
 			checkIncludeArhive.Binding
 				.AddBinding(ViewModel, vm => vm.RestrictIncludeArchive, w => w.Active)
 				.InitializeFromSource();
@@ -92,6 +98,9 @@ namespace Vodovoz.Filters.GtkViews
 					.Finish();
 
 				ytreeviewSalesChannels.ItemsDataSource = ViewModel.SalesChannels;
+
+				yenumClassification.Visible = false;
+				labelClassification.Visible = false;
 			}
 			else
 			{

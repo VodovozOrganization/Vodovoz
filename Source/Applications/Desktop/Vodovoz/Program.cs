@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
 using Fias.Client;
@@ -107,6 +107,7 @@ using Vodovoz.ViewModels.Infrastructure.Services;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Mango.Talks;
 using Vodovoz.ViewModels.Permissions;
+using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.Views.Mango.Talks;
 using Vodovoz.ViewWidgets;
 using VodovozInfrastructure.Endpoints;
@@ -638,7 +639,9 @@ namespace Vodovoz
 							.AddSingleton<OsrmClient>(sp => OsrmClientFactory.Instance)
 							.AddSingleton<IFastDeliveryDistanceChecker, DistanceCalculator>()
 							.AddScoped<IDebtorsParameters, DebtorsParameters>()
-							.AddFiasClient();
+							.AddFiasClient()
+							.AddSingleton<IFastDeliveryDistanceChecker, DistanceCalculator>()
+							.AddTransient<IReportExporter, ReportExporterAdapter>();
 				});
 	}
 }
