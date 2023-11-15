@@ -520,12 +520,10 @@ public partial class MainWindow : Window
 
 		RequestsToSuppliersFilterViewModel filter = new RequestsToSuppliersFilterViewModel(nomenclatureSelectorFactory);
 
-		var requestsJournal = NavigationManager.OpenViewModel<RequestsToSuppliersJournalViewModel, RequestsToSuppliersFilterViewModel>(
+		NavigationManager.OpenViewModel<RequestsToSuppliersJournalViewModel, RequestsToSuppliersFilterViewModel>(
 			  null,
 			  filter,
 			  OpenPageOptions.IgnoreHash);
-
-		tdiMain.AddTab(requestsJournal.ViewModel);
 	}
 
 	void ActionRouteListsPrint_Activated(object sender, System.EventArgs e)

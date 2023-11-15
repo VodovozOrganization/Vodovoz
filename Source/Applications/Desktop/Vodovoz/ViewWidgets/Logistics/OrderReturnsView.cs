@@ -230,7 +230,7 @@ namespace Vodovoz
 			var journalViewModel = Startup.MainWin.NavigationManager.OpenViewModel<NomenclaturesJournalViewModel>(null).ViewModel;
 
 			journalViewModel.SelectionMode = JournalSelectionMode.Single;
-			journalViewModel.TabName = "Номенклатура на продажу1";
+			journalViewModel.TabName = "Номенклатура на продажу";
 			journalViewModel.CalculateQuantityOnStock = true;
 			journalViewModel.OnEntitySelectedResult += OnNomenclatureSelected;
 		}
