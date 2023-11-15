@@ -46,15 +46,15 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 						&& !string.IsNullOrWhiteSpace(x.Target)
 						&& x.ToStorageId == WarehouseId
 						&& x.NomenclatureName == NomenclatureName)
-					.Sum(x => x.Amount);
+					.Sum(x => Math.Abs(x.Amount));
 
-				var outcome = Math.Abs(rows
+				var outcome = rows
 					.Where(x => x.Date >= startDate
 						&& x.Date <= endDate
 						&& !string.IsNullOrWhiteSpace(x.Source)
 						&& x.FromStorageId == WarehouseId
 						&& x.NomenclatureName == NomenclatureName)
-					.Sum(x => x.Amount));
+					.Sum(x => Math.Abs(x.Amount));
 
 				var residue = _getWarehouseBalance(NomenclatureId, WarehouseId, slice.EndDate);
 
