@@ -565,10 +565,16 @@ namespace Vodovoz.ViewModels.Logistic
 		#region Copy Paste District Schedule
 		private void CopyDistrictSchedules()
 		{
-			if(SelectedDistrict != null)
+			if(SelectedDistrict == null)
 			{
-				_copiedDistrict = SelectedDistrict;
+				CommonServices.InteractiveService.ShowMessage(
+					   ImportanceLevel.Error,
+					   "Для копирования графиков доставки необходимо сначала выбрать район, из которого данные будут скопированы");
+
+				return;
 			}
+
+			_copiedDistrict = SelectedDistrict;
 		}
 
 		private void PasteSchedulesToDistrict()
