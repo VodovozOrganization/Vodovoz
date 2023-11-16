@@ -35,148 +35,13 @@ namespace Vodovoz.Views.Logistic
 
 		private const string acceptBeforeColumnTag = "Прием до";
 
-		private Menu _popupCopyPasteDistrictScheduleMenu;
-		private List<System.Action> _actionsSensitiveFunctons;
-		IEnumerable<DeliveryScheduleRestriction> _copiedScheduleRestrictions;
+		private Menu _popupDistrictScheduleMenu;
+		private List<System.Action> _popupDistiictScheduleStateActions;
 
 		public DistrictsSetView(DistrictsSetViewModel viewModel) : base(viewModel)
 		{
 			this.Build();
 			Configure();
-		}
-
-		private void AddCopyPasteDistrictPopupActions()
-		{
-			_popupCopyPasteDistrictScheduleMenu = new Menu();
-			_actionsSensitiveFunctons = new List<System.Action>();
-
-			var copyDistrictScheduleMenuEntry = new MenuItem("Копировать график доставки");
-			copyDistrictScheduleMenuEntry.ButtonPressEvent += CopyDistrictScheduleMenuEntryActivated;
-			copyDistrictScheduleMenuEntry.Visible = true;
-			_popupCopyPasteDistrictScheduleMenu.Add(copyDistrictScheduleMenuEntry);
-
-			var pasteScheduleToDistrictMenuEntry = new MenuItem("Вставить график доставки в район");
-			pasteScheduleToDistrictMenuEntry.ButtonPressEvent += PasteScheduleToDistrictMenuEntryActivated;
-			pasteScheduleToDistrictMenuEntry.Visible = true;
-			_popupCopyPasteDistrictScheduleMenu.Add(pasteScheduleToDistrictMenuEntry);
-
-			var pasteScheduleToZoneMenuEntry = new MenuItem("Вставить график доставки в тарифную зону");
-			pasteScheduleToZoneMenuEntry.ButtonPressEvent += PasteScheduleToZoneMenuEntryActivated;
-			pasteScheduleToZoneMenuEntry.Visible = true;
-			_popupCopyPasteDistrictScheduleMenu.Add(pasteScheduleToZoneMenuEntry);
-
-			_actionsSensitiveFunctons.Add(CopyDistrictScheduleSensitiveActions(copyDistrictScheduleMenuEntry));
-			_actionsSensitiveFunctons.Add(SetPasteScheduleToDistrictSensitiveActions(pasteScheduleToDistrictMenuEntry));
-			_actionsSensitiveFunctons.Add(SetPasteScheduleToZoneSensitiveActions(pasteScheduleToZoneMenuEntry));
-		}
-
-		private void UpdateActionsSensitivity()
-		{
-			_actionsSensitiveFunctons.ForEach(x => x.Invoke());
-		}
-
-		private System.Action CopyDistrictScheduleSensitiveActions(MenuItem createMenuItem)
-		{
-			System.Action action = () =>
-			{
-				createMenuItem.Sensitive = true;
-			};
-
-			return action;
-		}
-
-		private System.Action SetPasteScheduleToDistrictSensitiveActions(MenuItem createMenuItem)
-		{
-			System.Action action = () =>
-			{
-				createMenuItem.Sensitive = _copiedScheduleRestrictions != null;
-			};
-
-			return action;
-		}
-
-		private System.Action SetPasteScheduleToZoneSensitiveActions(MenuItem createMenuItem)
-		{
-			System.Action action = () =>
-			{
-				createMenuItem.Sensitive = _copiedScheduleRestrictions != null;
-			};
-
-			return action;
-		}
-
-		private void CopyDistrictScheduleMenuEntryActivated(object o, ButtonPressEventArgs args)
-		{
-			if(ytreeDistricts.SelectedRow is District district)
-			{
-				_copiedScheduleRestrictions = district.GetAllDeliveryScheduleRestrictions();
-			}
-		}
-
-		private void PasteCopiedScheduleToDistrict(District district)
-		{
-			var restrictionsToSet = new List<DeliveryScheduleRestriction>();
-
-			foreach(var restriction in _copiedScheduleRestrictions)
-			{
-				var newRestriction = restriction.Clone() as DeliveryScheduleRestriction;
-
-				newRestriction.District = district;
-
-				restrictionsToSet.Add(newRestriction);
-			}
-
-			district.TodayDeliveryScheduleRestrictions.Clear();
-
-			foreach(var r in restrictionsToSet)
-			{
-				if(r.WeekDay == WeekDayName.Today)
-				{
-					district.ObservableTodayDeliveryScheduleRestrictions.Add(r);
-				}
-			}
-		}
-
-		private void PasteScheduleToDistrictMenuEntryActivated(object o, ButtonPressEventArgs args)
-		{
-			if(ytreeDistricts.SelectedRow is District selectedDistrict)
-			{
-				PasteCopiedScheduleToDistrict(selectedDistrict);
-			}
-		}
-
-		private void PasteScheduleToZoneMenuEntryActivated(object o, ButtonPressEventArgs args)
-		{
-			if(ytreeDistricts.SelectedRow is District selectedDistrict)
-			{
-				var districtsToPasteCopiedSchedule = ViewModel.Entity.ObservableDistricts
-					.Where(d => d.TariffZone == selectedDistrict.TariffZone)
-					.Select(d => d);
-
-				foreach(var district in districtsToPasteCopiedSchedule)
-				{
-					PasteCopiedScheduleToDistrict(district);
-				}
-			}
-		}
-
-		private void OnButtonDistrictsRelease(object o, ButtonReleaseEventArgs args)
-		{
-			if(args.Event.Button != (uint)GtkMouseButton.Right)
-			{
-				return;
-			}
-
-			UpdateActionsSensitivity();
-
-			_popupCopyPasteDistrictScheduleMenu.Show();
-
-			if(_popupCopyPasteDistrictScheduleMenu.Children.Length == 0)
-			{
-				return;
-			}
-
-			_popupCopyPasteDistrictScheduleMenu.Popup();
 		}
 
 		private void Configure()
@@ -561,6 +426,102 @@ namespace Vodovoz.Views.Logistic
 				ytreeDistricts.ScrollToCell(path, ytreeDistricts.Columns.FirstOrDefault(), false, 0, 0);
 			}
 		}
-		
+
+		#region Copy Paste District Schedule
+		private void AddCopyPasteDistrictPopupActions()
+		{
+			_popupDistrictScheduleMenu = new Menu();
+			_popupDistiictScheduleStateActions = new List<System.Action>();
+
+			var copyDistrictScheduleMenuEntry = new MenuItem("Копировать график доставки");
+			copyDistrictScheduleMenuEntry.ButtonPressEvent += (s, e) => ViewModel.CopyDistrictSchedulesCommand.Execute();
+			copyDistrictScheduleMenuEntry.Visible = true;
+			_popupDistrictScheduleMenu.Add(copyDistrictScheduleMenuEntry);
+
+			var pasteScheduleToDistrictMenuEntry = new MenuItem("Вставить график доставки в район");
+			pasteScheduleToDistrictMenuEntry.ButtonPressEvent += (s, e) => ViewModel.PasteSchedulesToDistrictCommand.Execute();
+			pasteScheduleToDistrictMenuEntry.Visible = true;
+			_popupDistrictScheduleMenu.Add(pasteScheduleToDistrictMenuEntry);
+
+			var pasteScheduleToZoneMenuEntry = new MenuItem("Вставить график доставки в тарифную зону");
+			pasteScheduleToZoneMenuEntry.ButtonPressEvent += (s, e) => ViewModel.PasteScheduleToZoneCommand.Execute();
+			pasteScheduleToZoneMenuEntry.Visible = true;
+			_popupDistrictScheduleMenu.Add(pasteScheduleToZoneMenuEntry);
+
+			_popupDistiictScheduleStateActions.Add(CopyDistrictScheduleStateActions(copyDistrictScheduleMenuEntry));
+			_popupDistiictScheduleStateActions.Add(PasteScheduleToDistrictStateActions(pasteScheduleToDistrictMenuEntry));
+			_popupDistiictScheduleStateActions.Add(PasteScheduleToZoneStateActions(pasteScheduleToZoneMenuEntry));
+		}
+
+		private void OnButtonDistrictsRelease(object o, ButtonReleaseEventArgs args)
+		{
+			if(args.Event.Button != (uint)GtkMouseButton.Right)
+			{
+				return;
+			}
+
+			UpdateDistrictSchedulePopupMenuItemsStates();
+
+			_popupDistrictScheduleMenu.Show();
+
+			if(_popupDistrictScheduleMenu.Children.Length == 0)
+			{
+				return;
+			}
+
+			_popupDistrictScheduleMenu.Popup();
+		}
+
+		private void UpdateDistrictSchedulePopupMenuItemsStates()
+		{
+			_popupDistiictScheduleStateActions.ForEach(x => x.Invoke());
+		}
+
+		private System.Action CopyDistrictScheduleStateActions(MenuItem item)
+		{
+			System.Action action = () =>
+			{
+				if(item.Child is AccelLabel label)
+				{
+					label.LabelProp = ViewModel.CopyDistrictScheduleMenuItemLabel;
+				}
+
+				item.Sensitive = ViewModel.CanCopyDeliveryScheduleRestrictions;
+			};
+
+			return action;
+		}
+
+		private System.Action PasteScheduleToDistrictStateActions(MenuItem item)
+		{
+			System.Action action = () =>
+			{
+				if(item.Child is AccelLabel label)
+				{
+					label.LabelProp = ViewModel.PasteScheduleToDistrictMenuItemLabel;
+				}
+
+				item.Sensitive = ViewModel.CanPasteDeliveryScheduleRestrictions;
+			};
+
+			return action;
+		}
+
+		private System.Action PasteScheduleToZoneStateActions(MenuItem item)
+		{
+			System.Action action = () =>
+			{
+				if(item.Child is AccelLabel label)
+				{
+					label.LabelProp = ViewModel.PasteScheduleToTafiffZoneMenuItemLabel;
+				}
+
+				item.Sensitive = ViewModel.CanPasteDeliveryScheduleRestrictions;
+			};
+
+			return action;
+		}
+
+		#endregion Copy Paste District Schedule
 	}
 }
