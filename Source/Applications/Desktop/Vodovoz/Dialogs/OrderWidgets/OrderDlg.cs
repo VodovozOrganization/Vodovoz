@@ -1041,15 +1041,13 @@ namespace Vodovoz
 			logisticsRequirementsView.ViewModel.Entity.PropertyChanged += OnLogisticsRequirementsSelectionChanged;
 
 			UpdateCallBeforeArrivalVisibility();
-
-			hboxCallBeforeArrival.Visible = false; // Удалить при выпуске МП водителей
 		}
 
 		private void UpdateCallBeforeArrivalVisibility()
 		{
 			var isNotFastDeliveryOrSelfDelivery = !(Entity.SelfDelivery || Entity.IsFastDelivery);
 
-			hboxCallBeforeArrival.Visible = isNotFastDeliveryOrSelfDelivery;
+			hboxCallBeforeArrival.Visible = false;// = isNotFastDeliveryOrSelfDelivery; Вернуть при выпуске МП водителей
 		}
 
 		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs args)
