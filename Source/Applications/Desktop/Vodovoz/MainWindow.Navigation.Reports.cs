@@ -700,11 +700,11 @@ public partial class MainWindow
 
 		var viewModel = scope.Resolve<WayBillReportGroupPrint>();
 
-		var tab = tdiMain.OpenTab(
+		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<WayBillReport>(),
 			() => new QSReport.ReportViewDlg(viewModel));
 
-		tab.TabClosed += (s, args) => scope?.Dispose();
+		viewModel.Destroyed += (_, _2) => scope?.Dispose();
 	}
 
 	/// <summary>
