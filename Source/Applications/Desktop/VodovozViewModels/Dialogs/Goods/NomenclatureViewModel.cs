@@ -193,6 +193,16 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 
 				return;
 			}
+
+			if(Entity.GlassHolderType == GlassHolderType.Universal)
+			{
+				IsMagnetGlassHolderSelected = true;
+				IsScrewGlassHolderSelected = true;
+
+				return;
+			}
+
+			throw new ArgumentException("");
 		}
 
 		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
