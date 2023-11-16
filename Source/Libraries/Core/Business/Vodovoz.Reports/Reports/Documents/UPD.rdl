@@ -111,15 +111,13 @@ WHERE
     counterparty.special_customer,
     (
         IF(orders.order_payment_status = 'Paid',
-            CONCAT_WS(", ",
-            (SELECT
-                CONCAT("№ ", pfbc.payment_num, " от ", DATE_FORMAT(pfbc.payment_date, '%d.%m.%Y'))
+            (SELECT GROUP_CONCAT(CONCAT("№ ", pfbc.payment_num, " от ", DATE_FORMAT(pfbc.payment_date, '%d.%m.%Y')) SEPARATOR ", ")
             FROM
                 payments_from_bank_client pfbc
             INNER JOIN
                 payment_items pitms
             ON pfbc.id = pitms.payment_id
-            WHERE pitms.order_id = @order_id)),
+            WHERE pitms.order_id = @order_id),
             "")
     ) AS payments_info,
     IF(!IS_NULL_OR_WHITESPACE(counterparty.special_contract_number) and counterparty.special_contract_date is not null,
