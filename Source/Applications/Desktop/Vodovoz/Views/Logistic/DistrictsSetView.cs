@@ -444,7 +444,7 @@ namespace Vodovoz.Views.Logistic
 			_popupDistrictScheduleMenu.Add(pasteScheduleToDistrictMenuEntry);
 
 			var pasteScheduleToZoneMenuEntry = new MenuItem("Вставить график доставки в тарифную зону");
-			pasteScheduleToZoneMenuEntry.ButtonPressEvent += (s, e) => ViewModel.PasteScheduleToZoneCommand.Execute();
+			pasteScheduleToZoneMenuEntry.ButtonPressEvent += (s, e) => ViewModel.PasteSchedulesToZoneCommand.Execute();
 			pasteScheduleToZoneMenuEntry.Visible = true;
 			_popupDistrictScheduleMenu.Add(pasteScheduleToZoneMenuEntry);
 

@@ -78,14 +78,13 @@ namespace Vodovoz.ViewModels.Logistic
 
 			CopyDistrictSchedulesCommand = new DelegateCommand(CopyDistrictSchedules);
 			PasteSchedulesToDistrictCommand = new DelegateCommand(PasteSchedulesToDistrict);
-			PasteScheduleToZoneCommand = new DelegateCommand(PasteScheduleToZone);
+			PasteSchedulesToZoneCommand = new DelegateCommand(PasteSchedulesToZone);
 		}
 
 		private readonly IEntityDeleteWorker _entityDeleteWorker;
 		private readonly IDeliveryScheduleJournalFactory _deliveryScheduleJournalFactory;
 		private readonly GeometryFactory _geometryFactory;
 		private ICommonServices _commonServices;
-		District _copiedDistrict;
 
 		public readonly bool CanChangeDistrictWageTypePermissionResult;
 		public readonly bool CanEditDistrict;
@@ -96,6 +95,8 @@ namespace Vodovoz.ViewModels.Logistic
 		public readonly bool CanSave;
 		public readonly bool CanEdit;
 
+		private District _copiedDistrict;
+
 		public bool CanCopyDeliveryScheduleRestrictions =>
 			CanEditDeliveryScheduleRestriction
 			&& SelectedDistrict != null;
@@ -103,16 +104,16 @@ namespace Vodovoz.ViewModels.Logistic
 		public bool CanPasteDeliveryScheduleRestrictions =>
 			CanEditDeliveryScheduleRestriction
 			&& SelectedDistrict != null
-			&& CopiedDistrict != null;
+			&& _copiedDistrict != null;
 
 		public string CopyDistrictScheduleMenuItemLabel =>
 			$"Копировать график доставки {SelectedDistrict?.Id} {SelectedDistrict?.DistrictName}";
 
 		public string PasteScheduleToDistrictMenuItemLabel =>
-			$"Вставить график доставки {CopiedDistrict?.Id} {CopiedDistrict?.DistrictName} В {SelectedDistrict?.Id} {SelectedDistrict?.DistrictName}";
+			$"Вставить график доставки {_copiedDistrict?.Id} {_copiedDistrict?.DistrictName} В {SelectedDistrict?.Id} {SelectedDistrict?.DistrictName}";
 
 		public string PasteScheduleToTafiffZoneMenuItemLabel =>
-			$"Вставить график доставки {CopiedDistrict?.Id} {CopiedDistrict?.DistrictName} для {SelectedDistrict?.TariffZone.Name}";
+			$"Вставить график доставки {_copiedDistrict?.Id} {_copiedDistrict?.DistrictName} для {SelectedDistrict?.TariffZone.Name}";
 
 		public IDistrictRuleRepository DistrictRuleRepository { get; }
 		public GenericObservableList<DeliveryScheduleRestriction> ScheduleRestrictions => SelectedWeekDayName.HasValue && SelectedDistrict != null
@@ -255,12 +256,6 @@ namespace Vodovoz.ViewModels.Logistic
 					throw new ArgumentNullException(nameof(SelectedDistrict));
 				SetField(ref isCreatingNewBorder, value, () => IsCreatingNewBorder);
 			}
-		}
-
-		public District CopiedDistrict
-		{
-			get => _copiedDistrict;
-			private set => SetField(ref _copiedDistrict, value);
 		}
 
 		#region Commands
@@ -559,7 +554,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public DelegateCommand CopyDistrictSchedulesCommand { get; }
 		public DelegateCommand PasteSchedulesToDistrictCommand { get; }
-		public DelegateCommand PasteScheduleToZoneCommand { get; }
+		public DelegateCommand PasteSchedulesToZoneCommand { get; }
 		#endregion
 
 		#region Copy Paste District Schedule
@@ -616,7 +611,7 @@ namespace Vodovoz.ViewModels.Logistic
 			district.ReplaceDistrictDeliveryScheduleRestrictions(schedulesToSet);
 		}
 
-		private void PasteScheduleToZone()
+		private void PasteSchedulesToZone()
 		{
 			if(SelectedDistrict == null)
 			{
