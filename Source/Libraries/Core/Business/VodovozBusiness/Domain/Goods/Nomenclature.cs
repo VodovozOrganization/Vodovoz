@@ -1,4 +1,4 @@
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using QS.BusinessCommon.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -1314,11 +1314,11 @@ namespace Vodovoz.Domain.Goods
 	{
 		[Display(Name = "Стаканодержатель отсутствует")]
 		None,
-		[Display(Name = "Стаканодержатель магнитный")]
+		[Display(Name = "Стаканодержатель На магните")]
 		Magnet,
-		[Display(Name = "Стаканодержатель на шурупе")]
+		[Display(Name = "Стаканодержатель На шурупах")]
 		Screw,
-		[Display(Name = "Стаканодержатель универсальный")]
+		[Display(Name = "Стаканодержатель Универсальный")]
 		Universal
 	}
 }
