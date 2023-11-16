@@ -4,6 +4,8 @@ using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using QS.DomainModel.UoW;
 using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
 using VodovozHealthCheck.Helpers;
@@ -15,7 +17,8 @@ namespace DriverAPI.HealthChecks
 		private readonly IHttpClientFactory _httpClientFactory;
 		private readonly IConfiguration _configuration;
 
-		public DriverApiHealthCheck(IHttpClientFactory httpClientFactory, IConfiguration configuration)
+		public DriverApiHealthCheck(ILogger<DriverApiHealthCheck> logger, IHttpClientFactory httpClientFactory, IConfiguration configuration, IUnitOfWorkFactory unitOfWorkFactory)
+			: base(logger, unitOfWorkFactory)
 		{
 			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
@@ -29,6 +32,9 @@ namespace DriverAPI.HealthChecks
 
 			var user = healthSection.GetValue<string>("Authorization:User");
 			var password = healthSection.GetValue<string>("Authorization:Password");
+
+			var orderId = healthSection.GetValue<string>("Variables:OrderId");
+			var routeListId = healthSection.GetValue<string>("Variables:RouteListId");
 
 			var healthResult = new VodovozHealthResultDto();
 
@@ -44,7 +50,7 @@ namespace DriverAPI.HealthChecks
 				loginRequestDto);
 
 			var orderQrPaymentStatus = await ResponseHelper.GetJsonByUri<OrderQRPaymentStatusResponseDto>(
-				$"{baseAddress}/api/v4/GetOrderQRPaymentStatus?orderId=3282267",
+				$"{baseAddress}/api/v4/GetOrderQRPaymentStatus?orderId={orderId}",
 				_httpClientFactory,
 				tokenResponse.AccessToken);
 
@@ -56,7 +62,7 @@ namespace DriverAPI.HealthChecks
 			}
 
 			var routeList = await ResponseHelper.GetJsonByUri<RouteListDto>(
-				$"{baseAddress}/api/v4/GetRouteList?routeListId=288409",
+				$"{baseAddress}/api/v4/GetRouteList?routeListId={routeListId}",
 				_httpClientFactory,
 				tokenResponse.AccessToken);
 

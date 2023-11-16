@@ -24,7 +24,7 @@ namespace VodovozHealthCheck.Helpers
 		}
 
 		public static async Task<TResponseDto> PostJsonByUri<TRequestDto, TResponseDto>(string requestUri, IHttpClientFactory httpClientFactory,
-			TRequestDto loginRequestDto, string accessToken = null)
+			TRequestDto requestDto, string accessToken = null)
 		{
 			var httpClient = httpClientFactory.CreateClient();
 
@@ -33,7 +33,7 @@ namespace VodovozHealthCheck.Helpers
 				httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 			}
 
-			var responseMessage = await httpClient.PostAsJsonAsync(requestUri, loginRequestDto);
+			var responseMessage = await httpClient.PostAsJsonAsync(requestUri, requestDto);
 
 			var response = await responseMessage.Content.ReadFromJsonAsync<TResponseDto>();
 

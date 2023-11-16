@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using QS.DomainModel.UoW;
 using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
 using VodovozHealthCheck.Helpers;
@@ -11,7 +13,8 @@ namespace UnsubscribePage.HealthChecks
 	{
 		private readonly IConfiguration _configuration;
 
-		public UnsubscribePageHealthCheck(IConfiguration configuration)
+		public UnsubscribePageHealthCheck(ILogger<UnsubscribePageHealthCheck> logger, IConfiguration configuration, IUnitOfWorkFactory unitOfWorkFactory)
+			: base(logger, unitOfWorkFactory)
 		{
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 		}
@@ -20,8 +23,9 @@ namespace UnsubscribePage.HealthChecks
 		{
 			var healthSection = _configuration.GetSection("Health");
 			var baseAddress = healthSection.GetValue<string>("BaseAddress");
+			var guid = healthSection.GetValue<string>("Variables:Guid");
 
-			var isHealthy = ResponseHelper.CheckUriExists($"{baseAddress}/1049b7ef-825b-46b7-87c9-b234af7f6d5e");
+			var isHealthy = ResponseHelper.CheckUriExists($"{baseAddress}/{guid}");
 
 			return Task.FromResult(new VodovozHealthResultDto
 			{

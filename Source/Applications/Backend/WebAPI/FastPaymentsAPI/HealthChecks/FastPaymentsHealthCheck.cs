@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using FastPaymentsAPI.Library.DTO_s;
 using FastPaymentsAPI.Library.DTO_s.Requests;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using QS.DomainModel.UoW;
 using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
 using VodovozHealthCheck.Helpers;
@@ -15,7 +17,8 @@ namespace FastPaymentsAPI.HealthChecks
 		private readonly IHttpClientFactory _httpClientFactory;
 		private readonly IConfiguration _configuration;
 
-		public FastPaymentsHealthCheck(IHttpClientFactory httpClientFactory, IConfiguration configuration)
+		public FastPaymentsHealthCheck(ILogger<FastPaymentsHealthCheck> logger, IHttpClientFactory httpClientFactory, IConfiguration configuration, IUnitOfWorkFactory unitOfWorkFactory)
+			: base(logger, unitOfWorkFactory)
 		{
 			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
@@ -25,10 +28,12 @@ namespace FastPaymentsAPI.HealthChecks
 		{
 			var healthSection = _configuration.GetSection("Health");
 			var baseAddress = healthSection.GetValue<string>("BaseAddress");
+			var orderId = healthSection.GetValue<int>("Variables:OrderId");
+
 			var healthResult = new VodovozHealthResultDto();
 
 			var fastPaymentControllerResult = await ResponseHelper.GetJsonByUri<OrderDTO>(
-				$"{baseAddress}/api/GetOrderId?orderId=3279687",
+				$"{baseAddress}/api/GetOrderId?orderId={orderId}",
 				_httpClientFactory);
 
 			var fastPaymentControllerIsHealthy = fastPaymentControllerResult != null;
@@ -39,7 +44,7 @@ namespace FastPaymentsAPI.HealthChecks
 			}
 
 			var paymentStatusControllerResult = await ResponseHelper.GetJsonByUri<FastPaymentStatusDto>(
-				$"{baseAddress}/api/GetCheckPaymentStatus?orderId=109654126",
+				$"{baseAddress}/api/GetCheckPaymentStatus?orderId={orderId}",
 				_httpClientFactory);
 
 			var paymentStatusControllerIsHealthy = paymentStatusControllerResult?.PaymentStatus == RequestPaymentStatus.Performed;

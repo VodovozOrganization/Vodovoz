@@ -6,8 +6,11 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using QS.DomainModel.UoW;
 using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
+using VodovozHealthCheck.Helpers;
 
 namespace CustomerAppsApi.HealthChecks
 {
@@ -16,7 +19,8 @@ namespace CustomerAppsApi.HealthChecks
 		private readonly IHttpClientFactory _httpClientFactory;
 		private readonly IConfiguration _configuration;
 
-		public CustomerAppsApiHealthCheck(IHttpClientFactory httpClientFactory, IConfiguration configuration)
+		public CustomerAppsApiHealthCheck(ILogger<CustomerAppsApiHealthCheck> logger, IHttpClientFactory httpClientFactory, IConfiguration configuration, IUnitOfWorkFactory unitOfWorkFactory)
+			: base(logger, unitOfWorkFactory)
 		{
 			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
@@ -26,25 +30,24 @@ namespace CustomerAppsApi.HealthChecks
 		{
 			var healthSection = _configuration.GetSection("Health");
 			var baseAddress = healthSection.GetValue<string>("BaseAddress");
-			var httpClient = _httpClientFactory.CreateClient();
-			httpClient.BaseAddress = new Uri($"{baseAddress}/api/");
-			httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+			var cameFromId = healthSection.GetValue<int>("Variables:CameFromId");
+			var externalCounterpartyId = healthSection.GetValue<string>("Variables:ExternalCounterpartyId");
+			var phoneNumber = healthSection.GetValue<string>("Variables:PhoneNumber");
 
 			var request = new CounterpartyContactInfoDto
 			{
-				CameFromId = 54,
-				ExternalCounterpartyId = new Guid("e48130ef-3cdf-4d65-85ef-f928c04e5aa4"),
-				PhoneNumber = "9991327267"
+				CameFromId = cameFromId,
+				ExternalCounterpartyId = new Guid(externalCounterpartyId),
+				PhoneNumber = phoneNumber
 			};
 
-			var content = JsonSerializer.Serialize(request);
-			var httpContent = new StringContent(content, Encoding.UTF8, "application/json");
+			var response = await ResponseHelper.PostJsonByUri<CounterpartyContactInfoDto, CounterpartyIdentificationDto>(
+				$"{baseAddress}/api/GetCounterparty",
+				_httpClientFactory,
+				request);
 
-			var response = await httpClient.PostAsync("GetCounterparty", httpContent);
-			var responseBody = await response.Content.ReadAsStreamAsync();
-			var responseResult = await JsonSerializer.DeserializeAsync<CounterpartyIdentificationDto>(responseBody);
-
-			var isHealthy = responseResult?.CounterpartyIdentificationStatus == CounterpartyIdentificationStatus.Success;
+			var isHealthy = response?.CounterpartyIdentificationStatus == CounterpartyIdentificationStatus.Success;
 
 			return new() { IsHealthy = isHealthy };
 		}

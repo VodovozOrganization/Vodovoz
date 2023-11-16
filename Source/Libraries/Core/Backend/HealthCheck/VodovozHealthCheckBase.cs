@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using QS.DomainModel.UoW;
 using VodovozHealthCheck.Dto;
 
 namespace VodovozHealthCheck
@@ -11,10 +12,12 @@ namespace VodovozHealthCheck
 	public abstract class VodovozHealthCheckBase : IHealthCheck
 	{
 		private readonly ILogger<VodovozHealthCheckBase> _logger;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 
-		public VodovozHealthCheckBase(ILogger<VodovozHealthCheckBase> logger)
+		public VodovozHealthCheckBase(ILogger<VodovozHealthCheckBase> logger, IUnitOfWorkFactory unitOfWorkFactory)
 		{
-			_logger = logger;
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 		}
 
 		public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = new ())
@@ -25,6 +28,7 @@ namespace VodovozHealthCheck
 
 			try
 			{
+				CheckDbConnection();
 				healthResult = await GetHealthResult();
 			}
 			catch(Exception e)
@@ -52,6 +56,15 @@ namespace VodovozHealthCheck
 			_logger.LogInformation(failedMessage);
 
 			return HealthCheckResult.Unhealthy(failedMessage, null, unhealthyDictionary);
+		}
+
+		private void CheckDbConnection()
+		{
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot("HealthCheck"))
+			{
+				var query = uow.Session.CreateSQLQuery("SELECT 1");
+				query.UniqueResult<long>();
+			}
 		}
 
 		protected abstract Task<VodovozHealthResultDto> GetHealthResult();

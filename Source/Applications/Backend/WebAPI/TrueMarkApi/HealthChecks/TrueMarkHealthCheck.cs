@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using QS.DomainModel.UoW;
 using TrueMarkApi.Library;
 using Vodovoz.Settings.Edo;
 using VodovozHealthCheck;
@@ -12,7 +14,8 @@ namespace TrueMarkApi.HealthChecks
 	{
 		private readonly IEdoSettings _edoSettings;
 
-		public TrueMarkHealthCheck(IEdoSettings edoSettings)
+		public TrueMarkHealthCheck(ILogger<TrueMarkHealthCheck> logger, IEdoSettings edoSettings, IUnitOfWorkFactory unitOfWorkFactory)
+			: base(logger, unitOfWorkFactory)
 		{
 			_edoSettings = edoSettings ?? throw new ArgumentNullException(nameof(edoSettings));
 		}

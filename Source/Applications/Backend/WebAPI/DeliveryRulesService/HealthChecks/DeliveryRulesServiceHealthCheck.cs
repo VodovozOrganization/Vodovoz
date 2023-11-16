@@ -1,10 +1,10 @@
 ﻿using DeliveryRulesService.DTO;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
+using QS.DomainModel.UoW;
 using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
 using VodovozHealthCheck.Helpers;
@@ -16,7 +16,8 @@ namespace DeliveryRulesService.HealthChecks
 		private readonly IHttpClientFactory _httpClientFactory;
 		private readonly IConfiguration _configuration;
 
-		public DeliveryRulesServiceHealthCheck(IHttpClientFactory httpClientFactory, IConfiguration configuration)
+		public DeliveryRulesServiceHealthCheck(ILogger<DeliveryRulesServiceHealthCheck> logger, IHttpClientFactory httpClientFactory, IConfiguration configuration, IUnitOfWorkFactory unitOfWorkFactory)
+			: base(logger, unitOfWorkFactory)
 		{
 			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));

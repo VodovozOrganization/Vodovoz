@@ -3,6 +3,8 @@ using Grpc.Net.Client;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using QS.DomainModel.UoW;
 using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
 
@@ -12,7 +14,8 @@ namespace EarchiveApi.HealthChecks
 	{
 		private readonly IConfiguration _configuration;
 
-		public EarchiveApiHealthCheck(IConfiguration configuration)
+		public EarchiveApiHealthCheck(ILogger<EarchiveApiHealthCheck> logger,  IConfiguration configuration, IUnitOfWorkFactory unitOfWorkFactory)
+			: base(logger, unitOfWorkFactory)
 		{
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 		}

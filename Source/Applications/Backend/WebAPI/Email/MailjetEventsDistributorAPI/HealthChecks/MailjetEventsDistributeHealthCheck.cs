@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using QS.DomainModel.UoW;
 using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
 using VodovozHealthCheck.Helpers;
@@ -11,7 +13,8 @@ namespace MailjetEventsDistributorAPI.HealthChecks
 	{
 		private readonly IConfiguration _configuration;
 
-		public MailjetEventsDistributeHealthCheck(IConfiguration configuration)
+		public MailjetEventsDistributeHealthCheck(ILogger<MailjetEventsDistributeHealthCheck> logger, IConfiguration configuration, IUnitOfWorkFactory unitOfWorkFactory)
+		: base(logger, unitOfWorkFactory)
 		{
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 		}
