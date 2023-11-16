@@ -17,12 +17,14 @@ using QS.Project.Domain;
 using QS.Services;
 using System.Linq;
 using System.Reflection;
+using DeliveryRulesService.HealthChecks;
 using Vodovoz;
 using Vodovoz.Core.DataService;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.Settings.Database;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using VodovozHealthCheck;
 
 namespace DeliveryRulesService
 {
@@ -46,6 +48,10 @@ namespace DeliveryRulesService
 				//Необходимо для сериализации свойств как PascalCase
 				j.JsonSerializerOptions.PropertyNamingPolicy = null;
 			});
+
+			services.ConfigureHealthCheckService<DeliveryRulesServiceHealthCheck>();
+
+			services.AddHttpClient();
 
 			NLogBuilder.ConfigureNLog("NLog.config");
 
@@ -125,7 +131,9 @@ namespace DeliveryRulesService
 			{
 				endpoints.MapControllers();
 			});
-		}
+
+			app.ConfigureHealthCheckApplicationBuilder();
+        }
 
 		private void CreateBaseConfig()
 		{
