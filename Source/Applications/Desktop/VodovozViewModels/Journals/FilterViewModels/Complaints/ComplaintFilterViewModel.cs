@@ -21,8 +21,10 @@ using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.QualityControl.Reports;
 using Vodovoz.ViewModels.ViewModels.Complaints;
+using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Organizations;
 
 namespace Vodovoz.FilterViewModels
@@ -128,6 +130,15 @@ namespace Vodovoz.FilterViewModels
 			OpenNumberOfComplaintsAgainstDriversReportTabCommand = new DelegateCommand(OpenNumberOfComplaintsAgainstDriversReportTab);
 		}
 
+		private IEntityEntryViewModel BuildAuthorViewModel(DialogViewModelBase journal)
+		{
+			return new CommonEEVMBuilderFactory<ComplaintFilterViewModel>(journal, this, UoW, _navigationManager, _lifetimeScope)
+				.ForProperty(x => x.Employee)
+				.UseViewModelDialog<EmployeeViewModel>()
+				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel>()
+				.Finish();
+		}
+
 		private IEntityEntryViewModel BuildAtWorkInSubdivisionViewModel(DialogViewModelBase journal)
 		{
 			return new CommonEEVMBuilderFactory<ComplaintFilterViewModel>(journal, this, UoW, _navigationManager, _lifetimeScope)
@@ -163,6 +174,10 @@ namespace Vodovoz.FilterViewModels
 		public IEntityAutocompleteSelectorFactory ComplaintKindSelectorFactory { get; private set; }
 
 		public IEntityEntryViewModel ComplaintDetalizationEntiryEntryViewModel { get; private set; }
+
+		public IEntityEntryViewModel AuthorEntiryEntryViewModel { get; private set; }
+
+		public IEntityEntryViewModel CounterpartyEntiryEntryViewModel { get; private set; }
 
 		#region Commands
 
@@ -324,6 +339,7 @@ namespace Vodovoz.FilterViewModels
 				ComplaintDetalizationEntiryEntryViewModel = BuildComplaintDetalizationViewModel(value);
 				CurrentSubdivisionViewModel = BuildCurrentSubdivisionViewModel(value);
 				AtWorkInSubdivisionViewModel = BuildAtWorkInSubdivisionViewModel(value);
+				AuthorEntiryEntryViewModel = BuildAuthorViewModel(value);
 
 				GuiltyItemVM.SubdivisionViewModel = BuildeGuiltyItemSubdivisionViewModel(value);
 			}

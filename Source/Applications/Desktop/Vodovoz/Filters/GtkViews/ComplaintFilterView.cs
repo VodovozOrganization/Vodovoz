@@ -50,6 +50,7 @@ namespace Vodovoz.Filters.GtkViews
 
 			entryCurrentSubdivision.ViewModel = ViewModel.CurrentSubdivisionViewModel;
 			entryAtWorkInSubdivision.ViewModel = ViewModel.AtWorkInSubdivisionViewModel;
+			entityentryAuthor.ViewModel = ViewModel.AuthorEntiryEntryViewModel;
 
 			daterangepicker.Binding
 				.AddSource(ViewModel)
