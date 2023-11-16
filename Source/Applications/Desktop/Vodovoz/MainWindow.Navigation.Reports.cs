@@ -989,7 +989,7 @@ public partial class MainWindow
 			QSReport.ReportViewDlg.GenerateHashName<MileageReport>(),
 			() => new QSReport.ReportViewDlg(report));
 
-		tab.TabClosed += (_, _2) => scope?.Dispose();
+		report.Destroyed += (_, _2) => scope?.Dispose();
 	}
 
 	/// <summary>
@@ -1195,7 +1195,7 @@ public partial class MainWindow
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.FuelReport>(),
 			() => new QSReport.ReportViewDlg(report));
 
-		tab.TabClosed += (_, _2) => scope?.Dispose();
+		report.Destroyed += (_, _2) => scope?.Dispose();
 	}
 
 	/// <summary>
