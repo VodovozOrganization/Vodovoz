@@ -1,9 +1,8 @@
-﻿using System;
+﻿using QS.DomainModel.Entity;
+using QS.Project.Filter;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using QS.DomainModel.Entity;
-using QS.Project.Filter;
-using QS.Project.Journal;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 
@@ -49,7 +48,14 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Goods
 			get => _restrictCategory;
 			set {
 				if(UpdateFilterField(ref _restrictCategory, value))
+				{
 					CanChangeCategory = false;
+
+					if(RestrictCategory != NomenclatureCategory.equipment)
+					{
+						GlassHolderType = null;
+					}
+				}
 			}
 		}
 		public bool CanChangeCategory { get; private set; } = true;

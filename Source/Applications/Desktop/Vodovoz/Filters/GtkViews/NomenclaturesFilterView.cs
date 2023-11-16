@@ -38,7 +38,9 @@ namespace Vodovoz.Filters.GtkViews
 
 			yenumcomboboxAdditionalInfo.ItemsEnum = typeof(GlassHolderType);
 			yenumcomboboxAdditionalInfo.Binding
-				.AddBinding(ViewModel, vm => vm.GlassHolderType, w => w.SelectedItemOrNull)
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.GlassHolderType, w => w.SelectedItemOrNull)
+				.AddFuncBinding(vm => vm.RestrictCategory == null || vm.RestrictCategory == NomenclatureCategory.equipment, w => w.Sensitive)
 				.InitializeFromSource();
 		}
 
