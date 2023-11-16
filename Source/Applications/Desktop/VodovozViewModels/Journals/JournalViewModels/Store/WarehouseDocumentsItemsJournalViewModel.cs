@@ -116,6 +116,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 			UseSlider = false;
 
+			UoW.Session.DefaultReadOnly = true;
+
 			RegisterDocumentItems(_documentItemsTypes);
 
 			UpdateOnChanges(_documentItemsTypes.Concat(_documentTypes).ToArray());
@@ -1141,7 +1143,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.FromStorage)
 					.Select(() => warehouseAlias.Id).WithAlias(() => resultAlias.FromStorageId)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
-					.Select(() => selfDeliveryDocumentItemAlias.Amount).WithAlias(() => resultAlias.Amount)
+					.Select(() => -selfDeliveryDocumentItemAlias.Amount).WithAlias(() => resultAlias.Amount)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
 					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
