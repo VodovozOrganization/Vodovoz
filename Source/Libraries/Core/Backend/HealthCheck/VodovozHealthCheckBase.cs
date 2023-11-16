@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
-using NLog.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -11,7 +10,12 @@ namespace VodovozHealthCheck
 {
 	public abstract class VodovozHealthCheckBase : IHealthCheck
 	{
-		private readonly ILogger<VodovozHealthCheckBase> _logger =  new Logger<VodovozHealthCheckBase>(new NLogLoggerFactory());
+		private readonly ILogger<VodovozHealthCheckBase> _logger;
+
+		public VodovozHealthCheckBase(ILogger<VodovozHealthCheckBase> logger)
+		{
+			_logger = logger;
+		}
 
 		public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = new ())
 		{
