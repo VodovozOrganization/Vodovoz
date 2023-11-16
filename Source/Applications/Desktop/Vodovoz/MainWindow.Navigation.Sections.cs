@@ -5,6 +5,7 @@ using QS.Project.Journal;
 using QS.Project.Services;
 using System;
 using Vodovoz;
+using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Filters.ViewModels;
@@ -18,9 +19,11 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Accounting;
 using Vodovoz.ViewModels.Dialogs.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
+using Vodovoz.ViewModels.Logistic;
 
 public partial class MainWindow
 {
@@ -132,6 +135,44 @@ public partial class MainWindow
 	{
 		SwitchToUI("Vodovoz.toolbars.suppliers.xml");
 	}
+
+	#region Логистика
+
+	/// <summary>
+	/// Журнал МЛ
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	private void ActionRouteListTable_Activated(object sender, System.EventArgs e)
+	{
+		var filter = new RouteListJournalFilterViewModel();
+		filter.StartDate = DateTime.Today.AddMonths(-2);
+		filter.EndDate = DateTime.Today;
+
+		NavigationManager.OpenViewModel<RouteListJournalViewModel, RouteListJournalFilterViewModel>(null, filter);
+	}
+
+	/// <summary>
+	/// На работе
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	private void ActionAtWorks_Activated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenTdiTab<AtWorksDlg>(null);
+	}
+
+	/// <summary>
+	/// Формирование МЛ
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	void ActionRouteListsAtDay_Activated(object sender, System.EventArgs e)
+	{
+		NavigationManager.OpenViewModel<RouteListsOnDayViewModel>(null);
+	}
+
+	#endregion Логистика
 
 	protected void OnActionComplaintsActivated(object sender, EventArgs e)
 	{

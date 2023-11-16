@@ -1,38 +1,25 @@
-﻿using System;
+﻿using Fias.Search.DTO;
+using Microsoft.Extensions.Logging;
+using QS.Utilities.Text;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Fias.Search.DTO;
-using NLog;
-using QS.Utilities.Text;
 
 namespace Fias.Client.Loaders
 {
-	public interface IHousesDataLoader
+	internal class HousesDataLoader : FiasDataLoader, IHousesDataLoader
 	{
-		event Action HousesLoaded;
-
-		/// <summary>
-		///     Initialize loading geodata from service
-		/// </summary>
-		void LoadHouses(string searchString = null, Guid? streetGuid = null, Guid? cityGuid = null);
-
-		HouseDTO[] GetHouses();
-
-		Task<PointDTO> GetCoordinatesByGeocoderAsync(string address, CancellationToken cancellationToken);
-	}
-
-	public class HousesDataLoader : FiasDataLoader, IHousesDataLoader
-	{
-		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
-
+		private readonly ILogger<HousesDataLoader> _logger;
+		
 		protected Task<IEnumerable<HouseDTO>> CurrentLoadTask;
 
 		protected HouseDTO[] Houses;
 
-		public HousesDataLoader(IFiasApiClient fiasApiClient) : base(fiasApiClient)
+		public HousesDataLoader(ILogger<HousesDataLoader> logger, IFiasApiClient fiasApiClient) : base(fiasApiClient)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
 
 		public event Action HousesLoaded;
@@ -41,7 +28,7 @@ namespace Fias.Client.Loaders
 		{
 			CancelLoading();
 
-			_logger.Info("Запрос домов...");
+			_logger.LogInformation("Запрос домов...");
 
 			if(streetGuid != null)
 			{
@@ -58,7 +45,7 @@ namespace Fias.Client.Loaders
 
 			CurrentLoadTask.ContinueWith(SaveHouses, cancelTokenSource.Token, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.Default);
 
-			CurrentLoadTask.ContinueWith(arg => _logger.Error("Ошибка при загрузке домов", arg.Exception), TaskContinuationOptions.OnlyOnFaulted);
+			CurrentLoadTask.ContinueWith(arg => _logger.LogError(arg.Exception, "Ошибка при загрузке домов"), TaskContinuationOptions.OnlyOnFaulted);
 		}
 
 		public HouseDTO[] GetHouses()
@@ -71,7 +58,7 @@ namespace Fias.Client.Loaders
 			var houses = newHouses.Result;
 
 			Houses = houses.OrderBy(x => x.ComplexNumber, new NaturalStringComparer()).ToArray();
-			_logger.Info($"Домов загружено : { Houses.Length }");
+			_logger.LogInformation("Домов загружено : {HousesCount}", Houses.Length);
 			HousesLoaded?.Invoke();
 		}
 
@@ -79,7 +66,7 @@ namespace Fias.Client.Loaders
 		{
 			if(CurrentLoadTask == null || !CurrentLoadTask.IsCompleted)
 			{
-				_logger.Debug("Отмена предыдущей загрузки домов");
+				_logger.LogDebug("Отмена предыдущей загрузки домов");
 			}
 
 			cancelTokenSource.Cancel();

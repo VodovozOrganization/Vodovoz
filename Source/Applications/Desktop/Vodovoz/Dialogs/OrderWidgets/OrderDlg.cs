@@ -13,6 +13,7 @@ using QS.Dialog.GtkUI.FileDialog;
 using QS.DocTemplates;
 using QS.DomainModel.Entity;
 using QS.DomainModel.NotifyChange;
+using QS.DomainModel.Tracking;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Print;
@@ -27,23 +28,23 @@ using QS.ViewModels.Extension;
 using QSOrmProject;
 using QSProjectsLib;
 using QSWidgetLib;
-using RevenueService.Client.Extensions;
 using SmsPaymentService;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Data;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using Vodovoz.Additions.Printing;
 using Vodovoz.Controllers;
 using Vodovoz.Core;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
+using Vodovoz.Dialogs.Client;
 using Vodovoz.Dialogs.Email;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -106,6 +107,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 using Vodovoz.ViewModels.Orders;
+using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
@@ -131,7 +133,7 @@ namespace Vodovoz
 	{
 		private readonly int? _defaultCallBeforeArrival = 15;
 
-		private readonly ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		static Logger logger = LogManager.GetCurrentClassLogger();
 		private CancellationTokenSource _cancellationTokenCheckLiquidationSource;
 
@@ -364,6 +366,8 @@ namespace Vodovoz
 		public override void Destroy()
 		{
 			NotifyConfiguration.Instance.UnsubscribeAll(this);
+			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
 			_driverApiHelper?.Dispose();
 			base.Destroy();
 		}
@@ -754,12 +758,17 @@ namespace Vodovoz
 			enumTax.AddEnumToHideList(hideTaxTypeEnums);
 			enumTax.ChangedByUser += (sender, args) => { Entity.Client.TaxType = (TaxType)enumTax.SelectedItem; };
 
-			var counterpartyFilter = new CounterpartyJournalFilterViewModel()
-				{ IsForRetail = this.IsForRetail, IsForSalesDepartment = IsForSalesDepartment, RestrictIncludeArchive = false };
+			var counterpartyFilter = _lifetimeScope.Resolve<CounterpartyJournalFilterViewModel>();
+
 			entityVMEntryClient.SetEntityAutocompleteSelectorFactory(
 				new EntityAutocompleteSelectorFactory<CounterpartyJournalViewModel>(typeof(Counterparty),
 					() => new CounterpartyJournalViewModel(counterpartyFilter, UnitOfWorkFactory.GetDefaultFactory,
-						ServicesConfig.CommonServices, Startup.MainWin.NavigationManager))
+						ServicesConfig.CommonServices, Startup.MainWin.NavigationManager, filter =>
+						{
+							filter.IsForRetail = IsForRetail;
+							filter.IsForSalesDepartment = IsForSalesDepartment;
+							filter.RestrictIncludeArchive = false;
+						}))
 			);
 			entityVMEntryClient.Binding.AddBinding(Entity, s => s.Client, w => w.Subject).InitializeFromSource();
 			entityVMEntryClient.CanEditReference = true;
@@ -1029,15 +1038,13 @@ namespace Vodovoz
 			logisticsRequirementsView.ViewModel.Entity.PropertyChanged += OnLogisticsRequirementsSelectionChanged;
 
 			UpdateCallBeforeArrivalVisibility();
-
-			hboxCallBeforeArrival.Visible = false; // Удалить при выпуске МП водителей
 		}
 
 		private void UpdateCallBeforeArrivalVisibility()
 		{
 			var isNotFastDeliveryOrSelfDelivery = !(Entity.SelfDelivery || Entity.IsFastDelivery);
 
-			hboxCallBeforeArrival.Visible = isNotFastDeliveryOrSelfDelivery;
+			hboxCallBeforeArrival.Visible = false;// = isNotFastDeliveryOrSelfDelivery; Вернуть при выпуске МП водителей
 		}
 
 		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs args)
@@ -2012,13 +2019,6 @@ namespace Vodovoz
 					return false;
 				}
 
-				if(Entity.OrderStatus == OrderStatus.NewOrder) {
-					if(!MessageDialogHelper.RunQuestionDialog("Вы не подтвердили заказ. Вы уверены что хотите оставить его в качестве черновика?"))
-					{
-						return false;
-					}
-				}
-
 				if(Entity.Id == 0 &&
 					Entity.PaymentType == PaymentType.Cashless) {
 					Entity.OrderPaymentStatus = OrderPaymentStatus.UnPaid;
@@ -2030,7 +2030,7 @@ namespace Vodovoz
 
 				logger.Info("Сохраняем заказ...");
 
-				Entity.SaveEntity(UoWGeneric, _currentEmployee, _dailyNumberController, _paymentFromBankClientController);
+				Entity.SaveEntity(UoW, _currentEmployee, _dailyNumberController, _paymentFromBankClientController);
 
 				if(_isNeedSendBill)
 				{
@@ -2068,6 +2068,56 @@ namespace Vodovoz
 		}
 
 		private Result AcceptOrder()
+		{
+			if(!Save())
+			{
+				return Result.Failure(Errors.Orders.Order.Save);
+			}
+
+			using(var transaction = UoW.Session.BeginTransaction())
+			{
+				try
+				{
+					var acceptResult = TryAcceptOrder();
+
+					if(acceptResult.IsSuccess)
+					{
+						transaction.Commit();
+						GlobalUowEventsTracker.OnPostCommit((IUnitOfWorkTracked)UoW);
+						Save();
+					}
+
+					return acceptResult;
+				}
+				catch(Exception e)
+				{
+					if(!transaction.WasCommitted
+					   && !transaction.WasRolledBack
+					   && transaction.IsActive
+					   && UoW.Session.Connection.State == ConnectionState.Open)
+					{
+						try
+						{
+							transaction.Rollback();
+						}
+						catch { }
+					}
+
+					transaction.Dispose();
+
+					OnCloseTab(false);
+
+					TabParent.OpenTab(() => new OrderDlg(Entity.Id));
+
+					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+						"Возникла ошибка при подтверждении заказа, заказ был сохранён в виде черновика, вкладка переоткрыта.");
+
+					return Result.Failure(Errors.Orders.Order.AcceptException);
+				}
+			}
+		}
+
+		private Result TryAcceptOrder()
 		{
 			if(!Entity.CanSetOrderAsAccepted)
 			{
@@ -2230,26 +2280,12 @@ namespace Vodovoz
 				Entity.UpdateDocuments();
 			}
 
-			try
+			if(fastDeliveryAddress != null)
 			{
-				if(!Save())
-				{
-					return Result.Failure(Errors.Orders.Order.Save);
-				}
+				UoW.Session.Save(fastDeliveryAddress);
 
-				if(fastDeliveryAddress != null)
-				{
-					_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(
-						UoW, fastDeliveryAddress, DeliveryFreeBalanceType.Decrease);
-
-					UoW.Commit();
-				}
-			}
-			catch(Exception e)
-			{
-				logger.Log(LogLevel.Error, e.Message);
-
-				return Result.Failure(Errors.Orders.Order.Save);
+				_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(
+					UoW, fastDeliveryAddress, DeliveryFreeBalanceType.Decrease);
 			}
 
 			OpenNewOrderForDailyRentEquipmentReturnIfNeeded();
@@ -3125,8 +3161,11 @@ namespace Vodovoz
 			if(Entity.Client != null)
 			{
 				var filter = new DeliveryPointJournalFilterViewModel() { Counterparty = Entity.Client, HidenByDefault = true };
-				evmeDeliveryPoint.SetEntityAutocompleteSelectorFactory(new DeliveryPointJournalFactory(filter)
-					.CreateDeliveryPointByClientAutocompleteSelectorFactory());
+
+				var deliveryPointFactory = _lifetimeScope.Resolve<IDeliveryPointJournalFactory>();
+				deliveryPointFactory.SetDeliveryPointJournalFilterViewModel(filter);
+
+				evmeDeliveryPoint.SetEntityAutocompleteSelectorFactory(deliveryPointFactory.CreateDeliveryPointByClientAutocompleteSelectorFactory());
 				evmeDeliveryPoint.Sensitive = Entity.OrderStatus == OrderStatus.NewOrder;
 
 				PaymentType? previousPaymentType = enumPaymentType.SelectedItem as PaymentType?;
@@ -4837,5 +4876,21 @@ namespace Vodovoz
 		{
 			GetClipboard(Gdk.Selection.Clipboard).Text = _summaryInfoBuilder.ToString();
 		}
+
+		#region CustomCancellationConfirmationDialog
+		public override bool HasCustomCancellationConfirmationDialog => UoW.IsNew;
+		public override Func<int> CustomCancellationConfirmationDialogFunc => ShowOrderCancellationAdditionalConfirmationDialog;
+
+		private int ShowOrderCancellationAdditionalConfirmationDialog()
+		{
+			var dlg = new OrderCancellationConfirmationDlg();
+			dlg.SetPosition(WindowPosition.CenterAlways);
+			dlg.Title = "Подтверждение отмены заказа";
+			var result = dlg.Run();
+			dlg.Destroy();
+
+			return result;
+		}
+		#endregion CustomCancellationConfirmationDialog
 	}
 }

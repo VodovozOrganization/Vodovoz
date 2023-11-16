@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
+using Fias.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
 using Microsoft.Extensions.DependencyInjection;
@@ -72,7 +73,6 @@ using Vodovoz.Infrastructure.Mango;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalViewers;
 using Vodovoz.Models;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Parameters;
@@ -107,6 +107,7 @@ using Vodovoz.ViewModels.Infrastructure.Services;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Mango.Talks;
 using Vodovoz.ViewModels.Permissions;
+using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.Views.Mango.Talks;
 using Vodovoz.ViewWidgets;
 using VodovozInfrastructure.Endpoints;
@@ -636,7 +637,12 @@ namespace Vodovoz
 							.AddScoped<IRouteListService, RouteListService>()
 							.AddScoped<RouteGeometryCalculator>()
 							.AddSingleton<OsrmClient>(sp => OsrmClientFactory.Instance)
-							.AddSingleton<IFastDeliveryDistanceChecker, DistanceCalculator>();
+							.AddSingleton<IFastDeliveryDistanceChecker, DistanceCalculator>()
+							.AddScoped<IDebtorsParameters, DebtorsParameters>()
+							.AddFiasClient()
+							.AddSingleton<IFastDeliveryDistanceChecker, DistanceCalculator>()
+							.AddScoped<RevisionBottlesAndDeposits>()
+							.AddTransient<IReportExporter, ReportExporterAdapter>();
 				});
 	}
 }

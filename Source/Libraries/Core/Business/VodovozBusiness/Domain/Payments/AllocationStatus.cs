@@ -9,11 +9,4 @@ namespace Vodovoz.Domain.Payments
 		[Display(Name = "Распределение отменено")]
 		Cancelled
 	}
-	
-	public class AllocationStatusStringType : NHibernate.Type.EnumStringType
-	{
-		public AllocationStatusStringType() : base(typeof(AllocationStatus))
-		{
-		}
-	}
 }

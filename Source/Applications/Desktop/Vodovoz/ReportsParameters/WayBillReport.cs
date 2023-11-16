@@ -8,16 +8,22 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.TempAdapters;
+using Autofac;
 
 namespace Vodovoz.ReportsParameters
 {
 	public partial class WayBillReport : SingleUoWWidgetBase, IParametersWidget
 	{
+		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICarJournalFactory _carJournalFactory;
 
-		public WayBillReport(IEmployeeJournalFactory employeeJournalFactory, ICarJournalFactory carJournalFactory)
+		public WayBillReport(
+			ILifetimeScope lifetimeScope,
+			IEmployeeJournalFactory employeeJournalFactory,
+			ICarJournalFactory carJournalFactory)
 		{
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_carJournalFactory = carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory));
 
@@ -35,7 +41,7 @@ namespace Vodovoz.ReportsParameters
 			entryDriver.SetEntityAutocompleteSelectorFactory(
 				_employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory());
 
-			entryCar.SetEntityAutocompleteSelectorFactory(_carJournalFactory.CreateCarAutocompleteSelectorFactory());
+			entryCar.SetEntityAutocompleteSelectorFactory(_carJournalFactory.CreateCarAutocompleteSelectorFactory(_lifetimeScope));
 		}
 
 		#region IParametersWidget implementation

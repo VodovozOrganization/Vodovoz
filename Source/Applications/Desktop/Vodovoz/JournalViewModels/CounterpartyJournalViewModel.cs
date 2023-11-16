@@ -2,7 +2,9 @@
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using NHibernate.SqlCommand;
 using NHibernate.Transform;
+using NLog.LayoutRenderers.Wrappers;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -11,6 +13,7 @@ using QS.Services;
 using System;
 using System.Linq;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Retail;
 using Vodovoz.Filters.ViewModels;
@@ -31,9 +34,11 @@ namespace Vodovoz.JournalViewModels
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
 			Action<CounterpartyJournalFilterViewModel> filterConfiguration = null)
-            : base(filterViewModel, unitOfWorkFactory, commonServices, navigation: navigationManager)
+			: base(filterViewModel, unitOfWorkFactory, commonServices, navigation: navigationManager)
 		{
-            TabName = "Журнал контрагентов";
+			filterViewModel.Journal = this;
+
+			TabName = "Журнал контрагентов";
 
 			_userHaveAccessToRetail = commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_to_retail");
 			_canOpenCloseDeliveries =
@@ -101,12 +106,12 @@ namespace Vodovoz.JournalViewModels
 					var config = EntityConfigs[selectedNode.EntityType];
 					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
 
-                    TabParent.OpenTab(() => foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode), this);
-                    if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog)
-                    {
-                        HideJournal(TabParent);
-                    }
-                }
+					TabParent.OpenTab(() => foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode), this);
+					if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog)
+					{
+						HideJournal(TabParent);
+					}
+				}
 			);
 			if (SelectionMode == JournalSelectionMode.None)
 			{
@@ -189,6 +194,9 @@ namespace Vodovoz.JournalViewModels
 			DeliveryPoint deliveryPointAlias = null;
 			Tag tagAliasForSubquery = null;
 			SalesChannel salesChannelAlias = null;
+			CounterpartyClassification counterpartyClassificationAlias = null;
+
+			var counterpartyClassificationLastCalculationId = GetCounterpartyClassificationLastCalculationId(uow);
 
 			var query = uow.Session.QueryOver<Counterparty>(() => counterpartyAlias);
 
@@ -262,6 +270,66 @@ namespace Vodovoz.JournalViewModels
 				query.Where(c => c.INN == FilterViewModel.CounterpartyInn);
 			}
 
+			if(FilterViewModel?.CounterpartyClassification != null)
+			{
+				switch(FilterViewModel.CounterpartyClassification)
+				{
+					case (CounterpartyCompositeClassification.AX):
+						query.Where(() => counterpartyClassificationAlias.ClassificationByBottlesCount == CounterpartyClassificationByBottlesCount.A
+							&& counterpartyClassificationAlias.ClassificationByOrdersCount == CounterpartyClassificationByOrdersCount.X);
+						break;
+					case (CounterpartyCompositeClassification.AY):
+						query.Where(() => counterpartyClassificationAlias.ClassificationByBottlesCount == CounterpartyClassificationByBottlesCount.A
+							&& counterpartyClassificationAlias.ClassificationByOrdersCount == CounterpartyClassificationByOrdersCount.Y);
+						break;
+					case (CounterpartyCompositeClassification.AZ):
+						query.Where(() => counterpartyClassificationAlias.ClassificationByBottlesCount == CounterpartyClassificationByBottlesCount.A
+							&& counterpartyClassificationAlias.ClassificationByOrdersCount == CounterpartyClassificationByOrdersCount.Z);
+						break;
+					case (CounterpartyCompositeClassification.BX):
+						query.Where(() => counterpartyClassificationAlias.ClassificationByBottlesCount == CounterpartyClassificationByBottlesCount.B
+							&& counterpartyClassificationAlias.ClassificationByOrdersCount == CounterpartyClassificationByOrdersCount.X);
+						break;
+					case (CounterpartyCompositeClassification.BY):
+						query.Where(() => counterpartyClassificationAlias.ClassificationByBottlesCount == CounterpartyClassificationByBottlesCount.B
+							&& counterpartyClassificationAlias.ClassificationByOrdersCount == CounterpartyClassificationByOrdersCount.Y);
+						break;
+					case (CounterpartyCompositeClassification.BZ):
+						query.Where(() => counterpartyClassificationAlias.ClassificationByBottlesCount == CounterpartyClassificationByBottlesCount.B
+							&& counterpartyClassificationAlias.ClassificationByOrdersCount == CounterpartyClassificationByOrdersCount.Z);
+						break;
+					case (CounterpartyCompositeClassification.CX):
+						query.Where(() => counterpartyClassificationAlias.ClassificationByBottlesCount == CounterpartyClassificationByBottlesCount.C
+							&& counterpartyClassificationAlias.ClassificationByOrdersCount == CounterpartyClassificationByOrdersCount.X);
+						break;
+					case (CounterpartyCompositeClassification.CY):
+						query.Where(() => counterpartyClassificationAlias.ClassificationByBottlesCount == CounterpartyClassificationByBottlesCount.C
+							&& counterpartyClassificationAlias.ClassificationByOrdersCount == CounterpartyClassificationByOrdersCount.Y);
+						break;
+					case (CounterpartyCompositeClassification.CZ):
+						query.Where(() => counterpartyClassificationAlias.ClassificationByBottlesCount == CounterpartyClassificationByBottlesCount.C
+							&& counterpartyClassificationAlias.ClassificationByOrdersCount == CounterpartyClassificationByOrdersCount.Z);
+						break;
+					case (CounterpartyCompositeClassification.New):
+						query.Where(() => counterpartyClassificationAlias.Id == null);
+						break;
+					default:
+						throw new ArgumentException("Выбран неизвестный тип классификации контрагента");
+				}
+			}
+
+			if(FilterViewModel != null
+				&& FilterViewModel.ClientCameFrom != null
+				&& !FilterViewModel.ClientCameFromIsEmpty)
+			{
+				query.Where(c => c.CameFrom.Id == FilterViewModel.ClientCameFrom.Id);
+			}
+
+			if(FilterViewModel != null && FilterViewModel.ClientCameFromIsEmpty)
+			{
+				query.Where(c => c.CameFrom == null);
+			}
+
 			query.Where(FilterViewModel?.SearchByAddressViewModel?.GetSearchCriterion(
 				() => deliveryPointAlias.CompiledAddress
 			));
@@ -309,7 +377,12 @@ namespace Vodovoz.JournalViewModels
 			query
 				.Left.JoinAlias(c => c.Phones, () => phoneAlias)
 				.Left.JoinAlias(() => counterpartyAlias.DeliveryPoints, () => deliveryPointAlias)
-				.Left.JoinAlias(() => deliveryPointAlias.Phones, () => deliveryPointPhoneAlias);
+				.Left.JoinAlias(() => deliveryPointAlias.Phones, () => deliveryPointPhoneAlias)
+				.JoinEntityAlias(
+						() => counterpartyClassificationAlias,
+						() => counterpartyAlias.Id == counterpartyClassificationAlias.CounterpartyId
+							&& counterpartyClassificationAlias.ClassificationCalculationSettingsId == counterpartyClassificationLastCalculationId,
+						JoinType.LeftOuterJoin);
 
 			var searchHealperNew = new TempAdapters.SearchHelper(Search);
 
@@ -334,7 +407,7 @@ namespace Vodovoz.JournalViewModels
 			var counterpartyResultQuery = query
 				.SelectList(list => list
 					.SelectGroup(c => c.Id).WithAlias(() => resultAlias.Id)
-					.SelectGroup(c => c.VodovozInternalId).WithAlias(() => resultAlias.InternalId)
+					.Select(c => c.VodovozInternalId).WithAlias(() => resultAlias.InternalId)
 					.Select(c => c.Name).WithAlias(() => resultAlias.Name)
 					.Select(c => c.INN).WithAlias(() => resultAlias.INN)
 					.Select(c => c.IsArchive).WithAlias(() => resultAlias.IsArhive)
@@ -358,6 +431,8 @@ namespace Vodovoz.JournalViewModels
 					)
 					.SelectSubQuery(addressSubquery).WithAlias(() => resultAlias.Addresses)
 					.SelectSubQuery(tagsSubquery).WithAlias(() => resultAlias.Tags)
+					.Select(() => counterpartyClassificationAlias.ClassificationByBottlesCount).WithAlias(() => resultAlias.ClassificationByBottlesCount)
+					.Select(() => counterpartyClassificationAlias.ClassificationByOrdersCount).WithAlias(() => resultAlias.ClassificationByOrdersCount)
 				)
 				.TransformUsing(Transformers.AliasToBean<CounterpartyJournalNode>());
 
@@ -374,6 +449,9 @@ namespace Vodovoz.JournalViewModels
 			DeliveryPoint deliveryPointAlias = null;
 			Tag tagAliasForSubquery = null;
 			SalesChannel salesChannelAlias = null;
+			CounterpartyClassification counterpartyClassificationAlias = null;
+
+			var counterpartyClassificationLastCalculationId = GetCounterpartyClassificationLastCalculationId(uow);
 
 			var query = uow.Session.QueryOver<Counterparty>(() => counterpartyAlias);
 
@@ -447,6 +525,54 @@ namespace Vodovoz.JournalViewModels
 				query.Where(c => c.INN == FilterViewModel.CounterpartyInn);
 			}
 
+			if(FilterViewModel?.CounterpartyClassification != null)
+			{
+				switch(FilterViewModel.CounterpartyClassification)
+				{
+					case (CounterpartyCompositeClassification.AX):
+						query.Where(() => counterpartyClassificationAlias.ClassificationByBottlesCount == CounterpartyClassificationByBottlesCount.A
+							&& counterpartyClassificationAlias.ClassificationByOrdersCount == CounterpartyClassificationByOrdersCount.X);
+						break;
+					case (CounterpartyCompositeClassification.AY):
+						query.Where(() => counterpartyClassificationAlias.ClassificationByBottlesCount == CounterpartyClassificationByBottlesCount.A
+							&& counterpartyClassificationAlias.ClassificationByOrdersCount == CounterpartyClassificationByOrdersCount.Y);
+						break;
+					case (CounterpartyCompositeClassification.AZ):
+						query.Where(() => counterpartyClassificationAlias.ClassificationByBottlesCount == CounterpartyClassificationByBottlesCount.A
+							&& counterpartyClassificationAlias.ClassificationByOrdersCount == CounterpartyClassificationByOrdersCount.Z);
+						break;
+					case (CounterpartyCompositeClassification.BX):
+						query.Where(() => counterpartyClassificationAlias.ClassificationByBottlesCount == CounterpartyClassificationByBottlesCount.B
+							&& counterpartyClassificationAlias.ClassificationByOrdersCount == CounterpartyClassificationByOrdersCount.X);
+						break;
+					case (CounterpartyCompositeClassification.BY):
+						query.Where(() => counterpartyClassificationAlias.ClassificationByBottlesCount == CounterpartyClassificationByBottlesCount.B
+							&& counterpartyClassificationAlias.ClassificationByOrdersCount == CounterpartyClassificationByOrdersCount.Y);
+						break;
+					case (CounterpartyCompositeClassification.BZ):
+						query.Where(() => counterpartyClassificationAlias.ClassificationByBottlesCount == CounterpartyClassificationByBottlesCount.B
+							&& counterpartyClassificationAlias.ClassificationByOrdersCount == CounterpartyClassificationByOrdersCount.Z);
+						break;
+					case (CounterpartyCompositeClassification.CX):
+						query.Where(() => counterpartyClassificationAlias.ClassificationByBottlesCount == CounterpartyClassificationByBottlesCount.C
+							&& counterpartyClassificationAlias.ClassificationByOrdersCount == CounterpartyClassificationByOrdersCount.X);
+						break;
+					case (CounterpartyCompositeClassification.CY):
+						query.Where(() => counterpartyClassificationAlias.ClassificationByBottlesCount == CounterpartyClassificationByBottlesCount.C
+							&& counterpartyClassificationAlias.ClassificationByOrdersCount == CounterpartyClassificationByOrdersCount.Y);
+						break;
+					case (CounterpartyCompositeClassification.CZ):
+						query.Where(() => counterpartyClassificationAlias.ClassificationByBottlesCount == CounterpartyClassificationByBottlesCount.C
+							&& counterpartyClassificationAlias.ClassificationByOrdersCount == CounterpartyClassificationByOrdersCount.Z);
+						break;
+					case (CounterpartyCompositeClassification.New):
+						query.Where(() => counterpartyClassificationAlias.Id == null);
+						break;
+					default:
+						throw new ArgumentException("Выбран неизвестный тип классификации контрагента");
+				}
+			}
+
 			query.Where(FilterViewModel?.SearchByAddressViewModel?.GetSearchCriterion(
 				() => deliveryPointAlias.CompiledAddress
 			));
@@ -514,7 +640,12 @@ namespace Vodovoz.JournalViewModels
 			query
 				.Left.JoinAlias(c => c.Phones, () => phoneAlias)
 				.Left.JoinAlias(() => counterpartyAlias.DeliveryPoints, () => deliveryPointAlias)
-				.Left.JoinAlias(() => deliveryPointAlias.Phones, () => deliveryPointPhoneAlias);
+				.Left.JoinAlias(() => deliveryPointAlias.Phones, () => deliveryPointPhoneAlias)
+				.JoinEntityAlias(
+						() => counterpartyClassificationAlias,
+						() => counterpartyAlias.Id == counterpartyClassificationAlias.CounterpartyId
+							&& counterpartyClassificationAlias.ClassificationCalculationSettingsId == counterpartyClassificationLastCalculationId,
+						JoinType.LeftOuterJoin);
 
 			var resultCountQuery = query
 				.SelectList(list => list
@@ -526,6 +657,12 @@ namespace Vodovoz.JournalViewModels
 
 		protected override Func<CounterpartyDlg> CreateDialogFunction => () => new CounterpartyDlg();
 
-        protected override Func<CounterpartyJournalNode, CounterpartyDlg> OpenDialogFunction => (node) => new CounterpartyDlg(node.Id);
-    }
+		protected override Func<CounterpartyJournalNode, CounterpartyDlg> OpenDialogFunction => (node) => new CounterpartyDlg(node.Id);
+
+		private int GetCounterpartyClassificationLastCalculationId(IUnitOfWork uow) => uow.GetAll<CounterpartyClassification>()
+				.Select(c => c.ClassificationCalculationSettingsId)
+				.OrderByDescending(c => c)
+				.FirstOrDefault();
+
+	}
 }

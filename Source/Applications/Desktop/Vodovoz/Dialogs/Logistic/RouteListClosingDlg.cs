@@ -1,8 +1,7 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
-using NLog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
@@ -19,7 +18,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using Vodovoz.Controllers;
-using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
@@ -29,29 +27,21 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
-using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
-using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.Permissions;
-using Vodovoz.EntityRepositories.Profitability;
-using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
 using Vodovoz.Infrastructure;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Settings.Cash;
 using Vodovoz.TempAdapters;
-using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Cash;
 using Vodovoz.ViewModels.FuelDocuments;
@@ -62,45 +52,42 @@ using QS.Utilities.Debug;
 using Vodovoz.Extensions;
 using QS.Navigation;
 using Vodovoz.ViewModels.Employees;
+using Microsoft.Extensions.Logging;
 
 namespace Vodovoz
 {
 	public partial class RouteListClosingDlg : QS.Dialog.Gtk.EntityDialogBase<RouteList>, IAskSaveOnCloseViewModel
 	{
 		#region поля
-		private static Logger logger = LogManager.GetCurrentClassLogger();
-		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
-		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(_parametersProvider);
-		private static readonly IOrderParametersProvider _orderParametersProvider = new OrderParametersProvider(_parametersProvider);
-		private static readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider =
-			new DeliveryRulesParametersProvider(_parametersProvider);
-		private static readonly INomenclatureParametersProvider _nomenclatureParametersProvider =
-			new NomenclatureParametersProvider(_parametersProvider);
-		private static readonly IRouteListRepository _routeListRepository =
-			new RouteListRepository(new StockRepository(), _baseParametersProvider);
-		private static readonly INomenclatureRepository _nomenclatureRepository =
-			new NomenclatureRepository(_nomenclatureParametersProvider);
+		private ILifetimeScope _lifetimeScope;
 
-		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private readonly IDeliveryShiftRepository _deliveryShiftRepository = new DeliveryShiftRepository();
-		private readonly ICashRepository _cashRepository = new CashRepository();
-		private readonly ICategoryRepository _categoryRepository = new CategoryRepository(_parametersProvider);
-		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings = Startup.AppDIContainer.Resolve<IFinancialCategoriesGroupsSettings>();
-		private readonly IAccountableDebtsRepository _accountableDebtsRepository = new AccountableDebtsRepository();
-		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository(_parametersProvider);
-		private readonly ITrackRepository _trackRepository = new TrackRepository();
-		private readonly IFuelRepository _fuelRepository = new FuelRepository();
-		private readonly IRouteListItemRepository _routeListItemRepository = new RouteListItemRepository();
-		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
-		private readonly IRouteListProfitabilityController _routeListProfitabilityController =
-			new RouteListProfitabilityController(
-				new RouteListProfitabilityFactory(),
-				_nomenclatureParametersProvider,
-				new ProfitabilityConstantsRepository(),
-				new RouteListProfitabilityRepository(),
-				_routeListRepository,
-				_nomenclatureRepository);
-		private RouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController;
+		private ILogger<RouteListClosingDlg> _logger;
+
+		private IParametersProvider _parametersProvider;
+		private IOrderParametersProvider _orderParametersProvider;
+		private IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
+		private INomenclatureParametersProvider _nomenclatureParametersProvider;
+		private IRouteListRepository _routeListRepository;
+		private INomenclatureRepository _nomenclatureRepository;
+
+		private IEmployeeRepository _employeeRepository;
+		private IDeliveryShiftRepository _deliveryShiftRepository;
+		private ICashRepository _cashRepository;
+		private ICategoryRepository _categoryRepository;
+		private IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings;
+		private IAccountableDebtsRepository _accountableDebtsRepository;
+		private ISubdivisionRepository _subdivisionRepository;
+		private ITrackRepository _trackRepository;
+		private IFuelRepository _fuelRepository;
+		private IRouteListItemRepository _routeListItemRepository;
+		private IValidationContextFactory _validationContextFactory;
+		private IRouteListProfitabilityController _routeListProfitabilityController;
+		private IRouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController;
+		private IWageParameterService _wageParameterService;
+		private IPaymentFromBankClientController _paymentFromBankClientController;
+		private IEmployeeNomenclatureMovementRepository _employeeNomenclatureMovementRepository;
+		private INewDriverAdvanceParametersProvider _newDriverAdvanceParametersProvider;
+
 		private readonly bool _isOpenFromCash;
 		private readonly bool _isRoleCashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.RoleCashier);
 
@@ -111,9 +98,6 @@ namespace Vodovoz
 		private bool _canEdit;
 		private bool? _canEditFuelCardNumber;
 
-		WageParameterService wageParameterService = new WageParameterService(new WageCalculationRepository(), _baseParametersProvider);
-		private EmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository = new EmployeeNomenclatureMovementRepository();
-		private IPaymentFromBankClientController _paymentFromBankClientController;
 		private bool _needToSelectTerminalCondition = false;
 		private bool _hasAccessToDriverTerminal = false;
 
@@ -129,23 +113,7 @@ namespace Vodovoz
 		private Dictionary<int, HashSet<RouteListAddressKeepingDocumentItem>> _addressKeepingDocumentBottlesCacheList =
 			new Dictionary<int, HashSet<RouteListAddressKeepingDocumentItem>>();
 
-		private CallTaskWorker callTaskWorker;
-		public virtual CallTaskWorker CallTaskWorker {
-			get {
-				if(callTaskWorker == null) {
-					callTaskWorker = new CallTaskWorker(
-						CallTaskSingletonFactory.GetInstance(),
-						new CallTaskRepository(),
-						new OrderRepository(),
-						_employeeRepository,
-						_baseParametersProvider,
-						ServicesConfig.CommonServices.UserService,
-						ErrorReporter.Instance);
-				}
-				return callTaskWorker;
-			}
-			set { callTaskWorker = value; }
-		}
+		public virtual ICallTaskWorker CallTaskWorker { get; private set; }
 
 		public ITdiCompatibilityNavigation NavigationManager => Startup.MainWin.NavigationManager;
 
@@ -157,6 +125,7 @@ namespace Vodovoz
 
 		public RouteListClosingDlg(int routeListId, bool isOpenFromCash = false)
 		{
+			RetrieveDependencies();
 			_isOpenFromCash = isOpenFromCash;
 			Build();
 
@@ -171,6 +140,40 @@ namespace Vodovoz
 
 		public bool AskSaveOnClose => _canEdit;
 
+		private void RetrieveDependencies()
+		{
+			_lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+
+			_logger = _lifetimeScope.Resolve<ILogger<RouteListClosingDlg>>();
+
+			_parametersProvider = _lifetimeScope.Resolve<IParametersProvider>();
+			_orderParametersProvider = _lifetimeScope.Resolve<IOrderParametersProvider>();
+			_deliveryRulesParametersProvider = _lifetimeScope.Resolve<IDeliveryRulesParametersProvider>();
+			_nomenclatureParametersProvider = _lifetimeScope.Resolve<INomenclatureParametersProvider>();
+			_routeListRepository = _lifetimeScope.Resolve<IRouteListRepository>();
+			_nomenclatureRepository = _lifetimeScope.Resolve<INomenclatureRepository>();
+
+			_employeeRepository = _lifetimeScope.Resolve<IEmployeeRepository>();
+			_deliveryShiftRepository = _lifetimeScope.Resolve<IDeliveryShiftRepository>();
+			_cashRepository = _lifetimeScope.Resolve<ICashRepository>();
+			_categoryRepository = _lifetimeScope.Resolve<ICategoryRepository>();
+			_financialCategoriesGroupsSettings = _lifetimeScope.Resolve<IFinancialCategoriesGroupsSettings>();
+			_accountableDebtsRepository = _lifetimeScope.Resolve<IAccountableDebtsRepository>();
+			_subdivisionRepository = _lifetimeScope.Resolve<ISubdivisionRepository>();
+			_trackRepository = _lifetimeScope.Resolve<ITrackRepository>();
+			_fuelRepository = _lifetimeScope.Resolve<IFuelRepository>();
+			_routeListItemRepository = _lifetimeScope.Resolve<IRouteListItemRepository>();
+			_validationContextFactory = _lifetimeScope.Resolve<IValidationContextFactory>();
+			_routeListProfitabilityController = _lifetimeScope.Resolve<IRouteListProfitabilityController>();
+			_routeListAddressKeepingDocumentController = _lifetimeScope.Resolve<IRouteListAddressKeepingDocumentController>();
+			_wageParameterService = _lifetimeScope.Resolve<IWageParameterService>();
+			_paymentFromBankClientController = _lifetimeScope.Resolve<IPaymentFromBankClientController>();
+			_employeeNomenclatureMovementRepository = _lifetimeScope.Resolve<IEmployeeNomenclatureMovementRepository>();
+			_newDriverAdvanceParametersProvider = _lifetimeScope.Resolve<INewDriverAdvanceParametersProvider>();
+
+			CallTaskWorker = _lifetimeScope.Resolve<ICallTaskWorker>();
+		}
+
 		private void ConfigureDlg()
 		{
 			var availableStatusesForAccepting = new RouteListStatus[]
@@ -182,8 +185,7 @@ namespace Vodovoz
 			_canEdit = _isRoleCashier
 				&& permissionResult.CanUpdate
 				&& (!Entity.WasAcceptedByCashier || availableStatusesForAccepting.Contains(Entity.Status));
-			_paymentFromBankClientController =
-				new PaymentFromBankClientController(new PaymentItemsRepository(), new OrderRepository(), new PaymentsRepository());
+
 			if(Entity.AddressesOrderWasChangedAfterPrinted) {
 				MessageDialogHelper.RunInfoDialog("<span color=\"red\">ВНИМАНИЕ!</span> Порядок адресов в Мл был изменен!");
 			}
@@ -203,7 +205,7 @@ namespace Vodovoz
 			Entity.ObservableFuelDocuments.ElementAdded += ObservableFuelDocuments_ElementAdded;
 			Entity.ObservableFuelDocuments.ElementRemoved += ObservableFuelDocuments_ElementRemoved;
 
-			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(NavigationManager).CreateCarAutocompleteSelectorFactory());
+			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(NavigationManager).CreateCarAutocompleteSelectorFactory(_lifetimeScope));
 			entityviewmodelentryCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 
@@ -286,7 +288,7 @@ namespace Vodovoz
 			PerformanceHelper.AddTimePoint("Получили возврат на склад");
 			//FIXME Убрать из этого места первоначальное заполнение. Сейчас оно вызывается при переводе статуса на сдачу. После того как не нормально не переведенных в закрытие маршрутников, тут заполение можно убрать.
 			if(!Entity.ClosingFilled)
-				Entity.FirstFillClosing(wageParameterService);
+				Entity.FirstFillClosing(_wageParameterService);
 
 			PerformanceHelper.AddTimePoint("Закончено первоначальное заполнение");
 
@@ -314,7 +316,7 @@ namespace Vodovoz
 			UpdateFuelInfo();
 			PerformanceHelper.AddTimePoint("Загрузка бензина");
 
-			PerformanceHelper.Main.PrintAllPoints(logger);
+			PerformanceHelper.Main.PrintAllPoints(_logger);
 
 			//Подписки на обновления
 			OrmMain.GetObjectDescription<CarUnloadDocument>().ObjectUpdatedGeneric += OnCalUnloadUpdated;
@@ -475,8 +477,8 @@ namespace Vodovoz
 		{
 			decimal driverCurrentWage = Entity.GetDriversTotalWage();
 			decimal forwarderCurrentWage = Entity.GetForwardersTotalWage();
-			decimal driverRecalcWage = Entity.GetRecalculatedDriverWage(wageParameterService);
-			decimal forwarderRecalcWage = Entity.GetRecalculatedForwarderWage(wageParameterService);
+			decimal driverRecalcWage = Entity.GetRecalculatedDriverWage(_wageParameterService);
+			decimal forwarderRecalcWage = Entity.GetRecalculatedForwarderWage(_wageParameterService);
 
 			string recalcWageMessage = "Найдены расхождения после пересчета зарплаты:";
 			bool hasDiscrepancy = false;
@@ -492,7 +494,7 @@ namespace Vodovoz
 
 			if(hasDiscrepancy && Entity.Status == RouteListStatus.Closed) {
 				MessageDialogHelper.RunInfoDialog(recalcWageMessage);
-				Entity.RecalculateAllWages(wageParameterService);
+				Entity.RecalculateAllWages(_wageParameterService);
 			}
 		}
 
@@ -537,7 +539,7 @@ namespace Vodovoz
 				case nameof(Entity.NormalWage):
 				case nameof(Entity.Driver) when Entity.Car != null && Entity.Driver != null:
 				case nameof(Entity.Car) when Entity.Car != null && Entity.Driver != null:
-					Entity.RecalculateAllWages(wageParameterService);
+					Entity.RecalculateAllWages(_wageParameterService);
 					break;
 			}
 		}
@@ -619,7 +621,7 @@ namespace Vodovoz
 				if((previousForwarder == null && newForwarder != null)
 						|| (previousForwarder != null && newForwarder == null))
 				{
-					Entity.RecalculateAllWages(wageParameterService);
+					Entity.RecalculateAllWages(_wageParameterService);
 				}
 			}
 
@@ -643,63 +645,47 @@ namespace Vodovoz
 					this.TabParent.AddSlaveTab(
 						this, new TransferGoodsBetweenRLDlg(Entity, 
 							TransferGoodsBetweenRLDlg.OpenParameter.Sender,
-							employeeNomenclatureMovementRepository)
+							_employeeNomenclatureMovementRepository)
 					);
 					break;
 				case RouteListActions.TransferReceptionToThisRL:
 					this.TabParent.AddSlaveTab(
 						this, new TransferGoodsBetweenRLDlg(Entity, 
 							TransferGoodsBetweenRLDlg.OpenParameter.Receiver,
-							employeeNomenclatureMovementRepository)
+							_employeeNomenclatureMovementRepository)
 					);
 					break;
 				case RouteListActions.TransferAddressesToThisRL:
 					if(UoW.HasChanges) {
 						if(MessageDialogHelper.RunQuestionDialog("Необходимо сохранить документ.\nСохранить?"))
-							this.Save();
+						{
+							Save();
+						}
 						else
+						{
 							return;
+						}
 					}
-					this.TabParent.AddSlaveTab(
-						this, 
-						new RouteListAddressesTransferringDlg(
-							Entity.Id, 
-							RouteListAddressesTransferringDlg.OpenParameter.Receiver,
-							employeeNomenclatureMovementRepository,
-							_baseParametersProvider,
-							_routeListRepository,
-							_routeListItemRepository,
-							new EmployeeService(),
-							ServicesConfig.CommonServices,
-							_financialCategoriesGroupsSettings,
-							_employeeRepository,
-							_nomenclatureParametersProvider
-						)
-					);
+					NavigationManager.OpenTdiTabOnTdi<RouteListAddressesTransferringDlg, int, RouteListAddressesTransferringDlg.OpenParameter>(
+						this,
+						Entity.Id,
+						RouteListAddressesTransferringDlg.OpenParameter.Receiver);
 					break;
 				case RouteListActions.TransferAddressesToAnotherRL:
 					if(UoW.HasChanges) {
 						if(MessageDialogHelper.RunQuestionDialog("Необходимо сохранить документ.\nСохранить?"))
-							this.Save();
+						{
+							Save();
+						}
 						else
+						{
 							return;
+						}
 					}
-					this.TabParent.AddSlaveTab(
-						this, 
-						new RouteListAddressesTransferringDlg(
-							Entity.Id, 
-							RouteListAddressesTransferringDlg.OpenParameter.Sender,
-							employeeNomenclatureMovementRepository,
-							_baseParametersProvider,
-							_routeListRepository,
-							_routeListItemRepository,
-							new EmployeeService(),
-							ServicesConfig.CommonServices,
-							_financialCategoriesGroupsSettings,
-							_employeeRepository,
-							_nomenclatureParametersProvider
-						)
-					);
+					NavigationManager.OpenTdiTabOnTdi<RouteListAddressesTransferringDlg, int, RouteListAddressesTransferringDlg.OpenParameter>(
+						this,
+						Entity.Id,
+						RouteListAddressesTransferringDlg.OpenParameter.Sender);
 					break;
 				default:
 					break;
@@ -748,7 +734,7 @@ namespace Vodovoz
 			
 			if(Entity.Driver != null)
 			{
-				Entity.RecalculateWagesForRouteListItem(item, wageParameterService);
+				Entity.RecalculateWagesForRouteListItem(item, _wageParameterService);
 			}
 
 			item.RecalculateTotalCash();
@@ -779,7 +765,7 @@ namespace Vodovoz
 		{
 			foreach(var item in routeListAddressesView.Items) {
 				var rli = item as RouteListItem;
-				Entity.RecalculateWagesForRouteListItem(rli, wageParameterService);
+				Entity.RecalculateWagesForRouteListItem(rli, _wageParameterService);
 				rli.RecalculateTotalCash();
 			}
 			routelistdiscrepancyview.FindDiscrepancies();
@@ -826,7 +812,7 @@ namespace Vodovoz
 			decimal depositsCollectedTotal = items.Sum(item => item.BottleDepositsCollected);
 			decimal equipmentDepositsCollectedTotal = items.Sum(item => item.EquipmentDepositsCollected);
 			decimal totalCollected = items.Sum(item => item.TotalCash);
-			Entity.CalculateWages(wageParameterService);
+			Entity.CalculateWages(_wageParameterService);
 			decimal driverWage = Entity.GetDriversTotalWage();
 			decimal forwarderWage = Entity.GetForwardersTotalWage();
 
@@ -1065,8 +1051,7 @@ namespace Vodovoz
 				PerformanceHelper.AddTimePoint("Создан расходный ордер");
 			}
 
-			INewDriverAdvanceParametersProvider newDriverAdvanceParametersProvider = new NewDriverAdvanceParametersProvider(_parametersProvider);
-			NewDriverAdvanceModel newDriverAdvanceModel = new NewDriverAdvanceModel(newDriverAdvanceParametersProvider, _routeListRepository, Entity);
+			NewDriverAdvanceModel newDriverAdvanceModel = new NewDriverAdvanceModel(_newDriverAdvanceParametersProvider, _routeListRepository, Entity);
 			bool needNewDriverAdvance = _isOpenFromCash && newDriverAdvanceModel.NeedNewDriverAdvance(UoW);
 			bool hasDriverUnclosedRouteLists = newDriverAdvanceModel.UnclosedRouteLists(UoW).Any();
 			if(needNewDriverAdvance)
@@ -1082,7 +1067,7 @@ namespace Vodovoz
 
 				if (!hasDriverUnclosedRouteLists)
 				{
-					var newDriverAdvanceSumParameter = newDriverAdvanceParametersProvider.NewDriverAdvanceSum;
+					var newDriverAdvanceSumParameter = _newDriverAdvanceParametersProvider.NewDriverAdvanceSum;
 					var driverWage = Entity.GetDriversTotalWage();
 					if(driverWage > 0)
 					{
@@ -1142,7 +1127,7 @@ namespace Vodovoz
 			
 			PerformanceHelper.AddTimePoint("Сохранение и закрытие завершено");
 			
-			PerformanceHelper.Main.PrintAllPoints(logger);
+			PerformanceHelper.Main.PrintAllPoints(_logger);
 		}
 
 		private void ShowCashSummaryMessage()
@@ -1429,6 +1414,8 @@ namespace Vodovoz
 		{
 			NotifyConfiguration.Instance.UnsubscribeAll(this);
 			OrmMain.GetObjectDescription<CarUnloadDocument>().ObjectUpdatedGeneric -= OnCalUnloadUpdated;
+			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
 			base.Destroy();
 		}
 
@@ -1528,38 +1515,12 @@ namespace Vodovoz
 
 		protected void OnButtonAddFuelDocumentClicked(object sender, EventArgs e)
 		{
-			var tab = new FuelDocumentViewModel(
-					  UoW,
-					  Entity,
-					  ServicesConfig.CommonServices,
-					  _subdivisionRepository,
-					  _employeeRepository,
-					  new FuelRepository(),
-					  NavigationManagerProvider.NavigationManager,
-					  _trackRepository,
-					  new EmployeeJournalFactory(NavigationManager),
-					  _financialCategoriesGroupsSettings,
-					  new CarJournalFactory(NavigationManager)
-			);
-			TabParent.AddSlaveTab(this, tab);
+			NavigationManager.OpenViewModelOnTdi<FuelDocumentViewModel, IUnitOfWork, RouteList>(this, UoW, Entity);
 		}
 
 		protected void OnYtreeviewFuelDocumentsRowActivated(object o, RowActivatedArgs args)
 		{
-			var tab = new FuelDocumentViewModel(
-				  UoW,
-				  ytreeviewFuelDocuments.GetSelectedObject<FuelDocument>(),
-				  ServicesConfig.CommonServices,
-				  _subdivisionRepository,
-				  _employeeRepository,
-				  new FuelRepository(),
-				  NavigationManagerProvider.NavigationManager,
-				  _trackRepository,
-				  new EmployeeJournalFactory(NavigationManager),
-				  _financialCategoriesGroupsSettings,
-				  new CarJournalFactory(NavigationManager)
-			);
-			TabParent.AddSlaveTab(this, tab);
+			NavigationManager.OpenViewModelOnTdi<FuelDocumentViewModel, IUnitOfWork, FuelDocument>(this, UoW, ytreeviewFuelDocuments.GetSelectedObject<FuelDocument>());
 		}
 
 		protected void OnButtonCalculateCashClicked(object sender, EventArgs e)
@@ -1605,7 +1566,7 @@ namespace Vodovoz
 			if(toggleWageDetails.Active)
 			{
 				notebook1.CurrentPage = 1;
-				textWageDetails.Buffer.Text = Entity.GetWageCalculationDetails(wageParameterService);
+				textWageDetails.Buffer.Text = Entity.GetWageCalculationDetails(_wageParameterService);
 			}
 		}
 
