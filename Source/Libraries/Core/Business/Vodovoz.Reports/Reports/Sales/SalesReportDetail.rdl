@@ -938,7 +938,8 @@
     T.nomen_group_level_1_id,
     T.nomen_group_level_2_id,
     T.nomen_group_level_3_id,
-    counterparty_classification
+    counterparty_classification,
+    promotional_set
 FROM
     (SELECT
          counterparty.id AS counterparty_id,
@@ -1016,7 +1017,8 @@ FROM
          IFNULL(group_levels.level_3_name, 'Без группы') as nomen_group_level_3_name,
          s.name as author_subdivision,
          s.id as author_subdivision_id,
-         IFNULL(CONCAT(cc.classification_by_bottles_count, cc.classification_by_orders_count), 'Новый') as counterparty_classification
+         IFNULL(CONCAT(cc.classification_by_bottles_count, cc.classification_by_orders_count), 'Новый') as counterparty_classification,
+         IFNULL(ps.name, 'Без промонабора')  as promotional_set
      FROM
          order_items
              LEFT JOIN
@@ -1101,6 +1103,8 @@ FROM
 					FROM counterparty_classification cc2
 					ORDER BY cc2.id DESC 
 					LIMIT 1)
+		    	LEFT JOIN
+		    promotional_sets ps ON ps.id = order_items.promotional_set_id
      WHERE
          (order_status = 'Accepted'
              OR order_status = 'InTravelList'
@@ -1493,6 +1497,10 @@ GROUP BY T.order_items_id
         </Field>
         <Field Name="counterparty_classification">
           <DataField>counterparty_classification</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="promotional_set">
+          <DataField>promotional_set</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
