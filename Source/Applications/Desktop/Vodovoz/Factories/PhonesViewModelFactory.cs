@@ -28,7 +28,7 @@ namespace Vodovoz.Factories
 			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			IFileDialogService fileDialogService = new FileDialogService();
 			var roboatsViewModelFactory = new RoboatsViewModelFactory(roboatsFileStorageFactory, fileDialogService, ServicesConfig.CommonServices.CurrentPermissionService);
-			var nomenclatureJournalFactory = new NomenclatureJournalFactory();
+			var nomenclatureJournalFactory = new NomenclatureJournalFactory(_lifetimeScope);
 			_roboatsJournalsFactory = new RoboatsJournalsFactory(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, roboatsViewModelFactory, nomenclatureJournalFactory);
 		}
 

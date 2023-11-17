@@ -1,21 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Autofac;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
-using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
+using System;
+using System.Linq;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.FilterViewModels.Goods;
-using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalNodes;
-using Vodovoz.JournalViewModels;
 using Vodovoz.Services;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
@@ -31,6 +26,7 @@ namespace Vodovoz.ViewModels.Orders
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IUserRepository _userRepository;
+		private readonly ILifetimeScope _lifetimeScope;
 		private readonly ICounterpartyJournalFactory _counterpartySelectorFactory;
 		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 
@@ -43,12 +39,14 @@ namespace Vodovoz.ViewModels.Orders
 			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			INomenclatureSettings nomenclatureSettings,
-			IUserRepository userRepository) : base(uowBuilder, unitOfWorkFactory, commonServices)
+			IUserRepository userRepository,
+			ILifetimeScope lifetimeScope) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			CanChangeType = commonServices.CurrentPermissionService.ValidatePresetPermission( "can_change_the_type_of_promo_set" );
@@ -170,7 +168,7 @@ namespace Vodovoz.ViewModels.Orders
 		{
 			AddActionCommand = new DelegateCommand<PromotionalSetActionType>(
 			(actionType) => {
-				PromotionalSetActionWidgetResolver resolver = new PromotionalSetActionWidgetResolver(UoW,
+				PromotionalSetActionWidgetResolver resolver = new PromotionalSetActionWidgetResolver(UoW, _lifetimeScope,
 					_counterpartySelectorFactory, _nomenclatureRepository, _userRepository);
 				SelectedActionViewModel = resolver.Resolve(Entity, actionType);
 

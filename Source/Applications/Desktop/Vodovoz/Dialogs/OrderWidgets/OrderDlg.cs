@@ -287,7 +287,7 @@ namespace Vodovoz
 					nomenclatureSelectorFactory =
 						new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
 							ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), CounterpartySelectorFactory,
-							NomenclatureRepository, _userRepository);
+							NomenclatureRepository, _userRepository, _lifetimeScope);
 				}
 
 				return nomenclatureSelectorFactory;
@@ -2791,7 +2791,7 @@ namespace Vodovoz
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				_employeeService,
-				new NomenclatureJournalFactory(),
+				new NomenclatureJournalFactory(_lifetimeScope),
 				CounterpartySelectorFactory,
 				NomenclatureRepository,
 				_userRepository,
@@ -2833,7 +2833,7 @@ namespace Vodovoz
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				_employeeService,
-				new NomenclatureJournalFactory(),
+				new NomenclatureJournalFactory(_lifetimeScope),
 				CounterpartySelectorFactory,
 				NomenclatureRepository,
 				_userRepository,
@@ -2949,7 +2949,7 @@ namespace Vodovoz
 				x => x.SelectCategory = NomenclatureCategory.equipment
 			);
 
-			var nomenclatureJournalFactory = new NomenclatureJournalFactory();
+			var nomenclatureJournalFactory = new NomenclatureJournalFactory(_lifetimeScope);
 			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel();
 			journal.FilterViewModel = filter;
 			journal.OnEntitySelectedResult += OnAddNomenclatureToClient;
@@ -2984,7 +2984,7 @@ namespace Vodovoz
 				x => x.SelectCategory = NomenclatureCategory.equipment
 			);
 
-			var nomenclatureJournalFactory = new NomenclatureJournalFactory();
+			var nomenclatureJournalFactory = new NomenclatureJournalFactory(_lifetimeScope);
 			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel();
 			journal.FilterViewModel = filter;
 			journal.OnEntitySelectedResult += OnAddNomenclatureFromClient;

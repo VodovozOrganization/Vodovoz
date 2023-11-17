@@ -1,42 +1,47 @@
-﻿using System.Collections.Generic;
-using Autofac;
+﻿using Autofac;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
+using System.Collections.Generic;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalSelector;
-using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.TempAdapters
 {
 	public class NomenclatureJournalFactory : INomenclatureJournalFactory
 	{
+		private readonly ILifetimeScope _lifetimeScope;
+
+		public NomenclatureJournalFactory(ILifetimeScope lifetimeScope)
+		{
+			_lifetimeScope = lifetimeScope ?? throw new System.ArgumentNullException(nameof(lifetimeScope));
+		}
+
 		public NomenclaturesJournalViewModel CreateNomenclaturesJournalViewModel(
 			NomenclatureFilterViewModel filter = null, bool multiselect = false)
 		{
 			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 			var userRepository = new UserRepository();
-			var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
+			var counterpartyJournalFactory = new CounterpartyJournalFactory(_lifetimeScope);
 
 			var vm = new NomenclaturesJournalViewModel(
 				filter ?? new NomenclatureFilterViewModel(),
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				new EmployeeService(),
-				new NomenclatureJournalFactory(),
+				new NomenclatureJournalFactory(_lifetimeScope),
 				counterpartyJournalFactory,
 				nomenclatureRepository,
 				userRepository,
+				_lifetimeScope.Resolve<INomenclatureSettings>(),
 				null
 			);
 
@@ -141,7 +146,7 @@ namespace Vodovoz.TempAdapters
 			var counterpartySelectorFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
 
 			return new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
-				filter, counterpartySelectorFactory, nomenclatureRepository, userRepository);
+				filter, counterpartySelectorFactory, nomenclatureRepository, userRepository, _lifetimeScope);
 		}
 
 		public IEntityAutocompleteSelectorFactory GetRoboatsWaterJournalFactory()

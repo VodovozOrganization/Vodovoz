@@ -215,7 +215,8 @@ namespace Vodovoz
 						nomenclatureFilter,
 						counterpartySelectorFactory,
 						_nomenclatureRepository,
-						userRepository
+						userRepository,
+						_lifetimeScope
 						);
 
 				var nomenclaturesJournalViewModel =
@@ -224,7 +225,7 @@ namespace Vodovoz
 					UnitOfWorkFactory.GetDefaultFactory,
 					ServicesConfig.CommonServices,
 					employeeService,
-					new NomenclatureJournalFactory(),
+					new NomenclatureJournalFactory(_lifetimeScope),
 					counterpartySelectorFactory,
 					_nomenclatureRepository,
 					userRepository,
@@ -309,7 +310,8 @@ namespace Vodovoz
 					filter,
 					counterpartyJournalFactory,
 					_nomenclatureRepository,
-					userRepository
+					userRepository,
+					_lifetimeScope
 					);
 
 			var nomenclaturesJournalViewModel = 
@@ -318,7 +320,7 @@ namespace Vodovoz
 					UnitOfWorkFactory.GetDefaultFactory,
 					ServicesConfig.CommonServices,
 					employeeService,
-					new NomenclatureJournalFactory(),
+					new NomenclatureJournalFactory(_lifetimeScope),
 					counterpartyJournalFactory,
 					_nomenclatureRepository,
 					userRepository,

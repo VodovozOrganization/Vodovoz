@@ -516,7 +516,8 @@ public partial class MainWindow : Window
 
 		IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
 			new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
-				new NomenclatureFilterViewModel(), counterpartyJournalFactory, nomenclatureRepository, userRepository);
+				new NomenclatureFilterViewModel(), counterpartyJournalFactory, nomenclatureRepository, userRepository,
+				Startup.AppDIContainer.BeginLifetimeScope());
 
 		RequestsToSuppliersFilterViewModel filter = new RequestsToSuppliersFilterViewModel(nomenclatureSelectorFactory);
 
