@@ -63,7 +63,7 @@ namespace VodovozHealthCheck
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot("HealthCheck"))
 			{
 				var query = uow.Session.CreateSQLQuery("SELECT 1");
-				query.UniqueResult<long>();
+				query.UniqueResult();
 			}
 		}
 
