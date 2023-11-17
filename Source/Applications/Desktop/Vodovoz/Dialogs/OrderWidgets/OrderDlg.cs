@@ -2849,7 +2849,7 @@ namespace Vodovoz
 			this.TabParent.AddSlaveTab(this, journalViewModel);
 		}
 
-		#region Рекламные наборы
+		#region Промонаборы
 
 		void ActivatePromotionalSet(PromotionalSet proSet)
 		{

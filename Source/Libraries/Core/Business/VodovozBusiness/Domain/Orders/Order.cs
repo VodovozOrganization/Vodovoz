@@ -2649,7 +2649,7 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		/// <returns><c>true</c>, если можно добавить промо-набор,
 		/// <c>false</c> если нельзя.</returns>
-		/// <param name="proSet">Рекламный набор (промо-набор)</param>
+		/// <param name="proSet">Промонабор (промо-набор)</param>
 		public virtual bool CanAddPromotionalSet(PromotionalSet proSet, IPromotionalSetRepository promotionalSetRepository)
 		{
 			if(PromotionalSets.Any(x => x.Id == proSet.Id)) {

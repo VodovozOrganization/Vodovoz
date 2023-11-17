@@ -1398,7 +1398,7 @@ or (First({missing_route_list_expenses_per_kg}, 'Sales') = True)
   </PageFooter>
   <DataSets>
     <DataSet Name="Sales">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
         <CommandText>
@@ -1592,7 +1592,8 @@ SELECT
 	(SELECT CAST((spending_per_item * items_count) AS DECIMAL(12,2))) AS total_spending,
 	(SELECT CAST((total_price - total_spending)  AS DECIMAL(12,2))) AS profitability,
 	(SELECT CAST(IFNULL((profitability / total_price * 100), 0) AS DECIMAL(12,2))) AS profitability_percent,
-    IFNULL(CONCAT(ccl.classification_by_bottles_count, ccl.classification_by_orders_count), 'Новый') as counterparty_classification
+    IFNULL(CONCAT(ccl.classification_by_bottles_count, ccl.classification_by_orders_count), 'Новый') as counterparty_classification,
+    IFNULL(ps.name, 'Без промонабора')  as promotional_set
 FROM
     order_items oi
     LEFT JOIN
@@ -1677,6 +1678,8 @@ FROM
 			FROM counterparty_classification cc2
 			ORDER BY cc2.id DESC 
 			LIMIT 1)
+	LEFT JOIN
+	promotional_sets ps ON ps.id = oi.promotional_set_id
 WHERE
 	(o.delivery_date &gt;= @start_date
 	AND o.delivery_date &lt;= @end_date)
@@ -2143,6 +2146,10 @@ WHERE
         </Field>
         <Field Name="counterparty_classification">
           <DataField>counterparty_classification</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="promotional_set">
+          <DataField>promotional_set</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>

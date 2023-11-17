@@ -52,7 +52,7 @@ namespace Vodovoz.ViewModels.Orders
 			if(!CanRead)
 				AbortOpening("У вас недостаточно прав для просмотра");
 
-			TabName = "Рекламные наборы";
+			TabName = "Промонаборы";
 			UoW = uowBuilder.CreateUoW<PromotionalSet>(unitOfWorkFactory);
 			CreateCommands();
 		}

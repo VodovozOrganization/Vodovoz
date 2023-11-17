@@ -142,7 +142,7 @@ namespace VodovozBusinessTests.Domain.Orders
 
 		#endregion
 
-		#region Рекламные наборы
+		#region Промонаборы
 
 		[Ignore("Непонятно как. Пока игнор.")]
 		[Test(Description = "Удаление из списка промо-наборов заказа наборов, которые перестали присутствовать среди позиций заказа")]
@@ -401,7 +401,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			Assert.That(result, Is.False);
 		}
 
-		#endregion Рекламные наборы
+		#endregion Промонаборы
 
 		#region Акции
 

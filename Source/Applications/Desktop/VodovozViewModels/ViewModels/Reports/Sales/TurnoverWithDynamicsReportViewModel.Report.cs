@@ -265,7 +265,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 					while(true)
 					{
-						if(i == groupsCount || !groupedNodes[i].Key.Key1.Equals(currentFirstKeyValue))
+						if(i == groupsCount || (groupedNodes[i].Key.Key1 != null && !groupedNodes[i].Key.Key1.Equals(currentFirstKeyValue)))
 						{
 							break;
 						}
@@ -438,6 +438,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						return x => x.OrganizationId;
 					case GroupingType.CounterpartyClassification:
 						return x => x.CounterpartyClassification;
+					case GroupingType.PromotionalSet:
+						return x => x.PromotionalSetId;
 					default:
 						return x => x.Id;
 				}
@@ -473,6 +475,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						return x => x.OrganizationName;
 					case GroupingType.CounterpartyClassification:
 						return x => x.CounterpartyClassification.GetEnumTitle();
+					case GroupingType.PromotionalSet:
+						return x => x.PromotionalSetName;
 					default:
 						return x => x.Id.ToString();
 				}
