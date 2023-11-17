@@ -801,6 +801,7 @@
     <Compile Include="Parameters\StoredResourcesSettings.cs" />
     <Compile Include="Parameters\SubdivisionParametersProvider.cs" />
     <Compile Include="Permissions\Cash.FinancialCategory.cs" />
+    <Compile Include="Permissions\Counterparty.cs" />
     <Compile Include="Permissions\Documents.cs" />
     <Compile Include="Permissions\Documents.MovementDocument.cs" />
     <Compile Include="Permissions\Email.cs" />
