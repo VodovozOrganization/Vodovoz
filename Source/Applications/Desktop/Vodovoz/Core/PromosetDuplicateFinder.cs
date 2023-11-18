@@ -22,7 +22,11 @@ namespace Vodovoz.Core
 			this.interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 		}
 
-		public bool RequestDuplicatePromosets(IUnitOfWork uow,  DeliveryPoint deliveryPoint, IEnumerable<Phone> phones)
+		public bool RequestDuplicatePromosets(
+			IUnitOfWork uow,
+			int orderId,
+			DeliveryPoint deliveryPoint,
+			IEnumerable<Phone> phones)
 		{
 			if(phones == null) {
 				throw new ArgumentNullException(nameof(phones));
@@ -30,9 +34,15 @@ namespace Vodovoz.Core
 
 			IEnumerable<PromosetDuplicateInfoNode> deliveryPointResult = new List<PromosetDuplicateInfoNode>();
 			if(deliveryPoint != null) {
-				deliveryPointResult = GetDeliveryPointResult(uow, deliveryPoint);
+				deliveryPointResult = GetDeliveryPointResult(uow, orderId, deliveryPoint);
 			}
-			var phoneResult = GetPhonesResult(uow, phones);
+
+			var phoneResultByCounterparty = GetPhonesResultByCounterparty(uow, orderId, phones).ToArray();
+			var excludeOrderIds =
+				phoneResultByCounterparty.Select(x => x.OrderId)
+					.Concat(new[] { orderId });
+			var phoneResultByDeliveryPoint = GetPhonesResultByDeliveryPoint(uow, excludeOrderIds, phones).ToArray();
+			var phoneResult = phoneResultByCounterparty.Concat(phoneResultByDeliveryPoint);
 
 			if(!deliveryPointResult.Any() && !phoneResult.Any()) {
 				return true;
@@ -56,7 +66,10 @@ namespace Vodovoz.Core
 			return interactiveService.Question(message, "Найдены проданные промонаборы!");
 		}
 
-		private IEnumerable<PromosetDuplicateInfoNode> GetDeliveryPointResult(IUnitOfWork uow, DeliveryPoint deliveryPoint)
+		private IEnumerable<PromosetDuplicateInfoNode> GetDeliveryPointResult(
+			IUnitOfWork uow,
+			int orderId,
+			DeliveryPoint deliveryPoint)
 		{
 			DeliveryPoint deliveryPointAlias = null;
 			Domain.Orders.Order orderAlias = null;
@@ -83,7 +96,8 @@ namespace Vodovoz.Core
 						Restrictions.Ge(Projections.Property(() => deliveryPointAlias.Room), 1)
 					)
 				)
-				.Where(Restrictions.IsNotNull(Projections.Property(() => orderItemAlias.PromoSet)));
+				.And(Restrictions.IsNotNull(Projections.Property(() => orderItemAlias.PromoSet)))
+				.And(() => orderAlias.Id != orderId);
 
 			var deliveryPointsResult = query.SelectList(list => list
 				.SelectGroup(() => orderAlias.Id)
@@ -95,7 +109,10 @@ namespace Vodovoz.Core
 			return deliveryPointsResult;
 		}
 
-		private IEnumerable<PromosetDuplicateInfoNode> GetPhonesResult(IUnitOfWork uow, IEnumerable<Phone> phones)
+		private IEnumerable<PromosetDuplicateInfoNode> GetPhonesResultByCounterparty(
+			IUnitOfWork uow,
+			int orderId,
+			IEnumerable<Phone> phones)
 		{
 			Domain.Orders.Order orderAlias = null;
 			Domain.Orders.OrderItem orderItemAlias = null;
@@ -150,15 +167,84 @@ namespace Vodovoz.Core
 				.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(() => counterpartyAlias.Phones, () => counterpartyPhoneAlias)
 				.Left.JoinAlias(() => deliveryPointAlias.Phones, () => deliveryPointPhoneAlias)
-				.Where(
-					Restrictions.Or(
-						Restrictions.In(Projections.Property(() => counterpartyPhoneAlias.DigitsNumber), phonesArray),
-						Restrictions.In(Projections.Property(() => deliveryPointPhoneAlias.DigitsNumber), phonesArray)
-					)
-				)
-				.Where(Restrictions.IsNotNull(Projections.Property(() => orderItemAlias.PromoSet)))
+				.WhereRestrictionOn(() => counterpartyPhoneAlias.DigitsNumber).IsInG(phonesArray)
+				.And(Restrictions.IsNotNull(Projections.Property(() => orderItemAlias.PromoSet)))
+				.And(() => orderAlias.Id != orderId)
 				.SelectList(list => list
-					.SelectGroup(() => orderAlias.Id)
+					.SelectGroup(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
+					.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.Date)
+					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Client)
+					.Select(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.Address)
+					.Select(concatPhoneProjection).WithAlias(() => resultAlias.Phone)
+				).TransformUsing(Transformers.AliasToBean<PromosetDuplicateInfoNode>())
+			.List<PromosetDuplicateInfoNode>();
+			return phoneResult;
+		}
+
+		private IEnumerable<PromosetDuplicateInfoNode> GetPhonesResultByDeliveryPoint(
+			IUnitOfWork uow,
+			IEnumerable<int> excludeOrderIds,
+			IEnumerable<Phone> phones)
+		{
+			Domain.Orders.Order orderAlias = null;
+			Domain.Orders.OrderItem orderItemAlias = null;
+			Counterparty counterpartyAlias = null;
+			DeliveryPoint deliveryPointAlias = null;
+			Phone counterpartyPhoneAlias = null;
+			Phone deliveryPointPhoneAlias = null;
+			PromosetDuplicateInfoNode resultAlias = null;
+
+			var phonesArray = phones.Select(x => x.DigitsNumber).ToArray();
+			
+			var nullProjection = Projections.SqlFunction( 
+				new SQLFunctionTemplate(NHibernateUtil.String, "NULLIF(1,1)"),
+				NHibernateUtil.String
+			);
+
+			var counterpartyPhoneProjection = Projections.Conditional(
+				Restrictions.In(Projections.Property(() => counterpartyPhoneAlias.DigitsNumber), phonesArray),
+				Projections.Property(() => counterpartyPhoneAlias.DigitsNumber),
+				nullProjection
+			);
+
+			var deliveryPointPhoneProjection = Projections.Conditional(
+				Restrictions.In(Projections.Property(() => deliveryPointPhoneAlias.DigitsNumber), phonesArray),
+				Projections.Property(() => deliveryPointPhoneAlias.DigitsNumber),
+				nullProjection
+			);
+
+			var counterpartyConcatPhoneProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(DISTINCT ?1 SEPARATOR ?2)"),
+				NHibernateUtil.String,
+				counterpartyPhoneProjection,
+				Projections.Constant(", ")
+			);
+
+			var deliveryPointConcatPhoneProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(DISTINCT ?1 SEPARATOR ?2)"),
+				NHibernateUtil.String,
+				deliveryPointPhoneProjection,
+				Projections.Constant(", ")
+			);
+
+			var concatPhoneProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT_WS(', ', ?1, ?2)"),
+				NHibernateUtil.String,
+				counterpartyConcatPhoneProjection,
+				deliveryPointConcatPhoneProjection
+			);
+
+			var phoneResult = uow.Session.QueryOver(() => orderAlias)
+				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
+				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
+				.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
+				.Left.JoinAlias(() => counterpartyAlias.Phones, () => counterpartyPhoneAlias)
+				.Left.JoinAlias(() => deliveryPointAlias.Phones, () => deliveryPointPhoneAlias)
+				.WhereRestrictionOn(() => deliveryPointPhoneAlias.DigitsNumber).IsInG(phonesArray)
+				.AndRestrictionOn(() => orderAlias.Id).Not.IsInG(excludeOrderIds)
+				.And(Restrictions.IsNotNull(Projections.Property(() => orderItemAlias.PromoSet)))
+				.SelectList(list => list
+					.SelectGroup(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
 					.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.Date)
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Client)
 					.Select(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.Address)
@@ -170,6 +256,7 @@ namespace Vodovoz.Core
 
 		private class PromosetDuplicateInfoNode
 		{
+			public int OrderId { get; set; }
 			public DateTime? Date { get; set; }
 			public string Client { get; set; }
 			public string Address { get; set; }
