@@ -18,16 +18,6 @@ namespace Vodovoz.Filters.GtkViews
 
 		private void Initialize()
 		{
-			evmeAuthor.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeSelectorFactory);
-			evmeAuthor.Binding.AddBinding(ViewModel, x => x.Employee, v => v.Subject).InitializeFromSource();
-			evmeAuthor.CanOpenWithoutTabParent = true;
-			evmeAuthor.CanEditReference = false;
-
-			entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartySelectorFactory);
-			entryCounterparty.Binding.AddBinding(ViewModel, x => x.Counterparty, v => v.Subject).InitializeFromSource();
-			entryCounterparty.CanOpenWithoutTabParent = true;
-			entryCounterparty.CanEditReference = false;
-
 			yenumcomboboxType.ItemsEnum = typeof(ComplaintType);
 			yenumcomboboxType.Binding.AddBinding(ViewModel, x => x.ComplaintType, v => v.SelectedItemOrNull).InitializeFromSource();
 
@@ -53,6 +43,7 @@ namespace Vodovoz.Filters.GtkViews
 			entryCurrentSubdivision.ViewModel = ViewModel.CurrentSubdivisionViewModel;
 			entryAtWorkInSubdivision.ViewModel = ViewModel.AtWorkInSubdivisionViewModel;
 			entityentryAuthor.ViewModel = ViewModel.AuthorEntiryEntryViewModel;
+			ConfigureCounterpartyEntityEntry();
 
 			daterangepicker.Binding
 				.AddSource(ViewModel)
@@ -68,11 +59,9 @@ namespace Vodovoz.Filters.GtkViews
 			guiltyItemView.ViewModel = ViewModel.GuiltyItemVM;
 
 			ybtnNumberOfComplaintsAgainstDriversReport.Clicked += (s, e) => ViewModel.OpenNumberOfComplaintsAgainstDriversReportTabCommand.Execute();
-
-			ConfigureEntries();
 		}
 
-		private void ConfigureEntries()
+		private void ConfigureCounterpartyEntityEntry()
 		{
 			var builder = new LegacyEEVMBuilderFactory<ComplaintFilterViewModel>(
 				ViewModel.JournalTab,
