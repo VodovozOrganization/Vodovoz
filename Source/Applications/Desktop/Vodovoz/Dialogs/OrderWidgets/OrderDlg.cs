@@ -1053,6 +1053,7 @@ namespace Vodovoz
 			{
 				case nameof(Order.OrderStatus):
 					CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity.OrderStatus));
+					entityVMEntryClient.IsEditable = Entity.CanEditByStatus && CanEditByPermission;
 					break;
 				case nameof(Order.Contract):
 					CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity.Contract));
@@ -3977,7 +3978,7 @@ namespace Vodovoz
 		{
 			bool val = Entity.CanEditByStatus && CanEditByPermission;
 			enumPaymentType.Sensitive = (Entity.Client != null) && val && !chkContractCloser.Active;
-			evmeDeliveryPoint.IsEditable = entityVMEntryClient.IsEditable = val;
+			evmeDeliveryPoint.IsEditable = val;
 			entryDeliverySchedule.Sensitive = labelDeliverySchedule.Sensitive = !checkSelfDelivery.Active && val;
 			ybuttonFastDeliveryCheck.Sensitive = ycheckFastDelivery.Sensitive = !checkSelfDelivery.Active && val && Entity.CanChangeFastDelivery;
 			lblDeliveryPoint.Sensitive = evmeDeliveryPoint.Sensitive = !checkSelfDelivery.Active && val && Entity.Client != null;
