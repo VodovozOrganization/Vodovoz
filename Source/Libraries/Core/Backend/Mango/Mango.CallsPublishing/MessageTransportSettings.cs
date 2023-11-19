@@ -1,9 +1,4 @@
-﻿using MessageTransport;
-using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-
-namespace Mango.CallsPublishing
+﻿namespace Mango.CallsPublishing
 {
 	/*public class MessageTransportSettings : IMessageTransportSettings
 	{

@@ -1,10 +1,8 @@
-﻿using MessageTransport;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MySqlConnector;
 using Pacs.MangoCalls;
-using Pacs.MangoCalls.Settings;
 using Pacs.Server;
 using QS.DomainModel.UoW;
 using QS.Project.Core;

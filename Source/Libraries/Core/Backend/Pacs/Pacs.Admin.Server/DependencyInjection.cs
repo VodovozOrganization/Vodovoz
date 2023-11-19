@@ -1,5 +1,4 @@
 ﻿using MassTransit;
-using MessageTransport;
 using Microsoft.Extensions.DependencyInjection;
 using System.Security.Authentication;
 using Vodovoz.Settings.Pacs;

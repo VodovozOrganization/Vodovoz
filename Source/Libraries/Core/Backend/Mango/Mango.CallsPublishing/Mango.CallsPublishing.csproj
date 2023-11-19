@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Business\Vodovoz.Settings\Vodovoz.Settings.csproj" />
     <ProjectReference Include="..\..\Infrastructure\MessageTransport\MessageTransport.csproj" />
     <ProjectReference Include="..\Mango.Core\Mango.Core.csproj" />
   </ItemGroup>

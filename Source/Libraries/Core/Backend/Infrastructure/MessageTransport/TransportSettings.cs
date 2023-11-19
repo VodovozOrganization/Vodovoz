@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
+using Vodovoz.Settings.Pacs;
 
 namespace MessageTransport
 {
-	/*public class TransportSettings : IMessageTransportSettings
+	public class ConfigTransportSettings : IMessageTransportSettings
 	{
 		public string Host { get; set; }
 		public int Port { get; set; }
@@ -11,5 +12,5 @@ namespace MessageTransport
 		public string Password { get; set; }
 		public bool UseSSL { get; set; }
 		public List<MessageTTLSetting> MessagesTimeToLive { get; set; }
-	}*/
+	}
 }

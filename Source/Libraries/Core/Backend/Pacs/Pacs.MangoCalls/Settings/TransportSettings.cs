@@ -1,9 +1,4 @@
-﻿using MessageTransport;
-using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-
-namespace Pacs.MangoCalls.Settings
+﻿namespace Pacs.MangoCalls.Settings
 {
 	/*public class TransportSettings : IMessageTransportSettings
 	{

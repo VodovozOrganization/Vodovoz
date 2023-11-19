@@ -15,6 +15,8 @@ using Microsoft.Extensions.Logging;
 using MySqlConnector;
 using NLog.Web;
 using System;
+using Vodovoz.Settings.Database.Pacs;
+using Vodovoz.Settings.Pacs;
 
 namespace Mango.Service
 {
@@ -80,7 +82,8 @@ namespace Mango.Service
 			services.AddSingleton<ICallerService, CallerService>();
 			services.AddScoped<ICallEventHandler, MangoHandler>();
 
-			var messageTransportSettings = new MessageTransportSettings(Configuration);
+			var messageTransportSettings = new ConfigTransportSettings();
+			Configuration.GetSection("MessageTransport").Bind(messageTransportSettings);
 			services.AddSingleton<IMessageTransportSettings>(messageTransportSettings);
 
 			services.ConfigureMangoServices();

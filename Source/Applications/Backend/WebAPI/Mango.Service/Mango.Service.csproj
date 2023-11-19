@@ -47,6 +47,7 @@
       <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Mango\Mango.Client\Mango.Client.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Mango\Mango.Core\Mango.Core.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Mango\MangoClient\Mango.Api.csproj" />
+      <ProjectReference Include="..\..\..\..\Libraries\Core\Business\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Utilities\QS.Utilities.csproj" />
     </ItemGroup>
 

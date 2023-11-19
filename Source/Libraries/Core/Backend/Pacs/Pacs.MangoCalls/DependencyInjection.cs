@@ -1,10 +1,9 @@
 ﻿using MassTransit;
-using MessageTransport;
 using Microsoft.Extensions.DependencyInjection;
-using Pacs.MangoCalls.Consumers;
 using Pacs.MangoCalls.Services;
 using System.Reflection;
 using System.Security.Authentication;
+using Vodovoz.Settings.Pacs;
 
 namespace Pacs.MangoCalls
 {
