@@ -1,4 +1,4 @@
-﻿using GMap.NET;
+using GMap.NET;
 using MoreLinq;
 using NetTopologySuite.Geometries;
 using QS.Commands;
@@ -627,6 +627,8 @@ namespace Vodovoz.ViewModels.Logistic
 			var districts = GetDistrictsByTariffZone(SelectedDistrict.TariffZone);
 
 			districts.ForEach(d => PasteSchedulesToDistrict(d));
+
+			OnPropertyChanged(nameof(ScheduleRestrictions));
 		}
 
 		private IEnumerable<District> GetDistrictsByTariffZone(TariffZone tariffZone)
