@@ -1,4 +1,4 @@
-using GMap.NET;
+﻿using GMap.NET;
 using MoreLinq;
 using NetTopologySuite.Geometries;
 using QS.Commands;
@@ -77,7 +77,7 @@ namespace Vodovoz.ViewModels.Logistic
 			NewBorderVertices = new GenericObservableList<PointLatLng>();
 
 			CopyDistrictSchedulesCommand = new DelegateCommand(CopyDistrictSchedules);
-			PasteSchedulesToDistrictCommand = new DelegateCommand(PasteSchedulesToDistrict);
+			PasteSchedulesToDistrictCommand = new DelegateCommand(PasteSchedulesToSelectedDistrict);
 			PasteSchedulesToZoneCommand = new DelegateCommand(PasteSchedulesToZone);
 		}
 
@@ -572,7 +572,7 @@ namespace Vodovoz.ViewModels.Logistic
 			_copiedDistrict = SelectedDistrict;
 		}
 
-		private void PasteSchedulesToDistrict()
+		private void PasteSchedulesToSelectedDistrict()
 		{
 			if(SelectedDistrict == null)
 			{
