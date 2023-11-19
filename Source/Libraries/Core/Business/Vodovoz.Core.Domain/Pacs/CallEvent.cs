@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Core.Domain.Pacs
 {
-	public partial class CallEvent : PropertyChangedBase, IDomainObject
+	public class CallEvent : PropertyChangedBase, IDomainObject
 	{
 		private int _id;
 		private DateTime _creationTime;

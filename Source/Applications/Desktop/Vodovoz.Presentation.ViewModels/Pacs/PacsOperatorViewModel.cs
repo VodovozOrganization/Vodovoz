@@ -4,6 +4,7 @@ using QS.Commands;
 using QS.DomainModel.Entity;
 using QS.Navigation;
 using QS.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -39,12 +40,16 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		public PacsOperatorViewModel(
 			IOperatorStateAgent operatorStateAgent,
 			IEmployeeService employeeService, 
-			IOperatorClient operatorClient,
+			IOperatorClientFactory operatorClientFactory,
 			IOperatorRepository operatorRepository)
 		{
+			if(operatorClientFactory is null)
+			{
+				throw new ArgumentNullException(nameof(operatorClientFactory));
+			}
+
 			_operatorStateAgent = operatorStateAgent ?? throw new System.ArgumentNullException(nameof(operatorStateAgent));
 			_employeeService = employeeService ?? throw new System.ArgumentNullException(nameof(employeeService));
-			_operatorClient = operatorClient ?? throw new System.ArgumentNullException(nameof(operatorClient));
 			_operatorRepository = operatorRepository ?? throw new System.ArgumentNullException(nameof(operatorRepository));
 
 			_employee = employeeService.GetEmployeeForCurrentUser();
@@ -52,8 +57,10 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			{
 				throw new AbortCreatingPageException(
 					"Должен быть привязан сотрудник к пользователю. Обратитесь в отдел кадров.",
-					"На настроен пользователь");
+					"Не настроен пользователь");
 			}
+
+			_operatorClient = operatorClientFactory.CreateOperatorClient(_employee.Id);
 
 			ConfigureCommands();
 		}

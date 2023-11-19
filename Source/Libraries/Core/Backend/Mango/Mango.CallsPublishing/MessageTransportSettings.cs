@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Mango.CallsPublishing
 {
-	public class MessageTransportSettings : IMessageTransportSettings
+	/*public class MessageTransportSettings : IMessageTransportSettings
 	{
 
 		private const string _transportSectionName = "MessageTransport";
@@ -16,6 +16,7 @@ namespace Mango.CallsPublishing
 		private readonly string _virtualHost;
 		private readonly string _username;
 		private readonly string _password;
+		private readonly bool _useSSL;
 		private readonly List<MessageTTLSetting> _messageTTLSettings = new List<MessageTTLSetting>();
 
 		public MessageTransportSettings(IConfiguration configuration)
@@ -31,6 +32,7 @@ namespace Mango.CallsPublishing
 			_virtualHost = transportSection["VirtualHost"];
 			_username = transportSection["Username"];
 			_password = transportSection["Password"];
+			_useSSL = bool.Parse(transportSection["UseSSL"]);
 
 			var messagesTTL = transportSection.GetSection(_ttlSectionName);
 			if(!messagesTTL.Exists())
@@ -46,6 +48,7 @@ namespace Mango.CallsPublishing
 		public string VirtualHost => _virtualHost;
 		public string User => _username;
 		public string Password => _password;
+		public bool UseSSL => _useSSL;
 		public IEnumerable<MessageTTLSetting> MessagesTTL => _messageTTLSettings;
-	}
+	}*/
 }

@@ -17,6 +17,19 @@ namespace Vodovoz.Infrastructure.Services
 			_userService = userService ?? throw new ArgumentNullException(nameof(userService));
 		}
 
+		public Employee GetEmployee(int employeeId)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				return GetEmployee(uow, employeeId);
+			}
+		}
+
+		public Employee GetEmployee(IUnitOfWork uow, int employeeId)
+		{
+			return uow.GetById<Employee>(employeeId);
+		}
+
 		public Employee GetEmployeeForCurrentUser()
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())

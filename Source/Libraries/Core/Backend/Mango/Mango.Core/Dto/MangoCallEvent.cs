@@ -2,7 +2,7 @@
 
 namespace Mango.Core.Dto
 {
-	public class CallEvent
+	public class MangoCallEvent
 	{
 		[JsonPropertyName("entry_id")]
 		public string EntryId { get; set; }

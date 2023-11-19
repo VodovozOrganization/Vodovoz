@@ -3,9 +3,9 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 
-namespace Pacs.Mango.Settings
+namespace Pacs.MangoCalls.Settings
 {
-	public class TransportSettings : IMessageTransportSettings
+	/*public class TransportSettings : IMessageTransportSettings
 	{
 		private const string _transportSectionName = "MessageTransport";
 		private const string _ttlSectionName = "MessagesTimeToLive";
@@ -48,5 +48,18 @@ namespace Pacs.Mango.Settings
 		public string User => throw new NotImplementedException();
 
 		public string Password => throw new NotImplementedException();
-	}
+
+		public bool UseSSL => throw new NotImplementedException();
+	}*/
+
+	//public class TransportSettings : IMessageTransportSettings
+	//{
+	//	public string Host { get; set; }
+	//	public int Port { get; set; }
+	//	public string VirtualHost { get; set; }
+	//	public string User { get; set; }
+	//	public string Password { get; set; }
+	//	public bool UseSSL { get; set; }
+	//	public List<MessageTTLSetting> MessagesTimeToLive { get; set; }
+	//}
 }

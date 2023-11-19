@@ -1,11 +1,10 @@
 ﻿using MassTransit;
-using MessageTransport;
-using Pacs.Mango.Settings;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Vodovoz.Settings.Pacs;
 
-namespace Pacs.Mango.Filters
+namespace Pacs.Core.Messages.Filters
 {
 	public class PublishTimeToLiveFilter<T> : IFilter<PublishContext<T>>
 		where T : class
@@ -19,7 +18,9 @@ namespace Pacs.Mango.Filters
 
 		public async Task Send(PublishContext<T> context, IPipe<PublishContext<T>> next)
 		{
-			var ttlSetting = _transportSettings.MessagesTTL.FirstOrDefault(x => x.ClassFullName == typeof(T).FullName);
+			var ttlSetting = _transportSettings.MessagesTimeToLive
+				.FirstOrDefault(x => x.ClassFullName == context.Message.GetType().FullName);
+
 			if(ttlSetting != null)
 			{
 				context.TimeToLive = TimeSpan.FromSeconds(ttlSetting.TTL);

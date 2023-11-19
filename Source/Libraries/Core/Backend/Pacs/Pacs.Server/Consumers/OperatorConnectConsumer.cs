@@ -36,8 +36,6 @@ namespace Pacs.Server.Consumers
 		protected override void ConfigureConsumer(IReceiveEndpointConfigurator endpointConfigurator,
 			IConsumerConfigurator<OperatorConnectConsumer> consumerConfigurator)
 		{
-			//endpointConfigurator.ConfigureConsumeTopology = false;
-
 			if(endpointConfigurator is IRabbitMqReceiveEndpointConfigurator rmq)
 			{
 				rmq.AutoDelete = true;

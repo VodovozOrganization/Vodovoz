@@ -14,7 +14,7 @@ namespace Mango.CallsPublishing
 		/// </summary>
 		public static void ConfigureMangoMessageTopology(this IRabbitMqBusFactoryConfigurator configurator, IBusRegistrationContext context)
 		{
-			configurator.Message<CallEvent>(x => x.SetEntityName("mango.call_event"));
+			configurator.Message<MangoCallEvent>(x => x.SetEntityName("mango.call_event.publish"));
 		}
 
 		/// <summary>
@@ -24,7 +24,7 @@ namespace Mango.CallsPublishing
 		{
 			configurator.ConfigureMangoMessageTopology(context);
 
-			configurator.Publish<CallEvent>(x =>
+			configurator.Publish<MangoCallEvent>(x =>
 			{
 				x.ExchangeType = ExchangeType.Fanout;
 				x.Durable = true;

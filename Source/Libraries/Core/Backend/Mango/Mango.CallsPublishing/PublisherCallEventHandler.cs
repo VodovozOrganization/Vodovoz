@@ -15,7 +15,7 @@ namespace Mango.CallsPublishing
 			_messagingBus = messagingBus ?? throw new ArgumentNullException(nameof(messagingBus));
 		}
 
-		public async Task HandleAsync(CallEvent callEvent)
+		public async Task HandleAsync(MangoCallEvent callEvent)
 		{
 			await _messagingBus.Publish(callEvent);
 		}

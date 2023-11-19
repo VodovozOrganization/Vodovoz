@@ -24,7 +24,7 @@ namespace Mango.CallsPublishing
 						transportSettings.VirtualHost,
 						hostCfg => 
 						{
-							hostCfg.Username(transportSettings.User);
+							hostCfg.Username(transportSettings.Username);
 							hostCfg.Password(transportSettings.Password);
 							hostCfg.UseSsl(ssl =>
 							{

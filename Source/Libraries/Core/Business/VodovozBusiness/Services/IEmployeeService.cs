@@ -8,5 +8,7 @@ namespace Vodovoz.Services
 		Employee GetEmployeeForUser(IUnitOfWork uow, int userId);
 		Employee GetEmployeeForCurrentUser();
 		Employee GetEmployeeForCurrentUser(IUnitOfWork uow);
+		Employee GetEmployee(int employeeId);
+		Employee GetEmployee(IUnitOfWork uow, int employeeId);
 	}
 }

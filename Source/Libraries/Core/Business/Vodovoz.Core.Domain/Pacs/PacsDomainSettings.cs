@@ -13,10 +13,10 @@ namespace Vodovoz.Core.Domain.Pacs
 
 	public class PacsDomainSettings : IDomainObject, IPacsDomainSettings
 	{
-		public int Id { get; set; }
-		public int AdministratorId { get; set; }
-		public DateTime Timestamp { get; set; }
-		public int MaxOperatorsOnBreak { get; set; }
-		public TimeSpan MaxBreakTime { get; set; }
+		public virtual int Id { get; set; }
+		public virtual int AdministratorId { get; set; }
+		public virtual DateTime Timestamp { get; set; }
+		public virtual int MaxOperatorsOnBreak { get; set; }
+		public virtual TimeSpan MaxBreakTime { get; set; }
 	}
 }

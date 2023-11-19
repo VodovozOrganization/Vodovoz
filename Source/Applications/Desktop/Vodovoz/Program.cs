@@ -25,6 +25,7 @@ using QS.Osrm;
 using QS.Permissions;
 using QS.Project.DB;
 using QS.Project.Domain;
+using QS.Project.GtkSharp;
 using QS.Project.Services;
 using QS.Project.Services.FileDialog;
 using QS.Project.Services.GtkUI;
@@ -72,12 +73,12 @@ using Vodovoz.Infrastructure.Mango;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalViewers;
 using Vodovoz.Models;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Presentation.ViewModels.Common;
+using Vodovoz.Presentation.ViewModels.Pacs;
 using Vodovoz.Reports;
 using Vodovoz.Reports.Logistic;
 using Vodovoz.ReportsParameters;
@@ -112,8 +113,11 @@ using Vodovoz.ViewWidgets;
 using VodovozInfrastructure.Endpoints;
 using VodovozInfrastructure.Interfaces;
 using VodovozInfrastructure.StringHandlers;
+using Pacs.Operator.Client;
 using static Vodovoz.ViewModels.Cash.Reports.CashFlowAnalysisViewModel;
 using IErrorReporter = Vodovoz.Tools.IErrorReporter;
+using Vodovoz.Settings.Pacs;
+using QS.Tdi.Gtk;
 
 namespace Vodovoz
 {
@@ -206,6 +210,7 @@ namespace Vodovoz
 					builder.Register(context => new AutofacViewModelsTdiPageFactory(context.Resolve<ILifetimeScope>())).As<IViewModelsPageFactory>();
 					builder.Register(context => new AutofacTdiPageFactory(context.Resolve<ILifetimeScope>())).As<ITdiPageFactory>();
 					builder.Register(context => new AutofacViewModelsGtkPageFactory(context.Resolve<ILifetimeScope>())).AsSelf();
+					builder.Register<TdiNotebook>((context) => TDIMain.MainNotebook);
 					builder.RegisterType<TdiNavigationManagerAdapter>().AsSelf().As<INavigationManager>().As<ITdiCompatibilityNavigation>()
 						.SingleInstance();
 					builder.Register(context => new ClassNamesBaseGtkViewResolver(context.Resolve<IGtkViewFactory>(),
@@ -222,7 +227,8 @@ namespace Vodovoz
 					builder.Register(с => NotifyConfiguration.Instance).As<IEntityChangeWatcher>();
 					builder.RegisterAssemblyTypes(
 							Assembly.GetAssembly(typeof(InternalTalkViewModel)),
-							Assembly.GetAssembly(typeof(ComplaintViewModel)))
+							Assembly.GetAssembly(typeof(ComplaintViewModel)),
+							Assembly.GetAssembly(typeof(PacsPanelViewModel)))
 						.Where(t => t.IsAssignableTo<ViewModelBase>() && t.Name.EndsWith("ViewModel"))
 						.AsSelf();
 					builder.RegisterType<PrepareDeletionViewModel>().As<IOnCloseActionViewModel>().AsSelf();
@@ -230,6 +236,7 @@ namespace Vodovoz
 					builder.RegisterType<DeletionViewModel>().AsSelf();
 					builder.RegisterType<RdlViewerViewModel>().AsSelf();
 					builder.RegisterType<ProgressWindowViewModel>().AsSelf();
+					builder.RegisterType<PacsViewModelFactory>().As<IPacsViewModelFactory>();
 
 					#endregion
 
@@ -636,7 +643,8 @@ namespace Vodovoz
 							.AddScoped<IRouteListService, RouteListService>()
 							.AddScoped<RouteGeometryCalculator>()
 							.AddSingleton<OsrmClient>(sp => OsrmClientFactory.Instance)
-							.AddSingleton<IFastDeliveryDistanceChecker, DistanceCalculator>();
+							.AddSingleton<IFastDeliveryDistanceChecker, DistanceCalculator>()
+							.AddDesktopServices();
 				});
 	}
 }

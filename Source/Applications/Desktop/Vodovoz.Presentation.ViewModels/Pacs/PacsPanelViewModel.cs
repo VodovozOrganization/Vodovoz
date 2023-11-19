@@ -8,6 +8,7 @@ using QS.ViewModels;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Pacs;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Services;
@@ -24,6 +25,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		private readonly IOperatorClient _operatorClient;
 		private readonly IGuiDispatcher _guiDispatcher;
 		private readonly INavigationManager _navigationManager;
+		private readonly IPacsRepository _pacsRepository;
 		private readonly Employee _employee;
 
 		private bool _canChange;
@@ -40,16 +42,22 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		public PacsPanelViewModel(
 			ILogger<PacsPanelViewModel> logger,
 			IEmployeeService employeeService, 
-			IOperatorClient operatorClient,
+			IOperatorClientFactory operatorClientFactory,
 			IPacsSettings pacsSettings,
 			IGuiDispatcher guiDispatcher, 
-			INavigationManager navigationManager)
+			INavigationManager navigationManager,
+			IPacsRepository pacsRepository)
 		{
+			if(operatorClientFactory is null)
+			{
+				throw new ArgumentNullException(nameof(operatorClientFactory));
+			}
+
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			_operatorClient = operatorClient ?? throw new ArgumentNullException(nameof(operatorClient));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+			_pacsRepository = pacsRepository ?? throw new ArgumentNullException(nameof(pacsRepository));
 
 			_employee = _employeeService.GetEmployeeForCurrentUser();
 			if(_employee == null)
@@ -59,9 +67,11 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 				return;
 			}
 
-			if(_employee.Subdivision.PacsTimeManagementEnabled)
+			if(_pacsRepository.PacsEnabledFor(_employee.Subdivision.Id))
 			{
 				PacsEnabled = true;
+				_operatorClient = operatorClientFactory.CreateOperatorClient(_employee.Id);
+				_operatorClient.StateChanged += OperatorStateChanged;
 			}
 			else
 			{
@@ -80,8 +90,6 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 			OpenMangoDialogCommand = new DelegateCommand(OpenMangoDialog);
 			OpenMangoDialogCommand.CanExecuteChangedWith(this, x => x.CanOpenMangoDialog);
-
-			_operatorClient.StateChanged += OperatorStateChanged;
 		}
 
 		public virtual bool CanChange
@@ -118,6 +126,10 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		{
 			get
 			{
+				if(OperatorState == null)
+				{
+					return PacsState.Disconnected;
+				}
 				switch(OperatorState.State)
 				{
 					case OperatorStateType.Connected:
@@ -150,6 +162,11 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		public virtual BreakState BreakState
 		{
 			get {
+				if(OperatorState == null)
+				{
+					return BreakState.BreakDenied;
+				}
+
 				switch(OperatorState.State)
 				{
 					case OperatorStateType.WaitingForCall:

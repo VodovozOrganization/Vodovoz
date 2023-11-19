@@ -27,7 +27,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			{
 				throw new AbortCreatingPageException(
 					"Должен быть привязан сотрудник к пользователю. Обратитесь в отдел кадров.", 
-					"На настроен пользователь");
+					"Не настроен пользователь");
 			}
 
 			if(_isOperator)

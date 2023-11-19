@@ -20,8 +20,9 @@ namespace Pacs.Operator.Service
 			CreateHostBuilder(args).Build().Run();
 		}
 
-		public static IHostBuilder CreateHostBuilder(string[] args) =>
-			Host.CreateDefaultBuilder(args)
+		public static IHostBuilder CreateHostBuilder(string[] args)
+		{
+			return Host.CreateDefaultBuilder(args)
 				.ConfigureServices((hostContext, services) =>
 				{
 					services
@@ -48,6 +49,7 @@ namespace Pacs.Operator.Service
 
 					CreateBaseConfig();
 				});
+		}
 
 		private static void CreateBaseConfig()
 		{

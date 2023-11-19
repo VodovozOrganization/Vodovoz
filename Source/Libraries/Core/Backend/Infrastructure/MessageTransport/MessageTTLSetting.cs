@@ -1,6 +1,6 @@
 ﻿namespace MessageTransport
 {
-	public class MessageTTLSetting
+	/*public class MessageTTLSetting
 	{
 		/// <summary>
 		/// Message class name with namespace
@@ -11,5 +11,5 @@
 		/// Time to live in seconds
 		/// </summary>
 		public int TTL { get; set; }
-	}
+	}*/
 }

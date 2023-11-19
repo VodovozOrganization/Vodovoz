@@ -11,32 +11,9 @@ namespace Vodovoz.Views.Pacs
 	{
 		private IconSize _iconSize = IconSize.Dnd;
 
-		public IconSize IconSize
-		{
-			get => _iconSize; 
-			set
-			{
-				if(_iconSize == value)
-				{
-					return;
-				}
-
-				_iconSize = value;
-				UpdateBreakButtonImage();
-				UpdateRefreshButtonImage();
-				UpdatePacsButtonImage();
-				UpdateMangoButtonImage();
-			}
-		}
-
 		public PacsPanelView()
 		{
 			this.Build();
-
-			UpdateBreakButtonImage();
-			UpdateRefreshButtonImage();
-			UpdatePacsButtonImage();
-			UpdateMangoButtonImage();
 		}
 
 		protected override void ConfigureWidget()
@@ -62,9 +39,31 @@ namespace Vodovoz.Views.Pacs
 				.AddBinding(vm => vm.PacsEnabled, w => w.Visible)
 				.InitializeFromSource();
 
+			labelPacs.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.PacsEnabled, w => w.Visible)
+				.InitializeFromSource();
+
 			buttonMango.BindCommand(ViewModel.OpenMangoDialogCommand);
 
 			ViewModel.PropertyChanged += ViewModelPropertyChanged;
+		}
+
+		public IconSize IconSize
+		{
+			get => _iconSize; 
+			set
+			{
+				if(_iconSize == value)
+				{
+					return;
+				}
+
+				_iconSize = value;
+				UpdateBreakButtonImage();
+				UpdateRefreshButtonImage();
+				UpdatePacsButtonImage();
+				UpdateMangoButtonImage();
+			}
 		}
 
 		private void ViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -183,8 +182,8 @@ namespace Vodovoz.Views.Pacs
 					throw new InvalidOperationException("Неизвестное состояние кнопки манго");
 			}
 
-			this.buttonPacs.Image.Destroy();
-			this.buttonPacs.Image = image;
+			this.buttonMango.Image.Destroy();
+			this.buttonMango.Image = image;
 		}
 	}
 }

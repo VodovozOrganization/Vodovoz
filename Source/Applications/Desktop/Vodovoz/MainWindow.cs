@@ -1,4 +1,6 @@
 ﻿using Autofac;
+using Autofac.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -30,12 +32,19 @@ using Vodovoz.SidePanel;
 using VodovozInfrastructure.Configuration;
 using Order = Vodovoz.Domain.Orders.Order;
 using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
+using Pacs.Operator.Client;
+using Vodovoz.Settings.Pacs;
 
 public partial class MainWindow : Gtk.Window
 {
 	private static Logger _logger = LogManager.GetCurrentClassLogger();
 	private uint _lastUiId;
-	private readonly ILifetimeScope _autofacScope = Startup.AppDIContainer.BeginLifetimeScope();
+	private readonly ILifetimeScope _autofacScope = Startup.AppDIContainer.BeginLifetimeScope((builder) => {
+		var services = new ServiceCollection();
+		var transportSettings = Startup.AppDIContainer.Resolve<IMessageTransportSettings>();
+		services.AddPacsOperatorClient(transportSettings);
+		builder.Populate(services);
+	} );
 	private readonly IApplicationInfo _applicationInfo;
 	private readonly IPasswordValidator _passwordValidator;
 	private readonly IApplicationConfigurator _applicationConfigurator;
