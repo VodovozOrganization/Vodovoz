@@ -21,6 +21,8 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 
 		private void ConfigureDlg()
 		{
+			yvboxMain.Visible = ViewModel.CanCalculateCounterpartyClassifications;
+
 			var dangerTextColor = GdkColors.DangerText.ToHtmlColor();
 			var successTextColor = GdkColors.SuccessText.ToHtmlColor();
 
