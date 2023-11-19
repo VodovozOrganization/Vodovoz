@@ -144,6 +144,10 @@ namespace Vodovoz.Dialogs.Logistic
 
 		public bool HasChanges => UoW.HasChanges;
 
+		public virtual bool HasCustomCancellationConfirmationDialog => false;
+
+		public virtual Func<int> CustomCancellationConfirmationDialogFunc => null;
+
 		public event EventHandler<EntitySavedEventArgs> EntitySaved;
 
 		public override string TabName => $"Работают {_filterViewModel.AtDate:d}";

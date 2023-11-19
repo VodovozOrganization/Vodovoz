@@ -10,6 +10,8 @@ namespace Vodovoz.Views.Orders
 
 		private global::Gamma.GtkWidgets.yButton ybuttonPrint;
 
+		private global::Gamma.GtkWidgets.yButton ybuttonSave;
+
 		private global::Gamma.GtkWidgets.yButton ybuttonCancel;
 
 		private global::Gamma.GtkWidgets.yProgressBar yprogressbar;
@@ -46,6 +48,18 @@ namespace Vodovoz.Views.Orders
 
 		private global::Gamma.GtkWidgets.ySpinButton yspinbuttonCopiesCount;
 
+		private global::Gamma.GtkWidgets.yVBox yvboxProperites1;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelSelectDocs1;
+
+		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonBillWithSignatureAndStamp;
+
+		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonSpecialBillWithSignatureAndStamp;
+
+		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonUpdWithSignatureAndStamp;
+
+		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonSpecialUpdWithSignatureAndStamp;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -75,32 +89,46 @@ namespace Vodovoz.Views.Orders
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child yhboxButtons.Gtk.Box+BoxChild
+			this.ybuttonSave = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonSave.CanFocus = true;
+			this.ybuttonSave.Name = "ybuttonSave";
+			this.ybuttonSave.UseUnderline = true;
+			this.ybuttonSave.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
+			global::Gtk.Image w3 = new global::Gtk.Image();
+			w3.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-save", global::Gtk.IconSize.Menu);
+			this.ybuttonSave.Image = w3;
+			this.yhboxButtons.Add(this.ybuttonSave);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.yhboxButtons[this.ybuttonSave]));
+			w4.Position = 1;
+			w4.Expand = false;
+			w4.Fill = false;
+			// Container child yhboxButtons.Gtk.Box+BoxChild
 			this.ybuttonCancel = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonCancel.CanFocus = true;
 			this.ybuttonCancel.Name = "ybuttonCancel";
 			this.ybuttonCancel.UseUnderline = true;
 			this.ybuttonCancel.Label = global::Mono.Unix.Catalog.GetString("Отмена");
-			global::Gtk.Image w3 = new global::Gtk.Image();
-			w3.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-cancel", global::Gtk.IconSize.Menu);
-			this.ybuttonCancel.Image = w3;
+			global::Gtk.Image w5 = new global::Gtk.Image();
+			w5.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-cancel", global::Gtk.IconSize.Menu);
+			this.ybuttonCancel.Image = w5;
 			this.yhboxButtons.Add(this.ybuttonCancel);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.yhboxButtons[this.ybuttonCancel]));
-			w4.Position = 1;
-			w4.Expand = false;
-			w4.Fill = false;
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.yhboxButtons[this.ybuttonCancel]));
+			w6.Position = 2;
+			w6.Expand = false;
+			w6.Fill = false;
 			this.yvboxMain.Add(this.yhboxButtons);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxButtons]));
-			w5.Position = 0;
-			w5.Expand = false;
-			w5.Fill = false;
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxButtons]));
+			w7.Position = 0;
+			w7.Expand = false;
+			w7.Fill = false;
 			// Container child yvboxMain.Gtk.Box+BoxChild
 			this.yprogressbar = new global::Gamma.GtkWidgets.yProgressBar();
 			this.yprogressbar.Name = "yprogressbar";
 			this.yvboxMain.Add(this.yprogressbar);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yprogressbar]));
-			w6.Position = 1;
-			w6.Expand = false;
-			w6.Fill = false;
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yprogressbar]));
+			w8.Position = 1;
+			w8.Expand = false;
+			w8.Fill = false;
 			// Container child yvboxMain.Gtk.Box+BoxChild
 			this.yhboxPrint = new global::Gamma.GtkWidgets.yHBox();
 			this.yhboxPrint.Name = "yhboxPrint";
@@ -120,8 +148,8 @@ namespace Vodovoz.Views.Orders
 			this.ytreeviewOrders.Name = "ytreeviewOrders";
 			this.GtkScrolledWindowOrders.Add(this.ytreeviewOrders);
 			this.yvboxList.Add(this.GtkScrolledWindowOrders);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.yvboxList[this.GtkScrolledWindowOrders]));
-			w8.Position = 0;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.yvboxList[this.GtkScrolledWindowOrders]));
+			w10.Position = 0;
 			// Container child yvboxList.Gtk.Box+BoxChild
 			this.yhboxWarnings = new global::Gamma.GtkWidgets.yHBox();
 			this.yhboxWarnings.Name = "yhboxWarnings";
@@ -136,15 +164,15 @@ namespace Vodovoz.Views.Orders
 			this.ytreeviewWarnings.Name = "ytreeviewWarnings";
 			this.GtkScrolledWindowWarnings.Add(this.ytreeviewWarnings);
 			this.yhboxWarnings.Add(this.GtkScrolledWindowWarnings);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.yhboxWarnings[this.GtkScrolledWindowWarnings]));
-			w10.Position = 0;
-			this.yvboxList.Add(this.yhboxWarnings);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.yvboxList[this.yhboxWarnings]));
-			w11.Position = 1;
-			this.yhboxPrint.Add(this.yvboxList);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.yhboxPrint[this.yvboxList]));
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.yhboxWarnings[this.GtkScrolledWindowWarnings]));
 			w12.Position = 0;
-			w12.Expand = false;
+			this.yvboxList.Add(this.yhboxWarnings);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.yvboxList[this.yhboxWarnings]));
+			w13.Position = 1;
+			this.yhboxPrint.Add(this.yvboxList);
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.yhboxPrint[this.yvboxList]));
+			w14.Position = 0;
+			w14.Expand = false;
 			// Container child yhboxPrint.Gtk.Box+BoxChild
 			this.yvboxProperites = new global::Gamma.GtkWidgets.yVBox();
 			this.yvboxProperites.Name = "yvboxProperites";
@@ -156,10 +184,10 @@ namespace Vodovoz.Views.Orders
 			this.ylabelSelectDocs.Xalign = 0F;
 			this.ylabelSelectDocs.LabelProp = global::Mono.Unix.Catalog.GetString("Печатать документы");
 			this.yvboxProperites.Add(this.ylabelSelectDocs);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.yvboxProperites[this.ylabelSelectDocs]));
-			w13.Position = 0;
-			w13.Expand = false;
-			w13.Fill = false;
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.yvboxProperites[this.ylabelSelectDocs]));
+			w15.Position = 0;
+			w15.Expand = false;
+			w15.Fill = false;
 			// Container child yvboxProperites.Gtk.Box+BoxChild
 			this.ycheckbuttonBill = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckbuttonBill.CanFocus = true;
@@ -168,10 +196,10 @@ namespace Vodovoz.Views.Orders
 			this.ycheckbuttonBill.DrawIndicator = true;
 			this.ycheckbuttonBill.UseUnderline = true;
 			this.yvboxProperites.Add(this.ycheckbuttonBill);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.yvboxProperites[this.ycheckbuttonBill]));
-			w14.Position = 1;
-			w14.Expand = false;
-			w14.Fill = false;
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.yvboxProperites[this.ycheckbuttonBill]));
+			w16.Position = 1;
+			w16.Expand = false;
+			w16.Fill = false;
 			// Container child yvboxProperites.Gtk.Box+BoxChild
 			this.ycheckbuttonSpecialBill = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckbuttonSpecialBill.CanFocus = true;
@@ -180,10 +208,10 @@ namespace Vodovoz.Views.Orders
 			this.ycheckbuttonSpecialBill.DrawIndicator = true;
 			this.ycheckbuttonSpecialBill.UseUnderline = true;
 			this.yvboxProperites.Add(this.ycheckbuttonSpecialBill);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.yvboxProperites[this.ycheckbuttonSpecialBill]));
-			w15.Position = 2;
-			w15.Expand = false;
-			w15.Fill = false;
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.yvboxProperites[this.ycheckbuttonSpecialBill]));
+			w17.Position = 2;
+			w17.Expand = false;
+			w17.Fill = false;
 			// Container child yvboxProperites.Gtk.Box+BoxChild
 			this.ycheckbuttonUpd = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckbuttonUpd.CanFocus = true;
@@ -193,10 +221,10 @@ namespace Vodovoz.Views.Orders
 			this.ycheckbuttonUpd.UseUnderline = true;
 			this.ycheckbuttonUpd.Xalign = 0F;
 			this.yvboxProperites.Add(this.ycheckbuttonUpd);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.yvboxProperites[this.ycheckbuttonUpd]));
-			w16.Position = 3;
-			w16.Expand = false;
-			w16.Fill = false;
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.yvboxProperites[this.ycheckbuttonUpd]));
+			w18.Position = 3;
+			w18.Expand = false;
+			w18.Fill = false;
 			// Container child yvboxProperites.Gtk.Box+BoxChild
 			this.ycheckbuttonSpecialUpd = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckbuttonSpecialUpd.CanFocus = true;
@@ -206,10 +234,10 @@ namespace Vodovoz.Views.Orders
 			this.ycheckbuttonSpecialUpd.UseUnderline = true;
 			this.ycheckbuttonSpecialUpd.Xalign = 0F;
 			this.yvboxProperites.Add(this.ycheckbuttonSpecialUpd);
-			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.yvboxProperites[this.ycheckbuttonSpecialUpd]));
-			w17.Position = 4;
-			w17.Expand = false;
-			w17.Fill = false;
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.yvboxProperites[this.ycheckbuttonSpecialUpd]));
+			w19.Position = 4;
+			w19.Expand = false;
+			w19.Fill = false;
 			// Container child yvboxProperites.Gtk.Box+BoxChild
 			this.yhboxCopies = new global::Gamma.GtkWidgets.yHBox();
 			this.yhboxCopies.Name = "yhboxCopies";
@@ -221,10 +249,10 @@ namespace Vodovoz.Views.Orders
 			this.ylabelCount.Xalign = 0F;
 			this.ylabelCount.LabelProp = global::Mono.Unix.Catalog.GetString("Копий:");
 			this.yhboxCopies.Add(this.ylabelCount);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.yhboxCopies[this.ylabelCount]));
-			w18.Position = 0;
-			w18.Expand = false;
-			w18.Fill = false;
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.yhboxCopies[this.ylabelCount]));
+			w20.Position = 0;
+			w20.Expand = false;
+			w20.Fill = false;
 			// Container child yhboxCopies.Gtk.Box+BoxChild
 			this.yspinbuttonCopiesCount = new global::Gamma.GtkWidgets.ySpinButton(0D, 100D, 1D);
 			this.yspinbuttonCopiesCount.WidthRequest = 100;
@@ -236,21 +264,92 @@ namespace Vodovoz.Views.Orders
 			this.yspinbuttonCopiesCount.ValueAsDecimal = 0m;
 			this.yspinbuttonCopiesCount.ValueAsInt = 0;
 			this.yhboxCopies.Add(this.yspinbuttonCopiesCount);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.yhboxCopies[this.yspinbuttonCopiesCount]));
-			w19.Position = 1;
-			w19.Expand = false;
-			w19.Fill = false;
-			this.yvboxProperites.Add(this.yhboxCopies);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.yvboxProperites[this.yhboxCopies]));
-			w20.Position = 5;
-			w20.Expand = false;
-			w20.Fill = false;
-			this.yhboxPrint.Add(this.yvboxProperites);
-			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.yhboxPrint[this.yvboxProperites]));
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.yhboxCopies[this.yspinbuttonCopiesCount]));
 			w21.Position = 1;
+			w21.Expand = false;
+			w21.Fill = false;
+			this.yvboxProperites.Add(this.yhboxCopies);
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.yvboxProperites[this.yhboxCopies]));
+			w22.Position = 5;
+			w22.Expand = false;
+			w22.Fill = false;
+			this.yhboxPrint.Add(this.yvboxProperites);
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.yhboxPrint[this.yvboxProperites]));
+			w23.Position = 1;
+			w23.Expand = false;
+			// Container child yhboxPrint.Gtk.Box+BoxChild
+			this.yvboxProperites1 = new global::Gamma.GtkWidgets.yVBox();
+			this.yvboxProperites1.Name = "yvboxProperites1";
+			this.yvboxProperites1.Spacing = 6;
+			// Container child yvboxProperites1.Gtk.Box+BoxChild
+			this.ylabelSelectDocs1 = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelSelectDocs1.Name = "ylabelSelectDocs1";
+			this.ylabelSelectDocs1.Xpad = 5;
+			this.ylabelSelectDocs1.Xalign = 0F;
+			this.ylabelSelectDocs1.LabelProp = global::Mono.Unix.Catalog.GetString("С подписью и печатью");
+			this.yvboxProperites1.Add(this.ylabelSelectDocs1);
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.yvboxProperites1[this.ylabelSelectDocs1]));
+			w24.Position = 0;
+			w24.Expand = false;
+			w24.Fill = false;
+			// Container child yvboxProperites1.Gtk.Box+BoxChild
+			this.ycheckbuttonBillWithSignatureAndStamp = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckbuttonBillWithSignatureAndStamp.CanFocus = true;
+			this.ycheckbuttonBillWithSignatureAndStamp.Name = "ycheckbuttonBillWithSignatureAndStamp";
+			this.ycheckbuttonBillWithSignatureAndStamp.Label = "";
+			this.ycheckbuttonBillWithSignatureAndStamp.DrawIndicator = true;
+			this.ycheckbuttonBillWithSignatureAndStamp.UseUnderline = true;
+			this.yvboxProperites1.Add(this.ycheckbuttonBillWithSignatureAndStamp);
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.yvboxProperites1[this.ycheckbuttonBillWithSignatureAndStamp]));
+			w25.Position = 1;
+			w25.Expand = false;
+			w25.Fill = false;
+			// Container child yvboxProperites1.Gtk.Box+BoxChild
+			this.ycheckbuttonSpecialBillWithSignatureAndStamp = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckbuttonSpecialBillWithSignatureAndStamp.CanFocus = true;
+			this.ycheckbuttonSpecialBillWithSignatureAndStamp.Name = "ycheckbuttonSpecialBillWithSignatureAndStamp";
+			this.ycheckbuttonSpecialBillWithSignatureAndStamp.Label = "";
+			this.ycheckbuttonSpecialBillWithSignatureAndStamp.DrawIndicator = true;
+			this.ycheckbuttonSpecialBillWithSignatureAndStamp.UseUnderline = true;
+			this.yvboxProperites1.Add(this.ycheckbuttonSpecialBillWithSignatureAndStamp);
+			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.yvboxProperites1[this.ycheckbuttonSpecialBillWithSignatureAndStamp]));
+			w26.Position = 2;
+			w26.Expand = false;
+			w26.Fill = false;
+			// Container child yvboxProperites1.Gtk.Box+BoxChild
+			this.ycheckbuttonUpdWithSignatureAndStamp = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckbuttonUpdWithSignatureAndStamp.CanFocus = true;
+			this.ycheckbuttonUpdWithSignatureAndStamp.Name = "ycheckbuttonUpdWithSignatureAndStamp";
+			this.ycheckbuttonUpdWithSignatureAndStamp.Label = "";
+			this.ycheckbuttonUpdWithSignatureAndStamp.DrawIndicator = true;
+			this.ycheckbuttonUpdWithSignatureAndStamp.UseUnderline = true;
+			this.ycheckbuttonUpdWithSignatureAndStamp.Xalign = 0F;
+			this.yvboxProperites1.Add(this.ycheckbuttonUpdWithSignatureAndStamp);
+			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.yvboxProperites1[this.ycheckbuttonUpdWithSignatureAndStamp]));
+			w27.Position = 3;
+			w27.Expand = false;
+			w27.Fill = false;
+			// Container child yvboxProperites1.Gtk.Box+BoxChild
+			this.ycheckbuttonSpecialUpdWithSignatureAndStamp = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckbuttonSpecialUpdWithSignatureAndStamp.CanFocus = true;
+			this.ycheckbuttonSpecialUpdWithSignatureAndStamp.Name = "ycheckbuttonSpecialUpdWithSignatureAndStamp";
+			this.ycheckbuttonSpecialUpdWithSignatureAndStamp.Label = "";
+			this.ycheckbuttonSpecialUpdWithSignatureAndStamp.DrawIndicator = true;
+			this.ycheckbuttonSpecialUpdWithSignatureAndStamp.UseUnderline = true;
+			this.ycheckbuttonSpecialUpdWithSignatureAndStamp.Xalign = 0F;
+			this.yvboxProperites1.Add(this.ycheckbuttonSpecialUpdWithSignatureAndStamp);
+			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.yvboxProperites1[this.ycheckbuttonSpecialUpdWithSignatureAndStamp]));
+			w28.Position = 4;
+			w28.Expand = false;
+			w28.Fill = false;
+			this.yhboxPrint.Add(this.yvboxProperites1);
+			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.yhboxPrint[this.yvboxProperites1]));
+			w29.Position = 2;
+			w29.Expand = false;
+			w29.Fill = false;
 			this.yvboxMain.Add(this.yhboxPrint);
-			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxPrint]));
-			w22.Position = 2;
+			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxPrint]));
+			w30.Position = 2;
 			this.Add(this.yvboxMain);
 			if ((this.Child != null))
 			{

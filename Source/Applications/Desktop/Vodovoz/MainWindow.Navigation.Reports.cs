@@ -525,9 +525,15 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnReportKungolovoActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
+		var scope = Startup.AppDIContainer.BeginLifetimeScope();
+
+		var report = scope.Resolve<ReportForBigClient>();
+
+		report.Destroyed += (s, args) => scope?.Dispose();
+
+		var tab = tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<ReportForBigClient>(),
-			() => new QSReport.ReportViewDlg(new ReportForBigClient()));
+			() => new QSReport.ReportViewDlg(report));
 	}
 
 	/// <summary>
@@ -695,11 +701,11 @@ public partial class MainWindow
 
 		var viewModel = scope.Resolve<WayBillReportGroupPrint>();
 
-		var tab = tdiMain.OpenTab(
+		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<WayBillReport>(),
 			() => new QSReport.ReportViewDlg(viewModel));
 
-		tab.TabClosed += (s, args) => scope?.Dispose();
+		viewModel.Destroyed += (_, _2) => scope?.Dispose();
 	}
 
 	/// <summary>
@@ -984,7 +990,7 @@ public partial class MainWindow
 			QSReport.ReportViewDlg.GenerateHashName<MileageReport>(),
 			() => new QSReport.ReportViewDlg(report));
 
-		tab.TabClosed += (_, _2) => scope?.Dispose();
+		report.Destroyed += (_, _2) => scope?.Dispose();
 	}
 
 	/// <summary>
@@ -1190,7 +1196,7 @@ public partial class MainWindow
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.FuelReport>(),
 			() => new QSReport.ReportViewDlg(report));
 
-		tab.TabClosed += (_, _2) => scope?.Dispose();
+		report.Destroyed += (_, _2) => scope?.Dispose();
 	}
 
 	/// <summary>

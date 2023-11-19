@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -418,6 +418,7 @@
     <Compile Include="Cash\TransferDocumentsJournal\TransferDocumentsJournalRegistrar.cs" />
     <Compile Include="Commons\FileChooser.cs" />
     <Compile Include="Commons\HotkeyHandler.cs" />
+    <Compile Include="Commons\ThemmedDiffFormater.cs" />
     <Compile Include="Core\DocumentPrinter.cs" />
     <Compile Include="Core\Permissions\EntitySubdivisionForUserPermissionViewModel.cs" />
     <Compile Include="Core\ViewFactory.cs" />
@@ -617,6 +618,7 @@
     <Compile Include="Startup.cs" />
     <Compile Include="TempAdapters\AttachmentsViewModelFactory.cs" />
     <Compile Include="TempAdapters\ComplaintsJournalFactory.cs" />
+    <Compile Include="TempAdapters\ReportExporterAdapter.cs" />
     <Compile Include="TempAdapters\RouteListJournalFactory.cs" />
     <Compile Include="TempAdapters\ComplaintKindJournalFactory.cs" />
     <Compile Include="TempAdapters\NomenclatureJournalFactory.cs" />
@@ -1987,10 +1989,17 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Pacs.CallDetailsView.cs" />
     <Compile Include="Views\Pacs\MissedCallDetailsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Pacs.MissedCallDetailsView.cs" />
+    <Compile Include="Dialogs\Client\OrderCancellationConfirmationDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Client.OrderCancellationConfirmationDlg.cs" />
+    <Compile Include="Views\Client\CounterpartyClassification\CounterpartyClassificationCalculationView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Client.CounterpartyClassification.CounterpartyClassificationCalculationView.cs" />
+    <Compile Include="Views\Client\CounterpartyClassification\CounterpartyClassificationCalculationEmailSettingsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Client.CounterpartyClassification.CounterpartyClassificationCalculationEmailSettingsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="ViewModels\Goods\" />
+    <Folder Include="Views\Client\CounterpartyClassification\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">

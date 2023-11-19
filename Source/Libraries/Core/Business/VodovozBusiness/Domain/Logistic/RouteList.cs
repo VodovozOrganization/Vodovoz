@@ -1083,7 +1083,9 @@ namespace Vodovoz.Domain.Logistic
 						}
 						AddDiscrepancy(result, discrepancy);
 					}
-					else if(new[] { AddressTransferType.NeedToReload, AddressTransferType.FromFreeBalance }.Contains(address.TransferedTo.AddressTransferType.Value))
+					else if(address.TransferedTo.AddressTransferType != null
+						&& new[] { AddressTransferType.NeedToReload, AddressTransferType.FromFreeBalance }
+							.Contains(address.TransferedTo.AddressTransferType.Value))
 					{
 						if(orderEquipment.Direction == Direction.Deliver)
 						{// не обрабатываем pickup, т.к. водитель физически не был на адресе, чтобы забрать оборудование

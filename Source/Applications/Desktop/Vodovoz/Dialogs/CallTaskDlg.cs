@@ -27,12 +27,15 @@ using Vodovoz.ViewModels.Journals.JournalFactories;
 using CounterpartyContractFactory = Vodovoz.Factories.CounterpartyContractFactory;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Core.Domain.Employees;
+using Autofac;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.Dialogs
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class CallTaskDlg : EntityDialogBase<CallTask>
 	{
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		private IOrganizationProvider _organizationProvider;
 		private ICounterpartyContractRepository _counterpartyContractRepository;
 		private CounterpartyContractFactory _counterpartyContractFactory;
@@ -125,7 +128,7 @@ namespace Vodovoz.Dialogs
 			entryAttachedEmployee.SetEntityAutocompleteSelectorFactory(employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory());
 			entryAttachedEmployee.Binding.AddBinding(Entity, e => e.AssignedEmployee, w => w.Subject).InitializeFromSource();
 
-			var deliveryPointJournalFactory = new DeliveryPointJournalFactory(_deliveryPointJournalFilterViewModel);
+			var deliveryPointJournalFactory = _lifetimeScope.Resolve<IDeliveryPointJournalFactory>(new TypedParameter(typeof(DeliveryPointJournalFilterViewModel), _deliveryPointJournalFilterViewModel));
 			entityVMEntryDeliveryPoint
 				.SetEntityAutocompleteSelectorFactory(deliveryPointJournalFactory.CreateDeliveryPointAutocompleteSelectorFactory());
 			entityVMEntryDeliveryPoint.Binding.AddBinding(Entity, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
@@ -319,6 +322,13 @@ namespace Vodovoz.Dialogs
 			}
 
 			UpdateAddressFields();
+		}
+
+		public override void Destroy()
+		{
+			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
+			base.Destroy();
 		}
 	}
 }

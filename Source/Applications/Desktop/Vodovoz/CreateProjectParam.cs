@@ -66,6 +66,7 @@ using Vodovoz.ViewModels.Cash.Transfer;
 using Vodovoz.ViewModels.Cash.Transfer.Journal;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Counterparties;
+using Vodovoz.ViewModels.Counterparties.ClientClassification;
 using Vodovoz.ViewModels.Dialogs.Complaints;
 using Vodovoz.ViewModels.Dialogs.Counterparty;
 using Vodovoz.ViewModels.Dialogs.Email;
@@ -142,6 +143,7 @@ using Vodovoz.Views.BaseParameters;
 using Vodovoz.Views.BusinessTasks;
 using Vodovoz.Views.Cash;
 using Vodovoz.Views.Client;
+using Vodovoz.Views.Client.CounterpartyClassification;
 using Vodovoz.Views.Complaints;
 using Vodovoz.Views.Contacts;
 using Vodovoz.Views.Employees;
@@ -334,6 +336,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<UndeliveryDetalizationViewModel, UndeliveryDetalizationView>()
 				.RegisterWidgetForTabViewModel<RegradingOfGoodsReasonViewModel, RegradingOfGoodsReasonView>()
 				//.RegisterWidgetForTabViewModel<PacsViewModel, PacsView>()
+				.RegisterWidgetForTabViewModel<CounterpartyClassificationCalculationViewModel, CounterpartyClassificationCalculationView>()
 				;
 
 			//Регистрация виджетов
@@ -460,6 +463,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<RevenueServiceMassCounterpartyUpdateToolViewModel, RevenueServiceMassCounterpartyUpdateToolView>()
 				.RegisterWidgetForWidgetViewModel<FastDeliveryOrderTransferFilterViewModel, FastDeliveryOrderTransferFilterView>()
 				.RegisterWidgetForWidgetViewModel<WarehousesSettingsViewModel, NamedDomainEntitiesSettingsView>()
+				.RegisterWidgetForWidgetViewModel<CounterpartyClassificationCalculationEmailSettingsViewModel, CounterpartyClassificationCalculationEmailSettingsView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;

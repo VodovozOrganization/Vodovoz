@@ -329,7 +329,8 @@ namespace Vodovoz.JournalViewModels
 						_contactsParameters,
 						commonServices,
 						_roboAtsCounterpartyJournalFactory,
-						_counterpartyJournalFactory
+						_counterpartyJournalFactory,
+						Startup.AppDIContainer.BeginLifetimeScope()
 					),
 					//функция диалога открытия документа
 					(BusinessTaskJournalNode node) => new ClientTaskViewModel(
@@ -345,7 +346,8 @@ namespace Vodovoz.JournalViewModels
 						_contactsParameters,
 						commonServices,
 						_roboAtsCounterpartyJournalFactory,
-						_counterpartyJournalFactory
+						_counterpartyJournalFactory,
+						Startup.AppDIContainer.BeginLifetimeScope()
 					),
 					//функция идентификации документа
 					(BusinessTaskJournalNode node) => {

@@ -27,10 +27,11 @@ namespace Vodovoz.ViewModels.Dialogs.Complaints
 			INavigationManager navigationManager,
 			IComplaintsJournalFactory complaintsJournalFactory,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			ComplaintFilterViewModel filterViewModel) : base(commonServices.InteractiveService, navigationManager)
+			ComplaintFilterViewModel filterViewModel)
+			: base(commonServices.InteractiveService, navigationManager)
 		{
 			_complaintsJournalFactory = complaintsJournalFactory ?? throw new ArgumentNullException(nameof(complaintsJournalFactory));
-			_unitOfWorkFactory = unitOfWorkFactory;
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_filterViewModel = filterViewModel ?? throw new ArgumentNullException(nameof(filterViewModel));
 
 			_filterViewModel.DisposeOnDestroy = false;

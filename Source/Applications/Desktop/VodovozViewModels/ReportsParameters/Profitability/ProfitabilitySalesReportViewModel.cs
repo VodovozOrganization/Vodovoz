@@ -94,7 +94,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 				{
 					Source = _source,
 					Parameters = Parameters,
-					Title = Title
+					Title = Title,
+					UseUserVariables = true
 				};
 				return reportInfo;
 			}

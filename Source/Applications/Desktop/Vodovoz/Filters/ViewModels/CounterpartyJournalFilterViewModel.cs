@@ -1,15 +1,16 @@
-﻿using Gamma.Widgets;
+﻿using Autofac;
 using NHibernate.Transform;
 using QS.Project.Filter;
+using QS.Project.Journal;
 using QS.ViewModels.Control.EEVM;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Domain.Retail;
 using Vodovoz.EntityRepositories;
-using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Counterparties;
 using Vodovoz.ViewModels.Widgets.Search;
 
@@ -32,14 +33,20 @@ namespace Vodovoz.Filters.ViewModels
 		private int? _counterpartyVodovozInternalId;
 		private string _counterpartyInn;
 		private bool _showLiquidating;
-		private CounterpartyJournalViewModel _journal;
+		private CounterpartyCompositeClassification? _counterpartyClassification;
+		private JournalViewModelBase _journal;
 		private ClientCameFrom _clientCameFrom;
 		private bool _clientCameFromIsEmpty;
 		private object _selectedCameFrom;
 		private readonly CompositeSearchViewModel _searchByAddressViewModel;
+		private readonly ILifetimeScope _lifetimeScope;
 
-		public CounterpartyJournalFilterViewModel(IGenericRepository<ClientCameFrom> clientCameFromRepository)
+		public CounterpartyJournalFilterViewModel(
+			IGenericRepository<ClientCameFrom> clientCameFromRepository,
+			ILifetimeScope lifetimeScope)
 		{
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+
 			if(clientCameFromRepository is null)
 			{
 				throw new ArgumentNullException(nameof(clientCameFromRepository));
@@ -56,7 +63,8 @@ namespace Vodovoz.Filters.ViewModels
 				x => x.RestrictIncludeArchive,
 				x => x.ShowLiquidating,
 				x => x.Tag,
-				x => x.IsNeedToSendBillByEdo);
+				x => x.IsNeedToSendBillByEdo,
+				x => x.CounterpartyClassification);
 		}
 
 		public CompositeSearchViewModel SearchByAddressViewModel => _searchByAddressViewModel;
@@ -87,14 +95,14 @@ namespace Vodovoz.Filters.ViewModels
 
 		public IEntityEntryViewModel TagViewModel { get; private set; }
 
-		public CounterpartyJournalViewModel Journal
+		public JournalViewModelBase Journal
 		{
 			get => _journal;
 			set
 			{
 				if(SetField(ref _journal, value) && value != null)
 				{
-					TagViewModel = new CommonEEVMBuilderFactory<CounterpartyJournalFilterViewModel>(_journal, this, _journal.UoW, _journal.NavigationManager, _journal.LifetimeScope)
+					TagViewModel = new CommonEEVMBuilderFactory<CounterpartyJournalFilterViewModel>(_journal, this, _journal.UoW, _journal.NavigationManager, _lifetimeScope)
 						.ForProperty(x => x.Tag)
 						.UseViewModelJournalAndAutocompleter<TagJournalViewModel>()
 						.UseViewModelDialog<TagViewModel>()
@@ -113,6 +121,12 @@ namespace Vodovoz.Filters.ViewModels
 		{
 			get => _isForSalesDepartment;
 			set => SetField(ref _isForSalesDepartment, value);
+		}
+
+		public CounterpartyCompositeClassification? CounterpartyClassification
+		{
+			get => _counterpartyClassification;
+			set => SetField(ref _counterpartyClassification, value);
 		}
 
 		public GenericObservableList<SalesChannelSelectableNode> SalesChannels
