@@ -41,6 +41,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 		private readonly IFileDialogService _fileDialogService;
 		private readonly ICounterpartyRepository _counterpartyRepository;
 		private readonly IEmailParametersProvider _emailParametersProvider;
+		private readonly bool _canCalculateCounterpartyClassifications;
 		private bool _isCalculationInProcess;
 		private bool _isCalculationCompleted;
 		private string _currentUserName;
@@ -58,6 +59,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 
 		public CounterpartyClassificationCalculationViewModel(
 			IUnitOfWorkFactory uowFactory,
+			ICommonServices commonServices,
 			IInteractiveService interactiveService,
 			INavigationManager navigation,
 			ILogger<CounterpartyClassificationCalculationViewModel> logger,
@@ -72,6 +74,12 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			{
 				throw new ArgumentNullException(nameof(uowFactory));
 			}
+
+			if(commonServices is null)
+			{
+				throw new ArgumentNullException(nameof(commonServices));
+			}
+
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -80,6 +88,9 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
 			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));
 			_uow = uowFactory.CreateWithoutRoot();
+
+			_canCalculateCounterpartyClassifications = 
+				commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Counterparty.CanCalculateCounterpartyClassifications);
 
 			Title = "Пересчёт классификации контрагентов";
 
@@ -91,6 +102,8 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 
 		public event EventHandler CommandToStartCalculationReceived;
 		public event EventHandler<CalculationMessageEventArgs> CalculationMessageReceived;
+
+		public bool CanCalculateCounterpartyClassifications => _canCalculateCounterpartyClassifications;
 
 		public CounterpartyClassificationCalculationSettings CalculationSettings { get; private set; }
 		public CancellationTokenSource ReportCancelationTokenSource { get; set; }
