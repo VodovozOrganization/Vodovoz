@@ -401,6 +401,7 @@ namespace Vodovoz.Views.Logistic
 							}
 							break;
 						case nameof(ViewModel.ScheduleRestrictions):
+							ytreeScheduleRestrictions.ItemsDataSource = ViewModel.ScheduleRestrictions;
 							ScrollToSelectedScheduleRestriction();
 							break;
 					}

@@ -465,7 +465,7 @@ namespace Vodovoz.Domain.Sale
 			}
 		}
 
-		public virtual void ReplaceDistrictDeliveryScheduleRestrictions(IEnumerable<DeliveryScheduleRestriction> deliveryScheduleRestrictions)
+		private void ClearAllDeliveryScheduleRestrictions()
 		{
 			TodayDeliveryScheduleRestrictions.Clear();
 			MondayDeliveryScheduleRestrictions.Clear();
@@ -475,15 +475,26 @@ namespace Vodovoz.Domain.Sale
 			FridayDeliveryScheduleRestrictions.Clear();
 			SaturdayDeliveryScheduleRestrictions.Clear();
 			SundayDeliveryScheduleRestrictions.Clear();
+		}
+
+		public virtual void ReplaceDistrictDeliveryScheduleRestrictions(IEnumerable<DeliveryScheduleRestriction> deliveryScheduleRestrictions)
+		{
+			if(deliveryScheduleRestrictions == null)
+			{
+				throw new ArgumentException(
+					 "Отсутствуют данные новых графиков доставки");
+			}
+
+			if(deliveryScheduleRestrictions.Any(s => s.District.Id != Id))
+			{
+				throw new ArgumentException(
+					 "Id района в который добавляется график доставки должен совпадать с Id района в новом графике доставки");
+			}
+
+			ClearAllDeliveryScheduleRestrictions();
 
 			foreach(var schedule in  deliveryScheduleRestrictions)
-			{ 
-				if(schedule.District.Id != Id)
-				{
-					throw new ArgumentException(
-						 "Id района в который добавляется график доставки должен совпадать с Id района в новом графике доставки");
-				}
-
+			{
 				switch(schedule.WeekDay)
 				{
 					case WeekDayName.Today:

@@ -584,6 +584,8 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 
 			PasteSchedulesToDistrict(SelectedDistrict);
+
+			OnPropertyChanged(nameof(ScheduleRestrictions));
 		}
 
 		private void PasteSchedulesToDistrict(District district)
