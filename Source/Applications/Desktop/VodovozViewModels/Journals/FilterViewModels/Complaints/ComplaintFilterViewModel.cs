@@ -4,6 +4,7 @@ using QS.Navigation;
 using QS.Project.Filter;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
+using QS.Tdi;
 using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Dialog;
 using System;
@@ -62,6 +63,7 @@ namespace Vodovoz.FilterViewModels
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope,
+			ITdiTab journalTab,
 			ISubdivisionRepository subdivisionRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
@@ -71,6 +73,7 @@ namespace Vodovoz.FilterViewModels
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			JournalTab = journalTab ?? throw new ArgumentNullException(nameof(journalTab));
 			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
 			CounterpartySelectorFactory =
 				(counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory)))
@@ -129,6 +132,10 @@ namespace Vodovoz.FilterViewModels
 
 			OpenNumberOfComplaintsAgainstDriversReportTabCommand = new DelegateCommand(OpenNumberOfComplaintsAgainstDriversReportTab);
 		}
+
+		public ILifetimeScope LifetimeScope => _lifetimeScope;
+		public INavigationManager NavigationManager => _navigationManager;
+		public ITdiTab JournalTab { get; }
 
 		private IEntityEntryViewModel BuildAuthorViewModel(DialogViewModelBase journal)
 		{

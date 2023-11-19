@@ -1,6 +1,8 @@
-﻿using QS.Views.GtkUI;
+﻿using QS.ViewModels.Control.EEVM;
+using QS.Views.GtkUI;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.FilterViewModels;
+using Vodovoz.JournalViewModels;
 using static Vodovoz.FilterViewModels.ComplaintFilterViewModel;
 
 namespace Vodovoz.Filters.GtkViews
@@ -66,6 +68,23 @@ namespace Vodovoz.Filters.GtkViews
 			guiltyItemView.ViewModel = ViewModel.GuiltyItemVM;
 
 			ybtnNumberOfComplaintsAgainstDriversReport.Clicked += (s, e) => ViewModel.OpenNumberOfComplaintsAgainstDriversReportTabCommand.Execute();
+
+			ConfigureEntries();
+		}
+
+		private void ConfigureEntries()
+		{
+			var builder = new LegacyEEVMBuilderFactory<ComplaintFilterViewModel>(
+				ViewModel.JournalTab,
+				ViewModel,
+				ViewModel.UoW,
+				ViewModel.NavigationManager,
+				ViewModel.LifetimeScope);
+
+			entityentryCounterparty.ViewModel = builder.ForProperty(x => x.Counterparty)
+				.UseTdiEntityDialog()
+				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
+				.Finish();
 		}
 
 		public override void Destroy()
