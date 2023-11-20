@@ -21,7 +21,6 @@ namespace Vodovoz.Factories
 
 		public PhonesViewModelFactory(IPhoneRepository phoneRepository)
 		{
-
 			_phoneRepository = phoneRepository ?? throw new ArgumentNullException(nameof(phoneRepository));
 
 			var roboatsSettings = _lifetimeScope.Resolve<IRoboatsSettings>();
