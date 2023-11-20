@@ -66,7 +66,6 @@ namespace Vodovoz.FilterViewModels
 			ITdiTab journalTab,
 			ISubdivisionRepository subdivisionRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
-			ICounterpartyJournalFactory counterpartySelectorFactory,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
 			Action<ComplaintFilterViewModel> filterParams = null)
 		{
@@ -75,12 +74,6 @@ namespace Vodovoz.FilterViewModels
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			JournalTab = journalTab ?? throw new ArgumentNullException(nameof(journalTab));
 			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
-			CounterpartySelectorFactory =
-				(counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory)))
-				.CreateCounterpartyAutocompleteSelectorFactory();
-			EmployeeSelectorFactory =
-				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
-				.CreateWorkingEmployeeAutocompleteSelectorFactory();
 			InitializeComplaintKindAutocompleteSelectorFactory();
 			GuiltyItemVM = new GuiltyItemViewModel(
 				new ComplaintGuiltyItem(),
@@ -169,10 +162,6 @@ namespace Vodovoz.FilterViewModels
 		}
 
 		public IEmployeeService EmployeeService { get; set; }
-
-		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
-
-		public IEntityAutocompleteSelectorFactory EmployeeSelectorFactory { get; }
 
 		public IEntityEntryViewModel CurrentSubdivisionViewModel { get; private set; }
 
