@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using EdoService;
 using EdoService.Converters;
 using EdoService.Dto;
@@ -47,6 +47,7 @@ using System.Threading;
 using TISystems.TTC.CRM.BE.Serialization;
 using TrueMarkApi.Library.Converters;
 using TrueMarkApi.Library.Dto;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;

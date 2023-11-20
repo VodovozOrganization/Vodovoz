@@ -108,7 +108,7 @@ public partial class MainWindow : Gtk.Window
 
 		//Настраиваем модули
 
-		pacspanel.ViewModel = _autofacScope.Resolve<PacsPanelViewModel>();
+		//pacspanel.ViewModel = _autofacScope.Resolve<PacsPanelViewModel>();
 
 		ActionUsers.Sensitive = QSMain.User.Admin;
 		ActionAdministration.Sensitive = QSMain.User.Admin;
