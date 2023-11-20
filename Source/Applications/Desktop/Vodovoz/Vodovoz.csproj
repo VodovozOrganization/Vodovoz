@@ -1995,6 +1995,10 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Client.CounterpartyClassification.CounterpartyClassificationCalculationView.cs" />
     <Compile Include="Views\Client\CounterpartyClassification\CounterpartyClassificationCalculationEmailSettingsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Client.CounterpartyClassification.CounterpartyClassificationCalculationEmailSettingsView.cs" />
+    <Compile Include="Views\Pacs\PacsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Pacs.PacsView.cs" />
+    <Compile Include="Views\Pacs\PacsReportsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Pacs.PacsReportsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
