@@ -8,23 +8,15 @@ namespace Vodovoz.Views.Pacs
 
 		private global::Gamma.GtkWidgets.yHBox hboxNoteButtons;
 
-		private global::Gamma.GtkWidgets.yToggleButton buttonOperator;
+		private global::Gamma.GtkWidgets.yRadioButton buttonOperator;
 
-		private global::Gamma.GtkWidgets.yToggleButton buttonDashboard;
+		private global::Gamma.GtkWidgets.yRadioButton buttonDashboard;
 
-		private global::Gamma.GtkWidgets.yToggleButton buttonSettings;
+		private global::Gamma.GtkWidgets.yRadioButton buttonSettings;
 
-		private global::Gamma.GtkWidgets.yToggleButton buttonReports;
+		private global::Gamma.GtkWidgets.yRadioButton buttonReports;
 
 		private global::Gamma.GtkWidgets.yNotebook notebookPacs;
-
-		private global::Gtk.Label pageLabelOperator;
-
-		private global::Gtk.Label pageLabelDashboard;
-
-		private global::Gtk.Label pageLabelSettings;
-
-		private global::Gtk.Label pageLabelReport;
 
 		protected virtual void Build()
 		{
@@ -42,41 +34,46 @@ namespace Vodovoz.Views.Pacs
 			this.hboxNoteButtons.Homogeneous = true;
 			this.hboxNoteButtons.Spacing = 6;
 			// Container child hboxNoteButtons.Gtk.Box+BoxChild
-			this.buttonOperator = new global::Gamma.GtkWidgets.yToggleButton();
+			this.buttonOperator = new global::Gamma.GtkWidgets.yRadioButton();
 			this.buttonOperator.CanFocus = true;
 			this.buttonOperator.Name = "buttonOperator";
-			this.buttonOperator.UseUnderline = true;
-			this.buttonOperator.Active = true;
 			this.buttonOperator.Label = global::Mono.Unix.Catalog.GetString("Оператор");
+			this.buttonOperator.DrawIndicator = false;
+			this.buttonOperator.UseUnderline = true;
+			this.buttonOperator.Group = new global::GLib.SList(global::System.IntPtr.Zero);
 			this.hboxNoteButtons.Add(this.buttonOperator);
 			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hboxNoteButtons[this.buttonOperator]));
 			w1.Position = 0;
 			// Container child hboxNoteButtons.Gtk.Box+BoxChild
-			this.buttonDashboard = new global::Gamma.GtkWidgets.yToggleButton();
+			this.buttonDashboard = new global::Gamma.GtkWidgets.yRadioButton();
 			this.buttonDashboard.CanFocus = true;
 			this.buttonDashboard.Name = "buttonDashboard";
-			this.buttonDashboard.UseUnderline = true;
 			this.buttonDashboard.Label = global::Mono.Unix.Catalog.GetString("Сводка");
+			this.buttonDashboard.DrawIndicator = false;
+			this.buttonDashboard.UseUnderline = true;
+			this.buttonDashboard.Group = this.buttonOperator.Group;
 			this.hboxNoteButtons.Add(this.buttonDashboard);
 			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hboxNoteButtons[this.buttonDashboard]));
 			w2.Position = 1;
 			// Container child hboxNoteButtons.Gtk.Box+BoxChild
-			this.buttonSettings = new global::Gamma.GtkWidgets.yToggleButton();
+			this.buttonSettings = new global::Gamma.GtkWidgets.yRadioButton();
 			this.buttonSettings.CanFocus = true;
 			this.buttonSettings.Name = "buttonSettings";
-			this.buttonSettings.UseUnderline = true;
-			this.buttonSettings.Active = true;
 			this.buttonSettings.Label = global::Mono.Unix.Catalog.GetString("Настройки");
+			this.buttonSettings.DrawIndicator = false;
+			this.buttonSettings.UseUnderline = true;
+			this.buttonSettings.Group = this.buttonOperator.Group;
 			this.hboxNoteButtons.Add(this.buttonSettings);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hboxNoteButtons[this.buttonSettings]));
 			w3.Position = 2;
 			// Container child hboxNoteButtons.Gtk.Box+BoxChild
-			this.buttonReports = new global::Gamma.GtkWidgets.yToggleButton();
+			this.buttonReports = new global::Gamma.GtkWidgets.yRadioButton();
 			this.buttonReports.CanFocus = true;
 			this.buttonReports.Name = "buttonReports";
-			this.buttonReports.UseUnderline = true;
-			this.buttonReports.Active = true;
 			this.buttonReports.Label = global::Mono.Unix.Catalog.GetString("Отчеты");
+			this.buttonReports.DrawIndicator = false;
+			this.buttonReports.UseUnderline = true;
+			this.buttonReports.Group = this.buttonOperator.Group;
 			this.hboxNoteButtons.Add(this.buttonReports);
 			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hboxNoteButtons[this.buttonReports]));
 			w4.Position = 3;
@@ -89,46 +86,12 @@ namespace Vodovoz.Views.Pacs
 			this.notebookPacs = new global::Gamma.GtkWidgets.yNotebook();
 			this.notebookPacs.CanFocus = true;
 			this.notebookPacs.Name = "notebookPacs";
-			this.notebookPacs.CurrentPage = 0;
-			// Notebook tab
-			global::Gtk.Label w6 = new global::Gtk.Label();
-			w6.Visible = true;
-			this.notebookPacs.Add(w6);
-			this.pageLabelOperator = new global::Gtk.Label();
-			this.pageLabelOperator.Name = "pageLabelOperator";
-			this.pageLabelOperator.LabelProp = global::Mono.Unix.Catalog.GetString("Оператор");
-			this.notebookPacs.SetTabLabel(w6, this.pageLabelOperator);
-			this.pageLabelOperator.ShowAll();
-			// Notebook tab
-			global::Gtk.Label w7 = new global::Gtk.Label();
-			w7.Visible = true;
-			this.notebookPacs.Add(w7);
-			this.pageLabelDashboard = new global::Gtk.Label();
-			this.pageLabelDashboard.Name = "pageLabelDashboard";
-			this.pageLabelDashboard.LabelProp = global::Mono.Unix.Catalog.GetString("Сводка");
-			this.notebookPacs.SetTabLabel(w7, this.pageLabelDashboard);
-			this.pageLabelDashboard.ShowAll();
-			// Notebook tab
-			global::Gtk.Label w8 = new global::Gtk.Label();
-			w8.Visible = true;
-			this.notebookPacs.Add(w8);
-			this.pageLabelSettings = new global::Gtk.Label();
-			this.pageLabelSettings.Name = "pageLabelSettings";
-			this.pageLabelSettings.LabelProp = global::Mono.Unix.Catalog.GetString("Настройки");
-			this.notebookPacs.SetTabLabel(w8, this.pageLabelSettings);
-			this.pageLabelSettings.ShowAll();
-			// Notebook tab
-			global::Gtk.Label w9 = new global::Gtk.Label();
-			w9.Visible = true;
-			this.notebookPacs.Add(w9);
-			this.pageLabelReport = new global::Gtk.Label();
-			this.pageLabelReport.Name = "pageLabelReport";
-			this.pageLabelReport.LabelProp = global::Mono.Unix.Catalog.GetString("Отчеты");
-			this.notebookPacs.SetTabLabel(w9, this.pageLabelReport);
-			this.pageLabelReport.ShowAll();
+			this.notebookPacs.CurrentPage = -1;
+			this.notebookPacs.ShowBorder = false;
+			this.notebookPacs.ShowTabs = false;
 			this.vboxWidget.Add(this.notebookPacs);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.notebookPacs]));
-			w10.Position = 1;
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.notebookPacs]));
+			w6.Position = 1;
 			this.Add(this.vboxWidget);
 			if ((this.Child != null))
 			{
