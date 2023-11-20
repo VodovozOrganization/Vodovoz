@@ -193,6 +193,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				var groupedNodes = (from oi in firstLevelGroup
 									group oi by firstSelector.Invoke(oi) into g
 									select new { Key = g.Key, Items = g.ToList() })
+									.OrderBy(g => g.Key)
 									.ToList();
 
 				foreach(var group in groupedNodes)
@@ -249,6 +250,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 									group oi by new { Key1 = firstSelector.Invoke(oi), Key2 = secondSelector.Invoke(oi) } into g
 									select new { Key = g.Key, Items = g.ToList() })
 									.OrderBy(g => g.Key.Key1)
+									.ThenBy(g => g.Key.Key2)
 									.ToList();
 
 				var groupsCount = groupedNodes.Count;
@@ -311,6 +313,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 									select new { Key = g.Key, Items = g.ToList() })
 									.OrderBy(g => g.Key.Key1)
 									.ThenBy(g => g.Key.Key2)
+									.ThenBy(g => g.Key.Key3)
 									.ToList();
 
 				var groupsCount = groupedNodes.Count;
