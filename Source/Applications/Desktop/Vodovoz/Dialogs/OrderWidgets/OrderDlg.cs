@@ -2163,7 +2163,7 @@ namespace Vodovoz
 
 			if(!canBeReorderedWithoutRestriction && Entity.OrderItems.Any(x => x.PromoSet != null))
 			{
-				if(!promosetDuplicateFinder.RequestDuplicatePromosets(UoW, Entity.DeliveryPoint, phones))
+				if(!promosetDuplicateFinder.RequestDuplicatePromosets(UoW, Entity.Id, Entity.DeliveryPoint, phones))
 				{
 					return Result.Failure(Errors.Orders.Order.AcceptAbortedByUser);
 				}
