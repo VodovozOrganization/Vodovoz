@@ -2,6 +2,7 @@
 using System.Linq;
 using Autofac;
 using Autofac.Core;
+using FluentNHibernate.Automapping;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -60,7 +61,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			TabName = "Журнал платежей из банк-клиента";
 
 			CreateFilter(filterParams);
+
+			_paymentPermissionResult = CurrentPermissionService.ValidateEntityPermission(typeof(Payment));
 			SetPermissions();
+
 			CreateDeleteAction();
 			UpdateOnChanges(typeof(PaymentItem), typeof(VodOrder));
 		}
@@ -90,14 +94,32 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 
 		private void CreateDeleteAction()
 		{
-			if(_commonServices.UserService.GetCurrentUser().IsAdmin)
+			var userIsAdmin = _commonServices.UserService.GetCurrentUser().IsAdmin;
+
+			if(userIsAdmin || _paymentPermissionResult.CanDelete)
 			{
 				var deleteAction = new JournalAction("Удалить",
-					(selected) => _paymentPermissionResult.CanDelete && selected.Any(),
+					(selected) =>
+					{
+						if(!selected.Any())
+						{
+							return false;
+						}
+
+						var selectedPayments = selected.OfType<PaymentJournalNode>().ToArray();
+
+						var canDelete = (_paymentPermissionResult.CanDelete && !selectedPayments.Any(p => !p.IsManualCreated))
+							|| userIsAdmin;
+						
+						return canDelete;
+					},
 					(selected) => VisibleDeleteAction,
 					(selected) => DeleteEntities(selected.OfType<PaymentJournalNode>().ToArray()),
 					"Delete"
-				);
+				)
+				{
+
+				};
 				NodeActionsList.Add(deleteAction);
 			}
 		}
@@ -247,8 +269,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 		
 		protected override void CreateNodeActions()
 		{
-			_paymentPermissionResult = CurrentPermissionService.ValidateEntityPermission(typeof(Payment));
-			
 			NodeActionsList.Clear();
 			CreateAddNewPaymentAction();
 
