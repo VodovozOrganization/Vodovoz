@@ -6,6 +6,7 @@ using QS.Services;
 using System;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 
@@ -41,6 +42,7 @@ namespace Vodovoz.JournalSelector
 		public IEntitySelector CreateSelector(bool multipleSelect = false)
 		{
 			var nomecnlatureJournalFactory = new NomenclatureJournalFactory(_lifetimeScope);
+			var nomenclatureSettings = _lifetimeScope.Resolve<INomenclatureSettings>();
 			NomenclaturesJournalViewModel selectorViewModel = (NomenclaturesJournalViewModel)Activator
 				.CreateInstance(typeof(NomenclaturesJournalViewModel), new object[]
 				{
@@ -52,6 +54,7 @@ namespace Vodovoz.JournalSelector
 					counterpartySelectorFactory,
 					nomenclatureRepository,
 					userRepository,
+					nomenclatureSettings,
 					null
 				});
 			
