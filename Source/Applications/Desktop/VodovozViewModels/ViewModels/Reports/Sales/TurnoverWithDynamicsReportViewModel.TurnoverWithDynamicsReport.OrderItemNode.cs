@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Domain.Goods;
@@ -63,7 +63,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 				public CounterpartyCompositeClassification CounterpartyClassification { get; set; }
 
-				public int? PromotionalSetId { get; set; }
+				public int PromotionalSetId { get; set; }
 				
 				public string PromotionalSetName { get; set; }
 			}

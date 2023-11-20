@@ -265,7 +265,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 					while(true)
 					{
-						if(i == groupsCount || (groupedNodes[i].Key.Key1 != null && !groupedNodes[i].Key.Key1.Equals(currentFirstKeyValue)))
+						if(i == groupsCount || !groupedNodes[i].Key.Key1.Equals(currentFirstKeyValue))
 						{
 							break;
 						}

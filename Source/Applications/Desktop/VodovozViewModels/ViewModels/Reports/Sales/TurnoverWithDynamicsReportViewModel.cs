@@ -1,4 +1,4 @@
-using DateTimeHelpers;
+﻿using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -1048,9 +1048,14 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					.Add(Restrictions.IsNull(Projections.Property(() => promotionalSetAlias.Id))));
 			}
 
-			var promotinalSetProjection = Projections.Conditional(Restrictions.IsNotNull(Projections.Property(() => promotionalSetAlias.Name)),
+			var promotinalSetNameProjection = Projections.Conditional(Restrictions.IsNotNull(Projections.Property(() => promotionalSetAlias.Name)),
 				Projections.Property(() => promotionalSetAlias.Name),
 				Projections.Constant("Без промонабора"));
+
+			var promotinalSetIdProjection = Projections.Conditional(
+				Restrictions.IsNull(Projections.Property(() => promotionalSetAlias.Id)),
+				Projections.Constant(0), 
+				Projections.Property(() => promotionalSetAlias.Id));
 
 			#endregion PromotionalSets
 
@@ -1167,8 +1172,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						.Select(() => productGroupAlias.Id).WithAlias(() => resultNodeAlias.ProductGroupId)
 						.Select(counterpartyClassificationProjection).WithAlias(() => resultNodeAlias.CounterpartyClassification)
 						.Select(ProductGroupProjections.GetProductGroupNameWithEnclosureProjection()).WithAlias(() => resultNodeAlias.ProductGroupName)
-						.Select(() => promotionalSetAlias.Id).WithAlias(() => resultNodeAlias.PromotionalSetId)
-						.Select(promotinalSetProjection).WithAlias(() => resultNodeAlias.PromotionalSetName))
+						.Select(promotinalSetIdProjection).WithAlias(() => resultNodeAlias.PromotionalSetId)
+						.Select(promotinalSetNameProjection).WithAlias(() => resultNodeAlias.PromotionalSetName))
 				.SetTimeout(0)
 				.TransformUsing(Transformers.AliasToBean<TurnoverWithDynamicsReport.OrderItemNode>())
 				.List<TurnoverWithDynamicsReport.OrderItemNode>();

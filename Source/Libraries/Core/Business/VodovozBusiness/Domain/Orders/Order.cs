@@ -2316,7 +2316,7 @@ namespace Vodovoz.Domain.Orders
 			if(nomenclature.Category != NomenclatureCategory.water && !nomenclature.IsDisposableTare)
 				return;
 
-			//Если номенклатура промо-набора добавляется по фиксе (без скидки), то у нового OrderItem убирается поле discountReason
+			//Если номенклатура промонабора добавляется по фиксе (без скидки), то у нового OrderItem убирается поле discountReason
 			if(proSet != null && discount == 0) {
 				var fixPricedNomenclaturesId = GetNomenclaturesWithFixPrices.Select(n => n.Id);
 				if(fixPricedNomenclaturesId.Contains(nomenclature.Id))
@@ -2599,8 +2599,8 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		/// <summary>
-		/// Попытка найти и удалить промо-набор, если нет больше позиций
-		/// заказа с промо-набором
+		/// Попытка найти и удалить промонабор, если нет больше позиций
+		/// заказа с промонабором
 		/// </summary>
 		/// <param name="orderItem">Позиция заказа</param>
 		public virtual void TryToRemovePromotionalSet(OrderItem orderItem)
@@ -2631,7 +2631,7 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		/// <summary>
-		/// Чистка списка промо-наборов заказа, если вручную удалили, изменили
+		/// Чистка списка промонаборов заказа, если вручную удалили, изменили
 		/// причину скидки или что-то ещё.
 		/// </summary>
 		private void ClearPromotionSets()
@@ -2645,19 +2645,19 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		/// <summary>
-		/// Проверка на возможность добавления промо-набора в заказ
+		/// Проверка на возможность добавления промонабора в заказ
 		/// </summary>
-		/// <returns><c>true</c>, если можно добавить промо-набор,
+		/// <returns><c>true</c>, если можно добавить промонабор,
 		/// <c>false</c> если нельзя.</returns>
-		/// <param name="proSet">Промонабор (промо-набор)</param>
+		/// <param name="proSet">Промонабор (промонабор)</param>
 		public virtual bool CanAddPromotionalSet(PromotionalSet proSet, IPromotionalSetRepository promotionalSetRepository)
 		{
 			if(PromotionalSets.Any(x => x.Id == proSet.Id)) {
-				InteractiveService.ShowMessage(ImportanceLevel.Warning, "В заказ нельзя добавить два одинаковых промо-набора");
+				InteractiveService.ShowMessage(ImportanceLevel.Warning, "В заказ нельзя добавить два одинаковых промонабора");
 				return false;
 			}
 			if((PromotionalSets.Count(x => !x.CanBeAddedWithOtherPromoSets) + (proSet.CanBeAddedWithOtherPromoSets ? 0 : 1)) > 1) {
-				InteractiveService.ShowMessage(ImportanceLevel.Warning, "В заказ нельзя добавить больше 1 промо-набора, у которого нет свойства \"Может быть добавлен вместе с другими промонаборами\"");
+				InteractiveService.ShowMessage(ImportanceLevel.Warning, "В заказ нельзя добавить больше 1 промонабора, у которого нет свойства \"Может быть добавлен вместе с другими промонаборами\"");
 				return false;
 			}
 
@@ -2681,7 +2681,7 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			var address = string.Join(", ", DeliveryPoint.City, DeliveryPoint.Street, DeliveryPoint.Building, DeliveryPoint.Room);
-			StringBuilder sb = new StringBuilder(string.Format("Для адреса \"{0}\", найдены схожие точки доставки, на которые уже создавались заказы с промо-наборами:\n", address));
+			StringBuilder sb = new StringBuilder(string.Format("Для адреса \"{0}\", найдены схожие точки доставки, на которые уже создавались заказы с промонаборами:\n", address));
 			foreach(var d in proSetDict) {
 				var proSetTitle = UoW.GetById<PromotionalSet>(d.Key).ShortTitle;
 				var orders = string.Join(
@@ -2697,9 +2697,9 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		/// <summary>
-		/// Проверка на использование промо-набора в заказе на адрес
+		/// Проверка на использование промонабора в заказе на адрес
 		/// </summary>
-		/// <returns><c>true</c>, если на адрес не доставляли промо-набор,
+		/// <returns><c>true</c>, если на адрес не доставляли промонабор,
 		/// <c>false</c> если нельзя.</returns>
 		public virtual bool CanUsedPromo(IPromotionalSetRepository promotionalSetRepository)
 		{
