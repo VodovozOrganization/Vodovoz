@@ -62,6 +62,18 @@ namespace Stetic
 				w1.Add("sales_department", w25);
 				global::Gtk.IconSet w26 = new global::Gtk.IconSet(global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.toolbar.undelivered_orders.png"));
 				w1.Add("undelivered_orders", w26);
+				global::Gtk.IconSet w27 = new global::Gtk.IconSet(global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.pacs.coffee-break-active.png"));
+				w1.Add("coffee-break-active", w27);
+				global::Gtk.IconSet w28 = new global::Gtk.IconSet(global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.pacs.coffee-break-allowed.png"));
+				w1.Add("coffee-break-allowed", w28);
+				global::Gtk.IconSet w29 = new global::Gtk.IconSet(global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.pacs.coffee-break-default.png"));
+				w1.Add("coffee-break-default", w29);
+				global::Gtk.IconSet w30 = new global::Gtk.IconSet(global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.pacs.coffee-break-denied.png"));
+				w1.Add("coffee-break-denied", w30);
+				global::Gtk.IconSet w31 = new global::Gtk.IconSet(global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.pacs.pacs-active.png"));
+				w1.Add("pacs-active", w31);
+				global::Gtk.IconSet w32 = new global::Gtk.IconSet(global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.pacs.pacs-disabled.png"));
+				w1.Add("pacs-disabled", w32);
 				w1.AddDefault();
 			}
 		}
