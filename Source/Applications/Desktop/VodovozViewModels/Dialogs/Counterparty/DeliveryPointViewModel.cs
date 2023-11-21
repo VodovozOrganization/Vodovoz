@@ -1,4 +1,5 @@
-﻿using Fias.Client.Loaders;
+﻿using Autofac;
+using Fias.Client.Loaders;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -49,6 +50,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 		private readonly IFixedPricesModel _fixedPricesModel;
 		private readonly IDeliveryPointRepository _deliveryPointRepository;
 		private readonly RoboatsJournalsFactory _roboatsJournalsFactory;
+		private readonly ILifetimeScope _lifetimeScope;
 		private readonly PanelViewType[] _infoWidgets = new[] { PanelViewType.DeliveryPricePanelView };
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
@@ -69,6 +71,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			RoboatsJournalsFactory roboatsJournalsFactory,
+			ILifetimeScope lifetimeScope,
 			Domain.Client.Counterparty client = null)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
@@ -102,6 +105,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			}
 
 			_roboatsJournalsFactory = roboatsJournalsFactory ?? throw new ArgumentNullException(nameof(roboatsJournalsFactory));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_deliveryPointRepository = deliveryPointRepository ?? throw new ArgumentNullException(nameof(deliveryPointRepository));
 
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
@@ -182,7 +186,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 		//widget init
 		public FixedPricesViewModel FixedPricesViewModel =>
 			_fixedPricesViewModel ??
-			(_fixedPricesViewModel = new FixedPricesViewModel(UoW, _fixedPricesModel, NomenclatureSelectorFactory, this));
+			(_fixedPricesViewModel = new FixedPricesViewModel(UoW, _fixedPricesModel, NomenclatureSelectorFactory, this, _lifetimeScope));
 
 		public List<DeliveryPointResponsiblePerson> ResponsiblePersons =>
 			_responsiblePersons ?? (_responsiblePersons = new List<DeliveryPointResponsiblePerson>());

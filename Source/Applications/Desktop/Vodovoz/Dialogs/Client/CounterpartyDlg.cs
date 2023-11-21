@@ -78,6 +78,7 @@ using Vodovoz.Models;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Settings.Edo;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
@@ -179,7 +180,7 @@ namespace Vodovoz
 				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
 					ServicesConfig.CommonServices, new NomenclatureFilterViewModel(),
 					CounterpartySelectorFactory,
-					NomenclatureRepository, _userRepository));
+					NomenclatureRepository, _userRepository, _lifetimeScope));
 
 		#region Список каналов сбыта
 
@@ -338,7 +339,7 @@ namespace Vodovoz
 			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			var fileDialogService = new FileDialogService();
 			var roboatsViewModelFactory = new RoboatsViewModelFactory(roboatsFileStorageFactory, fileDialogService, ServicesConfig.CommonServices.CurrentPermissionService);
-			var nomenclatureSelectorFactory = new NomenclatureJournalFactory();
+			var nomenclatureSelectorFactory = new NomenclatureJournalFactory(_lifetimeScope);
 			_roboatsJournalsFactory = new RoboatsJournalsFactory(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, roboatsViewModelFactory, nomenclatureSelectorFactory);
 			_edoOperatorsJournalFactory = new EdoOperatorsJournalFactory();
 			_emailParametersProvider = _lifetimeScope.Resolve<IEmailParametersProvider>();
@@ -1081,9 +1082,10 @@ namespace Vodovoz
 					ServicesConfig.CommonServices,
 					_employeeService,
 					CounterpartySelectorFactory,
-					new NomenclatureJournalFactory(),
+					new NomenclatureJournalFactory(_lifetimeScope),
 					NomenclatureRepository,
-					_userRepository);
+					_userRepository,
+					_lifetimeScope.Resolve<INomenclatureSettings>());
 			supplierPricesWidget.Sensitive = CanEdit;
 		}
 
@@ -1092,8 +1094,8 @@ namespace Vodovoz
 			var nomenclatureFixedPriceFactory = new NomenclatureFixedPriceFactory();
 			var fixedPriceController = new NomenclatureFixedPriceController(nomenclatureFixedPriceFactory);
 			var fixedPricesModel = new CounterpartyFixedPricesModel(UoW, Entity, fixedPriceController);
-			var nomSelectorFactory = new NomenclatureJournalFactory();
-			FixedPricesViewModel fixedPricesViewModel = new FixedPricesViewModel(UoW, fixedPricesModel, nomSelectorFactory, this);
+			var nomSelectorFactory = new NomenclatureJournalFactory(_lifetimeScope);
+			FixedPricesViewModel fixedPricesViewModel = new FixedPricesViewModel(UoW, fixedPricesModel, nomSelectorFactory, this, _lifetimeScope);
 			fixedpricesview.ViewModel = fixedPricesViewModel;
 			SetSensitivityByPermission("can_edit_counterparty_fixed_prices", fixedpricesview);
 		}
@@ -1910,7 +1912,7 @@ namespace Vodovoz
 
 		protected void OnYbuttonAddNomClicked(object sender, EventArgs e)
 		{
-			NomenclatureJournalFactory nomenclatureJournalFactory = new NomenclatureJournalFactory();
+			NomenclatureJournalFactory nomenclatureJournalFactory = new NomenclatureJournalFactory(_lifetimeScope);
 			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel();
 			journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult;
 

@@ -69,6 +69,7 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.FilterViewModels.Suppliers;
 using Vodovoz.Infrastructure.Mango;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
@@ -560,6 +561,7 @@ namespace Vodovoz
 					builder.RegisterType<PaymentsJournalFilterViewModel>().AsSelf();
 					builder.RegisterType<UnallocatedBalancesJournalFilterViewModel>().AsSelf();
 					builder.RegisterType<SelectableParametersReportFilter>().AsSelf();
+					builder.RegisterType<RequestsToSuppliersFilterViewModel>().AsSelf();
 
 					#endregion
 

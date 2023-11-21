@@ -282,7 +282,7 @@ namespace Vodovoz
 			createroutelistitemsview1.SetPermissionParameters(permissionResult, _isLogistican);
 
 			var additionalLoadingItemsViewModel =
-				new AdditionalLoadingItemsViewModel(UoW, this, new NomenclatureJournalFactory(), ServicesConfig.InteractiveService);
+				new AdditionalLoadingItemsViewModel(UoW, this, new NomenclatureJournalFactory(_lifetimeScope), ServicesConfig.InteractiveService);
 			additionalLoadingItemsViewModel.BindWithSource(Entity, e => e.AdditionalLoadingDocument);
 			additionalLoadingItemsViewModel.CanEdit = Entity.Status == RouteListStatus.New;
 			_additionalLoadingItemsView = new AdditionalLoadingItemsView(additionalLoadingItemsViewModel);

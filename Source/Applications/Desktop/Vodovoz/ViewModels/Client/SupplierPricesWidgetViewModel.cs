@@ -16,6 +16,7 @@ using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
@@ -28,6 +29,7 @@ namespace Vodovoz.ViewModels.Client
 		private readonly IEmployeeService employeeService;
 		private readonly INomenclatureRepository nomenclatureRepository;
 		private readonly IUserRepository userRepository;
+		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly ICounterpartyJournalFactory counterpartySelectorFactory;
 		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 
@@ -43,7 +45,8 @@ namespace Vodovoz.ViewModels.Client
 			ICounterpartyJournalFactory counterpartySelectorFactory,
 			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
-			IUserRepository userRepository)
+			IUserRepository userRepository,
+			INomenclatureSettings nomenclatureSettings)
 			: base(entity, commonServices)
 		{
 			this.dialogTab = dialogTab ?? throw new ArgumentNullException(nameof(dialogTab));
@@ -51,6 +54,7 @@ namespace Vodovoz.ViewModels.Client
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 
@@ -107,7 +111,8 @@ namespace Vodovoz.ViewModels.Client
 						_nomenclatureSelectorFactory,
 						counterpartySelectorFactory,
 						nomenclatureRepository,
-						userRepository
+						userRepository,
+						_nomenclatureSettings
 					) {
 						SelectionMode = JournalSelectionMode.Single,
 						ExcludingNomenclatureIds = existingNomenclatures.ToArray()
