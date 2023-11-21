@@ -80,9 +80,9 @@ namespace Vodovoz.TempAdapters
 			return CreateNomenclaturesJournalViewModel(filter, true);
 		}
 
-		public IEntityAutocompleteSelectorFactory GetWaterJournalFactory(ILifetimeScope lifetimeScope)
+		public IEntityAutocompleteSelectorFactory GetWaterJournalFactory()
 		{
-			return new WaterJournalFactory(lifetimeScope);
+			return new WaterJournalFactory(_lifetimeScope);
 		}
 
 		public IEntityAutocompleteSelectorFactory GetDefaultWaterSelectorFactory()

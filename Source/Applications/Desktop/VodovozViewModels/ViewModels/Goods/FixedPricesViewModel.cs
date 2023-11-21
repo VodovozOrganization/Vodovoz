@@ -191,7 +191,7 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 
 		private void SelectWaterNomenclature()
 		{
-			var waterJournalFactory = _nomenclatureSelectorFactory.GetWaterJournalFactory(_lifetimeScope);
+			var waterJournalFactory = _nomenclatureSelectorFactory.GetWaterJournalFactory();
 			var selector = waterJournalFactory.CreateAutocompleteSelector();
 			selector.OnEntitySelectedResult += OnWaterSelected;
 			_parentTab.TabParent.AddSlaveTab(_parentTab, selector);

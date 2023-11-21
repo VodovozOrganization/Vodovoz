@@ -47,7 +47,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Goods
 		public virtual NomenclatureCategory? RestrictCategory {
 			get => _restrictCategory;
 			set {
-				if(UpdateFilterField(ref _restrictCategory, value))
+				if(SetField(ref _restrictCategory, value))
 				{
 					CanChangeCategory = false;
 
@@ -55,9 +55,12 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Goods
 					{
 						GlassHolderType = null;
 					}
+
+					Update();
 				}
 			}
 		}
+
 		public bool CanChangeCategory { get; private set; } = true;
 
 		public virtual SaleCategory? RestrictSaleCategory {

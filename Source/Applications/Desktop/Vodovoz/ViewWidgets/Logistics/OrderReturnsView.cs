@@ -227,7 +227,7 @@ namespace Vodovoz
 				x => x.RestrictArchive = false
 			);
 
-			var journalViewModel = Startup.MainWin.NavigationManager.OpenViewModel<NomenclaturesJournalViewModel>(null).ViewModel;
+			var journalViewModel = Startup.MainWin.NavigationManager.OpenViewModelOnTdi<NomenclaturesJournalViewModel>(this, OpenPageOptions.AsSlave).ViewModel;
 
 			journalViewModel.SelectionMode = JournalSelectionMode.Single;
 			journalViewModel.TabName = "Номенклатура на продажу";

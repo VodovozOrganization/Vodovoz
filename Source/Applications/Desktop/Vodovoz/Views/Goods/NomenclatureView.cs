@@ -377,7 +377,7 @@ namespace Vodovoz.Views.Goods
 			ycheckbuttonMagnetGlassHolder.Binding
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.IsMagnetGlassHolderSelected, w => w.Active)
-				.AddFuncBinding(vm => vm.IsShowGlassHolderSelectionControls, w => w.Visible)
+				.AddBinding(vm => vm.IsShowGlassHolderSelectionControls, w => w.Visible)
 				.InitializeFromSource();
 
 			ycheckbuttonScrewGlassHolder.Binding
