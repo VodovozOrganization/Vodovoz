@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
@@ -537,6 +537,7 @@ namespace Vodovoz.Domain.Logistic
 						Order.TimeDelivered = DateTime.Now;
 					}
 					RestoreOrder();
+					Order.RestoreUndeliveries();
 					break;
 				case RouteListItemStatus.EnRoute:
 					Order.ChangeStatusAndCreateTasks(OrderStatus.OnTheWay, callTaskWorker);
@@ -585,6 +586,7 @@ namespace Vodovoz.Domain.Logistic
 						Order.TimeDelivered = DateTime.Now;
 					}
 					RestoreOrder();
+					Order.RestoreUndeliveries();
 					break;
 				case RouteListItemStatus.EnRoute:
 					Order.ChangeStatus(OrderStatus.OnTheWay);
