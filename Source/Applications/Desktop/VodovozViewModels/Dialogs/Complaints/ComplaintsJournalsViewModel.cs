@@ -1,9 +1,14 @@
-﻿using QS.DomainModel.UoW;
+﻿using Autofac;
+using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Journal;
+using QS.RepresentationModel;
 using QS.Services;
+using QS.Tdi;
 using QS.ViewModels;
 using System;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.SidePanel;
@@ -18,7 +23,8 @@ namespace Vodovoz.ViewModels.Dialogs.Complaints
 		private JournalViewModelBase _journal;
 		private readonly IComplaintsJournalFactory _complaintsJournalFactory;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
-		private readonly ComplaintFilterViewModel _filterViewModel;
+		private readonly ILifetimeScope _lifetimeScope;
+		private ComplaintFilterViewModel _filterViewModel;
 
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 
@@ -27,17 +33,34 @@ namespace Vodovoz.ViewModels.Dialogs.Complaints
 			INavigationManager navigationManager,
 			IComplaintsJournalFactory complaintsJournalFactory,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			ComplaintFilterViewModel filterViewModel)
+			ILifetimeScope lifetimeScope,
+			Action<ComplaintFilterViewModel> filterConfig = null)
 			: base(commonServices.InteractiveService, navigationManager)
 		{
 			_complaintsJournalFactory = complaintsJournalFactory ?? throw new ArgumentNullException(nameof(complaintsJournalFactory));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			_filterViewModel = filterViewModel ?? throw new ArgumentNullException(nameof(filterViewModel));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 
-			_filterViewModel.DisposeOnDestroy = false;
+			CreateFilter(filterConfig);
 
 			Title = "Журнал рекламаций";
 			ChangeView(typeof(ComplaintsJournalViewModel));
+		}
+
+		private void CreateFilter(Action<ComplaintFilterViewModel> filterConfig)
+		{
+			Autofac.Core.Parameter[] parameters = {
+				new TypedParameter(typeof(ITdiTab), this)
+			};
+
+			_filterViewModel = _lifetimeScope.Resolve<ComplaintFilterViewModel>(parameters);
+
+			if(filterConfig != null)
+			{
+				_filterViewModel.SetAndRefilterAtOnce(filterConfig);
+			}
+
+			_filterViewModel.DisposeOnDestroy = false;
 		}
 
 		private void ChangeView(Type switchToType)

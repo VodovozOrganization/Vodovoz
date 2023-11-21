@@ -643,8 +643,8 @@ namespace Vodovoz
 			Entity.ObservableOrderEquipments.ElementRemoved += ObservableOrderEquipmentsOnElementRemoved;
 
 			enumSignatureType.ItemsEnum = typeof(OrderSignatureType);
-
-			enumSignatureType.Binding.AddBinding(Entity, s => s.SignatureType, w => w.SelectedItem).InitializeFromSource();
+			
+			enumSignatureType.Binding.AddBinding(Entity, s => s.SignatureType, w => w.SelectedItemOrNull).InitializeFromSource();
 
 			labelCreationDateValue.Binding
 				.AddFuncBinding(Entity, s => s.CreateDate.HasValue ? s.CreateDate.Value.ToString("dd.MM.yyyy HH:mm") : "", w => w.LabelProp)
@@ -3417,8 +3417,14 @@ namespace Vodovoz
 
 			checkDelivered.Visible = enumDocumentType.Visible = labelDocumentType.Visible = IsPaymentTypeCashless();
 
-			enumSignatureType.Visible = labelSignatureType.Visible =
-				Entity.Client != null && (Entity.Client.PersonType == PersonType.legal || Entity.PaymentType == PaymentType.Cashless);
+			var isCashless = Entity.PaymentType == PaymentType.Cashless;
+
+			if(!isCashless)
+			{
+				Entity.SignatureType = null;
+			}
+
+			enumSignatureType.Visible = labelSignatureType.Visible = isCashless;
 
 			hbxOnlineOrder.Visible = UpdateVisibilityHboxOnlineOrder();
 			ySpecPaymentFrom.Visible = Entity.PaymentType == PaymentType.PaidOnline;
