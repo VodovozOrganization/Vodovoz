@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Reports.Editing.Modifiers
 {
@@ -33,6 +33,8 @@ namespace Vodovoz.Reports.Editing.Modifiers
 		[Display(Name = "Организация")]
 		Organization,
 		[Display(Name = "Классификация контрагента")]
-		CounterpartyClassification
+		CounterpartyClassification,
+		[Display(Name = "Промонабор")]
+		PromotionalSet
 	}
 }

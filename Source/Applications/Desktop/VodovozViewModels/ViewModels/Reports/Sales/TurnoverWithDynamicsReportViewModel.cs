@@ -1048,6 +1048,15 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					.Add(Restrictions.IsNull(Projections.Property(() => promotionalSetAlias.Id))));
 			}
 
+			var promotinalSetNameProjection = Projections.Conditional(Restrictions.IsNotNull(Projections.Property(() => promotionalSetAlias.Name)),
+				Projections.Property(() => promotionalSetAlias.Name),
+				Projections.Constant("Без промонабора"));
+
+			var promotinalSetIdProjection = Projections.Conditional(
+				Restrictions.IsNull(Projections.Property(() => promotionalSetAlias.Id)),
+				Projections.Constant(0), 
+				Projections.Property(() => promotionalSetAlias.Id));
+
 			#endregion PromotionalSets
 
 			#region OrderStatuses
@@ -1162,7 +1171,9 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						.SelectSubQuery(routeListIdSubquery).WithAlias(() => resultNodeAlias.RouteListId)
 						.Select(() => productGroupAlias.Id).WithAlias(() => resultNodeAlias.ProductGroupId)
 						.Select(counterpartyClassificationProjection).WithAlias(() => resultNodeAlias.CounterpartyClassification)
-						.Select(ProductGroupProjections.GetProductGroupNameWithEnclosureProjection()).WithAlias(() => resultNodeAlias.ProductGroupName))
+						.Select(ProductGroupProjections.GetProductGroupNameWithEnclosureProjection()).WithAlias(() => resultNodeAlias.ProductGroupName)
+						.Select(promotinalSetIdProjection).WithAlias(() => resultNodeAlias.PromotionalSetId)
+						.Select(promotinalSetNameProjection).WithAlias(() => resultNodeAlias.PromotionalSetName))
 				.SetTimeout(0)
 				.TransformUsing(Transformers.AliasToBean<TurnoverWithDynamicsReport.OrderItemNode>())
 				.List<TurnoverWithDynamicsReport.OrderItemNode>();

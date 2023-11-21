@@ -624,7 +624,7 @@ namespace Vodovoz
 			Entity.ObservableOrderItems.ElementAdded += Entity_ObservableOrderItems_ElementAdded;
 			Entity.ObservableOrderItems.ElementRemoved += ObservableOrderItems_ElementRemoved;
 
-			//Подписывемся на изменения листа для сокрытия колонки промо-наборов
+			//Подписывемся на изменения листа для сокрытия колонки промонаборов
 			Entity.ObservablePromotionalSets.ListChanged += ObservablePromotionalSets_ListChanged;
 			Entity.ObservablePromotionalSets.ElementAdded += ObservablePromotionalSets_ElementAdded;
 			Entity.ObservablePromotionalSets.ElementRemoved += ObservablePromotionalSets_ElementRemoved;
@@ -1726,7 +1726,7 @@ namespace Vodovoz
 								c.Text = n.OriginalDiscountReason?.Name ?? n.DiscountReason?.Name;
 							}
 						})
-				.AddColumn("Промо-наборы").SetTag(nameof(Entity.PromotionalSets))
+				.AddColumn("Промонаборы").SetTag(nameof(Entity.PromotionalSets))
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.PromoSet == null ? "" : node.PromoSet.Name)
 				.RowCells()
@@ -1846,7 +1846,7 @@ namespace Vodovoz
 					{
 						ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
 							$"На позицию:\n№{index + 1} {message}нельзя применить скидку," +
-							" т.к. она из промо-набора или на нее есть фикса.\nОбратитесь к руководителю");
+							" т.к. она из промонабора или на нее есть фикса.\nОбратитесь к руководителю");
 					}
 				}
 			});
@@ -2849,15 +2849,15 @@ namespace Vodovoz
 			this.TabParent.AddSlaveTab(this, journalViewModel);
 		}
 
-		#region Рекламные наборы
+		#region Промонаборы
 
 		void ActivatePromotionalSet(PromotionalSet proSet)
 		{
-			//Добавление спец. действий промо-набора
+			//Добавление спец. действий промонабора
 			foreach(var action in proSet.PromotionalSetActions) {
 				action.Activate(Entity);
 			}
-			//Добавление номенклатур из промо-набора
+			//Добавление номенклатур из промонабора
 			TryAddNomenclatureFromPromoSet(proSet);
 
 			Entity.ObservablePromotionalSets.Add(proSet);
@@ -4206,7 +4206,7 @@ namespace Vodovoz
 					{
 						ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
 							"На следующие позиции не применилась скидка," +
-							$" т.к. они из промо-набора или на них есть фикса:\n{messages}Обратитесь к руководителю");
+							$" т.к. они из промонабора или на них есть фикса:\n{messages}Обратитесь к руководителю");
 					}
 				}
 			}

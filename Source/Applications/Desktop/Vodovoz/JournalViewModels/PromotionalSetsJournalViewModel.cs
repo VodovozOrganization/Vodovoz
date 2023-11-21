@@ -46,7 +46,7 @@ namespace Vodovoz.JournalViewModels
 			_counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			
-			TabName = "Рекламные наборы";
+			TabName = "Промонаборы";
 
 			var threadLoader = DataLoader as ThreadDataLoader<PromotionalSetJournalNode>;
 			threadLoader.MergeInOrderBy(x => x.IsArchive, false);
