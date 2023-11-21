@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using Autofac;
 using Autofac.Core;
@@ -62,7 +64,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 
 			CreateFilter(filterParams);
 
-			_paymentPermissionResult = CurrentPermissionService.ValidateEntityPermission(typeof(Payment));
 			SetPermissions();
 
 			CreateDeleteAction();
@@ -269,6 +270,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 		
 		protected override void CreateNodeActions()
 		{
+			_paymentPermissionResult = CurrentPermissionService.ValidateEntityPermission(typeof(Payment));
+
 			NodeActionsList.Clear();
 			CreateAddNewPaymentAction();
 
@@ -329,6 +332,47 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				}
 
 				UoW.Commit();
+			}
+		}
+
+		protected override void DeleteEntities(PaymentJournalNode[] nodes)
+		{
+			UoW.Session.Clear();
+
+			foreach(var node in nodes)
+			{
+				DeleteEntityService.DeleteEntity<Payment>(node.Id, UoW, () => SetOrdersPaymentStatus(UoW, node.Id));
+			}
+		}
+
+		private void SetOrdersPaymentStatus(IUnitOfWork uow, int paymentToDelete)
+		{
+			 var paymentsItemsToDelete = uow.GetAll<PaymentItem>()
+				.Where(pi => pi.Payment.Id == paymentToDelete)
+				.ToList();
+
+			foreach(var paymentItem in paymentsItemsToDelete)
+			{
+				if(paymentItem.PaymentItemStatus == AllocationStatus.Cancelled)
+				{
+					continue;
+				}
+
+				if(paymentItem.Order != null)
+				{
+					var orderPaymentsSum = uow.GetAll<PaymentItem>()
+						.Where(pi => pi.Order.Id == paymentItem.Order.Id
+							&& pi.PaymentItemStatus != AllocationStatus.Cancelled)
+						.Select(pi => pi.Sum)
+						.Sum();
+
+					paymentItem.Order.OrderPaymentStatus =
+						orderPaymentsSum - paymentItem.Sum == 0
+						? Domain.Orders.OrderPaymentStatus.UnPaid
+						: Domain.Orders.OrderPaymentStatus.PartiallyPaid;
+
+					uow.Save(paymentItem.Order);
+				}
 			}
 		}
 
