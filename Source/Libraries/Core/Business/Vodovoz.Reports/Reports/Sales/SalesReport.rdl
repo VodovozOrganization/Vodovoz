@@ -534,7 +534,8 @@
     T.nomen_group_level_1_id,
     T.nomen_group_level_2_id,
     T.nomen_group_level_3_id,
-    counterparty_classification
+    counterparty_classification,
+    promotional_set
 FROM
     (SELECT
          counterparty.name as counterparty,
@@ -592,7 +593,9 @@ FROM
          IFNULL(group_levels.level_2_name, 'Без группы') as nomen_group_level_2_name,
          IFNULL(group_levels.level_3_id, 0) as nomen_group_level_3_id,
          IFNULL(group_levels.level_3_name, 'Без группы') as nomen_group_level_3_name,
-         IFNULL(CONCAT(cc.classification_by_bottles_count, cc.classification_by_orders_count), 'Новый') as counterparty_classification
+         IFNULL(CONCAT(cc.classification_by_bottles_count, cc.classification_by_orders_count), 'Новый') as counterparty_classification,
+         IFNULL(ps.name, ' Без промонабора')  as promotional_set
+         
      FROM
          order_items
              LEFT JOIN
@@ -673,6 +676,8 @@ FROM
 					FROM counterparty_classification cc2
 					ORDER BY cc2.id DESC 
 					LIMIT 1)
+		    	LEFT JOIN
+		    promotional_sets ps ON ps.id = order_items.promotional_set_id
      WHERE
          (order_status = 'Accepted'
              OR order_status = 'InTravelList'
@@ -838,7 +843,8 @@ FROM
      GROUP BY order_items.id
     ) as T
 GROUP BY T.order_items_id
-;</CommandText>
+;
+</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -1051,6 +1057,10 @@ GROUP BY T.order_items_id
           <DataField>counterparty_classification</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="promotional_set">
+          <DataField>promotional_set</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="Criterions">
@@ -1140,10 +1150,10 @@ SELECT
                 CONCAT('Искл.источников оплаты: ',excluded_payment_froms,'\n'),
                 '')),
             (IF(included_promo_sets!=0,
-                CONCAT('Вкл.промо-наборов: ',included_promo_sets,'\n'),
+                CONCAT('Вкл.промонаборов: ',included_promo_sets,'\n'),
                 '')),
             (IF(excluded_promo_sets!=0,
-                CONCAT('Искл.промо-наборов: ',excluded_promo_sets,'\n'),
+                CONCAT('Искл.промонаборов: ',excluded_promo_sets,'\n'),
                 '')),
             (IF(included_product_groups!=0,
                 CONCAT('Вкл.групп товаров: ',included_product_groups,'\n'),
