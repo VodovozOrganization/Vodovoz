@@ -17,7 +17,6 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
-using VodovozInfrastructure.StringHandlers;
 
 namespace Vodovoz.ViewModels.Orders
 {
@@ -52,6 +51,8 @@ namespace Vodovoz.ViewModels.Orders
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_nomenclatureOnlineParametersProvider =
+				nomenclatureOnlineParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureOnlineParametersProvider));
 			_counterpartySelectorFactory =
 				counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			_nomenclatureSelectorFactory =
