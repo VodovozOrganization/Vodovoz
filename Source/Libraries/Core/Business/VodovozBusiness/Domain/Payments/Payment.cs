@@ -364,9 +364,9 @@ namespace Vodovoz.Domain.Payments
 			CounterpartyName = Counterparty.Name;
 		}
 
-		public virtual void CancelAllocation(string cancellationReason, bool needUpdateOrderPaymentStatus = false, bool isUserRequest = false)
+		public virtual void CancelAllocation(string cancellationReason, bool needUpdateOrderPaymentStatus = false, bool isByUserRequest = false)
 		{
-			if(IsRefundPayment || isUserRequest)
+			if(IsRefundPayment || isByUserRequest)
 			{
 				Status = PaymentState.Cancelled;
 				Comment += string.IsNullOrWhiteSpace(Comment) ? $"{cancellationReason}" : $"\n{cancellationReason}";
