@@ -51,6 +51,7 @@ namespace Vodovoz.JournalNodes
 		public decimal SanitisationAmount { get; set; }
 
 		public string Counterparty { get; set; }
+		public string Inn { get; set; }
 
 		public decimal Sum { get; set; }
 
@@ -87,18 +88,6 @@ namespace Vodovoz.JournalNodes
 		public string EShopNumber => EShopOrder?.ToString() ?? string.Empty;
 
 		public bool Sensitive { get; set; }
-
-		public string RowColor {
-			get {
-				if(StatusEnum == OrderStatus.Canceled || StatusEnum == OrderStatus.DeliveryCanceled || !Sensitive)
-					return "grey";
-				if(StatusEnum == OrderStatus.Closed)
-					return "green";
-				if(StatusEnum == OrderStatus.NotDelivered)
-					return "blue";
-				return "black";
-			}
-		}
 
 		public EdoDocFlowStatus EdoDocFlowStatus { get; set; }
 	}

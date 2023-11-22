@@ -1,4 +1,4 @@
-using Gamma.GtkWidgets;
+﻿using Gamma.GtkWidgets;
 using Gtk;
 using NLog;
 using QS.BusinessCommon.Domain;
@@ -86,8 +86,8 @@ namespace Vodovoz.Views.Goods
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 
-			enumCategory.Changed += ViewModel.OnEnumKindChanged;
-			enumCategory.ChangedByUser += ViewModel.OnEnumKindChangedByUser;
+			enumCategory.Changed += ViewModel.OnEnumCategoryChanged;
+			enumCategory.ChangedByUser += ViewModel.OnEnumCategoryChangedByUser;
 			enumCategory.ItemsEnum = typeof(NomenclatureCategory);
 			enumCategory.Binding
 				.AddBinding(ViewModel.Entity, e => e.Category, w => w.SelectedItem)
@@ -374,6 +374,23 @@ namespace Vodovoz.Views.Goods
 			ycheckRentPriority.Binding
 				.AddFuncBinding(ViewModel, vm => vm.IsEquipmentCategory && vm.CanEdit, w => w.Sensitive)
 				.AddBinding(ViewModel.Entity, e => e.RentPriority, w => w.Active)
+				.InitializeFromSource();
+
+			ycheckbuttonMagnetGlassHolder.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.IsMagnetGlassHolderSelected, w => w.Active)
+				.AddBinding(vm => vm.IsShowGlassHolderSelectionControls, w => w.Visible)
+				.InitializeFromSource();
+
+			ycheckbuttonScrewGlassHolder.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.IsScrewGlassHolderSelected, w => w.Active)
+				.AddBinding(vm => vm.IsShowGlassHolderSelectionControls, w => w.Visible)
+				.InitializeFromSource();
+
+			ylabelGlassHolderType.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.IsShowGlassHolderSelectionControls, w => w.Visible)
 				.InitializeFromSource();
 
 			#endregion

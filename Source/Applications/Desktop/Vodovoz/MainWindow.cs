@@ -21,6 +21,8 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Permissions.Warehouses;
+using Vodovoz.Extensions;
+using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Mango;
 using Vodovoz.Parameters;
 using Vodovoz.SidePanel;
@@ -48,14 +50,11 @@ public partial class MainWindow : Gtk.Window
 	public TdiNotebook TdiMain => tdiMain;
 	public InfoPanel InfoPanel => infopanel;
 
-	public readonly TdiNavigationManager NavigationManager;
-	public readonly MangoManager MangoManager;
-
 	public MainWindow(IPasswordValidator passwordValidator, IApplicationConfigurator applicationConfigurator) : base(Gtk.WindowType.Toplevel)
 	{
 		_passwordValidator = passwordValidator ?? throw new ArgumentNullException(nameof(passwordValidator));
 		_applicationConfigurator = applicationConfigurator ?? throw new ArgumentNullException(nameof(applicationConfigurator));
-
+		
 		Build();
 
 		PerformanceHelper.AddTimePoint("Закончена стандартная сборка окна.");
@@ -181,10 +180,6 @@ public partial class MainWindow : Gtk.Window
 				break;
 		}
 
-		NavigationManager = _autofacScope.Resolve<TdiNavigationManager>(new TypedParameter(typeof(TdiNotebook), tdiMain));
-		MangoManager = _autofacScope.Resolve<MangoManager>(new TypedParameter(typeof(Gtk.Action), MangoAction));
-		MangoManager.Connect();
-
 		// Отдел продаж
 
 		ActionSalesDepartment.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission("access_to_sales_department");
@@ -217,8 +212,11 @@ public partial class MainWindow : Gtk.Window
 					new TypedParameter(typeof(IEnumerable<int>), _curentUserMovementDocumentsNotificationWarehouses));
 
 			var notificationDetails = _movementsNotificationsController.GetNotificationDetails(uow);
+
+			var message = notificationDetails.SendedMovementsCount > 0 ? $"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">{notificationDetails.NotificationMessage}</span>": notificationDetails.NotificationMessage;
+
 			hboxMovementsNotification.Visible = notificationDetails.NeedNotify;
-			lblMovementsNotification.Markup = notificationDetails.NotificationMessage;
+			lblMovementsNotification.Markup = message;
 
 			if(notificationDetails.NeedNotify)
 			{
@@ -313,6 +311,25 @@ public partial class MainWindow : Gtk.Window
 		ActionProfitabilitySalesReport.Activated += ActionProfitabilitySalesReportActivated;
 
 		Action74.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.CanGenerateCashFlowDdsReport);
+
+		ActionClassificationCalculation.Sensitive = 
+			commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Counterparty.CanCalculateCounterpartyClassifications);
+
+		InitializeThemesMenuItem();
+	}
+	
+	public ITdiCompatibilityNavigation NavigationManager { get; private set; }
+	public MangoManager MangoManager { get; private set; }
+
+	/// <summary>
+	/// Пока в <see cref="EmployeeJournalFactory"/> есть получение <see cref="NavigationManager"/> через <see cref="MainWindow"/>
+	/// то инициализируем менеджеры после инициализации главного окна
+	/// </summary>
+	public void InitializeManagers()
+	{
+		NavigationManager = _autofacScope.Resolve<ITdiCompatibilityNavigation>(new TypedParameter(typeof(TdiNotebook), tdiMain));
+		MangoManager = _autofacScope.Resolve<MangoManager>(new TypedParameter(typeof(Gtk.Action), MangoAction));
+		MangoManager.Connect();
 	}
 
 	private DateTime GetDateTimeFGromVersion(Version version) =>

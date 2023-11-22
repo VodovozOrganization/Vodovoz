@@ -9,13 +9,21 @@ namespace Vodovoz.Reports.Editing.Modifiers
 {
 	public class ProfitabilityReportModifier : ReportModifierBase
 	{
-		private const string _tableName = "TableProfitability";
+		private const string _tableName = "TableSales";
 
 		private const string _itemDataName = "TextboxItemData";
 
 		private const string _groupLevel1Name = "group1";
 		private const string _groupLevel2Name = "group2";
 		private const string _groupLevel3Name = "group3";
+
+		private const string _autoTypeHeaderTextBox = "TextboxAutoType";
+		private const string _autoOwnerTypeHeaderTextBox = "TextboxAutoOwnerType";
+		private const string _itemDataHeaderTextBox = "TextboxItemHeader";
+
+		private const int _itemDataColumnIncreasedWidth = 190;
+
+		private const int _profitabilityPercentColumnId = 8;
 
 		private readonly ExpressionRowProvider _expressionRowProvider;
 		private readonly SourceRowProvider _sourceRowProvider;
@@ -26,7 +34,7 @@ namespace Vodovoz.Reports.Editing.Modifiers
 			_sourceRowProvider = new DetailsSourceRowProvider();
 		}
 
-		public void Setup(IEnumerable<GroupingType> groupings)
+		public void Setup(IEnumerable<GroupingType> groupings, bool isShowRouteListInfo)
 		{
 			var groupingActions = GetGroupingActions(groupings);
 			foreach (var action in groupingActions)
@@ -45,6 +53,18 @@ namespace Vodovoz.Reports.Editing.Modifiers
 
 			var removeFooterAction = new RemoveFooter(_tableName);
 			AddAction(removeFooterAction);
+
+			if(!isShowRouteListInfo)
+			{
+				var setColumnWidthAction = new SetColumnWidth(_tableName, _itemDataHeaderTextBox, _itemDataColumnIncreasedWidth);
+				AddAction(setColumnWidthAction);
+
+				var removeAutoTypeColumn = new RemoveColumn(_tableName, _autoTypeHeaderTextBox);
+				AddAction(removeAutoTypeColumn);
+
+				var removeAutoOwnerTypeColumn = new RemoveColumn(_tableName, _autoOwnerTypeHeaderTextBox);
+				AddAction(removeAutoOwnerTypeColumn);
+			}
 		}
 
 		private IEnumerable<ModifierAction> GetGroupingActions(IEnumerable<GroupingType> groupings)
@@ -98,7 +118,23 @@ namespace Vodovoz.Reports.Editing.Modifiers
 			style.Format = "# ##0.00";
 
 			var groupExpression = GetGroupExpression(groupingType);
-			var groupModifyAction = new NewTableGroupWithCellsFromDetails(_tableName, _sourceRowProvider, _expressionRowProvider, groupExpression);
+
+			NewTableGroupWithCellsFromDetails groupModifyAction;
+
+			if(groupingType == GroupingType.RouteList && groupsCount == 1)
+			{
+				groupModifyAction = new NewTableGroupWithCellsFromDetails(
+					_tableName, 
+					_sourceRowProvider, 
+					_expressionRowProvider, 
+					groupExpression,
+					_profitabilityPercentColumnId);
+			}
+			else
+			{
+				groupModifyAction = new NewTableGroupWithCellsFromDetails(_tableName, _sourceRowProvider, _expressionRowProvider, groupExpression);
+			}
+
 			groupModifyAction.NewGroupName = _groupLevel1Name;
 			groupModifyAction.GroupCellsStyle = style;
 			return groupModifyAction;
@@ -180,9 +216,15 @@ namespace Vodovoz.Reports.Editing.Modifiers
 				case GroupingType.DeliveryDate: return "={delivery_date}";
 				case GroupingType.RouteList: return "=Iif(Fields!route_list.IsMissing, 'Без маршрутного листа', 'МЛ №' + {route_list})";
 				case GroupingType.Nomenclature: return "={nomenclature_name}";
+				case GroupingType.NomenclatureType: return "={nomenclature_category}";
 				case GroupingType.NomenclatureGroup1: return "={nomen_group_level_1_name}";
 				case GroupingType.NomenclatureGroup2: return "={nomen_group_level_2_name}";
 				case GroupingType.NomenclatureGroup3: return "={nomen_group_level_3_name}";
+				case GroupingType.CounterpartyType: return "={counterparty_type}";
+				case GroupingType.PaymentType: return "={payment_type}";
+				case GroupingType.Organization: return "={organization}";
+				case GroupingType.CounterpartyClassification: return "={counterparty_classification}";
+				case GroupingType.PromotionalSet: return "={promotional_set}";
 				default:
 					throw new NotSupportedException("Неизвестная группировка");
 			}
@@ -198,9 +240,15 @@ namespace Vodovoz.Reports.Editing.Modifiers
 				case GroupingType.DeliveryDate: return "{delivery_date}";
 				case GroupingType.RouteList: return "{route_list}";
 				case GroupingType.Nomenclature: return "{nomenclature_id}";
+				case GroupingType.NomenclatureType: return "{nomenclature_category}";
 				case GroupingType.NomenclatureGroup1: return "{nomen_group_level_1_id}";
 				case GroupingType.NomenclatureGroup2: return "{nomen_group_level_2_id}";
 				case GroupingType.NomenclatureGroup3: return "{nomen_group_level_3_id}";
+				case GroupingType.CounterpartyType: return "{counterparty_type}";
+				case GroupingType.PaymentType: return "{payment_type}";
+				case GroupingType.Organization: return "{organization}";
+				case GroupingType.CounterpartyClassification: return "{counterparty_classification}";
+				case GroupingType.PromotionalSet: return "{promotional_set}";
 				default:
 					throw new NotSupportedException("Неизвестная группировка");
 			}
@@ -248,18 +296,5 @@ namespace Vodovoz.Reports.Editing.Modifiers
 			style.VerticalAlign = "Middle";
 			return style;
 		}
-	}
-
-	public enum GroupingType
-	{
-		Order,
-		Counterparty,
-		Subdivision,
-		DeliveryDate,
-		RouteList,
-		Nomenclature,
-		NomenclatureGroup1,
-		NomenclatureGroup2,
-		NomenclatureGroup3
 	}
 }

@@ -16,7 +16,7 @@ namespace Vodovoz.JournalViewers
 
 		private global::Gtk.Label label2;
 
-		private global::QS.Widgets.GtkUI.RepresentationEntry entryreferencevm1;
+		private global::QS.Views.Control.EntityEntry entryCounterparty;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
@@ -77,14 +77,12 @@ namespace Vodovoz.JournalViewers
 			w4.Expand = false;
 			w4.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.entryreferencevm1 = new global::QS.Widgets.GtkUI.RepresentationEntry();
-			this.entryreferencevm1.Events = ((global::Gdk.EventMask)(256));
-			this.entryreferencevm1.Name = "entryreferencevm1";
-			this.hbox1.Add(this.entryreferencevm1);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.entryreferencevm1]));
+			this.entryCounterparty = new global::QS.Views.Control.EntityEntry();
+			this.entryCounterparty.Events = ((global::Gdk.EventMask)(256));
+			this.entryCounterparty.Name = "entryCounterparty";
+			this.hbox1.Add(this.entryCounterparty);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.entryCounterparty]));
 			w5.Position = 3;
-			w5.Expand = false;
-			w5.Fill = false;
 			this.vbox3.Add(this.hbox1);
 			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.hbox1]));
 			w6.Position = 1;

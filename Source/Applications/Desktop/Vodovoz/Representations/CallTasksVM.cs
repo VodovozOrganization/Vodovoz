@@ -15,20 +15,20 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Domain.StoredResources;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Services;
 using ClosedXML.Excel;
 using QS.Project.Services.FileDialog;
 using Gamma.Utilities;
 using WrapMode = Pango.WrapMode;
+using Vodovoz.Infrastructure;
 
 namespace Vodovoz.Representations
 {
 	public class CallTasksVM : QSOrmProject.RepresentationModel.RepresentationModelEntityBase<CallTask, CallTaskVMNode>
 	{
-		private readonly Pixbuf img;
-		private readonly Pixbuf emptyImg;
+		private static readonly Pixbuf _emptyImg = new Pixbuf(typeof(Startup).Assembly, "Vodovoz.icons.common.empty16.png");
+		private static readonly Pixbuf _fire = new Pixbuf(typeof(Startup).Assembly, "Vodovoz.icons.common.fire16.png");
 		private readonly IFileDialogService _fileDialogService;
 
 		private CallTaskFilterViewModel filter;
@@ -54,7 +54,7 @@ namespace Vodovoz.Representations
 
 		public override IColumnsConfig ColumnsConfig => FluentColumnsConfig<CallTaskVMNode>.Create()
 			.AddColumn("№").AddTextRenderer(node => node.Id.ToString())
-			.AddColumn("Срочность").AddPixbufRenderer(node => node.ImportanceDegree == ImportanceDegreeType.Important && !node.IsTaskComplete ? img : emptyImg)
+			.AddColumn("Срочность").AddPixbufRenderer(node => node.ImportanceDegree == ImportanceDegreeType.Important && !node.IsTaskComplete ? _fire : _emptyImg)
 			.AddColumn("Статус").AddEnumRenderer(node => node.TaskStatus)
 			.AddColumn("Клиент").AddTextRenderer(node => node.ClientName ?? String.Empty).WrapWidth(500).WrapMode(WrapMode.WordChar)
 			.AddColumn("Адрес").AddTextRenderer(node => node.AddressName ?? "Самовывоз").WrapWidth(500).WrapMode(WrapMode.WordChar)
@@ -64,15 +64,27 @@ namespace Vodovoz.Representations
 				.WrapMode(Pango.WrapMode.WordChar)
 			.AddColumn("Ответственный").AddTextRenderer(node => node.AssignedEmployeeName ?? String.Empty)
 			.AddColumn("Выполнить до").AddTextRenderer(node => node.Deadline.ToString("dd / MM / yyyy  HH:mm"))
-			.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+			.RowCells().AddSetter<CellRendererText>((c, n) =>
+			{
+				var color = GdkColors.PrimaryText;
+
+				if(n.IsTaskComplete)
+				{
+					color = GdkColors.SuccessText;
+				}
+
+				if(DateTime.Now > n.Deadline)
+				{
+					color = GdkColors.DangerText;
+				}
+
+				c.ForegroundGdk = color;
+			})
 			.Finish();
 
 		public CallTasksVM(IImageProvider imageProvider, IFileDialogService fileDialogService)
 		{
 			_fileDialogService = fileDialogService;
-			img = new Pixbuf(UoW.GetById<StoredResource>(imageProvider.GetCrmIndicatorId()).BinaryFile);
-			emptyImg = img.Copy();
-			emptyImg.Fill(0xffffffff);
 		}
 
 		public override void UpdateNodes()
@@ -425,18 +437,5 @@ namespace Vodovoz.Representations
 		public int TareReturn { get; set; }
 
 		public string Comment { get; set; }
-
-		public string RowColor
-		{
-			get
-			{
-				if(IsTaskComplete)
-					return "green";
-				if(DateTime.Now > Deadline)
-					return "red";
-
-				return "black";
-			}
-		}
 	}
 }

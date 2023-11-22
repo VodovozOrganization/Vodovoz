@@ -1,4 +1,7 @@
 ﻿using System;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Client.ClientClassification;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.ViewModels.Reports.Sales
 {
@@ -10,9 +13,17 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			{
 				public int Id { get; set; }
 
-				public int OrderId { get; set; }
+				public int NomenclatureId { get; set; }
 
-				public int CounterpartyId { get; set; }
+				public string NomenclatureOfficialName { get; set; }
+
+				public NomenclatureCategory NomenclatureCategory { get; set; }
+
+				public int? CounterpartyId { get; set; }
+
+				public CounterpartyType? CounterpartyType { get; set; }
+				public string CounterpartySubtype { get; set; }
+				public int? CounterpartySubtypeId { get; set; }
 
 				public string CounterpartyPhones { get; set; }
 
@@ -20,11 +31,21 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 				public string CounterpartyFullName { get; set; }
 
+				public int? OrganizationId { get; set; }
+
+				public string OrganizationName { get; set; }
+
+				public int? SubdivisionId { get; set; }
+
+				public string SubdivisionName { get; set; }
+
+				public PaymentType? PaymentType { get; set; }
+
+				public int? OrderId { get; set; }
+
 				public DateTime? OrderDeliveryDate { get; set; }
 
-				public int NomenclatureId { get; set; }
-
-				public string NomenclatureOfficialName { get; set; }
+				public int RouteListId { get; set; }
 
 				public int ProductGroupId { get; set; }
 
@@ -39,6 +60,12 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				public decimal ActualSum { get; set; }
 
 				public string OrderContactPhone { get; set; }
+
+				public CounterpartyCompositeClassification CounterpartyClassification { get; set; }
+
+				public int PromotionalSetId { get; set; }
+				
+				public string PromotionalSetName { get; set; }
 			}
 		}
 	}

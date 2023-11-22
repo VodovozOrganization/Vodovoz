@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using EdoService;
 using EdoService.Converters;
 using EdoService.Dto;
@@ -11,6 +11,8 @@ using NHibernate;
 using NHibernate.Transform;
 using NLog;
 using QS.Attachments.Domain;
+using QS.Banks.Domain;
+using QS.Banks.Repositories;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.Dialog.GtkUI.FileDialog;
@@ -27,11 +29,13 @@ using QS.Services;
 using QS.Tdi;
 using QS.Utilities;
 using QS.Utilities.Text;
+using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using QSOrmProject;
 using QSProjectsLib;
 using RevenueService.Client;
 using RevenueService.Client.Dto;
+using RevenueService.Client.Extensions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -43,10 +47,9 @@ using System.Threading;
 using TISystems.TTC.CRM.BE.Serialization;
 using TrueMarkApi.Library.Converters;
 using TrueMarkApi.Library.Dto;
-using Vodovoz.Core;
-using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.EntityFactories;
@@ -64,26 +67,25 @@ using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.EntityRepositories.Undeliveries;
+using Vodovoz.Extensions;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels;
-using Vodovoz.Infrastructure.Services;
-using Vodovoz.Journals.JournalViewModels;
+using Vodovoz.Infrastructure;
 using Vodovoz.JournalSelector;
-using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
-using Vodovoz.Settings;
-using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Edo;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.Counterparties;
+using Vodovoz.ViewModels.Dialogs.Complaints;
 using Vodovoz.ViewModels.Dialogs.Counterparty;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
@@ -102,9 +104,9 @@ using Type = Vodovoz.Domain.Orders.Documents.Type;
 namespace Vodovoz
 {
 	public partial class CounterpartyDlg : QS.Dialog.Gtk.EntityDialogBase<Counterparty>, ICounterpartyInfoProvider, ITDICloseControlTab,
-		IAskSaveOnCloseViewModel
+		IAskSaveOnCloseViewModel, INotifyPropertyChanged
 	{
-		private readonly ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
 		private readonly bool _canSetWorksThroughOrganization =
@@ -129,7 +131,6 @@ namespace Vodovoz
 		private RoboatsJournalsFactory _roboatsJournalsFactory;
 		private IEdoOperatorsJournalFactory _edoOperatorsJournalFactory;
 		private IEmailParametersProvider _emailParametersProvider;
-		private IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private ISubdivisionRepository _subdivisionRepository;
 		private IRouteListItemRepository _routeListItemRepository;
 		private IFileDialogService _fileDialogService;
@@ -144,10 +145,12 @@ namespace Vodovoz
 		private IContactListService _contactListService;
 		private TrueMarkApiClient _trueMarkApiClient;
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+		private CancellationTokenSource _cancellationTokenCheckLiquidationSource = new CancellationTokenSource();
 		private IEdoSettings _edoSettings;
 		private ICounterpartySettings _counterpartySettings;
 		private IOrganizationParametersProvider _organizationParametersProvider = new OrganizationParametersProvider(new ParametersProvider());
 		private IRevenueServiceClient _revenueServiceClient;
+		private ICounterpartyService _counterpartyService;
 		private GenericObservableList<EdoContainer> _edoContainers = new GenericObservableList<EdoContainer>();
 
 		private bool _currentUserCanEditCounterpartyDetails = false;
@@ -155,9 +158,6 @@ namespace Vodovoz
 		private bool _documentsConfigured = false;
 
 		public ThreadDataLoader<EmailRow> EmailDataLoader { get; private set; }
-
-		public virtual IUndeliveredOrdersJournalOpener UndeliveredOrdersJournalOpener =>
-			_undeliveredOrdersJournalOpener ?? (_undeliveredOrdersJournalOpener = new UndeliveredOrdersJournalOpener());
 
 		public virtual ISubdivisionRepository SubdivisionRepository =>
 			_subdivisionRepository ?? (_subdivisionRepository = new SubdivisionRepository(new ParametersProvider()));
@@ -180,7 +180,7 @@ namespace Vodovoz
 				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
 					ServicesConfig.CommonServices, new NomenclatureFilterViewModel(),
 					CounterpartySelectorFactory,
-					NomenclatureRepository, _userRepository));
+					NomenclatureRepository, _userRepository, _lifetimeScope));
 
 		#region Список каналов сбыта
 
@@ -237,6 +237,7 @@ namespace Vodovoz
 		#endregion
 
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
+		public event PropertyChangedEventHandler PropertyChanged;
 
 		public PanelViewType[] InfoWidgets => new[] { PanelViewType.CounterpartyView };
 
@@ -293,7 +294,16 @@ namespace Vodovoz
 			Entity.PaymentMethod = parameters.PaymentMethod;
 			Entity.TypeOfOwnership = parameters.TypeOfOwnership;
 			Entity.PersonType = parameters.PersonType;
-			Entity.AddAccount(parameters.Account);
+
+			if(!(string.IsNullOrWhiteSpace(parameters.CounterpartyCorrespondentAcc)
+				|| string.IsNullOrWhiteSpace(parameters.CounterpartyCurrentAcc)
+				|| string.IsNullOrWhiteSpace(parameters.CounterpartyBank)
+				|| string.IsNullOrWhiteSpace(parameters.CounterpartyBik)))
+			{
+				var bank = FillBank(parameters);
+				var account = new Account { Number = parameters.CounterpartyCurrentAcc, InBank = bank };
+				Entity.AddAccount(account);
+			}
 
 			ConfigureDlg();
 		}
@@ -317,16 +327,19 @@ namespace Vodovoz
 		private Employee CurrentEmployee =>
 			_currentEmployee ?? (_currentEmployee = _employeeService.GetEmployeeForUser(UoW, _currentUserId));
 
+		public string IsLiquidatingLabelText => (Entity?.IsLiquidating ?? false) ? $"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">Ликвидирован по данным ФНС</span>" : "Ликвидирован по данным ФНС";
+
 		private void ConfigureDlg()
 		{
 			var roboatsSettings = _lifetimeScope.Resolve<IRoboatsSettings>();
 			_edoSettings = _lifetimeScope.Resolve<IEdoSettings>();
 			_counterpartySettings = _lifetimeScope.Resolve<ICounterpartySettings>();
+			_counterpartyService = _lifetimeScope.Resolve<ICounterpartyService>();
 
 			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			var fileDialogService = new FileDialogService();
 			var roboatsViewModelFactory = new RoboatsViewModelFactory(roboatsFileStorageFactory, fileDialogService, ServicesConfig.CommonServices.CurrentPermissionService);
-			var nomenclatureSelectorFactory = new NomenclatureJournalFactory();
+			var nomenclatureSelectorFactory = new NomenclatureJournalFactory(_lifetimeScope);
 			_roboatsJournalsFactory = new RoboatsJournalsFactory(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, roboatsViewModelFactory, nomenclatureSelectorFactory);
 			_edoOperatorsJournalFactory = new EdoOperatorsJournalFactory();
 			_emailParametersProvider = _lifetimeScope.Resolve<IEmailParametersProvider>();
@@ -365,7 +378,7 @@ namespace Vodovoz
 			var menu = new Gtk.Menu();
 
 			var menuItem = new Gtk.MenuItem("Все заказы контрагента");
-			menuItem.Activated += AllOrders_Activated;
+			menuItem.Activated += OnAllCounterpartyOrdersActivated;
 			menu.Add(menuItem);
 
 			var menuItemFixedPrices = new Gtk.MenuItem("Фикс. цены для самовывоза");
@@ -373,7 +386,7 @@ namespace Vodovoz
 			menu.Add(menuItemFixedPrices);
 
 			var menuComplaint = new Gtk.MenuItem("Рекламации контрагента");
-			menuComplaint.Activated += ComplaintViewOnActivated;
+			menuComplaint.Activated += OnCounterpartyComplaintsActivated;
 			menu.Add(menuComplaint);
 
 			menuActions.Menu = menu;
@@ -383,19 +396,57 @@ namespace Vodovoz
 
 			datatable4.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
 
-			Entity.PropertyChanged += (sender, args) =>
+			Entity.PropertyChanged += OnEntityPropertyChanged;
+		}
+
+		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Entity.SalesManager)
+				|| e.PropertyName == nameof(Entity.Accountant)
+				|| e.PropertyName == nameof(Entity.BottlesManager))
 			{
-				if(args.PropertyName == nameof(Entity.SalesManager)
-				|| args.PropertyName == nameof(Entity.Accountant)
-				|| args.PropertyName == nameof(Entity.BottlesManager))
+				CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity));
+				return;
+			}
+
+			if(e.PropertyName == nameof(Entity.CounterpartyType))
+			{
+				if(Entity.CounterpartyType != CounterpartyType.AdvertisingDepartmentClient)
 				{
-					CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity));
+					Entity.CounterpartySubtype = null;
+
+					return;
 				}
-			};
+
+				if(Entity.CounterpartySubtype is null)
+				{
+					var barterSubtype = UoW.GetById<CounterpartySubtype>(1);
+
+					Entity.CounterpartySubtype = barterSubtype;
+				}
+
+				return;
+			}
+
+			if(e.PropertyName == nameof(Entity.IsLiquidating))
+			{
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsLiquidatingLabelText)));
+			}
 		}
 
 		private void ConfigureTabInfo()
 		{
+			ycheckbuttonIsLiquidating.Binding
+				.AddBinding(Entity, e => e.IsLiquidating, w => w.Active)
+				.AddFuncBinding(c => c.PersonType == PersonType.legal, w => w.Visible)
+				.InitializeFromSource();
+
+			labelIsLiquidating.UseMarkup = true;
+			labelIsLiquidating.Binding
+				.AddBinding(this, dlg => dlg.IsLiquidatingLabelText, w => w.LabelProp)
+				.AddFuncBinding(dlg => dlg.Entity.PersonType == PersonType.legal, w => w.Visible)
+				.InitializeFromSource();
+
 			enumPersonType.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
 			enumPersonType.ItemsEnum = typeof(PersonType);
 			enumPersonType.Binding.AddBinding(Entity, s => s.PersonType, w => w.SelectedItemOrNull).InitializeFromSource();
@@ -410,11 +461,15 @@ namespace Vodovoz
 			yEnumCounterpartyType.ChangedByUser += OnEnumCounterpartyTypeChangedByUser;
 			OnEnumCounterpartyTypeChanged(this, EventArgs.Empty);
 
-			yEnumCounterpartySubtype.ItemsEnum = typeof(CounterpartySubtype);
-			yEnumCounterpartySubtype.Binding
-				.AddBinding(Entity, e => e.CounterpartySubtype, w => w.SelectedItem)
-				.InitializeFromSource();
-			yEnumCounterpartySubtype.Sensitive = CanEdit;
+			var vm = new LegacyEEVMBuilderFactory<Counterparty>(this, Entity, UoW, NavigationManager, _lifetimeScope)
+				.ForProperty(x => x.CounterpartySubtype)
+				.UseViewModelJournalAndAutocompleter<SubtypesJournalViewModel>()
+				.UseViewModelDialog<SubtypeViewModel>()
+				.Finish();
+
+			SubtypeEntryViewModel = vm;
+
+			entryCounterpartySubtype.ViewModel = SubtypeEntryViewModel;
 
 			yhboxCounterpartySubtype.Binding
 				.AddFuncBinding<Counterparty>(
@@ -678,9 +733,44 @@ namespace Vodovoz
 			}
 
 			SetVisibilityForCloseDeliveryComments();
+			UpdateCounterpartyClassificationValues();
 
 			logisticsRequirementsView.ViewModel = new LogisticsRequirementsViewModel(Entity.LogisticsRequirements ?? new LogisticsRequirements(), _commonServices);
 			logisticsRequirementsView.ViewModel.Entity.PropertyChanged += OnLogisticsRequirementsSelectionChanged;
+		}
+
+		private void UpdateCounterpartyClassificationValues()
+		{
+			var classification =
+				(from c in UoW.GetAll<CounterpartyClassification>()
+				 join s in UoW.GetAll<CounterpartyClassificationCalculationSettings>()
+				 on c.ClassificationCalculationSettingsId equals s.Id
+				 where c.CounterpartyId == Entity.Id
+				 orderby c.Id descending
+				 select new
+				 {
+					 ClassificationValue = $"{c.ClassificationByBottlesCount}{c.ClassificationByOrdersCount}",
+					 BottlesCount = $"{c.BottlesPerMonthAverageCount} бут/мес",
+					 TurnoverSum = $"{c.MoneyTurnoverPerMonthAverageSum} руб/мес",
+					 OrdersCount = $"{c.OrdersPerMonthAverageCount} зак/мес",
+					 CalculationDate = $"{s.SettingsCreationDate:dd.MM.yyyy}"
+				 })
+				 .FirstOrDefault();
+
+			ylabelClassificationValue.Text = 
+				$"{classification?.ClassificationValue ?? "Новый"}";
+
+			ylabelClassificationBottlesCount.Text = 
+				$"Кол-во бут. 19л: {classification?.BottlesCount ?? "не рассчитывалось"}";
+
+			ylabelClassificationTurnoverSum.Text = 
+				$"Оборот (инфо): {classification?.TurnoverSum ?? "не рассчитывалось"}";
+
+			ylabelClassificationOrdersCount.Text = 
+				$"Частота покупок: {classification?.OrdersCount ?? "не рассчитывалось"}";
+
+			ylabelClassificationCalculationDate.Text =
+				$"Дата последнего пересчёта: {classification?.CalculationDate ?? "не рассчитывалось"}";
 		}
 
 		private void ConfigureTabContacts()
@@ -704,7 +794,7 @@ namespace Vodovoz
 			emailsView.ViewModel = emailsViewModel;
 			emailsView.Sensitive = CanEdit;
 
-			var employeeJournalFactory = new EmployeeJournalFactory();
+			var employeeJournalFactory = new EmployeeJournalFactory(NavigationManager);
 			if(SetSensitivityByPermission("can_set_personal_sales_manager", entrySalesManager))
 			{
 				entrySalesManager.SetEntityAutocompleteSelectorFactory(GetEmployeeFactoryWithResetFilter(employeeJournalFactory));
@@ -837,7 +927,7 @@ namespace Vodovoz
 			ytreeviewTags.ColumnsConfig = ColumnsConfigFactory.Create<Tag>()
 				.AddColumn("Название").AddTextRenderer(node => node.Name)
 				.AddColumn("Цвет").AddTextRenderer()
-				.AddSetter((cell, node) => { cell.Markup = $"<span foreground=\" {node.ColorText}\">♥</span>"; })
+				.AddSetter((cell, node) => { cell.Markup = $"<span foreground=\"{node.ColorText}\">♥</span>"; })
 				.AddColumn("")
 				.Finish();
 
@@ -992,10 +1082,10 @@ namespace Vodovoz
 					ServicesConfig.CommonServices,
 					_employeeService,
 					CounterpartySelectorFactory,
-					new NomenclatureJournalFactory(),
+					new NomenclatureJournalFactory(_lifetimeScope),
 					NomenclatureRepository,
 					_userRepository,
-					_lifetimeScope.Resolve<INomenclatureOnlineParametersProvider>());
+					_lifetimeScope.Resolve<INomenclatureSettings>());
 			supplierPricesWidget.Sensitive = CanEdit;
 		}
 
@@ -1004,8 +1094,8 @@ namespace Vodovoz
 			var nomenclatureFixedPriceFactory = new NomenclatureFixedPriceFactory();
 			var fixedPriceController = new NomenclatureFixedPriceController(nomenclatureFixedPriceFactory);
 			var fixedPricesModel = new CounterpartyFixedPricesModel(UoW, Entity, fixedPriceController);
-			var nomSelectorFactory = new NomenclatureJournalFactory();
-			FixedPricesViewModel fixedPricesViewModel = new FixedPricesViewModel(UoW, fixedPricesModel, nomSelectorFactory, this);
+			var nomSelectorFactory = new NomenclatureJournalFactory(_lifetimeScope);
+			FixedPricesViewModel fixedPricesViewModel = new FixedPricesViewModel(UoW, fixedPricesModel, nomSelectorFactory, this, _lifetimeScope);
 			fixedpricesview.ViewModel = fixedPricesViewModel;
 			SetSensitivityByPermission("can_edit_counterparty_fixed_prices", fixedpricesview);
 		}
@@ -1041,7 +1131,7 @@ namespace Vodovoz
 
 			EmailDataLoader.ItemsListUpdated += (sender, args) =>
 			{
-				Application.Invoke((s, arg) =>
+				Gtk.Application.Invoke((s, arg) =>
 				{
 					ytreeviewEmails.ItemsDataSource = EmailDataLoader.Items;
 					GtkHelper.WaitRedraw();
@@ -1360,6 +1450,9 @@ namespace Vodovoz
 			return itemsQuery;
 		};
 
+		public IEntityEntryViewModel SubtypeEntryViewModel { get; private set; }
+		public INavigationManager NavigationManager => Startup.MainWin.NavigationManager;
+
 		private void CheckIsChainStoreOnToggled(object sender, EventArgs e)
 		{
 		}
@@ -1370,7 +1463,7 @@ namespace Vodovoz
 			{
 				Counterparty = Entity
 			};
-			var dpFactory = new DeliveryPointJournalFactory(filter);
+			var dpFactory = _lifetimeScope.Resolve<IDeliveryPointJournalFactory>(new TypedParameter(typeof(DeliveryPointJournalFilterViewModel), filter));
 			var dpJournal = dpFactory.CreateDeliveryPointByClientJournal();
 			dpJournal.SelectionMode = JournalSelectionMode.Single;
 			dpJournal.OnEntitySelectedResult += OnDeliveryPointJournalEntitySelected;
@@ -1409,53 +1502,20 @@ namespace Vodovoz
 			}
 		}
 
-		private void AllOrders_Activated(object sender, EventArgs e)
+		private void OnAllCounterpartyOrdersActivated(object sender, EventArgs e)
 		{
-			ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
-
-			var orderJournalFilter = new OrderJournalFilterViewModel(
-				new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
-				new DeliveryPointJournalFactory(),
-				new EmployeeJournalFactory())
-			{ RestrictCounterparty = Entity };
-			var orderJournalViewModel = new OrderJournalViewModel(
-				orderJournalFilter,
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices,
-				new EmployeeService(),
-				NomenclatureRepository,
-				_userRepository,
-				new OrderSelectorFactory(),
-				new EmployeeJournalFactory(),
-				new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
-				new DeliveryPointJournalFactory(),
-				subdivisionJournalFactory,
-				new GtkTabsOpener(),
-				new UndeliveredOrdersJournalOpener(),
-				new NomenclatureJournalFactory(),
-				new UndeliveredOrdersRepository(),
-				new SubdivisionRepository(new ParametersProvider()),
-				new FileDialogService(),
-				new SubdivisionParametersProvider(new ParametersProvider()),
-				new DeliveryScheduleParametersProvider(new ParametersProvider()),
-				new RdlPreviewOpener(),
-				new RouteListItemRepository(),
-				_lifetimeScope.Resolve<INomenclatureOnlineParametersProvider>()
-			);
-
-			TabParent.AddTab(orderJournalViewModel, this, false);
+			NavigationManager.OpenViewModel<OrderJournalViewModel, Action<OrderJournalFilterViewModel>>(
+				null,
+				filter => filter.RestrictCounterparty = Entity,
+				OpenPageOptions.IgnoreHash);
 		}
 
-		private void ComplaintViewOnActivated(object sender, EventArgs e)
+		private void OnCounterpartyComplaintsActivated(object sender, EventArgs e)
 		{
-			Action<ComplaintFilterViewModel> action = (filterConfig) => filterConfig.Counterparty = Entity;
-
-			var filter = Startup.AppDIContainer.BeginLifetimeScope().Resolve<ComplaintFilterViewModel>(new TypedParameter(typeof(Action<ComplaintFilterViewModel>), action));
-
-			Startup.MainWin.NavigationManager.OpenViewModel<ComplaintsJournalViewModel, ComplaintFilterViewModel>(
-			   null,
-			   filter,
-			   OpenPageOptions.IgnoreHash);
+			NavigationManager.OpenViewModel<ComplaintsJournalsViewModel, Action<ComplaintFilterViewModel>>(
+				null,
+				filterConfig => filterConfig.Counterparty = Entity,
+				OpenPageOptions.IgnoreHash);
 		}
 
 		private void OnLogisticsRequirementsSelectionChanged(object sender, PropertyChangedEventArgs e)
@@ -1501,6 +1561,17 @@ namespace Vodovoz
 				if(!ServicesConfig.ValidationService.Validate(Entity, _validationContext))
 				{
 					return false;
+				}
+
+				try
+				{
+					_counterpartyService.StopShipmentsIfNeeded(Entity, CurrentEmployee, _cancellationTokenCheckLiquidationSource.Token).GetAwaiter().GetResult();
+				}
+				catch(Exception ex)
+				{
+					MessageDialogHelper.RunWarningDialog($"Не удалось проверить контрагента в ФНС: {ex.Message}", "Ошибка проверки статуса в ФНС");
+					_logger.Warn("Не удалось проверить контрагента в ФНС: {Reason}",
+					ex.Message);
 				}
 
 				_logger.Info("Сохраняем контрагента...");
@@ -1841,7 +1912,7 @@ namespace Vodovoz
 
 		protected void OnYbuttonAddNomClicked(object sender, EventArgs e)
 		{
-			NomenclatureJournalFactory nomenclatureJournalFactory = new NomenclatureJournalFactory();
+			NomenclatureJournalFactory nomenclatureJournalFactory = new NomenclatureJournalFactory(_lifetimeScope);
 			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel();
 			journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult;
 
@@ -2240,7 +2311,7 @@ namespace Vodovoz
 
 		private void OpenRevenueServicePage(DadataRequestDto dadataRequestDto)
 		{
-			var revenueServicePage = Startup.MainWin.NavigationManager.OpenViewModel<CounterpartyDetailsFromRevenueServiceViewModel, DadataRequestDto,
+			var revenueServicePage = NavigationManager.OpenViewModel<CounterpartyDetailsFromRevenueServiceViewModel, DadataRequestDto,
 				IRevenueServiceClient, CancellationToken>(null, dadataRequestDto, _revenueServiceClient, _cancellationTokenSource.Token);
 
 			revenueServicePage.ViewModel.OnSelectResult += (o, a) =>
@@ -2250,6 +2321,18 @@ namespace Vodovoz
 				{
 					FillEntityDetailsFromRevenueService(a);
 				}
+
+				if(Entity.IsLiquidating && a.IsActive)
+				{
+					Entity.IsLiquidating = false;
+				}
+
+				if(Entity.IsDeliveriesClosed && !a.IsActive)
+				{
+					Entity.IsLiquidating = true;
+				}
+
+				_counterpartyService.StopShipmentsIfNeeded(Entity, CurrentEmployee, !a.IsActive, a.State.GetUserFriendlyName());
 			};
 		}
 
@@ -2260,7 +2343,7 @@ namespace Vodovoz
 			Entity.FullName = revenueServiceRow.FullName ?? Entity.Name;
 			Entity.RawJurAddress = revenueServiceRow.Address;
 
-			if((revenueServiceRow.Opf ?? String.Empty).Length > 0 && (revenueServiceRow.OpfFull ?? String.Empty).Length > 0)
+			if((revenueServiceRow.Opf ?? string.Empty).Length > 0 && (revenueServiceRow.OpfFull ?? string.Empty).Length > 0)
 			{
 				Entity.TypeOfOwnership = revenueServiceRow.Opf;
 
@@ -2293,31 +2376,31 @@ namespace Vodovoz
 
 			if(revenueServiceRow.Phones != null)
 			{
-				foreach(var number in revenueServiceRow.Phones)
+				var phonesToAdd = revenueServiceRow.Phones
+					.Where(number => !Entity.Phones.Any(x => x.Number == number));
+
+				foreach(var number in phonesToAdd)
 				{
-					if(Entity.Phones.All(x => x.Number != number))
+					_phonesViewModel.PhonesList.Add(new Phone
 					{
-						_phonesViewModel.PhonesList.Add(new Phone
-						{
-							Counterparty = Entity,
-							Number = number
-						});
-					}
+						Counterparty = Entity,
+						Number = number
+					});
 				}
 			}
 
 			if(revenueServiceRow.Emails != null)
 			{
-				foreach(var email in revenueServiceRow.Emails)
+				var emailsToAdd = revenueServiceRow.Emails
+					.Where(email => Entity.Emails.All(x => x.Address != email));
+
+				foreach(var email in emailsToAdd)
 				{
-					if(Entity.Emails.All(x => x.Address != email))
+					emailsView.ViewModel.EmailsList.Add(new Email
 					{
-						emailsView.ViewModel.EmailsList.Add(new Email
-						{
-							Counterparty = Entity,
-							Address = email
-						});
-					}
+						Counterparty = Entity,
+						Address = email
+					});
 				}
 			}
 		}
@@ -2422,10 +2505,40 @@ namespace Vodovoz
 
 			return false;
 		}
-		
+
 		private void OnEnumPersonTypeChangedByUser(object sender, EventArgs e)
 		{
 			emailsView.ViewModel.UpdatePersonType(Entity.PersonType);
+		}
+
+		private Bank FillBank(NewCounterpartyParameters parameters)
+		{
+			var bank = BankRepository.GetBankByBik(UoW, parameters.CounterpartyBik);
+
+			if(bank == null)
+			{
+				bank = new Bank
+				{
+					Bik = parameters.CounterpartyBik,
+					Name = parameters.CounterpartyBank
+				};
+				var corAcc = new CorAccount { CorAccountNumber = parameters.CounterpartyCorrespondentAcc };
+				bank.CorAccounts.Add(corAcc);
+				bank.DefaultCorAccount = corAcc;
+				UoW.Save(bank);
+			}
+
+			return bank;
+		}
+
+		public override void Destroy()
+		{
+			if(_lifetimeScope != null)
+			{
+				_lifetimeScope.Dispose();
+				_lifetimeScope = null;
+			}
+			base.Destroy();
 		}
 	}
 

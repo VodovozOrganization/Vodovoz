@@ -260,7 +260,7 @@ namespace Vodovoz.SidePanel.InfoViews
 		{
 			if(_textviewcommentBufferChanged && buttonSaveComment.State != StateType.Prelight)
 			{
-				Application.Invoke((s, ea) =>
+				Gtk.Application.Invoke((s, ea) =>
 				{
 					if(_counterparty.Id == 0)
 					{

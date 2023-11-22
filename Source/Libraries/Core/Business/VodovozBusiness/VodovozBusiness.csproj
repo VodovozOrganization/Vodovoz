@@ -70,7 +70,12 @@
     <Compile Include="Domain\Cash\FinancialCategoriesGroups\FinancialSubType.cs" />
     <Compile Include="Domain\Cash\FinancialCategoriesGroups\GroupType.cs" />
     <Compile Include="Domain\Client\CargoReceiverSource.cs" />
+    <Compile Include="Domain\Client\ClientClassification\CounterpartyCompositeClassification.cs" />
     <Compile Include="Domain\Client\ConsentForEdoStatus.cs" />
+    <Compile Include="Domain\Client\ClientClassification\CounterpartyClassification.cs" />
+    <Compile Include="Domain\Client\ClientClassification\CounterpartyClassificationByBottlesCount.cs" />
+    <Compile Include="Domain\Client\ClientClassification\CounterpartyClassificationByOrdersCount.cs" />
+    <Compile Include="Domain\Client\ClientClassification\CounterpartyClassificationCalculationSettings.cs" />
     <Compile Include="Domain\Client\CounterpartySubtype.cs" />
     <Compile Include="Domain\Client\CounterpartyType.cs" />
     <Compile Include="Domain\Client\DefaultDocumentType.cs" />
@@ -102,6 +107,9 @@
     <Compile Include="Domain\Logistic\FastDelivery\RouteListMaxFastDeliveryOrders.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryChange.ChangeType.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryChange.cs" />
+    <Compile Include="Domain\Logistic\RouteListSpecialCondition.cs" />
+    <Compile Include="Domain\Logistic\RouteListSpecialConditionType.cs" />
+    <Compile Include="Domain\Logistic\RegradingOfGoodsReason.cs" />
     <Compile Include="Domain\Payments\CombinedPaymentNode.cs" />
     <Compile Include="Domain\Orders\OrderEdoTrueMarkDocumentsActions.cs" />
     <Compile Include="Domain\Orders\UndeliveryDetalization.cs" />
@@ -109,7 +117,9 @@
     <Compile Include="Domain\Orders\UndeliveryObject.cs" />
     <Compile Include="Domain\Payments\PaymentsFromCloudPaymentsParser.cs" />
     <Compile Include="Domain\Payments\PaymentsFromTinkoffParser.cs" />
+    <Compile Include="Domain\Payments\PaymentState.cs" />
     <Compile Include="Domain\StoredEmails\UpdDocumentEmail.cs" />
+    <Compile Include="Domain\Subdivisions\SubdivisionType.cs" />
     <Compile Include="EntityRepositories\Cash\FinancialExpenseCategoriesRepository.cs" />
     <Compile Include="EntityRepositories\Cash\FinancialIncomeCategoriesRepository.cs" />
     <Compile Include="Domain\Cash\FinancialCategoriesGroups\TargetDocument.cs" />
@@ -388,7 +398,6 @@
     <Compile Include="Domain\Orders\UndeliveredOrderResultComment.cs" />
     <Compile Include="Domain\Organizations\OrganizationOwnershipType.cs" />
     <Compile Include="Domain\Organizations\OrganizationVersion.cs" />
-    <Compile Include="Domain\Client\PaymentTypeStringType.cs" />
     <Compile Include="Domain\Permissions\AvailableDatabase.cs" />
     <Compile Include="Domain\Permissions\DatabasePrivilege.cs" />
     <Compile Include="Domain\Permissions\GlobalPrivilege.cs" />
@@ -633,6 +642,7 @@
     <Compile Include="EntityRepositories\Undeliveries\UndeliveredOrderCountNode.cs" />
     <Compile Include="EntityRepositories\Undeliveries\UndeliveredOrdersRepository.cs" />
     <Compile Include="EntityRepositories\Nodes\NomenclatureForRentNode.cs" />
+    <Compile Include="Errors\Clients\Counterparty.cs" />
     <Compile Include="Errors\Clients\DeliveryPoint.cs" />
     <Compile Include="Errors\Clients\DeliveryPoint.FastDelivery.cs" />
     <Compile Include="Errors\Error.cs" />
@@ -766,6 +776,8 @@
     <Compile Include="NHibernateProjections\Logistics\CarProjections.cs" />
     <Compile Include="NHibernateProjections\Orders\OrderProjections.cs" />
     <Compile Include="Nodes\OnlineNomenclatureNode.cs" />
+    <Compile Include="Nodes\AvangardOperation.cs" />
+    <Compile Include="Nodes\AvangardOperations.cs" />
     <Compile Include="Nodes\NomenclatureOnlineParametersData.cs" />
     <Compile Include="Nodes\NomenclatureOnlineParametersNode.cs" />
     <Compile Include="Nodes\NomenclatureOnlinePriceNode.cs" />
@@ -805,6 +817,7 @@
     <Compile Include="Parameters\StoredResourcesSettings.cs" />
     <Compile Include="Parameters\SubdivisionParametersProvider.cs" />
     <Compile Include="Permissions\Cash.FinancialCategory.cs" />
+    <Compile Include="Permissions\Counterparty.cs" />
     <Compile Include="Permissions\Documents.cs" />
     <Compile Include="Permissions\Documents.MovementDocument.cs" />
     <Compile Include="Permissions\Email.cs" />
@@ -816,10 +829,10 @@
     <Compile Include="Permissions\Logistic.cs" />
     <Compile Include="Permissions\Order.UndeliveredOrder.cs" />
     <Compile Include="Permissions\Report.cs" />
-    <Compile Include="Permissions\Report.SalesReport.cs" />
     <Compile Include="Permissions\User.cs" />
-    <Compile Include="Permissions\Sales.cs" />
+    <Compile Include="Permissions\Report.Sales.cs" />
     <Compile Include="Services\IComplaintParametersProvider.cs" />
+    <Compile Include="Services\ICounterpartyService.cs" />
     <Compile Include="Services\IEmployeeService.cs" />
     <Compile Include="Services\IFastDeliveryAvailabilityHistoryParameterProvider.cs" />
     <Compile Include="Parameters\CarEventSettings.cs" />
@@ -983,6 +996,8 @@
     <Compile Include="Services\DriverApiParametersProvider.cs" />
     <Compile Include="Services\IUserRoleSettings.cs" />
     <Compile Include="Services\IUserSettings.cs" />
+    <Compile Include="Services\Logistics\IRouteListService.cs" />
+    <Compile Include="Services\RevenueServiceInfo.cs" />
     <Compile Include="Services\UserRoleSettings.cs" />
     <Compile Include="Tools\GeoGroupVersionNotFoundException.cs" />
     <Compile Include="Tools\DataArchiver.cs" />
@@ -991,6 +1006,7 @@
     <Compile Include="Tools\Logistic\DriverDistrictPriorityHelper.cs" />
     <Compile Include="Tools\Logistic\IDistanceCalculator.cs" />
     <Compile Include="Domain\Logistic\CachedDistance.cs" />
+    <Compile Include="Tools\Logistic\IFastDeliveryDistanceChecker.cs" />
     <Compile Include="Tools\Logistic\RouteGeometryCalculator.cs" />
     <Compile Include="Domain\Logistic\AtWorkDriverDistrictPriority.cs" />
     <Compile Include="Domain\Logistic\DeliveryDaySchedule.cs" />

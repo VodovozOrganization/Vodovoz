@@ -12,14 +12,12 @@ using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using QS.Project.Journal.DataLoader.Hierarchy;
 using QS.Project.Search;
-using QS.Project.Services;
 using QS.Services;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows.Input;
-using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Tools;
 

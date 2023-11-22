@@ -12,6 +12,7 @@ using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using QS.Utilities;
 using Vodovoz.Dialogs.Email;
 using Vodovoz.Infrastructure.Converters;
+using Vodovoz.Infrastructure;
 
 namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 {
@@ -56,8 +57,8 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 
 		private void ConfigureTreeItems()
 		{
-			var colorWhite = new Gdk.Color(0xff, 0xff, 0xff);
-			var colorLightRed = new Gdk.Color(0xff, 0x66, 0x66);
+			var colorWhite = GdkColors.PrimaryBase;
+			var colorLightRed = GdkColors.DangerBase;
 
 			treeItems.ColumnsConfig = ColumnsConfigFactory.Create<OrderWithoutShipmentForAdvancePaymentItem>()
 				.AddColumn("Номенклатура")
@@ -129,7 +130,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 		
 		private void OnDiscountReasonComboEdited(object o, EditedArgs args)
 		{
-			Application.Invoke((sender, eventArgs) =>
+			Gtk.Application.Invoke((sender, eventArgs) =>
 			{
 				var node = treeItems.YTreeModel.NodeAtPath(new TreePath(args.Path));
 				

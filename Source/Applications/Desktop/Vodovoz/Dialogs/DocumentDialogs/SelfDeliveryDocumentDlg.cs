@@ -30,15 +30,16 @@ using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.Store;
-using Vodovoz.ViewModels.Factories;
 using QS.Validation;
+using Autofac;
 
 namespace Vodovoz
 {
 	public partial class SelfDeliveryDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<SelfDeliveryDocument>
 	{
-		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory = new NomenclatureJournalFactory();
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IStockRepository _stockRepository = new StockRepository();
 		private readonly BottlesRepository _bottlesRepository = new BottlesRepository();
@@ -46,14 +47,15 @@ namespace Vodovoz
 
 		private readonly INomenclatureRepository _nomenclatureRepository =
 			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
-		
-		GenericObservableList<GoodsReceptionVMNode> GoodsReceptionList = new GenericObservableList<GoodsReceptionVMNode>();
+		private GenericObservableList<GoodsReceptionVMNode> GoodsReceptionList = new GenericObservableList<GoodsReceptionVMNode>();
 
 		public SelfDeliveryDocumentDlg()
 		{
 			this.Build();
 
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<SelfDeliveryDocument>();
+			_nomenclatureSelectorFactory = new NomenclatureJournalFactory(_lifetimeScope);
+
 			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
@@ -106,7 +108,7 @@ namespace Vodovoz
 
 		private bool canEditDocument;
 
-		void ConfigureDlg()
+		private void ConfigureDlg()
 		{
 			if(_storeDocumentHelper.CheckAllPermissions(UoW.IsNew, WarehousePermissionsType.SelfDeliveryEdit, Entity.Warehouse)) {
 				FailInitialize = true;
@@ -126,7 +128,7 @@ namespace Vodovoz
 			lstWarehouse.Binding.AddBinding(Entity, e => e.Warehouse, w => w.SelectedItem).InitializeFromSource();
 			lstWarehouse.ItemSelected += OnWarehouseSelected;
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
-			var orderFactory = new OrderSelectorFactory();
+			var orderFactory = _lifetimeScope.Resolve<IOrderSelectorFactory>();
 			evmeOrder.SetEntityAutocompleteSelectorFactory(orderFactory.CreateSelfDeliveryDocumentOrderAutocompleteSelector());
 			evmeOrder.Binding.AddBinding(Entity, e => e.Order, w => w.Subject).InitializeFromSource();
 			evmeOrder.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
@@ -162,34 +164,34 @@ namespace Vodovoz
 					c.Editable = false;
 					c.Editable = n.Category == NomenclatureCategory.equipment;
 				})
-                .AddColumn("Причина").AddEnumRenderer(
-                    node => node.DirectionReason
-                    ,true
-                ).AddSetter((c, n) =>
-                {
-                    switch (n.DirectionReason)
-                    {
-                        case DirectionReason.Rent:
-                            c.Text = "Закрытие аренды";
-                            break;
-                        case DirectionReason.Repair:
-                            c.Text = "В ремонт";
-                            break;
-                        case DirectionReason.Cleaning:
-                            c.Text = "На санобработку";
-                            break;
-                        case DirectionReason.RepairAndCleaning:
-                            c.Text = "В ремонт и санобработку";
-                            break;
-                        default:
-                            break;
-                    }
+				.AddColumn("Причина").AddEnumRenderer(
+					node => node.DirectionReason
+					,true
+				).AddSetter((c, n) =>
+				{
+					switch (n.DirectionReason)
+					{
+						case DirectionReason.Rent:
+							c.Text = "Закрытие аренды";
+							break;
+						case DirectionReason.Repair:
+							c.Text = "В ремонт";
+							break;
+						case DirectionReason.Cleaning:
+							c.Text = "На санобработку";
+							break;
+						case DirectionReason.RepairAndCleaning:
+							c.Text = "В ремонт и санобработку";
+							break;
+						default:
+							break;
+					}
 					c.Editable = false;
 					c.Editable = n.Category == NomenclatureCategory.equipment;
 				})
 
 
-                .AddColumn("")
+				.AddColumn("")
 				.Finish();
 			yTreeOtherGoods.ColumnsConfig = goodsColumnsConfig;
 			yTreeOtherGoods.ItemsDataSource = GoodsReceptionList;
@@ -230,7 +232,7 @@ namespace Vodovoz
 			}
 		}
 
-		void LoadReturned()
+		private void LoadReturned()
 		{
 			GoodsReceptionList.Clear();
 			foreach(var item in Entity.ReturnedItems) {
@@ -292,7 +294,7 @@ namespace Vodovoz
 			return true;
 		}
 
-		void UpdateOrderInfo()
+		private void UpdateOrderInfo()
 		{
 			if(Entity.Order == null) {
 				ytextviewOrderInfo.Buffer.Text = String.Empty;
@@ -317,13 +319,13 @@ namespace Vodovoz
 			FillTrees();
 		}
 
-		void UpdateAmounts()
+		private void UpdateAmounts()
 		{
 			foreach(var item in Entity.Items)
 				item.Amount = Math.Min(Entity.GetNomenclaturesCountInOrder(item.Nomenclature) - item.AmountUnloaded, item.AmountInStock);
 		}
 
-		void UpdateWidgets()
+		private void UpdateWidgets()
 		{
 			bool bottles = Entity.Warehouse != null && Entity.Warehouse.CanReceiveBottles;
 			bool goods = Entity.Warehouse != null && Entity.Warehouse.CanReceiveEquipment;
@@ -365,6 +367,13 @@ namespace Vodovoz
 			{
 				GoodsReceptionList.Add(node);
 			}
+		}
+
+		public override void Destroy()
+		{
+			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
+			base.Destroy();
 		}
 	}
 }

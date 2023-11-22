@@ -4,6 +4,7 @@ using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
 using QS.Views.GtkUI;
+using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels;
 
 namespace Vodovoz.Views
@@ -147,7 +148,7 @@ namespace Vodovoz.Views
 			.Finish();
 
 			ViewModel.PropertyChanged += (sender, e) => {
-				Application.Invoke((s, args) => {
+				Gtk.Application.Invoke((s, args) => {
 					if(e.PropertyName == nameof(ViewModel.ProgressBarValue))
 						progressbar.Adjustment.Value = ViewModel.ProgressBarValue;
 					if(e.PropertyName == nameof(ViewModel.ProgressBarUpper))
@@ -184,7 +185,7 @@ namespace Vodovoz.Views
 			textTags.Add(yellowTag);
 
 			ViewModel.ProgressBarMessagesUpdated += (aList, aIdx) => {
-				Application.Invoke((s, args) => {
+				Gtk.Application.Invoke((s, args) => {
 					TextBuffer tempBuffer = new TextBuffer(textTags);
 					foreach(ColoredMessage message in ViewModel.ProgressBarMessages) {
 						TextIter iter = tempBuffer.EndIter;
@@ -204,7 +205,7 @@ namespace Vodovoz.Views
 			};
 
 			ytreeviewNomenclatures.Selection.Changed += (sender, e) => {
-				Application.Invoke((s, args) => {
+				Gtk.Application.Invoke((s, args) => {
 					ytextviewNodeMessages.Buffer.Clear();
 					TextBuffer tempBuffer = new TextBuffer(textTags);
 					var node = ytreeviewNomenclatures.GetSelectedObject<NomenclatureCatalogNode>();
@@ -258,21 +259,21 @@ namespace Vodovoz.Views
 		{
 			switch(color) {
 				case ConsoleColor.Black:
-					return new Gdk.Color(0, 0, 0);
+					return GdkColors.PrimaryText;
 				case ConsoleColor.White:
-					return new Gdk.Color(255, 255, 255);
+					return GdkColors.PrimaryBase;
 				case ConsoleColor.Gray:
-					return new Gdk.Color(230, 230, 230);
+					return GdkColors.InsensitiveBase;
 				case ConsoleColor.Red: 
-					return new Gdk.Color(255, 205, 205);
+					return GdkColors.DangerBase;
 				case ConsoleColor.DarkRed:
-					return new Gdk.Color(230, 40, 40);
+					return GdkColors.DarkRed;
 				case ConsoleColor.Green:
-					return new Gdk.Color(220, 255, 220);
+					return GdkColors.SuccessBase;
 				case ConsoleColor.DarkGreen:
-					return new Gdk.Color(30, 150, 30);
+					return GdkColors.DarkGreen;
 				case ConsoleColor.DarkYellow:
-					return new Gdk.Color(220, 180, 0);
+					return GdkColors.WarningBase;
 				default:
 					return GetGdkColor(ConsoleColor.Black);
 			}

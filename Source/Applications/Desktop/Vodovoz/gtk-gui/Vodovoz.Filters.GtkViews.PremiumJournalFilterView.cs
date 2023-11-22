@@ -8,9 +8,9 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::QS.Widgets.GtkUI.DateRangePicker dateperiodpickerPremiumDate;
 
-		private global::Gtk.Label label1;
+		private global::QS.Views.Control.EntityEntry entrySubdivision;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry yentrySubdivision;
+		private global::Gtk.Label label1;
 
 		private global::Gamma.GtkWidgets.yLabel ylabel1;
 
@@ -39,23 +39,22 @@ namespace Vodovoz.Filters.GtkViews
 			w1.RightAttach = ((uint)(2));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
+			this.entrySubdivision = new global::QS.Views.Control.EntityEntry();
+			this.entrySubdivision.Events = ((global::Gdk.EventMask)(256));
+			this.entrySubdivision.Name = "entrySubdivision";
+			this.table1.Add(this.entrySubdivision);
+			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.entrySubdivision]));
+			w2.LeftAttach = ((uint)(1));
+			w2.RightAttach = ((uint)(2));
+			w2.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
 			this.label1 = new global::Gtk.Label();
 			this.label1.Name = "label1";
 			this.label1.Xalign = 1F;
 			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("Подразделение:");
 			this.table1.Add(this.label1);
-			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.label1]));
-			w2.XOptions = ((global::Gtk.AttachOptions)(4));
-			w2.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.yentrySubdivision = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.yentrySubdivision.Events = ((global::Gdk.EventMask)(256));
-			this.yentrySubdivision.Name = "yentrySubdivision";
-			this.yentrySubdivision.CanEditReference = false;
-			this.table1.Add(this.yentrySubdivision);
-			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.yentrySubdivision]));
-			w3.LeftAttach = ((uint)(1));
-			w3.RightAttach = ((uint)(2));
+			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.label1]));
+			w3.XOptions = ((global::Gtk.AttachOptions)(4));
 			w3.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ylabel1 = new global::Gamma.GtkWidgets.yLabel();

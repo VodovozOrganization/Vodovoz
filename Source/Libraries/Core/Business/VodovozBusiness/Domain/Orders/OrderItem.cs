@@ -254,7 +254,7 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _counterpartyMovementOperation, value, () => CounterpartyMovementOperation);
 		}
 
-		[Display(Name = "Добавлено из промо-набора")]
+		[Display(Name = "Добавлено из промонабора")]
 		public virtual PromotionalSet PromoSet
 		{
 			get => _promoSet;

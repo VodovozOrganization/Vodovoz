@@ -15,6 +15,7 @@ using System.Linq;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.Extensions;
 using Vodovoz.Factories;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
@@ -236,7 +237,7 @@ namespace Dialogs.Logistic
 
 					var text = point.ShortAddress;
 					if (orderItem.StatusLastUpdate.HasValue)
-						text += String.Format("\nСтатус изменялся в {0:t}", orderItem.StatusLastUpdate.Value);
+						text += string.Format("\nСтатус изменялся в {0:t}", orderItem.StatusLastUpdate.Value);
 					addressMarker.ToolTipText = text;
 					addressesOverlay.Markers.Add(addressMarker);
 				}
@@ -248,7 +249,7 @@ namespace Dialogs.Logistic
 			var layout = new Pango.Layout(this.PangoContext) {
 				Alignment = Pango.Alignment.Right
 			};
-			var colTXT = ColorTranslator.ToHtml(route[0].Stroke.Color);
+			var colTXT = route[0].Stroke.Color.ToHtmlColor();
 			layout.SetMarkup(string.Format("<span foreground=\"{1}\"><span font=\"Segoe UI Symbol\">⛽</span> {0:N1} км.</span>", route.Sum(x =>x.Distance), colTXT));
 
 			return new DistanceTextInfo{

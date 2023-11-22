@@ -1,23 +1,15 @@
-﻿using Fias.Client;
-using Fias.Client.Cache;
-using QS.Dialog.Gtk;
-using QS.DomainModel.UoW;
-using QS.Project.Domain;
-using QS.Project.Services;
+﻿using QS.Project.Domain;
 using QSOrmProject;
 using QSProjectsLib;
 using System;
 using Vodovoz.Dialogs.OnlineStore;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.StoredResources;
-using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.JournalViewModels;
-using Vodovoz.Parameters;
 using Vodovoz.ServiceDialogs;
 using Vodovoz.ServiceDialogs.Database;
-using Vodovoz.Services;
+using Vodovoz.ViewModels.AdministrationTools;
 using Vodovoz.ViewModels.BaseParameters;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Security;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Security;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Users;
@@ -67,12 +59,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnRegisteredRMActionActivated(object sender, EventArgs e)
 	{
-		tdiMain.AddTab(
-			new RegisteredRMJournalViewModel(
-				new RegisteredRMJournalFilterViewModel(),
-				UnitOfWorkFactory.GetDefaultFactory,
-				new PermissionRepository(),
-				ServicesConfig.CommonServices));
+		NavigationManager.OpenViewModel<RegisteredRMJournalViewModel>(null, QS.Navigation.OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -94,9 +81,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnAction45Activated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<ReplaceEntityLinksDlg>(),
-			() => new ReplaceEntityLinksDlg());
+		NavigationManager.OpenTdiTab<ReplaceEntityLinksDlg>(null);
 	}
 
 	/// <summary>
@@ -106,14 +91,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionAddressDuplicetesActivated(object sender, EventArgs e)
 	{
-		IParametersProvider parametersProvider = new ParametersProvider();
-		IFiasApiParametersProvider fiasApiParametersProvider = new FiasApiParametersProvider(parametersProvider);
-		var geoCoderCache = new GeocoderCache(UnitOfWorkFactory.GetDefaultFactory);
-		IFiasApiClient fiasApiClient = new FiasApiClient(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken, geoCoderCache);
-
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<MergeAddressesDlg>(),
-			() => new MergeAddressesDlg(fiasApiClient));
+		NavigationManager.OpenTdiTab<MergeAddressesDlg>(null);
 	}
 
 	/// <summary>
@@ -123,9 +101,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionDistanceFromCenterActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<CalculateDistanceToPointsDlg>(),
-			() => new CalculateDistanceToPointsDlg());
+		NavigationManager.OpenTdiTab<CalculateDistanceToPointsDlg>(null);
 	}
 
 	/// <summary>
@@ -135,9 +111,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionOrdersWithoutBottlesOperationActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<OrdersWithoutBottlesOperationDlg>(),
-			() => new OrdersWithoutBottlesOperationDlg());
+		NavigationManager.OpenTdiTab<OrdersWithoutBottlesOperationDlg>(null);
 	}
 
 	/// <summary>
@@ -147,8 +121,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionLoad1cCounterpartyAndDeliveryPointsActivated(object sender, EventArgs e)
 	{
-		var widget = new LoadFrom1cClientsAndDeliveryPoints();
-		tdiMain.AddTab(widget);
+		NavigationManager.OpenTdiTab<LoadFrom1cClientsAndDeliveryPoints>(null, QS.Navigation.OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -158,9 +131,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionToOnlineStoreActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<ExportToSiteDlg>(),
-			() => new ExportToSiteDlg());
+		NavigationManager.OpenTdiTab<ExportToSiteDlg>(null);
 	}
 
 	/// <summary>
@@ -170,8 +141,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnAction62Activated(object sender, EventArgs e)
 	{
-		var widget = new ResendEmailsDialog();
-		tdiMain.AddTab(widget);
+		NavigationManager.OpenTdiTab<ResendEmailsDialog>(null, QS.Navigation.OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -181,8 +151,17 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionRecalculateDriverWagesActivated(object sender, EventArgs e)
 	{
-		var dlg = new RecalculateDriverWageDlg();
-		tdiMain.AddTab(dlg);
+		NavigationManager.OpenTdiTab<RecalculateDriverWageDlg>(null, QS.Navigation.OpenPageOptions.IgnoreHash);
+	}
+
+	/// <summary>
+	/// Обновление сведений Контрагентов из ФНС
+	/// </summary>
+	/// <param name="sender">Sender.</param>
+	/// <param name="e">E.</param>
+	protected void OnAction76Activated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<RevenueServiceMassCounterpartyUpdateToolViewModel>(null);
 	}
 
 	#endregion Обслуживание

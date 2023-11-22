@@ -1,5 +1,4 @@
 ﻿using Gtk;
-using QS.Journal.GtkUI;
 using QS.Tdi;
 using QS.Views.GtkUI;
 using Vodovoz.Core;
@@ -11,7 +10,7 @@ namespace Vodovoz.Views.Complaints
 	{
 		public ComplaintsJournalsView(ComplaintsJournalsViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 			Configure();
 		}
 
@@ -46,6 +45,11 @@ namespace Vodovoz.Views.Complaints
 			_journalView = ViewModelWidgetResolver.Instance.Resolve((ITdiTab)ViewModel.Journal);
 			yvboxJournal.Add(_journalView);
 			_journalView.Show();
+		}
+
+		public override void Destroy()
+		{
+			_journalView?.Destroy();
 		}
 	}
 }

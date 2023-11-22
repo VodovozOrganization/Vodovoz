@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System;
 using NLog;
 using Vodovoz.ViewModels.ViewModels.Payments;
+using Vodovoz.Infrastructure;
 
 namespace Vodovoz.Views
 {
@@ -17,9 +18,9 @@ namespace Vodovoz.Views
 	public partial class PaymentLoaderView : TabViewBase<PaymentLoaderViewModel>
 	{
 		private readonly Logger _logger = LogManager.GetCurrentClassLogger();
-		static Gdk.Color colorPink = new Gdk.Color(0xff, 0xc0, 0xc0);
-		static Gdk.Color colorWhite = new Gdk.Color(0xff, 0xff, 0xff);
-		static Gdk.Color colorLightGreen = new Gdk.Color(0xc0, 0xff, 0xc0);
+		static Gdk.Color colorPink = GdkColors.Pink;
+		static Gdk.Color colorWhite = GdkColors.PrimaryBase;
+		static Gdk.Color colorLightGreen = GdkColors.SuccessBase;
 
 		public PaymentLoaderView(PaymentLoaderViewModel paymentLoaderViewModel) : base(paymentLoaderViewModel)
 		{
@@ -141,7 +142,7 @@ namespace Vodovoz.Views
 
 							if(!result)
 							{
-								Application.Invoke((s, e) => ShowMessageAndClose(
+								Gtk.Application.Invoke((s, e) => ShowMessageAndClose(
 									QS.Dialog.ImportanceLevel.Warning,
 									CloseSource.Self,
 									"Ошибка при сохранении заказа.",
@@ -159,7 +160,7 @@ namespace Vodovoz.Views
 					UpdateProgress($"Сохранен {count} платеж из {totalPayments}", progress);
 				}
 
-				Application.Invoke((s, e) => ShowMessageAndClose(
+				Gtk.Application.Invoke((s, e) => ShowMessageAndClose(
 					QS.Dialog.ImportanceLevel.Info,
 					CloseSource.Save,
 					"Сохранение закончено...",
@@ -170,7 +171,7 @@ namespace Vodovoz.Views
 			catch(Exception ex)
 			{
 				_logger.Error(ex);
-				Application.Invoke((s, e) => ShowMessageAndClose(
+				Gtk.Application.Invoke((s, e) => ShowMessageAndClose(
 					QS.Dialog.ImportanceLevel.Warning,
 					CloseSource.Self,
 					"Ошибка при сохранении.",

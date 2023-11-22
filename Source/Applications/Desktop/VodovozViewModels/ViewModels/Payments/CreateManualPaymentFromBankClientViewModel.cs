@@ -12,7 +12,7 @@ using QS.Navigation;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Services;
-using Vodovoz.Domain.Client;
+using System.Linq;
 
 namespace Vodovoz.ViewModels.ViewModels.Payments
 {
@@ -122,7 +122,24 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			if(e.PropertyName == nameof(Counterparty))
 			{
 				UpdatePaymentNum();
+				UpdateParameters();
 			}
+		}
+
+		private void UpdateParameters()
+		{
+			var defaultAccount = Entity.Counterparty?.Accounts.SingleOrDefault(x => x.IsDefault);
+
+			if(defaultAccount is null)
+			{
+				return;
+			}
+
+			Entity.CounterpartyBank = defaultAccount.InBank?.Name;
+			Entity.CounterpartyBik = defaultAccount.InBank?.Bik;
+			Entity.CounterpartyCurrentAcc = defaultAccount.Number;
+			Entity.CounterpartyAcc = defaultAccount.Number;
+			Entity.CounterpartyCorrespondentAcc = defaultAccount.BankCorAccount?.CorAccountNumber;
 		}
 
 		private void UpdatePaymentNum()

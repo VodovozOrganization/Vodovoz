@@ -1,7 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gamma.Widgets;
@@ -10,15 +6,20 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services;
+using QS.Views.Control;
 using QS.Views.GtkUI;
-using QS.Widgets.GtkUI;
 using QSOrmProject;
+using System;
+using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using Gtk;
 using Vodovoz.Dialogs.Employees;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.TempAdapters;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Employees;
 
 namespace Vodovoz.Views.Employees
@@ -136,7 +137,7 @@ namespace Vodovoz.Views.Employees
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
 
-			ConfigureSubdivision();
+			entrySubdivision.ViewModel = ViewModel.SubdivisionViewModel;
 
 			var usersJournalFactory = new UserJournalFactory();
 			entityviewmodelUser.SetEntityAutocompleteSelectorFactory(usersJournalFactory.CreateSelectUserAutocompleteSelectorFactory());
@@ -204,6 +205,7 @@ namespace Vodovoz.Views.Employees
 				.AddBinding(ViewModel.Entity, e => e.Email, w => w.Text)
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
+			yentryEmailAddress.FocusOutEvent += OnEmailFocusOutEvent;
 
 			ydateFirstWorkDay.Binding
 				.AddBinding(ViewModel.Entity, e => e.FirstWorkDay, w => w.DateOrNull)
@@ -713,37 +715,15 @@ namespace Vodovoz.Views.Employees
 				}
 			};
 		}
-
-		private void ConfigureSubdivision()
+		
+		private void OnEmailFocusOutEvent(object o, FocusOutEventArgs args)
 		{
-			if(ViewModel.CanManageDriversAndForwarders && !ViewModel.CanManageOfficeWorkers)
+			if(string.IsNullOrWhiteSpace(yentryEmailAddress.Text))
 			{
-				var entityentrySubdivision = new EntityViewModelEntry();
-				entityentrySubdivision.SetEntityAutocompleteSelectorFactory(
-					ViewModel.SubdivisionJournalFactory.CreateLogisticSubdivisionAutocompleteSelectorFactory(
-						ViewModel.EmployeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory()));
-				entityentrySubdivision.Binding
-					.AddBinding(ViewModel.Entity, e => e.Subdivision, w => w.Subject)
-					.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
-					.InitializeFromSource();
-				hboxSubdivision.Add(entityentrySubdivision);
-				hboxSubdivision.ShowAll();
 				return;
 			}
 
-			var entrySubdivision = new yEntryReference();
-			entrySubdivision.SubjectType = typeof(Subdivision);
-			entrySubdivision.Binding
-				.AddBinding(ViewModel.Entity, e => e.Subdivision, w => w.Subject)
-				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
-				.InitializeFromSource();
-			hboxSubdivision.Add(entrySubdivision);
-			hboxSubdivision.ShowAll();
-
-			if(!ViewModel.CanManageOfficeWorkers && !ViewModel.CanManageDriversAndForwarders)
-			{
-				entrySubdivision.Sensitive = false;
-			}
+			yentryEmailAddress.Text = yentryEmailAddress.Text.TrimEnd('\r', '\n');
 		}
 
 		private void OnRussianCitizenToggled(object sender, EventArgs e)

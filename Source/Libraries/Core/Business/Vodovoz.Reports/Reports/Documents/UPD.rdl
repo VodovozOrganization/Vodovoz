@@ -1,9 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>210mm</PageHeight>
   <PageWidth>297mm</PageWidth>
   <Width>286.405mm</Width>
@@ -95,11 +93,12 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Order">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     orders.id AS order_id,
     orders.delivery_date AS order_date,
+    orders.counterparty_external_order_id,
     CONCAT(counterparty.vod_internal_id, '-', counterparty_contract.subnumber) AS contract_number,
     DATE_FORMAT(counterparty_contract.issue_date,
                 '%d.%m.%y') AS contract_date,
@@ -110,6 +109,17 @@ WHERE
     counterparty.use_special_doc_fields,
     counterparty.special_cargo_receiver,
     counterparty.special_customer,
+    (
+        IF(orders.order_payment_status = 'Paid',
+            (SELECT GROUP_CONCAT(CONCAT("№ ", pfbc.payment_num, " от ", DATE_FORMAT(pfbc.payment_date, '%d.%m.%Y')) SEPARATOR ", ")
+            FROM
+                payments_from_bank_client pfbc
+            INNER JOIN
+                payment_items pitms
+            ON pfbc.id = pitms.payment_id
+            WHERE pitms.order_id = @order_id),
+            "")
+    ) AS payments_info,
     IF(!IS_NULL_OR_WHITESPACE(counterparty.special_contract_number) and counterparty.special_contract_date is not null,
        CONCAT(counterparty.special_contract_name, ' №', counterparty.special_contract_number, ' от ', DATE_FORMAT(counterparty.special_contract_date, '%d.%m.%y')),
        counterparty.special_contract_name) AS special_contract_number,
@@ -187,7 +197,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -315,6 +325,14 @@ WHERE
         <Field Name="order_items_count">
           <DataField>order_items_count</DataField>
           <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="counterparty_external_order_id">
+          <DataField>counterparty_external_order_id</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="payments_info">
+          <DataField>payments_info</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -705,8 +723,8 @@ WHERE o.id = @order_id
             <Width>16.02pt</Width>
             <Value>(1)</Value>
             <ZIndex>0</ZIndex>
-            <Left>300.1pt</Left>
-            <Top>3.1pt</Top>
+            <Left>300.10pt</Left>
+            <Top>3.10pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1157,8 +1175,7 @@ WHERE o.id = @order_id
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
-              <BackgroundColor>
-              </BackgroundColor>
+              <BackgroundColor></BackgroundColor>
               <BackgroundGradientType>None</BackgroundGradientType>
               <BackgroundGradientEndColor>White</BackgroundGradientEndColor>
               <TextAlign>Left</TextAlign>
@@ -1182,8 +1199,7 @@ WHERE o.id = @order_id
           <Textbox Name="Textbox195">
             <Height>12.00pt</Height>
             <Width>419.75pt</Width>
-            <Value>
-            </Value>
+            <Value>={payments_info}</Value>
             <ZIndex>0</ZIndex>
             <Left>152.5pt</Left>
             <Top>95.3pt</Top>
@@ -1211,17 +1227,38 @@ WHERE o.id = @order_id
               <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
+          <Textbox Name="Textbox75" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>11.20pt</Height>
+            <Width>150pt</Width>
+            <Value>='Номер заказа покупателя: ' + {counterparty_external_order_id}</Value>
+            <ZIndex>0</ZIndex>
+            <Left>335pt</Left>
+            <Top>1.4pt</Top>
+            <Style>
+              <BorderStyle>
+                <Bottom>Solid</Bottom>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <Format>d</Format>
+              <TextAlign>Center</TextAlign>
+              <FontSize>8pt</FontSize>
+            </Style>
+            <Visibility>
+              <Hidden>=Fields!counterparty_external_order_id.IsMissing</Hidden>
+            </Visibility>
+          </Textbox>
         </ReportItems>
         <Style>
-            <BorderStyle>
-                <Default>None</Default>
-                <Left>None</Left>
-                <Right>None</Right>
-                <Top>None</Top>
-                <Bottom>None</Bottom>
-            </BorderStyle>
-            <BorderColor />
-            <BorderWidth />
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <DataSetName>Order</DataSetName>
       </List>
@@ -1720,8 +1757,7 @@ WHERE o.id = @order_id
                         <FontSize>7pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                       </Style>
-                      <Visibility>
-                      </Visibility>
+                      <Visibility></Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -2529,8 +2565,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox184">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2607,7 +2642,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox58">
-                      <Value>=Fields!item_price / Fields!vat * (1 - Fields!item_discount/100)</Value>
+                      <Value>=({item_price} * {count} - Iif({count}&gt;0, {include_nds}, 0) - {item_discount_money}) / {count}</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2854,8 +2889,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox64">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2974,8 +3008,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox114">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -3977,7 +4010,7 @@ WHERE o.id = @order_id
               <BorderWidth />
               <FontSize>8pt</FontSize>
             </Style>
-            <CanGrow >true</CanGrow>
+            <CanGrow>true</CanGrow>
           </Textbox>
           <Textbox Name="Textbox129">
             <Height>42.10pt</Height>
@@ -4292,15 +4325,15 @@ WHERE o.id = @order_id
           </Image>
         </ReportItems>
         <Style>
-            <BorderStyle>
-                <Default>None</Default>
-                <Left>None</Left>
-                <Right>None</Right>
-                <Top>None</Top>
-                <Bottom>None</Bottom>
-            </BorderStyle>
-            <BorderColor />
-            <BorderWidth />
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <DataSetName>Order</DataSetName>
       </List>
@@ -4421,16 +4454,14 @@ WHERE o.id = @order_id
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="special">
       <DataType>Boolean</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="hide_signature">
       <DataType>Boolean</DataType>
@@ -4442,8 +4473,7 @@ WHERE o.id = @order_id
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

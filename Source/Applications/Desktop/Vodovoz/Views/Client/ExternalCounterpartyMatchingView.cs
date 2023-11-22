@@ -2,12 +2,12 @@
 using Gamma.Binding;
 using Gamma.Binding.Core.LevelTreeConfig;
 using Gamma.ColumnConfig;
-using Gdk;
 using Gtk;
 using QS.Journal.GtkUI;
 using QS.Navigation;
 using QS.Tdi;
 using QS.Views;
+using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 
 namespace Vodovoz.Views.Client
@@ -15,11 +15,6 @@ namespace Vodovoz.Views.Client
 	public partial class ExternalCounterpartyMatchingView : ViewBase<ExternalCounterpartyMatchingViewModel>
 	{
 		private Menu _discrepanciesPopUpMenu;
-		private static readonly Color _colorBlack = new Color(0, 0, 0);
-		private static readonly Color _colorWhite = new Color(0xff, 0xff, 0xff);
-		private static readonly Color _colorRed = new Color(0xfe, 0x5c, 0x5c);
-		private static readonly Color _colorLightGreen = new Color(0xc0, 0xff, 0xc0);
-		private static readonly Color _colorOrange = new Color(0xfc, 0x66, 0x00);
 		
 		public ExternalCounterpartyMatchingView(ExternalCounterpartyMatchingViewModel viewModel) : base(viewModel)
 		{
@@ -73,15 +68,16 @@ namespace Vodovoz.Views.Client
 				.AddColumn("Дата последнего заказа").AddTextRenderer(n => n.LastOrderDateString)
 				.AddColumn("")
 				.RowCells()
-					.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.HasOtherExternalCounterparty ? _colorOrange : _colorBlack)
+					.AddSetter<CellRendererText>((c, n) =>
+						c.ForegroundGdk = n.HasOtherExternalCounterparty ? GdkColors.Orange : GdkColors.PrimaryText)
 					.AddSetter<CellRenderer>(
 						(c, n) =>
 						{
-							var color = _colorWhite;
+							var color = GdkColors.PrimaryBase;
 									
 							if(n.ExternalCounterpartyId.HasValue && !n.HasOtherExternalCounterparty)
 							{
-								color = _colorLightGreen;
+								color = GdkColors.SuccessBase;
 							}
 
 							c.CellBackgroundGdk = color;
@@ -100,6 +96,7 @@ namespace Vodovoz.Views.Client
 			btnNewCounterparty.Clicked += OnNewCounterpartyClicked;
 			btnAssignCounterparty.Clicked += OnAssignCounterpartyClicked;
 			btnOrdersJournal.Clicked += OnOrdersJournalClicked;
+			btnLegalCounterparty.Clicked += OnLegalCounterpartyClicked;
 
 			btnAssignCounterparty.Binding
 				.AddBinding(ViewModel, vm => vm.HasSelectedNotAssignedCounterpartyMatchingNode, w => w.Sensitive)
@@ -107,8 +104,11 @@ namespace Vodovoz.Views.Client
 			btnOrdersJournal.Binding
 				.AddBinding(ViewModel, vm => vm.HasSelectedMatch, w => w.Sensitive)
 				.InitializeFromSource();
+			btnLegalCounterparty.Binding
+				.AddFuncBinding(ViewModel, vm => !vm.HasAssignedCounterparty, w => w.Sensitive)
+				.InitializeFromSource();
 		}
-		
+
 		private void ConfigureTreeDiscrepancies()
 		{
 			treeViewDiscrepancies.ColumnsConfig = FluentColumnsConfig<ExistingExternalCounterpartyNode>.Create()
@@ -119,14 +119,14 @@ namespace Vodovoz.Views.Client
 					.AddTextRenderer(n => n.ExternalCounterpartyGuid.ToString())
 					.AddSetter((c, n) =>
 						c.ForegroundGdk = n.ExternalCounterpartyGuid != ViewModel.Entity.ExternalCounterpartyGuid
-							? _colorRed
-							: _colorBlack)
+							? GdkColors.Red2
+							: GdkColors.PrimaryText)
 				.AddColumn("Телефон")
 					.AddTextRenderer(n => n.PhoneNumber)
 					.AddSetter((c, n) =>
 						c.ForegroundGdk = n.PhoneNumber != ViewModel.DigitsPhoneNumber
-							? _colorRed
-							: _colorBlack)
+							? GdkColors.Red2
+							: GdkColors.PrimaryText)
 				.AddColumn("")
 				.Finish();
 
@@ -143,9 +143,9 @@ namespace Vodovoz.Views.Client
 		private void CreateDiscrepanciesPopUpMenu()
 		{
 			_discrepanciesPopUpMenu = new Menu();
-			var menuItem = new MenuItem("Переприсвоить контрагента");
-			menuItem.Activated += ReAssignCounterparty;
-			_discrepanciesPopUpMenu.Add(menuItem);
+			var reAssignItem = new MenuItem("Переприсвоить контрагента");
+			reAssignItem.Activated += ReAssignCounterparty;
+			_discrepanciesPopUpMenu.Add(reAssignItem);
 			_discrepanciesPopUpMenu.ShowAll();
 		}
 
@@ -219,6 +219,11 @@ namespace Vodovoz.Views.Client
 		private void OnOrdersJournalClicked(object sender, EventArgs e)
 		{
 			ViewModel.OpenOrderJournalCommand.Execute();
+		}
+
+		private void OnLegalCounterpartyClicked(object sender, EventArgs e)
+		{
+			ViewModel.LegalCounterpartyCommand.Execute();
 		}
 	}
 }

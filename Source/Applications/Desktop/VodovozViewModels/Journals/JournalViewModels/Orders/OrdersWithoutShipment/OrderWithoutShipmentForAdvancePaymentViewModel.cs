@@ -1,4 +1,4 @@
-﻿using Gamma.Utilities;
+using Gamma.Utilities;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -30,6 +30,7 @@ using Vodovoz.ViewModels.Dialogs.Email;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
+using Vodovoz.Settings.Nomenclature;
 
 namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 {
@@ -42,7 +43,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		private readonly IUserRepository _userRepository;
 		private readonly CommonMessages _commonMessages;
 		private readonly IRDLPreviewOpener _rdlPreviewOpener;
-		private readonly INomenclatureOnlineParametersProvider _nomenclatureOnlineParametersProvider;
+		private readonly INomenclatureSettings _nomenclatureSettings;
 		private UserSettings _currentUserSettings;
 
 		private object selectedItem;
@@ -71,15 +72,18 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			IOrderDiscountsController discountsController,
 			CommonMessages commonMessages,
 			IRDLPreviewOpener rdlPreviewOpener,
-			INomenclatureOnlineParametersProvider nomenclatureOnlineParametersProvider) : base(uowBuilder, uowFactory, commonServices)
+			INomenclatureSettings nomenclatureSettings) : base(uowBuilder, uowFactory, commonServices)
 		{
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_commonMessages = commonMessages ?? throw new ArgumentNullException(nameof(commonMessages));
 			_rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
-			_nomenclatureOnlineParametersProvider =
-				nomenclatureOnlineParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureOnlineParametersProvider));
+			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
+			if(parametersProvider == null)
+			{
+				throw new ArgumentNullException(nameof(parametersProvider));
+			}
 			if(discountReasonRepository == null)
 			{
 				throw new ArgumentNullException(nameof(discountReasonRepository));
@@ -171,7 +175,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 					CounterpartySelectorFactory,
 					_nomenclatureRepository,
 					_userRepository,
-					_nomenclatureOnlineParametersProvider
+					_nomenclatureSettings
 				) {
 					SelectionMode = JournalSelectionMode.Single,
 				};

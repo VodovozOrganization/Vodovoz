@@ -1,34 +1,25 @@
-﻿using QS.Dialog.GtkUI.FileDialog;
-using QS.DomainModel.UoW;
+using Autofac;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
-using QS.Project.Services;
+using System;
 using System.Collections.Generic;
-using Microsoft.Extensions.Logging;
-using Vodovoz.Core;
-using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
-using Vodovoz.Parameters;
-using Vodovoz.Settings.Database;
-using Vodovoz.ViewModels.Factories;
 
 namespace Vodovoz.TempAdapters
 {
 	public class OrderSelectorFactory : IOrderSelectorFactory
 	{
+		private readonly ILifetimeScope _lifetimeScope;
 		private OrderJournalFilterViewModel _orderJournalFilter;
 
-		public OrderSelectorFactory(OrderJournalFilterViewModel orderFilter = null)
+		public OrderSelectorFactory(
+			ILifetimeScope lifetimeScope,
+			OrderJournalFilterViewModel orderFilter = null)
 		{
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_orderJournalFilter = orderFilter;
 		}
 
@@ -37,16 +28,12 @@ namespace Vodovoz.TempAdapters
 			var orderFilter = new OrderForMovDocJournalFilterViewModel();
 			orderFilter.IsOnlineStoreOrders = IsOnlineStoreOrders;
 			orderFilter.OrderStatuses = orderStatuses;
+			
+			var viewModel =	 _lifetimeScope.Resolve<OrderForMovDocJournalViewModel>(new TypedParameter(typeof(OrderForMovDocJournalFilterViewModel), orderFilter));
 
-			var vm = new OrderForMovDocJournalViewModel(
-				orderFilter,
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices
-			) {
-				SelectionMode = JournalSelectionMode.Multiple
-			};
+			viewModel.SelectionMode = JournalSelectionMode.Multiple;
 
-			return vm;
+			return viewModel;
 		}
 
 		public IEntityAutocompleteSelectorFactory CreateOrderAutocompleteSelectorFactory(OrderJournalFilterViewModel filterViewModel = null)
@@ -59,144 +46,45 @@ namespace Vodovoz.TempAdapters
 
 		public IEntityAutocompleteSelectorFactory CreateCashSelfDeliveryOrderAutocompleteSelector()
 		{
-			var subdivisionJournalFactory = new SubdivisionJournalFactory();
-			var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
-			var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
-			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
-			var userRepository = new UserRepository();
-			var employeeJournalFactory = new EmployeeJournalFactory();
-
 			return new EntityAutocompleteSelectorFactory<OrderJournalViewModel>(
 				typeof(Order),
 				() =>
 				{
-					var filter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, employeeJournalFactory);
-					filter.SetAndRefilterAtOnce(
-						x => x.RestrictStatus = OrderStatus.WaitForPayment,
-						x => x.AllowPaymentTypes = new[] { PaymentType.Cash },
-						x => x.RestrictOnlySelfDelivery = true,
-						x => x.RestrictWithoutSelfDelivery = false,
-						x => x.RestrictHideService = true,
-						x => x.RestrictOnlyService = false);
+					Action<OrderJournalFilterViewModel> filterConfig = (filter) =>
+					{
+						filter.RestrictStatus = OrderStatus.WaitForPayment;
+						filter.AllowPaymentTypes = new[] { PaymentType.Cash };
+						filter.RestrictOnlySelfDelivery = true;
+						filter.RestrictWithoutSelfDelivery = false;
+						filter.RestrictHideService = true;
+						filter.RestrictOnlyService = false;
+					};
 
-					return new OrderJournalViewModel(
-						filter,
-						UnitOfWorkFactory.GetDefaultFactory,
-						ServicesConfig.CommonServices,
-						VodovozGtkServicesConfig.EmployeeService,
-						nomenclatureRepository,
-						userRepository,
-						new OrderSelectorFactory(),
-						new EmployeeJournalFactory(),
-						counterpartyJournalFactory,
-						new DeliveryPointJournalFactory(),
-						subdivisionJournalFactory,
-						new GtkTabsOpener(),
-						new UndeliveredOrdersJournalOpener(),
-						new NomenclatureJournalFactory(),
-						new UndeliveredOrdersRepository(),
-						new SubdivisionRepository(new ParametersProvider()),
-						new FileDialogService(),
-						new SubdivisionParametersProvider(new ParametersProvider()),
-						new DeliveryScheduleParametersProvider(new ParametersProvider()),
-						new RdlPreviewOpener(),
-						new RouteListItemRepository(),
-						new NomenclatureOnlineParametersProvider(
-							new SettingsController(
-								UnitOfWorkFactory.GetDefaultFactory,
-								new Logger<SettingsController>(new LoggerFactory()))));
+					return _lifetimeScope.Resolve<OrderJournalViewModel>(new TypedParameter(typeof(Action<OrderJournalFilterViewModel>), filterConfig));
 				});
 		}
 
 		public IEntityAutocompleteSelectorFactory CreateSelfDeliveryDocumentOrderAutocompleteSelector()
 		{
-			var subdivisionJournalFactory = new SubdivisionJournalFactory();
-			var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
-			var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
-			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
-			var userRepository = new UserRepository();
-			var employeeJournalFactory = new EmployeeJournalFactory();
+			Action<OrderJournalFilterViewModel> filterConfig = (filter) =>
+			{
+				filter.RestrictOnlySelfDelivery = true;
+				filter.RestrictStatus = OrderStatus.OnLoading;
+			};
 
 			return new EntityAutocompleteSelectorFactory<OrderJournalViewModel>(
 				typeof(Order),
 				() =>
 				{
-					var filter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, employeeJournalFactory);
-					filter.SetAndRefilterAtOnce(
-						x => x.RestrictOnlySelfDelivery = true,
-						x => x.RestrictStatus = OrderStatus.OnLoading
-					);
-
-					return new OrderJournalViewModel(
-						filter,
-						UnitOfWorkFactory.GetDefaultFactory,
-						ServicesConfig.CommonServices,
-						VodovozGtkServicesConfig.EmployeeService,
-						nomenclatureRepository,
-						userRepository,
-						new OrderSelectorFactory(),
-						new EmployeeJournalFactory(),
-						counterpartyJournalFactory,
-						new DeliveryPointJournalFactory(),
-						subdivisionJournalFactory,
-						new GtkTabsOpener(),
-						new UndeliveredOrdersJournalOpener(),
-						new NomenclatureJournalFactory(),
-						new UndeliveredOrdersRepository(),
-						new SubdivisionRepository(new ParametersProvider()),
-						new FileDialogService(),
-						new SubdivisionParametersProvider(new ParametersProvider()),
-						new DeliveryScheduleParametersProvider(new ParametersProvider()),
-						new RdlPreviewOpener(),
-						new RouteListItemRepository(),
-						new NomenclatureOnlineParametersProvider(
-							new SettingsController(
-								UnitOfWorkFactory.GetDefaultFactory,
-								new Logger<SettingsController>(new LoggerFactory()))));
+					return _lifetimeScope.Resolve<OrderJournalViewModel>(new TypedParameter(typeof(Action<OrderJournalFilterViewModel>), filterConfig));
 				});
 		}
 
 		public OrderJournalViewModel CreateOrderJournalViewModel(OrderJournalFilterViewModel filterViewModel = null)
 		{
-			var subdivisionJournalFactory = new SubdivisionJournalFactory();
-			var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
-			var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
-			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
-			var userRepository = new UserRepository();
-			var employeeJournalFactory = new EmployeeJournalFactory();
+			_orderJournalFilter = filterViewModel ?? _orderJournalFilter ?? _lifetimeScope.Resolve<OrderJournalFilterViewModel>();
 
-			if(filterViewModel != null)
-			{
-				_orderJournalFilter = filterViewModel;
-			}
-
-			return new OrderJournalViewModel(
-				_orderJournalFilter
-					?? new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, employeeJournalFactory),
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices,
-				VodovozGtkServicesConfig.EmployeeService,
-				nomenclatureRepository,
-				userRepository,
-				new OrderSelectorFactory(),
-				new EmployeeJournalFactory(),
-				counterpartyJournalFactory,
-				new DeliveryPointJournalFactory(),
-				subdivisionJournalFactory,
-				new GtkTabsOpener(),
-				new UndeliveredOrdersJournalOpener(),
-				new NomenclatureJournalFactory(),
-				new UndeliveredOrdersRepository(),
-				new SubdivisionRepository(new ParametersProvider()),
-				new FileDialogService(),
-				new SubdivisionParametersProvider(new ParametersProvider()),
-				new DeliveryScheduleParametersProvider(new ParametersProvider()),
-				new RdlPreviewOpener(),
-				new RouteListItemRepository(),
-				new NomenclatureOnlineParametersProvider(
-					new SettingsController(
-						UnitOfWorkFactory.GetDefaultFactory,
-						new Logger<SettingsController>(new LoggerFactory()))));
+			return _lifetimeScope.Resolve<OrderJournalViewModel>(new TypedParameter(typeof(OrderJournalFilterViewModel), _orderJournalFilter));
 		}
 	}
 }

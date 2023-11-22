@@ -1,6 +1,7 @@
 ﻿using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
+using Vodovoz.Infrastructure;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.JournalViewModels.Suppliers;
 
@@ -26,7 +27,13 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddTextRenderer(n => n.Author)
 				.AddColumn("")
 				.RowCells()
-				.AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+				.AddSetter<CellRendererText>((c, n) =>
+				{
+
+					c.ForegroundGdk = n.Status == Domain.Suppliers.RequestStatus.Closed
+						? GdkColors.InsensitiveText
+						: GdkColors.PrimaryText;
+				})
 				.Finish();
 	}
 }

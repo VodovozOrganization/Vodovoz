@@ -1,6 +1,4 @@
-using FluentNHibernate.Mapping;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Orders;
+﻿using FluentNHibernate.Mapping;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 {
@@ -66,24 +64,19 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.DriverMobileAppComment).Column("driver_app_comment");
 			Map(x => x.DriverMobileAppCommentTime).Column("driver_app_comment_time");
 			Map(x => x.IsSecondOrder).Column("is_second_order");
+			Map(x => x.CounterpartyExternalOrderId).Column("counterparty_external_order_id");
 
-			Map(x => x.OrderStatus).Column("order_status")
-				.CustomType<OrderStatusStringType>();
-			Map(x => x.SignatureType).Column("signature_type")
-				.CustomType<OrderSignatureTypeStringType>();
+			Map(x => x.OrderStatus).Column("order_status");
+			Map(x => x.SignatureType).Column("signature_type");
 			Map(x => x.PaymentType).Column("payment_type")
-				.CustomType<PaymentTypeStringType>()
 				.Access.CamelCaseField(Prefix.Underscore);
 			Map(x => x.PaymentByTerminalSource).Column("terminal_subtype");
 			Map(x => x.DocumentType).Column("document_type");
-			Map(x => x.DriverCallType).Column("driver_call_type")
-				.CustomType<DriverCallTypeStringType>();
-			Map(x => x.OrderSource).Column("order_source")
-				.CustomType<OrderSourceStringType>();
-			Map(x => x.OrderPaymentStatus).Column("order_payment_status")
-				.CustomType<OrderPaymentStatusStringType>();
-			Map(x => x.OrderAddressType).Column("order_address_type")
-				.CustomType<OrderAddressTypeStringType>();
+			Map(x => x.DriverCallType).Column("driver_call_type");
+			Map(x => x.OrderSource).Column("order_source");
+			Map(x => x.OrderPaymentStatus).Column("order_payment_status");
+			Map(x => x.OrderAddressType).Column("order_address_type");
+			Map(x => x.CallBeforeArrivalMinutes).Column("call_before_arrival_minutes");
 
 			References(x => x.Client).Column("client_id");
 			References(x => x.Contract).Column("counterparty_contract_id").Cascade.SaveUpdate();

@@ -15,6 +15,7 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using QS.Dialog.GtkUI.FileDialog;
+using QS.Extensions;
 
 namespace Vodovoz.JournalViewers
 {
@@ -31,7 +32,7 @@ namespace Vodovoz.JournalViewers
 			IEmployeeJournalFactory employeeJournalFactory,
 			IDeliveryPointRepository deliveryPointRepository)
 		{
-			this.Build();
+			Build();
 
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_deliveryPointRepository = deliveryPointRepository ?? throw new ArgumentNullException(nameof(deliveryPointRepository));
@@ -52,17 +53,21 @@ namespace Vodovoz.JournalViewers
 			_callTasksVm.ItemsListUpdated += (sender, e) => UpdateStatistics();
 			_callTasksVm.Filter =
 				new CallTaskFilterViewModel(_employeeJournalFactory, _deliveryPointRepository);
-			_callTasksVm.PropertyChanged += CreateCallTaskFilterView;
+			_callTasksVm.PropertyChanged += ReCreateCallTaskFilterView;
 			representationtreeviewTask.RepresentationModel = _callTasksVm;
 			buttonExport.Clicked += (sender, args) => Export();
-			CreateCallTaskFilterView(_callTasksVm.Filter, EventArgs.Empty);
+			CreateCallTaskFilterView();
 			UpdateStatistics();
 		}
 
-		private void CreateCallTaskFilterView(object sender, EventArgs e)
+		private void ReCreateCallTaskFilterView(object sender, EventArgs e)
 		{
 			_callTaskFilterView?.Destroy();
-
+			CreateCallTaskFilterView();
+		}
+		
+		private void CreateCallTaskFilterView()
+		{
 			_callTaskFilterView = new CallTaskFilterView(_callTasksVm.Filter);
 			hboxTasksFilter.Add(_callTaskFilterView);
 		}
@@ -234,5 +239,29 @@ namespace Vodovoz.JournalViewers
 		}
 
 		#endregion
+
+		public override void Destroy()
+		{
+			DisposePixbufs();
+			
+			taskStatusComboBox.Destroy();
+			_callTaskFilterView?.Destroy();
+			hboxStatistics.Children.OfType<Widget>().ToList().ForEach(x => x.Destroy());
+			base.Destroy();
+		}
+
+		private void DisposePixbufs()
+		{
+			var addImage = buttonAdd.Image as Image;
+			addImage.DisposeImagePixbuf();
+			var editImage = buttonEdit.Image as Image;
+			editImage.DisposeImagePixbuf();
+			var deleteImage = buttonDelete.Image as Image;
+			deleteImage.DisposeImagePixbuf();
+			var refreshImage = buttonRefresh.Image as Image;
+			refreshImage.DisposeImagePixbuf();
+			var completedTasksImage = buttonCompleteSelected.Image as Image;
+			completedTasksImage.DisposeImagePixbuf();
+		}
 	}
 }

@@ -1,23 +1,11 @@
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
-using Vodovoz.Core.DataService;
-using QS.Navigation;
 using Vodovoz.Domain.Employees;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.EntityRepositories.Stock;
-using Vodovoz.EntityRepositories.Store;
-using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
-using Vodovoz.ViewModels.Journals.JournalFactories;
-using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
-using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.TempAdapters
 {
@@ -25,58 +13,24 @@ namespace Vodovoz.TempAdapters
 	{
 		private readonly INavigationManager _navigationManager;
 		private EmployeeFilterViewModel _employeeJournalFilter;
-		private IAuthorizationServiceFactory _authorizationServiceFactory;
-		private IEmployeeWageParametersFactory _employeeWageParametersFactory;
-		private IEmployeeJournalFactory _employeeJournalFactory;
-		private ISubdivisionJournalFactory _subdivisionJournalFactory;
-		private IEmployeePostsJournalFactory _employeePostsJournalFactory;
-		private ICashDistributionCommonOrganisationProvider _cashDistributionCommonOrganisationProvider;
-		private ISubdivisionParametersProvider _subdivisionParametersProvider;
-		private IWageCalculationRepository _wageCalculationRepository;
-		private IEmployeeRepository _employeeRepository;
-		private IValidationContextFactory _validationContextFactory;
-		private IPhonesViewModelFactory _phonesViewModelFactory;
-		private IWarehouseRepository _warehouseRepository;
-		private IRouteListRepository _routeListRepository;
-		private IAttachmentsViewModelFactory _attachmentsViewModelFactory;
+		private readonly IAuthorizationServiceFactory _authorizationServiceFactory;
 
-		public EmployeeJournalFactory(EmployeeFilterViewModel employeeJournalFilter = null)
+		public EmployeeJournalFactory(INavigationManager navigationManager, EmployeeFilterViewModel employeeJournalFilter = null)
 		{
+			_navigationManager = navigationManager ?? throw new System.ArgumentNullException(nameof(navigationManager));
 			_employeeJournalFilter = employeeJournalFilter;
-
 			_authorizationServiceFactory = new AuthorizationServiceFactory();
-			_employeeWageParametersFactory = new EmployeeWageParametersFactory();
-			_employeeJournalFactory = this;
-			_subdivisionJournalFactory = new SubdivisionJournalFactory();
-			_employeePostsJournalFactory = new EmployeePostsJournalFactory();
-			_validationContextFactory = new ValidationContextFactory();
-			_phonesViewModelFactory = new PhonesViewModelFactory(new PhoneRepository());
-			_attachmentsViewModelFactory = new AttachmentsViewModelFactory();
-			_navigationManager = Startup.MainWin.NavigationManager;
-		}
-
-		private void CreateNewDependencies()
-		{
-			_cashDistributionCommonOrganisationProvider =
-				new CashDistributionCommonOrganisationProvider(new OrganizationParametersProvider(new ParametersProvider()));
-
-			_subdivisionParametersProvider = new SubdivisionParametersProvider(new ParametersProvider());
-			_wageCalculationRepository = new WageCalculationRepository();
-			_employeeRepository = new EmployeeRepository();
-			_warehouseRepository = new WarehouseRepository();
-			_routeListRepository = new RouteListRepository(new StockRepository(), new BaseParametersProvider(new ParametersProvider()));
 		}
 
 		public EmployeesJournalViewModel CreateEmployeesJournal(EmployeeFilterViewModel filterViewModel = null)
 		{
-			CreateNewDependencies();
-
 			return new EmployeesJournalViewModel(
 				filterViewModel ?? _employeeJournalFilter ?? new EmployeeFilterViewModel(),
 				_authorizationServiceFactory,
 				ServicesConfig.CommonServices,
 				UnitOfWorkFactory.GetDefaultFactory,
-				Startup.AppDIContainer
+				Startup.AppDIContainer,
+				Startup.MainWin.NavigationManager
 			);
 		}
 
@@ -87,8 +41,6 @@ namespace Vodovoz.TempAdapters
 		
 		public IEntityAutocompleteSelectorFactory CreateEmployeeAutocompleteSelectorFactory()
 		{
-			CreateNewDependencies();
-			
 			return new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(
 				typeof(Employee),
 				() => CreateEmployeesJournal()
@@ -105,8 +57,6 @@ namespace Vodovoz.TempAdapters
 		
 		public EmployeesJournalViewModel CreateWorkingDriverEmployeeJournal()
 		{
-			CreateNewDependencies();
-			
 			var driverFilter = new EmployeeFilterViewModel
 			{
 				HidenByDefault = true,
@@ -121,8 +71,6 @@ namespace Vodovoz.TempAdapters
 
 		public IEntityAutocompleteSelectorFactory CreateWorkingOfficeEmployeeAutocompleteSelectorFactory()
 		{
-			CreateNewDependencies();
-			
 			return new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(
 				typeof(Employee),
 				() =>
@@ -143,8 +91,6 @@ namespace Vodovoz.TempAdapters
 
 		public IEntityAutocompleteSelectorFactory CreateWorkingEmployeeAutocompleteSelectorFactory()
 		{
-			CreateNewDependencies();
-
 			return new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(
 				typeof(Employee),
 				() =>
@@ -160,7 +106,8 @@ namespace Vodovoz.TempAdapters
 						_authorizationServiceFactory,
 						ServicesConfig.CommonServices,
 						UnitOfWorkFactory.GetDefaultFactory,
-						Startup.AppDIContainer
+						Startup.AppDIContainer,
+						Startup.MainWin.NavigationManager
 					);
 				}
 			);
@@ -176,8 +123,6 @@ namespace Vodovoz.TempAdapters
 
 		public EmployeesJournalViewModel CreateWorkingForwarderEmployeeJournal()
 		{
-			CreateNewDependencies();
-			
 			var forwarderFilter = new EmployeeFilterViewModel
 			{
 				HidenByDefault = true,

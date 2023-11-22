@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using Vodovoz.Domain.Documents;
 using Vodovoz.ViewModels.Journals.JournalNodes.Store;
 using Gamma.Utilities;
 using Vodovoz.Domain.Documents.MovementDocuments;
+using Vodovoz.Domain.Goods;
+using Vodovoz.Presentation.ViewModels.Common;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 {
@@ -12,8 +15,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 	{
 		private readonly List<WarehouseDocumentsItemsJournalNode> _rows = new List<WarehouseDocumentsItemsJournalNode>();
 
-		private WarehouseDocumentsItemsJournalReport(
-			DateTime? startDate,
+		private WarehouseDocumentsItemsJournalReport(DateTime? startDate,
 			DateTime? endDate,
 			DocumentType? documentType,
 			MovementDocumentStatus? movementDocumentStatus,
@@ -25,7 +27,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			TargetSource? targetSource,
 			string counterparties,
 			string warhouses,
-			IEnumerable<WarehouseDocumentsItemsJournalNode> rows)
+			IEnumerable<WarehouseDocumentsItemsJournalNode> rows,
+			IncludeExludeFiltersViewModel includeExcludeFilterViewModel)
 		{
 			StartDate = startDate;
 			EndDate = endDate;
@@ -39,6 +42,17 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			TargetSource = targetSource;
 			Counterparties = counterparties;
 			Warhouses = warhouses;
+
+			var nomenclatureElementsIncluded = includeExcludeFilterViewModel.GetIncludedElements<Nomenclature>().ToArray();
+			var nomenclatureElementsExcluded = includeExcludeFilterViewModel.GetExcludedElements<Nomenclature>().ToArray();
+			var productGroupElementsIncluded = includeExcludeFilterViewModel.GetIncludedElements<ProductGroup>().ToArray();
+			var productGroupElementsExcluded = includeExcludeFilterViewModel.GetExcludedElements<ProductGroup>().ToArray();
+
+			NomenclaturesIncluded = nomenclatureElementsIncluded.Length > 5 ? $"{nomenclatureElementsIncluded.Length} шт." : string.Join(", ", nomenclatureElementsIncluded.Select(x => x.Title));
+			NomenclaturesExcluded = nomenclatureElementsExcluded.Length > 5 ? $"{nomenclatureElementsExcluded.Length} шт." : string.Join(", ", nomenclatureElementsExcluded.Select(x => x.Title));
+			ProductGroupsIncluded = productGroupElementsIncluded.Length > 5 ? $"{productGroupElementsIncluded.Length} шт." : string.Join(", ", productGroupElementsIncluded.Select(x => x.Title));
+			ProductGroupsExcluded = productGroupElementsExcluded.Length > 5 ? $"{productGroupElementsExcluded.Length} шт." : string.Join(", ", productGroupElementsExcluded.Select(x => x.Title));
+
 			_rows.AddRange(rows);
 		}
 
@@ -58,11 +72,15 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		public string TargetSourceString => TargetSource?.GetEnumTitle() ?? string.Empty;
 		public string Counterparties { get; }
 		public string Warhouses { get; }
+		public string NomenclaturesIncluded { get; }
+		public string NomenclaturesExcluded { get; }
+		public string ProductGroupsIncluded { get; }
+		public string ProductGroupsExcluded { get; }
+		
 
 		public ReadOnlyCollection<WarehouseDocumentsItemsJournalNode> Rows => _rows.AsReadOnly();
 
-		public static WarehouseDocumentsItemsJournalReport Create(
-			DateTime? startDate,
+		public static WarehouseDocumentsItemsJournalReport Create(DateTime? startDate,
 			DateTime? endDate,
 			DocumentType? documentType,
 			MovementDocumentStatus? movementDocumentStatus,
@@ -74,7 +92,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			TargetSource? targetSource,
 			string counterparties,
 			string warhouses,
-			IEnumerable<WarehouseDocumentsItemsJournalNode> rows)
+			IEnumerable<WarehouseDocumentsItemsJournalNode> rows,
+			IncludeExludeFiltersViewModel includeExcludeFilterViewModel)
 		{
 			return new WarehouseDocumentsItemsJournalReport(
 				startDate,
@@ -89,7 +108,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 				targetSource,
 				counterparties,
 				warhouses,
-				rows);
+				rows,
+				includeExcludeFilterViewModel);
 		}
 	}
 }

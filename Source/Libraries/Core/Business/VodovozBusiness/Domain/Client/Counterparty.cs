@@ -156,6 +156,7 @@ namespace Vodovoz.Domain.Client
 		private IList<ISupplierPriceNode> _priceNodes = new List<ISupplierPriceNode>();
 		private GenericObservableList<ISupplierPriceNode> _observablePriceNodes;
 		private CounterpartySubtype _counterpartySubtype;
+		private bool _isLiquidating;
 
 		#region Свойства
 
@@ -329,6 +330,13 @@ namespace Vodovoz.Domain.Client
 		{
 			get => _kPP;
 			set => SetField(ref _kPP, value);
+		}
+
+		[Display(Name = "Контрагент в статусе ликвидации")]
+		public virtual bool IsLiquidating
+		{
+			get => _isLiquidating;
+			set => SetField(ref _isLiquidating, value);
 		}
 
 		[Display(Name = "ОГРН")]
@@ -1078,23 +1086,28 @@ namespace Vodovoz.Domain.Client
 			CloseDeliveryComment = currentEmployee.ShortName + " " + DateTime.Now.ToString("dd/MM/yyyy HH:mm") + ": " + newComment;
 		}
 
-		protected virtual bool CloseDelivery(Employee currentEmployee)
+		protected virtual bool ManualCloseDelivery(Employee currentEmployee, bool canOpenCloseDeliveries)
 		{
-			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_deliveries_for_counterparty"))
+			if(!canOpenCloseDeliveries)
 			{
 				return false;
 			}
 
-			IsDeliveriesClosed = true;
-			CloseDeliveryDate = DateTime.Now;
-			CloseDeliveryPerson = currentEmployee;
+			CloseDelivery(currentEmployee);
+
 			return true;
 		}
 
-
-		protected virtual bool OpenDelivery()
+		public virtual void CloseDelivery(Employee currentEmployee)
 		{
-			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_deliveries_for_counterparty"))
+			IsDeliveriesClosed = true;
+			CloseDeliveryDate = DateTime.Now;
+			CloseDeliveryPerson = currentEmployee;
+		}
+
+		protected virtual bool OpenDelivery(bool canOpenCloseDeliveries)
+		{
+			if(!canOpenCloseDeliveries)
 			{
 				return false;
 			}
@@ -1107,9 +1120,9 @@ namespace Vodovoz.Domain.Client
 			return true;
 		}
 
-		public virtual bool ToggleDeliveryOption(Employee currentEmployee)
+		public virtual bool ToggleDeliveryOption(Employee currentEmployee, bool canOpenCloseDeliveries)
 		{
-			return IsDeliveriesClosed ? OpenDelivery() : CloseDelivery(currentEmployee);
+			return IsDeliveriesClosed ? OpenDelivery(canOpenCloseDeliveries) : ManualCloseDelivery(currentEmployee, canOpenCloseDeliveries);
 		}
 
 		public virtual string GetCloseDeliveryInfo()

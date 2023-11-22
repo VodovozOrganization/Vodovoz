@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.GtkWidgets;
 using Gtk;
 using QS.Dialog;
@@ -17,12 +17,13 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using Microsoft.Extensions.Logging;
+using System.Threading;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.EntityFactories;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -37,17 +38,19 @@ using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
-using Vodovoz.Settings.Database;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz
 {
@@ -113,6 +116,16 @@ namespace Vodovoz
 
 		#region Поля и свойства
 
+		private readonly ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+		private ICounterpartyService _counterpartyService;
+
+		private readonly IEmployeeService _employeeService = VodovozGtkServicesConfig.EmployeeService;
+		private readonly IUserRepository _userRepository = new UserRepository();
+
+		private Employee _currentEmployee;
+
+		private Counterparty _lastCounterparty = null;
+
 		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
 		private static readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider =
 			new DeliveryRulesParametersProvider(_parametersProvider);
@@ -165,6 +178,7 @@ namespace Vodovoz
 		public OrderReturnsView(RouteListItem routeListItem, IUnitOfWork uow)
 		{
 			Build();
+
 			_routeListItem = routeListItem;
 			TabName = "Изменение заказа №" + routeListItem.Order.Id;
 
@@ -179,6 +193,9 @@ namespace Vodovoz
 			_discountsController = new OrderDiscountsController(_nomenclatureFixedPriceProvider);
 			UpdateButtonsState();
 		}
+
+		public bool CanFormOrderWithLiquidatedCounterparty { get; } = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
+			Vodovoz.Permissions.Order.CanFormOrderWithLiquidatedCounterparty);
 
 		private void UpdateListsSentivity()
 		{
@@ -213,23 +230,12 @@ namespace Vodovoz
 				x => x.RestrictArchive = false
 			);
 
-			NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
-				nomenclatureFilter,
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices,
-				new EmployeeService(),
-				new NomenclatureJournalFactory(),
-				new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
-				_nomenclatureRepository,
-				new UserRepository(),
-				_nomenclatureOnlineParametersProvider
-			) {
-				SelectionMode = JournalSelectionMode.Single
-			};
+			var journalViewModel = Startup.MainWin.NavigationManager.OpenViewModelOnTdi<NomenclaturesJournalViewModel>(this, OpenPageOptions.AsSlave).ViewModel;
+
+			journalViewModel.SelectionMode = JournalSelectionMode.Single;
 			journalViewModel.TabName = "Номенклатура на продажу";
 			journalViewModel.CalculateQuantityOnStock = true;
 			journalViewModel.OnEntitySelectedResult += OnNomenclatureSelected;
-			TabParent.AddSlaveTab(this, journalViewModel);
 		}
 
 		private void OnNomenclatureSelected(object sender, JournalSelectedNodesEventArgs e)
@@ -284,6 +290,13 @@ namespace Vodovoz
 
 		protected void Configure()
 		{
+			if(_currentEmployee == null)
+			{
+				_currentEmployee = _employeeService.GetEmployeeForUser(UoW, _userRepository.GetCurrentUser(UoW).Id);
+			}
+
+			_counterpartyService = _lifetimeScope.Resolve<ICounterpartyService>();
+
 			_nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 			_nomenclatureFixedPriceProvider =
 				new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory());
@@ -332,7 +345,7 @@ namespace Vodovoz
 				.AddColumn("Скидка")
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.ManualChangingDiscount)
-						.AddSetter((cell, node) => cell.Editable =  _canEditPrices)
+						.AddSetter((cell, node) => cell.Editable = _canEditPrices)
 						.AddSetter(
 							(c, n) => c.Adjustment = n.IsDiscountInMoney
 								? new Adjustment(0, 0, (double)(n.Price * n.ActualCount), 1, 100, 1)
@@ -355,12 +368,12 @@ namespace Vodovoz
 							return list;
 						})
 						.EditedEvent(OnDiscountReasonComboEdited)
-						.AddSetter((c, n) => c.Editable =  _canEditPrices)
+						.AddSetter((c, n) => c.Editable = _canEditPrices)
 						.AddSetter(
 							(c, n) =>
 								c.BackgroundGdk = n.Discount > 0 && n.DiscountReason == null && n.OrderItem?.PromoSet == null
-									? new Gdk.Color(0xff, 0x66, 0x66)
-									: new Gdk.Color(0xff, 0xff, 0xff)
+									? GdkColors.DangerBase
+									: GdkColors.PrimaryBase
 						)
 						.AddSetter((c, n) =>
 							{
@@ -434,7 +447,7 @@ namespace Vodovoz
 
 			var previousDiscountReason = orderItemNode.OrderItem.DiscountReason;
 			
-			Application.Invoke((sender, eventArgs) =>
+			Gtk.Application.Invoke((sender, eventArgs) =>
 			{
 				//Дополнительно проверяем основание скидки на null, т.к при двойном щелчке
 				//комбо-бокс не откроется, но событие сработает и прилетит null
@@ -450,7 +463,7 @@ namespace Vodovoz
 					{
 						ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
 							$"На позицию:\n№{index + 1} {message}нельзя применить скидку," +
-							" т.к. она из промо-набора или на нее есть фикса.\nОбратитесь к руководителю");
+							" т.к. она из промонабора или на нее есть фикса.\nОбратитесь к руководителю");
 					}
 				}
 			});
@@ -496,8 +509,10 @@ namespace Vodovoz
 			{
 				Counterparty = client
 			};
-			entityVMEntryDeliveryPoint.SetEntityAutocompleteSelectorFactory(new DeliveryPointJournalFactory(deliveryPointFilter)
-				.CreateDeliveryPointByClientAutocompleteSelectorFactory());
+
+			var deliveryPointJournalFactory = _lifetimeScope.Resolve<IDeliveryPointJournalFactory>();
+			deliveryPointJournalFactory.SetDeliveryPointJournalFilterViewModel(deliveryPointFilter);
+			entityVMEntryDeliveryPoint.SetEntityAutocompleteSelectorFactory(deliveryPointJournalFactory.CreateDeliveryPointByClientAutocompleteSelectorFactory());
 			entityVMEntryDeliveryPoint.Binding.AddBinding(_orderNode, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
 		}
 
@@ -511,7 +526,14 @@ namespace Vodovoz
 				_routeListItem.SetOrderActualCountsToZeroOnCanceled();
 				_routeListItem.BottlesReturned = 0;
 				UpdateButtonsState();
-				OnCloseTab(false);
+
+				if(ea.NeedClose)
+				{
+					OnCloseTab(false);
+				}
+
+				UoW.Save(_routeListItem);
+				UoW.Commit();
 			};
 		}
 
@@ -525,7 +547,14 @@ namespace Vodovoz
 				_routeListItem.SetOrderActualCountsToZeroOnCanceled();
 				_routeListItem.BottlesReturned = 0;
 				UpdateButtonsState();
-				OnCloseTab(false);
+
+				if(ea.NeedClose)
+				{
+					OnCloseTab(false);
+				}
+
+				UoW.Save(_routeListItem);
+				UoW.Commit();
 			};
 		}
 
@@ -580,6 +609,36 @@ namespace Vodovoz
 
 		protected void OnClientEntryViewModelChangedByUser(object sender, EventArgs e)
 		{
+			if(!(clientEntry.ViewModel.Entity is Counterparty counterparty))
+			{
+				return;
+			}
+
+			var cts = new CancellationTokenSource();
+
+			try
+			{
+				_counterpartyService.StopShipmentsIfNeeded(counterparty.Id, _currentEmployee.Id, cts.Token).GetAwaiter().GetResult();
+			}
+			catch(Exception)
+			{
+			}
+
+			if(counterparty.IsLiquidating)
+			{
+				if(!CanFormOrderWithLiquidatedCounterparty)
+				{
+					clientEntry.ViewModel.Entity = null;
+					MessageDialogHelper.RunWarningDialog("Нет прав для выбора ликвидированного контрагента!");
+					clientEntry.ViewModel.Entity = _lastCounterparty;
+					return;
+				}
+
+				MessageDialogHelper.RunWarningDialog("Контрагент в статусе ликвидации!");
+			}
+
+			_lastCounterparty = clientEntry.ViewModel.Entity as Counterparty;
+
 			ConfigureDeliveryPointRefference(clientEntry.ViewModel.Entity as Counterparty);
 			_orderNode.DeliveryPoint = null;
 

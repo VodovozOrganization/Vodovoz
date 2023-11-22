@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
@@ -20,6 +20,7 @@ using Vodovoz.FilterViewModels.Suppliers;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Suppliers;
 
@@ -32,6 +33,7 @@ namespace Vodovoz.JournalViewModels.Suppliers
 		private readonly IEmployeeService employeeService;
 		private readonly INomenclatureRepository nomenclatureRepository;
 		private readonly IUserRepository userRepository;
+		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly INomenclatureOnlineParametersProvider _nomenclatureOnlineParametersProvider;
 		private readonly ICounterpartyJournalFactory counterpartySelectorFactory;
 		private readonly INomenclatureJournalFactory nomenclatureSelectorFactory;
@@ -46,12 +48,13 @@ namespace Vodovoz.JournalViewModels.Suppliers
 			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
-			INomenclatureOnlineParametersProvider nomenclatureOnlineParametersProvider
+			INomenclatureSettings nomenclatureSettings
 		) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_nomenclatureOnlineParametersProvider =
 				nomenclatureOnlineParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureOnlineParametersProvider));
 			this.supplierPriceItemsRepository = supplierPriceItemsRepository ?? throw new ArgumentNullException(nameof(supplierPriceItemsRepository));
@@ -180,7 +183,7 @@ namespace Vodovoz.JournalViewModels.Suppliers
 			nomenclatureSelectorFactory,
 			nomenclatureRepository,
 			userRepository,
-			_nomenclatureOnlineParametersProvider
+			_nomenclatureSettings
 		);
 
 		protected override Func<RequestToSupplierJournalNode, RequestToSupplierViewModel> OpenDialogFunction => n => new RequestToSupplierViewModel(
@@ -193,7 +196,7 @@ namespace Vodovoz.JournalViewModels.Suppliers
 			nomenclatureSelectorFactory,
 			nomenclatureRepository,
 			userRepository,
-			_nomenclatureOnlineParametersProvider
+			_nomenclatureSettings
 		);
 
 		protected override void CreatePopupActions()
@@ -218,7 +221,7 @@ namespace Vodovoz.JournalViewModels.Suppliers
 								nomenclatureSelectorFactory,
 								nomenclatureRepository,
 								userRepository,
-								_nomenclatureOnlineParametersProvider
+								_nomenclatureSettings
 							);
 							newRequestVM.Entity.Name = currentRequest.Name;
 							newRequestVM.Entity.WithDelayOnly = currentRequest.WithDelayOnly;

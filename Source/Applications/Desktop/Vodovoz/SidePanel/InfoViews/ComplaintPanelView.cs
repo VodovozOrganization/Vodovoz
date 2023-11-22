@@ -16,7 +16,9 @@ using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Complaints.ComplaintResults;
+using Vodovoz.Extensions;
 using Vodovoz.FilterViewModels;
+using Vodovoz.Infrastructure;
 using Vodovoz.Parameters;
 using Vodovoz.SidePanel.InfoProviders;
 using static Vodovoz.FilterViewModels.ComplaintFilterViewModel;
@@ -29,12 +31,18 @@ namespace Vodovoz.SidePanel.InfoViews
 		private readonly IComplaintsRepository complaintsRepository;
 		private readonly IComplaintResultsRepository _complaintResultsRepository;
 		private readonly ComplaintParametersProvider _complaintParametersProvider;
+		private readonly Gdk.Color _primaryBg = GdkColors.PrimaryBase;
+		private readonly Gdk.Color _secondaryBg = GdkColors.PrimaryBG;
+		private readonly Gdk.Color _red = GdkColors.DangerText;
+		private readonly string _primaryTextHtmlColor = GdkColors.PrimaryText.ToHtmlColor();
+		private readonly string _redTextHtmlColor = GdkColors.DangerText.ToHtmlColor();
 
 		public ComplaintPanelView(IComplaintsRepository complaintsRepository, IComplaintResultsRepository complaintResultsRepository, ComplaintParametersProvider complaintParametersProvider)
 		{
 			this.complaintsRepository = complaintsRepository ?? throw new ArgumentNullException(nameof(complaintsRepository));
 			_complaintResultsRepository = complaintResultsRepository ?? throw new ArgumentNullException(nameof(complaintResultsRepository));
 			_complaintParametersProvider = complaintParametersProvider ?? throw new ArgumentNullException(nameof(complaintParametersProvider));
+
 			Build();
 			ConfigureWidget();
 		}
@@ -100,19 +108,15 @@ namespace Vodovoz.SidePanel.InfoViews
 		private Gdk.Color GetColor(object node)
 		{
 			if(node is ComplaintGuiltyNode) {
-				return gr;
+				return _secondaryBg;
 			}
 			if(node is ComplaintResultNode) {
-				return wh;
+				return _primaryBg;
 			}
-			return red;
+			return _red;
 		}
 
 		#endregion
-
-		Gdk.Color wh = new Gdk.Color(255, 255, 255);
-		Gdk.Color gr = new Gdk.Color(230, 230, 230);
-		Gdk.Color red = new Gdk.Color(255, 0, 0);
 
 		DateTime? StartDate { get; set; }
 		DateTime? EndDate { get; set; }
@@ -145,7 +149,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			var resultsOfEmployees =
 				_complaintResultsRepository.GetComplaintsResultsOfEmployees(InfoProvider.UoW, StartDate, EndDate);
 
-			Application.Invoke((s, args) =>
+			Gtk.Application.Invoke((s, args) =>
 				DrawRefreshed(totalCount, overdueCount, levels, resultsOfCounterparty, resultsOfEmployees));
 		}
 
@@ -163,7 +167,7 @@ namespace Vodovoz.SidePanel.InfoViews
 				"<b>Не закрыто <span foreground='{2}'>{0}</span> рекламаций,\nиз них просрочено <span foreground='{2}'>{1}</span> шт.</b>",
 				totalCount,
 				overdueCount,
-				totalCount >= 0 ? "red" : "black"
+				totalCount >= 0 ? _redTextHtmlColor : _primaryTextHtmlColor
 			);
 
 			yTreeView.YTreeModel = new LevelTreeModel<ComplaintGuiltyNode>(guilties, levels);

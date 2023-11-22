@@ -184,7 +184,7 @@ namespace Vodovoz.Views.Warehouse
 					.AddSetter((w, x) => w.Digits = (x.Nomenclature.Unit != null ? (uint)x.Nomenclature.Unit.Digits : 1))
 				.AddColumn("Разница")
 					.AddTextRenderer(x => x.Difference != 0 && x.Nomenclature.Unit != null ? x.Nomenclature.Unit.MakeAmountShortStr(x.Difference) : String.Empty)
-					.AddSetter((w, x) => w.Foreground = x.Difference < 0 ? "red" : "blue")
+					.AddSetter((w, x) => w.ForegroundGdk = x.Difference < 0 ? GdkColors.DangerText : GdkColors.InfoText)
 				.AddColumn("Сумма ущерба")
 					.AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.SumOfDamage))
 				.AddColumn("Штраф")
@@ -195,10 +195,10 @@ namespace Vodovoz.Views.Warehouse
 				.RowCells()
 				.AddSetter<CellRenderer>((cell, node) =>
 				{
-					var color = GdkColors.WhiteColor;
+					var color = GdkColors.PrimaryBase;
 					if(ViewModel.NomenclaturesWithDiscrepancies.Any(x => x.Id == node.Nomenclature.Id))
 					{
-						color = new Color(255, 125, 125);
+						color = GdkColors.Pink;
 					}
 					cell.CellBackgroundGdk = color;
 				})
@@ -283,7 +283,7 @@ namespace Vodovoz.Views.Warehouse
 						x.Difference != 0 && x.InventoryNomenclatureInstance.Nomenclature.Unit != null
 							? x.InventoryNomenclatureInstance.Nomenclature.Unit.MakeAmountShortStr(x.Difference)
 							: string.Empty)
-					.AddSetter((w, x) => w.Foreground = x.Difference < 0 ? "red" : "blue")
+					.AddSetter((w, x) => w.ForegroundGdk = x.Difference < 0 ? GdkColors.DangerText : GdkColors.InfoText)
 				.AddColumn("Сумма ущерба")
 					.AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.SumOfDamage))
 				.AddColumn("Штраф")
@@ -294,10 +294,10 @@ namespace Vodovoz.Views.Warehouse
 				.RowCells()
 				.AddSetter<CellRenderer>((cell, node) =>
 				{
-					var color = GdkColors.WhiteColor;
+					var color = GdkColors.PrimaryBase;
 					if(node.IsMissing && node.AmountInDB > 0)
 					{
-						color = new Color(255, 125, 125);
+						color = GdkColors.Pink;
 					}
 					cell.CellBackgroundGdk = color;
 				})

@@ -428,7 +428,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			var completedSubquery = QueryOver.Of<RouteListItem>()
 				.Where(i => i.RouteList.Id == routeListAlias.Id)
-				.Where(i => i.Status != RouteListItemStatus.EnRoute);
+				.Where(i => i.Status != RouteListItemStatus.EnRoute)
+				.Where(i => i.Status != RouteListItemStatus.Transfered);
 
 			if(ShowHistory)
 			{
@@ -439,7 +440,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			completedSubquery.Select(Projections.RowCount());
 
 			var addressesSubquery = QueryOver.Of<RouteListItem>()
-				.Where(i => i.RouteList.Id == routeListAlias.Id);
+				.Where(i => i.RouteList.Id == routeListAlias.Id)
+				.Where(i => i.Status != RouteListItemStatus.Transfered);
 
 			if(ShowHistory)
 			{
@@ -637,13 +639,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			for(var i = 0; i < driversNodes.Count; i++)
 			{
 				savedRow = driversNodes[i].First();
-				savedRow.RouteListsText =
-					string.Join("; ", driversNodes[i].Select(x => x.TrackId != null
-						? x.LastTrackPointTime >= disconnectedDateTime
-							? $"<span foreground=\"green\"><b>{x.RouteListNumber}</b></span>"
-							: $"<span foreground=\"blue\"><b>{x.RouteListNumber}</b></span>"
-						: x.RouteListNumber.ToString()));
+
 				savedRow.RouteListsIds = driversNodes[i].ToDictionary(x => x.RouteListNumber, x => x.TrackId);
+				savedRow.RouteListsOnlineState = driversNodes[i]
+					.Select(x => (x.RouteListNumber, Online: x.TrackId != null
+						&& x.LastTrackPointTime >= disconnectedDateTime))
+					.ToDictionary(x => x.RouteListNumber, x => x.Online);
 				savedRow.AddressesAll = driversNodes[i].Sum(x => x.AddressesAll);
 				savedRow.AddressesCompleted = driversNodes[i].Sum(x => x.AddressesCompleted);
 				savedRow.Water19LReserve = driversNodes[i].Sum(x => x.Water19LReserve);
@@ -858,6 +859,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public Dictionary<int, int?> RouteListsIds;
 
+		public Dictionary<int, bool> RouteListsOnlineState;
+
 		public int AddressesCompleted { get; set; }
 
 		public int AddressesAll { get; set; }
@@ -872,11 +875,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			set
 			{
 				_routeListNumber = value;
-				RouteListsText = value.ToString();
 			}
 		}
-
-		public string RouteListsText { get; set; }
 
 		public decimal? FastDeliveryMaxDistance { get; set; }
 

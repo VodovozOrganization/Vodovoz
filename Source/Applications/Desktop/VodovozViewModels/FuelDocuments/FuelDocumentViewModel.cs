@@ -1,4 +1,5 @@
-﻿using QS.Commands;
+﻿using Autofac;
+using QS.Commands;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -47,6 +48,226 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		private bool _canOpenExpense;
 		private decimal _fuelBalance;
 		private decimal _fuelOutlayed;
+
+
+		#region ctor
+
+		/// <summary>
+		/// Открывает диалог выдачи топлива, с коммитом изменений в родительском UoW
+		/// </summary>
+		public FuelDocumentViewModel
+		(
+			IUnitOfWork uow,
+			RouteList rl,
+			ICommonServices commonServices,
+			ISubdivisionRepository subdivisionsRepository,
+			IEmployeeRepository employeeRepository,
+			IFuelRepository fuelRepository,
+			INavigationManager navigationManager,
+			ITrackRepository trackRepository,
+			IEmployeeJournalFactory employeeJournalFactory,
+			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
+			ICarJournalFactory carJournalFactory,
+			ILifetimeScope lifetimeScope) : base(commonServices?.InteractiveService, navigationManager)
+		{
+			if(lifetimeScope is null)
+			{
+				throw new ArgumentNullException(nameof(lifetimeScope));
+			}
+
+			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			SubdivisionsRepository = subdivisionsRepository ?? throw new ArgumentNullException(nameof(subdivisionsRepository));
+			FuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
+			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
+			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings ?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
+			EmployeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			EmployeeAutocompleteSelector =
+				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
+				.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
+			CarAutocompleteSelector =
+				(carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory)))
+				.CreateCarAutocompleteSelectorFactory(lifetimeScope);
+
+			UoW = uow;
+			FuelDocument = new FuelDocument();
+			FuelDocument.UoW = UoW;
+			_autoCommit = false;
+			RouteList = rl;
+
+			Configure();
+		}
+
+		public FuelDocumentViewModel
+		(
+			IUnitOfWork uow,
+			FuelDocument fuelDocument,
+			ICommonServices commonServices,
+			ISubdivisionRepository subdivisionsRepository,
+			IEmployeeRepository employeeRepository,
+			IFuelRepository fuelRepository,
+			INavigationManager navigationManager,
+			ITrackRepository trackRepository,
+			IEmployeeJournalFactory employeeJournalFactory,
+			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
+			ICarJournalFactory carJournalFactory,
+			ILifetimeScope lifetimeScope) : base(commonServices?.InteractiveService, navigationManager)
+		{
+			if(lifetimeScope is null)
+			{
+				throw new ArgumentNullException(nameof(lifetimeScope));
+			}
+
+			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			SubdivisionsRepository = subdivisionsRepository ?? throw new ArgumentNullException(nameof(subdivisionsRepository));
+			FuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
+			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
+			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings ?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
+			EmployeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			EmployeeAutocompleteSelector =
+				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
+				.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
+			CarAutocompleteSelector =
+				(carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory)))
+				.CreateCarAutocompleteSelectorFactory(lifetimeScope);
+
+			UoW = uow;
+			FuelDocument = uow.GetById<FuelDocument>(fuelDocument.Id);
+			FuelDocument.UoW = UoW;
+			_autoCommit = false;
+			RouteList = FuelDocument.RouteList;
+
+			Configure();
+		}
+
+		/// <summary>
+		/// Открывает диалог выдачи топлива, с автоматическим коммитом всех изменений
+		/// </summary>
+		public FuelDocumentViewModel
+		(
+			RouteList rl,
+			ICommonServices commonServices,
+			ISubdivisionRepository subdivisionsRepository,
+			IEmployeeRepository employeeRepository,
+			IFuelRepository fuelRepository,
+			INavigationManager navigationManager,
+			ITrackRepository trackRepository,
+			IEmployeeJournalFactory employeeJournalFactory,
+			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
+			ICarJournalFactory carJournalFactory,
+			ILifetimeScope lifetimeScope) : base(commonServices?.InteractiveService, navigationManager)
+		{
+			if(lifetimeScope is null)
+			{
+				throw new ArgumentNullException(nameof(lifetimeScope));
+			}
+
+			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			SubdivisionsRepository = subdivisionsRepository ?? throw new ArgumentNullException(nameof(subdivisionsRepository));
+			FuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
+			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
+			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings ?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
+			EmployeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			EmployeeAutocompleteSelector =
+				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
+				.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
+			CarAutocompleteSelector =
+				(carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory)))
+				.CreateCarAutocompleteSelectorFactory(lifetimeScope);
+
+			var uow = UnitOfWorkFactory.CreateWithNewRoot<FuelDocument>();
+			UoW = uow;
+			FuelDocument = uow.Root;
+			FuelDocument.UoW = UoW;
+			_autoCommit = true;
+			RouteList = UoW.GetById<RouteList>(rl.Id);
+
+			Configure();
+		}
+		
+		/// <summary>
+		/// Открывает диалог выдачи топлива, с автоматическим коммитом всех изменений
+		/// </summary>
+		public FuelDocumentViewModel
+		(
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IEntityUoWBuilder entityUoWBuilder,
+			ICommonServices commonServices,
+			ISubdivisionRepository subdivisionsRepository,
+			IEmployeeRepository employeeRepository,
+			IFuelRepository fuelRepository,
+			INavigationManager navigationManager,
+			ITrackRepository trackRepository,
+			IEmployeeJournalFactory employeeJournalFactory,
+			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
+			ICarJournalFactory carJournalFactory,
+			ILifetimeScope lifetimeScope)
+			: base(commonServices?.InteractiveService, navigationManager)
+		{
+			if(lifetimeScope is null)
+			{
+				throw new ArgumentNullException(nameof(lifetimeScope));
+			}
+
+			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			SubdivisionsRepository = subdivisionsRepository ?? throw new ArgumentNullException(nameof(subdivisionsRepository));
+			FuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
+			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
+			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings ?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
+			EmployeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			EmployeeAutocompleteSelector =
+				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
+				.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
+			CarAutocompleteSelector =
+				(carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory)))
+				.CreateCarAutocompleteSelectorFactory(lifetimeScope);
+
+			var uow = entityUoWBuilder.CreateUoW<FuelDocument>(unitOfWorkFactory);
+			UoW = uow;
+			FuelDocument = uow.Root;
+			FuelDocument.UoW = UoW;
+			_autoCommit = true;
+
+			TabName = "Выдача топлива";
+
+			if(!InitActualCashier())
+			{
+				AbortOpening();
+				return;
+			}
+
+			_fuelCashOrganisationDistributor = new FuelCashOrganisationDistributor(_commonOrganisationProvider);
+
+			CreateCommands();
+
+			FuelDocument.PropertyChanged += FuelDocument_PropertyChanged;
+
+			OpenExpenseCommand = new DelegateCommand(OpenExpense);
+		}
+
+		private void Configure()
+		{
+			if(!CarHasFuelType() || !InitActualCashier())
+			{
+				AbortOpening();
+				return;
+			}
+
+			TabName = "Выдача топлива";
+			_fuelCashOrganisationDistributor = new FuelCashOrganisationDistributor(_commonOrganisationProvider);
+			CreateCommands();
+			Track = _trackRepository.GetTrackByRouteListId(UoW, RouteList.Id);
+
+			if(FuelDocument.Id == 0)
+			{
+				FuelDocument.FillEntity(RouteList);
+			}
+
+			FuelDocument.PropertyChanged += FuelDocument_PropertyChanged;
+
+			OpenExpenseCommand = new DelegateCommand(OpenExpense);
+		}
+
+		#endregion ctor
 
 		public virtual IUnitOfWork UoW { get; set; }
 
@@ -148,146 +369,17 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		public IEntityAutocompleteSelectorFactory EmployeeAutocompleteSelector { get; }
 		public IEntityAutocompleteSelectorFactory CarAutocompleteSelector { get; }
 
-		#region ctor
-
-		/// <summary>
-		/// Открывает диалог выдачи топлива, с коммитом изменений в родительском UoW
-		/// </summary>
-		public FuelDocumentViewModel
-		(
-			IUnitOfWork uow,
-			RouteList rl,
-			ICommonServices commonServices,
-			ISubdivisionRepository subdivisionsRepository,
-			IEmployeeRepository employeeRepository,
-			IFuelRepository fuelRepository,
-			INavigationManager navigationManager,
-			ITrackRepository trackRepository,
-			IEmployeeJournalFactory employeeJournalFactory,
-			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
-			ICarJournalFactory carJournalFactory) : base(commonServices?.InteractiveService, navigationManager)
+		public void SetRouteListById(int routeListId)
 		{
-			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			SubdivisionsRepository = subdivisionsRepository ?? throw new ArgumentNullException(nameof(subdivisionsRepository));
-			FuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
-			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
-			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings ?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
-			EmployeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
-			EmployeeAutocompleteSelector =
-				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
-				.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
-			CarAutocompleteSelector =
-				(carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory)))
-				.CreateCarAutocompleteSelectorFactory();
-
-			UoW = uow;
-			FuelDocument = new FuelDocument();
-			FuelDocument.UoW = UoW;
-			_autoCommit = false;
-			RouteList = rl;
-
-			Configure();
-		}
-
-		public FuelDocumentViewModel
-		(
-			IUnitOfWork uow,
-			FuelDocument fuelDocument,
-			ICommonServices commonServices,
-			ISubdivisionRepository subdivisionsRepository,
-			IEmployeeRepository employeeRepository,
-			IFuelRepository fuelRepository,
-			INavigationManager navigationManager,
-			ITrackRepository trackRepository,
-			IEmployeeJournalFactory employeeJournalFactory,
-			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
-			ICarJournalFactory carJournalFactory) : base(commonServices?.InteractiveService, navigationManager)
-		{
-			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			SubdivisionsRepository = subdivisionsRepository ?? throw new ArgumentNullException(nameof(subdivisionsRepository));
-			FuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
-			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
-			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings ?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
-			EmployeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
-			EmployeeAutocompleteSelector =
-				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
-				.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
-			CarAutocompleteSelector =
-				(carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory)))
-				.CreateCarAutocompleteSelectorFactory();
-
-			UoW = uow;
-			FuelDocument = uow.GetById<FuelDocument>(fuelDocument.Id);
-			FuelDocument.UoW = UoW;
-			_autoCommit = false;
-			RouteList = FuelDocument.RouteList;
-
-			Configure();
-		}
-
-		/// <summary>
-		/// Открывает диалог выдачи топлива, с автоматическим коммитом всех изменений
-		/// </summary>
-		public FuelDocumentViewModel
-		(
-			RouteList rl,
-			ICommonServices commonServices,
-			ISubdivisionRepository subdivisionsRepository,
-			IEmployeeRepository employeeRepository,
-			IFuelRepository fuelRepository,
-			INavigationManager navigationManager,
-			ITrackRepository trackRepository,
-			IEmployeeJournalFactory employeeJournalFactory,
-			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
-			ICarJournalFactory carJournalFactory) : base(commonServices?.InteractiveService, navigationManager)
-		{
-			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			SubdivisionsRepository = subdivisionsRepository ?? throw new ArgumentNullException(nameof(subdivisionsRepository));
-			FuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
-			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
-			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings ?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
-			EmployeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
-			EmployeeAutocompleteSelector =
-				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
-				.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
-			CarAutocompleteSelector =
-				(carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory)))
-				.CreateCarAutocompleteSelectorFactory();
-
-			var uow = UnitOfWorkFactory.CreateWithNewRoot<FuelDocument>();
-			UoW = uow;
-			FuelDocument = uow.Root;
-			FuelDocument.UoW = UoW;
-			_autoCommit = true;
-			RouteList = UoW.GetById<RouteList>(rl.Id);
-
-			Configure();
-		}
-
-		private void Configure()
-		{
-			if(!CarHasFuelType() || !InitActualCashier())
-			{
-				AbortOpening();
-				return;
-			}
-
-			TabName = "Выдача топлива";
-			_fuelCashOrganisationDistributor = new FuelCashOrganisationDistributor(_commonOrganisationProvider);
-			CreateCommands();
+			RouteList = UoW.GetById<RouteList>(routeListId);
 			Track = _trackRepository.GetTrackByRouteListId(UoW, RouteList.Id);
 
-			if(FuelDocument.Id == 0)
+
+			if(UoW.IsNew)
 			{
 				FuelDocument.FillEntity(RouteList);
 			}
-
-			FuelDocument.PropertyChanged += FuelDocument_PropertyChanged;
-
-			OpenExpenseCommand = new DelegateCommand(OpenExpense);
 		}
-
-		#endregion ctor
 
 		private bool InitActualCashier()
 		{

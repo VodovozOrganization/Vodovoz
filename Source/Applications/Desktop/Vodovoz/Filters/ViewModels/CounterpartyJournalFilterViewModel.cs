@@ -1,12 +1,17 @@
-﻿using NHibernate.Transform;
+﻿using Autofac;
+using NHibernate.Transform;
 using QS.Project.Filter;
-using QS.RepresentationModel.GtkUI;
+using QS.Project.Journal;
+using QS.ViewModels.Control.EEVM;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Domain.Retail;
-using Vodovoz.Representations;
+using Vodovoz.EntityRepositories;
+using Vodovoz.ViewModels.Counterparties;
 using Vodovoz.ViewModels.Widgets.Search;
 
 namespace Vodovoz.Filters.ViewModels
@@ -16,7 +21,6 @@ namespace Vodovoz.Filters.ViewModels
 		private CounterpartyType? _counterpartyType;
 		private bool _restrictIncludeArchive;
 		private Tag _tag;
-		private IRepresentationModel _tagVM;
 		private bool? _isForRetail;
 		private string _counterpartyName;
 		private string _deliveryPointPhone;
@@ -28,10 +32,28 @@ namespace Vodovoz.Filters.ViewModels
 		private int? _counterpartyId;
 		private int? _counterpartyVodovozInternalId;
 		private string _counterpartyInn;
+		private bool _showLiquidating;
+		private CounterpartyCompositeClassification? _counterpartyClassification;
+		private JournalViewModelBase _journal;
+		private ClientCameFrom _clientCameFrom;
+		private bool _clientCameFromIsEmpty;
+		private object _selectedCameFrom;
 		private readonly CompositeSearchViewModel _searchByAddressViewModel;
+		private readonly ILifetimeScope _lifetimeScope;
 
-		public CounterpartyJournalFilterViewModel()
+		public CounterpartyJournalFilterViewModel(
+			IGenericRepository<ClientCameFrom> clientCameFromRepository,
+			ILifetimeScope lifetimeScope)
 		{
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+
+			if(clientCameFromRepository is null)
+			{
+				throw new ArgumentNullException(nameof(clientCameFromRepository));
+			}
+
+			ClientCameFromCache = clientCameFromRepository.Get(UoW);
+
 			_searchByAddressViewModel = new CompositeSearchViewModel();
 			_searchByAddressViewModel.OnSearch += OnSearchByAddressViewModel;
 
@@ -39,34 +61,53 @@ namespace Vodovoz.Filters.ViewModels
 				x => x.CounterpartyType,
 				x => x.ReasonForLeaving,
 				x => x.RestrictIncludeArchive,
+				x => x.ShowLiquidating,
 				x => x.Tag,
-				x => x.IsNeedToSendBillByEdo
-			);
+				x => x.IsNeedToSendBillByEdo,
+				x => x.CounterpartyClassification);
 		}
 
 		public CompositeSearchViewModel SearchByAddressViewModel => _searchByAddressViewModel;
 
-		public virtual CounterpartyType? CounterpartyType {
+		public virtual CounterpartyType? CounterpartyType
+		{
 			get => _counterpartyType;
-			set => SetField(ref _counterpartyType, value, () => CounterpartyType);
+			set => SetField(ref _counterpartyType, value);
 		}
 
-		public virtual bool RestrictIncludeArchive {
+		public virtual bool RestrictIncludeArchive
+		{
 			get => _restrictIncludeArchive;
-			set => SetField(ref _restrictIncludeArchive, value, () => RestrictIncludeArchive);
+			set => SetField(ref _restrictIncludeArchive, value);
 		}
 
-		public virtual Tag Tag {
+		public bool ShowLiquidating
+		{
+			get => _showLiquidating;
+			set => SetField(ref _showLiquidating, value);
+		}
+
+		public virtual Tag Tag
+		{
 			get => _tag;
-			set => SetField(ref _tag, value, () => Tag);
+			set => SetField(ref _tag, value);
 		}
 
-		public virtual IRepresentationModel TagVM {
-			get {
-				if(_tagVM == null) {
-					_tagVM = new TagVM(UoW);
+		public IEntityEntryViewModel TagViewModel { get; private set; }
+
+		public JournalViewModelBase Journal
+		{
+			get => _journal;
+			set
+			{
+				if(SetField(ref _journal, value) && value != null)
+				{
+					TagViewModel = new CommonEEVMBuilderFactory<CounterpartyJournalFilterViewModel>(_journal, this, _journal.UoW, _journal.NavigationManager, _lifetimeScope)
+						.ForProperty(x => x.Tag)
+						.UseViewModelJournalAndAutocompleter<TagJournalViewModel>()
+						.UseViewModelDialog<TagViewModel>()
+						.Finish();
 				}
-				return _tagVM;
 			}
 		}
 
@@ -82,6 +123,12 @@ namespace Vodovoz.Filters.ViewModels
 			set => SetField(ref _isForSalesDepartment, value);
 		}
 
+		public CounterpartyCompositeClassification? CounterpartyClassification
+		{
+			get => _counterpartyClassification;
+			set => SetField(ref _counterpartyClassification, value);
+		}
+
 		public GenericObservableList<SalesChannelSelectableNode> SalesChannels
 		{
 			get
@@ -94,8 +141,9 @@ namespace Vodovoz.Filters.ViewModels
 					var list = UoW.Session.QueryOver(() => salesChannelAlias)
 						.SelectList(scList => scList
 							.SelectGroup(() => salesChannelAlias.Id).WithAlias(() => salesChannelSelectableNodeAlias.Id)
-							.Select(() => salesChannelAlias.Name).WithAlias(() => salesChannelSelectableNodeAlias.Name)
-						).TransformUsing(Transformers.AliasToBean<SalesChannelSelectableNode>()).List<SalesChannelSelectableNode>();
+							.Select(() => salesChannelAlias.Name).WithAlias(() => salesChannelSelectableNodeAlias.Name))
+						.TransformUsing(Transformers.AliasToBean<SalesChannelSelectableNode>())
+						.List<SalesChannelSelectableNode>();
 
 					_salesChannels = new GenericObservableList<SalesChannelSelectableNode>(list);
 					SubscribeOnCheckChanged();
@@ -127,6 +175,7 @@ namespace Vodovoz.Filters.ViewModels
 			get => _reasonForLeaving;
 			set => SetField(ref _reasonForLeaving, value);
 		}
+
 		public override bool IsShow { get; set; } = true;
 
 		public bool IsNeedToSendBillByEdo
@@ -153,9 +202,23 @@ namespace Vodovoz.Filters.ViewModels
 			set => SetField(ref _counterpartyInn, value);
 		}
 
+		public IEnumerable<ClientCameFrom> ClientCameFromCache { get; }
+
+		public ClientCameFrom ClientCameFrom
+		{
+			get => _clientCameFrom;
+			set => UpdateFilterField(ref _clientCameFrom, value);
+		}
+
+		public bool ClientCameFromIsEmpty
+		{
+			get => _clientCameFromIsEmpty;
+			set => UpdateFilterField(ref _clientCameFromIsEmpty, value);
+		}
+
 		private void UnsubscribeOnCheckChanged()
 		{
-			foreach (SalesChannelSelectableNode selectableSalesChannel in SalesChannels)
+			foreach(SalesChannelSelectableNode selectableSalesChannel in SalesChannels)
 			{
 				selectableSalesChannel.PropertyChanged -= OnStatusCheckChanged;
 			}
@@ -163,7 +226,7 @@ namespace Vodovoz.Filters.ViewModels
 
 		private void SubscribeOnCheckChanged()
 		{
-			foreach (SalesChannelSelectableNode selectableSalesChannel in SalesChannels)
+			foreach(SalesChannelSelectableNode selectableSalesChannel in SalesChannels)
 			{
 				selectableSalesChannel.PropertyChanged += OnStatusCheckChanged;
 			}
@@ -181,6 +244,7 @@ namespace Vodovoz.Filters.ViewModels
 
 		public override void Dispose()
 		{
+			UnsubscribeOnCheckChanged();
 			_searchByAddressViewModel.OnSearch -= OnSearchByAddressViewModel;
 			base.Dispose();
 		}

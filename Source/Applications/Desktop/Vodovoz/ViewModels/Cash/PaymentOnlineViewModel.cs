@@ -17,13 +17,13 @@ namespace Vodovoz.ViewModels.Cash
 	public class PaymentOnlineViewModel : EntityTabViewModelBase<Order>
 	{
 		private readonly Employee _currentEmployee;
-		private readonly CallTaskWorker _callTaskWorker;
+		private readonly ICallTaskWorker _callTaskWorker;
 
 		public PaymentOnlineViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			CallTaskWorker callTaskWorker,
+			ICallTaskWorker callTaskWorker,
 			IOrderPaymentSettings orderPaymentSettings,
 			IOrderParametersProvider orderParametersProvider,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,

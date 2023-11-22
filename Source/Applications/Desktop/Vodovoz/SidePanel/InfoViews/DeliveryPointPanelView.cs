@@ -1,8 +1,6 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Linq;
-using Fias.Client;
-using Fias.Client.Cache;
+using Autofac;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
@@ -18,8 +16,6 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Factories;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewWidgets.Mango;
@@ -29,6 +25,7 @@ namespace Vodovoz.SidePanel.InfoViews
 {
 	public partial class DeliveryPointPanelView : Gtk.Bin, IPanelView
 	{
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		private readonly IDeliveryPointRepository _deliveryPointRepository = new DeliveryPointRepository();
 		private readonly IBottlesRepository _bottlesRepository = new BottlesRepository();
 		private readonly IDepositRepository _depositRepository = new DepositRepository();
@@ -48,11 +45,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			Build();
 			_deliveryPointPermissionResult = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DeliveryPoint));
 			_orderPermissionResult = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Order));
-			IParametersProvider parametersProvider = new ParametersProvider();
-			IFiasApiParametersProvider fiasApiParametersProvider = new FiasApiParametersProvider(parametersProvider);
-			var geoCoderCache = new GeocoderCache(UnitOfWorkFactory.GetDefaultFactory);
-			IFiasApiClient fiasApiClient = new FiasApiClient(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken, geoCoderCache);
-			_deliveryPointViewModelFactory = new DeliveryPointViewModelFactory(fiasApiClient);
+			_deliveryPointViewModelFactory = new DeliveryPointViewModelFactory(_lifetimeScope);
 			Configure();
 		}
 
@@ -289,7 +282,7 @@ namespace Vodovoz.SidePanel.InfoViews
 		{
 			if(_textviewcommentBufferChanged && buttonSaveComment.State != StateType.Prelight)
 			{
-				Application.Invoke((s, ea) =>
+				Gtk.Application.Invoke((s, ea) =>
 				{
 					bool isRequiredToSaveComment = MessageDialogHelper.RunQuestionDialog("Сохранить изменения в комментарии?");
 					if(isRequiredToSaveComment)
@@ -340,5 +333,12 @@ namespace Vodovoz.SidePanel.InfoViews
 			_disposed = true;
 		}
 		#endregion
+
+		public override void Destroy()
+		{
+			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
+			base.Destroy();
+		}
 	}
 }

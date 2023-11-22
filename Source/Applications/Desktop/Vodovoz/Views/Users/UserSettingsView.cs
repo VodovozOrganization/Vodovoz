@@ -85,30 +85,26 @@ namespace Vodovoz.Views.Users
 			treeViewSubdivisionsToSort.SetItemsSource(ViewModel.SubdivisionSortingSettings);
 			treeViewSubdivisionsToSort.DragDataReceived += (o, args) => ViewModel.UpdateIndices();
 
+			entrySubdivision.ViewModel = ViewModel.SubdivisionViewModel;
+
 			if (ViewModel.IsUserFromOkk)
 			{
 				complaintsFrame.Sensitive = false;
 			}
 			else
 			{
-				yentrySubdivision.Sensitive = !ViewModel.Entity.UseEmployeeSubdivision;
+				entrySubdivision.Sensitive = !ViewModel.Entity.UseEmployeeSubdivision;
 
 				ycheckbuttonUse.Toggled += (sender, e) =>
 				{
 					var useEmployeeSubdivision = ViewModel.Entity.UseEmployeeSubdivision;
-					yentrySubdivision.Sensitive = !useEmployeeSubdivision;
+					entrySubdivision.Sensitive = !useEmployeeSubdivision;
 
 					if (useEmployeeSubdivision)
 					{
-						yentrySubdivision.Subject = null;
+						entrySubdivision.ViewModel.Entity = null;
 					}
-
 				};
-
-				yentrySubdivision.SetEntityAutocompleteSelectorFactory(ViewModel.SubdivisionSelectorDefaultFactory);
-				yentrySubdivision.Binding
-					.AddBinding(ViewModel.Entity, s => s.DefaultSubdivision, w => w.Subject)
-					.InitializeFromSource();
 			}
 
 			#region Обновление фиксы
@@ -136,13 +132,13 @@ namespace Vodovoz.Views.Users
 			switch(e.PropertyName)
 			{
 				case nameof(ViewModel.ProgressMessage):
-					Application.Invoke((s, args) =>
+					Gtk.Application.Invoke((s, args) =>
 					{
 						updateFixedPricesProgress.Text = ViewModel.ProgressMessage;
 					});
 					break;
 				case nameof(ViewModel.ProgressFraction):
-					Application.Invoke((s, args) =>
+					Gtk.Application.Invoke((s, args) =>
 					{
 						updateFixedPricesProgress.Fraction = ViewModel.ProgressFraction;
 					});
@@ -171,7 +167,7 @@ namespace Vodovoz.Views.Users
 				}
 				catch(Exception ex)
 				{
-					Application.Invoke((s, eventArgs) =>
+					Gtk.Application.Invoke((s, eventArgs) =>
 					{
 						updateFixedPricesProgress.Text = "При обновлении фиксы произошла ошибка. Попробуйте повторить позже...";
 						updateFixedPricesProgress.Fraction = 0;

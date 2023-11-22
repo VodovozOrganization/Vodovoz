@@ -32,8 +32,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 		private LeftRightListViewModel<GroupingNode> _groupViewModel;
 		private readonly bool _userIsSalesRepresentative;
 		private readonly IEmployeeRepository _employeeRepository;
-		private readonly ICommonServices _commonServices;
 		private readonly IIncludeExcludeSalesFilterFactory _includeExcludeSalesFilterFactory;
+		private readonly ILeftRightListViewModelFactory _leftRightListViewModelFactory;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IUnitOfWork _unitOfWork;
 		private DelegateCommand _loadReportCommand;
@@ -46,37 +46,42 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 
 		public ProfitabilitySalesReportViewModel(
 			RdlViewerViewModel rdlViewerViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
 			IEmployeeRepository employeeRepository,
 			ICommonServices commonServices,
-			IIncludeExcludeSalesFilterFactory includeExcludeSalesFilterFactory)
+			IIncludeExcludeSalesFilterFactory includeExcludeSalesFilterFactory,
+			ILeftRightListViewModelFactory leftRightListViewModelFactory)
 			: base(rdlViewerViewModel)
 		{
-			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
-			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			_includeExcludeSalesFilterFactory = includeExcludeSalesFilterFactory ?? throw new ArgumentNullException(nameof(includeExcludeSalesFilterFactory));
+			if(unitOfWorkFactory is null)
+			{
+				throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			}
 
+			if(commonServices is null)
+			{
+				throw new ArgumentNullException(nameof(commonServices));
+			}
+
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_includeExcludeSalesFilterFactory = includeExcludeSalesFilterFactory ?? throw new ArgumentNullException(nameof(includeExcludeSalesFilterFactory));
+			_leftRightListViewModelFactory = leftRightListViewModelFactory ?? throw new ArgumentNullException(nameof(leftRightListViewModelFactory));
 			_interactiveService = commonServices.InteractiveService;
 
 			Title = "Отчет по продажам с рентабельностью";
 
-			_unitOfWork = UnitOfWorkFactory.CreateWithoutRoot();
+			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot();
 
 			_userIsSalesRepresentative =
-				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.User.IsSalesRepresentative)
-				&& !_commonServices.UserService.GetCurrentUser().IsAdmin;
+				commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.User.IsSalesRepresentative)
+				&& !commonServices.UserService.GetCurrentUser().IsAdmin;
 
 			StartDate = DateTime.Today;
 			EndDate = DateTime.Today;
 
 			SetupFilter();
 
-			var groupingNodes = GetGroupingNodes();
-			LeftRightListViewModel<GroupingNode> leftRightListViewModel = new LeftRightListViewModel<GroupingNode>();
-			leftRightListViewModel.LeftLabel = "Доступные группировки";
-			leftRightListViewModel.RightLabel = "Выбранные группировки (макс. 3)";
-			leftRightListViewModel.RightItemsMaximum = 3;
-			leftRightListViewModel.SetLeftItems(groupingNodes, x => x.Name);
-			GroupingSelectViewModel = leftRightListViewModel;
+			SetupGroupings();
 		}
 
 		protected override Dictionary<string, object> Parameters => _parameters;
@@ -89,7 +94,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 				{
 					Source = _source,
 					Parameters = Parameters,
-					Title = Title
+					Title = Title,
+					UseUserVariables = true
 				};
 				return reportInfo;
 			}
@@ -119,30 +125,14 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			set => SetField(ref _groupViewModel, value);
 		}
 
-		private IEnumerable<GroupingNode> GetGroupingNodes()
-		{
-			return new[] { 
-				new GroupingNode{ Name = "Заказ", GroupType = GroupingType.Order },
-				new GroupingNode{ Name = "Контрагент", GroupType = GroupingType.Counterparty },
-				new GroupingNode{ Name = "Подразделение", GroupType = GroupingType.Subdivision },
-				new GroupingNode{ Name = "Дата доставки", GroupType = GroupingType.DeliveryDate },
-				new GroupingNode{ Name = "Маршрутный лист", GroupType = GroupingType.RouteList },
-				new GroupingNode{ Name = "Номенклатура", GroupType = GroupingType.Nomenclature },
-				new GroupingNode{ Name = "Группа уровень 1", GroupType = GroupingType.NomenclatureGroup1 },
-				new GroupingNode{ Name = "Группа уровень 2", GroupType = GroupingType.NomenclatureGroup2 },
-				new GroupingNode{ Name = "Группа уровень 3", GroupType = GroupingType.NomenclatureGroup3 }
-			};
-		}
-
-		public class GroupingNode
-		{
-			public string Name { get; set; }
-			public GroupingType GroupType { get; set; }
-		}
-
 		private void SetupFilter()
 		{
 			_filterViewModel = _includeExcludeSalesFilterFactory.CreateSalesReportIncludeExcludeFilter(_unitOfWork, _userIsSalesRepresentative);
+		}
+
+		private void SetupGroupings()
+		{
+			GroupingSelectViewModel = _leftRightListViewModelFactory.CreateSalesReportGroupingsConstructor();
 		}
 
 		public DelegateCommand LoadReportCommand
@@ -183,6 +173,29 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			{
 				_parameters.Add(groupParameter.Key, groupParameter.Value.ToString());
 			}
+
+			var groupingTitle = string.Empty;
+			var groupingTitleCommaSplitted = string.Empty;
+
+			if(GroupingSelectViewModel.RightItems.Any())
+			{
+				groupingTitle = string
+					.Join(" | ", GroupingSelectViewModel
+					.GetRightItems()
+					.Select(x => x.GroupType.GetEnumTitle()));
+				groupingTitleCommaSplitted = string
+					.Join(", ", GroupingSelectViewModel
+					.GetRightItems()
+					.Select(x => x.GroupType.GetEnumTitle()));
+			}
+			else
+			{
+				groupingTitle = GroupingType.Nomenclature.GetEnumTitle();
+				groupingTitleCommaSplitted = GroupingType.Nomenclature.GetEnumTitle();
+			}
+
+			_parameters.Add("grouping_title", groupingTitle);
+			_parameters.Add("grouping_title_comma_splitrted", groupingTitleCommaSplitted);
 
 			_parameters.Add("groups_count", groupParameters.Count());
 
@@ -233,8 +246,12 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			}
 			else
 			{
+				var isRouteListGroupingTypeSelected = groupParameters.Select(x => (GroupingType)x.Value).First() == GroupingType.RouteList;
+				var isOnlyOneGroupingTypeSelected = groupParameters.Count() == 1;
+				var isShowRouteListInfo = isRouteListGroupingTypeSelected && isOnlyOneGroupingTypeSelected;
+
 				var modifier = new ProfitabilityReportModifier();
-				modifier.Setup(groupParameters.Select(x => (GroupingType)x.Value));
+				modifier.Setup(groupParameters.Select(x => (GroupingType)x.Value), isShowRouteListInfo);
 				result = modifier;
 			}
 			return result;
@@ -260,6 +277,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 				result.Add(new KeyValuePair<string, object>($"group{groupCounter}", item.GroupType));
 				groupCounter++;
 			}
+
 			return result;
 		}
 

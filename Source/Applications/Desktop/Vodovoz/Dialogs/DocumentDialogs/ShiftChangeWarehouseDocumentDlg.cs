@@ -27,6 +27,8 @@ using Vodovoz.TempAdapters;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Factories;
+using Vodovoz.Infrastructure;
+using Autofac;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
 {
@@ -34,6 +36,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 	public partial class ShiftChangeWarehouseDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<ShiftChangeWarehouseDocument>
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly INomenclatureRepository _nomenclatureRepository =
@@ -226,7 +229,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 					.Adjustment(new Gtk.Adjustment(0, 0, 10000000, 1, 10, 10))
 					.AddSetter((w, x) => w.Digits = (x.Nomenclature.Unit != null ? (uint)x.Nomenclature.Unit.Digits : 1))
 				.AddColumn("Разница").AddTextRenderer(x => x.Difference != 0 && x.Nomenclature.Unit != null ? x.Nomenclature.Unit.MakeAmountShortStr(x.Difference) : String.Empty)
-					.AddSetter((w, x) => w.Foreground = x.Difference < 0 ? "red" : "blue")
+					.AddSetter((w, x) => w.ForegroundGdk = x.Difference < 0 ? GdkColors.DangerText : GdkColors.InfoText)
 				.AddColumn("Сумма ущерба").AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.SumOfDamage))
 				.AddColumn("Что произошло").AddTextRenderer(x => x.Comment).Editable()
 				.Finish();
@@ -372,7 +375,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			var filter = new NomenclatureFilterViewModel();
 			filter.AvailableCategories = Nomenclature.GetCategoriesForGoods();
 
-			var nomenclatureJournalFactory = new NomenclatureJournalFactory();
+			var nomenclatureJournalFactory = new NomenclatureJournalFactory(_lifetimeScope);
 			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel();
 			journal.FilterViewModel = filter;
 			journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult;
@@ -413,5 +416,12 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 		}
 
 		#endregion
+
+		public override void Destroy()
+		{
+			base.Destroy();
+			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
+		}
 	}
 }

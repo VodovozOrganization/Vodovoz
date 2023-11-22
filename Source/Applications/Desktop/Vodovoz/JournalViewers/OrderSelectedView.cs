@@ -1,39 +1,67 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Navigation;
+using QS.Tdi;
+using QS.ViewModels.Control.EEVM;
+using QS.ViewModels.Dialog;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Infrastructure;
+using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.JournalViewers
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class OrderSelectedView : Gtk.Bin
+	public partial class OrderSelectedView : Gtk.Bin, INotifyPropertyChanged
 	{
+		private Counterparty _client;
+
 		public OrderSelectedView()
 		{
 			this.Build();
 		}
 
 		public event EventHandler<int> OrderActivated;
+		public event PropertyChangedEventHandler PropertyChanged;
 
-		public Counterparty Client { get; set; }
+		public Counterparty Client
+		{
+			get => _client;
+			set
+			{
+				if(_client != value)
+				{
+					_client = value;
+					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Client)));
+				}
+			}
+		}
+
+		public INavigationManager NavigationManager { get; private set; }
+
+		private ILifetimeScope _lifetimeScope;
 
 		public IUnitOfWork UoW { get; private set; }
 
 		public List<SelectedOrdersDocumentVMNode> Documents { get; set; } = new List<SelectedOrdersDocumentVMNode>();
 
-		public void Config(IUnitOfWork uow, Counterparty client)
+		public void Config(IUnitOfWork uow, Counterparty client, ITdiTab master, INavigationManager navigationManager, ILifetimeScope lifetimeScope)
 		{
 			UoW = uow;
 			Client = client;
-			var colorGreen = new Gdk.Color(0x90, 0xee, 0x90);
-			var colorWhite = new Gdk.Color(0xff, 0xff, 0xff);
+			NavigationManager = navigationManager;
+			_lifetimeScope = lifetimeScope;
+			var colorGreen = GdkColors.SuccessText;
+			var basePrimary = GdkColors.PrimaryBase;
 
 			datatreeviewOrderDocuments.ColumnsConfig = FluentColumnsConfig<SelectedOrdersDocumentVMNode>
 				.Create()
@@ -48,14 +76,18 @@ namespace Vodovoz.JournalViewers
 					if(n.Selected) {
 						c.CellBackgroundGdk = colorGreen;
 					} else {
-						c.CellBackgroundGdk = colorWhite;
+						c.CellBackgroundGdk = basePrimary;
 					}
 				})
 				.Finish();
 
-			entryreferencevm1.RepresentationModel = new ViewModel.CounterpartyVM(new CounterpartyFilter(UoW));
-			entryreferencevm1.Subject = Client;
-			entryreferencevm1.ChangedByUser += (sender, e) => { UpdateNodes(); };
+			entryCounterparty.ViewModel = new LegacyEEVMBuilderFactory<OrderSelectedView>(master, this, UoW, NavigationManager, _lifetimeScope)
+				.ForProperty(x => x.Client)
+				.UseTdiEntityDialog()
+				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
+				.Finish();
+
+			entryCounterparty.ViewModel.ChangedByUser += (sender, e) => { UpdateNodes(); };
 			yvalidatedentry1.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			UpdateNodes();
 		}
@@ -70,9 +102,8 @@ namespace Vodovoz.JournalViewers
 
 			var query = UoW.Session.QueryOver<OrderDocument>(() => orderDocumentAlias);
 
-			Counterparty client = entryreferencevm1.GetSubject<Counterparty>();
-			if(client  != null) {
-				query.Where(() => counterpartyAlias.Id == client.Id);
+			if(Client != null) {
+				query.Where(() => counterpartyAlias.Id == Client.Id);
 			}
 
 			int orderId = default(int);
