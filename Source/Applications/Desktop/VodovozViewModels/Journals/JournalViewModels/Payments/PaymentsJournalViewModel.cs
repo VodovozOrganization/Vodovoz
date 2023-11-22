@@ -304,6 +304,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 
 						var selectedPayments = selected.OfType<PaymentJournalNode>().ToArray();
 
+						if(selectedPayments.Any(p => p.Status == PaymentState.Cancelled))
+						{
+							return false;
+						}
+
 						var canCancel = (_canCancelManualPaymentFromBankClient && !selectedPayments.Any(p => !p.IsManualCreated))
 							|| userIsAdmin;
 
