@@ -27,6 +27,9 @@ using VodOrder = Vodovoz.Domain.Orders.Order;
 using QS.DomainModel.Entity;
 using Vodovoz.Settings.Database;
 using Vodovoz.TempAdapters;
+using Vodovoz.Domain.Orders.Documents;
+using System.Linq;
+using EdoDocumentType = Vodovoz.Domain.Orders.Documents.Type;
 
 namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 {
@@ -35,6 +38,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		private readonly CommonMessages _commonMessages;
 		private readonly IRDLPreviewOpener _rdlPreviewOpener;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
+		private GenericObservableList<EdoContainer> _edoContainers = new GenericObservableList<EdoContainer>();
 		private DateTime? startDate = DateTime.Now.AddMonths(-1);
 		public DateTime? StartDate {
 			get => startDate;
@@ -114,7 +118,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 		private DelegateCommand cancelCommand;
 		public DelegateCommand CancelCommand => cancelCommand ?? (cancelCommand = new DelegateCommand(
-			() =>Close(true, CloseSource.Cancel),
+			() => Close(true, CloseSource.Cancel),
 			() => true
 		));
 		
@@ -236,6 +240,37 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			else
 			{
 				Entity.RemoveItem(order);
+			}
+		}
+
+		private void SendBillByEdo(IUnitOfWork uow)
+		{
+			var edoContainer = _edoContainers.SingleOrDefault(x => x.Type == EdoDocumentType.Bill)
+							   ?? new EdoContainer
+							   {
+								   Type = EdoDocumentType.Bill,
+								   Created = DateTime.Now,
+								   Container = new byte[64],
+								   OrderWithoutShipmentForPayment = Entity,
+								   Counterparty = Entity.Counterparty,
+								   MainDocumentId = string.Empty,
+								   EdoDocFlowStatus = EdoDocFlowStatus.PreparingToSend
+							   };
+
+			uow.Save(edoContainer);
+			uow.Commit();
+		}
+
+		private void UpdateEdoContainers()
+		{
+			_edoContainers.Clear();
+
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			{
+				foreach(var item in _orderRepository.GetEdoContainersByOrderId(uow, Entity.Id))
+				{
+					_edoContainers.Add(item);
+				}
 			}
 		}
 	}

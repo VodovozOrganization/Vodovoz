@@ -29,6 +29,10 @@ using Vodovoz.ViewModels.Dialogs.Email;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
+using Vodovoz.Settings.Nomenclature;
+using Vodovoz.Domain.Orders.Documents;
+using EdoDocumentType = Vodovoz.Domain.Orders.Documents.Type;
+using System.Data.Bindings.Collections.Generic;
 
 namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 {
@@ -39,6 +43,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		private readonly CommonMessages _commonMessages;
 		private readonly IRDLPreviewOpener _rdlPreviewOpener;
 		private UserSettings _currentUserSettings;
+		private GenericObservableList<EdoContainer> _edoContainers = new GenericObservableList<EdoContainer>();
 
 		private object selectedItem;
 		public object SelectedItem {
@@ -221,7 +226,9 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		public void OnTabAdded()
 		{
 			if(EntityUoWBuilder.IsNewEntity)
+			{
 				OpenCounterpartyJournal?.Invoke(string.Empty);
+			}
 		}
 
 		private void FillDiscountReasons(IDiscountReasonRepository discountReasonRepository)
@@ -253,15 +260,50 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 			Entity.AddNomenclature(nomenclature, count, discount, false, discountReason);
 		}
-		
+
+		private void SendBillByEdo(IUnitOfWork uow)
+		{
+			var edoContainer = _edoContainers.SingleOrDefault(x => x.Type == EdoDocumentType.Bill)
+							   ?? new EdoContainer
+							   {
+								   Type = EdoDocumentType.Bill,
+								   Created = DateTime.Now,
+								   Container = new byte[64],
+								   OrderWithoutShipmentForAdvancePayment = Entity,
+								   Counterparty = Entity.Counterparty,
+								   MainDocumentId = string.Empty,
+								   EdoDocFlowStatus = EdoDocFlowStatus.PreparingToSend
+							   };
+
+			uow.Save(edoContainer);
+			uow.Commit();
+		}
+
+		private void UpdateEdoContainers()
+		{
+			_edoContainers.Clear();
+
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			{
+				foreach(var item in _orderRepository.GetEdoContainersByOrderId(uow, Entity.Id))
+				{
+					_edoContainers.Add(item);
+				}
+			}
+		}
+
 		public void OnEntityViewModelEntryChanged(object sender, EventArgs e)
 		{
 			var email = Entity.GetEmailAddressForBill();
 
 			if (email != null)
+			{
 				SendDocViewModel.Update(Entity, email.Address);
+			}
 			else
+			{
 				SendDocViewModel.Update(Entity, string.Empty);
+			}
 		}
 	}
 }

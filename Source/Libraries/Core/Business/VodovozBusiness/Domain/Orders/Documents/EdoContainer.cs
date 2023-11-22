@@ -4,6 +4,7 @@ using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
@@ -27,7 +28,10 @@ namespace Vodovoz.Domain.Orders.Documents
 		private EdoDocFlowStatus _edoDocFlowStatus;
 		private DateTime _created;
 		private Type _type;
-		
+		private OrderWithoutShipmentForAdvancePayment _orderWithoutShipmentForAdvancePayment;
+		private OrderWithoutShipmentForDebt _orderWithoutShipmentForDebt;
+		private OrderWithoutShipmentForPayment _orderWithoutShipmentForPayment;
+
 		public virtual int Id { get; set; }
 
 		[Display(Name = "Доставлено")]
@@ -71,7 +75,28 @@ namespace Vodovoz.Domain.Orders.Documents
 			get => _order;
 			set => SetField(ref _order, value);
 		}
-		
+
+		[Display(Name = "Счет без отгрузки на предоплату")]
+		public virtual OrderWithoutShipmentForAdvancePayment OrderWithoutShipmentForAdvancePayment
+		{
+			get => _orderWithoutShipmentForAdvancePayment;
+			set => SetField(ref _orderWithoutShipmentForAdvancePayment, value);
+		}
+
+		[Display(Name = "Cчет без отгрузки на долг")]
+		public virtual OrderWithoutShipmentForDebt OrderWithoutShipmentForDebt
+		{
+			get => _orderWithoutShipmentForDebt;
+			set => SetField(ref _orderWithoutShipmentForDebt, value);
+		}
+
+		[Display(Name = "Cчет без отгрузки на постоплату")]
+		public virtual OrderWithoutShipmentForPayment OrderWithoutShipmentForPayment
+		{
+			get => _orderWithoutShipmentForPayment;
+			set => SetField(ref _orderWithoutShipmentForPayment, value);
+		}
+
 		[Display(Name = "Контрагент")]
 		public virtual Counterparty Counterparty
 		{
