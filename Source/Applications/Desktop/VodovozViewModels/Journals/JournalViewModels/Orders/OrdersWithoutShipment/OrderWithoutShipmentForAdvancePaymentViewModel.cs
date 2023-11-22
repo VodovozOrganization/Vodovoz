@@ -30,6 +30,7 @@ using Vodovoz.ViewModels.Dialogs.Email;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
+using Vodovoz.Settings.Nomenclature;
 
 namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 {
@@ -42,6 +43,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		private readonly IUserRepository _userRepository;
 		private readonly CommonMessages _commonMessages;
 		private readonly IRDLPreviewOpener _rdlPreviewOpener;
+		private readonly INomenclatureSettings _nomenclatureSettings;
 		private UserSettings _currentUserSettings;
 
 		private object selectedItem;
@@ -70,13 +72,15 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			IParametersProvider parametersProvider,
 			IOrderDiscountsController discountsController,
 			CommonMessages commonMessages,
-			IRDLPreviewOpener rdlPreviewOpener) : base(uowBuilder, uowFactory, commonServices)
+			IRDLPreviewOpener rdlPreviewOpener,
+			INomenclatureSettings nomenclatureSettings) : base(uowBuilder, uowFactory, commonServices)
 		{
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_commonMessages = commonMessages ?? throw new ArgumentNullException(nameof(commonMessages));
 			_rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
+			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			if(parametersProvider == null)
 			{
 				throw new ArgumentNullException(nameof(parametersProvider));
@@ -171,7 +175,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 					_nomenclatureSelectorFactory,
 					CounterpartySelectorFactory,
 					_nomenclatureRepository,
-					_userRepository
+					_userRepository,
+					_nomenclatureSettings
 				) {
 					SelectionMode = JournalSelectionMode.Single,
 				};

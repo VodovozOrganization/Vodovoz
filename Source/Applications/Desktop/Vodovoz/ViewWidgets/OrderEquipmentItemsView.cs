@@ -1,18 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Autofac;
 using Gamma.GtkWidgets;
 using Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 
 namespace Vodovoz.ViewWidgets
@@ -20,6 +20,7 @@ namespace Vodovoz.ViewWidgets
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class OrderEquipmentItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		private IList<int> _activeFlyersNomenclaturesIds;
 		private IFlyerRepository _flyerRepository;
 		public IUnitOfWork UoW { get; set; }
@@ -354,7 +355,7 @@ namespace Vodovoz.ViewWidgets
 				return;
 			}
 
-			var nomenclaturesJournalViewModel = new NomenclatureJournalFactory().CreateNomenclaturesJournalViewModel();
+			var nomenclaturesJournalViewModel = new NomenclatureJournalFactory(_lifetimeScope).CreateNomenclaturesJournalViewModel();
 			nomenclaturesJournalViewModel.CalculateQuantityOnStock = true;
 			var filter = new NomenclatureFilterViewModel();
 			filter.AvailableCategories = Nomenclature.GetCategoriesForGoods();
@@ -387,7 +388,7 @@ namespace Vodovoz.ViewWidgets
 				return;
 			}
 
-			var nomenclaturesJournalViewModel = new NomenclatureJournalFactory().CreateNomenclaturesJournalViewModel();
+			var nomenclaturesJournalViewModel = new NomenclatureJournalFactory(_lifetimeScope).CreateNomenclaturesJournalViewModel();
 			nomenclaturesJournalViewModel.CalculateQuantityOnStock = true;
 			var filter = new NomenclatureFilterViewModel();
 			filter.AvailableCategories = Nomenclature.GetCategoriesForGoods();
@@ -411,6 +412,13 @@ namespace Vodovoz.ViewWidgets
 		void AddNomenclatureFromClient(Nomenclature nomenclature)
 		{
 			Order.AddEquipmentNomenclatureFromClient(nomenclature, UoW);
+		}
+
+		public override void Destroy()
+		{
+			base.Destroy();
+			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
 		}
 	}
 }

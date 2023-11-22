@@ -39,7 +39,7 @@ namespace Vodovoz
 	{
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory = new NomenclatureJournalFactory();
+		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IStockRepository _stockRepository = new StockRepository();
 		private readonly BottlesRepository _bottlesRepository = new BottlesRepository();
@@ -54,6 +54,8 @@ namespace Vodovoz
 			this.Build();
 
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<SelfDeliveryDocument>();
+			_nomenclatureSelectorFactory = new NomenclatureJournalFactory(_lifetimeScope);
+
 			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
@@ -162,34 +164,34 @@ namespace Vodovoz
 					c.Editable = false;
 					c.Editable = n.Category == NomenclatureCategory.equipment;
 				})
-                .AddColumn("Причина").AddEnumRenderer(
-                    node => node.DirectionReason
-                    ,true
-                ).AddSetter((c, n) =>
-                {
-                    switch (n.DirectionReason)
-                    {
-                        case DirectionReason.Rent:
-                            c.Text = "Закрытие аренды";
-                            break;
-                        case DirectionReason.Repair:
-                            c.Text = "В ремонт";
-                            break;
-                        case DirectionReason.Cleaning:
-                            c.Text = "На санобработку";
-                            break;
-                        case DirectionReason.RepairAndCleaning:
-                            c.Text = "В ремонт и санобработку";
-                            break;
-                        default:
-                            break;
-                    }
+				.AddColumn("Причина").AddEnumRenderer(
+					node => node.DirectionReason
+					,true
+				).AddSetter((c, n) =>
+				{
+					switch (n.DirectionReason)
+					{
+						case DirectionReason.Rent:
+							c.Text = "Закрытие аренды";
+							break;
+						case DirectionReason.Repair:
+							c.Text = "В ремонт";
+							break;
+						case DirectionReason.Cleaning:
+							c.Text = "На санобработку";
+							break;
+						case DirectionReason.RepairAndCleaning:
+							c.Text = "В ремонт и санобработку";
+							break;
+						default:
+							break;
+					}
 					c.Editable = false;
 					c.Editable = n.Category == NomenclatureCategory.equipment;
 				})
 
 
-                .AddColumn("")
+				.AddColumn("")
 				.Finish();
 			yTreeOtherGoods.ColumnsConfig = goodsColumnsConfig;
 			yTreeOtherGoods.ItemsDataSource = GoodsReceptionList;

@@ -1,18 +1,18 @@
-﻿using System;
+﻿using Autofac;
 using NHibernate;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
-using QS.Project.Journal.EntitySelector;
 using QS.Services;
+using System;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalNodes;
 using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Orders;
 
@@ -24,6 +24,8 @@ namespace Vodovoz.JournalViewModels
 		private readonly IEmployeeService _employeeService;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
+		private readonly INomenclatureSettings _nomenclatureSettings;
+		private readonly ILifetimeScope _lifetimeScope;
 		private readonly ICounterpartyJournalFactory _counterpartySelectorFactory;
 		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 
@@ -35,6 +37,8 @@ namespace Vodovoz.JournalViewModels
 			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
+			INomenclatureSettings nomenclatureSettings,
+			ILifetimeScope lifetimeScope,
 			bool hideJournalForOpenDialog = false,
 			bool hideJournalForCreateDialog = false)
 			: base(unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
@@ -43,6 +47,8 @@ namespace Vodovoz.JournalViewModels
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			
@@ -84,7 +90,9 @@ namespace Vodovoz.JournalViewModels
 			_counterpartySelectorFactory,
 			_nomenclatureSelectorFactory,
 			_nomenclatureRepository,
-			_userRepository
+			_nomenclatureSettings,
+			_userRepository,
+			_lifetimeScope
 		);
 
 		protected override Func<PromotionalSetJournalNode, PromotionalSetViewModel> OpenDialogFunction => node => new PromotionalSetViewModel(
@@ -95,7 +103,9 @@ namespace Vodovoz.JournalViewModels
 			_counterpartySelectorFactory,
 			_nomenclatureSelectorFactory,
 			_nomenclatureRepository,
-			_userRepository
+			_nomenclatureSettings,
+			_userRepository,
+			_lifetimeScope
 	   	);
 
 		protected override void CreateNodeActions()

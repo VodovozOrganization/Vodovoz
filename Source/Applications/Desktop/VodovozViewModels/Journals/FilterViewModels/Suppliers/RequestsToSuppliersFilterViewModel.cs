@@ -1,9 +1,9 @@
-﻿using System;
-using QS.Project.Filter;
+﻿using QS.Project.Filter;
 using QS.Project.Journal.EntitySelector;
-using QS.Services;
+using System;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Suppliers;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.FilterViewModels.Suppliers
 {
@@ -11,9 +11,14 @@ namespace Vodovoz.FilterViewModels.Suppliers
 	{
 		public IEntitySelectorFactory NomenclatureSelectorFactory { get; set; }
 
-		public RequestsToSuppliersFilterViewModel(IEntitySelectorFactory nomenclatureSelectorFactory)
+		public RequestsToSuppliersFilterViewModel(INomenclatureJournalFactory nomenclatureJournalFactory)
 		{
-			NomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+			if(nomenclatureJournalFactory is null)
+			{
+				throw new ArgumentNullException(nameof(nomenclatureJournalFactory));
+			}
+
+			NomenclatureSelectorFactory = nomenclatureJournalFactory.GetDefaultNomenclatureSelectorFactory();
 		}
 
 		private DateTime? restrictStartDate;

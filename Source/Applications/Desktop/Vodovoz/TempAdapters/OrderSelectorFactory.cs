@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using System;

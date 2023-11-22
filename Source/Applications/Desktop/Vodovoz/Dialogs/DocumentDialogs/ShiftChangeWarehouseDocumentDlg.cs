@@ -28,6 +28,7 @@ using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.Infrastructure;
+using Autofac;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
 {
@@ -35,6 +36,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 	public partial class ShiftChangeWarehouseDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<ShiftChangeWarehouseDocument>
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly INomenclatureRepository _nomenclatureRepository =
@@ -373,7 +375,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			var filter = new NomenclatureFilterViewModel();
 			filter.AvailableCategories = Nomenclature.GetCategoriesForGoods();
 
-			var nomenclatureJournalFactory = new NomenclatureJournalFactory();
+			var nomenclatureJournalFactory = new NomenclatureJournalFactory(_lifetimeScope);
 			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel();
 			journal.FilterViewModel = filter;
 			journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult;
@@ -414,5 +416,12 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 		}
 
 		#endregion
+
+		public override void Destroy()
+		{
+			base.Destroy();
+			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
+		}
 	}
 }

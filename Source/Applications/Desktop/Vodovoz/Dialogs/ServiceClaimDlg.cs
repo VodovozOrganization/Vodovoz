@@ -1,14 +1,14 @@
-﻿using System;
+﻿using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
 using NLog;
 using QS.DomainModel.UoW;
-using QS.Project.Dialogs;
 using QS.Tdi;
+using QS.Validation;
 using QSOrmProject;
 using QSProjectsLib;
-using QS.Validation;
+using System;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
@@ -23,10 +23,8 @@ using Vodovoz.Parameters;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModel;
-using IDeliveryPointInfoProvider = Vodovoz.ViewModels.Infrastructure.InfoProviders.IDeliveryPointInfoProvider;
-using Autofac;
 using Vodovoz.ViewModels.TempAdapters;
+using IDeliveryPointInfoProvider = Vodovoz.ViewModels.Infrastructure.InfoProviders.IDeliveryPointInfoProvider;
 
 namespace Vodovoz
 {
@@ -38,8 +36,7 @@ namespace Vodovoz
 		private readonly IEquipmentRepository _equipmentRepository = new EquipmentRepository();
 		private readonly INomenclatureRepository _nomenclatureRepository =
 			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
-		private readonly INomenclatureJournalFactory _nomenclatureJournalFactory =
-			new NomenclatureJournalFactory();
+		private INomenclatureJournalFactory _nomenclatureJournalFactory;
 
 		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilterViewModel =
 			new DeliveryPointJournalFilterViewModel();
@@ -111,6 +108,7 @@ namespace Vodovoz
 
 		void ConfigureDlg ()
 		{
+			_nomenclatureJournalFactory = new NomenclatureJournalFactory(_lifetimeScope);
 			enumStatus.Sensitive = enumType.Sensitive = false;
 			enumStatusEditable.Sensitive = true;
 			notebook1.ShowTabs = false;
