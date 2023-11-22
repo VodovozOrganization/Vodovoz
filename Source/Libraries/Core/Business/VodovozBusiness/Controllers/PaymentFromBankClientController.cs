@@ -166,7 +166,7 @@ namespace Vodovoz.Controllers
 			}
 
 			payment.CancelAllocation(
-				$"По запросу пользователя",
+				$"Причина отмены: по запросу пользователя",
 				true,
 				true);
 
