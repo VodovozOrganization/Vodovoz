@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using Autofac;
+﻿using Autofac;
 using Autofac.Core;
-using FluentNHibernate.Automapping;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -17,6 +12,8 @@ using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
 using QS.Tdi;
+using System;
+using System.Linq;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Operations;
@@ -297,9 +294,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 		{
 			var userIsAdmin = _commonServices.UserService.GetCurrentUser().IsAdmin;
 
-			if(userIsAdmin || _paymentPermissionResult.CanDelete)
-			{
-				var cancelPaymentAction = new JournalAction("Отменить платеж",
+			var cancelPaymentAction = new JournalAction("Отменить платеж",
 					(selected) =>
 					{
 						if(!selected.Any())
@@ -309,21 +304,19 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 
 						var selectedPayments = selected.OfType<PaymentJournalNode>().ToArray();
 
-						var canCancel = (_paymentPermissionResult.CanDelete && !selectedPayments.Any(p => !p.IsManualCreated))
+						var canCancel = (_canCancelManualPaymentFromBankClient && !selectedPayments.Any(p => !p.IsManualCreated))
 							|| userIsAdmin;
 
 						return canCancel;
 					},
-					(selected) => VisibleDeleteAction,
+					(selected) => userIsAdmin || _canCancelManualPaymentFromBankClient,
 					(selected) =>
 					{
 						CancelPayments(selected.OfType<PaymentJournalNode>().ToArray());
-					},
-					"Delete"
+					}
 				);
 
-				NodeActionsList.Add(cancelPaymentAction);
-			}
+			NodeActionsList.Add(cancelPaymentAction);
 		}
 
 		private void CompleteAllocation()
