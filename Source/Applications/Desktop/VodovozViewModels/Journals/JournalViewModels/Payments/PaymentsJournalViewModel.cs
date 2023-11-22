@@ -38,6 +38,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 		private readonly ILifetimeScope _scope;
 		private readonly IPaymentFromBankClientController _paymentFromBankClientController;
 		private bool _canCreateNewManualPayment;
+		private bool _canCancelManualPaymentFromBankClient;
 		private IPermissionResult _paymentPermissionResult;
 		
 		private PaymentsJournalFilterViewModel _filterViewModel;
@@ -75,7 +76,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 		private void SetPermissions()
 		{
 			_canCreateNewManualPayment =
-				_commonServices.CurrentPermissionService.ValidatePresetPermission("can_create_new_manual_payment_from_bank_client");
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Payment.BankClient.CanCreateNewManualPaymentFromBankClient);
+
+			_canCancelManualPaymentFromBankClient =
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Payment.BankClient.CanCancelManualPaymentFromBankClient);
 		}
 
 		private void CreateFilter(params Action<PaymentsJournalFilterViewModel>[] filterParams)
