@@ -170,7 +170,10 @@ namespace Vodovoz.Controllers
 				true,
 				true);
 
-			payment.CashlessMovementOperation.CashlessMovementOperationStatus = AllocationStatus.Cancelled;
+			if(payment.CashlessMovementOperation != null)
+			{
+				payment.CashlessMovementOperation.CashlessMovementOperationStatus = AllocationStatus.Cancelled;
+			}
 
 			uow.Save(payment);
 			uow.Commit();
