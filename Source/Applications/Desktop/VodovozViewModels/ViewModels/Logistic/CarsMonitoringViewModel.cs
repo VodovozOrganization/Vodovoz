@@ -46,6 +46,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
 
 		private readonly IGtkTabsOpener _gtkTabsOpener;
+		private readonly IGeographicGroupRepository _geographicGroupRepository;
+		private readonly IGeographicGroupParametersProvider _geographicGroupParametersProvider;
 
 		private bool _showCarCirclesOverlay = false;
 		private bool _showDistrictsOverlay = false;
@@ -82,6 +84,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private int _fastDeliveryDistrictsLastVersionId = -1;
 		private IList<District> _cachedFastDeliveryDistricts;
+		private IList<GeoGroup> _geogroups;
+		private GeoGroup _selectedGeoGroup;
 
 		public CarsMonitoringViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -91,7 +95,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IRouteListRepository routeListRepository,
 			IScheduleRestrictionRepository scheduleRestrictionRepository,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
-			IGtkTabsOpener gtkTabsOpener)
+			IGtkTabsOpener gtkTabsOpener,
+			IGeographicGroupRepository geographicGroupRepository,
+			IGeographicGroupParametersProvider geographicGroupParametersProvider)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
@@ -99,6 +105,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_scheduleRestrictionRepository = scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
 			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
+			_geographicGroupRepository = geographicGroupRepository ?? throw new ArgumentNullException(nameof(geographicGroupRepository));
+			_geographicGroupParametersProvider = geographicGroupParametersProvider;
 
 			TabName = "Мониторинг";
 
@@ -296,6 +304,21 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					{
 						RefreshFastDeliveryDistrictsCommand?.Execute();
 					}
+				}
+			}
+		}
+
+		public IList<GeoGroup> GeoGroups => _geogroups 
+		    ?? (_geogroups = _geographicGroupRepository.GeographicGroupsWithoutEast(UoW, _geographicGroupParametersProvider));
+
+		public GeoGroup SelectedGeoGroup
+		{
+			get => _selectedGeoGroup;
+			set
+			{
+				if(SetField(ref _selectedGeoGroup, value))
+				{
+					RefreshWorkingDriversCommand?.Execute();
 				}
 			}
 		}
@@ -605,6 +628,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				.OrderBy(d => d.StartDate).Desc
 				.Take(1);
 
+			if(SelectedGeoGroup != null)
+			{
+				GeoGroup geographicGroupAlias = null;
+
+				query.Inner.JoinAlias(() => routeListAlias.GeographicGroups, () => geographicGroupAlias, () => geographicGroupAlias.Id == SelectedGeoGroup.Id);
+			}
 
 			var result = query.SelectList(list => list
 					.Select(() => driverAlias.Id).WithAlias(() => resultAlias.Id)
