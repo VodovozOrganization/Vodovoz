@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Services;
@@ -8,6 +9,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Vodovoz.Models;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
+using Vodovoz.ViewModels.Journals.FilterViewModels.GeoGroup;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 
 namespace Vodovoz.ViewModels.Journals.JournalFactories
@@ -39,7 +42,7 @@ namespace Vodovoz.ViewModels.Journals.JournalFactories
 
 		public GeoGroupJournalViewModel CreateJournal()
 		{
-			var journal = new GeoGroupJournalViewModel(_uowFactory, _commonServices, _lifetimeScope, _navigationManager, _warehouseJournalFactory, _geoGroupVersionsModel);
+			var journal = _navigationManager.OpenViewModel<GeoGroupJournalViewModel>(null).ViewModel;
 			return journal;
 		}
 	}

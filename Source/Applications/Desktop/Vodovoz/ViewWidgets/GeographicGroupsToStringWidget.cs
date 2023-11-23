@@ -81,7 +81,25 @@ namespace Vodovoz.ViewWidgets
 
 			page.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
 			page.ViewModel.DisableChangeEntityActions();
-			page.ViewModel.OnEntitySelectedResult += JournalOnEntitySelectedResult;
+			page.ViewModel.OnSelectResult += OnJournalOnEntitySelectedResult;
+		}
+
+		private void OnJournalOnEntitySelectedResult(object sender, JournalSelectedEventArgs e)
+		{
+			var selected = e.SelectedObjects.Cast<GeoGroupJournalNode>();
+			if(!selected.Any())
+			{
+				return;
+			}
+			foreach(var item in selected)
+			{
+				if(!Items.Any(x => x.Id == item.Id))
+				{
+					var group = UoW.GetById<GeoGroup>(item.Id);
+					Items.Add(group);
+				}
+			}
+			UpdateText();
 		}
 
 		private void JournalOnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
@@ -118,7 +136,25 @@ namespace Vodovoz.ViewWidgets
 
 			page.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
 			page.ViewModel.DisableChangeEntityActions();
-			page.ViewModel.OnEntitySelectedResult += JournalOnRemoveEntitySelectedResult;
+			page.ViewModel.OnSelectResult += OnJournalOnRemoveEntitySelectedResult;
+		}
+
+		private void OnJournalOnRemoveEntitySelectedResult(object sender, JournalSelectedEventArgs e)
+		{
+			var selected = e.SelectedObjects.Cast<GeoGroupJournalNode>();
+			if(!selected.Any())
+			{
+				return;
+			}
+			foreach(var item in selected)
+			{
+				var group = Items.FirstOrDefault(x => x.Id == item.Id);
+				if(group != null)
+				{
+					Items.Remove(group);
+				}
+			}
+			UpdateText();
 		}
 
 		private void JournalOnRemoveEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)

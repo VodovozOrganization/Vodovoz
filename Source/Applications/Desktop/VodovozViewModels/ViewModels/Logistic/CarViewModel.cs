@@ -23,6 +23,7 @@ using QS.Project.Journal;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.Domain.Sale;
 using Autofac;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
@@ -215,12 +216,30 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private void AddGeoGroup()
 		{
-			var journal = _geoGroupJournalFactory.CreateJournal();
+			//var journal = _geoGroupJournalFactory.CreateJournal();
+			var journal = NavigationManager.OpenViewModel<GeoGroupJournalViewModel>(null).ViewModel;
 			journal.SelectionMode = JournalSelectionMode.Multiple;
 			journal.DisableChangeEntityActions();
-			journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult;
+			journal.OnSelectResult += OnJournalOnEntitySelectedResult;
 
-			TabParent.AddSlaveTab(this, journal);
+			//TabParent.AddSlaveTab(this, journal);
+		}
+
+		private void OnJournalOnEntitySelectedResult(object sender, JournalSelectedEventArgs e)
+		{
+			var selected = e.SelectedObjects.Cast<GeoGroupJournalNode>();
+			if(!selected.Any())
+			{
+				return;
+			}
+			foreach(var item in selected)
+			{
+				if(!Entity.ObservableGeographicGroups.Any(x => x.Id == item.Id))
+				{
+					var group = UoW.GetById<GeoGroup>(item.Id);
+					Entity.ObservableGeographicGroups.Add(group);
+				}
+			}
 		}
 
 		private void Journal_OnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)

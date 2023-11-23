@@ -10,7 +10,7 @@ using QS.Dialog;
 using QS.Utilities.Enums;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Domain.Sale;
+using SaleGeoGroup = Vodovoz.Domain.Sale.GeoGroup;
 using Vodovoz.EntityRepositories;
 using Vodovoz.ViewModels.Logistic;
 
@@ -23,10 +23,10 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		private DeliveryShift _deliveryShift;
 		private DateTime? _startDate;
 		private DateTime? _endDate;
-		private GeoGroup _geographicGroup;
+		private SaleGeoGroup _geographicGroup;
 		private List<AddressTypeNode> _addressTypeNodes = new List<AddressTypeNode>();
 		private List<RouteListStatusNode> _statusNodes;
-		private IList<GeoGroup> _geographicGroups;
+		private IList<SaleGeoGroup> _geographicGroups;
 		private IList<CarOwnType> _restrictedCarOwnTypes;
 		private IList<CarTypeOfUse> _restrictedCarTypesOfUse;
 		private DelegateCommand _infoCommand;
@@ -70,7 +70,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 			SubscribeOnCheckChanged();
 		}
 
-		public IList<GeoGroup> GeographicGroups => _geographicGroups ?? (_geographicGroups = UoW.GetAll<GeoGroup>().ToList());
+		public IList<SaleGeoGroup> GeographicGroups => _geographicGroups ?? (_geographicGroups = UoW.GetAll<SaleGeoGroup>().ToList());
 
 		public bool ShowDriversWithTerminal
 		{
@@ -114,7 +114,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 			set => UpdateFilterField(ref _restrictedCarOwnTypes, value);
 		}
 
-		public GeoGroup GeographicGroup
+		public SaleGeoGroup GeographicGroup
 		{
 			get => _geographicGroup;
 			set => UpdateFilterField(ref _geographicGroup, value);
