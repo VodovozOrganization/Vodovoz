@@ -570,10 +570,12 @@ namespace Vodovoz.Domain.Logistic
 
 			var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(uow);
 
-			var oldUndeliveryCommentText = "Вернули в доставку в тот же день";
+			var oldUndeliveryCommentText = "Доставлен в тот же день";
 
 			foreach(var oldUndelivery in undeliveries)
 			{
+				oldUndelivery.NewOrder?.ChangeStatus(OrderStatus.Canceled);
+
 				var oldUndeliveredOrderResultComment = new UndeliveredOrderResultComment
 				{
 					Author = currentEmployee,
@@ -593,6 +595,8 @@ namespace Vodovoz.Domain.Logistic
 				oldUndelivery.GuiltyInUndelivery.Clear();
 				oldUndelivery.GuiltyInUndelivery.Add(oldOrderGuiltyInUndelivery);
 
+				uow.Save(oldUndelivery);
+
 				var oldUndeliveredOrderComment = new UndeliveredOrderComment
 				{
 					Comment = oldUndeliveryCommentText,
@@ -603,10 +607,6 @@ namespace Vodovoz.Domain.Logistic
 				};
 
 				uow.Save(oldUndeliveredOrderComment);
-
-				oldUndelivery.NewOrder?.ChangeStatus(OrderStatus.Canceled);
-
-				uow.Save(oldUndelivery);
 
 				if(oldUndelivery.NewOrder == null)
 				{
