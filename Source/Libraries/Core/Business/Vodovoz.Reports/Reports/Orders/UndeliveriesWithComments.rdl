@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -975,6 +975,7 @@
             WHEN 'ForceMajor' THEN 'Форс-мажор'
             WHEN 'DirectorLO' THEN 'Доставка за час'
             WHEN 'DirectorLOCurrentDayDelivery' THEN 'Директор ЛО (Доставка в тот же день)'
+            WHEN 'AutoСancelAutoTransfer' then 'Автоотмена автопереноса'
             WHEN 'None' THEN 'Нет (не недовоз)'
             WHEN 'Unknown' THEN 'Неизвестно'
             ELSE g.guilty_side
@@ -998,9 +999,9 @@
             un.reason as reason,
             (SELECT CONCAT( e.`last_name`, ' ', SUBSTRING(e.`name`, 1, 1), '. ', SUBSTRING(e.`patronymic`, 1, 1), '.')
             FROM undelivered_orders_result_comments uorc
-            JOIN employees e ON uorc.author_id = e.id 
+            JOIN employees e ON uorc.author_id = e.id
             WHERE uorc.undelivered_order_id = un.id
-            ORDER BY uorc.creation_time  DESC 
+            ORDER BY uorc.creation_time  DESC
             LIMIT 1
             ) as last_result_author,
             uo.name as undelivery_object,
@@ -1027,7 +1028,7 @@
             LEFT JOIN route_lists rl ON rla.route_list_id = rl.id
             LEFT JOIN undelivery_detalizations ud on ud.id = un.undelivery_detalization_id
             LEFT JOIN undelivery_kinds uk on uk.id = ud.undelivery_kind_id
-            LEFT JOIN undelivery_objects uo on uo.id = uk.undelivery_object_id 
+            LEFT JOIN undelivery_objects uo on uo.id = uk.undelivery_object_id
             WHERE
             oldo.delivery_date &gt;= @start_date AND oldo.delivery_date &lt;= @end_date
 	AND
@@ -1189,7 +1190,8 @@ FROM
 				WHEN 'ServiceMan' THEN 'Мастер СЦ'
 				WHEN 'DirectorLO' THEN 'Доставка за час'
 				WHEN 'DirectorLOCurrentDayDelivery' THEN 'Директор ЛО (Доставка в тот же день)'
-				WHEN 'None' THEN 'Нет (не недовоз)'
+                WHEN 'AutoСancelAutoTransfer' then 'Автоотмена автопереноса'				
+                WHEN 'None' THEN 'Нет (не недовоз)'
 				WHEN 'Unknown' THEN 'Неизвестно'
 				ELSE g.guilty_side
 			END
