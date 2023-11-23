@@ -1010,6 +1010,12 @@
     <Compile Include="Services\Logistics\RouteListAcceptStatus.cs" />
     <Compile Include="Services\RevenueServiceInfo.cs" />
     <Compile Include="Services\UserRoleSettings.cs" />
+    <Compile Include="Specifications\DynamicExpressionSpecification.cs" />
+    <Compile Include="Specifications\ExpressionSpecification.cs" />
+    <Compile Include="Specifications\ExpressionSpecificationAndExtension.cs" />
+    <Compile Include="Specifications\ExpressionSpecificationNotExtension.cs" />
+    <Compile Include="Specifications\ExpressionSpecificationOrExtension.cs" />
+    <Compile Include="Specifications\ISpecification.cs" />
     <Compile Include="Tools\GeoGroupVersionNotFoundException.cs" />
     <Compile Include="Tools\DataArchiver.cs" />
     <Compile Include="Tools\IDataArchiver.cs" />
