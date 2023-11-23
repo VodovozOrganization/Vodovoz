@@ -4405,10 +4405,12 @@ namespace Vodovoz.Domain.Orders
 
 			foreach(var orderItem in OrderItems.Where(x => Nomenclature.GetCategoriesForShipment().Contains(x.Nomenclature.Category)))
 			{
+				var amount = isActualCount && orderItem.ActualCount.HasValue ? orderItem.ActualCount.Value : orderItem.Count;
+
 				var found = result.FirstOrDefault(x => x.NomenclatureId == orderItem.Nomenclature.Id);
 				if(found != null)
 				{
-					found.Amount += isActualCount && orderItem.ActualCount.HasValue ? orderItem.ActualCount.Value : orderItem.Count;
+					found.Amount += amount;
 				}
 				else
 				{
@@ -4416,18 +4418,20 @@ namespace Vodovoz.Domain.Orders
 					{
 						NomenclatureId = orderItem.Nomenclature.Id,
 						Nomenclature = orderItem.Nomenclature,
-						Amount = isActualCount && orderItem.ActualCount.HasValue ? orderItem.ActualCount.Value : orderItem.Count
-					});
+						Amount = amount
+				});
 				}
 			}
 
 			foreach(var equipment in OrderEquipments.Where(x => x.Direction == Direction.Deliver
 						&& Nomenclature.GetCategoriesForShipment().Contains(x.Nomenclature.Category)))
 			{
+				var amount = isActualCount && equipment.ActualCount.HasValue ? equipment.ActualCount.Value : equipment.Count;
+
 				var found = result.FirstOrDefault(x => x.NomenclatureId == equipment.Nomenclature.Id);
 				if(found != null)
 				{
-					found.Amount += isActualCount && equipment.ActualCount.HasValue ? equipment.ActualCount.Value : equipment.Count;
+					found.Amount += amount;
 				}
 				else
 				{
@@ -4435,7 +4439,7 @@ namespace Vodovoz.Domain.Orders
 					{
 						NomenclatureId = equipment.Nomenclature.Id,
 						Nomenclature = equipment.Nomenclature,
-						Amount = isActualCount && equipment.ActualCount.HasValue ? equipment.ActualCount.Value : equipment.Count
+						Amount = amount
 					});
 				}
 			}
