@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
@@ -58,6 +58,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
 			IStringHandler stringHandler,
+			INomenclatureOnlineParametersProvider nomenclatureOnlineParametersProvider,
 			INomenclatureSettings nomenclatureSettings) : base(uowBuilder, uowFactory, commonServices)
 		{
 			if(nomenclatureSelectorFactory is null)

@@ -2,17 +2,15 @@ using Autofac;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
-using QS.Project.Journal;
 using QS.Services;
 using QS.ViewModels;
 using System;
 using System.Linq;
+using QS.Navigation;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.Services;
-using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
@@ -22,33 +20,25 @@ namespace Vodovoz.ViewModels.Orders
 {
 	public class PromotionalSetViewModel : EntityTabViewModelBase<PromotionalSet>, IPermissionResult
 	{
-		private readonly IEmployeeService _employeeService;
 		private readonly INomenclatureRepository _nomenclatureRepository;
-		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IUserRepository _userRepository;
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly ICounterpartyJournalFactory _counterpartySelectorFactory;
-		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 
 		public PromotionalSetViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory, 
 			ICommonServices commonServices,
-			IEmployeeService employeeService,
+			INavigationManager navigationManager,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
-			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
-			INomenclatureSettings nomenclatureSettings,
 			IUserRepository userRepository,
-			ILifetimeScope lifetimeScope) : base(uowBuilder, unitOfWorkFactory, commonServices)
+			ILifetimeScope lifetimeScope) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
-			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
-			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
-			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			CanChangeType = commonServices.CurrentPermissionService.ValidatePresetPermission( "can_change_the_type_of_promo_set" );
 
 			if(!CanRead)
@@ -117,18 +107,19 @@ namespace Vodovoz.ViewModels.Orders
 		private void CreateAddNomenclatureCommand()
 		{
 			AddNomenclatureCommand = new DelegateCommand(
-			() => {
-				var nomenFilter = new NomenclatureFilterViewModel();
-				nomenFilter.SetAndRefilterAtOnce(
-				x => x.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder(),
-					x => x.SelectCategory = NomenclatureCategory.water,
-					x => x.SelectSaleCategory = SaleCategory.forSale);
-
-				var nomenJournalViewModel = new NomenclaturesJournalViewModel(nomenFilter, UnitOfWorkFactory,
-					CommonServices, _employeeService, _nomenclatureSelectorFactory, _counterpartySelectorFactory,
-					_nomenclatureRepository, _userRepository, _nomenclatureSettings) {
-					SelectionMode = JournalSelectionMode.Single
-				};
+			() =>
+			{
+				var nomenJournalViewModel =
+					NavigationManager.OpenViewModel<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(
+						this,
+						f =>
+						{
+							f.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder();
+							f.SelectCategory = NomenclatureCategory.water;
+							f.SelectSaleCategory = SaleCategory.forSale;
+						},
+						OpenPageOptions.AsSlave)
+					.ViewModel;
 
 				nomenJournalViewModel.OnEntitySelectedResult += (sender, e) => {
 					var selectedNode = e.SelectedNodes.Cast<NomenclatureJournalNode>().FirstOrDefault();
@@ -145,7 +136,6 @@ namespace Vodovoz.ViewModels.Orders
 						PromoSet = Entity
 					});
 				};
-				TabParent.AddSlaveTab(this, nomenJournalViewModel);
 			},
 		  () => true
 		  );

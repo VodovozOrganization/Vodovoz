@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
@@ -27,6 +27,8 @@ using Vodovoz.Infrastructure;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.JournalSelector;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
+using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Employees;
@@ -233,7 +235,8 @@ namespace Vodovoz
 					counterpartySelectorFactory,
 					_nomenclatureRepository,
 					userRepository,
-					nomenclatureSettings
+					nomenclatureSettings,
+					_nomenclatureOnlineParametersProvider
 					);
 
 				nomenclaturesJournalViewModel.SelectionMode = JournalSelectionMode.Single;
@@ -328,7 +331,8 @@ namespace Vodovoz
 					counterpartyJournalFactory,
 					_nomenclatureRepository,
 					userRepository,
-					nomenclatureSettings
+					nomenclatureSettings,
+					_nomenclatureOnlineParametersProvider
 					);
 
 			nomenclaturesJournalViewModel.SelectionMode = JournalSelectionMode.Single;

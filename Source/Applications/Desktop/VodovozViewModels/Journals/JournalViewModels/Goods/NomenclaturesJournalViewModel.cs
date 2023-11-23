@@ -1,4 +1,4 @@
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.BusinessCommon.Domain;
@@ -14,7 +14,6 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Infrastructure;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
@@ -33,6 +32,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 		private readonly ICounterpartyJournalFactory _counterpartySelectorFactory;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
+		private readonly INomenclatureOnlineParametersProvider _nomenclatureOnlineParametersProvider;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 
 		public NomenclaturesJournalViewModel(
@@ -45,6 +45,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
 			INomenclatureSettings nomenclatureSettings,
+			INomenclatureOnlineParametersProvider nomenclatureOnlineParametersProvider,
 			Action<NomenclatureFilterViewModel> filterParams = null
 		) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
@@ -56,6 +57,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
+			_nomenclatureOnlineParametersProvider =
+				nomenclatureOnlineParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureOnlineParametersProvider));
+			
 			TabName = "Журнал ТМЦ";
 
 			SetOrder(x => x.Name);
@@ -258,11 +262,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 		protected override Func<NomenclatureViewModel> CreateDialogFunction =>
 			() => new NomenclatureViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices,
 				_employeeService, _nomenclatureSelectorFactory, _counterpartySelectorFactory, _nomenclatureRepository,
-				_userRepository, new StringHandler(), _nomenclatureSettings);
+				_userRepository, new StringHandler(), _nomenclatureOnlineParametersProvider, _nomenclatureSettings);
 
 		protected override Func<NomenclatureJournalNode, NomenclatureViewModel> OpenDialogFunction =>
 			node => new NomenclatureViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices,
 				_employeeService, _nomenclatureSelectorFactory, _counterpartySelectorFactory, _nomenclatureRepository,
-				_userRepository, new StringHandler(), _nomenclatureSettings);
+				_userRepository, new StringHandler(), _nomenclatureOnlineParametersProvider, _nomenclatureSettings);
 	}
 }

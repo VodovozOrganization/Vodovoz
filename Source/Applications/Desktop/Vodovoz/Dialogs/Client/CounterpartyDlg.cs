@@ -1080,12 +1080,7 @@ namespace Vodovoz
 					UoW,
 					this,
 					ServicesConfig.CommonServices,
-					_employeeService,
-					CounterpartySelectorFactory,
-					new NomenclatureJournalFactory(_lifetimeScope),
-					NomenclatureRepository,
-					_userRepository,
-					_lifetimeScope.Resolve<INomenclatureSettings>());
+					Startup.MainWin.NavigationManager);
 			supplierPricesWidget.Sensitive = CanEdit;
 		}
 
