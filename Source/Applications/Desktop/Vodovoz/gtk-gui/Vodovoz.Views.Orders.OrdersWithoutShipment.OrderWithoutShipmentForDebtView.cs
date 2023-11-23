@@ -40,9 +40,21 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 
 		private global::Gamma.GtkWidgets.yCheckButton yCheckBtnHideSignature;
 
-		private global::Gamma.GtkWidgets.yCheckButton ycheckSendBillByEdo;
-
 		private global::Gtk.HBox hbox7;
+
+		private global::Gtk.VBox vboxEdo;
+
+		private global::Gamma.GtkWidgets.yLabel ylabel4;
+
+		private global::Gtk.ScrolledWindow GtkScrolledWindow10;
+
+		private global::Gamma.GtkWidgets.yTreeView treeViewEdoContainers;
+
+		private global::Gamma.GtkWidgets.yHBox hboxEdoContainersBtns;
+
+		private global::Gamma.GtkWidgets.yButton btnUpdateEdoDocFlowStatus;
+
+		private global::Gamma.GtkWidgets.yButton ybuttonSendDocumentAgain;
 
 		protected virtual void Build()
 		{
@@ -218,30 +230,78 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			w16.Position = 3;
 			w16.Expand = false;
 			w16.Fill = false;
-			// Container child hbox4.Gtk.Box+BoxChild
-			this.ycheckSendBillByEdo = new global::Gamma.GtkWidgets.yCheckButton();
-			this.ycheckSendBillByEdo.CanFocus = true;
-			this.ycheckSendBillByEdo.Name = "ycheckSendBillByEdo";
-			this.ycheckSendBillByEdo.Label = global::Mono.Unix.Catalog.GetString("Отправвлять счет на оплату по ЭДО");
-			this.ycheckSendBillByEdo.DrawIndicator = true;
-			this.ycheckSendBillByEdo.UseUnderline = true;
-			this.hbox4.Add(this.ycheckSendBillByEdo);
-			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.ycheckSendBillByEdo]));
-			w17.Position = 4;
+			this.vbox1.Add(this.hbox4);
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox4]));
+			w17.Position = 3;
 			w17.Expand = false;
 			w17.Fill = false;
-			this.vbox1.Add(this.hbox4);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox4]));
-			w18.Position = 3;
-			w18.Expand = false;
-			w18.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox7 = new global::Gtk.HBox();
 			this.hbox7.Name = "hbox7";
 			this.hbox7.Spacing = 6;
 			this.vbox1.Add(this.hbox7);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox7]));
-			w19.Position = 4;
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox7]));
+			w18.Position = 4;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.vboxEdo = new global::Gtk.VBox();
+			this.vboxEdo.Name = "vboxEdo";
+			this.vboxEdo.Spacing = 6;
+			// Container child vboxEdo.Gtk.Box+BoxChild
+			this.ylabel4 = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabel4.Name = "ylabel4";
+			this.ylabel4.Xalign = 0F;
+			this.ylabel4.LabelProp = global::Mono.Unix.Catalog.GetString("Электронные документы:");
+			this.vboxEdo.Add(this.ylabel4);
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vboxEdo[this.ylabel4]));
+			w19.Position = 0;
+			w19.Expand = false;
+			w19.Fill = false;
+			// Container child vboxEdo.Gtk.Box+BoxChild
+			this.GtkScrolledWindow10 = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow10.Name = "GtkScrolledWindow10";
+			this.GtkScrolledWindow10.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow10.Gtk.Container+ContainerChild
+			this.treeViewEdoContainers = new global::Gamma.GtkWidgets.yTreeView();
+			this.treeViewEdoContainers.CanFocus = true;
+			this.treeViewEdoContainers.Name = "treeViewEdoContainers";
+			this.GtkScrolledWindow10.Add(this.treeViewEdoContainers);
+			this.vboxEdo.Add(this.GtkScrolledWindow10);
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vboxEdo[this.GtkScrolledWindow10]));
+			w21.Position = 1;
+			// Container child vboxEdo.Gtk.Box+BoxChild
+			this.hboxEdoContainersBtns = new global::Gamma.GtkWidgets.yHBox();
+			this.hboxEdoContainersBtns.Name = "hboxEdoContainersBtns";
+			this.hboxEdoContainersBtns.Spacing = 6;
+			// Container child hboxEdoContainersBtns.Gtk.Box+BoxChild
+			this.btnUpdateEdoDocFlowStatus = new global::Gamma.GtkWidgets.yButton();
+			this.btnUpdateEdoDocFlowStatus.CanFocus = true;
+			this.btnUpdateEdoDocFlowStatus.Name = "btnUpdateEdoDocFlowStatus";
+			this.btnUpdateEdoDocFlowStatus.UseUnderline = true;
+			this.btnUpdateEdoDocFlowStatus.Label = global::Mono.Unix.Catalog.GetString("Обновить статус");
+			this.hboxEdoContainersBtns.Add(this.btnUpdateEdoDocFlowStatus);
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.hboxEdoContainersBtns[this.btnUpdateEdoDocFlowStatus]));
+			w22.Position = 0;
+			w22.Expand = false;
+			w22.Fill = false;
+			// Container child hboxEdoContainersBtns.Gtk.Box+BoxChild
+			this.ybuttonSendDocumentAgain = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonSendDocumentAgain.CanFocus = true;
+			this.ybuttonSendDocumentAgain.Name = "ybuttonSendDocumentAgain";
+			this.ybuttonSendDocumentAgain.UseUnderline = true;
+			this.ybuttonSendDocumentAgain.Label = global::Mono.Unix.Catalog.GetString("Отправить повторно");
+			this.hboxEdoContainersBtns.Add(this.ybuttonSendDocumentAgain);
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.hboxEdoContainersBtns[this.ybuttonSendDocumentAgain]));
+			w23.Position = 1;
+			w23.Expand = false;
+			w23.Fill = false;
+			this.vboxEdo.Add(this.hboxEdoContainersBtns);
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vboxEdo[this.hboxEdoContainersBtns]));
+			w24.Position = 2;
+			w24.Expand = false;
+			w24.Fill = false;
+			this.vbox1.Add(this.vboxEdo);
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.vboxEdo]));
+			w25.Position = 5;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
