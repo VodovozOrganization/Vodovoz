@@ -48,6 +48,8 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 
 		private global::Gamma.GtkWidgets.yCheckButton yCheckBtnHideSignature;
 
+		private global::Gamma.GtkWidgets.yCheckButton ycheckSendBillByEdo;
+
 		private global::Gtk.HBox hboxSendDocuments;
 
 		protected virtual void Build()
@@ -162,6 +164,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			this.entityViewModelEntryCounterparty.Events = ((global::Gdk.EventMask)(256));
 			this.entityViewModelEntryCounterparty.Name = "entityViewModelEntryCounterparty";
 			this.entityViewModelEntryCounterparty.CanEditReference = false;
+			this.entityViewModelEntryCounterparty.CanOpenWithoutTabParent = false;
 			this.hbox2.Add(this.entityViewModelEntryCounterparty);
 			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.entityViewModelEntryCounterparty]));
 			w11.Position = 1;
@@ -254,18 +257,30 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			w21.Position = 5;
 			w21.Expand = false;
 			w21.Fill = false;
-			this.vbox1.Add(this.hbox11);
-			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox11]));
-			w22.Position = 5;
+			// Container child hbox11.Gtk.Box+BoxChild
+			this.ycheckSendBillByEdo = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckSendBillByEdo.CanFocus = true;
+			this.ycheckSendBillByEdo.Name = "ycheckSendBillByEdo";
+			this.ycheckSendBillByEdo.Label = global::Mono.Unix.Catalog.GetString("Отправвлять счет на оплату по ЭДО");
+			this.ycheckSendBillByEdo.DrawIndicator = true;
+			this.ycheckSendBillByEdo.UseUnderline = true;
+			this.hbox11.Add(this.ycheckSendBillByEdo);
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.hbox11[this.ycheckSendBillByEdo]));
+			w22.Position = 6;
 			w22.Expand = false;
 			w22.Fill = false;
+			this.vbox1.Add(this.hbox11);
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox11]));
+			w23.Position = 5;
+			w23.Expand = false;
+			w23.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hboxSendDocuments = new global::Gtk.HBox();
 			this.hboxSendDocuments.Name = "hboxSendDocuments";
 			this.hboxSendDocuments.Spacing = 6;
 			this.vbox1.Add(this.hboxSendDocuments);
-			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hboxSendDocuments]));
-			w23.Position = 6;
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hboxSendDocuments]));
+			w24.Position = 6;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
