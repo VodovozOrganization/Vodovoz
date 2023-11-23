@@ -23,14 +23,14 @@ namespace Vodovoz.Domain.Orders.Documents
 		private Guid? _internalId;
 		private Guid? _docFlowId;
 		private Order _order;
+		private OrderWithoutShipmentForAdvancePayment _orderWithoutShipmentForAdvancePayment;
+		private OrderWithoutShipmentForDebt _orderWithoutShipmentForDebt;
+		private OrderWithoutShipmentForPayment _orderWithoutShipmentForPayment;
 		private Counterparty _counterparty;
 		private byte[] _container;
 		private EdoDocFlowStatus _edoDocFlowStatus;
 		private DateTime _created;
 		private Type _type;
-		private OrderWithoutShipmentForAdvancePayment _orderWithoutShipmentForAdvancePayment;
-		private OrderWithoutShipmentForDebt _orderWithoutShipmentForDebt;
-		private OrderWithoutShipmentForPayment _orderWithoutShipmentForPayment;
 
 		public virtual int Id { get; set; }
 

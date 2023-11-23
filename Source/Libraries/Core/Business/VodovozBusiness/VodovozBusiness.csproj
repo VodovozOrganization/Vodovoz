@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -1016,6 +1016,7 @@
     <Compile Include="Specifications\ExpressionSpecificationNotExtension.cs" />
     <Compile Include="Specifications\ExpressionSpecificationOrExtension.cs" />
     <Compile Include="Specifications\ISpecification.cs" />
+    <Compile Include="Specifications\Orders\EdoContainers\EdoContainerSpecification.cs" />
     <Compile Include="Tools\GeoGroupVersionNotFoundException.cs" />
     <Compile Include="Tools\DataArchiver.cs" />
     <Compile Include="Tools\IDataArchiver.cs" />
