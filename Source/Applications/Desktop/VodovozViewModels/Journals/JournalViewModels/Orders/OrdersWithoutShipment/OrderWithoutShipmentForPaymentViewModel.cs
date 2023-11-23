@@ -1,7 +1,10 @@
 ﻿using Gamma.Utilities;
+using Microsoft.Extensions.Logging;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Commands;
+using QS.Dialog;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -11,25 +14,23 @@ using QS.Tdi;
 using QS.ViewModels;
 using System;
 using System.Data.Bindings.Collections.Generic;
-using Microsoft.Extensions.Logging;
-using QS.Dialog;
+using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
-using Vodovoz.ViewModels.Dialogs.Email;
-using VodOrder = Vodovoz.Domain.Orders.Order;
-using QS.DomainModel.Entity;
 using Vodovoz.Settings.Database;
+using Vodovoz.Specifications.Orders.EdoContainers;
 using Vodovoz.TempAdapters;
-using Vodovoz.Domain.Orders.Documents;
-using System.Linq;
+using Vodovoz.ViewModels.Dialogs.Email;
 using EdoDocumentType = Vodovoz.Domain.Orders.Documents.Type;
+using VodOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 {
@@ -39,26 +40,16 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		private readonly IRDLPreviewOpener _rdlPreviewOpener;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private GenericObservableList<EdoContainer> _edoContainers = new GenericObservableList<EdoContainer>();
-		private DateTime? startDate = DateTime.Now.AddMonths(-1);
-		public DateTime? StartDate {
-			get => startDate;
-			set => SetField(ref startDate, value);
-		}
+		private IGenericRepository<EdoContainer> _edoContainerRepository;
 
-		private DateTime? endDate = DateTime.Now;
-		public DateTime? EndDate {
-			get => endDate;
-			set => SetField(ref endDate, value);
-		}
-		
-		public OrderWithoutShipmentForPaymentNode SelectedNode { get; set; }
-		public SendDocumentByEmailViewModel SendDocViewModel { get; set; }
+		private DateTime? _startDate = DateTime.Now.AddMonths(-1);
+		private DateTime? _endDate = DateTime.Now;
+
 		public bool IsDocumentSent => Entity.IsBillWithoutShipmentSent;
-		
-		public GenericObservableList<OrderWithoutShipmentForPaymentNode> ObservableAvailableOrders { get; }
-		
+
 		public Action<string> OpenCounterpartyJournal;
-		
+		private bool _sendBillByEdoChecked;
+
 		public OrderWithoutShipmentForPaymentViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
@@ -67,7 +58,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			IParametersProvider parametersProvider,
 			CommonMessages commonMessages,
 			IRDLPreviewOpener rdlPreviewOpener,
-			ICounterpartyJournalFactory counterpartyJournalFactory) : base(uowBuilder, uowFactory, commonServices)
+			ICounterpartyJournalFactory counterpartyJournalFactory,
+			IGenericRepository<EdoContainer> edoContainerRepository) : base(uowBuilder, uowFactory, commonServices)
 		{
 			if(parametersProvider == null)
 			{
@@ -77,14 +69,16 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			_commonMessages = commonMessages ?? throw new ArgumentNullException(nameof(commonMessages));
 			_rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
+			_edoContainerRepository = edoContainerRepository ?? throw new ArgumentNullException(nameof(edoContainerRepository));
+
 			bool canCreateBillsWithoutShipment = CommonServices.PermissionService.ValidateUserPresetPermission("can_create_bills_without_shipment", CurrentUser.Id);
 			var currentEmployee = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
-			
-			if (uowBuilder.IsNewEntity)
+
+			if(uowBuilder.IsNewEntity)
 			{
-				if (canCreateBillsWithoutShipment)
+				if(canCreateBillsWithoutShipment)
 				{
-					if (!AskQuestion("Вы действительно хотите создать счет без отгрузки на постоплату?"))
+					if(!AskQuestion("Вы действительно хотите создать счет без отгрузки на постоплату?"))
 					{
 						AbortOpening();
 					}
@@ -98,9 +92,9 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 					AbortOpening("У Вас нет прав на выставление счетов без отгрузки.");
 				}
 			}
-			
+
 			TabName = "Счет без отгрузки на постоплату";
-			
+
 			var loggerFactory = new LoggerFactory();
 			var settingsController = new SettingsController(UnitOfWorkFactory, new Logger<SettingsController>(loggerFactory));
 			SendDocViewModel =
@@ -110,39 +104,67 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 					currentEmployee,
 					commonServices.InteractiveService,
 					UoW);
-			
+
 			ObservableAvailableOrders = new GenericObservableList<OrderWithoutShipmentForPaymentNode>();
-		}
 
-		#region Commands
-
-		private DelegateCommand cancelCommand;
-		public DelegateCommand CancelCommand => cancelCommand ?? (cancelCommand = new DelegateCommand(
-			() => Close(true, CloseSource.Cancel),
-			() => true
-		));
-		
-		private DelegateCommand openBillCommand;
-		public DelegateCommand OpenBillCommand => openBillCommand ?? (openBillCommand = new DelegateCommand(
-			() =>
+			if(Entity.Id != 0)
 			{
-				string whatToPrint = "документа \"" + Entity.Type.GetEnumTitle() + "\"";
-				
-				if(UoWGeneric.HasChanges && _commonMessages.SaveBeforePrint(typeof(OrderWithoutShipmentForPayment), whatToPrint))
+				UpdateEdoContainers();
+			}
+
+			CancelCommand = new DelegateCommand(
+				() => Close(true, CloseSource.Cancel),
+				() => true);
+
+			OpenBillCommand = new DelegateCommand(
+				() =>
 				{
-					if(Save(false))
+					string whatToPrint = "документа \"" + Entity.Type.GetEnumTitle() + "\"";
+
+					if(UoWGeneric.HasChanges && _commonMessages.SaveBeforePrint(typeof(OrderWithoutShipmentForPayment), whatToPrint))
+					{
+						if(Save(false))
+						{
+							_rdlPreviewOpener.OpenRldDocument(typeof(OrderWithoutShipmentForPayment), Entity);
+						}
+					}
+
+					if(!UoWGeneric.HasChanges && Entity.Id > 0)
 					{
 						_rdlPreviewOpener.OpenRldDocument(typeof(OrderWithoutShipmentForPayment), Entity);
 					}
-				}
-				
-				if(!UoWGeneric.HasChanges && Entity.Id > 0)
-				{
-					_rdlPreviewOpener.OpenRldDocument(typeof(OrderWithoutShipmentForPayment), Entity);
-				}
-			},
-			() => true
-		));
+				},
+				() => true);
+		}
+
+		public DateTime? StartDate
+		{
+			get => _startDate;
+			set => SetField(ref _startDate, value);
+		}
+
+		public DateTime? EndDate
+		{
+			get => _endDate;
+			set => SetField(ref _endDate, value);
+		}
+
+		public bool SendBillByEdoChecked
+		{
+			get => _sendBillByEdoChecked;
+			set => SetField(ref _sendBillByEdoChecked, value);
+		}
+
+		public OrderWithoutShipmentForPaymentNode SelectedNode { get; set; }
+		public SendDocumentByEmailViewModel SendDocViewModel { get; set; }
+
+		public GenericObservableList<OrderWithoutShipmentForPaymentNode> ObservableAvailableOrders { get; }
+
+		#region Commands
+
+		public DelegateCommand CancelCommand { get; }
+
+		public DelegateCommand OpenBillCommand { get; }
 
 		public ICounterpartyJournalFactory CounterpartyJournalFactory => _counterpartyJournalFactory;
 
@@ -187,7 +209,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			var bottleCountSubQuery = QueryOver.Of(() => orderItemAlias)
 				.Where(() => orderAlias.Id == orderItemAlias.Order.Id)
 				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
-				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
+				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water
+					&& nomenclatureAlias.TareVolume == TareVolume.Vol19L)
 				.Select(Projections.Sum(() => orderItemAlias.Count));
 
 			var resultQuery = cashlessOrdersQuery
@@ -245,17 +268,18 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 		private void SendBillByEdo(IUnitOfWork uow)
 		{
-			var edoContainer = _edoContainers.SingleOrDefault(x => x.Type == EdoDocumentType.Bill)
-							   ?? new EdoContainer
-							   {
-								   Type = EdoDocumentType.Bill,
-								   Created = DateTime.Now,
-								   Container = new byte[64],
-								   OrderWithoutShipmentForPayment = Entity,
-								   Counterparty = Entity.Counterparty,
-								   MainDocumentId = string.Empty,
-								   EdoDocFlowStatus = EdoDocFlowStatus.PreparingToSend
-							   };
+			var edoContainer = _edoContainers
+				.SingleOrDefault(x => x.Type == EdoDocumentType.Bill)
+					?? new EdoContainer
+					{
+						Type = EdoDocumentType.Bill,
+						Created = DateTime.Now,
+						Container = new byte[64],
+						OrderWithoutShipmentForPayment = Entity,
+						Counterparty = Entity.Counterparty,
+						MainDocumentId = string.Empty,
+						EdoDocFlowStatus = EdoDocFlowStatus.PreparingToSend
+					};
 
 			uow.Save(edoContainer);
 			uow.Commit();
@@ -267,7 +291,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 			{
-				foreach(var item in _orderRepository.GetEdoContainersByOrderId(uow, Entity.Id))
+				foreach(var item in _edoContainerRepository.Get(uow, EdoContainerSpecification.CreateForOrderWithoutShipmentForPaymentId(Entity.Id)))
 				{
 					_edoContainers.Add(item);
 				}

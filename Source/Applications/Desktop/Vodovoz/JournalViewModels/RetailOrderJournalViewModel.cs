@@ -20,6 +20,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories;
@@ -52,6 +53,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IOrderDiscountsController _discountsController;
 		private readonly IRDLPreviewOpener _rdlPreviewOpener;
 		private readonly int _closingDocumentDeliveryScheduleId;
+		private readonly IGenericRepository<EdoContainer> _edoContainersRepository;
 
 		public RetailOrderJournalViewModel(
 			OrderJournalFilterViewModel filterViewModel,
@@ -66,6 +68,8 @@ namespace Vodovoz.JournalViewModels
 			IOrderDiscountsController discountsController,
 			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider,
 			IRDLPreviewOpener rdlPreviewOpener,
+			INomenclatureSettings nomenclatureSettings,
+			IGenericRepository<EdoContainer> edoContainersRepository,
 			Action<OrderJournalFilterViewModel> filterConfig = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
@@ -84,6 +88,7 @@ namespace Vodovoz.JournalViewModels
 			_closingDocumentDeliveryScheduleId =
 				(deliveryScheduleParametersProvider ?? throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider)))
 				.ClosingDocumentDeliveryScheduleId;
+			_edoContainersRepository = edoContainersRepository ?? throw new ArgumentNullException(nameof(edoContainersRepository));
 
 			filterViewModel.Journal = this;
 
@@ -115,7 +120,7 @@ namespace Vodovoz.JournalViewModels
 				FilterViewModel.ConfigureWithoutFiltering(filterConfig);
 			}
 		}
-		
+
 		protected override void CreateNodeActions()
 		{
 			NodeActionsList.Clear();
@@ -529,7 +534,8 @@ namespace Vodovoz.JournalViewModels
 						_employeeService,
 						new CommonMessages(_commonServices.InteractiveService),
 						_rdlPreviewOpener,
-						_counterpartyJournalFactory),
+						_counterpartyJournalFactory,
+						_edoContainersRepository),
 					//функция диалога открытия документа
 					(RetailOrderJournalNode node) => new OrderWithoutShipmentForDebtViewModel(
 						EntityUoWBuilder.ForOpen(node.Id),
@@ -538,7 +544,8 @@ namespace Vodovoz.JournalViewModels
 						_employeeService,
 						new CommonMessages(_commonServices.InteractiveService),
 						_rdlPreviewOpener,
-						_counterpartyJournalFactory),
+						_counterpartyJournalFactory,
+						_edoContainersRepository),
 					//функция идентификации документа 
 					(RetailOrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForDebt),
 					"Счет без отгрузки на долг",
@@ -690,7 +697,8 @@ namespace Vodovoz.JournalViewModels
 						new ParametersProvider(),
 						new CommonMessages(_commonServices.InteractiveService),
 						_rdlPreviewOpener,
-						_counterpartyJournalFactory),
+						_counterpartyJournalFactory,
+						_edoContainersRepository),
 					//функция диалога открытия документа
 					(RetailOrderJournalNode node) => new OrderWithoutShipmentForPaymentViewModel(
 						EntityUoWBuilder.ForOpen(node.Id),
@@ -700,7 +708,8 @@ namespace Vodovoz.JournalViewModels
 						new ParametersProvider(),
 						new CommonMessages(_commonServices.InteractiveService),
 						_rdlPreviewOpener,
-						_counterpartyJournalFactory),
+						_counterpartyJournalFactory,
+						_edoContainersRepository),
 					//функция идентификации документа 
 					(RetailOrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForPayment),
 					"Счет без отгрузки на постоплату",
@@ -845,7 +854,9 @@ namespace Vodovoz.JournalViewModels
 						new DiscountReasonRepository(),
 						_discountsController,
 						new CommonMessages(_commonServices.InteractiveService),
-						_rdlPreviewOpener),
+						_rdlPreviewOpener,
+						_nomenclatureSettings,
+						_edoContainersRepository),
 					//функция диалога открытия документа
 					(RetailOrderJournalNode node) => new OrderWithoutShipmentForAdvancePaymentViewModel(
 						EntityUoWBuilder.ForOpen(node.Id),
@@ -858,7 +869,9 @@ namespace Vodovoz.JournalViewModels
 						new DiscountReasonRepository(),
 						_discountsController,
 						new CommonMessages(_commonServices.InteractiveService),
-						_rdlPreviewOpener),
+						_rdlPreviewOpener,
+						_nomenclatureSettings,
+						_edoContainersRepository),
 					//функция идентификации документа 
 					(RetailOrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForAdvancePayment),
 					"Счет без отгрузки на предоплату",

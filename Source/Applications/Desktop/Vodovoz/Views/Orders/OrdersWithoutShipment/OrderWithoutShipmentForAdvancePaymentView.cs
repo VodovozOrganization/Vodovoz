@@ -1,22 +1,19 @@
-﻿using System;
-using System.Linq;
-using Gamma.GtkWidgets;
+﻿using Gamma.GtkWidgets;
 using Gtk;
-using QS.Project.Journal.EntitySelector;
-using QS.Views.GtkUI;
-using Vodovoz.Domain.Client;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.JournalViewModels;
-using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
-using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using QS.Utilities;
+using QS.Views.GtkUI;
+using System;
+using System.ComponentModel;
+using System.Linq;
 using Vodovoz.Dialogs.Email;
-using Vodovoz.Infrastructure.Converters;
+using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Infrastructure;
+using Vodovoz.Infrastructure.Converters;
+using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 
 namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class OrderWithoutShipmentForAdvancePaymentView : TabViewBase<OrderWithoutShipmentForAdvancePaymentViewModel>
 	{
 		public OrderWithoutShipmentForAdvancePaymentView(OrderWithoutShipmentForAdvancePaymentViewModel viewModel) : base(viewModel)
@@ -32,19 +29,44 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			btnDeleteOrderItem.Clicked += (sender, e) => ViewModel.DeleteItemCommand.Execute();
 			ybtnOpenBill.Clicked += (sender, e) => ViewModel.OpenBillCommand.Execute();
 
-			ylabelOrderNum.Binding.AddBinding(ViewModel.Entity, e => e.Id, w => w.Text, new IntToStringConverter()).InitializeFromSource();
-			ylabelOrderDate.Binding.AddFuncBinding(ViewModel, vm => vm.Entity.CreateDate.ToString(), w => w.Text).InitializeFromSource();
-			ylabelOrderAuthor.Binding.AddFuncBinding(ViewModel, vm => vm.Entity.Author.ShortName, w => w.Text).InitializeFromSource();
-			btnDeleteOrderItem.Binding.AddFuncBinding(ViewModel, vm => vm.SelectedItem != null, w => w.Sensitive).InitializeFromSource();
-			yCheckBtnHideSignature.Binding.AddBinding(ViewModel.Entity, e => e.HideSignature, w => w.Active).InitializeFromSource();
+			ylabelOrderNum.Binding
+				.AddBinding(ViewModel.Entity, e => e.Id, w => w.Text, new IntToStringConverter())
+				.InitializeFromSource();
 
-			entityViewModelEntryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory());
+			ylabelOrderDate.Binding
+				.AddFuncBinding(ViewModel, vm => vm.Entity.CreateDate.ToString(), w => w.Text)
+				.InitializeFromSource();
+
+			ylabelOrderAuthor.Binding
+				.AddFuncBinding(ViewModel, vm => vm.Entity.Author.ShortName, w => w.Text)
+				.InitializeFromSource();
+
+			btnDeleteOrderItem.Binding
+				.AddFuncBinding(ViewModel, vm => vm.SelectedItem != null, w => w.Sensitive)
+				.InitializeFromSource();
+
+			yCheckBtnHideSignature.Binding
+				.AddBinding(ViewModel.Entity, e => e.HideSignature, w => w.Active)
+				.InitializeFromSource();
+
+			entityViewModelEntryCounterparty.SetEntityAutocompleteSelectorFactory(
+				ViewModel.CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory());
 
 			entityViewModelEntryCounterparty.Changed += ViewModel.OnEntityViewModelEntryChanged;
 
-			entityViewModelEntryCounterparty.Binding.AddBinding(ViewModel.Entity, e => e.Client, w => w.Subject).InitializeFromSource();
-			entityViewModelEntryCounterparty.Binding.AddFuncBinding(ViewModel, vm => !vm.IsDocumentSent, w => w.Sensitive).InitializeFromSource();
+			entityViewModelEntryCounterparty.Binding
+				.AddBinding(ViewModel.Entity, e => e.Client, w => w.Subject)
+				.InitializeFromSource();
+
+			entityViewModelEntryCounterparty.Binding
+				.AddFuncBinding(ViewModel, vm => !vm.IsDocumentSent, w => w.Sensitive)
+				.InitializeFromSource();
+
 			entityViewModelEntryCounterparty.CanEditReference = true;
+
+			ycheckSendBillByEdo.Binding
+				.AddBinding(ViewModel, vm => vm.SendBillByEdoChecked, w => w.Active)
+				.InitializeFromSource();
 			
 			var sendEmailView = new SendDocumentByEmailView(ViewModel.SendDocViewModel);
 			hboxSendDocuments.Add(sendEmailView);
@@ -94,8 +116,8 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 					.Editing()
 					.AddSetter(
 						(c, n) => c.Adjustment = n.IsDiscountInMoney
-									? new Adjustment(0, 0, (double)(n.Price * n.Count), 1, 100, 1)
-									: new Adjustment(0, 0, 100, 1, 100, 1)
+							? new Adjustment(0, 0, (double)(n.Price * n.Count), 1, 100, 1)
+							: new Adjustment(0, 0, 100, 1, 100, 1)
 					)
 					.Digits(2)
 					.WidthChars(10)
@@ -115,12 +137,10 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 						return list;
 					})
 					.EditedEvent(OnDiscountReasonComboEdited)
-				.AddSetter(
-						(c, n) =>
-							c.BackgroundGdk = n.Discount > 0 && n.DiscountReason == null
-								? colorLightRed
-								: colorWhite
-					)
+				.AddSetter((c, n) =>
+					c.BackgroundGdk = n.Discount > 0 && n.DiscountReason == null
+						? colorLightRed
+						: colorWhite)
 				.RowCells()
 					.XAlign(0.5f)
 				.Finish();

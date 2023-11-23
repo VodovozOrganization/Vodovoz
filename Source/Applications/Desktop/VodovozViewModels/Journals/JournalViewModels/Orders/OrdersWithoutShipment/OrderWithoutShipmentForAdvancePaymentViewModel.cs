@@ -1,4 +1,5 @@
 using Gamma.Utilities;
+using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -11,12 +12,13 @@ using QS.Tdi;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Microsoft.Extensions.Logging;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.DiscountReasons;
@@ -24,15 +26,14 @@ using Vodovoz.Infrastructure.Print;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Settings.Database;
+using Vodovoz.Settings.Nomenclature;
+using Vodovoz.Specifications.Orders.EdoContainers;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Email;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
-using Vodovoz.Settings.Nomenclature;
-using Vodovoz.Domain.Orders.Documents;
 using EdoDocumentType = Vodovoz.Domain.Orders.Documents.Type;
-using System.Data.Bindings.Collections.Generic;
 
 namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 {
@@ -44,19 +45,12 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		private readonly IRDLPreviewOpener _rdlPreviewOpener;
 		private UserSettings _currentUserSettings;
 		private GenericObservableList<EdoContainer> _edoContainers = new GenericObservableList<EdoContainer>();
+		private IGenericRepository<EdoContainer> _edoContainerRepository;
 
-		private object selectedItem;
-		public object SelectedItem {
-			get => selectedItem;
-			set => SetField(ref selectedItem, value);
-		}
-		
-		public SendDocumentByEmailViewModel SendDocViewModel { get; set; }
-		
-		public bool IsDocumentSent => Entity.IsBillWithoutShipmentSent;
+		private object _selectedItem;
 		
 		public Action<string> OpenCounterpartyJournal;
-		public IEntityUoWBuilder EntityUoWBuilder { get; }
+		private bool _sendBillByEdoChecked;
 
 		public OrderWithoutShipmentForAdvancePaymentViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -69,32 +63,37 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			IDiscountReasonRepository discountReasonRepository,
 			IOrderDiscountsController discountsController,
 			CommonMessages commonMessages,
-			IRDLPreviewOpener rdlPreviewOpener) : base(uowBuilder, uowFactory, commonServices, navigationManager)
+			IGenericRepository<EdoContainer> edoContainerRepository,
+			IRDLPreviewOpener rdlPreviewOpener)
+			: base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_commonMessages = commonMessages ?? throw new ArgumentNullException(nameof(commonMessages));
 			_rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
-			
+			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
+			_edoContainerRepository = edoContainerRepository ?? throw new ArgumentNullException(nameof(edoContainerRepository));
 			if(discountReasonRepository == null)
 			{
 				throw new ArgumentNullException(nameof(discountReasonRepository));
 			}
+
 			DiscountsController = discountsController ?? throw new ArgumentNullException(nameof(discountsController));
 			_counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
-			
-			bool canCreateBillsWithoutShipment = 
+
+			bool canCreateBillsWithoutShipment =
 				CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_bills_without_shipment");
 			CanChangeDiscountValue = CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_direct_discount_value");
-			
+
 			var currentEmployee = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
-			
-			if (uowBuilder.IsNewEntity)
+
+			if(uowBuilder.IsNewEntity)
 			{
-				if (canCreateBillsWithoutShipment)
+				if(canCreateBillsWithoutShipment)
 				{
-					if (!AskQuestion("Вы действительно хотите создать счет без отгрузки на предоплату?"))
+					if(!AskQuestion("Вы действительно хотите создать счет без отгрузки на предоплату?"))
 					{
 						AbortOpening();
+						return;
 					}
 					else
 					{
@@ -104,9 +103,10 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				else
 				{
 					AbortOpening("У Вас нет прав на выставление счетов без отгрузки.");
+					return;
 				}
 			}
-			
+
 			TabName = "Счет без отгрузки на предоплату";
 			EntityUoWBuilder = uowBuilder;
 
@@ -121,34 +121,27 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 					UoW);
 
 			FillDiscountReasons(discountReasonRepository);
-		}
-		
-		private UserSettings CurrentUserSettings =>
-			_currentUserSettings ??
-			(_currentUserSettings = _userRepository.GetUserSettings(UoW, CommonServices.UserService.CurrentUserId));
 
-		public IList<DiscountReason> DiscountReasons { get; private set; }
-		public IOrderDiscountsController DiscountsController { get; }
-		public bool CanChangeDiscountValue { get; }
-
-		#region Commands
-
-		private DelegateCommand addForSaleCommand;
-		public DelegateCommand AddForSaleCommand => addForSaleCommand ?? (addForSaleCommand = new DelegateCommand(
-			() =>
+			if(Entity.Id != 0)
 			{
-				if(!CanAddNomenclaturesToOrder())
-				{
-					return;
-				}
+				UpdateEdoContainers();
+			}
 
-				var defaultCategory = NomenclatureCategory.water;
-				if(CurrentUserSettings.DefaultSaleCategory.HasValue)
+			AddForSaleCommand = new DelegateCommand(
+				() =>
 				{
-					defaultCategory = CurrentUserSettings.DefaultSaleCategory.Value;
-				}
+					if(!CanAddNomenclaturesToOrder())
+					{
+						return;
+					}
 
-				var journalViewModel = NavigationManager.OpenViewModel<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(
+					var defaultCategory = NomenclatureCategory.water;
+					if(CurrentUserSettings.DefaultSaleCategory.HasValue)
+					{
+						defaultCategory = CurrentUserSettings.DefaultSaleCategory.Value;
+					}
+
+					var journalViewModel = NavigationManager.OpenViewModel<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(
 						this,
 						f =>
 						{
@@ -167,57 +160,87 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 						})
 					.ViewModel;
 				
-				journalViewModel.OnEntitySelectedResult += (s, ea) =>
-				{
-					var selectedNode = ea.SelectedNodes.FirstOrDefault();
-					
-					if(selectedNode == null)
+					journalViewModel.OnEntitySelectedResult += (s, ea) =>
 					{
-						return;
+						var selectedNode = ea.SelectedNodes.FirstOrDefault();
+						
+						if(selectedNode == null)
+						{
+							return;
+						}
+
+						TryAddNomenclature(UoWGeneric.Session.Get<Nomenclature>(selectedNode.Id));
+					};
+				},
+				() => true);
+
+			CancelCommand = new DelegateCommand(
+				() => Close(true, CloseSource.Cancel),
+				() => true);
+
+			DeleteItemCommand = new DelegateCommand(
+				() =>
+				{
+					var item = SelectedItem as OrderWithoutShipmentForAdvancePaymentItem;
+					Entity.RemoveItem(item);
+				},
+				() => SelectedItem != null);
+
+			OpenBillCommand = new DelegateCommand(
+				() =>
+				{
+					string whatToPrint = "документа \"" + Entity.Type.GetEnumTitle() + "\"";
+
+					if(UoWGeneric.HasChanges && _commonMessages.SaveBeforePrint(typeof(OrderWithoutShipmentForAdvancePayment), whatToPrint))
+					{
+						if(Save(false))
+						{
+							_rdlPreviewOpener.OpenRldDocument(typeof(OrderWithoutShipmentForAdvancePayment), Entity);
+						}
 					}
 
-					TryAddNomenclature(UoWGeneric.Session.Get<Nomenclature>(selectedNode.Id));
-				};
-			},
-			() => true
-		));
-
-		private DelegateCommand cancelCommand;
-		public DelegateCommand CancelCommand => cancelCommand ?? (cancelCommand = new DelegateCommand(
-			() =>Close(true, CloseSource.Cancel),
-			() => true
-		));
-
-		private DelegateCommand deleteItemCommand;
-		public DelegateCommand DeleteItemCommand => deleteItemCommand ?? (deleteItemCommand = new DelegateCommand(
-			() => {
-				var item = SelectedItem as OrderWithoutShipmentForAdvancePaymentItem;
-				Entity.RemoveItem(item);
-			},
-			() => SelectedItem != null
-		));
-
-		private DelegateCommand openBillCommand;
-		public DelegateCommand OpenBillCommand => openBillCommand ?? (openBillCommand = new DelegateCommand(
-			() =>
-			{
-				string whatToPrint = "документа \"" + Entity.Type.GetEnumTitle() + "\"";
-				
-				if(UoWGeneric.HasChanges && _commonMessages.SaveBeforePrint(typeof(OrderWithoutShipmentForAdvancePayment), whatToPrint))
-				{
-					if(Save(false))
+					if(!UoWGeneric.HasChanges && Entity.Id > 0)
 					{
 						_rdlPreviewOpener.OpenRldDocument(typeof(OrderWithoutShipmentForAdvancePayment), Entity);
 					}
-				}
+				},
+				() => true);
+		}
 
-				if(!UoWGeneric.HasChanges && Entity.Id > 0)
-				{
-					_rdlPreviewOpener.OpenRldDocument(typeof(OrderWithoutShipmentForAdvancePayment), Entity);
-				}
-			},
-			() => true
-		));
+		public IEntityUoWBuilder EntityUoWBuilder { get; }
+		public bool IsDocumentSent => Entity.IsBillWithoutShipmentSent;
+
+		public SendDocumentByEmailViewModel SendDocViewModel { get; set; }
+
+		public object SelectedItem
+		{
+			get => _selectedItem;
+			set => SetField(ref _selectedItem, value);
+		}
+
+		public bool SendBillByEdoChecked
+		{
+			get => _sendBillByEdoChecked;
+			set => SetField(ref _sendBillByEdoChecked, value);
+		}
+
+		private UserSettings CurrentUserSettings =>
+			_currentUserSettings ??
+			(_currentUserSettings = _userRepository.GetUserSettings(UoW, CommonServices.UserService.CurrentUserId));
+
+		public IList<DiscountReason> DiscountReasons { get; private set; }
+		public IOrderDiscountsController DiscountsController { get; }
+		public bool CanChangeDiscountValue { get; }
+
+		#region Commands
+
+		public DelegateCommand AddForSaleCommand { get; }
+
+		public DelegateCommand CancelCommand { get; }
+
+		public DelegateCommand DeleteItemCommand { get; }
+
+		public DelegateCommand OpenBillCommand { get; }
 
 		public ICounterpartyJournalFactory CounterpartySelectorFactory => _counterpartySelectorFactory;
 
@@ -285,7 +308,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 			{
-				foreach(var item in _orderRepository.GetEdoContainersByOrderId(uow, Entity.Id))
+				foreach(var item in _edoContainerRepository.Get(uow, EdoContainerSpecification.CreateForOrderWithoutShipmentForAdvancePaymentId(Entity.Id)))
 				{
 					_edoContainers.Add(item);
 				}

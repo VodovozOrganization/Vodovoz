@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.Widgets;
 using MoreLinq;
 using NHibernate;
@@ -67,6 +67,10 @@ namespace Vodovoz.JournalViewModels
 		private readonly IGtkTabsOpener _gtkDialogsOpener;
 		private readonly bool _userHasOnlyAccessToWarehouseAndComplaints;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
+		private readonly ISubdivisionRepository _subdivisionRepository;
+		private readonly IRouteListItemRepository _routeListItemRepository;
+		private readonly INomenclatureSettings _nomenclatureSettings;
+		private readonly IGenericRepository<EdoContainer> _edoContainersRepository;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly IRDLPreviewOpener _rdlPreviewOpener;
 		private readonly int _closingDocumentDeliveryScheduleId;
@@ -845,7 +849,8 @@ namespace Vodovoz.JournalViewModels
 						_employeeService,
 						new CommonMessages(_commonServices.InteractiveService),
 						_rdlPreviewOpener,
-						_counterpartyJournalFactory),
+						_counterpartyJournalFactory,
+						_edoContainersRepository),
 					//функция диалога открытия документа
 					(OrderJournalNode node) => new OrderWithoutShipmentForDebtViewModel(
 						EntityUoWBuilder.ForOpen(node.Id),
@@ -854,7 +859,8 @@ namespace Vodovoz.JournalViewModels
 						_employeeService,
 						new CommonMessages(_commonServices.InteractiveService),
 						_rdlPreviewOpener,
-						_counterpartyJournalFactory),
+						_counterpartyJournalFactory,
+						_edoContainersRepository),
 					//функция идентификации документа 
 					(OrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForDebt),
 					"Счет без отгрузки на долг",
@@ -1028,7 +1034,8 @@ namespace Vodovoz.JournalViewModels
 						new ParametersProvider(),
 						new CommonMessages(_commonServices.InteractiveService),
 						_rdlPreviewOpener,
-						_counterpartyJournalFactory),
+						_counterpartyJournalFactory,
+						_edoContainersRepository),
 					//функция диалога открытия документа
 					(OrderJournalNode node) => new OrderWithoutShipmentForPaymentViewModel(
 						EntityUoWBuilder.ForOpen(node.Id),
@@ -1038,7 +1045,8 @@ namespace Vodovoz.JournalViewModels
 						new ParametersProvider(),
 						new CommonMessages(_commonServices.InteractiveService),
 						_rdlPreviewOpener,
-						_counterpartyJournalFactory),
+						_counterpartyJournalFactory,
+						_edoContainersRepository),
 					//функция идентификации документа 
 					(OrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForPayment),
 					"Счет без отгрузки на постоплату",
