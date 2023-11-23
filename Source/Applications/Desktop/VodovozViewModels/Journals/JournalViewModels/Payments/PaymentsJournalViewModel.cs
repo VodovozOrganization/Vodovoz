@@ -342,6 +342,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 
 		protected void CancelPayments(PaymentJournalNode[] nodes)
 		{
+			if(!_commonServices.InteractiveService.Question("Платеж будет отменен.\n\nПродолжить?"))
+			{
+				return;
+			}
+
 			UoW.Session.Clear();
 
 			foreach(var node in nodes)
