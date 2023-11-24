@@ -704,6 +704,13 @@ namespace Vodovoz
 				.AddBinding(Entity, e => e.SelfDelivery, w => w.Visible)
 				.InitializeFromSource();
 
+			specialListCmbSelfDeliveryGeoGroup.ItemsList = GetSelfDeliveryGeoGroups();
+			specialListCmbSelfDeliveryGeoGroup.Binding
+				.AddSource(Entity)
+				.AddBinding(e => e.SelfDeliveryGeoGroup, w => w.SelectedItem)
+				.AddBinding(e => e.SelfDelivery, w => w.Visible)
+				.InitializeFromSource();
+
 			yChkActionBottle.Binding.AddBinding(Entity, e => e.IsBottleStock, w => w.Active).InitializeFromSource();
 			yEntTareActBtlFromClient.ValidationMode = ValidationType.numeric;
 			yEntTareActBtlFromClient.Binding.AddBinding(Entity, e => e.BottlesByStockCount, w => w.Text, new IntToStringConverter())
@@ -882,6 +889,7 @@ namespace Vodovoz
 					enumPaymentType.RemoveEnumFromHideList(PaymentType.DriverApplicationQR);
 
 					Entity.SelfDeliveryGeoGroup = null;
+					specialListCmbSelfDeliveryGeoGroup.ShowSpecialStateNot = true;
 				}
 
 				entryDeliverySchedule.Sensitive = labelDeliverySchedule.Sensitive = !checkSelfDelivery.Active;
@@ -1048,6 +1056,17 @@ namespace Vodovoz
 			logisticsRequirementsView.ViewModel.Entity.PropertyChanged += OnLogisticsRequirementsSelectionChanged;
 
 			UpdateCallBeforeArrivalVisibility();
+		}
+
+		private IEnumerable<GeoGroup> GetSelfDeliveryGeoGroups()
+		{
+			var currentGeoGroupId = Entity?.SelfDeliveryGeoGroup?.Id;
+
+			var geoGroups = UoW.GetAll<GeoGroup>()
+				.Where(g => !g.IsArchived || g.Id == currentGeoGroupId)
+				.ToList();
+
+			return geoGroups;
 		}
 
 		private void UpdateCallBeforeArrivalVisibility()
