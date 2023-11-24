@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using Autofac;
+﻿using Autofac;
 using Autofac.Core;
 using NHibernate;
 using NHibernate.Criterion;
@@ -14,6 +12,9 @@ using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
 using QS.Tdi;
+using System;
+using System.Linq;
+using Vodovoz.Controllers;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Payments;
@@ -32,8 +33,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 		private readonly INavigationManager _navigationManager;
 		private readonly IPaymentsRepository _paymentsRepository;
 		private readonly ILifetimeScope _scope;
-
+		private readonly IPaymentFromBankClientController _paymentFromBankClientController;
 		private bool _canCreateNewManualPayment;
+		private bool _canCancelManualPaymentFromBankClient;
 		private IPermissionResult _paymentPermissionResult;
 		
 		private PaymentsJournalFilterViewModel _filterViewModel;
@@ -45,6 +47,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			IPaymentsRepository paymentsRepository,
 			IDeleteEntityService deleteEntityService,
 			ILifetimeScope scope,
+			IPaymentFromBankClientController paymentFromBankClientController,
 			params Action<PaymentsJournalFilterViewModel>[] filterParams)
 			: base(unitOfWorkFactory,
 				commonServices?.InteractiveService,
@@ -56,19 +59,24 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
-
+			_paymentFromBankClientController = paymentFromBankClientController ?? throw new ArgumentNullException(nameof(paymentFromBankClientController));
 			TabName = "Журнал платежей из банк-клиента";
 
 			CreateFilter(filterParams);
+
 			SetPermissions();
-			CreateDeleteAction();
+
+			CreateCancelPaymentAction();
 			UpdateOnChanges(typeof(PaymentItem), typeof(VodOrder));
 		}
 
 		private void SetPermissions()
 		{
 			_canCreateNewManualPayment =
-				_commonServices.CurrentPermissionService.ValidatePresetPermission("can_create_new_manual_payment_from_bank_client");
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Payment.BankClient.CanCreateNewManualPaymentFromBankClient);
+
+			_canCancelManualPaymentFromBankClient =
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Payment.BankClient.CanCancelManualPaymentFromBankClient);
 		}
 
 		private void CreateFilter(params Action<PaymentsJournalFilterViewModel>[] filterParams)
@@ -86,20 +94,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 		private void OnFilterViewModelFiltered(object sender, EventArgs e)
 		{
 			Refresh();
-		}
-
-		private void CreateDeleteAction()
-		{
-			if(_commonServices.UserService.GetCurrentUser().IsAdmin)
-			{
-				var deleteAction = new JournalAction("Удалить",
-					(selected) => _paymentPermissionResult.CanDelete && selected.Any(),
-					(selected) => VisibleDeleteAction,
-					(selected) => DeleteEntities(selected.OfType<PaymentJournalNode>().ToArray()),
-					"Delete"
-				);
-				NodeActionsList.Add(deleteAction);
-			}
 		}
 
 		protected override IQueryOver<Payment> ItemsQuery(IUnitOfWork uow)
@@ -248,7 +242,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 		protected override void CreateNodeActions()
 		{
 			_paymentPermissionResult = CurrentPermissionService.ValidateEntityPermission(typeof(Payment));
-			
+
 			NodeActionsList.Clear();
 			CreateAddNewPaymentAction();
 
@@ -296,6 +290,40 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			);
 		}
 
+		private void CreateCancelPaymentAction()
+		{
+			var userIsAdmin = _commonServices.UserService.GetCurrentUser().IsAdmin;
+
+			var cancelPaymentAction = new JournalAction("Отменить платеж",
+					(selected) =>
+					{
+						if(!selected.Any())
+						{
+							return false;
+						}
+
+						var selectedPayments = selected.OfType<PaymentJournalNode>().ToArray();
+
+						if(selectedPayments.Any(p => p.Status == PaymentState.Cancelled))
+						{
+							return false;
+						}
+
+						var canCancel = (_canCancelManualPaymentFromBankClient && !selectedPayments.Any(p => !p.IsManualCreated))
+							|| userIsAdmin;
+
+						return canCancel;
+					},
+					(selected) => userIsAdmin || _canCancelManualPaymentFromBankClient,
+					(selected) =>
+					{
+						CancelPayments(selected.OfType<PaymentJournalNode>().ToArray());
+					}
+				);
+
+			NodeActionsList.Add(cancelPaymentAction);
+		}
+
 		private void CompleteAllocation()
 		{
 			var distributedPayments = _paymentsRepository.GetAllDistributedPayments(UoW);
@@ -309,6 +337,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				}
 
 				UoW.Commit();
+			}
+		}
+
+		protected void CancelPayments(PaymentJournalNode[] nodes)
+		{
+			if(!_commonServices.InteractiveService.Question("Платеж будет отменен.\n\nПродолжить?"))
+			{
+				return;
+			}
+
+			UoW.Session.Clear();
+
+			foreach(var node in nodes)
+			{
+				_paymentFromBankClientController.CancellPaymentWithAllocationsByUserRequest(UoW, node.Id);
 			}
 		}
 

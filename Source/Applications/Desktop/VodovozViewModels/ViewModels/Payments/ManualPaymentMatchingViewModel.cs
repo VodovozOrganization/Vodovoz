@@ -479,6 +479,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			if(Entity.Status == PaymentState.Cancelled)
 			{
 				ShowWarningMessage($"Платеж находится в статусе {Entity.Status.GetEnumTitle()} распределения не возможны!");
+				SaveAndCloseDialog();
+				return;
 			}
 
 			if(CurrentBalance < 0)
@@ -517,8 +519,14 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			}
 
 			Entity.Status = PaymentState.completed;
+
+			SaveAndCloseDialog();
+		}
+
+		private void SaveAndCloseDialog()
+		{
 			UpdateCurrentEditor();
-			
+
 			try
 			{
 				SaveAndClose();

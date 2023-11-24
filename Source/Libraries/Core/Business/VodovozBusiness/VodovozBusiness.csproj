@@ -812,6 +812,8 @@
     <Compile Include="Permissions\Cash.Expense.cs" />
     <Compile Include="Permissions\Logistic.cs" />
     <Compile Include="Permissions\Order.UndeliveredOrder.cs" />
+    <Compile Include="Permissions\Payment.BankClient.cs" />
+    <Compile Include="Permissions\Payment.cs" />
     <Compile Include="Permissions\Report.cs" />
     <Compile Include="Permissions\User.cs" />
     <Compile Include="Permissions\Report.Sales.cs" />
