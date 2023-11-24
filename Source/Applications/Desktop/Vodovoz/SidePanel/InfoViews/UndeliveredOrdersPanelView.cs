@@ -188,6 +188,7 @@ namespace Vodovoz.SidePanel.InfoViews
 							$"WHEN '{nameof(GuiltyTypes.ForceMajor)}' THEN '{GuiltyTypes.ForceMajor.GetEnumTitle()}' " +
 							$"WHEN '{nameof(GuiltyTypes.DirectorLO)}' THEN '{GuiltyTypes.DirectorLO.GetEnumTitle()}' " +
 							$"WHEN '{nameof(GuiltyTypes.DirectorLOCurrentDayDelivery)}' THEN '{GuiltyTypes.DirectorLOCurrentDayDelivery.GetEnumTitle()}' " +
+							$"WHEN '{nameof(GuiltyTypes.AutoСancelAutoTransfer)}' THEN '{GuiltyTypes.AutoСancelAutoTransfer.GetEnumTitle()}' " +
 							$"WHEN '{nameof(GuiltyTypes.None)}' THEN '{GuiltyTypes.None.GetEnumTitle()}' " +
 							"ELSE ?1 " +
 							"END ORDER BY ?1 ASC SEPARATOR '\n')"
