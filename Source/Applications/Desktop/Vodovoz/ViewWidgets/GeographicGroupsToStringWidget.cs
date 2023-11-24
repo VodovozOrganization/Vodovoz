@@ -102,24 +102,6 @@ namespace Vodovoz.ViewWidgets
 			UpdateText();
 		}
 
-		private void JournalOnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
-		{
-			var selected = e.SelectedNodes.Cast<GeoGroupJournalNode>();
-			if(!selected.Any())
-			{
-				return;
-			}
-			foreach(var item in selected)
-			{
-				if(!Items.Any(x => x.Id == item.Id))
-				{
-					var group = UoW.GetById<GeoGroup>(item.Id);
-					Items.Add(group);
-				}
-			}
-			UpdateText();
-		}
-
 		private void SelectedGeographicGroupsObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
 		{
 			foreach(var item in e.Subjects)
@@ -142,24 +124,6 @@ namespace Vodovoz.ViewWidgets
 		private void OnJournalOnRemoveEntitySelectedResult(object sender, JournalSelectedEventArgs e)
 		{
 			var selected = e.SelectedObjects.Cast<GeoGroupJournalNode>();
-			if(!selected.Any())
-			{
-				return;
-			}
-			foreach(var item in selected)
-			{
-				var group = Items.FirstOrDefault(x => x.Id == item.Id);
-				if(group != null)
-				{
-					Items.Remove(group);
-				}
-			}
-			UpdateText();
-		}
-
-		private void JournalOnRemoveEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
-		{
-			var selected = e.SelectedNodes.Cast<GeoGroupJournalNode>();
 			if(!selected.Any())
 			{
 				return;
