@@ -520,8 +520,8 @@ namespace Vodovoz.JournalViewModels
 
 			if (FilterViewModel.GeographicGroup != null)
 			{
-				query.Where(() => geographicalGroupAlias.Id == FilterViewModel.GeographicGroup.Id
-						|| selfDeliveryGeographicalGroupAlias.Id == FilterViewModel.GeographicGroup.Id);
+				query.Where(() => (!orderAlias.SelfDelivery && geographicalGroupAlias.Id == FilterViewModel.GeographicGroup.Id)
+						|| (orderAlias.SelfDelivery && selfDeliveryGeographicalGroupAlias.Id == FilterViewModel.GeographicGroup.Id));
 			}
 			
 			if(FilterViewModel.SortDeliveryDate != null)
