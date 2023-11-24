@@ -57,6 +57,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Sms;
 using Vodovoz.Domain.StoredEmails;
@@ -699,6 +700,10 @@ namespace Vodovoz
 				.InitializeFromSource();
 			entryBottlesToReturn.Changed += OnEntryBottlesToReturnChanged;
 
+			ylabelGeoGroup.Binding
+				.AddBinding(Entity, e => e.SelfDelivery, w => w.Visible)
+				.InitializeFromSource();
+
 			yChkActionBottle.Binding.AddBinding(Entity, e => e.IsBottleStock, w => w.Active).InitializeFromSource();
 			yEntTareActBtlFromClient.ValidationMode = ValidationType.numeric;
 			yEntTareActBtlFromClient.Binding.AddBinding(Entity, e => e.BottlesByStockCount, w => w.Text, new IntToStringConverter())
@@ -875,6 +880,8 @@ namespace Vodovoz
 				else
 				{
 					enumPaymentType.RemoveEnumFromHideList(PaymentType.DriverApplicationQR);
+
+					Entity.SelfDeliveryGeoGroup = null;
 				}
 
 				entryDeliverySchedule.Sensitive = labelDeliverySchedule.Sensitive = !checkSelfDelivery.Active;
