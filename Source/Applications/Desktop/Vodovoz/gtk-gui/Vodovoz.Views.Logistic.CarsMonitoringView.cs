@@ -24,15 +24,15 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gamma.GtkWidgets.yCheckButton ychkbtnShowHistory;
 
-		private global::QS.Widgets.GtkUI.DatePicker ydatePickeHistoryDate;
-
-		private global::Gamma.GtkWidgets.yLabel ylblHistoryHour;
-
-		private global::Gamma.Widgets.ySpecComboBox yspeccomboboxHistoryHour;
+		private global::QS.Widgets.GtkUI.DatePicker ydatepickerHistoryDate;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelGeoGroup;
 
 		private global::Gamma.Widgets.ySpecComboBox ySpecCmbGeoGroup;
+
+		private global::Gamma.GtkWidgets.yLabel ylblHistoryHour;
+
+		private global::Gamma.Widgets.ySpecComboBox yspeccomboboxHistoryHour;
 
 		private global::Gtk.ScrolledWindow swWorkingDriversContainer;
 
@@ -171,50 +171,27 @@ namespace Vodovoz.Views.Logistic
 			w7.Expand = false;
 			w7.Fill = false;
 			// Container child hboxHistory.Gtk.Box+BoxChild
-			this.ydatePickeHistoryDate = new global::QS.Widgets.GtkUI.DatePicker();
-			this.ydatePickeHistoryDate.Events = ((global::Gdk.EventMask)(256));
-			this.ydatePickeHistoryDate.Name = "ydatePickeHistoryDate";
-			this.ydatePickeHistoryDate.WithTime = false;
-			this.ydatePickeHistoryDate.HideCalendarButton = false;
-			this.ydatePickeHistoryDate.Date = new global::System.DateTime(0);
-			this.ydatePickeHistoryDate.IsEditable = true;
-			this.ydatePickeHistoryDate.AutoSeparation = false;
-			this.ydatePickeHistoryDate.HideButtonClearDate = false;
-			this.hboxHistory.Add(this.ydatePickeHistoryDate);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hboxHistory[this.ydatePickeHistoryDate]));
+			this.ydatepickerHistoryDate = new global::QS.Widgets.GtkUI.DatePicker();
+			this.ydatepickerHistoryDate.Events = ((global::Gdk.EventMask)(256));
+			this.ydatepickerHistoryDate.Name = "ydatepickerHistoryDate";
+			this.ydatepickerHistoryDate.WithTime = false;
+			this.ydatepickerHistoryDate.HideCalendarButton = false;
+			this.ydatepickerHistoryDate.Date = new global::System.DateTime(0);
+			this.ydatepickerHistoryDate.IsEditable = true;
+			this.ydatepickerHistoryDate.AutoSeparation = false;
+			this.ydatepickerHistoryDate.HideButtonClearDate = false;
+			this.hboxHistory.Add(this.ydatepickerHistoryDate);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hboxHistory[this.ydatepickerHistoryDate]));
 			w8.Position = 1;
-			// Container child hboxHistory.Gtk.Box+BoxChild
-			this.ylblHistoryHour = new global::Gamma.GtkWidgets.yLabel();
-			this.ylblHistoryHour.Name = "ylblHistoryHour";
-			this.ylblHistoryHour.Xalign = 1F;
-			this.ylblHistoryHour.LabelProp = global::Mono.Unix.Catalog.GetString("На время:");
-			this.hboxHistory.Add(this.ylblHistoryHour);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hboxHistory[this.ylblHistoryHour]));
-			w9.Position = 2;
-			w9.Expand = false;
-			w9.Fill = false;
-			// Container child hboxHistory.Gtk.Box+BoxChild
-			this.yspeccomboboxHistoryHour = new global::Gamma.Widgets.ySpecComboBox();
-			this.yspeccomboboxHistoryHour.Name = "yspeccomboboxHistoryHour";
-			this.yspeccomboboxHistoryHour.AddIfNotExist = false;
-			this.yspeccomboboxHistoryHour.DefaultFirst = false;
-			this.yspeccomboboxHistoryHour.ShowSpecialStateAll = false;
-			this.yspeccomboboxHistoryHour.ShowSpecialStateNot = false;
-			this.hboxHistory.Add(this.yspeccomboboxHistoryHour);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hboxHistory[this.yspeccomboboxHistoryHour]));
-			w10.Position = 3;
-			w10.Expand = false;
-			w10.Fill = false;
 			// Container child hboxHistory.Gtk.Box+BoxChild
 			this.ylabelGeoGroup = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelGeoGroup.Name = "ylabelGeoGroup";
-			this.ylabelGeoGroup.Xalign = 1F;
 			this.ylabelGeoGroup.LabelProp = global::Mono.Unix.Catalog.GetString("Район города:");
 			this.hboxHistory.Add(this.ylabelGeoGroup);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hboxHistory[this.ylabelGeoGroup]));
-			w11.Position = 4;
-			w11.Expand = false;
-			w11.Fill = false;
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hboxHistory[this.ylabelGeoGroup]));
+			w9.Position = 2;
+			w9.Expand = false;
+			w9.Fill = false;
 			// Container child hboxHistory.Gtk.Box+BoxChild
 			this.ySpecCmbGeoGroup = new global::Gamma.Widgets.ySpecComboBox();
 			this.ySpecCmbGeoGroup.Name = "ySpecCmbGeoGroup";
@@ -223,7 +200,27 @@ namespace Vodovoz.Views.Logistic
 			this.ySpecCmbGeoGroup.ShowSpecialStateAll = true;
 			this.ySpecCmbGeoGroup.ShowSpecialStateNot = false;
 			this.hboxHistory.Add(this.ySpecCmbGeoGroup);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hboxHistory[this.ySpecCmbGeoGroup]));
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hboxHistory[this.ySpecCmbGeoGroup]));
+			w10.Position = 3;
+			w10.Expand = false;
+			w10.Fill = false;
+			// Container child hboxHistory.Gtk.Box+BoxChild
+			this.ylblHistoryHour = new global::Gamma.GtkWidgets.yLabel();
+			this.ylblHistoryHour.Name = "ylblHistoryHour";
+			this.ylblHistoryHour.Xalign = 1F;
+			this.ylblHistoryHour.LabelProp = global::Mono.Unix.Catalog.GetString("На время:");
+			this.hboxHistory.Add(this.ylblHistoryHour);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hboxHistory[this.ylblHistoryHour]));
+			w11.Position = 4;
+			// Container child hboxHistory.Gtk.Box+BoxChild
+			this.yspeccomboboxHistoryHour = new global::Gamma.Widgets.ySpecComboBox();
+			this.yspeccomboboxHistoryHour.Name = "yspeccomboboxHistoryHour";
+			this.yspeccomboboxHistoryHour.AddIfNotExist = false;
+			this.yspeccomboboxHistoryHour.DefaultFirst = false;
+			this.yspeccomboboxHistoryHour.ShowSpecialStateAll = false;
+			this.yspeccomboboxHistoryHour.ShowSpecialStateNot = false;
+			this.hboxHistory.Add(this.yspeccomboboxHistoryHour);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hboxHistory[this.yspeccomboboxHistoryHour]));
 			w12.Position = 5;
 			w12.Expand = false;
 			w12.Fill = false;
