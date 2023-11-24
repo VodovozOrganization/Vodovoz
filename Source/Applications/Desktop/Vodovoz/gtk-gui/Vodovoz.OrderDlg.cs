@@ -144,6 +144,8 @@ namespace Vodovoz
 
 		private global::QS.Widgets.GtkUI.SimpleSelectionDatePicker pickerDeliveryDate;
 
+		private global::QS.Widgets.GtkUI.SpecialListComboBox specialListCmbSelfDeliveryGeoGroup;
+
 		private global::Gtk.VBox vboxOrderComment;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow2;
@@ -193,8 +195,6 @@ namespace Vodovoz
 		private global::Gamma.GtkWidgets.yLabel ylabelNumber;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelOrderAddressType;
-
-		private global::Gamma.Widgets.ySpecComboBox ySpecGeoGroup;
 
 		private global::Gamma.Widgets.yValidatedEntry yvalidatedentryEShopOrder;
 
@@ -1349,6 +1349,22 @@ namespace Vodovoz
 			w68.XOptions = ((global::Gtk.AttachOptions)(4));
 			w68.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
+			this.specialListCmbSelfDeliveryGeoGroup = new global::QS.Widgets.GtkUI.SpecialListComboBox();
+			this.specialListCmbSelfDeliveryGeoGroup.Name = "specialListCmbSelfDeliveryGeoGroup";
+			this.specialListCmbSelfDeliveryGeoGroup.AddIfNotExist = false;
+			this.specialListCmbSelfDeliveryGeoGroup.DefaultFirst = false;
+			this.specialListCmbSelfDeliveryGeoGroup.ShowSpecialStateAll = false;
+			this.specialListCmbSelfDeliveryGeoGroup.ShowSpecialStateNot = true;
+			this.specialListCmbSelfDeliveryGeoGroup.NameForSpecialStateNot = "Не выбрано";
+			this.table1.Add(this.specialListCmbSelfDeliveryGeoGroup);
+			global::Gtk.Table.TableChild w69 = ((global::Gtk.Table.TableChild)(this.table1[this.specialListCmbSelfDeliveryGeoGroup]));
+			w69.TopAttach = ((uint)(5));
+			w69.BottomAttach = ((uint)(6));
+			w69.LeftAttach = ((uint)(1));
+			w69.RightAttach = ((uint)(2));
+			w69.XOptions = ((global::Gtk.AttachOptions)(4));
+			w69.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
 			this.vboxOrderComment = new global::Gtk.VBox();
 			this.vboxOrderComment.Name = "vboxOrderComment";
 			this.vboxOrderComment.Spacing = 6;
@@ -1362,8 +1378,8 @@ namespace Vodovoz
 			this.textComments.Name = "textComments";
 			this.GtkScrolledWindow2.Add(this.textComments);
 			this.vboxOrderComment.Add(this.GtkScrolledWindow2);
-			global::Gtk.Box.BoxChild w70 = ((global::Gtk.Box.BoxChild)(this.vboxOrderComment[this.GtkScrolledWindow2]));
-			w70.Position = 0;
+			global::Gtk.Box.BoxChild w71 = ((global::Gtk.Box.BoxChild)(this.vboxOrderComment[this.GtkScrolledWindow2]));
+			w71.Position = 0;
 			// Container child vboxOrderComment.Gtk.Box+BoxChild
 			this.btnSaveComment = new global::Gtk.Button();
 			this.btnSaveComment.CanFocus = true;
@@ -1371,17 +1387,17 @@ namespace Vodovoz
 			this.btnSaveComment.UseUnderline = true;
 			this.btnSaveComment.Label = global::Mono.Unix.Catalog.GetString("Сохранить только комментарий");
 			this.vboxOrderComment.Add(this.btnSaveComment);
-			global::Gtk.Box.BoxChild w71 = ((global::Gtk.Box.BoxChild)(this.vboxOrderComment[this.btnSaveComment]));
-			w71.Position = 1;
-			w71.Expand = false;
-			w71.Fill = false;
+			global::Gtk.Box.BoxChild w72 = ((global::Gtk.Box.BoxChild)(this.vboxOrderComment[this.btnSaveComment]));
+			w72.Position = 1;
+			w72.Expand = false;
+			w72.Fill = false;
 			this.table1.Add(this.vboxOrderComment);
-			global::Gtk.Table.TableChild w72 = ((global::Gtk.Table.TableChild)(this.table1[this.vboxOrderComment]));
-			w72.TopAttach = ((uint)(16));
-			w72.BottomAttach = ((uint)(17));
-			w72.LeftAttach = ((uint)(1));
-			w72.RightAttach = ((uint)(4));
-			w72.XOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w73 = ((global::Gtk.Table.TableChild)(this.table1[this.vboxOrderComment]));
+			w73.TopAttach = ((uint)(16));
+			w73.BottomAttach = ((uint)(17));
+			w73.LeftAttach = ((uint)(1));
+			w73.RightAttach = ((uint)(4));
+			w73.XOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ycheckContactlessDelivery = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckContactlessDelivery.CanFocus = true;
@@ -1390,13 +1406,13 @@ namespace Vodovoz
 			this.ycheckContactlessDelivery.DrawIndicator = true;
 			this.ycheckContactlessDelivery.UseUnderline = true;
 			this.table1.Add(this.ycheckContactlessDelivery);
-			global::Gtk.Table.TableChild w73 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckContactlessDelivery]));
-			w73.TopAttach = ((uint)(12));
-			w73.BottomAttach = ((uint)(13));
-			w73.LeftAttach = ((uint)(3));
-			w73.RightAttach = ((uint)(4));
-			w73.XOptions = ((global::Gtk.AttachOptions)(4));
-			w73.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w74 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckContactlessDelivery]));
+			w74.TopAttach = ((uint)(12));
+			w74.BottomAttach = ((uint)(13));
+			w74.LeftAttach = ((uint)(3));
+			w74.RightAttach = ((uint)(4));
+			w74.XOptions = ((global::Gtk.AttachOptions)(4));
+			w74.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.yhbox1 = new global::Gamma.GtkWidgets.yHBox();
 			this.yhbox1.Name = "yhbox1";
@@ -1408,10 +1424,10 @@ namespace Vodovoz
 			this.ybuttonToDeliveryAddressType.UseUnderline = true;
 			this.ybuttonToDeliveryAddressType.Label = global::Mono.Unix.Catalog.GetString("Доставка");
 			this.yhbox1.Add(this.ybuttonToDeliveryAddressType);
-			global::Gtk.Box.BoxChild w74 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.ybuttonToDeliveryAddressType]));
-			w74.Position = 1;
-			w74.Expand = false;
-			w74.Fill = false;
+			global::Gtk.Box.BoxChild w75 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.ybuttonToDeliveryAddressType]));
+			w75.Position = 1;
+			w75.Expand = false;
+			w75.Fill = false;
 			// Container child yhbox1.Gtk.Box+BoxChild
 			this.ybuttonToStorageLogicAddressType = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonToStorageLogicAddressType.CanFocus = true;
@@ -1419,18 +1435,18 @@ namespace Vodovoz
 			this.ybuttonToStorageLogicAddressType.UseUnderline = true;
 			this.ybuttonToStorageLogicAddressType.Label = global::Mono.Unix.Catalog.GetString("Складская логистика");
 			this.yhbox1.Add(this.ybuttonToStorageLogicAddressType);
-			global::Gtk.Box.BoxChild w75 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.ybuttonToStorageLogicAddressType]));
-			w75.Position = 2;
-			w75.Expand = false;
-			w75.Fill = false;
+			global::Gtk.Box.BoxChild w76 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.ybuttonToStorageLogicAddressType]));
+			w76.Position = 2;
+			w76.Expand = false;
+			w76.Fill = false;
 			this.table1.Add(this.yhbox1);
-			global::Gtk.Table.TableChild w76 = ((global::Gtk.Table.TableChild)(this.table1[this.yhbox1]));
-			w76.TopAttach = ((uint)(12));
-			w76.BottomAttach = ((uint)(13));
-			w76.LeftAttach = ((uint)(2));
-			w76.RightAttach = ((uint)(3));
-			w76.XOptions = ((global::Gtk.AttachOptions)(4));
-			w76.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w77 = ((global::Gtk.Table.TableChild)(this.table1[this.yhbox1]));
+			w77.TopAttach = ((uint)(12));
+			w77.BottomAttach = ((uint)(13));
+			w77.LeftAttach = ((uint)(2));
+			w77.RightAttach = ((uint)(3));
+			w77.XOptions = ((global::Gtk.AttachOptions)(4));
+			w77.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.yhbox2 = new global::Gamma.GtkWidgets.yHBox();
 			this.yhbox2.Name = "yhbox2";
@@ -1440,10 +1456,10 @@ namespace Vodovoz
 			this.ylabelContactPhone.Name = "ylabelContactPhone";
 			this.ylabelContactPhone.LabelProp = global::Mono.Unix.Catalog.GetString("Номер для связи:");
 			this.yhbox2.Add(this.ylabelContactPhone);
-			global::Gtk.Box.BoxChild w77 = ((global::Gtk.Box.BoxChild)(this.yhbox2[this.ylabelContactPhone]));
-			w77.Position = 0;
-			w77.Expand = false;
-			w77.Fill = false;
+			global::Gtk.Box.BoxChild w78 = ((global::Gtk.Box.BoxChild)(this.yhbox2[this.ylabelContactPhone]));
+			w78.Position = 0;
+			w78.Expand = false;
+			w78.Fill = false;
 			// Container child yhbox2.Gtk.Box+BoxChild
 			this.evmeContactPhone = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.evmeContactPhone.Events = ((global::Gdk.EventMask)(256));
@@ -1451,16 +1467,16 @@ namespace Vodovoz
 			this.evmeContactPhone.CanEditReference = false;
 			this.evmeContactPhone.CanOpenWithoutTabParent = false;
 			this.yhbox2.Add(this.evmeContactPhone);
-			global::Gtk.Box.BoxChild w78 = ((global::Gtk.Box.BoxChild)(this.yhbox2[this.evmeContactPhone]));
-			w78.Position = 1;
+			global::Gtk.Box.BoxChild w79 = ((global::Gtk.Box.BoxChild)(this.yhbox2[this.evmeContactPhone]));
+			w79.Position = 1;
 			this.table1.Add(this.yhbox2);
-			global::Gtk.Table.TableChild w79 = ((global::Gtk.Table.TableChild)(this.table1[this.yhbox2]));
-			w79.TopAttach = ((uint)(15));
-			w79.BottomAttach = ((uint)(16));
-			w79.LeftAttach = ((uint)(3));
-			w79.RightAttach = ((uint)(4));
-			w79.XOptions = ((global::Gtk.AttachOptions)(4));
-			w79.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w80 = ((global::Gtk.Table.TableChild)(this.table1[this.yhbox2]));
+			w80.TopAttach = ((uint)(15));
+			w80.BottomAttach = ((uint)(16));
+			w80.LeftAttach = ((uint)(3));
+			w80.RightAttach = ((uint)(4));
+			w80.XOptions = ((global::Gtk.AttachOptions)(4));
+			w80.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.yhboxCounterpartyExternalOrderId = new global::Gamma.GtkWidgets.yHBox();
 			this.yhboxCounterpartyExternalOrderId.Name = "yhboxCounterpartyExternalOrderId";
@@ -1470,10 +1486,10 @@ namespace Vodovoz
 			this.ylabelCounterpartyExternalOrderId.Name = "ylabelCounterpartyExternalOrderId";
 			this.ylabelCounterpartyExternalOrderId.LabelProp = global::Mono.Unix.Catalog.GetString("Номер заказа у контрагента:");
 			this.yhboxCounterpartyExternalOrderId.Add(this.ylabelCounterpartyExternalOrderId);
-			global::Gtk.Box.BoxChild w80 = ((global::Gtk.Box.BoxChild)(this.yhboxCounterpartyExternalOrderId[this.ylabelCounterpartyExternalOrderId]));
-			w80.Position = 0;
-			w80.Expand = false;
-			w80.Fill = false;
+			global::Gtk.Box.BoxChild w81 = ((global::Gtk.Box.BoxChild)(this.yhboxCounterpartyExternalOrderId[this.ylabelCounterpartyExternalOrderId]));
+			w81.Position = 0;
+			w81.Expand = false;
+			w81.Fill = false;
 			// Container child yhboxCounterpartyExternalOrderId.Gtk.Box+BoxChild
 			this.yvalidatedentryCounterpartyExternalOrderId = new global::Gamma.Widgets.yValidatedEntry();
 			this.yvalidatedentryCounterpartyExternalOrderId.CanFocus = true;
@@ -1481,16 +1497,16 @@ namespace Vodovoz
 			this.yvalidatedentryCounterpartyExternalOrderId.IsEditable = true;
 			this.yvalidatedentryCounterpartyExternalOrderId.InvisibleChar = '•';
 			this.yhboxCounterpartyExternalOrderId.Add(this.yvalidatedentryCounterpartyExternalOrderId);
-			global::Gtk.Box.BoxChild w81 = ((global::Gtk.Box.BoxChild)(this.yhboxCounterpartyExternalOrderId[this.yvalidatedentryCounterpartyExternalOrderId]));
-			w81.Position = 1;
+			global::Gtk.Box.BoxChild w82 = ((global::Gtk.Box.BoxChild)(this.yhboxCounterpartyExternalOrderId[this.yvalidatedentryCounterpartyExternalOrderId]));
+			w82.Position = 1;
 			this.table1.Add(this.yhboxCounterpartyExternalOrderId);
-			global::Gtk.Table.TableChild w82 = ((global::Gtk.Table.TableChild)(this.table1[this.yhboxCounterpartyExternalOrderId]));
-			w82.TopAttach = ((uint)(14));
-			w82.BottomAttach = ((uint)(15));
-			w82.LeftAttach = ((uint)(3));
-			w82.RightAttach = ((uint)(4));
-			w82.XOptions = ((global::Gtk.AttachOptions)(4));
-			w82.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w83 = ((global::Gtk.Table.TableChild)(this.table1[this.yhboxCounterpartyExternalOrderId]));
+			w83.TopAttach = ((uint)(14));
+			w83.BottomAttach = ((uint)(15));
+			w83.LeftAttach = ((uint)(3));
+			w83.RightAttach = ((uint)(4));
+			w83.XOptions = ((global::Gtk.AttachOptions)(4));
+			w83.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.yhboxPaymentInfo = new global::Gamma.GtkWidgets.yHBox();
 			this.yhboxPaymentInfo.Name = "yhboxPaymentInfo";
@@ -1505,9 +1521,9 @@ namespace Vodovoz
 			this.lblOnlineOrder.Xalign = 1F;
 			this.lblOnlineOrder.LabelProp = global::Mono.Unix.Catalog.GetString("Онлайн заказ:");
 			this.hbxOnlineOrder.Add(this.lblOnlineOrder);
-			global::Gtk.Box.BoxChild w83 = ((global::Gtk.Box.BoxChild)(this.hbxOnlineOrder[this.lblOnlineOrder]));
-			w83.Position = 0;
-			w83.Expand = false;
+			global::Gtk.Box.BoxChild w84 = ((global::Gtk.Box.BoxChild)(this.hbxOnlineOrder[this.lblOnlineOrder]));
+			w84.Position = 0;
+			w84.Expand = false;
 			// Container child hbxOnlineOrder.Gtk.Box+BoxChild
 			this.entOnlineOrder = new global::Gamma.Widgets.yValidatedEntry();
 			this.entOnlineOrder.CanFocus = true;
@@ -1516,9 +1532,9 @@ namespace Vodovoz
 			this.entOnlineOrder.MaxLength = 10;
 			this.entOnlineOrder.InvisibleChar = '●';
 			this.hbxOnlineOrder.Add(this.entOnlineOrder);
-			global::Gtk.Box.BoxChild w84 = ((global::Gtk.Box.BoxChild)(this.hbxOnlineOrder[this.entOnlineOrder]));
-			w84.Position = 1;
-			w84.Expand = false;
+			global::Gtk.Box.BoxChild w85 = ((global::Gtk.Box.BoxChild)(this.hbxOnlineOrder[this.entOnlineOrder]));
+			w85.Position = 1;
+			w85.Expand = false;
 			// Container child hbxOnlineOrder.Gtk.Box+BoxChild
 			this.ySpecPaymentFrom = new global::Gamma.Widgets.ySpecComboBox();
 			this.ySpecPaymentFrom.Name = "ySpecPaymentFrom";
@@ -1527,13 +1543,13 @@ namespace Vodovoz
 			this.ySpecPaymentFrom.ShowSpecialStateAll = false;
 			this.ySpecPaymentFrom.ShowSpecialStateNot = false;
 			this.hbxOnlineOrder.Add(this.ySpecPaymentFrom);
-			global::Gtk.Box.BoxChild w85 = ((global::Gtk.Box.BoxChild)(this.hbxOnlineOrder[this.ySpecPaymentFrom]));
-			w85.Position = 2;
+			global::Gtk.Box.BoxChild w86 = ((global::Gtk.Box.BoxChild)(this.hbxOnlineOrder[this.ySpecPaymentFrom]));
+			w86.Position = 2;
 			this.yhboxPaymentInfo.Add(this.hbxOnlineOrder);
-			global::Gtk.Box.BoxChild w86 = ((global::Gtk.Box.BoxChild)(this.yhboxPaymentInfo[this.hbxOnlineOrder]));
-			w86.Position = 0;
-			w86.Expand = false;
-			w86.Fill = false;
+			global::Gtk.Box.BoxChild w87 = ((global::Gtk.Box.BoxChild)(this.yhboxPaymentInfo[this.hbxOnlineOrder]));
+			w87.Position = 0;
+			w87.Expand = false;
+			w87.Fill = false;
 			// Container child yhboxPaymentInfo.Gtk.Box+BoxChild
 			this.yenumcomboboxTerminalSubtype = new global::Gamma.Widgets.yEnumComboBox();
 			this.yenumcomboboxTerminalSubtype.Name = "yenumcomboboxTerminalSubtype";
@@ -1542,41 +1558,41 @@ namespace Vodovoz
 			this.yenumcomboboxTerminalSubtype.UseShortTitle = false;
 			this.yenumcomboboxTerminalSubtype.DefaultFirst = false;
 			this.yhboxPaymentInfo.Add(this.yenumcomboboxTerminalSubtype);
-			global::Gtk.Box.BoxChild w87 = ((global::Gtk.Box.BoxChild)(this.yhboxPaymentInfo[this.yenumcomboboxTerminalSubtype]));
-			w87.Position = 1;
-			w87.Expand = false;
-			w87.Fill = false;
+			global::Gtk.Box.BoxChild w88 = ((global::Gtk.Box.BoxChild)(this.yhboxPaymentInfo[this.yenumcomboboxTerminalSubtype]));
+			w88.Position = 1;
+			w88.Expand = false;
+			w88.Fill = false;
 			this.table1.Add(this.yhboxPaymentInfo);
-			global::Gtk.Table.TableChild w88 = ((global::Gtk.Table.TableChild)(this.table1[this.yhboxPaymentInfo]));
-			w88.TopAttach = ((uint)(6));
-			w88.BottomAttach = ((uint)(7));
-			w88.LeftAttach = ((uint)(2));
-			w88.RightAttach = ((uint)(4));
-			w88.XOptions = ((global::Gtk.AttachOptions)(4));
-			w88.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w89 = ((global::Gtk.Table.TableChild)(this.table1[this.yhboxPaymentInfo]));
+			w89.TopAttach = ((uint)(6));
+			w89.BottomAttach = ((uint)(7));
+			w89.LeftAttach = ((uint)(2));
+			w89.RightAttach = ((uint)(4));
+			w89.XOptions = ((global::Gtk.AttachOptions)(4));
+			w89.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ylabelContract = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelContract.Name = "ylabelContract";
 			this.ylabelContract.Xalign = 0F;
 			this.table1.Add(this.ylabelContract);
-			global::Gtk.Table.TableChild w89 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelContract]));
-			w89.TopAttach = ((uint)(7));
-			w89.BottomAttach = ((uint)(8));
-			w89.LeftAttach = ((uint)(2));
-			w89.RightAttach = ((uint)(3));
-			w89.XOptions = ((global::Gtk.AttachOptions)(4));
-			w89.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w90 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelContract]));
+			w90.TopAttach = ((uint)(7));
+			w90.BottomAttach = ((uint)(8));
+			w90.LeftAttach = ((uint)(2));
+			w90.RightAttach = ((uint)(3));
+			w90.XOptions = ((global::Gtk.AttachOptions)(4));
+			w90.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ylabelGeoGroup = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelGeoGroup.Name = "ylabelGeoGroup";
 			this.ylabelGeoGroup.Xalign = 1F;
 			this.ylabelGeoGroup.LabelProp = global::Mono.Unix.Catalog.GetString("Район города");
 			this.table1.Add(this.ylabelGeoGroup);
-			global::Gtk.Table.TableChild w90 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelGeoGroup]));
-			w90.TopAttach = ((uint)(5));
-			w90.BottomAttach = ((uint)(6));
-			w90.XOptions = ((global::Gtk.AttachOptions)(4));
-			w90.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w91 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelGeoGroup]));
+			w91.TopAttach = ((uint)(5));
+			w91.BottomAttach = ((uint)(6));
+			w91.XOptions = ((global::Gtk.AttachOptions)(4));
+			w91.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ylabelLogisticsRequirements = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelLogisticsRequirements.Name = "ylabelLogisticsRequirements";
@@ -1584,11 +1600,11 @@ namespace Vodovoz
 			this.ylabelLogisticsRequirements.Yalign = 0F;
 			this.ylabelLogisticsRequirements.LabelProp = global::Mono.Unix.Catalog.GetString("Требования\nк логистике:");
 			this.table1.Add(this.ylabelLogisticsRequirements);
-			global::Gtk.Table.TableChild w91 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelLogisticsRequirements]));
-			w91.TopAttach = ((uint)(18));
-			w91.BottomAttach = ((uint)(19));
-			w91.XOptions = ((global::Gtk.AttachOptions)(4));
-			w91.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w92 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelLogisticsRequirements]));
+			w92.TopAttach = ((uint)(18));
+			w92.BottomAttach = ((uint)(19));
+			w92.XOptions = ((global::Gtk.AttachOptions)(4));
+			w92.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ylabelNumber = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelNumber.Name = "ylabelNumber";
@@ -1599,39 +1615,24 @@ namespace Vodovoz
 			this.ylabelNumber.WidthChars = 0;
 			this.ylabelNumber.MaxWidthChars = 0;
 			this.table1.Add(this.ylabelNumber);
-			global::Gtk.Table.TableChild w92 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelNumber]));
-			w92.TopAttach = ((uint)(1));
-			w92.BottomAttach = ((uint)(2));
-			w92.LeftAttach = ((uint)(1));
-			w92.RightAttach = ((uint)(2));
-			w92.XOptions = ((global::Gtk.AttachOptions)(4));
-			w92.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w93 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelNumber]));
+			w93.TopAttach = ((uint)(1));
+			w93.BottomAttach = ((uint)(2));
+			w93.LeftAttach = ((uint)(1));
+			w93.RightAttach = ((uint)(2));
+			w93.XOptions = ((global::Gtk.AttachOptions)(4));
+			w93.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ylabelOrderAddressType = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelOrderAddressType.Name = "ylabelOrderAddressType";
 			this.ylabelOrderAddressType.Xalign = 0F;
 			this.ylabelOrderAddressType.LabelProp = global::Mono.Unix.Catalog.GetString("Тип адреса:");
 			this.table1.Add(this.ylabelOrderAddressType);
-			global::Gtk.Table.TableChild w93 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelOrderAddressType]));
-			w93.TopAttach = ((uint)(11));
-			w93.BottomAttach = ((uint)(12));
-			w93.LeftAttach = ((uint)(2));
-			w93.RightAttach = ((uint)(3));
-			w93.XOptions = ((global::Gtk.AttachOptions)(4));
-			w93.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.ySpecGeoGroup = new global::Gamma.Widgets.ySpecComboBox();
-			this.ySpecGeoGroup.Name = "ySpecGeoGroup";
-			this.ySpecGeoGroup.AddIfNotExist = false;
-			this.ySpecGeoGroup.DefaultFirst = false;
-			this.ySpecGeoGroup.ShowSpecialStateAll = true;
-			this.ySpecGeoGroup.ShowSpecialStateNot = false;
-			this.table1.Add(this.ySpecGeoGroup);
-			global::Gtk.Table.TableChild w94 = ((global::Gtk.Table.TableChild)(this.table1[this.ySpecGeoGroup]));
-			w94.TopAttach = ((uint)(5));
-			w94.BottomAttach = ((uint)(6));
-			w94.LeftAttach = ((uint)(1));
-			w94.RightAttach = ((uint)(2));
+			global::Gtk.Table.TableChild w94 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelOrderAddressType]));
+			w94.TopAttach = ((uint)(11));
+			w94.BottomAttach = ((uint)(12));
+			w94.LeftAttach = ((uint)(2));
+			w94.RightAttach = ((uint)(3));
 			w94.XOptions = ((global::Gtk.AttachOptions)(4));
 			w94.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -3470,8 +3471,8 @@ namespace Vodovoz
 			this.toggleEquipment.Hide();
 			this.toggleService.Hide();
 			this.labelProxyInfo.Hide();
+			this.specialListCmbSelfDeliveryGeoGroup.Hide();
 			this.ylabelGeoGroup.Hide();
-			this.ySpecGeoGroup.Hide();
 			this.lblTareReturned.Hide();
 			this.entryTareReturned.Hide();
 			this.hboxReasons.Hide();
