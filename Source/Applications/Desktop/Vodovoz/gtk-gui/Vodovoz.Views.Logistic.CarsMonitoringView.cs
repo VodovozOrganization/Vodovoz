@@ -26,13 +26,13 @@ namespace Vodovoz.Views.Logistic
 
 		private global::QS.Widgets.GtkUI.DatePicker ydatepickerHistoryDate;
 
-		private global::Gamma.GtkWidgets.yLabel ylabelGeoGroup;
-
-		private global::Gamma.Widgets.ySpecComboBox ySpecCmbGeoGroup;
-
 		private global::Gamma.GtkWidgets.yLabel ylblHistoryHour;
 
 		private global::Gamma.Widgets.ySpecComboBox yspeccomboboxHistoryHour;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelGeoGroup;
+
+		private global::Gamma.Widgets.ySpecComboBox ySpecCmbGeoGroup;
 
 		private global::Gtk.ScrolledWindow swWorkingDriversContainer;
 
@@ -184,34 +184,15 @@ namespace Vodovoz.Views.Logistic
 			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hboxHistory[this.ydatepickerHistoryDate]));
 			w8.Position = 1;
 			// Container child hboxHistory.Gtk.Box+BoxChild
-			this.ylabelGeoGroup = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelGeoGroup.Name = "ylabelGeoGroup";
-			this.ylabelGeoGroup.LabelProp = global::Mono.Unix.Catalog.GetString("Район города:");
-			this.hboxHistory.Add(this.ylabelGeoGroup);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hboxHistory[this.ylabelGeoGroup]));
-			w9.Position = 2;
-			w9.Expand = false;
-			w9.Fill = false;
-			// Container child hboxHistory.Gtk.Box+BoxChild
-			this.ySpecCmbGeoGroup = new global::Gamma.Widgets.ySpecComboBox();
-			this.ySpecCmbGeoGroup.Name = "ySpecCmbGeoGroup";
-			this.ySpecCmbGeoGroup.AddIfNotExist = false;
-			this.ySpecCmbGeoGroup.DefaultFirst = false;
-			this.ySpecCmbGeoGroup.ShowSpecialStateAll = true;
-			this.ySpecCmbGeoGroup.ShowSpecialStateNot = false;
-			this.hboxHistory.Add(this.ySpecCmbGeoGroup);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hboxHistory[this.ySpecCmbGeoGroup]));
-			w10.Position = 3;
-			w10.Expand = false;
-			w10.Fill = false;
-			// Container child hboxHistory.Gtk.Box+BoxChild
 			this.ylblHistoryHour = new global::Gamma.GtkWidgets.yLabel();
 			this.ylblHistoryHour.Name = "ylblHistoryHour";
 			this.ylblHistoryHour.Xalign = 1F;
 			this.ylblHistoryHour.LabelProp = global::Mono.Unix.Catalog.GetString("На время:");
 			this.hboxHistory.Add(this.ylblHistoryHour);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hboxHistory[this.ylblHistoryHour]));
-			w11.Position = 4;
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hboxHistory[this.ylblHistoryHour]));
+			w9.Position = 2;
+			w9.Expand = false;
+			w9.Fill = false;
 			// Container child hboxHistory.Gtk.Box+BoxChild
 			this.yspeccomboboxHistoryHour = new global::Gamma.Widgets.ySpecComboBox();
 			this.yspeccomboboxHistoryHour.Name = "yspeccomboboxHistoryHour";
@@ -220,7 +201,28 @@ namespace Vodovoz.Views.Logistic
 			this.yspeccomboboxHistoryHour.ShowSpecialStateAll = false;
 			this.yspeccomboboxHistoryHour.ShowSpecialStateNot = false;
 			this.hboxHistory.Add(this.yspeccomboboxHistoryHour);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hboxHistory[this.yspeccomboboxHistoryHour]));
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hboxHistory[this.yspeccomboboxHistoryHour]));
+			w10.Position = 3;
+			w10.Expand = false;
+			w10.Fill = false;
+			// Container child hboxHistory.Gtk.Box+BoxChild
+			this.ylabelGeoGroup = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelGeoGroup.Name = "ylabelGeoGroup";
+			this.ylabelGeoGroup.LabelProp = global::Mono.Unix.Catalog.GetString("Район города:");
+			this.hboxHistory.Add(this.ylabelGeoGroup);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hboxHistory[this.ylabelGeoGroup]));
+			w11.Position = 4;
+			w11.Expand = false;
+			w11.Fill = false;
+			// Container child hboxHistory.Gtk.Box+BoxChild
+			this.ySpecCmbGeoGroup = new global::Gamma.Widgets.ySpecComboBox();
+			this.ySpecCmbGeoGroup.Name = "ySpecCmbGeoGroup";
+			this.ySpecCmbGeoGroup.AddIfNotExist = false;
+			this.ySpecCmbGeoGroup.DefaultFirst = false;
+			this.ySpecCmbGeoGroup.ShowSpecialStateAll = true;
+			this.ySpecCmbGeoGroup.ShowSpecialStateNot = false;
+			this.hboxHistory.Add(this.ySpecCmbGeoGroup);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hboxHistory[this.ySpecCmbGeoGroup]));
 			w12.Position = 5;
 			w12.Expand = false;
 			w12.Fill = false;
