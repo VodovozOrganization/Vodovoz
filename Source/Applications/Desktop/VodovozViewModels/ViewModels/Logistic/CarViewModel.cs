@@ -1,29 +1,28 @@
-﻿using QS.Attachments.ViewModels.Widgets;
+﻿using Autofac;
+using NLog;
+using QS.Attachments.ViewModels.Widgets;
+using QS.Commands;
+using QS.Dialog.ViewModels;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
+using QS.Project.Journal;
 using QS.Services;
 using QS.ViewModels;
 using System;
 using System.Linq;
 using System.Threading;
-using NLog;
-using QS.Dialog.ViewModels;
-using QS.Navigation;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Domain.Sale;
 using Vodovoz.Factories;
-using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Factories;
+using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalNodes;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.Widgets.Cars;
-using QS.Commands;
-using Vodovoz.ViewModels.Journals.JournalFactories;
-using QS.Project.Journal;
-using Vodovoz.ViewModels.Journals.JournalNodes;
-using Vodovoz.Domain.Sale;
-using Autofac;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
@@ -216,35 +215,17 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private void AddGeoGroup()
 		{
-			//var journal = _geoGroupJournalFactory.CreateJournal();
-			var journal = NavigationManager.OpenViewModel<GeoGroupJournalViewModel>(null).ViewModel;
+			var journal = LifetimeScope.Resolve<GeoGroupJournalViewModel>();
 			journal.SelectionMode = JournalSelectionMode.Multiple;
 			journal.DisableChangeEntityActions();
 			journal.OnSelectResult += OnJournalOnEntitySelectedResult;
 
-			//TabParent.AddSlaveTab(this, journal);
+			TabParent.AddSlaveTab(this, journal);
 		}
 
 		private void OnJournalOnEntitySelectedResult(object sender, JournalSelectedEventArgs e)
 		{
 			var selected = e.SelectedObjects.Cast<GeoGroupJournalNode>();
-			if(!selected.Any())
-			{
-				return;
-			}
-			foreach(var item in selected)
-			{
-				if(!Entity.ObservableGeographicGroups.Any(x => x.Id == item.Id))
-				{
-					var group = UoW.GetById<GeoGroup>(item.Id);
-					Entity.ObservableGeographicGroups.Add(group);
-				}
-			}
-		}
-
-		private void Journal_OnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
-		{
-			var selected = e.SelectedNodes.Cast<GeoGroupJournalNode>();
 			if(!selected.Any())
 			{
 				return;
