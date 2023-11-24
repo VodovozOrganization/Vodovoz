@@ -10,11 +10,8 @@ using System;
 using System.Linq;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Models;
 using Vodovoz.ViewModels.Dialogs.Sales;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.GeoGroup;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Sale
@@ -33,7 +30,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Sale
 			ICurrentPermissionService currentPermissionService,
 			ILifetimeScope lifetimeScope,
 			Action<GeoGroupJournalFilterViewModel> filterParams = null
-		) : base(unitOfWorkFactory, interactiveService, navigationManager, currentPermissionService: currentPermissionService)
+			) : base(unitOfWorkFactory, interactiveService, navigationManager, currentPermissionService: currentPermissionService)
 		{
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 
@@ -84,8 +81,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Sale
 			var items = query
 				.SelectList(list => list
 				   .Select(() => geoGroupAlias.Id).WithAlias(() => resultAlias.Id)
-				   .Select(() => geoGroupAlias.Name).WithAlias(() => resultAlias.Name)
-				)
+				   .Select(() => geoGroupAlias.Name).WithAlias(() => resultAlias.Name))
 				.TransformUsing(Transformers.AliasToBean<GeoGroupJournalNode>());
 
 			return items;
