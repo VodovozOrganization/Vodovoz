@@ -28,6 +28,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
@@ -116,6 +117,7 @@ namespace Vodovoz.Domain.Orders
 		private Employee _commentOPManagerChangedBy;
 		private bool? _canCreateOrderInAdvance;
 		private int? counterpartyExternalOrderId;
+		private GeoGroup _selfDeliveryGeoGroup;
 
 		private int? _callBeforeArrivalMinutes;
 
@@ -1189,6 +1191,13 @@ namespace Vodovoz.Domain.Orders
 		{
 			get => _ourOrganization;
 			set => SetField(ref _ourOrganization, value);
+		}
+
+		[Display(Name = "Наша организация")]
+		public virtual GeoGroup SelfDeliveryGeoGroup
+		{
+			get => _selfDeliveryGeoGroup;
+			set => SetField(ref _selfDeliveryGeoGroup, value);
 		}
 
 		public Order()
