@@ -5,7 +5,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.GeoGroup
 {
 	public class GeoGroupJournalFilterViewModel : FilterViewModelBase<GeoGroupJournalFilterViewModel>
 	{
-		private bool? _isArchive;
+		private bool _isShowArchived;
 
 		public GeoGroupJournalFilterViewModel(Action<GeoGroupJournalFilterViewModel> filterParams = null)
 		{
@@ -16,10 +16,10 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.GeoGroup
 		}
 
 		#region Properties
-		public bool? IsArchive
+		public bool IsShowArchived
 		{
-			get => _isArchive;
-			set => UpdateFilterField(ref _isArchive, value);
+			get => _isShowArchived;
+			set => UpdateFilterField(ref _isShowArchived, value);
 		}
 		#endregion Properties
 	}

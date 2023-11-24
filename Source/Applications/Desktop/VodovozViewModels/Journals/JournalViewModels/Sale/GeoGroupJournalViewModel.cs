@@ -68,9 +68,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Sale
 
 			var query = uow.Session.QueryOver(() => geoGroupAlias);
 
-			if(_filterViewModel?.IsArchive != null)
+			if(!_filterViewModel.IsShowArchived)
 			{
-				query.Where(() => geoGroupAlias.IsArchived == _filterViewModel.IsArchive);
+				query.Where(() => !geoGroupAlias.IsArchived);
 			}
 
 			query.Where(GetSearchCriterion(
@@ -81,7 +81,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Sale
 			var items = query
 				.SelectList(list => list
 				   .Select(() => geoGroupAlias.Id).WithAlias(() => resultAlias.Id)
-				   .Select(() => geoGroupAlias.Name).WithAlias(() => resultAlias.Name))
+				   .Select(() => geoGroupAlias.Name).WithAlias(() => resultAlias.Name)
+				   .Select(() => geoGroupAlias.IsArchived).WithAlias(() => resultAlias.IsArchived))
 				.TransformUsing(Transformers.AliasToBean<GeoGroupJournalNode>());
 
 			return items;

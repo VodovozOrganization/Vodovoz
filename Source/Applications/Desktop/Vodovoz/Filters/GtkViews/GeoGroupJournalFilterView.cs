@@ -1,12 +1,23 @@
-﻿using System;
+﻿using QS.Views.GtkUI;
+using Vodovoz.ViewModels.Journals.FilterViewModels.GeoGroup;
+
 namespace Vodovoz.Filters.GtkViews
 {
-	[System.ComponentModel.ToolboxItem(true)]
-	public partial class GeoGroupJournalFilterView : Gtk.Bin
+	public partial class GeoGroupJournalFilterView : FilterViewBase<GeoGroupJournalFilterViewModel>
 	{
-		public GeoGroupJournalFilterView()
+		public GeoGroupJournalFilterView(GeoGroupJournalFilterViewModel filterViewModel) : base(filterViewModel)
 		{
-			this.Build();
+			Build();
+			Configure();
+
 		}
+
+		private void Configure()
+		{
+			ycheckbuttonIsShowArchived.Binding
+				.AddBinding(ViewModel, vm => vm.IsShowArchived, w => w.Active)
+				.InitializeFromSource();
+		}
+
 	}
 }
