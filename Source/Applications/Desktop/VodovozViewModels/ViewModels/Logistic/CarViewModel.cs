@@ -29,7 +29,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 	public class CarViewModel : EntityTabViewModelBase<Car>
 	{
 		private readonly IRouteListsWageController _routeListsWageController;
-		private readonly IGeoGroupJournalFactory _geoGroupJournalFactory;
 		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 		private const string _canChangeBottlesFromAddressPermissionName = "can_change_cars_bottles_from_address";
 		private bool _canChangeBottlesFromAddress;
@@ -48,7 +47,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			ICarVersionsViewModelFactory carVersionsViewModelFactory,
 			IOdometerReadingsViewModelFactory odometerReadingsViewModelFactory,
 			IRouteListsWageController routeListsWageController,
-			IGeoGroupJournalFactory geoGroupJournalFactory,
 			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
@@ -58,7 +56,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				throw new ArgumentNullException(nameof(navigationManager));
 			}
 			_routeListsWageController = routeListsWageController ?? throw new ArgumentNullException(nameof(routeListsWageController));
-			_geoGroupJournalFactory = geoGroupJournalFactory ?? throw new ArgumentNullException(nameof(geoGroupJournalFactory));
 			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			CarModelJournalFactory = carModelJournalFactory ?? throw new ArgumentNullException(nameof(carModelJournalFactory));
 
