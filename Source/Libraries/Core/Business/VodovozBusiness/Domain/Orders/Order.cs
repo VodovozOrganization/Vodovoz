@@ -1476,6 +1476,14 @@ namespace Vodovoz.Domain.Orders
 				);
 			}
 
+			if(SelfDelivery && SelfDeliveryGeoGroup == null)
+			{
+				yield return new ValidationResult(
+					"Для заказов с самовывозом обязательно указание района города",
+					new[] { this.GetPropertyName(o => o.SelfDeliveryGeoGroup) }
+				);
+			}
+
 			if(IsFastDelivery)
 			{
 				AddFastDeliveryNomenclatureIfNeeded();
