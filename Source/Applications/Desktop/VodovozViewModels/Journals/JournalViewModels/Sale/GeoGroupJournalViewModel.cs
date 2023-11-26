@@ -139,25 +139,5 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Sale
 
 			NodeActionsList.Add(selectAction);
 		}
-
-		//protected override Func<GeoGroupViewModel> CreateDialogFunction => () =>
-		//	new GeoGroupViewModel(
-		//		EntityUoWBuilder.ForCreate(),
-		//		_navigationManager,
-		//		UnitOfWorkFactory,
-		//		_geoGroupVersionsModel,
-		//		_warehouseJournalFactory,
-		//		commonServices,
-		//		_lifetimeScope);
-
-		//protected override Func<GeoGroupJournalNode, GeoGroupViewModel> OpenDialogFunction => node =>
-		//	new GeoGroupViewModel(
-		//		EntityUoWBuilder.ForOpen(node.Id),
-		//		_navigationManager,
-		//		UnitOfWorkFactory,
-		//		_geoGroupVersionsModel,
-		//		_warehouseJournalFactory,
-		//		commonServices,
-		//		_lifetimeScope);
 	}
 }

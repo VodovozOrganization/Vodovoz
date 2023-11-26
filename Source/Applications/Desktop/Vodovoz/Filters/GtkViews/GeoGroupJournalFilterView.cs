@@ -9,7 +9,6 @@ namespace Vodovoz.Filters.GtkViews
 		{
 			Build();
 			Configure();
-
 		}
 
 		private void Configure()
