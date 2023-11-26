@@ -44,13 +44,11 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		private readonly CommonMessages _commonMessages;
 		private readonly IRDLPreviewOpener _rdlPreviewOpener;
 		private UserSettings _currentUserSettings;
-		private GenericObservableList<EdoContainer> _edoContainers = new GenericObservableList<EdoContainer>();
 		private IGenericRepository<EdoContainer> _edoContainerRepository;
 
 		private object _selectedItem;
 		
 		public Action<string> OpenCounterpartyJournal;
-		private bool _sendBillByEdoChecked;
 
 		public OrderWithoutShipmentForAdvancePaymentViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -82,6 +80,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 			bool canCreateBillsWithoutShipment =
 				CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_bills_without_shipment");
+
 			CanChangeDiscountValue = CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_direct_discount_value");
 
 			var currentEmployee = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
@@ -125,6 +124,20 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			if(Entity.Id != 0)
 			{
 				UpdateEdoContainers();
+
+				if(!Entity.IsBillWithoutShipmentSent && Entity.Client.NeedSendBillByEdo)
+				{
+					EdoContainers.Add(new EdoContainer
+					{
+						Type = EdoDocumentType.BillWithoutShipmentForDebt,
+						Created = DateTime.Now,
+						Container = new byte[64],
+						OrderWithoutShipmentForAdvancePayment = Entity,
+						Counterparty = Entity.Counterparty,
+						MainDocumentId = string.Empty,
+						EdoDocFlowStatus = EdoDocFlowStatus.PreparingToSend
+					});
+				}
 			}
 
 			AddForSaleCommand = new DelegateCommand(
@@ -208,6 +221,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		}
 
 		public IEntityUoWBuilder EntityUoWBuilder { get; }
+
 		public bool IsDocumentSent => Entity.IsBillWithoutShipmentSent;
 
 		public SendDocumentByEmailViewModel SendDocViewModel { get; set; }
@@ -216,12 +230,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		{
 			get => _selectedItem;
 			set => SetField(ref _selectedItem, value);
-		}
-
-		public bool SendBillByEdoChecked
-		{
-			get => _sendBillByEdoChecked;
-			set => SetField(ref _sendBillByEdoChecked, value);
 		}
 
 		private UserSettings CurrentUserSettings =>
@@ -246,12 +254,33 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 		#endregion Commands
 
+		public GenericObservableList<EdoContainer> EdoContainers { get; } =
+			new GenericObservableList<EdoContainer>();
+
 		public void OnTabAdded()
 		{
 			if(EntityUoWBuilder.IsNewEntity)
 			{
 				OpenCounterpartyJournal?.Invoke(string.Empty);
 			}
+		}
+
+		public List<EdoContainer> GetOutgoingUpdDocuments()
+		{
+			var orderUpdDocuments = new List<EdoContainer>();
+
+			if(Entity.Id == 0)
+			{
+				return orderUpdDocuments;
+			}
+
+			orderUpdDocuments = EdoContainers
+				.Where(c =>
+					!c.IsIncoming
+					&& c.Type == EdoDocumentType.Upd)
+				.ToList();
+
+			return orderUpdDocuments;
 		}
 
 		private void FillDiscountReasons(IDiscountReasonRepository discountReasonRepository)
@@ -261,10 +290,10 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				? discountReasonRepository.GetActiveDiscountReasons(UoW)
 				: discountReasonRepository.GetActiveDiscountReasonsWithoutPremiums(UoW);
 		}
-		
-		bool CanAddNomenclaturesToOrder()
+
+		private bool CanAddNomenclaturesToOrder()
 		{
-			if(Entity.Client == null) {
+			if(Entity.Client is null) {
 				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,"Для добавления товара на продажу должен быть выбран клиент.");
 				return false;
 			}
@@ -272,10 +301,11 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			return true;
 		}
 
-		void TryAddNomenclature(Nomenclature nomenclature, int count = 0, decimal discount = 0, DiscountReason discountReason = null)
+		private void TryAddNomenclature(Nomenclature nomenclature, int count = 0, decimal discount = 0, DiscountReason discountReason = null)
 		{
-			if(nomenclature.OnlineStore != null && !ServicesConfig.CommonServices.CurrentPermissionService
-				.ValidatePresetPermission("can_add_online_store_nomenclatures_to_order"))
+			if(nomenclature.OnlineStore != null
+				&& !ServicesConfig.CommonServices.CurrentPermissionService
+					.ValidatePresetPermission("can_add_online_store_nomenclatures_to_order"))
 			{
 				ShowWarningMessage("У вас недостаточно прав для добавления на продажу номенклатуры интернет магазина");
 				return;
@@ -286,17 +316,18 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 		private void SendBillByEdo(IUnitOfWork uow)
 		{
-			var edoContainer = _edoContainers.SingleOrDefault(x => x.Type == EdoDocumentType.Bill)
-							   ?? new EdoContainer
-							   {
-								   Type = EdoDocumentType.Bill,
-								   Created = DateTime.Now,
-								   Container = new byte[64],
-								   OrderWithoutShipmentForAdvancePayment = Entity,
-								   Counterparty = Entity.Counterparty,
-								   MainDocumentId = string.Empty,
-								   EdoDocFlowStatus = EdoDocFlowStatus.PreparingToSend
-							   };
+			var edoContainer = EdoContainers
+				.SingleOrDefault(x => x.Type == EdoDocumentType.BillWithoutShipmentForAdvancePayment)
+					?? new EdoContainer
+					{
+						Type = EdoDocumentType.BillWithoutShipmentForAdvancePayment,
+						Created = DateTime.Now,
+						Container = new byte[64],
+						OrderWithoutShipmentForAdvancePayment = Entity,
+						Counterparty = Entity.Counterparty,
+						MainDocumentId = string.Empty,
+						EdoDocFlowStatus = EdoDocFlowStatus.PreparingToSend
+					};
 
 			uow.Save(edoContainer);
 			uow.Commit();
@@ -304,13 +335,13 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 		private void UpdateEdoContainers()
 		{
-			_edoContainers.Clear();
+			EdoContainers.Clear();
 
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 			{
 				foreach(var item in _edoContainerRepository.Get(uow, EdoContainerSpecification.CreateForOrderWithoutShipmentForAdvancePaymentId(Entity.Id)))
 				{
-					_edoContainers.Add(item);
+					EdoContainers.Add(item);
 				}
 			}
 		}
@@ -319,13 +350,13 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		{
 			var email = Entity.GetEmailAddressForBill();
 
-			if (email != null)
+			if(email is null)
 			{
-				SendDocViewModel.Update(Entity, email.Address);
+				SendDocViewModel.Update(Entity, string.Empty);
 			}
 			else
 			{
-				SendDocViewModel.Update(Entity, string.Empty);
+				SendDocViewModel.Update(Entity, email.Address);
 			}
 		}
 	}

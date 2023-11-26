@@ -163,11 +163,18 @@ namespace Vodovoz.Domain.Orders.Documents
 		[Display(Name = "Подготовка к отправке")]
 		PreparingToSend
 	}
+
 	public enum Type
 	{
 		[Display(Name = "УПД")]
 		Upd,
 		[Display(Name = "Счёт")]
-		Bill
+		Bill,
+		[Display(Name = "Счет без отгрузки на предоплату")]
+		BillWithoutShipmentForAdvancePayment,
+		[Display(Name = "Cчет без отгрузки на долг")]
+		BillWithoutShipmentForDebt,
+		[Display(Name = "Cчет без отгрузки на постоплату")]
+		BillWithoutShipmentForPayment
 	}
 }

@@ -9,6 +9,7 @@ using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
 using System;
+using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Orders.Documents;
@@ -30,11 +31,9 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		private readonly CommonMessages _commonMessages;
 		private readonly IRDLPreviewOpener _rdlPreviewOpener;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
-		private GenericObservableList<EdoContainer> _edoContainers = new GenericObservableList<EdoContainer>();
 		private IGenericRepository<EdoContainer> _edoContainerRepository;
 
 		public Action<string> OpenCounterpartyJournal;
-		private bool _sendBillByEdoChecked;
 
 		public bool IsDocumentSent => Entity.IsBillWithoutShipmentSent;
 
@@ -99,6 +98,20 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			if(Entity.Id != 0)
 			{
 				UpdateEdoContainers();
+
+				if(!Entity.IsBillWithoutShipmentSent && Entity.Client.NeedSendBillByEdo)
+				{
+					EdoContainers.Add(new EdoContainer
+					{
+						Type = EdoDocumentType.BillWithoutShipmentForDebt,
+						Created = DateTime.Now,
+						Container = new byte[64],
+						OrderWithoutShipmentForDebt = Entity,
+						Counterparty = Entity.Counterparty,
+						MainDocumentId = string.Empty,
+						EdoDocFlowStatus = EdoDocFlowStatus.PreparingToSend
+					});
+				}
 			}
 
 			CancelCommand = new DelegateCommand(
@@ -130,12 +143,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		public IEntityUoWBuilder EntityUoWBuilder { get; }
 		public ICounterpartyJournalFactory CounterpartyJournalFactory => _counterpartyJournalFactory;
 
-		public bool SendBillByEdoChecked
-		{
-			get => _sendBillByEdoChecked;
-			set => SetField(ref _sendBillByEdoChecked, value);
-		}
-
 		#region Commands
 
 		public DelegateCommand CancelCommand { get; }
@@ -144,11 +151,11 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 		private void SendBillByEdo(IUnitOfWork uow)
 		{
-			var edoContainer = _edoContainers
-				.SingleOrDefault(x => x.Type == EdoDocumentType.Bill)
+			var edoContainer = EdoContainers
+				.SingleOrDefault(x => x.Type == EdoDocumentType.BillWithoutShipmentForDebt)
 					?? new EdoContainer
 					{
-						Type = EdoDocumentType.Bill,
+						Type = EdoDocumentType.BillWithoutShipmentForDebt,
 						Created = DateTime.Now,
 						Container = new byte[64],
 						OrderWithoutShipmentForDebt = Entity,
@@ -163,18 +170,39 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 		private void UpdateEdoContainers()
 		{
-			_edoContainers.Clear();
+			EdoContainers.Clear();
 
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 			{
 				foreach(var item in _edoContainerRepository.Get(uow, EdoContainerSpecification.CreateForOrderWithoutShipmentForDebtId(Entity.Id)))
 				{
-					_edoContainers.Add(item);
+					EdoContainers.Add(item);
 				}
 			}
 		}
 
 		#endregion
+
+		public GenericObservableList<EdoContainer> EdoContainers { get; } =
+			new GenericObservableList<EdoContainer>();
+
+		public List<EdoContainer> GetOutgoingUpdDocuments()
+		{
+			var orderUpdDocuments = new List<EdoContainer>();
+
+			if(Entity.Id == 0)
+			{
+				return orderUpdDocuments;
+			}
+
+			orderUpdDocuments = EdoContainers
+				.Where(c =>
+					!c.IsIncoming
+					&& c.Type == EdoDocumentType.Upd)
+				.ToList();
+
+			return orderUpdDocuments;
+		}
 
 		public void OnTabAdded()
 		{

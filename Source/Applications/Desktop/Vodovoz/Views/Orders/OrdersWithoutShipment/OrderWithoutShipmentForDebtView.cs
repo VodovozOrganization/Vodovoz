@@ -1,5 +1,10 @@
-﻿using QS.Views.GtkUI;
+﻿using Gamma.ColumnConfig;
+using QS.DomainModel.UoW;
+using QS.Views.GtkUI;
+using System.Linq;
 using Vodovoz.Dialogs.Email;
+using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 
@@ -57,17 +62,65 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 				.InitializeFromSource();
 			entityViewModelEntryCounterparty.CanEditReference = true;
 
-			ycheckSendBillByEdo.Binding
-				.AddBinding(ViewModel, vm => vm.SendBillByEdoChecked, w => w.Active)
-				.InitializeFromSource();
-			
 			var sendEmailView = new SendDocumentByEmailView(ViewModel.SendDocViewModel);
 			hbox7.Add(sendEmailView);
 			sendEmailView.Show();
 
 			ViewModel.OpenCounterpartyJournal += entityViewModelEntryCounterparty.OpenSelectDialog;
+
+			treeViewEdoContainers.ColumnsConfig = FluentColumnsConfig<EdoContainer>.Create()
+				.AddColumn("Код документооборота")
+					.AddTextRenderer(x => x.DocFlowId.HasValue ? x.DocFlowId.ToString() : string.Empty)
+				.AddColumn("Отправленные\nдокументы")
+					.AddTextRenderer(x => x.SentDocuments)
+				.AddColumn("Статус\nдокументооборота")
+					.AddEnumRenderer(x => x.EdoDocFlowStatus)
+				.AddColumn("Доставлено\nклиенту?")
+					.AddToggleRenderer(x => x.Received)
+					.Editing(false)
+				.AddColumn("Описание ошибки")
+					.AddTextRenderer(x => x.ErrorDescription)
+					.WrapWidth(500)
+				.AddColumn("")
+				.Finish();
+
+			if(ViewModel.Entity.Id != 0)
+			{
+				CustomizeSendDocumentAgainButton();
+			}
+
+			treeViewEdoContainers.ItemsDataSource = ViewModel.EdoContainers;
 		}
-		
+
+		private void CustomizeSendDocumentAgainButton()
+		{
+			var orderHasUpdDocuments = ViewModel.GetOutgoingUpdDocuments().Count > 0;
+
+			if(ViewModel.Entity.Id == 0 || !orderHasUpdDocuments)
+			{
+				ybuttonSendDocumentAgain.Sensitive = false;
+				ybuttonSendDocumentAgain.Label = "Отправить повторно";
+				return;
+			}
+
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			{
+				var resendUpdAction = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
+						.Where(x => x.Order.Id == ViewModel.Entity.Id)
+						.FirstOrDefault();
+
+				if(resendUpdAction != null && resendUpdAction.IsNeedToResendEdoUpd)
+				{
+					ybuttonSendDocumentAgain.Sensitive = false;
+					ybuttonSendDocumentAgain.Label = "Идет подготовка УПД";
+					return;
+				}
+			}
+
+			ybuttonSendDocumentAgain.Sensitive = orderHasUpdDocuments;
+			ybuttonSendDocumentAgain.Label = "Отправить повторно";
+		}
+
 		public override void Destroy()
 		{
 			entityViewModelEntryCounterparty.Changed -= ViewModel.OnEntityViewModelEntryChanged;
