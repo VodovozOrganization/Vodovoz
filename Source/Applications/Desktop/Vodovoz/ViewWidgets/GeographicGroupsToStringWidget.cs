@@ -81,10 +81,10 @@ namespace Vodovoz.ViewWidgets
 
 			page.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
 			page.ViewModel.DisableChangeEntityActions();
-			page.ViewModel.OnSelectResult += OnJournalOnEntitySelectedResult;
+			page.ViewModel.OnSelectResult += OnAddEntitySelectedResult;
 		}
 
-		private void OnJournalOnEntitySelectedResult(object sender, JournalSelectedEventArgs e)
+		private void OnAddEntitySelectedResult(object sender, JournalSelectedEventArgs e)
 		{
 			var selected = e.SelectedObjects.Cast<GeoGroupJournalNode>();
 			if(!selected.Any())
@@ -118,10 +118,10 @@ namespace Vodovoz.ViewWidgets
 
 			page.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
 			page.ViewModel.DisableChangeEntityActions();
-			page.ViewModel.OnSelectResult += OnJournalOnRemoveEntitySelectedResult;
+			page.ViewModel.OnSelectResult += OnRemoveEntitySelectedResult;
 		}
 
-		private void OnJournalOnRemoveEntitySelectedResult(object sender, JournalSelectedEventArgs e)
+		private void OnRemoveEntitySelectedResult(object sender, JournalSelectedEventArgs e)
 		{
 			var selected = e.SelectedObjects.Cast<GeoGroupJournalNode>();
 			if(!selected.Any())

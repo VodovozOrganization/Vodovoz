@@ -215,12 +215,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			var journal = LifetimeScope.Resolve<GeoGroupJournalViewModel>();
 			journal.SelectionMode = JournalSelectionMode.Multiple;
 			journal.DisableChangeEntityActions();
-			journal.OnSelectResult += OnJournalOnEntitySelectedResult;
+			journal.OnSelectResult += OnJournalGeoGroupsSelectedResult;
 
 			TabParent.AddSlaveTab(this, journal);
 		}
 
-		private void OnJournalOnEntitySelectedResult(object sender, JournalSelectedEventArgs e)
+		private void OnJournalGeoGroupsSelectedResult(object sender, JournalSelectedEventArgs e)
 		{
 			var selected = e.SelectedObjects.Cast<GeoGroupJournalNode>();
 			if(!selected.Any())
