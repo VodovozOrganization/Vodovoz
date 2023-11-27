@@ -1,4 +1,4 @@
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.Dialog;
@@ -262,24 +262,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			{
 				OpenCounterpartyJournal?.Invoke(string.Empty);
 			}
-		}
-
-		public List<EdoContainer> GetOutgoingUpdDocuments()
-		{
-			var orderUpdDocuments = new List<EdoContainer>();
-
-			if(Entity.Id == 0)
-			{
-				return orderUpdDocuments;
-			}
-
-			orderUpdDocuments = EdoContainers
-				.Where(c =>
-					!c.IsIncoming
-					&& c.Type == EdoDocumentType.Upd)
-				.ToList();
-
-			return orderUpdDocuments;
 		}
 
 		private void FillDiscountReasons(IDiscountReasonRepository discountReasonRepository)

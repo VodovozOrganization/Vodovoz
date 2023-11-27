@@ -188,11 +188,8 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 
 		private void CustomizeSendDocumentAgainButton()
 		{
-			var orderHasUpdDocuments = ViewModel.GetOutgoingUpdDocuments().Count > 0;
-
-			if(ViewModel.Entity.Id == 0 || !orderHasUpdDocuments)
+			if(ViewModel.Entity.Id == 0)
 			{
-				ybuttonSendDocumentAgain.Sensitive = false;
 				ybuttonSendDocumentAgain.Label = "Отправить повторно";
 				return;
 			}
@@ -211,7 +208,6 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 				}
 			}
 
-			ybuttonSendDocumentAgain.Sensitive = orderHasUpdDocuments;
 			ybuttonSendDocumentAgain.Label = "Отправить повторно";
 		}
 
