@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -449,6 +449,7 @@
     <Compile Include="Infrastructure\Converters\DoubleToStringConverter.cs" />
     <Compile Include="Infrastructure\Converters\NullableDecimalToStringConverter.cs" />
     <Compile Include="Infrastructure\GdkColors.cs" />
+    <Compile Include="Infrastructure\Services\GtkConfirmationQuestionInteractive.cs" />
     <Compile Include="JournalColumnsConfigs\ApplicationDevelopmentProposalsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\BulkEmailEventReasonJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\BusinessTasksJournalRegistrar.cs" />
@@ -1978,7 +1979,6 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="ViewModels\Goods\" />
-    <Folder Include="Views\Client\CounterpartyClassification\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">
