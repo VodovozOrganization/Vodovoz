@@ -1194,7 +1194,7 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _ourOrganization, value);
 		}
 
-		[Display(Name = "Наша организация")]
+		[Display(Name = "Район города склада самовывоза")]
 		public virtual GeoGroup SelfDeliveryGeoGroup
 		{
 			get => _selfDeliveryGeoGroup;
