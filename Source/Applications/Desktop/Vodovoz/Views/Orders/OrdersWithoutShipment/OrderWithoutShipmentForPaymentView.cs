@@ -107,6 +107,20 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			}
 
 			treeViewEdoContainers.ItemsDataSource = ViewModel.EdoContainers;
+
+			ycheckbuttonSendBillByEdo.Binding
+				.AddBinding(ViewModel, vm => vm.IsSendBillByEdo, w => w.Active)
+				.InitializeFromSource();
+
+			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+		}
+
+		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(ViewModel.IsSendBillByEdo))
+			{
+				hboxSendDocuments.Visible = !ViewModel.IsSendBillByEdo;
+			}
 		}
 
 		private void CustomizeSendDocumentAgainButton()

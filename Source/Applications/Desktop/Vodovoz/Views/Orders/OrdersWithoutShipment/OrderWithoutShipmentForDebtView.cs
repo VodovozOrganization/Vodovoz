@@ -1,6 +1,7 @@
 ﻿using Gamma.ColumnConfig;
 using QS.DomainModel.UoW;
 using QS.Views.GtkUI;
+using System.ComponentModel;
 using System.Linq;
 using Vodovoz.Dialogs.Email;
 using Vodovoz.Domain.Orders;
@@ -10,7 +11,7 @@ using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 
 namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class OrderWithoutShipmentForDebtView : TabViewBase<OrderWithoutShipmentForDebtViewModel>
 	{
 		public OrderWithoutShipmentForDebtView(OrderWithoutShipmentForDebtViewModel viewModel) : base(viewModel)
@@ -90,6 +91,20 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			}
 
 			treeViewEdoContainers.ItemsDataSource = ViewModel.EdoContainers;
+
+			ycheckbuttonSendBillByEdo.Binding
+				.AddBinding(ViewModel, vm => vm.IsSendBillByEdo, w => w.Active)
+				.InitializeFromSource();
+
+			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+		}
+
+		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(ViewModel.IsSendBillByEdo))
+			{
+				hbox7.Visible = !ViewModel.IsSendBillByEdo;
+			}
 		}
 
 		private void CustomizeSendDocumentAgainButton()

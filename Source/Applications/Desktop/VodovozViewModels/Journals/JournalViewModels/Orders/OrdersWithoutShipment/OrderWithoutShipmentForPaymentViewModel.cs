@@ -109,24 +109,10 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 			ObservableAvailableOrders = new GenericObservableList<OrderWithoutShipmentForPaymentNode>();
 
-			if(Entity.Id != 0)
-			{
-				UpdateEdoContainers();
+			// TODO: проверить
+			_needToSendBillByEdo = Entity.Id == 0 && Entity.Client.NeedSendBillByEdo;
 
-				if(!Entity.IsBillWithoutShipmentSent && Entity.Client.NeedSendBillByEdo)
-				{
-					EdoContainers.Add(new EdoContainer
-					{
-						Type = EdoDocumentType.BillWithoutShipmentForDebt,
-						Created = DateTime.Now,
-						Container = new byte[64],
-						OrderWithoutShipmentForPayment = Entity,
-						Counterparty = Entity.Counterparty,
-						MainDocumentId = string.Empty,
-						EdoDocFlowStatus = EdoDocFlowStatus.PreparingToSend
-					});
-				}
-			}
+			UpdateEdoContainers();
 
 			CancelCommand = new DelegateCommand(
 				() => Close(true, CloseSource.Cancel),
@@ -153,6 +139,12 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				() => true);
 		}
 
+		public bool IsSendBillByEdo
+		{
+			get => _isSendBillByEdo;
+			set => SetField(ref _isSendBillByEdo, value);
+		}
+
 		public DateTime? StartDate
 		{
 			get => _startDate;
@@ -169,6 +161,9 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		public SendDocumentByEmailViewModel SendDocViewModel { get; set; }
 
 		public GenericObservableList<OrderWithoutShipmentForPaymentNode> ObservableAvailableOrders { get; }
+
+		private bool _needToSendBillByEdo;
+		private bool _isSendBillByEdo;
 
 		public bool IsDocumentSent => Entity.IsBillWithoutShipmentSent;
 
@@ -328,6 +323,16 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 					EdoContainers.Add(item);
 				}
 			}
+		}
+
+		public override bool Save(bool close)
+		{
+			if(!Entity.IsBillWithoutShipmentSent && _needToSendBillByEdo)
+			{
+				SendBillByEdo(UoW);
+			}
+
+			return base.Save(close);
 		}
 	}
 

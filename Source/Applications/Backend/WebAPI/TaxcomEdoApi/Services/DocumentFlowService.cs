@@ -256,7 +256,7 @@ namespace TaxcomEdoApi.Services
 			return Task.CompletedTask;
 		}
 
-		private void SendOrderContainer(IUnitOfWork uow, Organization organization, EdoContainer edoContainer)
+		private void SendOrderContainer(IUnitOfWork unitOfWork, Organization organization, EdoContainer edoContainer)
 		{
 			_logger.LogInformation("Создаем счёт по заказу №{OrderId}", edoContainer.Order.Id);
 			try
@@ -283,8 +283,8 @@ namespace TaxcomEdoApi.Services
 				edoContainer.EdoDocFlowStatus = EdoDocFlowStatus.NotStarted;
 
 				_logger.LogInformation("Сохраняем контейнер по заказу №{OrderId}", edoContainer.Id);
-				uow.Save(edoContainer);
-				uow.Commit();
+				unitOfWork.Save(edoContainer);
+				unitOfWork.Commit();
 
 				_logger.LogInformation("Отправляем контейнер по заказу №{OrderId}", edoContainer.Id);
 				_taxcomApi.Send(container);

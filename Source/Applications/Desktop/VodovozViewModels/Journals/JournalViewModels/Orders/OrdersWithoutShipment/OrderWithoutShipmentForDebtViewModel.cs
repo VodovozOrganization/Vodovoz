@@ -33,7 +33,10 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private IGenericRepository<EdoContainer> _edoContainerRepository;
 
+		private bool _needToSendBillByEdo;
+
 		public Action<string> OpenCounterpartyJournal;
+		private bool _isSendBillByEdo;
 
 		public bool IsDocumentSent => Entity.IsBillWithoutShipmentSent;
 
@@ -95,24 +98,10 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 					commonServices.InteractiveService,
 					UoW);
 
-			if(Entity.Id != 0)
-			{
-				UpdateEdoContainers();
+			// TODO: проверить
+			_needToSendBillByEdo = Entity.Id == 0 && Entity.Client.NeedSendBillByEdo;
 
-				if(!Entity.IsBillWithoutShipmentSent && Entity.Client.NeedSendBillByEdo)
-				{
-					EdoContainers.Add(new EdoContainer
-					{
-						Type = EdoDocumentType.BillWithoutShipmentForDebt,
-						Created = DateTime.Now,
-						Container = new byte[64],
-						OrderWithoutShipmentForDebt = Entity,
-						Counterparty = Entity.Counterparty,
-						MainDocumentId = string.Empty,
-						EdoDocFlowStatus = EdoDocFlowStatus.PreparingToSend
-					});
-				}
-			}
+			UpdateEdoContainers();
 
 			CancelCommand = new DelegateCommand(
 				() => Close(true, CloseSource.Cancel),
@@ -137,6 +126,12 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 					}
 				},
 				() => true);
+		}
+
+		public bool IsSendBillByEdo
+		{
+			get => _isSendBillByEdo;
+			set => SetField(ref _isSendBillByEdo, value);
 		}
 
 		public SendDocumentByEmailViewModel SendDocViewModel { get; set; }
@@ -216,6 +211,16 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		{
 			var email = Entity.GetEmailAddressForBill();
 			SendDocViewModel.Update(Entity, email != null ? email.Address : string.Empty);
+		}
+
+		public override bool Save(bool close)
+		{
+			if(!Entity.IsBillWithoutShipmentSent && _needToSendBillByEdo)
+			{
+				SendBillByEdo(UoW);
+			}
+
+			return base.Save(close);
 		}
 	}
 }
