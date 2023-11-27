@@ -234,17 +234,17 @@ namespace TaxcomEdoApi.Services
 
 					if(edoContainer.OrderWithoutShipmentForAdvancePayment != null)
 					{
-
+						SendOrderWithoutShipmentForAdvancePaymentContainer(uow, organization, edoContainer);
 					}
 
 					if(edoContainer.OrderWithoutShipmentForDebt != null)
 					{
-
+						SendOrderWithoutShipmentForDebtContainer(uow, organization, edoContainer);
 					}
 
 					if(edoContainer.OrderWithoutShipmentForPayment != null)
 					{
-
+						SendOrderWithoutShipmentForPaymentContainer(uow, organization, edoContainer);
 					}
 				}
 			}
@@ -282,16 +282,165 @@ namespace TaxcomEdoApi.Services
 				edoContainer.MainDocumentId = document.ExternalIdentifier;
 				edoContainer.EdoDocFlowStatus = EdoDocFlowStatus.NotStarted;
 
-				_logger.LogInformation("Сохраняем контейнер по заказу №{OrderId}", edoContainer.Id);
+				_logger.LogInformation("Сохраняем контейнер №{EdoContainerId} по заказу №{OrderId}",
+					edoContainer.Id,
+					edoContainer.Order.Id);
+
 				unitOfWork.Save(edoContainer);
 				unitOfWork.Commit();
 
-				_logger.LogInformation("Отправляем контейнер по заказу №{OrderId}", edoContainer.Id);
+				_logger.LogInformation("Отправляем контейнер №{EdoContainerId} по заказу №{OrderId}",
+					edoContainer.Id,
+					edoContainer.Order.Id);
+
 				_taxcomApi.Send(container);
 			}
 			catch(Exception e)
 			{
-				_logger.LogError(e, "Ошибка в процессе формирования счёта №{OrderId} и его отправки", edoContainer.Id);
+				_logger.LogError(e, "Ошибка в процессе формирования контейнер №{EdoContainerId} счёта заказа №{OrderId} и его отправки",
+					edoContainer.Id,
+					edoContainer.Order.Id);
+			}
+		}
+
+		private void SendOrderWithoutShipmentForPaymentContainer(IUnitOfWork unitOfWork, Organization organization, EdoContainer edoContainer)
+		{
+			_logger.LogInformation("Создаем счёт по заказу №{OrderId}", edoContainer.Order.Id);
+			try
+			{
+				var container = new TaxcomContainer
+				{
+					SignMode = DocumentSignMode.UseSpecifiedCertificate
+				};
+
+				var orderDocumentTypes = new[] { OrderDocumentType.BillWSForPayment };
+				var printableRdlDocument = edoContainer.OrderWithoutShipmentForPayment.Order.OrderDocuments
+					.FirstOrDefault(x => orderDocumentTypes.Contains(x.Type)) as IPrintableRDLDocument;
+				var billAttachment = _printableDocumentSaver.SaveToPdf(printableRdlDocument);
+				var fileName = $"Счёт №{edoContainer.Id} от {edoContainer.OrderWithoutShipmentForPayment.CreateDate:d}.pdf";
+				var document = _edoBillFactory.CreateBillWithoutShipmentForPaymentDocument(edoContainer.OrderWithoutShipmentForPayment, billAttachment, fileName, organization);
+
+				container.Documents.Add(document);
+				document.AddCertificateForSign(_certificate.Thumbprint);
+
+				var containerRawData = container.ExportToZip();
+
+				edoContainer.Container = containerRawData;
+				edoContainer.MainDocumentId = document.ExternalIdentifier;
+				edoContainer.EdoDocFlowStatus = EdoDocFlowStatus.NotStarted;
+
+				_logger.LogInformation("Сохраняем контейнер №{EdoContainerId} по счету без отгрузки на постоплату №{OrderWithoutShipmentForPaymentId}",
+					edoContainer.Id,
+					edoContainer.OrderWithoutShipmentForPayment.Id);
+
+				unitOfWork.Save(edoContainer);
+				unitOfWork.Commit();
+
+				_logger.LogInformation("Отправляем контейнер №{EdoContainerId} по счету без отгрузки на постоплату №{OrderWithoutShipmentForPaymentId}",
+					edoContainer.Id,
+					edoContainer.OrderWithoutShipmentForPayment.Id);
+
+				_taxcomApi.Send(container);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Ошибка в процессе формирования контейнера №{EdoContainerId} счета без отгрузки на постоплату №{OrderWithoutShipmentForPaymentId} и его отправки",
+					edoContainer.Id,
+					edoContainer.OrderWithoutShipmentForPayment.Id);
+			}
+		}
+
+		private void SendOrderWithoutShipmentForDebtContainer(IUnitOfWork unitOfWork, Organization organization, EdoContainer edoContainer)
+		{
+			_logger.LogInformation("Создаем счёт по заказу №{OrderId}", edoContainer.Order.Id);
+			try
+			{
+				var container = new TaxcomContainer
+				{
+					SignMode = DocumentSignMode.UseSpecifiedCertificate
+				};
+
+				var orderDocumentTypes = new[] { OrderDocumentType.BillWSForDebt };
+				var printableRdlDocument = edoContainer.OrderWithoutShipmentForDebt.Order.OrderDocuments
+					.FirstOrDefault(x => orderDocumentTypes.Contains(x.Type)) as IPrintableRDLDocument;
+				var billAttachment = _printableDocumentSaver.SaveToPdf(printableRdlDocument);
+				var fileName = $"Счёт №{edoContainer.Id} от {edoContainer.OrderWithoutShipmentForDebt.CreateDate:d}.pdf";
+				var document = _edoBillFactory.CreateBillWithoutShipmentForDebtDocument(edoContainer.OrderWithoutShipmentForDebt, billAttachment, fileName, organization);
+
+				container.Documents.Add(document);
+				document.AddCertificateForSign(_certificate.Thumbprint);
+
+				var containerRawData = container.ExportToZip();
+
+				edoContainer.Container = containerRawData;
+				edoContainer.MainDocumentId = document.ExternalIdentifier;
+				edoContainer.EdoDocFlowStatus = EdoDocFlowStatus.NotStarted;
+
+				_logger.LogInformation("Сохраняем контейнер №{EdoContainerId} по счету без отгрузки на долг №{OrderWithoutShipmentForDebtId}",
+					edoContainer.Id,
+					edoContainer.OrderWithoutShipmentForDebt.Id);
+
+				unitOfWork.Save(edoContainer);
+				unitOfWork.Commit();
+
+				_logger.LogInformation("Отправляем контейнер №{EdoContainerId} по счету без отгрузки на долг №{OrderWithoutShipmentForDebtId}",
+					edoContainer.Id,
+					edoContainer.OrderWithoutShipmentForDebt.Id);
+
+				_taxcomApi.Send(container);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Ошибка в процессе формирования контейнера №{EdoContainerId} по счету без отгрузки на долг №{OrderWithoutShipmentForDebtId} и его отправки",
+					edoContainer.Id,
+					edoContainer.OrderWithoutShipmentForDebt.Id);
+			}
+		}
+
+		private void SendOrderWithoutShipmentForAdvancePaymentContainer(IUnitOfWork unitOfWork, Organization organization, EdoContainer edoContainer)
+		{
+			_logger.LogInformation("Создаем счёт по заказу №{OrderId}", edoContainer.Order.Id);
+			try
+			{
+				var container = new TaxcomContainer
+				{
+					SignMode = DocumentSignMode.UseSpecifiedCertificate
+				};
+
+				var orderDocumentTypes = new[] { OrderDocumentType.BillWSForAdvancePayment };
+				var printableRdlDocument = edoContainer.OrderWithoutShipmentForAdvancePayment.Order.OrderDocuments
+					.FirstOrDefault(x => orderDocumentTypes.Contains(x.Type)) as IPrintableRDLDocument;
+				var billAttachment = _printableDocumentSaver.SaveToPdf(printableRdlDocument);
+				var fileName = $"Счёт №{edoContainer.Id} от {edoContainer.OrderWithoutShipmentForAdvancePayment.CreateDate:d}.pdf";
+				var document = _edoBillFactory.CreateBillWithoutShipmentForAdvancePaymentDocument(edoContainer.OrderWithoutShipmentForAdvancePayment, billAttachment, fileName, organization);
+
+				container.Documents.Add(document);
+				document.AddCertificateForSign(_certificate.Thumbprint);
+
+				var containerRawData = container.ExportToZip();
+
+				edoContainer.Container = containerRawData;
+				edoContainer.MainDocumentId = document.ExternalIdentifier;
+				edoContainer.EdoDocFlowStatus = EdoDocFlowStatus.NotStarted;
+
+				_logger.LogInformation("Сохраняем контейнер №{EdoContainerId} по счету без отгрузки на предоплату №{OrderWithoutShipmentForAdvancePayment}",
+					edoContainer.Id,
+					edoContainer.OrderWithoutShipmentForAdvancePayment.Id);
+
+				unitOfWork.Save(edoContainer);
+				unitOfWork.Commit();
+
+				_logger.LogInformation("Отправляем контейнер №{EdoContainerId} по счету без отгрузки на предоплату №{OrderWithoutShipmentForAdvancePayment}",
+					edoContainer.Id,
+					edoContainer.OrderWithoutShipmentForAdvancePayment.Id);
+
+				_taxcomApi.Send(container);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Ошибка в процессе формирования контейнера №{EdoContainerId} по счету без отгрузки на предоплату №{OrderWithoutShipmentForAdvancePayment} и его отправки",
+					edoContainer.Id,
+					edoContainer.OrderWithoutShipmentForAdvancePayment.Id);
 			}
 		}
 
