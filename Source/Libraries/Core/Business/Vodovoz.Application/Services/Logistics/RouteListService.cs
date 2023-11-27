@@ -1,18 +1,31 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Gamma.Utilities;
+using Microsoft.Extensions.Logging;
 using MoreLinq;
+using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
+using QS.Services;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Text;
+using Vodovoz.Controllers;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.Tools.Logistic;
+using static Vodovoz.Permissions.Logistic;
+using static Vodovoz.Services.Logistics.RouteListAcceptResult;
+using RouteList = Vodovoz.Domain.Logistic.RouteList;
 
 namespace Vodovoz.Application.Services.Logistics
 {
@@ -26,6 +39,15 @@ namespace Vodovoz.Application.Services.Logistics
 		private readonly IGenericRepository<Employee> _employeeRepository;
 		private readonly ICallTaskWorker _callTaskWorker;
 
+		private readonly IInteractiveService _interactiveService;
+		private readonly IRouteOptimizer _routeOptimizer;
+		private readonly IRouteListAddressKeepingDocumentController _routeListKeepingDocumentController;
+		private readonly IWageParameterService _wageParameterService;
+		IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
+		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
+		private readonly ITrackRepository _trackRepository;
+		private readonly ICommonServices _commonServices;
+
 		public RouteListService(
 			ILogger<RouteListService> logger,
 			ITerminalNomenclatureProvider terminalNomenclatureProvider,
@@ -33,7 +55,14 @@ namespace Vodovoz.Application.Services.Logistics
 			IGenericRepository<RouteListSpecialCondition> routeListSpecialConditionRepository,
 			IGenericRepository<RouteListSpecialConditionType> routeListSpecialConditionTypeRepository,
 			IGenericRepository<Employee> employeeRepository,
-			ICallTaskWorker callTaskWorker)
+			ICallTaskWorker callTaskWorker,
+			IRouteOptimizer routeOptimizer,
+			IRouteListAddressKeepingDocumentController routeListKeepingDocumentController,
+			IWageParameterService wageParameterService,
+			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
+			IRouteListProfitabilityController routeListProfitabilityController,
+			ITrackRepository trackRepository,
+			ICommonServices commonServices)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_terminalNomenclatureProvider = terminalNomenclatureProvider
@@ -43,9 +72,18 @@ namespace Vodovoz.Application.Services.Logistics
 			_routeListSpecialConditionRepository = routeListSpecialConditionRepository
 				?? throw new ArgumentNullException(nameof(routeListSpecialConditionRepository));
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
+			_routeOptimizer = routeOptimizer ?? throw new ArgumentNullException(nameof(routeOptimizer));
+			_routeListKeepingDocumentController = routeListKeepingDocumentController ?? throw new ArgumentNullException(nameof(routeListKeepingDocumentController));
+			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
+			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
+			_routeListProfitabilityController = routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
+			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_routeListSpecialConditionTypeRepository = routeListSpecialConditionTypeRepository
 				?? throw new ArgumentNullException(nameof(routeListSpecialConditionTypeRepository));
+
+			_interactiveService = commonServices.InteractiveService;
 		}
 
 		public IDictionary<int, string> GetSpecialConditionsDictionaryFor(
@@ -299,6 +337,203 @@ namespace Vodovoz.Application.Services.Logistics
 				unitOfWork.Save(routeList);
 
 				transaction.Commit();
+			}
+		}
+
+		public RouteListAcceptResult TryAcceptOrEditRouteList(IUnitOfWork uow, RouteList routeList, bool isAcceptMode, Action<bool> disableItemsUpdate)
+		{
+			if(routeList.Car == null)
+			{
+				return new RouteListAcceptResult { Status = AcceptStatus.Error, ErrorMessage = "Не заполнен автомобиль" };
+			}
+			StringBuilder warningMsg = new StringBuilder($"Автомобиль '{routeList.Car.Title}':");
+			if(routeList.HasOverweight())
+			{
+				warningMsg.Append($"\n\t- перегружен на {routeList.Overweight()} кг");
+			}
+
+			if(routeList.HasVolumeExecess())
+			{
+				warningMsg.Append($"\n\t- объём груза превышен на {routeList.VolumeExecess()} м<sup>3</sup>");
+			}
+
+			if(routeList.HasReverseVolumeExcess())
+			{
+				warningMsg.Append($"\n\t- объём возвращаемого груза превышен на {routeList.ReverseVolumeExecess()} м<sup>3</sup>");
+			}
+
+			if(isAcceptMode && (routeList.HasOverweight() || routeList.HasVolumeExecess() || routeList.HasReverseVolumeExcess()))
+			{
+				if(ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_confirm_routelist_with_overweight"))
+				{
+					warningMsg.AppendLine("\nВы уверены что хотите подтвердить маршрутный лист?");
+					if(!_interactiveService.Question(warningMsg.ToString()))
+					{
+						return new RouteListAcceptResult { Status = AcceptStatus.Error, ErrorMessage = warningMsg.ToString() };
+					}
+				}
+				else
+				{
+					warningMsg.AppendLine("\nПодтвердить маршрутный лист нельзя.");
+					return new RouteListAcceptResult { Status = AcceptStatus.Error, ErrorMessage = warningMsg.ToString() };
+				}
+			}
+
+			var result = isAcceptMode
+				? TryChangeStatusToAccepted(uow, routeList, disableItemsUpdate)
+				: TryChangeStatusToNew(uow, routeList);
+
+			// -= From Save
+			RecalculateRouteList(uow, routeList);
+			// From Save =-
+
+			return result;
+		}
+
+		private void RecalculateRouteList(IUnitOfWork uow, RouteList routeList)
+		{
+			routeList.CalculateWages(_wageParameterService);
+
+			var commonFastDeliveryMaxDistance = (decimal)_deliveryRulesParametersProvider.GetMaxDistanceToLatestTrackPointKmFor(DateTime.Now);
+			routeList.UpdateFastDeliveryMaxDistanceValue(commonFastDeliveryMaxDistance);
+
+			_logger.LogDebug("Пересчитываем рентабельность МЛ");
+			_routeListProfitabilityController.ReCalculateRouteListProfitability(uow, routeList);
+			_logger.LogDebug("Закончили пересчет рентабельности МЛ");
+			uow.Save(routeList.RouteListProfitability);
+		}
+
+		private RouteListAcceptResult TryChangeStatusToAccepted(IUnitOfWork uow, RouteList routeList, Action<bool> disableItemsUpdate)
+		{
+			if(routeList.Status != RouteListStatus.New)
+			{
+				return new RouteListAcceptResult { Status = AcceptStatus.Error };
+			}
+
+			var contextItems = new Dictionary<object, object>
+				{
+					{ "NewStatus", RouteListStatus.Confirmed },
+					{ nameof(IRouteListItemRepository), new RouteListItemRepository() }
+				};
+
+			var context = new ValidationContext(routeList, null, contextItems);
+
+			if(!_commonServices.ValidationService.Validate(routeList, context))
+			{
+				return new RouteListAcceptResult { Status = AcceptStatus.Error, ErrorMessage = "МЛ не прошёл валидацию" };
+			}
+
+			routeList.ChangeStatusAndCreateTask(RouteListStatus.Confirmed, _callTaskWorker);
+			//Строим маршрут для МЛ.
+			if((!routeList.PrintsHistory?.Any() ?? true) || _interactiveService.Question("Перестроить маршрут?", "Этот маршрутный лист уже был когда-то напечатан. При новом построении маршрута порядок адресов может быть другой. При продолжении обязательно перепечатайте этот МЛ.\nПерестроить маршрут?"))
+			{
+
+				var newRoute = _routeOptimizer.RebuidOneRoute(routeList);
+				if(newRoute != null)
+				{
+					disableItemsUpdate(true);
+					newRoute.UpdateAddressOrderInRealRoute(routeList);
+					//Рассчитываем расстояние
+					using(var calc = new RouteGeometryCalculator())
+					{
+						routeList.RecalculatePlanedDistance(calc);
+					}
+					disableItemsUpdate(false);
+					var noPlan = routeList.Addresses.Count(x => !x.PlanTimeStart.HasValue);
+					if(noPlan > 0)
+					{
+						_interactiveService.ShowMessage(ImportanceLevel.Info, $"Для маршрута незапланировано {noPlan} адресов.");
+					}
+				}
+				else
+				{
+					_interactiveService.ShowMessage(ImportanceLevel.Info, $"Маршрут не был перестроен.");
+				}
+			}
+
+			_logger.LogInformation("Создаём операции по свободным остаткам МЛ {RouteListId}...", routeList.Id);
+
+			//todo убрать после теста
+			if(ServicesConfig.InteractiveService.Question("Сымитировать исключение?"))
+			{
+				throw new ArgumentNullException("Тестовое исключение!");
+			}
+
+			foreach(var address in routeList.Addresses)
+			{
+				if(address.TransferedTo == null &&
+				   (!address.WasTransfered || address.AddressTransferType != AddressTransferType.FromHandToHand))
+				{
+					_routeListKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(
+						uow, address, DeliveryFreeBalanceType.Decrease, isFullRecreation: true, needRouteListUpdate: true);
+				}
+				else
+				{
+					_routeListKeepingDocumentController.RemoveRouteListKeepingDocument(uow, address, true);
+				}
+			}
+
+			_logger.LogInformation("Операции по свободным остаткакам МЛ {RouteListId} созданы.", routeList.Id);
+			if(routeList.GetCarVersion.IsCompanyCar && routeList.Car.CarModel.CarTypeOfUse == CarTypeOfUse.Truck && !routeList.NeedToLoad)
+			{
+				if(_interactiveService.Question(
+				"Маршрутный лист для транспортировки на склад, перевести машрутный лист сразу в статус '{0}'?",
+					RouteListStatus.OnClosing.GetEnumTitle()))
+				{
+					routeList.CompleteRouteAndCreateTask(_wageParameterService, _callTaskWorker, _trackRepository);
+				}
+			}
+			else
+			{
+				//Проверяем нужно ли маршрутный лист грузить на складе, если нет переводим в статус в пути.
+				var needTerminal = routeList.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal);
+
+				if(!routeList.NeedToLoad && !needTerminal)
+				{
+					if(_interactiveService.Question("Для маршрутного листа, нет необходимости грузится на складе. Перевести маршрутный лист сразу в статус '{0}'?", RouteListStatus.EnRoute.GetEnumTitle()))
+					{
+						var contextItemsEnroute = new Dictionary<object, object>
+							{
+								{ "NewStatus", RouteListStatus.EnRoute },
+								{ nameof(IRouteListItemRepository), new RouteListItemRepository() }
+							};
+
+						var contextEnroute = new ValidationContext(routeList, null, contextItemsEnroute);
+
+						if(!_commonServices.ValidationService.Validate(routeList, contextEnroute))
+						{
+							return new RouteListAcceptResult { Status = AcceptStatus.Error, ErrorMessage = "МЛ не прошёл валидацию" };
+						}
+						else
+						{
+							SendEnRoute(uow, routeList.Id);
+						}
+					}
+					else
+					{
+						routeList.ChangeStatusAndCreateTask(RouteListStatus.New, _callTaskWorker);
+					}
+				}
+			}
+
+			return new RouteListAcceptResult { Status = AcceptStatus.Accepted };
+		}
+
+		private RouteListAcceptResult TryChangeStatusToNew(IUnitOfWork uow, RouteList routeList)
+		{
+			if(routeList.Status != RouteListStatus.InLoading && routeList.Status != RouteListStatus.Confirmed)
+			{
+				return new RouteListAcceptResult { Status = AcceptStatus.Error };
+			}
+
+			if(_routeListRepository.GetCarLoadDocuments(uow, routeList.Id).Any())
+			{
+				return new RouteListAcceptResult { Status = AcceptStatus.Error, ErrorMessage = "Для маршрутного листа были созданы документы погрузки. Сначала необходимо удалить их." };
+			}
+			else
+			{
+				routeList.ChangeStatusAndCreateTask(RouteListStatus.New, _callTaskWorker);
+				return new RouteListAcceptResult { Status = AcceptStatus.New };
 			}
 		}
 	}

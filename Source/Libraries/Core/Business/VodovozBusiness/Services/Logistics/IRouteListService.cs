@@ -1,4 +1,5 @@
 ﻿using QS.DomainModel.UoW;
+using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
@@ -13,6 +14,7 @@ namespace Vodovoz.Services.Logistics
 		IEnumerable<RouteListSpecialCondition> GetSpecialConditionsFor(IUnitOfWork unitOfWork, int routeListId);
 		void SendEnRoute(IUnitOfWork unitOfWork, int routeListId);
 		void SendEnRoute(IUnitOfWork unitOfWork, RouteList routeList);
+		RouteListAcceptResult TryAcceptOrEditRouteList(IUnitOfWork uow, RouteList routeList, bool isAcceptMode, Action<bool> disableItemsUpdate);
 		bool TrySendEnRoute(IUnitOfWork unitOfWork, RouteList routeList, out IList<GoodsInRouteListResult> notLoadedGoods, CarLoadDocument withDocument = null);
 	}
 }
