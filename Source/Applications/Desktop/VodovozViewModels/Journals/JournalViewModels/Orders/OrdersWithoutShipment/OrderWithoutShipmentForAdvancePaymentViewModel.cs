@@ -49,8 +49,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		private object _selectedItem;
 		
 		public Action<string> OpenCounterpartyJournal;
-		private bool _needToSendBillByEdo;
 		private bool _isSendBillByEdo;
+		private bool _canSendBillByEdo;
 
 		public OrderWithoutShipmentForAdvancePaymentViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -123,8 +123,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 			FillDiscountReasons(discountReasonRepository);
 
-			// TODO: проверить
-			_needToSendBillByEdo = Entity.Id == 0 && Entity.Client.NeedSendBillByEdo;
+			CanSendBillByEdo = Entity.Client.NeedSendBillByEdo;
 
 			UpdateEdoContainers();
 
@@ -212,6 +211,12 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		{
 			get => _isSendBillByEdo;
 			set => SetField(ref _isSendBillByEdo, value);
+		}
+
+		public bool CanSendBillByEdo
+		{
+			get => _canSendBillByEdo;
+			set => SetField(ref _canSendBillByEdo, value);
 		}
 
 		public IEntityUoWBuilder EntityUoWBuilder { get; }
@@ -356,7 +361,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 		public override bool Save(bool close)
 		{
-			if(!Entity.IsBillWithoutShipmentSent && _needToSendBillByEdo)
+			if(!Entity.IsBillWithoutShipmentSent && Entity.Id == 0 && IsSendBillByEdo)
 			{
 				SendBillByEdo(UoW);
 			}

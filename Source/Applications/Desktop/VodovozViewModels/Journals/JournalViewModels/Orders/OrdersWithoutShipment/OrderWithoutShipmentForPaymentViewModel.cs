@@ -1,4 +1,4 @@
-﻿using Gamma.Utilities;
+using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using NHibernate.Criterion;
 using NHibernate.Transform;
@@ -46,6 +46,9 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		private DateTime? _endDate = DateTime.Now;
 
 		public Action<string> OpenCounterpartyJournal;
+
+		private bool _isSendBillByEdo;
+		private bool _canSendBillByEdo;
 
 		public OrderWithoutShipmentForPaymentViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -109,8 +112,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 			ObservableAvailableOrders = new GenericObservableList<OrderWithoutShipmentForPaymentNode>();
 
-			// TODO: проверить
-			_needToSendBillByEdo = Entity.Id == 0 && Entity.Client.NeedSendBillByEdo;
+			CanSendBillByEdo = Entity.Client.NeedSendBillByEdo;
 
 			UpdateEdoContainers();
 
@@ -145,6 +147,12 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			set => SetField(ref _isSendBillByEdo, value);
 		}
 
+		public bool CanSendBillByEdo
+		{
+			get => _canSendBillByEdo;
+			set => SetField(ref _canSendBillByEdo, value);
+		}
+
 		public DateTime? StartDate
 		{
 			get => _startDate;
@@ -161,9 +169,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		public SendDocumentByEmailViewModel SendDocViewModel { get; set; }
 
 		public GenericObservableList<OrderWithoutShipmentForPaymentNode> ObservableAvailableOrders { get; }
-
-		private bool _needToSendBillByEdo;
-		private bool _isSendBillByEdo;
 
 		public bool IsDocumentSent => Entity.IsBillWithoutShipmentSent;
 
@@ -327,7 +332,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 		public override bool Save(bool close)
 		{
-			if(!Entity.IsBillWithoutShipmentSent && _needToSendBillByEdo)
+			if(!Entity.IsBillWithoutShipmentSent && Entity.Id == 0 && IsSendBillByEdo)
 			{
 				SendBillByEdo(UoW);
 			}

@@ -1,4 +1,4 @@
-﻿using Gamma.Utilities;
+using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.Dialog;
@@ -33,10 +33,9 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private IGenericRepository<EdoContainer> _edoContainerRepository;
 
-		private bool _needToSendBillByEdo;
-
 		public Action<string> OpenCounterpartyJournal;
 		private bool _isSendBillByEdo;
+		private bool _canSendBillByEdo;
 
 		public bool IsDocumentSent => Entity.IsBillWithoutShipmentSent;
 
@@ -98,8 +97,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 					commonServices.InteractiveService,
 					UoW);
 
-			// TODO: проверить
-			_needToSendBillByEdo = Entity.Id == 0 && Entity.Client.NeedSendBillByEdo;
+			CanSendBillByEdo = Entity.Client.NeedSendBillByEdo;
 
 			UpdateEdoContainers();
 
@@ -132,6 +130,12 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		{
 			get => _isSendBillByEdo;
 			set => SetField(ref _isSendBillByEdo, value);
+		}
+
+		public bool CanSendBillByEdo
+		{
+			get => _canSendBillByEdo;
+			set => SetField(ref _canSendBillByEdo, value);
 		}
 
 		public SendDocumentByEmailViewModel SendDocViewModel { get; set; }
@@ -215,7 +219,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 		public override bool Save(bool close)
 		{
-			if(!Entity.IsBillWithoutShipmentSent && _needToSendBillByEdo)
+			if(!Entity.IsBillWithoutShipmentSent && Entity.Id == 0 && IsSendBillByEdo)
 			{
 				SendBillByEdo(UoW);
 			}
