@@ -3568,7 +3568,9 @@ namespace Vodovoz
 
 		private void UpdateOnlineOrderText()
 		{
-			if(Entity.PaymentType != PaymentType.PaidOnline)
+			if(Entity.PaymentType != PaymentType.PaidOnline
+				&& Entity.PaymentType != PaymentType.DriverApplicationQR
+				&& Entity.PaymentType != PaymentType.SmsQR)
 			{
 				entOnlineOrder.Text = string.Empty; //костыль, т.к. Entity.OnlineOrder = null не убирает почему-то текст из виджета
 			}
