@@ -119,8 +119,8 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 			{
 				var resendUpdAction = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
-						.Where(x => x.Order.Id == ViewModel.Entity.Id)
-						.FirstOrDefault();
+					.Where(x => x.Order.Id == ViewModel.Entity.Id)
+					.FirstOrDefault();
 
 				if(resendUpdAction != null && resendUpdAction.IsNeedToResendEdoUpd)
 				{

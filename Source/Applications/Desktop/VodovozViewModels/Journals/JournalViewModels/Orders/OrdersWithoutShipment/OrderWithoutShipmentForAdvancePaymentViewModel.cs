@@ -205,6 +205,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 					}
 				},
 				() => true);
+
+			Entity.PropertyChanged += OnEntityPropertyChanged;
 		}
 
 		public bool IsSendBillByEdo
@@ -255,6 +257,14 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 		public GenericObservableList<EdoContainer> EdoContainers { get; } =
 			new GenericObservableList<EdoContainer>();
+
+		private void OnEntityPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Entity.Client))
+			{
+				CanSendBillByEdo = Entity.Client.NeedSendBillByEdo;
+			}
+		}
 
 		public void OnTabAdded()
 		{

@@ -22,6 +22,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.Specifications.Orders.EdoContainers;
 using Vodovoz.Tools.Orders;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
@@ -37,6 +38,7 @@ namespace TaxcomEdoApi.Services
 		private readonly IOrderRepository _orderRepository;
 		private readonly IGenericRepository<EdoContainer> _edoContainersRepository;
 		private readonly IOrganizationRepository _organizationRepository;
+		private readonly IOrganizationParametersProvider _organizationParametersProvider;
 		private readonly IConfigurationSection _apiSection;
 		private readonly EdoUpdFactory _edoUpdFactory;
 		private readonly EdoBillFactory _edoBillFactory;
@@ -48,6 +50,7 @@ namespace TaxcomEdoApi.Services
 
 		private long? _lastEventIngoingDocumentsTimeStamp;
 		private long? _lastEventOutgoingDocumentsTimeStamp;
+		private int _cashlessOrganizationId;
 
 		public DocumentFlowService(
 			ILogger<DocumentFlowService> logger,
@@ -58,6 +61,7 @@ namespace TaxcomEdoApi.Services
 			IOrderRepository orderRepository,
 			IGenericRepository<EdoContainer> edoContainersRepository,
 			IOrganizationRepository organizationRepository,
+			IOrganizationParametersProvider organizationParametersProvider,
 			EdoUpdFactory edoUpdFactory,
 			EdoBillFactory edoBillFactory,
 			EdoContainerMainDocumentIdParser edoContainerMainDocumentIdParser,
@@ -72,6 +76,7 @@ namespace TaxcomEdoApi.Services
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_edoContainersRepository = edoContainersRepository ?? throw new ArgumentNullException(nameof(edoContainersRepository));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
+			_organizationParametersProvider = organizationParametersProvider ?? throw new ArgumentNullException(nameof(organizationParametersProvider));
 			_edoUpdFactory = edoUpdFactory ?? throw new ArgumentNullException(nameof(edoUpdFactory));
 			_edoBillFactory = edoBillFactory ?? throw new ArgumentNullException(nameof(edoBillFactory));
 			_edoContainerMainDocumentIdParser =
@@ -87,6 +92,7 @@ namespace TaxcomEdoApi.Services
 			_logger.LogInformation("Процесс электронного документооборота запущен");
 			_lastEventIngoingDocumentsTimeStamp = _parametersProvider.GetValue<long>("last_event_ingoing_documents_timestamp");
 			_lastEventOutgoingDocumentsTimeStamp = _parametersProvider.GetValue<long>("last_event_outgoing_documents_timestamp");
+			_cashlessOrganizationId = _organizationParametersProvider.GetCashlessOrganisationId;
 			await StartWorkingAsync(stoppingToken);
 		}
 
@@ -227,22 +233,22 @@ namespace TaxcomEdoApi.Services
 
 				foreach(var edoContainer in edoContainers)
 				{
-					if(edoContainer.Order != null)
+					if(EdoContainerSpecification.CreateIsForOrder().IsSatisfiedBy(edoContainer))
 					{
 						SendOrderContainer(uow, organization, edoContainer);
 					}
 
-					if(edoContainer.OrderWithoutShipmentForAdvancePayment != null)
+					if(_cashlessOrganizationId == organization.Id && EdoContainerSpecification.CreateIsForOrderWithoutShipmentForAdvancePayment().IsSatisfiedBy(edoContainer))
 					{
 						SendOrderWithoutShipmentForAdvancePaymentContainer(uow, organization, edoContainer);
 					}
 
-					if(edoContainer.OrderWithoutShipmentForDebt != null)
+					if(_cashlessOrganizationId == organization.Id && EdoContainerSpecification.CreateIsForOrderWithoutShipmentForDebt().IsSatisfiedBy(edoContainer))
 					{
 						SendOrderWithoutShipmentForDebtContainer(uow, organization, edoContainer);
 					}
 
-					if(edoContainer.OrderWithoutShipmentForPayment != null)
+					if(_cashlessOrganizationId == organization.Id && EdoContainerSpecification.CreateIsForOrderWithoutShipmentForPayment().IsSatisfiedBy(edoContainer))
 					{
 						SendOrderWithoutShipmentForPaymentContainer(uow, organization, edoContainer);
 					}
@@ -270,7 +276,7 @@ namespace TaxcomEdoApi.Services
 				var printableRdlDocument = edoContainer.Order.OrderDocuments
 					.FirstOrDefault(x => orderDocumentTypes.Contains(x.Type)) as IPrintableRDLDocument;
 				var billAttachment = _printableDocumentSaver.SaveToPdf(printableRdlDocument);
-				var fileName = $"Счёт №{edoContainer.Id} от {edoContainer.Order.CreateDate:d}.pdf";
+				var fileName = $"Счёт №{edoContainer.Order.Id} от {edoContainer.Order.CreateDate:d}.pdf";
 				var document = _edoBillFactory.CreateBillDocument(edoContainer.Order, billAttachment, fileName, organization);
 
 				container.Documents.Add(document);
@@ -317,7 +323,7 @@ namespace TaxcomEdoApi.Services
 				var printableRdlDocument = edoContainer.OrderWithoutShipmentForPayment.Order.OrderDocuments
 					.FirstOrDefault(x => orderDocumentTypes.Contains(x.Type)) as IPrintableRDLDocument;
 				var billAttachment = _printableDocumentSaver.SaveToPdf(printableRdlDocument);
-				var fileName = $"Счёт №{edoContainer.Id} от {edoContainer.OrderWithoutShipmentForPayment.CreateDate:d}.pdf";
+				var fileName = $"Счёт № Ф-{edoContainer.OrderWithoutShipmentForPayment.Id} от {edoContainer.OrderWithoutShipmentForPayment.CreateDate:d}.pdf";
 				var document = _edoBillFactory.CreateBillWithoutShipmentForPaymentDocument(edoContainer.OrderWithoutShipmentForPayment, billAttachment, fileName, organization);
 
 				container.Documents.Add(document);
@@ -364,7 +370,7 @@ namespace TaxcomEdoApi.Services
 				var printableRdlDocument = edoContainer.OrderWithoutShipmentForDebt.Order.OrderDocuments
 					.FirstOrDefault(x => orderDocumentTypes.Contains(x.Type)) as IPrintableRDLDocument;
 				var billAttachment = _printableDocumentSaver.SaveToPdf(printableRdlDocument);
-				var fileName = $"Счёт №{edoContainer.Id} от {edoContainer.OrderWithoutShipmentForDebt.CreateDate:d}.pdf";
+				var fileName = $"Счёт № Ф-{edoContainer.OrderWithoutShipmentForDebt.Id} от {edoContainer.OrderWithoutShipmentForDebt.CreateDate:d}.pdf";
 				var document = _edoBillFactory.CreateBillWithoutShipmentForDebtDocument(edoContainer.OrderWithoutShipmentForDebt, billAttachment, fileName, organization);
 
 				container.Documents.Add(document);
@@ -411,7 +417,7 @@ namespace TaxcomEdoApi.Services
 				var printableRdlDocument = edoContainer.OrderWithoutShipmentForAdvancePayment.Order.OrderDocuments
 					.FirstOrDefault(x => orderDocumentTypes.Contains(x.Type)) as IPrintableRDLDocument;
 				var billAttachment = _printableDocumentSaver.SaveToPdf(printableRdlDocument);
-				var fileName = $"Счёт №{edoContainer.Id} от {edoContainer.OrderWithoutShipmentForAdvancePayment.CreateDate:d}.pdf";
+				var fileName = $"Счёт № Ф-{edoContainer.OrderWithoutShipmentForAdvancePayment.Id} от {edoContainer.OrderWithoutShipmentForAdvancePayment.CreateDate:d}.pdf";
 				var document = _edoBillFactory.CreateBillWithoutShipmentForAdvancePaymentDocument(edoContainer.OrderWithoutShipmentForAdvancePayment, billAttachment, fileName, organization);
 
 				container.Documents.Add(document);
@@ -462,6 +468,7 @@ namespace TaxcomEdoApi.Services
 					}
 
 					_logger.LogInformation("Обрабатываем полученные контейнеры {DocFlowUpdatesCount}", docFlowUpdates.Updates.Count);
+
 					foreach(var item in docFlowUpdates.Updates)
 					{
 						EdoContainer container = null;

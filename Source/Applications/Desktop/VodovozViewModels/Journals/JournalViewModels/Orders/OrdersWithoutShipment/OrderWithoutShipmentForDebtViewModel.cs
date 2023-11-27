@@ -97,7 +97,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 					commonServices.InteractiveService,
 					UoW);
 
-			CanSendBillByEdo = Entity.Client.NeedSendBillByEdo;
+			CanSendBillByEdo = false;
 
 			UpdateEdoContainers();
 
@@ -124,6 +124,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 					}
 				},
 				() => true);
+
+			Entity.PropertyChanged += OnEntityPropertyChanged;
 		}
 
 		public bool IsSendBillByEdo
@@ -147,6 +149,14 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		public DelegateCommand CancelCommand { get; }
 		
 		public DelegateCommand OpenBillCommand { get; }
+
+		private void OnEntityPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Entity.Client))
+			{
+				CanSendBillByEdo = Entity.Client.NeedSendBillByEdo;
+			}
+		}
 
 		private void SendBillByEdo(IUnitOfWork uow)
 		{

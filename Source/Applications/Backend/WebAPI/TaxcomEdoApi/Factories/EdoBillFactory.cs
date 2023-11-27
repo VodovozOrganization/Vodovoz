@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Taxcom.Client.Api.Entity;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
@@ -45,7 +46,7 @@ namespace TaxcomEdoApi.Factories
 		{
 			var nonformalizedDocument = new NonformalizedDocument
 			{
-				Number = orderWithoutShipmentForAdvancePayment.Order.Id.ToString(),
+				Number = "Ф-" + orderWithoutShipmentForAdvancePayment.Id.ToString(),
 				Type = DocumentType.Account,
 				Attachment = new FileData
 				{
@@ -56,8 +57,8 @@ namespace TaxcomEdoApi.Factories
 				ExternalIdentifier = Guid.NewGuid().ToString(),
 				Sender =
 				{
-					Inn = orderWithoutShipmentForAdvancePayment.Order.Contract.Organization.INN,
-					Kpp = orderWithoutShipmentForAdvancePayment.Order.Contract.Organization.KPP,
+					Inn = organization.INN,
+					Kpp = organization.KPP,
 					Identifier = organization.TaxcomEdoAccountId,
 					Name = { Organization = organization.FullName }
 				},
@@ -68,7 +69,7 @@ namespace TaxcomEdoApi.Factories
 					Identifier = orderWithoutShipmentForAdvancePayment.Client.PersonalAccountIdInEdo,
 					Name = { Organization = orderWithoutShipmentForAdvancePayment.Client.FullName }
 				},
-				Sum = orderWithoutShipmentForAdvancePayment.Order.OrderSum
+				Sum = orderWithoutShipmentForAdvancePayment.ObservableOrderWithoutDeliveryForAdvancePaymentItems.Sum(x => x.Sum)
 			};
 
 			return nonformalizedDocument;
@@ -78,7 +79,7 @@ namespace TaxcomEdoApi.Factories
 		{
 			var nonformalizedDocument = new NonformalizedDocument
 			{
-				Number = orderWithoutShipmentForDebt.Order.Id.ToString(),
+				Number = "Ф-" + orderWithoutShipmentForDebt.Id.ToString(),
 				Type = DocumentType.Account,
 				Attachment = new FileData
 				{
@@ -89,8 +90,8 @@ namespace TaxcomEdoApi.Factories
 				ExternalIdentifier = Guid.NewGuid().ToString(),
 				Sender =
 				{
-					Inn = orderWithoutShipmentForDebt.Order.Contract.Organization.INN,
-					Kpp = orderWithoutShipmentForDebt.Order.Contract.Organization.KPP,
+					Inn = organization.INN,
+					Kpp = organization.KPP,
 					Identifier = organization.TaxcomEdoAccountId,
 					Name = { Organization = organization.FullName }
 				},
@@ -101,7 +102,7 @@ namespace TaxcomEdoApi.Factories
 					Identifier = orderWithoutShipmentForDebt.Client.PersonalAccountIdInEdo,
 					Name = { Organization = orderWithoutShipmentForDebt.Client.FullName }
 				},
-				Sum = orderWithoutShipmentForDebt.Order.OrderSum
+				Sum = orderWithoutShipmentForDebt.DebtSum
 			};
 
 			return nonformalizedDocument;
@@ -111,7 +112,7 @@ namespace TaxcomEdoApi.Factories
 		{
 			var nonformalizedDocument = new NonformalizedDocument
 			{
-				Number = orderWithoutShipmentForPayment.Order.Id.ToString(),
+				Number = "Ф-" + orderWithoutShipmentForPayment.Id.ToString(),
 				Type = DocumentType.Account,
 				Attachment = new FileData
 				{
@@ -122,8 +123,8 @@ namespace TaxcomEdoApi.Factories
 				ExternalIdentifier = Guid.NewGuid().ToString(),
 				Sender =
 				{
-					Inn = orderWithoutShipmentForPayment.Order.Contract.Organization.INN,
-					Kpp = orderWithoutShipmentForPayment.Order.Contract.Organization.KPP,
+					Inn = organization.INN,
+					Kpp = organization.KPP,
 					Identifier = organization.TaxcomEdoAccountId,
 					Name = { Organization = organization.FullName }
 				},
@@ -134,7 +135,7 @@ namespace TaxcomEdoApi.Factories
 					Identifier = orderWithoutShipmentForPayment.Client.PersonalAccountIdInEdo,
 					Name = { Organization = orderWithoutShipmentForPayment.Client.FullName }
 				},
-				Sum = orderWithoutShipmentForPayment.Order.OrderSum
+				Sum = orderWithoutShipmentForPayment.ObservableOrderWithoutDeliveryForPaymentItems.Sum(x => x.Order.OrderSum)
 			};
 
 			return nonformalizedDocument;
