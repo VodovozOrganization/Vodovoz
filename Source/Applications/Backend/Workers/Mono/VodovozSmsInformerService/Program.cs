@@ -1,15 +1,16 @@
-﻿using System;
-using System.Reflection;
-using System.ServiceModel;
-using System.ServiceModel.Web;
-using System.Threading;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Mono.Unix;
 using Mono.Unix.Native;
 using MySqlConnector;
 using NLog;
 using QS.Project.DB;
+using QS.Project.Repositories;
 using Sms.External.SmsRu;
+using System;
+using System.Reflection;
+using System.ServiceModel;
+using System.ServiceModel.Web;
+using System.Threading;
 using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.SmsNotifications;
 using Vodovoz.Parameters;
@@ -17,10 +18,10 @@ using Vodovoz.Settings.Database;
 
 namespace VodovozSmsInformerService
 {
-    class Service
+	class Service
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
-		
+
 		private static readonly string configFile = "/etc/vodovoz-smsinformer-service.conf";
 
 		//Service
@@ -44,7 +45,9 @@ namespace VodovozSmsInformerService
 
 			SmsRuConfiguration smsRuConfig;
 
-			try {
+			try 
+			{
+
 				var builder = new ConfigurationBuilder()
 					.AddIniFile(configFile, optional: false);
 
@@ -77,7 +80,8 @@ namespace VodovozSmsInformerService
 						int.Parse(smsRuSection["smtpPort"]),
 						bool.Parse(smsRuSection["smtpUseSSL"]),
 						bool.Parse(smsRuSection["translit"]),
-						bool.Parse(smsRuSection["test"])
+						bool.Parse(smsRuSection["test"]),
+						smsRuSection["baseUrl"]
 					);
 			}
 			catch(Exception ex) {
