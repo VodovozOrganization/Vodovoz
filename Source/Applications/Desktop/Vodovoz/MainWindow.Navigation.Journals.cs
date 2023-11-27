@@ -31,6 +31,7 @@ using Vodovoz.Domain.Store;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Journals;
 using Vodovoz.Journals.JournalViewModels;
+using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.Journals.JournalViewModels.WageCalculation;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
@@ -42,6 +43,7 @@ using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Counterparties;
+using Vodovoz.ViewModels.Counterparties.ClientClassification;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Dialogs.Roboats;
@@ -89,10 +91,7 @@ public partial class MainWindow
 	[Obsolete("Старый диалог, заменить")]
 	protected void OnSubdivisionsActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			OrmReference.GenerateHashName<Subdivision>(),
-			() => new OrmReference(typeof(Subdivision))
-		);
+		NavigationManager.OpenViewModel<SubdivisionsJournalViewModel>(null);
 	}
 
 	/// <summary>
@@ -102,10 +101,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionWarehousesActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<WarehousesView>(),
-			() => new WarehousesView()
-		);
+		NavigationManager.OpenTdiTab<WarehousesView>(null);
 	}
 
 	#region Зарплата
@@ -427,7 +423,7 @@ public partial class MainWindow
 	}
 
 	/// <summary>
-	/// Рекламные наборы
+	/// Промонаборы
 	/// </summary>
 	/// <param name="sender"></param>
 	/// <param name="e"></param>
@@ -790,9 +786,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionDeliveryPointsActivated(object sender, EventArgs e)
 	{
-		var dpJournalFactory = new DeliveryPointJournalFactory();
-		var deliveryPointJournal = dpJournalFactory.CreateDeliveryPointJournal();
-		tdiMain.AddTab(deliveryPointJournal);
+		NavigationManager.OpenViewModel<DeliveryPointJournalViewModel, bool, bool>(null, true, true);
 	}
 
 	/// <summary>
@@ -802,7 +796,10 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionCameFromActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<ClientCameFromJournalViewModel, Action<ClientCameFromFilterViewModel>>(null, filter => filter.HidenByDefault = true, OpenPageOptions.IgnoreHash);
+		NavigationManager.OpenViewModel<ClientCameFromJournalViewModel, Action<ClientCameFromFilterViewModel>>(
+			null,
+			filter => filter.HidenByDefault = true,
+			OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -923,6 +920,16 @@ public partial class MainWindow
 	protected void OnActionCounterpartySubtypesActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<SubtypesJournalViewModel>(null);
+	}
+
+	/// <summary>
+	/// Пересчёт классификации контрагентов
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionCounterpartyClassificationCalculationActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<CounterpartyClassificationCalculationViewModel>(null);
 	}
 
 	#endregion Контрагенты

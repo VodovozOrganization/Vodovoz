@@ -1,4 +1,4 @@
-﻿using fyiReporting.RDL;
+using fyiReporting.RDL;
 using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Exceptions;
@@ -118,6 +118,8 @@ namespace Vodovoz.Domain.Orders
 		private bool? _canCreateOrderInAdvance;
 		private int? counterpartyExternalOrderId;
 
+		private int? _callBeforeArrivalMinutes;
+
 		#region Cвойства
 
 		public virtual int Id { get; set; }
@@ -158,7 +160,13 @@ namespace Vodovoz.Domain.Orders
 		public virtual bool IsFastDelivery
 		{
 			get => _isFastDelivery;
-			set => SetField(ref _isFastDelivery, value);
+			set
+			{
+				if(SetField(ref _isFastDelivery, value) && value)
+				{
+					CallBeforeArrivalMinutes = null;
+				}
+			}
 		}
 
 		private OrderStatus orderStatus;
@@ -333,11 +341,16 @@ namespace Vodovoz.Domain.Orders
 		private bool selfDelivery;
 
 		[Display(Name = "Самовывоз")]
-		public virtual bool SelfDelivery {
+		public virtual bool SelfDelivery
+		{
 			get => selfDelivery;
-			set {
-				if(SetField(ref selfDelivery, value, () => SelfDelivery) && value)
+			set
+			{
+				if(SetField(ref selfDelivery, value) && value)
+				{
 					IsContractCloser = false;
+					CallBeforeArrivalMinutes = null;
+				}
 			}
 		}
 
@@ -418,6 +431,13 @@ namespace Vodovoz.Domain.Orders
 		public virtual string Comment {
 			get => comment;
 			set => SetField(ref comment, value, () => Comment);
+		}
+
+		[Display(Name = "Отзвон за")]
+		public virtual int? CallBeforeArrivalMinutes
+		{
+			get => _callBeforeArrivalMinutes;
+			set => SetField(ref _callBeforeArrivalMinutes, value);
 		}
 
 		private string commentLogist;
@@ -1298,9 +1318,11 @@ namespace Vodovoz.Domain.Orders
 					}
 
 					if(Client.IsDeliveriesClosed
-					   && PaymentType != PaymentType.Cash
-					   && PaymentType != PaymentType.PaidOnline
-					   && PaymentType != PaymentType.Terminal)
+						&& PaymentType != PaymentType.Cash
+						&& PaymentType != PaymentType.PaidOnline
+						&& PaymentType != PaymentType.Terminal
+						&& PaymentType != PaymentType.DriverApplicationQR
+						&& PaymentType != PaymentType.SmsQR)
 						yield return new ValidationResult(
 							"В заказе неверно указан тип оплаты (для данного клиента закрыты поставки)",
 							new[] { nameof(PaymentType) }
@@ -2295,7 +2317,7 @@ namespace Vodovoz.Domain.Orders
 			if(nomenclature.Category != NomenclatureCategory.water && !nomenclature.IsDisposableTare)
 				return;
 
-			//Если номенклатура промо-набора добавляется по фиксе (без скидки), то у нового OrderItem убирается поле discountReason
+			//Если номенклатура промонабора добавляется по фиксе (без скидки), то у нового OrderItem убирается поле discountReason
 			if(proSet != null && discount == 0) {
 				var fixPricedNomenclaturesId = GetNomenclaturesWithFixPrices.Select(n => n.Id);
 				if(fixPricedNomenclaturesId.Contains(nomenclature.Id))
@@ -2578,8 +2600,8 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		/// <summary>
-		/// Попытка найти и удалить промо-набор, если нет больше позиций
-		/// заказа с промо-набором
+		/// Попытка найти и удалить промонабор, если нет больше позиций
+		/// заказа с промонабором
 		/// </summary>
 		/// <param name="orderItem">Позиция заказа</param>
 		public virtual void TryToRemovePromotionalSet(OrderItem orderItem)
@@ -2610,7 +2632,7 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		/// <summary>
-		/// Чистка списка промо-наборов заказа, если вручную удалили, изменили
+		/// Чистка списка промонаборов заказа, если вручную удалили, изменили
 		/// причину скидки или что-то ещё.
 		/// </summary>
 		private void ClearPromotionSets()
@@ -2624,11 +2646,11 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		/// <summary>
-		/// Проверка на возможность добавления промо-набора в заказ
+		/// Проверка на возможность добавления промонабора в заказ
 		/// </summary>
-		/// <returns><c>true</c>, если можно добавить промо-набор,
+		/// <returns><c>true</c>, если можно добавить промонабор,
 		/// <c>false</c> если нельзя.</returns>
-		/// <param name="proSet">Рекламный набор (промо-набор)</param>
+		/// <param name="proSet">Промонабор (промонабор)</param>
 		public virtual bool CanAddPromotionalSet(PromotionalSet proSet, IPromotionalSetRepository promotionalSetRepository)
 		{
 			if(PromotionalSets.Any(x => x.Id == proSet.Id && proSet.PromotionalSetForNewClients))
@@ -2674,9 +2696,9 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		/// <summary>
-		/// Проверка на использование промо-набора в заказе на адрес
+		/// Проверка на использование промонабора в заказе на адрес
 		/// </summary>
-		/// <returns><c>true</c>, если на адрес не доставляли промо-набор,
+		/// <returns><c>true</c>, если на адрес не доставляли промонабор,
 		/// <c>false</c> если нельзя.</returns>
 		public virtual bool CanUsedPromo(IPromotionalSetRepository promotionalSetRepository)
 		{
@@ -3242,7 +3264,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual void SelfDeliveryToLoading(
 			Employee employee,
 			ICurrentPermissionService permissionService,
-			CallTaskWorker callTaskWorker)
+			ICallTaskWorker callTaskWorker)
 		{
 			if(!SelfDelivery) {
 				return;
@@ -3514,7 +3536,14 @@ namespace Vodovoz.Domain.Orders
 				return;
 
 			if(CanSetOrderAsEditable)
+			{
+				if(OrderStatus == OrderStatus.Canceled)
+				{
+					RestoreOrder();
+				}
+
 				ChangeStatusAndCreateTasks(OrderStatus.NewOrder, callTaskWorker);
+			}
 		}
 
 		/// <summary>
@@ -3901,13 +3930,13 @@ namespace Vodovoz.Domain.Orders
 			UpdateBottleMovementOperation(uow, standartNomenclatures, ReturnedTare ?? 0, forfeitQuantity ?? 0);
 		}
 
-		public virtual void ChangePaymentTypeToByCardTerminal (CallTaskWorker callTaskWorker)
+		public virtual void ChangePaymentTypeToByCardTerminal (ICallTaskWorker callTaskWorker)
 		{
 			PaymentType = PaymentType.Terminal;
 			ChangeStatusAndCreateTasks(!PayAfterShipment ? OrderStatus.Accepted : OrderStatus.Closed, callTaskWorker);
 		}
 
-		public virtual void ChangePaymentTypeToOnline(CallTaskWorker callTaskWorker)
+		public virtual void ChangePaymentTypeToOnline(ICallTaskWorker callTaskWorker)
 		{
 			PaymentType = PaymentType.PaidOnline;
 			ChangeStatusAndCreateTasks(!PayAfterShipment ? OrderStatus.Accepted : OrderStatus.Closed, callTaskWorker);
@@ -4337,6 +4366,33 @@ namespace Vodovoz.Domain.Orders
 				deposit.ActualCount = 0;
 			}
 		}
+
+		public virtual void RestoreOrder()
+		{
+			foreach(var item in OrderItems)
+			{
+				if(item.OriginalDiscountMoney.HasValue || item.OriginalDiscount.HasValue)
+				{
+					item.DiscountMoney = item.OriginalDiscountMoney ?? 0;
+					item.DiscountReason = item.OriginalDiscountReason;
+					item.Discount = item.OriginalDiscount ?? 0;
+					item.OriginalDiscountMoney = null;
+					item.OriginalDiscountReason = null;
+					item.OriginalDiscount = null;
+				}
+				item.ActualCount = null;
+			}
+			foreach(var equip in OrderEquipments)
+			{
+				equip.ActualCount = null;
+			}
+
+			foreach(var deposit in OrderDepositItems)
+			{
+				deposit.ActualCount = null;
+			}
+		}
+
 
 		/// <summary>
 		/// Возвращает список со всеми товарами, которые нужно доставить клиенту
@@ -5019,6 +5075,7 @@ namespace Vodovoz.Domain.Orders
 		#region Точка доставки
 
 		private int _educationalInstitutionDeliveryPointCategoryId;
+
 		private int EducationalInstitutionDeliveryPointCategoryId
 		{
 			get

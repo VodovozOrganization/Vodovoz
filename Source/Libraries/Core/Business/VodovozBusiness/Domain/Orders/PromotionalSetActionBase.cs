@@ -9,7 +9,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual int Id { get; set; }
 
 		PromotionalSet promotionalSet;
-		[Display(Name = "Промо-набор")]
+		[Display(Name = "Промонабор")]
 		public virtual PromotionalSet PromotionalSet {
 			get { return promotionalSet; }
 			set { SetField(ref promotionalSet, value, () => PromotionalSet); }

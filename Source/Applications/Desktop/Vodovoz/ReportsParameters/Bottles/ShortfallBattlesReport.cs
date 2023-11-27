@@ -9,15 +9,19 @@ using Vodovoz.Domain.Orders;
 using QS.Dialog.GtkUI;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using QS.Navigation;
 
 namespace Vodovoz.ReportsParameters.Bottles
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ShortfallBattlesReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public ShortfallBattlesReport()
+		private readonly INavigationManager _navigationManager;
+
+		public ShortfallBattlesReport(INavigationManager navigationManager)
 		{
 			this.Build();
+			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			ydatepicker.Date = DateTime.Now.Date;
 			comboboxDriver.ItemsEnum = typeof(Drivers);
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
@@ -26,7 +30,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 				x => x.RestrictCategory = EmployeeCategory.driver,
 				x => x.Status = EmployeeStatus.IsWorking
 			);
-			var driverFactory = new EmployeeJournalFactory(filter);
+			var driverFactory = new EmployeeJournalFactory(_navigationManager, filter);
 			evmeDriver.SetEntityAutocompleteSelectorFactory(driverFactory.CreateEmployeeAutocompleteSelectorFactory());
 			ySpecCmbNonReturnReason.ItemsList = UoW.Session.QueryOver<NonReturnReason>().List();
 			buttonCreateRepot.Clicked += (s, a) => OnUpdate(true);

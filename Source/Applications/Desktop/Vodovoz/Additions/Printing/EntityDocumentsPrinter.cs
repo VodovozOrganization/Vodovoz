@@ -24,9 +24,10 @@ namespace Vodovoz.Additions.Printing
 	public class EntityDocumentsPrinter : IEntityDocumentsPrinter
 	{
 		private readonly IDocTemplateRepository _docTemplateRepository = new DocTemplateRepository();
+		private IDictionary<OrderDocumentType, bool> _showSignaturesAndStampsOfDocument;
 		private bool? _hideSignaturesAndStamps = null;
 		private bool _cancelPrinting = false;
-		
+
 		public event EventHandler DocumentsPrinted;
 		public event EventHandler PrintingCanceled;
 
@@ -38,6 +39,17 @@ namespace Vodovoz.Additions.Printing
 			_hideSignaturesAndStamps = hideSignaturesAndStamps;
 			DocPrinterInit();
 			FindODTTemplates(currentOrder, orderDocumentTypesToSelect);
+		}
+
+		public EntityDocumentsPrinter(
+			Order currentOrder,
+			IDictionary<OrderDocumentType, bool> showSignaturesAndStampsOfDocument)
+		{
+			_showSignaturesAndStampsOfDocument = showSignaturesAndStampsOfDocument
+				?? throw new ArgumentNullException(nameof(showSignaturesAndStampsOfDocument));
+
+			DocPrinterInit();
+			FindODTTemplates(currentOrder, _showSignaturesAndStampsOfDocument.Keys.ToList());
 		}
 
 		/// <summary>
@@ -137,6 +149,7 @@ namespace Vodovoz.Additions.Printing
 						default:
 							throw new NotSupportedException("Документ не поддерживается");
 					}
+
 					if(successfulUpdate == false) 
 					{
 						if(msgs == null)
@@ -144,14 +157,23 @@ namespace Vodovoz.Additions.Printing
 							msgs = new List<string>();
 						}
 
-						msgs.Add(string.Format("Документ '{0}' в комплект печати добавлен не был, т.к. для него не установлен шаблон документа и не удалось найти подходящий.", item.Name));
+						msgs.Add($"Документ '{item.Name}' в комплект печати добавлен не был, т.к. для него не установлен шаблон документа и не удалось найти подходящий.");
 						continue;
 					}
 				}
 
-				if(_hideSignaturesAndStamps.HasValue && item is ISignableDocument doc)
+				if(item is ISignableDocument doc)
 				{
-					doc.HideSignature = _hideSignaturesAndStamps.Value;
+					if(_hideSignaturesAndStamps.HasValue)
+					{
+						doc.HideSignature = _hideSignaturesAndStamps.Value;
+					}
+
+					if(_showSignaturesAndStampsOfDocument != null
+						&& _showSignaturesAndStampsOfDocument.TryGetValue(item.Type, out bool showStampAndSignatureForDocument))
+					{
+						doc.HideSignature = !showStampAndSignatureForDocument;
+					}
 				}
 
 				DocumentsToPrint.Add(

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Autofac;
 using Gtk;
 using NHibernate.Transform;
 using NHibernate.Util;
@@ -24,6 +25,7 @@ namespace Vodovoz.ViewWidgets.Store
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class DefectiveItemsReceptionView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		GenericObservableList<DefectiveItemNode> defectiveList = new GenericObservableList<DefectiveItemNode>();
 		private bool? _userHasOnlyAccessToWarehouseAndComplaints;
 		
@@ -159,7 +161,7 @@ namespace Vodovoz.ViewWidgets.Store
 			var filter = new NomenclatureFilterViewModel();
 			filter.IsDefectiveBottle = true;
 
-			var nomenclatureJournalFactory = new NomenclatureJournalFactory();
+			var nomenclatureJournalFactory = new NomenclatureJournalFactory(_lifetimeScope);
 			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel(filter, true);
 			journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult;
 			
@@ -191,6 +193,13 @@ namespace Vodovoz.ViewWidgets.Store
 			{
 				defectiveList.Add(new DefectiveItemNode(nomenclature, 0));
 			}
+		}
+
+		public override void Destroy()
+		{
+			base.Destroy();
+			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
 		}
 	}
 

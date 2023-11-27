@@ -1,39 +1,53 @@
-﻿using QS.DomainModel.UoW;
+﻿using Autofac;
+using QS.DomainModel.UoW;
 using QS.Navigation;
-using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Store;
 using QS.Project.Services;
-using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Parameters;
-using Vodovoz.ViewModels.Journals.JournalFactories;
-using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Factories;
 using QS.Validation;
+using QS.ViewModels.Control.EEVM;
+using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Journals.JournalViewModels.Organizations;
+using Vodovoz.Parameters;
+using Vodovoz.ViewModels.ViewModels.Organizations;
 
 namespace Vodovoz
 {
 	public partial class WarehouseDlg : QS.Dialog.Gtk.EntityDialogBase<Warehouse>
 	{
 		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
-		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory = new SubdivisionJournalFactory();
+		private readonly ILifetimeScope _lifetimeScope;
 		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
-		private Nomenclature selectedNomenclature;
 
-		public WarehouseDlg()
+		public WarehouseDlg(
+			INavigationManager navigationManager,
+			ILifetimeScope lifetimeScope)
 		{
+			NavigationManager = navigationManager ?? throw new System.ArgumentNullException(nameof(navigationManager));
+			_lifetimeScope = lifetimeScope ?? throw new System.ArgumentNullException(nameof(lifetimeScope));
+
 			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Warehouse>();
 			ConfigureDialog();
 		}
 
-		public WarehouseDlg(int id)
+		public WarehouseDlg(
+			INavigationManager navigationManager,
+			ILifetimeScope lifetimeScope,
+			int id)
 		{
+			NavigationManager = navigationManager ?? throw new System.ArgumentNullException(nameof(navigationManager));
+			_lifetimeScope = lifetimeScope ?? throw new System.ArgumentNullException(nameof(lifetimeScope));
+
 			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Warehouse>(id);
 			ConfigureDialog();
 		}
 
-		public WarehouseDlg(Warehouse sub) : this(sub.Id) { }
+		public WarehouseDlg(
+			INavigationManager navigationManager,
+			ILifetimeScope lifetimeScope,
+			Warehouse sub)
+			: this(navigationManager, lifetimeScope, sub.Id) { }
 
 		private bool CanEdit => permissionResult.CanUpdate || Entity.Id == 0 && permissionResult.CanCreate;
 
@@ -77,12 +91,15 @@ namespace Vodovoz
 				.InitializeFromSource();
 			ySpecCmbOwner.Sensitive = CanEdit;
 
-			entityEntryMovementNotificationsRecipient
-				.SetEntityAutocompleteSelectorFactory(_subdivisionJournalFactory.CreateSubdivisionAutocompleteSelectorFactory());
-			entityEntryMovementNotificationsRecipient.Binding
-				.AddBinding(Entity, e => e.MovementDocumentsNotificationsSubdivisionRecipient, w => w.Subject)
-				.InitializeFromSource();
+			entryMovementNotificationsSubdivisionRecipient.ViewModel = new LegacyEEVMBuilderFactory<Warehouse>(this, Entity, UoW, NavigationManager, _lifetimeScope)
+				.ForProperty(e => e.MovementDocumentsNotificationsSubdivisionRecipient)
+				.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel>()
+				.UseViewModelDialog<SubdivisionViewModel>()
+				.Finish();
 		}
+
+		public IEntityEntryViewModel SubdivisionViewModel { get; private set; }
+		public INavigationManager NavigationManager { get; }
 
 		#region implemented abstract members of OrmGtkDialogBase
 

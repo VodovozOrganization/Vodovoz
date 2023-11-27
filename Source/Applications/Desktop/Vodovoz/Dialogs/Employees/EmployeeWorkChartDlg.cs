@@ -39,6 +39,10 @@ namespace Dialogs.Employees
 
 		public bool HasChanges { get { return uow.HasChanges; } }
 
+		public virtual bool HasCustomCancellationConfirmationDialog { get; private set; }
+
+		public virtual Func<int> CustomCancellationConfirmationDialogFunc { get; private set; }
+
 		#endregion
 
 		public EmployeeWorkChartDlg()
@@ -51,7 +55,7 @@ namespace Dialogs.Employees
 		{
 			DateTime now = DateTime.Now;
 
-			var employeeFactory = new EmployeeJournalFactory();
+			var employeeFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager);
 			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
 			evmeEmployee.Changed += YentryEmployee_Changed;
 

@@ -1,6 +1,4 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 {
@@ -78,6 +76,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.OrderSource).Column("order_source");
 			Map(x => x.OrderPaymentStatus).Column("order_payment_status");
 			Map(x => x.OrderAddressType).Column("order_address_type");
+			Map(x => x.CallBeforeArrivalMinutes).Column("call_before_arrival_minutes");
 
 			References(x => x.Client).Column("client_id");
 			References(x => x.Contract).Column("counterparty_contract_id").Cascade.SaveUpdate();

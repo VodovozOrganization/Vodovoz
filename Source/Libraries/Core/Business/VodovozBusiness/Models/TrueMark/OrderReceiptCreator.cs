@@ -59,9 +59,10 @@ namespace Vodovoz.Models.TrueMark
 		
 		protected virtual void TryCreateCashReceipt()
 		{
+			Order order = null;
 			try
 			{
-				var order = GetOrder();
+				order = GetOrder();
 				var countMarkedNomenclatures = (int)order.OrderItems.Where(x => x.Nomenclature.IsAccountableInTrueMark).Sum(x => x.Count);
 
 				if(countMarkedNomenclatures > CashReceipt.MaxMarkCodesInReceipt)
@@ -79,10 +80,24 @@ namespace Vodovoz.Models.TrueMark
 			catch(Exception ex)
 			{
 				RollbackPool();
+				RegisterException(order, ex);
 				Logger.LogError(ex, "Ошибка создания чека для заказа самовывоза {OrderId}.", OrderId);
 			}
 		}
-		
+
+		private void RegisterException(Order order, Exception ex)
+		{
+			Logger.LogError(ex, $"Ошибка обработки заказа честного знака для заказа {order.Id}.");
+			using(var uow = UowFactory.CreateWithoutRoot())
+			{
+				var cashReceipt = CashReceiptFactory.CreateNewCashReceipt(order);
+				cashReceipt.Status = CashReceiptStatus.CodeError;
+				cashReceipt.ErrorDescription = ex.Message;
+				uow.Save(cashReceipt);
+				uow.Commit();
+			}
+		}
+
 		protected virtual void CreateCashReceipts(Order order, int unprocessedCodes)
 		{
 			var receiptNumber = 1;

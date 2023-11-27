@@ -783,7 +783,7 @@ namespace Vodovoz
 
 			#endregion
 
-			#region Рекламные наборы
+			#region Промонаборы
 
 			DeleteConfig.AddHibernateDeleteInfo<PromotionalSet>()
 						.AddDeleteDependence<PromotionalSetItem>(x => x.PromoSet)

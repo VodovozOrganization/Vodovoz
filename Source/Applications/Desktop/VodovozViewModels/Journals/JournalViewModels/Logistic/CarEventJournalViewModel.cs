@@ -1,46 +1,35 @@
-﻿using NHibernate;
+﻿using DateTimeHelpers;
+using NHibernate;
+using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
+using NHibernate.SqlCommand;
 using NHibernate.Transform;
+using QS.Deletion;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using System;
-using NHibernate.Criterion;
-using NHibernate.Dialect.Function;
-using NHibernate.SqlCommand;
+using System.Linq;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Infrastructure.Services;
-using Vodovoz.EntityRepositories.Undeliveries;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
-using Vodovoz.ViewModels.Journals.JournalFactories;
-using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
-using Vodovoz.ViewModels.TempAdapters;
-using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.Services;
-using Vodovoz.TempAdapters;
-using Vodovoz.EntityRepositories.Logistic;
-using System.Linq;
-using QS.Deletion;
-using Vodovoz.Parameters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
+using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 {
 	public class CarEventJournalViewModel : FilterableSingleEntityJournalViewModelBase<CarEvent, CarEventViewModel, CarEventJournalNode,
 		CarEventFilterViewModel>
 	{
-		private readonly ICarJournalFactory _carJournalFactory;
-		private readonly ICarEventTypeJournalFactory _carEventTypeJournalFactory;
-		private readonly ICarEventJournalFactory _carEventJournalFactory;
-		private readonly IEmployeeService _employeeService;
-		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
-		private readonly IEmployeeSettings _employeeSettings;
+		private readonly ICurrentPermissionService _currentPermissionService;
 		private readonly ICarEventSettings _carEventSettings;
-
+		private IPermissionResult _permissionResult;
 		private bool _canChangeWithClosedPeriod;
 		private int _startNewPeriodDay;
 
@@ -48,90 +37,134 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			CarEventFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			ICarJournalFactory carJournalFactory,
-			ICarEventTypeJournalFactory carEventTypeJournalFactory,
-			ICarEventJournalFactory carEventJournalFactory,
-			IEmployeeService employeeService,
-			IEmployeeJournalFactory employeeJournalFactory,
-			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
-			IEmployeeSettings employeeSettings,
-			ICarEventSettings carEventSettings)
+			ICurrentPermissionService currentPermissionService,
+			ICarEventSettings carEventSettings,
+			INavigationManager navigationManager,
+			Action<CarEventFilterViewModel> filterConfig = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал событий ТС";
 
-			_carJournalFactory = carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory));
-			_carEventTypeJournalFactory = carEventTypeJournalFactory ?? throw new ArgumentNullException(nameof(carEventTypeJournalFactory));
-			_carEventJournalFactory = carEventJournalFactory ?? throw new ArgumentNullException(nameof(carEventJournalFactory));
-			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
-			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
+			_currentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
 			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
+			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_canChangeWithClosedPeriod = commonServices.CurrentPermissionService.ValidatePresetPermission("can_create_edit_car_events_in_closed_period");
 			_startNewPeriodDay = _carEventSettings.CarEventStartNewPeriodDay;
 
+			InitializePermissionsMatrix();
+
 			UpdateOnChanges(
 				typeof(CarEvent),
-				typeof(CarEventType)
-				);
+				typeof(CarEventType));
+
+			if(filterConfig != null)
+			{
+				filterViewModel.SetAndRefilterAtOnce(filterConfig);
+			}
+		}
+
+		private void InitializePermissionsMatrix()
+		{
+			_permissionResult = _currentPermissionService.ValidateEntityPermission(typeof(CarEvent));
 		}
 
 		protected override void CreateNodeActions()
 		{
 			CreateDefaultSelectAction();
-			CreateDefaultAddActions();
-			CreateDefaultEditAction();
+			CreateAddActions();
+			CreateEditAction();
 			CreateCustomDeleteAction();
+		}
+
+		private void CreateAddActions()
+		{
+			var editAction = new JournalAction("Добавить",
+				(selected) => _permissionResult.CanCreate,
+				(selected) => true,
+				(selected) =>
+				{
+					CreateDialogFunction();
+				});
+
+			NodeActionsList.Add(editAction);
+
+			if(SelectionMode == JournalSelectionMode.None)
+			{
+				RowActivatedAction = editAction;
+			}
+		}
+
+		private void CreateEditAction()
+		{
+			var editAction = new JournalAction("Изменить",
+				(selected) => selected.Length == 1
+					&& selected.FirstOrDefault() is CarEventJournalNode node
+					&& _permissionResult.CanUpdate
+					&& selected.Any(),
+				(selected) => true,
+				(selected) =>
+				{
+					if(selected.FirstOrDefault() is CarEventJournalNode node)
+					{
+						OpenDialogFunction(node);
+					}
+				});
+
+			NodeActionsList.Add(editAction);
+
+			if(SelectionMode == JournalSelectionMode.None)
+			{
+				RowActivatedAction = editAction;
+			}
 		}
 
 		private void CreateCustomDeleteAction()
 		{
 			var deleteAction = new JournalAction("Удалить",
-				   (selected) =>
-				   {
-					   var selectedNodes = selected.OfType<CarEventJournalNode>();
-					   if(selectedNodes == null || selectedNodes.Count() != 1)
-					   {
-						   return false;
-					   }
-					   CarEventJournalNode selectedNode = selectedNodes.First();
-					   if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
-					   {
-						   return false;
-					   }
-					   if(!CanDelete(selectedNode.EndDate))
-					   {
-						   return false;
-					   }
-					   var config = EntityConfigs[selectedNode.EntityType];
-					   return config.PermissionResult.CanDelete;
-				   },
-				   (selected) => true,
-				   (selected) =>
-				   {
-					   var selectedNodes = selected.OfType<CarEventJournalNode>();
-					   if(selectedNodes == null || selectedNodes.Count() != 1)
-					   {
-						   return;
-					   }
-					   CarEventJournalNode selectedNode = selectedNodes.First();
-					   if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
-					   {
-						   return;
-					   }
-					   if(!CanDelete(selectedNode.EndDate))
-					   {
-						   return;
-					   }
-					   var config = EntityConfigs[selectedNode.EntityType];
-					   if(config.PermissionResult.CanDelete)
-					   {
-						   DeleteHelper.DeleteEntity(selectedNode.EntityType, selectedNode.Id);
-					   }
-				   },
-				   "Delete"
-			   );
+				(selected) =>
+				{
+					var selectedNodes = selected.OfType<CarEventJournalNode>();
+					if(selectedNodes == null || selectedNodes.Count() != 1)
+					{
+						return false;
+					}
+					CarEventJournalNode selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					{
+						return false;
+					}
+					if(!CanDelete(selectedNode.EndDate))
+					{
+						return false;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					return config.PermissionResult.CanDelete;
+				},
+				(selected) => true,
+				(selected) =>
+				{
+					var selectedNodes = selected.OfType<CarEventJournalNode>();
+					if(selectedNodes == null || selectedNodes.Count() != 1)
+					{
+						return;
+					}
+					CarEventJournalNode selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					{
+						return;
+					}
+					if(!CanDelete(selectedNode.EndDate))
+					{
+						return;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					if(config.PermissionResult.CanDelete)
+					{
+						DeleteHelper.DeleteEntity(selectedNode.EntityType, selectedNode.Id);
+					}
+				},
+				"Delete");
+
 			NodeActionsList.Add(deleteAction);
 		}
 
@@ -189,8 +222,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 			if(FilterViewModel.CreateEventDateFrom != null && FilterViewModel.CreateEventDateTo != null)
 			{
-				itemsQuery.Where(x => x.CreateDate >= FilterViewModel.CreateEventDateFrom.Value.Date.Add(new TimeSpan(0, 0, 0, 0)) &&
-									  x.CreateDate <= FilterViewModel.CreateEventDateTo.Value.Date.Add(new TimeSpan(0, 23, 59, 59)));
+				itemsQuery.Where(x => x.CreateDate >= FilterViewModel.CreateEventDateFrom.Value.Date &&
+									  x.CreateDate <= FilterViewModel.CreateEventDateTo.Value.Date.LatestDayTime());
 			}
 
 			if(FilterViewModel.StartEventDateFrom != null && FilterViewModel.StartEventDateTo != null)
@@ -218,6 +251,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			if(FilterViewModel.Driver != null)
 			{
 				itemsQuery.Where(x => x.Driver == FilterViewModel.Driver);
+			}
+
+			if(FilterViewModel.ExcludeEventIds.Any())
+			{
+				itemsQuery.WhereRestrictionOn(x => x.Id).Not.IsIn(FilterViewModel.ExcludeEventIds);
 			}
 
 			itemsQuery.Where(GetSearchCriterion(
@@ -255,32 +293,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		};
 
 		protected override Func<CarEventViewModel> CreateDialogFunction =>
-			() => new CarEventViewModel(
-				EntityUoWBuilder.ForCreate(),
-				UnitOfWorkFactory,
-				commonServices,
-				_carJournalFactory,
-				_carEventTypeJournalFactory,
-				_carEventJournalFactory,
-				_employeeService,
-				_employeeJournalFactory,
-				_undeliveryViewOpener,
-				_employeeSettings,
-				_carEventSettings);
+			() => NavigationManager.OpenViewModel<CarEventViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()).ViewModel;
 
 		protected override Func<CarEventJournalNode, CarEventViewModel> OpenDialogFunction =>
-			node => new CarEventViewModel(
-				EntityUoWBuilder.ForOpen(node.Id),
-				UnitOfWorkFactory,
-				commonServices,
-				_carJournalFactory,
-				_carEventTypeJournalFactory,
-				_carEventJournalFactory,
-				_employeeService,
-				_employeeJournalFactory,
-				_undeliveryViewOpener,
-				_employeeSettings,
-				_carEventSettings);
+			node => NavigationManager.OpenViewModel<CarEventViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id)).ViewModel;
 
 		private bool CanDelete(DateTime endDate)
 		{

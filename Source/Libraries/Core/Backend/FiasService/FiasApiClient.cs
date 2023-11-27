@@ -14,13 +14,12 @@ using Vodovoz.Domain.Geocoder;
 
 namespace Fias.Client
 {
-	public class FiasApiClient : IFiasApiClient
+	internal class FiasApiClient : IFiasApiClient
 	{
 		private static ILogger _logger = LogManager.GetCurrentClassLogger();
 
 		private static HttpClient _client;
 		private readonly GeocoderCache _geocoderCache;
-
 
 		private class RequestSender<T>
 		{

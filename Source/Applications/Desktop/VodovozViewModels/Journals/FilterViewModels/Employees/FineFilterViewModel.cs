@@ -1,76 +1,125 @@
-﻿using System;
-using QS.Project.Filter;
-using QS.Services;
+﻿using QS.Project.Filter;
+using QS.ViewModels.Control.EEVM;
+using System;
+using Vodovoz.Journals.JournalViewModels.Employees;
+using Vodovoz.Journals.JournalViewModels.Organizations;
+using Vodovoz.ViewModels.ViewModels.Organizations;
 
 namespace Vodovoz.FilterViewModels.Employees
 {
 	public class FineFilterViewModel : FilterViewModelBase<FineFilterViewModel>
 	{
-		public FineFilterViewModel(bool canEditFilter = false)
+		private bool _canEditSubdivision;
+		private Subdivision _subdivision;
+		private bool _canEditFineDate;
+		private DateTime? _fineDateStart;
+		private DateTime? _fineDateEnd;
+		private bool _canEditRouteListDate;
+		private DateTime? _routeListDateStart;
+		private DateTime? _routeListDateEnd;
+		private int[] _excludedIds;
+		private int[] _findFinesWithIds;
+		private FinesJournalViewModel _journalViewModel;
+		private bool _canEditFilter;
+
+		public FineFilterViewModel()
 		{
-			CanEditSubdivision =
-			CanEditFineDate =
-			CanEditRouteListDate = canEditFilter;
+			CanEditFilter = true;
 		}
 
-		private bool canEditSubdivision;
-		public virtual bool CanEditSubdivision {
-			get => canEditSubdivision;
-			set => SetField(ref canEditSubdivision, value, () => CanEditSubdivision);
+		public FinesJournalViewModel JournalViewModel
+		{
+			get => _journalViewModel;
+			set
+			{
+				_journalViewModel = value;
+
+				var subdivisionViewModelEntryViewModelBuilder = new CommonEEVMBuilderFactory<FineFilterViewModel>(value, this, UoW, _journalViewModel.NavigationManager, _journalViewModel.Scope);
+
+				SubdivisionViewModel = subdivisionViewModelEntryViewModelBuilder
+					.ForProperty(x => x.Subdivision)
+					.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel>()
+					.UseViewModelDialog<SubdivisionViewModel>()
+					.Finish();
+
+				SubdivisionViewModel.IsEditable = CanEditSubdivision;
+			}
 		}
 
-		private Subdivision subdivision;
-		public virtual Subdivision Subdivision {
-			get => subdivision;
-			set => UpdateFilterField(ref subdivision, value, () => Subdivision);
+		public IEntityEntryViewModel SubdivisionViewModel { get; private set; }
+
+		public bool CanEditFilter
+		{
+			get => _canEditFilter;
+			set
+			{
+				if(SetField(ref _canEditFilter, value))
+				{
+					CanEditSubdivision = value;
+					CanEditFineDate = value;
+					CanEditRouteListDate = value;
+				}
+			}
 		}
 
-		private bool canEditFineDate;
-		public virtual bool CanEditFineDate {
-			get => canEditFineDate;
-			set => SetField(ref canEditFineDate, value, () => CanEditFineDate);
+		public virtual bool CanEditSubdivision
+		{
+			get => _canEditSubdivision;
+			set => SetField(ref _canEditSubdivision, value);
 		}
 
-		private DateTime? fineDateStart;
-		public virtual DateTime? FineDateStart {
-			get => fineDateStart;
-			set => UpdateFilterField(ref fineDateStart, value, () => FineDateStart);
+		public virtual Subdivision Subdivision
+		{
+			get => _subdivision;
+			set => UpdateFilterField(ref _subdivision, value);
 		}
 
-		private DateTime? fineDateEnd;
-		public virtual DateTime? FineDateEnd {
-			get => fineDateEnd;
-			set => UpdateFilterField(ref fineDateEnd, value, () => FineDateEnd);
+		public virtual bool CanEditFineDate
+		{
+			get => _canEditFineDate;
+			set => SetField(ref _canEditFineDate, value);
 		}
 
-		private bool canEditRouteListDate;
-		public virtual bool CanEditRouteListDate {
-			get => canEditRouteListDate;
-			set => SetField(ref canEditRouteListDate, value, () => CanEditRouteListDate);
+		public virtual DateTime? FineDateStart
+		{
+			get => _fineDateStart;
+			set => UpdateFilterField(ref _fineDateStart, value);
 		}
 
-		private DateTime? routeListDateStart;
-		public virtual DateTime? RouteListDateStart {
-			get => routeListDateStart;
-			set => UpdateFilterField(ref routeListDateStart, value, () => RouteListDateStart);
+		public virtual DateTime? FineDateEnd
+		{
+			get => _fineDateEnd;
+			set => UpdateFilterField(ref _fineDateEnd, value);
 		}
 
-		private DateTime? routeListDateEnd;
-		public virtual DateTime? RouteListDateEnd {
-			get => routeListDateEnd;
-			set => UpdateFilterField(ref routeListDateEnd, value, () => RouteListDateEnd);
+		public virtual bool CanEditRouteListDate
+		{
+			get => _canEditRouteListDate;
+			set => SetField(ref _canEditRouteListDate, value);
 		}
 
-		private int[] excludedIds;
-		public virtual int[] ExcludedIds {
-			get => excludedIds;
-			set => UpdateFilterField(ref excludedIds, value, () => ExcludedIds);
+		public virtual DateTime? RouteListDateStart
+		{
+			get => _routeListDateStart;
+			set => UpdateFilterField(ref _routeListDateStart, value);
 		}
-		
-		private int[] findFinesWithIds;
-		public virtual int[] FindFinesWithIds {
-			get => findFinesWithIds;
-			set => UpdateFilterField(ref findFinesWithIds, value);
+
+		public virtual DateTime? RouteListDateEnd
+		{
+			get => _routeListDateEnd;
+			set => UpdateFilterField(ref _routeListDateEnd, value);
+		}
+
+		public virtual int[] ExcludedIds
+		{
+			get => _excludedIds;
+			set => UpdateFilterField(ref _excludedIds, value);
+		}
+
+		public virtual int[] FindFinesWithIds
+		{
+			get => _findFinesWithIds;
+			set => UpdateFilterField(ref _findFinesWithIds, value);
 		}
 	}
 }

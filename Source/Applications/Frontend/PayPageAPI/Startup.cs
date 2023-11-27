@@ -21,7 +21,9 @@ using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Settings.Database;
 using System.Reflection;
+using PayPageAPI.HealthChecks;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
+using VodovozHealthCheck;
 
 namespace PayPageAPI
 {
@@ -90,6 +92,8 @@ namespace PayPageAPI
 			
 			//models
 			services.AddScoped<IAvangardFastPaymentModel, AvangardFastPaymentModel>();
+
+			services.ConfigureHealthCheckService<PayPageHealthCheck>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -120,6 +124,8 @@ namespace PayPageAPI
 					name: "default",
 					pattern: "{controller=Home}/{action=Index}/{id?}");
 			});
+
+			app.ConfigureHealthCheckApplicationBuilder();
 		}
 		
 		private void CreateBaseConfig()

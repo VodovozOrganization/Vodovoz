@@ -2,7 +2,6 @@
 using QS.Views.GtkUI;
 using QS.Widgets;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Filters.ViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 
 namespace Vodovoz.Filters.GtkViews
@@ -41,7 +40,7 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(vm => vm.RestrictedCarOwnTypes, w => w.SelectedValuesList, new EnumsListConverter<CarOwnType>())
 				.InitializeFromSource();
 
-			entryModel.SetEntityAutocompleteSelectorFactory(ViewModel.CarModelJournalFactory.CreateCarModelAutocompleteSelectorFactory());
+			entryModel.SetEntityAutocompleteSelectorFactory(ViewModel.CarModelJournalFactory.CreateCarModelAutocompleteSelectorFactory(ViewModel.LifetimeScope));
 			entryModel.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.CanChangeCarModel, w => w.Sensitive)
 				.AddBinding(vm => vm.CarModel, w => w.Subject)

@@ -37,6 +37,7 @@ namespace Vodovoz.Domain.Goods
 		private GenericObservableList<AlternativeNomenclaturePrice> _observableAlternativeNomenclaturePrices;
 		private bool _usingInGroupPriceSet;
 		private bool _hasInventoryAccounting;
+		private GlassHolderType? _glassHolderType;
 		private MobileAppNomenclatureOnlineCatalog _mobileAppNomenclatureOnlineCatalog;
 		private VodovozWebSiteNomenclatureOnlineCatalog _vodovozWebSiteNomenclatureOnlineCatalog;
 		private KulerSaleWebSiteNomenclatureOnlineCatalog _kulerSaleWebSiteNomenclatureOnlineCatalog;
@@ -58,7 +59,6 @@ namespace Vodovoz.Domain.Goods
 		private LockerRefrigeratorType? _lockerRefrigeratorType;
 		private int? _lockerRefrigeratorVolume;
 		private TapType? _tapType;
-		private BracingTypeForCupHolder? _bracingTypeForCupHolder;
 		private bool _isSparklingWater;
 		
 		private int _id;
@@ -658,6 +658,13 @@ namespace Vodovoz.Domain.Goods
 			get => _hasInventoryAccounting;
 			set => SetField(ref _hasInventoryAccounting, value);
 		}
+		
+		[Display(Name = "Тип стаканодержателя")]
+		public virtual GlassHolderType? GlassHolderType
+		{
+			get => _glassHolderType;
+			set => SetField(ref _glassHolderType, value);
+		}
 		#endregion
 
 		#region Свойства товаров для магазина
@@ -1016,13 +1023,6 @@ namespace Vodovoz.Domain.Goods
 		{
 			get => _tapType;
 			set => SetField(ref _tapType, value);
-		}
-		
-		[Display(Name = "Крепление для стаканодержателя")]
-		public virtual BracingTypeForCupHolder? BracingTypeForCupHolder
-		{
-			get => _bracingTypeForCupHolder;
-			set => SetField(ref _bracingTypeForCupHolder, value);
 		}
 
 		[Display(Name = "Газированная вода?")]
@@ -1467,7 +1467,6 @@ namespace Vodovoz.Domain.Goods
 			LockerRefrigeratorType = null;
 			LockerRefrigeratorVolume = null;
 			TapType = null;
-			BracingTypeForCupHolder = null;
 		}
 		
 		public virtual void ResetNotKulerOnlineParameters()
@@ -1484,7 +1483,6 @@ namespace Vodovoz.Domain.Goods
 			LockerRefrigeratorType = null;
 			LockerRefrigeratorVolume = null;
 			TapType = null;
-			BracingTypeForCupHolder = null;
 		}
 		
 		public virtual void ResetNotWaterPumpOnlineParameters()
@@ -1504,7 +1502,6 @@ namespace Vodovoz.Domain.Goods
 			LockerRefrigeratorType = null;
 			LockerRefrigeratorVolume = null;
 			TapType = null;
-			BracingTypeForCupHolder = null;
 		}
 		
 		public virtual void ResetNotCupHolderOnlineParameters()
@@ -1524,7 +1521,6 @@ namespace Vodovoz.Domain.Goods
 			LockerRefrigeratorType = null;
 			LockerRefrigeratorVolume = null;
 			TapType = null;
-			BracingTypeForCupHolder = null;
 		}
 
 		public virtual void ResetCoolingParameters()

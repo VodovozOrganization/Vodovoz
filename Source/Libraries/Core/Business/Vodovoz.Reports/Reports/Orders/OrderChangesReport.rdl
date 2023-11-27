@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>210mm</PageHeight>
   <PageWidth>297mm</PageWidth>
   <Width>267mm</Width>
@@ -756,12 +754,19 @@ FROM
                   NULL,
                   CASE hc.old_value
                       WHEN 'cash' THEN 'Наличная'
+                      WHEN 'Cash' THEN 'Наличная'
                       WHEN 'cashless' THEN 'Безналичная'
+                      WHEN 'Cashless' THEN 'Безналичная'
                       WHEN 'barter' THEN 'Бартер'
+                      WHEN 'Barter' THEN 'Бартер'
+                      WHEN 'DriverApplicationQR' THEN 'МП вод. по QR'
+                      WHEN 'SmsQR' THEN 'Cмс qr'
                       WHEN 'ByCard' THEN CONCAT('По карте, ', payment_from.name)
+                      WHEN 'PaidOnline' THEN CONCAT('Оплачено онлайн, ', payment_from.name)
                       WHEN 'ContractDoc' THEN 'Контракт. док.'
+                      WHEN 'ContractDocumentation' THEN 'Контракт. док.'
                       WHEN 'BeveragesWorld' THEN 'Мир напитков'
-                      WHEN 'Terminal' THEN 'Терминал'
+                      WHEN 'Terminal' THEN CONCAT('Терминал, ', IF(o.terminal_subtype = 'ByCard', "По карте", "По QR-коду"))
                       ELSE hc.old_value
                       END
                    ) as old_value,
@@ -769,12 +774,19 @@ FROM
                   NULL,
                   CASE hc.new_value
                       WHEN 'cash' THEN 'Наличная'
+                      WHEN 'Cash' THEN 'Наличная'
                       WHEN 'cashless' THEN 'Безналичная'
+                      WHEN 'Cashless' THEN 'Безналичная'
                       WHEN 'barter' THEN 'Бартер'
+                      WHEN 'Barter' THEN 'Бартер'
+                      WHEN 'DriverApplicationQR' THEN 'МП вод. по QR'
+                      WHEN 'SmsQR' THEN 'Cмс qr'
                       WHEN 'ByCard' THEN CONCAT('По карте, ', payment_from.name)
+                      WHEN 'PaidOnline' THEN CONCAT('Оплачено онлайн, ', payment_from.name)
                       WHEN 'ContractDoc' THEN 'Контракт. док.'
+                      WHEN 'ContractDocumentation' THEN 'Контракт. док.'
                       WHEN 'BeveragesWorld' THEN 'Мир напитков'
-                      WHEN 'Terminal' THEN 'Терминал'
+                      WHEN 'Terminal' THEN CONCAT('Терминал, ', IF(o.terminal_subtype = 'ByCard', "По карте", "По QR-коду"))
                       ELSE hc.new_value
                       END
                    ) as new_value,
@@ -816,9 +828,9 @@ FROM
                 (
                       (
                               (
-                                          hc_pay_type.new_value IN ('cash', 'cashless')
+                                          hc_pay_type.new_value IN ('cash', 'cashless', 'Cash', 'Cashless')
                                       OR
-                                          hc_pay_type.old_value IN ('cash', 'cashless')
+                                          hc_pay_type.old_value IN ('cash', 'cashless', 'Cash', 'Cashless')
                               )
                               AND FIND_IN_SET('PaymentType', @change_types) &gt; 0
                       )
@@ -833,8 +845,8 @@ FROM
                       OR
                       (
                               (
-                                          hc_pay_type.new_value = 'ByCard'
-                                      OR hc_pay_type.old_value = 'ByCard'
+                                          hc_pay_type.new_value IN ('ByCard', 'PaidOnline')
+                                      OR hc_pay_type.old_value IN ('ByCard', 'PaidOnline')
                               )
                               AND
                               (
@@ -848,7 +860,7 @@ FROM
                       (
                                   FIND_IN_SET('SmsIssues', @issue_types) &gt; 0
                               AND o.payment_from_id = GET_PARAMETER('sms_payment_by_card_from_id')
-                              AND hc_pay_type.new_value = 'ByCard'
+                              AND hc_pay_type.new_value IN ('ByCard', 'PaidOnline')
                           )
                       OR
                       (
@@ -856,7 +868,7 @@ FROM
                               AND
                                   o.payment_from_id = GET_PARAMETER('payment_by_card_from_fast_payment_service_id')
                               AND
-                                  hc_pay_type.new_value = 'ByCard'
+                                  hc_pay_type.new_value IN ('ByCard', 'PaidOnline')
                           )
               )
                 LEFT JOIN history_changes hc ON hc.changed_entity_id = hce.id
@@ -891,12 +903,19 @@ FROM
                   NULL,
                   CASE hc.old_value
                       WHEN 'cash' THEN 'Наличная'
+                      WHEN 'Cash' THEN 'Наличная'
                       WHEN 'cashless' THEN 'Безналичная'
+                      WHEN 'Cashless' THEN 'Безналичная'
                       WHEN 'barter' THEN 'Бартер'
+                      WHEN 'Barter' THEN 'Бартер'
+                      WHEN 'DriverApplicationQR' THEN 'МП вод. по QR'
+                      WHEN 'SmsQR' THEN 'Cмс qr'
                       WHEN 'ByCard' THEN CONCAT('По карте, ', payment_from.name)
+                      WHEN 'PaidOnline' THEN CONCAT('Оплачено онлайн, ', payment_from.name)
                       WHEN 'ContractDoc' THEN 'Контракт. док.'
+                      WHEN 'ContractDocumentation' THEN 'Контракт. док.'
                       WHEN 'BeveragesWorld' THEN 'Мир напитков'
-                      WHEN 'Terminal' THEN 'Терминал'
+                      WHEN 'Terminal' THEN CONCAT('Терминал, ', IF(o.terminal_subtype = 'ByCard', "По карте", "По QR-коду"))
                       ELSE hc.old_value
                       END
                    ) as old_value,
@@ -904,12 +923,19 @@ FROM
                   NULL,
                   CASE hc.new_value
                       WHEN 'cash' THEN 'Наличная'
+                      WHEN 'Cash' THEN 'Наличная'
                       WHEN 'cashless' THEN 'Безналичная'
+                      WHEN 'Cashless' THEN 'Безналичная'
                       WHEN 'barter' THEN 'Бартер'
+                      WHEN 'Barter' THEN 'Бартер'
+                      WHEN 'DriverApplicationQR' THEN 'МП вод. по QR'
+                      WHEN 'SmsQR' THEN 'Cмс qr'
                       WHEN 'ByCard' THEN CONCAT('По карте, ', payment_from.name)
+                      WHEN 'PaidOnline' THEN CONCAT('Оплачено онлайн, ', payment_from.name)
                       WHEN 'ContractDoc' THEN 'Контракт. док.'
+                      WHEN 'ContractDocumentation' THEN 'Контракт. док.'
                       WHEN 'BeveragesWorld' THEN 'Мир напитков'
-                      WHEN 'Terminal' THEN 'Терминал'
+                      WHEN 'Terminal' THEN CONCAT('Терминал, ', IF(o.terminal_subtype = 'ByCard', "По карте", "По QR-коду"))
                       ELSE hc.new_value
                       END
                    ) as new_value,
@@ -961,9 +987,9 @@ FROM
                    (
                            (
                                    (
-                                               hc_pay_type.new_value IN ('cash', 'cashless')
+                                               hc_pay_type.new_value IN ('cash', 'cashless', 'Cash', 'Cashless')
                                            OR
-                                               hc_pay_type.old_value IN ('cash', 'cashless')
+                                               hc_pay_type.old_value IN ('cash', 'cashless', 'Cash', 'Cashless')
                                        )
                                    AND FIND_IN_SET('PaymentType', @change_types) &gt; 0
                                )
@@ -979,9 +1005,9 @@ FROM
                            OR
                            (
                                    (
-                                               hc_pay_type.new_value = 'ByCard'
+                                               hc_pay_type.new_value IN ('ByCard', 'PaidOnline')
                                            OR
-                                               hc_pay_type.old_value = 'ByCard'
+                                               hc_pay_type.old_value IN ('ByCard', 'PaidOnline')
                                        )
                                    AND
                                    (
@@ -996,7 +1022,7 @@ FROM
                                    AND
                                        o_pay_type.payment_from_id = GET_PARAMETER('sms_payment_by_card_from_id')
                                    AND
-                                       hc_pay_type.new_value = 'ByCard'
+                                       hc_pay_type.new_value IN ('ByCard', 'PaidOnline')
                                )
                                OR
                                (
@@ -1004,7 +1030,7 @@ FROM
                                        AND
                                            o_pay_type.payment_from_id = GET_PARAMETER('payment_by_card_from_fast_payment_service_id')
                                        AND
-                                           hc_pay_type.new_value = 'ByCard'
+                                           hc_pay_type.new_value IN ('ByCard', 'PaidOnline')
                                )
                        )
                 GROUP BY hce_pay_type.entity_id
@@ -1145,48 +1171,42 @@ FROM
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="end_date">
       <DataType>DateTime</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="organization_id">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="change_types">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="change_types_rus">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="issue_types">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="issue_types_rus">
       <DataType>String</DataType>

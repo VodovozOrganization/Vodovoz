@@ -95,7 +95,8 @@ namespace Vodovoz.EntityRepositories
 							  && (address.Order.IsFastDelivery 
 							      || (
 								      address.Status != RouteListItemStatus.Transfered
-								      && address.AddressTransferType != null && address.AddressTransferType != AddressTransferType.FromHandToHand)
+								      && address.AddressTransferType != null
+								      && address.AddressTransferType == AddressTransferType.FromFreeBalance)
 							      )
 						select address.Id)
 					.Any();

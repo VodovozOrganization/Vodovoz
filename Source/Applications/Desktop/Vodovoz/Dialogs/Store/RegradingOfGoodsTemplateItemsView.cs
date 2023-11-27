@@ -1,26 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Autofac;
 using Gamma.GtkWidgets;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Factories;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class RegradingOfGoodsTemplateItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		private RegradingOfGoodsTemplateItem _newRow;
-		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory = new NomenclatureJournalFactory();
+		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 
 		public RegradingOfGoodsTemplateItemsView()
 		{
 			this.Build();
+
+			_nomenclatureSelectorFactory = new NomenclatureJournalFactory(_lifetimeScope);
 
 			ytreeviewItems.ColumnsConfig = ColumnsConfigFactory.Create<RegradingOfGoodsTemplateItem>()
 				.AddColumn("Старая номенклатура").AddTextRenderer(x => x.NomenclatureOld.Name)
@@ -163,6 +166,13 @@ namespace Vodovoz
 				buttonChangeOld.Click();
 			if (args.Column.Title == "Новая номенклатура")
 				buttonChangeNew.Click();
+		}
+
+		public override void Destroy()
+		{
+			base.Destroy();
+			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
 		}
 
 	}

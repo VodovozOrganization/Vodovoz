@@ -62,5 +62,11 @@ namespace Vodovoz.SidePanel.InfoViews
 		public bool VisibleOnPanel => true;
 
 		#endregion IPanelView implementation
+
+		public override void Destroy()
+		{
+			ViewModel?.Dispose();
+			base.Destroy();
+		}
 	}
 }

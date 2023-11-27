@@ -20,6 +20,9 @@ using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.ViewModels.Widgets;
+using QS.ViewModels.Control.EEVM;
+using Vodovoz.ViewModels.ViewModels.Organizations;
+using Vodovoz.Journals.JournalViewModels.Organizations;
 
 namespace Vodovoz.Dialogs
 {
@@ -69,6 +72,7 @@ namespace Vodovoz.Dialogs
 				new TypedParameter(typeof(UndeliveredOrder), undelivery),
 				new TypedParameter(typeof(IUnitOfWork), UoW),
 				new TypedParameter(typeof(ITdiTab), this as TdiTabBase));
+
 			undeliveryView.WidgetViewModel = _undeliveredOrderViewModel;
 
 			_undeliveredOrderViewModel.IsSaved += IsSaved;

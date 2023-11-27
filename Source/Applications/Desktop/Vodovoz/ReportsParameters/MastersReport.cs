@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Employees;
@@ -13,15 +14,20 @@ namespace Vodovoz.ReportsParameters
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class MastersReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public MastersReport()
+		public MastersReport(INavigationManager navigationManager)
 		{
+			if(navigationManager is null)
+			{
+				throw new ArgumentNullException(nameof(navigationManager));
+			}
+
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			var driverFilter = new EmployeeFilterViewModel();
 			driverFilter.SetAndRefilterAtOnce(
 				x => x.Status = EmployeeStatus.IsWorking,
 				x => x.RestrictCategory = EmployeeCategory.driver);
-			var employeeFactory = new EmployeeJournalFactory(driverFilter);
+			var employeeFactory = new EmployeeJournalFactory(navigationManager, driverFilter);
 			evmeDriver.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateEmployeeAutocompleteSelectorFactory());
 			evmeDriver.Changed += (sender, e) => CanRun();
 			dateperiodpicker.PeriodChanged += (sender, e) => CanRun();

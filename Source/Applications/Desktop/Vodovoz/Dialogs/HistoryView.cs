@@ -15,6 +15,7 @@ using QS.Utilities;
 using QSOrmProject;
 using QSProjectsLib;
 using QSWidgetLib;
+using Vodovoz.Commons;
 using Vodovoz.Domain.HistoryChanges;
 using Vodovoz.Journal;
 using Vodovoz.JournalNodes;
@@ -41,7 +42,7 @@ namespace Vodovoz.Dialogs
 		private bool _takenAllOld = false;
 		private bool _needToHideProperties = true;
 		private bool _isSearchFromOldMonitoring;
-		private IDiffFormatter _diffFormatter = new PangoDiffFormater();
+		private IDiffFormatter _diffFormatter = new ThemmedDiffFormater();
 		private HistoryTracePropertyJournalViewModel _historyTracePropertyJournalViewModel;
 
 		public IUnitOfWork UoW { get; private set; }

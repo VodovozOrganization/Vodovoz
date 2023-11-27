@@ -46,6 +46,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic
 			Map(x => x.FixedShippingPrice).Column("fixed_shipping_price");
 			Map(x => x.DriverTerminalCondition).Column("driver_terminal_condition").CustomType<DriverTerminalConditionStringType>();
 			Map(x => x.DeliveredAt).Column("delivered_at");
+			Map(x => x.SpecialConditionsAccepted).Column("special_conditions_accepted");
+			Map(x => x.SpecialConditionsAcceptedAt).Column("special_conditions_accepted_at");
 
 			References(x => x.Car).Column("car_id")
 				.Access.CamelCaseField(Prefix.Underscore);

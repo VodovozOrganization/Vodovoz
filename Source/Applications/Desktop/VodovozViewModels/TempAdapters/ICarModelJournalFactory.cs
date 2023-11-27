@@ -1,4 +1,5 @@
-﻿using QS.Project.Journal.EntitySelector;
+﻿using Autofac;
+using QS.Project.Journal.EntitySelector;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 
 namespace Vodovoz.ViewModels.TempAdapters
@@ -6,6 +7,8 @@ namespace Vodovoz.ViewModels.TempAdapters
 	public interface ICarModelJournalFactory
 	{
 		IEntityAutocompleteSelectorFactory CreateCarModelAutocompleteSelectorFactory(
-			CarModelJournalFilterViewModel filter = null, bool multipleSelect = false);
+			ILifetimeScope lifetimeScope,
+			CarModelJournalFilterViewModel filter = null,
+			bool multipleSelect = false);
 	}
 }

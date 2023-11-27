@@ -70,7 +70,12 @@
     <Compile Include="Domain\Cash\FinancialCategoriesGroups\FinancialSubType.cs" />
     <Compile Include="Domain\Cash\FinancialCategoriesGroups\GroupType.cs" />
     <Compile Include="Domain\Client\CargoReceiverSource.cs" />
+    <Compile Include="Domain\Client\ClientClassification\CounterpartyCompositeClassification.cs" />
     <Compile Include="Domain\Client\ConsentForEdoStatus.cs" />
+    <Compile Include="Domain\Client\ClientClassification\CounterpartyClassification.cs" />
+    <Compile Include="Domain\Client\ClientClassification\CounterpartyClassificationByBottlesCount.cs" />
+    <Compile Include="Domain\Client\ClientClassification\CounterpartyClassificationByOrdersCount.cs" />
+    <Compile Include="Domain\Client\ClientClassification\CounterpartyClassificationCalculationSettings.cs" />
     <Compile Include="Domain\Client\CounterpartySubtype.cs" />
     <Compile Include="Domain\Client\CounterpartyType.cs" />
     <Compile Include="Domain\Client\DefaultDocumentType.cs" />
@@ -85,9 +90,9 @@
     <Compile Include="Domain\Client\TaxType.cs" />
     <Compile Include="Domain\Goods\CupHolderBracingType.cs" />
     <Compile Include="Domain\Goods\CoolingType.cs" />
-    <Compile Include="Domain\Goods\BracingTypeForCupHolder.cs" />
     <Compile Include="Domain\Goods\EquipmentInstallationType.cs" />
     <Compile Include="Domain\Goods\EquipmentWorkloadType.cs" />
+    <Compile Include="Domain\Goods\GlassHolderType.cs" />
     <Compile Include="Domain\Goods\KulerSaleWebSiteNomenclatureOnlineCatalog.cs" />
     <Compile Include="Domain\Goods\LockerRefrigeratorType.cs" />
     <Compile Include="Domain\Goods\MobileAppNomenclatureOnlineCatalog.cs" />
@@ -114,6 +119,8 @@
     <Compile Include="Domain\Logistic\FastDelivery\RouteListMaxFastDeliveryOrders.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryChange.ChangeType.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryChange.cs" />
+    <Compile Include="Domain\Logistic\RouteListSpecialCondition.cs" />
+    <Compile Include="Domain\Logistic\RouteListSpecialConditionType.cs" />
     <Compile Include="Domain\Logistic\RegradingOfGoodsReason.cs" />
     <Compile Include="Domain\Payments\CombinedPaymentNode.cs" />
     <Compile Include="Domain\Orders\OrderEdoTrueMarkDocumentsActions.cs" />
@@ -122,6 +129,7 @@
     <Compile Include="Domain\Orders\UndeliveryObject.cs" />
     <Compile Include="Domain\Payments\PaymentsFromCloudPaymentsParser.cs" />
     <Compile Include="Domain\Payments\PaymentsFromTinkoffParser.cs" />
+    <Compile Include="Domain\Payments\PaymentState.cs" />
     <Compile Include="Domain\StoredEmails\UpdDocumentEmail.cs" />
     <Compile Include="Domain\Subdivisions\SubdivisionType.cs" />
     <Compile Include="EntityRepositories\Cash\FinancialExpenseCategoriesRepository.cs" />
@@ -782,6 +790,8 @@
     <Compile Include="NHibernateProjections\Orders\OrderProjections.cs" />
     <Compile Include="Nodes\FreeRentPackageWithOnlineParametersNode.cs" />
     <Compile Include="Nodes\OnlineNomenclatureNode.cs" />
+    <Compile Include="Nodes\AvangardOperation.cs" />
+    <Compile Include="Nodes\AvangardOperations.cs" />
     <Compile Include="Nodes\NomenclatureOnlineParametersData.cs" />
     <Compile Include="Nodes\NomenclatureOnlineParametersNode.cs" />
     <Compile Include="Nodes\NomenclatureOnlinePriceNode.cs" />
@@ -824,6 +834,7 @@
     <Compile Include="Parameters\StoredResourcesSettings.cs" />
     <Compile Include="Parameters\SubdivisionParametersProvider.cs" />
     <Compile Include="Permissions\Cash.FinancialCategory.cs" />
+    <Compile Include="Permissions\Counterparty.cs" />
     <Compile Include="Permissions\Documents.cs" />
     <Compile Include="Permissions\Documents.MovementDocument.cs" />
     <Compile Include="Permissions\Email.cs" />
@@ -1001,6 +1012,7 @@
     <Compile Include="Services\DriverApiParametersProvider.cs" />
     <Compile Include="Services\IUserRoleSettings.cs" />
     <Compile Include="Services\IUserSettings.cs" />
+    <Compile Include="Services\Logistics\IRouteListService.cs" />
     <Compile Include="Services\RevenueServiceInfo.cs" />
     <Compile Include="Services\UserRoleSettings.cs" />
     <Compile Include="Tools\GeoGroupVersionNotFoundException.cs" />
@@ -1010,6 +1022,7 @@
     <Compile Include="Tools\Logistic\DriverDistrictPriorityHelper.cs" />
     <Compile Include="Tools\Logistic\IDistanceCalculator.cs" />
     <Compile Include="Domain\Logistic\CachedDistance.cs" />
+    <Compile Include="Tools\Logistic\IFastDeliveryDistanceChecker.cs" />
     <Compile Include="Tools\Logistic\RouteGeometryCalculator.cs" />
     <Compile Include="Domain\Logistic\AtWorkDriverDistrictPriority.cs" />
     <Compile Include="Domain\Logistic\DeliveryDaySchedule.cs" />

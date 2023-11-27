@@ -314,6 +314,7 @@ namespace Vodovoz.Views.Client
 				WidthRequest = 500,
 				HasFrame = true
 			};
+
 			_mapWidget.Overlays.Add(_addressOverlay);
 			_mapWidget.ButtonPressEvent += MapWidgetOnButtonPressEvent;
 			_mapWidget.ButtonReleaseEvent += MapWidgetOnButtonReleaseEvent;
@@ -324,10 +325,12 @@ namespace Vodovoz.Views.Client
 			_comboMapType = new yEnumComboBox();
 			_comboMapType.ItemsEnum = typeof(MapProviders);
 			_comboMapType.SelectedItem = MapProviders.GoogleMap;
+
 			_comboMapType.EnumItemSelected += (sender, args) =>
 			{
 				_mapWidget.MapProvider = MapProvidersHelper.GetPovider((MapProviders)args.SelectedItem);
 			};
+
 			_vboxMap.Add(_comboMapType);
 			_vboxMap.SetChildPacking(_comboMapType, false, false, 0, PackType.Start);
 			_vboxMap.Add(_mapWidget);
@@ -423,6 +426,7 @@ namespace Vodovoz.Views.Client
 				{
 					ToolTipText = ViewModel.Entity.ShortAddress
 				};
+
 				_addressOverlay.Markers.Add(_addressMarker);
 			}
 		}
@@ -441,24 +445,21 @@ namespace Vodovoz.Views.Client
 			{
 				_addressIsMoving = false;
 				var newPoint = _mapWidget.FromLocalToLatLng((int) args.Event.X, (int) args.Event.Y);
-				if(!ViewModel.DeliveryPoint.ManualCoordinates && ViewModel.DeliveryPoint.FoundOnOsm)
-				{
-					if(!MessageDialogHelper.RunQuestionDialog(
+				if(!ViewModel.DeliveryPoint.ManualCoordinates
+					&& ViewModel.DeliveryPoint.FoundOnOsm
+					&& !MessageDialogHelper.RunQuestionDialog(
 						"Координаты точки установлены по адресу. Вы уверены что хотите установить новые координаты?"))
-					{
-						UpdateAddressOnMap();
-						return;
-					}
+				{
+					UpdateAddressOnMap();
+					return;
 				}
 
-				if(!ViewModel.UoWGeneric.IsNew)
-				{
-					if(!MessageDialogHelper.RunQuestionDialog(
+				if(!ViewModel.UoWGeneric.IsNew
+					&& !MessageDialogHelper.RunQuestionDialog(
 						"Координаты точки доставки уже были установлены. Вы уверены что хотите установить новые координаты?"))
-					{
-						UpdateAddressOnMap();
-						return;
-					}
+				{
+					UpdateAddressOnMap();
+					return;
 				}
 
 				ViewModel.WriteCoordinates((decimal) newPoint.Lat, (decimal) newPoint.Lng, true);
@@ -470,6 +471,7 @@ namespace Vodovoz.Views.Client
 			if(args.Event.Button == 1)
 			{
 				var newPoint = _mapWidget.FromLocalToLatLng((int) args.Event.X, (int) args.Event.Y);
+
 				if(_addressMarker == null)
 				{
 					_addressMarker = new GMarkerGoogle(newPoint, GMarkerGoogleType.arrow)
@@ -496,13 +498,23 @@ namespace Vodovoz.Views.Client
 
 		private async void EntryEntranceOnFocusOutEvent(object sender, EventArgs e)
 		{
-			await UpdateCoordinates();
+			await UpdateCoordinates(true);
 		}
 
-		private async Task UpdateCoordinates()
+		private async Task UpdateCoordinates(bool updatedEntrance = false)
 		{
 			if(!ViewModel.IsAddressChanged)
 			{
+				return;
+			}
+
+			if(ViewModel.Entity.ManualCoordinates
+				&& updatedEntrance
+				&& !MessageDialogHelper.RunQuestionDialog(
+					"В точке доставке установлены координаты пользователем\n" +
+						"Вы уверены, что хотите обновить координаты, т.к. адрес может быть не найден и они слетят?"))
+			{
+				ViewModel.ResetAddressChanges();
 				return;
 			}
 
@@ -514,7 +526,11 @@ namespace Vodovoz.Views.Client
 				Latitude = latitude,
 				Longitude = longitude
 			};
-			if(!string.IsNullOrWhiteSpace(entryBuilding.BuildingName) && (!string.IsNullOrWhiteSpace(ViewModel.Entity.Entrance) || longitude == null || latitude == null))
+
+			if(!string.IsNullOrWhiteSpace(entryBuilding.BuildingName)
+				&& (!string.IsNullOrWhiteSpace(ViewModel.Entity.Entrance)
+					|| longitude == null
+					|| latitude == null))
 			{
 				coordinate = await ViewModel.UpdateCoordinatesFromGeoCoderAsync(entryBuilding.HousesDataLoader);
 			}

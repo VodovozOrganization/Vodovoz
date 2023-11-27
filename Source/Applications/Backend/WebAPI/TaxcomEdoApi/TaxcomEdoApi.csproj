@@ -35,6 +35,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\HealthCheck\VodovozHealthCheck.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\Core\EdoService\EdoService.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\External\My-FyiReporting\RdlEngine\RdlEngine.csproj" />

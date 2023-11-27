@@ -464,7 +464,68 @@ namespace Vodovoz.Domain.Sale
 				default: throw new ArgumentOutOfRangeException();
 			}
 		}
-		
+
+		private void ClearAllDeliveryScheduleRestrictions()
+		{
+			TodayDeliveryScheduleRestrictions.Clear();
+			MondayDeliveryScheduleRestrictions.Clear();
+			TuesdayDeliveryScheduleRestrictions.Clear();
+			WednesdayDeliveryScheduleRestrictions.Clear();
+			ThursdayDeliveryScheduleRestrictions.Clear();
+			FridayDeliveryScheduleRestrictions.Clear();
+			SaturdayDeliveryScheduleRestrictions.Clear();
+			SundayDeliveryScheduleRestrictions.Clear();
+		}
+
+		public virtual void ReplaceDistrictDeliveryScheduleRestrictions(IEnumerable<DeliveryScheduleRestriction> deliveryScheduleRestrictions)
+		{
+			if(deliveryScheduleRestrictions == null)
+			{
+				throw new ArgumentException(
+					 "Отсутствуют данные новых графиков доставки");
+			}
+
+			if(deliveryScheduleRestrictions.Any(s => s.District.Id != Id))
+			{
+				throw new ArgumentException(
+					 "Id района в который добавляется график доставки должен совпадать с Id района в новом графике доставки");
+			}
+
+			ClearAllDeliveryScheduleRestrictions();
+
+			foreach(var schedule in  deliveryScheduleRestrictions)
+			{
+				switch(schedule.WeekDay)
+				{
+					case WeekDayName.Today:
+						ObservableTodayDeliveryScheduleRestrictions.Add(schedule);
+						break;
+					case WeekDayName.Monday:
+						ObservableMondayDeliveryScheduleRestrictions.Add(schedule);
+						break;
+					case WeekDayName.Tuesday:
+						ObservableTuesdayDeliveryScheduleRestrictions.Add(schedule);
+						break;
+					case WeekDayName.Wednesday:
+						ObservableWednesdayDeliveryScheduleRestrictions.Add(schedule);
+						break;
+					case WeekDayName.Thursday:
+						ObservableThursdayDeliveryScheduleRestrictions.Add(schedule);
+						break;
+					case WeekDayName.Friday:
+						ObservableFridayDeliveryScheduleRestrictions.Add(schedule);
+						break;
+					case WeekDayName.Saturday:
+						ObservableSaturdayDeliveryScheduleRestrictions.Add(schedule);
+						break;
+					case WeekDayName.Sunday:
+						ObservableSundayDeliveryScheduleRestrictions.Add(schedule);
+						break;
+					default: throw new ArgumentOutOfRangeException();
+				}
+			}
+		}
+
 		/// <summary>
 		///	Приоритет от максимального:
 		///	1) Правила доставки на сегодня

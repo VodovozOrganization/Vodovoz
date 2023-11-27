@@ -1,4 +1,4 @@
-﻿using Gamma.ColumnConfig;
+using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gamma.Widgets;
 using QS.Dialog;
@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Gtk;
 using Vodovoz.Dialogs.Employees;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
@@ -137,9 +138,6 @@ namespace Vodovoz.Views.Employees
 				.InitializeFromSource();
 
 			entrySubdivision.ViewModel = ViewModel.SubdivisionViewModel;
-			entrySubdivision.Binding
-				.AddBinding(ViewModel, vm => vm.CanEditSubdivision, w => w.Sensitive)
-				.InitializeFromSource();
 
 			var usersJournalFactory = new UserJournalFactory();
 			entityviewmodelUser.SetEntityAutocompleteSelectorFactory(usersJournalFactory.CreateSelectUserAutocompleteSelectorFactory());
@@ -207,6 +205,7 @@ namespace Vodovoz.Views.Employees
 				.AddBinding(ViewModel.Entity, e => e.Email, w => w.Text)
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
+			yentryEmailAddress.FocusOutEvent += OnEmailFocusOutEvent;
 
 			ydateFirstWorkDay.Binding
 				.AddBinding(ViewModel.Entity, e => e.FirstWorkDay, w => w.DateOrNull)
@@ -715,6 +714,16 @@ namespace Vodovoz.Views.Employees
 					comboDriverOfCarTypeOfUse.SelectedItemOrNull = null;
 				}
 			};
+		}
+		
+		private void OnEmailFocusOutEvent(object o, FocusOutEventArgs args)
+		{
+			if(string.IsNullOrWhiteSpace(yentryEmailAddress.Text))
+			{
+				return;
+			}
+
+			yentryEmailAddress.Text = yentryEmailAddress.Text.TrimEnd('\r', '\n');
 		}
 
 		private void OnRussianCitizenToggled(object sender, EventArgs e)

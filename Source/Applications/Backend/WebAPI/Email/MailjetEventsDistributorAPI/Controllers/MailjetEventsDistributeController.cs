@@ -9,7 +9,6 @@ using RabbitMQ.MailSending;
 using System;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace MailjetEventsDistributorAPI.Controllers
 {
@@ -146,6 +145,14 @@ namespace MailjetEventsDistributorAPI.Controllers
 		{
 			_logger.LogInformation($"Recieved Unsubscribe Event for: { mailUnsubscribeEvent.MessageGuid }");
 			return SendMessageToBrocker(mailUnsubscribeEvent);
+		}
+
+		[HttpGet]
+		[AllowAnonymous]
+		[Route("/Test")]
+		public IActionResult Test()
+		{
+			return new OkResult();
 		}
 
 		private IActionResult SendMessageToBrocker<TMailjetEvent>(TMailjetEvent mailjetEvent) where TMailjetEvent : MailEvent

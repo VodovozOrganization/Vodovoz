@@ -2,7 +2,6 @@
 using QS.Navigation;
 using QS.Views.GtkUI;
 using QSProjectsLib;
-using System;
 using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 
@@ -11,12 +10,11 @@ namespace Vodovoz.Views.Logistic
 	public partial class CarEventView : TabViewBase<CarEventViewModel>
 	{
 
-		public CarEventView(CarEventViewModel viewModel) :
-			base(viewModel)
+		public CarEventView(CarEventViewModel viewModel)
+			: base(viewModel)
 		{
-			this.Build();
+			Build();
 			Configure();
-			CheckPeriod();
 		}
 
 		private void Configure()
@@ -35,9 +33,11 @@ namespace Vodovoz.Views.Logistic
 			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(ViewModel.CarSelectorFactory);
 			entityviewmodelentryCar.Binding.AddBinding(ViewModel, e => e.Car, w => w.Subject).InitializeFromSource();
 
-			originalCarEvent.SetEntityAutocompleteSelectorFactory(ViewModel.CarEventSelectorFactory);
-			originalCarEvent.Binding.AddBinding(ViewModel.Entity, e => e.OriginalCarEvent, w => w.Subject)
-				.AddBinding(ViewModel, vm => vm.CompensationFromInsuranceByCourt, w => w.Visible).InitializeFromSource();
+			entryOriginalCarEvent.ViewModel = ViewModel.OriginalCarEventViewModel;
+
+			entryOriginalCarEvent.Binding
+				.AddBinding(ViewModel, vm => vm.CompensationFromInsuranceByCourt, w => w.Visible)
+				.InitializeFromSource();
 
 			evmeDriver.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeSelectorFactory);
 			evmeDriver.Binding.AddBinding(ViewModel.Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
@@ -64,7 +64,6 @@ namespace Vodovoz.Views.Logistic
 				.Finish();
 			ytreeviewFines.Binding.AddBinding(ViewModel, vm => vm.FineItems, w => w.ItemsDataSource).InitializeFromSource();
 
-
 			buttonAddFine.Clicked += (sender, e) => { ViewModel.AddFineCommand.Execute(); };
 			buttonAddFine.Binding.AddBinding(ViewModel, vm => vm.CanAddFine, w => w.Sensitive).InitializeFromSource();
 
@@ -73,11 +72,13 @@ namespace Vodovoz.Views.Logistic
 
 			buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
 			buttonCancel.Clicked += (sender, args) => ViewModel.Close(true, CloseSource.Cancel);
+
+			UpdateSensitivity();
 		}
 
-		private void CheckPeriod()
+		private void UpdateSensitivity()
 		{
-			if (!ViewModel.CanEdit)
+			if(!ViewModel.CanEdit)
 			{
 				ylabelCreateDate.Sensitive =
 				ylabelAuthor.Sensitive =
@@ -91,7 +92,6 @@ namespace Vodovoz.Views.Logistic
 				ytextviewFoundation.Sensitive =
 				ytextviewCommnet.Sensitive =
 				ytreeviewFines.Sensitive =
-				originalCarEvent.Sensitive =
 				buttonAddFine.Sensitive =
 				buttonAttachFine.Sensitive =
 				buttonSave.Sensitive = false;

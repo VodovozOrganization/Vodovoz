@@ -1,4 +1,4 @@
-﻿namespace Vodovoz.Errors.Orders
+namespace Vodovoz.Errors.Orders
 {
 	public static partial class Order
 	{
@@ -25,6 +25,11 @@
 				typeof(Order),
 				nameof(AcceptAbortedByUser),
 				"Подтверждение заказа отменено пользователем.");
+
+		public static Error AcceptException => new Error(
+			typeof(Order),
+			nameof(AcceptException),
+			"Исключение при подтверждении заказа");
 
 		public static Error UnableToShipPromoSet =>
 			new Error(

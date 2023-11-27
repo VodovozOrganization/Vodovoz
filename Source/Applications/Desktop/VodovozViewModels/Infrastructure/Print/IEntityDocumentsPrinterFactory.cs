@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
@@ -13,7 +13,11 @@ namespace Vodovoz.ViewModels.Infrastructure.Print
             bool? hideSignaturesAndStamps = null,
             IList<OrderDocumentType> orderDocumentTypesToSelect = null);
 
-        IEntityDocumentsPrinter CreateRouteListWithOrderDocumentsPrinter(
+		IEntityDocumentsPrinter CreateOrderDocumentsPrinter(
+			Order currentOrder,
+			IDictionary<OrderDocumentType, bool> showSignaturesAndStampsOfDocument);
+
+		IEntityDocumentsPrinter CreateRouteListWithOrderDocumentsPrinter(
 	        IUnitOfWork uow,
             RouteList routeList,
 	        RouteListPrintableDocuments[] routeListPrintableDocumentTypes,

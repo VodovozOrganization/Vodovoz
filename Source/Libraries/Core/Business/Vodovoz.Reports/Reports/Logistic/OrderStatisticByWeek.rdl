@@ -2600,6 +2600,14 @@ FROM
         districts ON delivery_points.district_id = districts.id
             LEFT JOIN
         geo_groups ON geo_groups.id = districts.geo_group_id
+            LEFT JOIN 
+        route_list_addresses rla ON rla.order_id = orders.id
+            LEFT JOIN
+        route_lists rl ON rl.id = rla.route_list_id
+            LEFT JOIN
+        cars c ON c.id = rl.car_id
+            LEFT JOIN
+        car_models cm ON cm.id = c.model_id
     WHERE
         (orders.delivery_date BETWEEN @start_date AND @end_date)
         AND orders.order_status NOT IN ('Canceled', 'NewOrder', 'WaitForPayment')
@@ -2609,6 +2617,8 @@ FROM
         AND orders.order_address_type != 'Service'
         AND delivery_schedule.id IS NOT NULL
         AND orders.delivery_point_id IS NOT NULL
+        AND rla.status &lt;&gt; 'Transfered'
+        AND (rl.id IS NULL OR cm.car_type_of_use &lt;&gt; 'Truck')
         AND geo_groups.id in (@geographic_group_id)) as T
 GROUP BY week_begin
 ORDER BY week_begin</CommandText>

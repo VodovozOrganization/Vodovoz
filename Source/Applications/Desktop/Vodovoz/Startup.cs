@@ -143,6 +143,7 @@ namespace Vodovoz
 			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.SocketTimeoutException);
 			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.MysqlCommandTimeoutException);
 			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.GeoGroupVersionNotFoundException);
+			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.SystemOutOfMemoryExceptionHandler);
 
 			#endregion
 
@@ -201,14 +202,6 @@ namespace Vodovoz
 
 			PerformanceHelper.AddTimePoint("Закончена загрузка параметров базы и проверка версии.");
 
-			UnhandledExceptionHandler unhandledExceptionHandler = new UnhandledExceptionHandler();
-			//Передаем в настройки GUI поток, чтобы обработчик мог отличать вызовы исключений из других потоков и не падал при этом в момент попытки отобразить диалог пользователю.
-			GtkGuiDispatcher.GuiThread = System.Threading.Thread.CurrentThread;
-			//Получаем все необходимые зависимости из контейнера.
-			unhandledExceptionHandler.UpdateDependencies(AppDIContainer);
-			//Подписываемся на необработанные исключения текущего приложения.
-			unhandledExceptionHandler.SubscribeToUnhandledExceptions();
-
 			if(QSMain.User.Login == "root")
 			{
 				string Message = "Вы зашли в программу под администратором базы данных. У вас есть только возможность создавать других пользователей.";
@@ -243,7 +236,7 @@ namespace Vodovoz
 			QSSaaS.Session.StartSessionRefresh();
 
 			PerformanceHelper.AddTimePoint("Закончен старт SAAS. Конец загрузки.");
-			//PerformanceHelper.Main.PrintAllPoints();
+			PerformanceHelper.Main.PrintAllPoints(_logger);
 
 			Gtk.Application.Run();
 			QSSaaS.Session.StopSessionRefresh();

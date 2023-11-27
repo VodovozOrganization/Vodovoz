@@ -1,6 +1,8 @@
 ﻿using Gamma.ColumnConfig;
 using Gamma.Widgets.Additions;
 using QS.Views.GtkUI;
+using System;
+using System.ComponentModel;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
@@ -23,6 +25,7 @@ namespace Vodovoz.JournalViewers
 				.AddColumn("Статус").AddTextRenderer(x => x.Title)
 				.AddColumn("").AddToggleRenderer(x => x.Selected)
 				.Finish();
+
 			ytreeviewRouteListStatuses.ItemsDataSource = ViewModel.StatusNodes;
 
 			ytreeviewRouteListStatuses.Binding.AddBinding(ViewModel, vm => vm.CanSelectStatuses, w => w.Sensitive).InitializeFromSource();
@@ -31,6 +34,7 @@ namespace Vodovoz.JournalViewers
 				.AddColumn("").AddToggleRenderer(x => x.Selected)
 				.AddColumn("Тип адреса").AddTextRenderer(x => x.Title)
 				.Finish();
+
 			ytreeviewAddressTypes.ItemsDataSource = ViewModel.AddressTypeNodes;
 
 			dateperiodOrders.Binding.AddBinding(ViewModel, vm => vm.StartDate, w => w.StartDateOrNull).InitializeFromSource();
@@ -61,6 +65,7 @@ namespace Vodovoz.JournalViewers
 				ViewModel.DeselectAllRouteListStatuses();
 				ytreeviewRouteListStatuses.YTreeModel.EmitModelChanged();
 			};
+
 			buttonStatusAll.Clicked += (sender, args) =>
 			{
 				ViewModel.SelectAllRouteListStatuses();
@@ -68,6 +73,19 @@ namespace Vodovoz.JournalViewers
 			};
 
 			ybuttonInfo.Clicked += (sender, args) => ViewModel.InfoCommand.Execute();
+
+			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+		}
+
+		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			switch(e.PropertyName)
+			{
+				case nameof(ViewModel.StatusNodes):
+				case nameof(ViewModel.DisplayableStatuses):
+					ytreeviewRouteListStatuses.YTreeModel.EmitModelChanged();
+					break;
+			}
 		}
 	}
 }

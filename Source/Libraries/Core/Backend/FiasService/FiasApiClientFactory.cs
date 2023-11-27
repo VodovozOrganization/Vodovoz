@@ -4,7 +4,7 @@ using Vodovoz.Services;
 
 namespace Fias.Client
 {
-	public class FiasApiClientFactory
+	internal class FiasApiClientFactory : IFiasApiClientFactory
 	{
 		private readonly IFiasApiParametersProvider _fiasApiParametersProvider;
 		private readonly GeocoderCache _geocoderCache;

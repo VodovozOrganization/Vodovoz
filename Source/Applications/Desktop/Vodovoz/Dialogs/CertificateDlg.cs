@@ -1,24 +1,21 @@
-﻿using System.Data.Bindings.Collections.Generic;
-using System.Linq;
+﻿using Autofac;
 using Gamma.ColumnConfig;
 using QS.DomainModel.UoW;
-using QS.Project.Dialogs;
-using QS.Project.Dialogs.GtkUI;
-using QSOrmProject;
 using QS.Validation;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
-using Vodovoz.JournalFilters;
-using Vodovoz.ViewModel;
-using Vodovoz.TempAdapters;
 using Vodovoz.Extensions;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.Infrastructure;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 
 namespace Vodovoz.Dialogs
 {
 	public partial class CertificateDlg : QS.Dialog.Gtk.EntityDialogBase<Certificate>
 	{
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		Nomenclature selectedNomenclature;
 		GenericObservableList<Nomenclature> ObservableList { get; set; }
 
@@ -95,7 +92,7 @@ namespace Vodovoz.Dialogs
 				x => x.SelectSaleCategory = SaleCategory.forSale
 			);
 
-			var nomenclatureJournalFactory = new NomenclatureJournalFactory();
+			var nomenclatureJournalFactory = new NomenclatureJournalFactory(_lifetimeScope);
 			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel(filter, true);
 			journal.OnEntitySelectedResult += JournalOnEntitySelectedResult;
 			journal.Title = "Номенклатура на продажу";
@@ -134,6 +131,13 @@ namespace Vodovoz.Dialogs
 
 			lblNomenclatures.Markup = string.Format("<span foreground='{0}'><b>Номенклатуры</b></span>", isCertificateForNomenclatures ? _primaryTextHtmlColor : _insensitiveTextHtmlColor);
 			vbxNomenclatures.Sensitive = isCertificateForNomenclatures;
+		}
+
+		public override void Destroy()
+		{
+			base.Destroy();
+			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
 		}
 	}
 }

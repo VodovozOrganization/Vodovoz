@@ -12,9 +12,7 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::QS.Widgets.GtkUI.DateRangePicker dateperiodOldOrderDate;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityInProcessAtSubdivision;
-
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryAuthorSubdivision;
+		private global::QS.Views.Control.EntityEntry entryAuthorSubdivision;
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryCounterparty;
 
@@ -22,11 +20,13 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryDriver;
 
+		private global::QS.Views.Control.EntityEntry entryInProcessAtSubdivision;
+
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryOldOrder;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryOldOrderAuthor;
+		private global::QS.Views.Control.EntityEntry entryOldOrderAuthor;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryUndeliveryAuthor;
+		private global::QS.Views.Control.EntityEntry entryUndeliveryAuthor;
 
 		private global::Gtk.Label lblActionAuthorSubdivision;
 
@@ -121,33 +121,17 @@ namespace Vodovoz.Filters.GtkViews
 			w3.RightAttach = ((uint)(4));
 			w3.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.entityInProcessAtSubdivision = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entityInProcessAtSubdivision.Events = ((global::Gdk.EventMask)(256));
-			this.entityInProcessAtSubdivision.Name = "entityInProcessAtSubdivision";
-			this.entityInProcessAtSubdivision.CanEditReference = false;
-			this.entityInProcessAtSubdivision.CanOpenWithoutTabParent = false;
-			this.table1.Add(this.entityInProcessAtSubdivision);
-			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.entityInProcessAtSubdivision]));
-			w4.TopAttach = ((uint)(4));
-			w4.BottomAttach = ((uint)(5));
-			w4.LeftAttach = ((uint)(5));
-			w4.RightAttach = ((uint)(6));
-			w4.XOptions = ((global::Gtk.AttachOptions)(4));
-			w4.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.entryAuthorSubdivision = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.entryAuthorSubdivision = new global::QS.Views.Control.EntityEntry();
 			this.entryAuthorSubdivision.Events = ((global::Gdk.EventMask)(256));
 			this.entryAuthorSubdivision.Name = "entryAuthorSubdivision";
-			this.entryAuthorSubdivision.CanEditReference = false;
-			this.entryAuthorSubdivision.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.entryAuthorSubdivision);
-			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.entryAuthorSubdivision]));
-			w5.TopAttach = ((uint)(4));
-			w5.BottomAttach = ((uint)(5));
-			w5.LeftAttach = ((uint)(3));
-			w5.RightAttach = ((uint)(4));
-			w5.XOptions = ((global::Gtk.AttachOptions)(4));
-			w5.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.entryAuthorSubdivision]));
+			w4.TopAttach = ((uint)(4));
+			w4.BottomAttach = ((uint)(5));
+			w4.LeftAttach = ((uint)(3));
+			w4.RightAttach = ((uint)(4));
+			w4.XOptions = ((global::Gtk.AttachOptions)(4));
+			w4.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.entryCounterparty = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.entryCounterparty.Events = ((global::Gdk.EventMask)(256));
@@ -155,13 +139,13 @@ namespace Vodovoz.Filters.GtkViews
 			this.entryCounterparty.CanEditReference = true;
 			this.entryCounterparty.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.entryCounterparty);
-			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.entryCounterparty]));
-			w6.TopAttach = ((uint)(2));
-			w6.BottomAttach = ((uint)(3));
-			w6.LeftAttach = ((uint)(1));
-			w6.RightAttach = ((uint)(2));
-			w6.XOptions = ((global::Gtk.AttachOptions)(4));
-			w6.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.entryCounterparty]));
+			w5.TopAttach = ((uint)(2));
+			w5.BottomAttach = ((uint)(3));
+			w5.LeftAttach = ((uint)(1));
+			w5.RightAttach = ((uint)(2));
+			w5.XOptions = ((global::Gtk.AttachOptions)(4));
+			w5.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.entryDeliveryPoint = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.entryDeliveryPoint.Events = ((global::Gdk.EventMask)(256));
@@ -169,12 +153,12 @@ namespace Vodovoz.Filters.GtkViews
 			this.entryDeliveryPoint.CanEditReference = true;
 			this.entryDeliveryPoint.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.entryDeliveryPoint);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.entryDeliveryPoint]));
-			w7.TopAttach = ((uint)(3));
-			w7.BottomAttach = ((uint)(4));
-			w7.LeftAttach = ((uint)(1));
-			w7.RightAttach = ((uint)(2));
-			w7.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.entryDeliveryPoint]));
+			w6.TopAttach = ((uint)(3));
+			w6.BottomAttach = ((uint)(4));
+			w6.LeftAttach = ((uint)(1));
+			w6.RightAttach = ((uint)(2));
+			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.entryDriver = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.entryDriver.Events = ((global::Gdk.EventMask)(256));
@@ -182,11 +166,23 @@ namespace Vodovoz.Filters.GtkViews
 			this.entryDriver.CanEditReference = true;
 			this.entryDriver.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.entryDriver);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.entryDriver]));
-			w8.TopAttach = ((uint)(1));
-			w8.BottomAttach = ((uint)(2));
-			w8.LeftAttach = ((uint)(1));
-			w8.RightAttach = ((uint)(2));
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.entryDriver]));
+			w7.TopAttach = ((uint)(1));
+			w7.BottomAttach = ((uint)(2));
+			w7.LeftAttach = ((uint)(1));
+			w7.RightAttach = ((uint)(2));
+			w7.XOptions = ((global::Gtk.AttachOptions)(4));
+			w7.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.entryInProcessAtSubdivision = new global::QS.Views.Control.EntityEntry();
+			this.entryInProcessAtSubdivision.Events = ((global::Gdk.EventMask)(256));
+			this.entryInProcessAtSubdivision.Name = "entryInProcessAtSubdivision";
+			this.table1.Add(this.entryInProcessAtSubdivision);
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.entryInProcessAtSubdivision]));
+			w8.TopAttach = ((uint)(4));
+			w8.BottomAttach = ((uint)(5));
+			w8.LeftAttach = ((uint)(5));
+			w8.RightAttach = ((uint)(6));
 			w8.XOptions = ((global::Gtk.AttachOptions)(4));
 			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -202,11 +198,9 @@ namespace Vodovoz.Filters.GtkViews
 			w9.XOptions = ((global::Gtk.AttachOptions)(4));
 			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.entryOldOrderAuthor = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.entryOldOrderAuthor = new global::QS.Views.Control.EntityEntry();
 			this.entryOldOrderAuthor.Events = ((global::Gdk.EventMask)(256));
 			this.entryOldOrderAuthor.Name = "entryOldOrderAuthor";
-			this.entryOldOrderAuthor.CanEditReference = true;
-			this.entryOldOrderAuthor.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.entryOldOrderAuthor);
 			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.entryOldOrderAuthor]));
 			w10.LeftAttach = ((uint)(3));
@@ -214,11 +208,9 @@ namespace Vodovoz.Filters.GtkViews
 			w10.XOptions = ((global::Gtk.AttachOptions)(4));
 			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.entryUndeliveryAuthor = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.entryUndeliveryAuthor = new global::QS.Views.Control.EntityEntry();
 			this.entryUndeliveryAuthor.Events = ((global::Gdk.EventMask)(256));
 			this.entryUndeliveryAuthor.Name = "entryUndeliveryAuthor";
-			this.entryUndeliveryAuthor.CanEditReference = true;
-			this.entryUndeliveryAuthor.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.entryUndeliveryAuthor);
 			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table1[this.entryUndeliveryAuthor]));
 			w11.TopAttach = ((uint)(3));

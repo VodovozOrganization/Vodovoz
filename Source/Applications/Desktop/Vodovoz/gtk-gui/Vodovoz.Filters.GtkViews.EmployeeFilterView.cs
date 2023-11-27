@@ -20,7 +20,7 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::QS.Widgets.GtkUI.DateRangePicker drpSettlementDate;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeSubdivision;
+		private global::QS.Views.Control.EntityEntry entrySubdivision;
 
 		private global::Gtk.HBox hbox6;
 
@@ -176,13 +176,11 @@ namespace Vodovoz.Filters.GtkViews
 			w6.XOptions = ((global::Gtk.AttachOptions)(4));
 			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.evmeSubdivision = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.evmeSubdivision.WidthRequest = 350;
-			this.evmeSubdivision.Events = ((global::Gdk.EventMask)(256));
-			this.evmeSubdivision.Name = "evmeSubdivision";
-			this.evmeSubdivision.CanEditReference = false;
-			this.table1.Add(this.evmeSubdivision);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeSubdivision]));
+			this.entrySubdivision = new global::QS.Views.Control.EntityEntry();
+			this.entrySubdivision.Events = ((global::Gdk.EventMask)(256));
+			this.entrySubdivision.Name = "entrySubdivision";
+			this.table1.Add(this.entrySubdivision);
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.entrySubdivision]));
 			w7.TopAttach = ((uint)(1));
 			w7.BottomAttach = ((uint)(2));
 			w7.LeftAttach = ((uint)(1));

@@ -49,6 +49,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods
 			Map(x => x.OnlineStoreExternalId).Column("online_store_external_id");
 			Map(x => x.UsingInGroupPriceSet).Column("using_in_group_price_set");
 			Map(x => x.HasInventoryAccounting).Column("has_inventory_accounting");
+			Map(x => x.GlassHolderType).Column("glass_holder_type");
 
 			//Характеристики товара
 			Map(x => x.Color).Column("color");
@@ -87,7 +88,6 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods
 			Map(x => x.LockerRefrigeratorType).Column("locker_refrigerator_type");
 			Map(x => x.LockerRefrigeratorVolume).Column("locker_refrigerator_volume");
 			Map(x => x.TapType).Column("tap_type");
-			Map(x => x.BracingTypeForCupHolder).Column("bracing_type_for_cup_holder");
 
 			Map(x => x.StorageCell).Column("storage_cell");
 

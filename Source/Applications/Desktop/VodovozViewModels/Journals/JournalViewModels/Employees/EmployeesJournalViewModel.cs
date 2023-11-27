@@ -45,8 +45,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 
 			_authorizationServiceFactory =
 				authorizationServiceFactory ?? throw new ArgumentNullException(nameof(authorizationServiceFactory));
+			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_authorizationService = _authorizationServiceFactory.CreateNewAuthorizationService();
+
+			filterViewModel.JournalViewModel = this;
+			JournalFilter = filterViewModel;
 
 			if(filterparams != null)
 			{
@@ -369,7 +373,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 		{
 			NodeActionsList.Clear();
 			CreateDefaultSelectAction();
-			CreateDefaultAddActions();
+			CreateCustomAddActions();
 			CreateCustomEditAction();
 			CreateDefaultDeleteAction();
 		}
@@ -426,10 +430,36 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			NodeActionsList.Add(editAction);
 		}
 
+		private void CreateCustomAddActions()
+		{
+			var createAction = new JournalAction("Создать",
+				(selected) =>
+				{
+					var config = EntityConfigs[typeof(Employee)];
+
+					return config.PermissionResult.CanCreate;
+				},
+				(selected) => true,
+				(selected) =>
+				{
+					if(!EntityConfigs.ContainsKey(typeof(Employee)))
+					{
+						return;
+					}
+
+					NavigationManager.OpenViewModel<EmployeeViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
+				}
+			);
+
+			NodeActionsList.Add(createAction);
+		}
+
 		protected override Func<EmployeeViewModel> CreateDialogFunction =>
 			() => _lifetimeScope.Resolve<EmployeeViewModel>(new TypedParameter[] { new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForCreate()) });
 
 		protected override Func<EmployeeJournalNode, EmployeeViewModel> OpenDialogFunction =>
 			(node) => _lifetimeScope.Resolve<EmployeeViewModel>(new TypedParameter[] { new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(node.Id)) });
+
+		public ILifetimeScope Scope => _lifetimeScope;
 	}
 }

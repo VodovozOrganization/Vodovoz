@@ -47,6 +47,7 @@ using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredResources;
 using Vodovoz.Settings.Database;
 using Vodovoz.ViewModels.Cash;
+using Vodovoz.ViewModels.Counterparties;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using Vodovoz.ViewModels.ViewModels.Logistic;
@@ -170,7 +171,7 @@ namespace Vodovoz.Configuration
                     .End(),
                 OrmObjectMapping<Counterparty>.Create().Dialog<CounterpartyDlg>().DefaultTableView()
                     .SearchColumn("Название", x => x.FullName).End(),
-                OrmObjectMapping<Tag>.Create().Dialog<TagDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
+                OrmObjectMapping<Tag>.Create().Dialog<TagViewModel>().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
                 OrmObjectMapping<CounterpartyContract>.Create().Dialog<CounterpartyContractDlg>(),
                 OrmObjectMapping<DocTemplate>.Create().Dialog<DocTemplateDlg>().DefaultTableView().SearchColumn("Название", x => x.Name)
                     .Column("Тип", x => x.TemplateType.GetEnumTitle()).End(),
@@ -204,7 +205,6 @@ namespace Vodovoz.Configuration
                     .TreeConfig(new RecursiveTreeConfig<ExpenseCategory>(x => x.Parent, x => x.Childs)).End(),
                 OrmObjectMapping<Expense>.Create().Dialog<ExpenseViewModel>(),
                 OrmObjectMapping<AdvanceReport>.Create().Dialog<AdvanceReportViewModel>(),
-                OrmObjectMapping<Fine>.Create().Dialog<FineDlg>(),
                 OrmObjectMapping<IncomeCashTransferDocument>.Create().Dialog<IncomeCashTransferView>(),
                 OrmObjectMapping<CommonCashTransferDocument>.Create().Dialog<CommonCashTransferView>(),
                 //Склад
@@ -265,9 +265,6 @@ namespace Vodovoz.Configuration
 
             #region неПростые справочники
 
-            OrmMain.AddObjectDescription<Subdivision>().Dialog<SubdivisionDlg>().DefaultTableView().SearchColumn("Название", x => x.Name)
-                .Column("Руководитель", x => x.Chief == null ? "" : x.Chief.ShortName).SearchColumn("Номер", x => x.Id.ToString())
-                .TreeConfig(new RecursiveTreeConfig<Subdivision>(x => x.ParentSubdivision, x => x.ChildSubdivisions)).End();
             OrmMain.AddObjectDescription<TypeOfEntity>()
                 .Dialog<TypeOfEntityDlg>()
                 .DefaultTableView()

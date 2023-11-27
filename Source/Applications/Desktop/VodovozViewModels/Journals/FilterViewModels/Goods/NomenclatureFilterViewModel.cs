@@ -1,9 +1,8 @@
-﻿using System;
+﻿using QS.DomainModel.Entity;
+using QS.Project.Filter;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using QS.DomainModel.Entity;
-using QS.Project.Filter;
-using QS.Project.Journal;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 
@@ -11,6 +10,17 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Goods
 {
 	public class NomenclatureFilterViewModel : FilterViewModelBase<NomenclatureFilterViewModel>
 	{
+		private NomenclatureCategory[] _availableCategories;
+		private NomenclatureCategory? _restrictCategory;
+		private SaleCategory? _restrictSaleCategory;
+		private bool _restrictDisposbleTare;
+		private bool _restrictDilers;
+		private bool _restrictArchive;
+		private SaleCategory[] _availableSalesCategories;
+		private IEnumerable<int> _restrictedExcludedIds;
+		private Warehouse _restrictedLoadedWarehouse;
+		private GlassHolderType? _glassHolderType;
+
 		public NomenclatureFilterViewModel(Action<NomenclatureFilterViewModel> filterParams = null)
 		{
 			if(filterParams != null)
@@ -19,17 +29,15 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Goods
 			}
 		}
 		
-		NomenclatureCategory[] availableCategories;
 		public virtual NomenclatureCategory[] AvailableCategories {
 			get {
-				return availableCategories != null && availableCategories.Any()
-					? availableCategories
+				return _availableCategories != null && _availableCategories.Any()
+					? _availableCategories
 					: Enum.GetValues(typeof(NomenclatureCategory)).OfType<NomenclatureCategory>().ToArray();
 			}
-			set => UpdateFilterField(ref availableCategories, value);
+			set => UpdateFilterField(ref _availableCategories, value);
 		}
 
-		NomenclatureCategory? restrictCategory;
 		[PropertyChangedAlso(
 			nameof(IsDispossableTareApplicable),
 			nameof(AreDilersApplicable),
@@ -37,49 +45,55 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Goods
 			nameof(SelectCategory)
 		)]
 		public virtual NomenclatureCategory? RestrictCategory {
-			get => restrictCategory;
+			get => _restrictCategory;
 			set {
-				if(UpdateFilterField(ref restrictCategory, value))
+				if(SetField(ref _restrictCategory, value))
+				{
 					CanChangeCategory = false;
+
+					if(RestrictCategory != NomenclatureCategory.equipment)
+					{
+						GlassHolderType = null;
+					}
+
+					Update();
+				}
 			}
 		}
+
 		public bool CanChangeCategory { get; private set; } = true;
 
-		SaleCategory? restrictSaleCategory;
 		public virtual SaleCategory? RestrictSaleCategory {
-			get => restrictSaleCategory;
+			get => _restrictSaleCategory;
 			set {
-				if(UpdateFilterField(ref restrictSaleCategory, value))
+				if(UpdateFilterField(ref _restrictSaleCategory, value))
 					CanChangeSaleCategory = false;
 			}
 		}
 		public bool CanChangeSaleCategory { get; private set; } = true;
 
-		bool restrictDisposbleTare;
 		public virtual bool RestrictDisposbleTare {
-			get => restrictDisposbleTare;
+			get => _restrictDisposbleTare;
 			set {
-				if(UpdateFilterField(ref restrictDisposbleTare, value))
+				if(UpdateFilterField(ref _restrictDisposbleTare, value))
 					CanChangeShowDisposableTare = false;
 			}
 		}
 		public bool CanChangeShowDisposableTare { get; private set; } = true;
 
-		bool restrictDilers;
 		public virtual bool RestrictDilers {
-			get => restrictDilers;
+			get => _restrictDilers;
 			set {
-				if(UpdateFilterField(ref restrictDilers, value))
+				if(UpdateFilterField(ref _restrictDilers, value))
 					CanChangeShowDilers = false;
 			}
 		}
 		public bool CanChangeShowDilers { get; private set; } = true;
 
-		bool restrictArchive;
 		public virtual bool RestrictArchive {
-			get => restrictArchive;
+			get => _restrictArchive;
 			set {
-				UpdateFilterField(ref restrictArchive, value);
+				UpdateFilterField(ref _restrictArchive, value);
 				CanChangeShowArchive = true;
 			}
 		}
@@ -92,36 +106,40 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Goods
 			nameof(RestrictCategory)
 		)]
 		public NomenclatureCategory? SelectCategory {
-			get => restrictCategory;
-			set => UpdateFilterField(ref restrictCategory, value);
+			get => _restrictCategory;
+			set => UpdateFilterField(ref _restrictCategory, value);
 		}
 
-		SaleCategory[] availableSalesCategories;
 		public SaleCategory[] AvailableSalesCategories {
 			get {
-				return availableSalesCategories != null && availableSalesCategories.Any()
-					? availableSalesCategories
+				return _availableSalesCategories != null && _availableSalesCategories.Any()
+					? _availableSalesCategories
 					: Enum.GetValues(typeof(SaleCategory)).OfType<SaleCategory>().ToArray();
 			}
-			set => UpdateFilterField(ref availableSalesCategories, value);
+			set => UpdateFilterField(ref _availableSalesCategories, value);
 		}
 
 		public SaleCategory? SelectSaleCategory {
-			get => restrictSaleCategory;
-			set => UpdateFilterField(ref restrictSaleCategory, value);
+			get => _restrictSaleCategory;
+			set => UpdateFilterField(ref _restrictSaleCategory, value);
 		}
 
-		private IEnumerable<int> restrictedExcludedIds;
 		public virtual IEnumerable<int> RestrictedExcludedIds {
-			get => restrictedExcludedIds;
-			set => UpdateFilterField(ref restrictedExcludedIds, value);
+			get => _restrictedExcludedIds;
+			set => UpdateFilterField(ref _restrictedExcludedIds, value);
 		}
 
-		private Warehouse restrictedLoadedWarehouse;
 		public virtual Warehouse RestrictedLoadedWarehouse {
-			get => restrictedLoadedWarehouse;
-			set => UpdateFilterField(ref restrictedLoadedWarehouse, value);
+			get => _restrictedLoadedWarehouse;
+			set => UpdateFilterField(ref _restrictedLoadedWarehouse, value);
 		}
+
+		public GlassHolderType? GlassHolderType
+		{
+			get => _glassHolderType;
+			set => UpdateFilterField(ref _glassHolderType, value);
+		}
+
 
 		public bool IsSaleCategoryApplicable {
 			get {

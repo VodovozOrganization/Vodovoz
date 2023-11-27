@@ -32,6 +32,8 @@ using QS.Services;
 using QS.Project.Services;
 using Vodovoz.Settings.Database;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
+using VodovozHealthCheck;
+using TaxcomEdoApi.HealthChecks;
 
 namespace TaxcomEdoApi
 {
@@ -101,6 +103,8 @@ namespace TaxcomEdoApi
 			services.AddSingleton<UpdProductConverter>();
 			services.AddSingleton<IParametersProvider, ParametersProvider>();
 			services.AddSingleton<IContactStateConverter, ContactStateConverter>();
+
+			services.ConfigureHealthCheckService<TaxcomEdoApiHealthCheck>(true);
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -120,6 +124,8 @@ namespace TaxcomEdoApi
 			app.UseAuthorization();
 
 			app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+
+			app.ConfigureHealthCheckApplicationBuilder();
 		}
 
 		private void CreateBaseConfig()

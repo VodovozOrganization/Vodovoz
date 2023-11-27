@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace DriverAPI.Library.DTOs
 {
@@ -21,5 +22,10 @@ namespace DriverAPI.Library.DTOs
 		/// Адреса маршрутного листа
 		/// </summary>
 		public IEnumerable<RouteListAddressDto> RouteListAddresses { get; set; }
+
+		/// <summary>
+		/// Условия необходимые для принятия перед началом работы с МЛ
+		/// </summary>
+		public IEnumerable<RouteListSpecialConditionDto> SpecialConditionsToAccept { get; set; }
 	}
 }

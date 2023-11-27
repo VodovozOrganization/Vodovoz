@@ -13,7 +13,6 @@ using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories;
 using Vodovoz.ViewModels.Logistic;
-using QS.Project.Journal;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 {
@@ -138,7 +137,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 
 				_statusNodes.RemoveAll(rn => !value.Contains(rn.RouteListStatus));
 
-				FirePropertyChanged();
+				OnPropertyChanged(nameof(DisplayableStatuses));
 			}
 		}
 
@@ -189,7 +188,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 				{
 					status.Selected = true;
 				}
-				FirePropertyChanged();
+
+				OnPropertyChanged(nameof(SelectedStatuses));
 			}
 		}
 

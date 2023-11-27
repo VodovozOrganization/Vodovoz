@@ -20,11 +20,13 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using Autofac;
 
 namespace Vodovoz
 {
 	public partial class IncomingWaterDlg : QS.Dialog.Gtk.EntityDialogBase<IncomingWater>
 	{
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IUserRepository _userRepository = new UserRepository();
@@ -131,7 +133,8 @@ namespace Vodovoz
 					nomenclatureFilter,
 					counterpartyJournalFactory,
 					nomenclatureRepository,
-					_userRepository
+					_userRepository,
+					_lifetimeScope
 				);
 			
 			yentryProduct.SetEntityAutocompleteSelectorFactory(nomenclatureAutoCompleteSelectorFactory);
@@ -194,6 +197,13 @@ namespace Vodovoz
 			foreach (var material in spec.Materials) {
 				UoWGeneric.Root.AddMaterial (material);
 			}
+		}
+
+		public override void Destroy()
+		{
+			base.Destroy();
+			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
 		}
 	}
 }

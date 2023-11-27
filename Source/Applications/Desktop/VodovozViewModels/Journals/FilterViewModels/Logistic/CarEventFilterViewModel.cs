@@ -1,6 +1,8 @@
-﻿using QS.Project.Filter;
+﻿using Autofac;
+using QS.Project.Filter;
 using QS.Project.Journal.EntitySelector;
 using System;
+using System.Collections.Generic;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
@@ -22,13 +24,21 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		private Car _car;
 		private Employee _driver;
 		private CarEventType _carEventType;
-		public CarEventFilterViewModel(ICarJournalFactory carJournalFactory,
+
+		public CarEventFilterViewModel(
+			ILifetimeScope lifetimeScope,
+			ICarJournalFactory carJournalFactory,
 			ICarEventTypeJournalFactory carEventTypeJournalFactory,
 			IEmployeeJournalFactory employeeJournalFactory)
 		{
+			if(lifetimeScope is null)
+			{
+				throw new ArgumentNullException(nameof(lifetimeScope));
+			}
+
 			CarSelectorFactory =
 				(carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory)))
-				.CreateCarAutocompleteSelectorFactory();
+				.CreateCarAutocompleteSelectorFactory(lifetimeScope);
 			CarEventTypeSelectorFactory =
 				(carEventTypeJournalFactory ?? throw new ArgumentNullException(nameof(carEventTypeJournalFactory)))
 				.CreateCarEventTypeAutocompleteSelectorFactory();
@@ -102,5 +112,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 			get => _carEventType;
 			set => UpdateFilterField(ref _carEventType, value);
 		}
+
+		public List<int> ExcludeEventIds { get; } = new List<int>();
 	}
 }

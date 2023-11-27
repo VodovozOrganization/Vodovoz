@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Employees;
@@ -13,15 +14,20 @@ namespace Vodovoz.Reports
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ForwarderWageReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public ForwarderWageReport()
+		public ForwarderWageReport(INavigationManager navigationManager)
 		{
+			if(navigationManager is null)
+			{
+				throw new ArgumentNullException(nameof(navigationManager));
+			}
+
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			var forwarderFilter = new EmployeeFilterViewModel();
 			forwarderFilter.SetAndRefilterAtOnce(
 				x => x.Status = EmployeeStatus.IsWorking,
 				x => x.RestrictCategory = EmployeeCategory.forwarder);
-			var employeeFactory = new EmployeeJournalFactory(forwarderFilter);
+			var employeeFactory = new EmployeeJournalFactory(navigationManager, forwarderFilter);
 			evmeForwarder.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateEmployeeAutocompleteSelectorFactory());
 			evmeForwarder.Changed += (sender, e) => CanRun();
 			dateperiodpicker.PeriodChanged += (sender, e) => CanRun();

@@ -13,6 +13,7 @@ using Taxcom.Client.Api.Converters;
 using Taxcom.Client.Api.Entity;
 using Taxcom.Client.Api.Entity.DocFlow;
 using TaxcomEdoApi.Factories;
+using TaxcomEdoApi.HealthChecks;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
@@ -38,6 +39,7 @@ namespace TaxcomEdoApi.Services
 		private readonly EdoContainerMainDocumentIdParser _edoContainerMainDocumentIdParser;
 		private readonly X509Certificate2 _certificate;
 		private readonly PrintableDocumentSaver _printableDocumentSaver;
+		private readonly TaxcomEdoApiHealthCheck _taxcomEdoApiHealthCheck;
 		private const int _delaySec = 90;
 
 		private long? _lastEventIngoingDocumentsTimeStamp;
@@ -55,7 +57,8 @@ namespace TaxcomEdoApi.Services
 			EdoBillFactory edoBillFactory,
 			EdoContainerMainDocumentIdParser edoContainerMainDocumentIdParser,
 			X509Certificate2 certificate,
-			PrintableDocumentSaver printableDocumentSaver)
+			PrintableDocumentSaver printableDocumentSaver,
+			TaxcomEdoApiHealthCheck taxcomEdoApiHealthCheck)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_taxcomApi = taxcomApi ?? throw new ArgumentNullException(nameof(taxcomApi));
@@ -69,6 +72,7 @@ namespace TaxcomEdoApi.Services
 				edoContainerMainDocumentIdParser ?? throw new ArgumentNullException(nameof(edoContainerMainDocumentIdParser));
 			_certificate = certificate ?? throw new ArgumentNullException(nameof(certificate));
 			_printableDocumentSaver = printableDocumentSaver;
+			_taxcomEdoApiHealthCheck = taxcomEdoApiHealthCheck ?? throw new ArgumentNullException(nameof(taxcomEdoApiHealthCheck));
 			_apiSection = (configuration ?? throw new ArgumentNullException(nameof(configuration))).GetSection("Api");
 		}
 
@@ -90,7 +94,7 @@ namespace TaxcomEdoApi.Services
 
 				using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 				{
-					await CreateAndSendUpd(uow, startDate);
+					_taxcomEdoApiHealthCheck.IsHealthy = await CreateAndSendUpd(uow, startDate);
 					await CreateAndSendBills(uow);
 					await ProcessOutgoingDocuments(uow);
 					await ProcessIngoingDocuments(uow);
@@ -98,8 +102,10 @@ namespace TaxcomEdoApi.Services
 			}
 		}
 
-		private Task CreateAndSendUpd(IUnitOfWork uow, DateTime startDate)
+		private Task<bool> CreateAndSendUpd(IUnitOfWork uow, DateTime startDate)
 		{
+			var isHealthy = true;
+
 			try
 			{
 				var edoAccountId = _apiSection.GetValue<string>("EdxClientId");
@@ -183,10 +189,11 @@ namespace TaxcomEdoApi.Services
 			}
 			catch(Exception e)
 			{
+				isHealthy = false;
 				_logger.LogError(e, "Ошибка в процессе получения заказов для формирования УПД");
 			}
 
-			return Task.CompletedTask;
+			return Task.FromResult(isHealthy);
 		}
 
 		private Task CreateAndSendBills(IUnitOfWork uow)

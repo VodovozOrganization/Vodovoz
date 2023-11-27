@@ -135,7 +135,8 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				{
 					Source = _source,
 					Parameters = Parameters,
-					Title = Title
+					Title = Title,
+					UseUserVariables = true
 				};
 				return reportInfo;
 			}

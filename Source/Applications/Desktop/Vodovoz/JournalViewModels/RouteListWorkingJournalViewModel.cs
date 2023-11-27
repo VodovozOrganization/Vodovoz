@@ -1,4 +1,5 @@
-﻿using NHibernate;
+﻿using Autofac;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
@@ -43,6 +44,7 @@ namespace Vodovoz.JournalViewModels
 {
 	public class RouteListWorkingJournalViewModel : FilterableSingleEntityJournalViewModelBase<RouteList, TdiTabBase, RouteListJournalNode, RouteListJournalFilterViewModel>
 	{
+		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IFuelRepository _fuelRepository;
 		private readonly ICallTaskRepository _callTaskRepository;
@@ -58,6 +60,7 @@ namespace Vodovoz.JournalViewModels
 			RouteListJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
+			ILifetimeScope lifetimeScope,
 			IRouteListRepository routeListRepository,
 			IFuelRepository fuelRepository,
 			ICallTaskRepository callTaskRepository,
@@ -68,10 +71,10 @@ namespace Vodovoz.JournalViewModels
 			IAccountableDebtsRepository accountableDebtsRepository,
 			IGtkTabsOpener gtkTabsOpener,
 			IRouteListProfitabilitySettings routeListProfitabilitySettings)
-		: base(filterViewModel, unitOfWorkFactory, commonServices)
+			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Работа кассы с МЛ";
-
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
 			_callTaskRepository = callTaskRepository ?? throw new ArgumentNullException(nameof(callTaskRepository));
@@ -437,9 +440,10 @@ namespace Vodovoz.JournalViewModels
 								_fuelRepository,
 								NavigationManagerProvider.NavigationManager,
 								new TrackRepository(),
-								new EmployeeJournalFactory(),
+								new EmployeeJournalFactory(NavigationManager),
 								_financialCategoriesGroupsSettings,
-								new CarJournalFactory(NavigationManager)
+								new CarJournalFactory(NavigationManager),
+								_lifetimeScope
 							)
 						);
 					}

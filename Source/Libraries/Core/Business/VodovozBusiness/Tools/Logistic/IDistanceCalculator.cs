@@ -1,5 +1,4 @@
-﻿using NetTopologySuite.Geometries;
-using Vodovoz.Domain.Client;
+﻿using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.Tools.Logistic

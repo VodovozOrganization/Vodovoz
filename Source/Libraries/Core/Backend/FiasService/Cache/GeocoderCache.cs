@@ -4,7 +4,7 @@ using Vodovoz.Domain.Geocoder;
 
 namespace Fias.Client.Cache
 {
-	public class GeocoderCache
+	internal class GeocoderCache
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
 

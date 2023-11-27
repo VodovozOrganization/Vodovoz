@@ -51,6 +51,10 @@ namespace Vodovoz
 			return GenerateHashName() == hashName;
 		}
 
+		public virtual bool HasCustomCancellationConfirmationDialog => false;
+
+		public virtual Func<int> CustomCancellationConfirmationDialogFunc => null;
+
 		public static string GenerateHashName()
 		{
 			return typeof(EquipmentGenerator).Name;

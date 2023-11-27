@@ -74,7 +74,7 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 
 			CarAutocompleteSelectorFactory =
 				(carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory)))
-				.CreateCarAutocompleteSelectorFactory();
+				.CreateCarAutocompleteSelectorFactory(_lifetimeScope);
 
 			if(uowBuilder.IsNewEntity)
 			{

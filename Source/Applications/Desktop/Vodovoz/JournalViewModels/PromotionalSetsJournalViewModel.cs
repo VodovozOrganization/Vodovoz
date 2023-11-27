@@ -1,18 +1,17 @@
-﻿using System;
+using Autofac;
 using NHibernate;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
-using QS.Project.Journal.EntitySelector;
 using QS.Services;
+using System;
+using QS.Navigation;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalNodes;
-using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Orders;
 
@@ -21,36 +20,30 @@ namespace Vodovoz.JournalViewModels
 	public class PromotionalSetsJournalViewModel : SingleEntityJournalViewModelBase<PromotionalSet, PromotionalSetViewModel, PromotionalSetJournalNode>
 	{
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
-		private readonly IEmployeeService _employeeService;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
-		private readonly INomenclatureOnlineParametersProvider _nomenclatureOnlineParametersProvider;
+		private readonly ILifetimeScope _lifetimeScope;
 		private readonly ICounterpartyJournalFactory _counterpartySelectorFactory;
-		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 
 		public PromotionalSetsJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory, 
 			ICommonServices commonServices,
-			IEmployeeService employeeService,
+			INavigationManager navigationManager,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
-			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
-			INomenclatureOnlineParametersProvider nomenclatureOnlineParametersProvider,
+			ILifetimeScope lifetimeScope,
 			bool hideJournalForOpenDialog = false,
 			bool hideJournalForCreateDialog = false)
-			: base(unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
+			: base(unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog, navigationManager)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-			_nomenclatureOnlineParametersProvider =
-				nomenclatureOnlineParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureOnlineParametersProvider));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
-			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			
-			TabName = "Рекламные наборы";
+			TabName = "Промонаборы";
 
 			var threadLoader = DataLoader as ThreadDataLoader<PromotionalSetJournalNode>;
 			threadLoader.MergeInOrderBy(x => x.IsArchive, false);
@@ -84,24 +77,22 @@ namespace Vodovoz.JournalViewModels
 			EntityUoWBuilder.ForCreate(),
 			_unitOfWorkFactory,
 			commonServices,
-			_employeeService,
+			NavigationManager,
 			_counterpartySelectorFactory,
-			_nomenclatureSelectorFactory,
 			_nomenclatureRepository,
 			_userRepository,
-			_nomenclatureOnlineParametersProvider
+			_lifetimeScope
 		);
 
 		protected override Func<PromotionalSetJournalNode, PromotionalSetViewModel> OpenDialogFunction => node => new PromotionalSetViewModel(
 			EntityUoWBuilder.ForOpen(node.Id),
 			_unitOfWorkFactory,
 			commonServices,
-			_employeeService,
+			NavigationManager,
 			_counterpartySelectorFactory,
-			_nomenclatureSelectorFactory,
 			_nomenclatureRepository,
 			_userRepository,
-			_nomenclatureOnlineParametersProvider
+			_lifetimeScope
 	   	);
 
 		protected override void CreateNodeActions()

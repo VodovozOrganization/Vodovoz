@@ -613,7 +613,7 @@ namespace Vodovoz.Domain.Logistic
 			SetStatusWithoutOrderChange(uow, RouteListItemStatus.Transfered);
 		}
 		
-		protected internal virtual void RevertTransferAddress(IUnitOfWork uow, WageParameterService wageParameterService, RouteListItem revertedAddress)
+		protected internal virtual void RevertTransferAddress(IUnitOfWork uow, IWageParameterService wageParameterService, RouteListItem revertedAddress)
 		{
 			SetStatusWithoutOrderChange(uow, revertedAddress.Status);
 			SetTransferTo(null);
@@ -658,7 +658,7 @@ namespace Vodovoz.Domain.Logistic
 		/// Функция вызывается при переходе адреса в закрытие.
 		/// Если адрес в пути, при закрытии МЛ он считается автоматически доставленным.
 		/// </summary>
-		public virtual void FirstFillClosing(WageParameterService wageParameterService)
+		public virtual void FirstFillClosing(IWageParameterService wageParameterService)
 		{
 			//В этом месте изменяем статус для подстраховки.
 			if(Status == RouteListItemStatus.EnRoute)

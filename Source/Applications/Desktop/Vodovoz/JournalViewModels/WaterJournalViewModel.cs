@@ -1,21 +1,19 @@
 using System;
 using System.Linq;
 using NHibernate;
-using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.BusinessCommon.Domain;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
-using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
@@ -31,6 +29,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly ICounterpartyJournalFactory _counterpartySelectorFactory;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
+		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly INomenclatureOnlineParametersProvider _nomenclatureOnlineParametersProvider;
 		private readonly IStringHandler _stringHandler = new StringHandler();
 
@@ -42,6 +41,7 @@ namespace Vodovoz.JournalViewModels
 			ICounterpartyJournalFactory counterpartySelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
+			INomenclatureSettings nomenclatureSettings,
 			INomenclatureOnlineParametersProvider nomenclatureOnlineParametersProvider
 		) : base(unitOfWorkFactory, commonServices)
 		{
@@ -50,6 +50,7 @@ namespace Vodovoz.JournalViewModels
 			_counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_nomenclatureOnlineParametersProvider =
 				nomenclatureOnlineParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureOnlineParametersProvider));
 
@@ -148,6 +149,6 @@ namespace Vodovoz.JournalViewModels
 		protected override Func<WaterJournalNode, NomenclatureViewModel> OpenDialogFunction =>
 			node => new NomenclatureViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices,
 				_employeeService, _nomenclatureSelectorFactory, _counterpartySelectorFactory, _nomenclatureRepository,
-				_userRepository, _stringHandler, _nomenclatureOnlineParametersProvider);
+				_userRepository, _stringHandler, _nomenclatureOnlineParametersProvider, _nomenclatureSettings);
 	}
 }

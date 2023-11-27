@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Autofac;
+﻿using Autofac;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -12,16 +9,20 @@ using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Extensions;
-using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.ViewModels.Organizations;
 
 namespace Vodovoz.ViewModels.ViewModels.Cash
 {
@@ -92,6 +93,14 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				() => FinancialExpenseCategory);
 
 			ConfigureEntityChangingRelations();
+
+			SubdivisionViewModel = new CommonEEVMBuilderFactory<CashlessRequest>(this, Entity, UoW, NavigationManager, _lifetimeScope)
+				.ForProperty(x => x.Subdivision)
+				.UseViewModelDialog<SubdivisionViewModel>()
+				.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel>()
+				.Finish();
+
+			SubdivisionViewModel.IsEditable = false;
 		}
 
 		#region Инициализация виджетов
@@ -101,7 +110,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelector { get; }
 
 		public IEnumerable<PayoutRequestUserRole> UserRoles { get; }
-
+		public IEntityEntryViewModel SubdivisionViewModel { get; }
 		public IEntityEntryViewModel FinancialExpenseCategoryViewModel { get; }
 
 		public FinancialExpenseCategory FinancialExpenseCategory

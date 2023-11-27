@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
+using Fias.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,6 +22,7 @@ using QS.DomainModel.UoW;
 using QS.ErrorReporting;
 using QS.ErrorReporting.Handlers;
 using QS.Navigation;
+using QS.Osrm;
 using QS.Permissions;
 using QS.Project.DB;
 using QS.Project.Domain;
@@ -47,6 +49,7 @@ using System.Linq;
 using System.Reflection;
 using Vodovoz.Additions;
 using Vodovoz.Application.Services;
+using Vodovoz.Application.Services.Logistics;
 using Vodovoz.CachingRepositories.Cash;
 using Vodovoz.CachingRepositories.Common;
 using Vodovoz.CachingRepositories.Counterparty;
@@ -64,12 +67,13 @@ using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.FilterViewModels.Suppliers;
 using Vodovoz.Infrastructure.Mango;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalViewers;
 using Vodovoz.Models;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Parameters;
@@ -89,12 +93,14 @@ using Vodovoz.ReportsParameters.Retail;
 using Vodovoz.ReportsParameters.Sales;
 using Vodovoz.ReportsParameters.Store;
 using Vodovoz.Services;
+using Vodovoz.Services.Logistics;
 using Vodovoz.Services.Permissions;
 using Vodovoz.Settings.Database;
 using Vodovoz.SidePanel.InfoViews;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.Tools.Logistic;
 using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Factories;
@@ -102,6 +108,7 @@ using Vodovoz.ViewModels.Infrastructure.Services;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Mango.Talks;
 using Vodovoz.ViewModels.Permissions;
+using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.Views.Mango.Talks;
 using Vodovoz.ViewWidgets;
 using VodovozInfrastructure.Endpoints;
@@ -201,7 +208,7 @@ namespace Vodovoz
 					builder.Register(context => new AutofacViewModelsTdiPageFactory(context.Resolve<ILifetimeScope>())).As<IViewModelsPageFactory>();
 					builder.Register(context => new AutofacTdiPageFactory(context.Resolve<ILifetimeScope>())).As<ITdiPageFactory>();
 					builder.Register(context => new AutofacViewModelsGtkPageFactory(context.Resolve<ILifetimeScope>())).AsSelf();
-					builder.RegisterType<TdiNavigationManager>().AsSelf().As<INavigationManager>().As<ITdiCompatibilityNavigation>()
+					builder.RegisterType<TdiNavigationManagerAdapter>().AsSelf().As<INavigationManager>().As<ITdiCompatibilityNavigation>()
 						.SingleInstance();
 					builder.Register(context => new ClassNamesBaseGtkViewResolver(context.Resolve<IGtkViewFactory>(),
 						typeof(InternalTalkView),
@@ -276,7 +283,6 @@ namespace Vodovoz
 					#region Adapters & Factories
 
 					builder.RegisterType<GtkTabsOpener>().As<IGtkTabsOpener>();
-					builder.RegisterType<UndeliveredOrdersJournalOpener>().As<IUndeliveredOrdersJournalOpener>();
 					builder.RegisterType<RdlPreviewOpener>().As<IRDLPreviewOpener>();
 					builder.RegisterType<GtkReportViewOpener>().As<IReportViewOpener>().SingleInstance();
 					builder.RegisterType<RoboatsJournalsFactory>().AsSelf().InstancePerLifetimeScope();
@@ -477,10 +483,8 @@ namespace Vodovoz
 					builder.RegisterType<ProfitabilityBottlesByStockReport>().AsSelf();
 					builder.RegisterType<PlanImplementationReport>().AsSelf();
 					builder.RegisterType<ZeroDebtClientReport>().AsSelf();
-					builder.RegisterType<SetBillsReport>().AsSelf();
 					builder.RegisterType<OrdersCreationTimeReport>().AsSelf();
 					builder.RegisterType<PotentialFreePromosetsReport>().AsSelf();
-					builder.RegisterType<PaymentsFromBankClientReport>().AsSelf();
 					builder.RegisterType<PaymentsFromBankClientFinDepartmentReport>().AsSelf();
 					builder.RegisterType<ChainStoreDelayReport>().AsSelf();
 					builder.RegisterType<ReturnedTareReport>().AsSelf();
@@ -550,8 +554,6 @@ namespace Vodovoz
 							.First())
 						.SingleInstance();
 
-					builder.RegisterType<RdlViewerViewModel>().AsSelf();
-
 					#endregion
 
 					#region Фильтры
@@ -559,6 +561,7 @@ namespace Vodovoz
 					builder.RegisterType<PaymentsJournalFilterViewModel>().AsSelf();
 					builder.RegisterType<UnallocatedBalancesJournalFilterViewModel>().AsSelf();
 					builder.RegisterType<SelectableParametersReportFilter>().AsSelf();
+					builder.RegisterType<RequestsToSuppliersFilterViewModel>().AsSelf();
 
 					#endregion
 
@@ -587,7 +590,7 @@ namespace Vodovoz
 								}
 								), "");
 
-							cs["BaseUri"] = "https://driverapi.vod.qsolution.ru:7090/api/v2/";
+							cs["BaseUri"] = "https://driverapi.vod.qsolution.ru:7090/api/v4/";
 
 							var clientProvider = new ApiClientProvider.ApiClientProvider(cs);
 
@@ -632,7 +635,16 @@ namespace Vodovoz
 				}))
 				.ConfigureServices((hostingContext, services) =>
 				{
-					services.AddSingleton<Startup>();
+					services.AddSingleton<Startup>()
+							.AddScoped<IRouteListService, RouteListService>()
+							.AddScoped<RouteGeometryCalculator>()
+							.AddSingleton<OsrmClient>(sp => OsrmClientFactory.Instance)
+							.AddSingleton<IFastDeliveryDistanceChecker, DistanceCalculator>()
+							.AddScoped<IDebtorsParameters, DebtorsParameters>()
+							.AddFiasClient()
+							.AddSingleton<IFastDeliveryDistanceChecker, DistanceCalculator>()
+							.AddScoped<RevisionBottlesAndDeposits>()
+							.AddTransient<IReportExporter, ReportExporterAdapter>();
 				});
 	}
 }

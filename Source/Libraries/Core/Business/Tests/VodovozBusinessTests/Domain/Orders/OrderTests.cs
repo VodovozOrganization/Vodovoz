@@ -142,10 +142,10 @@ namespace VodovozBusinessTests.Domain.Orders
 
 		#endregion
 
-		#region Рекламные наборы
+		#region Промонаборы
 
 		[Ignore("Непонятно как. Пока игнор.")]
-		[Test(Description = "Удаление из списка промо-наборов заказа наборов, которые перестали присутствовать среди позиций заказа")]
+		[Test(Description = "Удаление из списка промонаборов заказа наборов, которые перестали присутствовать среди позиций заказа")]
 		public void ClearPromotionSetsList_WhenNoAnyOrderItemsFromPromotionalSet_RemovesThisPromotionalSetFromList()
 		{
 			// arrange
@@ -195,7 +195,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			Assert.That(Equals(orderUnderTest.PromotionalSets.FirstOrDefault(), promotionalSetMockExisting));
 		}
 
-		[Test(Description = "Передаваемая в метод одна из трёх строк заказа с одинаковой ссылкой на промо-набор, не вызывает удаления промонаборов из заказа.")]
+		[Test(Description = "Передаваемая в метод одна из трёх строк заказа с одинаковой ссылкой на промонабор, не вызывает удаления промонаборов из заказа.")]
 		public void TryToRemovePromotionalSet_WhenPassOneOfThreeOrderItemsWithSamePromotionalSet_DoesNotRemoveAnyPromoSetsFromPromoSetsListAndFromOrderItemsIfFound()
 		{
 			// arrange
@@ -234,7 +234,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			Assert.That(orderUnderTest.PromotionalSets.Count, Is.EqualTo(1));
 		}
 
-		[Test(Description = "Передаваемая в метод строка заказа без ссылки на промо-набор, не вызывает удаления промонаборов из заказа.")]
+		[Test(Description = "Передаваемая в метод строка заказа без ссылки на промонабор, не вызывает удаления промонаборов из заказа.")]
 		public void TryToRemovePromotionalSet_WhenPassOrderItemWithNoReferenceToPromotionalSet_DoesNotRemoveAnyPromoSetsFromPromoSetsListIfFound()
 		{
 			// arrange
@@ -273,7 +273,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			Assert.That(Equals(orderUnderTest.PromotionalSets.FirstOrDefault(), promotionalSetMockExisting));
 		}
 
-		[Test(Description = "Передаваемая в метод одна из двух строк заказа у которых одинаковые ссылки на промо-наборы, но у передаваемой скидка 0, не вызывает удаления промонаборов из заказа.")]
+		[Test(Description = "Передаваемая в метод одна из двух строк заказа у которых одинаковые ссылки на промонаборы, но у передаваемой скидка 0, не вызывает удаления промонаборов из заказа.")]
 		public void TryToRemovePromotionalSet_WhenPassOneOfTwoOrderItemsAndBothHaveSamePromotionalSetButPassingOrderItemHasNoDiscount_DoesNotRemoveAnyPromoSetsFromPromoSetsListIfFound()
 		{
 			// arrange
@@ -307,7 +307,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			Assert.That(Equals(orderUnderTest.PromotionalSets.FirstOrDefault(), promotionalSetMockExisting));
 		}
 
-		[Test(Description = "Передаваемая в метод одна из двух строк заказа у которых одинаковые ссылки на промо-наборы, но у передаваемой нет скидки, не вызывает удаления ссылки на промо-набор у строки заказа со скидкой не 0.")]
+		[Test(Description = "Передаваемая в метод одна из двух строк заказа у которых одинаковые ссылки на промонаборы, но у передаваемой нет скидки, не вызывает удаления ссылки на промонабор у строки заказа со скидкой не 0.")]
 		public void TryToRemovePromotionalSet_WhenPassOneOfTwoOrderItemsAndBothHaveSamePromotionalSetButPassingOrderItemDoesNotHaveAnyDiscount_DoesNotClearReferenceToPromoSetInExistingOrderItemIfFound()
 		{
 			// arrange
@@ -337,7 +337,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			Assert.That(orderUnderTest.OrderItems.LastOrDefault().PromoSet, Is.Not.Null);
 		}
 
-		[Test(Description = "При добавлении промо-набора в заказ, адрес доставки которого не найден среди других заказов с промонаборами, возвращается true")]
+		[Test(Description = "При добавлении промонабора в заказ, адрес доставки которого не найден среди других заказов с промонаборами, возвращается true")]
 		public void CanAddPromotionalSet_WhenAddPromotionalSetToTheOrderAndNoSameAddressFoundInAnotherOrdersWithPromoSets_ReturnsTrue()
 		{
 			// arrange
@@ -354,7 +354,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			Assert.That(res, Is.True);
 		}
 
-		[Test(Description = "При добавлении промо-набора в заказ, адрес доставки которого найден среди других заказов с промонаборами, возвращается false")]
+		[Test(Description = "При добавлении промонабора в заказ, адрес доставки которого найден среди других заказов с промонаборами, возвращается false")]
 		public void CanAddPromotionalSet_WhenAddPromotionalSetToTheOrderAndSameAddressFoundInAnotherOrdersWithPromoSets_ReturnsFalse()
 		{
 			// arrange
@@ -382,7 +382,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			Assert.That(res, Is.False);
 		}
 
-		[Test(Description = "При добавлении второго промо-набора в заказ возвращается false")]
+		[Test(Description = "При добавлении второго промонабора в заказ возвращается false")]
 		public void CanAddPromotionalSet_WhenAddSecondPromotionalSetToTheOrder_ReturnsFalse()
 		{
 			// arrange
@@ -401,7 +401,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			Assert.That(result, Is.False);
 		}
 
-		#endregion Рекламные наборы
+		#endregion Промонаборы
 
 		#region Акции
 

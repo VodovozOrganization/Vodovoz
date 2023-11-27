@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Report;
 using QSProjectsLib;
 using QSReport;
@@ -20,18 +21,30 @@ namespace Vodovoz.Reports
 	{
 		private CarModelSelectionFilterViewModel _carModelSelectionFilterViewModel;
 
-		public FuelReport()
+		public FuelReport(
+			ILifetimeScope lifetimeScope,
+			INavigationManager navigationManager)
 		{
-			this.Build();
+			if(lifetimeScope is null)
+			{
+				throw new ArgumentNullException(nameof(lifetimeScope));
+			}
+
+			if(navigationManager is null)
+			{
+				throw new ArgumentNullException(nameof(navigationManager));
+			}
+
+			Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			var filterDriver = new EmployeeFilterViewModel();
 			filterDriver.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.driver,
 				x => x.Status = EmployeeStatus.IsWorking
 			);
-			var driverFactory = new EmployeeJournalFactory(filterDriver);
+			var driverFactory = new EmployeeJournalFactory(navigationManager, filterDriver);
 			evmeDriver.SetEntityAutocompleteSelectorFactory(driverFactory.CreateEmployeeAutocompleteSelectorFactory());
-			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(Startup.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory());
+			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(Startup.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory(lifetimeScope));
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 
 			var officeFilter = new EmployeeFilterViewModel();
@@ -39,7 +52,7 @@ namespace Vodovoz.Reports
 				x => x.RestrictCategory = EmployeeCategory.office,
 				x => x.Status = EmployeeStatus.IsWorking
 			);
-			var officeFactory = new EmployeeJournalFactory(officeFilter);
+			var officeFactory = new EmployeeJournalFactory(navigationManager, officeFilter);
 			evmeAuthor.SetEntityAutocompleteSelectorFactory(officeFactory.CreateEmployeeAutocompleteSelectorFactory());
 			dateperiodpicker.StartDate = dateperiodpicker.EndDate = DateTime.Today;
 			buttonCreateReport.Clicked += OnButtonCreateReportClicked;

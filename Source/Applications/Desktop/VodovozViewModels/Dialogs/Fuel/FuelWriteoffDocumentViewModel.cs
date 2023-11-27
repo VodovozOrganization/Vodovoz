@@ -50,7 +50,6 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 			ICommonServices commonServices,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IReportViewOpener reportViewOpener,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IRouteListProfitabilityController routeListProfitabilityController,
 			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope)
@@ -65,7 +64,6 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 				routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
-			SubdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 
 			CreateCommands();
 			UpdateCashSubdivisions();
@@ -153,7 +151,6 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 		public IEntityAutocompleteSelectorFactory EmployeeAutocompleteSelectorFactory { get; private set; }
 
 		public IEmployeeJournalFactory EmployeeJournalFactory { get; }
-		public ISubdivisionJournalFactory SubdivisionJournalFactory { get; }
 
 		#endregion Entries
 

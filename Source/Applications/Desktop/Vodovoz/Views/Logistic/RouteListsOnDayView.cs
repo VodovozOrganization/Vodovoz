@@ -1220,7 +1220,7 @@ namespace Vodovoz.Views.Logistic
 				return;
 			}
 			
-			var filter = new CarJournalFilterViewModel(ViewModel.CarModelJournalFactory);
+			var filter = new CarJournalFilterViewModel(ViewModel.LifetimeScope, ViewModel.CarModelJournalFactory);
 			filter.SetAndRefilterAtOnce(
 				x => x.Archive = false,
 				x => x.RestrictedCarOwnTypes = new List<CarOwnType> { CarOwnType.Company }

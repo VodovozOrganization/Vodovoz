@@ -2,10 +2,10 @@
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Journal;
 using QS.Project.Services.FileDialog;
 using QS.Services;
-using QS.Tdi;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -14,45 +14,32 @@ using System.Linq;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.EntityRepositories;
 using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.Services;
-using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz.ViewModels.Complaints
 {
 	public class ComplaintDiscussionsViewModel : EntityWidgetViewModelBase<Complaint>
 	{
-		private readonly ITdiTab _dialogTab;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly IEmployeeService _employeeService;
-		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
-		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 		private readonly IUserRepository _userRepository;
-		private readonly ILifetimeScope _scope;
+		private readonly INavigationManager _navigationManager;
 
 		public ComplaintDiscussionsViewModel(
 			Complaint entity,
-			ITdiTab dialogTab,
 			IUnitOfWork uow,
 			IFileDialogService fileDialogService,
 			IEmployeeService employeeService,
 			ICommonServices commonServices,
-			IEmployeeJournalFactory employeeJournalFactory,
-			ISalesPlanJournalFactory salesPlanJournalFactory,
-			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			IUserRepository userRepository,
-			ILifetimeScope scope) : base(entity, commonServices)
+			INavigationManager navigationManager) : base(entity, commonServices)
 		{
-			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			_dialogTab = dialogTab ?? throw new ArgumentNullException(nameof(dialogTab));
-			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
-			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
+			_navigationManager = navigationManager;
 
 			UoW = uow;
 			CreateCommands();
@@ -134,27 +121,19 @@ namespace Vodovoz.ViewModels.Complaints
 			AttachSubdivisionCommand = new DelegateCommand(
 				() => {
 					var filter = new SubdivisionFilterViewModel();
-					filter.ExcludedSubdivisions = Entity.ObservableComplaintDiscussions.Select(x => x.Subdivision.Id).ToArray();
-					var subdivisionSelector = new SubdivisionsJournalViewModel(
-						filter,
-						UnitOfWorkFactory.GetDefaultFactory,
-						CommonServices,
-						_employeeJournalFactory,
-						_salesPlanJournalFactory,
-						_nomenclatureSelectorFactory,
-						_scope.BeginLifetimeScope()
-					) {
-						SelectionMode = JournalSelectionMode.Single
-					};
-					subdivisionSelector.OnEntitySelectedResult += (sender, e) => {
-						var selectedNode = e.SelectedNodes.FirstOrDefault();
-						if(selectedNode == null) {
-							return;
-						}
-						Subdivision subdivision = UoW.GetById<Subdivision>(selectedNode.Id);
+					filter.ExcludedSubdivisionsIds = Entity.ObservableComplaintDiscussions.Select(x => x.Subdivision.Id).ToArray();
+
+					var page = _navigationManager.OpenViewModel<SubdivisionsJournalViewModel>(null);
+
+					page.ViewModel.SelectionMode = JournalSelectionMode.Single;
+
+					page.ViewModel.OnSelectResult += (s, e) =>
+					{
+						SubdivisionJournalNode selected = e.SelectedObjects.Where(x => x is SubdivisionJournalNode).Select(x => (x as SubdivisionJournalNode)).FirstOrDefault();
+
+						Subdivision subdivision = UoW.GetById<Subdivision>(selected.Id);
 						Entity.AttachSubdivisionToDiscussions(subdivision);
 					};
-					_dialogTab.TabParent.AddSlaveTab(_dialogTab, subdivisionSelector);
 				},
 				() => CanAttachSubdivision
 			);

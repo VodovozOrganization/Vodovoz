@@ -1,4 +1,7 @@
-﻿namespace Vodovoz.Settings.Database
+﻿using System;
+using System.Linq;
+
+namespace Vodovoz.Settings.Database
 {
 	public static class StringExtensions
 	{
@@ -17,6 +20,17 @@
 			}
 
 			return result;
+		}
+
+		public static int[] FromStringToIntArray(this string sentence)
+		{
+			var splittedValues = sentence.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+
+			var values = splittedValues
+				.Select(x => int.Parse(x.Trim()))
+				.ToArray();
+
+			return values;
 		}
 	}
 }

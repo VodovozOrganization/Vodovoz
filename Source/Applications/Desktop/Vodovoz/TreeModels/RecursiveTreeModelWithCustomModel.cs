@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -332,7 +332,7 @@ namespace Gamma.Binding
 		private IList GetChildsList(TreeIter iter)
 		{
 			var node = NodeFromIter(iter);
-			return GetConfig(node).GetChilds(node);
+			return GetConfig(node)?.GetChilds(node);
 		}
 
 		private object GetLevelNode(object parentNode, TreePath aPath, int level)
@@ -353,7 +353,7 @@ namespace Gamma.Binding
 		}
 
 		private IModelConfig GetConfig(object node) {
-			return 	_modelConfig.SingleOrDefault(x => x.Type == node.GetType());
+			return 	_modelConfig.SingleOrDefault(x => x.Type == node?.GetType());
 		}
 
 		#endregion

@@ -6,7 +6,6 @@ using Vodovoz.Domain.Fuel;
 using QS.ViewModels;
 using QS.Commands;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.EntityRepositories.Subdivisions;
 using QS.DomainModel.Entity;
 using QS.DomainModel.NotifyChange;
@@ -14,11 +13,11 @@ using Vodovoz.EntityRepositories.Fuel;
 using QS.Project.Domain;
 using QS.Services;
 using QS.DomainModel.UoW;
-using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.Services;
+using Autofac;
 
 namespace Vodovoz.ViewModels.Dialogs.Fuel
 {
@@ -30,6 +29,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 		private readonly IEmployeeJournalFactory employeeJournalFactory;
 		private readonly ICarJournalFactory carJournalFactory;
 		private readonly IReportViewOpener reportViewOpener;
+		private readonly ILifetimeScope _lifetimeScope;
 
 		public FuelTransferDocumentViewModel(
 			IEntityUoWBuilder uoWBuilder,
@@ -40,7 +40,8 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 			ICommonServices commonServices,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICarJournalFactory carJournalFactory,
-			IReportViewOpener reportViewOpener
+			IReportViewOpener reportViewOpener,
+			ILifetimeScope lifetimeScope
 			) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -49,6 +50,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 			this.employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			this.carJournalFactory = carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory));
 			this.reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			TabName = "Документ перемещения топлива";
 
 			if(CurrentEmployee == null) {
@@ -141,7 +143,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 		private void ConfigureEntries()
 		{
 			DriverSelectorFactory = employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
-			CarSelectorFactory = carJournalFactory.CreateCarAutocompleteSelectorFactory();
+			CarSelectorFactory = carJournalFactory.CreateCarAutocompleteSelectorFactory(_lifetimeScope);
 		}
 		
 		public IEntityAutocompleteSelectorFactory DriverSelectorFactory;

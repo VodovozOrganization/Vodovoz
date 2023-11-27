@@ -12,7 +12,7 @@ namespace Vodovoz.Views.Employees
 	{
 		public FineView(FineViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 			ConfigureDlg();
 		}
 
@@ -42,14 +42,7 @@ namespace Vodovoz.Views.Employees
 				.AddBinding(ViewModel.Entity, e => e.Author, w => w.LabelProp, new EmployeeToLastNameWithInitialsConverter())
 				.InitializeFromSource();
 
-			var filterRouteList = new RouteListsFilter(ViewModel.UoW);
-			filterRouteList.SetFilterDates(DateTime.Today.AddDays(-7), DateTime.Today.AddDays(1));
-			yentryreferenceRouteList.RepresentationModel = new ViewModel.RouteListsVM(filterRouteList);
-			yentryreferenceRouteList.Binding
-				.AddSource(ViewModel)
-				.AddBinding(vm => vm.RouteList, w => w.Subject)
-				.AddBinding(vm => vm.CanEdit, w => w.Sensitive)
-				.InitializeFromSource();
+			entryRouteList.ViewModel = ViewModel.RouteListViewModel;
 
 			ylabelDate.Binding
 				.AddFuncBinding(ViewModel.Entity, e => e.Date.ToString("D"), w => w.LabelProp)

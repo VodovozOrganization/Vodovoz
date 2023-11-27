@@ -1,4 +1,5 @@
-﻿using QS.Commands;
+﻿using Autofac;
+using QS.Commands;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -66,8 +67,14 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			ITrackRepository trackRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
-			ICarJournalFactory carJournalFactory) : base(commonServices?.InteractiveService, navigationManager)
+			ICarJournalFactory carJournalFactory,
+			ILifetimeScope lifetimeScope) : base(commonServices?.InteractiveService, navigationManager)
 		{
+			if(lifetimeScope is null)
+			{
+				throw new ArgumentNullException(nameof(lifetimeScope));
+			}
+
 			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			SubdivisionsRepository = subdivisionsRepository ?? throw new ArgumentNullException(nameof(subdivisionsRepository));
 			FuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
@@ -79,7 +86,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
 			CarAutocompleteSelector =
 				(carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory)))
-				.CreateCarAutocompleteSelectorFactory();
+				.CreateCarAutocompleteSelectorFactory(lifetimeScope);
 
 			UoW = uow;
 			FuelDocument = new FuelDocument();
@@ -102,8 +109,14 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			ITrackRepository trackRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
-			ICarJournalFactory carJournalFactory) : base(commonServices?.InteractiveService, navigationManager)
+			ICarJournalFactory carJournalFactory,
+			ILifetimeScope lifetimeScope) : base(commonServices?.InteractiveService, navigationManager)
 		{
+			if(lifetimeScope is null)
+			{
+				throw new ArgumentNullException(nameof(lifetimeScope));
+			}
+
 			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			SubdivisionsRepository = subdivisionsRepository ?? throw new ArgumentNullException(nameof(subdivisionsRepository));
 			FuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
@@ -115,7 +128,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
 			CarAutocompleteSelector =
 				(carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory)))
-				.CreateCarAutocompleteSelectorFactory();
+				.CreateCarAutocompleteSelectorFactory(lifetimeScope);
 
 			UoW = uow;
 			FuelDocument = uow.GetById<FuelDocument>(fuelDocument.Id);
@@ -140,8 +153,14 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			ITrackRepository trackRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
-			ICarJournalFactory carJournalFactory) : base(commonServices?.InteractiveService, navigationManager)
+			ICarJournalFactory carJournalFactory,
+			ILifetimeScope lifetimeScope) : base(commonServices?.InteractiveService, navigationManager)
 		{
+			if(lifetimeScope is null)
+			{
+				throw new ArgumentNullException(nameof(lifetimeScope));
+			}
+
 			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			SubdivisionsRepository = subdivisionsRepository ?? throw new ArgumentNullException(nameof(subdivisionsRepository));
 			FuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
@@ -153,7 +172,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
 			CarAutocompleteSelector =
 				(carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory)))
-				.CreateCarAutocompleteSelectorFactory();
+				.CreateCarAutocompleteSelectorFactory(lifetimeScope);
 
 			var uow = UnitOfWorkFactory.CreateWithNewRoot<FuelDocument>();
 			UoW = uow;
@@ -180,8 +199,15 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			ITrackRepository trackRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
-			ICarJournalFactory carJournalFactory) : base(commonServices?.InteractiveService, navigationManager)
+			ICarJournalFactory carJournalFactory,
+			ILifetimeScope lifetimeScope)
+			: base(commonServices?.InteractiveService, navigationManager)
 		{
+			if(lifetimeScope is null)
+			{
+				throw new ArgumentNullException(nameof(lifetimeScope));
+			}
+
 			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			SubdivisionsRepository = subdivisionsRepository ?? throw new ArgumentNullException(nameof(subdivisionsRepository));
 			FuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
@@ -193,7 +219,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
 			CarAutocompleteSelector =
 				(carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory)))
-				.CreateCarAutocompleteSelectorFactory();
+				.CreateCarAutocompleteSelectorFactory(lifetimeScope);
 
 			var uow = entityUoWBuilder.CreateUoW<FuelDocument>(unitOfWorkFactory);
 			UoW = uow;

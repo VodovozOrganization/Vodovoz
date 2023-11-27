@@ -2,25 +2,24 @@
 using QS.Navigation;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Journal;
-using QS.Project.Services;
 using System;
-using Vodovoz;
+using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels;
-using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ReportsParameters.Logistic;
 using Vodovoz.Representations;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Accounting;
 using Vodovoz.ViewModels.Dialogs.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
+using Vodovoz.ViewModels.Logistic;
 
 public partial class MainWindow
 {
@@ -133,6 +132,44 @@ public partial class MainWindow
 		SwitchToUI("Vodovoz.toolbars.suppliers.xml");
 	}
 
+	#region Логистика
+
+	/// <summary>
+	/// Журнал МЛ
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	private void ActionRouteListTable_Activated(object sender, System.EventArgs e)
+	{
+		var filter = new RouteListJournalFilterViewModel();
+		filter.StartDate = DateTime.Today.AddMonths(-2);
+		filter.EndDate = DateTime.Today;
+
+		NavigationManager.OpenViewModel<RouteListJournalViewModel, RouteListJournalFilterViewModel>(null, filter);
+	}
+
+	/// <summary>
+	/// На работе
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	private void ActionAtWorks_Activated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenTdiTab<AtWorksDlg>(null);
+	}
+
+	/// <summary>
+	/// Формирование МЛ
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	void ActionRouteListsAtDay_Activated(object sender, System.EventArgs e)
+	{
+		NavigationManager.OpenViewModel<RouteListsOnDayViewModel>(null);
+	}
+
+	#endregion Логистика
+
 	protected void OnActionComplaintsActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<ComplaintsJournalsViewModel>(null, OpenPageOptions.IgnoreHash);
@@ -189,7 +226,7 @@ public partial class MainWindow
 
 	protected void OnActionRetailComplaintsJournalActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<ComplaintsJournalViewModel, Action<ComplaintFilterViewModel>>(
+		NavigationManager.OpenViewModel<ComplaintsJournalsViewModel, Action<ComplaintFilterViewModel>>(
 			null,
 			filter => filter.IsForRetail = true,
 			OpenPageOptions.IgnoreHash);
@@ -207,15 +244,10 @@ public partial class MainWindow
 
 	protected void OnActionRetailOrdersJournalActivated(object sender, EventArgs e)
 	{
-		var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
-		var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
-		var employeeJournalFactory = new EmployeeJournalFactory();
-
-		var orderJournalFilter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, employeeJournalFactory)
+		NavigationManager.OpenViewModel<RetailOrderJournalViewModel, Action<OrderJournalFilterViewModel>>(null, filter =>
 		{
-			IsForRetail = true
-		};
-		NavigationManager.OpenViewModel<RetailOrderJournalViewModel, OrderJournalFilterViewModel>(null, orderJournalFilter);
+			filter.IsForRetail = true;
+		});
 	}
 
 	#region Заказы
@@ -227,16 +259,15 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnUndeliveredOrdersActionActivated(object sender, EventArgs e)
 	{
-		var undeliveredOrdersFilter = new UndeliveredOrdersFilterViewModel(ServicesConfig.CommonServices, new OrderSelectorFactory(),
-			new EmployeeJournalFactory(), new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
-			new DeliveryPointJournalFactory(), new SubdivisionJournalFactory())
-		{
-			HidenByDefault = true,
-			RestrictUndeliveryStatus = UndeliveryStatus.InProcess,
-			RestrictNotIsProblematicCases = true
-		};
-
-		NavigationManager.OpenViewModel<UndeliveredOrdersJournalViewModel, UndeliveredOrdersFilterViewModel>(null, undeliveredOrdersFilter, OpenPageOptions.IgnoreHash);
+		NavigationManager.OpenViewModel<UndeliveredOrdersJournalViewModel, Action<UndeliveredOrdersFilterViewModel>>(
+			null,
+			filter =>
+			{
+				filter.HidenByDefault = true;
+				filter.RestrictUndeliveryStatus = UndeliveryStatus.InProcess;
+				filter.RestrictNotIsProblematicCases = true;
+			},
+			OpenPageOptions.IgnoreHash);
 	}
 
 	#endregion

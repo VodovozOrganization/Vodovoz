@@ -25,6 +25,7 @@ using QS.Services;
 using QS.Utilities.Numeric;
 using System.Linq;
 using System.Reflection;
+using CustomerAppsApi.HealthChecks;
 using Vodovoz.Controllers;
 using Vodovoz.Controllers.ContactsForExternalCounterparty;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
@@ -41,6 +42,7 @@ using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Settings;
 using Vodovoz.Settings.Database;
+using VodovozHealthCheck;
 using VodovozInfrastructure.Cryptography;
 using UserRepository = QS.Project.Repositories.UserRepository;
 
@@ -72,6 +74,10 @@ namespace CustomerAppsApi
 				});
 
 			RegisterDependencies(services);
+
+			services.ConfigureHealthCheckService<CustomerAppsApiHealthCheck>();
+			services.AddHttpClient();
+
 			CreateBaseConfig();
 		}
 
@@ -150,6 +156,8 @@ namespace CustomerAppsApi
 			app.UseRouting();
 
 			app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+
+			app.ConfigureHealthCheckApplicationBuilder();
 		}
 		
 		private void CreateBaseConfig()

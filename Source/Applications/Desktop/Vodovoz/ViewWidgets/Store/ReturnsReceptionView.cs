@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Autofac;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.Entity;
@@ -24,7 +25,6 @@ using Vodovoz.Parameters;
 using Vodovoz.Repository.Store;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 
 namespace Vodovoz
@@ -32,6 +32,7 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ReturnsReceptionView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		GenericObservableList<ReceptionItemNode> ReceptionReturnsList = new GenericObservableList<ReceptionItemNode>();
 		private readonly ITerminalNomenclatureProvider _terminalNomenclatureProvider;
 		private readonly ISubdivisionRepository _subdivisionRepository;
@@ -305,7 +306,7 @@ namespace Vodovoz
 					.Where(c => c != NomenclatureCategory.bottle && c != NomenclatureCategory.equipment)
 					.ToArray();
 
-			var nomenclatureJournalFactory = new NomenclatureJournalFactory();
+			var nomenclatureJournalFactory = new NomenclatureJournalFactory(_lifetimeScope);
 			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel(filter, true);
 			journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult;
 
@@ -339,6 +340,13 @@ namespace Vodovoz
 					continue;
 				ReceptionReturnsList.Add(new ReceptionItemNode(nomenclature, 0));
 			}
+		}
+
+		public override void Destroy()
+		{
+			base.Destroy();
+			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
 		}
 	}
 

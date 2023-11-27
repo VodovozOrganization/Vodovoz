@@ -12,10 +12,10 @@ using Vodovoz.Services;
 namespace Vodovoz.Domain.Orders
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "рекламные наборы",
-		Nominative = "рекламный набор",
-		Prepositional = "рекламном наборе",
-		PrepositionalPlural = "рекламных наборах"
+		NominativePlural = "промонаборы",
+		Nominative = "промонабор",
+		Prepositional = "промонаборе",
+		PrepositionalPlural = "промонаборах"
 	)]
 	[HistoryTrace]
 	[EntityPermission]
@@ -123,8 +123,8 @@ namespace Vodovoz.Domain.Orders
 
 		#endregion
 
-		public virtual string Title => $"Рекламный набор №{Id} \"{Name}\"";
-		public virtual string ShortTitle => $"Промо-набор \"{Name}\"";
+		public virtual string Title => string.Format("Промонабор №{0} \"{1}\"", Id, Name);
+		public virtual string ShortTitle => string.Format("Промонабор \"{0}\"", Name);
 
 		#region IValidatableObject implementation
 

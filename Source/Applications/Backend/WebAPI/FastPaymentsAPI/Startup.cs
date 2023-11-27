@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Reflection;
+using FastPaymentsAPI.HealthChecks;
 using FastPaymentsAPI.Library.ApiClients;
 using FastPaymentsAPI.Library.Converters;
 using FastPaymentsAPI.Library.Factories;
@@ -39,6 +40,7 @@ using Vodovoz.Settings;
 using Vodovoz.Settings.Database;
 using Vodovoz.Settings.FastPayments;
 using VodovozInfrastructure.Cryptography;
+using VodovozHealthCheck;
 
 namespace FastPaymentsAPI
 {
@@ -154,6 +156,8 @@ namespace FastPaymentsAPI
 			services.AddSingleton<IErrorHandler, ErrorHandler>();
 			services.AddSingleton(_ => new FastPaymentFileCache("/tmp/VodovozFastPaymentServiceTemp.txt"));
 			services.AddScoped<IOrderRequestManager, OrderRequestManager>();
+
+			services.ConfigureHealthCheckService<FastPaymentsHealthCheck>();
 		}
 		
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -184,6 +188,8 @@ namespace FastPaymentsAPI
 				name: "default",
 				pattern: "{controller=Home}/{action=Index}/{id?}");
 			});
+
+			app.ConfigureHealthCheckApplicationBuilder();
 		}
 
 		private void CreateBaseConfig()
