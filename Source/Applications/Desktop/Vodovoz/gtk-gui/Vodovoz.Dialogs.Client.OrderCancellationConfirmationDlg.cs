@@ -57,7 +57,7 @@ namespace Vodovoz.Dialogs.Client
 			// Container child yvboxConfirmationQuestion.Gtk.Box+BoxChild
 			this.ylabelConfimationQuestion = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelConfimationQuestion.Name = "ylabelConfimationQuestion";
-			this.ylabelConfimationQuestion.Ypad = 3;
+			this.ylabelConfimationQuestion.Ypad = 6;
 			this.ylabelConfimationQuestion.Xalign = 0F;
 			this.ylabelConfimationQuestion.LabelProp = global::Mono.Unix.Catalog.GetString("Хотите ли вы сохранить заказ? ");
 			this.yvboxConfirmationQuestion.Add(this.ylabelConfimationQuestion);
