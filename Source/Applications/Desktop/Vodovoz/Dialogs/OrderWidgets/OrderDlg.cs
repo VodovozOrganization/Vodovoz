@@ -2765,36 +2765,16 @@ namespace Vodovoz
 						f.RestrictCategory = NomenclatureCategory.master;
 						f.RestrictArchive = false;
 					},
-					OpenPageOptions.AsSlave)
+					OpenPageOptions.AsSlave,
+					vm =>
+					{
+						vm.SelectionMode = JournalSelectionMode.Single;
+						vm.AdditionalJournalRestriction = new NomenclaturesForOrderJournalRestriction(ServicesConfig.CommonServices);
+						vm.TabName = "Выезд мастера";
+						vm.CalculateQuantityOnStock = true;
+					})
 				.ViewModel;
-
-			journalViewModel.SelectionMode = JournalSelectionMode.Single;
-			journalViewModel.AdditionalJournalRestriction = new NomenclaturesForOrderJournalRestriction(ServicesConfig.CommonServices);
-			journalViewModel.TabName = "Выезд мастера";
-			journalViewModel.CalculateQuantityOnStock = true;
-			/*var nomenclatureFilter = new NomenclatureFilterViewModel();
-			nomenclatureFilter.SetAndRefilterAtOnce(
-				x => x.AvailableCategories = new[] { NomenclatureCategory.master },
-				x => x.RestrictCategory = NomenclatureCategory.master,
-				x => x.RestrictArchive = false
-			);
-
-			NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
-				nomenclatureFilter,
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices,
-				_employeeService,
-				new NomenclatureJournalFactory(_lifetimeScope),
-				CounterpartySelectorFactory,
-				NomenclatureRepository,
-				_userRepository,
-				_nomenclatureSettings
-			) {
-				SelectionMode = JournalSelectionMode.Single,
-			};
-			journalViewModel.AdditionalJournalRestriction = new NomenclaturesForOrderJournalRestriction(ServicesConfig.CommonServices);
-			journalViewModel.TabName = "Выезд мастера";
-			journalViewModel.CalculateQuantityOnStock = true;*/
+			
 			journalViewModel.OnEntitySelectedResult += (s, ea) =>
 			{
 				var selectedNode = ea.SelectedNodes.FirstOrDefault();
@@ -2806,7 +2786,6 @@ namespace Vodovoz
 
 				TryAddNomenclature(UoWGeneric.Session.Get<Nomenclature>(selectedNode.Id));
 			};
-			//this.TabParent.AddSlaveTab(this, journalViewModel);
 		}
 
 		protected void OnButtonAddForSaleClicked(object sender, EventArgs e)
@@ -2832,38 +2811,16 @@ namespace Vodovoz
 						f.SelectSaleCategory = SaleCategory.forSale;
 						f.RestrictArchive = false;
 					},
-					OpenPageOptions.AsSlave)
+					OpenPageOptions.AsSlave,
+					vm =>
+					{
+						vm.SelectionMode = JournalSelectionMode.Single;
+						vm.AdditionalJournalRestriction = new NomenclaturesForOrderJournalRestriction(ServicesConfig.CommonServices);
+						vm.TabName = "Номенклатура на продажу";
+						vm.CalculateQuantityOnStock = true;
+					})
 				.ViewModel;
-
-			journalViewModel.SelectionMode = JournalSelectionMode.Single;
-			journalViewModel.AdditionalJournalRestriction = new NomenclaturesForOrderJournalRestriction(ServicesConfig.CommonServices);
-			journalViewModel.TabName = "Номенклатура на продажу";
-			journalViewModel.CalculateQuantityOnStock = true;
 			
-			/*var nomenclatureFilter = new NomenclatureFilterViewModel();
-			nomenclatureFilter.SetAndRefilterAtOnce(
-				x => x.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder(),
-				x => x.SelectCategory = defaultCategory,
-				x => x.SelectSaleCategory = SaleCategory.forSale,
-				x => x.RestrictArchive = false
-			);
-
-			NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
-				nomenclatureFilter,
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices,
-				_employeeService,
-				new NomenclatureJournalFactory(_lifetimeScope),
-				CounterpartySelectorFactory,
-				NomenclatureRepository,
-				_userRepository,
-				_nomenclatureSettings
-			) {
-				SelectionMode = JournalSelectionMode.Single,
-			};
-			journalViewModel.AdditionalJournalRestriction = new NomenclaturesForOrderJournalRestriction(ServicesConfig.CommonServices);
-			journalViewModel.TabName = "Номенклатура на продажу";
-			journalViewModel.CalculateQuantityOnStock = true;*/
 			journalViewModel.OnEntitySelectedResult += (s, ea) =>
 			{
 				var selectedNode = ea.SelectedNodes.FirstOrDefault();
@@ -2874,7 +2831,6 @@ namespace Vodovoz
 
 				TryAddNomenclature(UoWGeneric.Session.Get<Nomenclature>(selectedNode.Id));
 			};
-			//this.TabParent.AddSlaveTab(this, journalViewModel);
 		}
 
 		#region Промонаборы
@@ -2960,76 +2916,6 @@ namespace Vodovoz
 
 				OnFormOrderActions();
 			}
-		}
-
-		protected void OnButtonbuttonAddEquipmentToClientClicked(object sender, EventArgs e)
-		{
-			if(!CanAddNomenclaturesToOrder())
-				return;
-
-			var filter = new NomenclatureFilterViewModel();
-			filter.SetAndRefilterAtOnce(
-				x => x.AvailableCategories = Nomenclature.GetCategoriesForGoods(),
-				x => x.SelectCategory = NomenclatureCategory.equipment
-			);
-
-			var nomenclatureJournalFactory = new NomenclatureJournalFactory(_lifetimeScope);
-			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel();
-			journal.FilterViewModel = filter;
-			journal.OnEntitySelectedResult += OnAddNomenclatureToClient;
-			journal.Title = "Оборудование к клиенту";
-			TabParent.AddSlaveTab(this, journal);
-		}
-
-		private void OnAddNomenclatureToClient(object sender, JournalSelectedNodesEventArgs e)
-		{
-			var selectedNode = e.SelectedNodes.FirstOrDefault();
-			if(selectedNode == null)
-			{
-				return;
-			}
-			var nomenclature = UoWGeneric.Session.Get<Nomenclature>(selectedNode.Id);
-			AddNomenclatureToClient(nomenclature);
-		}
-
-		void AddNomenclatureToClient(Nomenclature nomenclature)
-		{
-			Entity.AddEquipmentNomenclatureToClient(nomenclature, UoWGeneric);
-		}
-
-		protected void OnButtonAddEquipmentFromClientClicked(object sender, EventArgs e)
-		{
-			if(!CanAddNomenclaturesToOrder())
-				return;
-
-			var filter = new NomenclatureFilterViewModel();
-			filter.SetAndRefilterAtOnce(
-				x => x.AvailableCategories = Nomenclature.GetCategoriesForGoods(),
-				x => x.SelectCategory = NomenclatureCategory.equipment
-			);
-
-			var nomenclatureJournalFactory = new NomenclatureJournalFactory(_lifetimeScope);
-			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel();
-			journal.FilterViewModel = filter;
-			journal.OnEntitySelectedResult += OnAddNomenclatureFromClient;
-			journal.Title = "Оборудование от клиента";
-			TabParent.AddSlaveTab(this, journal);
-		}
-
-		private void OnAddNomenclatureFromClient(object sender, JournalSelectedNodesEventArgs e)
-		{
-			var selectedNode = e.SelectedNodes.FirstOrDefault();
-			if(selectedNode == null)
-			{
-				return;
-			}
-			var nomenclature = UoWGeneric.Session.Get<Nomenclature>(selectedNode.Id);
-			AddNomenclatureFromClient(nomenclature);
-		}
-
-		void AddNomenclatureFromClient(Nomenclature nomenclature)
-		{
-			Entity.AddEquipmentNomenclatureFromClient(nomenclature, UoWGeneric);
 		}
 
 		public void FillOrderItems(Order order)

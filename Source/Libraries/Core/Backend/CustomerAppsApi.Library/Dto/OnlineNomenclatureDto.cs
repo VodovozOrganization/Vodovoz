@@ -41,7 +41,7 @@ namespace CustomerAppsApi.Library.Dto
 		[JsonConverter(typeof(JsonStringEnumConverter))]
 		public TapType? TapType { get; set; }
 		[JsonConverter(typeof(JsonStringEnumConverter))]
-		public BracingTypeForCupHolder? BracingTypeForCupHolder { get; set; }
+		public GlassHolderType? GlassHolderType { get; set; }
 
 		public static OnlineNomenclatureDto Create(OnlineNomenclatureNode node)
 		{
@@ -71,7 +71,7 @@ namespace CustomerAppsApi.Library.Dto
 				LockerRefrigeratorType = node.LockerRefrigeratorType,
 				LockerRefrigeratorVolume = node.LockerRefrigeratorVolume,
 				TapType = node.TapType,
-				BracingTypeForCupHolder = node.BracingTypeForCupHolder
+				GlassHolderType = node.GlassHolderType
 			};
 		}
 	}

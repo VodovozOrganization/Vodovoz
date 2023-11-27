@@ -70,7 +70,7 @@ namespace Vodovoz.Representations
 
 			if(filterConfig != null)
 			{
-				filterViewModel.SetAndRefilterAtOnce(filterConfig);
+				filterViewModel.ConfigureWithoutFiltering(filterConfig);
 			}
 
 			SetOrder(x => x.Date, true);

@@ -88,7 +88,6 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods
 			Map(x => x.LockerRefrigeratorType).Column("locker_refrigerator_type");
 			Map(x => x.LockerRefrigeratorVolume).Column("locker_refrigerator_volume");
 			Map(x => x.TapType).Column("tap_type");
-			Map(x => x.BracingTypeForCupHolder).Column("bracing_type_for_cup_holder");
 
 			Map(x => x.StorageCell).Column("storage_cell");
 

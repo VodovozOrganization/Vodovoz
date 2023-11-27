@@ -29,6 +29,6 @@ namespace Vodovoz.Nodes
 		public LockerRefrigeratorType? LockerRefrigeratorType { get; set; }
 		public int? LockerRefrigeratorVolume { get; set; }
 		public TapType? TapType { get; set; }
-		public BracingTypeForCupHolder? BracingTypeForCupHolder { get; set; }
+		public GlassHolderType? GlassHolderType { get; set; }
 	}
 }

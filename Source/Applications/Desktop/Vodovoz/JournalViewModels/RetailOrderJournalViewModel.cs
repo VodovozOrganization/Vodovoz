@@ -111,7 +111,7 @@ namespace Vodovoz.JournalViewModels
 
 			if(filterConfig != null)
 			{
-				FilterViewModel.SetAndRefilterAtOnce(filterConfig);
+				FilterViewModel.ConfigureWithoutFiltering(filterConfig);
 			}
 		}
 		

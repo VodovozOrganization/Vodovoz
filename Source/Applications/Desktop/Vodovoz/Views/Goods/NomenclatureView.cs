@@ -829,10 +829,11 @@ namespace Vodovoz.Views.Goods
 				.InitializeFromSource();
 			
 			enumCmbCupHolderBracing.ShowSpecialStateNot = true;
-			enumCmbCupHolderBracing.ItemsEnum = typeof(BracingTypeForCupHolder);
+			enumCmbCupHolderBracing.Sensitive = false;
+			enumCmbCupHolderBracing.ItemsEnum = typeof(GlassHolderType);
 			enumCmbCupHolderBracing.Binding
 				.AddBinding(ViewModel, vm => vm.IsWaterCoolerParameters, w => w.Visible)
-				.AddBinding(ViewModel.Entity, e => e.BracingTypeForCupHolder, w => w.SelectedItemOrNull)
+				.AddBinding(ViewModel.Entity, e => e.GlassHolderType, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 
 			vboxPumpOnlineParameters.Binding

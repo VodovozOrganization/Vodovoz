@@ -458,7 +458,7 @@ namespace Vodovoz.EntityRepositories.Goods
 				.Select(n => n.LockerRefrigeratorType).WithAlias(() => resultAlias.LockerRefrigeratorType)
 				.Select(n => n.LockerRefrigeratorVolume).WithAlias(() => resultAlias.LockerRefrigeratorVolume)
 				.Select(n => n.TapType).WithAlias(() => resultAlias.TapType)
-				.Select(n => n.BracingTypeForCupHolder).WithAlias(() => resultAlias.BracingTypeForCupHolder);
+				.Select(n => n.GlassHolderType).WithAlias(() => resultAlias.GlassHolderType);
 
 			switch(parameterType)
 			{

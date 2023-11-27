@@ -794,7 +794,10 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionCameFromActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<ClientCameFromJournalViewModel, Action<ClientCameFromFilterViewModel>>(null, filter => filter.HidenByDefault = true, OpenPageOptions.IgnoreHash);
+		NavigationManager.OpenViewModel<ClientCameFromJournalViewModel, Action<ClientCameFromFilterViewModel>>(
+			null,
+			filter => filter.HidenByDefault = true,
+			OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>

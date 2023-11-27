@@ -59,7 +59,6 @@ namespace Vodovoz.Domain.Goods
 		private LockerRefrigeratorType? _lockerRefrigeratorType;
 		private int? _lockerRefrigeratorVolume;
 		private TapType? _tapType;
-		private BracingTypeForCupHolder? _bracingTypeForCupHolder;
 		private bool _isSparklingWater;
 		
 		private int _id;
@@ -1025,13 +1024,6 @@ namespace Vodovoz.Domain.Goods
 			get => _tapType;
 			set => SetField(ref _tapType, value);
 		}
-		
-		[Display(Name = "Крепление для стаканодержателя")]
-		public virtual BracingTypeForCupHolder? BracingTypeForCupHolder
-		{
-			get => _bracingTypeForCupHolder;
-			set => SetField(ref _bracingTypeForCupHolder, value);
-		}
 
 		[Display(Name = "Газированная вода?")]
 		public virtual bool IsSparklingWater
@@ -1475,7 +1467,6 @@ namespace Vodovoz.Domain.Goods
 			LockerRefrigeratorType = null;
 			LockerRefrigeratorVolume = null;
 			TapType = null;
-			BracingTypeForCupHolder = null;
 		}
 		
 		public virtual void ResetNotKulerOnlineParameters()
@@ -1492,7 +1483,6 @@ namespace Vodovoz.Domain.Goods
 			LockerRefrigeratorType = null;
 			LockerRefrigeratorVolume = null;
 			TapType = null;
-			BracingTypeForCupHolder = null;
 		}
 		
 		public virtual void ResetNotWaterPumpOnlineParameters()
@@ -1512,7 +1502,6 @@ namespace Vodovoz.Domain.Goods
 			LockerRefrigeratorType = null;
 			LockerRefrigeratorVolume = null;
 			TapType = null;
-			BracingTypeForCupHolder = null;
 		}
 		
 		public virtual void ResetNotCupHolderOnlineParameters()
@@ -1532,7 +1521,6 @@ namespace Vodovoz.Domain.Goods
 			LockerRefrigeratorType = null;
 			LockerRefrigeratorVolume = null;
 			TapType = null;
-			BracingTypeForCupHolder = null;
 		}
 
 		public virtual void ResetCoolingParameters()
@@ -1589,21 +1577,6 @@ namespace Vodovoz.Domain.Goods
 		BottleDeposit,
 		[Display(Name = "Залог за оборудование")]
 		EquipmentDeposit
-	}
-	
-	[Appellative(
-		Nominative = "Тип стаканодержателя",
-		NominativePlural = "Типы стаканодержателей")]
-	public enum GlassHolderType
-	{
-		[Display(Name = "Стаканодержатель отсутствует")]
-		None,
-		[Display(Name = "Стаканодержатель На магните")]
-		Magnet,
-		[Display(Name = "Стаканодержатель На шурупах")]
-		Screw,
-		[Display(Name = "Стаканодержатель Универсальный")]
-		Universal
 	}
 }
 

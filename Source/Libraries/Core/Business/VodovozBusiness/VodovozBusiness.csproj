@@ -89,9 +89,9 @@
     <Compile Include="Domain\Client\TaxType.cs" />
     <Compile Include="Domain\Goods\CupHolderBracingType.cs" />
     <Compile Include="Domain\Goods\CoolingType.cs" />
-    <Compile Include="Domain\Goods\BracingTypeForCupHolder.cs" />
     <Compile Include="Domain\Goods\EquipmentInstallationType.cs" />
     <Compile Include="Domain\Goods\EquipmentWorkloadType.cs" />
+    <Compile Include="Domain\Goods\GlassHolderType.cs" />
     <Compile Include="Domain\Goods\KulerSaleWebSiteNomenclatureOnlineCatalog.cs" />
     <Compile Include="Domain\Goods\LockerRefrigeratorType.cs" />
     <Compile Include="Domain\Goods\MobileAppNomenclatureOnlineCatalog.cs" />

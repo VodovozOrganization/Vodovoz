@@ -28,24 +28,20 @@ namespace Vodovoz.TempAdapters
 		public NomenclaturesJournalViewModel CreateNomenclaturesJournalViewModel(
 			NomenclatureFilterViewModel filter = null, bool multiselect = false)
 		{
-			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
-			var userRepository = new UserRepository();
-			var counterpartyJournalFactory = new CounterpartyJournalFactory(_lifetimeScope);
+			NomenclaturesJournalViewModel vm;
 
-			var vm = new NomenclaturesJournalViewModel(
-				filter ?? new NomenclatureFilterViewModel(),
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices,
-				new EmployeeService(),
-				new NomenclatureJournalFactory(_lifetimeScope),
-				counterpartyJournalFactory,
-				nomenclatureRepository,
-				userRepository,
-				_lifetimeScope.Resolve<INomenclatureSettings>(),
-				null
-			);
-
+			if(filter is null)
+			{
+				vm = _lifetimeScope.Resolve<NomenclaturesJournalViewModel>();
+			}
+			else
+			{
+				vm = _lifetimeScope.Resolve<NomenclaturesJournalViewModel>(
+					new TypedParameter(typeof(NomenclatureFilterViewModel), filter));
+			}
+			
 			vm.SelectionMode = multiselect ? JournalSelectionMode.Multiple : JournalSelectionMode.Single;
+			
 			return vm;
 		}
 

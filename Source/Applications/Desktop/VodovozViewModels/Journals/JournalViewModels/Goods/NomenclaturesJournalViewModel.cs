@@ -66,7 +66,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 
 			if(filterParams != null)
 			{
-				FilterViewModel.SetAndRefilterAtOnce(filterParams);
+				FilterViewModel.ConfigureWithoutFiltering(filterParams);
 			}
 
 			UpdateOnChanges(
