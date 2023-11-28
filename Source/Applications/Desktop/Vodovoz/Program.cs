@@ -100,6 +100,7 @@ using Vodovoz.SidePanel.InfoViews;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.Tools.Interactive.ConfirmationQuestion;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Complaints;
@@ -183,6 +184,7 @@ namespace Vodovoz
 					builder.RegisterType<GtkMessageDialogsInteractive>().As<IInteractiveMessage>();
 					builder.RegisterType<GtkQuestionDialogsInteractive>().As<IInteractiveQuestion>();
 					builder.RegisterType<GtkInteractiveService>().As<IInteractiveService>();
+					builder.RegisterType<GtkConfirmationQuestionInteractive>().As<IConfirmationQuestionInteractive>();
 
 					builder.Register(c => ServicesConfig.CommonServices).As<ICommonServices>();
 					builder.Register(с => ServicesConfig.UserService).As<IUserService>();
