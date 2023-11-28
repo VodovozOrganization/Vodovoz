@@ -18,6 +18,8 @@ namespace Vodovoz.Dialogs.Interactive
 
 		private global::Gamma.GtkWidgets.yVBox yvboxQuestions;
 
+		private global::Gamma.GtkWidgets.yLabel ylabelTopText;
+
 		private global::Gamma.GtkWidgets.yVBox yvboxQuestion1;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelQuestion1;
@@ -35,6 +37,8 @@ namespace Vodovoz.Dialogs.Interactive
 		private global::Gamma.GtkWidgets.yLabel ylabelQuestion3;
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonConfirmation3;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelBottomText;
 
 		private global::Gtk.Button buttonYes;
 
@@ -107,20 +111,30 @@ namespace Vodovoz.Dialogs.Interactive
 			this.yvboxQuestions.Name = "yvboxQuestions";
 			this.yvboxQuestions.Spacing = 6;
 			// Container child yvboxQuestions.Gtk.Box+BoxChild
+			this.ylabelTopText = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelTopText.Name = "ylabelTopText";
+			this.ylabelTopText.Xalign = 0F;
+			this.ylabelTopText.LabelProp = global::Mono.Unix.Catalog.GetString("Текст перед вопросами");
+			this.yvboxQuestions.Add(this.ylabelTopText);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.yvboxQuestions[this.ylabelTopText]));
+			w7.Position = 0;
+			w7.Expand = false;
+			w7.Fill = false;
+			// Container child yvboxQuestions.Gtk.Box+BoxChild
 			this.yvboxQuestion1 = new global::Gamma.GtkWidgets.yVBox();
 			this.yvboxQuestion1.Name = "yvboxQuestion1";
 			this.yvboxQuestion1.Spacing = 6;
 			// Container child yvboxQuestion1.Gtk.Box+BoxChild
 			this.ylabelQuestion1 = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelQuestion1.Name = "ylabelQuestion1";
-			this.ylabelQuestion1.Ypad = 6;
+			this.ylabelQuestion1.Ypad = 3;
 			this.ylabelQuestion1.Xalign = 0F;
 			this.ylabelQuestion1.LabelProp = global::Mono.Unix.Catalog.GetString("Вопрос 1");
 			this.yvboxQuestion1.Add(this.ylabelQuestion1);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.yvboxQuestion1[this.ylabelQuestion1]));
-			w7.Position = 0;
-			w7.Expand = false;
-			w7.Fill = false;
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.yvboxQuestion1[this.ylabelQuestion1]));
+			w8.Position = 0;
+			w8.Expand = false;
+			w8.Fill = false;
 			// Container child yvboxQuestion1.Gtk.Box+BoxChild
 			this.ycheckbuttonConfirmation1 = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckbuttonConfirmation1.CanFocus = true;
@@ -129,15 +143,15 @@ namespace Vodovoz.Dialogs.Interactive
 			this.ycheckbuttonConfirmation1.DrawIndicator = true;
 			this.ycheckbuttonConfirmation1.UseUnderline = true;
 			this.yvboxQuestion1.Add(this.ycheckbuttonConfirmation1);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.yvboxQuestion1[this.ycheckbuttonConfirmation1]));
-			w8.Position = 1;
-			w8.Expand = false;
-			w8.Fill = false;
-			this.yvboxQuestions.Add(this.yvboxQuestion1);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.yvboxQuestions[this.yvboxQuestion1]));
-			w9.Position = 0;
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.yvboxQuestion1[this.ycheckbuttonConfirmation1]));
+			w9.Position = 1;
 			w9.Expand = false;
 			w9.Fill = false;
+			this.yvboxQuestions.Add(this.yvboxQuestion1);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.yvboxQuestions[this.yvboxQuestion1]));
+			w10.Position = 1;
+			w10.Expand = false;
+			w10.Fill = false;
 			// Container child yvboxQuestions.Gtk.Box+BoxChild
 			this.yvboxQuestion2 = new global::Gamma.GtkWidgets.yVBox();
 			this.yvboxQuestion2.Name = "yvboxQuestion2";
@@ -145,14 +159,14 @@ namespace Vodovoz.Dialogs.Interactive
 			// Container child yvboxQuestion2.Gtk.Box+BoxChild
 			this.ylabelQuestion2 = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelQuestion2.Name = "ylabelQuestion2";
-			this.ylabelQuestion2.Ypad = 6;
+			this.ylabelQuestion2.Ypad = 3;
 			this.ylabelQuestion2.Xalign = 0F;
 			this.ylabelQuestion2.LabelProp = global::Mono.Unix.Catalog.GetString("Вопрос 2");
 			this.yvboxQuestion2.Add(this.ylabelQuestion2);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.yvboxQuestion2[this.ylabelQuestion2]));
-			w10.Position = 0;
-			w10.Expand = false;
-			w10.Fill = false;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.yvboxQuestion2[this.ylabelQuestion2]));
+			w11.Position = 0;
+			w11.Expand = false;
+			w11.Fill = false;
 			// Container child yvboxQuestion2.Gtk.Box+BoxChild
 			this.ycheckbuttonConfirmation2 = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckbuttonConfirmation2.CanFocus = true;
@@ -161,15 +175,15 @@ namespace Vodovoz.Dialogs.Interactive
 			this.ycheckbuttonConfirmation2.DrawIndicator = true;
 			this.ycheckbuttonConfirmation2.UseUnderline = true;
 			this.yvboxQuestion2.Add(this.ycheckbuttonConfirmation2);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.yvboxQuestion2[this.ycheckbuttonConfirmation2]));
-			w11.Position = 1;
-			w11.Expand = false;
-			w11.Fill = false;
-			this.yvboxQuestions.Add(this.yvboxQuestion2);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.yvboxQuestions[this.yvboxQuestion2]));
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.yvboxQuestion2[this.ycheckbuttonConfirmation2]));
 			w12.Position = 1;
 			w12.Expand = false;
 			w12.Fill = false;
+			this.yvboxQuestions.Add(this.yvboxQuestion2);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.yvboxQuestions[this.yvboxQuestion2]));
+			w13.Position = 2;
+			w13.Expand = false;
+			w13.Fill = false;
 			// Container child yvboxQuestions.Gtk.Box+BoxChild
 			this.yvboxQuestion3 = new global::Gamma.GtkWidgets.yVBox();
 			this.yvboxQuestion3.Name = "yvboxQuestion3";
@@ -177,14 +191,14 @@ namespace Vodovoz.Dialogs.Interactive
 			// Container child yvboxQuestion3.Gtk.Box+BoxChild
 			this.ylabelQuestion3 = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelQuestion3.Name = "ylabelQuestion3";
-			this.ylabelQuestion3.Ypad = 6;
+			this.ylabelQuestion3.Ypad = 3;
 			this.ylabelQuestion3.Xalign = 0F;
 			this.ylabelQuestion3.LabelProp = global::Mono.Unix.Catalog.GetString("Вопрос 3");
 			this.yvboxQuestion3.Add(this.ylabelQuestion3);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.yvboxQuestion3[this.ylabelQuestion3]));
-			w13.Position = 0;
-			w13.Expand = false;
-			w13.Fill = false;
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.yvboxQuestion3[this.ylabelQuestion3]));
+			w14.Position = 0;
+			w14.Expand = false;
+			w14.Fill = false;
 			// Container child yvboxQuestion3.Gtk.Box+BoxChild
 			this.ycheckbuttonConfirmation3 = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckbuttonConfirmation3.CanFocus = true;
@@ -193,31 +207,42 @@ namespace Vodovoz.Dialogs.Interactive
 			this.ycheckbuttonConfirmation3.DrawIndicator = true;
 			this.ycheckbuttonConfirmation3.UseUnderline = true;
 			this.yvboxQuestion3.Add(this.ycheckbuttonConfirmation3);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.yvboxQuestion3[this.ycheckbuttonConfirmation3]));
-			w14.Position = 1;
-			w14.Expand = false;
-			w14.Fill = false;
-			this.yvboxQuestions.Add(this.yvboxQuestion3);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.yvboxQuestions[this.yvboxQuestion3]));
-			w15.Position = 2;
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.yvboxQuestion3[this.ycheckbuttonConfirmation3]));
+			w15.Position = 1;
 			w15.Expand = false;
 			w15.Fill = false;
-			this.yhboxContent.Add(this.yvboxQuestions);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.yhboxContent[this.yvboxQuestions]));
-			w16.Position = 1;
+			this.yvboxQuestions.Add(this.yvboxQuestion3);
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.yvboxQuestions[this.yvboxQuestion3]));
+			w16.Position = 3;
 			w16.Expand = false;
 			w16.Fill = false;
-			w1.Add(this.yhboxContent);
-			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(w1[this.yhboxContent]));
-			w17.Position = 0;
+			// Container child yvboxQuestions.Gtk.Box+BoxChild
+			this.ylabelBottomText = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelBottomText.Name = "ylabelBottomText";
+			this.ylabelBottomText.Xalign = 0F;
+			this.ylabelBottomText.LabelProp = global::Mono.Unix.Catalog.GetString("Текст после вопросов");
+			this.yvboxQuestions.Add(this.ylabelBottomText);
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.yvboxQuestions[this.ylabelBottomText]));
+			w17.PackType = ((global::Gtk.PackType)(1));
+			w17.Position = 4;
 			w17.Expand = false;
 			w17.Fill = false;
+			this.yhboxContent.Add(this.yvboxQuestions);
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.yhboxContent[this.yvboxQuestions]));
+			w18.Position = 1;
+			w18.Expand = false;
+			w18.Fill = false;
+			w1.Add(this.yhboxContent);
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(w1[this.yhboxContent]));
+			w19.Position = 0;
+			w19.Expand = false;
+			w19.Fill = false;
 			// Internal child Vodovoz.Dialogs.Interactive.ConfirmationQuestionDlg.ActionArea
-			global::Gtk.HButtonBox w18 = this.ActionArea;
-			w18.Name = "dialog1_ActionArea";
-			w18.Spacing = 10;
-			w18.BorderWidth = ((uint)(5));
-			w18.LayoutStyle = ((global::Gtk.ButtonBoxStyle)(1));
+			global::Gtk.HButtonBox w20 = this.ActionArea;
+			w20.Name = "dialog1_ActionArea";
+			w20.Spacing = 10;
+			w20.BorderWidth = ((uint)(5));
+			w20.LayoutStyle = ((global::Gtk.ButtonBoxStyle)(1));
 			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
 			this.buttonYes = new global::Gtk.Button();
 			this.buttonYes.Sensitive = false;
@@ -226,13 +251,13 @@ namespace Vodovoz.Dialogs.Interactive
 			this.buttonYes.Name = "buttonYes";
 			this.buttonYes.UseUnderline = true;
 			this.buttonYes.Label = global::Mono.Unix.Catalog.GetString("Да");
-			global::Gtk.Image w19 = new global::Gtk.Image();
-			w19.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-yes", global::Gtk.IconSize.Menu);
-			this.buttonYes.Image = w19;
+			global::Gtk.Image w21 = new global::Gtk.Image();
+			w21.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-yes", global::Gtk.IconSize.Menu);
+			this.buttonYes.Image = w21;
 			this.AddActionWidget(this.buttonYes, -8);
-			global::Gtk.ButtonBox.ButtonBoxChild w20 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w18[this.buttonYes]));
-			w20.Expand = false;
-			w20.Fill = false;
+			global::Gtk.ButtonBox.ButtonBoxChild w22 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w20[this.buttonYes]));
+			w22.Expand = false;
+			w22.Fill = false;
 			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
 			this.buttonNo = new global::Gtk.Button();
 			this.buttonNo.Sensitive = false;
@@ -241,14 +266,14 @@ namespace Vodovoz.Dialogs.Interactive
 			this.buttonNo.Name = "buttonNo";
 			this.buttonNo.UseUnderline = true;
 			this.buttonNo.Label = global::Mono.Unix.Catalog.GetString("Нет");
-			global::Gtk.Image w21 = new global::Gtk.Image();
-			w21.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-no", global::Gtk.IconSize.Menu);
-			this.buttonNo.Image = w21;
+			global::Gtk.Image w23 = new global::Gtk.Image();
+			w23.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-no", global::Gtk.IconSize.Menu);
+			this.buttonNo.Image = w23;
 			this.AddActionWidget(this.buttonNo, -9);
-			global::Gtk.ButtonBox.ButtonBoxChild w22 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w18[this.buttonNo]));
-			w22.Position = 1;
-			w22.Expand = false;
-			w22.Fill = false;
+			global::Gtk.ButtonBox.ButtonBoxChild w24 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w20[this.buttonNo]));
+			w24.Position = 1;
+			w24.Expand = false;
+			w24.Fill = false;
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
@@ -257,9 +282,11 @@ namespace Vodovoz.Dialogs.Interactive
 			this.imageWarning.Hide();
 			this.imageQuestion.Hide();
 			this.imageError.Hide();
+			this.ylabelTopText.Hide();
 			this.yvboxQuestion1.Hide();
 			this.yvboxQuestion2.Hide();
 			this.yvboxQuestion3.Hide();
+			this.ylabelBottomText.Hide();
 			this.Show();
 		}
 	}
