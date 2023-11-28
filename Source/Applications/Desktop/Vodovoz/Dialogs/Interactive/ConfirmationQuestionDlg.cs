@@ -5,10 +5,10 @@ namespace Vodovoz.Dialogs.Interactive
 {
 	public partial class ConfirmationQuestionDlg : Gtk.Dialog
 	{
-		private readonly ConfirmationQuestionDialogInfo _dialogInfo;
+		private readonly ConfirmationQuestionDialogSettings _dialogInfo;
 		private readonly ConfirmationQuestion[] _questions;
 
-		public ConfirmationQuestionDlg(ConfirmationQuestionDialogInfo dialogInfo, params ConfirmationQuestion[] questions)
+		public ConfirmationQuestionDlg(ConfirmationQuestionDialogSettings dialogInfo, params ConfirmationQuestion[] questions)
 		{
 			_dialogInfo = dialogInfo ?? throw new ArgumentNullException(nameof(dialogInfo));
 

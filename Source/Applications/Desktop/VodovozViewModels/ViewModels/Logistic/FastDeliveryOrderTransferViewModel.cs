@@ -192,7 +192,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			if(confirmationQuestions.Count > 0)
 			{
 				var confirmationResult = _confirmationQuestionInteractive.Question(
-					new ConfirmationQuestionDialogInfo(),
+					new ConfirmationQuestionDialogSettings(),
 					confirmationQuestions.ToArray());
 
 				if(!confirmationResult)

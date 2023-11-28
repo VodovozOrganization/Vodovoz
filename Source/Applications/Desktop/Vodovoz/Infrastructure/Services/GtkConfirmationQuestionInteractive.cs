@@ -6,7 +6,7 @@ namespace Vodovoz.Infrastructure.Services
 {
 	public class GtkConfirmationQuestionInteractive : IConfirmationQuestionInteractive
 	{
-		public bool Question(ConfirmationQuestionDialogInfo dialogInfo, params ConfirmationQuestion[] questions)
+		public bool Question(ConfirmationQuestionDialogSettings dialogInfo, params ConfirmationQuestion[] questions)
 		{
 			var dlg = new ConfirmationQuestionDlg(dialogInfo, questions);
 			dlg.SetPosition(WindowPosition.CenterAlways);
