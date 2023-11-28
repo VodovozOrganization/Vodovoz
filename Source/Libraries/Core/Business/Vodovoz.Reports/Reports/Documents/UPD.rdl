@@ -118,7 +118,7 @@ WHERE
                 payment_items pitms
             ON pfbc.id = pitms.payment_id
             WHERE pitms.order_id = @order_id
-            AND pitms.payment_date &lt;= orders.delivery_date),
+            AND pfbc.payment_date &lt; ADDDATE(orders.delivery_date, INTERVAL 1 DAY)),
             "")
     ) AS payments_info,
     IF(!IS_NULL_OR_WHITESPACE(counterparty.special_contract_number) and counterparty.special_contract_date is not null,
