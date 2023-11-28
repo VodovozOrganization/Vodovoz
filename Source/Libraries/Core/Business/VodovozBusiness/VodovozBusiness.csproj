@@ -634,6 +634,7 @@
     <Compile Include="Errors\Error.cs" />
     <Compile Include="Errors\Logistics\District.cs" />
     <Compile Include="Errors\Logistics\District.FastDelivery.cs" />
+    <Compile Include="Errors\Logistics\RouteList.cs" />
     <Compile Include="Errors\Logistics\TariffZone.cs" />
     <Compile Include="Errors\Logistics\TariffZone.FastDelivery.cs" />
     <Compile Include="Errors\Orders\Order.Accept.cs" />
@@ -979,9 +980,8 @@
     <Compile Include="Services\DriverApiParametersProvider.cs" />
     <Compile Include="Services\IUserRoleSettings.cs" />
     <Compile Include="Services\IUserSettings.cs" />
-    <Compile Include="Services\Logistics\AcceptStatus.cs" />
     <Compile Include="Services\Logistics\IRouteListService.cs" />
-    <Compile Include="Services\Logistics\RouteListAcceptResult.cs" />
+    <Compile Include="Services\Logistics\RouteListAcceptStatus.cs" />
     <Compile Include="Services\RevenueServiceInfo.cs" />
     <Compile Include="Services\UserRoleSettings.cs" />
     <Compile Include="Tools\GeoGroupVersionNotFoundException.cs" />

@@ -20,6 +20,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Vodovoz.Application.Services.Logistics;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Documents.DriverTerminal;
@@ -731,20 +732,26 @@ namespace Vodovoz
 
 					var isAcceptMode = buttonAccept.Label == "Подтвердить";
 
-					var result = _routeListService.TryAcceptOrEditRouteList(UoW, Entity, isAcceptMode, DisableItemsUpdate);
+					var result = _routeListService.TryAcceptOrEditRouteList(UoW, Entity, isAcceptMode, DisableItemsUpdate, ServicesConfig.CommonServices);
 
-					switch(result.Status)
+					result.Match(() =>
 					{
-						case RouteListAcceptResult.AcceptStatus.Accepted:
-							transaction.Commit();
-							GlobalUowEventsTracker.OnPostCommit((IUnitOfWorkTracked)UoW);
-							createroutelistitemsview1.SubscribeOnChanges();
-							UpdateAdditionalLoadingWidgets();
-							break;
-						case RouteListAcceptResult.AcceptStatus.Error:
-							ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, result.ErrorMessage);
-							break;
+						if(result.Value != RouteListAcceptStatus.Accepted)
+						{
+							return;
+						}
+
+						transaction.Commit();
+						GlobalUowEventsTracker.OnPostCommit((IUnitOfWorkTracked)UoW);
+						createroutelistitemsview1.SubscribeOnChanges();
+						UpdateAdditionalLoadingWidgets();
+					},
+					(errors) =>
+					{
+						var errorsStrings = errors.Select(x => $"{x.Message} : {x.Code}");
+						ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Error, string.Join("\n", errorsStrings));
 					}
+					);
 
 					UpdateButtonStatus();
 					SetSensetivity(true);

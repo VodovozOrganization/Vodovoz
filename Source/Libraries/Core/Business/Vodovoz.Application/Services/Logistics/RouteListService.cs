@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using MoreLinq;
 using QS.Dialog;
 using QS.DomainModel.UoW;
-using QS.Project.Services;
 using QS.Services;
 using System;
 using System.Collections.Generic;
@@ -19,12 +18,11 @@ using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.Errors;
 using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
-using static Vodovoz.Permissions.Logistic;
-using static Vodovoz.Services.Logistics.RouteListAcceptResult;
 using RouteList = Vodovoz.Domain.Logistic.RouteList;
 
 namespace Vodovoz.Application.Services.Logistics
@@ -39,14 +37,13 @@ namespace Vodovoz.Application.Services.Logistics
 		private readonly IGenericRepository<Employee> _employeeRepository;
 		private readonly ICallTaskWorker _callTaskWorker;
 
-		private readonly IInteractiveService _interactiveService;
 		private readonly IRouteOptimizer _routeOptimizer;
 		private readonly IRouteListAddressKeepingDocumentController _routeListKeepingDocumentController;
 		private readonly IWageParameterService _wageParameterService;
 		IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 		private readonly ITrackRepository _trackRepository;
-		private readonly ICommonServices _commonServices;
+		private readonly RouteGeometryCalculator _routeGeometryCalculator;
 
 		public RouteListService(
 			ILogger<RouteListService> logger,
@@ -62,7 +59,7 @@ namespace Vodovoz.Application.Services.Logistics
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
 			IRouteListProfitabilityController routeListProfitabilityController,
 			ITrackRepository trackRepository,
-			ICommonServices commonServices)
+			RouteGeometryCalculator routeGeometryCalculator)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_terminalNomenclatureProvider = terminalNomenclatureProvider
@@ -78,12 +75,10 @@ namespace Vodovoz.Application.Services.Logistics
 			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
 			_routeListProfitabilityController = routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
-			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_routeGeometryCalculator = routeGeometryCalculator ?? throw new ArgumentNullException(nameof(routeGeometryCalculator));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_routeListSpecialConditionTypeRepository = routeListSpecialConditionTypeRepository
 				?? throw new ArgumentNullException(nameof(routeListSpecialConditionTypeRepository));
-
-			_interactiveService = commonServices.InteractiveService;
 		}
 
 		public IDictionary<int, string> GetSpecialConditionsDictionaryFor(
@@ -340,11 +335,11 @@ namespace Vodovoz.Application.Services.Logistics
 			}
 		}
 
-		public RouteListAcceptResult TryAcceptOrEditRouteList(IUnitOfWork uow, RouteList routeList, bool isAcceptMode, Action<bool> disableItemsUpdate)
+		public Result<RouteListAcceptStatus> TryAcceptOrEditRouteList(IUnitOfWork uow, RouteList routeList, bool isAcceptMode, Action<bool> disableItemsUpdate, ICommonServices commonServices)
 		{
 			if(routeList.Car == null)
 			{
-				return new RouteListAcceptResult { Status = AcceptStatus.Error, ErrorMessage = "Не заполнен автомобиль" };
+				return Result.Failure<RouteListAcceptStatus>(Errors.Logistics.RouteList.CarIsEmpty);
 			}
 			StringBuilder warningMsg = new StringBuilder($"Автомобиль '{routeList.Car.Title}':");
 			if(routeList.HasOverweight())
@@ -364,23 +359,23 @@ namespace Vodovoz.Application.Services.Logistics
 
 			if(isAcceptMode && (routeList.HasOverweight() || routeList.HasVolumeExecess() || routeList.HasReverseVolumeExcess()))
 			{
-				if(ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_confirm_routelist_with_overweight"))
+				if(commonServices.CurrentPermissionService.ValidatePresetPermission("can_confirm_routelist_with_overweight"))
 				{
 					warningMsg.AppendLine("\nВы уверены что хотите подтвердить маршрутный лист?");
-					if(!_interactiveService.Question(warningMsg.ToString()))
+					if(!commonServices.InteractiveService.Question(warningMsg.ToString()))
 					{
-						return new RouteListAcceptResult { Status = AcceptStatus.Error, ErrorMessage = warningMsg.ToString() };
+						return Result.Failure<RouteListAcceptStatus>(Errors.Logistics.RouteList.CreateHasOverweight(warningMsg.ToString()));
 					}
 				}
 				else
 				{
 					warningMsg.AppendLine("\nПодтвердить маршрутный лист нельзя.");
-					return new RouteListAcceptResult { Status = AcceptStatus.Error, ErrorMessage = warningMsg.ToString() };
+					return Result.Failure<RouteListAcceptStatus>(Errors.Logistics.RouteList.CreateHasOverweight(warningMsg.ToString()));
 				}
 			}
 
 			var result = isAcceptMode
-				? TryChangeStatusToAccepted(uow, routeList, disableItemsUpdate)
+				? TryChangeStatusToAccepted(uow, routeList, disableItemsUpdate, commonServices)
 				: TryChangeStatusToNew(uow, routeList);
 
 			// -= From Save
@@ -398,16 +393,17 @@ namespace Vodovoz.Application.Services.Logistics
 			routeList.UpdateFastDeliveryMaxDistanceValue(commonFastDeliveryMaxDistance);
 
 			_logger.LogDebug("Пересчитываем рентабельность МЛ");
+
 			_routeListProfitabilityController.ReCalculateRouteListProfitability(uow, routeList);
 			_logger.LogDebug("Закончили пересчет рентабельности МЛ");
 			uow.Save(routeList.RouteListProfitability);
 		}
 
-		private RouteListAcceptResult TryChangeStatusToAccepted(IUnitOfWork uow, RouteList routeList, Action<bool> disableItemsUpdate)
+		private Result<RouteListAcceptStatus> TryChangeStatusToAccepted(IUnitOfWork uow, RouteList routeList, Action<bool> disableItemsUpdate, ICommonServices commonServices)
 		{
 			if(routeList.Status != RouteListStatus.New)
 			{
-				return new RouteListAcceptResult { Status = AcceptStatus.Error };
+				return Result.Failure<RouteListAcceptStatus>(Errors.Logistics.RouteList.IncorrectStatusForAccept);
 			}
 
 			var contextItems = new Dictionary<object, object>
@@ -418,14 +414,14 @@ namespace Vodovoz.Application.Services.Logistics
 
 			var context = new ValidationContext(routeList, null, contextItems);
 
-			if(!_commonServices.ValidationService.Validate(routeList, context))
+			if(!commonServices.ValidationService.Validate(routeList, context))
 			{
-				return new RouteListAcceptResult { Status = AcceptStatus.Error, ErrorMessage = "МЛ не прошёл валидацию" };
+				return Result.Failure<RouteListAcceptStatus>(Errors.Logistics.RouteList.ValidationFailure);
 			}
 
 			routeList.ChangeStatusAndCreateTask(RouteListStatus.Confirmed, _callTaskWorker);
 			//Строим маршрут для МЛ.
-			if((!routeList.PrintsHistory?.Any() ?? true) || _interactiveService.Question("Перестроить маршрут?", "Этот маршрутный лист уже был когда-то напечатан. При новом построении маршрута порядок адресов может быть другой. При продолжении обязательно перепечатайте этот МЛ.\nПерестроить маршрут?"))
+			if((!routeList.PrintsHistory?.Any() ?? true) || commonServices.InteractiveService.Question("Перестроить маршрут?", "Этот маршрутный лист уже был когда-то напечатан. При новом построении маршрута порядок адресов может быть другой. При продолжении обязательно перепечатайте этот МЛ.\nПерестроить маршрут?"))
 			{
 
 				var newRoute = _routeOptimizer.RebuidOneRoute(routeList);
@@ -434,27 +430,25 @@ namespace Vodovoz.Application.Services.Logistics
 					disableItemsUpdate(true);
 					newRoute.UpdateAddressOrderInRealRoute(routeList);
 					//Рассчитываем расстояние
-					using(var calc = new RouteGeometryCalculator())
-					{
-						routeList.RecalculatePlanedDistance(calc);
-					}
+
+					routeList.RecalculatePlanedDistance(_routeGeometryCalculator);
 					disableItemsUpdate(false);
 					var noPlan = routeList.Addresses.Count(x => !x.PlanTimeStart.HasValue);
 					if(noPlan > 0)
 					{
-						_interactiveService.ShowMessage(ImportanceLevel.Info, $"Для маршрута незапланировано {noPlan} адресов.");
+						commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Для маршрута незапланировано {noPlan} адресов.");
 					}
 				}
 				else
 				{
-					_interactiveService.ShowMessage(ImportanceLevel.Info, $"Маршрут не был перестроен.");
+					commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Маршрут не был перестроен.");
 				}
 			}
 
 			_logger.LogInformation("Создаём операции по свободным остаткам МЛ {RouteListId}...", routeList.Id);
 
 			//todo убрать после теста
-			if(ServicesConfig.InteractiveService.Question("Сымитировать исключение?"))
+			if(commonServices.InteractiveService.Question("Сымитировать исключение?"))
 			{
 				throw new ArgumentNullException("Тестовое исключение!");
 			}
@@ -476,7 +470,7 @@ namespace Vodovoz.Application.Services.Logistics
 			_logger.LogInformation("Операции по свободным остаткакам МЛ {RouteListId} созданы.", routeList.Id);
 			if(routeList.GetCarVersion.IsCompanyCar && routeList.Car.CarModel.CarTypeOfUse == CarTypeOfUse.Truck && !routeList.NeedToLoad)
 			{
-				if(_interactiveService.Question(
+				if(commonServices.InteractiveService.Question(
 				"Маршрутный лист для транспортировки на склад, перевести машрутный лист сразу в статус '{0}'?",
 					RouteListStatus.OnClosing.GetEnumTitle()))
 				{
@@ -490,7 +484,7 @@ namespace Vodovoz.Application.Services.Logistics
 
 				if(!routeList.NeedToLoad && !needTerminal)
 				{
-					if(_interactiveService.Question("Для маршрутного листа, нет необходимости грузится на складе. Перевести маршрутный лист сразу в статус '{0}'?", RouteListStatus.EnRoute.GetEnumTitle()))
+					if(commonServices.InteractiveService.Question("Для маршрутного листа, нет необходимости грузится на складе. Перевести маршрутный лист сразу в статус '{0}'?", RouteListStatus.EnRoute.GetEnumTitle()))
 					{
 						var contextItemsEnroute = new Dictionary<object, object>
 							{
@@ -500,9 +494,9 @@ namespace Vodovoz.Application.Services.Logistics
 
 						var contextEnroute = new ValidationContext(routeList, null, contextItemsEnroute);
 
-						if(!_commonServices.ValidationService.Validate(routeList, contextEnroute))
+						if(!commonServices.ValidationService.Validate(routeList, contextEnroute))
 						{
-							return new RouteListAcceptResult { Status = AcceptStatus.Error, ErrorMessage = "МЛ не прошёл валидацию" };
+							return Result.Failure<RouteListAcceptStatus>(Errors.Logistics.RouteList.ValidationFailure);
 						}
 						else
 						{
@@ -516,24 +510,25 @@ namespace Vodovoz.Application.Services.Logistics
 				}
 			}
 
-			return new RouteListAcceptResult { Status = AcceptStatus.Accepted };
+			return Result.Success(RouteListAcceptStatus.Accepted);
 		}
 
-		private RouteListAcceptResult TryChangeStatusToNew(IUnitOfWork uow, RouteList routeList)
+		private Result<RouteListAcceptStatus> TryChangeStatusToNew(IUnitOfWork uow, RouteList routeList)
 		{
 			if(routeList.Status != RouteListStatus.InLoading && routeList.Status != RouteListStatus.Confirmed)
 			{
-				return new RouteListAcceptResult { Status = AcceptStatus.Error };
+				return Result.Failure<RouteListAcceptStatus>(Errors.Logistics.RouteList.IncorrectStatusForEdit);
 			}
 
 			if(_routeListRepository.GetCarLoadDocuments(uow, routeList.Id).Any())
 			{
-				return new RouteListAcceptResult { Status = AcceptStatus.Error, ErrorMessage = "Для маршрутного листа были созданы документы погрузки. Сначала необходимо удалить их." };
+				return Result.Failure<RouteListAcceptStatus>(Errors.Logistics.RouteList.HasCarLoadingDocuments);
 			}
 			else
 			{
 				routeList.ChangeStatusAndCreateTask(RouteListStatus.New, _callTaskWorker);
-				return new RouteListAcceptResult { Status = AcceptStatus.New };
+
+				return Result.Success(RouteListAcceptStatus.New);
 			}
 		}
 	}
