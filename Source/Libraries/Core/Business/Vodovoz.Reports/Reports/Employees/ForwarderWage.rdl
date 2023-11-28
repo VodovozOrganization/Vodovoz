@@ -1388,7 +1388,7 @@
             </TableRow>
           </TableRows>
         </Footer>
-        <Visibility >
+        <Visibility>
           <Hidden>=!{?show_fines_outside_period}</Hidden>
         </Visibility>
       </Table>
@@ -1404,7 +1404,7 @@
           <BorderColor />
           <BorderWidth />
         </Style>
-        <Visibility >
+        <Visibility>
           <Hidden>=!{?show_fines_outside_period}</Hidden>
         </Visibility>
       </Textbox>
@@ -1728,7 +1728,7 @@ GROUP BY fines.id</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="ForwarderFinesInFuture">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     fines.date,
@@ -1749,6 +1749,7 @@ FROM
 WHERE
     fines_items.employee_id = @forwarder_id
         AND fines.date &gt; @end_date
+        AND @show_fines_outside_period
 GROUP BY fines.id</CommandText>
         <QueryParameters>
           <QueryParameter Name="forwarder_id">
@@ -1757,9 +1758,12 @@ GROUP BY fines.id</CommandText>
           <QueryParameter Name="end_date">
             <Value>={?end_date}</Value>
           </QueryParameter>
+          <QueryParameter Name="show_fines_outside_period">
+            <Value>={?show_fines_outside_period}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
