@@ -83,7 +83,7 @@ namespace Vodovoz.Reports
 
 			if(endDate != null)
 			{
-				endDate = endDate.GetValueOrDefault().LatestDayTime();
+				endDate = endDate.GetValueOrDefault().AddHours(23).AddMinutes(59);
 			}
 
 			var parameters = new Dictionary<string, object>

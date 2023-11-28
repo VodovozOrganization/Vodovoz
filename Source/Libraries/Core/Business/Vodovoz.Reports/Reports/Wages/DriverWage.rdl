@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -1882,6 +1882,9 @@
             </TableRow>
           </TableRows>
         </Footer>
+        <Visibility >
+          <Hidden>=!{?show_fines_outside_period}</Hidden>
+        </Visibility>
       </Table>
       <Textbox Name="Textbox86" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>12.74pt</Height>
@@ -1895,6 +1898,9 @@
           <BorderColor />
           <BorderWidth />
         </Style>
+        <Visibility >
+          <Hidden>=!{?show_fines_outside_period}</Hidden>
+        </Visibility>
       </Textbox>
       <Textbox Name="Textbox87" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>18.03pt</Height>
@@ -2450,6 +2456,13 @@ GROUP BY fines.id</CommandText>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="show_fines_outside_period">
+      <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>
