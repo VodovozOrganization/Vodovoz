@@ -2,6 +2,6 @@
 {
 	public interface IConfirmationQuestionInteractive
 	{
-		bool Question(ConfirmationQuestionDialogInfo dialogInfo, ConfirmationQuestion question1, ConfirmationQuestion question2 = null, ConfirmationQuestion question3 = null);
+		bool Question(ConfirmationQuestionDialogInfo dialogInfo, params ConfirmationQuestion[] questions);
 	}
 }

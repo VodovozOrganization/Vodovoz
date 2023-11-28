@@ -1,5 +1,4 @@
-﻿using QS.Dialog;
-using System;
+﻿using System;
 using Vodovoz.Tools.Interactive.ConfirmationQuestion;
 
 namespace Vodovoz.Dialogs.Interactive
@@ -7,22 +6,16 @@ namespace Vodovoz.Dialogs.Interactive
 	public partial class ConfirmationQuestionDlg : Gtk.Dialog
 	{
 		private readonly ConfirmationQuestionDialogInfo _dialogInfo;
-		private readonly ConfirmationQuestion _question1;
-		private readonly ConfirmationQuestion _question2;
-		private readonly ConfirmationQuestion _question3;
+		private readonly ConfirmationQuestion[] _questions;
 
-		public ConfirmationQuestionDlg(
-			ConfirmationQuestionDialogInfo dialogInfo,
-			ConfirmationQuestion question1,
-			ConfirmationQuestion question2 = null,
-			ConfirmationQuestion question3 = null)
+		public ConfirmationQuestionDlg(ConfirmationQuestionDialogInfo dialogInfo, params ConfirmationQuestion[] questions)
 		{
+			_dialogInfo = dialogInfo ?? throw new ArgumentNullException(nameof(dialogInfo));
+
+			_questions = questions ?? new ConfirmationQuestion[0];
+
 			Build();
 			Configure();
-			_dialogInfo = dialogInfo ?? throw new ArgumentNullException(nameof(dialogInfo));
-			_question1 = question1 ?? throw new ArgumentNullException(nameof(question1));
-			_question2 = question2;
-			_question3 = question3;
 		}
 
 		private void Configure()
@@ -31,24 +24,31 @@ namespace Vodovoz.Dialogs.Interactive
 
 			Title = _dialogInfo.Title;
 
-			yvboxQuestion1.Visible = true;
-			ylabelQuestion1.Text = _question1.QuestionText;
-			ycheckbuttonConfirmation1.TooltipText = _question1.ConfirmationText;
-			ycheckbuttonConfirmation1.Clicked += (s, e) => UpdateButtonCancelSensitive();
+			//buttonOk.Sensitive = false;
+			//buttonCancel.Sensitive = true;
 
-			if( _question2 != null )
+			if(_questions.Length > 0)
+			{
+				yvboxQuestion1.Visible = true;
+				ylabelQuestion1.Text = _questions[0].QuestionText;
+				ycheckbuttonConfirmation1.Label = _questions[0].ConfirmationText;
+				ycheckbuttonConfirmation1.Clicked += (s, e) => UpdateButtonCancelSensitive();
+			}
+
+
+			if(_questions.Length > 1)
 			{
 				yvboxQuestion2.Visible = true;
-				ylabelQuestion2.Text = _question2.QuestionText;
-				ycheckbuttonConfirmation2.TooltipText = _question2.ConfirmationText;
+				ylabelQuestion2.Text = _questions[1].QuestionText;
+				ycheckbuttonConfirmation2.Label = _questions[1].ConfirmationText;
 				ycheckbuttonConfirmation2.Clicked += (s, e) => UpdateButtonCancelSensitive();
 			}
 
-			if(_question3 != null)
+			if(_questions.Length > 3)
 			{
 				yvboxQuestion3.Visible = true;
-				ylabelQuestion3.Text = _question3.QuestionText;
-				ycheckbuttonConfirmation3.TooltipText = _question3.ConfirmationText;
+				ylabelQuestion3.Text = _questions[2].QuestionText;
+				ycheckbuttonConfirmation3.Label = _questions[2].ConfirmationText;
 				ycheckbuttonConfirmation3.Clicked += (s, e) => UpdateButtonCancelSensitive();
 			}
 		}
@@ -60,10 +60,10 @@ namespace Vodovoz.Dialogs.Interactive
 
 		private void UpdateButtonCancelSensitive()
 		{
-			buttonCancel.Sensitive =
-				ycheckbuttonConfirmation1.Active
-				&& (_question2 == null || ycheckbuttonConfirmation2.Active)
-				&& (_question3 == null || ycheckbuttonConfirmation3.Active);
+			//buttonOk.Sensitive = true;
+				//ycheckbuttonConfirmation1.Active
+				//&& (_question2 == null || ycheckbuttonConfirmation2.Active)
+				//&& (_question3 == null || ycheckbuttonConfirmation3.Active);
 		}
 	}
 }
