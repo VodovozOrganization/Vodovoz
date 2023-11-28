@@ -36,9 +36,9 @@ namespace Vodovoz.Dialogs.Interactive
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonConfirmation3;
 
-		private global::Gtk.Button buttonOk;
+		private global::Gtk.Button buttonYes;
 
-		private global::Gtk.Button buttonCancel;
+		private global::Gtk.Button buttonNo;
 
 		protected virtual void Build()
 		{
@@ -46,6 +46,9 @@ namespace Vodovoz.Dialogs.Interactive
 			// Widget Vodovoz.Dialogs.Interactive.ConfirmationQuestionDlg
 			this.Name = "Vodovoz.Dialogs.Interactive.ConfirmationQuestionDlg";
 			this.WindowPosition = ((global::Gtk.WindowPosition)(4));
+			this.Modal = true;
+			this.DefaultWidth = 265;
+			this.DefaultHeight = 255;
 			// Internal child Vodovoz.Dialogs.Interactive.ConfirmationQuestionDlg.VBox
 			global::Gtk.VBox w1 = this.VBox;
 			w1.Name = "dialog1_VBox";
@@ -216,32 +219,33 @@ namespace Vodovoz.Dialogs.Interactive
 			w18.BorderWidth = ((uint)(5));
 			w18.LayoutStyle = ((global::Gtk.ButtonBoxStyle)(1));
 			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
-			this.buttonOk = new global::Gtk.Button();
-			this.buttonOk.CanDefault = true;
-			this.buttonOk.CanFocus = true;
-			this.buttonOk.Name = "buttonOk";
-			this.buttonOk.UseUnderline = true;
-			this.buttonOk.Label = global::Mono.Unix.Catalog.GetString("Да");
+			this.buttonYes = new global::Gtk.Button();
+			this.buttonYes.Sensitive = false;
+			this.buttonYes.CanDefault = true;
+			this.buttonYes.CanFocus = true;
+			this.buttonYes.Name = "buttonYes";
+			this.buttonYes.UseUnderline = true;
+			this.buttonYes.Label = global::Mono.Unix.Catalog.GetString("Да");
 			global::Gtk.Image w19 = new global::Gtk.Image();
 			w19.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-yes", global::Gtk.IconSize.Menu);
-			this.buttonOk.Image = w19;
-			this.AddActionWidget(this.buttonOk, -8);
-			global::Gtk.ButtonBox.ButtonBoxChild w20 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w18[this.buttonOk]));
+			this.buttonYes.Image = w19;
+			this.AddActionWidget(this.buttonYes, -8);
+			global::Gtk.ButtonBox.ButtonBoxChild w20 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w18[this.buttonYes]));
 			w20.Expand = false;
 			w20.Fill = false;
 			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
-			this.buttonCancel = new global::Gtk.Button();
-			this.buttonCancel.Sensitive = false;
-			this.buttonCancel.CanDefault = true;
-			this.buttonCancel.CanFocus = true;
-			this.buttonCancel.Name = "buttonCancel";
-			this.buttonCancel.UseUnderline = true;
-			this.buttonCancel.Label = global::Mono.Unix.Catalog.GetString("Нет");
+			this.buttonNo = new global::Gtk.Button();
+			this.buttonNo.Sensitive = false;
+			this.buttonNo.CanDefault = true;
+			this.buttonNo.CanFocus = true;
+			this.buttonNo.Name = "buttonNo";
+			this.buttonNo.UseUnderline = true;
+			this.buttonNo.Label = global::Mono.Unix.Catalog.GetString("Нет");
 			global::Gtk.Image w21 = new global::Gtk.Image();
 			w21.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-no", global::Gtk.IconSize.Menu);
-			this.buttonCancel.Image = w21;
-			this.AddActionWidget(this.buttonCancel, -9);
-			global::Gtk.ButtonBox.ButtonBoxChild w22 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w18[this.buttonCancel]));
+			this.buttonNo.Image = w21;
+			this.AddActionWidget(this.buttonNo, -9);
+			global::Gtk.ButtonBox.ButtonBoxChild w22 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w18[this.buttonNo]));
 			w22.Position = 1;
 			w22.Expand = false;
 			w22.Fill = false;
@@ -249,8 +253,6 @@ namespace Vodovoz.Dialogs.Interactive
 			{
 				this.Child.ShowAll();
 			}
-			this.DefaultWidth = 369;
-			this.DefaultHeight = 255;
 			this.imageInfo.Hide();
 			this.imageWarning.Hide();
 			this.imageQuestion.Hide();
