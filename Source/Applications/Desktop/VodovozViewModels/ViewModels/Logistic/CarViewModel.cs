@@ -1,35 +1,34 @@
-﻿using QS.Attachments.ViewModels.Widgets;
+﻿using Autofac;
+using NLog;
+using QS.Attachments.ViewModels.Widgets;
+using QS.Commands;
+using QS.Dialog.ViewModels;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
+using QS.Project.Journal;
 using QS.Services;
 using QS.ViewModels;
 using System;
 using System.Linq;
 using System.Threading;
-using NLog;
-using QS.Dialog.ViewModels;
-using QS.Navigation;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Domain.Sale;
 using Vodovoz.Factories;
-using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Factories;
+using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalNodes;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.Widgets.Cars;
-using QS.Commands;
-using Vodovoz.ViewModels.Journals.JournalFactories;
-using QS.Project.Journal;
-using Vodovoz.ViewModels.Journals.JournalNodes;
-using Vodovoz.Domain.Sale;
-using Autofac;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
 	public class CarViewModel : EntityTabViewModelBase<Car>
 	{
 		private readonly IRouteListsWageController _routeListsWageController;
-		private readonly IGeoGroupJournalFactory _geoGroupJournalFactory;
 		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 		private const string _canChangeBottlesFromAddressPermissionName = "can_change_cars_bottles_from_address";
 		private bool _canChangeBottlesFromAddress;
@@ -48,7 +47,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			ICarVersionsViewModelFactory carVersionsViewModelFactory,
 			IOdometerReadingsViewModelFactory odometerReadingsViewModelFactory,
 			IRouteListsWageController routeListsWageController,
-			IGeoGroupJournalFactory geoGroupJournalFactory,
 			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
@@ -58,7 +56,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				throw new ArgumentNullException(nameof(navigationManager));
 			}
 			_routeListsWageController = routeListsWageController ?? throw new ArgumentNullException(nameof(routeListsWageController));
-			_geoGroupJournalFactory = geoGroupJournalFactory ?? throw new ArgumentNullException(nameof(geoGroupJournalFactory));
 			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			CarModelJournalFactory = carModelJournalFactory ?? throw new ArgumentNullException(nameof(carModelJournalFactory));
 
@@ -215,17 +212,17 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private void AddGeoGroup()
 		{
-			var journal = _geoGroupJournalFactory.CreateJournal();
+			var journal = LifetimeScope.Resolve<GeoGroupJournalViewModel>();
 			journal.SelectionMode = JournalSelectionMode.Multiple;
 			journal.DisableChangeEntityActions();
-			journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult;
+			journal.OnSelectResult += OnJournalGeoGroupsSelectedResult;
 
 			TabParent.AddSlaveTab(this, journal);
 		}
 
-		private void Journal_OnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
+		private void OnJournalGeoGroupsSelectedResult(object sender, JournalSelectedEventArgs e)
 		{
-			var selected = e.SelectedNodes.Cast<GeoGroupJournalNode>();
+			var selected = e.SelectedObjects.Cast<GeoGroupJournalNode>();
 			if(!selected.Any())
 			{
 				return;

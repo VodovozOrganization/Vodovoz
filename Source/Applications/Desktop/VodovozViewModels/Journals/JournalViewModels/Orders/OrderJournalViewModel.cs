@@ -399,6 +399,7 @@ namespace Vodovoz.JournalViewModels
 			CounterpartyContract contractAlias = null;
 			PaymentFrom paymentFromAlias = null;
 			GeoGroup geographicalGroupAlias = null;
+			GeoGroup selfDeliveryGeographicalGroupAlias = null;
 			EdoContainer edoContainerAlias = null;
 
 			var sanitizationNomenclatureIds = _nomenclatureRepository.GetSanitisationNomenclature(uow);
@@ -406,7 +407,8 @@ namespace Vodovoz.JournalViewModels
 			var query = uow.Session.QueryOver<VodovozOrder>(() => orderAlias)
 				.Left.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
-				.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicalGroupAlias);
+				.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicalGroupAlias)
+				.Left.JoinAlias(() => orderAlias.SelfDeliveryGeoGroup, () => selfDeliveryGeographicalGroupAlias);
 
 			if (FilterViewModel.ViewTypes != ViewTypes.Order && FilterViewModel.ViewTypes != ViewTypes.All)
 			{
@@ -518,8 +520,8 @@ namespace Vodovoz.JournalViewModels
 
 			if (FilterViewModel.GeographicGroup != null)
 			{
-				query.Where(o => !o.SelfDelivery)
-					.And(() => geographicalGroupAlias.Id == FilterViewModel.GeographicGroup.Id);
+				query.Where(() => (!orderAlias.SelfDelivery && geographicalGroupAlias.Id == FilterViewModel.GeographicGroup.Id)
+						|| (orderAlias.SelfDelivery && selfDeliveryGeographicalGroupAlias.Id == FilterViewModel.GeographicGroup.Id));
 			}
 			
 			if(FilterViewModel.SortDeliveryDate != null)

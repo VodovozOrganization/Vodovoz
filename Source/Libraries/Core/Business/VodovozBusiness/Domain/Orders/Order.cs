@@ -28,6 +28,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
@@ -117,6 +118,7 @@ namespace Vodovoz.Domain.Orders
 		private Employee _commentOPManagerChangedBy;
 		private bool? _canCreateOrderInAdvance;
 		private int? counterpartyExternalOrderId;
+		private GeoGroup _selfDeliveryGeoGroup;
 
 		private int? _callBeforeArrivalMinutes;
 
@@ -1192,6 +1194,13 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _ourOrganization, value);
 		}
 
+		[Display(Name = "Район города склада самовывоза")]
+		public virtual GeoGroup SelfDeliveryGeoGroup
+		{
+			get => _selfDeliveryGeoGroup;
+			set => SetField(ref _selfDeliveryGeoGroup, value);
+		}
+
 		public Order()
 		{
 			Comment = string.Empty;
@@ -1465,6 +1474,14 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult(
 					"Тип оплаты - Qr-код МП водителя невозможен для самовывоза",
 					new[] { this.GetPropertyName(o => o.PaymentType) }
+				);
+			}
+
+			if(SelfDelivery && SelfDeliveryGeoGroup == null)
+			{
+				yield return new ValidationResult(
+					"Для заказов с самовывозом обязательно указание района города",
+					new[] { this.GetPropertyName(o => o.SelfDeliveryGeoGroup) }
 				);
 			}
 
