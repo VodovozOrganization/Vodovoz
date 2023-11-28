@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using QS.Project.Filter;
 using QS.Project.Journal.EntitySelector;
 using QS.ViewModels.Control.EEVM;
@@ -10,6 +10,7 @@ using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Sale;
 using Vodovoz.TempAdapters;
@@ -65,6 +66,7 @@ namespace Vodovoz.Filters.ViewModels
 		private string _counterpartyInn;
 		private readonly CompositeSearchViewModel _searchByAddressViewModel;
 		private readonly ILifetimeScope _lifetimeScope;
+		private EdoDocFlowStatus? _edoDocFlowStatus;
 
 		#endregion
 
@@ -269,6 +271,12 @@ namespace Vodovoz.Filters.ViewModels
 		{
 			get => _counterpartyInn;
 			set => SetField(ref _counterpartyInn, value);
+		}
+
+		public EdoDocFlowStatus? EdoDocFlowStatus
+		{
+			get => _edoDocFlowStatus;
+			set => UpdateFilterField(ref _edoDocFlowStatus, value);
 		}
 
 		#region Selfdelivery

@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using MoreLinq;
 using NHibernate;
 using NHibernate.Criterion;
@@ -628,6 +628,11 @@ namespace Vodovoz.JournalViewModels
 				.OrderBy(() => edoContainerAlias.Created).Desc
 				.Select(Projections.Property(() => edoContainerAlias.EdoDocFlowStatus))
 				.Take(1);
+
+			if(FilterViewModel.EdoDocFlowStatus != null)
+			{
+				query.WithSubquery.WhereValue(FilterViewModel.EdoDocFlowStatus.Value).Eq(edoDocFlowStatusSubquery);
+			}
 
 			query.Left.JoinAlias(o => o.DeliverySchedule, () => deliveryScheduleAlias)
 					.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
