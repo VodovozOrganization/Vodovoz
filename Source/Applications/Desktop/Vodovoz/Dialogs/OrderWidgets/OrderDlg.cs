@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
@@ -1083,6 +1083,7 @@ namespace Vodovoz
 		{
 			Entity.PaymentType = e.PaymentType;
 
+			OnEnumPaymentTypeChangedByUser(this, EventArgs.Empty);
 			_selectPaymentTypeViewModel.PaymentTypeSelected -= OnPaymentTypeSelected;
 		}
 
@@ -4039,7 +4040,6 @@ namespace Vodovoz
 		public bool CanFormOrderWithLiquidatedCounterparty { get; private set; }
 
 		public bool CanEditByPermission => permissionResult.CanUpdate || (permissionResult.CanCreate && Entity.Id == 0);
-			
 
 		private void UpdateUIState()
 		{
