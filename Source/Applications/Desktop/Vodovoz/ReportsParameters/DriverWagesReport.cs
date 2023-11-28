@@ -16,6 +16,8 @@ namespace Vodovoz.Reports
 	[ToolboxItem(true)]
 	public partial class DriverWagesReport : SingleUoWWidgetBase, IParametersWidget
 	{
+		private const bool _showFinesOutsidePeriodDefault = true;
+
 		private readonly INavigationManager _navigationManager;
 
 		public DriverWagesReport(INavigationManager navigationManager)
@@ -24,6 +26,8 @@ namespace Vodovoz.Reports
 			UoW = UnitOfWorkFactory.CreateWithoutRoot(Title);
 
 			Build();
+
+			ycheckbuttonShowFinesOutsidePeriod.Active = _showFinesOutsidePeriodDefault;
 
 			var driverFilter = new EmployeeFilterViewModel();
 			driverFilter.SetAndRefilterAtOnce(
@@ -86,7 +90,7 @@ namespace Vodovoz.Reports
 			{
 				{ "driver_id", evmeDriver.SubjectId },
 				{ "start_date", dateperiodpicker.StartDateOrNull },
-				{ "show_fines_outside_period", ycheckbuttonShowFinesOutsidePerion.Active },
+				{ "show_fines_outside_period", ycheckbuttonShowFinesOutsidePeriod.Active },
 				{ "end_date", endDate }
 			};
 

@@ -15,6 +15,8 @@ namespace Vodovoz.Reports
 	[ToolboxItem(true)]
 	public partial class ForwarderWageReport : SingleUoWWidgetBase, IParametersWidget
 	{
+		private const bool _showFinesOutsidePeriodDefault = true;
+
 		public ForwarderWageReport(INavigationManager navigationManager)
 		{
 			if(navigationManager is null)
@@ -25,6 +27,8 @@ namespace Vodovoz.Reports
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
 			Build();
+
+			ycheckbuttonShowFinesOutsidePeriod.Active = _showFinesOutsidePeriodDefault;
 
 			var forwarderFilter = new EmployeeFilterViewModel();
 			forwarderFilter.SetAndRefilterAtOnce(
@@ -54,7 +58,7 @@ namespace Vodovoz.Reports
 			{
 				{ "start_date", dateperiodpicker.StartDateOrNull },
 				{ "end_date", dateperiodpicker.EndDateOrNull },
-				{ "show_fines_outside_period", ycheckbuttonShowFinesOutsidePerion.Active },
+				{ "show_fines_outside_period", ycheckbuttonShowFinesOutsidePeriod.Active },
 				{ "forwarder_id", evmeForwarder.SubjectId }
 			};
 
