@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
 using Fias.Client;
@@ -80,6 +80,7 @@ using Vodovoz.Models.TrueMark;
 using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Presentation.ViewModels.Common;
+using Vodovoz.Presentation.ViewModels.PaymentType;
 using Vodovoz.Reports;
 using Vodovoz.Reports.Logistic;
 using Vodovoz.ReportsParameters;
@@ -644,6 +645,8 @@ namespace Vodovoz
 							.AddScoped<IDebtorsParameters, DebtorsParameters>()
 							.AddFiasClient()							
 							.AddScoped<RevisionBottlesAndDeposits>()
+							.AddTransient<IReportExporter, ReportExporterAdapter>()
+							.AddScoped<SelectPaymentTypeViewModel>()
 							.AddTransient<IReportExporter, ReportExporterAdapter>()
 							.AddScoped<IRouteOptimizer, RouteOptimizer>()
 							;
