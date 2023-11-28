@@ -20,6 +20,8 @@ namespace Vodovoz.Reports
 
 		private global::Gtk.CheckButton checkShowBalance;
 
+		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonShowFinesOutsidePerion;
+
 		private global::Gtk.Button buttonCreateReport;
 
 		protected virtual void Build()
@@ -77,6 +79,7 @@ namespace Vodovoz.Reports
 			this.evmeDriver.Events = ((global::Gdk.EventMask)(256));
 			this.evmeDriver.Name = "evmeDriver";
 			this.evmeDriver.CanEditReference = true;
+			this.evmeDriver.CanOpenWithoutTabParent = false;
 			this.hbox3.Add(this.evmeDriver);
 			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.evmeDriver]));
 			w5.Position = 1;
@@ -98,16 +101,28 @@ namespace Vodovoz.Reports
 			w7.Expand = false;
 			w7.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
+			this.ycheckbuttonShowFinesOutsidePerion = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckbuttonShowFinesOutsidePerion.CanFocus = true;
+			this.ycheckbuttonShowFinesOutsidePerion.Name = "ycheckbuttonShowFinesOutsidePerion";
+			this.ycheckbuttonShowFinesOutsidePerion.Label = global::Mono.Unix.Catalog.GetString("Вывести штрафы за границами периода");
+			this.ycheckbuttonShowFinesOutsidePerion.DrawIndicator = true;
+			this.ycheckbuttonShowFinesOutsidePerion.UseUnderline = true;
+			this.vbox1.Add(this.ycheckbuttonShowFinesOutsidePerion);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ycheckbuttonShowFinesOutsidePerion]));
+			w8.Position = 3;
+			w8.Expand = false;
+			w8.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
 			this.buttonCreateReport = new global::Gtk.Button();
 			this.buttonCreateReport.CanFocus = true;
 			this.buttonCreateReport.Name = "buttonCreateReport";
 			this.buttonCreateReport.UseUnderline = true;
 			this.buttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vbox1.Add(this.buttonCreateReport);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
-			w8.Position = 3;
-			w8.Expand = false;
-			w8.Fill = false;
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
+			w9.Position = 4;
+			w9.Expand = false;
+			w9.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
