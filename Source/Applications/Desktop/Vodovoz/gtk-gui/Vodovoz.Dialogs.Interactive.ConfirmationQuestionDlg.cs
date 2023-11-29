@@ -49,10 +49,10 @@ namespace Vodovoz.Dialogs.Interactive
 			global::Stetic.Gui.Initialize(this);
 			// Widget Vodovoz.Dialogs.Interactive.ConfirmationQuestionDlg
 			this.Name = "Vodovoz.Dialogs.Interactive.ConfirmationQuestionDlg";
+			this.TypeHint = ((global::Gdk.WindowTypeHint)(1));
 			this.WindowPosition = ((global::Gtk.WindowPosition)(4));
 			this.Modal = true;
 			this.AllowShrink = true;
-			this.DefaultWidth = 265;
 			// Internal child Vodovoz.Dialogs.Interactive.ConfirmationQuestionDlg.VBox
 			global::Gtk.VBox w1 = this.VBox;
 			w1.Name = "dialog1_VBox";
@@ -69,6 +69,7 @@ namespace Vodovoz.Dialogs.Interactive
 			this.imageInfo = new global::Gtk.Image();
 			this.imageInfo.Name = "imageInfo";
 			this.imageInfo.Xpad = 5;
+			this.imageInfo.Ypad = 5;
 			this.imageInfo.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-dialog-info", global::Gtk.IconSize.Dialog);
 			this.yvboxImages.Add(this.imageInfo);
 			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.yvboxImages[this.imageInfo]));
@@ -79,6 +80,7 @@ namespace Vodovoz.Dialogs.Interactive
 			this.imageWarning = new global::Gtk.Image();
 			this.imageWarning.Name = "imageWarning";
 			this.imageWarning.Xpad = 5;
+			this.imageWarning.Ypad = 5;
 			this.imageWarning.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-dialog-warning", global::Gtk.IconSize.Dialog);
 			this.yvboxImages.Add(this.imageWarning);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.yvboxImages[this.imageWarning]));
@@ -89,6 +91,7 @@ namespace Vodovoz.Dialogs.Interactive
 			this.imageQuestion = new global::Gtk.Image();
 			this.imageQuestion.Name = "imageQuestion";
 			this.imageQuestion.Xpad = 5;
+			this.imageQuestion.Ypad = 5;
 			this.imageQuestion.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-dialog-question", global::Gtk.IconSize.Dialog);
 			this.yvboxImages.Add(this.imageQuestion);
 			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.yvboxImages[this.imageQuestion]));
@@ -99,6 +102,7 @@ namespace Vodovoz.Dialogs.Interactive
 			this.imageError = new global::Gtk.Image();
 			this.imageError.Name = "imageError";
 			this.imageError.Xpad = 5;
+			this.imageError.Ypad = 5;
 			this.imageError.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-dialog-error", global::Gtk.IconSize.Dialog);
 			this.yvboxImages.Add(this.imageError);
 			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.yvboxImages[this.imageError]));
@@ -227,15 +231,12 @@ namespace Vodovoz.Dialogs.Interactive
 			this.ylabelBottomText.LabelProp = global::Mono.Unix.Catalog.GetString("Текст после вопросов");
 			this.yvboxQuestions.Add(this.ylabelBottomText);
 			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.yvboxQuestions[this.ylabelBottomText]));
-			w17.PackType = ((global::Gtk.PackType)(1));
 			w17.Position = 4;
 			w17.Expand = false;
 			w17.Fill = false;
 			this.yhboxContent.Add(this.yvboxQuestions);
 			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.yhboxContent[this.yvboxQuestions]));
 			w18.Position = 1;
-			w18.Expand = false;
-			w18.Fill = false;
 			w1.Add(this.yhboxContent);
 			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(w1[this.yhboxContent]));
 			w19.Position = 0;
@@ -280,7 +281,8 @@ namespace Vodovoz.Dialogs.Interactive
 			{
 				this.Child.ShowAll();
 			}
-			this.DefaultHeight = 275;
+			this.DefaultWidth = 342;
+			this.DefaultHeight = 295;
 			this.imageInfo.Hide();
 			this.imageWarning.Hide();
 			this.imageQuestion.Hide();
