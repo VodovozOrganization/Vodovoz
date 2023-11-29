@@ -7,6 +7,7 @@ using QS.ViewModels;
 using System;
 using System.Linq;
 using QS.Navigation;
+using QS.Project.Journal;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
@@ -118,7 +119,8 @@ namespace Vodovoz.ViewModels.Orders
 							f.SelectCategory = NomenclatureCategory.water;
 							f.SelectSaleCategory = SaleCategory.forSale;
 						},
-						OpenPageOptions.AsSlave)
+						OpenPageOptions.AsSlave,
+						vm => vm.SelectionMode = JournalSelectionMode.Single)
 					.ViewModel;
 
 				nomenJournalViewModel.OnEntitySelectedResult += (sender, e) => {
