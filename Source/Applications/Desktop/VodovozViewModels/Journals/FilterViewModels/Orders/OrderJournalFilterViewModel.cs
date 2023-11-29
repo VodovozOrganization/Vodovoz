@@ -377,7 +377,8 @@ namespace Vodovoz.Filters.ViewModels
 		/// <summary>
 		/// Части города для отображения в фильтре
 		/// </summary>
-		public IEnumerable<GeoGroup> GeographicGroups => _geographicGroups ?? (_geographicGroups = UoW.GetAll<GeoGroup>().ToList());
+		public IEnumerable<GeoGroup> GeographicGroups => 
+			_geographicGroups ?? (_geographicGroups = UoW.GetAll<GeoGroup>().Where(g => !g.IsArchived).ToList());
 
 		private GeoGroup _geographicGroup;
 		private string _counterpartyNameLike;

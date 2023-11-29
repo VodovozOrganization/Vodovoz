@@ -32,10 +32,6 @@ namespace Vodovoz.Dialogs
 		UndeliveredOrder undelivery;
 		Order order;
 
-		private readonly IRouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController =
-			new RouteListAddressKeepingDocumentController(new EmployeeRepository(),
-				new NomenclatureParametersProvider(new ParametersProvider()));
-
 		private UndeliveredOrderViewModel _undeliveredOrderViewModel;
 
 		public UndeliveryOnOrderCloseDlg()

@@ -40,12 +40,12 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 
 		public GeoGroupViewModel(
 			IEntityUoWBuilder uowBuilder,
+			INavigationManager navigationManager,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			GeoGroupVersionsModel geoGroupVersionsModel,
 			IWarehouseJournalFactory warehouseJournalFactory,
 			ICommonServices commonServices,
-			ILifetimeScope lifetimeScope
-		) : base(uowBuilder, unitOfWorkFactory, commonServices)
+			ILifetimeScope lifetimeScope) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			_geoGroupVersionsModel = geoGroupVersionsModel ?? throw new ArgumentNullException(nameof(geoGroupVersionsModel));
 			_warehouseJournalFactory = warehouseJournalFactory ?? throw new ArgumentNullException(nameof(warehouseJournalFactory));
@@ -58,7 +58,7 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 			Entity.PropertyChanged += EntityPropertyChanged;
 			Versions.ElementRemoved += VersionsElementRemoved;
 		}
-		
+
 		public IEntityEntryViewModel CashSubdivisionViewModel { get; private set; }
 
 		private IEntityEntryViewModel BuildCashSubdivisionViewModel()
@@ -309,6 +309,8 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 			Entity.ObservableVersions.ElementAdded += ObservableVersionsElementAdded;
 			Entity.ObservableVersions.ElementRemoved += ObservableVersionsElementRemoved;
 			Entity.ObservableVersions.ElementChanged += ObservableVersionsElementChanged;
+
+			SelectedVersion = Versions.LastOrDefault() ?? new GeoGroupVersionViewModel(new GeoGroupVersion());
 		}
 
 		private void ObservableVersionsElementAdded(object aList, int[] aIdx)

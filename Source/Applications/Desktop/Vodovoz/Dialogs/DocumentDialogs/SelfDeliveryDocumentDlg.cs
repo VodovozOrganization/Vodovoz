@@ -1,6 +1,4 @@
-﻿using System;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
+﻿using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using QS.Dialog.GtkUI;
@@ -9,29 +7,32 @@ using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
+using QS.Validation;
+using System;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Permissions.Warehouses;
+using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
-using Vodovoz.EntityRepositories.Store;
-using Vodovoz.PermissionExtensions;
-using Vodovoz.Services;
-using Vodovoz.Tools.CallTasks;
-using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Parameters;
+using Vodovoz.PermissionExtensions;
+using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
+using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Store;
-using QS.Validation;
-using Autofac;
 
 namespace Vodovoz
 {
@@ -48,6 +49,8 @@ namespace Vodovoz
 		private readonly INomenclatureRepository _nomenclatureRepository =
 			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		private GenericObservableList<GoodsReceptionVMNode> GoodsReceptionList = new GenericObservableList<GoodsReceptionVMNode>();
+
+		private GeoGroup _warehouseGeoGroup;
 
 		public SelfDeliveryDocumentDlg()
 		{
@@ -129,7 +132,7 @@ namespace Vodovoz
 			lstWarehouse.ItemSelected += OnWarehouseSelected;
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			var orderFactory = _lifetimeScope.Resolve<IOrderSelectorFactory>();
-			evmeOrder.SetEntityAutocompleteSelectorFactory(orderFactory.CreateSelfDeliveryDocumentOrderAutocompleteSelector());
+			evmeOrder.SetEntityAutocompleteSelectorFactory(orderFactory.CreateSelfDeliveryDocumentOrderAutocompleteSelector(() => _warehouseGeoGroup));
 			evmeOrder.Binding.AddBinding(Entity, e => e.Order, w => w.Subject).InitializeFromSource();
 			evmeOrder.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 			evmeOrder.ChangedByUser += (sender, e) => 
@@ -294,6 +297,26 @@ namespace Vodovoz
 			return true;
 		}
 
+		private void UpdateWarehouseGeoGroup()
+		{
+			if(Entity.Warehouse == null)
+			{
+				_warehouseGeoGroup = null;
+				return;
+			}
+
+			var parentSubdivision = Entity.Warehouse?.OwningSubdivision;
+			var geoGroup = parentSubdivision?.GeographicGroup;
+
+			while(geoGroup == null && parentSubdivision != null )
+			{
+				parentSubdivision = parentSubdivision.ParentSubdivision;
+				geoGroup = parentSubdivision?.GeographicGroup;
+			}
+
+			_warehouseGeoGroup = geoGroup;
+		}
+
 		private void UpdateOrderInfo()
 		{
 			if(Entity.Order == null) {
@@ -317,6 +340,7 @@ namespace Vodovoz
 			UpdateAmounts();
 			UpdateWidgets();
 			FillTrees();
+			UpdateWarehouseGeoGroup();
 		}
 
 		private void UpdateAmounts()

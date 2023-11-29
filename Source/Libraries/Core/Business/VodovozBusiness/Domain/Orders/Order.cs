@@ -28,6 +28,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
@@ -117,6 +118,7 @@ namespace Vodovoz.Domain.Orders
 		private Employee _commentOPManagerChangedBy;
 		private bool? _canCreateOrderInAdvance;
 		private int? counterpartyExternalOrderId;
+		private GeoGroup _selfDeliveryGeoGroup;
 
 		private int? _callBeforeArrivalMinutes;
 
@@ -1192,6 +1194,13 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _ourOrganization, value);
 		}
 
+		[Display(Name = "Район города склада самовывоза")]
+		public virtual GeoGroup SelfDeliveryGeoGroup
+		{
+			get => _selfDeliveryGeoGroup;
+			set => SetField(ref _selfDeliveryGeoGroup, value);
+		}
+
 		public Order()
 		{
 			Comment = string.Empty;
@@ -1465,6 +1474,14 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult(
 					"Тип оплаты - Qr-код МП водителя невозможен для самовывоза",
 					new[] { this.GetPropertyName(o => o.PaymentType) }
+				);
+			}
+
+			if(SelfDelivery && SelfDeliveryGeoGroup == null)
+			{
+				yield return new ValidationResult(
+					"Для заказов с самовывозом обязательно указание района города",
+					new[] { this.GetPropertyName(o => o.SelfDeliveryGeoGroup) }
 				);
 			}
 
@@ -4406,10 +4423,12 @@ namespace Vodovoz.Domain.Orders
 
 			foreach(var orderItem in OrderItems.Where(x => Nomenclature.GetCategoriesForShipment().Contains(x.Nomenclature.Category)))
 			{
+				var amount = isActualCount && orderItem.ActualCount.HasValue ? orderItem.ActualCount.Value : orderItem.Count;
+
 				var found = result.FirstOrDefault(x => x.NomenclatureId == orderItem.Nomenclature.Id);
 				if(found != null)
 				{
-					found.Amount += isActualCount && orderItem.ActualCount.HasValue ? orderItem.ActualCount.Value : orderItem.Count;
+					found.Amount += amount;
 				}
 				else
 				{
@@ -4417,18 +4436,20 @@ namespace Vodovoz.Domain.Orders
 					{
 						NomenclatureId = orderItem.Nomenclature.Id,
 						Nomenclature = orderItem.Nomenclature,
-						Amount = isActualCount && orderItem.ActualCount.HasValue ? orderItem.ActualCount.Value : orderItem.Count
-					});
+						Amount = amount
+				});
 				}
 			}
 
 			foreach(var equipment in OrderEquipments.Where(x => x.Direction == Direction.Deliver
 						&& Nomenclature.GetCategoriesForShipment().Contains(x.Nomenclature.Category)))
 			{
+				var amount = isActualCount && equipment.ActualCount.HasValue ? equipment.ActualCount.Value : equipment.Count;
+
 				var found = result.FirstOrDefault(x => x.NomenclatureId == equipment.Nomenclature.Id);
 				if(found != null)
 				{
-					found.Amount += isActualCount && equipment.ActualCount.HasValue ? equipment.ActualCount.Value : equipment.Count;
+					found.Amount += amount;
 				}
 				else
 				{
@@ -4436,7 +4457,7 @@ namespace Vodovoz.Domain.Orders
 					{
 						NomenclatureId = equipment.Nomenclature.Id,
 						Nomenclature = equipment.Nomenclature,
-						Amount = isActualCount && equipment.ActualCount.HasValue ? equipment.ActualCount.Value : equipment.Count
+						Amount = amount
 					});
 				}
 			}
