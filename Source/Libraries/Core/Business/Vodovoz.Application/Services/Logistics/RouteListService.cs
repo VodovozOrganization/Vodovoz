@@ -447,12 +447,6 @@ namespace Vodovoz.Application.Services.Logistics
 
 			_logger.LogInformation("Создаём операции по свободным остаткам МЛ {RouteListId}...", routeList.Id);
 
-			//todo убрать после теста
-			if(commonServices.InteractiveService.Question("Сымитировать исключение?"))
-			{
-				throw new ArgumentNullException("Тестовое исключение!");
-			}
-
 			foreach(var address in routeList.Addresses)
 			{
 				if(address.TransferedTo == null &&
