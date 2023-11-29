@@ -158,47 +158,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				return false;
 			}
 
-			var confirmationQuestions = new List<ConfirmationQuestion>();
-
-			var maxFastDeliveryOrdersCountInRouteList = routeListTo.GetMaxFastDeliveryOrdersValue();
-			if(GetFastDeliveryOrdersCountInRouteList(routeListTo) >= maxFastDeliveryOrdersCountInRouteList)
+			if(!IsRouteListToHasAcceptableOrdersCountAndDistance(routeListTo, distance))
 			{
-				_logger.LogDebug("В выбранном маршрутном листе уже имеется максимально допустимое количество заказов с быстрой доставкой. " +
-					"Требуется подтверждение переноса.");
-
-				confirmationQuestions.Add(new ConfirmationQuestion
-				{
-					QuestionText = $"При переносе заказа на данного водителя, его лимит ДЗЧ будет превышен. Вы точно хотите перенести заказ?",
-					ConfirmationText = "Подтверждаю"
-				});
-			}
-
-			if(distance == null || distance.Value > routeListTo.GetFastDeliveryMaxDistanceValue())
-			{
-				var distanceValue =
-					distance.HasValue
-					? distance.Value.ToString("F2")
-					: "'Ошибка при расчете дистанции'";
-
-				_logger.LogDebug("Расстояние до данного заказа {distanceValue}км. Требуется подтверждение переноса.");
-
-				confirmationQuestions.Add(new ConfirmationQuestion
-				{
-					QuestionText = $"Расстояние до данного заказа {distanceValue}км. Вы точно хотите осуществить перенос?",
-					ConfirmationText = "Подтверждаю"
-				});
-			}
-
-			if(confirmationQuestions.Count > 0)
-			{
-				var confirmationResult = _confirmationQuestionInteractive.Question(
-					new ConfirmationQuestionDialogSettings(),
-					confirmationQuestions.ToArray());
-
-				if(!confirmationResult)
-				{
-					return false;
-				}
+				return false;
 			}
 
 			var hasBalanceForTransfer = _routeListRepository.HasFreeBalanceForOrder(_unitOfWork, address.Order, routeListTo);
@@ -267,6 +229,54 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_unitOfWork.Save(routeListTo);
 			_unitOfWork.Save(routeListFrom);
 			_unitOfWork.Commit();
+
+			return true;
+		}
+
+		private bool IsRouteListToHasAcceptableOrdersCountAndDistance(RouteList routeListTo, decimal? distance)
+		{
+			var confirmationQuestions = new List<ConfirmationQuestion>();
+
+			var maxFastDeliveryOrdersCountInRouteList = routeListTo.GetMaxFastDeliveryOrdersValue();
+			if(GetFastDeliveryOrdersCountInRouteList(routeListTo) >= maxFastDeliveryOrdersCountInRouteList)
+			{
+				_logger.LogDebug("В выбранном маршрутном листе уже имеется максимально допустимое количество заказов с быстрой доставкой. " +
+					"Требуется подтверждение переноса.");
+
+				confirmationQuestions.Add(new ConfirmationQuestion
+				{
+					QuestionText = $"При переносе заказа на\nданного водителя, его\nлимит ДЗЧ будет превышен.\nВы точно хотите перенести\nзаказ?",
+					ConfirmationText = "Подтверждаю"
+				});
+			}
+
+			if(distance == null || distance.Value > routeListTo.GetFastDeliveryMaxDistanceValue())
+			{
+				var distanceValue =
+					distance.HasValue
+					? distance.Value.ToString("F2")
+					: "'Ошибка при расчете дистанции'";
+
+				_logger.LogDebug("Расстояние до данного заказа {distanceValue}км. Требуется подтверждение переноса.");
+
+				confirmationQuestions.Add(new ConfirmationQuestion
+				{
+					QuestionText = $"Расстояние до данного\nзаказа {distanceValue}км.\nВы точно хотите осуществить\nперенос?",
+					ConfirmationText = "Подтверждаю"
+				});
+			}
+
+			if(confirmationQuestions.Count > 0)
+			{
+				var confirmationResult = _confirmationQuestionInteractive.Question(
+					new ConfirmationQuestionDialogSettings { IsNoAvailableByDefault = true },
+					confirmationQuestions.ToArray());
+
+				if(!confirmationResult)
+				{
+					return false;
+				}
+			}
 
 			return true;
 		}
