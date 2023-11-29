@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using NHibernate;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
@@ -44,6 +44,7 @@ namespace Vodovoz.JournalViewModels
 			_counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			
 			TabName = "Промонаборы";
+			UseSlider = false;
 
 			var threadLoader = DataLoader as ThreadDataLoader<PromotionalSetJournalNode>;
 			threadLoader.MergeInOrderBy(x => x.IsArchive, false);
