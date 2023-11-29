@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using MoreLinq;
 using QS.Commands;
 using QS.Dialog;
@@ -269,7 +269,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			if(confirmationQuestions.Count > 0)
 			{
 				var confirmationResult = _confirmationQuestionInteractive.Question(
-					new ConfirmationQuestionDialogSettings { IsNoAvailableByDefault = true },
+					new ConfirmationQuestionDialogSettings { IsNoButtonAvailableByDefault = true },
 					confirmationQuestions.ToArray());
 
 				if(!confirmationResult)

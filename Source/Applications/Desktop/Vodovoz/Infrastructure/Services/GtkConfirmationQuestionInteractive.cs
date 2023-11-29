@@ -6,9 +6,9 @@ namespace Vodovoz.Infrastructure.Services
 {
 	public class GtkConfirmationQuestionInteractive : IConfirmationQuestionInteractive
 	{
-		public bool Question(ConfirmationQuestionDialogSettings dialogInfo, params ConfirmationQuestion[] questions)
+		public bool Question(ConfirmationQuestionDialogSettings dialogSettings, params ConfirmationQuestion[] questions)
 		{
-			var dlg = new ConfirmationQuestionDlg(dialogInfo, questions);
+			var dlg = new ConfirmationQuestionDlg(dialogSettings, questions);
 			dlg.SetPosition(WindowPosition.CenterAlways);
 			var result = dlg.Run() == (int)ResponseType.Yes;
 			dlg.Destroy();

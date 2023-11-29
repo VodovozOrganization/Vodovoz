@@ -1,17 +1,18 @@
-﻿using System;
+﻿using Gtk;
+using System;
 using Vodovoz.Tools.Interactive.ConfirmationQuestion;
 using static Vodovoz.Tools.Interactive.ConfirmationQuestion.ConfirmationQuestionDialogSettings;
 
 namespace Vodovoz.Dialogs.Interactive
 {
-	public partial class ConfirmationQuestionDlg : Gtk.Dialog
+	public partial class ConfirmationQuestionDlg : Dialog
 	{
 		private readonly ConfirmationQuestionDialogSettings _dialogInfo;
 		private readonly ConfirmationQuestion[] _questions;
 
-		public ConfirmationQuestionDlg(ConfirmationQuestionDialogSettings dialogInfo, params ConfirmationQuestion[] questions)
+		public ConfirmationQuestionDlg(ConfirmationQuestionDialogSettings dialogSettings, params ConfirmationQuestion[] questions)
 		{
-			_dialogInfo = dialogInfo ?? throw new ArgumentNullException(nameof(dialogInfo));
+			_dialogInfo = dialogSettings ?? throw new ArgumentNullException(nameof(dialogSettings));
 			_questions = questions ?? new ConfirmationQuestion[0];
 
 			Build();
@@ -96,9 +97,9 @@ namespace Vodovoz.Dialogs.Interactive
 				&& (_questions.Length < 2 || ycheckbuttonConfirmation2.Active)
 				&& (_questions.Length < 3 || ycheckbuttonConfirmation3.Active);
 
-			buttonYes.Sensitive = _dialogInfo.IsYesAvailableByDefault || isCheckbuttonsActivated;
+			buttonYes.Sensitive = _dialogInfo.IsYesButtonAvailableByDefault || isCheckbuttonsActivated;
 
-			buttonNo.Sensitive = _dialogInfo.IsNoAvailableByDefault || isCheckbuttonsActivated;			
+			buttonNo.Sensitive = _dialogInfo.IsNoButtonAvailableByDefault || isCheckbuttonsActivated;			
 		}
 	}
 }
