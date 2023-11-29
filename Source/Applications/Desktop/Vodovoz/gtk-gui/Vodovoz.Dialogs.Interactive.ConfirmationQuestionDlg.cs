@@ -53,7 +53,6 @@ namespace Vodovoz.Dialogs.Interactive
 			this.Modal = true;
 			this.AllowShrink = true;
 			this.DefaultWidth = 265;
-			this.DefaultHeight = 180;
 			// Internal child Vodovoz.Dialogs.Interactive.ConfirmationQuestionDlg.VBox
 			global::Gtk.VBox w1 = this.VBox;
 			w1.Name = "dialog1_VBox";
@@ -69,6 +68,7 @@ namespace Vodovoz.Dialogs.Interactive
 			// Container child yvboxImages.Gtk.Box+BoxChild
 			this.imageInfo = new global::Gtk.Image();
 			this.imageInfo.Name = "imageInfo";
+			this.imageInfo.Xpad = 5;
 			this.imageInfo.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-dialog-info", global::Gtk.IconSize.Dialog);
 			this.yvboxImages.Add(this.imageInfo);
 			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.yvboxImages[this.imageInfo]));
@@ -78,6 +78,7 @@ namespace Vodovoz.Dialogs.Interactive
 			// Container child yvboxImages.Gtk.Box+BoxChild
 			this.imageWarning = new global::Gtk.Image();
 			this.imageWarning.Name = "imageWarning";
+			this.imageWarning.Xpad = 5;
 			this.imageWarning.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-dialog-warning", global::Gtk.IconSize.Dialog);
 			this.yvboxImages.Add(this.imageWarning);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.yvboxImages[this.imageWarning]));
@@ -87,6 +88,7 @@ namespace Vodovoz.Dialogs.Interactive
 			// Container child yvboxImages.Gtk.Box+BoxChild
 			this.imageQuestion = new global::Gtk.Image();
 			this.imageQuestion.Name = "imageQuestion";
+			this.imageQuestion.Xpad = 5;
 			this.imageQuestion.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-dialog-question", global::Gtk.IconSize.Dialog);
 			this.yvboxImages.Add(this.imageQuestion);
 			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.yvboxImages[this.imageQuestion]));
@@ -96,6 +98,7 @@ namespace Vodovoz.Dialogs.Interactive
 			// Container child yvboxImages.Gtk.Box+BoxChild
 			this.imageError = new global::Gtk.Image();
 			this.imageError.Name = "imageError";
+			this.imageError.Xpad = 5;
 			this.imageError.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-dialog-error", global::Gtk.IconSize.Dialog);
 			this.yvboxImages.Add(this.imageError);
 			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.yvboxImages[this.imageError]));
@@ -279,6 +282,7 @@ namespace Vodovoz.Dialogs.Interactive
 			{
 				this.Child.ShowAll();
 			}
+			this.DefaultHeight = 275;
 			this.imageInfo.Hide();
 			this.imageWarning.Hide();
 			this.imageQuestion.Hide();
