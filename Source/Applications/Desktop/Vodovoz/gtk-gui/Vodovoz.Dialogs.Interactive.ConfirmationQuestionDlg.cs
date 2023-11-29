@@ -239,8 +239,6 @@ namespace Vodovoz.Dialogs.Interactive
 			w1.Add(this.yhboxContent);
 			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(w1[this.yhboxContent]));
 			w19.Position = 0;
-			w19.Expand = false;
-			w19.Fill = false;
 			// Internal child Vodovoz.Dialogs.Interactive.ConfirmationQuestionDlg.ActionArea
 			global::Gtk.HButtonBox w20 = this.ActionArea;
 			w20.Name = "dialog1_ActionArea";
