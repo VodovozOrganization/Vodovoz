@@ -63,6 +63,13 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			}
 
 			UserRoles = GetUserRoles(CurrentUser.Id);
+
+			if(!UserRoles.Any())
+			{
+				Dispose();
+				throw new AbortCreatingPageException($"Пользователь не подходит ни под одну из разрешённых для заявок ролей и не является автором заявки", "Невозможно открыть");				
+			}
+
 			IsRoleChooserSensitive = UserRoles.Count() > 1;
 			UserRole = UserRoles.First();
 
@@ -75,7 +82,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 			var expenseCategoryEntryViewModelBuilder = new CommonEEVMBuilderFactory<CashlessRequestViewModel>(this, this, UoW, NavigationManager, _lifetimeScope);
 
-			FinancialExpenseCategoryViewModel = expenseCategoryEntryViewModelBuilder
+			var expenseCategoryViewModel = expenseCategoryEntryViewModelBuilder
 				.ForProperty(x => x.FinancialExpenseCategory)
 				.UseViewModelDialog<FinancialExpenseCategoryViewModel>()
 				.UseViewModelJournalAndAutocompleter<FinancialCategoriesGroupsJournalViewModel, FinancialCategoriesJournalFilterViewModel>(
@@ -85,6 +92,10 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 						filter.RestrictNodeSelectTypes.Add(typeof(FinancialExpenseCategory));
 					})
 				.Finish();
+
+			expenseCategoryViewModel.CanViewEntity = CanSetExpenseCategory;
+
+			FinancialExpenseCategoryViewModel = expenseCategoryViewModel;
 
 			FinancialExpenseCategoryViewModel.IsEditable = false;
 
@@ -316,11 +327,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			if(CheckRole("role_security_service_cash_request", userId))
 			{
 				roles.Add(PayoutRequestUserRole.SecurityService);
-			}
-
-			if(roles.Count == 0)
-			{
-				throw new Exception("Пользователь не подходит ни под одну из ролей, он не должен был иметь возможность сюда зайти");
 			}
 
 			return roles;
