@@ -7,6 +7,7 @@ using QS.Services;
 using QS.ViewModels;
 using Autofac;
 using QS.Navigation;
+using QS.Project.Journal;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain.Goods.PromotionalSetsOnlineParameters;
@@ -164,7 +165,8 @@ namespace Vodovoz.ViewModels.Orders
 							f.SelectCategory = NomenclatureCategory.water;
 							f.SelectSaleCategory = SaleCategory.forSale;
 						},
-						OpenPageOptions.AsSlave)
+						OpenPageOptions.AsSlave,
+						vm => vm.SelectionMode = JournalSelectionMode.Single)
 					.ViewModel;
 
 				nomenJournalViewModel.OnEntitySelectedResult += (sender, e) => {
