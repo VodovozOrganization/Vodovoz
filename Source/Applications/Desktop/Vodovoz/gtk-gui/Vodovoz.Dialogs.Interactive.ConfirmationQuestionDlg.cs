@@ -51,8 +51,9 @@ namespace Vodovoz.Dialogs.Interactive
 			this.Name = "Vodovoz.Dialogs.Interactive.ConfirmationQuestionDlg";
 			this.WindowPosition = ((global::Gtk.WindowPosition)(4));
 			this.Modal = true;
+			this.AllowShrink = true;
 			this.DefaultWidth = 265;
-			this.DefaultHeight = 255;
+			this.DefaultHeight = 180;
 			// Internal child Vodovoz.Dialogs.Interactive.ConfirmationQuestionDlg.VBox
 			global::Gtk.VBox w1 = this.VBox;
 			w1.Name = "dialog1_VBox";
