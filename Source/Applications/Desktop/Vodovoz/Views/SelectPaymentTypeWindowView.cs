@@ -6,10 +6,13 @@ namespace Vodovoz.Views
 {
 	public partial class SelectPaymentTypeWindowView : DialogViewBase<SelectPaymentTypeViewModel>
 	{
+		private const int _defaultWidth = 210;
 
 		public SelectPaymentTypeWindowView(SelectPaymentTypeViewModel viewModel) : base(viewModel)
 		{
 			Build();
+
+			WidthRequest = _defaultWidth;
 
 			ybuttonCash.Clicked += (_, _2) => ViewModel.SelectPaymentTypeCommand.Execute(PaymentType.Cash);
 			ybuttonCash.Binding
