@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Gamma.Widgets;
 using QS.Project.Filter;
 using QS.Project.Journal.EntitySelector;
 using QS.ViewModels.Control.EEVM;
@@ -7,11 +8,9 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using Gamma.Widgets;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Sale;
 using Vodovoz.TempAdapters;
@@ -67,7 +66,7 @@ namespace Vodovoz.Filters.ViewModels
 		private string _counterpartyInn;
 		private readonly CompositeSearchViewModel _searchByAddressViewModel;
 		private readonly ILifetimeScope _lifetimeScope;
-		private object _edoDocFlowStatus = SpecialComboState.All;
+		private object _edoDocFlowStatus;
 
 		#endregion
 
@@ -87,6 +86,11 @@ namespace Vodovoz.Filters.ViewModels
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_searchByAddressViewModel = new CompositeSearchViewModel();
 			_searchByAddressViewModel.OnSearch += OnSearchByAddressViewModel;
+
+			EdoDocFlowStatus = SpecialComboState.All;
+
+			StartDate = DateTime.Now.AddMonths(-1);
+			EndDate = DateTime.Now.AddDays(7);
 		}
 
 		#region Автосвойства
