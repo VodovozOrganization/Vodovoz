@@ -183,6 +183,7 @@
     <Compile Include="Journals\JournalViewModels\Orders\UndeliveryObjectJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Organizations\OrganizationOwnershipTypeJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\EmployeeRegistrationsJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Rent\FreeRentPackagesFilterViewModel.cs" />
     <Compile Include="Logistic\DriversStopLists\DriversStopListsViewModel.cs" />
     <Compile Include="Logistic\DriversStopLists\DriversStopListsViewModel.DriverNode.cs" />
     <Compile Include="Logistic\DriversStopLists\DriversStopListsViewModel.DriversSortOrder.cs" />

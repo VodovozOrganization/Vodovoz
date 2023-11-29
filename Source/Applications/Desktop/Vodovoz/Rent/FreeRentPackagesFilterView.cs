@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
-using QS.Project.Filter;
 using QS.Views.GtkUI;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 
 namespace Vodovoz.Rent
 {
@@ -12,10 +12,15 @@ namespace Vodovoz.Rent
 			: base(viewModel)
 		{
 			Build();
-		}
-	}
 
-	public class FreeRentPackagesFilterViewModel : FilterViewModelBase<FreeRentPackagesFilterViewModel>
-	{
+			Initialize();
+		}
+
+		private void Initialize()
+		{
+			ycheckbuttonIsArchive.Binding
+				.AddBinding(ViewModel, vm => vm.ShowArchieved, w => w.Active)
+				.InitializeFromSource();
+		}
 	}
 }

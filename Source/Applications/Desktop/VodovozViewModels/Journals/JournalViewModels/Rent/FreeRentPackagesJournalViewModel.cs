@@ -46,19 +46,25 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Rent
 			Refresh();
 		}
 
-		protected override IQueryOver<FreeRentPackage> ItemsQuery(IUnitOfWork uow)
+		protected override IQueryOver<FreeRentPackage> ItemsQuery(IUnitOfWork unitOfWork)
 		{
 			FreeRentPackagesJournalNode resultAlias = null;
 			EquipmentKind equipmentKindAlias = null;
 
-			return uow.Session.QueryOver<FreeRentPackage>()
+			var query = unitOfWork.Session.QueryOver<FreeRentPackage>()
 				.Left.JoinAlias(x => x.EquipmentKind, () => equipmentKindAlias)
-				.Where(GetSearchCriterion<FreeRentPackage>(x => x.Name))
-				.And(_filterViewModel.Specification)
-				.SelectList(list => list
+				.Where(GetSearchCriterion<FreeRentPackage>(x => x.Name));
+
+			if(!_filterViewModel.ShowArchieved)
+			{
+				query.Where(x => !x.IsArchive);
+			}
+
+			return query.SelectList(list => list
 					.Select(x => x.Id).WithAlias(() => resultAlias.Id)
 					.Select(x => x.Name).WithAlias(() => resultAlias.Name)
-					.Select(() => equipmentKindAlias.Name).WithAlias(() => resultAlias.EquipmentKindName))
+					.Select(() => equipmentKindAlias.Name).WithAlias(() => resultAlias.EquipmentKindName)
+					.Select(x => x.IsArchive).WithAlias(() => resultAlias.IsArchive))
 				.OrderBy(x => x.Name).Asc
 				.TransformUsing(Transformers.AliasToBean<FreeRentPackagesJournalNode>());
 		}

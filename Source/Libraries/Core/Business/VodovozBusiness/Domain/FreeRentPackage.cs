@@ -20,7 +20,7 @@ namespace Vodovoz.Domain
 		private decimal _deposit;
 		private EquipmentKind _equipmentKind;
 		private Nomenclature _depositService;
-		private bool _isArchieve;
+		private bool _isArchive;
 
 		public FreeRentPackage()
 		{
@@ -70,10 +70,10 @@ namespace Vodovoz.Domain
 		}
 
 		[Display(Name = "Архив")]
-		public bool IsArchieve
+		public virtual bool IsArchive
 		{
-			get => _isArchieve;
-			set => SetField(ref _isArchieve, value);
+			get => _isArchive;
+			set => SetField(ref _isArchive, value);
 		}
 
 		#endregion
