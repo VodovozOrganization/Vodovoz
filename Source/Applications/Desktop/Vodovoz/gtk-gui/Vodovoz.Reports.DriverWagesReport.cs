@@ -104,7 +104,7 @@ namespace Vodovoz.Reports
 			this.ycheckbuttonShowFinesOutsidePeriod = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckbuttonShowFinesOutsidePeriod.CanFocus = true;
 			this.ycheckbuttonShowFinesOutsidePeriod.Name = "ycheckbuttonShowFinesOutsidePerion";
-			this.ycheckbuttonShowFinesOutsidePeriod.Label = global::Mono.Unix.Catalog.GetString("Вывести штрафы за границами периода");
+			this.ycheckbuttonShowFinesOutsidePeriod.Label = global::Mono.Unix.Catalog.GetString("вывести штрафы за границами периода");
 			this.ycheckbuttonShowFinesOutsidePeriod.DrawIndicator = true;
 			this.ycheckbuttonShowFinesOutsidePeriod.UseUnderline = true;
 			this.vbox1.Add(this.ycheckbuttonShowFinesOutsidePeriod);
