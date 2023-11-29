@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.Project.Filter;
 using QS.Project.Journal.EntitySelector;
 using QS.ViewModels.Control.EEVM;
@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Gamma.Widgets;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
@@ -66,7 +67,7 @@ namespace Vodovoz.Filters.ViewModels
 		private string _counterpartyInn;
 		private readonly CompositeSearchViewModel _searchByAddressViewModel;
 		private readonly ILifetimeScope _lifetimeScope;
-		private EdoDocFlowStatus? _edoDocFlowStatus;
+		private object _edoDocFlowStatus = SpecialComboState.All;
 
 		#endregion
 
@@ -273,7 +274,7 @@ namespace Vodovoz.Filters.ViewModels
 			set => SetField(ref _counterpartyInn, value);
 		}
 
-		public EdoDocFlowStatus? EdoDocFlowStatus
+		public object EdoDocFlowStatus
 		{
 			get => _edoDocFlowStatus;
 			set => UpdateFilterField(ref _edoDocFlowStatus, value);
