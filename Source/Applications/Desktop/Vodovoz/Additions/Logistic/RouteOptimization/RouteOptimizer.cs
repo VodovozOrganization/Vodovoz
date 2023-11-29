@@ -11,6 +11,7 @@ using QS.Services;
 using QS.Tools;
 using QS.Utilities.Debug;
 using QSProjectsLib;
+using Vodovoz.Application.Services.Logistics;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Sale;
@@ -31,7 +32,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 	// Все настроечные коэфециенты находятся в регионе "Настройки оптимизации"
 	// </para>
 	// </remarks>
-	public class RouteOptimizer : PropertyChangedBase
+	public class RouteOptimizer : PropertyChangedBase, IRouteOptimizer
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private readonly IGeographicGroupRepository _geographicGroupRepository;
@@ -428,7 +429,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		// </summary>
 		// <returns>Предолженый маршрут</returns>
 		// <param name="route">Первоначальный маршрутный лист, чтобы взять адреса.</param>
-		public ProposedRoute RebuidOneRoute(RouteList route)
+		public IProposedRoute RebuidOneRoute(RouteList route)
 		{
 			var trip = new PossibleTrip(route);
 

@@ -1,6 +1,4 @@
-﻿using SmsRu;
-
-namespace Sms.External.SmsRu
+﻿namespace Sms.External.SmsRu
 {
 	public class SmsRuConfiguration : ISmsRuConfiguration
 	{
@@ -18,6 +16,7 @@ namespace Sms.External.SmsRu
 		private readonly bool smtpUsrSSL;
 		private readonly bool translit;
 		private readonly bool test;
+		private readonly string _baseUrl;
 
 		public SmsRuConfiguration(
 			string login,
@@ -32,7 +31,8 @@ namespace Sms.External.SmsRu
 			int smtpPort,
 			bool smtpUseSSL,
 			bool translit,
-			bool test
+			bool test,
+			string baseUrl
 			)
 		{
 			this.login = login;
@@ -49,6 +49,7 @@ namespace Sms.External.SmsRu
 			smtpUsrSSL = smtpUseSSL;
 			this.translit = translit;
 			this.test = test;
+			_baseUrl = baseUrl;
 		}
 
 		/// <summary>
@@ -120,5 +121,10 @@ namespace Sms.External.SmsRu
 		/// Номер с которого будет оправлено сообщение (необходимо согласование с администрацией Sms.ru)
 		/// </summary>
 		public string SmsNumberFrom => smsNumberFrom;
+
+		/// <summary>
+		/// Адрес сайта
+		/// </summary>
+		public string BaseUrl => _baseUrl;
 	}
 }

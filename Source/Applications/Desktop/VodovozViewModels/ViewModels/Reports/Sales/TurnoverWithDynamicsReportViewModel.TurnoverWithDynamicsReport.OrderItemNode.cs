@@ -62,6 +62,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				public string OrderContactPhone { get; set; }
 
 				public CounterpartyCompositeClassification CounterpartyClassification { get; set; }
+
+				public int PromotionalSetId { get; set; }
+				
+				public string PromotionalSetName { get; set; }
 			}
 		}
 	}

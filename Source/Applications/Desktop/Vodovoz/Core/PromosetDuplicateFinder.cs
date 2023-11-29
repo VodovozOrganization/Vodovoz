@@ -48,7 +48,7 @@ namespace Vodovoz.Core
 				return true;
 			}
 
-			string message = $"Найдены проданные промо-наборы по аналогичному адресу/телефону:{Environment.NewLine}";
+			string message = $"Найдены проданные промонаборы по аналогичному адресу/телефону:{Environment.NewLine}";
 			int counter = 1;
 			foreach(var r in deliveryPointResult) {
 				string date = r.Date.HasValue ? r.Date.Value.ToString("dd.MM.yyyy") + ", " : "";

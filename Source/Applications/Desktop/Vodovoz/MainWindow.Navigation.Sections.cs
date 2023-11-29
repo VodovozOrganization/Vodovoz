@@ -2,20 +2,16 @@
 using QS.Navigation;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Journal;
-using QS.Project.Services;
 using System;
-using Vodovoz;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels;
-using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ReportsParameters.Logistic;
 using Vodovoz.Representations;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Accounting;
 using Vodovoz.ViewModels.Dialogs.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
@@ -230,7 +226,7 @@ public partial class MainWindow
 
 	protected void OnActionRetailComplaintsJournalActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<ComplaintsJournalViewModel, Action<ComplaintFilterViewModel>>(
+		NavigationManager.OpenViewModel<ComplaintsJournalsViewModel, Action<ComplaintFilterViewModel>>(
 			null,
 			filter => filter.IsForRetail = true,
 			OpenPageOptions.IgnoreHash);

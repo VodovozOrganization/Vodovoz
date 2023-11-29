@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
@@ -21,6 +21,8 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Nodes;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using VodovozInfrastructure.StringHandlers;
+using Vodovoz.Settings.Nomenclature;
+using System.ComponentModel;
 
 namespace Vodovoz.ViewModels.Dialogs.Goods
 {
@@ -31,10 +33,13 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		private readonly IEmployeeService _employeeService;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
+		private readonly int[] _equipmentKindsHavingGlassHolder;
 		private NomenclatureOnlineParameters _mobileAppNomenclatureOnlineParameters;
 		private NomenclatureOnlineParameters _vodovozWebSiteNomenclatureOnlineParameters;
 		private NomenclatureOnlineParameters _kulerSaleWebSiteNomenclatureOnlineParameters;
 		private bool _needCheckOnlinePrices;
+		private bool _isMagnetGlassHolderSelected;
+		private bool _isScrewGlassHolderSelected;
 
 		public Action PricesViewSaveChanges;
 
@@ -47,11 +52,17 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			ICounterpartyJournalFactory counterpartySelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
-			IStringHandler stringHandler) : base(uowBuilder, uowFactory, commonServices)
+			IStringHandler stringHandler,
+			INomenclatureSettings nomenclatureSettings) : base(uowBuilder, uowFactory, commonServices)
 		{
 			if(nomenclatureSelectorFactory is null)
 			{
 				throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+			}
+
+			if(nomenclatureSettings is null)
+			{
+				throw new ArgumentNullException(nameof(nomenclatureSettings));
 			}
 
 			StringHandler = stringHandler ?? throw new ArgumentNullException(nameof(stringHandler));
@@ -68,6 +79,11 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			ConfigureEntityPropertyChanges();
 			ConfigureValidationContext();
 			SetPermissions();
+
+			_equipmentKindsHavingGlassHolder = nomenclatureSettings.EquipmentKindsHavingGlassHolder;
+			SetGlassHolderCheckboxesSelection();
+
+			Entity.PropertyChanged += OnEntityPropertyChanged;
 		}
 
 		public IStringHandler StringHandler { get; }
@@ -101,6 +117,33 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		public bool UserCanCreateNomenclaturesWithInventoryAccounting =>
 			IsNewEntity && CanCreateNomenclaturesWithInventoryAccountingPermission;
 
+		public bool IsShowGlassHolderSelectionControls => 
+			_equipmentKindsHavingGlassHolder.Any(i => i == Entity.Kind?.Id);
+
+		public bool IsMagnetGlassHolderSelected
+		{
+			get => _isMagnetGlassHolderSelected;
+			set
+			{
+				if(SetField(ref _isMagnetGlassHolderSelected, value))
+				{
+					SetEntityGlassHolderType();
+				}
+			}
+		}
+
+		public bool IsScrewGlassHolderSelected
+		{
+			get => _isScrewGlassHolderSelected;
+			set
+			{
+				if(SetField(ref _isScrewGlassHolderSelected, value))
+				{
+					SetEntityGlassHolderType();
+				}
+			}
+		}
+
 		public NomenclatureOnlineParameters MobileAppNomenclatureOnlineParameters
 		{
 			get => _mobileAppNomenclatureOnlineParameters;
@@ -121,7 +164,88 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		public NomenclatureInnerDeliveryPricesViewModel NomenclatureInnerDeliveryPricesViewModel { get; private set; }
 		private bool IsNewEntity => Entity.Id == 0;
 		private bool CanCreateNomenclaturesWithInventoryAccountingPermission { get; set; }
-		
+
+		private void SetGlassHolderCheckboxesSelection()
+		{
+			if(Entity.Category != NomenclatureCategory.equipment
+				|| !IsShowGlassHolderSelectionControls
+				|| Entity.GlassHolderType == null
+				|| Entity.GlassHolderType == GlassHolderType.None)
+			{
+				IsMagnetGlassHolderSelected = false;
+				IsScrewGlassHolderSelected = false;
+
+				return;
+			}
+
+			if(Entity.GlassHolderType == GlassHolderType.Magnet)
+			{
+				IsMagnetGlassHolderSelected = true;
+				IsScrewGlassHolderSelected = false;
+
+				return;
+			}
+
+			if(Entity.GlassHolderType == GlassHolderType.Screw)
+			{
+				IsMagnetGlassHolderSelected = false;
+				IsScrewGlassHolderSelected = true;
+
+				return;
+			}
+
+			if(Entity.GlassHolderType == GlassHolderType.Universal)
+			{
+				IsMagnetGlassHolderSelected = true;
+				IsScrewGlassHolderSelected = true;
+
+				return;
+			}
+
+			throw new ArgumentException("");
+		}
+
+		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Entity.Category)
+				|| e.PropertyName == nameof(Entity.Kind))
+			{
+				SetEntityGlassHolderType();
+
+				OnPropertyChanged(nameof(IsShowGlassHolderSelectionControls));
+			}
+		}
+
+		private void SetEntityGlassHolderType()
+		{
+			if(Entity.Category == NomenclatureCategory.equipment
+					&& IsShowGlassHolderSelectionControls)
+			{
+				if(!IsMagnetGlassHolderSelected && !IsScrewGlassHolderSelected)
+				{
+					Entity.GlassHolderType = GlassHolderType.None;
+				}
+				else if(IsMagnetGlassHolderSelected && !IsScrewGlassHolderSelected)
+				{
+					Entity.GlassHolderType = GlassHolderType.Magnet;
+				}
+				else if(!IsMagnetGlassHolderSelected && IsScrewGlassHolderSelected)
+				{
+					Entity.GlassHolderType = GlassHolderType.Screw;
+				}
+				else
+				{
+					Entity.GlassHolderType = GlassHolderType.Universal;
+				}
+
+				return;
+			}
+
+			Entity.GlassHolderType = null;
+			IsMagnetGlassHolderSelected = false;
+			IsScrewGlassHolderSelected = false;
+		}
+
 		public void AddNotKulerSaleOnlinePrice(NomenclaturePrice price)
 		{
 			MobileAppNomenclatureOnlineParameters.AddNewNomenclatureOnlinePrice(
@@ -254,13 +378,18 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			PopupMenuOn = null;
 		}
 
-		public void OnEnumKindChanged(object sender, EventArgs e) {
+		public void OnEnumCategoryChanged(object sender, EventArgs e) {
 			if(Entity.Category != NomenclatureCategory.deposit) {
 				Entity.TypeOfDepositCategory = null;
 			}
+
+			if(Entity.Category != NomenclatureCategory.equipment)
+			{
+				Entity.GlassHolderType = null;
+			}
 		}
 
-		public void OnEnumKindChangedByUser(object sender, EventArgs e) {
+		public void OnEnumCategoryChangedByUser(object sender, EventArgs e) {
 			if(Entity.Id == 0 && IsSaleCategory)
 			{
 				Entity.SaleCategory = SaleCategory.notForSale;

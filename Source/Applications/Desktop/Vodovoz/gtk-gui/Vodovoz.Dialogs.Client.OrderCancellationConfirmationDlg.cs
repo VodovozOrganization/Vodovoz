@@ -16,8 +16,6 @@ namespace Vodovoz.Dialogs.Client
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonConfirmation;
 
-		private global::Gamma.GtkWidgets.yLabel ylabelMainQuestion;
-
 		private global::Gtk.Button buttonOk;
 
 		private global::Gtk.Button buttonCancel;
@@ -59,9 +57,9 @@ namespace Vodovoz.Dialogs.Client
 			// Container child yvboxConfirmationQuestion.Gtk.Box+BoxChild
 			this.ylabelConfimationQuestion = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelConfimationQuestion.Name = "ylabelConfimationQuestion";
-			this.ylabelConfimationQuestion.Ypad = 3;
+			this.ylabelConfimationQuestion.Ypad = 6;
 			this.ylabelConfimationQuestion.Xalign = 0F;
-			this.ylabelConfimationQuestion.LabelProp = global::Mono.Unix.Catalog.GetString("Клиент отказался от заказа? ");
+			this.ylabelConfimationQuestion.LabelProp = global::Mono.Unix.Catalog.GetString("Хотите ли вы сохранить заказ? ");
 			this.yvboxConfirmationQuestion.Add(this.ylabelConfimationQuestion);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.yvboxConfirmationQuestion[this.ylabelConfimationQuestion]));
 			w3.Position = 0;
@@ -71,7 +69,7 @@ namespace Vodovoz.Dialogs.Client
 			this.ycheckbuttonConfirmation = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckbuttonConfirmation.CanFocus = true;
 			this.ycheckbuttonConfirmation.Name = "ycheckbuttonConfirmation";
-			this.ycheckbuttonConfirmation.Label = global::Mono.Unix.Catalog.GetString("Подтвердить отказ клиента");
+			this.ycheckbuttonConfirmation.Label = global::Mono.Unix.Catalog.GetString("Подтверждаю, что клиент\nотказался от заказа");
 			this.ycheckbuttonConfirmation.DrawIndicator = true;
 			this.ycheckbuttonConfirmation.UseUnderline = true;
 			this.yvboxConfirmationQuestion.Add(this.ycheckbuttonConfirmation);
@@ -79,39 +77,28 @@ namespace Vodovoz.Dialogs.Client
 			w4.Position = 1;
 			w4.Expand = false;
 			w4.Fill = false;
-			// Container child yvboxConfirmationQuestion.Gtk.Box+BoxChild
-			this.ylabelMainQuestion = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelMainQuestion.Name = "ylabelMainQuestion";
-			this.ylabelMainQuestion.Xalign = 0F;
-			this.ylabelMainQuestion.LabelProp = global::Mono.Unix.Catalog.GetString("Хотите ли вы сохранить заказ?");
-			this.yvboxConfirmationQuestion.Add(this.ylabelMainQuestion);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.yvboxConfirmationQuestion[this.ylabelMainQuestion]));
-			w5.PackType = ((global::Gtk.PackType)(1));
-			w5.Position = 2;
+			this.yhboxConfirmationInfo.Add(this.yvboxConfirmationQuestion);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.yhboxConfirmationInfo[this.yvboxConfirmationQuestion]));
+			w5.Position = 1;
 			w5.Expand = false;
 			w5.Fill = false;
-			this.yhboxConfirmationInfo.Add(this.yvboxConfirmationQuestion);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.yhboxConfirmationInfo[this.yvboxConfirmationQuestion]));
-			w6.Position = 1;
+			this.yvboxMainContainer.Add(this.yhboxConfirmationInfo);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.yvboxMainContainer[this.yhboxConfirmationInfo]));
+			w6.PackType = ((global::Gtk.PackType)(1));
+			w6.Position = 0;
 			w6.Expand = false;
 			w6.Fill = false;
-			this.yvboxMainContainer.Add(this.yhboxConfirmationInfo);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.yvboxMainContainer[this.yhboxConfirmationInfo]));
-			w7.PackType = ((global::Gtk.PackType)(1));
+			w1.Add(this.yvboxMainContainer);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(w1[this.yvboxMainContainer]));
 			w7.Position = 0;
 			w7.Expand = false;
 			w7.Fill = false;
-			w1.Add(this.yvboxMainContainer);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(w1[this.yvboxMainContainer]));
-			w8.Position = 0;
-			w8.Expand = false;
-			w8.Fill = false;
 			// Internal child Vodovoz.Dialogs.Client.OrderCancellationConfirmationDlg.ActionArea
-			global::Gtk.HButtonBox w9 = this.ActionArea;
-			w9.Name = "dialog1_ActionArea";
-			w9.Spacing = 10;
-			w9.BorderWidth = ((uint)(5));
-			w9.LayoutStyle = ((global::Gtk.ButtonBoxStyle)(1));
+			global::Gtk.HButtonBox w8 = this.ActionArea;
+			w8.Name = "dialog1_ActionArea";
+			w8.Spacing = 10;
+			w8.BorderWidth = ((uint)(5));
+			w8.LayoutStyle = ((global::Gtk.ButtonBoxStyle)(1));
 			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
 			this.buttonOk = new global::Gtk.Button();
 			this.buttonOk.CanDefault = true;
@@ -119,13 +106,13 @@ namespace Vodovoz.Dialogs.Client
 			this.buttonOk.Name = "buttonOk";
 			this.buttonOk.UseUnderline = true;
 			this.buttonOk.Label = global::Mono.Unix.Catalog.GetString("Да");
-			global::Gtk.Image w10 = new global::Gtk.Image();
-			w10.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-yes", global::Gtk.IconSize.Menu);
-			this.buttonOk.Image = w10;
+			global::Gtk.Image w9 = new global::Gtk.Image();
+			w9.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-yes", global::Gtk.IconSize.Menu);
+			this.buttonOk.Image = w9;
 			this.AddActionWidget(this.buttonOk, -8);
-			global::Gtk.ButtonBox.ButtonBoxChild w11 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w9[this.buttonOk]));
-			w11.Expand = false;
-			w11.Fill = false;
+			global::Gtk.ButtonBox.ButtonBoxChild w10 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w8[this.buttonOk]));
+			w10.Expand = false;
+			w10.Fill = false;
 			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
 			this.buttonCancel = new global::Gtk.Button();
 			this.buttonCancel.Sensitive = false;
@@ -134,19 +121,19 @@ namespace Vodovoz.Dialogs.Client
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.UseUnderline = true;
 			this.buttonCancel.Label = global::Mono.Unix.Catalog.GetString("Нет");
-			global::Gtk.Image w12 = new global::Gtk.Image();
-			w12.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-no", global::Gtk.IconSize.Menu);
-			this.buttonCancel.Image = w12;
+			global::Gtk.Image w11 = new global::Gtk.Image();
+			w11.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-no", global::Gtk.IconSize.Menu);
+			this.buttonCancel.Image = w11;
 			this.AddActionWidget(this.buttonCancel, -9);
-			global::Gtk.ButtonBox.ButtonBoxChild w13 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w9[this.buttonCancel]));
-			w13.Position = 1;
-			w13.Expand = false;
-			w13.Fill = false;
+			global::Gtk.ButtonBox.ButtonBoxChild w12 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w8[this.buttonCancel]));
+			w12.Position = 1;
+			w12.Expand = false;
+			w12.Fill = false;
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
 			}
-			this.DefaultWidth = 341;
+			this.DefaultWidth = 322;
 			this.DefaultHeight = 137;
 			this.Show();
 		}

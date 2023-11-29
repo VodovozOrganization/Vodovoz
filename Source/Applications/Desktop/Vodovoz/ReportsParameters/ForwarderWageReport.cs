@@ -1,19 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using QS.Dialog.GtkUI;
+﻿using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Report;
 using QSReport;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using Vodovoz.Domain.Employees;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.Reports
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class ForwarderWageReport : SingleUoWWidgetBase, IParametersWidget
 	{
+		private const bool _showFinesOutsidePeriodDefault = true;
+
 		public ForwarderWageReport(INavigationManager navigationManager)
 		{
 			if(navigationManager is null)
@@ -21,16 +24,23 @@ namespace Vodovoz.Reports
 				throw new ArgumentNullException(nameof(navigationManager));
 			}
 
-			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+
+			Build();
+
+			ycheckbuttonShowFinesOutsidePeriod.Active = _showFinesOutsidePeriodDefault;
+
 			var forwarderFilter = new EmployeeFilterViewModel();
 			forwarderFilter.SetAndRefilterAtOnce(
 				x => x.Status = EmployeeStatus.IsWorking,
 				x => x.RestrictCategory = EmployeeCategory.forwarder);
+
 			var employeeFactory = new EmployeeJournalFactory(navigationManager, forwarderFilter);
+
 			evmeForwarder.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateEmployeeAutocompleteSelectorFactory());
-			evmeForwarder.Changed += (sender, e) => CanRun();
-			dateperiodpicker.PeriodChanged += (sender, e) => CanRun();
+
+			evmeForwarder.Changed += (sender, e) => RefreshSensitivity();
+			dateperiodpicker.PeriodChanged += (sender, e) => RefreshSensitivity();
 			buttonCreateReport.Clicked += (sender, e) => OnUpdate(true);
 		}
 
@@ -45,37 +55,45 @@ namespace Vodovoz.Reports
 		private ReportInfo GetReportInfo()
 		{
 			var parameters = new Dictionary<string, object>
-				{
-					{ "start_date", dateperiodpicker.StartDateOrNull },
-					{ "end_date", dateperiodpicker.EndDateOrNull },
-					{ "forwarder_id", evmeForwarder.SubjectId }
+			{
+				{ "start_date", dateperiodpicker.StartDateOrNull },
+				{ "end_date", dateperiodpicker.EndDateOrNull },
+				{ "show_fines_outside_period", ycheckbuttonShowFinesOutsidePeriod.Active },
+				{ "forwarder_id", evmeForwarder.SubjectId }
 			};
 
-			if(checkShowBalance.Active) {
+			if(checkShowBalance.Active)
+			{
 				parameters.Add("showbalance", "1");
-			} else {
+			}
+			else
+			{
 				parameters.Add("showbalance", "0");
 			}
 
-			return new ReportInfo {
+			return new ReportInfo
+			{
 				Identifier = "Employees.ForwarderWage",
 				Parameters = parameters
 			};
 		}
 
-		void OnUpdate(bool hide = false)
+		private void OnUpdate(bool hide = false)
 		{
-			if (LoadReport != null)
+			if(LoadReport != null)
 			{
 				LoadReport(this, new LoadReportEventArgs(GetReportInfo(), hide));
 			}
 		}
 
-		void CanRun()
+		private void RefreshSensitivity()
 		{
-			buttonCreateReport.Sensitive = 
-				(dateperiodpicker.EndDateOrNull != null && dateperiodpicker.StartDateOrNull != null
-					&& evmeForwarder.Subject != null);
+			buttonCreateReport.Sensitive = CanGenerate;
 		}
+
+		public bool CanGenerate =>
+			dateperiodpicker.EndDateOrNull != null
+			&& dateperiodpicker.StartDateOrNull != null
+			&& evmeForwarder.Subject != null;
 	}
 }

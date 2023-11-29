@@ -634,6 +634,7 @@
     <Compile Include="Errors\Error.cs" />
     <Compile Include="Errors\Logistics\District.cs" />
     <Compile Include="Errors\Logistics\District.FastDelivery.cs" />
+    <Compile Include="Errors\Logistics\RouteList.cs" />
     <Compile Include="Errors\Logistics\TariffZone.cs" />
     <Compile Include="Errors\Logistics\TariffZone.FastDelivery.cs" />
     <Compile Include="Errors\Orders\Order.Accept.cs" />
@@ -812,6 +813,8 @@
     <Compile Include="Permissions\Cash.Expense.cs" />
     <Compile Include="Permissions\Logistic.cs" />
     <Compile Include="Permissions\Order.UndeliveredOrder.cs" />
+    <Compile Include="Permissions\Payment.BankClient.cs" />
+    <Compile Include="Permissions\Payment.cs" />
     <Compile Include="Permissions\Report.cs" />
     <Compile Include="Permissions\User.cs" />
     <Compile Include="Permissions\Report.Sales.cs" />
@@ -980,6 +983,7 @@
     <Compile Include="Services\IUserRoleSettings.cs" />
     <Compile Include="Services\IUserSettings.cs" />
     <Compile Include="Services\Logistics\IRouteListService.cs" />
+    <Compile Include="Services\Logistics\RouteListAcceptStatus.cs" />
     <Compile Include="Services\RevenueServiceInfo.cs" />
     <Compile Include="Services\UserRoleSettings.cs" />
     <Compile Include="Tools\GeoGroupVersionNotFoundException.cs" />

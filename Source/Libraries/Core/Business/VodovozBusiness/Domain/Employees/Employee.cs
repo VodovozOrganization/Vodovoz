@@ -516,6 +516,13 @@ namespace Vodovoz.Domain.Employees
 				yield return new ValidationResult($"Не указана дата приема сотрудника",
 					new[] { nameof(DateHired) });
 			}
+
+			var emailRegEx = @"^[a-zA-Z0-9]+([\._-]?[a-zA-Z0-9]+)*@[a-zA-Zа-яА-Я0-9]+([\.-]?[a-zA-Zа-яА-Я0-9]+)*(\.[a-zA-Zа-яА-Я]{2,10})+$";
+
+			if(!string.IsNullOrWhiteSpace(Email) && !Regex.IsMatch(Email, emailRegEx))
+			{
+				yield return new ValidationResult($"Неверно указан email", new[] { nameof(Email) });
+			}
 		}
 
 		#endregion

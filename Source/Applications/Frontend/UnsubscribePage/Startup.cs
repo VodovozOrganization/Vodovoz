@@ -15,10 +15,12 @@ using QS.Project.DB;
 using System;
 using System.Reflection;
 using UnsubscribePage.Controllers;
+using UnsubscribePage.HealthChecks;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Parameters;
 using Vodovoz.Settings.Database;
+using VodovozHealthCheck;
 
 namespace UnsubscribePage
 {
@@ -50,6 +52,8 @@ namespace UnsubscribePage
 			}
 
 			services.AddControllersWithViews();
+
+			services.ConfigureHealthCheckService<UnsubscribePageHealthCheck>();
 		}
 
 		public void ConfigureContainer(ContainerBuilder builder)
@@ -99,6 +103,8 @@ namespace UnsubscribePage
 					name: "default",
 					pattern: "{controller=Unsubscribe}/{action=Index}/{id?}");
 			});
+
+			app.ConfigureHealthCheckApplicationBuilder();
 		}
 
 		private void CreateBaseConfig()

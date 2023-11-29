@@ -47,7 +47,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 			this.chkHasPromoSet = new global::Gamma.GtkWidgets.yCheckButton();
 			this.chkHasPromoSet.CanFocus = true;
 			this.chkHasPromoSet.Name = "chkHasPromoSet";
-			this.chkHasPromoSet.Label = global::Mono.Unix.Catalog.GetString("С промо-набором");
+			this.chkHasPromoSet.Label = global::Mono.Unix.Catalog.GetString("С промонабором");
 			this.chkHasPromoSet.DrawIndicator = true;
 			this.chkHasPromoSet.UseUnderline = true;
 			this.table1.Add(this.chkHasPromoSet);

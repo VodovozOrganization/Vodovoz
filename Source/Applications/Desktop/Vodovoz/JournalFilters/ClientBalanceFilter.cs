@@ -30,7 +30,7 @@ namespace Vodovoz
 			nomenclatureEntry.SetEntityAutocompleteSelectorFactory(
 			new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
 				_lifetimeScope.Resolve<ICommonServices>(), new NomenclatureFilterViewModel(), _lifetimeScope.Resolve<ICounterpartyJournalFactory>(),
-				_lifetimeScope.Resolve<INomenclatureRepository>(), _lifetimeScope.Resolve<IUserRepository>()));
+				_lifetimeScope.Resolve<INomenclatureRepository>(), _lifetimeScope.Resolve<IUserRepository>(), _lifetimeScope));
 			
 			nomenclatureEntry.ChangedByUser += NomenclatureEntryOnChangedByUser;
 

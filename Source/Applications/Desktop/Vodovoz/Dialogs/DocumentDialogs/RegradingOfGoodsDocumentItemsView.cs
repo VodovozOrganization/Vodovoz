@@ -1,4 +1,5 @@
-﻿using Gamma.GtkWidgets;
+﻿using Autofac;
+using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -25,6 +26,7 @@ using Vodovoz.Infrastructure;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.JournalSelector;
 using Vodovoz.Parameters;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
@@ -38,6 +40,7 @@ namespace Vodovoz
 		private readonly IStockRepository _stockRepository = new StockRepository();
 		private readonly INomenclatureRepository _nomenclatureRepository =
 			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+		private ILifetimeScope _lifetimeScope;
 		private RegradingOfGoodsDocumentItem newRow;
 		private RegradingOfGoodsDocumentItem FineEditItem;
 
@@ -53,6 +56,8 @@ namespace Vodovoz
 				types = uow.GetAll<CullingCategory>().OrderBy(c => c.Name).ToList();
 				regradingReasons = uow.GetAll<RegradingOfGoodsReason>().OrderBy(c => c.Name).ToList();
 			}
+
+			_lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 
 			ytreeviewItems.ColumnsConfig = ColumnsConfigFactory.Create<RegradingOfGoodsDocumentItem>()
 				.AddColumn("Старая номенклатура").AddTextRenderer(x => x.NomenclatureOld.Name)
@@ -201,7 +206,8 @@ namespace Vodovoz
 
 				var employeeService = VodovozGtkServicesConfig.EmployeeService;
 
-				var counterpartySelectorFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
+				var counterpartySelectorFactory = new CounterpartyJournalFactory(_lifetimeScope);
+				var nomenclatureSettings = _lifetimeScope.Resolve<INomenclatureSettings>();
 
 				var nomenclatureAutoCompleteSelectorFactory =
 					new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
@@ -209,7 +215,8 @@ namespace Vodovoz
 						nomenclatureFilter,
 						counterpartySelectorFactory,
 						_nomenclatureRepository,
-						userRepository
+						userRepository,
+						_lifetimeScope
 						);
 
 				var nomenclaturesJournalViewModel =
@@ -218,14 +225,15 @@ namespace Vodovoz
 					UnitOfWorkFactory.GetDefaultFactory,
 					ServicesConfig.CommonServices,
 					employeeService,
-					new NomenclatureJournalFactory(),
+					new NomenclatureJournalFactory(_lifetimeScope),
 					counterpartySelectorFactory,
 					_nomenclatureRepository,
-					userRepository
+					userRepository,
+					nomenclatureSettings
 					);
 
 				nomenclaturesJournalViewModel.SelectionMode = JournalSelectionMode.Single;
-                nomenclaturesJournalViewModel.OnEntitySelectedResult += SelectNewNomenclature_ObjectSelected;
+				nomenclaturesJournalViewModel.OnEntitySelectedResult += SelectNewNomenclature_ObjectSelected;
 
 				MyTab.TabParent.AddSlaveTab(MyTab, nomenclaturesJournalViewModel);
 			};
@@ -235,7 +243,7 @@ namespace Vodovoz
 		{
 			var journalNode = e?.SelectedNodes?.FirstOrDefault();
 			if (journalNode != null)
-            {
+			{
 				var nomenclature = DocumentUoW.GetById<Nomenclature>(journalNode.Id);
 
 				if (!nomenclature.IsDefectiveBottle)
@@ -291,9 +299,10 @@ namespace Vodovoz
 			var filter = new NomenclatureFilterViewModel();
 
 			var userRepository = new UserRepository();
+			var nomenclatureSettings = _lifetimeScope.Resolve<INomenclatureSettings>();
 
 			var employeeService = VodovozGtkServicesConfig.EmployeeService;
-			var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
+			var counterpartyJournalFactory = new CounterpartyJournalFactory(_lifetimeScope);
 
 			var nomenclatureAutoCompleteSelectorFactory = 
 				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
@@ -301,7 +310,8 @@ namespace Vodovoz
 					filter,
 					counterpartyJournalFactory,
 					_nomenclatureRepository,
-					userRepository
+					userRepository,
+					_lifetimeScope
 					);
 
 			var nomenclaturesJournalViewModel = 
@@ -310,10 +320,11 @@ namespace Vodovoz
 					UnitOfWorkFactory.GetDefaultFactory,
 					ServicesConfig.CommonServices,
 					employeeService,
-					new NomenclatureJournalFactory(),
+					new NomenclatureJournalFactory(_lifetimeScope),
 					counterpartyJournalFactory,
 					_nomenclatureRepository,
-					userRepository
+					userRepository,
+					nomenclatureSettings
 					);
 
 			nomenclaturesJournalViewModel.SelectionMode = JournalSelectionMode.Single;
@@ -323,19 +334,19 @@ namespace Vodovoz
 		}
 
 		private void ChangeNewNomenclature_OnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
-        {
+		{
 			var row = ytreeviewItems.GetSelectedObject<RegradingOfGoodsDocumentItem>();
 			if (row == null)
-            {
+			{
 				return;
 			}
 
 			var id = e.SelectedNodes.FirstOrDefault()?.Id;
 
 			if (id == null)
-            {
+			{
 				return;
-            }
+			}
 
 			var nomenclature = UoW.Session.Get<Nomenclature>(id);
 			row.NomenclatureNew = nomenclature;
@@ -430,6 +441,17 @@ namespace Vodovoz
 					});
 			}
 			LoadStock();
+		}
+
+		public override void Destroy()
+		{
+			if(_lifetimeScope != null)
+			{
+				_lifetimeScope.Dispose();
+				_lifetimeScope = null;
+			}
+
+			base.Destroy();
 		}
 	}
 }

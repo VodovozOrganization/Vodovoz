@@ -8,8 +8,8 @@ using Vodovoz.Domain.Goods;
 namespace Vodovoz.Domain.Orders
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
-		NominativePlural = "строки рекламного набора",
-		Nominative = "строка рекламного набора")]
+		NominativePlural = "строки промонабора",
+		Nominative = "строка промонабора")]
 	[HistoryTrace]
 	public class PromotionalSetItem : PropertyChangedBase, IDomainObject
 	{
@@ -20,7 +20,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual int Id { get; set; }
 
 		PromotionalSet promoSet;
-		[Display(Name = "Рекламный набор")]
+		[Display(Name = "Промонабор")]
 		public virtual PromotionalSet PromoSet {
 			get => promoSet;
 			set => SetField(ref promoSet, value, () => PromoSet);
