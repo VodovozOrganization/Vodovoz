@@ -1,4 +1,5 @@
-﻿using Autofac;
+using Autofac;
+using Gamma.Widgets;
 using MoreLinq;
 using NHibernate;
 using NHibernate.Criterion;
@@ -401,6 +402,7 @@ namespace Vodovoz.JournalViewModels
 			GeoGroup geographicalGroupAlias = null;
 			GeoGroup selfDeliveryGeographicalGroupAlias = null;
 			EdoContainer edoContainerAlias = null;
+			EdoContainer innerEdoContainerAlias = null;
 
 			var sanitizationNomenclatureIds = _nomenclatureRepository.GetSanitisationNomenclature(uow);
 
@@ -622,12 +624,27 @@ namespace Vodovoz.JournalViewModels
 												)
 											);
 
-			var edoDocFlowStatusSubquery = QueryOver.Of(() => edoContainerAlias)
-				.Where(() => orderAlias.Id == edoContainerAlias.Order.Id)
-				.And(() => edoContainerAlias.Type == Type.Upd)
-				.OrderBy(() => edoContainerAlias.Created).Desc
-				.Select(Projections.Property(() => edoContainerAlias.EdoDocFlowStatus))
-				.Take(1);
+			var edoUpdLastRecordDateByOrderSubquery = QueryOver.Of(()=> innerEdoContainerAlias)
+				.Where(() => innerEdoContainerAlias.Order.Id == orderAlias.Id)
+				.And(() => innerEdoContainerAlias.Type == Type.Upd)
+				.Select(Projections.Max(()=> innerEdoContainerAlias.Created));
+
+			var edoUpdLastStatusSubquery = QueryOver.Of(() => edoContainerAlias)
+					.Where(() => edoContainerAlias.Order.Id == orderAlias.Id)
+					.And(() => edoContainerAlias.Type == Type.Upd)
+					.WithSubquery.WhereProperty(() => edoContainerAlias.Created).Eq(edoUpdLastRecordDateByOrderSubquery)
+					.Select(Projections.Property(() => edoContainerAlias.EdoDocFlowStatus));
+
+			if(FilterViewModel.EdoDocFlowStatus is EdoDocFlowStatus edoDocFlowStatus)
+			{
+				edoUpdLastStatusSubquery.Where(ec => ec.EdoDocFlowStatus == edoDocFlowStatus);
+				query.WithSubquery.WhereExists(edoUpdLastStatusSubquery);
+			}
+
+			if(FilterViewModel.EdoDocFlowStatus is SpecialComboState specialComboState && specialComboState == SpecialComboState.Not)
+			{
+				query.WithSubquery.WhereNotExists(edoUpdLastStatusSubquery);
+			}
 
 			query.Left.JoinAlias(o => o.DeliverySchedule, () => deliveryScheduleAlias)
 					.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
@@ -686,7 +703,7 @@ namespace Vodovoz.JournalViewModels
 					.SelectSubQuery(orderSumSubquery).WithAlias(() => resultAlias.Sum)
 					.SelectSubQuery(bottleCountSubquery).WithAlias(() => resultAlias.BottleAmount)
 					.SelectSubQuery(sanitisationCountSubquery).WithAlias(() => resultAlias.SanitisationAmount)
-					.SelectSubQuery(edoDocFlowStatusSubquery).WithAlias(() => resultAlias.EdoDocFlowStatus)
+					.SelectSubQuery(edoUpdLastStatusSubquery).WithAlias(() => resultAlias.EdoDocFlowStatus)
 				)
 				.OrderBy(x => x.CreateDate).Desc
 				.SetTimeout(60)
