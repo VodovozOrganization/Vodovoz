@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using MoreLinq;
 using QS.Commands;
 using QS.Dialog;
@@ -36,6 +36,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly IWageParameterService _wageParameterService;
 		private readonly ITrackRepository _trackRepository;
 		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
+		private readonly IConfirmationQuestionDialogSettingsFactory _confirmationQuestionDialogSettingsFactory;
 		private readonly OsrmClient _osrmClient;
 		private RouteList _routeListFrom;
 		private RouteListItem _routeListItemToTransfer;
@@ -46,7 +47,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			INavigationManager navigationManager,
 			IRouteListRepository routeListRepository,
 			ICommonServices commonServices,
-			IConfirmationQuestionInteractive confirmationQuestionInteractive,
 			FastDeliveryOrderTransferFilterViewModel filterViewModel,
 			IRouteListItemRepository routeListItemRepository,
 			IRouteListProfitabilityController routeListProfitabilityController,
@@ -54,6 +54,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			ITrackRepository trackRepository,
 			OsrmClient osrmClient,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
+			IConfirmationQuestionInteractive confirmationQuestionInteractive,
+			IConfirmationQuestionDialogSettingsFactory confirmationQuestionDialogSettingsFactory,
 			int routeListAddressId)
 			: base(navigationManager)
 		{
@@ -75,6 +77,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
 			_osrmClient = osrmClient ?? throw new ArgumentNullException(nameof(osrmClient));
 			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
+			_confirmationQuestionDialogSettingsFactory = confirmationQuestionDialogSettingsFactory ?? throw new ArgumentNullException(nameof(confirmationQuestionDialogSettingsFactory));
 			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot(Title);
 
 			_driverOfflineTimeSpan = _deliveryRulesParametersProvider.MaxTimeOffsetForLatestTrackPoint;
@@ -269,7 +272,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			if(confirmationQuestions.Count > 0)
 			{
 				var confirmationResult = _confirmationQuestionInteractive.Question(
-					new ConfirmationQuestionDialogSettings { IsNoButtonAvailableByDefault = true },
+					_confirmationQuestionDialogSettingsFactory.GetFastDeliveryOrderTransferConfirmationDialogSettings(),
 					confirmationQuestions.ToArray());
 
 				if(!confirmationResult)
