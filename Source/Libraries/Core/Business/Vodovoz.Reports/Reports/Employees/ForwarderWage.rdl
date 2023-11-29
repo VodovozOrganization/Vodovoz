@@ -1388,6 +1388,9 @@
             </TableRow>
           </TableRows>
         </Footer>
+        <Visibility>
+          <Hidden>=!{?show_fines_outside_period}</Hidden>
+        </Visibility>
       </Table>
       <Textbox Name="Textbox69" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>12.74pt</Height>
@@ -1401,6 +1404,9 @@
           <BorderColor />
           <BorderWidth />
         </Style>
+        <Visibility>
+          <Hidden>=!{?show_fines_outside_period}</Hidden>
+        </Visibility>
       </Textbox>
       <Textbox Name="Textbox70" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>18.03pt</Height>
@@ -1722,7 +1728,7 @@ GROUP BY fines.id</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="ForwarderFinesInFuture">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     fines.date,
@@ -1743,6 +1749,7 @@ FROM
 WHERE
     fines_items.employee_id = @forwarder_id
         AND fines.date &gt; @end_date
+        AND @show_fines_outside_period
 GROUP BY fines.id</CommandText>
         <QueryParameters>
           <QueryParameter Name="forwarder_id">
@@ -1751,9 +1758,12 @@ GROUP BY fines.id</CommandText>
           <QueryParameter Name="end_date">
             <Value>={?end_date}</Value>
           </QueryParameter>
+          <QueryParameter Name="show_fines_outside_period">
+            <Value>={?show_fines_outside_period}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -1779,6 +1789,15 @@ GROUP BY fines.id</CommandText>
   </DataSets>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySqlConnector</DataProvider>
+        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
   <ReportParameters>
     <ReportParameter Name="forwarder_id">
       <DataType>Integer</DataType>
@@ -1823,14 +1842,12 @@ GROUP BY fines.id</CommandText>
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
+    <ReportParameter Name="show_fines_outside_period">
+      <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
+    </ReportParameter>
   </ReportParameters>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySqlConnector</DataProvider>
-        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
 </Report>
