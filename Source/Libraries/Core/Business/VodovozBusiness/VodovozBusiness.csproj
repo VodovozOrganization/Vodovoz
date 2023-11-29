@@ -989,6 +989,7 @@
     <Compile Include="Tools\IDataArchiver.cs" />
     <Compile Include="Tools\Interactive\ConfirmationQuestion\ConfirmationQuestion.cs" />
     <Compile Include="Tools\Interactive\ConfirmationQuestion\ConfirmationQuestionDialogSettings.cs" />
+    <Compile Include="Tools\Interactive\ConfirmationQuestion\ConfirmationQuestionDialogSettings.DialogPurpose.cs" />
     <Compile Include="Tools\Interactive\ConfirmationQuestion\ConfirmationQuestionDialogSettingsFactory.cs" />
     <Compile Include="Tools\Interactive\ConfirmationQuestion\IConfirmationQuestionDialogSettingsFactory.cs" />
     <Compile Include="Tools\Interactive\ConfirmationQuestion\IConfirmationQuestionInteractive.cs" />

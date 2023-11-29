@@ -2,7 +2,7 @@
 
 namespace Vodovoz.Tools.Interactive.ConfirmationQuestion
 {
-	public class ConfirmationQuestionDialogSettings
+	public partial class ConfirmationQuestionDialogSettings
 	{
 		public string Title { get; set; }
 		public string TopText { get; set; }
@@ -10,13 +10,5 @@ namespace Vodovoz.Tools.Interactive.ConfirmationQuestion
 		public bool IsYesButtonAvailableByDefault { get; set; }
 		public bool IsNoButtonAvailableByDefault { get; set; }
 		public DialogPurpose Purpose { get; set; }
-
-		public enum DialogPurpose
-		{
-			Question,
-			Info,
-			Warning,
-			Error
-		}
 	}
 }
