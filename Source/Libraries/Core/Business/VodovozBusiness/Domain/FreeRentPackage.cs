@@ -1,64 +1,79 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using System;
+using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories.RentPackages;
 
 namespace Vodovoz.Domain
 {
-	[Appellative (Gender = GrammaticalGender.Masculine,
+	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "пакеты бесплатной аренды",
-		Nominative = "пакет бесплатной аренды")]
+		Nominative = "пакет бесплатной аренды",
+		GenitivePlural = "пакетов бесплатной аренды")]
 	[EntityPermission]
-	public class FreeRentPackage: BusinessObjectBase<FreeRentPackage>, IDomainObject, IValidatableObject
+	public class FreeRentPackage : BusinessObjectBase<FreeRentPackage>, IDomainObject, IValidatableObject
 	{
+		private int _minWaterAmount;
+		private string _name;
+		private decimal _deposit;
+		private EquipmentKind _equipmentKind;
+		private Nomenclature _depositService;
+		private bool _isArchieve;
+
+		public FreeRentPackage()
+		{
+			Name = string.Empty;
+		}
+
 		#region Свойства
 
 		public virtual int Id { get; set; }
 
-		int minWaterAmount;
-
-		[Display (Name = "Минимальное количество")]
-		[Range (1, 200, ErrorMessage = "Минимальное количество воды в пакете аренды не может быть равно нулю.")]
-		public virtual int MinWaterAmount {
-			get { return minWaterAmount; }
-			set { SetField (ref minWaterAmount, value, () => MinWaterAmount); }
+		[Display(Name = "Минимальное количество")]
+		[Range(1, 200, ErrorMessage = "Минимальное количество воды в пакете аренды не может быть равно нулю.")]
+		public virtual int MinWaterAmount
+		{
+			get => _minWaterAmount;
+			set => SetField(ref _minWaterAmount, value);
 		}
 
-		string name;
-
-		[Display (Name = "Название")]
-		[Required (ErrorMessage = "Необходимо заполнить название пакета.")]
-		public virtual string Name {
-			get { return name; }
-			set { SetField (ref name, value, () => Name); }
+		[Display(Name = "Название")]
+		[Required(ErrorMessage = "Необходимо заполнить название пакета.")]
+		public virtual string Name
+		{
+			get => _name;
+			set => SetField(ref _name, value);
 		}
 
-		decimal deposit;
-
-		[Display (Name = "Залог")]
-		public virtual decimal Deposit {
-			get { return deposit; }
-			set { SetField (ref deposit, value, () => Deposit); }
+		[Display(Name = "Залог")]
+		public virtual decimal Deposit
+		{
+			get => _deposit;
+			set => SetField(ref _deposit, value);
 		}
 
-		EquipmentKind equipmentKind;
-
-		[Display (Name = "Вид оборудования")]
+		[Display(Name = "Вид оборудования")]
 		[Required(ErrorMessage = "Вид оборудования должен быть указан.")]
-		public virtual EquipmentKind EquipmentKind {
-			get { return equipmentKind; }
-			set { SetField (ref equipmentKind, value, () => EquipmentKind); }
+		public virtual EquipmentKind EquipmentKind
+		{
+			get => _equipmentKind;
+			set => SetField(ref _equipmentKind, value);
 		}
 
-		Nomenclature depositService;
+		[Display(Name = "Услуга залога")]
+		public virtual Nomenclature DepositService
+		{
+			get => _depositService;
+			set => SetField(ref _depositService, value);
+		}
 
-		[Display (Name = "Услуга залога")]
-		public virtual Nomenclature DepositService {
-			get { return depositService; }
-			set { SetField (ref depositService, value, () => DepositService); }
+		[Display(Name = "Архив")]
+		public bool IsArchieve
+		{
+			get => _isArchieve;
+			set => SetField(ref _isArchieve, value);
 		}
 
 		#endregion
@@ -72,21 +87,17 @@ namespace Vodovoz.Domain
 			{
 				throw new ArgumentNullException($"Не найден репозиторий {nameof(rentPackageRepository)}");
 			}
-			
+
 			var allready = rentPackageRepository.GetFreeRentPackage(UoW, EquipmentKind);
+
 			if(allready != null && allready.Id != Id)
 			{
-				yield return new ValidationResult (
-					String.Format ("Условия для оборудования {0} уже существуют.", EquipmentKind.Name),
-					new[] { this.GetPropertyName (o => o.EquipmentKind) });
+				yield return new ValidationResult(
+					$"Условия для оборудования {EquipmentKind.Name} уже существуют.",
+					new[] { this.GetPropertyName(o => o.EquipmentKind) });
 			}
 		}
 
 		#endregion
-
-		public FreeRentPackage ()
-		{
-			Name = String.Empty;
-		}
 	}
 }
