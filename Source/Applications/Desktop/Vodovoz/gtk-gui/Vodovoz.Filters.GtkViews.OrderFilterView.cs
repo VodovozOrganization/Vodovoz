@@ -192,7 +192,7 @@ namespace Vodovoz.Filters.GtkViews
 			this.enumCmbEdoDocFlowStatus = new global::Gamma.Widgets.yEnumComboBox();
 			this.enumCmbEdoDocFlowStatus.Name = "enumCmbEdoDocFlowStatus";
 			this.enumCmbEdoDocFlowStatus.ShowSpecialStateAll = true;
-			this.enumCmbEdoDocFlowStatus.ShowSpecialStateNot = false;
+			this.enumCmbEdoDocFlowStatus.ShowSpecialStateNot = true;
 			this.enumCmbEdoDocFlowStatus.UseShortTitle = false;
 			this.enumCmbEdoDocFlowStatus.DefaultFirst = false;
 			this.table1.Add(this.enumCmbEdoDocFlowStatus);
