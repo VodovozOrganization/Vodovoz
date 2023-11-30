@@ -28,6 +28,8 @@ namespace Vodovoz.Views.Rent
 
 		private global::Gamma.GtkWidgets.ySpinButton spinMinWaterAmount;
 
+		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonArchive;
+
 		private global::Gamma.GtkWidgets.yLabel ylblDepositService;
 
 		private global::Gamma.GtkWidgets.yLabel ylblDepositSum;
@@ -86,7 +88,7 @@ namespace Vodovoz.Views.Rent
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child vboxMain.Gtk.Box+BoxChild
-			this.datatable1 = new global::Gtk.Table(((uint)(5)), ((uint)(2)), false);
+			this.datatable1 = new global::Gtk.Table(((uint)(6)), ((uint)(2)), false);
 			this.datatable1.Name = "datatable1";
 			this.datatable1.RowSpacing = ((uint)(6));
 			this.datatable1.ColumnSpacing = ((uint)(6));
@@ -177,63 +179,77 @@ namespace Vodovoz.Views.Rent
 			w12.RightAttach = ((uint)(2));
 			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
+			this.ycheckbuttonArchive = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckbuttonArchive.CanFocus = true;
+			this.ycheckbuttonArchive.Name = "ycheckbuttonArchive";
+			this.ycheckbuttonArchive.Label = global::Mono.Unix.Catalog.GetString("Архив");
+			this.ycheckbuttonArchive.DrawIndicator = true;
+			this.ycheckbuttonArchive.UseUnderline = true;
+			this.datatable1.Add(this.ycheckbuttonArchive);
+			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.datatable1[this.ycheckbuttonArchive]));
+			w13.TopAttach = ((uint)(5));
+			w13.BottomAttach = ((uint)(6));
+			w13.RightAttach = ((uint)(2));
+			w13.XOptions = ((global::Gtk.AttachOptions)(4));
+			w13.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child datatable1.Gtk.Table+TableChild
 			this.ylblDepositService = new global::Gamma.GtkWidgets.yLabel();
 			this.ylblDepositService.Name = "ylblDepositService";
 			this.ylblDepositService.Xalign = 1F;
 			this.ylblDepositService.LabelProp = global::Mono.Unix.Catalog.GetString("Услуга залога:");
 			this.datatable1.Add(this.ylblDepositService);
-			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.datatable1[this.ylblDepositService]));
-			w13.TopAttach = ((uint)(4));
-			w13.BottomAttach = ((uint)(5));
-			w13.XOptions = ((global::Gtk.AttachOptions)(4));
-			w13.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.datatable1[this.ylblDepositService]));
+			w14.TopAttach = ((uint)(4));
+			w14.BottomAttach = ((uint)(5));
+			w14.XOptions = ((global::Gtk.AttachOptions)(4));
+			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.ylblDepositSum = new global::Gamma.GtkWidgets.yLabel();
 			this.ylblDepositSum.Name = "ylblDepositSum";
 			this.ylblDepositSum.Xalign = 1F;
 			this.ylblDepositSum.LabelProp = global::Mono.Unix.Catalog.GetString("Сумма залога:");
 			this.datatable1.Add(this.ylblDepositSum);
-			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.datatable1[this.ylblDepositSum]));
-			w14.TopAttach = ((uint)(3));
-			w14.BottomAttach = ((uint)(4));
-			w14.XOptions = ((global::Gtk.AttachOptions)(4));
-			w14.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.datatable1[this.ylblDepositSum]));
+			w15.TopAttach = ((uint)(3));
+			w15.BottomAttach = ((uint)(4));
+			w15.XOptions = ((global::Gtk.AttachOptions)(4));
+			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.ylblEquipmentType = new global::Gamma.GtkWidgets.yLabel();
 			this.ylblEquipmentType.Name = "ylblEquipmentType";
 			this.ylblEquipmentType.Xalign = 1F;
 			this.ylblEquipmentType.LabelProp = global::Mono.Unix.Catalog.GetString("Тип оборудования:");
 			this.datatable1.Add(this.ylblEquipmentType);
-			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.datatable1[this.ylblEquipmentType]));
-			w15.TopAttach = ((uint)(2));
-			w15.BottomAttach = ((uint)(3));
-			w15.XOptions = ((global::Gtk.AttachOptions)(4));
-			w15.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.datatable1[this.ylblEquipmentType]));
+			w16.TopAttach = ((uint)(2));
+			w16.BottomAttach = ((uint)(3));
+			w16.XOptions = ((global::Gtk.AttachOptions)(4));
+			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.ylblMinQtyBottles = new global::Gamma.GtkWidgets.yLabel();
 			this.ylblMinQtyBottles.Name = "ylblMinQtyBottles";
 			this.ylblMinQtyBottles.Xalign = 1F;
-			this.ylblMinQtyBottles.LabelProp = global::Mono.Unix.Catalog.GetString("Минимальное\nкол-во бутылей:");
+			this.ylblMinQtyBottles.LabelProp = global::Mono.Unix.Catalog.GetString("Минимальное\r\nкол-во бутылей:");
 			this.datatable1.Add(this.ylblMinQtyBottles);
-			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.datatable1[this.ylblMinQtyBottles]));
-			w16.TopAttach = ((uint)(1));
-			w16.BottomAttach = ((uint)(2));
-			w16.XOptions = ((global::Gtk.AttachOptions)(4));
-			w16.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.datatable1[this.ylblMinQtyBottles]));
+			w17.TopAttach = ((uint)(1));
+			w17.BottomAttach = ((uint)(2));
+			w17.XOptions = ((global::Gtk.AttachOptions)(4));
+			w17.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.ylblName = new global::Gamma.GtkWidgets.yLabel();
 			this.ylblName.Name = "ylblName";
 			this.ylblName.Xalign = 1F;
 			this.ylblName.LabelProp = global::Mono.Unix.Catalog.GetString("Название:");
 			this.datatable1.Add(this.ylblName);
-			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.datatable1[this.ylblName]));
-			w17.XOptions = ((global::Gtk.AttachOptions)(4));
-			w17.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.datatable1[this.ylblName]));
+			w18.XOptions = ((global::Gtk.AttachOptions)(4));
+			w18.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vboxMain.Add(this.datatable1);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.datatable1]));
-			w18.Position = 1;
-			w18.Expand = false;
-			w18.Fill = false;
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.datatable1]));
+			w19.Position = 1;
+			w19.Expand = false;
+			w19.Fill = false;
 			this.Add(this.vboxMain);
 			if ((this.Child != null))
 			{
