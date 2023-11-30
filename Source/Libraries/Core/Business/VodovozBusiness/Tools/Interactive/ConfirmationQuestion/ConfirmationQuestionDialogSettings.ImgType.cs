@@ -2,7 +2,7 @@
 {
 	public partial class ConfirmationQuestionDialogSettings
 	{
-		public enum DialogPurpose
+		public enum ImgType
 		{
 			Question,
 			Info,

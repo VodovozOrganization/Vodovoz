@@ -1,7 +1,6 @@
 ﻿using Gtk;
 using System;
 using Vodovoz.Tools.Interactive.ConfirmationQuestion;
-using static Vodovoz.Tools.Interactive.ConfirmationQuestion.ConfirmationQuestionDialogSettings;
 
 namespace Vodovoz.Dialogs.Interactive
 {
@@ -44,18 +43,18 @@ namespace Vodovoz.Dialogs.Interactive
 
 		private void ShowImage()
 		{
-			switch(_dialogInfo.Purpose)
+			switch(_dialogInfo.ImageType)
 			{
-				case (DialogPurpose.Question):
+				case (ConfirmationQuestionDialogSettings.ImgType.Question):
 					imageQuestion.Visible = true;
 					break;
-				case DialogPurpose.Warning:
+				case ConfirmationQuestionDialogSettings.ImgType.Warning:
 					imageWarning.Visible = true;
 					break;
-				case DialogPurpose.Error:
+				case ConfirmationQuestionDialogSettings.ImgType.Error:
 					imageError.Visible = true;
 					break;
-				case DialogPurpose.Info:
+				case ConfirmationQuestionDialogSettings.ImgType.Info:
 					imageInfo.Visible = true;
 					break;
 				default:

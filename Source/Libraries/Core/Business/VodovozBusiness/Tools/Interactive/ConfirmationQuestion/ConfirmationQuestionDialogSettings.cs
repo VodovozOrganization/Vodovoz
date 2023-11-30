@@ -9,6 +9,6 @@ namespace Vodovoz.Tools.Interactive.ConfirmationQuestion
 		public string BottomText { get; set; }
 		public bool IsYesButtonAvailableByDefault { get; set; }
 		public bool IsNoButtonAvailableByDefault { get; set; }
-		public DialogPurpose Purpose { get; set; }
+		public ImgType ImageType { get; set; }
 	}
 }
