@@ -186,7 +186,7 @@ namespace Vodovoz.Application.Services.Logistics
 
 				if(routeList is null)
 				{
-					_logger.LogWarning("Маршрутный лист с номером {RouteListId} не найден, не удалось отправить в путь");
+					_logger.LogWarning("Маршрутный лист с номером {RouteListId} не найден, не удалось отправить в путь", routeListId);
 
 					return;
 				}
