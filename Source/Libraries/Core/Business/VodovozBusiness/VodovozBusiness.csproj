@@ -59,6 +59,7 @@
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
     <Compile Include="ConfigureDeletion.cs" />
+    <Compile Include="DependencyInjection.cs" />
     <Compile Include="Domain\Cash\CashTransfer\CashTransferDocumentStatuses.cs" />
     <Compile Include="Controllers\INomenclatureOnlineParametersController.cs" />
     <Compile Include="Controllers\NomenclatureOnlineParametersController.cs" />
