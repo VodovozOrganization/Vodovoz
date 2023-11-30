@@ -523,6 +523,8 @@ namespace Vodovoz.ViewModels.Logistic
 							_routeListService.SendEnRoute(uowLocal, routeListId);
 						}
 
+						Refresh();
+
 						if(isSlaveTabActive)
 						{
 							return;

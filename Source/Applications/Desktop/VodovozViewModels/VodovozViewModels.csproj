@@ -130,6 +130,7 @@
     <Compile Include="Journals\FilterViewModels\Complaints\ComplaintFilterViewModel.DateFilterType.cs" />
     <Compile Include="Journals\FilterViewModels\Counterparties\ExternalCounterpartiesMatchingJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Counterparties\PhonesJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\GeoGroup\GeoGroupJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Goods\InventoryInstancesJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Logistic\CarJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Orders\UndeliveryDetalizationJournalFilterViewModel.cs" />
@@ -145,7 +146,6 @@
     <Compile Include="Journals\FilterViewModels\Store\WarehouseDocumentsItemsJournalFilterViewModel.cs" />
     <Compile Include="Journals\JournalFactories\UndeliveryDetalizationlFactory.cs" />
     <Compile Include="Journals\JournalFactories\IUndeliveryDetalizationlFactory.cs" />
-    <Compile Include="Journals\JournalFactories\IGeoGroupJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\IRouteListJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\IComplaintKindJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\ISalesChannelJournalFactory.cs" />
@@ -326,7 +326,6 @@
     <Compile Include="Journals\FilterViewModels\Roboats\RoboatsCallsFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Security\RegisteredRMJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Store\MovementWagonJournalFilterViewModel.cs" />
-    <Compile Include="Journals\JournalFactories\GeoGroupJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\IProductGroupJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\ProductGroupJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\RoboatsJournalsFactory.cs" />
@@ -868,6 +867,10 @@
     <ProjectReference Include="..\..\..\Libraries\External\QSProjects\Binding\Gamma.Binding.Core\Gamma.Binding.Core.csproj">
       <Project>{B88C5808-8D6C-451E-9D63-E5441C7A1004}</Project>
       <Name>Gamma.Binding.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\External\QSProjects\Binding\Gamma.Binding\Gamma.Binding.csproj">
+      <Project>{190CEA0D-EA23-4C91-8030-203A5AFED7B7}</Project>
+      <Name>Gamma.Binding</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\External\QSProjects\Binding\Gamma.Utilities\Gamma.Utilities.csproj">
       <Project>{1bf2a638-420d-456c-96a7-36873a0fb894}</Project>

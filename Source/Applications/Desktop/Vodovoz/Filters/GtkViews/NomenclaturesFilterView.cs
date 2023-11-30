@@ -1,17 +1,17 @@
-﻿using QS.Views.GtkUI;
+﻿using Gamma.Utilities;
+using QS.Views.GtkUI;
+using System.ComponentModel;
 using Vodovoz.Domain.Goods;
-using Vodovoz.FilterViewModels.Goods;
-using Gamma.Utilities;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 
 namespace Vodovoz.Filters.GtkViews
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class NomenclaturesFilterView : FilterViewBase<NomenclatureFilterViewModel>
 	{
 		public NomenclaturesFilterView(NomenclatureFilterViewModel filterViewModel) : base(filterViewModel)
 		{
-			this.Build();
+			Build();
 			Configure();
 			InitializeRestrictions();
 		}
@@ -35,6 +35,13 @@ namespace Vodovoz.Filters.GtkViews
 
 			ViewModel.RestrictArchive = false;
 			chkShowArchive.Binding.AddBinding(ViewModel, vm => vm.RestrictArchive, w => w.Active).InitializeFromSource();
+
+			yenumcomboboxAdditionalInfo.ItemsEnum = typeof(GlassHolderType);
+			yenumcomboboxAdditionalInfo.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.GlassHolderType, w => w.SelectedItemOrNull)
+				.AddFuncBinding(vm => vm.RestrictCategory == null || vm.RestrictCategory == NomenclatureCategory.equipment, w => w.Sensitive)
+				.InitializeFromSource();
 		}
 
 		void InitializeRestrictions()

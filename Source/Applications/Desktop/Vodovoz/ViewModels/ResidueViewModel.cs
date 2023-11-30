@@ -16,7 +16,6 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
@@ -205,7 +204,7 @@ namespace Vodovoz.ViewModels
 					var filter = new NomenclatureFilterViewModel();
 					filter.RestrictCategory = NomenclatureCategory.equipment;
 
-					var nomenclatureJournalFactory = new NomenclatureJournalFactory();
+					var nomenclatureJournalFactory = new NomenclatureJournalFactory(_lifetimeScope);
 					var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel();
 					journal.FilterViewModel = filter;
 					journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult; ;

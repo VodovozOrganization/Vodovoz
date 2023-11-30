@@ -6,6 +6,7 @@ using System;
 using System.Threading.Tasks;
 using ExternalSmsMessage = Sms.External.Interface.SmsMessage;
 using InternalSmsMessage = Sms.Internal.SmsMessage;
+using Gamma.Utilities;
 
 namespace Sms.Internal.Service
 {
@@ -28,7 +29,15 @@ namespace Sms.Internal.Service
 			try
 			{
 				smsResult = SendSms(smsMessage);
-				_logger.LogInformation("Смс отправлена на номер {0}", smsMessage.MobilePhone);
+
+				if(smsResult.Status == ResultStatus.Ok)
+				{
+					_logger.LogInformation("Смс отправлена на номер {MobilePhone}", smsMessage.MobilePhone);
+				}
+				else
+				{
+					_logger.LogError("Ошибка отправки смс {ErrorDescription}", smsResult.ErrorDescription);
+				}
 			}
 			catch(Exception ex)
 			{
@@ -37,7 +46,7 @@ namespace Sms.Internal.Service
 					Status = ResultStatus.Error, 
 					ErrorDescription = $"Ошибка при отправке смс сообщения на номер {smsMessage.MobilePhone}. {ex.Message}" 
 				};
-				_logger.LogError(ex, "Ошибка при отправке смс сообщения на номер {0}.", smsMessage.MobilePhone);
+				_logger.LogError(ex, "Ошибка при отправке смс сообщения на номер {MobilePhone}.", smsMessage.MobilePhone);
 			}
 
 			return Task.FromResult(smsResult);
@@ -52,31 +61,26 @@ namespace Sms.Internal.Service
 			if(smsMessage.ExpiredTime != null && DateTime.Now > smsMessage.ExpiredTime.ToDateTime().ToLocalTime())
 			{
 				smsResult.ErrorDescription = "Время отправки Sms сообщения вышло";
+				smsResult.Status = ResultStatus.Error;
+
+				_logger.LogError(smsResult.ErrorDescription);
+
 				return smsResult;
 			}
 
 			var result = _smsSender.SendSms(externalSms);
 
-			_logger.LogInformation("Отправлено уведомление. Тел.: {0}, результат: {1}", externalSms.MobilePhoneNumber, result.Status);
-
-			switch(result.Status)
+			if(result.IsSuccefullStatus())
 			{
-				case SmsSentStatus.InvalidMobilePhone:
-					smsResult.ErrorDescription = $"Неверно заполнен номер мобильного телефона. ({smsMessage.MobilePhone})";
-					break;
-				case SmsSentStatus.TextIsEmpty:
-					smsResult.ErrorDescription = $"Не заполнен текст сообщения";
-					break;
-				case SmsSentStatus.SenderAddressInvalid:
-					smsResult.ErrorDescription = $"Неверное имя отправителя";
-					break;
-				case SmsSentStatus.NotEnoughBalance:
-					smsResult.ErrorDescription = $"Недостаточно средств на счете";
-					break;
-				case SmsSentStatus.UnknownError:
-					smsResult.ErrorDescription = $"{result.Description}";
-					break;
+				smsResult.Status = ResultStatus.Ok;
 			}
+			else
+			{
+				smsResult.ErrorDescription = result.GetEnumTitle();
+				smsResult.Status = ResultStatus.Error;
+			}
+
+			_logger.LogInformation("Отправлено уведомление. Тел.: {MobilePhoneNumber}, результат: {Result}", externalSms.MobilePhoneNumber, result.GetEnumTitle());
 
 			return smsResult;
 		}

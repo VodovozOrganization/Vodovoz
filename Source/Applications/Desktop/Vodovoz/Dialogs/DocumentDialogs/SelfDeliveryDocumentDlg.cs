@@ -1,6 +1,4 @@
-﻿using System;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
+﻿using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using QS.Dialog.GtkUI;
@@ -9,29 +7,32 @@ using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
+using QS.Validation;
+using System;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Permissions.Warehouses;
+using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
-using Vodovoz.EntityRepositories.Store;
-using Vodovoz.PermissionExtensions;
-using Vodovoz.Services;
-using Vodovoz.Tools.CallTasks;
-using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Parameters;
+using Vodovoz.PermissionExtensions;
+using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
+using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Store;
-using QS.Validation;
-using Autofac;
 
 namespace Vodovoz
 {
@@ -39,7 +40,7 @@ namespace Vodovoz
 	{
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory = new NomenclatureJournalFactory();
+		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IStockRepository _stockRepository = new StockRepository();
 		private readonly BottlesRepository _bottlesRepository = new BottlesRepository();
@@ -49,11 +50,15 @@ namespace Vodovoz
 			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		private GenericObservableList<GoodsReceptionVMNode> GoodsReceptionList = new GenericObservableList<GoodsReceptionVMNode>();
 
+		private GeoGroup _warehouseGeoGroup;
+
 		public SelfDeliveryDocumentDlg()
 		{
 			this.Build();
 
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<SelfDeliveryDocument>();
+			_nomenclatureSelectorFactory = new NomenclatureJournalFactory(_lifetimeScope);
+
 			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
@@ -127,7 +132,7 @@ namespace Vodovoz
 			lstWarehouse.ItemSelected += OnWarehouseSelected;
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			var orderFactory = _lifetimeScope.Resolve<IOrderSelectorFactory>();
-			evmeOrder.SetEntityAutocompleteSelectorFactory(orderFactory.CreateSelfDeliveryDocumentOrderAutocompleteSelector());
+			evmeOrder.SetEntityAutocompleteSelectorFactory(orderFactory.CreateSelfDeliveryDocumentOrderAutocompleteSelector(() => _warehouseGeoGroup));
 			evmeOrder.Binding.AddBinding(Entity, e => e.Order, w => w.Subject).InitializeFromSource();
 			evmeOrder.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 			evmeOrder.ChangedByUser += (sender, e) => 
@@ -162,34 +167,34 @@ namespace Vodovoz
 					c.Editable = false;
 					c.Editable = n.Category == NomenclatureCategory.equipment;
 				})
-                .AddColumn("Причина").AddEnumRenderer(
-                    node => node.DirectionReason
-                    ,true
-                ).AddSetter((c, n) =>
-                {
-                    switch (n.DirectionReason)
-                    {
-                        case DirectionReason.Rent:
-                            c.Text = "Закрытие аренды";
-                            break;
-                        case DirectionReason.Repair:
-                            c.Text = "В ремонт";
-                            break;
-                        case DirectionReason.Cleaning:
-                            c.Text = "На санобработку";
-                            break;
-                        case DirectionReason.RepairAndCleaning:
-                            c.Text = "В ремонт и санобработку";
-                            break;
-                        default:
-                            break;
-                    }
+				.AddColumn("Причина").AddEnumRenderer(
+					node => node.DirectionReason
+					,true
+				).AddSetter((c, n) =>
+				{
+					switch (n.DirectionReason)
+					{
+						case DirectionReason.Rent:
+							c.Text = "Закрытие аренды";
+							break;
+						case DirectionReason.Repair:
+							c.Text = "В ремонт";
+							break;
+						case DirectionReason.Cleaning:
+							c.Text = "На санобработку";
+							break;
+						case DirectionReason.RepairAndCleaning:
+							c.Text = "В ремонт и санобработку";
+							break;
+						default:
+							break;
+					}
 					c.Editable = false;
 					c.Editable = n.Category == NomenclatureCategory.equipment;
 				})
 
 
-                .AddColumn("")
+				.AddColumn("")
 				.Finish();
 			yTreeOtherGoods.ColumnsConfig = goodsColumnsConfig;
 			yTreeOtherGoods.ItemsDataSource = GoodsReceptionList;
@@ -292,6 +297,26 @@ namespace Vodovoz
 			return true;
 		}
 
+		private void UpdateWarehouseGeoGroup()
+		{
+			if(Entity.Warehouse == null)
+			{
+				_warehouseGeoGroup = null;
+				return;
+			}
+
+			var parentSubdivision = Entity.Warehouse?.OwningSubdivision;
+			var geoGroup = parentSubdivision?.GeographicGroup;
+
+			while(geoGroup == null && parentSubdivision != null )
+			{
+				parentSubdivision = parentSubdivision.ParentSubdivision;
+				geoGroup = parentSubdivision?.GeographicGroup;
+			}
+
+			_warehouseGeoGroup = geoGroup;
+		}
+
 		private void UpdateOrderInfo()
 		{
 			if(Entity.Order == null) {
@@ -315,6 +340,7 @@ namespace Vodovoz
 			UpdateAmounts();
 			UpdateWidgets();
 			FillTrees();
+			UpdateWarehouseGeoGroup();
 		}
 
 		private void UpdateAmounts()

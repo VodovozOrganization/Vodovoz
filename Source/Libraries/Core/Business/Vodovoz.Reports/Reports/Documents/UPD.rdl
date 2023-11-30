@@ -128,10 +128,10 @@ WHERE
     counterparty.special_gov_contract,
     counterparty.special_delivery_address,
     CONCAT(
-            counterparty.inn,
+            IFNULL(counterparty.inn, ''),
             '/',
-            IF(counterparty.use_special_doc_fields AND @special_fields AND !IS_NULL_OR_WHITESPACE(counterparty.payer_special_kpp),
-               counterparty.payer_special_kpp, counterparty.kpp)
+             IFNULL(IF(counterparty.use_special_doc_fields AND @special_fields AND !IS_NULL_OR_WHITESPACE(counterparty.payer_special_kpp),
+               counterparty.payer_special_kpp, counterparty.kpp), '')
         ) AS inn_kpp,
     CASE
         WHEN counterparty.cargo_receiver_source = 'FromDeliveryPoint' THEN CONCAT(counterparty.full_name, ', ', counterparty.inn, '/',
@@ -163,7 +163,9 @@ WHERE
                 '    '
         ) AS bottles_in_fact,
     orders.self_delivery AS is_self_delivery,
-    (select count(*) from order_items oi where oi.order_id = orders.id) as order_items_count
+    (select count(*) from order_items oi where oi.order_id = orders.id) as order_items_count,
+    counterparty.inn,
+    counterparty.kpp 
 FROM orders
          LEFT JOIN
      counterparty ON orders.client_id = counterparty.id
