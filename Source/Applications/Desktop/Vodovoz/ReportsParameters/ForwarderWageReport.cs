@@ -15,7 +15,7 @@ namespace Vodovoz.Reports
 	[ToolboxItem(true)]
 	public partial class ForwarderWageReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		private const bool _showFinesOutsidePeriodDefault = true;
+		private const bool _showFinesOutsidePeriodDefault = false;
 
 		public ForwarderWageReport(INavigationManager navigationManager)
 		{
