@@ -3249,7 +3249,7 @@ namespace Vodovoz
 				yCmbPromoSets.ItemsList = promoSets.Where(s => s.IsValidForOrder(Entity, _baseParametersProvider));
 
 				if(Entity.Id == 0
-					|| Entity.PaymentType == PaymentType.Cashless)
+					&& Entity.PaymentType == PaymentType.Cashless)
 				{
 					Entity.PaymentType = Entity.Client.PaymentMethod;
 					OnEnumPaymentTypeChanged(null, e);
