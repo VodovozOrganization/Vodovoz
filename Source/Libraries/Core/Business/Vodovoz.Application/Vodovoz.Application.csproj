@@ -5,7 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\External\QSProjects\Binding\Gamma.Utilities\Gamma.Utilities.csproj" />
     <ProjectReference Include="..\..\Backend\RevenueService.Client\RevenueService.Client.csproj" />
     <ProjectReference Include="..\VodovozBusiness\VodovozBusiness.csproj" />
   </ItemGroup>
