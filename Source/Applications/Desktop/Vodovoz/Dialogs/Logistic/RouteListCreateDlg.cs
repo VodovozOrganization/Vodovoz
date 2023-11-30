@@ -778,7 +778,7 @@ namespace Vodovoz
 					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
 						$"Возникла ошибка при подтверждении МЛ {Entity.Id}, МЛ был сохранён, но не подтверждён.\n" +
 						$"Будет произведена попытка переоткрытия вкладки.\n" +
-						$"Ошибка: {ex.Message}");
+						$"Ошибка: {ex.Message}\n{ex.StackTrace}");
 
 					OnCloseTab(false);
 

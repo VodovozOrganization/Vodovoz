@@ -1,5 +1,4 @@
-﻿using Gamma.Utilities;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using MoreLinq;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -19,6 +18,7 @@ using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Errors;
+using Vodovoz.Extensions;
 using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Tools.CallTasks;
@@ -467,7 +467,7 @@ namespace Vodovoz.Application.Services.Logistics
 			if(routeList.GetCarVersion.IsCompanyCar && routeList.Car.CarModel.CarTypeOfUse == CarTypeOfUse.Truck && !routeList.NeedToLoad)
 			{
 				if(commonServices.InteractiveService.Question(
-					$"Маршрутный лист для транспортировки на склад, перевести машрутный лист сразу в статус '{RouteListStatus.OnClosing.GetEnumTitle()}'?"))
+					$"Маршрутный лист для транспортировки на склад, перевести машрутный лист сразу в статус '{RouteListStatus.OnClosing.GetEnumDisplayName()}'?"))
 				{
 					routeList.CompleteRouteAndCreateTask(_wageParameterService, _callTaskWorker, _trackRepository);
 				}
@@ -479,7 +479,7 @@ namespace Vodovoz.Application.Services.Logistics
 
 				if(!routeList.NeedToLoad && !needTerminal)
 				{
-					if(commonServices.InteractiveService.Question($"Для маршрутного листа, нет необходимости грузится на складе. Перевести маршрутный лист сразу в статус '{RouteListStatus.EnRoute.GetEnumTitle()}'?"))
+					if(commonServices.InteractiveService.Question($"Для маршрутного листа нет необходимости грузится на складе. Перевести маршрутный лист сразу в статус '{RouteListStatus.EnRoute.GetEnumDisplayName()}'?"))
 					{
 						var contextItemsEnroute = new Dictionary<object, object>
 							{
