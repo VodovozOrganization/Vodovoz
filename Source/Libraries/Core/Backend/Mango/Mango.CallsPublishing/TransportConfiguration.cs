@@ -1,28 +1,17 @@
 ﻿using Mango.Core.Dto;
 using MassTransit;
 using RabbitMQ.Client;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Mango.CallsPublishing
 {
-    public static class TransportConfiguration
+	public static class TransportConfiguration
     {
 		/// <summary>
 		/// Конфигурирует общие настройки для сообщений
 		/// </summary>
-		public static void ConfigureMangoMessageTopology(this IRabbitMqBusFactoryConfigurator configurator, IBusRegistrationContext context)
+		public static void AddMangoBaseTopology(this IRabbitMqBusFactoryConfigurator configurator, IBusRegistrationContext context)
 		{
-			configurator.Message<MangoCallEvent>(x => x.SetEntityName("mango.call_event.publish"));
-		}
-
-		/// <summary>
-		/// Конфигурирует настройки отправки сообщений
-		/// </summary>
-		public static void ConfigureMangoProducerTopology(this IRabbitMqBusFactoryConfigurator configurator, IBusRegistrationContext context)
-		{
-			configurator.ConfigureMangoMessageTopology(context);
+			configurator.Message<MangoCallEvent>(x => x.SetEntityName("mango.event.call.publish"));
 
 			configurator.Publish<MangoCallEvent>(x =>
 			{
@@ -30,6 +19,14 @@ namespace Mango.CallsPublishing
 				x.Durable = true;
 				x.AutoDelete = false;
 			});
+		}
+
+		/// <summary>
+		/// Конфигурирует настройки отправки сообщений
+		/// </summary>
+		public static void AddMangoProducerTopology(this IRabbitMqBusFactoryConfigurator configurator, IBusRegistrationContext context)
+		{
+			configurator.AddMangoBaseTopology(context);
 		}
 	}
 

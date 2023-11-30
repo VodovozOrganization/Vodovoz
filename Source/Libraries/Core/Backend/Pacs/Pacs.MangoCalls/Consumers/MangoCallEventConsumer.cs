@@ -1,10 +1,12 @@
 ﻿using Mango.Core.Dto;
 using MassTransit;
+using Pacs.Core;
 using Pacs.Core.Messages.Commands;
 using Pacs.MangoCalls.Services;
 using Pacs.Server.Consumers;
 using System;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Pacs;
 
 namespace Pacs.MangoCalls.Consumers
 {

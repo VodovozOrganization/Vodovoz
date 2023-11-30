@@ -1,5 +1,4 @@
 ﻿using NHibernate;
-using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
@@ -9,7 +8,7 @@ using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.ViewModels.Dialogs.Counterparty;
+using Vodovoz.ViewModels.Dialogs.Counterparties;
 using Vodovoz.ViewModels.Journals.JournalNodes.Client;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client

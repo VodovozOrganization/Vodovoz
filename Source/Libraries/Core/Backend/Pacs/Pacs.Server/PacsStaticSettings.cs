@@ -2,7 +2,7 @@
 
 namespace Pacs.Server
 {
-	public class PacsStaticSettings : IPacsSettings
+	/*public class PacsStaticSettings : IPacsSettings
 	{
 		public TimeSpan OperatorInactivityTimeout => TimeSpan.FromMinutes(60);
 
@@ -11,5 +11,5 @@ namespace Pacs.Server
 		public TimeSpan CallEventsSeqCacheTimeout => TimeSpan.FromHours(6);
 
 		public TimeSpan CallEventsSeqCacheCleanInterval => TimeSpan.FromMinutes(60);
-	}
+	}*/
 }

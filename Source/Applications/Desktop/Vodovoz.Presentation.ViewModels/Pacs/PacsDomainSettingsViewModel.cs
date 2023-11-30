@@ -25,8 +25,8 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 		private bool _saveInProgress;
 		private IDisposable _settingsSubscription;
-		private IPacsDomainSettings _originalSettings;
-		private IPacsDomainSettings _settingsBeforeChange;
+		private DomainSettings _originalSettings;
+		private DomainSettings _settingsBeforeChange;
 		private int _maxBreakTime;
 		private int _maxOperatorsOnBreak;
 
@@ -80,18 +80,19 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		public bool CanEdit => _canEdit;
 
 		public bool HasChanges => CanEdit && _originalSettings != null
-			&& MaxBreakTime != (int)_originalSettings.MaxBreakTime.TotalMinutes
-			&& MaxOperatorsOnBreak != _originalSettings.MaxOperatorsOnBreak
+			&& (MaxBreakTime != (int)_originalSettings.MaxBreakTime.TotalMinutes
+			|| MaxOperatorsOnBreak != _originalSettings.MaxOperatorsOnBreak)
 			;
 
 		public bool HasExternalChanges => _settingsBeforeChange != null 
-			&&_settingsBeforeChange != _originalSettings;
+			&& !_settingsBeforeChange.Equals(_originalSettings);
 
 		public bool CanSave => HasChanges && !_saveInProgress && !HasExternalChanges;
 
 		#region Settings
 
 		[PropertyChangedAlso(nameof(HasChanges))]
+		[PropertyChangedAlso(nameof(CanSave))]
 		public virtual int MaxBreakTime
 		{
 			get => _maxBreakTime;
@@ -106,6 +107,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		public int MaxBreakTimeMaxValue => 1440;
 
 		[PropertyChangedAlso(nameof(HasChanges))]
+		[PropertyChangedAlso(nameof(CanSave))]
 		public virtual int MaxOperatorsOnBreak
 		{
 			get => _maxOperatorsOnBreak;
@@ -151,7 +153,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			{
 				_saveInProgress = true;
 
-				var newSettings = new PacsDomainSettings
+				var newSettings = new DomainSettings
 				{
 					AdministratorId = _employee.Id,
 					Timestamp = DateTime.Now,
@@ -160,6 +162,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 				};
 
 				await _adminClient.SetSettings(newSettings);
+				_originalSettings = newSettings;
 			}
 			finally
 			{
@@ -186,6 +189,8 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			StopTrackChanges();
 			OnPropertyChanged(nameof(HasChanges));
 			OnPropertyChanged(nameof(HasExternalChanges));
+			OnPropertyChanged(nameof(MaxBreakTime));
+			OnPropertyChanged(nameof(MaxOperatorsOnBreak));
 		}
 
 		private void StartTrackChanges()

@@ -5,6 +5,7 @@ using System;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Pacs;
+using PacsCallState = Vodovoz.Core.Domain.Pacs.CallState;
 
 namespace Vodovoz.Presentation.ViewModels.Pacs
 {
@@ -12,11 +13,17 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 	{
 		private bool _connected;
 
+		public CallModel()
+		{
+			CallEvents = new GenericObservableList<CallEvent>();
+		}
+
 		public OperatorModel Operator { get; set; }
 		public DateTime Started => CallEvents.Last().EventTime;
 		public DateTime Ended => CurrentState.EventTime;
+		public TimeSpan Duration => Ended - Started;
 		public CallEvent CurrentState => CallEvents.First();
-		public GenericObservableList<CallEvent> CallEvents { get; set; }
+		public GenericObservableList<CallEvent> CallEvents { get; }
 
 		public event EventHandler CallMissed;
 
@@ -44,7 +51,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 		private void CheckConnected()
 		{
-			if(CurrentState.CallState == CallState.Connected)
+			if(CurrentState.CallState == PacsCallState.Connected)
 			{
 				_connected = true;
 			}
@@ -52,7 +59,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 		private void CheckMissed()
 		{
-			if(CurrentState.CallState != CallState.Disconnected)
+			if(CurrentState.CallState != PacsCallState.Disconnected)
 			{
 				return;
 			}

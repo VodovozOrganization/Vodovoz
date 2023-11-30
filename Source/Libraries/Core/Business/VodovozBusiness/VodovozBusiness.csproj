@@ -576,7 +576,6 @@
     <Compile Include="EntityRepositories\Orders\PromotionalSetRepository.cs" />
     <Compile Include="EntityRepositories\Orders\SmsPaymentRepository.cs" />
     <Compile Include="EntityRepositories\Organizations\IOrganizationRepository.cs" />
-    <Compile Include="EntityRepositories\Pacs\PacsRepository.cs" />
     <Compile Include="EntityRepositories\Permissions\EntityExtendedPermission.cs" />
     <Compile Include="EntityRepositories\Permissions\IPrivilegesRepository.cs" />
     <Compile Include="EntityRepositories\Permissions\IUserRoleRepository.cs" />
@@ -981,6 +980,7 @@
     <Compile Include="Services\IUserRoleSettings.cs" />
     <Compile Include="Services\IUserSettings.cs" />
     <Compile Include="Services\Logistics\IRouteListService.cs" />
+    <Compile Include="Services\PacsEmployeeProvider.cs" />
     <Compile Include="Services\RevenueServiceInfo.cs" />
     <Compile Include="Services\UserRoleSettings.cs" />
     <Compile Include="Tools\GeoGroupVersionNotFoundException.cs" />
@@ -1450,6 +1450,10 @@
       <Project>{d3b6592d-6dcf-40f7-8627-3b4a6cbb040c}</Project>
       <Name>CashReceiptApi.Client.Framework</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Backend\Pacs\Pacs.Core\Pacs.Core.csproj">
+      <Project>{2A0BF064-B8AB-4FBC-9765-673A9255E6CE}</Project>
+      <Name>Pacs.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Backend\Sms\Sms.Internal.Client.Famework\Sms.Internal.Client.Framework.csproj">
       <Project>{e6465994-0f46-4c9f-8ce4-bcb98f916b17}</Project>
       <Name>Sms.Internal.Client.Framework</Name>
@@ -1481,6 +1485,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Domain\Common\" />
+    <Folder Include="EntityRepositories\Pacs\" />
     <Folder Include="NHibernateProjections\Counterparty\" />
   </ItemGroup>
 </Project>

@@ -68,11 +68,13 @@ using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Counterparties;
 using Vodovoz.ViewModels.Counterparties.ClientClassification;
 using Vodovoz.ViewModels.Dialogs.Complaints;
-using Vodovoz.ViewModels.Dialogs.Counterparty;
+using Vodovoz.ViewModels.Dialogs.Counterparties;
 using Vodovoz.ViewModels.Dialogs.Email;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Dialogs.Logistic;
+using Vodovoz.ViewModels.Dialogs.Mango;
+using Vodovoz.ViewModels.Dialogs.Mango.Talks;
 using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.Dialogs.Roboats;
 using Vodovoz.ViewModels.Dialogs.Sales;
@@ -150,9 +152,12 @@ using Vodovoz.Views.Employees;
 using Vodovoz.Views.Flyers;
 using Vodovoz.Views.Goods;
 using Vodovoz.Views.Logistic;
+using Vodovoz.Views.Mango;
+using Vodovoz.Views.Mango.Talks;
 using Vodovoz.Views.Orders;
 using Vodovoz.Views.Orders.OrdersWithoutShipment;
 using Vodovoz.Views.Organization;
+using Vodovoz.Views.Pacs;
 using Vodovoz.Views.Payments;
 using Vodovoz.Views.Permissions;
 using Vodovoz.Views.Print;
@@ -335,8 +340,14 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<UndeliveryKindViewModel, UndeliveryKindView>()
 				.RegisterWidgetForTabViewModel<UndeliveryDetalizationViewModel, UndeliveryDetalizationView>()
 				.RegisterWidgetForTabViewModel<RegradingOfGoodsReasonViewModel, RegradingOfGoodsReasonView>()
-				//.RegisterWidgetForTabViewModel<PacsViewModel, PacsView>()
 				.RegisterWidgetForTabViewModel<CounterpartyClassificationCalculationViewModel, CounterpartyClassificationCalculationView>()
+				.RegisterWidgetForTabViewModel<PacsViewModel, PacsView>()
+				.RegisterWidgetForTabViewModel<SubscriberSelectionViewModel, SubscriberSelectionView>()
+				.RegisterWidgetForTabViewModel<CounterpartyTalkViewModel, CounterpartyTalkView>()
+				.RegisterWidgetForTabViewModel<UnknowTalkViewModel, UnknowTalkView>()
+				.RegisterWidgetForTabViewModel<IncomingCallViewModel, IncomingCallView>()
+				//.RegisterWidgetForTabViewModel<InnerPhoneViewModel, InnerPhoneView>()
+
 				;
 
 			//Регистрация виджетов

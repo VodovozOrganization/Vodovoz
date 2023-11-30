@@ -35,7 +35,7 @@ namespace Pacs.Test.OperatorClient
 
 					if(result.Result == Result.Success)
 					{
-						var state = result.Operator;
+						var state = result.OperatorState;
 						Console.WriteLine($"Оператор Id: {state.Id}");
 						Console.WriteLine($"Состояние: {state.State}");
 						Console.WriteLine($"Начало: {state.Started}");

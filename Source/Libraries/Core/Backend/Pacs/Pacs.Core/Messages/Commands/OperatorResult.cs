@@ -10,17 +10,17 @@ namespace Pacs.Core.Messages.Commands
 
 		public OperatorResult(OperatorState actualState)
 		{
-			Operator = actualState;
+			OperatorState = actualState;
 			Result = Result.Success;
 		}
 
 		public OperatorResult(OperatorState actualState, string failureDescription)
 		{
-			Operator = actualState;
+			OperatorState = actualState;
 			Result = Result.Failure;
 			FailureDescription = failureDescription;
 		}
 
-		public OperatorState Operator { get; set; }
+		public OperatorState OperatorState { get; set; }
 	}
 }

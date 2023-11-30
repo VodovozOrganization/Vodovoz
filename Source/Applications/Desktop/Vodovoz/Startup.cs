@@ -43,6 +43,7 @@ using VodovozInfrastructure.Configuration;
 using VodovozInfrastructure.Passwords;
 using Connection = QS.Project.DB.Connection;
 using UserRepository = Vodovoz.EntityRepositories.UserRepository;
+using DatabaseInfo = Core.Infrastructure.DatabaseInfo;
 
 namespace Vodovoz
 {
@@ -108,7 +109,7 @@ namespace Vodovoz
 			if(LoginResult == ResponseType.DeleteEvent || LoginResult == ResponseType.Cancel)
 				return;
 
-			DataBaseInfo = new Vodovoz.Infrastructure.Database.DatabaseInfo(LoginDialog.BaseName, false);
+			DataBaseInfo = new DatabaseInfo(LoginDialog.BaseName, false);
 
 			LoginDialog.Destroy();
 

@@ -1,39 +1,40 @@
-﻿using QS.DomainModel.UoW;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using QS.DomainModel.UoW;
 using System;
 using Vodovoz.Core.Data.Repositories;
+using Vodovoz.Settings.Pacs;
 
 namespace Pacs.Server
 {
 	public class OperatorAgentFactory : IOperatorAgentFactory
 	{
-		private readonly IPacsSettings _pacsSettings;
-		private readonly IOperatorRepository _operatorRepository;
-		private readonly IOperatorNotifier _operatorNotifier;
-		private readonly IPhoneController _phoneController;
-		private readonly IUnitOfWorkFactory _uowFactory;
+		private readonly IServiceProvider _serviceProvider;
 
-		public OperatorAgentFactory(
-			IPacsSettings pacsSettings,
-			IOperatorRepository operatorRepository,
-			IOperatorNotifier operatorNotifier,
-			IPhoneController phoneController,
-			IUnitOfWorkFactory uowFactory)
+		public OperatorAgentFactory(IServiceProvider serviceProvider)
 		{
-			_pacsSettings = pacsSettings ?? throw new ArgumentNullException(nameof(pacsSettings));
-			_operatorRepository = operatorRepository;
-			_operatorNotifier = operatorNotifier;
-			_phoneController = phoneController;
-			_uowFactory = uowFactory;
+			_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 		}
 
 		public OperatorServerAgent CreateOperatorAgent(int operatorId)
 		{
-			return new OperatorServerAgent(operatorId,
-				_pacsSettings,
-				_operatorRepository,
-				_operatorNotifier,
-				_phoneController,
-				_uowFactory);
+			var logger = _serviceProvider.GetRequiredService<ILogger<OperatorServerAgent>>();
+			var pacsSettings = _serviceProvider.GetRequiredService<IPacsSettings>();
+			var operatorRepository = _serviceProvider.GetRequiredService<IOperatorRepository>();
+			var operatorNotifier = _serviceProvider.GetRequiredService<IOperatorNotifier>();
+			var phoneController = _serviceProvider.GetRequiredService<IPhoneController>();
+			var operatorBreakController = _serviceProvider.GetRequiredService<IOperatorBreakController>();
+			var uowFactory = _serviceProvider.GetRequiredService<IUnitOfWorkFactory>();
+
+			return new OperatorServerAgent(
+				operatorId,
+				logger,
+				pacsSettings,
+				operatorRepository,
+				operatorNotifier,
+				phoneController,
+				operatorBreakController,
+				uowFactory);
 		}
 	}
 }

@@ -1,4 +1,5 @@
-﻿using QS.Dialog;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using QS.Dialog;
 using QS.ViewModels;
 using System;
 using System.Collections.Concurrent;
@@ -18,9 +19,12 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		private readonly CancellationTokenSource _cancellationTokenSource;
 		private readonly Task _queueProcessor;
 
+		private ViewModelBase _activatedRow;
+		private ViewModelBase _detailsViewModel;
+
 		public PacsDashboardViewModel(
-			PacsDashboardModel pacsDashboardModel, 
-			IPacsDashboardViewModelFactory pacsDashboardViewModelFactory, 
+			PacsDashboardModel pacsDashboardModel,
+			IPacsDashboardViewModelFactory pacsDashboardViewModelFactory,
 			IGuiDispatcher guiDispatcher)
 		{
 			_pacsDashboardModel = pacsDashboardModel ?? throw new ArgumentNullException(nameof(pacsDashboardModel));
@@ -34,6 +38,26 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			MissedCalls = new GenericObservableList<DashboardMissedCallViewModel>();
 			Calls = new GenericObservableList<DashboardCallViewModel>();
 
+			foreach(var model in _pacsDashboardModel.OperatorsOnBreak)
+			{
+				OperatorsOnBreak.Add(_pacsDashboardViewModelFactory.CreateOperatorOnBreakViewModel(model));
+			}
+
+			foreach(var model in _pacsDashboardModel.Operators)
+			{
+				OperatorsOnWorkshift.Add(_pacsDashboardViewModelFactory.CreateOperatorViewModel(model));
+			}
+
+			foreach(var model in _pacsDashboardModel.MissedCalls)
+			{
+				MissedCalls.Add(_pacsDashboardViewModelFactory.CreateMissedCallViewModel(model));
+			}
+
+			foreach(var model in _pacsDashboardModel.Calls)
+			{
+				Calls.Add(_pacsDashboardViewModelFactory.CreateCallViewModel(model));
+			}
+
 			_pacsDashboardModel.OperatorsOnBreak.CollectionChanged += OnOperatorsOnBreakChanged;
 			_pacsDashboardModel.Operators.CollectionChanged += OnOperatorsChanged;
 			_pacsDashboardModel.MissedCalls.CollectionChanged += OnMissedCallsChanged;
@@ -46,6 +70,50 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		public GenericObservableList<DashboardOperatorViewModel> OperatorsOnWorkshift { get; }
 		public GenericObservableList<DashboardMissedCallViewModel> MissedCalls { get; }
 		public GenericObservableList<DashboardCallViewModel> Calls { get; }
+
+		public virtual ViewModelBase ActivatedRow
+		{
+			get => _activatedRow;
+			set
+			{
+				if(SetField(ref _activatedRow, value))
+				{
+					OpenDetails();
+				}
+			}
+		}
+
+		private void OpenDetails()
+		{
+			if(ActivatedRow == null)
+			{
+				return;
+			}
+
+			switch(ActivatedRow.GetType().Name)
+			{
+				case nameof(DashboardCallViewModel):
+					var callVM = (DashboardCallViewModel)ActivatedRow;
+					DetailsViewModel = _pacsDashboardViewModelFactory.CreateCallDetailsViewModel(callVM.Model);
+					return;
+				case nameof(DashboardMissedCallViewModel):
+					var missedCallVM = (DashboardMissedCallViewModel)ActivatedRow;
+					DetailsViewModel = _pacsDashboardViewModelFactory.CreateMissedCallDetailsViewModel(missedCallVM.Model);
+					return;
+				case nameof(DashboardOperatorViewModel):
+					var operatorVM = (DashboardOperatorViewModel)ActivatedRow;
+					DetailsViewModel = _pacsDashboardViewModelFactory.CreateOperatorDetailsViewModel(operatorVM.Model);
+					return;
+				default:
+					break;
+			}
+		}
+
+		public virtual ViewModelBase DetailsViewModel
+		{
+			get => _detailsViewModel;
+			set => SetField(ref _detailsViewModel, value);
+		}
 
 		private void OnOperatorsOnBreakChanged(object sender, NotifyCollectionChangedEventArgs e)
 		{
@@ -117,7 +185,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 		private void ProcessQueue(CancellationToken cancellationToken)
 		{
-			while(cancellationToken.IsCancellationRequested)
+			while(!cancellationToken.IsCancellationRequested)
 			{
 				var action = _invocationQueue.Take();
 				_guiDispatcher.RunInGuiTread(action);
@@ -128,6 +196,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		{
 			_cancellationTokenSource.Cancel();
 			_invocationQueue?.Dispose();
+			_pacsDashboardModel?.Dispose();
 		}
 	}
 }

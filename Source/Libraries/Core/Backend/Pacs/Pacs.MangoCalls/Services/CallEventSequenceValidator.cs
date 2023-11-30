@@ -3,6 +3,7 @@ using Pacs.Server;
 using System;
 using System.Collections.Concurrent;
 using System.Timers;
+using Vodovoz.Settings.Pacs;
 
 namespace Pacs.MangoCalls.Services
 {
@@ -24,13 +25,24 @@ namespace Pacs.MangoCalls.Services
 
 		public bool ValidateCallSequence(MangoCallEvent callEvent)
 		{
+
+			var isFrstEvent = !_cache.ContainsKey(callEvent.CallId);
 			var cachedSeq = _cache.GetOrAdd(callEvent.CallId, (key) => new CallEventSeqCache(callEvent.CallId, callEvent.Seq));
+			if (isFrstEvent)
+			{
+				return true;
+			}
+
 			var hasSeq = cachedSeq.HasSeq(callEvent.Seq);
-			if(!hasSeq)
+			if(hasSeq)
+			{
+				return false;
+			}
+			else
 			{
 				cachedSeq.AddSeq(callEvent.Seq);
+				return true;
 			}
-			return hasSeq;
 		}
 
 		private void ClearStaleCache()

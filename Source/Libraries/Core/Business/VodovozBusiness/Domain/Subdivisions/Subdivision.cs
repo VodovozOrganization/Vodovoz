@@ -8,8 +8,10 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories.Subdivisions;
@@ -22,7 +24,7 @@ namespace Vodovoz
 		GenitivePlural = "подразделений")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class Subdivision : PropertyChangedBase, IDomainObject, IValidatableObject, INamed, IArchivable
+	public class Subdivision : SubdivisionEntity, IValidatableObject, INamed, IArchivable
 	{
 		private SalesPlan _defaultSalesPlan;
 		private string _name;
@@ -37,7 +39,6 @@ namespace Vodovoz
 		private SubdivisionType _subdivisionType;
 		private string _address;
 		private bool _isArchive;
-		private bool _pacsTimeManagementEnabled;
 
 		#region Свойства
 
@@ -146,13 +147,6 @@ namespace Vodovoz
 		{
 			get => _isArchive;
 			set => SetField(ref _isArchive, value);
-		}
-
-		[Display(Name = "Контроль времени по СКУД")]
-		public virtual bool PacsTimeManagementEnabled
-		{
-			get => _pacsTimeManagementEnabled;
-			set => SetField(ref _pacsTimeManagementEnabled, value);
 		}
 
 		#endregion

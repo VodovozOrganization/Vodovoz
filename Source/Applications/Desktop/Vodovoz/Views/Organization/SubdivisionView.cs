@@ -7,10 +7,8 @@ using System;
 using System.ComponentModel;
 using System.Linq;
 using Vodovoz.Domain.Sale;
-using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Infrastructure;
 using Vodovoz.Journals.JournalNodes;
-using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.ViewModels.ViewModels.Organizations;
 
 namespace Vodovoz.Views.Organization
@@ -140,6 +138,11 @@ namespace Vodovoz.Views.Organization
 
 			ycheckArchieve.Binding
 				.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active)
+				.InitializeFromSource();
+
+			checkPacsEnabled.Binding
+				.AddBinding(ViewModel, vm => vm.CanEnablePacs, w => w.Sensitive)
+				.AddBinding(ViewModel.Entity, e => e.PacsTimeManagementEnabled, w => w.Active)
 				.InitializeFromSource();
 		}
 

@@ -1,31 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using QS.Dialog;
+﻿using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QSReport;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.FilterViewModels.Goods;
-using Vodovoz.Infrastructure.Mango;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.Views.Mango;
 
-namespace Vodovoz.ViewModels.Mango.Talks
+namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 {
 	public partial class CounterpartyTalkViewModel : TalkViewModelBase, IDisposable
 	{

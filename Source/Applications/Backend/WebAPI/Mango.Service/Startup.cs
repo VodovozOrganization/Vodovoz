@@ -13,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
+using NHibernate;
 using NLog.Web;
 using System;
 using Vodovoz.Settings.Database.Pacs;
@@ -23,7 +24,7 @@ namespace Mango.Service
 	public class Startup
 	{
 		private const string _nLogSectionName = "NLog";
-		private ILoggerFactory _loggerFactory;
+		private ILogger<Startup> _logger;
 
 		public Startup(IConfiguration configuration)
 		{
@@ -35,17 +36,20 @@ namespace Mango.Service
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
-			var nlogConfig = Configuration.GetSection(_nLogSectionName);
 			services.AddLogging(
 				logging =>
 				{
 					logging.ClearProviders();
 					logging.AddNLogWeb();
-					logging.AddConfiguration(nlogConfig);
+					logging.AddConfiguration(Configuration.GetSection(_nLogSectionName));
 				});
 
-			_loggerFactory = LoggerFactory.Create(logging =>
+			var _loggerFactory = LoggerFactory.Create(logging =>
 				logging.AddConfiguration(Configuration.GetSection(_nLogSectionName)));
+
+			_logger = _loggerFactory.CreateLogger<Startup>();
+
+			_logger.LogDebug("СТААААААРРРРРТТТ!!!!");
 
 			var dbSection = Configuration.GetSection("DomainDB");
 			if(!dbSection.Exists())
@@ -87,7 +91,7 @@ namespace Mango.Service
 			services.AddSingleton<IMessageTransportSettings>(messageTransportSettings);
 
 			services.ConfigureMangoServices();
-			services.AddCallsPublishing(messageTransportSettings);
+			services.AddCallsPublishing();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

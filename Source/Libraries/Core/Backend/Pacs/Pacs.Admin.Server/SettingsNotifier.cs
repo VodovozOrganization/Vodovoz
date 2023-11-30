@@ -15,7 +15,7 @@ namespace Pacs.Admin.Server
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 		}
 
-		public async Task SettingsChanged(PacsDomainSettings settings)
+		public async Task SettingsChanged(DomainSettings settings)
 		{
 			var settingsEvent = new SettingsEvent();
 			settingsEvent.Settings = settings;

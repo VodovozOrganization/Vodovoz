@@ -7,6 +7,6 @@ namespace Pacs.Core.Messages.Events
 {
 	public class SettingsEvent
 	{
-		public IPacsDomainSettings Settings { get; set; }
+		public DomainSettings Settings { get; set; }
 	}
 }

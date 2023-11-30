@@ -1,47 +1,32 @@
 ﻿using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
+using Pacs.Core;
 using Pacs.MangoCalls.Services;
 using System.Reflection;
-using System.Security.Authentication;
+using Vodovoz.Settings.Database.Pacs;
 using Vodovoz.Settings.Pacs;
 
 namespace Pacs.MangoCalls
 {
 	public static class DependencyInjection
 	{
-		public static IServiceCollection AddPacsMangoCallsServices(this IServiceCollection services, IMessageTransportSettings transportSettings)
+		public static IServiceCollection AddPacsMangoCallsServices(this IServiceCollection services)
 		{
 			services
-				.AddScoped<ICallEventSequenceValidator, CallEventSequenceValidator>()
+				.AddSingleton<IPacsSettings, PacsSettings>()
+				.AddSingleton<ICallEventSequenceValidator, CallEventSequenceValidator>()
 				.AddScoped<ICallEventRegistrar, CallEventRegistrar>()
 
-				.AddMassTransit(x =>
-				{
-					x.AddConsumers(Assembly.GetExecutingAssembly());
-					x.UsingRabbitMq((context, cfg) =>
+				.AddPacsMassTransit(
+					(context, cfg) =>
 					{
-						cfg.Host(
-							transportSettings.Host,
-							(ushort)transportSettings.Port,
-							transportSettings.VirtualHost,
-							hostCfg =>
-							{
-								hostCfg.Username(transportSettings.Username);
-								hostCfg.Password(transportSettings.Password);
-								if(transportSettings.UseSSL)
-								{
-									hostCfg.UseSsl(ssl =>
-									{
-										ssl.Protocol = SslProtocols.Tls12;
-									});
-								}
-							}
-						);
-
-						cfg.ConfigureCallsTopology(context);
-						cfg.ConfigureEndpoints(context);
-					});
-				})
+						cfg.AddCallsProducerTopology(context);
+					},
+					(busCfg) =>
+					{
+						busCfg.AddConsumers(Assembly.GetExecutingAssembly());
+					}
+				)
 			;
 
 			return services;

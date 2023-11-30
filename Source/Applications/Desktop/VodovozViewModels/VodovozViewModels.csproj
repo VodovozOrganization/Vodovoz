@@ -86,9 +86,9 @@
     <Compile Include="Counterparties\TagViewModel.cs" />
     <Compile Include="Dialogs\Complaints\ComplaintsJournalsViewModel.cs" />
     <Compile Include="Dialogs\Complaints\ResponsibleViewModel.cs" />
-    <Compile Include="Dialogs\Counterparty\CloseSupplyToCounterpartyViewModel.cs" />
-    <Compile Include="Dialogs\Counterparty\DeliveryPointViewModel.Coordinate.cs" />
-    <Compile Include="Dialogs\Counterparty\ResendCounterpartyEdoDocumentsViewModel.cs" />
+    <Compile Include="Dialogs\Counterparties\CloseSupplyToCounterpartyViewModel.cs" />
+    <Compile Include="Dialogs\Counterparties\DeliveryPointViewModel.Coordinate.cs" />
+    <Compile Include="Dialogs\Counterparties\ResendCounterpartyEdoDocumentsViewModel.cs" />
     <Compile Include="Dialogs\Email\SendDocumentByEmailViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelBalanceViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelIncomeInvoiceViewModel.cs" />
@@ -466,8 +466,8 @@
     <Compile Include="ViewModels\Complaints\ComplaintObjectViewModel.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintResultOfEmployeesViewModel.cs" />
     <Compile Include="ViewModels\Counterparty\BulkEmailEventReasonViewModel.cs" />
-    <Compile Include="Dialogs\Counterparty\RoboAtsCounterpartyNameViewModel.cs" />
-    <Compile Include="Dialogs\Counterparty\RoboAtsCounterpartyPatronymicViewModel.cs" />
+    <Compile Include="Dialogs\Counterparties\RoboAtsCounterpartyNameViewModel.cs" />
+    <Compile Include="Dialogs\Counterparties\RoboAtsCounterpartyPatronymicViewModel.cs" />
     <Compile Include="ViewModels\Contacts\PhonesViewModel.cs" />
     <Compile Include="ViewModels\Employees\PremiumRaskatGAZelleViewModel.cs" />
     <Compile Include="ViewModels\Employees\PremiumTemplateViewModel.cs" />
@@ -487,6 +487,11 @@
     <Compile Include="ViewModels\Logistic\CarEventTypeViewModel.cs" />
     <Compile Include="ViewModels\Logistic\CarEventViewModel.cs" />
     <Compile Include="ViewModels\Logistic\CarViewModel.cs" />
+    <Compile Include="Dialogs\Mango\IncomingCallViewModel.cs" />
+    <Compile Include="Dialogs\Mango\MangoManager.cs" />
+    <Compile Include="Dialogs\Mango\SubscriberSelectionViewModel.cs" />
+    <Compile Include="Dialogs\Mango\Talks\InternalTalkViewModel.cs" />
+    <Compile Include="Dialogs\Mango\Talks\TalkViewModelBase.cs" />
     <Compile Include="ViewModels\Orders\UndeliveryDetalizationViewModel.cs" />
     <Compile Include="ViewModels\Orders\UndeliveryKindViewModel.cs" />
     <Compile Include="ViewModels\Orders\UndeliveryObjectViewModel.cs" />
@@ -765,7 +770,7 @@
     <Compile Include="Journals\JournalViewModels\HistoryTrace\HistoryTraceObjectJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\SelectUserJournalViewModel.cs" />
     <Compile Include="Journals\JournalNodes\UserJournalNode.cs" />
-    <Compile Include="Dialogs\Counterparty\CounterpartyFilesViewModel.cs" />
+    <Compile Include="Dialogs\Counterparties\CounterpartyFilesViewModel.cs" />
     <Compile Include="Journals\JournalSelectors\EmployeePostsJournalFactory.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\EmployeePostsJournalViewModel.cs" />
     <Compile Include="ViewModels\Employees\EmployeePostViewModel.cs" />
@@ -779,7 +784,7 @@
     <Compile Include="ViewModels\Employees\TerminalManagementViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Goods\NomenclatureBalanceByStockFilterViewModel.cs" />
     <Compile Include="ViewModels\Employees\DriverAttachedTerminalViewModel.cs" />
-    <Compile Include="Dialogs\Counterparty\DeliveryPointViewModel.cs" />
+    <Compile Include="Dialogs\Counterparties\DeliveryPointViewModel.cs" />
     <Compile Include="Dialogs\Users\UserViewModel.cs" />
     <Compile Include="ViewModels\Logistic\CarModelViewModel.cs" />
     <Compile Include="ViewModels\Payments\CreateManualPaymentFromBankClientViewModel.cs" />
@@ -828,6 +833,14 @@
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Infrastructure\RabbitMQ.Infrastructure\RabbitMQ.Infrastructure.csproj">
       <Project>{3032f22e-2c78-4fad-9936-552fd7de8d7f}</Project>
       <Name>RabbitMQ.Infrastructure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Mango\Mango.Client\Mango.Client.csproj">
+      <Project>{2cbe5073-3035-43c5-a0ed-7580ffea8ffd}</Project>
+      <Name>Mango.Client</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Mango\Mango.Grpc.Client\Mango.Grpc.Client.csproj">
+      <Project>{50993438-f358-4dcd-8e0a-ce1446c76487}</Project>
+      <Name>Mango.Grpc.Client</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\RevenueService.Client\RevenueService.Client.csproj">
       <Project>{AFA4490E-F4DA-461D-9B55-F565F61C1DEA}</Project>

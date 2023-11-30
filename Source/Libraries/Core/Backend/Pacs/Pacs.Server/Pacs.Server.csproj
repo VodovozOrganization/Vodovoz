@@ -12,7 +12,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\..\..\Business\Vodovoz.Core.Data.NHibernate\Vodovoz.Core.Data.NHibernate.csproj" />
 	  <ProjectReference Include="..\..\..\Business\Vodovoz.Core.Data\Vodovoz.Core.Data.csproj" />
+	  <ProjectReference Include="..\..\..\Business\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj" />
+	  <ProjectReference Include="..\..\..\Infrastructure\Core.Infrastructure\Core.Infrastructure.csproj" />
 	  <ProjectReference Include="..\Pacs.Core\Pacs.Core.csproj" />
 	</ItemGroup>
 	

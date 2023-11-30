@@ -5,7 +5,8 @@ using Vodovoz.Core.Domain.Pacs;
 
 namespace Pacs.Core.Messages.Events
 {
-	public class OperatorStateEvent : OperatorState
+	/*public class OperatorStateEvent
 	{
-	}
+		public OperatorState State { get; set; }
+	}*/
 }

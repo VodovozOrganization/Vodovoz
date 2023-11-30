@@ -29,22 +29,29 @@ namespace Vodovoz.Views.Pacs
 				.AddBinding(vm => vm.PacsEnabled, w => w.Visible)
 				.InitializeFromSource();
 
-			buttonRefresh.BindCommand(ViewModel.RefreshCommand);
+			/*buttonRefresh.BindCommand(ViewModel.RefreshCommand);
 			buttonRefresh.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.PacsEnabled, w => w.Visible)
-				.InitializeFromSource();
+				.InitializeFromSource();*/
+			buttonRefresh.Sensitive = false;
 
 			buttonPacs.BindCommand(ViewModel.OpenPacsDialogCommand);
 			buttonPacs.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.PacsEnabled, w => w.Visible)
 				.InitializeFromSource();
 
-			labelPacs.Binding.AddSource(ViewModel)
+			labelPacs.Visible = false;
+
+			
+			/*labelPacs.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.PacsEnabled, w => w.Visible)
-				.InitializeFromSource();
+				.InitializeFromSource();*/
 
 			buttonMango.BindCommand(ViewModel.OpenMangoDialogCommand);
 
+			/*labelMango.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.MangoState, w => w.LabelProp)
+				.InitializeFromSource();*/
 			ViewModel.PropertyChanged += ViewModelPropertyChanged;
 		}
 

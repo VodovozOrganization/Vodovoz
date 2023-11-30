@@ -1,4 +1,5 @@
-﻿using Pacs.Core;
+﻿using Microsoft.Extensions.Logging;
+using Pacs.Core;
 using QS.DomainModel.UoW;
 using Stateless;
 using System;
@@ -6,6 +7,7 @@ using System.Threading.Tasks;
 using System.Timers;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Pacs;
+using Vodovoz.Settings.Pacs;
 using StateMachine = Stateless.StateMachine<
 	Vodovoz.Core.Domain.Pacs.OperatorStateType,
 	Pacs.Core.OperatorStateTrigger>;
@@ -15,10 +17,12 @@ namespace Pacs.Server
 {
 	public class OperatorServerAgent : IDisposable
 	{
+		private readonly ILogger<OperatorServerAgent> _logger;
 		private readonly IPacsSettings _pacsSettings;
 		private readonly IOperatorRepository _operatorRepository;
 		private readonly IOperatorNotifier _operatorNotifier;
 		private readonly IPhoneController _phoneController;
+		private readonly IOperatorBreakController _operatorBreakController;
 		private readonly IUnitOfWorkFactory _uowFactory;
 
 		private Timer _timer;
@@ -41,17 +45,21 @@ namespace Pacs.Server
 
 		public OperatorServerAgent(
 			int operatorId,
+			ILogger<OperatorServerAgent> logger,
 			IPacsSettings pacsSettings,
 			IOperatorRepository operatorRepository,
 			IOperatorNotifier operatorNotifier,
 			IPhoneController phoneController,
+			IOperatorBreakController operatorBreakController,
 			IUnitOfWorkFactory uowFactory
 		)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_pacsSettings = pacsSettings ?? throw new ArgumentNullException(nameof(pacsSettings));
 			_operatorRepository = operatorRepository ?? throw new ArgumentNullException(nameof(operatorRepository));
 			_operatorNotifier = operatorNotifier ?? throw new ArgumentNullException(nameof(operatorNotifier));
 			_phoneController = phoneController ?? throw new ArgumentNullException(nameof(phoneController));
+			_operatorBreakController = operatorBreakController ?? throw new ArgumentNullException(nameof(operatorBreakController));
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 
 			_timer = new Timer();
@@ -110,20 +118,26 @@ namespace Pacs.Server
 
 			_machine.Configure(OperatorStateType.Connected)
 				.OnEntryFrom(OperatorStateTrigger.Connect, OnConnect)
-				.OnEntryFrom(OperatorStateTrigger.EndWorkShift, ClearPhoneNumber)
+				.OnEntryFrom(OperatorStateTrigger.EndWorkShift, OnEndWorkShift)
+				.OnActivate(OnKeepAlive)
 				.InternalTransition(OperatorStateTrigger.KeepAlive, OnKeepAlive);
 
 			_machine.Configure(OperatorStateType.WaitingForCall)
 				.OnEntryFrom(OperatorStateTrigger.StartWorkShift, OnStartWorkShift)
+				.OnActivate(OnKeepAlive)
 				.InternalTransitionAsync(OperatorStateTrigger.ChangePhone, OnChangePhone)
 				.InternalTransition(OperatorStateTrigger.KeepAlive, OnKeepAlive);
 
 			_machine.Configure(OperatorStateType.Talk)
 				.OnEntryFrom(_takeCallTrigger, SetCall)
 				.OnExit(ClearCall)
+				.OnActivate(OnKeepAlive)
 				.InternalTransition(OperatorStateTrigger.KeepAlive, OnKeepAlive);
 
 			_machine.Configure(OperatorStateType.Break)
+				.OnEntry(OnBreakStarted)
+				.OnExit(OnBreakEnded)
+				.OnActivate(OnKeepAlive)
 				.InternalTransitionAsync(OperatorStateTrigger.ChangePhone, OnChangePhone)
 				.InternalTransition(OperatorStateTrigger.KeepAlive, OnKeepAlive);
 
@@ -133,6 +147,8 @@ namespace Pacs.Server
 			_machine.OnTransitionCompletedAsync(OnTransitionComplete);
 		}
 
+
+
 		#endregion Initialization
 
 		private void ChangeState(OperatorStateType newState)
@@ -140,14 +156,24 @@ namespace Pacs.Server
 			var timestamp = DateTime.Now;
 
 			_previuosState = OperatorState;
-			if(_previuosState.State != OperatorStateType.New)
+			switch(_previuosState.State)
 			{
-				_previuosState.Ended = timestamp.AddMilliseconds(-1);
+				case OperatorStateType.Connected:
+				case OperatorStateType.WaitingForCall:
+				case OperatorStateType.Talk:
+				case OperatorStateType.Break:
+					_previuosState.Ended = timestamp.AddMilliseconds(-1);
+					break;
+				case OperatorStateType.New:
+				case OperatorStateType.Disconnected:
+				default:
+					break;
 			}
 
 			OperatorState = OperatorState.Copy(_previuosState);
 			OperatorState.State = newState;
 			OperatorState.Started = timestamp;
+			OperatorState.Ended = null;
 
 			Operator.State = OperatorState;
 		}
@@ -202,10 +228,6 @@ namespace Pacs.Server
 
 		public async Task Connect()
 		{
-			if(_machine.State == OperatorStateType.Connected)
-			{
-				return;
-			}
 			await _machine.FireAsync(OperatorStateTrigger.Connect);
 		}
 
@@ -213,13 +235,14 @@ namespace Pacs.Server
 		{
 			OperatorState.Started = DateTime.Now;
 			OpenSession();
+			_logger.LogInformation("Оператор {OperatorId} подключен.", OperatorId);
 		}
 
 		private void OpenSession()
 		{
 			if(Session != null)
 			{
-				return;
+				CloseSession();
 			}
 
 			Session = new OperatorSession
@@ -232,6 +255,7 @@ namespace Pacs.Server
 			OperatorState.Session = Session;
 
 			StartCheckInactivity();
+			_logger.LogInformation("Открыта сессия {SessionId} для оператора {OperatorId}.", Session.Id, OperatorId);
 		}
 
 		#endregion Connect
@@ -246,10 +270,20 @@ namespace Pacs.Server
 		{
 			var reason = (DisconnectionType)transition.Parameters[0];
 			OperatorState.DisconnectionType = reason;
-			OperatorState.Started = _disconnectedTime + _pacsSettings.OperatorKeepAliveInterval;
+			if(reason == DisconnectionType.InactivityTimeout)
+			{
+				OperatorState.Started = _disconnectedTime + _pacsSettings.OperatorKeepAliveInterval;
+			}
+			else
+			{
+				OperatorState.Started = _disconnectedTime;
+			}
 			OperatorState.Ended = OperatorState.Started;
 
 			CloseSession();
+
+			var reasonExplain = reason == DisconnectionType.InactivityTimeout ? "автоматически по таймауту" : "сам";
+			_logger.LogInformation($"Оператор {{OperatorId}} отключился {reasonExplain}", OperatorId);
 		}
 
 		private void CloseSession()
@@ -261,6 +295,10 @@ namespace Pacs.Server
 
 			Session.Ended = OperatorState.Ended;
 			StopCheckInactivity();
+
+			var endTimeExplain = Session.Ended.HasValue ? " Завершена в {SesstionEndTime}." : "";
+			_logger.LogInformation("Закрыта сессия {SessionId} для оператора {OperatorId}." + endTimeExplain, 
+				Session.Id, OperatorId, Session.Ended?.ToString("dd.MM.yyyy HH:mm:ss"));
 		}
 
 		#endregion Disconnect
@@ -308,12 +346,20 @@ namespace Pacs.Server
 		private void OnStartWorkShift(StateMachine.Transition transition)
 		{
 			var phoneNumber = (string)transition.Parameters[0];
+			_phoneController.AssignPhone(phoneNumber, OperatorId);
 			OperatorState.PhoneNumber = phoneNumber;
+			_logger.LogInformation("Оператор {OperatorId} начал рабочую смену", OperatorId);
 		}
 
 		public async Task EndWorkShift()
 		{
 			await _machine.FireAsync(OperatorStateTrigger.EndWorkShift);
+		}
+
+		private void OnEndWorkShift(StateMachine.Transition transition)
+		{
+			ClearPhoneNumber();
+			_logger.LogInformation("Оператор {OperatorId} завершил рабочую смену", OperatorId);
 		}
 
 		#endregion Work shift
@@ -325,9 +371,21 @@ namespace Pacs.Server
 			await _machine.FireAsync(OperatorStateTrigger.StartBreak);
 		}
 
+		private void OnBreakStarted()
+		{
+			_operatorBreakController.StartBreak(OperatorId);
+			_logger.LogInformation("Оператор {OperatorId} начал перерыв", OperatorId);
+		}
+
 		public async Task EndBreak()
 		{
 			await _machine.FireAsync(OperatorStateTrigger.EndBreak);
+		}
+
+		private void OnBreakEnded()
+		{
+			_operatorBreakController.EndBreak(OperatorId);
+			_logger.LogInformation("Оператор {OperatorId} завершил перерыв", OperatorId);
 		}
 
 		#endregion Break
@@ -341,17 +399,21 @@ namespace Pacs.Server
 
 		private async Task OnChangePhone(StateMachine.Transition transition)
 		{
+			var oldPhone = OperatorState.PhoneNumber;
 			var newPhone = (string)transition.Parameters[0];
 
+			_phoneController.ReleasePhone(oldPhone);
 			_phoneController.AssignPhone(newPhone, OperatorId);
 			ChangeState(OperatorState.State);
 			OperatorState.PhoneNumber = newPhone;
 
 			await OnTransitionComplete(transition);
+			_logger.LogInformation("Оператор {OperatorId} сменил телефон с {OldPhone} на {NewPhone}", OperatorId, oldPhone, newPhone);
 		}
 
 		private void ClearPhoneNumber()
 		{
+			_phoneController.ReleasePhone(OperatorState.PhoneNumber);
 			OperatorState.PhoneNumber = null;
 		}
 
@@ -368,6 +430,7 @@ namespace Pacs.Server
 		{
 			var callId = (string)transition.Parameters[0];
 			OperatorState.CallId = callId;
+			_logger.LogInformation("Оператор {OperatorId} принял звонок {CallId}", OperatorId, callId);
 		}
 
 		public async Task EndCallEvent()
@@ -377,7 +440,9 @@ namespace Pacs.Server
 
 		private void ClearCall()
 		{
+			var callId = OperatorState.CallId;
 			OperatorState.CallId = null;
+			_logger.LogInformation("Оператор {OperatorId} завершил звонок {CallId}", OperatorId, callId);
 		}
 
 		#endregion

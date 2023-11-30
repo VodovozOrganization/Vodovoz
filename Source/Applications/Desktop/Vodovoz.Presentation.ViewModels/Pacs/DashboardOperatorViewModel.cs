@@ -8,21 +8,26 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 {
 	public class DashboardOperatorViewModel : ViewModelBase
 	{
-		private readonly OperatorModel _operatorModel;
+		private readonly OperatorModel _model;
 		private readonly IGuiDispatcher _guiDispatcher;
 
 		private string _name;
 		private string _phone;
 		private string _state;
+		private string _connectedToCall;
 
 		public DashboardOperatorViewModel(OperatorModel operatorModel, IGuiDispatcher guiDispatcher)
 		{
-			_operatorModel = operatorModel ?? throw new ArgumentNullException(nameof(operatorModel));
+			_model = operatorModel ?? throw new ArgumentNullException(nameof(operatorModel));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 
-			_operatorModel.PropertyChanged += OnModelPropertyChanged;
-			Name = _operatorModel.Employee.GetPersonNameWithInitials();
+			_model.PropertyChanged += OnModelPropertyChanged;
+			Name = _model.Employee.GetPersonNameWithInitials();
+			Phone = GetPhone();
+			State = GetState();
 		}
+
+		public OperatorModel Model => _model;
 
 		public virtual string Name
 		{
@@ -42,23 +47,39 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			private set => SetField(ref _state, value);
 		}
 
+		public virtual string ConnectedToCall
+		{
+			get => _connectedToCall;
+			private set => SetField(ref _connectedToCall, value);
+		}
+
 		private void OnModelPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
 			switch(e.PropertyName)
 			{
 				case nameof(OperatorModel.CurrentState):
-					var phone = _operatorModel.CurrentState.PhoneNumber;
-					var state = AttributeUtil.GetEnumTitle(_operatorModel.CurrentState.State);
+					var _phone = GetPhone();
+					var state = GetState();
 
 					_guiDispatcher.RunInGuiTread(() =>
 					{
-						Phone = phone;
+						Phone = _phone;
 						State = state;
 					});
 					break;
 				default:
 					break;
 			}
+		}
+
+		private string GetPhone()
+		{
+			return _model.CurrentState.PhoneNumber;
+		}
+
+		private string GetState()
+		{
+			return AttributeUtil.GetEnumTitle(_model.CurrentState.State);
 		}
 	}
 }

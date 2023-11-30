@@ -12,6 +12,8 @@ using QS.Project.DB;
 using System.Reflection;
 using Vodovoz.Core.Data.NHibernate.Mapping.Pacs;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
+using Vodovoz.Settings.Database;
+using Vodovoz.Settings.Pacs;
 
 namespace Pacs.Admin.Service
 {
@@ -33,7 +35,8 @@ namespace Pacs.Admin.Service
 			services
 				.AddCoreServerServices()
 				.AddSingleton<IUnitOfWorkFactory>(UnitOfWorkFactory.GetDefaultFactory)
-				.AddPacsAdminServices(transportSettings)
+				.AddSingleton<IMessageTransportSettings>(transportSettings)
+				.AddPacsAdminServices()
 				;
 
 			CreateBaseConfig();
@@ -83,11 +86,9 @@ namespace Pacs.Admin.Service
 				db_config,
 				new Assembly[]
 				{
-					Assembly.GetAssembly(typeof(SettingsMap))
+					Assembly.GetAssembly(typeof(DomainSettingsMap))
 				}
 			);
 		}
 	}
-
-
 }

@@ -2,7 +2,7 @@
 
 namespace Pacs.Server
 {
-	public interface IPacsSettings
+	/*public interface IPacsSettings
 	{
 		/// <summary>
 		/// Сколько времени клиент может не передавать данные,
@@ -25,5 +25,5 @@ namespace Pacs.Server
 		/// Интервал проверки кэша последовательности событий звонка
 		/// </summary>ы
 		TimeSpan CallEventsSeqCacheCleanInterval { get; }
-	}
+	}*/
 }

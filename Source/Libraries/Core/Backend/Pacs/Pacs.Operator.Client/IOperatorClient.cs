@@ -11,7 +11,10 @@ namespace Pacs.Operator.Client
 
 		event EventHandler<OperatorState> StateChanged;
 		Task<OperatorState> GetState();
+		Task<bool> GetBreakAvailability();
 
+		Task<OperatorState> Connect(CancellationToken cancellationToken = default);
+		Task<OperatorState> Disconnect(CancellationToken cancellationToken = default);
 		Task<OperatorState> StartWorkShift(string phoneNumber);
 		Task<OperatorState> EndWorkShift();
 		Task<OperatorState> ChangeNumber(string phoneNumber);

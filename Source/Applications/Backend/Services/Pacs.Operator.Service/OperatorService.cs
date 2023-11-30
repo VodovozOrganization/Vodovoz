@@ -12,30 +12,24 @@ namespace Pacs.Operator.Service
 {
 	public class OperatorHostedService : IHostedService
 	{
-		readonly IBusControl _bus;
-		readonly ILogger _logger;
+		readonly IBusControl _busControl;
+		private readonly ILogger<OperatorHostedService> _logger;
 
-		public OperatorHostedService(IBusControl bus, ILoggerFactory loggerFactory)
+		public OperatorHostedService(IBusControl busControl, ILogger<OperatorHostedService> logger)
 		{
-			if(loggerFactory is null)
-			{
-				throw new ArgumentNullException(nameof(loggerFactory));
-			}
-
-			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
-			_logger = loggerFactory.CreateLogger<OperatorHostedService>();
+			_busControl = busControl ?? throw new ArgumentNullException(nameof(busControl));
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
 
 		public async Task StartAsync(CancellationToken cancellationToken)
 		{
-			_logger.LogInformation("Сервис операторов запущен");
-			await _bus.StartAsync(cancellationToken).ConfigureAwait(false);
+			_logger.LogInformation("Публикация топологии");
+			//await _busControl.DeployAsync();
 		}
 
-		public Task StopAsync(CancellationToken cancellationToken)
+		public async Task StopAsync(CancellationToken cancellationToken)
 		{
-			_logger.LogInformation("Сервис операторов остановлен");
-			return _bus.StopAsync(cancellationToken);
+			await Task.CompletedTask;
 		}
 	}
 }

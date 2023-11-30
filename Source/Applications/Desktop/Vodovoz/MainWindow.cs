@@ -1,7 +1,12 @@
 ﻿using Autofac;
-using Autofac.Extensions.DependencyInjection;
+using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NLog;
+using Pacs.Admin.Client;
+using Pacs.Calls;
+using Pacs.Core;
+using Pacs.Operator.Client;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services;
@@ -16,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using Vodovoz;
 using Vodovoz.Controllers;
 using Vodovoz.Core;
@@ -25,25 +31,25 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
-using Vodovoz.Infrastructure.Mango;
 using Vodovoz.Parameters;
 using Vodovoz.Presentation.ViewModels.Pacs;
 using Vodovoz.SidePanel;
+using Vodovoz.ViewModels.Dialogs.Mango;
 using VodovozInfrastructure.Configuration;
 using Order = Vodovoz.Domain.Orders.Order;
 using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
-using Pacs.Operator.Client;
-using Vodovoz.Settings.Pacs;
+
 
 public partial class MainWindow : Gtk.Window
 {
 	private static Logger _logger = LogManager.GetCurrentClassLogger();
 	private uint _lastUiId;
 	private readonly ILifetimeScope _autofacScope = Startup.AppDIContainer.BeginLifetimeScope((builder) => {
-		var services = new ServiceCollection();
-		var transportSettings = Startup.AppDIContainer.Resolve<IMessageTransportSettings>();
-		services.AddPacsOperatorClient(transportSettings);
-		builder.Populate(services);
+		//var services = new ServiceCollection();
+		//var transportSettings = Startup.AppDIContainer.Resolve<IMessageTransportSettings>();
+		//services.AddPacsOperatorClient(transportSettings);
+		//builder.RegisterType<MessagesHostedService>();
+		//builder.Populate(services);
 	} );
 	private readonly IApplicationInfo _applicationInfo;
 	private readonly IPasswordValidator _passwordValidator;
@@ -56,6 +62,8 @@ public partial class MainWindow : Gtk.Window
 	private readonly bool _hideComplaintsNotifications;
 
 	private bool _accessOnlyToWarehouseAndComplaints;
+	//private MessagesHostedService _messageService;
+	private IBusControl _messageBusControl;
 
 	public TdiNotebook TdiMain => tdiMain;
 	public InfoPanel InfoPanel => infopanel;
@@ -66,6 +74,24 @@ public partial class MainWindow : Gtk.Window
 		_applicationConfigurator = applicationConfigurator ?? throw new ArgumentNullException(nameof(applicationConfigurator));
 		
 		Build();
+
+		_messageBusControl = _autofacScope.Resolve<IBusControl>();
+		var transportInitializer = _autofacScope.Resolve<IMessageTransportInitializer>();
+		transportInitializer.Initialize(_messageBusControl);
+
+		var endpointConnector = _autofacScope.Resolve<MessageEndpointConnector>();
+
+		Task.Run(async () =>
+		{
+			var connectEndpointTasks = new[]
+			{
+				endpointConnector.TryConnectEndpoint<SettingsConsumerDefinition>(),
+				endpointConnector.TryConnectEndpoint<OperatorStateAdminConsumerDefinition>(),
+				endpointConnector.TryConnectEndpoint<OperatorStateConsumerDefinition>(),
+				endpointConnector.TryConnectEndpoint<PacsCallEventConsumerDefinition>(),
+			};
+			await Task.WhenAll(connectEndpointTasks);
+		});
 
 		PerformanceHelper.AddTimePoint("Закончена стандартная сборка окна.");
 		_applicationInfo = new ApplicationVersionInfo();
@@ -108,7 +134,7 @@ public partial class MainWindow : Gtk.Window
 
 		//Настраиваем модули
 
-		//pacspanel.ViewModel = _autofacScope.Resolve<PacsPanelViewModel>();
+		pacspanelview1.ViewModel = _autofacScope.Resolve<PacsPanelViewModel>();
 
 		ActionUsers.Sensitive = QSMain.User.Admin;
 		ActionAdministration.Sensitive = QSMain.User.Admin;
@@ -337,13 +363,22 @@ public partial class MainWindow : Gtk.Window
 	/// </summary>
 	public void InitializeManagers()
 	{
-		/*NavigationManager = _autofacScope.Resolve<ITdiCompatibilityNavigation>(new TypedParameter(typeof(TdiNotebook), tdiMain));
-		MangoManager = _autofacScope.Resolve<MangoManager>(new TypedParameter(typeof(Gtk.Action), MangoAction));
-		MangoManager.Connect();*/
+		NavigationManager = _autofacScope.Resolve<ITdiCompatibilityNavigation>(new TypedParameter(typeof(TdiNotebook), tdiMain));
+		MangoManager = _autofacScope.Resolve<MangoManager>();
 	}
 
 	private DateTime GetDateTimeFGromVersion(Version version) =>
 		new DateTime(2000, 1, 1)
 			.AddDays(version.Build)
 			.AddSeconds(version.Revision * 2);
+
+	protected override void OnDestroyed()
+	{
+		/*if(_messageBusControl != null)
+		{
+			_messageBusControl.Start();
+		}*/
+
+		base.OnDestroyed();
+	}
 }

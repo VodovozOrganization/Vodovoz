@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Net.Http;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Pacs;
@@ -21,10 +22,10 @@ namespace Pacs.Admin.Client
 			_pacsSettings = pacsSettings ?? throw new ArgumentNullException(nameof(pacsSettings));
 		}
 
-		public async Task SetSettings(PacsDomainSettings settings)
+		public async Task SetSettings(DomainSettings settings)
 		{
 			var uri = $"{_pacsSettings.AdministratorApiUrl}/{_url}/set";
-			var content = new StringContent(JsonSerializer.Serialize(settings));
+			var content = new StringContent(JsonSerializer.Serialize(settings), Encoding.UTF8, "application/json");
 			_httpClient.DefaultRequestHeaders.Clear();
 			_httpClient.DefaultRequestHeaders.Add("ApiKey", _pacsSettings.AdministratorApiKey);
 
@@ -39,9 +40,9 @@ namespace Pacs.Admin.Client
 			}
 		}
 
-		public async Task<IPacsDomainSettings> GetSettings()
+		public async Task<DomainSettings> GetSettings()
 		{
-			var uri = $"{_pacsSettings.AdministratorApiUrl}/{_url}/set";
+			var uri = $"{_pacsSettings.AdministratorApiUrl}/{_url}/get";
 			_httpClient.DefaultRequestHeaders.Clear();
 			_httpClient.DefaultRequestHeaders.Add("ApiKey", _pacsSettings.AdministratorApiKey);
 
@@ -51,7 +52,8 @@ namespace Pacs.Admin.Client
 				if(response.IsSuccessStatusCode)
 				{
 					var responseBody = await response.Content.ReadAsStringAsync();
-					var registrationResult = JsonSerializer.Deserialize<PacsDomainSettings>(responseBody);
+					var registrationResult = JsonSerializer.Deserialize<DomainSettings>(responseBody, 
+						new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase});
 					return registrationResult;
 				}
 				else

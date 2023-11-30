@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Core.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -29,7 +30,6 @@ using Vodovoz.Core.DataService;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.Factories;
-using Vodovoz.Infrastructure.Database;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
 using Vodovoz.Settings.Database;

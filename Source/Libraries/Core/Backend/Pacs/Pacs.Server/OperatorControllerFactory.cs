@@ -1,25 +1,27 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 
 namespace Pacs.Server
 {
 	public class OperatorControllerFactory : IOperatorControllerFactory
 	{
-		private readonly ILogger<OperatorController> _logger;
-		private readonly IOperatorAgentFactory _operatorAgentFactory;
-		private readonly IPhoneController _phoneController;
+		private readonly IServiceProvider _serviceProvider;
 
-		public OperatorControllerFactory(ILogger<OperatorController> logger, IOperatorAgentFactory operatorAgentFactory, IPhoneController phoneController)
+		public OperatorControllerFactory(IServiceProvider serviceProvider)
 		{
-			_logger = logger;
-			_operatorAgentFactory = operatorAgentFactory ?? throw new ArgumentNullException(nameof(operatorAgentFactory));
-			_phoneController = phoneController ?? throw new ArgumentNullException(nameof(phoneController));
+			_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 		}
 
 		public OperatorController CreateOperatorController(int operatorId)
 		{
-			var agent = _operatorAgentFactory.CreateOperatorAgent(operatorId);
-			return new OperatorController(_logger, agent, _phoneController);
+			var logger = _serviceProvider.GetRequiredService<ILogger<OperatorController>>();
+			var operatorAgentFactory = _serviceProvider.GetRequiredService<IOperatorAgentFactory>();
+			var phoneController = _serviceProvider.GetRequiredService<IPhoneController>();
+			var operatorBreakController = _serviceProvider.GetRequiredService<IOperatorBreakController>();
+			var agent = operatorAgentFactory.CreateOperatorAgent(operatorId);
+
+			return new OperatorController(logger, agent, phoneController, operatorBreakController);
 		}
 	}
 }

@@ -21,6 +21,31 @@ namespace Vodovoz.Views.Pacs
 				.AddBinding(vm => vm.PhoneNumber, w => w.SelectedItem)
 				.InitializeFromSource();
 
+			buttonBreak.Binding
+				.AddBinding(ViewModel, vm => vm.CanStartBreak, w => w.Visible)
+				.InitializeFromSource();
+
+			buttonEndBreak.Binding
+				.AddBinding(ViewModel, vm => vm.CanEndBreak, w => w.Visible)
+				.InitializeFromSource();
+
+			buttonStartWorkshift.Binding
+				.AddBinding(ViewModel, vm => vm.CanStartWorkShift, w => w.Visible)
+				.InitializeFromSource();
+
+			buttonEndWorkshift.Binding
+				.AddBinding(ViewModel, vm => vm.CanEndWorkShift, w => w.Visible)
+				.InitializeFromSource();
+
+			buttonChangePhone.Binding
+				.AddBinding(ViewModel, vm => vm.CanChangePhone, w => w.Visible)
+				.InitializeFromSource();
+
+			labelBreakInfo.Visible = false;
+			/*labelBreakInfo.Binding
+				.AddBinding(ViewModel, vm => vm.CanEndBreak, w => w.Visible)
+				.InitializeFromSource();*/
+
 			buttonBreak.BindCommand(ViewModel.StartBreakCommand);
 			buttonEndBreak.BindCommand(ViewModel.EndBreakCommand);
 			buttonChangePhone.BindCommand(ViewModel.ChangePhoneCommand);

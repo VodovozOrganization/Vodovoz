@@ -11,14 +11,21 @@ namespace Pacs.Server
 		private readonly ILogger<OperatorController> _logger;
 		private readonly OperatorServerAgent _operatorAgent;
 		private readonly IPhoneController _phoneController;
+		private readonly IOperatorBreakController _operatorBreakController;
 
 		public event EventHandler<int> OnDisconnect;
 
-		public OperatorController(ILogger<OperatorController> logger, OperatorServerAgent operatorAgent, IPhoneController phoneController)
+		public OperatorController(
+			ILogger<OperatorController> logger, 
+			OperatorServerAgent operatorAgent, 
+			IPhoneController phoneController,
+			IOperatorBreakController operatorBreakController
+			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_operatorAgent = operatorAgent ?? throw new ArgumentNullException(nameof(operatorAgent));
 			_phoneController = phoneController ?? throw new ArgumentNullException(nameof(phoneController));
+			_operatorBreakController = operatorBreakController ?? throw new ArgumentNullException(nameof(operatorBreakController));
 
 			operatorAgent.OnDisconnect += OperatorAgentOnDisconnect;
 		}
@@ -28,11 +35,19 @@ namespace Pacs.Server
 			OnDisconnect?.Invoke(sender, operatorId);
 		}
 
+		public bool AssignedToPhone(string phone)
+		{
+			return _operatorAgent.OperatorState.PhoneNumber == phone;
+		}
+
 		public async Task<OperatorResult> Connect()
 		{
 			try
 			{
-				await _operatorAgent.Connect();
+				if(_operatorAgent.CanChangedBy(OperatorTrigger.Connect))
+				{
+					await _operatorAgent.Connect();
+				}
 				return new OperatorResult(_operatorAgent.OperatorState);
 			}
 			catch(Exception ex)
@@ -94,6 +109,11 @@ namespace Pacs.Server
 		{
 			try
 			{
+				if(!_operatorBreakController.CanStartBreak)
+				{
+					return new OperatorResult(_operatorAgent.OperatorState, $"Нельзя начать перерыв, так как перерыве уже максимально возможное количество операторов.");
+				}
+
 				if(!_operatorAgent.CanChangedBy(OperatorTrigger.StartBreak))
 				{
 					return new OperatorResult(_operatorAgent.OperatorState, $"В данный момент нельзя начать перерыв");
@@ -154,6 +174,38 @@ namespace Pacs.Server
 			{
 				_logger.LogError(ex, "Произошло исключение при попытке оператором завершить рабочую смену.");
 				return new OperatorResult(_operatorAgent.OperatorState, ex.Message);
+			}
+		}
+
+		public async Task TakeCall(string callId)
+		{
+			try
+			{
+				if(!_operatorAgent.CanChangedBy(OperatorTrigger.TakeCall))
+				{
+					return;
+				}
+				await _operatorAgent.TakeCallEvent(callId);
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Произошло исключение при попытке принятия звонка");
+			}
+		}
+
+		public async Task EndCall(string callId)
+		{
+			try
+			{
+				if(!_operatorAgent.CanChangedBy(OperatorTrigger.EndCall))
+				{
+					return;
+				}
+				await _operatorAgent.EndCallEvent();
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Произошло исключение при попытке завершения звонка");
 			}
 		}
 

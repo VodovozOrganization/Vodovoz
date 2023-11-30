@@ -39,26 +39,11 @@ namespace Vodovoz.Core.Domain.Pacs
 		}
 	}
 
-	public class InternalPhone
-	{
-		public virtual string PhoneNumber { get; set; }
-		public virtual string Description { get; set; }
-	}
-
-	public class Session
+	public class OperatorSession
 	{
 		public virtual Guid Id { get; set; }
 		public virtual DateTime Started { get; set; }
 		public virtual DateTime? Ended { get; set; }
-	}
-
-	public class OperatorSession : Session
-	{
 		public virtual int OperatorId { get; set; }
-	}
-
-	public class AdministratorSession
-	{
-		public virtual int AdministratorId { get; set; }
 	}
 }

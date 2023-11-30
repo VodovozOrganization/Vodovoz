@@ -1,25 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using QS.Dialog;
+﻿using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
-using QS.Project.Journal;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.FilterViewModels.Goods;
-using Vodovoz.Infrastructure.Mango;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
-namespace Vodovoz.ViewModels.Mango.Talks
+namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 {
 	public class UnknowTalkViewModel : TalkViewModelBase, IDisposable
 	{

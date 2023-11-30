@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -414,6 +414,7 @@
     <Compile Include="Additions\Logistic\TrackPointsExtensions.cs" />
     <Compile Include="Additions\Printing\EntityDocumentsPrinterFactory.cs" />
     <Compile Include="Additions\SmsPaymentSender.cs" />
+    <Compile Include="MessagesHostedService.cs" />
     <Compile Include="Cash\Reports\CashFlowAnalysisView.ReportLine.cs" />
     <Compile Include="Cash\TransferDocumentsJournal\TransferDocumentsJournalRegistrar.cs" />
     <Compile Include="Commons\FileChooser.cs" />
@@ -627,6 +628,10 @@
     <Compile Include="TreeModels\ModelConfig.cs" />
     <Compile Include="TreeModels\RecursiveTreeModelWithCustomModel.cs" />
     <Compile Include="ViewModels\Cash\PaymentOnlineViewModel.cs" />
+    <Compile Include="ViewModels\Mango\CounterpartyOrderViewModel.cs" />
+    <Compile Include="ViewModels\Mango\MangoViewModelNavigator.cs" />
+    <Compile Include="ViewModels\Mango\Talks\CounterpartyTalkViewModel.cs" />
+    <Compile Include="ViewModels\Mango\Talks\UnknowTalkViewModel.cs" />
     <Compile Include="Views\Goods\NomenclatureCostPricesView.cs" />
     <Compile Include="Views\Logistic\DeliveryScheduleView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DeliveryScheduleView.cs" />
@@ -1503,31 +1508,22 @@
     <Compile Include="JournalNodes\LateArrivalReasonsJournalNode.cs" />
     <Compile Include="ReportsParameters\Logistic\ScheduleOnLinePerShiftReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.ScheduleOnLinePerShiftReport.cs" />
-    <Compile Include="Infrastructure\Mango\MangoManager.cs" />
     <Compile Include="Views\Mango\CounterpartyOrderView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Mango.CounterpartyOrderView.cs" />
-    <Compile Include="ViewModels\Mango\IncomingCallViewModel.cs" />
     <Compile Include="Views\Mango\IncomingCallView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Mango.IncomingCallView.cs" />
-    <Compile Include="ViewModels\Mango\Talks\CounterpartyTalkViewModel.cs" />
-    <Compile Include="ViewModels\Mango\Talks\UnknowTalkViewModel.cs" />
     <Compile Include="Views\Mango\Talks\CounterpartyTalkView.cs" />
     <Compile Include="Views\Mango\Talks\UnknowTalkView.cs" />
-    <Compile Include="ViewModels\Mango\Talks\TalkViewModelBase.cs" />
     <Compile Include="Views\Mango\Incoming\IncomingView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Mango.Incoming.IncomingView.cs" />
-    <Compile Include="Infrastructure\Mango\ActiveCall.cs" />
-    <Compile Include="ViewModels\Mango\SubscriberSelectionViewModel.cs" />
     <Compile Include="Views\Mango\SubscriberSelectionView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Mango.SubscriberSelectionView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Mango.Talks.UnknowTalkView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Mango.Talks.CounterpartyTalkView.cs" />
-    <Compile Include="ViewModels\Mango\WidgetsModel\CounterpartyOrderViewModel.cs" />
     <Compile Include="ViewWidgets\Mango\HandsetView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Mango.HandsetView.cs" />
     <Compile Include="Views\Mango\Talks\InternalTalkView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Mango.Talks.InternalTalkView.cs" />
-    <Compile Include="ViewModels\Mango\Talks\InternalTalkViewModel.cs" />
     <Compile Include="ViewWidgets\Mango\EmployeePhone.cs" />
     <Compile Include="SidePanel\InfoViews\SmsSendPanelView.cs" />
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.SmsSendPanelView.cs" />
@@ -2004,8 +2000,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
+    <Folder Include="Infrastructure\Mango\" />
     <Folder Include="ViewModels\Goods\" />
-    <Folder Include="Views\Client\CounterpartyClassification\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">
@@ -2327,6 +2323,18 @@
       <Project>{50993438-f358-4dcd-8e0a-ce1446c76487}</Project>
       <Name>Mango.Grpc.Client</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Pacs\Pacs.Admin.Client\Pacs.Admin.Client.csproj">
+      <Project>{B216B4C1-5285-4784-AC06-C57EE23178F3}</Project>
+      <Name>Pacs.Admin.Client</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Pacs\Pacs.Calls\Pacs.Calls.csproj">
+      <Project>{9829E098-0DC7-4303-8818-999A47010BBF}</Project>
+      <Name>Pacs.Calls</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Pacs\Pacs.Core\Pacs.Core.csproj">
+      <Project>{2A0BF064-B8AB-4FBC-9765-673A9255E6CE}</Project>
+      <Name>Pacs.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Pacs\Pacs.Operator.Client\Pacs.Operator.Client.csproj">
       <Project>{5eca0400-36d9-4d8b-b206-57061f4ab9dc}</Project>
       <Name>Pacs.Operator.Client</Name>
@@ -2378,6 +2386,10 @@
     <ProjectReference Include="..\..\..\Libraries\Core\Gtk\VodovozFiasWidgets\VodovozFiasWidgets.csproj">
       <Project>{49241ddd-3e0b-4944-9b3f-89f0c42e9e6d}</Project>
       <Name>VodovozFiasWidgets</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Infrastructure\Core.Infrastructure\Core.Infrastructure.csproj">
+      <Project>{b318a2c2-a980-41bd-b072-321bccd70bbb}</Project>
+      <Name>Core.Infrastructure</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Infrastructure\VodovozInfrastructure\VodovozInfrastructure.csproj">
       <Project>{42efc426-2c88-4608-8191-dbca4172a695}</Project>

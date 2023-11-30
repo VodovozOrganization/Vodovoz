@@ -1,0 +1,106 @@
+﻿using Core.Infrastructure;
+using MessageTransport;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using MySqlConnector;
+using Pacs.Operator.Server;
+using QS.DomainModel.UoW;
+using QS.Project.Core;
+using QS.Project.DB;
+using System.Reflection;
+using Vodovoz.Core.Data.NHibernate.Mapping.Pacs;
+using Vodovoz.Data.NHibernate.NhibernateExtensions;
+using Vodovoz.Settings.Database;
+using Vodovoz.Settings.Pacs;
+
+namespace Pacs.Operator.Service
+{
+	public class Startup
+	{
+		private DatabaseInfo _databaseInfo;
+
+		public Startup(IConfiguration configuration)
+		{
+			Configuration = configuration;
+		}
+
+		public IConfiguration Configuration { get; }
+
+		// This method gets called by the runtime. Use this method to add services to the container.
+		public void ConfigureServices(IServiceCollection services)
+		{
+			var transportSettings = new ConfigTransportSettings();
+			Configuration.Bind("MessageTransport", transportSettings);
+
+			services
+				.AddCoreServerServices()
+
+				//Настройки бд должны регистрироваться до настроек MassTransit
+				.AddSettingsFromDatabase()
+
+				.AddSingleton<IDataBaseInfo>(x => _databaseInfo)
+				.AddSingleton<IUnitOfWorkFactory>(UnitOfWorkFactory.GetDefaultFactory)
+				.AddSingleton<IMessageTransportSettings>(transportSettings)
+				.AddPacsOperatorServer()
+				.AddHostedService<OperatorHostedService>()
+				;
+
+			CreateBaseConfig();
+		}
+
+		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+		{
+			if(env.IsDevelopment())
+			{
+				app.UseDeveloperExceptionPage();
+			}
+
+			app.UseHttpsRedirection();
+
+			app.UseRouting();
+
+			app.UseEndpoints(endpoints =>
+			{
+				endpoints.MapControllers();
+			});
+		}
+
+		private void CreateBaseConfig()
+		{
+			var dbSection = Configuration.GetSection("DomainDB");
+			var conStrBuilder = new MySqlConnectionStringBuilder();
+
+			conStrBuilder.Server = dbSection.GetValue<string>("Server");
+			conStrBuilder.Port = dbSection.GetValue<uint>("Port");
+			conStrBuilder.Database = dbSection.GetValue<string>("Database");
+			conStrBuilder.UserID = dbSection.GetValue<string>("UserID");
+			conStrBuilder.Password = dbSection.GetValue<string>("Password");
+			conStrBuilder.SslMode = MySqlSslMode.None;
+
+			var connectionString = conStrBuilder.GetConnectionString(true);
+
+			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
+				.Dialect<MySQL57SpatialExtendedDialect>()
+				.ConnectionString(connectionString)
+				.AdoNetBatchSize(100)
+				.Driver<LoggedMySqlClientDriver>()
+				;
+
+			// Настройка ORM
+			OrmConfig.ConfigureOrm(
+				db_config,
+				new Assembly[]
+				{
+					Assembly.GetAssembly(typeof(OperatorMap)),
+					Assembly.GetAssembly(typeof(SettingMap))
+				}
+			);
+
+			_databaseInfo = new DatabaseInfo(conStrBuilder.Database);
+		}
+	}
+}

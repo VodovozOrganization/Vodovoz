@@ -1,8 +1,11 @@
 ﻿using Pacs.Core;
+using Pacs.Core.Messages.Events;
 using Pacs.Operator.Client;
 using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.Navigation;
+using QS.Utilities;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -15,21 +18,18 @@ using Vodovoz.Services;
 
 namespace Vodovoz.Presentation.ViewModels.Pacs
 {
-	public class PacsOperatorViewModel : WidgetViewModelBase
+	public class PacsOperatorViewModel : WidgetViewModelBase, IObserver<BreakAvailabilityEvent>, IDisposable
 	{
-		//Выбор телефона
-		//Начало смены
-		//Завершение смены
-		//Перерыв
-		//Смена телефона
-
 		private readonly Employee _employee;
 		private readonly IOperatorStateAgent _operatorStateAgent;
-		private readonly IEmployeeService _employeeService;
+		private readonly IInteractiveService _interactiveService;
+		private readonly IGuiDispatcher _guiDispatcher;
+		private readonly IPacsRepository _pacsRepository;
 		private readonly IOperatorClient _operatorClient;
-		private readonly IOperatorRepository _operatorRepository;
+		private readonly IDisposable _breakAvailabilitySubscription;
 
 		private string _phoneNumber;
+		private bool _breakAvailable;
 
 		public DelegateCommand StartWorkShiftCommand { get; private set; }
 		public DelegateCommand EndWorkShiftCommand { get; private set; }
@@ -39,18 +39,29 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 		public PacsOperatorViewModel(
 			IOperatorStateAgent operatorStateAgent,
-			IEmployeeService employeeService, 
+			IInteractiveService interactiveService,
+			IEmployeeService employeeService,
+			IGuiDispatcher guiDispatcher,
 			IOperatorClientFactory operatorClientFactory,
-			IOperatorRepository operatorRepository)
+			IPacsRepository pacsRepository,
+			IObservable<BreakAvailabilityEvent> breakAvailabilityPublisher
+			)
 		{
+			if(employeeService is null)
+			{
+				throw new ArgumentNullException(nameof(employeeService));
+			}
+
 			if(operatorClientFactory is null)
 			{
 				throw new ArgumentNullException(nameof(operatorClientFactory));
 			}
 
-			_operatorStateAgent = operatorStateAgent ?? throw new System.ArgumentNullException(nameof(operatorStateAgent));
-			_employeeService = employeeService ?? throw new System.ArgumentNullException(nameof(employeeService));
-			_operatorRepository = operatorRepository ?? throw new System.ArgumentNullException(nameof(operatorRepository));
+			_operatorStateAgent = operatorStateAgent ?? throw new ArgumentNullException(nameof(operatorStateAgent));
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
+			_pacsRepository = pacsRepository ?? throw new ArgumentNullException(nameof(pacsRepository));
+			AvailablePhones = new List<string>();
 
 			_employee = employeeService.GetEmployeeForCurrentUser();
 			if(_employee == null)
@@ -61,14 +72,52 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			}
 
 			_operatorClient = operatorClientFactory.CreateOperatorClient(_employee.Id);
+			_operatorClient.StateChanged += OnStateChanged;
+
+			AvailablePhones = _pacsRepository.GetAvailablePhones();
 
 			ConfigureCommands();
+
+			_breakAvailabilitySubscription = breakAvailabilityPublisher.Subscribe(this);
+
+			try
+			{
+				CurrentState = _operatorClient.Connect().Result;
+				_breakAvailable = _operatorClient.GetBreakAvailability().Result;
+			}
+			catch(Exception ex)
+			{
+				var pacsEx = ex.FindExceptionTypeInInner<PacsException>();
+				if(pacsEx != null)
+				{
+					throw new AbortCreatingPageException(ex.Message, "");
+				}
+			}
+
+			PhoneNumber = CurrentState?.PhoneNumber;
+		}
+
+		private void OnStateChanged(object sender, OperatorState e)
+		{
+			_guiDispatcher.RunInGuiTread(() =>
+			{
+				CurrentState = e;
+			});
 		}
 
 		public OperatorState CurrentState
 		{
 			get => _operatorStateAgent.OperatorState;
-			set => _operatorStateAgent.OperatorState = value;
+			set
+			{
+				_operatorStateAgent.OperatorState = value;
+				PhoneNumber = _operatorStateAgent.OperatorState?.PhoneNumber;
+				OnPropertyChanged(nameof(CanStartWorkShift));
+				OnPropertyChanged(nameof(CanEndWorkShift));
+				OnPropertyChanged(nameof(CanStartBreak));
+				OnPropertyChanged(nameof(CanEndBreak));
+				OnPropertyChanged(nameof(CanChangePhone));
+			}
 		}
 
 		private void ConfigureCommands()
@@ -89,14 +138,15 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			EndBreakCommand.CanExecuteChangedWith(this, x => x.CanEndBreak);
 		}
 
-		private void LoadDetails()
+		/*private void LoadDetails()
 		{
 			var history = _operatorRepository.GetOperatorHistory(_employee.Id);
-		}
+		}*/
 
-		public IEnumerable<string> AvailablePhones { get; set; }
+		public IEnumerable<string> AvailablePhones { get; }
 
 		[PropertyChangedAlso(nameof(CanStartWorkShift))]
+		[PropertyChangedAlso(nameof(CanChangePhone))]
 		public virtual string PhoneNumber
 		{
 			get => _phoneNumber;
@@ -104,13 +154,27 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		}
 
 
-		public bool CanStartWorkShift => string.IsNullOrWhiteSpace(PhoneNumber)
+		public bool CanStartWorkShift => !string.IsNullOrWhiteSpace(PhoneNumber)
 			&& AvailablePhones.Contains(PhoneNumber)
 			&& _operatorStateAgent.CanStartWorkShift;
 
 		private async Task StartWorkShift()
 		{
-			CurrentState = await _operatorClient.StartWorkShift(PhoneNumber);
+			try
+			{
+				var state = await _operatorClient.StartWorkShift(PhoneNumber);
+				_guiDispatcher.RunInGuiTread(() =>
+				{
+					CurrentState = state;
+				});
+			}
+			catch(PacsException ex)
+			{
+				_guiDispatcher.RunInGuiTread(() =>
+				{
+					_interactiveService.ShowMessage(ImportanceLevel.Warning, ex.Message);
+				});
+			}
 		}
 
 
@@ -118,26 +182,69 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 		private async Task EndWorkShift()
 		{
-			CurrentState = await _operatorClient.EndWorkShift();
+			try
+			{
+				var state = await _operatorClient.EndWorkShift();
+				_guiDispatcher.RunInGuiTread(() =>
+				{
+					CurrentState = state;
+				});
+			}
+			catch(PacsException ex)
+			{
+				_guiDispatcher.RunInGuiTread(() =>
+				{
+					_interactiveService.ShowMessage(ImportanceLevel.Warning, ex.Message);
+				});
+			}
 		}
 
 
-		public bool CanChangePhone => string.IsNullOrWhiteSpace(PhoneNumber)
+		public bool CanChangePhone => !string.IsNullOrWhiteSpace(PhoneNumber)
 			&& AvailablePhones.Contains(PhoneNumber)
+			&& CurrentState != null
 			&& CurrentState.PhoneNumber != PhoneNumber
-			&& _operatorStateAgent.CanStartWorkShift;
+			&& _operatorStateAgent.CanChangePhone;
 
 		private async Task ChangePhone()
 		{
-			CurrentState = await _operatorClient.EndWorkShift();
+			try
+			{
+				var state = await _operatorClient.ChangeNumber(PhoneNumber);
+				_guiDispatcher.RunInGuiTread(() =>
+				{
+					CurrentState = state;
+				});
+			}
+			catch(PacsException ex)
+			{
+				_guiDispatcher.RunInGuiTread(() =>
+				{
+					_interactiveService.ShowMessage(ImportanceLevel.Warning, ex.Message);
+				});
+			}
 		}
 
 
-		public bool CanStartBreak => _operatorStateAgent.CanStartBreak;
+		public bool CanStartBreak => _operatorStateAgent.CanStartBreak && _breakAvailable;
 
 		private async Task StartBreak()
 		{
-			CurrentState = await _operatorClient.StartBreak();
+			try
+			{
+				var state = await _operatorClient.StartBreak();
+				_guiDispatcher.RunInGuiTread(() =>
+				{
+					CurrentState = state;
+				});
+			}
+			catch(PacsException ex)
+			{
+				_guiDispatcher.RunInGuiTread(() =>
+				{
+					_interactiveService.ShowMessage(ImportanceLevel.Warning, ex.Message);
+				});
+			}
 		}
 
 
@@ -145,7 +252,44 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 		private async Task EndBreak()
 		{
-			CurrentState = await _operatorClient.EndBreak();
+			try
+			{
+				var state = await _operatorClient.EndBreak();
+				_guiDispatcher.RunInGuiTread(() =>
+				{
+					CurrentState = state;
+				});
+			}
+			catch(PacsException ex)
+			{
+				_guiDispatcher.RunInGuiTread(() =>
+				{
+					_interactiveService.ShowMessage(ImportanceLevel.Warning, ex.Message);
+				});
+			}
+		}
+
+		void IObserver<BreakAvailabilityEvent>.OnCompleted()
+		{
+			_breakAvailabilitySubscription.Dispose();
+		}
+
+		void IObserver<BreakAvailabilityEvent>.OnError(Exception error)
+		{
+		}
+
+		void IObserver<BreakAvailabilityEvent>.OnNext(BreakAvailabilityEvent value)
+		{
+			_guiDispatcher.RunInGuiTread(() =>
+			{
+				_breakAvailable = value.BreakAvailable;
+				OnPropertyChanged(nameof(CanStartBreak));
+			});
+		}
+
+		public void Dispose()
+		{
+			_breakAvailabilitySubscription.Dispose();
 		}
 	}
 }

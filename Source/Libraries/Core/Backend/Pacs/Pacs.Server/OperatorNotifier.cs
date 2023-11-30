@@ -16,7 +16,8 @@ namespace Pacs.Server
 
 		public async Task OperatorChanged(OperatorState operatorState)
 		{
-			await _messageBus.Publish(operatorState);
+
+			await _messageBus.Publish<OperatorState>(operatorState);
 		}
 	}
 }

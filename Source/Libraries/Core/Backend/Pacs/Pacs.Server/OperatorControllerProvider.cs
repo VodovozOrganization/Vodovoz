@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Linq;
 
 namespace Pacs.Server
 {
-
 	public class OperatorControllerProvider : IOperatorControllerProvider
 	{
 		private readonly IOperatorControllerFactory _operatorControllerFactory;
@@ -30,6 +30,12 @@ namespace Pacs.Server
 
 			controller.OnDisconnect += ControllerOnDisconnect;
 
+			return controller;
+		}
+
+		public OperatorController GetOperatorController(string phoneNumber)
+		{
+			var controller = _controllers.Select(x => x.Value).FirstOrDefault(x => x.AssignedToPhone(phoneNumber));
 			return controller;
 		}
 

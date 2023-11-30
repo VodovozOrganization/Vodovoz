@@ -1,5 +1,7 @@
 ﻿using MassTransit;
 using Pacs.Core.Messages.Events;
+using Vodovoz.Core.Domain.Pacs;
+using Pacs.Core;
 
 namespace Pacs.Operator.Client
 {
@@ -10,7 +12,8 @@ namespace Pacs.Operator.Client
 		/// </summary>
 		public static void ConfigureOperatorMessageTopology(this IRabbitMqBusFactoryConfigurator configurator, IBusRegistrationContext context)
 		{
-			configurator.Message<OperatorStateEvent>(x => x.SetEntityName("pacs.operator_state_event"));
+			configurator.AddPacsBaseTopology(context);
+			//configurator.Message<OperatorState>(x => x.SetEntityName("pacs.operator_state_event"));
 		}
 	}
 }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Pacs.Calls.Service
 {
-	public class CallsHostedService : IHostedService
+	/*public class CallsHostedService : IHostedService
 	{
 		readonly IBusControl _bus;
 		readonly ILogger _logger;
@@ -34,5 +34,5 @@ namespace Pacs.Calls.Service
 			_logger.LogInformation("Сервис обработки событий звонков остановлен");
 			return _bus.StopAsync(cancellationToken);
 		}
-	}
+	}*/
 }

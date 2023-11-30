@@ -1,8 +1,8 @@
 ﻿using Gamma.ColumnConfig;
 using QS.Views.GtkUI;
 using System;
-using Vodovoz.ViewModels.Dialogs.Counterparty;
-using static Vodovoz.ViewModels.Dialogs.Counterparty.ResendCounterpartyEdoDocumentsViewModel;
+using Vodovoz.ViewModels.Dialogs.Counterparties;
+using static Vodovoz.ViewModels.Dialogs.Counterparties.ResendCounterpartyEdoDocumentsViewModel;
 
 namespace Vodovoz.Views.Client
 {

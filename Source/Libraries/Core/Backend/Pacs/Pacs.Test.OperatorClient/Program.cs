@@ -37,7 +37,7 @@ namespace Pacs.Test.OperatorClient
 								//});
 							});
 
-							cfg.ConfigureMessageTopology(context);
+							cfg.ConfigureCoreMessageTopology(context);
 
 							cfg.ConfigureEndpoints(context);
 						});

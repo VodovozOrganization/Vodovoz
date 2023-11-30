@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
+using Pacs.Core;
+using Pacs.Core.Messages.Events;
 using Pacs.Operator.Client;
 using QS.Commands;
 using QS.Dialog;
@@ -6,33 +8,39 @@ using QS.DomainModel.Entity;
 using QS.Navigation;
 using QS.ViewModels;
 using System;
+using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Pacs;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Presentation.ViewModels.Mango;
 using Vodovoz.Services;
-using Vodovoz.Settings.Pacs;
 
 namespace Vodovoz.Presentation.ViewModels.Pacs
 {
-	public class PacsPanelViewModel : WidgetViewModelBase
+	public class PacsPanelViewModel : WidgetViewModelBase, IObserver<BreakAvailabilityEvent>, IDisposable
 	{
 		private static TimeSpan _commandTimeout = TimeSpan.FromSeconds(10);
 
 		private readonly ILogger<PacsPanelViewModel> _logger;
 		private readonly IEmployeeService _employeeService;
+		private readonly IMangoManager _mangoManager;
+		private readonly IInteractiveService _interactiveService;
 		private readonly IOperatorClient _operatorClient;
 		private readonly IGuiDispatcher _guiDispatcher;
 		private readonly INavigationManager _navigationManager;
 		private readonly IPacsRepository _pacsRepository;
 		private readonly Employee _employee;
+		private readonly IDisposable _breakAvailabilitySubscription;
 
 		private bool _canChange;
 		private bool _pacsEnabled;
-		private OperatorState _operatorState;
 		private MangoState _mangoState;
 		private bool _breakInProgress;
+		private bool _breakAvailable;
+
+		private IOperatorStateAgent _operatorStateAgent;
 
 		public DelegateCommand BreakCommand { get; }
 		public DelegateCommand RefreshCommand { get; }
@@ -43,9 +51,12 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			ILogger<PacsPanelViewModel> logger,
 			IEmployeeService employeeService, 
 			IOperatorClientFactory operatorClientFactory,
-			IPacsSettings pacsSettings,
+			IMangoManager mangoManager,
+			IInteractiveService interactiveService,
+			IOperatorStateAgent operatorStateAgent,
 			IGuiDispatcher guiDispatcher, 
 			INavigationManager navigationManager,
+			IObservable<BreakAvailabilityEvent> breakAvailabilityPublisher,
 			IPacsRepository pacsRepository)
 		{
 			if(operatorClientFactory is null)
@@ -55,6 +66,9 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			_mangoManager = mangoManager ?? throw new ArgumentNullException(nameof(mangoManager));
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			_operatorStateAgent = operatorStateAgent ?? throw new ArgumentNullException(nameof(operatorStateAgent));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_pacsRepository = pacsRepository ?? throw new ArgumentNullException(nameof(pacsRepository));
@@ -72,11 +86,15 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 				PacsEnabled = true;
 				_operatorClient = operatorClientFactory.CreateOperatorClient(_employee.Id);
 				_operatorClient.StateChanged += OperatorStateChanged;
+				Connect();
 			}
 			else
 			{
 				PacsEnabled = false;
-				//Отдельная инициализация Манго по номеру сотрудника
+				if(_employee.InnerPhone.HasValue)
+				{
+					_mangoManager.Connect(_employee.InnerPhone.Value);
+				}
 			}
 
 			BreakCommand = new DelegateCommand(() => Break(), () => CanBreak);
@@ -90,6 +108,91 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 			OpenMangoDialogCommand = new DelegateCommand(OpenMangoDialog);
 			OpenMangoDialogCommand.CanExecuteChangedWith(this, x => x.CanOpenMangoDialog);
+
+			_mangoManager.PropertyChanged += MangoManagerPropertyChanged;
+			_breakAvailabilitySubscription = breakAvailabilityPublisher.Subscribe(this);
+
+			_breakAvailable = _operatorClient.GetBreakAvailability().Result;
+		}
+
+		private void MangoManagerPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			switch(e.PropertyName)
+			{
+				case nameof(IMangoManager.ConnectionState):
+					UpdateMangoState();
+					break;
+				default:
+					break;
+			}
+		}
+
+		private void UpdateMango()
+		{
+			if(!PacsEnabled)
+			{
+				if(_mangoManager.IsActive)
+				{
+					_mangoManager.Disconnect();
+				}
+
+				return;
+			}
+
+			var hasPhone = uint.TryParse(OperatorState.PhoneNumber, out var phone);
+				
+			if(_operatorStateAgent.OnWorkshift)
+			{
+				if(_mangoManager.CanConnect && hasPhone)
+				{
+					_mangoManager.Connect(phone);
+				}
+			}
+			else
+			{
+				_mangoManager.Disconnect();
+			}
+		}
+
+		private void UpdateMangoState()
+		{
+			switch(_mangoManager.ConnectionState)
+			{
+				case ConnectionState.Connected:
+					MangoState = MangoState.Connected;
+					break;
+				case ConnectionState.Disable:
+					MangoState = MangoState.Disable;
+					break;
+				case ConnectionState.Disconnected:
+					MangoState = MangoState.Disconnected;
+					break;
+				case ConnectionState.Ring:
+					MangoState = MangoState.Ring;
+					break;
+				case ConnectionState.Talk:
+					MangoState = MangoState.Talk;
+					break;
+				default:
+					break;
+			}
+		}
+
+		private void Connect()
+		{
+			Task.Run(() => {
+				try
+				{
+					var state = _operatorClient.Connect().Result;
+					_guiDispatcher.RunInGuiTread(() => {
+						OperatorState = state;
+					});
+				}
+				catch(Exception ex)
+				{
+					_logger.LogError(ex, "Ошибка подключения оператора к серверу СКУД");
+				}
+			});
 		}
 
 		public virtual bool CanChange
@@ -100,18 +203,29 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 		#region Pacs
 
-		[PropertyChangedAlso(nameof(BreakState))]
-		[PropertyChangedAlso(nameof(PacsState))]
 		public virtual OperatorState OperatorState
 		{
-			get => _operatorState;
-			set => SetField(ref _operatorState, value);
+			get => _operatorStateAgent.OperatorState;
+			set
+			{
+				if(_operatorStateAgent.OperatorState != value)
+				{
+					_operatorStateAgent.OperatorState = value;
+					OnPropertyChanged(nameof(OperatorState));
+					OnPropertyChanged(nameof(BreakState));
+					OnPropertyChanged(nameof(PacsState));
+					OnPropertyChanged(nameof(CanOpenPacsDialog));
+					OnPropertyChanged(nameof(CanBreak));
+					OnPropertyChanged(nameof(CanOpenMangoDialog));
+					UpdateMango();
+				}
+			}
 		}
 
 		public virtual bool PacsEnabled
 		{
 			get => _pacsEnabled;
-			set => SetField(ref _pacsEnabled, value);
+			private set => SetField(ref _pacsEnabled, value);
 		}
 
 		private void OperatorStateChanged(object sender, OperatorState state)
@@ -121,7 +235,6 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			});
 		}
 
-		[PropertyChangedAlso(nameof(CanOpenPacsDialog))]
 		public virtual PacsState PacsState
 		{
 			get
@@ -130,6 +243,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 				{
 					return PacsState.Disconnected;
 				}
+
 				switch(OperatorState.State)
 				{
 					case OperatorStateType.Connected:
@@ -158,27 +272,20 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 		#region Break
 
-		[PropertyChangedAlso(nameof(CanBreak))]
 		public virtual BreakState BreakState
 		{
 			get {
-				if(OperatorState == null)
+				if(_operatorStateAgent.CanStartBreak)
+				{
+					return BreakState.CanStartBreak;
+				}
+				else if(_operatorStateAgent.CanEndBreak)
+				{
+					return BreakState.CanEndBreak;
+				}
+				else
 				{
 					return BreakState.BreakDenied;
-				}
-
-				switch(OperatorState.State)
-				{
-					case OperatorStateType.WaitingForCall:
-						return BreakState.CanStartBreak;
-					case OperatorStateType.Break:
-						return BreakState.CanEndBreak;
-					case OperatorStateType.New:
-					case OperatorStateType.Connected:
-					case OperatorStateType.Disconnected:
-					case OperatorStateType.Talk:
-					default:
-						return BreakState.BreakDenied;
 				}
 			}
 		}
@@ -192,13 +299,37 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 					return false;
 				}
 
-				return BreakState == BreakState.CanStartBreak || BreakState == BreakState.CanEndBreak;
+				if(!_breakAvailable && BreakState == BreakState.CanStartBreak)
+				{
+					return false;
+				}
+
+				return _operatorStateAgent.CanStartBreak || _operatorStateAgent.CanEndBreak;
 			}
 		}
 
 
 		private async Task Break()
 		{
+			string question;
+			switch(BreakState)
+			{
+				case BreakState.CanStartBreak:
+					question = "Хотите взять перерыв?";
+					break;
+				case BreakState.CanEndBreak:
+					question = "Закончить перерыв?";
+					break;
+				case BreakState.BreakDenied:
+				default:
+					return;
+			}
+
+			if(!_interactiveService.Question(question, "Перерыв"))
+			{
+				return;
+			}
+
 			_guiDispatcher.RunInGuiTread(() => {
 				_breakInProgress = true;
 				OnPropertyChanged(nameof(CanBreak));
@@ -250,18 +381,48 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 		#region Mango
 
+		private string _mangoInfo;
+		public virtual string MangoInfo
+		{
+			get => _mangoInfo;
+			set => SetField(ref _mangoInfo, value);
+		}
+
 		[PropertyChangedAlso(nameof(CanOpenMangoDialog))]
 		public virtual MangoState MangoState
 		{
 			get => _mangoState;
-			set => SetField(ref _mangoState, value);
+			private set => SetField(ref _mangoState, value);
 		}
 
 		public bool CanOpenMangoDialog { get; set; }
 
 		private void OpenMangoDialog()
 		{
-			//Встроить MangoManager
+			_mangoManager.OpenMangoDialog();
+		}
+
+		void IObserver<BreakAvailabilityEvent>.OnCompleted()
+		{
+			_breakAvailabilitySubscription.Dispose();
+		}
+
+		void IObserver<BreakAvailabilityEvent>.OnError(Exception error)
+		{
+		}
+
+		void IObserver<BreakAvailabilityEvent>.OnNext(BreakAvailabilityEvent value)
+		{
+			_guiDispatcher.RunInGuiTread(() =>
+			{
+				_breakAvailable = value.BreakAvailable;
+				OnPropertyChanged(nameof(CanBreak));
+			});
+		}
+
+		public void Dispose()
+		{
+			_breakAvailabilitySubscription.Dispose();
 		}
 
 		#endregion Mango

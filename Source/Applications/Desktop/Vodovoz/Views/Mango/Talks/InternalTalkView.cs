@@ -1,6 +1,6 @@
-﻿using System;
-using QS.Views.Dialog;
-using Vodovoz.ViewModels.Mango.Talks;
+﻿using QS.Views.Dialog;
+using System;
+using Vodovoz.ViewModels.Dialogs.Mango.Talks;
 
 namespace Vodovoz.Views.Mango.Talks
 {

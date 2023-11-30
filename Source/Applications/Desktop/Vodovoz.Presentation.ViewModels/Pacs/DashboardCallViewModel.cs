@@ -8,7 +8,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 {
 	public class DashboardCallViewModel : ViewModelBase
 	{
-		private readonly CallModel _callModel;
+		private readonly CallModel _model;
 		private readonly IGuiDispatcher _guiDispatcher;
 
 		private string _time;
@@ -18,14 +18,18 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 		public DashboardCallViewModel(CallModel callModel, IGuiDispatcher guiDispatcher)
 		{
-			_callModel = callModel ?? throw new ArgumentNullException(nameof(callModel));
+			_model = callModel ?? throw new ArgumentNullException(nameof(callModel));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 
-			_callModel.PropertyChanged += OnModelPropertyChanged;
-			Time = _callModel.CurrentState.EventTime.ToString("HH:mm:ss");
-			Phone = _callModel.CurrentState.FromNumber
-				+ (string.IsNullOrWhiteSpace(_callModel.CurrentState.FromExtension) ? "" : $" ({_callModel.CurrentState.FromExtension})");
+			_model.PropertyChanged += OnModelPropertyChanged;
+			Time = _model.CurrentState.EventTime.ToString("HH:mm:ss");
+			Phone = _model.CurrentState.FromNumber
+				+ (string.IsNullOrWhiteSpace(_model.CurrentState.FromExtension) ? "" : $" ({_model.CurrentState.FromExtension})");
+			Operator = GetOperator();
+			State = GetState();
 		}
+
+		public CallModel Model => _model;
 
 		public virtual string Time
 		{
@@ -56,18 +60,32 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			switch(e.PropertyName)
 			{
 				case nameof(CallModel.CurrentState):
-					var oper = _callModel.Operator;
-					var state = AttributeUtil.GetEnumTitle(_callModel.CurrentState.CallState);
+					var oper = GetOperator();
+					var state = GetState();
 
 					_guiDispatcher.RunInGuiTread(() =>
 					{
-						Operator = oper.Employee.GetPersonNameWithInitials();
+						Operator = oper;
 						State = state;
 					});
 					break;
 				default:
 					break;
 			}
+		}
+
+		private string GetOperator()
+		{
+			if(_model.Operator == null)
+			{
+				return "";
+			}
+			return _model.Operator.Employee.GetPersonNameWithInitials();
+		}
+
+		private string GetState()
+		{
+			return AttributeUtil.GetEnumTitle(_model.CurrentState.CallState);
 		}
 	}
 }

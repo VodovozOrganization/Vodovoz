@@ -5,6 +5,6 @@ namespace Pacs.Admin.Server
 {
 	public interface ISettingsNotifier
 	{
-		Task SettingsChanged(PacsDomainSettings settings);
+		Task SettingsChanged(DomainSettings settings);
 	}
 }

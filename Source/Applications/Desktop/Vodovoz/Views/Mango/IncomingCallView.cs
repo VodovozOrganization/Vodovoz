@@ -1,9 +1,7 @@
-﻿using System;
+﻿using QS.Views.Dialog;
+using System;
 using System.Linq;
-using QS.Views.Dialog;
-using Vodovoz.Infrastructure.Mango;
-using Vodovoz.ViewModels.Mango;
-
+using Vodovoz.ViewModels.Dialogs.Mango;
 using Vodovoz.Views.Mango.Incoming;
 
 namespace Vodovoz.Views.Mango

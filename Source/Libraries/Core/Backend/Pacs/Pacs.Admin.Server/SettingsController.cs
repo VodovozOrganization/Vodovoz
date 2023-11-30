@@ -23,9 +23,8 @@ namespace Mango.Api.Controllers
 		[HttpPost("set")]
 		public async Task Set([FromBody] SettingsRequest settingsRequest)
 		{
-			var settings = new PacsDomainSettings
+			var settings = new DomainSettings
 			{
-				Timestamp = DateTime.Now,
 				AdministratorId = settingsRequest.AdministratorId,
 				MaxBreakTime = settingsRequest.MaxBreakTime,
 				MaxOperatorsOnBreak = settingsRequest.MaxOperatorsOnBreak,
@@ -38,6 +37,19 @@ namespace Mango.Api.Controllers
 			}
 
 			await _notifier.SettingsChanged(settings);
+		}
+
+		[HttpGet("get")]
+		public async Task<DomainSettings> Get()
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				var settings = await uow.Session.QueryOver<DomainSettings>()
+					.OrderBy(x => x.Id).Desc
+					.Take(1)
+					.SingleOrDefaultAsync();
+				return settings;
+			}
 		}
 	}
 }

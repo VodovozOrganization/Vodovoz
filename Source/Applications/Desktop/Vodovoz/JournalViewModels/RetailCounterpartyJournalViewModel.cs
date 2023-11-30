@@ -12,7 +12,7 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
 using QS.Project.Journal;
 using Vodovoz.Domain.Retail;
-using Vodovoz.ViewModels.Dialogs.Counterparty;
+using Vodovoz.ViewModels.Dialogs.Counterparties;
 using QS.Project.Domain;
 using QS.Navigation;
 

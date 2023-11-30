@@ -2,12 +2,18 @@
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
 using Fias.Client;
+using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
+using Pacs.Admin.Client;
+using Pacs.Calls;
+using Pacs.Core;
+using Pacs.Core.Messages.Events;
+using Pacs.Operator.Client;
 using QS.Deletion;
 using QS.Deletion.Configuration;
 using QS.Deletion.ViewModels;
@@ -37,6 +43,7 @@ using QS.Report.ViewModels;
 using QS.Report.Views;
 using QS.Services;
 using QS.Tdi;
+using QS.Tdi.Gtk;
 using QS.Validation;
 using QS.ViewModels;
 using QS.ViewModels.Extension;
@@ -56,6 +63,7 @@ using Vodovoz.CachingRepositories.Common;
 using Vodovoz.CachingRepositories.Counterparty;
 using Vodovoz.Core;
 using Vodovoz.Core.DataService;
+using Vodovoz.Core.Domain.Pacs;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
@@ -70,7 +78,6 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Infrastructure.Mango;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.Infrastructure.Services;
@@ -79,6 +86,8 @@ using Vodovoz.Models.TrueMark;
 using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Presentation.ViewModels.Common;
+using Vodovoz.Presentation.ViewModels.Employees;
+using Vodovoz.Presentation.ViewModels.Mango;
 using Vodovoz.Presentation.ViewModels.Pacs;
 using Vodovoz.Reports;
 using Vodovoz.Reports.Logistic;
@@ -104,10 +113,12 @@ using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Complaints;
+using Vodovoz.ViewModels.Dialogs.Mango;
+using Vodovoz.ViewModels.Dialogs.Mango.Talks;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Infrastructure.Services;
 using Vodovoz.ViewModels.Journals.JournalFactories;
-using Vodovoz.ViewModels.Mango.Talks;
+using Vodovoz.ViewModels.Mango;
 using Vodovoz.ViewModels.Permissions;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.Views.Mango.Talks;
@@ -115,11 +126,8 @@ using Vodovoz.ViewWidgets;
 using VodovozInfrastructure.Endpoints;
 using VodovozInfrastructure.Interfaces;
 using VodovozInfrastructure.StringHandlers;
-using Pacs.Operator.Client;
 using static Vodovoz.ViewModels.Cash.Reports.CashFlowAnalysisViewModel;
 using IErrorReporter = Vodovoz.Tools.IErrorReporter;
-using Vodovoz.Settings.Pacs;
-using QS.Tdi.Gtk;
 
 namespace Vodovoz
 {
@@ -135,7 +143,7 @@ namespace Vodovoz
 				Gtk.Application.Init();
 
 				var host = CreateHostBuilder().Build();
-
+				host.RunAsync();
 				host.Services.GetService<Startup>().Start(args);
 			}
 			finally
@@ -228,7 +236,7 @@ namespace Vodovoz
 					builder.Register(context => new AutofacViewModelResolver(context.Resolve<ILifetimeScope>())).As<IViewModelResolver>();
 					builder.Register(с => NotifyConfiguration.Instance).As<IEntityChangeWatcher>();
 					builder.RegisterAssemblyTypes(
-							Assembly.GetAssembly(typeof(InternalTalkViewModel)),
+							Assembly.GetExecutingAssembly(),
 							Assembly.GetAssembly(typeof(ComplaintViewModel)),
 							Assembly.GetAssembly(typeof(PacsPanelViewModel)))
 						.Where(t => t.IsAssignableTo<ViewModelBase>() && t.Name.EndsWith("ViewModel"))
@@ -283,6 +291,34 @@ namespace Vodovoz
 
 					builder.RegisterModule<DatabaseSettingsModule>();
 					builder.RegisterModule<CashReceiptClientChannelModule>();
+
+					
+					builder.RegisterType<OperatorStateAgent>().As<IOperatorStateAgent>();
+					builder.RegisterType<OperatorClientFactory>().As<IOperatorClientFactory>();
+					builder.RegisterType<OperatorClient>().As<IOperatorClient>();
+					builder.RegisterType<AdminClient>().AsSelf();
+					
+					builder.RegisterType<PacsDashboardModel>()
+						.AsSelf()
+						.As<IObserver<OperatorState>>()
+						.As<IObserver<Pacs.Core.Messages.Events.CallEvent>>();
+
+					/*builder.RegisterType<SettingsConsumer>()
+						.AsSelf()
+						.As<IObservable<Pacs.Core.Messages.Events.SettingsEvent>>();*/
+
+					//builder.RegisterType<PacsCallEventConsumer>()
+					//	.As<IObservable<CallEvent>>();
+
+					builder.RegisterType<PacsDashboardViewModelFactory>().As<IPacsDashboardViewModelFactory>();
+
+
+					
+					builder.RegisterType<PacsEmployeeProvider>()
+						.As<IPacsEmployeeProvider>()
+						.As<IPacsOperatorProvider>()
+						.As<IPacsAdministratorProvider>()
+						.InstancePerLifetimeScope();
 
 					builder.RegisterType<FileChooser>().As<IFileChooserProvider>();
 
@@ -386,8 +422,11 @@ namespace Vodovoz
 					#region Репозитории
 
 					builder.RegisterGeneric(typeof(GenericRepository<>)).As(typeof(IGenericRepository<>)).InstancePerLifetimeScope();
-
-					builder.RegisterAssemblyTypes(Assembly.GetAssembly(typeof(CounterpartyContractRepository)))
+					
+					builder.RegisterAssemblyTypes(
+						Assembly.GetAssembly(typeof(CounterpartyContractRepository)),
+						Assembly.GetAssembly(typeof(Vodovoz.Core.Data.NHibernate.AssemblyFinder))
+						)
 						.Where(t => t.Name.EndsWith("Repository")
 							&& t.GetInterfaces()
 								.Where(i => i.Name == $"I{t.Name}")
@@ -415,7 +454,14 @@ namespace Vodovoz
 
 					#region Mango
 
-					builder.RegisterType<MangoManager>().AsSelf();
+					builder.RegisterType<MangoViewModelNavigator>()
+						.As<IMangoViewModelNavigator>()
+						.SingleInstance();
+
+					builder.RegisterType<MangoManager>()
+						.As<IMangoManager>()
+						.AsSelf()
+						.SingleInstance();
 
 					#endregion
 
@@ -641,17 +687,62 @@ namespace Vodovoz
 				}))
 				.ConfigureServices((hostingContext, services) =>
 				{
-					services.AddSingleton<Startup>()
-							.AddScoped<IRouteListService, RouteListService>()
-							.AddScoped<RouteGeometryCalculator>()
-							.AddSingleton<OsrmClient>(sp => OsrmClientFactory.Instance)
-							.AddSingleton<IFastDeliveryDistanceChecker, DistanceCalculator>()
-							.AddDesktopServices()
-							.AddScoped<IDebtorsParameters, DebtorsParameters>()
-							.AddFiasClient()
-							.AddSingleton<IFastDeliveryDistanceChecker, DistanceCalculator>()
-							.AddScoped<RevisionBottlesAndDeposits>()
-							.AddTransient<IReportExporter, ReportExporterAdapter>();
+					services
+						.AddSingleton<Startup>()
+						.AddScoped<IRouteListService, RouteListService>()
+						.AddScoped<RouteGeometryCalculator>()
+						.AddSingleton<OsrmClient>(sp => OsrmClientFactory.Instance)
+						.AddSingleton<IFastDeliveryDistanceChecker, DistanceCalculator>()
+						.AddDesktopServices()
+						.AddScoped<IDebtorsParameters, DebtorsParameters>()
+						.AddFiasClient()
+						.AddSingleton<IFastDeliveryDistanceChecker, DistanceCalculator>()
+						.AddScoped<RevisionBottlesAndDeposits>()
+						.AddTransient<IReportExporter, ReportExporterAdapter>()
+						.AddScoped<EntityModelFactory>()
+
+						//Messages
+						.AddSingleton<MessagesHostedService>()
+						.AddSingleton<IMessageTransportInitializer>(ctx => ctx.GetRequiredService<MessagesHostedService>())
+						.AddHostedService(ctx => ctx.GetRequiredService<MessagesHostedService>())
+
+						.AddSingleton<SettingsConsumer>()
+						.AddSingleton<IObservable<SettingsEvent>>(ctx => ctx.GetRequiredService<SettingsConsumer>())
+
+						.AddSingleton<OperatorStateAdminConsumer>()
+						.AddSingleton<IObservable<OperatorState>>(ctx => ctx.GetRequiredService<OperatorStateAdminConsumer>())
+
+						.AddScoped<MessageEndpointConnector>()
+						
+						.AddPacsOperatorClient()
+						;
+
+					services.AddPacsMassTransitNotHosted(
+						(context, rabbitCfg) =>
+						{
+							rabbitCfg.AddPacsBaseTopology(context);
+						},
+						(busCfg) =>
+						{
+							//Оператор
+							busCfg.AddConsumer<OperatorStateConsumer>(typeof(OperatorStateConsumerDefinition));
+							//Админ
+							busCfg.AddConsumer<OperatorStateAdminConsumer>(typeof(OperatorStateAdminConsumerDefinition));
+							busCfg.AddConsumer<SettingsConsumer>(typeof(SettingsConsumerDefinition));
+							busCfg.AddConsumer<PacsCallEventConsumer>(typeof(PacsCallEventConsumerDefinition));
+						}
+						//Exclude необходим для отложенного запуска конечной точки, или отмены запуска по условию
+						//При этом добавление определения потребителя в конфигурации обязательно
+						,(filter) => {
+							filter.Exclude<SettingsConsumer>();
+							filter.Exclude<OperatorStateAdminConsumer>();
+							filter.Exclude<OperatorStateConsumer>();
+							filter.Exclude<PacsCallEventConsumer>();
+						}
+					);
 				});
+
+
+
 	}
 }

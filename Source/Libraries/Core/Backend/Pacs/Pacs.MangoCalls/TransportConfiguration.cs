@@ -1,26 +1,21 @@
 ﻿using Mango.CallsPublishing;
 using MassTransit;
-using Pacs.Core.Messages.Events;
-using Pacs.Core.Messages.Filters;
-using RabbitMQ.Client;
+using Pacs.Core;
 
 namespace Pacs.MangoCalls
 {
 	public static class TransportConfiguration
 	{
-		public static void ConfigureCallsTopology(this IRabbitMqBusFactoryConfigurator cfg, IBusRegistrationContext context)
+		public static void AddCallsBaseTopology(this IRabbitMqBusFactoryConfigurator cfg, IBusRegistrationContext context)
 		{
-			cfg.ConfigureMangoMessageTopology(context);
-			cfg.Message<CallEvent>(x => x.SetEntityName("pacs.call_event.publish"));
+			cfg.AddPacsBaseTopology(context);
+		}
 
-			cfg.UsePublishFilter(typeof(PublishTimeToLiveFilter<>), context);
+		public static void AddCallsProducerTopology(this IRabbitMqBusFactoryConfigurator cfg, IBusRegistrationContext context)
+		{
+			cfg.AddMangoBaseTopology(context);
 
-			cfg.Publish<CallEvent>(x =>
-			{
-				x.ExchangeType = ExchangeType.Fanout;
-				x.Durable = true;
-				x.AutoDelete = false;
-			});
+			cfg.AddCallsBaseTopology(context);
 		}
 	}
 }

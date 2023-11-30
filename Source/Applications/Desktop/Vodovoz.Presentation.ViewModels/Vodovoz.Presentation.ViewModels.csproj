@@ -6,7 +6,13 @@
     <LangVersion>8</LangVersion>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="ReactiveUI" Version="19.5.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Mango\Mango.Client\Mango.Client.csproj" />
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Mango\Mango.Grpc.Client\Mango.Grpc.Client.csproj" />
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Pacs\Pacs.Admin.Client\Pacs.Admin.Client.csproj" />
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Pacs\Pacs.Core\Pacs.Core.csproj" />
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Pacs\Pacs.Operator.Client\Pacs.Operator.Client.csproj" />
     <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Core.Data\Vodovoz.Core.Data.csproj" />
     <ProjectReference Include="..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj" />

@@ -1,4 +1,6 @@
-﻿using Stateless;
+﻿using Pacs.Core.Messages.Commands;
+using Stateless;
+using System.Linq;
 using Vodovoz.Core.Domain.Pacs;
 using StateMachine = Stateless.StateMachine<
 	Vodovoz.Core.Domain.Pacs.OperatorStateType,
@@ -15,6 +17,7 @@ namespace Pacs.Core
 		bool CanEndWorkShift { get; }
 		bool CanStartBreak { get; }
 		bool CanStartWorkShift { get; }
+		bool OnWorkshift { get; }
 	}
 
 	public class OperatorStateAgent : IOperatorStateAgent
@@ -33,14 +36,54 @@ namespace Pacs.Core
 		public bool CanStartBreak => _machine.CanFire(OperatorStateTrigger.StartBreak);
 		public bool CanEndBreak => _machine.CanFire(OperatorStateTrigger.EndBreak);
 
+		public bool OnWorkshift
+		{
+			get
+			{
+				var onWorkshiftStates = new[]
+				{
+					OperatorStateType.WaitingForCall,
+					OperatorStateType.Talk,
+					OperatorStateType.Break
+				};
+				return onWorkshiftStates.Contains(OperatorState.State);
+			}
+		}
+
 		private void ConfigureStateMachine()
 		{
-			_machine = new StateMachine(
-				() => OperatorState.State,
-				(newState) => OperatorState.State = newState,
+			_machine = new StateMachine<OperatorStateType, OperatorStateTrigger>(
+				StateAccessor,
+				StateMutator,
 				FiringMode.Queued);
 
+
 			ConfigureBaseStates(_machine);
+
+			_machine.Configure(OperatorStateType.WaitingForCall)
+				.PermitReentry(OperatorStateTrigger.ChangePhone);
+
+			_machine.Configure(OperatorStateType.Break)
+				.PermitReentry(OperatorStateTrigger.ChangePhone);
+		}
+
+		private OperatorStateType StateAccessor()
+		{
+			if(OperatorState == null)
+			{
+				return OperatorStateType.Disconnected;
+			}
+
+			return OperatorState.State;
+		}
+
+		private void StateMutator(OperatorStateType newState)
+		{
+			if(OperatorState == null)
+			{
+				return;
+			}
+			OperatorState.State = newState;
 		}
 
 		public static void ConfigureBaseStates(StateMachine machine)
@@ -66,6 +109,9 @@ namespace Pacs.Core
 				.Permit(OperatorStateTrigger.EndBreak, OperatorStateType.WaitingForCall)
 				.Permit(OperatorStateTrigger.EndWorkShift, OperatorStateType.Connected)
 				.Permit(OperatorStateTrigger.Disconnect, OperatorStateType.Disconnected);
+
+			machine.Configure(OperatorStateType.Disconnected)
+				.Permit(OperatorStateTrigger.Connect, OperatorStateType.Connected);
 		}
 	}
 

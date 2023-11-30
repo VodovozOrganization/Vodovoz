@@ -14,7 +14,8 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 		public DashboardOperatorOnBreakViewModel CreateOperatorOnBreakViewModel(OperatorModel operatorModel)
 		{
-			return _scope.Resolve<DashboardOperatorOnBreakViewModel>(new TypedParameter(operatorModel.GetType(), operatorModel));
+			var parameter = new TypedParameter(operatorModel.GetType(), operatorModel);
+			return _scope.Resolve<DashboardOperatorOnBreakViewModel>(parameter);
 		}
 
 		public DashboardOperatorViewModel CreateOperatorViewModel(OperatorModel operatorModel)
@@ -30,6 +31,21 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		public DashboardCallViewModel CreateCallViewModel(CallModel callModel)
 		{
 			return _scope.Resolve<DashboardCallViewModel>(new TypedParameter(callModel.GetType(), callModel));
+		}
+
+		public DashboardOperatorDetailsViewModel CreateOperatorDetailsViewModel(OperatorModel operatorModel)
+		{
+			return _scope.Resolve<DashboardOperatorDetailsViewModel>(new TypedParameter(operatorModel.GetType(), operatorModel));
+		}
+
+		public DashboardCallDetailsViewModel CreateCallDetailsViewModel(CallModel callModel)
+		{
+			return _scope.Resolve<DashboardCallDetailsViewModel>(new TypedParameter(callModel.GetType(), callModel));
+		}
+
+		public DashboardMissedCallDetailsViewModel CreateMissedCallDetailsViewModel(MissedCallModel missedCallModel)
+		{
+			return _scope.Resolve<DashboardMissedCallDetailsViewModel>(new TypedParameter(missedCallModel.GetType(), missedCallModel));
 		}
 	}
 }

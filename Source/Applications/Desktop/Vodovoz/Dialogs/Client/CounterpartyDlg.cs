@@ -87,7 +87,7 @@ using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.Counterparties;
-using Vodovoz.ViewModels.Dialogs.Counterparty;
+using Vodovoz.ViewModels.Dialogs.Counterparties;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalFactories;

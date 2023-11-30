@@ -5,7 +5,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 {
 	public class DashboardMissedCallViewModel : ViewModelBase
 	{
-		private readonly MissedCallModel _missedCallModel;
+		private readonly MissedCallModel _model;
 
 		private string _time;
 		private string _phone;
@@ -13,13 +13,15 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 		public DashboardMissedCallViewModel(MissedCallModel missedCallModel)
 		{
-			_missedCallModel = missedCallModel ?? throw new ArgumentNullException(nameof(missedCallModel));
+			_model = missedCallModel ?? throw new ArgumentNullException(nameof(missedCallModel));
 
-			Time = _missedCallModel.Started.ToString("HH:mm:ss");
-			Phone = _missedCallModel.Call.CurrentState.FromNumber
-				+ (string.IsNullOrWhiteSpace(_missedCallModel.Call.CurrentState.FromExtension) ? "" : $" ({_missedCallModel.Call.CurrentState.FromExtension})");
-			PossibleOperatorsCount = _missedCallModel.PossibleOperatorsCount.ToString();
+			Time = _model.Started.ToString("HH:mm:ss");
+			Phone = _model.Call.CurrentState.FromNumber
+				+ (string.IsNullOrWhiteSpace(_model.Call.CurrentState.FromExtension) ? "" : $" ({_model.Call.CurrentState.FromExtension})");
+			PossibleOperatorsCount = _model.PossibleOperatorsCount.ToString();
 		}
+
+		public MissedCallModel Model => _model;
 
 		public virtual string Time
 		{
