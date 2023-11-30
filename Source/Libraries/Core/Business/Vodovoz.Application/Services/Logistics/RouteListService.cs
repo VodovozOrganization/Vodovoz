@@ -186,7 +186,7 @@ namespace Vodovoz.Application.Services.Logistics
 
 				if(routeList is null)
 				{
-					_logger.LogWarning("Маршрутный лист с номером {RouteListId} не найден, не удалось отправить в путь");
+					_logger.LogWarning("Маршрутный лист с номером {RouteListId} не найден, не удалось отправить в путь", routeListId);
 
 					return;
 				}
@@ -341,7 +341,9 @@ namespace Vodovoz.Application.Services.Logistics
 			{
 				return Result.Failure<RouteListAcceptStatus>(Errors.Logistics.RouteList.CarIsEmpty);
 			}
+
 			StringBuilder warningMsg = new StringBuilder($"Автомобиль '{routeList.Car.Title}':");
+
 			if(routeList.HasOverweight())
 			{
 				warningMsg.Append($"\n\t- перегружен на {routeList.Overweight()} кг");
@@ -421,7 +423,7 @@ namespace Vodovoz.Application.Services.Logistics
 
 			routeList.ChangeStatusAndCreateTask(RouteListStatus.Confirmed, _callTaskWorker);
 			//Строим маршрут для МЛ.
-			if((!routeList.PrintsHistory?.Any() ?? true) || commonServices.InteractiveService.Question("Перестроить маршрут?", "Этот маршрутный лист уже был когда-то напечатан. При новом построении маршрута порядок адресов может быть другой. При продолжении обязательно перепечатайте этот МЛ.\nПерестроить маршрут?"))
+			if((!routeList.PrintsHistory?.Any() ?? true) || commonServices.InteractiveService.Question("Этот маршрутный лист уже был когда-то напечатан. При новом построении маршрута порядок адресов может быть другой. При продолжении обязательно перепечатайте этот МЛ.\nПерестроить маршрут?", "Перестроить маршрут?"))
 			{
 
 				var newRoute = _routeOptimizer.RebuidOneRoute(routeList);
@@ -465,8 +467,7 @@ namespace Vodovoz.Application.Services.Logistics
 			if(routeList.GetCarVersion.IsCompanyCar && routeList.Car.CarModel.CarTypeOfUse == CarTypeOfUse.Truck && !routeList.NeedToLoad)
 			{
 				if(commonServices.InteractiveService.Question(
-				"Маршрутный лист для транспортировки на склад, перевести машрутный лист сразу в статус '{0}'?",
-					RouteListStatus.OnClosing.GetEnumTitle()))
+					$"Маршрутный лист для транспортировки на склад, перевести машрутный лист сразу в статус '{RouteListStatus.OnClosing.GetEnumTitle()}'?"))
 				{
 					routeList.CompleteRouteAndCreateTask(_wageParameterService, _callTaskWorker, _trackRepository);
 				}
@@ -478,7 +479,7 @@ namespace Vodovoz.Application.Services.Logistics
 
 				if(!routeList.NeedToLoad && !needTerminal)
 				{
-					if(commonServices.InteractiveService.Question("Для маршрутного листа, нет необходимости грузится на складе. Перевести маршрутный лист сразу в статус '{0}'?", RouteListStatus.EnRoute.GetEnumTitle()))
+					if(commonServices.InteractiveService.Question($"Для маршрутного листа, нет необходимости грузится на складе. Перевести маршрутный лист сразу в статус '{RouteListStatus.EnRoute.GetEnumTitle()}'?"))
 					{
 						var contextItemsEnroute = new Dictionary<object, object>
 							{

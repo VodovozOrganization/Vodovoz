@@ -16,7 +16,7 @@ namespace Vodovoz.Reports
 	[ToolboxItem(true)]
 	public partial class DriverWagesReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		private const bool _showFinesOutsidePeriodDefault = true;
+		private const bool _showFinesOutsidePeriodDefault = false;
 
 		private readonly INavigationManager _navigationManager;
 
