@@ -412,14 +412,14 @@ namespace Vodovoz.Filters.ViewModels
 		public virtual DateTime? StartDate
 		{
 			get => _startDate;
-			set => UpdateFilterField(ref _startDate, value);
+			set => SetField(ref _startDate, value);
 		}
 
 		public bool CanChangeEndDate { get; private set; } = true;
 		public virtual DateTime? EndDate
 		{
 			get => _endDate;
-			set => UpdateFilterField(ref _endDate, value);
+			set => SetField(ref _endDate, value);
 		}
 
 		public virtual DateTime? RestrictStartDate
