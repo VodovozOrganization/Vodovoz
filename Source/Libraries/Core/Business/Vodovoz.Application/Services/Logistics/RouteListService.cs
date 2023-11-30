@@ -341,7 +341,9 @@ namespace Vodovoz.Application.Services.Logistics
 			{
 				return Result.Failure<RouteListAcceptStatus>(Errors.Logistics.RouteList.CarIsEmpty);
 			}
+
 			StringBuilder warningMsg = new StringBuilder($"Автомобиль '{routeList.Car.Title}':");
+
 			if(routeList.HasOverweight())
 			{
 				warningMsg.Append($"\n\t- перегружен на {routeList.Overweight()} кг");
