@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
 using Fias.Client;
@@ -48,6 +48,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Vodovoz.Additions;
+using Vodovoz.Additions.Logistic.RouteOptimization;
 using Vodovoz.Application.Services;
 using Vodovoz.Application.Services.Logistics;
 using Vodovoz.CachingRepositories.Cash;
@@ -79,6 +80,7 @@ using Vodovoz.Models.TrueMark;
 using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Presentation.ViewModels.Common;
+using Vodovoz.Presentation.ViewModels.PaymentType;
 using Vodovoz.Reports;
 using Vodovoz.Reports.Logistic;
 using Vodovoz.ReportsParameters;
@@ -643,10 +645,13 @@ namespace Vodovoz
 							.AddSingleton<OsrmClient>(sp => OsrmClientFactory.Instance)
 							.AddSingleton<IFastDeliveryDistanceChecker, DistanceCalculator>()
 							.AddScoped<IDebtorsParameters, DebtorsParameters>()
-							.AddFiasClient()
-							.AddSingleton<IFastDeliveryDistanceChecker, DistanceCalculator>()
+							.AddFiasClient()							
 							.AddScoped<RevisionBottlesAndDeposits>()
-							.AddTransient<IReportExporter, ReportExporterAdapter>();
+							.AddTransient<IReportExporter, ReportExporterAdapter>()
+							.AddScoped<SelectPaymentTypeViewModel>()
+							.AddTransient<IReportExporter, ReportExporterAdapter>()
+							.AddScoped<IRouteOptimizer, RouteOptimizer>()
+							;
 				});
 	}
 }

@@ -91,6 +91,7 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.Models.Orders;
 using Vodovoz.Parameters;
+using Vodovoz.Presentation.ViewModels.PaymentType;
 using Vodovoz.Services;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.SidePanel;
@@ -158,6 +159,8 @@ namespace Vodovoz
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 
 		Order templateOrder;
+
+		private SelectPaymentTypeViewModel _selectPaymentTypeViewModel;
 
 		private int _previousDeliveryPointId;
 		private IOrganizationProvider organizationProvider;
@@ -233,6 +236,8 @@ namespace Vodovoz
 		private OrderDlg _slaveOrderDlg = null;
 
 		private SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; set; }
+
+		public ITdiCompatibilityNavigation NavigationManager;
 
 		private bool _justCreated = false;
 
@@ -548,6 +553,8 @@ namespace Vodovoz
 
 		public void ConfigureDlg()
 		{
+			NavigationManager = Startup.MainWin.NavigationManager;
+			_selectPaymentTypeViewModel = new SelectPaymentTypeViewModel(NavigationManager);
 			_lastDeliveryPointComment = Entity.DeliveryPoint?.Comment.Trim('\n').Trim(' ') ?? string.Empty;
 			_counterpartyService = _lifetimeScope.Resolve<ICounterpartyService>();
 			_nomenclatureSettings = _lifetimeScope.Resolve<INomenclatureSettings>();
@@ -855,8 +862,13 @@ namespace Vodovoz
 			ntbOrder.ShowTabs = false;
 			ntbOrder.Page = 0;
 
-			enumPaymentType.ItemsEnum = typeof(PaymentType);
-			enumPaymentType.Binding.AddBinding(Entity, s => s.PaymentType, w => w.SelectedItem).InitializeFromSource();
+			buttonSelectPaymentType.Clicked += OnSelectPaymentTypeClicked;
+			buttonSelectPaymentType.Sensitive = true;
+
+			yentryPaymentType.Binding
+				.AddFuncBinding(Entity, e => e.PaymentType.GetEnumTitle(), w => w.Text)
+				.InitializeFromSource();
+
 			SetSensitivityOfPaymentType();
 
 			enumAddRentButton.ItemsEnum = typeof(RentType);
@@ -866,9 +878,9 @@ namespace Vodovoz
 			{
 				if(checkSelfDelivery.Active)
 				{
-					if(!enumPaymentType.HiddenItems.Contains(PaymentType.DriverApplicationQR))
+					if(!_selectPaymentTypeViewModel.ExcludedPaymentTypes.Contains(PaymentType.DriverApplicationQR))
 					{
-						enumPaymentType.AddEnumToHideList(PaymentType.DriverApplicationQR);
+						_selectPaymentTypeViewModel.AddExcludedPaymentTypes(PaymentType.DriverApplicationQR);
 					}
 
 					if(Entity.PaymentType == PaymentType.DriverApplicationQR)
@@ -886,7 +898,7 @@ namespace Vodovoz
 				}
 				else
 				{
-					enumPaymentType.RemoveEnumFromHideList(PaymentType.DriverApplicationQR);
+					_selectPaymentTypeViewModel.RemoveExcludedPaymentTypes(PaymentType.DriverApplicationQR);
 
 					Entity.SelfDeliveryGeoGroup = null;
 					specialListCmbSelfDeliveryGeoGroup.ShowSpecialStateNot = true;
@@ -899,8 +911,7 @@ namespace Vodovoz
 				buttonAddMaster.Sensitive = !checkSelfDelivery.Active;
 
 				Entity.UpdateClientDefaultParam(UoW, counterpartyContractRepository, organizationProvider, counterpartyContractFactory);
-				enumPaymentType.SelectedItem = Entity.PaymentType;
-
+				
 				if((Entity.DeliveryPoint != null || Entity.SelfDelivery) && Entity.OrderStatus == OrderStatus.NewOrder)
 				{
 					OnFormOrderActions();
@@ -1055,7 +1066,26 @@ namespace Vodovoz
 			UpdateEntityLogisticsRequirements();
 			logisticsRequirementsView.ViewModel.Entity.PropertyChanged += OnLogisticsRequirementsSelectionChanged;
 
+			OnEnumPaymentTypeChanged(null, EventArgs.Empty);
 			UpdateCallBeforeArrivalVisibility();
+		}
+
+		private void OnSelectPaymentTypeClicked(object sender, EventArgs e)
+		{
+			NavigationManager.OpenViewModel<SelectPaymentTypeViewModel>(null, addingRegistrations: containerBuilder =>
+			{
+				containerBuilder.Register((cb) => _selectPaymentTypeViewModel);
+			});
+
+			_selectPaymentTypeViewModel.PaymentTypeSelected += OnPaymentTypeSelected;
+		}
+
+		private void OnPaymentTypeSelected(object sender, SelectPaymentTypeViewModel.PaymentTypeSelectedEventArgs e)
+		{
+			Entity.PaymentType = e.PaymentType;
+
+			OnEnumPaymentTypeChangedByUser(this, EventArgs.Empty);
+			_selectPaymentTypeViewModel.PaymentTypeSelected -= OnPaymentTypeSelected;
 		}
 
 		private IEnumerable<GeoGroup> GetSelfDeliveryGeoGroups()
@@ -1121,6 +1151,9 @@ namespace Vodovoz
 					{
 						Entity.CallBeforeArrivalMinutes = _defaultCallBeforeArrival;
 					}
+					break;
+				case nameof(Entity.PaymentType):
+					OnEnumPaymentTypeChanged(null, EventArgs.Empty);
 					break;
 			}
 		}
@@ -3200,29 +3233,26 @@ namespace Vodovoz
 				evmeDeliveryPoint.SetEntityAutocompleteSelectorFactory(deliveryPointFactory.CreateDeliveryPointByClientAutocompleteSelectorFactory());
 				evmeDeliveryPoint.Sensitive = Entity.OrderStatus == OrderStatus.NewOrder;
 
-				PaymentType? previousPaymentType = enumPaymentType.SelectedItem as PaymentType?;
-
-				if(Entity.Client.PersonType == PersonType.natural) {
+				if(Entity.Client.PersonType == PersonType.natural)
+				{
 					chkContractCloser.Active = false;
 					chkContractCloser.Visible = false;
-					enumPaymentType.AddEnumToHideList(PaymentType.Cashless);
-				} else {
+					_selectPaymentTypeViewModel.AddExcludedPaymentTypes(PaymentType.Cashless);
+				}
+				else
+				{
 					chkContractCloser.Visible = true;
-					enumPaymentType.RemoveEnumFromHideList(PaymentType.Cashless);
+					_selectPaymentTypeViewModel.RemoveExcludedPaymentTypes(PaymentType.Cashless);
 				}
 
 				var promoSets = UoW.Session.QueryOver<PromotionalSet>().Where(s => !s.IsArchive).List();
 				yCmbPromoSets.ItemsList = promoSets.Where(s => s.IsValidForOrder(Entity, _baseParametersProvider));
 
-				if(previousPaymentType.HasValue) {
-					if(previousPaymentType.Value == Entity.PaymentType) {
-						enumPaymentType.SelectedItem = previousPaymentType.Value;
-					} else if(Entity.Id == 0 || Entity.PaymentType == PaymentType.Cashless) {
-						enumPaymentType.SelectedItem = Entity.Client.PaymentMethod;
-						OnEnumPaymentTypeChanged(null, e);
-					} else {
-						enumPaymentType.SelectedItem = Entity.PaymentType;
-					}
+				if(Entity.Id == 0
+					|| Entity.PaymentType == PaymentType.Cashless)
+				{
+					Entity.PaymentType = Entity.Client.PaymentMethod;
+					OnEnumPaymentTypeChanged(null, e);
 				}
 
 				enumTax.SelectedItem = Entity.Client.TaxType;
@@ -3533,12 +3563,12 @@ namespace Vodovoz
 			{
 				string message = "Стоп отгрузки!!!" + Environment.NewLine + "Комментарий от фин.отдела: " + Entity.Client?.CloseDeliveryComment;
 				MessageDialogHelper.RunInfoDialog(message);
-				Enum[] hideEnums = {
+				PaymentType[] hideEnums = {
 					PaymentType.Barter,
 					PaymentType.ContractDocumentation,
 					PaymentType.Cashless
 				};
-				enumPaymentType.AddEnumToHideList(hideEnums);
+				_selectPaymentTypeViewModel.AddExcludedPaymentTypes(hideEnums);
 			}
 		}
 
@@ -4011,12 +4041,11 @@ namespace Vodovoz
 		public bool CanFormOrderWithLiquidatedCounterparty { get; private set; }
 
 		public bool CanEditByPermission => permissionResult.CanUpdate || (permissionResult.CanCreate && Entity.Id == 0);
-			
 
 		private void UpdateUIState()
 		{
 			bool val = Entity.CanEditByStatus && CanEditByPermission;
-			enumPaymentType.Sensitive = (Entity.Client != null) && val && !chkContractCloser.Active;
+			buttonSelectPaymentType.Sensitive = (Entity.Client != null) && val && !chkContractCloser.Active;
 			evmeDeliveryPoint.IsEditable = val;
 			entryDeliverySchedule.Sensitive = labelDeliverySchedule.Sensitive = !checkSelfDelivery.Active && val;
 			ybuttonFastDeliveryCheck.Sensitive = ycheckFastDelivery.Sensitive = !checkSelfDelivery.Active && val && Entity.CanChangeFastDelivery;
@@ -4078,7 +4107,9 @@ namespace Vodovoz
 				widget.Sensitive = widget.Name == vboxOrderComment.Name || value;
 
 			if(chkContractCloser.Active)
-				enumPaymentType.Sensitive = false;
+			{
+				buttonSelectPaymentType.Sensitive = false;
+			}
 
 			if(isEditOrderClicked)
 			{

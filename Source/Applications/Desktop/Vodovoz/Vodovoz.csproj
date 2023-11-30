@@ -1975,6 +1975,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Client.CounterpartyClassification.CounterpartyClassificationCalculationView.cs" />
     <Compile Include="Views\Client\CounterpartyClassification\CounterpartyClassificationCalculationEmailSettingsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Client.CounterpartyClassification.CounterpartyClassificationCalculationEmailSettingsView.cs" />
+    <Compile Include="Views\SelectPaymentTypeWindowView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.SelectPaymentTypeWindowView.cs" />
     <Compile Include="Filters\GtkViews\GeoGroupJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.GeoGroupJournalFilterView.cs" />
     <Compile Include="Dialogs\Interactive\ConfirmationQuestionDlg.cs" />
