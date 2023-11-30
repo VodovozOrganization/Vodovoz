@@ -17,7 +17,7 @@ namespace Vodovoz.Views.Pacs
 		{
 			base.ConfigureWidget();
 
-			pacsdomainsettingsview1.ViewModel = ViewModel.DomainSettingsViewModel;
+			//pacsdomainsettingsview1.ViewModel = ViewModel.DomainSettingsViewModel;
 
 			ViewModel.PropertyChanged += ViewModelPropertyChanged;
 		}
@@ -27,7 +27,7 @@ namespace Vodovoz.Views.Pacs
 			switch(e.PropertyName)
 			{
 				case nameof(PacsSettingsViewModel.DomainSettingsViewModel):
-					pacsdomainsettingsview1.ViewModel = ViewModel.DomainSettingsViewModel;
+					//pacsdomainsettingsview1.ViewModel = ViewModel.DomainSettingsViewModel;
 					break;
 				default:
 					break;

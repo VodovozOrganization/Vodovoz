@@ -6,6 +6,18 @@ namespace Vodovoz.Views.Pacs
 	{
 		private global::Gamma.GtkWidgets.yVBox vboxWidget;
 
+		private global::Gamma.GtkWidgets.yHBox hboxGroups;
+
+		private global::Gamma.GtkWidgets.yVBox vboxControlPanel;
+
+		private global::Gtk.Frame frameWorkShift;
+
+		private global::Gtk.Alignment GtkAlignment;
+
+		private global::Gamma.GtkWidgets.yVBox yvbox2;
+
+		private global::Gamma.GtkWidgets.yLabel labelWorkShiftInfo;
+
 		private global::Gamma.GtkWidgets.yHBox hboxPhone;
 
 		private global::Gamma.GtkWidgets.yLabel labelPhone;
@@ -16,17 +28,47 @@ namespace Vodovoz.Views.Pacs
 
 		private global::Gamma.GtkWidgets.yHBox hboxWorkshiftButtons;
 
+		private global::Gamma.GtkWidgets.yButton buttonEndWorkshift;
+
+		private global::Gamma.GtkWidgets.yButton buttonStartWorkshift;
+
+		private global::Gtk.Label GtkLabel5;
+
+		private global::Gtk.Frame frameBreak;
+
+		private global::Gtk.Alignment GtkAlignment1;
+
+		private global::Gamma.GtkWidgets.yVBox yvbox3;
+
+		private global::Gamma.GtkWidgets.yLabel labelBreakInfo;
+
+		private global::Gamma.GtkWidgets.yHBox yhbox3;
+
 		private global::Gamma.GtkWidgets.yButton buttonBreak;
 
 		private global::Gamma.GtkWidgets.yButton buttonEndBreak;
 
-		private global::Gamma.GtkWidgets.yButton buttonStartWorkshift;
+		private global::Gtk.Label GtkLabel6;
 
-		private global::Gamma.GtkWidgets.yButton buttonEndWorkshift;
+		private global::Gtk.Frame frameHelp;
 
-		private global::Gamma.GtkWidgets.yHBox yhboxBreakInfo;
+		private global::Gtk.Alignment GtkAlignment3;
 
-		private global::Gamma.GtkWidgets.yLabel labelBreakInfo;
+		private global::Gamma.GtkWidgets.yVBox yvboxHelp;
+
+		private global::Gamma.GtkWidgets.yTextView ytextview1;
+
+		private global::Gtk.Label GtkLabel10;
+
+		private global::Gamma.GtkWidgets.yVBox vboxOnBreak;
+
+		private global::Gtk.Frame frameOnBreak;
+
+		private global::Gtk.Alignment GtkAlignment2;
+
+		private global::Gamma.GtkWidgets.yTreeView treeviewOperatorsOnBreak;
+
+		private global::Gtk.Label GtkLabel9;
 
 		protected virtual void Build()
 		{
@@ -39,29 +81,62 @@ namespace Vodovoz.Views.Pacs
 			this.vboxWidget.Name = "vboxWidget";
 			this.vboxWidget.Spacing = 6;
 			// Container child vboxWidget.Gtk.Box+BoxChild
+			this.hboxGroups = new global::Gamma.GtkWidgets.yHBox();
+			this.hboxGroups.Name = "hboxGroups";
+			this.hboxGroups.Spacing = 6;
+			// Container child hboxGroups.Gtk.Box+BoxChild
+			this.vboxControlPanel = new global::Gamma.GtkWidgets.yVBox();
+			this.vboxControlPanel.Name = "vboxControlPanel";
+			this.vboxControlPanel.Spacing = 6;
+			// Container child vboxControlPanel.Gtk.Box+BoxChild
+			this.frameWorkShift = new global::Gtk.Frame();
+			this.frameWorkShift.Name = "frameWorkShift";
+			this.frameWorkShift.BorderWidth = ((uint)(1));
+			// Container child frameWorkShift.Gtk.Container+ContainerChild
+			this.GtkAlignment = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
+			this.GtkAlignment.Name = "GtkAlignment";
+			this.GtkAlignment.LeftPadding = ((uint)(6));
+			this.GtkAlignment.TopPadding = ((uint)(2));
+			this.GtkAlignment.RightPadding = ((uint)(2));
+			this.GtkAlignment.BottomPadding = ((uint)(2));
+			// Container child GtkAlignment.Gtk.Container+ContainerChild
+			this.yvbox2 = new global::Gamma.GtkWidgets.yVBox();
+			this.yvbox2.Name = "yvbox2";
+			this.yvbox2.Spacing = 6;
+			// Container child yvbox2.Gtk.Box+BoxChild
+			this.labelWorkShiftInfo = new global::Gamma.GtkWidgets.yLabel();
+			this.labelWorkShiftInfo.Name = "labelWorkShiftInfo";
+			this.labelWorkShiftInfo.Xalign = 0F;
+			this.labelWorkShiftInfo.LabelProp = global::Mono.Unix.Catalog.GetString("Информация о смене");
+			this.yvbox2.Add(this.labelWorkShiftInfo);
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.yvbox2[this.labelWorkShiftInfo]));
+			w1.Position = 0;
+			w1.Expand = false;
+			w1.Fill = false;
+			// Container child yvbox2.Gtk.Box+BoxChild
 			this.hboxPhone = new global::Gamma.GtkWidgets.yHBox();
 			this.hboxPhone.Name = "hboxPhone";
 			this.hboxPhone.Spacing = 6;
 			// Container child hboxPhone.Gtk.Box+BoxChild
 			this.labelPhone = new global::Gamma.GtkWidgets.yLabel();
 			this.labelPhone.Name = "labelPhone";
-			this.labelPhone.LabelProp = global::Mono.Unix.Catalog.GetString("Доб. номер:");
+			this.labelPhone.LabelProp = global::Mono.Unix.Catalog.GetString("Тел:");
 			this.hboxPhone.Add(this.labelPhone);
-			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hboxPhone[this.labelPhone]));
-			w1.Position = 0;
-			w1.Expand = false;
-			w1.Fill = false;
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hboxPhone[this.labelPhone]));
+			w2.Position = 0;
+			w2.Expand = false;
+			w2.Fill = false;
 			// Container child hboxPhone.Gtk.Box+BoxChild
 			this.comboboxPhone = new global::Gamma.Widgets.yListComboBox();
-			this.comboboxPhone.WidthRequest = 100;
+			this.comboboxPhone.WidthRequest = 120;
 			this.comboboxPhone.Name = "comboboxPhone";
 			this.comboboxPhone.AddIfNotExist = false;
 			this.comboboxPhone.DefaultFirst = false;
 			this.hboxPhone.Add(this.comboboxPhone);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hboxPhone[this.comboboxPhone]));
-			w2.Position = 1;
-			w2.Expand = false;
-			w2.Fill = false;
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hboxPhone[this.comboboxPhone]));
+			w3.Position = 1;
+			w3.Expand = false;
+			w3.Fill = false;
 			// Container child hboxPhone.Gtk.Box+BoxChild
 			this.buttonChangePhone = new global::Gamma.GtkWidgets.yButton();
 			this.buttonChangePhone.CanFocus = true;
@@ -69,39 +144,28 @@ namespace Vodovoz.Views.Pacs
 			this.buttonChangePhone.UseUnderline = true;
 			this.buttonChangePhone.Label = global::Mono.Unix.Catalog.GetString("Сменить номер");
 			this.hboxPhone.Add(this.buttonChangePhone);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hboxPhone[this.buttonChangePhone]));
-			w3.Position = 2;
-			w3.Expand = false;
-			w3.Fill = false;
-			this.vboxWidget.Add(this.hboxPhone);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.hboxPhone]));
-			w4.Position = 0;
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hboxPhone[this.buttonChangePhone]));
+			w4.Position = 2;
 			w4.Expand = false;
 			w4.Fill = false;
-			// Container child vboxWidget.Gtk.Box+BoxChild
+			this.yvbox2.Add(this.hboxPhone);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.yvbox2[this.hboxPhone]));
+			w5.Position = 1;
+			w5.Expand = false;
+			w5.Fill = false;
+			// Container child yvbox2.Gtk.Box+BoxChild
 			this.hboxWorkshiftButtons = new global::Gamma.GtkWidgets.yHBox();
 			this.hboxWorkshiftButtons.Name = "hboxWorkshiftButtons";
 			this.hboxWorkshiftButtons.Spacing = 6;
 			// Container child hboxWorkshiftButtons.Gtk.Box+BoxChild
-			this.buttonBreak = new global::Gamma.GtkWidgets.yButton();
-			this.buttonBreak.CanFocus = true;
-			this.buttonBreak.Name = "buttonBreak";
-			this.buttonBreak.UseUnderline = true;
-			this.buttonBreak.Label = global::Mono.Unix.Catalog.GetString("Перерыв");
-			this.hboxWorkshiftButtons.Add(this.buttonBreak);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hboxWorkshiftButtons[this.buttonBreak]));
-			w5.Position = 0;
-			w5.Expand = false;
-			w5.Fill = false;
-			// Container child hboxWorkshiftButtons.Gtk.Box+BoxChild
-			this.buttonEndBreak = new global::Gamma.GtkWidgets.yButton();
-			this.buttonEndBreak.CanFocus = true;
-			this.buttonEndBreak.Name = "buttonEndBreak";
-			this.buttonEndBreak.UseUnderline = true;
-			this.buttonEndBreak.Label = global::Mono.Unix.Catalog.GetString("Продолжить работу");
-			this.hboxWorkshiftButtons.Add(this.buttonEndBreak);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hboxWorkshiftButtons[this.buttonEndBreak]));
-			w6.Position = 1;
+			this.buttonEndWorkshift = new global::Gamma.GtkWidgets.yButton();
+			this.buttonEndWorkshift.CanFocus = true;
+			this.buttonEndWorkshift.Name = "buttonEndWorkshift";
+			this.buttonEndWorkshift.UseUnderline = true;
+			this.buttonEndWorkshift.Label = global::Mono.Unix.Catalog.GetString("Завершить смену");
+			this.hboxWorkshiftButtons.Add(this.buttonEndWorkshift);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hboxWorkshiftButtons[this.buttonEndWorkshift]));
+			w6.Position = 0;
 			w6.Expand = false;
 			w6.Fill = false;
 			// Container child hboxWorkshiftButtons.Gtk.Box+BoxChild
@@ -112,43 +176,173 @@ namespace Vodovoz.Views.Pacs
 			this.buttonStartWorkshift.Label = global::Mono.Unix.Catalog.GetString("Начать смену");
 			this.hboxWorkshiftButtons.Add(this.buttonStartWorkshift);
 			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hboxWorkshiftButtons[this.buttonStartWorkshift]));
-			w7.Position = 2;
+			w7.Position = 1;
 			w7.Expand = false;
 			w7.Fill = false;
-			// Container child hboxWorkshiftButtons.Gtk.Box+BoxChild
-			this.buttonEndWorkshift = new global::Gamma.GtkWidgets.yButton();
-			this.buttonEndWorkshift.CanFocus = true;
-			this.buttonEndWorkshift.Name = "buttonEndWorkshift";
-			this.buttonEndWorkshift.UseUnderline = true;
-			this.buttonEndWorkshift.Label = global::Mono.Unix.Catalog.GetString("Завершить смену");
-			this.hboxWorkshiftButtons.Add(this.buttonEndWorkshift);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hboxWorkshiftButtons[this.buttonEndWorkshift]));
-			w8.Position = 3;
+			this.yvbox2.Add(this.hboxWorkshiftButtons);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.yvbox2[this.hboxWorkshiftButtons]));
+			w8.Position = 2;
 			w8.Expand = false;
 			w8.Fill = false;
-			this.vboxWidget.Add(this.hboxWorkshiftButtons);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.hboxWorkshiftButtons]));
-			w9.Position = 1;
-			w9.Expand = false;
-			w9.Fill = false;
-			// Container child vboxWidget.Gtk.Box+BoxChild
-			this.yhboxBreakInfo = new global::Gamma.GtkWidgets.yHBox();
-			this.yhboxBreakInfo.Name = "yhboxBreakInfo";
-			this.yhboxBreakInfo.Spacing = 6;
-			// Container child yhboxBreakInfo.Gtk.Box+BoxChild
-			this.labelBreakInfo = new global::Gamma.GtkWidgets.yLabel();
-			this.labelBreakInfo.Name = "labelBreakInfo";
-			this.labelBreakInfo.LabelProp = global::Mono.Unix.Catalog.GetString("До окончания перерыва: 00:00");
-			this.yhboxBreakInfo.Add(this.labelBreakInfo);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.yhboxBreakInfo[this.labelBreakInfo]));
-			w10.Position = 0;
-			w10.Expand = false;
-			w10.Fill = false;
-			this.vboxWidget.Add(this.yhboxBreakInfo);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.yhboxBreakInfo]));
-			w11.Position = 2;
+			this.GtkAlignment.Add(this.yvbox2);
+			this.frameWorkShift.Add(this.GtkAlignment);
+			this.GtkLabel5 = new global::Gtk.Label();
+			this.GtkLabel5.Name = "GtkLabel5";
+			this.GtkLabel5.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Рабочая смена</b>");
+			this.GtkLabel5.UseMarkup = true;
+			this.frameWorkShift.LabelWidget = this.GtkLabel5;
+			this.vboxControlPanel.Add(this.frameWorkShift);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vboxControlPanel[this.frameWorkShift]));
+			w11.Position = 0;
 			w11.Expand = false;
 			w11.Fill = false;
+			// Container child vboxControlPanel.Gtk.Box+BoxChild
+			this.frameBreak = new global::Gtk.Frame();
+			this.frameBreak.Name = "frameBreak";
+			this.frameBreak.BorderWidth = ((uint)(1));
+			// Container child frameBreak.Gtk.Container+ContainerChild
+			this.GtkAlignment1 = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
+			this.GtkAlignment1.Name = "GtkAlignment1";
+			this.GtkAlignment1.LeftPadding = ((uint)(6));
+			this.GtkAlignment1.TopPadding = ((uint)(2));
+			this.GtkAlignment1.RightPadding = ((uint)(2));
+			this.GtkAlignment1.BottomPadding = ((uint)(2));
+			// Container child GtkAlignment1.Gtk.Container+ContainerChild
+			this.yvbox3 = new global::Gamma.GtkWidgets.yVBox();
+			this.yvbox3.Name = "yvbox3";
+			this.yvbox3.Spacing = 6;
+			// Container child yvbox3.Gtk.Box+BoxChild
+			this.labelBreakInfo = new global::Gamma.GtkWidgets.yLabel();
+			this.labelBreakInfo.Name = "labelBreakInfo";
+			this.labelBreakInfo.Xalign = 0F;
+			this.labelBreakInfo.LabelProp = global::Mono.Unix.Catalog.GetString("До окончания перерыва: 00:00");
+			this.yvbox3.Add(this.labelBreakInfo);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.yvbox3[this.labelBreakInfo]));
+			w12.Position = 0;
+			w12.Expand = false;
+			w12.Fill = false;
+			// Container child yvbox3.Gtk.Box+BoxChild
+			this.yhbox3 = new global::Gamma.GtkWidgets.yHBox();
+			this.yhbox3.Name = "yhbox3";
+			this.yhbox3.Spacing = 6;
+			// Container child yhbox3.Gtk.Box+BoxChild
+			this.buttonBreak = new global::Gamma.GtkWidgets.yButton();
+			this.buttonBreak.CanFocus = true;
+			this.buttonBreak.Name = "buttonBreak";
+			this.buttonBreak.UseUnderline = true;
+			this.buttonBreak.Label = global::Mono.Unix.Catalog.GetString("Перерыв");
+			this.yhbox3.Add(this.buttonBreak);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.yhbox3[this.buttonBreak]));
+			w13.Position = 0;
+			w13.Expand = false;
+			w13.Fill = false;
+			// Container child yhbox3.Gtk.Box+BoxChild
+			this.buttonEndBreak = new global::Gamma.GtkWidgets.yButton();
+			this.buttonEndBreak.CanFocus = true;
+			this.buttonEndBreak.Name = "buttonEndBreak";
+			this.buttonEndBreak.UseUnderline = true;
+			this.buttonEndBreak.Label = global::Mono.Unix.Catalog.GetString("Продолжить работу");
+			this.yhbox3.Add(this.buttonEndBreak);
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.yhbox3[this.buttonEndBreak]));
+			w14.Position = 1;
+			w14.Expand = false;
+			w14.Fill = false;
+			this.yvbox3.Add(this.yhbox3);
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.yvbox3[this.yhbox3]));
+			w15.Position = 1;
+			w15.Expand = false;
+			w15.Fill = false;
+			this.GtkAlignment1.Add(this.yvbox3);
+			this.frameBreak.Add(this.GtkAlignment1);
+			this.GtkLabel6 = new global::Gtk.Label();
+			this.GtkLabel6.Name = "GtkLabel6";
+			this.GtkLabel6.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Перерыв</b>");
+			this.GtkLabel6.UseMarkup = true;
+			this.frameBreak.LabelWidget = this.GtkLabel6;
+			this.vboxControlPanel.Add(this.frameBreak);
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vboxControlPanel[this.frameBreak]));
+			w18.Position = 1;
+			w18.Expand = false;
+			w18.Fill = false;
+			// Container child vboxControlPanel.Gtk.Box+BoxChild
+			this.frameHelp = new global::Gtk.Frame();
+			this.frameHelp.Name = "frameHelp";
+			this.frameHelp.BorderWidth = ((uint)(1));
+			// Container child frameHelp.Gtk.Container+ContainerChild
+			this.GtkAlignment3 = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
+			this.GtkAlignment3.Name = "GtkAlignment3";
+			this.GtkAlignment3.LeftPadding = ((uint)(6));
+			this.GtkAlignment3.TopPadding = ((uint)(2));
+			this.GtkAlignment3.RightPadding = ((uint)(2));
+			this.GtkAlignment3.BottomPadding = ((uint)(2));
+			// Container child GtkAlignment3.Gtk.Container+ContainerChild
+			this.yvboxHelp = new global::Gamma.GtkWidgets.yVBox();
+			this.yvboxHelp.Name = "yvboxHelp";
+			this.yvboxHelp.Spacing = 6;
+			// Container child yvboxHelp.Gtk.Box+BoxChild
+			this.ytextview1 = new global::Gamma.GtkWidgets.yTextView();
+			this.ytextview1.HeightRequest = 120;
+			this.ytextview1.CanFocus = true;
+			this.ytextview1.Name = "ytextview1";
+			this.ytextview1.Editable = false;
+			this.yvboxHelp.Add(this.ytextview1);
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.yvboxHelp[this.ytextview1]));
+			w19.Position = 0;
+			this.GtkAlignment3.Add(this.yvboxHelp);
+			this.frameHelp.Add(this.GtkAlignment3);
+			this.GtkLabel10 = new global::Gtk.Label();
+			this.GtkLabel10.Name = "GtkLabel10";
+			this.GtkLabel10.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Справка</b>");
+			this.GtkLabel10.UseMarkup = true;
+			this.frameHelp.LabelWidget = this.GtkLabel10;
+			this.vboxControlPanel.Add(this.frameHelp);
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vboxControlPanel[this.frameHelp]));
+			w22.Position = 2;
+			w22.Expand = false;
+			this.hboxGroups.Add(this.vboxControlPanel);
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.hboxGroups[this.vboxControlPanel]));
+			w23.Position = 0;
+			w23.Expand = false;
+			w23.Fill = false;
+			// Container child hboxGroups.Gtk.Box+BoxChild
+			this.vboxOnBreak = new global::Gamma.GtkWidgets.yVBox();
+			this.vboxOnBreak.Name = "vboxOnBreak";
+			this.vboxOnBreak.Spacing = 6;
+			// Container child vboxOnBreak.Gtk.Box+BoxChild
+			this.frameOnBreak = new global::Gtk.Frame();
+			this.frameOnBreak.Name = "frameOnBreak";
+			this.frameOnBreak.BorderWidth = ((uint)(1));
+			// Container child frameOnBreak.Gtk.Container+ContainerChild
+			this.GtkAlignment2 = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
+			this.GtkAlignment2.Name = "GtkAlignment2";
+			this.GtkAlignment2.LeftPadding = ((uint)(6));
+			this.GtkAlignment2.TopPadding = ((uint)(2));
+			this.GtkAlignment2.RightPadding = ((uint)(2));
+			this.GtkAlignment2.BottomPadding = ((uint)(2));
+			// Container child GtkAlignment2.Gtk.Container+ContainerChild
+			this.treeviewOperatorsOnBreak = new global::Gamma.GtkWidgets.yTreeView();
+			this.treeviewOperatorsOnBreak.WidthRequest = 240;
+			this.treeviewOperatorsOnBreak.HeightRequest = 180;
+			this.treeviewOperatorsOnBreak.CanFocus = true;
+			this.treeviewOperatorsOnBreak.Name = "treeviewOperatorsOnBreak";
+			this.GtkAlignment2.Add(this.treeviewOperatorsOnBreak);
+			this.frameOnBreak.Add(this.GtkAlignment2);
+			this.GtkLabel9 = new global::Gtk.Label();
+			this.GtkLabel9.Name = "GtkLabel9";
+			this.GtkLabel9.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Сейчас на перерыве</b>");
+			this.GtkLabel9.UseMarkup = true;
+			this.frameOnBreak.LabelWidget = this.GtkLabel9;
+			this.vboxOnBreak.Add(this.frameOnBreak);
+			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vboxOnBreak[this.frameOnBreak]));
+			w26.Position = 0;
+			w26.Expand = false;
+			this.hboxGroups.Add(this.vboxOnBreak);
+			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.hboxGroups[this.vboxOnBreak]));
+			w27.Position = 1;
+			w27.Expand = false;
+			this.vboxWidget.Add(this.hboxGroups);
+			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.hboxGroups]));
+			w28.Position = 0;
 			this.Add(this.vboxWidget);
 			if ((this.Child != null))
 			{

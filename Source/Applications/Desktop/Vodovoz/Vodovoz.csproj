@@ -1999,6 +1999,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Pacs.PacsView.cs" />
     <Compile Include="Views\Pacs\PacsReportsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Pacs.PacsReportsView.cs" />
+    <Compile Include="Views\Employees\InnerPhoneView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Employees.InnerPhoneView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

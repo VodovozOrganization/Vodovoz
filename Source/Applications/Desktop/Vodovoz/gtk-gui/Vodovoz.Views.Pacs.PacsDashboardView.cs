@@ -60,6 +60,8 @@ namespace Vodovoz.Views.Pacs
 
 		private global::Gamma.GtkWidgets.yLabel labelDetails;
 
+		private global::Vodovoz.Views.Pacs.OperatorDetailsView operatordetailsview1;
+
 		private global::Gamma.GtkWidgets.yHBox hboxFooter;
 
 		protected virtual void Build()
@@ -278,21 +280,28 @@ namespace Vodovoz.Views.Pacs
 			w26.Position = 0;
 			w26.Expand = false;
 			w26.Fill = false;
+			// Container child vboxDetails.Gtk.Box+BoxChild
+			this.operatordetailsview1 = new global::Vodovoz.Views.Pacs.OperatorDetailsView();
+			this.operatordetailsview1.Events = ((global::Gdk.EventMask)(256));
+			this.operatordetailsview1.Name = "operatordetailsview1";
+			this.vboxDetails.Add(this.operatordetailsview1);
+			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.vboxDetails[this.operatordetailsview1]));
+			w27.Position = 1;
 			this.hboxDashboard.Add(this.vboxDetails);
-			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.hboxDashboard[this.vboxDetails]));
-			w27.Position = 4;
+			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.hboxDashboard[this.vboxDetails]));
+			w28.Position = 4;
 			this.vboxWidget.Add(this.hboxDashboard);
-			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.hboxDashboard]));
-			w28.Position = 1;
+			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.hboxDashboard]));
+			w29.Position = 1;
 			// Container child vboxWidget.Gtk.Box+BoxChild
 			this.hboxFooter = new global::Gamma.GtkWidgets.yHBox();
 			this.hboxFooter.Name = "hboxFooter";
 			this.hboxFooter.Spacing = 6;
 			this.vboxWidget.Add(this.hboxFooter);
-			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.hboxFooter]));
-			w29.Position = 2;
-			w29.Expand = false;
-			w29.Fill = false;
+			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.hboxFooter]));
+			w30.Position = 2;
+			w30.Expand = false;
+			w30.Fill = false;
 			this.Add(this.vboxWidget);
 			if ((this.Child != null))
 			{

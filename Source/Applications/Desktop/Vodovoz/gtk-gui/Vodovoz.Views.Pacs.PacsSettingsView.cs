@@ -6,15 +6,31 @@ namespace Vodovoz.Views.Pacs
 	{
 		private global::Gamma.GtkWidgets.yVBox vboxWidget;
 
-		private global::Gamma.GtkWidgets.yHBox hboxRow1;
+		private global::Gamma.GtkWidgets.yHBox hboxGroups;
+
+		private global::Gamma.GtkWidgets.yVBox vboxSettings;
 
 		private global::Gtk.Frame frameDomainSettings;
 
 		private global::Gtk.Alignment GtkAlignment;
 
-		private global::Vodovoz.Views.Pacs.PacsDomainSettingsView pacsdomainsettingsview1;
+		private global::Vodovoz.Views.Pacs.PacsDomainSettingsView domainSettingsView;
 
-		private global::Gtk.Label GtkLabel1;
+		private global::Gtk.Label GtkLabel2;
+
+		private global::Gamma.GtkWidgets.yVBox vboxReferenceBooks;
+
+		private global::Gtk.Frame frameReferenceBooks;
+
+		private global::Gtk.Alignment GtkAlignment1;
+
+		private global::Gamma.GtkWidgets.yVBox vboxReferenceBooksButtons;
+
+		private global::Gamma.GtkWidgets.yHBox hboxInnerPhones;
+
+		private global::Gamma.GtkWidgets.yButton buttonInnerPhones;
+
+		private global::Gtk.Label GtkLabel5;
 
 		protected virtual void Build()
 		{
@@ -27,10 +43,14 @@ namespace Vodovoz.Views.Pacs
 			this.vboxWidget.Name = "vboxWidget";
 			this.vboxWidget.Spacing = 6;
 			// Container child vboxWidget.Gtk.Box+BoxChild
-			this.hboxRow1 = new global::Gamma.GtkWidgets.yHBox();
-			this.hboxRow1.Name = "hboxRow1";
-			this.hboxRow1.Spacing = 6;
-			// Container child hboxRow1.Gtk.Box+BoxChild
+			this.hboxGroups = new global::Gamma.GtkWidgets.yHBox();
+			this.hboxGroups.Name = "hboxGroups";
+			this.hboxGroups.Spacing = 6;
+			// Container child hboxGroups.Gtk.Box+BoxChild
+			this.vboxSettings = new global::Gamma.GtkWidgets.yVBox();
+			this.vboxSettings.Name = "vboxSettings";
+			this.vboxSettings.Spacing = 6;
+			// Container child vboxSettings.Gtk.Box+BoxChild
 			this.frameDomainSettings = new global::Gtk.Frame();
 			this.frameDomainSettings.Name = "frameDomainSettings";
 			this.frameDomainSettings.BorderWidth = ((uint)(1));
@@ -42,26 +62,85 @@ namespace Vodovoz.Views.Pacs
 			this.GtkAlignment.RightPadding = ((uint)(2));
 			this.GtkAlignment.BottomPadding = ((uint)(2));
 			// Container child GtkAlignment.Gtk.Container+ContainerChild
-			this.pacsdomainsettingsview1 = new global::Vodovoz.Views.Pacs.PacsDomainSettingsView();
-			this.pacsdomainsettingsview1.Events = ((global::Gdk.EventMask)(256));
-			this.pacsdomainsettingsview1.Name = "pacsdomainsettingsview1";
-			this.GtkAlignment.Add(this.pacsdomainsettingsview1);
+			this.domainSettingsView = new global::Vodovoz.Views.Pacs.PacsDomainSettingsView();
+			this.domainSettingsView.Events = ((global::Gdk.EventMask)(256));
+			this.domainSettingsView.Name = "domainSettingsView";
+			this.GtkAlignment.Add(this.domainSettingsView);
 			this.frameDomainSettings.Add(this.GtkAlignment);
-			this.GtkLabel1 = new global::Gtk.Label();
-			this.GtkLabel1.Name = "GtkLabel1";
-			this.GtkLabel1.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Настройки СКУД</b>");
-			this.GtkLabel1.UseMarkup = true;
-			this.frameDomainSettings.LabelWidget = this.GtkLabel1;
-			this.hboxRow1.Add(this.frameDomainSettings);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hboxRow1[this.frameDomainSettings]));
+			this.GtkLabel2 = new global::Gtk.Label();
+			this.GtkLabel2.Name = "GtkLabel2";
+			this.GtkLabel2.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Настройки</b>");
+			this.GtkLabel2.UseMarkup = true;
+			this.frameDomainSettings.LabelWidget = this.GtkLabel2;
+			this.vboxSettings.Add(this.frameDomainSettings);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vboxSettings[this.frameDomainSettings]));
 			w3.Position = 0;
 			w3.Expand = false;
-			w3.Fill = false;
-			this.vboxWidget.Add(this.hboxRow1);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.hboxRow1]));
+			this.hboxGroups.Add(this.vboxSettings);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hboxGroups[this.vboxSettings]));
 			w4.Position = 0;
 			w4.Expand = false;
 			w4.Fill = false;
+			// Container child hboxGroups.Gtk.Box+BoxChild
+			this.vboxReferenceBooks = new global::Gamma.GtkWidgets.yVBox();
+			this.vboxReferenceBooks.Name = "vboxReferenceBooks";
+			this.vboxReferenceBooks.Spacing = 6;
+			// Container child vboxReferenceBooks.Gtk.Box+BoxChild
+			this.frameReferenceBooks = new global::Gtk.Frame();
+			this.frameReferenceBooks.WidthRequest = 240;
+			this.frameReferenceBooks.Name = "frameReferenceBooks";
+			this.frameReferenceBooks.BorderWidth = ((uint)(1));
+			// Container child frameReferenceBooks.Gtk.Container+ContainerChild
+			this.GtkAlignment1 = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
+			this.GtkAlignment1.Name = "GtkAlignment1";
+			this.GtkAlignment1.LeftPadding = ((uint)(6));
+			this.GtkAlignment1.TopPadding = ((uint)(2));
+			this.GtkAlignment1.RightPadding = ((uint)(2));
+			this.GtkAlignment1.BottomPadding = ((uint)(2));
+			// Container child GtkAlignment1.Gtk.Container+ContainerChild
+			this.vboxReferenceBooksButtons = new global::Gamma.GtkWidgets.yVBox();
+			this.vboxReferenceBooksButtons.WidthRequest = 0;
+			this.vboxReferenceBooksButtons.HeightRequest = 0;
+			this.vboxReferenceBooksButtons.Name = "vboxReferenceBooksButtons";
+			this.vboxReferenceBooksButtons.Spacing = 6;
+			// Container child vboxReferenceBooksButtons.Gtk.Box+BoxChild
+			this.hboxInnerPhones = new global::Gamma.GtkWidgets.yHBox();
+			this.hboxInnerPhones.Name = "hboxInnerPhones";
+			this.hboxInnerPhones.Spacing = 6;
+			// Container child hboxInnerPhones.Gtk.Box+BoxChild
+			this.buttonInnerPhones = new global::Gamma.GtkWidgets.yButton();
+			this.buttonInnerPhones.CanFocus = true;
+			this.buttonInnerPhones.Name = "buttonInnerPhones";
+			this.buttonInnerPhones.UseUnderline = true;
+			this.buttonInnerPhones.Label = global::Mono.Unix.Catalog.GetString("Внутренние телефоны");
+			this.hboxInnerPhones.Add(this.buttonInnerPhones);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hboxInnerPhones[this.buttonInnerPhones]));
+			w5.Position = 0;
+			w5.Expand = false;
+			w5.Fill = false;
+			this.vboxReferenceBooksButtons.Add(this.hboxInnerPhones);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vboxReferenceBooksButtons[this.hboxInnerPhones]));
+			w6.Position = 0;
+			w6.Expand = false;
+			w6.Fill = false;
+			this.GtkAlignment1.Add(this.vboxReferenceBooksButtons);
+			this.frameReferenceBooks.Add(this.GtkAlignment1);
+			this.GtkLabel5 = new global::Gtk.Label();
+			this.GtkLabel5.Name = "GtkLabel5";
+			this.GtkLabel5.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Справочники</b>");
+			this.GtkLabel5.UseMarkup = true;
+			this.frameReferenceBooks.LabelWidget = this.GtkLabel5;
+			this.vboxReferenceBooks.Add(this.frameReferenceBooks);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vboxReferenceBooks[this.frameReferenceBooks]));
+			w9.Position = 0;
+			w9.Expand = false;
+			this.hboxGroups.Add(this.vboxReferenceBooks);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hboxGroups[this.vboxReferenceBooks]));
+			w10.Position = 1;
+			w10.Expand = false;
+			this.vboxWidget.Add(this.hboxGroups);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.hboxGroups]));
+			w11.Position = 0;
 			this.Add(this.vboxWidget);
 			if ((this.Child != null))
 			{

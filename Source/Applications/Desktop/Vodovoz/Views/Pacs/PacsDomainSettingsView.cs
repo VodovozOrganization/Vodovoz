@@ -14,7 +14,7 @@ namespace Vodovoz.Views.Pacs
 		protected override void ConfigureWidget()
 		{
 			base.ConfigureWidget();
-
+			/*
 			spinButtonMaxBreakDuration.Adjustment = 
 				new Gtk.Adjustment(0, ViewModel.MaxBreakTimeMinValue, ViewModel.MaxBreakTimeMaxValue, 1, 1, 4);
 			spinButtonMaxBreakDuration.Binding.AddSource(ViewModel)
@@ -36,7 +36,7 @@ namespace Vodovoz.Views.Pacs
 				.InitializeFromSource ();
 
 			buttonSave.BindCommand(ViewModel.SaveCommand);
-			buttonCancel.BindCommand(ViewModel.CancelCommand);
+			buttonCancel.BindCommand(ViewModel.CancelCommand);*/
 		}
 	}
 }
