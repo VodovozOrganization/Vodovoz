@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using MoreLinq;
 using QS.Commands;
 using QS.Dialog;
@@ -270,7 +270,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			{
 				var confirmationResult = _confirmationQuestionInteractive.Question(
 					confirmationQuestions,
-					isNoButtonAvailableByDefault: true);
+					isNoButtonAvailableByDefault: true,
+					imageType: ConfirmationQuestionDialogSettings.ImgType.Warning);
 
 				if(!confirmationResult)
 				{
