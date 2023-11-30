@@ -773,7 +773,7 @@ namespace Vodovoz
 
 					transaction.Dispose();
 
-					_logger.LogError("Произошла ошибка во время подтверждения МЛ {RouteListId}: {Message}.", Entity.Id, ex.Message);
+					_logger.LogError(ex, "Произошла ошибка во время подтверждения МЛ {RouteListId}: {Message}.", Entity.Id, ex.Message);
 
 					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
 						$"Возникла ошибка при подтверждении МЛ {Entity.Id}, МЛ был сохранён, но не подтверждён.\n" +
