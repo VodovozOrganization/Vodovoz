@@ -40,6 +40,7 @@ namespace TaxcomEdoApi
 	public class Startup
 	{
 		private const string _nLogSectionName = nameof(NLog);
+		private Logger<Startup> _logger;
 
 		public Startup(IConfiguration configuration)
 		{
@@ -51,13 +52,6 @@ namespace TaxcomEdoApi
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
-			Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-			
-			CreateBaseConfig();
-
-			services.AddControllers()
-				.AddXmlSerializerFormatters();
-
 			services.AddLogging(
 				logging =>
 				{
@@ -66,6 +60,15 @@ namespace TaxcomEdoApi
 					logging.AddConfiguration(Configuration.GetSection(_nLogSectionName));
 				});
 
+			_logger = new Logger<Startup>(LoggerFactory.Create(logging =>
+				logging.AddConfiguration(Configuration.GetSection(_nLogSectionName))));
+
+			Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+			
+			CreateBaseConfig();
+
+			services.AddControllers()
+				.AddXmlSerializerFormatters();
 
 			services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "TaxcomEdoApi", Version = "v1" }); });
 			
@@ -75,6 +78,7 @@ namespace TaxcomEdoApi
 
 			if(certificate is null)
 			{
+				_logger.LogCritical("Не найден сертификат в личном хранилище пользователя");
 				throw new InvalidOperationException("Не найден сертификат в личном хранилище пользователя");
 			}
 			
