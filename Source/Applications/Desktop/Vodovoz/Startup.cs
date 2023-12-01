@@ -31,9 +31,11 @@ using System.Net.Http;
 using System.Reflection;
 using System.Security.Principal;
 using Vodovoz.Configuration;
+using Vodovoz.Core;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Security;
+using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
@@ -51,6 +53,7 @@ namespace Vodovoz
 		private readonly ILogger<Startup> _logger;
 		private readonly IApplicationInfo _applicationInfo;
 		private static IErrorReportingSettings _errorReportingSettings;
+		private readonly ViewModelWidgetResolver _widgetResolver;
 		private static IPasswordValidator passwordValidator;
 
 		public static MainWindow MainWin;
@@ -59,12 +62,14 @@ namespace Vodovoz
 			ILogger<Startup> logger,
 			ILifetimeScope lifetimeScope,
 			IApplicationInfo applicationInfo,
-			IErrorReportingSettings errorReportingSettings)
+			IErrorReportingSettings errorReportingSettings,
+			ViewModelWidgetResolver widgetResolver)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			AppDIContainer = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_applicationInfo = applicationInfo ?? throw new ArgumentNullException(nameof(applicationInfo));
 			_errorReportingSettings = errorReportingSettings ?? throw new ArgumentNullException(nameof(errorReportingSettings));
+			_widgetResolver = widgetResolver ?? throw new ArgumentNullException(nameof(widgetResolver));
 		}
 
 		public void Start(string[] args)
@@ -87,7 +92,8 @@ namespace Vodovoz
 			QSMain.ProjectPermission = new System.Collections.Generic.Dictionary<string, UserPermission>();
 
 			CreateProjectParam();
-			ConfigureViewModelWidgetResolver();
+
+			_widgetResolver.ConfigureWidgets();
 			ConfigureJournalColumnsConfigs();
 
 			QSMain.SetupFromArgs(args);

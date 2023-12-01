@@ -426,6 +426,7 @@
     <Compile Include="Dialogs\Logistic\RouteListClosingDlg.RouteListActions.cs" />
     <Compile Include="Dialogs\Logistic\RouteListClosingDlg.RouteListPrintDocuments.cs" />
     <Compile Include="Extensions\ColorExtensions.cs" />
+    <Compile Include="Extensions\WidgetResolverExtensions.cs" />
     <Compile Include="Factories\AuthorizationServiceFactory.cs" />
     <Compile Include="Factories\DeliveryPointViewModelFactory.cs" />
     <Compile Include="Factories\DialogsFactory.cs" />
