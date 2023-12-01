@@ -1,5 +1,4 @@
 ﻿using QS.Views.GtkUI;
-using System;
 using Vodovoz.Presentation.ViewModels.Pacs;
 
 namespace Vodovoz.Views.Pacs
@@ -45,6 +44,8 @@ namespace Vodovoz.Views.Pacs
 			/*labelBreakInfo.Binding
 				.AddBinding(ViewModel, vm => vm.CanEndBreak, w => w.Visible)
 				.InitializeFromSource();*/
+
+			treeviewOperatorsOnBreak.Sensitive = false;
 
 			buttonBreak.BindCommand(ViewModel.StartBreakCommand);
 			buttonEndBreak.BindCommand(ViewModel.EndBreakCommand);

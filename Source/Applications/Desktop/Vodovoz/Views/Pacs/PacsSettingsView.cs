@@ -5,7 +5,7 @@ using Vodovoz.Presentation.ViewModels.Pacs;
 
 namespace Vodovoz.Views.Pacs
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class PacsSettingsView : WidgetViewBase<PacsSettingsViewModel>
 	{
 		public PacsSettingsView()
@@ -17,7 +17,9 @@ namespace Vodovoz.Views.Pacs
 		{
 			base.ConfigureWidget();
 
-			//pacsdomainsettingsview1.ViewModel = ViewModel.DomainSettingsViewModel;
+			domainSettingsView.ViewModel = ViewModel.DomainSettingsViewModel;
+
+			buttonInnerPhones.BindCommand(ViewModel.OpenInnerPhonesReferenceBookCommand);
 
 			ViewModel.PropertyChanged += ViewModelPropertyChanged;
 		}
@@ -27,7 +29,7 @@ namespace Vodovoz.Views.Pacs
 			switch(e.PropertyName)
 			{
 				case nameof(PacsSettingsViewModel.DomainSettingsViewModel):
-					//pacsdomainsettingsview1.ViewModel = ViewModel.DomainSettingsViewModel;
+					domainSettingsView.ViewModel = ViewModel.DomainSettingsViewModel;
 					break;
 				default:
 					break;

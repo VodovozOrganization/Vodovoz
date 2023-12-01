@@ -1,9 +1,16 @@
 ﻿using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
+using QS.HistoryLog;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Core.Domain.Employees
 {
+	[Appellative(Gender = GrammaticalGender.Masculine,
+		NominativePlural = "внутренние телефоны",
+		Nominative = "внутренний телефон")]
+	[EntityPermission]
+	[HistoryTrace]
 	public class InnerPhone : PropertyChangedBase, IValidatableObject
 	{
 		private string _phoneNumber;
@@ -23,7 +30,7 @@ namespace Vodovoz.Core.Domain.Employees
 			set => SetField(ref _description, value);
 		}
 
-		public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(string.IsNullOrWhiteSpace(PhoneNumber))
 			{

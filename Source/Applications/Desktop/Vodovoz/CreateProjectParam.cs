@@ -45,6 +45,7 @@ using Vodovoz.JournalFilters.Proposal;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewers.Complaints;
+using Vodovoz.Presentation.ViewModels.Employees;
 using Vodovoz.Presentation.ViewModels.Pacs;
 using Vodovoz.QualityControl.Reports;
 using Vodovoz.Reports;
@@ -346,7 +347,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<CounterpartyTalkViewModel, CounterpartyTalkView>()
 				.RegisterWidgetForTabViewModel<UnknowTalkViewModel, UnknowTalkView>()
 				.RegisterWidgetForTabViewModel<IncomingCallViewModel, IncomingCallView>()
-				//.RegisterWidgetForTabViewModel<InnerPhoneViewModel, InnerPhoneView>()
+				.RegisterWidgetForTabViewModel<InnerPhoneViewModel, InnerPhoneView>()
 
 				;
 

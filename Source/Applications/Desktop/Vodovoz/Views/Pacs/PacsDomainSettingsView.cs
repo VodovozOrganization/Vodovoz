@@ -14,20 +14,25 @@ namespace Vodovoz.Views.Pacs
 		protected override void ConfigureWidget()
 		{
 			base.ConfigureWidget();
-			/*
-			spinButtonMaxBreakDuration.Adjustment = 
+			
+			spinButtonLongBreakDuration.Adjustment = 
 				new Gtk.Adjustment(0, ViewModel.MaxBreakTimeMinValue, ViewModel.MaxBreakTimeMaxValue, 1, 1, 4);
-			spinButtonMaxBreakDuration.Binding.AddSource(ViewModel)
+			spinButtonLongBreakDuration.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.MaxBreakTime, w => w.ValueAsInt)
 				.AddBinding(vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 
-			spinButtonMaxOperatorsOnBreak.Adjustment =
+			spinButtonOperatorsOnLongBreak.Adjustment =
 				new Gtk.Adjustment(0, ViewModel.MaxOperatorsOnBreakMinValue, ViewModel.MaxOperatorsOnBreakMaxValue, 1, 1, 4);
-			spinButtonMaxOperatorsOnBreak.Binding.AddSource(ViewModel)
+			spinButtonOperatorsOnLongBreak.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.MaxOperatorsOnBreak, w => w.ValueAsInt)
 				.AddBinding(vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
+
+			spinButtonMaxLongBreakCount.Sensitive = false;
+			spinButtonShortBreakDuration.Sensitive = false;
+			spinButtonOperatorsOnShortBreak.Sensitive = false;
+			spinButtonShortBreakInterval.Sensitive = false;
 
 			labelInfo.LabelProp = "<span color=\"red\">Настройки были кем-то изменены! \nНажмите отмена и повторите изменения.</span>";
 			labelInfo.UseMarkup = true;
@@ -36,7 +41,7 @@ namespace Vodovoz.Views.Pacs
 				.InitializeFromSource ();
 
 			buttonSave.BindCommand(ViewModel.SaveCommand);
-			buttonCancel.BindCommand(ViewModel.CancelCommand);*/
+			buttonCancel.BindCommand(ViewModel.CancelCommand);
 		}
 	}
 }

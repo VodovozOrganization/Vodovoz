@@ -6,7 +6,6 @@ using ReactiveUI;
 using System;
 using System.ComponentModel;
 using System.Reactive.Linq;
-using System.Windows.Input;
 using Vodovoz.Core.Domain.Employees;
 
 namespace Vodovoz.Presentation.ViewModels.Employees
@@ -37,6 +36,9 @@ namespace Vodovoz.Presentation.ViewModels.Employees
 		private string _number;
 		private string _description;
 
+		public SaveCommand SaveCommand { get; }
+		public CloseDialogCommand CancelCommand { get; }
+
 		public InnerPhoneViewModel(
 			IEntityIdentifier entityId, 
 			EntityModelFactory entityModelFactory, 
@@ -52,6 +54,8 @@ namespace Vodovoz.Presentation.ViewModels.Employees
 			{
 				throw new ArgumentNullException(nameof(entityModelFactory));
 			}
+
+			Title = "Внутренний телефон";
 
 			_model = entityModelFactory.Create<InnerPhone>(entityId);
 
@@ -76,9 +80,6 @@ namespace Vodovoz.Presentation.ViewModels.Employees
 			get => _description;
 			set => this.RaiseAndSetIfChanged(ref _description, value);
 		}
-
-		public SaveCommand SaveCommand { get; }
-		public CloseDialogCommand CancelCommand { get; }
 
 		public void Dispose()
 		{
