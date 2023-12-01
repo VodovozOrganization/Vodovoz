@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using QS.Dialog.Gtk;
 using QS.Permissions;
 using QS.Project.DB;
@@ -45,6 +45,7 @@ using Vodovoz.JournalFilters.Proposal;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewers.Complaints;
+using Vodovoz.Logistic;
 using Vodovoz.Presentation.ViewModels.PaymentType;
 using Vodovoz.QualityControl.Reports;
 using Vodovoz.Rent;
@@ -318,6 +319,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<GeoGroupViewModel, GeoGroupView>()
 				.RegisterWidgetForTabViewModel<NomenclatureGroupPricingViewModel, NomenclatureGroupPricingView>()
 				.RegisterWidgetForTabViewModel<RouteListMileageCheckViewModel, Vodovoz.Views.Logistic.RouteListMileageCheckView>()
+				.RegisterWidgetForTabViewModel<RouteListTransferringViewModel, RouteListAddressesTransferringView>()
 				.RegisterWidgetForTabViewModel<RouteListMileageDistributionViewModel, RouteListMileageDistributionView>()
 				.RegisterWidgetForTabViewModel<FastDeliveryVerificationDetailsViewModel, FastDeliveryVerificationDetailsView>()
 				.RegisterWidgetForTabViewModel<FastDeliveryOrderTransferViewModel, FastDeliveryOrderTransferView>()
