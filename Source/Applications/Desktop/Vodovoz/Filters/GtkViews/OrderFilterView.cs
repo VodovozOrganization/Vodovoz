@@ -7,6 +7,7 @@ using QS.Views.GtkUI;
 using QS.Widgets;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewWidgets.Search;
@@ -83,6 +84,8 @@ namespace Vodovoz.Filters.GtkViews
 				.AddFuncBinding(vm => vm.CanChangeStartDate && vm.CanChangeEndDate, w => w.Sensitive)
 				.InitializeFromSource();
 
+			dateperiodOrders.PeriodChanged += (s, e) => ViewModel.Update();
+
 			ycheckOnlySelfdelivery.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.CanChangeOnlySelfDelivery, w => w.Sensitive)
 				.AddBinding(vm => vm.RestrictOnlySelfDelivery, w => w.Active, new NullableBooleanToBooleanConverter())
@@ -143,6 +146,10 @@ namespace Vodovoz.Filters.GtkViews
 			var searchByAddressView = new CompositeSearchView(ViewModel.SearchByAddressViewModel);
 			yhboxSearchByAddress.Add(searchByAddressView);
 			searchByAddressView.Show();
+
+			enumCmbEdoDocFlowStatus.ItemsEnum = typeof(EdoDocFlowStatus);
+			enumCmbEdoDocFlowStatus.SelectedItemStrictTyped = false;
+			enumCmbEdoDocFlowStatus.Binding.AddBinding(ViewModel, vm => vm.EdoDocFlowStatus, w => w.SelectedItemOrNull).InitializeFromSource();
 		}
 
 		private void InitializeRestrictions()

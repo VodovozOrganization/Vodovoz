@@ -1998,6 +1998,10 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Pacs.PacsReportsView.cs" />
     <Compile Include="Views\Employees\InnerPhoneView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Employees.InnerPhoneView.cs" />
+    <Compile Include="Views\SelectPaymentTypeWindowView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.SelectPaymentTypeWindowView.cs" />
+    <Compile Include="Filters\GtkViews\GeoGroupJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.GeoGroupJournalFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

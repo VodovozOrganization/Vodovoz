@@ -47,6 +47,7 @@ using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewers.Complaints;
 using Vodovoz.Presentation.ViewModels.Employees;
 using Vodovoz.Presentation.ViewModels.Pacs;
+using Vodovoz.Presentation.ViewModels.PaymentType;
 using Vodovoz.QualityControl.Reports;
 using Vodovoz.Reports;
 using Vodovoz.ReportsParameters;
@@ -88,6 +89,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Cash;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.FilterViewModels.GeoGroup;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
@@ -412,6 +414,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<ComplaintObjectJournalFilterViewModel, ComplaintObjectJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<ComplaintKindJournalFilterViewModel, ComplaintKindJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<ComplaintDetalizationJournalFilterViewModel, ComplaintDetalizationJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<GeoGroupJournalFilterViewModel, GeoGroupJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<WarehousesBalanceSummaryViewModel, WarehousesBalanceSummaryView>()
 				.RegisterWidgetForWidgetViewModel<NomenclatureBalanceByStockFilterViewModel, NomenclatureBalanceByStockFilterView>()
 				.RegisterWidgetForWidgetViewModel<SalaryByEmployeeJournalFilterViewModel, SalaryByEmployeeFilterView>()
@@ -475,6 +478,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<RevenueServiceMassCounterpartyUpdateToolViewModel, RevenueServiceMassCounterpartyUpdateToolView>()
 				.RegisterWidgetForWidgetViewModel<FastDeliveryOrderTransferFilterViewModel, FastDeliveryOrderTransferFilterView>()
 				.RegisterWidgetForWidgetViewModel<WarehousesSettingsViewModel, NamedDomainEntitiesSettingsView>()
+				.RegisterWidgetForWidgetViewModel<SelectPaymentTypeViewModel, SelectPaymentTypeWindowView>()
 				.RegisterWidgetForWidgetViewModel<CounterpartyClassificationCalculationEmailSettingsViewModel, CounterpartyClassificationCalculationEmailSettingsView>()
 				;
 

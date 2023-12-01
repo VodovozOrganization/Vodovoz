@@ -4,9 +4,7 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Journal;
-using QS.Project.Services;
 using System;
-using Vodovoz;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
@@ -229,7 +227,7 @@ public partial class MainWindow
 
 	protected void OnActionRetailComplaintsJournalActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<ComplaintsJournalViewModel, Action<ComplaintFilterViewModel>>(
+		NavigationManager.OpenViewModel<ComplaintsJournalsViewModel, Action<ComplaintFilterViewModel>>(
 			null,
 			filter => filter.IsForRetail = true,
 			OpenPageOptions.IgnoreHash);

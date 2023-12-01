@@ -66,8 +66,13 @@ namespace Vodovoz.Views
             labelPayer.Text = ViewModel.Entity.CounterpartyName;
             labelPaymentNum.Text = ViewModel.Entity.PaymentNum.ToString();
             labelDate.Text = ViewModel.Entity.Date.ToShortDateString();
+			
+			ytextviewPaymentPurpose.Binding
+				.AddSource(ViewModel.Entity)
+				.AddBinding(e => e.PaymentPurpose, w => w.Buffer.Text)
+				.AddBinding(e => e.IsManuallyCreated, w => w.Editable)
+				.InitializeFromSource();
 
-            ytextviewPaymentPurpose.Buffer.Text = ViewModel.Entity.PaymentPurpose;
             ytextviewComments.Binding.AddBinding(ViewModel.Entity, vm => vm.Comment, v => v.Buffer.Text).InitializeFromSource();
 
             entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory());

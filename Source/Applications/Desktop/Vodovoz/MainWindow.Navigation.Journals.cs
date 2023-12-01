@@ -422,7 +422,7 @@ public partial class MainWindow
 	}
 
 	/// <summary>
-	/// Рекламные наборы
+	/// Промонаборы
 	/// </summary>
 	/// <param name="sender"></param>
 	/// <param name="e"></param>

@@ -1,8 +1,11 @@
 ﻿using DriverAPI.Library.Helpers;
 using DriverAPI.Library.Models;
+using DriverAPI.Library.Temp;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 using Vodovoz.Application;
+using Vodovoz.Application.Services.Logistics;
+using Vodovoz;
 
 namespace DriverAPI.Library
 {
@@ -44,6 +47,9 @@ namespace DriverAPI.Library
 			services.AddScoped<IDriverComplaintModel, DriverComplaintModel>();
 			services.AddScoped<IFastPaymentModel, FastPaymentModel>();
 
+			services.AddScoped<IRouteOptimizer, RouteListOptimizerDummy>();
+
+			services.AddBusiness();
 			services.AddApplication();
 
 			return services;

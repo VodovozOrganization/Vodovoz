@@ -28,11 +28,13 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
@@ -116,6 +118,7 @@ namespace Vodovoz.Domain.Orders
 		private Employee _commentOPManagerChangedBy;
 		private bool? _canCreateOrderInAdvance;
 		private int? counterpartyExternalOrderId;
+		private GeoGroup _selfDeliveryGeoGroup;
 
 		private int? _callBeforeArrivalMinutes;
 
@@ -1191,6 +1194,13 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _ourOrganization, value);
 		}
 
+		[Display(Name = "Район города склада самовывоза")]
+		public virtual GeoGroup SelfDeliveryGeoGroup
+		{
+			get => _selfDeliveryGeoGroup;
+			set => SetField(ref _selfDeliveryGeoGroup, value);
+		}
+
 		public Order()
 		{
 			Comment = string.Empty;
@@ -1464,6 +1474,14 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult(
 					"Тип оплаты - Qr-код МП водителя невозможен для самовывоза",
 					new[] { this.GetPropertyName(o => o.PaymentType) }
+				);
+			}
+
+			if(SelfDelivery && SelfDeliveryGeoGroup == null)
+			{
+				yield return new ValidationResult(
+					"Для заказов с самовывозом обязательно указание района города",
+					new[] { this.GetPropertyName(o => o.SelfDeliveryGeoGroup) }
 				);
 			}
 
@@ -2316,7 +2334,7 @@ namespace Vodovoz.Domain.Orders
 			if(nomenclature.Category != NomenclatureCategory.water && !nomenclature.IsDisposableTare)
 				return;
 
-			//Если номенклатура промо-набора добавляется по фиксе (без скидки), то у нового OrderItem убирается поле discountReason
+			//Если номенклатура промонабора добавляется по фиксе (без скидки), то у нового OrderItem убирается поле discountReason
 			if(proSet != null && discount == 0) {
 				var fixPricedNomenclaturesId = GetNomenclaturesWithFixPrices.Select(n => n.Id);
 				if(fixPricedNomenclaturesId.Contains(nomenclature.Id))
@@ -2599,8 +2617,8 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		/// <summary>
-		/// Попытка найти и удалить промо-набор, если нет больше позиций
-		/// заказа с промо-набором
+		/// Попытка найти и удалить промонабор, если нет больше позиций
+		/// заказа с промонабором
 		/// </summary>
 		/// <param name="orderItem">Позиция заказа</param>
 		public virtual void TryToRemovePromotionalSet(OrderItem orderItem)
@@ -2631,7 +2649,7 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		/// <summary>
-		/// Чистка списка промо-наборов заказа, если вручную удалили, изменили
+		/// Чистка списка промонаборов заказа, если вручную удалили, изменили
 		/// причину скидки или что-то ещё.
 		/// </summary>
 		private void ClearPromotionSets()
@@ -2645,19 +2663,19 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		/// <summary>
-		/// Проверка на возможность добавления промо-набора в заказ
+		/// Проверка на возможность добавления промонабора в заказ
 		/// </summary>
-		/// <returns><c>true</c>, если можно добавить промо-набор,
+		/// <returns><c>true</c>, если можно добавить промонабор,
 		/// <c>false</c> если нельзя.</returns>
-		/// <param name="proSet">Рекламный набор (промо-набор)</param>
+		/// <param name="proSet">Промонабор (промонабор)</param>
 		public virtual bool CanAddPromotionalSet(PromotionalSet proSet, IPromotionalSetRepository promotionalSetRepository)
 		{
 			if(PromotionalSets.Any(x => x.Id == proSet.Id)) {
-				InteractiveService.ShowMessage(ImportanceLevel.Warning, "В заказ нельзя добавить два одинаковых промо-набора");
+				InteractiveService.ShowMessage(ImportanceLevel.Warning, "В заказ нельзя добавить два одинаковых промонабора");
 				return false;
 			}
 			if((PromotionalSets.Count(x => !x.CanBeAddedWithOtherPromoSets) + (proSet.CanBeAddedWithOtherPromoSets ? 0 : 1)) > 1) {
-				InteractiveService.ShowMessage(ImportanceLevel.Warning, "В заказ нельзя добавить больше 1 промо-набора, у которого нет свойства \"Может быть добавлен вместе с другими промонаборами\"");
+				InteractiveService.ShowMessage(ImportanceLevel.Warning, "В заказ нельзя добавить больше 1 промонабора, у которого нет свойства \"Может быть добавлен вместе с другими промонаборами\"");
 				return false;
 			}
 
@@ -2681,7 +2699,7 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			var address = string.Join(", ", DeliveryPoint.City, DeliveryPoint.Street, DeliveryPoint.Building, DeliveryPoint.Room);
-			StringBuilder sb = new StringBuilder(string.Format("Для адреса \"{0}\", найдены схожие точки доставки, на которые уже создавались заказы с промо-наборами:\n", address));
+			StringBuilder sb = new StringBuilder(string.Format("Для адреса \"{0}\", найдены схожие точки доставки, на которые уже создавались заказы с промонаборами:\n", address));
 			foreach(var d in proSetDict) {
 				var proSetTitle = UoW.GetById<PromotionalSet>(d.Key).ShortTitle;
 				var orders = string.Join(
@@ -2697,9 +2715,9 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		/// <summary>
-		/// Проверка на использование промо-набора в заказе на адрес
+		/// Проверка на использование промонабора в заказе на адрес
 		/// </summary>
-		/// <returns><c>true</c>, если на адрес не доставляли промо-набор,
+		/// <returns><c>true</c>, если на адрес не доставляли промонабор,
 		/// <c>false</c> если нельзя.</returns>
 		public virtual bool CanUsedPromo(IPromotionalSetRepository promotionalSetRepository)
 		{
@@ -4405,10 +4423,12 @@ namespace Vodovoz.Domain.Orders
 
 			foreach(var orderItem in OrderItems.Where(x => Nomenclature.GetCategoriesForShipment().Contains(x.Nomenclature.Category)))
 			{
+				var amount = isActualCount && orderItem.ActualCount.HasValue ? orderItem.ActualCount.Value : orderItem.Count;
+
 				var found = result.FirstOrDefault(x => x.NomenclatureId == orderItem.Nomenclature.Id);
 				if(found != null)
 				{
-					found.Amount += isActualCount && orderItem.ActualCount.HasValue ? orderItem.ActualCount.Value : orderItem.Count;
+					found.Amount += amount;
 				}
 				else
 				{
@@ -4416,18 +4436,20 @@ namespace Vodovoz.Domain.Orders
 					{
 						NomenclatureId = orderItem.Nomenclature.Id,
 						Nomenclature = orderItem.Nomenclature,
-						Amount = isActualCount && orderItem.ActualCount.HasValue ? orderItem.ActualCount.Value : orderItem.Count
-					});
+						Amount = amount
+				});
 				}
 			}
 
 			foreach(var equipment in OrderEquipments.Where(x => x.Direction == Direction.Deliver
 						&& Nomenclature.GetCategoriesForShipment().Contains(x.Nomenclature.Category)))
 			{
+				var amount = isActualCount && equipment.ActualCount.HasValue ? equipment.ActualCount.Value : equipment.Count;
+
 				var found = result.FirstOrDefault(x => x.NomenclatureId == equipment.Nomenclature.Id);
 				if(found != null)
 				{
-					found.Amount += isActualCount && equipment.ActualCount.HasValue ? equipment.ActualCount.Value : equipment.Count;
+					found.Amount += amount;
 				}
 				else
 				{
@@ -4435,7 +4457,7 @@ namespace Vodovoz.Domain.Orders
 					{
 						NomenclatureId = equipment.Nomenclature.Id,
 						Nomenclature = equipment.Nomenclature,
-						Amount = isActualCount && equipment.ActualCount.HasValue ? equipment.ActualCount.Value : equipment.Count
+						Amount = amount
 					});
 				}
 			}

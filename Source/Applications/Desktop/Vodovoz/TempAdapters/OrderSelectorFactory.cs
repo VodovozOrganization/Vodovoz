@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Sale;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
 
@@ -64,12 +65,13 @@ namespace Vodovoz.TempAdapters
 				});
 		}
 
-		public IEntityAutocompleteSelectorFactory CreateSelfDeliveryDocumentOrderAutocompleteSelector()
+		public IEntityAutocompleteSelectorFactory CreateSelfDeliveryDocumentOrderAutocompleteSelector(Func<GeoGroup> geoGroupRestrictionFunc)
 		{
 			Action<OrderJournalFilterViewModel> filterConfig = (filter) =>
 			{
 				filter.RestrictOnlySelfDelivery = true;
 				filter.RestrictStatus = OrderStatus.OnLoading;
+				filter.GeographicGroup = geoGroupRestrictionFunc?.Invoke();
 			};
 
 			return new EntityAutocompleteSelectorFactory<OrderJournalViewModel>(

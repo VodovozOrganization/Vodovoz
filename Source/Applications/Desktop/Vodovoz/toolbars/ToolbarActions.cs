@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Dialogs.Employees;
 using Gtk;
 using QS.Dialog.Gtk;
@@ -9,74 +9,48 @@ using QS.Navigation;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
 using QS.Project.Journal;
-using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Project.Services.FileDialog;
+using QS.Report.ViewModels;
 using QSReport;
 using System;
-using Microsoft.Extensions.Logging;
-using NLog.Extensions.Logging;
 using Vodovoz;
-using Vodovoz.Core.DataService;
-using Vodovoz.Core.Journal;
 using Vodovoz.Dialogs.Logistic;
-using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Suppliers;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.CallTasks;
-using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.EntityRepositories.Operations;
-using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.Sale;
-using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.EntityRepositories.Suppliers;
-using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels;
-using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.FilterViewModels.Organization;
-using Vodovoz.FilterViewModels.Suppliers;
 using Vodovoz.Infrastructure;
-using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalFilters.Cash;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Journals.JournalViewModels.Employees;
-using Vodovoz.Journals.JournalViewModels.Organizations;
-using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
 using Vodovoz.JournalViewModels.Suppliers;
 using Vodovoz.Old1612ExportTo1c;
 using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
+using Vodovoz.Reports;
 using Vodovoz.Representations;
 using Vodovoz.ServiceDialogs;
 using Vodovoz.Services;
-using Vodovoz.Settings.Cash;
-using Vodovoz.Settings.Database;
 using Vodovoz.TempAdapters;
-using Vodovoz.Tools;
-using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Cash.DocumentsJournal;
 using Vodovoz.ViewModels.Cash.Transfer.Journal;
-using Vodovoz.ViewModels.Factories;
+using Vodovoz.ViewModels.Dialogs.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Cash;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalFactories;
@@ -91,8 +65,8 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic.DriversStopLists;
 using Vodovoz.ViewModels.Reports;
+using Vodovoz.ViewModels.ReportsParameters;
 using Vodovoz.ViewModels.Suppliers;
-using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
 using Action = Gtk.Action;
@@ -535,28 +509,7 @@ public partial class MainWindow : Window
 
 	void ActionJournalOfRequestsToSuppliers_Activated(object sender, System.EventArgs e)
 	{
-		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
-		var userRepository = new UserRepository();
-		var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
-
-		IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
-			new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
-				new NomenclatureFilterViewModel(), counterpartyJournalFactory, nomenclatureRepository, userRepository);
-
-		RequestsToSuppliersFilterViewModel filter = new RequestsToSuppliersFilterViewModel(nomenclatureSelectorFactory);
-
-		var requestsJournal = new RequestsToSuppliersJournalViewModel(
-			filter,
-			UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices,
-			VodovozGtkServicesConfig.EmployeeService,
-			new SupplierPriceItemsRepository(),
-			counterpartyJournalFactory,
-			new NomenclatureJournalFactory(),
-			nomenclatureRepository,
-			userRepository
-		);
-		tdiMain.AddTab(requestsJournal);
+		NavigationManager.OpenViewModel<RequestsToSuppliersJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	void ActionRouteListsPrint_Activated(object sender, System.EventArgs e)
@@ -1007,13 +960,9 @@ public partial class MainWindow : Window
 
 	void OnActionSalesComplaintsJournalActivated(object sender, EventArgs e)
 	{
-		Action<ComplaintFilterViewModel> action = (filterConfig) => filterConfig.IsForSalesDepartment = true;
-
-		var filter = _autofacScope.BeginLifetimeScope().Resolve<ComplaintFilterViewModel>(new TypedParameter(typeof(Action<ComplaintFilterViewModel>), action));
-
-		NavigationManager.OpenViewModel<ComplaintsJournalViewModel, ComplaintFilterViewModel>(
+		NavigationManager.OpenViewModel<ComplaintsJournalsViewModel, Action<ComplaintFilterViewModel>>(
 			   null,
-			   filter,
+			   filter => filter.IsForSalesDepartment = true,
 			   OpenPageOptions.IgnoreHash);
 	}
 }

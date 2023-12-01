@@ -396,8 +396,10 @@ namespace Vodovoz
 		void RLI_StatusChanged(object sender, StatusChangedEventArgs e)
 		{
 			var newStatus = e.NewStatus;
-			if(sender is RouteListKeepingItemNode rli) {
-				if(newStatus == RouteListItemStatus.Canceled || newStatus == RouteListItemStatus.Overdue) {
+			if(sender is RouteListKeepingItemNode rli) 
+			{
+				if(newStatus == RouteListItemStatus.Canceled || newStatus == RouteListItemStatus.Overdue) 
+				{
 					UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(rli.RouteListItem.Order, rli.RouteListItem.RouteList.UoW);
 					TabParent.AddSlaveTab(this, dlg);
 					dlg.DlgSaved += (s, ea) =>
@@ -409,8 +411,7 @@ namespace Vodovoz
 					return;
 				}
 
-				var autofacScope = Startup.AppDIContainer.BeginLifetimeScope();
-				var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
+				var uowFactory = _lifetimeScope.Resolve<IUnitOfWorkFactory>();
 
 				ValidationContext validationContext = new ValidationContext(Entity, null, new Dictionary<object, object>
 				{

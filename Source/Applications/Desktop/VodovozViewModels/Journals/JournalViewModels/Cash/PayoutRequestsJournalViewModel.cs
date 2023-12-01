@@ -611,7 +611,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					//функция диалога создания документа
 					() => NavigationManager.OpenViewModel<CashlessRequestViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()).ViewModel,
 					//функция диалога открытия документа
-					(node) => NavigationManager.OpenViewModel<CashlessRequestViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id)).ViewModel,
+					(node) => NavigationManager.OpenViewModel<CashlessRequestViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id))?.ViewModel,
 					//функция идентификации документа
 					node => node.EntityType == typeof(CashlessRequest),
 					"Заявка на оплату по Б/Н",

@@ -4,6 +4,8 @@ namespace Vodovoz.Filters.GtkViews
 {
 	public partial class NomenclaturesFilterView
 	{
+		private global::Gamma.GtkWidgets.yVBox yvbox1;
+
 		private global::Gtk.HBox hbox1;
 
 		private global::Gtk.Label labelType;
@@ -18,6 +20,12 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gamma.GtkWidgets.yCheckButton chkShowArchive;
 
+		private global::Gamma.GtkWidgets.yHBox yhbox1;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelAdditionalInfo;
+
+		private global::Gamma.Widgets.yEnumComboBox yenumcomboboxAdditionalInfo;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -25,6 +33,10 @@ namespace Vodovoz.Filters.GtkViews
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Filters.GtkViews.NomenclaturesFilterView";
 			// Container child Vodovoz.Filters.GtkViews.NomenclaturesFilterView.Gtk.Container+ContainerChild
+			this.yvbox1 = new global::Gamma.GtkWidgets.yVBox();
+			this.yvbox1.Name = "yvbox1";
+			this.yvbox1.Spacing = 6;
+			// Container child yvbox1.Gtk.Box+BoxChild
 			this.hbox1 = new global::Gtk.HBox();
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
@@ -97,7 +109,43 @@ namespace Vodovoz.Filters.GtkViews
 			w6.Position = 5;
 			w6.Expand = false;
 			w6.Fill = false;
-			this.Add(this.hbox1);
+			this.yvbox1.Add(this.hbox1);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.yvbox1[this.hbox1]));
+			w7.Position = 0;
+			w7.Expand = false;
+			w7.Fill = false;
+			// Container child yvbox1.Gtk.Box+BoxChild
+			this.yhbox1 = new global::Gamma.GtkWidgets.yHBox();
+			this.yhbox1.Name = "yhbox1";
+			this.yhbox1.Spacing = 6;
+			// Container child yhbox1.Gtk.Box+BoxChild
+			this.ylabelAdditionalInfo = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelAdditionalInfo.Name = "ylabelAdditionalInfo";
+			this.ylabelAdditionalInfo.Xalign = 1F;
+			this.ylabelAdditionalInfo.LabelProp = global::Mono.Unix.Catalog.GetString("Доп. информация");
+			this.yhbox1.Add(this.ylabelAdditionalInfo);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.ylabelAdditionalInfo]));
+			w8.Position = 0;
+			w8.Expand = false;
+			w8.Fill = false;
+			// Container child yhbox1.Gtk.Box+BoxChild
+			this.yenumcomboboxAdditionalInfo = new global::Gamma.Widgets.yEnumComboBox();
+			this.yenumcomboboxAdditionalInfo.Name = "yenumcomboboxAdditionalInfo";
+			this.yenumcomboboxAdditionalInfo.ShowSpecialStateAll = true;
+			this.yenumcomboboxAdditionalInfo.ShowSpecialStateNot = false;
+			this.yenumcomboboxAdditionalInfo.UseShortTitle = false;
+			this.yenumcomboboxAdditionalInfo.DefaultFirst = false;
+			this.yhbox1.Add(this.yenumcomboboxAdditionalInfo);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.yenumcomboboxAdditionalInfo]));
+			w9.Position = 1;
+			w9.Expand = false;
+			w9.Fill = false;
+			this.yvbox1.Add(this.yhbox1);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.yvbox1[this.yhbox1]));
+			w10.Position = 1;
+			w10.Expand = false;
+			w10.Fill = false;
+			this.Add(this.yvbox1);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();

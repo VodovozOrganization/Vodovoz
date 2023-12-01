@@ -59,6 +59,7 @@
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
     <Compile Include="ConfigureDeletion.cs" />
+    <Compile Include="DependencyInjection.cs" />
     <Compile Include="Domain\Cash\CashTransfer\CashTransferDocumentStatuses.cs" />
     <Compile Include="Controllers\INomenclatureOnlineParametersController.cs" />
     <Compile Include="Controllers\NomenclatureOnlineParametersController.cs" />
@@ -633,6 +634,7 @@
     <Compile Include="Errors\Error.cs" />
     <Compile Include="Errors\Logistics\District.cs" />
     <Compile Include="Errors\Logistics\District.FastDelivery.cs" />
+    <Compile Include="Errors\Logistics\RouteList.cs" />
     <Compile Include="Errors\Logistics\TariffZone.cs" />
     <Compile Include="Errors\Logistics\TariffZone.FastDelivery.cs" />
     <Compile Include="Errors\Orders\Order.Accept.cs" />
@@ -812,6 +814,8 @@
     <Compile Include="Permissions\Logistic.cs" />
     <Compile Include="Permissions\Order.UndeliveredOrder.cs" />
     <Compile Include="Permissions\Pacs.cs" />
+    <Compile Include="Permissions\Payment.BankClient.cs" />
+    <Compile Include="Permissions\Payment.cs" />
     <Compile Include="Permissions\Report.cs" />
     <Compile Include="Permissions\User.cs" />
     <Compile Include="Permissions\Report.Sales.cs" />
@@ -981,6 +985,7 @@
     <Compile Include="Services\IUserSettings.cs" />
     <Compile Include="Services\Logistics\IRouteListService.cs" />
     <Compile Include="Services\PacsEmployeeProvider.cs" />
+    <Compile Include="Services\Logistics\RouteListAcceptStatus.cs" />
     <Compile Include="Services\RevenueServiceInfo.cs" />
     <Compile Include="Services\UserRoleSettings.cs" />
     <Compile Include="Tools\GeoGroupVersionNotFoundException.cs" />
