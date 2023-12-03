@@ -19,7 +19,7 @@ namespace Vodovoz.Views.Logistic
 		{
 			btnSave.Clicked += OnSaveClicked;
 			btnCancel.Clicked += OnCancelClicked;
-			btnQrCode.Clicked += OnQrCodeClicked;
+			btnPrintQrCode.Clicked += OnPrintQrCodeClicked;
 			btnCopyFromClipboard.Clicked += OnCopyFromClipboard;
 			
 			btnSave.Binding
@@ -86,7 +86,7 @@ namespace Vodovoz.Views.Logistic
 			ViewModel.Close(false, CloseSource.Cancel);
 		}
 		
-		private void OnQrCodeClicked(object sender, EventArgs e)
+		private void OnPrintQrCodeClicked(object sender, EventArgs e)
 		{
 			throw new NotImplementedException();
 		}
