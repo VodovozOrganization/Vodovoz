@@ -84,7 +84,9 @@ namespace Vodovoz.Filters.GtkViews
 				.AddFuncBinding(vm => vm.CanChangeStartDate && vm.CanChangeEndDate, w => w.Sensitive)
 				.InitializeFromSource();
 
-			dateperiodOrders.PeriodChanged += (s, e) => ViewModel.Update();
+			dateperiodOrders.PeriodChanged += (s, e) => 
+				Gtk.Application.Invoke((o, a) =>
+					ViewModel.Update());
 
 			ycheckOnlySelfdelivery.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.CanChangeOnlySelfDelivery, w => w.Sensitive)
