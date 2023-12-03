@@ -13,7 +13,9 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.Factories.Report;
 using Vodovoz.Parameters;
+using Vodovoz.Tools;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.Infrastructure.Print;
 
@@ -209,6 +211,15 @@ namespace Vodovoz.Additions.Logistic
 			RdlText = RdlText.Replace("<!--sql_select_subquery-->", SqlSelectSubquery);
 			RdlText = RdlText.Replace("<!--fields-->", Fields);
 			RdlText = RdlText.Replace("<!--table_cell_total_without_stock-->", TotalSum);
+
+			if(!isClosed)
+			{
+				var qrPlacer = new EventsQrPlacer(
+					new CustomReportFactory(new CustomPropertiesFactory(), new CustomReportItemFactory(), new RdlTextBoxFactory()),
+					new DriverWarehouseEventRepository());
+
+				qrPlacer.AddQrEventForDocument(uow, routeList.Id, ref RdlText);
+			}
 
 			var TempFile = Path.GetTempFileName();
 			using(StreamWriter sw = new StreamWriter(TempFile))

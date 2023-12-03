@@ -89,6 +89,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				.Select(e => e.Id).WithAlias(() => resultAlias.Id)
 				.Select(e => e.EventName).WithAlias(() => resultAlias.EventName)
 				.Select(e => e.Type).WithAlias(() => resultAlias.Type)
+				.Select(e => e.DocumentType).WithAlias(() => resultAlias.DocumentType)
+				.Select(e => e.QrPositionOnDocument).WithAlias(() => resultAlias.QrPositionOnDocument)
 				.Select(e => e.Latitude).WithAlias(() => resultAlias.Latitude)
 				.Select(e => e.Longitude).WithAlias(() => resultAlias.Longitude)
 				.Select(e => e.IsArchive).WithAlias(() => resultAlias.IsArchive))

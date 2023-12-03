@@ -638,7 +638,8 @@ namespace Vodovoz
 						.AddScoped<RouteGeometryCalculator>()
 						.AddSingleton<OsrmClient>(sp => OsrmClientFactory.Instance)
 						.AddSingleton<IFastDeliveryDistanceChecker, DistanceCalculator>()
-						.AddScoped<ICoordinatesParser, CoordinatesParser>();
+						.AddScoped<ICoordinatesParser, CoordinatesParser>()
+						.AddScoped<IEventsQrPlacer, EventsQrPlacer>();
 				});
 	}
 }

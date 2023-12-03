@@ -1,5 +1,6 @@
 ﻿using DriverAPI.DTOs.V4;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic.Drivers;
 
 namespace DriverAPI.Library.Models
 {
@@ -9,6 +10,6 @@ namespace DriverAPI.Library.Models
 		/// Завершение события нахождения на складе
 		/// </summary>
 		/// <returns></returns>
-		void CompleteDriverWarehouseEvent(DriverWarehouseEventData eventData, Employee driver);
+		CompletedDriverWarehouseEvent CompleteDriverWarehouseEvent(DriverWarehouseEventData eventData, Employee driver);
 	}
 }

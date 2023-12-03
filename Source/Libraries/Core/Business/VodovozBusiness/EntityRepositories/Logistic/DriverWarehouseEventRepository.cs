@@ -7,7 +7,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 {
 	public class DriverWarehouseEventRepository : IDriverWarehouseEventRepository
 	{
-		public IEnumerable<DriverWarehouseEvent> GetActiveDriverWarehouseEventsForDocument(IUnitOfWork uow, DocumentType documentType)
+		public IEnumerable<DriverWarehouseEvent> GetActiveDriverWarehouseEventsForDocument(IUnitOfWork uow, EventQrDocumentType documentType)
 		{
 			return uow.Session.QueryOver<DriverWarehouseEvent>()
 				.Where(x => x.DocumentType == documentType)

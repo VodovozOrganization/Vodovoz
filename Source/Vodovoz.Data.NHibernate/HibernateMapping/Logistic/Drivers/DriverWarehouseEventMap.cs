@@ -16,6 +16,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Drivers
 			Map(x => x.Type).Column("type");
 			Map(x => x.IsArchive).Column("is_archive");
 			Map(x => x.EventName).Column("event_name");
+			Map(x => x.DocumentType).Column("document_type");
+			Map(x => x.QrPositionOnDocument).Column("qr_position");
 		}
 	}
 }

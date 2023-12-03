@@ -30,7 +30,7 @@ namespace DriverAPI.Library.Models
 		/// Завершение события нахождения на складе
 		/// </summary>
 		/// <returns></returns>
-		public void CompleteDriverWarehouseEvent(DriverWarehouseEventData eventData, Employee driver)
+		public CompletedDriverWarehouseEvent CompleteDriverWarehouseEvent(DriverWarehouseEventData eventData, Employee driver)
 		{
 			_logger.LogInformation("Получаем событие {EventId} из QR кода от водителя {DriverName}",
 				eventData.DriverWarehouseEventId,
@@ -41,8 +41,10 @@ namespace DriverAPI.Library.Models
 			
 			_logger.LogInformation("Рассчитываем расстояние между точками для водителя {DriverName} по {EventName}",
 				driver.ShortName,
-				driverWarehouseEvent.EventName.Name);
+				driverWarehouseEvent.EventName);
 
+
+			throw new InvalidOperationException();
 			if(!eventData.Latitude.HasValue || !eventData.Longitude.HasValue)
 			{
 				distanceMetersFromScanningLocation = 0m;
@@ -59,7 +61,7 @@ namespace DriverAPI.Library.Models
 
 			_logger.LogInformation("Создаем завершенное событие для водителя {DriverName} по {EventName}",
 				driver.ShortName,
-				driverWarehouseEvent.EventName.Name);
+				driverWarehouseEvent.EventName);
 			
 			var completedEvent = new CompletedDriverWarehouseEvent
 			{
@@ -77,6 +79,8 @@ namespace DriverAPI.Library.Models
 			_unitOfWork.Save(completedEvent);
 			_unitOfWork.Commit();
 			_logger.LogInformation("Ok");
+
+			return completedEvent;
 		}
 
 		private PointLatLng GetPointLatLng(decimal? latitude, decimal? longitude)

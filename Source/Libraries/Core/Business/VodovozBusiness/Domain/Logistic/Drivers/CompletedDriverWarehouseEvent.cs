@@ -4,7 +4,6 @@ using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Tools;
 
 namespace Vodovoz.Domain.Logistic.Drivers
 {
@@ -18,7 +17,6 @@ namespace Vodovoz.Domain.Logistic.Drivers
 		private DriverWarehouseEvent _driverWarehouseEvent;
 		private Employee _employee;
 		private Car _car;
-		private DocumentType? _documentType;
 		private int? _documentId;
 
 		public virtual int Id { get; set; }
@@ -70,13 +68,6 @@ namespace Vodovoz.Domain.Logistic.Drivers
 		{
 			get => _car;
 			set => SetField(ref _car, value);
-		}
-		
-		[Display(Name = "Документ на котором размещен Qr")]
-		public virtual DocumentType? DocumentType
-		{
-			get => _documentType;
-			set => SetField(ref _documentType, value);
 		}
 		
 		[Display(Name = "Номер документа")]

@@ -3,7 +3,6 @@ using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
-using Vodovoz.Tools;
 
 namespace Vodovoz.Domain.Logistic.Drivers
 {
@@ -11,13 +10,14 @@ namespace Vodovoz.Domain.Logistic.Drivers
 	[EntityPermission]
 	public class DriverWarehouseEvent : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
+		private const int _eventNameMaxLength = 150;
 		private decimal? _latitude;
 		private decimal? _longitude;
 		private bool _isArchive;
 		private string _eventName;
 		private DriverWarehouseEventType _type;
-		private DocumentType? _documentType;
-		private int? _documentId;
+		private EventQrDocumentType? _documentType;
+		private EventQrPositionOnDocument? _qrPositionOnDocument;
 
 		public virtual int Id { get; set; }
 
@@ -41,8 +41,8 @@ namespace Vodovoz.Domain.Logistic.Drivers
 			get => _isArchive;
 			set => SetField(ref _isArchive, value);
 		}
-
-		[Display(Name = "Имя события")]
+		
+		[Display(Name = "Название события")]
 		public virtual string EventName
 		{
 			get => _eventName;
@@ -57,17 +57,17 @@ namespace Vodovoz.Domain.Logistic.Drivers
 		}
 		
 		[Display(Name = "Документ на котором размещен Qr")]
-		public virtual DocumentType? DocumentType
+		public virtual EventQrDocumentType? DocumentType
 		{
 			get => _documentType;
 			set => SetField(ref _documentType, value);
 		}
-		
-		[Display(Name = "Номер документа")]
-		public virtual int? DocumentId
+
+		[Display(Name = "Расположение Qr на документе")]
+		public virtual EventQrPositionOnDocument? QrPositionOnDocument
 		{
-			get => _documentId;
-			set => SetField(ref _documentId, value);
+			get => _qrPositionOnDocument;
+			set => SetField(ref _qrPositionOnDocument, value);
 		}
 
 		public virtual void WriteCoordinates(decimal? latitude, decimal? longitude)
@@ -76,16 +76,48 @@ namespace Vodovoz.Domain.Logistic.Drivers
 			Longitude = longitude;
 		}
 		
+		public virtual void ResetEventParameters()
+		{
+			switch(Type)
+			{
+				case DriverWarehouseEventType.OnDocuments:
+					Latitude = null;
+					Longitude = null;
+					break;
+				case DriverWarehouseEventType.OnLocation:
+					DocumentType = null;
+					QrPositionOnDocument = null;
+					break;
+			}
+		}
+		
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(string.IsNullOrWhiteSpace(EventName))
 			{
 				yield return new ValidationResult("Имя события должно быть заполнено");
 			}
+			else if(EventName.Length > _eventNameMaxLength)
+			{
+				yield return new ValidationResult($"Длина названия события превышена на {_eventNameMaxLength - EventName.Length}");
+			}
 
 			if(Type == DriverWarehouseEventType.OnLocation && (Latitude is null || Longitude is null))
 			{
 				yield return new ValidationResult("Не заполнены или неправильно заполнены координаты");
+			}
+			
+			if(Type == DriverWarehouseEventType.OnDocuments)
+			{
+				if(DocumentType is null)
+				{
+					yield return new ValidationResult("Не заполнен документ, на котором будет размещен Qr код");
+				}
+				
+				if(QrPositionOnDocument is null)
+				{
+					yield return new ValidationResult("Не указано размещение Qr кода на документе");
+				}
 			}
 		}
 	}

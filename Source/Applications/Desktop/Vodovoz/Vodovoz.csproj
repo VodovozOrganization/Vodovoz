@@ -2348,6 +2348,10 @@
       <Project>{49241ddd-3e0b-4944-9b3f-89f0c42e9e6d}</Project>
       <Name>VodovozFiasWidgets</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Infrastructure\Vodovoz.RDL\Vodovoz.RDL.csproj">
+      <Project>{056ba782-edef-4e8e-abb1-01fd3502a8f0}</Project>
+      <Name>Vodovoz.RDL</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Infrastructure\VodovozInfrastructure\VodovozInfrastructure.csproj">
       <Project>{42efc426-2c88-4608-8191-dbca4172a695}</Project>
       <Name>VodovozInfrastructure</Name>

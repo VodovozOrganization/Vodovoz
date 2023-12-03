@@ -7,6 +7,6 @@ namespace Vodovoz.EntityRepositories.Logistic
 {
 	public interface IDriverWarehouseEventRepository
 	{
-		IEnumerable<DriverWarehouseEvent> GetActiveDriverWarehouseEventsForDocument(IUnitOfWork uow, DocumentType documentType);
+		IEnumerable<DriverWarehouseEvent> GetActiveDriverWarehouseEventsForDocument(IUnitOfWork uow, EventQrDocumentType documentType);
 	}
 }

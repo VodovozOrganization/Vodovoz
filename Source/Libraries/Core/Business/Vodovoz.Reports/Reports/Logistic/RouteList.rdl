@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -65,7 +65,7 @@
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>272.6pt</Height>
+    <Height>299.0pt</Height>
     <Columns>1</Columns>
     <ReportItems>
       <Table Name="Table2">
@@ -1478,26 +1478,27 @@ Switch(
           </TableRows>
         </Footer>
         <Left>0.0pt</Left>
-        <Top>76.4pt</Top>
+        <Top>86.0pt</Top>
         <ZIndex>0</ZIndex>
       </Table>
       <CustomReportItem Name="CustomReportItem1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Type>QR Code</Type>
-        <Height>86pt</Height>
-        <Width>86pt</Width>
+        <Height>86.00pt</Height>
+        <Width>86.00pt</Width>
         <CustomProperties>
           <CustomProperty>
             <Name>QrCode</Name>
             <Value>="RouteList;"+{?RouteListId}+";"+Format({?RouteListDate}, "ddMMyyyy")</Value>
           </CustomProperty>
         </CustomProperties>
-        <Left>726.4pt</Left>
-        <Top>0.0pt</Top>
+        <Left>726.40pt</Left>
+        <Top>0.00pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
-          <BackgroundColor></BackgroundColor>
+          <BackgroundColor>
+          </BackgroundColor>
           <BackgroundGradientType>None</BackgroundGradientType>
           <BackgroundGradientEndColor>White</BackgroundGradientEndColor>
           <TextAlign>Left</TextAlign>
@@ -1520,7 +1521,10 @@ Switch(
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>474.7pt</Width>
+            <Width>315.8pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>232.1pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>112.5pt</Width>
@@ -1540,6 +1544,28 @@ Switch(
                       <Value>="Логист: " + {LogisticanLastname} + " " + {LogisticanName}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <FontSize>8pt</FontSize>
+                        <VerticalAlign>Top</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox7">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
                           <Left>None</Left>
@@ -1595,6 +1621,28 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                   <ReportItems>
                     <Textbox Name="Textbox35">
                       <Value>={?phones}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Normal</FontWeight>
+                        <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox12">
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -1906,7 +1954,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
               </TableCells>
             </TableRow>
             <TableRow>
-              <Height>12pt</Height>
+              <Height>12.8pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -2080,13 +2128,13 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>210.2pt</Top>
+        <Top>219.8pt</Top>
       </Table>
       <List Name="List1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>64.87pt</Height>
         <Width>99.41pt</Width>
-        <Left>627.2pt</Left>
-        <Top>10.4pt</Top>
+        <Left>451.8pt</Left>
+        <Top>4.0pt</Top>
         <ReportItems>
           <Image Name="Image1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>63.49pt</Height>
@@ -2105,18 +2153,30 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
           </Image>
         </ReportItems>
         <Style>
-            <BorderStyle>
-                <Default>None</Default>
-                <Left>None</Left>
-                <Right>None</Right>
-                <Top>None</Top>
-                <Bottom>None</Bottom>
-            </BorderStyle>
-            <BorderColor />
-            <BorderWidth />
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <DataSetName>Images</DataSetName>
       </List>
+      <Rectangle Name="TopQrRectangle">
+        <Height>80.00pt</Height>
+        <Width>80.00pt</Width>
+        <Left>322.3pt</Left>
+        <Top>0.0pt</Top>
+      </Rectangle>
+      <Rectangle Name="BottomQrRectangle" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>80.00pt</Height>
+        <Width>80.00pt</Width>
+        <Left>270.5pt</Left>
+        <Top>212.8pt</Top>
+      </Rectangle>
     </ReportItems>
   </Body>
   <PageFooter>
@@ -2327,7 +2387,7 @@ LIMIT 1
     IF(route_list_addresses.deposits_collected IS NULL, 0, route_list_addresses.deposits_collected) AS BottlesDeposit,
     route_list_addresses.status AS Status,
     orders.payment_type AS payment_type,
-    (SELECT count(*) > 0
+    (SELECT count(*) &gt; 0
      FROM fast_payments fp
      WHERE (fp.order_id = orders.id
 		OR fp.external_id = orders.id
@@ -2453,7 +2513,7 @@ ORDER BY order_in_route
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="RouteListId">
           <DataField>RouteListId</DataField>
           <TypeName>System.UInt32</TypeName>

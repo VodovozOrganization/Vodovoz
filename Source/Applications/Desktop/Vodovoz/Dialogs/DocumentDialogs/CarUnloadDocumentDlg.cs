@@ -16,6 +16,7 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Drivers;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
@@ -55,6 +56,7 @@ namespace Vodovoz
 			new WageParameterService(new WageCalculationRepository(), _baseParametersProvider);
 		private ICallTaskWorker _callTaskWorker;
 		private ILifetimeScope _lifetimeScope;
+		private IEventsQrPlacer _eventsQrPlacer;
 
 		#region Конструкторы
 		public CarUnloadDocumentDlg()
@@ -116,6 +118,7 @@ namespace Vodovoz
 		{
 			_lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 			NavigationManager = Startup.MainWin.NavigationManager;
+			_eventsQrPlacer = _lifetimeScope.Resolve<IEventsQrPlacer>();
 
 			var storeDocument = new StoreDocumentHelper(new UserSettingsGetter());
 			_callTaskWorker = new CallTaskWorker(
@@ -566,9 +569,12 @@ namespace Vodovoz
 				Save();
 			}
 
+			var rdlPath = "Reports/Store/CarUnloadDoc.rdl";
+			_eventsQrPlacer.AddQrEventForDocument(UoW, Entity.Id, EventQrDocumentType.CarUnloadDocument, ref rdlPath);
+
 			var reportInfo = new QS.Report.ReportInfo {
 				Title = Entity.Title,
-				Identifier = "Store.CarUnloadDoc",
+				Path = rdlPath,
 				Parameters = new Dictionary<string, object>
 					{
 						{ "id",  Entity.Id }

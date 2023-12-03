@@ -7,14 +7,19 @@ using QS.ViewModels;
 using Vodovoz.Domain.Logistic.Drivers;
 using Autofac;
 using QS.Commands;
+using QS.ViewModels.Extension;
+using Vodovoz.EntityRepositories.Logistic;
 using VodovozInfrastructure.Services;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
-	public class DriverWarehouseEventViewModel : EntityTabViewModelBase<DriverWarehouseEvent>
+	public class DriverWarehouseEventViewModel : EntityTabViewModelBase<DriverWarehouseEvent>, IAskSaveOnCloseViewModel
 	{
 		private readonly ICoordinatesParser _coordinatesParser;
+		private readonly ICompletedDriverWarehouseEventRepository _completedDriverWarehouseEventRepository;
 		private readonly ILifetimeScope _scope;
+
+		private bool _hasCompletedEvents;
 
 		private DelegateCommand<string> _setCoordinatesFromBufferCommand;
 
@@ -24,9 +29,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			ICommonServices commonServices,
 			INavigationManager navigation,
 			ICoordinatesParser coordinatesParser,
+			ICompletedDriverWarehouseEventRepository completedDriverWarehouseEventRepository,
 			ILifetimeScope scope) : base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			_coordinatesParser = coordinatesParser ?? throw new ArgumentNullException(nameof(coordinatesParser));
+			_completedDriverWarehouseEventRepository =
+				completedDriverWarehouseEventRepository ?? throw new ArgumentNullException(nameof(completedDriverWarehouseEventRepository));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			Configure();
 		}
@@ -34,13 +42,24 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private void Configure()
 		{
 			ConfigureEntityChangingRelations();
+			CheckCompletedEventsByEntity();
+		}
+
+		private void CheckCompletedEventsByEntity()
+		{
+			_hasCompletedEvents = Entity.Id != 0 && _completedDriverWarehouseEventRepository.HasCompletedEventsByEventId(UoW, Entity.Id);
 		}
 
 		public bool IdGtZero => Entity.Id > 0;
 
-		public bool CanEdit => Entity.Id == 0;
+		public bool CanEditByPermission => (PermissionResult.CanCreate && Entity.Id == 0) || PermissionResult.CanUpdate;
+
+		public bool CanEdit => CanEditByPermission && !_hasCompletedEvents;
+		public bool AskSaveOnClose => CanEditByPermission;
 
 		public bool IsCoordinatesVisible => Entity.Type == DriverWarehouseEventType.OnLocation;
+		public bool CanPrintQrCode => Entity.Type == DriverWarehouseEventType.OnLocation;
+		public bool IsDocumentQrParametersVisible => Entity.Type == DriverWarehouseEventType.OnDocuments;
 
 		public DriverWarehouseEventType EventType
 		{
@@ -49,14 +68,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			{
 				Entity.Type = value;
 
-				if(Entity.Type == DriverWarehouseEventType.OnDocuments)
-				{
-					Entity.Latitude = null;
-					Entity.Longitude = null;
-				}
-				
+				Entity.ResetEventParameters();
 				OnPropertyChanged();
-				OnPropertyChanged(nameof(IsCoordinatesVisible));
 			}
 		}
 
@@ -78,12 +91,22 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				}
 				));
 
+		public bool AskUserQuestion(string question, string title = null)
+		{
+			return base.AskQuestion(question, title);
+		}
+
 		private void ConfigureEntityChangingRelations()
 		{
 			SetPropertyChangeRelation(
 				e => e.Id,
 				() => IdGtZero,
 				() => CanEdit);
+			
+			SetPropertyChangeRelation(
+				e => e.Type,
+				() => IsCoordinatesVisible,
+				() => IsDocumentQrParametersVisible);
 		}
 	}
 }
