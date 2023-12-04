@@ -15,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using DateTimeHelpers;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Documents.DriverTerminalTransfer;
@@ -170,9 +171,10 @@ namespace Vodovoz.ViewModels.Logistic
 				query.Where(o => o.Date >= FilterViewModel.StartDate);
 			}
 
-			if(FilterViewModel.EndDate != null)
+			var endDate = FilterViewModel.EndDate;
+			if(endDate != null)
 			{
-				query.Where(o => o.Date <= FilterViewModel.EndDate.Value.AddDays(1).AddTicks(-1));
+				query.Where(o => o.Date <= endDate.Value.LatestDayTime());
 			}
 
 			if(FilterViewModel.GeographicGroup != null)
