@@ -1,14 +1,14 @@
-﻿using System;
+﻿using Gamma.Utilities;
+using NetTopologySuite.Geometries;
+using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
+using QS.HistoryLog;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Gamma.Utilities;
-using NetTopologySuite.Geometries;
-using QS.DomainModel.Entity;
-using QS.DomainModel.Entity.EntityPermissions;
-using QS.HistoryLog;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Tools.Orders;
@@ -22,99 +22,100 @@ namespace Vodovoz.Domain.Sale
 	[HistoryTrace]
 	public class District : BusinessObjectBase<District>, IDomainObject, IValidatableObject, ICloneable
 	{
+		string _districtName;
+		private TariffZone _tariffZone;
+		private Geometry _districtBorder;
+		private int _minBottles;
+		private decimal _waterPrice;
+		private DistrictWaterPrice _priceType;
+		private WageDistrict _wageDistrict;
+		private GeoGroup _geographicGroup;
+		private DistrictsSet _districtsSet;
+		private District _copyOf;
+		private IList<DistrictCopyItem> _districtCopyItems = new List<DistrictCopyItem>();
+		private IList<CommonDistrictRuleItem> _commonDistrictRuleItems = new List<CommonDistrictRuleItem>();
+
 		#region Свойства
 		public virtual int Id { get; set; }
 
-		string districtName;
 		[Display(Name = "Название района")]
 		public virtual string DistrictName {
-			get => districtName;
-			set => SetField(ref districtName, value, () => DistrictName);
+			get => _districtName;
+			set => SetField(ref _districtName, value, () => DistrictName);
 		}
 
-		private TariffZone tariffZone;
 		[Display(Name = "Тарифная зоны")]
 		public virtual TariffZone TariffZone {
-			get => tariffZone;
-			set => SetField(ref tariffZone, value, () => TariffZone);
+			get => _tariffZone;
+			set => SetField(ref _tariffZone, value, () => TariffZone);
 		}
 
-		private Geometry districtBorder;
 		[Display(Name = "Граница")]
 		public virtual Geometry DistrictBorder {
-			get => districtBorder;
-			set => SetField(ref districtBorder, value, () => DistrictBorder);
+			get => _districtBorder;
+			set => SetField(ref _districtBorder, value, () => DistrictBorder);
 		}
 		
-		int minBottles;
 		[Display(Name = "Минимальное количество бутылей")]
 		public virtual int MinBottles {
-			get => minBottles;
-			set => SetField(ref minBottles, value, () => MinBottles);
+			get => _minBottles;
+			set => SetField(ref _minBottles, value, () => MinBottles);
 		}
 
-		private decimal waterPrice;
 		[Display(Name = "Цена на воду")]
 		public virtual decimal WaterPrice {
-			get => waterPrice;
-			set => SetField(ref waterPrice, value, () => WaterPrice);
+			get => _waterPrice;
+			set => SetField(ref _waterPrice, value, () => WaterPrice);
 		}
 
-		private DistrictWaterPrice priceType;
 		[Display(Name = "Вид цены")]
 		public virtual DistrictWaterPrice PriceType {
-			get => priceType;
+			get => _priceType;
 			set {
-				SetField(ref priceType, value, () => PriceType);
+				SetField(ref _priceType, value, () => PriceType);
 				if(WaterPrice != 0 && PriceType != DistrictWaterPrice.FixForDistrict)
 					WaterPrice = 0;
 			}
 		}
 
-		private WageDistrict wageDistrict;
 		[Display(Name = "Группа района для расчёта ЗП")]
 		public virtual WageDistrict WageDistrict {
-			get => wageDistrict;
-			set => SetField(ref wageDistrict, value);
+			get => _wageDistrict;
+			set => SetField(ref _wageDistrict, value);
 		}
 		
-		private GeoGroup geographicGroup;
 		[Display(Name = "Часть города")]
 		public virtual GeoGroup GeographicGroup {
-			get => geographicGroup;
-			set => SetField(ref geographicGroup, value, () => GeographicGroup);
+			get => _geographicGroup;
+			set => SetField(ref _geographicGroup, value, () => GeographicGroup);
 		}
 		
-		private DistrictsSet districtsSet;
 		[Display(Name = "Версия районов")]
 		public virtual DistrictsSet DistrictsSet {
-			get => districtsSet;
-			set => SetField(ref districtsSet, value, () => DistrictsSet);
+			get => _districtsSet;
+			set => SetField(ref _districtsSet, value, () => DistrictsSet);
 		}
 		
-		private District copyOf;
 		[Display(Name = "Копия района")]
 		public virtual District CopyOf {
-			get => copyOf;
-			set => SetField(ref copyOf, value, () => CopyOf);
+			get => _copyOf;
+			set => SetField(ref _copyOf, value, () => CopyOf);
 		}
-		
-		private District copiedTo;
-		[Display(Name = "Район, скопированный из этого района")]
-		public virtual District CopiedTo {
-			get => copiedTo;
-			set => SetField(ref copiedTo, value);
+
+		[Display(Name = "Районы, в которые был скопирован данный район")]
+		public virtual IList<DistrictCopyItem> DistrictCopyItems
+		{
+			get => _districtCopyItems;
+			set => SetField(ref _districtCopyItems, value);
 		}
-		
 		#endregion
 
 		#region CommonDistrictRuleItems
 
-		private IList<CommonDistrictRuleItem> commonDistrictRuleItems = new List<CommonDistrictRuleItem>();
 		[Display(Name = "Правила и цены доставки района")]
 		public virtual IList<CommonDistrictRuleItem> CommonDistrictRuleItems {
-			get => commonDistrictRuleItems;
-			set => SetField(ref commonDistrictRuleItems, value, () => CommonDistrictRuleItems);
+			get => _commonDistrictRuleItems;
+			set => SetField(ref _commonDistrictRuleItems, value, () => CommonDistrictRuleItems);
 		}
 
 		private GenericObservableList<CommonDistrictRuleItem> observableCommonDistrictRuleItems;
@@ -712,14 +713,21 @@ namespace Vodovoz.Domain.Sale
 
 		public static District GetDistrictFromActiveDistrictsSetOrNull(District district)
 		{
-			while(true) {
+			while(true)
+			{
 				if(district?.DistrictsSet == null) {
 					return null;
 				}
+
 				if(district.DistrictsSet.Status == DistrictsSetStatus.Active) {
 					return district;
 				}
-				district = district.CopiedTo;
+
+				var ruleItems = district.CommonDistrictRuleItems.ToList();
+				var copyItems = district.DistrictCopyItems.ToList();
+
+				return null;
+				//district = district.CopiedTo;
 			}
 		}
 	}
