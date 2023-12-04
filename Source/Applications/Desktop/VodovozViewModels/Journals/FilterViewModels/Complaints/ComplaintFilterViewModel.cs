@@ -52,7 +52,7 @@ namespace Vodovoz.FilterViewModels
 		private Counterparty _counterparty;
 		private Subdivision _subdivision;
 		private DateTime? _startDate;
-		private DateTime _endDate = DateTime.Now;
+		private DateTime? _endDate = DateTime.Now;
 		private bool? _isForRetail;
 		private IList<ComplaintKind> _complaintKindSource;
 		private ComplaintDetalization _complainDetalization;
@@ -277,7 +277,7 @@ namespace Vodovoz.FilterViewModels
 			set => SetField(ref _startDate, value);
 		}
 
-		public virtual DateTime EndDate
+		public virtual DateTime? EndDate
 		{
 			get => _endDate;
 			set => SetField(ref _endDate, value);
