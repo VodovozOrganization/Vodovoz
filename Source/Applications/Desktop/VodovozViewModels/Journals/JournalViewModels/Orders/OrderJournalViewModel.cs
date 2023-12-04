@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using DateTimeHelpers;
 using Vodovoz.Controllers;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -462,15 +463,16 @@ namespace Vodovoz.JournalViewModels
 				}
 			}
 
-			if(FilterViewModel.EndDate != null)
+			var endDate = FilterViewModel.EndDate;
+			if(endDate != null)
 			{
 				if(FilterViewModel.FilterDateType == OrdersDateFilterType.DeliveryDate)
 				{ 
-					query.Where(o => o.DeliveryDate <= FilterViewModel.EndDate.Value.AddDays(1).AddTicks(-1));
+					query.Where(o => o.DeliveryDate <= endDate.Value.LatestDayTime());
 				}
 				else
 				{ 
-					query.Where(o => o.CreateDate <= FilterViewModel.EndDate.Value.AddDays(1).AddTicks(-1));
+					query.Where(o => o.CreateDate <= endDate.Value.LatestDayTime());
 				}
 			}
 
@@ -761,8 +763,9 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.CreateDate >= FilterViewModel.StartDate);
 			}
 
-			if(FilterViewModel.EndDate != null) {
-				query.Where(o => o.CreateDate <= FilterViewModel.EndDate.Value.AddDays(1).AddTicks(-1));
+			var endDate = FilterViewModel.EndDate;
+			if(endDate != null) {
+				query.Where(o => o.CreateDate <= endDate.Value.LatestDayTime());
 			}
 			
 			if(FilterViewModel.RestrictCounterparty != null) {
@@ -919,8 +922,9 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.CreateDate >= FilterViewModel.StartDate);
 			}
 
-			if(FilterViewModel.EndDate != null) {
-				query.Where(o => o.CreateDate <= FilterViewModel.EndDate.Value.AddDays(1).AddTicks(-1));
+			var endDate = FilterViewModel.EndDate;
+			if(endDate != null) {
+				query.Where(o => o.CreateDate <= endDate.Value.LatestDayTime());
 			}
 
 			if(FilterViewModel.RestrictCounterparty != null) {
@@ -1100,8 +1104,9 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.CreateDate >= FilterViewModel.StartDate);
 			}
 
-			if(FilterViewModel.EndDate != null) {
-				query.Where(o => o.CreateDate <= FilterViewModel.EndDate.Value.AddDays(1).AddTicks(-1));
+			var endDate = FilterViewModel.EndDate;
+			if(endDate != null) {
+				query.Where(o => o.CreateDate <= endDate.Value.LatestDayTime());
 			}
 			
 			if(FilterViewModel.RestrictCounterparty != null) {
