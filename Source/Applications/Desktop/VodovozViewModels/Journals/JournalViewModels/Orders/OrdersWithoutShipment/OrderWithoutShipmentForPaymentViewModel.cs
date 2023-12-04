@@ -112,8 +112,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 			ObservableAvailableOrders = new GenericObservableList<OrderWithoutShipmentForPaymentNode>();
 
-			CanSendBillByEdo = Entity.Client.NeedSendBillByEdo;
-
 			UpdateEdoContainers();
 
 			CancelCommand = new DelegateCommand(
@@ -293,10 +291,10 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		private void SendBillByEdo(IUnitOfWork uow)
 		{
 			var edoContainer = EdoContainers
-				.SingleOrDefault(x => x.Type == EdoDocumentType.BillWithoutShipmentForPayment)
+				.SingleOrDefault(x => x.Type == EdoDocumentType.BillWSForPayment)
 					?? new EdoContainer
 					{
-						Type = EdoDocumentType.BillWithoutShipmentForPayment,
+						Type = EdoDocumentType.BillWSForPayment,
 						Created = DateTime.Now,
 						Container = new byte[64],
 						OrderWithoutShipmentForPayment = Entity,
@@ -305,6 +303,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 						EdoDocFlowStatus = EdoDocFlowStatus.PreparingToSend
 					};
 
+			uow.Save();
 			uow.Save(edoContainer);
 			uow.Commit();
 		}

@@ -123,8 +123,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 			FillDiscountReasons(discountReasonRepository);
 
-			CanSendBillByEdo = Entity.Client.NeedSendBillByEdo;
-
 			UpdateEdoContainers();
 
 			AddForSaleCommand = new DelegateCommand(
@@ -308,10 +306,10 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		private void SendBillByEdo(IUnitOfWork uow)
 		{
 			var edoContainer = EdoContainers
-				.SingleOrDefault(x => x.Type == EdoDocumentType.BillWithoutShipmentForAdvancePayment)
+				.SingleOrDefault(x => x.Type == EdoDocumentType.BillWSForAdvancePayment)
 					?? new EdoContainer
 					{
-						Type = EdoDocumentType.BillWithoutShipmentForAdvancePayment,
+						Type = EdoDocumentType.BillWSForAdvancePayment,
 						Created = DateTime.Now,
 						Container = new byte[64],
 						OrderWithoutShipmentForAdvancePayment = Entity,
@@ -320,6 +318,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 						EdoDocFlowStatus = EdoDocFlowStatus.PreparingToSend
 					};
 
+			uow.Save();
 			uow.Save(edoContainer);
 			uow.Commit();
 		}

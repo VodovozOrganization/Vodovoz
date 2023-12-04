@@ -161,10 +161,10 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		private void SendBillByEdo(IUnitOfWork uow)
 		{
 			var edoContainer = EdoContainers
-				.SingleOrDefault(x => x.Type == EdoDocumentType.BillWithoutShipmentForDebt)
+				.SingleOrDefault(x => x.Type == EdoDocumentType.BillWSForDebt)
 					?? new EdoContainer
 					{
-						Type = EdoDocumentType.BillWithoutShipmentForDebt,
+						Type = EdoDocumentType.BillWSForDebt,
 						Created = DateTime.Now,
 						Container = new byte[64],
 						OrderWithoutShipmentForDebt = Entity,
@@ -173,6 +173,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 						EdoDocFlowStatus = EdoDocFlowStatus.PreparingToSend
 					};
 
+			uow.Save();
 			uow.Save(edoContainer);
 			uow.Commit();
 		}

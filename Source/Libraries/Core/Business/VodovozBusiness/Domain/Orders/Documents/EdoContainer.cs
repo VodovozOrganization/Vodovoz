@@ -164,6 +164,9 @@ namespace Vodovoz.Domain.Orders.Documents
 		PreparingToSend
 	}
 
+	/// <summary>
+	/// WS - используется потому, что enum в NHibernate не может быть более 36 символов для 1 значения
+	/// </summary>
 	public enum Type
 	{
 		[Display(Name = "УПД")]
@@ -171,10 +174,10 @@ namespace Vodovoz.Domain.Orders.Documents
 		[Display(Name = "Счёт")]
 		Bill,
 		[Display(Name = "Счет без отгрузки на предоплату")]
-		BillWithoutShipmentForAdvancePayment,
+		BillWSForAdvancePayment,
 		[Display(Name = "Cчет без отгрузки на долг")]
-		BillWithoutShipmentForDebt,
+		BillWSForDebt,
 		[Display(Name = "Cчет без отгрузки на постоплату")]
-		BillWithoutShipmentForPayment
+		BillWSForPayment
 	}
 }

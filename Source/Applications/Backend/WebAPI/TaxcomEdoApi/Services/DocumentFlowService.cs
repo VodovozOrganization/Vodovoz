@@ -222,12 +222,13 @@ namespace TaxcomEdoApi.Services
 					throw new InvalidOperationException("В организации не настроено соответствие кабинета ЭДО");
 				}
 
+				_logger.LogInformation("Найдена организация по edxClientId {EdoAccountId} - [{OrganizationId}]:\"{OrganizationName}\"", edoAccountId, organization.Id, organization.FullName);
+
 				_logger.LogInformation("Получаем заказы по которым нужно отправить счёт");
+
 				var edoContainers = _edoContainersRepository
 					.Get(uow, EdoContainerSpecification.CreateForAftedDateNotSendedWithOrganizationId(startDate, organization.Id))
 					.ToList();
-
-				//_orderRepository.GetPreparingToSendEdoContainers(uow, startDate, organization.Id);
 
 				_logger.LogInformation("Всего заказов для формирования и отправки счёта: {OrdersCount}", edoContainers.Count);
 
@@ -311,7 +312,7 @@ namespace TaxcomEdoApi.Services
 
 		private void SendOrderWithoutShipmentForPaymentContainer(IUnitOfWork unitOfWork, Organization organization, EdoContainer edoContainer)
 		{
-			_logger.LogInformation("Создаем счёт по заказу №{OrderId}", edoContainer.Order.Id);
+			_logger.LogInformation("Создаем счёт без отгрузки на постоплату №{OrderWithoutShipmentForPaymentId}", edoContainer.OrderWithoutShipmentForPayment.Id);
 			try
 			{
 				var container = new TaxcomContainer
@@ -320,8 +321,7 @@ namespace TaxcomEdoApi.Services
 				};
 
 				var orderDocumentTypes = new[] { OrderDocumentType.BillWSForPayment };
-				var printableRdlDocument = edoContainer.OrderWithoutShipmentForPayment.Order.OrderDocuments
-					.FirstOrDefault(x => orderDocumentTypes.Contains(x.Type)) as IPrintableRDLDocument;
+				var printableRdlDocument = edoContainer.OrderWithoutShipmentForPayment as IPrintableRDLDocument;
 				var billAttachment = _printableDocumentSaver.SaveToPdf(printableRdlDocument);
 				var fileName = $"Счёт № Ф-{edoContainer.OrderWithoutShipmentForPayment.Id} от {edoContainer.OrderWithoutShipmentForPayment.CreateDate:d}.pdf";
 				var document = _edoBillFactory.CreateBillWithoutShipmentForPaymentDocument(edoContainer.OrderWithoutShipmentForPayment, billAttachment, fileName, organization);
@@ -358,7 +358,7 @@ namespace TaxcomEdoApi.Services
 
 		private void SendOrderWithoutShipmentForDebtContainer(IUnitOfWork unitOfWork, Organization organization, EdoContainer edoContainer)
 		{
-			_logger.LogInformation("Создаем счёт по заказу №{OrderId}", edoContainer.Order.Id);
+			_logger.LogInformation("Создаем счёт без отгрузки на долг №{OrderWithoutShipmentForDebtId}", edoContainer.OrderWithoutShipmentForDebt.Id);
 			try
 			{
 				var container = new TaxcomContainer
@@ -367,8 +367,7 @@ namespace TaxcomEdoApi.Services
 				};
 
 				var orderDocumentTypes = new[] { OrderDocumentType.BillWSForDebt };
-				var printableRdlDocument = edoContainer.OrderWithoutShipmentForDebt.Order.OrderDocuments
-					.FirstOrDefault(x => orderDocumentTypes.Contains(x.Type)) as IPrintableRDLDocument;
+				var printableRdlDocument = edoContainer.OrderWithoutShipmentForDebt as IPrintableRDLDocument;
 				var billAttachment = _printableDocumentSaver.SaveToPdf(printableRdlDocument);
 				var fileName = $"Счёт № Ф-{edoContainer.OrderWithoutShipmentForDebt.Id} от {edoContainer.OrderWithoutShipmentForDebt.CreateDate:d}.pdf";
 				var document = _edoBillFactory.CreateBillWithoutShipmentForDebtDocument(edoContainer.OrderWithoutShipmentForDebt, billAttachment, fileName, organization);
@@ -405,7 +404,7 @@ namespace TaxcomEdoApi.Services
 
 		private void SendOrderWithoutShipmentForAdvancePaymentContainer(IUnitOfWork unitOfWork, Organization organization, EdoContainer edoContainer)
 		{
-			_logger.LogInformation("Создаем счёт по заказу №{OrderId}", edoContainer.Order.Id);
+			_logger.LogInformation("Создаем счёт без отгрузки на предоплату №{OrderWithoutShipmentForAdvancePaymentId}", edoContainer.OrderWithoutShipmentForAdvancePayment.Id);
 			try
 			{
 				var container = new TaxcomContainer
@@ -414,8 +413,7 @@ namespace TaxcomEdoApi.Services
 				};
 
 				var orderDocumentTypes = new[] { OrderDocumentType.BillWSForAdvancePayment };
-				var printableRdlDocument = edoContainer.OrderWithoutShipmentForAdvancePayment.Order.OrderDocuments
-					.FirstOrDefault(x => orderDocumentTypes.Contains(x.Type)) as IPrintableRDLDocument;
+				var printableRdlDocument = edoContainer.OrderWithoutShipmentForAdvancePayment as IPrintableRDLDocument;
 				var billAttachment = _printableDocumentSaver.SaveToPdf(printableRdlDocument);
 				var fileName = $"Счёт № Ф-{edoContainer.OrderWithoutShipmentForAdvancePayment.Id} от {edoContainer.OrderWithoutShipmentForAdvancePayment.CreateDate:d}.pdf";
 				var document = _edoBillFactory.CreateBillWithoutShipmentForAdvancePaymentDocument(edoContainer.OrderWithoutShipmentForAdvancePayment, billAttachment, fileName, organization);

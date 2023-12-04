@@ -34,6 +34,8 @@ using Vodovoz.Settings.Database;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using VodovozHealthCheck;
 using TaxcomEdoApi.HealthChecks;
+using Vodovoz.EntityRepositories;
+using Vodovoz.Services;
 
 namespace TaxcomEdoApi
 {
@@ -62,6 +64,8 @@ namespace TaxcomEdoApi
 
 			_logger = new Logger<Startup>(LoggerFactory.Create(logging =>
 				logging.AddConfiguration(Configuration.GetSection(_nLogSectionName))));
+
+			_logger.LogInformation("Логирование Startup начато");
 
 			Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 			
@@ -106,7 +110,10 @@ namespace TaxcomEdoApi
 			services.AddSingleton<EdoContainerMainDocumentIdParser>();
 			services.AddSingleton<UpdProductConverter>();
 			services.AddSingleton<IParametersProvider, ParametersProvider>();
+			services.AddSingleton<IOrganizationParametersProvider, OrganizationParametersProvider>();
 			services.AddSingleton<IContactStateConverter, ContactStateConverter>();
+
+			services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
 			services.ConfigureHealthCheckService<TaxcomEdoApiHealthCheck>(true);
 		}
@@ -181,7 +188,7 @@ namespace TaxcomEdoApi
 				ServicesConfig.UserService = new UserService(serviceUser);
 			}
 
-			UserRepository.GetCurrentUserId = () => serviceUserId;
+			QS.Project.Repositories.UserRepository.GetCurrentUserId = () => serviceUserId;
 			HistoryMain.Enable(conStrBuilder);
 		}
 	}
