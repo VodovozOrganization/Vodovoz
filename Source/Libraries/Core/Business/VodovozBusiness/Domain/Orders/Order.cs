@@ -1607,6 +1607,19 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			#endregion
+
+			#region Проверка соответствия точки доставки выбранному контрагенту
+
+			if(Client != null && DeliveryPoint != null)
+			{
+				if(Client.DeliveryPoints == null || !Client.DeliveryPoints.Any(x => x.Id == DeliveryPoint.Id))
+				{
+					yield return new ValidationResult($"Среди точек доставок выбранного контрагента указанная точка доставки не найдена",
+						new[] { nameof(DeliveryPoint) });
+				}
+			}
+
+			#endregion
 		}
 
 		private void CopiedOrderItemsPriceValidation(OrderItem[] currentCopiedItems, List<string> incorrectPriceItems)
