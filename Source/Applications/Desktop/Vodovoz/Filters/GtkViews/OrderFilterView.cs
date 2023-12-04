@@ -146,8 +146,7 @@ namespace Vodovoz.Filters.GtkViews
 			searchByAddressView.Show();
 
 			enumCmbEdoDocFlowStatus.ItemsEnum = typeof(EdoDocFlowStatus);
-			enumCmbEdoDocFlowStatus.SelectedItemStrictTyped = false;
-			enumCmbEdoDocFlowStatus.Binding.AddBinding(ViewModel, vm => vm.EdoDocFlowStatus, w => w.SelectedItemOrNull).InitializeFromSource();
+			enumCmbEdoDocFlowStatus.Binding.AddBinding(ViewModel, vm => vm.EdoDocFlowStatus, w => w.SelectedItem).InitializeFromSource();
 		}
 
 		private void InitializeRestrictions()
