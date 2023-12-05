@@ -208,6 +208,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 		{
 			if(ViewModel.Entity.Id == 0)
 			{
+				ybuttonSendDocumentAgain.Sensitive = false;
 				ybuttonSendDocumentAgain.Label = "Отправить повторно";
 				return;
 			}

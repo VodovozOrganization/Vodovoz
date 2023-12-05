@@ -340,6 +340,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			}
 
 			SendBillByEdo(UoW);
+			UpdateEdoContainers();
 		}
 
 		public void UpdateEdoContainers()
