@@ -102,6 +102,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 
 			ycheckbuttonSendBillByEdo.Binding
 				.AddBinding(ViewModel, vm => vm.IsSendBillByEdo, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.CanSendBillByEdo, w => w.Visible)
 				.InitializeFromSource();
 
 			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
