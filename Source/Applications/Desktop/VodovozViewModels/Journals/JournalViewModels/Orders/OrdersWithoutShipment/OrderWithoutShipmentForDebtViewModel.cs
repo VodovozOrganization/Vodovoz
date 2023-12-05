@@ -125,6 +125,11 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				() => true);
 
 			Entity.PropertyChanged += OnEntityPropertyChanged;
+
+			if(!UoWGeneric.IsNew)
+			{
+				CanSendBillByEdo = Entity.Client.NeedSendBillByEdo;
+			}
 		}
 
 		public bool IsSendBillByEdo

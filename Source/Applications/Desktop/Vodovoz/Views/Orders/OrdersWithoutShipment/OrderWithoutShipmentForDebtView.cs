@@ -104,7 +104,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 		{
 			if(e.PropertyName == nameof(ViewModel.IsSendBillByEdo))
 			{
-				hbox7.Visible = !ViewModel.IsSendBillByEdo;
+				hbox7.Visible = !ViewModel.IsSendBillByEdo || ViewModel.EdoContainers.Any();
 			}
 		}
 
