@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
 using Fias.Client;
@@ -49,6 +49,7 @@ using System.Linq;
 using System.Reflection;
 using Vodovoz.Additions;
 using Vodovoz.Additions.Logistic.RouteOptimization;
+using Vodovoz.Application;
 using Vodovoz.Application.Services;
 using Vodovoz.Application.Services.Logistics;
 using Vodovoz.CachingRepositories.Cash;
@@ -95,7 +96,6 @@ using Vodovoz.ReportsParameters.Retail;
 using Vodovoz.ReportsParameters.Sales;
 using Vodovoz.ReportsParameters.Store;
 using Vodovoz.Services;
-using Vodovoz.Services.Logistics;
 using Vodovoz.Services.Permissions;
 using Vodovoz.Settings.Database;
 using Vodovoz.SidePanel.InfoViews;
@@ -348,8 +348,6 @@ namespace Vodovoz
 					builder.RegisterType<WarehousePermissionValidator>().As<IWarehousePermissionValidator>();
 					builder.RegisterType<WageParameterService>().As<IWageParameterService>();
 					builder.RegisterType<SelfDeliveryCashOrganisationDistributor>().As<ISelfDeliveryCashOrganisationDistributor>();
-
-					builder.RegisterType<CounterpartyService>().As<ICounterpartyService>().InstancePerLifetimeScope();
 
 					#endregion
 
@@ -640,7 +638,6 @@ namespace Vodovoz
 				.ConfigureServices((hostingContext, services) =>
 				{
 					services.AddSingleton<Startup>()
-							.AddScoped<IRouteListService, RouteListService>()
 							.AddScoped<RouteGeometryCalculator>()
 							.AddSingleton<OsrmClient>(sp => OsrmClientFactory.Instance)
 							.AddSingleton<IFastDeliveryDistanceChecker, DistanceCalculator>()
@@ -651,7 +648,7 @@ namespace Vodovoz
 							.AddScoped<SelectPaymentTypeViewModel>()
 							.AddTransient<IReportExporter, ReportExporterAdapter>()
 							.AddScoped<IRouteOptimizer, RouteOptimizer>()
-							;
+							.AddApplication();
 				});
 	}
 }
