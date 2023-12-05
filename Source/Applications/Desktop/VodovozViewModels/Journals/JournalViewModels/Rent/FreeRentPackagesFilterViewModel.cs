@@ -1,4 +1,4 @@
-﻿using QS.DomainModel.Entity;
+using QS.DomainModel.Entity;
 using QS.Project.Filter;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Rent
@@ -14,15 +14,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Rent
 		public bool ShowArchieved
 		{
 			get => _showArchieved;
-			set
-			{
-				if(!CanChangeArchieved)
-				{
-					return;
-				}
-
-				UpdateFilterField(ref _showArchieved, value);
-			}
+			set => UpdateFilterField(ref _showArchieved, value);
 		}
 
 		/// <summary>
