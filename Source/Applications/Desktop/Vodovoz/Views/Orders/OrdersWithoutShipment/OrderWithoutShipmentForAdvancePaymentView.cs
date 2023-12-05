@@ -212,20 +212,6 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 				return;
 			}
 
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
-			{
-				var resendUpdAction = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
-						.Where(x => x.Order.Id == ViewModel.Entity.Id)
-						.FirstOrDefault();
-
-				if(resendUpdAction != null && resendUpdAction.IsNeedToResendEdoUpd)
-				{
-					ybuttonSendDocumentAgain.Sensitive = false;
-					ybuttonSendDocumentAgain.Label = "Идет подготовка УПД";
-					return;
-				}
-			}
-
 			ybuttonSendDocumentAgain.Label = "Отправить повторно";
 		}
 
