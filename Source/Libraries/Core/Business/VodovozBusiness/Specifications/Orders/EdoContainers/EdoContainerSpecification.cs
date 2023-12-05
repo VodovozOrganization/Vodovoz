@@ -11,41 +11,41 @@ namespace Vodovoz.Specifications.Orders.EdoContainers
 		{
 		}
 
-		public static ExpressionSpecification<EdoContainer> CreateForOrderId(int orderId)
+		public static EdoContainerSpecification CreateForOrderId(int orderId)
 			=> new EdoContainerSpecification(x => x.Order.Id == orderId);
 
-		public static ExpressionSpecification<EdoContainer> CreateForOrderWithoutShipmentForAdvancePaymentId(int orderWithoutShipmentForAdvancePaymentId)
+		public static EdoContainerSpecification CreateForOrderWithoutShipmentForAdvancePaymentId(int orderWithoutShipmentForAdvancePaymentId)
 			=> new EdoContainerSpecification(x => x.OrderWithoutShipmentForAdvancePayment.Id == orderWithoutShipmentForAdvancePaymentId);
 
-		public static ExpressionSpecification<EdoContainer> CreateForOrderWithoutShipmentForDebtId(int orderWithoutShipmentForDebtId)
+		public static EdoContainerSpecification CreateForOrderWithoutShipmentForDebtId(int orderWithoutShipmentForDebtId)
 			=> new EdoContainerSpecification(x => x.OrderWithoutShipmentForDebt.Id == orderWithoutShipmentForDebtId);
 
-		public static ExpressionSpecification<EdoContainer> CreateForOrderWithoutShipmentForPaymentId(int orderWithoutShipmentForPaymentId)
+		public static EdoContainerSpecification CreateForOrderWithoutShipmentForPaymentId(int orderWithoutShipmentForPaymentId)
 			=> new EdoContainerSpecification(x => x.OrderWithoutShipmentForPayment.Id == orderWithoutShipmentForPaymentId);
 
-		public static ExpressionSpecification<EdoContainer> CreateIsForOrder()
+		public static EdoContainerSpecification CreateIsForOrder()
 			=> new EdoContainerSpecification(x => x.Order != null);
 
-		public static ExpressionSpecification<EdoContainer> CreateIsForOrderWithoutShipmentForAdvancePayment()
+		public static EdoContainerSpecification CreateIsForOrderWithoutShipmentForAdvancePayment()
 			=> new EdoContainerSpecification(x => x.OrderWithoutShipmentForAdvancePayment != null);
 
-		public static ExpressionSpecification<EdoContainer> CreateIsForOrderWithoutShipmentForDebt()
+		public static EdoContainerSpecification CreateIsForOrderWithoutShipmentForDebt()
 			=> new EdoContainerSpecification(x => x.OrderWithoutShipmentForDebt != null);
 
-		public static ExpressionSpecification<EdoContainer> CreateIsForOrderWithoutShipmentForPayment()
+		public static EdoContainerSpecification CreateIsForOrderWithoutShipmentForPayment()
 			=> new EdoContainerSpecification(x => x.OrderWithoutShipmentForPayment != null);
 
-		public static ExpressionSpecification<EdoContainer> CreateForCreatedAfter(DateTime dateTime)
+		public static EdoContainerSpecification CreateForCreatedAfter(DateTime dateTime)
 			=> new EdoContainerSpecification(x => x.Created >= dateTime);
 
-		public static ExpressionSpecification<EdoContainer> CreateForStatus(EdoDocFlowStatus edoDocFlowStatus)
+		public static EdoContainerSpecification CreateForStatus(EdoDocFlowStatus edoDocFlowStatus)
 			=> new EdoContainerSpecification(x => x.EdoDocFlowStatus == edoDocFlowStatus);
+
+		public static EdoContainerSpecification CreateForOrderContractOrganizationId(int organizationId)
+			=> new EdoContainerSpecification(x => x.Order.Contract.Organization.Id == organizationId);
 
 		public static ExpressionSpecification<EdoContainer> CreateForOrganizationId(int organizationId)
 			=> CreateForOrderContractOrganizationId(organizationId);
-
-		public static ExpressionSpecification<EdoContainer> CreateForOrderContractOrganizationId(int organizationId)
-			=> new EdoContainerSpecification(x => x.Order.Contract.Organization.Id == organizationId);
 
 		public static ExpressionSpecification<EdoContainer> CreateForAftedDateNotSendedWithOrganizationId(DateTime dateTime, int organizationId) =>
 			CreateForCreatedAfter(dateTime)
