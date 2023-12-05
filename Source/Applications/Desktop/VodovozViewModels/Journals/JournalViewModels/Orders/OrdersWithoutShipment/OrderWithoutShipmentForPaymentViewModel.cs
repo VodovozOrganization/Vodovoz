@@ -318,7 +318,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			uow.Commit();
 		}
 
-		private void UpdateEdoContainers()
+		public void UpdateEdoContainers()
 		{
 			EdoContainers.Clear();
 

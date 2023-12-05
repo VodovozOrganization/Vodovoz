@@ -113,6 +113,12 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 				.AddBinding(ViewModel, vm => vm.CanSendBillByEdo, w => w.Visible)
 				.InitializeFromSource();
 
+			btnUpdateEdoDocFlowStatus.Clicked += (sender, args) =>
+			{
+				ViewModel.UpdateEdoContainers();
+				CustomizeSendDocumentAgainButton();
+			};
+
 			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
 
 			UpdateContainersVisibility();
