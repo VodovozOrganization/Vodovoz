@@ -20,6 +20,7 @@ namespace Vodovoz.Rent
 		{
 			ycheckbuttonIsArchive.Binding
 				.AddBinding(ViewModel, vm => vm.ShowArchieved, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.CanChangeArchieved, w => w.Sensitive)
 				.InitializeFromSource();
 		}
 	}
