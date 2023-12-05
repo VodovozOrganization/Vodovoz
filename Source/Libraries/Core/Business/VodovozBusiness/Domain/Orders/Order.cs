@@ -1612,10 +1612,18 @@ namespace Vodovoz.Domain.Orders
 
 			if(Client != null && DeliveryPoint != null)
 			{
-				if(Client.DeliveryPoints == null || !Client.DeliveryPoints.Any(x => x.Id == DeliveryPoint.Id))
+				using (var uow = UnitOfWorkFactory.CreateWithoutRoot("Проверка соответствия точки доставки контрагенту"))
 				{
-					yield return new ValidationResult($"Среди точек доставок выбранного контрагента указанная точка доставки не найдена",
-						new[] { nameof(DeliveryPoint) });
+					var clientDeliveryPointsIds = uow.GetAll<DeliveryPoint>()
+						.Where(d => d.Counterparty.Id == Client.Id)
+						.Select(d => d.Id)
+						.ToList();
+
+					if(!clientDeliveryPointsIds.Any(x => x == DeliveryPoint.Id))
+					{
+						yield return new ValidationResult($"Среди точек доставок выбранного контрагента указанная точка доставки не найдена",
+							new[] { nameof(DeliveryPoint) });
+					}
 				}
 			}
 
