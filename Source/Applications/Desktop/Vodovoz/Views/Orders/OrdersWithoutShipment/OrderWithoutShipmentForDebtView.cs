@@ -98,14 +98,22 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 				.InitializeFromSource();
 
 			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+
+			UpdateContainersVisibility();
 		}
 
 		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
 			if(e.PropertyName == nameof(ViewModel.IsSendBillByEdo))
 			{
-				hbox7.Visible = !ViewModel.IsSendBillByEdo || ViewModel.EdoContainers.Any();
+				UpdateContainersVisibility();
 			}
+		}
+
+		private void UpdateContainersVisibility()
+		{
+			hbox7.Visible = !ViewModel.IsSendBillByEdo;
+			vboxEdo.Visible = ViewModel.IsSendBillByEdo || ViewModel.EdoContainers.Any();
 		}
 
 		private void CustomizeSendDocumentAgainButton()

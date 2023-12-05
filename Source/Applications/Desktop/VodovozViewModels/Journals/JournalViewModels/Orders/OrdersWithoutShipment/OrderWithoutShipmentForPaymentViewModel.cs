@@ -154,7 +154,13 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		public bool CanSendBillByEdo
 		{
 			get => _canSendBillByEdo;
-			set => SetField(ref _canSendBillByEdo, value);
+			set
+			{
+				if(SetField(ref _canSendBillByEdo, value) && !value)
+				{
+					IsSendBillByEdo = false;
+				}
+			}
 		}
 
 		public DateTime? StartDate
