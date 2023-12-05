@@ -47,12 +47,12 @@ namespace Vodovoz.Specifications.Orders.EdoContainers
 		public static ExpressionSpecification<EdoContainer> CreateForOrganizationId(int organizationId)
 			=> CreateForOrderContractOrganizationId(organizationId);
 
-		public static ExpressionSpecification<EdoContainer> CreateForAftedDateNotSendedWithOrganizationId(DateTime dateTime, int organizationId) =>
-			CreateForCreatedAfter(dateTime)
-			.And(CreateForStatus(EdoDocFlowStatus.PreparingToSend))
-			.And(CreateForOrganizationId(organizationId)
-				.Or(CreateIsForOrderWithoutShipmentForAdvancePayment())
-				.Or(CreateIsForOrderWithoutShipmentForDebt())
-				.Or(CreateIsForOrderWithoutShipmentForPayment()));
+		public static ExpressionSpecification<EdoContainer> CreateForAftedDateNotSendedWithOrganizationId(DateTime dateTime, int organizationId)
+			=> CreateForCreatedAfter(dateTime)
+				.And(CreateForStatus(EdoDocFlowStatus.PreparingToSend))
+				.And(CreateForOrganizationId(organizationId)
+					.Or(CreateIsForOrderWithoutShipmentForAdvancePayment())
+					.Or(CreateIsForOrderWithoutShipmentForDebt())
+					.Or(CreateIsForOrderWithoutShipmentForPayment()));
 	}
 }
