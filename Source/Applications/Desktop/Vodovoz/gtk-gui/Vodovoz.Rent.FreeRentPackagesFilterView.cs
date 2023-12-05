@@ -23,7 +23,7 @@ namespace Vodovoz.Rent
 			this.ycheckbuttonIsArchive = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckbuttonIsArchive.CanFocus = true;
 			this.ycheckbuttonIsArchive.Name = "ycheckbuttonIsArchive";
-			this.ycheckbuttonIsArchive.Label = global::Mono.Unix.Catalog.GetString("Архив");
+			this.ycheckbuttonIsArchive.Label = global::Mono.Unix.Catalog.GetString("Показать архивные");
 			this.ycheckbuttonIsArchive.DrawIndicator = true;
 			this.ycheckbuttonIsArchive.UseUnderline = true;
 			this.table1.Add(this.ycheckbuttonIsArchive);
