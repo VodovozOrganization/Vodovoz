@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
@@ -244,7 +244,6 @@ namespace Vodovoz
 		private INomenclatureRepository nomenclatureRepository;
 
 		private Result _lastSaveResult;
-		private bool _isValidatedOnSaveSuccess => _lastSaveResult?.Errors?.Contains(Errors.Orders.Order.Validation) ?? false;
 
 		public virtual INomenclatureRepository NomenclatureRepository
 		{
@@ -2156,7 +2155,7 @@ namespace Vodovoz
 		{
 			if(!Save())
 			{
-				return Result.Failure(Errors.Orders.Order.Save);
+				return _lastSaveResult;
 			}
 
 			using(var transaction = UoW.Session.BeginTransaction())
@@ -2437,11 +2436,6 @@ namespace Vodovoz
 			if(errors.All(x => x != Errors.Orders.Order.AcceptException))
 			{
 				EditOrder();
-			}
-
-			if(_isValidatedOnSaveSuccess)
-			{
-				return;
 			}
 
 			ShowErrorsWindow(errors);
