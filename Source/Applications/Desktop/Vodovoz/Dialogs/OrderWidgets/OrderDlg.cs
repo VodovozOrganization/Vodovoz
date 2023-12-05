@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
@@ -242,6 +242,9 @@ namespace Vodovoz
 		private bool _justCreated = false;
 
 		private INomenclatureRepository nomenclatureRepository;
+
+		private Result _lastSaveResult;
+		private bool _isValidatedOnSaveSuccess => _lastSaveResult?.Errors?.Contains(Errors.Orders.Order.Validation) ?? false;
 
 		public virtual INomenclatureRepository NomenclatureRepository
 		{
@@ -2071,19 +2074,25 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
-			try {
+			try
+			{
 				SetSensitivity(false);
+
+				_lastSaveResult = null;
+
 				Entity.CheckAndSetOrderIsService();
 
 				ValidationContext validationContext = new ValidationContext(Entity);
 
 				if(!Validate(validationContext))
 				{
+					_lastSaveResult = Result.Failure(Errors.Orders.Order.Validation);
+
 					return false;
 				}
 
 				if(Entity.Id == 0 &&
-					Entity.PaymentType == PaymentType.Cashless) {
+				   Entity.PaymentType == PaymentType.Cashless) {
 					Entity.OrderPaymentStatus = OrderPaymentStatus.UnPaid;
 				}
 
@@ -2104,8 +2113,21 @@ namespace Vodovoz
 				UpdateUIState();
 				btnCopyEntityId.Sensitive = true;
 				TabName = typeof(Order).GetCustomAttribute<DisplayNameAttribute>(true)?.DisplayName;
+
+				_lastSaveResult = Result.Success();
+
 				return true;
-			} finally {
+			}
+			catch(Exception e)
+			{
+				_lastSaveResult = Result.Failure(Errors.Orders.Order.Save);
+
+				logger.Log(LogLevel.Error, e);
+
+				return false;
+			}
+			finally
+			{
 				SetSensitivity(true);
 			}
 		}
@@ -2415,6 +2437,11 @@ namespace Vodovoz
 			if(errors.All(x => x != Errors.Orders.Order.AcceptException))
 			{
 				EditOrder();
+			}
+
+			if(_isValidatedOnSaveSuccess)
+			{
+				return;
 			}
 
 			ShowErrorsWindow(errors);
