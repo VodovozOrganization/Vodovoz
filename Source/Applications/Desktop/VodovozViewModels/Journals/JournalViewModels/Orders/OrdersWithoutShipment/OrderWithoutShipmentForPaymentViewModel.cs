@@ -1,5 +1,4 @@
-﻿using FluentNHibernate.Conventions;
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using NHibernate.Criterion;
 using NHibernate.Transform;
@@ -14,7 +13,6 @@ using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
 using System;
-using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Client;
