@@ -1952,6 +1952,27 @@ namespace Vodovoz.Domain.Orders
 		#endregion
 
 		#region Добавление/удаление товаров
+
+		public virtual void AddOrUpdateDeliveryItem(Nomenclature nomenclature, decimal price)
+		{
+			var deliveryPriceItem = OrderItem.CreateDeliveryOrderItem(this, nomenclature, price);
+
+			var delivery = ObservableOrderItems.SingleOrDefault(x => x.Nomenclature.Id == PaidDeliveryNomenclatureId);
+
+			if(delivery == null)
+			{
+				AddOrderItem(deliveryPriceItem);
+				return;
+			}
+
+			if(deliveryPriceItem.Price == price)
+			{
+				return;
+			}
+
+			deliveryPriceItem.SetPrice(price);
+		}
+
 		public virtual void AddOrderItem(OrderItem orderItem, bool forceUseAlternativePrice = false)
 		{
 			if(ObservableOrderItems.Contains(orderItem)) {
@@ -1971,7 +1992,7 @@ namespace Vodovoz.Domain.Orders
 			UpdateContract();
 		}
 
-		private void RemoveOrderItem(OrderItem orderItem)
+		public void RemoveOrderItem(OrderItem orderItem)
 		{
 			if(!ObservableOrderItems.Contains(orderItem)) {
 				return;
@@ -2495,66 +2516,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual bool CalculateDeliveryPrice()
 		{
-			OrderItem deliveryPriceItem = OrderItems.FirstOrDefault(x => x.Nomenclature.Id == PaidDeliveryNomenclatureId);
-
-			#region перенести всё это в OrderStateKey
-			bool IsDeliveryForFree = SelfDelivery
-				|| OrderAddressType == OrderAddressType.Service
-				|| DeliveryPoint.AlwaysFreeDelivery
-				|| ObservableOrderItems.Any(n => n.Nomenclature.Category == NomenclatureCategory.spare_parts)
-				|| !ObservableOrderItems.Any(n => n.Nomenclature.Id != PaidDeliveryNomenclatureId) && (BottlesReturn > 0 || ObservableOrderEquipments.Any() || ObservableOrderDepositItems.Any());
-
-			if(IsDeliveryForFree)
-			{
-				if(deliveryPriceItem != null)
-				{
-					RemoveOrderItem(deliveryPriceItem);
-				}
-
-				return false;
-			}
-			#endregion
-
-			var district = DeliveryPoint?.District;
-
-			OrderStateKey orderKey = new OrderStateKey(this);
-			var price =
-				district?.GetDeliveryPrice(orderKey, ObservableOrderItems.Sum(x => x.Nomenclature?.OnlineStoreExternalId != null ? x.ActualSum : 0m )) ?? 0m;
-
-			if(price != 0)
-			{
-				if(deliveryPriceItem == null)
-				{
-					deliveryPriceItem = OrderItem.CreateDeliveryOrderItem(this, UoW.GetById<Nomenclature>(PaidDeliveryNomenclatureId), price);
-
-					var delivery = ObservableOrderItems.SingleOrDefault(x => x.Nomenclature.Id == PaidDeliveryNomenclatureId);
-
-					if(delivery == null)
-					{
-						AddOrderItem(deliveryPriceItem);
-						return true;
-					}
-					else
-					{
-						return false;
-					}
-				}
-				else if(deliveryPriceItem.Price == price)
-				{
-					return false;
-				}
-
-				deliveryPriceItem.SetPrice(price);
-
-				return true;
-			}
-
-			if(deliveryPriceItem != null)
-			{
-				RemoveOrderItem(deliveryPriceItem);
-			}
-
-			return false;
+			throw new NotImplementedException();
 		}
 
 		/// <summary>

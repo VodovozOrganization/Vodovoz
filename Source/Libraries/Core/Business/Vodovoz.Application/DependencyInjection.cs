@@ -15,6 +15,6 @@ namespace Vodovoz.Application
 		public static IServiceCollection AddApplicationServices(this IServiceCollection services) => services
 			.AddScoped<ICounterpartyService, CounterpartyService>()
 			.AddScoped<IRouteListService, RouteListService>()
-			.AddScoped<OrderService>();
+			.AddScoped<IOrderService, OrderService>();
 	}
 }
