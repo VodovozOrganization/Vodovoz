@@ -1,13 +1,12 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using NHibernate;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
-using Vodovoz.Parameters;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -45,11 +44,6 @@ namespace Vodovoz.Domain.Orders
 		private int _rentEquipmentCount;
 		private PaidRentPackage _paidRentPackage;
 		private FreeRentPackage _freeRentPackage;
-
-		private NomenclatureParametersProvider _nomenclatureParameterProvider = new NomenclatureParametersProvider(new ParametersProvider());
-
-		private int? _paidDeliveryNomenclatureId;
-		private int? _fastDeliveryNomenclatureId;
 		private OrderItem _copiedFromUndelivery;
 
 		#region Свойства
@@ -331,12 +325,6 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _freeRentPackage, value);
 		}
 
-		private int PaidDeliveryNomenclatureId =>
-			_paidDeliveryNomenclatureId ?? (_paidDeliveryNomenclatureId = _nomenclatureParameterProvider.PaidDeliveryNomenclatureId).Value;
-
-		private int FastDeliveryNomenclatureId =>
-			_fastDeliveryNomenclatureId ?? (_fastDeliveryNomenclatureId = _nomenclatureParameterProvider.FastDeliveryNomenclatureId).Value;
-
 		#endregion Аренда
 
 		public virtual OrderItem CopiedFromUndelivery
@@ -349,10 +337,12 @@ namespace Vodovoz.Domain.Orders
 
 		#region Вычисляемые
 
-		public virtual bool CanShowReturnedCount => Order.OrderStatus >= OrderStatus.OnTheWay && ReturnedCount > 0
-														&& Nomenclature.GetCategoriesForShipment().Contains(Nomenclature.Category);
+		public virtual bool CanShowReturnedCount =>
+			Order.OrderStatus >= OrderStatus.OnTheWay && ReturnedCount > 0
+			&& Nomenclature.GetCategoriesForShipment().Contains(Nomenclature.Category);
 
-		public virtual bool IsDepositCategory => Nomenclature.Category == NomenclatureCategory.deposit;
+		public virtual bool IsDepositCategory =>
+			Nomenclature.Category == NomenclatureCategory.deposit;
 
 		public virtual decimal ReturnedCount => Count - ActualCount ?? 0;
 
@@ -378,7 +368,38 @@ namespace Vodovoz.Domain.Orders
 		public virtual decimal DiscountSetter
 		{
 			get => IsDiscountInMoney ? DiscountMoney : Discount;
-			set => CalculateAndSetDiscount(value);
+			private set => CalculateAndSetDiscount(value);
+		}
+
+		internal void SetPrice(decimal price)
+		{
+			Price = price;
+		}
+
+		internal void SetCount(decimal count)
+		{
+			Count = count;
+		}
+
+		/// <summary>
+		/// Устанавливает ActualCount из Count
+		/// </summary>
+		internal void PreserveActualCount(bool ignoreHasValue = false)
+		{
+			if(ignoreHasValue || !ActualCount.HasValue)
+			{
+				ActualCount = Count;
+			}
+		}
+
+		internal void SetActualCount(decimal newValue)
+		{
+			ActualCount = newValue;
+		}
+
+		internal void SetActualCountZero()
+		{
+			SetActualCount(0m);
 		}
 
 		public virtual void SetRentEquipmentCount(int equipmentCount)
@@ -491,36 +512,6 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual decimal OriginalSum => Math.Round(Price * Count - (OriginalDiscountMoney ?? 0), 2);
 
-		public virtual bool CanEditAmount
-		{
-			get
-			{
-				bool result = true;
-
-				if(RentType != OrderRentType.None)
-				{
-					result = false;
-				}
-
-				if(Nomenclature.Id == PaidDeliveryNomenclatureId)
-				{
-					result = false;
-				}
-
-				if(PromoSet != null && !PromoSet.CanEditNomenclatureCount)
-				{
-					result = false;
-				}
-
-				if(Nomenclature.Id == FastDeliveryNomenclatureId)
-				{
-					result = false;
-				}
-
-				return result;
-			}
-		}
-
 		public virtual bool CanEditPrice
 		{
 			get
@@ -563,6 +554,20 @@ namespace Vodovoz.Domain.Orders
 		#endregion
 
 		#region Методы
+
+		internal void RestoreOriginalDiscount()
+		{
+			if(OriginalDiscountMoney.HasValue || OriginalDiscount.HasValue)
+			{
+				DiscountMoney = OriginalDiscountMoney ?? 0;
+				DiscountReason = OriginalDiscountReason;
+				Discount = OriginalDiscount ?? 0;
+				OriginalDiscountMoney = null;
+				OriginalDiscountReason = null;
+				OriginalDiscount = null;
+			}
+			ActualCount = null;
+		}
 
 		public virtual decimal? GetWaterFixedPrice()
 		{
@@ -743,5 +748,103 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		#endregion
+
+		internal static OrderItem CreateNewDailyRentServiceItem(Order order, PaidRentPackage paidRentPackage) => new OrderItem
+		{
+			Order = order,
+			Count = 1,
+			RentCount = 1,
+			RentType = OrderRentType.DailyRent,
+			OrderItemRentSubType = OrderItemRentSubType.RentServiceItem,
+			PaidRentPackage = paidRentPackage,
+			Price = paidRentPackage.PriceDaily,
+			Nomenclature = paidRentPackage.RentServiceDaily
+		};
+
+		internal static OrderItem CreateNewDailyRentDepositItem(Order order, PaidRentPackage paidRentPackage) => new OrderItem
+		{
+			Order = order,
+			Count = 1,
+			RentType = OrderRentType.DailyRent,
+			OrderItemRentSubType = OrderItemRentSubType.RentDepositItem,
+			PaidRentPackage = paidRentPackage,
+			Price = paidRentPackage.Deposit,
+			Nomenclature = paidRentPackage.DepositService
+		};
+
+		internal static OrderItem CreateNewNonFreeRentServiceItem(Order order, PaidRentPackage paidRentPackage) => new OrderItem
+		{
+			Order = order,
+			Count = 1,
+			RentCount = 1,
+			RentType = OrderRentType.NonFreeRent,
+			OrderItemRentSubType = OrderItemRentSubType.RentServiceItem,
+			PaidRentPackage = paidRentPackage,
+			Price = paidRentPackage.PriceMonthly,
+			Nomenclature = paidRentPackage.RentServiceMonthly
+		};
+
+		internal static OrderItem CreateNewNonFreeRentDepositItem(Order order, PaidRentPackage paidRentPackage) => new OrderItem
+		{
+			Order = order,
+			Count = 1,
+			RentType = OrderRentType.NonFreeRent,
+			OrderItemRentSubType = OrderItemRentSubType.RentDepositItem,
+			PaidRentPackage = paidRentPackage,
+			Price = paidRentPackage.Deposit,
+			Nomenclature = paidRentPackage.DepositService
+		};
+
+		internal static OrderItem CreateNewFreeRentDepositItem(Order order, FreeRentPackage freeRentPackage) => new OrderItem
+		{
+			Order = order,
+			Count = 1,
+			RentType = OrderRentType.FreeRent,
+			OrderItemRentSubType = OrderItemRentSubType.RentDepositItem,
+			FreeRentPackage = freeRentPackage,
+			Price = freeRentPackage.Deposit,
+			Nomenclature = freeRentPackage.DepositService
+		};
+
+		internal static OrderItem CreateForSale(Order order, Nomenclature nomenclature, decimal count, decimal price) =>
+			CreateForSale(order, nomenclature, null, count, price);
+
+		internal static OrderItem CreateForSale(Order order, Nomenclature nomenclature, Equipment equipment, decimal count, decimal price) => new OrderItem
+		{
+			Order = order,
+			Count = count,
+			Equipment = equipment,
+			Nomenclature = nomenclature,
+			Price = price
+		};
+
+		internal static OrderItem CreateForSaleWithDiscount(
+			Order order,
+			Nomenclature nomenclature,
+			decimal count,
+			decimal price,
+			bool isDiscountInMoney,
+			decimal discount,
+			DiscountReason discountReason,
+			PromotionalSet promotionalSet) => new OrderItem
+		{
+			Order = order,
+			Count = count,
+			Equipment = null,
+			Nomenclature = nomenclature,
+			Price = price,
+			IsDiscountInMoney = isDiscountInMoney,
+			Discount = discount,
+			DiscountReason = discountReason,
+			PromoSet = promotionalSet
+		};
+
+		internal static OrderItem CreateDeliveryOrderItem(Order order, Nomenclature nomenclature, decimal price) => new OrderItem
+		{
+			Order = order,
+			Count = 1,
+			Nomenclature = nomenclature,
+			Price = price
+		};
 	}
 }

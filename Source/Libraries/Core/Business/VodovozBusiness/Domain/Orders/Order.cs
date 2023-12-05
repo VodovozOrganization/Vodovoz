@@ -34,7 +34,6 @@ using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
@@ -1999,6 +1998,11 @@ namespace Vodovoz.Domain.Orders
 			UpdateContract();
 		}
 
+		public void SetOrderItemCount(int orderItemId, decimal newCount)
+		{
+			ObservableOrderItems.FirstOrDefault(x => x.Id == orderItemId)?.SetCount(newCount);
+		}
+
 		#endregion
 
 		#region Функции
@@ -2282,37 +2286,23 @@ namespace Vodovoz.Domain.Orders
 		public virtual void AddAnyGoodsNomenclatureForSale(Nomenclature nomenclature, bool isChangeOrder = false, int? cnt = null)
 		{
 			var acceptableCategories = Nomenclature.GetCategoriesForSale();
-			if(!acceptableCategories.Contains(nomenclature.Category)) {
+			if(!acceptableCategories.Contains(nomenclature.Category))
+			{
 				return;
 			}
 
 			var count = (nomenclature.Category == NomenclatureCategory.service
-						 || nomenclature.Category == NomenclatureCategory.deposit) && !isChangeOrder ? 1 : 0;
+				|| nomenclature.Category == NomenclatureCategory.deposit) && !isChangeOrder ? 1 : 0;
 
 			if(cnt.HasValue)
+			{
 				count = cnt.Value;
+			}
 
 			var canApplyAlternativePrice = HasPermissionsForAlternativePrice
-			                               && nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= count);
+				&& nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= count);
 
-			var newItem = new OrderItem {
-				Order = this,
-				Count = count,
-				Equipment = null,
-				Nomenclature = nomenclature,
-				Price = nomenclature.GetPrice(1, canApplyAlternativePrice)
-			};
-			AddOrderItem(newItem);
-		}
-
-		public virtual void AddItemWithNomenclatureForSale(OrderItem orderItem)
-		{
-			var acceptableCategories = Nomenclature.GetCategoriesForSale();
-			if(orderItem?.Nomenclature == null || !acceptableCategories.Contains(orderItem.Nomenclature.Category))
-				return;
-
-			orderItem.Order = this;
-			AddOrderItem(orderItem);
+			AddOrderItem(OrderItem.CreateForSale(this, nomenclature, count, nomenclature.GetPrice(1, canApplyAlternativePrice)));
 		}
 
 		/// <summary>
@@ -2329,16 +2319,9 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			var canApplyAlternativePrice = HasPermissionsForAlternativePrice
-			                               && nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= count);
+			    && nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= count);
 
-			var newItem = new OrderItem {
-				Order = this,
-				Count = count,
-				Equipment = null,
-				Nomenclature = nomenclature,
-				Price = nomenclature.GetPrice(1, canApplyAlternativePrice)
-			};
-			AddOrderItem(newItem);
+			AddOrderItem(OrderItem.CreateForSale(this, nomenclature, count, nomenclature.GetPrice(1, canApplyAlternativePrice)));
 
 			if(quantityOfFollowingNomenclatures > 0)
 			{
@@ -2350,16 +2333,20 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual void AddWaterForSale(Nomenclature nomenclature, decimal count, decimal discount = 0, bool discountInMoney = false, DiscountReason reason = null, PromotionalSet proSet = null)
+		public virtual void AddWaterForSale(Nomenclature nomenclature, decimal count, decimal discount = 0, bool isDiscountInMoney = false, DiscountReason reason = null, PromotionalSet proSet = null)
 		{
 			if(nomenclature.Category != NomenclatureCategory.water && !nomenclature.IsDisposableTare)
+			{
 				return;
+			}
 
 			//Если номенклатура промонабора добавляется по фиксе (без скидки), то у нового OrderItem убирается поле discountReason
 			if(proSet != null && discount == 0) {
 				var fixPricedNomenclaturesId = GetNomenclaturesWithFixPrices.Select(n => n.Id);
 				if(fixPricedNomenclaturesId.Contains(nomenclature.Id))
+				{
 					reason = null;
+				}
 			}
 
 			if(discount > 0 && reason == null && proSet == null)
@@ -2369,18 +2356,7 @@ namespace Vodovoz.Domain.Orders
 
 			decimal price = GetWaterPrice(nomenclature, proSet, count);
 
-			var oi = new OrderItem {
-				Order = this,
-				Count = count,
-				Equipment = null,
-				Nomenclature = nomenclature,
-				Price = price,
-				IsDiscountInMoney = discountInMoney,
-				DiscountSetter = discount,
-				DiscountReason = reason,
-				PromoSet = proSet
-			};
-			AddOrderItem(oi);
+			AddOrderItem(OrderItem.CreateForSaleWithDiscount(this, nomenclature, count, price, isDiscountInMoney, discount, reason, proSet));
 		}
 
 		public virtual void AddFlyerNomenclature(Nomenclature flyerNomenclature)
@@ -2492,23 +2468,29 @@ namespace Vodovoz.Domain.Orders
 		public virtual void SetProxyForOrder()
 		{
 			if(Client == null)
+			{
 				return;
+			}
+
 			if(!DeliveryDate.HasValue)
+			{
 				return;
+			}
+
 			if(Client.PersonType != PersonType.legal && PaymentType != PaymentType.Cashless)
+			{
 				return;
+			}
 
 			bool existProxies = Client.Proxies
-									  .Any(
-										p => p.IsActiveProxy(DeliveryDate.Value)
-										&& (
-												p.DeliveryPoints == null || p.DeliveryPoints
-																			 .Any(x => DomainHelper.EqualDomainObjects(x, DeliveryPoint))
-										   )
-									  );
+				.Any(p => p.IsActiveProxy(DeliveryDate.Value)
+						&& (p.DeliveryPoints == null
+							|| p.DeliveryPoints.Any(x => DomainHelper.EqualDomainObjects(x, DeliveryPoint))));
 
 			if(existProxies)
+			{
 				SignatureType = OrderSignatureType.ByProxy;
+			}
 		}
 
 		public virtual bool CalculateDeliveryPrice()
@@ -2517,14 +2499,18 @@ namespace Vodovoz.Domain.Orders
 
 			#region перенести всё это в OrderStateKey
 			bool IsDeliveryForFree = SelfDelivery
-												  || OrderAddressType == OrderAddressType.Service
-												  || DeliveryPoint.AlwaysFreeDelivery
-												  || ObservableOrderItems.Any(n => n.Nomenclature.Category == NomenclatureCategory.spare_parts)
-												  || !ObservableOrderItems.Any(n => n.Nomenclature.Id != PaidDeliveryNomenclatureId) && (BottlesReturn > 0 || ObservableOrderEquipments.Any() || ObservableOrderDepositItems.Any());
+				|| OrderAddressType == OrderAddressType.Service
+				|| DeliveryPoint.AlwaysFreeDelivery
+				|| ObservableOrderItems.Any(n => n.Nomenclature.Category == NomenclatureCategory.spare_parts)
+				|| !ObservableOrderItems.Any(n => n.Nomenclature.Id != PaidDeliveryNomenclatureId) && (BottlesReturn > 0 || ObservableOrderEquipments.Any() || ObservableOrderDepositItems.Any());
 
-			if(IsDeliveryForFree) {
+			if(IsDeliveryForFree)
+			{
 				if(deliveryPriceItem != null)
+				{
 					RemoveOrderItem(deliveryPriceItem);
+				}
+
 				return false;
 			}
 			#endregion
@@ -2535,73 +2521,56 @@ namespace Vodovoz.Domain.Orders
 			var price =
 				district?.GetDeliveryPrice(orderKey, ObservableOrderItems.Sum(x => x.Nomenclature?.OnlineStoreExternalId != null ? x.ActualSum : 0m )) ?? 0m;
 
-			if(price != 0) {
-				if(deliveryPriceItem == null) {
-					deliveryPriceItem = new OrderItem {
-						Nomenclature = UoW.GetById<Nomenclature>(PaidDeliveryNomenclatureId),
-						Order = this
-					};
-					deliveryPriceItem.Price = price;
-					deliveryPriceItem.Count = 1;
+			if(price != 0)
+			{
+				if(deliveryPriceItem == null)
+				{
+					deliveryPriceItem = OrderItem.CreateDeliveryOrderItem(this, UoW.GetById<Nomenclature>(PaidDeliveryNomenclatureId), price);
 
 					var delivery = ObservableOrderItems.SingleOrDefault(x => x.Nomenclature.Id == PaidDeliveryNomenclatureId);
 
-					if (delivery == null) {
+					if(delivery == null)
+					{
 						AddOrderItem(deliveryPriceItem);
 						return true;
 					}
 					else
+					{
 						return false;
-
-				} else if(deliveryPriceItem.Price == price) {
+					}
+				}
+				else if(deliveryPriceItem.Price == price)
+				{
 					return false;
 				}
-				deliveryPriceItem.Price = price;
-				deliveryPriceItem.Count = 1;
+
+				deliveryPriceItem.SetPrice(price);
+
 				return true;
 			}
 
 			if(deliveryPriceItem != null)
+			{
 				RemoveOrderItem(deliveryPriceItem);
+			}
+
 			return false;
 		}
 
 		/// <summary>
 		/// Добавить оборудование из выбранного предыдущего заказа.
+		/// !!! почему оборудование, если номенклатуры? !!!
 		/// </summary>
 		/// <param name="orderItem">Элемент заказа.</param>
 		/// <param name="UoW">IUnitOfWork</param>
 		public virtual void AddNomenclatureForSaleFromPreviousOrder(OrderItem orderItem, IUnitOfWork UoW)
 		{
 			if(orderItem.Nomenclature.Category != NomenclatureCategory.additional)
+			{
 				return;
+			}
 
-			var newItem = new OrderItem {
-				Order = this,
-				Count = orderItem.Count,
-				Nomenclature = orderItem.Nomenclature,
-				Price = orderItem.Price
-			};
-			AddOrderItem(newItem);
-		}
-
-		/// <summary>
-		/// Добавить номенклатуру (не вода и не оборудование из выбранного предыдущего заказа).
-		/// </summary>
-		/// <param name="orderItem">Элемент заказа.</param>
-		public virtual void AddAnyGoodsNomenclatureForSaleFromPreviousOrder(OrderItem orderItem)
-		{
-			if(orderItem.Nomenclature.Category != NomenclatureCategory.additional && orderItem.Nomenclature.Category != NomenclatureCategory.bottle &&
-				orderItem.Nomenclature.Category != NomenclatureCategory.service)
-				return;
-			var newItem = new OrderItem {
-				Order = this,
-				Count = orderItem.Nomenclature.Category == NomenclatureCategory.service ? 1 : 0,
-				Equipment = orderItem.Equipment,
-				Nomenclature = orderItem.Nomenclature,
-				Price = orderItem.Price
-			};
-			AddOrderItem(newItem);
+			AddOrderItem(OrderItem.CreateForSale(this, orderItem.Nomenclature, orderItem.Count, orderItem.Price));
 		}
 
 		public virtual void AddNomenclature(
@@ -2612,7 +2581,6 @@ namespace Vodovoz.Domain.Orders
 			DiscountReason discountReason = null,
 			PromotionalSet proSet = null)
 		{
-			OrderItem oi = null;
 			switch(nomenclature.Category) {
 				case NomenclatureCategory.water:
 					AddWaterForSale(nomenclature, count, discount, discountInMoney, discountReason, proSet);
@@ -2622,17 +2590,17 @@ namespace Vodovoz.Domain.Orders
 					break;
 				default:
 					var canApplyAlternativePrice = HasPermissionsForAlternativePrice && nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= count);
-					oi = new OrderItem {
-						Order = this,
-						Count = count,
-						Nomenclature = nomenclature,
-						Price = nomenclature.GetPrice(1, canApplyAlternativePrice),
-						IsDiscountInMoney = discountInMoney,
-						DiscountSetter = discount,
-						DiscountReason = discountReason,
-						PromoSet = proSet
-					};
-					AddItemWithNomenclatureForSale(oi);
+
+					var orderItem = OrderItem.CreateForSaleWithDiscount(this, nomenclature, count, nomenclature.GetPrice(1, canApplyAlternativePrice), discountInMoney, discount, discountReason, proSet);
+
+					var acceptableCategories = Nomenclature.GetCategoriesForSale();
+					if(orderItem?.Nomenclature == null
+						|| !acceptableCategories.Contains(orderItem.Nomenclature.Category))
+					{
+						return;
+					}
+					AddOrderItem(orderItem);
+
 					break;
 			}
 		}
@@ -2658,13 +2626,18 @@ namespace Vodovoz.Domain.Orders
 
 		private void ObservablePromotionalSets_ElementRemoved(object aList, int[] aIdx, object aObject)
 		{
-			if(aObject is PromotionalSet proSet) {
+			if(aObject is PromotionalSet proSet)
+			{
 				foreach(OrderItem item in ObservableOrderItems)
-					if(item.PromoSet == proSet) {
+				{
+					if(item.PromoSet == proSet)
+					{
 						item.IsUserPrice = false;
 						item.PromoSet = null;
 						item.DiscountReason = null;
 					}
+				}
+
 				RecalculateItemsPrice();
 			}
 		}
@@ -3362,13 +3335,13 @@ namespace Vodovoz.Domain.Orders
 		public virtual void SetActualCountToSelfDelivery()
 		{
 			if(!SelfDelivery || OrderStatus != OrderStatus.Closed)
+			{
 				return;
+			}
 
-			foreach(var item in OrderItems)
-				item.ActualCount = item.Count;
+			ResetOrderItemsActualCounts();
 
-			foreach(var depositItem in OrderDepositItems)
-				depositItem.ActualCount = depositItem.Count;
+			ResetDepositItemsActualCounts();
 		}
 
 		/// <summary>
@@ -3515,8 +3488,12 @@ namespace Vodovoz.Domain.Orders
 		public virtual void SetDepositsActualCounts() //TODO : проверить актуальность метода
 		{
 			if(OrderItems.All(x => x.Nomenclature.Id == 157))
+			{
 				foreach(var oi in orderItems)
-					oi.ActualCount = oi.Count > 0 ? oi.Count : (oi.ActualCount ?? 0);
+				{
+					oi.SetActualCount(oi.Count > 0 ? oi.Count : (oi.ActualCount ?? 0));
+				}
+			}
 		}
 
 		public virtual void AcceptOrder(Employee currentEmployee, ICallTaskWorker callTaskWorker)
@@ -3573,7 +3550,9 @@ namespace Vodovoz.Domain.Orders
 		{
 			//Нельзя редактировать заказ с самовывозом
 			if(SelfDelivery)
+			{
 				return;
+			}
 
 			if(CanSetOrderAsEditable)
 			{
@@ -3645,34 +3624,48 @@ namespace Vodovoz.Domain.Orders
 		private void UpdateSelfDeliveryActualCounts(SelfDeliveryDocument notSavedDocument = null)
 		{
 			var loadedDictionary = new SelfDeliveryRepository().OrderNomenclaturesLoaded(UoW, this);
-			if(notSavedDocument != null && notSavedDocument.Id <= 0) {//если id > 0, то такой документ был учтён при получении словаря из репозитория
-				foreach(var item in notSavedDocument.Items) {
+			if(notSavedDocument != null && notSavedDocument.Id <= 0)
+			{ //если id > 0, то такой документ был учтён при получении словаря из репозитория
+				foreach(var item in notSavedDocument.Items)
+				{
 					if(loadedDictionary.ContainsKey(item.Nomenclature.Id))
+					{
 						loadedDictionary[item.Nomenclature.Id] += item.Amount;
+					}
 					else
+					{
 						loadedDictionary.Add(item.Nomenclature.Id, item.Amount);
+					}
 				}
 			}
 
-			foreach(var item in OrderItems) {
-				if(loadedDictionary.ContainsKey(item.Nomenclature.Id)) {
-					//разбрасываем количества отгруженных по актуальным количествам в позициях заказа.
+			foreach(var item in OrderItems)
+			{
+				if(loadedDictionary.ContainsKey(item.Nomenclature.Id))
+				{ //разбрасываем количества отгруженных по актуальным количествам в позициях заказа.
 					int loadedCnt = (int)loadedDictionary[item.Nomenclature.Id];
-					item.ActualCount = Math.Min(item.Count, loadedCnt);
+					item.SetActualCount(Math.Min(item.Count, loadedCnt));
 					loadedDictionary[item.Nomenclature.Id] -= loadedCnt;
+
 					if(loadedDictionary[item.Nomenclature.Id] <= 0)
+					{
 						loadedDictionary.Remove(item.Nomenclature.Id);
+					}
 				}
 			}
 
-			foreach(var item in OrderEquipments) {
-				if(loadedDictionary.ContainsKey(item.Nomenclature.Id)) {
-					//разбрасываем количества отгруженных по актуальным количествам в позициях заказа.
+			foreach(var item in OrderEquipments)
+			{
+				if(loadedDictionary.ContainsKey(item.Nomenclature.Id))
+				{ //разбрасываем количества отгруженных по актуальным количествам в позициях заказа.
 					int loadedCnt = (int)loadedDictionary[item.Nomenclature.Id];
 					item.ActualCount = Math.Min(item.Count, loadedCnt);
 					loadedDictionary[item.Nomenclature.Id] -= loadedCnt;
+
 					if(loadedDictionary[item.Nomenclature.Id] <= 0)
+					{
 						loadedDictionary.Remove(item.Nomenclature.Id);
+					}
 				}
 			}
 		}
@@ -3709,7 +3702,6 @@ namespace Vodovoz.Domain.Orders
 			return ValidationResult.Success;
 		}
 
-
 		/// <summary>
 		/// Проверка на наличие воды по умолчанию в заказе для выбранной точки доставки и выдача сообщения о возможном штрафе
 		/// </summary>
@@ -3721,9 +3713,12 @@ namespace Vodovoz.Domain.Orders
 		/// <c>null</c> если данных для проверки не достаточно</returns>
 		public virtual bool? DefaultWaterCheck(IInteractiveService interactiveService)
 		{
-			var res = IsWrongWater(out string title, out string message);
+			var res = IsWrongWater(out _, out string message);
 			if(res == true)
+			{
 				return interactiveService.Question(message);
+			}
+
 			return !res;
 		}
 
@@ -3957,8 +3952,9 @@ namespace Vodovoz.Domain.Orders
 				return;
 
 			foreach(OrderItem item in OrderItems)
-				if(!item.ActualCount.HasValue)
-					item.ActualCount = item.Count;
+			{
+				item.PreserveActualCount();
+			}
 
 			int? forfeitQuantity = null;
 
@@ -4393,7 +4389,8 @@ namespace Vodovoz.Domain.Orders
 					item.OriginalDiscount = item.Discount > 0 ? (decimal?)item.Discount : null;
 					item.OriginalDiscountReason = (item.DiscountMoney > 0 || item.Discount > 0) ? item.DiscountReason : null;
 				}
-				item.ActualCount = 0m;
+
+				item.SetActualCountZero();
 			}
 
 			foreach(var equip in OrderEquipments)
@@ -4411,17 +4408,9 @@ namespace Vodovoz.Domain.Orders
 		{
 			foreach(var item in OrderItems)
 			{
-				if(item.OriginalDiscountMoney.HasValue || item.OriginalDiscount.HasValue)
-				{
-					item.DiscountMoney = item.OriginalDiscountMoney ?? 0;
-					item.DiscountReason = item.OriginalDiscountReason;
-					item.Discount = item.OriginalDiscount ?? 0;
-					item.OriginalDiscountMoney = null;
-					item.OriginalDiscountReason = null;
-					item.OriginalDiscount = null;
-				}
-				item.ActualCount = null;
+				item.RestoreOriginalDiscount();
 			}
+
 			foreach(var equip in OrderEquipments)
 			{
 				equip.ActualCount = null;
@@ -4432,7 +4421,6 @@ namespace Vodovoz.Domain.Orders
 				deposit.ActualCount = null;
 			}
 		}
-
 
 		/// <summary>
 		/// Возвращает список со всеми товарами, которые нужно доставить клиенту
@@ -4544,13 +4532,13 @@ namespace Vodovoz.Domain.Orders
 		{
 			OrderItem orderRentDepositItem = GetExistingNonFreeRentDepositItem(paidRentPackage);
 			if(orderRentDepositItem == null) {
-				orderRentDepositItem = CreateNewNonFreeRentDepositItem(paidRentPackage);
+				orderRentDepositItem = OrderItem.CreateNewNonFreeRentDepositItem(this, paidRentPackage);
 				AddOrderItem(orderRentDepositItem);
 			}
 
 			OrderItem orderRentServiceItem = GetExistingNonFreeRentServiceItem(paidRentPackage);
 			if(orderRentServiceItem == null) {
-				orderRentServiceItem = CreateNewNonFreeRentServiceItem(paidRentPackage);
+				orderRentServiceItem = OrderItem.CreateNewNonFreeRentServiceItem(this, paidRentPackage);
 				AddOrderItem(orderRentServiceItem);
 			}
 
@@ -4578,20 +4566,6 @@ namespace Vodovoz.Domain.Orders
 			return orderRentDepositItem;
 		}
 
-		private OrderItem CreateNewNonFreeRentDepositItem(PaidRentPackage paidRentPackage)
-		{
-			OrderItem orderRentDepositItem = new OrderItem {
-				Order = this,
-				Count = 1,
-				RentType = OrderRentType.NonFreeRent,
-				OrderItemRentSubType = OrderItemRentSubType.RentDepositItem,
-				PaidRentPackage = paidRentPackage,
-				Price = paidRentPackage.Deposit,
-				Nomenclature = paidRentPackage.DepositService
-			};
-			return orderRentDepositItem;
-		}
-
 		private OrderItem GetExistingNonFreeRentServiceItem(PaidRentPackage paidRentPackage)
 		{
 			OrderItem orderRentServiceItem = OrderItems
@@ -4599,21 +4573,6 @@ namespace Vodovoz.Domain.Orders
 				.Where(x => x.RentType == OrderRentType.NonFreeRent)
 				.Where(x => x.OrderItemRentSubType == OrderItemRentSubType.RentServiceItem)
 				.FirstOrDefault();
-			return orderRentServiceItem;
-		}
-
-		private OrderItem CreateNewNonFreeRentServiceItem(PaidRentPackage paidRentPackage)
-		{
-			OrderItem orderRentServiceItem = new OrderItem {
-				Order = this,
-				Count = 1,
-				RentCount = 1,
-				RentType = OrderRentType.NonFreeRent,
-				OrderItemRentSubType = OrderItemRentSubType.RentServiceItem,
-				PaidRentPackage = paidRentPackage,
-				Price = paidRentPackage.PriceMonthly,
-				Nomenclature = paidRentPackage.RentServiceMonthly
-			};
 			return orderRentServiceItem;
 		}
 
@@ -4625,13 +4584,13 @@ namespace Vodovoz.Domain.Orders
 		{
 			OrderItem orderRentDepositItem = GetExistingDailyRentDepositItem(paidRentPackage);
 			if(orderRentDepositItem == null) {
-				orderRentDepositItem = CreateNewDailyRentDepositItem(paidRentPackage);
+				orderRentDepositItem = OrderItem.CreateNewDailyRentDepositItem(this, paidRentPackage);
 				AddOrderItem(orderRentDepositItem);
 			}
 
 			OrderItem orderRentServiceItem = GetExistingDailyRentServiceItem(paidRentPackage);
 			if(orderRentServiceItem == null) {
-				orderRentServiceItem = CreateNewDailyRentServiceItem(paidRentPackage);
+				orderRentServiceItem = OrderItem.CreateNewDailyRentServiceItem(this, paidRentPackage);
 				AddOrderItem(orderRentServiceItem);
 			}
 
@@ -4659,20 +4618,6 @@ namespace Vodovoz.Domain.Orders
 			return orderRentDepositItem;
 		}
 
-		private OrderItem CreateNewDailyRentDepositItem(PaidRentPackage paidRentPackage)
-		{
-			OrderItem orderRentDepositItem = new OrderItem {
-				Order = this,
-				Count = 1,
-				RentType = OrderRentType.DailyRent,
-				OrderItemRentSubType = OrderItemRentSubType.RentDepositItem,
-				PaidRentPackage = paidRentPackage,
-				Price = paidRentPackage.Deposit,
-				Nomenclature = paidRentPackage.DepositService
-			};
-			return orderRentDepositItem;
-		}
-
 		private OrderItem GetExistingDailyRentServiceItem(PaidRentPackage paidRentPackage)
 		{
 			OrderItem orderRentServiceItem = OrderItems
@@ -4680,21 +4625,6 @@ namespace Vodovoz.Domain.Orders
 				.Where(x => x.RentType == OrderRentType.DailyRent)
 				.Where(x => x.OrderItemRentSubType == OrderItemRentSubType.RentServiceItem)
 				.FirstOrDefault();
-			return orderRentServiceItem;
-		}
-
-		private OrderItem CreateNewDailyRentServiceItem(PaidRentPackage paidRentPackage)
-		{
-			OrderItem orderRentServiceItem = new OrderItem {
-				Order = this,
-				Count = 1,
-				RentCount = 1,
-				RentType = OrderRentType.DailyRent,
-				OrderItemRentSubType = OrderItemRentSubType.RentServiceItem,
-				PaidRentPackage = paidRentPackage,
-				Price = paidRentPackage.PriceDaily,
-				Nomenclature = paidRentPackage.RentServiceDaily
-			};
 			return orderRentServiceItem;
 		}
 
@@ -4706,7 +4636,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			OrderItem orderRentDepositItem = GetExistingFreeRentDepositItem(freeRentPackage);
 			if(orderRentDepositItem == null) {
-				orderRentDepositItem = CreateNewFreeRentDepositItem(freeRentPackage);
+				orderRentDepositItem = OrderItem.CreateNewFreeRentDepositItem(this, freeRentPackage);
 				AddOrderItem(orderRentDepositItem);
 			}
 
@@ -4731,20 +4661,6 @@ namespace Vodovoz.Domain.Orders
 				.Where(x => x.RentType == OrderRentType.FreeRent)
 				.Where(x => x.OrderItemRentSubType == OrderItemRentSubType.RentDepositItem)
 				.FirstOrDefault();
-			return orderRentDepositItem;
-		}
-
-		private OrderItem CreateNewFreeRentDepositItem(FreeRentPackage freeRentPackage)
-		{
-			OrderItem orderRentDepositItem = new OrderItem {
-				Order = this,
-				Count = 1,
-				RentType = OrderRentType.FreeRent,
-				OrderItemRentSubType = OrderItemRentSubType.RentDepositItem,
-				FreeRentPackage = freeRentPackage,
-				Price = freeRentPackage.Deposit,
-				Nomenclature = freeRentPackage.DepositService
-			};
 			return orderRentDepositItem;
 		}
 
@@ -5106,16 +5022,9 @@ namespace Vodovoz.Domain.Orders
 			if(IsFastDelivery && orderItems.All(x => x.Nomenclature.Id != FastDeliveryNomenclature.Id))
 			{
 				var canApplyAlternativePrice = HasPermissionsForAlternativePrice
-				                               && FastDeliveryNomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= 1);
-				var fastDeliveryItemToAdd = new OrderItem
-				{
-					Order = this,
-					Nomenclature = FastDeliveryNomenclature,
-					Count = 1,
-					Price = FastDeliveryNomenclature.GetPrice(1, canApplyAlternativePrice)
-				};
+					&& FastDeliveryNomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= 1);
 
-				AddOrderItem(fastDeliveryItemToAdd);
+				AddOrderItem(OrderItem.CreateForSale(this, FastDeliveryNomenclature, 1, FastDeliveryNomenclature.GetPrice(1, canApplyAlternativePrice)));
 			}
 		}
 
@@ -5125,6 +5034,22 @@ namespace Vodovoz.Domain.Orders
 					ObservableOrderItems.SingleOrDefault(x => x.Nomenclature.Id == FastDeliveryNomenclature.Id);
 
 			RemoveOrderItem(fastDeliveryItemToRemove);
+		}
+
+		public void ResetOrderItemsActualCounts()
+		{
+			foreach(var orderItem in ObservableOrderItems)
+			{
+				orderItem.PreserveActualCount(true);
+			}
+		}
+
+		private void ResetDepositItemsActualCounts()
+		{
+			foreach(var depositItem in OrderDepositItems)
+			{
+				depositItem.ActualCount = depositItem.Count;
+			}
 		}
 
 		#endregion
