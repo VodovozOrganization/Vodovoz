@@ -1,4 +1,4 @@
-using NHibernate;
+﻿using NHibernate;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
@@ -58,7 +58,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual Order Order
 		{
 			get => _order;
-			set
+			private set
 			{
 				if(SetField(ref _order, value))
 				{
@@ -71,7 +71,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual Nomenclature Nomenclature
 		{
 			get => _nomenclature;
-			set
+			private set
 			{
 				if(SetField(ref _nomenclature, value))
 				{
@@ -91,7 +91,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual decimal Price
 		{
 			get => _price;
-			set
+			private set
 			{
 				//Если цена не отличается от той которая должна быть по прайсам в 
 				//номенклатуре, то цена не изменена пользователем и сможет расчитываться автоматически
@@ -120,7 +120,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual decimal Count
 		{
 			get => _count;
-			set
+			private set
 			{
 				if(Nomenclature?.Unit?.Digits == 0 && value % 1 != 0)
 				{
@@ -140,7 +140,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual decimal? ActualCount
 		{
 			get => _actualCount;
-			set
+			private set
 			{
 				if(SetField(ref _actualCount, value))
 				{
@@ -161,7 +161,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual bool IsDiscountInMoney
 		{
 			get => _isDiscountInMoney;
-			set
+			private set
 			{
 				if(SetField(ref _isDiscountInMoney, value))
 				{
@@ -174,7 +174,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual decimal Discount
 		{
 			get => _discount;
-			set
+			private set
 			{
 				if(value != _discount && value == 0)
 				{
@@ -198,7 +198,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual decimal DiscountMoney
 		{
 			get => _discountMoney;
-			set
+			private set
 			{
 				if(value != _discountMoney && value == 0)
 				{
@@ -294,7 +294,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual int RentCount
 		{
 			get => _rentCount;
-			set
+			private set
 			{
 				if(SetField(ref _rentCount, value))
 				{
@@ -351,7 +351,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual decimal ManualChangingDiscount
 		{
 			get => IsDiscountInMoney ? DiscountMoney : Discount;
-			set
+			private set
 			{
 				CalculateAndSetDiscount(value);
 				if(DiscountByStock != 0)

@@ -755,8 +755,6 @@
     <Compile Include="Models\NomenclaturePurchasePriceModel.cs" />
     <Compile Include="Models\Orders\CopyingOrder.cs" />
     <Compile Include="Models\Orders\OrderCopyModel.cs" />
-    <Compile Include="Models\Orders\RoboatsOrderArgs.cs" />
-    <Compile Include="Models\Orders\RoboatsOrderModel.cs" />
     <Compile Include="Models\Orders\RoboAtsOrderPayment.cs" />
     <Compile Include="Models\Orders\RoboatsWaterInfo.cs" />
     <Compile Include="Models\PremiumRaskatGAZelleWageModel.cs" />

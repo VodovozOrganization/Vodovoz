@@ -40,6 +40,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using Vodovoz.Additions.Printing;
+using Vodovoz.Application.Orders.Services;
 using Vodovoz.Controllers;
 using Vodovoz.Core;
 using Vodovoz.Core.DataService;
@@ -154,6 +155,8 @@ namespace Vodovoz
 			new DriverApiParametersProvider(_parametersProvider);
 
 		private static readonly IDeliveryRepository _deliveryRepository = new DeliveryRepository();
+
+		private IOrderService _orderService;
 
 		private string _lastDeliveryPointComment;
 
@@ -533,6 +536,7 @@ namespace Vodovoz
 
 		public void ConfigureDlg()
 		{
+			_orderService = _lifetimeScope.Resolve<IOrderService>();
 			NavigationManager = Startup.MainWin.NavigationManager;
 			_selectPaymentTypeViewModel = new SelectPaymentTypeViewModel(NavigationManager);
 			_lastDeliveryPointComment = Entity.DeliveryPoint?.Comment.Trim('\n').Trim(' ') ?? string.Empty;
@@ -2501,8 +2505,7 @@ namespace Vodovoz
 		/// </summary>
 		private void OnFormOrderActions()
 		{
-			//проверка и добавление платной доставки в товары
-			Entity.CalculateDeliveryPrice();
+			_orderService.UpdateDeliveryCost(UoW, Entity);
 		}
 
 		/// <summary>
