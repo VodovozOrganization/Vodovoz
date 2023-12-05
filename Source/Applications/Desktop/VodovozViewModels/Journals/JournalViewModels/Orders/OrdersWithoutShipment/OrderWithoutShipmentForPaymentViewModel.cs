@@ -1,4 +1,5 @@
-﻿using Gamma.Utilities;
+﻿using FluentNHibernate.Conventions;
+using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using NHibernate.Criterion;
 using NHibernate.Transform;
@@ -323,7 +324,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 		public override bool Save(bool close)
 		{
-			if(!Entity.IsBillWithoutShipmentSent && Entity.Id == 0 && IsSendBillByEdo)
+			if(!Entity.IsBillWithoutShipmentSent && !EdoContainers.Any() && Entity.Id == 0 && IsSendBillByEdo)
 			{
 				SendBillByEdo(UoW);
 			}
