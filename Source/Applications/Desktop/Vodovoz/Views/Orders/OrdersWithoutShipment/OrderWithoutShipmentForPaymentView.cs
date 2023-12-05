@@ -119,6 +119,9 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 				CustomizeSendDocumentAgainButton();
 			};
 
+			ybuttonSendDocumentAgain.Visible = ViewModel.CanResendEdoBill;
+			ybuttonSendDocumentAgain.Clicked += ViewModel.OnButtonSendDocumentAgainClicked;
+
 			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
 
 			UpdateContainersVisibility();

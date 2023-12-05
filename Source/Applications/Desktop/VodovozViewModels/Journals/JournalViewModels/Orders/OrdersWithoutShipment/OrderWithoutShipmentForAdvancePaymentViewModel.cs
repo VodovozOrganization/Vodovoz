@@ -83,6 +83,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			bool canCreateBillsWithoutShipment =
 				CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_bills_without_shipment");
 
+			CanResendEdoBill = CommonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Permissions.EdoContainer.OrderWithoutShipmentForDebt.CanResendEdoBill, CurrentUser.Id);
+
 			CanChangeDiscountValue = CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_direct_discount_value");
 
 			var currentEmployee = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
@@ -248,6 +250,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 		public IList<DiscountReason> DiscountReasons { get; private set; }
 		public IOrderDiscountsController DiscountsController { get; }
+
 		public bool CanChangeDiscountValue { get; }
 
 		#region Commands
@@ -266,6 +269,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 		public GenericObservableList<EdoContainer> EdoContainers { get; } =
 			new GenericObservableList<EdoContainer>();
+
+		public bool CanResendEdoBill { get; }
 
 		private void OnEntityPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
@@ -316,22 +321,40 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 		private void SendBillByEdo(IUnitOfWork uow)
 		{
-			var edoContainer = EdoContainers
-				.SingleOrDefault(x => x.Type == EdoDocumentType.BillWSForAdvancePayment)
-					?? new EdoContainer
-					{
-						Type = EdoDocumentType.BillWSForAdvancePayment,
-						Created = DateTime.Now,
-						Container = new byte[64],
-						OrderWithoutShipmentForAdvancePayment = Entity,
-						Counterparty = Entity.Counterparty,
-						MainDocumentId = string.Empty,
-						EdoDocFlowStatus = EdoDocFlowStatus.PreparingToSend
-					};
+			var edoContainer = new EdoContainer
+			{
+				Type = EdoDocumentType.BillWSForAdvancePayment,
+				Created = DateTime.Now,
+				Container = new byte[64],
+				OrderWithoutShipmentForAdvancePayment = Entity,
+				Counterparty = Entity.Counterparty,
+				MainDocumentId = string.Empty,
+				EdoDocFlowStatus = EdoDocFlowStatus.PreparingToSend
+			};
 
 			uow.Save();
 			uow.Save(edoContainer);
 			uow.Commit();
+		}
+
+		public void OnButtonSendDocumentAgainClicked(object sender, EventArgs e)
+		{
+			if(EdoContainers.Any(x => x.EdoDocFlowStatus == EdoDocFlowStatus.Succeed))
+			{
+				if(!CommonServices.InteractiveService.Question("Для данного заказа имеется документ со статусом \"Документооборот завершен успешно\".\nВы уверены, что хотите отправить дубль?"))
+				{
+					return;
+				}
+			}
+			else if(EdoContainers.Any(x => x.EdoDocFlowStatus == EdoDocFlowStatus.InProgress))
+			{
+				if(!CommonServices.InteractiveService.Question("Для данного заказа имеется документ со статусом \"В процессе\".\nВы уверены, что хотите отправить дубль?"))
+				{
+					return;
+				}
+			}
+
+			SendBillByEdo(UoW);
 		}
 
 		public void UpdateEdoContainers()

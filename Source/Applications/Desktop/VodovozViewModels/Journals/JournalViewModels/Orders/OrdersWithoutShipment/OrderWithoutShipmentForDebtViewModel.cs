@@ -60,6 +60,9 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 			bool canCreateBillsWithoutShipment =
 				CommonServices.PermissionService.ValidateUserPresetPermission("can_create_bills_without_shipment", CurrentUser.Id);
+
+			CanResendEdoBill = CommonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Permissions.EdoContainer.OrderWithoutShipmentForDebt.CanResendEdoBill, CurrentUser.Id);
+
 			var currentEmployee = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
 
 			if(uowBuilder.IsNewEntity)
@@ -170,22 +173,40 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 		private void SendBillByEdo(IUnitOfWork uow)
 		{
-			var edoContainer = EdoContainers
-				.SingleOrDefault(x => x.Type == EdoDocumentType.BillWSForDebt)
-					?? new EdoContainer
-					{
-						Type = EdoDocumentType.BillWSForDebt,
-						Created = DateTime.Now,
-						Container = new byte[64],
-						OrderWithoutShipmentForDebt = Entity,
-						Counterparty = Entity.Counterparty,
-						MainDocumentId = string.Empty,
-						EdoDocFlowStatus = EdoDocFlowStatus.PreparingToSend
-					};
+			var edoContainer = new EdoContainer
+			{
+				Type = EdoDocumentType.BillWSForDebt,
+				Created = DateTime.Now,
+				Container = new byte[64],
+				OrderWithoutShipmentForDebt = Entity,
+				Counterparty = Entity.Counterparty,
+				MainDocumentId = string.Empty,
+				EdoDocFlowStatus = EdoDocFlowStatus.PreparingToSend
+			};
 
 			uow.Save();
 			uow.Save(edoContainer);
 			uow.Commit();
+		}
+
+		public void OnButtonSendDocumentAgainClicked(object sender, EventArgs e)
+		{
+			if(EdoContainers.Any(x => x.EdoDocFlowStatus == EdoDocFlowStatus.Succeed))
+			{
+				if(!CommonServices.InteractiveService.Question("Для данного заказа имеется документ со статусом \"Документооборот завершен успешно\".\nВы уверены, что хотите отправить дубль?"))
+				{
+					return;
+				}
+			}
+			else if(EdoContainers.Any(x => x.EdoDocFlowStatus == EdoDocFlowStatus.InProgress))
+			{
+				if(!CommonServices.InteractiveService.Question("Для данного заказа имеется документ со статусом \"В процессе\".\nВы уверены, что хотите отправить дубль?"))
+				{
+					return;
+				}
+			}
+
+			SendBillByEdo(UoW);
 		}
 
 		public void UpdateEdoContainers()
@@ -205,6 +226,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 		public GenericObservableList<EdoContainer> EdoContainers { get; } =
 			new GenericObservableList<EdoContainer>();
+
+		public bool CanResendEdoBill { get; }
 
 		public void OnTabAdded()
 		{

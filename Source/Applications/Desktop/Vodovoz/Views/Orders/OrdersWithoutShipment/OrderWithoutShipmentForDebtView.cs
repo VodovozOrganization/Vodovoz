@@ -103,6 +103,9 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 				CustomizeSendDocumentAgainButton();
 			};
 
+			ybuttonSendDocumentAgain.Visible = ViewModel.CanResendEdoBill;
+			ybuttonSendDocumentAgain.Clicked += ViewModel.OnButtonSendDocumentAgainClicked;
+
 			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
 
 			UpdateContainersVisibility();
@@ -129,20 +132,6 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 				ybuttonSendDocumentAgain.Sensitive = false;
 				ybuttonSendDocumentAgain.Label = "Отправить повторно";
 				return;
-			}
-
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
-			{
-				var resendUpdAction = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
-					.Where(x => x.Order.Id == ViewModel.Entity.Id)
-					.FirstOrDefault();
-
-				if(resendUpdAction != null && resendUpdAction.IsNeedToResendEdoUpd)
-				{
-					ybuttonSendDocumentAgain.Sensitive = false;
-					ybuttonSendDocumentAgain.Label = "Идет подготовка УПД";
-					return;
-				}
 			}
 
 			ybuttonSendDocumentAgain.Label = "Отправить повторно";

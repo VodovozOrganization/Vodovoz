@@ -828,6 +828,10 @@
     <Compile Include="Permissions\Counterparty.cs" />
     <Compile Include="Permissions\Documents.cs" />
     <Compile Include="Permissions\Documents.MovementDocument.cs" />
+    <Compile Include="Permissions\EdoContainer.cs" />
+    <Compile Include="Permissions\EdoContainer.OrderWithoutShipmentForAdvancePayment.cs" />
+    <Compile Include="Permissions\EdoContainer.OrderWithoutShipmentForDebt.cs" />
+    <Compile Include="Permissions\EdoContainer.OrderWithoutShipmentForPaymen.cs" />
     <Compile Include="Permissions\Email.cs" />
     <Compile Include="Permissions\Order.CashReceipt.cs" />
     <Compile Include="Permissions\Order.cs" />
