@@ -1,12 +1,10 @@
 ﻿using Gamma.ColumnConfig;
 using Gtk;
-using QS.DomainModel.UoW;
 using QS.Views.GtkUI;
 using System;
 using System.ComponentModel;
 using System.Linq;
 using Vodovoz.Dialogs.Email;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
