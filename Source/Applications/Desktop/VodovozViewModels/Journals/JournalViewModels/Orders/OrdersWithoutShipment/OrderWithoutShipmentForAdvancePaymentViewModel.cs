@@ -190,6 +190,23 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			OpenBillCommand = new DelegateCommand(
 				() =>
 				{
+					if(IsSendBillByEdo)
+					{
+						if(commonServices.InteractiveService.Question(
+							"Была выбрана отправка счета по ЭДО, при сохранении будет отравлен счет.\n" +
+							"Снять галочку и открыть счет?\n" +
+							"\n" +
+							"При нажатии Нет, будет отменено открытие счета",
+							"Предотвращение случайной отправки по ЭДО"))
+						{
+							IsSendBillByEdo = false;
+						}
+						else
+						{
+							return;
+						}
+					}
+
 					string whatToPrint = "документа \"" + Entity.Type.GetEnumTitle() + "\"";
 
 					if(UoWGeneric.HasChanges && _commonMessages.SaveBeforePrint(typeof(OrderWithoutShipmentForAdvancePayment), whatToPrint))
