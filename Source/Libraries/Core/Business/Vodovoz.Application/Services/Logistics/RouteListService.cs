@@ -911,7 +911,7 @@ namespace Vodovoz.Application.Services.Logistics
 						}
 						else
 						{
-							SendEnRoute(unitOfWork, routeList.Id);
+							SendEnRoute(unitOfWork, routeList);
 						}
 					}
 					else
@@ -920,6 +920,10 @@ namespace Vodovoz.Application.Services.Logistics
 					}
 				}
 			}
+
+			unitOfWork.Session.Flush();
+			_routeListProfitabilityController.ReCalculateRouteListProfitability(unitOfWork, routeList);
+			unitOfWork.Save(routeList.RouteListProfitability);
 
 			return Result.Success(RouteListAcceptStatus.Accepted);
 		}
@@ -938,6 +942,10 @@ namespace Vodovoz.Application.Services.Logistics
 			else
 			{
 				routeList.ChangeStatusAndCreateTask(RouteListStatus.New, _callTaskWorker);
+
+				unitOfWork.Session.Flush();
+				_routeListProfitabilityController.ReCalculateRouteListProfitability(unitOfWork, routeList);
+				unitOfWork.Save(routeList.RouteListProfitability);
 
 				return Result.Success(RouteListAcceptStatus.New);
 			}
