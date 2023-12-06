@@ -83,8 +83,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			bool canCreateBillsWithoutShipment =
 				CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_bills_without_shipment");
 
-			CanResendEdoBill = CommonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Permissions.EdoContainer.OrderWithoutShipmentForDebt.CanResendEdoBill, CurrentUser.Id);
-
 			CanChangeDiscountValue = CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_direct_discount_value");
 
 			var currentEmployee = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
@@ -126,6 +124,9 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			FillDiscountReasons(discountReasonRepository);
 
 			UpdateEdoContainers();
+
+			CanResendEdoBill = CommonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Permissions.EdoContainer.OrderWithoutShipmentForDebt.CanResendEdoBill, CurrentUser.Id)
+				&& EdoContainers.Any();
 
 			AddForSaleCommand = new DelegateCommand(
 				() =>

@@ -61,8 +61,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			bool canCreateBillsWithoutShipment =
 				CommonServices.PermissionService.ValidateUserPresetPermission("can_create_bills_without_shipment", CurrentUser.Id);
 
-			CanResendEdoBill = CommonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Permissions.EdoContainer.OrderWithoutShipmentForDebt.CanResendEdoBill, CurrentUser.Id);
-
 			var currentEmployee = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
 
 			if(uowBuilder.IsNewEntity)
@@ -102,6 +100,9 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			CanSendBillByEdo = false;
 
 			UpdateEdoContainers();
+
+			CanResendEdoBill = CommonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Permissions.EdoContainer.OrderWithoutShipmentForDebt.CanResendEdoBill, CurrentUser.Id)
+				&& EdoContainers.Any();
 
 			CancelCommand = new DelegateCommand(
 				() => Close(true, CloseSource.Cancel),
