@@ -13,6 +13,7 @@ using QS.Services;
 using System;
 using System.Globalization;
 using System.Linq;
+using DateTimeHelpers;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -242,8 +243,9 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.DeliveryDate >= FilterViewModel.StartDate);
 			}
 
-			if(FilterViewModel.EndDate != null) {
-				query.Where(o => o.DeliveryDate <= FilterViewModel.EndDate.Value.AddDays(1).AddTicks(-1));
+			var endDate = FilterViewModel.EndDate;
+			if(endDate != null) {
+				query.Where(o => o.DeliveryDate <= endDate.Value.LatestDayTime());
 			}
 
 			if(FilterViewModel.RestrictLessThreeHours == true) {
@@ -459,8 +461,9 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.CreateDate >= FilterViewModel.StartDate);
 			}
 
-			if(FilterViewModel.EndDate != null) {
-				query.Where(o => o.CreateDate <= FilterViewModel.EndDate.Value.AddDays(1).AddTicks(-1));
+			var endDate = FilterViewModel.EndDate;
+			if(endDate != null) {
+				query.Where(o => o.CreateDate <= endDate.Value.LatestDayTime());
 			}
 			
 			if(FilterViewModel.RestrictCounterparty != null) {
@@ -594,8 +597,9 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.CreateDate >= FilterViewModel.StartDate);
 			}
 
-			if(FilterViewModel.EndDate != null) {
-				query.Where(o => o.CreateDate <= FilterViewModel.EndDate.Value.AddDays(1).AddTicks(-1));
+			var endDate = FilterViewModel.EndDate;
+			if(endDate != null) {
+				query.Where(o => o.CreateDate <= endDate.Value.LatestDayTime());
 			}
 
 			if(FilterViewModel.RestrictCounterparty != null) {
@@ -753,8 +757,9 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.CreateDate >= FilterViewModel.StartDate);
 			}
 
-			if(FilterViewModel.EndDate != null) {
-				query.Where(o => o.CreateDate <= FilterViewModel.EndDate.Value.AddDays(1).AddTicks(-1));
+			var endDate = FilterViewModel.EndDate;
+			if(endDate != null) {
+				query.Where(o => o.CreateDate <= endDate.Value.LatestDayTime());
 			}
 			
 			if(FilterViewModel.RestrictCounterparty != null) {

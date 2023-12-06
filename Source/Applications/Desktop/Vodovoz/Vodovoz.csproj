@@ -1979,6 +1979,10 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Client.CounterpartyClassification.CounterpartyClassificationCalculationView.cs" />
     <Compile Include="Views\Client\CounterpartyClassification\CounterpartyClassificationCalculationEmailSettingsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Client.CounterpartyClassification.CounterpartyClassificationCalculationEmailSettingsView.cs" />
+    <Compile Include="Views\SelectPaymentTypeWindowView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.SelectPaymentTypeWindowView.cs" />
+    <Compile Include="Filters\GtkViews\GeoGroupJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.GeoGroupJournalFilterView.cs" />
     <Compile Include="Views\Goods\NomenclatureOnlineCatalogView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclatureOnlineCatalogView.cs" />
     <Compile Include="Views\Goods\NomenclatureOnlineGroupView.cs" />
@@ -1989,7 +1993,6 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="ViewModels\Goods\" />
-    <Folder Include="Views\Client\CounterpartyClassification\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">

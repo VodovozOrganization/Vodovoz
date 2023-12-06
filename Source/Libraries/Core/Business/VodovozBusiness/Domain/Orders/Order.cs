@@ -28,11 +28,13 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
@@ -116,6 +118,7 @@ namespace Vodovoz.Domain.Orders
 		private Employee _commentOPManagerChangedBy;
 		private bool? _canCreateOrderInAdvance;
 		private int? counterpartyExternalOrderId;
+		private GeoGroup _selfDeliveryGeoGroup;
 
 		private int? _callBeforeArrivalMinutes;
 
@@ -1191,6 +1194,13 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _ourOrganization, value);
 		}
 
+		[Display(Name = "Район города склада самовывоза")]
+		public virtual GeoGroup SelfDeliveryGeoGroup
+		{
+			get => _selfDeliveryGeoGroup;
+			set => SetField(ref _selfDeliveryGeoGroup, value);
+		}
+
 		public Order()
 		{
 			Comment = string.Empty;
@@ -1467,6 +1477,14 @@ namespace Vodovoz.Domain.Orders
 				);
 			}
 
+			if(SelfDelivery && SelfDeliveryGeoGroup == null)
+			{
+				yield return new ValidationResult(
+					"Для заказов с самовывозом обязательно указание района города",
+					new[] { this.GetPropertyName(o => o.SelfDeliveryGeoGroup) }
+				);
+			}
+
 			if(IsFastDelivery)
 			{
 				AddFastDeliveryNomenclatureIfNeeded();
@@ -1585,6 +1603,27 @@ namespace Vodovoz.Domain.Orders
 				if(incorrectReceiptItems.Any())
 				{
 					yield return new ValidationResult(string.Join("\n", incorrectReceiptItems));
+				}
+			}
+
+			#endregion
+
+			#region Проверка соответствия точки доставки выбранному контрагенту
+
+			if(Client != null && DeliveryPoint != null)
+			{
+				using (var uow = UnitOfWorkFactory.CreateWithoutRoot("Проверка соответствия точки доставки контрагенту"))
+				{
+					var clientDeliveryPointsIds = uow.GetAll<DeliveryPoint>()
+						.Where(d => d.Counterparty.Id == Client.Id)
+						.Select(d => d.Id)
+						.ToList();
+
+					if(!clientDeliveryPointsIds.Any(x => x == DeliveryPoint.Id))
+					{
+						yield return new ValidationResult($"Среди точек доставок выбранного контрагента указанная точка доставки не найдена",
+							new[] { nameof(DeliveryPoint) });
+					}
 				}
 			}
 
@@ -4405,10 +4444,12 @@ namespace Vodovoz.Domain.Orders
 
 			foreach(var orderItem in OrderItems.Where(x => Nomenclature.GetCategoriesForShipment().Contains(x.Nomenclature.Category)))
 			{
+				var amount = isActualCount && orderItem.ActualCount.HasValue ? orderItem.ActualCount.Value : orderItem.Count;
+
 				var found = result.FirstOrDefault(x => x.NomenclatureId == orderItem.Nomenclature.Id);
 				if(found != null)
 				{
-					found.Amount += isActualCount && orderItem.ActualCount.HasValue ? orderItem.ActualCount.Value : orderItem.Count;
+					found.Amount += amount;
 				}
 				else
 				{
@@ -4416,18 +4457,20 @@ namespace Vodovoz.Domain.Orders
 					{
 						NomenclatureId = orderItem.Nomenclature.Id,
 						Nomenclature = orderItem.Nomenclature,
-						Amount = isActualCount && orderItem.ActualCount.HasValue ? orderItem.ActualCount.Value : orderItem.Count
-					});
+						Amount = amount
+				});
 				}
 			}
 
 			foreach(var equipment in OrderEquipments.Where(x => x.Direction == Direction.Deliver
 						&& Nomenclature.GetCategoriesForShipment().Contains(x.Nomenclature.Category)))
 			{
+				var amount = isActualCount && equipment.ActualCount.HasValue ? equipment.ActualCount.Value : equipment.Count;
+
 				var found = result.FirstOrDefault(x => x.NomenclatureId == equipment.Nomenclature.Id);
 				if(found != null)
 				{
-					found.Amount += isActualCount && equipment.ActualCount.HasValue ? equipment.ActualCount.Value : equipment.Count;
+					found.Amount += amount;
 				}
 				else
 				{
@@ -4435,7 +4478,7 @@ namespace Vodovoz.Domain.Orders
 					{
 						NomenclatureId = equipment.Nomenclature.Id,
 						Nomenclature = equipment.Nomenclature,
-						Amount = isActualCount && equipment.ActualCount.HasValue ? equipment.ActualCount.Value : equipment.Count
+						Amount = amount
 					});
 				}
 			}
