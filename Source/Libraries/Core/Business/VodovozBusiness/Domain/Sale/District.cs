@@ -1,7 +1,9 @@
 ﻿using Gamma.Utilities;
 using NetTopologySuite.Geometries;
+using NHibernate.Criterion;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using System;
 using System.Collections.Generic;
@@ -11,6 +13,7 @@ using System.Linq;
 using System.Text;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation;
+using Vodovoz.Errors.Logistics;
 using Vodovoz.Tools.Orders;
 
 namespace Vodovoz.Domain.Sale
@@ -768,26 +771,48 @@ namespace Vodovoz.Domain.Sale
 			}
 		}
 
-		public static District GetDistrictFromActiveDistrictsSetOrNull(District district)
+		public static District GetDistrictFromActiveDistrictsSetOrNull(IUnitOfWork uow, District district)
 		{
-			while(true)
-			{
-				if(district?.DistrictsSet == null)
-				{
-					return null;
-				}
+			int exceptNodeId = 0;
 
-				if(district.DistrictsSet.Status == DistrictsSetStatus.Active)
+			while(district != null && district.CopyOf != null)
+			{
+				if(district.IsActive)
 				{
 					return district;
 				}
 
-				var ruleItems = district.CommonDistrictRuleItems.ToList();
-				var copyItems = district.DistrictCopyItems.ToList();
+				var activeCopiedDistrict = 
+					GetAllCopiedDistrictsByRoot(uow, district.Id, exceptNodeId)
+					.Where(d => d.IsActive)
+					.FirstOrDefault();
 
-				return null;
-				//district = district.CopiedTo;
+				if(activeCopiedDistrict != null)
+				{
+					return activeCopiedDistrict;
+				}
+
+				exceptNodeId = district.Id;
+				district = district.CopyOf;
+			}
+
+			return null;
+		}
+
+		private static IEnumerable<District> GetAllCopiedDistrictsByRoot(IUnitOfWork uow, int rootNodeId, int exceptNodeId = 0)
+		{
+			foreach(var childGroup in GetDistrictsByParentId(uow, rootNodeId).Where(d => d.Id != exceptNodeId))
+			{
+				yield return childGroup;
+
+				foreach(var nextLevelChildGroup in GetAllCopiedDistrictsByRoot(uow, childGroup.Id))
+				{
+					yield return nextLevelChildGroup;
+				}
 			}
 		}
+
+		private static IQueryable<District> GetDistrictsByParentId(IUnitOfWork uow, int rootId) =>
+			uow.GetAll<District>().Where(g => g.CopyOf.Id == rootId);
 	}
 }

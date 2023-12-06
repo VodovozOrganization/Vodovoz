@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using QS.DomainModel.UoW;
+using System.Collections.Generic;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 
@@ -6,7 +7,7 @@ namespace Vodovoz.Tools.Logistic
 {
 	public static class DriverDistrictPriorityHelper
 	{
-		public static DriverDistrictPrioritySet CopyPrioritySetWithActiveDistricts(DriverDistrictPrioritySet districtPrioritySet, out IList<DriverDistrictPriority> notCopiedPriorities)
+		public static DriverDistrictPrioritySet CopyPrioritySetWithActiveDistricts(IUnitOfWork uow, DriverDistrictPrioritySet districtPrioritySet, out IList<DriverDistrictPriority> notCopiedPriorities)
 		{
 			var copy = (DriverDistrictPrioritySet)districtPrioritySet.Clone();
 			notCopiedPriorities = new List<DriverDistrictPriority>();
@@ -18,7 +19,7 @@ namespace Vodovoz.Tools.Logistic
 					continue;
 				}
 
-				var activeDistrict = District.GetDistrictFromActiveDistrictsSetOrNull(copy.DriverDistrictPriorities[i].District);
+				var activeDistrict = District.GetDistrictFromActiveDistrictsSetOrNull(uow, copy.DriverDistrictPriorities[i].District);
 
 				if(activeDistrict != null)
 				{
@@ -26,7 +27,7 @@ namespace Vodovoz.Tools.Logistic
 				}
 				else
 				{
-					notCopiedPriorities.Add(districtPrioritySet.DriverDistrictPriorities[i]);
+					notCopiedPriorities.Add(districtPrioritySet.DriverDistrictPriorities[i + notCopiedPriorities.Count]);
 					copy.DriverDistrictPriorities.RemoveAt(i);
 					i--;
 				}
