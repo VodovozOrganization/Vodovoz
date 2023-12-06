@@ -815,6 +815,9 @@ namespace Vodovoz.Application.Services.Logistics
 
 			var commonFastDeliveryMaxDistance = (decimal)_deliveryRulesParametersProvider.GetMaxDistanceToLatestTrackPointKmFor(DateTime.Now);
 			routeList.UpdateFastDeliveryMaxDistanceValue(commonFastDeliveryMaxDistance);
+
+			_routeListProfitabilityController.ReCalculateRouteListProfitability(unitOfWork, routeList);
+			unitOfWork.Save(routeList.RouteListProfitability);
 		}
 
 		private Result<RouteListAcceptStatus> TryChangeStatusToAccepted(IUnitOfWork unitOfWork, RouteList routeList, Action<bool> disableItemsUpdate, ICommonServices commonServices)
@@ -921,9 +924,6 @@ namespace Vodovoz.Application.Services.Logistics
 				}
 			}
 
-			unitOfWork.Session.Flush();
-			_routeListProfitabilityController.ReCalculateRouteListProfitability(unitOfWork, routeList);
-			unitOfWork.Save(routeList.RouteListProfitability);
 
 			return Result.Success(RouteListAcceptStatus.Accepted);
 		}
@@ -942,10 +942,6 @@ namespace Vodovoz.Application.Services.Logistics
 			else
 			{
 				routeList.ChangeStatusAndCreateTask(RouteListStatus.New, _callTaskWorker);
-
-				unitOfWork.Session.Flush();
-				_routeListProfitabilityController.ReCalculateRouteListProfitability(unitOfWork, routeList);
-				unitOfWork.Save(routeList.RouteListProfitability);
 
 				return Result.Success(RouteListAcceptStatus.New);
 			}
