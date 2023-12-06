@@ -1,8 +1,4 @@
-﻿using System;
-using System.Text.Json.Serialization;
-using Vodovoz.Tools;
-
-namespace DriverAPI.DTOs.V4
+﻿namespace DriverAPI.DTOs.V4
 {
 	/// <summary>
 	/// Информация о событии и координатами сканирования
@@ -10,29 +6,16 @@ namespace DriverAPI.DTOs.V4
 	public class DriverWarehouseEventData
 	{
 		/// <summary>
-		/// Id события
+		/// Данные из Qr кода
 		/// </summary>
-		public int DriverWarehouseEventId { get; set; }
+		public string QrData { get; set; }
 		/// <summary>
-		/// Широта
+		/// Широта сканирующего
 		/// </summary>
 		public decimal? Latitude { get; set; }
 		/// <summary>
-		/// Долгота
+		/// Долгота сканирующего
 		/// </summary>
 		public decimal? Longitude { get; set; }
-		/// <summary>
-		/// Тип документа, на котором размещен QR
-		/// </summary>
-		[JsonConverter(typeof(JsonStringEnumConverter))]
-		public DocumentType? DocumentType { get; set; }
-		/// <summary>
-		/// Номер документа
-		/// </summary>
-		public int? DocumentId { get; set; }
-		/// <summary>
-		/// 
-		/// </summary>
-		public DateTime ActionTimeUtc { get; set; }
 	}
 }

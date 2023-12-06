@@ -1,5 +1,6 @@
 ﻿using System;
 using Autofac;
+using DateTimeHelpers;
 using QS.Navigation;
 using QS.Project.Filter;
 using QS.ViewModels.Control.EEVM;
@@ -24,8 +25,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		private decimal? _distanceFromScanning;
 		private DriverWarehouseEvent _driverWarehouseEvent;
 		private DriverWarehouseEventType? _selectedEventType;
-		private DateTime? _startDate;
-		private DateTime? _endDate;
+		private DateTime? _startDate = DateTime.Today;
+		private DateTime? _endDate = DateTime.Today;
 		private Employee _employee;
 		private Car _car;
 
@@ -78,13 +79,13 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		public DateTime? StartDate
 		{
 			get => _startDate;
-			set => UpdateFilterField(ref _startDate, value);
+			set => SetField(ref _startDate, value);
 		}
 		
 		public DateTime? EndDate
 		{
 			get => _endDate;
-			set => UpdateFilterField(ref _endDate, value);
+			set => SetField(ref _endDate, value);
 		}
 		
 		public Employee Employee

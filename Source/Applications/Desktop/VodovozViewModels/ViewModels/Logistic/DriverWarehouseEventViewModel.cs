@@ -16,6 +16,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 	public class DriverWarehouseEventViewModel : EntityTabViewModelBase<DriverWarehouseEvent>, IAskSaveOnCloseViewModel
 	{
 		private readonly ICoordinatesParser _coordinatesParser;
+		private readonly IDriverWarehouseEventRepository _driverWarehouseEventRepository;
 		private readonly ICompletedDriverWarehouseEventRepository _completedDriverWarehouseEventRepository;
 		private readonly ILifetimeScope _scope;
 
@@ -29,25 +30,18 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			ICommonServices commonServices,
 			INavigationManager navigation,
 			ICoordinatesParser coordinatesParser,
+			IDriverWarehouseEventRepository driverWarehouseEventRepository,
 			ICompletedDriverWarehouseEventRepository completedDriverWarehouseEventRepository,
 			ILifetimeScope scope) : base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			_coordinatesParser = coordinatesParser ?? throw new ArgumentNullException(nameof(coordinatesParser));
+			_driverWarehouseEventRepository =
+				driverWarehouseEventRepository ?? throw new ArgumentNullException(nameof(driverWarehouseEventRepository));
 			_completedDriverWarehouseEventRepository =
 				completedDriverWarehouseEventRepository ?? throw new ArgumentNullException(nameof(completedDriverWarehouseEventRepository));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
+			
 			Configure();
-		}
-
-		private void Configure()
-		{
-			ConfigureEntityChangingRelations();
-			CheckCompletedEventsByEntity();
-		}
-
-		private void CheckCompletedEventsByEntity()
-		{
-			_hasCompletedEvents = Entity.Id != 0 && _completedDriverWarehouseEventRepository.HasCompletedEventsByEventId(UoW, Entity.Id);
 		}
 
 		public bool IdGtZero => Entity.Id > 0;
@@ -94,6 +88,24 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public bool AskUserQuestion(string question, string title = null)
 		{
 			return base.AskQuestion(question, title);
+		}
+		
+		private void Configure()
+		{
+			ConfigureEntityChangingRelations();
+			CheckCompletedEventsByEntity();
+			ConfigureValidationContext();
+		}
+
+		private void ConfigureValidationContext()
+		{
+			ValidationContext.Items.Add(DriverWarehouseEvent.HasCompletedEvents, _hasCompletedEvents);
+			ValidationContext.ServiceContainer.AddService(typeof(IDriverWarehouseEventRepository), _driverWarehouseEventRepository);
+		}
+
+		private void CheckCompletedEventsByEntity()
+		{
+			_hasCompletedEvents = Entity.Id != 0 && _completedDriverWarehouseEventRepository.HasCompletedEventsByEventId(UoW, Entity.Id);
 		}
 
 		private void ConfigureEntityChangingRelations()

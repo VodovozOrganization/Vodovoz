@@ -233,7 +233,7 @@ namespace Vodovoz.Tools
 			var padding = 5m;
 			var leftReportItem = left + "pt";
 			var topReportItem = top + "pt";
-			var qrString = GenerateQrData(@event, documentId);
+			var qrString = @event.GenerateQrData(documentId);
 			var qrReportItem = _customReportFactory.CreateDefaultQrReportItem(leftReportItem, topReportItem, qrString);
 
 			if(eventNamePosition == EventNamePosition.Bottom)
@@ -255,20 +255,6 @@ namespace Vodovoz.Tools
 			rectangle.ReportItems.ItemsList.Add(eventNameBox);
 
 			left += qrReportItem.WidthSize + padding;
-		}
-
-		private string GenerateQrData(DriverWarehouseEvent @event, int documentId)
-		{
-			var sb = new StringBuilder();
-
-			sb.Append("EventQr;");
-			sb.Append($"{@event.Id};");
-			sb.Append($"{@event.DocumentType};");
-			sb.Append($"{documentId};");
-			sb.Append($"{@event.Latitude};");
-			sb.Append($"{@event.Longitude}");
-
-			return sb.ToString();
 		}
 	}
 }

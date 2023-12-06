@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Linq;
+using System.Text;
 using DriverAPI.DTOs.V4;
 using GMap.NET;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
+using Vodovoz.Controllers;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Drivers;
 using Vodovoz.EntityRepositories.Logistic;
@@ -15,36 +18,66 @@ namespace DriverAPI.Library.Models
 		private readonly ILogger<DriverWarehouseEventsModel> _logger;
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly ICarRepository _carRepository;
+		private readonly IDriverWarehouseEventQrDataHandler _driverWarehouseEventQrDataHandler;
 
 		public DriverWarehouseEventsModel(
 			ILogger<DriverWarehouseEventsModel> logger,
 			IUnitOfWork unitOfWork,
-			ICarRepository carRepository)
+			ICarRepository carRepository,
+			IDriverWarehouseEventQrDataHandler driverWarehouseEventQrDataHandler)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 			_carRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
+			_driverWarehouseEventQrDataHandler =
+				driverWarehouseEventQrDataHandler ?? throw new ArgumentNullException(nameof(driverWarehouseEventQrDataHandler));
+		}
+
+		/// <summary>
+		/// Конвертация и проверка данных из Qr кода на корректность
+		/// </summary>
+		/// <param name="qrData">данные Qr кода</param>
+		/// <returns></returns>
+		public DriverWarehouseEventQrData ConvertAndValidateQrData(string qrData)
+		{
+			var result = _driverWarehouseEventQrDataHandler.ConvertQrData(qrData);
+
+			if(result.QrData is null)
+			{
+				if(result.ValidationResults.Any())
+				{
+					var sb = new StringBuilder();
+					
+					foreach(var validationResult in result.ValidationResults)
+					{
+						sb.AppendLine(validationResult.ErrorMessage);
+					}
+					
+					_logger.LogError("Не прошли валидацию: {ValidationResult}", sb.ToString());
+				}
+			}
+
+			return result.QrData;
 		}
 		
 		/// <summary>
 		/// Завершение события нахождения на складе
 		/// </summary>
 		/// <returns></returns>
-		public CompletedDriverWarehouseEvent CompleteDriverWarehouseEvent(DriverWarehouseEventData eventData, Employee driver)
+		public CompletedDriverWarehouseEvent CompleteDriverWarehouseEvent(
+			DriverWarehouseEventQrData qrData, DriverWarehouseEventData eventData, Employee driver)
 		{
 			_logger.LogInformation("Получаем событие {EventId} из QR кода от водителя {DriverName}",
-				eventData.DriverWarehouseEventId,
+				qrData.EventId,
 				driver.ShortName);
-			var driverWarehouseEvent = _unitOfWork.GetById<DriverWarehouseEvent>(eventData.DriverWarehouseEventId);
+			var driverWarehouseEvent = _unitOfWork.GetById<DriverWarehouseEvent>(qrData.EventId);
 
 			var distanceMetersFromScanningLocation = 0m;
 			
 			_logger.LogInformation("Рассчитываем расстояние между точками для водителя {DriverName} по {EventName}",
 				driver.ShortName,
 				driverWarehouseEvent.EventName);
-
-
-			throw new InvalidOperationException();
+			
 			if(!eventData.Latitude.HasValue || !eventData.Longitude.HasValue)
 			{
 				distanceMetersFromScanningLocation = 0m;
@@ -71,8 +104,7 @@ namespace DriverAPI.Library.Models
 				Latitude = eventData.Latitude,
 				Longitude = eventData.Longitude,
 				CompletedDate = DateTime.Now,
-				DocumentType = eventData.DocumentType,
-				DocumentId = eventData.DocumentId,
+				DocumentId = qrData.DocumentId,
 				DistanceMetersFromScanningLocation = distanceMetersFromScanningLocation
 			};
 			

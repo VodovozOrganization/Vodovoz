@@ -1,4 +1,5 @@
-﻿using QS.Views.GtkUI;
+﻿using System;
+using QS.Views.GtkUI;
 using Vodovoz.Domain.Logistic.Drivers;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.Infrastructure.Converters;
@@ -38,6 +39,18 @@ namespace Vodovoz.Filters.GtkViews
 			enumCmbEventType.Binding
 				.AddBinding(ViewModel, vm => vm.SelectedEventType, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
+			
+			dateEventRangePicker.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.StartDate, w => w.StartDateOrNull)
+				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
+				.InitializeFromSource();
+			dateEventRangePicker.PeriodChangedByUser += OnDateEventPeriodChangedByUser;
+		}
+
+		private void OnDateEventPeriodChangedByUser(object sender, EventArgs e)
+		{
+			ViewModel.Update();
 		}
 
 		private void UpdateFilter(object o, KeyReleaseEventArgs args)

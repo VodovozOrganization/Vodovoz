@@ -59,6 +59,8 @@
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
     <Compile Include="ConfigureDeletion.cs" />
+    <Compile Include="Controllers\DriverWarehouseEventQrDataHandler.cs" />
+    <Compile Include="Controllers\IDriverWarehouseEventQrDataHandler.cs" />
     <Compile Include="Domain\Cash\CashTransfer\CashTransferDocumentStatuses.cs" />
     <Compile Include="Controllers\INomenclatureOnlineParametersController.cs" />
     <Compile Include="Controllers\NomenclatureOnlineParametersController.cs" />
@@ -87,6 +89,7 @@
     <Compile Include="Domain\Logistic\Drivers\CompletedDriverWarehouseEvent.cs" />
     <Compile Include="Domain\Logistic\Drivers\DriverStopListRemoval.cs" />
     <Compile Include="Domain\Logistic\Drivers\DriverWarehouseEvent.cs" />
+    <Compile Include="Domain\Logistic\Drivers\DriverWarehouseEventQrData.cs" />
     <Compile Include="Domain\Logistic\Drivers\DriverWarehouseEventType.cs" />
     <Compile Include="Domain\Logistic\Drivers\EventNamePosition.cs" />
     <Compile Include="Domain\Logistic\Drivers\EventQrDocumentType.cs" />

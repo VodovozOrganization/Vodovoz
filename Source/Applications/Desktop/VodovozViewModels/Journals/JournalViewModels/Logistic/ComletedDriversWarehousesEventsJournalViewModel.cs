@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Timers;
 using Autofac;
+using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
@@ -23,6 +25,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 	{
 		private readonly ILifetimeScope _scope;
 		private CompletedDriversWarehousesEventsJournalFilterViewModel _filterViewModel;
+		private bool _autoRefreshEnabled;
+		private Timer _autoRefreshTimer;
+		private int _autoRefreshInterval = 30;
 
 		public CompletedDriversWarehousesEventsJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -45,6 +50,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			
 			ConfigureLoader();
 			CreateFilter(filterParams);
+			StartAutoRefresh();
+			CreateNodeActions();
 
 			TabName = "Журнал завершенных событий";
 		}
@@ -52,6 +59,55 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		protected override void CreateNodeActions()
 		{
 			NodeActionsList.Clear();
+			CreateStartAutoRefresh();
+			CreateStopAutoRefresh();
+		}
+
+		private void CreateStartAutoRefresh()
+		{
+			var journalAction = new JournalAction(
+				"Вкл автообновление",
+				objects => true,
+				objects => !_autoRefreshEnabled,
+				objects =>
+				{
+					_autoRefreshTimer.Start();
+					_autoRefreshEnabled = true;
+					UpdateJournalActions?.Invoke();
+				}
+			);
+			
+			NodeActionsList.Add(journalAction);
+		}
+		
+		private void CreateStopAutoRefresh()
+		{
+			var journalAction = new JournalAction(
+				"Выкл автообновление",
+				objects => true,
+				objects => _autoRefreshEnabled,
+				objects =>
+				{
+					_autoRefreshTimer.Stop();
+					_autoRefreshEnabled = false;
+					UpdateJournalActions?.Invoke();
+				}
+			);
+			
+			NodeActionsList.Add(journalAction);
+		}
+		
+		private void StartAutoRefresh()
+		{
+			if(_autoRefreshEnabled)
+			{
+				return;
+			}
+			
+			_autoRefreshTimer = new Timer(_autoRefreshInterval * 1000);
+			_autoRefreshTimer.Elapsed += OnUpdated;
+			_autoRefreshTimer.Start();
+			_autoRefreshEnabled = true;
 		}
 
 		private void ConfigureLoader()
@@ -91,9 +147,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				query.Where(ce => ce.CompletedDate >= _filterViewModel.StartDate);
 			}
 
-			if(_filterViewModel.EndDate.HasValue)
+			var endDate = _filterViewModel.EndDate;
+
+			if(endDate.HasValue)
 			{
-				query.Where(ce => ce.CompletedDate <= _filterViewModel.EndDate);
+				query.Where(ce => ce.CompletedDate <= endDate.Value.LatestDayTime());
 			}
 
 			if(_filterViewModel.SelectedEventType.HasValue)
@@ -138,13 +196,25 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			};
 
 			_filterViewModel = _scope.Resolve<CompletedDriversWarehousesEventsJournalFilterViewModel>(parameters);
-			_filterViewModel.OnFiltered += OnFilterViewModelFiltered;
+			_filterViewModel.OnFiltered += OnUpdated;
 			JournalFilter = _filterViewModel;
 		}
 
-		private void OnFilterViewModelFiltered(object sender, EventArgs e)
+		private void OnUpdated(object sender, EventArgs e)
 		{
 			Refresh();
+		}
+
+		public override void Dispose()
+		{
+			if(_autoRefreshTimer != null)
+			{
+				_autoRefreshTimer.Stop();
+				_autoRefreshTimer.Elapsed -= OnUpdated;
+				_autoRefreshTimer.Close();
+				_autoRefreshTimer = null;
+			}
+			base.Dispose();
 		}
 	}
 }

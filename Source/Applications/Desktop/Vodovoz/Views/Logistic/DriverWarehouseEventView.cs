@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Drawing.Imaging;
-using Gamma.GtkWidgets;
-using Gamma.Widgets;
 using Gdk;
 using QS.Helpers;
 using QS.Navigation;
@@ -14,6 +13,7 @@ using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using ZXing;
 using ZXing.QrCode;
+using Color = System.Drawing.Color;
 
 namespace Vodovoz.Views.Logistic
 {
@@ -105,6 +105,7 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.AddBinding(ViewModel, vm => vm.IsDocumentQrParametersVisible, w => w.Visible)
 				.InitializeFromSource();
+			enumCmbDocumentType.ChangedByUser += OnDocumentTypeChangedByUser;
 			
 			lblQrPositionOnDocument.Binding
 				.AddBinding(ViewModel, vm => vm.IsDocumentQrParametersVisible, w => w.Visible)
@@ -117,6 +118,20 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.AddBinding(ViewModel, vm => vm.IsDocumentQrParametersVisible, w => w.Visible)
 				.InitializeFromSource();
+		}
+
+		private void OnDocumentTypeChangedByUser(object sender, EventArgs e)
+		{
+			enumCmbQrPositionOnDocument.ClearEnumHideList();
+
+			if(ViewModel.Entity.DocumentType == EventQrDocumentType.CarLoadDocument)
+			{
+				enumCmbQrPositionOnDocument.AddEnumToHideList(EventQrPositionOnDocument.Bottom, EventQrPositionOnDocument.Top);
+			}
+			else
+			{
+				enumCmbQrPositionOnDocument.AddEnumToHideList(EventQrPositionOnDocument.Left, EventQrPositionOnDocument.Right);
+			}
 		}
 
 		private void OnSaveClicked(object sender, EventArgs e)
@@ -151,31 +166,24 @@ namespace Vodovoz.Views.Logistic
 		private byte[] CreateQrImage()
 		{
 			var qrEncode = new QRCodeWriter();
-			var qrString = string.Join(
-				",",
-				new object[]
-				{
-					"EventQr",
-					ViewModel.Entity.Id,
-					ViewModel.Entity.DocumentType,
-					ViewModel.Entity.Latitude,
-					ViewModel.Entity.Longitude
-				});
 
 			var hints = new Dictionary<EncodeHintType, object> { { EncodeHintType.CHARACTER_SET, "utf-8" } };
 
+			const int qrWidth = 300;
+			const int qrHeight = 300;
+			
 			var qrMatrix = qrEncode.encode(
-				qrString,
+				ViewModel.Entity.GenerateQrData(),
 				BarcodeFormat.QR_CODE,
-				300,
-				300,
+				qrWidth,
+				qrHeight,
 				hints);
 
 			var qrWriter = new BarcodeWriter();
 			var qrImage = qrWriter.Write(qrMatrix);
-			qrImage.Save("EventQr.jpg", ImageFormat.Jpeg);
-
-			var array = ImageHelper.LoadImageToJpgBytes("EventQr.jpg");
+			var path = AddTextToQr(qrImage);
+			var array = ImageHelper.LoadImageToJpgBytes(path);
+			
 			return array;
 		}
 
@@ -192,6 +200,34 @@ namespace Vodovoz.Views.Logistic
 					DocumentPrinters.ImagePrinter?.Print(new[] { img });
 				}
 			}
+		}
+
+		private string AddTextToQr(Bitmap qrImage)
+		{
+			var text = ViewModel.Entity.EventName;
+			const float leftTextPadding = 10f;
+			const int heightAreaForText = 50;
+			var textArea = new RectangleF(leftTextPadding, qrImage.Height, qrImage.Width, heightAreaForText);
+			const string imageFilePath = @"EventQr.jpg";
+			
+			using(qrImage)
+			{
+				using(var qrWithText = new Bitmap(qrImage.Width, qrImage.Height + heightAreaForText))
+				using(var canvas = Graphics.FromImage(qrWithText))
+				{
+					using(var arialFont = new System.Drawing.Font("Arial", 14, FontStyle.Bold))
+					{
+						canvas.Clear(Color.White);
+						canvas.DrawImage(qrImage, new PointF(0f, 0f));
+						canvas.DrawString(text, arialFont, Brushes.Black, textArea);
+						canvas.Save();
+					}
+					
+					qrWithText.Save(imageFilePath, ImageFormat.Jpeg);
+				}
+			}
+			
+			return imageFilePath;
 		}
 		
 		private void OnCopyFromClipboard(object sender, EventArgs e)
