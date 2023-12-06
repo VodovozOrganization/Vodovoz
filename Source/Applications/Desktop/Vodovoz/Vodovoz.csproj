@@ -1979,12 +1979,15 @@
     <Compile Include="gtk-gui\Vodovoz.Views.SelectPaymentTypeWindowView.cs" />
     <Compile Include="Filters\GtkViews\GeoGroupJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.GeoGroupJournalFilterView.cs" />
+    <Compile Include="Rent\FreeRentPackagesFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Rent.FreeRentPackagesFilterView.cs" />
     <Compile Include="Dialogs\Interactive\ConfirmationQuestionDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Interactive.ConfirmationQuestionDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="ViewModels\Goods\" />
+    <Folder Include="Rent\" />
     <Folder Include="Dialogs\Interactive\" />
   </ItemGroup>
   <ItemGroup>
