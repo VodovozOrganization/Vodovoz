@@ -636,7 +636,7 @@ namespace Vodovoz
 			_logger.LogInformation("Сохраняем маршрутный лист {RouteListId}...", Entity.Id);
 			UoWGeneric.Save();
 			_logger.LogInformation("Ok");
-			
+			createroutelistitemsview1.UpdateProfitabilityInfo();
 			return true;
 		}
 
