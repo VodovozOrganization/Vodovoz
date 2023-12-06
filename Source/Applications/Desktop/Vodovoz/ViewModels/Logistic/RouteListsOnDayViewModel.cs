@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using NHibernate;
@@ -1860,6 +1860,14 @@ namespace Vodovoz.ViewModels.Logistic
 		}
 
 		public bool CanСreateRoutelistInPastPeriod { get; }
+
+		public static GuiltyTypes[] GuiltyTypesForMarkUndeliveries => new[] 
+		{
+			GuiltyTypes.Driver,
+			GuiltyTypes.Department,
+			GuiltyTypes.ForceMajor,
+			GuiltyTypes.DirectorLO
+		};
 
 		public override void Dispose()
 		{
