@@ -15,6 +15,8 @@ namespace Vodovoz.Views.Goods
 
 		private void Configure()
 		{
+			const int entryWidth = 350;
+			
 			btnSave.Clicked += OnSaveClicked;
 			btnCancel.Clicked += OnCancelClicked;
 
@@ -26,10 +28,12 @@ namespace Vodovoz.Views.Goods
 				.AddBinding(ViewModel, vm => vm.IdString, w => w.LabelProp)
 				.InitializeFromSource();
 
+			entryName.WidthRequest = entryWidth;
 			entryName.Binding
 				.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text)
 				.InitializeFromSource();
-			
+
+			entryExternalId.WidthRequest = entryWidth;
 			entryExternalId.Binding
 				.AddBinding(ViewModel.Entity, vm => vm.ExternalId, w => w.Text, new GuidToStringConverter())
 				.InitializeFromSource();

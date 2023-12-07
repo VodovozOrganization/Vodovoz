@@ -4,7 +4,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
-	public class NomenclatureOnlineCategoriesJournalRegistrar
+	internal sealed class NomenclatureOnlineCategoriesJournalRegistrar
 		: ColumnsConfigRegistrarBase<NomenclatureOnlineCategoriesJournalViewModel, NomenclatureOnlineCategoriesJournalNode>
 	{
 		public override IColumnsConfig Configure(FluentColumnsConfig<NomenclatureOnlineCategoriesJournalNode> config)

@@ -29,15 +29,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 			ICurrentPermissionService currentPermissionService)
 			: base(unitOfWorkFactory, interactiveService, navigationManager, deleteEntityService, currentPermissionService)
 		{
-			
+			VisibleDeleteAction = false;
 		}
 
 		protected override IQueryOver<VodovozWebSiteNomenclatureOnlineCatalog> ItemsQuery(IUnitOfWork uow)
 		{
 			NomenclatureOnlineCatalogsJournalNode resultAlias = null;
 
-			var query = uow.Session.QueryOver<VodovozWebSiteNomenclatureOnlineCatalog>()
-				.SelectList(list => list
+			var query = uow.Session.QueryOver<VodovozWebSiteNomenclatureOnlineCatalog>();
+
+			query.Where(GetSearchCriterion<VodovozWebSiteNomenclatureOnlineCatalog>(
+				oc => oc.Id,
+				oc => oc.Name
+			));
+				
+			query.SelectList(list => list
 					.Select(oc => oc.Id).WithAlias(() => resultAlias.Id)
 					.Select(oc => oc.Name).WithAlias(() => resultAlias.Name)
 					.Select(oc => oc.ExternalId).WithAlias(() => resultAlias.ExternalId))

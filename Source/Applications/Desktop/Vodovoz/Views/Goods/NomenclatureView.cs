@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Web.UI.WebControls;
 using Gamma.Binding;
 using Gamma.ColumnConfig;
 using QS.Widgets;
@@ -25,6 +26,8 @@ using Vodovoz.Representations.ProductGroups;
 using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Dialogs.Nodes;
+using Menu = Gtk.Menu;
+using MenuItem = Gtk.MenuItem;
 using ValidationType = QSWidgetLib.ValidationType;
 
 namespace Vodovoz.Views.Goods
@@ -655,6 +658,7 @@ namespace Vodovoz.Views.Goods
 			
 			listCmbOnlineCategory.ShowSpecialStateNot = true;
 			listCmbOnlineCategory.SetRenderTextFunc<NomenclatureOnlineCategory>(x => x.Name);
+			listCmbOnlineCategory.Changed += OnOnlineCategoryChanged;
 			listCmbOnlineCategory.Binding
 				.AddBinding(ViewModel, vm => vm.OnlineCategories, w => w.ItemsList)
 				.AddBinding(ViewModel, vm => vm.SelectedOnlineCategory, w => w.SelectedItem)
@@ -736,7 +740,7 @@ namespace Vodovoz.Views.Goods
 			entryHeatingPowerOnline.Binding
 				.AddFuncBinding(ViewModel, vm => vm.IsPurifierParameters || vm.IsWaterCoolerParameters, w => w.Visible)
 				.AddBinding(ViewModel.Entity, e => e.HasHeating, w => w.Sensitive)
-				.AddBinding(ViewModel.Entity, e => e.HeatingPower2, w => w.Text, new NullableIntToStringConverter())
+				.AddBinding(ViewModel.Entity, e => e.NewHeatingPower, w => w.Text, new NullableIntToStringConverter())
 				.InitializeFromSource();
 			entryHeatingPowerOnline.Changed += OnNumericEntryChanged;
 			
@@ -768,7 +772,7 @@ namespace Vodovoz.Views.Goods
 			enumCmbCoolingTypeOnline.Binding
 				.AddFuncBinding(ViewModel, vm => vm.IsPurifierParameters || vm.IsWaterCoolerParameters, w => w.Visible)
 				.AddBinding(ViewModel.Entity, e => e.HasCooling, w => w.Sensitive)
-				.AddBinding(ViewModel.Entity, e => e.CoolingType2, w => w.SelectedItemOrNull)
+				.AddBinding(ViewModel.Entity, e => e.NewCoolingType, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 				
 			lblCoolingPowerOnlineTitle.Binding
@@ -778,7 +782,7 @@ namespace Vodovoz.Views.Goods
 			entryCoolingPowerOnline.Binding
 				.AddFuncBinding(ViewModel, vm => vm.IsPurifierParameters || vm.IsWaterCoolerParameters, w => w.Visible)
 				.AddBinding(ViewModel.Entity, e => e.HasCooling, w => w.Sensitive)
-				.AddBinding(ViewModel.Entity, e => e.CoolingPower2, w => w.Text, new NullableIntToStringConverter())
+				.AddBinding(ViewModel.Entity, e => e.NewCoolingPower, w => w.Text, new NullableIntToStringConverter())
 				.InitializeFromSource();
 			entryCoolingPowerOnline.Changed += OnNumericEntryChanged;
 			
@@ -815,12 +819,12 @@ namespace Vodovoz.Views.Goods
 			entryLockerRefrigeratorVolumeOnline.Changed += OnNumericEntryChanged;
 			
 			lblTapTypeOnlineTitle.Binding
-				.AddBinding(ViewModel, vm => vm.IsWaterCoolerParameters, w => w.Visible)
+				.AddFuncBinding(ViewModel, vm => vm.IsPurifierParameters || vm.IsWaterCoolerParameters, w => w.Visible)
 				.InitializeFromSource();
 			enumCmbTapTypeOnline.ShowSpecialStateNot = true;
 			enumCmbTapTypeOnline.ItemsEnum = typeof(TapType);
 			enumCmbTapTypeOnline.Binding
-				.AddBinding(ViewModel, vm => vm.IsWaterCoolerParameters, w => w.Visible)
+				.AddFuncBinding(ViewModel, vm => vm.IsPurifierParameters || vm.IsWaterCoolerParameters, w => w.Visible)
 				.AddBinding(ViewModel.Entity, e => e.TapType, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 			
@@ -861,6 +865,16 @@ namespace Vodovoz.Views.Goods
 				.AddBinding(ViewModel, vm => vm.IsCupHolderParameters, w => w.Sensitive)
 				.AddBinding(ViewModel.Entity, e => e.CupHolderBracingType, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
+		}
+
+		private void OnOnlineCategoryChanged(object sender, EventArgs e)
+		{
+			enumCmbInstallationTypeOnline.ClearEnumHideList();
+			
+			if(ViewModel.IsWaterCoolerParameters)
+			{
+				enumCmbInstallationTypeOnline.AddEnumToHideList(EquipmentInstallationType.Embedded);
+			}
 		}
 
 		private void OnNumericEntryChanged(object sender, EventArgs e)

@@ -30,6 +30,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 			: base(unitOfWorkFactory, interactiveService, navigationManager, deleteEntityService, currentPermissionService)
 		{
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
+			VisibleDeleteAction = false;
 			UpdateOnChanges(typeof(NomenclatureOnlineCategory), typeof(NomenclatureOnlineGroup));
 		}
 
@@ -39,8 +40,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 			NomenclatureOnlineCategoriesJournalNode resultAlias = null;
 
 			var query = uow.Session.QueryOver<NomenclatureOnlineCategory>()
-				.Left.JoinAlias(oc => oc.NomenclatureOnlineGroup, () => onlineGroupAlias)
-				.SelectList(list => list
+				.Left.JoinAlias(oc => oc.NomenclatureOnlineGroup, () => onlineGroupAlias);
+				
+			query.Where(GetSearchCriterion<VodovozWebSiteNomenclatureOnlineCatalog>(
+					oc => oc.Id,
+					oc => oc.Name
+				));
+			
+			query.SelectList(list => list
 					.Select(oc => oc.Id).WithAlias(() => resultAlias.Id)
 					.Select(oc => oc.Name).WithAlias(() => resultAlias.Name)
 					.Select(() => onlineGroupAlias.Name).WithAlias(() => resultAlias.OnlineGroup))
