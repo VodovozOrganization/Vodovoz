@@ -1,19 +1,16 @@
-﻿using System;
-using NHibernate;
-using NHibernate.Criterion;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using QS.Project.Domain;
-using QS.Services;
-using Vodovoz.Domain;
-using QS.ViewModels;
-using Vodovoz.Domain.Goods;
-using Vodovoz.EntityRepositories.RentPackages;
 using QS.Project.Journal.EntitySelector;
+using QS.Services;
+using QS.ViewModels;
+using System;
+using Vodovoz.Domain;
+using Vodovoz.EntityRepositories.RentPackages;
 using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.ViewModels.Rent
 {
-    public class FreeRentPackageViewModel : EntityTabViewModelBase<FreeRentPackage>
+	public class FreeRentPackageViewModel : EntityTabViewModelBase<FreeRentPackage>
     {
 		private readonly INomenclatureJournalFactory _nomenclatureJournalFactory;
 		private readonly IRentPackageRepository _rentPackageRepository;

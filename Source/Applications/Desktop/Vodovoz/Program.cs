@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
+using Fias.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
 using Microsoft.Extensions.DependencyInjection;
@@ -47,6 +48,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Vodovoz.Additions;
+using Vodovoz.Additions.Logistic.RouteOptimization;
+using Vodovoz.Application;
 using Vodovoz.Application.Services;
 using Vodovoz.Application.Services.Logistics;
 using Vodovoz.CachingRepositories.Cash;
@@ -68,16 +71,17 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.FilterViewModels.Suppliers;
 using Vodovoz.Infrastructure.Mango;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalViewers;
 using Vodovoz.Models;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Presentation.ViewModels.Common;
+using Vodovoz.Presentation.ViewModels.PaymentType;
 using Vodovoz.Reports;
 using Vodovoz.Reports.Logistic;
 using Vodovoz.ReportsParameters;
@@ -92,13 +96,13 @@ using Vodovoz.ReportsParameters.Retail;
 using Vodovoz.ReportsParameters.Sales;
 using Vodovoz.ReportsParameters.Store;
 using Vodovoz.Services;
-using Vodovoz.Services.Logistics;
 using Vodovoz.Services.Permissions;
 using Vodovoz.Settings.Database;
 using Vodovoz.SidePanel.InfoViews;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.Tools.Interactive.ConfirmationQuestion;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Complaints;
@@ -107,6 +111,7 @@ using Vodovoz.ViewModels.Infrastructure.Services;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Mango.Talks;
 using Vodovoz.ViewModels.Permissions;
+using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.Views.Mango.Talks;
 using Vodovoz.ViewWidgets;
 using VodovozInfrastructure.Endpoints;
@@ -182,6 +187,7 @@ namespace Vodovoz
 					builder.RegisterType<GtkMessageDialogsInteractive>().As<IInteractiveMessage>();
 					builder.RegisterType<GtkQuestionDialogsInteractive>().As<IInteractiveQuestion>();
 					builder.RegisterType<GtkInteractiveService>().As<IInteractiveService>();
+					builder.RegisterType<GtkConfirmationQuestionInteractive>().As<IConfirmationQuestionInteractive>();
 
 					builder.Register(c => ServicesConfig.CommonServices).As<ICommonServices>();
 					builder.Register(с => ServicesConfig.UserService).As<IUserService>();
@@ -343,8 +349,6 @@ namespace Vodovoz
 					builder.RegisterType<WarehousePermissionValidator>().As<IWarehousePermissionValidator>();
 					builder.RegisterType<WageParameterService>().As<IWageParameterService>();
 					builder.RegisterType<SelfDeliveryCashOrganisationDistributor>().As<ISelfDeliveryCashOrganisationDistributor>();
-
-					builder.RegisterType<CounterpartyService>().As<ICounterpartyService>().InstancePerLifetimeScope();
 
 					#endregion
 
@@ -560,6 +564,7 @@ namespace Vodovoz
 					builder.RegisterType<PaymentsJournalFilterViewModel>().AsSelf();
 					builder.RegisterType<UnallocatedBalancesJournalFilterViewModel>().AsSelf();
 					builder.RegisterType<SelectableParametersReportFilter>().AsSelf();
+					builder.RegisterType<RequestsToSuppliersFilterViewModel>().AsSelf();
 
 					#endregion
 
@@ -588,7 +593,7 @@ namespace Vodovoz
 								}
 								), "");
 
-							cs["BaseUri"] = "https://driverapi.vod.qsolution.ru:7090/api/v2/";
+							cs["BaseUri"] = "https://driverapi.vod.qsolution.ru:7090/api/v4/";
 
 							var clientProvider = new ApiClientProvider.ApiClientProvider(cs);
 
@@ -634,12 +639,20 @@ namespace Vodovoz
 				.ConfigureServices((hostingContext, services) =>
 				{
 					services.AddSingleton<Startup>()
-						.AddScoped<IRouteListService, RouteListService>()
 						.AddScoped<RouteGeometryCalculator>()
 						.AddSingleton<OsrmClient>(sp => OsrmClientFactory.Instance)
 						.AddSingleton<IFastDeliveryDistanceChecker, DistanceCalculator>()
+						.AddScoped<IDebtorsParameters, DebtorsParameters>()
+						.AddFiasClient()							
+						.AddScoped<RevisionBottlesAndDeposits>()
+						.AddTransient<IReportExporter, ReportExporterAdapter>()
+						.AddScoped<SelectPaymentTypeViewModel>()
+						.AddTransient<IReportExporter, ReportExporterAdapter>()
+						.AddScoped<IRouteOptimizer, RouteOptimizer>()
 						.AddScoped<ICoordinatesParser, CoordinatesParser>()
-						.AddScoped<IEventsQrPlacer, EventsQrPlacer>();
+						.AddScoped<IEventsQrPlacer, EventsQrPlacer>()
+						.AddApplication();
+						
 				});
 	}
 }

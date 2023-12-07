@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Gamma.Widgets;
 using MoreLinq;
 using NHibernate;
 using NHibernate.Criterion;
@@ -17,6 +18,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using DateTimeHelpers;
 using Vodovoz.Controllers;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -40,6 +42,7 @@ using Vodovoz.Infrastructure.Print;
 using Vodovoz.JournalNodes;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Dialogs.Orders;
@@ -75,6 +78,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
+		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 		private readonly IRDLPreviewOpener _rdlPreviewOpener;
@@ -104,6 +108,7 @@ namespace Vodovoz.JournalViewModels
 			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider,
 			IRDLPreviewOpener rdlPreviewOpener,
 			IRouteListItemRepository routeListItemRepository,
+			INomenclatureSettings nomenclatureSettings,
 			Action<OrderJournalFilterViewModel> filterConfiguration = null) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -117,6 +122,7 @@ namespace Vodovoz.JournalViewModels
 			_deliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 			_gtkDialogsOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
+			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			_undeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
@@ -395,14 +401,17 @@ namespace Vodovoz.JournalViewModels
 			CounterpartyContract contractAlias = null;
 			PaymentFrom paymentFromAlias = null;
 			GeoGroup geographicalGroupAlias = null;
+			GeoGroup selfDeliveryGeographicalGroupAlias = null;
 			EdoContainer edoContainerAlias = null;
+			EdoContainer innerEdoContainerAlias = null;
 
 			var sanitizationNomenclatureIds = _nomenclatureRepository.GetSanitisationNomenclature(uow);
 
 			var query = uow.Session.QueryOver<VodovozOrder>(() => orderAlias)
 				.Left.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
-				.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicalGroupAlias);
+				.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicalGroupAlias)
+				.Left.JoinAlias(() => orderAlias.SelfDeliveryGeoGroup, () => selfDeliveryGeographicalGroupAlias);
 
 			if (FilterViewModel.ViewTypes != ViewTypes.Order && FilterViewModel.ViewTypes != ViewTypes.All)
 			{
@@ -454,15 +463,16 @@ namespace Vodovoz.JournalViewModels
 				}
 			}
 
-			if(FilterViewModel.EndDate != null)
+			var endDate = FilterViewModel.EndDate;
+			if(endDate != null)
 			{
 				if(FilterViewModel.FilterDateType == OrdersDateFilterType.DeliveryDate)
 				{ 
-					query.Where(o => o.DeliveryDate <= FilterViewModel.EndDate.Value.AddDays(1).AddTicks(-1));
+					query.Where(o => o.DeliveryDate <= endDate.Value.LatestDayTime());
 				}
 				else
 				{ 
-					query.Where(o => o.CreateDate <= FilterViewModel.EndDate.Value.AddDays(1).AddTicks(-1));
+					query.Where(o => o.CreateDate <= endDate.Value.LatestDayTime());
 				}
 			}
 
@@ -514,8 +524,8 @@ namespace Vodovoz.JournalViewModels
 
 			if (FilterViewModel.GeographicGroup != null)
 			{
-				query.Where(o => !o.SelfDelivery)
-					.And(() => geographicalGroupAlias.Id == FilterViewModel.GeographicGroup.Id);
+				query.Where(() => (!orderAlias.SelfDelivery && geographicalGroupAlias.Id == FilterViewModel.GeographicGroup.Id)
+						|| (orderAlias.SelfDelivery && selfDeliveryGeographicalGroupAlias.Id == FilterViewModel.GeographicGroup.Id));
 			}
 			
 			if(FilterViewModel.SortDeliveryDate != null)
@@ -616,12 +626,27 @@ namespace Vodovoz.JournalViewModels
 												)
 											);
 
-			var edoDocFlowStatusSubquery = QueryOver.Of(() => edoContainerAlias)
-				.Where(() => orderAlias.Id == edoContainerAlias.Order.Id)
-				.And(() => edoContainerAlias.Type == Type.Upd)
-				.OrderBy(() => edoContainerAlias.Created).Desc
-				.Select(Projections.Property(() => edoContainerAlias.EdoDocFlowStatus))
-				.Take(1);
+			var edoUpdLastRecordDateByOrderSubquery = QueryOver.Of(()=> innerEdoContainerAlias)
+				.Where(() => innerEdoContainerAlias.Order.Id == orderAlias.Id)
+				.And(() => innerEdoContainerAlias.Type == Type.Upd)
+				.Select(Projections.Max(()=> innerEdoContainerAlias.Created));
+
+			var edoUpdLastStatusSubquery = QueryOver.Of(() => edoContainerAlias)
+					.Where(() => edoContainerAlias.Order.Id == orderAlias.Id)
+					.And(() => edoContainerAlias.Type == Type.Upd)
+					.WithSubquery.WhereProperty(() => edoContainerAlias.Created).Eq(edoUpdLastRecordDateByOrderSubquery)
+					.Select(Projections.Property(() => edoContainerAlias.EdoDocFlowStatus));
+
+			if(FilterViewModel.EdoDocFlowStatus is EdoDocFlowStatus edoDocFlowStatus)
+			{
+				edoUpdLastStatusSubquery.Where(ec => ec.EdoDocFlowStatus == edoDocFlowStatus);
+				query.WithSubquery.WhereExists(edoUpdLastStatusSubquery);
+			}
+
+			if(FilterViewModel.EdoDocFlowStatus is SpecialComboState specialComboState && specialComboState == SpecialComboState.Not)
+			{
+				query.WithSubquery.WhereNotExists(edoUpdLastStatusSubquery);
+			}
 
 			query.Left.JoinAlias(o => o.DeliverySchedule, () => deliveryScheduleAlias)
 					.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
@@ -680,9 +705,18 @@ namespace Vodovoz.JournalViewModels
 					.SelectSubQuery(orderSumSubquery).WithAlias(() => resultAlias.Sum)
 					.SelectSubQuery(bottleCountSubquery).WithAlias(() => resultAlias.BottleAmount)
 					.SelectSubQuery(sanitisationCountSubquery).WithAlias(() => resultAlias.SanitisationAmount)
-					.SelectSubQuery(edoDocFlowStatusSubquery).WithAlias(() => resultAlias.EdoDocFlowStatus)
+					.SelectSubQuery(edoUpdLastStatusSubquery).WithAlias(() => resultAlias.EdoDocFlowStatus)
 				)
-				.OrderBy(x => x.CreateDate).Desc
+				.OrderBy(x => x.CreateDate).Desc;
+
+			if(FilterViewModel.FilterDateType == OrdersDateFilterType.DeliveryDate
+				&& FilterViewModel.StartDate != null
+				&& FilterViewModel.EndDate != null)
+			{
+				resultQuery.OrderBy(x => x.DeliveryDate).Desc();
+			}
+
+			resultQuery
 				.SetTimeout(60)
 				.TransformUsing(Transformers.AliasToBean<OrderJournalNode<VodovozOrder>>());
 
@@ -738,8 +772,9 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.CreateDate >= FilterViewModel.StartDate);
 			}
 
-			if(FilterViewModel.EndDate != null) {
-				query.Where(o => o.CreateDate <= FilterViewModel.EndDate.Value.AddDays(1).AddTicks(-1));
+			var endDate = FilterViewModel.EndDate;
+			if(endDate != null) {
+				query.Where(o => o.CreateDate <= endDate.Value.LatestDayTime());
 			}
 			
 			if(FilterViewModel.RestrictCounterparty != null) {
@@ -896,8 +931,9 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.CreateDate >= FilterViewModel.StartDate);
 			}
 
-			if(FilterViewModel.EndDate != null) {
-				query.Where(o => o.CreateDate <= FilterViewModel.EndDate.Value.AddDays(1).AddTicks(-1));
+			var endDate = FilterViewModel.EndDate;
+			if(endDate != null) {
+				query.Where(o => o.CreateDate <= endDate.Value.LatestDayTime());
 			}
 
 			if(FilterViewModel.RestrictCounterparty != null) {
@@ -1077,8 +1113,9 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.CreateDate >= FilterViewModel.StartDate);
 			}
 
-			if(FilterViewModel.EndDate != null) {
-				query.Where(o => o.CreateDate <= FilterViewModel.EndDate.Value.AddDays(1).AddTicks(-1));
+			var endDate = FilterViewModel.EndDate;
+			if(endDate != null) {
+				query.Where(o => o.CreateDate <= endDate.Value.LatestDayTime());
 			}
 			
 			if(FilterViewModel.RestrictCounterparty != null) {
@@ -1200,7 +1237,8 @@ namespace Vodovoz.JournalViewModels
 						new OrderDiscountsController(new NomenclatureFixedPriceController(
 							new NomenclatureFixedPriceFactory())),
 						new CommonMessages(_commonServices.InteractiveService),
-						_rdlPreviewOpener),
+						_rdlPreviewOpener,
+						_nomenclatureSettings),
 					//функция диалога открытия документа
 					(OrderJournalNode node) => new OrderWithoutShipmentForAdvancePaymentViewModel(
 						EntityUoWBuilder.ForOpen(node.Id),
@@ -1216,7 +1254,8 @@ namespace Vodovoz.JournalViewModels
 						new OrderDiscountsController(new NomenclatureFixedPriceController(
 							new NomenclatureFixedPriceFactory())),
 						new CommonMessages(_commonServices.InteractiveService),
-						_rdlPreviewOpener),
+						_rdlPreviewOpener,
+						_nomenclatureSettings),
 					//функция идентификации документа 
 					(OrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForAdvancePayment),
 					"Счет без отгрузки на предоплату",

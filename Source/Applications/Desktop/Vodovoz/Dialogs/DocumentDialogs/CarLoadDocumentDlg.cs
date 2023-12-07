@@ -133,9 +133,11 @@ namespace Vodovoz
 				.ForProperty(x => x.RouteList)
 				.UseViewModelJournalAndAutocompleter<RouteListJournalViewModel, RouteListJournalFilterViewModel>(filter =>
 				{
-					filter.RestrictedByStatuses = new[] { RouteListStatus.InLoading };
+					filter.DisplayableStatuses = new[] { RouteListStatus.InLoading };
 				})
 				.Finish();
+
+			entryRouteList.ViewModel.ChangedByUser += OnYentryrefRouteListChangedByUser;
 
 			entryRouteList.ViewModel.IsEditable = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 

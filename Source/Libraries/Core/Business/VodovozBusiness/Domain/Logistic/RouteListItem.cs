@@ -18,6 +18,8 @@ using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Tools.CallTasks;
@@ -35,6 +37,9 @@ namespace Vodovoz.Domain.Logistic
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private AddressTransferType? _addressTransferType;
 		private static readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider = new DeliveryRulesParametersProvider(new ParametersProvider());
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
+		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
 
 		#region Свойства
 
@@ -537,6 +542,7 @@ namespace Vodovoz.Domain.Logistic
 						Order.TimeDelivered = DateTime.Now;
 					}
 					RestoreOrder();
+					AutoCancelAutoTransfer(uow);
 					break;
 				case RouteListItemStatus.EnRoute:
 					Order.ChangeStatusAndCreateTasks(OrderStatus.OnTheWay, callTaskWorker);
@@ -552,6 +558,103 @@ namespace Vodovoz.Domain.Logistic
 
 			UpdateRouteListDebt();
 		}
+
+		/// <summary>
+		/// Автоотмена автопереноса - недовоз, созданный из возвращенного в путь заказа , получает комментарий, а также ответственного "Нет (не недовоз)"
+		/// Заказ, созданный из недовоза переходит в статус "Отменен".
+		/// Недовоз, созданный из автопереноса получает ответственного "Автоотмена автопереноса", а также аналогичный комментарий.
+		/// </summary>
+		private void AutoCancelAutoTransfer(IUnitOfWork uow)
+		{
+			var undeliveries = _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(uow, Order);
+
+			var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(uow);
+
+			var oldUndeliveryCommentText = "Доставлен в тот же день";
+
+			foreach(var oldUndelivery in undeliveries)
+			{
+				oldUndelivery.NewOrder?.ChangeStatus(OrderStatus.Canceled);
+
+				var oldUndeliveredOrderResultComment = new UndeliveredOrderResultComment
+				{
+					Author = currentEmployee,
+					Comment = oldUndeliveryCommentText,
+					CreationTime = DateTime.Now,
+					UndeliveredOrder = oldUndelivery
+				};
+
+				oldUndelivery.ResultComments.Add(oldUndeliveredOrderResultComment);
+
+				var oldOrderGuiltyInUndelivery = new GuiltyInUndelivery
+				{
+					GuiltySide = GuiltyTypes.None,
+					UndeliveredOrder = oldUndelivery
+				};
+
+				oldUndelivery.GuiltyInUndelivery.Clear();
+				oldUndelivery.GuiltyInUndelivery.Add(oldOrderGuiltyInUndelivery);
+
+				uow.Save(oldUndelivery);
+
+				var oldUndeliveredOrderComment = new UndeliveredOrderComment
+				{
+					Comment = oldUndeliveryCommentText,
+					CommentedField = CommentedFields.Reason,
+					CommentDate = DateTime.Now,
+					Employee = currentEmployee,
+					UndeliveredOrder = oldUndelivery
+				};
+
+				uow.Save(oldUndeliveredOrderComment);
+
+				if(oldUndelivery.NewOrder == null)
+				{
+					continue;
+				}
+
+				var newUndeliveredOrder = new UndeliveredOrder
+				{
+					Author = currentEmployee,
+					OldOrder = oldUndelivery.NewOrder,
+					EmployeeRegistrator = currentEmployee,
+					TimeOfCreation = DateTime.Now,
+					InProcessAtDepartment = _subdivisionRepository.GetQCDepartment(uow)
+				};
+
+				var undeliveredOrderResultComment = new UndeliveredOrderResultComment
+				{
+					Author = currentEmployee,
+					Comment = GuiltyTypes.AutoСancelAutoTransfer.GetEnumTitle(),
+					CreationTime = DateTime.Now,
+					UndeliveredOrder = newUndeliveredOrder
+				};
+
+				newUndeliveredOrder.ResultComments.Add(undeliveredOrderResultComment);
+
+				var newOrderGuiltyInUndelivery = new GuiltyInUndelivery
+				{
+					GuiltySide = GuiltyTypes.AutoСancelAutoTransfer,
+					UndeliveredOrder = newUndeliveredOrder
+				};
+
+				newUndeliveredOrder.GuiltyInUndelivery = new List<GuiltyInUndelivery> { newOrderGuiltyInUndelivery };
+
+				uow.Save(newUndeliveredOrder);
+
+				var newUndeliveredOrderComment = new UndeliveredOrderComment
+				{
+					Comment = GuiltyTypes.AutoСancelAutoTransfer.GetEnumTitle(),
+					CommentedField = CommentedFields.Reason,
+					CommentDate = DateTime.Now,
+					Employee = currentEmployee,
+					UndeliveredOrder = newUndeliveredOrder
+				};
+
+				uow.Save(newUndeliveredOrderComment);
+			}
+		}
+
 
 		private void UpdateRouteListDebt()
 		{
@@ -585,6 +688,7 @@ namespace Vodovoz.Domain.Logistic
 						Order.TimeDelivered = DateTime.Now;
 					}
 					RestoreOrder();
+					AutoCancelAutoTransfer(uow);
 					break;
 				case RouteListItemStatus.EnRoute:
 					Order.ChangeStatus(OrderStatus.OnTheWay);
@@ -613,7 +717,7 @@ namespace Vodovoz.Domain.Logistic
 			SetStatusWithoutOrderChange(uow, RouteListItemStatus.Transfered);
 		}
 		
-		protected internal virtual void RevertTransferAddress(IUnitOfWork uow, WageParameterService wageParameterService, RouteListItem revertedAddress)
+		protected internal virtual void RevertTransferAddress(IUnitOfWork uow, IWageParameterService wageParameterService, RouteListItem revertedAddress)
 		{
 			SetStatusWithoutOrderChange(uow, revertedAddress.Status);
 			SetTransferTo(null);

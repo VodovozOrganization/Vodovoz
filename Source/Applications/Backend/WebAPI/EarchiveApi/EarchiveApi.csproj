@@ -26,6 +26,7 @@
 	</ItemGroup>
 
   <ItemGroup>
+	<Protobuf Include="Protos\earchive_upd_test_client.proto" GrpcServices="Client" />
 	<Protobuf Include="Protos\earchive_upd.proto" GrpcServices="Server" />
   </ItemGroup>
 
@@ -37,6 +38,10 @@
 	<PackageReference Include="MySqlConnector" Version="2.2.6" />
 	<PackageReference Include="NLog.Web.AspNetCore" Version="5.2.1" />
 	<PackageReference Include="Polly" Version="7.2.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\HealthCheck\VodovozHealthCheck.csproj" />
   </ItemGroup>
 
 </Project>

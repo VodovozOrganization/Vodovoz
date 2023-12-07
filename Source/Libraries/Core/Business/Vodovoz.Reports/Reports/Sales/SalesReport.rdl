@@ -505,7 +505,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Sales">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
         <CommandText>SELECT
@@ -533,7 +533,9 @@
     T.nomen_group_level_3_name,
     T.nomen_group_level_1_id,
     T.nomen_group_level_2_id,
-    T.nomen_group_level_3_id
+    T.nomen_group_level_3_id,
+    counterparty_classification,
+    promotional_set
 FROM
     (SELECT
          counterparty.name as counterparty,
@@ -590,7 +592,10 @@ FROM
          IFNULL(group_levels.level_2_id, 0) as nomen_group_level_2_id,
          IFNULL(group_levels.level_2_name, 'Без группы') as nomen_group_level_2_name,
          IFNULL(group_levels.level_3_id, 0) as nomen_group_level_3_id,
-         IFNULL(group_levels.level_3_name, 'Без группы') as nomen_group_level_3_name
+         IFNULL(group_levels.level_3_name, 'Без группы') as nomen_group_level_3_name,
+         IFNULL(CONCAT(cc.classification_by_bottles_count, cc.classification_by_orders_count), 'Новый') as counterparty_classification,
+         IFNULL(ps.name, ' Без промонабора')  as promotional_set
+         
      FROM
          order_items
              LEFT JOIN
@@ -663,7 +668,16 @@ FROM
 					LEFT JOIN nomenclature_groups name_source_1 ON name_source_1.id = groups_with_levels.level_1_id
 					LEFT JOIN nomenclature_groups name_source_2 ON name_source_2.id = groups_with_levels.level_2_id
 					LEFT JOIN nomenclature_groups name_source_3 ON name_source_3.id = groups_with_levels.level_3_id
-		    ) group_levels ON group_levels.group_id = nomenclature.group_id    
+		    ) group_levels ON group_levels.group_id = nomenclature.group_id
+		    	LEFT JOIN 
+		    counterparty_classification cc ON cc.counterparty_id = counterparty.id 
+		    	AND cc.calculation_settings_id = 
+					(SELECT cc2.calculation_settings_id as calc_settings_id 
+					FROM counterparty_classification cc2
+					ORDER BY cc2.id DESC 
+					LIMIT 1)
+		    	LEFT JOIN
+		    promotional_sets ps ON ps.id = order_items.promotional_set_id
      WHERE
          (order_status = 'Accepted'
              OR order_status = 'InTravelList'
@@ -797,10 +811,40 @@ FROM
        	     ('0' IN (@OrderStatus_include) OR (orders.order_status IN (@OrderStatus_include)))
        	     	AND NOT (orders.order_status IN (@OrderStatus_exclude))
          )
+       AND (
+       	     (
+       	     '0' IN (@CounterpartyCompositeClassification_include)
+       	     OR ('AX' IN (@CounterpartyCompositeClassification_include) AND cc.classification_by_bottles_count = 'A' AND cc.classification_by_orders_count = 'X')
+       	     OR ('AY' IN (@CounterpartyCompositeClassification_include) AND cc.classification_by_bottles_count = 'A' AND cc.classification_by_orders_count = 'Y')
+       	     OR ('AZ' IN (@CounterpartyCompositeClassification_include) AND cc.classification_by_bottles_count = 'A' AND cc.classification_by_orders_count = 'Z')
+       	     OR ('BX' IN (@CounterpartyCompositeClassification_include) AND cc.classification_by_bottles_count = 'B' AND cc.classification_by_orders_count = 'X')
+       	     OR ('BY' IN (@CounterpartyCompositeClassification_include) AND cc.classification_by_bottles_count = 'B' AND cc.classification_by_orders_count = 'Y')
+       	     OR ('BZ' IN (@CounterpartyCompositeClassification_include) AND cc.classification_by_bottles_count = 'B' AND cc.classification_by_orders_count = 'Z')
+       	     OR ('CX' IN (@CounterpartyCompositeClassification_include) AND cc.classification_by_bottles_count = 'C' AND cc.classification_by_orders_count = 'X')
+       	     OR ('CY' IN (@CounterpartyCompositeClassification_include) AND cc.classification_by_bottles_count = 'C' AND cc.classification_by_orders_count = 'Y')
+       	     OR ('CZ' IN (@CounterpartyCompositeClassification_include) AND cc.classification_by_bottles_count = 'C' AND cc.classification_by_orders_count = 'Z')
+       	     OR ('New' IN (@CounterpartyCompositeClassification_include) AND (ISNULL(cc.classification_by_bottles_count) OR ISNULL(cc.classification_by_orders_count)))
+       	     )
+       	     AND NOT (
+       	     ((
+       	     ('AX' IN (@CounterpartyCompositeClassification_exclude) AND cc.classification_by_bottles_count = 'A' AND cc.classification_by_orders_count = 'X')
+	       	     OR ('AY' IN (@CounterpartyCompositeClassification_exclude) AND cc.classification_by_bottles_count = 'A' AND cc.classification_by_orders_count = 'Y')
+	       	     OR ('AZ' IN (@CounterpartyCompositeClassification_exclude) AND cc.classification_by_bottles_count = 'A' AND cc.classification_by_orders_count = 'Z')
+	       	     OR ('BX' IN (@CounterpartyCompositeClassification_exclude) AND cc.classification_by_bottles_count = 'B' AND cc.classification_by_orders_count = 'X')
+	       	     OR ('BY' IN (@CounterpartyCompositeClassification_exclude) AND cc.classification_by_bottles_count = 'B' AND cc.classification_by_orders_count = 'Y')
+	       	     OR ('BZ' IN (@CounterpartyCompositeClassification_exclude) AND cc.classification_by_bottles_count = 'B' AND cc.classification_by_orders_count = 'Z')
+	       	     OR ('CX' IN (@CounterpartyCompositeClassification_exclude) AND cc.classification_by_bottles_count = 'C' AND cc.classification_by_orders_count = 'X')
+	       	     OR ('CY' IN (@CounterpartyCompositeClassification_exclude) AND cc.classification_by_bottles_count = 'C' AND cc.classification_by_orders_count = 'Y')
+	       	     OR ('CZ' IN (@CounterpartyCompositeClassification_exclude) AND cc.classification_by_bottles_count = 'C' AND cc.classification_by_orders_count = 'Z'))
+       	     	AND NOT (ISNULL(cc.classification_by_bottles_count) OR ISNULL(cc.classification_by_orders_count)))
+       	     OR ('New' IN (@CounterpartyCompositeClassification_exclude) AND (ISNULL(cc.classification_by_bottles_count) OR ISNULL(cc.classification_by_orders_count)))
+       	     )
+         )
      GROUP BY order_items.id
     ) as T
 GROUP BY T.order_items_id
-;</CommandText>
+;
+</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -904,9 +948,15 @@ GROUP BY T.order_items_id
           <QueryParameter Name="CounterpartySubtype_exclude">
             <Value>={?CounterpartySubtype_exclude}</Value>
           </QueryParameter>
+          <QueryParameter Name="CounterpartyCompositeClassification_include">
+            <Value>={?CounterpartyCompositeClassification_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="CounterpartyCompositeClassification_exclude">
+            <Value>={?CounterpartyCompositeClassification_exclude}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="nomenclature_name">
           <DataField>nomenclature_name</DataField>
           <TypeName>System.String</TypeName>
@@ -1003,13 +1053,23 @@ GROUP BY T.order_items_id
           <DataField>nomen_group_level_3_id</DataField>
           <TypeName>System.Int32</TypeName>
         </Field>
+        <Field Name="counterparty_classification">
+          <DataField>counterparty_classification</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="promotional_set">
+          <DataField>promotional_set</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="Criterions">
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
-        <CommandText>SELECT
+        <CommandText>SET @classification_include = 0;
+SET @classification_exclude = 0;
+SELECT
     CONCAT(
             (IF(included_noms!=0,
                 CONCAT('Вкл.ном: ',included_noms,'\n'),
@@ -1090,10 +1150,10 @@ GROUP BY T.order_items_id
                 CONCAT('Искл.источников оплаты: ',excluded_payment_froms,'\n'),
                 '')),
             (IF(included_promo_sets!=0,
-                CONCAT('Вкл.промо-наборов: ',included_promo_sets,'\n'),
+                CONCAT('Вкл.промонаборов: ',included_promo_sets,'\n'),
                 '')),
             (IF(excluded_promo_sets!=0,
-                CONCAT('Искл.промо-наборов: ',excluded_promo_sets,'\n'),
+                CONCAT('Искл.промонаборов: ',excluded_promo_sets,'\n'),
                 '')),
             (IF(included_product_groups!=0,
                 CONCAT('Вкл.групп товаров: ',included_product_groups,'\n'),
@@ -1106,6 +1166,12 @@ GROUP BY T.order_items_id
 		'')),
 		(IF(excluded_order_statuses!=0,
 		CONCAT('Искл.статусов заказов: ',excluded_order_statuses,'\n'),
+		'')),
+        (IF(included_counterparty_classifications!=0,
+		CONCAT('Вкл.классификаций контрагентов: ',included_counterparty_classifications,'\n'),
+		'')),
+		(IF(excluded_counterparty_classifications!=0,
+		CONCAT('Искл.классификаций контрагентов: ',excluded_counterparty_classifications,'\n'),
 		''))
         ) AS criterions
 FROM
@@ -1279,7 +1345,47 @@ FROM
 			'0' NOT IN (@OrderStatus_exclude),
 			(SELECT COUNT(q.cat) FROM (SELECT COUNT(orders.order_status) AS cat FROM orders WHERE orders.order_status IN(@OrderStatus_exclude) GROUP BY orders.order_status) AS q),
 			0
-		) AS excluded_order_statuses
+		) AS excluded_order_statuses,		
+        IF(
+			'0' NOT IN (@CounterpartyCompositeClassification_include),
+			(SELECT total_includes
+			FROM
+			(
+			SELECT
+			IF('AX' IN (@CounterpartyCompositeClassification_include), @classification_include := @classification_include + 1, @classification_include := @classification_include) as ax,
+			IF('AY' IN (@CounterpartyCompositeClassification_include), @classification_include := @classification_include + 1, @classification_include := @classification_include) as ay,
+			IF('AZ' IN (@CounterpartyCompositeClassification_include), @classification_include := @classification_include + 1, @classification_include := @classification_include) as az,
+			IF('BX' IN (@CounterpartyCompositeClassification_include), @classification_include := @classification_include + 1, @classification_include := @classification_include) as bx,
+			IF('BY' IN (@CounterpartyCompositeClassification_include), @classification_include := @classification_include + 1, @classification_include := @classification_include) as by_,
+			IF('BZ' IN (@CounterpartyCompositeClassification_include), @classification_include := @classification_include + 1, @classification_include := @classification_include) as bz,
+			IF('CX' IN (@CounterpartyCompositeClassification_include), @classification_include := @classification_include + 1, @classification_include := @classification_include) as cx,
+			IF('CY' IN (@CounterpartyCompositeClassification_include), @classification_include := @classification_include + 1, @classification_include := @classification_include) as cy,
+			IF('CZ' IN (@CounterpartyCompositeClassification_include), @classification_include := @classification_include + 1, @classification_include := @classification_include) as cz,
+			IF('New' IN (@CounterpartyCompositeClassification_include), @classification_include := @classification_include + 1, @classification_include := @classification_include) as new_,
+			@classification_include as total_includes
+			) incl),
+			0
+		) AS included_counterparty_classifications,		
+        IF(
+			'0' NOT IN (@CounterpartyCompositeClassification_exclude),
+			(SELECT total_excludes
+			FROM
+			(
+			SELECT
+			IF('AX' IN (@CounterpartyCompositeClassification_exclude), @classification_exclude := @classification_exclude + 1, @classification_exclude := @classification_exclude) as ax,
+			IF('AY' IN (@CounterpartyCompositeClassification_exclude), @classification_exclude := @classification_exclude + 1, @classification_exclude := @classification_exclude) as ay,
+			IF('AZ' IN (@CounterpartyCompositeClassification_exclude), @classification_exclude := @classification_exclude + 1, @classification_exclude := @classification_exclude) as az,
+			IF('BX' IN (@CounterpartyCompositeClassification_exclude), @classification_exclude := @classification_exclude + 1, @classification_exclude := @classification_exclude) as bx,
+			IF('BY' IN (@CounterpartyCompositeClassification_exclude), @classification_exclude := @classification_exclude + 1, @classification_exclude := @classification_exclude) as by_,
+			IF('BZ' IN (@CounterpartyCompositeClassification_exclude), @classification_exclude := @classification_exclude + 1, @classification_exclude := @classification_exclude) as bz,
+			IF('CX' IN (@CounterpartyCompositeClassification_exclude), @classification_exclude := @classification_exclude + 1, @classification_exclude := @classification_exclude) as cx,
+			IF('CY' IN (@CounterpartyCompositeClassification_exclude), @classification_exclude := @classification_exclude + 1, @classification_exclude := @classification_exclude) as cy,
+			IF('CZ' IN (@CounterpartyCompositeClassification_exclude), @classification_exclude := @classification_exclude + 1, @classification_exclude := @classification_exclude) as cz,
+			IF('New' IN (@CounterpartyCompositeClassification_exclude), @classification_exclude := @classification_exclude + 1, @classification_exclude := @classification_exclude) as new_,
+			@classification_exclude as total_excludes
+			) incl),
+			0
+		) AS excluded_counterparty_classifications
     ) AS tbl
 ;</CommandText>
         <QueryParameters>
@@ -1384,6 +1490,12 @@ FROM
           </QueryParameter>
           <QueryParameter Name="PaymentFrom_exclude">
             <Value>={?PaymentFrom_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="CounterpartyCompositeClassification_include">
+            <Value>={?CounterpartyCompositeClassification_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="CounterpartyCompositeClassification_exclude">
+            <Value>={?CounterpartyCompositeClassification_exclude}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1855,7 +1967,21 @@ FROM
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt />
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CounterpartyCompositeClassification_include">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CounterpartyCompositeClassification_exclude">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

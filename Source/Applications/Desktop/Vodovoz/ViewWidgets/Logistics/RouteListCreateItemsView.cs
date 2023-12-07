@@ -85,10 +85,15 @@ namespace Vodovoz
 
 		public void SubscribeOnChanges()
 		{
+			RouteListUoW.Root.ObservableAddresses.ElementChanged -= Items_ElementChanged;
 			RouteListUoW.Root.ObservableAddresses.ElementChanged += Items_ElementChanged;
+			RouteListUoW.Root.ObservableAddresses.ListChanged -= Items_ListChanged;
 			RouteListUoW.Root.ObservableAddresses.ListChanged += Items_ListChanged;
+			RouteListUoW.Root.ObservableAddresses.ElementAdded -= Items_ElementAdded;
 			RouteListUoW.Root.ObservableAddresses.ElementAdded += Items_ElementAdded;
+			RouteListUoW.Root.PropertyChanged -= RouteListOnPropertyChanged;
 			RouteListUoW.Root.PropertyChanged += RouteListOnPropertyChanged;
+
 			if(RouteListUoW.Root.AdditionalLoadingDocument != null)
 			{
 				SubscribeToAdditionalLoadingDocumentItemsUpdates();

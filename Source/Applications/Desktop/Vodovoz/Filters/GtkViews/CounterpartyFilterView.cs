@@ -1,9 +1,14 @@
-using Gamma.GtkWidgets;
+﻿using Gamma.GtkWidgets;
+using Gamma.Widgets;
 using Gtk;
+using QS.ViewModels;
 using QS.Views.GtkUI;
 using QS.Widgets;
+using QS.Widgets.GtkUI;
+using System;
 using System.ComponentModel;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewWidgets.Search;
@@ -39,10 +44,7 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(ViewModel, vm => vm.DeliveryPointPhone, w => w.Text)
 				.InitializeFromSource();
 
-			yentryTag.RepresentationModel = ViewModel.TagVM;
-			yentryTag.Binding
-				.AddBinding(ViewModel, vm => vm.Tag, w => w.Subject)
-				.InitializeFromSource();
+			entryTag.ViewModel = ViewModel.TagViewModel;
 
 			yenumCounterpartyType.ItemsEnum = typeof(CounterpartyType);
 			yenumCounterpartyType.Binding
@@ -52,6 +54,11 @@ namespace Vodovoz.Filters.GtkViews
 			yenumReasonForLeaving.ItemsEnum = typeof(ReasonForLeaving);
 			yenumReasonForLeaving.Binding
 				.AddBinding(ViewModel, vm => vm.ReasonForLeaving, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
+
+			yenumClassification.ItemsEnum = typeof(CounterpartyCompositeClassification);
+			yenumClassification.Binding
+				.AddBinding(ViewModel, vm => vm.CounterpartyClassification, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 
 			checkIncludeArhive.Binding
@@ -91,15 +98,36 @@ namespace Vodovoz.Filters.GtkViews
 					.Finish();
 
 				ytreeviewSalesChannels.ItemsDataSource = ViewModel.SalesChannels;
+
+				yenumClassification.Visible = false;
+				labelClassification.Visible = false;
 			}
 			else
 			{
 				frame2.Visible = false;
 			}
 
+			speciallistcomboboxCounterpartySource.ItemsList = ViewModel.ClientCameFromCache;
+			speciallistcomboboxCounterpartySource.ShowSpecialStateNot = true;
+			speciallistcomboboxCounterpartySource.ShowSpecialStateAll = true;
+
+			speciallistcomboboxCounterpartySource.Binding
+				.AddBinding(ViewModel, vm => vm.ClientCameFrom, w => w.SelectedItem)
+				.InitializeFromSource();
+
+			speciallistcomboboxCounterpartySource.Changed += OnSpeciallistcomboboxCounterpartySourceChanged;
+
 			var searchByAddressView = new CompositeSearchView(ViewModel.SearchByAddressViewModel);
 			yhboxSearchByAddress.Add(searchByAddressView);
 			searchByAddressView.Show();
+		}
+
+		private void OnSpeciallistcomboboxCounterpartySourceChanged(object sender, EventArgs e)
+		{
+			if(speciallistcomboboxCounterpartySource.IsSelectedNot != ViewModel.ClientCameFromIsEmpty)
+			{
+				ViewModel.ClientCameFromIsEmpty = speciallistcomboboxCounterpartySource.IsSelectedNot;
+			}
 		}
 
 		private void OnKeyReleased(object sender, KeyReleaseEventArgs args)

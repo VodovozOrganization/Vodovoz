@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Text;
 using QS.Print;
 using QS.Report;
 using Vodovoz.Domain.Client;
@@ -31,7 +30,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		{
 			var identifier = Order.DeliveryDate <= _edition2017LastDate ? "Documents.UPD2017Edition" : "Documents.UPD";
 			return new ReportInfo {
-				Title = String.Format("УПД {0} от {1:d}", Order.Id, Order.DeliveryDate),
+				Title = $"УПД {Order.Id} от {Order.DeliveryDate:d}",
 				Identifier = identifier,
 				Parameters = new Dictionary<string, object> {
 					{ "order_id", Order.Id },
@@ -47,7 +46,7 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		#region implemented abstract members of IEmailableDocument
 
-		public virtual string Title => String.Format($"УПД №{Order.Id} от {Order.DeliveryDate:d}");
+		public virtual string Title => $"УПД №{Order.Id} от {Order.DeliveryDate:d}";
 		public virtual Counterparty Counterparty => Order?.Client;
 
 		public virtual EmailTemplate GetEmailTemplate()
@@ -90,7 +89,7 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		#endregion
 
-		public override string Name => String.Format("УПД №{0}", Order.Id);
+		public override string Name => $"УПД №{Order.Id}";
 
 		public override DateTime? DocumentDate => Order?.DeliveryDate;
 
@@ -129,4 +128,3 @@ namespace Vodovoz.Domain.Orders.Documents
 		}
 	}
 }
-

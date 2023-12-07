@@ -12,14 +12,14 @@ namespace Sms.External.Interface
 		/// </summary>
 		/// <returns>Результат отправки</returns>
 		/// <param name="message">Смс сообщение</param>
-		ISmsSendResult SendSms(ISmsMessage message);
+		SmsResponseStatus SendSms(ISmsMessage message);
 
 		/// <summary>
 		/// Асинхронная отправка смс сообщения
 		/// </summary>
 		/// <returns>Задача возвращающая результат отправки</returns>
 		/// <param name="message">Смс сообщение</param>
-		Task<ISmsSendResult> SendSmsAsync(ISmsMessage message);
+		Task<SmsResponseStatus> SendSmsAsync(ISmsMessage message);
 
 		BalanceResponse GetBalanceResponse { get; }
 	}

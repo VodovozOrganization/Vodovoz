@@ -1,4 +1,5 @@
-﻿using QS.Project.Journal.EntitySelector;
+﻿using Autofac;
+using QS.Project.Journal.EntitySelector;
 using System.Collections.Generic;
 using Vodovoz.Domain.Store;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;

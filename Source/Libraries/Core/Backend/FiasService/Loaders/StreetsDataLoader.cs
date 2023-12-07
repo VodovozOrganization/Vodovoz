@@ -4,37 +4,24 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Fias.Search.DTO;
-using NLog;
+using Microsoft.Extensions.Logging;
 
 namespace Fias.Client.Loaders
 {
-	public interface IStreetsDataLoader
+	internal class StreetsDataLoader : FiasDataLoader, IStreetsDataLoader
 	{
-		/// <summary>
-		///     Delay before query was executed (in millisecond)
-		/// </summary>
-		int Delay { get; set; }
-
-		event Action StreetLoaded;
-
-		/// <summary>
-		///     Initialize loading geodata from service
-		/// </summary>
-		void LoadStreets(Guid? cityId, string searchString, int limit = 50);
-
-		StreetDTO[] GetStreets();
-	}
-
-	public class StreetsDataLoader : FiasDataLoader, IStreetsDataLoader
-	{
-		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+		private readonly ILogger<StreetsDataLoader> _logger;
 
 		protected Task<IEnumerable<StreetDTO>> CurrentLoadTask;
 
 		protected StreetDTO[] Streets;
 
-		public StreetsDataLoader(IFiasApiClient fiasApiClient) : base(fiasApiClient)
+		public StreetsDataLoader(
+			ILogger<StreetsDataLoader> logger,
+			IFiasApiClient fiasApiClient)
+			: base(fiasApiClient)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
 
 		public event Action StreetLoaded;
@@ -47,7 +34,7 @@ namespace Fias.Client.Loaders
 
 			CurrentLoadTask = Task.Run(() => GetStreetDTOs(cityId, searchString, limit, cancelTokenSource.Token));
 			CurrentLoadTask.ContinueWith(SaveStreets, cancelTokenSource.Token, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.Default);
-			CurrentLoadTask.ContinueWith(arg => logger.Error(arg.Exception, "Ошибка при загрузке улиц"), TaskContinuationOptions.OnlyOnFaulted);
+			CurrentLoadTask.ContinueWith(arg => _logger.LogError(arg.Exception, "Ошибка при загрузке улиц"), TaskContinuationOptions.OnlyOnFaulted);
 		}
 
 		protected IEnumerable<StreetDTO> GetStreetDTOs(Guid? cityId, string searchString, int limit, CancellationToken token)
@@ -59,7 +46,7 @@ namespace Fias.Client.Loaders
 			try
 			{
 				Task.Delay(Delay, token).Wait();
-				logger.Info($"Запрос улиц... Строка поиска : {searchString} , Кол-во записей {limit}");
+				_logger.LogInformation("Запрос улиц... Строка поиска : {SearchString} , Кол-во записей {Limit}", searchString, limit);
 				return Fias.GetStreetsByCriteria((Guid) cityId, searchString, limit);
 			}
 			catch(AggregateException ae)
@@ -68,7 +55,7 @@ namespace Fias.Client.Loaders
 				{
 					if(ex is TaskCanceledException)
 					{
-						logger.Info("Запрос улиц отменен");
+						_logger.LogInformation("Запрос улиц отменен");
 					}
 
 					return ex is TaskCanceledException;
@@ -80,7 +67,7 @@ namespace Fias.Client.Loaders
 		protected void SaveStreets(Task<IEnumerable<StreetDTO>> newStreets)
 		{
 			Streets = newStreets.Result.ToArray();
-			logger.Info($"Улиц загружено : { Streets.Length }");
+			_logger.LogInformation("Улиц загружено : {StreetsCount}", Streets.Length);
 			StreetLoaded?.Invoke();
 		}
 
@@ -88,7 +75,7 @@ namespace Fias.Client.Loaders
 		{
 			if(CurrentLoadTask == null || !CurrentLoadTask.IsCompleted)
 			{
-				logger.Debug("Отмена предыдущей загрузки улиц");
+				_logger.LogDebug("Отмена предыдущей загрузки улиц");
 			}
 
 			cancelTokenSource.Cancel();

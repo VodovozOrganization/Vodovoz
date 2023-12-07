@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
@@ -12,10 +12,10 @@ using Vodovoz.Services;
 namespace Vodovoz.Domain.Orders
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "рекламные наборы",
-		Nominative = "рекламный набор",
-		Prepositional = "рекламном наборе",
-		PrepositionalPlural = "рекламных наборах"
+		NominativePlural = "промонаборы",
+		Nominative = "промонабор",
+		Prepositional = "промонаборе",
+		PrepositionalPlural = "промонаборах"
 	)]
 	[HistoryTrace]
 	[EntityPermission]
@@ -113,8 +113,8 @@ namespace Vodovoz.Domain.Orders
 
 		#endregion
 
-		public virtual string Title => string.Format("Рекламный набор №{0} \"{1}\"", Id, Name);
-		public virtual string ShortTitle => string.Format("Промо-набор \"{0}\"", Name);
+		public virtual string Title => string.Format("Промонабор №{0} \"{1}\"", Id, Name);
+		public virtual string ShortTitle => string.Format("Промонабор \"{0}\"", Name);
 
 		#region IValidatableObject implementation
 

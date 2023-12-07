@@ -48,14 +48,8 @@ namespace Vodovoz.Domain.Orders
 
 		private NomenclatureParametersProvider _nomenclatureParameterProvider = new NomenclatureParametersProvider(new ParametersProvider());
 
-		private int? paidDeliveryNomenclatureId;
-		private int PaidDeliveryNomenclatureId =>
-			paidDeliveryNomenclatureId ?? (paidDeliveryNomenclatureId = _nomenclatureParameterProvider.PaidDeliveryNomenclatureId).Value;
-
+		private int? _paidDeliveryNomenclatureId;
 		private int? _fastDeliveryNomenclatureId;
-		private int FastDeliveryNomenclatureId =>
-			_fastDeliveryNomenclatureId ?? (_fastDeliveryNomenclatureId = _nomenclatureParameterProvider.FastDeliveryNomenclatureId).Value;
-
 		private OrderItem _copiedFromUndelivery;
 
 		#region Свойства
@@ -72,8 +66,10 @@ namespace Vodovoz.Domain.Orders
 			get => _order;
 			set
 			{
-				if(SetField(ref _order, value, () => Order))
+				if(SetField(ref _order, value))
+				{
 					RecalculateVAT();
+				}
 			}
 		}
 
@@ -83,7 +79,7 @@ namespace Vodovoz.Domain.Orders
 			get => _nomenclature;
 			set
 			{
-				if(SetField(ref _nomenclature, value, () => Nomenclature))
+				if(SetField(ref _nomenclature, value))
 				{
 					CalculateVATType();
 				}
@@ -94,7 +90,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual Equipment Equipment
 		{
 			get => _equipment;
-			set => SetField(ref _equipment, value, () => Equipment);
+			set => SetField(ref _equipment, value);
 		}
 
 		[Display(Name = "Цена")]
@@ -107,9 +103,11 @@ namespace Vodovoz.Domain.Orders
 				//номенклатуре, то цена не изменена пользователем и сможет расчитываться автоматически
 				IsUserPrice = (value != GetPriceByTotalCount() && value != 0 && !IsFixedPrice) || CopiedFromUndelivery != null;
 				if(IsUserPrice)
+				{
 					IsUserPrice = (value != GetPriceByTotalCount() && value != 0 && !IsFixedPrice) || CopiedFromUndelivery != null;
+				}
 
-				if(SetField(ref _price, value, () => Price))
+				if(SetField(ref _price, value))
 				{
 					RecalculateDiscount();
 					RecalculateVAT();
@@ -121,7 +119,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual bool IsUserPrice
 		{
 			get => _isUserPrice;
-			set => SetField(ref _isUserPrice, value, () => IsUserPrice);
+			set => SetField(ref _isUserPrice, value);
 		}
 
 		[Display(Name = "Количество")]
@@ -131,7 +129,10 @@ namespace Vodovoz.Domain.Orders
 			set
 			{
 				if(Nomenclature?.Unit?.Digits == 0 && value % 1 != 0)
+				{
 					value = Math.Truncate(value);
+				}
+
 				if(SetField(ref _count, value))
 				{
 					Order?.RecalculateItemsPrice();
@@ -159,7 +160,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual decimal? IncludeNDS
 		{
 			get => _includeNDS;
-			set => SetField(ref _includeNDS, value, () => IncludeNDS);
+			set => SetField(ref _includeNDS, value);
 		}
 
 		[Display(Name = "Скидка деньгами?")]
@@ -168,8 +169,10 @@ namespace Vodovoz.Domain.Orders
 			get => _isDiscountInMoney;
 			set
 			{
-				if(SetField(ref _isDiscountInMoney, value, () => IsDiscountInMoney))
+				if(SetField(ref _isDiscountInMoney, value))
+				{
 					RecalculateVAT();
+				}
 			}
 		}
 
@@ -183,7 +186,7 @@ namespace Vodovoz.Domain.Orders
 				{
 					DiscountReason = null;
 				}
-				if(SetField(ref _discount, value, () => Discount))
+				if(SetField(ref _discount, value))
 				{
 					RecalculateVAT();
 				}
@@ -194,7 +197,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual decimal? OriginalDiscount
 		{
 			get => _originalDiscount;
-			set { SetField(ref _originalDiscount, value, () => OriginalDiscount); }
+			set => SetField(ref _originalDiscount, value);
 		}
 
 		[Display(Name = "Скидка на товар в деньгах")]
@@ -207,8 +210,11 @@ namespace Vodovoz.Domain.Orders
 				{
 					DiscountReason = null;
 				}
-				if(SetField(ref _discountMoney, value, () => DiscountMoney))
+
+				if(SetField(ref _discountMoney, value))
+				{
 					RecalculateVAT();
+				}
 			}
 		}
 
@@ -216,49 +222,48 @@ namespace Vodovoz.Domain.Orders
 		public virtual decimal? OriginalDiscountMoney
 		{
 			get => _originalDiscountMoney;
-			set => SetField(ref _originalDiscountMoney, value, () => OriginalDiscountMoney);
+			set => SetField(ref _originalDiscountMoney, value);
 		}
 
 		[Display(Name = "Скидка по акции")]
 		public virtual decimal DiscountByStock
 		{
 			get => _discountByStock;
-			set => SetField(ref _discountByStock, value, () => DiscountByStock);
+			set => SetField(ref _discountByStock, value);
 		}
 
 		[Display(Name = "НДС на момент создания заказа")]
 		public virtual decimal? ValueAddedTax
 		{
 			get => _valueAddedTax;
-			set => SetField(ref _valueAddedTax, value, () => ValueAddedTax);
+			set => SetField(ref _valueAddedTax, value);
 		}
-
 
 		[Display(Name = "Основание скидки на товар")]
 		public virtual DiscountReason DiscountReason
 		{
 			get => _discountReason;
-			set => SetField(ref _discountReason, value, () => DiscountReason);
+			set => SetField(ref _discountReason, value);
 		}
 
 		[Display(Name = "Основание скидки на товар до отмены заказа")]
 		public virtual DiscountReason OriginalDiscountReason
 		{
 			get => _originalDiscountReason;
-			set => SetField(ref _originalDiscountReason, value, () => OriginalDiscountReason);
+			set => SetField(ref _originalDiscountReason, value);
 		}
 
 		public virtual CounterpartyMovementOperation CounterpartyMovementOperation
 		{
 			get => _counterpartyMovementOperation;
-			set => SetField(ref _counterpartyMovementOperation, value, () => CounterpartyMovementOperation);
+			set => SetField(ref _counterpartyMovementOperation, value);
 		}
 
-		[Display(Name = "Добавлено из промо-набора")]
+		[Display(Name = "Добавлено из промонабора")]
 		public virtual PromotionalSet PromoSet
 		{
 			get => _promoSet;
-			set => SetField(ref _promoSet, value, () => PromoSet);
+			set => SetField(ref _promoSet, value);
 		}
 
 		[Display(Name = "Альтернативная цена?")]
@@ -326,19 +331,11 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _freeRentPackage, value);
 		}
 
-		public virtual void SetRentEquipmentCount(int equipmentCount)
-		{
-			RentEquipmentCount = equipmentCount;
-			switch(OrderItemRentSubType)
-			{
-				case OrderItemRentSubType.RentServiceItem:
-					Count = RentCount * RentEquipmentCount;
-					break;
-				case OrderItemRentSubType.RentDepositItem:
-					Count = RentEquipmentCount;
-					break;
-			}
-		}
+		private int PaidDeliveryNomenclatureId =>
+			_paidDeliveryNomenclatureId ?? (_paidDeliveryNomenclatureId = _nomenclatureParameterProvider.PaidDeliveryNomenclatureId).Value;
+
+		private int FastDeliveryNomenclatureId =>
+			_fastDeliveryNomenclatureId ?? (_fastDeliveryNomenclatureId = _nomenclatureParameterProvider.FastDeliveryNomenclatureId).Value;
 
 		#endregion Аренда
 
@@ -375,10 +372,8 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual decimal ManualChangingOriginalDiscount
-		{
-			get => IsDiscountInMoney ? (OriginalDiscountMoney ?? 0) : (OriginalDiscount ?? 0);
-		}
+		public virtual decimal ManualChangingOriginalDiscount =>
+			IsDiscountInMoney ? (OriginalDiscountMoney ?? 0) : (OriginalDiscount ?? 0);
 
 		public virtual decimal DiscountSetter
 		{
@@ -386,20 +381,38 @@ namespace Vodovoz.Domain.Orders
 			set => CalculateAndSetDiscount(value);
 		}
 
+		public virtual void SetRentEquipmentCount(int equipmentCount)
+		{
+			RentEquipmentCount = equipmentCount;
+			switch(OrderItemRentSubType)
+			{
+				case OrderItemRentSubType.RentServiceItem:
+					Count = RentCount * RentEquipmentCount;
+					break;
+				case OrderItemRentSubType.RentDepositItem:
+					Count = RentEquipmentCount;
+					break;
+			}
+		}
+
 		private void RecalculateDiscount()
 		{
-			if(!NHibernate.NHibernateUtil.IsPropertyInitialized(this, nameof(DiscountMoney))
-			   || !NHibernate.NHibernateUtil.IsPropertyInitialized(this, nameof(Discount))
-			   || !NHibernate.NHibernateUtil.IsPropertyInitialized(this, nameof(Price))
-			   || (Order == null || !NHibernate.NHibernateUtil.IsInitialized(Order.OrderItems)))
+			if(!NHibernateUtil.IsPropertyInitialized(this, nameof(DiscountMoney))
+			   || !NHibernateUtil.IsPropertyInitialized(this, nameof(Discount))
+			   || !NHibernateUtil.IsPropertyInitialized(this, nameof(Price))
+			   || (Order == null || !NHibernateUtil.IsInitialized(Order.OrderItems)))
 			{
 				return;
 			}
 
 			if(CurrentCount == 0)
+			{
 				RemoveDiscount();
+			}
 			else
+			{
 				CalculateAndSetDiscount(DiscountSetter);
+			}
 		}
 
 		private void RemoveDiscount()
@@ -490,10 +503,14 @@ namespace Vodovoz.Domain.Orders
 				}
 
 				if(Nomenclature.Id == PaidDeliveryNomenclatureId)
+				{
 					result = false;
+				}
 
 				if(PromoSet != null && !PromoSet.CanEditNomenclatureCount)
+				{
 					result = false;
+				}
 
 				if(Nomenclature.Id == FastDeliveryNomenclatureId)
 				{
@@ -528,6 +545,11 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual string Title => $"[{Order.Title}] {Nomenclature.Name} - {Count}*{Price}={Sum}";
 
+		public virtual decimal TotalCountInOrder =>
+			Nomenclature.IsWater19L
+			? Order.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true)
+			: Count;
+
 		#region IOrderItemWageCalculationSource implementation
 
 		public virtual decimal InitialCount => Count;
@@ -547,7 +569,9 @@ namespace Vodovoz.Domain.Orders
 			decimal? result = null;
 
 			if(Order.IsLoadedFrom1C)
+			{
 				return result;
+			}
 
 			//влияющая номенклатура
 			if(Nomenclature.Category == NomenclatureCategory.water)
@@ -560,11 +584,6 @@ namespace Vodovoz.Domain.Orders
 			}
 			return result;
 		}
-
-		public virtual decimal TotalCountInOrder =>
-			Nomenclature.IsWater19L
-			? Order.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true)
-			: Count;
 
 		public virtual void RecalculatePrice()
 		{
@@ -583,7 +602,9 @@ namespace Vodovoz.Domain.Orders
 			IsFixedPrice = false;
 
 			if(IsUserPrice || PromoSet != null || Order.OrderStatus == OrderStatus.Closed || CopiedFromUndelivery != null)
+			{
 				return;
+			}
 
 			Price = GetPriceByTotalCount();
 		}
@@ -596,9 +617,14 @@ namespace Vodovoz.Domain.Orders
 				var canApplyAlternativePrice = Order.HasPermissionsForAlternativePrice && Nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= curCount);
 
 				if(Nomenclature.DependsOnNomenclature == null)
+				{
 					return Nomenclature.GetPrice(curCount, canApplyAlternativePrice);
+				}
+
 				if(Nomenclature.IsWater19L)
+				{
 					return Nomenclature.DependsOnNomenclature.GetPrice(curCount, canApplyAlternativePrice);
+				}
 			}
 			return 0m;
 		}
@@ -608,14 +634,18 @@ namespace Vodovoz.Domain.Orders
 			if(!ActualCount.HasValue || ActualCount.Value == 0)
 			{
 				if(CounterpartyMovementOperation != null && CounterpartyMovementOperation.Id > 0)
+				{
 					uow.Delete(CounterpartyMovementOperation);
+				}
 
 				CounterpartyMovementOperation = null;
 				return null;
 			}
 
 			if(Nomenclature == null)
+			{
 				throw new InvalidOperationException("Номенклатура не может быть null");
+			}
 
 			if(CounterpartyMovementOperation == null)
 			{
@@ -714,32 +744,4 @@ namespace Vodovoz.Domain.Orders
 
 		#endregion
 	}
-
-	public enum OrderRentType
-	{
-		[Display(Name = "Нет аренды")]
-		None,
-
-		[Display(Name = "Долгосрочная аренда")]
-		NonFreeRent,
-
-		[Display(Name = "Бесплатная аренда")]
-		FreeRent,
-
-		[Display(Name = "Посуточная аренда")]
-		DailyRent
-	}
-
-	public enum OrderItemRentSubType
-	{
-		[Display(Name = "Нет аренды")]
-		None,
-
-		[Display(Name = "Услуга аренды")]
-		RentServiceItem,
-
-		[Display(Name = "Залог за аренду")]
-		RentDepositItem
-	}
 }
-

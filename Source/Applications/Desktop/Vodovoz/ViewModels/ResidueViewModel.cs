@@ -16,7 +16,6 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
@@ -28,7 +27,6 @@ namespace Vodovoz.ViewModels
 	public class ResidueViewModel : EntityTabViewModelBase<Residue>
 	{
 		private readonly IEmployeeService _employeeService;
-		private readonly IRepresentationEntityPicker _entityPicker;
 		private readonly IBottlesRepository _bottlesRepository;
 		private readonly IDepositRepository _depositRepository;
 		private readonly IMoneyRepository _moneyRepository;
@@ -39,7 +37,6 @@ namespace Vodovoz.ViewModels
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
 			IEmployeeService employeeService,
-			IRepresentationEntityPicker entityPicker,
 			IBottlesRepository bottlesRepository,
 			IDepositRepository depositRepository,
 			IMoneyRepository moneyRepository,
@@ -57,7 +54,6 @@ namespace Vodovoz.ViewModels
 			}
 
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			_entityPicker = entityPicker ?? throw new ArgumentNullException(nameof(entityPicker));
 			_bottlesRepository = bottlesRepository ?? throw new ArgumentNullException(nameof(bottlesRepository));
 			_depositRepository = depositRepository ?? throw new ArgumentNullException(nameof(depositRepository));
 			_moneyRepository = moneyRepository ?? throw new ArgumentNullException(nameof(moneyRepository));
@@ -208,7 +204,7 @@ namespace Vodovoz.ViewModels
 					var filter = new NomenclatureFilterViewModel();
 					filter.RestrictCategory = NomenclatureCategory.equipment;
 
-					var nomenclatureJournalFactory = new NomenclatureJournalFactory();
+					var nomenclatureJournalFactory = new NomenclatureJournalFactory(_lifetimeScope);
 					var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel();
 					journal.FilterViewModel = filter;
 					journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult; ;

@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using NLog;
 using QS.Attachments.ViewModels.Widgets;
 using QS.Commands;
@@ -273,6 +273,10 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 					|| (_terminalManagementViewModel?.HasChanges ?? false);
 			}
 		}
+
+		public virtual bool HasCustomCancellationConfirmationDialog => false;
+
+		public virtual Func<int> CustomCancellationConfirmationDialogFunc => null;
 
 		public bool AskSaveOnClose => CanEditEmployee;
 		

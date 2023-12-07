@@ -21,14 +21,21 @@ namespace Vodovoz.Reports
 	{
 		private CarModelSelectionFilterViewModel _carModelSelectionFilterViewModel;
 
-		public FuelReport(INavigationManager navigationManager)
+		public FuelReport(
+			ILifetimeScope lifetimeScope,
+			INavigationManager navigationManager)
 		{
+			if(lifetimeScope is null)
+			{
+				throw new ArgumentNullException(nameof(lifetimeScope));
+			}
+
 			if(navigationManager is null)
 			{
 				throw new ArgumentNullException(nameof(navigationManager));
 			}
 
-			this.Build();
+			Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			var filterDriver = new EmployeeFilterViewModel();
 			filterDriver.SetAndRefilterAtOnce(
@@ -37,7 +44,7 @@ namespace Vodovoz.Reports
 			);
 			var driverFactory = new EmployeeJournalFactory(navigationManager, filterDriver);
 			evmeDriver.SetEntityAutocompleteSelectorFactory(driverFactory.CreateEmployeeAutocompleteSelectorFactory());
-			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(Startup.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory());
+			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(Startup.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory(lifetimeScope));
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 
 			var officeFilter = new EmployeeFilterViewModel();

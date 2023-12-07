@@ -12,9 +12,11 @@ using QS.Project.Services;
 using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.Tdi;
+using QS.ViewModels.Dialog;
 using System;
 using System.Collections;
 using System.Linq;
+using DateTimeHelpers;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
@@ -31,13 +33,11 @@ using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
-using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Reports.ComplaintsJournalReport;
-using Order = Vodovoz.Domain.Orders.Order;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
-using QS.ViewModels.Dialog;
 using static Vodovoz.FilterViewModels.ComplaintFilterViewModel;
+using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Journals.JournalViewModels
 {
@@ -109,7 +109,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			_complaintParametersProvider = complaintParametersProvider ?? throw new ArgumentNullException(nameof(complaintParametersProvider));
 			_generalSettingsParametersProvider = generalSettingsParametersProvider ?? throw new ArgumentNullException(nameof(generalSettingsParametersProvider));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
-			
+
 			ParentTab = (ITdiTab)this;
 
 			TabName = "Журнал рекламаций";
@@ -177,9 +177,9 @@ namespace Vodovoz.Journals.JournalViewModels
 		}
 
 		private ITdiTab _parrentTab;
-		public ITdiTab ParentTab 
+		public ITdiTab ParentTab
 		{
-			get => _parrentTab; 
+			get => _parrentTab;
 			set
 			{
 				_parrentTab = value;
@@ -191,7 +191,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			_subdivisionQualityServiceShortName ??
 				(_subdivisionQualityServiceShortName =
 					UoW.GetById<Subdivision>(_subdivisionParametersProvider.QualityServiceSubdivisionId).ShortName ?? "?"); // СК
-		
+
 		private string SubdivisionAuditDepartmentShortName =>
 			_subdivisionAuditDepartmentShortName ??
 				(_subdivisionAuditDepartmentShortName =
@@ -345,7 +345,7 @@ namespace Vodovoz.Journals.JournalViewModels
 				.Select(arrangementCommentProjection);
 
 			var resultOfResultCommentsSubquery = QueryOver.Of(() => resultOfComplaintResultCommentAlias)
-				.Where(() =>resultOfComplaintResultCommentAlias.Complaint.Id == complaintAlias.Id)
+				.Where(() => resultOfComplaintResultCommentAlias.Complaint.Id == complaintAlias.Id)
 				.Select(resultCommentProjection);
 
 			var query = uow.Session.QueryOver(() => complaintAlias)
@@ -368,17 +368,22 @@ namespace Vodovoz.Journals.JournalViewModels
 
 			#region Filter
 
-			if(FilterViewModel != null) {
-				if (FilterViewModel.IsForRetail != null)
+			if(FilterViewModel != null)
+			{
+				if(FilterViewModel.IsForRetail != null)
 				{
 					query.Where(() => counterpartyAlias.IsForRetail == FilterViewModel.IsForRetail);
 				}
 
-				FilterViewModel.EndDate = FilterViewModel.EndDate.Date.AddHours(23).AddMinutes(59);
+				if(FilterViewModel.EndDate != null)
+				{
+					FilterViewModel.EndDate = FilterViewModel.EndDate.Value.LatestDayTime();
+				}
 
 				QueryOver<ComplaintDiscussion, ComplaintDiscussion> dicussionQuery = null;
 
-				if(FilterViewModel.Subdivision != null) {
+				if(FilterViewModel.Subdivision != null)
+				{
 					dicussionQuery = QueryOver.Of(() => discussionAlias)
 						.Select(Projections.Property<ComplaintDiscussion>(p => p.Id))
 						.Where(() => discussionAlias.Subdivision.Id == FilterViewModel.Subdivision.Id)
@@ -390,49 +395,45 @@ namespace Vodovoz.Journals.JournalViewModels
 					case DateFilterType.PlannedCompletionDate:
 						if(dicussionQuery == null)
 						{
-							if(!FilterViewModel.StartDate.HasValue)
+							if(FilterViewModel.StartDate.HasValue)
+							{
+								query.Where(() => complaintAlias.PlannedCompletionDate >= FilterViewModel.StartDate);
+							}
+							if(FilterViewModel.EndDate.HasValue)
 							{
 								query.Where(() => complaintAlias.PlannedCompletionDate <= FilterViewModel.EndDate);
-							}
-							else
-							{
-								query.Where(() => complaintAlias.PlannedCompletionDate <= FilterViewModel.EndDate)
-									.And(() => complaintAlias.PlannedCompletionDate >= FilterViewModel.StartDate.Value);
 							}
 						}
 						else
 						{
-							if(!FilterViewModel.StartDate.HasValue)
+							if(FilterViewModel.StartDate.HasValue)
+							{
+								dicussionQuery.And(() => discussionAlias.PlannedCompletionDate >= FilterViewModel.StartDate);
+							}
+							if(FilterViewModel.EndDate.HasValue)
 							{
 								dicussionQuery.And(() => discussionAlias.PlannedCompletionDate <= FilterViewModel.EndDate);
-							}
-							else
-							{
-								dicussionQuery.And(() => discussionAlias.PlannedCompletionDate >= FilterViewModel.StartDate.Value)
-									.And(() => discussionAlias.PlannedCompletionDate <= FilterViewModel.EndDate);
 							}
 						}
 						break;
 					case DateFilterType.ActualCompletionDate:
-						if(!FilterViewModel.StartDate.HasValue)
+						if(FilterViewModel.StartDate.HasValue)
+						{
+							query.Where(() => complaintAlias.ActualCompletionDate >= FilterViewModel.StartDate);
+						}
+						if(FilterViewModel.EndDate.HasValue)
 						{
 							query.Where(() => complaintAlias.ActualCompletionDate <= FilterViewModel.EndDate);
 						}
-						else
-						{
-							query.Where(() => complaintAlias.ActualCompletionDate <= FilterViewModel.EndDate)
-								.And(() => complaintAlias.ActualCompletionDate >= FilterViewModel.StartDate.Value);
-						}
 						break;
 					case DateFilterType.CreationDate:
-						if(!FilterViewModel.StartDate.HasValue)
+						if(FilterViewModel.StartDate.HasValue)
+						{
+							query.Where(() => complaintAlias.CreationDate >= FilterViewModel.StartDate);
+						}
+						if(FilterViewModel.EndDate.HasValue)
 						{
 							query.Where(() => complaintAlias.CreationDate <= FilterViewModel.EndDate);
-						}
-						else
-						{
-							query.Where(() => complaintAlias.CreationDate <= FilterViewModel.EndDate)
-								.And(() => complaintAlias.CreationDate >= FilterViewModel.StartDate);
 						}
 						break;
 					default:
@@ -470,7 +471,8 @@ namespace Vodovoz.Journals.JournalViewModels
 						.And(() => discussionAlias.Status == FilterViewModel.ComplaintDiscussionStatus);
 				}
 
-				if (FilterViewModel.GuiltyItemVM?.Entity?.Responsible != null) {
+				if(FilterViewModel.GuiltyItemVM?.Entity?.Responsible != null)
+				{
 					var subquery = QueryOver.Of<ComplaintGuiltyItem>()
 											.Where(g => g.Responsible.Id == FilterViewModel.GuiltyItemVM.Entity.Responsible.Id);
 
@@ -572,7 +574,10 @@ namespace Vodovoz.Journals.JournalViewModels
 					query.Where(() => counterpartyAlias.IsForRetail == FilterViewModel.IsForRetail);
 				}
 
-				FilterViewModel.EndDate = FilterViewModel.EndDate.Date.AddHours(23).AddMinutes(59);
+				if(FilterViewModel.EndDate != null)
+				{
+					FilterViewModel.EndDate = FilterViewModel.EndDate.Value.LatestDayTime();
+				}
 
 				QueryOver<ComplaintDiscussion, ComplaintDiscussion> dicussionQuery = null;
 
@@ -589,49 +594,45 @@ namespace Vodovoz.Journals.JournalViewModels
 					case DateFilterType.PlannedCompletionDate:
 						if(dicussionQuery == null)
 						{
-							if(!FilterViewModel.StartDate.HasValue)
+							if(FilterViewModel.StartDate.HasValue)
+							{
+								query.Where(() => complaintAlias.PlannedCompletionDate >= FilterViewModel.StartDate);
+							}
+							if(FilterViewModel.EndDate.HasValue)
 							{
 								query.Where(() => complaintAlias.PlannedCompletionDate <= FilterViewModel.EndDate);
-							}
-							else
-							{
-								query.Where(() => complaintAlias.PlannedCompletionDate <= FilterViewModel.EndDate)
-									.And(() => complaintAlias.PlannedCompletionDate >= FilterViewModel.StartDate.Value);
 							}
 						}
 						else
 						{
-							if(!FilterViewModel.StartDate.HasValue)
+							if(FilterViewModel.StartDate.HasValue)
+							{
+								dicussionQuery.And(() => discussionAlias.PlannedCompletionDate >= FilterViewModel.StartDate);
+							}
+							if(FilterViewModel.EndDate.HasValue)
 							{
 								dicussionQuery.And(() => discussionAlias.PlannedCompletionDate <= FilterViewModel.EndDate);
-							}
-							else
-							{
-								dicussionQuery.And(() => discussionAlias.PlannedCompletionDate >= FilterViewModel.StartDate.Value)
-									.And(() => discussionAlias.PlannedCompletionDate <= FilterViewModel.EndDate);
 							}
 						}
 						break;
 					case DateFilterType.ActualCompletionDate:
-						if(!FilterViewModel.StartDate.HasValue)
+						if(FilterViewModel.StartDate.HasValue)
+						{
+							query.Where(() => complaintAlias.ActualCompletionDate >= FilterViewModel.StartDate);
+						}
+						if(FilterViewModel.EndDate.HasValue)
 						{
 							query.Where(() => complaintAlias.ActualCompletionDate <= FilterViewModel.EndDate);
 						}
-						else
-						{
-							query.Where(() => complaintAlias.ActualCompletionDate <= FilterViewModel.EndDate)
-								.And(() => complaintAlias.ActualCompletionDate >= FilterViewModel.StartDate.Value);
-						}
 						break;
 					case DateFilterType.CreationDate:
-						if(!FilterViewModel.StartDate.HasValue)
+						if(FilterViewModel.StartDate.HasValue)
+						{
+							query.Where(() => complaintAlias.CreationDate >= FilterViewModel.StartDate);
+						}
+						if(FilterViewModel.EndDate.HasValue)
 						{
 							query.Where(() => complaintAlias.CreationDate <= FilterViewModel.EndDate);
-						}
-						else
-						{
-							query.Where(() => complaintAlias.CreationDate <= FilterViewModel.EndDate)
-								.And(() => complaintAlias.CreationDate >= FilterViewModel.StartDate);
 						}
 						break;
 					default:
@@ -710,7 +711,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			query.Select(Projections.GroupProjection(() => complaintAlias.Id));
 
 			return query.List<int>().Count;
-			
+
 		}
 
 		private void RegisterComplaints()
@@ -723,7 +724,8 @@ namespace Vodovoz.Journals.JournalViewModels
 					(ComplaintJournalNode node) =>
 						NavigationManager.OpenViewModel<ComplaintViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(node.Id)).ViewModel,
 					//функция идентификации документа
-					(ComplaintJournalNode node) => {
+					(ComplaintJournalNode node) =>
+					{
 						return node.EntityType == typeof(Complaint);
 					},
 					"Клиентская рекламация",
@@ -736,7 +738,8 @@ namespace Vodovoz.Journals.JournalViewModels
 					(ComplaintJournalNode node) =>
 						NavigationManager.OpenViewModel<ComplaintViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(node.Id)).ViewModel,
 					//функция идентификации документа
-					(ComplaintJournalNode node) => {
+					(ComplaintJournalNode node) =>
+					{
 						return node.EntityType == typeof(Complaint);
 					},
 					"Внутренняя рекламация",
@@ -822,7 +825,8 @@ namespace Vodovoz.Journals.JournalViewModels
 					"Создать штраф",
 					n => EntityConfigs[typeof(Complaint)].PermissionResult.CanUpdate,
 					n => EntityConfigs[typeof(Complaint)].PermissionResult.CanUpdate,
-					n => {
+					n =>
+					{
 						var currentComplaintId = n.OfType<ComplaintJournalNode>().FirstOrDefault()?.Id;
 						ComplaintViewModel currentComplaintVM = null;
 						if(currentComplaintId.HasValue)
@@ -839,7 +843,8 @@ namespace Vodovoz.Journals.JournalViewModels
 					"Закрыть рекламацию",
 					n => n.OfType<ComplaintJournalNode>().FirstOrDefault()?.Status != ComplaintStatuses.Closed && _canCloseComplaint,
 					n => EntityConfigs[typeof(Complaint)].PermissionResult.CanUpdate && _canCloseComplaint,
-					n => {
+					n =>
+					{
 						var currentComplaintId = n.OfType<ComplaintJournalNode>().FirstOrDefault()?.Id;
 						ComplaintViewModel currentComplaintVM = null;
 						if(currentComplaintId.HasValue)
@@ -893,7 +898,7 @@ namespace Vodovoz.Journals.JournalViewModels
 		}
 
 		public Action<Type> ChangeView { get; set; }
-		
+
 		private void OpenWithDepartmentsReacrionViewAction()
 		{
 			var openStandartView = new JournalAction("Отобразить время реакции отделов",
@@ -955,7 +960,8 @@ namespace Vodovoz.Journals.JournalViewModels
 							var childNodeAction = new JournalAction(createDlgConfig.Title,
 								(selected) => entityConfig.PermissionResult.CanCreate,
 								(selected) => entityConfig.PermissionResult.CanCreate,
-								(selected) => {
+								(selected) =>
+								{
 									createDlgConfig.OpenEntityDialogFunction.Invoke();
 								}
 							);
@@ -971,7 +977,8 @@ namespace Vodovoz.Journals.JournalViewModels
 				var addAction = new JournalAction("Добавить",
 					(selected) => entityConfig.PermissionResult.CanCreate,
 					(selected) => entityConfig.PermissionResult.CanCreate,
-					(selected) => {
+					(selected) =>
+					{
 						var docConfig = entityConfig.EntityDocumentConfigurations.First();
 						ITdiTab tab = docConfig.GetCreateEntityDlgConfigs().First().OpenEntityDialogFunction.Invoke();
 
@@ -989,7 +996,8 @@ namespace Vodovoz.Journals.JournalViewModels
 		protected void CreateEditAction()
 		{
 			var editAction = new JournalAction("Изменить",
-				(selected) => {
+				(selected) =>
+				{
 					var selectedNodes = selected.OfType<ComplaintJournalNode>().ToList();
 					if(selectedNodes.Count != 1)
 					{
@@ -1004,7 +1012,8 @@ namespace Vodovoz.Journals.JournalViewModels
 					return config.PermissionResult.CanRead;
 				},
 				(selected) => true,
-				(selected) => {
+				(selected) =>
+				{
 					var selectedNodes = selected.OfType<ComplaintJournalNode>().ToList();
 					if(selectedNodes.Count != 1)
 					{

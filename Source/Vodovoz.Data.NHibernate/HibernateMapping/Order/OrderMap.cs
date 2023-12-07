@@ -97,6 +97,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			References(x => x.ContactPhone).Column("contact_phone_id");
 			References(x => x.CommentOPManagerChangedBy).Column("comment_opmanager_changed_by");
 			References(x => x.LogisticsRequirements).Column("logistics_requirements_id").Cascade.All();
+			References(x => x.SelfDeliveryGeoGroup).Column("self_delivery_geo_group_id");
 
 			HasMany(x => x.OrderDocuments).KeyColumn("attached_to_order_id")
 				.Cascade.AllDeleteOrphan().Inverse().LazyLoad();

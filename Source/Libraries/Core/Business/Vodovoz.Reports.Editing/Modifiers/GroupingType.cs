@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Reports.Editing.Modifiers
 {
@@ -31,6 +31,10 @@ namespace Vodovoz.Reports.Editing.Modifiers
 		[Display(Name = "Тип оплаты")]
 		PaymentType,
 		[Display(Name = "Организация")]
-		Organization
+		Organization,
+		[Display(Name = "Классификация контрагента")]
+		CounterpartyClassification,
+		[Display(Name = "Промонабор")]
+		PromotionalSet
 	}
 }

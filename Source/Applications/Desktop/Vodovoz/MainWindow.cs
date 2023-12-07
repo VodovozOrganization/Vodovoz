@@ -312,6 +312,9 @@ public partial class MainWindow : Gtk.Window
 
 		Action74.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.CanGenerateCashFlowDdsReport);
 
+		ActionClassificationCalculation.Sensitive = 
+			commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Counterparty.CanCalculateCounterpartyClassifications);
+
 		InitializeThemesMenuItem();
 	}
 	

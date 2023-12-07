@@ -13,6 +13,7 @@ using QS.Services;
 using System;
 using System.Globalization;
 using System.Linq;
+using DateTimeHelpers;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -30,6 +31,7 @@ using Vodovoz.Infrastructure.Print;
 using Vodovoz.JournalNodes;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
@@ -51,6 +53,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
 		private readonly IOrderDiscountsController _discountsController;
 		private readonly IRDLPreviewOpener _rdlPreviewOpener;
+		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly int _closingDocumentDeliveryScheduleId;
 
 		public RetailOrderJournalViewModel(
@@ -67,11 +70,13 @@ namespace Vodovoz.JournalViewModels
 			IOrderDiscountsController discountsController,
 			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider,
 			IRDLPreviewOpener rdlPreviewOpener,
+			INomenclatureSettings nomenclatureSettings,
 			Action<OrderJournalFilterViewModel> filterConfig = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
+			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
@@ -245,8 +250,9 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.DeliveryDate >= FilterViewModel.StartDate);
 			}
 
-			if(FilterViewModel.EndDate != null) {
-				query.Where(o => o.DeliveryDate <= FilterViewModel.EndDate.Value.AddDays(1).AddTicks(-1));
+			var endDate = FilterViewModel.EndDate;
+			if(endDate != null) {
+				query.Where(o => o.DeliveryDate <= endDate.Value.LatestDayTime());
 			}
 
 			if(FilterViewModel.RestrictLessThreeHours == true) {
@@ -462,8 +468,9 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.CreateDate >= FilterViewModel.StartDate);
 			}
 
-			if(FilterViewModel.EndDate != null) {
-				query.Where(o => o.CreateDate <= FilterViewModel.EndDate.Value.AddDays(1).AddTicks(-1));
+			var endDate = FilterViewModel.EndDate;
+			if(endDate != null) {
+				query.Where(o => o.CreateDate <= endDate.Value.LatestDayTime());
 			}
 			
 			if(FilterViewModel.RestrictCounterparty != null) {
@@ -597,8 +604,9 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.CreateDate >= FilterViewModel.StartDate);
 			}
 
-			if(FilterViewModel.EndDate != null) {
-				query.Where(o => o.CreateDate <= FilterViewModel.EndDate.Value.AddDays(1).AddTicks(-1));
+			var endDate = FilterViewModel.EndDate;
+			if(endDate != null) {
+				query.Where(o => o.CreateDate <= endDate.Value.LatestDayTime());
 			}
 
 			if(FilterViewModel.RestrictCounterparty != null) {
@@ -756,8 +764,9 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.CreateDate >= FilterViewModel.StartDate);
 			}
 
-			if(FilterViewModel.EndDate != null) {
-				query.Where(o => o.CreateDate <= FilterViewModel.EndDate.Value.AddDays(1).AddTicks(-1));
+			var endDate = FilterViewModel.EndDate;
+			if(endDate != null) {
+				query.Where(o => o.CreateDate <= endDate.Value.LatestDayTime());
 			}
 			
 			if(FilterViewModel.RestrictCounterparty != null) {
@@ -845,7 +854,8 @@ namespace Vodovoz.JournalViewModels
 						new ParametersProvider(),
 						_discountsController,
 						new CommonMessages(_commonServices.InteractiveService),
-						_rdlPreviewOpener),
+						_rdlPreviewOpener,
+						_nomenclatureSettings),
 					//функция диалога открытия документа
 					(RetailOrderJournalNode node) => new OrderWithoutShipmentForAdvancePaymentViewModel(
 						EntityUoWBuilder.ForOpen(node.Id),
@@ -860,7 +870,8 @@ namespace Vodovoz.JournalViewModels
 						new ParametersProvider(),
 						_discountsController,
 						new CommonMessages(_commonServices.InteractiveService),
-						_rdlPreviewOpener),
+						_rdlPreviewOpener,
+						_nomenclatureSettings),
 					//функция идентификации документа 
 					(RetailOrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForAdvancePayment),
 					"Счет без отгрузки на предоплату",

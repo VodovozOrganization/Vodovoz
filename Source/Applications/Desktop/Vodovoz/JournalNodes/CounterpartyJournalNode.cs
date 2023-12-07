@@ -1,5 +1,6 @@
 ﻿using QS.Project.Journal;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Client.ClientClassification;
 
 namespace Vodovoz.JournalNodes
 {
@@ -28,5 +29,14 @@ namespace Vodovoz.JournalNodes
 		public string PhonesDigits { get; set; }
 
 		public bool Sensitive { get; set; }
+
+		public CounterpartyClassificationByBottlesCount? ClassificationByBottlesCount { get; set; }
+
+		public CounterpartyClassificationByOrdersCount? ClassificationByOrdersCount { get; set; }
+
+		public string CounterpartyClassification =>
+			ClassificationByBottlesCount.HasValue && ClassificationByOrdersCount.HasValue
+			? $"{ClassificationByBottlesCount}{ClassificationByOrdersCount}"
+			: "Новый";
 	}
 }

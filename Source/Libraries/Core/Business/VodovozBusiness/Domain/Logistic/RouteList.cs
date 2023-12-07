@@ -1082,7 +1082,9 @@ namespace Vodovoz.Domain.Logistic
 						}
 						AddDiscrepancy(result, discrepancy);
 					}
-					else if(new[] { AddressTransferType.NeedToReload, AddressTransferType.FromFreeBalance }.Contains(address.TransferedTo.AddressTransferType.Value))
+					else if(address.TransferedTo.AddressTransferType != null
+						&& new[] { AddressTransferType.NeedToReload, AddressTransferType.FromFreeBalance }
+							.Contains(address.TransferedTo.AddressTransferType.Value))
 					{
 						if(orderEquipment.Direction == Direction.Deliver)
 						{// не обрабатываем pickup, т.к. водитель физически не был на адресе, чтобы забрать оборудование
@@ -1484,7 +1486,7 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		public virtual void RevertTransferAddress(
-			WageParameterService wageParameterService, RouteListItem targetAddress, RouteListItem revertedAddress)
+			IWageParameterService wageParameterService, RouteListItem targetAddress, RouteListItem revertedAddress)
 		{
 			targetAddress.RevertTransferAddress(UoW, wageParameterService, revertedAddress);
 			UpdateStatus();
@@ -2927,7 +2929,7 @@ namespace Vodovoz.Domain.Logistic
 		/// <summary>
 		/// Возвращает пересчитанную заново зарплату водителя (не записывает)
 		/// </summary>
-		public virtual decimal GetRecalculatedDriverWage(WageParameterService wageParameterService)
+		public virtual decimal GetRecalculatedDriverWage(IWageParameterService wageParameterService)
 		{
 			var routeListWageCalculationService = GetDriverWageCalculationService(wageParameterService);
 			var wageResult = routeListWageCalculationService.CalculateWage();
@@ -2937,7 +2939,7 @@ namespace Vodovoz.Domain.Logistic
 		/// <summary>
 		/// Возвращает пересчитанную заного зарплату экспедитора (не записывает)
 		/// </summary>
-		public virtual decimal GetRecalculatedForwarderWage(WageParameterService wageParameterService)
+		public virtual decimal GetRecalculatedForwarderWage(IWageParameterService wageParameterService)
 		{
 			if(wageParameterService == null) {
 				throw new ArgumentNullException(nameof(wageParameterService));
@@ -3172,7 +3174,7 @@ namespace Vodovoz.Domain.Logistic
 			return addressDetailsText;
 		}
 
-		public virtual string GetWageCalculationDetails(WageParameterService wageParameterService)
+		public virtual string GetWageCalculationDetails(IWageParameterService wageParameterService)
 		{
 			var routeListDriverWageCalculationService = GetDriverWageCalculationService(wageParameterService);
 			var routeListForwarderWageCalculationService = GetForwarderWageCalculationService(wageParameterService);

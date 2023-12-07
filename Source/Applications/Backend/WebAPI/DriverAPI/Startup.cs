@@ -33,6 +33,7 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text;
+using DriverAPI.HealthChecks;
 using Vodovoz.Core.DataService;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.Domain.Employees;
@@ -50,6 +51,7 @@ using Vodovoz.Services;
 using Vodovoz.Settings.Database;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using VodovozHealthCheck;
 
 namespace DriverAPI
 {
@@ -183,6 +185,10 @@ namespace DriverAPI
 				c.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 				c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("key", "=" + apiConfiguration["AccessToken"]);
 			});
+
+			services.ConfigureHealthCheckService<DriverApiHealthCheck>();
+
+			services.AddHttpClient();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -230,6 +236,8 @@ namespace DriverAPI
 					pattern: "{controller=Home}/{action=Index}/{id?}");
 				endpoints.MapRazorPages();
 			});
+
+			app.ConfigureHealthCheckApplicationBuilder();
 		}
 
 		private void CreateBaseConfig()

@@ -93,7 +93,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Order">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     orders.id AS order_id,
@@ -109,6 +109,18 @@ WHERE
     counterparty.use_special_doc_fields,
     counterparty.special_cargo_receiver,
     counterparty.special_customer,
+    (
+        IF(orders.order_payment_status = 'Paid',
+            (SELECT GROUP_CONCAT(CONCAT("№ ", pfbc.payment_num, " от ", DATE_FORMAT(pfbc.payment_date, '%d.%m.%Y')) SEPARATOR ", ")
+            FROM
+                payments_from_bank_client pfbc
+            INNER JOIN
+                payment_items pitms
+            ON pfbc.id = pitms.payment_id
+            WHERE pitms.order_id = @order_id
+            AND pfbc.payment_date &lt; ADDDATE(orders.delivery_date, INTERVAL 1 DAY)),
+            "")
+    ) AS payments_info,
     IF(!IS_NULL_OR_WHITESPACE(counterparty.special_contract_number) and counterparty.special_contract_date is not null,
        CONCAT(counterparty.special_contract_name, ' №', counterparty.special_contract_number, ' от ', DATE_FORMAT(counterparty.special_contract_date, '%d.%m.%y')),
        counterparty.special_contract_name) AS special_contract_number,
@@ -116,10 +128,10 @@ WHERE
     counterparty.special_gov_contract,
     counterparty.special_delivery_address,
     CONCAT(
-            counterparty.inn,
+            IFNULL(counterparty.inn, ''),
             '/',
-            IF(counterparty.use_special_doc_fields AND @special_fields AND !IS_NULL_OR_WHITESPACE(counterparty.payer_special_kpp),
-               counterparty.payer_special_kpp, counterparty.kpp)
+             IFNULL(IF(counterparty.use_special_doc_fields AND @special_fields AND !IS_NULL_OR_WHITESPACE(counterparty.payer_special_kpp),
+               counterparty.payer_special_kpp, counterparty.kpp), '')
         ) AS inn_kpp,
     CASE
         WHEN counterparty.cargo_receiver_source = 'FromDeliveryPoint' THEN CONCAT(counterparty.full_name, ', ', counterparty.inn, '/',
@@ -151,7 +163,9 @@ WHERE
                 '    '
         ) AS bottles_in_fact,
     orders.self_delivery AS is_self_delivery,
-    (select count(*) from order_items oi where oi.order_id = orders.id) as order_items_count
+    (select count(*) from order_items oi where oi.order_id = orders.id) as order_items_count,
+    counterparty.inn,
+    counterparty.kpp 
 FROM orders
          LEFT JOIN
      counterparty ON orders.client_id = counterparty.id
@@ -186,7 +200,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -318,6 +332,10 @@ WHERE
         <Field Name="counterparty_external_order_id">
           <DataField>counterparty_external_order_id</DataField>
           <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="payments_info">
+          <DataField>payments_info</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -1184,7 +1202,7 @@ WHERE o.id = @order_id
           <Textbox Name="Textbox195">
             <Height>12.00pt</Height>
             <Width>419.75pt</Width>
-            <Value></Value>
+            <Value>={payments_info}</Value>
             <ZIndex>0</ZIndex>
             <Left>152.5pt</Left>
             <Top>95.3pt</Top>

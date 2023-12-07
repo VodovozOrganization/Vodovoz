@@ -13,6 +13,7 @@ using System;
 using System.Collections;
 using System.Linq;
 using Autofac;
+using DateTimeHelpers;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
@@ -370,7 +371,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 					query.Where(() => counterpartyAlias.IsForRetail == FilterViewModel.IsForRetail);
 				}
 
-				FilterViewModel.EndDate = FilterViewModel.EndDate.Date.AddHours(23).AddMinutes(59);
+				if(FilterViewModel.EndDate != null)
+				{
+					FilterViewModel.EndDate = FilterViewModel.EndDate.Value.LatestDayTime();
+				}
 
 				QueryOver<ComplaintDiscussion, ComplaintDiscussion> dicussionQuery = null;
 
@@ -387,49 +391,45 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 					case DateFilterType.PlannedCompletionDate:
 						if(dicussionQuery == null)
 						{
-							if(!FilterViewModel.StartDate.HasValue)
+							if(FilterViewModel.StartDate.HasValue)
+							{
+								query.Where(() => complaintAlias.PlannedCompletionDate >= FilterViewModel.StartDate);
+							}
+							if(FilterViewModel.EndDate.HasValue)
 							{
 								query.Where(() => complaintAlias.PlannedCompletionDate <= FilterViewModel.EndDate);
-							}
-							else
-							{
-								query.Where(() => complaintAlias.PlannedCompletionDate <= FilterViewModel.EndDate)
-									.And(() => complaintAlias.PlannedCompletionDate >= FilterViewModel.StartDate.Value);
 							}
 						}
 						else
 						{
-							if(!FilterViewModel.StartDate.HasValue)
+							if(FilterViewModel.StartDate.HasValue)
+							{
+								dicussionQuery.And(() => discussionAlias.PlannedCompletionDate >= FilterViewModel.StartDate);
+							}
+							if(FilterViewModel.EndDate.HasValue)
 							{
 								dicussionQuery.And(() => discussionAlias.PlannedCompletionDate <= FilterViewModel.EndDate);
-							}
-							else
-							{
-								dicussionQuery.And(() => discussionAlias.PlannedCompletionDate >= FilterViewModel.StartDate.Value)
-									.And(() => discussionAlias.PlannedCompletionDate <= FilterViewModel.EndDate);
 							}
 						}
 						break;
 					case DateFilterType.ActualCompletionDate:
-						if(!FilterViewModel.StartDate.HasValue)
+						if(FilterViewModel.StartDate.HasValue)
+						{
+							query.Where(() => complaintAlias.ActualCompletionDate >= FilterViewModel.StartDate);
+						}
+						if(FilterViewModel.EndDate.HasValue)
 						{
 							query.Where(() => complaintAlias.ActualCompletionDate <= FilterViewModel.EndDate);
 						}
-						else
-						{
-							query.Where(() => complaintAlias.ActualCompletionDate <= FilterViewModel.EndDate)
-								.And(() => complaintAlias.ActualCompletionDate >= FilterViewModel.StartDate.Value);
-						}
 						break;
 					case DateFilterType.CreationDate:
-						if(!FilterViewModel.StartDate.HasValue)
+						if(FilterViewModel.StartDate.HasValue)
+						{
+							query.Where(() => complaintAlias.CreationDate >= FilterViewModel.StartDate);
+						}
+						if(FilterViewModel.EndDate.HasValue)
 						{
 							query.Where(() => complaintAlias.CreationDate <= FilterViewModel.EndDate);
-						}
-						else
-						{
-							query.Where(() => complaintAlias.CreationDate <= FilterViewModel.EndDate)
-								.And(() => complaintAlias.CreationDate >= FilterViewModel.StartDate);
 						}
 						break;
 					default:
@@ -580,7 +580,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 					query.Where(() => counterpartyAlias.IsForRetail == FilterViewModel.IsForRetail);
 				}
 
-				FilterViewModel.EndDate = FilterViewModel.EndDate.Date.AddHours(23).AddMinutes(59);
+				if(FilterViewModel.EndDate != null)
+				{
+					FilterViewModel.EndDate = FilterViewModel.EndDate.Value.LatestDayTime();
+				}
 
 				QueryOver<ComplaintDiscussion, ComplaintDiscussion> dicussionQuery = null;
 
@@ -597,49 +600,45 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 					case DateFilterType.PlannedCompletionDate:
 						if(dicussionQuery == null)
 						{
-							if(!FilterViewModel.StartDate.HasValue)
+							if(FilterViewModel.StartDate.HasValue)
+							{
+								query.Where(() => complaintAlias.PlannedCompletionDate >= FilterViewModel.StartDate);
+							}
+							if(FilterViewModel.EndDate.HasValue)
 							{
 								query.Where(() => complaintAlias.PlannedCompletionDate <= FilterViewModel.EndDate);
-							}
-							else
-							{
-								query.Where(() => complaintAlias.PlannedCompletionDate <= FilterViewModel.EndDate)
-									.And(() => complaintAlias.PlannedCompletionDate >= FilterViewModel.StartDate.Value);
 							}
 						}
 						else
 						{
-							if(!FilterViewModel.StartDate.HasValue)
+							if(FilterViewModel.StartDate.HasValue)
+							{
+								dicussionQuery.And(() => discussionAlias.PlannedCompletionDate >= FilterViewModel.StartDate);
+							}
+							if(FilterViewModel.EndDate.HasValue)
 							{
 								dicussionQuery.And(() => discussionAlias.PlannedCompletionDate <= FilterViewModel.EndDate);
-							}
-							else
-							{
-								dicussionQuery.And(() => discussionAlias.PlannedCompletionDate >= FilterViewModel.StartDate.Value)
-									.And(() => discussionAlias.PlannedCompletionDate <= FilterViewModel.EndDate);
 							}
 						}
 						break;
 					case DateFilterType.ActualCompletionDate:
-						if(!FilterViewModel.StartDate.HasValue)
+						if(FilterViewModel.StartDate.HasValue)
+						{
+							query.Where(() => complaintAlias.ActualCompletionDate >= FilterViewModel.StartDate);
+						}
+						if(FilterViewModel.EndDate.HasValue)
 						{
 							query.Where(() => complaintAlias.ActualCompletionDate <= FilterViewModel.EndDate);
 						}
-						else
-						{
-							query.Where(() => complaintAlias.ActualCompletionDate <= FilterViewModel.EndDate)
-								.And(() => complaintAlias.ActualCompletionDate >= FilterViewModel.StartDate.Value);
-						}
 						break;
 					case DateFilterType.CreationDate:
-						if(!FilterViewModel.StartDate.HasValue)
+						if(FilterViewModel.StartDate.HasValue)
+						{
+							query.Where(() => complaintAlias.CreationDate >= FilterViewModel.StartDate);
+						}
+						if(FilterViewModel.EndDate.HasValue)
 						{
 							query.Where(() => complaintAlias.CreationDate <= FilterViewModel.EndDate);
-						}
-						else
-						{
-							query.Where(() => complaintAlias.CreationDate <= FilterViewModel.EndDate)
-								.And(() => complaintAlias.CreationDate >= FilterViewModel.StartDate);
 						}
 						break;
 					default:
