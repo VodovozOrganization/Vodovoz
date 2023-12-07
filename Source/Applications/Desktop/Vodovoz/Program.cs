@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
 using Fias.Client;
@@ -301,7 +301,7 @@ namespace Vodovoz
 							.GetInterfaces()
 							.Where(i => i.Name == $"I{s.Name}")
 							.First())
-						.SingleInstance();
+						.InstancePerLifetimeScope();
 
 					builder.RegisterType<IncludeExcludeSalesFilterFactory>().As<IIncludeExcludeSalesFilterFactory>().InstancePerLifetimeScope();
 					builder.RegisterType<LeftRightListViewModelFactory>().As<ILeftRightListViewModelFactory>().InstancePerLifetimeScope();
