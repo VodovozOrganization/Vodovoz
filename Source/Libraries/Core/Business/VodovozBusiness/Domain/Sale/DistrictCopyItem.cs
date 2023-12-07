@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.Sale
 {
+	[Appellative(Gender = GrammaticalGender.Feminine,
+		NominativePlural = "записи о наличии копий районов",
+		Nominative = "запись о наличии копии района")]
 	public class DistrictCopyItem : PropertyChangedBase, IDomainObject
 	{
 		private District _district;
@@ -22,5 +25,7 @@ namespace Vodovoz.Domain.Sale
 			get => _copiedToDistrict;
 			set => SetField(ref _copiedToDistrict, value);
 		}
+
+		public virtual string Title => $"Район {District?.Title}({District?.Id}) скопирован в {CopiedToDistrict?.Title}({CopiedToDistrict?.Id})";
 	}
 }
