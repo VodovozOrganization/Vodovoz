@@ -4779,8 +4779,17 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void UpdateRentsCount()
 		{
-			foreach (var orderItem in OrderItems.Where(x => x.OrderItemRentSubType != OrderItemRentSubType.None)) {
-				switch(orderItem.OrderItemRentSubType) {
+			var orderRentalItems = OrderItems.Where(x => x.OrderItemRentSubType != OrderItemRentSubType.None).ToList();
+
+			foreach(var orderItem in orderRentalItems)
+			{
+				if(!OrderItems.Contains(orderItem))
+				{
+					continue;
+				}
+
+				switch(orderItem.OrderItemRentSubType)
+				{
 					case OrderItemRentSubType.RentServiceItem:
 						var totalEquipmentCountForService = GetRentEquipmentTotalCountForServiceItem(orderItem);
 						orderItem.SetRentEquipmentCount(totalEquipmentCountForService);
@@ -4795,15 +4804,19 @@ namespace Vodovoz.Domain.Orders
 
 		private int GetRentEquipmentTotalCountForDepositItem(OrderItem orderRentDepositItem)
 		{
-			var totalCount = orderEquipments.Where(x => x.OrderRentDepositItem == orderRentDepositItem)
+			var totalCount = orderEquipments
+				.Where(x => x.OrderRentDepositItem == orderRentDepositItem)
 				.Sum(x => x.Count);
+
 			return totalCount;
 		}
 
 		private int GetRentEquipmentTotalCountForServiceItem(OrderItem orderRentServiceItem)
 		{
-			var totalCount = orderEquipments.Where(x => x.OrderRentServiceItem == orderRentServiceItem)
+			var totalCount = orderEquipments
+				.Where(x => x.OrderRentServiceItem == orderRentServiceItem)
 				.Sum(x => x.Count);
+
 			return totalCount;
 		}
 
