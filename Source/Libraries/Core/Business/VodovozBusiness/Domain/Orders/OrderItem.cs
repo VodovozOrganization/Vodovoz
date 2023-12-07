@@ -1,4 +1,4 @@
-﻿using NHibernate;
+using NHibernate;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
@@ -65,13 +65,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual Nomenclature Nomenclature
 		{
 			get => _nomenclature;
-			protected set
-			{
-				if(SetField(ref _nomenclature, value))
-				{
-					CalculateVATType();
-				}
-			}
+			protected set => SetField(ref _nomenclature, value);
 		}
 
 		[Display(Name = "Оборудование")]
@@ -114,34 +108,13 @@ namespace Vodovoz.Domain.Orders
 		public virtual decimal Count
 		{
 			get => _count;
-			protected set
-			{
-				if(Nomenclature?.Unit?.Digits == 0 && value % 1 != 0)
-				{
-					value = Math.Truncate(value);
-				}
-
-				if(SetField(ref _count, value))
-				{
-					Order?.RecalculateItemsPrice();
-					RecalculateDiscount();
-					RecalculateVAT();
-					Order?.UpdateRentsCount();
-				}
-			}
+			protected set => SetField(ref _count, value);
 		}
 
 		public virtual decimal? ActualCount
 		{
 			get => _actualCount;
-			protected set
-			{
-				if(SetField(ref _actualCount, value))
-				{
-					RecalculateDiscount();
-					RecalculateVAT();
-				}
-			}
+			protected set => SetField(ref _actualCount, value);
 		}
 
 		[Display(Name = "Включая НДС")]
@@ -155,13 +128,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual bool IsDiscountInMoney
 		{
 			get => _isDiscountInMoney;
-			protected set
-			{
-				if(SetField(ref _isDiscountInMoney, value))
-				{
-					RecalculateVAT();
-				}
-			}
+			protected set => SetField(ref _isDiscountInMoney, value);
 		}
 
 		[Display(Name = "Процент скидки на товар")]
@@ -377,6 +344,11 @@ namespace Vodovoz.Domain.Orders
 					Count = RentEquipmentCount;
 					break;
 			}
+
+			Order?.RecalculateItemsPrice();
+			RecalculateDiscount();
+			RecalculateVAT();
+			Order?.UpdateRentsCount();
 		}
 
 		private void RecalculateDiscount()
@@ -410,6 +382,8 @@ namespace Vodovoz.Domain.Orders
 			DiscountReason = null;
 			DiscountMoney = 0;
 			Discount = 0;
+
+			RecalculateVAT();
 		}
 
 		public virtual void RemoveDiscount()
@@ -423,15 +397,23 @@ namespace Vodovoz.Domain.Orders
 			IsDiscountInMoney = false;
 			DiscountMoney = default;
 			Discount = default;
+
+			RecalculateVAT();
 		}
 
 		public virtual void SetNomenclature(Nomenclature nomenclature)
 		{
 			Nomenclature = nomenclature;
+			CalculateVATType();
 		}
 
 		private void CalculateAndSetDiscount(decimal value)
 		{
+			if(value != _discount && value == 0)
+			{
+				DiscountReason = null;
+			}
+
 			if((Price * CurrentCount) == 0)
 			{
 				DiscountMoney = 0;
@@ -448,6 +430,8 @@ namespace Vodovoz.Domain.Orders
 				Discount = value > 100 ? 100 : (value < 0 ? 0 : value);
 				DiscountMoney = Price * CurrentCount * Discount / 100;
 			}
+
+			RecalculateVAT();
 		}
 
 		private decimal GetPercentDiscount() => IsDiscountInMoney ? (100 * DiscountMoney) / (Price * CurrentCount) : Discount;
@@ -724,12 +708,18 @@ namespace Vodovoz.Domain.Orders
 			if(ignoreHasValue || !ActualCount.HasValue)
 			{
 				ActualCount = Count;
+
+				RecalculateDiscount();
+				RecalculateVAT();
 			}
 		}
 
 		public virtual void SetActualCount(decimal newValue)
 		{
 			ActualCount = newValue;
+
+			RecalculateDiscount();
+			RecalculateVAT();
 		}
 
 		public virtual void SetActualCountZero()
@@ -744,7 +734,19 @@ namespace Vodovoz.Domain.Orders
 
 		protected internal virtual void SetCount(decimal count)
 		{
-			Count = count;
+			if(Nomenclature?.Unit?.Digits == 0 && count % 1 != 0)
+			{
+				count = Math.Truncate(count);
+			}
+
+			if(Count != count)
+			{
+				Count = count;
+				Order?.RecalculateItemsPrice();
+				RecalculateDiscount();
+				RecalculateVAT();
+				Order?.UpdateRentsCount();
+			}
 		}
 
 		protected internal virtual void RestoreOriginalDiscount()
@@ -759,16 +761,26 @@ namespace Vodovoz.Domain.Orders
 				OriginalDiscount = null;
 			}
 			ActualCount = null;
+
+			RecalculateDiscount();
+			RecalculateVAT();
 		}
 
 		public virtual void SetDiscount(decimal discount)
 		{
+			if(discount != Discount && discount == 0)
+			{
+				DiscountReason = null;
+			}
+
 			Discount = discount;
+			RecalculateVAT();
 		}
 
 		public virtual void SetIsDiscountInMoney(bool isDiscountInMoney)
 		{
 			IsDiscountInMoney = isDiscountInMoney;
+			RecalculateVAT();
 		}
 
 		public virtual void SetManualChangingDiscount(decimal manualChangingDiscount)
@@ -786,6 +798,7 @@ namespace Vodovoz.Domain.Orders
 			IsDiscountInMoney = isDiscountInMoney;
 			Discount = discount;
 			DiscountReason = discountReason;
+			RecalculateVAT();
 		}
 
 		protected internal virtual void SetDiscount(bool isDiscountInMoney, decimal discount, decimal discountMoney, DiscountReason discountReason)
@@ -810,7 +823,12 @@ namespace Vodovoz.Domain.Orders
 				Nomenclature = paidRentPackage.RentServiceDaily
 			};
 
+			order.RecalculateItemsPrice();
+			newItem.RecalculateDiscount();
+			newItem.CalculateVATType();
 			newItem.RecalculateVAT();
+			order.UpdateRentsCount();
+
 			return newItem;
 		}
 
@@ -827,7 +845,12 @@ namespace Vodovoz.Domain.Orders
 				Nomenclature = paidRentPackage.DepositService
 			};
 
+			order.RecalculateItemsPrice();
+			newItem.RecalculateDiscount();
+			newItem.CalculateVATType();
 			newItem.RecalculateVAT();
+			order.UpdateRentsCount();
+
 			return newItem;
 		}
 
@@ -845,7 +868,12 @@ namespace Vodovoz.Domain.Orders
 				Nomenclature = paidRentPackage.RentServiceMonthly
 			};
 
+			order.RecalculateItemsPrice();
+			newItem.RecalculateDiscount();
+			newItem.CalculateVATType();
 			newItem.RecalculateVAT();
+			order.UpdateRentsCount();
+
 			return newItem;
 		}
 
@@ -862,7 +890,12 @@ namespace Vodovoz.Domain.Orders
 				Nomenclature = paidRentPackage.DepositService
 			};
 
+			order.RecalculateItemsPrice();
+			newItem.RecalculateDiscount();
+			newItem.CalculateVATType();
 			newItem.RecalculateVAT();
+			order.UpdateRentsCount();
+
 			return newItem;
 		}
 
@@ -879,7 +912,11 @@ namespace Vodovoz.Domain.Orders
 				Nomenclature = freeRentPackage.DepositService
 			};
 
+			order.RecalculateItemsPrice();
+			newItem.RecalculateDiscount();
+			newItem.CalculateVATType();
 			newItem.RecalculateVAT();
+			order.UpdateRentsCount();
 
 			return newItem;
 		}
@@ -898,7 +935,11 @@ namespace Vodovoz.Domain.Orders
 				Price = price
 			};
 
+			order.RecalculateItemsPrice();
+			newItem.RecalculateDiscount();
+			newItem.CalculateVATType();
 			newItem.RecalculateVAT();
+			order.UpdateRentsCount();
 
 			return newItem;
 		}
@@ -926,7 +967,11 @@ namespace Vodovoz.Domain.Orders
 				PromoSet = promotionalSet
 			};
 
+			order.RecalculateItemsPrice();
+			newItem.RecalculateDiscount();
+			newItem.CalculateVATType();
 			newItem.RecalculateVAT();
+			order.UpdateRentsCount();
 
 			return newItem;
 		}
@@ -941,7 +986,11 @@ namespace Vodovoz.Domain.Orders
 				Price = price
 			};
 
+			order.RecalculateItemsPrice();
+			newItem.RecalculateDiscount();
+			newItem.CalculateVATType();
 			newItem.RecalculateVAT();
+			order.UpdateRentsCount();
 
 			return newItem;
 		}
