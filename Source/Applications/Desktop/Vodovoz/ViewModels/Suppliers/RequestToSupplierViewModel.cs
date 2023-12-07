@@ -246,11 +246,13 @@ namespace Vodovoz.ViewModels.Suppliers
 							{
 								f.HidenByDefault = true;
 							},
-							OpenPageOptions.AsSlave)
-							.ViewModel;
-
-					journalViewModel.SelectionMode = JournalSelectionMode.Single;
-					journalViewModel.ExcludingNomenclatureIds = existingNomenclatures.ToArray();
+							OpenPageOptions.AsSlave,
+							vm =>
+							{
+								vm.SelectionMode = JournalSelectionMode.Single;
+								vm.ExcludingNomenclatureIds = existingNomenclatures.ToArray();
+							})
+						.ViewModel;
 					
 					journalViewModel.OnEntitySelectedResult += (sender, e) =>
 					{

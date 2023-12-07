@@ -152,12 +152,15 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 							f.SelectSaleCategory = SaleCategory.forSale;
 							f.RestrictArchive = false;
 						},
-						OpenPageOptions.AsSlave)
+						OpenPageOptions.AsSlave,
+						vm =>
+						{
+							vm.SelectionMode = JournalSelectionMode.Single;
+							vm.AdditionalJournalRestriction = new NomenclaturesForOrderJournalRestriction(ServicesConfig.CommonServices);
+							vm.TabName = "Номенклатура на продажу";
+							vm.CalculateQuantityOnStock = true;
+						})
 					.ViewModel;
-				journalViewModel.SelectionMode = JournalSelectionMode.Single;
-				journalViewModel.AdditionalJournalRestriction = new NomenclaturesForOrderJournalRestriction(ServicesConfig.CommonServices);
-				journalViewModel.TabName = "Номенклатура на продажу";
-				journalViewModel.CalculateQuantityOnStock = true;
 				
 				journalViewModel.OnEntitySelectedResult += (s, ea) =>
 				{

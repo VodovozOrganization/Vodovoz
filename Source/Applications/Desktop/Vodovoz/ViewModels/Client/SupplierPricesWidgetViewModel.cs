@@ -92,12 +92,15 @@ namespace Vodovoz.ViewModels.Client
 							f =>
 							{
 								f.HidenByDefault = true;
+								f.RestrictedExcludedIds
 							},
-							OpenPageOptions.AsSlave)
+							OpenPageOptions.AsSlave,
+							vm =>
+							{
+								vm.SelectionMode = JournalSelectionMode.Single;
+								vm.ExcludingNomenclatureIds = existingNomenclatures.ToArray();
+							})
 						.ViewModel;
-
-					journalViewModel.SelectionMode = JournalSelectionMode.Single;
-					journalViewModel.ExcludingNomenclatureIds = existingNomenclatures.ToArray();
 						
 					journalViewModel.OnEntitySelectedResult += (sender, e) =>
 					{
