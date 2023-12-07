@@ -1695,8 +1695,8 @@ WHERE o.id = @order_id
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
-          <BorderColor  />
-          <BorderWidth  />
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -1942,8 +1942,11 @@ Iif(
                 </TableCell>
               </TableCells>
             </TableRow>
-            <TableRow >
+            <TableRow>
               <Height>24.5pt</Height>
+              <Visibility>
+                <Hidden>=Fields!delivery_address.IsMissing</Hidden>
+              </Visibility>
               <TableCells>
                 <TableCell>
                   <ReportItems>
