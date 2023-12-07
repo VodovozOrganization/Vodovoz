@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -1191,7 +1191,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="TextboxOrderComment">
-                      <Value>={OrderComment}</Value>
+                      <Value>=Iif({is_order_from_undelivery}, "НЕДОВЕЗЁН РАНЕЕ!     ", "") + {OrderComment}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1781,9 +1781,13 @@ SELECT
 #База в запросе выше на проде пустая, залоги гребутся из той, что в запросе ниже.
     IF(route_list_addresses.deposits_collected IS NULL, 0, route_list_addresses.deposits_collected) AS BottlesDeposit,
     IF(route_list_addresses.equipment_deposits_collected IS NULL, 0, route_list_addresses.equipment_deposits_collected) AS EquipmentDeposit,
-    orders.payment_type AS payment_type
-
-
+    orders.payment_type AS payment_type,
+    (
+        SELECT COUNT(*) > 0 FROM undelivered_orders uo
+        INNER JOIN guilty_in_undelivered_orders guo ON guo.undelivery_id = uo.id
+        WHERE uo.new_order_id = route_list_addresses.order_id
+        AND guo.guilty_side in ('Driver','Department','ForceMajor','DirectorLO')
+    ) AS is_order_from_undelivery
 <!--sql_select-->
 FROM route_list_addresses
          LEFT JOIN orders ON orders.id = route_list_addresses.order_id
@@ -1945,6 +1949,10 @@ ORDER BY route_list_addresses.order_in_route;
         <Field Name="terminals_sum">
           <DataField>terminals_sum</DataField>
           <TypeName>System.Decimal</TypeName>
+        </Field>
+		<Field Name="is_order_from_undelivery">
+          <DataField>is_order_from_undelivery</DataField>
+          <TypeName>System.Boolean</TypeName>
         </Field>
         <!--fields-->
       </Fields>

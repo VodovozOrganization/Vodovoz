@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -1136,7 +1136,7 @@ Switch(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="TextboxOrderComment">
-                      <Value>={OrderComment}</Value>
+                      <Value>=Iif({is_order_from_undelivery}, "НЕДОВЕЗЁН РАНЕЕ!   ", "") + {OrderComment}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2332,7 +2332,13 @@ LIMIT 1
      WHERE (fp.order_id = orders.id
 		OR fp.external_id = orders.id
         OR fp.external_id = orders.online_order)
-     AND fp.payment_status = 'Performed') AS fast_payment_paid
+     AND fp.payment_status = 'Performed') AS fast_payment_paid,
+     (
+         SELECT COUNT(*) > 0 FROM undelivered_orders uo
+         INNER JOIN guilty_in_undelivered_orders guo ON guo.undelivery_id = uo.id
+         WHERE uo.new_order_id = route_list_addresses.order_id
+         AND guo.guilty_side in ('Driver','Department','ForceMajor','DirectorLO')
+     ) AS is_order_from_undelivery
     <!--sql_select-->
 FROM route_list_addresses
          LEFT JOIN orders ON orders.id = route_list_addresses.order_id
@@ -2536,6 +2542,10 @@ ORDER BY order_in_route
         </Field>
         <Field Name="fast_payment_paid">
           <DataField>fast_payment_paid</DataField>
+          <TypeName>System.Boolean</TypeName>
+        </Field>
+		<Field Name="is_order_from_undelivery">
+          <DataField>is_order_from_undelivery</DataField>
           <TypeName>System.Boolean</TypeName>
         </Field>
         <!--fields-->
