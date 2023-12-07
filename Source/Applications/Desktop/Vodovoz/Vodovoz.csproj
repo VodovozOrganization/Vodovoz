@@ -723,8 +723,6 @@
     <Compile Include="Representations\DocumentsVM.cs" />
     <Compile Include="ServiceDialogs\LoadFrom1c\Account1c.cs" />
     <Compile Include="ServiceDialogs\LoadFrom1c\Bank1c.cs" />
-    <Compile Include="ServiceDialogs\LoadFrom1cDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.LoadFrom1cDlg.cs" />
     <Compile Include="Representations\ContactsVM.cs" />
     <Compile Include="Dialogs\ServiceClaimDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceClaimDlg.cs" />
@@ -876,7 +874,6 @@
     <Compile Include="Dialogs\Logistic\FuelDocumentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.FuelDocumentView.cs" />
     <Compile Include="Additions\Logistic\PointMarker.cs" />
-    <Compile Include="ServiceDialogs\LoadFrom1c\ChangedItem.cs" />
     <Compile Include="ServiceDialogs\LoadFrom1c\FieldChange.cs" />
     <Compile Include="Dialogs\Employees\EmployeeWorkChartDlg.cs" />
     <Compile Include="gtk-gui\Dialogs.Employees.EmployeeWorkChartDlg.cs" />
