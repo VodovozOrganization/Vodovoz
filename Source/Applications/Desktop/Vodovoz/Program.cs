@@ -303,7 +303,7 @@ namespace Vodovoz
 							.GetInterfaces()
 							.Where(i => i.Name == $"I{s.Name}")
 							.First())
-						.SingleInstance();
+						.InstancePerLifetimeScope();
 
 					builder.RegisterType<IncludeExcludeSalesFilterFactory>().As<IIncludeExcludeSalesFilterFactory>().InstancePerLifetimeScope();
 					builder.RegisterType<LeftRightListViewModelFactory>().As<ILeftRightListViewModelFactory>().InstancePerLifetimeScope();
