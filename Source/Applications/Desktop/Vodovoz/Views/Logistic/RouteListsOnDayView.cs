@@ -1,40 +1,38 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Gamma.Binding;
+﻿using Gamma.Binding;
+using Gamma.Binding.Core.LevelTreeConfig;
 using Gamma.ColumnConfig;
 using Gdk;
 using GMap.NET;
 using GMap.NET.GtkSharp;
 using GMap.NET.MapProviders;
 using Gtk;
+using QS.Dialog;
 using QS.Dialog.GtkUI;
+using QS.DomainModel.UoW;
+using QS.Project.Journal;
 using QS.Utilities;
 using QS.Views.GtkUI;
 using QSWidgetLib;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+using System.Text;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Dialogs.Logistic;
-using Vodovoz.Domain.Logistic;
-using Vodovoz.ViewModels.Logistic;
-using Order = Vodovoz.Domain.Orders.Order;
-using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Employees;
-using System.Drawing;
-using QS.Dialog;
-using QS.DomainModel.UoW;
-using QS.Project.Journal;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.JournalViewModels;
-using Gamma.Binding.Core.LevelTreeConfig;
+using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Dialogs.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
-using System.Text;
+using Vodovoz.ViewModels.Logistic;
 using static Vodovoz.EntityRepositories.Orders.OrderRepository;
-using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Infrastructure;
+using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Views.Logistic
 {
@@ -542,7 +540,7 @@ namespace Vodovoz.Views.Logistic
 					if(ViewModel.UndeliveredOrdersOnDay != null)
 					{
 						undeliveryOrderNodes = ViewModel.UndeliveredOrdersOnDay
-							.Where(x => x.GuiltySide == GuiltyTypes.Driver || x.GuiltySide == GuiltyTypes.Department)
+							.Where(x => RouteListsOnDayViewModel.GuiltyTypesForMarkUndeliveries.Contains(x.GuiltySide))
 							.ToList();
 					}
 
