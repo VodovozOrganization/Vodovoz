@@ -1992,7 +1992,18 @@ namespace Vodovoz.Domain.Orders
 			UpdateContract();
 		}
 
-		public void RemoveOrderItem(OrderItem orderItem)
+		public virtual OrderItem AddOrderItem(Nomenclature nomenclature, decimal nds, int count, decimal price, int discount)
+		{
+			var item = OrderItem.CreateForSaleWithDiscount(this, nomenclature, count, price, false, discount, null, null);
+
+			item.IncludeNDS = nds;
+
+			ObservableOrderItems.Add(item);
+
+			return item;
+		}
+
+		public virtual void RemoveOrderItem(OrderItem orderItem)
 		{
 			if(!ObservableOrderItems.Contains(orderItem)) {
 				return;
@@ -2019,7 +2030,7 @@ namespace Vodovoz.Domain.Orders
 			UpdateContract();
 		}
 
-		public void SetOrderItemCount(int orderItemId, decimal newCount)
+		public virtual void SetOrderItemCount(int orderItemId, decimal newCount)
 		{
 			ObservableOrderItems.FirstOrDefault(x => x.Id == orderItemId)?.SetCount(newCount);
 		}
@@ -4998,7 +5009,7 @@ namespace Vodovoz.Domain.Orders
 			RemoveOrderItem(fastDeliveryItemToRemove);
 		}
 
-		public void ResetOrderItemsActualCounts()
+		public virtual void ResetOrderItemsActualCounts()
 		{
 			foreach(var orderItem in ObservableOrderItems)
 			{
@@ -5006,7 +5017,7 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		private void ResetDepositItemsActualCounts()
+		protected void ResetDepositItemsActualCounts()
 		{
 			foreach(var depositItem in OrderDepositItems)
 			{

@@ -736,7 +736,7 @@ namespace Vodovoz
 			item.RecalculateTotalCash();
 			if(!item.IsDelivered() && item.Status != RouteListItemStatus.Transfered)
 				foreach(var itm in item.Order.OrderItems)
-					itm.ActualCount = 0m;
+					itm.SetActualCountZero();
 
 			routelistdiscrepancyview.FindDiscrepancies();
 			OnItemsUpdated();
