@@ -1,11 +1,10 @@
 ﻿using Gamma.ColumnConfig;
-using Gamma.Utilities;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
-	public class CompletedDriversWarehousesEventsJournalRegistrar :
+	internal sealed class CompletedDriversWarehousesEventsJournalRegistrar :
 		ColumnsConfigRegistrarBase<CompletedDriversWarehousesEventsJournalViewModel, CompletedDriversWarehousesEventsJournalNode>
 	{
 		public override IColumnsConfig Configure(FluentColumnsConfig<CompletedDriversWarehousesEventsJournalNode> config) =>

@@ -146,7 +146,7 @@ namespace Vodovoz.Views.Logistic
 		
 		private void OnPrintQrCodeClicked(object sender, EventArgs e)
 		{
-			if(!ViewModel.IdGtZero)
+			if(ViewModel.HasChanges)
 			{
 				if(!ViewModel.AskUserQuestion("Прежде чем продолжить, нужно сохранить событие. Сохраняем?"))
 				{

@@ -5,7 +5,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
-	public class DriversWarehousesEventsJournalRegistrar :
+	internal sealed class DriversWarehousesEventsJournalRegistrar :
 		ColumnsConfigRegistrarBase<DriversWarehousesEventsJournalViewModel, DriversWarehousesEventsJournalNode>
 	{
 		public override IColumnsConfig Configure(FluentColumnsConfig<DriversWarehousesEventsJournalNode> config) =>
