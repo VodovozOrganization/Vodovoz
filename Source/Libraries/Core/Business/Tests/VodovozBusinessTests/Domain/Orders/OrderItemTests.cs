@@ -54,14 +54,25 @@ namespace VodovozBusinessTests.Domain.Orders
 		{
 			// arrange
 			DiscountReason discountReason = Substitute.For<DiscountReason>();
-			OrderItem testedOrderItem = new OrderItem();
+			Nomenclature nomenclature = Substitute.For<Nomenclature>();
+			Order order = Substitute.For<Order>();
 
-			testedOrderItem.Price = 50;
-			testedOrderItem.Count = 20;
-			testedOrderItem.DiscountByStock = existingDiscountByStock;
-			testedOrderItem.Discount = discountPercent;
-			testedOrderItem.DiscountMoney = discountMoney;
-			testedOrderItem.IsDiscountInMoney = true;
+			OrderItem testedOrderItem = OrderItem.CreateForSaleWithDiscount(
+				order,
+				nomenclature,
+				20,
+				50,
+				true,
+				discountMoney,
+				discountReason,
+				null);
+
+			//testedOrderItem.Price = 50;
+			//testedOrderItem.Count = 20;
+			//testedOrderItem.DiscountByStock = existingDiscountByStock;
+			//testedOrderItem.Discount = discountPercent;
+			//testedOrderItem.DiscountMoney = discountMoney;
+			//testedOrderItem.IsDiscountInMoney = true;
 
 			// act
 			testedOrderItem.SetDiscountByStock(discountReason, discountForAdd);
@@ -76,14 +87,25 @@ namespace VodovozBusinessTests.Domain.Orders
 		{
 			// arrange
 			DiscountReason discountReason = Substitute.For<DiscountReason>();
-			OrderItem testedOrderItem = new OrderItem();
+			Nomenclature nomenclature = Substitute.For<Nomenclature>();
+			Order order = Substitute.For<Order>();
 
-			testedOrderItem.Price = 50;
-			testedOrderItem.Count = 20;
-			testedOrderItem.DiscountByStock = existingDiscountByStock;
-			testedOrderItem.Discount = discountPercent;
-			testedOrderItem.DiscountMoney = discountMoney;
-			testedOrderItem.IsDiscountInMoney = false;
+			OrderItem testedOrderItem = OrderItem.CreateForSaleWithDiscount(
+				order,
+				nomenclature,
+				20,
+				50,
+				false,
+				discountPercent,
+				discountReason,
+				null);
+
+			//testedOrderItem.Price = 50;
+			//testedOrderItem.Count = 20;
+			//testedOrderItem.DiscountByStock = existingDiscountByStock;
+			//testedOrderItem.Discount = discountPercent;
+			//testedOrderItem.DiscountMoney = discountMoney;
+			//testedOrderItem.IsDiscountInMoney = false;
 
 			// act
 			testedOrderItem.SetDiscountByStock(discountReason, discountForAdd);
@@ -132,14 +154,25 @@ namespace VodovozBusinessTests.Domain.Orders
 		{
 			// arrange
 			DiscountReason discountReason = Substitute.For<DiscountReason>();
-			OrderItem testedOrderItem = new OrderItem();
+			Nomenclature nomenclature = Substitute.For<Nomenclature>();
+			Order order = Substitute.For<Order>();
 
-			testedOrderItem.Price = 50;
-			testedOrderItem.Count = 20;
-			testedOrderItem.DiscountByStock = existingDiscountByStock;
-			testedOrderItem.Discount = discountPercent;
-			testedOrderItem.DiscountMoney = discountMoney;
-			testedOrderItem.IsDiscountInMoney = false;
+			OrderItem testedOrderItem = OrderItem.CreateForSaleWithDiscount(
+				order,
+				nomenclature,
+				20,
+				50,
+				false,
+				discountPercent,
+				discountReason,
+				null);
+
+			//testedOrderItem.Price = 50;
+			//testedOrderItem.Count = 20;
+			//testedOrderItem.DiscountByStock = existingDiscountByStock;
+			//testedOrderItem.Discount = discountPercent;
+			//testedOrderItem.DiscountMoney = discountMoney;
+			//testedOrderItem.IsDiscountInMoney = false;
 
 			// act
 			testedOrderItem.SetDiscountByStock(discountReason, discountForAdd);
@@ -155,14 +188,25 @@ namespace VodovozBusinessTests.Domain.Orders
 		{
 			// arrange
 			DiscountReason discountReason = Substitute.For<DiscountReason>();
-			OrderItem testedOrderItem = new OrderItem();
+			Nomenclature nomenclature = Substitute.For<Nomenclature>();
+			Order order = Substitute.For<Order>();
 
-			testedOrderItem.Price = 50;
-			testedOrderItem.Count = 20;
-			testedOrderItem.DiscountByStock = existingDiscountByStock;
-			testedOrderItem.Discount = discountPercent;
-			testedOrderItem.DiscountMoney = discountMoney;
-			testedOrderItem.IsDiscountInMoney = true;
+			OrderItem testedOrderItem = OrderItem.CreateForSaleWithDiscount(
+				order,
+				nomenclature,
+				20,
+				50,
+				true,
+				discountMoney,
+				discountReason,
+				null);
+
+			//testedOrderItem.Price = 50;
+			//testedOrderItem.Count = 20;
+			//testedOrderItem.DiscountByStock = existingDiscountByStock;
+			//testedOrderItem.Discount = discountPercent;
+			//testedOrderItem.DiscountMoney = discountMoney;
+			//testedOrderItem.IsDiscountInMoney = true;
 
 			// act
 			testedOrderItem.SetDiscountByStock(discountReason, discountForAdd);
@@ -176,20 +220,30 @@ namespace VodovozBusinessTests.Domain.Orders
 		public void PropActualCount_WhenSetTo0_NdsAndCurrentSumAreAlso0()
 		{
 			// arrange
-			Order orderMock = Substitute.For<Order>();
-			OrderItem orderItem = new OrderItem {
-				Order = orderMock,
-				Count = 1,
-				Price = 100,
-				ManualChangingDiscount = 10
-			};
+			Nomenclature nomenclature = Substitute.For<Nomenclature>();
+			Order order = Substitute.For<Order>();
+
+			OrderItem testedOrderItem = OrderItem.CreateForSale(
+				order,
+				nomenclature,
+				1,
+				100);
+
+			testedOrderItem.SetManualChangingDiscount(10);
+
+			//OrderItem orderItem = new OrderItem {
+			//	Order = orderMock,
+			//	Count = 1,
+			//	Price = 100,
+			//	ManualChangingDiscount = 10
+			//};
 
 			// act
-			orderItem.ActualCount = 0;
+			testedOrderItem.SetActualCount(0);
 
 			// assert
-			Assert.That(orderItem.ActualSum, Is.EqualTo(0));
-			Assert.That(orderItem.IncludeNDS, Is.EqualTo(null));
+			Assert.That(testedOrderItem.ActualSum, Is.EqualTo(0));
+			Assert.That(testedOrderItem.IncludeNDS, Is.EqualTo(null));
 		}
 
 		static IEnumerable PercentDiscountValues()
@@ -204,17 +258,28 @@ namespace VodovozBusinessTests.Domain.Orders
 		public void ManualChangingDiscount_WhenSetPercentDiscount_ResultDiscountInRange0And100(decimal discount, decimal result)
 		{
 			// arrange
-			OrderItem orderItem = new OrderItem {
-				Count = 1,
-				Price = 100,
-				IsDiscountInMoney = false
-			};
+			Nomenclature nomenclature = Substitute.For<Nomenclature>();
+			Order order = Substitute.For<Order>();
+
+			OrderItem testedOrderItem = OrderItem.CreateForSale(
+				order,
+				nomenclature,
+				1,
+				100);
+
+			testedOrderItem.SetIsDiscountInMoney(false);
+
+			//OrderItem orderItem = new OrderItem {
+			//	Count = 1,
+			//	Price = 100,
+			//	IsDiscountInMoney = false
+			//};
 
 			// act
-			orderItem.ManualChangingDiscount = discount;
+			testedOrderItem.SetManualChangingDiscount(discount);
 
 			// assert
-			Assert.That(orderItem.Discount, Is.EqualTo(result));
+			Assert.That(testedOrderItem.Discount, Is.EqualTo(result));
 		}
 
 		static IEnumerable MoneyDiscountValues()
@@ -229,17 +294,28 @@ namespace VodovozBusinessTests.Domain.Orders
 		public void ManualChangingDiscount_WhenSetMoneyDiscount_ThenResultMoneyDiscountInRangeOf0AndMaxOrderSum(decimal discount, decimal result)
 		{
 			// arrange
-			OrderItem orderItem = new OrderItem {
-				Count = 2,
-				Price = 5000,
-				IsDiscountInMoney = true
-			};
+			Nomenclature nomenclature = Substitute.For<Nomenclature>();
+			Order order = Substitute.For<Order>();
+
+			OrderItem testedOrderItem = OrderItem.CreateForSale(
+				order,
+				nomenclature,
+				2,
+				5000);
+
+			testedOrderItem.SetIsDiscountInMoney(true);
+
+			//OrderItem orderItem = new OrderItem {
+			//	Count = 2,
+			//	Price = 5000,
+			//	IsDiscountInMoney = true
+			//};
 
 			// act
-			orderItem.ManualChangingDiscount = discount;
+			testedOrderItem.SetManualChangingDiscount(discount);
 
 			// assert
-			Assert.That(orderItem.DiscountMoney, Is.EqualTo(result));
+			Assert.That(testedOrderItem.DiscountMoney, Is.EqualTo(result));
 		}
 
 
@@ -249,17 +325,28 @@ namespace VodovozBusinessTests.Domain.Orders
 			// arrange
 			decimal discount = 200;
 
-			OrderItem orderItem = new OrderItem {
-				Count = 0,
-				Price = 5000,
-				IsDiscountInMoney = true
-			};
+			Nomenclature nomenclature = Substitute.For<Nomenclature>();
+			Order order = Substitute.For<Order>();
+
+			OrderItem testedOrderItem = OrderItem.CreateForSale(
+				order,
+				nomenclature,
+				0,
+				5000);
+
+			testedOrderItem.SetIsDiscountInMoney(true);
+
+			//OrderItem orderItem = new OrderItem {
+			//	Count = 0,
+			//	Price = 5000,
+			//	IsDiscountInMoney = true
+			//};
 
 			// act
-			orderItem.ManualChangingDiscount = discount;
+			testedOrderItem.SetManualChangingDiscount(discount);
 
 			// assert
-			Assert.That(orderItem.DiscountMoney, Is.EqualTo(0));
+			Assert.That(testedOrderItem.DiscountMoney, Is.EqualTo(0));
 		}
 
 		[Test(Description = "Проверка установки скидки в процентах если не была указана цена")]
@@ -268,16 +355,25 @@ namespace VodovozBusinessTests.Domain.Orders
 			// arrange
 			decimal discount = 200;
 
-			OrderItem orderItem = new OrderItem {
-				Count = 0,
-				Price = 5000
-			};
+			Nomenclature nomenclature = Substitute.For<Nomenclature>();
+			Order order = Substitute.For<Order>();
+
+			OrderItem testedOrderItem = OrderItem.CreateForSale(
+				order,
+				nomenclature,
+				0,
+				5000);
+
+			//OrderItem orderItem = new OrderItem {
+			//	Count = 0,
+			//	Price = 5000
+			//};
 
 			// act
-			orderItem.ManualChangingDiscount = discount;
+			testedOrderItem.SetManualChangingDiscount(discount);
 
 			// assert
-			Assert.That(orderItem.Discount, Is.EqualTo(0));
+			Assert.That(testedOrderItem.Discount, Is.EqualTo(0));
 		}
 
 		[Test(Description = "Проверка установки скидки в деньгах если не была указана цена")]
@@ -286,17 +382,28 @@ namespace VodovozBusinessTests.Domain.Orders
 			// arrange
 			decimal discount = 200;
 
-			OrderItem orderItem = new OrderItem {
-				Count = 30,
-				Price = 0,
-				IsDiscountInMoney = true
-			};
+			Nomenclature nomenclature = Substitute.For<Nomenclature>();
+			Order order = Substitute.For<Order>();
+
+			OrderItem testedOrderItem = OrderItem.CreateForSale(
+				order,
+				nomenclature,
+				30,
+				0);
+
+			testedOrderItem.SetIsDiscountInMoney(true);
+
+			//OrderItem orderItem = new OrderItem {
+			//	Count = 30,
+			//	Price = 0,
+			//	IsDiscountInMoney = true
+			//};
 
 			// act
-			orderItem.ManualChangingDiscount = discount;
+			testedOrderItem.SetManualChangingDiscount(discount);
 
 			// assert
-			Assert.That(orderItem.DiscountMoney, Is.EqualTo(0));
+			Assert.That(testedOrderItem.DiscountMoney, Is.EqualTo(0));
 		}
 
 		[Test(Description = "Проверка установки скидки в процентах если не было указано количество")]
@@ -305,16 +412,25 @@ namespace VodovozBusinessTests.Domain.Orders
 			// arrange
 			decimal discount = 200;
 
-			OrderItem orderItem = new OrderItem {
-				Count = 30,
-				Price = 0
-			};
+			Nomenclature nomenclature = Substitute.For<Nomenclature>();
+			Order order = Substitute.For<Order>();
+
+			OrderItem testedOrderItem = OrderItem.CreateForSale(
+				order,
+				nomenclature,
+				30,
+				0);
+
+			//OrderItem orderItem = new OrderItem {
+			//	Count = 30,
+			//	Price = 0
+			//};
 
 			// act
-			orderItem.ManualChangingDiscount = discount;
+			testedOrderItem.SetManualChangingDiscount(discount);
 
 			// assert
-			Assert.That(orderItem.Discount, Is.EqualTo(0));
+			Assert.That(testedOrderItem.Discount, Is.EqualTo(0));
 		}
 	}
 }
