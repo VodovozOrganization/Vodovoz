@@ -48,8 +48,6 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 
 		private global::Gamma.GtkWidgets.yCheckButton yCheckBtnHideSignature;
 
-		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonSendBillByEdo;
-
 		private global::Gtk.HBox hboxSendDocuments;
 
 		private global::Gtk.VBox vboxEdo;
@@ -271,30 +269,18 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			w21.Position = 5;
 			w21.Expand = false;
 			w21.Fill = false;
-			// Container child hbox11.Gtk.Box+BoxChild
-			this.ycheckbuttonSendBillByEdo = new global::Gamma.GtkWidgets.yCheckButton();
-			this.ycheckbuttonSendBillByEdo.CanFocus = true;
-			this.ycheckbuttonSendBillByEdo.Name = "ycheckbuttonSendBillByEdo";
-			this.ycheckbuttonSendBillByEdo.Label = global::Mono.Unix.Catalog.GetString("Отправлять счет на оплату по ЭДО");
-			this.ycheckbuttonSendBillByEdo.DrawIndicator = true;
-			this.ycheckbuttonSendBillByEdo.UseUnderline = true;
-			this.hbox11.Add(this.ycheckbuttonSendBillByEdo);
-			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.hbox11[this.ycheckbuttonSendBillByEdo]));
-			w22.Position = 6;
+			this.vbox1.Add(this.hbox11);
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox11]));
+			w22.Position = 5;
 			w22.Expand = false;
 			w22.Fill = false;
-			this.vbox1.Add(this.hbox11);
-			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox11]));
-			w23.Position = 5;
-			w23.Expand = false;
-			w23.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hboxSendDocuments = new global::Gtk.HBox();
 			this.hboxSendDocuments.Name = "hboxSendDocuments";
 			this.hboxSendDocuments.Spacing = 6;
 			this.vbox1.Add(this.hboxSendDocuments);
-			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hboxSendDocuments]));
-			w24.Position = 6;
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hboxSendDocuments]));
+			w23.Position = 6;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.vboxEdo = new global::Gtk.VBox();
 			this.vboxEdo.Name = "vboxEdo";
@@ -305,10 +291,10 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			this.ylabel4.Xalign = 0F;
 			this.ylabel4.LabelProp = global::Mono.Unix.Catalog.GetString("Электронные документы:");
 			this.vboxEdo.Add(this.ylabel4);
-			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vboxEdo[this.ylabel4]));
-			w25.Position = 0;
-			w25.Expand = false;
-			w25.Fill = false;
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vboxEdo[this.ylabel4]));
+			w24.Position = 0;
+			w24.Expand = false;
+			w24.Fill = false;
 			// Container child vboxEdo.Gtk.Box+BoxChild
 			this.GtkScrolledWindow10 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow10.Name = "GtkScrolledWindow10";
@@ -319,8 +305,8 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			this.treeViewEdoContainers.Name = "treeViewEdoContainers";
 			this.GtkScrolledWindow10.Add(this.treeViewEdoContainers);
 			this.vboxEdo.Add(this.GtkScrolledWindow10);
-			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.vboxEdo[this.GtkScrolledWindow10]));
-			w27.Position = 1;
+			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vboxEdo[this.GtkScrolledWindow10]));
+			w26.Position = 1;
 			// Container child vboxEdo.Gtk.Box+BoxChild
 			this.hboxEdoContainersBtns = new global::Gamma.GtkWidgets.yHBox();
 			this.hboxEdoContainersBtns.Name = "hboxEdoContainersBtns";
@@ -332,10 +318,10 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			this.btnUpdateEdoDocFlowStatus.UseUnderline = true;
 			this.btnUpdateEdoDocFlowStatus.Label = global::Mono.Unix.Catalog.GetString("Обновить статус");
 			this.hboxEdoContainersBtns.Add(this.btnUpdateEdoDocFlowStatus);
-			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.hboxEdoContainersBtns[this.btnUpdateEdoDocFlowStatus]));
-			w28.Position = 0;
-			w28.Expand = false;
-			w28.Fill = false;
+			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.hboxEdoContainersBtns[this.btnUpdateEdoDocFlowStatus]));
+			w27.Position = 0;
+			w27.Expand = false;
+			w27.Fill = false;
 			// Container child hboxEdoContainersBtns.Gtk.Box+BoxChild
 			this.ybuttonSendDocumentAgain = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonSendDocumentAgain.CanFocus = true;
@@ -343,18 +329,18 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			this.ybuttonSendDocumentAgain.UseUnderline = true;
 			this.ybuttonSendDocumentAgain.Label = global::Mono.Unix.Catalog.GetString("Отправить повторно");
 			this.hboxEdoContainersBtns.Add(this.ybuttonSendDocumentAgain);
-			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.hboxEdoContainersBtns[this.ybuttonSendDocumentAgain]));
-			w29.Position = 1;
+			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.hboxEdoContainersBtns[this.ybuttonSendDocumentAgain]));
+			w28.Position = 1;
+			w28.Expand = false;
+			w28.Fill = false;
+			this.vboxEdo.Add(this.hboxEdoContainersBtns);
+			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.vboxEdo[this.hboxEdoContainersBtns]));
+			w29.Position = 2;
 			w29.Expand = false;
 			w29.Fill = false;
-			this.vboxEdo.Add(this.hboxEdoContainersBtns);
-			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.vboxEdo[this.hboxEdoContainersBtns]));
-			w30.Position = 2;
-			w30.Expand = false;
-			w30.Fill = false;
 			this.vbox1.Add(this.vboxEdo);
-			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.vboxEdo]));
-			w31.Position = 7;
+			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.vboxEdo]));
+			w30.Position = 7;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
