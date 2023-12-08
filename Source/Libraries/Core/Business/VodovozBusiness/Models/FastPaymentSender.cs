@@ -13,7 +13,7 @@ using VodovozInfrastructure.Utils;
 
 namespace Vodovoz.Models
 {
-    public class FastPaymentSender
+	public class FastPaymentSender
     {
         private readonly IFastPaymentParametersProvider _fastPaymentParametersProvider;
 		private readonly SmsClientChannelFactory _smsClientFactory;
@@ -104,20 +104,5 @@ namespace Vodovoz.Models
 				return await responseTask.Content.ReadAsAsync<FastPaymentResponseDTO>();
 			}
 		}
-	}
-
-	public class FastPaymentResult
-	{
-		public ResultStatus Status { get; set; }
-		public string ErrorMessage { get; set; }
-		public bool OrderAlreadyPaied { get; set; }
-	}
-
-	public class FastPaymentResponseDTO
-	{
-		public string Ticket { get; set; }
-		public Guid FastPaymentGuid { get; set; }
-		public string ErrorMessage { get; set; }
-		public FastPaymentStatus? FastPaymentStatus { get; set; }
 	}
 }
