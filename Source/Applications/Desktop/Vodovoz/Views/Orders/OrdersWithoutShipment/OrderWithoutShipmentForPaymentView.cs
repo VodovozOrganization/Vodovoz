@@ -106,20 +106,12 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 
 			treeViewEdoContainers.ItemsDataSource = ViewModel.EdoContainers;
 
-			ycheckbuttonSendBillByEdo.Binding
-				.AddBinding(ViewModel, vm => vm.IsSendBillByEdo, w => w.Active)
-				.AddBinding(ViewModel, vm => vm.CanSendBillByEdo, w => w.Visible)
-				.InitializeFromSource();
-
-			ycheckbuttonSendBillByEdo.Visible = false;
-
 			btnUpdateEdoDocFlowStatus.Clicked += (sender, args) =>
 			{
 				ViewModel.UpdateEdoContainers();
 				CustomizeSendDocumentAgainButton();
 			};
 
-			ybuttonSendDocumentAgain.Visible = ViewModel.CanResendEdoBill;
 			ybuttonSendDocumentAgain.Clicked += ViewModel.OnButtonSendDocumentAgainClicked;
 
 			ViewModel.PropertyChanged += OnViewModelPropertyChanged;

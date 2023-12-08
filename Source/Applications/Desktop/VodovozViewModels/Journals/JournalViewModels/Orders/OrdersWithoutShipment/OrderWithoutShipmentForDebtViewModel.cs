@@ -33,9 +33,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		private IGenericRepository<EdoContainer> _edoContainerRepository;
 
 		public Action<string> OpenCounterpartyJournal;
-		private bool _isSendBillByEdo;
-		private bool _canSendBillByEdo;
-
+		private bool _userHavePermissionToResendEdoDocuments;
+		
 		public bool IsDocumentSent => Entity.IsBillWithoutShipmentSent;
 
 		public OrderWithoutShipmentForDebtViewModel(
@@ -60,6 +59,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 			bool canCreateBillsWithoutShipment =
 				CommonServices.PermissionService.ValidateUserPresetPermission("can_create_bills_without_shipment", CurrentUser.Id);
+			_userHavePermissionToResendEdoDocuments = CommonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Permissions.EdoContainer.OrderWithoutShipmentForDebt.CanResendEdoBill, CurrentUser.Id);
 
 			var currentEmployee = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
 
@@ -97,12 +97,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 					commonServices.InteractiveService,
 					UoW);
 
-			CanSendBillByEdo = false;
-
 			UpdateEdoContainers();
-
-			CanResendEdoBill = CommonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Permissions.EdoContainer.OrderWithoutShipmentForDebt.CanResendEdoBill, CurrentUser.Id)
-				&& EdoContainers.Any();
 
 			CancelCommand = new DelegateCommand(
 				() => Close(true, CloseSource.Cancel),
@@ -111,23 +106,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			OpenBillCommand = new DelegateCommand(
 				() =>
 				{
-					if(IsSendBillByEdo)
-					{
-						if(commonServices.InteractiveService.Question(
-							"Была выбрана отправка счета по ЭДО.\n" +
-							"Снять галочку и открыть счет?\n" +
-							"\n" +
-							"При нажатии Нет, будет отменено открытие счета",
-							"Предотвращение случайной отправки по ЭДО"))
-						{
-							IsSendBillByEdo = false;
-						}
-						else
-						{
-							return;
-						}
-					}
-
 					string whatToPrint = "документа \"" + Entity.Type.GetEnumTitle() + "\"";
 
 					if(UoWGeneric.HasChanges && _commonMessages.SaveBeforePrint(typeof(OrderWithoutShipmentForDebt), whatToPrint))
@@ -148,12 +126,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			Entity.PropertyChanged += OnEntityPropertyChanged;
 		}
 
-		public bool IsSendBillByEdo
-		{
-			get => _isSendBillByEdo;
-			set => SetField(ref _isSendBillByEdo, value);
-		}
-
 		public bool CanSendBillByEdo => Entity.Client?.NeedSendBillByEdo ?? false && !EdoContainers.Any();
 
 		public SendDocumentByEmailViewModel SendDocViewModel { get; set; }
@@ -170,12 +142,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		{
 			if(e.PropertyName == nameof(Entity.Client))
 			{
-				if(!CanSendBillByEdo)
-				{
-					IsSendBillByEdo = false;
-				}
-
 				OnPropertyChanged(() => CanSendBillByEdo);
+				OnPropertyChanged(() => CanResendEdoBill);
 			}
 		}
 
@@ -195,9 +163,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			uow.Save();
 			uow.Save(edoContainer);
 			uow.Commit();
-
-			IsSendBillByEdo = false;
-			OnPropertyChanged(() => CanSendBillByEdo);
 		}
 
 		public void OnButtonSendDocumentAgainClicked(object sender, EventArgs e)
@@ -219,6 +184,9 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 			SendBillByEdo(UoW);
 			UpdateEdoContainers();
+
+			OnPropertyChanged(() => CanSendBillByEdo);
+			OnPropertyChanged(() => CanResendEdoBill);
 		}
 
 		public void UpdateEdoContainers()
@@ -239,7 +207,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		public GenericObservableList<EdoContainer> EdoContainers { get; } =
 			new GenericObservableList<EdoContainer>();
 
-		public bool CanResendEdoBill { get; }
+		public bool CanResendEdoBill => _userHavePermissionToResendEdoDocuments && EdoContainers.Any();
 
 		public void OnTabAdded()
 		{
@@ -257,11 +225,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 		public override bool Save(bool close)
 		{
-			if(!Entity.IsBillWithoutShipmentSent && !EdoContainers.Any() && IsSendBillByEdo)
-			{
-				SendBillByEdo(UoW);
-			}
-
 			OnPropertyChanged(() => CanSendBillByEdo);
 
 			return base.Save(close);
