@@ -566,13 +566,13 @@ namespace Vodovoz.Domain.Logistic
 		/// </summary>
 		private void AutoCancelAutoTransfer(IUnitOfWork uow)
 		{
-			var undeliveries = _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(uow, Order);
+			var oldUndeliveries = _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(uow, Order);
 
 			var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(uow);
 
 			var oldUndeliveryCommentText = "Доставлен в тот же день";
 
-			foreach(var oldUndelivery in undeliveries)
+			foreach(var oldUndelivery in oldUndeliveries)
 			{
 				oldUndelivery.NewOrder?.ChangeStatus(OrderStatus.Canceled);
 
@@ -611,6 +611,13 @@ namespace Vodovoz.Domain.Logistic
 				if(oldUndelivery.NewOrder == null)
 				{
 					continue;
+				}
+
+				var newUndeliveries = _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(uow, oldUndelivery.NewOrder);
+
+				if(newUndeliveries.Any())
+				{
+					return;
 				}
 
 				var newUndeliveredOrder = new UndeliveredOrder
