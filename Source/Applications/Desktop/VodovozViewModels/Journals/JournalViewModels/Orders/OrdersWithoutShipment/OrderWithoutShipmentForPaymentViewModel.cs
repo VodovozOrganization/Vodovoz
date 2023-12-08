@@ -224,6 +224,11 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			if(e.PropertyName == nameof(Entity.Client))
 			{
 				CanSendBillByEdo = Entity.Client?.NeedSendBillByEdo ?? false;
+
+				if(!CanSendBillByEdo)
+				{
+					IsSendBillByEdo = false;
+				}
 			}
 		}
 
