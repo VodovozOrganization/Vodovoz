@@ -128,7 +128,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 					if(IsSendBillByEdo)
 					{
 						if(commonServices.InteractiveService.Question(
-							"Была выбрана отправка счета по ЭДО, при сохранении будет отравлен счет.\n" +
+							"Была выбрана отправка счета по ЭДО.\n" +
 							"Снять галочку и открыть счет?\n" +
 							"\n" +
 							"При нажатии Нет, будет отменено открытие счета",
@@ -338,6 +338,9 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			uow.Save();
 			uow.Save(edoContainer);
 			uow.Commit();
+
+			IsSendBillByEdo = false;
+			CanSendBillByEdo = false;
 		}
 
 		public void OnButtonSendDocumentAgainClicked(object sender, EventArgs e)
@@ -380,6 +383,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			{
 				SendBillByEdo(UoW);
 			}
+
+			CanSendBillByEdo = !EdoContainers.Any();
 
 			return base.Save(close);
 		}
