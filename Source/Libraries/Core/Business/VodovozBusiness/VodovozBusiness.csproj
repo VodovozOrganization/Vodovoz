@@ -678,14 +678,6 @@
     <Compile Include="Factories\IRouteListProfitabilityFactory.cs" />
     <Compile Include="Factories\NomenclatureGroupPricingPriceModelFactory.cs" />
     <Compile Include="Factories\IRoboatsCallFactory.cs" />
-    <Compile Include="Factories\Report\CustomPropertiesFactory.cs" />
-    <Compile Include="Factories\Report\CustomReportFactory.cs" />
-    <Compile Include="Factories\Report\CustomReportItemFactory.cs" />
-    <Compile Include="Factories\Report\ICustomPropertiesFactory.cs" />
-    <Compile Include="Factories\Report\ICustomReportFactory.cs" />
-    <Compile Include="Factories\Report\ICustomReportItemFactory.cs" />
-    <Compile Include="Factories\Report\IRdlTextBoxFactory.cs" />
-    <Compile Include="Factories\Report\RdlTextBoxFactory.cs" />
     <Compile Include="Factories\RoboatsCallFactory.cs" />
     <Compile Include="Factories\RoboatsFileStorageFactory.cs" />
     <Compile Include="Factories\IPaymentFromAvangardFactory.cs" />
@@ -1010,7 +1002,6 @@
     <Compile Include="Services\Logistics\RouteListAcceptStatus.cs" />
     <Compile Include="Services\RevenueServiceInfo.cs" />
     <Compile Include="Services\UserRoleSettings.cs" />
-    <Compile Include="Tools\EventsQrPlacer.cs" />
     <Compile Include="Tools\GeoGroupVersionNotFoundException.cs" />
     <Compile Include="Tools\DataArchiver.cs" />
     <Compile Include="Tools\IDataArchiver.cs" />
@@ -1018,7 +1009,6 @@
     <Compile Include="Tools\Interactive\ConfirmationQuestion\ConfirmationQuestionDialogSettings.cs" />
     <Compile Include="Tools\Interactive\ConfirmationQuestion\ConfirmationQuestionDialogSettings.ImgType.cs" />
     <Compile Include="Tools\Interactive\ConfirmationQuestion\IConfirmationQuestionInteractive.cs" />
-    <Compile Include="Tools\IEventsQrPlacer.cs" />
     <Compile Include="Tools\Logistic\DistanceCalculator.cs" />
     <Compile Include="Tools\Logistic\DriverDistrictPriorityHelper.cs" />
     <Compile Include="Tools\Logistic\IDistanceCalculator.cs" />

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Vodovoz.RDL.Elements;
 
-namespace Vodovoz.Factories.Report
+namespace Vodovoz.Presentation.Reports.Factories
 {
 	public class CustomPropertiesFactory : ICustomPropertiesFactory
 	{

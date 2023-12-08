@@ -13,9 +13,8 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.Factories.Report;
 using Vodovoz.Parameters;
-using Vodovoz.Tools;
+using Vodovoz.Presentation.Reports.Factories;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.Infrastructure.Print;
 

@@ -400,6 +400,8 @@
   <ItemGroup>
     <Compile Include="Additions\Accounting\WayBillDocumentGenerator.cs" />
     <Compile Include="Additions\AuthorizationService.cs" />
+    <Compile Include="Additions\EventsQrPlacer.cs" />
+    <Compile Include="Additions\IEventsQrPlacer.cs" />
     <Compile Include="Additions\Logistic\CoordinateExtensions.cs" />
     <Compile Include="Additions\Logistic\CustomPolygons.cs" />
     <Compile Include="Additions\Logistic\DeliveryPointExtensions.cs" />
@@ -2528,6 +2530,10 @@
     <ProjectReference Include="..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj">
       <Project>{0107f13c-46e0-4008-8302-0b5cd71df14c}</Project>
       <Name>Vodovoz.Data.NHibernate</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Vodovoz.Presentation.Reports\Vodovoz.Presentation.Reports.csproj">
+      <Project>{79eb219a-5dda-4153-be77-1770663dd0c3}</Project>
+      <Name>Vodovoz.Presentation.Reports</Name>
     </ProjectReference>
     <ProjectReference Include="..\Vodovoz.Presentation.ViewModels\Vodovoz.Presentation.ViewModels.csproj">
       <Project>{396CC0BB-294B-44E0-8428-31677419B8BE}</Project>

@@ -1,6 +1,6 @@
-using Vodovoz.RDL.Elements;
+﻿using Vodovoz.RDL.Elements;
 
-namespace Vodovoz.Factories.Report
+namespace Vodovoz.Presentation.Reports.Factories
 {
 	public interface ICustomReportItemFactory
 	{

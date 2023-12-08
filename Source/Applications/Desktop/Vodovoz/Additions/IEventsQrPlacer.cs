@@ -1,7 +1,7 @@
 ﻿using QS.DomainModel.UoW;
 using Vodovoz.Domain.Logistic.Drivers;
 
-namespace Vodovoz.Tools
+namespace Vodovoz.Additions
 {
 	public interface IEventsQrPlacer
 	{

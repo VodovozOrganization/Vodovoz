@@ -2,15 +2,14 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Xml.Serialization;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Logistic.Drivers;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.Factories.Report;
+using Vodovoz.Presentation.Reports.Factories;
 using Vodovoz.RDL.Elements;
 
-namespace Vodovoz.Tools
+namespace Vodovoz.Additions
 {
 	public class EventsQrPlacer : IEventsQrPlacer
 	{
