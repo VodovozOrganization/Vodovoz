@@ -2525,11 +2525,6 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual bool CalculateDeliveryPrice()
-		{
-			throw new NotImplementedException();
-		}
-
 		/// <summary>
 		/// Добавить оборудование из выбранного предыдущего заказа.
 		/// </summary>
