@@ -896,27 +896,6 @@ namespace Vodovoz
 			}
 		}
 
-		public decimal DiscountSetter
-		{
-			get
-			{
-				if(IsEquipment)
-					return orderEquipment.OrderItem != null ? orderEquipment.OrderItem.DiscountSetter : 0;
-				return orderItem.DiscountSetter;
-			}
-
-			set
-			{
-				if(IsEquipment)
-				{
-					if(orderEquipment.OrderItem != null)
-						orderEquipment.OrderItem.SetDiscountSetter(value);
-				}
-				else
-					orderItem.SetDiscountSetter(value);
-			}
-		}
-
 		public decimal Discount
 		{
 			get

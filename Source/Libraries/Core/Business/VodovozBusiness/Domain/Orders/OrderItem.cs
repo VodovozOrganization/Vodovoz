@@ -288,12 +288,6 @@ namespace Vodovoz.Domain.Orders
 		public virtual decimal ManualChangingOriginalDiscount =>
 			IsDiscountInMoney ? (OriginalDiscountMoney ?? 0) : (OriginalDiscount ?? 0);
 
-		public virtual decimal DiscountSetter
-		{
-			get => IsDiscountInMoney ? DiscountMoney : Discount;
-			protected set => CalculateAndSetDiscount(value);
-		}
-
 		public virtual void SetRentEquipmentCount(int equipmentCount)
 		{
 			RentEquipmentCount = equipmentCount;
@@ -329,7 +323,7 @@ namespace Vodovoz.Domain.Orders
 			}
 			else
 			{
-				CalculateAndSetDiscount(DiscountSetter);
+				CalculateAndSetDiscount(IsDiscountInMoney ? DiscountMoney : Discount);
 			}
 		}
 
@@ -764,11 +758,6 @@ namespace Vodovoz.Domain.Orders
 		public virtual void SetManualChangingDiscount(decimal manualChangingDiscount)
 		{
 			ManualChangingDiscount = manualChangingDiscount;
-		}
-
-		public virtual void SetDiscountSetter(decimal discountSetter)
-		{
-			DiscountSetter = discountSetter;
 		}
 
 		public virtual void SetDiscount(bool isDiscountInMoney, decimal discount, DiscountReason discountReason)

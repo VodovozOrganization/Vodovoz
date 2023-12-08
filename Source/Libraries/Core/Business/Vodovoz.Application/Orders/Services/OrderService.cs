@@ -203,16 +203,16 @@ namespace Vodovoz.Application.Orders.Services
 			}
 		}
 
-		private Order CreateIncompleteOrder(IUnitOfWorkGeneric<Order> uow, RoboatsOrderArgs roboatsOrderArgs)
+		private Order CreateIncompleteOrder(IUnitOfWorkGeneric<Order> unitOfWork, RoboatsOrderArgs roboatsOrderArgs)
 		{
-			var roboatsEmployee = _employeeRepository.GetEmployeeForCurrentUser(uow);
+			var roboatsEmployee = _employeeRepository.GetEmployeeForCurrentUser(unitOfWork);
 			if(roboatsEmployee == null)
 			{
 				throw new InvalidOperationException("Специальный сотрудник для работы с Roboats должен быть создан и заполнен в параметрах");
 			}
 
-			var order = CreateOrder(uow, roboatsEmployee, roboatsOrderArgs);
-			order.SaveEntity(uow, roboatsEmployee, _orderDailyNumberController, _paymentFromBankClientController);
+			var order = CreateOrder(unitOfWork, roboatsEmployee, roboatsOrderArgs);
+			order.SaveEntity(unitOfWork, roboatsEmployee, _orderDailyNumberController, _paymentFromBankClientController);
 			return order;
 		}
 
@@ -255,12 +255,12 @@ namespace Vodovoz.Application.Orders.Services
 
 		private Order AcceptOrder(int orderId, int roboatsEmployee)
 		{
-			using(var uow = _unitOfWorkFactory.CreateForRoot<Order>(orderId))
+			using(var unitOfWork = _unitOfWorkFactory.CreateForRoot<Order>(orderId))
 			{
-				var order = uow.Root;
-				var employee = uow.GetById<Employee>(roboatsEmployee);
+				var order = unitOfWork.Root;
+				var employee = unitOfWork.GetById<Employee>(roboatsEmployee);
 				order.AcceptOrder(employee, _callTaskWorker);
-				order.SaveEntity(uow, employee, _orderDailyNumberController, _paymentFromBankClientController);
+				order.SaveEntity(unitOfWork, employee, _orderDailyNumberController, _paymentFromBankClientController);
 				return order;
 			}
 		}
