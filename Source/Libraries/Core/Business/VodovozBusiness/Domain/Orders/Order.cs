@@ -2532,7 +2532,6 @@ namespace Vodovoz.Domain.Orders
 
 		/// <summary>
 		/// Добавить оборудование из выбранного предыдущего заказа.
-		/// !!! почему оборудование, если номенклатуры? !!!
 		/// </summary>
 		/// <param name="orderItem">Элемент заказа.</param>
 		/// <param name="UoW">IUnitOfWork</param>
