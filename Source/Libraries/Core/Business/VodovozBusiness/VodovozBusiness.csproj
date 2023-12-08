@@ -711,6 +711,7 @@
     <Compile Include="Models\FastPaymentSender.cs" />
     <Compile Include="Models\GeoGroupVersionsModel.cs" />
     <Compile Include="Models\IAdditionalLoadingModel.cs" />
+    <Compile Include="Models\IFastPaymentSender.cs" />
     <Compile Include="Models\INomenclatureCostPriceModel.cs" />
     <Compile Include="Models\INomenclatureGroupPricingModel.cs" />
     <Compile Include="Models\INomenclatureInnerDeliveryPriceModel.cs" />

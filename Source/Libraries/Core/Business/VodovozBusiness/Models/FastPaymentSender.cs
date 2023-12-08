@@ -13,18 +13,18 @@ using VodovozInfrastructure.Utils;
 
 namespace Vodovoz.Models
 {
-	public class FastPaymentSender
-    {
-        private readonly IFastPaymentParametersProvider _fastPaymentParametersProvider;
-		private readonly SmsClientChannelFactory _smsClientFactory;
+	internal sealed class FastPaymentSender : IFastPaymentSender
+	{
+		private readonly IFastPaymentParametersProvider _fastPaymentParametersProvider;
+		private readonly ISmsClientChannelFactory _smsClientFactory;
 		private readonly ISmsSettings _smsSettings;
 		private HttpClient _httpClient;
-		
-        public FastPaymentSender(
+
+		public FastPaymentSender(
 			IFastPaymentParametersProvider fastPaymentParametersProvider,
-			SmsClientChannelFactory smsClientFactory,
+			ISmsClientChannelFactory smsClientFactory,
 			ISmsSettings smsSettings)
-        {
+		{
 			_fastPaymentParametersProvider =
 				fastPaymentParametersProvider ?? throw new ArgumentNullException(nameof(fastPaymentParametersProvider));
 			_smsClientFactory = smsClientFactory ?? throw new ArgumentNullException(nameof(smsClientFactory));

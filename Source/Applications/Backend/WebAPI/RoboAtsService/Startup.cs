@@ -20,7 +20,6 @@ using RoboatsService.Authentication;
 using RoboatsService.Monitoring;
 using RoboatsService.OrderValidation;
 using Sms.External.SmsRu;
-using Sms.Internal.Client.Framework;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -30,7 +29,6 @@ using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.Factories;
 using Vodovoz.Infrastructure.Database;
-using Vodovoz.Models;
 using Vodovoz.Parameters;
 using Vodovoz.Settings.Database;
 using Vodovoz.Tools;
@@ -39,24 +37,25 @@ using Vodovoz.Tools.CallTasks;
 namespace RoboatsService
 {
 	public class Startup
-    {
+	{
 		private IDataBaseInfo _dataBaseInfo;
 		private ILogger<Startup> _logger;
 
-        public Startup(IConfiguration configuration)
+		public Startup(IConfiguration configuration)
 		{
-            Configuration = configuration;
-        }
+			Configuration = configuration;
+		}
 
-        public IConfiguration Configuration { get; }
+		public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
-        {
+		// This method gets called by the runtime. Use this method to add services to the container.
+		public void ConfigureServices(IServiceCollection services)
+		{
 			services.AddAuthentication()
 				.AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(ApiKeyAuthenticationOptions.DefaultScheme, null);
 			services.AddAuthentication(ApiKeyAuthenticationOptions.DefaultScheme);
 			services.AddMvc().AddControllersAsServices();
+			services.AddBusiness();
 
 			NLogBuilder.ConfigureNLog("NLog.config");
 
@@ -67,7 +66,6 @@ namespace RoboatsService
 		{
 			ErrorReporter.Instance.AutomaticallySendEnabled = false;
 			ErrorReporter.Instance.SendedLogRowCount = 100;
-
 
 			builder.RegisterType<DefaultSessionProvider>().AsImplementedInterfaces();
 			builder.RegisterType<DefaultUnitOfWorkFactory>().AsImplementedInterfaces();
@@ -81,8 +79,6 @@ namespace RoboatsService
 			builder.RegisterType<ApiKeyAuthenticationOptions>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<ApiKeyAuthenticationHandler>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterInstance(ServicesConfig.UserService).As<IUserService>();
-			
-			builder.RegisterType<FastPaymentSender>().AsSelf().AsImplementedInterfaces();
 
 			builder.RegisterInstance(_dataBaseInfo)
 				.AsSelf()
@@ -91,7 +87,6 @@ namespace RoboatsService
 			
 			builder.RegisterModule<DatabaseSettingsModule>();
 			builder.RegisterModule<SmsExternalSmsRuModule>();
-			builder.RegisterModule<SmsInternalClientModule>();
 			
 			builder.RegisterType<CallTaskWorker>()
 				.AsSelf()
@@ -132,25 +127,25 @@ namespace RoboatsService
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {
+		{
 			app.ApplicationServices.GetService<SettingsController>().RefreshSettings();
 
 			if(env.IsDevelopment()) {
-                app.UseDeveloperExceptionPage();
-            }
+				app.UseDeveloperExceptionPage();
+			}
 
-            app.UseHttpsRedirection();
+			app.UseHttpsRedirection();
 
-            app.UseRouting();
+			app.UseRouting();
 
 			app.UseAuthentication();
-            app.UseAuthorization();
+			app.UseAuthorization();
 
 			app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
-        }
+			{
+				endpoints.MapControllers();
+			});
+		}
 
 		private void CreateBaseConfig()
 		{

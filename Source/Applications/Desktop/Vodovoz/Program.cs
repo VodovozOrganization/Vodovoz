@@ -648,7 +648,8 @@ namespace Vodovoz
 							.AddScoped<SelectPaymentTypeViewModel>()
 							.AddTransient<IReportExporter, ReportExporterAdapter>()
 							.AddScoped<IRouteOptimizer, RouteOptimizer>()
-							.AddApplication();
+							.AddApplication()
+							.AddBusiness();
 				});
 	}
 }
