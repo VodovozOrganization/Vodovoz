@@ -66,6 +66,7 @@ namespace Vodovoz.Application.Services.Logistics
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
 			IAddressTransferController addressTransferController,
 			IGenericRepository<RouteListAddressKeepingDocument> routeListAddressKeepingDocumentsRepository,
+			IRouteListAddressKeepingDocumentController routeListAddressKeepingDocumentController,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
 			ITrackRepository trackRepository,
 			IRouteListProfitabilityController routeListProfitabilityController,
@@ -99,6 +100,8 @@ namespace Vodovoz.Application.Services.Logistics
 				?? throw new ArgumentNullException(nameof(addressTransferController));
 			_routeListAddressKeepingDocumentsRepository = routeListAddressKeepingDocumentsRepository
 				?? throw new ArgumentNullException(nameof(routeListAddressKeepingDocumentsRepository));
+			_routeListAddressKeepingDocumentController = routeListAddressKeepingDocumentController
+				?? throw new ArgumentNullException(nameof(routeListAddressKeepingDocumentController));
 			_deliveryRulesParametersProvider = deliveryRulesParametersProvider
 				?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
 			_trackRepository = trackRepository
