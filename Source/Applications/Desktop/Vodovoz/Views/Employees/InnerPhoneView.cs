@@ -17,6 +17,7 @@ namespace Vodovoz.Views.Employees
 		{
 			entryNumber.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.Number, w => w.Text)
+				.AddBinding(vm => vm.CanChangeNumber, w => w.Sensitive)
 				.InitializeFromSource();
 
 			entryDescription.Binding.AddSource(ViewModel)

@@ -1,24 +1,24 @@
 ﻿using Core.Infrastructure;
 using MassTransit;
 using Pacs.Core;
+using Pacs.Core.Messages.Events;
 using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Vodovoz.Core.Domain.Pacs;
 
-namespace Pacs.Operator.Client
+namespace Pacs.Operators.Client
 {
-	public class OperatorStateConsumer : IConsumer<OperatorState>, IObservable<OperatorState>, IDisposable
+	public class OperatorStateConsumer : IConsumer<OperatorStateEvent>, IObservable<OperatorStateEvent>, IDisposable
 	{
-		private List<IObserver<OperatorState>> _observers;
+		private List<IObserver<OperatorStateEvent>> _observers;
 
 		public OperatorStateConsumer()
 		{
-			_observers = new List<IObserver<OperatorState>>();
+			_observers = new List<IObserver<OperatorStateEvent>>();
 		}
 
-		public async Task Consume(ConsumeContext<OperatorState> context)
+		public async Task Consume(ConsumeContext<OperatorStateEvent> context)
 		{
 			foreach(var observer in _observers)
 			{
@@ -28,17 +28,17 @@ namespace Pacs.Operator.Client
 			await Task.CompletedTask;
 		}
 
-		public IDisposable Subscribe(IObserver<OperatorState> observer)
+		public IDisposable Subscribe(IObserver<OperatorStateEvent> observer)
 		{
 			return new Unsubscriber(_observers, observer);
 		}
 
 		private class Unsubscriber : IDisposable
 		{
-			private readonly List<IObserver<OperatorState>> _observers;
-			private readonly IObserver<OperatorState> _observer;
+			private readonly List<IObserver<OperatorStateEvent>> _observers;
+			private readonly IObserver<OperatorStateEvent> _observer;
 
-			public Unsubscriber(List<IObserver<OperatorState>> observers, IObserver<OperatorState> observer)
+			public Unsubscriber(List<IObserver<OperatorStateEvent>> observers, IObserver<OperatorStateEvent> observer)
 			{
 				_observers = observers;
 				_observer = observer;
@@ -101,7 +101,7 @@ namespace Pacs.Operator.Client
 				rmq.Durable = true;
 				rmq.ExchangeType = ExchangeType.Fanout;
 
-				rmq.Bind<OperatorState>(c =>
+				rmq.Bind<OperatorStateEvent>(c =>
 				{
 					c.RoutingKey = $"pacs.operator.state.{_operatorId}.#";
 				});

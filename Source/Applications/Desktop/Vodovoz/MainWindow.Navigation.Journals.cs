@@ -36,6 +36,7 @@ using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.Journals.JournalViewModels.WageCalculation;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Presentation.ViewModels.Employees.Journals;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels;
@@ -68,6 +69,7 @@ using Vodovoz.ViewModels.Profitability;
 
 public partial class MainWindow
 {
+
 	#region Наша организация
 
 	/// <summary>
@@ -345,6 +347,16 @@ public partial class MainWindow
 	protected void OnRoboatsExportActionActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<RoboatsCatalogExportViewModel>(null);
+	}
+
+	/// <summary>
+	/// Справочники Roboats
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnInnerPhonesActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<InnerPhonesJournalViewModel>(null);
 	}
 
 	#endregion Наша организация

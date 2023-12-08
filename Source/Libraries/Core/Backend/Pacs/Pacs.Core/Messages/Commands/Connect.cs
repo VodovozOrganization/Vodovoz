@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Pacs.Server;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -28,6 +29,7 @@ namespace Pacs.Core.Messages.Commands
 
 	public class StartBreak : OperatorCommand
 	{
+		public OperatorBreakType BreakType { get; set; }
 	}
 	public class EndBreak : OperatorCommand
 	{

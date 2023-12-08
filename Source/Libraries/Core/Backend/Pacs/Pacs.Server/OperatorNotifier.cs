@@ -1,4 +1,5 @@
 ﻿using MassTransit;
+using Pacs.Core.Messages.Events;
 using System;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Pacs;
@@ -14,10 +15,14 @@ namespace Pacs.Server
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 		}
 
-		public async Task OperatorChanged(OperatorState operatorState)
+		public async Task OperatorChanged(OperatorState operatorState, OperatorBreakAvailability breakAvailability)
 		{
-
-			await _messageBus.Publish<OperatorState>(operatorState);
+			var result = new OperatorStateEvent
+			{
+				State = operatorState,
+				BreakAvailability = breakAvailability
+			};
+			await _messageBus.Publish(result);
 		}
 	}
 }

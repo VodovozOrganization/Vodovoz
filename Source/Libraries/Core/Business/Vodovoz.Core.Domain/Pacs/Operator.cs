@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.Entity;
+﻿using Pacs.Server;
+using QS.DomainModel.Entity;
 using System;
 
 namespace Vodovoz.Core.Domain.Pacs
@@ -18,6 +19,7 @@ namespace Vodovoz.Core.Domain.Pacs
 		public virtual DateTime? Ended { get; set; }
 		public virtual OperatorTrigger Trigger { get; set; }
 		public virtual OperatorStateType State { get; set; }
+		public virtual OperatorBreakType? BreakType { get; set; }
 		public virtual string PhoneNumber { get; set; }
 		public virtual string CallId { get; set; }
 		public virtual DisconnectionType DisconnectionType { get; set; }

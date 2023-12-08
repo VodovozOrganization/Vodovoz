@@ -1,4 +1,4 @@
-﻿namespace Pacs.Operator.Client
+﻿namespace Pacs.Operators.Client
 {
 	public interface IOperatorClientFactory
 	{

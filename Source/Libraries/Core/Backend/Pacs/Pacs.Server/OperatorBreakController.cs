@@ -1,55 +1,112 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using Pacs.Core.Messages.Events;
+using Pacs.Server;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Pacs;
 
-namespace Pacs.Server
+namespace Pacs.Operators.Server
 {
-	public class OperatorBreakController : IOperatorBreakController, ISettingsConsumer
+	public class OperatorBreakController
 	{
-		private readonly IBreakAvailabilityNotifier _breakAvailabilityNotifier;
-		private readonly IPacsRepository _pacsRepository;
-		private DomainSettings _actualSettings;
+		private readonly GlobalBreakController _globalController;
+		private readonly IPacsRepository _repository;
+		private OperatorBreakAvailability _breakAvailability;
+		private IPacsDomainSettings _settings;
+		private int _operatorId;
 
-		private ConcurrentDictionary<int, bool> _operatorsOnBreak { get; set; }
+		public event EventHandler<OperatorBreakAvailability> BreakAvailabilityChanged;
 
-		public OperatorBreakController(IBreakAvailabilityNotifier breakAvailabilityNotifier, IPacsRepository pacsRepository)
+		public OperatorBreakController(int operatorId, GlobalBreakController globalController, IPacsRepository repository)
 		{
-			_breakAvailabilityNotifier = breakAvailabilityNotifier ?? throw new ArgumentNullException(nameof(breakAvailabilityNotifier));
-			_pacsRepository = pacsRepository ?? throw new ArgumentNullException(nameof(pacsRepository));
-			_operatorsOnBreak = new ConcurrentDictionary<int, bool>();
+			_operatorId = operatorId;
+			_globalController = globalController ?? throw new ArgumentNullException(nameof(globalController));
+			_repository = repository ?? throw new ArgumentNullException(nameof(repository));
 
-			_actualSettings = _pacsRepository.GetPacsDomainSettings();
-			UpdateAvailability();
+			_breakAvailability = new OperatorBreakAvailability();
+			_settings = _repository.GetPacsDomainSettings();
+			_globalController.SettingsChanged += OnSettingsChanged;
 		}
 
-		public bool CanStartBreak { get; private set; }
-
-		public void StartBreak(int operatorId)
+		private void OnSettingsChanged(object sender, SettingsChangedEventArgs e)
 		{
-			_operatorsOnBreak.TryAdd(operatorId, false);
-			UpdateAvailability();
+			_settings = e.Settings;
+			UpdateBreakStates(e.AllOperatorsBreakStates);
 		}
 
-		public void EndBreak(int operatorId)
+		internal void UpdateBreakStates(IEnumerable<OperatorState> breakStates)
 		{
-			_operatorsOnBreak.TryRemove(operatorId, out var value);
-			UpdateAvailability();
+			var states = breakStates.Where(x => x.OperatorId == _operatorId);
+			var newBreakAvailability = GetNewBreakAvailability(states);
+
+			if(!_breakAvailability.Equals(newBreakAvailability))
+			{
+				_breakAvailability = newBreakAvailability;
+				BreakAvailabilityChanged?.Invoke(this, _breakAvailability);
+			}
 		}
 
-		private void UpdateAvailability()
+		internal OperatorBreakAvailability GetBreakAvailability()
 		{
-			var currentOperators = _operatorsOnBreak.Count;
-			var maxOperators = _actualSettings.MaxOperatorsOnBreak;
-
-			CanStartBreak = currentOperators < maxOperators;
-			_breakAvailabilityNotifier.NotifyBreakAvailability(CanStartBreak);
+			var states = _repository.GetOperatorBreakStates(_operatorId, DateTime.Today);
+			var newBreakAvailability = GetNewBreakAvailability(states);
+			if(!_breakAvailability.Equals(newBreakAvailability))
+			{
+				_breakAvailability = newBreakAvailability;
+			}
+			return _breakAvailability;
 		}
 
-		public void UpdateSettings(DomainSettings newSettings)
+		private OperatorBreakAvailability GetNewBreakAvailability(IEnumerable<OperatorState> states)
 		{
-			_actualSettings = newSettings;
-			UpdateAvailability();
+			var breakAvailability = new OperatorBreakAvailability();
+
+			var longLimitValidated = ValidateLongBreakLimitRestriction(states, _settings);
+			if(!longLimitValidated)
+			{
+				breakAvailability.LongBreakAvailable = false;
+				breakAvailability.LongBreakDescription = $"Превышено кол-во больших перерывов в день. (Макс. {_settings.LongBreakCountPerDay}) ";
+			}
+
+			var shortBreakAllowedAt = WhenShortBreakAllowed(states, _settings);
+			var shortLimitValidated = shortBreakAllowedAt < DateTime.Now;
+			if(!shortLimitValidated)
+			{
+				breakAvailability.ShortBreakAvailable = false;
+				breakAvailability.ShortBreakSupposedlyAvailableAfter = shortBreakAllowedAt;
+				breakAvailability.ShortBreakDescription = $"Малый перерыв доступен только 1 раз каждые {_settings.ShortBreakInterval.ToString("h\\ч\\.\\ mm\\м\\.")}";
+			}
+			else
+			{
+				breakAvailability.ShortBreakSupposedlyAvailableAfter = null;
+			}
+
+			return breakAvailability;
+		}
+
+		private bool ValidateLongBreakLimitRestriction(IEnumerable<OperatorState> breakStates, IPacsDomainSettings actualSettings)
+		{
+			var breaksByType = breakStates
+				.Where(x => x.BreakType == OperatorBreakType.Long);
+
+			bool allowByLimit = breaksByType.Count() < actualSettings.LongBreakCountPerDay;
+			return allowByLimit;
+		}
+
+		private DateTime WhenShortBreakAllowed(IEnumerable<OperatorState> breakStates, IPacsDomainSettings actualSettings)
+		{
+			var breaksByType = breakStates
+				.Where(x => x.BreakType == OperatorBreakType.Short);
+
+			var lastShortBreak = breaksByType.OrderBy(x => x.Started).LastOrDefault();
+			if(lastShortBreak == null)
+			{
+				return DateTime.Now;
+			}
+
+			var allowedTime = lastShortBreak.Started + actualSettings.ShortBreakInterval;
+			return allowedTime;
 		}
 	}
 }

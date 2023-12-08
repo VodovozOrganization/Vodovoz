@@ -5,7 +5,7 @@ using QS.ViewModels.Dialog;
 using ReactiveUI;
 using System;
 using System.ComponentModel;
-using System.Reactive.Linq;
+using System.Reactive.Disposables;
 using Vodovoz.Core.Domain.Employees;
 
 namespace Vodovoz.Presentation.ViewModels.Employees
@@ -31,8 +31,10 @@ namespace Vodovoz.Presentation.ViewModels.Employees
 
 	public class InnerPhoneViewModel : ReactiveDialogViewModel, IDisposable
 	{
+		private readonly CompositeDisposable _subscriptions = new CompositeDisposable();
 		private readonly EntityModel<InnerPhone> _model;
 
+		private InnerPhone Entity => _model.Entity;
 		private string _number;
 		private string _description;
 
@@ -59,15 +61,25 @@ namespace Vodovoz.Presentation.ViewModels.Employees
 
 			_model = entityModelFactory.Create<InnerPhone>(entityId);
 
-			SaveCommand = new SaveCommand(_model, this, () => _model.UoW.HasChanges);
+			SaveCommand = new SaveCommand(_model, this);
 			CancelCommand = new CloseDialogCommand(this);
 
-			this.WhenAnyValue(x => x.Number).Do(x => { }).Subscribe(x => _model.Entity.PhoneNumber = x);
-			this.WhenAnyValue(x => x._model.Entity.PhoneNumber).ToProperty(this, x => x.Number);
+			this.WhenAnyValue(x => x.Entity.PhoneNumber)
+				.BindTo(this, x => x.Number)
+				.DisposeWith(_subscriptions);
+			this.WhenAnyValue(x => x.Number)
+				.BindTo(Entity, x => x.PhoneNumber)
+				.DisposeWith(_subscriptions);
 
-			this.WhenAnyValue(x => x.Description).Subscribe(x => _model.Entity.Description = x);
-			this.WhenAnyValue(x => x._model.Entity.Description).ToProperty(this, x => x.Description);
+			this.WhenAnyValue(x => x.Entity.Description)
+				.BindTo(this, x => x.Description)
+				.DisposeWith(_subscriptions);
+			this.WhenAnyValue(x => x.Description)
+				.BindTo(Entity, x => x.Description)
+				.DisposeWith(_subscriptions);
 		}
+
+		public bool CanChangeNumber => _model.IsNewEntity;
 
 		public string Number
 		{
@@ -83,6 +95,7 @@ namespace Vodovoz.Presentation.ViewModels.Employees
 
 		public void Dispose()
 		{
+			_subscriptions?.Dispose();
 			_model?.Dispose();
 		}
 	}
@@ -147,7 +160,7 @@ namespace Vodovoz.Presentation.ViewModels.Employees
 
 		public override bool CanExecute(object parameter)
 		{
-			throw new NotImplementedException();
+			return true;
 		}
 
 		public override void Execute(object parameter)
@@ -192,6 +205,8 @@ namespace Vodovoz.Presentation.ViewModels.Employees
 	{
 		private readonly IEntityIdentifier _entityId;
 
+		private bool _saved;
+		public bool IsNewEntity => _entityId.IsNewEntity && !_saved;
 		public TEntity Entity { get; }
 		public IUnitOfWork UoW { get; }
 
@@ -219,6 +234,7 @@ namespace Vodovoz.Presentation.ViewModels.Employees
 		{
 			UoW.Save(Entity);
 			UoW.Commit();
+			_saved = true;
 		}
 
 		public virtual void Dispose()

@@ -1,18 +1,19 @@
 ﻿using Microsoft.Extensions.Logging;
 using Pacs.Core;
 using Pacs.Core.Messages.Commands;
+using Pacs.Core.Messages.Events;
+using Pacs.Server;
 using System;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Core.Domain.Pacs;
 using Vodovoz.Settings.Pacs;
 
-namespace Pacs.Operator.Client
+namespace Pacs.Operators.Client
 {
-	public class OperatorClient : IOperatorClient, IObserver<OperatorState>, IDisposable
+	public class OperatorClient : IOperatorClient, IObserver<OperatorStateEvent>, IDisposable
 	{
 		private readonly string _url = "pacs/operator";
 		private readonly HttpClient _httpClient = new HttpClient();
@@ -22,7 +23,7 @@ namespace Pacs.Operator.Client
 		private readonly IPacsSettings _pacsSettings;
 		private readonly JsonSerializerOptions _jsonSerializerOptions;
 
-		public int OperatorId => throw new NotImplementedException();
+		public int OperatorId => _operatorId;
 
 		public OperatorClient(
 			int operatorId,
@@ -43,14 +44,9 @@ namespace Pacs.Operator.Client
 			_stateSubscription = operatorStateConsumer.Subscribe(this);
 		}
 
-		public event EventHandler<OperatorState> StateChanged;
+		public event EventHandler<OperatorStateEvent> StateChanged;
 
-		public async Task<OperatorState> GetState()
-		{
-			throw new NotImplementedException();
-		}
-
-		public async Task<OperatorState> StartWorkShift(string phoneNumber)
+		public async Task<OperatorStateEvent> StartWorkShift(string phoneNumber)
 		{
 			var uri = $"{_pacsSettings.OperatorApiUrl}/{_url}/startworkshift";
 			var payload = new StartWorkShift { OperatorId = _operatorId, PhoneNumber = phoneNumber };
@@ -79,7 +75,7 @@ namespace Pacs.Operator.Client
 			}
 		}
 
-		public async Task<OperatorState> EndWorkShift()
+		public async Task<OperatorStateEvent> EndWorkShift()
 		{
 			var uri = $"{_pacsSettings.OperatorApiUrl}/{_url}/endworkshift";
 			var payload = new EndWorkShift { OperatorId = _operatorId };
@@ -108,7 +104,7 @@ namespace Pacs.Operator.Client
 			}
 		}
 
-		public async Task<OperatorState> ChangeNumber(string phoneNumber)
+		public async Task<OperatorStateEvent> ChangeNumber(string phoneNumber)
 		{
 			var uri = $"{_pacsSettings.OperatorApiUrl}/{_url}/changephone";
 			var payload = new ChangePhone { OperatorId = _operatorId, PhoneNumber = phoneNumber };
@@ -137,10 +133,13 @@ namespace Pacs.Operator.Client
 			}
 		}
 
-		public async Task<OperatorState> StartBreak(CancellationToken cancellationToken = default)
+		public async Task<OperatorStateEvent> StartBreak(OperatorBreakType breakType, CancellationToken cancellationToken = default)
 		{
 			var uri = $"{_pacsSettings.OperatorApiUrl}/{_url}/startbreak";
-			var payload = new StartBreak { OperatorId = _operatorId };
+			var payload = new StartBreak { 
+				OperatorId = _operatorId, 
+				BreakType = breakType 
+			};
 			var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
 			_httpClient.DefaultRequestHeaders.Clear();
 			_httpClient.DefaultRequestHeaders.Add("ApiKey", _pacsSettings.OperatorApiKey);
@@ -166,7 +165,7 @@ namespace Pacs.Operator.Client
 			}
 		}
 
-		public async Task<OperatorState> EndBreak(CancellationToken cancellationToken = default)
+		public async Task<OperatorStateEvent> EndBreak(CancellationToken cancellationToken = default)
 		{
 			var uri = $"{_pacsSettings.OperatorApiUrl}/{_url}/endbreak";
 			var payload = new EndBreak { OperatorId = _operatorId };
@@ -195,7 +194,7 @@ namespace Pacs.Operator.Client
 			}
 		}
 
-		public async Task<OperatorState> Connect(CancellationToken cancellationToken = default)
+		public async Task<OperatorStateEvent> Connect(CancellationToken cancellationToken = default)
 		{
 			var uri = $"{_pacsSettings.OperatorApiUrl}/{_url}/connect";
 			var payload = new Connect { OperatorId = _operatorId };
@@ -224,7 +223,7 @@ namespace Pacs.Operator.Client
 			}
 		}
 
-		public async Task<OperatorState> Disconnect(CancellationToken cancellationToken = default)
+		public async Task<OperatorStateEvent> Disconnect(CancellationToken cancellationToken = default)
 		{
 			var uri = $"{_pacsSettings.OperatorApiUrl}/{_url}/disconnect";
 			var payload = new Disconnect { OperatorId = _operatorId };
@@ -253,9 +252,9 @@ namespace Pacs.Operator.Client
 			}
 		}
 
-		public async Task<bool> GetBreakAvailability()
+		public async Task<GlobalBreakAvailability> GetGlobalBreakAvailability()
 		{
-			var uri = $"{_pacsSettings.OperatorApiUrl}/pacs/break-availability/get";
+			var uri = $"{_pacsSettings.OperatorApiUrl}/pacs/global-break-availability/get";
 			_httpClient.DefaultRequestHeaders.Clear();
 			_httpClient.DefaultRequestHeaders.Add("ApiKey", _pacsSettings.OperatorApiKey);
 
@@ -263,7 +262,8 @@ namespace Pacs.Operator.Client
 			{
 				var response = await _httpClient.GetAsync(uri);
 				var responseContent = await response.Content.ReadAsStringAsync();
-				return bool.Parse(responseContent);
+				var result = JsonSerializer.Deserialize<GlobalBreakAvailability>(responseContent, _jsonSerializerOptions);
+				return result;
 			}
 			catch(Exception ex)
 			{
@@ -272,7 +272,7 @@ namespace Pacs.Operator.Client
 			}
 		}
 
-		public void OnNext(OperatorState value)
+		public void OnNext(OperatorStateEvent value)
 		{
 			StateChanged?.Invoke(this, value);
 		}

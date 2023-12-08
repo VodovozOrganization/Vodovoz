@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Pacs.Core.Messages.Commands;
+using Pacs.Core.Messages.Events;
+using Pacs.Operators.Server;
 using System;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Pacs;
@@ -11,7 +13,7 @@ namespace Pacs.Server
 		private readonly ILogger<OperatorController> _logger;
 		private readonly OperatorServerAgent _operatorAgent;
 		private readonly IPhoneController _phoneController;
-		private readonly IOperatorBreakController _operatorBreakController;
+		private readonly GlobalBreakController _globalBreakController;
 
 		public event EventHandler<int> OnDisconnect;
 
@@ -19,13 +21,13 @@ namespace Pacs.Server
 			ILogger<OperatorController> logger, 
 			OperatorServerAgent operatorAgent, 
 			IPhoneController phoneController,
-			IOperatorBreakController operatorBreakController
+			GlobalBreakController globalBreakController
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_operatorAgent = operatorAgent ?? throw new ArgumentNullException(nameof(operatorAgent));
 			_phoneController = phoneController ?? throw new ArgumentNullException(nameof(phoneController));
-			_operatorBreakController = operatorBreakController ?? throw new ArgumentNullException(nameof(operatorBreakController));
+			_globalBreakController = globalBreakController ?? throw new ArgumentNullException(nameof(globalBreakController));
 
 			operatorAgent.OnDisconnect += OperatorAgentOnDisconnect;
 		}
@@ -48,12 +50,13 @@ namespace Pacs.Server
 				{
 					await _operatorAgent.Connect();
 				}
-				return new OperatorResult(_operatorAgent.OperatorState);
+
+				return new OperatorResult(GetResultContent());
 			}
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "Произошло исключение при попытке подключения оператора");
-				return new OperatorResult(_operatorAgent.OperatorState, ex.Message);
+				return new OperatorResult(GetResultContent(), ex.Message);
 			}
 		}
 
@@ -63,26 +66,26 @@ namespace Pacs.Server
 			{
 				if(!_phoneController.ValidatePhone(phoneNumber))
 				{
-					return new OperatorResult(_operatorAgent.OperatorState, $"Неизвестный номер телефона {phoneNumber}");
+					return new OperatorResult(GetResultContent(), $"Неизвестный номер телефона {phoneNumber}");
 				}
 
 				if(!_phoneController.CanAssign(phoneNumber, _operatorAgent.OperatorId))
 				{
-					return new OperatorResult(_operatorAgent.OperatorState, $"Номер телефона {phoneNumber}, уже используется другим оператором");
+					return new OperatorResult(GetResultContent(), $"Номер телефона {phoneNumber}, уже используется другим оператором");
 				}
 
 				if(!_operatorAgent.CanChangedBy(OperatorTrigger.StartWorkShift))
 				{
-					return new OperatorResult(_operatorAgent.OperatorState, $"В данный момент нельзя начать смену");
+					return new OperatorResult(GetResultContent(), $"В данный момент нельзя начать смену");
 				}
 
 				await _operatorAgent.StartWorkShift(phoneNumber);
-				return new OperatorResult(_operatorAgent.OperatorState);
+				return new OperatorResult(GetResultContent());
 			}
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "Произошло исключение при попытке оператором начать рабочую смену.");
-				return new OperatorResult(_operatorAgent.OperatorState, ex.Message);
+				return new OperatorResult(GetResultContent(), ex.Message);
 			}
 		}
 
@@ -92,40 +95,70 @@ namespace Pacs.Server
 			{
 				if(!_operatorAgent.CanChangedBy(OperatorTrigger.EndWorkShift))
 				{
-					return new OperatorResult(_operatorAgent.OperatorState, $"В данный момент нельзя завершить смену");
+					return new OperatorResult(GetResultContent(), $"В данный момент нельзя завершить смену");
 				}
 
 				await _operatorAgent.EndWorkShift();
-				return new OperatorResult(_operatorAgent.OperatorState);
+				return new OperatorResult(GetResultContent());
 			}
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "Произошло исключение при попытке оператором завершить рабочую смену.");
-				return new OperatorResult(_operatorAgent.OperatorState, ex.Message);
+				return new OperatorResult(GetResultContent(), ex.Message);
 			}
 		}
 
-		public async Task<OperatorResult> StartBreak()
+		public async Task<OperatorResult> StartBreak(OperatorBreakType breakType)
 		{
 			try
 			{
-				if(!_operatorBreakController.CanStartBreak)
+				string description = "";
+				bool canStartGlobal = true;
+				bool canStart = true;
+				if(breakType == OperatorBreakType.Long)
 				{
-					return new OperatorResult(_operatorAgent.OperatorState, $"Нельзя начать перерыв, так как перерыве уже максимально возможное количество операторов.");
+					canStartGlobal = _globalBreakController.BreakAvailability.LongBreakAvailable;
+					if(!canStartGlobal)
+					{
+						description = _globalBreakController.BreakAvailability.LongBreakDescription;
+					}
+					canStart = _operatorAgent.BreakAvailability.LongBreakAvailable;
+					if(!canStart)
+					{
+						description = _operatorAgent.BreakAvailability.LongBreakDescription;
+					}
+				}
+				else
+				{
+					canStartGlobal = _globalBreakController.BreakAvailability.ShortBreakAvailable;
+					if(!canStartGlobal)
+					{
+						description = _globalBreakController.BreakAvailability.ShortBreakDescription;
+					}
+					canStart = _operatorAgent.BreakAvailability.ShortBreakAvailable;
+					if(!canStart)
+					{
+						description = _operatorAgent.BreakAvailability.ShortBreakDescription;
+					}
+				}
+
+				if(!canStartGlobal || !canStart)
+				{
+					return new OperatorResult(GetResultContent(), description);
 				}
 
 				if(!_operatorAgent.CanChangedBy(OperatorTrigger.StartBreak))
 				{
-					return new OperatorResult(_operatorAgent.OperatorState, $"В данный момент нельзя начать перерыв");
+					return new OperatorResult(GetResultContent(), $"В данный момент нельзя начать перерыв");
 				}
 
 				await _operatorAgent.StartBreak();
-				return new OperatorResult(_operatorAgent.OperatorState);
+				return new OperatorResult(GetResultContent());
 			}
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "Произошло исключение при попытке оператором начать перерыв.");
-				return new OperatorResult(_operatorAgent.OperatorState, ex.Message);
+				return new OperatorResult(GetResultContent(), ex.Message);
 			}
 		}
 
@@ -135,16 +168,16 @@ namespace Pacs.Server
 			{
 				if(!_operatorAgent.CanChangedBy(OperatorTrigger.EndBreak))
 				{
-					return new OperatorResult(_operatorAgent.OperatorState, $"В данный момент нельзя завершить перерыв");
+					return new OperatorResult(GetResultContent(), $"В данный момент нельзя завершить перерыв");
 				}
 
 				await _operatorAgent.EndBreak();
-				return new OperatorResult(_operatorAgent.OperatorState);
+				return new OperatorResult(GetResultContent());
 			}
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "Произошло исключение при попытке оператором завершить перерыв.");
-				return new OperatorResult(_operatorAgent.OperatorState, ex.Message);
+				return new OperatorResult(GetResultContent(), ex.Message);
 			}
 		}
 
@@ -154,26 +187,26 @@ namespace Pacs.Server
 			{
 				if(!_phoneController.ValidatePhone(phoneNumber))
 				{
-					return new OperatorResult(_operatorAgent.OperatorState, $"Неизвестный номер телефона {phoneNumber}");
+					return new OperatorResult(GetResultContent(), $"Неизвестный номер телефона {phoneNumber}");
 				}
 
 				if(!_phoneController.CanAssign(phoneNumber, _operatorAgent.OperatorId))
 				{
-					return new OperatorResult(_operatorAgent.OperatorState, $"Номер телефона {phoneNumber}, уже используется другим оператором");
+					return new OperatorResult(GetResultContent(), $"Номер телефона {phoneNumber}, уже используется другим оператором");
 				}
 
 				if(!_operatorAgent.CanChangedBy(OperatorTrigger.ChangePhone))
 				{
-					return new OperatorResult(_operatorAgent.OperatorState, $"В данный момент нельзя сменить номер телефона");
+					return new OperatorResult(GetResultContent(), $"В данный момент нельзя сменить номер телефона");
 				}
 
 				await _operatorAgent.ChangePhone(phoneNumber);
-				return new OperatorResult(_operatorAgent.OperatorState);
+				return new OperatorResult(GetResultContent());
 			}
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "Произошло исключение при попытке оператором завершить рабочую смену.");
-				return new OperatorResult(_operatorAgent.OperatorState, ex.Message);
+				return new OperatorResult(GetResultContent(), ex.Message);
 			}
 		}
 
@@ -214,13 +247,23 @@ namespace Pacs.Server
 			try
 			{
 				await _operatorAgent.Disconnect();
-				return new OperatorResult(_operatorAgent.OperatorState);
+				return new OperatorResult(GetResultContent());
 			}
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "Произошло исключение при попытке отключения оператора");
-				return new OperatorResult(_operatorAgent.OperatorState, ex.Message);
+				return new OperatorResult(GetResultContent(), ex.Message);
 			}
+		}
+
+		private OperatorStateEvent GetResultContent()
+		{
+			var content = new OperatorStateEvent
+			{
+				State = _operatorAgent.OperatorState,
+				BreakAvailability = _operatorAgent.BreakAvailability,
+			};
+			return content;
 		}
 
 		public void Dispose()

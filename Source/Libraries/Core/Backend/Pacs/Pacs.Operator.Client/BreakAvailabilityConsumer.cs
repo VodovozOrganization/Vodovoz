@@ -7,20 +7,21 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Pacs.Operator.Client
+namespace Pacs.Operators.Client
 {
-	public class BreakAvailabilityConsumer : IConsumer<BreakAvailabilityEvent>, IObservable<BreakAvailabilityEvent>, IDisposable
+	/*
+	public class BreakAvailabilityConsumer : IConsumer<BreakAvailability>, IObservable<BreakAvailability>, IDisposable
 	{
-		private List<IObserver<BreakAvailabilityEvent>> _observers;
+		private List<IObserver<BreakAvailability>> _observers;
 
 		public Guid Id { get; set; } = Guid.NewGuid();
 
 		public BreakAvailabilityConsumer()
 		{
-			_observers = new List<IObserver<BreakAvailabilityEvent>>();
+			_observers = new List<IObserver<BreakAvailability>>();
 		}
 
-		public async Task Consume(ConsumeContext<BreakAvailabilityEvent> context)
+		public async Task Consume(ConsumeContext<BreakAvailability> context)
 		{
 			foreach(var observer in _observers)
 			{
@@ -29,17 +30,17 @@ namespace Pacs.Operator.Client
 			await Task.CompletedTask;
 		}
 
-		public IDisposable Subscribe(IObserver<BreakAvailabilityEvent> observer)
+		public IDisposable Subscribe(IObserver<BreakAvailability> observer)
 		{
 			return new Unsubscriber(_observers, observer);
 		}
 
 		private class Unsubscriber : IDisposable
 		{
-			private readonly List<IObserver<BreakAvailabilityEvent>> _observers;
-			private readonly IObserver<BreakAvailabilityEvent> _observer;
+			private readonly List<IObserver<BreakAvailability>> _observers;
+			private readonly IObserver<BreakAvailability> _observer;
 
-			public Unsubscriber(List<IObserver<BreakAvailabilityEvent>> observers, IObserver<BreakAvailabilityEvent> observer)
+			public Unsubscriber(List<IObserver<BreakAvailability>> observers, IObserver<BreakAvailability> observer)
 			{
 				_observers = observers;
 				_observer = observer;
@@ -102,8 +103,8 @@ namespace Pacs.Operator.Client
 				rmq.Durable = true;
 				rmq.ExchangeType = ExchangeType.Fanout;
 
-				rmq.Bind<BreakAvailabilityEvent>();
+				rmq.Bind<BreakAvailability>();
 			}
 		}
-	}
+	}*/
 }

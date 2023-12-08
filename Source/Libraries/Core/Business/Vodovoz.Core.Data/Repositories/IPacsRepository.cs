@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Pacs.Server;
+using System;
+using System.Collections.Generic;
 using Vodovoz.Core.Domain.Pacs;
 
 namespace Vodovoz.Core.Data.Repositories
@@ -10,5 +12,8 @@ namespace Vodovoz.Core.Data.Repositories
 		IEnumerable<CallEvent> GetActiveCalls();
 		IEnumerable<string> GetAvailablePhones();
 		DomainSettings GetPacsDomainSettings();
+
+		IEnumerable<OperatorState> GetOperatorsOnBreak(DateTime date);
+		IEnumerable<OperatorState> GetOperatorBreakStates(int operatorId, DateTime date);
 	}
 }

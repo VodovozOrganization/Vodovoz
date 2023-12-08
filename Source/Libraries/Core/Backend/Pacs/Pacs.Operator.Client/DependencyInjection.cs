@@ -2,9 +2,8 @@
 using Pacs.Calls;
 using Pacs.Core.Messages.Events;
 using System;
-using Vodovoz.Core.Domain.Pacs;
 
-namespace Pacs.Operator.Client
+namespace Pacs.Operators.Client
 {
 	public static class DependencyInjection
 	{
@@ -14,13 +13,13 @@ namespace Pacs.Operator.Client
 				.AddSingleton<IOperatorClient, OperatorClient>()
 				.AddScoped<IOperatorClientFactory, OperatorClientFactory>()
 				.AddSingleton<OperatorStateConsumer>()
-				.AddSingleton<IObservable<OperatorState>>(ctx => ctx.GetService<OperatorStateConsumer>())
+				.AddSingleton<IObservable<OperatorStateEvent>>(ctx => ctx.GetService<OperatorStateConsumer>())
 
 				.AddSingleton<PacsCallEventConsumer>()
 				.AddSingleton<IObservable<Vodovoz.Core.Domain.Pacs.CallEvent>>(ctx => ctx.GetService<PacsCallEventConsumer>())
 
-				.AddSingleton<BreakAvailabilityConsumer>()
-				.AddSingleton<IObservable<BreakAvailabilityEvent>>(ctx => ctx.GetService<BreakAvailabilityConsumer>())
+				.AddSingleton<GlobalBreakAvailabilityConsumer>()
+				.AddSingleton<IObservable<GlobalBreakAvailability>>(ctx => ctx.GetService<GlobalBreakAvailabilityConsumer>())
 				//.AddSingleton<OperatorStateConsumer>()
 				//.AddSingleton<IConsumer<OperatorState>, OperatorStateConsumer>()
 				//.AddSingleton<IObservable<OperatorState>, OperatorStateConsumer>()

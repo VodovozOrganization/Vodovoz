@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using Pacs.Core.Messages.Events;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Pacs;
 
 namespace Pacs.Server
@@ -11,6 +12,6 @@ namespace Pacs.Server
 
 	public interface IOperatorNotifier
 	{
-		Task OperatorChanged(OperatorState operatorState);
+		Task OperatorChanged(OperatorState operatorState, OperatorBreakAvailability breakAvailability);
 	}
 }

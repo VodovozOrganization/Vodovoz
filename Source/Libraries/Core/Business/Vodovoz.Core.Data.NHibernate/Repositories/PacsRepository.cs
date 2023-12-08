@@ -1,6 +1,7 @@
 ﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.SqlCommand;
+using Pacs.Server;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -30,8 +31,8 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories
 
 				var result = uow.Session.QueryOver(() => callEventAlias)
 					.JoinEntityAlias(
-						() => callEvent2Alias, 
-						() => callEventAlias.CallId == callEvent2Alias.CallId 
+						() => callEvent2Alias,
+						() => callEventAlias.CallId == callEvent2Alias.CallId
 							&& callEvent2Alias.CallState == CallState.Disconnected,
 						JoinType.LeftOuterJoin)
 					.WhereRestrictionOn(() => callEvent2Alias.Id).IsNull
@@ -68,6 +69,35 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories
 					.Where(() => operatorSessionAlias.Ended == null)
 					.List();
 
+				return result;
+			}
+		}
+
+		public IEnumerable<OperatorState> GetOperatorsOnBreak(DateTime date)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				OperatorState stateAlias = null;
+
+				var result = uow.Session.QueryOver(() => stateAlias)
+					.Where(() => stateAlias.State == OperatorStateType.Break)
+					.Where(() => stateAlias.Started > date)
+					.List();
+				return result;
+			}
+		}
+
+		public IEnumerable<OperatorState> GetOperatorBreakStates(int operatorId, DateTime date)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				OperatorState stateAlias = null;
+
+				var result = uow.Session.QueryOver(() => stateAlias)
+					.Where(() => stateAlias.State == OperatorStateType.Break)
+					.Where(() => stateAlias.Started > date)
+					.Where(() => stateAlias.OperatorId == operatorId)
+					.List();
 				return result;
 			}
 		}

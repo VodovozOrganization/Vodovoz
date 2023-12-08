@@ -1,6 +1,7 @@
 ﻿using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Pacs.Core;
+using Pacs.Operators.Server;
 using Pacs.Server.Consumers;
 using System.Reflection;
 using Vodovoz.Core.Data.NHibernate.Repositories;
@@ -24,9 +25,7 @@ namespace Pacs.Server
 				.AddSingleton<IPhoneRepository, PhoneRepository>()
 				.AddSingleton<IBreakAvailabilityNotifier, BreakAvailabilityNotifier>()
 				.AddSingleton<IPacsRepository, PacsRepository>()
-				.AddSingleton<OperatorBreakController>()
-				.AddSingleton<IOperatorBreakController>(c => c.GetRequiredService<OperatorBreakController>())
-				.AddSingleton<ISettingsConsumer>(c => c.GetRequiredService<OperatorBreakController>())
+				.AddSingleton<GlobalBreakController>()
 				;
 
 			services.AddPacsMassTransit(

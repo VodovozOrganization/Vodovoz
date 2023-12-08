@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
-namespace Pacs.Operator.Service
+namespace Pacs.Operators.Service
 {
 	public class Program
 	{

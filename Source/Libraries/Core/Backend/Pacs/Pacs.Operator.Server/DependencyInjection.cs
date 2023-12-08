@@ -2,7 +2,7 @@
 using Pacs.Server;
 using Vodovoz.Settings.Pacs;
 
-namespace Pacs.Operator.Server
+namespace Pacs.Operators.Server
 {
 	public static class DependencyInjection
 	{

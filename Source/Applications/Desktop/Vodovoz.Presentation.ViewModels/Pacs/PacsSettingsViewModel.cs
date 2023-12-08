@@ -2,6 +2,7 @@
 using QS.Navigation;
 using QS.ViewModels;
 using Vodovoz.Presentation.ViewModels.Employees;
+using Vodovoz.Presentation.ViewModels.Employees.Journals;
 
 namespace Vodovoz.Presentation.ViewModels.Pacs
 {
@@ -21,7 +22,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 		private void OpenInnerPhonesReferenceBook()
 		{
-			_navigationManager.OpenViewModel<InnerPhoneViewModel>(null);
+			_navigationManager.OpenViewModel<InnerPhonesJournalViewModel>(null);
 		}
 	}
 }

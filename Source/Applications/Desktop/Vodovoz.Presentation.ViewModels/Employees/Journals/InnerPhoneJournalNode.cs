@@ -1,6 +1,6 @@
 ﻿using QS.Project.Journal;
 
-namespace Vodovoz.ViewModels.Journals.JournalNodes
+namespace Vodovoz.Presentation.ViewModels.Employees.Journals
 {
 	public class InnerPhoneJournalNode : JournalNodeBase
 	{

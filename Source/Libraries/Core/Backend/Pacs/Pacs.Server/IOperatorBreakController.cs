@@ -2,9 +2,11 @@
 {
 	public interface IOperatorBreakController
 	{
-		bool CanStartBreak { get; }
+		/*bool CanStartLongBreak { get; }
+		bool CanStartShortBreak { get; }
 
 		void EndBreak(int operatorId);
-		void StartBreak(int operatorId);
+		void StartBreak(int operatorId, OperatorBreakType breakType);*/
+
 	}
 }

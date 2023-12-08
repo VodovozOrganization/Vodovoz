@@ -6,7 +6,7 @@ using NLog;
 using Pacs.Admin.Client;
 using Pacs.Calls;
 using Pacs.Core;
-using Pacs.Operator.Client;
+using Pacs.Operators.Client;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services;
@@ -350,6 +350,8 @@ public partial class MainWindow : Gtk.Window
 
 		ActionClassificationCalculation.Sensitive = 
 			commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Counterparty.CanCalculateCounterpartyClassifications);
+
+		ActionInnerPhones.Activated += OnInnerPhonesActionActivated;
 
 		InitializeThemesMenuItem();
 	}

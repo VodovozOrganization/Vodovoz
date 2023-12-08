@@ -22,8 +22,8 @@ namespace Pacs.Core
 	{
 		public static void AddPacsBaseTopology(this IRabbitMqBusFactoryConfigurator cfg, IBusRegistrationContext context)
 		{
-			cfg.Message<OperatorState>(x => x.SetEntityName("pacs.event.operator_state.publish"));
-			cfg.Publish<OperatorState>(x =>
+			cfg.Message<OperatorStateEvent>(x => x.SetEntityName("pacs.event.operator_state.publish"));
+			cfg.Publish<OperatorStateEvent>(x =>
 			{
 				x.ExchangeType = ExchangeType.Topic;
 				x.Durable = true;
@@ -38,8 +38,16 @@ namespace Pacs.Core
 				x.AutoDelete = false;
 			});
 
-			cfg.Message<BreakAvailabilityEvent>(x => x.SetEntityName("pacs.event.break_availability.publish"));
-			cfg.Publish<BreakAvailabilityEvent>(x =>
+			cfg.Message<GlobalBreakAvailability>(x => x.SetEntityName("pacs.event.global_break_availability.publish"));
+			cfg.Publish<GlobalBreakAvailability>(x =>
+			{
+				x.ExchangeType = ExchangeType.Fanout;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
+
+			cfg.Message<OperatorsOnBreakEvent>(x => x.SetEntityName("pacs.event.operators_on_break.publish"));
+			cfg.Publish<OperatorsOnBreakEvent>(x =>
 			{
 				x.ExchangeType = ExchangeType.Fanout;
 				x.Durable = true;

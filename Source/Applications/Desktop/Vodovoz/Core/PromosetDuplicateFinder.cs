@@ -187,8 +187,8 @@ namespace Vodovoz.Core
 			IEnumerable<int> excludeOrderIds,
 			IEnumerable<Phone> phones)
 		{
-			Domain.Orders.Order orderAlias = null;
-			Domain.Orders.OrderItem orderItemAlias = null;
+			Vodovoz.Domain.Orders.Order orderAlias = null;
+			Vodovoz.Domain.Orders.OrderItem orderItemAlias = null;
 			Counterparty counterpartyAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
 			Phone counterpartyPhoneAlias = null;

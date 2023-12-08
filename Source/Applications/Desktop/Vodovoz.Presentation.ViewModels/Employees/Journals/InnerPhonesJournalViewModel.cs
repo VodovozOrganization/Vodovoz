@@ -10,12 +10,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Vodovoz.Core.Domain.Employees;
-using Vodovoz.Presentation.ViewModels.Employees;
-using Vodovoz.ViewModels.Journals.JournalNodes;
 
-namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
+namespace Vodovoz.Presentation.ViewModels.Employees.Journals
 {
-
 	public class InnerPhonesJournalViewModel : JournalViewModelBase
 	{
 		private readonly ICurrentPermissionService _currentPermissionService;
@@ -29,6 +26,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 		{
 			_currentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
 
+			Title = "Внутренние телефоны";
+
 			_permissionResult = _currentPermissionService.ValidateEntityPermission(typeof(InnerPhone));
 			if(!_permissionResult.CanRead)
 			{
@@ -36,6 +35,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			}
 
 			DataLoader = new AnyDataLoader<InnerPhoneJournalNode>(GetItems);
+			CreateNodeActions();
 		}
 
 		protected IList<InnerPhoneJournalNode> GetItems(CancellationToken token)

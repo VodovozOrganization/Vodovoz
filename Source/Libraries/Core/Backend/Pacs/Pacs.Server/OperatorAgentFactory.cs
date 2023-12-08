@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Pacs.Operators.Server;
 using QS.DomainModel.UoW;
 using System;
 using Vodovoz.Core.Data.Repositories;
@@ -23,9 +24,10 @@ namespace Pacs.Server
 			var operatorRepository = _serviceProvider.GetRequiredService<IOperatorRepository>();
 			var operatorNotifier = _serviceProvider.GetRequiredService<IOperatorNotifier>();
 			var phoneController = _serviceProvider.GetRequiredService<IPhoneController>();
-			var operatorBreakController = _serviceProvider.GetRequiredService<IOperatorBreakController>();
 			var uowFactory = _serviceProvider.GetRequiredService<IUnitOfWorkFactory>();
-
+			var pacsRepository = _serviceProvider.GetRequiredService<IPacsRepository>();
+			var globalBreakController = _serviceProvider.GetRequiredService<GlobalBreakController>();
+			var breakController = new OperatorBreakController(operatorId, globalBreakController, pacsRepository);
 			return new OperatorServerAgent(
 				operatorId,
 				logger,
@@ -33,7 +35,7 @@ namespace Pacs.Server
 				operatorRepository,
 				operatorNotifier,
 				phoneController,
-				operatorBreakController,
+				breakController,
 				uowFactory);
 		}
 	}

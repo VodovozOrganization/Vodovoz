@@ -1,17 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Pacs.Admin.Server
 {
 	public class SettingsRequest
 	{
 		public int AdministratorId { get; set; }
-		public int MaxOperatorsOnBreak { get; set; }
-		public TimeSpan MaxBreakTime { get; set; }
-		public TimeSpan OperatorInactivityTimeout { get; set; }
-		public TimeSpan OperatorKeepAliveInterval { get; set; }
+		public int OperatorsOnLongBreak { get; set; }
+		public TimeSpan LongBreakDuration { get; set; }
+		public int LongBreakCountPerDay { get; set; }
+		public int OperatorsOnShortBreak { get; set; }
+		public TimeSpan ShortBreakDuration { get; set; }
+		public TimeSpan ShortBreakInterval { get; set; }
 	}
 }

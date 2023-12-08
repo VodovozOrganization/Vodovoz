@@ -1,7 +1,7 @@
 ﻿using Autofac;
 using System;
 
-namespace Pacs.Operator.Client
+namespace Pacs.Operators.Client
 {
 	public class OperatorClientFactory : IOperatorClientFactory
 	{

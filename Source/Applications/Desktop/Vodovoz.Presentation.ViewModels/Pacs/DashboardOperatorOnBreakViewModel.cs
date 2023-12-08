@@ -79,7 +79,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 					return "";
 				}
 				;
-				var remains = BreakStartTime.Value + _settings.MaxBreakTime - DateTime.Now;
+				var remains = BreakStartTime.Value + _settings.LongBreakDuration - DateTime.Now;
 				BreakTimeGone = remains < TimeSpan.Zero;
 				var format = (_breakTimeGone ? "\\-" : "") + "hh\\:mm";
 				return remains.ToString(format);

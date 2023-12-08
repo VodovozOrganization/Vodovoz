@@ -12,10 +12,15 @@ namespace Pacs.Server
 		{
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 		}
-		public void NotifyBreakAvailability(bool breakAvailable)
+
+		public void NotifyGlobalBreakAvailability(GlobalBreakAvailability breakAvailability)
 		{
-			var message = new BreakAvailabilityEvent { BreakAvailable = breakAvailable };
-			_messageBus.Publish(message);
+			_messageBus.Publish(breakAvailability);
+		}
+
+		public void NotifyOperatorsOnBreak(OperatorsOnBreakEvent operatorsOnBreak)
+		{
+			_messageBus.Publish(operatorsOnBreak);
 		}
 	}
 }

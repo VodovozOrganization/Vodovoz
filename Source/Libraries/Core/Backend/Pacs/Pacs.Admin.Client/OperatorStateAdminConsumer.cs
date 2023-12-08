@@ -1,6 +1,7 @@
 ﻿using Core.Infrastructure;
 using MassTransit;
 using Pacs.Core;
+using Pacs.Core.Messages.Events;
 using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ using Vodovoz.Core.Domain.Pacs;
 
 namespace Pacs.Admin.Client
 {
-	public class OperatorStateAdminConsumer : IConsumer<OperatorState>, IObservable<OperatorState>, IDisposable
+	public class OperatorStateAdminConsumer : IConsumer<OperatorStateEvent>, IObservable<OperatorState>, IDisposable
 	{
 		private List<IObserver<OperatorState>> _observers;
 
@@ -18,11 +19,11 @@ namespace Pacs.Admin.Client
 			_observers = new List<IObserver<OperatorState>>();
 		}
 
-		public async Task Consume(ConsumeContext<OperatorState> context)
+		public async Task Consume(ConsumeContext<OperatorStateEvent> context)
 		{
 			foreach(var observer in _observers)
 			{
-				observer.OnNext(context.Message);
+				observer.OnNext(context.Message.State);
 			}
 
 			await Task.CompletedTask;
@@ -102,7 +103,7 @@ namespace Pacs.Admin.Client
 				rmq.Durable = true;
 				rmq.ExchangeType = ExchangeType.Fanout;
 
-				rmq.Bind<OperatorState>(c =>
+				rmq.Bind<OperatorStateEvent>(c =>
 				{
 					c.RoutingKey = $"pacs.operator.state.#";
 				});

@@ -1,24 +1,24 @@
-﻿using System;
+﻿using Pacs.Core.Messages.Events;
+using Pacs.Server;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Core.Domain.Pacs;
 
-namespace Pacs.Operator.Client
+namespace Pacs.Operators.Client
 {
 	public interface IOperatorClient
 	{
 		int OperatorId { get; }
 
-		event EventHandler<OperatorState> StateChanged;
-		Task<OperatorState> GetState();
-		Task<bool> GetBreakAvailability();
+		event EventHandler<OperatorStateEvent> StateChanged;
+		Task<GlobalBreakAvailability> GetGlobalBreakAvailability();
 
-		Task<OperatorState> Connect(CancellationToken cancellationToken = default);
-		Task<OperatorState> Disconnect(CancellationToken cancellationToken = default);
-		Task<OperatorState> StartWorkShift(string phoneNumber);
-		Task<OperatorState> EndWorkShift();
-		Task<OperatorState> ChangeNumber(string phoneNumber);
-		Task<OperatorState> StartBreak(CancellationToken cancellationToken = default);
-		Task<OperatorState> EndBreak(CancellationToken cancellationToken = default);
+		Task<OperatorStateEvent> Connect(CancellationToken cancellationToken = default);
+		Task<OperatorStateEvent> Disconnect(CancellationToken cancellationToken = default);
+		Task<OperatorStateEvent> StartWorkShift(string phoneNumber);
+		Task<OperatorStateEvent> EndWorkShift();
+		Task<OperatorStateEvent> ChangeNumber(string phoneNumber);
+		Task<OperatorStateEvent> StartBreak(OperatorBreakType breakType, CancellationToken cancellationToken = default);
+		Task<OperatorStateEvent> EndBreak(CancellationToken cancellationToken = default);
 	}
 }

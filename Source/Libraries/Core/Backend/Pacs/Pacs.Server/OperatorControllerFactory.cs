@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Pacs.Operators.Server;
 using System;
 
 namespace Pacs.Server
@@ -18,10 +19,10 @@ namespace Pacs.Server
 			var logger = _serviceProvider.GetRequiredService<ILogger<OperatorController>>();
 			var operatorAgentFactory = _serviceProvider.GetRequiredService<IOperatorAgentFactory>();
 			var phoneController = _serviceProvider.GetRequiredService<IPhoneController>();
-			var operatorBreakController = _serviceProvider.GetRequiredService<IOperatorBreakController>();
+			var globalBreakController = _serviceProvider.GetRequiredService<GlobalBreakController>();
 			var agent = operatorAgentFactory.CreateOperatorAgent(operatorId);
 
-			return new OperatorController(logger, agent, phoneController, operatorBreakController);
+			return new OperatorController(logger, agent, phoneController, globalBreakController);
 		}
 	}
 }

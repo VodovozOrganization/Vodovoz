@@ -13,8 +13,12 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Pacs
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			Map(x => x.Timestamp).Column("timestamp").ReadOnly();
 			Map(x => x.AdministratorId).Column("administrator_id");
-			Map(x => x.MaxBreakTime).Column("max_operator_break_time").CustomType<TimeAsTimeSpanType>();
-			Map(x => x.MaxOperatorsOnBreak).Column("max_operators_on_break");
+			Map(x => x.OperatorsOnLongBreak).Column("long_break_operators");
+			Map(x => x.LongBreakDuration).Column("long_break_duration").CustomType<TimeAsTimeSpanType>();
+			Map(x => x.LongBreakCountPerDay).Column("long_break_count");
+			Map(x => x.OperatorsOnShortBreak).Column("short_break_operators");
+			Map(x => x.ShortBreakDuration).Column("short_break_duration").CustomType<TimeAsTimeSpanType>();
+			Map(x => x.ShortBreakInterval).Column("short_break_interval").CustomType<TimeAsTimeSpanType>();
 		}
 	}
 }

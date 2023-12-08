@@ -6,7 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MySqlConnector;
-using Pacs.Operator.Server;
+using Pacs.Operators.Server;
 using QS.DomainModel.UoW;
 using QS.Project.Core;
 using QS.Project.DB;
@@ -16,7 +16,7 @@ using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Pacs;
 
-namespace Pacs.Operator.Service
+namespace Pacs.Operators.Service
 {
 	public class Startup
 	{

@@ -1,7 +1,10 @@
-﻿namespace Pacs.Server
+﻿using Pacs.Core.Messages.Events;
+
+namespace Pacs.Server
 {
 	public interface IBreakAvailabilityNotifier
 	{
-		void NotifyBreakAvailability(bool breakAvailable);
+		void NotifyGlobalBreakAvailability(GlobalBreakAvailability breakAvailability);
+		void NotifyOperatorsOnBreak(OperatorsOnBreakEvent operatorsOnBreak);
 	}
 }

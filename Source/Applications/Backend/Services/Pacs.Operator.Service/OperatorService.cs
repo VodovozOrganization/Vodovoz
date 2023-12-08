@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Pacs.Operator.Service
+namespace Pacs.Operators.Service
 {
 	public class OperatorHostedService : IHostedService
 	{

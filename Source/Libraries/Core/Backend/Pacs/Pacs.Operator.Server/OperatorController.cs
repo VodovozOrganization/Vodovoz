@@ -4,7 +4,7 @@ using Pacs.Server;
 using System;
 using System.Threading.Tasks;
 
-namespace Pacs.Operator.Server
+namespace Pacs.Operators.Server
 {
 	[ApiController]
 	[Route("pacs/operator")]
@@ -66,7 +66,7 @@ namespace Pacs.Operator.Server
 		public async Task<OperatorResult> StartBreak([FromBody] StartBreak command)
 		{
 			var controller = _controllerProvider.GetOperatorController(command.OperatorId);
-			var result = await controller.StartBreak();
+			var result = await controller.StartBreak(command.BreakType);
 
 			return result;
 		}

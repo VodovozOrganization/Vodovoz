@@ -1,6 +1,7 @@
 ﻿using Core.Infrastructure;
 using MassTransit;
 using Pacs.Core.Messages.Events;
+using Pacs.Operators.Server;
 using RabbitMQ.Client;
 using System;
 using System.Threading.Tasks;
@@ -9,16 +10,16 @@ namespace Pacs.Server.Consumers
 {
 	public class PacsSettingsConsumer : IConsumer<SettingsEvent>
 	{
-		private readonly ISettingsConsumer _settingsConsumer;
+		private readonly GlobalBreakController _globalBreakController;
 
-		public PacsSettingsConsumer(ISettingsConsumer settingsConsumer)
+		public PacsSettingsConsumer(GlobalBreakController globalBreakController)
 		{
-			_settingsConsumer = settingsConsumer ?? throw new ArgumentNullException(nameof(settingsConsumer));
+			_globalBreakController = globalBreakController ?? throw new ArgumentNullException(nameof(globalBreakController));
 		}
 
 		public async Task Consume(ConsumeContext<SettingsEvent> context)
 		{
-			_settingsConsumer.UpdateSettings(context.Message.Settings);
+			_globalBreakController.UpdateSettings(context.Message.Settings);
 			await Task.CompletedTask;
 		}
 	}

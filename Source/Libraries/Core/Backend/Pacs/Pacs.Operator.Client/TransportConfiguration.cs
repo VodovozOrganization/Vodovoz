@@ -3,7 +3,7 @@ using Pacs.Core.Messages.Events;
 using Vodovoz.Core.Domain.Pacs;
 using Pacs.Core;
 
-namespace Pacs.Operator.Client
+namespace Pacs.Operators.Client
 {
 	public static class TransportConfiguration
 	{

@@ -1,7 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using Pacs.Core;
 using Pacs.Core.Messages.Events;
-using Pacs.Operator.Client;
+using Pacs.Operators.Client;
+using Pacs.Server;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -19,7 +20,7 @@ using Vodovoz.Services;
 
 namespace Vodovoz.Presentation.ViewModels.Pacs
 {
-	public class PacsPanelViewModel : WidgetViewModelBase, IObserver<BreakAvailabilityEvent>, IDisposable
+	public class PacsPanelViewModel : WidgetViewModelBase, IObserver<GlobalBreakAvailability>, IDisposable
 	{
 		private static TimeSpan _commandTimeout = TimeSpan.FromSeconds(10);
 
@@ -38,12 +39,13 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		private bool _pacsEnabled;
 		private MangoState _mangoState;
 		private bool _breakInProgress;
-		private bool _breakAvailable;
 
 		private IOperatorStateAgent _operatorStateAgent;
+		private OperatorBreakAvailability _breakAvailability = new OperatorBreakAvailability();
+		private GlobalBreakAvailability _globalBreakAvailability = new GlobalBreakAvailability();
 
-		public DelegateCommand BreakCommand { get; }
-		public DelegateCommand RefreshCommand { get; }
+		public DelegateCommand LongBreakCommand { get; }
+		public DelegateCommand ShortBreakCommand { get; }
 		public DelegateCommand OpenPacsDialogCommand { get; }
 		public DelegateCommand OpenMangoDialogCommand { get; }
 
@@ -56,7 +58,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			IOperatorStateAgent operatorStateAgent,
 			IGuiDispatcher guiDispatcher, 
 			INavigationManager navigationManager,
-			IObservable<BreakAvailabilityEvent> breakAvailabilityPublisher,
+			IObservable<GlobalBreakAvailability> globalBreakAvailabilityPublisher,
 			IPacsRepository pacsRepository)
 		{
 			if(operatorClientFactory is null)
@@ -86,6 +88,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 				PacsEnabled = true;
 				_operatorClient = operatorClientFactory.CreateOperatorClient(_employee.Id);
 				_operatorClient.StateChanged += OperatorStateChanged;
+				GlobalBreakAvailability = _operatorClient.GetGlobalBreakAvailability().Result;
 				Connect();
 			}
 			else
@@ -97,11 +100,11 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 				}
 			}
 
-			BreakCommand = new DelegateCommand(() => Break(), () => CanBreak);
-			BreakCommand.CanExecuteChangedWith(this, x => x.CanBreak);
+			LongBreakCommand = new DelegateCommand(() => StartLongBreak(), () => CanLongBreak);
+			LongBreakCommand.CanExecuteChangedWith(this, x => x.CanLongBreak);
 
-			RefreshCommand = new DelegateCommand(Refresh);
-			RefreshCommand.CanExecuteChangedWith(this, x => x.CanRefresh);
+			ShortBreakCommand = new DelegateCommand(() => StartShortBreak(), () => CanShortBreak);
+			ShortBreakCommand.CanExecuteChangedWith(this, x => x.CanShortBreak);
 
 			OpenPacsDialogCommand = new DelegateCommand(OpenPacsDialog);
 			OpenPacsDialogCommand.CanExecuteChangedWith(this, x => x.CanOpenPacsDialog);
@@ -110,9 +113,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			OpenMangoDialogCommand.CanExecuteChangedWith(this, x => x.CanOpenMangoDialog);
 
 			_mangoManager.PropertyChanged += MangoManagerPropertyChanged;
-			_breakAvailabilitySubscription = breakAvailabilityPublisher.Subscribe(this);
-
-			_breakAvailable = _operatorClient.GetBreakAvailability().Result;
+			_breakAvailabilitySubscription = globalBreakAvailabilityPublisher.Subscribe(this);
 		}
 
 		private void MangoManagerPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -184,9 +185,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 				try
 				{
 					var state = _operatorClient.Connect().Result;
-					_guiDispatcher.RunInGuiTread(() => {
-						OperatorState = state;
-					});
+					UpdateState(state);
 				}
 				catch(Exception ex)
 				{
@@ -215,10 +214,32 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 					OnPropertyChanged(nameof(BreakState));
 					OnPropertyChanged(nameof(PacsState));
 					OnPropertyChanged(nameof(CanOpenPacsDialog));
-					OnPropertyChanged(nameof(CanBreak));
+					OnPropertyChanged(nameof(CanLongBreak));
+					OnPropertyChanged(nameof(CanShortBreak));
 					OnPropertyChanged(nameof(CanOpenMangoDialog));
 					UpdateMango();
 				}
+			}
+		}
+
+		public OperatorBreakAvailability BreakAvailability
+		{
+			get => _breakAvailability;
+			private set
+			{
+				_breakAvailability = value;
+				OnPropertyChanged(nameof(CanLongBreak));
+				OnPropertyChanged(nameof(CanShortBreak));
+			}
+		}
+		public GlobalBreakAvailability GlobalBreakAvailability
+		{
+			get => _globalBreakAvailability;
+			private set
+			{
+				_globalBreakAvailability = value;
+				OnPropertyChanged(nameof(CanLongBreak));
+				OnPropertyChanged(nameof(CanShortBreak));
 			}
 		}
 
@@ -228,11 +249,9 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			private set => SetField(ref _pacsEnabled, value);
 		}
 
-		private void OperatorStateChanged(object sender, OperatorState state)
+		private void OperatorStateChanged(object sender, OperatorStateEvent state)
 		{
-			_guiDispatcher.RunInGuiTread(() => {
-				OperatorState = state;
-			});
+			UpdateState(state);
 		}
 
 		public virtual PacsState PacsState
@@ -268,6 +287,15 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			_navigationManager.OpenViewModel<PacsViewModel>(null);
 		}
 
+		private void UpdateState(OperatorStateEvent operatorState)
+		{
+			_guiDispatcher.RunInGuiTread(() =>
+			{
+				OperatorState = operatorState.State;
+				BreakAvailability = operatorState.BreakAvailability;
+			});
+		}
+
 		#endregion Pacs
 
 		#region Break
@@ -290,7 +318,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			}
 		}
 
-		public bool CanBreak
+		public bool CanLongBreak
 		{
 			get
 			{
@@ -299,7 +327,28 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 					return false;
 				}
 
-				if(!_breakAvailable && BreakState == BreakState.CanStartBreak)
+				var breakUnavailable = !BreakAvailability.LongBreakAvailable
+					|| !GlobalBreakAvailability.LongBreakAvailable;
+				if(breakUnavailable && BreakState == BreakState.CanStartBreak)
+				{
+					return false;
+				}
+
+				return _operatorStateAgent.CanStartBreak || _operatorStateAgent.CanEndBreak;
+			}
+		}
+
+		public bool CanShortBreak
+		{
+			get
+			{
+				if(_breakInProgress)
+				{
+					return false;
+				}
+				var breakUnavailable = !BreakAvailability.ShortBreakAvailable
+					|| !GlobalBreakAvailability.ShortBreakAvailable;
+				if(breakUnavailable && BreakState == BreakState.CanStartBreak)
 				{
 					return false;
 				}
@@ -309,13 +358,13 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		}
 
 
-		private async Task Break()
+		private async Task StartLongBreak()
 		{
 			string question;
 			switch(BreakState)
 			{
 				case BreakState.CanStartBreak:
-					question = "Хотите взять перерыв?";
+					question = "Хотите взять большой перерыв?";
 					break;
 				case BreakState.CanEndBreak:
 					question = "Закончить перерыв?";
@@ -332,25 +381,24 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 			_guiDispatcher.RunInGuiTread(() => {
 				_breakInProgress = true;
-				OnPropertyChanged(nameof(CanBreak));
+				OnPropertyChanged(nameof(CanLongBreak));
+				OnPropertyChanged(nameof(CanShortBreak));
 			});
 
 			try
 			{
-				OperatorState state;
+				OperatorStateEvent state;
 				var cts = new CancellationTokenSource(_commandTimeout);
 				if(BreakState == BreakState.CanStartBreak)
 				{
-					state = await _operatorClient.StartBreak(cts.Token);
+					state = await _operatorClient.StartBreak(OperatorBreakType.Long, cts.Token);
 				}
 				else
 				{
 					state = await _operatorClient.EndBreak(cts.Token);
 				}
 
-				_guiDispatcher.RunInGuiTread(() => {
-					OperatorState = state;
-				});
+				UpdateState(state);
 			}
 			catch(Exception ex)
 			{
@@ -361,7 +409,65 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			{
 				_guiDispatcher.RunInGuiTread(() => {
 					_breakInProgress = false;
-					OnPropertyChanged(nameof(CanBreak));
+					OnPropertyChanged(nameof(CanLongBreak));
+					OnPropertyChanged(nameof(CanShortBreak));
+				});
+			}
+		}
+
+		private async Task StartShortBreak()
+		{
+			string question;
+			switch(BreakState)
+			{
+				case BreakState.CanStartBreak:
+					question = "Хотите взять малый перерыв?";
+					break;
+				case BreakState.CanEndBreak:
+					question = "Закончить перерыв?";
+					break;
+				case BreakState.BreakDenied:
+				default:
+					return;
+			}
+
+			if(!_interactiveService.Question(question, "Перерыв"))
+			{
+				return;
+			}
+
+			_guiDispatcher.RunInGuiTread(() => {
+				_breakInProgress = true;
+				OnPropertyChanged(nameof(CanLongBreak));
+				OnPropertyChanged(nameof(CanShortBreak));
+			});
+
+			try
+			{
+				OperatorStateEvent state;
+				var cts = new CancellationTokenSource(_commandTimeout);
+				if(BreakState == BreakState.CanStartBreak)
+				{
+					state = await _operatorClient.StartBreak(OperatorBreakType.Long, cts.Token);
+				}
+				else
+				{
+					state = await _operatorClient.EndBreak(cts.Token);
+				}
+
+				UpdateState(state);
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Ошибка во время выполнения команды начала/завершения перерыва оператора");
+				throw;
+			}
+			finally
+			{
+				_guiDispatcher.RunInGuiTread(() => {
+					_breakInProgress = false;
+					OnPropertyChanged(nameof(CanLongBreak));
+					OnPropertyChanged(nameof(CanShortBreak));
 				});
 			}
 		}
@@ -374,7 +480,6 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 		private void Refresh()
 		{
-			OperatorState = _operatorClient.GetState().Result;
 		}
 
 		#endregion Refresh
@@ -402,21 +507,22 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			_mangoManager.OpenMangoDialog();
 		}
 
-		void IObserver<BreakAvailabilityEvent>.OnCompleted()
+		void IObserver<GlobalBreakAvailability>.OnCompleted()
 		{
 			_breakAvailabilitySubscription.Dispose();
 		}
 
-		void IObserver<BreakAvailabilityEvent>.OnError(Exception error)
+		void IObserver<GlobalBreakAvailability>.OnError(Exception error)
 		{
 		}
 
-		void IObserver<BreakAvailabilityEvent>.OnNext(BreakAvailabilityEvent value)
+		void IObserver<GlobalBreakAvailability>.OnNext(GlobalBreakAvailability value)
 		{
 			_guiDispatcher.RunInGuiTread(() =>
 			{
-				_breakAvailable = value.BreakAvailable;
-				OnPropertyChanged(nameof(CanBreak));
+				GlobalBreakAvailability = value;
+				OnPropertyChanged(nameof(CanLongBreak));
+				OnPropertyChanged(nameof(CanShortBreak));
 			});
 		}
 

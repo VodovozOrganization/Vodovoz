@@ -27,8 +27,12 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		private IDisposable _settingsSubscription;
 		private DomainSettings _originalSettings;
 		private DomainSettings _settingsBeforeChange;
-		private int _maxBreakTime;
-		private int _maxOperatorsOnBreak;
+		private int _longBreakDuration;
+		private int _operatorsOnLongBreak;
+		private int _longBreakCountPerDay;
+		private int _shortBreakDuration;
+		private int _operatorsOnShortBreak;
+		private int _shortBreakInterval;
 
 		public DelegateCommand SaveCommand { get; }
 		public DelegateCommand CancelCommand { get; }
@@ -80,8 +84,14 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		public bool CanEdit => _canEdit;
 
 		public bool HasChanges => CanEdit && _originalSettings != null
-			&& (MaxBreakTime != (int)_originalSettings.MaxBreakTime.TotalMinutes
-			|| MaxOperatorsOnBreak != _originalSettings.MaxOperatorsOnBreak)
+			&& (
+				LongBreakDuration != (int)_originalSettings.LongBreakDuration.TotalMinutes
+				|| OperatorsOnLongBreak != _originalSettings.OperatorsOnLongBreak
+				|| LongBreakCountPerDay != _originalSettings.LongBreakCountPerDay
+				|| ShortBreakDuration != (int) _originalSettings.ShortBreakDuration.TotalMinutes
+				|| OperatorsOnShortBreak != _originalSettings.OperatorsOnShortBreak
+				|| ShortBreakInterval != (int)_originalSettings.ShortBreakInterval.TotalMinutes
+			)
 			;
 
 		public bool HasExternalChanges => _settingsBeforeChange != null 
@@ -91,34 +101,99 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 		#region Settings
 
-		[PropertyChangedAlso(nameof(HasChanges))]
-		[PropertyChangedAlso(nameof(CanSave))]
-		public virtual int MaxBreakTime
-		{
-			get => _maxBreakTime;
-			set
-			{
-				StartTrackChanges();
-				SetField(ref _maxBreakTime, value);
-			}
-		}
-
-		public int MaxBreakTimeMinValue => 5;
-		public int MaxBreakTimeMaxValue => 1440;
+		public int LongBreakDurationMinValue => 5;
+		public int LongBreakDurationMaxValue => 1440;
 
 		[PropertyChangedAlso(nameof(HasChanges))]
 		[PropertyChangedAlso(nameof(CanSave))]
-		public virtual int MaxOperatorsOnBreak
+		public virtual int LongBreakDuration
 		{
-			get => _maxOperatorsOnBreak;
+			get => _longBreakDuration;
 			set
 			{
 				StartTrackChanges();
-				SetField(ref _maxOperatorsOnBreak, value);
+				SetField(ref _longBreakDuration, value);
 			}
 		}
-		public int MaxOperatorsOnBreakMinValue => 0;
-		public int MaxOperatorsOnBreakMaxValue => 500;
+
+
+		public int OperatorsOnLongBreakMinValue => 0;
+		public int OperatorsOnLongBreakMaxValue => 500;
+
+		[PropertyChangedAlso(nameof(HasChanges))]
+		[PropertyChangedAlso(nameof(CanSave))]
+		public virtual int OperatorsOnLongBreak
+		{
+			get => _operatorsOnLongBreak;
+			set
+			{
+				StartTrackChanges();
+				SetField(ref _operatorsOnLongBreak, value);
+			}
+		}
+
+		public int LongBreakCountPerDayMinValue => 0;
+		public int LongBreakCountPerDayMaxValue => 5;
+
+		[PropertyChangedAlso(nameof(HasChanges))]
+		[PropertyChangedAlso(nameof(CanSave))]
+		public virtual int LongBreakCountPerDay
+		{
+			get => _longBreakCountPerDay;
+			set
+			{
+				StartTrackChanges();
+				SetField(ref _longBreakCountPerDay, value);
+			}
+		}
+
+
+		public int ShortBreakDurationMinValue => 0;
+		public int ShortBreakDurationMaxValue => 500;
+
+		[PropertyChangedAlso(nameof(HasChanges))]
+		[PropertyChangedAlso(nameof(CanSave))]
+		public virtual int ShortBreakDuration
+		{
+			get => _shortBreakDuration;
+			set
+			{
+				StartTrackChanges();
+				SetField(ref _shortBreakDuration, value);
+			}
+		}
+
+
+		public int OperatorsOnShortBreakMinValue => 0;
+		public int OperatorsOnShortBreakMaxValue => 500;
+
+		[PropertyChangedAlso(nameof(HasChanges))]
+		[PropertyChangedAlso(nameof(CanSave))]
+		public virtual int OperatorsOnShortBreak
+		{
+			get => _operatorsOnShortBreak;
+			set
+			{
+				StartTrackChanges();
+				SetField(ref _operatorsOnLongBreak, value);
+			}
+		}
+
+
+		public int ShortBreakIntervalMinValue => 0;
+		public int ShortBreakIntervalMaxValue => 500;
+
+		[PropertyChangedAlso(nameof(HasChanges))]
+		[PropertyChangedAlso(nameof(CanSave))]
+		public virtual int ShortBreakInterval
+		{
+			get => _shortBreakInterval;
+			set
+			{
+				StartTrackChanges();
+				SetField(ref _shortBreakInterval, value);
+			}
+		}
 
 		#endregion Settings
 
@@ -157,8 +232,12 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 				{
 					AdministratorId = _employee.Id,
 					Timestamp = DateTime.Now,
-					MaxBreakTime = TimeSpan.FromMinutes(MaxBreakTime),
-					MaxOperatorsOnBreak = MaxOperatorsOnBreak,
+					LongBreakDuration = TimeSpan.FromMinutes(LongBreakDuration),
+					OperatorsOnLongBreak = OperatorsOnLongBreak,
+					LongBreakCountPerDay = LongBreakCountPerDay,
+					ShortBreakDuration = TimeSpan.FromMinutes(ShortBreakDuration),
+					OperatorsOnShortBreak = OperatorsOnShortBreak,
+					ShortBreakInterval = TimeSpan.FromMinutes(ShortBreakInterval),
 				};
 
 				await _adminClient.SetSettings(newSettings);
@@ -184,13 +263,22 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 		private void ResetSettings()
 		{
-			_maxBreakTime = (int)_originalSettings.MaxBreakTime.TotalMinutes;
-			_maxOperatorsOnBreak = _originalSettings.MaxOperatorsOnBreak;
+			_longBreakDuration = (int)_originalSettings.LongBreakDuration.TotalMinutes;
+			_operatorsOnLongBreak = _originalSettings.OperatorsOnLongBreak;
+			_longBreakCountPerDay = _originalSettings.LongBreakCountPerDay;
+			_shortBreakDuration = (int)_originalSettings.ShortBreakDuration.TotalMinutes;
+			_operatorsOnShortBreak = _originalSettings.OperatorsOnShortBreak;
+			_shortBreakInterval = (int)_originalSettings.ShortBreakInterval.TotalMinutes;
+
 			StopTrackChanges();
 			OnPropertyChanged(nameof(HasChanges));
 			OnPropertyChanged(nameof(HasExternalChanges));
-			OnPropertyChanged(nameof(MaxBreakTime));
-			OnPropertyChanged(nameof(MaxOperatorsOnBreak));
+			OnPropertyChanged(nameof(LongBreakDuration));
+			OnPropertyChanged(nameof(OperatorsOnLongBreak));
+			OnPropertyChanged(nameof(LongBreakCountPerDay));
+			OnPropertyChanged(nameof(ShortBreakDuration));
+			OnPropertyChanged(nameof(OperatorsOnShortBreak));
+			OnPropertyChanged(nameof(ShortBreakInterval));
 		}
 
 		private void StartTrackChanges()

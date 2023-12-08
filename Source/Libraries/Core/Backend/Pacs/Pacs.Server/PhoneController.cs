@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Core.Infrastructure;
+using Microsoft.Extensions.Logging;
 using NHibernate.Util;
 using System;
 using System.Collections.Generic;
@@ -108,6 +109,11 @@ namespace Pacs.Server
 
 		private void Release(string phone)
 		{
+			if(phone.IsNullOrWhiteSpace())
+			{
+				return;
+			}
+
 			if(!_phones.ContainsKey(phone))
 			{
 				throw new PacsPhoneException($"Неизвестный номер телефона {phone}");

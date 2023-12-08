@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
 using Fias.Client;
@@ -13,7 +13,7 @@ using Pacs.Admin.Client;
 using Pacs.Calls;
 using Pacs.Core;
 using Pacs.Core.Messages.Events;
-using Pacs.Operator.Client;
+using Pacs.Operators.Client;
 using QS.Deletion;
 using QS.Deletion.Configuration;
 using QS.Deletion.ViewModels;
@@ -80,7 +80,6 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Suppliers;
-using Vodovoz.Infrastructure.Mango;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.Infrastructure.Services;
@@ -707,6 +706,7 @@ namespace Vodovoz
 						.AddScoped<SelectPaymentTypeViewModel>()
 						.AddScoped<IRouteOptimizer, RouteOptimizer>()
 						.AddScoped<EntityModelFactory>()
+						
 
 						//Messages
 						.AddSingleton<MessagesHostedService>()

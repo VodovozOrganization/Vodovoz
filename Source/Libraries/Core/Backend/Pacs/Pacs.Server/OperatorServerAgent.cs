@@ -1,5 +1,8 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Core.Infrastructure;
+using Microsoft.Extensions.Logging;
 using Pacs.Core;
+using Pacs.Core.Messages.Events;
+using Pacs.Operators.Server;
 using QS.DomainModel.UoW;
 using Stateless;
 using System;
@@ -22,7 +25,7 @@ namespace Pacs.Server
 		private readonly IOperatorRepository _operatorRepository;
 		private readonly IOperatorNotifier _operatorNotifier;
 		private readonly IPhoneController _phoneController;
-		private readonly IOperatorBreakController _operatorBreakController;
+		private readonly OperatorBreakController _operatorBreakController;
 		private readonly IUnitOfWorkFactory _uowFactory;
 
 		private Timer _timer;
@@ -38,6 +41,8 @@ namespace Pacs.Server
 
 		public event EventHandler<int> OnDisconnect;
 
+		public OperatorBreakAvailability BreakAvailability { get; private set; }
+
 		public Operator Operator { get; private set; }
 		public OperatorState OperatorState { get; private set; }
 		public OperatorSession Session { get; private set; }
@@ -50,7 +55,7 @@ namespace Pacs.Server
 			IOperatorRepository operatorRepository,
 			IOperatorNotifier operatorNotifier,
 			IPhoneController phoneController,
-			IOperatorBreakController operatorBreakController,
+			OperatorBreakController operatorBreakController,
 			IUnitOfWorkFactory uowFactory
 		)
 		{
@@ -69,7 +74,16 @@ namespace Pacs.Server
 
 			LoadOperatorState(operatorId);
 
+			BreakAvailability = _operatorBreakController.GetBreakAvailability();
+			_operatorBreakController.BreakAvailabilityChanged += BreakAvailabilityChanged;
+
 			ConfigureStateMachine();
+		}
+
+		private void BreakAvailabilityChanged(object sender, OperatorBreakAvailability newBreakAvailability)
+		{
+			BreakAvailability = newBreakAvailability;
+			_operatorNotifier.OperatorChanged(OperatorState, BreakAvailability);
 		}
 
 		#region Initialization
@@ -147,8 +161,6 @@ namespace Pacs.Server
 			_machine.OnTransitionCompletedAsync(OnTransitionComplete);
 		}
 
-
-
 		#endregion Initialization
 
 		private void ChangeState(OperatorStateType newState)
@@ -183,7 +195,6 @@ namespace Pacs.Server
 			return _machine.CanFire(ConvertTrigger(trigger));
 		}
 
-
 		#region Save
 
 		private async Task OnTransitionComplete(StateMachine.Transition transition)
@@ -198,12 +209,13 @@ namespace Pacs.Server
 			OperatorState.Trigger = ConvertTrigger(transition.Trigger);
 
 			await SaveState();
-			await _operatorNotifier.OperatorChanged(OperatorState);
 
-			if(transition.Destination == OperatorStateType.Disconnected)
+			if(OperatorStateType.Break.IsIn(transition.Source, transition.Destination))
 			{
-
+				BreakAvailability = _operatorBreakController.GetBreakAvailability();
 			}
+
+			await _operatorNotifier.OperatorChanged(OperatorState, BreakAvailability);
 		}
 
 		private async Task SaveState()
@@ -233,6 +245,7 @@ namespace Pacs.Server
 
 		private void OnConnect()
 		{
+			ClearPhoneNumber();
 			OperatorState.Started = DateTime.Now;
 			OpenSession();
 			_logger.LogInformation("Оператор {OperatorId} подключен.", OperatorId);
@@ -281,6 +294,7 @@ namespace Pacs.Server
 			OperatorState.Ended = OperatorState.Started;
 
 			CloseSession();
+			ClearPhoneNumber();
 
 			var reasonExplain = reason == DisconnectionType.InactivityTimeout ? "автоматически по таймауту" : "сам";
 			_logger.LogInformation($"Оператор {{OperatorId}} отключился {reasonExplain}", OperatorId);
@@ -373,7 +387,7 @@ namespace Pacs.Server
 
 		private void OnBreakStarted()
 		{
-			_operatorBreakController.StartBreak(OperatorId);
+			//_operatorBreakController.StartBreak(OperatorId);
 			_logger.LogInformation("Оператор {OperatorId} начал перерыв", OperatorId);
 		}
 
@@ -384,7 +398,7 @@ namespace Pacs.Server
 
 		private void OnBreakEnded()
 		{
-			_operatorBreakController.EndBreak(OperatorId);
+			//_operatorBreakController.EndBreak(OperatorId);
 			_logger.LogInformation("Оператор {OperatorId} завершил перерыв", OperatorId);
 		}
 

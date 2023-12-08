@@ -26,8 +26,12 @@ namespace Mango.Api.Controllers
 			var settings = new DomainSettings
 			{
 				AdministratorId = settingsRequest.AdministratorId,
-				MaxBreakTime = settingsRequest.MaxBreakTime,
-				MaxOperatorsOnBreak = settingsRequest.MaxOperatorsOnBreak,
+				OperatorsOnLongBreak = settingsRequest.OperatorsOnLongBreak,
+				LongBreakDuration = settingsRequest.LongBreakDuration,
+				LongBreakCountPerDay = settingsRequest.LongBreakCountPerDay,
+				OperatorsOnShortBreak = settingsRequest.OperatorsOnShortBreak,
+				ShortBreakDuration = settingsRequest.ShortBreakDuration,
+				ShortBreakInterval = settingsRequest.ShortBreakInterval,
 			};
 
 			using(var uow = _uowFactory.CreateWithoutRoot())

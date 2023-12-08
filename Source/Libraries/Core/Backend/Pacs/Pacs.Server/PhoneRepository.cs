@@ -33,7 +33,7 @@ namespace Pacs.Server
 $@"SELECT 
 	ip.phone_number as {nameof(PhoneAssignment.Phone)}, 
 	phone_assignments.operator_id as {nameof(PhoneAssignment.OperatorId)}
-FROM internal_phones ip
+FROM inner_phones ip
 LEFT JOIN (
 	SELECT 
 		pos.operator_id, 
