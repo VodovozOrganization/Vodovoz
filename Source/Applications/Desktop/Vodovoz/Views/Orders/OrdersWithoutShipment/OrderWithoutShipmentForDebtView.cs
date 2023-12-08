@@ -97,6 +97,8 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 				.AddBinding(ViewModel, vm => vm.CanSendBillByEdo, w => w.Visible)
 				.InitializeFromSource();
 
+			ycheckbuttonSendBillByEdo.Visible = false;
+
 			btnUpdateEdoDocFlowStatus.Clicked += (sender, args) =>
 			{
 				ViewModel.UpdateEdoContainers();
@@ -113,27 +115,29 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 
 		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
-			if(e.PropertyName == nameof(ViewModel.IsSendBillByEdo))
+			if(e.PropertyName == nameof(ViewModel.CanSendBillByEdo)
+				|| e.PropertyName == nameof(ViewModel.CanResendEdoBill))
 			{
 				UpdateContainersVisibility();
+				CustomizeSendDocumentAgainButton();
 			}
 		}
 
 		private void UpdateContainersVisibility()
 		{
-			hbox7.Visible = !ViewModel.IsSendBillByEdo;
-			vboxEdo.Visible = ViewModel.IsSendBillByEdo || ViewModel.EdoContainers.Any();
+			vboxEdo.Visible = ViewModel.CanSendBillByEdo || ViewModel.EdoContainers.Any();
 		}
 
 		private void CustomizeSendDocumentAgainButton()
 		{
-			if(ViewModel.Entity.Id == 0)
+			if(!ViewModel.EdoContainers.Any())
 			{
-				ybuttonSendDocumentAgain.Sensitive = false;
-				ybuttonSendDocumentAgain.Label = "Отправить повторно";
+				ybuttonSendDocumentAgain.Sensitive = ViewModel.CanSendBillByEdo;
+				ybuttonSendDocumentAgain.Label = "Отправить";
 				return;
 			}
 
+			ybuttonSendDocumentAgain.Sensitive = ViewModel.CanResendEdoBill;
 			ybuttonSendDocumentAgain.Label = "Отправить повторно";
 		}
 
