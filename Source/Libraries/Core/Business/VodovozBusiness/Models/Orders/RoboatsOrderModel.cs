@@ -23,7 +23,7 @@ namespace Vodovoz.Models.Orders
 		private readonly IOrderDailyNumberController _orderDailyNumberController;
 		private readonly IPaymentFromBankClientController _paymentFromBankClientController;
 		private readonly ICounterpartyContractRepository _counterpartyContractRepository;
-		private readonly CounterpartyContractFactory _counterpartyContractFactory;
+		private readonly ICounterpartyContractFactory _counterpartyContractFactory;
 		private readonly FastPaymentSender _fastPaymentSender;
 		private readonly ICallTaskWorker _callTaskWorker;
 
@@ -33,7 +33,7 @@ namespace Vodovoz.Models.Orders
 			IOrderDailyNumberController orderDailyNumberController,
 			IPaymentFromBankClientController paymentFromBankClientController,
 			ICounterpartyContractRepository counterpartyContractRepository,
-			CounterpartyContractFactory counterpartyContractFactory,
+			ICounterpartyContractFactory counterpartyContractFactory,
 			FastPaymentSender fastPaymentSender,
 			ICallTaskWorker callTaskWorker
 			)

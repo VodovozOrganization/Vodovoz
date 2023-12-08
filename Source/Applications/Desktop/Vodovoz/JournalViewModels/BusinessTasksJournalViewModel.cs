@@ -29,8 +29,8 @@ using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Journals.JournalFactories;
-using CounterpartyContractFactory = Vodovoz.Factories.CounterpartyContractFactory;
 using QS.Navigation;
+using Vodovoz.Factories;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -45,7 +45,7 @@ namespace Vodovoz.JournalViewModels
 		readonly IPhoneRepository phoneRepository;
 		private readonly IOrganizationProvider organizationProvider;
 		private readonly ICounterpartyContractRepository counterpartyContractRepository;
-		private readonly CounterpartyContractFactory counterpartyContractFactory;
+		private readonly ICounterpartyContractFactory counterpartyContractFactory;
 		private readonly RoboatsJournalsFactory _roboAtsCounterpartyJournalFactory;
 		private readonly IContactParametersProvider _contactsParameters;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
@@ -64,7 +64,7 @@ namespace Vodovoz.JournalViewModels
 			IPhoneRepository phoneRepository,
 			IOrganizationProvider organizationProvider,
 			ICounterpartyContractRepository counterpartyContractRepository,
-			CounterpartyContractFactory counterpartyContractFactory,
+			ICounterpartyContractFactory counterpartyContractFactory,
 			RoboatsJournalsFactory roboAtsCounterpartyJournalFactory,
 			IContactParametersProvider contactsParameters,
 			ICounterpartyJournalFactory counterpartyJournalFactory,

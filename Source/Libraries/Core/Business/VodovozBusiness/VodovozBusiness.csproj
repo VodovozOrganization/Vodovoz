@@ -656,6 +656,7 @@
     <Compile Include="Factories\ExternalCounterpartyFactory.cs" />
     <Compile Include="Factories\ExternalCounterpartyMatchingFactory.cs" />
     <Compile Include="Factories\ICashReceiptFactory.cs" />
+    <Compile Include="Factories\ICounterpartyContractFactory.cs" />
     <Compile Include="Factories\IEmployeeRegistrationFactory.cs" />
     <Compile Include="Factories\IEmployeeRegistrationVersionFactory.cs" />
     <Compile Include="Factories\IExternalCounterpartyFactory.cs" />
