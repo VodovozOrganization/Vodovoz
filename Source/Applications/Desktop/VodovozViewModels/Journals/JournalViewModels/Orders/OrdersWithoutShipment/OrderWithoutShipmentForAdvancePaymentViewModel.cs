@@ -225,11 +225,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				() => true);
 
 			Entity.PropertyChanged += OnEntityPropertyChanged;
-
-			if(!UoWGeneric.IsNew)
-			{
-				CanSendBillByEdo = Entity.Client.NeedSendBillByEdo;
-			}
 		}
 
 		public bool IsSendBillByEdo
@@ -238,17 +233,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			set => SetField(ref _isSendBillByEdo, value);
 		}
 
-		public bool CanSendBillByEdo
-		{
-			get => _canSendBillByEdo;
-			set
-			{
-				if(SetField(ref _canSendBillByEdo, value) && !value)
-				{
-					IsSendBillByEdo = false;
-				}
-			}
-		}
+		public bool CanSendBillByEdo => Entity.Client?.NeedSendBillByEdo ?? false && !EdoContainers.Any();
 
 		public IEntityUoWBuilder EntityUoWBuilder { get; }
 
@@ -294,12 +279,12 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		{
 			if(e.PropertyName == nameof(Entity.Client))
 			{
-				CanSendBillByEdo = Entity.Client?.NeedSendBillByEdo ?? false;
-
 				if(!CanSendBillByEdo)
 				{
 					IsSendBillByEdo = false;
 				}
+
+				OnPropertyChanged(() => CanSendBillByEdo);
 			}
 		}
 
@@ -360,7 +345,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			uow.Commit();
 
 			IsSendBillByEdo = false;
-			CanSendBillByEdo = false;
+			OnPropertyChanged(() => CanSendBillByEdo);
 		}
 
 		public void OnButtonSendDocumentAgainClicked(object sender, EventArgs e)
@@ -418,7 +403,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				SendBillByEdo(UoW);
 			}
 
-			CanSendBillByEdo = !EdoContainers.Any();
+			OnPropertyChanged(() => CanSendBillByEdo);
 
 			return base.Save(close);
 		}
