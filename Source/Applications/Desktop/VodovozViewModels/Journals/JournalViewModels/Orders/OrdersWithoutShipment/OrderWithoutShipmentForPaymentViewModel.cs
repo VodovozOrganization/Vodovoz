@@ -4,11 +4,9 @@ using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Commands;
 using QS.Dialog;
-using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
-using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
 using QS.Tdi;
@@ -378,17 +376,5 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 			return base.Save(close);
 		}
-	}
-
-	public class OrderWithoutShipmentForPaymentNode : JournalEntityNodeBase<VodOrder>
-	{
-		public override string Title => $"{EntityType.GetSubjectNames()} №{Id}";
-		public bool IsSelected { get; set; }
-		public int OrderId { get; set; }
-		public DateTime OrderDate { get; set; }
-		public OrderStatus OrderStatus { get; set; }
-		public decimal Bottles { get; set; }
-		public decimal OrderSum { get; set; }
-		public string DeliveryAddress { get; set; }
 	}
 }
