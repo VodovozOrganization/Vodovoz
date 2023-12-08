@@ -23,7 +23,7 @@ using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Application.Orders.Services
 {
-	internal class OrderService : IOrderService
+	internal sealed class OrderService : IOrderService
 	{
 		private readonly ILogger<OrderService> _logger;
 
@@ -32,8 +32,8 @@ namespace Vodovoz.Application.Orders.Services
 		private readonly IOrderDailyNumberController _orderDailyNumberController;
 		private readonly IPaymentFromBankClientController _paymentFromBankClientController;
 		private readonly ICounterpartyContractRepository _counterpartyContractRepository;
-		private readonly CounterpartyContractFactory _counterpartyContractFactory;
-		private readonly FastPaymentSender _fastPaymentSender;
+		private readonly ICounterpartyContractFactory _counterpartyContractFactory;
+		private readonly IFastPaymentSender _fastPaymentSender;
 		private readonly ICallTaskWorker _callTaskWorker;
 
 		public OrderService(
@@ -44,8 +44,8 @@ namespace Vodovoz.Application.Orders.Services
 			IOrderDailyNumberController orderDailyNumberController,
 			IPaymentFromBankClientController paymentFromBankClientController,
 			ICounterpartyContractRepository counterpartyContractRepository,
-			CounterpartyContractFactory counterpartyContractFactory,
-			FastPaymentSender fastPaymentSender,
+			ICounterpartyContractFactory counterpartyContractFactory,
+			IFastPaymentSender fastPaymentSender,
 			ICallTaskWorker callTaskWorker)
 		{
 			if(nomenclatureParametersProvider is null)

@@ -1,4 +1,4 @@
-using NHibernate;
+﻿using NHibernate;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
@@ -46,6 +46,10 @@ namespace Vodovoz.Domain.Orders
 		private FreeRentPackage _freeRentPackage;
 		private OrderItem _copiedFromUndelivery;
 
+		protected OrderItem()
+		{
+		}
+
 		#region Свойства
 
 		public virtual int Id
@@ -79,22 +83,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual decimal Price
 		{
 			get => _price;
-			protected set
-			{
-				//Если цена не отличается от той которая должна быть по прайсам в 
-				//номенклатуре, то цена не изменена пользователем и сможет расчитываться автоматически
-				IsUserPrice = (value != GetPriceByTotalCount() && value != 0 && !IsFixedPrice) || CopiedFromUndelivery != null;
-				if(IsUserPrice)
-				{
-					IsUserPrice = (value != GetPriceByTotalCount() && value != 0 && !IsFixedPrice) || CopiedFromUndelivery != null;
-				}
-
-				if(SetField(ref _price, value))
-				{
-					RecalculateDiscount();
-					RecalculateVAT();
-				}
-			}
+			protected set => SetField(ref _price, value);
 		}
 
 		[Display(Name = "Цена установлена пользователем")]
@@ -135,17 +124,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual decimal Discount
 		{
 			get => _discount;
-			protected set
-			{
-				if(value != _discount && value == 0)
-				{
-					DiscountReason = null;
-				}
-				if(SetField(ref _discount, value))
-				{
-					RecalculateVAT();
-				}
-			}
+			protected set => SetField(ref _discount, value);
 		}
 
 		[Display(Name = "Процент скидки на товар которая была установлена до отмены заказа")]
@@ -159,18 +138,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual decimal DiscountMoney
 		{
 			get => _discountMoney;
-			protected set
-			{
-				if(value != _discountMoney && value == 0)
-				{
-					DiscountReason = null;
-				}
-
-				if(SetField(ref _discountMoney, value))
-				{
-					RecalculateVAT();
-				}
-			}
+			protected set => SetField(ref _discountMoney, value);
 		}
 
 		[Display(Name = "Скидки на товар которая была установлена до отмены заказа")]
@@ -255,13 +223,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual int RentCount
 		{
 			get => _rentCount;
-			protected set
-			{
-				if(SetField(ref _rentCount, value))
-				{
-					Order?.UpdateRentsCount();
-				}
-			}
+			protected set => SetField(ref _rentCount, value);
 		}
 
 		[Display(Name = "Количество оборудования для аренды")]
@@ -409,7 +371,7 @@ namespace Vodovoz.Domain.Orders
 
 		private void CalculateAndSetDiscount(decimal value)
 		{
-			if(value != _discount && value == 0)
+			if(value == 0)
 			{
 				DiscountReason = null;
 			}
@@ -463,6 +425,8 @@ namespace Vodovoz.Domain.Orders
 			{
 				DiscountReason = discountReasonForStockBottle;
 			}
+
+			RecalculateVAT();
 		}
 
 		public virtual decimal PriceWithoutVat => Math.Round(Price / ((ValueAddedTax ?? 0m) + 1) * (1 - Discount / 100), 2);
@@ -549,7 +513,7 @@ namespace Vodovoz.Domain.Orders
 			{
 				if(Price != fixedPrice.Price)
 				{
-					Price = fixedPrice.Price;
+					SetPrice(fixedPrice.Price);
 				}
 				IsFixedPrice = true;
 				return;
@@ -562,7 +526,7 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 
-			Price = GetPriceByTotalCount();
+			SetPrice(GetPriceByTotalCount());
 		}
 
 		public virtual decimal GetPriceByTotalCount()
@@ -729,7 +693,21 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void SetPrice(decimal price)
 		{
-			Price = price;
+			//Если цена не отличается от той которая должна быть по прайсам в 
+			//номенклатуре, то цена не изменена пользователем и сможет расчитываться автоматически
+			IsUserPrice = (price != GetPriceByTotalCount() && price != 0 && !IsFixedPrice) || CopiedFromUndelivery != null;
+			if(IsUserPrice)
+			{
+				IsUserPrice = (price != GetPriceByTotalCount() && price != 0 && !IsFixedPrice) || CopiedFromUndelivery != null;
+			}
+
+			if(Price != price)
+			{
+				Price = price;
+
+				RecalculateDiscount();
+				RecalculateVAT();
+			}
 		}
 
 		protected internal virtual void SetCount(decimal count)
@@ -807,6 +785,7 @@ namespace Vodovoz.Domain.Orders
 			Discount = discount;
 			DiscountMoney = discountMoney;
 			DiscountReason = discountReason;
+			RecalculateVAT();
 		}
 
 		internal static OrderItem CreateNewDailyRentServiceItem(Order order, PaidRentPackage paidRentPackage)
@@ -993,6 +972,11 @@ namespace Vodovoz.Domain.Orders
 			order.UpdateRentsCount();
 
 			return newItem;
+		}
+
+		public static OrderItem CreateEmptyWithId(int id)
+		{
+			return new OrderItem { Id = id };
 		}
 	}
 }
