@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -706,9 +706,12 @@
     <Compile Include="Models\CashReceipts\ICashboxSettingProvider.cs" />
     <Compile Include="Models\EmptyRouteListGenerator.cs" />
     <Compile Include="Models\FastDeliveryAvailabilityHistoryModel.cs" />
+    <Compile Include="Models\FastPaymentResponseDTO.cs" />
+    <Compile Include="Models\FastPaymentResult.cs" />
     <Compile Include="Models\FastPaymentSender.cs" />
     <Compile Include="Models\GeoGroupVersionsModel.cs" />
     <Compile Include="Models\IAdditionalLoadingModel.cs" />
+    <Compile Include="Models\IFastPaymentSender.cs" />
     <Compile Include="Models\INomenclatureCostPriceModel.cs" />
     <Compile Include="Models\INomenclatureGroupPricingModel.cs" />
     <Compile Include="Models\INomenclatureInnerDeliveryPriceModel.cs" />
