@@ -1835,8 +1835,6 @@
     <Compile Include="ReportsParameters\WayBillReportGroupPrint.cs" />
     <Compile Include="ViewWidgets\Logistics\DeliveryFreeBalanceView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Logistics.DeliveryFreeBalanceView.cs" />
-    <Compile Include="Views\Warehouse\Documents\InventoryDocumentView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.Documents.InventoryDocumentView.cs" />
     <Compile Include="Views\Reports\FastDeliveryPercentCoverageReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.FastDeliveryPercentCoverageReportView.cs" />
     <Compile Include="Dialogs\Organizations\OrganizationOwnershipTypeView.cs" />
