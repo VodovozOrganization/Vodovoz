@@ -42,7 +42,6 @@ namespace Vodovoz.RDL.Elements
 		[XmlElement("PageBreakAtEnd", typeof(bool))]
 		[XmlElement("PageBreakAtStart", typeof(bool))]
 		[XmlElement("RepeatWith", typeof(string))]
-		//[XmlElement("ReportItems", typeof(ReportItems))]
 		[XmlElement("Sorting", typeof(Sorting))]
 		[XmlElement("Style", typeof(Style))]
 		[XmlElement("ToolTip", typeof(string))]
@@ -233,7 +232,6 @@ namespace Vodovoz.RDL.Elements
 		PageBreakAtEnd,
 		PageBreakAtStart,
 		RepeatWith,
-		//ReportItems,
 		Sorting,
 		Style,
 		ToolTip,

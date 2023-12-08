@@ -81,7 +81,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics
 		public IEntityEntryViewModel DriverViewModel { get; private set; }
 		public IEntityEntryViewModel CarViewModel { get; private set; }
 
-		public GenericObservableList<DriversWarehousesEventsReportNode> ReportNodes =
+		public GenericObservableList<DriversWarehousesEventsReportNode> ReportNodes { get; } =
 			new GenericObservableList<DriversWarehousesEventsReportNode>();
 
 		public DateTime? StartDate

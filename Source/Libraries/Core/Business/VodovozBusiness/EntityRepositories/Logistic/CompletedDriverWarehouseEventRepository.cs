@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.UoW;
+﻿using System.Linq;
+using QS.DomainModel.UoW;
 using Vodovoz.Domain.Logistic.Drivers;
 
 namespace Vodovoz.EntityRepositories.Logistic
@@ -7,9 +8,13 @@ namespace Vodovoz.EntityRepositories.Logistic
 	{
 		public bool HasCompletedEventsByEventId(IUnitOfWork uow, int eventId)
 		{
-			return uow.Session.QueryOver<CompletedDriverWarehouseEvent>()
-				.Where(x => x.DriverWarehouseEvent.Id == eventId)
-				.RowCount() > 0;
+			var query = from completedEvents in uow.Session.Query<CompletedDriverWarehouseEvent>()
+				join @event in uow.Session.Query<DriverWarehouseEvent>()
+					on completedEvents.DriverWarehouseEvent.Id equals @event.Id
+				where @event.Id == eventId
+				select completedEvents.Id;
+
+			return query.Any();
 		}
 	}
 }

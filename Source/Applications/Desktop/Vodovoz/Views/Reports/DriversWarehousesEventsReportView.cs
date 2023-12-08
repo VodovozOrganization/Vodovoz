@@ -78,7 +78,7 @@ namespace Vodovoz.Views.Reports
 		}
 
 		private async void OnLoadReportClicked(object sender, EventArgs e)
-        {
+		{
 			if(ViewModel.FirstEvent is null || ViewModel.SecondEvent is null)
 			{
 				ViewModel.ShowWarning("Для работы отчета надо выбрать оба события!");
@@ -114,7 +114,7 @@ namespace Vodovoz.Views.Reports
 			});
 
 			await task;
-        }
+		}
 
 		private void OnAbortLoadReportClicked(object sender, EventArgs e)
 		{
@@ -122,8 +122,8 @@ namespace Vodovoz.Views.Reports
 		}
 
 		private void OnExportReportClicked(object sender, EventArgs e)
-        {
-         	ViewModel.ExportReport();
-        }
+		{
+			ViewModel.ExportReport();
+		}
 	}
 }
