@@ -1,10 +1,15 @@
 ﻿using QS.Project.Filter;
 using QS.Project.Services;
+using QS.ViewModels.Control.EEVM;
 using System;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
+using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
+using Vodovoz.ViewModels.ViewModels.Organizations;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels
 {
@@ -20,6 +25,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
 		private bool _canSetAccountable = true;
 		private bool _canSetCounterparty = true;
 		private PayoutDocumentsSortOrder _documentsSortOrder = PayoutDocumentsSortOrder.ByCreationDate;
+		private Subdivision _accountableSubdivision;
+		private PayoutRequestsJournalViewModel _journalViewModel;
 
 		public virtual Employee Author
 		{
@@ -116,6 +123,35 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
 			set => UpdateFilterField(ref _documentsSortOrder, value);
 		}
 
+		public Subdivision AccountableSubdivision
+		{
+			get => _accountableSubdivision;
+			set => SetField(ref _accountableSubdivision, value);
+		}
+
+		public PayoutRequestsJournalViewModel JournalViewModel
+		{
+			get => _journalViewModel;
+			set
+			{
+				_journalViewModel = value;
+
+				AccountableSubdivisionViewModel =
+					new CommonEEVMBuilderFactory<PayoutRequestJournalFilterViewModel>(_journalViewModel, this, UoW, _journalViewModel.NavigationManager, _journalViewModel.Scope)
+					.ForProperty(x => x.AccountableSubdivision)
+					.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel, SubdivisionFilterViewModel>(
+						filter =>
+						{
+							//if(canSetOnlyLogisticsSubdivision)
+							//{
+							//	filter.SubdivisionType = SubdivisionType.Logistic;
+							//}
+						})
+					.UseViewModelDialog<SubdivisionViewModel>()
+					.Finish();
+			}
+		}
+
 		public PayoutRequestJournalFilterViewModel(
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory)
@@ -126,6 +162,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
 
 		public IEmployeeJournalFactory EmployeeJournalFactory { get; }
 		public ICounterpartyJournalFactory CounterpartyJournalFactory { get; }
+		public IEntityEntryViewModel AccountableSubdivisionViewModel { get; private set; }
 
 		public PayoutRequestUserRole GetUserRole()
 		{
@@ -153,7 +190,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
 			{
 				return PayoutRequestUserRole.Accountant;
 			}
-			
+
 			if(CheckRole("role_security_service_cash_request", userId))
 			{
 				return PayoutRequestUserRole.SecurityService;

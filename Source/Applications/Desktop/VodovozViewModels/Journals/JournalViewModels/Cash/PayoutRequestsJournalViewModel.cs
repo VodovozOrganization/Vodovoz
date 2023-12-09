@@ -27,7 +27,6 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using static Vodovoz.ViewModels.Journals.FilterViewModels.PayoutRequestJournalFilterViewModel;
@@ -116,6 +115,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			threadLoader?.MergeInOrderBy(x => x.Date, @descending: true);
 			DataLoader.ItemsListUpdated += OnDataLoaderItemsListUpdated;
 
+			filterViewModel.JournalViewModel = this;
+			JournalFilter = filterViewModel;
 			FilterViewModel.PropertyChanged += UpdateDataLoader;
 
 			FinishJournalConfiguration();
@@ -166,6 +167,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			set => SetField(ref _footerInfo, value);
 		}
 		public INavigationManager NavigationManager { get; }
+		public ILifetimeScope Scope => _scope;
 
 		private void OnDataLoaderItemsListUpdated(object sender, EventArgs e)
 		{
@@ -189,7 +191,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				_commonServices.PermissionService.ValidateUserPresetPermission("role_security_service_cash_request", userId);
 			_canSeeCurrentSubdivisonRequests =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission("can_see_current_subdivision_cash_requests");
-			_hasAccessToHiddenFinancialCategories = 
+			_hasAccessToHiddenFinancialCategories =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.FinancialCategory.HasAccessToHiddenFinancialCategories);
 		}
 
@@ -449,7 +451,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 
 			//завершение конфигурации
 			cashConfig.FinishConfiguration();
-			}
+		}
 
 		private CashRequestViewModel CreateCashRequestViewModelForMassOpenWithoutGui(PayoutRequestJournalNode node)
 		{
