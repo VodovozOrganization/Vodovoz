@@ -24,7 +24,7 @@ namespace Vodovoz.Views.Pacs
 				return;
 			}
 
-			buttonBreak.BindCommand(ViewModel.LongBreakCommand);
+			/*buttonBreak.BindCommand(ViewModel.LongBreakCommand);
 			buttonBreak.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.PacsEnabled, w => w.Visible)
 				.InitializeFromSource();
@@ -32,7 +32,7 @@ namespace Vodovoz.Views.Pacs
 			buttonRefresh.BindCommand(ViewModel.ShortBreakCommand);
 			buttonRefresh.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.PacsEnabled, w => w.Visible)
-				.InitializeFromSource();
+				.InitializeFromSource();*/
 
 			buttonPacs.BindCommand(ViewModel.OpenPacsDialogCommand);
 			buttonPacs.Binding.AddSource(ViewModel)
@@ -109,8 +109,8 @@ namespace Vodovoz.Views.Pacs
 					throw new InvalidOperationException("Неизвестное состояние кнопки перерыва");
 			}
 
-			this.buttonBreak.Image.Destroy();
-			this.buttonBreak.Image = image;
+			/*this.buttonBreak.Image.Destroy();
+			this.buttonBreak.Image = image;*/
 		}
 
 		private void UpdateShortBreakButtonImage()
@@ -132,8 +132,8 @@ namespace Vodovoz.Views.Pacs
 					throw new InvalidOperationException("Неизвестное состояние кнопки перерыва");
 			}
 
-			this.buttonRefresh.Image.Destroy();
-			this.buttonRefresh.Image = image;
+			/*this.buttonRefresh.Image.Destroy();
+			this.buttonRefresh.Image = image;*/
 		}
 
 		private void UpdateRefreshButtonImage()
@@ -141,8 +141,8 @@ namespace Vodovoz.Views.Pacs
 			var image = new Image();
 			image.Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-refresh", GetSmallButtonsSize());
 			
-			this.buttonRefresh.Image.Destroy();
-			this.buttonRefresh.Image = image;
+			/*this.buttonRefresh.Image.Destroy();
+			this.buttonRefresh.Image = image;*/
 		}
 
 		private IconSize GetSmallButtonsSize()

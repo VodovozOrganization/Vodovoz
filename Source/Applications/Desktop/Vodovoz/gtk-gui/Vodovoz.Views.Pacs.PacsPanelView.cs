@@ -16,9 +16,9 @@ namespace Vodovoz.Views.Pacs
 
 		private global::Gtk.VBox vboxFastButtons;
 
-		private global::Gamma.GtkWidgets.yButton buttonBreak;
+		private global::Gamma.GtkWidgets.yButton buttonLongBreak;
 
-		private global::Gamma.GtkWidgets.yButton buttonRefresh;
+		private global::Gamma.GtkWidgets.yButton buttonShortBreak;
 
 		protected virtual void Build()
 		{
@@ -88,29 +88,29 @@ namespace Vodovoz.Views.Pacs
 			this.vboxFastButtons.Name = "vboxFastButtons";
 			this.vboxFastButtons.Homogeneous = true;
 			// Container child vboxFastButtons.Gtk.Box+BoxChild
-			this.buttonBreak = new global::Gamma.GtkWidgets.yButton();
-			this.buttonBreak.CanFocus = true;
-			this.buttonBreak.Name = "buttonBreak";
-			this.buttonBreak.UseUnderline = true;
-			this.buttonBreak.Relief = ((global::Gtk.ReliefStyle)(2));
+			this.buttonLongBreak = new global::Gamma.GtkWidgets.yButton();
+			this.buttonLongBreak.CanFocus = true;
+			this.buttonLongBreak.Name = "buttonLongBreak";
+			this.buttonLongBreak.UseUnderline = true;
+			this.buttonLongBreak.Relief = ((global::Gtk.ReliefStyle)(2));
 			global::Gtk.Image w7 = new global::Gtk.Image();
 			w7.Pixbuf = global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.pacs.coffee-break-allowed.png");
-			this.buttonBreak.Image = w7;
-			this.vboxFastButtons.Add(this.buttonBreak);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vboxFastButtons[this.buttonBreak]));
+			this.buttonLongBreak.Image = w7;
+			this.vboxFastButtons.Add(this.buttonLongBreak);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vboxFastButtons[this.buttonLongBreak]));
 			w8.Position = 0;
 			w8.Expand = false;
 			// Container child vboxFastButtons.Gtk.Box+BoxChild
-			this.buttonRefresh = new global::Gamma.GtkWidgets.yButton();
-			this.buttonRefresh.CanFocus = true;
-			this.buttonRefresh.Name = "buttonRefresh";
-			this.buttonRefresh.UseUnderline = true;
-			this.buttonRefresh.Relief = ((global::Gtk.ReliefStyle)(2));
+			this.buttonShortBreak = new global::Gamma.GtkWidgets.yButton();
+			this.buttonShortBreak.CanFocus = true;
+			this.buttonShortBreak.Name = "buttonShortBreak";
+			this.buttonShortBreak.UseUnderline = true;
+			this.buttonShortBreak.Relief = ((global::Gtk.ReliefStyle)(2));
 			global::Gtk.Image w9 = new global::Gtk.Image();
-			w9.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-refresh", global::Gtk.IconSize.Dnd);
-			this.buttonRefresh.Image = w9;
-			this.vboxFastButtons.Add(this.buttonRefresh);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vboxFastButtons[this.buttonRefresh]));
+			w9.Pixbuf = new global::Gdk.Pixbuf(global::System.IO.Path.Combine(global::System.AppDomain.CurrentDomain.BaseDirectory, "./icons/pacs/short-break-default.png"));
+			this.buttonShortBreak.Image = w9;
+			this.vboxFastButtons.Add(this.buttonShortBreak);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vboxFastButtons[this.buttonShortBreak]));
 			w10.Position = 1;
 			w10.Expand = false;
 			this.tablePacsPanel.Add(this.vboxFastButtons);
