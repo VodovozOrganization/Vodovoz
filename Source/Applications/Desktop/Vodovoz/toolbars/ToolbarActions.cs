@@ -891,29 +891,13 @@ public partial class MainWindow : Window
 
 	void ActionFastDeliveryAvailabilityJournal_Activated(object sender, EventArgs e)
 	{
-		IEmployeeJournalFactory employeeJournalFactory = new EmployeeJournalFactory(NavigationManager);
-		IDistrictJournalFactory districtJournalFactory = new DistrictJournalFactory();
-		ICounterpartyJournalFactory counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
-		IFileDialogService fileDialogService = new FileDialogService();
-		IFastDeliveryAvailabilityHistoryParameterProvider fastDeliveryAvailabilityHistoryParameterProvider =
-			new FastDeliveryAvailabilityHistoryParameterProvider(new ParametersProvider());
-		INomenclatureParametersProvider nomenclatureParametersProvider = new NomenclatureParametersProvider(new ParametersProvider());
-
-		var filter = new FastDeliveryAvailabilityFilterViewModel(counterpartyJournalFactory, employeeJournalFactory, districtJournalFactory)
-		{
-			VerificationDateFrom = DateTime.Now.Date,
-			VerificationDateTo = DateTime.Now.Date.Add(new TimeSpan(23, 59, 59))
-		};
-
-		tdiMain.OpenTab(() => new FastDeliveryAvailabilityHistoryJournalViewModel(
-			filter,
-			UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices,
-			VodovozGtkServicesConfig.EmployeeService,
-			fileDialogService,
-			fastDeliveryAvailabilityHistoryParameterProvider,
-			nomenclatureParametersProvider)
-		);
+		NavigationManager.OpenViewModel<FastDeliveryAvailabilityHistoryJournalViewModel, Action<FastDeliveryAvailabilityFilterViewModel>>(
+			null,
+			filter =>
+			{
+				filter.VerificationDateFrom = DateTime.Now.Date;
+				filter.VerificationDateTo = DateTime.Now.Date.Add(new TimeSpan(23, 59, 59));
+			});
 	}
 
 	void OnActionSalesOrdersJournalActivated(object sender, EventArgs e)

@@ -81,7 +81,6 @@ namespace Vodovoz.Filters.GtkViews
 			yenumcomboboxType.Destroy();
 			yenumcomboboxStatus.Destroy();
 			yenumcomboboxCurrentSubdivisionStatus.Destroy();
-			entityentryComplaintKind.Destroy();
 			yspeccomboboxComplaintObject.Destroy();
 			yenumcomboboxDateType.Destroy();
 			guiltyItemView.Destroy();

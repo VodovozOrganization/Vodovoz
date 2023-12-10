@@ -2,11 +2,7 @@
 using System.Linq;
 using Gamma.GtkWidgets;
 using Gtk;
-using QS.Project.Journal.EntitySelector;
 using QS.Views.GtkUI;
-using Vodovoz.Domain.Client;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using QS.Utilities;
@@ -38,7 +34,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			btnDeleteOrderItem.Binding.AddFuncBinding(ViewModel, vm => vm.SelectedItem != null, w => w.Sensitive).InitializeFromSource();
 			yCheckBtnHideSignature.Binding.AddBinding(ViewModel.Entity, e => e.HideSignature, w => w.Active).InitializeFromSource();
 
-			entityViewModelEntryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory());
+			entityViewModelEntryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyAutocompleteSelectorFactory);
 
 			entityViewModelEntryCounterparty.Changed += ViewModel.OnEntityViewModelEntryChanged;
 

@@ -86,7 +86,6 @@ using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.Journals.Nodes.Rent;
-using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.Models.Orders;
@@ -282,25 +281,7 @@ namespace Vodovoz
 		private ICounterpartyJournalFactory counterpartySelectorFactory;
 
 		public virtual ICounterpartyJournalFactory CounterpartySelectorFactory =>
-			counterpartySelectorFactory ?? (counterpartySelectorFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()));
-
-		private IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
-
-		public virtual IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory
-		{
-			get
-			{
-				if(nomenclatureSelectorFactory == null)
-				{
-					nomenclatureSelectorFactory =
-						new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-							ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), CounterpartySelectorFactory,
-							NomenclatureRepository, _userRepository, _lifetimeScope);
-				}
-
-				return nomenclatureSelectorFactory;
-			}
-		}
+			counterpartySelectorFactory ?? (counterpartySelectorFactory = new CounterpartyJournalFactory());
 
 		#region Работа с боковыми панелями
 
@@ -2868,15 +2849,10 @@ namespace Vodovoz
 			);
 
 			NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
+				_lifetimeScope,
 				nomenclatureFilter,
 				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices,
-				_employeeService,
-				new NomenclatureJournalFactory(_lifetimeScope),
-				CounterpartySelectorFactory,
-				NomenclatureRepository,
-				_userRepository,
-				_nomenclatureSettings
+				ServicesConfig.CommonServices
 			) {
 				SelectionMode = JournalSelectionMode.Single,
 			};
@@ -2910,15 +2886,10 @@ namespace Vodovoz
 			);
 
 			NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
+				_lifetimeScope,
 				nomenclatureFilter,
 				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices,
-				_employeeService,
-				new NomenclatureJournalFactory(_lifetimeScope),
-				CounterpartySelectorFactory,
-				NomenclatureRepository,
-				_userRepository,
-				_nomenclatureSettings
+				ServicesConfig.CommonServices
 			) {
 				SelectionMode = JournalSelectionMode.Single,
 			};
@@ -3030,8 +3001,8 @@ namespace Vodovoz
 				x => x.SelectCategory = NomenclatureCategory.equipment
 			);
 
-			var nomenclatureJournalFactory = new NomenclatureJournalFactory(_lifetimeScope);
-			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel();
+			var nomenclatureJournalFactory = new NomenclatureJournalFactory();
+			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel(_lifetimeScope);
 			journal.FilterViewModel = filter;
 			journal.OnEntitySelectedResult += OnAddNomenclatureToClient;
 			journal.Title = "Оборудование к клиенту";
@@ -3065,8 +3036,8 @@ namespace Vodovoz
 				x => x.SelectCategory = NomenclatureCategory.equipment
 			);
 
-			var nomenclatureJournalFactory = new NomenclatureJournalFactory(_lifetimeScope);
-			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel();
+			var nomenclatureJournalFactory = new NomenclatureJournalFactory();
+			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel(_lifetimeScope);
 			journal.FilterViewModel = filter;
 			journal.OnEntitySelectedResult += OnAddNomenclatureFromClient;
 			journal.Title = "Оборудование от клиента";

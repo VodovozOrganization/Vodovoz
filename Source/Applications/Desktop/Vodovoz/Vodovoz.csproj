@@ -612,7 +612,6 @@
     <Compile Include="SidePanel\InfoViews\CarsMonitoringInfoPanelView.DataNode.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="TempAdapters\AttachmentsViewModelFactory.cs" />
-    <Compile Include="TempAdapters\ComplaintsJournalFactory.cs" />
     <Compile Include="TempAdapters\ReportExporterAdapter.cs" />
     <Compile Include="TempAdapters\RouteListJournalFactory.cs" />
     <Compile Include="TempAdapters\ComplaintKindJournalFactory.cs" />
@@ -1230,10 +1229,7 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Employees.FineTemplateView.cs" />
     <Compile Include="Views\Employees\FineView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Employees.FineView.cs" />
-    <Compile Include="Infrastructure\Services\EntityRepresentationAdapterFactory.cs" />
     <Compile Include="Infrastructure\Services\EntityRepresentationSelectorAdapter.cs" />
-    <Compile Include="Infrastructure\Services\EntityRepresentationSelectorFactory.cs" />
-    <Compile Include="Infrastructure\Services\IEntityRepresentationSelectorFactory.cs" />
     <Compile Include="Filters\GtkViews\FineFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.FineFilterView.cs" />
     <Compile Include="Views\Complaints\CreateComplaintView.cs" />
@@ -1347,9 +1343,6 @@
     <Compile Include="ViewWidgets\PromoSetAction\AddFixPriceActionView.cs" />
     <Compile Include="ViewModels\Orders\AddFixPriceActionViewModel.cs" />
     <Compile Include="ViewModels\Orders\ICreationControl.cs" />
-    <Compile Include="ViewModels\Orders\PromotionalSetActionWidgetResolver.cs" />
-    <Compile Include="JournalSelector\NomenclatureAutoCompleteSelectorFactory.cs" />
-    <Compile Include="JournalSelector\NomenclatureSelectorFactory.cs" />
     <Compile Include="Filters\GtkViews\CarFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CarFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.SetBillsReportView.cs" />

@@ -1,6 +1,8 @@
 ﻿using QS.Project.Filter;
 using QS.Project.Services;
 using System;
+using Autofac;
+using QS.Project.Journal.EntitySelector;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -21,6 +23,17 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
 		private bool _canSetCounterparty = true;
 		private PayoutDocumentsSortOrder _documentsSortOrder = PayoutDocumentsSortOrder.ByCreationDate;
 
+		public PayoutRequestJournalFilterViewModel(
+			ILifetimeScope lifetimeScope,
+			IEmployeeJournalFactory employeeJournalFactory,
+			ICounterpartyJournalFactory counterpartyJournalFactory)
+		{
+			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			CounterpartyAutocompleteSelectorFactory =
+				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
+				.CreateCounterpartyAutocompleteSelectorFactory(lifetimeScope);
+		}
+		
 		public virtual Employee Author
 		{
 			get => _author;
@@ -116,16 +129,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
 			set => UpdateFilterField(ref _documentsSortOrder, value);
 		}
 
-		public PayoutRequestJournalFilterViewModel(
-			IEmployeeJournalFactory employeeJournalFactory,
-			ICounterpartyJournalFactory counterpartyJournalFactory)
-		{
-			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			CounterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
-		}
-
 		public IEmployeeJournalFactory EmployeeJournalFactory { get; }
-		public ICounterpartyJournalFactory CounterpartyJournalFactory { get; }
+		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelectorFactory { get; }
 
 		public PayoutRequestUserRole GetUserRole()
 		{

@@ -34,8 +34,8 @@ namespace Vodovoz.FilterViewModels
 	{
 		private readonly ICommonServices _commonServices;
 		private readonly INavigationManager _navigationManager;
-		private readonly ILifetimeScope _lifetimeScope;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
+		private ILifetimeScope _lifetimeScope;
 		private IList<ComplaintObject> _complaintObjectSource;
 		private ComplaintObject _complaintObject;
 		private readonly IList<ComplaintKind> _complaintKinds;
@@ -99,7 +99,7 @@ namespace Vodovoz.FilterViewModels
 				}
 			};
 
-			GuiltyItemVM.OnGuiltyItemReady += (sender, e) => Update();
+			GuiltyItemVM.OnGuiltyItemReady += OnGuiltyItemReady;
 
 			_complaintKinds = _complaintKindSource = UoW.GetAll<ComplaintKind>().ToList();
 
@@ -128,7 +128,7 @@ namespace Vodovoz.FilterViewModels
 
 		public ILifetimeScope LifetimeScope => _lifetimeScope;
 		public INavigationManager NavigationManager => _navigationManager;
-		public ITdiTab JournalTab { get; }
+		public ITdiTab JournalTab { get; private set; }
 
 		private IEntityEntryViewModel BuildAuthorViewModel(DialogViewModelBase journal)
 		{
@@ -382,7 +382,22 @@ namespace Vodovoz.FilterViewModels
 			ComplaintKindSelectorFactory =
 				_lifetimeScope.Resolve<IComplaintKindJournalFactory>(
 						new TypedParameter(typeof(ComplaintKindJournalFilterViewModel), _complaintKindJournalFilter))
-					.CreateComplaintKindAutocompleteSelectorFactory();
+					.CreateComplaintKindAutocompleteSelectorFactory(_lifetimeScope, _complaintKindJournalFilter);
+		}
+		
+		private void OnGuiltyItemReady(object sender, EventArgs e)
+		{
+			Update();
+		}
+
+		public override void Dispose()
+		{
+			_lifetimeScope = null;
+			JournalTab = null;
+			_journalViewModel = null;
+			GuiltyItemVM.OnGuiltyItemReady -= OnGuiltyItemReady;
+			GuiltyItemVM.Entity.OnGuiltyTypeChange = null;
+			base.Dispose();
 		}
 	}
 }

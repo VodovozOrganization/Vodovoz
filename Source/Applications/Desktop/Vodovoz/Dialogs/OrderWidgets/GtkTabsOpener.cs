@@ -8,6 +8,7 @@ using System.Linq;
 using Autofac;
 using QS.Navigation;
 using QS.Report.ViewModels;
+using QS.ViewModels.Dialog;
 using Vodovoz.Dialogs.DocumentDialogs;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Client;
@@ -41,6 +42,11 @@ namespace Vodovoz.Dialogs.OrderWidgets
 			);
 		}
 		
+		public void OpenOrderDlgFromViewModelByNavigator(DialogViewModelBase from, int orderId)
+		{
+			Startup.MainWin.NavigationManager.OpenTdiTab<OrderDlg, int>(from, orderId);
+		}
+		
 		public void OpenCopyLesserOrderDlg(ITdiTab tab, int copiedOrderId)
 		{
 			var dlg = new OrderDlg();
@@ -71,6 +77,11 @@ namespace Vodovoz.Dialogs.OrderWidgets
 				TDIMain.MainNotebook.CurrentPage = TDIMain.MainNotebook.PageNum(existsTab as OrderDlg);
 				return existsTab;
 			}
+		}
+		
+		public void OpenRouteListCreateDlgFromViewModelByNavigator(DialogViewModelBase from, int routeListId)
+		{
+			Startup.MainWin.NavigationManager.OpenTdiTab<RouteListCreateDlg, int>(from, routeListId);
 		}
 
 		public ITdiTab OpenRouteListCreateDlg(ITdiTab tab) =>
@@ -107,6 +118,11 @@ namespace Vodovoz.Dialogs.OrderWidgets
 		public ITdiTab OpenRouteListKeepingDlg(ITdiTab tab, int routeListId) =>
 			OpenRouteListKeepingDlg(tab.TabParent, routeListId);
 
+		public void OpenRouteListClosingDlgFromViewModelByNavigator(DialogViewModelBase from, int routeListId)
+		{
+			Startup.MainWin.NavigationManager.OpenTdiTab<RouteListClosingDlg, int>(from, routeListId);
+		}
+		
 		public ITdiTab OpenRouteListClosingDlg(ITdiTab master, int routelistId) =>
 			OpenRouteListClosingDlg(master.TabParent, routelistId);
 

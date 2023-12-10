@@ -5,7 +5,6 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
-using QS.Project.Services;
 using QS.Tdi;
 using QSOrmProject;
 using QSProjectsLib;
@@ -18,18 +17,13 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
-using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure;
 using Vodovoz.Journals.JournalNodes;
-using Vodovoz.JournalSelector;
 using Vodovoz.Parameters;
-using Vodovoz.Settings.Nomenclature;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Employees;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz
@@ -188,7 +182,8 @@ namespace Vodovoz
 			
 			vm.SelectionMode = JournalSelectionMode.Single;
 			vm.TabName = "Выберите номенклатуру на замену";
-			vm.OnEntitySelectedResult += (s, ea) => {
+			vm.OnEntitySelectedResult += (s, ea) =>
+			{
 				var selectedNode = ea.SelectedNodes.Cast<NomenclatureStockJournalNode>().FirstOrDefault();
 				if(selectedNode == null) {
 					return;
@@ -200,38 +195,7 @@ namespace Vodovoz
 					AmountInStock = selectedNode.StockAmount
 				};
 
-				var nomenclatureFilter = new NomenclatureFilterViewModel();
-
-				var userRepository = new UserRepository();
-
-				var employeeService = VodovozGtkServicesConfig.EmployeeService;
-
-				var counterpartySelectorFactory = new CounterpartyJournalFactory(_lifetimeScope);
-				var nomenclatureSettings = _lifetimeScope.Resolve<INomenclatureSettings>();
-
-				var nomenclatureAutoCompleteSelectorFactory =
-					new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-						ServicesConfig.CommonServices,
-						nomenclatureFilter,
-						counterpartySelectorFactory,
-						_nomenclatureRepository,
-						userRepository,
-						_lifetimeScope
-						);
-
-				var nomenclaturesJournalViewModel =
-				new NomenclaturesJournalViewModel(
-					nomenclatureFilter,
-					UnitOfWorkFactory.GetDefaultFactory,
-					ServicesConfig.CommonServices,
-					employeeService,
-					new NomenclatureJournalFactory(_lifetimeScope),
-					counterpartySelectorFactory,
-					_nomenclatureRepository,
-					userRepository,
-					nomenclatureSettings
-					);
-
+				var nomenclaturesJournalViewModel = _lifetimeScope.Resolve<NomenclaturesJournalViewModel>();
 				nomenclaturesJournalViewModel.SelectionMode = JournalSelectionMode.Single;
 				nomenclaturesJournalViewModel.OnEntitySelectedResult += SelectNewNomenclature_ObjectSelected;
 
@@ -296,37 +260,7 @@ namespace Vodovoz
 
 		protected void OnButtonChangeNewClicked(object sender, EventArgs e)
 		{
-			var filter = new NomenclatureFilterViewModel();
-
-			var userRepository = new UserRepository();
-			var nomenclatureSettings = _lifetimeScope.Resolve<INomenclatureSettings>();
-
-			var employeeService = VodovozGtkServicesConfig.EmployeeService;
-			var counterpartyJournalFactory = new CounterpartyJournalFactory(_lifetimeScope);
-
-			var nomenclatureAutoCompleteSelectorFactory = 
-				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-					ServicesConfig.CommonServices,
-					filter,
-					counterpartyJournalFactory,
-					_nomenclatureRepository,
-					userRepository,
-					_lifetimeScope
-					);
-
-			var nomenclaturesJournalViewModel = 
-				new NomenclaturesJournalViewModel(
-					filter,
-					UnitOfWorkFactory.GetDefaultFactory,
-					ServicesConfig.CommonServices,
-					employeeService,
-					new NomenclatureJournalFactory(_lifetimeScope),
-					counterpartyJournalFactory,
-					_nomenclatureRepository,
-					userRepository,
-					nomenclatureSettings
-					);
-
+			var nomenclaturesJournalViewModel = _lifetimeScope.Resolve<NomenclaturesJournalViewModel>();
 			nomenclaturesJournalViewModel.SelectionMode = JournalSelectionMode.Single;
 			nomenclaturesJournalViewModel.OnEntitySelectedResult += ChangeNewNomenclature_OnEntitySelectedResult;
 

@@ -11,6 +11,7 @@ using QS.Tdi;
 using QS.ViewModels;
 using System;
 using System.Data.Bindings.Collections.Generic;
+using Autofac;
 using Microsoft.Extensions.Logging;
 using QS.Dialog;
 using Vodovoz.Domain.Client;
@@ -25,6 +26,7 @@ using Vodovoz.Services;
 using Vodovoz.ViewModels.Dialogs.Email;
 using VodOrder = Vodovoz.Domain.Orders.Order;
 using QS.DomainModel.Entity;
+using QS.Project.Journal.EntitySelector;
 using Vodovoz.Settings.Database;
 using Vodovoz.TempAdapters;
 
@@ -34,7 +36,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 	{
 		private readonly CommonMessages _commonMessages;
 		private readonly IRDLPreviewOpener _rdlPreviewOpener;
-		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
+		
 		private DateTime? startDate = DateTime.Now.AddMonths(-1);
 		public DateTime? StartDate {
 			get => startDate;
@@ -56,23 +58,27 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		public Action<string> OpenCounterpartyJournal;
 		
 		public OrderWithoutShipmentForPaymentViewModel(
+			ILifetimeScope lifetimeScope,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
-			IParametersProvider parametersProvider,
 			CommonMessages commonMessages,
 			IRDLPreviewOpener rdlPreviewOpener,
 			ICounterpartyJournalFactory counterpartyJournalFactory) : base(uowBuilder, uowFactory, commonServices)
 		{
-			if(parametersProvider == null)
+			if(lifetimeScope == null)
 			{
-				throw new ArgumentNullException(nameof(parametersProvider));
+				throw new ArgumentNullException(nameof(lifetimeScope));
 			}
 
 			_commonMessages = commonMessages ?? throw new ArgumentNullException(nameof(commonMessages));
 			_rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
-			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
+			
+			CounterpartyAutocompleteSelectorFactory =
+				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
+				.CreateCounterpartyAutocompleteSelectorFactory(lifetimeScope);
+			
 			bool canCreateBillsWithoutShipment = CommonServices.PermissionService.ValidateUserPresetPermission("can_create_bills_without_shipment", CurrentUser.Id);
 			var currentEmployee = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
 			
@@ -140,7 +146,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			() => true
 		));
 
-		public ICounterpartyJournalFactory CounterpartyJournalFactory => _counterpartyJournalFactory;
+		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelectorFactory { get; }
 
 		#endregion
 

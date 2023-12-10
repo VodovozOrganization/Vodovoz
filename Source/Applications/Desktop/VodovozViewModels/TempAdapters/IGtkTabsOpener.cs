@@ -2,6 +2,7 @@
 using QS.DomainModel.UoW;
 using QS.Tdi;
 using System;
+using QS.ViewModels.Dialog;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
@@ -13,14 +14,17 @@ namespace Vodovoz.TempAdapters
 		ITdiTab CreateOrderDlg(bool? isForRetail, bool? isForSalesDepartment);
 		ITdiTab CreateOrderDlg(int? orderId);
 		void OpenOrderDlg(ITdiTab tab, int id);
+		void OpenOrderDlgFromViewModelByNavigator(DialogViewModelBase from, int orderId);
 		void OpenCopyLesserOrderDlg(ITdiTab tab, int copiedOrderId);
 		ITdiTab OpenCopyOrderDlg(ITdiTab tab, int copiedOrderId);
 		ITdiTab OpenRouteListCreateDlg(ITdiTab tab, int id);
+		void OpenRouteListCreateDlgFromViewModelByNavigator(DialogViewModelBase from, int routeListId);
 		ITdiTab OpenRouteListCreateDlg(ITdiTabParent tab, int id);
 		ITdiTab OpenRouteListKeepingDlg(ITdiTabParent tab, int routeListId);
 		ITdiTab OpenRouteListKeepingDlg(ITdiTab tab, int routeListId);
 		ITdiTab OpenRouteListKeepingDlg(ITdiTabParent tab, int routeListId, int[] selectedOrdersIds);
 		ITdiTab OpenRouteListKeepingDlg(ITdiTab tab, int routeListId, int[] selectedOrdersIds);
+		void OpenRouteListClosingDlgFromViewModelByNavigator(DialogViewModelBase from, int routeListId);
 		ITdiTab OpenRouteListClosingDlg(ITdiTab master, int routelistId);
 		ITdiTab OpenRouteListClosingDlg(ITdiTabParent master, int routelistId);
 		ITdiTab OpenUndeliveredOrderDlg(ITdiTab tab, int id = 0, bool isForSalesDepartment = false);

@@ -6,6 +6,7 @@ using QS.Project.Services;
 using QS.Report.ViewModels;
 using QSOrmProject;
 using System;
+using QSReport;
 using Vodovoz;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Client;
@@ -1092,12 +1093,18 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionNetworkDelayReportActivated(object sender, EventArgs e)
 	{
-		ILifetimeScope lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
-		var employeeJournalFactory = new EmployeeJournalFactory(NavigationManager);
-
+		var lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+		var report = new ChainStoreDelayReport(
+			lifetimeScope,
+			lifetimeScope.Resolve<IEmployeeJournalFactory>(),
+			lifetimeScope.Resolve<ICounterpartyJournalFactory>(),
+			lifetimeScope.Resolve<Vodovoz.Settings.Counterparty.ICounterpartySettings>());
+		
+		report.Destroyed += (o, args) => lifetimeScope.Dispose();
+		
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<ChainStoreDelayReport>(),
-			() => new QSReport.ReportViewDlg(new ChainStoreDelayReport(employeeJournalFactory, lifetimeScope.Resolve<ICounterpartyJournalFactory>(), lifetimeScope.Resolve<Vodovoz.Settings.Counterparty.ICounterpartySettings>())));
+			() => new QSReport.ReportViewDlg(report));
 	}
 
 	/// <summary>
@@ -1125,9 +1132,20 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionCounterpartyCashlessDebtsReportActivated(object sender, EventArgs e)
 	{
+		var scope = Startup.AppDIContainer.BeginLifetimeScope();
+		
+		var report = new CounterpartyCashlessDebtsReport(
+			scope,
+			new DeliveryScheduleParametersProvider(new ParametersProvider()),
+			ServicesConfig.InteractiveService,
+			new CounterpartyJournalFactory(),
+			UnitOfWorkFactory.GetDefaultFactory);
+
+		report.Destroyed += (o, args) =>  scope.Dispose();
+		
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<CounterpartyCashlessDebtsReport>(),
-			() => new QSReport.ReportViewDlg(_autofacScope.Resolve<CounterpartyCashlessDebtsReport>()));
+			() => new QSReport.ReportViewDlg(report));
 	}
 
 	/// <summary>
@@ -1334,7 +1352,7 @@ public partial class MainWindow
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<ProducedProductionReport>(),
 			() => new QSReport.ReportViewDlg(
-				new ProducedProductionReport(new NomenclatureJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()))));
+				new ProducedProductionReport(new NomenclatureJournalFactory())));
 	}
 
 	#endregion Производство
@@ -1351,7 +1369,7 @@ public partial class MainWindow
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<QualityReport>(),
 			() => new QSReport.ReportViewDlg(new QualityReport(
-				new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
+				new CounterpartyJournalFactory(),
 				new EmployeeJournalFactory(NavigationManager),
 				new SalesChannelJournalFactory(),
 				UnitOfWorkFactory.GetDefaultFactory,

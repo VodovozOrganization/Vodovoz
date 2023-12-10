@@ -1,8 +1,4 @@
-﻿using QS.Project.Journal.EntitySelector;
-using QS.Views.GtkUI;
-using Vodovoz.Domain.Client;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.JournalViewModels;
+﻿using QS.Views.GtkUI;
 using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 using Vodovoz.Dialogs.Email;
 using Vodovoz.Infrastructure.Converters;
@@ -31,8 +27,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			ylabelOrderAuthor.Binding.AddFuncBinding(ViewModel, vm => vm.Entity.Author.ShortName, w => w.Text).InitializeFromSource();
 			yCheckBtnHideSignature.Binding.AddBinding(ViewModel.Entity, e => e.HideSignature, w => w.Active).InitializeFromSource();
 
-			entityViewModelEntryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory());
-
+			entityViewModelEntryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyAutocompleteSelectorFactory);
 			entityViewModelEntryCounterparty.Changed += ViewModel.OnEntityViewModelEntryChanged;
 
 			entityViewModelEntryCounterparty.Binding.AddBinding(ViewModel.Entity, e => e.Client, w => w.Subject).InitializeFromSource();
