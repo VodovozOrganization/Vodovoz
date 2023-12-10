@@ -64,6 +64,8 @@ namespace Pacs.Server
 		{
 			try
 			{
+				await CheckConnection();
+
 				if(!_phoneController.ValidatePhone(phoneNumber))
 				{
 					return new OperatorResult(GetResultContent(), $"Неизвестный номер телефона {phoneNumber}");
@@ -93,6 +95,8 @@ namespace Pacs.Server
 		{
 			try
 			{
+				await CheckConnection();
+
 				if(!_operatorAgent.CanChangedBy(OperatorTrigger.EndWorkShift))
 				{
 					return new OperatorResult(GetResultContent(), $"В данный момент нельзя завершить смену");
@@ -112,6 +116,8 @@ namespace Pacs.Server
 		{
 			try
 			{
+				await CheckConnection();
+
 				string description = "";
 				bool canStartGlobal = true;
 				bool canStart = true;
@@ -166,6 +172,8 @@ namespace Pacs.Server
 		{
 			try
 			{
+				await CheckConnection();
+
 				if(!_operatorAgent.CanChangedBy(OperatorTrigger.EndBreak))
 				{
 					return new OperatorResult(GetResultContent(), $"В данный момент нельзя завершить перерыв");
@@ -185,6 +193,8 @@ namespace Pacs.Server
 		{
 			try
 			{
+				await CheckConnection();
+
 				if(!_phoneController.ValidatePhone(phoneNumber))
 				{
 					return new OperatorResult(GetResultContent(), $"Неизвестный номер телефона {phoneNumber}");
@@ -214,6 +224,8 @@ namespace Pacs.Server
 		{
 			try
 			{
+				await CheckConnection();
+
 				if(!_operatorAgent.CanChangedBy(OperatorTrigger.TakeCall))
 				{
 					return;
@@ -230,6 +242,8 @@ namespace Pacs.Server
 		{
 			try
 			{
+				await CheckConnection();
+
 				if(!_operatorAgent.CanChangedBy(OperatorTrigger.EndCall))
 				{
 					return;
@@ -253,6 +267,14 @@ namespace Pacs.Server
 			{
 				_logger.LogError(ex, "Произошло исключение при попытке отключения оператора");
 				return new OperatorResult(GetResultContent(), ex.Message);
+			}
+		}
+
+		private async Task CheckConnection()
+		{
+			if(_operatorAgent.OperatorState.State == OperatorStateType.Disconnected)
+			{
+				await _operatorAgent.Connect();
 			}
 		}
 

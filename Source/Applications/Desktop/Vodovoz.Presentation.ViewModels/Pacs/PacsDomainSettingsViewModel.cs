@@ -175,7 +175,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			set
 			{
 				StartTrackChanges();
-				SetField(ref _operatorsOnLongBreak, value);
+				SetField(ref _operatorsOnShortBreak, value);
 			}
 		}
 

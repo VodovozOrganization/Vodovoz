@@ -47,9 +47,8 @@ namespace Vodovoz.Views.Pacs
 
 			treeviewOperatorsOnBreak.Sensitive = false;
 
-			//buttonBreak.BindCommand(ViewModel.StartLongBreakCommand);
-			//stop! ТУТ НАДО ИСПРАВЛЯТЬ UI 
-			//buttonBreak.BindCommand(ViewModel.StartShortBreakCommand);
+			buttonLongBreak.BindCommand(ViewModel.StartLongBreakCommand);
+			buttonShortBreak.BindCommand(ViewModel.StartShortBreakCommand);
 			buttonEndBreak.BindCommand(ViewModel.EndBreakCommand);
 			buttonChangePhone.BindCommand(ViewModel.ChangePhoneCommand);
 			buttonStartWorkshift.BindCommand(ViewModel.StartWorkShiftCommand);

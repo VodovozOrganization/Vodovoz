@@ -24,15 +24,15 @@ namespace Vodovoz.Views.Pacs
 				return;
 			}
 
-			/*buttonBreak.BindCommand(ViewModel.LongBreakCommand);
-			buttonBreak.Binding.AddSource(ViewModel)
+			buttonLongBreak.BindCommand(ViewModel.LongBreakCommand);
+			buttonLongBreak.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.PacsEnabled, w => w.Visible)
 				.InitializeFromSource();
 
-			buttonRefresh.BindCommand(ViewModel.ShortBreakCommand);
-			buttonRefresh.Binding.AddSource(ViewModel)
+			buttonShortBreak.BindCommand(ViewModel.ShortBreakCommand);
+			buttonShortBreak.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.PacsEnabled, w => w.Visible)
-				.InitializeFromSource();*/
+				.InitializeFromSource();
 
 			buttonPacs.BindCommand(ViewModel.OpenPacsDialogCommand);
 			buttonPacs.Binding.AddSource(ViewModel)
@@ -67,7 +67,6 @@ namespace Vodovoz.Views.Pacs
 				_iconSize = value;
 				UpdateLongBreakButtonImage();
 				UpdateShortBreakButtonImage();
-				UpdateRefreshButtonImage();
 				UpdatePacsButtonImage();
 				UpdateMangoButtonImage();
 			}
@@ -77,7 +76,7 @@ namespace Vodovoz.Views.Pacs
 		{
 			switch(e.PropertyName)
 			{
-				case nameof(PacsPanelViewModel.BreakState):
+				case nameof(PacsPanelViewModel.LongBreakState):
 					UpdateLongBreakButtonImage();
 					UpdateShortBreakButtonImage();
 					break;
@@ -94,7 +93,7 @@ namespace Vodovoz.Views.Pacs
 		{
 			var image = new Image();
 
-			switch(ViewModel.BreakState)
+			switch(ViewModel.LongBreakState)
 			{
 				case BreakState.BreakDenied:
 					image.Pixbuf = Stetic.IconLoader.LoadIcon(this, "coffee-break-denied", GetSmallButtonsSize());
@@ -109,40 +108,31 @@ namespace Vodovoz.Views.Pacs
 					throw new InvalidOperationException("Неизвестное состояние кнопки перерыва");
 			}
 
-			/*this.buttonBreak.Image.Destroy();
-			this.buttonBreak.Image = image;*/
+			this.buttonLongBreak.Image.Destroy();
+			this.buttonLongBreak.Image = image;
 		}
 
 		private void UpdateShortBreakButtonImage()
 		{
 			var image = new Image();
 
-			switch(ViewModel.BreakState)
+			switch(ViewModel.ShortBreakState)
 			{
 				case BreakState.BreakDenied:
-					image.Pixbuf = Stetic.IconLoader.LoadIcon(this, "coffee-break-denied", GetSmallButtonsSize());
+					image.Pixbuf = Stetic.IconLoader.LoadIcon(this, "short-break-denied", GetSmallButtonsSize());
 					break;
 				case BreakState.CanStartBreak:
-					image.Pixbuf = Stetic.IconLoader.LoadIcon(this, "coffee-break-allowed", GetSmallButtonsSize());
+					image.Pixbuf = Stetic.IconLoader.LoadIcon(this, "short-break-allowed", GetSmallButtonsSize());
 					break;
 				case BreakState.CanEndBreak:
-					image.Pixbuf = Stetic.IconLoader.LoadIcon(this, "coffee-break-default", GetSmallButtonsSize());
+					image.Pixbuf = Stetic.IconLoader.LoadIcon(this, "short-break-default", GetSmallButtonsSize());
 					break;
 				default:
 					throw new InvalidOperationException("Неизвестное состояние кнопки перерыва");
 			}
 
-			/*this.buttonRefresh.Image.Destroy();
-			this.buttonRefresh.Image = image;*/
-		}
-
-		private void UpdateRefreshButtonImage()
-		{
-			var image = new Image();
-			image.Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-refresh", GetSmallButtonsSize());
-			
-			/*this.buttonRefresh.Image.Destroy();
-			this.buttonRefresh.Image = image;*/
+			this.buttonShortBreak.Image.Destroy();
+			this.buttonShortBreak.Image = image;
 		}
 
 		private IconSize GetSmallButtonsSize()

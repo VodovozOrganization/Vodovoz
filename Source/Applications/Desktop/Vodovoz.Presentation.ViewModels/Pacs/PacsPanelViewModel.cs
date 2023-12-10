@@ -211,7 +211,8 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 				{
 					_operatorStateAgent.OperatorState = value;
 					OnPropertyChanged(nameof(OperatorState));
-					OnPropertyChanged(nameof(BreakState));
+					OnPropertyChanged(nameof(LongBreakState));
+					OnPropertyChanged(nameof(ShortBreakState));
 					OnPropertyChanged(nameof(PacsState));
 					OnPropertyChanged(nameof(CanOpenPacsDialog));
 					OnPropertyChanged(nameof(CanLongBreak));
@@ -230,6 +231,8 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 				_breakAvailability = value;
 				OnPropertyChanged(nameof(CanLongBreak));
 				OnPropertyChanged(nameof(CanShortBreak));
+				OnPropertyChanged(nameof(LongBreakState));
+				OnPropertyChanged(nameof(ShortBreakState));
 			}
 		}
 		public GlobalBreakAvailability GlobalBreakAvailability
@@ -240,6 +243,8 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 				_globalBreakAvailability = value;
 				OnPropertyChanged(nameof(CanLongBreak));
 				OnPropertyChanged(nameof(CanShortBreak));
+				OnPropertyChanged(nameof(LongBreakState));
+				OnPropertyChanged(nameof(ShortBreakState));
 			}
 		}
 
@@ -300,10 +305,29 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 		#region Break
 
-		public virtual BreakState BreakState
+		public virtual BreakState LongBreakState
 		{
 			get {
-				if(_operatorStateAgent.CanStartBreak)
+				if(_operatorStateAgent.CanStartBreak && CanLongBreak)
+				{
+					return BreakState.CanStartBreak;
+				}
+				else if(_operatorStateAgent.CanEndBreak)
+				{
+					return BreakState.CanEndBreak;
+				}
+				else
+				{
+					return BreakState.BreakDenied;
+				}
+			}
+		}
+
+		public virtual BreakState ShortBreakState
+		{
+			get
+			{
+				if(_operatorStateAgent.CanStartBreak && CanShortBreak)
 				{
 					return BreakState.CanStartBreak;
 				}
@@ -329,7 +353,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 				var breakUnavailable = !BreakAvailability.LongBreakAvailable
 					|| !GlobalBreakAvailability.LongBreakAvailable;
-				if(breakUnavailable && BreakState == BreakState.CanStartBreak)
+				if(breakUnavailable && LongBreakState == BreakState.CanStartBreak)
 				{
 					return false;
 				}
@@ -348,7 +372,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 				}
 				var breakUnavailable = !BreakAvailability.ShortBreakAvailable
 					|| !GlobalBreakAvailability.ShortBreakAvailable;
-				if(breakUnavailable && BreakState == BreakState.CanStartBreak)
+				if(breakUnavailable && LongBreakState == BreakState.CanStartBreak)
 				{
 					return false;
 				}
@@ -361,7 +385,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		private async Task StartLongBreak()
 		{
 			string question;
-			switch(BreakState)
+			switch(LongBreakState)
 			{
 				case BreakState.CanStartBreak:
 					question = "Хотите взять большой перерыв?";
@@ -389,7 +413,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			{
 				OperatorStateEvent state;
 				var cts = new CancellationTokenSource(_commandTimeout);
-				if(BreakState == BreakState.CanStartBreak)
+				if(LongBreakState == BreakState.CanStartBreak)
 				{
 					state = await _operatorClient.StartBreak(OperatorBreakType.Long, cts.Token);
 				}
@@ -418,7 +442,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		private async Task StartShortBreak()
 		{
 			string question;
-			switch(BreakState)
+			switch(LongBreakState)
 			{
 				case BreakState.CanStartBreak:
 					question = "Хотите взять малый перерыв?";
@@ -446,7 +470,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			{
 				OperatorStateEvent state;
 				var cts = new CancellationTokenSource(_commandTimeout);
-				if(BreakState == BreakState.CanStartBreak)
+				if(LongBreakState == BreakState.CanStartBreak)
 				{
 					state = await _operatorClient.StartBreak(OperatorBreakType.Long, cts.Token);
 				}
