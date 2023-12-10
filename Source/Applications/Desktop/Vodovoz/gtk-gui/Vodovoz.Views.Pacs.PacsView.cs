@@ -31,19 +31,20 @@ namespace Vodovoz.Views.Pacs
 			// Container child vboxWidget.Gtk.Box+BoxChild
 			this.hboxNoteButtons = new global::Gamma.GtkWidgets.yHBox();
 			this.hboxNoteButtons.Name = "hboxNoteButtons";
-			this.hboxNoteButtons.Homogeneous = true;
 			this.hboxNoteButtons.Spacing = 6;
 			// Container child hboxNoteButtons.Gtk.Box+BoxChild
 			this.buttonOperator = new global::Gamma.GtkWidgets.yRadioButton();
 			this.buttonOperator.CanFocus = true;
 			this.buttonOperator.Name = "buttonOperator";
 			this.buttonOperator.Label = global::Mono.Unix.Catalog.GetString("Оператор");
+			this.buttonOperator.Active = true;
 			this.buttonOperator.DrawIndicator = false;
 			this.buttonOperator.UseUnderline = true;
 			this.buttonOperator.Group = new global::GLib.SList(global::System.IntPtr.Zero);
 			this.hboxNoteButtons.Add(this.buttonOperator);
 			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hboxNoteButtons[this.buttonOperator]));
 			w1.Position = 0;
+			w1.Expand = false;
 			// Container child hboxNoteButtons.Gtk.Box+BoxChild
 			this.buttonDashboard = new global::Gamma.GtkWidgets.yRadioButton();
 			this.buttonDashboard.CanFocus = true;
@@ -55,6 +56,7 @@ namespace Vodovoz.Views.Pacs
 			this.hboxNoteButtons.Add(this.buttonDashboard);
 			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hboxNoteButtons[this.buttonDashboard]));
 			w2.Position = 1;
+			w2.Expand = false;
 			// Container child hboxNoteButtons.Gtk.Box+BoxChild
 			this.buttonSettings = new global::Gamma.GtkWidgets.yRadioButton();
 			this.buttonSettings.CanFocus = true;
@@ -66,6 +68,7 @@ namespace Vodovoz.Views.Pacs
 			this.hboxNoteButtons.Add(this.buttonSettings);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hboxNoteButtons[this.buttonSettings]));
 			w3.Position = 2;
+			w3.Expand = false;
 			// Container child hboxNoteButtons.Gtk.Box+BoxChild
 			this.buttonReports = new global::Gamma.GtkWidgets.yRadioButton();
 			this.buttonReports.CanFocus = true;
@@ -77,6 +80,7 @@ namespace Vodovoz.Views.Pacs
 			this.hboxNoteButtons.Add(this.buttonReports);
 			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hboxNoteButtons[this.buttonReports]));
 			w4.Position = 3;
+			w4.Expand = false;
 			this.vboxWidget.Add(this.hboxNoteButtons);
 			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.hboxNoteButtons]));
 			w5.Position = 0;
