@@ -8,15 +8,25 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Models;
+using Vodovoz.Domain.Client;
 
 namespace VodovozBusinessTests.SmsPaymentService
 {
 	[TestFixture]
 	public class SmsPaymentItemDTOCalculateTests
 	{
-		static IEnumerable OrdersTestSource()
+		public static IEnumerable OrdersTestSource()
 		{
-			var order1 = new Order();
+			var uowMock = Substitute.For<IUnitOfWork>();
+
+			var counterparty = new Counterparty();
+			counterparty.DefaultDocumentType = DefaultDocumentType.upd;
+
+			var order1 = new Order()
+			{
+				UoW = uowMock,
+				Client = counterparty
+			};
 
 			// (3*150-50)/3 = 133,3333333333333
 			order1.AddNomenclature(new Nomenclature(), 3, 50, true, new DiscountReason());
@@ -28,7 +38,11 @@ namespace VodovozBusinessTests.SmsPaymentService
 
 			yield return order1;
 
-			var order2 = new Order();
+			var order2 = new Order()
+			{
+				UoW = uowMock,
+				Client = counterparty
+			};
 
 			// (12*420-340)/12 = 391,6666666666667
 			order2.AddNomenclature(new Nomenclature(), 12, 340, true, new DiscountReason());
@@ -36,7 +50,11 @@ namespace VodovozBusinessTests.SmsPaymentService
 
 			yield return order2;
 
-			var order3 = new Order();
+			var order3 = new Order()
+			{
+				UoW = uowMock,
+				Client = counterparty
+			};
 
 			// (7*200-400)/7 = 142,8571428571429
 			order3.AddNomenclature(new Nomenclature(), 7, 400, true, new DiscountReason());
