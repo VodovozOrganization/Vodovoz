@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
@@ -244,6 +244,8 @@ namespace Vodovoz
 		private INomenclatureRepository nomenclatureRepository;
 
 		private Result _lastSaveResult;
+
+        private readonly IGeneralSettingsParametersProvider _generalSettingsParametersProvider = new GeneralSettingsParametersProvider(new ParametersProvider());
 
 		public virtual INomenclatureRepository NomenclatureRepository
 		{
@@ -1067,6 +1069,8 @@ namespace Vodovoz
 			logisticsRequirementsView.ViewModel = new LogisticsRequirementsViewModel(Entity.LogisticsRequirements ?? GetLogisticsRequirements(), ServicesConfig.CommonServices);
 			UpdateEntityLogisticsRequirements();
 			logisticsRequirementsView.ViewModel.Entity.PropertyChanged += OnLogisticsRequirementsSelectionChanged;
+
+			datepickerWaitUntil.Binding.AddBinding(Entity, e => e.WaitUntilTime, w => w.DateOrNull).InitializeFromSource();
 
 			OnEnumPaymentTypeChanged(null, EventArgs.Empty);
 			UpdateCallBeforeArrivalVisibility();
@@ -4125,7 +4129,7 @@ namespace Vodovoz
 		void SetPadInfoSensitive(bool value)
 		{
 			foreach(var widget in table1.Children)
-				widget.Sensitive = widget.Name == vboxOrderComment.Name || value;
+				widget.Sensitive = widget.Name == vboxOrderComment.Name || GetIsWaitUntilActive(widget.Name) || value;
 
 			if(chkContractCloser.Active)
 			{
@@ -4147,6 +4151,11 @@ namespace Vodovoz
 				}
 			}
 		}
+
+		private bool GetIsWaitUntilActive(string widgetName) =>
+            widgetName == datepickerWaitUntil.Name
+            && Entity.OrderStatus == OrderStatus.OnTheWay
+            && _generalSettingsParametersProvider.GetIsOrderWaitUntilActive;
 
 		void SetSensitivityOfPaymentType()
 		{

@@ -12,5 +12,7 @@
 		/// </summary>
 		public static string CanFormOrderWithLiquidatedCounterparty =>
 			"can_form_order_with_liquidated_counterparty";
+
+		public static string CanEditOrderWaitUntil => "can_edit_order_wait_until";
 	}
 }
