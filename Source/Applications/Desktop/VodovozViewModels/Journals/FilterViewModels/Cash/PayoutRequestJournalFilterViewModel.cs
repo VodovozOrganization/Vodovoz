@@ -1,7 +1,10 @@
-﻿using QS.Project.Filter;
+﻿using QS.DomainModel.UoW;
+using QS.Project.Filter;
 using QS.Project.Services;
 using QS.ViewModels.Control.EEVM;
 using System;
+using System.Linq;
+using System.Linq.Dynamic.Core;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -123,13 +126,13 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
 			set => UpdateFilterField(ref _documentsSortOrder, value);
 		}
 
-		public Subdivision AccountableSubdivision
+		public virtual Subdivision AccountableSubdivision
 		{
 			get => _accountableSubdivision;
-			set => SetField(ref _accountableSubdivision, value);
+			set => UpdateFilterField(ref _accountableSubdivision, value);
 		}
 
-		public PayoutRequestsJournalViewModel JournalViewModel
+		public virtual PayoutRequestsJournalViewModel JournalViewModel
 		{
 			get => _journalViewModel;
 			set
@@ -142,14 +145,21 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
 					.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel, SubdivisionFilterViewModel>(
 						filter =>
 						{
-							//if(canSetOnlyLogisticsSubdivision)
-							//{
-							//	filter.SubdivisionType = SubdivisionType.Logistic;
-							//}
+							filter.ExcludedSubdivisionsIds = ExcludedSubdivisionsForAccountableSubdivisionSelection;
 						})
 					.UseViewModelDialog<SubdivisionViewModel>()
 					.Finish();
+
+				//AccountableSubdivisionViewModel.IsEditable = ExcludedSubdivisionsForAccountableSubdivisionSelection.Length > 0;
 			}
+		}
+
+		private int[] _excludedSubdivisionsForAccountableSubdivisionSelection;
+
+		public int[] ExcludedSubdivisionsForAccountableSubdivisionSelection
+		{
+			get => _excludedSubdivisionsForAccountableSubdivisionSelection ?? Array.Empty<int>();
+			set => SetField(ref _excludedSubdivisionsForAccountableSubdivisionSelection, value);
 		}
 
 		public PayoutRequestJournalFilterViewModel(
