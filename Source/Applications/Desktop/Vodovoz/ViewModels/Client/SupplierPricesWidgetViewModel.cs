@@ -92,7 +92,6 @@ namespace Vodovoz.ViewModels.Client
 							f =>
 							{
 								f.HidenByDefault = true;
-								f.RestrictedExcludedIds
 							},
 							OpenPageOptions.AsSlave,
 							vm =>
