@@ -1,4 +1,5 @@
-﻿using NHibernate;
+﻿using FluentNHibernate.Conventions;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Deletion;
@@ -246,6 +247,11 @@ namespace Vodovoz.ViewModels.Logistic
 			if(FilterViewModel.RestrictedCarTypesOfUse != null)
 			{
 				query.WhereRestrictionOn(() => carModelAlias.CarTypeOfUse).IsIn(FilterViewModel.RestrictedCarTypesOfUse.ToArray());
+			}
+
+			if(FilterViewModel.ExcludeIds != null &&  FilterViewModel.ExcludeIds.Any())
+			{
+				query.Where(() => !routeListAlias.Id.IsIn(FilterViewModel.ExcludeIds));
 			}
 
 			var driverProjection = CustomProjections.Concat_WS(

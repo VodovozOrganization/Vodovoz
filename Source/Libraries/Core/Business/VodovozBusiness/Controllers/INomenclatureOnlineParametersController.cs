@@ -9,5 +9,6 @@ namespace Vodovoz.Controllers
 	{
 		NomenclatureOnlineParametersData GetNomenclaturesOnlineParametersForSend(
 			IUnitOfWork uow, NomenclatureOnlineParameterType parameterType);
+		IList<OnlineNomenclatureNode> GetNomenclaturesForSend(IUnitOfWork uow, NomenclatureOnlineParameterType parameterType);
 	}
 }
