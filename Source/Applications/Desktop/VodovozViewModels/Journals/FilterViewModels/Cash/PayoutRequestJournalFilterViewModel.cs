@@ -1,10 +1,7 @@
-﻿using QS.DomainModel.UoW;
-using QS.Project.Filter;
+﻿using QS.Project.Filter;
 using QS.Project.Services;
 using QS.ViewModels.Control.EEVM;
 using System;
-using System.Linq;
-using System.Linq.Dynamic.Core;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -30,6 +27,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
 		private PayoutDocumentsSortOrder _documentsSortOrder = PayoutDocumentsSortOrder.ByCreationDate;
 		private Subdivision _accountableSubdivision;
 		private PayoutRequestsJournalViewModel _journalViewModel;
+		private int[] _includedAccountableSubdivision;
 
 		public virtual Employee Author
 		{
@@ -139,27 +137,27 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
 			{
 				_journalViewModel = value;
 
-				AccountableSubdivisionViewModel =
-					new CommonEEVMBuilderFactory<PayoutRequestJournalFilterViewModel>(_journalViewModel, this, UoW, _journalViewModel.NavigationManager, _journalViewModel.Scope)
+				var accountableSubdivisionViewModelBuilder =
+					new CommonEEVMBuilderFactory<PayoutRequestJournalFilterViewModel>(_journalViewModel, this, UoW, _journalViewModel.NavigationManager, _journalViewModel.Scope);
+
+				AccountableSubdivisionViewModel = accountableSubdivisionViewModelBuilder
 					.ForProperty(x => x.AccountableSubdivision)
+					.UseViewModelDialog<SubdivisionViewModel>()
 					.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel, SubdivisionFilterViewModel>(
 						filter =>
 						{
-							filter.ExcludedSubdivisionsIds = ExcludedSubdivisionsForAccountableSubdivisionSelection;
+							filter.IncludedSubdivisionsIds = IncludedAccountableSubdivision;
 						})
-					.UseViewModelDialog<SubdivisionViewModel>()
 					.Finish();
 
-				//AccountableSubdivisionViewModel.IsEditable = ExcludedSubdivisionsForAccountableSubdivisionSelection.Length > 0;
+				AccountableSubdivisionViewModel.IsEditable = IncludedAccountableSubdivision.Length > 0;
 			}
 		}
 
-		private int[] _excludedSubdivisionsForAccountableSubdivisionSelection;
-
-		public int[] ExcludedSubdivisionsForAccountableSubdivisionSelection
+		public int[] IncludedAccountableSubdivision
 		{
-			get => _excludedSubdivisionsForAccountableSubdivisionSelection ?? Array.Empty<int>();
-			set => SetField(ref _excludedSubdivisionsForAccountableSubdivisionSelection, value);
+			get => _includedAccountableSubdivision ?? Array.Empty<int>();
+			set => SetField(ref _includedAccountableSubdivision, value);
 		}
 
 		public PayoutRequestJournalFilterViewModel(

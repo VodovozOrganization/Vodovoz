@@ -122,7 +122,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			_subdivisionsControlledByCurrentEmployee = GetSubdivisionsControlledByCurrentEmployee(UoW);
 
 			JournalFilter = filterViewModel;
-			FilterViewModel.ExcludedSubdivisionsForAccountableSubdivisionSelection = GetSubdivisionsNotControlledByCurrentEmployee(UoW).ToArray();
+			FilterViewModel.IncludedAccountableSubdivision = _subdivisionsControlledByCurrentEmployee.ToArray();
 			FilterViewModel.JournalViewModel = this;
 			FilterViewModel.PropertyChanged += UpdateDataLoader;
 		}
@@ -201,8 +201,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 
 		private IEnumerable<int> GetSubdivisionsControlledByCurrentEmployee(IUnitOfWork uow)
 		{
-			var controlledSubdivision = uow.GetAll<Subdivision>()
-				.Where(s => s.Chief.Id == _currentEmployee.Id)
+			var query = uow.GetAll<Subdivision>();
+
+			if(!_isAdmin)
+			{
+				query.Where(s => s.Chief.Id == _currentEmployee.Id);
+			}
+
+			var controlledSubdivision = query
 				.Select(s => s.Id)
 				.ToArray();
 
