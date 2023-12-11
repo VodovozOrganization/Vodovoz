@@ -130,7 +130,6 @@ namespace Vodovoz
 		private void ConfigureDlg()
 		{
 			createroutelistitemsview1.NavigationManager = Startup.MainWin.NavigationManager;
-			createroutelistitemsview1.LifetimeScope = _lifetimeScope;
 			createroutelistitemsview1.Container = this;
 
 			ynotebook1.ShowTabs = false;
@@ -342,6 +341,7 @@ namespace Vodovoz
 
 			_logger.LogDebug("Пересчитываем рентабельность МЛ");
 			_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
+			createroutelistitemsview1.UpdateProfitabilityInfo();
 			_logger.LogDebug("Закончили пересчет рентабельности МЛ");
 			
 			_routeListProfitabilities = new GenericObservableList<RouteListProfitability> { Entity.RouteListProfitability };
@@ -593,11 +593,13 @@ namespace Vodovoz
 			}
 
 			var contextItems = new Dictionary<object, object>
-				{
-					{nameof(IRouteListItemRepository), new RouteListItemRepository()}
-				};
+			{
+				{nameof(IRouteListItemRepository), new RouteListItemRepository()}
+			};
+
 			var context = new ValidationContext(Entity, null, contextItems);
 			var validator = new ObjectValidator(new GtkValidationViewFactory());
+
 			if(!validator.Validate(Entity, context))
 			{
 				return false;
@@ -624,10 +626,17 @@ namespace Vodovoz
 				_oldDriver = Entity.Driver;
 			}
 
+			UoW.Session.Flush();
+
+			_logger.LogDebug("Пересчитываем рентабельность МЛ");
+			_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
+			_logger.LogDebug("Закончили пересчет рентабельности МЛ");
+			UoW.Save(Entity.RouteListProfitability);
+
 			_logger.LogInformation("Сохраняем маршрутный лист {RouteListId}...", Entity.Id);
 			UoWGeneric.Save();
 			_logger.LogInformation("Ok");
-			
+			createroutelistitemsview1.UpdateProfitabilityInfo();
 			return true;
 		}
 

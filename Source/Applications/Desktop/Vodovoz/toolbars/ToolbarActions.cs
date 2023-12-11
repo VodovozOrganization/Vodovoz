@@ -529,7 +529,7 @@ public partial class MainWindow : Window
 
 	void ActionRouteListAddressesTransferring_Activated(object sender, System.EventArgs e)
 	{
-		NavigationManager.OpenTdiTab<RouteListAddressesTransferringDlg>(null);
+		NavigationManager.OpenViewModel<RouteListTransferringViewModel>(null);
 	}
 
 	void ActionEmployeeWorkChart_Activated(object sender, System.EventArgs e)

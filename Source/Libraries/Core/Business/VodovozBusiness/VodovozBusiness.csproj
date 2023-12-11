@@ -59,6 +59,7 @@
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
     <Compile Include="ConfigureDeletion.cs" />
+    <Compile Include="Controllers\IAddressTransferController.cs" />
     <Compile Include="DependencyInjection.cs" />
     <Compile Include="Domain\Cash\CashTransfer\CashTransferDocumentStatuses.cs" />
     <Compile Include="Controllers\INomenclatureOnlineParametersController.cs" />
@@ -651,6 +652,7 @@
     <Compile Include="Errors\Error.cs" />
     <Compile Include="Errors\Logistics\District.cs" />
     <Compile Include="Errors\Logistics\District.FastDelivery.cs" />
+    <Compile Include="Errors\Logistics\RouteList.RouteListItem.cs" />
     <Compile Include="Errors\Logistics\RouteList.cs" />
     <Compile Include="Errors\Logistics\TariffZone.cs" />
     <Compile Include="Errors\Logistics\TariffZone.FastDelivery.cs" />

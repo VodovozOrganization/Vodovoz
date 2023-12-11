@@ -28,6 +28,32 @@ namespace Vodovoz.Dialogs.OrderWidgets
 		public string GenerateDialogHashName<T>(int id)
 			where T : IDomainObject => DialogHelper.GenerateDialogHashName<T>(id);
 
+		public ITdiTab FindPageByHash<T>(int id)
+			where T : IDomainObject
+		{
+			var tab = Startup.MainWin.TdiMain.FindTab(GenerateDialogHashName<T>(id));
+			return tab;
+		}
+
+		public void SwitchOnTab(ITdiTab tab)
+		{
+			Startup.MainWin.TdiMain.SwitchOnTab(tab);
+		}
+
+		public bool FindAndSwitchOnTab<T>(int id)
+			where T : IDomainObject
+		{
+			var tab = FindPageByHash<T>(id);
+
+			if(tab == null)
+			{
+				return false;
+			}
+
+			SwitchOnTab(tab);
+			return true;
+		}
+
 		public ITdiTab CreateOrderDlg(bool? isForRetail, bool? isForSalesDepartment) =>
 			new OrderDlg { IsForRetail = isForRetail, IsForSalesDepartment = isForSalesDepartment};
 		

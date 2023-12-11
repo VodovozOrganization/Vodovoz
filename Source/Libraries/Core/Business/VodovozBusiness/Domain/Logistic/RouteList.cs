@@ -1489,6 +1489,7 @@ namespace Vodovoz.Domain.Logistic
 			IWageParameterService wageParameterService, RouteListItem targetAddress, RouteListItem revertedAddress)
 		{
 			targetAddress.RevertTransferAddress(UoW, wageParameterService, revertedAddress);
+
 			UpdateStatus();
 		}
 
