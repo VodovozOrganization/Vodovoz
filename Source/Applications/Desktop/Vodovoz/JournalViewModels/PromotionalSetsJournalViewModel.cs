@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using NHibernate;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
@@ -28,6 +28,7 @@ namespace Vodovoz.JournalViewModels
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			
 			TabName = "Промонаборы";
+			UseSlider = false;
 
 			var threadLoader = DataLoader as ThreadDataLoader<PromotionalSetJournalNode>;
 			threadLoader.MergeInOrderBy(x => x.IsArchive, false);
@@ -48,12 +49,12 @@ namespace Vodovoz.JournalViewModels
 			);
 
 			var result = query.SelectList(list => list
-									.Select(x => x.Id).WithAlias(() => resultAlias.Id)
-									.Select(x => x.IsArchive).WithAlias(() => resultAlias.IsArchive)
-									.Select(x => x.Name).WithAlias(() => resultAlias.Name)
-									)
-									.TransformUsing(Transformers.AliasToBean<PromotionalSetJournalNode>())
-									.OrderBy(x => x.Name).Asc;
+				.Select(x => x.Id).WithAlias(() => resultAlias.Id)
+				.Select(x => x.IsArchive).WithAlias(() => resultAlias.IsArchive)
+				.Select(x => x.Name).WithAlias(() => resultAlias.Name)
+				)
+				.TransformUsing(Transformers.AliasToBean<PromotionalSetJournalNode>())
+				.OrderBy(x => x.Name).Asc;
 			return result;
 		};
 

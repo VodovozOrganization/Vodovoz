@@ -1,12 +1,13 @@
-﻿using Autofac;
+using Autofac;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
-using QS.Project.Journal;
 using QS.Services;
 using QS.ViewModels;
 using System;
 using System.Linq;
+using QS.Navigation;
+using QS.Project.Journal;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
@@ -94,17 +95,20 @@ namespace Vodovoz.ViewModels.Orders
 		private void CreateAddNomenclatureCommand()
 		{
 			AddNomenclatureCommand = new DelegateCommand(
-			() => {
-				var nomenFilter = new NomenclatureFilterViewModel();
-				nomenFilter.SetAndRefilterAtOnce(
-				x => x.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder(),
-					x => x.SelectCategory = NomenclatureCategory.water,
-					x => x.SelectSaleCategory = SaleCategory.forSale);
-
-				var nomenJournalViewModel = new NomenclaturesJournalViewModel(_lifetimeScope, nomenFilter, UnitOfWorkFactory, CommonServices)
-				{
-					SelectionMode = JournalSelectionMode.Single
-				};
+			() =>
+			{
+				var nomenJournalViewModel =
+					NavigationManager.OpenViewModel<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(
+						this,
+						f =>
+						{
+							f.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder();
+							f.SelectCategory = NomenclatureCategory.water;
+							f.SelectSaleCategory = SaleCategory.forSale;
+						},
+						OpenPageOptions.AsSlave,
+						vm => vm.SelectionMode = JournalSelectionMode.Single)
+					.ViewModel;
 
 				nomenJournalViewModel.OnEntitySelectedResult += (sender, e) => {
 					var selectedNode = e.SelectedNodes.Cast<NomenclatureJournalNode>().FirstOrDefault();
@@ -121,7 +125,6 @@ namespace Vodovoz.ViewModels.Orders
 						PromoSet = Entity
 					});
 				};
-				TabParent.AddSlaveTab(this, nomenJournalViewModel);
 			},
 		  () => true
 		  );

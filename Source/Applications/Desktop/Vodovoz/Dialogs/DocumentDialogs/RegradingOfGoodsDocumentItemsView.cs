@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using QS.DomainModel.UoW;
@@ -17,12 +17,10 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
-using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure;
 using Vodovoz.Journals.JournalNodes;
-using Vodovoz.Parameters;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
@@ -32,8 +30,6 @@ namespace Vodovoz
 	public partial class RegradingOfGoodsDocumentItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		private readonly IStockRepository _stockRepository = new StockRepository();
-		private readonly INomenclatureRepository _nomenclatureRepository =
-			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		private ILifetimeScope _lifetimeScope;
 		private RegradingOfGoodsDocumentItem newRow;
 		private RegradingOfGoodsDocumentItem FineEditItem;

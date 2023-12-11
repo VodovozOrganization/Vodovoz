@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using MoreLinq;
 using QS.Commands;
 using QS.Dialog;
@@ -208,6 +208,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				routeListFrom.TransferAddressTo(_unitOfWork, address, newItem);
 			}
 
+			_unitOfWork.Session.Flush();
+
 			routeListFrom.CalculateWages(_wageParameterService);
 			_routeListProfitabilityController.ReCalculateRouteListProfitability(_unitOfWork, routeListFrom);
 			routeListTo.CalculateWages(_wageParameterService);
@@ -218,7 +220,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			if(routeListTo.ClosingFilled)
 			{
-				newItem.FirstFillClosing((WageParameterService)_wageParameterService);
+				newItem.FirstFillClosing(_wageParameterService);
 			}
 
 			_unitOfWork.Save(address);

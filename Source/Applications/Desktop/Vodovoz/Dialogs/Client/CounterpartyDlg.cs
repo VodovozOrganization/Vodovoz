@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using EdoService;
 using EdoService.Converters;
 using EdoService.Dto;
@@ -76,6 +76,7 @@ using Vodovoz.Services;
 using Vodovoz.Settings.Edo;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
+using Vodovoz.Specifications.Orders.EdoContainers;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.ViewModel;
@@ -1290,7 +1291,13 @@ namespace Vodovoz
 				.AddColumn(" Дата \n создания ")
 					.AddTextRenderer(x => x.Created.ToString("dd.MM.yyyy\nHH:mm"))
 				.AddColumn(" Номер \n заказа ")
-					.AddTextRenderer(x => x.Order.Id.ToString())
+					.AddTextRenderer(x => x.Order == null ? "" : x.Order.Id.ToString())
+				.AddColumn(" Номер счета б/о \n на предоплату ")
+					.AddTextRenderer(x => x.OrderWithoutShipmentForAdvancePayment == null ? "" : x.OrderWithoutShipmentForAdvancePayment.Id.ToString())
+				.AddColumn(" Номер счета б/о \n на долг ")
+					.AddTextRenderer(x => x.OrderWithoutShipmentForDebt == null ? "" : x.OrderWithoutShipmentForDebt.Id.ToString())
+				.AddColumn(" Номер счета б/о \n на постоплату ")
+					.AddTextRenderer(x => x.OrderWithoutShipmentForPayment == null ? "" : x.OrderWithoutShipmentForPayment.Id.ToString())
 				.AddColumn(" Код документооборота ")
 					.AddTextRenderer(x => x.DocFlowId.HasValue ? x.DocFlowId.ToString() : string.Empty)
 				.AddColumn(" Отправленные \n документы ")
@@ -1356,7 +1363,7 @@ namespace Vodovoz
 
 		private List<int> GetOrderIdsWithoutSuccessfullySentUpd()
 		{
-			var allOrdersIds = _edoContainers.Select(c => c.Order.Id).Distinct().ToList();
+			var allOrdersIds = _edoContainers.Where(x => EdoContainerSpecification.CreateIsForOrder().IsSatisfiedBy(x)).Select(c => c.Order.Id).Distinct().ToList();
 
 			var orderIdsHavingUpdSentSuccessfully = _edoContainers
 				.Where(c => c.Type == Type.Upd

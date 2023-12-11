@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
@@ -20,18 +21,26 @@ using Vodovoz.ViewModels.Suppliers;
 
 namespace Vodovoz.JournalViewModels.Suppliers
 {
-	public class RequestsToSuppliersJournalViewModel : FilterableSingleEntityJournalViewModelBase<RequestToSupplier, RequestToSupplierViewModel, RequestToSupplierJournalNode, RequestsToSuppliersFilterViewModel>
+	public class RequestsToSuppliersJournalViewModel :
+		FilterableSingleEntityJournalViewModelBase<
+			RequestToSupplier,
+			RequestToSupplierViewModel,
+			RequestToSupplierJournalNode,
+			RequestsToSuppliersFilterViewModel>
 	{
 		private readonly ISupplierPriceItemsRepository _supplierPriceItemsRepository;
+		private readonly ITdiCompatibilityNavigation _navigationManager;
 		private readonly IEmployeeService _employeeService;
 
 		public RequestsToSuppliersJournalViewModel(
 			RequestsToSuppliersFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
+			ITdiCompatibilityNavigation navigationManager,
 			IEmployeeService employeeService,
 			ISupplierPriceItemsRepository supplierPriceItemsRepository) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
+			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_supplierPriceItemsRepository = supplierPriceItemsRepository ?? throw new ArgumentNullException(nameof(supplierPriceItemsRepository));
 			
@@ -150,17 +159,20 @@ namespace Vodovoz.JournalViewModels.Suppliers
 			EntityUoWBuilder.ForCreate(),
 			UnitOfWorkFactory,
 			commonServices,
+			_navigationManager,
 			_employeeService,
 			_supplierPriceItemsRepository
 		);
 
-		protected override Func<RequestToSupplierJournalNode, RequestToSupplierViewModel> OpenDialogFunction => n => new RequestToSupplierViewModel(
-			EntityUoWBuilder.ForOpen(n.Id),
-			UnitOfWorkFactory,
-			commonServices,
-			_employeeService,
-			_supplierPriceItemsRepository
-		);
+		protected override Func<RequestToSupplierJournalNode, RequestToSupplierViewModel> OpenDialogFunction => n =>
+			new RequestToSupplierViewModel(
+				EntityUoWBuilder.ForOpen(n.Id),
+				UnitOfWorkFactory,
+				commonServices,
+				_navigationManager,
+				_employeeService,
+				_supplierPriceItemsRepository
+			);
 
 		protected override void CreatePopupActions()
 		{
@@ -178,6 +190,7 @@ namespace Vodovoz.JournalViewModels.Suppliers
 								EntityUoWBuilder.ForCreate(),
 								UnitOfWorkFactory,
 								commonServices,
+								_navigationManager,
 								_employeeService,
 								_supplierPriceItemsRepository
 							);

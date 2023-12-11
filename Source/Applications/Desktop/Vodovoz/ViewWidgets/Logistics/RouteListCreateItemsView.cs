@@ -20,6 +20,7 @@ using System.Linq;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Profitability;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
@@ -29,9 +30,6 @@ using Vodovoz.Infrastructure;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
-using Vodovoz.TempAdapters;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz
@@ -39,14 +37,9 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class RouteListCreateItemsView : WidgetOnTdiTabBase
 	{
-		private static Logger _logger = LogManager.GetCurrentClassLogger();
-		private readonly static IParametersProvider _parametersProvider = new ParametersProvider();
 		private readonly IRouteColumnRepository _routeColumnRepository = new RouteColumnRepository();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
-		private readonly IDeliveryScheduleParametersProvider _deliveryScheduleParametersProvider =
-			new DeliveryScheduleParametersProvider(_parametersProvider);
-
-		private int goodsColumnsCount = -1;
+		private int _goodsColumnsCount = -1;
 		private bool _isEditable = true;
 		private bool _canOpenOrder = true;
 		private bool _isLogistician;
@@ -59,7 +52,6 @@ namespace Vodovoz
 
 		public ITdiTab Container { get; set; }
 		public ITdiCompatibilityNavigation NavigationManager { get; set; }
-		public ILifetimeScope LifetimeScope { get; set; }
 
 		private IUnitOfWorkGeneric<RouteList> routeListUoW;
 
@@ -71,13 +63,13 @@ namespace Vodovoz
 				routeListUoW = value;
 				if(RouteListUoW.Root.Addresses == null)
 					RouteListUoW.Root.Addresses = new List<RouteListItem>();
-				items = RouteListUoW.Root.ObservableAddresses;
+				_items = RouteListUoW.Root.ObservableAddresses;
 
-                SubscribeOnChanges();
+				SubscribeOnChanges();
 
-                UpdateColumns();
+				UpdateColumns();
 
-				ytreeviewItems.ItemsDataSource = items;
+				ytreeviewItems.ItemsDataSource = _items;
 				ytreeviewItems.Reorderable = true;
 				UpdateInfo();
 			}
@@ -94,16 +86,26 @@ namespace Vodovoz
 			RouteListUoW.Root.PropertyChanged -= RouteListOnPropertyChanged;
 			RouteListUoW.Root.PropertyChanged += RouteListOnPropertyChanged;
 
+			if(RouteListUoW.Root.RouteListProfitability != null)
+			{
+				RouteListUoW.Root.RouteListProfitability.PropertyChanged += RouteListProfitabilityOnPropertyChanged;
+			}
+			
 			if(RouteListUoW.Root.AdditionalLoadingDocument != null)
 			{
 				SubscribeToAdditionalLoadingDocumentItemsUpdates();
 			}
 
-			items = RouteListUoW.Root.ObservableAddresses;
-            ytreeviewItems.ItemsDataSource = items;
-            ytreeviewItems.Reorderable = true;
-            ytreeviewItems?.YTreeModel?.EmitModelChanged();
-        }
+			_items = RouteListUoW.Root.ObservableAddresses;
+			ytreeviewItems.ItemsDataSource = _items;
+			ytreeviewItems.Reorderable = true;
+			ytreeviewItems?.YTreeModel?.EmitModelChanged();
+		}
+
+		private void RouteListProfitabilityOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			UpdateInfo();
+		}
 
 		private void RouteListOnPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
@@ -165,13 +167,13 @@ namespace Vodovoz
 			}
 		}
 
-		void Items_ElementAdded(object aList, int[] aIdx)
+		private void Items_ElementAdded(object aList, int[] aIdx)
 		{
 			UpdateColumns();
 			UpdateInfo();
-        }
+		}
 
-        void Items_ListChanged(object aList)
+		private void Items_ListChanged(object aList)
 		{
 			UpdateColumns();
 		}
@@ -186,14 +188,14 @@ namespace Vodovoz
 			if(disableColumnsUpdate)
 				return;
 
-			var goodsColumns = items.SelectMany(i => i.GoodsByRouteColumns.Keys).Distinct().ToArray();
+			var goodsColumns = _items.SelectMany(i => i.GoodsByRouteColumns.Keys).Distinct().ToArray();
 
 			var config = ColumnsConfigFactory.Create<RouteListItem>()
 			.AddColumn("Заказ").AddTextRenderer(node => node.Order.Id.ToString())
 			.AddColumn("Адрес").AddTextRenderer(node => node.Order.DeliveryPoint == null ? "Точка доставки не установлена" : string.Format("{0} д.{1}", node.Order.DeliveryPoint.Street, node.Order.DeliveryPoint.Building))
 			.AddColumn("Время").AddTextRenderer(node => node.Order.DeliverySchedule == null ? string.Empty : node.Order.DeliverySchedule.Name);
-			if(goodsColumnsCount != goodsColumns.Length) {
-				goodsColumnsCount = goodsColumns.Length;
+			if(_goodsColumnsCount != goodsColumns.Length) {
+				_goodsColumnsCount = goodsColumns.Length;
 
 				foreach(var column in ColumnsInfo) {
 					if(!goodsColumns.Contains(column.Id))
@@ -250,7 +252,7 @@ namespace Vodovoz
 			UpdateSensitivity();
 		}
 
-		void Items_ElementChanged(object aList, int[] aIdx)
+		private void Items_ElementChanged(object aList, int[] aIdx)
 		{
 			UpdateColumns();
 			UpdateInfo();
@@ -270,7 +272,7 @@ namespace Vodovoz
 			_isLogistician = isLogistician;
 		}
 
-		void OnSelectionChanged(object sender, EventArgs e)
+		private void OnSelectionChanged(object sender, EventArgs e)
 		{
 			_selectedRouteListItems = ytreeviewItems.GetSelectedObjects<RouteListItem>();
 			UpdateSensitivity();
@@ -282,7 +284,7 @@ namespace Vodovoz
 			buttonDelete.Sensitive = _selectedRouteListItems != null && _isEditable;
 		}
 
-		GenericObservableList<RouteListItem> items;
+		private GenericObservableList<RouteListItem> _items;
 
 		protected void OnButtonDeleteClicked(object sender, EventArgs e)
 		{
@@ -408,6 +410,7 @@ namespace Vodovoz
 					.Sum(x => x.Amount) ?? 0);
 
 			labelSum.LabelProp = $"Всего бутылей: {total:N0}";
+			UpdateProfitabilityInfo();
 			UpdateWeightInfo();
 			UpdateVolumeInfo();
 		}
@@ -420,14 +423,36 @@ namespace Vodovoz
 					? RouteListUoW.Root.Car.CarModel.MaxWeight.ToString()
 					: " ?";
 				var weight = RouteListUoW.Root.HasOverweight()
-					? $"<span foreground = \"{GdkColors.DangerText.ToHtmlColor()}\">Перегруз на {RouteListUoW.Root.Overweight():0.###} кг.</span>"
-					: $"<span foreground = \"{GdkColors.SuccessText.ToHtmlColor()}\">Вес груза: {RouteListUoW.Root.GetTotalWeight():0.###}/{maxWeight} кг.</span>";
+					? $"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">Перегруз на {RouteListUoW.Root.Overweight():0.###} кг.</span>"
+					: $"<span foreground=\"{GdkColors.SuccessText.ToHtmlColor()}\">Вес: {RouteListUoW.Root.GetTotalWeight():0.###}/{maxWeight} кг.</span>";
 				lblWeight.LabelProp = weight;
 			}
 			if(RouteListUoW?.Root?.Car == null)
 			{
 				lblWeight.LabelProp = "";
 			}
+		}
+
+		public void UpdateProfitabilityInfo()
+		{
+			if(RouteListUoW?.Root?.RouteListProfitability is null)
+			{
+				lblProfitability.LabelProp = "";
+				return;
+			}
+
+			var prefix = $"<span foreground=\"{GdkColors.SuccessText.ToHtmlColor()}\">";
+
+			var postfix = "</span>";
+
+			if(RouteListUoW.Root.RouteListProfitability.GrossMarginSum < 0)
+			{
+				prefix = $"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">";
+			}
+
+			lblProfitability.LabelProp =
+				$"{prefix}Вал. Маржа, руб: {RouteListUoW.Root.RouteListProfitability.GrossMarginSum:F2}{postfix} " + 
+				$"{prefix}​​Вал. Маржа, %: {RouteListUoW.Root.RouteListProfitability.GrossMarginPercents:F2}{postfix}";
 		}
 
 		public virtual void UpdateVolumeInfo()
@@ -438,11 +463,11 @@ namespace Vodovoz
 					? RouteListUoW.Root.Car.CarModel.MaxVolume.ToString("0.###")
 					: " ?";
 				var volume = RouteListUoW.Root.HasVolumeExecess()
-					? $"<span foreground = \"{GdkColors.DangerText.ToHtmlColor()}\">Объём груза превышен на {RouteListUoW.Root.VolumeExecess():0.###} м<sup>3</sup>.</span>"
-					: $"<span foreground = \"{GdkColors.SuccessText.ToHtmlColor()}\">Объём груза: {RouteListUoW.Root.GetTotalVolume():0.###}/{maxVolume} м<sup>3</sup>.</span>";
+					? $"<span foreground = \"{GdkColors.DangerText.ToHtmlColor()}\">Объём превышен на {RouteListUoW.Root.VolumeExecess():0.###} м<sup>3</sup>.</span>"
+					: $"<span foreground = \"{GdkColors.SuccessText.ToHtmlColor()}\">Объём: {RouteListUoW.Root.GetTotalVolume():0.###}/{maxVolume} м<sup>3</sup>.</span>";
 				var reverseVolume = RouteListUoW.Root.HasReverseVolumeExcess()
-					? $"<span foreground = \"{GdkColors.DangerText.ToHtmlColor()}\">Объём возвращаемого груза превышен на {RouteListUoW.Root.ReverseVolumeExecess():0.###} м<sup>3</sup>.</span>"
-					: $"<span foreground = \"{GdkColors.SuccessText.ToHtmlColor()}\">Объём возвращаемого груза: {RouteListUoW.Root.GetTotalReverseVolume():0.###}/{maxVolume} м<sup>3</sup>.</span>";
+					? $"<span foreground = \"{GdkColors.DangerText.ToHtmlColor()}\">Объём возврата превышен на {RouteListUoW.Root.ReverseVolumeExecess():0.###} м<sup>3</sup>.</span>"
+					: $"<span foreground = \"{GdkColors.SuccessText.ToHtmlColor()}\">Объём возврата: {RouteListUoW.Root.GetTotalReverseVolume():0.###}/{maxVolume} м<sup>3</sup>.</span>";
 				lblVolume.LabelProp = volume + " " + reverseVolume;
 			}
 			if(RouteListUoW?.Root?.Car == null)

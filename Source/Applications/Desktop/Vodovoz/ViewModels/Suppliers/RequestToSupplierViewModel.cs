@@ -1,4 +1,4 @@
-﻿using QS.Commands;
+using QS.Commands;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
@@ -25,6 +25,7 @@ namespace Vodovoz.ViewModels.Suppliers
 	public class RequestToSupplierViewModel : EntityTabViewModelBase<RequestToSupplier>, IAskSaveOnCloseViewModel
 	{
 		private readonly ISupplierPriceItemsRepository _supplierPriceItemsRepository;
+		private readonly ITdiCompatibilityNavigation _navigationManager;
 		private readonly IEmployeeService _employeeService;
 		public event EventHandler ListContentChanged;
 
@@ -32,9 +33,11 @@ namespace Vodovoz.ViewModels.Suppliers
 			IEntityUoWBuilder uoWBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
+			ITdiCompatibilityNavigation navigationManager,
 			IEmployeeService employeeService,
 			ISupplierPriceItemsRepository supplierPriceItemsRepository) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
+			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_supplierPriceItemsRepository = supplierPriceItemsRepository ?? throw new ArgumentNullException(nameof(supplierPriceItemsRepository));
 			
@@ -236,7 +239,7 @@ namespace Vodovoz.ViewModels.Suppliers
 						.Distinct();
 					
 					var journalViewModel =
-						NavigationManager.OpenViewModel<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(
+						_navigationManager.OpenViewModel<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(
 							this,
 							filter =>
 							{
@@ -303,7 +306,7 @@ namespace Vodovoz.ViewModels.Suppliers
 					}
 
 					var vm =
-						NavigationManager.OpenViewModel<RequestToSupplierViewModel, IEntityUoWBuilder>(
+						_navigationManager.OpenViewModel<RequestToSupplierViewModel, IEntityUoWBuilder>(
 								this, EntityUoWBuilder.ForCreate(), OpenPageOptions.AsSlave)
 							.ViewModel;
 					
@@ -343,13 +346,16 @@ namespace Vodovoz.ViewModels.Suppliers
 					if(item is RequestToSupplierItem requestItem)
 					{
 						var nom = requestItem.Nomenclature;
-						NavigationManager.OpenViewModel<NomenclatureViewModel, IEntityUoWBuilder>(
+						_navigationManager.OpenViewModel<NomenclatureViewModel, IEntityUoWBuilder>(
 							this, EntityUoWBuilder.ForOpen(nom.Id), OpenPageOptions.AsSlave);
 						return;
 					}
-					if(item is SupplierNode supplierItem) {
+					
+					if(item is SupplierNode supplierItem)
+					{
 						var sup = supplierItem.SupplierPriceItem.Supplier;
-						this.TabParent.AddSlaveTab(this, new CounterpartyDlg(sup));
+
+						_navigationManager.OpenTdiTab<CounterpartyDlg, Counterparty>(this, sup, OpenPageOptions.AsSlave);
 						return;
 					}
 				},

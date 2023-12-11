@@ -1,5 +1,7 @@
-﻿using Gamma.Utilities;
+using Gamma.Utilities;
+using Microsoft.Extensions.Logging;
 using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -7,18 +9,21 @@ using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
 using System;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Autofac;
-using Microsoft.Extensions.Logging;
-using QS.Dialog;
 using QS.Project.Journal.EntitySelector;
+using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Settings.Database;
-using Vodovoz.ViewModels.Dialogs.Email;
+using Vodovoz.Specifications.Orders.EdoContainers;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Dialogs.Email;
+using EdoDocumentType = Vodovoz.Domain.Orders.Documents.Type;
 
 namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 {
@@ -26,11 +31,11 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 	{
 		private readonly CommonMessages _commonMessages;
 		private readonly IRDLPreviewOpener _rdlPreviewOpener;
+		private IGenericRepository<EdoContainer> _edoContainerRepository;
 
-		public SendDocumentByEmailViewModel SendDocViewModel { get; set; }
 		public Action<string> OpenCounterpartyJournal;
-		public IEntityUoWBuilder EntityUoWBuilder { get; }
-
+		private bool _userHavePermissionToResendEdoDocuments;
+		
 		public bool IsDocumentSent => Entity.IsBillWithoutShipmentSent;
 
 		public OrderWithoutShipmentForDebtViewModel(
@@ -41,7 +46,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			IEmployeeService employeeService,
 			CommonMessages commonMessages,
 			IRDLPreviewOpener rdlPreviewOpener,
-			ICounterpartyJournalFactory counterpartyJournalFactory) : base(uowBuilder, uowFactory, commonServices)
+			ICounterpartyJournalFactory counterpartyJournalFactory,
+			IGenericRepository<EdoContainer> edoContainerRepository) : base(uowBuilder, uowFactory, commonServices)
 		{
 			if(lifetimeScope == null)
 			{
@@ -55,21 +61,25 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 			_commonMessages = commonMessages ?? throw new ArgumentNullException(nameof(commonMessages));
 			_rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
+			_edoContainerRepository = edoContainerRepository ?? throw new ArgumentNullException(nameof(edoContainerRepository));
 			CounterpartyAutocompleteSelectorFactory =
 				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory(lifetimeScope);
 			
 			bool canCreateBillsWithoutShipment = 
 				CommonServices.PermissionService.ValidateUserPresetPermission("can_create_bills_without_shipment", CurrentUser.Id);
+			_userHavePermissionToResendEdoDocuments = CommonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Permissions.EdoContainer.OrderWithoutShipmentForDebt.CanResendEdoBill, CurrentUser.Id);
+
 			var currentEmployee = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
-			
-			if (uowBuilder.IsNewEntity)
+
+			if(uowBuilder.IsNewEntity)
 			{
-				if (canCreateBillsWithoutShipment)
+				if(canCreateBillsWithoutShipment)
 				{
-					if (!AskQuestion("Вы действительно хотите создать счет без отгрузки на долг?"))
+					if(!AskQuestion("Вы действительно хотите создать счет без отгрузки на долг?"))
 					{
 						AbortOpening();
+						return;
 					}
 					else
 					{
@@ -79,9 +89,10 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				else
 				{
 					AbortOpening("У Вас нет прав на выставление счетов без отгрузки.");
+					return;
 				}
 			}
-			
+
 			TabName = "Счет без отгрузки на долг";
 			EntityUoWBuilder = uowBuilder;
 
@@ -94,41 +105,118 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 					currentEmployee,
 					commonServices.InteractiveService,
 					UoW);
+
+			UpdateEdoContainers();
+
+			CancelCommand = new DelegateCommand(
+				() => Close(true, CloseSource.Cancel),
+				() => true);
+
+			OpenBillCommand = new DelegateCommand(
+				() =>
+				{
+					string whatToPrint = "документа \"" + Entity.Type.GetEnumTitle() + "\"";
+
+					if(UoWGeneric.HasChanges && _commonMessages.SaveBeforePrint(typeof(OrderWithoutShipmentForDebt), whatToPrint))
+					{
+						if(Save(false))
+						{
+							_rdlPreviewOpener.OpenRldDocument(typeof(OrderWithoutShipmentForDebt), Entity);
+						}
+					}
+
+					if(!UoWGeneric.HasChanges && Entity.Id > 0)
+					{
+						_rdlPreviewOpener.OpenRldDocument(typeof(OrderWithoutShipmentForDebt), Entity);
+					}
+				},
+				() => true);
+
+			Entity.PropertyChanged += OnEntityPropertyChanged;
 		}
 		
 		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelectorFactory { get; }
 		
+		public bool CanSendBillByEdo => Entity.Client?.NeedSendBillByEdo ?? false && !EdoContainers.Any();
+
+		public SendDocumentByEmailViewModel SendDocViewModel { get; set; }
+		public IEntityUoWBuilder EntityUoWBuilder { get; }
+		
 		#region Commands
 
-		private DelegateCommand cancelCommand;
-		public DelegateCommand CancelCommand => cancelCommand ?? (cancelCommand = new DelegateCommand(
-			() => Close(true, CloseSource.Cancel),
-			() => true
-        ));
+		public DelegateCommand CancelCommand { get; }
 		
-		private DelegateCommand openBillCommand;
-		public DelegateCommand OpenBillCommand => openBillCommand ?? (openBillCommand = new DelegateCommand(
-			() =>
+		public DelegateCommand OpenBillCommand { get; }
+
+		private void OnEntityPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Entity.Client))
 			{
-				string whatToPrint = "документа \"" + Entity.Type.GetEnumTitle() + "\"";
-				
-				if(UoWGeneric.HasChanges && _commonMessages.SaveBeforePrint(typeof(OrderWithoutShipmentForDebt), whatToPrint))
+				OnPropertyChanged(nameof(CanSendBillByEdo));
+				OnPropertyChanged(nameof(CanResendEdoBill));
+			}
+		}
+
+		private void SendBillByEdo(IUnitOfWork uow)
+		{
+			var edoContainer = new EdoContainer
+			{
+				Type = EdoDocumentType.BillWSForDebt,
+				Created = DateTime.Now,
+				Container = new byte[64],
+				OrderWithoutShipmentForDebt = Entity,
+				Counterparty = Entity.Counterparty,
+				MainDocumentId = string.Empty,
+				EdoDocFlowStatus = EdoDocFlowStatus.PreparingToSend
+			};
+
+			uow.Save();
+			uow.Save(edoContainer);
+			uow.Commit();
+		}
+
+		public void OnButtonSendDocumentAgainClicked(object sender, EventArgs e)
+		{
+			if(EdoContainers.Any(x => x.EdoDocFlowStatus == EdoDocFlowStatus.Succeed))
+			{
+				if(!CommonServices.InteractiveService.Question("Для данного заказа имеется документ со статусом \"Документооборот завершен успешно\".\nВы уверены, что хотите отправить дубль?"))
 				{
-					if(Save(false))
-					{
-						_rdlPreviewOpener.OpenRldDocument(typeof(OrderWithoutShipmentForDebt), Entity);
-					}
+					return;
 				}
-				
-				if(!UoWGeneric.HasChanges && Entity.Id > 0)
+			}
+			else if(EdoContainers.Any(x => x.EdoDocFlowStatus == EdoDocFlowStatus.InProgress))
+			{
+				if(!CommonServices.InteractiveService.Question("Для данного заказа имеется документ со статусом \"В процессе\".\nВы уверены, что хотите отправить дубль?"))
 				{
-					_rdlPreviewOpener.OpenRldDocument(typeof(OrderWithoutShipmentForDebt), Entity);
+					return;
 				}
-			},
-			() => true
-		));
-		
+			}
+
+			SendBillByEdo(UoW);
+			UpdateEdoContainers();
+
+			OnPropertyChanged(nameof(CanSendBillByEdo));
+			OnPropertyChanged(nameof(CanResendEdoBill));
+		}
+
+		public void UpdateEdoContainers()
+		{
+			EdoContainers.Clear();
+
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			{
+				foreach(var item in _edoContainerRepository.Get(uow, EdoContainerSpecification.CreateForOrderWithoutShipmentForDebtId(Entity.Id)))
+				{
+					EdoContainers.Add(item);
+				}
+			}
+		}
+
 		#endregion
+
+		public GenericObservableList<EdoContainer> EdoContainers { get; } = new GenericObservableList<EdoContainer>();
+
+		public bool CanResendEdoBill => _userHavePermissionToResendEdoDocuments && EdoContainers.Any();
 
 		public void OnTabAdded()
 		{
@@ -142,6 +230,13 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		{
 			var email = Entity.GetEmailAddressForBill();
 			SendDocViewModel.Update(Entity, email != null ? email.Address : string.Empty);
+		}
+
+		public override bool Save(bool close)
+		{
+			OnPropertyChanged(nameof(CanSendBillByEdo));
+
+			return base.Save(close);
 		}
 	}
 }

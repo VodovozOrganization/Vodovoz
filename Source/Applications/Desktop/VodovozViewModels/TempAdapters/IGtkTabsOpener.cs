@@ -1,9 +1,11 @@
 ﻿using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Tdi;
 using System;
 using QS.ViewModels.Dialog;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 
@@ -48,5 +50,8 @@ namespace Vodovoz.TempAdapters
 		void OpenCarLoadDocumentDlg(ITdiTabParent tabParent, Action<CarLoadDocument, IUnitOfWork, int, int> fillCarLoadDocumentFunc, int routeListId, int warehouseId);
 		void ShowTrackWindow(int id);
 		void OpenOrderDlgAsSlave(ITdiTab tab, Order order);
+		void SwitchOnTab(ITdiTab tab);
+		ITdiTab FindPageByHash<T>(int id) where T : IDomainObject;
+		bool FindAndSwitchOnTab<T>(int id) where T : IDomainObject;
 	}
 }
