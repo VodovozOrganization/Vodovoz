@@ -932,10 +932,11 @@ namespace Vodovoz.Domain.Orders
 				Nomenclature = nomenclature,
 				Price = price,
 				IsDiscountInMoney = isDiscountInMoney,
-				Discount = discount,
 				DiscountReason = discountReason,
 				PromoSet = promotionalSet
 			};
+
+			newItem.CalculateAndSetDiscount(discount);
 
 			order.RecalculateItemsPrice();
 			newItem.RecalculateDiscount();

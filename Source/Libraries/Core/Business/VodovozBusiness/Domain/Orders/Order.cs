@@ -2422,7 +2422,7 @@ namespace Vodovoz.Domain.Orders
 			var count = promoSet == null ? GetTotalWater19LCount(true) : bottlesCount;
 
 			var canApplyAlternativePrice = HasPermissionsForAlternativePrice
-											&& nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= count);
+				&& nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= count);
 
 			return nomenclature.GetPrice(count, canApplyAlternativePrice);
 		}
