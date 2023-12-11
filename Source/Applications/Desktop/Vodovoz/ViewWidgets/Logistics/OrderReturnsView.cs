@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.GtkWidgets;
 using Gtk;
 using QS.Dialog;
@@ -18,6 +18,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading;
+using Microsoft.Extensions.Logging;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
@@ -40,12 +41,10 @@ using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Converters;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
-using Vodovoz.Settings.Nomenclature;
-using Vodovoz.TempAdapters;
+using Vodovoz.Settings.Database;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
@@ -134,6 +133,9 @@ namespace Vodovoz
 		private readonly IDiscountReasonRepository _discountReasonRepository = new DiscountReasonRepository();
 		private readonly WageParameterService _wageParameterService =
 			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(_parametersProvider));
+		private readonly INomenclatureOnlineParametersProvider _nomenclatureOnlineParametersProvider =
+			new NomenclatureOnlineParametersProvider(
+				new SettingsController(UnitOfWorkFactory.GetDefaultFactory, new Logger<SettingsController>(new LoggerFactory())));
 		private readonly RouteListItem _routeListItem;
 		private readonly IOrderDiscountsController _discountsController;
 

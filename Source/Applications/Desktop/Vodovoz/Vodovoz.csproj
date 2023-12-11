@@ -464,6 +464,10 @@
     <Compile Include="JournalColumnsConfigs\ColumnsConfigRegistrarBase.cs" />
     <Compile Include="JournalColumnsConfigs\RouteListMileageCheckJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\TagJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\KulerSaleWebSiteNomenclatureOnlineCatalogsJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\MobileAppNomenclatureOnlineCatalogsJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\NomenclatureOnlineCategoriesJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\NomenclatureOnlineGroupsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\UndeliveryDetalizationJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ComplaintDetalizationJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\UndeliveryKindJournalRegistrar.cs" />
@@ -558,6 +562,7 @@
     <Compile Include="JournalColumnsConfigs\UndeliveryTransferAbsenceReasonJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\UserRolesJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\UsersJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\VodovozWebSiteNomenclatureOnlineCatalogsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\WageDistrictLevelRatesJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\WageDistrictsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\WarehouseDocumentsItemsJournalRegistrar.cs" />
@@ -1980,6 +1985,12 @@
     <Compile Include="gtk-gui\Vodovoz.Rent.FreeRentPackagesFilterView.cs" />
     <Compile Include="Dialogs\Interactive\ConfirmationQuestionDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Interactive.ConfirmationQuestionDlg.cs" />
+    <Compile Include="Views\Goods\NomenclatureOnlineCatalogView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclatureOnlineCatalogView.cs" />
+    <Compile Include="Views\Goods\NomenclatureOnlineGroupView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclatureOnlineGroupView.cs" />
+    <Compile Include="Views\Goods\NomenclatureOnlineCategoryView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclatureOnlineCategoryView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using QS.Dialog.Gtk;
 using QS.Permissions;
 using QS.Project.DB;
@@ -339,6 +339,8 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<UndeliveryDetalizationViewModel, UndeliveryDetalizationView>()
 				.RegisterWidgetForTabViewModel<RegradingOfGoodsReasonViewModel, RegradingOfGoodsReasonView>()
 				.RegisterWidgetForTabViewModel<CounterpartyClassificationCalculationViewModel, CounterpartyClassificationCalculationView>()
+				.RegisterWidgetForTabViewModel<NomenclatureOnlineGroupViewModel, NomenclatureOnlineGroupView>()
+				.RegisterWidgetForTabViewModel<NomenclatureOnlineCategoryViewModel, NomenclatureOnlineCategoryView>()
 				;
 
 			//Регистрация виджетов
@@ -469,6 +471,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<SelectPaymentTypeViewModel, SelectPaymentTypeWindowView>()
 				.RegisterWidgetForWidgetViewModel<FreeRentPackagesFilterViewModel, FreeRentPackagesFilterView>()
 				.RegisterWidgetForWidgetViewModel<CounterpartyClassificationCalculationEmailSettingsViewModel, CounterpartyClassificationCalculationEmailSettingsView>()
+				.RegisterWidgetForWidgetViewModel<NomenclatureOnlineCatalogViewModel, NomenclatureOnlineCatalogView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;

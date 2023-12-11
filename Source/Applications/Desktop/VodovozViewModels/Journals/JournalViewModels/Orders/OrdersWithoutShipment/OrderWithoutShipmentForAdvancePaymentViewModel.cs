@@ -1,4 +1,4 @@
-﻿using Gamma.Utilities;
+using Gamma.Utilities;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -20,7 +20,6 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.DiscountReasons;
-using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
@@ -30,20 +29,15 @@ using Vodovoz.ViewModels.Dialogs.Email;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
-using Vodovoz.Settings.Nomenclature;
 
 namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 {
 	public class OrderWithoutShipmentForAdvancePaymentViewModel : EntityTabViewModelBase<OrderWithoutShipmentForAdvancePayment>, ITdiTabAddedNotifier
 	{
-		private readonly IEmployeeService _employeeService;
-		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 		private readonly ICounterpartyJournalFactory _counterpartySelectorFactory;
-		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
 		private readonly CommonMessages _commonMessages;
 		private readonly IRDLPreviewOpener _rdlPreviewOpener;
-		private readonly INomenclatureSettings _nomenclatureSettings;
 		private UserSettings _currentUserSettings;
 
 		private object selectedItem;
@@ -63,34 +57,24 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
+			INavigationManager navigationManager,
 			IEmployeeService employeeService,
-			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
-			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
 			IDiscountReasonRepository discountReasonRepository,
-			IParametersProvider parametersProvider,
 			IOrderDiscountsController discountsController,
 			CommonMessages commonMessages,
-			IRDLPreviewOpener rdlPreviewOpener,
-			INomenclatureSettings nomenclatureSettings) : base(uowBuilder, uowFactory, commonServices)
+			IRDLPreviewOpener rdlPreviewOpener) : base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
-			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_commonMessages = commonMessages ?? throw new ArgumentNullException(nameof(commonMessages));
 			_rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
-			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
-			if(parametersProvider == null)
-			{
-				throw new ArgumentNullException(nameof(parametersProvider));
-			}
+			
 			if(discountReasonRepository == null)
 			{
 				throw new ArgumentNullException(nameof(discountReasonRepository));
 			}
 			DiscountsController = discountsController ?? throw new ArgumentNullException(nameof(discountsController));
-			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			_counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			
 			bool canCreateBillsWithoutShipment = 
@@ -159,37 +143,36 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 					defaultCategory = CurrentUserSettings.DefaultSaleCategory.Value;
 				}
 
-				var nomenclatureFilter = new NomenclatureFilterViewModel();
-				nomenclatureFilter.SetAndRefilterAtOnce(
-					x => x.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder(),
-					x => x.SelectCategory = defaultCategory,
-					x => x.SelectSaleCategory = SaleCategory.forSale,
-					x => x.RestrictArchive = false
-				);
-
-				NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
-					nomenclatureFilter,
-					UnitOfWorkFactory,
-					ServicesConfig.CommonServices,
-					_employeeService,
-					_nomenclatureSelectorFactory,
-					CounterpartySelectorFactory,
-					_nomenclatureRepository,
-					_userRepository,
-					_nomenclatureSettings
-				) {
-					SelectionMode = JournalSelectionMode.Single,
-				};
-				journalViewModel.AdditionalJournalRestriction = new NomenclaturesForOrderJournalRestriction(ServicesConfig.CommonServices);
-				journalViewModel.TabName = "Номенклатура на продажу";
-				journalViewModel.CalculateQuantityOnStock = true;
-				journalViewModel.OnEntitySelectedResult += (s, ea) => {
+				var journalViewModel = NavigationManager.OpenViewModel<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(
+						this,
+						f =>
+						{
+							f.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder();
+							f.SelectCategory = defaultCategory;
+							f.SelectSaleCategory = SaleCategory.forSale;
+							f.RestrictArchive = false;
+						},
+						OpenPageOptions.AsSlave,
+						vm =>
+						{
+							vm.SelectionMode = JournalSelectionMode.Single;
+							vm.AdditionalJournalRestriction = new NomenclaturesForOrderJournalRestriction(ServicesConfig.CommonServices);
+							vm.TabName = "Номенклатура на продажу";
+							vm.CalculateQuantityOnStock = true;
+						})
+					.ViewModel;
+				
+				journalViewModel.OnEntitySelectedResult += (s, ea) =>
+				{
 					var selectedNode = ea.SelectedNodes.FirstOrDefault();
+					
 					if(selectedNode == null)
+					{
 						return;
+					}
+
 					TryAddNomenclature(UoWGeneric.Session.Get<Nomenclature>(selectedNode.Id));
 				};
-				TabParent.AddSlaveTab(this, journalViewModel);
 			},
 			() => true
 		));

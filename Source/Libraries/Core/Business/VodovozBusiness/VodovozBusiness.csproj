@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -88,8 +88,22 @@
     <Compile Include="Domain\Client\RegistrationInChestnyZnakStatus.cs" />
     <Compile Include="Domain\Client\SellingNomenclature.cs" />
     <Compile Include="Domain\Client\TaxType.cs" />
+    <Compile Include="Domain\Goods\CupHolderBracingType.cs" />
+    <Compile Include="Domain\Goods\CoolingType.cs" />
+    <Compile Include="Domain\Goods\EquipmentInstallationType.cs" />
+    <Compile Include="Domain\Goods\EquipmentWorkloadType.cs" />
+    <Compile Include="Domain\Goods\GlassHolderType.cs" />
+    <Compile Include="Domain\Goods\KulerSaleWebSiteNomenclatureOnlineCatalog.cs" />
+    <Compile Include="Domain\Goods\LockerRefrigeratorType.cs" />
+    <Compile Include="Domain\Goods\MobileAppNomenclatureOnlineCatalog.cs" />
     <Compile Include="Domain\Goods\NomenclatureCategory.cs" />
-    <Compile Include="Domain\Goods\NomenclatureCategory.cs" />
+    <Compile Include="Domain\Goods\NomenclatureOnlineCatalog.cs" />
+    <Compile Include="Domain\Goods\NomenclatureOnlineCategory.cs" />
+    <Compile Include="Domain\Goods\NomenclatureOnlineGroup.cs" />
+    <Compile Include="Domain\Goods\PumpType.cs" />
+    <Compile Include="Domain\Goods\ProtectionOnHotWaterTap.cs" />
+    <Compile Include="Domain\Goods\TapType.cs" />
+    <Compile Include="Domain\Goods\VodovozWebSiteNomenclatureOnlineCatalog.cs" />
     <Compile Include="Domain\Logistic\Drivers\DriverStopListRemoval.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\RouteListMaxFastDeliveryOrders.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryChange.ChangeType.cs" />
@@ -769,6 +783,7 @@
     <Compile Include="NHibernateProjections\Goods\ProductGroupProjections.cs" />
     <Compile Include="NHibernateProjections\Logistics\CarProjections.cs" />
     <Compile Include="NHibernateProjections\Orders\OrderProjections.cs" />
+    <Compile Include="Nodes\OnlineNomenclatureNode.cs" />
     <Compile Include="Nodes\AvangardOperation.cs" />
     <Compile Include="Nodes\AvangardOperations.cs" />
     <Compile Include="Nodes\NomenclatureOnlineParametersData.cs" />
@@ -804,6 +819,7 @@
     <Compile Include="Parameters\IStoredResourcesSettings.cs" />
     <Compile Include="Parameters\ISubdivisionParametersProvider.cs" />
     <Compile Include="Parameters\ComplaintParameterProvider.cs" />
+    <Compile Include="Parameters\NomenclatureOnlineParametersProvider.cs" />
     <Compile Include="Parameters\PhoneTypeSettings.cs" />
     <Compile Include="Parameters\RouteListProfitabilitySettings.cs" />
     <Compile Include="Parameters\StoredResourcesSettings.cs" />
@@ -972,6 +988,7 @@
     <Compile Include="Services\IDeliveryRulesParametersProvider.cs" />
     <Compile Include="Services\IDeliveryScheduleParametersProvider.cs" />
     <Compile Include="Services\IGeographicGroupParametersProvider.cs" />
+    <Compile Include="Services\INomenclatureOnlineParametersProvider.cs" />
     <Compile Include="Services\INomenclatureParametersProvider.cs" />
     <Compile Include="Services\IFiasApiParametersProvider.cs" />
     <Compile Include="Services\IPhoneTypeSettings.cs" />
