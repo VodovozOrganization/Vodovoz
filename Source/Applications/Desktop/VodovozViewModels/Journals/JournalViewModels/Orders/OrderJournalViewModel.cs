@@ -1,4 +1,5 @@
-using Autofac;
+﻿using Autofac;
+using DateTimeHelpers;
 using Gamma.Widgets;
 using MoreLinq;
 using NHibernate;
@@ -18,7 +19,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using DateTimeHelpers;
 using Vodovoz.Controllers;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -34,12 +34,15 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.JournalNodes;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Dialogs.Orders;
@@ -91,8 +94,10 @@ namespace Vodovoz.JournalViewModels
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
 			IFileDialogService fileDialogService,
 			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider,
+			IGenericRepository<EdoContainer> edoContainersRepository,
 			IRDLPreviewOpener rdlPreviewOpener,
-			Action<OrderJournalFilterViewModel> filterConfiguration = null) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			Action<OrderJournalFilterViewModel> filterConfiguration = null)
+			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
@@ -104,6 +109,7 @@ namespace Vodovoz.JournalViewModels
 			_undeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+			_edoContainersRepository = edoContainersRepository ?? throw new ArgumentNullException(nameof(edoContainersRepository));
 			_rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
 			_closingDocumentDeliveryScheduleId =
 				(deliveryScheduleParametersProvider ?? throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider)))
@@ -1213,6 +1219,7 @@ namespace Vodovoz.JournalViewModels
 						new DiscountReasonRepository(),
 						new OrderDiscountsController(new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory())),
 						new CommonMessages(_commonServices.InteractiveService),
+						_edoContainersRepository,
 						_rdlPreviewOpener),
 					//функция диалога открытия документа
 					(OrderJournalNode node) => new OrderWithoutShipmentForAdvancePaymentViewModel(
@@ -1226,6 +1233,7 @@ namespace Vodovoz.JournalViewModels
 						new DiscountReasonRepository(),
 						new OrderDiscountsController(new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory())),
 						new CommonMessages(_commonServices.InteractiveService),
+						_edoContainersRepository,
 						_rdlPreviewOpener),
 					//функция идентификации документа 
 					(OrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForAdvancePayment),

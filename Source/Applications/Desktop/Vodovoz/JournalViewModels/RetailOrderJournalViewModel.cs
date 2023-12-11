@@ -1,4 +1,4 @@
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
@@ -68,7 +68,6 @@ namespace Vodovoz.JournalViewModels
 			IOrderDiscountsController discountsController,
 			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider,
 			IRDLPreviewOpener rdlPreviewOpener,
-			INomenclatureSettings nomenclatureSettings,
 			IGenericRepository<EdoContainer> edoContainersRepository,
 			Action<OrderJournalFilterViewModel> filterConfig = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
@@ -854,9 +853,8 @@ namespace Vodovoz.JournalViewModels
 						new DiscountReasonRepository(),
 						_discountsController,
 						new CommonMessages(_commonServices.InteractiveService),
-						_rdlPreviewOpener,
-						_nomenclatureSettings,
-						_edoContainersRepository),
+						_edoContainersRepository,
+						_rdlPreviewOpener),
 					//функция диалога открытия документа
 					(RetailOrderJournalNode node) => new OrderWithoutShipmentForAdvancePaymentViewModel(
 						EntityUoWBuilder.ForOpen(node.Id),
@@ -869,9 +867,8 @@ namespace Vodovoz.JournalViewModels
 						new DiscountReasonRepository(),
 						_discountsController,
 						new CommonMessages(_commonServices.InteractiveService),
-						_rdlPreviewOpener,
-						_nomenclatureSettings,
-						_edoContainersRepository),
+						_edoContainersRepository,
+						_rdlPreviewOpener),
 					//функция идентификации документа 
 					(RetailOrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForAdvancePayment),
 					"Счет без отгрузки на предоплату",
