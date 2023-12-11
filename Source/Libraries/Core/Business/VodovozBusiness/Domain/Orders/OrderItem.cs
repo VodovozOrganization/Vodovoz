@@ -501,6 +501,11 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void RecalculatePrice()
 		{
+			if(IsUserPrice || PromoSet != null || Order.OrderStatus == OrderStatus.Closed || CopiedFromUndelivery != null)
+			{
+				return;
+			}
+
 			var fixedPrice = Order.GetFixedPriceOrNull(Nomenclature, TotalCountInOrder);
 
 			if(fixedPrice != null && CopiedFromUndelivery == null)
@@ -514,11 +519,6 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			IsFixedPrice = false;
-
-			if(IsUserPrice || PromoSet != null || Order.OrderStatus == OrderStatus.Closed || CopiedFromUndelivery != null)
-			{
-				return;
-			}
 
 			SetPrice(GetPriceByTotalCount());
 		}
@@ -628,6 +628,7 @@ namespace Vodovoz.Domain.Orders
 			{
 				return;
 			}
+
 			if(!CanUseVAT())
 			{
 				IncludeNDS = null;
@@ -648,6 +649,7 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			bool canUseVAT = true;
+
 			if(Order.Contract?.Organization != null)
 			{
 				canUseVAT = !Order.Contract.Organization.WithoutVAT;
