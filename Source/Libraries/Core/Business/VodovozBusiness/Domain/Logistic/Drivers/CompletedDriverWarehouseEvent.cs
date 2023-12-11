@@ -7,6 +7,9 @@ using Vodovoz.Domain.Logistic.Cars;
 
 namespace Vodovoz.Domain.Logistic.Drivers
 {
+	[Appellative(Gender = GrammaticalGender.Neuter,
+		NominativePlural = "завершенные события нахождения водителя на складе",
+		Nominative = "завершенное событие нахождения водителя на складе")]
 	[HistoryTrace]
 	public class CompletedDriverWarehouseEvent : PropertyChangedBase, IDomainObject
 	{

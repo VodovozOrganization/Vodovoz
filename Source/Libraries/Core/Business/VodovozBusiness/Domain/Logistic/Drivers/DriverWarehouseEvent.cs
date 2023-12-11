@@ -10,6 +10,9 @@ using Vodovoz.EntityRepositories.Logistic;
 
 namespace Vodovoz.Domain.Logistic.Drivers
 {
+	[Appellative(Gender = GrammaticalGender.Neuter,
+		NominativePlural = "события нахождения водителя на складе",
+		Nominative = "событие нахождения водителя на складе")]
 	[HistoryTrace]
 	[EntityPermission]
 	public class DriverWarehouseEvent : PropertyChangedBase, IDomainObject, IValidatableObject
