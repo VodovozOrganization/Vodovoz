@@ -201,28 +201,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 
 		private IEnumerable<int> GetSubdivisionsControlledByCurrentEmployee(IUnitOfWork uow)
 		{
-			var query = uow.GetAll<Subdivision>();
-
-			if(!_isAdmin)
-			{
-				query.Where(s => s.Chief.Id == _currentEmployee.Id);
-			}
-
-			var controlledSubdivision = query
+			var controlledSubdivision = uow.GetAll<Subdivision>()
+				.Where(s => s.Chief.Id == _currentEmployee.Id || _isAdmin)
 				.Select(s => s.Id)
 				.ToArray();
 
 			return controlledSubdivision;
-		}
-
-		private IEnumerable<int> GetSubdivisionsNotControlledByCurrentEmployee(IUnitOfWork uow)
-		{
-			var notControlledSubdivision = uow.GetAll<Subdivision>()
-				.Where(s => s.Chief.Id != _currentEmployee.Id)
-				.Select(s => s.Id)
-				.ToArray();
-
-			return notControlledSubdivision;
 		}
 
 		#region JournalActions
