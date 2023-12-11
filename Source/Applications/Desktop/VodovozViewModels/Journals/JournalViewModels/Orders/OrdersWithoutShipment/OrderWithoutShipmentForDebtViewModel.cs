@@ -142,8 +142,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		{
 			if(e.PropertyName == nameof(Entity.Client))
 			{
-				OnPropertyChanged(() => CanSendBillByEdo);
-				OnPropertyChanged(() => CanResendEdoBill);
+				OnPropertyChanged(nameof(CanSendBillByEdo));
+				OnPropertyChanged(nameof(CanResendEdoBill));
 			}
 		}
 
@@ -185,8 +185,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			SendBillByEdo(UoW);
 			UpdateEdoContainers();
 
-			OnPropertyChanged(() => CanSendBillByEdo);
-			OnPropertyChanged(() => CanResendEdoBill);
+			OnPropertyChanged(nameof(CanSendBillByEdo));
+			OnPropertyChanged(nameof(CanResendEdoBill));
 		}
 
 		public void UpdateEdoContainers()
@@ -225,7 +225,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 		public override bool Save(bool close)
 		{
-			OnPropertyChanged(() => CanSendBillByEdo);
+			OnPropertyChanged(nameof(CanSendBillByEdo));
 
 			return base.Save(close);
 		}
