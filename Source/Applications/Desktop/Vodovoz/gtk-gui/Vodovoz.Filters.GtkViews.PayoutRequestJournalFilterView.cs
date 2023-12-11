@@ -273,7 +273,7 @@ namespace Vodovoz.Filters.GtkViews
 			w18.LeftAttach = ((uint)(1));
 			w18.RightAttach = ((uint)(3));
 			w18.XOptions = ((global::Gtk.AttachOptions)(4));
-			w18.YOptions = ((global::Gtk.AttachOptions)(4));
+			w18.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child ytable2.Gtk.Table+TableChild
 			this.yenumcomboboxSortBy = new global::Gamma.Widgets.yEnumComboBox();
 			this.yenumcomboboxSortBy.Name = "yenumcomboboxSortBy";
@@ -291,14 +291,14 @@ namespace Vodovoz.Filters.GtkViews
 			this.ylabelAccountableSubdivision = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelAccountableSubdivision.Name = "ylabelAccountableSubdivision";
 			this.ylabelAccountableSubdivision.Xalign = 1F;
-			this.ylabelAccountableSubdivision.LabelProp = global::Mono.Unix.Catalog.GetString("Подразделение \nподотчётного лица:");
+			this.ylabelAccountableSubdivision.LabelProp = global::Mono.Unix.Catalog.GetString("Подразделение  \nподотчётного лица:");
 			this.ylabelAccountableSubdivision.Justify = ((global::Gtk.Justification)(1));
 			this.ytable2.Add(this.ylabelAccountableSubdivision);
 			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.ytable2[this.ylabelAccountableSubdivision]));
 			w20.TopAttach = ((uint)(2));
 			w20.BottomAttach = ((uint)(3));
 			w20.XOptions = ((global::Gtk.AttachOptions)(4));
-			w20.YOptions = ((global::Gtk.AttachOptions)(4));
+			w20.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child ytable2.Gtk.Table+TableChild
 			this.ylabelSortOrder = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelSortOrder.Name = "ylabelSortOrder";
@@ -311,6 +311,8 @@ namespace Vodovoz.Filters.GtkViews
 			this.hbox1.Add(this.ytable2);
 			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.ytable2]));
 			w22.Position = 4;
+			w22.Expand = false;
+			w22.Fill = false;
 			this.vbox1.Add(this.hbox1);
 			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
 			w23.Position = 0;
