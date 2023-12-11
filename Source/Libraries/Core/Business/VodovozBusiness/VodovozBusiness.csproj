@@ -111,6 +111,8 @@
     <Compile Include="Domain\Logistic\RouteListSpecialCondition.cs" />
     <Compile Include="Domain\Logistic\RouteListSpecialConditionType.cs" />
     <Compile Include="Domain\Logistic\RegradingOfGoodsReason.cs" />
+    <Compile Include="Domain\Orders\OrderItemRentSubType.cs" />
+    <Compile Include="Domain\Orders\OrderRentType.cs" />
     <Compile Include="Domain\Payments\CombinedPaymentNode.cs" />
     <Compile Include="Domain\Orders\OrderEdoTrueMarkDocumentsActions.cs" />
     <Compile Include="Domain\Orders\UndeliveryDetalization.cs" />
@@ -668,6 +670,7 @@
     <Compile Include="Factories\ExternalCounterpartyFactory.cs" />
     <Compile Include="Factories\ExternalCounterpartyMatchingFactory.cs" />
     <Compile Include="Factories\ICashReceiptFactory.cs" />
+    <Compile Include="Factories\ICounterpartyContractFactory.cs" />
     <Compile Include="Factories\IEmployeeRegistrationFactory.cs" />
     <Compile Include="Factories\IEmployeeRegistrationVersionFactory.cs" />
     <Compile Include="Factories\IExternalCounterpartyFactory.cs" />
@@ -717,9 +720,12 @@
     <Compile Include="Models\CashReceipts\ICashboxSettingProvider.cs" />
     <Compile Include="Models\EmptyRouteListGenerator.cs" />
     <Compile Include="Models\FastDeliveryAvailabilityHistoryModel.cs" />
+    <Compile Include="Models\FastPaymentResponseDTO.cs" />
+    <Compile Include="Models\FastPaymentResult.cs" />
     <Compile Include="Models\FastPaymentSender.cs" />
     <Compile Include="Models\GeoGroupVersionsModel.cs" />
     <Compile Include="Models\IAdditionalLoadingModel.cs" />
+    <Compile Include="Models\IFastPaymentSender.cs" />
     <Compile Include="Models\INomenclatureCostPriceModel.cs" />
     <Compile Include="Models\INomenclatureGroupPricingModel.cs" />
     <Compile Include="Models\INomenclatureInnerDeliveryPriceModel.cs" />
@@ -1007,6 +1013,10 @@
     <Compile Include="Tools\GeoGroupVersionNotFoundException.cs" />
     <Compile Include="Tools\DataArchiver.cs" />
     <Compile Include="Tools\IDataArchiver.cs" />
+    <Compile Include="Tools\Interactive\ConfirmationQuestion\ConfirmationQuestion.cs" />
+    <Compile Include="Tools\Interactive\ConfirmationQuestion\ConfirmationQuestionDialogSettings.cs" />
+    <Compile Include="Tools\Interactive\ConfirmationQuestion\ConfirmationQuestionDialogSettings.ImgType.cs" />
+    <Compile Include="Tools\Interactive\ConfirmationQuestion\IConfirmationQuestionInteractive.cs" />
     <Compile Include="Tools\Logistic\DistanceCalculator.cs" />
     <Compile Include="Tools\Logistic\DriverDistrictPriorityHelper.cs" />
     <Compile Include="Tools\Logistic\IDistanceCalculator.cs" />

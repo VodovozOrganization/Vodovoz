@@ -47,6 +47,7 @@ using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewers.Complaints;
 using Vodovoz.Presentation.ViewModels.PaymentType;
 using Vodovoz.QualityControl.Reports;
+using Vodovoz.Rent;
 using Vodovoz.Reports;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ReportsParameters.Cash;
@@ -96,6 +97,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Security;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Users;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic.DriversStopLists;
 using Vodovoz.ViewModels.Orders;
@@ -467,6 +469,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<FastDeliveryOrderTransferFilterViewModel, FastDeliveryOrderTransferFilterView>()
 				.RegisterWidgetForWidgetViewModel<WarehousesSettingsViewModel, NamedDomainEntitiesSettingsView>()
 				.RegisterWidgetForWidgetViewModel<SelectPaymentTypeViewModel, SelectPaymentTypeWindowView>()
+				.RegisterWidgetForWidgetViewModel<FreeRentPackagesFilterViewModel, FreeRentPackagesFilterView>()
 				.RegisterWidgetForWidgetViewModel<CounterpartyClassificationCalculationEmailSettingsViewModel, CounterpartyClassificationCalculationEmailSettingsView>()
 				.RegisterWidgetForWidgetViewModel<NomenclatureOnlineCatalogViewModel, NomenclatureOnlineCatalogView>()
 				;

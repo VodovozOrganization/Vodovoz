@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
@@ -108,12 +108,12 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 using Vodovoz.ViewModels.Orders;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
-using CounterpartyContractFactory = Vodovoz.Factories.CounterpartyContractFactory;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
@@ -165,7 +165,7 @@ namespace Vodovoz
 		private int _previousDeliveryPointId;
 		private IOrganizationProvider organizationProvider;
 		private ICounterpartyContractRepository counterpartyContractRepository;
-		private CounterpartyContractFactory counterpartyContractFactory;
+		private ICounterpartyContractFactory counterpartyContractFactory;
 		private IOrderParametersProvider _orderParametersProvider;
 		private IPaymentFromBankClientController _paymentFromBankClientController;
 		private RouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController;
@@ -242,7 +242,6 @@ namespace Vodovoz
 		private INomenclatureRepository nomenclatureRepository;
 
 		private Result _lastSaveResult;
-		private bool _isValidatedOnSaveSuccess => _lastSaveResult?.Errors?.Contains(Errors.Orders.Order.Validation) ?? false;
 
 		public virtual INomenclatureRepository NomenclatureRepository
 		{
@@ -2130,7 +2129,7 @@ namespace Vodovoz
 		{
 			if(!Save())
 			{
-				return Result.Failure(Errors.Orders.Order.Save);
+				return _lastSaveResult;
 			}
 
 			using(var transaction = UoW.Session.BeginTransaction())
@@ -2411,11 +2410,6 @@ namespace Vodovoz
 			if(errors.All(x => x != Errors.Orders.Order.AcceptException))
 			{
 				EditOrder();
-			}
-
-			if(_isValidatedOnSaveSuccess)
-			{
-				return;
 			}
 
 			ShowErrorsWindow(errors);
@@ -4735,6 +4729,11 @@ namespace Vodovoz
 		private void SelectFreeRentPackage()
 		{
 			var freeRentJournal = _rentPackagesJournalsViewModelsFactory.CreateFreeRentPackagesJournalViewModel(false, false, false, false);
+
+			freeRentJournal.JournalFilter.SetAndRefilterAtOnce<FreeRentPackagesFilterViewModel>(filter =>
+			{
+				filter.RestrictArchieved = false;
+			});
 
 			freeRentJournal.OnSelectResult += (sender, e) =>
 			{

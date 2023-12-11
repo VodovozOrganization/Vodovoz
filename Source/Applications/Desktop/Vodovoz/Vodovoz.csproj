@@ -449,6 +449,7 @@
     <Compile Include="Infrastructure\Converters\DoubleToStringConverter.cs" />
     <Compile Include="Infrastructure\Converters\NullableDecimalToStringConverter.cs" />
     <Compile Include="Infrastructure\GdkColors.cs" />
+    <Compile Include="Infrastructure\Services\GtkConfirmationQuestionInteractive.cs" />
     <Compile Include="JournalColumnsConfigs\ApplicationDevelopmentProposalsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\BulkEmailEventReasonJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\BusinessTasksJournalRegistrar.cs" />
@@ -727,8 +728,6 @@
     <Compile Include="Representations\DocumentsVM.cs" />
     <Compile Include="ServiceDialogs\LoadFrom1c\Account1c.cs" />
     <Compile Include="ServiceDialogs\LoadFrom1c\Bank1c.cs" />
-    <Compile Include="ServiceDialogs\LoadFrom1cDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.LoadFrom1cDlg.cs" />
     <Compile Include="Representations\ContactsVM.cs" />
     <Compile Include="Dialogs\ServiceClaimDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceClaimDlg.cs" />
@@ -880,7 +879,6 @@
     <Compile Include="Dialogs\Logistic\FuelDocumentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.FuelDocumentView.cs" />
     <Compile Include="Additions\Logistic\PointMarker.cs" />
-    <Compile Include="ServiceDialogs\LoadFrom1c\ChangedItem.cs" />
     <Compile Include="ServiceDialogs\LoadFrom1c\FieldChange.cs" />
     <Compile Include="Dialogs\Employees\EmployeeWorkChartDlg.cs" />
     <Compile Include="gtk-gui\Dialogs.Employees.EmployeeWorkChartDlg.cs" />
@@ -1983,6 +1981,10 @@
     <Compile Include="gtk-gui\Vodovoz.Views.SelectPaymentTypeWindowView.cs" />
     <Compile Include="Filters\GtkViews\GeoGroupJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.GeoGroupJournalFilterView.cs" />
+    <Compile Include="Rent\FreeRentPackagesFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Rent.FreeRentPackagesFilterView.cs" />
+    <Compile Include="Dialogs\Interactive\ConfirmationQuestionDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Interactive.ConfirmationQuestionDlg.cs" />
     <Compile Include="Views\Goods\NomenclatureOnlineCatalogView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclatureOnlineCatalogView.cs" />
     <Compile Include="Views\Goods\NomenclatureOnlineGroupView.cs" />
@@ -1993,6 +1995,8 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="ViewModels\Goods\" />
+    <Folder Include="Rent\" />
+    <Folder Include="Dialogs\Interactive\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">

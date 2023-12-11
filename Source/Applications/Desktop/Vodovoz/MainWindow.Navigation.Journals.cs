@@ -891,16 +891,6 @@ public partial class MainWindow
 	}
 
 	/// <summary>
-	/// Загрузить из 1с 7.7
-	/// </summary>
-	/// <param name="sender"></param>
-	/// <param name="e"></param>
-	protected void OnActionLoad1cActivated(object sender, EventArgs e)
-	{
-		NavigationManager.OpenTdiTab<LoadFrom1cDlg>(null, OpenPageOptions.IgnoreHash);
-	}
-
-	/// <summary>
 	/// Сопоставление клиентов из внешних источников
 	/// </summary>
 	/// <param name="sender"></param>

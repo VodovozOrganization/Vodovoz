@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.Widgets;
 using MoreLinq;
 using NHibernate;
@@ -678,7 +678,16 @@ namespace Vodovoz.JournalViewModels
 					.SelectSubQuery(sanitisationCountSubquery).WithAlias(() => resultAlias.SanitisationAmount)
 					.SelectSubQuery(edoUpdLastStatusSubquery).WithAlias(() => resultAlias.EdoDocFlowStatus)
 				)
-				.OrderBy(x => x.CreateDate).Desc
+				.OrderBy(x => x.CreateDate).Desc;
+
+			if(FilterViewModel.FilterDateType == OrdersDateFilterType.DeliveryDate
+				&& FilterViewModel.StartDate != null
+				&& FilterViewModel.EndDate != null)
+			{
+				resultQuery.OrderBy(x => x.DeliveryDate).Desc();
+			}
+
+			resultQuery
 				.SetTimeout(60)
 				.TransformUsing(Transformers.AliasToBean<OrderJournalNode<VodovozOrder>>());
 

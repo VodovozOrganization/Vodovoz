@@ -23,8 +23,8 @@ namespace Vodovoz.Models.Orders
 		private readonly IOrderDailyNumberController _orderDailyNumberController;
 		private readonly IPaymentFromBankClientController _paymentFromBankClientController;
 		private readonly ICounterpartyContractRepository _counterpartyContractRepository;
-		private readonly CounterpartyContractFactory _counterpartyContractFactory;
-		private readonly FastPaymentSender _fastPaymentSender;
+		private readonly ICounterpartyContractFactory _counterpartyContractFactory;
+		private readonly IFastPaymentSender _fastPaymentSender;
 		private readonly ICallTaskWorker _callTaskWorker;
 
 		public RoboatsOrderModel(
@@ -33,8 +33,8 @@ namespace Vodovoz.Models.Orders
 			IOrderDailyNumberController orderDailyNumberController,
 			IPaymentFromBankClientController paymentFromBankClientController,
 			ICounterpartyContractRepository counterpartyContractRepository,
-			CounterpartyContractFactory counterpartyContractFactory,
-			FastPaymentSender fastPaymentSender,
+			ICounterpartyContractFactory counterpartyContractFactory,
+			IFastPaymentSender fastPaymentSender,
 			ICallTaskWorker callTaskWorker
 			)
 		{

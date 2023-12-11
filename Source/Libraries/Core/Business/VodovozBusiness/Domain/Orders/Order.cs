@@ -41,13 +41,13 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Undeliveries;
+using Vodovoz.Factories;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Orders;
-using CounterpartyContractFactory = Vodovoz.Factories.CounterpartyContractFactory;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 
@@ -1886,7 +1886,7 @@ namespace Vodovoz.Domain.Orders
 		private OrderOrganizationProviderFactory orderOrganizationProviderFactory;
 		private IOrganizationProvider orderOrganizationProvider;
 		private CounterpartyContractRepository counterpartyContractRepository;
-		private CounterpartyContractFactory counterpartyContractFactory;
+		private ICounterpartyContractFactory counterpartyContractFactory;
 
 		/// <summary>
 		/// <b>Не должен вызываться при создании сущности NHibernate'ом</b>
@@ -2162,7 +2162,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual void UpdateOrCreateContract(
 			IUnitOfWork uow,
 			ICounterpartyContractRepository contractRepository,
-			CounterpartyContractFactory contractFactory,
+			ICounterpartyContractFactory contractFactory,
 			Organization organization = null)
 		{
 			if(!NHibernateUtil.IsInitialized(Client))
@@ -2463,7 +2463,7 @@ namespace Vodovoz.Domain.Orders
 			IUnitOfWork uow,
 			ICounterpartyContractRepository counterpartyContractRepository,
 			IOrganizationProvider organizationProvider,
-			CounterpartyContractFactory counterpartyContractFactory)
+			ICounterpartyContractFactory counterpartyContractFactory)
 		{
 			if(counterpartyContractRepository == null)
 				throw new ArgumentNullException(nameof(counterpartyContractRepository));
@@ -4779,8 +4779,17 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void UpdateRentsCount()
 		{
-			foreach (var orderItem in OrderItems.Where(x => x.OrderItemRentSubType != OrderItemRentSubType.None)) {
-				switch(orderItem.OrderItemRentSubType) {
+			var orderRentalItems = OrderItems.Where(x => x.OrderItemRentSubType != OrderItemRentSubType.None).ToList();
+
+			foreach(var orderItem in orderRentalItems)
+			{
+				if(!OrderItems.Contains(orderItem))
+				{
+					continue;
+				}
+
+				switch(orderItem.OrderItemRentSubType)
+				{
 					case OrderItemRentSubType.RentServiceItem:
 						var totalEquipmentCountForService = GetRentEquipmentTotalCountForServiceItem(orderItem);
 						orderItem.SetRentEquipmentCount(totalEquipmentCountForService);
@@ -4795,15 +4804,19 @@ namespace Vodovoz.Domain.Orders
 
 		private int GetRentEquipmentTotalCountForDepositItem(OrderItem orderRentDepositItem)
 		{
-			var totalCount = orderEquipments.Where(x => x.OrderRentDepositItem == orderRentDepositItem)
+			var totalCount = orderEquipments
+				.Where(x => x.OrderRentDepositItem == orderRentDepositItem)
 				.Sum(x => x.Count);
+
 			return totalCount;
 		}
 
 		private int GetRentEquipmentTotalCountForServiceItem(OrderItem orderRentServiceItem)
 		{
-			var totalCount = orderEquipments.Where(x => x.OrderRentServiceItem == orderRentServiceItem)
+			var totalCount = orderEquipments
+				.Where(x => x.OrderRentServiceItem == orderRentServiceItem)
 				.Sum(x => x.Count);
+
 			return totalCount;
 		}
 

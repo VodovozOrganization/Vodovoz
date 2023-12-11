@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
