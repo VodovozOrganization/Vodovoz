@@ -1863,7 +1863,7 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual bool HasPermissionsForAlternativePrice => _generalSettingsParameters.SubdivisionsForAlternativePrices.Contains(Author.Subdivision.Id);
+		public virtual bool HasPermissionsForAlternativePrice => Author?.Subdivision?.Id != null && _generalSettingsParameters.SubdivisionsForAlternativePrices.Contains(Author.Subdivision.Id);
 
 		#endregion
 
