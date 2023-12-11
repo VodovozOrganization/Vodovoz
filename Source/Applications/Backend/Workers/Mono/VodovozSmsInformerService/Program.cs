@@ -1,17 +1,20 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using Mono.Unix;
 using Mono.Unix.Native;
 using MySqlConnector;
 using NLog;
+using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QS.Project.Repositories;
 using Sms.External.SmsRu;
 using System;
+using System.Linq;
 using System.Reflection;
 using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.Threading;
 using Vodovoz.Core.DataService;
+using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.SmsNotifications;
 using Vodovoz.Parameters;
 using Vodovoz.Settings.Database;
@@ -113,6 +116,23 @@ namespace VodovozSmsInformerService
 						Assembly.GetAssembly(typeof(QS.Attachments.Domain.Attachment)),
 						Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
 					});
+
+				#region Текущий пользователь
+
+				int serviceUserId = 0;
+
+				using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Получение пользователя"))
+				{
+					var serviceUser = unitOfWork.Session.Query<User>()
+						.Where(u => u.Login == mysqlUser)
+						.FirstOrDefault();
+
+					serviceUserId = serviceUser.Id;
+				}
+
+				UserRepository.GetCurrentUserId = () => serviceUserId;
+
+				#endregion
 
 				QS.HistoryLog.HistoryMain.Enable(conStrBuilder);
 

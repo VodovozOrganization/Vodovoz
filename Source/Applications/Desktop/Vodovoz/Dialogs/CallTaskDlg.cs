@@ -23,11 +23,10 @@ using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
-using Vodovoz.ViewModels.Journals.JournalFactories;
-using CounterpartyContractFactory = Vodovoz.Factories.CounterpartyContractFactory;
 using Vodovoz.EntityRepositories.Cash;
 using Autofac;
 using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.Factories;
 
 namespace Vodovoz.Dialogs
 {
@@ -37,7 +36,7 @@ namespace Vodovoz.Dialogs
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		private IOrganizationProvider _organizationProvider;
 		private ICounterpartyContractRepository _counterpartyContractRepository;
-		private CounterpartyContractFactory _counterpartyContractFactory;
+		private ICounterpartyContractFactory _counterpartyContractFactory;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IBottlesRepository _bottleRepository;
 		private readonly ICallTaskRepository _callTaskRepository;
