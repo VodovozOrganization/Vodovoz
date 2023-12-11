@@ -779,6 +779,15 @@ namespace Vodovoz.Domain.Orders
 			RecalculateVAT();
 		}
 
+		private void RecalculateAll()
+		{
+			Order?.RecalculateItemsPrice();
+			RecalculateDiscount();
+			CalculateVATType();
+			RecalculateVAT();
+			Order?.UpdateRentsCount();
+		}
+
 		internal static OrderItem CreateNewDailyRentServiceItem(Order order, PaidRentPackage paidRentPackage)
 		{
 			var newItem = new OrderItem
@@ -793,11 +802,7 @@ namespace Vodovoz.Domain.Orders
 				Nomenclature = paidRentPackage.RentServiceDaily
 			};
 
-			order.RecalculateItemsPrice();
-			newItem.RecalculateDiscount();
-			newItem.CalculateVATType();
-			newItem.RecalculateVAT();
-			order.UpdateRentsCount();
+			newItem.RecalculateAll();
 
 			return newItem;
 		}
@@ -815,11 +820,7 @@ namespace Vodovoz.Domain.Orders
 				Nomenclature = paidRentPackage.DepositService
 			};
 
-			order.RecalculateItemsPrice();
-			newItem.RecalculateDiscount();
-			newItem.CalculateVATType();
-			newItem.RecalculateVAT();
-			order.UpdateRentsCount();
+			newItem.RecalculateAll();
 
 			return newItem;
 		}
@@ -838,11 +839,7 @@ namespace Vodovoz.Domain.Orders
 				Nomenclature = paidRentPackage.RentServiceMonthly
 			};
 
-			order.RecalculateItemsPrice();
-			newItem.RecalculateDiscount();
-			newItem.CalculateVATType();
-			newItem.RecalculateVAT();
-			order.UpdateRentsCount();
+			newItem.RecalculateAll();
 
 			return newItem;
 		}
@@ -860,11 +857,7 @@ namespace Vodovoz.Domain.Orders
 				Nomenclature = paidRentPackage.DepositService
 			};
 
-			order.RecalculateItemsPrice();
-			newItem.RecalculateDiscount();
-			newItem.CalculateVATType();
-			newItem.RecalculateVAT();
-			order.UpdateRentsCount();
+			newItem.RecalculateAll();
 
 			return newItem;
 		}
@@ -882,11 +875,7 @@ namespace Vodovoz.Domain.Orders
 				Nomenclature = freeRentPackage.DepositService
 			};
 
-			order.RecalculateItemsPrice();
-			newItem.RecalculateDiscount();
-			newItem.CalculateVATType();
-			newItem.RecalculateVAT();
-			order.UpdateRentsCount();
+			newItem.RecalculateAll();
 
 			return newItem;
 		}
@@ -905,11 +894,7 @@ namespace Vodovoz.Domain.Orders
 				Price = price
 			};
 
-			order.RecalculateItemsPrice();
-			newItem.RecalculateDiscount();
-			newItem.CalculateVATType();
-			newItem.RecalculateVAT();
-			order.UpdateRentsCount();
+			newItem.RecalculateAll();
 
 			return newItem;
 		}
@@ -938,11 +923,7 @@ namespace Vodovoz.Domain.Orders
 
 			newItem.CalculateAndSetDiscount(discount);
 
-			order.RecalculateItemsPrice();
-			newItem.RecalculateDiscount();
-			newItem.CalculateVATType();
-			newItem.RecalculateVAT();
-			order.UpdateRentsCount();
+			newItem.RecalculateAll();
 
 			return newItem;
 		}
@@ -957,11 +938,7 @@ namespace Vodovoz.Domain.Orders
 				Price = price
 			};
 
-			order.RecalculateItemsPrice();
-			newItem.RecalculateDiscount();
-			newItem.CalculateVATType();
-			newItem.RecalculateVAT();
-			order.UpdateRentsCount();
+			newItem.RecalculateAll();
 
 			return newItem;
 		}
