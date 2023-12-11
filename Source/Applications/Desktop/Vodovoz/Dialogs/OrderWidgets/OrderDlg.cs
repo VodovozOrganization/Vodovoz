@@ -96,6 +96,7 @@ using Vodovoz.Settings.Nomenclature;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.SidePanel.InfoViews;
+using Vodovoz.Specifications.Orders.EdoContainers;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -169,6 +170,8 @@ namespace Vodovoz
 		private IOrderParametersProvider _orderParametersProvider;
 		private IPaymentFromBankClientController _paymentFromBankClientController;
 		private RouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController;
+
+		private IGenericRepository<EdoContainer> _edoContainerRepository;
 
 		private readonly IRouteListParametersProvider _routeListParametersProvider = new RouteListParametersProvider(_parametersProvider);
 		private readonly IDocumentPrinter _documentPrinter = new DocumentPrinter();
@@ -534,6 +537,8 @@ namespace Vodovoz
 			_selectPaymentTypeViewModel = new SelectPaymentTypeViewModel(NavigationManager);
 			_lastDeliveryPointComment = Entity.DeliveryPoint?.Comment.Trim('\n').Trim(' ') ?? string.Empty;
 			_counterpartyService = _lifetimeScope.Resolve<ICounterpartyService>();
+
+			_edoContainerRepository = _lifetimeScope.Resolve<IGenericRepository<EdoContainer>>();
 
 			_justCreated = UoWGeneric.IsNew;
 
@@ -1901,7 +1906,9 @@ namespace Vodovoz
 
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 			{
-				foreach(var item in _orderRepository.GetEdoContainersByOrderId(uow, Entity.Id))
+				var containers = _edoContainerRepository.Get(uow, EdoContainerSpecification.CreateForOrderId(Entity.Id));
+
+				foreach(var item in containers)
 				{
 					_edoContainers.Add(item);
 				}
