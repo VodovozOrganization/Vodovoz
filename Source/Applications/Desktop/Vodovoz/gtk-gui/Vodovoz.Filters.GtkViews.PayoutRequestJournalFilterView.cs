@@ -46,6 +46,8 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::QS.Views.Control.EntityEntry entityentryAccountableSubdivision;
 
+		private global::Gtk.Label label1;
+
 		private global::Gamma.Widgets.yEnumComboBox yenumcomboboxSortBy;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelAccountableSubdivision;
@@ -275,6 +277,18 @@ namespace Vodovoz.Filters.GtkViews
 			w18.XOptions = ((global::Gtk.AttachOptions)(4));
 			w18.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child ytable2.Gtk.Table+TableChild
+			this.label1 = new global::Gtk.Label();
+			this.label1.HeightRequest = 25;
+			this.label1.Name = "label1";
+			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString(" ");
+			this.ytable2.Add(this.label1);
+			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.ytable2[this.label1]));
+			w19.TopAttach = ((uint)(1));
+			w19.BottomAttach = ((uint)(2));
+			w19.RightAttach = ((uint)(3));
+			w19.XOptions = ((global::Gtk.AttachOptions)(4));
+			w19.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child ytable2.Gtk.Table+TableChild
 			this.yenumcomboboxSortBy = new global::Gamma.Widgets.yEnumComboBox();
 			this.yenumcomboboxSortBy.Name = "yenumcomboboxSortBy";
 			this.yenumcomboboxSortBy.ShowSpecialStateAll = false;
@@ -282,11 +296,11 @@ namespace Vodovoz.Filters.GtkViews
 			this.yenumcomboboxSortBy.UseShortTitle = false;
 			this.yenumcomboboxSortBy.DefaultFirst = false;
 			this.ytable2.Add(this.yenumcomboboxSortBy);
-			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.ytable2[this.yenumcomboboxSortBy]));
-			w19.LeftAttach = ((uint)(1));
-			w19.RightAttach = ((uint)(2));
-			w19.XOptions = ((global::Gtk.AttachOptions)(4));
-			w19.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.ytable2[this.yenumcomboboxSortBy]));
+			w20.LeftAttach = ((uint)(1));
+			w20.RightAttach = ((uint)(2));
+			w20.XOptions = ((global::Gtk.AttachOptions)(4));
+			w20.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytable2.Gtk.Table+TableChild
 			this.ylabelAccountableSubdivision = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelAccountableSubdivision.Name = "ylabelAccountableSubdivision";
@@ -294,38 +308,38 @@ namespace Vodovoz.Filters.GtkViews
 			this.ylabelAccountableSubdivision.LabelProp = global::Mono.Unix.Catalog.GetString("Подразделение  \nподотчётного лица:");
 			this.ylabelAccountableSubdivision.Justify = ((global::Gtk.Justification)(1));
 			this.ytable2.Add(this.ylabelAccountableSubdivision);
-			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.ytable2[this.ylabelAccountableSubdivision]));
-			w20.TopAttach = ((uint)(2));
-			w20.BottomAttach = ((uint)(3));
-			w20.XOptions = ((global::Gtk.AttachOptions)(4));
-			w20.YOptions = ((global::Gtk.AttachOptions)(0));
+			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.ytable2[this.ylabelAccountableSubdivision]));
+			w21.TopAttach = ((uint)(2));
+			w21.BottomAttach = ((uint)(3));
+			w21.XOptions = ((global::Gtk.AttachOptions)(4));
+			w21.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child ytable2.Gtk.Table+TableChild
 			this.ylabelSortOrder = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelSortOrder.Name = "ylabelSortOrder";
 			this.ylabelSortOrder.Xalign = 1F;
 			this.ylabelSortOrder.LabelProp = global::Mono.Unix.Catalog.GetString("Порядок сортировки:");
 			this.ytable2.Add(this.ylabelSortOrder);
-			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.ytable2[this.ylabelSortOrder]));
-			w21.XOptions = ((global::Gtk.AttachOptions)(4));
-			w21.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.ytable2[this.ylabelSortOrder]));
+			w22.XOptions = ((global::Gtk.AttachOptions)(4));
+			w22.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.hbox1.Add(this.ytable2);
-			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.ytable2]));
-			w22.Position = 4;
-			w22.Expand = false;
-			w22.Fill = false;
-			this.vbox1.Add(this.hbox1);
-			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
-			w23.Position = 0;
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.ytable2]));
+			w23.Position = 4;
 			w23.Expand = false;
 			w23.Fill = false;
+			this.vbox1.Add(this.hbox1);
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
+			w24.Position = 0;
+			w24.Expand = false;
+			w24.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hseparator1 = new global::Gtk.HSeparator();
 			this.hseparator1.Name = "hseparator1";
 			this.vbox1.Add(this.hseparator1);
-			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hseparator1]));
-			w24.Position = 1;
-			w24.Expand = false;
-			w24.Fill = false;
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hseparator1]));
+			w25.Position = 1;
+			w25.Expand = false;
+			w25.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
