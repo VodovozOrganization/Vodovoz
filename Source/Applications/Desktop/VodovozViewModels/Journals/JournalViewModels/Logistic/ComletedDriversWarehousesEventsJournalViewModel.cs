@@ -162,12 +162,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 			if(_filterViewModel.DriverWarehouseEvent != null)
 			{
-				query.Where(ce => ce.DriverWarehouseEvent == _filterViewModel.DriverWarehouseEvent);
+				query.Where(ce => ce.DriverWarehouseEvent.Id == _filterViewModel.DriverWarehouseEvent.Id);
 			}
 
 			if(_filterViewModel.Car != null)
 			{
-				query.Where(ce => ce.Car == _filterViewModel.Car);
+				query.Where(ce => ce.Car.Id == _filterViewModel.Car.Id);
 			}
 
 			if(_filterViewModel.DistanceFromScanning.HasValue)
