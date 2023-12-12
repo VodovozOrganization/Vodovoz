@@ -1335,7 +1335,6 @@
     <Compile Include="Domain\Comments\DocumentComment.cs" />
     <Compile Include="Domain\Comments\ICommentedDocument.cs" />
     <Compile Include="Attributes\Value1cType.cs" />
-    <Compile Include="Services\IPotentialFreePromosetsReportDefaultsProvider.cs" />
     <Compile Include="Domain\BusinessTasks\BusinessTask.cs" />
     <Compile Include="Domain\BusinessTasks\ClientTask.cs" />
     <Compile Include="Domain\BusinessTasks\PaymentTask.cs" />
