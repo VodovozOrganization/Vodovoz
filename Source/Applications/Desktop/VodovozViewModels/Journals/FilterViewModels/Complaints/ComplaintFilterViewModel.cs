@@ -132,20 +132,28 @@ namespace Vodovoz.FilterViewModels
 
 		private IEntityEntryViewModel BuildAuthorViewModel(DialogViewModelBase journal)
 		{
-			return new CommonEEVMBuilderFactory<ComplaintFilterViewModel>(journal, this, UoW, _navigationManager, _lifetimeScope)
-				.ForProperty(x => x.Employee)
-				.UseViewModelDialog<EmployeeViewModel>()
-				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel>()
-				.Finish();
+			var authorViewModel = 
+				new CommonEEVMBuilderFactory<ComplaintFilterViewModel>(journal, this, UoW, _navigationManager, _lifetimeScope)
+					.ForProperty(x => x.Employee)
+					.UseViewModelDialog<EmployeeViewModel>()
+					.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel>()
+					.Finish();
+
+			authorViewModel.DisposeViewModel = false;
+			return authorViewModel;
 		}
 
 		private IEntityEntryViewModel BuildAtWorkInSubdivisionViewModel(DialogViewModelBase journal)
 		{
-			return new CommonEEVMBuilderFactory<ComplaintFilterViewModel>(journal, this, UoW, _navigationManager, _lifetimeScope)
-				.ForProperty(x => x.Subdivision)
-				.UseViewModelDialog<SubdivisionViewModel>()
-				.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel>()
-				.Finish();
+			var atWorkInSubdivisionViewModel = 
+				new CommonEEVMBuilderFactory<ComplaintFilterViewModel>(journal, this, UoW, _navigationManager, _lifetimeScope)
+					.ForProperty(x => x.Subdivision)
+					.UseViewModelDialog<SubdivisionViewModel>()
+					.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel>()
+					.Finish();
+
+			atWorkInSubdivisionViewModel.DisposeViewModel = false;
+			return atWorkInSubdivisionViewModel;
 		}
 
 		private IEntityEntryViewModel BuildCurrentSubdivisionViewModel(DialogViewModelBase journal)
@@ -157,6 +165,7 @@ namespace Vodovoz.FilterViewModels
 				.Finish();
 
 			currentSubdivisionViewModel.IsEditable = CanChangeSubdivision;
+			currentSubdivisionViewModel.DisposeViewModel = false;
 
 			return currentSubdivisionViewModel;
 		}
@@ -343,11 +352,15 @@ namespace Vodovoz.FilterViewModels
 
 		private IEntityEntryViewModel BuildeGuiltyItemSubdivisionViewModel(DialogViewModelBase journal)
 		{
-			return new CommonEEVMBuilderFactory<ComplaintGuiltyItem>(journal, GuiltyItemVM.Entity, UoW, _navigationManager, _lifetimeScope)
-				.ForProperty(x => x.Subdivision)
-				.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel>()
-				.UseViewModelDialog<SubdivisionViewModel>()
-				.Finish();
+			var guiltyItemSubdivisionViewModel = 
+				new CommonEEVMBuilderFactory<ComplaintGuiltyItem>(journal, GuiltyItemVM.Entity, UoW, _navigationManager, _lifetimeScope)
+					.ForProperty(x => x.Subdivision)
+					.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel>()
+					.UseViewModelDialog<SubdivisionViewModel>()
+					.Finish();
+
+			guiltyItemSubdivisionViewModel.DisposeViewModel = false;
+			return guiltyItemSubdivisionViewModel;
 		}
 
 		private IEntityEntryViewModel BuildComplaintDetalizationViewModel(DialogViewModelBase journal)
@@ -366,6 +379,7 @@ namespace Vodovoz.FilterViewModels
 				.Finish();
 
 			complaintDetalizationViewModel.CanViewEntity = false;
+			complaintDetalizationViewModel.DisposeViewModel = false;
 
 			return complaintDetalizationViewModel;
 		}
