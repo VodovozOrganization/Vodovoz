@@ -539,7 +539,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			}
 
 			if(!_isAdmin && !_cashRequestFinancier && !_cashRequestCoordinator && !_roleCashier && !_roleSecurityService)
-			{				
+			{
 				if(_canSeeCurrentSubdivisonRequests)
 				{
 					if(_subdivisionsControlledByCurrentEmployee.Count() > 0)
