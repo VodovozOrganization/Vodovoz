@@ -24,6 +24,8 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 
 		private global::Gamma.GtkWidgets.yLabel ylabelABottlesPerMonth;
 
+		private global::Gamma.GtkWidgets.yLabel ylabelBottleClassificationInfo;
+
 		private global::Gamma.GtkWidgets.yLabel ylabelBottlesCount;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelCalculationinfo;
@@ -33,6 +35,8 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 		private global::Gamma.GtkWidgets.yLabel ylabelCBottlesPerMonth;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelMonthes;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelOrdersClassificationInfo;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelOrdersCount;
 
@@ -87,7 +91,7 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 			this.ytableControls = new global::Gamma.GtkWidgets.yTable();
 			this.ytableControls.Name = "ytableControls";
 			this.ytableControls.NRows = ((uint)(12));
-			this.ytableControls.NColumns = ((uint)(3));
+			this.ytableControls.NColumns = ((uint)(4));
 			this.ytableControls.RowSpacing = ((uint)(6));
 			this.ytableControls.ColumnSpacing = ((uint)(6));
 			// Container child ytableControls.Gtk.Table+TableChild
@@ -176,6 +180,19 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 			w8.XOptions = ((global::Gtk.AttachOptions)(4));
 			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableControls.Gtk.Table+TableChild
+			this.ylabelBottleClassificationInfo = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelBottleClassificationInfo.Name = "ylabelBottleClassificationInfo";
+			this.ylabelBottleClassificationInfo.Xpad = 10;
+			this.ylabelBottleClassificationInfo.LabelProp = global::Mono.Unix.Catalog.GetString("  ");
+			this.ytableControls.Add(this.ylabelBottleClassificationInfo);
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.ylabelBottleClassificationInfo]));
+			w9.TopAttach = ((uint)(3));
+			w9.BottomAttach = ((uint)(5));
+			w9.LeftAttach = ((uint)(3));
+			w9.RightAttach = ((uint)(4));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child ytableControls.Gtk.Table+TableChild
 			this.ylabelBottlesCount = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelBottlesCount.Name = "ylabelBottlesCount";
 			this.ylabelBottlesCount.Xpad = 5;
@@ -183,12 +200,12 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 			this.ylabelBottlesCount.Xalign = 0F;
 			this.ylabelBottlesCount.LabelProp = global::Mono.Unix.Catalog.GetString("По среднему количеству бутылей 19л за месяц:");
 			this.ytableControls.Add(this.ylabelBottlesCount);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.ylabelBottlesCount]));
-			w9.TopAttach = ((uint)(2));
-			w9.BottomAttach = ((uint)(3));
-			w9.RightAttach = ((uint)(3));
-			w9.XOptions = ((global::Gtk.AttachOptions)(4));
-			w9.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.ylabelBottlesCount]));
+			w10.TopAttach = ((uint)(2));
+			w10.BottomAttach = ((uint)(3));
+			w10.RightAttach = ((uint)(3));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableControls.Gtk.Table+TableChild
 			this.ylabelCalculationinfo = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelCalculationinfo.Name = "ylabelCalculationinfo";
@@ -197,12 +214,12 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 			this.ylabelCalculationinfo.LabelProp = global::Mono.Unix.Catalog.GetString("Пересчет инфо");
 			this.ylabelCalculationinfo.UseMarkup = true;
 			this.ytableControls.Add(this.ylabelCalculationinfo);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.ylabelCalculationinfo]));
-			w10.TopAttach = ((uint)(10));
-			w10.BottomAttach = ((uint)(11));
-			w10.RightAttach = ((uint)(3));
-			w10.XOptions = ((global::Gtk.AttachOptions)(4));
-			w10.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.ylabelCalculationinfo]));
+			w11.TopAttach = ((uint)(10));
+			w11.BottomAttach = ((uint)(11));
+			w11.RightAttach = ((uint)(3));
+			w11.XOptions = ((global::Gtk.AttachOptions)(4));
+			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableControls.Gtk.Table+TableChild
 			this.ylabelCBottlesCount = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelCBottlesCount.Name = "ylabelCBottlesCount";
@@ -211,11 +228,11 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 			this.ylabelCBottlesCount.LabelProp = global::Mono.Unix.Catalog.GetString("<b>С</b> - не более");
 			this.ylabelCBottlesCount.UseMarkup = true;
 			this.ytableControls.Add(this.ylabelCBottlesCount);
-			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.ylabelCBottlesCount]));
-			w11.TopAttach = ((uint)(4));
-			w11.BottomAttach = ((uint)(5));
-			w11.XOptions = ((global::Gtk.AttachOptions)(4));
-			w11.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.ylabelCBottlesCount]));
+			w12.TopAttach = ((uint)(4));
+			w12.BottomAttach = ((uint)(5));
+			w12.XOptions = ((global::Gtk.AttachOptions)(4));
+			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableControls.Gtk.Table+TableChild
 			this.ylabelCBottlesPerMonth = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelCBottlesPerMonth.Name = "ylabelCBottlesPerMonth";
@@ -223,13 +240,13 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 			this.ylabelCBottlesPerMonth.Xalign = 0F;
 			this.ylabelCBottlesPerMonth.LabelProp = global::Mono.Unix.Catalog.GetString("бутылей в месяц");
 			this.ytableControls.Add(this.ylabelCBottlesPerMonth);
-			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.ylabelCBottlesPerMonth]));
-			w12.TopAttach = ((uint)(4));
-			w12.BottomAttach = ((uint)(5));
-			w12.LeftAttach = ((uint)(2));
-			w12.RightAttach = ((uint)(3));
-			w12.XOptions = ((global::Gtk.AttachOptions)(4));
-			w12.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.ylabelCBottlesPerMonth]));
+			w13.TopAttach = ((uint)(4));
+			w13.BottomAttach = ((uint)(5));
+			w13.LeftAttach = ((uint)(2));
+			w13.RightAttach = ((uint)(3));
+			w13.XOptions = ((global::Gtk.AttachOptions)(4));
+			w13.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableControls.Gtk.Table+TableChild
 			this.ylabelMonthes = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelMonthes.Name = "ylabelMonthes";
@@ -237,11 +254,24 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 			this.ylabelMonthes.Xalign = 0F;
 			this.ylabelMonthes.LabelProp = global::Mono.Unix.Catalog.GetString("мес");
 			this.ytableControls.Add(this.ylabelMonthes);
-			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.ylabelMonthes]));
-			w13.LeftAttach = ((uint)(2));
-			w13.RightAttach = ((uint)(3));
-			w13.XOptions = ((global::Gtk.AttachOptions)(4));
-			w13.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.ylabelMonthes]));
+			w14.LeftAttach = ((uint)(2));
+			w14.RightAttach = ((uint)(3));
+			w14.XOptions = ((global::Gtk.AttachOptions)(4));
+			w14.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child ytableControls.Gtk.Table+TableChild
+			this.ylabelOrdersClassificationInfo = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelOrdersClassificationInfo.Name = "ylabelOrdersClassificationInfo";
+			this.ylabelOrdersClassificationInfo.Xpad = 10;
+			this.ylabelOrdersClassificationInfo.LabelProp = global::Mono.Unix.Catalog.GetString("  ");
+			this.ytableControls.Add(this.ylabelOrdersClassificationInfo);
+			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.ylabelOrdersClassificationInfo]));
+			w15.TopAttach = ((uint)(6));
+			w15.BottomAttach = ((uint)(8));
+			w15.LeftAttach = ((uint)(3));
+			w15.RightAttach = ((uint)(4));
+			w15.XOptions = ((global::Gtk.AttachOptions)(4));
+			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableControls.Gtk.Table+TableChild
 			this.ylabelOrdersCount = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelOrdersCount.Name = "ylabelOrdersCount";
@@ -250,12 +280,12 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 			this.ylabelOrdersCount.Xalign = 0F;
 			this.ylabelOrdersCount.LabelProp = global::Mono.Unix.Catalog.GetString("По среднему количеству заказов за месяц:");
 			this.ytableControls.Add(this.ylabelOrdersCount);
-			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.ylabelOrdersCount]));
-			w14.TopAttach = ((uint)(5));
-			w14.BottomAttach = ((uint)(6));
-			w14.RightAttach = ((uint)(3));
-			w14.XOptions = ((global::Gtk.AttachOptions)(4));
-			w14.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.ylabelOrdersCount]));
+			w16.TopAttach = ((uint)(5));
+			w16.BottomAttach = ((uint)(6));
+			w16.RightAttach = ((uint)(3));
+			w16.XOptions = ((global::Gtk.AttachOptions)(4));
+			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableControls.Gtk.Table+TableChild
 			this.ylabelPeriod = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelPeriod.Name = "ylabelPeriod";
@@ -264,9 +294,9 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 			this.ylabelPeriod.Xalign = 1F;
 			this.ylabelPeriod.LabelProp = global::Mono.Unix.Catalog.GetString("Период");
 			this.ytableControls.Add(this.ylabelPeriod);
-			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.ylabelPeriod]));
-			w15.XOptions = ((global::Gtk.AttachOptions)(4));
-			w15.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.ylabelPeriod]));
+			w17.XOptions = ((global::Gtk.AttachOptions)(4));
+			w17.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableControls.Gtk.Table+TableChild
 			this.ylabelSettings = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelSettings.Name = "ylabelSettings";
@@ -275,12 +305,12 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 			this.ylabelSettings.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Настройка классификации</b>");
 			this.ylabelSettings.UseMarkup = true;
 			this.ytableControls.Add(this.ylabelSettings);
-			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.ylabelSettings]));
-			w16.TopAttach = ((uint)(1));
-			w16.BottomAttach = ((uint)(2));
-			w16.RightAttach = ((uint)(3));
-			w16.XOptions = ((global::Gtk.AttachOptions)(4));
-			w16.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.ylabelSettings]));
+			w18.TopAttach = ((uint)(1));
+			w18.BottomAttach = ((uint)(2));
+			w18.RightAttach = ((uint)(3));
+			w18.XOptions = ((global::Gtk.AttachOptions)(4));
+			w18.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableControls.Gtk.Table+TableChild
 			this.ylabelXOrdersCount = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelXOrdersCount.Name = "ylabelXOrdersCount";
@@ -290,11 +320,11 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 			this.ylabelXOrdersCount.LabelProp = global::Mono.Unix.Catalog.GetString("<b>X</b> - не менее");
 			this.ylabelXOrdersCount.UseMarkup = true;
 			this.ytableControls.Add(this.ylabelXOrdersCount);
-			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.ylabelXOrdersCount]));
-			w17.TopAttach = ((uint)(6));
-			w17.BottomAttach = ((uint)(7));
-			w17.XOptions = ((global::Gtk.AttachOptions)(4));
-			w17.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.ylabelXOrdersCount]));
+			w19.TopAttach = ((uint)(6));
+			w19.BottomAttach = ((uint)(7));
+			w19.XOptions = ((global::Gtk.AttachOptions)(4));
+			w19.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableControls.Gtk.Table+TableChild
 			this.ylabelXOrdersPerMonth = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelXOrdersPerMonth.Name = "ylabelXOrdersPerMonth";
@@ -302,13 +332,13 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 			this.ylabelXOrdersPerMonth.Xalign = 0F;
 			this.ylabelXOrdersPerMonth.LabelProp = global::Mono.Unix.Catalog.GetString("заказов в месяц");
 			this.ytableControls.Add(this.ylabelXOrdersPerMonth);
-			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.ylabelXOrdersPerMonth]));
-			w18.TopAttach = ((uint)(6));
-			w18.BottomAttach = ((uint)(7));
-			w18.LeftAttach = ((uint)(2));
-			w18.RightAttach = ((uint)(3));
-			w18.XOptions = ((global::Gtk.AttachOptions)(4));
-			w18.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.ylabelXOrdersPerMonth]));
+			w20.TopAttach = ((uint)(6));
+			w20.BottomAttach = ((uint)(7));
+			w20.LeftAttach = ((uint)(2));
+			w20.RightAttach = ((uint)(3));
+			w20.XOptions = ((global::Gtk.AttachOptions)(4));
+			w20.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableControls.Gtk.Table+TableChild
 			this.ylabelZOrdersCount = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelZOrdersCount.Name = "ylabelZOrdersCount";
@@ -318,11 +348,11 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 			this.ylabelZOrdersCount.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Z</b> - не более");
 			this.ylabelZOrdersCount.UseMarkup = true;
 			this.ytableControls.Add(this.ylabelZOrdersCount);
-			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.ylabelZOrdersCount]));
-			w19.TopAttach = ((uint)(7));
-			w19.BottomAttach = ((uint)(8));
-			w19.XOptions = ((global::Gtk.AttachOptions)(4));
-			w19.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.ylabelZOrdersCount]));
+			w21.TopAttach = ((uint)(7));
+			w21.BottomAttach = ((uint)(8));
+			w21.XOptions = ((global::Gtk.AttachOptions)(4));
+			w21.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableControls.Gtk.Table+TableChild
 			this.ylabelZOrdersPerMonth = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelZOrdersPerMonth.Name = "ylabelZOrdersPerMonth";
@@ -330,23 +360,23 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 			this.ylabelZOrdersPerMonth.Xalign = 0F;
 			this.ylabelZOrdersPerMonth.LabelProp = global::Mono.Unix.Catalog.GetString("заказов в месяц");
 			this.ytableControls.Add(this.ylabelZOrdersPerMonth);
-			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.ylabelZOrdersPerMonth]));
-			w20.TopAttach = ((uint)(7));
-			w20.BottomAttach = ((uint)(8));
-			w20.LeftAttach = ((uint)(2));
-			w20.RightAttach = ((uint)(3));
-			w20.XOptions = ((global::Gtk.AttachOptions)(4));
-			w20.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.ylabelZOrdersPerMonth]));
+			w22.TopAttach = ((uint)(7));
+			w22.BottomAttach = ((uint)(8));
+			w22.LeftAttach = ((uint)(2));
+			w22.RightAttach = ((uint)(3));
+			w22.XOptions = ((global::Gtk.AttachOptions)(4));
+			w22.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableControls.Gtk.Table+TableChild
 			this.yprogressbarCalculationProgress = new global::Gamma.GtkWidgets.yProgressBar();
 			this.yprogressbarCalculationProgress.Name = "yprogressbarCalculationProgress";
 			this.ytableControls.Add(this.yprogressbarCalculationProgress);
-			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.yprogressbarCalculationProgress]));
-			w21.TopAttach = ((uint)(9));
-			w21.BottomAttach = ((uint)(10));
-			w21.RightAttach = ((uint)(3));
-			w21.XOptions = ((global::Gtk.AttachOptions)(4));
-			w21.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.yprogressbarCalculationProgress]));
+			w23.TopAttach = ((uint)(9));
+			w23.BottomAttach = ((uint)(10));
+			w23.RightAttach = ((uint)(3));
+			w23.XOptions = ((global::Gtk.AttachOptions)(4));
+			w23.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableControls.Gtk.Table+TableChild
 			this.yspinbuttonABottlesCount = new global::Gamma.GtkWidgets.ySpinButton(0D, 100000D, 1D);
 			this.yspinbuttonABottlesCount.CanFocus = true;
@@ -357,13 +387,13 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 			this.yspinbuttonABottlesCount.ValueAsDecimal = 0m;
 			this.yspinbuttonABottlesCount.ValueAsInt = 0;
 			this.ytableControls.Add(this.yspinbuttonABottlesCount);
-			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.yspinbuttonABottlesCount]));
-			w22.TopAttach = ((uint)(3));
-			w22.BottomAttach = ((uint)(4));
-			w22.LeftAttach = ((uint)(1));
-			w22.RightAttach = ((uint)(2));
-			w22.XOptions = ((global::Gtk.AttachOptions)(4));
-			w22.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w24 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.yspinbuttonABottlesCount]));
+			w24.TopAttach = ((uint)(3));
+			w24.BottomAttach = ((uint)(4));
+			w24.LeftAttach = ((uint)(1));
+			w24.RightAttach = ((uint)(2));
+			w24.XOptions = ((global::Gtk.AttachOptions)(4));
+			w24.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableControls.Gtk.Table+TableChild
 			this.yspinbuttonCBottlesCount = new global::Gamma.GtkWidgets.ySpinButton(0D, 100000D, 1D);
 			this.yspinbuttonCBottlesCount.CanFocus = true;
@@ -374,13 +404,13 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 			this.yspinbuttonCBottlesCount.ValueAsDecimal = 0m;
 			this.yspinbuttonCBottlesCount.ValueAsInt = 0;
 			this.ytableControls.Add(this.yspinbuttonCBottlesCount);
-			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.yspinbuttonCBottlesCount]));
-			w23.TopAttach = ((uint)(4));
-			w23.BottomAttach = ((uint)(5));
-			w23.LeftAttach = ((uint)(1));
-			w23.RightAttach = ((uint)(2));
-			w23.XOptions = ((global::Gtk.AttachOptions)(4));
-			w23.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w25 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.yspinbuttonCBottlesCount]));
+			w25.TopAttach = ((uint)(4));
+			w25.BottomAttach = ((uint)(5));
+			w25.LeftAttach = ((uint)(1));
+			w25.RightAttach = ((uint)(2));
+			w25.XOptions = ((global::Gtk.AttachOptions)(4));
+			w25.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableControls.Gtk.Table+TableChild
 			this.yspinbuttonPeriod = new global::Gamma.GtkWidgets.ySpinButton(0D, 100D, 1D);
 			this.yspinbuttonPeriod.CanFocus = true;
@@ -391,11 +421,11 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 			this.yspinbuttonPeriod.ValueAsDecimal = 0m;
 			this.yspinbuttonPeriod.ValueAsInt = 0;
 			this.ytableControls.Add(this.yspinbuttonPeriod);
-			global::Gtk.Table.TableChild w24 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.yspinbuttonPeriod]));
-			w24.LeftAttach = ((uint)(1));
-			w24.RightAttach = ((uint)(2));
-			w24.XOptions = ((global::Gtk.AttachOptions)(4));
-			w24.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w26 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.yspinbuttonPeriod]));
+			w26.LeftAttach = ((uint)(1));
+			w26.RightAttach = ((uint)(2));
+			w26.XOptions = ((global::Gtk.AttachOptions)(4));
+			w26.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableControls.Gtk.Table+TableChild
 			this.yspinbuttonXOrdersCount = new global::Gamma.GtkWidgets.ySpinButton(0D, 100000D, 1D);
 			this.yspinbuttonXOrdersCount.CanFocus = true;
@@ -406,13 +436,13 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 			this.yspinbuttonXOrdersCount.ValueAsDecimal = 0m;
 			this.yspinbuttonXOrdersCount.ValueAsInt = 0;
 			this.ytableControls.Add(this.yspinbuttonXOrdersCount);
-			global::Gtk.Table.TableChild w25 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.yspinbuttonXOrdersCount]));
-			w25.TopAttach = ((uint)(6));
-			w25.BottomAttach = ((uint)(7));
-			w25.LeftAttach = ((uint)(1));
-			w25.RightAttach = ((uint)(2));
-			w25.XOptions = ((global::Gtk.AttachOptions)(4));
-			w25.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w27 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.yspinbuttonXOrdersCount]));
+			w27.TopAttach = ((uint)(6));
+			w27.BottomAttach = ((uint)(7));
+			w27.LeftAttach = ((uint)(1));
+			w27.RightAttach = ((uint)(2));
+			w27.XOptions = ((global::Gtk.AttachOptions)(4));
+			w27.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableControls.Gtk.Table+TableChild
 			this.yspinbuttonZOrdersCount = new global::Gamma.GtkWidgets.ySpinButton(0D, 100000D, 1D);
 			this.yspinbuttonZOrdersCount.CanFocus = true;
@@ -423,23 +453,23 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 			this.yspinbuttonZOrdersCount.ValueAsDecimal = 0m;
 			this.yspinbuttonZOrdersCount.ValueAsInt = 0;
 			this.ytableControls.Add(this.yspinbuttonZOrdersCount);
-			global::Gtk.Table.TableChild w26 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.yspinbuttonZOrdersCount]));
-			w26.TopAttach = ((uint)(7));
-			w26.BottomAttach = ((uint)(8));
-			w26.LeftAttach = ((uint)(1));
-			w26.RightAttach = ((uint)(2));
-			w26.XOptions = ((global::Gtk.AttachOptions)(4));
-			w26.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w28 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.yspinbuttonZOrdersCount]));
+			w28.TopAttach = ((uint)(7));
+			w28.BottomAttach = ((uint)(8));
+			w28.LeftAttach = ((uint)(1));
+			w28.RightAttach = ((uint)(2));
+			w28.XOptions = ((global::Gtk.AttachOptions)(4));
+			w28.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.yvboxProperties.Add(this.ytableControls);
-			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.yvboxProperties[this.ytableControls]));
-			w27.Position = 0;
-			w27.Expand = false;
-			w27.Fill = false;
+			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.yvboxProperties[this.ytableControls]));
+			w29.Position = 0;
+			w29.Expand = false;
+			w29.Fill = false;
 			w1.Add(this.yvboxProperties);
 			this.GtkScrolledWindow.Add(w1);
 			this.yvboxMain.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.GtkScrolledWindow]));
-			w30.Position = 0;
+			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.GtkScrolledWindow]));
+			w32.Position = 0;
 			this.Add(this.yvboxMain);
 			if ((this.Child != null))
 			{
