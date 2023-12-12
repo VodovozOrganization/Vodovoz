@@ -520,6 +520,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 						}
 
 						var newDistrictPrioritySet = DriverDistrictPriorityHelper.CopyPrioritySetWithActiveDistricts(
+							UoW,
 							SelectedDistrictPrioritySet,
 							out var notCopiedPriorities
 						);

@@ -122,6 +122,7 @@
     <Compile Include="Domain\Payments\PaymentsFromCloudPaymentsParser.cs" />
     <Compile Include="Domain\Payments\PaymentsFromTinkoffParser.cs" />
     <Compile Include="Domain\Payments\PaymentState.cs" />
+    <Compile Include="Domain\Sale\DistrictCopyItem.cs" />
     <Compile Include="Domain\StoredEmails\UpdDocumentEmail.cs" />
     <Compile Include="Domain\Subdivisions\SubdivisionType.cs" />
     <Compile Include="EntityRepositories\Cash\FinancialExpenseCategoriesRepository.cs" />
