@@ -528,7 +528,6 @@ namespace Vodovoz
 						.As<IDriverServiceParametersProvider>()
 						.As<IErrorSendParameterProvider>()
 						.As<IProfitCategoryProvider>()
-						.As<IPotentialFreePromosetsReportDefaultsProvider>()
 						.As<IMailjetParametersProvider>()
 						.As<IVpbxSettings>()
 						.As<ITerminalNomenclatureProvider>()
