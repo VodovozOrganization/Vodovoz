@@ -19,7 +19,6 @@ namespace Vodovoz.Domain.Logistic.Drivers
 	{
 		public static char QrParametersSeparator = ';';
 		public static string QrType = "EventQr";
-		public static string HasCompletedEvents = "HasCompletedEvents";
 		private const int _eventNameMaxLength = 150;
 		private decimal? _latitude;
 		private decimal? _longitude;
@@ -159,14 +158,12 @@ namespace Vodovoz.Domain.Logistic.Drivers
 				
 				if(DocumentType.HasValue
 					&& QrPositionOnDocument.HasValue
-					&& validationContext.Items.ContainsKey(HasCompletedEvents)
-					&& !IsArchive
-					&& !(bool)validationContext.Items[HasCompletedEvents])
+					&& !IsArchive)
 				{
 					using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 					{
-						var hasEvents = driverWarehouseEventRepository.HasActiveDriverWarehouseEventsForDocumentAndQrPosition(
-							uow, DocumentType.Value, QrPositionOnDocument.Value);
+						var hasEvents = driverWarehouseEventRepository.HasOtherActiveDriverWarehouseEventsForDocumentAndQrPosition(
+							uow, Id, DocumentType.Value, QrPositionOnDocument.Value);
 
 						if(hasEvents)
 						{

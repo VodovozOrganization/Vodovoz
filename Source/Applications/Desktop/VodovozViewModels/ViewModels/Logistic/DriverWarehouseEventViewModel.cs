@@ -99,7 +99,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private void ConfigureValidationContext()
 		{
-			ValidationContext.Items.Add(DriverWarehouseEvent.HasCompletedEvents, _hasCompletedEvents);
 			ValidationContext.ServiceContainer.AddService(typeof(IDriverWarehouseEventRepository), _driverWarehouseEventRepository);
 		}
 

@@ -16,11 +16,12 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.List();
 		}
 
-		public bool HasActiveDriverWarehouseEventsForDocumentAndQrPosition(
-			IUnitOfWork uow, EventQrDocumentType documentType, EventQrPositionOnDocument qrPositionOnDocument)
+		public bool HasOtherActiveDriverWarehouseEventsForDocumentAndQrPosition(
+			IUnitOfWork uow, int excludeEventId, EventQrDocumentType documentType, EventQrPositionOnDocument qrPositionOnDocument)
 		{
 			return uow.Session.QueryOver<DriverWarehouseEvent>()
 				.Where(e => e.DocumentType == documentType)
+				.And(e => e.Id != excludeEventId)
 				.And(e => e.QrPositionOnDocument == qrPositionOnDocument)
 				.And(e => !e.IsArchive)
 				.RowCount() > 0;

@@ -8,7 +8,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 	public interface IDriverWarehouseEventRepository
 	{
 		IEnumerable<DriverWarehouseEvent> GetActiveDriverWarehouseEventsForDocument(IUnitOfWork uow, EventQrDocumentType documentType);
-		bool HasActiveDriverWarehouseEventsForDocumentAndQrPosition(
-			IUnitOfWork uow, EventQrDocumentType documentType, EventQrPositionOnDocument qrPositionOnDocument);
+		bool HasOtherActiveDriverWarehouseEventsForDocumentAndQrPosition(
+			IUnitOfWork uow, int excludeEventId, EventQrDocumentType documentType, EventQrPositionOnDocument qrPositionOnDocument);
 	}
 }

@@ -41,6 +41,7 @@ namespace Vodovoz.Additions
 
 			if(!events.Any())
 			{
+				rdlPath = Path.GetFullPath(rdlPath);
 				return false;
 			}
 			
