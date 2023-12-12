@@ -1,22 +1,24 @@
-﻿using System;
-using System.Linq;
+﻿using FluentNHibernate.Data;
+using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gtk;
-using QS.Project.Journal.EntitySelector;
-using QS.Views.GtkUI;
-using Vodovoz.Domain.Client;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.JournalViewModels;
-using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
-using Vodovoz.Domain.Orders.OrdersWithoutShipment;
+using QS.DomainModel.UoW;
 using QS.Utilities;
+using QS.Views.GtkUI;
+using System;
+using System.ComponentModel;
+using System.Linq;
 using Vodovoz.Dialogs.Email;
-using Vodovoz.Infrastructure.Converters;
+using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Infrastructure;
+using Vodovoz.Infrastructure.Converters;
+using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 
 namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class OrderWithoutShipmentForAdvancePaymentView : TabViewBase<OrderWithoutShipmentForAdvancePaymentViewModel>
 	{
 		public OrderWithoutShipmentForAdvancePaymentView(OrderWithoutShipmentForAdvancePaymentViewModel viewModel) : base(viewModel)
@@ -32,18 +34,39 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			btnDeleteOrderItem.Clicked += (sender, e) => ViewModel.DeleteItemCommand.Execute();
 			ybtnOpenBill.Clicked += (sender, e) => ViewModel.OpenBillCommand.Execute();
 
-			ylabelOrderNum.Binding.AddBinding(ViewModel.Entity, e => e.Id, w => w.Text, new IntToStringConverter()).InitializeFromSource();
-			ylabelOrderDate.Binding.AddFuncBinding(ViewModel, vm => vm.Entity.CreateDate.ToString(), w => w.Text).InitializeFromSource();
-			ylabelOrderAuthor.Binding.AddFuncBinding(ViewModel, vm => vm.Entity.Author.ShortName, w => w.Text).InitializeFromSource();
-			btnDeleteOrderItem.Binding.AddFuncBinding(ViewModel, vm => vm.SelectedItem != null, w => w.Sensitive).InitializeFromSource();
-			yCheckBtnHideSignature.Binding.AddBinding(ViewModel.Entity, e => e.HideSignature, w => w.Active).InitializeFromSource();
+			ylabelOrderNum.Binding
+				.AddBinding(ViewModel.Entity, e => e.Id, w => w.Text, new IntToStringConverter())
+				.InitializeFromSource();
 
-			entityViewModelEntryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory());
+			ylabelOrderDate.Binding
+				.AddFuncBinding(ViewModel, vm => vm.Entity.CreateDate.ToString(), w => w.Text)
+				.InitializeFromSource();
+
+			ylabelOrderAuthor.Binding
+				.AddFuncBinding(ViewModel, vm => vm.Entity.Author.ShortName, w => w.Text)
+				.InitializeFromSource();
+
+			btnDeleteOrderItem.Binding
+				.AddFuncBinding(ViewModel, vm => vm.SelectedItem != null, w => w.Sensitive)
+				.InitializeFromSource();
+
+			yCheckBtnHideSignature.Binding
+				.AddBinding(ViewModel.Entity, e => e.HideSignature, w => w.Active)
+				.InitializeFromSource();
+
+			entityViewModelEntryCounterparty.SetEntityAutocompleteSelectorFactory(
+				ViewModel.CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory());
 
 			entityViewModelEntryCounterparty.Changed += ViewModel.OnEntityViewModelEntryChanged;
 
-			entityViewModelEntryCounterparty.Binding.AddBinding(ViewModel.Entity, e => e.Client, w => w.Subject).InitializeFromSource();
-			entityViewModelEntryCounterparty.Binding.AddFuncBinding(ViewModel, vm => !vm.IsDocumentSent, w => w.Sensitive).InitializeFromSource();
+			entityViewModelEntryCounterparty.Binding
+				.AddBinding(ViewModel.Entity, e => e.Client, w => w.Subject)
+				.InitializeFromSource();
+
+			entityViewModelEntryCounterparty.Binding
+				.AddFuncBinding(ViewModel, vm => !vm.IsDocumentSent, w => w.Sensitive)
+				.InitializeFromSource();
+
 			entityViewModelEntryCounterparty.CanEditReference = true;
 			
 			var sendEmailView = new SendDocumentByEmailView(ViewModel.SendDocViewModel);
@@ -53,6 +76,56 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			ViewModel.OpenCounterpartyJournal += entityViewModelEntryCounterparty.OpenSelectDialog;
 
 			ConfigureTreeItems();
+
+			treeViewEdoContainers.ColumnsConfig = FluentColumnsConfig<EdoContainer>.Create()
+				.AddColumn("Код документооборота")
+					.AddTextRenderer(x => x.DocFlowId.HasValue ? x.DocFlowId.ToString() : string.Empty)
+				.AddColumn("Отправленные\nдокументы")
+					.AddTextRenderer(x => x.SentDocuments)
+				.AddColumn("Статус\nдокументооборота")
+					.AddEnumRenderer(x => x.EdoDocFlowStatus)
+				.AddColumn("Доставлено\nклиенту?")
+					.AddToggleRenderer(x => x.Received)
+					.Editing(false)
+				.AddColumn("Описание ошибки")
+					.AddTextRenderer(x => x.ErrorDescription)
+					.WrapWidth(500)
+				.AddColumn("")
+				.Finish();
+
+			if(ViewModel.Entity.Id != 0)
+			{
+				CustomizeSendDocumentAgainButton();
+			}
+
+			treeViewEdoContainers.ItemsDataSource = ViewModel.EdoContainers;
+
+			btnUpdateEdoDocFlowStatus.Clicked += (sender, args) =>
+			{
+				ViewModel.UpdateEdoContainers();
+				CustomizeSendDocumentAgainButton();
+			};
+
+			ybuttonSendDocumentAgain.Clicked += ViewModel.OnButtonSendDocumentAgainClicked;
+
+			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+
+			UpdateContainersVisibility();
+		}
+
+		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(ViewModel.CanSendBillByEdo)
+				|| e.PropertyName == nameof(ViewModel.CanResendEdoBill))
+			{
+				UpdateContainersVisibility();
+				CustomizeSendDocumentAgainButton();
+			}
+		}
+
+		private void UpdateContainersVisibility()
+		{
+			vboxEdo.Visible = ViewModel.CanSendBillByEdo || ViewModel.EdoContainers.Any();
 		}
 
 		private void ConfigureTreeItems()
@@ -94,8 +167,8 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 					.Editing()
 					.AddSetter(
 						(c, n) => c.Adjustment = n.IsDiscountInMoney
-									? new Adjustment(0, 0, (double)(n.Price * n.Count), 1, 100, 1)
-									: new Adjustment(0, 0, 100, 1, 100, 1)
+							? new Adjustment(0, 0, (double)(n.Price * n.Count), 1, 100, 1)
+							: new Adjustment(0, 0, 100, 1, 100, 1)
 					)
 					.Digits(2)
 					.WidthChars(10)
@@ -115,19 +188,30 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 						return list;
 					})
 					.EditedEvent(OnDiscountReasonComboEdited)
-				.AddSetter(
-						(c, n) =>
-							c.BackgroundGdk = n.Discount > 0 && n.DiscountReason == null
-								? colorLightRed
-								: colorWhite
-					)
+				.AddSetter((c, n) =>
+					c.BackgroundGdk = n.Discount > 0 && n.DiscountReason == null
+						? colorLightRed
+						: colorWhite)
 				.RowCells()
 					.XAlign(0.5f)
 				.Finish();
 			treeItems.ItemsDataSource = ViewModel.Entity.ObservableOrderWithoutDeliveryForAdvancePaymentItems;
 			treeItems.Selection.Changed += TreeItems_Selection_Changed;
 		}
-		
+
+		private void CustomizeSendDocumentAgainButton()
+		{
+			if(!ViewModel.EdoContainers.Any())
+			{
+				ybuttonSendDocumentAgain.Sensitive = ViewModel.CanSendBillByEdo;
+				ybuttonSendDocumentAgain.Label = "Отправить";
+				return;
+			}
+
+			ybuttonSendDocumentAgain.Sensitive = ViewModel.CanResendEdoBill;
+			ybuttonSendDocumentAgain.Label = "Отправить повторно";
+		}
+
 		private void OnDiscountReasonComboEdited(object o, EditedArgs args)
 		{
 			Gtk.Application.Invoke((sender, eventArgs) =>

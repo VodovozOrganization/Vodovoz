@@ -7,7 +7,15 @@ namespace TaxcomEdoApi
 	{
 		public static void Main(string[] args)
 		{
-			CreateHostBuilder(args).Build().Run();
+			try
+			{
+				CreateHostBuilder(args).Build().Run();
+			}
+			finally
+			{
+				// Ensure to flush and stop internal timers/threads before application-exit (Avoid segmentation fault on Linux)
+				NLog.LogManager.Shutdown();
+			}
 		}
 
 		public static IHostBuilder CreateHostBuilder(string[] args) =>

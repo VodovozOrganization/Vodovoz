@@ -53,6 +53,7 @@ using Vodovoz.Extensions;
 using QS.Navigation;
 using Vodovoz.ViewModels.Employees;
 using Microsoft.Extensions.Logging;
+using Vodovoz.ViewModels.Logistic;
 
 namespace Vodovoz
 {
@@ -666,10 +667,8 @@ namespace Vodovoz
 							return;
 						}
 					}
-					NavigationManager.OpenTdiTabOnTdi<RouteListAddressesTransferringDlg, int, RouteListAddressesTransferringDlg.OpenParameter>(
-						this,
-						Entity.Id,
-						RouteListAddressesTransferringDlg.OpenParameter.Receiver);
+					var transferingRecieverPage = NavigationManager.OpenViewModelOnTdi<RouteListTransferringViewModel>(this);
+					transferingRecieverPage.ViewModel.TargetRouteListId = Entity.Id;
 					break;
 				case RouteListActions.TransferAddressesToAnotherRL:
 					if(UoW.HasChanges) {
@@ -682,16 +681,13 @@ namespace Vodovoz
 							return;
 						}
 					}
-					NavigationManager.OpenTdiTabOnTdi<RouteListAddressesTransferringDlg, int, RouteListAddressesTransferringDlg.OpenParameter>(
-						this,
-						Entity.Id,
-						RouteListAddressesTransferringDlg.OpenParameter.Sender);
+					var transferingSenderPage = NavigationManager.OpenViewModelOnTdi<RouteListTransferringViewModel>(this);
+					transferingSenderPage.ViewModel.SourceRouteListId = Entity.Id;
 					break;
 				default:
 					break;
 			}
 		}
-
 
 		void Routelistdiscrepancyview_FineChanged(object sender, EventArgs e)
 		{

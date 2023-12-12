@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 using System.Linq;
 using QS.Commands;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Journal;
-using QS.Project.Journal.EntitySelector;
 using QS.Project.Search;
 using QS.Services;
 using QS.Tdi;
@@ -12,9 +12,6 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.FilterViewModels.Goods;
-using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalViewModels;
 using Vodovoz.Services;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
@@ -25,38 +22,24 @@ namespace Vodovoz.ViewModels.Client
 {
 	public class SupplierPricesWidgetViewModel : EntityWidgetViewModelBase<Counterparty>
 	{
-		private readonly ITdiTab dialogTab;
-		private readonly IEmployeeService employeeService;
-		private readonly INomenclatureRepository nomenclatureRepository;
-		private readonly IUserRepository userRepository;
-		private readonly INomenclatureSettings _nomenclatureSettings;
-		private readonly ICounterpartyJournalFactory counterpartySelectorFactory;
-		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
+		private readonly ITdiTab _dialogTab;
+		private readonly ITdiCompatibilityNavigation _navigationManager;
 
 		public event EventHandler ListContentChanged;
 
 		public IJournalSearch Search { get; private set; }
 
-		public SupplierPricesWidgetViewModel(Counterparty entity,
+		public SupplierPricesWidgetViewModel(
+			Counterparty entity,
 			IUnitOfWork uow,
 			ITdiTab dialogTab,
 			ICommonServices commonServices,
-			IEmployeeService employeeService,
-			ICounterpartyJournalFactory counterpartySelectorFactory,
-			INomenclatureJournalFactory nomenclatureSelectorFactory,
-			INomenclatureRepository nomenclatureRepository,
-			IUserRepository userRepository,
-			INomenclatureSettings nomenclatureSettings)
+			ITdiCompatibilityNavigation navigationManager)
 			: base(entity, commonServices)
 		{
-			this.dialogTab = dialogTab ?? throw new ArgumentNullException(nameof(dialogTab));
+			_dialogTab = dialogTab ?? throw new ArgumentNullException(nameof(dialogTab));
+			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
-			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
-			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
-			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
-			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 
 			CreateCommands();
 			RefreshPrices();
@@ -98,32 +81,36 @@ namespace Vodovoz.ViewModels.Client
 		private void CreateAddItemCommand()
 		{
 			AddItemCommand = new DelegateCommand(
-				() => {
-					var existingNomenclatures = Entity.ObservableSuplierPriceItems.Select(i => i.NomenclatureToBuy.Id).Distinct();
-					var filter = new NomenclatureFilterViewModel() {
-						HidenByDefault = true
-					};
-					NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
-						filter,
-						UnitOfWorkFactory.GetDefaultFactory,
-						CommonServices,
-						employeeService,
-						_nomenclatureSelectorFactory,
-						counterpartySelectorFactory,
-						nomenclatureRepository,
-						userRepository,
-						_nomenclatureSettings
-					) {
-						SelectionMode = JournalSelectionMode.Single,
-						ExcludingNomenclatureIds = existingNomenclatures.ToArray()
-					};
-					journalViewModel.OnEntitySelectedResult += (sender, e) => {
+				() =>
+				{
+					var existingNomenclatures =
+						Entity.ObservableSuplierPriceItems.Select(i => i.NomenclatureToBuy.Id).Distinct();
+					
+					var journalViewModel =
+						_navigationManager.OpenViewModelOnTdi<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(
+							_dialogTab,
+							f =>
+							{
+								f.HidenByDefault = true;
+							},
+							OpenPageOptions.AsSlave,
+							vm =>
+							{
+								vm.SelectionMode = JournalSelectionMode.Single;
+								vm.ExcludingNomenclatureIds = existingNomenclatures.ToArray();
+							})
+						.ViewModel;
+						
+					journalViewModel.OnEntitySelectedResult += (sender, e) =>
+					{
 						var selectedNode = e.SelectedNodes.FirstOrDefault();
 						if(selectedNode == null)
+						{
 							return;
+						}
+
 						Entity.AddSupplierPriceItems(UoW.GetById<Nomenclature>(selectedNode.Id));
 					};
-					dialogTab.TabParent.AddSlaveTab(dialogTab, journalViewModel);
 				},
 				() => true
 			);

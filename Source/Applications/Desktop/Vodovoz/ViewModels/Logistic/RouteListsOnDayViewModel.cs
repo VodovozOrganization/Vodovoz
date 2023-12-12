@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using NHibernate;
@@ -6,6 +6,7 @@ using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Commands;
 using QS.DomainModel.Entity;
+using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Journal;
@@ -28,6 +29,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Profitability;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
@@ -58,6 +60,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly int _closingDocumentDeliveryScheduleId;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
+
 		public IUnitOfWork UoW;
 
 		public RouteListsOnDayViewModel(
@@ -207,15 +210,15 @@ namespace Vodovoz.ViewModels.Logistic
 
 		private void CreateCommands()
 		{
-			CreateSaveCommand();
-			CreateRemoveRLItemCommand();
-			CreateOpenOrderOrRouteListCommand();
-			CreateAddDriverCommand();
-			CreateRemoveDriverCommand();
-			CreateAddForwarderCommand();
-			CreateRemoveForwarderCommand();
-			CreateRebuilOneRouteCommand();
-			CreateShowWarningsCommand();
+			SaveCommand = CreateSaveCommand();
+			RemoveRLItemCommand = CreateRemoveRLItemCommand();
+			OpenOrderOrRouteListCommand = CreateOpenOrderOrRouteListCommand();
+			AddDriverCommand = CreateAddDriverCommand();
+			RemoveDriverCommand = CreateRemoveDriverCommand();
+			AddForwarderCommand = CreateAddForwarderCommand();
+			RemoveForwarderCommand = CreateRemoveForwarderCommand();
+			RebuilOneRouteCommand = CreateRebuilOneRouteCommand();
+			ShowWarningsCommand = CreateShowWarningsCommand();
 		}
 
 		public event EventHandler AutoroutingResultsSaved;
@@ -224,9 +227,9 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public DelegateCommand SaveCommand { get; private set; }
 
-		private void CreateSaveCommand()
+		private DelegateCommand CreateSaveCommand()
 		{
-			SaveCommand = new DelegateCommand(
+			return new DelegateCommand(
 				() =>
 				{
 					if(SaveAutoroutingResults())
@@ -244,9 +247,9 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public DelegateCommand<RouteListItem> RemoveRLItemCommand { get; private set; }
 
-		private void CreateRemoveRLItemCommand()
+		private DelegateCommand<RouteListItem> CreateRemoveRLItemCommand()
 		{
-			RemoveRLItemCommand = new DelegateCommand<RouteListItem>(
+			return new DelegateCommand<RouteListItem>(
 				i =>
 				{
 					var route = i.RouteList;
@@ -268,6 +271,10 @@ namespace Vodovoz.ViewModels.Logistic
 
 					route.RecalculatePlanTime(DistanceCalculator);
 					route.RecalculatePlanedDistance(DistanceCalculator);
+
+					UoW.Session.Flush();
+
+					_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, route);
 				},
 				i => i != null
 			);
@@ -279,9 +286,9 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public DelegateCommand<object> OpenOrderOrRouteListCommand { get; private set; }
 
-		private void CreateOpenOrderOrRouteListCommand()
+		private DelegateCommand<object> CreateOpenOrderOrRouteListCommand()
 		{
-			OpenOrderOrRouteListCommand = new DelegateCommand<object>(
+			return new DelegateCommand<object>(
 				obj =>
 				{
 					//Открываем заказ
@@ -318,9 +325,9 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public DelegateCommand AddDriverCommand { get; private set; }
 
-		private void CreateAddDriverCommand()
+		private DelegateCommand CreateAddDriverCommand()
 		{
-			AddDriverCommand = new DelegateCommand(
+			return new DelegateCommand(
 				() =>
 				{
 					var drvJournalViewModel = _employeeJournalFactory.CreateWorkingDriverEmployeeJournal();
@@ -380,9 +387,9 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public DelegateCommand<AtWorkDriver[]> RemoveDriverCommand { get; private set; }
 
-		private void CreateRemoveDriverCommand()
+		private DelegateCommand<AtWorkDriver[]> CreateRemoveDriverCommand()
 		{
-			RemoveDriverCommand = new DelegateCommand<AtWorkDriver[]>(
+			return new DelegateCommand<AtWorkDriver[]>(
 				driversToDel =>
 				{
 					if(driversToDel == null)
@@ -418,9 +425,9 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public DelegateCommand AddForwarderCommand { get; private set; }
 
-		private void CreateAddForwarderCommand()
+		private DelegateCommand CreateAddForwarderCommand()
 		{
-			AddForwarderCommand = new DelegateCommand(
+			return new DelegateCommand(
 				() =>
 				{
 					var fwdJournalViewModel = _employeeJournalFactory.CreateWorkingForwarderEmployeeJournal();
@@ -455,9 +462,9 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public DelegateCommand<AtWorkForwarder[]> RemoveForwarderCommand { get; private set; }
 
-		private void CreateRemoveForwarderCommand()
+		private DelegateCommand<AtWorkForwarder[]> CreateRemoveForwarderCommand()
 		{
-			RemoveForwarderCommand = new DelegateCommand<AtWorkForwarder[]>(
+			return new DelegateCommand<AtWorkForwarder[]>(
 				forwardersToDel =>
 				{
 					foreach(var forwarder in forwardersToDel)
@@ -480,9 +487,9 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public DelegateCommand<object> RebuilOneRouteCommand { get; private set; }
 
-		private void CreateRebuilOneRouteCommand()
+		private DelegateCommand<object> CreateRebuilOneRouteCommand()
 		{
-			RebuilOneRouteCommand = new DelegateCommand<object>(
+			 return new DelegateCommand<object>(
 				obj =>
 				{
 					RouteList route = obj is RouteListItem routeListItem ? routeListItem.RouteList : obj as RouteList;
@@ -508,9 +515,9 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public DelegateCommand ShowWarningsCommand { get; private set; }
 
-		private void CreateShowWarningsCommand()
+		private DelegateCommand CreateShowWarningsCommand()
 		{
-			ShowWarningsCommand = new DelegateCommand(
+			return new DelegateCommand(
 				() => ShowWarningMessage(string.Join("\n", Optimizer.WarningMessages.Select(x => "⚠ " + x))),
 				() => true
 			);
@@ -1015,6 +1022,26 @@ namespace Vodovoz.ViewModels.Logistic
 			return null;
 		}
 
+		public decimal? GetGrossMarginPercentage(object row)
+		{
+			if(row is RouteList rl)
+			{
+				return rl?.RouteListProfitability?.GrossMarginSum;
+			}
+
+			return null;
+		}
+
+		public decimal? GetGrossMarginMoney(object row)
+		{
+			if(row is RouteList rl)
+			{
+				return rl?.RouteListProfitability?.GrossMarginPercents;
+			}
+
+			return null;
+		}
+
 		public string GetRowEquipmentFromClient(object row)
 		{
 			if(row is RouteListItem rli)
@@ -1384,6 +1411,7 @@ namespace Vodovoz.ViewModels.Logistic
 				}
 				routeList.RecalculatePlanTime(DistanceCalculator);
 				routeList.RecalculatePlanedDistance(DistanceCalculator);
+
 				UoW.Save(routeList);
 			}
 			else
@@ -1462,6 +1490,10 @@ namespace Vodovoz.ViewModels.Logistic
 		public void SaveRouteList(RouteList routeList, Action<string> actionUpdateInfo = null)
 		{
 			RebuildAllRoutes(actionUpdateInfo);
+
+			UoW.Session.Flush();
+			_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, routeList);
+
 			UoW.Save(routeList);
 			UoW.Commit();
 			HasNoChanges = true;
@@ -1860,6 +1892,8 @@ namespace Vodovoz.ViewModels.Logistic
 		}
 
 		public bool CanСreateRoutelistInPastPeriod { get; }
+
+		public IRouteListProfitabilityController RouteListProfitabilityController => _routeListProfitabilityController;
 
 		public static GuiltyTypes[] GuiltyTypesForMarkUndeliveries => new[] 
 		{

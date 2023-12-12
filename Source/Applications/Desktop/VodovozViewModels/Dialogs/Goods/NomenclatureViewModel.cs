@@ -34,12 +34,17 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
 		private readonly int[] _equipmentKindsHavingGlassHolder;
+		private readonly INomenclatureOnlineParametersProvider _nomenclatureOnlineParametersProvider;
 		private NomenclatureOnlineParameters _mobileAppNomenclatureOnlineParameters;
 		private NomenclatureOnlineParameters _vodovozWebSiteNomenclatureOnlineParameters;
 		private NomenclatureOnlineParameters _kulerSaleWebSiteNomenclatureOnlineParameters;
 		private bool _needCheckOnlinePrices;
 		private bool _isMagnetGlassHolderSelected;
 		private bool _isScrewGlassHolderSelected;
+		private bool _activeSitesAndAppsTab;
+		private IList<NomenclatureOnlineCategory> _onlineCategories;
+
+		private DelegateCommand _copyPricesWithoutDiscountFromMobileAppToVodovozWebSiteCommand;
 
 		public Action PricesViewSaveChanges;
 
@@ -53,6 +58,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
 			IStringHandler stringHandler,
+			INomenclatureOnlineParametersProvider nomenclatureOnlineParametersProvider,
 			INomenclatureSettings nomenclatureSettings) : base(uowBuilder, uowFactory, commonServices)
 		{
 			if(nomenclatureSelectorFactory is null)
@@ -69,6 +75,8 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_nomenclatureOnlineParametersProvider =
+				nomenclatureOnlineParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureOnlineParametersProvider));
 			NomenclatureSelectorFactory = nomenclatureSelectorFactory.GetDefaultNomenclatureSelectorFactory();
 			CounterpartySelectorFactory =
 				(counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory)))
@@ -159,6 +167,139 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			get => _kulerSaleWebSiteNomenclatureOnlineParameters;
 			set => SetField(ref _kulerSaleWebSiteNomenclatureOnlineParameters, value);
 		}
+
+		public IList<MobileAppNomenclatureOnlineCatalog> MobileAppNomenclatureOnlineCatalogs { get; private set; }
+		public IList<VodovozWebSiteNomenclatureOnlineCatalog> VodovozWebSiteNomenclatureOnlineCatalogs { get; private set; }
+		public IList<KulerSaleWebSiteNomenclatureOnlineCatalog> KulerSaleWebSiteNomenclatureOnlineCatalogs { get; private set; }
+		public IList<NomenclatureOnlineGroup> NomenclatureOnlineGroups { get; private set; }
+		public NomenclatureOnlineGroup SelectedOnlineGroup
+		{
+			get => Entity.NomenclatureOnlineGroup;
+			set
+			{
+				if(Entity.NomenclatureOnlineGroup != value)
+				{
+					Entity.NomenclatureOnlineGroup = value;
+					UpdateOnlineCategories();
+					UpdateOnlineParameters();
+				}
+			}
+		}
+
+		private void UpdateOnlineCategories()
+		{
+			OnlineCategories =
+				Entity.NomenclatureOnlineGroup != null
+					? Entity.NomenclatureOnlineGroup.NomenclatureOnlineCategories
+					: new List<NomenclatureOnlineCategory>();
+		}
+
+		private void UpdateOnlineParameters()
+		{
+			if(Entity.NomenclatureOnlineGroup is null)
+			{
+				return;
+			}
+
+			if(Entity.NomenclatureOnlineGroup.Id == _nomenclatureOnlineParametersProvider.WaterNomenclatureOnlineGroupId)
+			{
+				Entity.ResetNotWaterOnlineParameters();
+			}
+
+			if(Entity.NomenclatureOnlineCategory is null)
+			{
+				return;
+			}
+			
+			if(Entity.NomenclatureOnlineCategory.Id == _nomenclatureOnlineParametersProvider.KulerNomenclatureOnlineCategoryId)
+			{
+				Entity.ResetNotKulerOnlineParameters();
+			}
+			
+			if(Entity.NomenclatureOnlineCategory.Id == _nomenclatureOnlineParametersProvider.PurifierNomenclatureOnlineCategoryId)
+			{
+				Entity.ResetNotPurifierOnlineParameters();
+			}
+			
+			if(Entity.NomenclatureOnlineCategory.Id == _nomenclatureOnlineParametersProvider.WaterPumpNomenclatureOnlineCategoryId)
+			{
+				Entity.ResetNotWaterPumpOnlineParameters();
+			}
+			
+			if(Entity.NomenclatureOnlineCategory.Id == _nomenclatureOnlineParametersProvider.CupHolderNomenclatureOnlineCategoryId)
+			{
+				Entity.ResetNotCupHolderOnlineParameters();
+			}
+		}
+
+		public IList<NomenclatureOnlineCategory> OnlineCategories
+		{
+			get => _onlineCategories;
+			set => SetField(ref _onlineCategories, value);
+		}
+		
+		public NomenclatureOnlineCategory SelectedOnlineCategory
+		{
+			get => Entity.NomenclatureOnlineCategory;
+			set
+			{
+				if(Entity.NomenclatureOnlineCategory != value)
+				{
+					Entity.NomenclatureOnlineCategory = value;
+					UpdateOnlineParameters();
+				}
+			}
+		}
+
+		public bool? HasCooling
+		{
+			get => Entity.HasCooling;
+			set
+			{
+				if(Entity.HasCooling != value)
+				{
+					Entity.HasCooling = value;
+
+					if(!value.HasValue || !value.Value)
+					{
+						Entity.ResetCoolingParameters();
+					}
+				}
+			}
+		}
+		
+		public bool? HasHeating
+		{
+			get => Entity.HasHeating;
+			set
+			{
+				if(Entity.HasHeating != value)
+				{
+					Entity.HasHeating = value;
+
+					if(!value.HasValue || !value.Value)
+					{
+						Entity.ResetHeatingParameters();
+					}
+				}
+			}
+		}
+
+		public bool IsWaterParameters =>
+			SelectedOnlineGroup != null
+			&& SelectedOnlineGroup.Id == _nomenclatureOnlineParametersProvider.WaterNomenclatureOnlineGroupId;
+		public bool IsWaterCoolerParameters =>
+			SelectedOnlineCategory != null
+			&& SelectedOnlineCategory.Id == _nomenclatureOnlineParametersProvider.KulerNomenclatureOnlineCategoryId;
+		public bool IsWaterPumpParameters =>
+			SelectedOnlineCategory != null
+			&& SelectedOnlineCategory.Id == _nomenclatureOnlineParametersProvider.WaterPumpNomenclatureOnlineCategoryId;
+		public bool IsPurifierParameters =>
+			SelectedOnlineCategory != null
+			&& SelectedOnlineCategory.Id == _nomenclatureOnlineParametersProvider.PurifierNomenclatureOnlineCategoryId;
+		public bool IsCupHolderParameters =>
+			SelectedOnlineCategory != null
+			&& SelectedOnlineCategory.Id == _nomenclatureOnlineParametersProvider.CupHolderNomenclatureOnlineCategoryId;
 		public NomenclatureCostPricesViewModel NomenclatureCostPricesViewModel { get; private set; }
 		public NomenclaturePurchasePricesViewModel NomenclaturePurchasePricesViewModel { get; private set; }
 		public NomenclatureInnerDeliveryPricesViewModel NomenclatureInnerDeliveryPricesViewModel { get; private set; }
@@ -357,6 +498,19 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				e => e.Id,
 				() => UserCanCreateNomenclaturesWithInventoryAccounting
 			);
+
+			SetPropertyChangeRelation(
+				e => e.NomenclatureOnlineGroup,
+				() => IsWaterParameters
+			);
+			
+			SetPropertyChangeRelation(
+				e => e.NomenclatureOnlineCategory,
+				() => IsWaterCoolerParameters,
+				() => IsWaterPumpParameters,
+				() => IsPurifierParameters,
+				() => IsCupHolderParameters
+			);
 		}
 
 		public string GetUserEmployeeName() {
@@ -419,6 +573,12 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			VodovozWebSiteNomenclatureOnlineParameters = GetNomenclatureOnlineParameters(NomenclatureOnlineParameterType.ForVodovozWebSite);
 			KulerSaleWebSiteNomenclatureOnlineParameters = GetNomenclatureOnlineParameters(NomenclatureOnlineParameterType.ForKulerSaleWebSite);
 			
+			MobileAppNomenclatureOnlineCatalogs = UoW.GetAll<MobileAppNomenclatureOnlineCatalog>().ToList();
+			VodovozWebSiteNomenclatureOnlineCatalogs = UoW.GetAll<VodovozWebSiteNomenclatureOnlineCatalog>().ToList();
+			KulerSaleWebSiteNomenclatureOnlineCatalogs = UoW.GetAll<KulerSaleWebSiteNomenclatureOnlineCatalog>().ToList();
+			NomenclatureOnlineGroups = UoW.GetAll<NomenclatureOnlineGroup>().ToList();
+			
+			UpdateOnlineCategories();
 			UpdateNomenclatureOnlinePricesNodes();
 		}
 
@@ -492,7 +652,6 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		#region Commands
 
 		private DelegateCommand saveCommand = null;
-		private bool _activeSitesAndAppsTab;
 
 		public DelegateCommand SaveCommand =>
 			saveCommand ?? (saveCommand = new DelegateCommand(
@@ -515,6 +674,18 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				() => true
 			)
 		);
+		
+		public DelegateCommand CopyPricesWithoutDiscountFromMobileAppToVodovozWebSiteCommand =>
+			_copyPricesWithoutDiscountFromMobileAppToVodovozWebSiteCommand ?? (
+				_copyPricesWithoutDiscountFromMobileAppToVodovozWebSiteCommand = new DelegateCommand(
+					() =>
+					{
+						CopyPricesWithoutDiscountFromMobileAppToOtherParameters(VodovozWebSiteNomenclatureOnlineParameters);
+						UpdateNomenclatureOnlinePricesNodes();
+					},
+					() => true
+				)
+			);
 
 		public bool ActiveSitesAndAppsTab
 		{
@@ -620,6 +791,15 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 					};
 				default:
 					throw new ArgumentOutOfRangeException(nameof(type), type, null);
+			}
+		}
+		
+		private void CopyPricesWithoutDiscountFromMobileAppToOtherParameters(NomenclatureOnlineParameters nomenclatureOnlineParameters)
+		{
+			for(var i = 0; i < MobileAppNomenclatureOnlineParameters.NomenclatureOnlinePrices.Count; i++)
+			{
+				var mobileAppPrice = MobileAppNomenclatureOnlineParameters.NomenclatureOnlinePrices[i];
+				nomenclatureOnlineParameters.NomenclatureOnlinePrices[i].PriceWithoutDiscount = mobileAppPrice.PriceWithoutDiscount;
 			}
 		}
 	}
