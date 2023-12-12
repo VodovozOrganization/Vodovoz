@@ -7,6 +7,7 @@ using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using QS.Services;
 using System;
+using QS.Navigation;
 using Vodovoz.Domain.Orders;
 using Vodovoz.JournalNodes;
 using Vodovoz.ViewModels.Orders;
@@ -21,9 +22,10 @@ namespace Vodovoz.JournalViewModels
 			IUnitOfWorkFactory unitOfWorkFactory, 
 			ICommonServices commonServices,
 			ILifetimeScope lifetimeScope,
+			INavigationManager navigationManager,
 			bool hideJournalForOpenDialog = false,
 			bool hideJournalForCreateDialog = false)
-			: base(unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
+			: base(unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog, navigationManager)
 		{
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			
@@ -62,6 +64,7 @@ namespace Vodovoz.JournalViewModels
 			EntityUoWBuilder.ForCreate(),
 			UnitOfWorkFactory,
 			commonServices,
+			NavigationManager,
 			_lifetimeScope
 		);
 
@@ -69,6 +72,7 @@ namespace Vodovoz.JournalViewModels
 			EntityUoWBuilder.ForOpen(node.Id),
 			UnitOfWorkFactory,
 			commonServices,
+			NavigationManager,
 			_lifetimeScope
 	   	);
 

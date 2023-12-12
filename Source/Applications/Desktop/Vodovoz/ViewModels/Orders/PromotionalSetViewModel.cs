@@ -22,9 +22,10 @@ namespace Vodovoz.ViewModels.Orders
 
 		public PromotionalSetViewModel(
 			IEntityUoWBuilder uowBuilder,
-			IUnitOfWorkFactory unitOfWorkFactory, 
+			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			ILifetimeScope lifetimeScope) : base(uowBuilder, unitOfWorkFactory, commonServices)
+			INavigationManager navigationManager,
+			ILifetimeScope lifetimeScope) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			CanChangeType = commonServices.CurrentPermissionService.ValidatePresetPermission( "can_change_the_type_of_promo_set" );
