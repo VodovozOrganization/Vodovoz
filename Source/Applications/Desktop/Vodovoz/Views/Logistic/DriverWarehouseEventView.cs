@@ -52,6 +52,7 @@ namespace Vodovoz.Views.Logistic
 			
 			chkIsArchive.Binding
 				.AddBinding(ViewModel, vm => vm.CanEditByPermission, w => w.Sensitive)
+				.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active)
 				.InitializeFromSource();
 
 			entryEvent.WidthRequest = 300;
