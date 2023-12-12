@@ -42,7 +42,7 @@ namespace Vodovoz.ReportsParameters
 				.TransformUsing(Transformers.AliasToBean<PromosetReportNode>())
 				.List<PromosetReportNode>();
 
-			var defaultValues = defaultsValuesProvider.GetDefaultActivePromosets();
+			var defaultValues = GetDefaultActivePromosets();
 			if(defaultValues.Any()) {
 				foreach(var ps in promotionalSets) {
 					if(defaultValues.Contains(ps.Id)) {
@@ -53,6 +53,15 @@ namespace Vodovoz.ReportsParameters
 
 			ytreeview1.ItemsDataSource = promotionalSets;
 
+		}
+
+		private IEnumerable<int> GetDefaultActivePromosets()
+		{
+			var promosetIds = UoW.GetAll<PromotionalSet>()
+				.Where(p => !p.CanBeReorderedWithoutRestriction)
+				.Select(p => p.Id);
+
+			return promosetIds;
 		}
 
 		#region IParametersWidget implementation
