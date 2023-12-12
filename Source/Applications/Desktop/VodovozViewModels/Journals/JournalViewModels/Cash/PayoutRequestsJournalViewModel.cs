@@ -121,7 +121,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 
 			_subdivisionsControlledByCurrentEmployee = GetSubdivisionsControlledByCurrentEmployee(UoW);
 
-			JournalFilter = filterViewModel;
 			FilterViewModel.IncludedAccountableSubdivision = _subdivisionsControlledByCurrentEmployee.ToArray();
 			FilterViewModel.JournalViewModel = this;
 			FilterViewModel.PropertyChanged += UpdateDataLoader;

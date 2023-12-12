@@ -27,7 +27,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
 		private PayoutDocumentsSortOrder _documentsSortOrder = PayoutDocumentsSortOrder.ByCreationDate;
 		private Subdivision _accountableSubdivision;
 		private PayoutRequestsJournalViewModel _journalViewModel;
-		private int[] _includedAccountableSubdivision;
+		private int[] _includedAccountableSubdivision = Array.Empty<int>();
 
 		public virtual Employee Author
 		{
@@ -156,7 +156,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
 
 		public int[] IncludedAccountableSubdivision
 		{
-			get => _includedAccountableSubdivision ?? Array.Empty<int>();
+			get => _includedAccountableSubdivision;
 			set => SetField(ref _includedAccountableSubdivision, value);
 		}
 
@@ -205,6 +205,14 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
 			}
 
 			return PayoutRequestUserRole.Other;
+		}
+
+		public override void Dispose()
+		{
+			_journalViewModel?.Dispose();
+			_journalViewModel = null;
+
+			base.Dispose();
 		}
 	}
 }
