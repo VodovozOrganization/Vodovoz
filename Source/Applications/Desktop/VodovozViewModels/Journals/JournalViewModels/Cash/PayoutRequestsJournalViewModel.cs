@@ -202,7 +202,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 		private IEnumerable<int> GetSubdivisionsControlledByCurrentEmployee(IUnitOfWork uow)
 		{
 			var controlledSubdivision = uow.GetAll<Subdivision>()
-				.Where(s => s.Chief.Id == _currentEmployee.Id || _isAdmin)
+				.Where(s => s.Chief.Id == _currentEmployee.Id)
 				.Select(s => s.Id)
 				.ToArray();
 
