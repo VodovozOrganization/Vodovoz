@@ -20,7 +20,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Vodovoz.Application.Services.Logistics;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Documents.DriverTerminal;
@@ -298,6 +297,8 @@ namespace Vodovoz
 			ggToStringWidget.UoW = UoW;
 			ggToStringWidget.Label = "Район города:";
 			ggToStringWidget.Binding.AddBinding(Entity, x => x.ObservableGeographicGroups, x => x.Items).InitializeFromSource();
+
+			buttonAccept.Clicked += OnButtonAcceptClicked;
 
 			enumPrint.ItemsEnum = typeof(RouteListPrintableDocuments);
 			enumPrint.SetVisibility(RouteListPrintableDocuments.TimeList, false);
