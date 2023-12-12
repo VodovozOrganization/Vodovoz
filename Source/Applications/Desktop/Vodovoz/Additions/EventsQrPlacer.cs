@@ -243,7 +243,7 @@ namespace Vodovoz.Additions
 			else
 			{
 				left += qrReportItem.WidthSize;
-				top += decimal.Floor(qrReportItem.HeightSize / 2);
+				top += 2 * padding;
 			}
 			
 			var leftEventNameBox = left + "pt";

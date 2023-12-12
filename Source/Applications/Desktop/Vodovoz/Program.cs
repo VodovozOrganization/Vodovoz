@@ -80,6 +80,7 @@ using Vodovoz.Models;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
+using Vodovoz.Presentation.Reports.Factories;
 using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Presentation.ViewModels.PaymentType;
 using Vodovoz.Reports;
@@ -650,6 +651,10 @@ namespace Vodovoz
 						.AddTransient<IReportExporter, ReportExporterAdapter>()
 						.AddScoped<IRouteOptimizer, RouteOptimizer>()
 						.AddScoped<ICoordinatesParser, CoordinatesParser>()
+						.AddScoped<ICustomReportFactory, CustomReportFactory>()
+						.AddScoped<ICustomPropertiesFactory, CustomPropertiesFactory>()
+						.AddScoped<ICustomReportItemFactory, CustomReportItemFactory>()
+						.AddScoped<IRdlTextBoxFactory, RdlTextBoxFactory>()
 						.AddScoped<IEventsQrPlacer, EventsQrPlacer>()
 						.AddApplication()
 						.AddBusiness();

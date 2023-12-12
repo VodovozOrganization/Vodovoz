@@ -33,7 +33,7 @@ namespace Vodovoz.Views.Logistic
 			btnCopyFromClipboard.Clicked += OnCopyFromClipboard;
 			
 			btnSave.Binding
-				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.CanEditByPermission, w => w.Sensitive)
 				.InitializeFromSource();
 			
 			btnPrintQrCode.Binding

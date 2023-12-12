@@ -65,7 +65,7 @@
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>299.0pt</Height>
+    <Height>278.3pt</Height>
     <Columns>1</Columns>
     <ReportItems>
       <Table Name="Table2">
@@ -1478,7 +1478,7 @@ Switch(
           </TableRows>
         </Footer>
         <Left>0.0pt</Left>
-        <Top>86.0pt</Top>
+        <Top>77.2pt</Top>
         <ZIndex>0</ZIndex>
       </Table>
       <CustomReportItem Name="CustomReportItem1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1491,8 +1491,8 @@ Switch(
             <Value>="RouteList;"+{?RouteListId}+";"+Format({?RouteListDate}, "ddMMyyyy")</Value>
           </CustomProperty>
         </CustomProperties>
-        <Left>726.40pt</Left>
-        <Top>0.00pt</Top>
+        <Left>726.4pt</Left>
+        <Top>0.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1521,16 +1521,13 @@ Switch(
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>315.8pt</Width>
+            <Width>349.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>232.1pt</Width>
+            <Width>137.5pt</Width>
           </TableColumn>
-          <TableColumn>
-            <Width>112.5pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>30.1pt</Width>
+          <TableColumn >
+            <Width>145.5pt</Width>
           </TableColumn>
         </TableColumns>
         <Details>
@@ -1582,9 +1579,9 @@ Switch(
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell>
+                <TableCell >
                   <ReportItems>
-                    <Textbox Name="Textbox34">
+                    <Textbox Name="Textbox22">
                       <Value>=
 Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "", 
 "Погрузка на складе с " + Format({on_load_start}, "hh\:mm") + " по " + Format({on_load_end}, "hh\\:mm")
@@ -1593,7 +1590,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
 +
 
 "План. расстояние: " + Format({plan_distance}, "N2") + " км."</Value>
-                      <Style>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
                           <Left>None</Left>
@@ -1603,19 +1600,18 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                        <VerticalAlign>Bottom</VerticalAlign>
-                        <PaddingRight>0pt</PaddingRight>
+                        <FontWeight>Normal</FontWeight>
                         <FontSize>8pt</FontSize>
+                        <VerticalAlign>Bottom</VerticalAlign>
+                        <TextAlign >Right</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>2</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
             <TableRow>
-              <Height>22.4pt</Height>
+              <Height>43.2pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -1660,9 +1656,9 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell>
+                <TableCell >
                   <ReportItems>
-                    <Textbox Name="Textbox37">
+                    <Textbox Name="Textbox26">
                       <Value>="Тоннаж МЛ: " + Round(Sum({Weight}, "Orders"), 3) + "кг" + "\n" +
 "Грузоподъёмность: " + {max_weight} + "кг"</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1675,14 +1671,13 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                        <VerticalAlign>Top</VerticalAlign>
-                        <PaddingRight>0pt</PaddingRight>
+                        <FontWeight>Normal</FontWeight>
                         <FontSize>8pt</FontSize>
+                        <VerticalAlign>Top</VerticalAlign>
+                        <TextAlign >Right</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>2</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -2128,19 +2123,19 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>219.8pt</Top>
+        <Top>211.0pt</Top>
       </Table>
       <List Name="List1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>64.87pt</Height>
         <Width>99.41pt</Width>
-        <Left>451.8pt</Left>
-        <Top>4.0pt</Top>
+        <Left>628.1pt</Left>
+        <Top>0.0pt</Top>
         <ReportItems>
           <Image Name="Image1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>63.49pt</Height>
             <Width>89.92pt</Width>
-            <Left>5.1pt</Left>
-            <Top>1.7pt</Top>
+            <Left>5.10pt</Left>
+            <Top>1.70pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2168,7 +2163,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
       <Rectangle Name="TopQrRectangle">
         <Height>80.00pt</Height>
         <Width>80.00pt</Width>
-        <Left>322.3pt</Left>
+        <Left>349.5pt</Left>
         <Top>0.0pt</Top>
       </Rectangle>
       <Rectangle Name="BottomQrRectangle" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -2301,7 +2296,7 @@ LIMIT 1
       </Fields>
     </DataSet>
     <DataSet Name="Orders">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     route_list_addresses.route_list_id AS RouteListId, orders.id AS OrderId,
@@ -2394,7 +2389,7 @@ LIMIT 1
         OR fp.external_id = orders.online_order)
      AND fp.payment_status = 'Performed') AS fast_payment_paid,
      (
-         SELECT COUNT(*) > 0 FROM undelivered_orders uo
+         SELECT COUNT(*) &gt; 0 FROM undelivered_orders uo
          INNER JOIN guilty_in_undelivered_orders guo ON guo.undelivery_id = uo.id
          WHERE uo.new_order_id = route_list_addresses.order_id
          AND guo.guilty_side in ('Driver','Department','ForceMajor','DirectorLO')
@@ -2604,7 +2599,7 @@ ORDER BY order_in_route
           <DataField>fast_payment_paid</DataField>
           <TypeName>System.Boolean</TypeName>
         </Field>
-		<Field Name="is_order_from_undelivery">
+        <Field Name="is_order_from_undelivery">
           <DataField>is_order_from_undelivery</DataField>
           <TypeName>System.Boolean</TypeName>
         </Field>

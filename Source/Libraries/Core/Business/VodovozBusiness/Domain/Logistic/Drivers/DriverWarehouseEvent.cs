@@ -155,6 +155,7 @@ namespace Vodovoz.Domain.Logistic.Drivers
 				if(DocumentType.HasValue
 					&& QrPositionOnDocument.HasValue
 					&& validationContext.Items.ContainsKey(HasCompletedEvents)
+					&& !IsArchive
 					&& !(bool)validationContext.Items[HasCompletedEvents])
 				{
 					using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
