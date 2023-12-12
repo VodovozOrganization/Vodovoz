@@ -22,11 +22,11 @@ namespace Vodovoz.JournalColumnsConfigs
 						: string.Empty)
 				.AddColumn("Широта").AddTextRenderer(x =>
 					x.Latitude.HasValue
-						? x.Latitude.ToString()
+						? $"{x.Latitude:F6}"
 						: string.Empty)
 				.AddColumn("Долгота").AddTextRenderer(x =>
 					x.Longitude.HasValue
-						? x.Longitude.ToString()
+						? $"{x.Longitude:F6}"
 						: string.Empty)
 				.AddColumn("В архиве?").AddToggleRenderer(x => x.IsArchive).Editing(false)
 				.AddColumn("")

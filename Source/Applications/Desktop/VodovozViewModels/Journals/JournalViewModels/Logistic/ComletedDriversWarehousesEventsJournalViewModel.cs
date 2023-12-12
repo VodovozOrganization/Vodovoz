@@ -52,6 +52,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			CreateFilter(filterParams);
 			StartAutoRefresh();
 			CreateNodeActions();
+			SearchEnabled = false;
 
 			TabName = "Журнал завершенных событий";
 		}

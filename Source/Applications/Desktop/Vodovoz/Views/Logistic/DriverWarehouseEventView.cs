@@ -100,12 +100,12 @@ namespace Vodovoz.Views.Logistic
 			
 			enumCmbDocumentType.ItemsEnum = typeof(EventQrDocumentType);
 			enumCmbDocumentType.ShowSpecialStateNot = true;
+			enumCmbDocumentType.Changed += OnDocumentTypeChanged;
 			enumCmbDocumentType.Binding
 				.AddBinding(ViewModel.Entity, vm => vm.DocumentType, w => w.SelectedItemOrNull)
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.AddBinding(ViewModel, vm => vm.IsDocumentQrParametersVisible, w => w.Visible)
 				.InitializeFromSource();
-			enumCmbDocumentType.ChangedByUser += OnDocumentTypeChangedByUser;
 			
 			lblQrPositionOnDocument.Binding
 				.AddBinding(ViewModel, vm => vm.IsDocumentQrParametersVisible, w => w.Visible)
@@ -120,7 +120,7 @@ namespace Vodovoz.Views.Logistic
 				.InitializeFromSource();
 		}
 
-		private void OnDocumentTypeChangedByUser(object sender, EventArgs e)
+		private void OnDocumentTypeChanged(object sender, EventArgs e)
 		{
 			enumCmbQrPositionOnDocument.ClearEnumHideList();
 

@@ -117,7 +117,12 @@ namespace Vodovoz.Domain.Logistic.Drivers
 
 			return sb.ToString();
 		}
-		
+
+		public override string ToString()
+		{
+			return EventName;
+		}
+
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(!(validationContext.ServiceContainer.GetService(

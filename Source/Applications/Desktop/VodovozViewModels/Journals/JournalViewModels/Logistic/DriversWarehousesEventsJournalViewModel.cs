@@ -47,6 +47,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			
 			TabName = "Журнал событий";
 
+			SearchEnabled = false;
+			VisibleDeleteAction = false;
 			CreateFilter(filterParams);
 		}
 
