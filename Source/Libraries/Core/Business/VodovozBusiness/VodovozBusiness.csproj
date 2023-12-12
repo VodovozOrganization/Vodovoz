@@ -774,6 +774,10 @@
     <Compile Include="Nodes\NomenclatureOnlineParametersData.cs" />
     <Compile Include="Nodes\NomenclatureOnlineParametersNode.cs" />
     <Compile Include="Nodes\NomenclatureOnlinePriceNode.cs" />
+    <Compile Include="NotificationRecievers\DriverAPIHelper.cs" />
+    <Compile Include="NotificationRecievers\IFastDeliveryOrderAddedNotificationReciever.cs" />
+    <Compile Include="NotificationRecievers\IWaitingTimeChangedNotificationReciever.cs" />
+    <Compile Include="NotificationRecievers\ISmsPaymentStatusNotificationReciever.cs" />
     <Compile Include="Parameters\ArchiveDataSettings.cs" />
     <Compile Include="Parameters\CounterpartySettings.cs" />
     <Compile Include="Parameters\CashDistributionCommonOrganisationProvider.cs" />

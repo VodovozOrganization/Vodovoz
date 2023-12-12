@@ -18,6 +18,7 @@ namespace Vodovoz.Services
 		public Uri ApiBase => new Uri(_parametersProvider.GetValue<string>("driver_api_base"));
 		public string NotifyOfSmsPaymentStatusChangedUri => _parametersProvider.GetValue<string>("NotifyOfSmsPaymentStatusChangedURI");
 		public string NotifyOfFastDeliveryOrderAddedUri => _parametersProvider.GetValue<string>("NotifyOfFastDeliveryOrderAddedURI");
+		public string NotifyOfWaitingTimeChangedURI => _parametersProvider.GetValue<string>("NotifyOfWaitingTimeChangedURI");
 
 		public static void InitializeNotifications(IParametersProvider parametersProvider, string currentDatabaseName)
 		{
