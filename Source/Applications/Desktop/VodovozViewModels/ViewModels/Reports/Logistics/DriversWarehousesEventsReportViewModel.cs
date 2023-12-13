@@ -322,13 +322,13 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics
 			
 			var firstNode = nodes.First();
 			
-			var date = UpdateLocalParams(firstNode, out var driver, out var eventNameId);
+			var date = UpdateLocalParams(firstNode, out var driver, out var eventId);
 			var nextNode = AddNextSingleEventNode(firstNode);
 
 			for(var i = 1; i < nodes.Count; i++)
 			{
 				var node = nodes[i];
-				if(date == node.EventDate && driver == node.DriverFio && eventNameId == FirstEvent.Id && eventNameId != node.EventId)
+				if(date == node.EventDate && driver == node.DriverFio && eventId == FirstEvent.Id && eventId != node.EventId)
 				{
 					nextNode.SecondEventName = node.EventName;
 					nextNode.SecondEventDistance = node.Distance;
@@ -339,7 +339,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics
 					nextNode = AddNextSingleEventNode(node);
 				}
 				
-				date = UpdateLocalParams(node, out driver, out eventNameId);
+				date = UpdateLocalParams(node, out driver, out eventId);
 			}
 		}
 
