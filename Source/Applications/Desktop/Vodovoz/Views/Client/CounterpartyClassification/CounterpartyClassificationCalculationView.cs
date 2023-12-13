@@ -87,23 +87,11 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 				.InitializeFromSource();
 
 			ylabelBottleClassificationInfo.Binding
-				.AddFuncBinding(
-					ViewModel.CalculationSettings, 
-					vm => 
-						$"A: От {vm.BottlesCountAClassificationFrom} и более\n" +
-						$"B: От {vm.BottlesCountCClassificationTo + 0.01} до {vm.BottlesCountAClassificationFrom - 0.01}\n" +
-						$"C: От 0 до {vm.BottlesCountCClassificationTo}", 
-					w => w.Text)
+				.AddFuncBinding(ViewModel.CalculationSettings, vm => vm.BottlesCountClassificationSettingsSummary, w => w.Text)
 				.InitializeFromSource();
 
 			ylabelOrdersClassificationInfo.Binding
-				.AddFuncBinding(
-					ViewModel.CalculationSettings, 
-					vm => 
-						$"X: От {vm.OrdersCountXClassificationFrom} и более\n" +
-						$"Y: От {vm.OrdersCountZClassificationTo + 0.01} до {vm.OrdersCountXClassificationFrom - 0.01}\n" +
-						$"Z: От 0 до {vm.OrdersCountZClassificationTo}", 
-					w => w.Text)
+				.AddFuncBinding(ViewModel.CalculationSettings, vm => vm.OrdersCountClassificationSettingsSummary, w => w.Text)
 				.InitializeFromSource();
 
 			ViewModel.CommandToStartCalculationReceived += OnCommandToStartCalculationReceived;
