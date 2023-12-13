@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -400,6 +400,8 @@
   <ItemGroup>
     <Compile Include="Additions\Accounting\WayBillDocumentGenerator.cs" />
     <Compile Include="Additions\AuthorizationService.cs" />
+    <Compile Include="Additions\EventsQrPlacer.cs" />
+    <Compile Include="Additions\IEventsQrPlacer.cs" />
     <Compile Include="Additions\Logistic\CoordinateExtensions.cs" />
     <Compile Include="Additions\Logistic\CustomPolygons.cs" />
     <Compile Include="Additions\Logistic\DeliveryPointExtensions.cs" />
@@ -468,6 +470,8 @@
     <Compile Include="JournalColumnsConfigs\MobileAppNomenclatureOnlineCatalogsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\NomenclatureOnlineCategoriesJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\NomenclatureOnlineGroupsJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\CompletedDriversWarehousesEventsJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\DriversWarehousesEventsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\UndeliveryDetalizationJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ComplaintDetalizationJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\UndeliveryKindJournalRegistrar.cs" />
@@ -1984,6 +1988,14 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclatureOnlineGroupView.cs" />
     <Compile Include="Views\Goods\NomenclatureOnlineCategoryView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclatureOnlineCategoryView.cs" />
+    <Compile Include="Views\Logistic\DriverWarehouseEventView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriverWarehouseEventView.cs" />
+    <Compile Include="Filters\GtkViews\DriversWarehousesEventsJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.DriversWarehousesEventsJournalFilterView.cs" />
+    <Compile Include="Filters\GtkViews\CompletedDriversWarehousesEventsJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CompletedDriversWarehousesEventsJournalFilterView.cs" />
+    <Compile Include="Views\Reports\DriversWarehousesEventsReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Reports.DriversWarehousesEventsReportView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -2355,6 +2367,10 @@
       <Project>{49241ddd-3e0b-4944-9b3f-89f0c42e9e6d}</Project>
       <Name>VodovozFiasWidgets</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Infrastructure\Vodovoz.RDL\Vodovoz.RDL.csproj">
+      <Project>{056ba782-edef-4e8e-abb1-01fd3502a8f0}</Project>
+      <Name>Vodovoz.RDL</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Infrastructure\VodovozInfrastructure\VodovozInfrastructure.csproj">
       <Project>{42efc426-2c88-4608-8191-dbca4172a695}</Project>
       <Name>VodovozInfrastructure</Name>
@@ -2518,6 +2534,10 @@
     <ProjectReference Include="..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj">
       <Project>{0107f13c-46e0-4008-8302-0b5cd71df14c}</Project>
       <Name>Vodovoz.Data.NHibernate</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Vodovoz.Presentation.Reports\Vodovoz.Presentation.Reports.csproj">
+      <Project>{79eb219a-5dda-4153-be77-1770663dd0c3}</Project>
+      <Name>Vodovoz.Presentation.Reports</Name>
     </ProjectReference>
     <ProjectReference Include="..\Vodovoz.Presentation.ViewModels\Vodovoz.Presentation.ViewModels.csproj">
       <Project>{396CC0BB-294B-44E0-8428-31677419B8BE}</Project>

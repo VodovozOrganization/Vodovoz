@@ -1095,6 +1095,30 @@ public partial class MainWindow
 		NavigationManager.OpenViewModel<RegradingOfGoodsReasonsJournalViewModel>(null);
 	}
 
+	#region События нахождения на складе водителей
+
+	/// <summary>
+	/// События
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnDriversWarehousesEventsActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<DriversWarehousesEventsJournalViewModel>(null);
+	}
+
+	/// <summary>
+	/// Завершенные события
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnCompletedDriversWarehousesEventsActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<CompletedDriversWarehousesEventsJournalViewModel>(null);
+	}
+
+	#endregion
+
 	#endregion Логистика
 
 	#region Помощники

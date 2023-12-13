@@ -12,8 +12,10 @@ using QSOrmProject;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Vodovoz.Additions;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Drivers;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Employees;
@@ -25,6 +27,7 @@ using Vodovoz.Models;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
+using Vodovoz.Tools;
 using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic;
@@ -42,6 +45,7 @@ namespace Vodovoz
 		private IRouteListService _routeListService;
 		private ITerminalNomenclatureProvider _terminalNomenclatureProvider;
 		private IRouteListDailyNumberProvider _routeListDailyNumberProvider;
+		private IEventsQrPlacer _eventsQrPlacer;
 
 		public INavigationManager NavigationManager { get; private set; }
 
@@ -89,6 +93,7 @@ namespace Vodovoz
 			_routeListService = _lifetimeScope.Resolve<IRouteListService>();
 			_terminalNomenclatureProvider = _lifetimeScope.Resolve<ITerminalNomenclatureProvider>();
 			_routeListDailyNumberProvider = _lifetimeScope.Resolve<IRouteListDailyNumberProvider>();
+			_eventsQrPlacer = _lifetimeScope.Resolve<IEventsQrPlacer>();
 		}
 
 		private void ConfigureNewDoc()
@@ -298,12 +303,15 @@ namespace Vodovoz
 				}
 			}
 
+			var rdlPath = "Reports/Store/CarLoadDocument.rdl";
 			_routeListDailyNumberProvider.GetOrCreateDailyNumber(Entity.RouteList.Id, Entity.RouteList.Date);
 
-			var reportInfo = new QS.Report.ReportInfo
+			_eventsQrPlacer.AddQrEventForDocument(UoW, Entity.Id, EventQrDocumentType.CarLoadDocument, ref rdlPath);
+
+			var reportInfo = new ReportInfo
 			{
 				Title = Entity.Title,
-				Identifier = "Store.CarLoadDocument",
+				Path = rdlPath,
 				Parameters = new System.Collections.Generic.Dictionary<string, object>
 					{
 						{ "id",  Entity.Id }

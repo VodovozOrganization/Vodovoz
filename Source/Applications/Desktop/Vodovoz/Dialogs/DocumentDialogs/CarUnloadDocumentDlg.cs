@@ -11,10 +11,12 @@ using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Vodovoz.Additions;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Drivers;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
@@ -25,6 +27,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Repository.Store;
 using Vodovoz.Services;
+using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
@@ -49,6 +52,7 @@ namespace Vodovoz
 		private IWageParameterService _wageParameterService;
 		private ICallTaskWorker _callTaskWorker;
 		private ILifetimeScope _lifetimeScope;
+		private IEventsQrPlacer _eventsQrPlacer;
 
 		private IStoreDocumentHelper _storeDocumentHelper;
 
@@ -116,6 +120,7 @@ namespace Vodovoz
 			_callTaskWorker = _lifetimeScope.Resolve<ICallTaskWorker>();
 
 			_storeDocumentHelper = _lifetimeScope.Resolve<IStoreDocumentHelper>();
+			_eventsQrPlacer = _lifetimeScope.Resolve<IEventsQrPlacer>();
 		}
 
 		private void ConfigureNewDoc()
@@ -576,9 +581,12 @@ namespace Vodovoz
 				Save();
 			}
 
+			var rdlPath = "Reports/Store/CarUnloadDoc.rdl";
+			_eventsQrPlacer.AddQrEventForDocument(UoW, Entity.Id, EventQrDocumentType.CarUnloadDocument, ref rdlPath);
+
 			var reportInfo = new QS.Report.ReportInfo {
 				Title = Entity.Title,
-				Identifier = "Store.CarUnloadDoc",
+				Path = rdlPath,
 				Parameters = new Dictionary<string, object>
 					{
 						{ "id",  Entity.Id }

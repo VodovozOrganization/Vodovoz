@@ -40,7 +40,6 @@ namespace Vodovoz.Application.Services.Logistics
 		private readonly IGenericRepository<Employee> _employeeRepository;
 		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly IRouteOptimizer _routeOptimizer;
-		private readonly IRouteListAddressKeepingDocumentController _routeListKeepingDocumentController;
 		private readonly IWageParameterService _wageParameterService;
 		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings;
 		private readonly IAddressTransferController _addressTransferController;
@@ -61,7 +60,6 @@ namespace Vodovoz.Application.Services.Logistics
 			IGenericRepository<Employee> employeeRepository,
 			ICallTaskWorker callTaskWorker,
 			IRouteOptimizer routeOptimizer,
-			IRouteListAddressKeepingDocumentController routeListKeepingDocumentController,
 			IWageParameterService wageParameterService,
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
 			IAddressTransferController addressTransferController,
@@ -90,8 +88,6 @@ namespace Vodovoz.Application.Services.Logistics
 				?? throw new ArgumentNullException(nameof(callTaskWorker));
 			_routeOptimizer = routeOptimizer
 				?? throw new ArgumentNullException(nameof(routeOptimizer));
-			_routeListKeepingDocumentController = routeListKeepingDocumentController
-				?? throw new ArgumentNullException(nameof(routeListKeepingDocumentController));
 			_wageParameterService = wageParameterService
 				?? throw new ArgumentNullException(nameof(wageParameterService));
 			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings
@@ -876,12 +872,12 @@ namespace Vodovoz.Application.Services.Logistics
 				if(address.TransferedTo == null &&
 				   (!address.WasTransfered || address.AddressTransferType != AddressTransferType.FromHandToHand))
 				{
-					_routeListKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(
+					_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(
 						unitOfWork, address, DeliveryFreeBalanceType.Decrease, isFullRecreation: true, needRouteListUpdate: true);
 				}
 				else
 				{
-					_routeListKeepingDocumentController.RemoveRouteListKeepingDocument(unitOfWork, address, true);
+					_routeListAddressKeepingDocumentController.RemoveRouteListKeepingDocument(unitOfWork, address, true);
 				}
 			}
 
