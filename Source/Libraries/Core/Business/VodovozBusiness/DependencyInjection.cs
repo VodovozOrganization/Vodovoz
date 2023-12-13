@@ -20,6 +20,7 @@ namespace Vodovoz
 			.AddScoped<IRouteListAddressKeepingDocumentController, RouteListAddressKeepingDocumentController>()
 			.AddScoped<IWageParameterService, WageParameterService>()
 			.AddScoped<IDeliveryRulesParametersProvider, DeliveryRulesParametersProvider>()
+			.AddScoped<IAddressTransferController, AddressTransferController>()
 			.AddScoped<IRouteListProfitabilityController, RouteListProfitabilityController>()
 			.AddScoped<RouteGeometryCalculator>()
 			.AddScoped<IDistanceCalculator>(sp => sp.GetService<RouteGeometryCalculator>())
