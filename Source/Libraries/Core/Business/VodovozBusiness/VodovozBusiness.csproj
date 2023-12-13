@@ -133,6 +133,7 @@
     <Compile Include="Domain\Payments\PaymentState.cs" />
     <Compile Include="Domain\Sale\DistrictCopyItem.cs" />
     <Compile Include="Domain\StoredEmails\UpdDocumentEmail.cs" />
+    <Compile Include="Domain\Store\WarehouseUsing.cs" />
     <Compile Include="Domain\Subdivisions\SubdivisionType.cs" />
     <Compile Include="EntityRepositories\Cash\FinancialExpenseCategoriesRepository.cs" />
     <Compile Include="EntityRepositories\Cash\FinancialIncomeCategoriesRepository.cs" />
