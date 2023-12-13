@@ -3,9 +3,10 @@ using DriverAPI.Library.Models;
 using DriverAPI.Library.Temp;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
+using Vodovoz;
 using Vodovoz.Application;
 using Vodovoz.Application.Services.Logistics;
-using Vodovoz;
+using Vodovoz.Settings.Database;
 
 namespace DriverAPI.Library
 {
@@ -52,6 +53,7 @@ namespace DriverAPI.Library
 
 			services.AddBusiness();
 			services.AddApplication();
+			services.AddDatabaseSettings();
 
 			return services;
 		}
