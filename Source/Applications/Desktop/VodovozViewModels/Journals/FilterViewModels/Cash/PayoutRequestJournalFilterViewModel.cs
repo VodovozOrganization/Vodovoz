@@ -1,4 +1,4 @@
-using QS.Project.Filter;
+﻿using QS.Project.Filter;
 using QS.Project.Services;
 using QS.ViewModels.Control.EEVM;
 using System;
@@ -173,16 +173,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
 			set => SetField(ref _includedAccountableSubdivision, value);
 		}
 
-		public PayoutRequestJournalFilterViewModel(
-			IEmployeeJournalFactory employeeJournalFactory,
-			ICounterpartyJournalFactory counterpartyJournalFactory)
-		{
-			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			CounterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
-		}
-
 		public IEmployeeJournalFactory EmployeeJournalFactory { get; }
-		public ICounterpartyJournalFactory CounterpartyJournalFactory { get; }
 		public IEntityEntryViewModel AccountableSubdivisionViewModel { get; private set; }
 		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelectorFactory { get; }
 
