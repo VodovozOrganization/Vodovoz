@@ -51,7 +51,6 @@ namespace DriverAPI.Library
 			services.AddScoped<IDriverWarehouseEventsModel, DriverWarehouseEventsModel>();
 
 			services.AddScoped<IRouteOptimizer, RouteListOptimizerDummy>();
-			services.AddScoped<IDriverWarehouseEventQrDataHandler, DriverWarehouseEventQrDataHandler>();
 
 			services.AddBusiness();
 			services.AddApplication();
