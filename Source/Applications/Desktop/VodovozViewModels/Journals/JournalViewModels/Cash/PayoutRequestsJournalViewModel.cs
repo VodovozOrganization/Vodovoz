@@ -60,6 +60,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 		private Employee _currentEmployee;
 		private string _footerInfo;
 		private bool _hasAccessToHiddenFinancialCategories;
+		private IEnumerable<int> _subdivisionsControlledByCurrentEmployee;
 
 		public PayoutRequestsJournalViewModel(
 			PayoutRequestJournalFilterViewModel filterViewModel,
@@ -115,10 +116,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			threadLoader?.MergeInOrderBy(x => x.Date, @descending: true);
 			DataLoader.ItemsListUpdated += OnDataLoaderItemsListUpdated;
 
-			FilterViewModel.PropertyChanged += UpdateDataLoader;
-
 			FinishJournalConfiguration();
 			AccessRequest();
+
+			_subdivisionsControlledByCurrentEmployee = GetSubdivisionsControlledByCurrentEmployee(UoW);
+
+			FilterViewModel.IncludedAccountableSubdivision = _subdivisionsControlledByCurrentEmployee.ToArray();
+			FilterViewModel.JournalViewModel = this;
+			FilterViewModel.PropertyChanged += UpdateDataLoader;
 		}
 
 		private void UpdateDataLoader(object s, PropertyChangedEventArgs e)
@@ -165,6 +170,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			set => SetField(ref _footerInfo, value);
 		}
 		public INavigationManager NavigationManager { get; }
+		public ILifetimeScope Scope => _scope;
 
 		private void OnDataLoaderItemsListUpdated(object sender, EventArgs e)
 		{
@@ -188,8 +194,18 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				_commonServices.PermissionService.ValidateUserPresetPermission("role_security_service_cash_request", userId);
 			_canSeeCurrentSubdivisonRequests =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission("can_see_current_subdivision_cash_requests");
-			_hasAccessToHiddenFinancialCategories = 
+			_hasAccessToHiddenFinancialCategories =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.FinancialCategory.HasAccessToHiddenFinancialCategories);
+		}
+
+		private IEnumerable<int> GetSubdivisionsControlledByCurrentEmployee(IUnitOfWork uow)
+		{
+			var controlledSubdivision = uow.GetAll<Subdivision>()
+				.Where(s => s.Chief.Id == _currentEmployee.Id)
+				.Select(s => s.Id)
+				.ToArray();
+
+			return controlledSubdivision;
 		}
 
 		#region JournalActions
@@ -448,7 +464,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 
 			//завершение конфигурации
 			cashConfig.FinishConfiguration();
-			}
+		}
 
 		private CashRequestViewModel CreateCashRequestViewModelForMassOpenWithoutGui(PayoutRequestJournalNode node)
 		{
@@ -470,6 +486,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			CashRequestSumItem cashRequestSumItemAlias = null;
 			Employee accountableEmployeeAlias = null;
 			FinancialExpenseCategory financialExpenseCategoryAlias = null;
+			Subdivision subdivisionAlias = null;
 
 			PayoutRequestJournalNode<CashRequest> resultAlias = null;
 
@@ -477,6 +494,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				.Left.JoinAlias(с => с.Sums, () => cashRequestSumItemAlias)
 				.Left.JoinAlias(с => с.Author, () => authorAlias)
 				.Left.JoinAlias(() => cashRequestSumItemAlias.AccountableEmployee, () => accountableEmployeeAlias)
+				.Left.JoinAlias(() => accountableEmployeeAlias.Subdivision, () => subdivisionAlias)
 				.JoinEntityAlias(() => financialExpenseCategoryAlias, () => financialExpenseCategoryAlias.Id == cashRequestAlias.ExpenseCategoryId, JoinType.LeftOuterJoin);
 
 			if(FilterViewModel != null)
@@ -512,13 +530,27 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				{
 					result.Where(cr => cr.Id == -1);
 				}
+
+				if(FilterViewModel.AccountableSubdivision != null)
+				{
+					result.Where(() => accountableEmployeeAlias.Subdivision.Id ==  FilterViewModel.AccountableSubdivision.Id);
+				}
 			}
 
 			if(!_isAdmin && !_cashRequestFinancier && !_cashRequestCoordinator && !_roleCashier && !_roleSecurityService)
 			{
 				if(_canSeeCurrentSubdivisonRequests)
 				{
-					result.Where(() => authorAlias.Subdivision.Id == _currentEmployee.Subdivision.Id);
+					if(_subdivisionsControlledByCurrentEmployee.Count() > 0)
+					{
+						result.Where(Restrictions.Disjunction()
+							.Add(Restrictions.In(Projections.Property(() => authorAlias.Subdivision.Id), _subdivisionsControlledByCurrentEmployee.ToArray()))
+							.Add(Restrictions.Eq(Projections.Property(() => authorAlias.Subdivision.Id), _currentEmployee.Subdivision.Id)));
+					}
+					else
+					{
+						result.Where(() => authorAlias.Subdivision.Id == _currentEmployee.Subdivision.Id);
+					}
 				}
 				else
 				{
@@ -674,7 +706,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 
 				if(FilterViewModel.DocumentType != PayoutRequestDocumentType.CashlessRequest
 				   && FilterViewModel.DocumentType != null
-				   || FilterViewModel.AccountableEmployee != null)
+				   || FilterViewModel.AccountableEmployee != null
+				   || FilterViewModel.AccountableSubdivision != null)
 				{
 					result.Where(clr => clr.Id == -1);
 				}
@@ -689,7 +722,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			{
 				if(_canSeeCurrentSubdivisonRequests)
 				{
-					result.Where(() => authorAlias.Subdivision.Id == _currentEmployee.Subdivision.Id);
+					if(_subdivisionsControlledByCurrentEmployee.Count() > 0)
+					{
+						result.Where(Restrictions.In(Projections.Property(() => authorAlias.Subdivision.Id), _subdivisionsControlledByCurrentEmployee.ToArray()));
+					}
+					else
+					{
+						result.Where(() => authorAlias.Subdivision.Id == _currentEmployee.Subdivision.Id);
+					}
 				}
 				else
 				{

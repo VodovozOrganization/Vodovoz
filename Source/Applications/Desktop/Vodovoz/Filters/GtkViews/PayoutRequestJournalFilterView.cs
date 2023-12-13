@@ -47,6 +47,7 @@ namespace Vodovoz.Filters.GtkViews
 			yenumcomboboxSortBy.ItemsEnum = typeof(PayoutDocumentsSortOrder);
 			yenumcomboboxSortBy.Binding.AddBinding(ViewModel, vm => vm.DocumentsSortOrder, w => w.SelectedItemOrNull).InitializeFromSource();
 
+			entityentryAccountableSubdivision.ViewModel = ViewModel.AccountableSubdivisionViewModel;
 
 			PayoutRequestUserRole? userRole = ViewModel.GetUserRole();
 			//Для Роли Согласователя по-умолчанию Создана Подана,
