@@ -10,6 +10,7 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Print;
 using QS.Project.Services;
+using QS.Services;
 using QS.Tdi;
 using QS.Validation;
 using QS.ViewModels.Extension;
@@ -22,6 +23,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -32,6 +34,8 @@ using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.Errors;
+using Vodovoz.Extensions;
 using Vodovoz.Models;
 using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
@@ -47,6 +51,8 @@ namespace Vodovoz
 	public partial class RouteListCreateDlg : QS.Dialog.Gtk.EntityDialogBase<RouteList>, ITDICloseControlTab, IAskSaveOnCloseViewModel
 	{
 		private ILifetimeScope _lifetimeScope;
+		private IInteractiveService _interactiveService;
+		private ICurrentPermissionService _currenmtPermissionService;
 		private ILogger<RouteListCreateDlg> _logger;
 
 		private IAdditionalLoadingModel _additionalLoadingModel;
@@ -105,6 +111,8 @@ namespace Vodovoz
 		private void ResolveDependencies()
 		{
 			_lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+			_interactiveService = _lifetimeScope.Resolve<IInteractiveService>();
+			_currenmtPermissionService = _lifetimeScope.Resolve<ICurrentPermissionService>();
 			_logger = _lifetimeScope.Resolve<ILogger<RouteListCreateDlg>>();
 			_additionalLoadingModel = _lifetimeScope.Resolve<IAdditionalLoadingModel>();
 			_routeListRepository = _lifetimeScope.Resolve<IRouteListRepository>();
@@ -200,7 +208,7 @@ namespace Vodovoz
 				}
 			};
 
-			CanEditFixedPrice = currentPermissionService.ValidatePresetPermission("can_change_route_list_fixed_price");
+			CanEditFixedPrice = currentPermissionService.ValidatePresetPermission(Permissions.Logistic.RouteList.CanChangeRouteListFixedPrice);
 
 			var driverFilter = new EmployeeFilterViewModel();
 			driverFilter.SetAndRefilterAtOnce(
@@ -258,7 +266,7 @@ namespace Vodovoz
 								.List();
 			}
 
-			_isLogistican = currentPermissionService.ValidatePresetPermission("logistican");
+			_isLogistican = currentPermissionService.ValidatePresetPermission(Permissions.Logistic.IsLogistician);
 			createroutelistitemsview1.RouteListUoW = UoWGeneric;
 			createroutelistitemsview1.SetPermissionParameters(permissionResult, _isLogistican);
 
@@ -305,7 +313,7 @@ namespace Vodovoz
 			phoneDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Employee).InitializeFromSource();
 			phoneForwarder.Binding.AddBinding(Entity, e => e.Forwarder, w => w.Employee).InitializeFromSource();
 
-			var hasAccessToDriverTerminal = _isLogistican || currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.RoleCashier);
+			var hasAccessToDriverTerminal = _isLogistican || currentPermissionService.ValidatePresetPermission(Permissions.Cash.RoleCashier);
 			var baseDoc = _routeListRepository.GetLastTerminalDocumentForEmployee(UoW, Entity.Driver);
 			labelTerminalCondition.Visible = hasAccessToDriverTerminal &&
 											 baseDoc is DriverAttachedTerminalGiveoutDocument &&
@@ -315,7 +323,7 @@ namespace Vodovoz
 				labelTerminalCondition.LabelProp += $"{Entity.DriverTerminalCondition?.GetEnumTitle() ?? "неизвестно"}";
 			}
 
-			_canСreateRoutelistInPastPeriod = currentPermissionService.ValidatePresetPermission("can_create_routelist_in_past_period");
+			_canСreateRoutelistInPastPeriod = currentPermissionService.ValidatePresetPermission(Permissions.Logistic.RouteList.CanCreateRouteListInPastPeriod);
 
 			fixPriceSpin.Binding
 				.AddBinding(Entity, e => e.FixedShippingPrice, w => w.ValueAsDecimal)
@@ -331,7 +339,7 @@ namespace Vodovoz
 
 			#region Рентабельность МЛ
 
-			radioBtnProfitability.Sensitive = currentPermissionService.ValidatePresetPermission("can_read_route_list_profitability");
+			radioBtnProfitability.Sensitive = currentPermissionService.ValidatePresetPermission(Permissions.Logistic.RouteList.CanReadRouteListProfitability);
 			radioBtnProfitability.Toggled += OnProfitabilityToggled;
 
 			_logger.LogDebug("Пересчитываем рентабельность МЛ");
@@ -713,11 +721,11 @@ namespace Vodovoz
 					message += $"\n{i + 1}\t| { item.PrintingTime.ToShortDateString() }" +
 							   $" { item.PrintingTime.ToShortTimeString() }\t\t| { item.DocumentType.GetEnumShortTitle() }";
 				}
-				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Info, message, $"История печати МЛ №: {Entity.Id}");
+				_interactiveService.ShowMessage(ImportanceLevel.Info, message, $"История печати МЛ №: {Entity.Id}");
 			}
 			else
 			{
-				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Error, "МЛ не печатался ранее");
+				_interactiveService.ShowMessage(ImportanceLevel.Error, "МЛ не печатался ранее");
 			}
 		}
 
@@ -728,34 +736,159 @@ namespace Vodovoz
 				return;
 			}
 
+			var isAcceptMode = buttonAccept.Label == "Подтвердить";
+
+			if(isAcceptMode)
+			{
+				AcceptHandler();
+			}
+			else
+			{
+				ReturnToNewHandler();
+			}
+		}
+
+		private void ReturnToNewHandler()
+		{
 			using(var transaction = UoW.Session.BeginTransaction())
 			{
 				try
 				{
+					Result result = _routeListService.TryChangeStatusToNew(UoW, Entity);
+
 					SetSensetivity(false);
-
-					var isAcceptMode = buttonAccept.Label == "Подтвердить";
-
-					var result = _routeListService.TryAcceptOrEditRouteList(UoW, Entity, isAcceptMode, DisableItemsUpdate, ServicesConfig.CommonServices);
 
 					result.Match(() =>
 					{
-						if(result.Value != RouteListAcceptStatus.Accepted)
-						{
-							return;
-						}
-
 						transaction.Commit();
 						GlobalUowEventsTracker.OnPostCommit((IUnitOfWorkTracked)UoW);
 						createroutelistitemsview1.SubscribeOnChanges();
 						UpdateAdditionalLoadingWidgets();
 					},
-					(errors) =>
+					ShowErrors);
+
+					UpdateButtonStatus();
+					SetSensetivity(true);
+					UpdateDlg(_isLogistican);
+				}
+				catch(Exception ex)
+				{
+					if(!transaction.WasCommitted
+					   && !transaction.WasRolledBack
+					   && transaction.IsActive
+					   && UoW.Session.Connection.State == ConnectionState.Open)
 					{
-						var errorsStrings = errors.Select(x => $"{x.Message} : {x.Code}");
-						ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Error, string.Join("\n", errorsStrings));
+						try
+						{
+							transaction.Rollback();
+						}
+						catch { }
 					}
-					);
+
+					transaction.Dispose();
+
+					_logger.LogError(ex, "Произошла ошибка во время возвращения Маршрутного листа в статус нового {RouteListId}: {Message}.", Entity.Id, ex.Message);
+
+					_interactiveService.ShowMessage(ImportanceLevel.Warning,
+						$"Возникла ошибка при возвращения Маршрутного листа в статус нового {Entity.Id}, МЛ был сохранён, но не возвращен в статус нового.\n" +
+						$"Будет произведена попытка переоткрытия вкладки.\n" +
+						$"Ошибка: {ex.Message}\n{ex.StackTrace}");
+
+					OnCloseTab(false);
+
+					TabParent.OpenTab(() => new RouteListCreateDlg(Entity.Id));
+				}
+			}
+		}
+
+		private void AcceptHandler()
+		{
+			var beforeAcceptValidation = _routeListService.ValidateForAccept(Entity);
+
+			bool skipOverfillValidation = false;
+
+			var overfillErrorsCodes = Errors.Logistics.RouteList.OverfilledErrorCodes;
+
+			var overfillErrorsMessages = beforeAcceptValidation.Errors.Select(x => x.Message).ToArray();
+
+			if(beforeAcceptValidation.IsFailure)
+			{
+				if(!beforeAcceptValidation.Errors.All(error => overfillErrorsCodes.Contains(error.Code))
+					|| !_currenmtPermissionService.ValidatePresetPermission(Permissions.Logistic.RouteList.CanConfirmOverweighted)
+					|| !_interactiveService.Question(
+						"Вы уверены что хотите подтвердить маршрутный лист?\n" +
+						string.Join("\n", overfillErrorsMessages),
+						"Требуется подтверждение!"))
+				{
+					_interactiveService.ShowMessage(ImportanceLevel.Error,
+						 "Маршрутный лист не был переведен в путь: \n" +
+						 string.Join("\n", overfillErrorsMessages));
+
+					return;
+				}
+
+				skipOverfillValidation = true;
+			}
+
+			var confirmRecalculateRoute = false;
+
+			if((!Entity.PrintsHistory?.Any() ?? true) || _interactiveService.Question(
+				"Этот маршрутный лист уже был когда-то напечатан. При новом построении маршрута порядок адресов может быть другой. При продолжении обязательно перепечатайте этот МЛ.\nПерестроить маршрут?", "Перестроить маршрут?"))
+			{
+				confirmRecalculateRoute = true;
+			}
+
+			var confirmSendOnClosing = false;
+
+			if(Entity.GetCarVersion.IsCompanyCar
+				&& Entity.Car.CarModel.CarTypeOfUse == CarTypeOfUse.Truck
+				&& !Entity.NeedToLoad
+				&& _interactiveService.Question(
+					$"Маршрутный лист для транспортировки на склад, перевести машрутный лист сразу в статус '{RouteListStatus.OnClosing.GetEnumDisplayName()}'?"))
+			{
+				confirmSendOnClosing = true;
+			}
+
+			var confirmSenEnRoute = false;
+
+			var needTerminal = Entity.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal);
+
+			if(!Entity.NeedToLoad
+				&& !needTerminal
+				&& _interactiveService.Question($"Для маршрутного листа нет необходимости грузится на складе. Перевести маршрутный лист сразу в статус '{RouteListStatus.EnRoute.GetEnumDisplayName()}'?"))
+			{
+				confirmSenEnRoute = true;
+			}
+
+			using(var transaction = UoW.Session.BeginTransaction())
+			{
+				try
+				{
+					Result<IEnumerable<string>> result = _routeListService.TryChangeStatusToAccepted(
+						UoW,
+						Entity,
+						DisableItemsUpdate,
+						ServicesConfig.CommonServices.ValidationService,
+						skipOverfillValidation,
+						confirmRecalculateRoute,
+						confirmSendOnClosing,
+						confirmSenEnRoute);
+
+					SetSensetivity(false);
+
+					result.Match(() =>
+					{
+						transaction.Commit();
+						GlobalUowEventsTracker.OnPostCommit((IUnitOfWorkTracked)UoW);
+						createroutelistitemsview1.SubscribeOnChanges();
+						UpdateAdditionalLoadingWidgets();
+
+						if(result.Value.Any())
+						{
+							_interactiveService.ShowMessage(ImportanceLevel.Info, string.Join("\n", result.Value));
+						}
+					},
+					ShowErrors);
 
 					UpdateButtonStatus();
 					SetSensetivity(true);
@@ -779,7 +912,7 @@ namespace Vodovoz
 
 					_logger.LogError(ex, "Произошла ошибка во время подтверждения МЛ {RouteListId}: {Message}.", Entity.Id, ex.Message);
 
-					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+					_interactiveService.ShowMessage(ImportanceLevel.Warning,
 						$"Возникла ошибка при подтверждении МЛ {Entity.Id}, МЛ был сохранён, но не подтверждён.\n" +
 						$"Будет произведена попытка переоткрытия вкладки.\n" +
 						$"Ошибка: {ex.Message}\n{ex.StackTrace}");
@@ -789,6 +922,13 @@ namespace Vodovoz
 					TabParent.OpenTab(() => new RouteListCreateDlg(Entity.Id));
 				}
 			}
+		}
+
+		private void ShowErrors(IEnumerable<Error> errors)
+		{
+			var errorsStrings = errors.Select(x => $"{x.Message} : {x.Code}").ToArray();
+
+			_interactiveService.ShowMessage(ImportanceLevel.Error, string.Join("\n", errorsStrings));
 		}
 
 		private void DisableItemsUpdate(bool isDisable) => createroutelistitemsview1.DisableColumnsUpdate = isDisable;

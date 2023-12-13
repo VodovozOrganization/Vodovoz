@@ -1,31 +1,27 @@
 using Microsoft.Extensions.Logging;
 using MoreLinq;
-using QS.Dialog;
 using QS.DomainModel.UoW;
-using QS.Services;
+using QS.Validation;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Controllers;
-using System.Text;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Errors;
-using Vodovoz.Extensions;
 using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Cash;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
-using RouteList = Vodovoz.Domain.Logistic.RouteList;
-using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 
 namespace Vodovoz.Application.Services.Logistics
 {
@@ -248,6 +244,8 @@ namespace Vodovoz.Application.Services.Logistics
 			routeList.ChangeStatusAndCreateTask(RouteListStatus.EnRoute, _callTaskWorker);
 		}
 
+		#region SpecialConditions - спец. условия МЛ
+
 		private void CreateSpecialConditionsFor(
 			IUnitOfWork unitOfWork,
 			RouteList routeList)
@@ -364,6 +362,10 @@ namespace Vodovoz.Application.Services.Logistics
 				transaction.Commit();
 			}
 		}
+
+		#endregion SpecialConditions - спец. условия МЛ
+
+		#region Transfers - переносы
 
 		public Result<IEnumerable<string>> TransferOrdersTo(
 			IUnitOfWork unitOfWork,
@@ -761,54 +763,44 @@ namespace Vodovoz.Application.Services.Logistics
 		private void UpdateTransferDocuments(IUnitOfWork unitOfWork, RouteListItem sourceAddress, RouteListItem targetAddress, AddressTransferType addressTransferType) =>
 			_addressTransferController.UpdateDocuments(sourceAddress, targetAddress, unitOfWork, addressTransferType);
 
-		public Result<RouteListAcceptStatus> TryAcceptOrEditRouteList(IUnitOfWork uow, RouteList routeList, bool isAcceptMode, Action<bool> disableItemsUpdate, ICommonServices commonServices)
-		{
-			if(routeList.Car == null)
-			{
-				return Result.Failure<RouteListAcceptStatus>(Errors.Logistics.RouteList.CarIsEmpty);
-			}
+		#endregion Transfers - переносы
 
-			StringBuilder warningMsg = new StringBuilder($"Автомобиль '{routeList.Car.Title}':");
+		public Result ValidateForAccept(
+			RouteList routeList,
+			bool skipOverfillValidation = false)
+		{
+			var errors = new List<Error>();
+
+			if(routeList.Car is null)
+			{
+				return Result.Failure(Errors.Logistics.RouteList.CarIsEmpty);
+			}
 
 			if(routeList.HasOverweight())
 			{
-				warningMsg.Append($"\n\t- перегружен на {routeList.Overweight()} кг");
+				errors.Add(Errors.Logistics.RouteList.Overweighted(routeList.Overweight()));
 			}
 
 			if(routeList.HasVolumeExecess())
 			{
-				warningMsg.Append($"\n\t- объём груза превышен на {routeList.VolumeExecess()} м<sup>3</sup>");
+				errors.Add(Errors.Logistics.RouteList.Overvolumed(routeList.VolumeExecess()));
 			}
 
 			if(routeList.HasReverseVolumeExcess())
 			{
-				warningMsg.Append($"\n\t- объём возвращаемого груза превышен на {routeList.ReverseVolumeExecess()} м<sup>3</sup>");
+				errors.Add(Errors.Logistics.RouteList.InsufficientFreeVolumeForReturn(routeList.ReverseVolumeExecess()));
 			}
 
-			if(isAcceptMode && (routeList.HasOverweight() || routeList.HasVolumeExecess() || routeList.HasReverseVolumeExcess()))
+			var overfillErrorsCodes = Errors.Logistics.RouteList.OverfilledErrorCodes;
+
+			if(errors.Any()
+				&& !(errors.All(error => overfillErrorsCodes.Contains(error.Code))
+					&& skipOverfillValidation))
 			{
-				if(commonServices.CurrentPermissionService.ValidatePresetPermission("can_confirm_routelist_with_overweight"))
-				{
-					warningMsg.AppendLine("\nВы уверены что хотите подтвердить маршрутный лист?");
-					if(!commonServices.InteractiveService.Question(warningMsg.ToString()))
-					{
-						return Result.Failure<RouteListAcceptStatus>(Errors.Logistics.RouteList.CreateHasOverweight(warningMsg.ToString()));
-					}
-				}
-				else
-				{
-					warningMsg.AppendLine("\nПодтвердить маршрутный лист нельзя.");
-					return Result.Failure<RouteListAcceptStatus>(Errors.Logistics.RouteList.CreateHasOverweight(warningMsg.ToString()));
-				}
+				return Result.Failure(errors);
 			}
 
-			var result = isAcceptMode
-				? TryChangeStatusToAccepted(uow, routeList, disableItemsUpdate, commonServices)
-				: TryChangeStatusToNew(uow, routeList);
-
-			RecalculateRouteList(uow, routeList);
-
-			return result;
+			return Result.Success();
 		}
 
 		private void RecalculateRouteList(IUnitOfWork unitOfWork, RouteList routeList)
@@ -822,49 +814,69 @@ namespace Vodovoz.Application.Services.Logistics
 			unitOfWork.Save(routeList.RouteListProfitability);
 		}
 
-		private Result<RouteListAcceptStatus> TryChangeStatusToAccepted(IUnitOfWork unitOfWork, RouteList routeList, Action<bool> disableItemsUpdate, ICommonServices commonServices)
+		public Result<IEnumerable<string>> TryChangeStatusToAccepted(
+			IUnitOfWork unitOfWork,
+			RouteList routeList,
+			Action<bool> disableItemsUpdate,
+			IValidator validationService,
+			bool skipOverfillValidation = false,
+			bool confirmRecalculateRoute = false,
+			bool confirmSendOnClosing = false,
+			bool confirmSenEnRoute = false)
 		{
+			var validationResult = ValidateForAccept(routeList, skipOverfillValidation);
+
+			var messages = new List<string>();
+
+			if(validationResult.IsFailure)
+			{
+				return Result.Failure<IEnumerable<string>>(validationResult.Errors);
+			}
+
 			if(routeList.Status != RouteListStatus.New)
 			{
-				return Result.Failure<RouteListAcceptStatus>(Errors.Logistics.RouteList.IncorrectStatusForAccept);
+				return Result.Failure<IEnumerable<string>>(Errors.Logistics.RouteList.IncorrectStatusForAccept);
 			}
 
 			var contextItems = new Dictionary<object, object>
-				{
-					{ "NewStatus", RouteListStatus.Confirmed },
-					{ nameof(IRouteListItemRepository), new RouteListItemRepository() }
-				};
+			{
+				{ "NewStatus", RouteListStatus.Confirmed },
+				{ nameof(IRouteListItemRepository), _routeListItemRepository }
+			};
 
 			var context = new ValidationContext(routeList, null, contextItems);
 
-			if(!commonServices.ValidationService.Validate(routeList, context))
+			if(!validationService.Validate(routeList, context))
 			{
-				return Result.Failure<RouteListAcceptStatus>(Errors.Logistics.RouteList.ValidationFailure);
+				return Result.Failure<IEnumerable<string>>(Errors.Logistics.RouteList.ValidationFailure);
 			}
 
 			routeList.ChangeStatusAndCreateTask(RouteListStatus.Confirmed, _callTaskWorker);
-			//Строим маршрут для МЛ.
-			if((!routeList.PrintsHistory?.Any() ?? true) || commonServices.InteractiveService.Question("Этот маршрутный лист уже был когда-то напечатан. При новом построении маршрута порядок адресов может быть другой. При продолжении обязательно перепечатайте этот МЛ.\nПерестроить маршрут?", "Перестроить маршрут?"))
-			{
 
+			//Строим маршрут для МЛ.
+			if((!routeList.PrintsHistory?.Any() ?? true) || confirmRecalculateRoute)
+			{
 				var newRoute = _routeOptimizer.RebuidOneRoute(routeList);
+
 				if(newRoute != null)
 				{
 					disableItemsUpdate(true);
 					newRoute.UpdateAddressOrderInRealRoute(routeList);
-					//Рассчитываем расстояние
 
+					//Рассчитываем расстояние
 					routeList.RecalculatePlanedDistance(_routeGeometryCalculator);
 					disableItemsUpdate(false);
+
 					var noPlan = routeList.Addresses.Count(x => !x.PlanTimeStart.HasValue);
+
 					if(noPlan > 0)
 					{
-						commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Для маршрута незапланировано {noPlan} адресов.");
+						messages.Add($"Для маршрута незапланировано {noPlan} адресов.");
 					}
 				}
 				else
 				{
-					commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Маршрут не был перестроен.");
+					messages.Add("Маршрут не был перестроен.");
 				}
 			}
 
@@ -885,10 +897,10 @@ namespace Vodovoz.Application.Services.Logistics
 			}
 
 			_logger.LogInformation("Операции по свободным остаткакам МЛ {RouteListId} созданы.", routeList.Id);
+
 			if(routeList.GetCarVersion.IsCompanyCar && routeList.Car.CarModel.CarTypeOfUse == CarTypeOfUse.Truck && !routeList.NeedToLoad)
 			{
-				if(commonServices.InteractiveService.Question(
-					$"Маршрутный лист для транспортировки на склад, перевести машрутный лист сразу в статус '{RouteListStatus.OnClosing.GetEnumDisplayName()}'?"))
+				if(confirmSendOnClosing)
 				{
 					routeList.CompleteRouteAndCreateTask(_wageParameterService, _callTaskWorker, _trackRepository);
 				}
@@ -900,24 +912,22 @@ namespace Vodovoz.Application.Services.Logistics
 
 				if(!routeList.NeedToLoad && !needTerminal)
 				{
-					if(commonServices.InteractiveService.Question($"Для маршрутного листа нет необходимости грузится на складе. Перевести маршрутный лист сразу в статус '{RouteListStatus.EnRoute.GetEnumDisplayName()}'?"))
+					if(confirmSenEnRoute)
 					{
 						var contextItemsEnroute = new Dictionary<object, object>
-							{
-								{ "NewStatus", RouteListStatus.EnRoute },
-								{ nameof(IRouteListItemRepository), new RouteListItemRepository() }
-							};
+						{
+							{ "NewStatus", RouteListStatus.EnRoute },
+							{ nameof(IRouteListItemRepository), _routeListItemRepository }
+						};
 
 						var contextEnroute = new ValidationContext(routeList, null, contextItemsEnroute);
 
-						if(!commonServices.ValidationService.Validate(routeList, contextEnroute))
+						if(!validationService.Validate(routeList, contextEnroute))
 						{
-							return Result.Failure<RouteListAcceptStatus>(Errors.Logistics.RouteList.ValidationFailure);
+							return Result.Failure<IEnumerable<string>>(Errors.Logistics.RouteList.ValidationFailure);
 						}
-						else
-						{
-							SendEnRoute(unitOfWork, routeList);
-						}
+
+						SendEnRoute(unitOfWork, routeList);
 					}
 					else
 					{
@@ -926,27 +936,29 @@ namespace Vodovoz.Application.Services.Logistics
 				}
 			}
 
+			RecalculateRouteList(unitOfWork, routeList);
 
-			return Result.Success(RouteListAcceptStatus.Accepted);
+			return Result.Success(messages.AsEnumerable());
 		}
 
-		private Result<RouteListAcceptStatus> TryChangeStatusToNew(IUnitOfWork unitOfWork, RouteList routeList)
+		public Result TryChangeStatusToNew(IUnitOfWork unitOfWork, RouteList routeList)
 		{
-			if(routeList.Status != RouteListStatus.InLoading && routeList.Status != RouteListStatus.Confirmed)
+			if(routeList.Status != RouteListStatus.InLoading
+				&& routeList.Status != RouteListStatus.Confirmed)
 			{
-				return Result.Failure<RouteListAcceptStatus>(Errors.Logistics.RouteList.IncorrectStatusForEdit);
+				return Result.Failure(Errors.Logistics.RouteList.IncorrectStatusForEdit);
 			}
 
 			if(_routeListRepository.GetCarLoadDocuments(unitOfWork, routeList.Id).Any())
 			{
-				return Result.Failure<RouteListAcceptStatus>(Errors.Logistics.RouteList.HasCarLoadingDocuments);
+				return Result.Failure(Errors.Logistics.RouteList.HasCarLoadingDocuments);
 			}
-			else
-			{
-				routeList.ChangeStatusAndCreateTask(RouteListStatus.New, _callTaskWorker);
 
-				return Result.Success(RouteListAcceptStatus.New);
-			}
+			routeList.ChangeStatusAndCreateTask(RouteListStatus.New, _callTaskWorker);
+
+			RecalculateRouteList(unitOfWork, routeList);
+
+			return Result.Success();
 		}
 	}
 }
