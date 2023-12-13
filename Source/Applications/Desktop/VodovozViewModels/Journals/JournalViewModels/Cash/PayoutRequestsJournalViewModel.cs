@@ -543,7 +543,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				{
 					if(_subdivisionsControlledByCurrentEmployee.Count() > 0)
 					{
-						result.Where(Restrictions.In(Projections.Property(() => authorAlias.Subdivision.Id), _subdivisionsControlledByCurrentEmployee.ToArray()));
+						result.Where(Restrictions.Disjunction()
+							.Add(Restrictions.In(Projections.Property(() => authorAlias.Subdivision.Id), _subdivisionsControlledByCurrentEmployee.ToArray()))
+							.Add(Restrictions.Eq(Projections.Property(() => authorAlias.Subdivision.Id), _currentEmployee.Subdivision.Id)));
 					}
 					else
 					{
