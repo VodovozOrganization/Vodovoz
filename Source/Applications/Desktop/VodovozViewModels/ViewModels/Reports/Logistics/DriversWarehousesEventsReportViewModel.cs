@@ -65,7 +65,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_unitOfWork = (unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory))).CreateWithoutRoot();
 
-			TabName = "Отчет по событиям нахождения волителей на складе";
+			TabName = "Отчет по событиям нахождения водителей на складе";
 			
 			ConfigureEntryViewModels();
 		}
@@ -202,6 +202,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics
 				.Select(() => completedEventAlias.CompletedDate).WithAlias(() => resultAlias.EventDateTime)
 				.Select(EmployeeProjections.GetDriverFullNameProjection()).WithAlias(() => resultAlias.DriverFio)
 				.Select(CarProjections.GetCarModelWithRegistrationNumber()).WithAlias(() => resultAlias.CarModelWithNumber)
+				.Select(() => eventAlias.Id).WithAlias(() => resultAlias.EventId)
 				.Select(() => eventAlias.EventName).WithAlias(() => resultAlias.EventName)
 				.Select(ce => ce.DistanceMetersFromScanningLocation).WithAlias(() => resultAlias.Distance)
 				)
@@ -327,7 +328,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics
 			for(var i = 1; i < nodes.Count; i++)
 			{
 				var node = nodes[i];
-				if(date == node.EventDate && driver == node.DriverFio && eventNameId == FirstEvent.Id && eventNameId != node.EventNameId)
+				if(date == node.EventDate && driver == node.DriverFio && eventNameId == FirstEvent.Id && eventNameId != node.EventId)
 				{
 					nextNode.SecondEventName = node.EventName;
 					nextNode.SecondEventDistance = node.Distance;
@@ -342,11 +343,11 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics
 			}
 		}
 
-		private static DateTime UpdateLocalParams(DriversWarehousesEventNode firstNode, out string driver, out int eventNameId)
+		private static DateTime UpdateLocalParams(DriversWarehousesEventNode firstNode, out string driver, out int eventId)
 		{
 			var date = firstNode.EventDate;
 			driver = firstNode.DriverFio;
-			eventNameId = firstNode.EventNameId;
+			eventId = firstNode.EventId;
 			return date;
 		}
 
@@ -359,7 +360,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics
 				CarModelWithNumber = node.CarModelWithNumber
 			};
 
-			if(node.EventNameId == FirstEvent.Id)
+			if(node.EventId == FirstEvent.Id)
 			{
 				nextNode.FirstEventName = node.EventName;
 				nextNode.FirstEventDistance = node.Distance;
