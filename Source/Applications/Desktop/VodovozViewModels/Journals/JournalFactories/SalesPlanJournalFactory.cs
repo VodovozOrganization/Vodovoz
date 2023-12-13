@@ -1,4 +1,5 @@
 ﻿using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using Vodovoz.Domain.Logistic;
@@ -11,12 +12,11 @@ namespace Vodovoz.ViewModels.Journals.JournalFactories
 {
 	public class SalesPlanJournalFactory : ISalesPlanJournalFactory
 	{
-		public IEntityAutocompleteSelectorFactory CreateSalesPlanAutocompleteSelectorFactory(INomenclatureJournalFactory nomenclatureSelectorFactory)
+		public IEntityAutocompleteSelectorFactory CreateSalesPlanAutocompleteSelectorFactory(INavigationManager navigationManager)
 		{
-			return new EntityAutocompleteSelectorFactory<SalesPlanJournalViewModel>(typeof(SalesPlan), () =>
-			{
-				return new SalesPlanJournalViewModel(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices,  nomenclatureSelectorFactory);
-			});
+			return new EntityAutocompleteSelectorFactory<SalesPlanJournalViewModel>(
+				typeof(SalesPlan),
+				() => new SalesPlanJournalViewModel(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, navigationManager));
 		}
 	}
 }

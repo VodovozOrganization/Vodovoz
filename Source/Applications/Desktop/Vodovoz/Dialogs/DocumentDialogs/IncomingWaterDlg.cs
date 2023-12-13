@@ -12,15 +12,13 @@ using Vodovoz.EntityRepositories;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.Project.Services;
 using Vodovoz.Domain.Permissions.Warehouses;
-using Vodovoz.JournalSelector;
-using Vodovoz.Parameters;
-using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Autofac;
+using QS.Project.Journal.EntitySelector;
 
 namespace Vodovoz
 {
@@ -123,19 +121,10 @@ namespace Vodovoz
 			}
 
 			var nomenclatureFilter = new NomenclatureFilterViewModel() { HidenByDefault = true };
-			var nomenclatureRepository = 
-				new EntityRepositories.Goods.NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
-			var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
-
-			var nomenclatureAutoCompleteSelectorFactory =
-				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-					ServicesConfig.CommonServices,
-					nomenclatureFilter,
-					counterpartyJournalFactory,
-					nomenclatureRepository,
-					_userRepository,
-					_lifetimeScope
-				);
+			var nomenclatureAutoCompleteSelectorFactory = new EntityAutocompleteSelectorFactory<NomenclaturesJournalViewModel>(
+				typeof(Nomenclature),
+				() => _lifetimeScope.Resolve<NomenclaturesJournalViewModel>(
+					new TypedParameter(typeof(NomenclatureFilterViewModel), nomenclatureFilter)));
 			
 			yentryProduct.SetEntityAutocompleteSelectorFactory(nomenclatureAutoCompleteSelectorFactory);
 			yentryProduct.Binding.AddBinding(Entity, e => e.Product, w => w.Subject).InitializeFromSource();

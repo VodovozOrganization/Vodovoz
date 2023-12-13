@@ -28,8 +28,8 @@ namespace Vodovoz.JournalViewModels.Suppliers
 			RequestToSupplierJournalNode,
 			RequestsToSuppliersFilterViewModel>
 	{
-		private readonly ITdiCompatibilityNavigation _navigationManager;
 		private readonly ISupplierPriceItemsRepository _supplierPriceItemsRepository;
+		private readonly ITdiCompatibilityNavigation _navigationManager;
 		private readonly IEmployeeService _employeeService;
 
 		public RequestsToSuppliersJournalViewModel(
@@ -38,12 +38,11 @@ namespace Vodovoz.JournalViewModels.Suppliers
 			ICommonServices commonServices,
 			ITdiCompatibilityNavigation navigationManager,
 			IEmployeeService employeeService,
-			ISupplierPriceItemsRepository supplierPriceItemsRepository
-		) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			ISupplierPriceItemsRepository supplierPriceItemsRepository) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
+			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_supplierPriceItemsRepository = supplierPriceItemsRepository ?? throw new ArgumentNullException(nameof(supplierPriceItemsRepository));
-			_navigationManager = navigationManager;
 			
 			TabName = "Журнал заявок поставщикам";
 
@@ -165,14 +164,15 @@ namespace Vodovoz.JournalViewModels.Suppliers
 			_supplierPriceItemsRepository
 		);
 
-		protected override Func<RequestToSupplierJournalNode, RequestToSupplierViewModel> OpenDialogFunction => n => new RequestToSupplierViewModel(
-			EntityUoWBuilder.ForOpen(n.Id),
-			UnitOfWorkFactory,
-			commonServices,
-			_navigationManager,
-			_employeeService,
-			_supplierPriceItemsRepository
-		);
+		protected override Func<RequestToSupplierJournalNode, RequestToSupplierViewModel> OpenDialogFunction => n =>
+			new RequestToSupplierViewModel(
+				EntityUoWBuilder.ForOpen(n.Id),
+				UnitOfWorkFactory,
+				commonServices,
+				_navigationManager,
+				_employeeService,
+				_supplierPriceItemsRepository
+			);
 
 		protected override void CreatePopupActions()
 		{

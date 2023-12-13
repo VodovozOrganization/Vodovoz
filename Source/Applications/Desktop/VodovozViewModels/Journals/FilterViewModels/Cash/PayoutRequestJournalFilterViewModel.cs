@@ -1,7 +1,9 @@
-﻿using QS.Project.Filter;
+using QS.Project.Filter;
 using QS.Project.Services;
 using QS.ViewModels.Control.EEVM;
 using System;
+using Autofac;
+using QS.Project.Journal.EntitySelector;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -29,6 +31,17 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
 		private PayoutRequestsJournalViewModel _journalViewModel;
 		private int[] _includedAccountableSubdivision = Array.Empty<int>();
 
+		public PayoutRequestJournalFilterViewModel(
+			ILifetimeScope lifetimeScope,
+			IEmployeeJournalFactory employeeJournalFactory,
+			ICounterpartyJournalFactory counterpartyJournalFactory)
+		{
+			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			CounterpartyAutocompleteSelectorFactory =
+				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
+				.CreateCounterpartyAutocompleteSelectorFactory(lifetimeScope);
+		}
+		
 		public virtual Employee Author
 		{
 			get => _author;
@@ -171,6 +184,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
 		public IEmployeeJournalFactory EmployeeJournalFactory { get; }
 		public ICounterpartyJournalFactory CounterpartyJournalFactory { get; }
 		public IEntityEntryViewModel AccountableSubdivisionViewModel { get; private set; }
+		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelectorFactory { get; }
 
 		public PayoutRequestUserRole GetUserRole()
 		{

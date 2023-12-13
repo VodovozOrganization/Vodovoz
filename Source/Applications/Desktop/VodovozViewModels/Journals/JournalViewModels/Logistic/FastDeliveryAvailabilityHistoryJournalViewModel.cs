@@ -1,7 +1,6 @@
 ﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
-using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
@@ -14,7 +13,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Timers;
-using QS.Dialog;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -40,13 +38,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		private readonly INomenclatureParametersProvider _nomenclatureParametersProvider;
 		private IList<FastDeliveryAvailabilityHistoryJournalNode> _sequenceNodes;
 
-		public FastDeliveryAvailabilityHistoryJournalViewModel(FastDeliveryAvailabilityFilterViewModel filterViewModel,
+		public FastDeliveryAvailabilityHistoryJournalViewModel(
+			FastDeliveryAvailabilityFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
 			IFileDialogService fileDialogService,
 			IFastDeliveryAvailabilityHistoryParameterProvider fastDeliveryAvailabilityHistoryParameterProvider,
-			INomenclatureParametersProvider nomenclatureParametersProvider)
+			INomenclatureParametersProvider nomenclatureParametersProvider,
+			Action<FastDeliveryAvailabilityFilterViewModel> filterParams = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -70,6 +70,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			_timer = new Timer(_interval);
 			_timer.Elapsed += TimerOnElapsed;
 			_timer.Start();
+
+			if(filterParams != null)
+			{
+				FilterViewModel.ConfigureWithoutFiltering(filterParams);
+			}
 
 			DataLoader.PostLoadProcessingFunc = BeforeItemsUpdated;
 

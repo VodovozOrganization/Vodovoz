@@ -1,4 +1,4 @@
-﻿using Gamma.Utilities;
+using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.Dialog;
@@ -11,6 +11,8 @@ using QS.ViewModels;
 using System;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Autofac;
+using QS.Project.Journal.EntitySelector;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.EntityRepositories;
@@ -29,7 +31,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 	{
 		private readonly CommonMessages _commonMessages;
 		private readonly IRDLPreviewOpener _rdlPreviewOpener;
-		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private IGenericRepository<EdoContainer> _edoContainerRepository;
 
 		public Action<string> OpenCounterpartyJournal;
@@ -38,6 +39,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		public bool IsDocumentSent => Entity.IsBillWithoutShipmentSent;
 
 		public OrderWithoutShipmentForDebtViewModel(
+			ILifetimeScope lifetimeScope,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
@@ -47,6 +49,11 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IGenericRepository<EdoContainer> edoContainerRepository) : base(uowBuilder, uowFactory, commonServices)
 		{
+			if(lifetimeScope == null)
+			{
+				throw new ArgumentNullException(nameof(lifetimeScope));
+			}
+
 			if(employeeService == null)
 			{
 				throw new ArgumentNullException(nameof(employeeService));
@@ -54,10 +61,12 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 			_commonMessages = commonMessages ?? throw new ArgumentNullException(nameof(commonMessages));
 			_rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
-			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			_edoContainerRepository = edoContainerRepository ?? throw new ArgumentNullException(nameof(edoContainerRepository));
-
-			bool canCreateBillsWithoutShipment =
+			CounterpartyAutocompleteSelectorFactory =
+				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
+				.CreateCounterpartyAutocompleteSelectorFactory(lifetimeScope);
+			
+			bool canCreateBillsWithoutShipment = 
 				CommonServices.PermissionService.ValidateUserPresetPermission("can_create_bills_without_shipment", CurrentUser.Id);
 			_userHavePermissionToResendEdoDocuments = CommonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Permissions.EdoContainer.OrderWithoutShipmentForDebt.CanResendEdoBill, CurrentUser.Id);
 
@@ -125,13 +134,14 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 			Entity.PropertyChanged += OnEntityPropertyChanged;
 		}
-
+		
+		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelectorFactory { get; }
+		
 		public bool CanSendBillByEdo => Entity.Client?.NeedSendBillByEdo ?? false && !EdoContainers.Any();
 
 		public SendDocumentByEmailViewModel SendDocViewModel { get; set; }
 		public IEntityUoWBuilder EntityUoWBuilder { get; }
-		public ICounterpartyJournalFactory CounterpartyJournalFactory => _counterpartyJournalFactory;
-
+		
 		#region Commands
 
 		public DelegateCommand CancelCommand { get; }
@@ -204,8 +214,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 		#endregion
 
-		public GenericObservableList<EdoContainer> EdoContainers { get; } =
-			new GenericObservableList<EdoContainer>();
+		public GenericObservableList<EdoContainer> EdoContainers { get; } = new GenericObservableList<EdoContainer>();
 
 		public bool CanResendEdoBill => _userHavePermissionToResendEdoDocuments && EdoContainers.Any();
 

@@ -10,20 +10,15 @@ using QS.Tdi;
 using QS.ViewModels;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.Services;
-using Vodovoz.Settings.Nomenclature;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.ViewModels.Client
 {
-	public class SupplierPricesWidgetViewModel : EntityWidgetViewModelBase<Counterparty>
+	public class SupplierPricesWidgetViewModel : EntityWidgetViewModelBase<Counterparty>, IDisposable
 	{
-		private readonly ITdiTab _dialogTab;
 		private readonly ITdiCompatibilityNavigation _navigationManager;
+		private ITdiTab _dialogTab;
 
 		public event EventHandler ListContentChanged;
 
@@ -89,18 +84,18 @@ namespace Vodovoz.ViewModels.Client
 					var journalViewModel =
 						_navigationManager.OpenViewModelOnTdi<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(
 							_dialogTab,
-							f =>
+							filter =>
 							{
-								f.HidenByDefault = true;
+								filter.HidenByDefault = true;
 							},
 							OpenPageOptions.AsSlave,
 							vm =>
 							{
 								vm.SelectionMode = JournalSelectionMode.Single;
 								vm.ExcludingNomenclatureIds = existingNomenclatures.ToArray();
-							})
-						.ViewModel;
-						
+							}
+						).ViewModel;
+					
 					journalViewModel.OnEntitySelectedResult += (sender, e) =>
 					{
 						var selectedNode = e.SelectedNodes.FirstOrDefault();
@@ -148,5 +143,9 @@ namespace Vodovoz.ViewModels.Client
 
 		#endregion Commands
 
+		public void Dispose()
+		{
+			_dialogTab = null;
+		}
 	}
 }

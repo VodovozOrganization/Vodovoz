@@ -15,7 +15,7 @@ namespace CustomerAppsApi.Controllers
 	{
 		private readonly ILogger<CounterpartyController> _logger;
 		private readonly INomenclatureModel _nomenclatureModel;
-		private readonly IConfiguration _configuration;
+		private readonly IConfigurationSection _frequencyMinutesLimitSection;
 		private static readonly ConcurrentDictionary<Source, DateTime> _requestPricesTimes = new ConcurrentDictionary<Source, DateTime>();
 		private static readonly ConcurrentDictionary<Source, DateTime> _requestNomenclaturesTimes =
 			new ConcurrentDictionary<Source, DateTime>();
@@ -27,7 +27,9 @@ namespace CustomerAppsApi.Controllers
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_nomenclatureModel = nomenclatureModel ?? throw new ArgumentNullException(nameof(nomenclatureModel));
-			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+			_frequencyMinutesLimitSection = 
+				(configuration ?? throw new ArgumentNullException(nameof(configuration)))
+				.GetSection("RequestsMinutesLimits");
 		}
 
 		[HttpGet("GetNomenclaturesPricesAndStocks")]
@@ -40,9 +42,7 @@ namespace CustomerAppsApi.Controllers
 				var now = DateTime.Now;
 				var lastRequestTime = _requestPricesTimes.GetOrAdd(source, now);
 				var passedMinutes = lastRequestTime == now ? 0d : (now - lastRequestTime).TotalMinutes;
-				var requestFrequencyMinutesLimit = 
-					_configuration.GetSection("NomenclatureRequestsMinutesLimits")
-						.GetValue<int>("PricesAndStocksRequestFrequencyLimit");
+				var requestFrequencyMinutesLimit = _frequencyMinutesLimitSection.GetValue<int>("PricesAndStocksRequestFrequencyLimit");
 
 				if(passedMinutes > 0 && passedMinutes < requestFrequencyMinutesLimit)
 				{
@@ -77,9 +77,7 @@ namespace CustomerAppsApi.Controllers
 				var now = DateTime.Now;
 				var lastRequestTime = _requestNomenclaturesTimes.GetOrAdd(source, now);
 				var passedMinutes = lastRequestTime == now ? 0d : (now - lastRequestTime).TotalMinutes;
-				var requestFrequencyMinutesLimit = 
-					_configuration.GetSection("NomenclatureRequestsMinutesLimits")
-						.GetValue<int>("NomenclaturesRequestFrequencyLimit");
+				var requestFrequencyMinutesLimit = _frequencyMinutesLimitSection.GetValue<int>("NomenclaturesRequestFrequencyLimit");
 
 				if(passedMinutes > 0 && passedMinutes < requestFrequencyMinutesLimit)
 				{

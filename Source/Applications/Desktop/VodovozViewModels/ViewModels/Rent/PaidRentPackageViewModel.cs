@@ -1,4 +1,5 @@
 ﻿using System;
+using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
@@ -17,16 +18,19 @@ namespace Vodovoz.ViewModels.ViewModels.Rent
     {
 		private readonly INomenclatureJournalFactory _nomenclatureJournalFactory;
 		private readonly IRentPackageRepository _rentPackageRepository;
+		private ILifetimeScope _lifetimeScope;
 		private IEntityAutocompleteSelectorFactory _depositServiceSelectorFactory;
 		private IEntityAutocompleteSelectorFactory _nomenclatureServiceSelectorFactory;
 
 		public PaidRentPackageViewModel(
+			ILifetimeScope lifetimeScope,
             IEntityUoWBuilder uowBuilder,
             IUnitOfWorkFactory unitOfWorkFactory,
             ICommonServices commonServices,
 			INomenclatureJournalFactory nomenclatureJournalFactory,
             IRentPackageRepository rentPackageRepository) : base(uowBuilder, unitOfWorkFactory, commonServices)
         {
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_nomenclatureJournalFactory = nomenclatureJournalFactory ?? throw new ArgumentNullException(nameof(nomenclatureJournalFactory));
 			_rentPackageRepository = rentPackageRepository ?? throw new ArgumentNullException(nameof(rentPackageRepository));
 
@@ -39,33 +43,23 @@ namespace Vodovoz.ViewModels.ViewModels.Rent
         public ICriteria DepositNomenclatureCriteria { get; }
         public ICriteria NomenclatureCriteria { get; }
 
-		public IEntityAutocompleteSelectorFactory DepositServiceSelectorFactory
-		{
-			get
-			{
-				if(_depositServiceSelectorFactory == null)
-				{
-					_depositServiceSelectorFactory = _nomenclatureJournalFactory.GetDepositSelectorFactory();
-				}
-				return _depositServiceSelectorFactory;
-			}
-		}
+		public IEntityAutocompleteSelectorFactory DepositServiceSelectorFactory =>
+			_depositServiceSelectorFactory
+			?? (_depositServiceSelectorFactory = _nomenclatureJournalFactory.GetDepositSelectorFactory(_lifetimeScope));
 
-		public IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory
-		{
-			get
-			{
-				if(_nomenclatureServiceSelectorFactory == null)
-				{
-					_nomenclatureServiceSelectorFactory = _nomenclatureJournalFactory.GetServiceSelectorFactory();
-				}
-				return _nomenclatureServiceSelectorFactory;
-			}
-		}
+		public IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory =>
+			_nomenclatureServiceSelectorFactory ??
+			(_nomenclatureServiceSelectorFactory = _nomenclatureJournalFactory.GetServiceSelectorFactory(_lifetimeScope));
 
 		private void ConfigureValidateContext()
         {
 	        ValidationContext.ServiceContainer.AddService(typeof(IRentPackageRepository), _rentPackageRepository);
         }
-    }
+
+		public override void Dispose()
+		{
+			_lifetimeScope = null;
+			base.Dispose();
+		}
+	}
 }

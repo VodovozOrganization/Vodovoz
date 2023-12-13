@@ -20,6 +20,7 @@ namespace Vodovoz
 			.AddScoped<IRouteListAddressKeepingDocumentController, RouteListAddressKeepingDocumentController>()
 			.AddScoped<IWageParameterService, WageParameterService>()
 			.AddScoped<IDeliveryRulesParametersProvider, DeliveryRulesParametersProvider>()
+			.AddScoped<IAddressTransferController, AddressTransferController>()
 			.AddScoped<IRouteListProfitabilityController, RouteListProfitabilityController>()
 			.AddScoped<RouteGeometryCalculator>()
 			.AddScoped<IDistanceCalculator>(sp => sp.GetService<RouteGeometryCalculator>())
@@ -30,6 +31,7 @@ namespace Vodovoz
 			.AddScoped<IRouteListProfitabilityRepository, RouteListProfitabilityRepository>()
 			.AddScoped<INomenclatureRepository, NomenclatureRepository>()
 			.AddScoped<IFastPaymentSender, FastPaymentSender>()
-			.AddScoped<ISmsClientChannelFactory, SmsClientChannelFactory>();
+			.AddScoped<ISmsClientChannelFactory, SmsClientChannelFactory>()
+			.AddScoped<IDriverWarehouseEventQrDataHandler, DriverWarehouseEventQrDataHandler>();
 	}
 }
