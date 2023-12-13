@@ -32,11 +32,11 @@ namespace Vodovoz.ReportsParameters.Production
             ylistcomboboxYear.ItemsList = Enumerable.Range(DateTime.Now.AddYears(-10).Year, 21).Reverse();
             ylistcomboboxYear.SelectedItem = DateTime.Today.Year;
 
-            ycomboboxProduction.SetRenderTextFunc<Warehouse>(x => x.Name);
+            /*ycomboboxProduction.SetRenderTextFunc<Warehouse>(x => x.Name);
 			ycomboboxProduction.ItemsList = UoW.Session.QueryOver<Warehouse>().Where(x => x.TypeOfUse == WarehouseUsing.Production).List();
 
 			entryreferenceNomenclature.SetEntityAutocompleteSelectorFactory(
-				_nomenclatureJournalFactory.GetDefaultNomenclatureSelectorFactory(_lifetimeScope));
+				_nomenclatureJournalFactory.GetDefaultNomenclatureSelectorFactory(_lifetimeScope));*/
 			buttonCreateReport.Sensitive = true;
 			buttonCreateReport.Clicked += OnButtonCreateReportClicked;
 		}
