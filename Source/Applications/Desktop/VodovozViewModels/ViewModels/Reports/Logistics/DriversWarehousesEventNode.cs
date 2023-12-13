@@ -19,7 +19,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics
 		public TimeSpan EventTime { get; private set; }
 		public string DriverFio { get; set; }
 		public string CarModelWithNumber { get; set; }
-		public int EventNameId { get; set; }
+		public int EventId { get; set; }
 		public string EventName { get; set; }
 		public decimal Distance { get; set; }
 	}
