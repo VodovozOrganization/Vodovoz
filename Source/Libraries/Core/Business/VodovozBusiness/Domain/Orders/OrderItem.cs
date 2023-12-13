@@ -304,7 +304,6 @@ namespace Vodovoz.Domain.Orders
 			Order?.RecalculateItemsPrice();
 			RecalculateDiscount();
 			RecalculateVAT();
-			Order?.UpdateRentsCount();
 		}
 
 		private void RecalculateDiscount()
