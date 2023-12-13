@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using Vodovoz.Models.Orders;
 
-namespace Vodovoz.Models.Orders
+namespace Vodovoz.Application.Orders.Services
 {
 	public class RoboatsOrderArgs
 	{

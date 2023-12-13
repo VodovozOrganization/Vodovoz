@@ -1,23 +1,32 @@
-﻿using QS.DomainModel.UoW;
-using Sms.Internal;
-using System;
-using System.Threading.Tasks;
+﻿using Microsoft.Extensions.Logging;
+using QS.DomainModel.UoW;
+using System.Linq;
+using Vodovoz.Domain.Orders;
+using Vodovoz.Services;
+using Vodovoz.Domain.Goods;
+using Vodovoz.Tools.Orders;
+using Vodovoz.Domain.Sale;
 using Vodovoz.Controllers;
 using Vodovoz.Domain;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Factories;
+using Vodovoz.Models;
 using Vodovoz.Tools.CallTasks;
+using System;
+using Vodovoz.Models.Orders;
+using Vodovoz.Domain.Client;
+using System.Threading.Tasks;
+using Vodovoz.Domain.Employees;
+using Sms.Internal;
+using Vodovoz.Domain.Logistic;
 
-namespace Vodovoz.Models.Orders
+namespace Vodovoz.Application.Orders.Services
 {
-	public class RoboatsOrderModel
+	internal sealed class OrderService : IOrderService
 	{
+		private readonly ILogger<OrderService> _logger;
+
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IOrderDailyNumberController _orderDailyNumberController;
@@ -27,7 +36,9 @@ namespace Vodovoz.Models.Orders
 		private readonly IFastPaymentSender _fastPaymentSender;
 		private readonly ICallTaskWorker _callTaskWorker;
 
-		public RoboatsOrderModel(
+		public OrderService(
+			ILogger<OrderService> logger,
+			INomenclatureParametersProvider nomenclatureParametersProvider,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IEmployeeRepository employeeRepository,
 			IOrderDailyNumberController orderDailyNumberController,
@@ -35,9 +46,14 @@ namespace Vodovoz.Models.Orders
 			ICounterpartyContractRepository counterpartyContractRepository,
 			ICounterpartyContractFactory counterpartyContractFactory,
 			IFastPaymentSender fastPaymentSender,
-			ICallTaskWorker callTaskWorker
-			)
+			ICallTaskWorker callTaskWorker)
 		{
+			if(nomenclatureParametersProvider is null)
+			{
+				throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
+			}
+
+			_logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_orderDailyNumberController = orderDailyNumberController ?? throw new ArgumentNullException(nameof(orderDailyNumberController));
@@ -46,41 +62,98 @@ namespace Vodovoz.Models.Orders
 			_counterpartyContractFactory = counterpartyContractFactory ?? throw new ArgumentNullException(nameof(counterpartyContractFactory));
 			_fastPaymentSender = fastPaymentSender ?? throw new ArgumentNullException(nameof(fastPaymentSender));
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
+
+			PaidDeliveryNomenclatureId = nomenclatureParametersProvider.PaidDeliveryNomenclatureId;
+		}
+
+		public int PaidDeliveryNomenclatureId { get; }
+
+		public void UpdateDeliveryCost(IUnitOfWork unitOfWork, Order order)
+		{
+			OrderItem deliveryPriceItem = order.OrderItems
+				.FirstOrDefault(x => x.Nomenclature.Id == PaidDeliveryNomenclatureId);
+
+			#region перенести всё это в OrderStateKey
+
+			bool IsDeliveryForFree = order.SelfDelivery
+				|| order.OrderAddressType == OrderAddressType.Service
+				|| order.DeliveryPoint.AlwaysFreeDelivery
+				|| order.ObservableOrderItems
+					.Any(n => n.Nomenclature.Category == NomenclatureCategory.spare_parts)
+				|| !order.ObservableOrderItems
+					.Any(n => n.Nomenclature.Id != PaidDeliveryNomenclatureId)
+				&& (order.BottlesReturn > 0
+					|| order.ObservableOrderEquipments.Any()
+					|| order.ObservableOrderDepositItems.Any());
+
+			if(IsDeliveryForFree)
+			{
+				if(deliveryPriceItem != null)
+				{
+					order.RemoveOrderItem(deliveryPriceItem);
+				}
+				return;
+			}
+
+			#endregion
+
+			var district = order.DeliveryPoint != null
+				? unitOfWork.GetById<District>(order.DeliveryPoint.District.Id)
+				: null;
+
+			var orderKey = new OrderStateKey(order);
+
+			var price =
+				district?.GetDeliveryPrice(orderKey, order.ObservableOrderItems
+					.Sum(x => x.Nomenclature?.OnlineStoreExternalId != null ? x.ActualSum : 0m))
+				?? 0m;
+
+			if(price != 0)
+			{
+				order.AddOrUpdateDeliveryItem(unitOfWork.GetById<Nomenclature>(PaidDeliveryNomenclatureId), price);
+
+				return;
+			}
+
+			if(deliveryPriceItem != null)
+			{
+				order.RemoveOrderItem(deliveryPriceItem);
+			}
 		}
 
 		/// <summary>
 		/// Рассчитывает и возвращает цену заказа по имеющимся данным о заказе
 		/// </summary>
-		public decimal GetOrderPrice( RoboatsOrderArgs roboatsOrderArgs)
+		public decimal GetOrderPrice(RoboatsOrderArgs roboatsOrderArgs)
 		{
 			if(roboatsOrderArgs is null)
 			{
 				throw new ArgumentNullException(nameof(roboatsOrderArgs));
 			}
 
-			using(var uow = _unitOfWorkFactory.CreateWithNewRoot<Order>())
+			using(var unitOfWork = _unitOfWorkFactory.CreateWithNewRoot<Order>())
 			{
-				var roboatsEmployee = _employeeRepository.GetEmployeeForCurrentUser(uow);
+				var roboatsEmployee = _employeeRepository.GetEmployeeForCurrentUser(unitOfWork);
 				if(roboatsEmployee == null)
 				{
 					throw new InvalidOperationException("Специальный сотрудник для работы с Roboats должен быть создан и заполнен в параметрах");
 				}
 
-				var counterparty = uow.GetById<Counterparty>(roboatsOrderArgs.CounterpartyId);
-				var deliveryPoint = uow.GetById<DeliveryPoint>(roboatsOrderArgs.DeliveryPointId);
+				var counterparty = unitOfWork.GetById<Counterparty>(roboatsOrderArgs.CounterpartyId);
+				var deliveryPoint = unitOfWork.GetById<DeliveryPoint>(roboatsOrderArgs.DeliveryPointId);
 
-				Order order = uow.Root;
+				Order order = unitOfWork.Root;
 				order.Author = roboatsEmployee;
 				order.Client = counterparty;
 				order.DeliveryPoint = deliveryPoint;
 				order.PaymentType = PaymentType.Cash;
 				foreach(var waterInfo in roboatsOrderArgs.WatersInfo)
 				{
-					var nomenclature = uow.GetById<Nomenclature>(waterInfo.NomenclatureId);
+					var nomenclature = unitOfWork.GetById<Nomenclature>(waterInfo.NomenclatureId);
 					order.AddWaterForSale(nomenclature, waterInfo.BottlesCount);
 				}
 				order.RecalculateItemsPrice();
-				order.CalculateDeliveryPrice();
+				UpdateDeliveryCost(unitOfWork, order);
 				return order.OrderSum;
 			}
 		}
@@ -97,17 +170,17 @@ namespace Vodovoz.Models.Orders
 				throw new ArgumentNullException(nameof(roboatsOrderArgs));
 			}
 
-			using(var uow = _unitOfWorkFactory.CreateWithNewRoot<Order>())
+			using(var unitOfWork = _unitOfWorkFactory.CreateWithNewRoot<Order>())
 			{
-				var roboatsEmployee = _employeeRepository.GetEmployeeForCurrentUser(uow);
+				var roboatsEmployee = _employeeRepository.GetEmployeeForCurrentUser(unitOfWork);
 				if(roboatsEmployee == null)
 				{
 					throw new InvalidOperationException("Специальный сотрудник для работы с Roboats должен быть создан и заполнен в параметрах");
 				}
 
-				var order = CreateOrder(uow, roboatsEmployee, roboatsOrderArgs);
+				var order = CreateOrder(unitOfWork, roboatsEmployee, roboatsOrderArgs);
 				order.AcceptOrder(roboatsEmployee, _callTaskWorker);
-				order.SaveEntity(uow, roboatsEmployee, _orderDailyNumberController, _paymentFromBankClientController);
+				order.SaveEntity(unitOfWork, roboatsEmployee, _orderDailyNumberController, _paymentFromBankClientController);
 				return order.Id;
 			}
 		}
@@ -123,23 +196,23 @@ namespace Vodovoz.Models.Orders
 				throw new ArgumentNullException(nameof(roboatsOrderArgs));
 			}
 
-			using(var uow = _unitOfWorkFactory.CreateWithNewRoot<Order>())
+			using(var unitOfWork = _unitOfWorkFactory.CreateWithNewRoot<Order>())
 			{
-				var order = CreateIncompleteOrder(uow, roboatsOrderArgs);
+				var order = CreateIncompleteOrder(unitOfWork, roboatsOrderArgs);
 				return order.Id;
 			}
 		}
 
-		private Order CreateIncompleteOrder(IUnitOfWorkGeneric<Order> uow, RoboatsOrderArgs roboatsOrderArgs)
+		private Order CreateIncompleteOrder(IUnitOfWorkGeneric<Order> unitOfWork, RoboatsOrderArgs roboatsOrderArgs)
 		{
-			var roboatsEmployee = _employeeRepository.GetEmployeeForCurrentUser(uow);
+			var roboatsEmployee = _employeeRepository.GetEmployeeForCurrentUser(unitOfWork);
 			if(roboatsEmployee == null)
 			{
 				throw new InvalidOperationException("Специальный сотрудник для работы с Roboats должен быть создан и заполнен в параметрах");
 			}
 
-			var order = CreateOrder(uow, roboatsEmployee, roboatsOrderArgs);
-			order.SaveEntity(uow, roboatsEmployee, _orderDailyNumberController, _paymentFromBankClientController);
+			var order = CreateOrder(unitOfWork, roboatsEmployee, roboatsOrderArgs);
+			order.SaveEntity(unitOfWork, roboatsEmployee, _orderDailyNumberController, _paymentFromBankClientController);
 			return order;
 		}
 
@@ -165,7 +238,7 @@ namespace Vodovoz.Models.Orders
 				}
 
 				var order = CreateIncompleteOrder(uowNewOrder, roboatsOrderArgs);
-				
+
 				if(needAcceptOrder)
 				{
 					var paymentSended = await TryingSendPayment(phone, order);
@@ -182,12 +255,12 @@ namespace Vodovoz.Models.Orders
 
 		private Order AcceptOrder(int orderId, int roboatsEmployee)
 		{
-			using(var uow = _unitOfWorkFactory.CreateForRoot<Order>(orderId))
+			using(var unitOfWork = _unitOfWorkFactory.CreateForRoot<Order>(orderId))
 			{
-				var order = uow.Root;
-				var employee = uow.GetById<Employee>(roboatsEmployee);
+				var order = unitOfWork.Root;
+				var employee = unitOfWork.GetById<Employee>(roboatsEmployee);
 				order.AcceptOrder(employee, _callTaskWorker);
-				order.SaveEntity(uow, employee, _orderDailyNumberController, _paymentFromBankClientController);
+				order.SaveEntity(unitOfWork, employee, _orderDailyNumberController, _paymentFromBankClientController);
 				return order;
 			}
 		}
@@ -217,12 +290,12 @@ namespace Vodovoz.Models.Orders
 			return result.Status == ResultStatus.Ok;
 		}
 
-		private Order CreateOrder(IUnitOfWorkGeneric<Order> uow, Employee author, RoboatsOrderArgs roboatsOrderArgs)
+		private Order CreateOrder(IUnitOfWorkGeneric<Order> unitOfWork, Employee author, RoboatsOrderArgs roboatsOrderArgs)
 		{
-			var counterparty = uow.GetById<Counterparty>(roboatsOrderArgs.CounterpartyId);
-			var deliveryPoint = uow.GetById<DeliveryPoint>(roboatsOrderArgs.DeliveryPointId);
-			var deliverySchedule = uow.GetById<DeliverySchedule>(roboatsOrderArgs.DeliveryScheduleId);
-			Order order = uow.Root;
+			var counterparty = unitOfWork.GetById<Counterparty>(roboatsOrderArgs.CounterpartyId);
+			var deliveryPoint = unitOfWork.GetById<DeliveryPoint>(roboatsOrderArgs.DeliveryPointId);
+			var deliverySchedule = unitOfWork.GetById<DeliverySchedule>(roboatsOrderArgs.DeliveryScheduleId);
+			Order order = unitOfWork.Root;
 			order.Author = author;
 			order.Client = counterparty;
 			order.DeliveryPoint = deliveryPoint;
@@ -245,16 +318,16 @@ namespace Vodovoz.Models.Orders
 			order.DeliverySchedule = deliverySchedule;
 			order.DeliveryDate = roboatsOrderArgs.Date;
 
-			order.UpdateOrCreateContract(uow, _counterpartyContractRepository, _counterpartyContractFactory);
+			order.UpdateOrCreateContract(unitOfWork, _counterpartyContractRepository, _counterpartyContractFactory);
 
 			foreach(var waterInfo in roboatsOrderArgs.WatersInfo)
 			{
-				var nomenclature = uow.GetById<Nomenclature>(waterInfo.NomenclatureId);
+				var nomenclature = unitOfWork.GetById<Nomenclature>(waterInfo.NomenclatureId);
 				order.AddWaterForSale(nomenclature, waterInfo.BottlesCount);
 			}
 			order.BottlesReturn = roboatsOrderArgs.BottlesReturn;
 			order.RecalculateItemsPrice();
-			order.CalculateDeliveryPrice();
+			UpdateDeliveryCost(unitOfWork, order);
 			order.AddDeliveryPointCommentToOrder();
 			return order;
 		}

@@ -776,7 +776,9 @@ namespace Vodovoz.Domain.Logistic
 				Status = RouteListItemStatus.Completed;
 
 			foreach(var item in Order.OrderItems)
-				item.ActualCount = IsDelivered() ? item.Count : 0;
+			{
+				item.SetActualCount(IsDelivered() ? item.Count : 0);
+			}
 
 			foreach(var equip in Order.OrderEquipments)
 				equip.ActualCount = IsDelivered() ? equip.Count : 0;
@@ -804,16 +806,10 @@ namespace Vodovoz.Domain.Logistic
 		public virtual void RestoreOrder()
 		{
 			foreach(var item in Order.OrderItems) {
-				if(item.OriginalDiscountMoney.HasValue || item.OriginalDiscount.HasValue) {
-					item.DiscountMoney = item.OriginalDiscountMoney ?? 0;
-					item.DiscountReason = item.OriginalDiscountReason;
-					item.Discount = item.OriginalDiscount ?? 0;
-					item.OriginalDiscountMoney = null;
-					item.OriginalDiscountReason = null;
-					item.OriginalDiscount = null;
-				}
-				item.ActualCount = item.Count;
+				item.RestoreOriginalDiscount();
+				item.PreserveActualCount(true);
 			}
+
 			foreach(var equip in Order.OrderEquipments)
 				equip.ActualCount = equip.Count;
 			foreach(var deposit in Order.OrderDepositItems)
