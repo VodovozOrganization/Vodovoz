@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
 using Fias.Client;
@@ -80,6 +80,7 @@ using Vodovoz.Models;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
+using Vodovoz.Presentation.Reports.Factories;
 using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Presentation.ViewModels.PaymentType;
 using Vodovoz.Reports;
@@ -116,6 +117,7 @@ using Vodovoz.Views.Mango.Talks;
 using Vodovoz.ViewWidgets;
 using VodovozInfrastructure.Endpoints;
 using VodovozInfrastructure.Interfaces;
+using VodovozInfrastructure.Services;
 using VodovozInfrastructure.StringHandlers;
 using static Vodovoz.ViewModels.Cash.Reports.CashFlowAnalysisViewModel;
 using IErrorReporter = Vodovoz.Tools.IErrorReporter;
@@ -637,18 +639,24 @@ namespace Vodovoz
 				.ConfigureServices((hostingContext, services) =>
 				{
 					services.AddSingleton<Startup>()
-							.AddScoped<RouteGeometryCalculator>()
-							.AddSingleton<OsrmClient>(sp => OsrmClientFactory.Instance)
-							.AddSingleton<IFastDeliveryDistanceChecker, DistanceCalculator>()
-							.AddScoped<IDebtorsParameters, DebtorsParameters>()
-							.AddFiasClient()							
-							.AddScoped<RevisionBottlesAndDeposits>()
-							.AddTransient<IReportExporter, ReportExporterAdapter>()
-							.AddScoped<SelectPaymentTypeViewModel>()
-							.AddTransient<IReportExporter, ReportExporterAdapter>()
-							.AddScoped<IRouteOptimizer, RouteOptimizer>()
-							.AddApplication()
-							.AddBusiness();
+						.AddScoped<RouteGeometryCalculator>()
+						.AddSingleton<OsrmClient>(sp => OsrmClientFactory.Instance)
+						.AddSingleton<IFastDeliveryDistanceChecker, DistanceCalculator>()
+						.AddScoped<IDebtorsParameters, DebtorsParameters>()
+						.AddFiasClient()							
+						.AddScoped<RevisionBottlesAndDeposits>()
+						.AddTransient<IReportExporter, ReportExporterAdapter>()
+						.AddScoped<SelectPaymentTypeViewModel>()
+						.AddTransient<IReportExporter, ReportExporterAdapter>()
+						.AddScoped<IRouteOptimizer, RouteOptimizer>()
+						.AddScoped<ICoordinatesParser, CoordinatesParser>()
+						.AddScoped<ICustomReportFactory, CustomReportFactory>()
+						.AddScoped<ICustomPropertiesFactory, CustomPropertiesFactory>()
+						.AddScoped<ICustomReportItemFactory, CustomReportItemFactory>()
+						.AddScoped<IRdlTextBoxFactory, RdlTextBoxFactory>()
+						.AddScoped<IEventsQrPlacer, EventsQrPlacer>()
+						.AddApplication()
+						.AddBusiness();
 				});
 	}
 }

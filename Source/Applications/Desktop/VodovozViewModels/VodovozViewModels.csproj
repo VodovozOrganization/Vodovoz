@@ -133,6 +133,8 @@
     <Compile Include="Journals\FilterViewModels\GeoGroup\GeoGroupJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Goods\InventoryInstancesJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Logistic\CarJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Logistic\CompletedDriversWarehousesEventsJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Logistic\DriversWarehousesEventsJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Orders\UndeliveryDetalizationJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Orders\UndeliveryKindJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Orders\UndeliveryObjectJournalFilterViewModel.cs" />
@@ -158,6 +160,8 @@
     <Compile Include="Journals\JournalNodes\Goods\NomenclatureOnlineCatalogsJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Goods\NomenclatureOnlineCategoriesJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Goods\NomenclatureOnlineGroupsJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Logistic\CompletedDriversWarehousesEventsJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Logistic\DriversWarehousesEventsJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Orders\UndeliveryDetalizationJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Orders\UndeliveryKindJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Orders\UndeliveryObjectJournalNode.cs" />
@@ -187,6 +191,8 @@
     <Compile Include="Journals\JournalViewModels\Goods\NomenclatureOnlineCategoriesJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Goods\NomenclatureOnlineGroupsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Goods\VodovozWebSiteNomenclatureOnlineCatalogsJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Logistic\ComletedDriversWarehousesEventsJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Logistic\DriversWarehousesEventsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\UndeliveryDetalizationJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\UndeliveryKindJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\UndeliveryObjectJournalViewModel.cs" />
@@ -262,6 +268,7 @@
     <Compile Include="ViewModels\Logistic\RegradingOfGoodsReasonViewModel.cs" />
     <Compile Include="ViewModels\Goods\VodovozWebSiteNomenclatureOnlineCatalogViewModel.cs" />
     <Compile Include="ViewModels\Logistic\CarsMonitoringViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\DriverWarehouseEventViewModel.cs" />
     <Compile Include="ViewModels\Logistic\FastDeliveryOrderTransferViewModel.cs" />
     <Compile Include="ViewModels\Logistic\FastDeliveryOrderTransferViewModel.RouteListNode.cs" />
     <Compile Include="ViewModels\Logistic\LogisticsRequirementsViewModel.cs" />
@@ -605,6 +612,9 @@
     <Compile Include="ViewModels\Reports\FastDelivery\FastDeliveryPercentCoverageReport.cs" />
     <Compile Include="ViewModels\Reports\FastDelivery\FastDeliverySalesReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\FilterTypeChangedArgs.cs" />
+    <Compile Include="ViewModels\Reports\Logistics\DriversWarehousesEventNode.cs" />
+    <Compile Include="ViewModels\Reports\Logistics\DriversWarehousesEventsReportNode.cs" />
+    <Compile Include="ViewModels\Reports\Logistics\DriversWarehousesEventsReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\Orders\OrdersReport.cs" />
     <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReport\ProductionWarehouseMovementReport.cs" />
     <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReportViewModel.cs" />

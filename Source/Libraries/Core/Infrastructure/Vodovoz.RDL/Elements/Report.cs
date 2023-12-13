@@ -11,6 +11,5 @@ namespace Vodovoz.RDL.Elements
 			get => GetEnamedItemsValue<Body>();
 			set => SetEnamedItemsValue(value);
 		}
-
 	}
 }

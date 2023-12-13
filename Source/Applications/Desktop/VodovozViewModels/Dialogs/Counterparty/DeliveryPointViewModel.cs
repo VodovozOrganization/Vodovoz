@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Fias.Client.Loaders;
 using QS.Commands;
 using QS.Dialog;
@@ -33,6 +33,7 @@ using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using VodovozInfrastructure.Services;
 
 namespace Vodovoz.ViewModels.Dialogs.Counterparty
 {
@@ -52,6 +53,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 		private readonly RoboatsJournalsFactory _roboatsJournalsFactory;
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly PanelViewType[] _infoWidgets = new[] { PanelViewType.DeliveryPricePanelView };
+		private readonly ICoordinatesParser _coordinatesParser;
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
 		public DeliveryPointViewModel(
@@ -72,6 +74,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			ICommonServices commonServices,
 			RoboatsJournalsFactory roboatsJournalsFactory,
 			ILifetimeScope lifetimeScope,
+			ICoordinatesParser coordinatesParser,
 			Domain.Client.Counterparty client = null)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
@@ -106,6 +109,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 
 			_roboatsJournalsFactory = roboatsJournalsFactory ?? throw new ArgumentNullException(nameof(roboatsJournalsFactory));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_coordinatesParser = coordinatesParser ?? throw new ArgumentNullException(nameof(coordinatesParser));;
 			_deliveryPointRepository = deliveryPointRepository ?? throw new ArgumentNullException(nameof(deliveryPointRepository));
 
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
@@ -309,28 +313,16 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 
 		public void SetCoordinatesFromBuffer(string buffer)
 		{
-			var error = true;
-			var coordinates = buffer?.Split(',');
-
-			if(coordinates?.Length == 2)
+			var result = _coordinatesParser.GetCoordinatesFromBuffer(buffer);
+			
+			if(!result.ParsedCoordinates.HasValue)
 			{
-				coordinates[0] = coordinates[0].Replace('.', ',');
-				coordinates[1] = coordinates[1].Replace('.', ',');
-
-				var goodLat = decimal.TryParse(coordinates[0].Trim(), out decimal latitude);
-				var goodLon = decimal.TryParse(coordinates[1].Trim(), out decimal longitude);
-
-				if(goodLat && goodLon)
-				{
-					WriteCoordinates(latitude, longitude, true);
-					error = false;
-				}
+				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, result.ErrorMessage);
 			}
-
-			if(error)
+			else
 			{
-				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
-					"Буфер обмена не содержит координат или содержит неправильные координаты");
+				var parsedCoordinates = result.ParsedCoordinates.Value;
+				WriteCoordinates(parsedCoordinates.Latitude, parsedCoordinates.Longitude, true);
 			}
 		}
 

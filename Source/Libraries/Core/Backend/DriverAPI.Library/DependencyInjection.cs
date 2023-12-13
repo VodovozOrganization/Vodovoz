@@ -46,6 +46,7 @@ namespace DriverAPI.Library
 			services.AddScoped<ISmsPaymentModel, SmsPaymentModel>();
 			services.AddScoped<IDriverComplaintModel, DriverComplaintModel>();
 			services.AddScoped<IFastPaymentModel, FastPaymentModel>();
+			services.AddScoped<IDriverWarehouseEventsModel, DriverWarehouseEventsModel>();
 
 			services.AddScoped<IRouteOptimizer, RouteListOptimizerDummy>();
 

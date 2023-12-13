@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using QS.Project.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.ViewModels.Dialogs.Counterparty;

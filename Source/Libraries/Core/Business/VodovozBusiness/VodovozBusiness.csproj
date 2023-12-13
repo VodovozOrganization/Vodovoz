@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -61,6 +61,8 @@
     <Compile Include="ConfigureDeletion.cs" />
     <Compile Include="Controllers\IAddressTransferController.cs" />
     <Compile Include="DependencyInjection.cs" />
+    <Compile Include="Controllers\DriverWarehouseEventQrDataHandler.cs" />
+    <Compile Include="Controllers\IDriverWarehouseEventQrDataHandler.cs" />
     <Compile Include="Domain\Cash\CashTransfer\CashTransferDocumentStatuses.cs" />
     <Compile Include="Controllers\INomenclatureOnlineParametersController.cs" />
     <Compile Include="Controllers\NomenclatureOnlineParametersController.cs" />
@@ -105,7 +107,14 @@
     <Compile Include="Domain\Goods\ProtectionOnHotWaterTap.cs" />
     <Compile Include="Domain\Goods\TapType.cs" />
     <Compile Include="Domain\Goods\VodovozWebSiteNomenclatureOnlineCatalog.cs" />
+    <Compile Include="Domain\Logistic\Drivers\CompletedDriverWarehouseEvent.cs" />
     <Compile Include="Domain\Logistic\Drivers\DriverStopListRemoval.cs" />
+    <Compile Include="Domain\Logistic\Drivers\DriverWarehouseEvent.cs" />
+    <Compile Include="Domain\Logistic\Drivers\DriverWarehouseEventQrData.cs" />
+    <Compile Include="Domain\Logistic\Drivers\DriverWarehouseEventType.cs" />
+    <Compile Include="Domain\Logistic\Drivers\EventNamePosition.cs" />
+    <Compile Include="Domain\Logistic\Drivers\EventQrDocumentType.cs" />
+    <Compile Include="Domain\Logistic\Drivers\EventQrPositionOnDocument.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\RouteListMaxFastDeliveryOrders.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryChange.ChangeType.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryChange.cs" />
@@ -566,12 +575,16 @@
     <Compile Include="EntityRepositories\IGenericRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\CachedDistanceRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\CarEventRepository.cs" />
+    <Compile Include="EntityRepositories\Logistic\CompletedDriverWarehouseEventRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\DeliveryShiftRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\DriverPosition.cs" />
+    <Compile Include="EntityRepositories\Logistic\DriverWarehouseEventRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\ICachedDistanceRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\ICarEventRepository.cs" />
+    <Compile Include="EntityRepositories\Logistic\ICompletedDriverWarehouseEventRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\IDeliveryShiftRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\IArchivedTrackPointRepository.cs" />
+    <Compile Include="EntityRepositories\Logistic\IDriverWarehouseEventRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\IRouteColumnRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\ITrackRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\IWayBillDocumentRepository.cs" />
@@ -1504,6 +1517,10 @@
     <ProjectReference Include="..\..\Backend\TrueMarkApi.Library\TrueMarkApi.Library.csproj">
       <Project>{D8D2EC1E-5F3B-4699-87E7-C85274A2BE66}</Project>
       <Name>TrueMarkApi.Library</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Infrastructure\Vodovoz.RDL\Vodovoz.RDL.csproj">
+      <Project>{056ba782-edef-4e8e-abb1-01fd3502a8f0}</Project>
+      <Name>Vodovoz.RDL</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Infrastructure\VodovozInfrastructure\VodovozInfrastructure.csproj">
       <Project>{42efc426-2c88-4608-8191-dbca4172a695}</Project>
