@@ -1384,6 +1384,7 @@
     <Compile Include="Domain\HistoryChanges\ArchivedChangedEntity.cs" />
     <Compile Include="Domain\HistoryChanges\ArchivedChangeSet.cs" />
     <Compile Include="Domain\HistoryChanges\ArchivedFieldChange.cs" />
+    <Compile Include="Permissions\Logistic.RouteList.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
