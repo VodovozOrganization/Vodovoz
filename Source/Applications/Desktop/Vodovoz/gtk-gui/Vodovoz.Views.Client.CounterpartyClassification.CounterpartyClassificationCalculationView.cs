@@ -182,8 +182,9 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 			// Container child ytableControls.Gtk.Table+TableChild
 			this.ylabelBottleClassificationInfo = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelBottleClassificationInfo.Name = "ylabelBottleClassificationInfo";
-			this.ylabelBottleClassificationInfo.Xpad = 10;
-			this.ylabelBottleClassificationInfo.LabelProp = global::Mono.Unix.Catalog.GetString("  ");
+			this.ylabelBottleClassificationInfo.Xpad = 15;
+			this.ylabelBottleClassificationInfo.Xalign = 0F;
+			this.ylabelBottleClassificationInfo.LabelProp = global::Mono.Unix.Catalog.GetString(" ");
 			this.ytableControls.Add(this.ylabelBottleClassificationInfo);
 			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.ylabelBottleClassificationInfo]));
 			w9.TopAttach = ((uint)(3));
@@ -191,7 +192,6 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 			w9.LeftAttach = ((uint)(3));
 			w9.RightAttach = ((uint)(4));
 			w9.XOptions = ((global::Gtk.AttachOptions)(4));
-			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableControls.Gtk.Table+TableChild
 			this.ylabelBottlesCount = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelBottlesCount.Name = "ylabelBottlesCount";
@@ -262,8 +262,9 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 			// Container child ytableControls.Gtk.Table+TableChild
 			this.ylabelOrdersClassificationInfo = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelOrdersClassificationInfo.Name = "ylabelOrdersClassificationInfo";
-			this.ylabelOrdersClassificationInfo.Xpad = 10;
-			this.ylabelOrdersClassificationInfo.LabelProp = global::Mono.Unix.Catalog.GetString("  ");
+			this.ylabelOrdersClassificationInfo.Xpad = 15;
+			this.ylabelOrdersClassificationInfo.Xalign = 0F;
+			this.ylabelOrdersClassificationInfo.LabelProp = global::Mono.Unix.Catalog.GetString(" ");
 			this.ytableControls.Add(this.ylabelOrdersClassificationInfo);
 			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.ylabelOrdersClassificationInfo]));
 			w15.TopAttach = ((uint)(6));
@@ -271,7 +272,6 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 			w15.LeftAttach = ((uint)(3));
 			w15.RightAttach = ((uint)(4));
 			w15.XOptions = ((global::Gtk.AttachOptions)(4));
-			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableControls.Gtk.Table+TableChild
 			this.ylabelOrdersCount = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelOrdersCount.Name = "ylabelOrdersCount";
