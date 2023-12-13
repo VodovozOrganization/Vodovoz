@@ -38,8 +38,7 @@ namespace Vodovoz.Filters.GtkViews
 			comboRequestType.ItemsEnum = typeof(PayoutRequestDocumentType);
 			comboRequestType.Binding.AddBinding(ViewModel, vm => vm.DocumentType, w => w.SelectedItemOrNull).InitializeFromSource();
 
-			evmeCounterparty.SetEntityAutocompleteSelectorFactory(
-				ViewModel.CounterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory());
+			evmeCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyAutocompleteSelectorFactory);
 			evmeCounterparty.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.Counterparty, w => w.Subject)
 				.AddBinding(vm => vm.CanSetCounterparty, w => w.Sensitive)

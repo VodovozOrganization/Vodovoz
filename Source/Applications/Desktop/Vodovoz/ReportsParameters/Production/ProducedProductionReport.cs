@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Autofac;
 using Vodovoz.CommonEnums;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
@@ -16,6 +17,7 @@ namespace Vodovoz.ReportsParameters.Production
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ProducedProductionReport : SingleUoWWidgetBase, IParametersWidget
 	{
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		private readonly INomenclatureJournalFactory _nomenclatureJournalFactory;
 
 		public ProducedProductionReport(INomenclatureJournalFactory nomenclatureJournalFactory)
@@ -33,7 +35,8 @@ namespace Vodovoz.ReportsParameters.Production
             ycomboboxProduction.SetRenderTextFunc<Warehouse>(x => x.Name);
 			ycomboboxProduction.ItemsList = UoW.Session.QueryOver<Warehouse>().Where(x => x.TypeOfUse == WarehouseUsing.Production).List();
 
-			entryreferenceNomenclature.SetEntityAutocompleteSelectorFactory(_nomenclatureJournalFactory.GetDefaultNomenclatureSelectorFactory());
+			entryreferenceNomenclature.SetEntityAutocompleteSelectorFactory(
+				_nomenclatureJournalFactory.GetDefaultNomenclatureSelectorFactory(_lifetimeScope));
 			buttonCreateReport.Sensitive = true;
 			buttonCreateReport.Clicked += OnButtonCreateReportClicked;
 		}
@@ -102,6 +105,16 @@ namespace Vodovoz.ReportsParameters.Production
 		private DateTime MonthEnd(DateTime date)
 		{
 			return new DateTime(date.Year,date.Month, DateTime.DaysInMonth(date.Year,date.Month));
+		}
+
+		public override void Destroy()
+		{
+			if(_lifetimeScope != null)
+			{
+				_lifetimeScope.Dispose();
+				_lifetimeScope = null;
+			}
+			base.Destroy();
 		}
 	}
 }

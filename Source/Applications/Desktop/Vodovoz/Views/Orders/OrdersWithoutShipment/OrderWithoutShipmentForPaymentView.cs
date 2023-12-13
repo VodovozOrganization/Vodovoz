@@ -1,4 +1,4 @@
-﻿using Gamma.ColumnConfig;
+using Gamma.ColumnConfig;
 using Gtk;
 using QS.Views.GtkUI;
 using System;
@@ -41,9 +41,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 				.AddBinding(ViewModel.Entity, e => e.HideSignature, w => w.Active)
 				.InitializeFromSource();
 
-			entityViewModelEntryCounterparty.SetEntityAutocompleteSelectorFactory(
-				ViewModel.CounterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory());
-
+			entityViewModelEntryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyAutocompleteSelectorFactory);
 			entityViewModelEntryCounterparty.Changed += ViewModel.OnEntityViewModelEntryChanged;
 
 			entityViewModelEntryCounterparty.Binding

@@ -1,20 +1,17 @@
-﻿using FluentNHibernate.Data;
-using Gamma.ColumnConfig;
-using Gamma.GtkWidgets;
-using Gtk;
-using QS.DomainModel.UoW;
-using QS.Utilities;
-using QS.Views.GtkUI;
 using System;
 using System.ComponentModel;
 using System.Linq;
+using Gamma.ColumnConfig;
+using Gamma.GtkWidgets;
+using Gtk;
+using QS.Utilities;
+using QS.Views.GtkUI;
 using Vodovoz.Dialogs.Email;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Converters;
-using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 
 namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 {
@@ -53,10 +50,8 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			yCheckBtnHideSignature.Binding
 				.AddBinding(ViewModel.Entity, e => e.HideSignature, w => w.Active)
 				.InitializeFromSource();
-
-			entityViewModelEntryCounterparty.SetEntityAutocompleteSelectorFactory(
-				ViewModel.CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory());
-
+			
+			entityViewModelEntryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyAutocompleteSelectorFactory);
 			entityViewModelEntryCounterparty.Changed += ViewModel.OnEntityViewModelEntryChanged;
 
 			entityViewModelEntryCounterparty.Binding

@@ -108,7 +108,7 @@ namespace Vodovoz
 
 		void ConfigureDlg ()
 		{
-			_nomenclatureJournalFactory = new NomenclatureJournalFactory(_lifetimeScope);
+			_nomenclatureJournalFactory = new NomenclatureJournalFactory();
 			enumStatus.Sensitive = enumType.Sensitive = false;
 			enumStatusEditable.Sensitive = true;
 			notebook1.ShowTabs = false;
@@ -131,8 +131,8 @@ namespace Vodovoz
 			textKit.Binding.AddBinding(Entity, e => e.Kit, w => w.Buffer.Text).InitializeFromSource();
 			textDiagnosticsResult.Binding.AddBinding(Entity, e => e.DiagnosticsResult, w => w.Buffer.Text).InitializeFromSource();
 
-			var clientFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
-			evmeClient.SetEntityAutocompleteSelectorFactory(clientFactory.CreateCounterpartyAutocompleteSelectorFactory());
+			var clientFactory = new CounterpartyJournalFactory();
+			evmeClient.SetEntityAutocompleteSelectorFactory(clientFactory.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope));
 			evmeClient.Binding.AddBinding(Entity, e => e.Counterparty, w => w.Subject).InitializeFromSource();
 			evmeClient.Changed += OnReferenceCounterpartyChanged;
 
@@ -154,7 +154,7 @@ namespace Vodovoz
 			evmeDeliveryPoint.SetEntityAutocompleteSelectorFactory(dpFactory.CreateDeliveryPointByClientAutocompleteSelectorFactory());
 
 			nomenclatureVMEntry.SetEntityAutocompleteSelectorFactory(
-				_nomenclatureJournalFactory.GetNotArchiveEquipmentsSelectorFactory());
+				_nomenclatureJournalFactory.GetNotArchiveEquipmentsSelectorFactory(_lifetimeScope));
 			nomenclatureVMEntry.Binding
 				.AddBinding(Entity, e => e.Nomenclature, w => w.Subject)
 				.InitializeFromSource();

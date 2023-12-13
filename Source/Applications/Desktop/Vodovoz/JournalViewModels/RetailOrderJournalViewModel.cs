@@ -1,8 +1,7 @@
-﻿using NHibernate;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
-using QS.Dialog;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -13,26 +12,20 @@ using QS.Services;
 using System;
 using System.Globalization;
 using System.Linq;
+using Autofac;
 using DateTimeHelpers;
-using Vodovoz.Controllers;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.Sale;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Infrastructure.Print;
 using Vodovoz.JournalNodes;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
@@ -44,50 +37,32 @@ namespace Vodovoz.JournalViewModels
 	{
 		private const int _minLengthLikeSearch = 3;
 
-		private readonly ICommonServices _commonServices;
-		private readonly IEmployeeService _employeeService;
 		private readonly INomenclatureRepository _nomenclatureRepository;
-		private readonly IUserRepository _userRepository;
-		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
-		private readonly IOrderDiscountsController _discountsController;
-		private readonly IRDLPreviewOpener _rdlPreviewOpener;
 		private readonly int _closingDocumentDeliveryScheduleId;
-		private readonly IGenericRepository<EdoContainer> _edoContainersRepository;
+		private ILifetimeScope _lifetimeScope;
 
 		public RetailOrderJournalViewModel(
+			ILifetimeScope lifetimeScope,
 			OrderJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
-			IEmployeeService employeeService,
 			INomenclatureRepository nomenclatureRepository,
-			IUserRepository userRepository,
-			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
-			IOrderDiscountsController discountsController,
 			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider,
-			IRDLPreviewOpener rdlPreviewOpener,
-			IGenericRepository<EdoContainer> edoContainersRepository,
 			Action<OrderJournalFilterViewModel> filterConfig = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
-			_rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
-			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
-			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-
-			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 
 			_undeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
-			_discountsController = discountsController ?? throw new ArgumentNullException(nameof(discountsController));
 			_closingDocumentDeliveryScheduleId =
 				(deliveryScheduleParametersProvider ?? throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider)))
 				.ClosingDocumentDeliveryScheduleId;
-			_edoContainersRepository = edoContainersRepository ?? throw new ArgumentNullException(nameof(edoContainersRepository));
 
 			filterViewModel.Journal = this;
 
@@ -526,25 +501,11 @@ namespace Vodovoz.JournalViewModels
 			var ordersConfig = RegisterEntity<OrderWithoutShipmentForDebt>(GetOrdersWithoutShipmentForDebtQuery)
 				.AddDocumentConfiguration(
 					//функция диалога создания документа
-					() => new OrderWithoutShipmentForDebtViewModel(
-						EntityUoWBuilder.ForCreate(),
-						UnitOfWorkFactory,
-						_commonServices,
-						_employeeService,
-						new CommonMessages(_commonServices.InteractiveService),
-						_rdlPreviewOpener,
-						_counterpartyJournalFactory,
-						_edoContainersRepository),
+					() => _lifetimeScope.Resolve<OrderWithoutShipmentForDebtViewModel>(
+						new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForCreate())),
 					//функция диалога открытия документа
-					(RetailOrderJournalNode node) => new OrderWithoutShipmentForDebtViewModel(
-						EntityUoWBuilder.ForOpen(node.Id),
-						UnitOfWorkFactory,
-						_commonServices,
-						_employeeService,
-						new CommonMessages(_commonServices.InteractiveService),
-						_rdlPreviewOpener,
-						_counterpartyJournalFactory,
-						_edoContainersRepository),
+					(RetailOrderJournalNode node) => _lifetimeScope.Resolve<OrderWithoutShipmentForDebtViewModel>(
+						new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(node.Id))),
 					//функция идентификации документа 
 					(RetailOrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForDebt),
 					"Счет без отгрузки на долг",
@@ -688,27 +649,11 @@ namespace Vodovoz.JournalViewModels
 			var ordersConfig = RegisterEntity<OrderWithoutShipmentForPayment>(GetOrdersWithoutShipmentForPaymentQuery)
 				.AddDocumentConfiguration(
 					//функция диалога создания документа
-					() => new OrderWithoutShipmentForPaymentViewModel(
-						EntityUoWBuilder.ForCreate(),
-						UnitOfWorkFactory,
-						_commonServices,
-						_employeeService,
-						new ParametersProvider(),
-						new CommonMessages(_commonServices.InteractiveService),
-						_rdlPreviewOpener,
-						_counterpartyJournalFactory,
-						_edoContainersRepository),
+					() => _lifetimeScope.Resolve<OrderWithoutShipmentForPaymentViewModel>(
+						new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForCreate())),
 					//функция диалога открытия документа
-					(RetailOrderJournalNode node) => new OrderWithoutShipmentForPaymentViewModel(
-						EntityUoWBuilder.ForOpen(node.Id),
-						UnitOfWorkFactory,
-						_commonServices,
-						_employeeService,
-						new ParametersProvider(),
-						new CommonMessages(_commonServices.InteractiveService),
-						_rdlPreviewOpener,
-						_counterpartyJournalFactory,
-						_edoContainersRepository),
+					(RetailOrderJournalNode node) => _lifetimeScope.Resolve<OrderWithoutShipmentForPaymentViewModel>(
+						new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(node.Id))),
 					//функция идентификации документа 
 					(RetailOrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForPayment),
 					"Счет без отгрузки на постоплату",
@@ -842,33 +787,11 @@ namespace Vodovoz.JournalViewModels
 			var ordersConfig = RegisterEntity<OrderWithoutShipmentForAdvancePayment>(GetOrdersWithoutShipmentForAdvancePaymentQuery)
 				.AddDocumentConfiguration(
 					//функция диалога создания документа
-					() => new OrderWithoutShipmentForAdvancePaymentViewModel(
-						EntityUoWBuilder.ForCreate(),
-						UnitOfWorkFactory,
-						_commonServices,
-						NavigationManager,
-						_employeeService,
-						_counterpartyJournalFactory,
-						_userRepository,
-						new DiscountReasonRepository(),
-						_discountsController,
-						new CommonMessages(_commonServices.InteractiveService),
-						_edoContainersRepository,
-						_rdlPreviewOpener),
+					() => _lifetimeScope.Resolve<OrderWithoutShipmentForAdvancePaymentViewModel>(
+						new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForCreate())),
 					//функция диалога открытия документа
-					(RetailOrderJournalNode node) => new OrderWithoutShipmentForAdvancePaymentViewModel(
-						EntityUoWBuilder.ForOpen(node.Id),
-						UnitOfWorkFactory,
-						_commonServices,
-						NavigationManager,
-						_employeeService,
-						_counterpartyJournalFactory,
-						_userRepository,
-						new DiscountReasonRepository(),
-						_discountsController,
-						new CommonMessages(_commonServices.InteractiveService),
-						_edoContainersRepository,
-						_rdlPreviewOpener),
+					(RetailOrderJournalNode node) => _lifetimeScope.Resolve<OrderWithoutShipmentForAdvancePaymentViewModel>(
+						new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(node.Id))),
 					//функция идентификации документа 
 					(RetailOrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForAdvancePayment),
 					"Счет без отгрузки на предоплату",
@@ -1092,6 +1015,12 @@ namespace Vodovoz.JournalViewModels
 				return true;
 			}
 			return false;
+		}
+
+		public override void Dispose()
+		{
+			_lifetimeScope = null;
+			base.Dispose();
 		}
 	}
 }

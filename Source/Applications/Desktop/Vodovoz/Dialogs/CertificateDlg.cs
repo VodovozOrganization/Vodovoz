@@ -1,21 +1,22 @@
-﻿using Autofac;
+﻿using System;
 using Gamma.ColumnConfig;
 using QS.DomainModel.UoW;
 using QS.Validation;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using QS.Navigation;
+using QS.Project.Journal;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.Dialogs
 {
 	public partial class CertificateDlg : QS.Dialog.Gtk.EntityDialogBase<Certificate>
 	{
-		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		Nomenclature selectedNomenclature;
 		GenericObservableList<Nomenclature> ObservableList { get; set; }
 
@@ -85,18 +86,24 @@ namespace Vodovoz.Dialogs
 
 		protected void OnBtnAddNomenclatureClicked(object sender, System.EventArgs e)
 		{
-			var filter = new NomenclatureFilterViewModel();
-			filter.SetAndRefilterAtOnce(
-				x => x.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder(),
-				x => x.SelectCategory = NomenclatureCategory.water,
-				x => x.SelectSaleCategory = SaleCategory.forSale
-			);
-
-			var nomenclatureJournalFactory = new NomenclatureJournalFactory(_lifetimeScope);
-			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel(filter, true);
+			var journal =
+				Startup.MainWin.NavigationManager.OpenViewModelOnTdi<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(
+					this,
+					filter =>
+					{
+						filter.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder();
+						filter.SelectCategory = NomenclatureCategory.water;
+						filter.SelectSaleCategory = SaleCategory.forSale;
+					},
+					OpenPageOptions.AsSlave,
+					vm =>
+					{
+						vm.SelectionMode = JournalSelectionMode.Multiple;
+						vm.Title = "Номенклатура на продажу";
+					}
+				).ViewModel;
+			
 			journal.OnEntitySelectedResult += JournalOnEntitySelectedResult;
-			journal.Title = "Номенклатура на продажу";
-			TabParent.AddSlaveTab(this, journal);
 		}
 
 		private void JournalOnEntitySelectedResult(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)
@@ -131,13 +138,6 @@ namespace Vodovoz.Dialogs
 
 			lblNomenclatures.Markup = string.Format("<span foreground='{0}'><b>Номенклатуры</b></span>", isCertificateForNomenclatures ? _primaryTextHtmlColor : _insensitiveTextHtmlColor);
 			vbxNomenclatures.Sensitive = isCertificateForNomenclatures;
-		}
-
-		public override void Destroy()
-		{
-			base.Destroy();
-			_lifetimeScope?.Dispose();
-			_lifetimeScope = null;
 		}
 	}
 }

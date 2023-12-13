@@ -50,19 +50,14 @@ namespace Vodovoz
 		private ILifetimeScope _lifetimeScope;
 		private ILogger<RouteListCreateDlg> _logger;
 
-		private BaseParametersProvider _baseParametersProvider;
 		private IAdditionalLoadingModel _additionalLoadingModel;
 		private IRouteListService _routeListService;
 		private IRouteListRepository _routeListRepository;
 		private IGenericRepository<RouteListSpecialConditionType> _routeListSpecialConditionTypeRepository;
-		private INomenclatureParametersProvider _nomenclatureParametersProvider;
-		private IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
 
 		private IEntityDocumentsPrinterFactory _entityDocumentsPrinterFactory;
 		private IEmployeeRepository _employeeRepository;
 		private IDeliveryShiftRepository _deliveryShiftRepository;
-		private ITrackRepository _trackRepository;
-		private IWageParameterService _wageParameterService;
 
 		private IRouteListProfitabilityController _routeListProfitabilityController;
 
@@ -112,18 +107,13 @@ namespace Vodovoz
 		{
 			_lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 			_logger = _lifetimeScope.Resolve<ILogger<RouteListCreateDlg>>();
-			_baseParametersProvider = _lifetimeScope.Resolve<BaseParametersProvider>();
 			_additionalLoadingModel = _lifetimeScope.Resolve<IAdditionalLoadingModel>();
 			_routeListRepository = _lifetimeScope.Resolve<IRouteListRepository>();
 			_routeListSpecialConditionTypeRepository = _lifetimeScope.Resolve<IGenericRepository<RouteListSpecialConditionType>>();
 			_routeListService = _lifetimeScope.Resolve<IRouteListService>();
-			_nomenclatureParametersProvider = _lifetimeScope.Resolve<INomenclatureParametersProvider>();
-			_deliveryRulesParametersProvider = _lifetimeScope.Resolve<IDeliveryRulesParametersProvider>();
 			_entityDocumentsPrinterFactory = _lifetimeScope.Resolve<IEntityDocumentsPrinterFactory>();
 			_employeeRepository = _lifetimeScope.Resolve<IEmployeeRepository>();
 			_deliveryShiftRepository = _lifetimeScope.Resolve<IDeliveryShiftRepository>();
-			_trackRepository = _lifetimeScope.Resolve<ITrackRepository>();
-			_wageParameterService = _lifetimeScope.Resolve<IWageParameterService>();
 			_routeListProfitabilityController = _lifetimeScope.Resolve<IRouteListProfitabilityController>();
 		}
 
@@ -274,7 +264,11 @@ namespace Vodovoz
 			createroutelistitemsview1.SetPermissionParameters(permissionResult, _isLogistican);
 
 			var additionalLoadingItemsViewModel =
-				new AdditionalLoadingItemsViewModel(UoW, this, new NomenclatureJournalFactory(_lifetimeScope), ServicesConfig.InteractiveService);
+				new AdditionalLoadingItemsViewModel(
+					UoW,
+					this,
+					Startup.MainWin.NavigationManager,
+					ServicesConfig.InteractiveService);
 			additionalLoadingItemsViewModel.BindWithSource(Entity, e => e.AdditionalLoadingDocument);
 			additionalLoadingItemsViewModel.CanEdit = Entity.Status == RouteListStatus.New;
 			_additionalLoadingItemsView = new AdditionalLoadingItemsView(additionalLoadingItemsViewModel);

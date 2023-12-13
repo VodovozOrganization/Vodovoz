@@ -1,10 +1,10 @@
-﻿using QS.Project.Journal.EntitySelector;
-using Vodovoz.TempAdapters;
+﻿using QS.Navigation;
+using QS.Project.Journal.EntitySelector;
 
 namespace Vodovoz.ViewModels.Journals.JournalFactories
 {
 	public interface ISalesPlanJournalFactory
 	{
-		IEntityAutocompleteSelectorFactory CreateSalesPlanAutocompleteSelectorFactory(INomenclatureJournalFactory nomenclatureSelectorFactory);
+		IEntityAutocompleteSelectorFactory CreateSalesPlanAutocompleteSelectorFactory(INavigationManager navigationManager);
 	}
 }
