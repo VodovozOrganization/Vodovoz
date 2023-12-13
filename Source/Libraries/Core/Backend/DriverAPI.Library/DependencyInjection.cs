@@ -6,6 +6,7 @@ using System.Linq;
 using Vodovoz;
 using Vodovoz.Application;
 using Vodovoz.Application.Services.Logistics;
+using Vodovoz.Controllers;
 using Vodovoz.Settings.Database;
 
 namespace DriverAPI.Library
@@ -50,6 +51,7 @@ namespace DriverAPI.Library
 			services.AddScoped<IDriverWarehouseEventsModel, DriverWarehouseEventsModel>();
 
 			services.AddScoped<IRouteOptimizer, RouteListOptimizerDummy>();
+			services.AddScoped<IDriverWarehouseEventQrDataHandler, DriverWarehouseEventQrDataHandler>();
 
 			services.AddBusiness();
 			services.AddApplication();
