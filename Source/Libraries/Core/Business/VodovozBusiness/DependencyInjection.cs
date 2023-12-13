@@ -31,6 +31,7 @@ namespace Vodovoz
 			.AddScoped<IRouteListProfitabilityRepository, RouteListProfitabilityRepository>()
 			.AddScoped<INomenclatureRepository, NomenclatureRepository>()
 			.AddScoped<IFastPaymentSender, FastPaymentSender>()
-			.AddScoped<ISmsClientChannelFactory, SmsClientChannelFactory>();
+			.AddScoped<ISmsClientChannelFactory, SmsClientChannelFactory>()
+			.AddScoped<IDriverWarehouseEventQrDataHandler, DriverWarehouseEventQrDataHandler>();
 	}
 }
