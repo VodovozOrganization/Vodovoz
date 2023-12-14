@@ -652,6 +652,9 @@
     <Compile Include="EntityRepositories\Stock\StockRepository.cs" />
     <Compile Include="EntityRepositories\StoredResource\IStoredResourceRepository.cs" />
     <Compile Include="EntityRepositories\StoredResource\StoredResourceRepository.cs" />
+    <Compile Include="EntityRepositories\Store\NomenclatureStockNode.cs" />
+    <Compile Include="EntityRepositories\Store\NomenclatureTotalShippedKg.cs" />
+    <Compile Include="EntityRepositories\Store\SelfDeliveryAddressDto.cs" />
     <Compile Include="EntityRepositories\TrueMark\ITrueMarkRepository.cs" />
     <Compile Include="EntityRepositories\TrueMark\TrueMarkRepository.cs" />
     <Compile Include="EntityRepositories\Undeliveries\IUndeliveredOrderCommentsRepository.cs" />

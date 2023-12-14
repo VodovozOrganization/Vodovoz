@@ -17,6 +17,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Store
 			Map(x => x.PublishOnlineStore).Column("publish_online_store");
 			Map(x => x.IsArchive).Column("is_archive");
 			Map(x => x.TypeOfUse).Column("type_of_use");
+			Map(x => x.Address).Column("address");
 
 			References(x => x.OwningSubdivision).Column("owning_subdivision");
 			References(x => x.MovementDocumentsNotificationsSubdivisionRecipient)

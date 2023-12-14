@@ -11,7 +11,9 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Store;
+using VodovozInfrastructure.Versions;
 
 namespace Vodovoz.EntityRepositories.Store
 {
@@ -139,10 +141,28 @@ namespace Vodovoz.EntityRepositories.Store
 			return result.Sum(x => x.TotalShippedKg);
 		}
 
-		public class NomenclatureTotalShippedKg
+		public IEnumerable<SelfDeliveryAddressDto> GetSelfDeliveriesAddresses(IUnitOfWork unitOfWork)
 		{
-			public int NomenclatureId { get; set; }
-			public int TotalShippedKg { get; set; }
+			Warehouse warehouseAlias = null;
+			GeoGroup geoGroupAlias = null;
+			GeoGroupVersion geoGroupVersionAlias = null;
+			SelfDeliveryAddressDto resultAlias = null;
+
+			var addresses = unitOfWork.Session.QueryOver(() => geoGroupVersionAlias)
+				.JoinAlias(() => geoGroupVersionAlias.GeoGroup, () => geoGroupAlias)
+				.JoinAlias(() => geoGroupVersionAlias.Warehouse, () => warehouseAlias)
+				.Where(() => geoGroupVersionAlias.Status == VersionStatus.Active)
+				.And(() => !geoGroupAlias.IsArchived)
+				.SelectList(list => list
+					.Select(ggv => ggv.BaseLatitude).WithAlias(() => resultAlias.Latitude)
+					.Select(ggv => ggv.BaseLongitude).WithAlias(() => resultAlias.Longitude)
+					.Select(() => warehouseAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => warehouseAlias.Address).WithAlias(() => resultAlias.Address)
+				)
+				.TransformUsing(Transformers.AliasToBean<SelfDeliveryAddressDto>())
+				.List<SelfDeliveryAddressDto>();
+
+			return addresses;
 		}
 	}
 }
