@@ -13,7 +13,6 @@ namespace Vodovoz.Domain.Store
 	[HistoryTrace]
 	public class Warehouse : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
-		private Subdivision _movementDocumentsNotificationsSubdivisionRecipient;
 		private string _name;
 		private bool _canReceiveBottles;
 		private bool _canReceiveEquipment;
@@ -21,6 +20,8 @@ namespace Vodovoz.Domain.Store
 		private WarehouseUsing _typeOfUse;
 		private bool _isArchive;
 		private Subdivision _owningSubdivision;
+		private Subdivision _movementDocumentsNotificationsSubdivisionRecipient;
+		private string _address;
 
 		#region Свойства
 
@@ -65,6 +66,13 @@ namespace Vodovoz.Domain.Store
 		{
 			get => _isArchive;
 			set => SetField(ref _isArchive, value);
+		}
+		
+		[Display(Name = "Адрес склада")]
+		public virtual string Address
+		{
+			get => _address;
+			set => SetField(ref _address, value);
 		}
 
 		[Display(Name = "Подразделение-владелец")]

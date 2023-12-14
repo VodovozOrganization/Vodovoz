@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Linq;
+using Autofac;
+using NPOI.OpenXmlFormats.Dml;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
@@ -15,6 +17,8 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ReadyForReceptionFilter : RepresentationFilterBase<ReadyForReceptionFilter>, ISingleUoWDialog
 	{
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+		
         public Warehouse RestrictWarehouse { get; set; }
 
         protected override void ConfigureWithUow()
@@ -34,7 +38,7 @@ namespace Vodovoz
 				
 				var warehouseJournalFactory = new WarehouseJournalFactory();
 
-				entryWarehouses.SetEntityAutocompleteSelectorFactory(warehouseJournalFactory.CreateSelectorFactory(filterParams));
+				entryWarehouses.SetEntityAutocompleteSelectorFactory(warehouseJournalFactory.CreateSelectorFactory(_lifetimeScope, filterParams));
 
                 entryWarehouses.Visible = true;
                 comboWarehouses.Visible = false;
@@ -94,6 +98,16 @@ namespace Vodovoz
             RestrictWarehouse = e.SelectedItem as Warehouse;
             UpdateCreteria();
         }
+		
+		protected override void OnDestroyed()
+		{
+			if(_lifetimeScope != null)
+			{
+				_lifetimeScope.Dispose();
+				_lifetimeScope = null;
+			}
+			base.OnDestroyed();
+		}
     }
 }
 
