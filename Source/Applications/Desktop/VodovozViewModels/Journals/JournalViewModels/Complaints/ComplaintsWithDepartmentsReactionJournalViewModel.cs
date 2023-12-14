@@ -999,7 +999,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 					if(selectedNode.EntityType == typeof(Complaint))
 					{
 						NavigationManager.OpenViewModel<ComplaintViewModel, IEntityUoWBuilder>(
-							this, EntityUoWBuilder.ForOpen(selectedNode.Id), OpenPageOptions.AsSlave);
+							this, EntityUoWBuilder.ForOpen(selectedNode.Id));
 					}
 				}
 			);
