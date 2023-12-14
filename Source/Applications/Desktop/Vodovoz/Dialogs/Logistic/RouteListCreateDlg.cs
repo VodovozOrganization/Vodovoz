@@ -1,169 +1,316 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
-using Microsoft.Extensions.Logging;
-using QS.Dialog;
-using QS.Dialog.GtkUI;
-using QS.DomainModel.Tracking;
-using QS.DomainModel.UoW;
+using NHibernate;
 using QS.Navigation;
 using QS.Print;
 using QS.Project.Services;
-using QS.Services;
-using QS.Tdi;
-using QS.Validation;
-using QS.ViewModels.Extension;
+using QS.Views.GtkUI;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 using System.Data;
-using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Vodovoz.Controllers;
-using Vodovoz.Core.DataService;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Profitability;
-using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.Errors;
-using Vodovoz.Extensions;
-using Vodovoz.Models;
-using Vodovoz.Services;
-using Vodovoz.Services.Logistics;
-using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.Infrastructure.Print;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewWidgets.Logistics;
 
 namespace Vodovoz
 {
-	public partial class RouteListCreateDlg : QS.Dialog.Gtk.EntityDialogBase<RouteList>, ITDICloseControlTab, IAskSaveOnCloseViewModel
+	public partial class RouteListCreateDlg : TabViewBase<RouteListCreateViewModel>
 	{
-		private ILifetimeScope _lifetimeScope;
-		private IInteractiveService _interactiveService;
-		private ICurrentPermissionService _currenmtPermissionService;
-		private ILogger<RouteListCreateDlg> _logger;
-
-		private IAdditionalLoadingModel _additionalLoadingModel;
-		private IRouteListService _routeListService;
-		private IRouteListRepository _routeListRepository;
-		private IGenericRepository<RouteListSpecialConditionType> _routeListSpecialConditionTypeRepository;
-
-		private IEntityDocumentsPrinterFactory _entityDocumentsPrinterFactory;
-		private IEmployeeRepository _employeeRepository;
-		private IDeliveryShiftRepository _deliveryShiftRepository;
-
-		private IRouteListProfitabilityController _routeListProfitabilityController;
-
 		private AdditionalLoadingItemsView _additionalLoadingItemsView;
 
-		private bool _canClose = true;
-		private Employee _oldDriver;
-		private DateTime _previousSelectedDate;
-		private bool _isLogistican;
-		private bool _canСreateRoutelistInPastPeriod;
-		private GenericObservableList<RouteListProfitability> _routeListProfitabilities;
-
-		public RouteListCreateDlg()
+		public RouteListCreateDlg(RouteListCreateViewModel viewModel) : base(viewModel)
 		{
-			ResolveDependencies();
-
 			Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<RouteList>();
-			Entity.Logistician = _employeeRepository.GetEmployeeForCurrentUser(UoW);
-			if(Entity.Logistician == null)
-			{
-				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать маршрутные листы, так как некого указывать в качестве логиста.");
-				FailInitialize = true;
-				return;
-			}
-
-			Entity.Date = DateTime.Now;
-			ConfigureDlg();
+			Initialize();
 		}
 
-		public RouteListCreateDlg(RouteList sub) : this(sub.Id) { }
-
-		public RouteListCreateDlg(int id)
+		private void Initialize()
 		{
-			ResolveDependencies();
+			ViewModel.DisableItemsUpdateDelegate = DisableItemsUpdate;
 
-			Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(id);
-
-			ConfigureDlg();
-		}
-
-		public bool CanEditFixedPrice { get; set; }
-		public bool AskSaveOnClose => permissionResult.CanCreate && Entity.Id == 0 || permissionResult.CanUpdate;
-
-		private void ResolveDependencies()
-		{
-			_lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
-			_interactiveService = _lifetimeScope.Resolve<IInteractiveService>();
-			_currenmtPermissionService = _lifetimeScope.Resolve<ICurrentPermissionService>();
-			_logger = _lifetimeScope.Resolve<ILogger<RouteListCreateDlg>>();
-			_additionalLoadingModel = _lifetimeScope.Resolve<IAdditionalLoadingModel>();
-			_routeListRepository = _lifetimeScope.Resolve<IRouteListRepository>();
-			_routeListSpecialConditionTypeRepository = _lifetimeScope.Resolve<IGenericRepository<RouteListSpecialConditionType>>();
-			_routeListService = _lifetimeScope.Resolve<IRouteListService>();
-			_entityDocumentsPrinterFactory = _lifetimeScope.Resolve<IEntityDocumentsPrinterFactory>();
-			_employeeRepository = _lifetimeScope.Resolve<IEmployeeRepository>();
-			_deliveryShiftRepository = _lifetimeScope.Resolve<IDeliveryShiftRepository>();
-			_routeListProfitabilityController = _lifetimeScope.Resolve<IRouteListProfitabilityController>();
-		}
-
-		private void ConfigureDlg()
-		{
-			createroutelistitemsview1.NavigationManager = Startup.MainWin.NavigationManager;
-			createroutelistitemsview1.ParentTab = this;
+			createroutelistitemsview1.Container = Tab;
 
 			ynotebook1.ShowTabs = false;
 			radioBtnInformation.Toggled += OnInformationToggled;
 			radioBtnInformation.Active = true;
-			
-			var currentPermissionService = ServicesConfig.CommonServices.CurrentPermissionService;
-			btnCancel.Clicked += OnCancelClicked;
-			printTimeButton.Clicked += OnPrintTimeButtonClicked;
+
+			buttonSave.Clicked += (_, _2) => ViewModel.SaveCommand.Execute();
+			btnCancel.Clicked += (_, _2) => ViewModel.CancelCommand.Execute();
+
+			printTimeButton.Clicked += (_, _2) => ViewModel.ShowPrintTimeCommand.Execute();
 			ybuttonAddAdditionalLoad.Clicked += OnButtonAddAdditionalLoadClicked;
 			ybuttonRemoveAdditionalLoad.Clicked += OnButtonRemoveAdditionalLoadClicked;
 
-			datepickerDate.Binding.AddBinding(Entity, e => e.Date, w => w.Date).InitializeFromSource();
-			_previousSelectedDate = Entity.Date;
-			datepickerDate.DateChangedByUser += OnDatepickerDateDateChangedByUser;
+			datepickerDate.Binding
+				.AddBinding(ViewModel.Entity, e => e.Date, w => w.Date)
+				.InitializeFromSource();
+
+			datepickerDate.DateChangedByUser += (s, e) =>{
+				ViewModel.OnDatepickerDateDateChangedByUser(s, e);
+				createroutelistitemsview1.UpdateInfo();
+			};
 
 			ylblSpecialConditionsConfirmed.Binding
-				.AddBinding(Entity, e => e.SpecialConditionsAccepted, w => w.Visible)
+				.AddBinding(ViewModel.Entity, e => e.SpecialConditionsAccepted, w => w.Visible)
 				.InitializeFromSource();
 
 			ylblSpecialConditionsConfirmedDateTime.Binding
-				.AddBinding(Entity, e => e.SpecialConditionsAccepted, w => w.Visible)
-				.AddFuncBinding(e => e.SpecialConditionsAcceptedAt.HasValue ? e.SpecialConditionsAcceptedAt.Value.ToString("yyyy-MM-dd HH:mm:ss") : "", w => w.Text)
+				.AddBinding(ViewModel.Entity, e => e.SpecialConditionsAccepted, w => w.Visible)
+				.AddFuncBinding(e => e.SpecialConditionsAcceptedAt.HasValue
+						? e.SpecialConditionsAcceptedAt.Value.ToString("yyyy-MM-dd HH:mm:ss")
+						: "",
+					w => w.Text)
 				.InitializeFromSource();
 
-			var specialConditions = _routeListService.GetSpecialConditionsFor(UoW, Entity.Id);
-
-			var specialConditionsTypesIds = specialConditions.Select(x => x.RouteListSpecialConditionTypeId);
-
-			var specialConditionsTypes = specialConditionsTypesIds.Any() ? _routeListSpecialConditionTypeRepository.Get(UoW, x => specialConditionsTypesIds.Contains(x.Id)) : Enumerable.Empty<RouteListSpecialConditionType>();
-
-			radioBtnSprcialConditions.Visible = specialConditions.Any();
+			radioBtnSprcialConditions.Visible = ViewModel.SpecialConditions.Any();
 			radioBtnSprcialConditions.Toggled += OnButtonSpecialConditionsToggled;
 
+			ConfigureTreeRouteListSpecialConditions();
+
+			entryCar.ViewModel = ViewModel.CarViewModel;
+
+			entryCar.ViewModel.ChangedByUser += (sender, e) =>
+			{
+				if(ViewModel.Entity.Car == null || ViewModel.Entity.Date == default)
+				{
+					entryForwarder.ViewModel.IsEditable = true;
+					ybuttonAddAdditionalLoad.Sensitive = false;
+					return;
+				}
+
+				ybuttonAddAdditionalLoad.Sensitive = true;
+				var isCompanyCar = ViewModel.Entity.GetCarVersion.IsCompanyCar;
+
+				ViewModel.Entity.Driver = ViewModel.Entity.Car.Driver != null && ViewModel.Entity.Car.Driver.Status != EmployeeStatus.IsFired
+					? ViewModel.Entity.Car.Driver
+					: null;
+				entryDriver.Sensitive = ViewModel.Entity.Driver == null || isCompanyCar;
+
+				if(!isCompanyCar || ViewModel.Entity.Car.CarModel.CarTypeOfUse == CarTypeOfUse.Largus && ViewModel.Entity.CanAddForwarder)
+				{
+					ViewModel.Entity.Forwarder = ViewModel.Entity.Forwarder;
+					entryForwarder.ViewModel.IsEditable = true;
+				}
+				else
+				{
+					ViewModel.Entity.Forwarder = null;
+					entryForwarder.ViewModel.IsEditable = false;
+				}
+			};
+
+			entryDriver.ViewModel = ViewModel.DriverViewModel;
+
+			entryDriver.ViewModel.Changed += (sender, args) => lblDriverComment.Text = ViewModel.Entity.Driver?.Comment;
+
+			hboxDriverComment.Binding
+				.AddFuncBinding(ViewModel.Entity,
+					e => e.Driver != null
+						&& !string.IsNullOrWhiteSpace(e.Driver.Comment),
+					w => w.Visible)
+				.InitializeFromSource();
+
+			entryForwarder.ViewModel.Changed += (sender, args) =>
+			{
+				createroutelistitemsview1.OnForwarderChanged();
+				lblForwarderComment.Text = ViewModel.Entity.Forwarder?.Comment;
+			};
+
+			entryForwarder.ViewModel = ViewModel.ForwarderViewModel;
+
+			hboxForwarderComment.Binding
+				.AddFuncBinding(ViewModel.Entity, e => e.Forwarder != null
+					&& !string.IsNullOrWhiteSpace(e.Forwarder.Comment), w => w.Visible)
+				.InitializeFromSource();
+			lblForwarderComment.Text = ViewModel.Entity.Forwarder?.Comment;
+
+			entryLogistician.Sensitive = false;
+
+			entryLogistician.ViewModel = ViewModel.LogisticianViewModel;
+
+			speccomboShift.ItemsList = ViewModel.DeliveryShiftsCache;
+			speccomboShift.Binding
+				.AddBinding(ViewModel.Entity, e => e.Shift, w => w.SelectedItem)
+				.InitializeFromSource();
+
+			labelStatus.Binding
+				.AddFuncBinding(ViewModel.Entity, e => e.Status.GetEnumTitle(), w => w.LabelProp)
+				.InitializeFromSource();
+
+			entryDriver.Sensitive = false;
+			enumPrint.Sensitive = ViewModel.Entity.Status != RouteListStatus.New;
+
+			if(ViewModel.Entity.Id > 0)
+			{
+				//Нужно только для быстрой загрузки данных диалога. Проверено на МЛ из 200 заказов. Разница в скорости в несколько раз.
+				var orders = ViewModel.UoW.Session.QueryOver<RouteListItem>()
+					.Where(x => x.RouteList == ViewModel.Entity)
+					.Fetch(SelectMode.Fetch, x => x.Order)
+					.Fetch(SelectMode.ChildFetch, x => x.Order.OrderItems)
+					.List();
+			}
+
+			createroutelistitemsview1.RouteListUoW = ViewModel.UoWGeneric;
+			createroutelistitemsview1.SetPermissionParameters(
+				ViewModel.CanCreate,
+				ViewModel.CanUpdate,
+				ViewModel.IsLogistician);
+
+			var additionalLoadingItemsViewModel =
+				new AdditionalLoadingItemsViewModel(
+					ViewModel.UoW,
+					Tab,
+					ViewModel.NavigationManager as ITdiCompatibilityNavigation,
+					ServicesConfig.InteractiveService);
+
+			additionalLoadingItemsViewModel
+				.BindWithSource(ViewModel.Entity, e => e.AdditionalLoadingDocument);
+
+			additionalLoadingItemsViewModel.CanEdit = ViewModel.Entity.Status == RouteListStatus.New;
+			_additionalLoadingItemsView = new AdditionalLoadingItemsView(additionalLoadingItemsViewModel);
+			_additionalLoadingItemsView.WidthRequest = 300;
+			_additionalLoadingItemsView.ShowAll();
+			hboxAdditionalLoading.PackStart(_additionalLoadingItemsView, false, false, 0);
+
+			ybuttonAddAdditionalLoad.Binding
+				.AddBinding(ViewModel, vm => vm.CanAddAdditionalLoad, w => w.Visible)
+				.InitializeFromSource();
+
+			ybuttonRemoveAdditionalLoad.Binding
+				.AddBinding(ViewModel, vm => vm.CanRemoveAdditionalLoad, w => w.Visible)
+				.InitializeFromSource();
+
+			buttonAccept.Binding
+				.AddBinding(ViewModel, vm => vm.CanAccept, w => w.Visible)
+				.InitializeFromSource();
+
+			ggToStringWidget.UoW = ViewModel.UoW;
+			ggToStringWidget.Label = "Район города:";
+			ggToStringWidget.Binding
+				.AddBinding(ViewModel.Entity, x => x.ObservableGeographicGroups, x => x.Items)
+				.InitializeFromSource();
+
+			buttonAccept.Clicked += (_, _2) => ViewModel.AcceptCommand.Execute();
+			buttonRevertToNew.Clicked += (_, _2) => ViewModel.RevertToNewCommand.Execute();
+
+			enumPrint.ItemsEnum = typeof(RouteListPrintableDocuments);
+			enumPrint.SetVisibility(RouteListPrintableDocuments.TimeList, false);
+			enumPrint.SetVisibility(RouteListPrintableDocuments.OrderOfAddresses, false);
+			enumPrint.EnumItemClicked += (_, e) => ViewModel.PrintCommand.Execute((RouteListPrintableDocuments)e.ItemEnum);
+
+			//Телефон
+			var mangoManager = Startup.MainWin.MangoManager;
+			phoneLogistican.MangoManager = mangoManager;
+			phoneDriver.MangoManager = mangoManager;
+			phoneForwarder.MangoManager = mangoManager;
+
+			phoneLogistican.Binding
+				.AddBinding(ViewModel.Entity, e => e.Logistician, w => w.Employee)
+				.InitializeFromSource();
+
+			phoneDriver.Binding
+				.AddBinding(ViewModel.Entity, e => e.Driver, w => w.Employee)
+				.InitializeFromSource();
+
+			phoneForwarder.Binding
+				.AddBinding(ViewModel.Entity, e => e.Forwarder, w => w.Employee)
+				.InitializeFromSource();
+
+			labelTerminalCondition.Binding
+				.AddBinding(ViewModel, vm => vm.DriverTerminalCondition, w => w.Text)
+				.InitializeFromSource();
+
+			fixPriceSpin.Binding
+				.AddBinding(ViewModel.Entity, e => e.FixedShippingPrice, w => w.ValueAsDecimal)
+				.AddBinding(ViewModel.Entity, e => e.HasFixedShippingPrice, w => w.Sensitive)
+				.InitializeFromSource();
+
+			checkIsFixPrice.Binding
+				.AddBinding(ViewModel.Entity, e => e.HasFixedShippingPrice, w => w.Active)
+				.InitializeFromSource();
+
+			speccomboShift.Binding
+				.AddBinding(ViewModel, vm => vm.CanAccept, w => w.Sensitive)
+				.InitializeFromSource();
+
+			ggToStringWidget.Binding
+				.AddBinding(ViewModel, vm => vm.CanAccept, w => w.Sensitive)
+				.InitializeFromSource();
+
+			datepickerDate.Binding
+				.AddBinding(ViewModel, vm => vm.CanAccept, w => w.Sensitive)
+				.InitializeFromSource();
+
+			entryCar.Binding
+				.AddBinding(ViewModel, vm => vm.CanAccept, w => w.Sensitive)
+				.InitializeFromSource();
+
+			entryForwarder.Binding
+				.AddBinding(ViewModel, vm => vm.CanAccept, w => w.Sensitive)
+				.InitializeFromSource();
+
+			ybuttonAddAdditionalLoad.Binding
+				.AddBinding(ViewModel, vm => vm.CanAddAdditionalLoad, w => w.Sensitive)
+				.InitializeFromSource();
+
+			ybuttonRemoveAdditionalLoad.Binding
+				.AddBinding(ViewModel, vm => vm.CanRemoveAdditionalLoad, w => w.Sensitive)
+				.InitializeFromSource();
+
+			ViewModel.Entity.ObservableGeographicGroups.ListContentChanged += ViewModel.ObservableGeographicGroups_ListContentChanged;
+
+			fixPriceSpin.Binding
+				.AddBinding(ViewModel, vm => vm.CanChangeFixedPrice, w => w.Sensitive)
+				.InitializeFromSource();
+
+			checkIsFixPrice.Binding
+				.AddBinding(ViewModel, vm => vm.CanChangeIsFixPrice, w => w.Sensitive)
+				.InitializeFromSource();
+
+			#region Рентабельность МЛ
+
+			radioBtnProfitability.Sensitive = ViewModel.CanReadRouteListProfitability;
+			radioBtnProfitability.Toggled += OnProfitabilityToggled;
+			createroutelistitemsview1.UpdateProfitabilityInfo();
+
+			ConfigureTreeRouteListProfitability();
+
+			#endregion Рентабельность МЛ
+
+			btnCopyEntityId.Sensitive = ViewModel.Entity.Id > 0;
+			btnCopyEntityId.Clicked += OnBtnCopyEntityIdClicked;
+
+			ViewModel.DocumentPrinted += OnDocumentsPrinted;
+
+			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+		}
+
+		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(ViewModel.CanAccept))
+			{
+				_additionalLoadingItemsView.ViewModel.CanEdit = ViewModel.CanAccept;
+			}
+
+			if(e.PropertyName == nameof(ViewModel.CanAccept)
+				|| e.PropertyName == nameof(ViewModel.CanOpenOrder))
+			{
+				createroutelistitemsview1.IsEditable(ViewModel.CanAccept, ViewModel.CanOpenOrder);
+			}
+		}
+
+		private void ConfigureTreeRouteListSpecialConditions()
+		{
 			ytreeviewSpecialConditions.CreateFluentColumnsConfig<RouteListSpecialCondition>()
 				.AddColumn("Название")
-				.AddTextRenderer(x => specialConditionsTypes
+				.AddTextRenderer(x => ViewModel.SpecialConditionsTypes
 					.Where(sct => sct.Id == x.RouteListSpecialConditionTypeId)
 					.Select(sct => sct.Name)
 					.FirstOrDefault() ?? "")
@@ -174,225 +321,14 @@ namespace Vodovoz
 				.AddColumn("")
 				.Finish();
 
-			ytreeviewSpecialConditions.ItemsDataSource = specialConditions;
-
-			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(Startup.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory(_lifetimeScope));
-			entityviewmodelentryCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
-			entityviewmodelentryCar.CompletionPopupSetWidth(false);
-			entityviewmodelentryCar.ChangedByUser += (sender, e) =>
-			{
-				if(Entity.Car == null || Entity.Date == default)
-				{
-					evmeForwarder.IsEditable = true;
-					ybuttonAddAdditionalLoad.Sensitive = false;
-					return;
-				}
-
-				ybuttonAddAdditionalLoad.Sensitive = true;
-				var isCompanyCar = Entity.GetCarVersion.IsCompanyCar;
-
-				Entity.Driver = Entity.Car.Driver != null && Entity.Car.Driver.Status != EmployeeStatus.IsFired
-					? Entity.Car.Driver
-					: null;
-				evmeDriver.Sensitive = Entity.Driver == null || isCompanyCar;
-
-				if(!isCompanyCar || Entity.Car.CarModel.CarTypeOfUse == CarTypeOfUse.Largus && Entity.CanAddForwarder)
-				{
-					Entity.Forwarder = Entity.Forwarder;
-					evmeForwarder.IsEditable = true;
-				}
-				else
-				{
-					Entity.Forwarder = null;
-					evmeForwarder.IsEditable = false;
-				}
-			};
-
-			CanEditFixedPrice = currentPermissionService.ValidatePresetPermission(Permissions.Logistic.RouteList.CanChangeRouteListFixedPrice);
-
-			var driverFilter = new EmployeeFilterViewModel();
-			driverFilter.SetAndRefilterAtOnce(
-				x => x.Status = EmployeeStatus.IsWorking,
-				x => x.RestrictCategory = EmployeeCategory.driver,
-				x => x.CanChangeStatus = false);
-			var driverFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager, driverFilter);
-			evmeDriver.Changed += (sender, args) => lblDriverComment.Text = Entity.Driver?.Comment;
-			evmeDriver.SetEntityAutocompleteSelectorFactory(driverFactory.CreateEmployeeAutocompleteSelectorFactory());
-			evmeDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
-
-			hboxDriverComment.Binding
-				.AddFuncBinding(Entity, e => e.Driver != null && !string.IsNullOrWhiteSpace(e.Driver.Comment), w => w.Visible)
-				.InitializeFromSource();
-
-			var forwarderFilter = new EmployeeFilterViewModel();
-			forwarderFilter.SetAndRefilterAtOnce(
-				x => x.Status = EmployeeStatus.IsWorking,
-				x => x.RestrictCategory = EmployeeCategory.forwarder,
-				x => x.CanChangeStatus = false);
-			var forwarderFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager, forwarderFilter);
-			evmeForwarder.SetEntityAutocompleteSelectorFactory(forwarderFactory.CreateEmployeeAutocompleteSelectorFactory());
-			evmeForwarder.Binding.AddBinding(Entity, e => e.Forwarder, w => w.Subject).InitializeFromSource();
-			evmeForwarder.Changed += (sender, args) =>
-			{
-				createroutelistitemsview1.OnForwarderChanged();
-				lblForwarderComment.Text = Entity.Forwarder?.Comment;
-			};
-
-			hboxForwarderComment.Binding
-				.AddFuncBinding(Entity, e => e.Forwarder != null && !string.IsNullOrWhiteSpace(e.Forwarder.Comment), w => w.Visible)
-				.InitializeFromSource();
-			lblForwarderComment.Text = Entity.Forwarder?.Comment;
-			
-			var employeeFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager);
-			evmeLogistician.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateEmployeeAutocompleteSelectorFactory());
-			evmeLogistician.Sensitive = false;
-			evmeLogistician.Binding.AddBinding(Entity, e => e.Logistician, w => w.Subject).InitializeFromSource();
-
-			speccomboShift.ItemsList = _deliveryShiftRepository.ActiveShifts(UoW);
-			speccomboShift.Binding.AddBinding(Entity, e => e.Shift, w => w.SelectedItem).InitializeFromSource();
-
-			labelStatus.Binding.AddFuncBinding(Entity, e => e.Status.GetEnumTitle(), w => w.LabelProp).InitializeFromSource();
-
-			evmeDriver.Sensitive = false;
-			enumPrint.Sensitive = Entity.Status != RouteListStatus.New;
-
-			if(Entity.Id > 0)
-			{
-				//Нужно только для быстрой загрузки данных диалога. Проверено на МЛ из 200 заказов. Разница в скорости в несколько раз.
-				var orders = UoW.Session.QueryOver<RouteListItem>()
-								.Where(x => x.RouteList == Entity)
-								.Fetch(x => x.Order).Eager
-								.Fetch(x => x.Order.OrderItems).Eager
-								.List();
-			}
-
-			_isLogistican = currentPermissionService.ValidatePresetPermission(Permissions.Logistic.IsLogistician);
-			createroutelistitemsview1.RouteListUoW = UoWGeneric;
-			createroutelistitemsview1.SetPermissionParameters(permissionResult, _isLogistican);
-
-			var additionalLoadingItemsViewModel =
-				new AdditionalLoadingItemsViewModel(
-					UoW,
-					this,
-					Startup.MainWin.NavigationManager,
-					ServicesConfig.InteractiveService);
-			additionalLoadingItemsViewModel.BindWithSource(Entity, e => e.AdditionalLoadingDocument);
-			additionalLoadingItemsViewModel.CanEdit = Entity.Status == RouteListStatus.New;
-			_additionalLoadingItemsView = new AdditionalLoadingItemsView(additionalLoadingItemsViewModel);
-			_additionalLoadingItemsView.WidthRequest = 300;
-			_additionalLoadingItemsView.ShowAll();
-			hboxAdditionalLoading.PackStart(_additionalLoadingItemsView, false, false, 0);
-
-			buttonAccept.Visible = ybuttonAddAdditionalLoad.Visible = ybuttonRemoveAdditionalLoad.Visible =
-				NotLoadedRouteListStatuses.Contains(Entity.Status);
-
-			if(Entity.Status == RouteListStatus.InLoading || Entity.Status == RouteListStatus.Confirmed)
-			{
-				var icon = new Image
-				{
-					Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-edit", IconSize.Menu)
-				};
-				buttonAccept.Image = icon;
-				buttonAccept.Label = "Редактировать";
-			}
-
-			ggToStringWidget.UoW = UoW;
-			ggToStringWidget.Label = "Район города:";
-			ggToStringWidget.Binding.AddBinding(Entity, x => x.ObservableGeographicGroups, x => x.Items).InitializeFromSource();
-
-			buttonAccept.Clicked += OnButtonAcceptClicked;
-
-			enumPrint.ItemsEnum = typeof(RouteListPrintableDocuments);
-			enumPrint.SetVisibility(RouteListPrintableDocuments.TimeList, false);
-			enumPrint.SetVisibility(RouteListPrintableDocuments.OrderOfAddresses, false);
-			enumPrint.EnumItemClicked += (sender, e) => PrintSelectedDocument((RouteListPrintableDocuments)e.ItemEnum);
-
-			//Телефон
-			phoneLogistican.MangoManager = phoneDriver.MangoManager = phoneForwarder.MangoManager = Startup.MainWin.MangoManager;
-			phoneLogistican.Binding.AddBinding(Entity, e => e.Logistician, w => w.Employee).InitializeFromSource();
-			phoneDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Employee).InitializeFromSource();
-			phoneForwarder.Binding.AddBinding(Entity, e => e.Forwarder, w => w.Employee).InitializeFromSource();
-
-			var hasAccessToDriverTerminal = _isLogistican || currentPermissionService.ValidatePresetPermission(Permissions.Cash.RoleCashier);
-			var baseDoc = _routeListRepository.GetLastTerminalDocumentForEmployee(UoW, Entity.Driver);
-			labelTerminalCondition.Visible = hasAccessToDriverTerminal &&
-											 baseDoc is DriverAttachedTerminalGiveoutDocument &&
-											 baseDoc.CreationDate.Date <= Entity?.Date;
-			if(labelTerminalCondition.Visible)
-			{
-				labelTerminalCondition.LabelProp += $"{Entity.DriverTerminalCondition?.GetEnumTitle() ?? "неизвестно"}";
-			}
-
-			_canСreateRoutelistInPastPeriod = currentPermissionService.ValidatePresetPermission(Permissions.Logistic.RouteList.CanCreateRouteListInPastPeriod);
-
-			fixPriceSpin.Binding
-				.AddBinding(Entity, e => e.FixedShippingPrice, w => w.ValueAsDecimal)
-				.AddBinding(Entity, e => e.HasFixedShippingPrice, w => w.Sensitive).InitializeFromSource();
-			checkIsFixPrice.Binding.AddBinding(Entity, e => e.HasFixedShippingPrice, w => w.Active).InitializeFromSource();
-
-			_oldDriver = Entity.Driver;
-			UpdateDlg(_isLogistican);
-
-			Entity.PropertyChanged += OnRouteListPropertyChanged;
-			Entity.ObservableGeographicGroups.ListContentChanged += ObservableGeographicGroups_ListContentChanged;
-			UpdateCashSubdivision();
-
-			#region Рентабельность МЛ
-
-			radioBtnProfitability.Sensitive = currentPermissionService.ValidatePresetPermission(Permissions.Logistic.RouteList.CanReadRouteListProfitability);
-			radioBtnProfitability.Toggled += OnProfitabilityToggled;
-
-			_logger.LogDebug("Пересчитываем рентабельность МЛ");
-			_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
-			createroutelistitemsview1.UpdateProfitabilityInfo();
-			_logger.LogDebug("Закончили пересчет рентабельности МЛ");
-			
-			_routeListProfitabilities = new GenericObservableList<RouteListProfitability> { Entity.RouteListProfitability };
-			ConfigureTreeRouteListProfitability();
-
-			#endregion
-
-			btnCopyEntityId.Sensitive = Entity.Id > 0;
-			btnCopyEntityId.Clicked += OnBtnCopyEntityIdClicked;
-		}
-
-		private void OnButtonSpecialConditionsToggled(object sender, EventArgs e)
-		{
-			if(radioBtnSprcialConditions.Active)
-			{
-				ynotebook1.Page = 2;
-			}
-		}
-
-		protected void OnBtnCopyEntityIdClicked(object sender, EventArgs e)
-		{
-			if(Entity.Id > 0)
-			{
-				GetClipboard(Gdk.Selection.Clipboard).Text = Entity.Id.ToString();
-			}
-		}
-
-		private void OnInformationToggled(object sender, EventArgs e)
-		{
-			if(radioBtnInformation.Active)
-			{
-				ynotebook1.Page = 0;
-			}
-		}
-		
-		private void OnProfitabilityToggled(object sender, EventArgs e)
-		{
-			if(radioBtnProfitability.Active)
-			{
-				ynotebook1.Page = 1;
-			}
+			ytreeviewSpecialConditions.ItemsDataSource = ViewModel.SpecialConditions;
 		}
 
 		private void ConfigureTreeRouteListProfitability()
 		{
 			treeRouteListProfitability.ColumnsConfig = FluentColumnsConfig<RouteListProfitability>.Create()
 				.AddColumn("№ МЛ")
-					.AddNumericRenderer(x => Entity.Id)
+					.AddNumericRenderer(x => ViewModel.Entity.Id)
 				.AddColumn("Фактический пробег,\nкм")
 					.AddNumericRenderer(x => x.Mileage)
 				.AddColumn("Амортизация,\nруб")
@@ -434,513 +370,67 @@ namespace Vodovoz
 				.AddColumn("")
 				.Finish();
 
-			treeRouteListProfitability.ItemsDataSource = _routeListProfitabilities;
-		}
-
-		private void ObservableGeographicGroups_ListContentChanged(object sender, EventArgs e)
-		{
-			UpdateCashSubdivision();
-		}
-
-		private void UpdateCashSubdivision()
-		{
-			string subdivisionMessage = "Нет";
-			if(Entity.ClosingSubdivision != null)
-			{
-				subdivisionMessage = Entity.ClosingSubdivision.Name;
-			}
-			label8.LabelProp = $"Сдается в кассу: {subdivisionMessage}";
-		}
-
-		private void OnRouteListPropertyChanged(object sender, PropertyChangedEventArgs e)
-		{
-			if(e.PropertyName == nameof(Entity.AdditionalLoadingDocument))
-			{
-				UpdateAdditionalLoadingWidgets();
-			}
-		}
-
-		private void UpdateAdditionalLoadingWidgets()
-		{
-			if(Entity.AdditionalLoadingDocument == null)
-			{
-				if(NotLoadedRouteListStatuses.Contains(Entity.Status))
-				{
-					ybuttonAddAdditionalLoad.Visible = true;
-					ybuttonRemoveAdditionalLoad.Visible = false;
-				}
-				else
-				{
-					ybuttonAddAdditionalLoad.Visible = false;
-					ybuttonRemoveAdditionalLoad.Visible = false;
-				}
-
-				_additionalLoadingItemsView.Visible = false;
-			}
-			else
-			{
-				if(NotLoadedRouteListStatuses.Contains(Entity.Status))
-				{
-					ybuttonAddAdditionalLoad.Visible = false;
-					ybuttonRemoveAdditionalLoad.Visible = true;
-				}
-				else
-				{
-					ybuttonAddAdditionalLoad.Visible = false;
-					ybuttonRemoveAdditionalLoad.Visible = false;
-				}
-				_additionalLoadingItemsView.Visible = true;
-			}
+			treeRouteListProfitability.ItemsDataSource = ViewModel.RouteListProfitabilities;
 		}
 
 		private void OnButtonAddAdditionalLoadClicked(object sender, EventArgs args)
 		{
-			var document = _additionalLoadingModel.CreateAdditionLoadingDocument(UoW, Entity);
-			if(document != null)
-			{
-				Entity.AdditionalLoadingDocument = document;
-				createroutelistitemsview1.UpdateInfo();
-			}
+			ViewModel.AddAdditionalLoadingCommand.Execute();
+			createroutelistitemsview1.UpdateInfo();
+			createroutelistitemsview1.IsEditable(ViewModel.CanAccept, ViewModel.CanOpenOrder);
 		}
 
 		private void OnButtonRemoveAdditionalLoadClicked(object sender, EventArgs e)
 		{
-			UoW.Delete(Entity.AdditionalLoadingDocument);
-			Entity.AdditionalLoadingDocument = null;
+			ViewModel.RemoveAdditionalLoadingCommand.Execute();
 			createroutelistitemsview1.UpdateInfo();
+			createroutelistitemsview1.IsEditable(ViewModel.CanAccept, ViewModel.CanOpenOrder);
 		}
 
-		private void OnDatepickerDateDateChangedByUser(object sender, EventArgs e)
-		{
-			if(Entity.Date < DateTime.Today.AddDays(-1) && !_canСreateRoutelistInPastPeriod)
-			{
-				MessageDialogHelper.RunWarningDialog("Нельзя выставлять дату ранее вчерашнего дня!");
-				Entity.Date = _previousSelectedDate;
-			}
-			else
-			{
-				_additionalLoadingModel.ReloadActiveFlyers(UoW, Entity, _previousSelectedDate);
-				createroutelistitemsview1.UpdateInfo();
-				_previousSelectedDate = Entity.Date;
-			}
-		}
-
-		private void OnCancelClicked(object sender, EventArgs e)
-		{
-			OnCloseTab(false, CloseSource.Cancel);
-		}
-		
-		private void UpdateDlg(bool logistician)
-		{
-			if(Entity.Status == RouteListStatus.New && logistician && (permissionResult.CanCreate && Entity.Id == 0 || permissionResult.CanUpdate))
-			{
-				UpdateElements(true);
-			}
-			else if(logistician && (permissionResult.CanUpdate))
-			{
-				UpdateElements(false);
-			}
-			else
-			{
-				var canOpenOrder = ServicesConfig.CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Order)).CanRead;
-				UpdateElements(false, canOpenOrder);
-				buttonAccept.Sensitive = buttonSave.Sensitive = false;
-			}
-			UpdateAdditionalLoadingWidgets();
-		}
-
-		private void UpdateElements(bool isEditable, bool canOpenOrder = true)
-		{
-			speccomboShift.Sensitive = isEditable;
-			ggToStringWidget.Sensitive = datepickerDate.Sensitive = entityviewmodelentryCar.Sensitive = evmeForwarder.Sensitive = isEditable;
-			createroutelistitemsview1.IsEditable(isEditable, canOpenOrder);
-			ybuttonAddAdditionalLoad.Sensitive = isEditable && Entity.Car != null;
-			ybuttonRemoveAdditionalLoad.Sensitive = isEditable;
-			fixPriceSpin.Sensitive = Entity.HasFixedShippingPrice && Entity.Status != RouteListStatus.Closed;
-			checkIsFixPrice.Sensitive = CanEditFixedPrice && Entity.Status != RouteListStatus.Closed;
-			_additionalLoadingItemsView.ViewModel.CanEdit = isEditable;
-		}
-
-		private void PrintSelectedDocument(RouteListPrintableDocuments choise)
-		{
-			TabParent.AddSlaveTab(this, CreateDocumentsPrinterDlg(choise));
-		}
-
-		private DocumentsPrinterViewModel CreateDocumentsPrinterDlg(RouteListPrintableDocuments choise)
-		{
-			var dlg = new DocumentsPrinterViewModel(
-				UoW, _entityDocumentsPrinterFactory, Startup.MainWin.NavigationManager, Entity, choise, ServicesConfig.InteractiveService);
-			dlg.DocumentsPrinted += Dlg_DocumentsPrinted;
-			return dlg;
-		}
-
-		private void Dlg_DocumentsPrinted(object sender, EventArgs e)
+		private void OnDocumentsPrinted(object sender, EventArgs e)
 		{
 			if(e is EndPrintArgs printArgs)
 			{
 				if(printArgs.Args.Cast<IPrintableDocument>().Any(d => d.Name == RouteListPrintableDocuments.RouteList.GetEnumTitle()))
 				{
-					Entity.AddPrintHistory();
-					Save();
+					ViewModel.Entity.AddPrintHistory();
+					ViewModel.Save();
 				}
 			}
 		}
 
-		public override bool Save()
+		private void OnButtonSpecialConditionsToggled(object sender, EventArgs e)
 		{
-			_logger.LogInformation("Вызван метод сохранения МЛ {RouteListId}...", Entity.Id);
-
-			if(!Entity.IsDriversDebtInPermittedRangeVerification())
+			if(radioBtnSprcialConditions.Active)
 			{
-				return false;
-			}
-
-			var contextItems = new Dictionary<object, object>
-			{
-				{nameof(IRouteListItemRepository), new RouteListItemRepository()}
-			};
-
-			var context = new ValidationContext(Entity, null, contextItems);
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
-
-			if(!validator.Validate(Entity, context))
-			{
-				return false;
-			}
-
-			if(Entity.AdditionalLoadingDocument != null && !Entity.AdditionalLoadingDocument.Items.Any())
-			{
-				UoW.Delete(Entity.AdditionalLoadingDocument);
-				Entity.AdditionalLoadingDocument = null;
-			}
-
-			if(_oldDriver != Entity.Driver)
-			{
-				if(_oldDriver != null)
-				{
-					var selfDriverTerminalTransferDocument = _routeListRepository.GetSelfDriverTerminalTransferDocument(UoW, _oldDriver, Entity);
-
-					if(selfDriverTerminalTransferDocument != null)
-					{
-						UoW.Delete(selfDriverTerminalTransferDocument);
-					}
-				}
-
-				_oldDriver = Entity.Driver;
-			}
-
-			UoW.Session.Flush();
-
-			_logger.LogDebug("Пересчитываем рентабельность МЛ");
-			_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
-			_logger.LogDebug("Закончили пересчет рентабельности МЛ");
-			UoW.Save(Entity.RouteListProfitability);
-
-			_logger.LogInformation("Сохраняем маршрутный лист {RouteListId}...", Entity.Id);
-			UoWGeneric.Save();
-			_logger.LogInformation("Ok");
-			createroutelistitemsview1.UpdateProfitabilityInfo();
-			return true;
-		}
-
-		private void UpdateButtonStatus()
-		{
-			buttonAccept.Visible = true;
-
-			switch(Entity.Status)
-			{
-				case RouteListStatus.New:
-					{
-						UpdateElements(true);
-						var icon = new Image
-						{
-							Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-edit", IconSize.Menu)
-						};
-						buttonAccept.Image = icon;
-						enumPrint.Sensitive = false;
-						buttonAccept.Label = "Подтвердить";
-						break;
-					}
-				case RouteListStatus.Confirmed:
-					{
-						UpdateElements(false);
-						var icon = new Image
-						{
-							Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-edit", IconSize.Menu)
-						};
-						buttonAccept.Image = icon;
-						enumPrint.Sensitive = true;
-						buttonAccept.Label = "Редактировать";
-						break;
-					}
-				case RouteListStatus.InLoading:
-					{
-						UpdateElements(false);
-						var icon = new Image
-						{
-							Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-edit", IconSize.Menu)
-						};
-						buttonAccept.Image = icon;
-						enumPrint.Sensitive = true;
-						buttonAccept.Label = "Редактировать";
-						break;
-					}
-				default:
-					buttonAccept.Visible = false;
-					break;
+				ynotebook1.Page = 2;
 			}
 		}
 
-		public bool CanClose()
+		protected void OnBtnCopyEntityIdClicked(object sender, EventArgs e)
 		{
-			if(!_canClose)
+			if(ViewModel.Entity.Id > 0)
 			{
-				MessageDialogHelper.RunInfoDialog("Дождитесь завершения работы задачи и повторите");
-			}
-
-			return _canClose;
-		}
-
-		private void SetSensetivity(bool isSensetive)
-		{
-			_canClose = isSensetive;
-			buttonSave.Sensitive = isSensetive;
-			btnCancel.Sensitive = isSensetive;
-			buttonAccept.Sensitive = isSensetive;
-		}
-
-		private void OnPrintTimeButtonClicked(object sender, EventArgs e)
-		{
-			var history = _routeListRepository.GetPrintsHistory(UoW, Entity);
-			if(history?.Any() ?? false)
-			{
-				var message = "<b>№\t| Дата и время печати\t| Тип документа</b>";
-				for(var i = 0; i < history.Count; i++)
-				{
-					var item = history[i];
-					message += $"\n{i + 1}\t| { item.PrintingTime.ToShortDateString() }" +
-							   $" { item.PrintingTime.ToShortTimeString() }\t\t| { item.DocumentType.GetEnumShortTitle() }";
-				}
-				_interactiveService.ShowMessage(ImportanceLevel.Info, message, $"История печати МЛ №: {Entity.Id}");
-			}
-			else
-			{
-				_interactiveService.ShowMessage(ImportanceLevel.Error, "МЛ не печатался ранее");
+				GetClipboard(Gdk.Selection.Clipboard).Text = ViewModel.Entity.Id.ToString();
 			}
 		}
 
-		protected void OnButtonAcceptClicked(object sender, EventArgs e)
+		private void OnInformationToggled(object sender, EventArgs e)
 		{
-			if(!Save())
+			if(radioBtnInformation.Active)
 			{
-				return;
-			}
-
-			var isAcceptMode = buttonAccept.Label == "Подтвердить";
-
-			if(isAcceptMode)
-			{
-				AcceptHandler();
-			}
-			else
-			{
-				ReturnToNewHandler();
+				ynotebook1.Page = 0;
 			}
 		}
 
-		private void ReturnToNewHandler()
+		private void OnProfitabilityToggled(object sender, EventArgs e)
 		{
-			using(var transaction = UoW.Session.BeginTransaction())
+			if(radioBtnProfitability.Active)
 			{
-				try
-				{
-					Result result = _routeListService.TryChangeStatusToNew(UoW, Entity);
-
-					SetSensetivity(false);
-
-					result.Match(() =>
-					{
-						transaction.Commit();
-						GlobalUowEventsTracker.OnPostCommit((IUnitOfWorkTracked)UoW);
-						createroutelistitemsview1.SubscribeOnChanges();
-						UpdateAdditionalLoadingWidgets();
-					},
-					ShowErrors);
-
-					UpdateButtonStatus();
-					SetSensetivity(true);
-					UpdateDlg(_isLogistican);
-				}
-				catch(Exception ex)
-				{
-					if(!transaction.WasCommitted
-					   && !transaction.WasRolledBack
-					   && transaction.IsActive
-					   && UoW.Session.Connection.State == ConnectionState.Open)
-					{
-						try
-						{
-							transaction.Rollback();
-						}
-						catch { }
-					}
-
-					transaction.Dispose();
-
-					_logger.LogError(ex, "Произошла ошибка во время возвращения Маршрутного листа в статус нового {RouteListId}: {Message}.", Entity.Id, ex.Message);
-
-					_interactiveService.ShowMessage(ImportanceLevel.Warning,
-						$"Возникла ошибка при возвращения Маршрутного листа в статус нового {Entity.Id}, МЛ был сохранён, но не возвращен в статус нового.\n" +
-						$"Будет произведена попытка переоткрытия вкладки.\n" +
-						$"Ошибка: {ex.Message}\n{ex.StackTrace}");
-
-					OnCloseTab(false);
-
-					TabParent.OpenTab(() => new RouteListCreateDlg(Entity.Id));
-				}
+				ynotebook1.Page = 1;
 			}
-		}
-
-		private void AcceptHandler()
-		{
-			var beforeAcceptValidation = _routeListService.ValidateForAccept(Entity);
-
-			bool skipOverfillValidation = false;
-
-			var overfillErrorsCodes = Errors.Logistics.RouteList.OverfilledErrorCodes;
-
-			var overfillErrorsMessages = beforeAcceptValidation.Errors.Select(x => x.Message).ToArray();
-
-			if(beforeAcceptValidation.IsFailure)
-			{
-				if(!beforeAcceptValidation.Errors.All(error => overfillErrorsCodes.Contains(error.Code))
-					|| !_currenmtPermissionService.ValidatePresetPermission(Permissions.Logistic.RouteList.CanConfirmOverweighted)
-					|| !_interactiveService.Question(
-						"Вы уверены что хотите подтвердить маршрутный лист?\n" +
-						string.Join("\n", overfillErrorsMessages),
-						"Требуется подтверждение!"))
-				{
-					_interactiveService.ShowMessage(ImportanceLevel.Error,
-						 "Маршрутный лист не был переведен в путь: \n" +
-						 string.Join("\n", overfillErrorsMessages));
-
-					return;
-				}
-
-				skipOverfillValidation = true;
-			}
-
-			var confirmRecalculateRoute = false;
-
-			if((!Entity.PrintsHistory?.Any() ?? true) || _interactiveService.Question(
-				"Этот маршрутный лист уже был когда-то напечатан. При новом построении маршрута порядок адресов может быть другой. При продолжении обязательно перепечатайте этот МЛ.\nПерестроить маршрут?", "Перестроить маршрут?"))
-			{
-				confirmRecalculateRoute = true;
-			}
-
-			var confirmSendOnClosing = false;
-
-			if(Entity.GetCarVersion.IsCompanyCar
-				&& Entity.Car.CarModel.CarTypeOfUse == CarTypeOfUse.Truck
-				&& !Entity.NeedToLoad
-				&& _interactiveService.Question(
-					$"Маршрутный лист для транспортировки на склад, перевести машрутный лист сразу в статус '{RouteListStatus.OnClosing.GetEnumDisplayName()}'?"))
-			{
-				confirmSendOnClosing = true;
-			}
-
-			var confirmSenEnRoute = false;
-
-			var needTerminal = Entity.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal);
-
-			if(!Entity.NeedToLoad
-				&& !needTerminal
-				&& _interactiveService.Question($"Для маршрутного листа нет необходимости грузится на складе. Перевести маршрутный лист сразу в статус '{RouteListStatus.EnRoute.GetEnumDisplayName()}'?"))
-			{
-				confirmSenEnRoute = true;
-			}
-
-			using(var transaction = UoW.Session.BeginTransaction())
-			{
-				try
-				{
-					Result<IEnumerable<string>> result = _routeListService.TryChangeStatusToAccepted(
-						UoW,
-						Entity,
-						DisableItemsUpdate,
-						ServicesConfig.CommonServices.ValidationService,
-						skipOverfillValidation,
-						confirmRecalculateRoute,
-						confirmSendOnClosing,
-						confirmSenEnRoute);
-
-					SetSensetivity(false);
-
-					result.Match(() =>
-					{
-						transaction.Commit();
-						GlobalUowEventsTracker.OnPostCommit((IUnitOfWorkTracked)UoW);
-						createroutelistitemsview1.SubscribeOnChanges();
-						UpdateAdditionalLoadingWidgets();
-
-						if(result.Value.Any())
-						{
-							_interactiveService.ShowMessage(ImportanceLevel.Info, string.Join("\n", result.Value));
-						}
-					},
-					ShowErrors);
-
-					UpdateButtonStatus();
-					SetSensetivity(true);
-					UpdateDlg(_isLogistican);
-				}
-				catch(Exception ex)
-				{
-					if(!transaction.WasCommitted
-					   && !transaction.WasRolledBack
-					   && transaction.IsActive
-					   && UoW.Session.Connection.State == ConnectionState.Open)
-					{
-						try
-						{
-							transaction.Rollback();
-						}
-						catch { }
-					}
-
-					transaction.Dispose();
-
-					_logger.LogError(ex, "Произошла ошибка во время подтверждения МЛ {RouteListId}: {Message}.", Entity.Id, ex.Message);
-
-					_interactiveService.ShowMessage(ImportanceLevel.Warning,
-						$"Возникла ошибка при подтверждении МЛ {Entity.Id}, МЛ был сохранён, но не подтверждён.\n" +
-						$"Будет произведена попытка переоткрытия вкладки.\n" +
-						$"Ошибка: {ex.Message}\n{ex.StackTrace}");
-
-					OnCloseTab(false);
-
-					TabParent.OpenTab(() => new RouteListCreateDlg(Entity.Id));
-				}
-			}
-		}
-
-		private void ShowErrors(IEnumerable<Error> errors)
-		{
-			var errorsStrings = errors.Select(x => $"{x.Message} : {x.Code}").ToArray();
-
-			_interactiveService.ShowMessage(ImportanceLevel.Error, string.Join("\n", errorsStrings));
 		}
 
 		private void DisableItemsUpdate(bool isDisable) => createroutelistitemsview1.DisableColumnsUpdate = isDisable;
-
-		protected static readonly RouteListStatus[] NotLoadedRouteListStatuses =
-			{ RouteListStatus.New, RouteListStatus.Confirmed, RouteListStatus.InLoading };
-
-		public override void Destroy()
-		{
-			base.Destroy();
-			_lifetimeScope?.Dispose();
-			_lifetimeScope = null;
-		}
 	}
 }

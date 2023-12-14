@@ -3237,7 +3237,9 @@ namespace Vodovoz.Domain.Logistic
 
 		#endregion Зарплата
 
-		public static RouteListStatus[] AvailableToSendEnRouteStatuses => new RouteListStatus[] { RouteListStatus.Confirmed, RouteListStatus.InLoading };
+		public static RouteListStatus[] AvailableToSendEnRouteStatuses { get; } = { RouteListStatus.Confirmed, RouteListStatus.InLoading };
+
+		public static RouteListStatus[] NotLoadedRouteListStatuses { get; } = { RouteListStatus.New, RouteListStatus.Confirmed, RouteListStatus.InLoading };
 	}
 
 	public enum RouteListStatus
