@@ -3,12 +3,13 @@ using System.Xml.Serialization;
 using System.Xml;
 using System.Linq;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace Vodovoz.RDL.Elements
 {
 	[Serializable()]
 	[XmlType()]
-	public partial class Textbox
+	public partial class Textbox : IReportItemElement
 	{
 		private List<object> itemsField = new List<object>();
 		private List<ItemsChoiceType14> itemsElementNameField = new List<ItemsChoiceType14>();
@@ -31,20 +32,16 @@ namespace Vodovoz.RDL.Elements
 		[XmlElement("DataElementName", typeof(string))]
 		[XmlElement("DataElementOutput", typeof(TextboxTypeDataElementOutput))]
 		[XmlElement("DataElementStyle", typeof(TextboxTypeDataElementStyle))]
-		[XmlElement("Height", typeof(string), DataType = "normalizedString")]
 		[XmlElement("HideDuplicates", typeof(string))]
 		[XmlElement("Label", typeof(string))]
-		[XmlElement("Left", typeof(string), DataType = "normalizedString")]
 		[XmlElement("LinkToChild", typeof(string))]
 		[XmlElement("RepeatWith", typeof(string))]
 		[XmlElement("Style", typeof(Style))]
 		[XmlElement("ToggleImage", typeof(ToggleImage))]
 		[XmlElement("ToolTip", typeof(string))]
-		[XmlElement("Top", typeof(string), DataType = "normalizedString")]
 		[XmlElement("UserSort", typeof(UserSort))]
 		[XmlElement("Value", typeof(string))]
 		[XmlElement("Visibility", typeof(Visibility))]
-		[XmlElement("Width", typeof(string), DataType = "normalizedString")]
 		[XmlElement("ZIndex", typeof(uint))]
 		[XmlChoiceIdentifier("ItemsElementName")]
 		public object[] Items
@@ -88,6 +85,102 @@ namespace Vodovoz.RDL.Elements
 			get => AnyAttrList.ToArray();
 			set => AnyAttrList = value == null ? new List<XmlAttribute>() : value.ToList();
 		}
+		
+		private string _top;
+
+		public string Top
+		{
+			get => _top;
+			set
+			{
+				_top = value;
+				ParseTopValue(_top);
+			}
+		}
+		
+		[XmlIgnore]
+		public decimal TopSize { get; set; }
+		[XmlIgnore]
+		public string TopDimension { get; set; }
+		
+		private string _left;
+
+		public string Left
+		{
+			get => _left;
+			set
+			{
+				_left = value;
+				ParseLeftValue(_left);
+			}
+		}
+
+		[XmlIgnore]
+		public decimal LeftSize { get; set; }
+		[XmlIgnore]
+		public string LeftDimension { get; set; }
+
+		public void ParseTopValue(string top)
+		{
+			TopDimension = top.Substring(top.Length - 2, 2);
+			var size = top.Substring(0, top.Length - 2);
+			TopSize = decimal.Parse(size, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture);
+		}
+		
+		public void ParseLeftValue(string left)
+		{
+			LeftDimension = left.Substring(left.Length - 2, 2);
+			var size = left.Substring(0, left.Length - 2);
+			LeftSize = decimal.Parse(size, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture);
+		}
+		
+		private string _height;
+
+		public string Height
+		{
+			get => _height;
+			set
+			{
+				_height = value;
+				ParseHeightValue(_height);
+			}
+		}
+		
+		[XmlIgnore]
+		public decimal HeightSize { get; set; }
+		[XmlIgnore]
+		public string HeightDimension { get; set; }
+
+		private string _width;
+
+		public string Width
+		{
+			get => _width;
+			set
+			{
+				_width = value;
+				ParseWidthValue(_width);
+			}
+		}
+		
+		[XmlIgnore]
+		public decimal WidthSize { get; set; }
+		[XmlIgnore]
+		public string WidthDimension { get; set; }
+
+		public void ParseHeightValue(string height)
+		{
+			HeightDimension = height.Substring(height.Length - 2, 2);
+			var size = height.Substring(0, height.Length - 2);
+			HeightSize = decimal.Parse(size, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture);
+		}
+		
+		public void ParseWidthValue(string width)
+		{
+			WidthDimension = width.Substring(width.Length - 2, 2);
+			var size = width.Substring(0, width.Length - 2);
+			WidthSize = decimal.Parse(size, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture);
+		}
 	}
 
 	[Serializable()]
@@ -123,20 +216,16 @@ namespace Vodovoz.RDL.Elements
 		DataElementName,
 		DataElementOutput,
 		DataElementStyle,
-		Height,
 		HideDuplicates,
 		Label,
-		Left,
 		LinkToChild,
 		RepeatWith,
 		Style,
 		ToggleImage,
 		ToolTip,
-		Top,
 		UserSort,
 		Value,
 		Visibility,
-		Width,
 		ZIndex,
 	}
 }

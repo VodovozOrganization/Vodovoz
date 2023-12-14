@@ -2,6 +2,18 @@
 {
 	public static partial class RouteList
 	{
+		public static Error NotFound =>
+			new Error(
+				typeof(RouteList),
+				nameof(NotFound),
+				"Маршрутный лист не найден");
+
+		public static Error CreateNotFound(int? id) =>
+			id is null ? NotFound : new Error(
+				typeof(RouteList),
+				nameof(NotFound),
+				$"Маршрутный лист #{id} не найден");
+
 		public static Error CarIsEmpty =>
 			new Error(
 				typeof(RouteList),

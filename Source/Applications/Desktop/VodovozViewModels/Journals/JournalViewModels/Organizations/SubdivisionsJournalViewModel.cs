@@ -100,7 +100,6 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 			(Search as SearchViewModel).PropertyChanged += OnSearchPropertyChanged;
 		}
 
-
 		public IRecursiveConfig RecuresiveConfig { get; }
 
 		public override string FooterInfo
@@ -112,7 +111,7 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 
 		private void InitializePermissionsMatrix()
 		{
-			_domainObjectsPermissions.Add(typeof(Subdivision),  _currentPermissionService.ValidateEntityPermission(typeof(Subdivision)));
+			_domainObjectsPermissions.Add(typeof(Subdivision), _currentPermissionService.ValidateEntityPermission(typeof(Subdivision)));
 		}
 
 		private void OnSearchPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -132,13 +131,15 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 		{
 			var searchString = string.IsNullOrWhiteSpace(_filterViewModel.SearchString) ? string.Empty : $"%{_filterViewModel.SearchString.ToLower()}%";
 
-			return (string.IsNullOrWhiteSpace(searchString) || parentId == null)
+			return ((string.IsNullOrWhiteSpace(searchString) && _filterViewModel.IncludedSubdivisionsIds.Length == 0) || parentId == null)
 			? (from subdivision in unitOfWork.Session.Query<Subdivision>()
-			   where ((string.IsNullOrWhiteSpace(searchString)
-				   && subdivision.ParentSubdivision.Id == parentId)
-					   || subdivision.Name.ToLower().Like(searchString)
-					   || subdivision.ShortName.ToLower().Like(searchString)
-					   || subdivision.Id.ToString().Like(searchString))
+			   where ((string.IsNullOrWhiteSpace(searchString) && subdivision.ParentSubdivision.Id == parentId && _filterViewModel.IncludedSubdivisionsIds.Length == 0)
+					   || ((string.IsNullOrWhiteSpace(searchString)
+								|| (subdivision.Name.ToLower().Like(searchString)
+								|| subdivision.ShortName.ToLower().Like(searchString)
+								|| subdivision.Id.ToString().Like(searchString)))
+							&& (_filterViewModel.IncludedSubdivisionsIds.Length == 0 || _filterViewModel.IncludedSubdivisionsIds.Contains(subdivision.Id))
+							&& (!string.IsNullOrWhiteSpace(searchString) || _filterViewModel.IncludedSubdivisionsIds.Length > 0)))
 				   && (_filterViewModel.ShowArchieved || !subdivision.IsArchive)
 				   && !_filterViewModel.ExcludedSubdivisionsIds.Contains(subdivision.Id)
 				   && (_filterViewModel.SubdivisionType == null
@@ -152,12 +153,12 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 			   orderby subdivision.Name
 			   select new SubdivisionJournalNode
 			   {
-					Id = subdivision.Id,
-					Name = subdivision.Name,
-					ChiefName = chiefFIO,
-					ParentId = subdivision.ParentSubdivision.Id,
-					Children = children.ToList(),
-					IsArchive = subdivision.IsArchive
+				   Id = subdivision.Id,
+				   Name = subdivision.Name,
+				   ChiefName = chiefFIO,
+				   ParentId = subdivision.ParentSubdivision.Id,
+				   Children = children.ToList(),
+				   IsArchive = subdivision.IsArchive
 			   })
 				: Enumerable.Empty<SubdivisionJournalNode>().AsQueryable();
 		}

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Journal;
@@ -37,7 +37,7 @@ namespace Vodovoz.Factories
             bool multipleSelect = false, bool isCreateVisible = true, bool isEditVisible = true, bool isDeleteVisible = true)
         {
             var journal = new FreeRentPackagesJournalViewModel(
-	            UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.InteractiveService, _navigationManager)
+	            UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.InteractiveService, _navigationManager, new FreeRentPackagesFilterViewModel())
             {
                 SelectionMode = multipleSelect
                     ? JournalSelectionMode.Multiple

@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using NHibernate.Criterion;
+using Autofac;
 using QS.Commands;
 using QS.DomainModel.Entity;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
@@ -17,37 +18,39 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.ViewModels.Dialogs.Fuel
 {
 	public class FuelIncomeInvoiceViewModel : EntityTabViewModelBase<FuelIncomeInvoice>
 	{
-		private readonly IEmployeeService employeeService;
-		private readonly INomenclatureJournalFactory nomenclatureSelectorFactory;
-		private readonly ISubdivisionRepository subdivisionRepository;
-		private readonly IFuelRepository fuelRepository;
-		private readonly ICounterpartyJournalFactory counterpartyJournalFactory;
+		private readonly IEmployeeService _employeeService;
+		private readonly ISubdivisionRepository _subdivisionRepository;
+		private readonly IFuelRepository _fuelRepository;
+		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
+		private ILifetimeScope _lifetimeScope;
 
 		public FuelIncomeInvoiceViewModel
 		(
+			ILifetimeScope lifetimeScope,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IEmployeeService employeeService,
-			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			ISubdivisionRepository subdivisionRepository,
 			IFuelRepository fuelRepository,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
-			ICommonServices commonServices
-		) : base(uowBuilder, unitOfWorkFactory, commonServices)
+			ICommonServices commonServices,
+			INavigationManager navigationManager) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
-			this.employeeService = employeeService;
-			this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
-			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
-			this.fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
-			this.counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_employeeService = employeeService;
+			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
+			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
+			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
+			
 			TabName = "Входящая накладная по топливу";
 
 			if(CurrentEmployee == null) {
@@ -90,7 +93,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 
 		protected override bool BeforeSave()
 		{
-			Entity.UpdateOperations(fuelRepository);
+			Entity.UpdateOperations(_fuelRepository);
 			return base.BeforeSave();
 		}
 
@@ -102,7 +105,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 		public Employee CurrentEmployee {
 			get {
 				if(currentEmployee == null) {
-					currentEmployee = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
+					currentEmployee = _employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
 				}
 				return currentEmployee;
 			}
@@ -130,7 +133,17 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 			AddItemCommand = new DelegateCommand(
 				() =>
 				{
-					var selector = nomenclatureSelectorFactory.CreateNomenclatureSelectorForFuelSelect();
+					var selector = NavigationManager.OpenViewModel<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(
+						this,
+						filter =>
+						{
+							filter.RestrictCategory = NomenclatureCategory.fuel;
+							filter.RestrictArchive = false;
+						},
+						OpenPageOptions.IgnoreHash,
+						vm => vm.SelectionMode = JournalSelectionMode.Single)
+						.ViewModel;
+					
 					selector.OnEntitySelectedResult += (sender, args) =>
 					{
 						if(args.SelectedNodes == null || !args.SelectedNodes.Any()){
@@ -142,15 +155,12 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 							Entity.AddItem(nomenclature);
 						}
 					};
-					TabParent.AddTab(selector, this);
 				},
-				() => { return CanAddItems; }
-			);
+				() => CanAddItems);
 
 			DeleteItemCommand = new DelegateCommand(
-				() => { Entity.DeleteItem(SelectedItem); },
-				() => { return CanDeleteItems; }
-			);
+				() => Entity.DeleteItem(SelectedItem),
+				() => CanDeleteItems);
 		}
 
 		#endregion Commands
@@ -159,7 +169,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 
 		private void ConfigureEntries()
 		{
-			CounterpartySelectorFactory = counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory();
+			CounterpartySelectorFactory = _counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope);
 		}
 
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; private set; }
@@ -172,7 +182,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 
 		private void UpdateCashSubdivisions()
 		{
-			AvailableSubdivisions = subdivisionRepository.GetCashSubdivisionsAvailableForUser(UoW, CurrentUser);
+			AvailableSubdivisions = _subdivisionRepository.GetCashSubdivisionsAvailableForUser(UoW, CurrentUser);
 		}
 
 		#endregion Настройка списков доступных подразделений кассы
@@ -191,7 +201,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 				return;
 			}
 			using(var localUoW = UnitOfWorkFactory.CreateWithoutRoot()) {
-				fuelBalanceCache = fuelRepository.GetAllFuelsBalanceForSubdivision(UoW, Entity.Subdivision);
+				fuelBalanceCache = _fuelRepository.GetAllFuelsBalanceForSubdivision(UoW, Entity.Subdivision);
 			}
 		}
 
@@ -237,6 +247,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 		public override void Dispose()
 		{
 			NotifyConfiguration.Instance.UnsubscribeAll(this);
+			_lifetimeScope = null;
 			base.Dispose();
 		}
 	}

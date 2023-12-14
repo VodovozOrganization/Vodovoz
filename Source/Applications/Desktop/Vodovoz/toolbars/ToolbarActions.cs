@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Dialogs.Employees;
 using Gtk;
 using QS.Dialog.Gtk;
@@ -76,7 +76,6 @@ public partial class MainWindow : Window
 	//Заказы
 	Action ActionOrdersTable;
 	Action ActionAddOrder;
-	Action ActionLoadOrders;
 	Action ActionDeliveryPrice;
 	Action ActionUndeliveredOrders;
 	Action ActionCashReceiptsJournal;
@@ -167,7 +166,6 @@ public partial class MainWindow : Window
 		//Заказы
 		ActionOrdersTable = new Action("ActionOrdersTable", "Журнал заказов", null, "table");
 		ActionAddOrder = new Action("ActionAddOrder", "Новый заказ", null, "table");
-		ActionLoadOrders = new Action("ActionLoadOrders", "Загрузить из 1С", null, "table");
 		ActionDeliveryPrice = new Action("ActionDeliveryPrice", "Стоимость доставки", null, null);
 		ActionUndeliveredOrders = new Action("ActionUndeliveredOrders", "Журнал недовозов", null, null);
 		ActionCashReceiptsJournal = new Action(nameof(ActionCashReceiptsJournal), "Журнал чеков", null, "table");
@@ -262,7 +260,6 @@ public partial class MainWindow : Window
 		//Заказы
 		w1.Add(ActionOrdersTable, null);
 		w1.Add(ActionAddOrder, null);
-		w1.Add(ActionLoadOrders, null);
 		w1.Add(ActionDeliveryPrice, null);
 		w1.Add(ActionUndeliveredOrders, null);
 		w1.Add(ActionCashReceiptsJournal, null);
@@ -360,7 +357,6 @@ public partial class MainWindow : Window
 		//Заказы
 		ActionOrdersTable.Activated += ActionOrdersTableActivated;
 		ActionAddOrder.Activated += ActionAddOrder_Activated;
-		ActionLoadOrders.Activated += ActionLoadOrders_Activated;
 		ActionDeliveryPrice.Activated += ActionDeliveryPrice_Activated;
 		ActionUndeliveredOrders.Activated += ActionUndeliveredOrdersActivated;
 		ActionCashReceiptsJournal.Activated += ActionCashReceiptsJournalActivated;
@@ -533,7 +529,7 @@ public partial class MainWindow : Window
 
 	void ActionRouteListAddressesTransferring_Activated(object sender, System.EventArgs e)
 	{
-		NavigationManager.OpenTdiTab<RouteListAddressesTransferringDlg>(null);
+		NavigationManager.OpenViewModel<RouteListTransferringViewModel>(null);
 	}
 
 	void ActionEmployeeWorkChart_Activated(object sender, System.EventArgs e)
@@ -541,14 +537,6 @@ public partial class MainWindow : Window
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<EmployeeWorkChartDlg>(),
 			() => new EmployeeWorkChartDlg()
-		);
-	}
-
-	void ActionLoadOrders_Activated(object sender, System.EventArgs e)
-	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<LoadFrom1cDlg>(),
-			() => new LoadFrom1cDlg()
 		);
 	}
 
@@ -903,29 +891,13 @@ public partial class MainWindow : Window
 
 	void ActionFastDeliveryAvailabilityJournal_Activated(object sender, EventArgs e)
 	{
-		IEmployeeJournalFactory employeeJournalFactory = new EmployeeJournalFactory(NavigationManager);
-		IDistrictJournalFactory districtJournalFactory = new DistrictJournalFactory();
-		ICounterpartyJournalFactory counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
-		IFileDialogService fileDialogService = new FileDialogService();
-		IFastDeliveryAvailabilityHistoryParameterProvider fastDeliveryAvailabilityHistoryParameterProvider =
-			new FastDeliveryAvailabilityHistoryParameterProvider(new ParametersProvider());
-		INomenclatureParametersProvider nomenclatureParametersProvider = new NomenclatureParametersProvider(new ParametersProvider());
-
-		var filter = new FastDeliveryAvailabilityFilterViewModel(counterpartyJournalFactory, employeeJournalFactory, districtJournalFactory)
-		{
-			VerificationDateFrom = DateTime.Now.Date,
-			VerificationDateTo = DateTime.Now.Date.Add(new TimeSpan(23, 59, 59))
-		};
-
-		tdiMain.OpenTab(() => new FastDeliveryAvailabilityHistoryJournalViewModel(
-			filter,
-			UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices,
-			VodovozGtkServicesConfig.EmployeeService,
-			fileDialogService,
-			fastDeliveryAvailabilityHistoryParameterProvider,
-			nomenclatureParametersProvider)
-		);
+		NavigationManager.OpenViewModel<FastDeliveryAvailabilityHistoryJournalViewModel, Action<FastDeliveryAvailabilityFilterViewModel>>(
+			null,
+			filter =>
+			{
+				filter.VerificationDateFrom = DateTime.Now.Date;
+				filter.VerificationDateTo = DateTime.Now.Date.Add(new TimeSpan(23, 59, 59));
+			});
 	}
 
 	void OnActionSalesOrdersJournalActivated(object sender, EventArgs e)
