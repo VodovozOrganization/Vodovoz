@@ -22,7 +22,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
 		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
-		private readonly ILifetimeScope _scope;
+		private ILifetimeScope _scope;
 
 		public ComplaintKindJournalViewModel(
 			ComplaintKindJournalFilterViewModel filterViewModel,
@@ -54,7 +54,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 
 			if(filterConfig != null)
 			{
-				FilterViewModel.SetAndRefilterAtOnce(filterConfig);
+				FilterViewModel.ConfigureWithoutFiltering(filterConfig);
 			}
 		}
 
@@ -113,5 +113,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 		protected override Func<ComplaintKindJournalNode, ComplaintKindViewModel> OpenDialogFunction =>
 			(node) => new ComplaintKindViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices, NavigationManager, _employeeJournalFactory, Refresh,
 				_salesPlanJournalFactory, _nomenclatureSelectorFactory, _scope.BeginLifetimeScope());
+
+		public override void Dispose()
+		{
+			_scope = null;
+			base.Dispose();
+		}
 	}
 }

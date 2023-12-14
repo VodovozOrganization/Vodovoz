@@ -2,28 +2,24 @@
 using NHibernate;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using QS.Services;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Journals.JournalNodes;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.WageCalculation;
 
 namespace Vodovoz.Journals.JournalViewModels.WageCalculation
 {
 	public class SalesPlanJournalViewModel : SingleEntityJournalViewModelBase<SalesPlan, SalesPlanViewModel, SalesPlanJournalNode>
 	{
-		private readonly IUnitOfWorkFactory unitOfWorkFactory;
-		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
-
-		public SalesPlanJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, 
-			INomenclatureJournalFactory nomenclatureSelectorFactory) : base(unitOfWorkFactory, commonServices)
+		public SalesPlanJournalViewModel(
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices, 
+			INavigationManager navigationManager) : base(unitOfWorkFactory, commonServices, navigation: navigationManager)
 		{
-			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
-
 			TabName = "Журнал планов продаж";
 
 			var threadLoader = DataLoader as ThreadDataLoader<SalesPlanJournalNode>;
@@ -60,16 +56,16 @@ namespace Vodovoz.Journals.JournalViewModels.WageCalculation
 
 		protected override Func<SalesPlanViewModel> CreateDialogFunction => () => new SalesPlanViewModel(
 			EntityUoWBuilder.ForCreate(),
-			unitOfWorkFactory,
+			UnitOfWorkFactory,
 			commonServices,
-			_nomenclatureSelectorFactory
+			NavigationManager
 		);
 
 		protected override Func<SalesPlanJournalNode, SalesPlanViewModel> OpenDialogFunction => node => new SalesPlanViewModel(
 			EntityUoWBuilder.ForOpen(node.Id),
-			unitOfWorkFactory,
+			UnitOfWorkFactory,
 			commonServices,
-			_nomenclatureSelectorFactory
+			NavigationManager
 	   	);
 	}
 }

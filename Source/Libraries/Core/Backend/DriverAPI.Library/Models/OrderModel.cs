@@ -568,7 +568,7 @@ namespace DriverAPI.Library.Models
 		{
 			foreach(var scannedItem in scannedItems)
 			{
-				var orderItem = new OrderItem { Id = scannedItem.OrderSaleItemId };
+				var orderItem = OrderItem.CreateEmptyWithId(scannedItem.OrderSaleItemId);
 
 				foreach(var defectiveCode in scannedItem.DefectiveBottleCodes)
 				{

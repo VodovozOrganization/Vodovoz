@@ -6,10 +6,10 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using Vodovoz.Application.Orders.Services;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Roboats;
 using Vodovoz.EntityRepositories.Roboats;
-using Vodovoz.Models;
 using Vodovoz.Models.Orders;
 using Vodovoz.Parameters;
 
@@ -19,7 +19,7 @@ namespace RoboatsService.Requests
 	{
 		private readonly ILogger<LastOrderHandler> _logger;
 		private readonly IRoboatsRepository _roboatsRepository;
-		private readonly RoboatsOrderModel _roboatsOrderModel;
+		private readonly IOrderService _orderService;
 		private readonly ValidOrdersProvider _validOrdersProvider;
 		private readonly IRoboatsSettings _roboatsSettings;
 		private readonly RoboatsCallRegistrator _callRegistrator;
@@ -48,7 +48,7 @@ namespace RoboatsService.Requests
 		public OrderHandler(
 			ILogger<LastOrderHandler> logger,
 			IRoboatsRepository roboatsRepository,
-			RoboatsOrderModel roboatsOrderModel,
+			IOrderService orderService,
 			ValidOrdersProvider validOrdersProvider,
 			RequestDto requestDto,
 			IRoboatsSettings roboatsSettings,
@@ -56,7 +56,7 @@ namespace RoboatsService.Requests
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_roboatsRepository = roboatsRepository ?? throw new ArgumentNullException(nameof(roboatsRepository));
-			_roboatsOrderModel = roboatsOrderModel ?? throw new ArgumentNullException(nameof(roboatsOrderModel));
+			_orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
 			_validOrdersProvider = validOrdersProvider ?? throw new ArgumentNullException(nameof(validOrdersProvider));
 			_roboatsSettings = roboatsSettings ?? throw new ArgumentNullException(nameof(roboatsSettings));
 			_callRegistrator = callRegistrator ?? throw new ArgumentNullException(nameof(callRegistrator));
@@ -240,7 +240,7 @@ namespace RoboatsService.Requests
 			orderArgs.WatersInfo = watersInfo;
 			orderArgs.BottlesReturn = bottlesReturn;
 
-			var price = _roboatsOrderModel.GetOrderPrice(orderArgs);
+			var price = _orderService.GetOrderPrice(orderArgs);
 			if(price <= 0)
 			{
 				_callRegistrator.RegisterFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.NegativeOrderSum, RoboatsCallOperation.CalculateOrderPrice,
@@ -362,19 +362,19 @@ namespace RoboatsService.Requests
 
 		private void CreateAndAcceptOrder(RoboatsOrderArgs orderArgs)
 		{
-			var orderId = _roboatsOrderModel.CreateAndAcceptOrder(orderArgs);
+			var orderId = _orderService.CreateAndAcceptOrder(orderArgs);
 			_callRegistrator.RegisterSuccess(ClientPhone, RequestDto.CallGuid, $"Звонок был успешно завершен. Cоздан и подтвержден заказ {orderId}");
 		}
 
 		private void CreateIncompleteOrder(RoboatsOrderArgs orderArgs)
 		{
-			var orderId = _roboatsOrderModel.CreateIncompleteOrder(orderArgs);
+			var orderId = _orderService.CreateIncompleteOrder(orderArgs);
 			_callRegistrator.RegisterAborted(ClientPhone, RequestDto.CallGuid, RoboatsCallOperation.CreateOrder, $"Звонок не был успешно завершен. Был создан черновой заказ {orderId}");
 		}
 
 		private async Task CreateOrderWithPaymentByQrCode(RoboatsOrderArgs orderArgs, bool needAcceptOrder)
 		{
-			var order = await _roboatsOrderModel.CreateOrderWithPaymentByQrCode(ClientPhone, orderArgs, needAcceptOrder);
+			var order = await _orderService.CreateOrderWithPaymentByQrCode(ClientPhone, orderArgs, needAcceptOrder);
 			if(order.OrderStatus == OrderStatus.NewOrder)
 			{
 				_callRegistrator.RegisterAborted(ClientPhone, RequestDto.CallGuid, RoboatsCallOperation.CreateOrder, $"Был создан черновой заказ {order.Id} с оплатой по QR коду." +

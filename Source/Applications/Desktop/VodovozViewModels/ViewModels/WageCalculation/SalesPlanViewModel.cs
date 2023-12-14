@@ -5,34 +5,34 @@ using QS.Project.Journal;
 using QS.Services;
 using QS.ViewModels;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using QS.Project.Journal.EntitySelector;
+using QS.Navigation;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.WageCalculation;
-using Vodovoz.FilterViewModels.Goods;
-using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.ViewModels.WageCalculation
 {
 	public class SalesPlanViewModel : EntityTabViewModelBase<SalesPlan>
 	{
-		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly ICommonServices _commonServices;
+		
 		private DelegateCommand _addNomenclatureItemCommand;
 		private DelegateCommand<NomenclatureSalesPlanItem> _removeNomenclatureItemCommand;
 		private DelegateCommand _addEquipmentKindItemCommand;
 		private DelegateCommand<EquipmentKindSalesPlanItem> _removeEquipmentKindItemCommand;
 		private DelegateCommand _addEquipmentTypeItemCommand;
 		private DelegateCommand<EquipmentTypeSalesPlanItem> _removeEquipmentTypeItemCommand;
-
-
-		public SalesPlanViewModel(IEntityUoWBuilder uoWBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, INomenclatureJournalFactory nomenclatureSelectorFactory) : base(uoWBuilder, unitOfWorkFactory, commonServices)
+		
+		public SalesPlanViewModel(
+			IEntityUoWBuilder uoWBuilder,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			INavigationManager navigationManager) : base(uoWBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
-			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 		}
@@ -45,7 +45,21 @@ namespace Vodovoz.ViewModels.WageCalculation
 		public DelegateCommand AddNomenclatureItemCommand =>
 			_addNomenclatureItemCommand ?? (_addNomenclatureItemCommand = new DelegateCommand(() =>
 				{
-					var nomenclatureSelector = _nomenclatureSelectorFactory.CreateNomenclatureSelector();
+					var nomenclatureSelector =
+						NavigationManager.OpenViewModel<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(
+							this,
+							filter =>
+							{
+								filter.RestrictArchive = true;
+								filter.AvailableCategories = Nomenclature.GetCategoriesForGoods();
+							},
+							OpenPageOptions.AsSlave,
+							vm =>
+							{
+								vm.SelectionMode = JournalSelectionMode.Single;
+							}
+						).ViewModel;
+					
 					nomenclatureSelector.OnEntitySelectedResult += (sender, e) =>
 					{
 						foreach(var nomenclature in UoW.GetById<Nomenclature>(e.SelectedNodes.Select(x => x.Id)))
@@ -53,7 +67,6 @@ namespace Vodovoz.ViewModels.WageCalculation
 							Entity.AddNomenclatureItem(new NomenclatureSalesPlanItem() { Nomenclature = nomenclature, SalesPlan = Entity });
 						}
 					};
-					TabParent.AddSlaveTab(this, nomenclatureSelector);
 				},
 				() => true
 			));

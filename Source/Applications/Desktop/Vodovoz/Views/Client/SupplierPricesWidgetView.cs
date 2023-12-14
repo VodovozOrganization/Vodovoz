@@ -16,12 +16,12 @@ namespace Vodovoz.Views.Client
 	{
 		public SupplierPricesWidgetView()
 		{
-			this.Build();
+			Build();
 		}
 
 		public SupplierPricesWidgetView(SupplierPricesWidgetViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 		}
 
 		protected override void ConfigureWidget()
@@ -149,5 +149,11 @@ namespace Vodovoz.Views.Client
 		}
 
 		ISupplierPriceNode GetSelectedTreeItem() => yTreePrices.GetSelectedObject<ISupplierPriceNode>();
+
+		protected override void OnDestroyed()
+		{
+			ViewModel.Dispose();
+			base.OnDestroyed();
+		}
 	}
 }

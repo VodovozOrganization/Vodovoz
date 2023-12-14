@@ -19,6 +19,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using Autofac;
 using Vodovoz.Domain.Documents.InventoryDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -44,6 +45,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 		private IEnumerable<Nomenclature> _nomenclaturesWithDiscrepancies = new List<Nomenclature>();
 		private SelectableParametersReportFilter _filter;
 		private InventoryDocumentItem _selectedInventoryDocumentItem;
+		private ILifetimeScope _lifetimeScope;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IWarehouseRepository _warehouseRepository;
 		private readonly StoreDocumentHelper _storeDocumentHelper;
@@ -395,7 +397,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 
 		private void AddItem()
 		{
-			var nomenclatureSelector = NomenclatureJournalFactory.CreateNomenclatureSelector();
+			var nomenclatureSelector = NomenclatureJournalFactory.CreateNomenclatureSelector(_lifetimeScope);
 			var nomenclatureJournalViewModel = NavigationManager.OpenViewModel<NomenclaturesJournalViewModel, IEntitySelector>(this, nomenclatureSelector).ViewModel;
 			nomenclatureJournalViewModel.SelectionMode = JournalSelectionMode.Single;
 			nomenclatureJournalViewModel.OnEntitySelectedResult += NomenclatureSelectorOnEntitySelectedResult;

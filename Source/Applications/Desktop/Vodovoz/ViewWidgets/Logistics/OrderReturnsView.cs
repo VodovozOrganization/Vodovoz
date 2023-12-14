@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.GtkWidgets;
 using Gtk;
 using QS.Dialog;
@@ -18,6 +18,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading;
+using Microsoft.Extensions.Logging;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
@@ -40,12 +41,10 @@ using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Converters;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
-using Vodovoz.Settings.Nomenclature;
-using Vodovoz.TempAdapters;
+using Vodovoz.Settings.Database;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
@@ -134,6 +133,9 @@ namespace Vodovoz
 		private readonly IDiscountReasonRepository _discountReasonRepository = new DiscountReasonRepository();
 		private readonly WageParameterService _wageParameterService =
 			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(_parametersProvider));
+		private readonly INomenclatureOnlineParametersProvider _nomenclatureOnlineParametersProvider =
+			new NomenclatureOnlineParametersProvider(
+				new SettingsController(UnitOfWorkFactory.GetDefaultFactory, new Logger<SettingsController>(new LoggerFactory())));
 		private readonly RouteListItem _routeListItem;
 		private readonly IOrderDiscountsController _discountsController;
 
@@ -496,7 +498,7 @@ namespace Vodovoz
 			foreach(var item in _routeListItem.Order.OrderItems)
 			{
 				if(item.ActualCount == null)
-					item.ActualCount = 0;
+					item.SetActualCountZero();
 			}
 		}
 
@@ -796,7 +798,7 @@ namespace Vodovoz
 				}
 				else
 				{
-					orderItem.ActualCount = value;
+					orderItem.SetActualCount(value);
 				}
 			}
 		}
@@ -848,10 +850,10 @@ namespace Vodovoz
 				if(IsEquipment)
 				{
 					if(orderEquipment.OrderItem != null)
-						orderEquipment.OrderItem.Price = value;
+						orderEquipment.OrderItem.SetPrice(value);
 				}
 				else
-					orderItem.Price = value;
+					orderItem.SetPrice(value);
 			}
 		}
 
@@ -867,9 +869,9 @@ namespace Vodovoz
 			set
 			{
 				if(IsEquipment)
-					orderEquipment.OrderItem.IsDiscountInMoney = orderEquipment.OrderItem != null && value;
+					orderEquipment.OrderItem.SetIsDiscountInMoney(orderEquipment.OrderItem != null && value);
 				else
-					orderItem.IsDiscountInMoney = value;
+					orderItem.SetIsDiscountInMoney(value);
 			}
 		}
 
@@ -887,31 +889,10 @@ namespace Vodovoz
 				if(IsEquipment)
 				{
 					if(orderEquipment.OrderItem != null)
-						orderEquipment.OrderItem.ManualChangingDiscount = value;
+						orderEquipment.OrderItem.SetManualChangingDiscount(value);
 				}
 				else
-					orderItem.ManualChangingDiscount = value;
-			}
-		}
-
-		public decimal DiscountSetter
-		{
-			get
-			{
-				if(IsEquipment)
-					return orderEquipment.OrderItem != null ? orderEquipment.OrderItem.DiscountSetter : 0;
-				return orderItem.DiscountSetter;
-			}
-
-			set
-			{
-				if(IsEquipment)
-				{
-					if(orderEquipment.OrderItem != null)
-						orderEquipment.OrderItem.DiscountSetter = value;
-				}
-				else
-					orderItem.DiscountSetter = value;
+					orderItem.SetManualChangingDiscount(value);
 			}
 		}
 
@@ -928,10 +909,10 @@ namespace Vodovoz
 				if(IsEquipment)
 				{
 					if(orderEquipment.OrderItem != null)
-						orderEquipment.OrderItem.Discount = value;
+						orderEquipment.OrderItem.SetDiscount(value);
 				}
 				else
-					orderItem.Discount = value;
+					orderItem.SetDiscount(value);
 			}
 		}
 
