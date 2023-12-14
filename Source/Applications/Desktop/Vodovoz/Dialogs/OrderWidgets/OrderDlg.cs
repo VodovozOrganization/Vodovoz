@@ -167,6 +167,8 @@ namespace Vodovoz
 		private SelectPaymentTypeViewModel _selectPaymentTypeViewModel;
 
 		private int _previousDeliveryPointId;
+		private int _paidDeliveryNomenclatureId;
+
 		private IOrganizationProvider organizationProvider;
 		private ICounterpartyContractRepository counterpartyContractRepository;
 		private ICounterpartyContractFactory counterpartyContractFactory;
@@ -536,6 +538,7 @@ namespace Vodovoz
 
 		public void ConfigureDlg()
 		{
+			_paidDeliveryNomenclatureId = _nomenclatureParametersProvider.PaidDeliveryNomenclatureId;
 			_orderService = _lifetimeScope.Resolve<IOrderService>();
 			NavigationManager = Startup.MainWin.NavigationManager;
 			_selectPaymentTypeViewModel = new SelectPaymentTypeViewModel(NavigationManager);
@@ -3888,7 +3891,7 @@ namespace Vodovoz
 		void FixPrice(int id)
 		{
 			OrderItem item = Entity.ObservableOrderItems[id];
-			if(item.Nomenclature.Category == NomenclatureCategory.deposit && item.Price != 0)
+			if(item.Nomenclature.Category == NomenclatureCategory.deposit && item.Price != 0 || item.Nomenclature.Id == _paidDeliveryNomenclatureId)
 				return;
 			item.RecalculatePrice();
 		}
@@ -3906,6 +3909,7 @@ namespace Vodovoz
 		/// дополнительном соглашении
 		/// </summary>
 		private bool OrderItemEquipmentCountHasChanges;
+
 
 		/// <summary>
 		/// При изменении количества оборудования в списке товаров меняет его
