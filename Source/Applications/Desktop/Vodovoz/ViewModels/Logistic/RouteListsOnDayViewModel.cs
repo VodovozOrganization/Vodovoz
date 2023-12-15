@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using NHibernate;
@@ -1026,7 +1026,7 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			if(row is RouteList rl)
 			{
-				return rl?.RouteListProfitability?.GrossMarginSum;
+				return rl?.RouteListProfitability?.GrossMarginPercents;
 			}
 
 			return null;
@@ -1036,7 +1036,7 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			if(row is RouteList rl)
 			{
-				return rl?.RouteListProfitability?.GrossMarginPercents;
+				return rl?.RouteListProfitability?.GrossMarginSum;
 			}
 
 			return null;
