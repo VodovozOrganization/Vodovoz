@@ -576,6 +576,7 @@
     <Compile Include="EntityRepositories\Logistic\CachedDistanceRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\CarEventRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\CompletedDriverWarehouseEventRepository.cs" />
+    <Compile Include="EntityRepositories\Logistic\CompletedEventDto.cs" />
     <Compile Include="EntityRepositories\Logistic\DeliveryShiftRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\DriverPosition.cs" />
     <Compile Include="EntityRepositories\Logistic\DriverWarehouseEventRepository.cs" />
