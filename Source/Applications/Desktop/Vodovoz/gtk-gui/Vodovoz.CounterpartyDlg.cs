@@ -370,9 +370,9 @@ namespace Vodovoz
 
 		private global::Gamma.GtkWidgets.yEntry yentryCargoReceiver;
 
-		private global::Gamma.GtkWidgets.yLabel ylabelSpecialAccount;
-
 		private global::QS.Widgets.GtkUI.SpecialListComboBox speciallistcomboboxSpecialAccount;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelSpecialAccount;
 
 		private global::Gtk.Label label23;
 
@@ -2471,17 +2471,6 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w177 = ((global::Gtk.Box.BoxChild)(this.hbox23[this.yentryCargoReceiver]));
 			w177.Position = 1;
 			// Container child hbox23.Gtk.Box+BoxChild
-			this.ylabelSpecialAccount = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelSpecialAccount.Name = "ylabelSpecialAccount";
-			this.ylabelSpecialAccount.Xalign = 1F;
-			this.ylabelSpecialAccount.LabelProp = global::Mono.Unix.Catalog.GetString("Выбор расчетного счета нашей организации для счета на оплату:");
-			this.ylabelSpecialAccount.Justify = ((global::Gtk.Justification)(1));
-			this.hbox23.Add(this.ylabelSpecialAccount);
-			global::Gtk.Box.BoxChild w178 = ((global::Gtk.Box.BoxChild)(this.hbox23[this.ylabelSpecialAccount]));
-			w178.Position = 2;
-			w178.Expand = false;
-			w178.Fill = false;
-			// Container child hbox23.Gtk.Box+BoxChild
 			this.speciallistcomboboxSpecialAccount = new global::QS.Widgets.GtkUI.SpecialListComboBox();
 			this.speciallistcomboboxSpecialAccount.Name = "speciallistcomboboxSpecialAccount";
 			this.speciallistcomboboxSpecialAccount.AddIfNotExist = false;
@@ -2489,7 +2478,19 @@ namespace Vodovoz
 			this.speciallistcomboboxSpecialAccount.ShowSpecialStateAll = false;
 			this.speciallistcomboboxSpecialAccount.ShowSpecialStateNot = false;
 			this.hbox23.Add(this.speciallistcomboboxSpecialAccount);
-			global::Gtk.Box.BoxChild w179 = ((global::Gtk.Box.BoxChild)(this.hbox23[this.speciallistcomboboxSpecialAccount]));
+			global::Gtk.Box.BoxChild w178 = ((global::Gtk.Box.BoxChild)(this.hbox23[this.speciallistcomboboxSpecialAccount]));
+			w178.PackType = ((global::Gtk.PackType)(1));
+			w178.Position = 2;
+			w178.Expand = false;
+			w178.Fill = false;
+			// Container child hbox23.Gtk.Box+BoxChild
+			this.ylabelSpecialAccount = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelSpecialAccount.Name = "ylabelSpecialAccount";
+			this.ylabelSpecialAccount.Xalign = 1F;
+			this.ylabelSpecialAccount.LabelProp = global::Mono.Unix.Catalog.GetString("Выбор расчетного счета нашей организации для счета на оплату:");
+			this.ylabelSpecialAccount.Justify = ((global::Gtk.Justification)(1));
+			this.hbox23.Add(this.ylabelSpecialAccount);
+			global::Gtk.Box.BoxChild w179 = ((global::Gtk.Box.BoxChild)(this.hbox23[this.ylabelSpecialAccount]));
 			w179.PackType = ((global::Gtk.PackType)(1));
 			w179.Position = 3;
 			w179.Expand = false;
