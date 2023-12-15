@@ -161,7 +161,7 @@ namespace Vodovoz.ViewWidgets.Store
 			var filter = new NomenclatureFilterViewModel();
 			filter.IsDefectiveBottle = true;
 
-			var nomenclatureJournalFactory = new NomenclatureJournalFactory();
+			var nomenclatureJournalFactory = new NomenclatureJournalFactory(_lifetimeScope);
 			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel(_lifetimeScope, filter, true);
 			journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult;
 			

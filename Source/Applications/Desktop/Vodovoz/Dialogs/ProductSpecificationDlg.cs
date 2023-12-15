@@ -34,7 +34,7 @@ namespace Vodovoz
 		{
 			entryName.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
 
-			var nomenclatureSelectorFactory = new NomenclatureJournalFactory();
+			var nomenclatureSelectorFactory = new NomenclatureJournalFactory(_lifetimeScope);
 			entryProduct.SetEntityAutocompleteSelectorFactory(nomenclatureSelectorFactory.GetDefaultNomenclatureSelectorFactory(_lifetimeScope));
 			entryProduct.Binding.AddBinding(Entity, e => e.Product, w => w.Subject).InitializeFromSource();
 

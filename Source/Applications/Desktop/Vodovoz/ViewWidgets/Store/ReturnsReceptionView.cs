@@ -306,7 +306,7 @@ namespace Vodovoz
 					.Where(c => c != NomenclatureCategory.bottle && c != NomenclatureCategory.equipment)
 					.ToArray();
 
-			var nomenclatureJournalFactory = new NomenclatureJournalFactory();
+			var nomenclatureJournalFactory = new NomenclatureJournalFactory(_lifetimeScope);
 			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel(_lifetimeScope, filter, true);
 			journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult;
 

@@ -1,3 +1,4 @@
+﻿using Autofac;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;

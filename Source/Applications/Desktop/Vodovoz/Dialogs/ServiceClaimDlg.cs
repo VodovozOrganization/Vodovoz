@@ -108,7 +108,7 @@ namespace Vodovoz
 
 		void ConfigureDlg ()
 		{
-			_nomenclatureJournalFactory = new NomenclatureJournalFactory();
+			_nomenclatureJournalFactory = new NomenclatureJournalFactory(_lifetimeScope);
 			enumStatus.Sensitive = enumType.Sensitive = false;
 			enumStatusEditable.Sensitive = true;
 			notebook1.ShowTabs = false;

@@ -97,7 +97,7 @@ namespace Vodovoz.ViewWidgets
 			var filter = new NomenclatureFilterViewModel();
 			filter.RestrictCategory = NomenclatureCategory.equipment;
 
-			var nomenclatureJournalFactory = new NomenclatureJournalFactory();
+			var nomenclatureJournalFactory = new NomenclatureJournalFactory(_lifetimeScope);
 			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel(_lifetimeScope);
 			journal.FilterViewModel = filter;
 			journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult;

@@ -91,7 +91,7 @@ namespace Vodovoz
 			var filter = new NomenclatureFilterViewModel();
 			filter.AvailableCategories = Nomenclature.GetCategoriesForProductMaterial();
 
-			NomenclatureJournalFactory nomenclatureJournalFactory = new NomenclatureJournalFactory();
+			NomenclatureJournalFactory nomenclatureJournalFactory = new NomenclatureJournalFactory(_lifetimeScope);
 			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel(_lifetimeScope);
 			journal.FilterViewModel = filter;
 			journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult;

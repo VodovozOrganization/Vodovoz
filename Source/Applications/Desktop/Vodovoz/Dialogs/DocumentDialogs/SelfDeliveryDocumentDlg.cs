@@ -57,7 +57,7 @@ namespace Vodovoz
 			this.Build();
 
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<SelfDeliveryDocument>();
-			_nomenclatureSelectorFactory = new NomenclatureJournalFactory();
+			_nomenclatureSelectorFactory = new NomenclatureJournalFactory(_lifetimeScope);
 
 			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {

@@ -1364,7 +1364,7 @@ public partial class MainWindow
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<ProducedProductionReport>(),
 			() => new QSReport.ReportViewDlg(
-				new ProducedProductionReport(new NomenclatureJournalFactory())));
+				new ProducedProductionReport(new NomenclatureJournalFactory(_autofacScope))));
 	}
 
 	#endregion Производство

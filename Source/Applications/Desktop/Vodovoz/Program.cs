@@ -108,6 +108,7 @@ using Vodovoz.ReportsParameters.Retail;
 using Vodovoz.ReportsParameters.Sales;
 using Vodovoz.ReportsParameters.Store;
 using Vodovoz.Services;
+using Vodovoz.Services.Logistics;
 using Vodovoz.Services.Permissions;
 using Vodovoz.Settings.Database;
 using Vodovoz.SidePanel.InfoViews;
@@ -714,7 +715,7 @@ namespace Vodovoz
 						.AddScoped<IRdlTextBoxFactory, RdlTextBoxFactory>()
 						.AddScoped<IEventsQrPlacer, EventsQrPlacer>()
 						.AddApplication()
-						.AddBusiness();
+						.AddBusiness()
 						
 
 						//Messages
