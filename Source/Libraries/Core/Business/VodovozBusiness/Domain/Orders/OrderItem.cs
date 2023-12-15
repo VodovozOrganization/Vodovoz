@@ -746,7 +746,7 @@ namespace Vodovoz.Domain.Orders
 				DiscountReason = null;
 			}
 
-			Discount = discount;
+			CalculateAndSetDiscount(discount);
 			RecalculateVAT();
 		}
 
@@ -764,7 +764,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual void SetDiscount(bool isDiscountInMoney, decimal discount, DiscountReason discountReason)
 		{
 			IsDiscountInMoney = isDiscountInMoney;
-			Discount = discount;
+			CalculateAndSetDiscount(discount);
 			DiscountReason = discountReason;
 			RecalculateVAT();
 		}

@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
@@ -168,6 +168,7 @@ namespace Vodovoz
 
 		private int _previousDeliveryPointId;
 		private int _paidDeliveryNomenclatureId;
+		private int _advancedPaymentNomenclatureId;
 
 		private IOrganizationProvider organizationProvider;
 		private ICounterpartyContractRepository counterpartyContractRepository;
@@ -539,6 +540,7 @@ namespace Vodovoz
 		public void ConfigureDlg()
 		{
 			_paidDeliveryNomenclatureId = _nomenclatureParametersProvider.PaidDeliveryNomenclatureId;
+			_advancedPaymentNomenclatureId = _nomenclatureParametersProvider.AdvancedPaymentNomenclatureId;
 			_orderService = _lifetimeScope.Resolve<IOrderService>();
 			NavigationManager = Startup.MainWin.NavigationManager;
 			_selectPaymentTypeViewModel = new SelectPaymentTypeViewModel(NavigationManager);
@@ -3888,11 +3890,16 @@ namespace Vodovoz
 			}
 		}
 
-		void FixPrice(int id)
+		private void FixPrice(int id)
 		{
 			OrderItem item = Entity.ObservableOrderItems[id];
-			if(item.Nomenclature.Category == NomenclatureCategory.deposit && item.Price != 0 || item.Nomenclature.Id == _paidDeliveryNomenclatureId)
+			if(item.Nomenclature.Category == NomenclatureCategory.deposit && item.Price != 0
+				|| item.Nomenclature.Id == _paidDeliveryNomenclatureId
+				|| item.Nomenclature.Id == _advancedPaymentNomenclatureId)
+			{
 				return;
+			}
+
 			item.RecalculatePrice();
 		}
 
