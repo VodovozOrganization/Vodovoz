@@ -156,7 +156,7 @@ namespace Vodovoz.EntityRepositories.Store
 				.SelectList(list => list
 					.Select(ggv => ggv.BaseLatitude).WithAlias(() => resultAlias.Latitude)
 					.Select(ggv => ggv.BaseLongitude).WithAlias(() => resultAlias.Longitude)
-					.Select(() => warehouseAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => geoGroupAlias.Id).WithAlias(() => resultAlias.GeoGroupId)
 					.Select(() => warehouseAlias.Address).WithAlias(() => resultAlias.Address)
 				)
 				.TransformUsing(Transformers.AliasToBean<SelfDeliveryAddressDto>())
