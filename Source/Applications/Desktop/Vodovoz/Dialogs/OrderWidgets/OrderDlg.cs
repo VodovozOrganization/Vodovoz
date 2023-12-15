@@ -2945,7 +2945,7 @@ namespace Vodovoz
 						f.SelectSaleCategory = SaleCategory.forSale;
 						f.RestrictArchive = false;
 					},
-					OpenPageOptions.AsSlave,
+					OpenPageOptions.AsSlaveIgnoreHash,
 					vm =>
 					{
 						vm.SelectionMode = JournalSelectionMode.Single;
