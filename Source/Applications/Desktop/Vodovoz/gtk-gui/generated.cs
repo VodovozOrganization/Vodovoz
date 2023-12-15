@@ -65,7 +65,7 @@ namespace Stetic
 				global::Gtk.IconSet w27 = new global::Gtk.IconSet(global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.pacs.pacs-disabled.png"));
 				w1.Add("pacs-disabled", w27);
 				global::Gtk.IconSet w28 = new global::Gtk.IconSet(global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.pacs.coffee-break-allowed.png"));
-				w1.Add("coffee-break-allowed", w28);				
+				w1.Add("coffee-break-allowed", w28);
 				global::Gtk.IconSet w29 = new global::Gtk.IconSet(global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.pacs.coffee-break-active.png"));
 				w1.Add("coffee-break-active", w29);
 				global::Gtk.IconSet w30 = new global::Gtk.IconSet(global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.pacs.coffee-break-default.png"));
