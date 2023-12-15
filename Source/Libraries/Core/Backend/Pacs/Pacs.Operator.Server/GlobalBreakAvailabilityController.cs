@@ -22,5 +22,11 @@ namespace Pacs.Server
 		{
 			return await Task.FromResult(_globalBreakController.BreakAvailability);
 		}
+
+		[HttpGet("get-operators-on-break")]
+		public async Task<OperatorsOnBreakEvent> GetOperatorsOnBreak()
+		{
+			return await Task.FromResult(_globalBreakController.GetOperatorsOnBreak());
+		}
 	}
 }

@@ -158,7 +158,7 @@ namespace Pacs.Server
 					return new OperatorResult(GetResultContent(), $"В данный момент нельзя начать перерыв");
 				}
 
-				await _operatorAgent.StartBreak();
+				await _operatorAgent.StartBreak(breakType);
 				return new OperatorResult(GetResultContent());
 			}
 			catch(Exception ex)

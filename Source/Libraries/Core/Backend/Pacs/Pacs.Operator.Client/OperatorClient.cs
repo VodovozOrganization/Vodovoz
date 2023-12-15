@@ -272,6 +272,28 @@ namespace Pacs.Operators.Client
 			}
 		}
 
+		public async Task<OperatorsOnBreakEvent> GetOperatorsOnBreak()
+		{
+			var uri = $"{_pacsSettings.OperatorApiUrl}/pacs/global-break-availability/get-operators-on-break";
+			_httpClient.DefaultRequestHeaders.Clear();
+			_httpClient.DefaultRequestHeaders.Add("ApiKey", _pacsSettings.OperatorApiKey);
+
+			try
+			{
+				var response = await _httpClient.GetAsync(uri);
+				var responseContent = await response.Content.ReadAsStringAsync();
+				var result = JsonSerializer.Deserialize<OperatorsOnBreakEvent>(responseContent, _jsonSerializerOptions);
+				return result;
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Ошибка при получении состояния возможности перерыва");
+				throw;
+			}
+		}
+
+		
+
 		public void OnNext(OperatorStateEvent value)
 		{
 			StateChanged?.Invoke(this, value);

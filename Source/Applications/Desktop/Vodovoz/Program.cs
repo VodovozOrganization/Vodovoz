@@ -733,17 +733,22 @@ namespace Vodovoz
 						{
 							//Оператор
 							busCfg.AddConsumer<OperatorStateConsumer>(typeof(OperatorStateConsumerDefinition));
+							busCfg.AddConsumer<OperatorsOnBreakConsumer>(typeof(OperatorsOnBreakConsumerDefinition));
+							busCfg.AddConsumer<OperatorSettingsConsumer>(typeof(OperatorSettingsConsumerDefinition));
 							//Админ
 							busCfg.AddConsumer<OperatorStateAdminConsumer>(typeof(OperatorStateAdminConsumerDefinition));
 							busCfg.AddConsumer<SettingsConsumer>(typeof(SettingsConsumerDefinition));
 							busCfg.AddConsumer<PacsCallEventConsumer>(typeof(PacsCallEventConsumerDefinition));
+							
 						}
 						//Exclude необходим для отложенного запуска конечной точки, или отмены запуска по условию
 						//При этом добавление определения потребителя в конфигурации обязательно
 						,(filter) => {
 							filter.Exclude<SettingsConsumer>();
+							filter.Exclude<OperatorSettingsConsumer>();
 							filter.Exclude<OperatorStateAdminConsumer>();
 							filter.Exclude<OperatorStateConsumer>();
+							filter.Exclude<OperatorsOnBreakConsumer>();
 							filter.Exclude<PacsCallEventConsumer>();
 						}
 					);

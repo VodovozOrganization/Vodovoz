@@ -1,11 +1,11 @@
 ﻿using Core.Infrastructure;
 using MassTransit;
-using MassTransit.Transports;
 using Pacs.Core;
 using Pacs.Core.Messages.Events;
 using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Pacs.Admin.Client
@@ -64,7 +64,7 @@ namespace Pacs.Admin.Client
 
 		public void Dispose()
 		{
-			foreach(var observer in _observers)
+			foreach(var observer in _observers.ToList())
 			{
 				observer.OnCompleted();
 			}

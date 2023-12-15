@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Pacs.Admin.Client;
 using Pacs.Calls;
 using Pacs.Core.Messages.Events;
 using System;
@@ -20,6 +21,12 @@ namespace Pacs.Operators.Client
 
 				.AddSingleton<GlobalBreakAvailabilityConsumer>()
 				.AddSingleton<IObservable<GlobalBreakAvailability>>(ctx => ctx.GetService<GlobalBreakAvailabilityConsumer>())
+
+				.AddSingleton<OperatorsOnBreakConsumer>()
+				.AddSingleton<IObservable<OperatorsOnBreakEvent>>(ctx => ctx.GetService<OperatorsOnBreakConsumer>())
+
+				.AddSingleton<OperatorSettingsConsumer>()
+
 				//.AddSingleton<OperatorStateConsumer>()
 				//.AddSingleton<IConsumer<OperatorState>, OperatorStateConsumer>()
 				//.AddSingleton<IObservable<OperatorState>, OperatorStateConsumer>()

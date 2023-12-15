@@ -22,6 +22,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Pacs
 			Map(x => x.PhoneNumber).Column("phone_number");
 			Map(x => x.CallId).Column("call_id");
 			Map(x => x.DisconnectionType).Column("disconnection_type");
+			Map(x => x.BreakType).Column("break_type");
 		}
 	}
 }

@@ -5,6 +5,7 @@ using Pacs.Core.Messages.Events;
 using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Pacs.Operators.Client
@@ -63,7 +64,7 @@ namespace Pacs.Operators.Client
 
 		public void Dispose()
 		{
-			foreach(var observer in _observers)
+			foreach(var observer in _observers.ToList())
 			{
 				observer.OnCompleted();
 			}

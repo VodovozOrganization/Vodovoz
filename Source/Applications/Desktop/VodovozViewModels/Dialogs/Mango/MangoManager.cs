@@ -456,6 +456,10 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 
 		public List<PhoneEntry> GetPhoneBook()
 		{
+			if(_mangoServiceClient == null)
+			{
+				return new List<PhoneEntry>();
+			}
 			return _mangoServiceClient.GetPhonebook();
 		}
 

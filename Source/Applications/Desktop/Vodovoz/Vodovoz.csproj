@@ -417,6 +417,7 @@
     <Compile Include="Additions\Logistic\TrackPointsExtensions.cs" />
     <Compile Include="Additions\Printing\EntityDocumentsPrinterFactory.cs" />
     <Compile Include="Additions\SmsPaymentSender.cs" />
+    <Compile Include="Infrastructure\Converters\TextToColoredTextConverter.cs" />
     <Compile Include="JournalColumnsConfigs\InnerPhonesJournalRegistrar.cs" />
     <Compile Include="MessagesHostedService.cs" />
     <Compile Include="Cash\Reports\CashFlowAnalysisView.ReportLine.cs" />

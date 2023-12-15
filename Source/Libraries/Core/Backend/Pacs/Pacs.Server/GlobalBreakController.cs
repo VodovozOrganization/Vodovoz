@@ -19,6 +19,7 @@ namespace Pacs.Operators.Server
 		private readonly IPacsRepository _pacsRepository;
 		private readonly IBreakAvailabilityNotifier _breakAvailabilityNotifier;
 		private IPacsDomainSettings _actualSettings;
+		private List<OperatorState> _onBreak = new List<OperatorState>();
 
 		internal event EventHandler<SettingsChangedEventArgs> SettingsChanged;
 		public GlobalBreakAvailability BreakAvailability { get; private set; }
@@ -51,6 +52,7 @@ namespace Pacs.Operators.Server
 		{
 			var operatorsOnBreak = _pacsRepository.GetOperatorsOnBreak(DateTime.Today);
 			UpdateBreakAvailability(operatorsOnBreak, _actualSettings);
+			NotifyOperatorsOnBreak(operatorsOnBreak);
 		}
 
 		private void UpdateBreakAvailability(IEnumerable<OperatorState> operatorsOnBreak, IPacsDomainSettings currentSettings)
@@ -74,7 +76,6 @@ namespace Pacs.Operators.Server
 			{
 				BreakAvailability = globalBreakAvailable;
 				_breakAvailabilityNotifier.NotifyGlobalBreakAvailability(globalBreakAvailable);
-				NotifyOperatorsOnBreak(operatorsOnBreak);
 			}
 		}
 
@@ -122,9 +123,56 @@ namespace Pacs.Operators.Server
 			return allowByMaxOperators;
 		}
 
+
+		/*internal void UpdateOperatorsOnBreak()
+		{
+			var operatorsOnBreak = _pacsRepository.GetOperatorsOnBreak(DateTime.Today);
+			NotifyOperatorsOnBreak(operatorsOnBreak);
+		}*/
+
 		private void NotifyOperatorsOnBreak(IEnumerable<OperatorState> operatorsOnBreak)
 		{
-			var result  = new List<OperatorState>();
+			bool hasChanges = false;
+			var newOnBreak = operatorsOnBreak.ToList();
+			if(_onBreak.Count != newOnBreak.Count)
+			{
+				hasChanges = true;
+			}
+			else
+			{
+				for(int i = 0; i < newOnBreak.Count; i++)
+				{
+					if(newOnBreak[i].BreakType != _onBreak[i].BreakType)
+					{
+						hasChanges = true;
+						break;
+					}
+					if(newOnBreak[i].OperatorId != _onBreak[i].OperatorId)
+					{
+						hasChanges = true;
+						break;
+					}
+					if(newOnBreak[i].Ended != _onBreak[i].Ended)
+					{
+						hasChanges = true;
+						break;
+					}
+				}
+			}
+			
+			if(!hasChanges)
+			{
+				return;
+			}
+
+			_onBreak = newOnBreak;
+			var operatorsOnBreakEvent = GetOperatorsOnBreak(_onBreak);
+			_breakAvailabilityNotifier.NotifyOperatorsOnBreak(operatorsOnBreakEvent);
+		}
+
+		private OperatorsOnBreakEvent GetOperatorsOnBreak(IEnumerable<OperatorState> operatorsOnBreak)
+		{
+			var result = new List<OperatorState>();
 			foreach(var state in operatorsOnBreak.GroupBy(x => x.OperatorId))
 			{
 				var onBreakOperator = state.Where(x => x.Ended == null).LastOrDefault();
@@ -137,10 +185,16 @@ namespace Pacs.Operators.Server
 
 			var onBreakEvent = new OperatorsOnBreakEvent
 			{
-				OnBreak	= result
+				OnBreak = result
 			};
+			return onBreakEvent;
+		}
 
-			_breakAvailabilityNotifier.NotifyOperatorsOnBreak(onBreakEvent);
-		} 
+		public OperatorsOnBreakEvent GetOperatorsOnBreak()
+		{
+			var operatorsOnBreak = _pacsRepository.GetOperatorsOnBreak(DateTime.Today);
+			var result = GetOperatorsOnBreak(operatorsOnBreak);
+			return result;
+		}
 	}
 }

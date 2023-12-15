@@ -61,12 +61,13 @@ namespace Pacs.Operators.Server
 		private OperatorBreakAvailability GetNewBreakAvailability(IEnumerable<OperatorState> states)
 		{
 			var breakAvailability = new OperatorBreakAvailability();
+			breakAvailability.OperatorId = _operatorId;
 
 			var longLimitValidated = ValidateLongBreakLimitRestriction(states, _settings);
 			if(!longLimitValidated)
 			{
 				breakAvailability.LongBreakAvailable = false;
-				breakAvailability.LongBreakDescription = $"Превышено кол-во больших перерывов в день. (Макс. {_settings.LongBreakCountPerDay}) ";
+				breakAvailability.LongBreakDescription = $"Превышено кол-во больших перерывов в день. (Макс. {_settings.LongBreakCountPerDay})";
 			}
 
 			var shortBreakAllowedAt = WhenShortBreakAllowed(states, _settings);

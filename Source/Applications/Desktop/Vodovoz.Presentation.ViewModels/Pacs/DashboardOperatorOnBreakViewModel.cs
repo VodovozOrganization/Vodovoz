@@ -1,4 +1,6 @@
-﻿using QS.Dialog;
+﻿using Gamma.Utilities;
+using Pacs.Server;
+using QS.Dialog;
 using QS.ViewModels;
 using System;
 using System.ComponentModel;
@@ -15,6 +17,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		private IPacsDomainSettings _settings;
 		private DateTime? _breakStartTime;
 		private bool _breakTimeGone;
+		private OperatorBreakType _breakType;
 		private string _name;
 		private string _phone;
 
@@ -25,6 +28,10 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 			_settings = operatorModel.Settings;
 
+			if(_model.CurrentState.BreakType.HasValue)
+			{
+				BreakType = _model.CurrentState.BreakType.Value;
+			}
 			Name = _model.Employee.GetPersonNameWithInitials();
 			Phone = _model.CurrentState.PhoneNumber;
 			BreakStartTime = _model.CurrentState.Started;
@@ -44,6 +51,14 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		}
 
 		public OperatorModel Model => _model;
+
+		public virtual OperatorBreakType BreakType
+		{
+			get => _breakType;
+			set => SetField(ref _breakType, value);
+		}
+
+		public string Break => BreakType.GetEnumTitle();
 
 		public virtual string Name
 		{
@@ -78,8 +93,17 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 				{
 					return "";
 				}
-				;
-				var remains = BreakStartTime.Value + _settings.LongBreakDuration - DateTime.Now;
+
+				TimeSpan remains;
+				if(BreakType == OperatorBreakType.Long)
+				{
+					remains = BreakStartTime.Value + _settings.LongBreakDuration - DateTime.Now;
+				}
+				else
+				{
+					remains = BreakStartTime.Value + _settings.ShortBreakDuration - DateTime.Now;
+				}
+
 				BreakTimeGone = remains < TimeSpan.Zero;
 				var format = (_breakTimeGone ? "\\-" : "") + "hh\\:mm";
 				return remains.ToString(format);

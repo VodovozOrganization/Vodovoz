@@ -89,6 +89,8 @@ public partial class MainWindow : Gtk.Window
 				endpointConnector.TryConnectEndpoint<OperatorStateAdminConsumerDefinition>(),
 				endpointConnector.TryConnectEndpoint<OperatorStateConsumerDefinition>(),
 				endpointConnector.TryConnectEndpoint<PacsCallEventConsumerDefinition>(),
+				endpointConnector.TryConnectEndpoint<OperatorsOnBreakConsumerDefinition>(),
+				endpointConnector.TryConnectEndpoint<OperatorSettingsConsumerDefinition>(),
 			};
 			await Task.WhenAll(connectEndpointTasks);
 		});

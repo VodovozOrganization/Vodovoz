@@ -1,7 +1,6 @@
 ﻿using MassTransit;
 using Pacs.Core;
-using RabbitMQ.Client;
-using Vodovoz.Core.Domain.Pacs;
+using Pacs.Core.Messages.Events;
 
 namespace Pacs.Server
 {
@@ -11,7 +10,7 @@ namespace Pacs.Server
 		{
 			cfg.AddPacsBaseTopology(context);
 
-			cfg.Send<OperatorState>(x => x.UseRoutingKeyFormatter(ctx => $"pacs.operator.state.{ctx.Message.OperatorId}."));
+			cfg.Send<OperatorStateEvent>(x => x.UseRoutingKeyFormatter(ctx => $"pacs.operator.state.{ctx.Message.State.OperatorId}."));
 		}
 	}
 }

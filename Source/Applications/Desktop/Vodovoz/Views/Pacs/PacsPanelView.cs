@@ -2,6 +2,9 @@
 using QS.Views.GtkUI;
 using System;
 using System.ComponentModel;
+using Vodovoz.Extensions;
+using Vodovoz.Infrastructure;
+using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Presentation.ViewModels.Pacs;
 
 namespace Vodovoz.Views.Pacs
@@ -24,34 +27,48 @@ namespace Vodovoz.Views.Pacs
 				return;
 			}
 
+			buttonLongBreak.HasTooltip = true;
+			buttonLongBreak.TooltipText = "Большой перерыв";
 			buttonLongBreak.BindCommand(ViewModel.LongBreakCommand);
 			buttonLongBreak.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.PacsEnabled, w => w.Visible)
 				.InitializeFromSource();
 
+			buttonShortBreak.HasTooltip = true;
+			buttonShortBreak.TooltipText = "Малый перерыв";
 			buttonShortBreak.BindCommand(ViewModel.ShortBreakCommand);
 			buttonShortBreak.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.PacsEnabled, w => w.Visible)
 				.InitializeFromSource();
 
+			buttonPacs.HasTooltip = true;
+			buttonPacs.TooltipText = "Открыть диалог СКУД";
 			buttonPacs.BindCommand(ViewModel.OpenPacsDialogCommand);
 			buttonPacs.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.PacsEnabled, w => w.Visible)
 				.InitializeFromSource();
 
-			labelPacs.Visible = false;
-
+			labelPacs.UseMarkup = true;
+			labelPacs.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.PacsInfo, w => w.LabelProp, new TextToColoredTextConverter(GetPacsLabelColor))
+				/*.AddFuncBinding(vm => string.Format("<span foreground=\"{0}\"{1}</span>", 
+					vm.BreakTimeGone ? GdkColors.DangerText.ToHtmlColor() : GdkColors.PrimaryText.ToHtmlColor(),
+					vm.PacsInfo
+				), w => w.LabelProp)*/
+				.InitializeFromSource();
 			
-			/*labelPacs.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.PacsEnabled, w => w.Visible)
-				.InitializeFromSource();*/
-
+			buttonMango.HasTooltip = true;
+			buttonMango.TooltipText = "Открыть диалог звонков Манго";
 			buttonMango.BindCommand(ViewModel.OpenMangoDialogCommand);
-
-			/*labelMango.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.MangoState, w => w.LabelProp)
-				.InitializeFromSource();*/
+			labelMango.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.MangoPhone, w => w.LabelProp)
+				.InitializeFromSource();
 			ViewModel.PropertyChanged += ViewModelPropertyChanged;
+		}
+
+		private string GetPacsLabelColor()
+		{
+			return ViewModel.BreakTimeGone ? GdkColors.DangerText.ToHtmlColor() : GdkColors.PrimaryText.ToHtmlColor();
 		}
 
 		public IconSize IconSize

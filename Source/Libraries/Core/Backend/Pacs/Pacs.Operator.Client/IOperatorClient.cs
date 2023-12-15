@@ -12,6 +12,7 @@ namespace Pacs.Operators.Client
 
 		event EventHandler<OperatorStateEvent> StateChanged;
 		Task<GlobalBreakAvailability> GetGlobalBreakAvailability();
+		Task<OperatorsOnBreakEvent> GetOperatorsOnBreak();
 
 		Task<OperatorStateEvent> Connect(CancellationToken cancellationToken = default);
 		Task<OperatorStateEvent> Disconnect(CancellationToken cancellationToken = default);

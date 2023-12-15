@@ -35,6 +35,7 @@ namespace Pacs.Server
 				operatorRepository,
 				operatorNotifier,
 				phoneController,
+				globalBreakController,
 				breakController,
 				uowFactory);
 		}

@@ -1,4 +1,7 @@
-﻿using QS.Views.GtkUI;
+﻿using Gamma.ColumnConfig;
+using Gtk;
+using QS.Views.GtkUI;
+using Vodovoz.Infrastructure;
 using Vodovoz.Presentation.ViewModels.Pacs;
 
 namespace Vodovoz.Views.Pacs
@@ -40,12 +43,34 @@ namespace Vodovoz.Views.Pacs
 				.AddBinding(ViewModel, vm => vm.CanChangePhone, w => w.Visible)
 				.InitializeFromSource();*/
 
-			labelBreakInfo.Visible = false;
-			/*labelBreakInfo.Binding
-				.AddBinding(ViewModel, vm => vm.CanEndBreak, w => w.Visible)
-				.InitializeFromSource();*/
+			labelBreakInfo.Binding
+				.AddBinding(ViewModel, vm => vm.BreakInfo, w => w.LabelProp)
+				.AddBinding(ViewModel, vm => vm.HasBreakInfo, w => w.Visible)
+				.InitializeFromSource();
 
-			treeviewOperatorsOnBreak.Sensitive = false;
+			treeviewOperatorsOnBreak.ColumnsConfig = FluentColumnsConfig<DashboardOperatorOnBreakViewModel>.Create()
+				.AddColumn("Перерыв").AddReadOnlyTextRenderer(x => x.Break)
+				.AddColumn("Имя").AddReadOnlyTextRenderer(x => x.Name)
+				.AddColumn("Доб. тел.").AddReadOnlyTextRenderer(x => x.Phone)
+				.AddColumn("Осталось").AddReadOnlyTextRenderer(x => x.TimeRemains)
+				.AddColumn("")
+				.RowCells()
+					.AddSetter<CellRenderer>((cell, vm) =>
+					{
+						if(vm.BreakTimeGone)
+						{
+							cell.CellBackgroundGdk = GdkColors.DangerBase;
+						}
+						else
+						{
+							cell.CellBackgroundGdk = GdkColors.PrimaryBG;
+						}
+					})
+				.Finish();
+			treeviewOperatorsOnBreak.ColumnsAutosize();
+			treeviewOperatorsOnBreak.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.OperatorsOnBreak, w => w.ItemsDataSource)
+				.InitializeFromSource();
 
 			buttonLongBreak.BindCommand(ViewModel.StartLongBreakCommand);
 			buttonShortBreak.BindCommand(ViewModel.StartShortBreakCommand);

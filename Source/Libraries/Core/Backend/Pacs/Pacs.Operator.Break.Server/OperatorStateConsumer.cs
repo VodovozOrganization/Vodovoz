@@ -1,5 +1,6 @@
 ﻿using Core.Infrastructure;
 using MassTransit;
+using Pacs.Operators.Server;
 using RabbitMQ.Client;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Pacs;

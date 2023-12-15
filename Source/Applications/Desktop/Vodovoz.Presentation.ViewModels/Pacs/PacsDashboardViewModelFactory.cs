@@ -3,13 +3,13 @@ using System;
 
 namespace Vodovoz.Presentation.ViewModels.Pacs
 {
-	public class PacsDashboardViewModelFactory : IPacsDashboardViewModelFactory
+	public class PacsDashboardViewModelFactory : IPacsDashboardViewModelFactory//, IDisposable
 	{
-		private readonly ILifetimeScope _scope;
+		private ILifetimeScope _scope;
 
 		public PacsDashboardViewModelFactory(ILifetimeScope scope)
 		{
-			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
+			_scope = scope;
 		}
 
 		public DashboardOperatorOnBreakViewModel CreateOperatorOnBreakViewModel(OperatorModel operatorModel)
@@ -47,5 +47,11 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		{
 			return _scope.Resolve<DashboardMissedCallDetailsViewModel>(new TypedParameter(missedCallModel.GetType(), missedCallModel));
 		}
+
+		//public void Dispose()
+		//{
+		//	_scope.Dispose();
+		//	//_scope = null;
+		//}
 	}
 }

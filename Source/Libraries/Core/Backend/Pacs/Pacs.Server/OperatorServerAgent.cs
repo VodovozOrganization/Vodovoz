@@ -25,6 +25,7 @@ namespace Pacs.Server
 		private readonly IOperatorRepository _operatorRepository;
 		private readonly IOperatorNotifier _operatorNotifier;
 		private readonly IPhoneController _phoneController;
+		private readonly GlobalBreakController _globalBreakController;
 		private readonly OperatorBreakController _operatorBreakController;
 		private readonly IUnitOfWorkFactory _uowFactory;
 
@@ -38,6 +39,7 @@ namespace Pacs.Server
 		private StateMachine.TriggerWithParameters<string> _changePhoneTrigger;
 		private StateMachine.TriggerWithParameters<string> _startWorkShiftTrigger;
 		private StateMachine.TriggerWithParameters<DisconnectionType> _disconnectTrigger;
+		private StateMachine.TriggerWithParameters<OperatorBreakType> _startBreakTrigger;
 
 		public event EventHandler<int> OnDisconnect;
 
@@ -55,6 +57,7 @@ namespace Pacs.Server
 			IOperatorRepository operatorRepository,
 			IOperatorNotifier operatorNotifier,
 			IPhoneController phoneController,
+			GlobalBreakController globalBreakController,
 			OperatorBreakController operatorBreakController,
 			IUnitOfWorkFactory uowFactory
 		)
@@ -64,6 +67,7 @@ namespace Pacs.Server
 			_operatorRepository = operatorRepository ?? throw new ArgumentNullException(nameof(operatorRepository));
 			_operatorNotifier = operatorNotifier ?? throw new ArgumentNullException(nameof(operatorNotifier));
 			_phoneController = phoneController ?? throw new ArgumentNullException(nameof(phoneController));
+			_globalBreakController = globalBreakController ?? throw new ArgumentNullException(nameof(globalBreakController));
 			_operatorBreakController = operatorBreakController ?? throw new ArgumentNullException(nameof(operatorBreakController));
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 
@@ -129,29 +133,30 @@ namespace Pacs.Server
 			_changePhoneTrigger = _machine.SetTriggerParameters<string>(OperatorStateTrigger.ChangePhone);
 			_startWorkShiftTrigger = _machine.SetTriggerParameters<string>(OperatorStateTrigger.StartWorkShift);
 			_disconnectTrigger = _machine.SetTriggerParameters<DisconnectionType>(OperatorStateTrigger.Disconnect);
+			_startBreakTrigger = _machine.SetTriggerParameters<OperatorBreakType>(OperatorStateTrigger.StartBreak);
 
 			_machine.Configure(OperatorStateType.Connected)
 				.OnEntryFrom(OperatorStateTrigger.Connect, OnConnect)
 				.OnEntryFrom(OperatorStateTrigger.EndWorkShift, OnEndWorkShift)
-				.OnActivate(OnKeepAlive)
+				.OnEntry(OnKeepAlive)
 				.InternalTransition(OperatorStateTrigger.KeepAlive, OnKeepAlive);
 
 			_machine.Configure(OperatorStateType.WaitingForCall)
 				.OnEntryFrom(OperatorStateTrigger.StartWorkShift, OnStartWorkShift)
-				.OnActivate(OnKeepAlive)
+				.OnEntry(OnKeepAlive)
 				.InternalTransitionAsync(OperatorStateTrigger.ChangePhone, OnChangePhone)
 				.InternalTransition(OperatorStateTrigger.KeepAlive, OnKeepAlive);
 
 			_machine.Configure(OperatorStateType.Talk)
 				.OnEntryFrom(_takeCallTrigger, SetCall)
 				.OnExit(ClearCall)
-				.OnActivate(OnKeepAlive)
+				.OnEntry(OnKeepAlive)
 				.InternalTransition(OperatorStateTrigger.KeepAlive, OnKeepAlive);
 
 			_machine.Configure(OperatorStateType.Break)
 				.OnEntry(OnBreakStarted)
 				.OnExit(OnBreakEnded)
-				.OnActivate(OnKeepAlive)
+				.OnEntry(OnKeepAlive)
 				.InternalTransitionAsync(OperatorStateTrigger.ChangePhone, OnChangePhone)
 				.InternalTransition(OperatorStateTrigger.KeepAlive, OnKeepAlive);
 
@@ -212,9 +217,10 @@ namespace Pacs.Server
 
 			if(OperatorStateType.Break.IsIn(transition.Source, transition.Destination))
 			{
-				BreakAvailability = _operatorBreakController.GetBreakAvailability();
+				_globalBreakController.UpdateBreakAvailability();
 			}
 
+			BreakAvailability = _operatorBreakController.GetBreakAvailability();
 			await _operatorNotifier.OperatorChanged(OperatorState, BreakAvailability);
 		}
 
@@ -380,14 +386,15 @@ namespace Pacs.Server
 
 		#region Break
 
-		public async Task StartBreak()
+		public async Task StartBreak(OperatorBreakType breakType)
 		{
-			await _machine.FireAsync(OperatorStateTrigger.StartBreak);
+			await _machine.FireAsync(_startBreakTrigger, breakType);
 		}
 
-		private void OnBreakStarted()
+		private void OnBreakStarted(StateMachine.Transition transition)
 		{
-			//_operatorBreakController.StartBreak(OperatorId);
+			var breakType = (OperatorBreakType)transition.Parameters[0];
+			OperatorState.BreakType = breakType;
 			_logger.LogInformation("Оператор {OperatorId} начал перерыв", OperatorId);
 		}
 
@@ -398,7 +405,6 @@ namespace Pacs.Server
 
 		private void OnBreakEnded()
 		{
-			//_operatorBreakController.EndBreak(OperatorId);
 			_logger.LogInformation("Оператор {OperatorId} завершил перерыв", OperatorId);
 		}
 

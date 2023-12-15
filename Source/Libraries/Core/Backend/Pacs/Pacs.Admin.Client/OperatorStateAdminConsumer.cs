@@ -5,6 +5,7 @@ using Pacs.Core.Messages.Events;
 using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Pacs;
 
@@ -64,7 +65,7 @@ namespace Pacs.Admin.Client
 
 		public void Dispose()
 		{
-			foreach(var observer in _observers)
+			foreach(var observer in _observers.ToList())
 			{
 				observer.OnCompleted();
 			}

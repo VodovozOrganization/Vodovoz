@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using RabbitMQ.Client;
+using System.Linq;
 
 namespace Pacs.Operators.Client
 {
@@ -64,7 +65,7 @@ namespace Pacs.Operators.Client
 
 		public void Dispose()
 		{
-			foreach(var observer in _observers)
+			foreach(var observer in _observers.ToList())
 			{
 				observer.OnCompleted();
 			}
@@ -102,7 +103,7 @@ namespace Pacs.Operators.Client
 				rmq.Durable = true;
 				rmq.ExchangeType = ExchangeType.Fanout;
 
-				rmq.Bind<OperatorStateEvent>();
+				rmq.Bind<OperatorsOnBreakEvent>();
 			}
 		}
 	}
