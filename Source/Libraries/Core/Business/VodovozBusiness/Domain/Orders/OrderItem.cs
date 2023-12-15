@@ -696,6 +696,8 @@ namespace Vodovoz.Domain.Orders
 				IsUserPrice = (price != GetPriceByTotalCount() && price != 0 && !IsFixedPrice) || CopiedFromUndelivery != null;
 			}
 
+			price = decimal.Round(price, 2);
+
 			if(Price != price)
 			{
 				Price = price;

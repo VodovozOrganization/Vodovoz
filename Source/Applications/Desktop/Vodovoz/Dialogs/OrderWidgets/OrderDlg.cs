@@ -35,6 +35,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Data.Bindings.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -168,6 +169,7 @@ namespace Vodovoz
 
 		private int _previousDeliveryPointId;
 		private int _paidDeliveryNomenclatureId;
+		private int _fastDeliveryNomenclatureId;
 		private int _advancedPaymentNomenclatureId;
 
 		private IOrganizationProvider organizationProvider;
@@ -540,6 +542,7 @@ namespace Vodovoz
 		public void ConfigureDlg()
 		{
 			_paidDeliveryNomenclatureId = _nomenclatureParametersProvider.PaidDeliveryNomenclatureId;
+			_fastDeliveryNomenclatureId = _nomenclatureParametersProvider.FastDeliveryNomenclatureId;
 			_advancedPaymentNomenclatureId = _nomenclatureParametersProvider.AdvancedPaymentNomenclatureId;
 			_orderService = _lifetimeScope.Resolve<IOrderService>();
 			NavigationManager = Startup.MainWin.NavigationManager;
@@ -1689,7 +1692,7 @@ namespace Vodovoz
 							result = false;
 						}
 						
-						if(node.Id == _nomenclatureParametersProvider.PaidDeliveryNomenclatureId)
+						if(node.Nomenclature.Id == _paidDeliveryNomenclatureId)
 						{
 							result = false;
 						}
@@ -1699,7 +1702,7 @@ namespace Vodovoz
 							result = false;
 						}
 
-						if(node.Id == _nomenclatureParametersProvider.FastDeliveryNomenclatureId)
+						if(node.Nomenclature.Id == _fastDeliveryNomenclatureId)
 						{
 							result = false;
 						}
@@ -1726,6 +1729,7 @@ namespace Vodovoz
 					.AddNumericRenderer(node => node.Price).Digits(2).WidthChars(10)
 					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0)).Editing(true)
 					.AddSetter((c, node) => c.Editable = node.CanEditPrice)
+					.EditedEvent(OnSpinPriceEdited)
 					.AddSetter((NodeCellRendererSpin<OrderItem> c, OrderItem node) => {
 						if(Entity.OrderStatus == OrderStatus.NewOrder || (Entity.OrderStatus == OrderStatus.WaitForPayment && !Entity.SelfDelivery))//костыль. на Win10 не видна цветная цена, если виджет засерен
 						{
@@ -1886,6 +1890,18 @@ namespace Vodovoz
 
 			treeServiceClaim.ItemsDataSource = Entity.ObservableInitialOrderService;
 			treeServiceClaim.Selection.Changed += TreeServiceClaim_Selection_Changed;
+		}
+
+		private void OnSpinPriceEdited(object o, EditedArgs args)
+		{
+			decimal.TryParse(args.NewText, NumberStyles.Any, CultureInfo.InvariantCulture, out var newPrice);
+			var node = treeItems.YTreeModel.NodeAtPath(new TreePath(args.Path));
+			if(!(node is OrderItem orderItem))
+			{
+				return;
+			}
+
+			orderItem.SetPrice(newPrice);
 		}
 
 		private void OnCountEdited(object o, EditedArgs args)
@@ -3893,9 +3909,7 @@ namespace Vodovoz
 		private void FixPrice(int id)
 		{
 			OrderItem item = Entity.ObservableOrderItems[id];
-			if(item.Nomenclature.Category == NomenclatureCategory.deposit && item.Price != 0
-				|| item.Nomenclature.Id == _paidDeliveryNomenclatureId
-				|| item.Nomenclature.Id == _advancedPaymentNomenclatureId)
+			if(item.Nomenclature.Category == NomenclatureCategory.deposit && item.Price != 0)
 			{
 				return;
 			}

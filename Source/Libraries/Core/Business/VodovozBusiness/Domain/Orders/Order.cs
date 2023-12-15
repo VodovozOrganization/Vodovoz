@@ -1965,12 +1965,12 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 
-			if(deliveryPriceItem.Price == price)
+			if(delivery.Price == price)
 			{
 				return;
 			}
 
-			deliveryPriceItem.SetPrice(price);
+			delivery.SetPrice(price);
 		}
 
 		public virtual void AddOrderItem(OrderItem orderItem, bool forceUseAlternativePrice = false)
