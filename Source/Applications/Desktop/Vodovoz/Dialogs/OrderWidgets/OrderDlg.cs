@@ -169,6 +169,7 @@ namespace Vodovoz
 
 		private int _previousDeliveryPointId;
 		private int _paidDeliveryNomenclatureId;
+		private int _fastDeliveryNomenclatureId;
 		private int _advancedPaymentNomenclatureId;
 
 		private IOrganizationProvider organizationProvider;
@@ -541,6 +542,7 @@ namespace Vodovoz
 		public void ConfigureDlg()
 		{
 			_paidDeliveryNomenclatureId = _nomenclatureParametersProvider.PaidDeliveryNomenclatureId;
+			_fastDeliveryNomenclatureId = _nomenclatureParametersProvider.FastDeliveryNomenclatureId;
 			_advancedPaymentNomenclatureId = _nomenclatureParametersProvider.AdvancedPaymentNomenclatureId;
 			_orderService = _lifetimeScope.Resolve<IOrderService>();
 			NavigationManager = Startup.MainWin.NavigationManager;
@@ -1690,7 +1692,7 @@ namespace Vodovoz
 							result = false;
 						}
 						
-						if(node.Id == _nomenclatureParametersProvider.PaidDeliveryNomenclatureId)
+						if(node.Nomenclature.Id == _paidDeliveryNomenclatureId)
 						{
 							result = false;
 						}
@@ -1700,7 +1702,7 @@ namespace Vodovoz
 							result = false;
 						}
 
-						if(node.Id == _nomenclatureParametersProvider.FastDeliveryNomenclatureId)
+						if(node.Nomenclature.Id == _fastDeliveryNomenclatureId)
 						{
 							result = false;
 						}
