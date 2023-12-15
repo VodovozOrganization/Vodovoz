@@ -139,11 +139,6 @@ namespace Vodovoz.Views.Organization
 			ycheckArchieve.Binding
 				.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active)
 				.InitializeFromSource();
-
-			checkPacsEnabled.Binding
-				.AddBinding(ViewModel, vm => vm.CanEnablePacs, w => w.Sensitive)
-				.AddBinding(ViewModel.Entity, e => e.PacsTimeManagementEnabled, w => w.Active)
-				.InitializeFromSource();
 		}
 
 		private void ChildSubdivisionsReloaded(object sender, EventArgs e)
