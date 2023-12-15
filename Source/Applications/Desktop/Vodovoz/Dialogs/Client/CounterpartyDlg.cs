@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using EdoService;
 using EdoService.Converters;
 using EdoService.Dto;
@@ -143,6 +143,7 @@ namespace Vodovoz
 		private bool _currentUserCanEditCounterpartyDetails = false;
 		private bool _deliveryPointsConfigured = false;
 		private bool _documentsConfigured = false;
+		private Organization _vodovozOrganization;
 
 		public ThreadDataLoader<EmailRow> EmailDataLoader { get; private set; }
 
@@ -327,6 +328,8 @@ namespace Vodovoz
 			{
 				UoWGeneric.Root.CounterpartyContracts = new List<CounterpartyContract>();
 			}
+
+			_vodovozOrganization = UoW.GetById<Organization>(_organizationParametersProvider.VodovozOrganizationId);
 
 			ConfigureTabInfo();
 			ConfigureTabContacts();
@@ -592,6 +595,16 @@ namespace Vodovoz
 				.AddBinding(Entity, e => e.WorksThroughOrganization, w => w.SelectedItem)
 				.InitializeFromSource();
 			specialListCmbWorksThroughOrganization.Sensitive = _canSetWorksThroughOrganization && CanEdit;
+
+			specialListCmbWorksThroughOrganization.ItemSelected += (s, e) =>
+			{
+				if(e.SelectedItem is Organization organization)
+				{
+					Entity.OurOrganizationAccountForBills = null;
+
+					UpdateOurOrganizationSpecialAccountItemList();
+				}
+			};
 
 			enumTax.ItemsEnum = typeof(TaxType);
 
@@ -903,6 +916,14 @@ namespace Vodovoz
 			buttonDeleteTag.Sensitive = CanEdit;
 		}
 
+		private void UpdateOurOrganizationSpecialAccountItemList()
+		{
+			var organization = Entity.WorksThroughOrganization ?? _vodovozOrganization;
+
+			speciallistcomboboxSpecialAccount.ShowSpecialStateNot = true;
+			speciallistcomboboxSpecialAccount.ItemsList = organization.Accounts;
+		}
+
 		private void ConfigureTabSpecialFields()
 		{
 			enumcomboCargoReceiverSource.ItemsEnum = typeof(CargoReceiverSource);
@@ -920,6 +941,11 @@ namespace Vodovoz
 				.AddBinding(Entity, e => e.SpecialCustomer, w => w.Text)
 				.InitializeFromSource();
 			yentryCustomer.IsEditable = CanEdit;
+
+			UpdateOurOrganizationSpecialAccountItemList();
+			speciallistcomboboxSpecialAccount.Binding
+				.AddBinding(Entity, e => e.OurOrganizationAccountForBills, w => w.SelectedItem)
+				.InitializeFromSource();
 
 			#region Особый договор
 
