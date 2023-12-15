@@ -34,8 +34,8 @@ namespace Vodovoz.FilterViewModels
 	{
 		private readonly ICommonServices _commonServices;
 		private readonly INavigationManager _navigationManager;
-		private readonly ILifetimeScope _lifetimeScope;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
+		private ILifetimeScope _lifetimeScope;
 		private IList<ComplaintObject> _complaintObjectSource;
 		private ComplaintObject _complaintObject;
 		private readonly IList<ComplaintKind> _complaintKinds;
@@ -52,7 +52,7 @@ namespace Vodovoz.FilterViewModels
 		private Counterparty _counterparty;
 		private Subdivision _subdivision;
 		private DateTime? _startDate;
-		private DateTime _endDate = DateTime.Now;
+		private DateTime? _endDate = DateTime.Now;
 		private bool? _isForRetail;
 		private IList<ComplaintKind> _complaintKindSource;
 		private ComplaintDetalization _complainDetalization;
@@ -99,7 +99,7 @@ namespace Vodovoz.FilterViewModels
 				}
 			};
 
-			GuiltyItemVM.OnGuiltyItemReady += (sender, e) => Update();
+			GuiltyItemVM.OnGuiltyItemReady += OnGuiltyItemReady;
 
 			_complaintKinds = _complaintKindSource = UoW.GetAll<ComplaintKind>().ToList();
 
@@ -128,24 +128,32 @@ namespace Vodovoz.FilterViewModels
 
 		public ILifetimeScope LifetimeScope => _lifetimeScope;
 		public INavigationManager NavigationManager => _navigationManager;
-		public ITdiTab JournalTab { get; }
+		public ITdiTab JournalTab { get; private set; }
 
 		private IEntityEntryViewModel BuildAuthorViewModel(DialogViewModelBase journal)
 		{
-			return new CommonEEVMBuilderFactory<ComplaintFilterViewModel>(journal, this, UoW, _navigationManager, _lifetimeScope)
-				.ForProperty(x => x.Employee)
-				.UseViewModelDialog<EmployeeViewModel>()
-				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel>()
-				.Finish();
+			var authorViewModel = 
+				new CommonEEVMBuilderFactory<ComplaintFilterViewModel>(journal, this, UoW, _navigationManager, _lifetimeScope)
+					.ForProperty(x => x.Employee)
+					.UseViewModelDialog<EmployeeViewModel>()
+					.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel>()
+					.Finish();
+
+			authorViewModel.DisposeViewModel = false;
+			return authorViewModel;
 		}
 
 		private IEntityEntryViewModel BuildAtWorkInSubdivisionViewModel(DialogViewModelBase journal)
 		{
-			return new CommonEEVMBuilderFactory<ComplaintFilterViewModel>(journal, this, UoW, _navigationManager, _lifetimeScope)
-				.ForProperty(x => x.Subdivision)
-				.UseViewModelDialog<SubdivisionViewModel>()
-				.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel>()
-				.Finish();
+			var atWorkInSubdivisionViewModel = 
+				new CommonEEVMBuilderFactory<ComplaintFilterViewModel>(journal, this, UoW, _navigationManager, _lifetimeScope)
+					.ForProperty(x => x.Subdivision)
+					.UseViewModelDialog<SubdivisionViewModel>()
+					.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel>()
+					.Finish();
+
+			atWorkInSubdivisionViewModel.DisposeViewModel = false;
+			return atWorkInSubdivisionViewModel;
 		}
 
 		private IEntityEntryViewModel BuildCurrentSubdivisionViewModel(DialogViewModelBase journal)
@@ -157,6 +165,7 @@ namespace Vodovoz.FilterViewModels
 				.Finish();
 
 			currentSubdivisionViewModel.IsEditable = CanChangeSubdivision;
+			currentSubdivisionViewModel.DisposeViewModel = false;
 
 			return currentSubdivisionViewModel;
 		}
@@ -277,7 +286,7 @@ namespace Vodovoz.FilterViewModels
 			set => SetField(ref _startDate, value);
 		}
 
-		public virtual DateTime EndDate
+		public virtual DateTime? EndDate
 		{
 			get => _endDate;
 			set => SetField(ref _endDate, value);
@@ -343,11 +352,15 @@ namespace Vodovoz.FilterViewModels
 
 		private IEntityEntryViewModel BuildeGuiltyItemSubdivisionViewModel(DialogViewModelBase journal)
 		{
-			return new CommonEEVMBuilderFactory<ComplaintGuiltyItem>(journal, GuiltyItemVM.Entity, UoW, _navigationManager, _lifetimeScope)
-				.ForProperty(x => x.Subdivision)
-				.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel>()
-				.UseViewModelDialog<SubdivisionViewModel>()
-				.Finish();
+			var guiltyItemSubdivisionViewModel = 
+				new CommonEEVMBuilderFactory<ComplaintGuiltyItem>(journal, GuiltyItemVM.Entity, UoW, _navigationManager, _lifetimeScope)
+					.ForProperty(x => x.Subdivision)
+					.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel>()
+					.UseViewModelDialog<SubdivisionViewModel>()
+					.Finish();
+
+			guiltyItemSubdivisionViewModel.DisposeViewModel = false;
+			return guiltyItemSubdivisionViewModel;
 		}
 
 		private IEntityEntryViewModel BuildComplaintDetalizationViewModel(DialogViewModelBase journal)
@@ -366,6 +379,7 @@ namespace Vodovoz.FilterViewModels
 				.Finish();
 
 			complaintDetalizationViewModel.CanViewEntity = false;
+			complaintDetalizationViewModel.DisposeViewModel = false;
 
 			return complaintDetalizationViewModel;
 		}
@@ -382,7 +396,22 @@ namespace Vodovoz.FilterViewModels
 			ComplaintKindSelectorFactory =
 				_lifetimeScope.Resolve<IComplaintKindJournalFactory>(
 						new TypedParameter(typeof(ComplaintKindJournalFilterViewModel), _complaintKindJournalFilter))
-					.CreateComplaintKindAutocompleteSelectorFactory();
+					.CreateComplaintKindAutocompleteSelectorFactory(_lifetimeScope, _complaintKindJournalFilter);
+		}
+		
+		private void OnGuiltyItemReady(object sender, EventArgs e)
+		{
+			Update();
+		}
+
+		public override void Dispose()
+		{
+			_lifetimeScope = null;
+			JournalTab = null;
+			_journalViewModel = null;
+			GuiltyItemVM.OnGuiltyItemReady -= OnGuiltyItemReady;
+			GuiltyItemVM.Entity.OnGuiltyTypeChange = null;
+			base.Dispose();
 		}
 	}
 }

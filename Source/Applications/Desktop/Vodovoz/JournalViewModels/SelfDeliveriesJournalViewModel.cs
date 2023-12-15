@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -70,7 +71,7 @@ namespace Vodovoz.Representations
 
 			if(filterConfig != null)
 			{
-				filterViewModel.SetAndRefilterAtOnce(filterConfig);
+				filterViewModel.ConfigureWithoutFiltering(filterConfig);
 			}
 
 			SetOrder(x => x.Date, true);
@@ -130,8 +131,11 @@ namespace Vodovoz.Representations
 			if(FilterViewModel.StartDate != null)
 				query.Where(o => o.DeliveryDate >= FilterViewModel.StartDate);
 
-			if(FilterViewModel.EndDate != null)
-				query.Where(o => o.DeliveryDate <= FilterViewModel.EndDate.Value.AddDays(1).AddTicks(-1));
+			var endDate = FilterViewModel.EndDate;
+			if(endDate != null)
+			{
+				query.Where(o => o.DeliveryDate <= endDate.Value.LatestDayTime());
+			}
 
 			if(FilterViewModel.PaymentOrder != null) {
 				bool paymentAfterShipment = false || FilterViewModel.PaymentOrder == PaymentOrder.AfterShipment;

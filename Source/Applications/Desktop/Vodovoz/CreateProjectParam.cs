@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using QS.Dialog.Gtk;
 using QS.Permissions;
 using QS.Project.DB;
@@ -47,8 +47,10 @@ using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewers.Complaints;
 using Vodovoz.Presentation.ViewModels.Employees;
 using Vodovoz.Presentation.ViewModels.Pacs;
+using Vodovoz.Logistic;
 using Vodovoz.Presentation.ViewModels.PaymentType;
 using Vodovoz.QualityControl.Reports;
+using Vodovoz.Rent;
 using Vodovoz.Reports;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ReportsParameters.Cash;
@@ -100,6 +102,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Security;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Users;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic.DriversStopLists;
 using Vodovoz.ViewModels.Orders;
@@ -183,6 +186,9 @@ using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewWidgets.PromoSetAction;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
 using UserView = Vodovoz.Views.Users.UserView;
+using Vodovoz.ViewModels.ReportsParameters.Payments;
+using Vodovoz.ReportsParameters.Payments;
+using Vodovoz.ViewModels.ViewModels.Reports.Logistics;
 
 namespace Vodovoz
 {
@@ -323,6 +329,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<GeoGroupViewModel, GeoGroupView>()
 				.RegisterWidgetForTabViewModel<NomenclatureGroupPricingViewModel, NomenclatureGroupPricingView>()
 				.RegisterWidgetForTabViewModel<RouteListMileageCheckViewModel, Vodovoz.Views.Logistic.RouteListMileageCheckView>()
+				.RegisterWidgetForTabViewModel<RouteListTransferringViewModel, RouteListAddressesTransferringView>()
 				.RegisterWidgetForTabViewModel<RouteListMileageDistributionViewModel, RouteListMileageDistributionView>()
 				.RegisterWidgetForTabViewModel<FastDeliveryVerificationDetailsViewModel, FastDeliveryVerificationDetailsView>()
 				.RegisterWidgetForTabViewModel<FastDeliveryOrderTransferViewModel, FastDeliveryOrderTransferView>()
@@ -350,7 +357,10 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<UnknowTalkViewModel, UnknowTalkView>()
 				.RegisterWidgetForTabViewModel<IncomingCallViewModel, IncomingCallView>()
 				.RegisterWidgetForTabViewModel<InnerPhoneViewModel, InnerPhoneView>()
-
+				.RegisterWidgetForTabViewModel<NomenclatureOnlineGroupViewModel, NomenclatureOnlineGroupView>()
+				.RegisterWidgetForTabViewModel<NomenclatureOnlineCategoryViewModel, NomenclatureOnlineCategoryView>()
+				.RegisterWidgetForTabViewModel<DriverWarehouseEventViewModel, DriverWarehouseEventView>()
+				.RegisterWidgetForTabViewModel<DriversWarehousesEventsReportViewModel, DriversWarehousesEventsReportView>()
 				;
 
 			//Регистрация виджетов
@@ -479,7 +489,11 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<FastDeliveryOrderTransferFilterViewModel, FastDeliveryOrderTransferFilterView>()
 				.RegisterWidgetForWidgetViewModel<WarehousesSettingsViewModel, NamedDomainEntitiesSettingsView>()
 				.RegisterWidgetForWidgetViewModel<SelectPaymentTypeViewModel, SelectPaymentTypeWindowView>()
+				.RegisterWidgetForWidgetViewModel<FreeRentPackagesFilterViewModel, FreeRentPackagesFilterView>()
 				.RegisterWidgetForWidgetViewModel<CounterpartyClassificationCalculationEmailSettingsViewModel, CounterpartyClassificationCalculationEmailSettingsView>()
+				.RegisterWidgetForWidgetViewModel<NomenclatureOnlineCatalogViewModel, NomenclatureOnlineCatalogView>()
+				.RegisterWidgetForWidgetViewModel<DriversWarehousesEventsJournalFilterViewModel, DriversWarehousesEventsJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<CompletedDriversWarehousesEventsJournalFilterViewModel, CompletedDriversWarehousesEventsJournalFilterView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;

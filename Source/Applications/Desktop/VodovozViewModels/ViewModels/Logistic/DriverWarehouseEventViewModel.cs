@@ -1,0 +1,123 @@
+﻿using System;
+using QS.DomainModel.UoW;
+using QS.Navigation;
+using QS.Project.Domain;
+using QS.Services;
+using QS.ViewModels;
+using Vodovoz.Domain.Logistic.Drivers;
+using Autofac;
+using QS.Commands;
+using QS.ViewModels.Extension;
+using Vodovoz.EntityRepositories.Logistic;
+using VodovozInfrastructure.Services;
+
+namespace Vodovoz.ViewModels.ViewModels.Logistic
+{
+	public class DriverWarehouseEventViewModel : EntityTabViewModelBase<DriverWarehouseEvent>, IAskSaveOnCloseViewModel
+	{
+		private readonly ICoordinatesParser _coordinatesParser;
+		private readonly IDriverWarehouseEventRepository _driverWarehouseEventRepository;
+		private readonly ICompletedDriverWarehouseEventRepository _completedDriverWarehouseEventRepository;
+		private readonly ILifetimeScope _scope;
+
+		private bool _hasCompletedEvents;
+
+		private DelegateCommand<string> _setCoordinatesFromBufferCommand;
+
+		public DriverWarehouseEventViewModel(
+			IEntityUoWBuilder uowBuilder,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			INavigationManager navigation,
+			ICoordinatesParser coordinatesParser,
+			IDriverWarehouseEventRepository driverWarehouseEventRepository,
+			ICompletedDriverWarehouseEventRepository completedDriverWarehouseEventRepository,
+			ILifetimeScope scope) : base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
+		{
+			_coordinatesParser = coordinatesParser ?? throw new ArgumentNullException(nameof(coordinatesParser));
+			_driverWarehouseEventRepository =
+				driverWarehouseEventRepository ?? throw new ArgumentNullException(nameof(driverWarehouseEventRepository));
+			_completedDriverWarehouseEventRepository =
+				completedDriverWarehouseEventRepository ?? throw new ArgumentNullException(nameof(completedDriverWarehouseEventRepository));
+			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
+			
+			Configure();
+		}
+
+		public bool IdGtZero => Entity.Id > 0;
+
+		public bool CanEditByPermission => (PermissionResult.CanCreate && Entity.Id == 0) || PermissionResult.CanUpdate;
+
+		public bool CanEdit => CanEditByPermission && !_hasCompletedEvents;
+		public bool AskSaveOnClose => CanEditByPermission;
+
+		public bool IsCoordinatesVisible => Entity.Type == DriverWarehouseEventType.OnLocation;
+		public bool CanPrintQrCode => Entity.Type == DriverWarehouseEventType.OnLocation;
+		public bool IsDocumentQrParametersVisible => Entity.Type == DriverWarehouseEventType.OnDocuments;
+
+		public DriverWarehouseEventType EventType
+		{
+			get => Entity.Type;
+			set
+			{
+				Entity.Type = value;
+
+				Entity.ResetEventParameters();
+				OnPropertyChanged();
+			}
+		}
+
+		public DelegateCommand<string> SetCoordinatesFromBufferCommand =>
+			_setCoordinatesFromBufferCommand ?? (_setCoordinatesFromBufferCommand = new DelegateCommand<string>(
+				buffer =>
+				{
+					var result = _coordinatesParser.GetCoordinatesFromBuffer(buffer);
+
+					if(!result.ParsedCoordinates.HasValue)
+					{
+						ShowWarningMessage(result.ErrorMessage);
+					}
+					else
+					{
+						var parsedCoordinates = result.ParsedCoordinates.Value;
+						Entity.WriteCoordinates(parsedCoordinates.Latitude, parsedCoordinates.Longitude);
+					}
+				}
+				));
+
+		public bool AskUserQuestion(string question, string title = null)
+		{
+			return base.AskQuestion(question, title);
+		}
+		
+		private void Configure()
+		{
+			ConfigureEntityChangingRelations();
+			CheckCompletedEventsByEntity();
+			ConfigureValidationContext();
+		}
+
+		private void ConfigureValidationContext()
+		{
+			ValidationContext.ServiceContainer.AddService(typeof(IDriverWarehouseEventRepository), _driverWarehouseEventRepository);
+		}
+
+		private void CheckCompletedEventsByEntity()
+		{
+			_hasCompletedEvents = Entity.Id != 0 && _completedDriverWarehouseEventRepository.HasCompletedEventsByEventId(UoW, Entity.Id);
+		}
+
+		private void ConfigureEntityChangingRelations()
+		{
+			SetPropertyChangeRelation(
+				e => e.Id,
+				() => IdGtZero,
+				() => CanEdit);
+			
+			SetPropertyChangeRelation(
+				e => e.Type,
+				() => IsCoordinatesVisible,
+				() => IsDocumentQrParametersVisible);
+		}
+	}
+}

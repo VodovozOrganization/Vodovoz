@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using EdoService;
 using EdoService.Converters;
 using EdoService.Dto;
@@ -24,7 +24,6 @@ using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
-using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.Tdi;
 using QS.Utilities;
@@ -63,25 +62,22 @@ using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
-using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Extensions;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels;
 using Vodovoz.Infrastructure;
-using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Settings.Edo;
-using Vodovoz.Settings.Nomenclature;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
+using Vodovoz.Specifications.Orders.EdoContainers;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.ViewModel;
@@ -89,10 +85,8 @@ using Vodovoz.ViewModels.Counterparties;
 using Vodovoz.ViewModels.Dialogs.Counterparties;
 using Vodovoz.ViewModels.Dialogs.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes.Client;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
@@ -126,18 +120,11 @@ namespace Vodovoz
 		private readonly IOrganizationRepository _organizationRepository = new OrganizationRepository();
 		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository = new ExternalCounterpartyRepository();
 		private readonly IContactParametersProvider _contactsParameters = new ContactParametersProvider(new ParametersProvider());
-		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider =
-			new SubdivisionParametersProvider(new ParametersProvider());
 		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
 		private RoboatsJournalsFactory _roboatsJournalsFactory;
 		private IEdoOperatorsJournalFactory _edoOperatorsJournalFactory;
 		private IEmailParametersProvider _emailParametersProvider;
-		private ISubdivisionRepository _subdivisionRepository;
-		private IRouteListItemRepository _routeListItemRepository;
-		private IFileDialogService _fileDialogService;
 		private ICounterpartyJournalFactory _counterpartySelectorFactory;
-		private IEntityAutocompleteSelectorFactory _nomenclatureSelectorFactory;
-		private INomenclatureRepository _nomenclatureRepository;
 		private ValidationContext _validationContext;
 		private Employee _currentEmployee;
 		private PhonesViewModel _phonesViewModel;
@@ -160,28 +147,8 @@ namespace Vodovoz
 
 		public ThreadDataLoader<EmailRow> EmailDataLoader { get; private set; }
 
-		public virtual ISubdivisionRepository SubdivisionRepository =>
-			_subdivisionRepository ?? (_subdivisionRepository = new SubdivisionRepository(new ParametersProvider()));
-
-		public virtual IRouteListItemRepository RouteListItemRepository =>
-			_routeListItemRepository ?? (_routeListItemRepository = new RouteListItemRepository());
-
-		public virtual IFileDialogService FilePickerService =>
-			_fileDialogService ?? (_fileDialogService = new FileDialogService());
-
-		public virtual INomenclatureRepository NomenclatureRepository =>
-			_nomenclatureRepository ?? (_nomenclatureRepository =
-				new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider())));
-
 		public virtual ICounterpartyJournalFactory CounterpartySelectorFactory =>
-			_counterpartySelectorFactory ?? (_counterpartySelectorFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()));
-
-		public virtual IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory =>
-			_nomenclatureSelectorFactory ?? (_nomenclatureSelectorFactory =
-				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-					ServicesConfig.CommonServices, new NomenclatureFilterViewModel(),
-					CounterpartySelectorFactory,
-					NomenclatureRepository, _userRepository, _lifetimeScope));
+			_counterpartySelectorFactory ?? (_counterpartySelectorFactory = new CounterpartyJournalFactory());
 
 		#region Список каналов сбыта
 
@@ -340,7 +307,7 @@ namespace Vodovoz
 			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			var fileDialogService = new FileDialogService();
 			var roboatsViewModelFactory = new RoboatsViewModelFactory(roboatsFileStorageFactory, fileDialogService, ServicesConfig.CommonServices.CurrentPermissionService);
-			var nomenclatureSelectorFactory = new NomenclatureJournalFactory(_lifetimeScope);
+			var nomenclatureSelectorFactory = new NomenclatureJournalFactory();
 			_roboatsJournalsFactory = new RoboatsJournalsFactory(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, roboatsViewModelFactory, nomenclatureSelectorFactory);
 			_edoOperatorsJournalFactory = new EdoOperatorsJournalFactory();
 			_emailParametersProvider = _lifetimeScope.Resolve<IEmailParametersProvider>();
@@ -592,14 +559,14 @@ namespace Vodovoz
 				.InitializeFromSource();
 
 			entryMainCounterparty
-				.SetEntityAutocompleteSelectorFactory(CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory());
+				.SetEntityAutocompleteSelectorFactory(CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope));
 			entryMainCounterparty.Binding
 				.AddBinding(Entity, e => e.MainCounterparty, w => w.Subject)
 				.InitializeFromSource();
 			entryMainCounterparty.Sensitive = CanEdit;
 
 			entryPreviousCounterparty
-				.SetEntityAutocompleteSelectorFactory(CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory());
+				.SetEntityAutocompleteSelectorFactory(CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope));
 			entryPreviousCounterparty.Binding
 				.AddBinding(Entity, e => e.PreviousCounterparty, w => w.Subject)
 				.InitializeFromSource();
@@ -1081,12 +1048,7 @@ namespace Vodovoz
 					UoW,
 					this,
 					ServicesConfig.CommonServices,
-					_employeeService,
-					CounterpartySelectorFactory,
-					new NomenclatureJournalFactory(_lifetimeScope),
-					NomenclatureRepository,
-					_userRepository,
-					_lifetimeScope.Resolve<INomenclatureSettings>());
+					Startup.MainWin.NavigationManager);
 			supplierPricesWidget.Sensitive = CanEdit;
 		}
 
@@ -1095,7 +1057,7 @@ namespace Vodovoz
 			var nomenclatureFixedPriceFactory = new NomenclatureFixedPriceFactory();
 			var fixedPriceController = new NomenclatureFixedPriceController(nomenclatureFixedPriceFactory);
 			var fixedPricesModel = new CounterpartyFixedPricesModel(UoW, Entity, fixedPriceController);
-			var nomSelectorFactory = new NomenclatureJournalFactory(_lifetimeScope);
+			var nomSelectorFactory = new NomenclatureJournalFactory();
 			FixedPricesViewModel fixedPricesViewModel = new FixedPricesViewModel(UoW, fixedPricesModel, nomSelectorFactory, this, _lifetimeScope);
 			fixedpricesview.ViewModel = fixedPricesViewModel;
 			SetSensitivityByPermission("can_edit_counterparty_fixed_prices", fixedpricesview);
@@ -1330,7 +1292,13 @@ namespace Vodovoz
 				.AddColumn(" Дата \n создания ")
 					.AddTextRenderer(x => x.Created.ToString("dd.MM.yyyy\nHH:mm"))
 				.AddColumn(" Номер \n заказа ")
-					.AddTextRenderer(x => x.Order.Id.ToString())
+					.AddTextRenderer(x => x.Order == null ? "" : x.Order.Id.ToString())
+				.AddColumn(" Номер счета б/о \n на предоплату ")
+					.AddTextRenderer(x => x.OrderWithoutShipmentForAdvancePayment == null ? "" : x.OrderWithoutShipmentForAdvancePayment.Id.ToString())
+				.AddColumn(" Номер счета б/о \n на долг ")
+					.AddTextRenderer(x => x.OrderWithoutShipmentForDebt == null ? "" : x.OrderWithoutShipmentForDebt.Id.ToString())
+				.AddColumn(" Номер счета б/о \n на постоплату ")
+					.AddTextRenderer(x => x.OrderWithoutShipmentForPayment == null ? "" : x.OrderWithoutShipmentForPayment.Id.ToString())
 				.AddColumn(" Код документооборота ")
 					.AddTextRenderer(x => x.DocFlowId.HasValue ? x.DocFlowId.ToString() : string.Empty)
 				.AddColumn(" Отправленные \n документы ")
@@ -1396,7 +1364,7 @@ namespace Vodovoz
 
 		private List<int> GetOrderIdsWithoutSuccessfullySentUpd()
 		{
-			var allOrdersIds = _edoContainers.Select(c => c.Order.Id).Distinct().ToList();
+			var allOrdersIds = _edoContainers.Where(x => EdoContainerSpecification.CreateIsForOrder().IsSatisfiedBy(x)).Select(c => c.Order.Id).Distinct().ToList();
 
 			var orderIdsHavingUpdSentSuccessfully = _edoContainers
 				.Where(c => c.Type == Type.Upd
@@ -1913,8 +1881,8 @@ namespace Vodovoz
 
 		protected void OnYbuttonAddNomClicked(object sender, EventArgs e)
 		{
-			NomenclatureJournalFactory nomenclatureJournalFactory = new NomenclatureJournalFactory(_lifetimeScope);
-			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel();
+			NomenclatureJournalFactory nomenclatureJournalFactory = new NomenclatureJournalFactory();
+			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel(_lifetimeScope);
 			journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult;
 
 			TabParent.AddSlaveTab(this, journal);

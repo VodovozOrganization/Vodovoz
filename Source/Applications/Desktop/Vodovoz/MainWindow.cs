@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -110,24 +110,24 @@ public partial class MainWindow : Gtk.Window
 		TDIMain.SetTabsColorHighlighting(highlightWColor, keepTabColor, GetTabsColors(), tabsParametersProvider.TabsPrefix);
 		TDIMain.SetTabsReordering(reorderTabs);
 
-		if(reorderTabs)
+		if (reorderTabs)
 		{
 			ReorderTabs.Activate();
 		}
 
-		if(highlightWColor)
+		if (highlightWColor)
 		{
 			HighlightTabsWithColor.Activate();
 		}
 
-		if(keepTabColor)
+		if (keepTabColor)
 		{
 			KeepTabColor.Activate();
 		}
 
 		bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
-		if(isWindows)
+		if (isWindows)
 		{
 			KeyPressEvent += HotKeyHandler.HandleKeyPressEvent;
 		}
@@ -189,7 +189,7 @@ public partial class MainWindow : Gtk.Window
 		ActionDriversStopLists.Sensitive = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DriverStopListRemoval)).CanRead;
 
 		//Читаем настройки пользователя
-		switch(CurrentUserSettings.Settings.ToolbarStyle)
+		switch (CurrentUserSettings.Settings.ToolbarStyle)
 		{
 			case ToolbarStyle.Both:
 				ActionToolBarBoth.Activate();
@@ -202,7 +202,7 @@ public partial class MainWindow : Gtk.Window
 				break;
 		}
 
-		switch(CurrentUserSettings.Settings.ToolBarIconsSize)
+		switch (CurrentUserSettings.Settings.ToolBarIconsSize)
 		{
 			case IconsSize.ExtraSmall:
 				ActionIconsExtraSmall.Activate();
@@ -224,7 +224,7 @@ public partial class MainWindow : Gtk.Window
 
 		#region Пользователь с правом работы только со складом и рекламациями
 
-		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+		using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
 		{
 			_accessOnlyToWarehouseAndComplaints =
 				commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
@@ -240,13 +240,13 @@ public partial class MainWindow : Gtk.Window
 
 		#region Уведомление об отправленных перемещениях для подразделения
 
-		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+		using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
 		{
 			_currentUserSubdivisionId = GetEmployeeSubdivisionId(uow);
 			_curentUserMovementDocumentsNotificationWarehouses = CurrentUserSettings.Settings.MovementDocumentsNotificationUserSelectedWarehouses;
 			_movementsNotificationsController = _autofacScope
 				.Resolve<IMovementDocumentsNotificationsController>(
-					new TypedParameter(typeof(int), _currentUserSubdivisionId), 
+					new TypedParameter(typeof(int), _currentUserSubdivisionId),
 					new TypedParameter(typeof(IEnumerable<int>), _curentUserMovementDocumentsNotificationWarehouses));
 
 			var notificationDetails = _movementsNotificationsController.GetNotificationDetails(uow);
@@ -256,7 +256,7 @@ public partial class MainWindow : Gtk.Window
 			hboxMovementsNotification.Visible = notificationDetails.NeedNotify;
 			lblMovementsNotification.Markup = message;
 
-			if(notificationDetails.NeedNotify)
+			if (notificationDetails.NeedNotify)
 			{
 				_movementsNotificationsController.UpdateNotificationAction += UpdateSendedMovementsNotification;
 			}
@@ -270,7 +270,7 @@ public partial class MainWindow : Gtk.Window
 
 		_complaintNotificationController = _autofacScope.Resolve<IComplaintNotificationController>(new TypedParameter(typeof(int), _currentUserSubdivisionId));
 
-		if(!_hideComplaintsNotifications)
+		if (!_hideComplaintsNotifications)
 		{
 			_complaintNotificationController.UpdateNotificationAction += UpdateSendedComplaintsNotification;
 
@@ -293,7 +293,7 @@ public partial class MainWindow : Gtk.Window
 
 		bool userIsSalesRepresentative;
 
-		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+		using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
 		{
 			userIsSalesRepresentative = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.User.IsSalesRepresentative)
 				&& !commonServices.UserService.GetCurrentUser().IsAdmin;

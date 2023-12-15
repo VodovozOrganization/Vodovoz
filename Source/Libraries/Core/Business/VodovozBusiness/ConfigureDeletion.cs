@@ -675,11 +675,14 @@ namespace Vodovoz
 				.AddDeleteDependence<CommonDistrictRuleItem>(item => item.District)
 				.AddDeleteDependence<DeliveryScheduleRestriction>(item => item.District)
 				.AddDeleteDependence<WeekDayDistrictRuleItem>(item => item.District)
+				.AddDeleteDependence<DistrictCopyItem>(item => item.District)
+				.AddDeleteDependence<DistrictCopyItem>(item => item.CopiedToDistrict)
 				.AddRemoveFromDependence<DistrictsSet>(x => x.Districts);
 
 			DeleteConfig.AddHibernateDeleteInfo<CommonDistrictRuleItem>();
 			DeleteConfig.AddHibernateDeleteInfo<WeekDayDistrictRuleItem>();
 			DeleteConfig.AddHibernateDeleteInfo<DeliveryScheduleRestriction>();
+			DeleteConfig.AddHibernateDeleteInfo<DistrictCopyItem>();
 
 			DeleteConfig.AddHibernateDeleteInfo<TariffZone>()
 				.AddClearDependence<District>(i => i.TariffZone);

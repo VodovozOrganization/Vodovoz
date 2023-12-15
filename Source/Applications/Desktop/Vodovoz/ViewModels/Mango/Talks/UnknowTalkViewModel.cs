@@ -1,4 +1,4 @@
-﻿using QS.Dialog;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -23,11 +23,13 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 		private readonly IInteractiveQuestion _interactive;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
-		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUnitOfWork _uow;
+		private ILifetimeScope _lifetimeScope;
 		private IPage<CounterpartyJournalViewModel> _counterpartyJournalPage;
 		
-		public UnknowTalkViewModel(IUnitOfWorkFactory unitOfWorkFactory, 
+		public UnknowTalkViewModel(
+			ILifetimeScope lifetimeScope,
+			IUnitOfWorkFactory unitOfWorkFactory, 
 			ITdiCompatibilityNavigation navigation, 
 			IInteractiveQuestion interactive,
 			MangoManager manager,
@@ -35,11 +37,11 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			INomenclatureRepository nomenclatureRepository) : base(navigation, manager)
 		{
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_tdiNavigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
 			_interactive = interactive ?? throw new ArgumentNullException(nameof(interactive));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
-			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_uow = unitOfWorkFactory.CreateWithoutRoot();
 		}
 
@@ -92,8 +94,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 		public void CreateComplaintCommand()
 		{
 			var employeeSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
-
-			var counterpartySelectorFactory = _counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory();
+			var counterpartySelectorFactory = _counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope);
 
 			var parameters = new Dictionary<string, object> {
 				{"uowBuilder", EntityUoWBuilder.ForCreate()},
@@ -126,6 +127,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 				_counterpartyJournalPage.ViewModel.OnEntitySelectedResult -= OnExistingCounterpartyPageClosed;
 			}
 
+			_lifetimeScope = null;
 			_uow?.Dispose();
 		}
 

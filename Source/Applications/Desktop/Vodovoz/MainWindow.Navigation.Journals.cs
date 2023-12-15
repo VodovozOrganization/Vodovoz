@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using QS.Banks.Domain;
 using QS.BusinessCommon.Domain;
 using QS.Dialog.Gtk;
@@ -15,6 +15,7 @@ using QSOrmProject;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 using Vodovoz;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
@@ -645,6 +646,56 @@ public partial class MainWindow
 		NavigationManager.OpenViewModel<FlyersJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
+	/// <summary>
+	/// ИПЗ - Онлайн каталоги - Онлайн каталоги сайта ВВ
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnVodovozWebSiteNomenclatureOnlineCatalogsActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<VodovozWebSiteNomenclatureOnlineCatalogsJournalViewModel>(null);
+	}
+
+	/// <summary>
+	/// ИПЗ - Онлайн каталоги - Онлайн каталоги мобильного приложения
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnMobileAppNomenclatureOnlineCatalogsActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<MobileAppNomenclatureOnlineCatalogsJournalViewModel>(null);
+	}
+
+	/// <summary>
+	/// ИПЗ - Онлайн каталоги - Онлайн каталоги сайта Кулер Сэйл
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnKulerSaleWebSiteNomenclatureOnlineCatalogsActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<KulerSaleWebSiteNomenclatureOnlineCatalogsJournalViewModel>(null);
+	}
+
+	/// <summary>
+	/// ИПЗ - Группы товаров в ИПЗ
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnNomenclatureOnlineGroupsActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<NomenclatureOnlineGroupsJournalViewModel>(null);
+	}
+
+	/// <summary>
+	/// ИПЗ - Типы товаров в ИПЗ
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnNomenclatureOnlineCategoriesActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<NomenclatureOnlineCategoriesJournalViewModel>(null);
+	}
+
 	#endregion ТМЦ
 
 	#region Банки/Операторы ЭДО
@@ -757,7 +808,10 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionCameFromActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<ClientCameFromJournalViewModel, Action<ClientCameFromFilterViewModel>>(null, filter => filter.HidenByDefault = true, OpenPageOptions.IgnoreHash);
+		NavigationManager.OpenViewModel<ClientCameFromJournalViewModel, Action<ClientCameFromFilterViewModel>>(
+			null,
+			filter => filter.HidenByDefault = true,
+			OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -848,16 +902,6 @@ public partial class MainWindow
 	protected void OnActionRoboAtsCounterpartyPatronymicActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<RoboAtsCounterpartyPatronymicJournalViewModel>(null);
-	}
-
-	/// <summary>
-	/// Загрузить из 1с 7.7
-	/// </summary>
-	/// <param name="sender"></param>
-	/// <param name="e"></param>
-	protected void OnActionLoad1cActivated(object sender, EventArgs e)
-	{
-		NavigationManager.OpenTdiTab<LoadFrom1cDlg>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -1064,6 +1108,30 @@ public partial class MainWindow
 	{
 		NavigationManager.OpenViewModel<RegradingOfGoodsReasonsJournalViewModel>(null);
 	}
+
+	#region События нахождения на складе водителей
+
+	/// <summary>
+	/// События
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnDriversWarehousesEventsActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<DriversWarehousesEventsJournalViewModel>(null);
+	}
+
+	/// <summary>
+	/// Завершенные события
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnCompletedDriversWarehousesEventsActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<CompletedDriversWarehousesEventsJournalViewModel>(null);
+	}
+
+	#endregion
 
 	#endregion Логистика
 

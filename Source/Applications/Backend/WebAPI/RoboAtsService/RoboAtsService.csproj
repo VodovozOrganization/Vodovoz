@@ -3,6 +3,7 @@
 		<TargetFramework>net5.0</TargetFramework>
 		<WebProject_DirectoryAccessLevelKey>0</WebProject_DirectoryAccessLevelKey>
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+		<UserSecretsId>f4a965a4-dfea-4d37-bf46-55749527cc87</UserSecretsId>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -22,6 +23,7 @@
 		<ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Infrastructure\BackendInfrastructure\BackendInfrastructure.csproj" />
 		<ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Sms\Sms.External.SmsRu\Sms.External.SmsRu.csproj" />
 		<ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Sms\Sms.Internal.Client.Famework\Sms.Internal.Client.Framework.csproj" />
+		<ProjectReference Include="..\..\..\..\Libraries\Core\Business\Vodovoz.Application\Vodovoz.Application.csproj" />
 		<ProjectReference Include="..\..\..\..\Libraries\Core\Business\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj" />
 		<ProjectReference Include="..\..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj" />
 		<ProjectReference Include="..\..\..\..\Libraries\Core\Infrastructure\Core.Infrastructure\Core.Infrastructure.csproj" />

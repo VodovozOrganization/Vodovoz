@@ -57,6 +57,7 @@ using System.Linq;
 using System.Reflection;
 using Vodovoz.Additions;
 using Vodovoz.Additions.Logistic.RouteOptimization;
+using Vodovoz.Application;
 using Vodovoz.Application.Services;
 using Vodovoz.Application.Services.Logistics;
 using Vodovoz.CachingRepositories.Cash;
@@ -87,6 +88,7 @@ using Vodovoz.Models;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
+using Vodovoz.Presentation.Reports.Factories;
 using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Presentation.ViewModels.Employees;
 using Vodovoz.Presentation.ViewModels.Mango;
@@ -106,13 +108,13 @@ using Vodovoz.ReportsParameters.Retail;
 using Vodovoz.ReportsParameters.Sales;
 using Vodovoz.ReportsParameters.Store;
 using Vodovoz.Services;
-using Vodovoz.Services.Logistics;
 using Vodovoz.Services.Permissions;
 using Vodovoz.Settings.Database;
 using Vodovoz.SidePanel.InfoViews;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.Tools.Interactive.ConfirmationQuestion;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Complaints;
@@ -128,6 +130,7 @@ using Vodovoz.Views.Mango.Talks;
 using Vodovoz.ViewWidgets;
 using VodovozInfrastructure.Endpoints;
 using VodovozInfrastructure.Interfaces;
+using VodovozInfrastructure.Services;
 using VodovozInfrastructure.StringHandlers;
 using static Vodovoz.ViewModels.Cash.Reports.CashFlowAnalysisViewModel;
 using IErrorReporter = Vodovoz.Tools.IErrorReporter;
@@ -198,6 +201,7 @@ namespace Vodovoz
 					builder.RegisterType<GtkMessageDialogsInteractive>().As<IInteractiveMessage>();
 					builder.RegisterType<GtkQuestionDialogsInteractive>().As<IInteractiveQuestion>();
 					builder.RegisterType<GtkInteractiveService>().As<IInteractiveService>();
+					builder.RegisterType<GtkConfirmationQuestionInteractive>().As<IConfirmationQuestionInteractive>();
 
 					builder.Register(c => ServicesConfig.CommonServices).As<ICommonServices>();
 					builder.Register(с => ServicesConfig.UserService).As<IUserService>();
@@ -345,7 +349,7 @@ namespace Vodovoz
 							.GetInterfaces()
 							.Where(i => i.Name == $"I{s.Name}")
 							.First())
-						.SingleInstance();
+						.InstancePerLifetimeScope();
 
 					builder.RegisterType<IncludeExcludeSalesFilterFactory>().As<IIncludeExcludeSalesFilterFactory>().InstancePerLifetimeScope();
 					builder.RegisterType<LeftRightListViewModelFactory>().As<ILeftRightListViewModelFactory>().InstancePerLifetimeScope();
@@ -390,8 +394,6 @@ namespace Vodovoz
 					builder.RegisterType<WarehousePermissionValidator>().As<IWarehousePermissionValidator>();
 					builder.RegisterType<WageParameterService>().As<IWageParameterService>();
 					builder.RegisterType<SelfDeliveryCashOrganisationDistributor>().As<ISelfDeliveryCashOrganisationDistributor>();
-
-					builder.RegisterType<CounterpartyService>().As<ICounterpartyService>().InstancePerLifetimeScope();
 
 					#endregion
 
@@ -582,7 +584,6 @@ namespace Vodovoz
 						.As<IDriverServiceParametersProvider>()
 						.As<IErrorSendParameterProvider>()
 						.As<IProfitCategoryProvider>()
-						.As<IPotentialFreePromosetsReportDefaultsProvider>()
 						.As<IMailjetParametersProvider>()
 						.As<IVpbxSettings>()
 						.As<ITerminalNomenclatureProvider>()
@@ -706,6 +707,14 @@ namespace Vodovoz
 						.AddScoped<SelectPaymentTypeViewModel>()
 						.AddScoped<IRouteOptimizer, RouteOptimizer>()
 						.AddScoped<EntityModelFactory>()
+						.AddScoped<ICoordinatesParser, CoordinatesParser>()
+						.AddScoped<ICustomReportFactory, CustomReportFactory>()
+						.AddScoped<ICustomPropertiesFactory, CustomPropertiesFactory>()
+						.AddScoped<ICustomReportItemFactory, CustomReportItemFactory>()
+						.AddScoped<IRdlTextBoxFactory, RdlTextBoxFactory>()
+						.AddScoped<IEventsQrPlacer, EventsQrPlacer>()
+						.AddApplication()
+						.AddBusiness();
 						
 
 						//Messages

@@ -49,5 +49,26 @@ namespace Vodovoz.NHibernateProjections.Logistics
 				Projections.Property(() => carAlias.RegistrationNumber),
 				Projections.Property(() => driverAlias.Name));
 		}
+		
+		/// <summary>
+		/// Проекции работают через рефлексию (nameof())<br/>
+		/// Необходимо использовать конвенцию наименования алиасов в запросе для которого применяется проекция:<br/>
+		/// camelCase названия сущности + Alias<br/>
+		/// Используются:
+		/// <see cref="Car"/> carAlias<br/>
+		/// <see cref="CarModel"/> carModelAlias<br/>
+		/// </summary>
+		/// <returns></returns>
+		public static IProjection GetCarModelWithRegistrationNumber()
+		{
+			Car carAlias = null;
+			CarModel carModelAlias = null;
+
+			return CustomProjections.Concat(
+				Projections.Property(() => carModelAlias.Name),
+				Projections.Constant(" ("),
+				Projections.Property(() => carAlias.RegistrationNumber),
+				Projections.Constant(")"));
+		}
 	}
 }

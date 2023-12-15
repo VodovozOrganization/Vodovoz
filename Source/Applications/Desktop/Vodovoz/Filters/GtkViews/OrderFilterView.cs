@@ -84,8 +84,6 @@ namespace Vodovoz.Filters.GtkViews
 				.AddFuncBinding(vm => vm.CanChangeStartDate && vm.CanChangeEndDate, w => w.Sensitive)
 				.InitializeFromSource();
 
-			dateperiodOrders.PeriodChanged += (s, e) => ViewModel.Update();
-
 			ycheckOnlySelfdelivery.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.CanChangeOnlySelfDelivery, w => w.Sensitive)
 				.AddBinding(vm => vm.RestrictOnlySelfDelivery, w => w.Active, new NullableBooleanToBooleanConverter())
@@ -148,8 +146,7 @@ namespace Vodovoz.Filters.GtkViews
 			searchByAddressView.Show();
 
 			enumCmbEdoDocFlowStatus.ItemsEnum = typeof(EdoDocFlowStatus);
-			enumCmbEdoDocFlowStatus.SelectedItemStrictTyped = false;
-			enumCmbEdoDocFlowStatus.Binding.AddBinding(ViewModel, vm => vm.EdoDocFlowStatus, w => w.SelectedItemOrNull).InitializeFromSource();
+			enumCmbEdoDocFlowStatus.Binding.AddBinding(ViewModel, vm => vm.EdoDocFlowStatus, w => w.SelectedItem).InitializeFromSource();
 		}
 
 		private void InitializeRestrictions()

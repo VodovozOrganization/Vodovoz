@@ -1,26 +1,23 @@
-﻿using Autofac;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
-using System.Reflection;
 
 namespace Vodovoz.Settings.Database
 {
 	public static class DependencyInjection
 	{
-		public static IServiceCollection AddSettingsFromDatabase(this IServiceCollection services)
+		public static IServiceCollection AddDatabaseSettings(this IServiceCollection services)
 		{
-			services.AddSingleton<ISettingsController, SettingsController>();
-			Assembly.GetExecutingAssembly()
-				.GetTypes()
-				.Where(a => a.Name.EndsWith("Settings") && !a.IsAbstract && !a.IsInterface)
-				.Select(a => new { 
-					assignedType = a, 
-					serviceTypes = a.GetInterfaces().ToList() 
-				}).ToList()
-				.ForEach(typesToRegister =>
-				{
-					typesToRegister.serviceTypes.ForEach(typeToRegister => services.AddSingleton(typeToRegister, typesToRegister.assignedType));
-				});
+			services.AddScoped<ISettingsController, SettingsController>();
+
+			var settingsTypes = typeof(DependencyInjection).Assembly.GetTypes()
+				.Where(t => t.IsClass
+					&& t.Name.EndsWith("Settings")
+					&& t.GetInterfaces().Any(i => i.Name == $"I{t.Name}"));
+
+			foreach(var type in settingsTypes )
+			{
+				services.AddScoped(type.GetInterfaces().First(i => i.Name == $"I{type.Name}"), type);
+			}
 
 			return services;
 		}

@@ -17,6 +17,8 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
+using Autofac;
+using QS.Project.Journal.EntitySelector;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Payments;
@@ -50,10 +52,10 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		private readonly IPaymentsRepository _paymentsRepository;
 		private readonly IDialogsFactory _dialogsFactory;
 		private readonly IOrganizationRepository _organizationRepository;
-		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private DelegateCommand _revertAllocatedSum;
 
 		public ManualPaymentMatchingViewModel(
+			ILifetimeScope lifetimeScope,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
@@ -64,12 +66,20 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			IOrganizationRepository organizationRepository,
 			ICounterpartyJournalFactory counterpartyJournalFactory) : base(uowBuilder, uowFactory, commonServices)
 		{
+			if(lifetimeScope == null)
+			{
+				throw new ArgumentNullException(nameof(lifetimeScope));
+			}
+
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_paymentItemsRepository = paymentItemsRepository ?? throw new ArgumentNullException(nameof(paymentItemsRepository));
 			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
 			_dialogsFactory = dialogsFactory ?? throw new ArgumentNullException(nameof(dialogsFactory));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
-			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
+			CounterpartyAutocompleteSelectorFactory = 
+				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
+				.CreateCounterpartyAutocompleteSelectorFactory(lifetimeScope);
+			
 			if(uowBuilder.IsNewEntity)
 			{
 				throw new AbortCreatingPageException(
@@ -462,7 +472,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			)
 		);
 
-		public ICounterpartyJournalFactory CounterpartyJournalFactory => _counterpartyJournalFactory;
+		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelectorFactory { get; }
 
 		public bool CanChangeCounterparty => !Entity.ObservableItems.Any(x => x.PaymentItemStatus == AllocationStatus.Accepted);
 
