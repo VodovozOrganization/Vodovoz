@@ -1724,6 +1724,7 @@ namespace Vodovoz
 					.AddNumericRenderer(node => node.RentCount).Editing().Digits(0)
 					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
 					.AddSetter((c, node) => c.Visible = node.RentVisible)
+					.EditedEvent(OnRentEdited)
 				.AddColumn("Цена")
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.Price).Digits(2).WidthChars(10)
@@ -1906,9 +1907,30 @@ namespace Vodovoz
 
 		private void OnCountEdited(object o, EditedArgs args)
 		{
+			decimal.TryParse(args.NewText, NumberStyles.Any, CultureInfo.InvariantCulture, out var newCount);
+			var node = treeItems.YTreeModel.NodeAtPath(new TreePath(args.Path));
+			
+			if(!(node is OrderItem orderItem))
+			{
+				return;
+			}
+
+			Entity.SetOrderItemCount(orderItem, newCount);
 			var path = new TreePath(args.Path);
 			treeItems.YTreeModel.GetIter(out var iter, path);
 			treeItems.YTreeModel.Adapter.EmitRowChanged(path, iter);
+		}
+		
+		private void OnRentEdited(object o, EditedArgs args)
+		{
+			int.TryParse(args.NewText, out var newRentCount);
+			var node = treeItems.YTreeModel.NodeAtPath(new TreePath(args.Path));
+			if(!(node is OrderItem orderItem))
+			{
+				return;
+			}
+
+			orderItem.UpdateRentCount(newRentCount);
 		}
 
 		private void OnDiscountReasonComboEdited(object o, EditedArgs args)
