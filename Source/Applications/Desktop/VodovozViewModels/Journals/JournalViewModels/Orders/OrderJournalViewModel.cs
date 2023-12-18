@@ -445,15 +445,16 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.Author == FilterViewModel.Author);
 			}
 
-			if(FilterViewModel.StartDate != null)
+			var startDate = FilterViewModel.StartDate;
+			if(startDate != null)
 			{
 				if(FilterViewModel.FilterDateType == OrdersDateFilterType.DeliveryDate)
 				{
-					query.Where(o => o.DeliveryDate >= FilterViewModel.StartDate);
+					query.Where(o => o.DeliveryDate >= startDate);
 				}
 				else 
 				{ 
-					query.Where(o => o.CreateDate >= FilterViewModel.StartDate); 
+					query.Where(o => o.CreateDate >= startDate); 
 				}
 			}
 
@@ -762,8 +763,9 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.Id == -1);
 			}
 
-			if (FilterViewModel.StartDate != null) {
-				query.Where(o => o.CreateDate >= FilterViewModel.StartDate);
+			var startDate = FilterViewModel.StartDate;
+			if (startDate != null) {
+				query.Where(o => o.CreateDate >= startDate);
 			}
 
 			var endDate = FilterViewModel.EndDate;
@@ -908,9 +910,10 @@ namespace Vodovoz.JournalViewModels
 			{
 				query.Where(o => o.Id == -1);
 			}
-
-			if (FilterViewModel.StartDate != null) {
-				query.Where(o => o.CreateDate >= FilterViewModel.StartDate);
+			
+			var startDate = FilterViewModel.StartDate;
+			if (startDate != null) {
+				query.Where(o => o.CreateDate >= startDate);
 			}
 
 			var endDate = FilterViewModel.EndDate;
@@ -1077,8 +1080,9 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.Id == -1);
 			}
 
-			if (FilterViewModel.StartDate != null) {
-				query.Where(o => o.CreateDate >= FilterViewModel.StartDate);
+			var startDate = FilterViewModel.StartDate;
+			if (startDate != null) {
+				query.Where(o => o.CreateDate >= startDate);
 			}
 
 			var endDate = FilterViewModel.EndDate;
