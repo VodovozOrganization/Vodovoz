@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Microsoft.Extensions.Logging;
 using NHibernate;
 using QS.Commands;
@@ -526,7 +526,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 				try
 				{
-					#region Добавляемые приянтые заказы (не переносимые из какого-либо МЛ)
+					#region Добавляемые принятые заказы (не переносимые из какого-либо МЛ)
 
 					var ordersIdsWithTransferTypesWithoutRouteList = SelectedSourceRouteListAddresses
 						.Cast<RouteListItemNode>()

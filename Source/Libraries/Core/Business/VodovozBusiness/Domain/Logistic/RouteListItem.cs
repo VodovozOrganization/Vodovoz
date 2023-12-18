@@ -857,7 +857,7 @@ namespace Vodovoz.Domain.Logistic
 			routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(uow, this, oldStatus, newStatus);
 		}
 
-		public virtual string GetTransferText()
+		public virtual string GetTransferText(bool isShort = false)
 		{
 			if(Status == RouteListItemStatus.Transfered)
 			{
@@ -866,9 +866,15 @@ namespace Vodovoz.Domain.Logistic
 
 				if(transferedTo != null)
 				{
-					return $"Заказ был перенесен в МЛ №{transferedTo.RouteList.Id} " +
+					var transferType =  addressTransferType?.GetEnumTitle();
+
+					var result = isShort
+						? transferType
+						: $"Заказ был перенесен в МЛ №{transferedTo.RouteList.Id} " +
 						$"водителя {transferedTo.RouteList.Driver.ShortName}" +
-						$" {addressTransferType?.GetEnumTitle()}.";
+						$" {transferType}.";
+
+					return result;
 				}
 				else
 				{
@@ -881,15 +887,34 @@ namespace Vodovoz.Domain.Logistic
 
 				if(transferedFrom != null)
 				{
-					return $"Заказ из МЛ №{transferedFrom.RouteList.Id}" +
+					var transferType = AddressTransferType?.GetEnumTitle();
+
+					var result = isShort
+						? transferType
+						: $"Заказ из МЛ №{transferedFrom.RouteList.Id}" +
 						$" водителя {transferedFrom.RouteList.Driver.ShortName}" +
-						$" {AddressTransferType?.GetEnumTitle()}.";
+						$" {transferType}.";
+
+					return result;
 				}
 				else
 				{
 					return "ОШИБКА! Адрес помечен как перенесенный из другого МЛ, но строка откуда он был перенесен не найдена.";
 				}
 			}
+
+			if(AddressTransferType != null)
+			{
+				var transferType = AddressTransferType?.GetEnumTitle();
+
+				var result = isShort
+						? transferType
+						: $"Заказ был добавлен в МЛ в пути " +
+						$"{transferType}.";
+
+				return result;
+			}
+
 			return null;
 		}
 

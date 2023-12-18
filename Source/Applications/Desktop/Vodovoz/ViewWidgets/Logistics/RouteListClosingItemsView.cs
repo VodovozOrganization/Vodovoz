@@ -225,7 +225,7 @@ namespace Vodovoz
 					.AddTextRenderer()
 						.AddSetter((cell,node)=>cell.Markup=FromClientString(node))
 				.AddColumn("Тип переноса").HeaderAlignment(0.5f)
-					.AddTextRenderer(item => item.AddressTransferType.HasValue ? item.AddressTransferType.GetEnumTitle() : "")
+					.AddTextRenderer(item => item.GetTransferText(true))
 				.AddColumn("Чужой район\n для водит.").HeaderAlignment(0.5f)
 					.AddToggleRenderer(item => item.IsDriverForeignDistrict)
 						.Editing(false)
