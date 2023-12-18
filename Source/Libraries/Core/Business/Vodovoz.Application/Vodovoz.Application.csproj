@@ -5,6 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Google.OrTools" Version="6.4.4495" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\Backend\RevenueService.Client\RevenueService.Client.csproj" />
     <ProjectReference Include="..\VodovozBusiness\VodovozBusiness.csproj" />
   </ItemGroup>

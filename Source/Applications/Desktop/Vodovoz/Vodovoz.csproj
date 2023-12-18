@@ -928,16 +928,6 @@
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.Database.MergeAddressesDlg.cs" />
     <Compile Include="ReportsParameters\ReportDebtorsBottles.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.ReportDebtorsBottles.cs" />
-    <Compile Include="Additions\Logistic\RouteOptimization\RouteOptimizer.cs" />
-    <Compile Include="Additions\Logistic\RouteOptimization\ProposedRoute.cs" />
-    <Compile Include="Additions\Logistic\RouteOptimization\CalculatedOrder.cs" />
-    <Compile Include="Additions\Logistic\RouteOptimization\CallbackDistance.cs" />
-    <Compile Include="Additions\Logistic\RouteOptimization\CallbackBottles.cs" />
-    <Compile Include="Additions\Logistic\RouteOptimization\CallbackMonitor.cs" />
-    <Compile Include="Additions\Logistic\RouteOptimization\CallbackWeight.cs" />
-    <Compile Include="Additions\Logistic\RouteOptimization\CallbackVolume.cs" />
-    <Compile Include="Additions\Logistic\RouteOptimization\CallbackAddressCount.cs" />
-    <Compile Include="Additions\Logistic\RouteOptimization\CallbackDistanceDistrict.cs" />
     <Compile Include="Dialogs\DocumentDialogs\TransferOperationDocumentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.DocumentDialogs.TransferOperationDocumentDlg.cs" />
     <Compile Include="Dialogs\DocumentDialogs\TransferOperationDocumentItemView.cs" />
@@ -947,7 +937,6 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.OrdersWithMinPriceLessThan.cs" />
     <Compile Include="ReportsParameters\Logistic\RouteListsOnClosingReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.RouteListsOnClosingReport.cs" />
-    <Compile Include="Additions\Logistic\RouteOptimization\CallbackTime.cs" />
     <Compile Include="Dialogs\Logistic\AtWorksDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.AtWorksDlg.cs" />
     <Compile Include="ViewWidgets\Logistics\DistrictPriorityView.cs" />
@@ -962,7 +951,6 @@
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.DeliveryShiftDlg.cs" />
     <Compile Include="Dialogs\Logistic\DeliveryDayScheduleDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.DeliveryDayScheduleDlg.cs" />
-    <Compile Include="Additions\Logistic\RouteOptimization\PossibleTrip.cs" />
     <Compile Include="ReportsParameters\Logistic\ShipmentReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.ShipmentReport.cs" />
     <Compile Include="Additions\Logistic\MapDrawingHelper.cs" />
@@ -1093,8 +1081,6 @@
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.ImportPaymentsFromTinkoffDlg.cs" />
     <Compile Include="ReportsParameters\Payments\PaymentsFromTinkoffReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Payments.PaymentsFromTinkoffReport.cs" />
-    <Compile Include="Dialogs\Logistic\OptimizingParametersDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.OptimizingParametersDlg.cs" />
     <Compile Include="Dialogs\Cash\CashIncomeCategoryDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.CashIncomeCategoryDlg.cs" />
     <Compile Include="ReportsParameters\Logistic\OrdersByDistrictsAndDeliverySchedulesReport.cs" />
@@ -1282,7 +1268,6 @@
     <Compile Include="ViewModels\Client\SupplierPricesWidgetViewModel.cs" />
     <Compile Include="Views\Suppliers\RequestToSupplierView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Suppliers.RequestToSupplierView.cs" />
-    <Compile Include="Additions\Logistic\ExtDistanceCalculator.cs" />
     <Compile Include="Infrastructure\Converters\ColorTextToGdkColorConverter.cs" />
     <Compile Include="Filters\GtkViews\RequestsToSuppliersFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.RequestsToSuppliersFilterView.cs" />
@@ -2028,7 +2013,6 @@
     <None Condition=" '$(TargetOS)' == 'Linux' " Include="libs/Google.OrTools/Linux/libGoogle.OrTools.so">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Additions\Logistic\RouteOptimization\README.md" />
     <None Include="libs\SharpZipLib_0.86.0.518\ICSharpCode.SharpZipLib.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

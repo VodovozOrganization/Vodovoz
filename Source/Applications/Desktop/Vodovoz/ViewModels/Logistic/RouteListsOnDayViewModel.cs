@@ -6,7 +6,6 @@ using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Commands;
 using QS.DomainModel.Entity;
-using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -21,7 +20,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Vodovoz.Additions.Logistic;
-using Vodovoz.Additions.Logistic.RouteOptimization;
+using Vodovoz.Application.Services.Logistics.RouteOptimization;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
@@ -30,7 +29,6 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Profitability;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
@@ -82,6 +80,7 @@ namespace Vodovoz.ViewModels.Logistic
 			IGeographicGroupRepository geographicGroupRepository,
 			IScheduleRestrictionRepository scheduleRestrictionRepository,
 			ICarModelJournalFactory carModelJournalFactory,
+			IRouteOptimizer routeOptimizer,
 			IRouteListProfitabilityController routeListProfitabilityController)
 			: base(commonServices?.InteractiveService, navigationManager)
 		{
@@ -101,6 +100,7 @@ namespace Vodovoz.ViewModels.Logistic
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			ScheduleRestrictionRepository = scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
 			CarModelJournalFactory = carModelJournalFactory;
+			Optimizer = routeOptimizer ?? throw new ArgumentNullException(nameof(routeOptimizer));
 			_routeListProfitabilityController = routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_atWorkRepository = atWorkRepository ?? throw new ArgumentNullException(nameof(atWorkRepository));
@@ -155,7 +155,6 @@ namespace Vodovoz.ViewModels.Logistic
 					foundGeoGroup.Selected = true;
 				}
 			}
-			Optimizer = new RouteOptimizer(commonServices.InteractiveService, new GeographicGroupRepository());
 
 			_defaultDeliveryDaySchedule =
 				UoW.GetById<DeliveryDaySchedule>(defaultDeliveryDayScheduleSettings.GetDefaultDeliveryDayScheduleId());
@@ -644,8 +643,8 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 		}
 
-		private RouteOptimizer optimizer;
-		public virtual RouteOptimizer Optimizer
+		private IRouteOptimizer optimizer;
+		public virtual IRouteOptimizer Optimizer
 		{
 			get => optimizer;
 			set => SetField(ref optimizer, value);
@@ -1669,7 +1668,7 @@ namespace Vodovoz.ViewModels.Logistic
 			Optimizer.Drivers = DriversOnDay;
 			Optimizer.Forwarders = ForwardersOnDay;
 			Optimizer.StatisticsTxtAction = statisticsUpdateAction;
-			Optimizer.CreateRoutes(DateForRouting, DriverStartTime, DriverEndTime);
+			Optimizer.CreateRoutes(DateForRouting, DriverStartTime, DriverEndTime, message => CommonServices.InteractiveService.Question(message));
 
 			if(optimizer.ProposedRoutes.Any())
 			{
