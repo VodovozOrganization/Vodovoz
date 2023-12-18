@@ -153,7 +153,7 @@ namespace Vodovoz.ViewModels.Logistic
 			DriverTerminalCondition = (HasAccessToDriverTerminal
 				&& baseDoc is DriverAttachedTerminalGiveoutDocument
 				&& baseDoc.CreationDate.Date <= Entity?.Date)
-					? $"{Entity.DriverTerminalCondition?.GetEnumDisplayName() ?? "неизвестно"}"
+					? $"Состояние терминала: {Entity.DriverTerminalCondition?.GetEnumDisplayName() ?? "неизвестно"}"
 					: "";
 
 			_logger.LogDebug("Пересчитываем рентабельность МЛ");
@@ -164,6 +164,8 @@ namespace Vodovoz.ViewModels.Logistic
 			{
 				Entity.RouteListProfitability
 			};
+
+			Entity.ObservableGeographicGroups.ListContentChanged += ObservableGeographicGroups_ListContentChanged;
 
 			SaveCommand = new DelegateCommand(SaveAndClose);
 			CancelCommand = new DelegateCommand(() => Close(AskSaveOnClose, CloseSource.Cancel));
@@ -225,6 +227,7 @@ namespace Vodovoz.ViewModels.Logistic
 			RouteList.NotLoadedRouteListStatuses.Contains(Entity.Status)
 			&& Entity.AdditionalLoadingDocument is null
 			&& CanAccept
+			&& Entity.Date != default
 			&& Entity.Car != null;
 
 		public bool CanRemoveAdditionalLoad =>
@@ -239,6 +242,9 @@ namespace Vodovoz.ViewModels.Logistic
 			&& CanSave;
 
 		public bool CanRevertToNew => Entity.Status != RouteListStatus.New && CanSave;
+
+		public bool CanChangeDriver => CanAccept
+			&& Entity.Car != null;
 
 		public bool CanChangeForwarder => CanAccept
 			&& ((Entity.Car is null || Entity.Date == default)
@@ -329,11 +335,33 @@ namespace Vodovoz.ViewModels.Logistic
 		private void OnRouteListPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
 			if(e.PropertyName == nameof(Entity.AdditionalLoadingDocument)
-				|| e.PropertyName == nameof(Entity.Car))
+				|| e.PropertyName == nameof(Entity.Car)
+				|| e.PropertyName == nameof(Entity.Date)
+				|| e.PropertyName == nameof(Entity.Status))
 			{
 				OnPropertyChanged(nameof(CanAddAdditionalLoad));
 				OnPropertyChanged(nameof(CanRemoveAdditionalLoad));
 				OnPropertyChanged(nameof(AdditionalLoadItemsVisible));
+			}
+
+			if(e.PropertyName == nameof(Entity.Date))
+			{
+				OnPropertyChanged(nameof(CanChangeForwarder));
+			}
+
+			if(e.PropertyName == nameof(Entity.Car)
+				|| e.PropertyName == nameof(Entity.Status))
+			{
+				OnPropertyChanged(nameof(CanChangeDriver));
+				OnPropertyChanged(nameof(CanChangeForwarder));
+			}
+
+			if(e.PropertyName == nameof(Entity.Status))
+			{
+				OnPropertyChanged(nameof(CanAccept));
+				OnPropertyChanged(nameof(CanRevertToNew));
+				OnPropertyChanged(nameof(CanChangeFixedPrice));
+				OnPropertyChanged(nameof(CanChangeIsFixPrice));
 			}
 		}
 
@@ -363,6 +391,29 @@ namespace Vodovoz.ViewModels.Logistic
 			{
 				_additionalLoadingModel.ReloadActiveFlyers(UoW, Entity, _previousSelectedDate);
 				_previousSelectedDate = Entity.Date;
+			}
+		}
+
+		public void OnCarChangedByUser(object sender, EventArgs e)
+		{
+			var isCompanyCar = Entity.GetCarVersion.IsCompanyCar;
+
+			Entity.Driver = Entity.Car.Driver != null
+				&& Entity.Car.Driver.Status != EmployeeStatus.IsFired
+					? Entity.Car.Driver
+					: null;
+
+			DriverViewModel.IsEditable = Entity.Driver == null || isCompanyCar;
+
+			if(!isCompanyCar
+				|| Entity.Car.CarModel.CarTypeOfUse == CarTypeOfUse.Largus
+				&& Entity.CanAddForwarder)
+			{
+				Entity.Forwarder = Entity.Forwarder;
+			}
+			else
+			{
+				Entity.Forwarder = null;
 			}
 		}
 

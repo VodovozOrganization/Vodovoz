@@ -9,9 +9,7 @@ using System;
 using System.ComponentModel;
 using System.Data;
 using System.Linq;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Profitability;
 using Vodovoz.ViewModels.Infrastructure.Print;
 using Vodovoz.ViewModels.Logistic;
@@ -61,12 +59,25 @@ namespace Vodovoz
 			InitializeSpecialConditions();
 
 			entryCar.ViewModel = ViewModel.CarViewModel;
+			entryCar.Binding
+				.AddBinding(ViewModel, vm => vm.CanAccept, w => w.ViewModel.IsEditable)
+				.InitializeFromSource();
 
-			entryCar.ViewModel.ChangedByUser += OnCarChangedByUser;
+			entryCar.ViewModel.ChangedByUser += ViewModel.OnCarChangedByUser;
 
 			entryDriver.ViewModel = ViewModel.DriverViewModel;
+			entryDriver.Binding
+				.AddBinding(ViewModel, vm => vm.CanChangeDriver, w => w.ViewModel.IsEditable)
+				.InitializeFromSource();
 
-			entryDriver.ViewModel.Changed += (sender, args) => lblDriverComment.Text = ViewModel.Entity.Driver?.Comment;
+			lblDriverComment.Binding
+				.AddSource(ViewModel.Entity)
+				.AddFuncBinding(
+					routeList => routeList.Driver != null
+						? routeList.Driver.Comment
+						: "",
+					w => w.Text)
+				.InitializeFromSource();
 
 			hboxDriverComment.Binding
 				.AddFuncBinding(ViewModel.Entity,
@@ -81,17 +92,23 @@ namespace Vodovoz
 				.AddBinding(ViewModel, vm => vm.CanChangeForwarder, w => w.ViewModel.IsEditable)
 				.InitializeFromSource();
 
-			entryForwarder.ViewModel.Changed += (sender, args) =>
-			{
-				createroutelistitemsview1.OnForwarderChanged();
-				lblForwarderComment.Text = ViewModel.Entity.Forwarder?.Comment;
-			};
+			entryForwarder.ViewModel.Changed += OnForwarderChanged;
 
 			hboxForwarderComment.Binding
-				.AddFuncBinding(ViewModel.Entity, e => e.Forwarder != null
-					&& !string.IsNullOrWhiteSpace(e.Forwarder.Comment), w => w.Visible)
+				.AddFuncBinding(
+					ViewModel.Entity,
+					routeList => routeList.Forwarder != null
+						&& !string.IsNullOrWhiteSpace(routeList.Forwarder.Comment),
+					w => w.Visible)
 				.InitializeFromSource();
-			lblForwarderComment.Text = ViewModel.Entity.Forwarder?.Comment;
+
+			lblForwarderComment.Binding
+				.AddFuncBinding(
+					ViewModel.Entity,
+					routeList => routeList.Forwarder != null
+						? routeList.Forwarder.Comment
+						: "",
+					w => w.Text);
 
 			entryLogistician.ViewModel = ViewModel.LogisticianViewModel;
 
@@ -112,6 +129,8 @@ namespace Vodovoz
 				ViewModel.CanUpdate,
 				ViewModel.IsLogistician);
 
+			createroutelistitemsview1.IsEditable(ViewModel.CanAccept, ViewModel.CanOpenOrder);
+
 			InitializeAdditionalLoading();
 
 			ybuttonAddAdditionalLoad.Binding
@@ -120,10 +139,6 @@ namespace Vodovoz
 
 			ybuttonRemoveAdditionalLoad.Binding
 				.AddBinding(ViewModel, vm => vm.CanRemoveAdditionalLoad, w => w.Visible)
-				.InitializeFromSource();
-
-			buttonAccept.Binding
-				.AddBinding(ViewModel, vm => vm.CanAccept, w => w.Visible)
 				.InitializeFromSource();
 
 			ggToStringWidget.UoW = ViewModel.UoW;
@@ -190,8 +205,6 @@ namespace Vodovoz
 				.AddBinding(ViewModel, vm => vm.CanAccept, w => w.Sensitive)
 				.InitializeFromSource();
 
-			ViewModel.Entity.ObservableGeographicGroups.ListContentChanged += ViewModel.ObservableGeographicGroups_ListContentChanged;
-
 			ylabelCashSubdivision.Binding
 				.AddBinding(ViewModel, vm => vm.ClosingSubdivisionName, w => w.Text)
 				.InitializeFromSource();
@@ -212,6 +225,12 @@ namespace Vodovoz
 			ViewModel.DocumentPrinted += OnDocumentsPrinted;
 
 			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+		}
+
+		private void OnForwarderChanged(object sender, EventArgs e)
+		{
+			createroutelistitemsview1.OnForwarderChanged();
+			createroutelistitemsview1.UpdateInfo();
 		}
 
 		private void InitializeAdditionalLoading()
@@ -272,51 +291,22 @@ namespace Vodovoz
 			ConfigureTreeRouteListSpecialConditions();
 		}
 
-		private void OnCarChangedByUser(object sender, EventArgs e)
-		{
-			if(ViewModel.Entity.Car == null || ViewModel.Entity.Date == default)
-			{
-				ybuttonAddAdditionalLoad.Sensitive = false;
-				return;
-			}
-
-			ybuttonAddAdditionalLoad.Sensitive = true;
-			var isCompanyCar = ViewModel.Entity.GetCarVersion.IsCompanyCar;
-
-			ViewModel.Entity.Driver = ViewModel.Entity.Car.Driver != null && ViewModel.Entity.Car.Driver.Status != EmployeeStatus.IsFired
-				? ViewModel.Entity.Car.Driver
-				: null;
-			entryDriver.Sensitive = ViewModel.Entity.Driver == null || isCompanyCar;
-
-			if(!isCompanyCar || ViewModel.Entity.Car.CarModel.CarTypeOfUse == CarTypeOfUse.Largus && ViewModel.Entity.CanAddForwarder)
-			{
-				ViewModel.Entity.Forwarder = ViewModel.Entity.Forwarder;
-			}
-			else
-			{
-				ViewModel.Entity.Forwarder = null;
-			}
-		}
-
 		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
 			if(e.PropertyName == nameof(ViewModel.CanAccept))
 			{
 				_additionalLoadingItemsView.ViewModel.CanEdit = ViewModel.CanAccept;
-				return;
 			}
 
 			if(e.PropertyName == nameof(ViewModel.CanAccept)
 				|| e.PropertyName == nameof(ViewModel.CanOpenOrder))
 			{
 				createroutelistitemsview1.IsEditable(ViewModel.CanAccept, ViewModel.CanOpenOrder);
-				return;
 			}
 
 			if(e.PropertyName == nameof(ViewModel.AdditionalLoadItemsVisible))
 			{
 				UpdateAdditionalLoadDocumentsVisibility();
-				return;
 			}
 		}
 
@@ -396,14 +386,12 @@ namespace Vodovoz
 		{
 			ViewModel.AddAdditionalLoadingCommand.Execute();
 			createroutelistitemsview1.UpdateInfo();
-			createroutelistitemsview1.IsEditable(ViewModel.CanAccept, ViewModel.CanOpenOrder);
 		}
 
 		private void OnButtonRemoveAdditionalLoadClicked(object sender, EventArgs e)
 		{
 			ViewModel.RemoveAdditionalLoadingCommand.Execute();
 			createroutelistitemsview1.UpdateInfo();
-			createroutelistitemsview1.IsEditable(ViewModel.CanAccept, ViewModel.CanOpenOrder);
 		}
 
 		private void OnDocumentsPrinted(object sender, EventArgs e)

@@ -647,7 +647,6 @@ namespace Vodovoz
 						.AddScoped<RevisionBottlesAndDeposits>()
 						.AddTransient<IReportExporter, ReportExporterAdapter>()
 						.AddScoped<SelectPaymentTypeViewModel>()
-						.AddTransient<IReportExporter, ReportExporterAdapter>()
 						.AddScoped<IRouteOptimizer, RouteOptimizer>()
 						.AddScoped<ICoordinatesParser, CoordinatesParser>()
 						.AddScoped<ICustomReportFactory, CustomReportFactory>()
