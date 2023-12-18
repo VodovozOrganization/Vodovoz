@@ -1992,17 +1992,6 @@ namespace Vodovoz.Domain.Orders
 			UpdateContract();
 		}
 
-		public virtual OrderItem AddOrderItem(Nomenclature nomenclature, decimal nds, int count, decimal price, int discount)
-		{
-			var item = OrderItem.CreateForSaleWithDiscount(this, nomenclature, count, price, false, discount, null, null);
-
-			item.IncludeNDS = nds;
-
-			ObservableOrderItems.Add(item);
-
-			return item;
-		}
-
 		public virtual void RemoveOrderItem(OrderItem orderItem)
 		{
 			if(!ObservableOrderItems.Contains(orderItem)) {
@@ -2033,6 +2022,11 @@ namespace Vodovoz.Domain.Orders
 		public virtual void SetOrderItemCount(int orderItemId, decimal newCount)
 		{
 			ObservableOrderItems.FirstOrDefault(x => x.Id == orderItemId)?.SetCount(newCount);
+		}
+		
+		public virtual void SetOrderItemCount(OrderItem orderItem, decimal newCount)
+		{
+			orderItem?.SetCount(newCount);
 		}
 
 		#endregion
