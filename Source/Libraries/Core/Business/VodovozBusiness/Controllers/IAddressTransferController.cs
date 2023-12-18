@@ -5,6 +5,6 @@ namespace Vodovoz.Controllers
 {
 	public interface IAddressTransferController
 	{
-		void UpdateDocuments(RouteListItem from, RouteListItem to, IUnitOfWork uow, bool isRevert = false);
+		void UpdateDocuments(RouteListItem from, RouteListItem to, IUnitOfWork uow, AddressTransferType addressTransferType);
 	}
 }

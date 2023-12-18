@@ -40,6 +40,7 @@ namespace Vodovoz.Domain.Logistic
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
 		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
+		private readonly IRouteListItemRepository _routeListItemRepository = new RouteListItemRepository();
 
 		#region Свойства
 
@@ -860,11 +861,14 @@ namespace Vodovoz.Domain.Logistic
 		{
 			if(Status == RouteListItemStatus.Transfered)
 			{
-				if(TransferedTo != null)
+				var transferedTo = _routeListItemRepository.GetTransferedTo(RouteList.UoW, this);
+				var addressTransferType = _routeListItemRepository.GetAddressTransferType(routeList.UoW, this.Id, transferedTo.Id);
+
+				if(transferedTo != null)
 				{
-					return $"Заказ был перенесен в МЛ №{ TransferedTo.RouteList.Id } " +
-						$"водителя { TransferedTo.RouteList.Driver.ShortName }" +
-						$" { TransferedTo.AddressTransferType?.GetEnumTitle() }.";
+					return $"Заказ был перенесен в МЛ №{transferedTo.RouteList.Id} " +
+						$"водителя {transferedTo.RouteList.Driver.ShortName}" +
+						$" {addressTransferType?.GetEnumTitle()}.";
 				}
 				else
 				{
@@ -873,13 +877,13 @@ namespace Vodovoz.Domain.Logistic
 			}
 			if(WasTransfered)
 			{
-				var transferedFrom = new RouteListItemRepository().GetTransferedFrom(RouteList.UoW, this);
+				var transferedFrom = _routeListItemRepository.GetTransferedFrom(RouteList.UoW, this);
 
 				if(transferedFrom != null)
 				{
-					return $"Заказ из МЛ №{ transferedFrom.RouteList.Id }" +
-						$" водителя { transferedFrom.RouteList.Driver.ShortName }" +
-						$" { transferedFrom.TransferedTo?.AddressTransferType?.GetEnumTitle() }.";
+					return $"Заказ из МЛ №{transferedFrom.RouteList.Id}" +
+						$" водителя {transferedFrom.RouteList.Driver.ShortName}" +
+						$" {AddressTransferType?.GetEnumTitle()}.";
 				}
 				else
 				{

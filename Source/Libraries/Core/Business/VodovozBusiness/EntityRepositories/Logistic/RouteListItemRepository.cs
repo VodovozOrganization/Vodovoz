@@ -1,4 +1,4 @@
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
@@ -82,6 +82,38 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.OrderBy(() => addressTransferDocumentItemAlias.Id).Desc
 				.Take(1)
 				.SingleOrDefault();
+		}
+
+		public RouteListItem GetTransferedTo(IUnitOfWork uow, RouteListItem item)
+		{
+			RouteListItem routeListItemAlias = null;
+			AddressTransferDocumentItem addressTransferDocumentItemAlias = null;
+
+			if(item.TransferedTo == null)
+			{
+				return null;
+			}
+
+			return uow.Session.QueryOver(() => routeListItemAlias)
+				.JoinEntityAlias(() => addressTransferDocumentItemAlias, () => routeListItemAlias.Id == addressTransferDocumentItemAlias.NewAddress.Id)
+				.Where(() => addressTransferDocumentItemAlias.OldAddress.Id == item.Id)
+				.OrderBy(() => addressTransferDocumentItemAlias.Id).Desc
+				.Take(1)
+				.SingleOrDefault();
+		}
+
+		public AddressTransferType? GetAddressTransferType(IUnitOfWork uow, int oldAddressId, int newAddressId)
+		{
+			AddressTransferDocumentItem addressTransferDocumentItemAlias = null;
+
+			var result = uow.Session.QueryOver(() => addressTransferDocumentItemAlias)				
+				.Where(() => addressTransferDocumentItemAlias.OldAddress.Id == oldAddressId)
+				.And(() => addressTransferDocumentItemAlias.NewAddress.Id == newAddressId)
+				.OrderBy(() => addressTransferDocumentItemAlias.Id).Desc
+				.Take(1)
+				.SingleOrDefault();
+
+			return result?.AddressTransferType;
 		}
 
 		public bool AnotherRouteListItemForOrderExist(IUnitOfWork uow, RouteListItem routeListItem)

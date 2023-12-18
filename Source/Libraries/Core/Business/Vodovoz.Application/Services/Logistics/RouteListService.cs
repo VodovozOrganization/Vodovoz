@@ -682,7 +682,7 @@ namespace Vodovoz.Application.Services.Logistics
 				newAddress.FirstFillClosing(_wageParameterService);
 			}
 
-			UpdateTransferDocuments(unitOfWork, address, newAddress);
+			UpdateTransferDocuments(unitOfWork, address, newAddress, addressTransferType.Value);
 
 			if(sourceRouteList.Status == RouteListStatus.Closed)
 			{
@@ -745,7 +745,7 @@ namespace Vodovoz.Application.Services.Logistics
 				pastPlace.WasTransfered = true;
 				pastPlace.AddressTransferType = pastPlaceAddressTransferType;
 
-				UpdateTransferDocuments(unitOfWork, address, pastPlace, true);
+				UpdateTransferDocuments(unitOfWork, address, pastPlace, pastPlaceAddressTransferType.Value);
 				pastPlace.RecalculateTotalCash();
 				unitOfWork.Save(pastPlace);
 				address.RouteList.TransferAddressTo(unitOfWork, address, pastPlace);
@@ -758,8 +758,8 @@ namespace Vodovoz.Application.Services.Logistics
 			return Result.Success(string.Empty);
 		}
 
-		private void UpdateTransferDocuments(IUnitOfWork unitOfWork, RouteListItem sourceAddress, RouteListItem targetAddress, bool isRevert = false) =>
-			_addressTransferController.UpdateDocuments(sourceAddress, targetAddress, unitOfWork, isRevert);
+		private void UpdateTransferDocuments(IUnitOfWork unitOfWork, RouteListItem sourceAddress, RouteListItem targetAddress, AddressTransferType addressTransferType) =>
+			_addressTransferController.UpdateDocuments(sourceAddress, targetAddress, unitOfWork, addressTransferType);
 
 		public Result<RouteListAcceptStatus> TryAcceptOrEditRouteList(IUnitOfWork uow, RouteList routeList, bool isAcceptMode, Action<bool> disableItemsUpdate, ICommonServices commonServices)
 		{

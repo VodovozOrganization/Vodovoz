@@ -17,13 +17,12 @@ namespace Vodovoz.Controllers
 			this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 		}
 
-		public void UpdateDocuments(RouteListItem from, RouteListItem to, IUnitOfWork uow, bool isRevert = false)
+		public void UpdateDocuments(RouteListItem from, RouteListItem to, IUnitOfWork uow, AddressTransferType addressTransferType)
 		{
-
-			CreateOrUpdateAddressTransferDocuments(@from, to, uow, isRevert);
+			CreateOrUpdateAddressTransferDocuments(@from, to, uow, addressTransferType);
 		}
 
-		private void CreateOrUpdateAddressTransferDocuments(RouteListItem from, RouteListItem to, IUnitOfWork uow, bool isRevert = false)
+		private void CreateOrUpdateAddressTransferDocuments(RouteListItem from, RouteListItem to, IUnitOfWork uow, AddressTransferType addressTransferType)
 		{
 			var transferDocument = uow.Session.QueryOver<AddressTransferDocument>()
 				.Where(x => x.RouteListFrom.Id == from.RouteList.Id)
@@ -51,7 +50,7 @@ namespace Vodovoz.Controllers
 				Document = transferDocument,
 				OldAddress = from,
 				NewAddress = to,
-				AddressTransferType = isRevert ? from.AddressTransferType : from.TransferedTo?.AddressTransferType
+				AddressTransferType = addressTransferType
 			};
 
 			transferDocument.ObservableAddressTransferDocumentItems.Add(newAddressTransferItem);

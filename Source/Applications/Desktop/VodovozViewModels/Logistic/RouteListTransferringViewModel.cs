@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Microsoft.Extensions.Logging;
 using NHibernate;
 using QS.Commands;
@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Documents.DriverTerminalTransfer;
 using Vodovoz.Domain.Goods;
@@ -50,6 +51,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private int? _sourceRouteListId;
 		private RouteList _sourceRouteList;
+		private readonly IRouteListItemRepository _routeListItemRepository;
 
 		private readonly RouteListStatus[] _defaultSourceRouteListStatuses =
 		{
@@ -102,7 +104,8 @@ namespace Vodovoz.ViewModels.Logistic
 			IRouteListService routeListService,
 			IUserService userService,
 			IEmployeeService employeeService,
-			IGtkTabsOpener gtkTabsOpener)
+			IGtkTabsOpener gtkTabsOpener,
+			IRouteListItemRepository routeListItemRepository)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			_logger = logger
@@ -127,6 +130,8 @@ namespace Vodovoz.ViewModels.Logistic
 				?? throw new ArgumentNullException(nameof(employeeService));
 			_gtkTabsOpener = gtkTabsOpener
 				?? throw new ArgumentNullException(nameof(gtkTabsOpener));
+			_routeListItemRepository = routeListItemRepository
+				?? throw new ArgumentNullException(nameof(routeListItemRepository));
 
 			SourceRouteListDeliveryFreeBalanceViewModel = _lifetimeScope.Resolve<DeliveryFreeBalanceViewModel>();
 
@@ -517,22 +522,25 @@ namespace Vodovoz.ViewModels.Logistic
 			using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot(Title + " > перенос адресов"))
 			{
 				var sourceRouteListId = SourceRouteListId;
-
 				var targetRouteListId = TargetRouteListId;
 
 				try
 				{
-					var ordersIdsWithTransferTypes = SelectedSourceRouteListAddresses
+					#region Добавляемые приянтые заказы (не переносимые из какого-либо МЛ)
+
+					var ordersIdsWithTransferTypesWithoutRouteList = SelectedSourceRouteListAddresses
 						.Cast<RouteListItemNode>()
 						.Where(x => x.Order != null)
 						.ToDictionary(
 							x => x.OrderId,
 							x => x.AddressTransferType);
 
-					Result<IEnumerable<string>> ordersTransferresult = _routeListService.TransferOrdersTo(
+					Result<IEnumerable<string>> ordersTransferResult = _routeListService.TransferOrdersTo(
 						unitOfWork,
 						TargetRouteListId.Value,
-						ordersIdsWithTransferTypes);
+						ordersIdsWithTransferTypesWithoutRouteList);
+
+					#endregion
 
 					Result<IEnumerable<string>> addressesTransferResult = null;
 
@@ -554,22 +562,20 @@ namespace Vodovoz.ViewModels.Logistic
 					}
 
 					if((addressesTransferResult?.IsSuccess ?? true)
-						&& ordersTransferresult.IsSuccess)
+						&& ordersTransferResult.IsSuccess)
 					{
 						SourceRouteListId = null;
-
 						TargetRouteListId = null;
 
 						unitOfWork.Commit();
 
 						TargetRouteListId = targetRouteListId;
-
 						SourceRouteListId = sourceRouteListId;
 
 						if(!IsSourceRouteListSelected)
 						{
 							var ordersToRemove = SourceRouteListAddresses
-								.Where(x => ordersIdsWithTransferTypes.Keys.Contains(x.OrderId))
+								.Where(x => ordersIdsWithTransferTypesWithoutRouteList.Keys.Contains(x.OrderId))
 								.ToList();
 
 							foreach(var orderToRemove in ordersToRemove)
@@ -580,7 +586,7 @@ namespace Vodovoz.ViewModels.Logistic
 							ordersToRemove.Clear();
 						}
 
-						ShowTransferInformation(ordersTransferresult.Value);
+						ShowTransferInformation(ordersTransferResult.Value);
 
 						if(addressesTransferResult != null)
 						{
@@ -590,9 +596,9 @@ namespace Vodovoz.ViewModels.Logistic
 						return;
 					}
 
-					if(ordersTransferresult.IsFailure)
+					if(ordersTransferResult.IsFailure)
 					{
-						ShowTransferErrors(ordersTransferresult.Errors);
+						ShowTransferErrors(ordersTransferResult.Errors);
 					}
 
 					if(addressesTransferResult?.IsFailure ?? false)
@@ -703,7 +709,12 @@ namespace Vodovoz.ViewModels.Logistic
 						{
 							foreach(var orderIds in ordersToRestore)
 							{
-								AddOrderToSourceAddresses(orderIds);
+								var needShowInSource = !_routeListItemRepository.GetRouteListItemsForOrder(UoW,  orderIds).Any();
+
+								if(needShowInSource)
+								{
+									AddOrderToSourceAddresses(orderIds);
+								}								
 							}
 						}
 					}
