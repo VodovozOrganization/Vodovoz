@@ -922,8 +922,8 @@ namespace Vodovoz.Domain.Orders
 				PromoSet = promotionalSet
 			};
 
-			newItem.CalculateAndSetDiscount(discount);
 			newItem.UpdatePriceWithRecalculate(price);
+			newItem.CalculateAndSetDiscount(discount);
 
 			return newItem;
 		}
