@@ -3857,8 +3857,10 @@ namespace Vodovoz.Domain.Orders
 			if(IsContractCloser)
 				return false;
 
-			int amountDelivered = (int)OrderItems.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && !item.Nomenclature.IsDisposableTare)
-								.Sum(item => item?.ActualCount ?? 0);
+			int amountDelivered = (int)OrderItems
+				.Where(item => item.Nomenclature.Category == NomenclatureCategory.water
+					&& item.Nomenclature.TareVolume == TareVolume.Vol19L)
+				.Sum(item => item.ActualCount ?? 0);
 
 			if(forfeitQuantity == null) {
 				forfeitQuantity = (int)OrderItems.Where(i => i.Nomenclature.Id == standartNomenclatures.GetForfeitId())
