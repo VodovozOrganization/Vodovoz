@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
 using Fias.Client;
@@ -655,6 +655,7 @@ namespace Vodovoz
 						.AddScoped<ICustomReportItemFactory, CustomReportItemFactory>()
 						.AddScoped<IRdlTextBoxFactory, RdlTextBoxFactory>()
 						.AddScoped<IEventsQrPlacer, EventsQrPlacer>()
+						.AddTransient<IValidationViewFactory, GtkValidationViewFactory>()
 						.AddApplication()
 						.AddBusiness();
 				});

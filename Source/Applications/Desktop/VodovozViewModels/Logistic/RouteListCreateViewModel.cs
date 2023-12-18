@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using Microsoft.Extensions.Logging;
+using NHibernate;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Tracking;
@@ -104,7 +105,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 			if(uowBuilder.IsNewEntity)
 			{
-				var logisticial = _employeeRepository.GetEmployeeForCurrentUser(UoW);
+				Entity.Logistician = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 
 				if(Entity.Logistician is null)
 				{
@@ -113,7 +114,6 @@ namespace Vodovoz.ViewModels.Logistic
 					return;
 				}
 
-				Entity.Logistician = logisticial;
 				Entity.Date = DateTime.Now;
 			}
 
@@ -122,9 +122,19 @@ namespace Vodovoz.ViewModels.Logistic
 			IsLogistician = _currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.IsLogistician);
 			IsCashier = _currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.RoleCashier);
 			CanReadRouteListProfitability = _currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.RouteList.CanReadRouteListProfitability);
-			СanOpenOrder = _currentPermissionService.ValidateEntityPermission(typeof(Order)).CanRead;
+			CanOpenOrder = _currentPermissionService.ValidateEntityPermission(typeof(Order)).CanRead;
 
 			_previousSelectedDate = Entity.Date;
+
+			if(Entity.Id > 0)
+			{
+				//Нужно только для быстрой загрузки данных диалога. Проверено на МЛ из 200 заказов. Разница в скорости в несколько раз.
+				var orders = UoW.Session.QueryOver<RouteListItem>()
+					.Where(x => x.RouteList == Entity)
+					.Fetch(SelectMode.Fetch, x => x.Order)
+					.Fetch(SelectMode.ChildFetch, x => x.Order.OrderItems)
+					.List();
+			}
 
 			DeliveryShiftsCache = _deliveryShiftRepository.ActiveShifts(UoW).ToList();
 
@@ -159,7 +169,7 @@ namespace Vodovoz.ViewModels.Logistic
 			CancelCommand = new DelegateCommand(() => Close(AskSaveOnClose, CloseSource.Cancel));
 
 			AcceptCommand = new DelegateCommand(AcceptHandler);
-			CancelCommand = new DelegateCommand(ReturnToNewHandler);
+			RevertToNewCommand = new DelegateCommand(ReturnToNewHandler);
 
 			AddAdditionalLoadingCommand = new DelegateCommand(AddAdditionalLoad);
 			RemoveAdditionalLoadingCommand = new DelegateCommand(RemoveAdditionalLoad);
@@ -171,6 +181,8 @@ namespace Vodovoz.ViewModels.Logistic
 			DriverViewModel = CreateDriverViewModel();
 			ForwarderViewModel = CreateForwarderViewModel();
 			LogisticianViewModel = CreateLogisticianViewModel();
+
+			Entity.PropertyChanged += OnRouteListPropertyChanged;
 		}
 
 		public Action<bool> DisableItemsUpdateDelegate { get; set; }
@@ -221,56 +233,18 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public bool AdditionalLoadItemsVisible => Entity.AdditionalLoadingDocument != null;
 
-		public void ObservableGeographicGroups_ListContentChanged(object sender, EventArgs e)
-		{
-			OnPropertyChanged(nameof(ClosingSubdivisionName));
-		}
-
-		private void OnRouteListPropertyChanged(object sender, PropertyChangedEventArgs e)
-		{
-			if(e.PropertyName == nameof(Entity.AdditionalLoadingDocument))
-			{
-				OnPropertyChanged(nameof(CanAddAdditionalLoad));
-				OnPropertyChanged(nameof(CanRemoveAdditionalLoad));
-				OnPropertyChanged(nameof(AdditionalLoadItemsVisible));
-			}
-		}
-
-		private void AddAdditionalLoad()
-		{
-			var document = _additionalLoadingModel.CreateAdditionLoadingDocument(UoW, Entity);
-			if(document != null)
-			{
-				Entity.AdditionalLoadingDocument = document;
-			}
-		}
-
-		private void RemoveAdditionalLoad()
-		{
-			UoW.Delete(Entity.AdditionalLoadingDocument);
-			Entity.AdditionalLoadingDocument = null;
-		}
-
-		public void OnDatepickerDateDateChangedByUser(object sender, EventArgs e)
-		{
-			if(Entity.Date < DateTime.Today.AddDays(-1) && !CanСreateRoutelistInPastPeriod)
-			{
-				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Нельзя выставлять дату ранее вчерашнего дня!");
-				Entity.Date = _previousSelectedDate;
-			}
-			else
-			{
-				_additionalLoadingModel.ReloadActiveFlyers(UoW, Entity, _previousSelectedDate);
-				_previousSelectedDate = Entity.Date;
-			}
-		}
-
 		public bool CanSave => IsLogistician && (CanCreate && UoW.IsNew || CanUpdate);
 
 		public bool CanAccept => Entity.Status == RouteListStatus.New
 			&& CanSave;
 
-		public bool CanRevertToNew => CanSave;
+		public bool CanRevertToNew => Entity.Status != RouteListStatus.New && CanSave;
+
+		public bool CanChangeForwarder => CanAccept
+			&& ((Entity.Car is null || Entity.Date == default)
+				|| (!Entity.GetCarVersion.IsCompanyCar
+					|| Entity.Car.CarModel.CarTypeOfUse == CarTypeOfUse.Largus
+					&& Entity.CanAddForwarder));
 
 		public bool CanChangeFixedPrice => Entity.HasFixedShippingPrice
 			&& Entity.Status != RouteListStatus.Closed;
@@ -325,10 +299,12 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public IEntityEntryViewModel LogisticianViewModel { get; }
 
+		public IInteractiveService InteractiveService => _interactiveService;
+
 		public IEntityEntryViewModel CreateLogisticianViewModel()
 		{
-			return new CommonEEVMBuilderFactory<RouteList>(this, Entity, UoW, NavigationManager, _lifetimeScope)
-				.ForProperty(x => x.Forwarder)
+			 var logisticianViewModel = new CommonEEVMBuilderFactory<RouteList>(this, Entity, UoW, NavigationManager, _lifetimeScope)
+				.ForProperty(x => x.Logistician)
 				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(filter =>
 				{
 					filter.Status = EmployeeStatus.IsWorking;
@@ -337,9 +313,58 @@ namespace Vodovoz.ViewModels.Logistic
 				})
 				.UseViewModelDialog<EmployeeViewModel>()
 				.Finish();
+
+			logisticianViewModel.IsEditable = false;
+
+			return logisticianViewModel;
 		}
 
 		#endregion EEVM
+
+		public void ObservableGeographicGroups_ListContentChanged(object sender, EventArgs e)
+		{
+			OnPropertyChanged(nameof(ClosingSubdivisionName));
+		}
+
+		private void OnRouteListPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Entity.AdditionalLoadingDocument)
+				|| e.PropertyName == nameof(Entity.Car))
+			{
+				OnPropertyChanged(nameof(CanAddAdditionalLoad));
+				OnPropertyChanged(nameof(CanRemoveAdditionalLoad));
+				OnPropertyChanged(nameof(AdditionalLoadItemsVisible));
+			}
+		}
+
+		private void AddAdditionalLoad()
+		{
+			var document = _additionalLoadingModel.CreateAdditionLoadingDocument(UoW, Entity);
+			if(document != null)
+			{
+				Entity.AdditionalLoadingDocument = document;
+			}
+		}
+
+		private void RemoveAdditionalLoad()
+		{
+			UoW.Delete(Entity.AdditionalLoadingDocument);
+			Entity.AdditionalLoadingDocument = null;
+		}
+
+		public void OnDatepickerDateDateChangedByUser(object sender, EventArgs e)
+		{
+			if(Entity.Date < DateTime.Today.AddDays(-1) && !CanСreateRoutelistInPastPeriod)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Нельзя выставлять дату ранее вчерашнего дня!");
+				Entity.Date = _previousSelectedDate;
+			}
+			else
+			{
+				_additionalLoadingModel.ReloadActiveFlyers(UoW, Entity, _previousSelectedDate);
+				_previousSelectedDate = Entity.Date;
+			}
+		}
 
 		private void PrintSelectedDocument(RouteListPrintableDocuments choise)
 		{
@@ -602,6 +627,19 @@ namespace Vodovoz.ViewModels.Logistic
 					NavigationManager.OpenViewModel<RouteListCreateViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(Entity.Id));
 				}
 			}
+		}
+
+		protected override bool BeforeValidation()
+		{
+			var contextItemsEnroute = new Dictionary<object, object>
+			{
+				{ "NewStatus", RouteListStatus.EnRoute },
+				{ nameof(IRouteListItemRepository), _routeListItemRepository }
+			};
+
+			ValidationContext = new ValidationContext(Entity, null, contextItemsEnroute);
+
+			return base.BeforeValidation();
 		}
 
 		private void ShowErrors(IEnumerable<Error> errors)

@@ -9,6 +9,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
@@ -312,7 +313,7 @@ namespace Vodovoz.ViewModels.Logistic
 								return;
 							}
 						}
-						_gtkTabsOpener.OpenRouteListCreateDlg(this, rl.Id);
+						NavigationManager.OpenViewModel<RouteListCreateViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(rl.Id));
 					}
 				},
 				i => true

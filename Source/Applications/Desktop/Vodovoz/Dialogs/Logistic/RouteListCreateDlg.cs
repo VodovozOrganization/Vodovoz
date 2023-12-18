@@ -2,10 +2,8 @@ using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
-using NHibernate;
 using QS.Navigation;
 using QS.Print;
-using QS.Project.Services;
 using QS.Views.GtkUI;
 using System;
 using System.ComponentModel;
@@ -36,6 +34,7 @@ namespace Vodovoz
 		{
 			ViewModel.DisableItemsUpdateDelegate = DisableItemsUpdate;
 
+			createroutelistitemsview1.NavigationManager = ViewModel.NavigationManager as ITdiCompatibilityNavigation;
 			createroutelistitemsview1.Container = Tab;
 
 			ynotebook1.ShowTabs = false;
@@ -53,58 +52,17 @@ namespace Vodovoz
 				.AddBinding(ViewModel.Entity, e => e.Date, w => w.Date)
 				.InitializeFromSource();
 
-			datepickerDate.DateChangedByUser += (s, e) =>{
+			datepickerDate.DateChangedByUser += (s, e) =>
+			{
 				ViewModel.OnDatepickerDateDateChangedByUser(s, e);
 				createroutelistitemsview1.UpdateInfo();
 			};
 
-			ylblSpecialConditionsConfirmed.Binding
-				.AddBinding(ViewModel.Entity, e => e.SpecialConditionsAccepted, w => w.Visible)
-				.InitializeFromSource();
-
-			ylblSpecialConditionsConfirmedDateTime.Binding
-				.AddBinding(ViewModel.Entity, e => e.SpecialConditionsAccepted, w => w.Visible)
-				.AddFuncBinding(e => e.SpecialConditionsAcceptedAt.HasValue
-						? e.SpecialConditionsAcceptedAt.Value.ToString("yyyy-MM-dd HH:mm:ss")
-						: "",
-					w => w.Text)
-				.InitializeFromSource();
-
-			radioBtnSprcialConditions.Visible = ViewModel.SpecialConditions.Any();
-			radioBtnSprcialConditions.Toggled += OnButtonSpecialConditionsToggled;
-
-			ConfigureTreeRouteListSpecialConditions();
+			InitializeSpecialConditions();
 
 			entryCar.ViewModel = ViewModel.CarViewModel;
 
-			entryCar.ViewModel.ChangedByUser += (sender, e) =>
-			{
-				if(ViewModel.Entity.Car == null || ViewModel.Entity.Date == default)
-				{
-					entryForwarder.ViewModel.IsEditable = true;
-					ybuttonAddAdditionalLoad.Sensitive = false;
-					return;
-				}
-
-				ybuttonAddAdditionalLoad.Sensitive = true;
-				var isCompanyCar = ViewModel.Entity.GetCarVersion.IsCompanyCar;
-
-				ViewModel.Entity.Driver = ViewModel.Entity.Car.Driver != null && ViewModel.Entity.Car.Driver.Status != EmployeeStatus.IsFired
-					? ViewModel.Entity.Car.Driver
-					: null;
-				entryDriver.Sensitive = ViewModel.Entity.Driver == null || isCompanyCar;
-
-				if(!isCompanyCar || ViewModel.Entity.Car.CarModel.CarTypeOfUse == CarTypeOfUse.Largus && ViewModel.Entity.CanAddForwarder)
-				{
-					ViewModel.Entity.Forwarder = ViewModel.Entity.Forwarder;
-					entryForwarder.ViewModel.IsEditable = true;
-				}
-				else
-				{
-					ViewModel.Entity.Forwarder = null;
-					entryForwarder.ViewModel.IsEditable = false;
-				}
-			};
+			entryCar.ViewModel.ChangedByUser += OnCarChangedByUser;
 
 			entryDriver.ViewModel = ViewModel.DriverViewModel;
 
@@ -117,21 +75,23 @@ namespace Vodovoz
 					w => w.Visible)
 				.InitializeFromSource();
 
+			entryForwarder.ViewModel = ViewModel.ForwarderViewModel;
+
+			entryForwarder.Binding
+				.AddBinding(ViewModel, vm => vm.CanChangeForwarder, w => w.ViewModel.IsEditable)
+				.InitializeFromSource();
+
 			entryForwarder.ViewModel.Changed += (sender, args) =>
 			{
 				createroutelistitemsview1.OnForwarderChanged();
 				lblForwarderComment.Text = ViewModel.Entity.Forwarder?.Comment;
 			};
 
-			entryForwarder.ViewModel = ViewModel.ForwarderViewModel;
-
 			hboxForwarderComment.Binding
 				.AddFuncBinding(ViewModel.Entity, e => e.Forwarder != null
 					&& !string.IsNullOrWhiteSpace(e.Forwarder.Comment), w => w.Visible)
 				.InitializeFromSource();
 			lblForwarderComment.Text = ViewModel.Entity.Forwarder?.Comment;
-
-			entryLogistician.Sensitive = false;
 
 			entryLogistician.ViewModel = ViewModel.LogisticianViewModel;
 
@@ -144,18 +104,7 @@ namespace Vodovoz
 				.AddFuncBinding(ViewModel.Entity, e => e.Status.GetEnumTitle(), w => w.LabelProp)
 				.InitializeFromSource();
 
-			entryDriver.Sensitive = false;
 			enumPrint.Sensitive = ViewModel.Entity.Status != RouteListStatus.New;
-
-			if(ViewModel.Entity.Id > 0)
-			{
-				//Нужно только для быстрой загрузки данных диалога. Проверено на МЛ из 200 заказов. Разница в скорости в несколько раз.
-				var orders = ViewModel.UoW.Session.QueryOver<RouteListItem>()
-					.Where(x => x.RouteList == ViewModel.Entity)
-					.Fetch(SelectMode.Fetch, x => x.Order)
-					.Fetch(SelectMode.ChildFetch, x => x.Order.OrderItems)
-					.List();
-			}
 
 			createroutelistitemsview1.RouteListUoW = ViewModel.UoWGeneric;
 			createroutelistitemsview1.SetPermissionParameters(
@@ -163,21 +112,7 @@ namespace Vodovoz
 				ViewModel.CanUpdate,
 				ViewModel.IsLogistician);
 
-			var additionalLoadingItemsViewModel =
-				new AdditionalLoadingItemsViewModel(
-					ViewModel.UoW,
-					Tab,
-					ViewModel.NavigationManager as ITdiCompatibilityNavigation,
-					ServicesConfig.InteractiveService);
-
-			additionalLoadingItemsViewModel
-				.BindWithSource(ViewModel.Entity, e => e.AdditionalLoadingDocument);
-
-			additionalLoadingItemsViewModel.CanEdit = ViewModel.Entity.Status == RouteListStatus.New;
-			_additionalLoadingItemsView = new AdditionalLoadingItemsView(additionalLoadingItemsViewModel);
-			_additionalLoadingItemsView.WidthRequest = 300;
-			_additionalLoadingItemsView.ShowAll();
-			hboxAdditionalLoading.PackStart(_additionalLoadingItemsView, false, false, 0);
+			InitializeAdditionalLoading();
 
 			ybuttonAddAdditionalLoad.Binding
 				.AddBinding(ViewModel, vm => vm.CanAddAdditionalLoad, w => w.Visible)
@@ -198,7 +133,14 @@ namespace Vodovoz
 				.InitializeFromSource();
 
 			buttonAccept.Clicked += (_, _2) => ViewModel.AcceptCommand.Execute();
+			buttonAccept.Binding
+				.AddBinding(ViewModel, vm => vm.CanAccept, w => w.Visible)
+				.InitializeFromSource();
+
 			buttonRevertToNew.Clicked += (_, _2) => ViewModel.RevertToNewCommand.Execute();
+			buttonRevertToNew.Binding
+				.AddBinding(ViewModel, vm => vm.CanRevertToNew, w => w.Visible)
+				.InitializeFromSource();
 
 			enumPrint.ItemsEnum = typeof(RouteListPrintableDocuments);
 			enumPrint.SetVisibility(RouteListPrintableDocuments.TimeList, false);
@@ -248,22 +190,6 @@ namespace Vodovoz
 				.AddBinding(ViewModel, vm => vm.CanAccept, w => w.Sensitive)
 				.InitializeFromSource();
 
-			entryCar.Binding
-				.AddBinding(ViewModel, vm => vm.CanAccept, w => w.Sensitive)
-				.InitializeFromSource();
-
-			entryForwarder.Binding
-				.AddBinding(ViewModel, vm => vm.CanAccept, w => w.Sensitive)
-				.InitializeFromSource();
-
-			ybuttonAddAdditionalLoad.Binding
-				.AddBinding(ViewModel, vm => vm.CanAddAdditionalLoad, w => w.Sensitive)
-				.InitializeFromSource();
-
-			ybuttonRemoveAdditionalLoad.Binding
-				.AddBinding(ViewModel, vm => vm.CanRemoveAdditionalLoad, w => w.Sensitive)
-				.InitializeFromSource();
-
 			ViewModel.Entity.ObservableGeographicGroups.ListContentChanged += ViewModel.ObservableGeographicGroups_ListContentChanged;
 
 			fixPriceSpin.Binding
@@ -274,15 +200,7 @@ namespace Vodovoz
 				.AddBinding(ViewModel, vm => vm.CanChangeIsFixPrice, w => w.Sensitive)
 				.InitializeFromSource();
 
-			#region Рентабельность МЛ
-
-			radioBtnProfitability.Sensitive = ViewModel.CanReadRouteListProfitability;
-			radioBtnProfitability.Toggled += OnProfitabilityToggled;
-			createroutelistitemsview1.UpdateProfitabilityInfo();
-
-			ConfigureTreeRouteListProfitability();
-
-			#endregion Рентабельность МЛ
+			InitializeProfitability();
 
 			btnCopyEntityId.Sensitive = ViewModel.Entity.Id > 0;
 			btnCopyEntityId.Clicked += OnBtnCopyEntityIdClicked;
@@ -292,18 +210,115 @@ namespace Vodovoz
 			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
 		}
 
+		private void InitializeAdditionalLoading()
+		{
+			var additionalLoadingItemsViewModel =
+				new AdditionalLoadingItemsViewModel(
+					ViewModel.UoW,
+					Tab,
+					ViewModel.NavigationManager as ITdiCompatibilityNavigation,
+					ViewModel.InteractiveService);
+
+			additionalLoadingItemsViewModel
+				.BindWithSource(ViewModel.Entity, e => e.AdditionalLoadingDocument);
+
+			additionalLoadingItemsViewModel.CanEdit = ViewModel.Entity.Status == RouteListStatus.New;
+			_additionalLoadingItemsView = new AdditionalLoadingItemsView(additionalLoadingItemsViewModel);
+			_additionalLoadingItemsView.WidthRequest = 300;
+			_additionalLoadingItemsView.ShowAll();
+			hboxAdditionalLoading.PackStart(_additionalLoadingItemsView, false, false, 0);
+
+			ybuttonAddAdditionalLoad.Binding
+				.AddBinding(ViewModel, vm => vm.CanAddAdditionalLoad, w => w.Sensitive)
+				.InitializeFromSource();
+
+			ybuttonRemoveAdditionalLoad.Binding
+				.AddBinding(ViewModel, vm => vm.CanRemoveAdditionalLoad, w => w.Sensitive)
+				.InitializeFromSource();
+
+			UpdateAdditionalLoadDocumentsVisibility();
+		}
+
+		private void InitializeProfitability()
+		{
+			radioBtnProfitability.Sensitive = ViewModel.CanReadRouteListProfitability;
+			radioBtnProfitability.Toggled += OnProfitabilityToggled;
+			createroutelistitemsview1.UpdateProfitabilityInfo();
+
+			ConfigureTreeRouteListProfitability();
+		}
+
+		private void InitializeSpecialConditions()
+		{
+			ylblSpecialConditionsConfirmed.Binding
+				.AddBinding(ViewModel.Entity, e => e.SpecialConditionsAccepted, w => w.Visible)
+				.InitializeFromSource();
+
+			ylblSpecialConditionsConfirmedDateTime.Binding
+				.AddBinding(ViewModel.Entity, e => e.SpecialConditionsAccepted, w => w.Visible)
+				.AddFuncBinding(e => e.SpecialConditionsAcceptedAt.HasValue
+						? e.SpecialConditionsAcceptedAt.Value.ToString("yyyy-MM-dd HH:mm:ss")
+						: "",
+					w => w.Text)
+				.InitializeFromSource();
+
+			radioBtnSprcialConditions.Visible = ViewModel.SpecialConditions.Any();
+			radioBtnSprcialConditions.Toggled += OnButtonSpecialConditionsToggled;
+
+			ConfigureTreeRouteListSpecialConditions();
+		}
+
+		private void OnCarChangedByUser(object sender, EventArgs e)
+		{
+			if(ViewModel.Entity.Car == null || ViewModel.Entity.Date == default)
+			{
+				ybuttonAddAdditionalLoad.Sensitive = false;
+				return;
+			}
+
+			ybuttonAddAdditionalLoad.Sensitive = true;
+			var isCompanyCar = ViewModel.Entity.GetCarVersion.IsCompanyCar;
+
+			ViewModel.Entity.Driver = ViewModel.Entity.Car.Driver != null && ViewModel.Entity.Car.Driver.Status != EmployeeStatus.IsFired
+				? ViewModel.Entity.Car.Driver
+				: null;
+			entryDriver.Sensitive = ViewModel.Entity.Driver == null || isCompanyCar;
+
+			if(!isCompanyCar || ViewModel.Entity.Car.CarModel.CarTypeOfUse == CarTypeOfUse.Largus && ViewModel.Entity.CanAddForwarder)
+			{
+				ViewModel.Entity.Forwarder = ViewModel.Entity.Forwarder;
+			}
+			else
+			{
+				ViewModel.Entity.Forwarder = null;
+			}
+		}
+
 		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
 			if(e.PropertyName == nameof(ViewModel.CanAccept))
 			{
 				_additionalLoadingItemsView.ViewModel.CanEdit = ViewModel.CanAccept;
+				return;
 			}
 
 			if(e.PropertyName == nameof(ViewModel.CanAccept)
 				|| e.PropertyName == nameof(ViewModel.CanOpenOrder))
 			{
 				createroutelistitemsview1.IsEditable(ViewModel.CanAccept, ViewModel.CanOpenOrder);
+				return;
 			}
+
+			if(e.PropertyName == nameof(ViewModel.AdditionalLoadItemsVisible))
+			{
+				UpdateAdditionalLoadDocumentsVisibility();
+				return;
+			}
+		}
+
+		private void UpdateAdditionalLoadDocumentsVisibility()
+		{
+			_additionalLoadingItemsView.Visible = ViewModel.AdditionalLoadItemsVisible;
 		}
 
 		private void ConfigureTreeRouteListSpecialConditions()
