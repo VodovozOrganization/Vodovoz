@@ -1,4 +1,4 @@
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.Dialog;
@@ -43,6 +43,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		private readonly IUserRepository _userRepository;
 		private readonly CommonMessages _commonMessages;
 		private readonly IRDLPreviewOpener _rdlPreviewOpener;
+		private ILifetimeScope _lifetimeScope;
 		private UserSettings _currentUserSettings;
 		private IGenericRepository<EdoContainer> _edoContainerRepository;
 		private bool _canCreateBillsWithoutShipment;
@@ -70,11 +71,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			IRDLPreviewOpener rdlPreviewOpener)
 			: base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
-			if(lifetimeScope == null)
-			{
-				throw new ArgumentNullException(nameof(lifetimeScope));
-			}
-
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_commonMessages = commonMessages ?? throw new ArgumentNullException(nameof(commonMessages));
 			_rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
@@ -145,24 +142,21 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 						defaultCategory = CurrentUserSettings.DefaultSaleCategory.Value;
 					}
 
-					var journalViewModel = NavigationManager.OpenViewModel<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(
-						this,
-						f =>
-						{
-							f.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder();
-							f.SelectCategory = defaultCategory;
-							f.SelectSaleCategory = SaleCategory.forSale;
-							f.RestrictArchive = false;
-						},
-						OpenPageOptions.AsSlave,
-						vm =>
-						{
-							vm.SelectionMode = JournalSelectionMode.Single;
-							vm.AdditionalJournalRestriction = new NomenclaturesForOrderJournalRestriction(ServicesConfig.CommonServices);
-							vm.TabName = "Номенклатура на продажу";
-							vm.CalculateQuantityOnStock = true;
-						})
-					.ViewModel;
+					Action<NomenclatureFilterViewModel> filterParams = f =>
+					{
+						f.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder();
+						f.SelectCategory = defaultCategory;
+						f.SelectSaleCategory = SaleCategory.forSale;
+						f.RestrictArchive = false;
+					};
+					
+					var journalViewModel = _lifetimeScope.Resolve<NomenclaturesJournalViewModel>(
+						new TypedParameter(typeof(Action<NomenclatureFilterViewModel>), filterParams));
+					
+					journalViewModel.SelectionMode = JournalSelectionMode.Single;
+					journalViewModel.AdditionalJournalRestriction = new NomenclaturesForOrderJournalRestriction(ServicesConfig.CommonServices);
+					journalViewModel.TabName = "Номенклатура на продажу";
+					journalViewModel.CalculateQuantityOnStock = true;
 				
 					journalViewModel.OnEntitySelectedResult += (s, ea) =>
 					{
@@ -175,6 +169,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 						TryAddNomenclature(UoWGeneric.Session.Get<Nomenclature>(selectedNode.Id));
 					};
+					
+					TabParent.AddSlaveTab(this, journalViewModel);
 				},
 				() => true);
 
@@ -384,8 +380,13 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		public override bool Save(bool close)
 		{
 			OnPropertyChanged(nameof(CanSendBillByEdo));
-
 			return base.Save(close);
+		}
+
+		public override void Dispose()
+		{
+			_lifetimeScope = null;
+			base.Dispose();
 		}
 	}
 }
