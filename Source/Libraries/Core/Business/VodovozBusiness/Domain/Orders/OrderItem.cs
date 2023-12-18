@@ -7,6 +7,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.Extensions;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -287,6 +288,17 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual decimal ManualChangingOriginalDiscount =>
 			IsDiscountInMoney ? (OriginalDiscountMoney ?? 0) : (OriginalDiscount ?? 0);
+		
+		public virtual void UpdateRentCount(int rentCount)
+		{
+			if(RentCount == rentCount)
+			{
+				return;
+			}
+
+			RentCount = rentCount;
+			Order?.UpdateRentsCount();
+		}
 
 		public virtual void SetRentEquipmentCount(int equipmentCount)
 		{
@@ -294,16 +306,12 @@ namespace Vodovoz.Domain.Orders
 			switch(OrderItemRentSubType)
 			{
 				case OrderItemRentSubType.RentServiceItem:
-					Count = RentCount * RentEquipmentCount;
+					SetCount(RentCount * RentEquipmentCount);
 					break;
 				case OrderItemRentSubType.RentDepositItem:
-					Count = RentEquipmentCount;
+					SetCount(RentEquipmentCount);
 					break;
 			}
-
-			Order?.RecalculateItemsPrice();
-			RecalculateDiscount();
-			RecalculateVAT();
 		}
 
 		private void RecalculateDiscount()
@@ -780,12 +788,11 @@ namespace Vodovoz.Domain.Orders
 			RecalculateVAT();
 		}
 
-		private void RecalculateAll()
+		protected internal virtual void RecalculateAll()
 		{
 			Order?.RecalculateItemsPrice();
 			RecalculateDiscount();
 			CalculateVATType();
-			RecalculateVAT();
 			Order?.UpdateRentsCount();
 		}
 
@@ -799,11 +806,10 @@ namespace Vodovoz.Domain.Orders
 				RentType = OrderRentType.DailyRent,
 				OrderItemRentSubType = OrderItemRentSubType.RentServiceItem,
 				PaidRentPackage = paidRentPackage,
-				Price = paidRentPackage.PriceDaily,
 				Nomenclature = paidRentPackage.RentServiceDaily
 			};
 
-			newItem.RecalculateAll();
+			newItem.UpdatePriceWithRecalculate(paidRentPackage.PriceDaily);
 
 			return newItem;
 		}
@@ -817,11 +823,10 @@ namespace Vodovoz.Domain.Orders
 				RentType = OrderRentType.DailyRent,
 				OrderItemRentSubType = OrderItemRentSubType.RentDepositItem,
 				PaidRentPackage = paidRentPackage,
-				Price = paidRentPackage.Deposit,
 				Nomenclature = paidRentPackage.DepositService
 			};
 
-			newItem.RecalculateAll();
+			newItem.UpdatePriceWithRecalculate(paidRentPackage.Deposit);
 
 			return newItem;
 		}
@@ -836,11 +841,10 @@ namespace Vodovoz.Domain.Orders
 				RentType = OrderRentType.NonFreeRent,
 				OrderItemRentSubType = OrderItemRentSubType.RentServiceItem,
 				PaidRentPackage = paidRentPackage,
-				Price = paidRentPackage.PriceMonthly,
 				Nomenclature = paidRentPackage.RentServiceMonthly
 			};
 
-			newItem.RecalculateAll();
+			newItem.UpdatePriceWithRecalculate(paidRentPackage.PriceMonthly);
 
 			return newItem;
 		}
@@ -854,11 +858,10 @@ namespace Vodovoz.Domain.Orders
 				RentType = OrderRentType.NonFreeRent,
 				OrderItemRentSubType = OrderItemRentSubType.RentDepositItem,
 				PaidRentPackage = paidRentPackage,
-				Price = paidRentPackage.Deposit,
 				Nomenclature = paidRentPackage.DepositService
 			};
 
-			newItem.RecalculateAll();
+			newItem.UpdatePriceWithRecalculate(paidRentPackage.Deposit);
 
 			return newItem;
 		}
@@ -872,11 +875,10 @@ namespace Vodovoz.Domain.Orders
 				RentType = OrderRentType.FreeRent,
 				OrderItemRentSubType = OrderItemRentSubType.RentDepositItem,
 				FreeRentPackage = freeRentPackage,
-				Price = freeRentPackage.Deposit,
 				Nomenclature = freeRentPackage.DepositService
 			};
 
-			newItem.RecalculateAll();
+			newItem.UpdatePriceWithRecalculate(freeRentPackage.Deposit);
 
 			return newItem;
 		}
@@ -891,11 +893,10 @@ namespace Vodovoz.Domain.Orders
 				Order = order,
 				Count = count,
 				Equipment = equipment,
-				Nomenclature = nomenclature,
-				Price = price
+				Nomenclature = nomenclature
 			};
 
-			newItem.RecalculateAll();
+			newItem.UpdatePriceWithRecalculate(price);
 
 			return newItem;
 		}
@@ -916,15 +917,13 @@ namespace Vodovoz.Domain.Orders
 				Count = count,
 				Equipment = null,
 				Nomenclature = nomenclature,
-				Price = price,
 				IsDiscountInMoney = isDiscountInMoney,
 				DiscountReason = discountReason,
 				PromoSet = promotionalSet
 			};
 
 			newItem.CalculateAndSetDiscount(discount);
-
-			newItem.RecalculateAll();
+			newItem.UpdatePriceWithRecalculate(price);
 
 			return newItem;
 		}
@@ -935,11 +934,10 @@ namespace Vodovoz.Domain.Orders
 			{
 				Order = order,
 				Count = 1,
-				Nomenclature = nomenclature,
-				Price = price
+				Nomenclature = nomenclature
 			};
 
-			newItem.RecalculateAll();
+			newItem.UpdatePriceWithRecalculate(price);
 
 			return newItem;
 		}
