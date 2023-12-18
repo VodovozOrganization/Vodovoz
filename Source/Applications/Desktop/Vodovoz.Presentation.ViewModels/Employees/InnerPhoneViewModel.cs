@@ -5,7 +5,11 @@ using QS.ViewModels.Dialog;
 using ReactiveUI;
 using System;
 using System.ComponentModel;
+using System.Reactive;
+using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
+using System.Reactive.Linq;
+using System.Windows.Input;
 using Vodovoz.Core.Domain.Employees;
 
 namespace Vodovoz.Presentation.ViewModels.Employees
@@ -34,11 +38,11 @@ namespace Vodovoz.Presentation.ViewModels.Employees
 		private readonly CompositeDisposable _subscriptions = new CompositeDisposable();
 		private readonly EntityModel<InnerPhone> _model;
 
-		private InnerPhone Entity => _model.Entity;
+		protected InnerPhone Entity => _model.Entity;
 		private string _number;
 		private string _description;
 
-		public SaveCommand SaveCommand { get; }
+		public SaveCommand2 SaveCommand { get; }
 		public CloseDialogCommand CancelCommand { get; }
 
 		public InnerPhoneViewModel(
@@ -61,7 +65,7 @@ namespace Vodovoz.Presentation.ViewModels.Employees
 
 			_model = entityModelFactory.Create<InnerPhone>(entityId);
 
-			SaveCommand = new SaveCommand(_model, this);
+			SaveCommand = new SaveCommand2(_model, this);
 			CancelCommand = new CloseDialogCommand(this);
 
 			this.WhenAnyValue(x => x.Entity.PhoneNumber)
@@ -98,6 +102,83 @@ namespace Vodovoz.Presentation.ViewModels.Employees
 			_subscriptions?.Dispose();
 			_model?.Dispose();
 		}
+	}
+
+	public class SaveCommand2 : ReactiveCommandBase
+	{
+		private readonly ISaveModel _model;
+		private readonly DialogViewModelBase _dialog;
+
+		public SaveCommand2(ISaveModel model, DialogViewModelBase dialog, IObservable<bool> canExecute = null) : base(canExecute)
+		{
+			_model = model ?? throw new ArgumentNullException(nameof(model));
+			_dialog = dialog ?? throw new ArgumentNullException(nameof(dialog));
+		}
+
+		protected override void InternalExecute(object parameter)
+		{
+			_model.Save();
+			_dialog.Close(false, CloseSource.Save);
+		}
+	}
+
+	public abstract class ReactiveCommandBase : IReactiveCommand<Unit, Unit>, ICommand
+	{
+		private ReactiveCommand<Unit, Unit> _reactiveCommand;
+
+		protected ReactiveCommandBase(IObservable<bool> canExecute = null)
+		{
+			_reactiveCommand = ReactiveCommand.Create(() => InternalExecute(null), canExecute);
+		}
+
+		protected abstract void InternalExecute(object parameter);
+
+		public IObservable<bool> IsExecuting => _reactiveCommand.IsExecuting;
+
+		public IObservable<bool> CanExecute => _reactiveCommand.CanExecute;
+
+		public IObservable<Exception> ThrownExceptions => _reactiveCommand.ThrownExceptions;
+
+		public IObservable<Unit> Execute(Unit parameter)
+		{
+			return _reactiveCommand.Execute(parameter);
+		}
+
+		public IObservable<Unit> Execute()
+		{
+			return _reactiveCommand.Execute();
+		}
+
+		public IDisposable Subscribe(IObserver<Unit> observer)
+		{
+			return _reactiveCommand.Subscribe(observer);
+		}
+
+		#region ICommand
+
+		void ICommand.Execute(object parameter)
+		{
+			(_reactiveCommand as ICommand).Execute(parameter);
+		}
+
+		bool ICommand.CanExecute(object parameter)
+		{
+			return (_reactiveCommand as ICommand).CanExecute(parameter);
+		}
+
+		event EventHandler ICommand.CanExecuteChanged
+		{
+			add { (_reactiveCommand as ICommand).CanExecuteChanged += value; }
+			remove { (_reactiveCommand as ICommand).CanExecuteChanged -= value; }
+		}
+
+		#endregion ICommand
+
+		public void Dispose()
+		{
+			_reactiveCommand.Dispose();
+		}
+
 	}
 
 	public class SaveCommand : PropertySubscribedCommandBase
