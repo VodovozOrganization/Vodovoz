@@ -285,31 +285,6 @@ namespace Vodovoz
 			return null;
 		}
 
-		string GetTransferText(RouteListItem item) // Дубликат метода в RouteListItem, надо переделать метод вызова попапа и убрать.
-		{
-			if (item.Status == RouteListItemStatus.Transfered)
-			{
-				if(item.TransferedTo != null)
-					return string.Format("Заказ был перенесен в МЛ №{0} водителя {1} {2}.", 
-						item.TransferedTo.RouteList.Id, 
-						item.TransferedTo.RouteList.Driver.ShortName, 
-						item.AddressTransferType?.GetEnumTitle());
-				else
-					return "ОШИБКА! Адрес имеет статус перенесенного в другой МЛ, но куда он перенесен не указано.";
-			}
-			if (item.WasTransfered) {
-				var transferedFrom = _routeListItemRepository.GetTransferedFrom(UoW, item);
-				if (transferedFrom != null)
-					return String.Format("Заказ из МЛ №{0} водителя {1} {2}.", 
-						transferedFrom.RouteList.Id, 
-						transferedFrom.RouteList.Driver.ShortName,
-						transferedFrom.AddressTransferType?.GetEnumTitle());
-				else
-					return "ОШИБКА! Адрес помечен как перенесенный из другого МЛ, но строка откуда он был перенесен не найдена.";
-			}
-			return null;
-		}
-
 		void CommentCellEdited (object o, EditedArgs args)
 		{
 			var node = ytreeviewItems.YTreeModel.NodeAtPath(new TreePath(args.Path)) as RouteListItem;
@@ -521,7 +496,7 @@ namespace Vodovoz
 				|| GetSelectedRouteListItem ().WasTransfered
 			))
 			{
-				MessageDialogHelper.RunInfoDialog (GetTransferText (GetSelectedRouteListItem ()));
+				MessageDialogHelper.RunInfoDialog (GetSelectedRouteListItem ().GetTransferText());
 				return;
 			}
 			OnClosingItemActivated(sender, args);

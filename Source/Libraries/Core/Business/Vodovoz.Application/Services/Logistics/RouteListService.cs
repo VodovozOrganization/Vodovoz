@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using MoreLinq;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -739,10 +739,13 @@ namespace Vodovoz.Application.Services.Logistics
 					}
 				}
 
+				var pastPlaceAddressTransferType = pastPlace.TransferedTo.AddressTransferType;
+
 				previousRouteList.RevertTransferAddress(_wageParameterService, pastPlace, address);
-				pastPlace.AddressTransferType = address.AddressTransferType;
 				pastPlace.WasTransfered = true;
-				UpdateTransferDocuments(unitOfWork, address, pastPlace);
+				pastPlace.AddressTransferType = pastPlaceAddressTransferType;
+
+				UpdateTransferDocuments(unitOfWork, address, pastPlace, true);
 				pastPlace.RecalculateTotalCash();
 				unitOfWork.Save(pastPlace);
 				address.RouteList.TransferAddressTo(unitOfWork, address, pastPlace);
@@ -755,8 +758,8 @@ namespace Vodovoz.Application.Services.Logistics
 			return Result.Success(string.Empty);
 		}
 
-		private void UpdateTransferDocuments(IUnitOfWork unitOfWork, RouteListItem sourceAddress, RouteListItem targetAddress) =>
-			_addressTransferController.UpdateDocuments(sourceAddress, targetAddress, unitOfWork);
+		private void UpdateTransferDocuments(IUnitOfWork unitOfWork, RouteListItem sourceAddress, RouteListItem targetAddress, bool isRevert = false) =>
+			_addressTransferController.UpdateDocuments(sourceAddress, targetAddress, unitOfWork, isRevert);
 
 		public Result<RouteListAcceptStatus> TryAcceptOrEditRouteList(IUnitOfWork uow, RouteList routeList, bool isAcceptMode, Action<bool> disableItemsUpdate, ICommonServices commonServices)
 		{
