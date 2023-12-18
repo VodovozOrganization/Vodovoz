@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Gamma.GtkWidgets;
-using Gamma.Utilities;
 using Gdk;
 using Gtk;
 using QS.Navigation;
@@ -139,8 +138,6 @@ namespace Vodovoz.Views.Logistic
 						n.CommentForFineAuthor.ShortName : String.Empty)
 				.AddColumn("Переносы")
 					.AddTextRenderer(n => n.GetTransferText(n))
-				.AddColumn("Тип переноса").HeaderAlignment(0.5f)
-					.AddTextRenderer(item => item.AddressTransferType.HasValue ? item.AddressTransferType.GetEnumTitle() : string.Empty)
 				.RowCells()
 					.AddSetter<CellRenderer>((c, n) => {
 
