@@ -192,6 +192,10 @@ namespace Vodovoz
 
 			ViewModel.Entity.ObservableGeographicGroups.ListContentChanged += ViewModel.ObservableGeographicGroups_ListContentChanged;
 
+			ylabelCashSubdivision.Binding
+				.AddBinding(ViewModel, vm => vm.ClosingSubdivisionName, w => w.Text)
+				.InitializeFromSource();
+
 			fixPriceSpin.Binding
 				.AddBinding(ViewModel, vm => vm.CanChangeFixedPrice, w => w.Sensitive)
 				.InitializeFromSource();
