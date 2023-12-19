@@ -60,6 +60,7 @@
     <Compile Include="CommonEnums\AllYesNo.cs" />
     <Compile Include="ConfigureDeletion.cs" />
     <Compile Include="Controllers\IAddressTransferController.cs" />
+    <Compile Include="Controllers\SentMovementsNotificationDetails.cs" />
     <Compile Include="DependencyInjection.cs" />
     <Compile Include="Controllers\DriverWarehouseEventQrDataHandler.cs" />
     <Compile Include="Controllers\IDriverWarehouseEventQrDataHandler.cs" />
