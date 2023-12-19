@@ -81,7 +81,7 @@ public partial class MainWindow : Gtk.Window
 		
 		var menuCreator = _autofacScope.Resolve<MainMenuBarCreator>();
 		var menu = menuCreator.CreateMenuBar();
-		vbox1.Add(menu);
+		vboxMain.Add(menu);
 		
 		bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
