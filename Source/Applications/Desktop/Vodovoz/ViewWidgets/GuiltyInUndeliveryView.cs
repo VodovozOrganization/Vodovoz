@@ -34,6 +34,7 @@ namespace Vodovoz.ViewWidgets
 			enumBtnGuiltySide.ItemsEnum = typeof(GuiltyTypes);
 			enumBtnGuiltySide.SetSensitive(GuiltyTypes.Driver, driverCanBeGuilty);
 			enumBtnGuiltySide.SetSensitive(GuiltyTypes.None, !undeliveredOrder.ObservableGuilty.Any());
+			enumBtnGuiltySide.SetSensitive(GuiltyTypes.AutoСancelAutoTransfer, false);
 			enumBtnGuiltySide.Sensitive = canEditGuilty;
 			undeliveredOrder.ObservableGuilty.ElementAdded += ObservableGuilty_ElementAdded;
 			undeliveredOrder.ObservableGuilty.ElementRemoved += ObservableGuilty_ElementRemoved;

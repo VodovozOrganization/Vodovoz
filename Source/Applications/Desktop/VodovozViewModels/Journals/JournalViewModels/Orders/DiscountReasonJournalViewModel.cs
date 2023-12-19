@@ -1,4 +1,5 @@
 ﻿using System;
+using Autofac;
 using NHibernate;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
@@ -6,9 +7,6 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories.DiscountReasons;
-using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.ViewModels.Orders;
 
@@ -17,23 +15,17 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 	public class DiscountReasonJournalViewModel
 		: SingleEntityJournalViewModelBase<DiscountReason, DiscountReasonViewModel, DiscountReasonJournalNode>
 	{
-		private readonly IDiscountReasonRepository _discountReasonRepository;
-		private readonly IProductGroupJournalFactory _productGroupJournalFactory;
-		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
+		private ILifetimeScope _lifetimeScope;
 
 		public DiscountReasonJournalViewModel(
+			ILifetimeScope lifetimeScope,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			IDiscountReasonRepository discountReasonRepository,
-			IProductGroupJournalFactory productGroupJournalFactory,
-			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			bool hideJournalForOpenDialog = false,
 			bool hideJournalForCreateDialog = false)
 			: base(unitOfWorkFactory, commonServices, hideJournalForOpenDialog,	hideJournalForCreateDialog)
 		{
-			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
-			_productGroupJournalFactory = productGroupJournalFactory ?? throw new ArgumentNullException(nameof(productGroupJournalFactory));
-			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 
 			TabName = "Журнал оснований для скидки";
 
@@ -70,21 +62,17 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 		};
 
 		protected override Func<DiscountReasonViewModel> CreateDialogFunction =>
-			() => new DiscountReasonViewModel(
-				EntityUoWBuilder.ForCreate(),
-				QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-				commonServices,
-				_discountReasonRepository,
-				_productGroupJournalFactory,
-				_nomenclatureSelectorFactory);
-
+			() => _lifetimeScope.Resolve<DiscountReasonViewModel>(
+				new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForCreate()));
+		
 		protected override Func<DiscountReasonJournalNode, DiscountReasonViewModel> OpenDialogFunction =>
-			(node) => new DiscountReasonViewModel(
-				EntityUoWBuilder.ForOpen(node.Id),
-				QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-				commonServices,
-				_discountReasonRepository,
-				_productGroupJournalFactory,
-				_nomenclatureSelectorFactory);
+			(node) => _lifetimeScope.Resolve<DiscountReasonViewModel>(
+				new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(node.Id)));
+
+		public override void Dispose()
+		{
+			_lifetimeScope = null;
+			base.Dispose();
+		}
 	}
 }

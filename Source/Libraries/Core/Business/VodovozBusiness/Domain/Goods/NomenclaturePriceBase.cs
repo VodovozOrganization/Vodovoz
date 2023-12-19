@@ -10,32 +10,33 @@ namespace Vodovoz.Domain.Goods
 	[HistoryTrace]
 	public class NomenclaturePriceBase : PropertyChangedBase, IDomainObject
 	{
+		private int _minCount = 1;
+		private decimal _price;
+		private Nomenclature _nomenclature;
+
 		#region Свойства
 
 		public virtual int Id { get; set; }
 
-		Nomenclature nomenclature;
-
 		[Display(Name = "Номенклатура")]
-		public virtual Nomenclature Nomenclature {
-			get { return nomenclature; }
-			set { SetField(ref nomenclature, value, () => Nomenclature); }
+		public virtual Nomenclature Nomenclature
+		{
+			get => _nomenclature;
+			set => SetField(ref _nomenclature, value);
 		}
-
-		int minCount;
 
 		[Display (Name = "Минимальное количество")]
-		public virtual int MinCount {
-			get { return minCount; }
-			set { SetField (ref minCount, value, () => MinCount); }
+		public virtual int MinCount
+		{
+			get => _minCount;
+			set => SetField (ref _minCount, value);
 		}
 
-		decimal price;
-
 		[Display (Name = "Стоимость")]
-		public virtual decimal Price {
-			get { return price; }
-			set { SetField (ref price, value, () => Price); }
+		public virtual decimal Price
+		{
+			get => _price;
+			set => SetField (ref _price, value);
 		}
 
 		public virtual NomenclaturePriceType Type { get; }

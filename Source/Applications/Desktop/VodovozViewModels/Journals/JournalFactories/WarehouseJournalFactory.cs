@@ -1,5 +1,7 @@
 ﻿using System;
+using Autofac;
 using QS.DomainModel.UoW;
+using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using Vodovoz.Domain.Store;
@@ -12,19 +14,32 @@ namespace Vodovoz.ViewModels.Journals.JournalFactories
 {
 	public class WarehouseJournalFactory : IWarehouseJournalFactory
 	{
-		public IEntityAutocompleteSelectorFactory CreateSelectorFactory(Action<WarehouseJournalFilterViewModel> filterParams = null)
+		public IEntityAutocompleteSelectorFactory CreateSelectorFactory(
+			ILifetimeScope lifetimeScope, Action<WarehouseJournalFilterViewModel> filterParams = null)
 		{
 			return new EntityAutocompleteSelectorFactory<WarehouseJournalViewModel>(
 				typeof(Warehouse),
 				() =>
-					new WarehouseJournalViewModel(
-						UnitOfWorkFactory.GetDefaultFactory,
-						ServicesConfig.CommonServices,
-						new SubdivisionRepository(new ParametersProvider()),
-						filterParams)
+				{
+					WarehouseJournalViewModel journalViewModel;
+
+					if(filterParams != null)
 					{
-						SelectionMode = QS.Project.Journal.JournalSelectionMode.Single
-					});
+						journalViewModel =
+							lifetimeScope.Resolve<WarehouseJournalViewModel>(
+								new TypedParameter(typeof(Action<WarehouseJournalFilterViewModel>),
+									filterParams));
+					}
+					else
+					{
+						journalViewModel = lifetimeScope.Resolve<WarehouseJournalViewModel>();
+					}
+
+					journalViewModel.SelectionMode = JournalSelectionMode.Single;
+
+					return journalViewModel;
+				}
+			);
 		}
 	}
 }

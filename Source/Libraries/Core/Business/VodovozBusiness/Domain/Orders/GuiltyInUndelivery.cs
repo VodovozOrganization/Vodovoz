@@ -110,6 +110,8 @@ namespace Vodovoz.Domain.Orders
 		DirectorLO,
 		[Display(Name = "Директор ЛО (Доставка в тот же день)")]
 		DirectorLOCurrentDayDelivery,
+		[Display(Name = "Автоотмена автопереноса")]
+		AutoСancelAutoTransfer,
 		[Display(Name = "Нет (не недовоз)")]
 		None
 	}

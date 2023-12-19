@@ -9,19 +9,25 @@ namespace Vodovoz.ViewModels.Journals.JournalSelectors
 {
 	public class ExpenseCategorySelectorFactory : IEntitySelectorFactory
 	{
+		protected ILifetimeScope LifetimeScope;
+
 		public ExpenseCategorySelectorFactory(ILifetimeScope lifetimeScope)
 		{
-			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 		}
-		protected readonly ILifetimeScope _lifetimeScope;
 
 		public Type EntityType => typeof(ExpenseCategory);
 
 		public IEntitySelector CreateSelector(bool multipleSelect = false)
 		{
-			ExpenseCategoryJournalViewModel selectorViewModel = _lifetimeScope.Resolve<ExpenseCategoryJournalViewModel>();
+			ExpenseCategoryJournalViewModel selectorViewModel = LifetimeScope.Resolve<ExpenseCategoryJournalViewModel>();
 			selectorViewModel.SelectionMode = JournalSelectionMode.Single;
 			return selectorViewModel;
+		}
+
+		public void Dispose()
+		{
+			LifetimeScope = null;
 		}
 	}
 }

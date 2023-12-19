@@ -1,4 +1,4 @@
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using System;
@@ -18,6 +18,7 @@ namespace Vodovoz.Domain.Sale
 	public class GeoGroup : PropertyChangedBase, IDomainObject, IValidatableObject, INamed
 	{
 		private string _name;
+		private bool _isArchived;
 		private IList<GeoGroupVersion> _versions = new List<GeoGroupVersion>();
 		private GenericObservableList<GeoGroupVersion> _observableVersions;
 
@@ -36,6 +37,13 @@ namespace Vodovoz.Domain.Sale
 		{
 			get => _versions;
 			set => SetField(ref _versions, value);
+		}
+
+		[Display(Name = "В архиве")]
+		public virtual bool IsArchived
+		{
+			get => _isArchived;
+			set => SetField(ref _isArchived, value);
 		}
 
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.

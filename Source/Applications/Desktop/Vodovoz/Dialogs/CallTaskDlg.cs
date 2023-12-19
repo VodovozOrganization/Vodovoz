@@ -23,11 +23,10 @@ using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
-using Vodovoz.ViewModels.Journals.JournalFactories;
-using CounterpartyContractFactory = Vodovoz.Factories.CounterpartyContractFactory;
 using Vodovoz.EntityRepositories.Cash;
 using Autofac;
 using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.Factories;
 
 namespace Vodovoz.Dialogs
 {
@@ -37,7 +36,7 @@ namespace Vodovoz.Dialogs
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		private IOrganizationProvider _organizationProvider;
 		private ICounterpartyContractRepository _counterpartyContractRepository;
-		private CounterpartyContractFactory _counterpartyContractFactory;
+		private ICounterpartyContractFactory _counterpartyContractFactory;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IBottlesRepository _bottleRepository;
 		private readonly ICallTaskRepository _callTaskRepository;
@@ -132,9 +131,9 @@ namespace Vodovoz.Dialogs
 				.SetEntityAutocompleteSelectorFactory(deliveryPointJournalFactory.CreateDeliveryPointAutocompleteSelectorFactory());
 			entityVMEntryDeliveryPoint.Binding.AddBinding(Entity, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
 
-			var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
+			var counterpartyJournalFactory = new CounterpartyJournalFactory();
 			entityVMEntryCounterparty
-				.SetEntityAutocompleteSelectorFactory(counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory());
+				.SetEntityAutocompleteSelectorFactory(counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope));
 			entityVMEntryCounterparty.Binding.AddBinding(Entity, s => s.Counterparty, w => w.Subject).InitializeFromSource();
 
 			ClientPhonesView.ViewModel = new PhonesViewModel(_phoneRepository, UoW, _contactsParameters,  _commonServices);

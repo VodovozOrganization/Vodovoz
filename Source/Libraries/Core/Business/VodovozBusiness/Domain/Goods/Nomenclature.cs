@@ -49,13 +49,13 @@ namespace Vodovoz.Domain.Goods
 		private PumpType? _pumpType;
 		private CupHolderBracingType? _cupHolderBracingType;
 		private bool? _hasHeating;
-		private int? _heatingPower;
+		private int? _newHeatingPower;
 		private int? _heatingProductivity;
 		private ProtectionOnHotWaterTap? _protectionOnHotWaterTap;
 		private bool? _hasCooling;
-		private int? _coolingPower;
+		private int? _newCoolingPower;
 		private int? _coolingProductivity;
-		private CoolingType? _coolingType;
+		private CoolingType? _newCoolingType;
 		private LockerRefrigeratorType? _lockerRefrigeratorType;
 		private int? _lockerRefrigeratorVolume;
 		private TapType? _tapType;
@@ -956,10 +956,10 @@ namespace Vodovoz.Domain.Goods
 		}
 		
 		[Display(Name = "Мощность нагрева")]
-		public virtual int? HeatingPower2
+		public virtual int? NewHeatingPower
 		{
-			get => _heatingPower;
-			set => SetField(ref _heatingPower, value);
+			get => _newHeatingPower;
+			set => SetField(ref _newHeatingPower, value);
 		}
 		
 		[Display(Name = "Производительность нагрева")]
@@ -984,10 +984,10 @@ namespace Vodovoz.Domain.Goods
 		}
 		
 		[Display(Name = "Мощность охлаждения")]
-		public virtual int? CoolingPower2
+		public virtual int? NewCoolingPower
 		{
-			get => _coolingPower;
-			set => SetField(ref _coolingPower, value);
+			get => _newCoolingPower;
+			set => SetField(ref _newCoolingPower, value);
 		}
 		
 		[Display(Name = "Производительность охлаждения")]
@@ -998,10 +998,10 @@ namespace Vodovoz.Domain.Goods
 		}
 		
 		[Display(Name = "Тип охлаждения")]
-		public virtual CoolingType? CoolingType2
+		public virtual CoolingType? NewCoolingType
 		{
-			get => _coolingType;
-			set => SetField(ref _coolingType, value);
+			get => _newCoolingType;
+			set => SetField(ref _newCoolingType, value);
 		}
 		
 		[Display(Name = "Шкафчик/холодильник")]
@@ -1457,13 +1457,13 @@ namespace Vodovoz.Domain.Goods
 			PumpType = null;
 			CupHolderBracingType = null;
 			HasHeating = null;
-			HeatingPower = null;
+			NewHeatingPower = null;
 			HeatingProductivity = null;
 			ProtectionOnHotWaterTap = null;
 			HasCooling = null;
-			CoolingPower = null;
+			NewCoolingPower = null;
 			CoolingProductivity = null;
-			CoolingType = null;
+			NewCoolingType = null;
 			LockerRefrigeratorType = null;
 			LockerRefrigeratorVolume = null;
 			TapType = null;
@@ -1492,13 +1492,13 @@ namespace Vodovoz.Domain.Goods
 			EquipmentWorkloadType = null;
 			CupHolderBracingType = null;
 			HasHeating = null;
-			HeatingPower = null;
+			NewHeatingPower = null;
 			HeatingProductivity = null;
 			ProtectionOnHotWaterTap = null;
 			HasCooling = null;
-			CoolingPower = null;
+			NewCoolingPower = null;
 			CoolingProductivity = null;
-			CoolingType = null;
+			NewCoolingType = null;
 			LockerRefrigeratorType = null;
 			LockerRefrigeratorVolume = null;
 			TapType = null;
@@ -1511,13 +1511,13 @@ namespace Vodovoz.Domain.Goods
 			EquipmentWorkloadType = null;
 			PumpType = null;
 			HasHeating = null;
-			HeatingPower = null;
+			NewHeatingPower = null;
 			HeatingProductivity = null;
 			ProtectionOnHotWaterTap = null;
 			HasCooling = null;
-			CoolingPower = null;
+			NewCoolingPower = null;
 			CoolingProductivity = null;
-			CoolingType = null;
+			NewCoolingType = null;
 			LockerRefrigeratorType = null;
 			LockerRefrigeratorVolume = null;
 			TapType = null;
@@ -1525,14 +1525,14 @@ namespace Vodovoz.Domain.Goods
 
 		public virtual void ResetCoolingParameters()
 		{
-			CoolingPower2 = null;
+			NewCoolingPower = null;
 			CoolingProductivity = null;
-			CoolingType2 = null;
+			NewCoolingType = null;
 		}
 		
 		public virtual void ResetHeatingParameters()
 		{
-			HeatingPower2 = null;
+			NewHeatingPower = null;
 			HeatingProductivity = null;
 			ProtectionOnHotWaterTap = null;
 		}

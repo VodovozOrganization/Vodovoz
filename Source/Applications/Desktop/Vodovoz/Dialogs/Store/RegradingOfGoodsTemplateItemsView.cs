@@ -21,9 +21,9 @@ namespace Vodovoz
 
 		public RegradingOfGoodsTemplateItemsView()
 		{
-			this.Build();
+			Build();
 
-			_nomenclatureSelectorFactory = new NomenclatureJournalFactory(_lifetimeScope);
+			_nomenclatureSelectorFactory = new NomenclatureJournalFactory();
 
 			ytreeviewItems.ColumnsConfig = ColumnsConfigFactory.Create<RegradingOfGoodsTemplateItem>()
 				.AddColumn("Старая номенклатура").AddTextRenderer(x => x.NomenclatureOld.Name)
@@ -68,7 +68,7 @@ namespace Vodovoz
 		
 		private IEntitySelector CreateNomenclatureSelector(string tabName, EventHandler<JournalSelectedNodesEventArgs> onEntitySelectResult)
 		{
-			var newNomenclatureSelector = _nomenclatureSelectorFactory.CreateNomenclatureSelector(null, false);
+			var newNomenclatureSelector = _nomenclatureSelectorFactory.CreateNomenclatureSelector(_lifetimeScope, multipleSelect: false);
 			(newNomenclatureSelector as JournalViewModelBase).TabName = tabName;
 			newNomenclatureSelector.OnEntitySelectedResult += onEntitySelectResult;
 			return newNomenclatureSelector;
@@ -174,7 +174,6 @@ namespace Vodovoz
 			_lifetimeScope?.Dispose();
 			_lifetimeScope = null;
 		}
-
 	}
 }
 

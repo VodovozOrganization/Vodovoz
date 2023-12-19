@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Autofac;
 using ClosedXML.Report;
 using NHibernate.Criterion;
 using NHibernate.Transform;
@@ -22,14 +23,21 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport
 	{
 		private const string _templatePath = @".\Reports\Client\BulkEmailEventReport.xlsx";
 		private readonly IFileDialogService _fileDialogService;
+		private ILifetimeScope _lifetimeScope;
 		private DelegateCommand _generateCommand;
 		private DelegateCommand _exportCommand;
 
-		public BulkEmailEventReportViewModel(IUnitOfWorkFactory unitOfWorkFactory, IInteractiveService interactiveService,
-			INavigationManager navigation, IFileDialogService fileDialogService, IBulkEmailEventReasonJournalFactory bulkEmailEventReasonJournalFactory,
+		public BulkEmailEventReportViewModel(
+			ILifetimeScope lifetimeScope,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IInteractiveService interactiveService,
+			INavigationManager navigation,
+			IFileDialogService fileDialogService,
+			IBulkEmailEventReasonJournalFactory bulkEmailEventReasonJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 
 			BulkEmailEventReasonSelectorFactory =
@@ -38,7 +46,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport
 
 			CounterpartySelectorFactory =
 				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
-				.CreateCounterpartyAutocompleteSelectorFactory();
+				.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope);
 
 			Title = "Отчёт о событиях рассылки";
 
@@ -171,6 +179,12 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport
 		public Domain.Client.Counterparty Counterparty { get; set; }
 		public BulkEmailEventReason BulkEmailEventReason { get; set; }
 		public bool HasDates => EventActionTimeFrom != null && EventActionTimeTo != null;
+
+		public override void Dispose()
+		{
+			_lifetimeScope = null;
+			base.Dispose();
+		}
 	}
 }
 

@@ -89,6 +89,6 @@ namespace Vodovoz.JournalNodes
 
 		public bool Sensitive { get; set; }
 
-		public EdoDocFlowStatus EdoDocFlowStatus { get; set; }
+		public EdoDocFlowStatus? EdoDocFlowStatus { get; set; }
 	}
 }

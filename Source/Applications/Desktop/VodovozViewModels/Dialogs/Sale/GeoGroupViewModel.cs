@@ -23,7 +23,7 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 	{
 		private readonly GeoGroupVersionsModel _geoGroupVersionsModel;
 		private readonly IWarehouseJournalFactory _warehouseJournalFactory;
-		private readonly ILifetimeScope _lifetimeScope;
+		private ILifetimeScope _lifetimeScope;
 		private bool _canEdit;
 		private IPermissionResult _versionsPermissionResult;
 		private IEntityAutocompleteSelectorFactory _cashSelectorFactory;
@@ -40,12 +40,12 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 
 		public GeoGroupViewModel(
 			IEntityUoWBuilder uowBuilder,
+			INavigationManager navigationManager,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			GeoGroupVersionsModel geoGroupVersionsModel,
 			IWarehouseJournalFactory warehouseJournalFactory,
 			ICommonServices commonServices,
-			ILifetimeScope lifetimeScope
-		) : base(uowBuilder, unitOfWorkFactory, commonServices)
+			ILifetimeScope lifetimeScope) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			_geoGroupVersionsModel = geoGroupVersionsModel ?? throw new ArgumentNullException(nameof(geoGroupVersionsModel));
 			_warehouseJournalFactory = warehouseJournalFactory ?? throw new ArgumentNullException(nameof(warehouseJournalFactory));
@@ -58,7 +58,7 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 			Entity.PropertyChanged += EntityPropertyChanged;
 			Versions.ElementRemoved += VersionsElementRemoved;
 		}
-		
+
 		public IEntityEntryViewModel CashSubdivisionViewModel { get; private set; }
 
 		private IEntityEntryViewModel BuildCashSubdivisionViewModel()
@@ -104,7 +104,7 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 			{
 				if(_warehouseSelectorFactory == null)
 				{
-					_warehouseSelectorFactory = _warehouseJournalFactory.CreateSelectorFactory();
+					_warehouseSelectorFactory = _warehouseJournalFactory.CreateSelectorFactory(_lifetimeScope);
 				}
 				return _warehouseSelectorFactory;
 			}
@@ -309,6 +309,8 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 			Entity.ObservableVersions.ElementAdded += ObservableVersionsElementAdded;
 			Entity.ObservableVersions.ElementRemoved += ObservableVersionsElementRemoved;
 			Entity.ObservableVersions.ElementChanged += ObservableVersionsElementChanged;
+
+			SelectedVersion = Versions.LastOrDefault() ?? new GeoGroupVersionViewModel(new GeoGroupVersion());
 		}
 
 		private void ObservableVersionsElementAdded(object aList, int[] aIdx)
@@ -397,5 +399,10 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 
 		#endregion
 
+		public override void Dispose()
+		{
+			_lifetimeScope = null;
+			base.Dispose();
+		}
 	}
 }

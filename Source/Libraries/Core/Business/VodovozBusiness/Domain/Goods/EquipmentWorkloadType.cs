@@ -4,9 +4,9 @@ namespace Vodovoz.Domain.Goods
 {
 	public enum EquipmentWorkloadType
 	{
-		[Display(Name = "Верхняя")]
+		[Display(Name = "Верхний")]
 		Top,
-		[Display(Name = "Нижняя")]
+		[Display(Name = "Нижний")]
 		Lower
 	}
 }

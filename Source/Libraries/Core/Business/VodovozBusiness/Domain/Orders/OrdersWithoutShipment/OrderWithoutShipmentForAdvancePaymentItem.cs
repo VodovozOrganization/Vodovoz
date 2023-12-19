@@ -346,6 +346,13 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			}
 		}
 
+		public void SetDiscount(bool isDiscountInMoney, decimal discount, DiscountReason discountReason)
+		{
+			IsDiscountInMoney = isDiscountInMoney;
+			Discount = discount;
+			DiscountReason = discountReason;
+		}
+
 		public OrderWithoutShipmentForAdvancePaymentItem() { }
 	}
 }

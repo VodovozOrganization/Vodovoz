@@ -11,7 +11,8 @@ namespace Vodovoz.Domain.Contacts
 		Nominative = "E-mail адрес")]
 	public class Email : PropertyChangedBase, IDomainObject
 	{
-		private const string _emailRegEx = @"^[a-zA-Z0-9]+([\._-]?[a-zA-Z0-9]+)*@[a-zA-Zа-яА-Я0-9]+([\.-]?[a-zA-Zа-яА-Я0-9]+)*(\.[a-zA-Zа-яА-Я]{2,10})+$";
+		private const string _emailRegEx = @"^[a-zA-Z0-9]+([\._-]?[a-zA-Z0-9]+)*@[a-zA-Z0-9]+([\.-]?[a-zA-Z0-9]+)*(\.[a-zA-Z]{2,10})+$";
+
 		private TimeSpan _emailMatchingProcessTimeout = TimeSpan.FromSeconds(1);
 
 		private string _address;

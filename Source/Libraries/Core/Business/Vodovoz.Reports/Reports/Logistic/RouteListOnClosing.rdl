@@ -11,7 +11,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="RouteLists">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
      route_lists.id AS routeListId,
@@ -133,7 +133,7 @@
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="routeListId">
           <DataField>routeListId</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -193,6 +193,7 @@
           </BorderStyle>
           <BorderColor />
           <BorderWidth />
+          <FontWeight>Bold</FontWeight>
         </Style>
         <TableColumns>
           <TableColumn>
@@ -234,9 +235,54 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox4">
-                      <Value>="Отчет по незакрытым МЛ за период до " + (Format(Convert.ToDateTime({?end_date}), "dd.MM.yyyy"))</Value>
+                      <Value>="Создано: " + Format( {@ExecutionTime}, "dd.MM.yyyy HH:mm")</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                        </BorderStyle>
+                        <FontWeight>Normal</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                      <ZIndex>0</ZIndex>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>3</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox47">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Left</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                        </BorderStyle>
+                        <FontWeight>Normal</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>18pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>1</ColSpan>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox42">
+                      <Value>="Отчет по незакрытым МЛ за период до " + (Format(Convert.ToDateTime({?end_date}), "dd.MM.yyyy"))</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Left</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
                           <Left>None</Left>
@@ -251,7 +297,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>10</ColSpan>
+                  <ColSpan>6</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>

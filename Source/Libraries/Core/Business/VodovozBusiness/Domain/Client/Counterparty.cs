@@ -157,6 +157,7 @@ namespace Vodovoz.Domain.Client
 		private GenericObservableList<ISupplierPriceNode> _observablePriceNodes;
 		private CounterpartySubtype _counterpartySubtype;
 		private bool _isLiquidating;
+		private bool _sendBillByEdo;
 
 		#region Свойства
 

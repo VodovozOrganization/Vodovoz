@@ -20,7 +20,6 @@ namespace Vodovoz.Core.DataService
 		IDriverServiceParametersProvider,
 		IErrorSendParameterProvider,
 		IProfitCategoryProvider,
-		IPotentialFreePromosetsReportDefaultsProvider,
 		IMailjetParametersProvider,
 		IVpbxSettings,
 		ITerminalNomenclatureProvider
@@ -435,36 +434,6 @@ namespace Vodovoz.Core.DataService
 		}
 
 		#endregion IProfitCategoryProvider
-
-		#region IDefaultDeliveryDaySchedule
-
-		public int[] GetDefaultActivePromosets()
-		{
-			if(!_parametersProvider.ContainsParameter("default_active_promosets_in_potential_free_promosets_report"))
-			{
-				return new int[] { };
-			}
-
-			string value = _parametersProvider.GetParameterValue("default_active_promosets_in_potential_free_promosets_report");
-			if(string.IsNullOrWhiteSpace(value))
-			{
-				return new int[] { };
-			}
-			var values = value.Split(',');
-
-			List<int> result = new List<int>();
-			foreach(var v in values)
-			{
-				if(!int.TryParse(v.Trim(), out int parseResult))
-				{
-					continue;
-				}
-				result.Add(parseResult);
-			}
-			return result.ToArray();
-		}
-
-		#endregion IDefaultDeliveryDaySchedule
 
 		#region IMailjetParametersProvider
 

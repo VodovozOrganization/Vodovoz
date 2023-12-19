@@ -1760,7 +1760,7 @@ LightGreen
   </PageFooter>
   <DataSets>
     <DataSet Name="guiltiesSet">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>select
   CONCAT(
@@ -1773,6 +1773,7 @@ LightGreen
                    when guilty.guilty_side = 'ForceMajor' then 'Форс-мажор'
                    when guilty.guilty_side = 'DirectorLO' then 'Доставка за час'
                    when guilty.guilty_side = 'DirectorLOCurrentDayDelivery' then 'Директор ЛО (Доставка в тот же день)' 
+                   when guilty.guilty_side = 'AutoСancelAutoTransfer' then 'Автоотмена автопереноса'
                    when guilty.guilty_side = 'None' then 'Нет (не недовоз)'
                    else guilty.guilty_side
                    end
@@ -1786,14 +1787,14 @@ where ord.delivery_date = @first_date
 group by case 
     when guilty.guilty_side = 'Department' then sd.short_name
     else guilty.guilty_side
-             end </CommandText>
+end      </CommandText>
         <QueryParameters>
           <QueryParameter Name="first_date">
             <Value>=Parameters!first_date</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="guiltyboys">
           <DataField>guiltyboys</DataField>
           <TypeName>System.String</TypeName>
@@ -1805,7 +1806,7 @@ group by case
       </Fields>
     </DataSet>
     <DataSet Name="deliveries_late_Set">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>select Result.Addresses as Addresses, CAST(Result.Minutes AS INT) as Minutes from (
                   SELECT
@@ -1843,7 +1844,7 @@ group by case
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="Addresses">
           <DataField>Addresses</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -1970,7 +1971,7 @@ FROM
       </Fields>
     </DataSet>
     <DataSet Name="deliveries_late_Set_2">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>select Result.Addresses as Addresses, CAST(Result.Minutes AS INT) as Minutes from (
                   SELECT
@@ -2008,7 +2009,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="Addresses">
           <DataField>Addresses</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -2149,6 +2150,7 @@ FROM
                    when guilty.guilty_side = 'ForceMajor' then 'Форс-мажор'
                    when guilty.guilty_side = 'DirectorLO' then 'Доставка за час'
                    when guilty.guilty_side = 'DirectorLOCurrentDayDelivery' then 'Директор ЛО (Доставка в тот же день)' 
+                   when guilty.guilty_side = 'AutoСancelAutoTransfer' then 'Автоотмена автопереноса'
                    when guilty.guilty_side = 'None' then 'Нет (не недовоз)'
                    else guilty.guilty_side
                    end
@@ -2304,7 +2306,7 @@ union (
       </Fields>
     </DataSet>
     <DataSet Name="geopart_divided">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>select
        concat('Адреса ', g.name, ' ', count(a.delivered_time)) as Addresses,
@@ -2351,7 +2353,7 @@ group by a.geo_group_id</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="Addresses">
           <DataField>Addresses</DataField>
           <TypeName>System.String</TypeName>
@@ -2363,7 +2365,7 @@ group by a.geo_group_id</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="geopart_divided2">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>select
        concat('Адреса ', g.name, ' ', count(a.delivered_time)) as Addresses,
@@ -2410,7 +2412,7 @@ group by a.geo_group_id</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="Addresses">
           <DataField>Addresses</DataField>
           <TypeName>System.String</TypeName>

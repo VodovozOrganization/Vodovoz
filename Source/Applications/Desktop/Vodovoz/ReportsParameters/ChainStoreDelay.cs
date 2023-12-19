@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using Autofac;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Settings.Counterparty;
@@ -22,15 +23,21 @@ namespace Vodovoz.ReportsParameters
 		private KeyValuePair<string, string> _mode;
 
 		public ChainStoreDelayReport(
+			ILifetimeScope lifetimeScope,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			ICounterpartySettings counterpartySettings)
 		{
+			if(lifetimeScope == null)
+			{
+				throw new ArgumentNullException(nameof(lifetimeScope));
+			}
+
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			_counterpartySettings = counterpartySettings ?? throw new ArgumentNullException(nameof(counterpartySettings));
 			Build();
-			Configure();
+			Configure(lifetimeScope);
 		}
 
 		public KeyValuePair<string, string> Mode
@@ -60,20 +67,20 @@ namespace Vodovoz.ReportsParameters
 
 		#endregion
 
-		private void Configure()
+		private void Configure(ILifetimeScope lifetimeScope)
 		{
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			ydatepicker.Date = DateTime.Now.Date;
-			ConfigureEntries();
+			ConfigureEntries(lifetimeScope);
 			ydatepicker.Date = DateTime.Now;
 			buttonRun.Sensitive = true;
 			buttonRun.Clicked += OnButtonCreateReportClicked;
 		}
 
-		private void ConfigureEntries()
+		private void ConfigureEntries(ILifetimeScope lifetimeScope)
 		{
 			entityviewmodelentryCounterparty.SetEntityAutocompleteSelectorFactory(
-				_counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory());
+				_counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory(lifetimeScope));
 
 			entityviewmodelentryCounterparty.ChangedByUser += OnEntityviewmodelentryCounterpartyChangedByUser;
 

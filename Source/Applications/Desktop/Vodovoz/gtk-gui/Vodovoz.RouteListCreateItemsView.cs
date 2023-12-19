@@ -6,6 +6,8 @@ namespace Vodovoz
 	{
 		private global::Gtk.VBox vbox1;
 
+		private global::Gtk.VBox vbox2;
+
 		private global::Gtk.HBox hbox1;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelOrders;
@@ -15,6 +17,10 @@ namespace Vodovoz
 		private global::Gtk.Button buttonDelete;
 
 		private global::Gtk.Button buttonOpenOrder;
+
+		private global::Gtk.Label lblProfitability;
+
+		private global::Gtk.HBox hbox2;
 
 		private global::Gtk.Label labelSum;
 
@@ -37,6 +43,10 @@ namespace Vodovoz
 			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
 			// Container child vbox1.Gtk.Box+BoxChild
+			this.vbox2 = new global::Gtk.VBox();
+			this.vbox2.Name = "vbox2";
+			this.vbox2.Spacing = 6;
+			// Container child vbox2.Gtk.Box+BoxChild
 			this.hbox1 = new global::Gtk.HBox();
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
@@ -94,45 +104,74 @@ namespace Vodovoz
 			w6.Expand = false;
 			w6.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.labelSum = new global::Gtk.Label();
-			this.labelSum.Name = "labelSum";
-			this.labelSum.Xalign = 1F;
-			this.labelSum.LabelProp = "";
-			this.hbox1.Add(this.labelSum);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.labelSum]));
+			this.lblProfitability = new global::Gtk.Label();
+			this.lblProfitability.Name = "lblProfitability";
+			this.lblProfitability.Xalign = 0F;
+			this.lblProfitability.LabelProp = global::Mono.Unix.Catalog.GetString("Вал. Маржа, руб: 0.00  Вал. Маржа, %: 0.00");
+			this.lblProfitability.UseMarkup = true;
+			this.hbox1.Add(this.lblProfitability);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.lblProfitability]));
 			w7.PackType = ((global::Gtk.PackType)(1));
 			w7.Position = 4;
 			w7.Expand = false;
 			w7.Fill = false;
-			// Container child hbox1.Gtk.Box+BoxChild
+			this.vbox2.Add(this.hbox1);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox1]));
+			w8.Position = 0;
+			w8.Expand = false;
+			w8.Fill = false;
+			// Container child vbox2.Gtk.Box+BoxChild
+			this.hbox2 = new global::Gtk.HBox();
+			this.hbox2.Name = "hbox2";
+			this.hbox2.Spacing = 6;
+			// Container child hbox2.Gtk.Box+BoxChild
+			this.labelSum = new global::Gtk.Label();
+			this.labelSum.Name = "labelSum";
+			this.labelSum.Xalign = 1F;
+			this.labelSum.Yalign = 1F;
+			this.labelSum.LabelProp = global::Mono.Unix.Catalog.GetString("Всего бутылей: 0");
+			this.hbox2.Add(this.labelSum);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.labelSum]));
+			w9.PackType = ((global::Gtk.PackType)(1));
+			w9.Position = 0;
+			w9.Expand = false;
+			w9.Fill = false;
+			// Container child hbox2.Gtk.Box+BoxChild
 			this.lblVolume = new global::Gtk.Label();
 			this.lblVolume.Name = "lblVolume";
 			this.lblVolume.Xalign = 0F;
-			this.lblVolume.LabelProp = "";
+			this.lblVolume.Yalign = 1F;
+			this.lblVolume.LabelProp = global::Mono.Unix.Catalog.GetString("Объём:0.000/0.000 Объём возврата:0.000/0.000");
 			this.lblVolume.UseMarkup = true;
-			this.hbox1.Add(this.lblVolume);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.lblVolume]));
-			w8.PackType = ((global::Gtk.PackType)(1));
-			w8.Position = 5;
-			w8.Expand = false;
-			w8.Fill = false;
-			// Container child hbox1.Gtk.Box+BoxChild
+			this.hbox2.Add(this.lblVolume);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.lblVolume]));
+			w10.PackType = ((global::Gtk.PackType)(1));
+			w10.Position = 1;
+			w10.Expand = false;
+			w10.Fill = false;
+			// Container child hbox2.Gtk.Box+BoxChild
 			this.lblWeight = new global::Gtk.Label();
 			this.lblWeight.Name = "lblWeight";
 			this.lblWeight.Xalign = 0F;
-			this.lblWeight.LabelProp = "";
+			this.lblWeight.Yalign = 1F;
+			this.lblWeight.LabelProp = global::Mono.Unix.Catalog.GetString("Вес:0.00/0.00");
 			this.lblWeight.UseMarkup = true;
-			this.hbox1.Add(this.lblWeight);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.lblWeight]));
-			w9.PackType = ((global::Gtk.PackType)(1));
-			w9.Position = 6;
-			w9.Expand = false;
-			w9.Fill = false;
-			this.vbox1.Add(this.hbox1);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
-			w10.Position = 0;
-			w10.Expand = false;
-			w10.Fill = false;
+			this.hbox2.Add(this.lblWeight);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.lblWeight]));
+			w11.PackType = ((global::Gtk.PackType)(1));
+			w11.Position = 2;
+			w11.Expand = false;
+			w11.Fill = false;
+			this.vbox2.Add(this.hbox2);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox2]));
+			w12.Position = 1;
+			w12.Expand = false;
+			w12.Fill = false;
+			this.vbox1.Add(this.vbox2);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.vbox2]));
+			w13.Position = 0;
+			w13.Expand = false;
+			w13.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -144,8 +183,8 @@ namespace Vodovoz
 			this.ytreeviewItems.Reorderable = true;
 			this.GtkScrolledWindow.Add(this.ytreeviewItems);
 			this.vbox1.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow]));
-			w12.Position = 1;
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow]));
+			w15.Position = 1;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

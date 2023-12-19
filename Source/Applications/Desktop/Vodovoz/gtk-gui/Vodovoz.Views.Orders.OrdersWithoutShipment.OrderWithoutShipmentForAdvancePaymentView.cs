@@ -50,6 +50,20 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 
 		private global::Gtk.HBox hboxSendDocuments;
 
+		private global::Gtk.VBox vboxEdo;
+
+		private global::Gamma.GtkWidgets.yLabel ylabel4;
+
+		private global::Gtk.ScrolledWindow GtkScrolledWindow10;
+
+		private global::Gamma.GtkWidgets.yTreeView treeViewEdoContainers;
+
+		private global::Gamma.GtkWidgets.yHBox hboxEdoContainersBtns;
+
+		private global::Gamma.GtkWidgets.yButton btnUpdateEdoDocFlowStatus;
+
+		private global::Gamma.GtkWidgets.yButton ybuttonSendDocumentAgain;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -162,6 +176,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			this.entityViewModelEntryCounterparty.Events = ((global::Gdk.EventMask)(256));
 			this.entityViewModelEntryCounterparty.Name = "entityViewModelEntryCounterparty";
 			this.entityViewModelEntryCounterparty.CanEditReference = false;
+			this.entityViewModelEntryCounterparty.CanOpenWithoutTabParent = false;
 			this.hbox2.Add(this.entityViewModelEntryCounterparty);
 			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.entityViewModelEntryCounterparty]));
 			w11.Position = 1;
@@ -266,6 +281,66 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			this.vbox1.Add(this.hboxSendDocuments);
 			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hboxSendDocuments]));
 			w23.Position = 6;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.vboxEdo = new global::Gtk.VBox();
+			this.vboxEdo.Name = "vboxEdo";
+			this.vboxEdo.Spacing = 6;
+			// Container child vboxEdo.Gtk.Box+BoxChild
+			this.ylabel4 = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabel4.Name = "ylabel4";
+			this.ylabel4.Xalign = 0F;
+			this.ylabel4.LabelProp = global::Mono.Unix.Catalog.GetString("Электронные документы:");
+			this.vboxEdo.Add(this.ylabel4);
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vboxEdo[this.ylabel4]));
+			w24.Position = 0;
+			w24.Expand = false;
+			w24.Fill = false;
+			// Container child vboxEdo.Gtk.Box+BoxChild
+			this.GtkScrolledWindow10 = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow10.Name = "GtkScrolledWindow10";
+			this.GtkScrolledWindow10.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow10.Gtk.Container+ContainerChild
+			this.treeViewEdoContainers = new global::Gamma.GtkWidgets.yTreeView();
+			this.treeViewEdoContainers.CanFocus = true;
+			this.treeViewEdoContainers.Name = "treeViewEdoContainers";
+			this.GtkScrolledWindow10.Add(this.treeViewEdoContainers);
+			this.vboxEdo.Add(this.GtkScrolledWindow10);
+			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vboxEdo[this.GtkScrolledWindow10]));
+			w26.Position = 1;
+			// Container child vboxEdo.Gtk.Box+BoxChild
+			this.hboxEdoContainersBtns = new global::Gamma.GtkWidgets.yHBox();
+			this.hboxEdoContainersBtns.Name = "hboxEdoContainersBtns";
+			this.hboxEdoContainersBtns.Spacing = 6;
+			// Container child hboxEdoContainersBtns.Gtk.Box+BoxChild
+			this.btnUpdateEdoDocFlowStatus = new global::Gamma.GtkWidgets.yButton();
+			this.btnUpdateEdoDocFlowStatus.CanFocus = true;
+			this.btnUpdateEdoDocFlowStatus.Name = "btnUpdateEdoDocFlowStatus";
+			this.btnUpdateEdoDocFlowStatus.UseUnderline = true;
+			this.btnUpdateEdoDocFlowStatus.Label = global::Mono.Unix.Catalog.GetString("Обновить статус");
+			this.hboxEdoContainersBtns.Add(this.btnUpdateEdoDocFlowStatus);
+			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.hboxEdoContainersBtns[this.btnUpdateEdoDocFlowStatus]));
+			w27.Position = 0;
+			w27.Expand = false;
+			w27.Fill = false;
+			// Container child hboxEdoContainersBtns.Gtk.Box+BoxChild
+			this.ybuttonSendDocumentAgain = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonSendDocumentAgain.CanFocus = true;
+			this.ybuttonSendDocumentAgain.Name = "ybuttonSendDocumentAgain";
+			this.ybuttonSendDocumentAgain.UseUnderline = true;
+			this.ybuttonSendDocumentAgain.Label = global::Mono.Unix.Catalog.GetString("Отправить повторно");
+			this.hboxEdoContainersBtns.Add(this.ybuttonSendDocumentAgain);
+			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.hboxEdoContainersBtns[this.ybuttonSendDocumentAgain]));
+			w28.Position = 1;
+			w28.Expand = false;
+			w28.Fill = false;
+			this.vboxEdo.Add(this.hboxEdoContainersBtns);
+			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.vboxEdo[this.hboxEdoContainersBtns]));
+			w29.Position = 2;
+			w29.Expand = false;
+			w29.Fill = false;
+			this.vbox1.Add(this.vboxEdo);
+			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.vboxEdo]));
+			w30.Position = 7;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

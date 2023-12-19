@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using QS.DomainModel.UoW;
 using Vodovoz.Services;
 using Vodovoz.Domain.Sms;
 using System.Linq;
 using NLog;
 using Sms.External.Interface;
+using Gamma.Utilities;
 
 namespace VodovozSmsInformerService
 {
@@ -52,7 +53,6 @@ namespace VodovozSmsInformerService
 					$"Неверно заполнен номер телефона ({unformedPhone}) для уведомления о низком балансе денежных средств на счете");
 				string notifyText = smsNotifierParametersProvider.GetLowBalanceNotifyText();
 				notifyText = notifyText.Replace("$balance$", currentBalanceLevel.ToString("0.##"));
-
 				using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
 					var notification = uow.Session.QueryOver<LowBalanceSmsNotification>()
 						.Where(x => x.Status == SmsNotificationStatus.New)
@@ -73,11 +73,17 @@ namespace VodovozSmsInformerService
 							uow.Commit();
 							logger.Info("Создано новое уведомление о низком балансе на счете");
 							var result = smsSender.SendSms(new SmsMessage(notification.MobilePhone, notification.Id.ToString(), notification.MessageText));
-							if(result.Status == SmsSentStatus.Accepted) {
-								notification.ServerMessageId = result.ServerId;
-							} else {
-								notification.ErrorDescription = $"Ошибка. Статус сообщения: {result.Status}";
+
+							if(result.IsSuccefullStatus())
+							{
+								notification.Status = SmsNotificationStatus.Accepted;
 							}
+							else
+							{
+								notification.ErrorDescription = result.GetEnumTitle();
+								notification.Status = SmsNotificationStatus.Error;
+							}
+
 							uow.Save(notification);
 							uow.Commit();
 						}

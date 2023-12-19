@@ -59,5 +59,10 @@ namespace Vodovoz.TempAdapters
 		{
 			return CreateJournal(multipleSelect ? JournalSelectionMode.Multiple : JournalSelectionMode.Single);
 		}
+
+		public void Dispose()
+		{
+			
+		}
 	}
 }

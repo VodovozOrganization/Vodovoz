@@ -1,15 +1,18 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <UserSecretsId>7f817fe4-8d0a-40fa-9cb7-ab35606a95dd</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
 	  <PackageReference Include="Autofac" Version="7.0.0" />
-	  <PackageReference Include="SmsRu_Unofficial_API_Client" Version="1.0.0.1" />
+	  <PackageReference Include="NLog" Version="5.1.2" />
+	  <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\External\QSProjects\Binding\Gamma.Utilities\Gamma.Utilities.csproj" />
     <ProjectReference Include="..\Sms.External.Interface\Sms.External.Interface.csproj" />
   </ItemGroup>
 

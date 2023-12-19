@@ -13,6 +13,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Contracts
 			Map(x => x.Name).Column("name");
 			Map(x => x.MinWaterAmount).Column("min_water_amount");
 			Map(x => x.Deposit).Column("deposit");
+			Map(x => x.IsArchive).Column("is_archive");
 			References(x => x.EquipmentKind).Column("equipment_kind_id");
 			References(x => x.DepositService).Column("deposit_service_id").LazyLoad();
 		}

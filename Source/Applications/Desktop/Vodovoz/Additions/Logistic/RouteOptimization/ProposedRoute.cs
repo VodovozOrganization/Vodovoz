@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using QS.Dialog;
+using Vodovoz.Application.Services.Logistics;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 
@@ -10,7 +11,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 	/// <summary>
 	/// Предложенный системой оптимизации маршрут.
 	/// </summary>
-	public class ProposedRoute
+	public class ProposedRoute : IProposedRoute
 	{
 		private readonly IInteractiveService _interactiveService;
 		public List<ProposedRoutePoint> Orders = new List<ProposedRoutePoint>();

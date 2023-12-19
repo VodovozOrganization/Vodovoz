@@ -8,7 +8,7 @@ using Vodovoz.EntityRepositories.Employees;
 
 namespace Vodovoz.Controllers
 {
-	public class AddressTransferController
+	public class AddressTransferController : IAddressTransferController
 	{
 		private readonly IEmployeeRepository employeeRepository;
 

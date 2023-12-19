@@ -51,7 +51,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 				DynamicLoadingEnabled = true
 			};
 
-			threadDataLoader.AddQuery(GetQuery);
+			threadDataLoader.AddQuery(GetData, GetDataCount);
 			DataLoader = threadDataLoader;
 
 			CreateNodeActions();
@@ -109,7 +109,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			NodeActionsList.Add(editAction);
 		}
 
-		private IQueryOver<RouteListItem> GetQuery(IUnitOfWork uow)
+		private IQueryOver<RouteListItem> GetData(IUnitOfWork uow)
 		{
 			BottlesMovementOperation debtBottlesOperationAlias = null;
 			VodovozOrder orderAlias = null;
@@ -197,6 +197,57 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			.TransformUsing(Transformers.AliasToBean<DriverMessageJournalNode<RouteListItem>>());
 
 			return query;
+		}
+		
+		private int GetDataCount(IUnitOfWork uow)
+		{
+			VodovozOrder orderAlias = null;
+			RouteListItem routeListItemAlias = null;
+			RouteList routeListAlias = null;
+			Employee driverAlias = null;
+			Employee lastOpManager = null;
+			Phone phoneAlias = null;
+			DriverMessageJournalNode resultAlias = null;
+
+			var query = uow.Session.QueryOver(() => routeListItemAlias)
+				.Left.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
+				.Left.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
+				.Left.JoinAlias(() => routeListAlias.Driver, () => driverAlias)
+				.Left.JoinAlias(() => driverAlias.Phones, () => phoneAlias, () => !phoneAlias.IsArchive)
+				.Left.JoinAlias(() => orderAlias.CommentOPManagerChangedBy, () => lastOpManager)
+				.Where(Restrictions.IsNotNull(Projections.Property(() => orderAlias.DriverMobileAppCommentTime)))
+				.Where(() => routeListItemAlias.Status != RouteListItemStatus.Transfered);
+
+			query.Where(
+				GetSearchCriterion(
+					() => orderAlias.Id,
+					() => routeListAlias.Id,
+					() => driverAlias.LastName,
+					() => driverAlias.Name,
+					() => driverAlias.Patronymic,
+					() => orderAlias.DriverMobileAppComment,
+					() => phoneAlias.DigitsNumber
+				)
+			);
+
+			if(FilterViewModel != null)
+			{
+				if(FilterViewModel.StartDate.HasValue)
+				{
+					query.Where(() => orderAlias.DriverMobileAppCommentTime >= FilterViewModel.StartDate.Value.Date);
+				}
+
+				if(FilterViewModel.EndDate.HasValue)
+				{
+					query.Where(() => orderAlias.DriverMobileAppCommentTime < FilterViewModel.EndDate.Value.Date.AddDays(1));
+				}
+			}
+
+			var result = query.SelectList(list => list
+					.SelectGroup(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId))
+				.List<int>();
+
+			return result.Count;
 		}
 
 		public void ExportReport()

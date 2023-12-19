@@ -34,6 +34,7 @@ namespace Vodovoz.Domain.Client.ClientClassification
 		//то контрагенту присваивается категория 'B'
 
 		[Display(Name = "Среднее кол-во бутылей в месяц, начиная от которого присваивается категория 'A'")]
+		[PropertyChangedAlso(nameof(BottlesCountClassificationSettingsSummary))]
 		public virtual int BottlesCountAClassificationFrom
 		{
 			get => _bottlesCountAClassificationFrom;
@@ -41,6 +42,7 @@ namespace Vodovoz.Domain.Client.ClientClassification
 		}
 
 		[Display(Name = "Среднее кол-во бутылей в месяц, до которого присваивается категория 'C'")]
+		[PropertyChangedAlso(nameof(BottlesCountClassificationSettingsSummary))]
 		public virtual int BottlesCountCClassificationTo
 		{
 			get => _bottlesCountCClassificationTo;
@@ -51,6 +53,7 @@ namespace Vodovoz.Domain.Client.ClientClassification
 		//то контрагенту присваивается категория 'Y'
 
 		[Display(Name = "Среднее кол-во заказов в месяц, начиная от которого присваивается категория 'X'")]
+		[PropertyChangedAlso(nameof(OrdersCountClassificationSettingsSummary))]
 		public virtual int OrdersCountXClassificationFrom
 		{
 			get => _ordersCountXClassificationFrom;
@@ -58,6 +61,7 @@ namespace Vodovoz.Domain.Client.ClientClassification
 		}
 
 		[Display(Name = "Среднее кол-во заказов в месяц, до которого присваивается категория 'Z'")]
+		[PropertyChangedAlso(nameof(OrdersCountClassificationSettingsSummary))]
 		public virtual int OrdersCountZClassificationTo
 		{
 			get => _ordersCountZClassificationTo;
@@ -70,6 +74,16 @@ namespace Vodovoz.Domain.Client.ClientClassification
 			get => _settingsCreationDate;
 			set => SetField(ref _settingsCreationDate, value);
 		}
+
+		public virtual string BottlesCountClassificationSettingsSummary =>
+			$"A: От {BottlesCountAClassificationFrom} и более\n" +
+			$"B: От {BottlesCountCClassificationTo + 0.01} до {BottlesCountAClassificationFrom - 0.01}\n" +
+			$"C: От 0 до {BottlesCountCClassificationTo}";
+
+		public virtual string OrdersCountClassificationSettingsSummary =>
+			$"X: От {OrdersCountXClassificationFrom} и более\n" +
+			$"Y: От {OrdersCountZClassificationTo + 0.01} до {OrdersCountXClassificationFrom - 0.01}\n" +
+			$"Z: От 0 до {OrdersCountZClassificationTo}";
 
 		#region IValidatableObject implementation
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

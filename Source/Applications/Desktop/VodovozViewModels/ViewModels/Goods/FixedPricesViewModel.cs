@@ -18,19 +18,24 @@ using Autofac;
 
 namespace Vodovoz.ViewModels.ViewModels.Goods
 {
-	public class FixedPricesViewModel : UoWWidgetViewModelBase
+	public class FixedPricesViewModel : UoWWidgetViewModelBase, IDisposable
 	{
 		private readonly IFixedPricesModel _fixedPricesModel;
 		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
-		private readonly ITdiTab _parentTab;
-		private readonly ILifetimeScope _lifetimeScope;
+		private ITdiTab _parentTab;
+		private ILifetimeScope _lifetimeScope;
 
-		public FixedPricesViewModel(IUnitOfWork uow, IFixedPricesModel fixedPricesModel, INomenclatureJournalFactory nomenclatureSelectorFactory, ITdiTab parentTab, ILifetimeScope lifetimeScope)
+		public FixedPricesViewModel(
+			IUnitOfWork uow,
+			IFixedPricesModel fixedPricesModel,
+			INomenclatureJournalFactory nomenclatureSelectorFactory,
+			ITdiTab parentTab,
+			ILifetimeScope lifetimeScope)
 		{
 			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
-			this._fixedPricesModel = fixedPricesModel ?? throw new ArgumentNullException(nameof(fixedPricesModel));
-			this._nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
-			this._parentTab = parentTab ?? throw new ArgumentNullException(nameof(parentTab));
+			_fixedPricesModel = fixedPricesModel ?? throw new ArgumentNullException(nameof(fixedPricesModel));
+			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+			_parentTab = parentTab ?? throw new ArgumentNullException(nameof(parentTab));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			fixedPricesModel.FixedPricesUpdated += (sender, args) => UpdateFixedPrices();
 			UpdateFixedPrices();
@@ -67,6 +72,7 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 		private void UpdateFixedPrices()
 		{
 			FixedPrices.Clear();
+			
 			foreach (NomenclatureFixedPrice fixedPrice in _fixedPricesModel.FixedPrices)
 			{
 				var fixedPriceViewModel = new FixedPriceItemViewModel(fixedPrice, _fixedPricesModel);
@@ -191,7 +197,7 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 
 		private void SelectWaterNomenclature()
 		{
-			var waterJournalFactory = _nomenclatureSelectorFactory.GetWaterJournalFactory();
+			var waterJournalFactory = _nomenclatureSelectorFactory.GetWaterJournalFactory(_lifetimeScope);
 			var selector = waterJournalFactory.CreateAutocompleteSelector();
 			selector.OnEntitySelectedResult += OnWaterSelected;
 			_parentTab.TabParent.AddSlaveTab(_parentTab, selector);
@@ -291,6 +297,12 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 				}
 			}
 			SelectedPriceChanges = fixedPricesChanges;
+		}
+		
+		public void Dispose()
+		{
+			_lifetimeScope = null;
+			_parentTab = null;
 		}
 	}
 }
