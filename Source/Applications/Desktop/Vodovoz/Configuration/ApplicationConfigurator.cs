@@ -181,7 +181,7 @@ namespace Vodovoz.Configuration
                     .Column("Тип", x => x.Nomenclature.Kind.Name).SearchColumn("Серийный номер", x => x.Serial)
                     .Column("Дата последней обработки", x => x.LastServiceDate.ToShortDateString()).End(),
                 //Логисткика
-                OrmObjectMapping<RouteList>.Create().Dialog<RouteListCreateDlg>()
+                OrmObjectMapping<RouteList>.Create().Dialog<RouteListCreateView>()
                     .DefaultTableView().SearchColumn("Номер", x => x.Id.ToString()).Column("Дата", x => x.Date.ToShortDateString())
                     .Column("Статус", x => x.Status.GetEnumTitle())
                     .SearchColumn("Водитель", x => String.Format("{0} - {1}", x.Driver.FullName, x.Car.Title)).End(),

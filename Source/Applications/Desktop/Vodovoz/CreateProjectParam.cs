@@ -243,7 +243,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<EmployeeWageParameterViewModel, WageParameterView>()
 				.RegisterWidgetForTabViewModel<SalesPlanViewModel, SalesPlanView>()
 				.RegisterWidgetForTabViewModel<RouteListsOnDayViewModel, RouteListsOnDayView>()
-				.RegisterWidgetForTabViewModel<RouteListCreateViewModel, RouteListCreateDlg>()
+				.RegisterWidgetForTabViewModel<RouteListCreateViewModel, RouteListCreateView>()
 				.RegisterWidgetForTabViewModel<RouteListFastDeliveryMaxDistanceViewModel, RouteListFastDeliveryMaxDistanceView>()
 				.RegisterWidgetForTabViewModel<RouteListMaxFastDeliveryOrdersViewModel, RouteListMaxFastDeliveryOrdersView>()
 				.RegisterWidgetForTabViewModel<DriversStopListsViewModel, DriversStopListsView>()

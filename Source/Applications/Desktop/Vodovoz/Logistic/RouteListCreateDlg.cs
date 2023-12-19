@@ -18,11 +18,11 @@ using Vodovoz.ViewWidgets.Logistics;
 
 namespace Vodovoz
 {
-	public partial class RouteListCreateDlg : TabViewBase<RouteListCreateViewModel>
+	public partial class RouteListCreateView : TabViewBase<RouteListCreateViewModel>
 	{
 		private AdditionalLoadingItemsView _additionalLoadingItemsView;
 
-		public RouteListCreateDlg(RouteListCreateViewModel viewModel) : base(viewModel)
+		public RouteListCreateView(RouteListCreateViewModel viewModel) : base(viewModel)
 		{
 			Build();
 			Initialize();
