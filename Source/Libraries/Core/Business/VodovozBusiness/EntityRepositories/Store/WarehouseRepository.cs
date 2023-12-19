@@ -107,9 +107,9 @@ namespace Vodovoz.EntityRepositories.Store
 		public bool WarehouseByMovementDocumentsNotificationsSubdivisionExists(IUnitOfWork uow, int subdivisionId)
 		{
 			return uow.Session.QueryOver<Warehouse>()
-					.Where(w => w.MovementDocumentsNotificationsSubdivisionRecipient.Id == subdivisionId)
-					.List()
-					.Any();
+				.Where(w => w.MovementDocumentsNotificationsSubdivisionRecipient.Id == subdivisionId)
+				.List()
+				.Any();
 		}
 		
 		public int GetTotalShippedKgByWarehousesAndProductGroups(
