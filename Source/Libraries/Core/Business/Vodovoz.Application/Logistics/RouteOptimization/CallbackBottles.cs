@@ -17,20 +17,20 @@ namespace Vodovoz.Application.Logistics.RouteOptimization
 			_nodes = nodes;
 		}
 
-		public override long Run(int first_index, int second_index)
+		public override long Run(int firstIndex, int secondIndex)
 		{
-			if(first_index <= 0)
+			if(firstIndex <= 0)
 			{
 				return 0;
 			}
 
-			if(first_index > _nodes.Length)
+			if(firstIndex > _nodes.Length)
 			{
-				_logger.LogError($"Get Bottles {first_index} -> {second_index} out of orders ({_nodes.Length})");
+				_logger.LogError("Get Bottles {FirstIndex} -> {SecondIndex} out of orders ({NodesLength})", firstIndex, secondIndex, _nodes.Length);
 				return 0;
 			}
 
-			return _nodes[first_index - 1].Bottles;
+			return _nodes[firstIndex - 1].Bottles;
 		}
 	}
 }

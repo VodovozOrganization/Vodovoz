@@ -15,9 +15,9 @@ namespace Vodovoz.Application.Logistics.RouteOptimization
 			_ordersCount = ordersCount;
 		}
 
-		public override long Run(int first_index, int second_index)
+		public override long Run(int firstIndex, int secondIndex)
 		{
-			return first_index != second_index && second_index != 0 && first_index <= _ordersCount && second_index <= _ordersCount ? 1 : 0;
+			return firstIndex != secondIndex && secondIndex != 0 && firstIndex <= _ordersCount && secondIndex <= _ordersCount ? 1 : 0;
 		}
 	}
 }

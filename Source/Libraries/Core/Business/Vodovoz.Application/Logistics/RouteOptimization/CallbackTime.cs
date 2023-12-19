@@ -42,15 +42,15 @@ namespace Vodovoz.Application.Logistics.RouteOptimization
 			_distanceCalculator = distanceCalculator;
 		}
 
-		public override long Run(int first_index, int second_index)
+		public override long Run(int firstIndex, int secondIndex)
 		{
-			if(first_index > _nodes.Length || second_index > _nodes.Length || first_index < 0 || second_index < 0)
+			if(firstIndex > _nodes.Length || secondIndex > _nodes.Length || firstIndex < 0 || secondIndex < 0)
 			{
-				_logger.LogError($"Get Time {first_index} -> {second_index} out of orders ({_nodes.Length})");
+				_logger.LogError("Get Time {FirstIndex} -> {SecondIndex} out of orders ({NodesLength})", firstIndex, secondIndex, _nodes.Length);
 				return 0;
 			}
 
-			if(first_index == second_index)
+			if(firstIndex == secondIndex)
 			{
 				return 0;
 			}
@@ -58,26 +58,26 @@ namespace Vodovoz.Application.Logistics.RouteOptimization
 			// ^ Смотири описание класса выше ^
 			long serviceTime = 0, travelTime = 0;
 
-			if(second_index == 0)
+			if(secondIndex == 0)
 			{
-				var calcOrder = _nodes[first_index - 1];
+				var calcOrder = _nodes[firstIndex - 1];
 				var baseVersion = GetGroupVersion(calcOrder.ShippingBase, calcOrder.Order.DeliveryDate.Value);
 				travelTime = _distanceCalculator.TimeToBaseSec(calcOrder.Order.DeliveryPoint, baseVersion);
 			}
-			else if(first_index == 0)
+			else if(firstIndex == 0)
 			{
-				var calcOrder = _nodes[second_index - 1];
+				var calcOrder = _nodes[secondIndex - 1];
 				var baseVersion = GetGroupVersion(calcOrder.ShippingBase, calcOrder.Order.DeliveryDate.Value);
 				travelTime = _distanceCalculator.TimeFromBaseSec(baseVersion, calcOrder.Order.DeliveryPoint);
 			}
 			else
 			{
-				travelTime = _distanceCalculator.TimeSec(_nodes[first_index - 1].Order.DeliveryPoint, _nodes[second_index - 1].Order.DeliveryPoint);
+				travelTime = _distanceCalculator.TimeSec(_nodes[firstIndex - 1].Order.DeliveryPoint, _nodes[secondIndex - 1].Order.DeliveryPoint);
 			}
 
-			if(first_index != 0)
+			if(firstIndex != 0)
 			{
-				serviceTime = _nodes[first_index - 1].Order.CalculateTimeOnPoint(_trip.Forwarder != null);
+				serviceTime = _nodes[firstIndex - 1].Order.CalculateTimeOnPoint(_trip.Forwarder != null);
 			}
 
 			return (long)_trip.Driver.TimeCorrection(serviceTime + travelTime);

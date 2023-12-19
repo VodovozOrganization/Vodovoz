@@ -16,16 +16,23 @@ namespace Vodovoz.Application.Logistics.RouteOptimization
 	{
 		private AtWorkDriver _atWorkDriver;
 
+		public PossibleTrip(AtWorkDriver driver, DeliveryShift shift)
+		{
+			_atWorkDriver = driver;
+			Shift = shift;
+			Districts = _atWorkDriver.DistrictsPriorities.Cast<IDistrictPriority>().ToArray();
+		}
+
 		/// <summary>
 		/// Указывается диапазон времени в котором водитель на маршруте.
 		/// </summary>
-		public DeliveryShift Shift;
+		public DeliveryShift Shift { get; set; }
 
 		/// <summary>
 		/// Ссылка на старый маршрут. Это значит что эта ходна служит для перестройки уже имеющегося маршрута.
 		/// Для новых маршрутов это поле не должно быть заполнено.
 		/// </summary>
-		public RouteList OldRoute;
+		public RouteList OldRoute { get; set; }
 
 		public Employee Driver => OldRoute?.Driver ?? _atWorkDriver.Employee;
 
@@ -51,12 +58,6 @@ namespace Vodovoz.Application.Logistics.RouteOptimization
 		/// </summary>
 		public IDistrictPriority[] Districts { get; private set; }
 
-		public PossibleTrip(AtWorkDriver driver, DeliveryShift shift)
-		{
-			_atWorkDriver = driver;
-			Shift = shift;
-			Districts = _atWorkDriver.DistrictsPriorities.Cast<IDistrictPriority>().ToArray();
-		}
 
 		/// <summary>
 		/// Конструктор для создания ходки на основе уже имеющегося маршрута. Для его перестройки.

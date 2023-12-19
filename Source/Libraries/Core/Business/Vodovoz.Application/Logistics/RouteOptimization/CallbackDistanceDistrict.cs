@@ -56,53 +56,53 @@ namespace Vodovoz.Application.Logistics.RouteOptimization
 #endif
 		}
 
-		public override long Run(int first_index, int second_index)
+		public override long Run(int firstIndex, int secondIndex)
 		{
 			//Возвращаем значение из кеша, иначе считаем.
-			if(_resultsCache[first_index, second_index] == null)
+			if(_resultsCache[firstIndex, secondIndex] == null)
 			{
-				_resultsCache[first_index, second_index] = Calculate(first_index, second_index);
+				_resultsCache[firstIndex, secondIndex] = Calculate(firstIndex, secondIndex);
 			}
 
-			return _resultsCache[first_index, second_index].Value;
+			return _resultsCache[firstIndex, secondIndex].Value;
 		}
 
-		private long Calculate(int first_index, int second_index)
+		private long Calculate(int firstIndex, int secondIndex)
 		{
-			if(first_index > _nodes.Length || second_index > _nodes.Length || first_index < 0 || second_index < 0)
+			if(firstIndex > _nodes.Length || secondIndex > _nodes.Length || firstIndex < 0 || secondIndex < 0)
 			{
-				_logger.LogError($"Get Distance {first_index} -> {second_index} out of orders ({_nodes.Length})");
+				_logger.LogError("Get Distance {FirstIndex} -> {SecondIndex} out of orders ({NodesLength})", firstIndex, secondIndex, _nodes.Length);
 				return 0;
 			}
 
 			//Возвращаем 0 при запросе расстояния из одной и тоже же точки, в нее же.
 			//Такой запрос приходит обычно на точку склада, когда мы считаем больше 1 маршрута. 
-			if(first_index == second_index)
+			if(firstIndex == secondIndex)
 			{
 				return 0;
 			}
 
 			//Просто возвращаем расстояние до базы от точки на которой находимся.
-			if(second_index == 0)
+			if(secondIndex == 0)
 			{
 #if DEBUG
 				SGoToBase[_trip]++;
 #endif
-				var firstOrder = _nodes[first_index - 1];
+				var firstOrder = _nodes[firstIndex - 1];
 				var firstBaseVersion = GetGroupVersion(firstOrder.ShippingBase, firstOrder.Order.DeliveryDate.Value);
-				return _distanceCalculator.DistanceToBaseMeter(_nodes[first_index - 1].Order.DeliveryPoint, firstBaseVersion);
+				return _distanceCalculator.DistanceToBaseMeter(_nodes[firstIndex - 1].Order.DeliveryPoint, firstBaseVersion);
 			}
 
 			bool fromExistRoute = false;
-			if(_nodes[second_index - 1].ExistRoute != null)
+			if(_nodes[secondIndex - 1].ExistRoute != null)
 			{
 				//Если этот адрес в предварительно заданном маршруте у другого водителя, добавлям расстояние со штрафом.
-				if(_trip.OldRoute != _nodes[second_index - 1].ExistRoute)
+				if(_trip.OldRoute != _nodes[secondIndex - 1].ExistRoute)
 				{
 #if DEBUG
 					SFromExistPenality[_trip]++;
 #endif
-					return RouteOptimizer.RemoveOrderFromExistRLPenalty + GetSimpleDistance(first_index, second_index);
+					return RouteOptimizer.RemoveOrderFromExistRLPenalty + GetSimpleDistance(firstIndex, secondIndex);
 				}
 				fromExistRoute = true;
 			}
@@ -110,8 +110,8 @@ namespace Vodovoz.Application.Logistics.RouteOptimization
 			// малотоннажник
 			bool isLightTonnage = _trip.Car.MaxBottles <= 55;
 
-			bool isRightAddress = _nodes[second_index - 1].Bottles >= _trip.Car.MinBottlesFromAddress &&
-									_nodes[second_index - 1].Bottles <= _trip.Car.MaxBottlesFromAddress;
+			bool isRightAddress = _nodes[secondIndex - 1].Bottles >= _trip.Car.MinBottlesFromAddress &&
+									_nodes[secondIndex - 1].Bottles <= _trip.Car.MaxBottlesFromAddress;
 
 			long distance = 0;
 
@@ -130,7 +130,7 @@ namespace Vodovoz.Application.Logistics.RouteOptimization
 				return RouteOptimizer.LargusMaxBottlePenalty;
 			}
 
-			var area = _nodes[second_index - 1].District;
+			var area = _nodes[secondIndex - 1].District;
 
 			// Если адрес из уже существующего маршрута, не учитываем приоритеты районов.
 			// Иначе добавляем штрафы за приоритеты по району.
@@ -149,37 +149,37 @@ namespace Vodovoz.Application.Logistics.RouteOptimization
 				}
 			}
 
-			bool isAddressFromForeignGeographicGroup = _nodes[second_index - 1].ShippingBase.Id != _trip.GeographicGroup.Id;
+			bool isAddressFromForeignGeographicGroup = _nodes[secondIndex - 1].ShippingBase.Id != _trip.GeographicGroup.Id;
 			if(isAddressFromForeignGeographicGroup)
 			{
 				distance += RouteOptimizer.AddressFromForeignGeographicGroupPenalty;
 			}
 
 			//Возвращаем расстояние в метрах либо от базы до первого адреса, либо между адресами.
-			if(first_index == 0)
+			if(firstIndex == 0)
 			{
-				var firstOrder = _nodes[second_index - 1];
+				var firstOrder = _nodes[secondIndex - 1];
 				var firstBaseVersion = GetGroupVersion(firstOrder.ShippingBase, firstOrder.Order.DeliveryDate.Value);
-				distance += _distanceCalculator.DistanceFromBaseMeter(firstBaseVersion, _nodes[second_index - 1].Order.DeliveryPoint);
+				distance += _distanceCalculator.DistanceFromBaseMeter(firstBaseVersion, _nodes[secondIndex - 1].Order.DeliveryPoint);
 			}
 			else
 			{
-				distance += _distanceCalculator.DistanceMeter(_nodes[first_index - 1].Order.DeliveryPoint, _nodes[second_index - 1].Order.DeliveryPoint);
+				distance += _distanceCalculator.DistanceMeter(_nodes[firstIndex - 1].Order.DeliveryPoint, _nodes[secondIndex - 1].Order.DeliveryPoint);
 			}
 
 			return distance + _fixedAddressPenality;
 		}
 
-		private long GetSimpleDistance(int first_index, int second_index)
+		private long GetSimpleDistance(int firstIndex, int secondIndex)
 		{
-			if(first_index == 0)//РАССТОЯНИЯ ПРЯМЫЕ без учета дорожной сети.
+			if(firstIndex == 0)//РАССТОЯНИЯ ПРЯМЫЕ без учета дорожной сети.
 			{
-				var firstOrder = _nodes[second_index - 1];
+				var firstOrder = _nodes[secondIndex - 1];
 				var firstBaseVersion = GetGroupVersion(firstOrder.ShippingBase, firstOrder.Order.DeliveryDate.Value);
 
-				return (long)(DistanceCalculator.GetDistanceFromBase(firstBaseVersion, _nodes[second_index - 1].Order.DeliveryPoint) * 1000);
+				return (long)(DistanceCalculator.GetDistanceFromBase(firstBaseVersion, _nodes[secondIndex - 1].Order.DeliveryPoint) * 1000);
 			}
-			return (long)(DistanceCalculator.GetDistance(_nodes[first_index - 1].Order.DeliveryPoint, _nodes[second_index - 1].Order.DeliveryPoint) * 1000);
+			return (long)(DistanceCalculator.GetDistance(_nodes[firstIndex - 1].Order.DeliveryPoint, _nodes[secondIndex - 1].Order.DeliveryPoint) * 1000);
 		}
 
 		private GeoGroupVersion GetGroupVersion(GeoGroup geoGroup, DateTime date)
@@ -187,7 +187,7 @@ namespace Vodovoz.Application.Logistics.RouteOptimization
 			var version = geoGroup.GetVersionOrNull(date);
 			if(version == null)
 			{
-				throw new GeoGroupVersionNotFoundException($"Невозможно рассчитать расстояние, так как на {date} у части города ({geoGroup.Name}) нет актуальных данных."); ;
+				throw new GeoGroupVersionNotFoundException($"Невозможно рассчитать расстояние, так как на {date} у части города ({geoGroup.Name}) нет актуальных данных.");
 			}
 
 			return version;

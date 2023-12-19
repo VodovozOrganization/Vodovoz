@@ -88,6 +88,7 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 			MultiTaskLoad = multiThreadLoad;
 			Canceled = false;
 			var basesHashes = geoGroupVersions.Select(x => CachedDistance.GetHash(x));
+
 			_hashes = points.Select(CachedDistance.GetHash)
 				.Concat(basesHashes)
 				.Distinct()
@@ -106,6 +107,7 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 #endif
 			var fromDB = _cachedDistanceRepository.GetCache(_unitOfWork, _hashes);
 			_startCached = fromDB.Count;
+
 			foreach(var distance in fromDB)
 			{
 #if DEBUG
@@ -113,9 +115,11 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 #endif
 				AddNewCacheDistance(distance);
 			}
+
 			UpdateText();
 #if DEBUG
-			StringBuilder matrixText = new StringBuilder(" ");
+			var matrixText = new StringBuilder(" ");
+
 			for(int x = 0; x < _matrix.GetLength(1); x++)
 			{
 				matrixText.Append(x % 10);
@@ -124,11 +128,13 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 			for(int y = 0; y < _matrix.GetLength(0); y++)
 			{
 				matrixText.Append("\n" + y % 10);
+
 				for(int x = 0; x < _matrix.GetLength(1); x++)
 				{
 					matrixText.Append(_matrix[y, x] != null ? 1 : 0);
 				}
 			}
+
 			_logger.Debug(matrixText);
 
 			_logger.Debug(string.Join(";", _hashes.Select(CachedDistance.GetTextLonLat)));
@@ -151,6 +157,7 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 		{
 			_startLoadTime = DateTime.Now;
 			_tasks = new Task<int>[TasksCount];
+
 			foreach(var ix in Enumerable.Range(0, TasksCount))
 			{
 				_tasks[ix] = new Task<int>(DoBackground);
@@ -208,7 +215,6 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 		/// </summary>
 		private void CheckAndDisableTasks()
 		{
-			//if(tasks.All(x => x.Result == 1))
 			MultiTaskLoad = false;
 		}
 
@@ -315,9 +321,6 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 
 		private CachedDistance GetCache(long fromHash, long toHash)
 		{
-#if DEBUG
-			//MatrixCount[_hashPos[fromHash], _hashPos[toHash]] += 1;
-#endif
 			if(_cache.ContainsKey(fromHash) && _cache[fromHash].ContainsKey(toHash))
 			{
 				return _cache[fromHash][toHash];
@@ -325,16 +328,19 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 
 			if(ErrorWays.Any(x => x.FromHash == fromHash && x.ToHash == toHash))
 			{
-				_logger.Warn(string.Format("Повторный запрос дистанции с ошибкой расчета для FromHash = {0} и ToHash = {1}. Пропускаем...", fromHash, toHash));
+				_logger.Warn("Повторный запрос дистанции с ошибкой расчета для FromHash = {FromHash} и ToHash = {ToHash}. Пропускаем...", fromHash, toHash);
 				return null;
 			}
+
 			if(MultiTaskLoad && _tasks.Any(x => x != null && !x.IsCompleted))
 			{
 				_waitDistance = new WayHash(fromHash, toHash);
+
 				while(!_cache.ContainsKey(fromHash) || !_cache[fromHash].ContainsKey(toHash))
 				{
 					//Внутри вызывается QSMain.WaitRedraw();
 					UpdateText();
+
 					//Если по какой то причине, не получили расстояние. Не висим. Пробуем еще раз через сервис.
 					if(ErrorWays.Any(x => x.FromHash == fromHash && x.ToHash == toHash))
 					{
@@ -346,6 +352,7 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 			}
 			var result = LoadDistanceFromService(fromHash, toHash);
 			UpdateText();
+
 			return result;
 		}
 
@@ -353,6 +360,7 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 		{
 			CachedDistance cachedValue = null;
 			bool ok = false;
+
 			if(fromHash == toHash)
 			{
 				cachedValue = new CachedDistance
@@ -362,6 +370,7 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 					FromGeoHash = fromHash,
 					ToGeoHash = toHash
 				};
+
 				AddNewCacheDistance(cachedValue);
 				_addedCached++;
 				ok = true;
@@ -369,12 +378,15 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 
 			if(!ok)
 			{
-				List<PointOnEarth> points = new List<PointOnEarth> {
+				var points = new List<PointOnEarth>
+				{
 					CachedDistance.GetPointOnEarth(fromHash),
 					CachedDistance.GetPointOnEarth(toHash)
 				};
+
 				var result = OsrmClientFactory.Instance.GetRoute(points, false, GeometryOverview.False, _globalSettings.ExcludeToll);
 				ok = result?.Code == "Ok";
+
 				if(ok && result.Routes.Any())
 				{
 					cachedValue = new CachedDistance
@@ -386,11 +398,12 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 					};
 				}
 			}
+
 			if(MultiTaskLoad && ok)
 			{
 				lock(_unitOfWork)
 				{
-					_unitOfWork.TrySave(cachedValue as CachedDistance, false);
+					_unitOfWork.TrySave(cachedValue, false);
 					_unsavedItems++;
 					if(_unsavedItems >= SaveBy)
 					{
@@ -402,6 +415,7 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 				}
 				return cachedValue;
 			}
+
 			if(ok)
 			{
 				AddNewCacheDistance(cachedValue);
@@ -445,19 +459,13 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 			}
 
 			_statisticsTxtAction.Invoke(
-				string.Format(
-					"Уникальных координат: {0}\nРасстояний загружено: {1}\nРасстояний в кеше: {2}/{7}(~{6:P})\nОсталось времени: {9:hh\\:mm\\:ss}\nНовых запрошено: {3}({8})\nОшибок в запросах: {4}\nСреднее скорости: {5:F2}м/с",
-					_totalPoints,
-					_startCached,
-					_totalCached,
-					_addedCached,
-					_totalErrors,
-					(double)_totalMeters / _totalSec,
-					(double)_totalCached / _proposeNeedCached,
-					_proposeNeedCached,
-					_unsavedItems,
-					TimeSpan.FromTicks((long)remainTime)
-				)
+				$"Уникальных координат: {_totalPoints}\n" +
+				$"Расстояний загружено: {_startCached}\n" +
+				$"Расстояний в кеше: {_totalCached}/{_proposeNeedCached}(~{(double)_totalCached / _proposeNeedCached:P})\n" +
+				$"Осталось времени: {TimeSpan.FromTicks((long)remainTime):hh\\:mm\\:ss}\n" +
+				$"Новых запрошено: {_addedCached}({_unsavedItems})\n" +
+				$"Ошибок в запросах: {_totalErrors}\n" +
+				$"Среднее скорости: {(double)_totalMeters / _totalSec:F2}м/с"
 			);
 		}
 

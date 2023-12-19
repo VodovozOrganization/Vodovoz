@@ -47,10 +47,7 @@ namespace Vodovoz.Application.Logistics.RouteOptimization
 						solver().FailStamp(),
 						solver().Solutions(),
 						solver().WallTime(),
-						_bestSol.SolutionCount() > 0 ? _bestSol.ObjectiveValue(0) : -1
-					)
-				);
-				//QSMain.WaitRedraw(200);
+						_bestSol.SolutionCount() > 0 ? _bestSol.ObjectiveValue(0) : -1));
 			}
 
 			base.PeriodicCheck();
@@ -68,12 +65,12 @@ namespace Vodovoz.Application.Logistics.RouteOptimization
 		public override bool AcceptSolution()
 		{
 			var val = base.AcceptSolution();
+
 			if(_bestSol.SolutionCount() > 0)
 			{
-				_logger.LogDebug("New Cost = {Cost}",
-							 _bestSol.ObjectiveValue(0)
-			   );
+				_logger.LogDebug("New Cost = {Cost}", _bestSol.ObjectiveValue(0));
 			}
+
 			return val;
 		}
 

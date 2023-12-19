@@ -24,36 +24,36 @@ namespace Vodovoz.Application.Logistics.RouteOptimization
 			_distanceCalculator = distanceCalculator;
 		}
 
-		public override long Run(int first_index, int second_index)
+		public override long Run(int firstIndex, int secondIndex)
 		{
-			if(first_index > _nodes.Length || second_index > _nodes.Length || first_index < 0 || second_index < 0)
+			if(firstIndex > _nodes.Length || secondIndex > _nodes.Length || firstIndex < 0 || secondIndex < 0)
 			{
-				_logger.LogError($"Get Distance {first_index} -> {second_index} out of orders ({_nodes.Length})");
+				_logger.LogError("Get Distance {FirstIndex} -> {SecondIndex} out of orders ({NodesLength})", firstIndex, secondIndex, _nodes.Length);
 				return 0;
 			}
 
-			if(first_index == second_index)
+			if(firstIndex == secondIndex)
 			{
 				return 0;
 			}
 
 			long distance;
 
-			if(first_index == 0)
+			if(firstIndex == 0)
 			{
-				var firstOrder = _nodes[second_index - 1];
+				var firstOrder = _nodes[secondIndex - 1];
 				var firstBaseVersion = GetGroupVersion(firstOrder.ShippingBase, firstOrder.Order.DeliveryDate.Value);
-				distance = _distanceCalculator.DistanceFromBaseMeter(firstBaseVersion, _nodes[second_index - 1].Order.DeliveryPoint);
+				distance = _distanceCalculator.DistanceFromBaseMeter(firstBaseVersion, _nodes[secondIndex - 1].Order.DeliveryPoint);
 			}
-			else if(second_index == 0)
+			else if(secondIndex == 0)
 			{
-				var secondOrder = _nodes[first_index - 1];
+				var secondOrder = _nodes[firstIndex - 1];
 				var secondBaseVersion = GetGroupVersion(secondOrder.ShippingBase, secondOrder.Order.DeliveryDate.Value);
-				distance = _distanceCalculator.DistanceToBaseMeter(_nodes[first_index - 1].Order.DeliveryPoint, secondBaseVersion);
+				distance = _distanceCalculator.DistanceToBaseMeter(_nodes[firstIndex - 1].Order.DeliveryPoint, secondBaseVersion);
 			}
 			else
 			{
-				distance = _distanceCalculator.DistanceMeter(_nodes[first_index - 1].Order.DeliveryPoint, _nodes[second_index - 1].Order.DeliveryPoint);
+				distance = _distanceCalculator.DistanceMeter(_nodes[firstIndex - 1].Order.DeliveryPoint, _nodes[secondIndex - 1].Order.DeliveryPoint);
 			}
 
 			return distance;
@@ -64,7 +64,7 @@ namespace Vodovoz.Application.Logistics.RouteOptimization
 			var version = geoGroup.GetVersionOrNull(date);
 			if(version == null)
 			{
-				throw new GeoGroupVersionNotFoundException($"Невозможно рассчитать расстояние, так как на {date} у части города ({geoGroup.Name}) нет актуальных данных."); ;
+				throw new GeoGroupVersionNotFoundException($"Невозможно рассчитать расстояние, так как на {date} у части города ({geoGroup.Name}) нет актуальных данных.");
 			}
 
 			return version;

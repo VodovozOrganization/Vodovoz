@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Application.Logistics.RouteOptimization
 {
@@ -11,20 +10,21 @@ namespace Vodovoz.Application.Logistics.RouteOptimization
 	/// </summary>
 	public class ProposedRoute
 	{
-		public List<ProposedRoutePoint> Orders = new List<ProposedRoutePoint>();
-		public PossibleTrip Trip { get; }
-
-		public RouteList RealRoute { get; set; }
-
-		/// <summary>
-		/// Балы полученные при построении этого маршрута.
-		/// </summary>
-		public long RouteCost;
-
 		public ProposedRoute(PossibleTrip trip)
 		{
 			Trip = trip;
 		}
+
+		/// <summary>
+		/// Балы полученные при построении этого маршрута.
+		/// </summary>
+		public long RouteCost { get; set; }
+
+		public List<ProposedRoutePoint> Orders { get; } = new List<ProposedRoutePoint>();
+		
+		public PossibleTrip Trip { get; }
+
+		public RouteList RealRoute { get; set; }
 
 		/// <summary>
 		/// Метод берет последовательность доставки из предложенного маршрута и переносит его в маршрутный лист.
@@ -59,26 +59,6 @@ namespace Vodovoz.Application.Logistics.RouteOptimization
 					address.PlanTimeEnd = null;
 				}
 			}
-		}
-	}
-
-	/// <summary>
-	/// Адреса доставки в имеющемся маршруте. Помимо непосредственно заказа, 
-	/// возвращают еще и рассчетное время приезда на адрес.
-	/// </summary>
-	public class ProposedRoutePoint
-	{
-		public TimeSpan ProposedTimeStart;
-		public TimeSpan ProposedTimeEnd;
-		public Order Order;
-
-		public string DebugMaxMin;
-
-		public ProposedRoutePoint(TimeSpan timeStart, TimeSpan timeEnd, Order order)
-		{
-			ProposedTimeStart = timeStart;
-			ProposedTimeEnd = timeEnd;
-			Order = order;
 		}
 	}
 }
