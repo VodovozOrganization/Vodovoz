@@ -396,17 +396,17 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public void OnCarChangedByUser(object sender, EventArgs e)
 		{
-			var isCompanyCar = Entity.GetCarVersion.IsCompanyCar;
+			var isCompanyCar = Entity.GetCarVersion?.IsCompanyCar ?? false;
 
-			Entity.Driver = Entity.Car.Driver != null
-				&& Entity.Car.Driver.Status != EmployeeStatus.IsFired
-					? Entity.Car.Driver
+			Entity.Driver = Entity.Car?.Driver != null
+				&& Entity.Car?.Driver.Status != EmployeeStatus.IsFired
+					? Entity.Car?.Driver
 					: null;
 
 			DriverViewModel.IsEditable = Entity.Driver == null || isCompanyCar;
 
 			if(!isCompanyCar
-				|| Entity.Car.CarModel.CarTypeOfUse == CarTypeOfUse.Largus
+				|| Entity.Car?.CarModel.CarTypeOfUse == CarTypeOfUse.Largus
 				&& Entity.CanAddForwarder)
 			{
 				Entity.Forwarder = Entity.Forwarder;

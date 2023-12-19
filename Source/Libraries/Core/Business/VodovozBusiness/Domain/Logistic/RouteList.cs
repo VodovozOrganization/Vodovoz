@@ -756,7 +756,7 @@ namespace Vodovoz.Domain.Logistic
 
 		#region Функции
 
-		public virtual CarVersion GetCarVersion => Car.GetActiveCarVersionOnDate(Date);
+		public virtual CarVersion GetCarVersion => Car?.GetActiveCarVersionOnDate(Date);
 
 		public virtual IDictionary<int, decimal> GetCashChangesForOrders()
 		{
