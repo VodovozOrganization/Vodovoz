@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.UoW;
+﻿using Microsoft.Extensions.Logging;
+using QS.DomainModel.UoW;
 using QS.Osrm;
 using System;
 using System.Collections.Concurrent;
@@ -12,7 +13,6 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Factories;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Tools.Logistic;
 
@@ -41,9 +41,9 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 		public static int TasksCount = 5;
 		#endregion
 
-		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
-		private readonly ICachedDistanceRepository _cachedDistanceRepository = new CachedDistanceRepository();
-		private readonly IGlobalSettings _globalSettings = new GlobalSettings(new ParametersProvider());
+		private readonly ILogger<ExtDistanceCalculator> _logger;
+		private readonly ICachedDistanceRepository _cachedDistanceRepository;
+		private readonly IGlobalSettings _globalSettings;
 		private IUnitOfWork _unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Расчет расстояний");
 		private int _proposeNeedCached = 0;
 		private readonly Action<string> _statisticsTxtAction;
@@ -81,8 +81,18 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 		/// <param name="points">Точки для первоначального заполенения из базы.</param>
 		/// <param name="statisticsTxtAction">Функция для буфера для отображения статистики</param>
 		/// <param name="multiThreadLoad">Если <c>true</c> включается моногопоточная загрузка.</param>
-		public ExtDistanceCalculator(DeliveryPoint[] points, IEnumerable<GeoGroupVersion> geoGroupVersions, Action<string> statisticsTxtAction, bool multiThreadLoad = true)
+		public ExtDistanceCalculator(
+			ILogger<ExtDistanceCalculator> logger,
+			IGlobalSettings globalSettings,
+			ICachedDistanceRepository cachedDistanceRepository,
+			DeliveryPoint[] points,
+			IEnumerable<GeoGroupVersion> geoGroupVersions,
+			Action<string> statisticsTxtAction,
+			bool multiThreadLoad = true)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_globalSettings = globalSettings ?? throw new ArgumentNullException(nameof(globalSettings));
+			_cachedDistanceRepository = cachedDistanceRepository ?? throw new ArgumentNullException(nameof(cachedDistanceRepository));
 			_statisticsTxtAction = statisticsTxtAction;
 			_unitOfWork.Session.SetBatchSize(SaveBy);
 			MultiTaskLoad = multiThreadLoad;
@@ -135,9 +145,9 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 				}
 			}
 
-			_logger.Debug(matrixText);
+			_logger.LogDebug(matrixText.ToString());
 
-			_logger.Debug(string.Join(";", _hashes.Select(CachedDistance.GetTextLonLat)));
+			_logger.LogDebug(string.Join(";", _hashes.Select(CachedDistance.GetTextLonLat)));
 #endif
 
 			if(MultiTaskLoad && fromDB.Count < _proposeNeedCached)
@@ -328,7 +338,7 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 
 			if(ErrorWays.Any(x => x.FromHash == fromHash && x.ToHash == toHash))
 			{
-				_logger.Warn("Повторный запрос дистанции с ошибкой расчета для FromHash = {FromHash} и ToHash = {ToHash}. Пропускаем...", fromHash, toHash);
+				_logger.LogWarning("Повторный запрос дистанции с ошибкой расчета для FromHash = {FromHash} и ToHash = {ToHash}. Пропускаем...", fromHash, toHash);
 				return null;
 			}
 
@@ -441,7 +451,7 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 
 			var start = DateTime.Now;
 			_unitOfWork.Commit();
-			_logger.Debug("Сохранили {0} расстояний в кеш за {1} сек.", _unsavedItems, (DateTime.Now - start).TotalSeconds);
+			_logger.LogDebug("Сохранили {UnsavedItemsCount} расстояний в кеш за {TotalSeconds} сек.", _unsavedItems, (DateTime.Now - start).TotalSeconds);
 			_unsavedItems = 0;
 		}
 

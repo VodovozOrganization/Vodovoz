@@ -12,7 +12,9 @@ using Vodovoz.Application.Services.Logistics.RouteOptimization;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Sale;
+using Vodovoz.Services;
 
 namespace Vodovoz.Application.Logistics.RouteOptimization
 {
@@ -39,6 +41,9 @@ namespace Vodovoz.Application.Logistics.RouteOptimization
 		private readonly ILogger<CallbackVolume> _callbackVolumelogger;
 		private readonly ILogger<CallbackDistance> _callbackDistanceLogger;
 		private readonly ILogger<CallbackDistanceDistrict> _callbackDistanceDistrictlogger;
+		private readonly ILogger<ExtDistanceCalculator> _extDistanceCalculatorLogger;
+		private readonly IGlobalSettings _globalSettings;
+		private readonly ICachedDistanceRepository _cachedDistanceRepository;
 		private readonly IGeographicGroupRepository _geographicGroupRepository;
 
 		#region Настройки оптимизации
@@ -137,6 +142,9 @@ namespace Vodovoz.Application.Logistics.RouteOptimization
 			ILogger<CallbackVolume> callbackVolumelogger,
 			ILogger<CallbackDistance> callbackDistanceLogger,
 			ILogger<CallbackDistanceDistrict> callbackDistanceDistrictlogger,
+			ILogger<ExtDistanceCalculator> extDistanceCalculatorLogger,
+			IGlobalSettings globalSettings,
+			ICachedDistanceRepository cachedDistanceRepository,
 			IGeographicGroupRepository geographicGroupRepository)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -147,6 +155,9 @@ namespace Vodovoz.Application.Logistics.RouteOptimization
 			_callbackVolumelogger = callbackVolumelogger ?? throw new ArgumentNullException(nameof(callbackVolumelogger));
 			_callbackDistanceLogger = callbackDistanceLogger ?? throw new ArgumentNullException(nameof(callbackDistanceLogger));
 			_callbackDistanceDistrictlogger = callbackDistanceDistrictlogger ?? throw new ArgumentNullException(nameof(callbackDistanceDistrictlogger));
+			_extDistanceCalculatorLogger = extDistanceCalculatorLogger ?? throw new ArgumentNullException(nameof(extDistanceCalculatorLogger));
+			_globalSettings = globalSettings ?? throw new ArgumentNullException(nameof(globalSettings));
+			_cachedDistanceRepository = cachedDistanceRepository ?? throw new ArgumentNullException(nameof(cachedDistanceRepository));
 			_geographicGroupRepository = geographicGroupRepository ?? throw new ArgumentNullException(nameof(geographicGroupRepository));
 		}
 
@@ -178,7 +189,7 @@ namespace Vodovoz.Application.Logistics.RouteOptimization
 			// и в фоновом режиме начинает считать недостающую матрицу.
 
 			var geoGroupVersions = _geographicGroupRepository.GetGeographicGroupVersionsOnDate(UoW, date);
-			_distanceCalculator = new ExtDistanceCalculator(_nodes.Select(x => x.Order.DeliveryPoint).ToArray(), geoGroupVersions, StatisticsTxtAction);
+			_distanceCalculator = new ExtDistanceCalculator(_extDistanceCalculatorLogger, _globalSettings, _cachedDistanceRepository, _nodes.Select(x => x.Order.DeliveryPoint).ToArray(), geoGroupVersions, StatisticsTxtAction);
 
 			_logger.LogInformation("Развозка по {DistrictCount} районам.", _nodes.Select(x => x.District).Distinct().Count());
 
@@ -548,7 +559,7 @@ namespace Vodovoz.Application.Logistics.RouteOptimization
 			_nodes = calculatedOrders.ToArray();
 
 			var geoGroupVersions = _geographicGroupRepository.GetGeographicGroupVersionsOnDate(route.UoW, route.Date);
-			_distanceCalculator = new ExtDistanceCalculator(_nodes.Select(x => x.Order.DeliveryPoint).ToArray(), geoGroupVersions, StatisticsTxtAction);
+			_distanceCalculator = new ExtDistanceCalculator(_extDistanceCalculatorLogger, _globalSettings, _cachedDistanceRepository, _nodes.Select(x => x.Order.DeliveryPoint).ToArray(), geoGroupVersions, StatisticsTxtAction);
 
 			PerformanceHelper.AddTimePoint($"Подготовка заказов");
 
