@@ -27,7 +27,7 @@ namespace Vodovoz.Controllers
 			int.TryParse(qrData[1], out var eventId);
 			int.TryParse(qrData[2], out var documentId);
 			decimal.TryParse(qrData[3], out var latitude);
-			decimal.TryParse(qrData[3], out var longitude);
+			decimal.TryParse(qrData[4], out var longitude);
 
 			return new DriverWarehouseEventQrData
 			{
