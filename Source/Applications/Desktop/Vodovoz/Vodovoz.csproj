@@ -739,7 +739,7 @@
     <Compile Include="Representations\ServiceClaimVM.cs" />
     <Compile Include="ViewWidgets\Logistics\RouteListCreateItemsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListCreateItemsView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.RouteListCreateDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Logistic.RouteListCreateView.cs" />
     <Compile Include="Representations\ReadyForShipmentVM.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReadyForShipmentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReadyForShipmentFilter.cs" />
