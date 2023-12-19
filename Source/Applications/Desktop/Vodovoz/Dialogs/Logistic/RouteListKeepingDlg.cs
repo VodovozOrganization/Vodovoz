@@ -637,7 +637,7 @@ namespace Vodovoz
 			}
 		}
 
-		public string Transferred => RouteListItem.GetTransferText(RouteListItem);
+		public string Transferred => RouteListItem.GetTransferText();
 
 		RouteListItem routeListItem;
 
