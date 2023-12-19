@@ -114,8 +114,9 @@ namespace Vodovoz
 
 			PerformanceHelper.StartMeasurement("Замер запуска приложения");
 			GetPermissionsSettings();
+			
 			//Настройка базы
-			var applicationConfigurator = new ApplicationConfigurator();
+			var applicationConfigurator = AppDIContainer.Resolve<IApplicationConfigurator>();
 			applicationConfigurator.ConfigureOrm();
 			applicationConfigurator.CreateApplicationConfig();
 
@@ -330,7 +331,8 @@ namespace Vodovoz
 			CreateTempDir();
 
 			//Запускаем программу
-			MainWin = new MainWindow(passwordValidator, applicationConfigurator);
+			MainWin = new MainWindow(passwordValidator, AppDIContainer.Resolve<IApplicationInfo>(), applicationConfigurator);
+			MainWin.Configure();
 			MainWin.InitializeManagers();
 			MainWin.Title += $" (БД: {loginDialogName})";
 			QSMain.ErrorDlgParrent = MainWin;

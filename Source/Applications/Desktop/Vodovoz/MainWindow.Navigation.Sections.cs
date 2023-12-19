@@ -183,22 +183,6 @@ public partial class MainWindow
 		);
 	}
 
-	protected void OpenRoutesListRegisterReport()
-	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.Logistic.RoutesListRegisterReport>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.Logistic.RoutesListRegisterReport())
-		);
-	}
-
-	protected void OpenDriverRoutesListRegisterReport()
-	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<DriverRoutesListRegisterReport>(),
-			() => new QSReport.ReportViewDlg(new DriverRoutesListRegisterReport())
-		);
-	}
-
 	protected void OnActionTraineeActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(

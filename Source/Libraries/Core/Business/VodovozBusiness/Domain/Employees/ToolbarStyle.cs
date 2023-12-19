@@ -7,5 +7,4 @@
 		Both,
 		BothHoriz
 	}
-
 }

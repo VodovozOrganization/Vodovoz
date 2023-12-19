@@ -18,6 +18,7 @@ using QSProjectsLib;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Microsoft.Extensions.Logging;
 using Vodovoz.Cash.Transfer;
 using Vodovoz.Data.NHibernate.HibernateMapping.Organizations;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
@@ -60,12 +61,17 @@ namespace Vodovoz.Configuration
 {
 	public class ApplicationConfigurator : IApplicationConfigurator
     {
-        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+		private readonly ILogger<ApplicationConfigurator> _logger;
         private const int connectionTimeoutSeconds = 120;
+
+		public ApplicationConfigurator(ILogger<ApplicationConfigurator> logger)
+		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+		}
 
         public void ConfigureOrm()
         {
-            logger.Debug("Конфигурация ORM...");
+            _logger.LogDebug("Конфигурация ORM...");
 
             //Увеличиваем таймаут если нужно
             var dbConnectionStringBuilder = new MySqlConnectionStringBuilder { ConnectionString = QSMain.ConnectionString };
@@ -113,12 +119,12 @@ namespace Vodovoz.Configuration
 
 			HistoryMain.Enable(dbConnectionStringBuilder);
 
-			logger.Debug("OK");
+			_logger.LogDebug("OK");
         }
 
         public void CreateApplicationConfig()
         {
-            logger.Debug("Конфигурация маппингов диалогов, HistoryTrace, принтеров и ParentReference...");
+            _logger.LogDebug("Конфигурация маппингов диалогов, HistoryTrace, принтеров и ParentReference...");
 
             #region Dialogs mapping
 
@@ -314,7 +320,7 @@ namespace Vodovoz.Configuration
             TemplatePrinter.InitPrinter();
             ImagePrinter.InitPrinter();
 
-            logger.Debug("OK");
+            _logger.LogDebug("OK");
         }
     }
 }

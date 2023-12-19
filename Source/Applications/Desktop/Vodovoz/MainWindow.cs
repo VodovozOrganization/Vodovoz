@@ -14,79 +14,75 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using Gtk;
 using Vodovoz;
 using Vodovoz.Controllers;
 using Vodovoz.Core;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Permissions.Warehouses;
-using Vodovoz.Extensions;
-using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Mango;
+using Vodovoz.MainMenu;
 using Vodovoz.Parameters;
 using Vodovoz.SidePanel;
+using Vodovoz.TempAdapters;
 using VodovozInfrastructure.Configuration;
 using Order = Vodovoz.Domain.Orders.Order;
-using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
 
 public partial class MainWindow : Gtk.Window
 {
 	private static Logger _logger = LogManager.GetCurrentClassLogger();
 	private uint _lastUiId;
 	private readonly ILifetimeScope _autofacScope = Startup.AppDIContainer.BeginLifetimeScope();
-	private readonly IApplicationInfo _applicationInfo;
 	private readonly IPasswordValidator _passwordValidator;
 	private readonly IApplicationConfigurator _applicationConfigurator;
-	private readonly IMovementDocumentsNotificationsController _movementsNotificationsController;
-	private readonly IComplaintNotificationController _complaintNotificationController;
-	private readonly bool _hasAccessToSalariesForLogistics;
-	private readonly int _currentUserSubdivisionId;
-	private readonly IEnumerable<int> _curentUserMovementDocumentsNotificationWarehouses;
-	private readonly bool _hideComplaintsNotifications;
+	private IMovementDocumentsNotificationsController _movementsNotificationsController;
+	private IComplaintNotificationController _complaintNotificationController;
+	private bool _hasAccessToSalariesForLogistics;
+	private int _currentUserSubdivisionId;
+	private IEnumerable<int> _curentUserMovementDocumentsNotificationWarehouses;
+	private bool _hideComplaintsNotifications;
 
 	private bool _accessOnlyToWarehouseAndComplaints;
 
-	public TdiNotebook TdiMain => tdiMain;
-	public InfoPanel InfoPanel => infopanel;
-
-	public MainWindow(IPasswordValidator passwordValidator, IApplicationConfigurator applicationConfigurator) : base(Gtk.WindowType.Toplevel)
+	public MainWindow(
+		IPasswordValidator passwordValidator,
+		IApplicationInfo applicationInfo,
+		IApplicationConfigurator applicationConfigurator) : base(Gtk.WindowType.Toplevel)
 	{
 		_passwordValidator = passwordValidator ?? throw new ArgumentNullException(nameof(passwordValidator));
+		ApplicationInfo = applicationInfo ?? throw new ArgumentNullException(nameof(applicationInfo));
 		_applicationConfigurator = applicationConfigurator ?? throw new ArgumentNullException(nameof(applicationConfigurator));
-		
+
 		Build();
 
-		PerformanceHelper.AddTimePoint("Закончена стандартная сборка окна.");
-		_applicationInfo = new ApplicationVersionInfo();
+		TdiMain = tdiMain;
+		InfoPanel = infopanel;
+		ToolbarMain = toolbarMain;
+		ToolbarComplaints = tlbComplaints;
 
+		PerformanceHelper.AddTimePoint("Закончена стандартная сборка окна.");
+	}
+	
+	public void Configure()
+	{
 		BuildToolbarActions();
 
 		tdiMain.WidgetResolver = ViewModelWidgetResolver.Instance;
 		TDIMain.MainNotebook = tdiMain;
-		var highlightWColor = CurrentUserSettings.Settings.HighlightTabsWithColor;
-		var keepTabColor = CurrentUserSettings.Settings.KeepTabColor;
-		var reorderTabs = CurrentUserSettings.Settings.ReorderTabs;
 		_hideComplaintsNotifications = CurrentUserSettings.Settings.HideComplaintNotification;
 		var tabsParametersProvider = new TabsParametersProvider(new ParametersProvider());
-		TDIMain.SetTabsColorHighlighting(highlightWColor, keepTabColor, GetTabsColors(), tabsParametersProvider.TabsPrefix);
-		TDIMain.SetTabsReordering(reorderTabs);
-
-		if (reorderTabs)
-		{
-			ReorderTabs.Activate();
-		}
-
-		if (highlightWColor)
-		{
-			HighlightTabsWithColor.Activate();
-		}
-
-		if (keepTabColor)
-		{
-			KeepTabColor.Activate();
-		}
-
+		TDIMain.SetTabsColorHighlighting(
+			CurrentUserSettings.Settings.HighlightTabsWithColor,
+			CurrentUserSettings.Settings.KeepTabColor,
+			GetTabsColors(),
+			tabsParametersProvider.TabsPrefix);
+		TDIMain.SetTabsReordering(CurrentUserSettings.Settings.ReorderTabs);
+		
+		var menuCreator = _autofacScope.Resolve<MainMenuBarCreator>();
+		var menu = menuCreator.CreateMenuBar();
+		vbox1.Add(menu);
+		
 		bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
 		if (isWindows)
@@ -94,7 +90,7 @@ public partial class MainWindow : Gtk.Window
 			KeyPressEvent += HotKeyHandler.HandleKeyPressEvent;
 		}
 
-		Title = $"{_applicationInfo.ProductTitle} v{_applicationInfo.Version.Major}.{_applicationInfo.Version.Minor} от {GetDateTimeFGromVersion(_applicationInfo.Version):dd.MM.yyyy HH:mm}";
+		Title = $"{ApplicationInfo.ProductTitle} v{ApplicationInfo.Version.Major}.{ApplicationInfo.Version.Minor} от {GetDateTimeFGromVersion(ApplicationInfo.Version):dd.MM.yyyy HH:mm}";
 
 		//Настраиваем модули
 		ActionUsers.Sensitive = QSMain.User.Admin;
@@ -149,36 +145,6 @@ public partial class MainWindow : Gtk.Window
 			commonServices.CurrentPermissionService.ValidatePresetPermission("can_create_and_arc_nomenclatures");
 		ActionDistricts.Sensitive = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DistrictsSet)).CanRead;
 		ActionDriversStopLists.Sensitive = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DriverStopListRemoval)).CanRead;
-
-		//Читаем настройки пользователя
-		switch (CurrentUserSettings.Settings.ToolbarStyle)
-		{
-			case ToolbarStyle.Both:
-				ActionToolBarBoth.Activate();
-				break;
-			case ToolbarStyle.Icons:
-				ActionToolBarIcon.Activate();
-				break;
-			case ToolbarStyle.Text:
-				ActionToolBarText.Activate();
-				break;
-		}
-
-		switch (CurrentUserSettings.Settings.ToolBarIconsSize)
-		{
-			case IconsSize.ExtraSmall:
-				ActionIconsExtraSmall.Activate();
-				break;
-			case IconsSize.Small:
-				ActionIconsSmall.Activate();
-				break;
-			case IconsSize.Middle:
-				ActionIconsMiddle.Activate();
-				break;
-			case IconsSize.Large:
-				ActionIconsLarge.Activate();
-				break;
-		}
 
 		// Отдел продаж
 
@@ -304,19 +270,26 @@ public partial class MainWindow : Gtk.Window
 		ExternalCounterpartiesMatchingAction.Sensitive =
 			commonServices.CurrentPermissionService.ValidatePresetPermission("can_matching_counterparties_from_external_sources");
 
-		ActionGroupPricing.Activated += ActionGroupPricingActivated;
-		ActionProfitabilitySalesReport.Activated += ActionProfitabilitySalesReportActivated;
+		//ActionGroupPricing.Activated += ActionGroupPricingActivated;
+		//ActionProfitabilitySalesReport.Activated += ActionProfitabilitySalesReportActivated;
 
 		Action74.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.CanGenerateCashFlowDdsReport);
 
 		ActionClassificationCalculation.Sensitive = 
 			commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Counterparty.CanCalculateCounterpartyClassifications);
-
-		InitializeThemesMenuItem();
 	}
+	
+	public IApplicationInfo ApplicationInfo { get; }
+	public TdiNotebook TdiMain { get; }
+	public InfoPanel InfoPanel { get; }
+	public Toolbar ToolbarMain { get; }
+	public Toolbar ToolbarComplaints { get; }
 	
 	public ITdiCompatibilityNavigation NavigationManager { get; private set; }
 	public MangoManager MangoManager { get; private set; }
+	
+	private string[] GetTabsColors() =>
+		new[] { "#F81919", "#009F6B", "#1F8BFF", "#FF9F00", "#FA7A7A", "#B46034", "#99B6FF", "#8F2BE1", "#00CC44" };
 
 	/// <summary>
 	/// Пока в <see cref="EmployeeJournalFactory"/> есть получение <see cref="NavigationManager"/> через <see cref="MainWindow"/>

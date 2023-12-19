@@ -36,7 +36,7 @@ namespace Vodovoz.ViewModels.BaseParameters
 			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot();
 			_settings = new GenericObservableList<Setting>(_unitOfWork.GetAll<Setting>().ToList());
 
-			Title = "Парметры приложения";
+			Title = "Параметры приложения";
 		}
 
 		public GenericObservableList<Setting> Settings => _settings;

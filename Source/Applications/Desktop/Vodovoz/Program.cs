@@ -47,6 +47,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using QS.ChangePassword.Views;
+using QS.Project.DB.Passwords;
+using QS.Project.Repositories;
 using Vodovoz.Additions;
 using Vodovoz.Additions.Logistic.RouteOptimization;
 using Vodovoz.Application;
@@ -55,6 +59,7 @@ using Vodovoz.Application.Services.Logistics;
 using Vodovoz.CachingRepositories.Cash;
 using Vodovoz.CachingRepositories.Common;
 using Vodovoz.CachingRepositories.Counterparty;
+using Vodovoz.Configuration;
 using Vodovoz.Core;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs.OrderWidgets;
@@ -76,6 +81,8 @@ using Vodovoz.Infrastructure.Mango;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.JournalViewers;
+using Vodovoz.MainMenu;
 using Vodovoz.Models;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Parameters;
@@ -115,8 +122,10 @@ using Vodovoz.ViewModels.Permissions;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.Views.Mango.Talks;
 using Vodovoz.ViewWidgets;
+using VodovozInfrastructure.Configuration;
 using VodovozInfrastructure.Endpoints;
 using VodovozInfrastructure.Interfaces;
+using VodovozInfrastructure.Passwords;
 using VodovozInfrastructure.Services;
 using VodovozInfrastructure.StringHandlers;
 using static Vodovoz.ViewModels.Cash.Reports.CashFlowAnalysisViewModel;
@@ -179,6 +188,7 @@ namespace Vodovoz
 
 					builder.RegisterType<UserPrintingRepository>().As<IUserPrintingRepository>().SingleInstance();
 					builder.RegisterType<CashRepository>().As<ICashRepository>();
+					builder.RegisterType<MySqlPasswordRepository>().As<IMySqlPasswordRepository>();
 
 					#endregion
 
@@ -350,6 +360,8 @@ namespace Vodovoz
 					builder.RegisterType<WarehousePermissionValidator>().As<IWarehousePermissionValidator>();
 					builder.RegisterType<WageParameterService>().As<IWageParameterService>();
 					builder.RegisterType<SelfDeliveryCashOrganisationDistributor>().As<ISelfDeliveryCashOrganisationDistributor>();
+					builder.RegisterType<MysqlChangePasswordModelExtended>().As<IChangePasswordModel>();
+					builder.RegisterType<ApplicationConfigurator>().As<IApplicationConfigurator>().SingleInstance();
 
 					#endregion
 
@@ -655,8 +667,13 @@ namespace Vodovoz
 						.AddScoped<ICustomReportItemFactory, CustomReportItemFactory>()
 						.AddScoped<IRdlTextBoxFactory, RdlTextBoxFactory>()
 						.AddScoped<IEventsQrPlacer, EventsQrPlacer>()
+						.AddScoped<IPasswordValidator, PasswordValidator>()
+						.AddScoped<IPasswordValidationSettings, DefaultPasswordValidationSettings>()
+						.AddScoped<ChangePasswordView>()
+						.AddScoped<ChangePasswordViewModel>()
 						.AddApplication()
-						.AddBusiness();
+						.AddBusiness()
+						.AddMainMenuDependencies();
 				});
 	}
 }
