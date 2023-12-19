@@ -7,6 +7,7 @@ using System.Timers;
 using NLog;
 using Vodovoz.EntityRepositories.SmsNotifications;
 using Sms.External.Interface;
+using Gamma.Utilities;
 
 namespace VodovozSmsInformerService
 {
@@ -103,29 +104,21 @@ namespace VodovozSmsInformerService
 			try {
 				SmsMessage smsMessage = new SmsMessage(notification.MobilePhone, notification.Id.ToString(), notification.MessageText);
 				var result = smsSender.SendSms(smsMessage);
-				logger.Info($"Отправлено уведомление о переносе недовоза. Тел.: {smsMessage.MobilePhoneNumber}, результат: {result.Status}");
+				logger.Info($"Отправлено уведомление о переносе недовоза. Тел.: {smsMessage.MobilePhoneNumber}, результат: {result.GetEnumTitle()}");
 
-				notification.ServerMessageId = result.ServerId;
-				notification.Status = result.Status == SmsSentStatus.Accepted ? SmsNotificationStatus.Accepted : SmsNotificationStatus.Error;
-				switch(result.Status) {
-					case SmsSentStatus.InvalidMobilePhone:
-						notification.ErrorDescription = $"Неверно заполнен номер мобильного телефона. ({notification.MobilePhone})";
-						break;
-					case SmsSentStatus.TextIsEmpty:
-						notification.ErrorDescription = $"Не заполнен текст сообщения";
-						break;
-					case SmsSentStatus.SenderAddressInvalid:
-						notification.ErrorDescription = $"Неверное имя отправителя";
-						break;
-					case SmsSentStatus.NotEnoughBalance:
-						notification.ErrorDescription = $"Недостаточно средств на счете";
-						break;
-					case SmsSentStatus.UnknownError:
-						notification.ErrorDescription = $"{result.Description}";
-						break;
+				if(result.IsSuccefullStatus())
+				{
+					notification.Status = SmsNotificationStatus.Accepted;
+				}
+				else
+				{
+					notification.ErrorDescription = result.GetEnumTitle();
+					notification.Status = SmsNotificationStatus.Error;
 				}
 			}
-			catch(Exception ex) {
+			catch(Exception ex) 
+			{
+				notification.Status = SmsNotificationStatus.Error;
 				notification.ErrorDescription = $"Ошибка при отправке смс сообщения. {ex.Message}";
 				logger.Error(ex);
 			}

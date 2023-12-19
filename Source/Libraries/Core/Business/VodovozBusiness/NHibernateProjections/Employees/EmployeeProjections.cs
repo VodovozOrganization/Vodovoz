@@ -13,7 +13,7 @@ namespace Vodovoz.NHibernateProjections.Employees
 		/// Используется <see cref="Employee"/> driverAlias
 		/// </summary>
 		/// <returns></returns>
-		public static IProjection GetDriverFullNamePojection()
+		public static IProjection GetDriverFullNameProjection()
 		{
 			Employee driverAlias = null;
 

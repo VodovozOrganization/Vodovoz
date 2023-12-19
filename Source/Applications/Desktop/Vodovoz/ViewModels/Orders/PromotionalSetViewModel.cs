@@ -12,9 +12,6 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain.Goods.PromotionalSetsOnlineParameters;
 using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
@@ -23,10 +20,7 @@ namespace Vodovoz.ViewModels.Orders
 {
 	public class PromotionalSetViewModel : EntityTabViewModelBase<PromotionalSet>, IPermissionResult
 	{
-		private readonly INomenclatureRepository _nomenclatureRepository;
-		private readonly IUserRepository _userRepository;
-		private readonly ILifetimeScope _lifetimeScope;
-		private readonly ICounterpartyJournalFactory _counterpartySelectorFactory;
+		private ILifetimeScope _lifetimeScope;
 
 		private PromotionalSetItem _selectedPromoItem;
 		private PromotionalSetActionBase _selectedAction;
@@ -40,13 +34,8 @@ namespace Vodovoz.ViewModels.Orders
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
-			ICounterpartyJournalFactory counterpartySelectorFactory,
-			INomenclatureRepository nomenclatureRepository,
-			IUserRepository userRepository,
 			ILifetimeScope lifetimeScope) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
-			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
-			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			CanChangeType =
@@ -205,10 +194,11 @@ namespace Vodovoz.ViewModels.Orders
 		private void CreateAddActionCommand()
 		{
 			AddActionCommand = new DelegateCommand<PromotionalSetActionType>(
-			(actionType) => {
-				PromotionalSetActionWidgetResolver resolver = new PromotionalSetActionWidgetResolver(UoW, _lifetimeScope,
-					_counterpartySelectorFactory, _nomenclatureRepository, _userRepository);
-				SelectedActionViewModel = resolver.Resolve(Entity, actionType);
+			(actionType) =>
+			{
+				SelectedActionViewModel = _lifetimeScope.Resolve<AddFixPriceActionViewModel>(
+					new TypedParameter(typeof(IUnitOfWork), UoW),
+					new TypedParameter(typeof(PromotionalSet), Entity));
 
 					if(SelectedActionViewModel is ICreationControl)
 					{
@@ -262,6 +252,12 @@ namespace Vodovoz.ViewModels.Orders
 			parameters.PromotionalSet = Entity;
 			Entity.PromotionalSetOnlineParameters.Add(parameters);
 			return parameters;
+		}
+
+		public override void Dispose()
+		{
+			_lifetimeScope = null;
+			base.Dispose();
 		}
 	}
 }

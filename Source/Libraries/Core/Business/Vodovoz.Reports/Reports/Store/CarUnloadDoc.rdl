@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description></Description>
-  <Author></Author>
+  <Description>
+  </Description>
+  <Author>
+  </Author>
   <PageHeight>11in</PageHeight>
   <PageWidth>8.5in</PageWidth>
   <DataSources>
@@ -177,7 +179,7 @@ WHERE
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="SelfTerminalTransfer" >
+    <DataSet Name="SelfTerminalTransfer">
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>WITH RECURSIVE cte (routelist_from_id, routelist_to_id) AS (
@@ -373,8 +375,8 @@ FROM			cte;</CommandText>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>8.0pt</Left>
-        <Top>129.2pt</Top>
+        <Left>3.2pt</Left>
+        <Top>152.4pt</Top>
       </Table>
       <Table Name="Table2">
         <DataSetName>Doc</DataSetName>
@@ -383,21 +385,15 @@ FROM			cte;</CommandText>
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
-          <BorderColor  />
-          <BorderWidth  />
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <TableColumns>
           <TableColumn>
             <Width>128.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>169.5pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>95.1pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>146.4pt</Width>
+            <Width>278.6pt</Width>
           </TableColumn>
         </TableColumns>
         <Details>
@@ -408,40 +404,6 @@ FROM			cte;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox10">
-                      <Value></Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <Color>Crimson</Color>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>12pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox11">
-                      <Value></Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                        </BorderStyle>
-                        <FontWeight>Normal</FontWeight>
-                        <Color>Black</Color>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>12pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox12">
                       <Value>Дата:</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -458,7 +420,7 @@ FROM			cte;</CommandText>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox13">
+                    <Textbox Name="Textbox11">
                       <Value>={date}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -513,41 +475,6 @@ FROM			cte;</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox28">
-                      <Value>Автомобиль:</Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <Color>Crimson</Color>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>12pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox40">
-                      <Value>={model} +" ("+ {reg_number}+ ")"</Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                        </BorderStyle>
-                        <FontWeight>Normal</FontWeight>
-                        <Color>Black</Color>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>12pt</FontSize>
-                      </Style>
-                      <CanGrow>true</CanGrow>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
               </TableCells>
             </TableRow>
             <TableRow>
@@ -575,38 +502,6 @@ FROM			cte;</CommandText>
                   <ReportItems>
                     <Textbox Name="Textbox17">
                       <Value>={storekeeper}</Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                        </BorderStyle>
-                        <FontSize>12pt</FontSize>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox29">
-                      <Value>Водитель:</Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <Color>Crimson</Color>
-                        <FontWeight>Bold</FontWeight>
-                        <FontSize>12pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox41">
-                      <Value>={driver}</Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -657,11 +552,16 @@ FROM			cte;</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>15.9pt</Height>
+              <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox30">
-                      <Value>Экcпедитор:</Value>
-                      <Style>
+                    <Textbox Name="Textbox23">
+                      <Value>Автомобиль:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
                         </BorderStyle>
@@ -676,9 +576,87 @@ FROM			cte;</CommandText>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox42">
+                    <Textbox Name="Textbox24">
+                      <Value>={model} +" ("+ {reg_number}+ ")"</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <FontWeight>Normal</FontWeight>
+                        <Color>Black</Color>
+                        <FontSize>12pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>16.7pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox19">
+                      <Value>Водитель:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <Color>Crimson</Color>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>12pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox20">
+                      <Value>={driver}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <FontWeight>Normal</FontWeight>
+                        <Color>Black</Color>
+                        <FontSize>12pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>15.9pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox8">
+                      <Value>Экcпедитор:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <Color>Crimson</Color>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>12pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox9">
                       <Value>={forwader}</Value>
-                      <Style>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
                         </BorderStyle>
@@ -695,16 +673,16 @@ FROM			cte;</CommandText>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>13.3pt</Left>
-        <Top>21.2pt</Top>
+        <Left>1.6pt</Left>
+        <Top>10.4pt</Top>
       </Table>
       <Textbox Name="Textbox52">
         <Height>21.01pt</Height>
         <Width>104.61pt</Width>
         <Value>Разгрузка:</Value>
         <ZIndex>0</ZIndex>
-        <Left>8.1pt</Left>
-        <Top>105.3pt</Top>
+        <Left>3.3pt</Left>
+        <Top>129.3pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -717,8 +695,8 @@ FROM			cte;</CommandText>
         <Width>1in</Width>
         <Value>Водитель</Value>
         <ZIndex>0</ZIndex>
-        <Left>66.2pt</Left>
-        <Top>178.0pt</Top>
+        <Left>46.2pt</Left>
+        <Top>190.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -731,8 +709,8 @@ FROM			cte;</CommandText>
         <Width>1in</Width>
         <Value>Кладовщик</Value>
         <ZIndex>0</ZIndex>
-        <Left>66.2pt</Left>
-        <Top>207.0pt</Top>
+        <Left>46.2pt</Left>
+        <Top>219.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -742,11 +720,11 @@ FROM			cte;</CommandText>
       </Textbox>
       <Textbox Name="Textbox55">
         <Height>14.24pt</Height>
-        <Width>261.19pt</Width>
+        <Width>290.44pt</Width>
         <Value>= "____________________ (" + First({driver}, "Doc") + ")"</Value>
         <ZIndex>0</ZIndex>
-        <Left>133.7pt</Left>
-        <Top>178.0pt</Top>
+        <Left>113.70pt</Left>
+        <Top>190.00pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -756,11 +734,11 @@ FROM			cte;</CommandText>
       </Textbox>
       <Textbox Name="Textbox56">
         <Height>14.24pt</Height>
-        <Width>261.19pt</Width>
+        <Width>291.19pt</Width>
         <Value>= "____________________ (" + First({storekeeper}, "Doc") + ")"</Value>
         <ZIndex>0</ZIndex>
-        <Left>133.70pt</Left>
-        <Top>207.00pt</Top>
+        <Left>113.70pt</Left>
+        <Top>219.00pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -768,13 +746,13 @@ FROM			cte;</CommandText>
           <FontSize>11pt</FontSize>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox7" >
-        <Height>21.00pt</Height>
-        <Width>537.20pt</Width>
+      <Textbox Name="Textbox7">
+        <Height>21.75pt</Height>
+        <Width>370.36pt</Width>
         <Value>=First({self_transfers}, "SelfTerminalTransfer")</Value>
         <ZIndex>0</ZIndex>
-        <Left>7.30pt</Left>
-        <Top>249.30pt</Top>
+        <Left>2.5pt</Left>
+        <Top>250.1pt</Top>
         <CanGrow>true</CanGrow>
         <CanShrink>true</CanShrink>
         <Style>
@@ -788,6 +766,18 @@ FROM			cte;</CommandText>
           <VerticalAlign>Middle</VerticalAlign>
         </Style>
       </Textbox>
+      <Rectangle Name="TopQrRectangle">
+        <Height>120.00pt</Height>
+        <Width>120.00pt</Width>
+        <Left>417.00pt</Left>
+        <Top>17.50pt</Top>
+      </Rectangle>
+      <Rectangle Name="BottomQrRectangle">
+        <Height>120.00pt</Height>
+        <Width>120.00pt</Width>
+        <Left>417.00pt</Left>
+        <Top>190.00pt</Top>
+      </Rectangle>
     </ReportItems>
     <Height>337.0pt</Height>
   </Body>
@@ -807,7 +797,8 @@ FROM			cte;</CommandText>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

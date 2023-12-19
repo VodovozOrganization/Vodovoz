@@ -1,16 +1,10 @@
-﻿using Autofac;
+using Autofac;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using System.Collections.Generic;
 using Vodovoz.Domain.Goods;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalSelector;
-using Vodovoz.Parameters;
-using Vodovoz.Settings.Nomenclature;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
@@ -18,70 +12,64 @@ namespace Vodovoz.TempAdapters
 {
 	public class NomenclatureJournalFactory : INomenclatureJournalFactory
 	{
-		private readonly ILifetimeScope _lifetimeScope;
-
-		public NomenclatureJournalFactory(ILifetimeScope lifetimeScope)
-		{
-			_lifetimeScope = lifetimeScope ?? throw new System.ArgumentNullException(nameof(lifetimeScope));
-		}
-
 		public NomenclaturesJournalViewModel CreateNomenclaturesJournalViewModel(
-			NomenclatureFilterViewModel filter = null, bool multiselect = false)
+			ILifetimeScope lifetimeScope, NomenclatureFilterViewModel filter = null, bool multiselect = false)
 		{
-			NomenclaturesJournalViewModel vm;
+			NomenclaturesJournalViewModel journalViewModel = null;
 
 			if(filter is null)
 			{
-				vm = _lifetimeScope.Resolve<NomenclaturesJournalViewModel>();
+				journalViewModel = lifetimeScope.Resolve<NomenclaturesJournalViewModel>();
 			}
 			else
 			{
-				vm = _lifetimeScope.Resolve<NomenclaturesJournalViewModel>(
+				journalViewModel = lifetimeScope.Resolve<NomenclaturesJournalViewModel>(
 					new TypedParameter(typeof(NomenclatureFilterViewModel), filter));
 			}
-			
-			vm.SelectionMode = multiselect ? JournalSelectionMode.Multiple : JournalSelectionMode.Single;
-			
-			return vm;
+
+			journalViewModel.SelectionMode = multiselect ? JournalSelectionMode.Multiple : JournalSelectionMode.Single;
+			return journalViewModel;
 		}
 
-		public IEntitySelector CreateNomenclatureSelector(IEnumerable<int> excludedNomenclatures = null, bool multipleSelect = true)
+		public IEntitySelector CreateNomenclatureSelector(
+			ILifetimeScope lifetimeScope, IEnumerable<int> excludedNomenclatures = null, bool multipleSelect = true)
 		{
 			var filter = new NomenclatureFilterViewModel();
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictArchive = true,
 				x => x.AvailableCategories = Nomenclature.GetCategoriesForGoods());
 
-			return CreateNomenclaturesJournalViewModel(filter, multipleSelect);
+			return CreateNomenclaturesJournalViewModel(lifetimeScope, filter, multipleSelect);
 		}
 
-		public IEntitySelector CreateNomenclatureOfGoodsWithoutEmptyBottlesSelector(IEnumerable<int> excludedNomenclatures = null)
+		public IEntitySelector CreateNomenclatureOfGoodsWithoutEmptyBottlesSelector(
+			ILifetimeScope lifetimeScope, IEnumerable<int> excludedNomenclatures = null)
 		{
 			var filter = new NomenclatureFilterViewModel();
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictArchive = true,
 				x => x.AvailableCategories = Nomenclature.GetCategoriesForGoodsWithoutEmptyBottles());
 
-			return CreateNomenclaturesJournalViewModel(filter);
+			return CreateNomenclaturesJournalViewModel(lifetimeScope, filter);
 		}
 
 
-		public IEntitySelector CreateNomenclatureSelectorForFuelSelect()
+		public IEntitySelector CreateNomenclatureSelectorForFuelSelect(ILifetimeScope lifetimeScope)
 		{
 			var filter = new NomenclatureFilterViewModel();
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = NomenclatureCategory.fuel,
 				x => x.RestrictArchive = false);
 
-			return CreateNomenclaturesJournalViewModel(filter, true);
+			return CreateNomenclaturesJournalViewModel(lifetimeScope, filter, true);
 		}
 
-		public IEntityAutocompleteSelectorFactory GetWaterJournalFactory()
+		public IEntityAutocompleteSelectorFactory GetWaterJournalFactory(ILifetimeScope lifetimeScope)
 		{
-			return new WaterJournalFactory(_lifetimeScope);
+			return new WaterJournalFactory(lifetimeScope);
 		}
 
-		public IEntityAutocompleteSelectorFactory GetDefaultWaterSelectorFactory()
+		public IEntityAutocompleteSelectorFactory GetDefaultWaterSelectorFactory(ILifetimeScope lifetimeScope)
 		{
 			return new EntityAutocompleteSelectorFactory<NomenclaturesJournalViewModel>(
 				typeof(Nomenclature),
@@ -93,11 +81,11 @@ namespace Vodovoz.TempAdapters
 						x => x.RestrictDilers = true
 					);
 
-					return CreateNomenclaturesJournalViewModel(filter);
+					return CreateNomenclaturesJournalViewModel(lifetimeScope, filter);
 				});
 		}
 
-		public IEntityAutocompleteSelectorFactory GetNotArchiveEquipmentsSelectorFactory()
+		public IEntityAutocompleteSelectorFactory GetNotArchiveEquipmentsSelectorFactory(ILifetimeScope lifetimeScope)
 		{
 			return new EntityAutocompleteSelectorFactory<NomenclaturesJournalViewModel>(
 				typeof(Nomenclature),
@@ -109,11 +97,11 @@ namespace Vodovoz.TempAdapters
 						x => x.RestrictArchive = false
 					);
 
-					return CreateNomenclaturesJournalViewModel(filter);
+					return CreateNomenclaturesJournalViewModel(lifetimeScope, filter);
 				});
 		}
 
-		public IEntityAutocompleteSelectorFactory CreateNomenclatureForFlyerJournalFactory() =>
+		public IEntityAutocompleteSelectorFactory CreateNomenclatureForFlyerJournalFactory(ILifetimeScope lifetimeScope) =>
 			new EntityAutocompleteSelectorFactory<NomenclaturesJournalViewModel>(
 				typeof(Nomenclature),
 				() =>
@@ -123,26 +111,16 @@ namespace Vodovoz.TempAdapters
 						x => x.RestrictCategory = NomenclatureCategory.additional,
 						x => x.RestrictArchive = false);
 
-					return CreateNomenclaturesJournalViewModel(filter);
+					return CreateNomenclaturesJournalViewModel(lifetimeScope, filter);
 				}
 			);
 
-		public IEntityAutocompleteSelectorFactory GetDefaultNomenclatureSelectorFactory(NomenclatureFilterViewModel filter = null)
+		public IEntityAutocompleteSelectorFactory GetDefaultNomenclatureSelectorFactory(
+			ILifetimeScope lifetimeScope, NomenclatureFilterViewModel filter = null)
 		{
-			if(filter == null)
-			{
-				filter = new NomenclatureFilterViewModel();
-			}
-
-			INomenclatureRepository nomenclatureRepository = new NomenclatureRepository(
-				new NomenclatureParametersProvider(new ParametersProvider()));
-
-			IUserRepository userRepository = new UserRepository();
-
-			var counterpartySelectorFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
-
-			return new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
-				filter, counterpartySelectorFactory, nomenclatureRepository, userRepository, _lifetimeScope);
+			return new EntityAutocompleteSelectorFactory<NomenclaturesJournalViewModel>(
+				typeof(Nomenclature),
+				() => CreateNomenclaturesJournalViewModel(lifetimeScope, filter));
 		}
 
 		public IEntityAutocompleteSelectorFactory GetRoboatsWaterJournalFactory()
@@ -155,41 +133,41 @@ namespace Vodovoz.TempAdapters
 				});
 		}
 
-		public IEntityAutocompleteSelectorFactory GetDepositSelectorFactory()
+		public IEntityAutocompleteSelectorFactory GetDepositSelectorFactory(ILifetimeScope lifetimeScope)
 		{
 			return new EntityAutocompleteSelectorFactory<NomenclaturesJournalViewModel>(
 				typeof(Nomenclature),
-				GetDepositJournal);
+				() => GetDepositJournal(lifetimeScope));
 		}
 
-		private NomenclaturesJournalViewModel GetDepositJournal()
+		private NomenclaturesJournalViewModel GetDepositJournal(ILifetimeScope lifetimeScope)
 		{
 			var filter = new NomenclatureFilterViewModel { HidenByDefault = true };
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = NomenclatureCategory.deposit
 			);
 
-			var journalViewModel = CreateNomenclaturesJournalViewModel(filter);
+			var journalViewModel = CreateNomenclaturesJournalViewModel(lifetimeScope, filter);
 			journalViewModel.HideButtons();
 			
 			return journalViewModel;
 		}
 
-		public IEntityAutocompleteSelectorFactory GetServiceSelectorFactory()
+		public IEntityAutocompleteSelectorFactory GetServiceSelectorFactory(ILifetimeScope lifetimeScope)
 		{
 			return new EntityAutocompleteSelectorFactory<NomenclaturesJournalViewModel>(
 				typeof(Nomenclature),
-				GetServiceJournal);
+				() => GetServiceJournal(lifetimeScope));
 		}
 
-		private NomenclaturesJournalViewModel GetServiceJournal()
+		private NomenclaturesJournalViewModel GetServiceJournal(ILifetimeScope lifetimeScope)
 		{
 			var filter = new NomenclatureFilterViewModel { HidenByDefault = true };
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = NomenclatureCategory.service
 			);
 
-			var journalViewModel = CreateNomenclaturesJournalViewModel(filter);
+			var journalViewModel = CreateNomenclaturesJournalViewModel(lifetimeScope, filter);
 			journalViewModel.HideButtons();
 			
 			return journalViewModel;

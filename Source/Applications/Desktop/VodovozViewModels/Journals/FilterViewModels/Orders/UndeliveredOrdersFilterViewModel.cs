@@ -24,7 +24,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 	public class UndeliveredOrdersFilterViewModel : FilterViewModelBase<UndeliveredOrdersFilterViewModel>
 	{
 		private readonly INavigationManager _navigationManager;
-		private readonly ILifetimeScope _lifetimeScope;
+		private ILifetimeScope _lifetimeScope;
 		private Order _restrictOldOrder;
 		private Employee _restrictDriver;
 		private Subdivision _restrictAuthorSubdivision;
@@ -56,6 +56,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory)
 		{
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+
 			OrderSelectorFactory = (orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory)))
 				.CreateOrderAutocompleteSelectorFactory();
 
@@ -63,7 +65,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 				.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
 
 			CounterpartySelectorFactory = (counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
-				.CreateCounterpartyAutocompleteSelectorFactory();
+				.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope);
 
 			DeliveryPointSelectorFactory = (deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory)))
 				.CreateDeliveryPointAutocompleteSelectorFactory();
@@ -72,7 +74,6 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 			RestrictOldOrderStartDate = DateTime.Today.AddMonths(-1);
 			RestrictOldOrderEndDate = DateTime.Today.AddMonths(1);
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
-			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 		}
 
 		public IEntityAutocompleteSelectorFactory OrderSelectorFactory { get; }
@@ -305,6 +306,13 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 						})
 					.Finish();
 			}
+		}
+
+		public override void Dispose()
+		{
+			_lifetimeScope = null;
+			_journalViewModel = null;
+			base.Dispose();
 		}
 	}
 }

@@ -1,6 +1,4 @@
-﻿using FluentNHibernate.Data;
-using Autofac;
-using Gtk;
+﻿using Autofac;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
@@ -20,9 +18,6 @@ using Vodovoz.Parameters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Widgets;
-using QS.ViewModels.Control.EEVM;
-using Vodovoz.ViewModels.ViewModels.Organizations;
-using Vodovoz.Journals.JournalViewModels.Organizations;
 
 namespace Vodovoz.Dialogs
 {

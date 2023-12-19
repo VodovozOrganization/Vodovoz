@@ -1,9 +1,10 @@
-﻿using QS.Project.Journal.EntitySelector;
+﻿using Autofac;
+using QS.Project.Journal.EntitySelector;
 
 namespace Vodovoz.TempAdapters
 {
 	public interface ICounterpartyJournalFactory
 	{
-		IEntityAutocompleteSelectorFactory CreateCounterpartyAutocompleteSelectorFactory();
+		IEntityAutocompleteSelectorFactory CreateCounterpartyAutocompleteSelectorFactory(ILifetimeScope lifetimeScope);
 	}
 }

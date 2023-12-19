@@ -7,6 +7,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
@@ -1471,10 +1472,12 @@ FROM
 	GROUP BY oi.id
 	) prof
 ;";
+
 			var query = uow.Session.CreateSQLQuery(sql)
 				.SetParameter("route_list_id", routeListId)
 				.SetParameter("route_list_expenses_per_kg", routeListExpensesPerKg)
 				.SetResultTransformer(Transformers.AliasToBean(typeof(RouteListProfitabilitySpendings)));
+
 			var result = query.UniqueResult<RouteListProfitabilitySpendings>();
 			return result;
 		}

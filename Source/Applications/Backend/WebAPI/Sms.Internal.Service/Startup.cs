@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -6,7 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Sms.External.SmsRu;
 using Sms.Internal.Service.Authentication;
-using SmsRu;
 
 namespace Sms.Internal.Service
 {
@@ -77,7 +76,8 @@ namespace Sms.Internal.Service
 				int.Parse(smsRuSection["smtpPort"]),
 				bool.Parse(smsRuSection["smtpUseSSL"]),
 				bool.Parse(smsRuSection["translit"]),
-				bool.Parse(smsRuSection["test"])
+				bool.Parse(smsRuSection["test"]),
+				smsRuSection["baseUrl"]
 				);
 			return smsRuConfig;
 		}

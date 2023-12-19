@@ -38,6 +38,8 @@ namespace Vodovoz.Views.Rent
 
 		private global::Gamma.GtkWidgets.ySpinButton spinMinWaterAmount;
 
+		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonArchive;
+
 		private global::Gamma.GtkWidgets.yLabel ylblDepositService;
 
 		private global::Gamma.GtkWidgets.yLabel ylblDepositSum;
@@ -260,6 +262,20 @@ namespace Vodovoz.Views.Rent
 			w15.RightAttach = ((uint)(2));
 			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
+			this.ycheckbuttonArchive = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckbuttonArchive.CanFocus = true;
+			this.ycheckbuttonArchive.Name = "ycheckbuttonArchive";
+			this.ycheckbuttonArchive.Label = global::Mono.Unix.Catalog.GetString("Архивный");
+			this.ycheckbuttonArchive.DrawIndicator = true;
+			this.ycheckbuttonArchive.UseUnderline = true;
+			this.datatable1.Add(this.ycheckbuttonArchive);
+			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.datatable1[this.ycheckbuttonArchive]));
+			w13.TopAttach = ((uint)(5));
+			w13.BottomAttach = ((uint)(6));
+			w13.RightAttach = ((uint)(2));
+			w13.XOptions = ((global::Gtk.AttachOptions)(4));
+			w13.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child datatable1.Gtk.Table+TableChild
 			this.ylblDepositService = new global::Gamma.GtkWidgets.yLabel();
 			this.ylblDepositService.Name = "ylblDepositService";
 			this.ylblDepositService.Xalign = 1F;
@@ -296,7 +312,7 @@ namespace Vodovoz.Views.Rent
 			this.ylblMinQtyBottles = new global::Gamma.GtkWidgets.yLabel();
 			this.ylblMinQtyBottles.Name = "ylblMinQtyBottles";
 			this.ylblMinQtyBottles.Xalign = 1F;
-			this.ylblMinQtyBottles.LabelProp = global::Mono.Unix.Catalog.GetString("Минимальное\nкол-во бутылей:");
+			this.ylblMinQtyBottles.LabelProp = global::Mono.Unix.Catalog.GetString("Минимальное\r\nкол-во бутылей:");
 			this.datatable1.Add(this.ylblMinQtyBottles);
 			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.datatable1[this.ylblMinQtyBottles]));
 			w19.TopAttach = ((uint)(1));

@@ -252,6 +252,12 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			);
 		}
 
+		#region Статья расхода
+		private bool _hasFinancialExpenseCategoryPermission => CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.FinancialCategory.CanChangeFinancialExpenseCategory);
+		private PayoutRequestState[] _expenseCategoriesForAll => new[] { PayoutRequestState.New, PayoutRequestState.OnClarification, PayoutRequestState.Submited };
+		private PayoutRequestState[] _expenseCategoriesWithSpecialPermission => new[] { PayoutRequestState.Agreed, PayoutRequestState.GivenForTake, PayoutRequestState.PartiallyClosed };
+		#endregion
+
 		public Employee CurrentEmployee { get; }
 
 		public IEnumerable<PayoutRequestUserRole> UserRoles { get; }
@@ -406,9 +412,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 										   || Entity.PayoutRequestState == PayoutRequestState.Agreed
 										   || Entity.PayoutRequestState == PayoutRequestState.GivenForTake);
 
-		public bool ExpenseCategorySensitive => Entity.PayoutRequestState == PayoutRequestState.New
-											  || Entity.PayoutRequestState == PayoutRequestState.Agreed
-											  || Entity.PayoutRequestState == PayoutRequestState.GivenForTake;
+		public bool ExpenseCategorySensitive => _expenseCategoriesForAll.Contains(Entity.PayoutRequestState)
+											  || (_expenseCategoriesWithSpecialPermission.Contains(Entity.PayoutRequestState) && _hasFinancialExpenseCategoryPermission);
 
 		//редактировать можно только не выданные
 		public bool CanEditSumSensitive => SelectedItem != null

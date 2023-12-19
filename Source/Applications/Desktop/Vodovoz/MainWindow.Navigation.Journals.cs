@@ -893,16 +893,6 @@ public partial class MainWindow
 	}
 
 	/// <summary>
-	/// Загрузить из 1с 7.7
-	/// </summary>
-	/// <param name="sender"></param>
-	/// <param name="e"></param>
-	protected void OnActionLoad1cActivated(object sender, EventArgs e)
-	{
-		NavigationManager.OpenTdiTab<LoadFrom1cDlg>(null, OpenPageOptions.IgnoreHash);
-	}
-
-	/// <summary>
 	/// Сопоставление клиентов из внешних источников
 	/// </summary>
 	/// <param name="sender"></param>
@@ -1106,6 +1096,30 @@ public partial class MainWindow
 	{
 		NavigationManager.OpenViewModel<RegradingOfGoodsReasonsJournalViewModel>(null);
 	}
+
+	#region События нахождения на складе водителей
+
+	/// <summary>
+	/// События
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnDriversWarehousesEventsActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<DriversWarehousesEventsJournalViewModel>(null);
+	}
+
+	/// <summary>
+	/// Завершенные события
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnCompletedDriversWarehousesEventsActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<CompletedDriversWarehousesEventsJournalViewModel>(null);
+	}
+
+	#endregion
 
 	#endregion Логистика
 

@@ -498,7 +498,7 @@ namespace Vodovoz
 			foreach(var item in _routeListItem.Order.OrderItems)
 			{
 				if(item.ActualCount == null)
-					item.ActualCount = 0;
+					item.SetActualCountZero();
 			}
 		}
 
@@ -798,7 +798,7 @@ namespace Vodovoz
 				}
 				else
 				{
-					orderItem.ActualCount = value;
+					orderItem.SetActualCount(value);
 				}
 			}
 		}
@@ -850,10 +850,10 @@ namespace Vodovoz
 				if(IsEquipment)
 				{
 					if(orderEquipment.OrderItem != null)
-						orderEquipment.OrderItem.Price = value;
+						orderEquipment.OrderItem.SetPrice(value);
 				}
 				else
-					orderItem.Price = value;
+					orderItem.SetPrice(value);
 			}
 		}
 
@@ -869,9 +869,9 @@ namespace Vodovoz
 			set
 			{
 				if(IsEquipment)
-					orderEquipment.OrderItem.IsDiscountInMoney = orderEquipment.OrderItem != null && value;
+					orderEquipment.OrderItem.SetIsDiscountInMoney(orderEquipment.OrderItem != null && value);
 				else
-					orderItem.IsDiscountInMoney = value;
+					orderItem.SetIsDiscountInMoney(value);
 			}
 		}
 
@@ -889,31 +889,10 @@ namespace Vodovoz
 				if(IsEquipment)
 				{
 					if(orderEquipment.OrderItem != null)
-						orderEquipment.OrderItem.ManualChangingDiscount = value;
+						orderEquipment.OrderItem.SetManualChangingDiscount(value);
 				}
 				else
-					orderItem.ManualChangingDiscount = value;
-			}
-		}
-
-		public decimal DiscountSetter
-		{
-			get
-			{
-				if(IsEquipment)
-					return orderEquipment.OrderItem != null ? orderEquipment.OrderItem.DiscountSetter : 0;
-				return orderItem.DiscountSetter;
-			}
-
-			set
-			{
-				if(IsEquipment)
-				{
-					if(orderEquipment.OrderItem != null)
-						orderEquipment.OrderItem.DiscountSetter = value;
-				}
-				else
-					orderItem.DiscountSetter = value;
+					orderItem.SetManualChangingDiscount(value);
 			}
 		}
 
@@ -930,10 +909,10 @@ namespace Vodovoz
 				if(IsEquipment)
 				{
 					if(orderEquipment.OrderItem != null)
-						orderEquipment.OrderItem.Discount = value;
+						orderEquipment.OrderItem.SetDiscount(value);
 				}
 				else
-					orderItem.Discount = value;
+					orderItem.SetDiscount(value);
 			}
 		}
 

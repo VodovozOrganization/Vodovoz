@@ -13,12 +13,14 @@ namespace Vodovoz.Domain.Goods
 		
 		public virtual int Id { get; set; }
 
+		[Display(Name = "Название")]
 		public virtual string Name
 		{
 			get => _name;
 			set => SetField(ref _name, value);
 		}
 		
+		[Display(Name = "Номер каталога в ИПЗ")]
 		public virtual Guid? ExternalId
 		{
 			get => _externalId;

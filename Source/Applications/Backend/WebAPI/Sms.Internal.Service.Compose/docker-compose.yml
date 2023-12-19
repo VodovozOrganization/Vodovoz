@@ -1,17 +1,17 @@
-﻿version: '3.9'
+﻿# version: '3.9'
 
-services:
-  sms.internal.service:
-    image: ${DOCKER_REGISTRY-}smsinternalservice
-    restart: unless-stopped
-    network_mode: host
-    ports:
-      - "7100"
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:7100
-    volumes:
-      - x:/Repositories/Vodovoz/appsettings.Development.json:/app/appsettings.Development.json
-    build:
-      context: ../../../..
-      dockerfile: Applications/Backend/WebAPI/Sms.Internal.Service/Dockerfile
+# services:
+#   sms.internal.service:
+#     image: ${DOCKER_REGISTRY-}smsinternalservice
+#     restart: unless-stopped
+#     network_mode: host
+#     ports:
+#       - "7100"
+#     environment:
+#       - ASPNETCORE_ENVIRONMENT=Development
+#       - ASPNETCORE_URLS=http://+:7100
+#     volumes:
+#       - x:/Repositories/Vodovoz/appsettings.Development.json:/app/appsettings.Development.json
+#     build:
+      # context: ../../../..
+      # dockerfile: Applications/Backend/WebAPI/Sms.Internal.Service/Dockerfile

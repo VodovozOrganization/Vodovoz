@@ -1,4 +1,4 @@
-﻿using QS.Navigation;
+using QS.Navigation;
 using QS.Views.GtkUI;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
@@ -6,13 +6,13 @@ using Vodovoz.ViewModels.ViewModels.Rent;
 
 namespace Vodovoz.Views.Rent
 {
-    public partial class FreeRentPackageView : TabViewBase<FreeRentPackageViewModel>
-    {
-        public FreeRentPackageView(FreeRentPackageViewModel viewModel) : base(viewModel)
-        {
-            Build();
-            Configure();
-        }
+	public partial class FreeRentPackageView : TabViewBase<FreeRentPackageViewModel>
+	{
+		public FreeRentPackageView(FreeRentPackageViewModel viewModel) : base(viewModel)
+		{
+			Build();
+			Configure();
+		}
 
         private void Configure()
         {
@@ -52,9 +52,17 @@ namespace Vodovoz.Views.Rent
 				.AddBinding(ViewModel.Entity, e => e.DepositService, w => w.Subject)
 				.InitializeFromSource();
 
+			entryDepositService.Binding
+				.AddBinding(ViewModel.Entity, e => e.DepositService, w => w.Subject)
+				.InitializeFromSource();
+
 			referenceEquipmentType.SubjectType = typeof(EquipmentKind);
 			referenceEquipmentType.Binding
 				.AddBinding(ViewModel.Entity, e => e.EquipmentKind, w => w.Subject)
+				.InitializeFromSource();
+
+			ycheckbuttonArchive.Binding
+				.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active)
 				.InitializeFromSource();
 		}
 

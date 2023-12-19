@@ -11,6 +11,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Sale
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			Map(x => x.Name).Column("name");
+			Map(x => x.IsArchived).Column("is_archived");
 			HasMany(x => x.Versions).KeyColumn("geo_group_id").Cascade.AllDeleteOrphan().Inverse().LazyLoad();
 		}
 	}

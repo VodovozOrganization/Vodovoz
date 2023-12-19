@@ -309,17 +309,12 @@ namespace Vodovoz.Models.Orders
 			bool withDiscounts = false,
 			bool withPrices = false)
 		{
-			var newOrderItem = new OrderItem
-			{
-				Order = _resultOrder,
-				Nomenclature = orderItem.Nomenclature,
-				PromoSet = orderItem.PromoSet,
-				Price = orderItem.Price,
-				IsUserPrice = withPrices,
-				IsAlternativePrice = orderItem.IsAlternativePrice,
-				Count = orderItem.Count,
-				IncludeNDS = orderItem.IncludeNDS
-			};
+			var newOrderItem = OrderItem.CreateForSale(_resultOrder, orderItem.Nomenclature, orderItem.Count, orderItem.Price);
+			
+			newOrderItem.PromoSet = orderItem.PromoSet;
+			newOrderItem.IsUserPrice = withPrices;
+			newOrderItem.IsAlternativePrice = orderItem.IsAlternativePrice;
+			newOrderItem.IncludeNDS = orderItem.IncludeNDS;
 
 			//если перенос из недовоза - сохраняем ссылку на переносимый товар
 			if(withPrices)
@@ -340,17 +335,11 @@ namespace Vodovoz.Models.Orders
 
 			if(orderItemFrom.DiscountMoney > 0 && orderItemFrom.Discount > 0 && (orderItemFrom.DiscountReason != null || isPromoset))
 			{
-				orderItemTo.IsDiscountInMoney = orderItemFrom.IsDiscountInMoney;
-				orderItemTo.Discount = orderItemFrom.Discount;
-				orderItemTo.DiscountMoney = orderItemFrom.DiscountMoney;
-				orderItemTo.DiscountReason = orderItemFrom.DiscountReason;
+				orderItemTo.SetDiscount(orderItemFrom.IsDiscountInMoney, orderItemFrom.Discount, orderItemFrom.DiscountMoney, orderItemFrom.DiscountReason);
 			}
 			else if(orderItemFrom.OriginalDiscountMoney > 0 && orderItemFrom.OriginalDiscount > 0 && (orderItemFrom.OriginalDiscountReason != null || isPromoset))
 			{
-				orderItemTo.IsDiscountInMoney = orderItemFrom.IsDiscountInMoney;
-				orderItemTo.Discount = orderItemFrom.OriginalDiscount.Value;
-				orderItemTo.DiscountMoney = orderItemFrom.OriginalDiscountMoney.Value;
-				orderItemTo.DiscountReason = orderItemFrom.OriginalDiscountReason;
+				orderItemTo.SetDiscount(orderItemFrom.IsDiscountInMoney, orderItemFrom.OriginalDiscount.Value, orderItemFrom.OriginalDiscountMoney.Value, orderItemFrom.OriginalDiscountReason);
 			}
 
 			if(withStockBottleDiscount)

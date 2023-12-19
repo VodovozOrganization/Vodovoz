@@ -86,6 +86,14 @@ namespace Vodovoz.Views.Client.CounterpartyClassification
 				.AddFuncBinding(vm => vm.IsCalculationInProcess ? dangerTextColor : successTextColor, w => w.ForegroundColor)
 				.InitializeFromSource();
 
+			ylabelBottleClassificationInfo.Binding
+				.AddFuncBinding(ViewModel.CalculationSettings, vm => vm.BottlesCountClassificationSettingsSummary, w => w.Text)
+				.InitializeFromSource();
+
+			ylabelOrdersClassificationInfo.Binding
+				.AddFuncBinding(ViewModel.CalculationSettings, vm => vm.OrdersCountClassificationSettingsSummary, w => w.Text)
+				.InitializeFromSource();
+
 			ViewModel.CommandToStartCalculationReceived += OnCommandToStartCalculationReceived;
 			ViewModel.CalculationMessageReceived += OnCalculationMessageReceived;
 		}

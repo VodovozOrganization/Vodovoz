@@ -51,7 +51,6 @@ namespace Vodovoz.ViewModels.Widgets
 		private readonly bool _canReadDetalization;
 		private string _newResultText;
 		private DelegateCommand _addFineCommand;
-		private DelegateCommand _chooseOrderCommand;
 		private DelegateCommand _oldOrderSelectCommand;
 		private DelegateCommand _newOrderSelectCommand;
 		private DelegateCommand _beforeSaveCommand;
@@ -556,7 +555,7 @@ namespace Vodovoz.ViewModels.Widgets
 					{
 						CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
 							"Перенесённый заказ не может совпадать с недовезённым!");
-						_chooseOrderCommand.Execute();
+						ChooseOrderCommand.Execute();
 						return;
 					}
 

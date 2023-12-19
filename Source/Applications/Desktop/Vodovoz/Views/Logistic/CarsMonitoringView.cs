@@ -120,6 +120,11 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(vm => vm.CoveragePercentBeforeText, w => w.Text)
 				.InitializeFromSource();
 
+			ySpecCmbGeoGroup.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.GeoGroups, w => w.ItemsList)
+				.AddBinding(vm => vm.SelectedGeoGroup, w => w.SelectedItem)
+				.InitializeFromSource();
+
 			ConfigureMap();
 			SubscribeToEvents();
 

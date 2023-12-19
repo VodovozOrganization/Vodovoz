@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Autofac;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -16,23 +17,27 @@ namespace Vodovoz.ViewModels.ViewModels.Flyers
 	public class FlyerViewModel : EntityTabViewModelBase<Flyer>
 	{
 		private readonly IFlyerRepository _flyerRepository;
+		private ILifetimeScope _lifetimeScope;
 		private DateTime? _flyerStartDate;
 		private DateTime? _flyerEndDate;
+		
 		private DelegateCommand _activateFlyerCommand;
 		private DelegateCommand _deactivateFlyerCommand;
 		private FlyerActionTime _currentFlyerActionTime;
 
 		public FlyerViewModel(
+			ILifetimeScope lifetimeScope,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			IFlyerRepository flyerRepository) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_flyerRepository = flyerRepository ?? throw new ArgumentNullException(nameof(flyerRepository));
 			FlyerAutocompleteSelectorFactory =
 				(nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory)))
-				.CreateNomenclatureForFlyerJournalFactory();
-			_flyerRepository = flyerRepository ?? throw new ArgumentNullException(nameof(flyerRepository));
+				.CreateNomenclatureForFlyerJournalFactory(_lifetimeScope);
 
 			if(!uowBuilder.IsNewEntity)
 			{
@@ -155,6 +160,12 @@ namespace Vodovoz.ViewModels.ViewModels.Flyers
 		private void AddServiceToValidationContext()
 		{
 			ValidationContext.ServiceContainer.AddService(typeof(IFlyerRepository), _flyerRepository);
+		}
+
+		public override void Dispose()
+		{
+			_lifetimeScope = null;
+			base.Dispose();
 		}
 	}
 }

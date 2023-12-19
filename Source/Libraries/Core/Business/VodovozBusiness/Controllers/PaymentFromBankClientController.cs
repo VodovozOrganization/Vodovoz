@@ -150,6 +150,35 @@ namespace Vodovoz.Controllers
 			}
 		}
 
+		/// <summary>
+		/// Отмена платежа по запросу пользователя. Отменяются все распределения. Сумма платежа на баланс пользователя не возвращается.
+		/// </summary>
+		/// <param name="uow">uow</param>
+		/// <param name="paymentId">Id платежа</param>
+		/// <param name="needUpdateOrderPaymentStatus"><c>true</c> стататус заказа обновляется, <c>false</c> стататус заказа не обновляется</param>
+		public void CancellPaymentWithAllocationsByUserRequest(IUnitOfWork uow, int paymentId, bool needUpdateOrderPaymentStatus = true)
+		{
+			var payment = uow.GetById<Payment>(paymentId);
+
+			if(payment == null || payment.Status == PaymentState.Cancelled)
+			{
+				return;
+			}
+
+			payment.CancelAllocation(
+				$"Причина отмены: по запросу пользователя",
+				true,
+				true);
+
+			if(payment.CashlessMovementOperation != null)
+			{
+				payment.CashlessMovementOperation.CashlessMovementOperationStatus = AllocationStatus.Cancelled;
+			}
+
+			uow.Save(payment);
+			uow.Commit();
+		}
+
 		private bool HasOrderUndeliveredStatus(OrderStatus orderStatus)
 		{
 			return _orderRepository.GetUndeliveryStatuses().Contains(orderStatus);

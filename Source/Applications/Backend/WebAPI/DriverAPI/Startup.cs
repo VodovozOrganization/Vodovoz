@@ -52,6 +52,7 @@ using Vodovoz.Settings.Database;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using VodovozHealthCheck;
+using QS.Project.Domain;
 
 namespace DriverAPI
 {
@@ -269,10 +270,10 @@ namespace DriverAPI
 				new Assembly[]
 				{
 					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
-					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
 					Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
 					Assembly.GetAssembly(typeof(Bank)),
 					Assembly.GetAssembly(typeof(HistoryMain)),
+					Assembly.GetAssembly(typeof(TypeOfEntity)),
 					Assembly.GetAssembly(typeof(Attachment)),
 					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
 				}
@@ -324,6 +325,7 @@ namespace DriverAPI
 			services.AddScoped<IOrderRepository, OrderRepository>();
 			services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 			services.AddScoped<IFastPaymentRepository, FastPaymentRepository>();
+			services.AddScoped<ICarRepository, CarRepository>();
 
 			// Провайдеры параметров
 			services.AddScoped<IParametersProvider, ParametersProvider>();

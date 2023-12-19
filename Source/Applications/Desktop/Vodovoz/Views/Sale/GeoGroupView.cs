@@ -28,6 +28,8 @@ namespace Vodovoz.Views.Sale
 		{
 			yEntryName.Binding.AddBinding(Entity, x => x.Name, w => w.Text).InitializeFromSource();
 
+			ycheckbuttonArchived.Binding.AddBinding(Entity, e => e.IsArchived, w => w.Active).InitializeFromSource();
+
 			ytreeviewVersions.ColumnsConfig = FluentColumnsConfig<GeoGroupVersionViewModel>.Create()
 				.AddColumn("Код").AddNumericRenderer(x => x.Id)
 				.AddColumn("Статус").AddTextRenderer(x => x.StatusTitle)

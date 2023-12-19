@@ -26,6 +26,7 @@ using QS.Utilities.Numeric;
 using System.Linq;
 using System.Reflection;
 using CustomerAppsApi.HealthChecks;
+using CustomerAppsApi.Library.Services;
 using Vodovoz.Controllers;
 using Vodovoz.Controllers.ContactsForExternalCounterparty;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
@@ -37,6 +38,7 @@ using Vodovoz.EntityRepositories.RentPackages;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Factories;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
@@ -91,12 +93,7 @@ namespace CustomerAppsApi
 			
 			services.AddSingleton<IPhoneRepository, PhoneRepository>();
 			services.AddSingleton<IEmailRepository, EmailRepository>();
-			services.AddSingleton<ISettingsController, SettingsController>();
-			services.AddSingleton<ISessionProvider, DefaultSessionProvider>();
-			services.AddSingleton<IParametersProvider, ParametersProvider>();
-			services.AddSingleton<INomenclatureParametersProvider, NomenclatureParametersProvider>();
-			services.AddSingleton<IUnitOfWorkFactory, DefaultUnitOfWorkFactory>();
-			services.AddSingleton<IRoboatsSettings, RoboatsSettings>();
+			services.AddSingleton<IWarehouseRepository, WarehouseRepository>();
 			services.AddSingleton<IRoboatsRepository, RoboatsRepository>();
 			services.AddSingleton<IBottlesRepository, BottlesRepository>();
 			services.AddSingleton<ICachedBottlesDebtRepository, CachedBottlesDebtRepository>();
@@ -108,6 +105,16 @@ namespace CustomerAppsApi
 			services.AddSingleton<IPromotionalSetRepository, PromotionalSetRepository>();
 			services.AddSingleton<IExternalCounterpartyRepository, ExternalCounterpartyRepository>();
 			services.AddSingleton<IExternalCounterpartyMatchingRepository, ExternalCounterpartyMatchingRepository>();
+			
+			services.AddSingleton<ISettingsController, SettingsController>();
+			services.AddSingleton<ISessionProvider, DefaultSessionProvider>();
+			services.AddSingleton<IParametersProvider, ParametersProvider>();
+			services.AddSingleton<INomenclatureParametersProvider, NomenclatureParametersProvider>();
+			
+			services.AddSingleton<IRoboatsSettings, RoboatsSettings>();
+			services.AddSingleton<ICounterpartySettings, CounterpartySettings>();
+
+			services.AddSingleton<IUnitOfWorkFactory, DefaultUnitOfWorkFactory>();
 			services.AddSingleton<IRegisteredNaturalCounterpartyDtoFactory, RegisteredNaturalCounterpartyDtoFactory>();
 			services.AddSingleton<IExternalCounterpartyMatchingFactory, ExternalCounterpartyMatchingFactory>();
 			services.AddSingleton<IExternalCounterpartyFactory, ExternalCounterpartyFactory>();
@@ -121,6 +128,8 @@ namespace CustomerAppsApi
 			services.AddSingleton<ICounterpartySettings, CounterpartySettings>();
 			services.AddSingleton<ICameFromConverter, CameFromConverter>();
 			services.AddSingleton<ISourceConverter, SourceConverter>();
+			
+			services.AddSingleton<PhoneFormatter>(_ => new PhoneFormatter(PhoneFormat.DigitsTen));
 			services.AddSingleton<ContactFinderForExternalCounterpartyFromOne>();
 			services.AddSingleton<ContactFinderForExternalCounterpartyFromTwo>();
 			services.AddSingleton<ContactFinderForExternalCounterpartyFromMany>();
@@ -128,6 +137,7 @@ namespace CustomerAppsApi
 			services.AddSingleton<IGoodsOnlineParametersController, GoodsOnlineParametersController>();
 
 			services.AddScoped<IUnitOfWork>(_ => UnitOfWorkFactory.CreateWithoutRoot("Сервис интеграции"));
+			services.AddScoped<CounterpartyModelValidator>();
 			services.AddScoped<ICounterpartyModel, CounterpartyModel>();
 			services.AddScoped<INomenclatureModel, NomenclatureModel>();
 			services.AddScoped<IRentPackageModel, RentPackageModel>();
@@ -137,6 +147,10 @@ namespace CustomerAppsApi
 			services.AddScoped<IMD5HexHashFromString, MD5HexHashFromString>();
 			services.AddScoped<CounterpartyModelValidator>();
 			services.AddScoped<IDeliveryPointModelValidator, DeliveryPointModelValidator>();
+			services.AddScoped<IWarehouseModel, WarehouseModel>();
+			services.AddSingleton<NomenclaturesFrequencyRequestsHandler>();
+			services.AddSingleton<PricesFrequencyRequestsHandler>();
+			services.AddSingleton<SelfDeliveriesAddressesFrequencyRequestsHandler>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

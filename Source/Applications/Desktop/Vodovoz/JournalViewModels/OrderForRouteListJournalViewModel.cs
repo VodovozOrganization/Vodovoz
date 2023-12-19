@@ -26,6 +26,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.Services;
 using QS.Navigation;
+using QS.Deletion;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -73,6 +74,55 @@ namespace Vodovoz.JournalViewModels
 				typeof(OrderWithoutShipmentForAdvancePaymentItem),
 				typeof(OrderItem)
 			);
+		}
+
+		protected override void CreateNodeActions()
+		{
+			NodeActionsList.Clear();
+			CreateDefaultSelectAction();
+			CreateDefaultAddActions();
+			CreateDefaultEditAction();
+			CreateCustomDeleteAction();
+		}
+
+		private void CreateCustomDeleteAction()
+		{
+			var deleteAction = new JournalAction("Удалить",
+				(selected) => {
+					var selectedNodes = selected.OfType<OrderForRouteListJournalNode>();
+					if(selectedNodes == null || selectedNodes.Count() != 1)
+					{
+						return false;
+					}
+					var selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					{
+						return false;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					return config.PermissionResult.CanDelete;
+				},
+				(selected) => EntityConfigs.Any(config => config.Value.PermissionResult.CanDelete),
+				(selected) => {
+					var selectedNodes = selected.OfType<OrderForRouteListJournalNode>();
+					if(selectedNodes == null || selectedNodes.Count() != 1)
+					{
+						return;
+					}
+					var selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					{
+						return;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					if(config.PermissionResult.CanDelete)
+					{
+						DeleteHelper.DeleteEntity(selectedNode.EntityType, selectedNode.Id);
+					}
+				},
+				"Delete"
+			);
+			NodeActionsList.Add(deleteAction);
 		}
 
 		private IQueryOver<VodovozOrder> GetOrdersQuery(IUnitOfWork uow)

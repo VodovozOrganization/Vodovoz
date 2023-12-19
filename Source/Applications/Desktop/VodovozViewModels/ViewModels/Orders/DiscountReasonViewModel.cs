@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Autofac;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -22,8 +23,10 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		private readonly IDiscountReasonRepository _discountReasonRepository;
 		private readonly IProductGroupJournalFactory _productGroupJournalFactory;
 		private readonly IEntityAutocompleteSelectorFactory _nomenclatureAutocompleteSelectorFactory;
+		private ILifetimeScope _lifetimeScope;
 		private Nomenclature _selectedNomenclature;
 		private ProductGroup _selectedProductGroup;
+		
 		private DelegateCommand _addNomenclatureCommand;
 		private DelegateCommand _addProductGroupCommand;
 		private DelegateCommand _removeNomenclatureCommand;
@@ -31,6 +34,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		private DelegateCommand<bool> _updateSelectedCategoriesCommand;
 		
 		public DiscountReasonViewModel(
+			ILifetimeScope lifetimeScope,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
@@ -39,11 +43,13 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			INomenclatureJournalFactory nomenclatureSelectorFactory)
 			: base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
 			_productGroupJournalFactory = productGroupJournalFactory ?? throw new ArgumentNullException(nameof(productGroupJournalFactory));
 			_nomenclatureAutocompleteSelectorFactory =
 				(nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory)))
-				.GetDefaultNomenclatureSelectorFactory();
+				.GetDefaultNomenclatureSelectorFactory(_lifetimeScope);
+			
 			TabName = UoWGeneric.IsNew ? "Новое основание для скидки" : $"Основание для скидки \"{Entity.Name}\"";
 
 			InitializeNomenclatureCategoriesList();
@@ -187,6 +193,12 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				DiscountReasonNomenclatureCategory = discountNomenclatureCategory,
 				IsSelected = Entity.NomenclatureCategories.Contains(discountNomenclatureCategory)
 			};
+		}
+
+		public override void Dispose()
+		{
+			_lifetimeScope = null;
+			base.Dispose();
 		}
 	}
 }

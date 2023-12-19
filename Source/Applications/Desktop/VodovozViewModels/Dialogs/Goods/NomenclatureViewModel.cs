@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
@@ -24,6 +24,7 @@ using Vodovoz.ViewModels.ViewModels.Goods;
 using VodovozInfrastructure.StringHandlers;
 using Vodovoz.Settings.Nomenclature;
 using System.ComponentModel;
+using Autofac;
 
 namespace Vodovoz.ViewModels.Dialogs.Goods
 {
@@ -36,6 +37,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		private readonly IUserRepository _userRepository;
 		private readonly int[] _equipmentKindsHavingGlassHolder;
 		private readonly INomenclatureOnlineParametersProvider _nomenclatureOnlineParametersProvider;
+		private ILifetimeScope _lifetimeScope;
 		private NomenclatureOnlineParameters _mobileAppNomenclatureOnlineParameters;
 		private NomenclatureOnlineParameters _vodovozWebSiteNomenclatureOnlineParameters;
 		private NomenclatureOnlineParameters _kulerSaleWebSiteNomenclatureOnlineParameters;
@@ -48,6 +50,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		private DelegateCommand _copyPricesWithoutDiscountFromMobileAppToVodovozWebSiteCommand;
 
 		public NomenclatureViewModel(
+			ILifetimeScope lifetimeScope,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
@@ -71,15 +74,16 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			}
 
 			StringHandler = stringHandler ?? throw new ArgumentNullException(nameof(stringHandler));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_nomenclatureOnlineParametersProvider =
 				nomenclatureOnlineParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureOnlineParametersProvider));
-			NomenclatureSelectorFactory = nomenclatureSelectorFactory.GetDefaultNomenclatureSelectorFactory();
+			NomenclatureSelectorFactory = nomenclatureSelectorFactory.GetDefaultNomenclatureSelectorFactory(_lifetimeScope);
 			CounterpartySelectorFactory =
 				(counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory)))
-				.CreateCounterpartyAutocompleteSelectorFactory();
+				.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope);
 
 			ConfigureEntryViewModels();
 			ConfigureOnlineParameters();
@@ -825,6 +829,12 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				var mobileAppPrice = MobileAppNomenclatureOnlineParameters.NomenclatureOnlinePrices[i];
 				nomenclatureOnlineParameters.NomenclatureOnlinePrices[i].PriceWithoutDiscount = mobileAppPrice.PriceWithoutDiscount;
 			}
+		}
+
+		public override void Dispose()
+		{
+			_lifetimeScope = null;
+			base.Dispose();
 		}
 	}
 }

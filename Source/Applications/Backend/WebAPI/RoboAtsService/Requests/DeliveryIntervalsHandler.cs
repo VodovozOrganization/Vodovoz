@@ -101,9 +101,9 @@ namespace RoboatsService.Requests
 			{
 				availableIntevalIds = intervals.Where(x => x.From.Hours > 12).Select(x => x.Id);
 			}
-			else if(DateTime.Now.Hour < 17)
+			else if(DateTime.Now.Hour < 16)
 			{
-				availableIntevalIds = intervals.Where(x => x.From.Hours > 17).Select(x => x.Id);
+				availableIntevalIds = intervals.Where(x => x.From.Hours > 16).Select(x => x.Id);
 			}
 			else
 			{

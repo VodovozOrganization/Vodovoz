@@ -1,9 +1,12 @@
-﻿using System;
+using System;
 using System.Linq;
+using Autofac;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
+using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
+using Vodovoz.Domain;
 using Vodovoz.EntityRepositories.RentPackages;
 using QS.Project.Journal.EntitySelector;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
@@ -12,10 +15,11 @@ using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.ViewModels.Rent
 {
-    public class FreeRentPackageViewModel : EntityTabViewModelBase<FreeRentPackage>
+	public class FreeRentPackageViewModel : EntityTabViewModelBase<FreeRentPackage>
     {
 		private readonly INomenclatureJournalFactory _nomenclatureJournalFactory;
 		private readonly IRentPackageRepository _rentPackageRepository;
+		private ILifetimeScope _lifetimeScope;
 		private IEntityAutocompleteSelectorFactory _depositServiceSelectorFactory;
 		private FreeRentPackageOnlineParameters _kulerSaleWebSiteFreeRentPackageOnlineParameters;
 		private FreeRentPackageOnlineParameters _vodovozWebSiteFreeRentPackageOnlineParameters;
@@ -25,31 +29,25 @@ namespace Vodovoz.ViewModels.ViewModels.Rent
 		private bool _sitesAndAppsTabActive;
 
 		public FreeRentPackageViewModel(
+			ILifetimeScope lifetimeScope,
             IEntityUoWBuilder uowBuilder,
             IUnitOfWorkFactory unitOfWorkFactory,
             ICommonServices commonServices,
 			INomenclatureJournalFactory nomenclatureJournalFactory,
             IRentPackageRepository rentPackageRepository) : base(uowBuilder, unitOfWorkFactory, commonServices)
 	    {
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_nomenclatureJournalFactory = nomenclatureJournalFactory ?? throw new ArgumentNullException(nameof(nomenclatureJournalFactory));
 			_rentPackageRepository = rentPackageRepository ?? throw new ArgumentNullException(nameof(rentPackageRepository));
 		    
 		    ConfigureValidateContext();
 			ConfigureOnlineParameters();
 			ConfigurePropertyChangeRelations();
-		}
-
-		public IEntityAutocompleteSelectorFactory DepositServiceSelectorFactory
-		{
-			get
-			{
-				if(_depositServiceSelectorFactory == null)
-				{
-					_depositServiceSelectorFactory = _nomenclatureJournalFactory.GetDepositSelectorFactory();
-				}
-				return _depositServiceSelectorFactory;
-			}
-		}
+	    }
+        
+		public IEntityAutocompleteSelectorFactory DepositServiceSelectorFactory =>
+			_depositServiceSelectorFactory
+			?? (_depositServiceSelectorFactory = _nomenclatureJournalFactory.GetDepositSelectorFactory(_lifetimeScope));
 
 		public bool IsNewEntity => UoW.IsNew;
 		public string IdString => Entity.Id.ToString();
@@ -143,6 +141,12 @@ namespace Vodovoz.ViewModels.ViewModels.Rent
 		{
 			SetPropertyChangeRelation(e => e.Id,
 				() => IdString);
+		}
+
+		public override void Dispose()
+		{
+			_lifetimeScope = null;
+			base.Dispose();
 		}
 	}
 }

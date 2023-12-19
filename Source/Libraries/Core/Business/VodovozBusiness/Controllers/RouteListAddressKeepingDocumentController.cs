@@ -174,7 +174,10 @@ namespace Vodovoz.Controllers
 
 			var balanceType = GetDeliveryFreeBalanceType(oldStatus, newStatus);
 
-			CreateOrUpdateRouteListKeepingDocument(uow, routeListItem, balanceType, false, false, oldStatus, newStatus, true);
+			// При переходе в недовоз изменяем баланс по актуальному кол-ву
+			var useActualCount = balanceType == DeliveryFreeBalanceType.Increase;
+
+			CreateOrUpdateRouteListKeepingDocument(uow, routeListItem, balanceType, false, useActualCount, oldStatus, newStatus, true);
 		}
 
 		public void CreateOrUpdateRouteListKeepingDocument(IUnitOfWork uow, RouteListItem routeListItem,
