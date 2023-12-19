@@ -1,4 +1,4 @@
-﻿using Gamma.Utilities;
+using Gamma.Utilities;
 using NHibernate.Linq;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -461,6 +461,13 @@ namespace Vodovoz.ViewModels.Factories
 			{
 				config.RefreshFilteredElements();
 			});
+
+			var paramsDictionary = new Dictionary<string, string>
+			{
+				{ "Самовывоз", "is_self_delivery" },
+			};
+
+			includeExludeFiltersViewModel.AddFilter("Дополнительные параметры", paramsDictionary);
 
 			return includeExludeFiltersViewModel;
 		}
