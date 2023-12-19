@@ -324,7 +324,7 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 		private CachedDistance GetCache(long fromHash, long toHash)
 		{
 #if DEBUG
-			MatrixCount[_hashPos[fromHash], _hashPos[toHash]] += 1;
+			//MatrixCount[_hashPos[fromHash], _hashPos[toHash]] += 1;
 #endif
 			if(_cache.ContainsKey(fromHash) && _cache[fromHash].ContainsKey(toHash))
 			{
