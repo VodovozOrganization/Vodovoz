@@ -37,7 +37,6 @@ namespace Vodovoz.ViewModels.Orders
 			ILifetimeScope lifetimeScope) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
-			_counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			CanChangeType =
 				commonServices.CurrentPermissionService.ValidatePresetPermission(
 					Vodovoz.Permissions.Order.PromotionalSet.CanChangeTypePromoSet);

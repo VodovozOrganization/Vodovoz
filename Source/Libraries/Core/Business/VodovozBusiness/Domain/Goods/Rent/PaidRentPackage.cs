@@ -92,11 +92,10 @@ namespace Vodovoz.Domain.Goods.Rent
 
 		Nomenclature depositService;
 
-		[Display(Name = "Архив")]
-		public virtual bool IsArchive
-		{
-			get => _isArchive;
-			set => SetField(ref _isArchive, value);
+		[Display (Name = "Услуга залога")]
+		public virtual Nomenclature DepositService {
+			get { return depositService; }
+			set { SetField (ref depositService, value, () => DepositService); }
 		}
 
 		#endregion

@@ -269,12 +269,12 @@ namespace Vodovoz.Views.Rent
 			this.ycheckbuttonArchive.DrawIndicator = true;
 			this.ycheckbuttonArchive.UseUnderline = true;
 			this.datatable1.Add(this.ycheckbuttonArchive);
-			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.datatable1[this.ycheckbuttonArchive]));
-			w13.TopAttach = ((uint)(5));
-			w13.BottomAttach = ((uint)(6));
-			w13.RightAttach = ((uint)(2));
-			w13.XOptions = ((global::Gtk.AttachOptions)(4));
-			w13.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w50 = ((global::Gtk.Table.TableChild)(this.datatable1[this.ycheckbuttonArchive]));
+			w50.TopAttach = ((uint)(5));
+			w50.BottomAttach = ((uint)(6));
+			w50.RightAttach = ((uint)(2));
+			w50.XOptions = ((global::Gtk.AttachOptions)(4));
+			w50.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.ylblDepositService = new global::Gamma.GtkWidgets.yLabel();
 			this.ylblDepositService.Name = "ylblDepositService";

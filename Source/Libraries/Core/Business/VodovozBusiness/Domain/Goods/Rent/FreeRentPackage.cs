@@ -7,9 +7,11 @@ using Vodovoz.EntityRepositories.RentPackages;
 
 namespace Vodovoz.Domain.Goods.Rent
 {
+	
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "пакеты бесплатной аренды",
-		Nominative = "пакет бесплатной аренды")]
+		Nominative = "пакет бесплатной аренды",
+		GenitivePlural = "пакетов бесплатной аренды")]
 	[EntityPermission]
 	public class FreeRentPackage : BusinessObjectBase<FreeRentPackage>, IDomainObject, IValidatableObject
 	{
@@ -19,10 +21,16 @@ namespace Vodovoz.Domain.Goods.Rent
 		private string _name;
 		private string _onlineName;
 		private decimal _deposit;
+		private bool _isArchive;
 		private EquipmentKind _equipmentKind;
 		private Nomenclature _depositService;
 		private IList<FreeRentPackageOnlineParameters> _onlineParameters = new List<FreeRentPackageOnlineParameters>();
 
+		public FreeRentPackage()
+		{
+			Name = string.Empty;
+		}
+		
 		#region Свойства
 
 		public virtual int Id { get; set; }
@@ -72,6 +80,13 @@ namespace Vodovoz.Domain.Goods.Rent
 			set => SetField(ref _depositService, value);
 		}
 		
+		[Display(Name = "Архив")]
+		public virtual bool IsArchive
+		{
+			get => _isArchive;
+			set => SetField(ref _isArchive, value);
+		}
+		
 		[Display(Name = "Онлайн параметры")]
 		public virtual IList<FreeRentPackageOnlineParameters> OnlineParameters
 		{
@@ -116,10 +131,5 @@ namespace Vodovoz.Domain.Goods.Rent
 		}
 
 		#endregion
-
-		public FreeRentPackage()
-		{
-			Name = string.Empty;
-		}
 	}
 }

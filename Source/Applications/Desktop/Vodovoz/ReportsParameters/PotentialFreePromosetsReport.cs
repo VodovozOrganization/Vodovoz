@@ -30,13 +30,13 @@ namespace Vodovoz.ReportsParameters
 				.Finish();
 
 			_promotionalSets = (from ps in UoW.GetAll<PromotionalSet>()
-								   select new PromosetReportNode
-								   {
-									   Id = ps.Id,
-									   Name = ps.Name,
-									   Active = !ps.CanBeReorderedWithoutRestriction,
-								   })
-								   .ToList();
+				select new PromosetReportNode
+				{
+					Id = ps.Id,
+					Name = ps.Name,
+					Active = !ps.PromotionalSetForNewClients,
+				})
+				.ToList();
 
 			ytreeview1.ItemsDataSource = _promotionalSets;
 		}
