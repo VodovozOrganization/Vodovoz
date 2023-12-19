@@ -776,7 +776,7 @@
     <Compile Include="gtk-gui\Vodovoz.UnclosedAdvancesFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.UnclosedAdvancesView.cs" />
     <Compile Include="Representations\UnclosedAdvancesVM.cs" />
-    <Compile Include="Logistic\RouteListCreateDlg.cs" />
+    <Compile Include="Logistic\RouteListCreateView.cs" />
     <Compile Include="Dialogs\Logistic\RouteListClosingDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListClosingItemsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListClosingDlg.cs" />
