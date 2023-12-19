@@ -16,7 +16,7 @@ using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewWidgets.Logistics;
 
-namespace Vodovoz
+namespace Vodovoz.Logistic
 {
 	public partial class RouteListCreateView : TabViewBase<RouteListCreateViewModel>
 	{
