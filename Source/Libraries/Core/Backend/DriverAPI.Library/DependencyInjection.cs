@@ -1,12 +1,9 @@
 ﻿using DriverAPI.Library.Helpers;
 using DriverAPI.Library.Models;
-using DriverAPI.Library.Temp;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 using Vodovoz;
 using Vodovoz.Application;
-using Vodovoz.Application.Services.Logistics.RouteOptimization;
-using Vodovoz.Controllers;
 using Vodovoz.Settings.Database;
 
 namespace DriverAPI.Library
@@ -49,8 +46,6 @@ namespace DriverAPI.Library
 			services.AddScoped<IDriverComplaintModel, DriverComplaintModel>();
 			services.AddScoped<IFastPaymentModel, FastPaymentModel>();
 			services.AddScoped<IDriverWarehouseEventsModel, DriverWarehouseEventsModel>();
-
-			services.AddScoped<IRouteOptimizer, RouteListOptimizerDummy>();
 
 			services.AddBusiness();
 			services.AddApplication();

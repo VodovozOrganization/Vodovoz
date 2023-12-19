@@ -82,15 +82,15 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 		/// <param name="multiThreadLoad">Если <c>true</c> включается моногопоточная загрузка.</param>
 		public ExtDistanceCalculator(DeliveryPoint[] points, IEnumerable<GeoGroupVersion> geoGroupVersions, Action<string> statisticsTxtAction, bool multiThreadLoad = true)
 		{
-			this._statisticsTxtAction = statisticsTxtAction;
+			_statisticsTxtAction = statisticsTxtAction;
 			_unitOfWork.Session.SetBatchSize(SaveBy);
 			MultiTaskLoad = multiThreadLoad;
 			Canceled = false;
 			var basesHashes = geoGroupVersions.Select(x => CachedDistance.GetHash(x));
 			_hashes = points.Select(CachedDistance.GetHash)
-						   .Concat(basesHashes)
-						   .Distinct()
-						   .ToArray();
+				.Concat(basesHashes)
+				.Distinct()
+				.ToArray();
 
 			_cQueue = new ConcurrentQueue<long>(_hashes);
 
@@ -158,6 +158,7 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 
 			while(MultiTaskLoad)
 			{
+				Task.Delay(TimeSpan.FromSeconds(1));
 				//Gtk.Main.Iteration();
 			}
 		}
@@ -199,12 +200,14 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 				//{
 				//	UpdateText();
 				//});
+				UpdateText();
 			}
 
 			//Gtk.Application.Invoke(delegate
 			//{
 			//	CheckAndDisableTasks();
 			//});
+			CheckAndDisableTasks();
 			return result;
 		}
 

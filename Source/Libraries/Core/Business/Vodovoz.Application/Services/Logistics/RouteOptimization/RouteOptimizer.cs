@@ -1,7 +1,6 @@
 ﻿using Google.OrTools.ConstraintSolver;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
-using NLog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Utilities.Debug;
