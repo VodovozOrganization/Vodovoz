@@ -1,4 +1,5 @@
 ﻿using Google.OrTools.ConstraintSolver;
+using Microsoft.Extensions.Logging;
 
 namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 {
@@ -7,11 +8,12 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 	/// </summary>
 	public class CallbackWeight : NodeEvaluator2
 	{
-		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+		private static ILogger<CallbackWeight> _logger;
 		private CalculatedOrder[] _nodes;
 
-		public CallbackWeight(CalculatedOrder[] nodes)
+		public CallbackWeight(ILogger<CallbackWeight> logger, CalculatedOrder[] nodes)
 		{
+			_logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
 			_nodes = nodes;
 		}
 
@@ -24,7 +26,7 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 
 			if(first_index > _nodes.Length)
 			{
-				_logger.Error($"Get Weight {first_index} -> {second_index} out of orders ({_nodes.Length})");
+				_logger.LogError($"Get Weight {first_index} -> {second_index} out of orders ({_nodes.Length})");
 				return 0;
 			}
 

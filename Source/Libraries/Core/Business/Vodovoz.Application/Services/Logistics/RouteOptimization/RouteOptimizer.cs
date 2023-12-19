@@ -1,6 +1,7 @@
 ﻿using Google.OrTools.ConstraintSolver;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
+using NLog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Utilities.Debug;
@@ -31,6 +32,13 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 	public class RouteOptimizer : PropertyChangedBase, IRouteOptimizer
 	{
 		private readonly ILogger<RouteOptimizer> _logger;
+		private readonly ILogger<CallbackTime> _callbackTimelogger;
+		private readonly ILogger<CallbackMonitor> _callbackMonitorLogger;
+		private readonly ILogger<CallbackBottles> _callbackBottlesLogger;
+		private readonly ILogger<CallbackWeight> _callbackWeightlogger;
+		private readonly ILogger<CallbackVolume> _callbackVolumelogger;
+		private readonly ILogger<CallbackDistance> _callbackDistanceLogger;
+		private readonly ILogger<CallbackDistanceDistrict> _callbackDistanceDistrictlogger;
 		private readonly IGeographicGroupRepository _geographicGroupRepository;
 
 		#region Настройки оптимизации
@@ -122,9 +130,23 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 
 		public RouteOptimizer(
 			ILogger<RouteOptimizer> logger,
+			ILogger<CallbackTime> callbackTimelogger,
+			ILogger<CallbackMonitor> callbackMonitorLogger,
+			ILogger<CallbackBottles> callbackBottlesLogger,
+			ILogger<CallbackWeight> callbackWeightlogger,
+			ILogger<CallbackVolume> callbackVolumelogger,
+			ILogger<CallbackDistance> callbackDistanceLogger,
+			ILogger<CallbackDistanceDistrict> callbackDistanceDistrictlogger,
 			IGeographicGroupRepository geographicGroupRepository)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_callbackTimelogger = callbackTimelogger ?? throw new ArgumentNullException(nameof(callbackTimelogger));
+			_callbackMonitorLogger = callbackMonitorLogger ?? throw new ArgumentNullException(nameof(callbackMonitorLogger));
+			_callbackBottlesLogger = callbackBottlesLogger ?? throw new ArgumentNullException(nameof(callbackBottlesLogger));
+			_callbackWeightlogger = callbackWeightlogger ?? throw new ArgumentNullException(nameof(callbackWeightlogger));
+			_callbackVolumelogger = callbackVolumelogger ?? throw new ArgumentNullException(nameof(callbackVolumelogger));
+			_callbackDistanceLogger = callbackDistanceLogger ?? throw new ArgumentNullException(nameof(callbackDistanceLogger));
+			_callbackDistanceDistrictlogger = callbackDistanceDistrictlogger ?? throw new ArgumentNullException(nameof(callbackDistanceDistrictlogger));
 			_geographicGroupRepository = geographicGroupRepository ?? throw new ArgumentNullException(nameof(geographicGroupRepository));
 		}
 
@@ -173,19 +195,19 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 			// адрес в маршруте у него не должен быть позже чем на 4 часа ожидания.
 			int horizon = 24 * 3600;
 			int maxWaitTime = 4 * 3600;
-			var timeEvaluators = possibleRoutes.Select(x => new CallbackTime(_nodes, x, _distanceCalculator)).ToArray();
+			var timeEvaluators = possibleRoutes.Select(x => new CallbackTime(_callbackTimelogger, _nodes, x, _distanceCalculator)).ToArray();
 			routing.AddDimensionWithVehicleTransits(timeEvaluators, maxWaitTime, horizon, false, "Time");
 			var timeDimension = routing.GetDimensionOrDie("Time");
 
 			// Ниже заполняем все измерения для учета бутылей, веса, адресов, объема.
 			var bottlesCapacity = possibleRoutes.Select(x => (long)x.Car.MaxBottles).ToArray();
-			routing.AddDimensionWithVehicleCapacity(new CallbackBottles(_nodes), 0, bottlesCapacity, true, "Bottles");
+			routing.AddDimensionWithVehicleCapacity(new CallbackBottles(_callbackBottlesLogger, _nodes), 0, bottlesCapacity, true, "Bottles");
 
 			var weightCapacity = possibleRoutes.Select(x => (long)x.Car.CarModel.MaxWeight).ToArray();
-			routing.AddDimensionWithVehicleCapacity(new CallbackWeight(_nodes), 0, weightCapacity, true, "Weight");
+			routing.AddDimensionWithVehicleCapacity(new CallbackWeight(_callbackWeightlogger, _nodes), 0, weightCapacity, true, "Weight");
 
 			var volumeCapacity = possibleRoutes.Select(x => (long)(x.Car.CarModel.MaxVolume * 1000)).ToArray();
-			routing.AddDimensionWithVehicleCapacity(new CallbackVolume(_nodes), 0, volumeCapacity, true, "Volume");
+			routing.AddDimensionWithVehicleCapacity(new CallbackVolume(_callbackVolumelogger, _nodes), 0, volumeCapacity, true, "Volume");
 
 			var addressCapacity = possibleRoutes.Select(x => (long)x.Driver.MaxRouteAddresses).ToArray();
 			routing.AddDimensionWithVehicleCapacity(new CallbackAddressCount(_nodes.Length), 0, addressCapacity, true, "AddressCount");
@@ -196,7 +218,7 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 			for(int ix = 0; ix < possibleRoutes.Length; ix++)
 			{
 				// Устанавливаем функцию получения стоимости маршрута.
-				routing.SetArcCostEvaluatorOfVehicle(new CallbackDistanceDistrict(_nodes, possibleRoutes[ix], _distanceCalculator), ix);
+				routing.SetArcCostEvaluatorOfVehicle(new CallbackDistanceDistrict(_callbackDistanceDistrictlogger, _nodes, possibleRoutes[ix], _distanceCalculator), ix);
 
 				// Добавляем фиксированный штраф за принадлежность водителя.
 				if(possibleRoutes[ix].Driver.DriverType.HasValue)
@@ -312,7 +334,7 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 			var lastSolution = solver.MakeLastSolutionCollector();
 			lastSolution.AddObjective(routing.CostVar());
 			routing.AddSearchMonitor(lastSolution);
-			routing.AddSearchMonitor(new CallbackMonitor(solver, StatisticsTxtAction, lastSolution));
+			routing.AddSearchMonitor(new CallbackMonitor(_callbackMonitorLogger, solver, StatisticsTxtAction, lastSolution));
 
 			PerformanceHelper.AddTimePoint($"Закрыли модель");
 			_logger.LogInformation("Поиск решения...");
@@ -535,7 +557,7 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 
 			int horizon = 24 * 3600;
 
-			routing.AddDimension(new CallbackTime(_nodes, trip, _distanceCalculator), 3 * 3600, horizon, false, "Time");
+			routing.AddDimension(new CallbackTime(_callbackTimelogger, _nodes, trip, _distanceCalculator), 3 * 3600, horizon, false, "Time");
 			var timeDimension = routing.GetDimensionOrDie("Time");
 
 			var cumulTimeOnEnd = routing.CumulVar(routing.End(0), "Time");
@@ -548,7 +570,7 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 				cumulTimeOnBegin.SetMin((long)shift.StartTime.TotalSeconds);
 			}
 
-			routing.SetArcCostEvaluatorOfVehicle(new CallbackDistance(_nodes, _distanceCalculator), 0);
+			routing.SetArcCostEvaluatorOfVehicle(new CallbackDistance(_callbackDistanceLogger, _nodes, _distanceCalculator), 0);
 
 			for(int ix = 0; ix < _nodes.Length; ix++)
 			{
@@ -582,7 +604,7 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 			var lastSolution = solver.MakeLastSolutionCollector();
 			lastSolution.AddObjective(routing.CostVar());
 			routing.AddSearchMonitor(lastSolution);
-			routing.AddSearchMonitor(new CallbackMonitor(solver, StatisticsTxtAction, lastSolution));
+			routing.AddSearchMonitor(new CallbackMonitor(_callbackMonitorLogger, solver, StatisticsTxtAction, lastSolution));
 
 			PerformanceHelper.AddTimePoint($"Закрыли модель");
 			_logger.LogInformation("Поиск решения...");

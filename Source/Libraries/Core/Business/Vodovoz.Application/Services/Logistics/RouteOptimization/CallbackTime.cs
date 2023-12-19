@@ -1,8 +1,8 @@
 ﻿using Google.OrTools.ConstraintSolver;
+using Microsoft.Extensions.Logging;
 using System;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Tools;
-using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 {
@@ -29,13 +29,14 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 	/// </remarks>
 	public class CallbackTime : NodeEvaluator2
 	{
-		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+		private readonly ILogger<CallbackTime> _logger;
 		private CalculatedOrder[] _nodes;
 		private PossibleTrip _trip;
 		private IExtDistanceCalculator _distanceCalculator;
 
-		public CallbackTime(CalculatedOrder[] nodes, PossibleTrip trip, IExtDistanceCalculator distanceCalculator)
+		public CallbackTime(ILogger<CallbackTime> logger, CalculatedOrder[] nodes, PossibleTrip trip, IExtDistanceCalculator distanceCalculator)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_nodes = nodes;
 			_trip = trip;
 			_distanceCalculator = distanceCalculator;
@@ -45,7 +46,7 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 		{
 			if(first_index > _nodes.Length || second_index > _nodes.Length || first_index < 0 || second_index < 0)
 			{
-				_logger.Error($"Get Time {first_index} -> {second_index} out of orders ({_nodes.Length})");
+				_logger.LogError($"Get Time {first_index} -> {second_index} out of orders ({_nodes.Length})");
 				return 0;
 			}
 

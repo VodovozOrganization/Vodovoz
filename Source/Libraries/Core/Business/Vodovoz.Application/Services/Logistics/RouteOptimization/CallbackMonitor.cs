@@ -1,5 +1,6 @@
 ﻿using System;
 using Google.OrTools.ConstraintSolver;
+using Microsoft.Extensions.Logging;
 
 namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 {
@@ -8,20 +9,26 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 	/// </summary>
 	public class CallbackMonitor : SearchMonitor
 	{
-		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		private SolutionCollector bestSol;
-		private readonly Action<string> statisticsTxtFunc;
+		private readonly ILogger<CallbackMonitor> _logger;
+		private SolutionCollector _bestSol;
+		private readonly Action<string> _statisticsTxtFunc;
 
-		public CallbackMonitor(Solver s, Action<string> statisticsTxtAction, SolutionCollector best) : base(s)
+		public CallbackMonitor(
+			ILogger<CallbackMonitor> logger,
+			Solver s,
+			Action<string> statisticsTxtAction,
+			SolutionCollector best)
+			: base(s)
 		{
-			statisticsTxtFunc = statisticsTxtAction;
-			bestSol = best;
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_statisticsTxtFunc = statisticsTxtAction;
+			_bestSol = best;
 		}
 
 		public override int ProgressPercent()
 		{
 			var val = base.ProgressPercent();
-			logger.Info(val);
+			_logger.LogInformation(val.ToString());
 			return val;
 		}
 
@@ -30,17 +37,17 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 		/// </summary>
 		public override void PeriodicCheck()
 		{
-			if(statisticsTxtFunc != null)
+			if(_statisticsTxtFunc != null)
 			{
-				statisticsTxtFunc.Invoke(
+				_statisticsTxtFunc.Invoke(
 					string.Format(
-						"Branches={0}\nFailures={1}\nFailStamp={2}\nSolutions={3}\nWallTime={4}\nCost={5}",
+						"Branches={Branches}\nFailures={Failures}\nFailStamp={FailStamp}\nSolutions={Solutions}\nWallTime={WallTime}\nCost={Cost}",
 						solver().Branches(),
 						solver().Failures(),
 						solver().FailStamp(),
 						solver().Solutions(),
 						solver().WallTime(),
-						bestSol.SolutionCount() > 0 ? bestSol.ObjectiveValue(0) : -1
+						_bestSol.SolutionCount() > 0 ? _bestSol.ObjectiveValue(0) : -1
 					)
 				);
 				//QSMain.WaitRedraw(200);
@@ -51,7 +58,7 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 
 		public override void EnterSearch()
 		{
-			logger.Debug("EnterSearch");
+			_logger.LogDebug("EnterSearch");
 			base.EnterSearch();
 		}
 
@@ -61,10 +68,10 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 		public override bool AcceptSolution()
 		{
 			var val = base.AcceptSolution();
-			if(bestSol.SolutionCount() > 0)
+			if(_bestSol.SolutionCount() > 0)
 			{
-				logger.Debug("New Cost = {0}",
-							 bestSol.ObjectiveValue(0)
+				_logger.LogDebug("New Cost = {Cost}",
+							 _bestSol.ObjectiveValue(0)
 			   );
 			}
 			return val;
@@ -73,7 +80,7 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 		public override bool LocalOptimum()
 		{
 			var val = base.LocalOptimum();
-			logger.Debug("LocalOptimum={0}", val);
+			_logger.LogDebug("LocalOptimum={LocalOptimum}", val);
 			return val;
 		}
 	}

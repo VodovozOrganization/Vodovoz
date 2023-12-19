@@ -1,4 +1,5 @@
 ﻿using Google.OrTools.ConstraintSolver;
+using Microsoft.Extensions.Logging;
 using System;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Tools;
@@ -12,21 +13,22 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 	/// </summary>
 	public class CallbackDistance : NodeEvaluator2
 	{
-		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		private CalculatedOrder[] Nodes;
-		private IDistanceCalculator distanceCalculator;
+		private readonly ILogger<CallbackDistance> _logger;
+		private CalculatedOrder[] _nodes;
+		private IDistanceCalculator _distanceCalculator;
 
-		public CallbackDistance(CalculatedOrder[] nodes, IDistanceCalculator distanceCalculator)
+		public CallbackDistance(ILogger<CallbackDistance> logger, CalculatedOrder[] nodes, IDistanceCalculator distanceCalculator)
 		{
-			Nodes = nodes;
-			this.distanceCalculator = distanceCalculator;
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_nodes = nodes;
+			_distanceCalculator = distanceCalculator;
 		}
 
 		public override long Run(int first_index, int second_index)
 		{
-			if(first_index > Nodes.Length || second_index > Nodes.Length || first_index < 0 || second_index < 0)
+			if(first_index > _nodes.Length || second_index > _nodes.Length || first_index < 0 || second_index < 0)
 			{
-				logger.Error($"Get Distance {first_index} -> {second_index} out of orders ({Nodes.Length})");
+				_logger.LogError($"Get Distance {first_index} -> {second_index} out of orders ({_nodes.Length})");
 				return 0;
 			}
 
@@ -39,19 +41,19 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 
 			if(first_index == 0)
 			{
-				var firstOrder = Nodes[second_index - 1];
+				var firstOrder = _nodes[second_index - 1];
 				var firstBaseVersion = GetGroupVersion(firstOrder.ShippingBase, firstOrder.Order.DeliveryDate.Value);
-				distance = distanceCalculator.DistanceFromBaseMeter(firstBaseVersion, Nodes[second_index - 1].Order.DeliveryPoint);
+				distance = _distanceCalculator.DistanceFromBaseMeter(firstBaseVersion, _nodes[second_index - 1].Order.DeliveryPoint);
 			}
 			else if(second_index == 0)
 			{
-				var secondOrder = Nodes[first_index - 1];
+				var secondOrder = _nodes[first_index - 1];
 				var secondBaseVersion = GetGroupVersion(secondOrder.ShippingBase, secondOrder.Order.DeliveryDate.Value);
-				distance = distanceCalculator.DistanceToBaseMeter(Nodes[first_index - 1].Order.DeliveryPoint, secondBaseVersion);
+				distance = _distanceCalculator.DistanceToBaseMeter(_nodes[first_index - 1].Order.DeliveryPoint, secondBaseVersion);
 			}
 			else
 			{
-				distance = distanceCalculator.DistanceMeter(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[second_index - 1].Order.DeliveryPoint);
+				distance = _distanceCalculator.DistanceMeter(_nodes[first_index - 1].Order.DeliveryPoint, _nodes[second_index - 1].Order.DeliveryPoint);
 			}
 
 			return distance;

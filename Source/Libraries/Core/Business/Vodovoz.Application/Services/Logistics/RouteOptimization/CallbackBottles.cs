@@ -1,5 +1,5 @@
-﻿using System;
-using Google.OrTools.ConstraintSolver;
+﻿using Google.OrTools.ConstraintSolver;
+using Microsoft.Extensions.Logging;
 
 namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 {
@@ -8,12 +8,13 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 	/// </summary>
 	public class CallbackBottles : NodeEvaluator2
 	{
-		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		private CalculatedOrder[] Nodes;
+		private readonly ILogger<CallbackBottles> _logger;
+		private CalculatedOrder[] _nodes;
 
-		public CallbackBottles(CalculatedOrder[] nodes)
+		public CallbackBottles(ILogger<CallbackBottles> logger, CalculatedOrder[] nodes)
 		{
-			Nodes = nodes;
+			_logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
+			_nodes = nodes;
 		}
 
 		public override long Run(int first_index, int second_index)
@@ -23,13 +24,13 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 				return 0;
 			}
 
-			if(first_index > Nodes.Length)
+			if(first_index > _nodes.Length)
 			{
-				logger.Error($"Get Bottles {first_index} -> {second_index} out of orders ({Nodes.Length})");
+				_logger.LogError($"Get Bottles {first_index} -> {second_index} out of orders ({_nodes.Length})");
 				return 0;
 			}
 
-			return Nodes[first_index - 1].Bottles;
+			return _nodes[first_index - 1].Bottles;
 		}
 	}
 }
