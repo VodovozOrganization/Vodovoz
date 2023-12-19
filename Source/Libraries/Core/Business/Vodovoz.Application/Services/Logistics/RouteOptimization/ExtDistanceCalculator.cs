@@ -159,7 +159,6 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 			while(MultiTaskLoad)
 			{
 				Task.Delay(TimeSpan.FromSeconds(1));
-				//Gtk.Main.Iteration();
 			}
 		}
 
@@ -196,17 +195,9 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 
 					result = 1;
 				}
-				//Gtk.Application.Invoke(delegate
-				//{
-				//	UpdateText();
-				//});
 				UpdateText();
 			}
 
-			//Gtk.Application.Invoke(delegate
-			//{
-			//	CheckAndDisableTasks();
-			//});
 			CheckAndDisableTasks();
 			return result;
 		}
