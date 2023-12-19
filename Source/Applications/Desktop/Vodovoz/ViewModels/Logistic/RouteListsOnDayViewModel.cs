@@ -20,7 +20,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Vodovoz.Additions.Logistic;
-using Vodovoz.Application.Services.Logistics.RouteOptimization;
+using Vodovoz.Application.Logistics.RouteOptimization;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;

@@ -4,7 +4,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 
-namespace Vodovoz.Application.Services.Logistics.RouteOptimization
+namespace Vodovoz.Application.Logistics.RouteOptimization
 {
 	/// <summary>
 	/// Класс используется для указания адресов маршрута и хранения рассчитанных

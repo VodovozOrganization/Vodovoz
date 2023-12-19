@@ -2,7 +2,7 @@
 using Google.OrTools.ConstraintSolver;
 using Microsoft.Extensions.Logging;
 
-namespace Vodovoz.Application.Services.Logistics.RouteOptimization
+namespace Vodovoz.Application.Logistics.RouteOptimization
 {
 	/// <summary>
 	/// Класс позволяющий мониторить состояние процесс оптимизации

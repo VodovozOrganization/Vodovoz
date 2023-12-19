@@ -5,7 +5,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
 
-namespace Vodovoz.Application.Services.Logistics.RouteOptimization
+namespace Vodovoz.Application.Logistics.RouteOptimization
 {
 	/// <summary>
 	/// Клас содержит информацию для оптимизации о возможно поездке.

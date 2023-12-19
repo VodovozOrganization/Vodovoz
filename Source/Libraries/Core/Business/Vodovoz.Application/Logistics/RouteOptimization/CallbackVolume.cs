@@ -1,7 +1,7 @@
 ﻿using Google.OrTools.ConstraintSolver;
 using Microsoft.Extensions.Logging;
 
-namespace Vodovoz.Application.Services.Logistics.RouteOptimization
+namespace Vodovoz.Application.Logistics.RouteOptimization
 {
 	/// <summary>
 	/// Класс обратного вызова, возвращает объем груза в заказе в кубических децеметрах

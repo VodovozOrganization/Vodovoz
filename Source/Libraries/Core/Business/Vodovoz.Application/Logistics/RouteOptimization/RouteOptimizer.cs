@@ -8,12 +8,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Vodovoz.Application.Services.Logistics.RouteOptimization;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Sale;
 
-namespace Vodovoz.Application.Services.Logistics.RouteOptimization
+namespace Vodovoz.Application.Logistics.RouteOptimization
 {
 	// <summary>
 	// Главный класс построение оптимальных маршрутов.

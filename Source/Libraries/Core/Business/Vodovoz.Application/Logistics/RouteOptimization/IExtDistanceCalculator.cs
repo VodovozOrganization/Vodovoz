@@ -3,7 +3,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Tools.Logistic;
 
-namespace Vodovoz.Application.Services.Logistics.RouteOptimization
+namespace Vodovoz.Application.Logistics.RouteOptimization
 {
 	public interface IExtDistanceCalculator : IDistanceCalculator
 	{

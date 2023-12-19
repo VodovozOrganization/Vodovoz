@@ -4,7 +4,7 @@ using System.Linq;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 
-namespace Vodovoz.Application.Services.Logistics.RouteOptimization
+namespace Vodovoz.Application.Logistics.RouteOptimization
 {
 	/// <summary>
 	/// Предложенный системой оптимизации маршрут.

@@ -4,7 +4,7 @@ using System;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Tools;
 
-namespace Vodovoz.Application.Services.Logistics.RouteOptimization
+namespace Vodovoz.Application.Logistics.RouteOptimization
 {
 	/// <summary>
 	/// Класс обратного вызова для расчета времени движения по маршруту.

@@ -7,7 +7,7 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.Tools;
 using Vodovoz.Tools.Logistic;
 
-namespace Vodovoz.Application.Services.Logistics.RouteOptimization
+namespace Vodovoz.Application.Logistics.RouteOptimization
 {
 
 	/// <summary>
@@ -46,7 +46,7 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 			_trip = trip;
 			_priorites = trip.Districts.ToDictionary(x => x.District, x => x.Priority);
 			_fixedAddressPenality = RouteOptimizer.DriverPriorityAddressPenalty * (_trip.DriverPriority - 1);
-			this._distanceCalculator = distanceCalculator;
+			_distanceCalculator = distanceCalculator;
 			_resultsCache = new long?[_nodes.Length + 1, _nodes.Length + 1];
 #if DEBUG
 			SGoToBase[_trip] = 0;

@@ -5,7 +5,7 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.Tools;
 using Vodovoz.Tools.Logistic;
 
-namespace Vodovoz.Application.Services.Logistics.RouteOptimization
+namespace Vodovoz.Application.Logistics.RouteOptimization
 {
 
 	/// <summary>

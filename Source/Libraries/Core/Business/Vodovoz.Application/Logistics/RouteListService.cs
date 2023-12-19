@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using MoreLinq;
 using QS.DomainModel.UoW;
 using QS.Validation;
@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using Vodovoz.Application.Services.Logistics.RouteOptimization;
+using Vodovoz.Application.Logistics.RouteOptimization;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
@@ -24,7 +24,7 @@ using Vodovoz.Settings.Cash;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
 
-namespace Vodovoz.Application.Services.Logistics
+namespace Vodovoz.Application.Logistics
 {
 	public class RouteListService : IRouteListService
 	{
