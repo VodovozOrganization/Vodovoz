@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using QS.Banks.Domain;
 using QS.BusinessCommon.Domain;
 using QS.Dialog.Gtk;
@@ -15,6 +15,7 @@ using QSOrmProject;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 using Vodovoz;
 using Vodovoz.Controllers;
 using Vodovoz.Domain;
@@ -30,6 +31,7 @@ using Vodovoz.Domain.Store;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Journals;
 using Vodovoz.Journals.JournalViewModels;
+using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.Journals.JournalViewModels.WageCalculation;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
@@ -39,6 +41,7 @@ using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Counterparties;
+using Vodovoz.ViewModels.Counterparties.ClientClassification;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Dialogs.Roboats;
@@ -86,10 +89,7 @@ public partial class MainWindow
 	[Obsolete("Старый диалог, заменить")]
 	protected void OnSubdivisionsActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			OrmReference.GenerateHashName<Subdivision>(),
-			() => new OrmReference(typeof(Subdivision))
-		);
+		NavigationManager.OpenViewModel<SubdivisionsJournalViewModel>(null);
 	}
 
 	/// <summary>
@@ -99,10 +99,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionWarehousesActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<WarehousesView>(),
-			() => new WarehousesView()
-		);
+		NavigationManager.OpenTdiTab<WarehousesView>(null);
 	}
 
 	#region Зарплата
@@ -424,7 +421,7 @@ public partial class MainWindow
 	}
 
 	/// <summary>
-	/// Рекламные наборы
+	/// Промонаборы
 	/// </summary>
 	/// <param name="sender"></param>
 	/// <param name="e"></param>
@@ -635,6 +632,56 @@ public partial class MainWindow
 		NavigationManager.OpenViewModel<FlyersJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
+	/// <summary>
+	/// ИПЗ - Онлайн каталоги - Онлайн каталоги сайта ВВ
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnVodovozWebSiteNomenclatureOnlineCatalogsActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<VodovozWebSiteNomenclatureOnlineCatalogsJournalViewModel>(null);
+	}
+
+	/// <summary>
+	/// ИПЗ - Онлайн каталоги - Онлайн каталоги мобильного приложения
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnMobileAppNomenclatureOnlineCatalogsActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<MobileAppNomenclatureOnlineCatalogsJournalViewModel>(null);
+	}
+
+	/// <summary>
+	/// ИПЗ - Онлайн каталоги - Онлайн каталоги сайта Кулер Сэйл
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnKulerSaleWebSiteNomenclatureOnlineCatalogsActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<KulerSaleWebSiteNomenclatureOnlineCatalogsJournalViewModel>(null);
+	}
+
+	/// <summary>
+	/// ИПЗ - Группы товаров в ИПЗ
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnNomenclatureOnlineGroupsActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<NomenclatureOnlineGroupsJournalViewModel>(null);
+	}
+
+	/// <summary>
+	/// ИПЗ - Типы товаров в ИПЗ
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnNomenclatureOnlineCategoriesActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<NomenclatureOnlineCategoriesJournalViewModel>(null);
+	}
+
 	#endregion ТМЦ
 
 	#region Банки/Операторы ЭДО
@@ -737,9 +784,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionDeliveryPointsActivated(object sender, EventArgs e)
 	{
-		var dpJournalFactory = new DeliveryPointJournalFactory();
-		var deliveryPointJournal = dpJournalFactory.CreateDeliveryPointJournal();
-		tdiMain.AddTab(deliveryPointJournal);
+		NavigationManager.OpenViewModel<DeliveryPointJournalViewModel, bool, bool>(null, true, true);
 	}
 
 	/// <summary>
@@ -749,7 +794,10 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionCameFromActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<ClientCameFromJournalViewModel, Action<ClientCameFromFilterViewModel>>(null, filter => filter.HidenByDefault = true, OpenPageOptions.IgnoreHash);
+		NavigationManager.OpenViewModel<ClientCameFromJournalViewModel, Action<ClientCameFromFilterViewModel>>(
+			null,
+			filter => filter.HidenByDefault = true,
+			OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -843,16 +891,6 @@ public partial class MainWindow
 	}
 
 	/// <summary>
-	/// Загрузить из 1с 7.7
-	/// </summary>
-	/// <param name="sender"></param>
-	/// <param name="e"></param>
-	protected void OnActionLoad1cActivated(object sender, EventArgs e)
-	{
-		NavigationManager.OpenTdiTab<LoadFrom1cDlg>(null, OpenPageOptions.IgnoreHash);
-	}
-
-	/// <summary>
 	/// Сопоставление клиентов из внешних источников
 	/// </summary>
 	/// <param name="sender"></param>
@@ -870,6 +908,16 @@ public partial class MainWindow
 	protected void OnActionCounterpartySubtypesActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<SubtypesJournalViewModel>(null);
+	}
+
+	/// <summary>
+	/// Пересчёт классификации контрагентов
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionCounterpartyClassificationCalculationActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<CounterpartyClassificationCalculationViewModel>(null);
 	}
 
 	#endregion Контрагенты
@@ -1046,6 +1094,30 @@ public partial class MainWindow
 	{
 		NavigationManager.OpenViewModel<RegradingOfGoodsReasonsJournalViewModel>(null);
 	}
+
+	#region События нахождения на складе водителей
+
+	/// <summary>
+	/// События
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnDriversWarehousesEventsActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<DriversWarehousesEventsJournalViewModel>(null);
+	}
+
+	/// <summary>
+	/// Завершенные события
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnCompletedDriversWarehousesEventsActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<CompletedDriversWarehousesEventsJournalViewModel>(null);
+	}
+
+	#endregion
 
 	#endregion Логистика
 

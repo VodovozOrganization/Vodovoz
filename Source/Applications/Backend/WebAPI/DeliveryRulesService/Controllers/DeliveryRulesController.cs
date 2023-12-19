@@ -29,7 +29,7 @@ namespace DeliveryRulesService.Controllers
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IDeliveryRepository _deliveryRepository;
 		private readonly INomenclatureRepository _nomenclatureRepository;
-		private readonly FiasApiClientFactory _fiasApiClientFactory;
+		private readonly IFiasApiClientFactory _fiasApiClientFactory;
 		private readonly IFiasApiClient _fiasApiClient;
 		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
 		private readonly INomenclatureParametersProvider _nomenclatureParametersProvider;
@@ -43,7 +43,7 @@ namespace DeliveryRulesService.Controllers
 			IUnitOfWorkFactory uowFactory,
 			IDeliveryRepository deliveryRepository,
 			INomenclatureRepository nomenclatureRepository,
-			FiasApiClientFactory fiasApiClientFactory,
+			IFiasApiClientFactory fiasApiClientFactory,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
 			INomenclatureParametersProvider nomenclatureParametersProvider,
 			FastDeliveryAvailabilityHistoryModel fastDeliveryAvailabilityHistoryModel,

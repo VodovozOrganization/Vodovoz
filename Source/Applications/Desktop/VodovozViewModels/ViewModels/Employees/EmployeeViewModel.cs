@@ -39,7 +39,6 @@ using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.Infrastructure.Services;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.TempAdapters;
@@ -65,8 +64,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly IUserRepository _userRepository;
 		private readonly BaseParametersProvider _baseParametersProvider;
 		private readonly EmployeeSettings.IEmployeeSettings _employeeSettings;
-		private readonly ILifetimeScope _scope;
 		private readonly IEmployeeRegistrationVersionController _employeeRegistrationVersionController;
+		private ILifetimeScope _lifetimeScope;
 		private IPermissionResult _employeeDocumentsPermissionsSet;
 		private readonly IPermissionResult _employeePermissionSet;
 		private bool _canActivateDriverDistrictPrioritySetPermission;
@@ -105,7 +104,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			IAuthorizationService authorizationService,
 			IEmployeeWageParametersFactory employeeWageParametersFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IEmployeePostsJournalFactory employeePostsJournalFactory,
 			ICashDistributionCommonOrganisationProvider commonOrganisationProvider,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
@@ -113,7 +111,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			IEmployeeRepository employeeRepository,
 			ICommonServices commonServices,
 			IValidationContextFactory validationContextFactory,
-			IPhonesViewModelFactory phonesViewModelFactory,
 			IWarehouseRepository warehouseRepository,
 			IRouteListRepository routeListRepository,
 			DriverApiUserRegisterEndpoint driverApiUserRegisterEndpoint,
@@ -122,8 +119,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			BaseParametersProvider baseParametersProvider,
 			IAttachmentsViewModelFactory attachmentsViewModelFactory,
 			INavigationManager navigationManager,
+			ILifetimeScope lifetimeScope,
 			EmployeeSettings.IEmployeeSettings employeeSettings,
-			ILifetimeScope scope,
 			bool traineeToEmployee = false) : base(commonServices?.InteractiveService, navigationManager)
 		{
 			if(unitOfWorkFactory is null)
@@ -137,7 +134,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			EmployeePostsJournalFactory =
 				employeePostsJournalFactory ?? throw new ArgumentNullException(nameof(employeePostsJournalFactory)); 
-			SubdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory)); 
 			_subdivisionParametersProvider =
 				subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
 			_wageCalculationRepository = wageCalculationRepository ?? throw new ArgumentNullException(nameof(wageCalculationRepository));
@@ -150,8 +146,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_baseParametersProvider = baseParametersProvider ?? throw new ArgumentNullException(nameof(baseParametersProvider));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
-			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			
 			_employeeRegistrationVersionController = new EmployeeRegistrationVersionController(Entity, new EmployeeRegistrationVersionFactory());
 
@@ -165,14 +161,9 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				throw new ArgumentNullException(nameof(validationContextFactory));
 			}
 			
-			if(phonesViewModelFactory == null)
-			{
-				throw new ArgumentNullException(nameof(phonesViewModelFactory));
-			}
-			
 			ConfigureValidationContext(validationContextFactory);
 
-			PhonesViewModel = phonesViewModelFactory.CreateNewPhonesViewModel(UoW);
+			PhonesViewModel = _lifetimeScope.Resolve<PhonesViewModel>(new TypedParameter(typeof(IUnitOfWork), UoW));
 			
 			if(Entity.Id == 0)
 			{
@@ -208,31 +199,36 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 			SetPermissions();
 
-			var subdivisionEntryViewModelBuilder = new CommonEEVMBuilderFactory<Employee>(this, Entity, UoW, NavigationManager, _scope);
+			InitializeSubdivisionEntryViewModel();
+		}
+
+		private void InitializeSubdivisionEntryViewModel()
+		{
+			var subdivisionEntryViewModelBuilder = new CommonEEVMBuilderFactory<Employee>(this, Entity, UoW, NavigationManager, _lifetimeScope);
+
+			var canSetOnlyLogisticsSubdivision = CanManageDriversAndForwarders && !CanManageOfficeWorkers;
 
 			SubdivisionViewModel = subdivisionEntryViewModelBuilder
 				.ForProperty(x => x.Subdivision)
 				.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel, SubdivisionFilterViewModel>(
 					filter =>
 					{
-						SubdivisionType? subdivisionType = null;
-
-						if(CanManageDriversAndForwarders && !CanManageOfficeWorkers)
+						if(canSetOnlyLogisticsSubdivision)
 						{
-							subdivisionType = SubdivisionType.Logistic;
+							filter.SubdivisionType  = SubdivisionType.Logistic;
 						}
-
-						filter.SubdivisionType = subdivisionType;
 					})
 				.UseViewModelDialog<SubdivisionViewModel>()
 				.Finish();
+
+			SubdivisionViewModel.IsEditable = CanEditEmployee && (CanManageOfficeWorkers || CanManageDriversAndForwarders);
 		}
 
 		private Employee EmployeeForCurrentUser => 
 			_employeeForCurrentUser ?? (_employeeForCurrentUser = _employeeRepository.GetEmployeeForCurrentUser(UoW));
 
 		public List<EmployeeCategory> HiddenCategories { get; } = new List<EmployeeCategory>();
-
+		
 		public EmployeeDocumentType[] HiddenForRussianDocument { get; } =
 		{
 			EmployeeDocumentType.RefugeeId,
@@ -254,9 +250,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		public IEmployeeWageParametersFactory EmployeeWageParametersFactory { get; }
 		public IEmployeeJournalFactory EmployeeJournalFactory { get; }
 		public IEmployeePostsJournalFactory EmployeePostsJournalFactory { get; }
-		public ISubdivisionJournalFactory SubdivisionJournalFactory { get; }
-		public IEntityEntryViewModel SubdivisionViewModel { get; }
-		public bool CanEditSubdivision => CanEditEmployee && (CanManageOfficeWorkers || CanManageDriversAndForwarders);
+		public IEntityEntryViewModel SubdivisionViewModel { get; private set; }
 
 		public bool HasChanges
 		{
@@ -269,6 +263,10 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 					|| (_terminalManagementViewModel?.HasChanges ?? false);
 			}
 		}
+
+		public virtual bool HasCustomCancellationConfirmationDialog => false;
+
+		public virtual Func<int> CustomCancellationConfirmationDialogFunc => null;
 
 		public bool AskSaveOnClose => CanEditEmployee;
 		
@@ -512,6 +510,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 						}
 
 						var newDistrictPrioritySet = DriverDistrictPriorityHelper.CopyPrioritySetWithActiveDistricts(
+							UoW,
 							SelectedDistrictPrioritySet,
 							out var notCopiedPriorities
 						);
@@ -1024,6 +1023,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		public override void Dispose()
 		{
 			UoW?.Dispose();
+			_lifetimeScope = null;
 			base.Dispose();
 		}
 	}

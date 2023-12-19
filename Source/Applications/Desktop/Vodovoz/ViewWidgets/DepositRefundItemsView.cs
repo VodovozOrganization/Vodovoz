@@ -1,18 +1,16 @@
-﻿using System;
-using System.Linq;
+﻿using Autofac;
 using Gamma.GtkWidgets;
 using Gtk;
 using QS.DomainModel.UoW;
-using QSOrmProject;
+using System;
+using System.Linq;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Infrastructure.Converters;
-using Vodovoz.JournalFilters;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 
 namespace Vodovoz.ViewWidgets
@@ -20,6 +18,7 @@ namespace Vodovoz.ViewWidgets
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class DepositRefundItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		private readonly INomenclatureRepository _nomenclatureRepository =
 			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		public IUnitOfWork UoW { get; set; }
@@ -99,7 +98,7 @@ namespace Vodovoz.ViewWidgets
 			filter.RestrictCategory = NomenclatureCategory.equipment;
 
 			var nomenclatureJournalFactory = new NomenclatureJournalFactory();
-			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel();
+			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel(_lifetimeScope);
 			journal.FilterViewModel = filter;
 			journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult;
 			journal.Title = "Оборудование";
@@ -130,6 +129,13 @@ namespace Vodovoz.ViewWidgets
 		{
 			object[] items = treeDepositRefundItems.GetSelectedObjects();
 			buttonDeleteDeposit.Sensitive = items.Any();
+		}
+
+		public override void Destroy()
+		{
+			base.Destroy();
+			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
 		}
 	}
 }

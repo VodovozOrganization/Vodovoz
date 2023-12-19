@@ -38,8 +38,7 @@ namespace Vodovoz.Filters.GtkViews
 			comboRequestType.ItemsEnum = typeof(PayoutRequestDocumentType);
 			comboRequestType.Binding.AddBinding(ViewModel, vm => vm.DocumentType, w => w.SelectedItemOrNull).InitializeFromSource();
 
-			evmeCounterparty.SetEntityAutocompleteSelectorFactory(
-				ViewModel.CounterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory());
+			evmeCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyAutocompleteSelectorFactory);
 			evmeCounterparty.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.Counterparty, w => w.Subject)
 				.AddBinding(vm => vm.CanSetCounterparty, w => w.Sensitive)
@@ -48,6 +47,7 @@ namespace Vodovoz.Filters.GtkViews
 			yenumcomboboxSortBy.ItemsEnum = typeof(PayoutDocumentsSortOrder);
 			yenumcomboboxSortBy.Binding.AddBinding(ViewModel, vm => vm.DocumentsSortOrder, w => w.SelectedItemOrNull).InitializeFromSource();
 
+			entityentryAccountableSubdivision.ViewModel = ViewModel.AccountableSubdivisionViewModel;
 
 			PayoutRequestUserRole? userRole = ViewModel.GetUserRole();
 			//Для Роли Согласователя по-умолчанию Создана Подана,

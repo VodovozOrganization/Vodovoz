@@ -2,6 +2,7 @@
 using NHibernate;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Journal;
@@ -21,19 +22,25 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
 		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
-		private readonly ILifetimeScope _scope;
+		private ILifetimeScope _scope;
 
 		public ComplaintKindJournalViewModel(
 			ComplaintKindJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
+			INavigationManager navigationManager,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ISalesPlanJournalFactory salesPlanJournalFactory, 
 			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			ILifetimeScope scope,
 			Action<ComplaintKindJournalFilterViewModel> filterConfig = null)
-			: base(filterViewModel, unitOfWorkFactory, commonServices)
+			: base(filterViewModel, unitOfWorkFactory, commonServices, navigation: navigationManager)
 		{
+			if(navigationManager is null)
+			{
+				throw new ArgumentNullException(nameof(navigationManager));
+			}
+
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
 			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
@@ -47,7 +54,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 
 			if(filterConfig != null)
 			{
-				FilterViewModel.SetAndRefilterAtOnce(filterConfig);
+				FilterViewModel.ConfigureWithoutFiltering(filterConfig);
 			}
 		}
 
@@ -100,11 +107,17 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 		}
 
 		protected override Func<ComplaintKindViewModel> CreateDialogFunction => () =>
-			new ComplaintKindViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices, _employeeJournalFactory, Refresh, 
+			new ComplaintKindViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices, NavigationManager, _employeeJournalFactory, Refresh, 
 				_salesPlanJournalFactory, _nomenclatureSelectorFactory, _scope.BeginLifetimeScope());
 
 		protected override Func<ComplaintKindJournalNode, ComplaintKindViewModel> OpenDialogFunction =>
-			(node) => new ComplaintKindViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices, _employeeJournalFactory, Refresh,
+			(node) => new ComplaintKindViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices, NavigationManager, _employeeJournalFactory, Refresh,
 				_salesPlanJournalFactory, _nomenclatureSelectorFactory, _scope.BeginLifetimeScope());
+
+		public override void Dispose()
+		{
+			_scope = null;
+			base.Dispose();
+		}
 	}
 }

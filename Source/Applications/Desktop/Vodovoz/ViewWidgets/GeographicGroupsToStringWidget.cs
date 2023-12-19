@@ -1,8 +1,8 @@
 ﻿using Gamma.Binding.Core;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Journal;
-using QS.Project.Services;
 using QS.Tdi;
 using QSOrmProject;
 using System;
@@ -10,12 +10,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Infrastructure.Services;
-using Vodovoz.Models;
 using Vodovoz.Parameters;
-using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Factories;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 
@@ -25,8 +20,13 @@ namespace Vodovoz.ViewWidgets
 	public partial class GeographicGroupsToStringWidget : Gtk.Bin
 	{
 		private readonly int _eastGeographicGroupId = new GeographicGroupParametersProvider(new ParametersProvider()).EastGeographicGroupId;
+
 		public event EventHandler<EventArgs> ListContentChanged;
 		public BindingControler<GeographicGroupsToStringWidget> Binding { get; private set; }
+
+		public ITdiCompatibilityNavigation NavigationManager { get; } = Startup.MainWin.NavigationManager;
+
+		public ITdiTab Container => DialogHelper.FindParentTab(this);
 
 		public IUnitOfWork UoW { get; set; }
 
@@ -52,7 +52,7 @@ namespace Vodovoz.ViewWidgets
 
 		public GeographicGroupsToStringWidget()
 		{
-			this.Build();
+			Build();
 
 			Binding = new BindingControler<GeographicGroupsToStringWidget>(
 				this,
@@ -77,29 +77,16 @@ namespace Vodovoz.ViewWidgets
 
 		protected void OnBtnChangeListClicked(object sender, EventArgs e)
 		{
-			var uowFactory = UnitOfWorkFactory.GetDefaultFactory;
-			var commonServices = ServicesConfig.CommonServices;
-			var subdivisionJournalFactory = new SubdivisionJournalFactory();
-			var warehouseJournalFactory = new WarehouseJournalFactory();
-			var employeeService = new EmployeeService();
-			var geoGroupVersionsModel = new GeoGroupVersionsModel(commonServices.UserService, employeeService);
-			var journal = new GeoGroupJournalViewModel(uowFactory, commonServices, subdivisionJournalFactory, warehouseJournalFactory, geoGroupVersionsModel);
-			journal.SelectionMode = JournalSelectionMode.Multiple;
-			journal.DisableChangeEntityActions();
-			journal.OnEntitySelectedResult += JournalOnEntitySelectedResult;
+			var page = NavigationManager.OpenViewModelOnTdi<GeoGroupJournalViewModel>(Container, OpenPageOptions.AsSlave);
 
-			ITdiTab mytab = DialogHelper.FindParentTab(this);
-			if(mytab == null)
-			{
-				return;
-			}
-
-			mytab.TabParent.AddSlaveTab(mytab, journal);
+			page.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
+			page.ViewModel.DisableChangeEntityActions();
+			page.ViewModel.OnSelectResult += OnAddEntitySelectedResult;
 		}
 
-		private void JournalOnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
+		private void OnAddEntitySelectedResult(object sender, JournalSelectedEventArgs e)
 		{
-			var selected = e.SelectedNodes.Cast<GeoGroupJournalNode>();
+			var selected = e.SelectedObjects.Cast<GeoGroupJournalNode>();
 			if(!selected.Any())
 			{
 				return;
@@ -127,29 +114,16 @@ namespace Vodovoz.ViewWidgets
 
 		protected void OnBtnRemoveClicked(object sender, EventArgs e)
 		{
-			var uowFactory = UnitOfWorkFactory.GetDefaultFactory;
-			var commonServices = ServicesConfig.CommonServices;
-			var subdivisionJournalFactory = new SubdivisionJournalFactory();
-			var warehouseJournalFactory = new WarehouseJournalFactory();
-			var employeeService = new EmployeeService();
-			var geoGroupVersionsModel = new GeoGroupVersionsModel(commonServices.UserService, employeeService);
-			var journal = new GeoGroupJournalViewModel(uowFactory, commonServices, subdivisionJournalFactory, warehouseJournalFactory, geoGroupVersionsModel);
-			journal.SelectionMode = JournalSelectionMode.Multiple;
-			journal.DisableChangeEntityActions();
-			journal.OnEntitySelectedResult += JournalOnRemoveEntitySelectedResult; ;
+			var page = NavigationManager.OpenViewModelOnTdi<GeoGroupJournalViewModel>(Container, OpenPageOptions.AsSlave);
 
-			ITdiTab mytab = DialogHelper.FindParentTab(this);
-			if(mytab == null)
-			{
-				return;
-			}
-
-			mytab.TabParent.AddSlaveTab(mytab, journal);
+			page.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
+			page.ViewModel.DisableChangeEntityActions();
+			page.ViewModel.OnSelectResult += OnRemoveEntitySelectedResult;
 		}
 
-		private void JournalOnRemoveEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
+		private void OnRemoveEntitySelectedResult(object sender, JournalSelectedEventArgs e)
 		{
-			var selected = e.SelectedNodes.Cast<GeoGroupJournalNode>();
+			var selected = e.SelectedObjects.Cast<GeoGroupJournalNode>();
 			if(!selected.Any())
 			{
 				return;

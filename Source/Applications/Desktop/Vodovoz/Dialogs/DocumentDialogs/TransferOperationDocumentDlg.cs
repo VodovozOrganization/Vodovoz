@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Autofac;
 using NLog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
@@ -16,7 +17,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 	public partial class TransferOperationDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<TransferOperationDocument>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
-
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 
 		public TransferOperationDocumentDlg()
@@ -52,14 +53,14 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			textComment.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			datepickerDate.Binding.AddBinding(Entity, e => e.TimeStamp, w => w.Date).InitializeFromSource();
 
-			var clientFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
-			referenceCounterpartyFrom.SetEntitySelectorFactory(clientFactory.CreateCounterpartyAutocompleteSelectorFactory());
+			var clientFactory = new CounterpartyJournalFactory();
+			referenceCounterpartyFrom.SetEntitySelectorFactory(clientFactory.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope));
 			referenceCounterpartyFrom.Binding.AddBinding(Entity, e => e.FromClient, w => w.Subject).InitializeFromSource();
 
-			referenceCounterpartyTo.SetEntitySelectorFactory(clientFactory.CreateCounterpartyAutocompleteSelectorFactory());
+			referenceCounterpartyTo.SetEntitySelectorFactory(clientFactory.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope));
 			referenceCounterpartyTo.Binding.AddBinding(Entity, e => e.ToClient, w => w.Subject).InitializeFromSource();
 
-			var employeeFactory = new EmployeeJournalFactory();
+			var employeeFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager);
 			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
 			evmeEmployee.Binding.AddBinding(Entity, e => e.ResponsiblePerson, w => w.Subject).InitializeFromSource();
 
@@ -216,6 +217,16 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 				return;
 			}
 			this.HasChanges = (decimal)spinDepositsBottles.Value != (Entity.OutEquipmentDepositOperation.RefundDeposit != 0 ? Entity.OutEquipmentDepositOperation.RefundDeposit : (Entity.OutEquipmentDepositOperation.ReceivedDeposit * -1));
+		}
+
+		protected override void OnDestroyed()
+		{
+			if(_lifetimeScope != null)
+			{
+				_lifetimeScope.Dispose();
+				_lifetimeScope = null;
+			}
+			base.OnDestroyed();
 		}
 	}
 }

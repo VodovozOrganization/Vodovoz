@@ -1,12 +1,16 @@
 ﻿using QS.Commands;
 using QS.Project.Filter;
-using QS.Project.Journal;
 using QS.Project.Services;
+using QS.ViewModels.Control.EEVM;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.WageCalculation;
+using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.Journals.JournalViewModels.Organizations;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.ViewModels.ViewModels.Organizations;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
 {
@@ -38,6 +42,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
 		private bool _isDriverForOneDay;
 		private bool _isChainStoreDriver;
 		private bool _isRFCitizen;
+		private EmployeesJournalViewModel _journalViewModel;
 
 		public EmployeeFilterViewModel(params EmployeeCategory[] hideEmployeeCategories)
 		{
@@ -51,6 +56,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
 		}
 
 		#region Свойства
+
+		public IEntityEntryViewModel SubdivisionViewModel { get; private set; }
 
 		public DelegateCommand UpdateRestrictions { get; private set; }
 		
@@ -231,6 +238,26 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
 		}
 
 		public override bool IsShow { get; set; } = true;
+
+		public EmployeesJournalViewModel JournalViewModel
+		{
+			get => _journalViewModel;
+			set
+			{
+				_journalViewModel = value;
+
+				var subdivisionViewModelEntryViewModelBuilder = new CommonEEVMBuilderFactory<EmployeeFilterViewModel>(value, this, UoW, _journalViewModel.NavigationManager, _journalViewModel.Scope);
+
+				SubdivisionViewModel = subdivisionViewModelEntryViewModelBuilder
+					.ForProperty(x => x.Subdivision)
+					.UseViewModelDialog<SubdivisionViewModel>()
+					.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel, SubdivisionFilterViewModel>(
+						filter =>
+						{
+						})
+					.Finish();
+			}
+		}
 
 		#endregion
 

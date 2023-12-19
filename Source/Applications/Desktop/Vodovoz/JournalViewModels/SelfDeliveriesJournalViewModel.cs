@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -15,7 +16,6 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using QSProjectsLib;
-using Vodovoz.Dialogs.Cash;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -26,7 +26,6 @@ using Vodovoz.Extensions;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure;
 using Vodovoz.JournalNodes;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Cash;
@@ -36,10 +35,10 @@ namespace Vodovoz.Representations
 {
 	public class SelfDeliveriesJournalViewModel : FilterableSingleEntityJournalViewModelBase<VodovozOrder, OrderDlg, SelfDeliveryJournalNode, OrderJournalFilterViewModel>
 	{
-		private readonly CallTaskWorker _callTaskWorker;
+		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly Employee _currentEmployee;
-		private readonly OrderPaymentSettings _orderPaymentSettings;
-		private readonly OrderParametersProvider _orderParametersProvider;
+		private readonly IOrderPaymentSettings _orderPaymentSettings;
+		private readonly IOrderParametersProvider _orderParametersProvider;
 		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
 		private readonly bool _userCanChangePayTypeToByCard;
 
@@ -47,13 +46,14 @@ namespace Vodovoz.Representations
 			OrderJournalFilterViewModel filterViewModel, 
 			IUnitOfWorkFactory unitOfWorkFactory, 
 			ICommonServices commonServices, 
-			CallTaskWorker callTaskWorker,
-			OrderPaymentSettings orderPaymentSettings,
-			OrderParametersProvider orderParametersProvider,
+			ICallTaskWorker callTaskWorker,
+			IOrderPaymentSettings orderPaymentSettings,
+			IOrderParametersProvider orderParametersProvider,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
 			IEmployeeService employeeService,
-			INavigationManager navigationManager) 
-			: base(filterViewModel, unitOfWorkFactory, commonServices)
+			INavigationManager navigationManager,
+			Action<OrderJournalFilterViewModel> filterConfig = null) 
+			: base(filterViewModel, unitOfWorkFactory, commonServices, navigation: navigationManager)
 		{
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			_orderPaymentSettings = orderPaymentSettings ?? throw new ArgumentNullException(nameof(orderPaymentSettings));
@@ -66,11 +66,20 @@ namespace Vodovoz.Representations
 					commonServices.UserService.CurrentUserId);
 
 			TabName = "Журнал самовывозов";
+
+			filterViewModel.Journal = this;
+
+			if(filterConfig != null)
+			{
+				filterViewModel.ConfigureWithoutFiltering(filterConfig);
+			}
+
 			SetOrder(x => x.Date, true);
+			
 			UpdateOnChanges(
 				typeof(VodovozOrder),
-				typeof(OrderItem)
-			);
+				typeof(OrderItem));
+
 			_userCanChangePayTypeToByCard = commonServices.CurrentPermissionService.ValidatePresetPermission("allow_load_selfdelivery");
 		}
 
@@ -122,8 +131,11 @@ namespace Vodovoz.Representations
 			if(FilterViewModel.StartDate != null)
 				query.Where(o => o.DeliveryDate >= FilterViewModel.StartDate);
 
-			if(FilterViewModel.EndDate != null)
-				query.Where(o => o.DeliveryDate <= FilterViewModel.EndDate.Value.AddDays(1).AddTicks(-1));
+			var endDate = FilterViewModel.EndDate;
+			if(endDate != null)
+			{
+				query.Where(o => o.DeliveryDate <= endDate.Value.LatestDayTime());
+			}
 
 			if(FilterViewModel.PaymentOrder != null) {
 				bool paymentAfterShipment = false || FilterViewModel.PaymentOrder == PaymentOrder.AfterShipment;

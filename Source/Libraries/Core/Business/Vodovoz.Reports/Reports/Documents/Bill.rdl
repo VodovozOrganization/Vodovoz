@@ -67,7 +67,8 @@
         where c.id = p_counterparty.counterparty_id
           and p_counterparty.is_archive = 0
     )AS client_contact,
-    CONCAT(employees.last_name, ' ', employees.name, ' ', employees.patronymic) AS author
+    CONCAT(employees.last_name, ' ', employees.name, ' ', employees.patronymic) AS author,
+    dp.compiled_address_short AS delivery_address
 FROM
     orders o
         LEFT JOIN
@@ -157,6 +158,10 @@ WHERE
         </Field>
         <Field Name="contact_phone">
           <DataField>contact_phone</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="delivery_address">
+          <DataField>delivery_address</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -1449,14 +1454,14 @@ WHERE o.id = @order_id
           </TableRows>
         </Footer>
         <Left>31.0pt</Left>
-        <Top>375.9pt</Top>
+        <Top>396.7pt</Top>
         <ZIndex>0</ZIndex>
       </Table>
       <List Name="List3">
-        <Height>120.47pt</Height>
+        <Height>103.22pt</Height>
         <Width>535.30pt</Width>
-        <Left>31.4pt</Left>
-        <Top>502.0pt</Top>
+        <Left>31.40pt</Left>
+        <Top>511.60pt</Top>
         <ReportItems>
           <Textbox Name="Textbox24">
             <Height>16.50pt</Height>
@@ -1464,7 +1469,7 @@ WHERE o.id = @order_id
             <Value>Руководитель________________</Value>
             <ZIndex>1</ZIndex>
             <Left>0.00pt</Left>
-            <Top>31.50pt</Top>
+            <Top>52.30pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1484,7 +1489,7 @@ WHERE o.id = @order_id
 + '.)'</Value>
             <ZIndex>0</ZIndex>
             <Left>156.8pt</Left>
-            <Top>31.5pt</Top>
+            <Top>52.3pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1505,7 +1510,7 @@ WHERE o.id = @order_id
 + '.)'</Value>
             <ZIndex>0</ZIndex>
             <Left>407.8pt</Left>
-            <Top>32.3pt</Top>
+            <Top>53.1pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1521,7 +1526,7 @@ WHERE o.id = @order_id
             <Value>Бухгалтер______________</Value>
             <ZIndex>1</ZIndex>
             <Left>283.4pt</Left>
-            <Top>30.8pt</Top>
+            <Top>51.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1534,8 +1539,8 @@ WHERE o.id = @order_id
           <Image Name="Image2">
             <Height>60.21pt</Height>
             <Width>80.53pt</Width>
-            <Left>72.90pt</Left>
-            <Top>0.00pt</Top>
+            <Left>72.9pt</Left>
+            <Top>20.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1555,7 +1560,7 @@ WHERE o.id = @order_id
             <Height>60.21pt</Height>
             <Width>80.53pt</Width>
             <Left>323.8pt</Left>
-            <Top>8.0pt</Top>
+            <Top>28.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1570,6 +1575,25 @@ WHERE o.id = @order_id
               <Hidden>={?hide_signature}</Hidden>
             </Visibility>
             <MIMEType>image/png</MIMEType>
+          </Image>
+          <Image Name="Image7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>102.39pt</Height>
+            <Width>112.93pt</Width>
+            <Left>290.00pt</Left>
+            <Top>0.00pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+            <Source>Database</Source>
+            <Value>=First( {image} , "Stamp" )</Value>
+            <Sizing>Fit</Sizing>
+            <MIMEType>image/png</MIMEType>
+            <Visibility>
+              <Hidden>={?hide_signature}</Hidden>
+            </Visibility>
+            <ZIndex>2</ZIndex>
           </Image>
         </ReportItems>
         <Style>
@@ -1690,6 +1714,8 @@ WHERE o.id = @order_id
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -1935,6 +1961,48 @@ Iif(
                 </TableCell>
               </TableCells>
             </TableRow>
+            <TableRow>
+              <Height>24.5pt</Height>
+              <Visibility>
+                <Hidden>=Fields!delivery_address.IsMissing</Hidden>
+              </Visibility>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox44">
+                      <Value>Адрес доставки:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>General</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontFamily>Calibri</FontFamily>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox45">
+                      <Value>={delivery_address}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontFamily>Calibri</FontFamily>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
           </TableRows>
         </Details>
         <Left>28.9pt</Left>
@@ -1944,7 +2012,7 @@ Iif(
         <Height>145.13pt</Height>
         <Width>250.77pt</Width>
         <Left>175.2pt</Left>
-        <Top>591.6pt</Top>
+        <Top>612.4pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1956,27 +2024,9 @@ Iif(
         <Value>=First( {IM1} , "Images" )</Value>
         <Sizing>FitProportional</Sizing>
         <ZIndex>0</ZIndex>
-        <Visibility></Visibility>
-        <MIMEType>image/jpeg</MIMEType>
-      </Image>
-      <Image Name="Image7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>102.39pt</Height>
-        <Width>112.93pt</Width>
-        <Left>321.7pt</Left>
-        <Top>490.9pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-        <Source>Database</Source>
-        <Value>=First( {image} , "Stamp" )</Value>
-        <Sizing>Fit</Sizing>
-        <MIMEType>image/png</MIMEType>
         <Visibility>
-          <Hidden>={?hide_signature}</Hidden>
         </Visibility>
-        <ZIndex>2</ZIndex>
+        <MIMEType>image/jpeg</MIMEType>
       </Image>
       <Textbox Name="Textbox18" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>50pt</Height>

@@ -1,22 +1,16 @@
 ﻿using System;
 using QS.DomainModel.UoW;
-using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.JournalViewModels;
 using Vodovoz.TempAdapters;
-using Vodovoz.JournalSelector;
-using Vodovoz.FilterViewModels.Goods;
-using Vodovoz.Parameters;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Autofac;
+using QS.Project.Journal.EntitySelector;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz
 {
@@ -24,21 +18,22 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ClientBalanceFilter : RepresentationFilterBase<ClientBalanceFilter>
 	{
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilter = new DeliveryPointJournalFilterViewModel();
 
 		protected override void ConfigureWithUow()
 		{
-			ILifetimeScope lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
-
 			nomenclatureEntry.SetEntityAutocompleteSelectorFactory(
-			new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-				ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), new CounterpartyJournalFactory(lifetimeScope),
-				new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider())), new UserRepository()));
+			new EntityAutocompleteSelectorFactory<NomenclaturesJournalViewModel>(
+				typeof(Nomenclature),
+				() => _lifetimeScope.Resolve<NomenclaturesJournalViewModel>()));
 			
 			nomenclatureEntry.ChangedByUser += NomenclatureEntryOnChangedByUser;
 
-			entryClient.SetEntityAutocompleteSelectorFactory(lifetimeScope.Resolve<ICounterpartyJournalFactory>().CreateCounterpartyAutocompleteSelectorFactory());
-			var dpFactory = new DeliveryPointJournalFactory(_deliveryPointJournalFilter);
+			entryClient.SetEntityAutocompleteSelectorFactory(
+				_lifetimeScope.Resolve<ICounterpartyJournalFactory>().CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope));
+			var dpFactory = _lifetimeScope.Resolve<IDeliveryPointJournalFactory>();
+			dpFactory.SetDeliveryPointJournalFilterViewModel(_deliveryPointJournalFilter);
 			evmeDeliveryPoint.SetEntityAutocompleteSelectorFactory(dpFactory.CreateDeliveryPointByClientAutocompleteSelectorFactory());
 			evmeDeliveryPoint.Changed += (sender, args) => OnRefiltered();
 
@@ -122,6 +117,13 @@ namespace Vodovoz
 		protected void OnCheckIncludeSoldToggled(object sender, EventArgs e)
 		{
 			OnRefiltered();
+		}
+
+		public override void Destroy()
+		{
+			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
+			base.Destroy();
 		}
 	}
 }

@@ -1,7 +1,5 @@
-﻿using FluentNHibernate.Data;
-using Autofac;
+﻿using Autofac;
 using Gamma.Utilities;
-using Gtk;
 using QS.Dialog;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
@@ -34,10 +32,6 @@ namespace Vodovoz.Dialogs
 		UndeliveredOrder undelivery;
 		Order order;
 
-		private readonly IRouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController =
-			new RouteListAddressKeepingDocumentController(new EmployeeRepository(),
-				new NomenclatureParametersProvider(new ParametersProvider()));
-
 		private UndeliveredOrderViewModel _undeliveredOrderViewModel;
 
 		public UndeliveryOnOrderCloseDlg()
@@ -69,6 +63,7 @@ namespace Vodovoz.Dialogs
 				new TypedParameter(typeof(UndeliveredOrder), undelivery),
 				new TypedParameter(typeof(IUnitOfWork), UoW),
 				new TypedParameter(typeof(ITdiTab), this as TdiTabBase));
+
 			undeliveryView.WidgetViewModel = _undeliveredOrderViewModel;
 
 			_undeliveredOrderViewModel.IsSaved += IsSaved;

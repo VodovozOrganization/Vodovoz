@@ -1,5 +1,6 @@
 ﻿using System;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.ViewModels.Reports.Sales
@@ -59,6 +60,12 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				public decimal ActualSum { get; set; }
 
 				public string OrderContactPhone { get; set; }
+
+				public CounterpartyCompositeClassification CounterpartyClassification { get; set; }
+
+				public int PromotionalSetId { get; set; }
+				
+				public string PromotionalSetName { get; set; }
 			}
 		}
 	}

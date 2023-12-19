@@ -37,7 +37,7 @@ namespace Vodovoz.Views.Logistic
 			
 			buttonCancel.Clicked += (sender, e) => ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
 
-			entityVMEntryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(Startup.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory());
+			entityVMEntryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(ViewModel.NavigationManager).CreateCarAutocompleteSelectorFactory(ViewModel.LifetimeScope));
 			entityVMEntryCar.Binding.AddBinding(ViewModel.Entity, e => e.Car, w => w.Subject).InitializeFromSource();
 			entityVMEntryCar.CompletionPopupSetWidth(false);
 
@@ -137,7 +137,7 @@ namespace Vodovoz.Views.Logistic
 					.AddTextRenderer(n => n.CommentForFineAuthor != null ?
 						n.CommentForFineAuthor.ShortName : String.Empty)
 				.AddColumn("Переносы")
-					.AddTextRenderer(n => n.GetTransferText(n))
+					.AddTextRenderer(n => n.GetTransferText(false))
 				.RowCells()
 					.AddSetter<CellRenderer>((c, n) => {
 

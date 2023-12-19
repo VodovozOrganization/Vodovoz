@@ -14,6 +14,7 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Вн.номер").AddTextRenderer(x => x.InternalId.ToString())
 				.AddColumn("Тег").AddTextRenderer(x => x.Tags, useMarkup: true)
 				.AddColumn("Контрагент").AddTextRenderer(node => node.Name).WrapWidth(450).WrapMode(WrapMode.WordChar)
+				.AddColumn("Классификация\nконтрагента").AddTextRenderer(x => x.CounterpartyClassification)
 				.AddColumn("Телефоны").AddTextRenderer(x => x.Phones)
 				.AddColumn("ИНН").AddTextRenderer(x => x.INN)
 				.AddColumn("Договора").AddTextRenderer(x => x.Contracts)

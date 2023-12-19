@@ -17,7 +17,7 @@ using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Services;
-using Vodovoz.Tools.Logistic;
+using Vodovoz.Tools.Interactive.ConfirmationQuestion;
 using Vodovoz.ViewModels.Extensions;
 using FastDeliveryOrderTransferMode = Vodovoz.ViewModels.ViewModels.Logistic.FastDeliveryOrderTransferFilterViewModel.FastDeliveryOrderTransferMode;
 
@@ -30,6 +30,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly TimeSpan _driverOfflineTimeSpan;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly ICommonServices _commonServices;
+		private readonly IConfirmationQuestionInteractive _confirmationQuestionInteractive;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 		private readonly IWageParameterService _wageParameterService;
@@ -52,6 +53,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			ITrackRepository trackRepository,
 			OsrmClient osrmClient,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
+			IConfirmationQuestionInteractive confirmationQuestionInteractive,
 			int routeListAddressId)
 			: base(navigationManager)
 		{
@@ -64,6 +66,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_confirmationQuestionInteractive = confirmationQuestionInteractive ?? throw new ArgumentNullException(nameof(confirmationQuestionInteractive));
 			FilterViewModel = filterViewModel ?? throw new ArgumentNullException(nameof(filterViewModel));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_routeListProfitabilityController = routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
@@ -128,7 +131,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_routeListFrom = _routeListItemToTransfer.RouteList;
 		}
 
-		private bool MakeAddressTransfer(RouteListItem address, RouteList routeListFrom, RouteList routeListTo)
+		private bool MakeAddressTransfer(RouteListItem address, RouteList routeListFrom, RouteList routeListTo, decimal? distance)
 		{
 			_logger.LogDebug("Проверка адреса с номером {AddressId}", address?.Id.ToString() ?? "Неправильный адрес");
 
@@ -155,11 +158,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				return false;
 			}
 
-			var maxFastDeliveryOrdersCountInRouteList = routeListTo.GetMaxFastDeliveryOrdersValue();
-			if(GetFastDeliveryOrdersCountInRouteList(routeListTo) >= maxFastDeliveryOrdersCountInRouteList)
+			if(!IsRouteListToHasAcceptableOrdersCountAndDistance(routeListTo, distance))
 			{
-				_logger.LogDebug("В выбранном маршрутном листе уже имеется максимально допустимое количество заказов с быстрой доставкой");
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "В выбранном маршрутном листе уже имеется максимально допустимое количество заказов с быстрой доставкой");
 				return false;
 			}
 
@@ -208,6 +208,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				routeListFrom.TransferAddressTo(_unitOfWork, address, newItem);
 			}
 
+			_unitOfWork.Session.Flush();
+
 			routeListFrom.CalculateWages(_wageParameterService);
 			_routeListProfitabilityController.ReCalculateRouteListProfitability(_unitOfWork, routeListFrom);
 			routeListTo.CalculateWages(_wageParameterService);
@@ -218,13 +220,13 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			if(routeListTo.ClosingFilled)
 			{
-				newItem.FirstFillClosing((WageParameterService)_wageParameterService);
+				newItem.FirstFillClosing(_wageParameterService);
 			}
 
 			_unitOfWork.Save(address);
 			_unitOfWork.Save(newItem);
 
-			UpdateTranferDocuments(address, newItem);
+			UpdateTranferDocuments(address, newItem, AddressTransferType.FromFreeBalance);
 
 			_unitOfWork.Save(routeListTo);
 			_unitOfWork.Save(routeListFrom);
@@ -233,10 +235,59 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			return true;
 		}
 
-		private void UpdateTranferDocuments(RouteListItem from, RouteListItem to)
+		private bool IsRouteListToHasAcceptableOrdersCountAndDistance(RouteList routeListTo, decimal? distance)
+		{
+			var confirmationQuestions = new List<ConfirmationQuestion>();
+
+			var maxFastDeliveryOrdersCountInRouteList = routeListTo.GetMaxFastDeliveryOrdersValue();
+			if(GetFastDeliveryOrdersCountInRouteList(routeListTo) >= maxFastDeliveryOrdersCountInRouteList)
+			{
+				_logger.LogDebug("В выбранном маршрутном листе уже имеется максимально допустимое количество заказов с быстрой доставкой. " +
+					"Требуется подтверждение переноса.");
+
+				confirmationQuestions.Add(new ConfirmationQuestion
+				{
+					QuestionText = $"При переносе заказа на\nданного водителя, его\nлимит ДЗЧ будет превышен.\nВы точно хотите перенести\nзаказ?",
+					ConfirmationText = "Подтверждаю"
+				});
+			}
+
+			if(distance == null || distance.Value > routeListTo.GetFastDeliveryMaxDistanceValue())
+			{
+				var distanceValue =
+					distance.HasValue
+					? distance.Value.ToString("F2")
+					: "'Ошибка при расчете дистанции'";
+
+				_logger.LogDebug("Расстояние до данного заказа {distanceValue}км. Требуется подтверждение переноса.");
+
+				confirmationQuestions.Add(new ConfirmationQuestion
+				{
+					QuestionText = $"Расстояние до данного\nзаказа {distanceValue}км.\nВы точно хотите осуществить\nперенос?",
+					ConfirmationText = "Подтверждаю"
+				});
+			}
+
+			if(confirmationQuestions.Count > 0)
+			{
+				var confirmationResult = _confirmationQuestionInteractive.Question(
+					confirmationQuestions,
+					isNoButtonAvailableByDefault: true,
+					imageType: ConfirmationQuestionDialogSettings.ImgType.Warning);
+
+				if(!confirmationResult)
+				{
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		private void UpdateTranferDocuments(RouteListItem from, RouteListItem to, AddressTransferType addressTransferType)
 		{
 			var addressTransferController = new AddressTransferController(new EmployeeRepository());
-			addressTransferController.UpdateDocuments(from, to, _unitOfWork);
+			addressTransferController.UpdateDocuments(from, to, _unitOfWork, addressTransferType);
 		}
 
 		private bool HasAddressChanges(RouteListItem address)
@@ -295,7 +346,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 				if(currentLastTrackPointWithRadius != null
 					&& (DateTime.Now - currentLastTrackPointWithRadius.Time) < _driverOfflineTimeSpan
-					&& GetFastDeliveryOrdersCountInRouteList(routeLists[i]) < routeLists[i].GetMaxFastDeliveryOrdersValue()
 					&& _routeListRepository.HasFreeBalanceForOrder(_unitOfWork, _routeListItemToTransfer.Order, routeLists[i]))
 				{
 					PointOnEarth currentRouteListLastTrackPoint = new PointOnEarth(
@@ -354,7 +404,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				return;
 			}
 
-			var isTransferSuccessful = MakeAddressTransfer(_routeListItemToTransfer, _routeListFrom, routeListTo);
+			var isTransferSuccessful = MakeAddressTransfer(_routeListItemToTransfer, _routeListFrom, routeListTo, RouteListToSelectedNode?.Distance);
 
 			if(isTransferSuccessful)
 			{

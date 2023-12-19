@@ -45,10 +45,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ISmsClientChannelFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SmsClientChannel.cs" />
     <Compile Include="SmsClientChannelFactory.cs" />
-    <Compile Include="SmsInternalClientModule.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

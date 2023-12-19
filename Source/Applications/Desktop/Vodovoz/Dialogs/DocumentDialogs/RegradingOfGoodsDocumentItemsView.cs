@@ -1,39 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using Autofac;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.Domain;
+using QS.Project.Journal;
+using QS.Tdi;
 using QSOrmProject;
 using QSProjectsLib;
-using QS.Tdi;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Store;
-using Vodovoz.FilterViewModels.Goods;
-using Vodovoz.EntityRepositories.Store;
-using QS.Project.Services;
-using QS.Project.Journal;
-using Vodovoz.JournalViewModels;
-using Vodovoz.Journals.JournalNodes;
-using Vodovoz.JournalSelector;
-using Vodovoz.Domain.Client;
-using QS.Project.Journal.EntitySelector;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.Parameters;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Stock;
-using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Factories;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
-using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure;
+using Vodovoz.Journals.JournalNodes;
+using Vodovoz.ViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz
 {
@@ -41,11 +30,9 @@ namespace Vodovoz
 	public partial class RegradingOfGoodsDocumentItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		private readonly IStockRepository _stockRepository = new StockRepository();
-		private readonly INomenclatureRepository _nomenclatureRepository =
-			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
-		
-		RegradingOfGoodsDocumentItem newRow;
-		RegradingOfGoodsDocumentItem FineEditItem;
+		private ILifetimeScope _lifetimeScope;
+		private RegradingOfGoodsDocumentItem newRow;
+		private RegradingOfGoodsDocumentItem FineEditItem;
 
 		public RegradingOfGoodsDocumentItemsView()
 		{
@@ -59,6 +46,8 @@ namespace Vodovoz
 				types = uow.GetAll<CullingCategory>().OrderBy(c => c.Name).ToList();
 				regradingReasons = uow.GetAll<RegradingOfGoodsReason>().OrderBy(c => c.Name).ToList();
 			}
+
+			_lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 
 			ytreeviewItems.ColumnsConfig = ColumnsConfigFactory.Create<RegradingOfGoodsDocumentItem>()
 				.AddColumn("Старая номенклатура").AddTextRenderer(x => x.NomenclatureOld.Name)
@@ -82,7 +71,7 @@ namespace Vodovoz
 					: x.Amount
 				)
 				.AddColumn("Сумма ущерба").AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.SumOfDamage))
-				.AddColumn("Штраф").AddTextRenderer(x => x.Fine != null ? x.Fine.Description : String.Empty)
+				.AddColumn("Штраф").AddTextRenderer(x => x.Fine != null ? x.Fine.Description : string.Empty)
 				.AddColumn("Тип брака")
 					.AddComboRenderer(x => x.TypeOfDefect)
 					.SetDisplayFunc(x => x.Name)
@@ -121,14 +110,18 @@ namespace Vodovoz
 			ytreeviewItems.Selection.Changed += YtreeviewItems_Selection_Changed;
 		}
 
-		double GetMaxValueForAdjustmentSetting(RegradingOfGoodsDocumentItem item){
+		public ITdiTab ParrentDlg { get; set; }
+
+		public ITdiCompatibilityNavigation NavigationManager { get; set; }
+
+		private double GetMaxValueForAdjustmentSetting(RegradingOfGoodsDocumentItem item){
 			if(item.NomenclatureOld.Category == NomenclatureCategory.bottle
 			   && item.NomenclatureNew.Category == NomenclatureCategory.water)
 				return 39;
 			return (double)item.AmountInStock;
 		}
 
-		void YtreeviewItems_Selection_Changed (object sender, EventArgs e)
+		private void YtreeviewItems_Selection_Changed (object sender, EventArgs e)
 		{
 			UpdateButtonState();
 		}
@@ -170,7 +163,7 @@ namespace Vodovoz
 			buttonDeleteFine.Sensitive = selected != null && selected.Fine != null;
 		}
 
-		void DocumentUoW_Root_PropertyChanged (object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		private void DocumentUoW_Root_PropertyChanged (object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
 			if (e.PropertyName == DocumentUoW.Root.GetPropertyName(x => x.Warehouse))
 				UpdateButtonState();
@@ -180,13 +173,13 @@ namespace Vodovoz
 		{
 			Action<NomenclatureStockFilterViewModel> filterParams = f => f.RestrictWarehouse = DocumentUoW.Root.Warehouse;
 
-			var vm = Startup.MainWin.NavigationManager
-				.OpenViewModel<NomenclatureStockBalanceJournalViewModel, Action<NomenclatureStockFilterViewModel>>(null, filterParams)
+			var vm = NavigationManager.OpenViewModelOnTdi<NomenclatureStockBalanceJournalViewModel, Action<NomenclatureStockFilterViewModel>>(ParrentDlg, filterParams)
 				.ViewModel;
 			
 			vm.SelectionMode = JournalSelectionMode.Single;
 			vm.TabName = "Выберите номенклатуру на замену";
-			vm.OnEntitySelectedResult += (s, ea) => {
+			vm.OnEntitySelectedResult += (s, ea) =>
+			{
 				var selectedNode = ea.SelectedNodes.Cast<NomenclatureStockJournalNode>().FirstOrDefault();
 				if(selectedNode == null) {
 					return;
@@ -198,47 +191,19 @@ namespace Vodovoz
 					AmountInStock = selectedNode.StockAmount
 				};
 
-				var nomenclatureFilter = new NomenclatureFilterViewModel();
-
-				var userRepository = new UserRepository();
-
-				var employeeService = VodovozGtkServicesConfig.EmployeeService;
-
-				var counterpartySelectorFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
-
-				var nomenclatureAutoCompleteSelectorFactory =
-					new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-						ServicesConfig.CommonServices,
-						nomenclatureFilter,
-						counterpartySelectorFactory,
-						_nomenclatureRepository,
-						userRepository
-						);
-
-				var nomenclaturesJournalViewModel =
-				new NomenclaturesJournalViewModel(
-					nomenclatureFilter,
-					UnitOfWorkFactory.GetDefaultFactory,
-					ServicesConfig.CommonServices,
-					employeeService,
-					new NomenclatureJournalFactory(),
-					counterpartySelectorFactory,
-					_nomenclatureRepository,
-					userRepository
-					);
-
+				var nomenclaturesJournalViewModel = _lifetimeScope.Resolve<NomenclaturesJournalViewModel>();
 				nomenclaturesJournalViewModel.SelectionMode = JournalSelectionMode.Single;
-                nomenclaturesJournalViewModel.OnEntitySelectedResult += SelectNewNomenclature_ObjectSelected;
+				nomenclaturesJournalViewModel.OnEntitySelectedResult += SelectNewNomenclature_ObjectSelected;
 
 				MyTab.TabParent.AddSlaveTab(MyTab, nomenclaturesJournalViewModel);
 			};
 		}
 
-        void SelectNewNomenclature_ObjectSelected (object sender, JournalSelectedNodesEventArgs e)
+		private void SelectNewNomenclature_ObjectSelected (object sender, JournalSelectedNodesEventArgs e)
 		{
 			var journalNode = e?.SelectedNodes?.FirstOrDefault();
 			if (journalNode != null)
-            {
+			{
 				var nomenclature = DocumentUoW.GetById<Nomenclature>(journalNode.Id);
 
 				if (!nomenclature.IsDefectiveBottle)
@@ -291,34 +256,7 @@ namespace Vodovoz
 
 		protected void OnButtonChangeNewClicked(object sender, EventArgs e)
 		{
-			var filter = new NomenclatureFilterViewModel();
-
-			var userRepository = new UserRepository();
-
-			var employeeService = VodovozGtkServicesConfig.EmployeeService;
-			var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
-
-			var nomenclatureAutoCompleteSelectorFactory = 
-				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-					ServicesConfig.CommonServices,
-					filter,
-					counterpartyJournalFactory,
-					_nomenclatureRepository,
-					userRepository
-					);
-
-			var nomenclaturesJournalViewModel = 
-				new NomenclaturesJournalViewModel(
-					filter,
-					UnitOfWorkFactory.GetDefaultFactory,
-					ServicesConfig.CommonServices,
-					employeeService,
-					new NomenclatureJournalFactory(),
-					counterpartyJournalFactory,
-					_nomenclatureRepository,
-					userRepository
-					);
-
+			var nomenclaturesJournalViewModel = _lifetimeScope.Resolve<NomenclaturesJournalViewModel>();
 			nomenclaturesJournalViewModel.SelectionMode = JournalSelectionMode.Single;
 			nomenclaturesJournalViewModel.OnEntitySelectedResult += ChangeNewNomenclature_OnEntitySelectedResult;
 
@@ -326,19 +264,19 @@ namespace Vodovoz
 		}
 
 		private void ChangeNewNomenclature_OnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
-        {
+		{
 			var row = ytreeviewItems.GetSelectedObject<RegradingOfGoodsDocumentItem>();
 			if (row == null)
-            {
+			{
 				return;
 			}
 
 			var id = e.SelectedNodes.FirstOrDefault()?.Id;
 
 			if (id == null)
-            {
+			{
 				return;
-            }
+			}
 
 			var nomenclature = UoW.Session.Get<Nomenclature>(id);
 			row.NomenclatureNew = nomenclature;
@@ -367,29 +305,32 @@ namespace Vodovoz
 		protected void OnButtonFineClicked(object sender, EventArgs e)
 		{
 			var selected = ytreeviewItems.GetSelectedObject<RegradingOfGoodsDocumentItem>();
-			FineDlg fineDlg;
+
 			if (selected.Fine != null)
 			{
-				fineDlg = new FineDlg(selected.Fine);
-				fineDlg.EntitySaved += FineDlgExist_EntitySaved;
+				var page = NavigationManager.OpenViewModelOnTdi<FineViewModel, IEntityUoWBuilder>(ParrentDlg, EntityUoWBuilder.ForOpen(selected.Fine.Id), OpenPageOptions.AsSlave);
+
+				page.ViewModel.Entity.TotalMoney = selected.SumOfDamage;
+				page.ViewModel.EntitySaved += OnFineDlgExistEntitySaved;
 			}
 			else
 			{
-				fineDlg = new FineDlg("Недостача");
-				fineDlg.EntitySaved += FineDlgNew_EntitySaved;
+				var page = NavigationManager.OpenViewModelOnTdi<FineViewModel, IEntityUoWBuilder>(ParrentDlg, EntityUoWBuilder.ForCreate(), OpenPageOptions.AsSlave);
+
+				page.ViewModel.Entity.FineReasonString = "Недостача";
+				page.ViewModel.Entity.TotalMoney = selected.SumOfDamage;
+				page.ViewModel.EntitySaved += OnFineDlgNewEntitySaved;
 			}
-			fineDlg.Entity.TotalMoney = selected.SumOfDamage;
 			FineEditItem = selected;
-			MyTab.TabParent.AddSlaveTab(MyTab, fineDlg);
 		}
 
-		void FineDlgNew_EntitySaved (object sender, EntitySavedEventArgs e)
+		private void OnFineDlgNewEntitySaved (object sender, EntitySavedEventArgs e)
 		{
 			FineEditItem.Fine = e.Entity as Fine;
 			FineEditItem = null;
 		}
 
-		void FineDlgExist_EntitySaved (object sender, EntitySavedEventArgs e)
+		private void OnFineDlgExistEntitySaved (object sender, EntitySavedEventArgs e)
 		{
 			DocumentUoW.Session.Refresh(FineEditItem.Fine);
 		}
@@ -410,7 +351,7 @@ namespace Vodovoz
 			MyTab.TabParent.AddSlaveTab(MyTab, selectTemplate);
 		}
 
-		void SelectTemplate_ObjectSelected (object sender, OrmReferenceObjectSectedEventArgs e)
+		private void SelectTemplate_ObjectSelected (object sender, OrmReferenceObjectSectedEventArgs e)
 		{
 			if (DocumentUoW.Root.Items.Count > 0)
 			{
@@ -430,6 +371,17 @@ namespace Vodovoz
 					});
 			}
 			LoadStock();
+		}
+
+		public override void Destroy()
+		{
+			if(_lifetimeScope != null)
+			{
+				_lifetimeScope.Dispose();
+				_lifetimeScope = null;
+			}
+
+			base.Destroy();
 		}
 	}
 }

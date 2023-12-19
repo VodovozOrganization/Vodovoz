@@ -1,8 +1,4 @@
-﻿using Fias.Client;
-using Fias.Client.Cache;
-using QS.Dialog.Gtk;
-using QS.DomainModel.UoW;
-using QS.Project.Domain;
+﻿using QS.Project.Domain;
 using QSOrmProject;
 using QSProjectsLib;
 using System;
@@ -10,10 +6,8 @@ using Vodovoz.Dialogs.OnlineStore;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.StoredResources;
 using Vodovoz.JournalViewModels;
-using Vodovoz.Parameters;
 using Vodovoz.ServiceDialogs;
 using Vodovoz.ServiceDialogs.Database;
-using Vodovoz.Services;
 using Vodovoz.ViewModels.AdministrationTools;
 using Vodovoz.ViewModels.BaseParameters;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
@@ -97,12 +91,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionAddressDuplicetesActivated(object sender, EventArgs e)
 	{
-		var geoCoderCache = new GeocoderCache(UnitOfWorkFactory.GetDefaultFactory);
-		IParametersProvider parametersProvider = new ParametersProvider();
-		IFiasApiParametersProvider fiasApiParametersProvider = new FiasApiParametersProvider(parametersProvider);
-		IFiasApiClient fiasApiClient = new FiasApiClient(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken, geoCoderCache);
-
-		NavigationManager.OpenTdiTab<MergeAddressesDlg, IFiasApiClient>(null, fiasApiClient);
+		NavigationManager.OpenTdiTab<MergeAddressesDlg>(null);
 	}
 
 	/// <summary>

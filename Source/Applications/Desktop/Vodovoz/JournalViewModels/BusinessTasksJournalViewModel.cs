@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -29,7 +30,8 @@ using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Journals.JournalFactories;
-using CounterpartyContractFactory = Vodovoz.Factories.CounterpartyContractFactory;
+using QS.Navigation;
+using Vodovoz.Factories;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -38,20 +40,23 @@ namespace Vodovoz.JournalViewModels
 		readonly BusinessTasksJournalFooterViewModel footerViewModel;
 		readonly ICommonServices commonServices;
 
+		private ILifetimeScope _lifetimeScope;
 		readonly IEmployeeRepository employeeRepository;
 		readonly IBottlesRepository bottleRepository;
 		readonly ICallTaskRepository callTaskRepository;
 		readonly IPhoneRepository phoneRepository;
 		private readonly IOrganizationProvider organizationProvider;
 		private readonly ICounterpartyContractRepository counterpartyContractRepository;
-		private readonly CounterpartyContractFactory counterpartyContractFactory;
+		private readonly ICounterpartyContractFactory counterpartyContractFactory;
 		private readonly RoboatsJournalsFactory _roboAtsCounterpartyJournalFactory;
 		private readonly IContactParametersProvider _contactsParameters;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
+		private readonly INavigationManager _navigationManager;
 
 		public BusinessTasksJournalActionsViewModel actionsViewModel { get; set; }
 
 		public BusinessTasksJournalViewModel(
+			ILifetimeScope lifetimeScope,
 			CallTaskFilterViewModel filterViewModel,
 			BusinessTasksJournalFooterViewModel footerViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -62,13 +67,15 @@ namespace Vodovoz.JournalViewModels
 			IPhoneRepository phoneRepository,
 			IOrganizationProvider organizationProvider,
 			ICounterpartyContractRepository counterpartyContractRepository,
-			CounterpartyContractFactory counterpartyContractFactory,
+			ICounterpartyContractFactory counterpartyContractFactory,
 			RoboatsJournalsFactory roboAtsCounterpartyJournalFactory,
 			IContactParametersProvider contactsParameters,
-			ICounterpartyJournalFactory counterpartyJournalFactory
+			ICounterpartyJournalFactory counterpartyJournalFactory,
+			INavigationManager navigationManager
 		) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал задач для обзвона";
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			this.employeeRepository = employeeRepository;
 			this.bottleRepository = bottleRepository;
 			this.callTaskRepository = callTaskRepository;
@@ -81,7 +88,8 @@ namespace Vodovoz.JournalViewModels
 			_roboAtsCounterpartyJournalFactory = roboAtsCounterpartyJournalFactory ?? throw new ArgumentNullException(nameof(roboAtsCounterpartyJournalFactory));
 			_contactsParameters = contactsParameters ?? throw new ArgumentNullException(nameof(contactsParameters));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
-			actionsViewModel = new BusinessTasksJournalActionsViewModel(new EmployeeJournalFactory());
+			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+			actionsViewModel = new BusinessTasksJournalActionsViewModel(new EmployeeJournalFactory(_navigationManager));
 
 			RegisterTasks();
 
@@ -315,7 +323,6 @@ namespace Vodovoz.JournalViewModels
 					() => new ClientTaskViewModel(
 						employeeRepository,
 						bottleRepository,
-						callTaskRepository,
 						phoneRepository,
 						EntityUoWBuilder.ForCreate(),
 						UnitOfWorkFactory,
@@ -325,13 +332,13 @@ namespace Vodovoz.JournalViewModels
 						_contactsParameters,
 						commonServices,
 						_roboAtsCounterpartyJournalFactory,
-						_counterpartyJournalFactory
+						_counterpartyJournalFactory,
+						_lifetimeScope
 					),
 					//функция диалога открытия документа
 					(BusinessTaskJournalNode node) => new ClientTaskViewModel(
 						employeeRepository,
 						bottleRepository,
-						callTaskRepository,
 						phoneRepository,
 						EntityUoWBuilder.ForOpen(node.Id),
 						UnitOfWorkFactory,
@@ -341,7 +348,8 @@ namespace Vodovoz.JournalViewModels
 						_contactsParameters,
 						commonServices,
 						_roboAtsCounterpartyJournalFactory,
-						_counterpartyJournalFactory
+						_counterpartyJournalFactory,
+						_lifetimeScope
 					),
 					//функция идентификации документа
 					(BusinessTaskJournalNode node) => {
@@ -352,6 +360,7 @@ namespace Vodovoz.JournalViewModels
 				.AddDocumentConfiguration(
 					//функция диалога создания документа
 					() => new PaymentTaskViewModel(
+						_lifetimeScope,
 						employeeRepository,
 						EntityUoWBuilder.ForCreate(),
 						UnitOfWorkFactory,
@@ -360,6 +369,7 @@ namespace Vodovoz.JournalViewModels
 					),
 					//функция диалога открытия документа
 					(BusinessTaskJournalNode node) => new PaymentTaskViewModel(
+						_lifetimeScope,
 						employeeRepository,
 						EntityUoWBuilder.ForOpen(node.Id),
 						UnitOfWorkFactory,
@@ -495,5 +505,11 @@ namespace Vodovoz.JournalViewModels
 			});
 		}
 		*/
+
+		public override void Dispose()
+		{
+			_lifetimeScope = null;
+			base.Dispose();
+		}
 	}
 }

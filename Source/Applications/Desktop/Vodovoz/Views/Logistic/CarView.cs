@@ -36,7 +36,7 @@ namespace Vodovoz.Views.Logistic
 
 			entryCarModel.CanEditReference = ViewModel.CanEditCarModel;
 			entryCarModel.SetEntityAutocompleteSelectorFactory(ViewModel.CarModelJournalFactory
-				.CreateCarModelAutocompleteSelectorFactory());
+				.CreateCarModelAutocompleteSelectorFactory(ViewModel.LifetimeScope));
 			entryCarModel.Binding
 				.AddBinding(ViewModel.Entity, e => e.CarModel, w => w.Subject)
 				.AddBinding(ViewModel, e => e.CanChangeCarModel, w => w.Sensitive)

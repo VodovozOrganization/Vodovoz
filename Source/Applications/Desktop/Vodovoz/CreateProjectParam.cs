@@ -45,11 +45,15 @@ using Vodovoz.JournalFilters.Proposal;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewers.Complaints;
+using Vodovoz.Logistic;
+using Vodovoz.Presentation.ViewModels.PaymentType;
 using Vodovoz.QualityControl.Reports;
+using Vodovoz.Rent;
 using Vodovoz.Reports;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ReportsParameters.Cash;
 using Vodovoz.ReportsParameters.Orders;
+using Vodovoz.ReportsParameters.Payments;
 using Vodovoz.ReportsParameters.Sales;
 using Vodovoz.Services.Permissions;
 using Vodovoz.ViewModels;
@@ -64,6 +68,7 @@ using Vodovoz.ViewModels.Cash.Transfer;
 using Vodovoz.ViewModels.Cash.Transfer.Journal;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Counterparties;
+using Vodovoz.ViewModels.Counterparties.ClientClassification;
 using Vodovoz.ViewModels.Dialogs.Complaints;
 using Vodovoz.ViewModels.Dialogs.Counterparty;
 using Vodovoz.ViewModels.Dialogs.Email;
@@ -82,6 +87,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Cash;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.FilterViewModels.GeoGroup;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
@@ -92,6 +98,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Security;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Users;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic.DriversStopLists;
 using Vodovoz.ViewModels.Orders;
@@ -102,6 +109,7 @@ using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.Reports.Sales;
 using Vodovoz.ViewModels.ReportsParameters;
 using Vodovoz.ViewModels.ReportsParameters.Orders;
+using Vodovoz.ViewModels.ReportsParameters.Payments;
 using Vodovoz.ViewModels.ReportsParameters.Profitability;
 using Vodovoz.ViewModels.Suppliers;
 using Vodovoz.ViewModels.Users;
@@ -139,6 +147,7 @@ using Vodovoz.Views.BaseParameters;
 using Vodovoz.Views.BusinessTasks;
 using Vodovoz.Views.Cash;
 using Vodovoz.Views.Client;
+using Vodovoz.Views.Client.CounterpartyClassification;
 using Vodovoz.Views.Complaints;
 using Vodovoz.Views.Contacts;
 using Vodovoz.Views.Employees;
@@ -170,29 +179,9 @@ using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewWidgets.PromoSetAction;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
 using UserView = Vodovoz.Views.Users.UserView;
-using Vodovoz.EntityRepositories.Cash;
-using Vodovoz.ViewModels.ReportsParameters.Orders;
-using Vodovoz.ViewModels.Widgets;
-using static Vodovoz.Reports.CashFlow;
-using Vodovoz.ViewModels.Counterparties;
-using Vodovoz.Counterparties;
-using Vodovoz.EntityRepositories;
-using Vodovoz.Presentation.ViewModels.Common;
-using Vodovoz.Domain.Client;
-using Vodovoz.CachingRepositories.Counterparty;
-using Vodovoz.ViewModels.BaseParameters;
-using Vodovoz.Views.BaseParameters;
-using RevenueService.Client;
-using Vodovoz.ViewModels.QualityControl.Reports;
-using Vodovoz.QualityControl.Reports;
-using Vodovoz.ReportsParameters.Cash;
-using Vodovoz.ViewModels.Factories;
-using Vodovoz.ViewModels.ReportsParameters;
-using Vodovoz.Application.Services;
-using Vodovoz.ViewModels.AdministrationTools;
-using Vodovoz.AdministrationTools;
-using Vodovoz.Application.Services.Logistics;
-using Vodovoz.Services.Logistics;
+using Vodovoz.ViewModels.ReportsParameters.Payments;
+using Vodovoz.ReportsParameters.Payments;
+using Vodovoz.ViewModels.ViewModels.Reports.Logistics;
 
 namespace Vodovoz
 {
@@ -333,6 +322,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<GeoGroupViewModel, GeoGroupView>()
 				.RegisterWidgetForTabViewModel<NomenclatureGroupPricingViewModel, NomenclatureGroupPricingView>()
 				.RegisterWidgetForTabViewModel<RouteListMileageCheckViewModel, Vodovoz.Views.Logistic.RouteListMileageCheckView>()
+				.RegisterWidgetForTabViewModel<RouteListTransferringViewModel, RouteListAddressesTransferringView>()
 				.RegisterWidgetForTabViewModel<RouteListMileageDistributionViewModel, RouteListMileageDistributionView>()
 				.RegisterWidgetForTabViewModel<FastDeliveryVerificationDetailsViewModel, FastDeliveryVerificationDetailsView>()
 				.RegisterWidgetForTabViewModel<FastDeliveryOrderTransferViewModel, FastDeliveryOrderTransferView>()
@@ -353,6 +343,11 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<UndeliveryKindViewModel, UndeliveryKindView>()
 				.RegisterWidgetForTabViewModel<UndeliveryDetalizationViewModel, UndeliveryDetalizationView>()
 				.RegisterWidgetForTabViewModel<RegradingOfGoodsReasonViewModel, RegradingOfGoodsReasonView>()
+				.RegisterWidgetForTabViewModel<CounterpartyClassificationCalculationViewModel, CounterpartyClassificationCalculationView>()
+				.RegisterWidgetForTabViewModel<NomenclatureOnlineGroupViewModel, NomenclatureOnlineGroupView>()
+				.RegisterWidgetForTabViewModel<NomenclatureOnlineCategoryViewModel, NomenclatureOnlineCategoryView>()
+				.RegisterWidgetForTabViewModel<DriverWarehouseEventViewModel, DriverWarehouseEventView>()
+				.RegisterWidgetForTabViewModel<DriversWarehousesEventsReportViewModel, DriversWarehousesEventsReportView>()
 				;
 
 			//Регистрация виджетов
@@ -416,6 +411,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<ComplaintObjectJournalFilterViewModel, ComplaintObjectJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<ComplaintKindJournalFilterViewModel, ComplaintKindJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<ComplaintDetalizationJournalFilterViewModel, ComplaintDetalizationJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<GeoGroupJournalFilterViewModel, GeoGroupJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<WarehousesBalanceSummaryViewModel, WarehousesBalanceSummaryView>()
 				.RegisterWidgetForWidgetViewModel<NomenclatureBalanceByStockFilterViewModel, NomenclatureBalanceByStockFilterView>()
 				.RegisterWidgetForWidgetViewModel<SalaryByEmployeeJournalFilterViewModel, SalaryByEmployeeFilterView>()
@@ -473,9 +469,18 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<NumberOfComplaintsAgainstDriversReportViewModel, NumberOfComplaintsAgainstDriversReportView>()
 				.RegisterWidgetForWidgetViewModel<MovementsPaymentControlViewModel, MovementsPaymentControlView>()
 				.RegisterWidgetForWidgetViewModel<SalesReportViewModel, SalesReportView>()
+				.RegisterWidgetForWidgetViewModel<SetBillsReportViewModel, SetBillsReportView>()
+				.RegisterWidgetForWidgetViewModel<RevisionReportViewModel, Revision>()
+				.RegisterWidgetForWidgetViewModel<PaymentsFromBankClientReportViewModel, PaymentsFromBankClientReportView>()
 				.RegisterWidgetForWidgetViewModel<RevenueServiceMassCounterpartyUpdateToolViewModel, RevenueServiceMassCounterpartyUpdateToolView>()
 				.RegisterWidgetForWidgetViewModel<FastDeliveryOrderTransferFilterViewModel, FastDeliveryOrderTransferFilterView>()
 				.RegisterWidgetForWidgetViewModel<WarehousesSettingsViewModel, NamedDomainEntitiesSettingsView>()
+				.RegisterWidgetForWidgetViewModel<SelectPaymentTypeViewModel, SelectPaymentTypeWindowView>()
+				.RegisterWidgetForWidgetViewModel<FreeRentPackagesFilterViewModel, FreeRentPackagesFilterView>()
+				.RegisterWidgetForWidgetViewModel<CounterpartyClassificationCalculationEmailSettingsViewModel, CounterpartyClassificationCalculationEmailSettingsView>()
+				.RegisterWidgetForWidgetViewModel<NomenclatureOnlineCatalogViewModel, NomenclatureOnlineCatalogView>()
+				.RegisterWidgetForWidgetViewModel<DriversWarehousesEventsJournalFilterViewModel, DriversWarehousesEventsJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<CompletedDriversWarehousesEventsJournalFilterViewModel, CompletedDriversWarehousesEventsJournalFilterView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;

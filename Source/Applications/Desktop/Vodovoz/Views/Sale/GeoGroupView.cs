@@ -28,6 +28,8 @@ namespace Vodovoz.Views.Sale
 		{
 			yEntryName.Binding.AddBinding(Entity, x => x.Name, w => w.Text).InitializeFromSource();
 
+			ycheckbuttonArchived.Binding.AddBinding(Entity, e => e.IsArchived, w => w.Active).InitializeFromSource();
+
 			ytreeviewVersions.ColumnsConfig = FluentColumnsConfig<GeoGroupVersionViewModel>.Create()
 				.AddColumn("Код").AddNumericRenderer(x => x.Id)
 				.AddColumn("Статус").AddTextRenderer(x => x.StatusTitle)
@@ -64,7 +66,7 @@ namespace Vodovoz.Views.Sale
 			ViewModel.RemoveVersionCommand.CanExecuteChanged += (s, e) => ybuttonRemove.Sensitive = ViewModel.RemoveVersionCommand.CanExecute();
 			ViewModel.RemoveVersionCommand.RaiseCanExecuteChanged();
 
-			entryCashSubdivision.SetEntityAutocompleteSelectorFactory(ViewModel.CashSelectorFactory);
+			entryCashSubdivision.ViewModel = ViewModel.CashSubdivisionViewModel;
 			entryWarehouse.SetEntityAutocompleteSelectorFactory(ViewModel.WarehouseSelectorFactory);
 
 			ViewModel.PropertyChanged += ViewModelPropertyChanged;
@@ -123,15 +125,12 @@ namespace Vodovoz.Views.Sale
 			if(!hasSelectedVersion)
 			{
 				labelCoordinatesValue.LabelProp = "";
-				entryCashSubdivision.Subject = null;
+				entryCashSubdivision.ViewModel.Entity = null;
 				entryWarehouse.Subject = null;
 				return;
 			}
 
-			entryCashSubdivision.Binding
-				.AddSource(ViewModel.SelectedVersion)
-				.AddBinding(vm => vm.CashSubdivision, w => w.Subject)
-				.InitializeFromSource();
+			entryCashSubdivision.ViewModel = ViewModel.CashSubdivisionViewModel;
 
 			entryWarehouse.Binding
 				.AddSource(ViewModel.SelectedVersion)
