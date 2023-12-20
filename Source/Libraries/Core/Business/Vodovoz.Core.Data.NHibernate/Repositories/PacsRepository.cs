@@ -125,5 +125,14 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories
 				return result;
 			}
 		}
+
+		public Operator GetOperator(int operatorId)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				var result = uow.Session.Get<Operator>(operatorId);
+				return result;
+			}
+		}
 	}
 }

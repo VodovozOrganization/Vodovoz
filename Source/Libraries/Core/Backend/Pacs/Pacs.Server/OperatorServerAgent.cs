@@ -20,6 +20,7 @@ namespace Pacs.Server
 {
 	public class OperatorServerAgent : IDisposable
 	{
+		private readonly Operator _operator;
 		private readonly ILogger<OperatorServerAgent> _logger;
 		private readonly IPacsSettings _pacsSettings;
 		private readonly IOperatorRepository _operatorRepository;
@@ -39,19 +40,22 @@ namespace Pacs.Server
 		private StateMachine.TriggerWithParameters<string> _changePhoneTrigger;
 		private StateMachine.TriggerWithParameters<string> _startWorkShiftTrigger;
 		private StateMachine.TriggerWithParameters<DisconnectionType> _disconnectTrigger;
-		private StateMachine.TriggerWithParameters<OperatorBreakType> _startBreakTrigger;
+
+		private StateMachine.TriggerWithParameters<BreakStartArgs> _startBreakTrigger;
+		private StateMachine.TriggerWithParameters<BreakEndArgs> _endBreakTrigger;
+
 
 		public event EventHandler<int> OnDisconnect;
 
+
+		public int OperatorId => _operator.Id;
+		public OperatorSession Session { get; private set; }
+		public OperatorState OperatorState { get; private set; }
+
 		public OperatorBreakAvailability BreakAvailability { get; private set; }
 
-		public Operator Operator { get; private set; }
-		public OperatorState OperatorState { get; private set; }
-		public OperatorSession Session { get; private set; }
-		public int OperatorId => Operator.Id;
-
 		public OperatorServerAgent(
-			int operatorId,
+			Operator @operator,
 			ILogger<OperatorServerAgent> logger,
 			IPacsSettings pacsSettings,
 			IOperatorRepository operatorRepository,
@@ -62,6 +66,7 @@ namespace Pacs.Server
 			IUnitOfWorkFactory uowFactory
 		)
 		{
+			_operator = @operator ?? throw new ArgumentNullException(nameof(@operator));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_pacsSettings = pacsSettings ?? throw new ArgumentNullException(nameof(pacsSettings));
 			_operatorRepository = operatorRepository ?? throw new ArgumentNullException(nameof(operatorRepository));
@@ -76,7 +81,7 @@ namespace Pacs.Server
 			_timer.Elapsed += InactivityTimerElapsed;
 			_disconnectedTime = DateTime.Now;
 
-			LoadOperatorState(operatorId);
+			LoadOperatorState(OperatorId);
 
 			BreakAvailability = _operatorBreakController.GetBreakAvailability();
 			_operatorBreakController.BreakAvailabilityChanged += BreakAvailabilityChanged;
@@ -105,12 +110,6 @@ namespace Pacs.Server
 				Session = OperatorState.Session;
 				StartCheckInactivity();
 			}
-
-			Operator = new Operator
-			{
-				Id = operatorId,
-				State = OperatorState
-			};
 		}
 
 		private void CreateNew(int operatorId)
@@ -133,7 +132,8 @@ namespace Pacs.Server
 			_changePhoneTrigger = _machine.SetTriggerParameters<string>(OperatorStateTrigger.ChangePhone);
 			_startWorkShiftTrigger = _machine.SetTriggerParameters<string>(OperatorStateTrigger.StartWorkShift);
 			_disconnectTrigger = _machine.SetTriggerParameters<DisconnectionType>(OperatorStateTrigger.Disconnect);
-			_startBreakTrigger = _machine.SetTriggerParameters<OperatorBreakType>(OperatorStateTrigger.StartBreak);
+			_startBreakTrigger = _machine.SetTriggerParameters<BreakStartArgs>(OperatorStateTrigger.StartBreak);
+			_endBreakTrigger = _machine.SetTriggerParameters<BreakEndArgs>(OperatorStateTrigger.EndBreak);
 
 			_machine.Configure(OperatorStateType.Connected)
 				.OnEntryFrom(OperatorStateTrigger.Connect, OnConnect)
@@ -154,7 +154,7 @@ namespace Pacs.Server
 				.InternalTransition(OperatorStateTrigger.KeepAlive, OnKeepAlive);
 
 			_machine.Configure(OperatorStateType.Break)
-				.OnEntry(OnBreakStarted)
+				.OnEntryFrom(_startBreakTrigger, OnBreakStarted)
 				.OnExit(OnBreakEnded)
 				.OnEntry(OnKeepAlive)
 				.InternalTransitionAsync(OperatorStateTrigger.ChangePhone, OnChangePhone)
@@ -191,8 +191,6 @@ namespace Pacs.Server
 			OperatorState.State = newState;
 			OperatorState.Started = timestamp;
 			OperatorState.Ended = null;
-
-			Operator.State = OperatorState;
 		}
 
 		public bool CanChangedBy(OperatorTrigger trigger)
@@ -228,7 +226,6 @@ namespace Pacs.Server
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
-				await uow.SaveAsync(Operator);
 				await uow.SaveAsync(Session);
 				await uow.SaveAsync(OperatorState);
 				if(_previuosState.State != OperatorStateType.New)
@@ -388,24 +385,79 @@ namespace Pacs.Server
 
 		public async Task StartBreak(OperatorBreakType breakType)
 		{
-			await _machine.FireAsync(_startBreakTrigger, breakType);
+			var args = new BreakStartArgs
+			{
+				BreakChangedBy = BreakChangedBy.Operator,
+				BreakType = breakType,
+			};
+			await _machine.FireAsync(_startBreakTrigger, args);
+		}
+
+		public async Task AdminStartBreak(OperatorBreakType breakType, int adminId, string reason)
+		{
+			var args = new BreakStartArgs
+			{
+				BreakChangedBy = BreakChangedBy.Admin,
+				BreakType = breakType,
+				AdminId = adminId,
+				Reason = reason
+			};
+			await _machine.FireAsync(_startBreakTrigger, args);
 		}
 
 		private void OnBreakStarted(StateMachine.Transition transition)
 		{
-			var breakType = (OperatorBreakType)transition.Parameters[0];
-			OperatorState.BreakType = breakType;
-			_logger.LogInformation("Оператор {OperatorId} начал перерыв", OperatorId);
+			var args = (BreakStartArgs)transition.Parameters[0];
+			if(args.BreakChangedBy == BreakChangedBy.Admin)
+			{
+				OperatorState.BreakChangedBy = BreakChangedBy.Admin;
+				OperatorState.BreakChangedByAdminId = args.AdminId;
+				OperatorState.BreakAdminReason = args.Reason;
+				OperatorState.BreakType = args.BreakType;
+				_logger.LogInformation("Оператор {OperatorId} начал перерыв, вызванный коммандой администратора {AdminId}", OperatorId, args.AdminId);
+			}
+			else
+			{
+				OperatorState.BreakType = args.BreakType;
+				_logger.LogInformation("Оператор {OperatorId} начал перерыв", OperatorId);
+			}
 		}
 
 		public async Task EndBreak()
 		{
-			await _machine.FireAsync(OperatorStateTrigger.EndBreak);
+			var args = new BreakEndArgs
+			{
+				BreakChangedBy = BreakChangedBy.Operator,
+			};
+			await _machine.FireAsync(_endBreakTrigger, args);
 		}
 
-		private void OnBreakEnded()
+		public async Task AdminEndBreak(int adminId, string reason)
 		{
-			_logger.LogInformation("Оператор {OperatorId} завершил перерыв", OperatorId);
+			var args = new BreakEndArgs
+			{
+				BreakChangedBy = BreakChangedBy.Admin,
+				AdminId = adminId,
+				Reason = reason
+			};
+			await _machine.FireAsync(_endBreakTrigger, args);
+		}
+
+		private void OnBreakEnded(StateMachine.Transition transition)
+		{
+			var args = (BreakEndArgs)transition.Parameters[0];
+			if(args.BreakChangedBy == BreakChangedBy.Admin)
+			{
+				OperatorState.BreakChangedBy = BreakChangedBy.Admin;
+				OperatorState.BreakChangedByAdminId = args.AdminId;
+				OperatorState.BreakAdminReason = args.Reason;
+				_logger.LogInformation("Оператор {OperatorId} завершил перерыв, вызванный коммандой администратора {AdminId}", 
+					OperatorId, args.AdminId);
+			}
+			else
+			{
+				_logger.LogInformation("Оператор {OperatorId} завершил перерыв", OperatorId);
+			}
 		}
 
 		#endregion Break
@@ -467,7 +519,7 @@ namespace Pacs.Server
 
 		#endregion
 
-		#region Private Enum
+		#region Private structures
 
 		private OperatorTrigger ConvertTrigger(OperatorStateTrigger trigger)
 		{
@@ -530,7 +582,22 @@ namespace Pacs.Server
 			}
 		}
 
-		#endregion Private Enum
+		private class BreakStartArgs
+		{
+			public BreakChangedBy BreakChangedBy { get; set; }
+			public OperatorBreakType BreakType { get; set; }
+			public int AdminId { get; set; }
+			public string Reason { get; set; }
+		}
+
+		private class BreakEndArgs
+		{
+			public BreakChangedBy BreakChangedBy { get; set; }
+			public int AdminId { get; set; }
+			public string Reason { get; set; }
+		}
+
+		#endregion Private structures
 
 		public void Dispose()
 		{

@@ -4,12 +4,6 @@ using System;
 
 namespace Vodovoz.Core.Domain.Pacs
 {
-	public class Operator
-	{
-		public virtual int Id { get; set; }
-		public virtual OperatorState State { get; set; }
-	}
-
 	public class OperatorState : IDomainObject
 	{
 		public virtual int Id { get; set; }
@@ -23,6 +17,9 @@ namespace Vodovoz.Core.Domain.Pacs
 		public virtual string PhoneNumber { get; set; }
 		public virtual string CallId { get; set; }
 		public virtual DisconnectionType DisconnectionType { get; set; }
+		public virtual BreakChangedBy BreakChangedBy { get; set; }
+		public virtual int? BreakChangedByAdminId { get; set; }
+		public virtual string BreakAdminReason { get; set; }
 
 		public static OperatorState Copy(OperatorState operatorState)
 		{

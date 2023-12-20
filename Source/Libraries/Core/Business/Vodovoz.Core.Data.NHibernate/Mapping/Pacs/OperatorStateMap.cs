@@ -23,6 +23,9 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Pacs
 			Map(x => x.CallId).Column("call_id");
 			Map(x => x.DisconnectionType).Column("disconnection_type");
 			Map(x => x.BreakType).Column("break_type");
+			Map(x => x.BreakChangedBy).Column("break_changed_by");
+			Map(x => x.BreakChangedByAdminId).Column("break_changed_by_admin_id");
+			Map(x => x.BreakAdminReason).Column("break_admin_reason");
 		}
 	}
 }

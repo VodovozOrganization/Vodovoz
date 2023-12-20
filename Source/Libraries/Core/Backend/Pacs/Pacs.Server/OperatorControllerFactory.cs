@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Pacs.Operators.Server;
 using System;
+using Vodovoz.Core.Domain.Pacs;
 
 namespace Pacs.Server
 {
@@ -14,13 +15,13 @@ namespace Pacs.Server
 			_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 		}
 
-		public OperatorController CreateOperatorController(int operatorId)
+		public OperatorController CreateOperatorController(Operator @operator)
 		{
 			var logger = _serviceProvider.GetRequiredService<ILogger<OperatorController>>();
 			var operatorAgentFactory = _serviceProvider.GetRequiredService<IOperatorAgentFactory>();
 			var phoneController = _serviceProvider.GetRequiredService<IPhoneController>();
 			var globalBreakController = _serviceProvider.GetRequiredService<GlobalBreakController>();
-			var agent = operatorAgentFactory.CreateOperatorAgent(operatorId);
+			var agent = operatorAgentFactory.CreateOperatorAgent(@operator);
 
 			return new OperatorController(logger, agent, phoneController, globalBreakController);
 		}

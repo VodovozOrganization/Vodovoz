@@ -1,7 +1,9 @@
-﻿namespace Pacs.Server
+﻿using Vodovoz.Core.Domain.Pacs;
+
+namespace Pacs.Server
 {
 	public interface IOperatorControllerFactory
 	{
-		OperatorController CreateOperatorController(int operatorId);
+		OperatorController CreateOperatorController(Operator @operator);
 	}
 }

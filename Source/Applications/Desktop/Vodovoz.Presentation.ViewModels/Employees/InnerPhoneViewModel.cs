@@ -8,7 +8,6 @@ using System.ComponentModel;
 using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
-using System.Reactive.Linq;
 using System.Windows.Input;
 using Vodovoz.Core.Domain.Employees;
 
@@ -33,23 +32,16 @@ namespace Vodovoz.Presentation.ViewModels.Employees
 		}
 	}
 
-	public class InnerPhoneViewModel : ReactiveDialogViewModel, IDisposable
+	public class EntityReactiveDialog<TEntity> : ReactiveDialogViewModel, IDisposable
+		where TEntity : class, new()
 	{
-		private readonly CompositeDisposable _subscriptions = new CompositeDisposable();
-		private readonly EntityModel<InnerPhone> _model;
+		protected EntityModel<TEntity> Model { get; }
 
-		protected InnerPhone Entity => _model.Entity;
-		private string _number;
-		private string _description;
-
-		public SaveCommand2 SaveCommand { get; }
-		public CloseDialogCommand CancelCommand { get; }
-
-		public InnerPhoneViewModel(
-			IEntityIdentifier entityId, 
-			EntityModelFactory entityModelFactory, 
-			INavigationManager navigation
-			) : base(navigation)
+		public EntityReactiveDialog(
+			IEntityIdentifier entityId,
+			EntityModelFactory entityModelFactory,
+			INavigationManager navigator
+		) : base(navigator)
 		{
 			if(entityId is null)
 			{
@@ -61,12 +53,46 @@ namespace Vodovoz.Presentation.ViewModels.Employees
 				throw new ArgumentNullException(nameof(entityModelFactory));
 			}
 
+			Model = entityModelFactory.Create<TEntity>(entityId);
+			SaveCommand = ReactiveCommand.Create(() => Save());
+			CancelCommand = ReactiveCommand.Create(() => Cancel());
+		}
+
+		public TEntity Entity => Model.Entity;
+		public ReactiveCommand<Unit, Unit> SaveCommand { get; }
+		public ReactiveCommand<Unit, Unit> CancelCommand { get; }
+
+		public virtual void Save()
+		{
+			Model.Save();
+			Close(false, CloseSource.Save);
+		}
+
+		public virtual void Cancel()
+		{
+			Close(false, CloseSource.Cancel);
+		}
+
+		public virtual void Dispose()
+		{
+			Model.Dispose();
+		}
+	}
+
+	public class InnerPhoneViewModel : EntityReactiveDialog<InnerPhone>
+	{
+		private readonly CompositeDisposable _subscriptions = new CompositeDisposable();
+
+		private string _number;
+		private string _description;
+
+		public InnerPhoneViewModel(
+			IEntityIdentifier entityId, 
+			EntityModelFactory entityModelFactory, 
+			INavigationManager navigation
+			) : base(entityId, entityModelFactory, navigation)
+		{
 			Title = "Внутренний телефон";
-
-			_model = entityModelFactory.Create<InnerPhone>(entityId);
-
-			SaveCommand = new SaveCommand2(_model, this);
-			CancelCommand = new CloseDialogCommand(this);
 
 			this.WhenAnyValue(x => x.Entity.PhoneNumber)
 				.BindTo(this, x => x.Number)
@@ -83,7 +109,7 @@ namespace Vodovoz.Presentation.ViewModels.Employees
 				.DisposeWith(_subscriptions);
 		}
 
-		public bool CanChangeNumber => _model.IsNewEntity;
+		public bool CanChangeNumber => Model.IsNewEntity;
 
 		public string Number
 		{
@@ -97,90 +123,14 @@ namespace Vodovoz.Presentation.ViewModels.Employees
 			set => this.RaiseAndSetIfChanged(ref _description, value);
 		}
 
-		public void Dispose()
+		public override void Dispose()
 		{
 			_subscriptions?.Dispose();
-			_model?.Dispose();
+			base.Dispose();
 		}
 	}
 
-	public class SaveCommand2 : ReactiveCommandBase
-	{
-		private readonly ISaveModel _model;
-		private readonly DialogViewModelBase _dialog;
-
-		public SaveCommand2(ISaveModel model, DialogViewModelBase dialog, IObservable<bool> canExecute = null) : base(canExecute)
-		{
-			_model = model ?? throw new ArgumentNullException(nameof(model));
-			_dialog = dialog ?? throw new ArgumentNullException(nameof(dialog));
-		}
-
-		protected override void InternalExecute(object parameter)
-		{
-			_model.Save();
-			_dialog.Close(false, CloseSource.Save);
-		}
-	}
-
-	public abstract class ReactiveCommandBase : IReactiveCommand<Unit, Unit>, ICommand
-	{
-		private ReactiveCommand<Unit, Unit> _reactiveCommand;
-
-		protected ReactiveCommandBase(IObservable<bool> canExecute = null)
-		{
-			_reactiveCommand = ReactiveCommand.Create(() => InternalExecute(null), canExecute);
-		}
-
-		protected abstract void InternalExecute(object parameter);
-
-		public IObservable<bool> IsExecuting => _reactiveCommand.IsExecuting;
-
-		public IObservable<bool> CanExecute => _reactiveCommand.CanExecute;
-
-		public IObservable<Exception> ThrownExceptions => _reactiveCommand.ThrownExceptions;
-
-		public IObservable<Unit> Execute(Unit parameter)
-		{
-			return _reactiveCommand.Execute(parameter);
-		}
-
-		public IObservable<Unit> Execute()
-		{
-			return _reactiveCommand.Execute();
-		}
-
-		public IDisposable Subscribe(IObserver<Unit> observer)
-		{
-			return _reactiveCommand.Subscribe(observer);
-		}
-
-		#region ICommand
-
-		void ICommand.Execute(object parameter)
-		{
-			(_reactiveCommand as ICommand).Execute(parameter);
-		}
-
-		bool ICommand.CanExecute(object parameter)
-		{
-			return (_reactiveCommand as ICommand).CanExecute(parameter);
-		}
-
-		event EventHandler ICommand.CanExecuteChanged
-		{
-			add { (_reactiveCommand as ICommand).CanExecuteChanged += value; }
-			remove { (_reactiveCommand as ICommand).CanExecuteChanged -= value; }
-		}
-
-		#endregion ICommand
-
-		public void Dispose()
-		{
-			_reactiveCommand.Dispose();
-		}
-
-	}
-
+	/*
 	public class SaveCommand : PropertySubscribedCommandBase
 	{
 		private readonly ISaveModel _model;
@@ -249,6 +199,7 @@ namespace Vodovoz.Presentation.ViewModels.Employees
 			_dialog.Close(true, CloseSource.ClosePage);
 		}
 	}
+	*/
 
 	public interface IEntityIdentifier
 	{

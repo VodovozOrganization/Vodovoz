@@ -25,13 +25,12 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
-				Operator operatorAlias = null;
 				OperatorState operatorStateAlias = null;
 
-				var result = uow.Session.QueryOver(() => operatorAlias)
-					.Inner.JoinAlias(() => operatorAlias.State, () => operatorStateAlias)
-					.Where(() => operatorAlias.Id == operatorId)
-					.Select(Projections.Entity(() => operatorStateAlias))
+				var result = uow.Session.QueryOver(() => operatorStateAlias)
+					.Where(() => operatorStateAlias.OperatorId == operatorId)
+					.OrderBy(() => operatorStateAlias.Id).Desc
+					.Take(1)
 					.SingleOrDefault<OperatorState>();
 
 				return result;

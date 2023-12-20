@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Core.Infrastructure;
+using Microsoft.Extensions.Logging;
 using Pacs.Core.Messages.Commands;
 using Pacs.Core.Messages.Events;
 using Pacs.Operators.Server;
@@ -118,44 +119,10 @@ namespace Pacs.Server
 			{
 				await CheckConnection();
 
-				string description = "";
-				bool canStartGlobal = true;
-				bool canStart = true;
-				if(breakType == OperatorBreakType.Long)
+				var checkResult = GetCheckStartBreakResult(breakType);
+				if(checkResult != null)
 				{
-					canStartGlobal = _globalBreakController.BreakAvailability.LongBreakAvailable;
-					if(!canStartGlobal)
-					{
-						description = _globalBreakController.BreakAvailability.LongBreakDescription;
-					}
-					canStart = _operatorAgent.BreakAvailability.LongBreakAvailable;
-					if(!canStart)
-					{
-						description = _operatorAgent.BreakAvailability.LongBreakDescription;
-					}
-				}
-				else
-				{
-					canStartGlobal = _globalBreakController.BreakAvailability.ShortBreakAvailable;
-					if(!canStartGlobal)
-					{
-						description = _globalBreakController.BreakAvailability.ShortBreakDescription;
-					}
-					canStart = _operatorAgent.BreakAvailability.ShortBreakAvailable;
-					if(!canStart)
-					{
-						description = _operatorAgent.BreakAvailability.ShortBreakDescription;
-					}
-				}
-
-				if(!canStartGlobal || !canStart)
-				{
-					return new OperatorResult(GetResultContent(), description);
-				}
-
-				if(!_operatorAgent.CanChangedBy(OperatorTrigger.StartBreak))
-				{
-					return new OperatorResult(GetResultContent(), $"В данный момент нельзя начать перерыв");
+					return checkResult;
 				}
 
 				await _operatorAgent.StartBreak(breakType);
@@ -166,6 +133,80 @@ namespace Pacs.Server
 				_logger.LogError(ex, "Произошло исключение при попытке оператором начать перерыв.");
 				return new OperatorResult(GetResultContent(), ex.Message);
 			}
+		}
+
+		public async Task<OperatorResult> AdminStartBreak(OperatorBreakType breakType, int adminId, string reason)
+		{
+			try
+			{
+				await CheckConnection();
+
+				var checkResult = GetCheckStartBreakResult(breakType);
+				if(checkResult != null)
+				{
+					return checkResult;
+				}
+
+				if(reason.IsNullOrWhiteSpace())
+				{
+					return new OperatorResult(GetResultContent(), "Основание должно быть заполнено");
+				}
+
+				await _operatorAgent.AdminStartBreak(breakType, adminId, reason);
+				return new OperatorResult(GetResultContent());
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Произошло исключение при попытке администратором {AdminId} начать перерыв оператору {OperatorId}.", 
+					adminId, _operatorAgent.OperatorId);
+				return new OperatorResult(GetResultContent(), ex.Message);
+			}
+		}
+
+		private OperatorResult GetCheckStartBreakResult(OperatorBreakType breakType)
+		{
+			string description = "";
+			bool canStartGlobal;
+			bool canStart;
+
+			if(breakType == OperatorBreakType.Long)
+			{
+				canStartGlobal = _globalBreakController.BreakAvailability.LongBreakAvailable;
+				if(!canStartGlobal)
+				{
+					description = _globalBreakController.BreakAvailability.LongBreakDescription;
+				}
+				canStart = _operatorAgent.BreakAvailability.LongBreakAvailable;
+				if(!canStart)
+				{
+					description = _operatorAgent.BreakAvailability.LongBreakDescription;
+				}
+			}
+			else
+			{
+				canStartGlobal = _globalBreakController.BreakAvailability.ShortBreakAvailable;
+				if(!canStartGlobal)
+				{
+					description = _globalBreakController.BreakAvailability.ShortBreakDescription;
+				}
+				canStart = _operatorAgent.BreakAvailability.ShortBreakAvailable;
+				if(!canStart)
+				{
+					description = _operatorAgent.BreakAvailability.ShortBreakDescription;
+				}
+			}
+
+			if(!canStartGlobal || !canStart)
+			{
+				return new OperatorResult(GetResultContent(), description);
+			}
+
+			if(!_operatorAgent.CanChangedBy(OperatorTrigger.StartBreak))
+			{
+				return new OperatorResult(GetResultContent(), $"В данный момент нельзя начать перерыв");
+			}
+
+			return null;
 		}
 
 		public async Task<OperatorResult> EndBreak()
@@ -185,6 +226,33 @@ namespace Pacs.Server
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "Произошло исключение при попытке оператором завершить перерыв.");
+				return new OperatorResult(GetResultContent(), ex.Message);
+			}
+		}
+
+		public async Task<OperatorResult> AdminEndBreak(int adminId, string reason)
+		{
+			try
+			{
+				await CheckConnection();
+
+				if(!_operatorAgent.CanChangedBy(OperatorTrigger.EndBreak))
+				{
+					return new OperatorResult(GetResultContent(), $"В данный момент нельзя завершить перерыв");
+				}
+
+				if(reason.IsNullOrWhiteSpace())
+				{
+					return new OperatorResult(GetResultContent(), "Основание должно быть заполнено");
+				}
+
+				await _operatorAgent.AdminEndBreak(adminId, reason);
+				return new OperatorResult(GetResultContent());
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Произошло исключение при попытке администратором {AdminId} завершить перерыв оператора {OperatorId}.",
+					adminId, _operatorAgent.OperatorId);
 				return new OperatorResult(GetResultContent(), ex.Message);
 			}
 		}

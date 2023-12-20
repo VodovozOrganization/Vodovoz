@@ -39,7 +39,7 @@ namespace Pacs.Operators.Service
 				.AddCoreServerServices()
 
 				//Настройки бд должны регистрироваться до настроек MassTransit
-				.AddSettingsFromDatabase()
+				.AddDatabaseSingletonSettings()
 
 				.AddSingleton<IDataBaseInfo>(x => _databaseInfo)
 				.AddSingleton<IUnitOfWorkFactory>(UnitOfWorkFactory.GetDefaultFactory)
