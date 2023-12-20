@@ -1,9 +1,10 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Sms.Internal.Client.Framework;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Profitability;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
@@ -20,6 +21,7 @@ namespace Vodovoz
 			.AddScoped<IRouteListAddressKeepingDocumentController, RouteListAddressKeepingDocumentController>()
 			.AddScoped<IWageParameterService, WageParameterService>()
 			.AddScoped<IDeliveryRulesParametersProvider, DeliveryRulesParametersProvider>()
+			.AddScoped<IAddressTransferController, AddressTransferController>()
 			.AddScoped<IRouteListProfitabilityController, RouteListProfitabilityController>()
 			.AddScoped<RouteGeometryCalculator>()
 			.AddScoped<IDistanceCalculator>(sp => sp.GetService<RouteGeometryCalculator>())
@@ -30,6 +32,9 @@ namespace Vodovoz
 			.AddScoped<IRouteListProfitabilityRepository, RouteListProfitabilityRepository>()
 			.AddScoped<INomenclatureRepository, NomenclatureRepository>()
 			.AddScoped<IFastPaymentSender, FastPaymentSender>()
-			.AddScoped<ISmsClientChannelFactory, SmsClientChannelFactory>();
+			.AddScoped<IOrganizationProvider, Stage2OrganizationProvider>()
+			.AddScoped<ISmsClientChannelFactory, SmsClientChannelFactory>()
+			.AddScoped<IDriverWarehouseEventQrDataHandler, DriverWarehouseEventQrDataHandler>()
+			.AddScoped<ICompletedDriverWarehouseEventRepository, CompletedDriverWarehouseEventRepository>();
 	}
 }

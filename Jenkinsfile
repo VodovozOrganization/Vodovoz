@@ -66,6 +66,7 @@ LINUX_BUILD_TOOL = "msbuild"
 LINUX_WEB_BUILD_TOOL = "dotnet publish"
 JOB_FOLDER_NAME = GetJobFolderName()
 IS_PULL_REQUEST = env.CHANGE_ID != null
+IS_DEVELOP = env.BRANCH_NAME == 'develop'
 IS_HOTFIX = env.BRANCH_NAME == 'master'
 IS_RELEASE = env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/
 IS_MANUAL_BUILD = env.BRANCH_NAME ==~ /^manual-build(.*?)/
@@ -81,7 +82,7 @@ CAN_PUBLISH_BUILD_WEB = IS_HOTFIX || IS_RELEASE
 CAN_BUILD_WCF = true
 
 // 106	Настройки. Архивация
-CAN_COMPRESS_DESKTOP = CAN_BUILD_DESKTOP && (IS_HOTFIX || IS_RELEASE || IS_PULL_REQUEST || IS_MANUAL_BUILD || env.BRANCH_NAME == 'Beta' || env.BRANCH_NAME == 'develop')
+CAN_COMPRESS_DESKTOP = CAN_BUILD_DESKTOP && (IS_HOTFIX || IS_RELEASE || IS_DEVELOP || IS_PULL_REQUEST || IS_MANUAL_BUILD || env.BRANCH_NAME == 'Beta')
 CAN_COMPRESS_WEB = CAN_PUBLISH_BUILD_WEB
 CAN_COMPRESS_WCF = CAN_BUILD_WCF && (IS_HOTFIX || IS_RELEASE)
 
@@ -98,7 +99,7 @@ WEB_DELIVERY_PATH = "\\\\${NODE_VOD6}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB
 
 // 108	Настройки. Развертывание
 DEPLOY_PATH = "F:/WORK/_BUILDS"
-CAN_DEPLOY_DESKTOP = CAN_DELIVERY_DESKTOP && (env.BRANCH_NAME == 'Beta' || IS_PULL_REQUEST || IS_MANUAL_BUILD || env.BRANCH_NAME == 'develop')
+CAN_DEPLOY_DESKTOP = CAN_DELIVERY_DESKTOP && (env.BRANCH_NAME == 'Beta' || IS_PULL_REQUEST || IS_MANUAL_BUILD || IS_DEVELOP)
 CAN_DEPLOY_WEB = false
 CAN_DEPLOY_WCF = false
 
@@ -257,10 +258,10 @@ stage('Compress'){
 // 205	Этапы. Доставка
 stage('Delivery'){
 	parallel(
-		"Desktop ${NODE_VOD1}" : { DeliveryDesktopArtifact(DESKTOP_VOD1_DELIVERY_PATH) },
-		"Desktop ${NODE_VOD3}" : { DeliveryDesktopArtifact(DESKTOP_VOD3_DELIVERY_PATH) },
-		"Desktop ${NODE_VOD5}" : { DeliveryDesktopArtifact(DESKTOP_VOD5_DELIVERY_PATH) },
-		"Desktop ${NODE_VOD7}" : { DeliveryDesktopArtifact(DESKTOP_VOD7_DELIVERY_PATH) },
+		"Desktop ${NODE_VOD1}" : { DeliveryDesktopArtifact(NODE_VOD1, DESKTOP_VOD1_DELIVERY_PATH) },
+		"Desktop ${NODE_VOD3}" : { DeliveryDesktopArtifact(NODE_VOD3, DESKTOP_VOD3_DELIVERY_PATH) },
+		"Desktop ${NODE_VOD5}" : { DeliveryDesktopArtifact(NODE_VOD5, DESKTOP_VOD5_DELIVERY_PATH) },
+		"Desktop ${NODE_VOD7}" : { DeliveryDesktopArtifact(NODE_VOD7, DESKTOP_VOD7_DELIVERY_PATH) },
 
 		"DriverAPI" : { DeliveryWebArtifact("DriverAPI") },
 		"FastPaymentsAPI" : { DeliveryWebArtifact("FastPaymentsAPI") },
@@ -437,7 +438,23 @@ def DecompressArtifact(destPath, artifactName) {
 
 // 305	Фукнции. Доставка
 
-def DeliveryDesktopArtifact(deliveryPath){
+def DeliveryDesktopArtifact(nodeName, deliveryPath){
+	def nodeIsOnline = true;
+
+	jenkins.model.Jenkins.instance.getNodes().each{node ->
+		node.getAssignedLabels().each{label ->
+			if(label.name == nodeName && node.toComputer().isOffline()){
+				nodeIsOnline = false;
+				return
+			}
+		}
+	}
+
+	if(!nodeIsOnline){
+		unstable("${nodeName} - publish failed! node is offline")
+		return
+	}
+
 	if(CAN_DELIVERY_DESKTOP)
 	{
 		DeliveryWinArtifact("VodovozDesktop${ARCHIVE_EXTENTION}", deliveryPath)
@@ -531,13 +548,27 @@ def DeployDesktop(){
 // 307	Фукнции. Публикация
 
 def PublishDesktop(nodeName){
+	def nodeIsOnline = true;
+
+	jenkins.model.Jenkins.instance.getNodes().each{node ->
+		node.getAssignedLabels().each{label ->
+			if(label.name == nodeName && node.toComputer().isOffline()){
+				nodeIsOnline = false;
+				return
+			}
+		}
+	}
+
+	if(!nodeIsOnline){
+		unstable("${nodeName} - publish failed! node is offline")
+		return
+	}
+
 	node(nodeName){
-		if(CAN_PUBLISH_DESKTOP)
-		{
-			if(IS_HOTFIX)
-			{
+		if(CAN_PUBLISH_DESKTOP){
+			if(IS_HOTFIX){
 				def now = new Date()
-        		def hofix_suffix = now.format("MMdd_HHmm")
+				def hofix_suffix = now.format("MMdd_HHmm")
 				def hotfixName = "${NEW_DESKTOP_HOTFIX_FOLDER_NAME_PREFIX}_${hofix_suffix}"
 				def newHotfixPath = "${DESKTOP_HOTFIX_PUBLISH_PATH}/${hotfixName}"
 				DecompressArtifact(newHotfixPath, 'VodovozDesktop')
@@ -545,13 +576,11 @@ def PublishDesktop(nodeName){
 				return
 			}
 
-			if(IS_RELEASE)
-			{
+			if(IS_RELEASE){
 				DecompressArtifact(DESKTOP_NEW_RELEASE_PUBLISH_PATH, 'VodovozDesktop')
 				return
 			}
 		}
-
 		echo "Publish not needed"
 	}
 }

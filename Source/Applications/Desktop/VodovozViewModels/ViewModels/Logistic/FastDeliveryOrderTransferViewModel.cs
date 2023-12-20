@@ -208,6 +208,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				routeListFrom.TransferAddressTo(_unitOfWork, address, newItem);
 			}
 
+			_unitOfWork.Session.Flush();
+
 			routeListFrom.CalculateWages(_wageParameterService);
 			_routeListProfitabilityController.ReCalculateRouteListProfitability(_unitOfWork, routeListFrom);
 			routeListTo.CalculateWages(_wageParameterService);
@@ -218,13 +220,13 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			if(routeListTo.ClosingFilled)
 			{
-				newItem.FirstFillClosing((WageParameterService)_wageParameterService);
+				newItem.FirstFillClosing(_wageParameterService);
 			}
 
 			_unitOfWork.Save(address);
 			_unitOfWork.Save(newItem);
 
-			UpdateTranferDocuments(address, newItem);
+			UpdateTranferDocuments(address, newItem, AddressTransferType.FromFreeBalance);
 
 			_unitOfWork.Save(routeListTo);
 			_unitOfWork.Save(routeListFrom);
@@ -282,10 +284,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			return true;
 		}
 
-		private void UpdateTranferDocuments(RouteListItem from, RouteListItem to)
+		private void UpdateTranferDocuments(RouteListItem from, RouteListItem to, AddressTransferType addressTransferType)
 		{
 			var addressTransferController = new AddressTransferController(new EmployeeRepository());
-			addressTransferController.UpdateDocuments(from, to, _unitOfWork);
+			addressTransferController.UpdateDocuments(from, to, _unitOfWork, addressTransferType);
 		}
 
 		private bool HasAddressChanges(RouteListItem address)

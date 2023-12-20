@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Xml.Serialization;
+﻿using System.Xml.Serialization;
 using Vodovoz.RDL.Elements.Base;
 
 namespace Vodovoz.RDL.Elements
@@ -65,13 +62,6 @@ namespace Vodovoz.RDL.Elements
 		}
 
 		[XmlIgnore]
-		public string Height
-		{
-			get => GetEnamedItemsValue<string>();
-			set => SetEnamedItemsValue(value);
-		}
-
-		[XmlIgnore]
 		public string HideDuplicates
 		{
 			get => GetEnamedItemsValue<string>();
@@ -80,13 +70,6 @@ namespace Vodovoz.RDL.Elements
 
 		[XmlIgnore]
 		public string Label
-		{
-			get => GetEnamedItemsValue<string>();
-			set => SetEnamedItemsValue(value);
-		}
-
-		[XmlIgnore]
-		public string Left
 		{
 			get => GetEnamedItemsValue<string>();
 			set => SetEnamedItemsValue(value);
@@ -128,13 +111,6 @@ namespace Vodovoz.RDL.Elements
 		}
 
 		[XmlIgnore]
-		public string Top
-		{
-			get => GetEnamedItemsValue<string>();
-			set => SetEnamedItemsValue(value);
-		}
-
-		[XmlIgnore]
 		public UserSort UserSort
 		{
 			get => GetEnamedItemsValue<UserSort>();
@@ -156,18 +132,10 @@ namespace Vodovoz.RDL.Elements
 		}
 
 		[XmlIgnore]
-		public string Width
-		{
-			get => GetEnamedItemsValue<string>();
-			set => SetEnamedItemsValue(value);
-		}
-
-		[XmlIgnore]
 		public uint ZIndex
 		{
 			get => GetEnamedItemsValue<uint>();
 			set => SetEnamedItemsValue(value);
 		}
-
 	}
 }

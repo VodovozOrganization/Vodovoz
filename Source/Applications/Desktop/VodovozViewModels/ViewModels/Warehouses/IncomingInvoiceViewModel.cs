@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Autofac;
 using QS.Commands;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Project.Journal.EntitySelector;
 using QS.Report;
 using QS.Services;
 using QS.ViewModels;
@@ -29,23 +31,22 @@ using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Warehouses
 {
-    public class IncomingInvoiceViewModel: EntityTabViewModelBase<IncomingInvoice>
-    {
+	public class IncomingInvoiceViewModel: EntityTabViewModelBase<IncomingInvoice>
+	{
 		private readonly bool _canEditRetroactively;
 		private readonly IEmployeeService _employeeService;
-        private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
-        private readonly IOrderSelectorFactory _orderSelectorFactory;
-        private readonly IRDLPreviewOpener _rdlPreviewOpener;
+		private readonly IOrderSelectorFactory _orderSelectorFactory;
+		private readonly IRDLPreviewOpener _rdlPreviewOpener;
 		private readonly INomenclaturePurchasePriceModel _nomenclaturePurchasePriceModel;
 		private readonly IWarehousePermissionValidator _warehousePermissionValidator;
-        private readonly IStockRepository _stockRepository;
-		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
+		private readonly IStockRepository _stockRepository;
 		private bool _canDuplicateInstance;
 		private Employee _currentEmployee;
 		private IEnumerable<Warehouse> _allowedWarehousesFrom;
@@ -61,12 +62,12 @@ namespace Vodovoz.ViewModels.Warehouses
 		#region Конструктор
 
 		public IncomingInvoiceViewModel(
+			ILifetimeScope lifetimeScope,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IWarehousePermissionService warehousePermissionService,
 			IEmployeeService employeeService,
 			IEntityExtendedPermissionValidator entityExtendedPermissionValidator,
-			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			IOrderSelectorFactory orderSelectorFactory,
 			IWarehouseRepository warehouseRepository,
 			IRDLPreviewOpener rdlPreviewOpener,
@@ -78,8 +79,6 @@ namespace Vodovoz.ViewModels.Warehouses
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			_nomenclatureSelectorFactory =
-				nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 
 			if(warehouseRepository == null)
@@ -91,7 +90,10 @@ namespace Vodovoz.ViewModels.Warehouses
 			_nomenclaturePurchasePriceModel =
 				nomenclaturePurchasePriceModel ?? throw new ArgumentNullException(nameof(nomenclaturePurchasePriceModel));
 			_stockRepository = stockRepository ?? throw new ArgumentNullException(nameof(stockRepository));
-			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
+			CounterpartyAutocompleteSelectorFactory =
+				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
+				.CreateCounterpartyAutocompleteSelectorFactory(lifetimeScope);
+			
 			if(navigationManager is null)
 			{
 				throw new ArgumentNullException(nameof(navigationManager));
@@ -99,15 +101,15 @@ namespace Vodovoz.ViewModels.Warehouses
 
 			_warehousePermissionValidator = warehousePermissionService.GetValidator();
 
-            _canEditRetroactively =
+			_canEditRetroactively =
 				(entityExtendedPermissionValidator ?? throw new ArgumentNullException(nameof(entityExtendedPermissionValidator)))
 				.Validate(typeof(MovementDocument), CommonServices.UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
-            ConfigureEntityChangingRelations();
-            
-            ValidationContext.ServiceContainer.AddService(typeof(IWarehouseRepository), warehouseRepository);
-            UserHasOnlyAccessToWarehouseAndComplaints =
-	            CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
-	            && !CurrentUser.IsAdmin;
+			ConfigureEntityChangingRelations();
+			
+			ValidationContext.ServiceContainer.AddService(typeof(IWarehouseRepository), warehouseRepository);
+			UserHasOnlyAccessToWarehouseAndComplaints =
+				CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
+				&& !CurrentUser.IsAdmin;
 			
 			var instancePermissionResult =
 				CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(InventoryNomenclatureInstance));
@@ -119,7 +121,7 @@ namespace Vodovoz.ViewModels.Warehouses
 		#endregion
 
 		#region Properties
-        
+		
 		public bool UserHasOnlyAccessToWarehouseAndComplaints { get; }
 
 		public bool CanEdit => 
@@ -141,7 +143,7 @@ namespace Vodovoz.ViewModels.Warehouses
 				return _allowedWarehousesFrom;
 			}
 		}
-        
+		
 		public IEnumerable<Warehouse> Warehouses {
 			get {
 				var result = new List<Warehouse>(AllowedWarehousesFrom);
@@ -151,7 +153,7 @@ namespace Vodovoz.ViewModels.Warehouses
 				return result;
 			}
 		}
-        
+		
 		public Employee CurrentEmployee => _currentEmployee ??
 			(_currentEmployee = _employeeService.GetEmployeeForUser(UoW, CommonServices.UserService.CurrentUserId));
 
@@ -178,64 +180,76 @@ namespace Vodovoz.ViewModels.Warehouses
 		
 		#region Commands
 
-        public DelegateCommand DeleteItemCommand {
-            get {
-                if(_deleteItemCommand == null) {
-                    _deleteItemCommand = new DelegateCommand(
-                        () => {
-                            Entity.DeleteItem(SelectedItem);
-                            OnPropertyChanged(nameof(TotalSum));
-                        },
-                        () =>  CanDeleteItems && HasSelectedItem
-                    );
-                    _deleteItemCommand.CanExecuteChangedWith(this, x => x.CanDeleteItems);
-                }
-                return _deleteItemCommand;
-            }
-        }
-        
-        public DelegateCommand AddItemCommand {
-            get {
-                if(_addItemCommand == null) {
-                    _addItemCommand = new DelegateCommand(
-                        () => {
-                            
-                            var alreadyAddedNomenclatures = Entity.Items
-                                .Where(x => x.Nomenclature != null && x.AccountingType == AccountingType.Bulk)
-                                .Select(x => x.EntityId);
-                            
-                            var nomenclatureSelector = _nomenclatureSelectorFactory
-                                .CreateNomenclatureSelector(alreadyAddedNomenclatures);
-                            
-                            nomenclatureSelector.OnEntitySelectedResult += (sender, e) =>
-                            {
-                                var selectedNodes = e.SelectedNodes;
-                                if(!selectedNodes.Any())
-                                {
-                                    return;
-                                }
-                                
-                                var selectedNomenclatures = UoW.GetById<Nomenclature>(
-                                    selectedNodes.Select(x => x.Id)
-                                );
-                                
-                                foreach(var nomenclature in selectedNomenclatures)
+		public DelegateCommand DeleteItemCommand {
+			get {
+				if(_deleteItemCommand == null) {
+					_deleteItemCommand = new DelegateCommand(
+						() => {
+							Entity.DeleteItem(SelectedItem);
+							OnPropertyChanged(nameof(TotalSum));
+						},
+						() =>  CanDeleteItems && HasSelectedItem
+					);
+					_deleteItemCommand.CanExecuteChangedWith(this, x => x.CanDeleteItems);
+				}
+				return _deleteItemCommand;
+			}
+		}
+		
+		public DelegateCommand AddItemCommand {
+			get {
+				if(_addItemCommand == null) {
+					_addItemCommand = new DelegateCommand(
+						() => {
+							
+							var alreadyAddedNomenclatures = Entity.Items
+								.Where(x => x.Nomenclature != null && x.AccountingType == AccountingType.Bulk)
+								.Select(x => x.EntityId).ToArray();
+							
+							var nomenclatureSelector = 
+								NavigationManager.OpenViewModel<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(
+									this,
+									filter =>
+									{
+										filter.RestrictArchive = true;
+										filter.AvailableCategories = Nomenclature.GetCategoriesForGoods();
+									},
+									OpenPageOptions.AsSlave,
+									vm =>
+									{
+										vm.SelectionMode = JournalSelectionMode.Single;
+										vm.ExcludingNomenclatureIds = alreadyAddedNomenclatures;
+									}
+								).ViewModel;
+							
+							nomenclatureSelector.OnEntitySelectedResult += (sender, e) =>
+							{
+								var selectedNodes = e.SelectedNodes;
+								if(!selectedNodes.Any())
 								{
-                                    Entity.AddItem(new NomenclatureIncomingInvoiceItem{ Nomenclature = nomenclature, Amount = 1 });
-                                    OnPropertyChanged(nameof(TotalSum));
-                                }
-                                
-                            };
-                            TabParent.AddSlaveTab(this, nomenclatureSelector);
-                        },
-                        () => CanAddItem
-                    );
-                    _addItemCommand.CanExecuteChangedWith(this, x => x.CanAddItem);
-                }
-                return _addItemCommand;
-            }
-        }
-        
+									return;
+								}
+								
+								var selectedNomenclatures = UoW.GetById<Nomenclature>(
+									selectedNodes.Select(x => x.Id)
+								);
+								
+								foreach(var nomenclature in selectedNomenclatures)
+								{
+									Entity.AddItem(new NomenclatureIncomingInvoiceItem{ Nomenclature = nomenclature, Amount = 1 });
+									OnPropertyChanged(nameof(TotalSum));
+								}
+								
+							};
+						},
+						() => CanAddItem
+					);
+					_addItemCommand.CanExecuteChangedWith(this, x => x.CanAddItem);
+				}
+				return _addItemCommand;
+			}
+		}
+		
 		public DelegateCommand FillFromOrdersCommand {
 			get {
 				if(_fillFromOrdersCommand == null) {
@@ -261,25 +275,25 @@ namespace Vodovoz.ViewModels.Warehouses
 									nomIds = nomIds.Distinct().ToList();
 									nomsAmount = _stockRepository.NomenclatureInStock(UoW, nomIds.ToArray(), Entity.Warehouse.Id);
 								}
-                                //Если такие уже добавлены, то только увеличить их количество
+								//Если такие уже добавлены, то только увеличить их количество
 								foreach (var item in orderItems)
 								{
-                                    var moveItem = Entity.Items.FirstOrDefault(
-	                                    x => x.AccountingType == AccountingType.Bulk
+									var moveItem = Entity.Items.FirstOrDefault(
+										x => x.AccountingType == AccountingType.Bulk
 										&& x.EntityId == item.Nomenclature.Id);
-                                    
-                                    if (moveItem == null)
-                                    {
-                                        var count = item.Count > nomsAmount[item.Nomenclature.Id]
-                                            ? nomsAmount[item.Nomenclature.Id]
-                                            : item.Count;
-                                        if ((count == 0) && item.Nomenclature.OnlineStore == null)
-                                        {
-	                                        continue;
-                                        }
+									
+									if (moveItem == null)
+									{
+										var count = item.Count > nomsAmount[item.Nomenclature.Id]
+											? nomsAmount[item.Nomenclature.Id]
+											: item.Count;
+										if ((count == 0) && item.Nomenclature.OnlineStore == null)
+										{
+											continue;
+										}
 
-                                        if (item.Nomenclature.Category == NomenclatureCategory.service
-                                            || item.Nomenclature.Category == NomenclatureCategory.master)
+										if (item.Nomenclature.Category == NomenclatureCategory.service
+											|| item.Nomenclature.Category == NomenclatureCategory.master)
 										{
 											continue;
 										}
@@ -290,22 +304,22 @@ namespace Vodovoz.ViewModels.Warehouses
 											Amount = item.Count,
 											PrimeCost = item.Price
 										});
-                                    }
-                                    else
-                                    {
-                                        var count = (moveItem.Amount + item.Count) > nomsAmount[item.Nomenclature.Id] ?
-                                            nomsAmount[item.Nomenclature.Id] :
-                                            (moveItem.Amount + item.Count);
-                                        if(count == 0)
-                                        {
-	                                        continue;
-                                        }
+									}
+									else
+									{
+										var count = (moveItem.Amount + item.Count) > nomsAmount[item.Nomenclature.Id] ?
+											nomsAmount[item.Nomenclature.Id] :
+											(moveItem.Amount + item.Count);
+										if(count == 0)
+										{
+											continue;
+										}
 
-                                        moveItem.Amount = count;
-                                    }
-                                }
-                                
-                                OnPropertyChanged(nameof(TotalSum));
+										moveItem.Amount = count;
+									}
+								}
+								
+								OnPropertyChanged(nameof(TotalSum));
 							};
 							TabParent.AddSlaveTab(this, orderSelector);
 						},
@@ -316,28 +330,28 @@ namespace Vodovoz.ViewModels.Warehouses
 				return _fillFromOrdersCommand;
 			}
 		}
-        
-        
-        public DelegateCommand PrintCommand {
-            get {
-                if(_printCommand == null) {
-                    _printCommand = new DelegateCommand(
-                        () =>
-                        {
-                            int? currentEmployeeId = _employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId)?.Id;
-                            var doc = new IncomingInvoiceDocumentRDL(Entity, currentEmployeeId){Title = Entity.Title};
-                            if(doc is IPrintableRDLDocument)
-                            {
-                                _rdlPreviewOpener.OpenRldDocument(typeof(IncomingInvoice), doc);
-                            }
-                        },
-                        () => true
-                    );
-                    
-                }
-                return _printCommand;
-            }
-        }
+		
+		
+		public DelegateCommand PrintCommand {
+			get {
+				if(_printCommand == null) {
+					_printCommand = new DelegateCommand(
+						() =>
+						{
+							int? currentEmployeeId = _employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId)?.Id;
+							var doc = new IncomingInvoiceDocumentRDL(Entity, currentEmployeeId){Title = Entity.Title};
+							if(doc is IPrintableRDLDocument)
+							{
+								_rdlPreviewOpener.OpenRldDocument(typeof(IncomingInvoice), doc);
+							}
+						},
+						() => true
+					);
+					
+				}
+				return _printCommand;
+			}
+		}
 
 		public DelegateCommand AddInventoryInstanceCommand =>
 			_addInventoryInstanceCommand ?? (_addInventoryInstanceCommand = new DelegateCommand(
@@ -413,35 +427,35 @@ namespace Vodovoz.ViewModels.Warehouses
 					OnPropertyChanged(nameof(TotalSum));
 				}));
 
-		public ICounterpartyJournalFactory CounterpartyJournalFactory => _counterpartyJournalFactory;
+		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelectorFactory { get; }
 
 		#endregion
 
 		#region Functions
 
 		private void ConfigureEntityChangingRelations()
-        {
-            SetPropertyChangeRelation(e => e.CanAddItem, () => CanAddItem, () => CanFillFromOrders);
-            SetPropertyChangeRelation(e => e.CanDeleteItems, () => CanDeleteItems);
-            
-            SetPropertyChangeRelation(e => e.Warehouse, () => CanAddItem, () => CanFillFromOrders);
-            SetPropertyChangeRelation(e => e.Warehouse, () => CanCreate);
-        }
-        
-        private void ReloadAllowedWarehousesFrom()
-        {
+		{
+			SetPropertyChangeRelation(e => e.CanAddItem, () => CanAddItem, () => CanFillFromOrders);
+			SetPropertyChangeRelation(e => e.CanDeleteItems, () => CanDeleteItems);
+			
+			SetPropertyChangeRelation(e => e.Warehouse, () => CanAddItem, () => CanFillFromOrders);
+			SetPropertyChangeRelation(e => e.Warehouse, () => CanCreate);
+		}
+		
+		private void ReloadAllowedWarehousesFrom()
+		{
 			var allowedWarehouses =
 				_warehousePermissionValidator.GetAllowedWarehouses(
 					UoW.IsNew
 						? WarehousePermissionsType.IncomingInvoiceCreate
 						: WarehousePermissionsType.IncomingInvoiceEdit, CurrentEmployee);
-            _allowedWarehousesFrom = UoW.Session.QueryOver<Warehouse>()
-                .Where(x => !x.IsArchive)
-                .WhereRestrictionOn(x => x.Id).IsIn(allowedWarehouses.Select(x => x.Id).ToArray())
-                .List();
-            OnPropertyChanged(nameof(AllowedWarehousesFrom));
-            OnPropertyChanged(nameof(Warehouses));
-        }
+			_allowedWarehousesFrom = UoW.Session.QueryOver<Warehouse>()
+				.Where(x => !x.IsArchive)
+				.WhereRestrictionOn(x => x.Id).IsIn(allowedWarehouses.Select(x => x.Id).ToArray())
+				.List();
+			OnPropertyChanged(nameof(AllowedWarehousesFrom));
+			OnPropertyChanged(nameof(Warehouses));
+		}
 		
 		private void OnObservableItemsContentChanged(object sender, EventArgs e)
 		{
@@ -449,33 +463,33 @@ namespace Vodovoz.ViewModels.Warehouses
 		}
 
 		public override bool Save(bool close)
-        {
-            if(!CanEdit)
+		{
+			if(!CanEdit)
 			{
 				return false;
 			}
 
 			if(UoW.IsNew)
 			{
-                Entity.Author = CurrentEmployee;
-                Entity.TimeStamp = DateTime.Now;
-            }
-            else
-            {
-                if(Entity.LastEditor == null)
-                {
-                    throw new InvalidOperationException("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
-                }
-            }
+				Entity.Author = CurrentEmployee;
+				Entity.TimeStamp = DateTime.Now;
+			}
+			else
+			{
+				if(Entity.LastEditor == null)
+				{
+					throw new InvalidOperationException("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
+				}
+			}
 
 			CreatePurchasePrices();
 
 			Entity.LastEditor = CurrentEmployee;
-            Entity.LastEditedTime = DateTime.Now;
-            
+			Entity.LastEditedTime = DateTime.Now;
+			
 
-            return base.Save(close);
-        }
+			return base.Save(close);
+		}
 
 		private void CreatePurchasePrices()
 		{
@@ -525,7 +539,7 @@ namespace Vodovoz.ViewModels.Warehouses
 			OnPropertyChanged(nameof(TotalSum));
 		}
 
-        #endregion
+		#endregion
 		
 	}
 }

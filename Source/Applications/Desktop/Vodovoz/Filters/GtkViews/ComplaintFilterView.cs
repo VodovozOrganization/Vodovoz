@@ -27,6 +27,7 @@ namespace Vodovoz.Filters.GtkViews
 			yenumcomboboxCurrentSubdivisionStatus.ItemsEnum = typeof(ComplaintDiscussionStatuses);
 			yenumcomboboxCurrentSubdivisionStatus.Binding.AddBinding(ViewModel, x => x.ComplaintDiscussionStatus, v => v.SelectedItemOrNull).InitializeFromSource();
 
+			entityentryComplaintKind.CanDisposeEntitySelectorFactory = false;
 			entityentryComplaintKind.SetEntityAutocompleteSelectorFactory(ViewModel.ComplaintKindSelectorFactory);
 			entityentryComplaintKind.Binding.AddBinding(ViewModel, vm => vm.ComplaintKind, w => w.Subject).InitializeFromSource();
 			entityentryComplaintKind.CanOpenWithoutTabParent = true;
@@ -74,6 +75,7 @@ namespace Vodovoz.Filters.GtkViews
 				.UseTdiEntityDialog()
 				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
 				.Finish();
+			entityentryCounterparty.ViewModel.DisposeViewModel = false;
 		}
 
 		public override void Destroy()
@@ -81,7 +83,6 @@ namespace Vodovoz.Filters.GtkViews
 			yenumcomboboxType.Destroy();
 			yenumcomboboxStatus.Destroy();
 			yenumcomboboxCurrentSubdivisionStatus.Destroy();
-			entityentryComplaintKind.Destroy();
 			yspeccomboboxComplaintObject.Destroy();
 			yenumcomboboxDateType.Destroy();
 			guiltyItemView.Destroy();

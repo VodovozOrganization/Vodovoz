@@ -4,6 +4,7 @@ using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
 using System;
+using Autofac;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Parameters;
@@ -18,17 +19,23 @@ namespace Vodovoz.ViewModels.Orders
 		public IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory { get; }
 		
 		public AddFixPriceActionViewModel(
+			ILifetimeScope lifetimeScope,
 			IUnitOfWork uow, 
 			PromotionalSet promotionalSet, 
 			ICommonServices commonServices,
 			INomenclatureJournalFactory nomenclatureJournalFactory) 
 		{
+			if(lifetimeScope is null)
+			{
+				throw new ArgumentNullException(nameof(lifetimeScope));
+			}
+			
 			_nomenclatureJournalFactory = nomenclatureJournalFactory ?? throw new ArgumentNullException(nameof(nomenclatureJournalFactory));
 
 			var filter = new NomenclatureFilterViewModel();
 			filter.RestrictCategory = NomenclatureCategory.water;
 
-			NomenclatureSelectorFactory = _nomenclatureJournalFactory.GetDefaultNomenclatureSelectorFactory(filter);
+			NomenclatureSelectorFactory = _nomenclatureJournalFactory.GetDefaultNomenclatureSelectorFactory(lifetimeScope, filter);
 
 			CreateCommands();
 			PromotionalSet = promotionalSet;

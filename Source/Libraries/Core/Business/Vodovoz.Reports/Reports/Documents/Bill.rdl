@@ -11,7 +11,7 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     o.id AS order_id,
@@ -87,7 +87,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -1458,18 +1458,18 @@ WHERE o.id = @order_id
         <ZIndex>0</ZIndex>
       </Table>
       <List Name="List3">
-        <Height>120.47pt</Height>
+        <Height>103.22pt</Height>
         <Width>535.30pt</Width>
-        <Left>31.4pt</Left>
-        <Top>502.0pt</Top>
+        <Left>31.40pt</Left>
+        <Top>511.60pt</Top>
         <ReportItems>
           <Textbox Name="Textbox24">
             <Height>16.50pt</Height>
             <Width>173.52pt</Width>
             <Value>Руководитель________________</Value>
             <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>52.3pt</Top>
+            <Left>0.00pt</Left>
+            <Top>52.30pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1575,6 +1575,25 @@ WHERE o.id = @order_id
               <Hidden>={?hide_signature}</Hidden>
             </Visibility>
             <MIMEType>image/png</MIMEType>
+          </Image>
+          <Image Name="Image7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>102.39pt</Height>
+            <Width>112.93pt</Width>
+            <Left>290.00pt</Left>
+            <Top>0.00pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+            <Source>Database</Source>
+            <Value>=First( {image} , "Stamp" )</Value>
+            <Sizing>Fit</Sizing>
+            <MIMEType>image/png</MIMEType>
+            <Visibility>
+              <Hidden>={?hide_signature}</Hidden>
+            </Visibility>
+            <ZIndex>2</ZIndex>
           </Image>
         </ReportItems>
         <Style>
@@ -2005,27 +2024,9 @@ Iif(
         <Value>=First( {IM1} , "Images" )</Value>
         <Sizing>FitProportional</Sizing>
         <ZIndex>0</ZIndex>
-        <Visibility></Visibility>
-        <MIMEType>image/jpeg</MIMEType>
-      </Image>
-      <Image Name="Image7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>102.39pt</Height>
-        <Width>112.93pt</Width>
-        <Left>321.7pt</Left>
-        <Top>511.7pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-        <Source>Database</Source>
-        <Value>=First( {image} , "Stamp" )</Value>
-        <Sizing>Fit</Sizing>
-        <MIMEType>image/png</MIMEType>
         <Visibility>
-          <Hidden>={?hide_signature}</Hidden>
         </Visibility>
-        <ZIndex>2</ZIndex>
+        <MIMEType>image/jpeg</MIMEType>
       </Image>
       <Textbox Name="Textbox18" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>50pt</Height>

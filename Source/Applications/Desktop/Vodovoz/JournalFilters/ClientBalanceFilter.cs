@@ -7,14 +7,10 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.TempAdapters;
-using Vodovoz.JournalSelector;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Autofac;
+using QS.Project.Journal.EntitySelector;
 using Vodovoz.ViewModels.TempAdapters;
-using QS.Services;
 
 namespace Vodovoz
 {
@@ -28,13 +24,14 @@ namespace Vodovoz
 		protected override void ConfigureWithUow()
 		{
 			nomenclatureEntry.SetEntityAutocompleteSelectorFactory(
-			new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-				_lifetimeScope.Resolve<ICommonServices>(), new NomenclatureFilterViewModel(), _lifetimeScope.Resolve<ICounterpartyJournalFactory>(),
-				_lifetimeScope.Resolve<INomenclatureRepository>(), _lifetimeScope.Resolve<IUserRepository>(), _lifetimeScope));
+			new EntityAutocompleteSelectorFactory<NomenclaturesJournalViewModel>(
+				typeof(Nomenclature),
+				() => _lifetimeScope.Resolve<NomenclaturesJournalViewModel>()));
 			
 			nomenclatureEntry.ChangedByUser += NomenclatureEntryOnChangedByUser;
 
-			entryClient.SetEntityAutocompleteSelectorFactory(_lifetimeScope.Resolve<ICounterpartyJournalFactory>().CreateCounterpartyAutocompleteSelectorFactory());
+			entryClient.SetEntityAutocompleteSelectorFactory(
+				_lifetimeScope.Resolve<ICounterpartyJournalFactory>().CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope));
 			var dpFactory = _lifetimeScope.Resolve<IDeliveryPointJournalFactory>();
 			dpFactory.SetDeliveryPointJournalFilterViewModel(_deliveryPointJournalFilter);
 			evmeDeliveryPoint.SetEntityAutocompleteSelectorFactory(dpFactory.CreateDeliveryPointByClientAutocompleteSelectorFactory());

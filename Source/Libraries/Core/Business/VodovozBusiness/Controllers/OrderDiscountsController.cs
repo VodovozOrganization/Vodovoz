@@ -157,9 +157,7 @@ namespace Vodovoz.Controllers
 		/// <param name="orderItem">Строка заказа</param>
 		private void SetCustomDiscount(DiscountReason reason, decimal discount, DiscountUnits unit, OrderItem orderItem)
 		{
-			orderItem.IsDiscountInMoney = unit == DiscountUnits.money;
-			orderItem.DiscountSetter = discount;
-			orderItem.DiscountReason = reason;
+			orderItem.SetDiscount(unit == DiscountUnits.money, discount, reason);
 		}
 		
 		/// <summary>
@@ -169,9 +167,7 @@ namespace Vodovoz.Controllers
 		/// <param name="item">Элемент, к которому применяется скидка</param>
 		private void SetDiscount(DiscountReason reason, IDiscount item)
 		{
-			item.IsDiscountInMoney = reason.ValueType == DiscountUnits.money;
-			item.DiscountSetter = reason.Value;
-			item.DiscountReason = reason;
+			item.SetDiscount(reason.ValueType == DiscountUnits.money, reason.Value, reason);
 		}
 
 		/// <summary>
@@ -180,15 +176,7 @@ namespace Vodovoz.Controllers
 		/// <param name="orderItem">Строка заказа</param>
 		private void RemoveDiscountFromOrderItem(OrderItem orderItem)
 		{
-			if(orderItem.DiscountReason == null)
-			{
-				return;
-			}
-			
-			orderItem.DiscountReason = null;
-			orderItem.IsDiscountInMoney = false;
-			orderItem.DiscountMoney = default(decimal);
-			orderItem.Discount = default(decimal);
+			orderItem.RemoveDiscount();
 		}
 
 		/// <summary>

@@ -20,7 +20,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Vodovoz.Application.Services.Logistics;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Documents.DriverTerminal;
@@ -50,19 +49,14 @@ namespace Vodovoz
 		private ILifetimeScope _lifetimeScope;
 		private ILogger<RouteListCreateDlg> _logger;
 
-		private BaseParametersProvider _baseParametersProvider;
 		private IAdditionalLoadingModel _additionalLoadingModel;
 		private IRouteListService _routeListService;
 		private IRouteListRepository _routeListRepository;
 		private IGenericRepository<RouteListSpecialConditionType> _routeListSpecialConditionTypeRepository;
-		private INomenclatureParametersProvider _nomenclatureParametersProvider;
-		private IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
 
 		private IEntityDocumentsPrinterFactory _entityDocumentsPrinterFactory;
 		private IEmployeeRepository _employeeRepository;
 		private IDeliveryShiftRepository _deliveryShiftRepository;
-		private ITrackRepository _trackRepository;
-		private IWageParameterService _wageParameterService;
 
 		private IRouteListProfitabilityController _routeListProfitabilityController;
 
@@ -112,25 +106,19 @@ namespace Vodovoz
 		{
 			_lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 			_logger = _lifetimeScope.Resolve<ILogger<RouteListCreateDlg>>();
-			_baseParametersProvider = _lifetimeScope.Resolve<BaseParametersProvider>();
 			_additionalLoadingModel = _lifetimeScope.Resolve<IAdditionalLoadingModel>();
 			_routeListRepository = _lifetimeScope.Resolve<IRouteListRepository>();
 			_routeListSpecialConditionTypeRepository = _lifetimeScope.Resolve<IGenericRepository<RouteListSpecialConditionType>>();
 			_routeListService = _lifetimeScope.Resolve<IRouteListService>();
-			_nomenclatureParametersProvider = _lifetimeScope.Resolve<INomenclatureParametersProvider>();
-			_deliveryRulesParametersProvider = _lifetimeScope.Resolve<IDeliveryRulesParametersProvider>();
 			_entityDocumentsPrinterFactory = _lifetimeScope.Resolve<IEntityDocumentsPrinterFactory>();
 			_employeeRepository = _lifetimeScope.Resolve<IEmployeeRepository>();
 			_deliveryShiftRepository = _lifetimeScope.Resolve<IDeliveryShiftRepository>();
-			_trackRepository = _lifetimeScope.Resolve<ITrackRepository>();
-			_wageParameterService = _lifetimeScope.Resolve<IWageParameterService>();
 			_routeListProfitabilityController = _lifetimeScope.Resolve<IRouteListProfitabilityController>();
 		}
 
 		private void ConfigureDlg()
 		{
 			createroutelistitemsview1.NavigationManager = Startup.MainWin.NavigationManager;
-			createroutelistitemsview1.LifetimeScope = _lifetimeScope;
 			createroutelistitemsview1.Container = this;
 
 			ynotebook1.ShowTabs = false;
@@ -275,7 +263,11 @@ namespace Vodovoz
 			createroutelistitemsview1.SetPermissionParameters(permissionResult, _isLogistican);
 
 			var additionalLoadingItemsViewModel =
-				new AdditionalLoadingItemsViewModel(UoW, this, new NomenclatureJournalFactory(_lifetimeScope), ServicesConfig.InteractiveService);
+				new AdditionalLoadingItemsViewModel(
+					UoW,
+					this,
+					Startup.MainWin.NavigationManager,
+					ServicesConfig.InteractiveService);
 			additionalLoadingItemsViewModel.BindWithSource(Entity, e => e.AdditionalLoadingDocument);
 			additionalLoadingItemsViewModel.CanEdit = Entity.Status == RouteListStatus.New;
 			_additionalLoadingItemsView = new AdditionalLoadingItemsView(additionalLoadingItemsViewModel);
@@ -299,6 +291,8 @@ namespace Vodovoz
 			ggToStringWidget.UoW = UoW;
 			ggToStringWidget.Label = "Район города:";
 			ggToStringWidget.Binding.AddBinding(Entity, x => x.ObservableGeographicGroups, x => x.Items).InitializeFromSource();
+
+			buttonAccept.Clicked += OnButtonAcceptClicked;
 
 			enumPrint.ItemsEnum = typeof(RouteListPrintableDocuments);
 			enumPrint.SetVisibility(RouteListPrintableDocuments.TimeList, false);
@@ -342,6 +336,7 @@ namespace Vodovoz
 
 			_logger.LogDebug("Пересчитываем рентабельность МЛ");
 			_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
+			createroutelistitemsview1.UpdateProfitabilityInfo();
 			_logger.LogDebug("Закончили пересчет рентабельности МЛ");
 			
 			_routeListProfitabilities = new GenericObservableList<RouteListProfitability> { Entity.RouteListProfitability };
@@ -593,11 +588,13 @@ namespace Vodovoz
 			}
 
 			var contextItems = new Dictionary<object, object>
-				{
-					{nameof(IRouteListItemRepository), new RouteListItemRepository()}
-				};
+			{
+				{nameof(IRouteListItemRepository), new RouteListItemRepository()}
+			};
+
 			var context = new ValidationContext(Entity, null, contextItems);
 			var validator = new ObjectValidator(new GtkValidationViewFactory());
+
 			if(!validator.Validate(Entity, context))
 			{
 				return false;
@@ -624,10 +621,17 @@ namespace Vodovoz
 				_oldDriver = Entity.Driver;
 			}
 
+			UoW.Session.Flush();
+
+			_logger.LogDebug("Пересчитываем рентабельность МЛ");
+			_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
+			_logger.LogDebug("Закончили пересчет рентабельности МЛ");
+			UoW.Save(Entity.RouteListProfitability);
+
 			_logger.LogInformation("Сохраняем маршрутный лист {RouteListId}...", Entity.Id);
 			UoWGeneric.Save();
 			_logger.LogInformation("Ok");
-			
+			createroutelistitemsview1.UpdateProfitabilityInfo();
 			return true;
 		}
 

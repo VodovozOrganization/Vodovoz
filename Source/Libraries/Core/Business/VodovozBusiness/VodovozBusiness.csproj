@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -59,7 +59,11 @@
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
     <Compile Include="ConfigureDeletion.cs" />
+    <Compile Include="Controllers\IAddressTransferController.cs" />
+    <Compile Include="Controllers\SentMovementsNotificationDetails.cs" />
     <Compile Include="DependencyInjection.cs" />
+    <Compile Include="Controllers\DriverWarehouseEventQrDataHandler.cs" />
+    <Compile Include="Controllers\IDriverWarehouseEventQrDataHandler.cs" />
     <Compile Include="Domain\Cash\CashTransfer\CashTransferDocumentStatuses.cs" />
     <Compile Include="Controllers\INomenclatureOnlineParametersController.cs" />
     <Compile Include="Controllers\NomenclatureOnlineParametersController.cs" />
@@ -88,9 +92,30 @@
     <Compile Include="Domain\Client\RegistrationInChestnyZnakStatus.cs" />
     <Compile Include="Domain\Client\SellingNomenclature.cs" />
     <Compile Include="Domain\Client\TaxType.cs" />
+    <Compile Include="Domain\Goods\CupHolderBracingType.cs" />
+    <Compile Include="Domain\Goods\CoolingType.cs" />
+    <Compile Include="Domain\Goods\EquipmentInstallationType.cs" />
+    <Compile Include="Domain\Goods\EquipmentWorkloadType.cs" />
+    <Compile Include="Domain\Goods\GlassHolderType.cs" />
+    <Compile Include="Domain\Goods\KulerSaleWebSiteNomenclatureOnlineCatalog.cs" />
+    <Compile Include="Domain\Goods\LockerRefrigeratorType.cs" />
+    <Compile Include="Domain\Goods\MobileAppNomenclatureOnlineCatalog.cs" />
     <Compile Include="Domain\Goods\NomenclatureCategory.cs" />
-    <Compile Include="Domain\Goods\NomenclatureCategory.cs" />
+    <Compile Include="Domain\Goods\NomenclatureOnlineCatalog.cs" />
+    <Compile Include="Domain\Goods\NomenclatureOnlineCategory.cs" />
+    <Compile Include="Domain\Goods\NomenclatureOnlineGroup.cs" />
+    <Compile Include="Domain\Goods\PumpType.cs" />
+    <Compile Include="Domain\Goods\ProtectionOnHotWaterTap.cs" />
+    <Compile Include="Domain\Goods\TapType.cs" />
+    <Compile Include="Domain\Goods\VodovozWebSiteNomenclatureOnlineCatalog.cs" />
+    <Compile Include="Domain\Logistic\Drivers\CompletedDriverWarehouseEvent.cs" />
     <Compile Include="Domain\Logistic\Drivers\DriverStopListRemoval.cs" />
+    <Compile Include="Domain\Logistic\Drivers\DriverWarehouseEvent.cs" />
+    <Compile Include="Domain\Logistic\Drivers\DriverWarehouseEventQrData.cs" />
+    <Compile Include="Domain\Logistic\Drivers\DriverWarehouseEventType.cs" />
+    <Compile Include="Domain\Logistic\Drivers\EventNamePosition.cs" />
+    <Compile Include="Domain\Logistic\Drivers\EventQrDocumentType.cs" />
+    <Compile Include="Domain\Logistic\Drivers\EventQrPositionOnDocument.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\RouteListMaxFastDeliveryOrders.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryChange.ChangeType.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryChange.cs" />
@@ -107,6 +132,7 @@
     <Compile Include="Domain\Payments\PaymentsFromCloudPaymentsParser.cs" />
     <Compile Include="Domain\Payments\PaymentsFromTinkoffParser.cs" />
     <Compile Include="Domain\Payments\PaymentState.cs" />
+    <Compile Include="Domain\Sale\DistrictCopyItem.cs" />
     <Compile Include="Domain\StoredEmails\UpdDocumentEmail.cs" />
     <Compile Include="Domain\Subdivisions\SubdivisionType.cs" />
     <Compile Include="EntityRepositories\Cash\FinancialExpenseCategoriesRepository.cs" />
@@ -550,12 +576,17 @@
     <Compile Include="EntityRepositories\IGenericRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\CachedDistanceRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\CarEventRepository.cs" />
+    <Compile Include="EntityRepositories\Logistic\CompletedDriverWarehouseEventRepository.cs" />
+    <Compile Include="EntityRepositories\Logistic\CompletedEventDto.cs" />
     <Compile Include="EntityRepositories\Logistic\DeliveryShiftRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\DriverPosition.cs" />
+    <Compile Include="EntityRepositories\Logistic\DriverWarehouseEventRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\ICachedDistanceRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\ICarEventRepository.cs" />
+    <Compile Include="EntityRepositories\Logistic\ICompletedDriverWarehouseEventRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\IDeliveryShiftRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\IArchivedTrackPointRepository.cs" />
+    <Compile Include="EntityRepositories\Logistic\IDriverWarehouseEventRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\IRouteColumnRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\ITrackRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\IWayBillDocumentRepository.cs" />
@@ -637,6 +668,7 @@
     <Compile Include="Errors\Error.cs" />
     <Compile Include="Errors\Logistics\District.cs" />
     <Compile Include="Errors\Logistics\District.FastDelivery.cs" />
+    <Compile Include="Errors\Logistics\RouteList.RouteListItem.cs" />
     <Compile Include="Errors\Logistics\RouteList.cs" />
     <Compile Include="Errors\Logistics\TariffZone.cs" />
     <Compile Include="Errors\Logistics\TariffZone.FastDelivery.cs" />
@@ -649,6 +681,7 @@
     <Compile Include="Extensions\EnumExtensions.cs" />
     <Compile Include="Extensions\ExpressionExtensions.cs" />
     <Compile Include="Extensions\NomenclatureOnlineParametersExtensions.cs" />
+    <Compile Include="Extensions\OrderItemExtensions.cs" />
     <Compile Include="Factories\CashReceiptFactory.cs" />
     <Compile Include="Factories\CounterpartyContractFactory.cs" />
     <Compile Include="Factories\EmployeeRegistrationFactory.cs" />
@@ -725,8 +758,6 @@
     <Compile Include="Models\NomenclaturePurchasePriceModel.cs" />
     <Compile Include="Models\Orders\CopyingOrder.cs" />
     <Compile Include="Models\Orders\OrderCopyModel.cs" />
-    <Compile Include="Models\Orders\RoboatsOrderArgs.cs" />
-    <Compile Include="Models\Orders\RoboatsOrderModel.cs" />
     <Compile Include="Models\Orders\RoboAtsOrderPayment.cs" />
     <Compile Include="Models\Orders\RoboatsWaterInfo.cs" />
     <Compile Include="Models\PremiumRaskatGAZelleWageModel.cs" />
@@ -769,6 +800,7 @@
     <Compile Include="NHibernateProjections\Goods\ProductGroupProjections.cs" />
     <Compile Include="NHibernateProjections\Logistics\CarProjections.cs" />
     <Compile Include="NHibernateProjections\Orders\OrderProjections.cs" />
+    <Compile Include="Nodes\OnlineNomenclatureNode.cs" />
     <Compile Include="Nodes\AvangardOperation.cs" />
     <Compile Include="Nodes\AvangardOperations.cs" />
     <Compile Include="Nodes\NomenclatureOnlineParametersData.cs" />
@@ -808,6 +840,7 @@
     <Compile Include="Parameters\IStoredResourcesSettings.cs" />
     <Compile Include="Parameters\ISubdivisionParametersProvider.cs" />
     <Compile Include="Parameters\ComplaintParameterProvider.cs" />
+    <Compile Include="Parameters\NomenclatureOnlineParametersProvider.cs" />
     <Compile Include="Parameters\PhoneTypeSettings.cs" />
     <Compile Include="Parameters\RouteListProfitabilitySettings.cs" />
     <Compile Include="Parameters\StoredResourcesSettings.cs" />
@@ -816,6 +849,10 @@
     <Compile Include="Permissions\Counterparty.cs" />
     <Compile Include="Permissions\Documents.cs" />
     <Compile Include="Permissions\Documents.MovementDocument.cs" />
+    <Compile Include="Permissions\EdoContainer.cs" />
+    <Compile Include="Permissions\EdoContainer.OrderWithoutShipmentForAdvancePayment.cs" />
+    <Compile Include="Permissions\EdoContainer.OrderWithoutShipmentForDebt.cs" />
+    <Compile Include="Permissions\EdoContainer.OrderWithoutShipmentForPayment.cs" />
     <Compile Include="Permissions\Email.cs" />
     <Compile Include="Permissions\Order.CashReceipt.cs" />
     <Compile Include="Permissions\Order.cs" />
@@ -976,6 +1013,7 @@
     <Compile Include="Services\IDeliveryRulesParametersProvider.cs" />
     <Compile Include="Services\IDeliveryScheduleParametersProvider.cs" />
     <Compile Include="Services\IGeographicGroupParametersProvider.cs" />
+    <Compile Include="Services\INomenclatureOnlineParametersProvider.cs" />
     <Compile Include="Services\INomenclatureParametersProvider.cs" />
     <Compile Include="Services\IFiasApiParametersProvider.cs" />
     <Compile Include="Services\IPhoneTypeSettings.cs" />
@@ -997,6 +1035,13 @@
     <Compile Include="Services\Logistics\RouteListAcceptStatus.cs" />
     <Compile Include="Services\RevenueServiceInfo.cs" />
     <Compile Include="Services\UserRoleSettings.cs" />
+    <Compile Include="Specifications\DynamicExpressionSpecification.cs" />
+    <Compile Include="Specifications\ExpressionSpecification.cs" />
+    <Compile Include="Specifications\ExpressionSpecificationAndExtension.cs" />
+    <Compile Include="Specifications\ExpressionSpecificationNotExtension.cs" />
+    <Compile Include="Specifications\ExpressionSpecificationOrExtension.cs" />
+    <Compile Include="Specifications\ISpecification.cs" />
+    <Compile Include="Specifications\Orders\EdoContainers\EdoContainerSpecification.cs" />
     <Compile Include="Tools\GeoGroupVersionNotFoundException.cs" />
     <Compile Include="Tools\DataArchiver.cs" />
     <Compile Include="Tools\IDataArchiver.cs" />
@@ -1308,7 +1353,6 @@
     <Compile Include="Domain\Comments\DocumentComment.cs" />
     <Compile Include="Domain\Comments\ICommentedDocument.cs" />
     <Compile Include="Attributes\Value1cType.cs" />
-    <Compile Include="Services\IPotentialFreePromosetsReportDefaultsProvider.cs" />
     <Compile Include="Domain\BusinessTasks\BusinessTask.cs" />
     <Compile Include="Domain\BusinessTasks\ClientTask.cs" />
     <Compile Include="Domain\BusinessTasks\PaymentTask.cs" />
@@ -1478,6 +1522,10 @@
     <ProjectReference Include="..\..\Backend\TrueMarkApi.Library\TrueMarkApi.Library.csproj">
       <Project>{D8D2EC1E-5F3B-4699-87E7-C85274A2BE66}</Project>
       <Name>TrueMarkApi.Library</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Infrastructure\Vodovoz.RDL\Vodovoz.RDL.csproj">
+      <Project>{056ba782-edef-4e8e-abb1-01fd3502a8f0}</Project>
+      <Name>Vodovoz.RDL</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Infrastructure\VodovozInfrastructure\VodovozInfrastructure.csproj">
       <Project>{42efc426-2c88-4608-8191-dbca4172a695}</Project>

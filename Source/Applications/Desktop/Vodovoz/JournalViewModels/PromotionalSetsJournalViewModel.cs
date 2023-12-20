@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using NHibernate;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
@@ -7,52 +7,30 @@ using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using QS.Services;
 using System;
+using QS.Navigation;
 using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.JournalNodes;
-using Vodovoz.Services;
-using Vodovoz.Settings.Nomenclature;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Orders;
 
 namespace Vodovoz.JournalViewModels
 {
 	public class PromotionalSetsJournalViewModel : SingleEntityJournalViewModelBase<PromotionalSet, PromotionalSetViewModel, PromotionalSetJournalNode>
 	{
-		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
-		private readonly IEmployeeService _employeeService;
-		private readonly INomenclatureRepository _nomenclatureRepository;
-		private readonly IUserRepository _userRepository;
-		private readonly INomenclatureSettings _nomenclatureSettings;
-		private readonly ILifetimeScope _lifetimeScope;
-		private readonly ICounterpartyJournalFactory _counterpartySelectorFactory;
-		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
-
+		private ILifetimeScope _lifetimeScope;
+		
 		public PromotionalSetsJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory, 
 			ICommonServices commonServices,
-			IEmployeeService employeeService,
-			ICounterpartyJournalFactory counterpartySelectorFactory,
-			INomenclatureJournalFactory nomenclatureSelectorFactory,
-			INomenclatureRepository nomenclatureRepository,
-			IUserRepository userRepository,
-			INomenclatureSettings nomenclatureSettings,
 			ILifetimeScope lifetimeScope,
+			INavigationManager navigationManager,
 			bool hideJournalForOpenDialog = false,
 			bool hideJournalForCreateDialog = false)
-			: base(unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
+			: base(unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog, navigationManager)
 		{
-			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
-			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
-			_counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
-			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			
 			TabName = "Промонаборы";
+			UseSlider = false;
 
 			var threadLoader = DataLoader as ThreadDataLoader<PromotionalSetJournalNode>;
 			threadLoader.MergeInOrderBy(x => x.IsArchive, false);
@@ -73,38 +51,28 @@ namespace Vodovoz.JournalViewModels
 			);
 
 			var result = query.SelectList(list => list
-									.Select(x => x.Id).WithAlias(() => resultAlias.Id)
-									.Select(x => x.IsArchive).WithAlias(() => resultAlias.IsArchive)
-									.Select(x => x.Name).WithAlias(() => resultAlias.Name)
-									)
-									.TransformUsing(Transformers.AliasToBean<PromotionalSetJournalNode>())
-									.OrderBy(x => x.Name).Asc;
+				.Select(x => x.Id).WithAlias(() => resultAlias.Id)
+				.Select(x => x.IsArchive).WithAlias(() => resultAlias.IsArchive)
+				.Select(x => x.Name).WithAlias(() => resultAlias.Name)
+				)
+				.TransformUsing(Transformers.AliasToBean<PromotionalSetJournalNode>())
+				.OrderBy(x => x.Name).Asc;
 			return result;
 		};
 
 		protected override Func<PromotionalSetViewModel> CreateDialogFunction => () => new PromotionalSetViewModel(
 			EntityUoWBuilder.ForCreate(),
-			_unitOfWorkFactory,
+			UnitOfWorkFactory,
 			commonServices,
-			_employeeService,
-			_counterpartySelectorFactory,
-			_nomenclatureSelectorFactory,
-			_nomenclatureRepository,
-			_nomenclatureSettings,
-			_userRepository,
+			NavigationManager,
 			_lifetimeScope
 		);
 
 		protected override Func<PromotionalSetJournalNode, PromotionalSetViewModel> OpenDialogFunction => node => new PromotionalSetViewModel(
 			EntityUoWBuilder.ForOpen(node.Id),
-			_unitOfWorkFactory,
+			UnitOfWorkFactory,
 			commonServices,
-			_employeeService,
-			_counterpartySelectorFactory,
-			_nomenclatureSelectorFactory,
-			_nomenclatureRepository,
-			_nomenclatureSettings,
-			_userRepository,
+			NavigationManager,
 			_lifetimeScope
 	   	);
 
