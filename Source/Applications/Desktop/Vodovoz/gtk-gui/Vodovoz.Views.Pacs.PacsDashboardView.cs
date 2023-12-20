@@ -36,8 +36,6 @@ namespace Vodovoz.Views.Pacs
 
 		private global::Gamma.GtkWidgets.yTreeView treeViewOperatorsOnWorkshift;
 
-		private global::Gtk.VSeparator separatorCalls;
-
 		private global::Gamma.GtkWidgets.yVBox vboxCalls;
 
 		private global::Gamma.GtkWidgets.yLabel labelCalls;
@@ -54,15 +52,9 @@ namespace Vodovoz.Views.Pacs
 
 		private global::Gamma.GtkWidgets.yTreeView treeViewAllCalls;
 
-		private global::Gtk.VSeparator separatorDetails;
-
 		private global::Gamma.GtkWidgets.yVBox vboxDetails;
 
 		private global::Gamma.GtkWidgets.yLabel labelDetails;
-
-		private global::Vodovoz.Views.Pacs.OperatorDetailsView operatordetailsview1;
-
-		private global::Gamma.GtkWidgets.yHBox hboxFooter;
 
 		protected virtual void Build()
 		{
@@ -131,6 +123,7 @@ namespace Vodovoz.Views.Pacs
 			// Container child vboxWidget.Gtk.Box+BoxChild
 			this.hboxDashboard = new global::Gamma.GtkWidgets.yHBox();
 			this.hboxDashboard.Name = "hboxDashboard";
+			this.hboxDashboard.Homogeneous = true;
 			this.hboxDashboard.Spacing = 6;
 			// Container child hboxDashboard.Gtk.Box+BoxChild
 			this.vboxOperators = new global::Gamma.GtkWidgets.yVBox();
@@ -192,14 +185,6 @@ namespace Vodovoz.Views.Pacs
 			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hboxDashboard[this.vboxOperators]));
 			w15.Position = 0;
 			// Container child hboxDashboard.Gtk.Box+BoxChild
-			this.separatorCalls = new global::Gtk.VSeparator();
-			this.separatorCalls.Name = "separatorCalls";
-			this.hboxDashboard.Add(this.separatorCalls);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hboxDashboard[this.separatorCalls]));
-			w16.Position = 1;
-			w16.Expand = false;
-			w16.Fill = false;
-			// Container child hboxDashboard.Gtk.Box+BoxChild
 			this.vboxCalls = new global::Gamma.GtkWidgets.yVBox();
 			this.vboxCalls.Name = "vboxCalls";
 			this.vboxCalls.Spacing = 6;
@@ -209,19 +194,19 @@ namespace Vodovoz.Views.Pacs
 			this.labelCalls.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Звонки</b>");
 			this.labelCalls.UseMarkup = true;
 			this.vboxCalls.Add(this.labelCalls);
-			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.vboxCalls[this.labelCalls]));
-			w17.Position = 0;
-			w17.Expand = false;
-			w17.Fill = false;
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vboxCalls[this.labelCalls]));
+			w16.Position = 0;
+			w16.Expand = false;
+			w16.Fill = false;
 			// Container child vboxCalls.Gtk.Box+BoxChild
 			this.labelMissedCalls = new global::Gamma.GtkWidgets.yLabel();
 			this.labelMissedCalls.Name = "labelMissedCalls";
 			this.labelMissedCalls.LabelProp = global::Mono.Unix.Catalog.GetString("Пропущенные");
 			this.vboxCalls.Add(this.labelMissedCalls);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vboxCalls[this.labelMissedCalls]));
-			w18.Position = 1;
-			w18.Expand = false;
-			w18.Fill = false;
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.vboxCalls[this.labelMissedCalls]));
+			w17.Position = 1;
+			w17.Expand = false;
+			w17.Fill = false;
 			// Container child vboxCalls.Gtk.Box+BoxChild
 			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
@@ -232,17 +217,17 @@ namespace Vodovoz.Views.Pacs
 			this.treeViewMissedCalls.Name = "treeViewMissedCalls";
 			this.GtkScrolledWindow1.Add(this.treeViewMissedCalls);
 			this.vboxCalls.Add(this.GtkScrolledWindow1);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vboxCalls[this.GtkScrolledWindow1]));
-			w20.Position = 2;
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vboxCalls[this.GtkScrolledWindow1]));
+			w19.Position = 2;
 			// Container child vboxCalls.Gtk.Box+BoxChild
 			this.labelAllCalls = new global::Gamma.GtkWidgets.yLabel();
 			this.labelAllCalls.Name = "labelAllCalls";
 			this.labelAllCalls.LabelProp = global::Mono.Unix.Catalog.GetString("Все");
 			this.vboxCalls.Add(this.labelAllCalls);
-			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vboxCalls[this.labelAllCalls]));
-			w21.Position = 3;
-			w21.Expand = false;
-			w21.Fill = false;
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vboxCalls[this.labelAllCalls]));
+			w20.Position = 3;
+			w20.Expand = false;
+			w20.Fill = false;
 			// Container child vboxCalls.Gtk.Box+BoxChild
 			this.GtkScrolledWindow3 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow3.Name = "GtkScrolledWindow3";
@@ -253,19 +238,11 @@ namespace Vodovoz.Views.Pacs
 			this.treeViewAllCalls.Name = "treeViewAllCalls";
 			this.GtkScrolledWindow3.Add(this.treeViewAllCalls);
 			this.vboxCalls.Add(this.GtkScrolledWindow3);
-			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vboxCalls[this.GtkScrolledWindow3]));
-			w23.Position = 4;
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vboxCalls[this.GtkScrolledWindow3]));
+			w22.Position = 4;
 			this.hboxDashboard.Add(this.vboxCalls);
-			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.hboxDashboard[this.vboxCalls]));
-			w24.Position = 2;
-			// Container child hboxDashboard.Gtk.Box+BoxChild
-			this.separatorDetails = new global::Gtk.VSeparator();
-			this.separatorDetails.Name = "separatorDetails";
-			this.hboxDashboard.Add(this.separatorDetails);
-			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.hboxDashboard[this.separatorDetails]));
-			w25.Position = 3;
-			w25.Expand = false;
-			w25.Fill = false;
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.hboxDashboard[this.vboxCalls]));
+			w23.Position = 1;
 			// Container child hboxDashboard.Gtk.Box+BoxChild
 			this.vboxDetails = new global::Gamma.GtkWidgets.yVBox();
 			this.vboxDetails.Name = "vboxDetails";
@@ -276,32 +253,16 @@ namespace Vodovoz.Views.Pacs
 			this.labelDetails.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Детали</b>");
 			this.labelDetails.UseMarkup = true;
 			this.vboxDetails.Add(this.labelDetails);
-			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vboxDetails[this.labelDetails]));
-			w26.Position = 0;
-			w26.Expand = false;
-			w26.Fill = false;
-			// Container child vboxDetails.Gtk.Box+BoxChild
-			this.operatordetailsview1 = new global::Vodovoz.Views.Pacs.OperatorDetailsView();
-			this.operatordetailsview1.Events = ((global::Gdk.EventMask)(256));
-			this.operatordetailsview1.Name = "operatordetailsview1";
-			this.vboxDetails.Add(this.operatordetailsview1);
-			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.vboxDetails[this.operatordetailsview1]));
-			w27.Position = 1;
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vboxDetails[this.labelDetails]));
+			w24.Position = 0;
+			w24.Expand = false;
+			w24.Fill = false;
 			this.hboxDashboard.Add(this.vboxDetails);
-			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.hboxDashboard[this.vboxDetails]));
-			w28.Position = 4;
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.hboxDashboard[this.vboxDetails]));
+			w25.Position = 2;
 			this.vboxWidget.Add(this.hboxDashboard);
-			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.hboxDashboard]));
-			w29.Position = 1;
-			// Container child vboxWidget.Gtk.Box+BoxChild
-			this.hboxFooter = new global::Gamma.GtkWidgets.yHBox();
-			this.hboxFooter.Name = "hboxFooter";
-			this.hboxFooter.Spacing = 6;
-			this.vboxWidget.Add(this.hboxFooter);
-			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.hboxFooter]));
-			w30.Position = 2;
-			w30.Expand = false;
-			w30.Fill = false;
+			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.hboxDashboard]));
+			w26.Position = 1;
 			this.Add(this.vboxWidget);
 			if ((this.Child != null))
 			{
