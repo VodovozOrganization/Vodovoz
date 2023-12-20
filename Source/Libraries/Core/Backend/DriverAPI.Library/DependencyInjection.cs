@@ -4,6 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 using Vodovoz;
 using Vodovoz.Application;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.Settings.Database;
 
 namespace DriverAPI.Library
@@ -47,9 +49,11 @@ namespace DriverAPI.Library
 			services.AddScoped<IFastPaymentModel, FastPaymentModel>();
 			services.AddScoped<IDriverWarehouseEventsModel, DriverWarehouseEventsModel>();
 
-			services.AddBusiness();
-			services.AddApplication();
-			services.AddDatabaseSettings();
+			services.AddScoped<IGlobalSettings, GlobalSettings>();
+
+			services.AddBusiness()
+					.AddApplication()
+					.AddDatabaseSettings();
 
 			return services;
 		}
