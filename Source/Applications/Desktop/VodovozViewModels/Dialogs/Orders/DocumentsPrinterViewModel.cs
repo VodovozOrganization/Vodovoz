@@ -17,7 +17,8 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 		private readonly Order _currentOrder;
 		private readonly IEntityDocumentsPrinterFactory _entityDocumentsPrinterFactory;
 		private RouteList _currentRouteList;
-		
+		private IEntityDocumentsPrinter _entityDocumentsPrinter;
+
 		public event Action PreviewDocument;
 		public event EventHandler DocumentsPrinted;
 
@@ -71,8 +72,12 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 			_currentRouteList = routeList;
 			Configure();
 		}
-		
-		public IEntityDocumentsPrinter EntityDocumentsPrinter { get; private set; }
+
+		public IEntityDocumentsPrinter EntityDocumentsPrinter
+		{
+			get => _entityDocumentsPrinter;
+			private set => SetField(ref _entityDocumentsPrinter, value);
+		}
 
 		public SelectablePrintDocument SelectedDocument { get; set; }
 
@@ -99,6 +104,11 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 		
 		public void DefaultPreviewDocument()
 		{
+			if(EntityDocumentsPrinter is null)
+			{
+				return;
+			}
+
 			var printDocuments = EntityDocumentsPrinter.DocumentsToPrint;
 			if(_currentOrder != null) 
 			{ //если этот диалог вызван из заказа

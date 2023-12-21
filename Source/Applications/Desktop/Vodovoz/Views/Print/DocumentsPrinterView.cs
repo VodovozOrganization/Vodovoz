@@ -24,13 +24,27 @@ namespace Vodovoz.Views.Print
             buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
             ybtnPrintAll.Clicked += (sender, args) => ViewModel.PrintAll();
 
+			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
             ViewModel.PreviewDocument += PreviewDocument;
-            ViewModel.DefaultPreviewDocument();
+			if(ViewModel.EntityDocumentsPrinter != null)
+			{
+				ViewModel.DefaultPreviewDocument();
+			}
         }
 
-        private void ConfigureTree()
+		private void OnViewModelPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(ViewModel.EntityDocumentsPrinter))
+			{
+				ConfigureTree();
+				ViewModel.DefaultPreviewDocument();
+			}
+		}
+
+		private void ConfigureTree()
         {
-            ytreeviewDocuments.ColumnsConfig = FluentColumnsConfig<SelectablePrintDocument>.Create()
+			ytreeviewDocuments.RowActivated -= YTreeViewDocumentsOnRowActivated;
+			ytreeviewDocuments.ColumnsConfig = FluentColumnsConfig<SelectablePrintDocument>.Create()
                 .AddColumn("✓")
                     .AddToggleRenderer(x => x.Selected)
                 .AddColumn("Документ")
@@ -42,7 +56,10 @@ namespace Vodovoz.Views.Print
                 .RowCells()
                 .Finish();
 
-            ytreeviewDocuments.ItemsDataSource = ViewModel.EntityDocumentsPrinter.MultiDocPrinterPrintableDocuments;
+			if(ViewModel.EntityDocumentsPrinter != null)
+			{
+				ytreeviewDocuments.ItemsDataSource = ViewModel.EntityDocumentsPrinter.MultiDocPrinterPrintableDocuments;
+			}
             ytreeviewDocuments.RowActivated += YTreeViewDocumentsOnRowActivated;
         }
 
