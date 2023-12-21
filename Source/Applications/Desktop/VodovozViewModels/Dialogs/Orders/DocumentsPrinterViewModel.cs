@@ -52,6 +52,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 
 			_currentOrder = order;
 			Configure();
+			DefaultPreviewDocument();
 		}
 
 		[Obsolete("Опасный метод, невозможен вызов через навигатор и проброс зависимостей через контейнер")]
@@ -71,6 +72,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 			
 			_currentRouteList = routeList;
 			Configure();
+			DefaultPreviewDocument();
 		}
 
 		public IEntityDocumentsPrinter EntityDocumentsPrinter
@@ -95,6 +97,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 			_currentRouteList = routeList;
 
 			EntityDocumentsPrinter.DocumentsPrinted += (o, args) => DocumentsPrinted?.Invoke(o, args);
+			DefaultPreviewDocument();
 		}
 
 		private void Configure()

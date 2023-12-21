@@ -25,10 +25,9 @@ namespace Vodovoz.Views.Print
             ybtnPrintAll.Clicked += (sender, args) => ViewModel.PrintAll();
 
 			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
-            ViewModel.PreviewDocument += PreviewDocument;
 			if(ViewModel.EntityDocumentsPrinter != null)
 			{
-				ViewModel.DefaultPreviewDocument();
+				ViewModel.PreviewDocument += PreviewDocument;
 			}
         }
 
@@ -36,8 +35,12 @@ namespace Vodovoz.Views.Print
 		{
 			if(e.PropertyName == nameof(ViewModel.EntityDocumentsPrinter))
 			{
-				ConfigureTree();
-				ViewModel.DefaultPreviewDocument();
+				ViewModel.PreviewDocument -= PreviewDocument;
+				if(ViewModel.EntityDocumentsPrinter != null)
+				{
+					ConfigureTree();
+					ViewModel.PreviewDocument += PreviewDocument;
+				}
 			}
 		}
 
