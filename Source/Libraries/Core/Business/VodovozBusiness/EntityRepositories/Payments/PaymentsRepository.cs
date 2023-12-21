@@ -4,7 +4,6 @@ using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
-using QS.Project.Journal;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.Client;
@@ -277,23 +276,5 @@ namespace Vodovoz.EntityRepositories.Payments
 			
 			return payment != null;
 		}
-	}
-	
-	public class UnallocatedBalancesJournalNode : JournalNodeBase
-	{
-		public int CounterpartyId { get; set; }
-		public int OrganizationId { get; set; }
-		public string CounterpartyName { get; set; }
-		public string CounterpartyINN { get; set; }
-		public string OrganizationName { get; set; }
-		public decimal CounterpartyBalance { get; set; }
-		public decimal CounterpartyDebt { get; set; }
-	}
-
-	public class NotFullyAllocatedPaymentNode
-	{
-		public int Id { get; set; }
-		public decimal UnallocatedSum { get; set; }
-		public DateTime PaymentDate { get; set; }
 	}
 }
