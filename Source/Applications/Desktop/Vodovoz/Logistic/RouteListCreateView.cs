@@ -60,14 +60,14 @@ namespace Vodovoz.Logistic
 
 			entryCar.ViewModel = ViewModel.CarViewModel;
 			entryCar.Binding
-				.AddBinding(ViewModel, vm => vm.CanAccept, w => w.ViewModel.IsEditable)
+				.AddBinding(ViewModel, vm => vm.CanAccept, w => w.Sensitive)
 				.InitializeFromSource();
 
 			entryCar.ViewModel.ChangedByUser += ViewModel.OnCarChangedByUser;
 
 			entryDriver.ViewModel = ViewModel.DriverViewModel;
 			entryDriver.Binding
-				.AddBinding(ViewModel, vm => vm.CanChangeDriver, w => w.ViewModel.IsEditable)
+				.AddBinding(ViewModel, vm => vm.CanChangeDriver, w => w.Sensitive)
 				.InitializeFromSource();
 
 			lblDriverComment.Binding
@@ -89,7 +89,7 @@ namespace Vodovoz.Logistic
 			entryForwarder.ViewModel = ViewModel.ForwarderViewModel;
 
 			entryForwarder.Binding
-				.AddBinding(ViewModel, vm => vm.CanChangeForwarder, w => w.ViewModel.IsEditable)
+				.AddBinding(ViewModel, vm => vm.CanChangeForwarder, w => w.Sensitive)
 				.InitializeFromSource();
 
 			entryForwarder.ViewModel.Changed += OnForwarderChanged;
