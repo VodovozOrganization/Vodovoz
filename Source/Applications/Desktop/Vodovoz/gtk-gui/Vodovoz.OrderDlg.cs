@@ -1368,7 +1368,7 @@ namespace Vodovoz
 			this.timepickerWaitUntil = new global::QS.Widgets.GtkUI.TimePicker();
 			this.timepickerWaitUntil.Events = ((global::Gdk.EventMask)(256));
 			this.timepickerWaitUntil.Name = "timepickerWaitUntil";
-			this.timepickerWaitUntil.Time = new global::System.TimeSpan(0);
+			this.timepickerWaitUntil.TimeOrNull = new global::System.TimeSpan(0);
 			this.table1.Add(this.timepickerWaitUntil);
 			global::Gtk.Table.TableChild w70 = ((global::Gtk.Table.TableChild)(this.table1[this.timepickerWaitUntil]));
 			w70.TopAttach = ((uint)(12));

@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
@@ -266,7 +266,7 @@ namespace Vodovoz
         private readonly IGeneralSettingsParametersProvider _generalSettingsParametersProvider = new GeneralSettingsParametersProvider(new ParametersProvider());
 		private bool _isWaitUntilActive => Entity.OrderStatus == OrderStatus.OnTheWay
 			&& _generalSettingsParametersProvider.GetIsOrderWaitUntilActive;
-		private DateTime? _lastWaitUntilTime;
+		private TimeSpan? _lastWaitUntilTime;
 
 		public virtual INomenclatureRepository NomenclatureRepository
 		{
@@ -1067,7 +1067,9 @@ namespace Vodovoz
 			UpdateEntityLogisticsRequirements();
 			logisticsRequirementsView.ViewModel.Entity.PropertyChanged += OnLogisticsRequirementsSelectionChanged;
 
-			datepickerWaitUntil.Binding.AddBinding(Entity, e => e.WaitUntilTime, w => w.DateOrNull).InitializeFromSource();
+			timepickerWaitUntil.Binding.AddBinding(Entity, e => e.WaitUntilTime, w => w.TimeOrNull).InitializeFromSource();
+			timepickerWaitUntil.GetDefaultTime = () => DateTime.Now.AddHours(1).TimeOfDay;
+
 			_lastWaitUntilTime = Entity.WaitUntilTime;
 
 			OnEnumPaymentTypeChanged(null, EventArgs.Empty);
@@ -4164,7 +4166,7 @@ namespace Vodovoz
 		{
 			foreach(var widget in table1.Children)
 			{
-				if(widget.Name == datepickerWaitUntil.Name)
+				if(widget.Name == timepickerWaitUntil.Name)
 				{
 					widget.Sensitive = _isWaitUntilActive;
 				}

@@ -19,6 +19,7 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Дата").AddTextRenderer(node => node.Date != null ? ((DateTime)node.Date).ToString("d") : string.Empty)
 				.AddColumn("Автор").AddTextRenderer(node => node.Author)
 				.AddColumn("Время").AddTextRenderer(node => node.IsSelfDelivery ? "-" : node.DeliveryTime)
+				.AddColumn("Ожидает до").AddTimeRenderer(node => node.WaitUntilTime)
 				.AddColumn("Статус").AddTextRenderer(node => node.StatusEnum.GetEnumTitle())
 				.AddColumn("Тип").AddTextRenderer(node => node.ViewType)
 					.WrapMode(WrapMode.WordChar)

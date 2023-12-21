@@ -205,6 +205,9 @@ namespace Vodovoz
 					.AddTextRenderer(node => node.RouteListItem.Order.Id.ToString())
 				.AddColumn("Адрес")
 					.AddTextRenderer(node => node.RouteListItem.Order.DeliveryPoint == null ? "Требуется точка доставки" : node.RouteListItem.Order.DeliveryPoint.ShortAddress)
+				.AddColumn("Ожидает до")
+					.AddTimeRenderer(node => node.WaitUntil)
+					.Editable()
 				.AddColumn("Время")
 					.AddTextRenderer(node => node.RouteListItem.Order.DeliverySchedule == null ? "" : node.RouteListItem.Order.DeliverySchedule.Name)
 				.AddColumn("Статус")
@@ -614,6 +617,12 @@ namespace Vodovoz
 				status = value;
 				StatusChanged?.Invoke(this, new StatusChangedEventArgs(value));
 			}
+		}
+
+		public TimeSpan? WaitUntil
+		{
+			get => RouteListItem.Order.WaitUntilTime;
+			set => RouteListItem.Order.WaitUntilTime = value;			
 		}
 
 		public string Comment {
