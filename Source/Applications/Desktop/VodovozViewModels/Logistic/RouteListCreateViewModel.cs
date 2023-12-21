@@ -231,7 +231,7 @@ namespace Vodovoz.ViewModels.Logistic
 			&& Entity.Car != null;
 
 		public bool CanRemoveAdditionalLoad =>
-			RouteList.NotLoadedRouteListStatuses.Contains(Entity.Status)
+			CanAccept
 			&& Entity.AdditionalLoadingDocument != null;
 
 		public bool AdditionalLoadItemsVisible => Entity.AdditionalLoadingDocument != null;
@@ -241,7 +241,9 @@ namespace Vodovoz.ViewModels.Logistic
 		public bool CanAccept => Entity.Status == RouteListStatus.New
 			&& CanSave;
 
-		public bool CanRevertToNew => Entity.Status != RouteListStatus.New && CanSave;
+		public bool CanRevertToNew => Entity.Status != RouteListStatus.New
+			&& RouteList.NotLoadedRouteListStatuses.Contains(Entity.Status)
+			&& CanSave;
 
 		public bool CanChangeDriver => CanAccept
 			&& Entity.Car != null;
@@ -362,6 +364,7 @@ namespace Vodovoz.ViewModels.Logistic
 				OnPropertyChanged(nameof(CanRevertToNew));
 				OnPropertyChanged(nameof(CanChangeFixedPrice));
 				OnPropertyChanged(nameof(CanChangeIsFixPrice));
+				OnPropertyChanged(nameof(CanRemoveAdditionalLoad));
 			}
 		}
 
