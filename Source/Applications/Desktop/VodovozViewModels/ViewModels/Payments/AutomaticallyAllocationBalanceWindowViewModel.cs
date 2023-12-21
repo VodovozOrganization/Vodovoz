@@ -18,7 +18,7 @@ namespace Vodovoz.ViewModels.Payments
 		private readonly IInteractiveService _interactiveService;
 		private readonly IPaymentsRepository _paymentsRepository;
 		private readonly IOrderRepository _orderRepository;
-		private readonly IUnitOfWork _uow;
+		private readonly IUnitOfWork _unitOfWork;
 
 		private bool _isAllocationState;
 		private bool _allocateCompletedPayments = true;
@@ -51,7 +51,7 @@ namespace Vodovoz.ViewModels.Payments
 
 			Title = "Автоматическое распределение положительного баланса";
 
-			_uow = uowFactory.CreateWithoutRoot(Title);
+			_unitOfWork = uowFactory.CreateWithoutRoot(Title);
 
 			Resizable = false;
 			Deletable = false;
@@ -118,7 +118,6 @@ namespace Vodovoz.ViewModels.Payments
 			}
 		}
 
-
 		private void AllocateByAllCounterpartiesWithPositiveBalance()
 		{
 			try
@@ -129,7 +128,7 @@ namespace Vodovoz.ViewModels.Payments
 					ProgressBarDisplayable.Start(1, 0, "Получаем всех клиентов с положительным балансом...");
 
 					var allUnAllocatedBalances =
-						_paymentsRepository.GetAllUnallocatedBalances(_uow, _closingDocumentDeliveryScheduleId)
+						_paymentsRepository.GetAllUnallocatedBalances(_unitOfWork, _closingDocumentDeliveryScheduleId)
 							.List<UnallocatedBalancesJournalNode>();
 
 					AllocateLoadedBalances(allUnAllocatedBalances);
@@ -155,11 +154,11 @@ namespace Vodovoz.ViewModels.Payments
 		{
 			var balance = node.CounterpartyBalance;
 			var paymentNodes = _paymentsRepository.GetAllNotFullyAllocatedPaymentsByClientAndOrg(
-				_uow, node.CounterpartyId, node.OrganizationId, AllocateCompletedPayments);
+				_unitOfWork, node.CounterpartyId, node.OrganizationId, AllocateCompletedPayments);
 
 			var orderNodes =
 				_orderRepository.GetAllNotFullyPaidOrdersByClientAndOrg(
-					_uow,
+					_unitOfWork,
 					node.CounterpartyId,
 					node.OrganizationId,
 					_closingDocumentDeliveryScheduleId);
@@ -172,11 +171,11 @@ namespace Vodovoz.ViewModels.Payments
 				}
 
 				var unallocatedSum = paymentNode.UnallocatedSum;
-				var payment = _uow.GetById<Payment>(paymentNode.Id);
+				var payment = _unitOfWork.GetById<Payment>(paymentNode.Id);
 
 				while(orderNodes.Count > 0)
 				{
-					var order = _uow.GetById<Order>(orderNodes[0].Id);
+					var order = _unitOfWork.GetById<Order>(orderNodes[0].Id);
 					var sumToAllocate = orderNodes[0].OrderSum - orderNodes[0].AllocatedSum;
 
 					if(balance >= unallocatedSum)
@@ -241,10 +240,10 @@ namespace Vodovoz.ViewModels.Payments
 					payment.Status = PaymentState.completed;
 				}
 
-				_uow.Save(payment);
+				_unitOfWork.Save(payment);
 			}
 
-			_uow.Commit();
+			_unitOfWork.Commit();
 		}
 
 		private void AllocateLoadedBalances(IList<UnallocatedBalancesJournalNode> loadedNodes)
@@ -265,7 +264,7 @@ namespace Vodovoz.ViewModels.Payments
 
 		public void Dispose()
 		{
-			_uow?.Dispose();
+			_unitOfWork?.Dispose();
 		}
 	}
 }
