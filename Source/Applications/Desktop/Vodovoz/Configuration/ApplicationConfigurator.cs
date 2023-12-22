@@ -88,8 +88,8 @@ namespace Vodovoz.Configuration
                 .AdoNetBatchSize(100)
                 .Driver<LoggedMySqlClientDriver>();
 
-            // Настройка ORM
-            OrmConfig.ConfigureOrm(
+			// Настройка ORM
+			OrmConfig.ConfigureOrm(
                 dbConfig,
                 new[] {
                     Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
@@ -108,7 +108,9 @@ namespace Vodovoz.Configuration
 							dbi.Timeout = 120;
 						}
                     );
-                }
+
+					cnf.LinqToHqlGeneratorsRegistry<LinqToHqlGeneratorsRegistry>();
+				}
             );
 
 			HistoryMain.Enable(dbConnectionStringBuilder);
