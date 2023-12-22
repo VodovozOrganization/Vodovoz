@@ -39,6 +39,7 @@ namespace Pacs.Server
 		private StateMachine.TriggerWithParameters<string> _takeCallTrigger;
 		private StateMachine.TriggerWithParameters<string> _changePhoneTrigger;
 		private StateMachine.TriggerWithParameters<string> _startWorkShiftTrigger;
+		private StateMachine.TriggerWithParameters<string> _endWorkShiftTrigger;
 		private StateMachine.TriggerWithParameters<DisconnectionType> _disconnectTrigger;
 
 		private StateMachine.TriggerWithParameters<BreakStartArgs> _startBreakTrigger;
@@ -131,6 +132,7 @@ namespace Pacs.Server
 			_takeCallTrigger = _machine.SetTriggerParameters<string>(OperatorStateTrigger.TakeCall);
 			_changePhoneTrigger = _machine.SetTriggerParameters<string>(OperatorStateTrigger.ChangePhone);
 			_startWorkShiftTrigger = _machine.SetTriggerParameters<string>(OperatorStateTrigger.StartWorkShift);
+			_endWorkShiftTrigger = _machine.SetTriggerParameters<string>(OperatorStateTrigger.EndWorkShift);
 			_disconnectTrigger = _machine.SetTriggerParameters<DisconnectionType>(OperatorStateTrigger.Disconnect);
 			_startBreakTrigger = _machine.SetTriggerParameters<BreakStartArgs>(OperatorStateTrigger.StartBreak);
 			_endBreakTrigger = _machine.SetTriggerParameters<BreakEndArgs>(OperatorStateTrigger.EndBreak);
@@ -211,6 +213,13 @@ namespace Pacs.Server
 
 			OperatorState.Trigger = ConvertTrigger(transition.Trigger);
 
+			if(OperatorState.WorkShift != null 
+				&& OperatorState.WorkShift.Ended.HasValue 
+				&& transition.Trigger != OperatorStateTrigger.EndWorkShift)
+			{
+				OperatorState.WorkShift = null;
+			}
+
 			await SaveState();
 
 			if(OperatorStateType.Break.IsIn(transition.Source, transition.Destination))
@@ -226,7 +235,6 @@ namespace Pacs.Server
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
-				await uow.SaveAsync(Session);
 				await uow.SaveAsync(OperatorState);
 				if(_previuosState.State != OperatorStateType.New)
 				{
@@ -365,18 +373,62 @@ namespace Pacs.Server
 			var phoneNumber = (string)transition.Parameters[0];
 			_phoneController.AssignPhone(phoneNumber, OperatorId);
 			OperatorState.PhoneNumber = phoneNumber;
+			OperatorState.WorkShift = new OperatorWorkshift
+			{
+				OperatorId = OperatorId,
+				Started = DateTime.Now,
+				PlannedWorkShift = _operator.WorkShift
+			};
 			_logger.LogInformation("Оператор {OperatorId} начал рабочую смену", OperatorId);
 		}
 
-		public async Task EndWorkShift()
+		public async Task EndWorkShift(string reason)
 		{
-			await _machine.FireAsync(OperatorStateTrigger.EndWorkShift);
+			await _machine.FireAsync(_endWorkShiftTrigger, reason);
 		}
 
 		private void OnEndWorkShift(StateMachine.Transition transition)
 		{
+			var reason = (string)transition.Parameters[0];
 			ClearPhoneNumber();
+			if(!CanEndWorkshift(reason))
+			{
+				throw new PacsException("Необходимо указать причину закрытия смены, если завершается раньше планируемого");
+			}
+			OperatorState.WorkShift.Ended = DateTime.Now;
+			OperatorState.WorkShift.Reason = reason;
 			_logger.LogInformation("Оператор {OperatorId} завершил рабочую смену", OperatorId);
+		}
+
+		public bool CanEndWorkshift(string reason)
+		{
+			var currentWorkshift = OperatorState.WorkShift;
+			if(currentWorkshift == null)
+			{
+				_logger.LogInformation("Попытка закрытия рабочей смены оператора {OperatorId}, которая не была открыта", OperatorId);
+				return true;
+			}
+
+			var currentWorkshiftDuration = DateTime.Now - currentWorkshift.Started;
+			var workshiftNotFinished = currentWorkshiftDuration < currentWorkshift.PlannedWorkShift.Duration;
+			if(workshiftNotFinished)
+			{
+				if(reason.IsNullOrWhiteSpace())
+				{
+					_logger.LogInformation("Попытка закрытия не завершенной рабочей смены оператора {OperatorId}, без указания основания", OperatorId);
+					return false;
+				}
+				else
+				{
+					_logger.LogInformation("Внеплановое завершение рабочей смены оператора {OperatorId}", OperatorId);
+					return true;
+				}
+			}
+			else
+			{
+				_logger.LogInformation("Плановое завершение рабочей смены оператора {OperatorId}", OperatorId);
+				return true;
+			}
 		}
 
 		#endregion Work shift

@@ -1,4 +1,5 @@
-﻿using Pacs.Admin.Client;
+﻿using Core.Infrastructure;
+using Pacs.Admin.Client;
 using Pacs.Core;
 using Pacs.Core.Messages.Events;
 using Pacs.Operators.Client;
@@ -47,6 +48,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 		public DelegateCommand StartWorkShiftCommand { get; private set; }
 		public DelegateCommand EndWorkShiftCommand { get; private set; }
+		public DelegateCommand CancelEndWorkShiftReasonCommand { get; private set; }
 		public DelegateCommand ChangePhoneCommand { get; private set; }
 		public DelegateCommand StartLongBreakCommand { get; private set; }
 		public DelegateCommand StartShortBreakCommand { get; private set; }
@@ -218,6 +220,8 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			EndWorkShiftCommand = new DelegateCommand(() => EndWorkShift().Wait(), () => CanEndWorkShift);
 			EndWorkShiftCommand.CanExecuteChangedWith(this, x => x.CanEndWorkShift);
 
+			CancelEndWorkShiftReasonCommand = new DelegateCommand(() => ClearEndWorkShiftReason());
+
 			ChangePhoneCommand = new DelegateCommand(() => ChangePhone().Wait(), () => CanChangePhone);
 			ChangePhoneCommand.CanExecuteChangedWith(this, x => x.CanChangePhone);
 
@@ -262,14 +266,50 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			}
 		}
 
+		//СУДА ДОБАВИТЬ ХРАНЕНИЕ И ПРОВЕРКУ ВРЕМЕНИ КОГДА МОЖНО ЗАКОНЧИТЬ СМЕНУ
+		//и действия по запросу причины в команде
 
-		public bool CanEndWorkShift => _operatorStateAgent.CanEndWorkShift;
+		public bool CanEndWorkShift => _operatorStateAgent.CanEndWorkShift && CurrentState.WorkShift != null;
+
+		private bool _endWorkShiftReasonRequired;
+		public virtual bool EndWorkShiftReasonRequired
+		{
+			get => _endWorkShiftReasonRequired;
+			set => SetField(ref _endWorkShiftReasonRequired, value);
+		}
+
+		private string _endWorkShiftReason;
+		public virtual string EndWorkShiftReason
+		{
+			get => _endWorkShiftReason;
+			set => SetField(ref _endWorkShiftReason, value);
+		}
 
 		private async Task EndWorkShift()
 		{
 			try
 			{
-				var state = await _operatorClient.EndWorkShift();
+				if(DateTime.Now > CurrentState.WorkShift.GetPlannedEndTime())
+				{
+					_guiDispatcher.RunInGuiTread(() =>
+					{
+						ClearEndWorkShiftReason();
+					});
+				}
+				else
+				{
+					_guiDispatcher.RunInGuiTread(() =>
+					{
+						EndWorkShiftReasonRequired = true;
+					});
+
+					if(EndWorkShiftReason.IsNullOrWhiteSpace())
+					{
+						return;
+					}
+				}
+
+				var state = await _operatorClient.EndWorkShift(EndWorkShiftReason);
 				UpdateState(state);
 			}
 			catch(PacsException ex)
@@ -279,6 +319,12 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 					_interactiveService.ShowMessage(ImportanceLevel.Warning, ex.Message);
 				});
 			}
+		}
+
+		private void ClearEndWorkShiftReason()
+		{
+			EndWorkShiftReason = null;
+			EndWorkShiftReasonRequired = false;
 		}
 
 

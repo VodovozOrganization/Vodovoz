@@ -54,7 +54,7 @@ namespace Pacs.Operators.Server
 		{
 			_logger.LogTrace("Завершение смены оператора {OperatorId}", command.OperatorId);
 			var controller = _controllerProvider.GetOperatorController(command.OperatorId);
-			var result = await controller.EndWorkShift();
+			var result = await controller.EndWorkShift(command.Reason);
 
 			return result;
 		}

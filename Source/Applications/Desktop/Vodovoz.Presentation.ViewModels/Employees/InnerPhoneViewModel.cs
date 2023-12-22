@@ -1,6 +1,7 @@
 ﻿using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Validation;
 using QS.ViewModels.Dialog;
 using ReactiveUI;
 using System;
@@ -13,12 +14,14 @@ using Vodovoz.Core.Domain.Employees;
 
 namespace Vodovoz.Presentation.ViewModels.Employees
 {
-	public class ReactiveDialogViewModel : DialogViewModelBase, IReactiveObject
+	public class ReactiveDialogViewModel : DialogViewModelBase, IReactiveObject, IDisposable
 	{
+		protected CompositeDisposable Subscriptions { get; }
 		public event PropertyChangingEventHandler PropertyChanging;
 
 		public ReactiveDialogViewModel(INavigationManager navigation) : base(navigation)
 		{
+			Subscriptions = new CompositeDisposable();
 		}
 
 		void IReactiveObject.RaisePropertyChanged(PropertyChangedEventArgs args)
@@ -29,6 +32,11 @@ namespace Vodovoz.Presentation.ViewModels.Employees
 		public void RaisePropertyChanging(PropertyChangingEventArgs args)
 		{
 			PropertyChanging?.Invoke(this, args);
+		}
+
+		public virtual void Dispose()
+		{
+			Subscriptions.Dispose();
 		}
 	}
 
@@ -73,40 +81,43 @@ namespace Vodovoz.Presentation.ViewModels.Employees
 			Close(false, CloseSource.Cancel);
 		}
 
-		public virtual void Dispose()
+		public override void Dispose()
 		{
 			Model.Dispose();
+			base.Dispose();
 		}
 	}
 
 	public class InnerPhoneViewModel : EntityReactiveDialog<InnerPhone>
 	{
-		private readonly CompositeDisposable _subscriptions = new CompositeDisposable();
-
+		private readonly IValidator _validator;
 		private string _number;
 		private string _description;
 
 		public InnerPhoneViewModel(
 			IEntityIdentifier entityId, 
-			EntityModelFactory entityModelFactory, 
+			EntityModelFactory entityModelFactory,
+			IValidator validator,
 			INavigationManager navigation
 			) : base(entityId, entityModelFactory, navigation)
 		{
+			_validator = validator ?? throw new ArgumentNullException(nameof(validator));
+
 			Title = "Внутренний телефон";
 
 			this.WhenAnyValue(x => x.Entity.PhoneNumber)
 				.BindTo(this, x => x.Number)
-				.DisposeWith(_subscriptions);
+				.DisposeWith(Subscriptions);
 			this.WhenAnyValue(x => x.Number)
 				.BindTo(Entity, x => x.PhoneNumber)
-				.DisposeWith(_subscriptions);
+				.DisposeWith(Subscriptions);
 
 			this.WhenAnyValue(x => x.Entity.Description)
 				.BindTo(this, x => x.Description)
-				.DisposeWith(_subscriptions);
+				.DisposeWith(Subscriptions);
 			this.WhenAnyValue(x => x.Description)
 				.BindTo(Entity, x => x.Description)
-				.DisposeWith(_subscriptions);
+				.DisposeWith(Subscriptions);
 		}
 
 		public bool CanChangeNumber => Model.IsNewEntity;
@@ -123,10 +134,13 @@ namespace Vodovoz.Presentation.ViewModels.Employees
 			set => this.RaiseAndSetIfChanged(ref _description, value);
 		}
 
-		public override void Dispose()
+		public override void Save()
 		{
-			_subscriptions?.Dispose();
-			base.Dispose();
+			if(!_validator.Validate(Entity))
+			{
+				return;
+			}
+			base.Save();
 		}
 	}
 

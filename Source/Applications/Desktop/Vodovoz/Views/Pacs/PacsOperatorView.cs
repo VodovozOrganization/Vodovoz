@@ -72,12 +72,18 @@ namespace Vodovoz.Views.Pacs
 				.AddBinding(vm => vm.OperatorsOnBreak, w => w.ItemsDataSource)
 				.InitializeFromSource();
 
+			vboxWorkshiftReason.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.EndWorkShiftReasonRequired, w => w.Visible)
+				.InitializeFromSource();
+
 			buttonLongBreak.BindCommand(ViewModel.StartLongBreakCommand);
 			buttonShortBreak.BindCommand(ViewModel.StartShortBreakCommand);
 			buttonEndBreak.BindCommand(ViewModel.EndBreakCommand);
 			buttonChangePhone.BindCommand(ViewModel.ChangePhoneCommand);
 			buttonStartWorkshift.BindCommand(ViewModel.StartWorkShiftCommand);
 			buttonEndWorkshift.BindCommand(ViewModel.EndWorkShiftCommand);
+			buttonWorkshiftReasonOk.BindCommand(ViewModel.EndWorkShiftCommand);
+			buttonWorkshiftReasonCancel.BindCommand(ViewModel.CancelEndWorkShiftReasonCommand);
 		}
 	}
 }

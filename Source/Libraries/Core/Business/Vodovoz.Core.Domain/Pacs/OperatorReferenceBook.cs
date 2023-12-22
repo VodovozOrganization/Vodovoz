@@ -24,7 +24,7 @@ namespace Vodovoz.Core.Domain.Pacs
 			set => SetField(ref _id, value);
 		}
 
-		[Display(Name = "Description")]
+		[Display(Name = "Рабочая смена")]
 		public virtual WorkShift WorkShift
 		{
 			get => _workShift;

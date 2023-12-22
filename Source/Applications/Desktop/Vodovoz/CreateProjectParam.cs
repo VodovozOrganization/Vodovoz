@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.Dialog.Gtk;
 using QS.Permissions;
 using QS.Project.DB;
@@ -361,6 +361,8 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<NomenclatureOnlineCategoryViewModel, NomenclatureOnlineCategoryView>()
 				.RegisterWidgetForTabViewModel<DriverWarehouseEventViewModel, DriverWarehouseEventView>()
 				.RegisterWidgetForTabViewModel<DriversWarehousesEventsReportViewModel, DriversWarehousesEventsReportView>()
+				.RegisterWidgetForTabViewModel<PacsOperatorReferenceBookViewModel, PacsOperatorReferenceBookView>()
+				.RegisterWidgetForTabViewModel<WorkShiftViewModel, PacsWorkShiftView>()
 				;
 
 			//Регистрация виджетов

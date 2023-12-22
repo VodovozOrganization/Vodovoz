@@ -33,6 +33,13 @@ namespace Vodovoz.Views.Pacs
 			treeViewOperatorHistory.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.States, w => w.ItemsDataSource)
 				.InitializeFromSource();
+
+			textviewBreakReason.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.BreakReason, w => w.Buffer.Text)
+				.InitializeFromSource();
+
+			buttonStartBreak.BindCommand(ViewModel.StartLongBreakCommand);
+			buttonEndBreak.BindCommand(ViewModel.EndBreakCommand);
 		}
 	}
 }

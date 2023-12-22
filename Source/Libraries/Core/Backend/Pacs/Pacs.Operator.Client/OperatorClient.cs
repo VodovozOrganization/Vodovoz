@@ -75,10 +75,10 @@ namespace Pacs.Operators.Client
 			}
 		}
 
-		public async Task<OperatorStateEvent> EndWorkShift()
+		public async Task<OperatorStateEvent> EndWorkShift(string reason = null)
 		{
 			var uri = $"{_pacsSettings.OperatorApiUrl}/{_url}/endworkshift";
-			var payload = new EndWorkShift { OperatorId = _operatorId };
+			var payload = new EndWorkShift { OperatorId = _operatorId, Reason = reason };
 			var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
 			_httpClient.DefaultRequestHeaders.Clear();
 			_httpClient.DefaultRequestHeaders.Add("ApiKey", _pacsSettings.OperatorApiKey);

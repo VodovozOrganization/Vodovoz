@@ -17,7 +17,7 @@ namespace Pacs.Operators.Client
 		Task<OperatorStateEvent> Connect(CancellationToken cancellationToken = default);
 		Task<OperatorStateEvent> Disconnect(CancellationToken cancellationToken = default);
 		Task<OperatorStateEvent> StartWorkShift(string phoneNumber);
-		Task<OperatorStateEvent> EndWorkShift();
+		Task<OperatorStateEvent> EndWorkShift(string reason = null);
 		Task<OperatorStateEvent> ChangeNumber(string phoneNumber);
 		Task<OperatorStateEvent> StartBreak(OperatorBreakType breakType, CancellationToken cancellationToken = default);
 		Task<OperatorStateEvent> EndBreak(CancellationToken cancellationToken = default);

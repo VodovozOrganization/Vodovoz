@@ -31,7 +31,7 @@ namespace Pacs.Admin.Client
 			_pacsSettings = pacsSettings ?? throw new ArgumentNullException(nameof(pacsSettings));
 			_jsonSerializerOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
-			if(_adminProvider.AdministratorId.HasValue)
+			if(_adminProvider.AdministratorId == null)
 			{
 				throw new PacsInitException("Апи клиент администратора СКУД недоступен, так как пользователь не является администратором");
 			}

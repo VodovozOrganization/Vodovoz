@@ -2,6 +2,7 @@
 using Core.Infrastructure;
 using MoreLinq;
 using MoreLinq.Extensions;
+using Pacs.Core;
 using QS.DomainModel.Entity;
 using System;
 using System.Collections.Generic;
@@ -13,7 +14,21 @@ using Vodovoz.Services;
 
 namespace Vodovoz.Presentation.ViewModels.Pacs
 {
-	public class OperatorModel : PropertyChangedBase
+	public interface IOperatorModel
+	{
+		OperatorState CurrentState { get; }
+		Employee Employee { get; }
+		IPacsDomainSettings Settings { get; }
+		GenericObservableList<OperatorState> States { get; set; }
+
+		event EventHandler BreakEnded;
+		event EventHandler BreakStarted;
+
+		void AddState(OperatorState state);
+		bool CanTakeCallBetween(DateTime from, DateTime to);
+	}
+
+	public class OperatorModel : PropertyChangedBase, IOperatorModel
 	{
 		private readonly IEmployeeService _employeeService;
 		private readonly HashSet<int> _stateIds;
@@ -29,7 +44,10 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_stateIds = new HashSet<int>();
 			States = new GenericObservableList<OperatorState>();
+			Agent = new OperatorStateAgent();
 		}
+
+		public IOperatorStateAgent Agent { get; }
 
 		public IPacsDomainSettings Settings
 		{
@@ -47,6 +65,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			{
 				States.Add(state);
 				_stateIds.Add(state.Id);
+				Agent.OperatorState = CurrentState;
 				Employee = _employeeService.GetEmployee(state.OperatorId);
 				return;
 			}
@@ -62,6 +81,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 				{
 					_stateIds.Add(state.Id);
 					States.Insert(i, state);
+					Agent.OperatorState = CurrentState;
 
 					OnPropertyChanged(nameof(CurrentState));
 					CheckBreak();

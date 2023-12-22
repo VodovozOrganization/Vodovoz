@@ -9,6 +9,7 @@ namespace Vodovoz.Core.Domain.Pacs
 		public virtual int Id { get; set; }
 		public virtual int OperatorId { get; set; }
 		public virtual OperatorSession Session { get; set; }
+		public virtual OperatorWorkshift WorkShift { get; set; }
 		public virtual DateTime Started { get; set; }
 		public virtual DateTime? Ended { get; set; }
 		public virtual OperatorTrigger Trigger { get; set; }
@@ -33,7 +34,8 @@ namespace Vodovoz.Core.Domain.Pacs
 				State = operatorState.State,
 				PhoneNumber = operatorState.PhoneNumber,
 				CallId = operatorState.CallId,
-				DisconnectionType = operatorState.DisconnectionType
+				DisconnectionType = operatorState.DisconnectionType,
+				WorkShift = operatorState.WorkShift
 			};
 		}
 	}
@@ -44,5 +46,20 @@ namespace Vodovoz.Core.Domain.Pacs
 		public virtual DateTime Started { get; set; }
 		public virtual DateTime? Ended { get; set; }
 		public virtual int OperatorId { get; set; }
+	}
+
+	public class OperatorWorkshift
+	{
+		public virtual int Id { get; set; }
+		public virtual int OperatorId { get; set; }
+		public virtual WorkShift PlannedWorkShift { get; set; }
+		public virtual DateTime Started { get; set; }
+		public virtual DateTime? Ended { get; set; }
+		public virtual string Reason { get; set; }
+
+		public virtual DateTime GetPlannedEndTime()
+		{
+			return Started.Add(PlannedWorkShift.Duration);
+		}
 	}
 }

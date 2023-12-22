@@ -79,15 +79,7 @@ namespace Vodovoz.Views.Pacs
 
 			ViewModel.PropertyChanged += ViewModelPropertyChanged;
 
-			//ДЕТАЛИ
-
-			//ФИЛЬТР
-
-			//АКТИВАЦИЯ СТРОК
-
-			//buttonRefresh.BindCommand();
-
-			hboxHeader.Visible = false; ;
+			hboxHeader.Visible = false;
 		}
 
 		private void ViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)

@@ -8,5 +8,10 @@ namespace Core.Infrastructure
 		{
 			return source.Contains(value);
 		}
+
+		public static bool IsNotIn<T>(this T value, params T[] source)
+		{
+			return !value.IsIn(source);
+		}
 	}
 }

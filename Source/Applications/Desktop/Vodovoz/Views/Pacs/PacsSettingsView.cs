@@ -20,6 +20,8 @@ namespace Vodovoz.Views.Pacs
 			domainSettingsView.ViewModel = ViewModel.DomainSettingsViewModel;
 
 			buttonInnerPhones.BindCommand(ViewModel.OpenInnerPhonesReferenceBookCommand);
+			buttonOperators.BindCommand(ViewModel.OpenOperatorsReferenceBookCommand);
+			buttonWorkShifts.BindCommand(ViewModel.OpenWorkShiftsReferenceBookCommand);
 
 			ViewModel.PropertyChanged += ViewModelPropertyChanged;
 		}

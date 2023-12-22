@@ -92,7 +92,7 @@ namespace Pacs.Server
 			}
 		}
 
-		public async Task<OperatorResult> EndWorkShift()
+		public async Task<OperatorResult> EndWorkShift(string reason = null)
 		{
 			try
 			{
@@ -103,7 +103,12 @@ namespace Pacs.Server
 					return new OperatorResult(GetResultContent(), $"В данный момент нельзя завершить смену");
 				}
 
-				await _operatorAgent.EndWorkShift();
+				if(!_operatorAgent.CanEndWorkshift(reason))
+				{
+					return new OperatorResult(GetResultContent(), $"Необходимо указать причину закрытия смены, если завершается раньше планируемого");
+				}
+
+				await _operatorAgent.EndWorkShift(reason);
 				return new OperatorResult(GetResultContent());
 			}
 			catch(Exception ex)

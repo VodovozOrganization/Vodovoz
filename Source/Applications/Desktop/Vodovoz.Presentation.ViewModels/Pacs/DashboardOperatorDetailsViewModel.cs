@@ -1,4 +1,8 @@
-﻿using QS.ViewModels;
+﻿using Core.Infrastructure;
+using Pacs.Admin.Client;
+using Pacs.Server;
+using QS.Commands;
+using QS.ViewModels;
 using System;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
@@ -9,13 +13,40 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 	public class DashboardOperatorDetailsViewModel : WidgetViewModelBase
 	{
 		private readonly OperatorModel _model;
-
+		private readonly AdminClient _adminClient;
 		private string _tittle;
+		private string _breakReason;
 
-		public DashboardOperatorDetailsViewModel(OperatorModel model)
+		public DelegateCommand StartLongBreakCommand { get; set; }
+		public DelegateCommand StartShortBreakCommand { get; set; }
+		public DelegateCommand EndBreakCommand { get; set; }
+
+		public DashboardOperatorDetailsViewModel(OperatorModel model, AdminClient adminClient)
 		{
 			_model = model ?? throw new ArgumentNullException(nameof(model));
+			_adminClient = adminClient ?? throw new ArgumentNullException(nameof(adminClient));
+
 			Tittle = $"История оператора: {_model.Employee.GetPersonNameWithInitials()}";
+
+			StartLongBreakCommand = new DelegateCommand(StartLongBreak, () => CanStartBreak);
+			StartLongBreakCommand.CanExecuteChangedWith(this, x => x.CanStartBreak);
+			StartShortBreakCommand = new DelegateCommand(StartShortBreak, () => CanStartBreak);
+			StartShortBreakCommand.CanExecuteChangedWith(this, x => x.CanStartBreak);
+			EndBreakCommand = new DelegateCommand(EndBreak, () => CanEndBreak);
+			EndBreakCommand.CanExecuteChangedWith(this, x => x.CanEndBreak);
+
+			_model.PropertyChanged += OnStateChange;
+		}
+
+		private void OnStateChange(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName != nameof(OperatorModel.CurrentState))
+			{
+				return;
+			}
+
+			OnPropertyChanged(nameof(CanStartBreak));
+			OnPropertyChanged(nameof(CanEndBreak));
 		}
 
 		public virtual string Tittle
@@ -26,6 +57,40 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 		public GenericObservableList<OperatorState> States => _model.States;
 
+		public virtual string BreakReason
+		{
+			get => _breakReason;
+			set
+			{
+				if(SetField(ref _breakReason, value))
+				{
+					OnPropertyChanged(nameof(CanStartBreak));
+					OnPropertyChanged(nameof(CanEndBreak));
+				}
+			}
+		}
+
+		public bool CanStartBreak => _model.Agent.CanStartBreak && !BreakReason.IsNullOrWhiteSpace();
+
+		private void StartLongBreak()
+		{
+			_adminClient.StartBreak(_model.CurrentState.OperatorId, BreakReason, OperatorBreakType.Long).Wait();
+			BreakReason = null;
+		}
+
+		private void StartShortBreak()
+		{
+			_adminClient.StartBreak(_model.CurrentState.OperatorId, BreakReason, OperatorBreakType.Short).Wait();
+			BreakReason = null;
+		}
+
+		public bool CanEndBreak => _model.Agent.CanEndBreak && !BreakReason.IsNullOrWhiteSpace();
+
+		private void EndBreak()
+		{
+			_adminClient.EndBreak(_model.CurrentState.OperatorId, BreakReason).Wait();
+			BreakReason = null;
+		}
 	}
 
 	public class DashboardCallDetailsViewModel : WidgetViewModelBase

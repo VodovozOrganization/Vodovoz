@@ -13,8 +13,13 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Pacs
                 .GeneratedBy.Native();
 			Map(x => x.OperatorId).Column("operator_id");
 			References(x => x.Session).Column("session_id")
+				.Cascade.All()
                 .Not.LazyLoad()
                 .Fetch.Join();
+			References(x => x.WorkShift).Column("workshift_id")
+				.Cascade.All()
+				.Not.LazyLoad()
+				.Fetch.Join();
 			Map(x => x.Started).Column("started");
 			Map(x => x.Ended).Column("ended");
 			Map(x => x.Trigger).Column("operator_trigger");
