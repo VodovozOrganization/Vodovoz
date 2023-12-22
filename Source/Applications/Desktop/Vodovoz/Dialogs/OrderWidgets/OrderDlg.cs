@@ -2195,7 +2195,8 @@ namespace Vodovoz
 
 				if(Entity.WaitUntilTime != _lastWaitUntilTime)
 				{
-					NotifyDriverAboutWaitingTimeChangedAsync();
+					// Пока нет доработки в мобильном тут оставим заглушенным
+					// NotifyDriverAboutWaitingTimeChangedAsync();
 				}
 
 				logger.Info("Ok.");
@@ -4166,7 +4167,7 @@ namespace Vodovoz
 		{
 			foreach(var widget in table1.Children)
 			{
-				if(widget.Name == timepickerWaitUntil.Name)
+				if(widget.Name == timepickerWaitUntil.Name || widget.Name == ylabelWaitUntil.Name)
 				{
 					widget.Sensitive = _isWaitUntilActive;
 				}

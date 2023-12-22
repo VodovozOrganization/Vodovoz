@@ -51,6 +51,7 @@ namespace Vodovoz
 		private IDeliveryShiftRepository _deliveryShiftRepository;
 		private IRouteListProfitabilityController _routeListProfitabilityController;
 		private IWageParameterService _wageParameterService;
+		private IGeneralSettingsParametersProvider _generalSettingsParametersProvider;
 
 		//2 уровня доступа к виджетам, для всех и для логистов.
 		private readonly bool _allEditing;
@@ -117,6 +118,7 @@ namespace Vodovoz
 			_deliveryShiftRepository = _lifetimeScope.Resolve<IDeliveryShiftRepository>();
 			_routeListProfitabilityController = _lifetimeScope.Resolve<IRouteListProfitabilityController>();
 			_wageParameterService = _lifetimeScope.Resolve<IWageParameterService>();
+			_generalSettingsParametersProvider = _lifetimeScope.Resolve<IGeneralSettingsParametersProvider>();
 
 			CallTaskWorker = _lifetimeScope.Resolve<ICallTaskWorker>();
 		}
@@ -207,7 +209,8 @@ namespace Vodovoz
 					.AddTextRenderer(node => node.RouteListItem.Order.DeliveryPoint == null ? "Требуется точка доставки" : node.RouteListItem.Order.DeliveryPoint.ShortAddress)
 				.AddColumn("Ожидает до")
 					.AddTimeRenderer(node => node.WaitUntil)
-					.Editable()
+					.AddSetter((c, n) => c.Editable = _generalSettingsParametersProvider.GetIsOrderWaitUntilActive && n.RouteListItem.Order.OrderStatus == Domain.Orders.OrderStatus.OnTheWay)
+					.WidthChars(5)
 				.AddColumn("Время")
 					.AddTextRenderer(node => node.RouteListItem.Order.DeliverySchedule == null ? "" : node.RouteListItem.Order.DeliverySchedule.Name)
 				.AddColumn("Статус")

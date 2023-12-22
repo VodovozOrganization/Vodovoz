@@ -81,7 +81,8 @@ namespace DriverAPI.Library.Converters
 				AddedToRouteListTime = addedToRouteListTime.ToString("dd.MM.yyyyTHH:mm:ss"),
 				CallBeforeArrivalMinutes = vodovozOrder.CallBeforeArrivalMinutes,
 				Trifle = vodovozOrder.Trifle ?? 0,
-				SignatureType = _signatureTypeConverter.ConvertToApiSignatureType(vodovozOrder.SignatureType)
+				SignatureType = _signatureTypeConverter.ConvertToApiSignatureType(vodovozOrder.SignatureType),
+				WaitUntilTime = vodovozOrder.WaitUntilTime
 			};
 
 			return apiOrder;
