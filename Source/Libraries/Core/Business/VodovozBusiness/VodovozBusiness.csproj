@@ -128,6 +128,7 @@
     <Compile Include="Domain\Logistic\RegradingOfGoodsReason.cs" />
     <Compile Include="Domain\Orders\OrderItemRentSubType.cs" />
     <Compile Include="Domain\Orders\OrderRentType.cs" />
+    <Compile Include="Domain\Orders\PromotionalSetActionType.cs" />
     <Compile Include="Domain\Payments\CombinedPaymentNode.cs" />
     <Compile Include="Domain\Orders\OrderEdoTrueMarkDocumentsActions.cs" />
     <Compile Include="Domain\Orders\UndeliveryDetalization.cs" />

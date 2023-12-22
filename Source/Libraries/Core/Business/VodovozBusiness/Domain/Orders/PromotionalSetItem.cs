@@ -56,10 +56,16 @@ namespace Vodovoz.Domain.Orders
 			set
 			{
 				if(value > 100)
+				{
 					value = 100;
+				}
+
 				if(value < 0)
+				{
 					value = 0;
-				if(SetField(ref _discount, value, () => Discount))
+				}
+
+				if(SetField(ref _discount, value))
 				{
 					OnPropertyChanged(nameof(ManualChangingDiscount));
 				}

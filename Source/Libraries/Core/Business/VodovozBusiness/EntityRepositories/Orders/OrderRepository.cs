@@ -273,7 +273,9 @@ namespace Vodovoz.EntityRepositories.Orders
 		
 		public bool HasCounterpartyOtherFirstRealOrder(IUnitOfWork uow, Counterparty counterparty, int orderId)
 		{
-			if(counterparty.FirstOrder != null && !GetUndeliveryAndNewStatuses().Contains(counterparty.FirstOrder.OrderStatus))
+			if(counterparty.FirstOrder != null
+				&& counterparty.FirstOrder.Id != orderId
+				&& !GetUndeliveryAndNewStatuses().Contains(counterparty.FirstOrder.OrderStatus))
 			{
 				return true;
 			}

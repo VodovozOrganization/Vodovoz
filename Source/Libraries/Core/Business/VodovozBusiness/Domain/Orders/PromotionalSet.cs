@@ -123,8 +123,8 @@ namespace Vodovoz.Domain.Orders
 
 		#endregion
 
-		public virtual string Title => $"Рекламный набор №{Id} \"{Name}\"";
-		public virtual string ShortTitle => $"Промо-набор \"{Name}\"";
+		public virtual string Title => $"Промонабор №{Id} \"{Name}\"";
+		public virtual string ShortTitle => $"Промонабор \"{Name}\"";
 
 		#region IValidatableObject implementation
 
@@ -190,10 +190,5 @@ namespace Vodovoz.Domain.Orders
 		{
 			return !PromotionalSetActions.Any(a => !a.IsValidForOrder(order, standartNomenclatures));
 		}
-	}
-
-	public enum PromotionalSetActionType
-	{
-		[Display(Name = "Фиксированная цена")] FixedPrice
 	}
 }
