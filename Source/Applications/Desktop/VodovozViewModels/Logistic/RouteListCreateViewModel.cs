@@ -234,6 +234,8 @@ namespace Vodovoz.ViewModels.Logistic
 			CanAccept
 			&& Entity.AdditionalLoadingDocument != null;
 
+		public bool HaveAdditionalLoad => Entity.AdditionalLoadingDocument != null;
+
 		public bool AdditionalLoadItemsVisible => Entity.AdditionalLoadingDocument != null;
 
 		public bool CanSave => IsLogistician && (CanCreate && UoW.IsNew || CanUpdate);
@@ -345,6 +347,7 @@ namespace Vodovoz.ViewModels.Logistic
 				|| e.PropertyName == nameof(Entity.Date)
 				|| e.PropertyName == nameof(Entity.Status))
 			{
+				OnPropertyChanged(nameof(HaveAdditionalLoad));
 				OnPropertyChanged(nameof(CanAddAdditionalLoad));
 				OnPropertyChanged(nameof(CanRemoveAdditionalLoad));
 				OnPropertyChanged(nameof(AdditionalLoadItemsVisible));

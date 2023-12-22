@@ -136,7 +136,8 @@ namespace Vodovoz.Logistic
 				.InitializeFromSource();
 
 			ybuttonRemoveAdditionalLoad.Binding
-				.AddBinding(ViewModel, vm => vm.CanRemoveAdditionalLoad, w => w.Visible)
+				.AddBinding(ViewModel, vm => vm.HaveAdditionalLoad, w => w.Visible)
+				.AddBinding(ViewModel, vm => vm.CanRemoveAdditionalLoad, w => w.Sensitive)
 				.InitializeFromSource();
 
 			ggToStringWidget.UoW = ViewModel.UoW;
