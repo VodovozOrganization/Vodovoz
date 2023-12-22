@@ -10,6 +10,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
+using Vodovoz.Application.Payments;
 
 namespace Vodovoz.ViewModels.Payments
 {
@@ -18,6 +19,7 @@ namespace Vodovoz.ViewModels.Payments
 		private readonly IInteractiveService _interactiveService;
 		private readonly IPaymentsRepository _paymentsRepository;
 		private readonly IOrderRepository _orderRepository;
+		private readonly PaymentService _paymentService;
 		private readonly IUnitOfWork _unitOfWork;
 
 		private bool _isAllocationState;
@@ -32,6 +34,7 @@ namespace Vodovoz.ViewModels.Payments
 			INavigationManager navigationManager,
 			IPaymentsRepository paymentsRepository,
 			IOrderRepository orderRepository,
+			PaymentService paymentService,
 			IUnitOfWorkFactory uowFactory)
 			: base(navigationManager)
 		{
@@ -48,7 +51,7 @@ namespace Vodovoz.ViewModels.Payments
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-
+			_paymentService = paymentService ?? throw new ArgumentNullException(nameof(paymentService));
 			Title = "Автоматическое распределение положительного баланса";
 
 			_unitOfWork = uowFactory.CreateWithoutRoot(Title);
@@ -101,6 +104,30 @@ namespace Vodovoz.ViewModels.Payments
 
 		public void AllocateByCurrentCounterparty()
 		{
+			var balance = _paymentService.GetBalanceByCounterpartyAndOrganizationIds(
+				_unitOfWork,
+				_selectedUnallocatedBalancesNode.CounterpartyId,
+				_selectedUnallocatedBalancesNode.OrganizationId);
+
+			var nodeBalance = _selectedUnallocatedBalancesNode.CounterpartyBalance;
+
+			var unpayedOrdersSum = _paymentService.GetTotalCashlessNotPaidOrdersSum(
+				_unitOfWork,
+				_selectedUnallocatedBalancesNode.CounterpartyId,
+				_selectedUnallocatedBalancesNode.OrganizationId,
+				_closingDocumentDeliveryScheduleId);
+
+			var partiallyPaidOrdersSum = _paymentService.GetTotalCashlessPartiallyPaidOrdersSum(
+				_unitOfWork,
+				_selectedUnallocatedBalancesNode.CounterpartyId,
+				_selectedUnallocatedBalancesNode.OrganizationId,
+				_closingDocumentDeliveryScheduleId);
+
+			var debt = unpayedOrdersSum - partiallyPaidOrdersSum;
+
+			var nodeDebt = _selectedUnallocatedBalancesNode.CounterpartyDebt;
+
+			return;
 			try
 			{
 				IsAllocationState = true;
@@ -152,15 +179,18 @@ namespace Vodovoz.ViewModels.Payments
 
 		private void AllocateByCounterpartyAndOrg(UnallocatedBalancesJournalNode node)
 		{
+			var organizationId = node.OrganizationId;
+			var counterpartyId = node.CounterpartyId;
+			
 			var balance = node.CounterpartyBalance;
 			var paymentNodes = _paymentsRepository.GetAllNotFullyAllocatedPaymentsByClientAndOrg(
-				_unitOfWork, node.CounterpartyId, node.OrganizationId, AllocateCompletedPayments);
+				_unitOfWork, counterpartyId, organizationId, AllocateCompletedPayments);
 
 			var orderNodes =
 				_orderRepository.GetAllNotFullyPaidOrdersByClientAndOrg(
 					_unitOfWork,
-					node.CounterpartyId,
-					node.OrganizationId,
+					counterpartyId,
+					organizationId,
 					_closingDocumentDeliveryScheduleId);
 
 			foreach(var paymentNode in paymentNodes)
