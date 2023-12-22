@@ -241,6 +241,10 @@ namespace Vodovoz.ViewModels.Logistic
 		public bool CanAccept => Entity.Status == RouteListStatus.New
 			&& CanSave;
 
+		public bool CanPrint => Entity.Status != RouteListStatus.New;
+
+		public bool CanCopyId => Entity.Id != 0;
+
 		public bool CanRevertToNew => Entity.Status != RouteListStatus.New
 			&& RouteList.NotLoadedRouteListStatuses.Contains(Entity.Status)
 			&& CanSave;
@@ -361,6 +365,7 @@ namespace Vodovoz.ViewModels.Logistic
 			if(e.PropertyName == nameof(Entity.Status))
 			{
 				OnPropertyChanged(nameof(CanAccept));
+				OnPropertyChanged(nameof(CanPrint));
 				OnPropertyChanged(nameof(CanRevertToNew));
 				OnPropertyChanged(nameof(CanChangeFixedPrice));
 				OnPropertyChanged(nameof(CanChangeIsFixPrice));
@@ -432,6 +437,12 @@ namespace Vodovoz.ViewModels.Logistic
 		private void RaiseDocumentPrinted(object sender, EventArgs e)
 		{
 			DocumentPrinted?.Invoke(sender, e);
+		}
+
+		protected override void AfterSave()
+		{
+			base.AfterSave();
+			OnPropertyChanged(nameof(CanCopyId));
 		}
 
 		protected override bool BeforeSave()

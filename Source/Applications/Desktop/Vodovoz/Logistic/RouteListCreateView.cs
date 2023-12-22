@@ -121,8 +121,6 @@ namespace Vodovoz.Logistic
 				.AddFuncBinding(ViewModel.Entity, e => e.Status.GetEnumTitle(), w => w.LabelProp)
 				.InitializeFromSource();
 
-			enumPrint.Sensitive = ViewModel.Entity.Status != RouteListStatus.New;
-
 			createroutelistitemsview1.RouteListUoW = ViewModel.UoWGeneric;
 			createroutelistitemsview1.SetPermissionParameters(
 				ViewModel.CanCreate,
@@ -161,6 +159,9 @@ namespace Vodovoz.Logistic
 			enumPrint.SetVisibility(RouteListPrintableDocuments.TimeList, false);
 			enumPrint.SetVisibility(RouteListPrintableDocuments.OrderOfAddresses, false);
 			enumPrint.EnumItemClicked += (_, e) => ViewModel.PrintCommand.Execute((RouteListPrintableDocuments)e.ItemEnum);
+			enumPrint.Binding
+				.AddBinding(ViewModel, vm => vm.CanPrint, w => w.Sensitive)
+				.InitializeFromSource();
 
 			//Телефон
 			var mangoManager = Startup.MainWin.MangoManager;
@@ -219,7 +220,10 @@ namespace Vodovoz.Logistic
 
 			InitializeProfitability();
 
-			btnCopyEntityId.Sensitive = ViewModel.Entity.Id > 0;
+			btnCopyEntityId.Binding
+				.AddBinding(ViewModel, vm => vm.CanCopyId, w => w.Sensitive)
+				.InitializeFromSource();
+
 			btnCopyEntityId.Clicked += OnBtnCopyEntityIdClicked;
 
 			ViewModel.DocumentPrinted += OnDocumentsPrinted;

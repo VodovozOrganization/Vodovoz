@@ -20,7 +20,7 @@ namespace Vodovoz.Logistic
 
 		private global::Gamma.GtkWidgets.yRadioButton radioBtnSprcialConditions;
 
-		private global::Gtk.Button btnCopyEntityId;
+		private global::Gamma.GtkWidgets.yButton btnCopyEntityId;
 
 		private global::Gamma.GtkWidgets.yNotebook ynotebook1;
 
