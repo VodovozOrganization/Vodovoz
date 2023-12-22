@@ -34,9 +34,13 @@ namespace Vodovoz.Views.Pacs
 
 		private global::Gamma.GtkWidgets.yHBox yhbox2;
 
-		private global::Gamma.GtkWidgets.yButton buttonStartBreak;
+		private global::Gamma.GtkWidgets.yButton buttonStartLongBreak;
 
 		private global::Gamma.GtkWidgets.yButton buttonEndBreak;
+
+		private global::Gamma.GtkWidgets.yHBox yhbox3;
+
+		private global::Gamma.GtkWidgets.yButton buttonStartShortBreak;
 
 		private global::Gtk.Label GtkLabel1;
 
@@ -143,13 +147,13 @@ namespace Vodovoz.Views.Pacs
 			this.yhbox2.Name = "yhbox2";
 			this.yhbox2.Spacing = 6;
 			// Container child yhbox2.Gtk.Box+BoxChild
-			this.buttonStartBreak = new global::Gamma.GtkWidgets.yButton();
-			this.buttonStartBreak.CanFocus = true;
-			this.buttonStartBreak.Name = "buttonStartBreak";
-			this.buttonStartBreak.UseUnderline = true;
-			this.buttonStartBreak.Label = global::Mono.Unix.Catalog.GetString("Начать перерыв");
-			this.yhbox2.Add(this.buttonStartBreak);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.yhbox2[this.buttonStartBreak]));
+			this.buttonStartLongBreak = new global::Gamma.GtkWidgets.yButton();
+			this.buttonStartLongBreak.CanFocus = true;
+			this.buttonStartLongBreak.Name = "buttonStartLongBreak";
+			this.buttonStartLongBreak.UseUnderline = true;
+			this.buttonStartLongBreak.Label = global::Mono.Unix.Catalog.GetString("Начать большой перерыв");
+			this.yhbox2.Add(this.buttonStartLongBreak);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.yhbox2[this.buttonStartLongBreak]));
 			w9.Position = 0;
 			w9.Expand = false;
 			w9.Fill = false;
@@ -169,6 +173,26 @@ namespace Vodovoz.Views.Pacs
 			w11.Position = 2;
 			w11.Expand = false;
 			w11.Fill = false;
+			// Container child vboxBreakActions.Gtk.Box+BoxChild
+			this.yhbox3 = new global::Gamma.GtkWidgets.yHBox();
+			this.yhbox3.Name = "yhbox3";
+			this.yhbox3.Spacing = 6;
+			// Container child yhbox3.Gtk.Box+BoxChild
+			this.buttonStartShortBreak = new global::Gamma.GtkWidgets.yButton();
+			this.buttonStartShortBreak.CanFocus = true;
+			this.buttonStartShortBreak.Name = "buttonStartShortBreak";
+			this.buttonStartShortBreak.UseUnderline = true;
+			this.buttonStartShortBreak.Label = global::Mono.Unix.Catalog.GetString("Начать малый перерыв");
+			this.yhbox3.Add(this.buttonStartShortBreak);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.yhbox3[this.buttonStartShortBreak]));
+			w12.Position = 0;
+			w12.Expand = false;
+			w12.Fill = false;
+			this.vboxBreakActions.Add(this.yhbox3);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vboxBreakActions[this.yhbox3]));
+			w13.Position = 3;
+			w13.Expand = false;
+			w13.Fill = false;
 			this.GtkAlignment.Add(this.vboxBreakActions);
 			this.frameBreakActions.Add(this.GtkAlignment);
 			this.GtkLabel1 = new global::Gtk.Label();
@@ -177,12 +201,12 @@ namespace Vodovoz.Views.Pacs
 			this.GtkLabel1.UseMarkup = true;
 			this.frameBreakActions.LabelWidget = this.GtkLabel1;
 			this.vboxActions.Add(this.frameBreakActions);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vboxActions[this.frameBreakActions]));
-			w14.Position = 1;
-			w14.Expand = false;
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vboxActions[this.frameBreakActions]));
+			w16.Position = 1;
+			w16.Expand = false;
 			this.notebookOperatorWidget.Add(this.vboxActions);
-			global::Gtk.Notebook.NotebookChild w15 = ((global::Gtk.Notebook.NotebookChild)(this.notebookOperatorWidget[this.vboxActions]));
-			w15.Position = 1;
+			global::Gtk.Notebook.NotebookChild w17 = ((global::Gtk.Notebook.NotebookChild)(this.notebookOperatorWidget[this.vboxActions]));
+			w17.Position = 1;
 			// Notebook tab
 			this.tabActions = new global::Gtk.Label();
 			this.tabActions.Name = "tabActions";
