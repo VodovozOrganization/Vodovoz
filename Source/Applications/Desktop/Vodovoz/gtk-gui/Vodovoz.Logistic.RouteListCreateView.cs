@@ -230,7 +230,7 @@ namespace Vodovoz.Logistic
 			w8.Expand = false;
 			w8.Fill = false;
 			// Container child hboxMenu.Gtk.Box+BoxChild
-			this.btnCopyEntityId = new global::Gtk.Button();
+			this.btnCopyEntityId = new global::Gamma.GtkWidgets.yButton();
 			this.btnCopyEntityId.CanFocus = true;
 			this.btnCopyEntityId.Name = "btnCopyEntityId";
 			this.btnCopyEntityId.UseUnderline = true;
