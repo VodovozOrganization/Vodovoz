@@ -21,12 +21,12 @@ using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
+using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using static Vodovoz.ViewModels.Journals.FilterViewModels.PayoutRequestJournalFilterViewModel;
@@ -38,12 +38,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 	{
 		private readonly IDictionary<Type, IPermissionResult> _domainObjectsPermissions;
 		private readonly ICurrentPermissionService _currentPermissionService;
+		private readonly IUserRepository _userRepository;
 
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly ICashRepository _cashRepository;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
 		private readonly ICommonServices _commonServices;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private readonly IFileDialogService _fileDialogService;
@@ -60,6 +60,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 		private Employee _currentEmployee;
 		private string _footerInfo;
 		private bool _hasAccessToHiddenFinancialCategories;
+		private IEnumerable<int> _subdivisionsControlledByCurrentEmployee;
 
 		public PayoutRequestsJournalViewModel(
 			PayoutRequestJournalFilterViewModel filterViewModel,
@@ -68,12 +69,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			IEmployeeRepository employeeRepository,
 			ICashRepository cashRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IFileDialogService fileDialogService,
 			INavigationManager navigationManager,
 			ILifetimeScope scope,
 			ICurrentPermissionService currentPermissionService,
+			IUserRepository userRepository,
 			bool createSelectAction = true)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
@@ -81,13 +82,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			_currentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
+			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository)); ;
 			_createSelectAction = createSelectAction;
 
 			TabName = "Журнал заявок ДС";
@@ -115,10 +116,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			threadLoader?.MergeInOrderBy(x => x.Date, @descending: true);
 			DataLoader.ItemsListUpdated += OnDataLoaderItemsListUpdated;
 
-			FilterViewModel.PropertyChanged += UpdateDataLoader;
-
 			FinishJournalConfiguration();
 			AccessRequest();
+
+			_subdivisionsControlledByCurrentEmployee = GetSubdivisionsControlledByCurrentEmployee(UoW);
+
+			FilterViewModel.IncludedAccountableSubdivision = _subdivisionsControlledByCurrentEmployee.ToArray();
+			FilterViewModel.JournalViewModel = this;
+			FilterViewModel.PropertyChanged += UpdateDataLoader;
 		}
 
 		private void UpdateDataLoader(object s, PropertyChangedEventArgs e)
@@ -165,6 +170,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			set => SetField(ref _footerInfo, value);
 		}
 		public INavigationManager NavigationManager { get; }
+		public ILifetimeScope Scope => _scope;
 
 		private void OnDataLoaderItemsListUpdated(object sender, EventArgs e)
 		{
@@ -188,8 +194,18 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				_commonServices.PermissionService.ValidateUserPresetPermission("role_security_service_cash_request", userId);
 			_canSeeCurrentSubdivisonRequests =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission("can_see_current_subdivision_cash_requests");
-			_hasAccessToHiddenFinancialCategories = 
+			_hasAccessToHiddenFinancialCategories =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.FinancialCategory.HasAccessToHiddenFinancialCategories);
+		}
+
+		private IEnumerable<int> GetSubdivisionsControlledByCurrentEmployee(IUnitOfWork uow)
+		{
+			var controlledSubdivision = uow.GetAll<Subdivision>()
+				.Where(s => s.Chief.Id == _currentEmployee.Id)
+				.Select(s => s.Id)
+				.ToArray();
+
+			return controlledSubdivision;
 		}
 
 		#region JournalActions
@@ -266,7 +282,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					{
 						if(selectedNode.EntityType == typeof(CashRequest))
 						{
-							var cashRequestVM = CreateCashRequestViewModelForOpen(selectedNode);
+							var cashRequestVM = CreateCashRequestViewModelForMassOpenWithoutGui(selectedNode);
 							if(cashRequestVM.CanConveyForResults)
 							{
 								cashRequestVM.ConveyForResultsCommand.Execute();
@@ -275,7 +291,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 						}
 						else if(selectedNode.EntityType == typeof(CashlessRequest))
 						{
-							var cashlessRequestVM = CreateCashlessRequestViewModelForOpen(selectedNode);
+							var cashlessRequestVM = CreateCashlessRequestViewModelForMassOpenWithoutGui(selectedNode);
 							if(cashlessRequestVM.CanConveyForPayout)
 							{
 								cashlessRequestVM.ConveyForPayout();
@@ -316,13 +332,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					{
 						if(selectedNode.EntityType == typeof(CashRequest))
 						{
-							var cashRequestVM = CreateCashRequestViewModelForOpen(selectedNode);
+							var cashRequestVM = CreateCashRequestViewModelForMassOpenWithoutGui(selectedNode);
 							cashRequestVM.ApproveCommand.Execute();
 							cashRequestVM.Dispose();
 						}
 						else if(selectedNode.EntityType == typeof(CashlessRequest))
 						{
-							var cashlessRequestVM = CreateCashlessRequestViewModelForOpen(selectedNode);
+							var cashlessRequestVM = CreateCashlessRequestViewModelForMassOpenWithoutGui(selectedNode);
 							cashlessRequestVM.Approve();
 							cashlessRequestVM.Dispose();
 						}
@@ -439,7 +455,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					//функция диалога создания документа
 					() => NavigationManager.OpenViewModel<CashRequestViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()).ViewModel,
 					//функция диалога открытия документа
-					CreateCashRequestViewModelForOpen,
+					(node) => NavigationManager.OpenViewModel<CashRequestViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id)).ViewModel,
 					//функция идентификации документа
 					node => node.EntityType == typeof(CashRequest),
 					"Заявка на выдачу наличных Д/С",
@@ -450,8 +466,18 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			cashConfig.FinishConfiguration();
 		}
 
-		private CashRequestViewModel CreateCashRequestViewModelForOpen(PayoutRequestJournalNode node) =>
-			NavigationManager.OpenViewModel<CashRequestViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id)).ViewModel;
+		private CashRequestViewModel CreateCashRequestViewModelForMassOpenWithoutGui(PayoutRequestJournalNode node)
+		{
+			return new CashRequestViewModel(
+				EntityUoWBuilder.ForOpen(node.Id),
+				_unitOfWorkFactory,
+				_commonServices,
+				_employeeRepository,
+				_cashRepository,
+				NavigationManager,
+				_scope
+			);
+		}
 
 		private IQueryOver<CashRequest> GetCashRequestQuery(IUnitOfWork uow)
 		{
@@ -460,6 +486,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			CashRequestSumItem cashRequestSumItemAlias = null;
 			Employee accountableEmployeeAlias = null;
 			FinancialExpenseCategory financialExpenseCategoryAlias = null;
+			Subdivision subdivisionAlias = null;
 
 			PayoutRequestJournalNode<CashRequest> resultAlias = null;
 
@@ -467,6 +494,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				.Left.JoinAlias(с => с.Sums, () => cashRequestSumItemAlias)
 				.Left.JoinAlias(с => с.Author, () => authorAlias)
 				.Left.JoinAlias(() => cashRequestSumItemAlias.AccountableEmployee, () => accountableEmployeeAlias)
+				.Left.JoinAlias(() => accountableEmployeeAlias.Subdivision, () => subdivisionAlias)
 				.JoinEntityAlias(() => financialExpenseCategoryAlias, () => financialExpenseCategoryAlias.Id == cashRequestAlias.ExpenseCategoryId, JoinType.LeftOuterJoin);
 
 			if(FilterViewModel != null)
@@ -502,13 +530,27 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				{
 					result.Where(cr => cr.Id == -1);
 				}
+
+				if(FilterViewModel.AccountableSubdivision != null)
+				{
+					result.Where(() => accountableEmployeeAlias.Subdivision.Id ==  FilterViewModel.AccountableSubdivision.Id);
+				}
 			}
 
 			if(!_isAdmin && !_cashRequestFinancier && !_cashRequestCoordinator && !_roleCashier && !_roleSecurityService)
 			{
 				if(_canSeeCurrentSubdivisonRequests)
 				{
-					result.Where(() => authorAlias.Subdivision.Id == _currentEmployee.Subdivision.Id);
+					if(_subdivisionsControlledByCurrentEmployee.Count() > 0)
+					{
+						result.Where(Restrictions.Disjunction()
+							.Add(Restrictions.In(Projections.Property(() => authorAlias.Subdivision.Id), _subdivisionsControlledByCurrentEmployee.ToArray()))
+							.Add(Restrictions.Eq(Projections.Property(() => authorAlias.Subdivision.Id), _currentEmployee.Subdivision.Id)));
+					}
+					else
+					{
+						result.Where(() => authorAlias.Subdivision.Id == _currentEmployee.Subdivision.Id);
+					}
 				}
 				else
 				{
@@ -600,7 +642,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					//функция диалога создания документа
 					() => NavigationManager.OpenViewModel<CashlessRequestViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()).ViewModel,
 					//функция диалога открытия документа
-					CreateCashlessRequestViewModelForOpen,
+					(node) => NavigationManager.OpenViewModel<CashlessRequestViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id))?.ViewModel,
 					//функция идентификации документа
 					node => node.EntityType == typeof(CashlessRequest),
 					"Заявка на оплату по Б/Н",
@@ -611,8 +653,20 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			cashlessConfig.FinishConfiguration();
 		}
 
-		private CashlessRequestViewModel CreateCashlessRequestViewModelForOpen(PayoutRequestJournalNode node) =>
-			NavigationManager.OpenViewModel<CashlessRequestViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id)).ViewModel;
+		private CashlessRequestViewModel CreateCashlessRequestViewModelForMassOpenWithoutGui(PayoutRequestJournalNode node)
+		{
+			return new CashlessRequestViewModel(
+				_fileDialogService,
+				_userRepository,
+				_counterpartyJournalFactory,
+				_employeeRepository,
+				EntityUoWBuilder.ForOpen(node.Id),
+				_unitOfWorkFactory,
+				_commonServices,
+				NavigationManager,
+				_scope
+			);
+		}
 
 		private IQueryOver<CashlessRequest> GetCashlessRequestQuery(IUnitOfWork uow)
 		{
@@ -652,7 +706,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 
 				if(FilterViewModel.DocumentType != PayoutRequestDocumentType.CashlessRequest
 				   && FilterViewModel.DocumentType != null
-				   || FilterViewModel.AccountableEmployee != null)
+				   || FilterViewModel.AccountableEmployee != null
+				   || FilterViewModel.AccountableSubdivision != null)
 				{
 					result.Where(clr => clr.Id == -1);
 				}
@@ -667,7 +722,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			{
 				if(_canSeeCurrentSubdivisonRequests)
 				{
-					result.Where(() => authorAlias.Subdivision.Id == _currentEmployee.Subdivision.Id);
+					if(_subdivisionsControlledByCurrentEmployee.Count() > 0)
+					{
+						result.Where(Restrictions.In(Projections.Property(() => authorAlias.Subdivision.Id), _subdivisionsControlledByCurrentEmployee.ToArray()));
+					}
+					else
+					{
+						result.Where(() => authorAlias.Subdivision.Id == _currentEmployee.Subdivision.Id);
+					}
 				}
 				else
 				{

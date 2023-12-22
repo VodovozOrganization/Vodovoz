@@ -10,7 +10,7 @@ namespace Vodovoz.Views.Complaints
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry entVmEmployee;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityentrySubdivision;
+		private global::QS.Views.Control.EntityEntry entrySubdivision;
 
 		protected virtual void Build()
 		{
@@ -47,13 +47,11 @@ namespace Vodovoz.Views.Complaints
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child vbxCreateGuilty.Gtk.Box+BoxChild
-			this.entityentrySubdivision = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entityentrySubdivision.Events = ((global::Gdk.EventMask)(256));
-			this.entityentrySubdivision.Name = "entityentrySubdivision";
-			this.entityentrySubdivision.CanEditReference = false;
-			this.entityentrySubdivision.CanOpenWithoutTabParent = false;
-			this.vbxCreateGuilty.Add(this.entityentrySubdivision);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbxCreateGuilty[this.entityentrySubdivision]));
+			this.entrySubdivision = new global::QS.Views.Control.EntityEntry();
+			this.entrySubdivision.Events = ((global::Gdk.EventMask)(256));
+			this.entrySubdivision.Name = "entrySubdivision";
+			this.vbxCreateGuilty.Add(this.entrySubdivision);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbxCreateGuilty[this.entrySubdivision]));
 			w3.Position = 2;
 			w3.Expand = false;
 			w3.Fill = false;

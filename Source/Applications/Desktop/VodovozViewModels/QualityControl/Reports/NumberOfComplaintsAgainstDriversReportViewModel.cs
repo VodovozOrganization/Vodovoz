@@ -12,6 +12,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories;
+using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Services;
 using Vodovoz.Tools;
 
@@ -29,16 +31,20 @@ namespace Vodovoz.ViewModels.QualityControl.Reports
 		private GeoGroup _selectedGeoGroup;
 		private ComplaintResultBase _selectedComplaintResult;
 		private ReportSortOrder _selectedReportSortOrder;
+		private IncludeExludeFiltersViewModel _includeExcludeFilterViewModel;
+		private readonly IGenericRepository<Subdivision> _subdivisionRepository;
 
 		public NumberOfComplaintsAgainstDriversReportViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
 			INavigationManager navigation,
 			IFileDialogService fileDialogService,
-			IComplaintParametersProvider complaintParametersProvider)
+			IComplaintParametersProvider complaintParametersProvider,
+			IGenericRepository<Subdivision> subdivisionRepository)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_fileDialogService = fileDialogService;
 			TabName = typeof(NumberOfComplaintsAgainstDriversReport).GetClassUserFriendlyName().Nominative;
 
@@ -47,6 +53,7 @@ namespace Vodovoz.ViewModels.QualityControl.Reports
 			GeoGroups = UoW.GetAll<GeoGroup>().ToList();
 			ComplaintResults = UoW.GetAll<ComplaintResultBase>().ToList();
 			SelectedComplaintResult = ComplaintResults.FirstOrDefault(x => x.Id == complaintParametersProvider.GuiltProvenComplaintResultId);
+			SetupFilter();
 		}
 
 		public DateTime? StartDate
@@ -94,6 +101,14 @@ namespace Vodovoz.ViewModels.QualityControl.Reports
 		public IList<GeoGroup> GeoGroups { get; }
 		public IList<ComplaintResultBase> ComplaintResults { get; }
 
+		public IncludeExludeFiltersViewModel IncludeExcludeFilterViewModel => _includeExcludeFilterViewModel;
+
+		private void SetupFilter()
+		{
+			_includeExcludeFilterViewModel = new IncludeExludeFiltersViewModel(_interactiveService);
+			_includeExcludeFilterViewModel.AddFilter(UoW, _subdivisionRepository);
+		}
+
 		private void GenerateReport()
 		{
 			if(StartDate is null || EndDate is null)
@@ -106,7 +121,7 @@ namespace Vodovoz.ViewModels.QualityControl.Reports
 			var selectedComplaintResultId = SelectedComplaintResult?.Id ?? 0;
 
 			Report = NumberOfComplaintsAgainstDriversReport.Generate(UoW, StartDate.Value, EndDate.Value.LatestDayTime(), selectedGeoGroupId,
-				selectedComplaintResultId, SelectedReportSortOrder);
+				selectedComplaintResultId, SelectedReportSortOrder, _includeExcludeFilterViewModel);
 		}
 
 		private void ExportReport()

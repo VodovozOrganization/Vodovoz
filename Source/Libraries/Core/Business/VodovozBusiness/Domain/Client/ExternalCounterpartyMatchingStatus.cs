@@ -6,6 +6,8 @@ namespace Vodovoz.Domain.Client
 	{
 		[Display(Name = "Ожидает обработки")]
 		AwaitingProcessing,
+		[Display(Name = "Юр лицо")]
+		LegalCounterparty,
 		[Display(Name = "Обработан")]
 		Processed
 	}

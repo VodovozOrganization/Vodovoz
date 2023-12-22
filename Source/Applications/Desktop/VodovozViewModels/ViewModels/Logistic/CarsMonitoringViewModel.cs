@@ -46,6 +46,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
 
 		private readonly IGtkTabsOpener _gtkTabsOpener;
+		private readonly IGeographicGroupRepository _geographicGroupRepository;
+		private readonly IGeographicGroupParametersProvider _geographicGroupParametersProvider;
 
 		private bool _showCarCirclesOverlay = false;
 		private bool _showDistrictsOverlay = false;
@@ -82,6 +84,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private int _fastDeliveryDistrictsLastVersionId = -1;
 		private IList<District> _cachedFastDeliveryDistricts;
+		private IList<GeoGroup> _geogroups;
+		private GeoGroup _selectedGeoGroup;
 
 		public CarsMonitoringViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -91,7 +95,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IRouteListRepository routeListRepository,
 			IScheduleRestrictionRepository scheduleRestrictionRepository,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
-			IGtkTabsOpener gtkTabsOpener)
+			IGtkTabsOpener gtkTabsOpener,
+			IGeographicGroupRepository geographicGroupRepository,
+			IGeographicGroupParametersProvider geographicGroupParametersProvider)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
@@ -99,6 +105,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_scheduleRestrictionRepository = scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
 			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
+			_geographicGroupRepository = geographicGroupRepository ?? throw new ArgumentNullException(nameof(geographicGroupRepository));
+			_geographicGroupParametersProvider = geographicGroupParametersProvider;
 
 			TabName = "Мониторинг";
 
@@ -300,6 +308,21 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 		}
 
+		public IList<GeoGroup> GeoGroups => _geogroups 
+		    ?? (_geogroups = _geographicGroupRepository.GeographicGroupsWithoutEast(UoW, _geographicGroupParametersProvider));
+
+		public GeoGroup SelectedGeoGroup
+		{
+			get => _selectedGeoGroup;
+			set
+			{
+				if(SetField(ref _selectedGeoGroup, value))
+				{
+					RefreshWorkingDriversCommand?.Execute();
+				}
+			}
+		}
+
 		#endregion
 
 		#region Readoly Properties
@@ -428,7 +451,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			var completedSubquery = QueryOver.Of<RouteListItem>()
 				.Where(i => i.RouteList.Id == routeListAlias.Id)
-				.Where(i => i.Status != RouteListItemStatus.EnRoute);
+				.Where(i => i.Status != RouteListItemStatus.EnRoute)
+				.Where(i => i.Status != RouteListItemStatus.Transfered);
 
 			if(ShowHistory)
 			{
@@ -439,7 +463,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			completedSubquery.Select(Projections.RowCount());
 
 			var addressesSubquery = QueryOver.Of<RouteListItem>()
-				.Where(i => i.RouteList.Id == routeListAlias.Id);
+				.Where(i => i.RouteList.Id == routeListAlias.Id)
+				.Where(i => i.Status != RouteListItemStatus.Transfered);
 
 			if(ShowHistory)
 			{
@@ -603,6 +628,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				.OrderBy(d => d.StartDate).Desc
 				.Take(1);
 
+			if(SelectedGeoGroup != null)
+			{
+				GeoGroup geographicGroupAlias = null;
+
+				query.Inner.JoinAlias(() => routeListAlias.GeographicGroups, () => geographicGroupAlias, () => geographicGroupAlias.Id == SelectedGeoGroup.Id);
+			}
 
 			var result = query.SelectList(list => list
 					.Select(() => driverAlias.Id).WithAlias(() => resultAlias.Id)
@@ -637,13 +668,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			for(var i = 0; i < driversNodes.Count; i++)
 			{
 				savedRow = driversNodes[i].First();
-				savedRow.RouteListsText =
-					string.Join("; ", driversNodes[i].Select(x => x.TrackId != null
-						? x.LastTrackPointTime >= disconnectedDateTime
-							? $"<span foreground=\"green\"><b>{x.RouteListNumber}</b></span>"
-							: $"<span foreground=\"blue\"><b>{x.RouteListNumber}</b></span>"
-						: x.RouteListNumber.ToString()));
+
 				savedRow.RouteListsIds = driversNodes[i].ToDictionary(x => x.RouteListNumber, x => x.TrackId);
+				savedRow.RouteListsOnlineState = driversNodes[i]
+					.Select(x => (x.RouteListNumber, Online: x.TrackId != null
+						&& x.LastTrackPointTime >= disconnectedDateTime))
+					.ToDictionary(x => x.RouteListNumber, x => x.Online);
 				savedRow.AddressesAll = driversNodes[i].Sum(x => x.AddressesAll);
 				savedRow.AddressesCompleted = driversNodes[i].Sum(x => x.AddressesCompleted);
 				savedRow.Water19LReserve = driversNodes[i].Sum(x => x.Water19LReserve);
@@ -858,6 +888,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public Dictionary<int, int?> RouteListsIds;
 
+		public Dictionary<int, bool> RouteListsOnlineState;
+
 		public int AddressesCompleted { get; set; }
 
 		public int AddressesAll { get; set; }
@@ -872,11 +904,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			set
 			{
 				_routeListNumber = value;
-				RouteListsText = value.ToString();
 			}
 		}
-
-		public string RouteListsText { get; set; }
 
 		public decimal? FastDeliveryMaxDistance { get; set; }
 

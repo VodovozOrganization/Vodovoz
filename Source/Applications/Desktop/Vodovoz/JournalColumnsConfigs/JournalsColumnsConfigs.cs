@@ -5,14 +5,10 @@ using Gtk;
 using QS.Journal.GtkUI;
 using System;
 using System.Linq;
-using System.Reflection;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
-using Vodovoz.Domain.StoredResources;
-using Vodovoz.Parameters;
-using Vodovoz.Representations.ProductGroups;
-using Vodovoz.Settings.Database;
 using Vodovoz.Infrastructure;
-using Vodovoz.Domain.Cash;
+using Vodovoz.Journals.JournalNodes;
+using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
@@ -51,6 +47,41 @@ namespace Vodovoz.JournalColumnsConfigs
 					.Finish()
 				);
 
+			TreeViewColumnsConfigFactory.Register<SubdivisionsJournalViewModel>(
+				(vm) => FluentColumnsConfig<SubdivisionJournalNode>.Create()
+					.SetTreeModel(() => new RecursiveTreeModel<SubdivisionJournalNode>(vm.Items.Cast<SubdivisionJournalNode>(), vm.RecuresiveConfig))
+					.AddColumn("Название").AddTextRenderer(node => node.Name).AddSetter((cell, node) =>
+					{
+						var color = GdkColors.PrimaryText;
+						if(node.IsArchive)
+						{
+							color = GdkColors.InsensitiveText;
+						}
+
+						cell.ForegroundGdk = color;
+					})
+					.AddColumn("Руководитель").AddTextRenderer(node => node.ChiefName).AddSetter((cell, node) =>
+					{
+						var color = GdkColors.PrimaryText;
+						if(node.IsArchive)
+						{
+							color = GdkColors.InsensitiveText;
+						}
+
+						cell.ForegroundGdk = color;
+					})
+					.AddColumn("Код").AddNumericRenderer(node => node.Id).AddSetter((cell, node) =>
+					{
+						var color = GdkColors.PrimaryText;
+						if(node.IsArchive)
+						{
+							color = GdkColors.InsensitiveText;
+						}
+
+						cell.ForegroundGdk = color;
+					})
+					.Finish());
+
 			TreeViewColumnsConfigFactory.Register<RoboatsCallsRegistryJournalViewModel>(
 				(vm) => FluentColumnsConfig<RoboatsCallJournalNode>.Create()
 					.SetTreeModel(() => new RecursiveTreeModel<RoboatsCallJournalNode>(vm.Items.Cast<RoboatsCallJournalNode>(), vm.RecuresiveConfig))
@@ -63,10 +94,10 @@ namespace Vodovoz.JournalColumnsConfigs
 					.RowCells()
 					.AddSetter<CellRenderer>(
 						(cell, node) => {
-							var color = GdkColors.WhiteColor;
+							var color = GdkColors.PrimaryBase;
 							if(node.NodeType == RoboatsCallNodeType.RoboatsCallDetail)
 							{
-								color = GdkColors.LightGrayColor;
+								color = GdkColors.InsensitiveBase;
 							}
 							cell.CellBackgroundGdk = color;
 						}
@@ -98,10 +129,10 @@ namespace Vodovoz.JournalColumnsConfigs
 					.RowCells()
 					.AddSetter<CellRenderer>(
 						(cell, node) => {
-							var color = GdkColors.WhiteColor;
+							var color = GdkColors.PrimaryBase;
 							if(node.NodeType == CashReceiptNodeType.Code)
 							{
-								color = GdkColors.LightGrayColor;
+								color = GdkColors.InsensitiveBase;
 							}
 							cell.CellBackgroundGdk = color;
 						}

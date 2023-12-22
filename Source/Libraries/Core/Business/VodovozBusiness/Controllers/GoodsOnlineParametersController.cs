@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
@@ -49,7 +50,14 @@ namespace Vodovoz.Controllers
 
 			return new NomenclatureOnlineParametersData(parameters, prices);
 		}
-		
+
+		public IList<OnlineNomenclatureNode> GetNomenclaturesForSend(IUnitOfWork uow, GoodsOnlineParameterType parameterType)
+		{
+			var nomenclatures = _nomenclatureRepository.GetNomenclaturesForSend(uow, parameterType);
+
+			return nomenclatures;
+		}
+
 		public PromotionalSetOnlineParametersData GetPromotionalSetsOnlineParametersForSend(
 			IUnitOfWork uow, GoodsOnlineParameterType parameterType)
 		{

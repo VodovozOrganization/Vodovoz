@@ -12,6 +12,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Undeliveries;
+using Vodovoz.Infrastructure;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using IUndeliveredOrdersInfoProvider = Vodovoz.ViewModels.Infrastructure.InfoProviders.IUndeliveredOrdersInfoProvider;
@@ -27,9 +28,6 @@ namespace Vodovoz.SidePanel.InfoViews
 		public UndeliveredOrdersPanelView()
 		{
 			this.Build();
-
-			Gdk.Color wh = new Gdk.Color(255, 255, 255);
-			Gdk.Color gr = new Gdk.Color(223, 223, 223);
 			yTreeView.ColumnsConfig = ColumnsConfigFactory.Create<object[]>()
 				.AddColumn("Ответственный")
 					.AddTextRenderer(n => n[0] != null ? n[0].ToString() : "")
@@ -38,7 +36,7 @@ namespace Vodovoz.SidePanel.InfoViews
 					.AddTextRenderer(n => n[1].ToString())
 					.WrapWidth(50).WrapMode(Pango.WrapMode.WordChar)
 				.RowCells()
-					.AddSetter<CellRenderer>((c, n) => c.CellBackgroundGdk = (int)n[2] % 2 == 0 ? wh : gr)
+					.AddSetter<CellRenderer>((c, n) => c.CellBackgroundGdk = (int)n[2] % 2 == 0 ? GdkColors.PrimaryBase : GdkColors.InsensitiveBase)
 				.Finish();
 			
 			_uow = UnitOfWorkFactory.CreateWithoutRoot();
@@ -190,6 +188,7 @@ namespace Vodovoz.SidePanel.InfoViews
 							$"WHEN '{nameof(GuiltyTypes.ForceMajor)}' THEN '{GuiltyTypes.ForceMajor.GetEnumTitle()}' " +
 							$"WHEN '{nameof(GuiltyTypes.DirectorLO)}' THEN '{GuiltyTypes.DirectorLO.GetEnumTitle()}' " +
 							$"WHEN '{nameof(GuiltyTypes.DirectorLOCurrentDayDelivery)}' THEN '{GuiltyTypes.DirectorLOCurrentDayDelivery.GetEnumTitle()}' " +
+							$"WHEN '{nameof(GuiltyTypes.AutoСancelAutoTransfer)}' THEN '{GuiltyTypes.AutoСancelAutoTransfer.GetEnumTitle()}' " +
 							$"WHEN '{nameof(GuiltyTypes.None)}' THEN '{GuiltyTypes.None.GetEnumTitle()}' " +
 							"ELSE ?1 " +
 							"END ORDER BY ?1 ASC SEPARATOR '\n')"

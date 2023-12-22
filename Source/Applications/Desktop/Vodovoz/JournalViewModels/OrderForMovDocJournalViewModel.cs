@@ -18,10 +18,13 @@ namespace Vodovoz.JournalViewModels
 {
 	public class OrderForMovDocJournalViewModel : FilterableSingleEntityJournalViewModelBase<VodovozOrder, OrderDlg, OrderForMovDocJournalNode, OrderForMovDocJournalFilterViewModel>
 	{
-		public OrderForMovDocJournalViewModel(OrderForMovDocJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		public OrderForMovDocJournalViewModel(
+			OrderForMovDocJournalFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал заказов";
-			filterViewModel.SetAndRefilterAtOnce(x => x.IsOnlineStoreOrders = true);
+			filterViewModel.ConfigureWithoutFiltering(x => x.IsOnlineStoreOrders = true);
 		}
 
 		protected override void CreateNodeActions()

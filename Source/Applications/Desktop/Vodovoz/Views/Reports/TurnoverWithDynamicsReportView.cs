@@ -1,4 +1,5 @@
 ﻿using DateTimeHelpers;
+using Gamma.Utilities;
 using Gtk;
 using NHibernate.Util;
 using QS.Views.GtkUI;
@@ -18,10 +19,7 @@ namespace Vodovoz.ReportsParameters.Sales
 	{
 		private IncludeExludeFiltersView _filterView;
 		private const string _radioButtonPrefix = "yrbtn";
-		private const string _sliceRadioButtonGroupPrefix = "Slice";
 		private const string _measurementUnitRadioButtonGroupPrefix = "MeasurementUnit";
-		private const string _dynamicsInRadioButtonGroupPrefix = "DynamicsIn";
-		private const string _groupingRadioButtonPrefix = "Grouping";
 		private Task _generationTask;
 
 		public TurnoverWithDynamicsReportView(TurnoverWithDynamicsReportViewModel viewModel) : base(viewModel)
@@ -61,29 +59,11 @@ namespace Vodovoz.ReportsParameters.Sales
 				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
 				.InitializeFromSource();
 
-			yrbtnGroupingCounterpartyShowContacts.Binding
-				.AddBinding(ViewModel, vm => vm.UserCanGetContactsInSalesReports, v => v.Sensitive)
+			yenumSlice.ItemsEnum = typeof(DateTimeSliceType);
+			yenumSlice.ShowSpecialStateAll = false;
+			yenumSlice.Binding
+				.AddBinding(ViewModel, vm => vm.SlicingType, w => w.SelectedItem)
 				.InitializeFromSource();
-
-			foreach(RadioButton radioButton in yrbtnGroupingCounterparty.Group)
-			{
-				if(radioButton.Active)
-				{
-					GroupingSelectionChanged(radioButton, EventArgs.Empty);
-				}
-
-				radioButton.Toggled += GroupingSelectionChanged;
-			}
-
-			foreach(RadioButton radioButton in yrbtnSliceDay.Group)
-			{
-				if(radioButton.Active)
-				{
-					SliceGroupSelectionChanged(radioButton, EventArgs.Empty);
-				}
-
-				radioButton.Toggled += SliceGroupSelectionChanged;
-			}
 
 			foreach(RadioButton radioButton in yrbtnMeasurementUnitAmount.Group)
 			{
@@ -95,61 +75,45 @@ namespace Vodovoz.ReportsParameters.Sales
 				radioButton.Toggled += MeasurementUnitGroupSelectionChanged;
 			}
 
-			foreach(RadioButton radioButton in yrbtnDynamicsInPercents.Group)
-			{
-				if(radioButton.Active)
-				{
-					DynamicsInGroupSelectionChanged(radioButton, EventArgs.Empty);
-				}
-
-				radioButton.Toggled += DynamicsInGroupSelectionChanged;
-			}
+			yenumDynamicsMeasurementUnit.ItemsEnum = typeof(DynamicsInEnum);
+			yenumDynamicsMeasurementUnit.ShowSpecialStateAll = false;
+			yenumDynamicsMeasurementUnit.Binding
+				.AddBinding(ViewModel, vm => vm.DynamicsIn, w => w.SelectedItem)
+				.InitializeFromSource();
 
 			ychkbtnShowDynamics.Binding
 				.AddBinding(ViewModel, vm => vm.ShowDynamics, w => w.Active)
 				.InitializeFromSource();
+			
 			ychkbtnShowLastSale.Binding
 				.AddBinding(ViewModel, vm => vm.ShowLastSale, w => w.Active)
 				.InitializeFromSource();
+			
 			ychkbtnShowResidueForNomenclaturesWithoutSales.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.ShowResidueForNomenclaturesWithoutSales, w => w.Active)
 				.AddBinding(vm => vm.CanShowResidueForNomenclaturesWithoutSales, w => w.Sensitive)
 				.InitializeFromSource();
 
+			ycheckbuttonShowContacts.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.CanShowContacts, w => w.Sensitive)
+				.AddBinding(vm => vm.ShowContacts, w => w.Active)
+				.InitializeFromSource();
+
 			ShowFilter();
+
+			leftrightlistview.ViewModel = ViewModel.GroupingSelectViewModel;
 
 			ytreeReportIndicatorsRows.RowActivated += OnReportRowActivated;
 			ViewModel.PropertyChanged += ViewModelPropertyChanged;
 			eventboxArrow.ButtonPressEvent += OnEventboxArrowButtonPressEvent;
-		}
 
-		private void GroupingSelectionChanged(object sender, EventArgs empty)
-		{
-			if(sender is RadioButton rbtn && rbtn.Active)
-			{
-				var trimmedName = rbtn.Name
-					.Replace(_radioButtonPrefix, string.Empty)
-					.Replace(_groupingRadioButtonPrefix, string.Empty);
-
-				ViewModel.GroupingBy = (GroupingByEnum)Enum.Parse(typeof(GroupingByEnum), trimmedName);
-			}
+			hpaned1.Position = 680;
 		}
 
 		private void OnButtonAbortCreateReportClicked(object sender, EventArgs e)
 		{
 			ViewModel.ReportGenerationCancelationTokenSource.Cancel();
-		}
-
-		private void DynamicsInGroupSelectionChanged(object sender, EventArgs e)
-		{
-			if(sender is RadioButton rbtn && rbtn.Active)
-			{
-				var trimmedName = rbtn.Name
-					.Replace(_radioButtonPrefix, string.Empty)
-					.Replace(_dynamicsInRadioButtonGroupPrefix, string.Empty);
-
-				ViewModel.DynamicsIn = (DynamicsInEnum)Enum.Parse(typeof(DynamicsInEnum), trimmedName);
-			}
 		}
 
 		private void MeasurementUnitGroupSelectionChanged(object s, EventArgs e)
@@ -161,18 +125,6 @@ namespace Vodovoz.ReportsParameters.Sales
 					.Replace(_measurementUnitRadioButtonGroupPrefix, string.Empty);
 
 				ViewModel.MeasurementUnit = (MeasurementUnitEnum)Enum.Parse(typeof(MeasurementUnitEnum), trimmedName);
-			}
-		}
-
-		private void SliceGroupSelectionChanged(object s, EventArgs e)
-		{
-			if(s is RadioButton rbtn && rbtn.Active)
-			{
-				var trimmedName = rbtn.Name
-					.Replace(_radioButtonPrefix, string.Empty)
-					.Replace(_sliceRadioButtonGroupPrefix, string.Empty);
-
-				ViewModel.SlicingType = (DateTimeSliceType)Enum.Parse(typeof(DateTimeSliceType), trimmedName);
 			}
 		}
 
@@ -205,17 +157,14 @@ namespace Vodovoz.ReportsParameters.Sales
 			columnsConfig.AddColumn("")
 				.AddTextRenderer(row => row.IsSubheaderRow ? "<b>№</b>" : row.Index, useMarkup: true);
 
-			var firstColumnTitle = 
-				(ViewModel.Report.GroupingBy == GroupingByEnum.Counterparty || ViewModel.Report.GroupingBy == GroupingByEnum.CounterpartyShowContacts) 
-				? "Контрагент" 
-				: "Периоды продаж";
+			var firstColumnTitle = string.Join(" | ", ViewModel.Report.GroupingBy.Select(x => x.GetEnumTitle()));
 
 			columnsConfig.AddColumn(firstColumnTitle).AddTextRenderer(row =>
 				(row.IsSubheaderRow || row.IsTotalsRow) ? $"<b>{row.Title}</b>" : row.Title, useMarkup: true)
 				.WrapWidth(350)
 				.WrapMode(Pango.WrapMode.Word);
 
-			if(ViewModel.Report.GroupingBy == GroupingByEnum.CounterpartyShowContacts)
+			if(ViewModel.Report.ShowContacts)
 			{
 				columnsConfig.AddColumn("Телефоны").AddTextRenderer(row => row.Phones);
 				columnsConfig.AddColumn("E-mail").AddTextRenderer(row => row.Emails);
@@ -269,13 +218,16 @@ namespace Vodovoz.ReportsParameters.Sales
 			{
 				columnsConfig.AddColumn("Дата последней продажи")
 					.AddTextRenderer(row =>
-						row.IsSubheaderRow ? "" :
-						row.IsTotalsRow && row.LastSaleDetails.LastSaleDate == DateTime.MinValue ? "" : row.LastSaleDetails.LastSaleDate.ToString("dd.MM.yyyy"));
+						row.IsSubheaderRow
+						? ""
+						: row.IsTotalsRow && row.LastSaleDetails.LastSaleDate == DateTime.MinValue
+							? ""
+							: row.LastSaleDetails.LastSaleDate.ToString("dd.MM.yyyy"));
 				columnsConfig.AddColumn("Кол-во дней с момента последней отгрузки")
 					.AddTextRenderer(row => row.IsSubheaderRow ? "" :
 						row.LastSaleDetails.DaysFromLastShipment.ToString("0"));
 
-				if(ViewModel.Report.GroupingBy == GroupingByEnum.Nomenclature)
+				if(ViewModel.Report.GroupingBy.LastOrDefault() == Reports.Editing.Modifiers.GroupingType.Nomenclature)
 				{
 					columnsConfig
 						.AddColumn($"Остатки по всем складам на {ViewModel.Report.CreatedAt:dd.MM.yyyy HH:mm}")
@@ -308,6 +260,7 @@ namespace Vodovoz.ReportsParameters.Sales
 			_filterView?.Destroy();
 			_filterView = new IncludeExludeFiltersView(ViewModel.FilterViewModel);
 			vboxParameters.Add(_filterView);
+			_filterView.HeightRequest = ViewModel.FilterViewModel.Filters.Count * 21 + 70;
 			_filterView.Show();
 		}
 
@@ -411,13 +364,16 @@ namespace Vodovoz.ReportsParameters.Sales
 
 		protected void OnEventboxArrowButtonPressEvent(object o, ButtonPressEventArgs args)
 		{
-			vboxTurnoverWithDynamicsReportFilterContainer.Visible = !vboxTurnoverWithDynamicsReportFilterContainer.Visible;
+			scrolledwindow2.Visible = !scrolledwindow2.Visible;
+
+			hpaned1.PositionSet = false;
+
 			UpdateSliderArrow();
 		}
 
 		private void UpdateSliderArrow()
 		{
-			arrowSlider.ArrowType = vboxTurnoverWithDynamicsReportFilterContainer.Visible ? ArrowType.Left : ArrowType.Right;
+			arrowSlider.ArrowType = scrolledwindow2.Visible ? ArrowType.Left : ArrowType.Right;
 		}
 
 		public override void Dispose()
@@ -426,19 +382,9 @@ namespace Vodovoz.ReportsParameters.Sales
 			ybuttonCreateReport.Clicked -= OnButtonCreateReportClicked;
 			ybuttonAbortCreateReport.Clicked -= OnButtonAbortCreateReportClicked;
 
-			foreach(RadioButton radioButton in yrbtnSliceDay.Group)
-			{
-				radioButton.Toggled -= SliceGroupSelectionChanged;
-			}
-
 			foreach(RadioButton radioButton in yrbtnMeasurementUnitAmount.Group)
 			{
 				radioButton.Toggled -= MeasurementUnitGroupSelectionChanged;
-			}
-
-			foreach(RadioButton radioButton in yrbtnDynamicsInPercents.Group)
-			{
-				radioButton.Toggled -= DynamicsInGroupSelectionChanged;
 			}
 
 			ViewModel.PropertyChanged -= ViewModelPropertyChanged;

@@ -93,7 +93,10 @@ namespace Vodovoz.EntityRepositories
 				return (from address in uow.GetAll<RouteListItem>()
 						where address.Order.Id == orderId
 							  && (address.Order.IsFastDelivery 
-							      || (address.WasTransfered && address.TransferedTo == null)
+							      || (
+								      address.Status != RouteListItemStatus.Transfered
+								      && address.AddressTransferType != null
+								      && address.AddressTransferType == AddressTransferType.FromFreeBalance)
 							      )
 						select address.Id)
 					.Any();

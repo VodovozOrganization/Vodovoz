@@ -1,6 +1,8 @@
-﻿using QS.Views.GtkUI;
+﻿using QS.ViewModels.Control.EEVM;
+using QS.Views.GtkUI;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.FilterViewModels;
+using Vodovoz.JournalViewModels;
 using static Vodovoz.FilterViewModels.ComplaintFilterViewModel;
 
 namespace Vodovoz.Filters.GtkViews
@@ -10,20 +12,12 @@ namespace Vodovoz.Filters.GtkViews
 	{
 		public ComplaintFilterView(ComplaintFilterViewModel filterViewModel) : base(filterViewModel)
 		{
-			this.Build();
-			ConfigureDlg();
+			Build();
+			Initialize();
 		}
 
-		private void ConfigureDlg()
+		private void Initialize()
 		{
-			evmeAuthor.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeSelectorFactory);
-			evmeAuthor.Binding.AddBinding(ViewModel, x => x.Employee, v => v.Subject).InitializeFromSource();
-			evmeAuthor.CanOpenWithoutTabParent = true;
-			
-			entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartySelectorFactory);
-			entryCounterparty.Binding.AddBinding(ViewModel, x => x.Counterparty, v => v.Subject).InitializeFromSource();
-			entryCounterparty.CanOpenWithoutTabParent = true;
-
 			yenumcomboboxType.ItemsEnum = typeof(ComplaintType);
 			yenumcomboboxType.Binding.AddBinding(ViewModel, x => x.ComplaintType, v => v.SelectedItemOrNull).InitializeFromSource();
 
@@ -33,6 +27,7 @@ namespace Vodovoz.Filters.GtkViews
 			yenumcomboboxCurrentSubdivisionStatus.ItemsEnum = typeof(ComplaintDiscussionStatuses);
 			yenumcomboboxCurrentSubdivisionStatus.Binding.AddBinding(ViewModel, x => x.ComplaintDiscussionStatus, v => v.SelectedItemOrNull).InitializeFromSource();
 
+			entityentryComplaintKind.CanDisposeEntitySelectorFactory = false;
 			entityentryComplaintKind.SetEntityAutocompleteSelectorFactory(ViewModel.ComplaintKindSelectorFactory);
 			entityentryComplaintKind.Binding.AddBinding(ViewModel, vm => vm.ComplaintKind, w => w.Subject).InitializeFromSource();
 			entityentryComplaintKind.CanOpenWithoutTabParent = true;
@@ -46,19 +41,10 @@ namespace Vodovoz.Filters.GtkViews
 			entryComplaintDetalization.Binding.AddBinding(ViewModel, vm => vm.CanReadDetalization, w => w.ViewModel.IsEditable)
 				.InitializeFromSource();
 
-			entityentryCurrentSubdivision.SetEntityAutocompleteSelectorFactory(ViewModel.CurrentSubdivisionSelectorFactory);
-			entityentryCurrentSubdivision.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.CurrentUserSubdivision, w => w.Subject)
-				.AddBinding(vm => vm.CanChangeSubdivision, w => w.Sensitive)
-				.InitializeFromSource();
-			entityentryCurrentSubdivision.CanOpenWithoutTabParent = true;
-
-			entityentryInWorkSubdivision.SetEntityAutocompleteSelectorFactory(ViewModel.InWorkSubdivisionSelectorFactory);
-			entityentryInWorkSubdivision.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.Subdivision, w => w.Subject)
-				.InitializeFromSource();
-			entityentryInWorkSubdivision.CanOpenWithoutTabParent = true;
-
+			entryCurrentSubdivision.ViewModel = ViewModel.CurrentSubdivisionViewModel;
+			entryAtWorkInSubdivision.ViewModel = ViewModel.AtWorkInSubdivisionViewModel;
+			entityentryAuthor.ViewModel = ViewModel.AuthorEntiryEntryViewModel;
+			ConfigureCounterpartyEntityEntry();
 
 			daterangepicker.Binding
 				.AddSource(ViewModel)
@@ -76,14 +62,28 @@ namespace Vodovoz.Filters.GtkViews
 			ybtnNumberOfComplaintsAgainstDriversReport.Clicked += (s, e) => ViewModel.OpenNumberOfComplaintsAgainstDriversReportTabCommand.Execute();
 		}
 
+		private void ConfigureCounterpartyEntityEntry()
+		{
+			var builder = new LegacyEEVMBuilderFactory<ComplaintFilterViewModel>(
+				ViewModel.JournalTab,
+				ViewModel,
+				ViewModel.UoW,
+				ViewModel.NavigationManager,
+				ViewModel.LifetimeScope);
+
+			entityentryCounterparty.ViewModel = builder.ForProperty(x => x.Counterparty)
+				.UseTdiEntityDialog()
+				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
+				.Finish();
+			entityentryCounterparty.ViewModel.DisposeViewModel = false;
+		}
+
 		public override void Destroy()
 		{
 			yenumcomboboxType.Destroy();
 			yenumcomboboxStatus.Destroy();
 			yenumcomboboxCurrentSubdivisionStatus.Destroy();
-			entityentryComplaintKind.Destroy();
 			yspeccomboboxComplaintObject.Destroy();
-			entityentryCurrentSubdivision.Destroy();
 			yenumcomboboxDateType.Destroy();
 			guiltyItemView.Destroy();
 			base.Destroy();

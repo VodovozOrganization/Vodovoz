@@ -1,6 +1,7 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Autofac;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -12,7 +13,6 @@ using Vodovoz.Domain.Contacts;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Mango;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
@@ -20,7 +20,6 @@ using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.Views.Mango;
@@ -41,6 +40,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
 		private readonly IUnitOfWork _uow;
 		private readonly IDeliveryPointJournalFactory _deliveryPointJournalFactory;
+		private ILifetimeScope _lifetimeScope;
 		private IPage<CounterpartyJournalViewModel> _counterpartyJournalPage;
 
 		public List<CounterpartyOrderViewModel> CounterpartyOrdersViewModels { get; private set; } = new List<CounterpartyOrderViewModel>();
@@ -49,7 +49,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		public event Action CounterpartyOrdersModelsUpdateEvent = () => { };
 
 		public CounterpartyTalkViewModel(
-			INavigationManager navigation,
+			ILifetimeScope lifetimeScope,
 			ITdiCompatibilityNavigation tdinavigation,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IRouteListRepository routedListRepository,
@@ -62,10 +62,10 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			IOrderRepository orderRepository,
 			IParametersProvider parametersProvider,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
-			IDeliveryPointJournalFactory deliveryPointJournalFactory) : base(navigation, manager)
+			IDeliveryPointJournalFactory deliveryPointJournalFactory) : base(tdinavigation, manager)
 		{
-			NavigationManager = navigation ?? throw new ArgumentNullException(nameof(navigation));
-			_tdiNavigation = tdinavigation ?? throw new ArgumentNullException(nameof(navigation));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_tdiNavigation = tdinavigation ?? throw new ArgumentNullException(nameof(tdinavigation));
 
 			_routedListRepository = routedListRepository;
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
@@ -87,9 +87,8 @@ namespace Vodovoz.ViewModels.Mango.Talks
 				foreach(Counterparty client in clients)
 				{
 					CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(
-						client, unitOfWorkFactory, tdinavigation, routedListRepository, MangoManager, _orderParametersProvider,
-						_employeeJournalFactory, _counterpartyJournalFactory, _nomenclatureRepository, _parametersProvider,
-						_deliveryRulesParametersProvider);
+						client, _lifetimeScope, unitOfWorkFactory, tdinavigation, routedListRepository, MangoManager, _orderParametersProvider,
+						_employeeJournalFactory, _counterpartyJournalFactory, _parametersProvider, _deliveryRulesParametersProvider);
 					CounterpartyOrdersViewModels.Add(model);
 				}
 				
@@ -123,6 +122,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		{
 			_counterpartyJournalPage = NavigationManager.OpenViewModel<CounterpartyJournalViewModel>(null);
 			_counterpartyJournalPage.ViewModel.SelectionMode = QS.Project.Journal.JournalSelectionMode.Single;
+			_counterpartyJournalPage.ViewModel.OnEntitySelectedResult -= OnExistingCounterpartyPageClosed;
 			_counterpartyJournalPage.ViewModel.OnEntitySelectedResult += OnExistingCounterpartyPageClosed;
 		}
 
@@ -135,6 +135,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 				CounterpartyOrderViewModel model = 
 					new CounterpartyOrderViewModel(
 						client,
+						_lifetimeScope,
 						UnitOfWorkFactory.GetDefaultFactory,
 						_tdiNavigation,
 						_routedListRepository,
@@ -142,7 +143,6 @@ namespace Vodovoz.ViewModels.Mango.Talks
 						_orderParametersProvider,
 						_employeeJournalFactory,
 						_counterpartyJournalFactory,
-						_nomenclatureRepository,
 						_parametersProvider,
 						_deliveryRulesParametersProvider);
 				
@@ -169,9 +169,9 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 				CounterpartyOrderViewModel model =
 					new CounterpartyOrderViewModel(
-						client, UnitOfWorkFactory.GetDefaultFactory, _tdiNavigation, _routedListRepository, MangoManager,
-						_orderParametersProvider, _employeeJournalFactory, _counterpartyJournalFactory, _nomenclatureRepository,
-						_parametersProvider, _deliveryRulesParametersProvider);
+						client, _lifetimeScope, UnitOfWorkFactory.GetDefaultFactory, _tdiNavigation, _routedListRepository, MangoManager,
+						_orderParametersProvider, _employeeJournalFactory, _counterpartyJournalFactory, _parametersProvider,
+						_deliveryRulesParametersProvider);
 				
 				CounterpartyOrdersViewModels.Add(model);
 				currentCounterparty = client;
@@ -211,8 +211,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		public void AddComplainCommand()
 		{
 			var employeeSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
-
-			var counterpartySelectorFactory = _counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory();
+			var counterpartySelectorFactory = _counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope);
 
 			var parameters = new Dictionary<string, object> {
 				{"client", currentCounterparty},
@@ -232,6 +231,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		public void BottleActCommand()
 		{
 			var parameters = new Vodovoz.Reports.RevisionBottlesAndDeposits(
+				_lifetimeScope,
 				_orderRepository,
 				_counterpartyJournalFactory,
 				_deliveryPointJournalFactory);
@@ -265,6 +265,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 				model.Dispose();
 			}
 
+			_lifetimeScope = null;
 			_uow?.Dispose();
 		}
 	}

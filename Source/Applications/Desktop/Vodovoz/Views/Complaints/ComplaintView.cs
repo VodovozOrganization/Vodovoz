@@ -9,6 +9,7 @@ using System.Text;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Complaints;
 
 namespace Vodovoz.Views.Complaints
@@ -68,7 +69,7 @@ namespace Vodovoz.Views.Complaints
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 
-			entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory());
+			entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyAutocompleteSelectorFactory);
 			entryCounterparty.Binding
 				.AddBinding(ViewModel.Entity, e => e.Counterparty, w => w.Subject)
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
@@ -183,16 +184,16 @@ namespace Vodovoz.Views.Complaints
 
 			ytreeviewFines.Binding.AddBinding(ViewModel, vm => vm.FineItems, w => w.ItemsDataSource).InitializeFromSource();
 
-			buttonAddFine.Clicked += (sender, e) => { ViewModel.AddFineCommand.Execute(Tab); };
+			buttonAddFine.Clicked += (sender, e) => ViewModel.AddFineCommand.Execute();
 			buttonAddFine.Binding.AddBinding(ViewModel, vm => vm.CanAddFine, w => w.Sensitive).InitializeFromSource();
 
-			buttonAttachFine.Clicked += (sender, e) => { ViewModel.AttachFineCommand.Execute(); };
+			buttonAttachFine.Clicked += (sender, e) => ViewModel.AttachFineCommand.Execute();
 			buttonAttachFine.Binding.AddBinding(ViewModel, vm => vm.CanAttachFine, w => w.Sensitive).InitializeFromSource();
 
-			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
+			buttonSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
 			buttonSave.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
-			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(ViewModel.CanEdit, QS.Navigation.CloseSource.Cancel); };
+			buttonCancel.Clicked += (sender, e) => ViewModel.Close(ViewModel.CanEdit, QS.Navigation.CloseSource.Cancel);
 
 			ViewModel.FilesViewModel.ReadOnly = !ViewModel.CanEdit;
 
@@ -376,11 +377,11 @@ namespace Vodovoz.Views.Complaints
 		{
 			if(node is ComplaintArrangementComment || node is ComplaintResultComment)
 			{
-				cell.CellBackgroundGdk = new Gdk.Color(230, 230, 245);
+				cell.CellBackgroundGdk = GdkColors.ComplaintDiscussionCommentBase;
 			}
 			else
 			{
-				cell.CellBackgroundGdk = new Gdk.Color(255, 255, 255);
+				cell.CellBackgroundGdk = GdkColors.PrimaryBase;
 			}
 		}
 	}

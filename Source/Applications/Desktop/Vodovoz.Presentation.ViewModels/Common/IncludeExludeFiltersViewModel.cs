@@ -38,7 +38,15 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			ClearAllExcludesCommand = new DelegateCommand(ClearAllExcludes);
 			ClearAllIncludesCommand = new DelegateCommand(ClearAllIncludes);
 			ShowInfoCommand = new DelegateCommand(ShowInfo);
+			RaiseSelectionChangedCommand = new DelegateCommand(RaiseSelectionChanged);
 		}
+
+		private void RaiseSelectionChanged()
+		{
+			SelectionChanged?.Invoke(this, null);
+		}
+
+		public event EventHandler SelectionChanged;
 
 		public string SearchString
 		{
@@ -96,6 +104,8 @@ namespace Vodovoz.Presentation.ViewModels.Common
 		public DelegateCommand ClearAllIncludesCommand { get; }
 
 		public DelegateCommand ShowInfoCommand { get; }
+
+		public DelegateCommand RaiseSelectionChangedCommand { get; }
 
 		public Dictionary<string, object> GetReportParametersSet()
 		{
@@ -194,6 +204,8 @@ namespace Vodovoz.Presentation.ViewModels.Common
 
 			includeExcludeFilter?.Invoke(newFilter);
 
+			newFilter.SelectionChanged = SelectionChanged;
+
 			Filters.Add(newFilter);
 		}
 
@@ -231,6 +243,8 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			};
 
 			includeExcludeFilter?.Invoke(newFilter);
+
+			newFilter.SelectionChanged = SelectionChanged;
 
 			Filters.Add(newFilter);
 		}
@@ -306,6 +320,53 @@ namespace Vodovoz.Presentation.ViewModels.Common
 
 			includeExcludeFilter?.Invoke(newFilter);
 
+			newFilter.SelectionChanged = SelectionChanged;
+
+			Filters.Add(newFilter);
+		}
+
+		public void AddFilter(string title, Dictionary<string, string> boolParamsDictionary, Action<IncludeExcludeBoolParamsFilter> includeExcludeFilter = null)
+		{
+			var newFilter = new IncludeExcludeBoolParamsFilter
+			{
+				Title = title
+			};
+
+			newFilter.RefreshFunc = (filter) =>
+			{
+				filter.FilteredElements.Clear();
+
+				foreach(var boolParam in boolParamsDictionary)
+				{
+					filter.FilteredElements.Add(new IncludeExcludeElement
+					{
+						Title = boolParam.Key,
+						Number = boolParam.Value
+					});
+				}
+			};
+
+			newFilter.GetReportParametersFunc = (filter) =>
+			{
+				var result = new Dictionary<string, object>();
+
+				foreach(var value in filter.IncludedElements)
+				{
+					result.Add(value.Number, true);
+				}
+
+				foreach(var value in filter.ExcludedElements)
+				{
+					result.Add(value.Number, false);
+				}
+
+				return result;
+			};
+
+			includeExcludeFilter?.Invoke(newFilter);
+
+			newFilter.SelectionChanged = SelectionChanged;
+
 			Filters.Add(newFilter);
 		}
 
@@ -350,7 +411,7 @@ namespace Vodovoz.Presentation.ViewModels.Common
 				"При выборе хотя бы одной ✔️ в текущем фильтре - в выборку попадут только указанные значения.\n" +
 				"При выборе X - из выборки будут исключены выбранные элементы.\n" +
 				"При выборе галочки \"Показать архивные\" будут доступны для выбора архивные элементы." +
-				"!Фильтр по статусу заказов сейчас работает только в отчете по рентабельности!" + //Todo: убрать при релизе 4445
+				"!Фильтр по статусу заказов сейчас работает только в отчете по рентабельности!", //Todo: убрать при релизе 4445
 				"Справка по фильтру");
 		}
 
@@ -424,8 +485,7 @@ namespace Vodovoz.Presentation.ViewModels.Common
 
 		private void UpdateFilteredElements()
 		{
-			if(ActiveFilter != null
-				&& ActiveFilter is IncludeExcludeFilter filter)
+			if(ActiveFilter is IncludeExcludeFilter filter)
 			{
 				filter.RefreshFilteredElements();
 			}

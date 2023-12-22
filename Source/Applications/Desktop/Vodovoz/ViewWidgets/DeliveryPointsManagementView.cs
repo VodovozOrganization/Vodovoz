@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Fias.Client;
-using Fias.Client.Cache;
 using Gamma.ColumnConfig;
 using Gtk;
 using QSOrmProject;
@@ -10,9 +8,8 @@ using QS.Project.Services;
 using QS.Services;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Factories;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
-using QS.DomainModel.UoW;
+using Vodovoz.Infrastructure;
+using Autofac;
 
 namespace Vodovoz
 {
@@ -20,6 +17,7 @@ namespace Vodovoz
 	public partial class DeliveryPointsManagementView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		private Counterparty _counterparty;
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		private readonly IPermissionResult _permissionResult;
 		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory;
 		private readonly bool _canDeleteByPresetPermission;
@@ -27,14 +25,14 @@ namespace Vodovoz
 
 		public DeliveryPointsManagementView()
 		{
-			this.Build();
+			Build();
 
 			treeDeliveryPoints.ColumnsConfig = FluentColumnsConfig<DeliveryPoint>.Create()
 				.AddColumn("Адрес").AddTextRenderer(node => node.CompiledAddress).WrapMode(Pango.WrapMode.WordChar).WrapWidth(1000)
 				.AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
 				.AddColumn("Фикс. цены").AddToggleRenderer(node => node.HasFixedPrices).Editing(false)
 				.AddColumn("")
-				.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.IsActive ? "black" : "red")
+				.RowCells().AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsActive ? GdkColors.PrimaryText : GdkColors.DangerText)
 				.Finish();
 			_canDeleteByPresetPermission =
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete_counterparty_and_deliverypoint");
@@ -47,12 +45,8 @@ namespace Vodovoz
 				treeDeliveryPoints.RowActivated += (o, args) => buttonEdit.Click();
 			}
 			treeDeliveryPoints.Selection.Changed += OnSelectionChanged;
-			
-			IParametersProvider parametersProvider = new ParametersProvider();
-			IFiasApiParametersProvider fiasApiParametersProvider = new FiasApiParametersProvider(parametersProvider);
-			var geoCoderCache = new GeocoderCache(UnitOfWorkFactory.GetDefaultFactory);
-			IFiasApiClient fiasApiClient = new FiasApiClient(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken, geoCoderCache);
-			_deliveryPointViewModelFactory = new DeliveryPointViewModelFactory(fiasApiClient);
+
+			_deliveryPointViewModelFactory = new DeliveryPointViewModelFactory(_lifetimeScope);
 		}
 		
 		public Counterparty Counterparty
@@ -122,6 +116,13 @@ namespace Vodovoz
 		{
 			var result = _deliveryPointRepository.GetDeliveryPointsByCounterpartyId(UoW, _counterparty.Id);
 			treeDeliveryPoints.SetItemsSource(result);
+		}
+
+		public override void Destroy()
+		{
+			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
+			base.Destroy();
 		}
 	}
 }

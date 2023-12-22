@@ -73,6 +73,11 @@ namespace DriverAPI.Library.DTOs
 		public bool IsFastDelivery { get; set; }
 
 		/// <summary>
+		/// Бесконтактная доставка
+		/// </summary>
+		public bool ContactlessDelivery { get; internal set; }
+
+		/// <summary>
 		/// Врмемя добавления в маршрутный лист
 		/// </summary>
 		public string AddedToRouteListTime { get; set; }
@@ -106,5 +111,10 @@ namespace DriverAPI.Library.DTOs
 		/// Подписание документов
 		/// </summary>
 		public SignatureDtoType? SignatureType { get; set; }
+
+		/// <summary>
+		/// Отзвон за
+		/// </summary>
+		public int? CallBeforeArrivalMinutes { get; internal set; }
 	}
 }

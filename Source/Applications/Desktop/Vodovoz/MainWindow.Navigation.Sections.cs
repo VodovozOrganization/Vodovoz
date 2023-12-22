@@ -1,32 +1,25 @@
-using System;
-using Autofac;
-using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
+﻿using QS.Dialog.GtkUI;
 using QS.Navigation;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Journal;
-using QS.Project.Services;
-using Vodovoz;
+using System;
+using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels;
-using Vodovoz.Infrastructure;
-using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels;
-using Vodovoz.ReportsParameters.Logistic;
 using Vodovoz.ReportsParameters;
+using Vodovoz.ReportsParameters.Logistic;
 using Vodovoz.Representations;
-using Vodovoz.TempAdapters;
-using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.Accounting;
 using Vodovoz.ViewModels.Dialogs.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
+using Vodovoz.ViewModels.Logistic;
 
 public partial class MainWindow
 {
@@ -102,20 +95,26 @@ public partial class MainWindow
 	protected void OnActionRetailActivated(object sender, EventArgs e)
 	{
 		if(ActionRetail.Active)
+		{
 			SwitchToUI("retail.xml");
+		}
 	}
 
 
 	protected void OnActionArchiveToggled(object sender, EventArgs e)
 	{
 		if(ActionArchive.Active)
+		{
 			SwitchToUI("archive.xml");
+		}
 	}
 
 	protected void OnActionStaffToggled(object sender, EventArgs e)
 	{
 		if(ActionStaff.Active)
+		{
 			SwitchToUI("Vodovoz.toolbars.staff.xml");
+		}
 	}
 
 	protected void OnActionSalesDepartmentAcivated(System.Object sender, System.EventArgs e)
@@ -132,6 +131,44 @@ public partial class MainWindow
 	{
 		SwitchToUI("Vodovoz.toolbars.suppliers.xml");
 	}
+
+	#region Логистика
+
+	/// <summary>
+	/// Журнал МЛ
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	private void ActionRouteListTable_Activated(object sender, System.EventArgs e)
+	{
+		var filter = new RouteListJournalFilterViewModel();
+		filter.StartDate = DateTime.Today.AddMonths(-2);
+		filter.EndDate = DateTime.Today;
+
+		NavigationManager.OpenViewModel<RouteListJournalViewModel, RouteListJournalFilterViewModel>(null, filter);
+	}
+
+	/// <summary>
+	/// На работе
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	private void ActionAtWorks_Activated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenTdiTab<AtWorksDlg>(null);
+	}
+
+	/// <summary>
+	/// Формирование МЛ
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	void ActionRouteListsAtDay_Activated(object sender, System.EventArgs e)
+	{
+		NavigationManager.OpenViewModel<RouteListsOnDayViewModel>(null);
+	}
+
+	#endregion Логистика
 
 	protected void OnActionComplaintsActivated(object sender, EventArgs e)
 	{
@@ -172,53 +209,27 @@ public partial class MainWindow
 
 	protected void OnActionCashRequestReportActivated(object sender, EventArgs e)
 	{
-		var employeeFilter = new EmployeeFilterViewModel
-		{
-			Status = EmployeeStatus.IsWorking,
-		};
+		var page = NavigationManager.OpenViewModel<PayoutRequestsJournalViewModel, bool, bool, Action<EmployeeFilterViewModel>>(
+			null,
+			false,
+			false,
+			employeeFilter => employeeFilter.Status = EmployeeStatus.IsWorking,
+			OpenPageOptions.IgnoreHash);
 
-		var employeeJournalFactory = new EmployeeJournalFactory(employeeFilter);
-
-		var page = NavigationManager.OpenViewModel<PayoutRequestsJournalViewModel, IEmployeeJournalFactory, bool, bool>
-			(null, employeeJournalFactory, false, false, OpenPageOptions.IgnoreHash);
 		page.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
 	}
 
 	protected void OnActionWayBillJournalActivated(object sender, EventArgs e)
 	{
-		var employeeFilter = new EmployeeFilterViewModel
-		{
-			Status = EmployeeStatus.IsWorking
-		};
-
-		var employeesJournalFactory = new EmployeeJournalFactory(employeeFilter);
-		var docTemplateRepository = new DocTemplateRepository();
-		var fileChooser = new FileChooser();
-
-		tdiMain.OpenTab(
-			() => new WayBillGeneratorViewModel
-			(
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices.InteractiveService,
-				NavigationManagerProvider.NavigationManager,
-				new WayBillDocumentRepository(),
-				new RouteGeometryCalculator(),
-				employeesJournalFactory,
-				docTemplateRepository,
-				fileChooser
-			));
+		NavigationManager.OpenViewModel<WayBillGeneratorViewModel, Action<EmployeeFilterViewModel>>(null, filter => filter.Status = EmployeeStatus.IsWorking);
 	}
 
 	protected void OnActionRetailComplaintsJournalActivated(object sender, EventArgs e)
 	{
-		Action<ComplaintFilterViewModel> action = (filterConfig) => filterConfig.IsForRetail = true;
-
-		var filter = _autofacScope.BeginLifetimeScope().Resolve<ComplaintFilterViewModel>(new TypedParameter(typeof(Action<ComplaintFilterViewModel>), action));
-
-		NavigationManager.OpenViewModel<ComplaintsJournalViewModel, ComplaintFilterViewModel>(
-			   null,
-			   filter,
-			   OpenPageOptions.IgnoreHash);
+		NavigationManager.OpenViewModel<ComplaintsJournalsViewModel, Action<ComplaintFilterViewModel>>(
+			null,
+			filter => filter.IsForRetail = true,
+			OpenPageOptions.IgnoreHash);
 	}
 
 	protected void OnActionRetailUndeliveredOrdersJournalActivated(object sender, EventArgs e)
@@ -228,25 +239,15 @@ public partial class MainWindow
 
 	protected void OnActionRetailCounterpartyJournalActivated(object sender, EventArgs e)
 	{
-		CounterpartyJournalFilterViewModel filter = new CounterpartyJournalFilterViewModel() { IsForRetail = true };
-		var counterpartyJournal = new RetailCounterpartyJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
-
-		tdiMain.OpenTab(
-			() => counterpartyJournal
-		);
+		NavigationManager.OpenViewModel<RetailCounterpartyJournalViewModel, Action<CounterpartyJournalFilterViewModel>>(null, filter => filter.IsForRetail = true);
 	}
 
 	protected void OnActionRetailOrdersJournalActivated(object sender, EventArgs e)
 	{
-		var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
-		var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
-		var employeeJournalFactory = new EmployeeJournalFactory();
-
-		var orderJournalFilter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, employeeJournalFactory)
+		NavigationManager.OpenViewModel<RetailOrderJournalViewModel, Action<OrderJournalFilterViewModel>>(null, filter =>
 		{
-			IsForRetail = true
-		};
-		NavigationManager.OpenViewModel<RetailOrderJournalViewModel, OrderJournalFilterViewModel>(null, orderJournalFilter);
+			filter.IsForRetail = true;
+		});
 	}
 
 	#region Заказы
@@ -258,16 +259,15 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnUndeliveredOrdersActionActivated(object sender, EventArgs e)
 	{
-		var undeliveredOrdersFilter = new UndeliveredOrdersFilterViewModel(ServicesConfig.CommonServices, new OrderSelectorFactory(),
-			new EmployeeJournalFactory(), new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
-			new DeliveryPointJournalFactory(), new SubdivisionJournalFactory())
-		{
-			HidenByDefault = true,
-			RestrictUndeliveryStatus = UndeliveryStatus.InProcess,
-			RestrictNotIsProblematicCases = true
-		};
-
-		NavigationManager.OpenViewModel<UndeliveredOrdersJournalViewModel, UndeliveredOrdersFilterViewModel>(null, undeliveredOrdersFilter, OpenPageOptions.IgnoreHash);
+		NavigationManager.OpenViewModel<UndeliveredOrdersJournalViewModel, Action<UndeliveredOrdersFilterViewModel>>(
+			null,
+			filter =>
+			{
+				filter.HidenByDefault = true;
+				filter.RestrictUndeliveryStatus = UndeliveryStatus.InProcess;
+				filter.RestrictNotIsProblematicCases = true;
+			},
+			OpenPageOptions.IgnoreHash);
 	}
 
 	#endregion

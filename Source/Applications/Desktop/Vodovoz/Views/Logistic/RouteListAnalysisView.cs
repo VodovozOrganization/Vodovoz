@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -10,6 +10,7 @@ using QS.Validation;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.Infrastructure;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
@@ -36,7 +37,7 @@ namespace Vodovoz.Views.Logistic
 			
 			buttonCancel.Clicked += (sender, e) => ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
 
-			entityVMEntryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(Startup.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory());
+			entityVMEntryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(ViewModel.NavigationManager).CreateCarAutocompleteSelectorFactory(ViewModel.LifetimeScope));
 			entityVMEntryCar.Binding.AddBinding(ViewModel.Entity, e => e.Car, w => w.Subject).InitializeFromSource();
 			entityVMEntryCar.CompletionPopupSetWidth(false);
 
@@ -136,22 +137,22 @@ namespace Vodovoz.Views.Logistic
 					.AddTextRenderer(n => n.CommentForFineAuthor != null ?
 						n.CommentForFineAuthor.ShortName : String.Empty)
 				.AddColumn("Переносы")
-					.AddTextRenderer(n => n.GetTransferText(n))
+					.AddTextRenderer(n => n.GetTransferText(false))
 				.RowCells()
 					.AddSetter<CellRenderer>((c, n) => {
 
 						switch(n.Status) {
 							case RouteListItemStatus.Overdue:
-								c.CellBackgroundGdk = new Color(0xee, 0x66, 0x66);
+								c.CellBackgroundGdk = GdkColors.DangerBase;
 								break;
 							case RouteListItemStatus.Completed:
-								c.CellBackgroundGdk = new Color(0x66, 0xee, 0x66);
+								c.CellBackgroundGdk = GdkColors.SuccessBase;
 								break;
 							case RouteListItemStatus.Canceled:
-								c.CellBackgroundGdk = new Color(0xaf, 0xaf, 0xaf);
+								c.CellBackgroundGdk = GdkColors.InsensitiveBase;
 								break;
 							default:
-								c.CellBackgroundGdk = new Color(0xff, 0xff, 0xff);
+								c.CellBackgroundGdk = GdkColors.PrimaryBase;
 								break;
 						}
 					})

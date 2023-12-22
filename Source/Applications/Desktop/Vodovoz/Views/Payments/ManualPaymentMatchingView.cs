@@ -1,26 +1,24 @@
 ﻿using Gamma.ColumnConfig;
-using QS.Views.GtkUI;
 using Gtk;
-using Vodovoz.Domain.Orders;
-using QS.Project.Journal.EntitySelector;
-using Vodovoz.Domain.Client;
-using Vodovoz.Filters.ViewModels;
-using System;
 using QS.Navigation;
-using Vodovoz.Infrastructure.Converters;
-using QS.Project.Search.GtkUI;
 using QS.Project.Search;
-using Vodovoz.JournalViewModels;
+using QS.Project.Search.GtkUI;
+using QS.Views.GtkUI;
+using System;
+using System.ComponentModel;
+using Vodovoz.Domain.Orders;
+using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewModels.ViewModels.Payments;
 
 namespace Vodovoz.Views
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class ManualPaymentMatchingView : TabViewBase<ManualPaymentMatchingViewModel>
 	{
-		public ManualPaymentMatchingView(ManualPaymentMatchingViewModel manualPaymentLoaderViewModel) : base(manualPaymentLoaderViewModel)
+		public ManualPaymentMatchingView(ManualPaymentMatchingViewModel manualPaymentLoaderViewModel)
+			: base(manualPaymentLoaderViewModel)
 		{
-			this.Build();
+			Build();
 			Configure();
 		}
 
@@ -68,15 +66,21 @@ namespace Vodovoz.Views
             labelPayer.Text = ViewModel.Entity.CounterpartyName;
             labelPaymentNum.Text = ViewModel.Entity.PaymentNum.ToString();
             labelDate.Text = ViewModel.Entity.Date.ToShortDateString();
+			
+			ytextviewPaymentPurpose.Binding
+				.AddSource(ViewModel.Entity)
+				.AddBinding(e => e.PaymentPurpose, w => w.Buffer.Text)
+				.AddBinding(e => e.IsManuallyCreated, w => w.Editable)
+				.InitializeFromSource();
 
-            ytextviewPaymentPurpose.Buffer.Text = ViewModel.Entity.PaymentPurpose;
             ytextviewComments.Binding.AddBinding(ViewModel.Entity, vm => vm.Comment, v => v.Buffer.Text).InitializeFromSource();
 
-            entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory());
+            entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyAutocompleteSelectorFactory);
 
             entryCounterparty.Binding.AddBinding(ViewModel.Entity, vm => vm.Counterparty, w => w.Subject).InitializeFromSource();
             entryCounterparty.ChangedByUser += (sender, e) =>
             {
+				ViewModel.UpdateCMOCounterparty();
                 ViewModel.UpdateNodes();
                 ViewModel.GetLastBalance();
 				ViewModel.UpdateSumToAllocate();
@@ -88,10 +92,23 @@ namespace Vodovoz.Views
             hboxSearch.Add(searchView);
             searchView.Show();
 
+			hbox6.Sensitive = ViewModel.CanChangeCounterparty;
+
+			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+
             ConfigureTrees();
         }
 
-        private void ConfigureTrees()
+		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(ViewModel.CanChangeCounterparty))
+			{
+				hbox6.Sensitive = ViewModel.CanChangeCounterparty;
+				return;
+			}
+		}
+
+		private void ConfigureTrees()
         {
             ytreeviewOrdersAllocate.ColumnsConfig = FluentColumnsConfig<ManualPaymentMatchingViewModelNode>.Create()
                 .AddColumn("№ заказа")

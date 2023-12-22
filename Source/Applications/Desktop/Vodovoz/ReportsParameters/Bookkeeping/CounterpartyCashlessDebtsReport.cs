@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Autofac;
 using Gamma.Utilities;
 using Gtk;
 using QS.Dialog;
@@ -24,30 +25,36 @@ namespace Vodovoz.ReportsParameters.Bookkeeping
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 
 		public CounterpartyCashlessDebtsReport(
+			ILifetimeScope lifetimeScope,
 			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider,
 			IInteractiveService interactiveService,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IUnitOfWorkFactory unitOfWorkFactory)
 		{
-			_deliveryScheduleParametersProvider = deliveryScheduleParametersProvider
-				?? throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider));
+			if(lifetimeScope == null)
+			{
+				throw new ArgumentNullException(nameof(lifetimeScope));
+			}
+
+			_deliveryScheduleParametersProvider =
+				deliveryScheduleParametersProvider ?? throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			UoW = (unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory))).CreateWithoutRoot();
 			Build();
-			Configure();
+			Configure(lifetimeScope);
 		}
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
 		public string Title => "Долги по безналу";
 
-		private void Configure()
+		private void Configure(ILifetimeScope lifetimeScope)
 		{
 			ycheckExcludeClosingDocuments.Active = true;
 
 			entryCounterparty.SetEntityAutocompleteSelectorFactory(
-				_counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory());
+				_counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory(lifetimeScope));
 			entryCounterparty.Changed += (sender, args) => UpdateAvailableReports();
 
 			enumcheckOrderStatuses.ExpandCheckButtons = false;

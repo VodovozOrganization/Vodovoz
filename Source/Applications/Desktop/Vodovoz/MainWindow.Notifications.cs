@@ -7,10 +7,11 @@ using Vodovoz.Controllers;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz;
 using System.Linq;
+using Vodovoz.Infrastructure;
+using Vodovoz.Extensions;
 
 public partial class MainWindow
 {
-
 	#region Уведомления об отправленных перемещениях и о наличии рекламаций
 	private int GetEmployeeSubdivisionId(IUnitOfWork uow)
 	{
@@ -26,7 +27,7 @@ public partial class MainWindow
 		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 		{
 			var movementsNotification = _movementsNotificationsController.GetNotificationMessage(uow);
-			UpdateSendedMovementsNotification(movementsNotification);
+			UpdateSentMovementsNotification(movementsNotification);
 		}
 
 		if(!_hideComplaintsNotifications)
@@ -36,9 +37,13 @@ public partial class MainWindow
 		}
 	}
 
-	private void UpdateSendedMovementsNotification(string notification)
+	private void UpdateSentMovementsNotification((bool Alert, string Message) notificationDetails)
 	{
-		lblMovementsNotification.Markup = notification;
+		var message = notificationDetails.Alert
+			? $"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">{notificationDetails.Message}</span>"
+			: notificationDetails.Message;
+
+		lblMovementsNotification.Markup = message;
 	}
 	#endregion
 

@@ -34,5 +34,14 @@ namespace CustomerAppsApi.Models
 
 			return _nomenclatureFactory.CreateNomenclaturesPricesAndStockDto(parametersData);
 		}
+		
+		public NomenclaturesDto GetNomenclatures(Source source)
+		{
+			var parameterType = _sourceConverter.ConvertToNomenclatureOnlineParameterType(source);
+			var nomenclatureCharacteristics =
+				_nomenclatureOnlineParametersController.GetNomenclaturesForSend(_unitOfWork, parameterType);
+
+			return _nomenclatureFactory.CreateNomenclaturesDto(nomenclatureCharacteristics);
+		}
 	}
 }

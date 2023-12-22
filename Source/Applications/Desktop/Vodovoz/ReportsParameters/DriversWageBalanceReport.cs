@@ -9,6 +9,7 @@ using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Infrastructure;
 
 namespace Vodovoz.ReportsParameters
 {
@@ -40,7 +41,7 @@ namespace Vodovoz.ReportsParameters
 				.AddColumn("Имя").AddTextRenderer(d => d.FullName)
 				.AddColumn("Выбрать").AddToggleRenderer(d => d.IsSelected)
 				.RowCells().AddSetter<CellRenderer>((c, n) =>
-					c.CellBackground = n.Category == EmployeeCategory.forwarder ? "Light Gray" : "white")
+					c.CellBackgroundGdk = n.Category == EmployeeCategory.forwarder ? GdkColors.InsensitiveBG : GdkColors.PrimaryBase)
 				.Finish();
 			ytreeviewDrivers.SetItemsSource(_driversList);
 

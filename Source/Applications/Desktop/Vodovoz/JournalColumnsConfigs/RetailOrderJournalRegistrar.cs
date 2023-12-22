@@ -5,6 +5,7 @@ using QSProjectsLib;
 using System;
 using System.Globalization;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Infrastructure;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
 using WrapMode = Pango.WrapMode;
@@ -25,6 +26,7 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Бутыли").AddTextRenderer(node => $"{node.BottleAmount:N0}")
 				.AddColumn("Кол-во с/о").AddTextRenderer(node => $"{node.SanitisationAmount:N0}")
 				.AddColumn("Клиент").AddTextRenderer(node => node.Counterparty)
+				.AddColumn("ИНН").AddTextRenderer(node => node.Inn)
 				.AddColumn("Сумма").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.Sum))
 				.AddColumn("Статус оплаты").AddTextRenderer(x =>
 					(x.OrderPaymentStatus != OrderPaymentStatus.None) ? x.OrderPaymentStatus.GetEnumTitle() : "")
@@ -36,7 +38,28 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Номер звонка").AddTextRenderer(node => node.DriverCallId.ToString())
 				.AddColumn("OnLine заказ №").AddTextRenderer(node => node.OnLineNumber)
 				.AddColumn("Номер заказа интернет-магазина").AddTextRenderer(node => node.EShopNumber)
-				.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+				.RowCells().AddSetter<CellRendererText>((c, n) =>
+				{
+					var color = GdkColors.PrimaryText;
+
+					if(n.StatusEnum == OrderStatus.Canceled
+						|| n.StatusEnum == OrderStatus.DeliveryCanceled)
+					{
+						color = GdkColors.InsensitiveText;
+					}
+
+					if(n.StatusEnum == OrderStatus.Closed)
+					{
+						color = GdkColors.SuccessText;
+					}
+
+					if(n.StatusEnum == OrderStatus.NotDelivered)
+					{
+						color = GdkColors.InfoText;
+					}
+
+					c.ForegroundGdk = color;
+				})
 				.Finish();
 	}
 }

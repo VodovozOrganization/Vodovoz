@@ -9,53 +9,37 @@ using QS.ViewModels;
 using QS.ViewModels.Extension;
 using System;
 using System.Linq;
+using QS.Navigation;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Suppliers;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Suppliers;
 using Vodovoz.Services;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
-using VodovozInfrastructure.StringHandlers;
 
 namespace Vodovoz.ViewModels.Suppliers
 {
 	public class RequestToSupplierViewModel : EntityTabViewModelBase<RequestToSupplier>, IAskSaveOnCloseViewModel
 	{
-		private readonly ISupplierPriceItemsRepository supplierPriceItemsRepository;
-		private readonly INomenclatureRepository nomenclatureRepository;
-		private readonly IUserRepository userRepository;
-		private readonly IEmployeeService employeeService;
-		private readonly IUnitOfWorkFactory unitOfWorkFactory;
-		private readonly ICommonServices commonServices;
-		private readonly ICounterpartyJournalFactory counterpartySelectorFactory;
-		private readonly INomenclatureJournalFactory nomenclatureSelectorFactory;
+		private readonly ISupplierPriceItemsRepository _supplierPriceItemsRepository;
+		private readonly ITdiCompatibilityNavigation _navigationManager;
+		private readonly IEmployeeService _employeeService;
 		public event EventHandler ListContentChanged;
 
 		public RequestToSupplierViewModel(
 			IEntityUoWBuilder uoWBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
+			ITdiCompatibilityNavigation navigationManager,
 			IEmployeeService employeeService,
-			ISupplierPriceItemsRepository supplierPriceItemsRepository,
-			ICounterpartyJournalFactory counterpartySelectorFactory,
-			INomenclatureJournalFactory nomenclatureSelectorFactory,
-			INomenclatureRepository nomenclatureRepository,
-			IUserRepository userRepository) : base(uoWBuilder, unitOfWorkFactory, commonServices)
+			ISupplierPriceItemsRepository supplierPriceItemsRepository) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
-			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			this.supplierPriceItemsRepository = supplierPriceItemsRepository ?? throw new ArgumentNullException(nameof(supplierPriceItemsRepository));
-			this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
-			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
-			this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			_supplierPriceItemsRepository = supplierPriceItemsRepository ?? throw new ArgumentNullException(nameof(supplierPriceItemsRepository));
 			
 			CreateCommands();
 			RefreshSuppliers();
@@ -107,7 +91,7 @@ namespace Vodovoz.ViewModels.Suppliers
 		public Employee CurrentEmployee {
 			get {
 				if(currentEmployee == null)
-					currentEmployee = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
+					currentEmployee = _employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
 				return currentEmployee;
 			}
 		}
@@ -191,7 +175,7 @@ namespace Vodovoz.ViewModels.Suppliers
 
 		void RefreshSuppliers()
 		{
-			Entity.RequestingNomenclaturesListRefresh(UoW, supplierPriceItemsRepository, Entity.SuppliersOrdering);
+			Entity.RequestingNomenclaturesListRefresh(UoW, _supplierPriceItemsRepository, Entity.SuppliersOrdering);
 			MinimalTotalSumText = $"Минимальное ИТОГО: {Entity.MinimalTotalSum.ToShortCurrencyString()}";
 			ListContentChanged?.Invoke(this, new EventArgs());
 			NeedRefresh = false;
@@ -247,31 +231,37 @@ namespace Vodovoz.ViewModels.Suppliers
 		void CreateAddRequestingNomenclatureCommand()
 		{
 			AddRequestingNomenclatureCommand = new DelegateCommand(
-				() => {
+				() =>
+				{
 					var existingNomenclatures = Entity.ObservableRequestingNomenclatureItems
-													  .Where(i => !i.Transfered)
-													  .Select(i => i.Nomenclature.Id)
-													  .Distinct();
-					var filter = new NomenclatureFilterViewModel() {
-						HidenByDefault = true
-					};
-					NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
-						filter,
-						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-						CommonServices,
-						employeeService,
-						nomenclatureSelectorFactory,
-						counterpartySelectorFactory,
-						nomenclatureRepository,
-						userRepository
-					) {
-						SelectionMode = JournalSelectionMode.Single,
-						ExcludingNomenclatureIds = existingNomenclatures.ToArray()
-					};
-					journalViewModel.OnEntitySelectedResult += (sender, e) => {
+						.Where(i => !i.Transfered)
+						.Select(i => i.Nomenclature.Id)
+						.Distinct();
+					
+					var journalViewModel =
+						_navigationManager.OpenViewModel<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(
+							this,
+							filter =>
+							{
+								filter.HidenByDefault = true;
+							},
+							OpenPageOptions.AsSlave,
+							vm =>
+							{
+								vm.SelectionMode = JournalSelectionMode.Single;
+								vm.ExcludingNomenclatureIds = existingNomenclatures.ToArray();
+							}
+						).ViewModel;
+					
+					journalViewModel.OnEntitySelectedResult += (sender, e) =>
+					{
 						var selectedNode = e.SelectedNodes.FirstOrDefault();
+						
 						if(selectedNode == null)
+						{
 							return;
+						}
+
 						Entity.ObservableRequestingNomenclatureItems.Add(
 							new RequestToSupplierItem {
 								Nomenclature = UoW.GetById<Nomenclature>(selectedNode.Id),
@@ -279,7 +269,6 @@ namespace Vodovoz.ViewModels.Suppliers
 							}
 						);
 					};
-					this.TabParent.AddSlaveTab(this, journalViewModel);
 				}
 			);
 		}
@@ -309,23 +298,22 @@ namespace Vodovoz.ViewModels.Suppliers
 		void CreateTransferRequestingNomenclatureCommand()
 		{
 			TransferRequestingNomenclatureCommand = new DelegateCommand<ILevelingRequestNode[]>(
-				array => {
+				array =>
+				{
 					if(!SaveBeforeContinue())
+					{
 						return;
+					}
 
-					RequestToSupplierViewModel vm = new RequestToSupplierViewModel(
-						EntityUoWBuilder.ForCreate(),
-						unitOfWorkFactory,
-						commonServices,
-						employeeService,
-						supplierPriceItemsRepository,
-						counterpartySelectorFactory,
-						nomenclatureSelectorFactory,
-						nomenclatureRepository,
-						userRepository
-					);
-					foreach(var item in array) {
-						if(item is RequestToSupplierItem requestItem) {
+					var vm =
+						_navigationManager.OpenViewModel<RequestToSupplierViewModel, IEntityUoWBuilder>(
+								this, EntityUoWBuilder.ForCreate(), OpenPageOptions.AsSlave)
+							.ViewModel;
+					
+					foreach(var item in array)
+					{
+						if(item is RequestToSupplierItem requestItem)
+						{
 							var newItem = new RequestToSupplierItem {
 								Nomenclature = requestItem.Nomenclature,
 								Quantity = requestItem.Quantity,
@@ -339,7 +327,6 @@ namespace Vodovoz.ViewModels.Suppliers
 					}
 
 					vm.EntitySaved += (sender, e) => RefreshSuppliers();
-					this.TabParent.AddSlaveTab(this, vm);
 				}
 			);
 		}
@@ -352,18 +339,23 @@ namespace Vodovoz.ViewModels.Suppliers
 		void CreateOpenItemCommand()
 		{
 			OpenItemCommand = new DelegateCommand<ILevelingRequestNode[]>(
-				array => {
+				array =>
+				{
 					var item = array.FirstOrDefault();
-					if(item is RequestToSupplierItem requestItem) {
+					
+					if(item is RequestToSupplierItem requestItem)
+					{
 						var nom = requestItem.Nomenclature;
-						this.TabParent.AddSlaveTab(this, new NomenclatureViewModel(EntityUoWBuilder.ForOpen(nom.Id),
-							UnitOfWorkFactory, commonServices, employeeService, nomenclatureSelectorFactory,
-							counterpartySelectorFactory, nomenclatureRepository, userRepository, new StringHandler()));
+						_navigationManager.OpenViewModel<NomenclatureViewModel, IEntityUoWBuilder>(
+							this, EntityUoWBuilder.ForOpen(nom.Id), OpenPageOptions.AsSlave);
 						return;
 					}
-					if(item is SupplierNode supplierItem) {
+					
+					if(item is SupplierNode supplierItem)
+					{
 						var sup = supplierItem.SupplierPriceItem.Supplier;
-						this.TabParent.AddSlaveTab(this, new CounterpartyDlg(sup));
+
+						_navigationManager.OpenTdiTab<CounterpartyDlg, Counterparty>(this, sup, OpenPageOptions.AsSlave);
 						return;
 					}
 				},

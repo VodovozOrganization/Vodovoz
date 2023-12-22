@@ -306,18 +306,6 @@ namespace Vodovoz.Domain.Orders
 			var rls = orderRepository.GetAllRLForOrder(UoW, OldOrder);
 			return rls?.Select(r => r.Driver).ToList();
 		}
-
-		public virtual string GetAllCommentsForTheField(CommentedFields field)
-		{
-			var comments = new UndeliveredOrderCommentsRepository().GetComments(UoW, this, field);
-			StringBuilder sb = new StringBuilder();
-
-			int cnt = 0;
-			foreach(var comment in comments) {
-				sb.AppendLine(comment.GetMarkedUpComment(cnt++ % 2 == 0 ? "red" : "blue"));
-			}
-			return sb.ToString();
-		}
 		
 		public virtual void Close(Employee currentEmployee)
 		{

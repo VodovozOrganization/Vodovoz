@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using Vodovoz.Domain.Logistic.Organizations;
 using Vodovoz.Domain.StoredResources;
+using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Widgets.Organizations;
 using Color = Gdk.Color;
 
@@ -14,8 +15,8 @@ namespace Vodovoz.Views.Organization
 	[ToolboxItem(true)]
 	public partial class OrganizationVersionsView : WidgetViewBase<OrganizationVersionsViewModel>
 	{
-		private static readonly Color _greenColor = new Color(0, 255, 0);
-		private static readonly Color _whiteColor = new Color(255, 255, 255);
+		private static readonly Color _greenColor = GdkColors.SuccessText;
+		private static readonly Color _primaryBaseColor = GdkColors.PrimaryBase;
 
 		public OrganizationVersionsView()
 		{
@@ -33,7 +34,7 @@ namespace Vodovoz.Views.Organization
 
 			ytreeVersions.ColumnsConfig = FluentColumnsConfig<OrganizationVersion>.Create()
 				.AddColumn("Код").MinWidth(50).HeaderAlignment(0.5f).AddTextRenderer(x => x.Id == 0 ? "Новая" : x.Id.ToString()).XAlign(0.5f)
-					.AddSetter((c, n) => c.BackgroundGdk = n.Id == 0 ? _greenColor : _whiteColor)
+					.AddSetter((c, n) => c.BackgroundGdk = n.Id == 0 ? _greenColor : _primaryBaseColor)
 				.AddColumn("Начало действия").AddTextRenderer(x => x.StartDate.ToString("g")).XAlign(0.5f)
 				.AddColumn("Окончание действия").AddTextRenderer(x => x.EndDate.HasValue ? x.EndDate.Value.ToString("g") : "").XAlign(0.5f)
 				.AddColumn("Руководитель").AddTextRenderer(x => x.LeaderShortName).XAlign(0.5f)

@@ -78,5 +78,16 @@ namespace Vodovoz.EntityRepositories.Sale
 				.Where(gg => gg.Id != geographicGroupParametersProvider.EastGeographicGroupId);
 			return query.List();
 		}
+
+		public IList<GeoGroup> GeographicGroupsWithoutEast(
+			IUnitOfWork uow, IGeographicGroupParametersProvider geographicGroupParametersProvider)
+		{
+			GeoGroup geoGroupAlias = null;
+
+			var query = uow.Session.QueryOver(() => geoGroupAlias)
+				.Where(() => geoGroupAlias.Id != geographicGroupParametersProvider.EastGeographicGroupId); 
+			
+			return query.List();
+		}
 	}
 }

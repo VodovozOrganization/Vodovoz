@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using QS.Project.Repositories;
@@ -8,8 +8,8 @@ using Vodovoz.Domain.Goods;
 namespace Vodovoz.Domain.Orders
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
-		NominativePlural = "строки рекламного набора",
-		Nominative = "строка рекламного набора")]
+		NominativePlural = "строки промонабора",
+		Nominative = "строка промонабора")]
 	[HistoryTrace]
 	public class PromotionalSetItem : PropertyChangedBase, IDomainObject
 	{

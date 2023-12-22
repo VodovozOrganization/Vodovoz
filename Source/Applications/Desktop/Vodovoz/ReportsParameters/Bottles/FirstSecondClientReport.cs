@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Employees;
@@ -14,8 +15,13 @@ namespace Vodovoz.ReportsParameters.Bottles
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class FirstSecondClientReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public FirstSecondClientReport(IDiscountReasonRepository discountReasonRepository)
+		public FirstSecondClientReport(INavigationManager navigationManager, IDiscountReasonRepository discountReasonRepository)
 		{
+			if(navigationManager is null)
+			{
+				throw new ArgumentNullException(nameof(navigationManager));
+			}
+
 			if(discountReasonRepository == null)
 			{
 				throw new ArgumentNullException(nameof(discountReasonRepository));
@@ -28,7 +34,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 			daterangepicker.StartDate = DateTime.Now.AddDays(-7);
 			daterangepicker.EndDate = DateTime.Now.AddDays(1);
 
-			var employeeFactory = new EmployeeJournalFactory();
+			var employeeFactory = new EmployeeJournalFactory(navigationManager);
 			evmeAuthor.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory());
 			buttonCreateReport.Clicked += (sender, e) => OnUpdate(true);
 		}

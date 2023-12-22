@@ -1,51 +1,57 @@
-﻿using System.Drawing;
-using System.Linq;
-using Gamma.GtkWidgets;
+﻿using Gamma.GtkWidgets;
 using Gamma.Utilities;
-using Gdk;
 using GMap.NET;
 using GMap.NET.GtkSharp;
 using GMap.NET.GtkSharp.Markers;
 using Gtk;
+using MoreLinq;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Journal.GtkUI;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Utilities;
 using QS.Views.GtkUI;
-using QSOrmProject;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
+using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Logistic;
 
 namespace Vodovoz.Views.Logistic
 {
 	public partial class DistrictsSetView : TabViewBase<DistrictsSetViewModel>
 	{
-        private readonly GMapOverlay bordersOverlay = new GMapOverlay("district_borders");
-        private readonly GMapOverlay newBordersPreviewOverlay = new GMapOverlay("district_preview_borders");
-        private readonly GMapOverlay verticeOverlay = new GMapOverlay("district_vertice");
-        private readonly Pen selectedDistrictBorderPen = new Pen(System.Drawing.Color.Red, 2);
+		private readonly GMapOverlay bordersOverlay = new GMapOverlay("district_borders");
+		private readonly GMapOverlay newBordersPreviewOverlay = new GMapOverlay("district_preview_borders");
+		private readonly GMapOverlay verticeOverlay = new GMapOverlay("district_vertice");
+		private readonly Pen selectedDistrictBorderPen = new Pen(System.Drawing.Color.Red, 2);
 
-        private const string acceptBeforeColumnTag = "Прием до";
+		private const string acceptBeforeColumnTag = "Прием до";
 
-        public DistrictsSetView(DistrictsSetViewModel viewModel) : base(viewModel)
+		private Menu _popupDistrictScheduleMenu;
+		private List<System.Action> _popupDistiictScheduleStateActions;
+
+		public DistrictsSetView(DistrictsSetViewModel viewModel) : base(viewModel)
 		{
 			this.Build();
 			Configure();
-		}	
-		
+		}
+
 		private void Configure()
 		{
+			AddCopyPasteDistrictPopupActions();
+
 			#region TreeViews
 
-			var colorRed = new Gdk.Color(255, 0, 0);
-			var colorWhite = new Gdk.Color(255, 255, 255);
+			var colorRed = GdkColors.DangerBase;
+			var colorWhite = GdkColors.PrimaryBase;
 
 			ytreeDistricts.ColumnsConfig = ColumnsConfigFactory.Create<District>()
 				.AddColumn("Код")
@@ -73,14 +79,19 @@ namespace Vodovoz.Views.Logistic
 				.Finish();
 			
 			ytreeDistricts.Binding.AddBinding(ViewModel.Entity, e => e.ObservableDistricts, w => w.ItemsDataSource).InitializeFromSource();
-			ytreeDistricts.Selection.Changed += (sender, args) => {
-				if(ViewModel.IsCreatingNewBorder) {
+			ytreeDistricts.Selection.Changed += (sender, args) => 
+			{
+				if(ViewModel.IsCreatingNewBorder) 
+				{
 					ViewModel.CancelNewBorderCommand.Execute();
 					toggleNewBorderPreview.Active = false;
 				}
+
 				ViewModel.SelectedDistrict = ytreeDistricts.GetSelectedObject() as District;
 			};
 
+			ytreeDistricts.ButtonReleaseEvent += OnButtonDistrictsRelease;	
+			
 			ytreeScheduleRestrictions.ColumnsConfig = ColumnsConfigFactory.Create<DeliveryScheduleRestriction>()
 				.AddColumn("График")
 					.MinWidth(100)
@@ -366,10 +377,10 @@ namespace Vodovoz.Views.Logistic
 						case nameof(ViewModel.SelectedDistrictBorderVertices):
 							verticeOverlay.Clear();
 							if(ViewModel.SelectedDistrictBorderVertices != null){
-                                GMapPolygon polygon = new GMapPolygon(ViewModel.SelectedDistrictBorderVertices.ToList(), "polygon");
-                                polygon.Stroke = selectedDistrictBorderPen;
-                                verticeOverlay.Polygons.Add(polygon);
-                            }
+								GMapPolygon polygon = new GMapPolygon(ViewModel.SelectedDistrictBorderVertices.ToList(), "polygon");
+								polygon.Stroke = selectedDistrictBorderPen;
+								verticeOverlay.Polygons.Add(polygon);
+							}
 							break;
 						case nameof(ViewModel.NewBorderVertices):
 							verticeOverlay.Clear();
@@ -390,6 +401,7 @@ namespace Vodovoz.Views.Logistic
 							}
 							break;
 						case nameof(ViewModel.ScheduleRestrictions):
+							ytreeScheduleRestrictions.ItemsDataSource = ViewModel.ScheduleRestrictions;
 							ScrollToSelectedScheduleRestriction();
 							break;
 					}
@@ -415,6 +427,102 @@ namespace Vodovoz.Views.Logistic
 				ytreeDistricts.ScrollToCell(path, ytreeDistricts.Columns.FirstOrDefault(), false, 0, 0);
 			}
 		}
-		
+
+		#region Copy Paste District Schedule
+		private void AddCopyPasteDistrictPopupActions()
+		{
+			_popupDistrictScheduleMenu = new Menu();
+			_popupDistiictScheduleStateActions = new List<System.Action>();
+
+			var copyDistrictScheduleMenuEntry = new MenuItem("Копировать график доставки");
+			copyDistrictScheduleMenuEntry.ButtonPressEvent += (s, e) => ViewModel.CopyDistrictSchedulesCommand.Execute();
+			copyDistrictScheduleMenuEntry.Visible = true;
+			_popupDistrictScheduleMenu.Add(copyDistrictScheduleMenuEntry);
+
+			var pasteScheduleToDistrictMenuEntry = new MenuItem("Вставить график доставки в район");
+			pasteScheduleToDistrictMenuEntry.ButtonPressEvent += (s, e) => ViewModel.PasteSchedulesToDistrictCommand.Execute();
+			pasteScheduleToDistrictMenuEntry.Visible = true;
+			_popupDistrictScheduleMenu.Add(pasteScheduleToDistrictMenuEntry);
+
+			var pasteScheduleToZoneMenuEntry = new MenuItem("Вставить график доставки в тарифную зону");
+			pasteScheduleToZoneMenuEntry.ButtonPressEvent += (s, e) => ViewModel.PasteSchedulesToZoneCommand.Execute();
+			pasteScheduleToZoneMenuEntry.Visible = true;
+			_popupDistrictScheduleMenu.Add(pasteScheduleToZoneMenuEntry);
+
+			_popupDistiictScheduleStateActions.Add(CopyDistrictScheduleStateActions(copyDistrictScheduleMenuEntry));
+			_popupDistiictScheduleStateActions.Add(PasteScheduleToDistrictStateActions(pasteScheduleToDistrictMenuEntry));
+			_popupDistiictScheduleStateActions.Add(PasteScheduleToZoneStateActions(pasteScheduleToZoneMenuEntry));
+		}
+
+		private void OnButtonDistrictsRelease(object o, ButtonReleaseEventArgs args)
+		{
+			if(args.Event.Button != (uint)GtkMouseButton.Right)
+			{
+				return;
+			}
+
+			UpdateDistrictSchedulePopupMenuItemsStates();
+
+			_popupDistrictScheduleMenu.Show();
+
+			if(_popupDistrictScheduleMenu.Children.Length == 0)
+			{
+				return;
+			}
+
+			_popupDistrictScheduleMenu.Popup();
+		}
+
+		private void UpdateDistrictSchedulePopupMenuItemsStates()
+		{
+			_popupDistiictScheduleStateActions.ForEach(x => x.Invoke());
+		}
+
+		private System.Action CopyDistrictScheduleStateActions(MenuItem item)
+		{
+			System.Action action = () =>
+			{
+				if(item.Child is AccelLabel label)
+				{
+					label.LabelProp = ViewModel.CopyDistrictScheduleMenuItemLabel;
+				}
+
+				item.Sensitive = ViewModel.CanCopyDeliveryScheduleRestrictions;
+			};
+
+			return action;
+		}
+
+		private System.Action PasteScheduleToDistrictStateActions(MenuItem item)
+		{
+			System.Action action = () =>
+			{
+				if(item.Child is AccelLabel label)
+				{
+					label.LabelProp = ViewModel.PasteScheduleToDistrictMenuItemLabel;
+				}
+
+				item.Sensitive = ViewModel.CanPasteDeliveryScheduleRestrictions;
+			};
+
+			return action;
+		}
+
+		private System.Action PasteScheduleToZoneStateActions(MenuItem item)
+		{
+			System.Action action = () =>
+			{
+				if(item.Child is AccelLabel label)
+				{
+					label.LabelProp = ViewModel.PasteScheduleToTafiffZoneMenuItemLabel;
+				}
+
+				item.Sensitive = ViewModel.CanPasteDeliveryScheduleRestrictions;
+			};
+
+			return action;
+		}
+
+		#endregion Copy Paste District Schedule
 	}
 }

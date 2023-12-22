@@ -2,12 +2,15 @@
 using System.Linq;
 using Gtk;
 using NLog;
+using QS.ViewModels.Dialog;
 using QS.Views.GtkUI;
 using QS.Widgets;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
+using Vodovoz.ViewWidgets.Search;
 using Key = Gdk.Key;
 
 namespace Vodovoz.Filters.GtkViews
@@ -16,10 +19,11 @@ namespace Vodovoz.Filters.GtkViews
 	public partial class OrderFilterView : FilterViewBase<OrderJournalFilterViewModel>
 	{
 		private static readonly Logger _logger =  LogManager.GetCurrentClassLogger();
-		
+		private DialogViewModelBase _journal;
+
 		public OrderFilterView(OrderJournalFilterViewModel orderJournalFilterViewModel) : base(orderJournalFilterViewModel)
 		{
-			this.Build();
+			Build();
 			Configure();
 			InitializeRestrictions();
 		}
@@ -66,10 +70,7 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(vm => vm.DeliveryPointSelectorFactory, w => w.EntitySelectorAutocompleteFactory)
 				.InitializeFromSource();
 
-			evmeAuthor.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.Author, w => w.Subject)
-				.AddBinding(vm => vm.AuthorSelectorFactory, w => w.EntitySelectorAutocompleteFactory)
-				.InitializeFromSource();
+			entryAuthor.ViewModel = ViewModel.AuthorViewModel;
 
 			yenumcomboboxDateType.ItemsEnum = typeof(OrdersDateFilterType);
 			yenumcomboboxDateType.Binding
@@ -119,7 +120,6 @@ namespace Vodovoz.Filters.GtkViews
 			yenumСmbboxOrderPaymentStatus.ItemsEnum = typeof(OrderPaymentStatus);
 			yenumСmbboxOrderPaymentStatus.Binding.AddBinding(ViewModel, vm => vm.OrderPaymentStatus, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
-			
 
 			speciallistCmbOrganisations.ItemsList = ViewModel.Organisations;
 			speciallistCmbOrganisations.Binding.AddBinding(ViewModel, vm => vm.Organisation, w => w.SelectedItem).InitializeFromSource();
@@ -138,10 +138,15 @@ namespace Vodovoz.Filters.GtkViews
 				.InitializeFromSource();
 			entryCounteragentNameLike.KeyReleaseEvent += OnKeyReleased;
 
-			entryDeliveryPointAddressLike.Binding
-				.AddBinding(ViewModel, vm => vm.DeliveryPointAddressLike, w => w.Text)
-				.InitializeFromSource();
-			entryDeliveryPointAddressLike.KeyReleaseEvent += OnKeyReleased;
+			entryInn.Binding.AddBinding(ViewModel, vm => vm.CounterpartyInn, w => w.Text).InitializeFromSource();
+			entryInn.KeyReleaseEvent += OnKeyReleased;
+
+			var searchByAddressView = new CompositeSearchView(ViewModel.SearchByAddressViewModel);
+			yhboxSearchByAddress.Add(searchByAddressView);
+			searchByAddressView.Show();
+
+			enumCmbEdoDocFlowStatus.ItemsEnum = typeof(EdoDocFlowStatus);
+			enumCmbEdoDocFlowStatus.Binding.AddBinding(ViewModel, vm => vm.EdoDocFlowStatus, w => w.SelectedItem).InitializeFromSource();
 		}
 
 		private void InitializeRestrictions()

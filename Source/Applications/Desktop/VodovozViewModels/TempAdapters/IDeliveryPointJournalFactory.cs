@@ -1,4 +1,5 @@
 ﻿using QS.Project.Journal.EntitySelector;
+using Vodovoz.Domain.Client;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 

@@ -44,7 +44,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.XAlign(0.5f)
 				.AddColumn("")
 				.RowCells()
-					.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? GdkColors.DarkGrayColor : GdkColors.BlackColor)
+					.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? GdkColors.InsensitiveText : GdkColors.PrimaryText)
 				.Finish();
 	}
 }

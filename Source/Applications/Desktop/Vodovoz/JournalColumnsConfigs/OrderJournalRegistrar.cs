@@ -5,6 +5,7 @@ using QSProjectsLib;
 using System;
 using System.Globalization;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Infrastructure;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
 using WrapMode = Pango.WrapMode;
@@ -25,10 +26,11 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Бутыли").AddTextRenderer(node => $"{node.BottleAmount:N0}")
 				.AddColumn("Кол-во с/о").AddTextRenderer(node => $"{node.SanitisationAmount:N0}")
 				.AddColumn("Клиент").AddTextRenderer(node => node.Counterparty)
+				.AddColumn("ИНН").AddTextRenderer(node => node.Inn)
 				.AddColumn("Сумма").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.Sum))
 				.AddColumn("Статус оплаты").AddTextRenderer(x =>
 					(x.OrderPaymentStatus != OrderPaymentStatus.None) ? x.OrderPaymentStatus.GetEnumTitle() : "")
-				.AddColumn("Статус документооборота").AddEnumRenderer(node => node.EdoDocFlowStatus)
+				.AddColumn("Статус документооборота").AddTextRenderer(node => node.EdoDocFlowStatus == null ? string.Empty : node.EdoDocFlowStatus.GetEnumTitle())
 				.AddColumn("Район доставки").AddTextRenderer(node => node.IsSelfDelivery ? "-" : node.DistrictName)
 				.AddColumn("Адрес").AddTextRenderer(node => node.Address)
 				.AddColumn("Изменил").AddTextRenderer(node => node.LastEditor)
@@ -37,7 +39,29 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Номер звонка").AddTextRenderer(node => node.DriverCallId.ToString())
 				.AddColumn("OnLine заказ №").AddTextRenderer(node => node.OnLineNumber)
 				.AddColumn("Номер заказа интернет-магазина").AddTextRenderer(node => node.EShopNumber)
-				.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+				.RowCells().AddSetter<CellRendererText>((c, n) =>
+				{
+					var color = GdkColors.PrimaryText;
+
+					if(n.StatusEnum == OrderStatus.Canceled
+						|| n.StatusEnum == OrderStatus.DeliveryCanceled
+						|| !n.Sensitive)
+					{
+						color = GdkColors.InsensitiveText;
+					}
+
+					if(n.StatusEnum == OrderStatus.Closed)
+					{
+						color = GdkColors.SuccessText;
+					}
+
+					if(n.StatusEnum == OrderStatus.NotDelivered)
+					{
+						color = GdkColors.InfoText;
+					}
+
+					c.ForegroundGdk = color;
+				})
 				.Finish();
 	}
 }

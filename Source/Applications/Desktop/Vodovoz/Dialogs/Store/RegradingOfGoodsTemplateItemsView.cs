@@ -1,26 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Autofac;
 using Gamma.GtkWidgets;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Factories;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class RegradingOfGoodsTemplateItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		private RegradingOfGoodsTemplateItem _newRow;
-		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory = new NomenclatureJournalFactory();
+		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 
 		public RegradingOfGoodsTemplateItemsView()
 		{
-			this.Build();
+			Build();
+
+			_nomenclatureSelectorFactory = new NomenclatureJournalFactory();
 
 			ytreeviewItems.ColumnsConfig = ColumnsConfigFactory.Create<RegradingOfGoodsTemplateItem>()
 				.AddColumn("Старая номенклатура").AddTextRenderer(x => x.NomenclatureOld.Name)
@@ -65,7 +68,7 @@ namespace Vodovoz
 		
 		private IEntitySelector CreateNomenclatureSelector(string tabName, EventHandler<JournalSelectedNodesEventArgs> onEntitySelectResult)
 		{
-			var newNomenclatureSelector = _nomenclatureSelectorFactory.CreateNomenclatureSelector(null, false);
+			var newNomenclatureSelector = _nomenclatureSelectorFactory.CreateNomenclatureSelector(_lifetimeScope, multipleSelect: false);
 			(newNomenclatureSelector as JournalViewModelBase).TabName = tabName;
 			newNomenclatureSelector.OnEntitySelectedResult += onEntitySelectResult;
 			return newNomenclatureSelector;
@@ -165,6 +168,12 @@ namespace Vodovoz
 				buttonChangeNew.Click();
 		}
 
+		public override void Destroy()
+		{
+			base.Destroy();
+			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
+		}
 	}
 }
 

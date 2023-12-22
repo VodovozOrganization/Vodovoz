@@ -17,6 +17,8 @@ using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using Vodovoz.Extensions;
+using Vodovoz.Infrastructure;
 
 namespace Vodovoz.Views.Logistic
 {
@@ -118,6 +120,11 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(vm => vm.CoveragePercentBeforeText, w => w.Text)
 				.InitializeFromSource();
 
+			ySpecCmbGeoGroup.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.GeoGroups, w => w.ItemsList)
+				.AddBinding(vm => vm.SelectedGeoGroup, w => w.SelectedItem)
+				.InitializeFromSource();
+
 			ConfigureMap();
 			SubscribeToEvents();
 
@@ -162,7 +169,31 @@ namespace Vodovoz.Views.Logistic
 				.AddColumn("№").AddNumericRenderer(node => node.RowNumber)
 				.AddColumn("Имя").AddTextRenderer(node => node.ShortName)
 				.AddColumn("Машина").AddTextRenderer().AddSetter((c, node) => c.Markup = node.CarText)
-				.AddColumn("МЛ").AddTextRenderer().AddSetter((c, node) => c.Markup = node.RouteListsText)
+				.AddColumn("МЛ").AddTextRenderer().AddSetter((c, node) =>
+				{
+					var text = string.Empty;
+
+					for(var i = 0; i < node.RouteListsIds.Keys.Count; i++)
+					{
+						var routelistId = node.RouteListsIds.Keys.ElementAt(i);
+						var haveTracklist = node.RouteListsIds[routelistId] != null;
+						var online = node.RouteListsOnlineState[routelistId];
+						var last = i + 1 == node.RouteListsIds.Count;
+
+						text += !haveTracklist
+								? routelistId.ToString()
+								: online
+									? $"<span foreground=\"{GdkColors.SuccessText.ToHtmlColor()}\"><b>{routelistId}</b></span>"
+									: $"<span foreground=\"{GdkColors.InfoText.ToHtmlColor()}\"><b>{routelistId}</b></span>";
+
+						if(!last)
+						{
+							text += "; ";
+						}
+					}
+
+					c.Markup = text;
+				})
 				.AddColumn("Радиус").AddTextRenderer().AddSetter((c, node) => c.Markup = node.FastDeliveryMaxDistanceString)
 				.AddColumn("Макс.\nкол-во ДЗЧ").AddTextRenderer().AddSetter((c, node) => c.Markup = node.MaxFastDeliveryOrdersString)
 				.AddColumn("Выполнено").AddProgressRenderer(x => x.CompletedPercent).AddSetter((c, n) => c.Text = n.CompletedText)
@@ -711,7 +742,7 @@ namespace Vodovoz.Views.Logistic
 		private DistanceTextInfo CreateRouteInfo(GMapRoute route)
 		{
 			var layout = new Pango.Layout(PangoContext) { Alignment = Pango.Alignment.Right };
-			var colTXT = ColorTranslator.ToHtml(route.Stroke.Color);
+			var colTXT = route.Stroke.Color.ToHtmlColor();
 			layout.SetMarkup($"<span foreground=\"{colTXT}\"><span font=\"Segoe UI Symbol\">⛽</span> {route.Distance:N1} км.</span>");
 
 			return new DistanceTextInfo
@@ -758,8 +789,6 @@ namespace Vodovoz.Views.Logistic
 			Source.Remove(_timerId);
 			gmapWidget.Destroy();
 			_mapSeparateWindow?.Destroy();
-			yTreeViewDrivers?.Destroy();
-			yTreeAddresses?.Destroy();
 			yspeccomboboxHistoryHour.Destroy();
 			yenumcomboMapType.Destroy();
 			base.Destroy();

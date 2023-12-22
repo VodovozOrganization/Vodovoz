@@ -1,56 +1,36 @@
-﻿using System;
+using System;
 using System.Linq;
+using Autofac;
 using NHibernate;
-using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.BusinessCommon.Domain;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
-using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.Infrastructure.Services;
-using Vodovoz.Services;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
-using VodovozInfrastructure.StringHandlers;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.JournalViewModels
 {
 	public class WaterJournalViewModel : SingleEntityJournalViewModelBase<Nomenclature, NomenclatureViewModel, WaterJournalNode>
 	{
-		private readonly IEmployeeService _employeeService;
-		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
-		private readonly ICounterpartyJournalFactory _counterpartySelectorFactory;
-		private readonly INomenclatureRepository _nomenclatureRepository;
-		private readonly IUserRepository _userRepository;
-		private readonly IStringHandler _stringHandler = new StringHandler();
+		private ILifetimeScope _lifetimeScope;
 
 		public WaterJournalViewModel(
+			ILifetimeScope lifetimeScope,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices,
-			IEmployeeService employeeService,
-			INomenclatureJournalFactory nomenclatureSelectorFactory,
-			ICounterpartyJournalFactory counterpartySelectorFactory,
-			INomenclatureRepository nomenclatureRepository,
-			IUserRepository userRepository
-		) : base(unitOfWorkFactory, commonServices)
+			ICommonServices commonServices) : base(unitOfWorkFactory, commonServices)
 		{
-			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
-			_counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
-			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
-			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			
 			TabName = "Выбор номенклатуры воды";
 			SetOrder(x => x.Name);
+			
 			UpdateOnChanges(
 				typeof(Nomenclature),
 				typeof(MeasurementUnits),
@@ -142,8 +122,13 @@ namespace Vodovoz.JournalViewModels
 			throw new NotSupportedException("Не поддерживается создание номенклатуры воды из текущего журнала");
 
 		protected override Func<WaterJournalNode, NomenclatureViewModel> OpenDialogFunction =>
-			node => new NomenclatureViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices,
-				_employeeService, _nomenclatureSelectorFactory, _counterpartySelectorFactory, _nomenclatureRepository,
-				_userRepository, _stringHandler);
+			node => _lifetimeScope.Resolve<NomenclatureViewModel>(
+				new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(node.Id)));
+
+		public override void Dispose()
+		{
+			_lifetimeScope = null;
+			base.Dispose();
+		}
 	}
 }

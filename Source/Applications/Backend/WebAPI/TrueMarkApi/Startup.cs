@@ -22,6 +22,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using TrueMarkApi.HealthChecks;
 using TrueMarkApi.Services;
 using TrueMarkApi.Services.Authorization;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
@@ -31,6 +32,8 @@ using Vodovoz.Settings;
 using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Database.Edo;
 using Vodovoz.Settings.Edo;
+using VodovozHealthCheck;
+
 
 namespace TrueMarkApi
 {
@@ -91,6 +94,8 @@ namespace TrueMarkApi
 					};
 				});
 
+			services.ConfigureHealthCheckService<TrueMarkHealthCheck>(true);
+
 			// Конфигурация Nhibernate
 			try
 			{
@@ -121,6 +126,8 @@ namespace TrueMarkApi
 			{
 				endpoints.MapControllers();
 			});
+
+			app.ConfigureHealthCheckApplicationBuilder();
 		}
 
 		private void CreateBaseConfig()

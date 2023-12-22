@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -35,7 +35,7 @@
         </Style>
         <Visibility></Visibility>
       </Textbox>
-      <Table Name="TableProfitability">
+      <Table Name="TableSales">
         <DataSetName>Sales</DataSetName>
         <NoRows>Нет данных</NoRows>
         <Style>
@@ -47,7 +47,13 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>191.4pt</Width>
+            <Width>65pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>65pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>65pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>55.4pt</Width>
@@ -76,82 +82,43 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="TextboxItemHeader">
-                      <Value>=
-Iif(
-    {?groups_count} = 3, 
-    Switch(
-        {?group1} = 'Order', 'Заказ',
-        {?group1} = 'Counterparty', 'Контрагент',
-        {?group1} = 'Subdivision', 'Отдел',
-        {?group1} = 'DeliveryDate', 'Дата доставки',
-        {?group1} = 'RouteList', 'МЛ',
-        {?group1} = 'Nomenclature', 'Товар',
-        {?group1} = 'NomenclatureGroup1', 'Группа 1 уровень',
-        {?group1} = 'NomenclatureGroup2', 'Группа 2 уровень',
-        {?group1} = 'NomenclatureGroup3', 'Группа 3 уровень'
-    )
-    + '  |  ' +
-    Switch(
-        {?group2} = 'Order', 'Заказ',
-        {?group2} = 'Counterparty', 'Контрагент',
-        {?group2} = 'Subdivision', 'Отдел',
-        {?group2} = 'DeliveryDate', 'Дата доставки',
-        {?group2} = 'RouteList', 'МЛ',
-        {?group2} = 'Nomenclature', 'Товар',
-        {?group2} = 'NomenclatureGroup1', 'Группа 1 уровень',
-        {?group2} = 'NomenclatureGroup2', 'Группа 2 уровень',
-        {?group2} = 'NomenclatureGroup3', 'Группа 3 уровень'
-    )
-    + '  |  ' +
-    Switch(
-        {?group3} = 'Order', 'Заказ',
-        {?group3} = 'Counterparty', 'Контрагент',
-        {?group3} = 'Subdivision', 'Отдел',
-        {?group3} = 'DeliveryDate', 'Дата доставки',
-        {?group3} = 'RouteList', 'МЛ',
-        {?group3} = 'Nomenclature', 'Товар',
-        {?group3} = 'NomenclatureGroup1', 'Группа 1 уровень',
-        {?group3} = 'NomenclatureGroup2', 'Группа 2 уровень',
-        {?group3} = 'NomenclatureGroup3', 'Группа 3 уровень'
-    ), 
-    Iif(
-        {?groups_count} = 2, 
-        Switch(
-            {?group1} = 'Order', 'Заказ',
-            {?group1} = 'Counterparty', 'Контрагент',
-            {?group1} = 'Subdivision', 'Отдел',
-            {?group1} = 'DeliveryDate', 'Дата доставки',
-            {?group1} = 'RouteList', 'МЛ',
-            {?group1} = 'Nomenclature', 'Товар',
-            {?group1} = 'NomenclatureGroup1', 'Группа 1 уровень',
-            {?group1} = 'NomenclatureGroup2', 'Группа 2 уровень',
-            {?group1} = 'NomenclatureGroup3', 'Группа 3 уровень'
-        )
-        + '  |  ' +
-        Switch(
-            {?group2} = 'Order', 'Заказ',
-            {?group2} = 'Counterparty', 'Контрагент',
-            {?group2} = 'Subdivision', 'Отдел',
-            {?group2} = 'DeliveryDate', 'Дата доставки',
-            {?group2} = 'RouteList', 'МЛ',
-            {?group2} = 'Nomenclature', 'Товар',
-            {?group2} = 'NomenclatureGroup1', 'Группа 1 уровень',
-            {?group2} = 'NomenclatureGroup2', 'Группа 2 уровень',
-            {?group2} = 'NomenclatureGroup3', 'Группа 3 уровень'        
-        ), 
-        Switch(
-            {?group1} = 'Order', 'Заказ',
-            {?group1} = 'Counterparty', 'Контрагент',
-            {?group1} = 'Subdivision', 'Отдел',
-            {?group1} = 'DeliveryDate', 'Дата доставки',
-            {?group1} = 'RouteList', 'МЛ',
-            {?group1} = 'Nomenclature', 'Товар',
-            {?group1} = 'NomenclatureGroup1', 'Группа 1 уровень',
-            {?group1} = 'NomenclatureGroup2', 'Группа 2 уровень',
-            {?group1} = 'NomenclatureGroup3', 'Группа 3 уровень'
-        )
-    )
-)</Value>
+                      <Value>={?grouping_title}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="TextboxAutoType">
+                      <Value>Тип авто</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="TextboxAutoOwnerType">
+                      <Value>Принадлежность авто</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -285,6 +252,48 @@ Iif(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox4">
+                      <Value>=Iif(
+{?groups_count} = 1 and {?group1} = 'RouteList', 
+'', 
+'Итого:'
+)</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                        <Format></Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox51">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                        <Format></Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox59">
                       <Value>Итого:</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
@@ -423,6 +432,52 @@ Iif(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox22">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                        <Format></Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox54">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                        <Format></Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox60">
                       <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
@@ -607,6 +662,44 @@ Iif(
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox55">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                        <Format></Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox61">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                        <Format></Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox30">
                       <Value>Кол-во, 
 штук</Value>
@@ -736,6 +829,43 @@ Iif(
                   <ReportItems>
                     <Textbox Name="TextboxItemData">
                       <Value>={order_item_id}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>7pt</FontSize>
+                        <PaddingBottom>1pt</PaddingBottom>
+                        <PaddingTop>1pt</PaddingTop>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox56">
+                      <Value>={car_model}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>7pt</FontSize>
+                        <PaddingBottom>1pt</PaddingBottom>
+                        <PaddingTop>1pt</PaddingTop>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox62">
+                      <Value>={car_own_type}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -878,6 +1008,30 @@ Iif(
                         </BorderStyle>
                       </Style>
                       <Value></Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox57">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox63">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1143,82 +1297,7 @@ Iif(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox49">
-                      <Value>=
-Iif(
-    {?groups_count} = 3, 
-    Switch(
-        {?group1} = 'Order', 'Заказ',
-        {?group1} = 'Counterparty', 'Контрагент',
-        {?group1} = 'Subdivision', 'Отдел',
-        {?group1} = 'DeliveryDate', 'Дата доставки',
-        {?group1} = 'RouteList', 'МЛ',
-        {?group1} = 'Nomenclature', 'Товар',
-        {?group1} = 'NomenclatureGroup1', 'Группа 1 уровень',
-        {?group1} = 'NomenclatureGroup2', 'Группа 2 уровень',
-        {?group1} = 'NomenclatureGroup3', 'Группа 3 уровень'
-    )
-    + ',  ' +
-    Switch(
-        {?group2} = 'Order', 'Заказ',
-        {?group2} = 'Counterparty', 'Контрагент',
-        {?group2} = 'Subdivision', 'Отдел',
-        {?group2} = 'DeliveryDate', 'Дата доставки',
-        {?group2} = 'RouteList', 'МЛ',
-        {?group2} = 'Nomenclature', 'Товар',
-        {?group2} = 'NomenclatureGroup1', 'Группа 1 уровень',
-        {?group2} = 'NomenclatureGroup2', 'Группа 2 уровень',
-        {?group2} = 'NomenclatureGroup3', 'Группа 3 уровень'
-    )
-    + ',  ' +
-    Switch(
-        {?group3} = 'Order', 'Заказ',
-        {?group3} = 'Counterparty', 'Контрагент',
-        {?group3} = 'Subdivision', 'Отдел',
-        {?group3} = 'DeliveryDate', 'Дата доставки',
-        {?group3} = 'RouteList', 'МЛ',
-        {?group3} = 'Nomenclature', 'Товар',
-        {?group3} = 'NomenclatureGroup1', 'Группа 1 уровень',
-        {?group3} = 'NomenclatureGroup2', 'Группа 2 уровень',
-        {?group3} = 'NomenclatureGroup3', 'Группа 3 уровень'
-    ), 
-    Iif(
-        {?groups_count} = 2, 
-        Switch(
-            {?group1} = 'Order', 'Заказ',
-            {?group1} = 'Counterparty', 'Контрагент',
-            {?group1} = 'Subdivision', 'Отдел',
-            {?group1} = 'DeliveryDate', 'Дата доставки',
-            {?group1} = 'RouteList', 'МЛ',
-            {?group1} = 'Nomenclature', 'Товар',
-            {?group1} = 'NomenclatureGroup1', 'Группа 1 уровень',
-            {?group1} = 'NomenclatureGroup2', 'Группа 2 уровень',
-            {?group1} = 'NomenclatureGroup3', 'Группа 3 уровень'
-        )
-        + ',  ' +
-        Switch(
-            {?group2} = 'Order', 'Заказ',
-            {?group2} = 'Counterparty', 'Контрагент',
-            {?group2} = 'Subdivision', 'Отдел',
-            {?group2} = 'DeliveryDate', 'Дата доставки',
-            {?group2} = 'RouteList', 'МЛ',
-            {?group2} = 'Nomenclature', 'Товар',
-            {?group2} = 'NomenclatureGroup1', 'Группа 1 уровень',
-            {?group2} = 'NomenclatureGroup2', 'Группа 2 уровень',
-            {?group2} = 'NomenclatureGroup3', 'Группа 3 уровень'        
-        ), 
-        Switch(
-            {?group1} = 'Order', 'Заказ',
-            {?group1} = 'Counterparty', 'Контрагент',
-            {?group1} = 'Subdivision', 'Отдел',
-            {?group1} = 'DeliveryDate', 'Дата доставки',
-            {?group1} = 'RouteList', 'МЛ',
-            {?group1} = 'Nomenclature', 'Товар',
-            {?group1} = 'NomenclatureGroup1', 'Группа 1 уровень',
-            {?group1} = 'NomenclatureGroup2', 'Группа 2 уровень',
-            {?group1} = 'NomenclatureGroup3', 'Группа 3 уровень'
-        )
-    )
-)</Value>
+                      <Value>={?grouping_title_comma_splitrted}</Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -1326,8 +1405,57 @@ or (First({missing_route_list_expenses_per_kg}, 'Sales') = True)
 # При изменении этого запроса, необходимо внести соответствующие изменения в RouteListRepository.GetRouteListSpendings
 SELECT
     c.name AS counterparty,
+    CASE WHEN c.counterparty_type = 'Buyer' THEN "Покупатель"
+         WHEN c.counterparty_type = 'Supplier' THEN "Поставщик"
+         WHEN c.counterparty_type = 'Dealer' THEN "Дилер"
+         WHEN c.counterparty_type = 'AdvertisingDepartmentClient' AND c.counterparty_subtype_id is null
+            THEN "Клиент РО"
+         WHEN c.counterparty_type = 'AdvertisingDepartmentClient' AND c.counterparty_subtype_id is NOT null
+            THEN CONCAT("Клиент РО | ", cst.name)
+         ELSE ""
+         END as counterparty_type,
+    cst.name AS counterparty_subtype,
+    cst.id AS counterparty_subtype_id,
+    CASE WHEN o.payment_type = 'Cash' THEN "Наличная"
+         WHEN o.payment_type = 'Terminal' THEN "Терминал"
+         WHEN o.payment_type = 'DriverApplicationQR' THEN "МП водителя (QR-код)"
+         WHEN o.payment_type = 'SmsQR' THEN "SMS (QR-код)"
+         WHEN o.payment_type = 'PaidOnline' THEN "Оплачено онлайн"
+         WHEN o.payment_type = 'Barter' THEN "Бартер"
+         WHEN o.payment_type = 'ContractDocumentation' THEN "Контрактная документация"
+         WHEN o.payment_type = 'Cashless' THEN "Безналичная"
+         ELSE ""
+         END as payment_type,
+    org.name as organization,
     dp.compiled_address_short AS delivery_point,
     rla.route_list_id AS route_list,
+    (SELECT
+		CASE 
+			WHEN cm.car_type_of_use = 'Largus' THEN "Фургон (ларгус)"
+			WHEN cm.car_type_of_use = 'Truck' THEN "Фура"
+			WHEN cm.car_type_of_use = 'GAZelle' THEN "Грузовой (ГАЗель)"
+			ELSE ""
+			END as car_type_of_use
+		FROM route_lists rl 
+		LEFT JOIN cars c ON rl.car_id = c.id 
+		JOIN car_models cm ON c.model_id = cm.id 
+		WHERE rl.id = rla.route_list_id 
+		LIMIT 1) as car_model,
+	(SELECT
+		CASE 
+			WHEN cv.car_own_type = 'Company' THEN "ТС компании"
+			WHEN cv.car_own_type = 'Raskat' THEN "ТС в раскате"
+			WHEN cv.car_own_type = 'Driver' THEN "ТС водителя"
+			ELSE ""
+			END as car_own_type
+		FROM route_lists rl 
+		LEFT JOIN cars c ON rl.car_id = c.id 
+		LEFT JOIN car_versions cv 
+		ON cv.car_id = c.id 
+		WHERE  rl.id = rla.route_list_id 
+		AND cv.start_date &lt;= rl.`date` 
+		AND (cv.end_date &gt; rl.`date` OR ISNULL(cv.end_date))
+		LIMIT 1) as car_own_type,
     o.delivery_date AS delivery_date,
     e.id AS author_id,
     GET_PERSON_NAME_WITH_INITIALS(e.last_name, e.name, e.patronymic) AS author,
@@ -1337,6 +1465,18 @@ SELECT
     oi.id AS order_item_id,
     n.id AS nomenclature_id,
     n.official_name AS nomenclature_name,
+    CASE WHEN n.category = 'rent' THEN "Аренда кулеров"
+         WHEN n.category = 'water' THEN IF(n.is_disposable_tare, "Вода в одноразовой таре", "Вода в многооборотной таре")
+         WHEN n.category = 'deposit' THEN "Залог"
+         WHEN n.category = 'spare_parts' THEN "Запчасти"
+         WHEN n.category = 'equipment' THEN "Оборудование"
+         WHEN n.category = 'additional' THEN "Товары"
+         WHEN n.category = 'service' THEN "Услуга"
+         WHEN n.category = 'bottle' THEN "Тара"
+         WHEN n.category = 'material' THEN "Сырьё"
+         WHEN n.category = 'master' THEN "Выезд мастера"
+         ELSE n.category
+         END AS nomenclature_category,
     n.weight AS weight,
     IFNULL(oi.actual_count, oi.count) AS items_count,
     (SELECT ((items_count * oi.price) - oi.discount_money)) AS total_price,
@@ -1451,7 +1591,9 @@ SELECT
 	) AS spending_per_item,
 	(SELECT CAST((spending_per_item * items_count) AS DECIMAL(12,2))) AS total_spending,
 	(SELECT CAST((total_price - total_spending)  AS DECIMAL(12,2))) AS profitability,
-	(SELECT CAST(IFNULL((profitability / total_price * 100), 0) AS DECIMAL(12,2))) AS profitability_percent
+	(SELECT CAST(IFNULL((profitability / total_price * 100), 0) AS DECIMAL(12,2))) AS profitability_percent,
+    IFNULL(CONCAT(ccl.classification_by_bottles_count, ccl.classification_by_orders_count), 'Новый') as counterparty_classification,
+    IFNULL(ps.name, 'Без промонабора')  as promotional_set
 FROM
     order_items oi
     LEFT JOIN
@@ -1467,9 +1609,13 @@ FROM
     LEFT JOIN
     counterparty c ON o.client_id = c.id
     LEFT JOIN
+    counterparty_subtypes cst ON c.counterparty_subtype_id = cst.id
+    LEFT JOIN
     delivery_points dp ON o.delivery_point_id = dp.id
     LEFT JOIN
     counterparty_contract cc ON o.counterparty_contract_id = cc.id
+    LEFT JOIN
+    organizations org ON cc.organization_id = org.id
     LEFT JOIN
     employees e ON o.author_employee_id = e.id
     LEFT JOIN
@@ -1524,24 +1670,51 @@ FROM
 			LEFT JOIN nomenclature_groups name_source_1 ON name_source_1.id = groups_with_levels.level_1_id
 			LEFT JOIN nomenclature_groups name_source_2 ON name_source_2.id = groups_with_levels.level_2_id
 			LEFT JOIN nomenclature_groups name_source_3 ON name_source_3.id = groups_with_levels.level_3_id
-    ) group_levels ON group_levels.group_id = n.group_id    
+    ) group_levels ON group_levels.group_id = n.group_id
+	LEFT JOIN 
+	counterparty_classification ccl ON ccl.counterparty_id = c.id 
+		AND ccl.calculation_settings_id = 
+			(SELECT cc2.calculation_settings_id as calc_settings_id 
+			FROM counterparty_classification cc2
+			ORDER BY cc2.id DESC 
+			LIMIT 1)
+	LEFT JOIN
+	promotional_sets ps ON ps.id = oi.promotional_set_id
 WHERE
 	(o.delivery_date &gt;= @start_date
 	AND o.delivery_date &lt;= @end_date)
 	AND !o.is_contract_closer
   AND n.category != 'deposit'
-AND (
+       AND (
              (0 IN (@Nomenclature_include) OR (n.id IN (@Nomenclature_include)))
 				AND NOT (n.id IN (@Nomenclature_exclude))
          )
        AND (
              ('0' IN (@NomenclatureCategory_include) OR (n.category IN (@NomenclatureCategory_include)))
-				AND NOT (n.category IN (@NomenclatureCategory_exclude))
+				AND (NOT (n.category IN (@NomenclatureCategory_exclude)) OR n.category IS NULL)
          )
        AND (
              (0 IN (@Counterparty_include) OR (o.client_id IN (@Counterparty_include)))
-				AND NOT (o.client_id IN (@Counterparty_exclude))
+				AND (NOT (o.client_id IN (@Counterparty_exclude)) OR o.client_id IS NULL)
          )
+        AND
+        (
+            (
+                ((('0' IN (@CounterpartyType_include))
+                    AND (0 IN (@CounterpartySubtype_include)))
+                OR (c.counterparty_type IN (@CounterpartyType_include)))
+                AND NOT (c.counterparty_type IN (@CounterpartyType_exclude))
+                AND (NOT (c.counterparty_subtype_id IN (@CounterpartySubtype_exclude)) OR c.counterparty_subtype_id IS NULL)
+            )
+            OR
+            (
+                ('0' IN (@CounterpartyType_include) OR NOT ('0' IN (@CounterpartySubtype_include)))
+                AND c.counterparty_type = 'AdvertisingDepartmentClient'
+                AND NOT ('AdvertisingDepartmentClient' IN (@CounterpartyType_exclude))
+                AND (0 IN (@CounterpartySubtype_include) OR c.counterparty_subtype_id IN (@CounterpartySubtype_include))
+                AND (NOT (c.counterparty_subtype_id IN (@CounterpartySubtype_exclude)) OR c.counterparty_subtype_id IS NULL)
+            )
+        )
        AND (
              (0 IN (@Organization_include) OR (cc.organization_id IN (@Organization_include)))
 				AND NOT (cc.organization_id IN (@Organization_exclude))
@@ -1559,42 +1732,53 @@ AND (
 				AND NOT (o.author_employee_id IN (@Employee_exclude))
          )
        AND (
-             (0 IN (@GeoGroup_include) OR (IFNULL(gg.id, 0) IN (@GeoGroup_include)))
-				AND (o.delivery_point_id IS NULL OR NOT (IFNULL(gg.id, 0) IN (@GeoGroup_exclude)))
+             (0 IN (@GeoGroup_include) OR gg.id IN (@GeoGroup_include))
+				AND (o.delivery_point_id IS NULL OR NOT gg.id IN (@GeoGroup_exclude) OR gg.id IS NULL)
          )
-       AND
-       (
-         	(
-         	   ('0' IN (@PaymentType_include) OR (o.payment_type IN (@PaymentType_include)))
-				AND NOT (o.payment_type IN (@PaymentType_exclude))
-         	)
+        AND
+        (
+            (
+                ((('0' IN (@PaymentType_include))
+                        AND ('0' IN (@PaymentByTerminalSource_include))
+                        AND ('0' IN (@PaymentFrom_include)))
+                    OR (o.payment_type IN (@PaymentType_include)))
+                AND NOT (o.payment_type IN (@PaymentType_exclude))
+                AND (NOT (o.terminal_subtype IN (@PaymentByTerminalSource_exclude)) OR o.terminal_subtype IS NULL)
+                AND (NOT (o.payment_from_id IN (@PaymentFrom_exclude)) OR o.payment_from_id IS NULL)
+            )
             OR
-         	(
-         		('0' IN (@PaymentType_include) OR NOT ('0' IN (@PaymentByTerminalSource_include)))
-         		AND orders.payment_type = 'Terminal'
+            (
+                ((('0' IN (@PaymentType_include))
+                    AND ('0' IN (@PaymentFrom_include)))
+                    OR NOT ('0' IN (@PaymentByTerminalSource_include)))
+                AND o.payment_type = 'Terminal'
                 AND NOT ('Terminal' IN (@PaymentType_exclude))
-                AND ('0' IN (@PaymentByTerminalSource_include) OR orders.terminal_subtype IN (@PaymentByTerminalSource_include))
-         		AND NOT (orders.terminal_subtype IN (@PaymentByTerminalSource_exclude))
-         	)
+                AND (('0' IN (@PaymentByTerminalSource_include))
+                        OR (o.terminal_subtype IN (@PaymentByTerminalSource_include)))
+                AND (NOT (o.terminal_subtype IN (@PaymentByTerminalSource_exclude)) OR o.terminal_subtype IS NULL)
+            )
             OR
-         	(
-         		('0' IN (@PaymentType_include) OR NOT ('0' IN (@PaymentFrom_include)))
-                AND orders.payment_type = 'PaidOnline'
-                AND NOT ('PaidOnline' IN (@PaymentFrom_exclude))
-                AND (0 IN (@PaymentFrom_include) OR orders.payment_from_id IN (@PaymentFrom_include))
-         		AND NOT (orders.payment_from_id IN (@PaymentFrom_exclude))
-         	)
-       )
+            (
+                ((('0' IN (@PaymentType_include))
+                    AND ('0' IN (@PaymentByTerminalSource_include)))
+                    OR NOT ('0' IN (@PaymentFrom_include)))
+                AND o.payment_type = 'PaidOnline'
+                AND NOT ('PaidOnline' IN (@PaymentType_exclude))
+                AND ((0 IN (@PaymentFrom_include))
+                        OR (o.payment_from_id IN (@PaymentFrom_include)))
+                AND (NOT (o.payment_from_id IN (@PaymentFrom_exclude)) OR o.payment_from_id IS NULL)
+            )
+        )
        AND (
              (0 IN (@PromotionalSet_include) OR (IFNULL(oi.promotional_set_id, 0) IN (@PromotionalSet_include)))
 				AND (oi.promotional_set_id IS NULL OR NOT oi.promotional_set_id IN (@PromotionalSet_exclude))
          )
        AND (
              (0 IN (@ProductGroup_include) OR (IFNULL(ng.id, 0) IN (@ProductGroup_include)))
-				AND NOT (IFNULL(ng.id, 0) IN (@ProductGroup_exclude))
+				AND (NOT (ng.id IN (@ProductGroup_exclude)) OR ng.id IS NULL)
          )
-	AND (
-	        (
+       AND (
+            (
             (
               (
                 (
@@ -1617,6 +1801,40 @@ AND (
           )
 	        OR ('0' IN (@OrderStatus_include) AND '0' IN (@OrderStatus_exclude))
 	    )
+       AND (
+       	     ('0' IN (@OrderStatus_include) OR (o.order_status IN (@OrderStatus_include)))
+       	     	AND NOT (o.order_status IN (@OrderStatus_exclude))
+         )
+       AND (
+       	     (
+       	     '0' IN (@CounterpartyCompositeClassification_include)
+       	     OR ('AX' IN (@CounterpartyCompositeClassification_include) AND ccl.classification_by_bottles_count = 'A' AND ccl.classification_by_orders_count = 'X')
+       	     OR ('AY' IN (@CounterpartyCompositeClassification_include) AND ccl.classification_by_bottles_count = 'A' AND ccl.classification_by_orders_count = 'Y')
+       	     OR ('AZ' IN (@CounterpartyCompositeClassification_include) AND ccl.classification_by_bottles_count = 'A' AND ccl.classification_by_orders_count = 'Z')
+       	     OR ('BX' IN (@CounterpartyCompositeClassification_include) AND ccl.classification_by_bottles_count = 'B' AND ccl.classification_by_orders_count = 'X')
+       	     OR ('BY' IN (@CounterpartyCompositeClassification_include) AND ccl.classification_by_bottles_count = 'B' AND ccl.classification_by_orders_count = 'Y')
+       	     OR ('BZ' IN (@CounterpartyCompositeClassification_include) AND ccl.classification_by_bottles_count = 'B' AND ccl.classification_by_orders_count = 'Z')
+       	     OR ('CX' IN (@CounterpartyCompositeClassification_include) AND ccl.classification_by_bottles_count = 'C' AND ccl.classification_by_orders_count = 'X')
+       	     OR ('CY' IN (@CounterpartyCompositeClassification_include) AND ccl.classification_by_bottles_count = 'C' AND ccl.classification_by_orders_count = 'Y')
+       	     OR ('CZ' IN (@CounterpartyCompositeClassification_include) AND ccl.classification_by_bottles_count = 'C' AND ccl.classification_by_orders_count = 'Z')
+       	     OR ('New' IN (@CounterpartyCompositeClassification_include) AND (ISNULL(ccl.classification_by_bottles_count) OR ISNULL(ccl.classification_by_orders_count)))
+       	     )
+       	     AND NOT (
+       	     ((
+       	     ('AX' IN (@CounterpartyCompositeClassification_exclude) AND ccl.classification_by_bottles_count = 'A' AND ccl.classification_by_orders_count = 'X')
+	       	     OR ('AY' IN (@CounterpartyCompositeClassification_exclude) AND ccl.classification_by_bottles_count = 'A' AND ccl.classification_by_orders_count = 'Y')
+	       	     OR ('AZ' IN (@CounterpartyCompositeClassification_exclude) AND ccl.classification_by_bottles_count = 'A' AND ccl.classification_by_orders_count = 'Z')
+	       	     OR ('BX' IN (@CounterpartyCompositeClassification_exclude) AND ccl.classification_by_bottles_count = 'B' AND ccl.classification_by_orders_count = 'X')
+	       	     OR ('BY' IN (@CounterpartyCompositeClassification_exclude) AND ccl.classification_by_bottles_count = 'B' AND ccl.classification_by_orders_count = 'Y')
+	       	     OR ('BZ' IN (@CounterpartyCompositeClassification_exclude) AND ccl.classification_by_bottles_count = 'B' AND ccl.classification_by_orders_count = 'Z')
+	       	     OR ('CX' IN (@CounterpartyCompositeClassification_exclude) AND ccl.classification_by_bottles_count = 'C' AND ccl.classification_by_orders_count = 'X')
+	       	     OR ('CY' IN (@CounterpartyCompositeClassification_exclude) AND ccl.classification_by_bottles_count = 'C' AND ccl.classification_by_orders_count = 'Y')
+	       	     OR ('CZ' IN (@CounterpartyCompositeClassification_exclude) AND ccl.classification_by_bottles_count = 'C' AND ccl.classification_by_orders_count = 'Z'))
+       	     	AND NOT (ISNULL(ccl.classification_by_bottles_count) OR ISNULL(ccl.classification_by_orders_count)))
+       	     OR ('New' IN (@CounterpartyCompositeClassification_exclude) AND (ISNULL(ccl.classification_by_bottles_count) OR ISNULL(ccl.classification_by_orders_count)))
+       	     )
+         )
+      AND (@is_self_delivery IS NULL OR o.self_delivery = @is_self_delivery)
 	GROUP BY oi.id
 ;</CommandText>
         <QueryParameters>
@@ -1721,6 +1939,27 @@ AND (
           </QueryParameter>
           <QueryParameter Name="PaymentFrom_exclude">
             <Value>={?PaymentFrom_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="CounterpartyType_include">
+            <Value>={?CounterpartyType_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="CounterpartyType_exclude">
+            <Value>={?CounterpartyType_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="CounterpartySubtype_include">
+            <Value>={?CounterpartySubtype_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="CounterpartySubtype_exclude">
+            <Value>={?CounterpartySubtype_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="CounterpartyCompositeClassification_include">
+            <Value>={?CounterpartyCompositeClassification_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="CounterpartyCompositeClassification_exclude">
+            <Value>={?CounterpartyCompositeClassification_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="is_self_delivery">
+            <Value>={?is_self_delivery}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1885,190 +2124,274 @@ AND (
           <DataField>missing_administrative_expenses_per_kg_on_date</DataField>
           <TypeName>System.Boolean</TypeName>
         </Field>
+        <Field Name="organization">
+          <DataField>organization</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="counterparty_type">
+          <DataField>counterparty_type</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="payment_type">
+          <DataField>payment_type</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="nomenclature_category">
+          <DataField>nomenclature_category</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="car_model">
+          <DataField>car_model</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="car_own_type">
+          <DataField>car_own_type</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="counterparty_classification">
+          <DataField>counterparty_classification</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="promotional_set">
+          <DataField>promotional_set</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="Criterions">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
-        <CommandText>SELECT
-	CONCAT(
-		(IF(included_noms!=0,
-		CONCAT('Вкл.ном: ',included_noms,'\n'),
-		'')),
-		(IF(excluded_noms!=0,
-		CONCAT('Искл.ном: ',excluded_noms,'\n'),
-		'')),
-		(IF(included_nomtypes!=0,
-		CONCAT('Вкл.типов ном: ',included_nomtypes,'\n'),
-		'')),
-		(IF(excluded_nomtypes!=0,
-		CONCAT('Искл.типов ном: ',excluded_nomtypes,'\n'),
-		'')),
-		(IF(included_client!=0,
-		CONCAT('Вкл.клиентов: ',included_client,'\n'),
-		'')),
-		(IF(excluded_client!=0,
-		CONCAT('Искл.клиентов: ',excluded_client,'\n'),
-		'')),
-		(IF(included_org!=0,
-		CONCAT('Вкл.орг: ',included_org,'\n'),
-		'')),
-		(IF(excluded_org!=0,
-		CONCAT('Искл.орг: ',excluded_org,'\n'),
-		'')),
-		(IF(included_subdivision!=0,
-		CONCAT('Вкл.отделов: ',included_subdivision,'\n'),
-		'')),
-		(IF(excluded_subdivision!=0,
-		CONCAT('Искл.отделов: ',excluded_subdivision,'\n'),
-		'')),
-		(IF(included_orderauthor!=0,
-		CONCAT('Вкл.авторов заказов: ',included_orderauthor,'\n'),
-		'')),
-		(IF(excluded_orderauthor!=0,
-		CONCAT('Искл.авторов заказов: ',excluded_orderauthor,'\n'),
-		'')),
-		(IF(included_discountreason!=0,
-		CONCAT('Вкл.причин скидок: ',included_discountreason,'\n'),
-		'')),
-		(IF(excluded_discountreason!=0,
-		CONCAT('Искл.причин скидок: ',excluded_discountreason,'\n'),
-		'')),
-		(IF(included_geographic_groups!=0,
-		CONCAT('Вкл.частей города: ',included_geographic_groups,'\n'),
-		'')),
-		(IF(excluded_geographic_groups!=0,
-		CONCAT('Искл.частей города: ',excluded_geographic_groups,'\n'),
-		'')),
-		(IF(included_payment_types!=0,
-		CONCAT('Вкл.типов оплаты: ',included_payment_types,'\n'),
-		'')),
-		(IF(excluded_payment_types!=0,
-		CONCAT('Искл.типов оплаты: ',excluded_payment_types,'\n'),
-		'')),
-        (IF(included_terminal_subtypes!=0,
-            CONCAT('Вкл.источников оплаты по терминалу: ',included_terminal_subtypes,'\n'),
-            '')),
-        (IF(excluded_terminal_subtypes!=0,
-            CONCAT('Искл.источников оплаты по терминалу: ',excluded_terminal_subtypes,'\n'),
-            '')),
-		(IF(included_promo_sets!=0,
-		CONCAT('Вкл.промо-наборов: ',included_promo_sets,'\n'),
-		'')),
-		(IF(excluded_promo_sets!=0,
-		CONCAT('Искл.промо-наборов: ',excluded_promo_sets,'\n'),
-		'')),
-		(IF(included_product_groups!=0,
-		CONCAT('Вкл.групп товаров: ',included_product_groups,'\n'),
-		'')),
+        <CommandText>SET @classification_include = 0;
+SET @classification_exclude = 0;
+SELECT
+    CONCAT(
+            (IF(included_noms!=0,
+                CONCAT('Вкл.ном: ',included_noms,'\n'),
+                '')),
+            (IF(excluded_noms!=0,
+                CONCAT('Искл.ном: ',excluded_noms,'\n'),
+                '')),
+            (IF(included_nomtypes!=0,
+                CONCAT('Вкл.типов ном: ',included_nomtypes,'\n'),
+                '')),
+            (IF(excluded_nomtypes!=0,
+                CONCAT('Искл.типов ном: ',excluded_nomtypes,'\n'),
+                '')),
+            (IF(included_client!=0,
+                CONCAT('Вкл.клиентов: ',included_client,'\n'),
+                '')),
+            (IF(excluded_client!=0,
+                CONCAT('Искл.клиентов: ',excluded_client,'\n'),
+                '')),
+            (IF(included_client_type!=0,
+                CONCAT('Вкл.типов клиентов: ',included_client_type,'\n'),
+                '')),
+            (IF(excluded_client_type!=0,
+                CONCAT('Искл.типов клиентов: ',excluded_client_type,'\n'),
+                '')),
+            (IF(included_client_subtype!=0,
+                CONCAT('Вкл.подтипов клиентов: ',included_client_subtype,'\n'),
+                '')),
+            (IF(excluded_client_subtype!=0,
+                CONCAT('Искл.подтипов клиентов: ',excluded_client_subtype,'\n'),
+                '')),
+            (IF(included_org!=0,
+                CONCAT('Вкл.орг: ',included_org,'\n'),
+                '')),
+            (IF(excluded_org!=0,
+                CONCAT('Искл.орг: ',excluded_org,'\n'),
+                '')),
+            (IF(included_subdivision!=0,
+                CONCAT('Вкл.отделов: ',included_subdivision,'\n'),
+                '')),
+            (IF(excluded_subdivision!=0,
+                CONCAT('Искл.отделов: ',excluded_subdivision,'\n'),
+                '')),
+            (IF(included_orderauthor!=0,
+                CONCAT('Вкл.авторов заказов: ',included_orderauthor,'\n'),
+                '')),
+            (IF(excluded_orderauthor!=0,
+                CONCAT('Искл.авторов заказов: ',excluded_orderauthor,'\n'),
+                '')),
+            (IF(included_discountreason!=0,
+                CONCAT('Вкл.причин скидок: ',included_discountreason,'\n'),
+                '')),
+            (IF(excluded_discountreason!=0,
+                CONCAT('Искл.причин скидок: ',excluded_discountreason,'\n'),
+                '')),
+            (IF(included_geographic_groups!=0,
+                CONCAT('Вкл.частей города: ',included_geographic_groups,'\n'),
+                '')),
+            (IF(excluded_geographic_groups!=0,
+                CONCAT('Искл.частей города: ',excluded_geographic_groups,'\n'),
+                '')),
+            (IF(included_payment_types!=0,
+                CONCAT('Вкл.типов оплаты: ',included_payment_types,'\n'),
+                '')),
+            (IF(excluded_payment_types!=0,
+                CONCAT('Искл.типов оплаты: ',excluded_payment_types,'\n'),
+                '')),
+            (IF(included_terminal_subtypes!=0,
+                CONCAT('Вкл.источников оплаты по терминалу: ',included_terminal_subtypes,'\n'),
+                '')),
+            (IF(excluded_terminal_subtypes!=0,
+                CONCAT('Искл.источников оплаты по терминалу: ',excluded_terminal_subtypes,'\n'),
+                '')),
+            (IF(included_payment_froms!=0,
+                CONCAT('Вкл.источников оплаты: ',included_payment_froms,'\n'),
+                '')),
+            (IF(excluded_payment_froms!=0,
+                CONCAT('Искл.источников оплаты: ',excluded_payment_froms,'\n'),
+                '')),
+            (IF(included_promo_sets!=0,
+                CONCAT('Вкл.промонаборов: ',included_promo_sets,'\n'),
+                '')),
+            (IF(excluded_promo_sets!=0,
+                CONCAT('Искл.промонаборов: ',excluded_promo_sets,'\n'),
+                '')),
+            (IF(included_product_groups!=0,
+                CONCAT('Вкл.групп товаров: ',included_product_groups,'\n'),
+                '')),
+            (IF(excluded_product_groups!=0,
+                CONCAT('Искл.групп товаров: ',excluded_product_groups,'\n'),
+                '')),
         (IF(included_order_statuses!=0,
 		CONCAT('Вкл.статусов заказов: ',included_order_statuses,'\n'),
 		'')),
 		(IF(excluded_order_statuses!=0,
 		CONCAT('Искл.статусов заказов: ',excluded_order_statuses,'\n'),
-		''))
-	) AS criterions
+		'')),
+        (IF(included_counterparty_classifications!=0,
+		CONCAT('Вкл.классификаций контрагентов: ',included_counterparty_classifications,'\n'),
+		'')),
+		(IF(excluded_counterparty_classifications!=0,
+		CONCAT('Искл.классификаций контрагентов: ',excluded_counterparty_classifications,'\n'),
+		'')),
+        (IF(@is_self_delivery, 'Только самовывозы\n', IF(!@is_self_delivery, 'Кроме самовывозов\n', '')))
+        ) AS criterions
 FROM
-	(SELECT
-		IF(
-			0 NOT IN (@Nomenclature_include),
-			(SELECT COUNT(id) FROM nomenclature WHERE nomenclature.id IN(@Nomenclature_include)),
-			0
-		) AS included_noms,
-		IF(
-			0 NOT IN (@Nomenclature_exclude),
-			(SELECT COUNT(id) FROM nomenclature WHERE nomenclature.id IN(@Nomenclature_exclude)),
-			0
-		) AS excluded_noms,
+    (SELECT
+         IF(
+                     0 NOT IN (@Nomenclature_include),
+                     (SELECT COUNT(id) FROM nomenclature WHERE nomenclature.id IN(@Nomenclature_include)),
+                     0
+             ) AS included_noms,
+         IF(
+                     0 NOT IN (@Nomenclature_exclude),
+                     (SELECT COUNT(id) FROM nomenclature WHERE nomenclature.id IN(@Nomenclature_exclude)),
+                     0
+             ) AS excluded_noms,
 
-		IF(
-			'0' NOT IN (@NomenclatureCategory_include),
-			(SELECT COUNT(q.cat) FROM (SELECT COUNT(nomenclature.category) AS cat FROM nomenclature WHERE nomenclature.category IN(@NomenclatureCategory_include) GROUP BY nomenclature.category) AS q),
-			0
-		) AS included_nomtypes,
-		IF(
-			'0' NOT IN (@NomenclatureCategory_exclude),
-			(SELECT COUNT(q.cat) FROM (SELECT COUNT(nomenclature.category) AS cat FROM nomenclature WHERE nomenclature.category IN(@NomenclatureCategory_exclude) GROUP BY nomenclature.category) AS q),
-			0
-		) AS excluded_nomtypes,
+         IF(
+                     '0' NOT IN (@NomenclatureCategory_include),
+                     (SELECT COUNT(q.cat) FROM (SELECT COUNT(nomenclature.category) AS cat FROM nomenclature WHERE nomenclature.category IN(@NomenclatureCategory_include) GROUP BY nomenclature.category) AS q),
+                     0
+             ) AS included_nomtypes,
+         IF(
+                     '0' NOT IN (@NomenclatureCategory_exclude),
+                     (SELECT COUNT(q.cat) FROM (SELECT COUNT(nomenclature.category) AS cat FROM nomenclature WHERE nomenclature.category IN(@NomenclatureCategory_exclude) GROUP BY nomenclature.category) AS q),
+                     0
+             ) AS excluded_nomtypes,
 
-		IF(
-			0 NOT IN (@Counterparty_include),
-			(SELECT COUNT(id) FROM counterparty WHERE counterparty.id IN(@Counterparty_include)),
-			0
-		) AS included_client,
-		IF(
-			0 NOT IN (@Counterparty_exclude),
-			(SELECT COUNT(id) FROM counterparty WHERE counterparty.id IN(@Counterparty_exclude)),
-			0
-		) AS excluded_client,
+         IF(
+                     0 NOT IN (@Counterparty_include),
+                     (SELECT COUNT(id) FROM counterparty WHERE counterparty.id IN(@Counterparty_include)),
+                     0
+             ) AS included_client,
+         IF(
+                     0 NOT IN (@Counterparty_exclude),
+                     (SELECT COUNT(id) FROM counterparty WHERE counterparty.id IN(@Counterparty_exclude)),
+                     0
+             ) AS excluded_client,
+             
+         IF(
+                     '0' NOT IN (@CounterpartyType_include),
+                     (SELECT COUNT(q.cat) FROM (SELECT COUNT(counterparty.counterparty_type) AS cat FROM counterparty WHERE counterparty.counterparty_type IN(@CounterpartyType_include) GROUP BY counterparty.counterparty_type) AS q),
+                     0
+             ) AS included_client_type,
+         IF(
+                     '0' NOT IN (@CounterpartyType_exclude),
+                     (SELECT COUNT(q.cat) FROM (SELECT COUNT(counterparty.counterparty_type) AS cat FROM counterparty WHERE counterparty.counterparty_type IN(@CounterpartyType_exclude) GROUP BY counterparty.counterparty_type) AS q),
+                     0
+             ) AS excluded_client_type,
+             
+         IF(
+                     0 NOT IN (@CounterpartySubtype_include),
+                     (SELECT COUNT(id) FROM counterparty_subtypes WHERE counterparty_subtypes.id IN(@CounterpartySubtype_include)),
+                     0
+             ) AS included_client_subtype,
+         IF(
+                     0 NOT IN (@CounterpartySubtype_exclude),
+                     (SELECT COUNT(id) FROM counterparty_subtypes WHERE counterparty_subtypes.id IN(@CounterpartySubtype_exclude)),
+                     0
+             ) AS excluded_client_subtype,
 
-		IF(
-			0 NOT IN (@Organization_include),
-			(SELECT COUNT(id) FROM organizations WHERE organizations.id IN(@Organization_include)),
-			0
-		) AS included_org,
-		IF(
-			0 NOT IN (@Organization_exclude),
-			(SELECT COUNT(id) FROM organizations WHERE organizations.id IN(@Organization_exclude)),
-			0
-		) AS excluded_org,
+         IF(
+                     0 NOT IN (@Organization_include),
+                     (SELECT COUNT(id) FROM organizations WHERE organizations.id IN(@Organization_include)),
+                     0
+             ) AS included_org,
+         IF(
+                     0 NOT IN (@Organization_exclude),
+                     (SELECT COUNT(id) FROM organizations WHERE organizations.id IN(@Organization_exclude)),
+                     0
+             ) AS excluded_org,
 
-		IF(
-			0 NOT IN (@Subdivision_include),
-			(SELECT COUNT(id) FROM subdivisions WHERE subdivisions.id IN(@Subdivision_include)),
-			0
-		) AS included_subdivision,
-		IF(
-			0 NOT IN (@Subdivision_exclude),
-			(SELECT COUNT(id) FROM subdivisions WHERE subdivisions.id IN(@Subdivision_exclude)),
-			0
-		) AS excluded_subdivision,
+         IF(
+                     0 NOT IN (@Subdivision_include),
+                     (SELECT COUNT(id) FROM subdivisions WHERE subdivisions.id IN(@Subdivision_include)),
+                     0
+             ) AS included_subdivision,
+         IF(
+                     0 NOT IN (@Subdivision_exclude),
+                     (SELECT COUNT(id) FROM subdivisions WHERE subdivisions.id IN(@Subdivision_exclude)),
+                     0
+             ) AS excluded_subdivision,
 
-		IF(
-			0 NOT IN (@Employee_include),
-			(SELECT COUNT(id) FROM employees WHERE employees.id IN(@Employee_include)),
-			0
-		) AS included_orderauthor,
-		IF(
-			0 NOT IN (@Employee_exclude),
-			(SELECT COUNT(id) FROM employees WHERE employees.id IN(@Employee_exclude)),
-			0
-		) AS excluded_orderauthor,
+         IF(
+                     0 NOT IN (@Employee_include),
+                     (SELECT COUNT(id) FROM employees WHERE employees.id IN(@Employee_include)),
+                     0
+             ) AS included_orderauthor,
+         IF(
+                     0 NOT IN (@Employee_exclude),
+                     (SELECT COUNT(id) FROM employees WHERE employees.id IN(@Employee_exclude)),
+                     0
+             ) AS excluded_orderauthor,
 
-		IF(
-			0 NOT IN (@DiscountReason_include),
-			(SELECT COUNT(id) FROM discount_reasons WHERE discount_reasons.id IN(@DiscountReason_include)),
-			0
-		) AS included_discountreason,
-		IF(
-			0 NOT IN (@DiscountReason_exclude),
-			(SELECT COUNT(id) FROM discount_reasons WHERE discount_reasons.id IN(@DiscountReason_exclude)),
-			0
-		) AS excluded_discountreason,
+         IF(
+                     0 NOT IN (@DiscountReason_include),
+                     (SELECT COUNT(id) FROM discount_reasons WHERE discount_reasons.id IN(@DiscountReason_include)),
+                     0
+             ) AS included_discountreason,
+         IF(
+                     0 NOT IN (@DiscountReason_exclude),
+                     (SELECT COUNT(id) FROM discount_reasons WHERE discount_reasons.id IN(@DiscountReason_exclude)),
+                     0
+             ) AS excluded_discountreason,
 
-		IF(
-			0 NOT IN (@GeoGroup_include),
-			(SELECT COUNT(@GeoGroup_include)),
-			0
-		) AS included_geographic_groups,
-		IF(
-			0 NOT IN (@GeoGroup_exclude),
-			(SELECT COUNT(@GeoGroup_exclude)),
-			0
-		) AS excluded_geographic_groups,
-		
-		IF(
-			'0' NOT IN (@PaymentType_include),
-			(SELECT COUNT(q.pay) FROM (SELECT COUNT(orders.payment_type) AS pay FROM orders WHERE orders.payment_type IN(@PaymentType_include) GROUP BY orders.payment_type) AS q),
-			0
-		) AS included_payment_types,
-		IF(
-			'0' NOT IN (@PaymentType_exclude),
-			(SELECT COUNT(q.pay) FROM (SELECT COUNT(orders.payment_type) AS pay FROM orders WHERE orders.payment_type IN(@PaymentType_exclude) GROUP BY orders.payment_type) AS q),
-			0
-		) AS excluded_payment_types,
+         IF(
+                     0 NOT IN (@GeoGroup_include),
+                     (SELECT COUNT(id) FROM geo_groups WHERE geo_groups.id IN(@GeoGroup_include)),
+                     0
+             ) AS included_geographic_groups,
+         IF(
+                     0 NOT IN (@GeoGroup_exclude),
+                     (SELECT COUNT(id) FROM geo_groups WHERE geo_groups.id IN(@GeoGroup_exclude)),
+                     0
+             ) AS excluded_geographic_groups,
+
+         IF(
+                     '0' NOT IN (@PaymentType_include),
+                     (SELECT COUNT(q.pay) FROM (SELECT COUNT(orders.payment_type) AS pay FROM orders WHERE orders.payment_type IN(@PaymentType_include) GROUP BY orders.payment_type) AS q),
+                     0
+             ) AS included_payment_types,
+         IF(
+                     '0' NOT IN (@PaymentType_exclude),
+                     (SELECT COUNT(q.pay) FROM (SELECT COUNT(orders.payment_type) AS pay FROM orders WHERE orders.payment_type IN(@PaymentType_exclude) GROUP BY orders.payment_type) AS q),
+                     0
+             ) AS excluded_payment_types,
          IF(
                  '0' NOT IN (@PaymentByTerminalSource_include),
                  (SELECT COUNT(q.pay) FROM (SELECT COUNT(orders.terminal_subtype) AS pay FROM orders WHERE orders.terminal_subtype IN(@PaymentByTerminalSource_include) GROUP BY orders.terminal_subtype) AS q),
@@ -2078,27 +2401,37 @@ FROM
                      '0' NOT IN (@PaymentByTerminalSource_exclude),
                      (SELECT COUNT(q.pay) FROM (SELECT COUNT(orders.terminal_subtype) AS pay FROM orders WHERE orders.terminal_subtype IN(@PaymentByTerminalSource_exclude) GROUP BY orders.terminal_subtype) AS q),
                      0
-             ) AS excluded_terminal_subtypes,		
-		IF(
-			0 NOT IN (@PromotionalSet_include),
-			(SELECT COUNT(id) FROM promotional_sets WHERE promotional_sets.id IN(@PromotionalSet_include)),
-			0
-		) AS included_promo_sets,
-		IF(
-			0 NOT IN (@PromotionalSet_exclude),
-			(SELECT COUNT(id) FROM promotional_sets WHERE promotional_sets.id IN(@PromotionalSet_exclude)),
-			0
-		) AS excluded_promo_sets,
-		IF(
-            0 NOT IN (@ProductGroup_include),
-            (SELECT COUNT(id) FROM nomenclature_groups WHERE nomenclature_groups.id IN(@ProductGroup_include)),
-            0
-        ) AS included_product_groups,
-        IF(
-            0 NOT IN (@ProductGroup_exclude),
-            (SELECT COUNT(id) FROM nomenclature_groups WHERE nomenclature_groups.id IN(@ProductGroup_exclude)),
-            0
-        ) AS excluded_product_groups,
+             ) AS excluded_terminal_subtypes,
+      	 IF(
+                     0 NOT IN (@PaymentFrom_include),
+                     (SELECT COUNT(id) FROM payments_from WHERE payments_from.id IN(@PaymentFrom_include)),
+                     0
+         ) AS included_payment_froms,
+         IF(
+                     0 NOT IN (@PaymentFrom_exclude),
+                     (SELECT COUNT(id) FROM payments_from WHERE payments_from.id IN(@PaymentFrom_exclude)),
+                     0
+             ) AS excluded_payment_froms,
+         IF(
+                     0 NOT IN (@PromotionalSet_include),
+                     (SELECT COUNT(id) FROM promotional_sets WHERE promotional_sets.id IN(@PromotionalSet_include)),
+                     0
+             ) AS included_promo_sets,
+         IF(
+                     0 NOT IN (@PromotionalSet_exclude),
+                     (SELECT COUNT(id) FROM promotional_sets WHERE promotional_sets.id IN(@PromotionalSet_exclude)),
+                     0
+             ) AS excluded_promo_sets,
+         IF(
+                     0 NOT IN (@ProductGroup_include),
+                     (SELECT COUNT(id) FROM nomenclature_groups WHERE nomenclature_groups.id IN(@ProductGroup_include)),
+                     0
+             ) AS included_product_groups,
+         IF(
+                     0 NOT IN (@ProductGroup_exclude),
+                     (SELECT COUNT(id) FROM nomenclature_groups WHERE nomenclature_groups.id IN(@ProductGroup_exclude)),
+                     0
+             ) AS excluded_product_groups,
         IF(
 			'0' NOT IN (@OrderStatus_include),
 			(SELECT COUNT(q.cat) FROM (SELECT COUNT(orders.order_status) AS cat FROM orders WHERE orders.order_status IN(@OrderStatus_include) GROUP BY orders.order_status) AS q),
@@ -2108,9 +2441,49 @@ FROM
 			'0' NOT IN (@OrderStatus_exclude),
 			(SELECT COUNT(q.cat) FROM (SELECT COUNT(orders.order_status) AS cat FROM orders WHERE orders.order_status IN(@OrderStatus_exclude) GROUP BY orders.order_status) AS q),
 			0
-		) AS excluded_order_statuses
-	) AS tbl
-;</CommandText>
+		) AS excluded_order_statuses,		
+        IF(
+			'0' NOT IN (@CounterpartyCompositeClassification_include),
+			(SELECT total_includes
+			FROM
+			(
+			SELECT
+			IF('AX' IN (@CounterpartyCompositeClassification_include), @classification_include := @classification_include + 1, @classification_include := @classification_include) as ax,
+			IF('AY' IN (@CounterpartyCompositeClassification_include), @classification_include := @classification_include + 1, @classification_include := @classification_include) as ay,
+			IF('AZ' IN (@CounterpartyCompositeClassification_include), @classification_include := @classification_include + 1, @classification_include := @classification_include) as az,
+			IF('BX' IN (@CounterpartyCompositeClassification_include), @classification_include := @classification_include + 1, @classification_include := @classification_include) as bx,
+			IF('BY' IN (@CounterpartyCompositeClassification_include), @classification_include := @classification_include + 1, @classification_include := @classification_include) as by_,
+			IF('BZ' IN (@CounterpartyCompositeClassification_include), @classification_include := @classification_include + 1, @classification_include := @classification_include) as bz,
+			IF('CX' IN (@CounterpartyCompositeClassification_include), @classification_include := @classification_include + 1, @classification_include := @classification_include) as cx,
+			IF('CY' IN (@CounterpartyCompositeClassification_include), @classification_include := @classification_include + 1, @classification_include := @classification_include) as cy,
+			IF('CZ' IN (@CounterpartyCompositeClassification_include), @classification_include := @classification_include + 1, @classification_include := @classification_include) as cz,
+			IF('New' IN (@CounterpartyCompositeClassification_include), @classification_include := @classification_include + 1, @classification_include := @classification_include) as new_,
+			@classification_include as total_includes
+			) incl),
+			0
+		) AS included_counterparty_classifications,		
+        IF(
+			'0' NOT IN (@CounterpartyCompositeClassification_exclude),
+			(SELECT total_excludes
+			FROM
+			(
+			SELECT
+			IF('AX' IN (@CounterpartyCompositeClassification_exclude), @classification_exclude := @classification_exclude + 1, @classification_exclude := @classification_exclude) as ax,
+			IF('AY' IN (@CounterpartyCompositeClassification_exclude), @classification_exclude := @classification_exclude + 1, @classification_exclude := @classification_exclude) as ay,
+			IF('AZ' IN (@CounterpartyCompositeClassification_exclude), @classification_exclude := @classification_exclude + 1, @classification_exclude := @classification_exclude) as az,
+			IF('BX' IN (@CounterpartyCompositeClassification_exclude), @classification_exclude := @classification_exclude + 1, @classification_exclude := @classification_exclude) as bx,
+			IF('BY' IN (@CounterpartyCompositeClassification_exclude), @classification_exclude := @classification_exclude + 1, @classification_exclude := @classification_exclude) as by_,
+			IF('BZ' IN (@CounterpartyCompositeClassification_exclude), @classification_exclude := @classification_exclude + 1, @classification_exclude := @classification_exclude) as bz,
+			IF('CX' IN (@CounterpartyCompositeClassification_exclude), @classification_exclude := @classification_exclude + 1, @classification_exclude := @classification_exclude) as cx,
+			IF('CY' IN (@CounterpartyCompositeClassification_exclude), @classification_exclude := @classification_exclude + 1, @classification_exclude := @classification_exclude) as cy,
+			IF('CZ' IN (@CounterpartyCompositeClassification_exclude), @classification_exclude := @classification_exclude + 1, @classification_exclude := @classification_exclude) as cz,
+			IF('New' IN (@CounterpartyCompositeClassification_exclude), @classification_exclude := @classification_exclude + 1, @classification_exclude := @classification_exclude) as new_,
+			@classification_exclude as total_excludes
+			) incl),
+			0
+		) AS excluded_counterparty_classifications
+    ) AS tbl
+;;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -2196,9 +2569,36 @@ FROM
           <QueryParameter Name="PaymentByTerminalSource_exclude">
             <Value>={?PaymentByTerminalSource_exclude}</Value>
           </QueryParameter>
+          <QueryParameter Name="PaymentFrom_include">
+            <Value>={?PaymentFrom_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="PaymentFrom_exclude">
+            <Value>={?PaymentFrom_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="CounterpartyType_include">
+            <Value>={?CounterpartyType_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="CounterpartyType_exclude">
+            <Value>={?CounterpartyType_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="CounterpartySubtype_include">
+            <Value>={?CounterpartySubtype_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="CounterpartySubtype_exclude">
+            <Value>={?CounterpartySubtype_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="CounterpartyCompositeClassification_include">
+            <Value>={?CounterpartyCompositeClassification_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="CounterpartyCompositeClassification_exclude">
+            <Value>={?CounterpartyCompositeClassification_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="is_self_delivery">
+            <Value>={?is_self_delivery}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="criterions">
           <DataField>criterions</DataField>
           <TypeName>System.String</TypeName>
@@ -2232,14 +2632,21 @@ FROM
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
-    <ReportParameter Name="Nomenclature_exclude">
+    <ReportParameter Name="creation_date">
+      <DataType>DateTime</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Nomenclature_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
-    <ReportParameter Name="Nomenclature_include">
+    <ReportParameter Name="Nomenclature_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
@@ -2288,14 +2695,14 @@ FROM
       <MultiValue>true</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
-    <ReportParameter Name="DiscountReason_include">
+    <ReportParameter Name="Subdivision_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
-    <ReportParameter Name="DiscountReason_exclude">
+    <ReportParameter Name="Subdivision_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
@@ -2316,14 +2723,14 @@ FROM
       <MultiValue>true</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
-    <ReportParameter Name="Subdivision_include">
+    <ReportParameter Name="DiscountReason_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
-    <ReportParameter Name="Subdivision_exclude">
+    <ReportParameter Name="DiscountReason_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
@@ -2358,6 +2765,34 @@ FROM
       <MultiValue>true</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
+    <ReportParameter Name="PaymentByTerminalSource_include">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="PaymentByTerminalSource_exclude">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="PaymentFrom_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="PaymentFrom_exclude">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
     <ReportParameter Name="PromotionalSet_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
@@ -2372,13 +2807,6 @@ FROM
       <MultiValue>true</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
-    <ReportParameter Name="creation_date">
-      <DataType>DateTime</DataType>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
-    </ReportParameter>
     <ReportParameter Name="ProductGroup_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
@@ -2387,6 +2815,48 @@ FROM
       <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="ProductGroup_exclude">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="OrderStatus_include">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="OrderStatus_exclude">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CounterpartyType_include">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CounterpartyType_exclude">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CounterpartySubtype_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CounterpartySubtype_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
@@ -2421,46 +2891,39 @@ FROM
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
-    <ReportParameter Name="OrderStatus_include">
+    <ReportParameter Name="grouping_title">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="grouping_title_comma_splitrted">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CounterpartyCompositeClassification_include">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
-    <ReportParameter Name="OrderStatus_exclude">
+    <ReportParameter Name="CounterpartyCompositeClassification_exclude">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
-    <ReportParameter Name="PaymentByTerminalSource_include">
-      <DataType>String</DataType>
-      <Nullable>false</Nullable>
+    <ReportParameter Name="is_self_delivery">
+      <DataType>Boolean</DataType>
+      <Nullable>true</Nullable>
       <AllowBlank>false</AllowBlank>
-      <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
-    </ReportParameter>
-    <ReportParameter Name="PaymentByTerminalSource_exclude">
-      <DataType>String</DataType>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
-    </ReportParameter>
-    <ReportParameter Name="PaymentFrom_include">
-      <DataType>Integer</DataType>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
-    </ReportParameter>
-    <ReportParameter Name="PaymentFrom_exclude">
-      <DataType>Integer</DataType>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>true</MultiValue>
+      <MultiValue>false</MultiValue>
       <Prompt />
     </ReportParameter>
   </ReportParameters>

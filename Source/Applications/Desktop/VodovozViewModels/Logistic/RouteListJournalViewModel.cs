@@ -1,4 +1,5 @@
-﻿using NHibernate;
+﻿using FluentNHibernate.Conventions;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Deletion;
@@ -15,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using DateTimeHelpers;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Documents.DriverTerminalTransfer;
@@ -36,6 +38,7 @@ using Vodovoz.Infrastructure.Services;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Services.Logistics;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Store;
@@ -49,6 +52,7 @@ namespace Vodovoz.ViewModels.Logistic
 	public class RouteListJournalViewModel : FilterableSingleEntityJournalViewModelBase
 		<RouteList, ITdiTab, RouteListJournalNode, RouteListJournalFilterViewModel>
 	{
+		private readonly IRouteListService _routeListService;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly ICallTaskWorker _callTaskWorker;
@@ -86,7 +90,9 @@ namespace Vodovoz.ViewModels.Logistic
 			IWarehousePermissionService warehousePermissionService,
 			IRouteListDailyNumberProvider routeListDailyNumberProvider,
 			IUserSettings userSettings,
-			IStoreDocumentHelper storeDocumentHelper)
+			IStoreDocumentHelper storeDocumentHelper,
+			IRouteListService routeListService,
+			Action<RouteListJournalFilterViewModel> filterConfig = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
@@ -102,6 +108,7 @@ namespace Vodovoz.ViewModels.Logistic
 			_routeListProfitabilityIndicator = FilterViewModel.RouteListProfitabilityIndicator =
 				(routeListProfitabilitySettings ?? throw new ArgumentNullException(nameof(routeListProfitabilitySettings)))
 				.GetRouteListProfitabilityIndicatorInPercents;
+			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_routeListDailyNumberProvider = routeListDailyNumberProvider ?? throw new ArgumentNullException(nameof(routeListDailyNumberProvider));
 			_userSettings = userSettings;
 			_storeDocumentHelper = storeDocumentHelper;
@@ -115,6 +122,11 @@ namespace Vodovoz.ViewModels.Logistic
 
 			UpdateOnChanges(typeof(RouteList), typeof(RouteListProfitability), typeof(RouteListDebt));
 			InitPopupActions();
+
+			if(filterConfig != null)
+			{
+				FilterViewModel.SetAndRefilterAtOnce(filterConfig);
+			}
 		}
 
 		protected override Func<IUnitOfWork, IQueryOver<RouteList>> ItemsSourceQueryFunction => (uow) =>
@@ -160,9 +172,10 @@ namespace Vodovoz.ViewModels.Logistic
 				query.Where(o => o.Date >= FilterViewModel.StartDate);
 			}
 
-			if(FilterViewModel.EndDate != null)
+			var endDate = FilterViewModel.EndDate;
+			if(endDate != null)
 			{
-				query.Where(o => o.Date <= FilterViewModel.EndDate.Value.AddDays(1).AddTicks(-1));
+				query.Where(o => o.Date <= endDate.Value.LatestDayTime());
 			}
 
 			if(FilterViewModel.GeographicGroup != null)
@@ -234,6 +247,11 @@ namespace Vodovoz.ViewModels.Logistic
 			if(FilterViewModel.RestrictedCarTypesOfUse != null)
 			{
 				query.WhereRestrictionOn(() => carModelAlias.CarTypeOfUse).IsIn(FilterViewModel.RestrictedCarTypesOfUse.ToArray());
+			}
+
+			if(FilterViewModel.ExcludeIds != null &&  FilterViewModel.ExcludeIds.Any())
+			{
+				query.Where(() => !routeListAlias.Id.IsIn(FilterViewModel.ExcludeIds));
 			}
 
 			var driverProjection = CustomProjections.Concat_WS(
@@ -490,27 +508,30 @@ namespace Vodovoz.ViewModels.Logistic
 				selectedItems => true,
 				selectedItems =>
 				{
-					var routeListIds = selectedItems.Cast<RouteListJournalNode>().Select(x => x.Id).ToArray();
+					var routeListIds = selectedItems
+						.Cast<RouteListJournalNode>()
+						.Where(x => x.StatusEnum == RouteListStatus.Delivered)
+						.Select(x => x.Id)
+						.ToArray();
+
 					bool isSlaveTabActive = false;
 
 					using(var uowLocal = UnitOfWorkFactory.CreateWithoutRoot())
 					{
-						var routeLists = uowLocal.Session.QueryOver<RouteList>()
-							.Where(x => x.Id.IsIn(routeListIds))
-							.List();
-
-						foreach(var routeList in routeLists.Where(arg => arg.Status == RouteListStatus.Delivered))
+						foreach(var routeListId in routeListIds)
 						{
-							if(TabParent.FindTab(_gtkTabsOpener.GenerateDialogHashName<RouteList>(routeList.Id)) != null)
+							if(TabParent.FindTab(_gtkTabsOpener.GenerateDialogHashName<RouteList>(routeListId)) != null)
 							{
 								commonServices.InteractiveService.ShowMessage(
 									ImportanceLevel.Info, "Требуется закрыть подчиненную вкладку");
 								isSlaveTabActive = true;
 								continue;
 							}
-							routeList.ChangeStatusAndCreateTask(RouteListStatus.EnRoute, _callTaskWorker);
-							uowLocal.Save(routeList);
+
+							_routeListService.SendEnRoute(uowLocal, routeListId);
 						}
+
+						Refresh();
 
 						if(isSlaveTabActive)
 						{
@@ -683,9 +704,9 @@ namespace Vodovoz.ViewModels.Logistic
 						return;
 					}
 
-					var routeList = UoW.GetById<RouteList>(selectedNode.Id);
+					var page = NavigationManager.OpenViewModel<FuelDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
 
-					NavigationManager.OpenViewModel<FuelDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(selectedNode.Id));
+					page.ViewModel.SetRouteListById(selectedNode.Id);
 				}
 			);
 		}
@@ -732,7 +753,8 @@ namespace Vodovoz.ViewModels.Logistic
 				var carLoadDocument = new CarLoadDocument();
 				FillCarLoadDocument(carLoadDocument, localUow, routeList.Id, warehouse.Id);
 
-				var routeListFullyShipped = routeList.ShipIfCan(localUow, _callTaskWorker, out var notLoadedGoods, carLoadDocument);
+				var routeListFullyShipped = _routeListService.TrySendEnRoute(localUow, routeList, out var notLoadedGoods, carLoadDocument);
+				
 				localUow.Save(routeList);
 
 				_routeListDailyNumberProvider.GetOrCreateDailyNumber(routeList.Id, routeList.Date);

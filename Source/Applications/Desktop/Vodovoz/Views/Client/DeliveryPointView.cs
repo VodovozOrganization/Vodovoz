@@ -1,4 +1,4 @@
-using Gamma.Widgets;
+﻿using Gamma.Widgets;
 using GMap.NET;
 using GMap.NET.GtkSharp;
 using GMap.NET.GtkSharp.Markers;
@@ -12,6 +12,8 @@ using System.ComponentModel;
 using System.Threading.Tasks;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Client;
+using Vodovoz.Extensions;
+using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Dialogs.Counterparty;
 
 namespace Vodovoz.Views.Client
@@ -19,6 +21,8 @@ namespace Vodovoz.Views.Client
 	[ToolboxItem(true)]
 	public partial class DeliveryPointView : TabViewBase<DeliveryPointViewModel>
 	{
+		private readonly bool _showMapByDefault = false;
+
 		private bool _addressIsMoving;
 		private VBox _vboxMap;
 		private yEnumComboBox _comboMapType;
@@ -38,6 +42,7 @@ namespace Vodovoz.Views.Client
 			notebook1.Binding
 				.AddBinding(ViewModel, vm => vm.CurrentPage, w => w.CurrentPage)
 				.InitializeFromSource();
+
 			notebook1.SwitchPage += (o, args) =>
 			{
 				if(args.PageNum == 1)
@@ -53,10 +58,12 @@ namespace Vodovoz.Views.Client
 			buttonSave.Binding
 				.AddFuncBinding(ViewModel, vm => !vm.IsInProcess && vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
+
 			buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
 			buttonCancel.Binding
 				.AddFuncBinding(ViewModel, vm => !vm.IsInProcess, w => w.Sensitive)
 				.InitializeFromSource();
+
 			buttonInsertFromBuffer.Clicked += (s, a) => ViewModel.SetCoordinatesFromBuffer(_clipboard.WaitForText());
 			buttonInsertFromBuffer.Sensitive = ViewModel.CanEdit;
 			buttonApplyLimitsToAllDeliveryPointsOfCounterparty.Clicked +=
@@ -197,7 +204,8 @@ namespace Vodovoz.Views.Client
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 
-			entryDefaultWater.SetEntityAutocompleteSelectorFactory(ViewModel.NomenclatureSelectorFactory.GetDefaultWaterSelectorFactory());
+			entryDefaultWater.SetEntityAutocompleteSelectorFactory(
+				ViewModel.NomenclatureSelectorFactory.GetDefaultWaterSelectorFactory(ViewModel.LifetimeScope));
 			entryDefaultWater.Binding
 				.AddBinding(ViewModel.Entity, e => e.DefaultWaterNomenclature, w => w.Subject)
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
@@ -231,10 +239,14 @@ namespace Vodovoz.Views.Client
 			lblCounterparty.LabelProp = ViewModel.Entity.Counterparty.FullName;
 			lblId.LabelProp = ViewModel.Entity.Id.ToString();
 
+			var successTextColor = GdkColors.SuccessText.ToHtmlColor();
+			var infoTextColor = GdkColors.InfoText.ToHtmlColor();
+			var dangerTextColor = GdkColors.DangerText.ToHtmlColor();
+
 			ylabelFoundOnOsm.Binding.AddFuncBinding(ViewModel.Entity,
 				e => e.CoordinatesExist
-					? string.Format("<span foreground='{1}'>{0}</span>", e.CoordinatesText, e.FoundOnOsm ? "green" : "blue")
-					: "<span foreground='red'>Не найден на карте.</span>",
+					? $"<span foreground='{(e.FoundOnOsm ? successTextColor : infoTextColor)}'>{e.CoordinatesText}</span>"
+					: $"<span foreground='{dangerTextColor}'>Не найден на карте.</span>",
 				w => w.LabelProp).InitializeFromSource();
 			ylabelChangedUser.Binding.AddFuncBinding(ViewModel,
 				vm => vm.CoordsWasChanged
@@ -280,6 +292,7 @@ namespace Vodovoz.Views.Client
 				WidthRequest = 500,
 				HasFrame = true
 			};
+
 			_mapWidget.Overlays.Add(_addressOverlay);
 			_mapWidget.ButtonPressEvent += MapWidgetOnButtonPressEvent;
 			_mapWidget.ButtonReleaseEvent += MapWidgetOnButtonReleaseEvent;
@@ -290,17 +303,19 @@ namespace Vodovoz.Views.Client
 			_comboMapType = new yEnumComboBox();
 			_comboMapType.ItemsEnum = typeof(MapProviders);
 			_comboMapType.SelectedItem = MapProviders.GoogleMap;
+
 			_comboMapType.EnumItemSelected += (sender, args) =>
 			{
 				_mapWidget.MapProvider = MapProvidersHelper.GetPovider((MapProviders)args.SelectedItem);
 			};
+
 			_vboxMap.Add(_comboMapType);
 			_vboxMap.SetChildPacking(_comboMapType, false, false, 0, PackType.Start);
 			_vboxMap.Add(_mapWidget);
 			_vboxMap.ShowAll();
 
 			sidePanelMap.Panel = _vboxMap;
-			sidePanelMap.IsHided = false;
+			sidePanelMap.IsHided = !_showMapByDefault;
 			ViewModel.Entity.PropertyChanged += ViewModelOnPropertyChanged;
 			UpdateAddressOnMap();
 
@@ -389,6 +404,7 @@ namespace Vodovoz.Views.Client
 				{
 					ToolTipText = ViewModel.Entity.ShortAddress
 				};
+
 				_addressOverlay.Markers.Add(_addressMarker);
 			}
 		}
@@ -407,14 +423,21 @@ namespace Vodovoz.Views.Client
 			{
 				_addressIsMoving = false;
 				var newPoint = _mapWidget.FromLocalToLatLng((int) args.Event.X, (int) args.Event.Y);
-				if(!ViewModel.DeliveryPoint.ManualCoordinates && ViewModel.DeliveryPoint.FoundOnOsm)
-				{
-					if(!MessageDialogHelper.RunQuestionDialog(
+				if(!ViewModel.DeliveryPoint.ManualCoordinates
+					&& ViewModel.DeliveryPoint.FoundOnOsm
+					&& !MessageDialogHelper.RunQuestionDialog(
 						"Координаты точки установлены по адресу. Вы уверены что хотите установить новые координаты?"))
-					{
-						UpdateAddressOnMap();
-						return;
-					}
+				{
+					UpdateAddressOnMap();
+					return;
+				}
+
+				if(!ViewModel.UoWGeneric.IsNew
+					&& !MessageDialogHelper.RunQuestionDialog(
+						"Координаты точки доставки уже были установлены. Вы уверены что хотите установить новые координаты?"))
+				{
+					UpdateAddressOnMap();
+					return;
 				}
 
 				ViewModel.WriteCoordinates((decimal) newPoint.Lat, (decimal) newPoint.Lng, true);
@@ -426,6 +449,7 @@ namespace Vodovoz.Views.Client
 			if(args.Event.Button == 1)
 			{
 				var newPoint = _mapWidget.FromLocalToLatLng((int) args.Event.X, (int) args.Event.Y);
+
 				if(_addressMarker == null)
 				{
 					_addressMarker = new GMarkerGoogle(newPoint, GMarkerGoogleType.arrow)
@@ -452,13 +476,23 @@ namespace Vodovoz.Views.Client
 
 		private async void EntryEntranceOnFocusOutEvent(object sender, EventArgs e)
 		{
-			await UpdateCoordinates();
+			await UpdateCoordinates(true);
 		}
 
-		private async Task UpdateCoordinates()
+		private async Task UpdateCoordinates(bool updatedEntrance = false)
 		{
 			if(!ViewModel.IsAddressChanged)
 			{
+				return;
+			}
+
+			if(ViewModel.Entity.ManualCoordinates
+				&& updatedEntrance
+				&& !MessageDialogHelper.RunQuestionDialog(
+					"В точке доставке установлены координаты пользователем\n" +
+						"Вы уверены, что хотите обновить координаты, т.к. адрес может быть не найден и они слетят?"))
+			{
+				ViewModel.ResetAddressChanges();
 				return;
 			}
 
@@ -470,7 +504,11 @@ namespace Vodovoz.Views.Client
 				Latitude = latitude,
 				Longitude = longitude
 			};
-			if(!string.IsNullOrWhiteSpace(entryBuilding.BuildingName) && (!string.IsNullOrWhiteSpace(ViewModel.Entity.Entrance) || longitude == null || latitude == null))
+
+			if(!string.IsNullOrWhiteSpace(entryBuilding.BuildingName)
+				&& (!string.IsNullOrWhiteSpace(ViewModel.Entity.Entrance)
+					|| longitude == null
+					|| latitude == null))
 			{
 				coordinate = await ViewModel.UpdateCoordinatesFromGeoCoderAsync(entryBuilding.HousesDataLoader);
 			}

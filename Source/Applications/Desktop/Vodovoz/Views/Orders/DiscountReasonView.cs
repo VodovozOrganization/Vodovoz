@@ -51,6 +51,8 @@ namespace Vodovoz.Views.Orders
 		{
 			treeViewNomenclatureCategories.CreateFluentColumnsConfig<SelectableNomenclatureCategoryNode>()
 				.AddColumn("")
+					.AddTextRenderer(x => x.DiscountReasonNomenclatureCategory != null ? x.DiscountReasonNomenclatureCategory.Id.ToString() : "")
+				.AddColumn("")
 					.AddTextRenderer(x =>
 						x.DiscountReasonNomenclatureCategory.NomenclatureCategory.GetEnumTitle())
 				.AddColumn("")
@@ -81,6 +83,8 @@ namespace Vodovoz.Views.Orders
 		private void ConfigureNomenclaturesTree()
 		{
 			treeViewNomenclatures.CreateFluentColumnsConfig<Nomenclature>()
+				.AddColumn("")
+					.AddNumericRenderer(x => x.Id)
 				.AddColumn("")
 					.AddTextRenderer(x => x.Name)
 				.AddColumn("")

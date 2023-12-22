@@ -185,6 +185,11 @@ namespace Vodovoz
 				;
 
 			DeleteConfig.AddHibernateDeleteInfo<DriverStopListRemoval>();
+
+			DeleteConfig.AddHibernateDeleteInfo<RegradingOfGoodsReason>()
+				.AddClearDependence<RegradingOfGoodsDocumentItem>(x => x.RegradingOfGoodsReason);
+
+
 			#endregion
 
 			#region Rent
@@ -674,11 +679,14 @@ namespace Vodovoz
 				.AddDeleteDependence<CommonDistrictRuleItem>(item => item.District)
 				.AddDeleteDependence<DeliveryScheduleRestriction>(item => item.District)
 				.AddDeleteDependence<WeekDayDistrictRuleItem>(item => item.District)
+				.AddDeleteDependence<DistrictCopyItem>(item => item.District)
+				.AddDeleteDependence<DistrictCopyItem>(item => item.CopiedToDistrict)
 				.AddRemoveFromDependence<DistrictsSet>(x => x.Districts);
 
 			DeleteConfig.AddHibernateDeleteInfo<CommonDistrictRuleItem>();
 			DeleteConfig.AddHibernateDeleteInfo<WeekDayDistrictRuleItem>();
 			DeleteConfig.AddHibernateDeleteInfo<DeliveryScheduleRestriction>();
+			DeleteConfig.AddHibernateDeleteInfo<DistrictCopyItem>();
 
 			DeleteConfig.AddHibernateDeleteInfo<TariffZone>()
 				.AddClearDependence<District>(i => i.TariffZone);
@@ -777,7 +785,7 @@ namespace Vodovoz
 
 			#endregion
 
-			#region Рекламные наборы
+			#region Промонаборы
 
 			DeleteConfig.AddHibernateDeleteInfo<PromotionalSet>()
 						.AddDeleteDependence<PromotionalSetItem>(x => x.PromoSet)
@@ -1026,7 +1034,9 @@ namespace Vodovoz
 				.AddDeleteDependence<AdvanceIncomeCashDistributionDocument>(x => x.AdvanceReport)
 				.AddDeleteDependence<AdvanceExpenseCashDistributionDocument>(x => x.AdvanceReport);
 
-			DeleteConfig.AddHibernateDeleteInfo<AdvanceClosing>();
+			DeleteConfig.AddHibernateDeleteInfo<AdvanceClosing>()
+				.AddRemoveFromDependence<Expense>(x => x.AdvanceCloseItems)
+				.AddUpdateInfo(x => x.AdvanceExpense, x => x.AdvanceClosed, false);
 
 			DeleteConfig.AddDeleteInfo(
 				new DeleteInfo {

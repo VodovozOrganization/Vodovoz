@@ -5,6 +5,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Services;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Infrastructure;
 using Vodovoz.Parameters;
 
 namespace Vodovoz.ViewWidgets
@@ -33,6 +34,7 @@ namespace Vodovoz.ViewWidgets
 			enumBtnGuiltySide.ItemsEnum = typeof(GuiltyTypes);
 			enumBtnGuiltySide.SetSensitive(GuiltyTypes.Driver, driverCanBeGuilty);
 			enumBtnGuiltySide.SetSensitive(GuiltyTypes.None, !undeliveredOrder.ObservableGuilty.Any());
+			enumBtnGuiltySide.SetSensitive(GuiltyTypes.AutoСancelAutoTransfer, false);
 			enumBtnGuiltySide.Sensitive = canEditGuilty;
 			undeliveredOrder.ObservableGuilty.ElementAdded += ObservableGuilty_ElementAdded;
 			undeliveredOrder.ObservableGuilty.ElementRemoved += ObservableGuilty_ElementRemoved;
@@ -47,9 +49,9 @@ namespace Vodovoz.ViewWidgets
 			};
 			btnRemove.Sensitive = canEditGuilty;
 
-			var colorBlack = new Gdk.Color(0, 0, 0);
-			var colorGrey = new Gdk.Color(96, 96, 96);
-			var colorWhite = new Gdk.Color(255, 255, 255);
+			var colorBlack = GdkColors.PrimaryText;
+			var colorGrey = GdkColors.InsensitiveText;
+			var colorWhite = GdkColors.PrimaryBase;
 			var hideEnums = !driverCanBeGuilty ? new Enum[] { GuiltyTypes.Driver } : new Enum[] { };
 			var allDepartments = _subdivisionRepository.GetAllDepartmentsOrderedByName(_uow);
 			

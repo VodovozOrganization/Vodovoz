@@ -23,7 +23,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Accounting
 			Map(x => x.CounterpartyCorrespondentAcc).Column("counterparty_correspondent_account");
 			Map(x => x.CounterpartyBik).Column("counterparty_bik");
 			Map(x => x.Comment).Column("comment");
-			Map(x => x.Status).Column("status").CustomType<PaymentStateStringType>();
+			Map(x => x.Status).Column("status");
 			Map(x => x.IsManuallyCreated).Column("is_manually_created");
 			Map(x => x.RefundPaymentFromOrderId).Column("refund_payment_from_order_id");
 

@@ -1,26 +1,30 @@
-﻿using System;
-using System.Reflection;
-using System.ServiceModel;
-using System.ServiceModel.Web;
-using System.Threading;
 using Microsoft.Extensions.Configuration;
 using Mono.Unix;
 using Mono.Unix.Native;
 using MySqlConnector;
 using NLog;
+using QS.DomainModel.UoW;
 using QS.Project.DB;
+using QS.Project.Repositories;
 using Sms.External.SmsRu;
+using System;
+using System.Linq;
+using System.Reflection;
+using System.ServiceModel;
+using System.ServiceModel.Web;
+using System.Threading;
 using Vodovoz.Core.DataService;
+using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.SmsNotifications;
 using Vodovoz.Parameters;
 using Vodovoz.Settings.Database;
 
 namespace VodovozSmsInformerService
 {
-    class Service
+	class Service
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
-		
+
 		private static readonly string configFile = "/etc/vodovoz-smsinformer-service.conf";
 
 		//Service
@@ -44,7 +48,9 @@ namespace VodovozSmsInformerService
 
 			SmsRuConfiguration smsRuConfig;
 
-			try {
+			try 
+			{
+
 				var builder = new ConfigurationBuilder()
 					.AddIniFile(configFile, optional: false);
 
@@ -77,7 +83,8 @@ namespace VodovozSmsInformerService
 						int.Parse(smsRuSection["smtpPort"]),
 						bool.Parse(smsRuSection["smtpUseSSL"]),
 						bool.Parse(smsRuSection["translit"]),
-						bool.Parse(smsRuSection["test"])
+						bool.Parse(smsRuSection["test"]),
+						smsRuSection["baseUrl"]
 					);
 			}
 			catch(Exception ex) {
@@ -109,6 +116,23 @@ namespace VodovozSmsInformerService
 						Assembly.GetAssembly(typeof(QS.Attachments.Domain.Attachment)),
 						Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
 					});
+
+				#region Текущий пользователь
+
+				int serviceUserId = 0;
+
+				using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Получение пользователя"))
+				{
+					var serviceUser = unitOfWork.Session.Query<User>()
+						.Where(u => u.Login == mysqlUser)
+						.FirstOrDefault();
+
+					serviceUserId = serviceUser.Id;
+				}
+
+				UserRepository.GetCurrentUserId = () => serviceUserId;
+
+				#endregion
 
 				QS.HistoryLog.HistoryMain.Enable(conStrBuilder);
 

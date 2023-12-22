@@ -14,18 +14,35 @@ using QS.Project.Journal;
 using Vodovoz.Domain.Retail;
 using Vodovoz.ViewModels.Dialogs.Counterparty;
 using QS.Project.Domain;
+using QS.Navigation;
 
 namespace Vodovoz.JournalViewModels
 {
 	public class RetailCounterpartyJournalViewModel : FilterableSingleEntityJournalViewModelBase
 		<Counterparty, CounterpartyDlg, RetailCounterpartyJournalNode, CounterpartyJournalFilterViewModel>
 	{
+		private readonly bool _canOpenCloseDeliveries;
+
 		public RetailCounterpartyJournalViewModel(
 			CounterpartyJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			ICommonServices commonServices,
+			INavigationManager navigationManager,
+			Action<CounterpartyJournalFilterViewModel> filterConfig = null)
+			: base(filterViewModel, unitOfWorkFactory, commonServices, navigation: navigationManager)
 		{
+			filterViewModel.Journal = this;
+
 			TabName = "Журнал контрагентов";
+			
+			_canOpenCloseDeliveries =
+				commonServices.CurrentPermissionService.ValidatePresetPermission("can_close_deliveries_for_counterparty");
+
+			if(filterConfig != null)
+			{
+				FilterViewModel.ConfigureWithoutFiltering(filterConfig);
+			}
+
 			UpdateOnChanges(
 				typeof(Counterparty),
 				typeof(CounterpartyContract),
@@ -189,23 +206,23 @@ namespace Vodovoz.JournalViewModels
 			));
 
 			var counterpartyResultQuery = query.SelectList(list => list
-				   .SelectGroup(c => c.Id).WithAlias(() => resultAlias.Id)
-				   .SelectGroup(c => c.VodovozInternalId).WithAlias(() => resultAlias.InternalId)
-				   .Select(c => c.Name).WithAlias(() => resultAlias.Name)
-				   .Select(c => c.INN).WithAlias(() => resultAlias.INN)
-				   .Select(c => c.IsArchive).WithAlias(() => resultAlias.IsArhive)
-				   .SelectSubQuery(contractsSubquery).WithAlias(() => resultAlias.Contracts)
-				   .Select(Projections.SqlFunction(
-					   new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(DISTINCT ?1 SEPARATOR ?2)"),
-					   NHibernateUtil.String,
-					   Projections.Property(() => phoneAlias.Number),
-					   Projections.Constant("\n"))
-					   ).WithAlias(() => resultAlias.Phones)			   
-					.SelectSubQuery(addressSubquery).WithAlias(() => resultAlias.Addresses)
-					.SelectSubQuery(tagsSubquery).WithAlias(() => resultAlias.Tags)
+				.SelectGroup(c => c.Id).WithAlias(() => resultAlias.Id)
+				.SelectGroup(c => c.VodovozInternalId).WithAlias(() => resultAlias.InternalId)
+				.Select(c => c.Name).WithAlias(() => resultAlias.Name)
+				.Select(c => c.INN).WithAlias(() => resultAlias.INN)
+				.Select(c => c.IsArchive).WithAlias(() => resultAlias.IsArhive)
+				.Select(c => c.IsLiquidating).WithAlias(() => resultAlias.IsLiquidating)
+				.SelectSubQuery(contractsSubquery).WithAlias(() => resultAlias.Contracts)
+				.Select(Projections.SqlFunction(
+					new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(DISTINCT ?1 SEPARATOR ?2)"),
+					NHibernateUtil.String,
+					Projections.Property(() => phoneAlias.Number),
+					Projections.Constant("\n"))
+					).WithAlias(() => resultAlias.Phones)			   
+				.SelectSubQuery(addressSubquery).WithAlias(() => resultAlias.Addresses)
+				.SelectSubQuery(tagsSubquery).WithAlias(() => resultAlias.Tags)
 				)
-				.TransformUsing(Transformers.AliasToBean<RetailCounterpartyJournalNode>())
-				;
+				.TransformUsing(Transformers.AliasToBean<RetailCounterpartyJournalNode>());
 
 			return counterpartyResultQuery;
 		};
@@ -428,6 +445,10 @@ namespace Vodovoz.JournalViewModels
 				//sensetive
 				(selected) => {
 					var selectedNodes = selected.OfType<RetailCounterpartyJournalNode>();
+					if(!_canOpenCloseDeliveries)
+					{
+						return false;
+					}
 					if(selectedNodes == null || selectedNodes.Count() != 1)
 					{
 						return false;
@@ -438,7 +459,7 @@ namespace Vodovoz.JournalViewModels
 						return false;
 					}
 					var config = EntityConfigs[selectedNode.EntityType];
-					return config.PermissionResult.CanUpdate && commonServices.CurrentPermissionService.ValidatePresetPermission("can_close_deliveries_for_counterparty");
+					return config.PermissionResult.CanUpdate;
 				},
 				//visible
 				(selected) => true,

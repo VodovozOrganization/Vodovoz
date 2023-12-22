@@ -1,8 +1,6 @@
 ﻿using Gamma.Utilities;
 using NHibernate.Criterion;
 using NHibernate.Transform;
-using QS.Banks.Domain;
-using QS.Banks.Repositories;
 using QS.Commands;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -19,6 +17,8 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
+using Autofac;
+using QS.Project.Journal.EntitySelector;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Payments;
@@ -52,10 +52,10 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		private readonly IPaymentsRepository _paymentsRepository;
 		private readonly IDialogsFactory _dialogsFactory;
 		private readonly IOrganizationRepository _organizationRepository;
-		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private DelegateCommand _revertAllocatedSum;
 
 		public ManualPaymentMatchingViewModel(
+			ILifetimeScope lifetimeScope,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
@@ -66,12 +66,20 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			IOrganizationRepository organizationRepository,
 			ICounterpartyJournalFactory counterpartyJournalFactory) : base(uowBuilder, uowFactory, commonServices)
 		{
+			if(lifetimeScope == null)
+			{
+				throw new ArgumentNullException(nameof(lifetimeScope));
+			}
+
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_paymentItemsRepository = paymentItemsRepository ?? throw new ArgumentNullException(nameof(paymentItemsRepository));
 			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
 			_dialogsFactory = dialogsFactory ?? throw new ArgumentNullException(nameof(dialogsFactory));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
-			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
+			CounterpartyAutocompleteSelectorFactory = 
+				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
+				.CreateCounterpartyAutocompleteSelectorFactory(lifetimeScope);
+			
 			if(uowBuilder.IsNewEntity)
 			{
 				throw new AbortCreatingPageException(
@@ -111,6 +119,10 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			}
 			
 			TabClosed += OnTabClosed;
+
+			Entity.ObservableItems.ElementRemoved += (_, _1, _2) => OnPropertyChanged(nameof(CanChangeCounterparty));
+
+			Entity.ObservableItems.ElementAdded += (_, _1) => OnPropertyChanged(nameof(CanChangeCounterparty));
 		}
 
 		#region Свойства
@@ -423,8 +435,10 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 								: PersonType.natural;
 					}
 
-					var bank = FillBank(Entity);
-					parameters.Account = new Account { Number = Entity.CounterpartyCurrentAcc, InBank = bank };
+					parameters.CounterpartyBik = Entity.CounterpartyBik;
+					parameters.CounterpartyBank = Entity.CounterpartyBank;
+					parameters.CounterpartyCorrespondentAcc = Entity.CounterpartyCorrespondentAcc;
+					parameters.CounterpartyCurrentAcc = Entity.CounterpartyCurrentAcc;
 
 					var dlg = _dialogsFactory.CreateCounterpartyDlg(parameters);
 
@@ -458,7 +472,9 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			)
 		);
 
-		public ICounterpartyJournalFactory CounterpartyJournalFactory => _counterpartyJournalFactory;
+		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelectorFactory { get; }
+
+		public bool CanChangeCounterparty => !Entity.ObservableItems.Any(x => x.PaymentItemStatus == AllocationStatus.Accepted);
 
 		#endregion Commands
 
@@ -473,6 +489,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			if(Entity.Status == PaymentState.Cancelled)
 			{
 				ShowWarningMessage($"Платеж находится в статусе {Entity.Status.GetEnumTitle()} распределения не возможны!");
+				SaveAndCloseDialog();
+				return;
 			}
 
 			if(CurrentBalance < 0)
@@ -511,8 +529,14 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			}
 
 			Entity.Status = PaymentState.completed;
+
+			SaveAndCloseDialog();
+		}
+
+		private void SaveAndCloseDialog()
+		{
 			UpdateCurrentEditor();
-			
+
 			try
 			{
 				SaveAndClose();
@@ -526,26 +550,6 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			}
 		}
 		
-		private Bank FillBank(Payment payment)
-		{
-			var bank = BankRepository.GetBankByBik(UoW, payment.CounterpartyBik);
-
-			if(bank == null)
-			{
-				bank = new Bank
-				{
-					Bik = payment.CounterpartyBik,
-					Name = payment.CounterpartyBank
-				};
-				var corAcc = new CorAccount { CorAccountNumber = payment.CounterpartyCorrespondentAcc };
-				bank.CorAccounts.Add(corAcc);
-				bank.DefaultCorAccount = corAcc;
-				UoW.Save(bank);
-			}
-
-			return bank;
-		}
-		
 		private void ConfigureEntityChangingRelations()
 		{
 			SetPropertyChangeRelation(
@@ -555,10 +559,15 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 		private void NewCounterpartySaved(object sender, QS.Tdi.EntitySavedEventArgs e)
 		{
-			var client = e.Entity as Domain.Client.Counterparty;
+			if(!(e.Entity is Domain.Client.Counterparty counterparty))
+			{
+				return;
+			}
 
-			Entity.Counterparty = client;
-			Entity.CounterpartyAccount = client.DefaultAccount;
+			var savedCounterparty = UoW.GetById<Domain.Client.Counterparty>(counterparty.Id);
+
+			Entity.Counterparty = savedCounterparty;
+			Entity.CounterpartyAccount = savedCounterparty.DefaultAccount;
 		}
 
 		private void CreateOperations()
@@ -809,6 +818,14 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			}
 
 			base.Close(askSave, source);
+		}
+
+		public void UpdateCMOCounterparty()
+		{
+			if(Entity.CashlessMovementOperation != null && Entity.Counterparty?.Id != Entity.CashlessMovementOperation.Counterparty?.Id)
+			{
+				Entity.CashlessMovementOperation.Counterparty = Entity.Counterparty;
+			}
 		}
 	}
 

@@ -12,10 +12,10 @@ using Vodovoz.Services;
 namespace Vodovoz.Domain.Orders
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "рекламные наборы",
-		Nominative = "рекламный набор",
-		Prepositional = "рекламном наборе",
-		PrepositionalPlural = "рекламных наборах"
+		NominativePlural = "промонаборы",
+		Nominative = "промонабор",
+		Prepositional = "промонаборе",
+		PrepositionalPlural = "промонаборах"
 	)]
 	[HistoryTrace]
 	[EntityPermission]
