@@ -9,6 +9,8 @@ namespace Vodovoz.MainMenu.ReportsMenu
 	public class EmployeesReportsMenuItemCreator : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
+		private MenuItem _employeesBonuses;
+		private MenuItem _employeesfines;
 
 		public EmployeesReportsMenuItemCreator(ConcreteMenuItemCreator concreteMenuItemCreator)
 		{
@@ -21,11 +23,26 @@ namespace Vodovoz.MainMenu.ReportsMenu
 			var employeesMenu = new Menu();
 			employeesMenuItem.Submenu = employeesMenu;
 
-			employeesMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Штрафы сотрудников", OnEmployeeFinesReportPressed));
-			employeesMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Премии сотрудников", OnEmployeesBonusesReportPressed));
+			_employeesfines = _concreteMenuItemCreator.CreateMenuItem("Штрафы сотрудников", OnEmployeeFinesReportPressed);
+			employeesMenu.Add(_employeesfines);
+
+			_employeesBonuses = _concreteMenuItemCreator.CreateMenuItem("Премии сотрудников", OnEmployeesBonusesReportPressed);
+			employeesMenu.Add(_employeesBonuses);
+			
 			employeesMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Отчет по сотрудникам", OnEmployeesReportPressed));
+
+			Configure();
 			
 			return employeesMenuItem;
+		}
+
+		private void Configure()
+		{
+			var permissionService = ServicesConfig.CommonServices.CurrentPermissionService;
+			var hasAccessToWagesAndBonuses = permissionService.ValidatePresetPermission("access_to_fines_bonuses");
+			
+			_employeesBonuses.Sensitive = hasAccessToWagesAndBonuses;
+			_employeesfines.Sensitive = hasAccessToWagesAndBonuses;
 		}
 		
 		/// <summary>

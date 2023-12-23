@@ -1,6 +1,7 @@
 ﻿using System;
 using Gtk;
 using QS.Navigation;
+using QS.Project.Services;
 using QSOrmProject;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
@@ -18,6 +19,8 @@ namespace Vodovoz.MainMenu.JournalsMenu.Counterparties
 	public class CounterpartiesMenuItemCreator : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
+		private MenuItem _externalCounterpartiesMatchingMenuItem;
+		private MenuItem _counterpartyClassificationCalculationMenuItem;
 
 		public CounterpartiesMenuItemCreator(ConcreteMenuItemCreator concreteMenuItemCreator)
 		{
@@ -69,12 +72,30 @@ namespace Vodovoz.MainMenu.JournalsMenu.Counterparties
 			counterpartiesMenu.Add(CreateSeparatorMenuItem());
 			
 			counterpartiesMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Загрузка 1с", null/*OnActionLoad1cActivated*/));
+
+			_externalCounterpartiesMatchingMenuItem = _concreteMenuItemCreator
+				.CreateMenuItem("Сопоставление клиентов из внешних источников", OnExternalCounterpartiesMatchingPressed);
+			counterpartiesMenu.Add(_externalCounterpartiesMatchingMenuItem);
+
+			counterpartiesMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Подтипы контрагентов", OnCounterpartySubtypesPressed));
+
+			_counterpartyClassificationCalculationMenuItem = _concreteMenuItemCreator
+				.CreateMenuItem("Пересчёт классификации", OnCounterpartyClassificationCalculationPressed);
+			counterpartiesMenu.Add(_counterpartyClassificationCalculationMenuItem);
 			
-			counterpartiesMenu.Add(
-				_concreteMenuItemCreator.CreateMenuItem("Сопоставление клиентов из внешних источников",
-					OnExternalCounterpartiesMatchingPressed));
+			Configure();
 
 			return counterpartiesMenuItem;
+		}
+
+		private void Configure()
+		{
+			var permissionService = ServicesConfig.CommonServices.CurrentPermissionService;
+			_externalCounterpartiesMatchingMenuItem.Sensitive =
+				permissionService.ValidatePresetPermission("can_matching_counterparties_from_external_sources");
+			
+			_counterpartyClassificationCalculationMenuItem.Sensitive = 
+				permissionService.ValidatePresetPermission(Vodovoz.Permissions.Counterparty.CanCalculateCounterpartyClassifications);
 		}
 		
 		/// <summary>
@@ -218,7 +239,7 @@ namespace Vodovoz.MainMenu.JournalsMenu.Counterparties
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void OnActionCounterpartySubtypesActivated(object sender, ButtonPressEventArgs e)
+		private void OnCounterpartySubtypesPressed(object sender, ButtonPressEventArgs e)
 		{
 			Startup.MainWin.NavigationManager.OpenViewModel<SubtypesJournalViewModel>(null);
 		}
@@ -228,7 +249,7 @@ namespace Vodovoz.MainMenu.JournalsMenu.Counterparties
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void OnActionCounterpartyClassificationCalculationActivated(object sender, ButtonPressEventArgs e)
+		private void OnCounterpartyClassificationCalculationPressed(object sender, ButtonPressEventArgs e)
 		{
 			Startup.MainWin.NavigationManager.OpenViewModel<CounterpartyClassificationCalculationViewModel>(null);
 		}

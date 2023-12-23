@@ -2,6 +2,7 @@
 using Gtk;
 using QS.BusinessCommon.Domain;
 using QS.Navigation;
+using QS.Project.Services;
 using QSOrmProject;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
@@ -25,6 +26,7 @@ namespace Vodovoz.MainMenu.JournalsMenu.Products
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
 		private readonly InventoryAccountingMenuItemCreator _inventoryAccountingMenuItemCreator;
 		private readonly ExternalSourcesMenuItemCreator _externalSourcesMenuItemCreator;
+		private MenuItem _additionalLoadSettingsMenuItem;
 
 		public ProductsMenuItemCreator(
 			ConcreteMenuItemCreator concreteMenuItemCreator,
@@ -50,7 +52,11 @@ namespace Vodovoz.MainMenu.JournalsMenu.Products
 			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Группы товаров", OnProductGroupsPressed));
 			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Папки номенклатуры в 1с", OnFolders1cPressed));
 			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Промонаборы", OnPromotionalSetsPressed));
-			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Настройка запаса и радиуса", OnAdditionalLoadSettingsPressed));
+
+			_additionalLoadSettingsMenuItem =
+				_concreteMenuItemCreator.CreateMenuItem("Настройка запаса и радиуса", OnAdditionalLoadSettingsPressed);
+			productsMenu.Add(_additionalLoadSettingsMenuItem);
+			
 			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Групповое заполнение себестоимости", OnGroupPricingPressed));
 			productsMenu.Add(CreateSeparatorMenuItem());
 
@@ -78,7 +84,15 @@ namespace Vodovoz.MainMenu.JournalsMenu.Products
 			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Рекламные листовки", OnFlyersPressed));
 			productsMenu.Add(_externalSourcesMenuItemCreator.Create());
 
+			Configure();
+
 			return productsMenuItem;
+		}
+
+		private void Configure()
+		{
+			_additionalLoadSettingsMenuItem.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService
+				.ValidateEntityPermission(typeof(AdditionalLoadingNomenclatureDistribution)).CanRead;
 		}
 		
 		/// <summary>

@@ -1,6 +1,7 @@
 ﻿using System;
 using Gtk;
 using QS.Project.Domain;
+using QS.Project.Services;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Client;
@@ -17,6 +18,10 @@ namespace Vodovoz.MainMenu.AdministrationMenu
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
 		private readonly AdminServiceMenuItemCreator _adminServiceMenuItemCreator;
+		private MenuItem _adminMenuItem;
+		private MenuItem _usersMenuItem;
+		private MenuItem _docTemplatesMenuItem;
+		private MenuItem _registeredRmMenuItem;
 
 		public AdministrationMenuItemCreator(
 			ConcreteMenuItemCreator concreteMenuItemCreator,
@@ -28,22 +33,43 @@ namespace Vodovoz.MainMenu.AdministrationMenu
 
 		public MenuItem Create()
 		{
-			var adminMenuItem = _concreteMenuItemCreator.CreateMenuItem("Администрирование");
+			_adminMenuItem = _concreteMenuItemCreator.CreateMenuItem("Администрирование");
 			var adminMenu = new Menu();
-			adminMenuItem.Submenu = adminMenu;
+			_adminMenuItem.Submenu = adminMenu;
 
 			adminMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Типы документов", OnTypesOfEntitiesPressed));
-			adminMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Пользователи", OnUsersPressed));
+
+			_usersMenuItem = _concreteMenuItemCreator.CreateMenuItem("Пользователи", OnUsersPressed);
+			adminMenu.Add(_usersMenuItem);
 			adminMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Роли пользователей", OnUsersRolesPressed));
-			adminMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Зарегистрированные RM", OnRegisteredRMPressed));
+
+			_registeredRmMenuItem = _concreteMenuItemCreator.CreateMenuItem("Зарегистрированные RM", OnRegisteredRMPressed);
+			adminMenu.Add(_registeredRmMenuItem);
+			
 			adminMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Параметры", OnParametersPressed));
 			adminMenu.Add(_adminServiceMenuItemCreator.Create());
 			adminMenu.Add(CreateSeparatorMenuItem());
-			adminMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Шаблоны документов", OnDocTemplatesPressed));
+
+			_docTemplatesMenuItem = _concreteMenuItemCreator.CreateMenuItem("Шаблоны документов", OnDocTemplatesPressed);
+			adminMenu.Add(_docTemplatesMenuItem);
 			adminMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Географические группы", OnGeographicGroupsPressed));
 			adminMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Изображения", OnImagesPressed));
 			
-			return adminMenuItem;
+			Configure();
+			
+			return _adminMenuItem;
+		}
+
+		private void Configure()
+		{
+			var admin = QSMain.User.Admin;
+			var userCanManageRegisteredRMs =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_can_manage_registered_rms");
+
+			_registeredRmMenuItem.Visible = userCanManageRegisteredRMs;
+			_adminMenuItem.Sensitive = admin;
+			_usersMenuItem.Sensitive = admin;
+			_docTemplatesMenuItem.Visible = admin;
 		}
 		
 		/// <summary>

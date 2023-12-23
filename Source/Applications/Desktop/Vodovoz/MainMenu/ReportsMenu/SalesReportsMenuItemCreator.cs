@@ -14,25 +14,38 @@ namespace Vodovoz.MainMenu.ReportsMenu
 	public class SalesReportsMenuItemCreator : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
+		private MenuItem _orderCreationDateMenuItem;
+		private MenuItem _planImplementationMenuItem;
+		private MenuItem _setBillsMenuItem;
 
 		public SalesReportsMenuItemCreator(ConcreteMenuItemCreator concreteMenuItemCreator)
 		{
 			_concreteMenuItemCreator = concreteMenuItemCreator ?? throw new ArgumentNullException(nameof(concreteMenuItemCreator));
 		}
 
-		public MenuItem Create()
+		public MenuItem Create(bool userIsSalesRepresentative)
 		{
 			var salesReportsMenuItem = _concreteMenuItemCreator.CreateMenuItem("Продажи");
 			var salesReportsMenu = new Menu();
 			salesReportsMenuItem.Submenu = salesReportsMenu;
-
+			
 			salesReportsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Отчет по продажам", OnSalesReportPressed));
-			salesReportsMenu.Add(_concreteMenuItemCreator.CreateMenuItem(
-				"Отчет по дате создания заказа", OnOrderCreationDateReportPressed));
-			salesReportsMenu.Add(_concreteMenuItemCreator.CreateMenuItem(
-				"Отчёт о выполнении плана", OnPlanImplementationReportPressed));
-			salesReportsMenu.Add(_concreteMenuItemCreator.CreateMenuItem(
-				"Отчет по выставленным счетам", OnSetBillsReportPressed));
+
+			_orderCreationDateMenuItem = _concreteMenuItemCreator.CreateMenuItem(
+				"Отчет по дате создания заказа", OnOrderCreationDateReportPressed);
+			salesReportsMenu.Add(_orderCreationDateMenuItem);
+			_orderCreationDateMenuItem.Visible = !userIsSalesRepresentative;
+
+			_planImplementationMenuItem = _concreteMenuItemCreator.CreateMenuItem(
+				"Отчёт о выполнении плана", OnPlanImplementationReportPressed);
+			salesReportsMenu.Add(_planImplementationMenuItem);
+			_planImplementationMenuItem.Visible = !userIsSalesRepresentative;
+
+			_setBillsMenuItem = _concreteMenuItemCreator.CreateMenuItem(
+				"Отчет по выставленным счетам", OnSetBillsReportPressed);
+			salesReportsMenu.Add(_setBillsMenuItem);
+			_setBillsMenuItem.Visible = !userIsSalesRepresentative;
+			
 			salesReportsMenu.Add(_concreteMenuItemCreator.CreateMenuItem(
 				"Отчет по продажам с рентабельностью", OnProfitabilitySalesReportPressed));
 			salesReportsMenu.Add(_concreteMenuItemCreator.CreateMenuItem(

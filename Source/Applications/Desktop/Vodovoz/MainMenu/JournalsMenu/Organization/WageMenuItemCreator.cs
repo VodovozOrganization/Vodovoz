@@ -1,6 +1,7 @@
 ﻿using System;
 using Gtk;
 using QS.Navigation;
+using QS.Project.Services;
 using Vodovoz.Journals.JournalViewModels.WageCalculation;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 
@@ -9,6 +10,9 @@ namespace Vodovoz.MainMenu.JournalsMenu.Organization
 	public class WageMenuItemCreator : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
+		private MenuItem _wageDistricts;
+		private MenuItem _rates;
+		private MenuItem _salesPlans;
 
 		public WageMenuItemCreator(ConcreteMenuItemCreator concreteMenuItemCreator)
 		{
@@ -21,14 +25,33 @@ namespace Vodovoz.MainMenu.JournalsMenu.Organization
 			var wageMenu = new Menu();
 			wageMenuItem.Submenu = wageMenu;
 
-			wageMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Зарплатные районы", OnWageDistrictsPressed));
-			wageMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Ставки", OnRatesPressed));
-			wageMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Планы продаж", OnSalesPlansPressed));
+			_wageDistricts = _concreteMenuItemCreator.CreateMenuItem("Зарплатные районы", OnWageDistrictsPressed);
+			wageMenu.Add(_wageDistricts);
+
+			_rates = _concreteMenuItemCreator.CreateMenuItem("Ставки", OnRatesPressed);
+			wageMenu.Add(_rates);
+
+			_salesPlans = _concreteMenuItemCreator.CreateMenuItem("Планы продаж", OnSalesPlansPressed);
+			wageMenu.Add(_salesPlans);
+			
 			wageMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Виды оформления", OnEmployeeRegistrationsPressed));
-		
+			
+			Configure();
+
 			return wageMenuItem;
 		}
-		
+
+		private void Configure()
+		{
+			var permissionService = ServicesConfig.CommonServices.CurrentPermissionService;
+			var canEditWage = permissionService.ValidatePresetPermission("can_edit_wage");
+			_wageDistricts.Sensitive = canEditWage;
+			_rates.Sensitive = canEditWage;
+
+			var canEditWageBySelfSubdivision = permissionService.ValidatePresetPermission("can_edit_wage_by_self_subdivision");
+			_salesPlans.Sensitive = canEditWageBySelfSubdivision;
+		}
+
 		/// <summary>
 		/// Зарплатные районы
 		/// </summary>

@@ -12,6 +12,7 @@ namespace Vodovoz.MainMenu.JournalsMenu.Financies
 	public class FinancesMenuItemCreator : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
+		private MenuItem _profitabilityConstantsMenuItem;
 
 		public FinancesMenuItemCreator(ConcreteMenuItemCreator concreteMenuItemCreator)
 		{
@@ -26,10 +27,22 @@ namespace Vodovoz.MainMenu.JournalsMenu.Financies
 
 			financesMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Статьи доходов", OnIncomeCategoriesPressed));
 			financesMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Статьи расходов", OnExpenseCategoriesPressed));
-			financesMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Константы для рентабельности", OnProfitabilityConstantsPressed));
+
+			_profitabilityConstantsMenuItem =
+				_concreteMenuItemCreator.CreateMenuItem("Константы для рентабельности", OnProfitabilityConstantsPressed);
+			financesMenu.Add(_profitabilityConstantsMenuItem);
+			
 			financesMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Финансовые статьи", OnFinancialCategoriesGroupsPressed));
 
+			Configure();
+
 			return financesMenuItem;
+		}
+
+		private void Configure()
+		{
+			_profitabilityConstantsMenuItem.Sensitive =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_read_and_edit_profitability_constants");
 		}
 		
 		/// <summary>

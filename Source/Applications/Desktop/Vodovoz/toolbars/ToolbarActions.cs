@@ -335,15 +335,16 @@ public partial class MainWindow : Window
 		w1.Add(ActionExportImportNomenclatureCatalog, null);
 		w1.Add(ActionWarehousesBalanceSummary, null);
 
+		//TODO починить вызовы
 		//ТрО
 		w1.Add(ActionCarEventsJournal, null);
 		w1.Add(ActionCarProxiesJournal, null);
 		w1.Add(ActionRouteListMileageCheck, null);
-		w1.Add(ActionWayBillReport, null);
+		//w1.Add(ActionWayBillReport, null);
 		w1.Add(ActionFinesJournal, null);
 		w1.Add(ActionWarehouseDocuments, null);
 		w1.Add(ActionWarehouseStock, null);
-		w1.Add(ActionCar, null);
+		//w1.Add(ActionCar, null);
 
 		//Отдел продаж
 		w1.Add(ActionSalesOrdersJournal, null);

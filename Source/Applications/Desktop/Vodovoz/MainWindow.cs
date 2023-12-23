@@ -2,24 +2,24 @@ using Autofac;
 using NLog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
-using QS.Project.Services;
 using QS.Project.Versioning;
 using QS.Tdi;
 using QS.Tdi.Gtk;
 using QS.Utilities.Debug;
 using QS.Validation;
 using QSBanks;
-using QSProjectsLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Gtk;
+using QS.Project.Services;
+using QSProjectsLib;
 using Vodovoz;
 using Vodovoz.Controllers;
 using Vodovoz.Core;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Infrastructure.Mango;
 using Vodovoz.MainMenu;
@@ -27,7 +27,6 @@ using Vodovoz.Parameters;
 using Vodovoz.SidePanel;
 using Vodovoz.TempAdapters;
 using VodovozInfrastructure.Configuration;
-using Order = Vodovoz.Domain.Orders.Order;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -66,6 +65,7 @@ public partial class MainWindow : Gtk.Window
 	
 	public void Configure()
 	{
+		ConfigureMainMenu();
 		BuildToolbarActions();
 
 		tdiMain.WidgetResolver = ViewModelWidgetResolver.Instance;
@@ -78,11 +78,7 @@ public partial class MainWindow : Gtk.Window
 			GetTabsColors(),
 			tabsParametersProvider.TabsPrefix);
 		TDIMain.SetTabsReordering(CurrentUserSettings.Settings.ReorderTabs);
-		
-		var menuCreator = _autofacScope.Resolve<MainMenuBarCreator>();
-		var menu = menuCreator.CreateMenuBar();
-		vboxMain.Add(menu);
-		
+
 		bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
 		if (isWindows)
@@ -93,12 +89,13 @@ public partial class MainWindow : Gtk.Window
 		Title = $"{ApplicationInfo.ProductTitle} v{ApplicationInfo.Version.Major}.{ApplicationInfo.Version.Minor} от {GetDateTimeFGromVersion(ApplicationInfo.Version):dd.MM.yyyy HH:mm}";
 
 		//Настраиваем модули
-		ActionUsers.Sensitive = QSMain.User.Admin;
-		ActionAdministration.Sensitive = QSMain.User.Admin;
+
+		var admin = QSMain.User.Admin;
+		
 		labelUser.LabelProp = QSMain.User.Name;
 		var commonServices = ServicesConfig.CommonServices;
 		var cashier = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.RoleCashier);
-		ActionCash.Sensitive = ActionIncomeBalanceReport.Sensitive = ActionCashBook.Sensitive = cashier;
+		ActionCash.Sensitive = cashier;
 		ActionAccounting.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission("money_manage_bookkeeping");
 		ActionRouteListsAtDay.Sensitive =
 			ActionRouteListTracking.Sensitive =
@@ -107,38 +104,15 @@ public partial class MainWindow : Gtk.Window
 		var currentWarehousePermissions = new CurrentWarehousePermissions();
 		ActionStock.Sensitive = currentWarehousePermissions.WarehousePermissions.Any(x => x.PermissionValue == true);
 
-		bool hasAccessToCRM = commonServices.CurrentPermissionService.ValidatePresetPermission("access_to_crm");
-		bool hasAccessToSalaries = commonServices.CurrentPermissionService.ValidatePresetPermission("access_to_salaries");
-		_hasAccessToSalariesForLogistics =
-			commonServices.CurrentPermissionService.ValidatePresetPermission("access_to_salary_reports_for_logistics");
-		bool hasAccessToWagesAndBonuses = commonServices.CurrentPermissionService.ValidatePresetPermission("access_to_fines_bonuses");
-		ActionEmployeesBonuses.Sensitive = hasAccessToWagesAndBonuses; //Премии сотрудников
-		ActionEmployeeFines.Sensitive = hasAccessToWagesAndBonuses; //Штрафы сотрудников
-		ActionDriverWages.Sensitive = hasAccessToSalaries; //Зарплаты водителей
-		ActionWagesOperations.Sensitive = hasAccessToSalaries || _hasAccessToSalariesForLogistics; //Зарплаты сотрудников
-		ActionForwarderWageReport.Sensitive = hasAccessToSalaries; //Зарплаты экспедиторов
-		ActionDriversWageBalance.Visible = hasAccessToSalaries; //Баланс водителей
-		EmployeesTaxesAction.Sensitive = hasAccessToSalaries; //Налоги сотрудников
+		var hasAccessToCRM = commonServices.CurrentPermissionService.ValidatePresetPermission("access_to_crm");
 		ActionCRM.Sensitive = hasAccessToCRM;
-
-		bool canEditWage = commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_wage");
-		ActionWageDistrict.Sensitive = canEditWage;
-		ActionRates.Sensitive = canEditWage;
-
-		bool canEditWageBySelfSubdivision =
-			commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_wage_by_self_subdivision");
-		ActionSalesPlans.Sensitive = canEditWageBySelfSubdivision;
 
 		ActionFinesJournal.Visible = ActionPremiumJournal.Visible =
 			commonServices.CurrentPermissionService.ValidatePresetPermission("access_to_fines_bonuses");
 		ActionReports.Sensitive = false;
 		//ActionServices.Visible = false;
-		ActionDocTemplates.Visible = QSMain.User.Admin;
-		ActionService.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission("database_maintenance");
+		//ActionService.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission("database_maintenance");
 		ActionEmployeeWorkChart.Sensitive = false;
-
-		//Скрываем справочник стажеров
-		ActionTrainee.Visible = false;
 
 		ActionAddOrder.Sensitive = commonServices.PermissionService.ValidateUserPermission(typeof(Order), QSMain.User.Id)?.CanCreate ?? false;
 		ActionExportImportNomenclatureCatalog.Sensitive =
@@ -159,7 +133,7 @@ public partial class MainWindow : Gtk.Window
 				&& !commonServices.UserService.GetCurrentUser().IsAdmin;
 		}
 
-		menubarMain.Visible = ActionOrders.Visible = ActionServices.Visible = ActionLogistics.Visible = ActionCash.Visible =
+		MainMenuBar.Visible = ActionOrders.Visible = ActionServices.Visible = ActionLogistics.Visible = ActionCash.Visible =
 			ActionAccounting.Visible = ActionReports.Visible = ActionArchive.Visible = ActionStaff.Visible = ActionCRM.Visible =
 				ActionSuppliers.Visible = ActionCashRequest.Visible = ActionRetail.Visible = ActionCarService.Visible =
 					MangoAction.Visible = !_accessOnlyToWarehouseAndComplaints;
@@ -214,76 +188,34 @@ public partial class MainWindow : Gtk.Window
 
 		BanksUpdater.CheckBanksUpdate(false);
 
-		// Блокировка отчетов для торговых представителей
-
-		bool userIsSalesRepresentative;
-
-		using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
-		{
-			userIsSalesRepresentative = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.User.IsSalesRepresentative)
-				&& !commonServices.UserService.GetCurrentUser().IsAdmin;
-		}
-
-		// Основные разделы отчетов
-
-		ActionReportOrders.Visible =
-			ActionReportsStock.Visible =
-			ActionOSKOKKReports.Visible =
-			ActionLogistic.Visible =
-			ActionReportEmployees.Visible =
-			ActionReportsDrivers.Visible =
-			ActionReportService.Visible =
-			ActionBookkeepping.Visible =
-			ActionCashMenubar.Visible = // Касса
-			ActionRetailMenubar.Visible =
-			ActionTransportMenuBar.Visible =
-			ActionProduction.Visible = !userIsSalesRepresentative;// Производство
-
-		// Отчеты в Продажи
-
-		ActionOrderCreationDateReport.Visible =
-			ActionPlanImplementationReport.Visible =
-			ActionSetBillsReport.Visible = !userIsSalesRepresentative;
-
-		// Управление ограничением доступа через зарегистрированные RM
-
-		var userCanManageRegisteredRMs = commonServices.CurrentPermissionService.ValidatePresetPermission("user_can_manage_registered_rms");
-
-		registeredRMAction.Visible = userCanManageRegisteredRMs;
-
 		// Настройки розницы
 
 		var userHaveAccessToRetail = commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_to_retail");
 
 		ActionRetail.Sensitive = userHaveAccessToRetail;
-
 		ActionRetailUndeliveredOrdersJournal.Sensitive = false; // Этот журнал не готов - выключено до реализации фичи
-
-		ActionAdditionalLoadSettings.Sensitive = commonServices.CurrentPermissionService
-			.ValidateEntityPermission(typeof(AdditionalLoadingNomenclatureDistribution)).CanRead;
-
-		//Доступ к константам рентабельности (Справочники - Финансы - Константы рентабельности)
-		ProfitabilityConstantsAction.Sensitive =
-			commonServices.CurrentPermissionService.ValidatePresetPermission("can_read_and_edit_profitability_constants");
-
-		ExternalCounterpartiesMatchingAction.Label = "Сопоставление клиентов из внешних источников";
-		ExternalCounterpartiesMatchingAction.Sensitive =
-			commonServices.CurrentPermissionService.ValidatePresetPermission("can_matching_counterparties_from_external_sources");
 
 		//ActionGroupPricing.Activated += ActionGroupPricingActivated;
 		//ActionProfitabilitySalesReport.Activated += ActionProfitabilitySalesReportActivated;
-
-		Action74.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.CanGenerateCashFlowDdsReport);
-
-		ActionClassificationCalculation.Sensitive = 
-			commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Counterparty.CanCalculateCounterpartyClassifications);
 	}
-	
+
+	private void ConfigureMainMenu()
+	{
+		var menuCreator = _autofacScope.Resolve<MainMenuBarCreator>();
+		MainMenuBar = menuCreator.CreateMenuBar();
+		vboxMain.Add(MainMenuBar);
+
+		var box = (Box.BoxChild)vboxMain[MainMenuBar];
+		box.Position = 0;
+		box.Expand = false;
+	}
+
 	public IApplicationInfo ApplicationInfo { get; }
 	public TdiNotebook TdiMain { get; }
 	public InfoPanel InfoPanel { get; }
 	public Toolbar ToolbarMain { get; }
 	public Toolbar ToolbarComplaints { get; }
+	public MenuBar MainMenuBar { get; private set; }
 	
 	public ITdiCompatibilityNavigation NavigationManager { get; private set; }
 	public MangoManager MangoManager { get; private set; }

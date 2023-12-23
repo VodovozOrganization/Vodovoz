@@ -23,6 +23,16 @@ namespace Vodovoz.MainMenu.ReportsMenu
 	public class CashRegisterDepReportsMenuItemCreator : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
+		private MenuItem _incomeBalanceMenuItem;
+		private MenuItem _driversWagesMenuItem;
+		private MenuItem _driversWageBalanceMenuItem;
+		private MenuItem _forwarderWagesMenuItem;
+		private MenuItem _employeesTaxesMenuItem;
+		private MenuItem _wagesOperationsMenuItem;
+		private MenuItem _salaryRatesMenuItem;
+		private MenuItem _cashBookMenuItem;
+		private MenuItem _cashFlowAnalysisMenuItem;
+		private bool _hasAccessToSalariesForLogistics;
 
 		public CashRegisterDepReportsMenuItemCreator(ConcreteMenuItemCreator concreteMenuItemCreator)
 		{
@@ -35,26 +45,68 @@ namespace Vodovoz.MainMenu.ReportsMenu
 			var cashRegisterDepMenu = new Menu();
 			cashRegisterDepMenuItem.Submenu = cashRegisterDepMenu;
 
-			cashRegisterDepMenu.Add(
-				_concreteMenuItemCreator.CreateMenuItem("По приходу наличных денежных средств", OnIncomeBalanceReportPressed));
-			cashRegisterDepMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Зарплаты водителей", OnDriverWagesPressed));
-			cashRegisterDepMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Баланс водителей", OnDriversWageBalancePressed));
+			_incomeBalanceMenuItem =
+				_concreteMenuItemCreator.CreateMenuItem("По приходу наличных денежных средств", OnIncomeBalanceReportPressed);
+			cashRegisterDepMenu.Add(_incomeBalanceMenuItem);
+			
+			_driversWagesMenuItem = _concreteMenuItemCreator.CreateMenuItem("Зарплаты водителей", OnDriverWagesPressed);
+			cashRegisterDepMenu.Add(_driversWagesMenuItem);
+
+			_driversWageBalanceMenuItem = _concreteMenuItemCreator.CreateMenuItem("Баланс водителей", OnDriversWageBalancePressed);
+			cashRegisterDepMenu.Add(_driversWageBalanceMenuItem);
+			
 			cashRegisterDepMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Отчет по выдаче бензина", OnFuelReportPressed));
-			cashRegisterDepMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Зарплаты экспедиторов", OnForwarderWagesReportPressed));
-			cashRegisterDepMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Зарплаты сотрудников", OnWagesOperationsPressed));
-			cashRegisterDepMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Кассовая книга", OnCashBookReportPressed));
+
+			_forwarderWagesMenuItem = _concreteMenuItemCreator.CreateMenuItem("Зарплаты экспедиторов", OnForwarderWagesReportPressed);
+			cashRegisterDepMenu.Add(_forwarderWagesMenuItem);
+
+			_wagesOperationsMenuItem = _concreteMenuItemCreator.CreateMenuItem("Зарплаты сотрудников", OnWagesOperationsPressed);
+			cashRegisterDepMenu.Add(_wagesOperationsMenuItem);
+
+			_cashBookMenuItem = _concreteMenuItemCreator.CreateMenuItem("Кассовая книга", OnCashBookReportPressed);
+			cashRegisterDepMenu.Add(_cashBookMenuItem);
+			
 			cashRegisterDepMenu.Add(
 				_concreteMenuItemCreator.CreateMenuItem("Дата ЗП у водителей/экспедиторов", OnDayOfSalaryGiveoutReportPressed));
 			cashRegisterDepMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Отчет по перемещениям с производств",
 				OnProductionWarehouseMovementReportPressed));
-			cashRegisterDepMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Ставки", OnSalaryRatesReportPressed));
-			cashRegisterDepMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Налоги сотрудников", OnEmployeesTaxesPressed));
-			cashRegisterDepMenu.Add(_concreteMenuItemCreator.CreateMenuItem(
-				"Анализ движения денежных средств", OnCashFlowAnalysisPressed));
+
+			_salaryRatesMenuItem = _concreteMenuItemCreator.CreateMenuItem("Ставки", OnSalaryRatesReportPressed);
+			cashRegisterDepMenu.Add(_salaryRatesMenuItem);
+
+			_employeesTaxesMenuItem = _concreteMenuItemCreator.CreateMenuItem("Налоги сотрудников", OnEmployeesTaxesPressed);
+			cashRegisterDepMenu.Add(_employeesTaxesMenuItem);
+
+			_cashFlowAnalysisMenuItem =
+				_concreteMenuItemCreator.CreateMenuItem("Анализ движения денежных средств", OnCashFlowAnalysisPressed);
+			cashRegisterDepMenu.Add(_cashFlowAnalysisMenuItem);
+			
 			cashRegisterDepMenu.Add(
 				_concreteMenuItemCreator.CreateMenuItem("Контроль оплаты перемещений", OnMovementsPaymentControlReportPressed));
 
+			Configure();
+			
 			return cashRegisterDepMenuItem;
+		}
+
+		private void Configure()
+		{
+			var permissionService = ServicesConfig.CommonServices.CurrentPermissionService;
+			
+			var hasAccessToSalaries = permissionService.ValidatePresetPermission("access_to_salaries");
+			_hasAccessToSalariesForLogistics = permissionService.ValidatePresetPermission("access_to_salary_reports_for_logistics");
+			var cashier = permissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.RoleCashier);
+
+			_incomeBalanceMenuItem.Sensitive = cashier;
+			_cashBookMenuItem.Sensitive = cashier;
+			_driversWagesMenuItem.Sensitive = hasAccessToSalaries;
+			_wagesOperationsMenuItem.Sensitive = hasAccessToSalaries || _hasAccessToSalariesForLogistics;
+			_forwarderWagesMenuItem.Sensitive = hasAccessToSalaries;
+			_driversWageBalanceMenuItem.Visible = hasAccessToSalaries;
+			_employeesTaxesMenuItem.Sensitive = hasAccessToSalaries;
+			
+			_cashFlowAnalysisMenuItem.Sensitive =
+				permissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.CanGenerateCashFlowDdsReport);
 		}
 
 		/// <summary>
@@ -132,10 +184,8 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		private void OnWagesOperationsPressed(object sender, ButtonPressEventArgs e)
 		{
 			EmployeeFilterViewModel employeeFilter;
-			
-			
 
-			if(false)
+			if(_hasAccessToSalariesForLogistics)
 			{
 				employeeFilter = new EmployeeFilterViewModel(EmployeeCategory.office);
 				employeeFilter.SetAndRefilterAtOnce(

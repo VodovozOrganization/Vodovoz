@@ -1,5 +1,6 @@
 ﻿using System;
 using Gtk;
+using QS.Project.Services;
 
 namespace Vodovoz.MainMenu.ReportsMenu
 {
@@ -19,6 +20,20 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		private readonly ManufacturingReportsMenuItemCreator _manufacturingReportsMenuItemCreator;
 		private readonly RetailReportsMenuItemCreator _retailReportsMenuItemCreator;
 		private readonly TransportReportsMenuItemCreator _transportReportsMenuItemCreator;
+		private readonly bool _userIsSalesRepresentative;
+
+		private MenuItem _orderReportsMenuItem;
+		private MenuItem _warehouseReportsMenuItem;
+		private MenuItem _oskOkkReportsMenuItem;
+		private MenuItem _logisticReportsMenuItem;
+		private MenuItem _employeesReportsMenuItem;
+		private MenuItem _driversReportsMenuItem;
+		private MenuItem _serviceReportsMenuItem;
+		private MenuItem _accountingDepReportsMenuItem;
+		private MenuItem _cashRegisterDepReportsMenuItem;
+		private MenuItem _manufacturingReportsMenuItem;
+		private MenuItem _retailReportsMenuItem;
+		private MenuItem _transportReportsMenuItem;
 
 		public ReportsMenuItemCreator(
 			ConcreteMenuItemCreator concreteMenuItemCreator,
@@ -63,6 +78,11 @@ namespace Vodovoz.MainMenu.ReportsMenu
 				retailReportsMenuItemCreator ?? throw new ArgumentNullException(nameof(retailReportsMenuItemCreator));
 			_transportReportsMenuItemCreator =
 				transportReportsMenuItemCreator ?? throw new ArgumentNullException(nameof(transportReportsMenuItemCreator));
+
+			var commonServices = ServicesConfig.CommonServices;
+			_userIsSalesRepresentative = 
+				commonServices.CurrentPermissionService.ValidatePresetPermission(Permissions.User.IsSalesRepresentative)
+					&& !commonServices.UserService.GetCurrentUser().IsAdmin;
 		}
 
 		public MenuItem Create()
@@ -71,24 +91,66 @@ namespace Vodovoz.MainMenu.ReportsMenu
 			var reportsMenu = new Menu();
 			reportsMenuItem.Submenu = reportsMenu;
 
-			reportsMenu.Add(_orderReportsMenuItemCreator.Create());
-			reportsMenu.Add(_salesReportsMenuItemCreator.Create());
+			_orderReportsMenuItem = _orderReportsMenuItemCreator.Create();
+			reportsMenu.Add(_orderReportsMenuItem);
+			
+			reportsMenu.Add(_salesReportsMenuItemCreator.Create(_userIsSalesRepresentative));
 			reportsMenu.Add(CreateSeparatorMenuItem());
-			reportsMenu.Add(_warehouseReportsMenuItemCreator.Create());
-			reportsMenu.Add(_oskOkkReportsMenuItemCreator.Create());
-			reportsMenu.Add(_logisticReportsMenuItemCreator.Create());
+
+			_warehouseReportsMenuItem = _warehouseReportsMenuItemCreator.Create();
+			reportsMenu.Add(_warehouseReportsMenuItem);
+
+			_oskOkkReportsMenuItem = _oskOkkReportsMenuItemCreator.Create();
+			reportsMenu.Add(_oskOkkReportsMenuItem);
+
+			_logisticReportsMenuItem = _logisticReportsMenuItemCreator.Create();
+			reportsMenu.Add(_logisticReportsMenuItem);
 			reportsMenu.Add(CreateSeparatorMenuItem());
-			reportsMenu.Add(_employeesReportsMenuItemCreator.Create());
-			reportsMenu.Add(_driversReportsMenuItemCreator.Create());
+
+			_employeesReportsMenuItem = _employeesReportsMenuItemCreator.Create();
+			reportsMenu.Add(_employeesReportsMenuItem);
+
+			_driversReportsMenuItem = _driversReportsMenuItemCreator.Create();
+			reportsMenu.Add(_driversReportsMenuItem);
 			reportsMenu.Add(CreateSeparatorMenuItem());
-			reportsMenu.Add(_serviceReportsMenuItemCreator.Create());
-			reportsMenu.Add(_accountingDepReportsMenuItemCreator.Create());
-			reportsMenu.Add(_cashRegisterDepReportsMenuItemCreator.Create());
-			reportsMenu.Add(_manufacturingReportsMenuItemCreator.Create());
-			reportsMenu.Add(_retailReportsMenuItemCreator.Create());
-			reportsMenu.Add(_transportReportsMenuItemCreator.Create());
+
+			_serviceReportsMenuItem = _serviceReportsMenuItemCreator.Create();
+			reportsMenu.Add(_serviceReportsMenuItem);
+
+			_accountingDepReportsMenuItem = _accountingDepReportsMenuItemCreator.Create();
+			reportsMenu.Add(_accountingDepReportsMenuItem);
+
+			_cashRegisterDepReportsMenuItem = _cashRegisterDepReportsMenuItemCreator.Create();
+			reportsMenu.Add(_cashRegisterDepReportsMenuItem);
+
+			_manufacturingReportsMenuItem = _manufacturingReportsMenuItemCreator.Create();
+			reportsMenu.Add(_manufacturingReportsMenuItem);
+
+			_retailReportsMenuItem = _retailReportsMenuItemCreator.Create();
+			reportsMenu.Add(_retailReportsMenuItem);
+
+			_transportReportsMenuItem = _transportReportsMenuItemCreator.Create();
+			reportsMenu.Add(_transportReportsMenuItem);
+
+			Configure();
 
 			return reportsMenuItem;
+		}
+
+		private void Configure()
+		{
+			_orderReportsMenuItem.Visible = !_userIsSalesRepresentative;
+			_warehouseReportsMenuItem.Visible = !_userIsSalesRepresentative;
+			_oskOkkReportsMenuItem.Visible = !_userIsSalesRepresentative;
+			_logisticReportsMenuItem.Visible = !_userIsSalesRepresentative;
+			_employeesReportsMenuItem.Visible = !_userIsSalesRepresentative;
+			_driversReportsMenuItem.Visible = !_userIsSalesRepresentative;
+			_serviceReportsMenuItem.Visible = !_userIsSalesRepresentative;
+			_accountingDepReportsMenuItem.Visible = !_userIsSalesRepresentative;
+			_cashRegisterDepReportsMenuItem.Visible = !_userIsSalesRepresentative;
+			_retailReportsMenuItem.Visible = !_userIsSalesRepresentative;
+			_transportReportsMenuItem.Visible = !_userIsSalesRepresentative;
+			_manufacturingReportsMenuItem.Visible = !_userIsSalesRepresentative;
 		}
 	}
 }
