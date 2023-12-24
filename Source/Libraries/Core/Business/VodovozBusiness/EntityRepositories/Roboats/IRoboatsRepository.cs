@@ -31,5 +31,6 @@ namespace Vodovoz.EntityRepositories.Roboats
 		RoboatsCall GetCall(IUnitOfWork uow, Guid callGuid);
 		RoboAtsCounterpartyName GetCounterpartyName(IUnitOfWork uow, string name);
 		RoboAtsCounterpartyPatronymic GetCounterpartyPatronymic(IUnitOfWork uow, string patronymic);
+		IEnumerable<TodayIntervalOffer> GetTodayIntervalsOffers();
 	}
 }

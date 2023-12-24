@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -60,6 +60,7 @@
     <Compile Include="CommonEnums\AllYesNo.cs" />
     <Compile Include="ConfigureDeletion.cs" />
     <Compile Include="Controllers\IAddressTransferController.cs" />
+    <Compile Include="Controllers\SentMovementsNotificationDetails.cs" />
     <Compile Include="DependencyInjection.cs" />
     <Compile Include="Controllers\DriverWarehouseEventQrDataHandler.cs" />
     <Compile Include="Controllers\IDriverWarehouseEventQrDataHandler.cs" />
@@ -131,6 +132,7 @@
     <Compile Include="Domain\Payments\PaymentsFromCloudPaymentsParser.cs" />
     <Compile Include="Domain\Payments\PaymentsFromTinkoffParser.cs" />
     <Compile Include="Domain\Payments\PaymentState.cs" />
+    <Compile Include="Domain\Roboats\TodayIntervalOffer.cs" />
     <Compile Include="Domain\Sale\DistrictCopyItem.cs" />
     <Compile Include="Domain\StoredEmails\UpdDocumentEmail.cs" />
     <Compile Include="Domain\Subdivisions\SubdivisionType.cs" />
@@ -576,6 +578,7 @@
     <Compile Include="EntityRepositories\Logistic\CachedDistanceRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\CarEventRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\CompletedDriverWarehouseEventRepository.cs" />
+    <Compile Include="EntityRepositories\Logistic\CompletedEventDto.cs" />
     <Compile Include="EntityRepositories\Logistic\DeliveryShiftRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\DriverPosition.cs" />
     <Compile Include="EntityRepositories\Logistic\DriverWarehouseEventRepository.cs" />
@@ -679,6 +682,7 @@
     <Compile Include="Extensions\EnumExtensions.cs" />
     <Compile Include="Extensions\ExpressionExtensions.cs" />
     <Compile Include="Extensions\NomenclatureOnlineParametersExtensions.cs" />
+    <Compile Include="Extensions\OrderItemExtensions.cs" />
     <Compile Include="Factories\CashReceiptFactory.cs" />
     <Compile Include="Factories\CounterpartyContractFactory.cs" />
     <Compile Include="Factories\EmployeeRegistrationFactory.cs" />
