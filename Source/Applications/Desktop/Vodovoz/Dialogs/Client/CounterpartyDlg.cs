@@ -598,12 +598,9 @@ namespace Vodovoz
 
 			specialListCmbWorksThroughOrganization.ItemSelected += (s, e) =>
 			{
-				if(e.SelectedItem is Organization organization)
-				{
-					Entity.OurOrganizationAccountForBills = null;
+				Entity.OurOrganizationAccountForBills = null;
 
-					UpdateOurOrganizationSpecialAccountItemList();
-				}
+				UpdateOurOrganizationSpecialAccountItemList();
 			};
 
 			enumTax.ItemsEnum = typeof(TaxType);
@@ -918,6 +915,11 @@ namespace Vodovoz
 
 		private void UpdateOurOrganizationSpecialAccountItemList()
 		{
+			if(!Entity.UseSpecialDocFields)
+			{
+				Entity.OurOrganizationAccountForBills = null;
+			}
+
 			var organization = Entity.WorksThroughOrganization ?? _vodovozOrganization;
 
 			speciallistcomboboxSpecialAccount.ShowSpecialStateNot = true;
@@ -1859,6 +1861,8 @@ namespace Vodovoz
 		protected void OnYcheckSpecialDocumentsToggled(object sender, EventArgs e)
 		{
 			radioSpecialDocFields.Visible = ycheckSpecialDocuments.Active;
+
+			UpdateOurOrganizationSpecialAccountItemList();
 		}
 
 		private void OnEntryPersonNamePartChanged(object sender, EventArgs e)
