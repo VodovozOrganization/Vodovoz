@@ -16,6 +16,10 @@ namespace Vodovoz.ReportsParameters.Production
 
 		private global::Gamma.Widgets.ySpecComboBox ylistcomboboxYear;
 
+		private global::Gamma.GtkWidgets.yLabel ylabelReportType;
+
+		private global::Gamma.Widgets.yEnumComboBox yenumcomboboxReportType;
+
 		private global::Gtk.VBox vboxParameters;
 
 		private global::Gtk.Button buttonCreateReport;
@@ -79,18 +83,39 @@ namespace Vodovoz.ReportsParameters.Production
 			w4.Position = 4;
 			w4.Expand = false;
 			w4.Fill = false;
-			this.vbox1.Add(this.hbox5);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox5]));
-			w5.Position = 0;
+			// Container child hbox5.Gtk.Box+BoxChild
+			this.ylabelReportType = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelReportType.Name = "ylabelReportType";
+			this.ylabelReportType.LabelProp = global::Mono.Unix.Catalog.GetString("Тип отчета:");
+			this.hbox5.Add(this.ylabelReportType);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.ylabelReportType]));
+			w5.Position = 5;
 			w5.Expand = false;
 			w5.Fill = false;
+			// Container child hbox5.Gtk.Box+BoxChild
+			this.yenumcomboboxReportType = global::Gtk.ComboBox.NewText();
+			this.yenumcomboboxReportType.Name = "yenumcomboboxReportType";
+			this.yenumcomboboxReportType.ShowSpecialStateAll = false;
+			this.yenumcomboboxReportType.ShowSpecialStateNot = false;
+			this.yenumcomboboxReportType.UseShortTitle = false;
+			this.yenumcomboboxReportType.DefaultFirst = false;
+			this.hbox5.Add(this.yenumcomboboxReportType);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.yenumcomboboxReportType]));
+			w6.Position = 6;
+			w6.Expand = false;
+			w6.Fill = false;
+			this.vbox1.Add(this.hbox5);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox5]));
+			w7.Position = 0;
+			w7.Expand = false;
+			w7.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.vboxParameters = new global::Gtk.VBox();
 			this.vboxParameters.Name = "vboxParameters";
 			this.vboxParameters.Spacing = 6;
 			this.vbox1.Add(this.vboxParameters);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.vboxParameters]));
-			w6.Position = 1;
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.vboxParameters]));
+			w8.Position = 1;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.buttonCreateReport = new global::Gtk.Button();
 			this.buttonCreateReport.Sensitive = false;
@@ -99,11 +124,11 @@ namespace Vodovoz.ReportsParameters.Production
 			this.buttonCreateReport.UseUnderline = true;
 			this.buttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vbox1.Add(this.buttonCreateReport);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
-			w7.PackType = ((global::Gtk.PackType)(1));
-			w7.Position = 2;
-			w7.Expand = false;
-			w7.Fill = false;
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
+			w9.PackType = ((global::Gtk.PackType)(1));
+			w9.Position = 2;
+			w9.Expand = false;
+			w9.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
