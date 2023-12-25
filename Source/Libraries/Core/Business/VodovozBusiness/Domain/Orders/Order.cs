@@ -2625,11 +2625,11 @@ namespace Vodovoz.Domain.Orders
 		/// <param name="proSet">Промонабор (промонабор)</param>
 		public virtual bool CanAddPromotionalSet(PromotionalSet proSet, IPromotionalSetRepository promotionalSetRepository)
 		{
-			if(PromotionalSets.Any(x => x.Id == proSet.Id && proSet.PromotionalSetForNewClients))
+			if(PromotionalSets.Any(x => x.PromotionalSetForNewClients && proSet.PromotionalSetForNewClients))
 			{
 				InteractiveService.ShowMessage(
 					ImportanceLevel.Warning,
-					"В заказ нельзя добавить два одинаковых промо-набора для новых клиентов");
+					"В заказ нельзя добавить два промо-набора для новых клиентов");
 				return false;
 			}
 

@@ -21,6 +21,7 @@ namespace Vodovoz.Domain.Orders
 	[EntityPermission]
 	public class PromotionalSet : BusinessObjectBase<PromotionalSet>, IDomainObject, IValidatableObject, INamed, IArchivable
 	{
+		private const int _onlineNameLimit = 45;
 		private string _name;
 		private DateTime _createDate;
 		private bool _isArchive;
@@ -134,6 +135,13 @@ namespace Vodovoz.Domain.Orders
 			{
 				yield return new ValidationResult(
 					"Необходимо выбрать название набора",
+					new[] { nameof(Name) }
+				);
+			}
+			
+			if(!string.IsNullOrEmpty(OnlineName) && OnlineName.Length > _onlineNameLimit)
+			{
+				yield return new ValidationResult($"Название для ИПЗ превышено на {OnlineName.Length - _onlineNameLimit}",
 					new[] { nameof(Name) }
 				);
 			}
