@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace DriverAPI.Library.DTOs
 {
@@ -121,5 +122,10 @@ namespace DriverAPI.Library.DTOs
 		/// Отзвон за
 		/// </summary>
 		public int? CallBeforeArrivalMinutes { get; internal set; }
+
+		/// <summary>
+		/// Ожидание до
+		/// </summary>
+		public TimeSpan? WaitUntilTime { get; set; }
 	}
 }
