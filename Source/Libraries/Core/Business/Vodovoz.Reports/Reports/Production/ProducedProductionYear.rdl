@@ -13,10 +13,11 @@
     <DataSet Name="MainData">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT
+        <CommandText>
+SELECT
 t.warehouse_for_grouping,
 t.nomenclature_name,
-SUM(IF(t.month = MONTH(@month_minus_2_start) AND t.year = YEAR(@month_minus_2_start), t.oper_sum, 0)) AS month_minus_2_sum,
+SUM(IF(t.month = MONTH(@year_minus_1_start) AND t.year = YEAR(@year_minus_1_start), t.oper_sum, 0)) AS year_minus_1_sum,
 SUM(IF(t.month = MONTH(@month_minus_1_start) AND t.year = YEAR(@month_minus_1_start), t.oper_sum, 0)) AS month_minus_1_sum,
 SUM(IF(t.month = MONTH(@month_start) AND t.year = YEAR(@month_start), t.oper_sum, 0)) current_month_sum
 
@@ -34,8 +35,15 @@ FROM nomenclature
     LEFT JOIN store_incoming_water ON store_incoming_water.produce_operation_id = goods_accounting_operations.id
     WHERE
          nomenclature.category = 'water'
-         AND store_incoming_water.time_stamp &gt;= @month_minus_2_start
-         AND store_incoming_water.time_stamp &lt;= DATE_ADD( @month_end, INTERVAL 1 DAY)
+         AND 
+         (
+             (store_incoming_water.time_stamp &gt;= @month_minus_1_start
+             AND store_incoming_water.time_stamp &lt;= DATE_ADD( @month_end, INTERVAL 1 DAY))
+             OR
+             (store_incoming_water.time_stamp &gt;= @year_minus_1_start
+             AND store_incoming_water.time_stamp &lt;= DATE_ADD( @year_minus_1_end, INTERVAL 1 DAY))
+          )
+             
          AND goods_accounting_operations.amount &gt; 0
          AND store_incoming_water.id IS NOT NULL
          AND
@@ -62,11 +70,11 @@ GROUP BY t.nomenclature_name, t.warehouse_for_grouping</CommandText>
           <QueryParameter Name="month_minus_1_end">
             <Value>={?month_minus_1_end}</Value>
           </QueryParameter>
-          <QueryParameter Name="month_minus_2_start">
-            <Value>={?month_minus_2_start}</Value>
+          <QueryParameter Name="year_minus_1_start">
+            <Value>={?year_minus_1_start}</Value>
           </QueryParameter>
-          <QueryParameter Name="month_minus_2_end">
-            <Value>={?month_minus_2_end}</Value>
+          <QueryParameter Name="year_minus_1_end">
+            <Value>={?year_minus_1_end}</Value>
           </QueryParameter>
           <QueryParameter Name="Nomenclature_include">
             <Value>={?Nomenclature_include}</Value>
@@ -91,8 +99,8 @@ GROUP BY t.nomenclature_name, t.warehouse_for_grouping</CommandText>
           <DataField>nomenclature_name</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="month_minus_2_sum">
-          <DataField>month_minus_2_sum</DataField>
+        <Field Name="year_minus_1_sum">
+          <DataField>year_minus_1_sum</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
         <Field Name="month_minus_1_sum">
@@ -178,7 +186,7 @@ GROUP BY t.nomenclature_name, t.warehouse_for_grouping</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox23">
-                      <Value>={?month_name_minus_2} + ', шт'</Value>
+                      <Value>= {?month_name} + ', шт'</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -199,7 +207,7 @@ GROUP BY t.nomenclature_name, t.warehouse_for_grouping</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox27">
-                      <Value>={?month_name_minus_1} + ', шт'</Value>
+                      <Value>={?year_name_minus_1} + ', шт'</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -220,7 +228,7 @@ GROUP BY t.nomenclature_name, t.warehouse_for_grouping</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox31">
-                      <Value>Отклонения от предыдущего месяца, шт</Value>
+                      <Value>Отклонения от предыдущего года, шт</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -241,7 +249,7 @@ GROUP BY t.nomenclature_name, t.warehouse_for_grouping</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox36">
-                      <Value>Отклонения от предыдущего месяца, %</Value>
+                      <Value>Отклонения от предыдущего года, %</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -262,7 +270,7 @@ GROUP BY t.nomenclature_name, t.warehouse_for_grouping</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox38">
-                      <Value>= {?month_name} + ', шт'</Value>
+                      <Value>= {?month_name_minus_1} + ', шт'</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -360,7 +368,7 @@ GROUP BY t.nomenclature_name, t.warehouse_for_grouping</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox25">
-                      <Value>={month_minus_2_sum}</Value>
+                      <Value>={current_month_sum}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -375,6 +383,7 @@ GROUP BY t.nomenclature_name, t.warehouse_for_grouping</CommandText>
                           <Bottom>1pt</Bottom>
                         </BorderWidth>
                         <Format >0.00</Format>
+                        <BackgroundColor >Khaki</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -382,7 +391,7 @@ GROUP BY t.nomenclature_name, t.warehouse_for_grouping</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox29">
-                      <Value>={month_minus_1_sum}</Value>
+                      <Value>={year_minus_1_sum}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -404,7 +413,7 @@ GROUP BY t.nomenclature_name, t.warehouse_for_grouping</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox33">
-                      <Value>={month_minus_1_sum}-{month_minus_2_sum}</Value>
+                      <Value>={current_month_sum} - {year_minus_1_sum}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -426,7 +435,7 @@ GROUP BY t.nomenclature_name, t.warehouse_for_grouping</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox37">
-                      <Value>=({month_minus_1_sum}-{month_minus_2_sum}) * 100 / {month_minus_1_sum}</Value>
+                      <Value>=({current_month_sum} - {year_minus_1_sum}) * 100 / {current_month_sum}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -448,7 +457,7 @@ GROUP BY t.nomenclature_name, t.warehouse_for_grouping</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox42">
-                      <Value>={current_month_sum}</Value>
+                      <Value>={month_minus_1_sum}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -462,7 +471,7 @@ GROUP BY t.nomenclature_name, t.warehouse_for_grouping</CommandText>
                           <Top>1pt</Top>
                           <Bottom>1pt</Bottom>
                         </BorderWidth>
-                        <BackgroundColor>Khaki</BackgroundColor>
+                        <BackgroundColor>White</BackgroundColor>
                         <Format >0.00</Format>
                       </Style>
                     </Textbox>
@@ -471,7 +480,7 @@ GROUP BY t.nomenclature_name, t.warehouse_for_grouping</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox5">
-                      <Value>={current_month_sum}-{month_minus_1_sum}</Value>
+                      <Value>={current_month_sum} - {month_minus_1_sum}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -493,7 +502,7 @@ GROUP BY t.nomenclature_name, t.warehouse_for_grouping</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox7">
-                      <Value>=({current_month_sum}-{month_minus_1_sum}) * 100 / {current_month_sum}</Value>
+                      <Value>=({current_month_sum} - {month_minus_1_sum}) * 100 / {current_month_sum}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -559,6 +568,7 @@ GROUP BY t.nomenclature_name, t.warehouse_for_grouping</CommandText>
                             <BorderStyle>
                               <Default>Solid</Default>
                             </BorderStyle>
+                            <BackgroundColor >PaleGoldenrod</BackgroundColor>
                           </Style>
                           <Value></Value>
                         </Textbox>
@@ -609,7 +619,7 @@ GROUP BY t.nomenclature_name, t.warehouse_for_grouping</CommandText>
                             </BorderStyle>
                             <BorderColor />
                             <BorderWidth />
-                            <BackgroundColor>Khaki</BackgroundColor>
+                            <BackgroundColor>White</BackgroundColor>
                           </Style>
                           <Value></Value>
                         </Textbox>
@@ -895,14 +905,14 @@ GROUP BY t.nomenclature_name, t.warehouse_for_grouping</CommandText>
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
-    <ReportParameter Name="month_minus_2_start">
+    <ReportParameter Name="year_minus_1_start">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
-    <ReportParameter Name="month_minus_2_end">
+    <ReportParameter Name="year_minus_1_end">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
@@ -923,7 +933,7 @@ GROUP BY t.nomenclature_name, t.warehouse_for_grouping</CommandText>
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
-    <ReportParameter Name="month_name_minus_2">
+    <ReportParameter Name="year_name_minus_1">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
