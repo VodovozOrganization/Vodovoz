@@ -119,7 +119,7 @@ namespace Vodovoz
 		private void ConfigureDlg()
 		{
 			createroutelistitemsview1.NavigationManager = Startup.MainWin.NavigationManager;
-			createroutelistitemsview1.Container = this;
+			createroutelistitemsview1.ParentTab = this;
 
 			ynotebook1.ShowTabs = false;
 			radioBtnInformation.Toggled += OnInformationToggled;
