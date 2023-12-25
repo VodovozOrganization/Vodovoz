@@ -153,6 +153,8 @@ namespace Vodovoz.EntityRepositories.Orders
 		IList<OrderItem> GetIsAccountableInTrueMarkOrderItems(IUnitOfWork uow, int orderId);
 		IList<TrueMarkApiDocument> GetOrdersForCancellationInTrueMark(IUnitOfWork uow, DateTime startDate, int organizationId);
 		IList<OrderOnDayNode> GetOrdersOnDay(IUnitOfWork uow, OrderOnDayFilters orderOnDayFilters);
+		IList<OrderWithAllocation> GetOrdersWithAllocationsOnDay(IUnitOfWork uow, IEnumerable<int> orderIds);
+		IList<OrderWithAllocation> GetOrdersWithAllocationsOnDay2(IUnitOfWork uow, int counterpartyId, IEnumerable<int> orderIds);
 	}
 
 	public class ClientEquipmentNode

@@ -111,6 +111,7 @@ using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Mango.Talks;
 using Vodovoz.ViewModels.Permissions;
 using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.ViewModels.Payments;
 using Vodovoz.Views.Mango.Talks;
 using Vodovoz.ViewWidgets;
 using VodovozInfrastructure.Endpoints;
@@ -649,6 +650,7 @@ namespace Vodovoz
 							.AddScoped<SelectPaymentTypeViewModel>()
 							.AddTransient<IReportExporter, ReportExporterAdapter>()
 							.AddScoped<IRouteOptimizer, RouteOptimizer>()
+							.AddScoped<CsvParser>()
 							;
 				});
 	}

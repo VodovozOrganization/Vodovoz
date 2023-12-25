@@ -277,6 +277,38 @@ namespace Vodovoz.EntityRepositories.Payments
 			
 			return payment != null;
 		}
+
+		public IList<PaymentNode> GetPaymentsByNumbers(IUnitOfWork uow, IEnumerable<int> paymentNums, string payerInn)
+		{
+			Counterparty counterpartyAlias = null;
+			PaymentNode resultAlias = null;
+
+			var query = uow.Session.QueryOver<Payment>()
+				.Left.JoinAlias(p => p.Counterparty, () => counterpartyAlias)
+				.WhereRestrictionOn(p => p.PaymentNum).IsInG(paymentNums)
+				.And(p => p.CounterpartyInn == payerInn)
+				.SelectList(list => list
+					.Select(p => p.PaymentNum).WithAlias(() => resultAlias.PaymentNum)
+					.Select(() => counterpartyAlias.Id).WithAlias(() => resultAlias.CounterpartyId)
+					.Select(() => counterpartyAlias.INN).WithAlias(() => resultAlias.CounterpartyInn)
+					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.CounterpartyName)
+					.Select(p => p.IsManuallyCreated).WithAlias(() => resultAlias.IsManuallyCreated)
+					.Select(p => p.Total).WithAlias(() => resultAlias.PaymentSum)
+				)
+				.TransformUsing(Transformers.AliasToBean<PaymentNode>());
+
+			return query.List<PaymentNode>();
+		}
+	}
+
+	public class PaymentNode
+	{
+		public int PaymentNum { get; set; }
+		public decimal PaymentSum { get; set; }
+		public bool IsManuallyCreated { get; set; }
+		public int CounterpartyId { get; set; }
+		public string CounterpartyInn { get; set; }
+		public string CounterpartyName { get; set; }
 	}
 	
 	public class UnallocatedBalancesJournalNode : JournalNodeBase
