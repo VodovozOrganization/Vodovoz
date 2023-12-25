@@ -2019,11 +2019,6 @@ namespace Vodovoz.Domain.Orders
 			UpdateContract();
 		}
 
-		public virtual void SetOrderItemCount(int orderItemId, decimal newCount)
-		{
-			ObservableOrderItems.FirstOrDefault(x => x.Id == orderItemId)?.SetCount(newCount);
-		}
-		
 		public virtual void SetOrderItemCount(OrderItem orderItem, decimal newCount)
 		{
 			orderItem?.SetCount(newCount);

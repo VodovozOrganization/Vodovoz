@@ -4040,7 +4040,7 @@ namespace Vodovoz
 		/// </summary>
 		void ChangeEquipmentsCount(OrderItem orderItem, int newCount)
 		{
-			Entity.SetOrderItemCount(orderItem.Id, newCount);
+			Entity.SetOrderItemCount(orderItem, newCount);
 
 			OrderEquipment orderEquip = Entity.OrderEquipments.FirstOrDefault(x => x.OrderItem == orderItem);
 			if(orderEquip != null) {
