@@ -38,6 +38,11 @@ namespace DriverAPI.Library.DTOs
 		public int EmptyBottlesToReturn { get; set; }
 
 		/// <summary>
+		/// Возвращаемое количество бутылей по акции "бутыль"
+		/// </summary>
+		public int BottlesByStockActualCount { get; set; }
+
+		/// <summary>
 		/// Имя контрагента
 		/// </summary>
 		public string Counterparty { get; set; }
