@@ -52,6 +52,7 @@ namespace Vodovoz
 		private IRouteListProfitabilityController _routeListProfitabilityController;
 		private IWageParameterService _wageParameterService;
 		private IGeneralSettingsParametersProvider _generalSettingsParametersProvider;
+		private readonly bool _isOrderWaitUntilActive;
 
 		//2 уровня доступа к виджетам, для всех и для логистов.
 		private readonly bool _allEditing;
@@ -72,6 +73,8 @@ namespace Vodovoz
 			_allEditing = Entity.Status == RouteListStatus.EnRoute && permissionResult.CanUpdate;
 			_isUserLogist = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
 			_logisticanEditing = _isUserLogist && _allEditing;
+
+			_isOrderWaitUntilActive = _generalSettingsParametersProvider.GetIsOrderWaitUntilActive;
 
 			ConfigureDlg();
 		}
@@ -209,7 +212,7 @@ namespace Vodovoz
 					.AddTextRenderer(node => node.RouteListItem.Order.DeliveryPoint == null ? "Требуется точка доставки" : node.RouteListItem.Order.DeliveryPoint.ShortAddress)
 				.AddColumn("Ожидает до")
 					.AddTimeRenderer(node => node.WaitUntil)
-					.AddSetter((c, n) => c.Editable = _generalSettingsParametersProvider.GetIsOrderWaitUntilActive && n.RouteListItem.Order.OrderStatus == Domain.Orders.OrderStatus.OnTheWay)
+					.AddSetter((c, n) => c.Editable = _isOrderWaitUntilActive && n.RouteListItem.Order.OrderStatus == Domain.Orders.OrderStatus.OnTheWay)
 					.WidthChars(5)
 				.AddColumn("Время")
 					.AddTextRenderer(node => node.RouteListItem.Order.DeliverySchedule == null ? "" : node.RouteListItem.Order.DeliverySchedule.Name)
