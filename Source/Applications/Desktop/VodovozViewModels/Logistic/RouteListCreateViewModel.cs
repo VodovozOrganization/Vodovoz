@@ -372,7 +372,6 @@ namespace Vodovoz.ViewModels.Logistic
 				OnPropertyChanged(nameof(CanRevertToNew));
 				OnPropertyChanged(nameof(CanChangeFixedPrice));
 				OnPropertyChanged(nameof(CanChangeIsFixPrice));
-				OnPropertyChanged(nameof(CanRemoveAdditionalLoad));
 			}
 		}
 
