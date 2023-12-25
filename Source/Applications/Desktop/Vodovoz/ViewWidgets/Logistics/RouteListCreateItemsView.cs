@@ -10,6 +10,7 @@ using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
 using QS.Tdi;
+using QS.ViewModels.Dialog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -51,8 +52,8 @@ namespace Vodovoz
 		private IUnitOfWorkGeneric<RouteList> _routeListUoW;
 		private IList<RouteColumn> ColumnsInfo => _columnsInfo ?? _routeColumnRepository.ActiveColumns(RouteListUoW);
 
-		public ITdiTab ParentTab { get; set; }
-		public ITdiCompatibilityNavigation NavigationManager { get; set; }
+		public DialogViewModelBase ParentViewModel { get; set; }
+		public INavigationManager NavigationManager { get; set; }
 
 		public IUnitOfWorkGeneric<RouteList> RouteListUoW
 		{
@@ -340,8 +341,8 @@ namespace Vodovoz
 		{
 			var geoGrpIds = RouteListUoW.Root.GeographicGroups.Select(x => x.Id).ToArray();
 
-			var page = NavigationManager.OpenViewModelOnTdi<OrderForRouteListJournalViewModel, Action<OrderJournalFilterViewModel>>(
-				ParentTab,
+			var page = NavigationManager.OpenViewModel<OrderForRouteListJournalViewModel, Action<OrderJournalFilterViewModel>>(
+				ParentViewModel,
 				filter =>
 				{
 					filter.ExceptIds = RouteListUoW.Root.Addresses.Select(address => address.Order.Id).ToArray();
@@ -373,8 +374,7 @@ namespace Vodovoz
 					}
 				},
 				OpenPageOptions.AsSlave,
-				vm => vm.SelectionMode = JournalSelectionMode.Multiple
-				);
+				vm => vm.SelectionMode = JournalSelectionMode.Multiple);
 
 			//Selected Callback
 			page.ViewModel.OnEntitySelectedResult += (sender, ea) =>

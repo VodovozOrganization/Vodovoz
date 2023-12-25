@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
@@ -32,8 +32,8 @@ namespace Vodovoz.Logistic
 		{
 			ViewModel.DisableItemsUpdateDelegate = DisableItemsUpdate;
 
-			createroutelistitemsview1.NavigationManager = ViewModel.NavigationManager as ITdiCompatibilityNavigation;
-			createroutelistitemsview1.Container = Tab;
+			createroutelistitemsview1.NavigationManager = ViewModel.NavigationManager;
+			createroutelistitemsview1.ParentViewModel = ViewModel;
 
 			ynotebook1.ShowTabs = false;
 			radioBtnInformation.Toggled += OnInformationToggled;
