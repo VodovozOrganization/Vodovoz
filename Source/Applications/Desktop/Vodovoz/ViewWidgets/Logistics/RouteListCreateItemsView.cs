@@ -50,7 +50,7 @@ namespace Vodovoz
 
 		private IList<RouteColumn> ColumnsInfo => _columnsInfo ?? _routeColumnRepository.ActiveColumns(RouteListUoW);
 
-		public ITdiTab Container { get; set; }
+		public ITdiTab ParentTab { get; set; }
 		public ITdiCompatibilityNavigation NavigationManager { get; set; }
 
 		private IUnitOfWorkGeneric<RouteList> routeListUoW;
@@ -318,38 +318,41 @@ namespace Vodovoz
 		{
 			var geoGrpIds = RouteListUoW.Root.GeographicGroups.Select(x => x.Id).ToArray();
 
-			var page = NavigationManager.OpenViewModelOnTdi<OrderForRouteListJournalViewModel, Action<OrderJournalFilterViewModel>>(Container, filter =>
-			{
-				filter.ExceptIds = RouteListUoW.Root.Addresses.Select(address => address.Order.Id).ToArray();
-				filter.RestrictStartDate = RouteListUoW.Root.Date.Date;
-				filter.RestrictEndDate = RouteListUoW.Root.Date.Date;
-				filter.RestrictFilterDateType = OrdersDateFilterType.DeliveryDate;
-				filter.RestrictStatus = OrderStatus.Accepted;
-				filter.RestrictWithoutSelfDelivery = true;
-				filter.RestrictOnlySelfDelivery = false;
-				filter.RestrictHideService = true;
-				filter.ExcludeClosingDocumentDeliverySchedule = true;
-
-				if(geoGrpIds.Any())
+			var page = NavigationManager.OpenViewModelOnTdi<OrderForRouteListJournalViewModel, Action<OrderJournalFilterViewModel>>(
+				ParentTab,
+				filter =>
 				{
-					GeoGroup geographicGroupAlias = null;
-					var districtIds = RouteListUoW.Session.QueryOver<District>()
-						.Left.JoinAlias(d => d.GeographicGroup, () => geographicGroupAlias)
-						.Where(() => geographicGroupAlias.Id.IsIn(geoGrpIds))
-						.Select
-						  (
-							  Projections.Distinct(
-							  Projections.Property<District>(x => x.Id)
-						  )
-						)
-						.List<int>()
-						.ToArray();
+					filter.ExceptIds = RouteListUoW.Root.Addresses.Select(address => address.Order.Id).ToArray();
+					filter.RestrictStartDate = RouteListUoW.Root.Date.Date;
+					filter.RestrictEndDate = RouteListUoW.Root.Date.Date;
+					filter.RestrictFilterDateType = OrdersDateFilterType.DeliveryDate;
+					filter.RestrictStatus = OrderStatus.Accepted;
+					filter.RestrictWithoutSelfDelivery = true;
+					filter.RestrictOnlySelfDelivery = false;
+					filter.RestrictHideService = true;
+					filter.ExcludeClosingDocumentDeliverySchedule = true;
 
-					filter.IncludeDistrictsIds = districtIds;
-				}
-			});
+					if(geoGrpIds.Any())
+					{
+						GeoGroup geographicGroupAlias = null;
+						var districtIds = RouteListUoW.Session.QueryOver<District>()
+							.Left.JoinAlias(d => d.GeographicGroup, () => geographicGroupAlias)
+							.Where(() => geographicGroupAlias.Id.IsIn(geoGrpIds))
+							.Select
+							  (
+								  Projections.Distinct(
+								  Projections.Property<District>(x => x.Id)
+							  )
+							)
+							.List<int>()
+							.ToArray();
 
-			page.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
+						filter.IncludeDistrictsIds = districtIds;
+					}
+				},
+				OpenPageOptions.AsSlave,
+				vm => vm.SelectionMode = JournalSelectionMode.Multiple
+				);
 
 			//Selected Callback
 			page.ViewModel.OnEntitySelectedResult += (sender, ea) =>
