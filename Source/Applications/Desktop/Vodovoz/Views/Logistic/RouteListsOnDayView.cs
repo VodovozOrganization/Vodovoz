@@ -302,6 +302,7 @@ namespace Vodovoz.Views.Logistic
 			chkExcludeTrukcs.Binding
 				.AddBinding(ViewModel, vm => vm.ExcludeTrucks, w => w.Active)
 				.InitializeFromSource();
+			chkExcludeTrukcs.Toggled += (sender, args) => FillFullOrdersInfo();
 		}
 
 		private void GmapWidget_ButtonReleaseEvent(object o, ButtonReleaseEventArgs args)
