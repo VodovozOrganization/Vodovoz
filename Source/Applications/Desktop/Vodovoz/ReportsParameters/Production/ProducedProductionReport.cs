@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using NHibernate.Linq;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
@@ -45,8 +45,10 @@ namespace Vodovoz.ReportsParameters.Production
             ylistcomboboxYear.ItemsList = Enumerable.Range(DateTime.Now.AddYears(-10).Year, 21).Reverse();
             ylistcomboboxYear.SelectedItem = DateTime.Today.Year;
 
-			_filterViewModel = CreateReportIncludeExcludeFilter(UoW);
+			yenumcomboboxReportType.ItemsEnum = typeof(ProducedProductionReportMode);
+			yenumcomboboxReportType.SelectedItem = ProducedProductionReportMode.Month;
 
+			_filterViewModel = CreateReportIncludeExcludeFilter(UoW);
 			var filterView = new IncludeExludeFiltersView(_filterViewModel);
 			vboxParameters.Add(filterView);
 			filterView.Show();
@@ -198,7 +200,9 @@ namespace Vodovoz.ReportsParameters.Production
 
             var identifier = string.Empty;
 
-            if(IsForYearMode)
+			var reportMode = (ProducedProductionReportMode)yenumcomboboxReportType.SelectedItem;
+
+			if(reportMode == ProducedProductionReportMode.Year)
             {
                 identifier = "Production.ProducedProductionYear";
                 parameters.Add("year_name_minus_1", strYearNameMinus1);
@@ -219,8 +223,6 @@ namespace Vodovoz.ReportsParameters.Production
                 Parameters = parameters
             };
 		}
-
-        public bool IsForYearMode { get; } = true;
 
 		void OnUpdate(bool hide = false) => LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
 

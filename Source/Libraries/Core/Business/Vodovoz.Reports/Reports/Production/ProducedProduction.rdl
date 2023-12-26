@@ -861,7 +861,7 @@ GROUP BY t.nomenclature_name, t.warehouse_for_grouping</CommandText>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySqlConnector</DataProvider>
-        <ConnectString>database=Vodovoz_master_test;user=qa;password=D2s7gx,22;port=3306;server=sql.vod.qsolution.ru</ConnectString>
+        <ConnectString>database=Vodovoz;user=qa;password=123;port=3306;server=vod.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
