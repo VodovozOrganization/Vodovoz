@@ -6,8 +6,10 @@ namespace Vodovoz
 	{
 		public enum AddOrderEnum
 		{
-			[Display(Name = "Выбрать заказы...")] AddOrders,
-			[Display(Name = "Все заказы для логистического района")] AddAllForRegion
+			[Display(Name = "Выбрать заказы...")]
+			AddOrders,
+			[Display(Name = "Все заказы для логистического района")]
+			AddAllForRegion
 		}
 	}
 }
