@@ -1356,6 +1356,7 @@ namespace Vodovoz.EntityRepositories.Orders
 					.SelectGroup(o => o.Id).WithAlias(() => resultAlias.OrderId)
 					.Select(o => o.DeliveryDate).WithAlias(() => resultAlias.OrderDeliveryDate)
 					.Select(o => o.OrderStatus).WithAlias(() => resultAlias.OrderStatus)
+					.Select(o => o.OrderPaymentStatus).WithAlias(() => resultAlias.OrderPaymentStatus)
 					.Select(OrderProjections.GetOrderSumProjection()).WithAlias(() => resultAlias.OrderSum)
 					.SelectSubQuery(allocated).WithAlias(() => resultAlias.OrderAllocation)
 				)
@@ -1386,6 +1387,7 @@ namespace Vodovoz.EntityRepositories.Orders
 					.SelectGroup(o => o.Id).WithAlias(() => resultAlias.OrderId)
 					.Select(o => o.DeliveryDate).WithAlias(() => resultAlias.OrderDeliveryDate)
 					.Select(o => o.OrderStatus).WithAlias(() => resultAlias.OrderStatus)
+					.Select(o => o.OrderPaymentStatus).WithAlias(() => resultAlias.OrderPaymentStatus)
 					.Select(OrderProjections.GetOrderSumProjection()).WithAlias(() => resultAlias.OrderSum)
 					.SelectSubQuery(allocated).WithAlias(() => resultAlias.OrderAllocation)
 					.Select(() => true).WithAlias(() => resultAlias.IsMissingFromDocument)
@@ -1400,6 +1402,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			public int OrderId { get; set; }
 			public DateTime OrderDeliveryDate { get; set; }
 			public OrderStatus OrderStatus { get; set; }
+			public OrderPaymentStatus? OrderPaymentStatus { get; set; }
 			public decimal OrderSum { get; set; }
 			public decimal OrderAllocation { get; set; }
 			public bool IsMissingFromDocument { get; set; }

@@ -289,10 +289,12 @@ namespace Vodovoz.EntityRepositories.Payments
 				.And(p => p.CounterpartyInn == payerInn)
 				.SelectList(list => list
 					.Select(p => p.PaymentNum).WithAlias(() => resultAlias.PaymentNum)
+					.Select(p => p.Date).WithAlias(() => resultAlias.PaymentDate)
 					.Select(() => counterpartyAlias.Id).WithAlias(() => resultAlias.CounterpartyId)
 					.Select(() => counterpartyAlias.INN).WithAlias(() => resultAlias.CounterpartyInn)
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.CounterpartyName)
 					.Select(p => p.IsManuallyCreated).WithAlias(() => resultAlias.IsManuallyCreated)
+					.Select(p => p.PaymentPurpose).WithAlias(() => resultAlias.PaymentPurpose)
 					.Select(p => p.Total).WithAlias(() => resultAlias.PaymentSum)
 				)
 				.TransformUsing(Transformers.AliasToBean<PaymentNode>());
@@ -304,11 +306,13 @@ namespace Vodovoz.EntityRepositories.Payments
 	public class PaymentNode
 	{
 		public int PaymentNum { get; set; }
+		public DateTime PaymentDate { get; set; }
 		public decimal PaymentSum { get; set; }
 		public bool IsManuallyCreated { get; set; }
 		public int CounterpartyId { get; set; }
 		public string CounterpartyInn { get; set; }
 		public string CounterpartyName { get; set; }
+		public string PaymentPurpose { get; set; }
 	}
 	
 	public class UnallocatedBalancesJournalNode : JournalNodeBase

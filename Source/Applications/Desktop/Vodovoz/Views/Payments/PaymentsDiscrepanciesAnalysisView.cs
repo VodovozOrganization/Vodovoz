@@ -26,11 +26,11 @@ namespace Vodovoz.Views.Payments
 		{
 			btnReadFile.Clicked += (sender, args) => ViewModel.ParseCommand.Execute();
 
-			GenerateButtons();
-
 			btnReadFile.Binding
 				.AddBinding(ViewModel, vm => vm.CanReadFile, w => w.Sensitive)
 				.InitializeFromSource();
+
+			GenerateButtons();
 
 			ConfigureFileChooser();
 			ConfigureClientsWidget();
@@ -51,13 +51,21 @@ namespace Vodovoz.Views.Payments
 		private void GenerateButtons()
 		{
 			var getClientsBtn = new yButton();
-			getClientsBtn.Label = "Подобрать клиентов по имени из файла";
+			getClientsBtn.Label = "Подобрать клиентов по ИНН из файла";
 			getClientsBtn.Clicked += (sender, args) => ViewModel.GetClientsCommand.Execute();
+			getClientsBtn.Binding
+				.AddBinding(ViewModel, vm => vm.CanGetClient, w => w.Sensitive)
+				.InitializeFromSource();
+			
 			getClientsBtn.Show();
 			
 			var processingDataBtn = new yButton();
-			processingDataBtn.Label = "Обработать полученные данные из файла";
+			processingDataBtn.Label = "Обработать полученные данные по выбранному клиенту";
 			processingDataBtn.Clicked += (sender, args) => ViewModel.ProcessingDataCommand.Execute();
+			processingDataBtn.Binding
+				.AddFuncBinding(ViewModel, vm => vm.SelectedClient != null, w => w.Sensitive)
+				.InitializeFromSource();
+			
 			processingDataBtn.Show();
 			
 			hboxFileManagment.Add(getClientsBtn);
@@ -120,6 +128,10 @@ namespace Vodovoz.Views.Payments
 						})
 				.AddColumn("Распределенная сумма")
 					.AddNumericRenderer(n => n.AllocatedSum)
+				.AddColumn("Статус оплаты заказа")
+					.AddTextRenderer(n => n.OrderPaymentStatus.HasValue
+						? n.OrderPaymentStatus.GetEnumTitle()
+						: string.Empty)
 				/*.RowCells()
 				.AddSetter<CellRenderer>((c, n) =>
 				{
@@ -158,6 +170,8 @@ namespace Vodovoz.Views.Payments
 							spin.ForegroundGdk = GdkColors.DangerText;
 						}
 					})
+				.AddColumn("Назначение платежа")
+					.AddTextRenderer(n => n.PaymentPurpose)
 				.AddColumn("")
 				.Finish();
 			

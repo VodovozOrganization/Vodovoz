@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.ViewModels.Dialog;
 using QS.Navigation;
@@ -25,10 +26,12 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		private readonly IOrderRepository _orderRepository;
 		private readonly IPaymentsRepository _paymentsRepository;
 		private readonly ICounterpartyRepository _counterpartyRepository;
+		private readonly IInteractiveService _interactiveService;
 		private string _selectedFileName;
 		
 		private IDictionary<int, OrderDiscrepanciesNode> _orderDiscrepanciesNodes = new Dictionary<int, OrderDiscrepanciesNode>();
-		private IDictionary<int, PaymentDiscrepanciesNode> _paymentDiscrepanciesNodes = new Dictionary<int, PaymentDiscrepanciesNode>();
+		private IDictionary<(int PaymentNum, DateTime Date), PaymentDiscrepanciesNode> _paymentDiscrepanciesNodes =
+			new Dictionary<(int PaymentNum, DateTime Date), PaymentDiscrepanciesNode>();
 		private Domain.Client.Counterparty _selectedClient;
 
 		public PaymentsDiscrepanciesAnalysisViewModel(
@@ -38,6 +41,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			IOrderRepository orderRepository,
 			IPaymentsRepository paymentsRepository,
 			ICounterpartyRepository counterpartyRepository,
+			IInteractiveService interactiveService,
 			INavigationManager navigationManager) : base(navigationManager)
 		{
 			_unitOfWork = (unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory))).CreateWithoutRoot();
@@ -46,7 +50,9 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
 			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 
+			Title = "Поиск расхождений в оплатах клиента";
 			CreateCommands();
 		}
 
@@ -64,6 +70,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				{
 					_csvParser.Parse(SelectedFileName, _orderDiscrepanciesNodes, _paymentDiscrepanciesNodes);
 					_logger.LogInformation("Распарсили файл");
+					OnPropertyChanged(nameof(CanGetClient));
 				}
 			);
 		}
@@ -98,6 +105,10 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				{
 					if(SelectedClient is null)
 					{
+						_interactiveService.ShowMessage(
+							ImportanceLevel.Info,
+							"Не выбран клиент, по которому нужно провести обработку данных");
+						
 						return;
 					}
 					
@@ -138,6 +149,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 					node.AllocatedSum = allocation.OrderAllocation;
 					node.OrderDeliveryDate = allocation.OrderDeliveryDate;
 					node.OrderStatus = allocation.OrderStatus;
+					node.OrderPaymentStatus = allocation.OrderPaymentStatus;
 					node.IsMissingFromDocument = allocation.IsMissingFromDocument;
 				}
 				else
@@ -151,6 +163,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 							ProgramOrderSum = allocation.OrderSum,
 							OrderDeliveryDate = allocation.OrderDeliveryDate,
 							OrderStatus = allocation.OrderStatus,
+							OrderPaymentStatus = allocation.OrderPaymentStatus,
 							IsMissingFromDocument = allocation.IsMissingFromDocument
 						});
 				}
@@ -171,26 +184,29 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			_logger.LogInformation("Сопоставляем данные по платежам");
 			foreach(var paymentNode in paymentNodes)
 			{
-				if(_paymentDiscrepanciesNodes.TryGetValue(paymentNode.PaymentNum, out var node))
+				if(_paymentDiscrepanciesNodes.TryGetValue((paymentNode.PaymentNum, paymentNode.PaymentDate), out var node))
 				{
 					node.ProgramPaymentSum = paymentNode.PaymentSum;
 					node.IsManuallyCreated = paymentNode.IsManuallyCreated;
 					node.CounterpartyId = paymentNode.CounterpartyId;
 					node.CounterpartyName = paymentNode.CounterpartyName;
 					node.CounterpartyInn = paymentNode.CounterpartyInn;
+					node.PaymentPurpose = paymentNode.PaymentPurpose;
 				}
 				else
 				{
 					_paymentDiscrepanciesNodes.Add(
-						paymentNode.PaymentNum,
+						(paymentNode.PaymentNum, paymentNode.PaymentDate),
 						new PaymentDiscrepanciesNode
 						{
 							PaymentNum = paymentNode.PaymentNum,
+							PaymentDate = paymentNode.PaymentDate,
 							ProgramPaymentSum = paymentNode.PaymentSum,
 							IsManuallyCreated = paymentNode.IsManuallyCreated,
 							CounterpartyId = paymentNode.CounterpartyId,
 							CounterpartyName = paymentNode.CounterpartyName,
-							CounterpartyInn = paymentNode.CounterpartyInn
+							CounterpartyInn = paymentNode.CounterpartyInn,
+							PaymentPurpose = paymentNode.PaymentPurpose
 						});
 				}
 			}
@@ -221,6 +237,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		}
 
 		public bool CanReadFile => !string.IsNullOrWhiteSpace(_selectedFileName);
+		public bool CanGetClient => !string.IsNullOrWhiteSpace(_csvParser.ClientInn);
 
 		public Domain.Client.Counterparty SelectedClient
 		{
@@ -241,7 +258,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		public void Parse(
 			string fileName,
 			IDictionary<int, OrderDiscrepanciesNode> orderDiscrepanciesNodes,
-			IDictionary<int, PaymentDiscrepanciesNode> paymentDiscrepanciesNodes)
+			IDictionary<(int PaymentNum, DateTime Date), PaymentDiscrepanciesNode> paymentDiscrepanciesNodes)
 		{
 			OrderIds.Clear();
 			orderDiscrepanciesNodes.Clear();
@@ -303,7 +320,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			OrderIds.Add(node.OrderId);
 		}
 		
-		private void CreatePaymentNode(string[] data, IDictionary<int, PaymentDiscrepanciesNode> paymentDiscrepanciesNodes)
+		private void CreatePaymentNode(string[] data, IDictionary<(int PaymentNum, DateTime Date), PaymentDiscrepanciesNode> paymentDiscrepanciesNodes)
 		{
 			var node = new PaymentDiscrepanciesNode
 			{
@@ -312,7 +329,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				DocumentPaymentSum = decimal.Parse(data[6])
 			};
 
-			paymentDiscrepanciesNodes.Add(node.PaymentNum, node);
+			paymentDiscrepanciesNodes.Add((node.PaymentNum, node.PaymentDate), node);
 			PaymentNums.Add(node.PaymentNum);
 		}
 
@@ -340,6 +357,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		public int OrderId { get; set; }
 		public DateTime? OrderDeliveryDate { get; set; }
 		public OrderStatus? OrderStatus { get; set; }
+		public OrderPaymentStatus? OrderPaymentStatus { get; set; }
 		public decimal DocumentOrderSum { get; set; }
 		public decimal ProgramOrderSum { get; set; }
 		public decimal AllocatedSum { get; set; }
@@ -357,5 +375,6 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		public string CounterpartyName { get; set; }
 		public string CounterpartyInn { get; set; }
 		public bool IsManuallyCreated { get; set; }
+		public string PaymentPurpose { get; set; }
 	}
 }
