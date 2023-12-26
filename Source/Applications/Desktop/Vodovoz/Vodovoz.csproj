@@ -611,7 +611,6 @@
     <Compile Include="gtk-gui\Vodovoz.ProxyDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentFilter.cs" />
-    <Compile Include="ReportsParameters\Production\ProducedProductionReport.ProducedProductionReportMode.cs" />
     <Compile Include="ReportsParameters\Sales\ProfitabilitySalesReportView.cs" />
     <Compile Include="Representations\ProductGroups\INameNode.cs" />
     <Compile Include="Representations\ProductGroups\NomenclatureGroupNode.cs" />
@@ -1540,8 +1539,8 @@
     <Compile Include="ReportsParameters\ChainStoreDelay.cs" />
     <Compile Include="ReportsParameters\Logistic\DriverRoutesListRegisterReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.DriverRoutesListRegisterReport.cs" />
-    <Compile Include="ReportsParameters\Production\ProducedProductionReport.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Production.ProducedProductionReport.cs" />
+    <Compile Include="Views\ReportsParameters\Production\ProducedProductionReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.ReportsParameters.Production.ProducedProductionReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Cash.IncomeCategoryView.cs" />
     <Compile Include="Filters\GtkViews\ExpenseCategoryJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ExpenseCategoryJournalFilterView.cs" />
