@@ -16,6 +16,7 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Район доставки").AddTextRenderer(node => node.IsSelfDelivery ? "-" : node.DistrictName)
 				.AddColumn("Адрес").AddTextRenderer(node => node.Address)
 				.AddColumn("Время").AddTextRenderer(node => node.IsSelfDelivery ? "-" : node.DeliveryTime)
+				.AddColumn("Ожидает до").AddTimeRenderer(node => node.WaitUntilTime)
 				.AddColumn("Статус").AddTextRenderer(node => node.StatusEnum.GetEnumTitle())
 				.AddColumn("Бутыли").AddTextRenderer(node => $"{node.BottleAmount:N0}")
 				.AddColumn("Кол-во с/о").AddTextRenderer(node => $"{node.SanitisationAmount:N0}")

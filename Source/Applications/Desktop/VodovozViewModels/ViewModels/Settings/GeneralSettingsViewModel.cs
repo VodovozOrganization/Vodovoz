@@ -1,4 +1,4 @@
-using NHibernate.Driver;
+﻿using NHibernate.Driver;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -35,6 +35,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private readonly bool _canActivateClientsSecondOrderDiscount;
 		private bool _isClientsSecondOrderDiscountActive;
 
+		private bool _isOrderWaitUntilActive;
+
 		public GeneralSettingsViewModel(
 			IGeneralSettingsParametersProvider generalSettingsParametersProvider,
 			ICommonServices commonServices,
@@ -69,7 +71,11 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			_canActivateClientsSecondOrderDiscount = 
 				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Order.CanActivateClientsSecondOrderDiscount);
 			_isClientsSecondOrderDiscountActive = _generalSettingsParametersProvider.GetIsClientsSecondOrderDiscountActive;
-	}
+			
+			_isOrderWaitUntilActive = _generalSettingsParametersProvider.GetIsOrderWaitUntilActive;
+			CanEditOrderWaitUntilSetting = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Order.CanEditOrderWaitUntil);
+			SaveOrderWaitUntilActiveCommand = new DelegateCommand(SaveIsEditOrderWaitUntilActive, () => CanEditOrderWaitUntilSetting);
+		}
 
 		#region RouteListPrintedFormPhones
 
@@ -236,6 +242,25 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private void SaveSecondOrderDiscountAvailability()
 		{
 			_generalSettingsParametersProvider.UpdateIsClientsSecondOrderDiscountActive(IsClientsSecondOrderDiscountActive);
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
+		}
+
+		#endregion
+
+		#region OrderWaitUntil
+
+		public bool IsOrderWaitUntilActive
+		{
+			get => _isOrderWaitUntilActive;
+			set => SetField(ref _isOrderWaitUntilActive, value);
+		}
+
+		public DelegateCommand SaveOrderWaitUntilActiveCommand { get; }
+		public bool CanEditOrderWaitUntilSetting { get; }
+
+		private void SaveIsEditOrderWaitUntilActive()
+		{
+			_generalSettingsParametersProvider.UpdateIsOrderWaitUntilActive(IsOrderWaitUntilActive);
 			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
 		}
 

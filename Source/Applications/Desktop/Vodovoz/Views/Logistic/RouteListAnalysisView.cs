@@ -104,6 +104,8 @@ namespace Vodovoz.Views.Logistic
 					.AddTextRenderer(n => n.Order.DeliveryPoint == null ? "Требуется точка доставки" : n.Order.DeliveryPoint.ShortAddress)
 				.AddColumn("Время")
 					.AddTextRenderer(n => n.Order.DeliverySchedule == null ? "" : n.Order.DeliverySchedule.Name)
+				.AddColumn("Ожидает до")
+					.AddTimeRenderer(n => n.Order.WaitUntilTime)
 				.AddColumn("Статус")
 					.AddPixbufRenderer(x => statusIcons[x.Status])
 					.AddEnumRenderer(n => n.Status, excludeItems: new Enum[] { RouteListItemStatus.Transfered })
