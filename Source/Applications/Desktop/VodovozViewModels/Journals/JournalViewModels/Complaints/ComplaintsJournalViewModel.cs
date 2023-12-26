@@ -35,6 +35,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 using Vodovoz.ViewModels.ViewModels.Reports.ComplaintsJournalReport;
 using static Vodovoz.FilterViewModels.ComplaintFilterViewModel;
 using Order = Vodovoz.Domain.Orders.Order;
+using Vodovoz.ViewModels.Logistic;
 
 namespace Vodovoz.Journals.JournalViewModels
 {
@@ -784,7 +785,7 @@ namespace Vodovoz.Journals.JournalViewModels
 					"Открыть маршрутный лист",
 					HasRouteList,
 					n => true,
-					n => _gtkDlgOpener.OpenRouteListCreateDlgFromViewModelByNavigator(this, GetRouteList(n).Id)
+					n => NavigationManager.OpenViewModel<RouteListCreateViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(GetRouteList(n).Id))
 				)
 			);
 

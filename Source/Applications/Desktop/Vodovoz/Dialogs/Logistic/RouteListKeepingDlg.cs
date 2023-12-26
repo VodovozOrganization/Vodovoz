@@ -71,7 +71,7 @@ namespace Vodovoz
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(id);
 			TabName = $"Ведение МЛ №{Entity.Id}";
 			_allEditing = Entity.Status == RouteListStatus.EnRoute && permissionResult.CanUpdate;
-			_isUserLogist = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
+			_isUserLogist = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Permissions.Logistic.IsLogistician);
 			_logisticanEditing = _isUserLogist && _allEditing;
 
 			_isOrderWaitUntilActive = _generalSettingsParametersProvider.GetIsOrderWaitUntilActive;

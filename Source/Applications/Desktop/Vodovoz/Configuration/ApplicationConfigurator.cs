@@ -19,7 +19,6 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Vodovoz.Cash.Transfer;
-using Vodovoz.Data.NHibernate.HibernateMapping.Organizations;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.Dialogs;
 using Vodovoz.Dialogs.Client;
@@ -48,6 +47,7 @@ using Vodovoz.Settings.Database;
 using Vodovoz.ViewModels.Cash;
 using Vodovoz.ViewModels.Counterparties;
 using Vodovoz.ViewModels.Dialogs.Fuel;
+using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Store;
@@ -181,7 +181,7 @@ namespace Vodovoz.Configuration
                     .Column("Тип", x => x.Nomenclature.Kind.Name).SearchColumn("Серийный номер", x => x.Serial)
                     .Column("Дата последней обработки", x => x.LastServiceDate.ToShortDateString()).End(),
                 //Логисткика
-                OrmObjectMapping<RouteList>.Create().Dialog<RouteListCreateDlg>()
+                OrmObjectMapping<RouteList>.Create().Dialog<RouteListCreateViewModel>()
                     .DefaultTableView().SearchColumn("Номер", x => x.Id.ToString()).Column("Дата", x => x.Date.ToShortDateString())
                     .Column("Статус", x => x.Status.GetEnumTitle())
                     .SearchColumn("Водитель", x => String.Format("{0} - {1}", x.Driver.FullName, x.Car.Title)).End(),
