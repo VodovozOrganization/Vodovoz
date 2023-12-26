@@ -93,6 +93,7 @@ namespace Vodovoz.Domain.Orders
 		private readonly double _futureDeliveryDaysLimit = 30;
 
 		private bool _isBottleStockDiscrepancy;
+		private TimeSpan? _waitUntilTime;
 
 		#region Платная доставка
 
@@ -909,6 +910,13 @@ namespace Vodovoz.Domain.Orders
 		{
 			get => _logisticsRequirements;
 			set => SetField(ref _logisticsRequirements, value);
+		}
+		
+		[Display(Name = "Ожидает до")]
+		public virtual TimeSpan? WaitUntilTime
+		{
+			get => _waitUntilTime;
+			set => SetField(ref _waitUntilTime, value);
 		}
 
 		#endregion
@@ -1965,12 +1973,12 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 
-			if(deliveryPriceItem.Price == price)
+			if(delivery.Price == price)
 			{
 				return;
 			}
 
-			deliveryPriceItem.SetPrice(price);
+			delivery.SetPrice(price);
 		}
 
 		public virtual void AddOrderItem(OrderItem orderItem, bool forceUseAlternativePrice = false)
@@ -1990,17 +1998,6 @@ namespace Vodovoz.Domain.Orders
 
 			ObservableOrderItems.Add(orderItem);
 			UpdateContract();
-		}
-
-		public virtual OrderItem AddOrderItem(Nomenclature nomenclature, decimal nds, int count, decimal price, int discount)
-		{
-			var item = OrderItem.CreateForSaleWithDiscount(this, nomenclature, count, price, false, discount, null, null);
-
-			item.IncludeNDS = nds;
-
-			ObservableOrderItems.Add(item);
-
-			return item;
 		}
 
 		public virtual void RemoveOrderItem(OrderItem orderItem)
@@ -2033,6 +2030,11 @@ namespace Vodovoz.Domain.Orders
 		public virtual void SetOrderItemCount(int orderItemId, decimal newCount)
 		{
 			ObservableOrderItems.FirstOrDefault(x => x.Id == orderItemId)?.SetCount(newCount);
+		}
+		
+		public virtual void SetOrderItemCount(OrderItem orderItem, decimal newCount)
+		{
+			orderItem?.SetCount(newCount);
 		}
 
 		#endregion
@@ -3863,8 +3865,10 @@ namespace Vodovoz.Domain.Orders
 			if(IsContractCloser)
 				return false;
 
-			int amountDelivered = (int)OrderItems.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && !item.Nomenclature.IsDisposableTare)
-								.Sum(item => item?.ActualCount ?? 0);
+			int amountDelivered = (int)OrderItems
+				.Where(item => item.Nomenclature.Category == NomenclatureCategory.water
+					&& item.Nomenclature.TareVolume == TareVolume.Vol19L)
+				.Sum(item => item.ActualCount ?? 0);
 
 			if(forfeitQuantity == null) {
 				forfeitQuantity = (int)OrderItems.Where(i => i.Nomenclature.Id == standartNomenclatures.GetForfeitId())

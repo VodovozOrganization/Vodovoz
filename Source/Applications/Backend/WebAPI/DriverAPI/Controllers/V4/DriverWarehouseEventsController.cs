@@ -90,5 +90,34 @@ namespace DriverAPI.Controllers.V4
 				return Problem("Сервис не доступен. Обратитесь в техподдержку");
 			}
 		}
+
+		/// <summary>
+		/// Получение списка завершенных событий за день
+		/// </summary>
+		/// <returns>список завершенных событий</returns>
+		[HttpGet("GetTodayCompletedEvents")]
+		public async Task<IActionResult> GetTodayCompletedEvents()
+		{
+			var userName = HttpContext.User.Identity?.Name ?? "Unknown";
+
+			_logger.LogInformation("Попытка получения завершенных событий за день пользователем {Username} User token: {AccessToken}",
+				userName,
+				Request.Headers[HeaderNames.Authorization]);
+
+			var user = await _userManager.GetUserAsync(User);
+			var driver = _employeeModel.GetByAPILogin(user.UserName);
+			
+			try
+			{
+				return Ok(_driverWarehouseEventsModel.GetTodayCompletedEventsForDriver(driver));
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Ошибка при попытке получения завершенных событий за день пользователем {Username}",
+					userName);
+
+				return Problem("Внутренняя ошибка сервера");
+			}
+		}
 	}
 }

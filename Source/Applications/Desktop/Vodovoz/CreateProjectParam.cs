@@ -179,8 +179,6 @@ using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewWidgets.PromoSetAction;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
 using UserView = Vodovoz.Views.Users.UserView;
-using Vodovoz.ViewModels.ReportsParameters.Payments;
-using Vodovoz.ReportsParameters.Payments;
 using Vodovoz.ViewModels.ViewModels.Reports.Logistics;
 using Vodovoz.ViewModels.ReportsParameters.Production;
 using Vodovoz.Views.ReportsParameters.Production;
@@ -247,6 +245,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<EmployeeWageParameterViewModel, WageParameterView>()
 				.RegisterWidgetForTabViewModel<SalesPlanViewModel, SalesPlanView>()
 				.RegisterWidgetForTabViewModel<RouteListsOnDayViewModel, RouteListsOnDayView>()
+				.RegisterWidgetForTabViewModel<RouteListCreateViewModel, RouteListCreateView>()
 				.RegisterWidgetForTabViewModel<RouteListFastDeliveryMaxDistanceViewModel, RouteListFastDeliveryMaxDistanceView>()
 				.RegisterWidgetForTabViewModel<RouteListMaxFastDeliveryOrdersViewModel, RouteListMaxFastDeliveryOrdersView>()
 				.RegisterWidgetForTabViewModel<DriversStopListsViewModel, DriversStopListsView>()

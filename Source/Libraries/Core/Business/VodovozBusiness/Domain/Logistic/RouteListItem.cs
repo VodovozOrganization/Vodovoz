@@ -40,6 +40,7 @@ namespace Vodovoz.Domain.Logistic
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
 		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
+		private readonly IRouteListItemRepository _routeListItemRepository = new RouteListItemRepository();
 
 		#region Свойства
 
@@ -856,28 +857,64 @@ namespace Vodovoz.Domain.Logistic
 			routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(uow, this, oldStatus, newStatus);
 		}
 
-		// Скопировано из RouteListClosingItemsView, отображает передавшего и принявшего адрес.
-		public virtual string GetTransferText(RouteListItem item)
+		public virtual string GetTransferText(bool isShort = false)
 		{
-			if(item.Status == RouteListItemStatus.Transfered) {
-				if(item.TransferedTo != null)
-					return string.Format("Заказ был перенесен в МЛ №{0} водителя {1} {2}.",
-						item.TransferedTo.RouteList.Id,
-						item.TransferedTo.RouteList.Driver.ShortName,
-						item.AddressTransferType?.GetEnumTitle());
+			if(Status == RouteListItemStatus.Transfered)
+			{
+				var transferedTo = _routeListItemRepository.GetTransferedTo(RouteList.UoW, this);
+				var addressTransferType = _routeListItemRepository.GetAddressTransferType(routeList.UoW, this.Id, transferedTo.Id);
+
+				if(transferedTo != null)
+				{
+					var transferType =  addressTransferType?.GetEnumTitle();
+
+					var result = isShort
+						? transferType
+						: $"Заказ был перенесен в МЛ №{transferedTo.RouteList.Id} " +
+						$"водителя {transferedTo.RouteList.Driver.ShortName}" +
+						$" {transferType}.";
+
+					return result;
+				}
 				else
+				{
 					return "ОШИБКА! Адрес имеет статус перенесенного в другой МЛ, но куда он перенесен не указано.";
+				}
 			}
-			if(item.WasTransfered) {
-				var transferedFrom = new RouteListItemRepository().GetTransferedFrom(RouteList.UoW, item);
+			if(WasTransfered)
+			{
+				var transferedFrom = _routeListItemRepository.GetTransferedFrom(RouteList.UoW, this);
+
 				if(transferedFrom != null)
-					return string.Format("Заказ из МЛ №{0} водителя {1} {2}.",
-						transferedFrom.RouteList.Id,
-						transferedFrom.RouteList.Driver.ShortName,
-						transferedFrom.AddressTransferType?.GetEnumTitle());
+				{
+					var transferType = AddressTransferType?.GetEnumTitle();
+
+					var result = isShort
+						? transferType
+						: $"Заказ из МЛ №{transferedFrom.RouteList.Id}" +
+						$" водителя {transferedFrom.RouteList.Driver.ShortName}" +
+						$" {transferType}.";
+
+					return result;
+				}
 				else
+				{
 					return "ОШИБКА! Адрес помечен как перенесенный из другого МЛ, но строка откуда он был перенесен не найдена.";
+				}
 			}
+
+			if(AddressTransferType != null)
+			{
+				var transferType = AddressTransferType?.GetEnumTitle();
+
+				var result = isShort
+						? transferType
+						: $"Заказ был добавлен в МЛ в пути " +
+						$"{transferType}.";
+
+				return result;
+			}
+
 			return null;
 		}
 

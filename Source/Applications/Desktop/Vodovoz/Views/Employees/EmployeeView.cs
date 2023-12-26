@@ -1,4 +1,4 @@
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gamma.Widgets;
 using QS.Dialog;
@@ -21,6 +21,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Employees;
+using QSWidgetLib;
 
 namespace Vodovoz.Views.Employees
 {
@@ -201,6 +202,8 @@ namespace Vodovoz.Views.Employees
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
 
+
+			yentryEmailAddress.ValidationMode = ValidationType.email;
 			yentryEmailAddress.Binding
 				.AddBinding(ViewModel.Entity, e => e.Email, w => w.Text)
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)

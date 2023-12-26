@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using DateTimeHelpers;
 using Gamma.Widgets;
 using MoreLinq;
@@ -445,15 +445,16 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.Author == FilterViewModel.Author);
 			}
 
-			if(FilterViewModel.StartDate != null)
+			var startDate = FilterViewModel.StartDate;
+			if(startDate != null)
 			{
 				if(FilterViewModel.FilterDateType == OrdersDateFilterType.DeliveryDate)
 				{
-					query.Where(o => o.DeliveryDate >= FilterViewModel.StartDate);
+					query.Where(o => o.DeliveryDate >= startDate);
 				}
 				else 
 				{ 
-					query.Where(o => o.CreateDate >= FilterViewModel.StartDate); 
+					query.Where(o => o.CreateDate >= startDate); 
 				}
 			}
 
@@ -666,6 +667,7 @@ namespace Vodovoz.JournalViewModels
 					.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.Date)
 					.Select(() => orderAlias.CreateDate).WithAlias(() => resultAlias.CreateDate)
 					.Select(() => deliveryScheduleAlias.Name).WithAlias(() => resultAlias.DeliveryTime)
+					.Select(() => orderAlias.WaitUntilTime).WithAlias(() => resultAlias.WaitUntilTime)
 					.Select(() => orderAlias.OrderStatus).WithAlias(() => resultAlias.StatusEnum)
 					.Select(() => orderAlias.Address1c).WithAlias(() => resultAlias.Address1c)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorLastName)
@@ -762,8 +764,9 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.Id == -1);
 			}
 
-			if (FilterViewModel.StartDate != null) {
-				query.Where(o => o.CreateDate >= FilterViewModel.StartDate);
+			var startDate = FilterViewModel.StartDate;
+			if (startDate != null) {
+				query.Where(o => o.CreateDate >= startDate);
 			}
 
 			var endDate = FilterViewModel.EndDate;
@@ -908,9 +911,10 @@ namespace Vodovoz.JournalViewModels
 			{
 				query.Where(o => o.Id == -1);
 			}
-
-			if (FilterViewModel.StartDate != null) {
-				query.Where(o => o.CreateDate >= FilterViewModel.StartDate);
+			
+			var startDate = FilterViewModel.StartDate;
+			if (startDate != null) {
+				query.Where(o => o.CreateDate >= startDate);
 			}
 
 			var endDate = FilterViewModel.EndDate;
@@ -1077,8 +1081,9 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.Id == -1);
 			}
 
-			if (FilterViewModel.StartDate != null) {
-				query.Where(o => o.CreateDate >= FilterViewModel.StartDate);
+			var startDate = FilterViewModel.StartDate;
+			if (startDate != null) {
+				query.Where(o => o.CreateDate >= startDate);
 			}
 
 			var endDate = FilterViewModel.EndDate;

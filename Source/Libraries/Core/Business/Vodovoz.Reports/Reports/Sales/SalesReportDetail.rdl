@@ -22,8 +22,8 @@
         <Width>816.07pt</Width>
         <Value>='Отчет по продажам ' + Iif(Parameters!start_date = Parameters!end_date, 'за ' + Format(CDate(Parameters!start_date), "dd/MM/yyyy"), 'с ' + Format(CDate(Parameters!start_date), "dd/MM/yyyy") + ' по ' + Format(CDate(Parameters!end_date), "dd/MM/yyyy"))</Value>
         <ZIndex>0</ZIndex>
-        <Left>0.0pt</Left>
-        <Top>22.2pt</Top>
+        <Left>0.00pt</Left>
+        <Top>22.20pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1267,6 +1267,7 @@ FROM
        	     OR ('New' IN (@CounterpartyCompositeClassification_exclude) AND (ISNULL(cc.classification_by_bottles_count) OR ISNULL(cc.classification_by_orders_count)))
        	     )
          )
+       AND (@is_self_delivery IS NULL OR orders.self_delivery = @is_self_delivery)
      GROUP BY order_items_id
     ) AS T
 GROUP BY T.order_items_id
@@ -1379,6 +1380,9 @@ GROUP BY T.order_items_id
           </QueryParameter>
           <QueryParameter Name="CounterpartyCompositeClassification_exclude">
             <Value>={?CounterpartyCompositeClassification_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="is_self_delivery">
+            <Value>={?is_self_delivery}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1506,7 +1510,7 @@ GROUP BY T.order_items_id
       </Fields>
     </DataSet>
     <DataSet Name="Criterions">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
         <CommandText>SET @classification_include := 0;
@@ -1614,7 +1618,8 @@ SELECT
 		'')),
 		(IF(excluded_counterparty_classifications!=0,
 		CONCAT('Искл.классификаций контрагентов: ',excluded_counterparty_classifications,'\n'),
-		''))
+		'')),
+		(IF(@is_self_delivery, 'Только самовывозы\n', IF(!@is_self_delivery, 'Кроме самовывозов\n', '')))
         ) AS criterions
 FROM
     (SELECT
@@ -1939,9 +1944,12 @@ FROM
           <QueryParameter Name="CounterpartyCompositeClassification_exclude">
             <Value>={?CounterpartyCompositeClassification_exclude}</Value>
           </QueryParameter>
+          <QueryParameter Name="is_self_delivery">
+            <Value>={?is_self_delivery}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="criterions">
           <DataField>criterions</DataField>
           <TypeName>System.String</TypeName>
@@ -2117,7 +2125,7 @@ FROM
   </DataSources>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
@@ -2395,6 +2403,13 @@ FROM
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="is_self_delivery">
+      <DataType>Boolean</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
       <Prompt />
     </ReportParameter>
   </ReportParameters>

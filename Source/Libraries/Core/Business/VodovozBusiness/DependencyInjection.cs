@@ -1,10 +1,12 @@
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Sms.Internal.Client.Framework;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Profitability;
+using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
 using Vodovoz.Models;
@@ -33,6 +35,9 @@ namespace Vodovoz
 			.AddScoped<IFastPaymentSender, FastPaymentSender>()
 			.AddScoped<IOrganizationProvider, Stage2OrganizationProvider>()
 			.AddScoped<ISmsClientChannelFactory, SmsClientChannelFactory>()
-			.AddScoped<IDriverWarehouseEventQrDataHandler, DriverWarehouseEventQrDataHandler>();
+			.AddScoped<IDriverWarehouseEventQrDataHandler, DriverWarehouseEventQrDataHandler>()
+			.AddScoped<ICompletedDriverWarehouseEventRepository, CompletedDriverWarehouseEventRepository>()
+			.AddScoped<ICachedDistanceRepository, CachedDistanceRepository>()
+			.AddScoped<IGeographicGroupRepository, GeographicGroupRepository>();
 	}
 }

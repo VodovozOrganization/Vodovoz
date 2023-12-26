@@ -39,6 +39,7 @@ using Vodovoz.ViewModels.Cash;
 using Vodovoz.ViewModels.FuelDocuments;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes;
+using Vodovoz.ViewModels.Logistic;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -345,7 +346,8 @@ namespace Vodovoz.JournalViewModels
 			{
 				case RouteListStatus.New:
 				case RouteListStatus.Confirmed:
-					return new RouteListCreateDlg(node.Id);
+					NavigationManager.OpenViewModel<RouteListCreateViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id));
+					return null;
 				case RouteListStatus.InLoading:
 					if(_routeListRepository.IsTerminalRequired(UoW, node.Id))
 					{
@@ -353,7 +355,8 @@ namespace Vodovoz.JournalViewModels
 					}
 					else
 					{
-						return new RouteListCreateDlg(node.Id);
+						NavigationManager.OpenViewModel<RouteListCreateViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id));
+						return null;
 					}
 				case RouteListStatus.EnRoute:
 					return new RouteListKeepingDlg(node.Id);

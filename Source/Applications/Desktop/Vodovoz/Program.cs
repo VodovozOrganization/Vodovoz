@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
 using Fias.Client;
@@ -48,9 +48,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Vodovoz.Additions;
-using Vodovoz.Additions.Logistic.RouteOptimization;
 using Vodovoz.Application;
-using Vodovoz.Application.Services.Logistics;
 using Vodovoz.CachingRepositories.Cash;
 using Vodovoz.CachingRepositories.Common;
 using Vodovoz.CachingRepositories.Counterparty;
@@ -644,14 +642,13 @@ namespace Vodovoz
 						.AddScoped<RevisionBottlesAndDeposits>()
 						.AddTransient<IReportExporter, ReportExporterAdapter>()
 						.AddScoped<SelectPaymentTypeViewModel>()
-						.AddTransient<IReportExporter, ReportExporterAdapter>()
-						.AddScoped<IRouteOptimizer, RouteOptimizer>()
 						.AddScoped<ICoordinatesParser, CoordinatesParser>()
 						.AddScoped<ICustomReportFactory, CustomReportFactory>()
 						.AddScoped<ICustomPropertiesFactory, CustomPropertiesFactory>()
 						.AddScoped<ICustomReportItemFactory, CustomReportItemFactory>()
 						.AddScoped<IRdlTextBoxFactory, RdlTextBoxFactory>()
 						.AddScoped<IEventsQrPlacer, EventsQrPlacer>()
+						.AddTransient<IValidationViewFactory, GtkValidationViewFactory>()
 						.AddApplication()
 						.AddBusiness();
 				});
