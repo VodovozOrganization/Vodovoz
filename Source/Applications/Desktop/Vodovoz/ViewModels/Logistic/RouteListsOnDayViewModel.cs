@@ -61,6 +61,8 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 
+		private bool _excludeTrucks;
+
 		public IUnitOfWork UoW;
 
 		public RouteListsOnDayViewModel(
@@ -200,6 +202,11 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 		}
 
+		public bool ExcludeTrucks
+		{
+			get => _excludeTrucks;
+			set => SetField(ref _excludeTrucks, value);
+		}
 		public ICommonServices CommonServices { get; }
 		public ILifetimeScope LifetimeScope { get; }
 		public ICarRepository CarRepository { get; }
