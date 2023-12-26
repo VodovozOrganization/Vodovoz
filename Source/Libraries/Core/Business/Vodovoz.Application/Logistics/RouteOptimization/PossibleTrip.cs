@@ -5,7 +5,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
 
-namespace Vodovoz.Additions.Logistic.RouteOptimization
+namespace Vodovoz.Application.Logistics.RouteOptimization
 {
 	/// <summary>
 	/// Клас содержит информацию для оптимизации о возможно поездке.
@@ -14,50 +14,51 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 	/// </summary>
 	public class PossibleTrip
 	{
-		AtWorkDriver atWorkDriver;
+		private AtWorkDriver _atWorkDriver;
+
+		public PossibleTrip(AtWorkDriver driver, DeliveryShift shift)
+		{
+			_atWorkDriver = driver;
+			Shift = shift;
+			Districts = _atWorkDriver.DistrictsPriorities.Cast<IDistrictPriority>().ToArray();
+		}
 
 		/// <summary>
 		/// Указывается диапазон времени в котором водитель на маршруте.
 		/// </summary>
-		public DeliveryShift Shift;
+		public DeliveryShift Shift { get; set; }
 
 		/// <summary>
 		/// Ссылка на старый маршрут. Это значит что эта ходна служит для перестройки уже имеющегося маршрута.
 		/// Для новых маршрутов это поле не должно быть заполнено.
 		/// </summary>
-		public RouteList OldRoute;
+		public RouteList OldRoute { get; set; }
 
-		public Employee Driver => OldRoute?.Driver ?? atWorkDriver.Employee;
+		public Employee Driver => OldRoute?.Driver ?? _atWorkDriver.Employee;
 
-		public Employee Forwarder => OldRoute != null ? OldRoute.Forwarder : atWorkDriver.WithForwarder?.Employee;
+		public Employee Forwarder => OldRoute != null ? OldRoute.Forwarder : _atWorkDriver.WithForwarder?.Employee;
 
-		public Car Car => OldRoute != null ? OldRoute.Car : atWorkDriver.Car;
+		public Car Car => OldRoute != null ? OldRoute.Car : _atWorkDriver.Car;
 
-		public GeoGroup GeographicGroup => OldRoute != null ? OldRoute.GeographicGroups.FirstOrDefault() : atWorkDriver.GeographicGroup;
+		public GeoGroup GeographicGroup => OldRoute != null ? OldRoute.GeographicGroups.FirstOrDefault() : _atWorkDriver.GeographicGroup;
 
 		/// <summary>
 		/// Если маршрут добавлен в ручную, то используем максимальный приоритет, чтобы этому водителю с большей вероятностью достались адреса.
 		/// </summary>
-		public int DriverPriority => OldRoute != null ? 1 : atWorkDriver.PriorityAtDay;
+		public int DriverPriority => OldRoute != null ? 1 : _atWorkDriver.PriorityAtDay;
 
 		/// <summary>
 		/// Время раннего завершения работы водителя. Это нужно для случая когда водитель говорит логисту я сегодня хочу
 		/// поехать домой пораньше. И работать допустим не до 18 а до 17. Это позволяет не создавать для частных случает укороченных смен.
 		/// </summary>
-		public TimeSpan? EarlyEnd => atWorkDriver?.EndOfDay;
+		public TimeSpan? EarlyEnd => _atWorkDriver?.EndOfDay;
 
 		/// <summary>
 		/// Приоритетные районы для этой ходки.
 		/// </summary>
 		public IDistrictPriority[] Districts { get; private set; }
 
-		public PossibleTrip(AtWorkDriver driver, DeliveryShift shift)
-		{
-			atWorkDriver = driver;
-			Shift = shift;
-			Districts = atWorkDriver.DistrictsPriorities.Cast<IDistrictPriority>().ToArray();
-		}
-	
+
 		/// <summary>
 		/// Конструктор для создания ходки на основе уже имеющегося маршрута. Для его перестройки.
 		/// </summary>
@@ -67,7 +68,8 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			Shift = oldRoute.Shift;
 
 			var activeDistrictsSet = Driver.DriverDistrictPrioritySets.SingleOrDefault(x => x.IsActive);
-			if(activeDistrictsSet != null && activeDistrictsSet.DriverDistrictPriorities.Any()) {
+			if(activeDistrictsSet != null && activeDistrictsSet.DriverDistrictPriorities.Any())
+			{
 				Districts = activeDistrictsSet.DriverDistrictPriorities.Cast<IDistrictPriority>().ToArray();
 			}
 			else

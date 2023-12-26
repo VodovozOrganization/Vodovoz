@@ -4,7 +4,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 
-namespace Vodovoz.Additions.Logistic.RouteOptimization
+namespace Vodovoz.Application.Logistics.RouteOptimization
 {
 	/// <summary>
 	/// Класс используется для указания адресов маршрута и хранения рассчитанных
@@ -26,10 +26,11 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 		public District District { get; set; }
 
-		GeoGroup shippingBase;
-		public GeoGroup ShippingBase {
-			get => shippingBase ?? Order?.DeliveryPoint.District?.GeographicGroup;
-			set => shippingBase = value;
+		private GeoGroup _shippingBase;
+		public GeoGroup ShippingBase
+		{
+			get => _shippingBase ?? Order?.DeliveryPoint.District?.GeographicGroup;
+			set => _shippingBase = value;
 		}
 
 		public CalculatedOrder(Order order, District district, bool notCalculate = false, RouteList existRoute = null)
@@ -39,7 +40,9 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			ExistRoute = existRoute;
 
 			if(notCalculate)
+			{
 				return;
+			}
 
 			Bottles = (int)order.OrderItems.Where(
 				x => x.Nomenclature.Category == NomenclatureCategory.water

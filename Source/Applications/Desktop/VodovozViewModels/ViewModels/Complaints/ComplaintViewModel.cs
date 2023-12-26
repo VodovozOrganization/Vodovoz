@@ -17,6 +17,7 @@ using QS.ViewModels.Extension;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using QS.ViewModels.Dialog;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
@@ -254,7 +255,8 @@ namespace Vodovoz.ViewModels.Complaints
 				{
 					_discussionsViewModel = _scope.Resolve<ComplaintDiscussionsViewModel>(
 						new TypedParameter(typeof(Complaint), Entity),
-						new TypedParameter(typeof(IUnitOfWork), UoW));
+						new TypedParameter(typeof(IUnitOfWork), UoW),
+						new TypedParameter(typeof(DialogViewModelBase), this));
 				}
 				return _discussionsViewModel;
 			}

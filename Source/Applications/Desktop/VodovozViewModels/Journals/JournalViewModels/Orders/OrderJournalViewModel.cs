@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using DateTimeHelpers;
 using Gamma.Widgets;
 using MoreLinq;
@@ -667,6 +667,7 @@ namespace Vodovoz.JournalViewModels
 					.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.Date)
 					.Select(() => orderAlias.CreateDate).WithAlias(() => resultAlias.CreateDate)
 					.Select(() => deliveryScheduleAlias.Name).WithAlias(() => resultAlias.DeliveryTime)
+					.Select(() => orderAlias.WaitUntilTime).WithAlias(() => resultAlias.WaitUntilTime)
 					.Select(() => orderAlias.OrderStatus).WithAlias(() => resultAlias.StatusEnum)
 					.Select(() => orderAlias.Address1c).WithAlias(() => resultAlias.Address1c)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorLastName)

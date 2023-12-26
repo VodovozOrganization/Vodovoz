@@ -1,10 +1,10 @@
 ﻿using Google.OrTools.ConstraintSolver;
+using Microsoft.Extensions.Logging;
 using System;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Tools;
-using Vodovoz.Tools.Logistic;
 
-namespace Vodovoz.Additions.Logistic.RouteOptimization
+namespace Vodovoz.Application.Logistics.RouteOptimization
 {
 	/// <summary>
 	/// Класс обратного вызова для расчета времени движения по маршруту.
@@ -29,51 +29,58 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 	/// </remarks>
 	public class CallbackTime : NodeEvaluator2
 	{
-		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		private CalculatedOrder[] Nodes;
-		PossibleTrip Trip;
-		ExtDistanceCalculator distanceCalculator;
+		private readonly ILogger<CallbackTime> _logger;
+		private CalculatedOrder[] _nodes;
+		private PossibleTrip _trip;
+		private IExtDistanceCalculator _distanceCalculator;
 
-		public CallbackTime(CalculatedOrder[] nodes, PossibleTrip trip, ExtDistanceCalculator distanceCalculator)
+		public CallbackTime(ILogger<CallbackTime> logger, CalculatedOrder[] nodes, PossibleTrip trip, IExtDistanceCalculator distanceCalculator)
 		{
-			Nodes = nodes;
-			Trip = trip;
-			this.distanceCalculator = distanceCalculator;
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_nodes = nodes;
+			_trip = trip;
+			_distanceCalculator = distanceCalculator;
 		}
 
-		public override long Run(int first_index, int second_index)
+		public override long Run(int firstIndex, int secondIndex)
 		{
-			if(first_index > Nodes.Length || second_index > Nodes.Length || first_index < 0 || second_index < 0)
+			if(firstIndex > _nodes.Length || secondIndex > _nodes.Length || firstIndex < 0 || secondIndex < 0)
 			{
-				logger.Error($"Get Time {first_index} -> {second_index} out of orders ({Nodes.Length})");
+				_logger.LogError("Get Time {FirstIndex} -> {SecondIndex} out of orders ({NodesLength})", firstIndex, secondIndex, _nodes.Length);
 				return 0;
 			}
 
-			if(first_index == second_index)
+			if(firstIndex == secondIndex)
+			{
 				return 0;
+			}
 
 			// ^ Смотири описание класса выше ^
 			long serviceTime = 0, travelTime = 0;
 
-			if(second_index == 0)
+			if(secondIndex == 0)
 			{
-				var calcOrder = Nodes[first_index - 1];
+				var calcOrder = _nodes[firstIndex - 1];
 				var baseVersion = GetGroupVersion(calcOrder.ShippingBase, calcOrder.Order.DeliveryDate.Value);
-				travelTime = distanceCalculator.TimeToBaseSec(calcOrder.Order.DeliveryPoint, baseVersion);
+				travelTime = _distanceCalculator.TimeToBaseSec(calcOrder.Order.DeliveryPoint, baseVersion);
 			}
-			else if(first_index == 0)
+			else if(firstIndex == 0)
 			{
-				var calcOrder = Nodes[second_index - 1];
+				var calcOrder = _nodes[secondIndex - 1];
 				var baseVersion = GetGroupVersion(calcOrder.ShippingBase, calcOrder.Order.DeliveryDate.Value);
-				travelTime = distanceCalculator.TimeFromBaseSec(baseVersion, calcOrder.Order.DeliveryPoint);
+				travelTime = _distanceCalculator.TimeFromBaseSec(baseVersion, calcOrder.Order.DeliveryPoint);
 			}
 			else
-				travelTime = distanceCalculator.TimeSec(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[second_index - 1].Order.DeliveryPoint);
+			{
+				travelTime = _distanceCalculator.TimeSec(_nodes[firstIndex - 1].Order.DeliveryPoint, _nodes[secondIndex - 1].Order.DeliveryPoint);
+			}
 
-			if (first_index != 0)
-				serviceTime = Nodes[first_index - 1].Order.CalculateTimeOnPoint(Trip.Forwarder != null);
-			
-			return (long)Trip.Driver.TimeCorrection(serviceTime + travelTime);
+			if(firstIndex != 0)
+			{
+				serviceTime = _nodes[firstIndex - 1].Order.CalculateTimeOnPoint(_trip.Forwarder != null);
+			}
+
+			return (long)_trip.Driver.TimeCorrection(serviceTime + travelTime);
 		}
 
 		private GeoGroupVersion GetGroupVersion(GeoGroup geoGroup, DateTime date)

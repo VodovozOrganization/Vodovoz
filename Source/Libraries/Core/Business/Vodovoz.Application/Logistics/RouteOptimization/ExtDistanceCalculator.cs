@@ -1,29 +1,29 @@
-﻿using QS.DomainModel.UoW;
+﻿using Microsoft.Extensions.Logging;
+using QS.DomainModel.UoW;
 using QS.Osrm;
-using QSProjectsLib;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Vodovoz.Application.Logistics.RouteOptimization;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.Factories;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Tools.Logistic;
 
-namespace Vodovoz.Tools.Logistic
+namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 {
 	/// <summary>
 	/// Класс для массового расчета расстояний между точками.
 	/// В конструктор класса можно передать список точек доставки, класс автоматически в фоновом
 	/// режим начнет рассчитывать матрицу расстояний между каждой точкой.
 	/// </summary>
-	public class ExtDistanceCalculator : IDistanceCalculator, IDisposable
+	public partial class ExtDistanceCalculator : IExtDistanceCalculator, IDisposable
 	{
 		#region Настройки
 		/// <summary>
@@ -41,97 +41,123 @@ namespace Vodovoz.Tools.Logistic
 		public static int TasksCount = 5;
 		#endregion
 
-		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		private readonly ICachedDistanceRepository _cachedDistanceRepository = new CachedDistanceRepository();
-		private readonly IGlobalSettings _globalSettings = new GlobalSettings(new ParametersProvider());
-
-		IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot("Расчет расстояний");
-
-		int proposeNeedCached = 0;
-		readonly Action<string> statisticsTxtAction;
-
-		DateTime? startLoadTime;
-		int startCached, totalCached, addedCached, totalPoints, totalErrors;
-		long totalMeters, totalSec;
+		private readonly ILogger<ExtDistanceCalculator> _logger;
+		private readonly ICachedDistanceRepository _cachedDistanceRepository;
+		private readonly IGlobalSettings _globalSettings;
+		private IUnitOfWork _unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Расчет расстояний");
+		private int _proposeNeedCached = 0;
+		private readonly Action<string> _statisticsTxtAction;
+		private DateTime? _startLoadTime;
+		private int _startCached;
+		private int _totalCached;
+		private int _addedCached;
+		private int _totalPoints;
+		private int _totalErrors;
+		private long _totalMeters;
+		private long _totalSec;
 		public bool Canceled { get; set; }
 
 		//Для работы с потоками
 		//FIXME рекомендую переписать работу с потоками на использование специализированных коллекций(очередей). Узанал о существовании после реализации.
 		// Поэтому код относящийся к потоку сильно не задокументирован. Его лучше переписать на более простой.
-		long[] hashes;
-		Dictionary<long, int> hashPos;
-		WayHash? waitDistance;
-
-		int unsavedItems = 0;
-
-		Task<int>[] tasks;
-		ConcurrentQueue<long> cQueue;
+		private long[] _hashes;
+		private Dictionary<long, int> _hashPos;
+		private WayHash? _waitDistance;
+		private int _unsavedItems = 0;
+		private Task<int>[] _tasks;
+		private ConcurrentQueue<long> _cQueue;
 
 #if DEBUG
-		CachedDistance[,] matrix;
-		public int[,] matrixcount;
+		private CachedDistance[,] _matrix;
+		public int[,] MatrixCount { get; private set; }
 #endif
 		public bool MultiTaskLoad = true;
 
-		private Dictionary<long, Dictionary<long, CachedDistance>> cache = new Dictionary<long, Dictionary<long, CachedDistance>>();
+		private Dictionary<long, Dictionary<long, CachedDistance>> _cache = new Dictionary<long, Dictionary<long, CachedDistance>>();
 
-		public List<WayHash> ErrorWays = new List<WayHash>();
+		public List<WayHash> ErrorWays { get; } = new List<WayHash>();
 
 		/// <param name="provider">Используемый провайдер данных</param>
 		/// <param name="points">Точки для первоначального заполенения из базы.</param>
 		/// <param name="statisticsTxtAction">Функция для буфера для отображения статистики</param>
 		/// <param name="multiThreadLoad">Если <c>true</c> включается моногопоточная загрузка.</param>
-		public ExtDistanceCalculator(DeliveryPoint[] points, IEnumerable<GeoGroupVersion> geoGroupVersions, Action<string> statisticsTxtAction, bool multiThreadLoad = true)
+		public ExtDistanceCalculator(
+			ILogger<ExtDistanceCalculator> logger,
+			IGlobalSettings globalSettings,
+			ICachedDistanceRepository cachedDistanceRepository,
+			DeliveryPoint[] points,
+			IEnumerable<GeoGroupVersion> geoGroupVersions,
+			Action<string> statisticsTxtAction,
+			bool multiThreadLoad = true)
 		{
-			this.statisticsTxtAction = statisticsTxtAction;
-			UoW.Session.SetBatchSize(SaveBy);
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_globalSettings = globalSettings ?? throw new ArgumentNullException(nameof(globalSettings));
+			_cachedDistanceRepository = cachedDistanceRepository ?? throw new ArgumentNullException(nameof(cachedDistanceRepository));
+			_statisticsTxtAction = statisticsTxtAction;
+			_unitOfWork.Session.SetBatchSize(SaveBy);
 			MultiTaskLoad = multiThreadLoad;
 			Canceled = false;
 			var basesHashes = geoGroupVersions.Select(x => CachedDistance.GetHash(x));
-			hashes = points.Select(CachedDistance.GetHash)
-						   .Concat(basesHashes)
-						   .Distinct()
-						   .ToArray();
 
-			cQueue = new ConcurrentQueue<long>(hashes);
+			_hashes = points.Select(CachedDistance.GetHash)
+				.Concat(basesHashes)
+				.Distinct()
+				.ToArray();
 
-			totalPoints = hashes.Length;
-			proposeNeedCached = hashes.Length * (hashes.Length - 1);
+			_cQueue = new ConcurrentQueue<long>(_hashes);
 
-			hashPos = hashes.Select((hash, index) => new { hash, index })
+			_totalPoints = _hashes.Length;
+			_proposeNeedCached = _hashes.Length * (_hashes.Length - 1);
+
+			_hashPos = _hashes.Select((hash, index) => new { hash, index })
 							.ToDictionary(x => x.hash, x => x.index);
 #if DEBUG
-			matrix = new CachedDistance[hashes.Length, hashes.Length];
-			matrixcount = new int[hashes.Length, hashes.Length];
+			_matrix = new CachedDistance[_hashes.Length, _hashes.Length];
+			MatrixCount = new int[_hashes.Length, _hashes.Length];
 #endif
-			var fromDB = _cachedDistanceRepository.GetCache(UoW, hashes);
-			startCached = fromDB.Count;
-			foreach(var distance in fromDB) {
+			var fromDB = _cachedDistanceRepository.GetCache(_unitOfWork, _hashes);
+			_startCached = fromDB.Count;
+
+			foreach(var distance in fromDB)
+			{
 #if DEBUG
-				matrix[hashPos[distance.FromGeoHash], hashPos[distance.ToGeoHash]] = distance;
+				_matrix[_hashPos[distance.FromGeoHash], _hashPos[distance.ToGeoHash]] = distance;
 #endif
 				AddNewCacheDistance(distance);
 			}
+
 			UpdateText();
 #if DEBUG
-			StringBuilder matrixText = new StringBuilder(" ");
-			for(int x = 0; x < matrix.GetLength(1); x++)
+			var matrixText = new StringBuilder(" ");
+
+			for(int x = 0; x < _matrix.GetLength(1); x++)
+			{
 				matrixText.Append(x % 10);
-
-			for(int y = 0; y < matrix.GetLength(0); y++) {
-				matrixText.Append("\n" + y % 10);
-				for(int x = 0; x < matrix.GetLength(1); x++)
-					matrixText.Append(matrix[y, x] != null ? 1 : 0);
 			}
-			logger.Debug(matrixText);
 
-			logger.Debug(string.Join(";", hashes.Select(CachedDistance.GetTextLonLat)));
+			for(int y = 0; y < _matrix.GetLength(0); y++)
+			{
+				matrixText.Append("\n" + y % 10);
+
+				for(int x = 0; x < _matrix.GetLength(1); x++)
+				{
+					matrixText.Append(_matrix[y, x] != null ? 1 : 0);
+				}
+			}
+
+			_logger.LogDebug(matrixText.ToString());
+
+			_logger.LogDebug(string.Join(";", _hashes.Select(CachedDistance.GetTextLonLat)));
 #endif
 
-			if(MultiTaskLoad && fromDB.Count < proposeNeedCached)
+			if(MultiTaskLoad && fromDB.Count < _proposeNeedCached)
+			{
 				RunPreCalculation();
+			}
 			else
+			{
 				MultiTaskLoad = false;
+			}
 		}
 
 		/// <summary>
@@ -139,15 +165,18 @@ namespace Vodovoz.Tools.Logistic
 		/// </summary>
 		private void RunPreCalculation()
 		{
-			startLoadTime = DateTime.Now;
-			tasks = new Task<int>[TasksCount];
-			foreach(var ix in Enumerable.Range(0, TasksCount)) {
-				tasks[ix] = new Task<int>(DoBackground);
-				tasks[ix].Start();
+			_startLoadTime = DateTime.Now;
+			_tasks = new Task<int>[TasksCount];
+
+			foreach(var ix in Enumerable.Range(0, TasksCount))
+			{
+				_tasks[ix] = new Task<int>(DoBackground);
+				_tasks[ix].Start();
 			}
 
-			while(MultiTaskLoad) {
-				Gtk.Main.Iteration();
+			while(MultiTaskLoad)
+			{
+				Task.Delay(TimeSpan.FromSeconds(1));
 			}
 		}
 
@@ -157,41 +186,45 @@ namespace Vodovoz.Tools.Logistic
 		private int DoBackground()
 		{
 			int result = 0;
-			while(cQueue.TryDequeue(out long fromHash)) {
-				if(waitDistance != null) {
-					long fromHash2 = waitDistance.Value.FromHash;
-					long toHash = waitDistance.Value.ToHash;
-					waitDistance = null;
-					if(!cache.ContainsKey(fromHash2) || !cache[fromHash2].ContainsKey(toHash))
-						LoadDistanceFromService(waitDistance.Value.FromHash, toHash);
+			while(_cQueue.TryDequeue(out long fromHash))
+			{
+				if(_waitDistance != null)
+				{
+					long fromHash2 = _waitDistance.Value.FromHash;
+					long toHash = _waitDistance.Value.ToHash;
+					_waitDistance = null;
+					if(!_cache.ContainsKey(fromHash2) || !_cache[fromHash2].ContainsKey(toHash))
+					{
+						LoadDistanceFromService(_waitDistance.Value.FromHash, toHash);
+					}
 				}
-				foreach(var toHash in hashes) {
-					if(Canceled) {
+				foreach(var toHash in _hashes)
+				{
+					if(Canceled)
+					{
 						MultiTaskLoad = false;
 						result = -1;
 						break;
 					}
-					if(!cache.ContainsKey(fromHash) || !cache[fromHash].ContainsKey(toHash))
+					if(!_cache.ContainsKey(fromHash) || !_cache[fromHash].ContainsKey(toHash))
+					{
 						LoadDistanceFromService(fromHash, toHash);
+					}
+
 					result = 1;
 				}
-				Gtk.Application.Invoke(delegate {
-					UpdateText();
-				});
+				UpdateText();
 			}
 
-			Gtk.Application.Invoke(delegate {
-				CheckAndDisableTasks();
-			});
+			CheckAndDisableTasks();
 			return result;
 		}
 
 		/// <summary>
 		/// Метод отключающий режим многопоточного скачивания, при завершении работы всех задач.
 		/// </summary>
-		void CheckAndDisableTasks()
+		private void CheckAndDisableTasks()
 		{
-			//if(tasks.All(x => x.Result == 1))
 			MultiTaskLoad = false;
 		}
 
@@ -200,12 +233,15 @@ namespace Vodovoz.Tools.Logistic
 		/// </summary>
 		private void AddNewCacheDistance(CachedDistance distance)
 		{
-			if(!cache.ContainsKey(distance.FromGeoHash))
-				cache[distance.FromGeoHash] = new Dictionary<long, CachedDistance>();
-			cache[distance.FromGeoHash][distance.ToGeoHash] = distance;
-			totalCached++;
-			totalMeters += distance.DistanceMeters;
-			totalSec += distance.TravelTimeSec;
+			if(!_cache.ContainsKey(distance.FromGeoHash))
+			{
+				_cache[distance.FromGeoHash] = new Dictionary<long, CachedDistance>();
+			}
+
+			_cache[distance.FromGeoHash][distance.ToGeoHash] = distance;
+			_totalCached++;
+			_totalMeters += distance.DistanceMeters;
+			_totalSec += distance.TravelTimeSec;
 		}
 
 		/// <summary>
@@ -295,30 +331,38 @@ namespace Vodovoz.Tools.Logistic
 
 		private CachedDistance GetCache(long fromHash, long toHash)
 		{
-#if DEBUG
-			matrixcount[hashPos[fromHash], hashPos[toHash]] += 1;
-#endif
-			if(cache.ContainsKey(fromHash) && cache[fromHash].ContainsKey(toHash))
-				return cache[fromHash][toHash];
+			if(_cache.ContainsKey(fromHash) && _cache[fromHash].ContainsKey(toHash))
+			{
+				return _cache[fromHash][toHash];
+			}
 
-			if(ErrorWays.Any(x => x.FromHash == fromHash && x.ToHash == toHash)) {
-				logger.Warn(string.Format("Повторный запрос дистанции с ошибкой расчета для FromHash = {0} и ToHash = {1}. Пропускаем...", fromHash, toHash));
+			if(ErrorWays.Any(x => x.FromHash == fromHash && x.ToHash == toHash))
+			{
+				_logger.LogWarning("Повторный запрос дистанции с ошибкой расчета для FromHash = {FromHash} и ToHash = {ToHash}. Пропускаем...", fromHash, toHash);
 				return null;
 			}
-			if(MultiTaskLoad && tasks.Any(x => x != null && !x.IsCompleted)) {
-				waitDistance = new WayHash(fromHash, toHash);
-				while(!cache.ContainsKey(fromHash) || !cache[fromHash].ContainsKey(toHash)) {
+
+			if(MultiTaskLoad && _tasks.Any(x => x != null && !x.IsCompleted))
+			{
+				_waitDistance = new WayHash(fromHash, toHash);
+
+				while(!_cache.ContainsKey(fromHash) || !_cache[fromHash].ContainsKey(toHash))
+				{
 					//Внутри вызывается QSMain.WaitRedraw();
 					UpdateText();
+
 					//Если по какой то причине, не получили расстояние. Не висим. Пробуем еще раз через сервис.
 					if(ErrorWays.Any(x => x.FromHash == fromHash && x.ToHash == toHash))
+					{
 						return LoadDistanceFromService(fromHash, toHash);
+					}
 				}
 
-				return cache[fromHash][toHash];
+				return _cache[fromHash][toHash];
 			}
 			var result = LoadDistanceFromService(fromHash, toHash);
 			UpdateText();
+
 			return result;
 		}
 
@@ -326,27 +370,37 @@ namespace Vodovoz.Tools.Logistic
 		{
 			CachedDistance cachedValue = null;
 			bool ok = false;
-			if(fromHash == toHash) {
-				cachedValue = new CachedDistance {
+
+			if(fromHash == toHash)
+			{
+				cachedValue = new CachedDistance
+				{
 					DistanceMeters = 0,
 					TravelTimeSec = 0,
 					FromGeoHash = fromHash,
 					ToGeoHash = toHash
 				};
+
 				AddNewCacheDistance(cachedValue);
-				addedCached++;
+				_addedCached++;
 				ok = true;
 			}
 
-			if(!ok) {
-				List<PointOnEarth> points = new List<PointOnEarth> {
+			if(!ok)
+			{
+				var points = new List<PointOnEarth>
+				{
 					CachedDistance.GetPointOnEarth(fromHash),
 					CachedDistance.GetPointOnEarth(toHash)
 				};
+
 				var result = OsrmClientFactory.Instance.GetRoute(points, false, GeometryOverview.False, _globalSettings.ExcludeToll);
 				ok = result?.Code == "Ok";
-				if(ok && result.Routes.Any()) {
-					cachedValue = new CachedDistance {
+
+				if(ok && result.Routes.Any())
+				{
+					cachedValue = new CachedDistance
+					{
 						DistanceMeters = result.Routes.First().TotalDistance,
 						TravelTimeSec = result.Routes.First().TotalTimeSeconds,
 						FromGeoHash = fromHash,
@@ -354,25 +408,33 @@ namespace Vodovoz.Tools.Logistic
 					};
 				}
 			}
-			if(MultiTaskLoad && ok) {
-				lock(UoW) {
-					UoW.TrySave(cachedValue as CachedDistance, false);
-					unsavedItems++;
-					if(unsavedItems >= SaveBy)
+
+			if(MultiTaskLoad && ok)
+			{
+				lock(_unitOfWork)
+				{
+					_unitOfWork.TrySave(cachedValue, false);
+					_unsavedItems++;
+					if(_unsavedItems >= SaveBy)
+					{
 						FlushCache();
+					}
+
 					AddNewCacheDistance(cachedValue);
-					addedCached++;
+					_addedCached++;
 				}
 				return cachedValue;
 			}
-			if(ok) {
+
+			if(ok)
+			{
 				AddNewCacheDistance(cachedValue);
-				addedCached++;
+				_addedCached++;
 				return cachedValue;
 			}
 
 			ErrorWays.Add(new WayHash(fromHash, toHash));
-			totalErrors++;
+			_totalErrors++;
 			//FIXME Реализовать запрос манхентанского расстояния.
 			return null;
 		}
@@ -382,49 +444,44 @@ namespace Vodovoz.Tools.Logistic
 		/// </summary>
 		public void FlushCache()
 		{
-			if(unsavedItems <= 0)
+			if(_unsavedItems <= 0)
+			{
 				return;
+			}
+
 			var start = DateTime.Now;
-			UoW.Commit();
-			logger.Debug("Сохранили {0} расстояний в кеш за {1} сек.", unsavedItems, (DateTime.Now - start).TotalSeconds);
-			unsavedItems = 0;
+			_unitOfWork.Commit();
+			_logger.LogDebug("Сохранили {UnsavedItemsCount} расстояний в кеш за {TotalSeconds} сек.", _unsavedItems, (DateTime.Now - start).TotalSeconds);
+			_unsavedItems = 0;
 		}
 
-		void UpdateText()
+		private void UpdateText()
 		{
-			if(statisticsTxtAction == null)
+			if(_statisticsTxtAction == null)
+			{
 				return;
+			}
 
 			double remainTime = 0;
-			if(startLoadTime.HasValue)
-				remainTime = (DateTime.Now - startLoadTime.Value).Ticks * ((double)(proposeNeedCached - totalCached) / addedCached);
-			statisticsTxtAction.Invoke(
-				string.Format(
-					"Уникальных координат: {0}\nРасстояний загружено: {1}\nРасстояний в кеше: {2}/{7}(~{6:P})\nОсталось времени: {9:hh\\:mm\\:ss}\nНовых запрошено: {3}({8})\nОшибок в запросах: {4}\nСреднее скорости: {5:F2}м/с",
-					totalPoints,
-					startCached,
-					totalCached,
-					addedCached,
-					totalErrors,
-					(double)totalMeters / totalSec,
-					(double)totalCached / proposeNeedCached,
-					proposeNeedCached,
-					unsavedItems,
-					TimeSpan.FromTicks((long)remainTime)
-				)
+			if(_startLoadTime.HasValue)
+			{
+				remainTime = (DateTime.Now - _startLoadTime.Value).Ticks * ((double)(_proposeNeedCached - _totalCached) / _addedCached);
+			}
+
+			_statisticsTxtAction.Invoke(
+				$"Уникальных координат: {_totalPoints}\n" +
+				$"Расстояний загружено: {_startCached}\n" +
+				$"Расстояний в кеше: {_totalCached}/{_proposeNeedCached}(~{(double)_totalCached / _proposeNeedCached:P})\n" +
+				$"Осталось времени: {TimeSpan.FromTicks((long)remainTime):hh\\:mm\\:ss}\n" +
+				$"Новых запрошено: {_addedCached}({_unsavedItems})\n" +
+				$"Ошибок в запросах: {_totalErrors}\n" +
+				$"Среднее скорости: {(double)_totalMeters / _totalSec:F2}м/с"
 			);
-			QSMain.WaitRedraw(100);
 		}
 
 		public void Dispose()
 		{
-			UoW.Dispose();
-		}
-
-		private class NextPos
-		{
-			public int FromIx;
-			public int ToIx;
+			_unitOfWork.Dispose();
 		}
 	}
 }
