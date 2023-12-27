@@ -1,26 +1,21 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Criterion.Lambda;
-using NHibernate.Dialect.Function;
-using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.BusinessCommon.Domain;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain;
-using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Nodes;
 using Vodovoz.Nodes;
 using Vodovoz.Services;
-using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Goods
 {
@@ -371,7 +366,7 @@ namespace Vodovoz.EntityRepositories.Goods
 		}
 
 		public IList<NomenclatureOnlineParametersNode> GetNomenclaturesOnlineParametersForSend(
-			IUnitOfWork uow, NomenclatureOnlineParameterType parameterType)
+			IUnitOfWork uow, GoodsOnlineParameterType parameterType)
 		{
 			Nomenclature nomenclatureAlias = null;
 			NomenclatureOnlineParametersNode resultAlias = null;
@@ -409,7 +404,7 @@ namespace Vodovoz.EntityRepositories.Goods
 				.List<NomenclatureOnlinePriceNode>();
 		}
 		
-		public IList<OnlineNomenclatureNode> GetNomenclaturesForSend(IUnitOfWork uow, NomenclatureOnlineParameterType parameterType)
+		public IList<OnlineNomenclatureNode> GetNomenclaturesForSend(IUnitOfWork uow, GoodsOnlineParameterType parameterType)
 		{
 			Nomenclature nomenclatureAlias = null;
 			MobileAppNomenclatureOnlineCatalog mobileAppNomenclatureOnlineCatalogAlias = null;
@@ -462,21 +457,21 @@ namespace Vodovoz.EntityRepositories.Goods
 
 			switch(parameterType)
 			{
-				case NomenclatureOnlineParameterType.ForMobileApp:
+				case GoodsOnlineParameterType.ForMobileApp:
 					query.And(n => n.MobileAppNomenclatureOnlineCatalog != null)
-						.And(() => onlineParametersAlias.Type == NomenclatureOnlineParameterType.ForMobileApp);
+						.And(() => onlineParametersAlias.Type == GoodsOnlineParameterType.ForMobileApp);
 					queryBuilder.Select(() => mobileAppNomenclatureOnlineCatalogAlias.ExternalId)
 						.WithAlias(() => resultAlias.OnlineCatalogGuid);
 					break;
-				case NomenclatureOnlineParameterType.ForVodovozWebSite:
+				case GoodsOnlineParameterType.ForVodovozWebSite:
 					query.And(n => n.VodovozWebSiteNomenclatureOnlineCatalog != null)
-						.And(() => onlineParametersAlias.Type == NomenclatureOnlineParameterType.ForVodovozWebSite);
+						.And(() => onlineParametersAlias.Type == GoodsOnlineParameterType.ForVodovozWebSite);
 					queryBuilder.Select(() => vodovozWebSiteNomenclatureOnlineCatalogAlias.ExternalId)
 						.WithAlias(() => resultAlias.OnlineCatalogGuid);
 					break;
-				case NomenclatureOnlineParameterType.ForKulerSaleWebSite:
+				case GoodsOnlineParameterType.ForKulerSaleWebSite:
 					query.And(n => n.KulerSaleWebSiteNomenclatureOnlineCatalog != null)
-						.And(() => onlineParametersAlias.Type == NomenclatureOnlineParameterType.ForKulerSaleWebSite);
+						.And(() => onlineParametersAlias.Type == GoodsOnlineParameterType.ForKulerSaleWebSite);
 					queryBuilder.Select(() => kulerSaleWebSiteNomenclatureOnlineCatalogAlias.ExternalId)
 						.WithAlias(() => resultAlias.OnlineCatalogGuid);
 					break;
@@ -486,6 +481,29 @@ namespace Vodovoz.EntityRepositories.Goods
 			.TransformUsing(Transformers.AliasToBean<OnlineNomenclatureNode>());
 			
 			return query.List<OnlineNomenclatureNode>();
+		}
+
+		public IEnumerable<INamedDomainObject> GetPromoSetsWithNomenclature(
+			IUnitOfWork unitOfWork, int nomenclatureId, bool notArchive = true)
+		{
+			PromotionalSet promoSetAlias = null;
+			PromotionalSetItem promoSetItemAlias = null;
+			NamedDomainObjectNode resultAlias = null;
+
+			var query = unitOfWork.Session.QueryOver(() => promoSetAlias)
+				.JoinAlias(p => p.PromotionalSetItems, () => promoSetItemAlias)
+				.Where(() => promoSetItemAlias.Nomenclature.Id == nomenclatureId);
+
+			if(notArchive)
+			{
+				query.Where(p => !p.IsArchive);
+			}
+			
+			return query.SelectList(list => list
+				.Select(Projections.Distinct(Projections.Property(() => promoSetAlias.Id)).WithAlias(() => resultAlias.Id))
+				.Select(p => p.Name).WithAlias(() => resultAlias.Name))
+			.TransformUsing(Transformers.AliasToBean<NamedDomainObjectNode>())
+			.List<NamedDomainObjectNode>();
 		}
 	}
 

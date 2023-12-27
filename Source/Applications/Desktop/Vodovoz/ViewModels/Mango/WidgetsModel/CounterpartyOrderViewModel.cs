@@ -18,7 +18,6 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Infrastructure.Mango;
@@ -29,6 +28,7 @@ using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
+using Vodovoz.ViewModels.Logistic;
 
 namespace Vodovoz.ViewModels.Mango
 {
@@ -217,7 +217,7 @@ namespace Vodovoz.ViewModels.Mango
 				order.OrderStatus == OrderStatus.Accepted ||
 				order.OrderStatus == OrderStatus.OnLoading
 			) {
-				tdiNavigation.OpenTdiTab<RouteListCreateDlg>(null);
+				tdiNavigation.OpenViewModel<RouteListCreateViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForCreate());
 			} else if(order.OrderStatus == OrderStatus.OnTheWay ||
 			          order.OrderStatus == OrderStatus.InTravelList ||
 			          order.OrderStatus == OrderStatus.Closed

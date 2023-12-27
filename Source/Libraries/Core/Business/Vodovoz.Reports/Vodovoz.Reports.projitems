@@ -49,6 +49,9 @@
     <None Include="$(MSBuildThisFileDirectory)Reports\Orders\EdoUpdReport.xlsx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="$(MSBuildThisFileDirectory)Reports\Production\ProducedProductionYear.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="$(MSBuildThisFileDirectory)Reports\QualityControl\NumberOfComplaintsAgainstDriversReport.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

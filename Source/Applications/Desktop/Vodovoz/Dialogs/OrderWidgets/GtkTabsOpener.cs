@@ -104,29 +104,6 @@ namespace Vodovoz.Dialogs.OrderWidgets
 				return existsTab;
 			}
 		}
-		
-		public void OpenRouteListCreateDlgFromViewModelByNavigator(DialogViewModelBase from, int routeListId)
-		{
-			Startup.MainWin.NavigationManager.OpenTdiTab<RouteListCreateDlg, int>(from, routeListId);
-		}
-
-		public ITdiTab OpenRouteListCreateDlg(ITdiTab tab) =>
-			OpenRouteListCreateDlg(tab.TabParent);
-
-		public ITdiTab OpenRouteListCreateDlg(ITdiTab tab, int id) =>
-			OpenRouteListCreateDlg(tab.TabParent, id);
-
-		public ITdiTab OpenRouteListCreateDlg(ITdiTabParent tab, int id) =>
-			tab.OpenTab(
-				DialogHelper.GenerateDialogHashName<RouteList>(id),
-				() => CreateRouteListCreateDlg(id));
-
-		public ITdiTab OpenRouteListCreateDlg(ITdiTabParent tab) =>
-			tab.OpenTab(CreateRouteListCreateDlg);
-
-		public ITdiTab CreateRouteListCreateDlg() => new RouteListCreateDlg();
-
-		public ITdiTab CreateRouteListCreateDlg(int id) => new RouteListCreateDlg(id);
 
 		public ITdiTab OpenRouteListKeepingDlg(ITdiTabParent tab, int routeListId) =>
 			tab.OpenTab(

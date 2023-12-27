@@ -8,7 +8,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods
 	{
 		public KulerSaleWebSiteNomenclatureOnlineCatalogMap()
 		{
-			DiscriminatorValue(nameof(NomenclatureOnlineParameterType.ForKulerSaleWebSite));
+			DiscriminatorValue(nameof(GoodsOnlineParameterType.ForKulerSaleWebSite));
 		}
 	}
 }

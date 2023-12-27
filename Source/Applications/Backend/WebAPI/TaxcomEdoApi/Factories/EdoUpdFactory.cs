@@ -155,6 +155,9 @@ namespace TaxcomEdoApi.Factories
 				}
 			};
 
+			var certDetails = new CertificateParser().ParseCertificate(certificateSubject, Guid.NewGuid());
+			var firstNameAndPatronymic = certDetails.GivenName.Split(' ');
+
 			upd.Dokument.SvProdPer = new FajlDokumentSvProdPer
 			{
 				SvPer = new FajlDokumentSvProdPerSvPer
@@ -163,12 +166,22 @@ namespace TaxcomEdoApi.Factories
 					OsnPer = new[]
 					{
 						GetBasis(order)
+					},
+					SvLicPer = new FajlDokumentSvProdPerSvPerSvLicPer
+					{
+						Item = new FajlDokumentSvProdPerSvPerSvLicPerRabOrgProd
+						{
+							FIO = new FIOTip
+							{
+								Familija = certDetails.SurName,
+								Imja = firstNameAndPatronymic[0],
+								Otchestvo = firstNameAndPatronymic[1]
+							},
+							Dolzhnost = "Главный бухгалтер"
+						}
 					}
 				}
 			};
-			
-			var certDetails = new CertificateParser().ParseCertificate(certificateSubject, Guid.NewGuid());
-			var firstNameAndPatronymic = certDetails.GivenName.Split(' ');
 			
 			upd.Dokument.Podpisant = new[]
 			{

@@ -298,6 +298,11 @@ namespace Vodovoz.Views.Logistic
 				.Finish();
 
 			viewDeliverySummary.Binding.AddBinding(ViewModel, vm => vm.ObservableDeliverySummary, w => w.ItemsDataSource).InitializeFromSource();
+
+			chkExcludeTrukcs.Binding
+				.AddBinding(ViewModel, vm => vm.ExcludeTrucks, w => w.Active)
+				.InitializeFromSource();
+			chkExcludeTrukcs.Toggled += (sender, args) => FillFullOrdersInfo();
 		}
 
 		private void GmapWidget_ButtonReleaseEvent(object o, ButtonReleaseEventArgs args)
@@ -1236,7 +1241,14 @@ namespace Vodovoz.Views.Logistic
 			_creatingInProgress = true;
 			buttonAutoCreate.Label = "Остановить";
 
-			if(ViewModel.CreateRoutesAutomatically(txt => textOrdersInfo.Buffer.Text = txt)) {
+			if(ViewModel.CreateRoutesAutomatically(txt =>
+				{
+					Gtk.Application.Invoke((s, args) =>
+					{
+						textOrdersInfo.Buffer.Text = txt;
+					});
+				}))
+			{
 				UpdateRoutesPixBuf();
 				UpdateRoutesButton();
 				UpdateAddressesOnMap();
