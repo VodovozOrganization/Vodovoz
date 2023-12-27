@@ -387,6 +387,15 @@ namespace Vodovoz
 
 			//Selected Callback
 			_orderToAddSelectionPage.ViewModel.OnEntitySelectedResult += OnOrdersSelected;
+			_orderToAddSelectionPage.PageClosed += OnOrderToAddSelectionPageClosed;
+		}
+
+		private void OnOrderToAddSelectionPageClosed(object sender, PageClosedEventArgs e)
+		{
+			_orderToAddSelectionPage.ViewModel.OnEntitySelectedResult -= OnOrdersSelected;
+			_orderToAddSelectionPage.PageClosed -= OnOrderToAddSelectionPageClosed;
+
+			_orderToAddSelectionPage = null;
 		}
 
 		private void OnOrdersSelected(object sender, JournalSelectedNodesEventArgs e)
@@ -409,10 +418,6 @@ namespace Vodovoz
 
 				RouteListUoW.Root.AddAddressFromOrder(order);
 			}
-
-			_orderToAddSelectionPage.ViewModel.OnEntitySelectedResult -= OnOrdersSelected;
-
-			_orderToAddSelectionPage = null;
 		}
 
 		protected void AddOrdersFromRegion()
