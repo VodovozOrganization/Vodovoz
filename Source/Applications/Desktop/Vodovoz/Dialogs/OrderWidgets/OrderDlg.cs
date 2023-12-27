@@ -1714,7 +1714,7 @@ namespace Vodovoz
 				.AddColumn(!_orderRepository.GetStatusesForActualCount(Entity).Contains(Entity.OrderStatus) ? "Кол-во" : "Кол-во [Факт]")
 					.SetTag("Count")
 					.HeaderAlignment(0.5f)
-					.AddNumericRenderer(node => node.Count)
+					.AddNumericRenderer(node => node.Count, OnCountEdited)
 					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
 					.AddSetter((c, node) => c.Digits = node.Nomenclature.Unit == null ? 0 : (uint)node.Nomenclature.Unit.Digits)
 					.AddSetter((c, node) => {
@@ -1742,7 +1742,6 @@ namespace Vodovoz
 
 						c.Editable = result;
 					}).WidthChars(10)
-					.EditedEvent(OnCountEdited)
 					.AddTextRenderer(node => node.ActualCount.HasValue
 						? string.Format("[{0:" + $"F{(node.Nomenclature.Unit == null ? 0 : (uint)node.Nomenclature.Unit.Digits)}" + "}]",
 							node.ActualCount)
@@ -4092,7 +4091,7 @@ namespace Vodovoz
 		/// </summary>
 		void ChangeEquipmentsCount(OrderItem orderItem, int newCount)
 		{
-			Entity.SetOrderItemCount(orderItem.Id, newCount);
+			Entity.SetOrderItemCount(orderItem, newCount);
 
 			OrderEquipment orderEquip = Entity.OrderEquipments.FirstOrDefault(x => x.OrderItem == orderItem);
 			if(orderEquip != null) {
