@@ -34,7 +34,7 @@ namespace Vodovoz.ReportsParameters
 								   {
 									   Id = ps.Id,
 									   Name = ps.Name,
-									   Active = !ps.CanBeReorderedWithoutRestriction,
+									   Active = ps.PromotionalSetForNewClients,
 								   })
 								   .ToList();
 

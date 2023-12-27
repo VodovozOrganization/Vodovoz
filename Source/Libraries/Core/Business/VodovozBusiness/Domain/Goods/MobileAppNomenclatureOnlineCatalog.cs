@@ -10,6 +10,6 @@ namespace Vodovoz.Domain.Goods
 	[HistoryTrace]
 	public class MobileAppNomenclatureOnlineCatalog : NomenclatureOnlineCatalog
 	{
-		public override NomenclatureOnlineParameterType Type => NomenclatureOnlineParameterType.ForMobileApp;
+		public override GoodsOnlineParameterType Type => GoodsOnlineParameterType.ForMobileApp;
 	}
 }

@@ -38,6 +38,6 @@ namespace Vodovoz.Domain.Goods.NomenclaturesOnlineParameters
 			set => SetField(ref _priceWithoutDiscount, value);
 		}
 
-		public abstract NomenclatureOnlineParameterType Type { get; }
+		public abstract GoodsOnlineParameterType Type { get; }
 	}
 }
