@@ -121,6 +121,7 @@ namespace Vodovoz.Domain.Orders
 		private GeoGroup _selfDeliveryGeoGroup;
 
 		private int? _callBeforeArrivalMinutes;
+		private DateTime? _firstDeliveryDate;
 
 		#region Cвойства
 
@@ -302,6 +303,14 @@ namespace Vodovoz.Domain.Orders
 						"Дата договора будет изменена при сохранении текущего заказа!");
 				}
 			}
+		}
+
+		[Display(Name = "Первичная дата доставки")]
+		[HistoryDateOnly]
+		public virtual DateTime? FirstDeliveryDate
+		{
+			get => _firstDeliveryDate;
+			set => SetField(ref _firstDeliveryDate, value);
 		}
 
 		private DateTime billDate = DateTime.Now;
@@ -4307,6 +4316,11 @@ namespace Vodovoz.Domain.Orders
 			IPaymentFromBankClientController paymentFromBankClientController)
 		{
 			SetFirstOrder();
+
+			if(FirstDeliveryDate is null)
+			{
+				FirstDeliveryDate = DeliveryDate;
+			}
 
 			if(!IsLoadedFrom1C)
 			{
