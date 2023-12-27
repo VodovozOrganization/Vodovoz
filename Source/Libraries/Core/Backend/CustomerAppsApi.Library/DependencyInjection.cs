@@ -22,28 +22,26 @@ namespace CustomerAppsApi.Library
 		/// <returns></returns>
 		public static IServiceCollection AddCustomerApiLibrary(this IServiceCollection services)
 		{
-			services.AddSingleton<ICachedBottlesDebtRepository, CachedBottlesDebtRepository>();
-			
-			services.AddSingleton<IRegisteredNaturalCounterpartyDtoFactory, RegisteredNaturalCounterpartyDtoFactory>();
-			services.AddSingleton<IExternalCounterpartyMatchingFactory, ExternalCounterpartyMatchingFactory>();
-			services.AddSingleton<IExternalCounterpartyFactory, ExternalCounterpartyFactory>();
-			services.AddSingleton<ICounterpartyModelFactory, CounterpartyModelFactory>();
-			services.AddSingleton<ICounterpartyFactory, CounterpartyFactory>();
-			services.AddSingleton<INomenclatureFactory, NomenclatureFactory>();
-			services.AddSingleton<IPromotionalSetFactory, PromotionalSetFactory>();
-			services.AddSingleton<ICameFromConverter, CameFromConverter>();
-			services.AddSingleton<ISourceConverter, SourceConverter>();
-			services.AddSingleton<ContactFinderForExternalCounterpartyFromOne>();
-			services.AddSingleton<ContactFinderForExternalCounterpartyFromTwo>();
-			services.AddSingleton<ContactFinderForExternalCounterpartyFromMany>();
-			services.AddSingleton<IContactManagerForExternalCounterparty, ContactManagerForExternalCounterparty>();
-			services.AddSingleton<IGoodsOnlineParametersController, GoodsOnlineParametersController>();
-			
-			services.AddScoped<ICounterpartyModel, CounterpartyModel>();
-			services.AddScoped<INomenclatureModel, NomenclatureModel>();
-			services.AddScoped<IOrderModel, OrderModel>();
-			services.AddScoped<IPromotionalSetModel, PromotionalSetModel>();
-			services.AddScoped<ICounterpartyModelValidator, CounterpartyModelValidator>();
+			services.AddSingleton<ICachedBottlesDebtRepository, CachedBottlesDebtRepository>()
+				.AddSingleton<IRegisteredNaturalCounterpartyDtoFactory, RegisteredNaturalCounterpartyDtoFactory>()
+				.AddSingleton<IExternalCounterpartyMatchingFactory, ExternalCounterpartyMatchingFactory>()
+				.AddSingleton<IExternalCounterpartyFactory, ExternalCounterpartyFactory>()
+				.AddSingleton<ICounterpartyModelFactory, CounterpartyModelFactory>()
+				.AddSingleton<ICounterpartyFactory, CounterpartyFactory>()
+				.AddSingleton<INomenclatureFactory, NomenclatureFactory>()
+				.AddSingleton<IPromotionalSetFactory, PromotionalSetFactory>()
+				.AddSingleton<ICameFromConverter, CameFromConverter>()
+				.AddSingleton<ISourceConverter, SourceConverter>()
+				.AddSingleton<ContactFinderForExternalCounterpartyFromOne>()
+				.AddSingleton<ContactFinderForExternalCounterpartyFromTwo>()
+				.AddSingleton<ContactFinderForExternalCounterpartyFromMany>()
+				.AddSingleton<IContactManagerForExternalCounterparty, ContactManagerForExternalCounterparty>()
+				.AddSingleton<IGoodsOnlineParametersController, GoodsOnlineParametersController>()
+				.AddScoped<ICounterpartyModel, CounterpartyModel>()
+				.AddScoped<INomenclatureModel, NomenclatureModel>()
+				.AddScoped<IOrderModel, OrderModel>()
+				.AddScoped<IPromotionalSetModel, PromotionalSetModel>()
+				.AddScoped<ICounterpartyModelValidator, CounterpartyModelValidator>();
 
 			return services;
 		}

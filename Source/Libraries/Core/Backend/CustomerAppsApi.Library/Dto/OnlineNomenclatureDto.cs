@@ -106,6 +106,9 @@ namespace CustomerAppsApi.Library.Dto
 		/// </summary>
 		[JsonConverter(typeof(JsonStringEnumConverter))]
 		public LockerRefrigeratorType? LockerRefrigeratorType { get; set; }
+		/// <summary>
+		/// Объем шкафчика или холодильника
+		/// </summary>
 		public int? LockerRefrigeratorVolume { get; set; }
 		/// <summary>
 		/// Тип кранов
