@@ -1,11 +1,11 @@
 ﻿using System;
-using CustomerAppsApi.Converters;
-using CustomerAppsApi.Factories;
+using CustomerAppsApi.Library.Converters;
 using CustomerAppsApi.Library.Dto;
+using CustomerAppsApi.Library.Factories;
 using QS.DomainModel.UoW;
 using Vodovoz.Controllers;
 
-namespace CustomerAppsApi.Models
+namespace CustomerAppsApi.Library.Models
 {
 	public class PromotionalSetModel : IPromotionalSetModel
 	{

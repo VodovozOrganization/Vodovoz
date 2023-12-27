@@ -1,6 +1,6 @@
 ﻿using System;
 using CustomerAppsApi.Library.Dto;
-using CustomerAppsApi.Models;
+using CustomerAppsApi.Library.Models;
 using Gamma.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;

@@ -1,11 +1,10 @@
 using System;
 using System.Threading.Tasks;
-using CustomerAppsApi.Converters;
-using CustomerAppsApi.Factories;
+using CustomerAppsApi.Library.Converters;
 using CustomerAppsApi.Library.Dto;
 using CustomerAppsApi.Library.Factories;
-using CustomerAppsApi.Repositories;
-using CustomerAppsApi.Validators;
+using CustomerAppsApi.Library.Repositories;
+using CustomerAppsApi.Library.Validators;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using QS.Utilities.Numeric;
@@ -18,7 +17,7 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.Parameters;
 
-namespace CustomerAppsApi.Models
+namespace CustomerAppsApi.Library.Models
 {
 	public class CounterpartyModel : ICounterpartyModel
 	{
@@ -31,8 +30,8 @@ namespace CustomerAppsApi.Models
 		private readonly ICachedBottlesDebtRepository _cachedBottlesDebtRepository;
 		private readonly IRoboatsSettings _roboatsSettings;
 		private readonly ICameFromConverter _cameFromConverter;
-		private readonly CounterpartyModelFactory _counterpartyModelFactory;
-		private readonly CounterpartyModelValidator _counterpartyModelValidator;
+		private readonly ICounterpartyModelFactory _counterpartyModelFactory;
+		private readonly ICounterpartyModelValidator _counterpartyModelValidator;
 		private readonly IContactManagerForExternalCounterparty _contactManagerForExternalCounterparty;
 		private readonly ICounterpartyFactory _counterpartyFactory;
 
@@ -46,8 +45,8 @@ namespace CustomerAppsApi.Models
 			ICachedBottlesDebtRepository cachedBottlesDebtRepository,
 			IRoboatsSettings roboatsSettings,
 			ICameFromConverter cameFromConverter,
-			CounterpartyModelFactory counterpartyModelFactory,
-			CounterpartyModelValidator counterpartyModelValidator,
+			ICounterpartyModelFactory counterpartyModelFactory,
+			ICounterpartyModelValidator counterpartyModelValidator,
 			IContactManagerForExternalCounterparty contactManagerForExternalCounterparty,
 			ICounterpartyFactory counterpartyFactory)
 		{

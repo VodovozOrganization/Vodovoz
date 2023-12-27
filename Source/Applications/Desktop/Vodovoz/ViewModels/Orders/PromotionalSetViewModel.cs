@@ -39,7 +39,7 @@ namespace Vodovoz.ViewModels.Orders
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			CanChangeType =
 				commonServices.CurrentPermissionService.ValidatePresetPermission(
-					Vodovoz.Permissions.Order.PromotionalSet.CanChangeTypePromoSet);
+					Vodovoz.Permissions.Order.PromotionalSet.CanChangeTypePromoSet) && CanUpdate;
 
 			if(!CanRead)
 			{

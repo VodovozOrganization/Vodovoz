@@ -2,7 +2,7 @@
 using CustomerAppsApi.Library.Dto;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 
-namespace CustomerAppsApi.Converters
+namespace CustomerAppsApi.Library.Converters
 {
 	public class SourceConverter : ISourceConverter
 	{

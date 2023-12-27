@@ -1,7 +1,7 @@
 ﻿using CustomerAppsApi.Library.Dto;
 using Vodovoz.Domain.Client;
 
-namespace CustomerAppsApi.Factories
+namespace CustomerAppsApi.Library.Factories
 {
 	public class RegisteredNaturalCounterpartyDtoFactory : IRegisteredNaturalCounterpartyDtoFactory
 	{

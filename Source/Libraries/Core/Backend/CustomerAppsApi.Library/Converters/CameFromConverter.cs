@@ -2,7 +2,7 @@
 using Vodovoz.Domain.Client;
 using Vodovoz.Parameters;
 
-namespace CustomerAppsApi.Converters
+namespace CustomerAppsApi.Library.Converters
 {
 	public class CameFromConverter : ICameFromConverter
 	{

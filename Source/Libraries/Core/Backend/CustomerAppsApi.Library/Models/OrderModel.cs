@@ -2,7 +2,7 @@
 using QS.DomainModel.UoW;
 using Vodovoz.EntityRepositories.Orders;
 
-namespace CustomerAppsApi.Models
+namespace CustomerAppsApi.Library.Models
 {
 	public class OrderModel : IOrderModel
 	{

@@ -91,7 +91,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			return result.Count != 0;
 		}
 		
-		public IList<PromotionalSetOnlineParametersNode> GetPromotionalSetsOnlineParametersForSend(
+		public IEnumerable<PromotionalSetOnlineParametersNode> GetPromotionalSetsOnlineParametersForSend(
 			IUnitOfWork uow, GoodsOnlineParameterType parameterType)
 		{
 			PromotionalSet promotionalSetAlias = null;
@@ -111,7 +111,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				.List<PromotionalSetOnlineParametersNode>();
 		}
 		
-		public IList<PromotionalSetItemBalanceNode> GetPromotionalSetsItemsWithBalanceForSend(
+		public IEnumerable<PromotionalSetItemBalanceNode> GetPromotionalSetsItemsWithBalanceForSend(
 			IUnitOfWork uow, GoodsOnlineParameterType parameterType)
 		{
 			PromotionalSet promotionalSetAlias = null;

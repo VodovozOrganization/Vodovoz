@@ -7,7 +7,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Operations;
 
-namespace CustomerAppsApi.Repositories
+namespace CustomerAppsApi.Library.Repositories
 {
 	public class CachedBottlesDebtRepository : ICachedBottlesDebtRepository
 	{

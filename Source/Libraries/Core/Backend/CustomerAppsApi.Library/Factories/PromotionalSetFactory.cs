@@ -3,7 +3,7 @@ using System.Linq;
 using CustomerAppsApi.Library.Dto;
 using Vodovoz.Nodes;
 
-namespace CustomerAppsApi.Factories
+namespace CustomerAppsApi.Library.Factories
 {
 	public class PromotionalSetFactory : IPromotionalSetFactory
 	{

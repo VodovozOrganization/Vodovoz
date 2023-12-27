@@ -1,6 +1,6 @@
 using Vodovoz.Domain.Client;
 
-namespace CustomerAppsApi.Converters
+namespace CustomerAppsApi.Library.Converters
 {
 	public interface ICameFromConverter
 	{

@@ -5,9 +5,9 @@ using QS.Utilities.Numeric;
 using Vodovoz.Domain.Client;
 using Vodovoz.Parameters;
 
-namespace CustomerAppsApi.Validators
+namespace CustomerAppsApi.Library.Validators
 {
-	public class CounterpartyModelValidator
+	public class CounterpartyModelValidator : ICounterpartyModelValidator
 	{
 		private const string _wrongCameFromId = "Неверно заполнено поле Откуда клиент";
 		private readonly PhoneFormatter _phoneFormatter;

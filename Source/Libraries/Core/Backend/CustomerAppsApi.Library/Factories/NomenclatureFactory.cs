@@ -4,7 +4,7 @@ using CustomerAppsApi.Library.Dto;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Nodes;
 
-namespace CustomerAppsApi.Factories
+namespace CustomerAppsApi.Library.Factories
 {
 	public class NomenclatureFactory : INomenclatureFactory
 	{

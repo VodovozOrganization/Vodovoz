@@ -3,9 +3,9 @@ using CustomerAppsApi.Library.Dto;
 using Vodovoz.Domain.Client;
 using Vodovoz.Factories;
 
-namespace CustomerAppsApi.Factories
+namespace CustomerAppsApi.Library.Factories
 {
-	public class CounterpartyModelFactory
+	public class CounterpartyModelFactory : ICounterpartyModelFactory
 	{
 		private readonly IRegisteredNaturalCounterpartyDtoFactory _registeredNaturalCounterpartyDtoFactory;
 		private readonly IExternalCounterpartyMatchingFactory _externalCounterpartyMatchingFactory;

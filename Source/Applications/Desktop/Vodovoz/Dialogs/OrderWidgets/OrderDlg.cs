@@ -2312,9 +2312,9 @@ namespace Vodovoz
 			}
 
 			var hasPromoSetForNewClients = Entity.PromotionalSets.Any(x => x.PromotionalSetForNewClients);
-			var otherFirstRealOrder = _orderRepository.HasCounterpartyOtherFirstRealOrder(UoW, Entity.Client, Entity.Id);
+			var hasOtherFirstRealOrder = _orderRepository.HasCounterpartyOtherFirstRealOrder(UoW, Entity.Client, Entity.Id);
 
-			if(hasPromoSetForNewClients && otherFirstRealOrder)
+			if(hasPromoSetForNewClients && hasOtherFirstRealOrder)
 			{
 				if(!MessageDialogHelper.RunQuestionDialog(
 					"В заказ добавлен промонабор для новых клиентов, но это не первый заказ клиента\n" +

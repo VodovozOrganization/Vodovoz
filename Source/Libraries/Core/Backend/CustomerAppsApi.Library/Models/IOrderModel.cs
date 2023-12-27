@@ -1,4 +1,4 @@
-namespace CustomerAppsApi.Models
+namespace CustomerAppsApi.Library.Models
 {
 	public interface IOrderModel
 	{

@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using QS.DomainModel.UoW;
 
-namespace CustomerAppsApi.Repositories
+namespace CustomerAppsApi.Library.Repositories
 {
 	public interface ICachedBottlesDebtRepository
 	{

@@ -62,6 +62,7 @@ namespace Vodovoz.Views.Orders
 			chkPromoSetForNewClients.Binding
 				.AddBinding(ViewModel.Entity, e => e.PromotionalSetForNewClients, w => w.Active)
 				.InitializeFromSource();
+			chkPromoSetForNewClients.Sensitive = ViewModel.CanChangeType;
 
 			widgetcontainerview.Binding
 				.AddBinding(ViewModel, vm => vm.SelectedActionViewModel, w => w.WidgetViewModel);
