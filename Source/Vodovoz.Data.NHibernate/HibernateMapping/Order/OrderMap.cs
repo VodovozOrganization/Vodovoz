@@ -20,6 +20,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.CommentLogist).Column("comment_logist");
 			Map(x => x.DeliveryDate).Column("delivery_date")
 				.Access.CamelCaseField(Prefix.Underscore);
+			Map(x => x.FirstDeliveryDate).Column("first_delivery_date");
 			Map(x => x.SelfDelivery).Column("self_delivery");
 			Map(x => x.PayAfterShipment).Column("pay_after_shipment");
 			Map(x => x.BottlesReturn).Column("bottles_return");
