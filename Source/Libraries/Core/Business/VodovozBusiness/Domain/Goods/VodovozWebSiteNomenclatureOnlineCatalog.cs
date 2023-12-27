@@ -10,6 +10,6 @@ namespace Vodovoz.Domain.Goods
 	[HistoryTrace]
 	public class VodovozWebSiteNomenclatureOnlineCatalog : NomenclatureOnlineCatalog
 	{
-		public override NomenclatureOnlineParameterType Type => NomenclatureOnlineParameterType.ForVodovozWebSite;
+		public override GoodsOnlineParameterType Type => GoodsOnlineParameterType.ForVodovozWebSite;
 	}
 }
