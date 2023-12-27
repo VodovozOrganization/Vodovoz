@@ -93,6 +93,7 @@ namespace Vodovoz.Domain.Orders
 		private readonly double _futureDeliveryDaysLimit = 30;
 
 		private bool _isBottleStockDiscrepancy;
+		private TimeSpan? _waitUntilTime;
 
 		#region Платная доставка
 
@@ -909,6 +910,13 @@ namespace Vodovoz.Domain.Orders
 		{
 			get => _logisticsRequirements;
 			set => SetField(ref _logisticsRequirements, value);
+		}
+		
+		[Display(Name = "Ожидает до")]
+		public virtual TimeSpan? WaitUntilTime
+		{
+			get => _waitUntilTime;
+			set => SetField(ref _waitUntilTime, value);
 		}
 
 		#endregion

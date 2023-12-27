@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.Dialog.Gtk;
 using QS.Permissions;
 using QS.Project.DB;
@@ -179,8 +179,6 @@ using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewWidgets.PromoSetAction;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
 using UserView = Vodovoz.Views.Users.UserView;
-using Vodovoz.ViewModels.ReportsParameters.Payments;
-using Vodovoz.ReportsParameters.Payments;
 using Vodovoz.ViewModels.ViewModels.Reports.Logistics;
 
 namespace Vodovoz
@@ -245,6 +243,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<EmployeeWageParameterViewModel, WageParameterView>()
 				.RegisterWidgetForTabViewModel<SalesPlanViewModel, SalesPlanView>()
 				.RegisterWidgetForTabViewModel<RouteListsOnDayViewModel, RouteListsOnDayView>()
+				.RegisterWidgetForTabViewModel<RouteListCreateViewModel, RouteListCreateView>()
 				.RegisterWidgetForTabViewModel<RouteListFastDeliveryMaxDistanceViewModel, RouteListFastDeliveryMaxDistanceView>()
 				.RegisterWidgetForTabViewModel<RouteListMaxFastDeliveryOrdersViewModel, RouteListMaxFastDeliveryOrdersView>()
 				.RegisterWidgetForTabViewModel<DriversStopListsViewModel, DriversStopListsView>()

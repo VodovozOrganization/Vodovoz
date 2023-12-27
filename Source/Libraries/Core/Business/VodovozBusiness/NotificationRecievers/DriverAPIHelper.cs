@@ -3,12 +3,13 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
-namespace SmsPaymentService
+namespace Vodovoz.NotificationRecievers
 {
-	public class DriverAPIHelper : ISmsPaymentStatusNotificationReciever, IDisposable
+	public class DriverAPIHelper : ISmsPaymentStatusNotificationReciever, IFastDeliveryOrderAddedNotificationReciever, IWaitingTimeChangedNotificationReciever, IDisposable
 	{
 		private string _notifyOfSmsPaymentStatusChangedUri;
 		private string _notifyOfFastDeliveryOrderAddedUri;
+		private string _notifyOfWaitingTimeChangedURI;
 		private HttpClient _apiClient;
 
 		public DriverAPIHelper(DriverApiHelperConfiguration configuration)
@@ -25,6 +26,7 @@ namespace SmsPaymentService
 
 			_notifyOfSmsPaymentStatusChangedUri = configuration.NotifyOfSmsPaymentStatusChangedURI;
 			_notifyOfFastDeliveryOrderAddedUri = configuration.NotifyOfFastDeliveryOrderAddedURI;
+			_notifyOfWaitingTimeChangedURI = configuration.NotifyOfWaitingTimeChangedURI;
 		}
 
 		public async Task NotifyOfSmsPaymentStatusChanged(int orderId)
@@ -51,6 +53,18 @@ namespace SmsPaymentService
 			}
 		}
 
+		public async Task NotifyOfWaitingTimeChanged(int orderId)
+		{
+			using(var response = await _apiClient.PostAsJsonAsync(_notifyOfWaitingTimeChangedURI, orderId))
+			{
+				if(response.IsSuccessStatusCode)
+				{
+					return;
+				}
+				throw new DriverAPIHelperException(response.ReasonPhrase);
+			}
+		}
+
 		public void Dispose()
 		{
 			_apiClient?.Dispose();
@@ -68,5 +82,6 @@ namespace SmsPaymentService
 		public Uri ApiBase { get; set; }
 		public string NotifyOfSmsPaymentStatusChangedURI { get; set; }
 		public string NotifyOfFastDeliveryOrderAddedURI { get; set; }
+		public string NotifyOfWaitingTimeChangedURI { get; set; }
 	}
 }

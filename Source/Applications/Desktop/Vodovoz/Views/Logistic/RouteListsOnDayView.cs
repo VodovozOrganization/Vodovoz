@@ -1236,7 +1236,14 @@ namespace Vodovoz.Views.Logistic
 			_creatingInProgress = true;
 			buttonAutoCreate.Label = "Остановить";
 
-			if(ViewModel.CreateRoutesAutomatically(txt => textOrdersInfo.Buffer.Text = txt)) {
+			if(ViewModel.CreateRoutesAutomatically(txt =>
+				{
+					Gtk.Application.Invoke((s, args) =>
+					{
+						textOrdersInfo.Buffer.Text = txt;
+					});
+				}))
+			{
 				UpdateRoutesPixBuf();
 				UpdateRoutesButton();
 				UpdateAddressesOnMap();

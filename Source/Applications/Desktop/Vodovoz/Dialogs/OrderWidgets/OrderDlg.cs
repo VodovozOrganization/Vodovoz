@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
@@ -28,7 +28,6 @@ using QS.ViewModels.Extension;
 using QSOrmProject;
 using QSProjectsLib;
 using QSWidgetLib;
-using SmsPaymentService;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -40,6 +39,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Additions.Printing;
 using Vodovoz.Application.Orders.Services;
 using Vodovoz.Controllers;
@@ -91,6 +91,7 @@ using Vodovoz.Journals.Nodes.Rent;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.Models.Orders;
+using Vodovoz.NotificationRecievers;
 using Vodovoz.Parameters;
 using Vodovoz.Presentation.ViewModels.PaymentType;
 using Vodovoz.Services;
@@ -262,6 +263,11 @@ namespace Vodovoz
 
 		private Result _lastSaveResult;
 
+        private readonly IGeneralSettingsParametersProvider _generalSettingsParametersProvider = new GeneralSettingsParametersProvider(new ParametersProvider());
+		private bool _isWaitUntilActive => Entity.OrderStatus == OrderStatus.OnTheWay
+			&& _generalSettingsParametersProvider.GetIsOrderWaitUntilActive;
+		private TimeSpan? _lastWaitUntilTime;
+
 		public virtual INomenclatureRepository NomenclatureRepository
 		{
 			get
@@ -287,7 +293,8 @@ namespace Vodovoz
 					{
 						ApiBase = _driverApiParametersProvider.ApiBase,
 						NotifyOfSmsPaymentStatusChangedURI = _driverApiParametersProvider.NotifyOfSmsPaymentStatusChangedUri,
-						NotifyOfFastDeliveryOrderAddedURI = _driverApiParametersProvider.NotifyOfFastDeliveryOrderAddedUri
+						NotifyOfFastDeliveryOrderAddedURI = _driverApiParametersProvider.NotifyOfFastDeliveryOrderAddedUri,
+						NotifyOfWaitingTimeChangedURI = _driverApiParametersProvider.NotifyOfWaitingTimeChangedURI
 					};
 					_driverApiHelper = new DriverAPIHelper(driverApiConfig);
 				}
@@ -1059,6 +1066,11 @@ namespace Vodovoz
 			logisticsRequirementsView.ViewModel = new LogisticsRequirementsViewModel(Entity.LogisticsRequirements ?? GetLogisticsRequirements(), ServicesConfig.CommonServices);
 			UpdateEntityLogisticsRequirements();
 			logisticsRequirementsView.ViewModel.Entity.PropertyChanged += OnLogisticsRequirementsSelectionChanged;
+
+			timepickerWaitUntil.Binding.AddBinding(Entity, e => e.WaitUntilTime, w => w.TimeOrNull).InitializeFromSource();
+			timepickerWaitUntil.GetDefaultTime = () => DateTime.Now.AddHours(1).TimeOfDay;
+
+			_lastWaitUntilTime = Entity.WaitUntilTime;
 
 			OnEnumPaymentTypeChanged(null, EventArgs.Empty);
 			UpdateCallBeforeArrivalVisibility();
@@ -2181,6 +2193,12 @@ namespace Vodovoz
 					SendBill();
 				}
 
+				if(Entity.WaitUntilTime != _lastWaitUntilTime)
+				{
+					// Пока нет доработки в мобильном тут оставим заглушенным
+					// NotifyDriverAboutWaitingTimeChangedAsync();
+				}
+
 				logger.Info("Ok.");
 				UpdateUIState();
 				btnCopyEntityId.Sensitive = true;
@@ -2457,23 +2475,37 @@ namespace Vodovoz
 
 			if(routeListToAddFastDeliveryOrder != null && DriverApiParametersProvider.NotificationsEnabled)
 			{
-				NotifyDriver();
+				NotifyDriverOfFastDeliveryOrderAddedAsync();
 			}
+
 			ProcessSmsNotification();
+
 			UpdateUIState();
 
 			return Result.Success();
 		}
 
-		private void NotifyDriver()
+		private async Task NotifyDriverOfFastDeliveryOrderAddedAsync()
 		{
 			try
 			{
-				DriverApiHelper.NotifyOfFastDeliveryOrderAdded(Entity.Id);
+				await DriverApiHelper.NotifyOfFastDeliveryOrderAdded(Entity.Id);
 			}
 			catch(Exception e)
 			{
 				logger.Error(e, "Не удалось уведомить водителя о добавлении заказа с быстрой доставкой в МЛ");
+			}
+		}
+
+		private async Task NotifyDriverAboutWaitingTimeChangedAsync()
+		{
+			try
+			{
+				await DriverApiHelper.NotifyOfWaitingTimeChanged(Entity.Id);
+			}
+			catch(Exception e)
+			{
+				logger.Error(e, $"Не удалось уведомить водителя изменении времени ожидания");
 			}
 		}
 
@@ -4142,7 +4174,16 @@ namespace Vodovoz
 		void SetPadInfoSensitive(bool value)
 		{
 			foreach(var widget in table1.Children)
-				widget.Sensitive = widget.Name == vboxOrderComment.Name || value;
+			{
+				if(widget.Name == timepickerWaitUntil.Name || widget.Name == ylabelWaitUntil.Name)
+				{
+					widget.Sensitive = _isWaitUntilActive;
+				}
+				else
+				{
+					widget.Sensitive = widget.Name == vboxOrderComment.Name || value;
+				}
+			}
 
 			if(chkContractCloser.Active)
 			{
