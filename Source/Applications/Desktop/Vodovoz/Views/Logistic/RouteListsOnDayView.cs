@@ -298,6 +298,11 @@ namespace Vodovoz.Views.Logistic
 				.Finish();
 
 			viewDeliverySummary.Binding.AddBinding(ViewModel, vm => vm.ObservableDeliverySummary, w => w.ItemsDataSource).InitializeFromSource();
+
+			chkExcludeTrukcs.Binding
+				.AddBinding(ViewModel, vm => vm.ExcludeTrucks, w => w.Active)
+				.InitializeFromSource();
+			chkExcludeTrukcs.Toggled += (sender, args) => FillFullOrdersInfo();
 		}
 
 		private void GmapWidget_ButtonReleaseEvent(object o, ButtonReleaseEventArgs args)

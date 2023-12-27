@@ -60,6 +60,8 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 
+		private bool _excludeTrucks;
+
 		public IUnitOfWork UoW;
 
 		public RouteListsOnDayViewModel(
@@ -200,6 +202,11 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 		}
 
+		public bool ExcludeTrucks
+		{
+			get => _excludeTrucks;
+			set => SetField(ref _excludeTrucks, value);
+		}
 		public ICommonServices CommonServices { get; }
 		public ILifetimeScope LifetimeScope { get; }
 		public ICarRepository CarRepository { get; }
@@ -1256,43 +1263,68 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
+			(int OrderId, decimal Count) resultAlias = default;
+			
+			_logger.LogInformation("Начали расчет параметров");
 
-			int totalOrders = OrderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
-											 .GetExecutableQueryOver(UoW.Session)
-											 .Select(Projections.Count<Order>(x => x.Id))
-											 .Where(o => !o.IsContractCloser)
-											 .And(o => o.OrderAddressType != OrderAddressType.Service)
-											 .SingleOrDefault<int>();
+			var totalOrders =
+				OrderRepository.GetOrdersForRLEditingQuery(DateForRouting, true, excludeTrucks: ExcludeTrucks)
+					.GetExecutableQueryOver(UoW.Session)
+					.Where(o => !o.IsContractCloser)
+					.And(o => o.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId)
+					.And(o => o.OrderAddressType != OrderAddressType.Service)
+					.Select(Projections.CountDistinct<Order>(x => x.Id))
+					.SingleOrDefault<int>();
 
-			decimal totalBottles = OrderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
-											  .GetExecutableQueryOver(UoW.Session)
-											  .JoinAlias(o => o.OrderItems, () => orderItemAlias)
-											  .JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
-											  .Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
-											  .Select(Projections.Sum(() => orderItemAlias.Count))
-											  .Where(o => !o.IsContractCloser)
-											  .And(o => o.OrderAddressType != OrderAddressType.Service)
-											  .SingleOrDefault<decimal>();
+			var totalBottles = 
+				OrderRepository.GetOrdersForRLEditingQuery(DateForRouting, true, excludeTrucks: ExcludeTrucks)
+					.GetExecutableQueryOver(UoW.Session)
+					.JoinAlias(o => o.OrderItems, () => orderItemAlias)
+					.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+					.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
+					.And(o => !o.IsContractCloser)
+					.And(o => o.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId)
+					.And(o => o.OrderAddressType != OrderAddressType.Service)
+					.SelectList(list => list
+						.SelectGroup(o => o.Id).WithAlias(() => resultAlias.OrderId)
+						.Select(Projections.Sum(() => orderItemAlias.Count)).WithAlias(() => resultAlias.Count))
+					.TransformUsing(Transformers.AliasToBean<(int OrderId, decimal Count)>())
+					.List<(int OrderId, decimal Count)>()
+					.Sum(x => x.Count);
 
-			decimal total6LBottles = OrderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
-											  .GetExecutableQueryOver(UoW.Session)
-											  .JoinAlias(o => o.OrderItems, () => orderItemAlias)
-											  .JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
-											  .Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol6L)
-											  .Select(Projections.Sum(() => orderItemAlias.Count))
-											  .Where(o => !o.IsContractCloser)
-											  .And(o => o.OrderAddressType != OrderAddressType.Service)
-											  .SingleOrDefault<decimal>();
+			var total6LBottles =
+				OrderRepository.GetOrdersForRLEditingQuery(DateForRouting, true, excludeTrucks: ExcludeTrucks)
+					.GetExecutableQueryOver(UoW.Session)
+					.JoinAlias(o => o.OrderItems, () => orderItemAlias)
+					.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+					.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol6L)
+					.And(o => !o.IsContractCloser)
+					.And(o => o.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId)
+					.And(o => o.OrderAddressType != OrderAddressType.Service)
+					.SelectList(list => list
+						.SelectGroup(o => o.Id).WithAlias(() => resultAlias.OrderId)
+						.Select(Projections.Sum(() => orderItemAlias.Count)).WithAlias(() => resultAlias.Count))
+					.TransformUsing(Transformers.AliasToBean<(int OrderId, decimal Count)>())
+					.List<(int OrderId, decimal Count)>()
+					.Sum(x => x.Count);
 
-			decimal total600mlBottles = OrderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
-											  .GetExecutableQueryOver(UoW.Session)
-											  .JoinAlias(o => o.OrderItems, () => orderItemAlias)
-											  .JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
-											  .Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol600ml)
-											  .Select(Projections.Sum(() => orderItemAlias.Count))
-											  .Where(o => !o.IsContractCloser)
-											  .And(o => o.OrderAddressType != OrderAddressType.Service)
-											  .SingleOrDefault<decimal>();
+			var total600mlBottles =
+				OrderRepository.GetOrdersForRLEditingQuery(DateForRouting, true, excludeTrucks: ExcludeTrucks)
+					.GetExecutableQueryOver(UoW.Session)
+					.JoinAlias(o => o.OrderItems, () => orderItemAlias)
+					.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+					.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol600ml)
+					.And(o => !o.IsContractCloser)
+					.And(o => o.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId)
+					.And(o => o.OrderAddressType != OrderAddressType.Service)
+					.SelectList(list => list
+						.SelectGroup(o => o.Id).WithAlias(() => resultAlias.OrderId)
+						.Select(Projections.Sum(() => orderItemAlias.Count)).WithAlias(() => resultAlias.Count))
+					.TransformUsing(Transformers.AliasToBean<(int OrderId, decimal Count)>())
+					.List<(int OrderId, decimal Count)>()
+					.Sum(x => x.Count);
+			
+			_logger.LogInformation("Закончили расчет параметров");
 
 			var text = new List<string> {
 				NumberToTextRus.FormatCase(totalOrders, "На день {0} заказ.", "На день {0} заказа.", "На день {0} заказов."),
