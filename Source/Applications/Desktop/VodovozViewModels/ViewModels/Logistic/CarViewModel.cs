@@ -18,7 +18,6 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.Factories;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Factories;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 using Vodovoz.ViewModels.TempAdapters;
