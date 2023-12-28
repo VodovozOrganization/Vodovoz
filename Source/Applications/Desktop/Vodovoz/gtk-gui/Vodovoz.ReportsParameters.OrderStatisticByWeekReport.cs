@@ -10,7 +10,7 @@ namespace Vodovoz.ReportsParameters
 
 		private global::Gamma.GtkWidgets.yCheckButton chkPotentialOrders;
 
-		private global::Gtk.ComboBox comboboxReportMode;
+		private global::Gamma.Widgets.yEnumComboBox cmbReportType;
 
 		private global::QS.Widgets.GtkUI.DateRangePicker dateperiodpicker;
 
@@ -65,10 +65,14 @@ namespace Vodovoz.ReportsParameters
 			w2.XOptions = ((global::Gtk.AttachOptions)(4));
 			w2.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.comboboxReportMode = global::Gtk.ComboBox.NewText();
-			this.comboboxReportMode.Name = "comboboxReportMode";
-			this.table1.Add(this.comboboxReportMode);
-			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.comboboxReportMode]));
+			this.cmbReportType = new global::Gamma.Widgets.yEnumComboBox();
+			this.cmbReportType.Name = "cmbReportType";
+			this.cmbReportType.ShowSpecialStateAll = false;
+			this.cmbReportType.ShowSpecialStateNot = false;
+			this.cmbReportType.UseShortTitle = false;
+			this.cmbReportType.DefaultFirst = false;
+			this.table1.Add(this.cmbReportType);
+			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.cmbReportType]));
 			w3.TopAttach = ((uint)(1));
 			w3.BottomAttach = ((uint)(2));
 			w3.LeftAttach = ((uint)(1));

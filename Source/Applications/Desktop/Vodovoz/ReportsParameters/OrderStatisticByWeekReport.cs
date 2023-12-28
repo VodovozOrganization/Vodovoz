@@ -19,6 +19,7 @@ namespace Vodovoz.ReportsParameters
 	public partial class OrderStatisticByWeekReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		private readonly GenericObservableList<GeographicGroupNode> _geographicGroupNodes;
+		private OrderStatisticsByWeekReportType _reportType;
 
 		public OrderStatisticByWeekReport()
 		{
@@ -28,13 +29,10 @@ namespace Vodovoz.ReportsParameters
 			dateperiodpicker.StartDate = new DateTime(DateTime.Today.Year, 1, 1);
 			dateperiodpicker.EndDate = DateTime.Today;
 
-			new List<string>()
-			{
-				"План",
-				"Факт"
-			}.ForEach(comboboxReportMode.AppendText);
-
-			comboboxReportMode.Active = 0;
+			cmbReportType.ItemsEnum = typeof(OrderStatisticsByWeekReportType);
+			/*cmbReportType.Binding
+				.AddBinding(this, e => e.ReportType, w => w.SelectedItem)
+				.InitializeFromSource();*/
 
 			_geographicGroupNodes = new GenericObservableList<GeographicGroupNode>(
 				UoW.GetAll<GeoGroup>().Select(gg => new GeographicGroupNode(gg){Selected = true}).ToList());
@@ -55,6 +53,12 @@ namespace Vodovoz.ReportsParameters
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
 		#endregion
+
+		/*private OrderStatisticsByWeekReportType ReportType
+		{
+			get => _reportType;
+			set => SetField(ref _reportType, value);
+		}*/
 
 		private void OnUpdate(bool hide = false) =>
 			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
@@ -90,7 +94,7 @@ namespace Vodovoz.ReportsParameters
 				{
 					{ "start_date", dateperiodpicker.StartDate },
 					{ "end_date", dateperiodpicker.EndDate.AddDays(1).AddTicks(-1) },
-					{ "report_mode", comboboxReportMode.Active },
+					{ "report_mode", cmbReportType.Active },
 					{ "geographic_group_id", selectedGeoGroupsIds },
 					{ "selected_filters", GetSelectedFilters() }
 				}
@@ -110,16 +114,8 @@ namespace Vodovoz.ReportsParameters
 				_geographicGroupNodes.Where(ggn => ggn.Selected).Select(ggn => ggn.ToString()).ForEach(ggName => result += $" {ggName},");
 			}
 
-			result += " тип значений -";
-			switch(comboboxReportMode.Active)
-			{
-				case 0:
-					result += " план.";
-					break;
-				case 1:
-					result += " факт.";
-					break;
-			}
+			result += $" тип значений - {cmbReportType.Active}";
+
 
 			return result;
 		}
