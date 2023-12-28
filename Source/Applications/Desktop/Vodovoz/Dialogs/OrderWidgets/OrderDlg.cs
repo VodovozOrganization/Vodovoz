@@ -2545,6 +2545,11 @@ namespace Vodovoz
 
 		private void ReturnToNew(IEnumerable<Error> errors)
 		{
+			if(errors.All(x => x == Errors.Orders.Order.AcceptException))
+			{
+				return;
+			}
+
 			if(errors.All(x => x != Errors.Orders.Order.AcceptException))
 			{
 				EditOrder();
