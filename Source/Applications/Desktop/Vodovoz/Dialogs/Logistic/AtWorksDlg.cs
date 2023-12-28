@@ -531,6 +531,7 @@ namespace Vodovoz.Dialogs.Logistic
 				filter,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
+				Startup.MainWin.NavigationManager,
 				Startup.AppDIContainer.BeginLifetimeScope());
 
 			journal.SelectionMode = JournalSelectionMode.Single;

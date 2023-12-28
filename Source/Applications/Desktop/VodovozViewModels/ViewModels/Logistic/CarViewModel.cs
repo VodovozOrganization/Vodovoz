@@ -9,18 +9,26 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using System;
 using System.Linq;
 using System.Threading;
 using Vodovoz.Controllers;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Factories;
+using Vodovoz.JournalViewModels;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.Factories;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Cash;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalNodes;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.Widgets.Cars;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
@@ -56,11 +64,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 			_routeListsWageController = routeListsWageController ?? throw new ArgumentNullException(nameof(routeListsWageController));
 			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
-			CarModelJournalFactory = carModelJournalFactory ?? throw new ArgumentNullException(nameof(carModelJournalFactory));
 
 			TabName = "Автомобиль";
 
-			EmployeeJournalFactory = employeeJournalFactory;
 			AttachmentsViewModel = attachmentsViewModelFactory.CreateNewAttachmentsViewModel(Entity.ObservableAttachments);
 			CarVersionsViewModel = (carVersionsViewModelFactory ?? throw new ArgumentNullException(nameof(carVersionsViewModelFactory)))
 				.CreateCarVersionsViewModel(Entity);
@@ -69,12 +75,33 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			CanChangeBottlesFromAddress = commonServices.PermissionService.ValidateUserPresetPermission(
 				_canChangeBottlesFromAddressPermissionName,
-				commonServices.UserService.CurrentUserId
-			);
+				commonServices.UserService.CurrentUserId);
 
 			CanEditCarModel = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(CarModel)).CanUpdate;
 			CanChangeCarModel = Entity.Id == 0 || commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_car_model");
 			CanEditFuelCardNumber = commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_fuel_card_number");
+
+			CarModelViewModel = new CommonEEVMBuilderFactory<Car>(this, Entity, UoW, NavigationManager, LifetimeScope)
+				.ForProperty(x => x.CarModel)
+				.UseViewModelJournalAndAutocompleter<CarModelJournalViewModel>()
+				.UseViewModelDialog<CarModelViewModel>()
+				.Finish();
+
+			DriverViewModel = new CommonEEVMBuilderFactory<Car>(this, Entity, UoW, NavigationManager, LifetimeScope)
+			.ForProperty(x => x.Driver)
+				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(filter =>
+				{
+					filter.Category = EmployeeCategory.driver;
+					filter.Status = EmployeeStatus.IsWorking;
+				})
+				.UseViewModelDialog<EmployeeViewModel>()
+				.Finish();
+
+			FuelTypeViewModel = new CommonEEVMBuilderFactory<Car>(this, Entity, UoW, NavigationManager, LifetimeScope)
+				.ForProperty(x => x.FuelType)
+				.UseViewModelJournalAndAutocompleter<FuelTypeJournalViewModel>()
+				.UseViewModelDialog<FuelTypeViewModel>()
+				.Finish();
 
 			Entity.PropertyChanged += (sender, args) =>
 			{
@@ -107,8 +134,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public bool CanEditCarModel { get; }
 		public bool CanChangeCarModel { get; }
 		public bool CanEditFuelCardNumber { get; }
-		public IEmployeeJournalFactory EmployeeJournalFactory { get; }
-		public ICarModelJournalFactory CarModelJournalFactory { get; }
+
+		public IEntityEntryViewModel CarModelViewModel { get; }
+		public IEntityEntryViewModel DriverViewModel { get; }
+		public IEntityEntryViewModel FuelTypeViewModel { get; }
+
 		public ILifetimeScope LifetimeScope { get; }
 		public CarVersionsViewModel CarVersionsViewModel { get; }
 		public OdometerReadingsViewModel OdometerReadingsViewModel { get; }

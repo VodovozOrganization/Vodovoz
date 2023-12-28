@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.Banks.Domain;
 using QS.BusinessCommon.Domain;
 using QS.Dialog.Gtk;
@@ -997,40 +997,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionFuelTypeActivated(object sender, EventArgs e)
 	{
-		var scope = Startup.AppDIContainer.BeginLifetimeScope();
-		var nomenclatureParametersProvider = scope.Resolve<INomenclatureParametersProvider>();
-		var routeListProfitabilityController = scope.Resolve<IRouteListProfitabilityController>();
-		var commonServices = scope.Resolve<ICommonServices>();
-		var unitOfWorkFactory = scope.Resolve<IUnitOfWorkFactory>();
-
-		var fuelTypeJournalViewModel = new SimpleEntityJournalViewModel<FuelType, FuelTypeViewModel>(
-			x => x.Name,
-			() => new FuelTypeViewModel(
-				EntityUoWBuilder.ForCreate(), unitOfWorkFactory, commonServices, routeListProfitabilityController),
-			(node) => new FuelTypeViewModel(
-				EntityUoWBuilder.ForOpen(node.Id), unitOfWorkFactory, commonServices, routeListProfitabilityController),
-			unitOfWorkFactory,
-			commonServices);
-
-		var fuelTypePermissionSet = commonServices.PermissionService.ValidateUserPermission(typeof(FuelType), commonServices.UserService.CurrentUserId);
-		if(fuelTypePermissionSet.CanRead && !fuelTypePermissionSet.CanUpdate)
-		{
-			var viewAction = new JournalAction("Просмотр",
-				(selected) => selected.Any(),
-				(selected) => true,
-				(selected) =>
-				{
-					var tab = fuelTypeJournalViewModel.GetTabToOpen(typeof(FuelType), selected.First().GetId());
-					fuelTypeJournalViewModel.TabParent.AddTab(tab, fuelTypeJournalViewModel);
-				}
-			);
-
-			(fuelTypeJournalViewModel.NodeActions as IList<IJournalAction>)?.Add(viewAction);
-		}
-
-		tdiMain.AddTab(fuelTypeJournalViewModel);
-
-		fuelTypeJournalViewModel.TabClosed += (s, args) => scope.Dispose();
+		NavigationManager.OpenViewModel<FuelTypeJournalViewModel>(null);
 	}
 
 	/// <summary>

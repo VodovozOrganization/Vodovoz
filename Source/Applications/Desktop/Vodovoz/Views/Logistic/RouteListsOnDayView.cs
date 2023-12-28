@@ -1279,6 +1279,7 @@ namespace Vodovoz.Views.Logistic
 				filter,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ViewModel.CommonServices,
+				ViewModel.NavigationManager,
 				Startup.AppDIContainer.BeginLifetimeScope());
 			journal.SelectionMode = JournalSelectionMode.Single;
 			journal.OnEntitySelectedResult += (o, args) =>
