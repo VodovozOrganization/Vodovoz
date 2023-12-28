@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using Vodovoz.Application.Services.Logistics.RouteOptimization;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
@@ -708,14 +709,31 @@ namespace Vodovoz.Application.Logistics.RouteOptimization
 
 		private void AddWarning(string text)
 		{
-			WarningMessages.Add(text);
 			_logger.LogWarning(text);
+			WarningMessages.Add(text);
 		}
 
 		private void AddWarning(string text, params object[] args)
 		{
-			WarningMessages.Add(string.Format(text, args));
 			_logger.LogWarning(text, args);
+
+			var argReplacement = new List<string>();
+
+			var matches = Regex.Matches(text, "{(.*)}");
+
+			foreach(Match match in matches)
+			{
+				if(!argReplacement.Contains(match.Value))
+				{
+					argReplacement.Add(match.Value);
+				}
+			}
+
+			var matchEveluator = new MatchEvaluator((match) => "{" + argReplacement.IndexOf(match.Value) + "}");
+
+			var result = Regex.Replace(text, "{(.*)}", matchEveluator);
+
+			WarningMessages.Add(string.Format(result, args));
 		}
 
 		// <summary>
@@ -727,7 +745,7 @@ namespace Vodovoz.Application.Logistics.RouteOptimization
 
 			if(addressProblems.Count > 1)
 			{
-				AddWarning("Водителям {Drivers} не будут назначены заказы, так как максимальное количество адресов у них меньше 1.",
+				AddWarning("Водителям {Drivers} не будут назначены заказы, так как максимальное количество адресов у них меньше 1",
 					string.Join(", ", addressProblems.Select(x => x.ShortName)));
 			}
 

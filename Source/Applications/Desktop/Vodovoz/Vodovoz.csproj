@@ -1526,8 +1526,8 @@
     <Compile Include="ReportsParameters\ChainStoreDelay.cs" />
     <Compile Include="ReportsParameters\Logistic\DriverRoutesListRegisterReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.DriverRoutesListRegisterReport.cs" />
-    <Compile Include="ReportsParameters\Production\ProducedProductionReport.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Production.ProducedProductionReport.cs" />
+    <Compile Include="Views\ReportsParameters\Production\ProducedProductionReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.ReportsParameters.Production.ProducedProductionReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Cash.IncomeCategoryView.cs" />
     <Compile Include="Filters\GtkViews\ExpenseCategoryJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ExpenseCategoryJournalFilterView.cs" />

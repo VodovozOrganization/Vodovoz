@@ -37,6 +37,7 @@ namespace Vodovoz
 	{
 		private readonly IRouteColumnRepository _routeColumnRepository = new RouteColumnRepository();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
+
 		private int _goodsColumnsCount = -1;
 		private bool _isEditable = true;
 		private bool _canOpenOrder = true;
@@ -54,6 +55,8 @@ namespace Vodovoz
 
 		public DialogViewModelBase ParentViewModel { get; set; }
 		public INavigationManager NavigationManager { get; set; }
+
+		private IPage<OrderForRouteListJournalViewModel> _orderToAddSelectionPage;
 
 		public IUnitOfWorkGeneric<RouteList> RouteListUoW
 		{
@@ -341,7 +344,13 @@ namespace Vodovoz
 		{
 			var geoGrpIds = RouteListUoW.Root.GeographicGroups.Select(x => x.Id).ToArray();
 
-			var page = NavigationManager.OpenViewModel<OrderForRouteListJournalViewModel, Action<OrderJournalFilterViewModel>>(
+			if(_orderToAddSelectionPage != null)
+			{
+				NavigationManager.SwitchOn(_orderToAddSelectionPage);
+				return;
+			}
+
+			_orderToAddSelectionPage = NavigationManager.OpenViewModel<OrderForRouteListJournalViewModel, Action<OrderJournalFilterViewModel>>(
 				ParentViewModel,
 				filter =>
 				{
@@ -377,27 +386,38 @@ namespace Vodovoz
 				vm => vm.SelectionMode = JournalSelectionMode.Multiple);
 
 			//Selected Callback
-			page.ViewModel.OnEntitySelectedResult += (sender, ea) =>
+			_orderToAddSelectionPage.ViewModel.OnEntitySelectedResult += OnOrdersSelected;
+			_orderToAddSelectionPage.PageClosed += OnOrderToAddSelectionPageClosed;
+		}
+
+		private void OnOrderToAddSelectionPageClosed(object sender, PageClosedEventArgs e)
+		{
+			_orderToAddSelectionPage.ViewModel.OnEntitySelectedResult -= OnOrdersSelected;
+			_orderToAddSelectionPage.PageClosed -= OnOrderToAddSelectionPageClosed;
+
+			_orderToAddSelectionPage = null;
+		}
+
+		private void OnOrdersSelected(object sender, JournalSelectedNodesEventArgs e)
+		{
+			var selectedIds = e.SelectedNodes.Select(x => x.Id).Distinct();
+
+			foreach(var selectedId in selectedIds)
 			{
-				var selectedIds = ea.SelectedNodes.Select(x => x.Id);
-
-				if(!selectedIds.Any())
+				if(RouteListUoW.Root.Addresses.Any(routeListAddtess => routeListAddtess.Order.Id == selectedId))
 				{
-					return;
+					continue;
 				}
 
-				foreach(var selectedId in selectedIds)
+				var order = RouteListUoW.GetById<Order>(selectedId);
+
+				if(order == null)
 				{
-					var order = RouteListUoW.GetById<Order>(selectedId);
-
-					if(order == null)
-					{
-						return;
-					}
-
-					RouteListUoW.Root.AddAddressFromOrder(order);
+					continue;
 				}
-			};
+
+				RouteListUoW.Root.AddAddressFromOrder(order);
+			}
 		}
 
 		protected void AddOrdersFromRegion()

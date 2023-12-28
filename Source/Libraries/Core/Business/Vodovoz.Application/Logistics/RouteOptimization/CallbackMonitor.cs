@@ -40,14 +40,7 @@ namespace Vodovoz.Application.Logistics.RouteOptimization
 			if(_statisticsTxtFunc != null)
 			{
 				_statisticsTxtFunc.Invoke(
-					string.Format(
-						"Branches={Branches}\nFailures={Failures}\nFailStamp={FailStamp}\nSolutions={Solutions}\nWallTime={WallTime}\nCost={Cost}",
-						solver().Branches(),
-						solver().Failures(),
-						solver().FailStamp(),
-						solver().Solutions(),
-						solver().WallTime(),
-						_bestSol.SolutionCount() > 0 ? _bestSol.ObjectiveValue(0) : -1));
+					$"Branches={solver().Branches()}\nFailures={solver().Failures()}\nFailStamp={solver().FailStamp()}\nSolutions={solver().Solutions()}\nWallTime={solver().WallTime()}\nCost={(_bestSol.SolutionCount() > 0 ? _bestSol.ObjectiveValue(0) : -1)}");
 			}
 
 			base.PeriodicCheck();

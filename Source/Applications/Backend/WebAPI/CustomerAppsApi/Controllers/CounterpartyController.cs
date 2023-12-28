@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using CustomerAppsApi.Library.Dto;
-using CustomerAppsApi.Models;
+using CustomerAppsApi.Library.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
