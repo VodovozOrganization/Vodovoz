@@ -29,10 +29,10 @@ namespace Vodovoz.ReportsParameters.Payments
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
-			// Widget Vodovoz.ReportsParameters.Payments.PaymentsFromBankClientReport
+			// Widget Vodovoz.ReportsParameters.Payments.PaymentsFromBankClientReportView
 			global::Stetic.BinContainer.Attach(this);
-			this.Name = "Vodovoz.ReportsParameters.Payments.PaymentsFromBankClientReport";
-			// Container child Vodovoz.ReportsParameters.Payments.PaymentsFromBankClientReport.Gtk.Container+ContainerChild
+			this.Name = "Vodovoz.ReportsParameters.Payments.PaymentsFromBankClientReportView";
+			// Container child Vodovoz.ReportsParameters.Payments.PaymentsFromBankClientReportView.Gtk.Container+ContainerChild
 			this.vbox1 = new global::Gtk.VBox();
 			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
