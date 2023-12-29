@@ -1,23 +1,14 @@
-﻿using Autofac;
-using QS.Banks.Domain;
+﻿using QS.Banks.Domain;
 using QS.BusinessCommon.Domain;
-using QS.Dialog.Gtk;
-using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Services;
-using QS.Services;
 using QS.Validation;
 using QSBanks;
 using QSOrmProject;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.Extensions.Logging;
-using Vodovoz;
-using Vodovoz.Controllers;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
@@ -35,8 +26,6 @@ using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.Journals.JournalViewModels.WageCalculation;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
-using Vodovoz.Services;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Complaints;
@@ -997,7 +986,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionFuelTypeActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<FuelTypeJournalViewModel>(null);
+		NavigationManager.OpenViewModel<FuelTypeJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
