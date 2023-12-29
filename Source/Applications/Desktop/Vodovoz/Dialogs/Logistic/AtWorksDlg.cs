@@ -146,7 +146,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 		#region Properties
 
-		public IUnitOfWork UoW { get; } = UnitOfWorkFactory.CreateWithoutRoot();
+		public IUnitOfWork UoW { get; }
 
 		public bool HasChanges => UoW.HasChanges;
 

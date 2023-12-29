@@ -22,7 +22,6 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.Factories;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Cash;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
