@@ -129,11 +129,10 @@ namespace Vodovoz.EntityRepositories.Orders
 			var balanceSubQuery = QueryOver.Of(() => nomenclature2Alias)
 				.JoinEntityAlias(
 					() => operationAlias,
-					() => nomenclatureAlias.Id == operationAlias.Nomenclature.Id,
+					() => nomenclature2Alias.Id == operationAlias.Nomenclature.Id,
 					JoinType.LeftOuterJoin)
 				.Where(() => nomenclatureAlias.Id == nomenclature2Alias.Id)
-				.SelectList(list => list
-					.Select(Projections.Sum(() => operationAlias.Amount).WithAlias(() => resultAlias.Stock)));
+				.Select(Projections.Sum(() => operationAlias.Amount));
 
 			return uow.Session.QueryOver<PromotionalSetOnlineParameters>()
 				.Left.JoinAlias(p => p.PromotionalSet, () => promotionalSetAlias)
