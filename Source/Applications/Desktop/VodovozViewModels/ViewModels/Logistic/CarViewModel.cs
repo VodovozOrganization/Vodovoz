@@ -1,5 +1,5 @@
 ﻿using Autofac;
-using NLog;
+using Microsoft.Extensions.Logging;
 using QS.Attachments.ViewModels.Widgets;
 using QS.Commands;
 using QS.Dialog.ViewModels;
@@ -19,14 +19,12 @@ using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Factories;
 using Vodovoz.JournalViewModels;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
-using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.Widgets.Cars;
 
@@ -35,21 +33,22 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 	public class CarViewModel : EntityTabViewModelBase<Car>
 	{
 		private readonly IRouteListsWageController _routeListsWageController;
-		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+		private readonly ILogger<CarViewModel> _logger;
 		private const string _canChangeBottlesFromAddressPermissionName = "can_change_cars_bottles_from_address";
 		private bool _canChangeBottlesFromAddress;
 		private DelegateCommand _addGeoGroupCommand;
+
+		private IPage<GeoGroupJournalViewModel> _gooGroupPage = null;
 
 		private AttachmentsViewModel _attachmentsViewModel;
 		private string _driverInfoText;
 
 		public CarViewModel(
+			ILogger<CarViewModel> logger,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			IEmployeeJournalFactory employeeJournalFactory,
 			IAttachmentsViewModelFactory attachmentsViewModelFactory,
-			ICarModelJournalFactory carModelJournalFactory,
 			ICarVersionsViewModelFactory carVersionsViewModelFactory,
 			IOdometerReadingsViewModelFactory odometerReadingsViewModelFactory,
 			IRouteListsWageController routeListsWageController,
@@ -61,6 +60,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			{
 				throw new ArgumentNullException(nameof(navigationManager));
 			}
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_routeListsWageController = routeListsWageController ?? throw new ArgumentNullException(nameof(routeListsWageController));
 			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 
@@ -155,7 +155,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				return false;
 			}
 
-			_logger.Info("Запущен пересчёт зарплаты в МЛ");
+			_logger.LogInformation("Запущен пересчёт зарплаты в МЛ");
 
 			IPage<ProgressWindowViewModel> progressWindow = null;
 			var cts = new CancellationTokenSource();
@@ -175,7 +175,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 				_routeListsWageController.ProgressBarDisplayable = progressBarDisplayable;
 				_routeListsWageController.RecalculateRouteListsWage(UoW, routeLists, cts.Token);
-				_logger.Info("Пересчёт зарплаты в МЛ завершён");
+				_logger.LogInformation("Пересчёт зарплаты в МЛ завершён");
 
 				progressBarDisplayable.Update("Сохранение...");
 
@@ -183,11 +183,18 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				{
 					UoW.Save(routeList);
 				}
+
 				return base.Save(close);
 			}
 			catch(OperationCanceledException)
 			{
-				_logger.Debug("Пересчёт зарплаты в МЛ был отменён");
+				_logger.LogDebug("Пересчёт зарплаты в МЛ был отменён");
+				return false;
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Пересчёт зарплаты в МЛ был отменён: {ExceptionMessage}", e.Message);
+				CommonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Error, $"Пересчёт зарплаты в МЛ был отменён: {e.Message}");
 				return false;
 			}
 			finally
@@ -240,12 +247,25 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private void AddGeoGroup()
 		{
-			var journal = LifetimeScope.Resolve<GeoGroupJournalViewModel>();
-			journal.SelectionMode = JournalSelectionMode.Multiple;
-			journal.DisableChangeEntityActions();
-			journal.OnSelectResult += OnJournalGeoGroupsSelectedResult;
+			if(_gooGroupPage != null)
+			{
+				NavigationManager.SwitchOn(_gooGroupPage);
+			}
 
-			TabParent.AddSlaveTab(this, journal);
+			_gooGroupPage = NavigationManager.OpenViewModel<GeoGroupJournalViewModel>(this);
+
+			_gooGroupPage.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
+			_gooGroupPage.ViewModel.DisableChangeEntityActions();
+			_gooGroupPage.ViewModel.OnSelectResult += OnJournalGeoGroupsSelectedResult;
+			_gooGroupPage.PageClosed += OnGeoGroupPagePageClosed;
+		}
+
+		private void OnGeoGroupPagePageClosed(object sender, PageClosedEventArgs e)
+		{
+			_gooGroupPage.PageClosed -= OnGeoGroupPagePageClosed;
+			_gooGroupPage.ViewModel.OnSelectResult -= OnJournalGeoGroupsSelectedResult;
+
+			_gooGroupPage = null;
 		}
 
 		private void OnJournalGeoGroupsSelectedResult(object sender, JournalSelectedEventArgs e)
