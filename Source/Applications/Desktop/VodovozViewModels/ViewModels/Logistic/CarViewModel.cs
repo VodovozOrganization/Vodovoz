@@ -252,10 +252,15 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				return;
 			}
 
-			_gooGroupPage = NavigationManager.OpenViewModel<GeoGroupJournalViewModel>(this, OpenPageOptions.AsSlave);
+			_gooGroupPage = NavigationManager.OpenViewModel<GeoGroupJournalViewModel>(
+				this,
+				OpenPageOptions.AsSlave,
+				viewModel => 
+				{
+					viewModel.SelectionMode = JournalSelectionMode.Multiple;
+					viewModel.DisableChangeEntityActions();
+				});
 
-			_gooGroupPage.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
-			_gooGroupPage.ViewModel.DisableChangeEntityActions();
 			_gooGroupPage.ViewModel.OnSelectResult += OnJournalGeoGroupsSelectedResult;
 			_gooGroupPage.PageClosed += OnGeoGroupPagePageClosed;
 		}

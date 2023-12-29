@@ -1277,9 +1277,11 @@ namespace Vodovoz.Views.Logistic
 				x => x.RestrictedCarOwnTypes = new List<CarOwnType> { CarOwnType.Company }
 			);
 
-			var page = (ViewModel.NavigationManager as ITdiCompatibilityNavigation).OpenViewModelOnTdi<CarJournalViewModel>(Tab);
+			var page = (ViewModel.NavigationManager as ITdiCompatibilityNavigation).OpenViewModelOnTdi<CarJournalViewModel>(
+				Tab,
+				OpenPageOptions.AsSlave,
+				viewModel => viewModel.SelectionMode = JournalSelectionMode.Single);
 
-			page.ViewModel.SelectionMode = JournalSelectionMode.Single;
 			page.ViewModel.OnEntitySelectedResult += (o, args) =>
 			{
 				var car = ViewModel.UoW.GetById<Car>(args.SelectedNodes.First().Id);
