@@ -252,7 +252,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				return;
 			}
 
-			_gooGroupPage = NavigationManager.OpenViewModel<GeoGroupJournalViewModel>(this);
+			_gooGroupPage = NavigationManager.OpenViewModel<GeoGroupJournalViewModel>(this, OpenPageOptions.AsSlave);
 
 			_gooGroupPage.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
 			_gooGroupPage.ViewModel.DisableChangeEntityActions();
