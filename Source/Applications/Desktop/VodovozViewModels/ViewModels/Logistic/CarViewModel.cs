@@ -250,6 +250,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			if(_gooGroupPage != null)
 			{
 				NavigationManager.SwitchOn(_gooGroupPage);
+				return;
 			}
 
 			_gooGroupPage = NavigationManager.OpenViewModel<GeoGroupJournalViewModel>(this);
