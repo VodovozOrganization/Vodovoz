@@ -5,7 +5,6 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
-using QS.Project.Journal.Search;
 using QS.Project.Services;
 using QS.Services;
 using System.Linq;
