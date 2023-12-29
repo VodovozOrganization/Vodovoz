@@ -626,7 +626,12 @@ namespace Vodovoz.Dialogs.Logistic
 
 		protected void OnButtonOpenCarClicked(object sender, EventArgs e)
 		{
-			var selected = ytreeviewAtWorkDrivers.GetSelectedObjects<AtWorkDriver>().First();
+			var selected = ytreeviewAtWorkDrivers.GetSelectedObjects<AtWorkDriver>().FirstOrDefault();
+
+			if(selected is null)
+			{
+				return;
+			}
 
 			(NavigationManager as ITdiCompatibilityNavigation).OpenViewModelOnTdi<CarViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(selected.Car.Id));
 		}
