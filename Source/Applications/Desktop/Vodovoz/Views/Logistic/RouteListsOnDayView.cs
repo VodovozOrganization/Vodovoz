@@ -9,6 +9,7 @@ using Gtk;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Journal;
 using QS.Utilities;
 using QS.Views.GtkUI;
@@ -1275,19 +1276,15 @@ namespace Vodovoz.Views.Logistic
 				x => x.Archive = false,
 				x => x.RestrictedCarOwnTypes = new List<CarOwnType> { CarOwnType.Company }
 			);
-			var journal = new CarJournalViewModel(
-				filter,
-				UnitOfWorkFactory.GetDefaultFactory,
-				ViewModel.CommonServices,
-				ViewModel.NavigationManager,
-				Startup.AppDIContainer.BeginLifetimeScope());
-			journal.SelectionMode = JournalSelectionMode.Single;
-			journal.OnEntitySelectedResult += (o, args) =>
+
+			var page = (ViewModel.NavigationManager as ITdiCompatibilityNavigation).OpenViewModelOnTdi<CarJournalViewModel>(this.Tab);
+
+			page.ViewModel.SelectionMode = JournalSelectionMode.Single;
+			page.ViewModel.OnEntitySelectedResult += (o, args) =>
 			{
 				var car = ViewModel.UoW.GetById<Car>(args.SelectedNodes.First().Id);
 				ViewModel.SelectCarForDriver(driver, car);
 			};
-			ViewModel.TabParent.AddSlaveTab(ViewModel, journal);
 		}
 
 		private void OnLoadTimeEdited(object o, EditedArgs args)
