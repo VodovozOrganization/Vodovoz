@@ -1,9 +1,12 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using Gamma.ColumnConfig;
+using Gamma.Utilities;
 using MoreLinq;
 using NHibernate.Exceptions;
 using QS.Dialog.GtkUI;
@@ -15,10 +18,11 @@ using Vodovoz.ViewModels.Logistic;
 
 namespace Vodovoz.ReportsParameters
 {
-	[System.ComponentModel.ToolboxItem(true)]
-	public partial class OrderStatisticByWeekReport : SingleUoWWidgetBase, IParametersWidget
+	[ToolboxItem(true)]
+	public partial class OrderStatisticByWeekReport : SingleUoWWidgetBase, IParametersWidget, INotifyPropertyChanged
 	{
 		private readonly GenericObservableList<GeographicGroupNode> _geographicGroupNodes;
+		private bool _showPotentialOrders;
 		private OrderStatisticsByWeekReportType _reportType;
 
 		public OrderStatisticByWeekReport()
@@ -30,9 +34,9 @@ namespace Vodovoz.ReportsParameters
 			dateperiodpicker.EndDate = DateTime.Today;
 
 			cmbReportType.ItemsEnum = typeof(OrderStatisticsByWeekReportType);
-			/*cmbReportType.Binding
+			cmbReportType.Binding
 				.AddBinding(this, e => e.ReportType, w => w.SelectedItem)
-				.InitializeFromSource();*/
+				.InitializeFromSource();
 
 			_geographicGroupNodes = new GenericObservableList<GeographicGroupNode>(
 				UoW.GetAll<GeoGroup>().Select(gg => new GeographicGroupNode(gg){Selected = true}).ToList());
@@ -44,6 +48,31 @@ namespace Vodovoz.ReportsParameters
 
 			ytreeviewGeographicGroup.ItemsDataSource = _geographicGroupNodes;
 			ytreeviewGeographicGroup.HeadersVisible = false;
+			
+			chkPotentialOrders.Binding
+				.AddBinding(this, e => e.ShowPotentialOrders, w => w.Active)
+				.AddBinding(this, e => e.CanChangeShowPotentialOrders, w => w.Sensitive)
+				.InitializeFromSource();
+		}
+
+		private bool CanChangeShowPotentialOrders => ReportType == OrderStatisticsByWeekReportType.Plan;
+
+		private bool ShowPotentialOrders
+		{
+			get => _showPotentialOrders;
+			set => SetField(ref _showPotentialOrders, value);
+		}
+		
+		private OrderStatisticsByWeekReportType ReportType
+		{
+			get => _reportType;
+			set
+			{
+				if(SetField(ref _reportType, value))
+				{
+					UpdateShowPotentialOrders();
+				}
+			}
 		}
 
 		#region IParametersWidget implementation
@@ -53,13 +82,16 @@ namespace Vodovoz.ReportsParameters
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
 		#endregion
-
-		/*private OrderStatisticsByWeekReportType ReportType
+		
+		private void UpdateShowPotentialOrders()
 		{
-			get => _reportType;
-			set => SetField(ref _reportType, value);
-		}*/
-
+			if(ReportType != OrderStatisticsByWeekReportType.Plan)
+			{
+				ShowPotentialOrders = false;
+			}
+			OnPropertyChanged(nameof(CanChangeShowPotentialOrders));
+		}
+		
 		private void OnUpdate(bool hide = false) =>
 			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
 
@@ -87,20 +119,32 @@ namespace Vodovoz.ReportsParameters
 				? _geographicGroupNodes.Where(ggn => ggn.Selected).Select(ggn => ggn.GeographicGroup.Id)
 				: _geographicGroupNodes.Select(ggn => ggn.GeographicGroup.Id);
 
-			return new ReportInfo
+			var reportInfo = new ReportInfo
 			{
-				Identifier = "Logistic.OrderStatisticByWeek",
+				
 				Parameters = new Dictionary<string, object>
 				{
 					{ "start_date", dateperiodpicker.StartDate },
 					{ "end_date", dateperiodpicker.EndDate.AddDays(1).AddTicks(-1) },
-					{ "report_mode", cmbReportType.Active },
+					{ "report_mode", (int)ReportType },
 					{ "geographic_group_id", selectedGeoGroupsIds },
-					{ "selected_filters", GetSelectedFilters() }
+					{ "selected_filters", GetSelectedFilters() },
 				}
 			};
-		}
 
+			if(ShowPotentialOrders)
+			{
+				reportInfo.Identifier = "Logistic.OrderStatisticByWeekWithPotentialOrders";
+				reportInfo.Parameters.Add("show_potential_orders", ShowPotentialOrders);
+			}
+			else
+			{
+				reportInfo.Identifier = "Logistic.OrderStatisticByWeek";
+			}
+
+			return reportInfo;
+		}
+		
 		private string GetSelectedFilters()
 		{
 			var result = "Фильтры: части города -";
@@ -114,10 +158,29 @@ namespace Vodovoz.ReportsParameters
 				_geographicGroupNodes.Where(ggn => ggn.Selected).Select(ggn => ggn.ToString()).ForEach(ggName => result += $" {ggName},");
 			}
 
-			result += $" тип значений - {cmbReportType.Active}";
+			result += $" тип значений - {ReportType.GetEnumTitle()}";
 
-
+			if(ShowPotentialOrders)
+			{
+				result += $", {chkPotentialOrders.Label}";
+			}
+			
 			return result;
+		}
+
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+		{
+			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+		}
+
+		protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
+		{
+			if(EqualityComparer<T>.Default.Equals(field, value)) return false;
+			field = value;
+			OnPropertyChanged(propertyName);
+			return true;
 		}
 	}
 }
