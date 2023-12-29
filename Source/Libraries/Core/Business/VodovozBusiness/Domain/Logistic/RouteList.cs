@@ -867,7 +867,7 @@ namespace Vodovoz.Domain.Logistic
 
 			msg = string.Empty;
 			if(address.WasTransfered) {
-				var from = routeListItemRepository.GetTransferedFrom(UoW, address)?.RouteList?.Id;
+				var from = routeListItemRepository.GetTransferredFrom(UoW, address)?.RouteList?.Id;
 				msg = string.Format(
 					"Адрес \"{0}\" не может быть удалён, т.к. был перенесён из МЛ №{1}. Воспользуйтесь функционалом из вкладки \"Перенос адресов маршрутных листов\" для возврата этого адреса в исходный МЛ.",
 					address.Order.DeliveryPoint?.ShortAddress,
