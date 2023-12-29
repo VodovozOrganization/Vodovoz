@@ -5,6 +5,7 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Project.Journal.Search;
 using QS.Project.Services;
 using QS.Services;
 using System.Linq;
@@ -38,12 +39,19 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 
 		protected override IQueryOver<FuelType> ItemsQuery(IUnitOfWork unitOfWork)
 		{
+			FuelType fuelTypeAlias = null;
 			FuelTypeJournalNode resultAlias = null;
 
-			return unitOfWork.Session.QueryOver<FuelType>()
+			var query = unitOfWork.Session.QueryOver(() => fuelTypeAlias);
+
+			query.Where(GetSearchCriterion(
+				() => fuelTypeAlias.Id,
+				() => fuelTypeAlias.Name));
+
+			return query
 				.SelectList(list =>
-					list.Select(x => x.Id).WithAlias(() => resultAlias.Id)
-						.Select(x => x.Name).WithAlias(() => resultAlias.Title))
+					list.Select(() => fuelTypeAlias.Id).WithAlias(() => resultAlias.Id)
+						.Select(() => fuelTypeAlias.Name).WithAlias(() => resultAlias.Title))
 				.TransformUsing(Transformers.AliasToBean(typeof(FuelTypeJournalNode)));
 		}
 
