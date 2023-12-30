@@ -8,13 +8,13 @@ namespace Vodovoz.MainMenu.ViewMenu
 	public class MainPanelMenuItemHandler : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
-		private RadioMenuItem _onlyTextToolbarMenuItem;
-		private RadioMenuItem _onlyIconsToolbarMenuItem;
-		private RadioMenuItem _textAndIconsToolbarMenuItem;
-		private RadioMenuItem _extraSmallIconsToolbarMenuItem;
-		private RadioMenuItem _smallIconsToolbarMenuItem;
-		private RadioMenuItem _middleIconsToolbarMenuItem;
-		private RadioMenuItem _largeIconsToolbarMenuItem;
+		private RadioAction _onlyTextToolbarAction;
+		private RadioAction _onlyIconsToolbarAction;
+		private RadioAction _textAndIconsToolbarAction;
+		private RadioAction _extraSmallIconsToolbarAction;
+		private RadioAction _smallIconsToolbarAction;
+		private RadioAction _middleIconsToolbarAction;
+		private RadioAction _largeIconsToolbarAction;
 
 		public MainPanelMenuItemHandler(ConcreteMenuItemCreator concreteMenuItemCreator)
 		{
@@ -27,47 +27,54 @@ namespace Vodovoz.MainMenu.ViewMenu
 			var mainPanelMenu = new Menu();
 			mainPanelMenuItem.Submenu = mainPanelMenu;
 
-			_onlyTextToolbarMenuItem = _concreteMenuItemCreator.CreateRadioMenuItem(
+			_onlyTextToolbarAction = _concreteMenuItemCreator.CreateRadioAction(
+				"OnlyTextAction",
 				"Только текст",
-				OnToolBarTextToggled);
+				eventHandler: OnToolBarTextActivated);
 
-			_onlyIconsToolbarMenuItem = _concreteMenuItemCreator.CreateRadioMenuItem(
+			_onlyIconsToolbarAction = _concreteMenuItemCreator.CreateRadioAction(
+				"OnlyIconsAction",
 				"Только иконки",
-				OnToolBarIconToggled,
-				_onlyTextToolbarMenuItem);
+				eventHandler: OnToolBarIconActivated,
+				actionGroup: _onlyTextToolbarAction);
 
-			_textAndIconsToolbarMenuItem = _concreteMenuItemCreator.CreateRadioMenuItem(
+			_textAndIconsToolbarAction = _concreteMenuItemCreator.CreateRadioAction(
+				"TextAndIconsAction",
 				"Текст и иконки",
-				OnToolBarBothToggled,
-				_onlyIconsToolbarMenuItem);
+				eventHandler: OnToolBarBothActivated,
+				actionGroup: _onlyIconsToolbarAction);
 
-			_extraSmallIconsToolbarMenuItem = _concreteMenuItemCreator.CreateRadioMenuItem(
+			_extraSmallIconsToolbarAction = _concreteMenuItemCreator.CreateRadioAction(
+				"ExtraSmallIconsAction",
 				"Очень маленькие иконки",
-				OnIconsExtraSmallToggled);
+				eventHandler: OnIconsExtraSmallActivated);
 
-			_smallIconsToolbarMenuItem = _concreteMenuItemCreator.CreateRadioMenuItem(
+			_smallIconsToolbarAction = _concreteMenuItemCreator.CreateRadioAction(
+				"SmallIconsAction",
 				"Маленькие иконки",
-				OnIconsSmallToggled,
-				_extraSmallIconsToolbarMenuItem);
+				eventHandler: OnIconsSmallActivated,
+				actionGroup: _extraSmallIconsToolbarAction);
 
-			_middleIconsToolbarMenuItem = _concreteMenuItemCreator.CreateRadioMenuItem(
+			_middleIconsToolbarAction = _concreteMenuItemCreator.CreateRadioAction(
+				"MiddleIconsAction",
 				"Средние иконки",
-				OnIconsMiddleToggled,
-				_smallIconsToolbarMenuItem);
+				eventHandler: OnIconsMiddleActivated,
+				actionGroup: _smallIconsToolbarAction);
 
-			_largeIconsToolbarMenuItem = _concreteMenuItemCreator.CreateRadioMenuItem(
+			_largeIconsToolbarAction = _concreteMenuItemCreator.CreateRadioAction(
+				"LargeIconsAction",
 				"Большие иконки",
-				OnIconsLargeToggled,
-				_middleIconsToolbarMenuItem);
+				eventHandler: OnIconsLargeActivated,
+				actionGroup: _middleIconsToolbarAction);
 
-			mainPanelMenu.Add(_onlyTextToolbarMenuItem);
-			mainPanelMenu.Add(_onlyIconsToolbarMenuItem);
-			mainPanelMenu.Add(_textAndIconsToolbarMenuItem);
+			mainPanelMenu.Add(_onlyTextToolbarAction.CreateMenuItem());
+			mainPanelMenu.Add(_onlyIconsToolbarAction.CreateMenuItem());
+			mainPanelMenu.Add(_textAndIconsToolbarAction.CreateMenuItem());
 			mainPanelMenu.Add(CreateSeparatorMenuItem());
-			mainPanelMenu.Add(_extraSmallIconsToolbarMenuItem);
-			mainPanelMenu.Add(_smallIconsToolbarMenuItem);
-			mainPanelMenu.Add(_middleIconsToolbarMenuItem);
-			mainPanelMenu.Add(_largeIconsToolbarMenuItem);
+			mainPanelMenu.Add(_extraSmallIconsToolbarAction.CreateMenuItem());
+			mainPanelMenu.Add(_smallIconsToolbarAction.CreateMenuItem());
+			mainPanelMenu.Add(_middleIconsToolbarAction.CreateMenuItem());
+			mainPanelMenu.Add(_largeIconsToolbarAction.CreateMenuItem());
 			
 			Initialize();
 
@@ -79,9 +86,9 @@ namespace Vodovoz.MainMenu.ViewMenu
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void OnToolBarTextToggled(object sender, EventArgs e)
+		private void OnToolBarTextActivated(object sender, EventArgs e)
 		{
-			if(sender is RadioMenuItem radioItem && radioItem.Active)
+			if(_onlyTextToolbarAction.Active)
 			{
 				ToolBarMode(Domain.Employees.ToolbarStyle.Text);
 			}
@@ -92,9 +99,9 @@ namespace Vodovoz.MainMenu.ViewMenu
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void OnToolBarIconToggled(object sender, EventArgs e)
+		private void OnToolBarIconActivated(object sender, EventArgs e)
 		{
-			if(sender is RadioMenuItem radioItem && radioItem.Active)
+			if(_onlyIconsToolbarAction.Active)
 			{
 				ToolBarMode(Domain.Employees.ToolbarStyle.Icons);
 			}
@@ -105,9 +112,9 @@ namespace Vodovoz.MainMenu.ViewMenu
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void OnToolBarBothToggled(object sender, EventArgs e)
+		private void OnToolBarBothActivated(object sender, EventArgs e)
 		{
-			if(sender is RadioMenuItem radioItem && radioItem.Active)
+			if(_textAndIconsToolbarAction.Active)
 			{
 				ToolBarMode(Domain.Employees.ToolbarStyle.Both);
 			}
@@ -118,9 +125,9 @@ namespace Vodovoz.MainMenu.ViewMenu
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void OnIconsExtraSmallToggled(object sender, EventArgs e)
+		private void OnIconsExtraSmallActivated(object sender, EventArgs e)
 		{
-			if(sender is RadioMenuItem radioItem && radioItem.Active)
+			if(_extraSmallIconsToolbarAction.Active)
 			{
 				ToolBarMode(IconsSize.ExtraSmall);
 			}
@@ -131,9 +138,9 @@ namespace Vodovoz.MainMenu.ViewMenu
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void OnIconsSmallToggled(object sender, EventArgs e)
+		private void OnIconsSmallActivated(object sender, EventArgs e)
 		{
-			if(sender is RadioMenuItem radioItem && radioItem.Active)
+			if(_smallIconsToolbarAction.Active)
 			{
 				ToolBarMode(IconsSize.Small);
 			}
@@ -144,9 +151,9 @@ namespace Vodovoz.MainMenu.ViewMenu
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void OnIconsMiddleToggled(object sender, EventArgs e)
+		private void OnIconsMiddleActivated(object sender, EventArgs e)
 		{
-			if(sender is RadioMenuItem radioItem && radioItem.Active)
+			if(_middleIconsToolbarAction.Active)
 			{
 				ToolBarMode(IconsSize.Middle);
 			}
@@ -157,9 +164,9 @@ namespace Vodovoz.MainMenu.ViewMenu
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void OnIconsLargeToggled(object sender, EventArgs e)
+		private void OnIconsLargeActivated(object sender, EventArgs e)
 		{
-			if(sender is RadioMenuItem radioItem && radioItem.Active)
+			if(_largeIconsToolbarAction.Active)
 			{
 				ToolBarMode(IconsSize.Large);
 			}
@@ -177,10 +184,10 @@ namespace Vodovoz.MainMenu.ViewMenu
 			Startup.MainWin.ToolbarComplaints.ToolbarStyle = (ToolbarStyle)style;
 
 			var result = style != Domain.Employees.ToolbarStyle.Text;
-			_extraSmallIconsToolbarMenuItem.Sensitive = result;
-			_smallIconsToolbarMenuItem.Sensitive = result;
-			_middleIconsToolbarMenuItem.Sensitive = result;
-			_largeIconsToolbarMenuItem.Sensitive = result;
+			_extraSmallIconsToolbarAction.Sensitive = result;
+			_smallIconsToolbarAction.Sensitive = result;
+			_middleIconsToolbarAction.Sensitive = result;
+			_largeIconsToolbarAction.Sensitive = result;
 		}
 
 		private void ToolBarMode(IconsSize size)
@@ -214,8 +221,8 @@ namespace Vodovoz.MainMenu.ViewMenu
 		
 		private void Initialize()
 		{
-			ConfigureToolbarStyle();
 			ConfigureIconSize();
+			ConfigureToolbarStyle();
 		}
 
 		private void ConfigureToolbarStyle()
@@ -223,13 +230,13 @@ namespace Vodovoz.MainMenu.ViewMenu
 			switch(CurrentUserSettings.Settings.ToolbarStyle)
 			{
 				case Domain.Employees.ToolbarStyle.Both:
-					_textAndIconsToolbarMenuItem.Activate();
+					_textAndIconsToolbarAction.Activate();
 					break;
 				case Domain.Employees.ToolbarStyle.Icons:
-					_onlyIconsToolbarMenuItem.Activate();
+					_onlyIconsToolbarAction.Activate();
 					break;
 				case Domain.Employees.ToolbarStyle.Text:
-					_onlyTextToolbarMenuItem.Activate();
+					_onlyTextToolbarAction.Activate();
 					break;
 			}
 		}
@@ -239,16 +246,16 @@ namespace Vodovoz.MainMenu.ViewMenu
 			switch(CurrentUserSettings.Settings.ToolBarIconsSize)
 			{
 				case IconsSize.ExtraSmall:
-					_extraSmallIconsToolbarMenuItem.Activate();
+					_extraSmallIconsToolbarAction.Activate();
 					break;
 				case IconsSize.Small:
-					_smallIconsToolbarMenuItem.Activate();
+					_smallIconsToolbarAction.Activate();
 					break;
 				case IconsSize.Middle:
-					_middleIconsToolbarMenuItem.Activate();
+					_middleIconsToolbarAction.Activate();
 					break;
 				case IconsSize.Large:
-					_largeIconsToolbarMenuItem.Activate();
+					_largeIconsToolbarAction.Activate();
 					break;
 			}
 		}

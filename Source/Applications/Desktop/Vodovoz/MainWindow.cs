@@ -65,8 +65,8 @@ public partial class MainWindow : Gtk.Window
 	
 	public void Configure()
 	{
-		ConfigureMainMenu();
 		BuildToolbarActions();
+		ConfigureMainMenu();
 
 		tdiMain.WidgetResolver = ViewModelWidgetResolver.Instance;
 		TDIMain.MainNotebook = tdiMain;
@@ -194,9 +194,6 @@ public partial class MainWindow : Gtk.Window
 
 		ActionRetail.Sensitive = userHaveAccessToRetail;
 		ActionRetailUndeliveredOrdersJournal.Sensitive = false; // Этот журнал не готов - выключено до реализации фичи
-
-		//ActionGroupPricing.Activated += ActionGroupPricingActivated;
-		//ActionProfitabilitySalesReport.Activated += ActionProfitabilitySalesReportActivated;
 	}
 
 	private void ConfigureMainMenu()

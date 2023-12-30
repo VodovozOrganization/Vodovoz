@@ -7,5 +7,4 @@
 		Middle,
 		Large
 	}
-
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using GLib;
 using Gtk;
 using Action = Gtk.Action;
 
@@ -18,6 +19,16 @@ namespace Vodovoz.MainMenu
 			}
 
 			return menuItem;
+		}
+
+		public Widget CreateMenuItem(Action action, EventHandler eventHandler = null)
+		{
+			if(eventHandler != null)
+			{
+				action.Activated += eventHandler;
+			}
+			
+			return action.CreateMenuItem();
 		}
 
 		public CheckMenuItem CreateCheckMenuItem(
@@ -60,6 +71,26 @@ namespace Vodovoz.MainMenu
 			menuitem.Toggled += eventHandler;
 
 			return menuitem;
+		}
+		
+		public RadioAction CreateRadioAction(
+			string name,
+			string title,
+			string tooltip = null,
+			string imageId = null,
+			int actionValue = 0,
+			EventHandler eventHandler = null,
+			RadioAction actionGroup = null)
+		{
+			var action = new RadioAction(name, title, tooltip, imageId, actionValue);
+			action.Group = actionGroup != null ? actionGroup.Group : new SList(IntPtr.Zero);
+			
+			if(eventHandler != null)
+			{
+				action.Activated += eventHandler;
+			}
+
+			return action;
 		}
 	}
 }

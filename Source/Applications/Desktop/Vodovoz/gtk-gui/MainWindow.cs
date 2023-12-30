@@ -55,8 +55,6 @@ public partial class MainWindow
 
 	private global::Gtk.RadioAction ActionCarService;
 
-	private global::Gtk.Action ActionGroupPricing;
-
 	private global::Gtk.RadioAction ActionSalesDepartment;
 
 	private global::Gtk.Action UndeliveredOrdersAction;
@@ -196,9 +194,6 @@ public partial class MainWindow
 		this.ActionCarService.Group = this.ActionArchive.Group;
 		this.ActionCarService.ShortLabel = global::Mono.Unix.Catalog.GetString("ТрО");
 		w1.Add(this.ActionCarService, null);
-		this.ActionGroupPricing = new global::Gtk.Action("ActionGroupPricing", global::Mono.Unix.Catalog.GetString("Групповое заполнение себестоимости"), null, null);
-		this.ActionGroupPricing.ShortLabel = global::Mono.Unix.Catalog.GetString("Групповое заполнение себестоимости");
-		w1.Add(this.ActionGroupPricing, null);
 		this.ActionSalesDepartment = new global::Gtk.RadioAction("ActionSalesDepartment", global::Mono.Unix.Catalog.GetString("Отдел продаж"), null, "sales_department", 0);
 		this.ActionSalesDepartment.Group = this.ActionArchive.Group;
 		this.ActionSalesDepartment.ShortLabel = global::Mono.Unix.Catalog.GetString("Отдел продаж");

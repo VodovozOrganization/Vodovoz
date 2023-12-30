@@ -1,5 +1,4 @@
 ﻿using System;
-using Autofac;
 using Gtk;
 using QS.Navigation;
 using QS.Project.Services;
@@ -35,7 +34,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 				OnOrdersByDistrictsAndDeliverySchedulesPressed));
 			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Отчет по выдаче топлива по МЛ", OnFuelConsumptionReportPressed));
 			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Отчет по времени приема заказов", OnOrdersCreationTimeReportPressed));
-			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Путевой лист", OnWayBillReportPressed));
+			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem(Startup.MainWin.WayBillReportAction));
 			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem(
 				"Отчет по незакрытым МЛ за период", OnNonClosedRLByPeriodReportPressed));
 			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem(
@@ -95,24 +94,6 @@ namespace Vodovoz.MainMenu.ReportsMenu
 			Startup.MainWin.TdiMain.OpenTab(
 				QSReport.ReportViewDlg.GenerateHashName<OrdersCreationTimeReport>(),
 				() => new QSReport.ReportViewDlg(new OrdersCreationTimeReport()));
-		}
-
-		/// <summary>
-		/// Путевой лист
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		private void OnWayBillReportPressed(object sender, ButtonPressEventArgs e)
-		{
-			var scope = Startup.AppDIContainer.BeginLifetimeScope();
-
-			var viewModel = scope.Resolve<WayBillReportGroupPrint>();
-
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<WayBillReport>(),
-				() => new QSReport.ReportViewDlg(viewModel));
-
-			viewModel.Destroyed += (_, _2) => scope?.Dispose();
 		}
 
 		/// <summary>

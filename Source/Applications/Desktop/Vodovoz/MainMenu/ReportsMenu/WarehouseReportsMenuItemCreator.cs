@@ -23,7 +23,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 			warehouseReportsMenuItem.Submenu = menu;
 
 			menu.Add(_concreteMenuItemCreator.CreateMenuItem("Остатки", OnWarehousesBalanceSummaryReportPressed));
-			menu.Add(_concreteMenuItemCreator.CreateMenuItem("Складские движения", OnStockMovementsPressed));
+			menu.Add(_concreteMenuItemCreator.CreateMenuItem(Startup.MainWin.StockMovementsAction));
 			menu.Add(_concreteMenuItemCreator.CreateMenuItem("ТМЦ на остатках", OnEquipmentBalancePressed));
 			menu.Add(_concreteMenuItemCreator.CreateMenuItem("Отчёт по браку", OnDefectiveItemsReportPressed));
 			menu.Add(_concreteMenuItemCreator.CreateMenuItem("Недопогруженные МЛ", OnNotFullyLoadedRouteListsPressed));
@@ -44,18 +44,6 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		private void OnWarehousesBalanceSummaryReportPressed(object sender, ButtonPressEventArgs e)
 		{
 			Startup.MainWin.NavigationManager.OpenViewModel<WarehousesBalanceSummaryViewModel>(null);
-		}
-
-		/// <summary>
-		/// Складские движения
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		private void OnStockMovementsPressed(object sender, ButtonPressEventArgs e)
-		{
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.StockMovements>(),
-				() => new QSReport.ReportViewDlg(new Vodovoz.Reports.StockMovements()));
 		}
 
 		/// <summary>

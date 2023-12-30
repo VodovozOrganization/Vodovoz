@@ -33,7 +33,7 @@ namespace Vodovoz.MainMenu.JournalsMenu.Counterparties
 			var counterpartiesMenu = new Menu();
 			counterpartiesMenuItem.Submenu = counterpartiesMenu;
 
-			counterpartiesMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Контрагенты", OnCounterpartiesJournalPressed));
+			counterpartiesMenu.Add(_concreteMenuItemCreator.CreateMenuItem(Startup.MainWin.CounterpartiesJournalAction));
 			
 			counterpartiesMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Точки доставки", OnDeliveryPointsPressed));
 			
@@ -96,19 +96,6 @@ namespace Vodovoz.MainMenu.JournalsMenu.Counterparties
 			
 			_counterpartyClassificationCalculationMenuItem.Sensitive = 
 				permissionService.ValidatePresetPermission(Vodovoz.Permissions.Counterparty.CanCalculateCounterpartyClassifications);
-		}
-		
-		/// <summary>
-		/// Контрагенты
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		private void OnCounterpartiesJournalPressed(object sender, ButtonPressEventArgs e)
-		{
-			Startup.MainWin.NavigationManager.OpenViewModel<CounterpartyJournalViewModel, Action<CounterpartyJournalFilterViewModel>>(
-				null,
-				filter => filter.IsForRetail = false,
-				OpenPageOptions.IgnoreHash);
 		}
 
 		/// <summary>

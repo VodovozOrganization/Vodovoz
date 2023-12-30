@@ -2,7 +2,7 @@
 	<toolbar name='toolbarSub'>
 		<toolitem name='ActionAddOrder' action='ActionAddOrder'/>
 		<toolitem name='ActionOrdersTable' action='ActionOrdersTable'/>
-		<toolitem name='ActionCounterpartyHandbook' action='ActionCounterpartyHandbook'/>
+		<toolitem name='CounterpartiesJournalAction' action='CounterpartiesJournalAction'/>
 		<!--<toolitem name='ActionLoadOrders' action='ActionLoadOrders'/>-->
         <toolitem name='ActionWarehouseStock' action='ActionWarehouseStock'/>
         <toolitem name='ActionDeliveryPrice' action='ActionDeliveryPrice'/>

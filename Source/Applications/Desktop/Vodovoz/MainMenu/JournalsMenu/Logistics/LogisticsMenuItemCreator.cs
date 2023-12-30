@@ -48,7 +48,7 @@ namespace Vodovoz.MainMenu.JournalsMenu.Logistics
 			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Смены доставки", OnDeliveryShiftsPressed));
 			logisticsMenu.Add(_driverWarehouseEventsMenuItemCreator.Create());
 			logisticsMenu.Add(CreateSeparatorMenuItem());
-			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Автомобили", OnCarsPressed));
+			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem(Startup.MainWin.CarsJournalAction));
 			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Виды топлива", OnFuelTypesPressed));
 			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Модели автомобилей", OnCarModelsPressed));
 			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Производители автомобилей", OnCarManufacturersPressed));
@@ -114,16 +114,6 @@ namespace Vodovoz.MainMenu.JournalsMenu.Logistics
 		{
 			var refWin = new OrmReference(typeof(DeliveryShift));
 			Startup.MainWin.TdiMain.AddTab(refWin);
-		}
-
-		/// <summary>
-		/// Автомобили
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		private void OnCarsPressed(object sender, ButtonPressEventArgs e)
-		{
-			Startup.MainWin.NavigationManager.OpenViewModel<CarJournalViewModel>(null);
 		}
 
 		/// <summary>
