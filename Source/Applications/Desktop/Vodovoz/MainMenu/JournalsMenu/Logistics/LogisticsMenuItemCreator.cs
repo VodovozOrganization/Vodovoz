@@ -1,19 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Autofac;
 using Gtk;
-using QS.DomainModel.Entity;
-using QS.DomainModel.UoW;
 using QS.Navigation;
-using QS.Project.Domain;
-using QS.Project.Journal;
-using QS.Services;
 using QSOrmProject;
-using Vodovoz.Controllers;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.JournalViewModels;
-using Vodovoz.Services;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
@@ -123,40 +113,7 @@ namespace Vodovoz.MainMenu.JournalsMenu.Logistics
 		/// <param name="e"></param>
 		private void OnFuelTypesPressed(object sender, ButtonPressEventArgs e)
 		{
-			var scope = Startup.AppDIContainer.BeginLifetimeScope();
-			var nomenclatureParametersProvider = scope.Resolve<INomenclatureParametersProvider>();
-			var routeListProfitabilityController = scope.Resolve<IRouteListProfitabilityController>();
-			var commonServices = scope.Resolve<ICommonServices>();
-			var unitOfWorkFactory = scope.Resolve<IUnitOfWorkFactory>();
-
-			var fuelTypeJournalViewModel = new SimpleEntityJournalViewModel<FuelType, FuelTypeViewModel>(
-				x => x.Name,
-				() => new FuelTypeViewModel(
-					EntityUoWBuilder.ForCreate(), unitOfWorkFactory, commonServices, routeListProfitabilityController),
-				(node) => new FuelTypeViewModel(
-					EntityUoWBuilder.ForOpen(node.Id), unitOfWorkFactory, commonServices, routeListProfitabilityController),
-				unitOfWorkFactory,
-				commonServices);
-
-			var fuelTypePermissionSet = commonServices.PermissionService.ValidateUserPermission(typeof(FuelType), commonServices.UserService.CurrentUserId);
-			if(fuelTypePermissionSet.CanRead && !fuelTypePermissionSet.CanUpdate)
-			{
-				var viewAction = new JournalAction("Просмотр",
-					(selected) => selected.Any(),
-					(selected) => true,
-					(selected) =>
-					{
-						var tab = fuelTypeJournalViewModel.GetTabToOpen(typeof(FuelType), selected.First().GetId());
-						fuelTypeJournalViewModel.TabParent.AddTab(tab, fuelTypeJournalViewModel);
-					}
-				);
-
-				(fuelTypeJournalViewModel.NodeActions as IList<IJournalAction>)?.Add(viewAction);
-			}
-
-			Startup.MainWin.TdiMain.AddTab(fuelTypeJournalViewModel);
-
-			fuelTypeJournalViewModel.TabClosed += (s, args) => scope.Dispose();
+			Startup.MainWin.NavigationManager.OpenViewModel<FuelTypeJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 		}
 
 		/// <summary>

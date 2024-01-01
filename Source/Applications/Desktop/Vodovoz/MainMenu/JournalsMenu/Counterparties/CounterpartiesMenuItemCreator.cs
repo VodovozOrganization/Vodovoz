@@ -71,8 +71,6 @@ namespace Vodovoz.MainMenu.JournalsMenu.Counterparties
 			
 			counterpartiesMenu.Add(CreateSeparatorMenuItem());
 			
-			counterpartiesMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Загрузка 1с", null/*OnActionLoad1cActivated*/));
-
 			_externalCounterpartiesMatchingMenuItem = _concreteMenuItemCreator
 				.CreateMenuItem("Сопоставление клиентов из внешних источников", OnExternalCounterpartiesMatchingPressed);
 			counterpartiesMenu.Add(_externalCounterpartiesMatchingMenuItem);

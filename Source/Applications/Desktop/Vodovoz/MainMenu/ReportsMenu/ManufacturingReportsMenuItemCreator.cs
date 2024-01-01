@@ -1,7 +1,7 @@
 ﻿using System;
 using Gtk;
-using Vodovoz.ReportsParameters.Production;
-using Vodovoz.TempAdapters;
+using QS.Report.ViewModels;
+using Vodovoz.ViewModels.ReportsParameters.Production;
 
 namespace Vodovoz.MainMenu.ReportsMenu
 {
@@ -33,10 +33,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnProducedProductionReportPressed(object sender, ButtonPressEventArgs e)
 		{
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<ProducedProductionReport>(),
-				() => new QSReport.ReportViewDlg(
-					new ProducedProductionReport(new NomenclatureJournalFactory())));
+			Startup.MainWin.NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(ProducedProductionReportViewModel));
 		}
 	}
 }
