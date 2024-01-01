@@ -25,6 +25,7 @@ using Vodovoz.Services;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Domain.Logistic.Cars;
 
 namespace Vodovoz.EntityRepositories.Orders
 {
@@ -37,17 +38,44 @@ namespace Vodovoz.EntityRepositories.Orders
 			.Where(x => x.OrderStatus == OrderStatus.WaitForPayment);
 		}
 
-		public QueryOver<VodovozOrder> GetOrdersForRLEditingQuery(DateTime date, bool showShipped, VodovozOrder orderBaseAlias = null)
+		public QueryOver<VodovozOrder> GetOrdersForRLEditingQuery(
+			DateTime date, bool showShipped, VodovozOrder orderBaseAlias = null, bool excludeTrucks = false)
 		{
+			RouteList routeListAlias = null;
+			RouteListItem routeListItemAlias = null;
+			Car carAlias = null;
+			CarModel carModelAlias = null;
+			
 			var query = QueryOver.Of<VodovozOrder>(() => orderBaseAlias)
 				.Where(o => o.DeliveryDate == date.Date && !o.SelfDelivery)
 				.Where(o => o.DeliverySchedule != null)
 				.Where(o => o.DeliveryPoint != null);
 
 			if(!showShipped)
+			{
 				query.Where(order => order.OrderStatus == OrderStatus.Accepted || order.OrderStatus == OrderStatus.InTravelList);
+			}
 			else
-				query.Where(order => order.OrderStatus != OrderStatus.Canceled && order.OrderStatus != OrderStatus.NewOrder && order.OrderStatus != OrderStatus.WaitForPayment);
+			{
+				query.Where(order => order.OrderStatus != OrderStatus.Canceled
+					&& order.OrderStatus != OrderStatus.NewOrder
+					&& order.OrderStatus != OrderStatus.WaitForPayment);
+			}
+
+			if(excludeTrucks)
+			{
+				query
+					.JoinEntityAlias(
+						() => routeListItemAlias,
+						() => orderBaseAlias.Id == routeListItemAlias.Order.Id,
+						JoinType.LeftOuterJoin)
+					.Left.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
+					.Left.JoinAlias(() => routeListAlias.Car, () => carAlias)
+					.Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
+					.Where(() => routeListAlias.Id == null || carModelAlias.CarTypeOfUse != CarTypeOfUse.Truck)
+					.And(() => routeListItemAlias.Id == null || routeListItemAlias.Status != RouteListItemStatus.Transfered);
+			}
+			
 			return query;
 		}
 
@@ -246,6 +274,48 @@ namespace Vodovoz.EntityRepositories.Orders
 						   .Take(1)
 						   ;
 			return query.List().FirstOrDefault();
+		}
+		
+		public bool HasCounterpartyFirstRealOrder(IUnitOfWork uow, int counterpartyId)
+		{
+			var counterparty = uow.GetById<Counterparty>(counterpartyId);
+
+			if(counterparty is null)
+			{
+				return false;
+			}
+			
+			if(counterparty.FirstOrder != null && !GetUndeliveryAndNewStatuses().Contains(counterparty.FirstOrder.OrderStatus))
+			{
+				return true;
+			}
+
+			var query = uow.Session.QueryOver<VodovozOrder>()
+					.Where(o => o.Client == counterparty)
+					.AndRestrictionOn(o => o.OrderStatus).Not.IsIn(GetUndeliveryAndNewStatuses())
+					.OrderBy(o => o.DeliveryDate).Asc
+					.Take(1);
+			
+			return query.SingleOrDefault() != null;
+		}
+		
+		public bool HasCounterpartyOtherFirstRealOrder(IUnitOfWork uow, Counterparty counterparty, int orderId)
+		{
+			if(counterparty.FirstOrder != null
+				&& counterparty.FirstOrder.Id != orderId
+				&& !GetUndeliveryAndNewStatuses().Contains(counterparty.FirstOrder.OrderStatus))
+			{
+				return true;
+			}
+
+			var query = uow.Session.QueryOver<VodovozOrder>()
+				.Where(o => o.Client == counterparty)
+				.And(o => o.Id != orderId)
+				.AndRestrictionOn(o => o.OrderStatus).Not.IsIn(GetUndeliveryAndNewStatuses())
+				.OrderBy(o => o.DeliveryDate).Asc
+				.Take(1);
+			
+			return query.SingleOrDefault() != null;
 		}
 
 		/// <summary>

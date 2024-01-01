@@ -1,4 +1,4 @@
-using QS.Project.Filter;
+﻿using QS.Project.Filter;
 using QS.Project.Services;
 using System;
 using System.Collections.Generic;
@@ -66,7 +66,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 			_restrictedCarTypesOfUse = EnumHelper.GetValuesList<CarTypeOfUse>();
 
 			var cashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.RoleCashier);
-			var logistician = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
+			var logistician = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.IsLogistician);
 			HasAccessToDriverTerminal = cashier || logistician;
 
 			SubscribeOnCheckChanged();

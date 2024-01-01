@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Vodovoz.Parameters
 {
@@ -31,5 +31,8 @@ namespace Vodovoz.Parameters
 		void UpdateDriversRouteListsMaxDebtSum(decimal value);
 		bool GetIsClientsSecondOrderDiscountActive { get; }
 		void UpdateIsClientsSecondOrderDiscountActive(bool value);
+
+		bool GetIsOrderWaitUntilActive { get; }
+		void UpdateIsOrderWaitUntilActive(bool value);
 	}
 }

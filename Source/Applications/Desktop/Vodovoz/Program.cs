@@ -52,10 +52,7 @@ using QS.ChangePassword.Views;
 using QS.Project.DB.Passwords;
 using QS.Project.Repositories;
 using Vodovoz.Additions;
-using Vodovoz.Additions.Logistic.RouteOptimization;
 using Vodovoz.Application;
-using Vodovoz.Application.Services;
-using Vodovoz.Application.Services.Logistics;
 using Vodovoz.CachingRepositories.Cash;
 using Vodovoz.CachingRepositories.Common;
 using Vodovoz.CachingRepositories.Counterparty;
@@ -99,7 +96,6 @@ using Vodovoz.ReportsParameters.Employees;
 using Vodovoz.ReportsParameters.Logistic;
 using Vodovoz.ReportsParameters.Orders;
 using Vodovoz.ReportsParameters.Payments;
-using Vodovoz.ReportsParameters.Production;
 using Vodovoz.ReportsParameters.Retail;
 using Vodovoz.ReportsParameters.Sales;
 using Vodovoz.ReportsParameters.Store;
@@ -453,7 +449,6 @@ namespace Vodovoz
 					builder.RegisterType<DriversWageBalanceReport>().AsSelf();
 					builder.RegisterType<DeliveriesLateReport>().AsSelf();
 					builder.RegisterType<QualityReport>().AsSelf();
-					builder.RegisterType<ProducedProductionReport>().AsSelf();
 					builder.RegisterType<DriverRoutesListRegisterReport>().AsSelf();
 					builder.RegisterType<RoutesListRegisterReport>().AsSelf();
 					builder.RegisterType<DeliveryTimeReport>().AsSelf();
@@ -659,18 +654,15 @@ namespace Vodovoz
 						.AddScoped<RevisionBottlesAndDeposits>()
 						.AddTransient<IReportExporter, ReportExporterAdapter>()
 						.AddScoped<SelectPaymentTypeViewModel>()
-						.AddTransient<IReportExporter, ReportExporterAdapter>()
-						.AddScoped<IRouteOptimizer, RouteOptimizer>()
 						.AddScoped<ICoordinatesParser, CoordinatesParser>()
 						.AddScoped<ICustomReportFactory, CustomReportFactory>()
 						.AddScoped<ICustomPropertiesFactory, CustomPropertiesFactory>()
 						.AddScoped<ICustomReportItemFactory, CustomReportItemFactory>()
 						.AddScoped<IRdlTextBoxFactory, RdlTextBoxFactory>()
 						.AddScoped<IEventsQrPlacer, EventsQrPlacer>()
+						.AddTransient<IValidationViewFactory, GtkValidationViewFactory>()
 						.AddScoped<IPasswordValidator, PasswordValidator>()
 						.AddScoped<IPasswordValidationSettings, DefaultPasswordValidationSettings>()
-						.AddScoped<ChangePasswordView>()
-						.AddScoped<ChangePasswordViewModel>()
 						.AddApplication()
 						.AddBusiness()
 						.AddMainMenuDependencies();
