@@ -737,7 +737,6 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref _ourOrganizationAccountForBills, value);
 		}
 
-
 		[Display(Name = "Особенный номер ТМЦ")]
 		public virtual IList<SpecialNomenclature> SpecialNomenclatures
 		{
