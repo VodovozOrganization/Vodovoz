@@ -12,8 +12,8 @@ namespace Vodovoz.EntityRepositories.Logistic
 		RouteListItem GetRouteListItemForOrder(IUnitOfWork uow, Order order);
 		IList<RouteListItem> GetRouteListItemsForOrder(IUnitOfWork uow, int orderId);
 		RouteListItem GetTransferredRouteListItemFromRouteListForOrder(IUnitOfWork uow, int routeListId, int orderId);
-		RouteListItem GetTransferedFrom(IUnitOfWork uow, RouteListItem item);
-		RouteListItem GetTransferedTo(IUnitOfWork uow, RouteListItem item);
+		RouteListItem GetTransferredFrom(IUnitOfWork uow, RouteListItem item);
+		RouteListItem GetTransferredTo(IUnitOfWork uow, RouteListItem item);
 		AddressTransferType? GetAddressTransferType(IUnitOfWork uow, int oldAddressId, int newAddressId);
 		bool HasRouteListItemsForOrder(IUnitOfWork uow, Order order);
 		bool WasOrderInAnyRouteList(IUnitOfWork uow, Order order);

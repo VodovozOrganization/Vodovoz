@@ -2252,10 +2252,11 @@ namespace Vodovoz.Domain.Orders
 
 			Contract = counterpartyContract;
 
-			foreach(var orderItem in OrderItems)
+			for(var i = 0; i < OrderItems.Count; i++)
 			{
-				orderItem.CalculateVATType();
+				OrderItems[i].CalculateVATType();
 			}
+			
 			UpdateContractDocument();
 			UpdateDocuments();
 		}
