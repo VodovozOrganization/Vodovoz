@@ -68,13 +68,15 @@ namespace Vodovoz.EntityRepositories.Logistic
 			return query.List();
 		}
 
-		public RouteListItem GetTransferedFrom(IUnitOfWork uow, RouteListItem item)
+		public RouteListItem GetTransferredFrom(IUnitOfWork uow, RouteListItem item)
 		{
 			RouteListItem routeListItemAlias = null;
 			AddressTransferDocumentItem addressTransferDocumentItemAlias = null;
 
 			if(!item.WasTransfered)
+			{
 				return null;
+			}
 
 			return uow.Session.QueryOver(() => routeListItemAlias)
 				.JoinEntityAlias(() => addressTransferDocumentItemAlias, () => routeListItemAlias.Id == addressTransferDocumentItemAlias.OldAddress.Id)
@@ -84,7 +86,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.SingleOrDefault();
 		}
 
-		public RouteListItem GetTransferedTo(IUnitOfWork uow, RouteListItem item)
+		public RouteListItem GetTransferredTo(IUnitOfWork uow, RouteListItem item)
 		{
 			RouteListItem routeListItemAlias = null;
 			AddressTransferDocumentItem addressTransferDocumentItemAlias = null;

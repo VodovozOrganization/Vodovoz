@@ -726,7 +726,7 @@ namespace Vodovoz.Application.Logistics
 				sourceRouteList?.Addresses?
 					.FirstOrDefault(x => x.TransferedTo != null
 						&& x.TransferedTo.Id == address.Id)
-				?? _routeListItemRepository.GetTransferedFrom(unitOfWork, address);
+				?? _routeListItemRepository.GetTransferredFrom(unitOfWork, address);
 
 			var previousRouteList = pastPlace?.RouteList;
 
