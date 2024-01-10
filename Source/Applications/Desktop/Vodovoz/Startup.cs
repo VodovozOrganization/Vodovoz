@@ -10,6 +10,7 @@ using QS.Dialog;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.ErrorReporting;
+using QS.Project.DB;
 using QS.Project.DB.Passwords;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Repositories;
@@ -42,8 +43,8 @@ using Vodovoz.Tools.Validation;
 using VodovozInfrastructure.Configuration;
 using VodovozInfrastructure.Passwords;
 using Connection = QS.Project.DB.Connection;
-using UserRepository = Vodovoz.EntityRepositories.UserRepository;
 using DatabaseInfo = Core.Infrastructure.DatabaseInfo;
+using UserRepository = Vodovoz.EntityRepositories.UserRepository;
 
 namespace Vodovoz
 {
@@ -73,6 +74,9 @@ namespace Vodovoz
 			CultureInfo.CurrentCulture = CultureInfo.CreateSpecificCulture("ru-RU");
 			Gtk.Application.Init();
 			QSMain.GuiThread = System.Threading.Thread.CurrentThread;
+
+			UnitOfWorkFactory.Scope = AppDIContainer;
+			OrmConfig.Config = AppDIContainer.Resolve<IOrmConfig>();
 
 			#region Первоначальная настройка обработки ошибок
 			ErrorReporter.Instance.AutomaticallySendEnabled = false;

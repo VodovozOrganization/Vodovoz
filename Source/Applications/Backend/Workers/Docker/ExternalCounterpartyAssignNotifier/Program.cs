@@ -1,7 +1,4 @@
-﻿using System;
-using System.Reflection;
-using System.Text.Json;
-using ExternalCounterpartyAssignNotifier.Services;
+﻿using ExternalCounterpartyAssignNotifier.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -10,10 +7,13 @@ using MySqlConnector;
 using NLog.Extensions.Logging;
 using QS.Attachments.Domain;
 using QS.Banks.Domain;
-using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using QS.Project.Core;
 using QS.Project.DB;
 using QS.Project.Domain;
+using System;
+using System.Reflection;
+using System.Text.Json;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Settings.Database;
@@ -42,21 +42,24 @@ namespace ExternalCounterpartyAssignNotifier
 						client.Timeout = TimeSpan.FromSeconds(15);
 					});
 
-					services
-						.AddSingleton<IExternalCounterpartyAssignNotificationRepository, ExternalCounterpartyAssignNotificationRepository>();
 					services.AddSingleton(_ => new JsonSerializerOptions
 					{
 						PropertyNamingPolicy = JsonNamingPolicy.CamelCase
 					});
-					services.AddSingleton<ISessionProvider, DefaultSessionProvider>();
-					services.AddSingleton<IUnitOfWorkFactory, DefaultUnitOfWorkFactory>();
-					services.AddHostedService<ExternalCounterpartyAssignNotifier>();
+
+					services
+						.AddSingleton<IExternalCounterpartyAssignNotificationRepository, ExternalCounterpartyAssignNotificationRepository>()
+						.AddCore()
+						.AddTrackedUoW()
+						.AddHostedService<ExternalCounterpartyAssignNotifier>();
 					
-					CreateBaseConfig(hostContext.Configuration);
+					CreateBaseConfig(services);
 				});
 		
-		private static void CreateBaseConfig(IConfiguration configuration)
+		private static void CreateBaseConfig(IServiceCollection services)
 		{
+			var serviceProvider = services.BuildServiceProvider();
+			var configuration = serviceProvider.GetRequiredService<IConfiguration>();
 			var domainDbConfig = configuration.GetSection("DomainDB");
 
 			var conStrBuilder = new MySqlConnectionStringBuilder
@@ -76,8 +79,8 @@ namespace ExternalCounterpartyAssignNotifier
 				.Driver<LoggedMySqlClientDriver>()
 				.ConnectionString(connectionString);
 
-			// Настройка ORM
-			OrmConfig.ConfigureOrm(
+			var ormConfig = serviceProvider.GetRequiredService<IOrmConfig>();
+			ormConfig.ConfigureOrm(
 				dbConfig,
 				new[]
 				{

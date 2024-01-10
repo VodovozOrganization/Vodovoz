@@ -8,6 +8,7 @@ using Pacs.MangoCalls;
 using QS.DomainModel.UoW;
 using QS.Project.Core;
 using QS.Project.DB;
+using System;
 using System.Reflection;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.Settings.Database;
@@ -43,7 +44,8 @@ namespace Pacs.Calls.Service
 					hostContext.Configuration.Bind("MessageTransport", transportSettings);
 
 					services
-						.AddCoreServerServices()
+						.AddCore()
+						.AddTrackedUoW()
 
 						//Настройки бд должны регистрироваться до настроек MassTransit
 						.AddDatabaseSettings()
@@ -54,15 +56,17 @@ namespace Pacs.Calls.Service
 						.AddPacsMangoCallsServices()
 						;
 
-					CreateBaseConfig(hostContext.Configuration);
+					CreateBaseConfig(services);
 				});
 		}
 
-		private static void CreateBaseConfig(IConfiguration configuration)
+		private static void CreateBaseConfig(IServiceCollection services)
 		{
+			var serviceProvider = services.BuildServiceProvider();
+			var configuration = serviceProvider.GetRequiredService<IConfiguration>();
 			var dbSection = configuration.GetSection("DomainDB");
-			var conStrBuilder = new MySqlConnectionStringBuilder();
 
+			var conStrBuilder = new MySqlConnectionStringBuilder();
 			conStrBuilder.Server = dbSection.GetValue<string>("Server");
 			conStrBuilder.Port = dbSection.GetValue<uint>("Port");
 			conStrBuilder.Database = dbSection.GetValue<string>("Database");
@@ -77,10 +81,10 @@ namespace Pacs.Calls.Service
 				.ConnectionString(connectionString)
 				.AdoNetBatchSize(100)
 				.Driver<LoggedMySqlClientDriver>()
-				;
+			;
 
-			// Настройка ORM
-			OrmConfig.ConfigureOrm(
+			var ormConfig = serviceProvider.GetRequiredService<IOrmConfig>();
+			ormConfig.ConfigureOrm(
 				db_config,
 				new Assembly[]
 				{

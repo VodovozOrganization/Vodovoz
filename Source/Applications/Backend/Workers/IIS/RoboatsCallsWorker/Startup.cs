@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using FluentNHibernate.Cfg.Db;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -8,7 +9,7 @@ using MySqlConnector;
 using NLog.Web;
 using QS.Attachments.Domain;
 using QS.Banks.Domain;
-using QS.DomainModel.UoW;
+using QS.Project.Core;
 using QS.Project.DB;
 using QS.Project.Domain;
 using System.Linq;
@@ -37,7 +38,13 @@ namespace RoboatsCallsWorker
         public void ConfigureServices(IServiceCollection services)
         {
 			NLogBuilder.ConfigureNLog("NLog.config");
-			CreateBaseConfig();
+
+			services
+				.AddCore()
+				.AddTrackedUoW()
+				;
+			
+			CreateBaseConfig(services);
 		}
 
 		public void ConfigureContainer(ContainerBuilder builder)
@@ -45,8 +52,6 @@ namespace RoboatsCallsWorker
 			ErrorReporter.Instance.AutomaticallySendEnabled = false;
 			ErrorReporter.Instance.SendedLogRowCount = 100;
 
-			builder.RegisterType<DefaultSessionProvider>().AsImplementedInterfaces();
-			builder.RegisterType<DefaultUnitOfWorkFactory>().AsImplementedInterfaces();
 			builder.RegisterType<BaseParametersProvider>().AsImplementedInterfaces();
 			builder.RegisterType<RoboatsRepository>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<SettingsController>().As<ISettingsController>();
@@ -94,12 +99,12 @@ namespace RoboatsCallsWorker
             }
         }
 
-		private void CreateBaseConfig()
+		private void CreateBaseConfig(IServiceCollection services)
 		{
+
 			var conStrBuilder = new MySqlConnectionStringBuilder();
-
+			
 			var domainDBConfig = Configuration.GetSection("DomainDB");
-
 			conStrBuilder.Server = domainDBConfig.GetValue<string>("Server");
 			conStrBuilder.Port = domainDBConfig.GetValue<uint>("Port");
 			conStrBuilder.Database = domainDBConfig.GetValue<string>("Database");
@@ -109,15 +114,16 @@ namespace RoboatsCallsWorker
 
 			var connectionString = conStrBuilder.GetConnectionString(true);
 
-			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
+			var db_config = MySQLConfiguration.Standard
 				.Dialect<MySQL57SpatialExtendedDialect>()
 				.ConnectionString(connectionString)
 				.AdoNetBatchSize(100)
 				.Driver<LoggedMySqlClientDriver>()
 				;
 
-			// Настройка ORM
-			OrmConfig.ConfigureOrm(
+			var provider = services.BuildServiceProvider();
+			var ormConfig = provider.GetRequiredService<IOrmConfig>();
+			ormConfig.ConfigureOrm(
 				db_config,
 				new Assembly[]
 				{

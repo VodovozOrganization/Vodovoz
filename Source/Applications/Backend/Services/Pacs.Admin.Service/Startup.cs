@@ -1,4 +1,5 @@
-﻿using MessageTransport;
+﻿using Autofac.Core;
+using MessageTransport;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -6,13 +7,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MySqlConnector;
 using Pacs.Admin.Server;
-using QS.DomainModel.UoW;
 using QS.Project.Core;
 using QS.Project.DB;
 using System.Reflection;
 using Vodovoz.Core.Data.NHibernate.Mapping.Pacs;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
-using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Pacs;
 
 namespace Pacs.Admin.Service
@@ -33,13 +32,13 @@ namespace Pacs.Admin.Service
 			Configuration.Bind("MessageTransport", transportSettings);
 
 			services
-				.AddCoreServerServices()
-				.AddSingleton<IUnitOfWorkFactory>(UnitOfWorkFactory.GetDefaultFactory)
+				.AddCore()
+				.AddTrackedUoW()
 				.AddSingleton<IMessageTransportSettings>(transportSettings)
 				.AddPacsAdminServices()
 				;
 
-			CreateBaseConfig();
+			CreateBaseConfig(services);
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -60,7 +59,7 @@ namespace Pacs.Admin.Service
 			});
 		}
 
-		private void CreateBaseConfig()
+		private void CreateBaseConfig(IServiceCollection services)
 		{
 			var dbSection = Configuration.GetSection("DomainDB");
 			var conStrBuilder = new MySqlConnectionStringBuilder();
@@ -79,10 +78,11 @@ namespace Pacs.Admin.Service
 				.ConnectionString(connectionString)
 				.AdoNetBatchSize(100)
 				.Driver<LoggedMySqlClientDriver>()
-				;
+			;
 
-			// Настройка ORM
-			OrmConfig.ConfigureOrm(
+			var provider = services.BuildServiceProvider();
+			var ormConfig = provider.GetRequiredService<IOrmConfig>();
+			ormConfig.ConfigureOrm(
 				db_config,
 				new Assembly[]
 				{

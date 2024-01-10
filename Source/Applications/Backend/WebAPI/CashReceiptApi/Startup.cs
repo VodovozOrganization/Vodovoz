@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using CashReceiptApi.Authentication;
+using CashReceiptApi.HealthChecks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -10,12 +11,11 @@ using MySqlConnector;
 using NLog.Web;
 using QS.Attachments.Domain;
 using QS.Banks.Domain;
-using QS.DomainModel.UoW;
+using QS.Project.Core;
 using QS.Project.DB;
 using QS.Project.Domain;
 using System.Configuration;
 using System.Reflection;
-using CashReceiptApi.HealthChecks;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.Models.CashReceipts;
 using Vodovoz.Models.TrueMark;
@@ -50,6 +50,10 @@ namespace CashReceiptApi
 					logging.AddConfiguration(nlogConfig);
 				});
 
+			services.AddCore()
+				.AddTrackedUoW()
+				;
+
 			services.AddAuthentication()
 				.AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(ApiKeyAuthenticationOptions.DefaultScheme, null);
 			services.AddAuthentication(ApiKeyAuthenticationOptions.DefaultScheme);
@@ -58,7 +62,7 @@ namespace CashReceiptApi
 
 			services.ConfigureHealthCheckService<CashReceiptApiHealthCheck>(true);
 
-			CreateBaseConfig();
+			CreateBaseConfig(services);
 		}
 
 		public void ConfigureContainer(ContainerBuilder builder)
@@ -75,14 +79,6 @@ namespace CashReceiptApi
 			builder.RegisterType<ApiKeyAuthenticationHandler>()
 				.AsSelf()
 				.InstancePerLifetimeScope();
-
-			builder.RegisterType<DefaultSessionProvider>()
-				.As<ISessionProvider>()
-				.SingleInstance();
-
-			builder.RegisterType<DefaultUnitOfWorkFactory>()
-				.As<IUnitOfWorkFactory>()
-				.SingleInstance();
 
 			builder.RegisterType<CashboxClientProvider>()
 				.AsSelf()
@@ -144,7 +140,7 @@ namespace CashReceiptApi
 			app.ConfigureHealthCheckApplicationBuilder();
 		}
 
-		private void CreateBaseConfig()
+		private void CreateBaseConfig(IServiceCollection services)
 		{
 			var conStrBuilder = new MySqlConnectionStringBuilder();
 
@@ -166,8 +162,9 @@ namespace CashReceiptApi
 				.Driver<LoggedMySqlClientDriver>()
 				;
 
-			// Настройка ORM
-			OrmConfig.ConfigureOrm(
+			var provider = services.BuildServiceProvider();
+			var ormConfig = provider.GetRequiredService<IOrmConfig>();
+			ormConfig.ConfigureOrm(
 				db_config,
 				new Assembly[]
 				{

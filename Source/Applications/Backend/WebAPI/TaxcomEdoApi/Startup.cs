@@ -36,6 +36,7 @@ using VodovozHealthCheck;
 using TaxcomEdoApi.HealthChecks;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Services;
+using QS.Project.Core;
 
 namespace TaxcomEdoApi
 {
@@ -68,8 +69,6 @@ namespace TaxcomEdoApi
 			_logger.LogInformation("Логирование Startup начато");
 
 			Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-			
-			CreateBaseConfig();
 
 			services.AddControllers()
 				.AddXmlSerializerFormatters();
@@ -85,7 +84,9 @@ namespace TaxcomEdoApi
 				_logger.LogCritical("Не найден сертификат в личном хранилище пользователя");
 				throw new InvalidOperationException("Не найден сертификат в личном хранилище пользователя");
 			}
-			
+
+			services.AddCore();
+			services.AddTrackedUoW();
 			services.AddHostedService<AutoSendReceiveService>();
 			services.AddHostedService<ContactsUpdaterService>();
 			services.AddHostedService<DocumentFlowService>();
@@ -96,8 +97,6 @@ namespace TaxcomEdoApi
 				certificate.RawData,
 				apiSection.GetValue<string>("EdxClientId")));
 
-			services.AddSingleton<ISessionProvider, DefaultSessionProvider>();
-			services.AddSingleton<IUnitOfWorkFactory, DefaultUnitOfWorkFactory>();
 			services.AddSingleton<IOrderRepository, OrderRepository>();
 			services.AddSingleton<IOrganizationRepository, OrganizationRepository>();
 			services.AddSingleton<ICounterpartyRepository, CounterpartyRepository>();
@@ -116,6 +115,8 @@ namespace TaxcomEdoApi
 			services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
 			services.ConfigureHealthCheckService<TaxcomEdoApiHealthCheck>(true);
+
+			CreateBaseConfig(services);
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -139,7 +140,7 @@ namespace TaxcomEdoApi
 			app.ConfigureHealthCheckApplicationBuilder();
 		}
 
-		private void CreateBaseConfig()
+		private void CreateBaseConfig(IServiceCollection services)
 		{
 			var conStrBuilder = new MySqlConnectionStringBuilder();
 
@@ -159,8 +160,9 @@ namespace TaxcomEdoApi
 					.ConnectionString(connectionString)
 					.Driver<LoggedMySqlClientDriver>();
 
-			// Настройка ORM
-			OrmConfig.ConfigureOrm(
+			var provider = services.BuildServiceProvider();
+			var ormConfig = provider.GetRequiredService<IOrmConfig>();
+			ormConfig.ConfigureOrm(
 				dbConfig,
 				new[]
 				{

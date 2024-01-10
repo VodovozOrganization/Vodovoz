@@ -19,6 +19,7 @@ using Autofac.Extensions.DependencyInjection;
 using Autofac;
 using Vodovoz.Settings.Database;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
+using QS.Project.Core;
 
 namespace MonitoringArchivingWorker
 {
@@ -34,8 +35,6 @@ namespace MonitoringArchivingWorker
 				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
 				.ConfigureContainer<ContainerBuilder>(builder =>
 				{
-					builder.RegisterType<DefaultSessionProvider>().AsImplementedInterfaces().SingleInstance();
-					builder.RegisterType<DefaultUnitOfWorkFactory>().AsImplementedInterfaces().SingleInstance();
 					builder.RegisterType<ParametersProvider>().AsImplementedInterfaces().SingleInstance();
 					builder.RegisterType<ArchiveDataSettings>().AsImplementedInterfaces().SingleInstance();
 					builder.RegisterType<TrackRepository>().AsImplementedInterfaces().SingleInstance();
@@ -52,16 +51,24 @@ namespace MonitoringArchivingWorker
 						loggingBuilder.AddNLog("NLog.config");
 					});
 
-					services.AddHostedService<MonitoringArchivingWorker>();
-					CreateBaseConfig(hostContext.Configuration);
+					services
+						.AddCore()
+						.AddTrackedUoW()
+						.AddHostedService<MonitoringArchivingWorker>()
+						;
+
+					CreateBaseConfig(services);
 				});
 
-		private static void CreateBaseConfig(IConfiguration configuration)
+		private static void CreateBaseConfig(IServiceCollection services)
 		{
-			var conStrBuilder = new MySqlConnectionStringBuilder();
+			var serviceProvider = services.BuildServiceProvider();
+			var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+
 
 			var domainDBConfig = configuration.GetSection("DomainDB");
 
+			var conStrBuilder = new MySqlConnectionStringBuilder();
 			conStrBuilder.Server = domainDBConfig.GetValue<string>("Server");
 			conStrBuilder.Port = domainDBConfig.GetValue<uint>("Port");
 			conStrBuilder.Database = domainDBConfig.GetValue<string>("Database");
@@ -76,8 +83,8 @@ namespace MonitoringArchivingWorker
 				.Driver<LoggedMySqlClientDriver>()
 				.ConnectionString(connectionString);
 
-			// Настройка ORM
-			OrmConfig.ConfigureOrm(
+			var ormConfig = serviceProvider.GetRequiredService<IOrmConfig>();
+			ormConfig.ConfigureOrm(
 				db_config,
 				new Assembly[]
 				{

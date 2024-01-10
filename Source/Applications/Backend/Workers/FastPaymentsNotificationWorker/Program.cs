@@ -13,6 +13,7 @@ using NLog.Extensions.Logging;
 using QS.Attachments.Domain;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
+using QS.Project.Core;
 using QS.Project.DB;
 using QS.Project.Domain;
 using System.Reflection;
@@ -47,9 +48,13 @@ namespace FastPaymentsNotificationWorker
 							logging.AddConfiguration(context.Configuration.GetSection(_nLogSectionName));
 						});
 
+					services
+						.AddCore()
+						.AddTrackedUoW();
+
 					services.AddHostedService<PaymentsNotificationWorker>();
 
-					CreateBaseConfig(context.Configuration);
+					CreateBaseConfig(services);
 				});
 
 		public static void ConfigureContainer(ContainerBuilder builder)
@@ -58,14 +63,6 @@ namespace FastPaymentsNotificationWorker
 			ErrorReporter.Instance.SendedLogRowCount = 100;
 
 			builder.RegisterModule<DatabaseSettingsModule>();
-
-			builder.RegisterType<DefaultSessionProvider>()
-				.As<ISessionProvider>()
-				.SingleInstance();
-
-			builder.RegisterType<DefaultUnitOfWorkFactory>()
-				.As<IUnitOfWorkFactory>()
-				.SingleInstance();
 
 			builder.RegisterType<NotificationHandler>()
 				.AsSelf()
@@ -112,12 +109,14 @@ namespace FastPaymentsNotificationWorker
 				.SingleInstance();
 		}
 
-		private static void CreateBaseConfig(IConfiguration configuration)
+		private static void CreateBaseConfig(IServiceCollection services)
 		{
-			var conStrBuilder = new MySqlConnectionStringBuilder();
+			var serviceProvider = services.BuildServiceProvider();
+			var configuration = serviceProvider.GetRequiredService<IConfiguration>();
 
 			var domainDBConfig = configuration.GetSection("DomainDB");
 
+			var conStrBuilder = new MySqlConnectionStringBuilder();
 			conStrBuilder.Server = domainDBConfig.GetValue<string>("Server");
 			conStrBuilder.Port = domainDBConfig.GetValue<uint>("Port");
 			conStrBuilder.Database = domainDBConfig.GetValue<string>("Database");
@@ -134,8 +133,8 @@ namespace FastPaymentsNotificationWorker
 				.Driver<LoggedMySqlClientDriver>()
 				;
 
-			// Настройка ORM
-			OrmConfig.ConfigureOrm(
+			var ormConfig = serviceProvider.GetRequiredService<IOrmConfig>();
+			ormConfig.ConfigureOrm(
 				db_config,
 				new Assembly[]
 				{

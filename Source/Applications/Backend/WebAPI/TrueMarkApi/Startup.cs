@@ -13,6 +13,7 @@ using QS.Attachments.Domain;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using QS.Project.Core;
 using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Repositories;
@@ -68,13 +69,13 @@ namespace TrueMarkApi
 				logging.AddNLogWeb(NLogBuilder.ConfigureNLog("NLog.config").Configuration)));
 
 			services.AddControllers();
+			services.AddCore();
+			services.AddTrackedUoW();
 
 			services.AddHostedService<DocumentService>();
 			services.AddSingleton<IAuthorizationService, AuthorizationService>();
 			services.AddSingleton<IOrderRepository, OrderRepository>();
 			services.AddSingleton<IOrganizationRepository, OrganizationRepository>();
-			services.AddSingleton<IUnitOfWorkFactory, DefaultUnitOfWorkFactory>();
-			services.AddSingleton<ISessionProvider, DefaultSessionProvider>();
 			services.AddSingleton<IEdoSettings, EdoSettings>();
 			services.AddSingleton<ISettingsController, SettingsController>();
 			services.AddHttpClient();
@@ -99,7 +100,7 @@ namespace TrueMarkApi
 			// Конфигурация Nhibernate
 			try
 			{
-				CreateBaseConfig();
+				CreateBaseConfig(services);
 			}
 			catch(Exception e)
 			{
@@ -130,7 +131,7 @@ namespace TrueMarkApi
 			app.ConfigureHealthCheckApplicationBuilder();
 		}
 
-		private void CreateBaseConfig()
+		private void CreateBaseConfig(IServiceCollection services)
 		{
 			var conStrBuilder = new MySqlConnectionStringBuilder();
 
@@ -150,8 +151,9 @@ namespace TrueMarkApi
 				.ConnectionString(connectionString)
 				.Driver<LoggedMySqlClientDriver>();
 
-			// Настройка ORM
-			OrmConfig.ConfigureOrm(
+			var provider = services.BuildServiceProvider();
+			var ormConfig = provider.GetRequiredService<IOrmConfig>();
+			ormConfig.ConfigureOrm(
 				dbConfig,
 				new[]
 				{

@@ -11,6 +11,7 @@ using QS.Attachments.Domain;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using QS.Project.Core;
 using QS.Project.DB;
 using System;
 using System.Reflection;
@@ -40,33 +41,29 @@ namespace UnsubscribePage
 			_logger = new Logger<Startup>(LoggerFactory.Create(logging =>
 				logging.AddNLogWeb(NLogBuilder.ConfigureNLog("NLog.config").Configuration)));
 
+			services.AddControllersWithViews();
+
+			services
+				.AddCore()
+				.AddTrackedUoW()
+				.ConfigureHealthCheckService<UnsubscribePageHealthCheck>()
+				;
+
 			// Конфигурация Nhibernate
 			try
 			{
-				CreateBaseConfig();
+				CreateBaseConfig(services);
 			}
 			catch(Exception e)
 			{
 				_logger.LogCritical(e, e.Message);
 				throw;
 			}
-
-			services.AddControllersWithViews();
-
-			services.ConfigureHealthCheckService<UnsubscribePageHealthCheck>();
 		}
 
 		public void ConfigureContainer(ContainerBuilder builder)
 		{
 			builder.RegisterModule<DatabaseSettingsModule>();
-
-			builder.RegisterType<DefaultSessionProvider>()
-				.As<ISessionProvider>()
-				.SingleInstance();
-
-			builder.RegisterType<DefaultUnitOfWorkFactory>()
-				.As<IUnitOfWorkFactory>()
-				.SingleInstance();
 
 			builder.RegisterType<UnsubscribeViewModelFactory>()
 				.As<IUnsubscribeViewModelFactory>()
@@ -107,7 +104,7 @@ namespace UnsubscribePage
 			app.ConfigureHealthCheckApplicationBuilder();
 		}
 
-		private void CreateBaseConfig()
+		private void CreateBaseConfig(IServiceCollection services)
 		{
 			_logger.LogInformation("Настройка параметров Nhibernate...");
 
@@ -130,8 +127,9 @@ namespace UnsubscribePage
 				.AdoNetBatchSize(100)
 				.Driver<LoggedMySqlClientDriver>();
 
-			// Настройка ORM
-			OrmConfig.ConfigureOrm(
+			var provider = services.BuildServiceProvider();
+			var ormConfig = provider.GetRequiredService<IOrmConfig>();
+			ormConfig.ConfigureOrm(
 				db_config,
 				new Assembly[]
 				{

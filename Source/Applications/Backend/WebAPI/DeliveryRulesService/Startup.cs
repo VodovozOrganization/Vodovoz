@@ -25,6 +25,7 @@ using Vodovoz.Settings.Database;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using VodovozHealthCheck;
+using QS.Project.Core;
 
 namespace DeliveryRulesService
 {
@@ -42,22 +43,23 @@ namespace DeliveryRulesService
         {
 
 			services.AddMvc().AddControllersAsServices();
-
 			services.AddControllers().AddJsonOptions(j =>
 			{
 				//Необходимо для сериализации свойств как PascalCase
 				j.JsonSerializerOptions.PropertyNamingPolicy = null;
 			});
 
-			services.ConfigureHealthCheckService<DeliveryRulesServiceHealthCheck>();
-
-			services.AddHttpClient();
-
 			NLogBuilder.ConfigureNLog("NLog.config");
 
-			services.AddFiasClient();
+			services
+				.AddHttpClient()
+				.ConfigureHealthCheckService<DeliveryRulesServiceHealthCheck>()
+				.AddCore()
+				.AddTrackedUoW()
+				.AddFiasClient()
+				;
 
-			CreateBaseConfig();
+			CreateBaseConfig(services);
 		}
 
 		public void ConfigureContainer(ContainerBuilder builder)
@@ -65,8 +67,6 @@ namespace DeliveryRulesService
 			ErrorReporter.Instance.AutomaticallySendEnabled = false;
 			ErrorReporter.Instance.SendedLogRowCount = 100;
 
-			builder.RegisterType<DefaultSessionProvider>().AsImplementedInterfaces();
-			builder.RegisterType<DefaultUnitOfWorkFactory>().AsImplementedInterfaces();
 			builder.RegisterType<BaseParametersProvider>().AsImplementedInterfaces();
 			builder.RegisterType<DistrictCache>().AsSelf().AsImplementedInterfaces();
 			
@@ -135,7 +135,7 @@ namespace DeliveryRulesService
 			app.ConfigureHealthCheckApplicationBuilder();
         }
 
-		private void CreateBaseConfig()
+		private void CreateBaseConfig(IServiceCollection services)
 		{
 			var conStrBuilder = new MySqlConnectionStringBuilder();
 
@@ -157,8 +157,9 @@ namespace DeliveryRulesService
 				.Driver<LoggedMySqlClientDriver>()
 				;
 
-			// Настройка ORM
-			OrmConfig.ConfigureOrm(
+			var provider = services.BuildServiceProvider();
+			var ormConfig = provider.GetRequiredService<IOrmConfig>();
+			ormConfig.ConfigureOrm(
 				db_config,
 				new Assembly[]
 				{

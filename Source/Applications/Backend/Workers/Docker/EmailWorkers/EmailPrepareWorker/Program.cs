@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using QS.DomainModel.UoW;
+using QS.Project.Core;
 using QS.Project.DB;
 using RabbitMQ.Client;
 using RabbitMQ.Infrastructure;
@@ -45,8 +46,9 @@ namespace EmailPrepareWorker
 						return channel;
 					});
 
-					services.AddSingleton<ISessionProvider, DefaultSessionProvider>();
-					services.AddSingleton<IUnitOfWorkFactory, DefaultUnitOfWorkFactory>();
+					services.AddCore();
+					services.AddTrackedUoW();
+
 					services.AddSingleton<ISettingsController, SettingsController>();
 					services.AddSingleton<IEmailParametersProvider, EmailParametersProvider>();
 					services.AddSingleton<IEmailRepository, EmailRepository>();

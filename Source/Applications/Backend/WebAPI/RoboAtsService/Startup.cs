@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Core.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -12,6 +12,7 @@ using QS.Attachments.Domain;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using QS.Project.Core;
 using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Repositories;
@@ -30,8 +31,6 @@ using Vodovoz.Core.DataService;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.Factories;
-using Vodovoz.Models;
-using Vodovoz.Infrastructure.Database;
 using Vodovoz.Parameters;
 using Vodovoz.Settings.Database;
 using Vodovoz.Tools;
@@ -58,12 +57,14 @@ namespace RoboatsService
 				.AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(ApiKeyAuthenticationOptions.DefaultScheme, null);
 			services.AddAuthentication(ApiKeyAuthenticationOptions.DefaultScheme);
 			services.AddMvc().AddControllersAsServices();
+			services.AddCore();
+			services.AddTrackedUoW();
 			services.AddApplication();
 			services.AddBusiness();
 
 			NLogBuilder.ConfigureNLog("NLog.config");
 
-			CreateBaseConfig();
+			CreateBaseConfig(services);
 		}
 
 		public void ConfigureContainer(ContainerBuilder builder)
@@ -71,8 +72,6 @@ namespace RoboatsService
 			ErrorReporter.Instance.AutomaticallySendEnabled = false;
 			ErrorReporter.Instance.SendedLogRowCount = 100;
 
-			builder.RegisterType<DefaultSessionProvider>().AsImplementedInterfaces();
-			builder.RegisterType<DefaultUnitOfWorkFactory>().AsImplementedInterfaces();
 			builder.RegisterType<BaseParametersProvider>().AsImplementedInterfaces();
 			builder.RegisterType<RoboatsCallFactory>().AsImplementedInterfaces();
 			builder.RegisterType<RoboatsRepository>().AsSelf().AsImplementedInterfaces();
@@ -151,7 +150,7 @@ namespace RoboatsService
 			});
 		}
 
-		private void CreateBaseConfig()
+		private void CreateBaseConfig(IServiceCollection services)
 		{
 			var conStrBuilder = new MySqlConnectionStringBuilder();
 
@@ -173,8 +172,9 @@ namespace RoboatsService
 				.Driver<LoggedMySqlClientDriver>()
 				;
 
-			// Настройка ORM
-			OrmConfig.ConfigureOrm(
+			var provider = services.BuildServiceProvider();
+			var ormConfig = provider.GetRequiredService<IOrmConfig>();
+			ormConfig.ConfigureOrm(
 				db_config,
 				new Assembly[]
 				{

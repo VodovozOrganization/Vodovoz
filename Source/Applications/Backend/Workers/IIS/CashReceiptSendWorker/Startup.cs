@@ -9,6 +9,7 @@ using NLog.Web;
 using QS.Attachments.Domain;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
+using QS.Project.Core;
 using QS.Project.DB;
 using QS.Project.Domain;
 using System.Configuration;
@@ -47,9 +48,14 @@ namespace CashReceiptSendWorker
 					logging.AddConfiguration(nlogConfig);
 				});
 
+			services
+				.AddCore()
+				.AddTrackedUoW()
+				;
+
 			services.AddHostedService<CashReceiptSendWorker>();
 
-			CreateBaseConfig();
+			CreateBaseConfig(services);
 		}
 
 		public void ConfigureContainer(ContainerBuilder builder)
@@ -58,14 +64,6 @@ namespace CashReceiptSendWorker
 			ErrorReporter.Instance.SendedLogRowCount = 100;
 
 			builder.RegisterModule<DatabaseSettingsModule>();
-
-			builder.RegisterType<DefaultSessionProvider>()
-				.As<ISessionProvider>()
-				.SingleInstance();
-
-			builder.RegisterType<DefaultUnitOfWorkFactory>()
-				.As<IUnitOfWorkFactory>()
-				.SingleInstance();
 
 			builder.RegisterType<CashReceiptRepository>()
 				.As<ICashReceiptRepository>()
@@ -133,7 +131,7 @@ namespace CashReceiptSendWorker
 		{
 		}
 
-		private void CreateBaseConfig()
+		private void CreateBaseConfig(IServiceCollection services)
 		{
 			var conStrBuilder = new MySqlConnectionStringBuilder();
 
@@ -155,8 +153,9 @@ namespace CashReceiptSendWorker
 				.Driver<LoggedMySqlClientDriver>()
 				;
 
-			// Настройка ORM
-			OrmConfig.ConfigureOrm(
+			var provider = services.BuildServiceProvider();
+			var ormConfig = provider.GetRequiredService<IOrmConfig>();
+			ormConfig.ConfigureOrm(
 				db_config,
 				new Assembly[]
 				{

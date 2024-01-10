@@ -9,6 +9,7 @@ using NLog.Web;
 using QS.Attachments.Domain;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
+using QS.Project.Core;
 using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.HibernateMapping;
@@ -45,9 +46,13 @@ namespace TrueMarkCodePoolCheckWorker
 					logging.AddConfiguration(Configuration.GetSection(_nLogSectionName));
 				});
 
-			services.AddHostedService<CodePoolCheckWorker>();
+			services
+				.AddCore()
+				.AddTrackedUoW()
+				.AddHostedService<CodePoolCheckWorker>()
+				;
 
-			CreateBaseConfig();
+			CreateBaseConfig(services);
 		}
 
 		public void ConfigureContainer(ContainerBuilder builder)
@@ -56,14 +61,6 @@ namespace TrueMarkCodePoolCheckWorker
 			ErrorReporter.Instance.SendedLogRowCount = 100;
 
 			builder.RegisterModule<DatabaseSettingsModule>();
-
-			builder.RegisterType<DefaultSessionProvider>()
-				.As<ISessionProvider>()
-				.SingleInstance();
-
-			builder.RegisterType<DefaultUnitOfWorkFactory>()
-				.As<IUnitOfWorkFactory>()
-				.SingleInstance();
 
 			builder.RegisterType<TrueMarkRepository>()
 				.As<ITrueMarkRepository>()
@@ -103,7 +100,7 @@ namespace TrueMarkCodePoolCheckWorker
         {
         }
 
-		private void CreateBaseConfig()
+		private void CreateBaseConfig(IServiceCollection services)
 		{
 			var conStrBuilder = new MySqlConnectionStringBuilder();
 
@@ -125,8 +122,9 @@ namespace TrueMarkCodePoolCheckWorker
 				.Driver<LoggedMySqlClientDriver>()
 				;
 
-			// Настройка ORM
-			OrmConfig.ConfigureOrm(
+			var provider = services.BuildServiceProvider();
+			var ormConfig = provider.GetRequiredService<IOrmConfig>();
+			ormConfig.ConfigureOrm(
 				db_config,
 				new Assembly[]
 				{

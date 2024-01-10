@@ -2,7 +2,6 @@
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
 using Fias.Client;
-using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,12 +23,12 @@ using QS.Dialog.GtkUI.FileDialog;
 using QS.Dialog.ViewModels;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.NotifyChange;
-using QS.DomainModel.UoW;
 using QS.ErrorReporting;
 using QS.ErrorReporting.Handlers;
 using QS.Navigation;
 using QS.Osrm;
 using QS.Permissions;
+using QS.Project.Core;
 using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.GtkSharp;
@@ -58,7 +57,6 @@ using System.Reflection;
 using Vodovoz.Additions;
 using Vodovoz.Additions.Logistic.RouteOptimization;
 using Vodovoz.Application;
-using Vodovoz.Application.Services;
 using Vodovoz.Application.Services.Logistics;
 using Vodovoz.CachingRepositories.Cash;
 using Vodovoz.CachingRepositories.Common;
@@ -120,7 +118,6 @@ using Vodovoz.Tools.Logistic;
 using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Dialogs.Mango;
-using Vodovoz.ViewModels.Dialogs.Mango.Talks;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Infrastructure.Services;
 using Vodovoz.ViewModels.Journals.JournalFactories;
@@ -184,7 +181,7 @@ namespace Vodovoz
 
 					#region База
 
-					builder.Register(c => UnitOfWorkFactory.GetDefaultFactory).As<IUnitOfWorkFactory>();
+					//builder.Register(c => UnitOfWorkFactory.GetDefaultFactory).As<IUnitOfWorkFactory>();
 					builder.Register(c => Startup.DataBaseInfo).As<IDataBaseInfo>().SingleInstance();
 
 					#endregion
@@ -696,11 +693,15 @@ namespace Vodovoz
 				{
 					services
 						.AddSingleton<Startup>()
+						.AddCore()
+						.AddDesktop()
+						.AddNotTrackedUoW()
+
 						.AddScoped<IRouteListService, RouteListService>()
 						.AddScoped<RouteGeometryCalculator>()
 						.AddSingleton<OsrmClient>(sp => OsrmClientFactory.Instance)
 						.AddSingleton<IFastDeliveryDistanceChecker, DistanceCalculator>()
-						.AddDesktopServices()
+
 						.AddScoped<IDebtorsParameters, DebtorsParameters>()
 						.AddFiasClient()
 						.AddSingleton<IFastDeliveryDistanceChecker, DistanceCalculator>()

@@ -42,6 +42,7 @@ using Vodovoz.Settings;
 using Vodovoz.Settings.Database;
 using VodovozHealthCheck;
 using UserRepository = QS.Project.Repositories.UserRepository;
+using QS.Project.Core;
 
 namespace CustomerAppsApi
 {
@@ -70,57 +71,57 @@ namespace CustomerAppsApi
 					logging.AddConfiguration(Configuration.GetSection(_nLogSectionName));
 				});
 
-			RegisterDependencies(services);
-
-			services.ConfigureHealthCheckService<CustomerAppsApiHealthCheck>();
-			services.AddHttpClient();
-
-			CreateBaseConfig();
-		}
-
-		private void RegisterDependencies(IServiceCollection services)
-		{
 			services.AddStackExchangeRedisCache(redisOptions =>
 			{
 				var connection = Configuration.GetConnectionString("Redis");
 				redisOptions.Configuration = connection;
 			});
-			
-			services.AddSingleton<IPhoneRepository, PhoneRepository>();
-			services.AddSingleton<IEmailRepository, EmailRepository>();
-			services.AddSingleton<ISettingsController, SettingsController>();
-			services.AddSingleton<ISessionProvider, DefaultSessionProvider>();
-			services.AddSingleton<IParametersProvider, ParametersProvider>();
-			services.AddSingleton<INomenclatureParametersProvider, NomenclatureParametersProvider>();
-			services.AddSingleton<IUnitOfWorkFactory, DefaultUnitOfWorkFactory>();
-			services.AddSingleton<IRoboatsSettings, RoboatsSettings>();
-			services.AddSingleton<IRoboatsRepository, RoboatsRepository>();
-			services.AddSingleton<IBottlesRepository, BottlesRepository>();
-			services.AddSingleton<ICachedBottlesDebtRepository, CachedBottlesDebtRepository>();
-			services.AddSingleton<INomenclatureRepository, NomenclatureRepository>();
-			services.AddSingleton<IStockRepository, StockRepository>();
-			services.AddSingleton<IExternalCounterpartyRepository, ExternalCounterpartyRepository>();
-			services.AddSingleton<IExternalCounterpartyMatchingRepository, ExternalCounterpartyMatchingRepository>();
-			services.AddSingleton<IRegisteredNaturalCounterpartyDtoFactory, RegisteredNaturalCounterpartyDtoFactory>();
-			services.AddSingleton<IExternalCounterpartyMatchingFactory, ExternalCounterpartyMatchingFactory>();
-			services.AddSingleton<IExternalCounterpartyFactory, ExternalCounterpartyFactory>();
-			services.AddSingleton<CounterpartyModelFactory>();
-			services.AddSingleton<ICounterpartyFactory, CounterpartyFactory>();
-			services.AddSingleton<INomenclatureFactory, NomenclatureFactory>();
-			services.AddSingleton<PhoneFormatter>(_ => new PhoneFormatter(PhoneFormat.DigitsTen));
-			services.AddSingleton<ICounterpartySettings, CounterpartySettings>();
-			services.AddSingleton<ICameFromConverter, CameFromConverter>();
-			services.AddSingleton<ISourceConverter, SourceConverter>();
-			services.AddSingleton<ContactFinderForExternalCounterpartyFromOne>();
-			services.AddSingleton<ContactFinderForExternalCounterpartyFromTwo>();
-			services.AddSingleton<ContactFinderForExternalCounterpartyFromMany>();
-			services.AddSingleton<IContactManagerForExternalCounterparty, ContactManagerForExternalCounterparty>();
-			services.AddSingleton<INomenclatureOnlineParametersController, NomenclatureOnlineParametersController>();
 
-			services.AddScoped<IUnitOfWork>(_ => UnitOfWorkFactory.CreateWithoutRoot("Сервис интеграции"));
-			services.AddScoped<ICounterpartyModel, CounterpartyModel>();
-			services.AddScoped<INomenclatureModel, NomenclatureModel>();
-			services.AddScoped<CounterpartyModelValidator>();
+			services
+				.AddCore()
+				.AddTrackedUoW()
+
+				.AddSingleton<IPhoneRepository, PhoneRepository>()
+				.AddSingleton<IEmailRepository, EmailRepository>()
+				.AddSingleton<ISettingsController, SettingsController>()
+				.AddSingleton<IParametersProvider, ParametersProvider>()
+				.AddSingleton<INomenclatureParametersProvider, NomenclatureParametersProvider>()
+				.AddSingleton<IRoboatsSettings, RoboatsSettings>()
+				.AddSingleton<IRoboatsRepository, RoboatsRepository>()
+				.AddSingleton<IBottlesRepository, BottlesRepository>()
+				.AddSingleton<ICachedBottlesDebtRepository, CachedBottlesDebtRepository>()
+				.AddSingleton<INomenclatureRepository, NomenclatureRepository>()
+				.AddSingleton<IStockRepository, StockRepository>()
+				.AddSingleton<IExternalCounterpartyRepository, ExternalCounterpartyRepository>()
+				.AddSingleton<IExternalCounterpartyMatchingRepository, ExternalCounterpartyMatchingRepository>()
+				.AddSingleton<IRegisteredNaturalCounterpartyDtoFactory, RegisteredNaturalCounterpartyDtoFactory>()
+				.AddSingleton<IExternalCounterpartyMatchingFactory, ExternalCounterpartyMatchingFactory>()
+				.AddSingleton<IExternalCounterpartyFactory, ExternalCounterpartyFactory>()
+				.AddSingleton<CounterpartyModelFactory>()
+				.AddSingleton<ICounterpartyFactory, CounterpartyFactory>()
+				.AddSingleton<INomenclatureFactory, NomenclatureFactory>()
+				.AddSingleton<PhoneFormatter>(_ => new PhoneFormatter(PhoneFormat.DigitsTen))
+				.AddSingleton<ICounterpartySettings, CounterpartySettings>()
+				.AddSingleton<ICameFromConverter, CameFromConverter>()
+				.AddSingleton<ISourceConverter, SourceConverter>()
+				.AddSingleton<ContactFinderForExternalCounterpartyFromOne>()
+				.AddSingleton<ContactFinderForExternalCounterpartyFromTwo>()
+				.AddSingleton<ContactFinderForExternalCounterpartyFromMany>()
+				.AddSingleton<IContactManagerForExternalCounterparty, ContactManagerForExternalCounterparty>()
+				.AddSingleton<INomenclatureOnlineParametersController, NomenclatureOnlineParametersController>()
+				.AddScoped<ICounterpartyModel, CounterpartyModel>()
+				.AddScoped<INomenclatureModel, NomenclatureModel>()
+				.AddScoped<CounterpartyModelValidator>()
+
+				.ConfigureHealthCheckService<CustomerAppsApiHealthCheck>()
+				.AddHttpClient()
+				;
+
+
+			services.ConfigureHealthCheckService<CustomerAppsApiHealthCheck>();
+			services.AddHttpClient();
+
+			CreateBaseConfig(services);
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -142,7 +143,7 @@ namespace CustomerAppsApi
 			app.ConfigureHealthCheckApplicationBuilder();
 		}
 		
-		private void CreateBaseConfig()
+		private void CreateBaseConfig(IServiceCollection services)
 		{
 			var conStrBuilder = new MySqlConnectionStringBuilder();
 
@@ -163,8 +164,9 @@ namespace CustomerAppsApi
 				.Driver<LoggedMySqlClientDriver>()
 				.AdoNetBatchSize(100);
 
-			// Настройка ORM
-			OrmConfig.ConfigureOrm(
+			var provider = services.BuildServiceProvider();
+			var ormConfig = provider.GetRequiredService<IOrmConfig>();
+			ormConfig.ConfigureOrm(
 				dbConfig,
 				new Assembly[]
 				{
