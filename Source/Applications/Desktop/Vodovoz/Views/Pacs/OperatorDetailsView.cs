@@ -38,8 +38,9 @@ namespace Vodovoz.Views.Pacs
 				.AddBinding(vm => vm.BreakReason, w => w.Buffer.Text)
 				.InitializeFromSource();
 
-			/*buttonStartBreak.BindCommand(ViewModel.StartLongBreakCommand);
-			buttonEndBreak.BindCommand(ViewModel.EndBreakCommand);*/
+			buttonStartLongBreak.BindCommand(ViewModel.StartLongBreakCommand);
+			buttonStartShortBreak.BindCommand(ViewModel.StartShortBreakCommand);
+			buttonEndBreak.BindCommand(ViewModel.EndBreakCommand);
 		}
 	}
 }

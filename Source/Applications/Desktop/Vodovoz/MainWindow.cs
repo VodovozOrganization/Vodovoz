@@ -1,7 +1,5 @@
-using Autofac;
+﻿using Autofac;
 using MassTransit;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using NLog;
 using Pacs.Admin.Client;
 using Pacs.Calls;

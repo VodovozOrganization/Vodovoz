@@ -1,9 +1,11 @@
-﻿using QS.Navigation;
+﻿using Autofac;
+using QS.Navigation;
 using QS.Validation;
 using QS.ViewModels.Control.EEVM;
 using ReactiveUI;
 using System;
 using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Pacs;
 using Vodovoz.Domain.Employees;
@@ -20,6 +22,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 	{
 		private readonly IEmployeeService _employeeService;
 		private readonly IValidator _validator;
+		private readonly ILifetimeScope _scope;
 		private Employee _operator;
 
 		public PacsOperatorReferenceBookViewModel(
@@ -27,12 +30,13 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			EntityModelFactory entityModelFactory,
 			IEmployeeService employeeService,
 			IValidator validator,
+			ILifetimeScope scope,
 			INavigationManager navigator
 		) : base(entityId, entityModelFactory, navigator)
 		{
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_validator = validator ?? throw new ArgumentNullException(nameof(validator));
-
+			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			Title = "Оператор";
 
 			this.WhenAnyValue(x => x.Entity.Id)
@@ -49,10 +53,11 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 				})
 				.DisposeWith(Subscriptions);
 			this.WhenAnyValue(x => x.Operator)
+				.Where(x => x != null)
 				.Subscribe(x => Entity.Id = Operator.Id)
 				.DisposeWith(Subscriptions);
 
-			OperatorEntry = new CommonEEVMBuilderFactory<PacsOperatorReferenceBookViewModel>(this, this, Model.UoW, navigator)
+			OperatorEntry = new CommonEEVMBuilderFactory<PacsOperatorReferenceBookViewModel>(this, this, Model.UoW, navigator, _scope)
 				.ForProperty(x => x.Operator)
 				.UseViewModelDialog<EmployeeViewModel>()
 				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(
@@ -63,7 +68,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 					}
 				).Finish();
 
-			WorkShiftEntry = new CommonEEVMBuilderFactory<Operator>(this, Entity, Model.UoW, navigator)
+			WorkShiftEntry = new CommonEEVMBuilderFactory<Operator>(this, Entity, Model.UoW, navigator, _scope)
 				.ForProperty(x => x.WorkShift)
 				.UseViewModelDialog<WorkShiftViewModel>()
 				.UseViewModelJournalAndAutocompleter<WorkShiftJournalViewModel>()

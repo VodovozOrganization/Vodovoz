@@ -76,6 +76,10 @@ namespace Vodovoz.Views.Pacs
 				.AddBinding(vm => vm.EndWorkShiftReasonRequired, w => w.Visible)
 				.InitializeFromSource();
 
+			textWorkshiftReason.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.EndWorkShiftReason, w => w.Buffer.Text)
+				.InitializeFromSource();
+
 			buttonLongBreak.BindCommand(ViewModel.StartLongBreakCommand);
 			buttonShortBreak.BindCommand(ViewModel.StartShortBreakCommand);
 			buttonEndBreak.BindCommand(ViewModel.EndBreakCommand);

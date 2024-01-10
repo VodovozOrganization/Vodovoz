@@ -185,6 +185,10 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			get
 			{
 				string result = "";
+				if(GlobalBreakAvailability == null || BreakAvailability == null)
+				{
+					return result;
+				}
 				if(!GlobalBreakAvailability.LongBreakAvailable)
 				{
 					result += $"\n{GlobalBreakAvailability.LongBreakDescription}";
@@ -311,6 +315,10 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 				var state = await _operatorClient.EndWorkShift(EndWorkShiftReason);
 				UpdateState(state);
+				_guiDispatcher.RunInGuiTread(() =>
+				{
+					ClearEndWorkShiftReason();
+				});
 			}
 			catch(PacsException ex)
 			{
