@@ -256,7 +256,7 @@ namespace Vodovoz.EntityRepositories.Payments
 				.SelectGroup(() => organizationAlias.Id).WithAlias(() => resultAlias.OrganizationId)
 				.Select(p => counterpartyAlias.INN).WithAlias(() => resultAlias.CounterpartyINN)
 				.Select(p => counterpartyAlias.Name).WithAlias(() => resultAlias.CounterpartyName)
-				.Select(p =>organizationAlias.Name).WithAlias(() => resultAlias.OrganizationName)
+				.Select(p => organizationAlias.Name).WithAlias(() => resultAlias.OrganizationName)
 				.Select(balanceProjection).WithAlias(() => resultAlias.CounterpartyBalance)
 				.Select(counterpartyDebtProjection).WithAlias(() => resultAlias.CounterpartyDebt))
 				.Where(Restrictions.Gt(balanceProjection, 0))

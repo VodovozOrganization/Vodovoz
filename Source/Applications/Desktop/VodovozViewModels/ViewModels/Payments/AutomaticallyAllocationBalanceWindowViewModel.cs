@@ -6,11 +6,9 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.ViewModels.Dialog;
 using QS.Navigation;
-using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Payments;
-using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Application.Payments;
+using NHibernate;
 
 namespace Vodovoz.ViewModels.Payments
 {
@@ -18,7 +16,6 @@ namespace Vodovoz.ViewModels.Payments
 	{
 		private readonly IInteractiveService _interactiveService;
 		private readonly IPaymentsRepository _paymentsRepository;
-		private readonly IOrderRepository _orderRepository;
 		private readonly PaymentService _paymentService;
 		private readonly IUnitOfWork _unitOfWork;
 
@@ -33,7 +30,6 @@ namespace Vodovoz.ViewModels.Payments
 			IInteractiveService interactiveService,
 			INavigationManager navigationManager,
 			IPaymentsRepository paymentsRepository,
-			IOrderRepository orderRepository,
 			PaymentService paymentService,
 			IUnitOfWorkFactory uowFactory)
 			: base(navigationManager)
@@ -50,7 +46,6 @@ namespace Vodovoz.ViewModels.Payments
 
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
-			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_paymentService = paymentService ?? throw new ArgumentNullException(nameof(paymentService));
 			Title = "Автоматическое распределение положительного баланса";
 
@@ -104,30 +99,6 @@ namespace Vodovoz.ViewModels.Payments
 
 		public void AllocateByCurrentCounterparty()
 		{
-			var balance = _paymentService.GetBalanceByCounterpartyAndOrganizationIds(
-				_unitOfWork,
-				_selectedUnallocatedBalancesNode.CounterpartyId,
-				_selectedUnallocatedBalancesNode.OrganizationId);
-
-			var nodeBalance = _selectedUnallocatedBalancesNode.CounterpartyBalance;
-
-			var unpayedOrdersSum = _paymentService.GetTotalCashlessNotPaidOrdersSum(
-				_unitOfWork,
-				_selectedUnallocatedBalancesNode.CounterpartyId,
-				_selectedUnallocatedBalancesNode.OrganizationId,
-				_closingDocumentDeliveryScheduleId);
-
-			var partiallyPaidOrdersSum = _paymentService.GetTotalCashlessPartiallyPaidOrdersSum(
-				_unitOfWork,
-				_selectedUnallocatedBalancesNode.CounterpartyId,
-				_selectedUnallocatedBalancesNode.OrganizationId,
-				_closingDocumentDeliveryScheduleId);
-
-			var debt = unpayedOrdersSum - partiallyPaidOrdersSum;
-
-			var nodeDebt = _selectedUnallocatedBalancesNode.CounterpartyDebt;
-
-			return;
 			try
 			{
 				IsAllocationState = true;
@@ -155,10 +126,9 @@ namespace Vodovoz.ViewModels.Payments
 					ProgressBarDisplayable.Start(1, 0, "Получаем всех клиентов с положительным балансом...");
 
 					var allUnAllocatedBalances =
-						_paymentsRepository.GetAllUnallocatedBalances(_unitOfWork, _closingDocumentDeliveryScheduleId)
-							.List<UnallocatedBalancesJournalNode>();
+						_paymentService.GetAllUnallocatedBalancesForAutomaticDistribution(_unitOfWork);
 
-					AllocateLoadedBalances(allUnAllocatedBalances);
+					AllocateLoadedBalances(allUnAllocatedBalances.Value.ToList());
 				}
 				else
 				{
@@ -179,101 +149,28 @@ namespace Vodovoz.ViewModels.Payments
 
 		private void AllocateByCounterpartyAndOrg(UnallocatedBalancesJournalNode node)
 		{
-			var organizationId = node.OrganizationId;
-			var counterpartyId = node.CounterpartyId;
-			
-			var balance = node.CounterpartyBalance;
-			var paymentNodes = _paymentsRepository.GetAllNotFullyAllocatedPaymentsByClientAndOrg(
-				_unitOfWork, counterpartyId, organizationId, AllocateCompletedPayments);
+			var distributionResult = _paymentService.DistributeByClientIdAndOrganizationId(
+				_unitOfWork,
+				node.CounterpartyId,
+				node.OrganizationId);
 
-			var orderNodes =
-				_orderRepository.GetAllNotFullyPaidOrdersByClientAndOrg(
-					_unitOfWork,
-					counterpartyId,
-					organizationId,
-					_closingDocumentDeliveryScheduleId);
-
-			foreach(var paymentNode in paymentNodes)
-			{
-				if(balance == 0)
+			distributionResult.Match(
+				() =>
 				{
-					break;
-				}
+					_unitOfWork.Commit();
 
-				var unallocatedSum = paymentNode.UnallocatedSum;
-				var payment = _unitOfWork.GetById<Payment>(paymentNode.Id);
-
-				while(orderNodes.Count > 0)
+					_interactiveService.ShowMessage(
+						ImportanceLevel.Info,
+						"Распределение успешно завершено");
+				},
+				errors =>
 				{
-					var order = _unitOfWork.GetById<Order>(orderNodes[0].Id);
-					var sumToAllocate = orderNodes[0].OrderSum - orderNodes[0].AllocatedSum;
+					_unitOfWork.Session.GetCurrentTransaction()?.Rollback();
 
-					if(balance >= unallocatedSum)
-					{
-						if(sumToAllocate <= unallocatedSum)
-						{
-							payment.AddPaymentItem(order, sumToAllocate);
-							unallocatedSum -= sumToAllocate;
-							balance -= sumToAllocate;
-							orderNodes.RemoveAt(0);
-							order.OrderPaymentStatus = OrderPaymentStatus.Paid;
-						}
-						else
-						{
-							payment.AddPaymentItem(order, unallocatedSum);
-							orderNodes[0].AllocatedSum += unallocatedSum;
-							balance -= unallocatedSum;
-							order.OrderPaymentStatus = OrderPaymentStatus.PartiallyPaid;
-							break;
-						}
-
-						if(unallocatedSum == 0)
-						{
-							break;
-						}
-					}
-					else
-					{
-						if(sumToAllocate <= balance)
-						{
-							payment.AddPaymentItem(order, sumToAllocate);
-							balance -= sumToAllocate;
-							orderNodes.RemoveAt(0);
-							order.OrderPaymentStatus = OrderPaymentStatus.Paid;
-						}
-						else
-						{
-							payment.AddPaymentItem(order, balance);
-							balance = 0;
-							order.OrderPaymentStatus = OrderPaymentStatus.PartiallyPaid;
-						}
-
-						if(balance == 0)
-						{
-							break;
-						}
-					}
-				}
-
-				var allocatedPaymentItems =
-					payment.PaymentItems.Where(
-						pi => pi.CashlessMovementOperation == null || pi.Sum != pi.CashlessMovementOperation.Expense);
-
-				foreach(var paymentItem in allocatedPaymentItems)
-				{
-					paymentItem.CreateOrUpdateExpenseOperation();
-				}
-
-				if(payment.Status != PaymentState.completed)
-				{
-					payment.CreateIncomeOperation();
-					payment.Status = PaymentState.completed;
-				}
-
-				_unitOfWork.Save(payment);
-			}
-
-			_unitOfWork.Commit();
+					_interactiveService.ShowMessage(
+						ImportanceLevel.Error,
+						"Не удалось завершить распределение: \n" + string.Join("\n", errors.Select(e => e.Message)));
+				});
 		}
 
 		private void AllocateLoadedBalances(IList<UnallocatedBalancesJournalNode> loadedNodes)
