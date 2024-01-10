@@ -413,7 +413,7 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 			{
 				lock(_unitOfWork)
 				{
-					_unitOfWork.TrySave(cachedValue, false);
+					_unitOfWork.Save(cachedValue, false);
 					_unsavedItems++;
 					if(_unsavedItems >= SaveBy)
 					{
