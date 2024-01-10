@@ -269,6 +269,14 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		private void ConfigureFilter()
 		{
 			_filterViewModel = _includeExcludeSalesFilterFactory.CreateSalesReportIncludeExcludeFilter(_unitOfWork, _userIsSalesRepresentative);
+
+			var additionalParams = new Dictionary<string, string>
+			{
+				{ "Самовывоз", "is_self_delivery" },
+				{ "Клиенты с одним заказом", "with_one_order" },
+			};
+
+			_filterViewModel.AddFilter("Дополнительные фильтры", additionalParams);
 		}
 
 		private void SetupGroupings()
@@ -350,12 +358,12 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			if(includedList.Any())
 			{
-				stringBuilder.AppendLine(string.Concat("Только: ", string.Join(", ", includedList)));
+				stringBuilder.AppendLine(string.Concat(" Только: ", string.Join(", ", includedList)));
 			}
 
 			if(excludedList.Any())
 			{
-				stringBuilder.AppendLine(string.Concat("Кроме: ", string.Join(", ", excludedList)));
+				stringBuilder.AppendLine(string.Concat(" Кроме: ", string.Join(", ", excludedList)));
 			}
 		}
 
@@ -584,6 +592,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			#endregion Сбор параметров
 
 			Order orderAlias = null;
+			Order orderCountAlias = null;
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
 			ProductGroup productGroupAlias = null;
@@ -678,6 +687,24 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						case "is_self_delivery":
 							nomenclaturesEmptyQuery.Where(() => orderAlias.SelfDelivery == param.Include);
 							break;
+						case "with_one_order":
+						{
+							var subQueryOrdersCount = QueryOver.Of(() => orderCountAlias)
+								.Where(() => orderCountAlias.Client.Id == counterpartyAlias.Id)
+								.Select(Projections.GroupProperty(Projections.Property<Order>(o => o.Client.Id)));
+
+							var countProjection = Projections.CountDistinct(() => orderCountAlias.Id);
+
+							subQueryOrdersCount.Where(param.Include
+								? Restrictions.Eq(countProjection, 1)
+								: Restrictions.Not(Restrictions.Eq(countProjection, 1)));
+
+							nomenclaturesEmptyQuery.WithSubquery
+								.WhereProperty(() => counterpartyAlias.Id)
+								.In(subQueryOrdersCount);
+							
+							break;
+						}							
 						default:
 							throw new NotSupportedException(param.Number);
 					}
@@ -1193,6 +1220,24 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					case "is_self_delivery":
 						query.Where(() => orderAlias.SelfDelivery == param.Include);
 						break;
+					case "with_one_order":
+					{
+						var subQueryOrdersCount = QueryOver.Of(() => orderCountAlias)
+							.Where(() => orderCountAlias.Client.Id == counterpartyAlias.Id)
+							.Select(Projections.GroupProperty(Projections.Property<Order>(o => o.Client.Id)));
+
+						var countProjection = Projections.CountDistinct(() => orderCountAlias.Id);
+
+						subQueryOrdersCount.Where(param.Include
+							? Restrictions.Eq(countProjection, 1)
+							: Restrictions.Not(Restrictions.Eq(countProjection, 1)));
+
+						query.WithSubquery
+							.WhereProperty(() => counterpartyAlias.Id)
+							.In(subQueryOrdersCount);
+						
+						break;
+					}
 					default:
 						throw new NotSupportedException(param.Number);
 				}
