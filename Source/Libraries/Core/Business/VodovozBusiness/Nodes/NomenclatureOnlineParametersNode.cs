@@ -6,7 +6,7 @@ namespace Vodovoz.Nodes
 	{
 		public int Id { get; set; }
 		public int NomenclatureId { get; set; }
-		public NomenclatureOnlineAvailability? AvailableForSale { get; set; }
+		public GoodsOnlineAvailability? AvailableForSale { get; set; }
 		public NomenclatureOnlineMarker? Marker { get; set; }
 		public decimal? PercentDiscount { get; set; }
 	}

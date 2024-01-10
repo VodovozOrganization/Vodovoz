@@ -13,6 +13,7 @@ using QS.Project.Journal;
 using QS.Services;
 using System;
 using System.Linq;
+using QS.Navigation;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Documents.DriverTerminal;
@@ -39,6 +40,7 @@ using Vodovoz.ViewModels.Cash;
 using Vodovoz.ViewModels.FuelDocuments;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes;
+using Vodovoz.ViewModels.Logistic;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -70,8 +72,9 @@ namespace Vodovoz.JournalViewModels
 			ISubdivisionRepository subdivisionRepository,
 			IAccountableDebtsRepository accountableDebtsRepository,
 			IGtkTabsOpener gtkTabsOpener,
-			IRouteListProfitabilitySettings routeListProfitabilitySettings)
-			: base(filterViewModel, unitOfWorkFactory, commonServices)
+			IRouteListProfitabilitySettings routeListProfitabilitySettings,
+			INavigationManager navigationManager)
+			: base(filterViewModel, unitOfWorkFactory, commonServices, navigation: navigationManager)
 		{
 			TabName = "Работа кассы с МЛ";
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
@@ -341,27 +344,35 @@ namespace Vodovoz.JournalViewModels
 
 		protected override Func<RouteListJournalNode, TdiTabBase> OpenDialogFunction => (node) =>
 		{
+			if(!(NavigationManager is ITdiCompatibilityNavigation navigationManager))
+			{
+				return null;
+			}
+			
 			switch(node.StatusEnum)
 			{
 				case RouteListStatus.New:
 				case RouteListStatus.Confirmed:
-					return new RouteListCreateDlg(node.Id);
+					navigationManager.OpenViewModel<RouteListCreateViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id));
+					return null;
 				case RouteListStatus.InLoading:
 					if(_routeListRepository.IsTerminalRequired(UoW, node.Id))
 					{
-						return new CarLoadDocumentDlg(node.Id, null);
+						navigationManager.OpenTdiTab<CarLoadDocumentDlg, int, int?>(this, node.Id, null);
+						return null;
 					}
-					else
-					{
-						return new RouteListCreateDlg(node.Id);
-					}
+					
+					navigationManager.OpenViewModel<RouteListCreateViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id));
+					return null;
 				case RouteListStatus.EnRoute:
-					return new RouteListKeepingDlg(node.Id);
+					navigationManager.OpenTdiTab<RouteListKeepingDlg, int>(this, node.Id);
+					return null;
 				case RouteListStatus.Delivered:
 				case RouteListStatus.OnClosing:
 				case RouteListStatus.MileageCheck:
 				case RouteListStatus.Closed:
-					return new RouteListClosingDlg(node.Id);
+					navigationManager.OpenTdiTab<RouteListClosingDlg, int>(this, node.Id);
+					return null;
 				default:
 					throw new InvalidOperationException("Неизвестный статус МЛ");
 			}
@@ -582,7 +593,7 @@ namespace Vodovoz.JournalViewModels
 					if(selectedNodes == null || selectedNodes.Count() != 1) {
 						return false;
 					}
-					RouteListJournalNode selectedNode = selectedNodes.First();
+					var selectedNode = selectedNodes.First();
 					if(!EntityConfigs.ContainsKey(selectedNode.EntityType)) {
 						return false;
 					}
@@ -595,17 +606,13 @@ namespace Vodovoz.JournalViewModels
 					if(selectedNodes == null || selectedNodes.Count() != 1) {
 						return;
 					}
-					RouteListJournalNode selectedNode = selectedNodes.First();
+					var selectedNode = selectedNodes.First();
 					if(!EntityConfigs.ContainsKey(selectedNode.EntityType)) {
 						return;
 					}
 					var config = EntityConfigs[selectedNode.EntityType];
 					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
-
-					TabParent.OpenTab(() => foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode), this);
-					if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog) {
-						HideJournal(TabParent);
-					}
+					foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode);
 				}
 			);
 			if(SelectionMode == JournalSelectionMode.None) {

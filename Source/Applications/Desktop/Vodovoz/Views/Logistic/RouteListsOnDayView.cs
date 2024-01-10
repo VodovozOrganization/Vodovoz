@@ -9,6 +9,7 @@ using Gtk;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Journal;
 using QS.Utilities;
 using QS.Views.GtkUI;
@@ -298,6 +299,11 @@ namespace Vodovoz.Views.Logistic
 				.Finish();
 
 			viewDeliverySummary.Binding.AddBinding(ViewModel, vm => vm.ObservableDeliverySummary, w => w.ItemsDataSource).InitializeFromSource();
+
+			chkExcludeTrukcs.Binding
+				.AddBinding(ViewModel, vm => vm.ExcludeTrucks, w => w.Active)
+				.InitializeFromSource();
+			chkExcludeTrukcs.Toggled += (sender, args) => FillFullOrdersInfo();
 		}
 
 		private void GmapWidget_ButtonReleaseEvent(object o, ButtonReleaseEventArgs args)
@@ -1236,7 +1242,14 @@ namespace Vodovoz.Views.Logistic
 			_creatingInProgress = true;
 			buttonAutoCreate.Label = "Остановить";
 
-			if(ViewModel.CreateRoutesAutomatically(txt => textOrdersInfo.Buffer.Text = txt)) {
+			if(ViewModel.CreateRoutesAutomatically(txt =>
+				{
+					Gtk.Application.Invoke((s, args) =>
+					{
+						textOrdersInfo.Buffer.Text = txt;
+					});
+				}))
+			{
 				UpdateRoutesPixBuf();
 				UpdateRoutesButton();
 				UpdateAddressesOnMap();
@@ -1263,18 +1276,17 @@ namespace Vodovoz.Views.Logistic
 				x => x.Archive = false,
 				x => x.RestrictedCarOwnTypes = new List<CarOwnType> { CarOwnType.Company }
 			);
-			var journal = new CarJournalViewModel(
-				filter,
-				UnitOfWorkFactory.GetDefaultFactory,
-				ViewModel.CommonServices,
-				Startup.AppDIContainer.BeginLifetimeScope());
-			journal.SelectionMode = JournalSelectionMode.Single;
-			journal.OnEntitySelectedResult += (o, args) =>
+
+			var page = (ViewModel.NavigationManager as ITdiCompatibilityNavigation).OpenViewModelOnTdi<CarJournalViewModel>(
+				Tab,
+				OpenPageOptions.AsSlave,
+				viewModel => viewModel.SelectionMode = JournalSelectionMode.Single);
+
+			page.ViewModel.OnEntitySelectedResult += (o, args) =>
 			{
 				var car = ViewModel.UoW.GetById<Car>(args.SelectedNodes.First().Id);
 				ViewModel.SelectCarForDriver(driver, car);
 			};
-			ViewModel.TabParent.AddSlaveTab(ViewModel, journal);
 		}
 
 		private void OnLoadTimeEdited(object o, EditedArgs args)

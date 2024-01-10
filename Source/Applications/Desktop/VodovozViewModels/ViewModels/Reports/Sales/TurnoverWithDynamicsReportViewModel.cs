@@ -341,6 +341,24 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			}
 		}
 
+		public void GetBoolParamsValues(StringBuilder stringBuilder)
+		{
+			var includedBoolParams = FilterViewModel.GetFilter<IncludeExcludeBoolParamsFilter>();
+
+			var includedList = includedBoolParams.FilteredElements.Where(x => x.Include).Select(x => x.Title);
+			var excludedList = includedBoolParams.FilteredElements.Where(x => x.Exclude).Select(x => x.Title);
+
+			if(includedList.Any())
+			{
+				stringBuilder.AppendLine(string.Concat("Только: ", string.Join(", ", includedList)));
+			}
+
+			if(excludedList.Any())
+			{
+				stringBuilder.AppendLine(string.Concat("Кроме: ", string.Join(", ", excludedList)));
+			}
+		}
+
 		public async Task<TurnoverWithDynamicsReport> Generate(CancellationToken cancellationToken)
 		{
 			var errors = ValidateParameters();
@@ -367,6 +385,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			GetParameterValues<PaymentType>(sb2);
 			GetParameterValues<PromotionalSet>(sb2);
 			GetParameterValues<CounterpartyCompositeClassification>(sb2);
+			GetBoolParamsValues(sb2);
 
 			filters = sb2.ToString().Trim('\n');
 
@@ -560,6 +579,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			var includedCounterpartyClassifications = counterpartyClassificationsFilter.GetIncluded().ToArray();
 			var excludedCounterpartyClassifications = counterpartyClassificationsFilter.GetExcluded().ToArray();
 
+			var includedBoolParams = FilterViewModel.GetFilter<IncludeExcludeBoolParamsFilter>();
+
 			#endregion Сбор параметров
 
 			Order orderAlias = null;
@@ -642,6 +663,27 @@ namespace Vodovoz.ViewModels.Reports.Sales
 								excludedProductGroups)))
 						.Add(Restrictions.IsNull(Projections.Property(() => productGroupAlias.Id))));
 				}
+
+				#region BoolParams
+
+				foreach(var param in includedBoolParams.FilteredElements)
+				{
+					if(!param.Include && !param.Exclude)
+					{
+						continue;
+					}
+
+					switch(param.Number)
+					{
+						case "is_self_delivery":
+							nomenclaturesEmptyQuery.Where(() => orderAlias.SelfDelivery == param.Include);
+							break;
+						default:
+							throw new NotSupportedException(param.Number);
+					}
+				}
+
+				#endregion
 
 				nomenclaturesEmptyNodes = nomenclaturesEmptyQuery
 					.SelectList(list => list.SelectGroup(() => nomenclatureAlias.Id)
@@ -1136,6 +1178,27 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			}
 
 			#endregion CounterpartyClassifications
+
+			#region BoolParams
+
+			foreach(var param in includedBoolParams.FilteredElements)
+			{
+				if(!param.Include && !param.Exclude)
+				{
+					continue;
+				}
+
+				switch(param.Number)
+				{
+					case "is_self_delivery":
+						query.Where(() => orderAlias.SelfDelivery == param.Include);
+						break;
+					default:
+						throw new NotSupportedException(param.Number);
+				}
+			}
+
+			#endregion
 
 			#endregion
 

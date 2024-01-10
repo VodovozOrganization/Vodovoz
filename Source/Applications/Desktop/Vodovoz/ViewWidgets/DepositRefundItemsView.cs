@@ -59,6 +59,7 @@ namespace Vodovoz.ViewWidgets
 						.AddColumn("Цена")
 					.AddNumericRenderer(node => node.Deposit)
 						.Adjustment(new Adjustment(1, 0, 1000000, 1, 100, 1))
+						.WidthChars(10)
 						.Editing(true)
 				.AddColumn("Сумма")
 					.AddNumericRenderer(node => node.ActualSum)

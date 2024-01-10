@@ -757,7 +757,7 @@ namespace Vodovoz.Domain.Logistic
 
 		#region Функции
 
-		public virtual CarVersion GetCarVersion => Car.GetActiveCarVersionOnDate(Date);
+		public virtual CarVersion GetCarVersion => Car?.GetActiveCarVersionOnDate(Date);
 
 		public virtual IDictionary<int, decimal> GetCashChangesForOrders()
 		{
@@ -868,7 +868,7 @@ namespace Vodovoz.Domain.Logistic
 
 			msg = string.Empty;
 			if(address.WasTransfered) {
-				var from = routeListItemRepository.GetTransferedFrom(UoW, address)?.RouteList?.Id;
+				var from = routeListItemRepository.GetTransferredFrom(UoW, address)?.RouteList?.Id;
 				msg = string.Format(
 					"Адрес \"{0}\" не может быть удалён, т.к. был перенесён из МЛ №{1}. Воспользуйтесь функционалом из вкладки \"Перенос адресов маршрутных листов\" для возврата этого адреса в исходный МЛ.",
 					address.Order.DeliveryPoint?.ShortAddress,
@@ -3238,7 +3238,9 @@ namespace Vodovoz.Domain.Logistic
 
 		#endregion Зарплата
 
-		public static RouteListStatus[] AvailableToSendEnRouteStatuses => new RouteListStatus[] { RouteListStatus.Confirmed, RouteListStatus.InLoading };
+		public static RouteListStatus[] AvailableToSendEnRouteStatuses { get; } = { RouteListStatus.Confirmed, RouteListStatus.InLoading };
+
+		public static RouteListStatus[] NotLoadedRouteListStatuses { get; } = { RouteListStatus.New, RouteListStatus.Confirmed, RouteListStatus.InLoading };
 	}
 
 	public enum RouteListStatus

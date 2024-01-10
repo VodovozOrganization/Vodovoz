@@ -1,4 +1,4 @@
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using NHibernate.Linq;
 using NHibernate.Util;
 using QS.Commands;
@@ -316,6 +316,51 @@ namespace Vodovoz.Presentation.ViewModels.Common
 				{
 					filter.FilteredElements.Add(element);
 				}
+			};
+
+			includeExcludeFilter?.Invoke(newFilter);
+
+			newFilter.SelectionChanged = SelectionChanged;
+
+			Filters.Add(newFilter);
+		}
+
+		public void AddFilter(string title, Dictionary<string, string> boolParamsDictionary, Action<IncludeExcludeBoolParamsFilter> includeExcludeFilter = null)
+		{
+			var newFilter = new IncludeExcludeBoolParamsFilter
+			{
+				Title = title
+			};
+
+			newFilter.RefreshFunc = (filter) =>
+			{
+				filter.FilteredElements.Clear();
+
+				foreach(var boolParam in boolParamsDictionary)
+				{
+					filter.FilteredElements.Add(new IncludeExcludeElement
+					{
+						Title = boolParam.Key,
+						Number = boolParam.Value
+					});
+				}
+			};
+
+			newFilter.GetReportParametersFunc = (filter) =>
+			{
+				var result = new Dictionary<string, object>();
+
+				foreach(var value in filter.IncludedElements)
+				{
+					result.Add(value.Number, true);
+				}
+
+				foreach(var value in filter.ExcludedElements)
+				{
+					result.Add(value.Number, false);
+				}
+
+				return result;
 			};
 
 			includeExcludeFilter?.Invoke(newFilter);

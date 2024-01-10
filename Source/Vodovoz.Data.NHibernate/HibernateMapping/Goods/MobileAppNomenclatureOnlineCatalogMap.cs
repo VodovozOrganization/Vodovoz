@@ -8,7 +8,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods
 	{
 		public MobileAppNomenclatureOnlineCatalogMap()
 		{
-			DiscriminatorValue(nameof(NomenclatureOnlineParameterType.ForMobileApp));
+			DiscriminatorValue(nameof(GoodsOnlineParameterType.ForMobileApp));
 		}
 	}
 }

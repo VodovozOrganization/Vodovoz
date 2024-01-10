@@ -6,10 +6,12 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
+using QS.Tdi;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
@@ -27,7 +29,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			CarJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			ILifetimeScope scope) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			INavigationManager navigationManager,
+			ILifetimeScope scope) : base(filterViewModel, unitOfWorkFactory, commonServices, navigation: navigationManager)
 		{
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			TabName = "Журнал автомобилей";
@@ -119,26 +122,132 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			return result;
 		};
 
-		protected override Func<CarViewModel> CreateDialogFunction =>
-			() =>
-			{
-				Parameter[] parameters =
-				{
-					new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForCreate())
-				};
+		protected override void CreateNodeActions()
+		{
+			NodeActionsList.Clear();
+			CreateDefaultSelectAction();
+			CreateAddActions();
+			CreateEditAction();
+			CreateDefaultDeleteAction();
+		}
 
-				return _scope.Resolve<CarViewModel>(parameters);
+		protected void CreateAddActions()
+		{
+			if(!EntityConfigs.Any())
+			{
+				return;
+			}
+
+			var totalCreateDialogConfigs = EntityConfigs
+				.Where(x => x.Value.PermissionResult.CanCreate)
+				.Sum(x => x.Value.EntityDocumentConfigurations
+							.Select(y => y.GetCreateEntityDlgConfigs().Count())
+							.Sum());
+
+			if(EntityConfigs.Values.Count(x => x.PermissionResult.CanRead) > 1 || totalCreateDialogConfigs > 1)
+			{
+				var addParentNodeAction = new JournalAction("Добавить", (selected) => true, (selected) => true, (selected) => { });
+				foreach(var entityConfig in EntityConfigs.Values)
+				{
+					foreach(var documentConfig in entityConfig.EntityDocumentConfigurations)
+					{
+						foreach(var createDlgConfig in documentConfig.GetCreateEntityDlgConfigs())
+						{
+							var childNodeAction = new JournalAction(createDlgConfig.Title,
+								(selected) => entityConfig.PermissionResult.CanCreate,
+								(selected) => entityConfig.PermissionResult.CanCreate,
+								(selected) => {
+									createDlgConfig.OpenEntityDialogFunction.Invoke();
+
+									if(documentConfig.JournalParameters.HideJournalForCreateDialog)
+									{
+										HideJournal(TabParent);
+									}
+								}
+							);
+							addParentNodeAction.ChildActionsList.Add(childNodeAction);
+						}
+					}
+				}
+				NodeActionsList.Add(addParentNodeAction);
+			}
+			else
+			{
+				var entityConfig = EntityConfigs.First().Value;
+				var addAction = new JournalAction("Добавить",
+					(selected) => entityConfig.PermissionResult.CanCreate,
+					(selected) => entityConfig.PermissionResult.CanCreate,
+					(selected) => {
+						var docConfig = entityConfig.EntityDocumentConfigurations.First();
+						ITdiTab tab = docConfig.GetCreateEntityDlgConfigs().First().OpenEntityDialogFunction.Invoke();
+
+						if(tab is ITdiDialog)
+						{
+							((ITdiDialog)tab).EntitySaved += Tab_EntitySaved;
+						}
+
+						if(docConfig.JournalParameters.HideJournalForCreateDialog)
+						{
+							HideJournal(TabParent);
+						}
+					},
+					"Insert"
+					);
+				NodeActionsList.Add(addAction);
 			};
+		}
+
+		protected void CreateEditAction()
+		{
+			var editAction = new JournalAction("Изменить",
+				(selected) => {
+					var selectedNodes = selected.OfType<CarJournalNode>();
+					if(selectedNodes == null || selectedNodes.Count() != 1)
+					{
+						return false;
+					}
+					CarJournalNode selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					{
+						return false;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					return config.PermissionResult.CanUpdate;
+				},
+				(selected) => true,
+				(selected) => {
+					var selectedNodes = selected.OfType<CarJournalNode>();
+					if(selectedNodes == null || selectedNodes.Count() != 1)
+					{
+						return;
+					}
+					CarJournalNode selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					{
+						return;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
+
+					foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode);
+
+					if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog)
+					{
+						HideJournal(TabParent);
+					}
+				}
+			);
+			if(SelectionMode == JournalSelectionMode.None)
+			{
+				RowActivatedAction = editAction;
+			}
+			NodeActionsList.Add(editAction);
+		}
+
+		protected override Func<CarViewModel> CreateDialogFunction =>
+			() => NavigationManager.OpenViewModel<CarViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()).ViewModel;
 
 		protected override Func<CarJournalNode, CarViewModel> OpenDialogFunction =>
-			node =>
-			{
-				Parameter[] parameters =
-				{
-					new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(node.Id))
-				};
-
-				return _scope.Resolve<CarViewModel>(parameters);
-			};
+			node => NavigationManager.OpenViewModel<CarViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id)).ViewModel;
 	}
 }

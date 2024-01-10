@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Nodes;
 
 namespace Vodovoz.EntityRepositories.Orders
 {
@@ -21,5 +23,9 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// игнорироваться заказ передаваемы в качестве параметра <paramref name="currOrder"/></param>
 		Dictionary<int, int[]> GetPromotionalSetsAndCorrespondingOrdersForDeliveryPoint(IUnitOfWork uow, Order currOrder, bool ignoreCurrentOrder = false);
 		bool AddressHasAlreadyBeenUsedForPromo( IUnitOfWork uow, DeliveryPoint deliveryPoint );
+		IEnumerable<PromotionalSetOnlineParametersNode> GetPromotionalSetsOnlineParametersForSend(
+			IUnitOfWork uow, GoodsOnlineParameterType parameterType);
+		IEnumerable<PromotionalSetItemBalanceNode> GetPromotionalSetsItemsWithBalanceForSend(
+			IUnitOfWork uow, GoodsOnlineParameterType parameterType);
 	}
 }

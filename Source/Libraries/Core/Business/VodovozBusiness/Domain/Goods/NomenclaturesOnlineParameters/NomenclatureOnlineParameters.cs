@@ -14,7 +14,7 @@ namespace Vodovoz.Domain.Goods.NomenclaturesOnlineParameters
 	{
 		private decimal? _nomenclatureOnlineDiscount;
 		private NomenclatureOnlineMarker? _nomenclatureOnlineMarker;
-		private NomenclatureOnlineAvailability? _nomenclatureOnlineAvailability;
+		private GoodsOnlineAvailability? _nomenclatureOnlineAvailability;
 		private Nomenclature _nomenclature;
 		private IList<NomenclatureOnlinePrice> _nomenclatureOnlinePrices = new List<NomenclatureOnlinePrice>();
 
@@ -49,12 +49,12 @@ namespace Vodovoz.Domain.Goods.NomenclaturesOnlineParameters
 		}
 		
 		[Display(Name = "Онлайн доступность")]
-		public virtual NomenclatureOnlineAvailability? NomenclatureOnlineAvailability
+		public virtual GoodsOnlineAvailability? NomenclatureOnlineAvailability
 		{
 			get => _nomenclatureOnlineAvailability;
 			set => SetField(ref _nomenclatureOnlineAvailability, value);
 		}
 		
-		public abstract NomenclatureOnlineParameterType Type { get; }
+		public abstract GoodsOnlineParameterType Type { get; }
 	}
 }

@@ -44,16 +44,35 @@
 				nameof(ValidationFailure),
 				"МЛ не прошёл валидацию");
 
-		public static Error HasOverweight =>
-		new Error(
-			typeof(RouteList),
-			nameof(HasOverweight),
-			"Перегруз");
-
-		public static Error CreateHasOverweight(string message) =>
+		public static Error Overweighted(decimal overweight) =>
 			new Error(
 				typeof(RouteList),
-				nameof(HasOverweight),
-				message);
+				nameof(Overweighted),
+				$"Вес груза превышен на {overweight}");
+
+		public static Error Overvolumed(decimal overvolume) =>
+			new Error(
+				typeof(RouteList),
+				nameof(Overvolumed),
+				$"Объём груза превышен на {overvolume}");
+
+		public static Error InsufficientFreeVolumeForReturn(decimal needFreeVolume) =>
+			new Error(
+				typeof(RouteList),
+				nameof(InsufficientFreeVolumeForReturn),
+				$"Объём возвращаемого груза превышен на {needFreeVolume}");
+
+		public static string[] OverfilledErrorCodes => new[]
+		{
+			Error.GenerateCode(
+				typeof(RouteList),
+				nameof(Overweighted)),
+			Error.GenerateCode(
+				typeof(RouteList),
+				nameof(Overvolumed)),
+			Error.GenerateCode(
+				typeof(RouteList),
+				nameof(InsufficientFreeVolumeForReturn)),
+		};
 	}
 }

@@ -25,10 +25,10 @@ namespace Vodovoz.Counterparties
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
-			// Widget Vodovoz.Counterparties.SubtypeViewModel
+			// Widget Vodovoz.Counterparties.SubtypeView
 			global::Stetic.BinContainer.Attach(this);
-			this.Name = "Vodovoz.Counterparties.SubtypeViewModel";
-			// Container child Vodovoz.Counterparties.SubtypeViewModel.Gtk.Container+ContainerChild
+			this.Name = "Vodovoz.Counterparties.SubtypeView";
+			// Container child Vodovoz.Counterparties.SubtypeView.Gtk.Container+ContainerChild
 			this.tableMain = new global::Gtk.Table(((uint)(3)), ((uint)(3)), false);
 			this.tableMain.Name = "tableMain";
 			this.tableMain.RowSpacing = ((uint)(6));

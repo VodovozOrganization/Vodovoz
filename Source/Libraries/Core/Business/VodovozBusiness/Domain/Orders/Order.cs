@@ -1,4 +1,4 @@
-﻿using fyiReporting.RDL;
+using fyiReporting.RDL;
 using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Exceptions;
@@ -93,6 +93,7 @@ namespace Vodovoz.Domain.Orders
 		private readonly double _futureDeliveryDaysLimit = 30;
 
 		private bool _isBottleStockDiscrepancy;
+		private TimeSpan? _waitUntilTime;
 
 		#region Платная доставка
 
@@ -120,6 +121,7 @@ namespace Vodovoz.Domain.Orders
 		private GeoGroup _selfDeliveryGeoGroup;
 
 		private int? _callBeforeArrivalMinutes;
+		private DateTime? _firstDeliveryDate;
 
 		#region Cвойства
 
@@ -301,6 +303,14 @@ namespace Vodovoz.Domain.Orders
 						"Дата договора будет изменена при сохранении текущего заказа!");
 				}
 			}
+		}
+
+		[Display(Name = "Первичная дата доставки")]
+		[HistoryDateOnly]
+		public virtual DateTime? FirstDeliveryDate
+		{
+			get => _firstDeliveryDate;
+			set => SetField(ref _firstDeliveryDate, value);
 		}
 
 		private DateTime billDate = DateTime.Now;
@@ -909,6 +919,13 @@ namespace Vodovoz.Domain.Orders
 		{
 			get => _logisticsRequirements;
 			set => SetField(ref _logisticsRequirements, value);
+		}
+		
+		[Display(Name = "Ожидает до")]
+		public virtual TimeSpan? WaitUntilTime
+		{
+			get => _waitUntilTime;
+			set => SetField(ref _waitUntilTime, value);
 		}
 
 		#endregion
@@ -1965,12 +1982,12 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 
-			if(deliveryPriceItem.Price == price)
+			if(delivery.Price == price)
 			{
 				return;
 			}
 
-			deliveryPriceItem.SetPrice(price);
+			delivery.SetPrice(price);
 		}
 
 		public virtual void AddOrderItem(OrderItem orderItem, bool forceUseAlternativePrice = false)
@@ -1990,17 +2007,6 @@ namespace Vodovoz.Domain.Orders
 
 			ObservableOrderItems.Add(orderItem);
 			UpdateContract();
-		}
-
-		public virtual OrderItem AddOrderItem(Nomenclature nomenclature, decimal nds, int count, decimal price, int discount)
-		{
-			var item = OrderItem.CreateForSaleWithDiscount(this, nomenclature, count, price, false, discount, null, null);
-
-			item.IncludeNDS = nds;
-
-			ObservableOrderItems.Add(item);
-
-			return item;
 		}
 
 		public virtual void RemoveOrderItem(OrderItem orderItem)
@@ -2030,9 +2036,9 @@ namespace Vodovoz.Domain.Orders
 			UpdateContract();
 		}
 
-		public virtual void SetOrderItemCount(int orderItemId, decimal newCount)
+		public virtual void SetOrderItemCount(OrderItem orderItem, decimal newCount)
 		{
-			ObservableOrderItems.FirstOrDefault(x => x.Id == orderItemId)?.SetCount(newCount);
+			orderItem?.SetCount(newCount);
 		}
 
 		#endregion
@@ -2246,10 +2252,11 @@ namespace Vodovoz.Domain.Orders
 
 			Contract = counterpartyContract;
 
-			foreach(var orderItem in OrderItems)
+			for(var i = 0; i < OrderItems.Count; i++)
 			{
-				orderItem.CalculateVATType();
+				OrderItems[i].CalculateVATType();
 			}
+			
 			UpdateContractDocument();
 			UpdateDocuments();
 		}
@@ -2631,12 +2638,11 @@ namespace Vodovoz.Domain.Orders
 		/// <param name="proSet">Промонабор (промонабор)</param>
 		public virtual bool CanAddPromotionalSet(PromotionalSet proSet, IPromotionalSetRepository promotionalSetRepository)
 		{
-			if(PromotionalSets.Any(x => x.Id == proSet.Id)) {
-				InteractiveService.ShowMessage(ImportanceLevel.Warning, "В заказ нельзя добавить два одинаковых промонабора");
-				return false;
-			}
-			if((PromotionalSets.Count(x => !x.CanBeAddedWithOtherPromoSets) + (proSet.CanBeAddedWithOtherPromoSets ? 0 : 1)) > 1) {
-				InteractiveService.ShowMessage(ImportanceLevel.Warning, "В заказ нельзя добавить больше 1 промонабора, у которого нет свойства \"Может быть добавлен вместе с другими промонаборами\"");
+			if(PromotionalSets.Any(x => x.PromotionalSetForNewClients && proSet.PromotionalSetForNewClients))
+			{
+				InteractiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					"В заказ нельзя добавить два промо-набора для новых клиентов");
 				return false;
 			}
 
@@ -2645,34 +2651,33 @@ namespace Vodovoz.Domain.Orders
 				return true;
 			}
 
-			if(!proSet.CanBeReorderedWithoutRestriction && CanUsedPromo(promotionalSetRepository))
+			if(proSet.PromotionalSetForNewClients && CanUsedPromo(promotionalSetRepository))
 			{
-				string message = "По этому адресу уже была ранее отгрузка промонабора на другое физ.лицо.";
+				var message = "По этому адресу уже была ранее отгрузка промонабора на другое физ.лицо.";
 				InteractiveService.ShowMessage(ImportanceLevel.Warning, message);
 				return false;
 			}
 
 			var proSetDict = promotionalSetRepository.GetPromotionalSetsAndCorrespondingOrdersForDeliveryPoint(UoW, this);
-			
-			if(proSet.CanBeReorderedWithoutRestriction | !proSetDict.Any())
+
+			if(!proSet.PromotionalSetForNewClients | !proSetDict.Any())
 			{
 				return true;
 			}
 
 			var address = string.Join(", ", DeliveryPoint.City, DeliveryPoint.Street, DeliveryPoint.Building, DeliveryPoint.Room);
-			StringBuilder sb = new StringBuilder(string.Format("Для адреса \"{0}\", найдены схожие точки доставки, на которые уже создавались заказы с промонаборами:\n", address));
+			var sb = new StringBuilder(
+				$"Для адреса \"{address}\", найдены схожие точки доставки, на которые уже создавались заказы с промо-наборами:\n");
 			foreach(var d in proSetDict) {
 				var proSetTitle = UoW.GetById<PromotionalSet>(d.Key).ShortTitle;
 				var orders = string.Join(
 					" ,",
 					UoW.GetById<Order>(d.Value).Select(o => o.Title)
 				);
-				sb.AppendLine(string.Format("– {0}: {1}", proSetTitle, orders));
+				sb.AppendLine($"– {proSetTitle}: {orders}");
 			}
 			sb.AppendLine($"Вы уверены, что хотите добавить \"{proSet.Title}\"");
-			if(InteractiveService.Question(sb.ToString()))
-				return true;
-			return false;
+			return InteractiveService.Question(sb.ToString());
 		}
 
 		/// <summary>
@@ -3863,8 +3868,10 @@ namespace Vodovoz.Domain.Orders
 			if(IsContractCloser)
 				return false;
 
-			int amountDelivered = (int)OrderItems.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && !item.Nomenclature.IsDisposableTare)
-								.Sum(item => item?.ActualCount ?? 0);
+			int amountDelivered = (int)OrderItems
+				.Where(item => item.Nomenclature.Category == NomenclatureCategory.water
+					&& item.Nomenclature.TareVolume == TareVolume.Vol19L)
+				.Sum(item => item.ActualCount ?? 0);
 
 			if(forfeitQuantity == null) {
 				forfeitQuantity = (int)OrderItems.Where(i => i.Nomenclature.Id == standartNomenclatures.GetForfeitId())
@@ -4311,6 +4318,11 @@ namespace Vodovoz.Domain.Orders
 		{
 			SetFirstOrder();
 
+			if(FirstDeliveryDate is null)
+			{
+				FirstDeliveryDate = DeliveryDate;
+			}
+
 			if(!IsLoadedFrom1C)
 			{
 				UpdateContract();
@@ -4324,7 +4336,7 @@ namespace Vodovoz.Domain.Orders
 			paymentFromBankClientController.UpdateAllocatedSum(UoW, this);
 			paymentFromBankClientController.ReturnAllocatedSumToClientBalanceIfChangedPaymentTypeFromCashless(UoW, this);
 
-			var hasPromotionalSetForNewClient = PromotionalSets.Any(x => !x.CanBeReorderedWithoutRestriction);
+			var hasPromotionalSetForNewClient = PromotionalSets.Any(x => x.PromotionalSetForNewClients);
 
 			if(hasPromotionalSetForNewClient
 			   && ContactlessDelivery
