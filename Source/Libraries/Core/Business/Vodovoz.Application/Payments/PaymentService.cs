@@ -64,88 +64,95 @@ namespace Vodovoz.Application.Payments
 
 			foreach(var paymentNode in paymentNodes)
 			{
-				if(balance == 0)
+				try
 				{
-					break;
-				}
+					if(balance == 0)
+					{
+						break;
+					}
 
-				var unallocatedSum = paymentNode.UnallocatedSum;
-				var payment = _paymentRepository
-					.Get(unitOfWork, p => p.Id == paymentNode.Id)
-					.FirstOrDefault();
-
-				while(orderNodes.Count > 0)
-				{
-					var order = _orderRepository
-						.Get(unitOfWork, o => o.Id == orderNodes[0].Id)
+					var unallocatedSum = paymentNode.UnallocatedSum;
+					var payment = _paymentRepository
+						.Get(unitOfWork, p => p.Id == paymentNode.Id)
 						.FirstOrDefault();
 
-					var sumToAllocate = orderNodes[0].OrderSum - orderNodes[0].AllocatedSum;
-
-					if(balance >= unallocatedSum)
+					while(orderNodes.Count > 0)
 					{
-						if(sumToAllocate <= unallocatedSum)
+						var order = _orderRepository
+							.Get(unitOfWork, o => o.Id == orderNodes[0].Id)
+							.FirstOrDefault();
+
+						var sumToAllocate = orderNodes[0].OrderSum - orderNodes[0].AllocatedSum;
+
+						if(balance >= unallocatedSum)
 						{
-							payment.AddPaymentItem(order, sumToAllocate);
-							unallocatedSum -= sumToAllocate;
-							balance -= sumToAllocate;
-							orderNodes.RemoveAt(0);
-							order.OrderPaymentStatus = OrderPaymentStatus.Paid;
+							if(sumToAllocate <= unallocatedSum)
+							{
+								payment.AddPaymentItem(order, sumToAllocate);
+								unallocatedSum -= sumToAllocate;
+								balance -= sumToAllocate;
+								orderNodes.RemoveAt(0);
+								order.OrderPaymentStatus = OrderPaymentStatus.Paid;
+							}
+							else
+							{
+								payment.AddPaymentItem(order, unallocatedSum);
+								orderNodes[0].AllocatedSum += unallocatedSum;
+								balance -= unallocatedSum;
+								order.OrderPaymentStatus = OrderPaymentStatus.PartiallyPaid;
+								break;
+							}
+
+							if(unallocatedSum == 0)
+							{
+								break;
+							}
 						}
 						else
 						{
-							payment.AddPaymentItem(order, unallocatedSum);
-							orderNodes[0].AllocatedSum += unallocatedSum;
-							balance -= unallocatedSum;
-							order.OrderPaymentStatus = OrderPaymentStatus.PartiallyPaid;
-							break;
-						}
+							if(sumToAllocate <= balance)
+							{
+								payment.AddPaymentItem(order, sumToAllocate);
+								balance -= sumToAllocate;
+								orderNodes.RemoveAt(0);
+								order.OrderPaymentStatus = OrderPaymentStatus.Paid;
+							}
+							else
+							{
+								payment.AddPaymentItem(order, balance);
+								balance = 0;
+								order.OrderPaymentStatus = OrderPaymentStatus.PartiallyPaid;
+							}
 
-						if(unallocatedSum == 0)
-						{
-							break;
+							if(balance == 0)
+							{
+								break;
+							}
 						}
 					}
-					else
+
+					var allocatedPaymentItems =
+						payment.PaymentItems.Where(
+							pi => pi.CashlessMovementOperation == null
+								|| pi.Sum != pi.CashlessMovementOperation.Expense);
+
+					foreach(var paymentItem in allocatedPaymentItems)
 					{
-						if(sumToAllocate <= balance)
-						{
-							payment.AddPaymentItem(order, sumToAllocate);
-							balance -= sumToAllocate;
-							orderNodes.RemoveAt(0);
-							order.OrderPaymentStatus = OrderPaymentStatus.Paid;
-						}
-						else
-						{
-							payment.AddPaymentItem(order, balance);
-							balance = 0;
-							order.OrderPaymentStatus = OrderPaymentStatus.PartiallyPaid;
-						}
-
-						if(balance == 0)
-						{
-							break;
-						}
+						paymentItem.CreateOrUpdateExpenseOperation();
 					}
+
+					if(payment.Status != PaymentState.completed)
+					{
+						payment.CreateIncomeOperation();
+						payment.Status = PaymentState.completed;
+					}
+
+					unitOfWork.Session.Flush();
 				}
-
-				var allocatedPaymentItems =
-					payment.PaymentItems.Where(
-						pi => pi.CashlessMovementOperation == null
-							|| pi.Sum != pi.CashlessMovementOperation.Expense);
-
-				foreach(var paymentItem in allocatedPaymentItems)
+				catch(Exception e)
 				{
-					paymentItem.CreateOrUpdateExpenseOperation();
+					return Result.Failure(Errors.Payments.PaymentsDistribution.AutomaticDistribution(e.Message));
 				}
-
-				if(payment.Status != PaymentState.completed)
-				{
-					payment.CreateIncomeOperation();
-					payment.Status = PaymentState.completed;
-				}
-
-				unitOfWork.Session.Flush();
 			}
 
 			return Result.Success();

@@ -174,7 +174,7 @@ namespace Vodovoz.ViewModels.Payments
 
 					_interactiveService.ShowMessage(
 						ImportanceLevel.Error,
-						"Не удалось завершить распределение: \n" + string.Join("\n", errors.Select(e => e.Message)));
+						errors.First().Message);
 				});
 		}
 
