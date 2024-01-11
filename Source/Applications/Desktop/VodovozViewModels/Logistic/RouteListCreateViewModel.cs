@@ -23,6 +23,7 @@ using Vodovoz.Controllers;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
@@ -490,17 +491,48 @@ namespace Vodovoz.ViewModels.Logistic
 				_oldDriver = Entity.Driver;
 			}
 
-			UoW.Session.Flush();
+			try
+			{
+				var transaction = UoW.Session.GetCurrentTransaction();
 
-			_logger.LogDebug("Пересчитываем рентабельность МЛ");
-			_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
-			_logger.LogDebug("Закончили пересчет рентабельности МЛ");
-			UoW.Save(Entity.RouteListProfitability);
+				if(transaction is null)
+				{
+					UoW.Session.BeginTransaction();
+				}
 
+				UoW.Session.Flush();
+
+				_logger.LogDebug("Пересчитываем рентабельность МЛ");
+
+				_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
+
+				_logger.LogDebug("Закончили пересчет рентабельности МЛ");
+
+				UoW.Save(Entity.RouteListProfitability);
+
+				return true;
+			}
+			catch(Exception)
+			{
+				var transaction = UoW.Session.GetCurrentTransaction();
+
+				if(!transaction.WasCommitted
+				   && !transaction.WasRolledBack
+				   && transaction.IsActive
+				   && UoW.Session.Connection.State == ConnectionState.Open)
+				{
+					transaction?.Rollback();
+				}
+
+				throw;
+			}
+		}
+
+		public override bool Save(bool close)
+		{
 			_logger.LogInformation("Сохраняем маршрутный лист {RouteListId}...", Entity.Id);
-			UoWGeneric.Save();
-			_logger.LogInformation("Ok");
-			return true;
+
+			return base.Save(close);
 		}
 
 		public bool CanClose()
