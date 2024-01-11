@@ -37,7 +37,7 @@ namespace Vodovoz
 		public CounterpartyContractDlg (Counterparty counterparty, Organization organization) : this (counterparty)
 		{
 			UoWGeneric.Root.Organization = organization;
-			referenceOrganization.Sensitive = false;
+			entityentryOrganization.Sensitive = false;
 			Entity.UpdateContractTemplate(UoW, _docTemplateRepository);
 		}
 
@@ -76,8 +76,8 @@ namespace Vodovoz
 			ycomboContractType.ItemsEnum = typeof(ContractType);
 			ycomboContractType.Binding.AddBinding(Entity, e => e.ContractType, w => w.SelectedItem).InitializeFromSource();
 
-			referenceOrganization.SubjectType = typeof(Organization);
-			referenceOrganization.Binding.AddBinding (Entity, e => e.Organization, w => w.Subject).InitializeFromSource ();
+			//referenceOrganization.SubjectType = typeof(Organization);
+			//referenceOrganization.Binding.AddBinding (Entity, e => e.Organization, w => w.Subject).InitializeFromSource ();
 
 			if (Entity.DocumentTemplate == null && Entity.Organization != null)
 			{
@@ -95,7 +95,7 @@ namespace Vodovoz
 
             entryNumber.Sensitive = false;
             dateIssue.Sensitive = false;
-            referenceOrganization.Sensitive = false;
+			entityentryOrganization.Sensitive = false;
             ycomboContractType.Sensitive = false;
         }
 
