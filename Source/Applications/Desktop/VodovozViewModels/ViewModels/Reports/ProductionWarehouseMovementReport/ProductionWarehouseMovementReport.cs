@@ -1,7 +1,6 @@
 using CsvHelper;
 using NHibernate.Linq;
 using QS.DomainModel.UoW;
-using QS.Project.Services;
 using QS.Project.Services.FileDialog;
 using System;
 using System.Collections.Generic;
@@ -9,7 +8,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Vodovoz.Domain.Documents;
+using DateTimeHelpers;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
@@ -30,7 +29,7 @@ namespace Vodovoz.ViewModels.Reports
 			_warehouseList = warehouseList ?? throw new ArgumentNullException(nameof(warehouseList));
 			_warehouse = warehouse;
 			_startDate = startDate;
-			_endDate = endDate.Value.AddDays(1).AddMilliseconds(-1);
+			_endDate = endDate?.LatestDayTime() ?? DateTime.MaxValue;
 		}
 
 		private void GenerateBaseReport(List<ProductionWarehouseMovementReportDataBaseNode> dataBaseNodeList)
@@ -46,8 +45,8 @@ namespace Vodovoz.ViewModels.Reports
 				var nomenclatureRangePrices = nomenclatureDocuments
 					.FirstOrDefault()
 					.PurchasePrices
-					.Where(x => (x.StartDate <= _endDate)
-						&& (x.EndDate == null || x.EndDate >= _startDate));
+					.Where(x => (x.StartDate >= _startDate)
+						&& (x.EndDate == null || x.EndDate <= _endDate));
 
 				foreach(var nomenclatureRangePrice in nomenclatureRangePrices)
 				{
@@ -276,8 +275,8 @@ namespace Vodovoz.ViewModels.Reports
 			return _uow.Session.Query<MovementDocumentItem>()
 				.Where(x =>
 					(x.Document.Status == MovementDocumentStatus.Accepted || x.Document.Status == MovementDocumentStatus.Discrepancy)
-					&& (selectedWarehouses.Contains(x.Document.FromWarehouse.Id))
-					&& (x.Document.TimeStamp >= _startDate && x.Document.TimeStamp <= (_endDate ?? DateTime.MaxValue))
+					&& selectedWarehouses.Contains(x.Document.FromWarehouse.Id)
+					&& x.Document.TimeStamp >= _startDate && x.Document.TimeStamp <= _endDate
 					&& x.Nomenclature.Category == NomenclatureCategory.water
 					&& x.ReceivedAmount > 0)
 				.Fetch(x => x.IncomeOperation)
