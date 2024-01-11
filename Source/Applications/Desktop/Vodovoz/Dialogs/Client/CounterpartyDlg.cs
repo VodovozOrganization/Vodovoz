@@ -923,6 +923,7 @@ namespace Vodovoz
 			var organization = Entity.WorksThroughOrganization ?? _vodovozOrganization;
 
 			speciallistcomboboxSpecialAccount.ShowSpecialStateNot = true;
+			speciallistcomboboxSpecialAccount.NameForSpecialStateNot = "По умолчанию";
 			speciallistcomboboxSpecialAccount.ItemsList = organization.Accounts;
 		}
 
@@ -945,6 +946,7 @@ namespace Vodovoz
 			yentryCustomer.IsEditable = CanEdit;
 
 			UpdateOurOrganizationSpecialAccountItemList();
+			speciallistcomboboxSpecialAccount.SetRenderTextFunc<Account>(e => e.Name);
 			speciallistcomboboxSpecialAccount.Binding
 				.AddBinding(Entity, e => e.OurOrganizationAccountForBills, w => w.SelectedItem)
 				.InitializeFromSource();
