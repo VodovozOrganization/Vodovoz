@@ -9,6 +9,7 @@ using QS.Navigation;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Application.Payments;
 using NHibernate;
+using Vodovoz.Errors;
 
 namespace Vodovoz.ViewModels.Payments
 {
@@ -102,8 +103,32 @@ namespace Vodovoz.ViewModels.Payments
 			try
 			{
 				IsAllocationState = true;
-				AllocateByCounterpartyAndOrg(_selectedUnallocatedBalancesNode);
+
+				if(_unitOfWork.Session.GetCurrentTransaction() is null)
+				{
+					_unitOfWork.Session.BeginTransaction();
+				}
+
+				var distributionResult = AllocateByCounterpartyAndOrg(_selectedUnallocatedBalancesNode);
 				IsAllocationState = false;
+
+				distributionResult.Match(
+					() =>
+					{
+						_unitOfWork.Commit();
+
+						_interactiveService.ShowMessage(
+							ImportanceLevel.Info,
+							"Распределение успешно завершено");
+					},
+					errors =>
+					{
+						_unitOfWork.Session.GetCurrentTransaction()?.Rollback();
+
+						_interactiveService.ShowMessage(
+							ImportanceLevel.Error,
+							errors.First().Message);
+					});
 			}
 			catch(Exception)
 			{
@@ -147,35 +172,12 @@ namespace Vodovoz.ViewModels.Payments
 			}
 		}
 
-		private void AllocateByCounterpartyAndOrg(UnallocatedBalancesJournalNode node)
+		private Result AllocateByCounterpartyAndOrg(UnallocatedBalancesJournalNode node)
 		{
-			if(_unitOfWork.Session.GetCurrentTransaction() is null)
-			{
-				_unitOfWork.Session.BeginTransaction();
-			}
-
-			var distributionResult = _paymentService.DistributeByClientIdAndOrganizationId(
+			return _paymentService.DistributeByClientIdAndOrganizationId(
 				_unitOfWork,
 				node.CounterpartyId,
 				node.OrganizationId);
-
-			distributionResult.Match(
-				() =>
-				{
-					_unitOfWork.Commit();
-
-					_interactiveService.ShowMessage(
-						ImportanceLevel.Info,
-						"Распределение успешно завершено");
-				},
-				errors =>
-				{
-					_unitOfWork.Session.GetCurrentTransaction()?.Rollback();
-
-					_interactiveService.ShowMessage(
-						ImportanceLevel.Error,
-						errors.First().Message);
-				});
 		}
 
 		private void AllocateLoadedBalances(IList<UnallocatedBalancesJournalNode> loadedNodes)
@@ -184,14 +186,36 @@ namespace Vodovoz.ViewModels.Payments
 			ProgressBarDisplayable.Start(loadedNodes.Count, 0,
 				$"Всего {loadedNodes.Count} клиентов с положительным балансом. Начинаем распределение...");
 
+			var distributionResults = new List<Result>();
+
+			if(_unitOfWork.Session.GetCurrentTransaction() is null)
+			{
+				_unitOfWork.Session.BeginTransaction();
+			}
+
 			foreach(var node in loadedNodes)
 			{
-				AllocateByCounterpartyAndOrg(node);
+				distributionResults.Add(AllocateByCounterpartyAndOrg(node));
 				allocated++;
 				ProgressBarDisplayable.Add(1, $"Обработано {allocated} клиентов из {loadedNodes.Count}");
 			}
 
-			ProgressBarDisplayable.Update("Балансы разнесены успешно");
+			if(!distributionResults.Any()
+				|| distributionResults.All(result => result.IsSuccess))
+			{
+				_unitOfWork.Session.GetCurrentTransaction().Commit();
+				ProgressBarDisplayable.Update("Балансы разнесены успешно");
+				_interactiveService.ShowMessage(
+							ImportanceLevel.Info,
+							"Распределение успешно завершено");
+				return;
+			}
+
+			_unitOfWork.Session.GetCurrentTransaction().Rollback();
+
+			_interactiveService.ShowMessage(
+				ImportanceLevel.Error,
+				distributionResults.First(x => x.IsFailure).Errors.First().Message);
 		}
 
 		public void Dispose()
