@@ -683,6 +683,7 @@
     <Compile Include="Errors\Orders\Order.Accept.cs" />
     <Compile Include="Errors\Orders\Order.cs" />
     <Compile Include="Errors\Orders\Order.FastDelivery.cs" />
+    <Compile Include="Errors\Payments\PaymentsDistribution.cs" />
     <Compile Include="Errors\Result.cs" />
     <Compile Include="Errors\ResultT.cs" />
     <Compile Include="Extensions\DriverPositionExtensions.cs" />
