@@ -157,6 +157,11 @@ namespace Vodovoz.ViewModels.Payments
 			distributionResult.Match(
 				() =>
 				{
+					if(_unitOfWork.Session.GetCurrentTransaction() is null)
+					{
+						_unitOfWork.Session.BeginTransaction();
+					}
+
 					_unitOfWork.Commit();
 
 					_interactiveService.ShowMessage(
