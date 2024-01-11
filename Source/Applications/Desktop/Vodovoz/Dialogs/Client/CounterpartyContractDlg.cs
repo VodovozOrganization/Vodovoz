@@ -1,21 +1,25 @@
-﻿using System;
-using QS.DomainModel.UoW;
+﻿using Autofac;
 using QS.Dialog;
-using QSProjectsLib;
+using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.Validation;
+using QS.ViewModels.Control.EEVM;
+using QSProjectsLib;
+using System;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain.Client;
-using QS.Project.Services;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
-using Vodovoz.EntityRepositories.Cash;
 
 namespace Vodovoz
 {
 	public partial class CounterpartyContractDlg : QS.Dialog.Gtk.EntityDialogBase<CounterpartyContract>, IEditableDialog, IContractSaved
 	{
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		protected static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 		private readonly IDocTemplateRepository _docTemplateRepository = new DocTemplateRepository();
 
@@ -76,8 +80,21 @@ namespace Vodovoz
 			ycomboContractType.ItemsEnum = typeof(ContractType);
 			ycomboContractType.Binding.AddBinding(Entity, e => e.ContractType, w => w.SelectedItem).InitializeFromSource();
 
-			//referenceOrganization.SubjectType = typeof(Organization);
-			//referenceOrganization.Binding.AddBinding (Entity, e => e.Organization, w => w.Subject).InitializeFromSource ();
+			var organizationEntryViewModelBuilder = new LegacyEEVMBuilderFactory<CounterpartyContract>(
+				this,
+				Entity,
+				UoW,
+				Startup.MainWin.NavigationManager,
+				_lifetimeScope);
+
+			var organizationEntryViewModel = organizationEntryViewModelBuilder.ForProperty(x => x.Organization)
+				.UseTdiEntityDialog()
+				.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
+				.Finish();
+
+			organizationEntryViewModel.CanViewEntity = false;
+
+			entityentryOrganization.ViewModel = organizationEntryViewModel;
 
 			if (Entity.DocumentTemplate == null && Entity.Organization != null)
 			{
@@ -115,6 +132,13 @@ namespace Vodovoz
 			UoWGeneric.Save ();
 			ContractSaved?.Invoke(this, new ContractSavedEventArgs (UoWGeneric.Root));
 			return true;
+		}
+
+		public override void Destroy()
+		{
+			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
+			base.Destroy();
 		}
 	}
 }
