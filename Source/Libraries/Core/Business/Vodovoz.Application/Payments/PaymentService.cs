@@ -57,7 +57,7 @@ namespace Vodovoz.Application.Payments
 				organizationId,
 				distributeCompletedPayments);
 
-			var orderNodes = GetAllNotFullyPaidOrdersByClientAndOrg(
+			var orderNodes = GetAllNotFullyPaidOrdersByClientAndOrgForAutomaticDistribution(
 				unitOfWork,
 				counterpartyId,
 				organizationId);
@@ -258,7 +258,7 @@ namespace Vodovoz.Application.Payments
 						.Sum(pi => pi.Sum) ?? 0m)
 				}).ToList();
 
-		private IList<NotFullyPaidOrderNode> GetAllNotFullyPaidOrdersByClientAndOrg(
+		private IList<NotFullyPaidOrderNode> GetAllNotFullyPaidOrdersByClientAndOrgForAutomaticDistribution(
 			IUnitOfWork unitOfWork,
 			int counterpartyId,
 			int organizationId)
@@ -281,7 +281,7 @@ namespace Vodovoz.Application.Payments
 					let allocatedSum =
 						(decimal?)(from paymentItem in unitOfWork.Session.Query<PaymentItem>()
 								   join cashlessMovementOperation in unitOfWork.Session.Query<CashlessMovementOperation>()
-									   on paymentItem.CashlessMovementOperation.Id equals cashlessMovementOperation.Id
+								   on paymentItem.CashlessMovementOperation.Id equals cashlessMovementOperation.Id
 								   where paymentItem.Order.Id == order.Id
 										  && paymentItem.PaymentItemStatus != AllocationStatus.Cancelled
 								   select cashlessMovementOperation.Expense).Sum() ?? 0m

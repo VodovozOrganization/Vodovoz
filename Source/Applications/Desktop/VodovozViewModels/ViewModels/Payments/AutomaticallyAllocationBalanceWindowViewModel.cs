@@ -149,6 +149,11 @@ namespace Vodovoz.ViewModels.Payments
 
 		private void AllocateByCounterpartyAndOrg(UnallocatedBalancesJournalNode node)
 		{
+			if(_unitOfWork.Session.GetCurrentTransaction() is null)
+			{
+				_unitOfWork.Session.BeginTransaction();
+			}
+
 			var distributionResult = _paymentService.DistributeByClientIdAndOrganizationId(
 				_unitOfWork,
 				node.CounterpartyId,
@@ -157,11 +162,6 @@ namespace Vodovoz.ViewModels.Payments
 			distributionResult.Match(
 				() =>
 				{
-					if(_unitOfWork.Session.GetCurrentTransaction() is null)
-					{
-						_unitOfWork.Session.BeginTransaction();
-					}
-
 					_unitOfWork.Commit();
 
 					_interactiveService.ShowMessage(
