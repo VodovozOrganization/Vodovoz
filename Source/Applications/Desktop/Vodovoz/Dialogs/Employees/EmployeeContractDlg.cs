@@ -46,11 +46,11 @@ namespace Vodovoz.Dialogs.Employees
 
 		void ConfigureDlg()
 		{
-			yentryOrganization.SubjectType = typeof(Organization);
-			yentryOrganization.Binding.AddBinding(Entity, x => x.Organization, x => x.Subject).InitializeFromSource();
-			yentryOrganization.Changed += (sender, e) => {
-				UpdateStates();
-			};
+			//yentryOrganization.SubjectType = typeof(Organization);
+			//yentryOrganization.Binding.AddBinding(Entity, x => x.Organization, x => x.Subject).InitializeFromSource();
+			//yentryOrganization.Changed += (sender, e) => {
+			//	UpdateStates();
+			//};
 			yentry1.Binding.AddBinding(Entity,e=>e.Name,w=>w.Text).InitializeFromSource();
 			yContractDatepicker.Binding.AddBinding(Entity,e=>e.ContractDate,w=>w.DateOrNull).InitializeFromSource();
 			ydateperiodpicker1.Binding.AddBinding(Entity, e => e.FirstDay, w => w.StartDateOrNull).InitializeFromSource();
@@ -103,7 +103,7 @@ namespace Vodovoz.Dialogs.Employees
 			savetemplatewidget1.Sensitive = isTemplateActive;
 			yContractDatepicker.Sensitive = !isTemplateActive;
 			ydateperiodpicker1.Sensitive = !isTemplateActive;
-			yentryOrganization.Sensitive = !isTemplateActive;
+			//yentryOrganization.Sensitive = !isTemplateActive;
 			button15.Sensitive = !isTemplateActive;
 		}
 
