@@ -10,7 +10,7 @@ using Vodovoz.JournalNodes;
 
 namespace Vodovoz.JournalViewModels
 {
-	internal class OrganizationJournalViewModel : SingleEntityJournalViewModelBase<Organization, OrganizationDlg, OrganizationJournalNode>
+	public class OrganizationJournalViewModel : SingleEntityJournalViewModelBase<Organization, OrganizationDlg, OrganizationJournalNode>
 	{
 		public OrganizationJournalViewModel(
 		IUnitOfWorkFactory unitOfWorkFactory,
@@ -21,7 +21,7 @@ namespace Vodovoz.JournalViewModels
 		: base(unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog, navigation)
 		{
 			TabName = "Организации";
-			UseSlider = false;
+			UseSlider = true;
 
 			UpdateOnChanges(typeof(Organization));
 		}
