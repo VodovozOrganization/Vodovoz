@@ -97,9 +97,9 @@ namespace Vodovoz.EntityRepositories.Payments
 		public IList<Payment> GetAllUndistributedPayments(IUnitOfWork uow, IProfitCategoryProvider profitCategoryProvider)
 		{
 			var undistributedPayments = uow.Session.QueryOver<Payment>()
-									.Where(x => x.Status == PaymentState.undistributed)
-									.And(x => x.ProfitCategory.Id == profitCategoryProvider.GetDefaultProfitCategory())
-									.List();
+				.Where(x => x.Status == PaymentState.undistributed)
+				.And(x => x.ProfitCategory.Id == profitCategoryProvider.GetDefaultProfitCategory())
+				.List();
 
 			return undistributedPayments;
 		}
@@ -107,8 +107,8 @@ namespace Vodovoz.EntityRepositories.Payments
 		public IList<Payment> GetAllDistributedPayments(IUnitOfWork uow)
 		{
 			var distributedPayments = uow.Session.QueryOver<Payment>()
-									.Where(x => x.Status == PaymentState.distributed)
-									.List();
+				.Where(x => x.Status == PaymentState.distributed)
+				.List();
 
 			return distributedPayments;
 		}
