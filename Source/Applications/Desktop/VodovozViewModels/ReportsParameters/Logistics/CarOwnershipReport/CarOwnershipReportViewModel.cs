@@ -219,7 +219,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport
 				{
 					_commonServices.InteractiveService.ShowMessage(
 						ImportanceLevel.Error,
-						"Ошибка выбора типа отчета");
+						"Не установлен период");
 
 					return false;
 				}
