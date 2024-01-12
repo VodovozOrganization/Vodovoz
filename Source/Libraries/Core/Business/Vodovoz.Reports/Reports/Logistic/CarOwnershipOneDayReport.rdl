@@ -86,6 +86,197 @@
           <VerticalAlign>Middle</VerticalAlign>
         </Style>
       </Textbox>
+      <Table Name="Table1" >
+        <DataSetName>summary_report</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>148.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>157.8pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>175.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>158.7pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>163.6pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox13">
+                      <Value></Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox2">
+                      <Value>car_type_of_use</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox3">
+                      <Value>car_own_type</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox4">
+                      <Value>cars_count</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox9">
+                      <Value></Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox15">
+                      <Value></Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox5">
+                      <Value>=Fields!car_type_of_use.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox6">
+                      <Value>=Fields!car_own_type.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox8">
+                      <Value>=Fields!cars_count.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox10">
+                      <Value></Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <Grouping Name="tou">
+            <PageBreakAtStart>false</PageBreakAtStart>
+            <PageBreakAtEnd>false</PageBreakAtEnd>
+            <GroupExpressions>
+              <GroupExpression>={car_type_of_use}</GroupExpression>
+            </GroupExpressions>
+          </Grouping>
+        </Details>
+        <Left>0.0pt</Left>
+        <Top>108.6pt</Top>
+      </Table>
     </ReportItems>
     <Height>183.0pt</Height>
     <Columns>1</Columns>
@@ -143,4 +334,90 @@
       <Prompt />
     </ReportParameter>
   </ReportParameters>
+  <DataSets >
+    <DataSet Name="summary_report">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <Timeout>60</Timeout>
+        <CommandText>SELECT cm.car_type_of_use, cv.car_own_type, COUNT(c.id) as cars_count
+FROM cars c
+JOIN car_models cm ON c.model_id = cm.id 
+JOIN car_versions cv ON c.id = cv.car_id 
+WHERE
+	c.is_archive = 0
+    AND cv.start_date &lt;= @date
+    AND (cv.end_date is null OR cv.end_date &gt; @date)
+    #AND cm.car_type_of_use IN (@car_type_of_use)
+    #AND cv.car_own_type IN (@car_own_type)
+GROUP BY cm.car_type_of_use, cv.car_own_type;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="@date">
+            <Value>={?date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@car_type_of_use">
+            <Value>={?car_type_of_use}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@car_own_type">
+            <Value>={?car_own_type}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="car_type_of_use">
+          <DataField>car_type_of_use</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="car_own_type">
+          <DataField>car_own_type</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="cars_count">
+          <DataField>cars_count</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="main">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <Timeout>60</Timeout>
+        <CommandText>SELECT cm.car_type_of_use, cv.car_own_type, COUNT(c.id) as cars_count
+FROM cars c
+JOIN car_models cm ON c.model_id = cm.id 
+JOIN car_versions cv ON c.id = cv.car_id 
+WHERE
+	c.is_archive = 0
+    AND cv.start_date &lt;= @date
+    AND (cv.end_date is null OR cv.end_date &gt; @date)
+    #AND cm.car_type_of_use IN (@car_type_of_use)
+    #AND cv.car_own_type IN (@car_own_type)
+GROUP BY cm.car_type_of_use, cv.car_own_type</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="@date">
+            <Value>={?date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@car_type_of_use">
+            <Value>={?car_type_of_use}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@car_own_type">
+            <Value>={?car_own_type}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="car_type_of_use">
+          <DataField>car_type_of_use</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="car_own_type">
+          <DataField>car_own_type</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="cars_count">
+          <DataField>cars_count</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
 </Report>
