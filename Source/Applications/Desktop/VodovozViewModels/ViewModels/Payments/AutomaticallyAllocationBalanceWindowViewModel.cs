@@ -196,19 +196,19 @@ namespace Vodovoz.ViewModels.Payments
 				ProgressBarDisplayable.Add(1, $"Обработано {allocated} клиентов из {loadedNodes.Count}");
 			}
 
-			var counterpartyWithourtOrdersToDistributeCount = distributionResults.Count(result => result.Errors.All(error => error.Code == nameof(Errors.Payments.PaymentsDistribution.NoOrdersToDistribute)));
-
-			var counterpartyWithourtPaymentsWithPositiveBalanceCount = distributionResults.Count(result => result.Errors.All(error => error.Code == nameof(Errors.Payments.PaymentsDistribution.NoOrdersToDistribute)));
+			var counterpartyNotDistributedCount = distributionResults.Count(result => result.Errors.All(error => error.Code ==
+				typeof(Errors.Payments.PaymentsDistribution).FullName + "." + nameof(Errors.Payments.PaymentsDistribution.NoOrdersToDistribute)
+				|| error.Code == typeof(Errors.Payments.PaymentsDistribution).FullName + "." + nameof(Errors.Payments.PaymentsDistribution.NoPaymentsWithPositiveBalance)));
 
 			if(!distributionResults.Any()
 				|| distributionResults.All(result => result.IsSuccess)
 				|| distributionResults.Any(result => result.Errors.All(error =>
-					error.Code == nameof(Errors.Payments.PaymentsDistribution.NoOrdersToDistribute)
-					|| error.Code == nameof(Errors.Payments.PaymentsDistribution.NoPaymentsWithPositiveBalance))))
+					error.Code == typeof(Errors.Payments.PaymentsDistribution).FullName + "." + nameof(Errors.Payments.PaymentsDistribution.NoOrdersToDistribute)
+					|| error.Code == typeof(Errors.Payments.PaymentsDistribution).FullName + "." + nameof(Errors.Payments.PaymentsDistribution.NoPaymentsWithPositiveBalance))))
 			{
 				GlobalUowEventsTracker.OnPostCommit((IUnitOfWorkTracked)_unitOfWork);
 				_unitOfWork.Session.GetCurrentTransaction().Commit();
-				ProgressBarDisplayable.Update($"Балансы {allocated - counterpartyWithourtOrdersToDistributeCount - counterpartyWithourtPaymentsWithPositiveBalanceCount} клиентов разнесены успешно");
+				ProgressBarDisplayable.Update($"Балансы {allocated - counterpartyNotDistributedCount} клиентов разнесены успешно");
 
 				_interactiveService.ShowMessage(
 							ImportanceLevel.Info,
