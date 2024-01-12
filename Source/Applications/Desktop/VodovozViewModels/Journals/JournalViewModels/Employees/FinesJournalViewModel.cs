@@ -64,7 +64,7 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 
 		private string GetTotalSumInfo()
 		{
-			var total = Items.Cast<FineJournalNode>().Sum(node => node.FineSumm);
+			var total = Items.Cast<FineJournalNode>().Sum(node => node.FineSum);
 			return CurrencyWorks.GetShortCurrencyString(total);
 		}
 
@@ -79,17 +79,21 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 			FineJournalNode resultAlias = null;
 			Fine fineAlias = null;
 			FineItem fineItemAlias = null;
-			Employee employeeAlias = null;
+			Employee finedEmployeeAlias = null;
+			Subdivision finedEmployeeSubdivision = null;
+			Employee fineAuthorAlias = null;
 			RouteList routeListAlias = null;
 
-			var query = unitOfWork.Session.QueryOver<Fine>(() => fineAlias)
+			var query = unitOfWork.Session.QueryOver(() => fineAlias)
+				.JoinAlias(() => fineAlias.Author, () => fineAuthorAlias)
 				.JoinAlias(f => f.Items, () => fineItemAlias)
-				.JoinAlias(() => fineItemAlias.Employee, () => employeeAlias)
+				.JoinAlias(() => fineItemAlias.Employee, () => finedEmployeeAlias)
+				.JoinAlias(() => finedEmployeeAlias.Subdivision, () => finedEmployeeSubdivision)
 				.JoinAlias(f => f.RouteList, () => routeListAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
 
 			if(_filterViewModel.Subdivision != null)
 			{
-				query.Where(() => employeeAlias.Subdivision.Id == _filterViewModel.Subdivision.Id);
+				query.Where(() => finedEmployeeAlias.Subdivision.Id == _filterViewModel.Subdivision.Id);
 			}
 
 			if(_filterViewModel.FineDateStart.HasValue)
@@ -124,9 +128,9 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 
 			var employeeProjection = CustomProjections.Concat_WS(
 				" ",
-				() => employeeAlias.LastName,
-				() => employeeAlias.Name,
-				() => employeeAlias.Patronymic
+				() => finedEmployeeAlias.LastName,
+				() => finedEmployeeAlias.Name,
+				() => finedEmployeeAlias.Patronymic
 			);
 
 			query.Where(GetSearchCriterion(
@@ -146,13 +150,25 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 						Projections.SqlFunction(new StandardSQLFunction("CONCAT_WS"),
 							NHibernateUtil.String,
 							Projections.Constant(" "),
-							Projections.Property(() => employeeAlias.LastName),
-							Projections.Property(() => employeeAlias.Name),
-							Projections.Property(() => employeeAlias.Patronymic)
+							Projections.Property(() => finedEmployeeAlias.LastName),
+							Projections.Property(() => finedEmployeeAlias.Name),
+							Projections.Property(() => finedEmployeeAlias.Patronymic)
 						),
-						Projections.Constant("\n"))).WithAlias(() => resultAlias.EmployeesName)
+						Projections.Constant("\n"))).WithAlias(() => resultAlias.FinedEmployeesNames)
 					.Select(() => fineAlias.FineReasonString).WithAlias(() => resultAlias.FineReason)
-					.Select(() => fineAlias.TotalMoney).WithAlias(() => resultAlias.FineSumm)
+					.Select(() => fineAlias.TotalMoney).WithAlias(() => resultAlias.FineSum)
+					.Select(Projections.SqlFunction(new StandardSQLFunction("CONCAT_WS"),
+							NHibernateUtil.String,
+							Projections.Constant(" "),
+							Projections.Property(() => fineAuthorAlias.LastName),
+							Projections.Property(() => fineAuthorAlias.Name),
+							Projections.Property(() => fineAuthorAlias.Patronymic)
+						)).WithAlias(() => resultAlias.AuthorName)
+					.Select(Projections.SqlFunction(
+						new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT( ?1 SEPARATOR ?2)"),
+						NHibernateUtil.String,
+						Projections.Property(() => finedEmployeeSubdivision.Name),
+						Projections.Constant("\n"))).WithAlias(() => resultAlias.FinedEmployeesSubdivisions)
 				).OrderBy(o => o.Date).Desc.OrderBy(o => o.Id).Desc
 				.TransformUsing(Transformers.AliasToBean<FineJournalNode>());
 		}
