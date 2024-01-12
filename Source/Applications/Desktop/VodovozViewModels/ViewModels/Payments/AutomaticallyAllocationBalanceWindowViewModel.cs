@@ -16,7 +16,6 @@ namespace Vodovoz.ViewModels.Payments
 	public class AutomaticallyAllocationBalanceWindowViewModel : WindowDialogViewModelBase, IDisposable
 	{
 		private readonly IInteractiveService _interactiveService;
-		private readonly IPaymentsRepository _paymentsRepository;
 		private readonly PaymentService _paymentService;
 		private readonly IUnitOfWork _unitOfWork;
 
@@ -25,12 +24,10 @@ namespace Vodovoz.ViewModels.Payments
 
 		private UnallocatedBalancesJournalNode _selectedUnallocatedBalancesNode;
 		private IList<UnallocatedBalancesJournalNode> _loadedNodes;
-		private int _closingDocumentDeliveryScheduleId;
 
 		public AutomaticallyAllocationBalanceWindowViewModel(
 			IInteractiveService interactiveService,
 			INavigationManager navigationManager,
-			IPaymentsRepository paymentsRepository,
 			PaymentService paymentService,
 			IUnitOfWorkFactory uowFactory)
 			: base(navigationManager)
@@ -46,7 +43,6 @@ namespace Vodovoz.ViewModels.Payments
 			}
 
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
-			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
 			_paymentService = paymentService ?? throw new ArgumentNullException(nameof(paymentService));
 			Title = "Автоматическое распределение положительного баланса";
 
@@ -87,13 +83,11 @@ namespace Vodovoz.ViewModels.Payments
 
 		public void Configure(
 			UnallocatedBalancesJournalNode selectedUnallocatedBalancesNode,
-			IList<UnallocatedBalancesJournalNode> loadedNodes,
-			int closingDocumentDeliveryScheduleId)
+			IList<UnallocatedBalancesJournalNode> loadedNodes)
 		{
 			_selectedUnallocatedBalancesNode = selectedUnallocatedBalancesNode
 				?? throw new ArgumentNullException(nameof(selectedUnallocatedBalancesNode));
 			_loadedNodes = loadedNodes ?? throw new ArgumentNullException(nameof(loadedNodes));
-			_closingDocumentDeliveryScheduleId = closingDocumentDeliveryScheduleId;
 
 			OnPropertyChanged(nameof(CanAllocatoByCurrentCounterparty));
 		}

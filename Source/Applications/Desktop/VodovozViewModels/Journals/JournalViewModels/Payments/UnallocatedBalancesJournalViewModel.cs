@@ -96,8 +96,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 
 					page.ViewModel.Configure(
 						selected.OfType<UnallocatedBalancesJournalNode>().ToArray().First(),
-						Items.Cast<UnallocatedBalancesJournalNode>().ToList(),
-						_closingDocumentDeliveryScheduleId);
+						Items.Cast<UnallocatedBalancesJournalNode>().ToList());
 
 					page.PageClosed += (sender, args) => Refresh();
 				}
