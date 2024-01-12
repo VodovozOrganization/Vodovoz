@@ -25,8 +25,7 @@ namespace Vodovoz.Views.Logistic
 			entryCarModel.ViewModel = ViewModel.CarModelViewModel;
 
 			entryCarModel.Binding
-				.AddBinding(ViewModel, e => e.CanChangeCarModel, w => w.Sensitive)
-				.AddBinding(ViewModel, e => e.CanEditCarModel, w => w.ViewModel.IsEditable)
+				.AddBinding(ViewModel, e => e.CanChangeCarModel, w => w.ViewModel.IsEditable)
 				.InitializeFromSource();
 
 			orderNumberSpin.Binding.AddBinding(ViewModel.Entity, e => e.OrderNumber, w => w.ValueAsInt).InitializeFromSource();
