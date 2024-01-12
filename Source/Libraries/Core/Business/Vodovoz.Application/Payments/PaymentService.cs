@@ -64,7 +64,12 @@ namespace Vodovoz.Application.Payments
 
 			if(!orderNodes.Any())
 			{
-				return Result.Success();
+				return Result.Failure(Errors.Payments.PaymentsDistribution.NoOrdersToDistribute(counterpartyId));
+			}
+
+			if(!paymentNodes.Any())
+			{
+				return Result.Failure(Errors.Payments.PaymentsDistribution.NoPaymentsWithPositiveBalance(counterpartyId));
 			}
 
 			foreach(var paymentNode in paymentNodes)
