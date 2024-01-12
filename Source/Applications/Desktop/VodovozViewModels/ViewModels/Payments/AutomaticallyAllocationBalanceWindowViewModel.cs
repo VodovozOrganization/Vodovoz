@@ -171,7 +171,8 @@ namespace Vodovoz.ViewModels.Payments
 			return _paymentService.DistributeByClientIdAndOrganizationId(
 				_unitOfWork,
 				node.CounterpartyId,
-				node.OrganizationId);
+				node.OrganizationId,
+				AllocateCompletedPayments);
 		}
 
 		private void AllocateLoadedBalances(IList<UnallocatedBalancesJournalNode> loadedNodes)
@@ -197,8 +198,8 @@ namespace Vodovoz.ViewModels.Payments
 			if(!distributionResults.Any()
 				|| distributionResults.All(result => result.IsSuccess))
 			{
-				_unitOfWork.Session.GetCurrentTransaction().Commit();
-				ProgressBarDisplayable.Update("Балансы разнесены успешно");
+				_unitOfWork.Commit();
+				ProgressBarDisplayable.Update($"Балансы {allocated} клиентов разнесены успешно");
 				_interactiveService.ShowMessage(
 							ImportanceLevel.Info,
 							"Распределение успешно завершено");

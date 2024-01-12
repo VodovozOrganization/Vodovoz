@@ -62,6 +62,11 @@ namespace Vodovoz.Application.Payments
 				counterpartyId,
 				organizationId);
 
+			if(!orderNodes.Any())
+			{
+				return Result.Success();
+			}
+
 			foreach(var paymentNode in paymentNodes)
 			{
 				try
