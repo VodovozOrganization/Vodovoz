@@ -148,7 +148,10 @@ namespace Vodovoz.Tools.Orders
 		private void CalculatePromoSetWaterCount()
 		{
 			var water = Order.OrderItems.Where(
-				x => x.PromoSet != null && x.Nomenclature != null && x.Nomenclature.Category == NomenclatureCategory.water).ToList();
+				x => x.PromoSet != null &&
+					x.Nomenclature != null &&
+					x.Nomenclature.Category == NomenclatureCategory.water)
+				.ToList();
 
 			foreach(var item in water)
 			{
@@ -165,7 +168,10 @@ namespace Vodovoz.Tools.Orders
 		private void CalculateNotPromoSetWaterCount()
 		{
 			var water = Order.OrderItems.Where(
-				x => x.Nomenclature != null && x.Nomenclature.Category == NomenclatureCategory.water).ToList();
+				x => x.PromoSet == null &&
+				x.Nomenclature != null &&
+				x.Nomenclature.Category == NomenclatureCategory.water)
+				.ToList();
 
 			foreach(var item in water)
 			{
