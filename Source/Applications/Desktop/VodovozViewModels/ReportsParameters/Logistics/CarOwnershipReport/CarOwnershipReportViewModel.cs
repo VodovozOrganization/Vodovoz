@@ -161,8 +161,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport
 
 				filtersText += $"\nШаг: {SelectedPeriodReportMode.GetEnumDisplayName()}";
 
-				_parameters.Add("start_date", DateInOneDayReport.Value.Date);
-				_parameters.Add("end_date", DateInOneDayReport.Value.Date);
+				_parameters.Add("start_date", StartDateInPeriodReport.Value.Date);
+				_parameters.Add("end_date", EndDateInPeriodReport.Value.Date);
 				_parameters.Add("filters_text", filtersText);
 
 				return true;
