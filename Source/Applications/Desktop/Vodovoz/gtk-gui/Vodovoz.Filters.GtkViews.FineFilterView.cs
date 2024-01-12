@@ -41,6 +41,7 @@ namespace Vodovoz.Filters.GtkViews
 			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.entryAuthor]));
 			w1.LeftAttach = ((uint)(3));
 			w1.RightAttach = ((uint)(4));
+			w1.XOptions = ((global::Gtk.AttachOptions)(4));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.entrySubdivision = new global::QS.Views.Control.EntityEntry();
