@@ -14,6 +14,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport
 {
 	public class CarOwnershipReportViewModel : ReportParametersViewModelBase
 	{
+		private readonly ICommonServices _commonServices;
+
 		private Dictionary<string, object> _parameters = new Dictionary<string, object>();
 		private bool _isOneDayReportSelected;
 		private bool _isPeriodReportSelected;
@@ -26,7 +28,6 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport
 
 		private const string _oneDayReportIdentifier = "Logistic.CarOwnershipOneDayReport";
 		private const string _periodReportIdentifier = "Logistic.CarOwnershipPeriodReport";
-		private readonly ICommonServices _commonServices;
 
 		public CarOwnershipReportViewModel(
 			RdlViewerViewModel rdlViewerViewModel,
