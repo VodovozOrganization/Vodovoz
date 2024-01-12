@@ -31,6 +31,7 @@ using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.Reports.Sales;
 using Vodovoz.ViewModels.ReportsParameters;
 using Vodovoz.ViewModels.ReportsParameters.Cash;
+using Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport;
 using Vodovoz.ViewModels.ReportsParameters.Payments;
 using Vodovoz.ViewModels.ReportsParameters.Production;
 using Vodovoz.ViewModels.ReportsParameters.Profitability;
@@ -855,6 +856,16 @@ public partial class MainWindow
 	protected void OnDriversWarehousesEventsReportActionActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<DriversWarehousesEventsReportViewModel>(null);
+	}
+
+	/// <summary>
+	/// Отчет о принадлежности ТС
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnCarOwnershipReportActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(CarOwnershipReportViewModel));
 	}
 
 	#endregion Логистика
