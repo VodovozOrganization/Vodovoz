@@ -1,4 +1,5 @@
-﻿using NHibernate;
+﻿using FluentNHibernate.Conventions;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Deletion;
@@ -15,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using DateTimeHelpers;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Documents.DriverTerminalTransfer;
@@ -170,9 +172,10 @@ namespace Vodovoz.ViewModels.Logistic
 				query.Where(o => o.Date >= FilterViewModel.StartDate);
 			}
 
-			if(FilterViewModel.EndDate != null)
+			var endDate = FilterViewModel.EndDate;
+			if(endDate != null)
 			{
-				query.Where(o => o.Date <= FilterViewModel.EndDate.Value.AddDays(1).AddTicks(-1));
+				query.Where(o => o.Date <= endDate.Value.LatestDayTime());
 			}
 
 			if(FilterViewModel.GeographicGroup != null)
@@ -246,6 +249,11 @@ namespace Vodovoz.ViewModels.Logistic
 				query.WhereRestrictionOn(() => carModelAlias.CarTypeOfUse).IsIn(FilterViewModel.RestrictedCarTypesOfUse.ToArray());
 			}
 
+			if(FilterViewModel.ExcludeIds != null &&  FilterViewModel.ExcludeIds.Any())
+			{
+				query.Where(() => !routeListAlias.Id.IsIn(FilterViewModel.ExcludeIds));
+			}
+
 			var driverProjection = CustomProjections.Concat_WS(
 				" ",
 				Projections.Property(() => driverAlias.LastName),
@@ -309,9 +317,9 @@ namespace Vodovoz.ViewModels.Logistic
 			return result;
 		};
 
-		protected override Func<ITdiTab> CreateDialogFunction => () => _gtkTabsOpener.CreateRouteListCreateDlg();
+		protected override Func<ITdiTab> CreateDialogFunction => () => NavigationManager.OpenViewModel<RouteListCreateViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()).ViewModel;
 
-		protected override Func<RouteListJournalNode, ITdiTab> OpenDialogFunction => node => _gtkTabsOpener.CreateRouteListCreateDlg(node.Id);
+		protected override Func<RouteListJournalNode, ITdiTab> OpenDialogFunction => node => NavigationManager.OpenViewModel<RouteListCreateViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id)).ViewModel;
 
 		#region PopupActions
 
@@ -364,7 +372,7 @@ namespace Vodovoz.ViewModels.Logistic
 				{
 					if(selectedItems.FirstOrDefault() is RouteListJournalNode selectedNode)
 					{
-						_gtkTabsOpener.OpenRouteListCreateDlg(TabParent, selectedNode.Id);
+						NavigationManager.OpenViewModel<RouteListCreateViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(selectedNode.Id));
 					}
 				}
 			);
@@ -522,6 +530,8 @@ namespace Vodovoz.ViewModels.Logistic
 
 							_routeListService.SendEnRoute(uowLocal, routeListId);
 						}
+
+						Refresh();
 
 						if(isSlaveTabActive)
 						{
@@ -952,8 +962,29 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			NodeActionsList.Clear();
 			CreateDefaultSelectAction();
-			CreateDefaultAddActions();
+			CreateAddActions();
 			CreateEditAction();
+		}
+
+		protected void CreateAddActions()
+		{
+			if(!EntityConfigs.Any())
+			{
+				return;
+			}
+
+			var entityConfig = EntityConfigs.First().Value;
+			var addAction = new JournalAction("Добавить",
+				(selected) => entityConfig.PermissionResult.CanCreate,
+				(selected) => entityConfig.PermissionResult.CanCreate,
+				(selected) => {
+					var page = NavigationManager.OpenViewModel<RouteListCreateViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
+
+					page.ViewModel.EntitySaved += Tab_EntitySaved;
+				},
+				"Insert"
+				);
+			NodeActionsList.Add(addAction);
 		}
 
 		private void CreateEditAction()
@@ -990,7 +1021,7 @@ namespace Vodovoz.ViewModels.Logistic
 					var config = EntityConfigs[selectedNode.EntityType];
 					var foundDocumentConfig = config.EntityDocumentConfigurations.First(x => x.IsIdentified(selectedNode));
 
-					TabParent.OpenTab(() => foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode), this);
+					foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode);
 					if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog)
 					{
 						HideJournal(TabParent);

@@ -9,8 +9,9 @@
     <AssemblyName>Vodovoz</AssemblyName>
     <StartupObject>Vodovoz.Program</StartupObject>
     <ApplicationIcon>icons\logo.ico</ApplicationIcon>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <TargetOS>Linux</TargetOS>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -400,6 +401,8 @@
   <ItemGroup>
     <Compile Include="Additions\Accounting\WayBillDocumentGenerator.cs" />
     <Compile Include="Additions\AuthorizationService.cs" />
+    <Compile Include="Additions\EventsQrPlacer.cs" />
+    <Compile Include="Additions\IEventsQrPlacer.cs" />
     <Compile Include="Additions\Logistic\CoordinateExtensions.cs" />
     <Compile Include="Additions\Logistic\CustomPolygons.cs" />
     <Compile Include="Additions\Logistic\DeliveryPointExtensions.cs" />
@@ -412,6 +415,7 @@
     <Compile Include="Cash\TransferDocumentsJournal\TransferDocumentsJournalRegistrar.cs" />
     <Compile Include="Commons\FileChooser.cs" />
     <Compile Include="Commons\HotkeyHandler.cs" />
+    <Compile Include="Commons\ThemmedDiffFormater.cs" />
     <Compile Include="Core\DocumentPrinter.cs" />
     <Compile Include="Core\Permissions\EntitySubdivisionForUserPermissionViewModel.cs" />
     <Compile Include="Core\ViewFactory.cs" />
@@ -445,14 +449,17 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclatureCostPricesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclaturePurchasePricesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.NomenclaturePlanView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Roboats.RoboatsStreetView.cs" />
     <Compile Include="Infrastructure\Converters\DoubleToStringConverter.cs" />
     <Compile Include="Infrastructure\Converters\NullableDecimalToStringConverter.cs" />
     <Compile Include="Infrastructure\GdkColors.cs" />
+    <Compile Include="Infrastructure\Services\GtkConfirmationQuestionInteractive.cs" />
     <Compile Include="JournalColumnsConfigs\ApplicationDevelopmentProposalsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\BulkEmailEventReasonJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\BusinessTasksJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\CarEventJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\FineTemplateJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\FuelTypeJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\RegradingOfGoodsReasonsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\CarEventTypeJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\CarJournalRegistrar.cs" />
@@ -461,6 +468,13 @@
     <Compile Include="JournalColumnsConfigs\ClientCameFromJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ColumnsConfigRegistrarBase.cs" />
     <Compile Include="JournalColumnsConfigs\RouteListMileageCheckJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\TagJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\KulerSaleWebSiteNomenclatureOnlineCatalogsJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\MobileAppNomenclatureOnlineCatalogsJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\NomenclatureOnlineCategoriesJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\NomenclatureOnlineGroupsJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\CompletedDriversWarehousesEventsJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\DriversWarehousesEventsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\UndeliveryDetalizationJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ComplaintDetalizationJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\UndeliveryKindJournalRegistrar.cs" />
@@ -555,6 +569,7 @@
     <Compile Include="JournalColumnsConfigs\UndeliveryTransferAbsenceReasonJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\UserRolesJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\UsersJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\VodovozWebSiteNomenclatureOnlineCatalogsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\WageDistrictLevelRatesJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\WageDistrictsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\WarehouseDocumentsItemsJournalRegistrar.cs" />
@@ -609,7 +624,7 @@
     <Compile Include="SidePanel\InfoViews\CarsMonitoringInfoPanelView.DataNode.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="TempAdapters\AttachmentsViewModelFactory.cs" />
-    <Compile Include="TempAdapters\ComplaintsJournalFactory.cs" />
+    <Compile Include="TempAdapters\ReportExporterAdapter.cs" />
     <Compile Include="TempAdapters\RouteListJournalFactory.cs" />
     <Compile Include="TempAdapters\ComplaintKindJournalFactory.cs" />
     <Compile Include="TempAdapters\NomenclatureJournalFactory.cs" />
@@ -698,6 +713,7 @@
     <Compile Include="Views\Orders\NomenclaturePlanView.cs" />
     <Compile Include="Views\Users\UserRoleView.cs" />
     <Compile Include="ViewWidgets\DeliveryPointsManagementView.cs" />
+    <Compile Include="ViewWidgets\Logistics\RouteListCreateItemsView.AddOrderEnum.cs" />
     <Compile Include="ViewWidgets\ProxyView.cs" />
     <Compile Include="ViewWidgets\CounterpartyContractsView.cs" />
     <Compile Include="ViewWidgets\ContactsView.cs" />
@@ -716,20 +732,16 @@
     <Compile Include="Dialogs\CommentTemplateDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.CommentTemplateDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ClientBalanceFilter.cs" />
-    <Compile Include="Representations\CounterpartyVM.cs" />
     <Compile Include="Representations\DocumentsVM.cs" />
     <Compile Include="ServiceDialogs\LoadFrom1c\Account1c.cs" />
     <Compile Include="ServiceDialogs\LoadFrom1c\Bank1c.cs" />
-    <Compile Include="ServiceDialogs\LoadFrom1cDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.LoadFrom1cDlg.cs" />
     <Compile Include="Representations\ContactsVM.cs" />
-    <Compile Include="gtk-gui\Vodovoz.CounterpartyFilter.cs" />
     <Compile Include="Dialogs\ServiceClaimDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceClaimDlg.cs" />
     <Compile Include="Representations\ServiceClaimVM.cs" />
     <Compile Include="ViewWidgets\Logistics\RouteListCreateItemsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListCreateItemsView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.RouteListCreateDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Logistic.RouteListCreateView.cs" />
     <Compile Include="Representations\ReadyForShipmentVM.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReadyForShipmentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReadyForShipmentFilter.cs" />
@@ -742,7 +754,6 @@
     <Compile Include="JournalFilters\StockBalanceFilter.cs" />
     <Compile Include="JournalFilters\ClientBalanceFilter.cs" />
     <Compile Include="JournalFilters\StockDocumentsFilter.cs" />
-    <Compile Include="JournalFilters\CounterpartyFilter.cs" />
     <Compile Include="JournalFilters\ReadyForShipmentFilter.cs" />
     <Compile Include="JournalFilters\ServiceClaimFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.WarehouseDocumentsView.cs" />
@@ -767,7 +778,7 @@
     <Compile Include="gtk-gui\Vodovoz.UnclosedAdvancesFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.UnclosedAdvancesView.cs" />
     <Compile Include="Representations\UnclosedAdvancesVM.cs" />
-    <Compile Include="Dialogs\Logistic\RouteListCreateDlg.cs" />
+    <Compile Include="Logistic\RouteListCreateView.cs" />
     <Compile Include="Dialogs\Logistic\RouteListClosingDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListClosingItemsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListClosingDlg.cs" />
@@ -875,7 +886,6 @@
     <Compile Include="Dialogs\Logistic\FuelDocumentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.FuelDocumentView.cs" />
     <Compile Include="Additions\Logistic\PointMarker.cs" />
-    <Compile Include="ServiceDialogs\LoadFrom1c\ChangedItem.cs" />
     <Compile Include="ServiceDialogs\LoadFrom1c\FieldChange.cs" />
     <Compile Include="Dialogs\Employees\EmployeeWorkChartDlg.cs" />
     <Compile Include="gtk-gui\Dialogs.Employees.EmployeeWorkChartDlg.cs" />
@@ -890,8 +900,8 @@
     <Compile Include="gtk-gui\Vodovoz.Reports.EquipmentReport.cs" />
     <Compile Include="ReportsParameters\ForwarderWageReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.ForwarderWageReport.cs" />
-    <Compile Include="Dialogs\Logistic\RouteListAddressesTransferringDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.RouteListAddressesTransferringDlg.cs" />
+    <Compile Include="Logistic\RouteListAddressesTransferringView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Logistic.RouteListAddressesTransferringView.cs" />
     <Compile Include="ReportsParameters\CashierCommentsReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.CashierCommentsReport.cs" />
     <Compile Include="ReportsParameters\DriversWageBalanceReport.cs" />
@@ -921,16 +931,6 @@
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.Database.MergeAddressesDlg.cs" />
     <Compile Include="ReportsParameters\ReportDebtorsBottles.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.ReportDebtorsBottles.cs" />
-    <Compile Include="Additions\Logistic\RouteOptimization\RouteOptimizer.cs" />
-    <Compile Include="Additions\Logistic\RouteOptimization\ProposedRoute.cs" />
-    <Compile Include="Additions\Logistic\RouteOptimization\CalculatedOrder.cs" />
-    <Compile Include="Additions\Logistic\RouteOptimization\CallbackDistance.cs" />
-    <Compile Include="Additions\Logistic\RouteOptimization\CallbackBottles.cs" />
-    <Compile Include="Additions\Logistic\RouteOptimization\CallbackMonitor.cs" />
-    <Compile Include="Additions\Logistic\RouteOptimization\CallbackWeight.cs" />
-    <Compile Include="Additions\Logistic\RouteOptimization\CallbackVolume.cs" />
-    <Compile Include="Additions\Logistic\RouteOptimization\CallbackAddressCount.cs" />
-    <Compile Include="Additions\Logistic\RouteOptimization\CallbackDistanceDistrict.cs" />
     <Compile Include="Dialogs\DocumentDialogs\TransferOperationDocumentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.DocumentDialogs.TransferOperationDocumentDlg.cs" />
     <Compile Include="Dialogs\DocumentDialogs\TransferOperationDocumentItemView.cs" />
@@ -940,7 +940,6 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.OrdersWithMinPriceLessThan.cs" />
     <Compile Include="ReportsParameters\Logistic\RouteListsOnClosingReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.RouteListsOnClosingReport.cs" />
-    <Compile Include="Additions\Logistic\RouteOptimization\CallbackTime.cs" />
     <Compile Include="Dialogs\Logistic\AtWorksDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.AtWorksDlg.cs" />
     <Compile Include="ViewWidgets\Logistics\DistrictPriorityView.cs" />
@@ -955,7 +954,6 @@
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.DeliveryShiftDlg.cs" />
     <Compile Include="Dialogs\Logistic\DeliveryDayScheduleDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.DeliveryDayScheduleDlg.cs" />
-    <Compile Include="Additions\Logistic\RouteOptimization\PossibleTrip.cs" />
     <Compile Include="ReportsParameters\Logistic\ShipmentReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.ShipmentReport.cs" />
     <Compile Include="Additions\Logistic\MapDrawingHelper.cs" />
@@ -1006,9 +1004,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.ShortfallBattlesReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.BottlesMovementReport.cs" />
     <Compile Include="ReportsParameters\MastersVisitReport.cs" />
-    <Compile Include="Representations\TagVM.cs" />
-    <Compile Include="Dialogs\Client\TagDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Dialogs.Client.TagDlg.cs" />
+    <Compile Include="Counterparties\TagView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Counterparties.TagView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.DeliveryPriceView.cs" />
     <Compile Include="SidePanel\InfoViews\DeliveryPricePanelView.cs" />
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.DeliveryPricePanelView.cs" />
@@ -1087,8 +1084,6 @@
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.ImportPaymentsFromTinkoffDlg.cs" />
     <Compile Include="ReportsParameters\Payments\PaymentsFromTinkoffReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Payments.PaymentsFromTinkoffReport.cs" />
-    <Compile Include="Dialogs\Logistic\OptimizingParametersDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.OptimizingParametersDlg.cs" />
     <Compile Include="Dialogs\Cash\CashIncomeCategoryDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.CashIncomeCategoryDlg.cs" />
     <Compile Include="ReportsParameters\Logistic\OrdersByDistrictsAndDeliverySchedulesReport.cs" />
@@ -1233,10 +1228,7 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Employees.FineTemplateView.cs" />
     <Compile Include="Views\Employees\FineView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Employees.FineView.cs" />
-    <Compile Include="Infrastructure\Services\EntityRepresentationAdapterFactory.cs" />
     <Compile Include="Infrastructure\Services\EntityRepresentationSelectorAdapter.cs" />
-    <Compile Include="Infrastructure\Services\EntityRepresentationSelectorFactory.cs" />
-    <Compile Include="Infrastructure\Services\IEntityRepresentationSelectorFactory.cs" />
     <Compile Include="Filters\GtkViews\FineFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.FineFilterView.cs" />
     <Compile Include="Views\Complaints\CreateComplaintView.cs" />
@@ -1279,7 +1271,6 @@
     <Compile Include="ViewModels\Client\SupplierPricesWidgetViewModel.cs" />
     <Compile Include="Views\Suppliers\RequestToSupplierView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Suppliers.RequestToSupplierView.cs" />
-    <Compile Include="Additions\Logistic\ExtDistanceCalculator.cs" />
     <Compile Include="Infrastructure\Converters\ColorTextToGdkColorConverter.cs" />
     <Compile Include="Filters\GtkViews\RequestsToSuppliersFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.RequestsToSuppliersFilterView.cs" />
@@ -1350,9 +1341,6 @@
     <Compile Include="ViewWidgets\PromoSetAction\AddFixPriceActionView.cs" />
     <Compile Include="ViewModels\Orders\AddFixPriceActionViewModel.cs" />
     <Compile Include="ViewModels\Orders\ICreationControl.cs" />
-    <Compile Include="ViewModels\Orders\PromotionalSetActionWidgetResolver.cs" />
-    <Compile Include="JournalSelector\NomenclatureAutoCompleteSelectorFactory.cs" />
-    <Compile Include="JournalSelector\NomenclatureSelectorFactory.cs" />
     <Compile Include="Filters\GtkViews\CarFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CarFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.SetBillsReportView.cs" />
@@ -1538,8 +1526,8 @@
     <Compile Include="ReportsParameters\ChainStoreDelay.cs" />
     <Compile Include="ReportsParameters\Logistic\DriverRoutesListRegisterReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.DriverRoutesListRegisterReport.cs" />
-    <Compile Include="ReportsParameters\Production\ProducedProductionReport.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Production.ProducedProductionReport.cs" />
+    <Compile Include="Views\ReportsParameters\Production\ProducedProductionReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.ReportsParameters.Production.ProducedProductionReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Cash.IncomeCategoryView.cs" />
     <Compile Include="Filters\GtkViews\ExpenseCategoryJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ExpenseCategoryJournalFilterView.cs" />
@@ -1749,7 +1737,6 @@
     <Compile Include="Views\Roboats\RoboatsCatalogExportView.cs" />
     <Compile Include="Views\Roboats\RoboatsEntityView.cs" />
     <Compile Include="Views\Roboats\RoboatsStreetView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.Organization.RoboatsStreetView.cs" />
     <Compile Include="Views\Roboats\RoboatsWaterTypeView.cs" />
     <Compile Include="Filters\GtkViews\FastDeliveryAvailabilityFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.FastDeliveryAvailabilityFilterView.cs" />
@@ -1967,6 +1954,35 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.ChainStoreDelayReport.cs" />
     <Compile Include="Views\Logistic\FastDeliveryOrderTransferFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.FastDeliveryOrderTransferFilterView.cs" />
+    <Compile Include="Dialogs\Client\OrderCancellationConfirmationDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Client.OrderCancellationConfirmationDlg.cs" />
+    <Compile Include="Views\Client\CounterpartyClassification\CounterpartyClassificationCalculationView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Client.CounterpartyClassification.CounterpartyClassificationCalculationView.cs" />
+    <Compile Include="Views\Client\CounterpartyClassification\CounterpartyClassificationCalculationEmailSettingsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Client.CounterpartyClassification.CounterpartyClassificationCalculationEmailSettingsView.cs" />
+    <Compile Include="Views\SelectPaymentTypeWindowView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.SelectPaymentTypeWindowView.cs" />
+    <Compile Include="Filters\GtkViews\GeoGroupJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.GeoGroupJournalFilterView.cs" />
+    <Compile Include="Rent\FreeRentPackagesFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Rent.FreeRentPackagesFilterView.cs" />
+    <Compile Include="Dialogs\Interactive\ConfirmationQuestionDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Interactive.ConfirmationQuestionDlg.cs" />
+    <Compile Include="Views\Goods\NomenclatureOnlineCatalogView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclatureOnlineCatalogView.cs" />
+    <Compile Include="Views\Goods\NomenclatureOnlineGroupView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclatureOnlineGroupView.cs" />
+    <Compile Include="Views\Goods\NomenclatureOnlineCategoryView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclatureOnlineCategoryView.cs" />
+    <Compile Include="Views\Logistic\DriverWarehouseEventView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriverWarehouseEventView.cs" />
+    <Compile Include="Filters\GtkViews\DriversWarehousesEventsJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.DriversWarehousesEventsJournalFilterView.cs" />
+    <Compile Include="Filters\GtkViews\CompletedDriversWarehousesEventsJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CompletedDriversWarehousesEventsJournalFilterView.cs" />
+    <Compile Include="Views\Reports\DriversWarehousesEventsReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Reports.DriversWarehousesEventsReportView.cs" />
+    <Compile Include="ReportsParameters\OrderStatisticsByWeekReportType.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1998,7 +2014,6 @@
     <None Condition=" '$(TargetOS)' == 'Linux' " Include="libs/Google.OrTools/Linux/libGoogle.OrTools.so">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Additions\Logistic\RouteOptimization\README.md" />
     <None Include="libs\SharpZipLib_0.86.0.518\ICSharpCode.SharpZipLib.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -2058,6 +2073,9 @@
     <PackageReference Include="Remotion.Linq.EagerFetching" Version="2.2.0" />
     <PackageReference Include="SSH.NET" Version="2020.0.2" />
     <PackageReference Include="System.Buffers" Version="4.5.1" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource">
+      <Version>7.0.2</Version>
+    </PackageReference>
     <PackageReference Include="System.Memory" Version="4.5.5" />
     <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
@@ -2336,6 +2354,10 @@
       <Project>{49241ddd-3e0b-4944-9b3f-89f0c42e9e6d}</Project>
       <Name>VodovozFiasWidgets</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Infrastructure\Vodovoz.RDL\Vodovoz.RDL.csproj">
+      <Project>{056ba782-edef-4e8e-abb1-01fd3502a8f0}</Project>
+      <Name>Vodovoz.RDL</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Infrastructure\VodovozInfrastructure\VodovozInfrastructure.csproj">
       <Project>{42efc426-2c88-4608-8191-dbca4172a695}</Project>
       <Name>VodovozInfrastructure</Name>
@@ -2499,6 +2521,10 @@
     <ProjectReference Include="..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj">
       <Project>{0107f13c-46e0-4008-8302-0b5cd71df14c}</Project>
       <Name>Vodovoz.Data.NHibernate</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Vodovoz.Presentation.Reports\Vodovoz.Presentation.Reports.csproj">
+      <Project>{79eb219a-5dda-4153-be77-1770663dd0c3}</Project>
+      <Name>Vodovoz.Presentation.Reports</Name>
     </ProjectReference>
     <ProjectReference Include="..\Vodovoz.Presentation.ViewModels\Vodovoz.Presentation.ViewModels.csproj">
       <Project>{396CC0BB-294B-44E0-8428-31677419B8BE}</Project>

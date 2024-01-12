@@ -1,4 +1,4 @@
-﻿using Gamma.GtkWidgets;
+using Gamma.GtkWidgets;
 using Gamma.Widgets;
 using Gtk;
 using QS.Widgets.GtkUI;

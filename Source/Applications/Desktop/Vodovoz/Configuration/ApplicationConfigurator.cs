@@ -19,7 +19,6 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Vodovoz.Cash.Transfer;
-using Vodovoz.Data.NHibernate.HibernateMapping.Organizations;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.Dialogs;
 using Vodovoz.Dialogs.Client;
@@ -46,7 +45,9 @@ using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredResources;
 using Vodovoz.Settings.Database;
 using Vodovoz.ViewModels.Cash;
+using Vodovoz.ViewModels.Counterparties;
 using Vodovoz.ViewModels.Dialogs.Fuel;
+using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Store;
@@ -169,7 +170,7 @@ namespace Vodovoz.Configuration
                     .End(),
                 OrmObjectMapping<Counterparty>.Create().Dialog<CounterpartyDlg>().DefaultTableView()
                     .SearchColumn("Название", x => x.FullName).End(),
-                OrmObjectMapping<Tag>.Create().Dialog<TagDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
+                OrmObjectMapping<Tag>.Create().Dialog<TagViewModel>().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
                 OrmObjectMapping<CounterpartyContract>.Create().Dialog<CounterpartyContractDlg>(),
                 OrmObjectMapping<DocTemplate>.Create().Dialog<DocTemplateDlg>().DefaultTableView().SearchColumn("Название", x => x.Name)
                     .Column("Тип", x => x.TemplateType.GetEnumTitle()).End(),
@@ -180,7 +181,7 @@ namespace Vodovoz.Configuration
                     .Column("Тип", x => x.Nomenclature.Kind.Name).SearchColumn("Серийный номер", x => x.Serial)
                     .Column("Дата последней обработки", x => x.LastServiceDate.ToShortDateString()).End(),
                 //Логисткика
-                OrmObjectMapping<RouteList>.Create().Dialog<RouteListCreateDlg>()
+                OrmObjectMapping<RouteList>.Create().Dialog<RouteListCreateViewModel>()
                     .DefaultTableView().SearchColumn("Номер", x => x.Id.ToString()).Column("Дата", x => x.Date.ToShortDateString())
                     .Column("Статус", x => x.Status.GetEnumTitle())
                     .SearchColumn("Водитель", x => String.Format("{0} - {1}", x.Driver.FullName, x.Car.Title)).End(),

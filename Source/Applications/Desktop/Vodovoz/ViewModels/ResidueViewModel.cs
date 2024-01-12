@@ -9,6 +9,7 @@ using QS.ViewModels;
 using System;
 using System.ComponentModel;
 using System.Linq;
+using QS.Project.Journal.EntitySelector;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
@@ -16,7 +17,6 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
@@ -31,8 +31,7 @@ namespace Vodovoz.ViewModels
 		private readonly IBottlesRepository _bottlesRepository;
 		private readonly IDepositRepository _depositRepository;
 		private readonly IMoneyRepository _moneyRepository;
-		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
-		private readonly ILifetimeScope _lifetimeScope;
+		private ILifetimeScope _lifetimeScope;
 
 		public ResidueViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -54,12 +53,14 @@ namespace Vodovoz.ViewModels
 				throw new ArgumentNullException(nameof(navigationManager));
 			}
 
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_bottlesRepository = bottlesRepository ?? throw new ArgumentNullException(nameof(bottlesRepository));
 			_depositRepository = depositRepository ?? throw new ArgumentNullException(nameof(depositRepository));
 			_moneyRepository = moneyRepository ?? throw new ArgumentNullException(nameof(moneyRepository));
-			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
-			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			CounterpartyAutocompleteSelectorFactory = 
+				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
+				.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope);
 
 			TabName = "Ввод остатков";
 			if(CurrentEmployee == null)
@@ -196,7 +197,7 @@ namespace Vodovoz.ViewModels
 		public DelegateCommand AddDepositEquipmentItemCommand { get; private set; }
 		public DelegateCommand<ResidueEquipmentDepositItem> RemoveDepositEquipmentItemCommand { get; private set; }
 
-		public ICounterpartyJournalFactory CounterpartyJournalFactory => _counterpartyJournalFactory;
+		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelectorFactory { get; }
 
 		private void CreateCommands()
 		{
@@ -206,7 +207,7 @@ namespace Vodovoz.ViewModels
 					filter.RestrictCategory = NomenclatureCategory.equipment;
 
 					var nomenclatureJournalFactory = new NomenclatureJournalFactory();
-					var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel();
+					var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel(_lifetimeScope);
 					journal.FilterViewModel = filter;
 					journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult; ;
 					TabParent.AddSlaveTab(this, journal);
@@ -232,5 +233,11 @@ namespace Vodovoz.ViewModels
 		}
 
 		#endregion Commands
+
+		public override void Dispose()
+		{
+			_lifetimeScope = null;
+			base.Dispose();
+		}
 	}
 }

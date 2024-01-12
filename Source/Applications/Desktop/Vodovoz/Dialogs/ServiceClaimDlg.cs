@@ -1,14 +1,14 @@
-﻿using System;
+﻿using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
 using NLog;
 using QS.DomainModel.UoW;
-using QS.Project.Dialogs;
 using QS.Tdi;
+using QS.Validation;
 using QSOrmProject;
 using QSProjectsLib;
-using QS.Validation;
+using System;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
@@ -23,19 +23,20 @@ using Vodovoz.Parameters;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.TempAdapters;
 using IDeliveryPointInfoProvider = Vodovoz.ViewModels.Infrastructure.InfoProviders.IDeliveryPointInfoProvider;
 
 namespace Vodovoz
 {
 	public partial class ServiceClaimDlg : QS.Dialog.Gtk.EntityDialogBase<ServiceClaim>, ICounterpartyInfoProvider, IDeliveryPointInfoProvider
 	{
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IEquipmentRepository _equipmentRepository = new EquipmentRepository();
 		private readonly INomenclatureRepository _nomenclatureRepository =
 			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
-		private readonly INomenclatureJournalFactory _nomenclatureJournalFactory =
-			new NomenclatureJournalFactory();
+		private INomenclatureJournalFactory _nomenclatureJournalFactory;
 
 		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilterViewModel =
 			new DeliveryPointJournalFilterViewModel();
@@ -107,6 +108,7 @@ namespace Vodovoz
 
 		void ConfigureDlg ()
 		{
+			_nomenclatureJournalFactory = new NomenclatureJournalFactory();
 			enumStatus.Sensitive = enumType.Sensitive = false;
 			enumStatusEditable.Sensitive = true;
 			notebook1.ShowTabs = false;
@@ -129,8 +131,8 @@ namespace Vodovoz
 			textKit.Binding.AddBinding(Entity, e => e.Kit, w => w.Buffer.Text).InitializeFromSource();
 			textDiagnosticsResult.Binding.AddBinding(Entity, e => e.DiagnosticsResult, w => w.Buffer.Text).InitializeFromSource();
 
-			var clientFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
-			evmeClient.SetEntityAutocompleteSelectorFactory(clientFactory.CreateCounterpartyAutocompleteSelectorFactory());
+			var clientFactory = new CounterpartyJournalFactory();
+			evmeClient.SetEntityAutocompleteSelectorFactory(clientFactory.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope));
 			evmeClient.Binding.AddBinding(Entity, e => e.Counterparty, w => w.Subject).InitializeFromSource();
 			evmeClient.Changed += OnReferenceCounterpartyChanged;
 
@@ -147,12 +149,12 @@ namespace Vodovoz
 			evmeDeliveryPoint.Sensitive = (UoWGeneric.Root.Counterparty != null);
 			evmeDeliveryPoint.Binding.AddBinding(Entity, e => e.DeliveryPoint, w => w.Subject).InitializeFromSource();
 			evmeDeliveryPoint.Changed += OnReferenceDeliveryPointChanged;
-			var dpFactory = new DeliveryPointJournalFactory();
+			var dpFactory = _lifetimeScope.Resolve<IDeliveryPointJournalFactory>();
 			dpFactory.SetDeliveryPointJournalFilterViewModel(_deliveryPointJournalFilterViewModel);
 			evmeDeliveryPoint.SetEntityAutocompleteSelectorFactory(dpFactory.CreateDeliveryPointByClientAutocompleteSelectorFactory());
 
 			nomenclatureVMEntry.SetEntityAutocompleteSelectorFactory(
-				_nomenclatureJournalFactory.GetNotArchiveEquipmentsSelectorFactory());
+				_nomenclatureJournalFactory.GetNotArchiveEquipmentsSelectorFactory(_lifetimeScope));
 			nomenclatureVMEntry.Binding
 				.AddBinding(Entity, e => e.Nomenclature, w => w.Subject)
 				.InitializeFromSource();
@@ -438,6 +440,13 @@ namespace Vodovoz
 			referenceEquipment.Sensitive = withSerial && UoWGeneric.Root.Counterparty!=null && 
 				(UoWGeneric.Root.DeliveryPoint !=null || UoWGeneric.Root.ServiceClaimType==ServiceClaimType.JustService);
 			nomenclatureVMEntry.Sensitive = !withSerial && UoWGeneric.Root.Counterparty != null;
+		}
+
+		public override void Destroy()
+		{
+			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
+			base.Destroy();
 		}
 	}
 }

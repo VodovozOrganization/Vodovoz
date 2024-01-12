@@ -1,4 +1,4 @@
-﻿using QS.ViewModels.Widgets;
+using QS.ViewModels.Widgets;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Vodovoz.Reports.Editing.Modifiers;
@@ -24,6 +24,8 @@ namespace Vodovoz.ViewModels.Factories
 				new GroupingNode { Name = "Тип контрагента/подтип", GroupType = GroupingType.CounterpartyType },
 				new GroupingNode { Name = "Тип оплаты", GroupType = GroupingType.PaymentType },
 				new GroupingNode { Name = "Организация", GroupType = GroupingType.Organization },
+				new GroupingNode { Name = "Классификация контрагента", GroupType = GroupingType.CounterpartyClassification },
+				new GroupingNode { Name = "Промонаборы", GroupType = GroupingType.PromotionalSet }
 			}.AsReadOnly();
 
 		private static ReadOnlyCollection<GroupingNode> _defaultSalesWithDynamicsReportsGroupingNodes =>
@@ -40,6 +42,8 @@ namespace Vodovoz.ViewModels.Factories
 				new GroupingNode { Name = "Тип контрагента/подтип", GroupType = GroupingType.CounterpartyType },
 				new GroupingNode { Name = "Тип оплаты", GroupType = GroupingType.PaymentType },
 				new GroupingNode { Name = "Организация", GroupType = GroupingType.Organization },
+				new GroupingNode { Name = "Классификация контрагента", GroupType = GroupingType.CounterpartyClassification },
+				new GroupingNode { Name = "Промонаборы", GroupType = GroupingType.PromotionalSet }
 			}.AsReadOnly();
 
 		public LeftRightListViewModel<GroupingNode> CreateSalesReportGroupingsConstructor()

@@ -18,6 +18,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading;
+using Microsoft.Extensions.Logging;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
@@ -40,15 +41,16 @@ using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Converters;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
-using Vodovoz.TempAdapters;
+using Vodovoz.Settings.Database;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using Vodovoz.ViewModels.TempAdapters;
+using System.Globalization;
 
 namespace Vodovoz
 {
@@ -132,6 +134,9 @@ namespace Vodovoz
 		private readonly IDiscountReasonRepository _discountReasonRepository = new DiscountReasonRepository();
 		private readonly WageParameterService _wageParameterService =
 			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(_parametersProvider));
+		private readonly INomenclatureOnlineParametersProvider _nomenclatureOnlineParametersProvider =
+			new NomenclatureOnlineParametersProvider(
+				new SettingsController(UnitOfWorkFactory.GetDefaultFactory, new Logger<SettingsController>(new LoggerFactory())));
 		private readonly RouteListItem _routeListItem;
 		private readonly IOrderDiscountsController _discountsController;
 
@@ -225,22 +230,12 @@ namespace Vodovoz
 				x => x.RestrictArchive = false
 			);
 
-			NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
-				nomenclatureFilter,
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices,
-				new EmployeeService(),
-				new NomenclatureJournalFactory(),
-				new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
-				_nomenclatureRepository,
-				new UserRepository()
-			) {
-				SelectionMode = JournalSelectionMode.Single
-			};
+			var journalViewModel = Startup.MainWin.NavigationManager.OpenViewModelOnTdi<NomenclaturesJournalViewModel>(this, OpenPageOptions.AsSlave).ViewModel;
+
+			journalViewModel.SelectionMode = JournalSelectionMode.Single;
 			journalViewModel.TabName = "Номенклатура на продажу";
 			journalViewModel.CalculateQuantityOnStock = true;
 			journalViewModel.OnEntitySelectedResult += OnNomenclatureSelected;
-			TabParent.AddSlaveTab(this, journalViewModel);
 		}
 
 		private void OnNomenclatureSelected(object sender, JournalSelectedNodesEventArgs e)
@@ -336,12 +331,14 @@ namespace Vodovoz
 					.AddToggleRenderer(node => node.IsDelivered, false)
 						.AddSetter((cell, node) => cell.Visible = node.IsSerialEquipment)
 					.AddNumericRenderer(node => node.ActualCount, false)
+						.EditedEvent(OnSpinActualCountEdited)
 						.AddSetter((cell, node) => cell.Editable = node.Nomenclature.Category != NomenclatureCategory.deposit)
 						.Adjustment(new Adjustment(0, 0, 9999, 1, 1, 0))
 						.AddSetter((cell, node) => cell.Editable = !node.IsEquipment)
 					.AddTextRenderer(node => node.Nomenclature.Unit == null ? string.Empty : node.Nomenclature.Unit.Name, false)
 				.AddColumn("Цена")
 					.AddNumericRenderer(node => node.Price).Digits(2).WidthChars(10)
+						.EditedEvent(OnSpinPriceEdited)
 						.Adjustment(new Adjustment(0, 0, 99999, 1, 100, 0))
 						.AddSetter((cell, node) => cell.Editable = node.HasPrice && _canEditPrices)
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
@@ -441,6 +438,30 @@ namespace Vodovoz
 			OnClientEntryViewModelChanged(null, null);
 		}
 
+		private void OnSpinActualCountEdited(object o, EditedArgs args)
+		{
+			decimal.TryParse(args.NewText, NumberStyles.Any, CultureInfo.InvariantCulture, out var newActualCount);
+			var node = ytreeToClient.YTreeModel.NodeAtPath(new TreePath(args.Path));
+			if(!(node is OrderItem orderItem))
+			{
+				return;
+			}
+
+			orderItem.SetActualCount(newActualCount);
+		}
+
+		private void OnSpinPriceEdited(object o, EditedArgs args)
+		{
+			decimal.TryParse(args.NewText, NumberStyles.Any, CultureInfo.InvariantCulture, out var newPrice);
+			var node = ytreeToClient.YTreeModel.NodeAtPath(new TreePath(args.Path));
+			if(!(node is OrderItem orderItem))
+			{
+				return;
+			}
+
+			orderItem.SetPrice(newPrice);
+		}
+
 		private void OnDiscountReasonComboEdited(object o, EditedArgs args)
 		{
 			var index = int.Parse(args.Path);
@@ -468,7 +489,7 @@ namespace Vodovoz
 					{
 						ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
 							$"На позицию:\n№{index + 1} {message}нельзя применить скидку," +
-							" т.к. она из промо-набора или на нее есть фикса.\nОбратитесь к руководителю");
+							" т.к. она из промонабора или на нее есть фикса.\nОбратитесь к руководителю");
 					}
 				}
 			});
@@ -504,7 +525,7 @@ namespace Vodovoz
 			foreach(var item in _routeListItem.Order.OrderItems)
 			{
 				if(item.ActualCount == null)
-					item.ActualCount = 0;
+					item.SetActualCountZero();
 			}
 		}
 
@@ -514,8 +535,10 @@ namespace Vodovoz
 			{
 				Counterparty = client
 			};
-			entityVMEntryDeliveryPoint.SetEntityAutocompleteSelectorFactory(new DeliveryPointJournalFactory(deliveryPointFilter)
-				.CreateDeliveryPointByClientAutocompleteSelectorFactory());
+
+			var deliveryPointJournalFactory = _lifetimeScope.Resolve<IDeliveryPointJournalFactory>();
+			deliveryPointJournalFactory.SetDeliveryPointJournalFilterViewModel(deliveryPointFilter);
+			entityVMEntryDeliveryPoint.SetEntityAutocompleteSelectorFactory(deliveryPointJournalFactory.CreateDeliveryPointByClientAutocompleteSelectorFactory());
 			entityVMEntryDeliveryPoint.Binding.AddBinding(_orderNode, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
 		}
 
@@ -802,7 +825,7 @@ namespace Vodovoz
 				}
 				else
 				{
-					orderItem.ActualCount = value;
+					orderItem.SetActualCount(value);
 				}
 			}
 		}
@@ -854,10 +877,10 @@ namespace Vodovoz
 				if(IsEquipment)
 				{
 					if(orderEquipment.OrderItem != null)
-						orderEquipment.OrderItem.Price = value;
+						orderEquipment.OrderItem.SetPrice(value);
 				}
 				else
-					orderItem.Price = value;
+					orderItem.SetPrice(value);
 			}
 		}
 
@@ -873,9 +896,9 @@ namespace Vodovoz
 			set
 			{
 				if(IsEquipment)
-					orderEquipment.OrderItem.IsDiscountInMoney = orderEquipment.OrderItem != null && value;
+					orderEquipment.OrderItem.SetIsDiscountInMoney(orderEquipment.OrderItem != null && value);
 				else
-					orderItem.IsDiscountInMoney = value;
+					orderItem.SetIsDiscountInMoney(value);
 			}
 		}
 
@@ -893,31 +916,10 @@ namespace Vodovoz
 				if(IsEquipment)
 				{
 					if(orderEquipment.OrderItem != null)
-						orderEquipment.OrderItem.ManualChangingDiscount = value;
+						orderEquipment.OrderItem.SetManualChangingDiscount(value);
 				}
 				else
-					orderItem.ManualChangingDiscount = value;
-			}
-		}
-
-		public decimal DiscountSetter
-		{
-			get
-			{
-				if(IsEquipment)
-					return orderEquipment.OrderItem != null ? orderEquipment.OrderItem.DiscountSetter : 0;
-				return orderItem.DiscountSetter;
-			}
-
-			set
-			{
-				if(IsEquipment)
-				{
-					if(orderEquipment.OrderItem != null)
-						orderEquipment.OrderItem.DiscountSetter = value;
-				}
-				else
-					orderItem.DiscountSetter = value;
+					orderItem.SetManualChangingDiscount(value);
 			}
 		}
 
@@ -934,10 +936,10 @@ namespace Vodovoz
 				if(IsEquipment)
 				{
 					if(orderEquipment.OrderItem != null)
-						orderEquipment.OrderItem.Discount = value;
+						orderEquipment.OrderItem.SetDiscount(value);
 				}
 				else
-					orderItem.Discount = value;
+					orderItem.SetDiscount(value);
 			}
 		}
 

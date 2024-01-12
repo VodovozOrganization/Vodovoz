@@ -47,6 +47,7 @@ namespace Vodovoz.JournalNodes
 		public DateTime CreateDate { get; set; }
 		public bool IsSelfDelivery { get; set; }
 		public string DeliveryTime { get; set; }
+		public TimeSpan? WaitUntilTime { get; set; }		
 		public decimal BottleAmount { get; set; }
 		public decimal SanitisationAmount { get; set; }
 
@@ -89,6 +90,6 @@ namespace Vodovoz.JournalNodes
 
 		public bool Sensitive { get; set; }
 
-		public EdoDocFlowStatus EdoDocFlowStatus { get; set; }
+		public EdoDocFlowStatus? EdoDocFlowStatus { get; set; }
 	}
 }

@@ -1,19 +1,17 @@
-﻿using System.Data.Bindings.Collections.Generic;
-using System.Linq;
+﻿using System;
 using Gamma.ColumnConfig;
 using QS.DomainModel.UoW;
-using QS.Project.Dialogs;
-using QS.Project.Dialogs.GtkUI;
-using QSOrmProject;
 using QS.Validation;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using QS.Navigation;
+using QS.Project.Journal;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
-using Vodovoz.JournalFilters;
-using Vodovoz.ViewModel;
-using Vodovoz.TempAdapters;
 using Vodovoz.Extensions;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.Infrastructure;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.Dialogs
 {
@@ -88,18 +86,24 @@ namespace Vodovoz.Dialogs
 
 		protected void OnBtnAddNomenclatureClicked(object sender, System.EventArgs e)
 		{
-			var filter = new NomenclatureFilterViewModel();
-			filter.SetAndRefilterAtOnce(
-				x => x.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder(),
-				x => x.SelectCategory = NomenclatureCategory.water,
-				x => x.SelectSaleCategory = SaleCategory.forSale
-			);
-
-			var nomenclatureJournalFactory = new NomenclatureJournalFactory();
-			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel(filter, true);
+			var journal =
+				Startup.MainWin.NavigationManager.OpenViewModelOnTdi<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(
+					this,
+					filter =>
+					{
+						filter.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder();
+						filter.SelectCategory = NomenclatureCategory.water;
+						filter.SelectSaleCategory = SaleCategory.forSale;
+					},
+					OpenPageOptions.AsSlave,
+					vm =>
+					{
+						vm.SelectionMode = JournalSelectionMode.Multiple;
+						vm.Title = "Номенклатура на продажу";
+					}
+				).ViewModel;
+			
 			journal.OnEntitySelectedResult += JournalOnEntitySelectedResult;
-			journal.Title = "Номенклатура на продажу";
-			TabParent.AddSlaveTab(this, journal);
 		}
 
 		private void JournalOnEntitySelectedResult(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)

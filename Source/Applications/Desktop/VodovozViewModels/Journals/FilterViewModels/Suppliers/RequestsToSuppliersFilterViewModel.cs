@@ -1,19 +1,30 @@
-﻿using System;
-using QS.Project.Filter;
+﻿using QS.Project.Filter;
 using QS.Project.Journal.EntitySelector;
-using QS.Services;
+using System;
+using Autofac;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Suppliers;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.FilterViewModels.Suppliers
 {
 	public class RequestsToSuppliersFilterViewModel : FilterViewModelBase<RequestsToSuppliersFilterViewModel>
 	{
+		private ILifetimeScope _lifetimeScope;
+		
 		public IEntitySelectorFactory NomenclatureSelectorFactory { get; set; }
 
-		public RequestsToSuppliersFilterViewModel(IEntitySelectorFactory nomenclatureSelectorFactory)
+		public RequestsToSuppliersFilterViewModel(
+			ILifetimeScope lifetimeScope,
+			INomenclatureJournalFactory nomenclatureJournalFactory)
 		{
-			NomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+			if(nomenclatureJournalFactory is null)
+			{
+				throw new ArgumentNullException(nameof(nomenclatureJournalFactory));
+			}
+
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			NomenclatureSelectorFactory = nomenclatureJournalFactory.GetDefaultNomenclatureSelectorFactory(_lifetimeScope);
 		}
 
 		private DateTime? restrictStartDate;
@@ -55,5 +66,11 @@ namespace Vodovoz.FilterViewModels.Suppliers
 			}
 		}
 		public bool CanChangeStatus { get; private set; } = true;
+
+		public override void Dispose()
+		{
+			_lifetimeScope = null;
+			base.Dispose();
+		}
 	}
 }

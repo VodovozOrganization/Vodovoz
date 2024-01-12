@@ -1,4 +1,4 @@
-﻿using Gamma.Utilities;
+using Gamma.Utilities;
 using NHibernate.Linq;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
@@ -455,6 +456,18 @@ namespace Vodovoz.ViewModels.Factories
 					}
 				}
 			});
+
+			includeExludeFiltersViewModel.AddFilter<CounterpartyCompositeClassification>(config =>
+			{
+				config.RefreshFilteredElements();
+			});
+
+			var paramsDictionary = new Dictionary<string, string>
+			{
+				{ "Самовывоз", "is_self_delivery" },
+			};
+
+			includeExludeFiltersViewModel.AddFilter("Дополнительные параметры", paramsDictionary);
 
 			return includeExludeFiltersViewModel;
 		}

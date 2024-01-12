@@ -1,14 +1,11 @@
 ﻿using System;
-using Fias.Client;
-using Fias.Client.Cache;
+using Autofac;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using Vodovoz.Domain.Client;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.TempAdapters;
 
@@ -16,18 +13,16 @@ namespace Vodovoz.TempAdapters
 {
 	public class DeliveryPointJournalFactory : IDeliveryPointJournalFactory
 	{
+		private readonly ILifetimeScope _lifetimeScope;
 		private DeliveryPointJournalFilterViewModel _deliveryPointJournalFilter;
 		
 		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory;
 
-		public DeliveryPointJournalFactory(DeliveryPointJournalFilterViewModel deliveryPointJournalFilter = null)
+		public DeliveryPointJournalFactory(ILifetimeScope lifetimeScope, DeliveryPointJournalFilterViewModel deliveryPointJournalFilter)
 		{
-			_deliveryPointJournalFilter = deliveryPointJournalFilter; 
-			IParametersProvider parametersProvider = new ParametersProvider();
-			IFiasApiParametersProvider fiasApiParametersProvider = new FiasApiParametersProvider(parametersProvider);
-			var geoCoderCache = new GeocoderCache(UnitOfWorkFactory.GetDefaultFactory);
-			IFiasApiClient fiasApiClient = new FiasApiClient(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken, geoCoderCache);
-			_deliveryPointViewModelFactory = new DeliveryPointViewModelFactory(fiasApiClient);
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_deliveryPointJournalFilter = deliveryPointJournalFilter ?? throw new ArgumentNullException(nameof(deliveryPointJournalFilter)); 
+			_deliveryPointViewModelFactory = new DeliveryPointViewModelFactory(_lifetimeScope);
 		}
 
 		public void SetDeliveryPointJournalFilterViewModel(DeliveryPointJournalFilterViewModel filter)

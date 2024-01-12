@@ -105,7 +105,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 			CreateCommands();
 
-			CarSelectorFactory = carJournalFactory.CreateCarAutocompleteSelectorFactory();
+			CarSelectorFactory = carJournalFactory.CreateCarAutocompleteSelectorFactory(_lifetimeScope);
 			CarEventTypeSelectorFactory = carEventTypeJournalFactory.CreateCarEventTypeAutocompleteSelectorFactory();
 			
 			OriginalCarEventViewModel = new CommonEEVMBuilderFactory<CarEvent>(this, Entity, UoW, NavigationManager, _lifetimeScope)

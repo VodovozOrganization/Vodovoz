@@ -4,18 +4,15 @@ using NLog;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
-using QS.Project.Services;
-using QS.Tdi;
 using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using QS.Navigation;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Journals.JournalNodes;
-using Vodovoz.JournalViewModels;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz
@@ -58,7 +55,7 @@ namespace Vodovoz
 
 				treeMaterialsList.ItemsDataSource = items;
 
-				CalculateTotal ();
+				CalculateTotal();
 			}
 		}
 
@@ -88,30 +85,39 @@ namespace Vodovoz
 
 		protected void OnButtonAddClicked (object sender, EventArgs e)
 		{
-			ITdiTab mytab = DialogHelper.FindParentTab (this);
+			var mytab = DialogHelper.FindParentTab (this);
 			if (mytab == null) {
 				logger.Warn ("Родительская вкладка не найдена.");
 				return;
 			}
 
-			Action<NomenclatureStockFilterViewModel> filterParams = f => f.RestrictWarehouse = DocumentUoW.Root.WriteOffWarehouse;
-
-			var vm = Startup.MainWin.NavigationManager
-				.OpenViewModel<NomenclatureStockBalanceJournalViewModel, Action<NomenclatureStockFilterViewModel>>(null, filterParams)
-				.ViewModel;
-			
-			vm.SelectionMode = JournalSelectionMode.Single;
-			vm.OnEntitySelectedResult += (s, ea) => {
-				var selectedNode = ea.SelectedNodes.Cast<NomenclatureStockJournalNode>().FirstOrDefault();
-				if(selectedNode == null) {
-					return;
-				}
-				var nomenclature = DocumentUoW.GetById<Nomenclature>(selectedNode.Id);
-				if(DocumentUoW.Root.Materials.Any(x => x.Nomenclature.Id == nomenclature.Id)) {
-					return;
-				}
-				DocumentUoW.Root.AddMaterial(nomenclature, 1, selectedNode.StockAmount);
-			};
+			Startup.MainWin.NavigationManager
+				.OpenViewModelOnTdi<NomenclatureStockBalanceJournalViewModel, Action<NomenclatureStockFilterViewModel>>(
+					mytab,
+					f => f.RestrictWarehouse = DocumentUoW.Root.WriteOffWarehouse,
+					OpenPageOptions.AsSlave,
+					vm =>
+					{
+						vm.SelectionMode = JournalSelectionMode.Single;
+						
+						vm.OnEntitySelectedResult += (s, ea) =>
+						{
+							var selectedNode = ea.SelectedNodes.Cast<NomenclatureStockJournalNode>().FirstOrDefault();
+							
+							if(selectedNode == null)
+							{
+								return;
+							}
+							
+							var nomenclature = DocumentUoW.GetById<Nomenclature>(selectedNode.Id);
+							
+							if(DocumentUoW.Root.Materials.Any(x => x.Nomenclature.Id == nomenclature.Id))
+							{
+								return;
+							}
+							DocumentUoW.Root.AddMaterial(nomenclature, 1, selectedNode.StockAmount);
+						};
+					});
 		}
 
 		void CalculateTotal ()

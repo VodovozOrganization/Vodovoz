@@ -17,6 +17,7 @@ using QS.ViewModels.Extension;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using QS.ViewModels.Dialog;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
@@ -48,14 +49,10 @@ namespace Vodovoz.ViewModels.Complaints
 		private ComplaintObject _complaintObject;
 		private readonly IList<ComplaintKind> _complaintKinds;
 		private DelegateCommand _changeDeliveryPointCommand;
-		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
-		private readonly IEmployeeSettings _employeeSettings;
 		private readonly IComplaintResultsRepository _complaintResultsRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IGeneralSettingsParametersProvider _generalSettingsParametersProvider;
 		private readonly IComplaintParametersProvider _complaintParametersProvider;
-		private readonly IRouteListRepository _routeListRepository;
-		private readonly ILifetimeScope _scope;
 		private readonly IUserRepository _userRepository;
 		private readonly IEmployeeService _employeeService;
 		private readonly ISubdivisionRepository _subdivisionRepository;
@@ -64,6 +61,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly bool _canAddGuiltyInComplaintsPermissionResult;
 		private readonly bool _canCloseComplaintsPermissionResult;
 
+		private ILifetimeScope _scope;
 		private Employee _currentEmployee;
 		private ComplaintDiscussionsViewModel _discussionsViewModel;
 		private GuiltyItemsViewModel _guiltyItemsViewModel;
@@ -85,9 +83,7 @@ namespace Vodovoz.ViewModels.Complaints
 			IEmployeeJournalFactory driverJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
-			ISalesPlanJournalFactory salesPlanJournalFactory,
 			INomenclatureJournalFactory nomenclatureJournalFactory,
-			IEmployeeSettings employeeSettings,
 			IComplaintResultsRepository complaintResultsRepository,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
 			IRouteListItemRepository routeListItemRepository,
@@ -100,13 +96,13 @@ namespace Vodovoz.ViewModels.Complaints
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
 			_complaintResultsRepository = complaintResultsRepository ?? throw new ArgumentNullException(nameof(complaintResultsRepository));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			NomenclatureJournalFactory = nomenclatureJournalFactory ?? throw new ArgumentNullException(nameof(nomenclatureJournalFactory));
-			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			EmployeeJournalFactory = driverJournalFactory ?? throw new ArgumentNullException(nameof(driverJournalFactory));
-			CounterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
+			CounterpartyAutocompleteSelectorFactory =
+				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
+				.CreateCounterpartyAutocompleteSelectorFactory(_scope);
 			DeliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 			SubdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
@@ -259,7 +255,8 @@ namespace Vodovoz.ViewModels.Complaints
 				{
 					_discussionsViewModel = _scope.Resolve<ComplaintDiscussionsViewModel>(
 						new TypedParameter(typeof(Complaint), Entity),
-						new TypedParameter(typeof(IUnitOfWork), UoW));
+						new TypedParameter(typeof(IUnitOfWork), UoW),
+						new TypedParameter(typeof(DialogViewModelBase), this));
 				}
 				return _discussionsViewModel;
 			}
@@ -489,14 +486,15 @@ namespace Vodovoz.ViewModels.Complaints
 
 		#region AddFineCommand
 
-		public DelegateCommand<ITdiTab> AddFineCommand { get; private set; }
+		public DelegateCommand AddFineCommand { get; private set; }
 
 		private void CreateAddFineCommand()
 		{
-			AddFineCommand = new DelegateCommand<ITdiTab>(
-				t =>
+			AddFineCommand = new DelegateCommand(
+				() =>
 				{
-					var page = ((ITdiCompatibilityNavigation)NavigationManager).OpenViewModelOnTdi<FineViewModel, IEntityUoWBuilder>(t, EntityUoWBuilder.ForCreate(), OpenPageOptions.AsSlave);
+					var page = NavigationManager.OpenViewModel<FineViewModel, IEntityUoWBuilder>(
+						this, EntityUoWBuilder.ForCreate(), OpenPageOptions.AsSlave);
 
 					page.ViewModel.FineReasonString = Entity.GetFineReason();
 					page.ViewModel.EntitySaved += (sender, e) =>
@@ -504,7 +502,7 @@ namespace Vodovoz.ViewModels.Complaints
 						Entity.AddFine(e.Entity as Fine);
 					};
 				},
-				t => CanAddFine
+				() => CanAddFine
 			);
 			AddFineCommand.CanExecuteChangedWith(this, x => CanAddFine);
 		}
@@ -583,15 +581,14 @@ namespace Vodovoz.ViewModels.Complaints
 		public IEntityAutocompleteSelectorFactory OrderAutocompleteSelectorFactory { get; private set; }
 		private IEmployeeJournalFactory EmployeeJournalFactory { get; }
 		public IEntityEntryViewModel SubdivisionViewModel { get; private set; }
-		public ICounterpartyJournalFactory CounterpartyJournalFactory { get; }
+		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelectorFactory { get; }
 		private IDeliveryPointJournalFactory DeliveryPointJournalFactory { get; }
 		private INomenclatureJournalFactory NomenclatureJournalFactory { get; }
 		private ISubdivisionParametersProvider SubdivisionParametersProvider { get; }
 
 		private void InitializeOrderAutocompleteSelectorFactory(IOrderSelectorFactory orderSelectorFactory)
 		{
-			var orderFilter =
-				new OrderJournalFilterViewModel(CounterpartyJournalFactory, DeliveryPointJournalFactory, _scope);
+			var orderFilter = _scope.Resolve<OrderJournalFilterViewModel>();
 
 			if(Entity.Counterparty != null)
 			{
@@ -721,6 +718,7 @@ namespace Vodovoz.ViewModels.Complaints
 		public override void Dispose()
 		{
 			_logger.Debug("Вызываем {Method}()", nameof(Dispose));
+			_scope = null;
 			base.Dispose();
 		}
 	}

@@ -1,4 +1,6 @@
 ﻿using Gamma.ColumnConfig;
+using Gtk;
+using Vodovoz.Infrastructure;
 using Vodovoz.Journals.Nodes.Rent;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 
@@ -14,6 +16,9 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Вид оборудования")
 					.AddTextRenderer(n => n.EquipmentKindName)
 				.AddColumn("")
+				.RowCells()
+					.AddSetter<CellRendererText>((c, n) =>
+						c.ForegroundGdk = n.IsArchive ? GdkColors.InsensitiveText : GdkColors.PrimaryText)
 				.Finish();
 	}
 }

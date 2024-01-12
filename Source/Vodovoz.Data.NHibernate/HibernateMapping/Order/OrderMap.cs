@@ -1,4 +1,5 @@
 ﻿using FluentNHibernate.Mapping;
+using NHibernate.Type;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 {
@@ -19,6 +20,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.CommentLogist).Column("comment_logist");
 			Map(x => x.DeliveryDate).Column("delivery_date")
 				.Access.CamelCaseField(Prefix.Underscore);
+			Map(x => x.FirstDeliveryDate).Column("first_delivery_date");
 			Map(x => x.SelfDelivery).Column("self_delivery");
 			Map(x => x.PayAfterShipment).Column("pay_after_shipment");
 			Map(x => x.BottlesReturn).Column("bottles_return");
@@ -77,6 +79,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.OrderPaymentStatus).Column("order_payment_status");
 			Map(x => x.OrderAddressType).Column("order_address_type");
 			Map(x => x.CallBeforeArrivalMinutes).Column("call_before_arrival_minutes");
+			Map(x => x.WaitUntilTime).Column("wait_until_time").CustomType<TimeAsTimeSpanType>();
 
 			References(x => x.Client).Column("client_id");
 			References(x => x.Contract).Column("counterparty_contract_id").Cascade.SaveUpdate();
@@ -97,6 +100,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			References(x => x.ContactPhone).Column("contact_phone_id");
 			References(x => x.CommentOPManagerChangedBy).Column("comment_opmanager_changed_by");
 			References(x => x.LogisticsRequirements).Column("logistics_requirements_id").Cascade.All();
+			References(x => x.SelfDeliveryGeoGroup).Column("self_delivery_geo_group_id");
 
 			HasMany(x => x.OrderDocuments).KeyColumn("attached_to_order_id")
 				.Cascade.AllDeleteOrphan().Inverse().LazyLoad();

@@ -1,10 +1,8 @@
-﻿using QS.DomainModel.UoW;
-using QSOrmProject;
+﻿using Autofac;
+using QS.DomainModel.UoW;
 using QS.Validation;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Factories;
 
 namespace Vodovoz
 {
@@ -12,6 +10,7 @@ namespace Vodovoz
 	public partial class ProductSpecificationDlg : QS.Dialog.Gtk.EntityDialogBase<ProductSpecification>
 	{
 		protected static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 
 		public ProductSpecificationDlg ()
 		{
@@ -36,7 +35,7 @@ namespace Vodovoz
 			entryName.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
 
 			var nomenclatureSelectorFactory = new NomenclatureJournalFactory();
-			entryProduct.SetEntityAutocompleteSelectorFactory(nomenclatureSelectorFactory.GetDefaultNomenclatureSelectorFactory());
+			entryProduct.SetEntityAutocompleteSelectorFactory(nomenclatureSelectorFactory.GetDefaultNomenclatureSelectorFactory(_lifetimeScope));
 			entryProduct.Binding.AddBinding(Entity, e => e.Product, w => w.Subject).InitializeFromSource();
 
 			productspecificationmaterialsview1.SpecificationUoW = UoWGeneric;
@@ -52,6 +51,13 @@ namespace Vodovoz
 
 			UoWGeneric.Save ();
 			return true;
+		}
+
+		public override void Destroy()
+		{
+			base.Destroy();
+			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
 		}
 
 	}

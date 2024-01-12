@@ -1,10 +1,10 @@
-﻿using Gamma.GtkWidgets;
+using Autofac;
+using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
-using QS.Project.Services;
 using QS.Tdi;
 using QSOrmProject;
 using QSProjectsLib;
@@ -17,17 +17,11 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure;
 using Vodovoz.Journals.JournalNodes;
-using Vodovoz.JournalSelector;
-using Vodovoz.Parameters;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Employees;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz
@@ -36,8 +30,7 @@ namespace Vodovoz
 	public partial class RegradingOfGoodsDocumentItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		private readonly IStockRepository _stockRepository = new StockRepository();
-		private readonly INomenclatureRepository _nomenclatureRepository =
-			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+		private ILifetimeScope _lifetimeScope;
 		private RegradingOfGoodsDocumentItem newRow;
 		private RegradingOfGoodsDocumentItem FineEditItem;
 
@@ -53,6 +46,8 @@ namespace Vodovoz
 				types = uow.GetAll<CullingCategory>().OrderBy(c => c.Name).ToList();
 				regradingReasons = uow.GetAll<RegradingOfGoodsReason>().OrderBy(c => c.Name).ToList();
 			}
+
+			_lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 
 			ytreeviewItems.ColumnsConfig = ColumnsConfigFactory.Create<RegradingOfGoodsDocumentItem>()
 				.AddColumn("Старая номенклатура").AddTextRenderer(x => x.NomenclatureOld.Name)
@@ -183,7 +178,8 @@ namespace Vodovoz
 			
 			vm.SelectionMode = JournalSelectionMode.Single;
 			vm.TabName = "Выберите номенклатуру на замену";
-			vm.OnEntitySelectedResult += (s, ea) => {
+			vm.OnEntitySelectedResult += (s, ea) =>
+			{
 				var selectedNode = ea.SelectedNodes.Cast<NomenclatureStockJournalNode>().FirstOrDefault();
 				if(selectedNode == null) {
 					return;
@@ -195,37 +191,9 @@ namespace Vodovoz
 					AmountInStock = selectedNode.StockAmount
 				};
 
-				var nomenclatureFilter = new NomenclatureFilterViewModel();
-
-				var userRepository = new UserRepository();
-
-				var employeeService = VodovozGtkServicesConfig.EmployeeService;
-
-				var counterpartySelectorFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
-
-				var nomenclatureAutoCompleteSelectorFactory =
-					new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-						ServicesConfig.CommonServices,
-						nomenclatureFilter,
-						counterpartySelectorFactory,
-						_nomenclatureRepository,
-						userRepository
-						);
-
-				var nomenclaturesJournalViewModel =
-				new NomenclaturesJournalViewModel(
-					nomenclatureFilter,
-					UnitOfWorkFactory.GetDefaultFactory,
-					ServicesConfig.CommonServices,
-					employeeService,
-					new NomenclatureJournalFactory(),
-					counterpartySelectorFactory,
-					_nomenclatureRepository,
-					userRepository
-					);
-
+				var nomenclaturesJournalViewModel = _lifetimeScope.Resolve<NomenclaturesJournalViewModel>();
 				nomenclaturesJournalViewModel.SelectionMode = JournalSelectionMode.Single;
-                nomenclaturesJournalViewModel.OnEntitySelectedResult += SelectNewNomenclature_ObjectSelected;
+				nomenclaturesJournalViewModel.OnEntitySelectedResult += SelectNewNomenclature_ObjectSelected;
 
 				MyTab.TabParent.AddSlaveTab(MyTab, nomenclaturesJournalViewModel);
 			};
@@ -235,7 +203,7 @@ namespace Vodovoz
 		{
 			var journalNode = e?.SelectedNodes?.FirstOrDefault();
 			if (journalNode != null)
-            {
+			{
 				var nomenclature = DocumentUoW.GetById<Nomenclature>(journalNode.Id);
 
 				if (!nomenclature.IsDefectiveBottle)
@@ -288,34 +256,7 @@ namespace Vodovoz
 
 		protected void OnButtonChangeNewClicked(object sender, EventArgs e)
 		{
-			var filter = new NomenclatureFilterViewModel();
-
-			var userRepository = new UserRepository();
-
-			var employeeService = VodovozGtkServicesConfig.EmployeeService;
-			var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
-
-			var nomenclatureAutoCompleteSelectorFactory = 
-				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-					ServicesConfig.CommonServices,
-					filter,
-					counterpartyJournalFactory,
-					_nomenclatureRepository,
-					userRepository
-					);
-
-			var nomenclaturesJournalViewModel = 
-				new NomenclaturesJournalViewModel(
-					filter,
-					UnitOfWorkFactory.GetDefaultFactory,
-					ServicesConfig.CommonServices,
-					employeeService,
-					new NomenclatureJournalFactory(),
-					counterpartyJournalFactory,
-					_nomenclatureRepository,
-					userRepository
-					);
-
+			var nomenclaturesJournalViewModel = _lifetimeScope.Resolve<NomenclaturesJournalViewModel>();
 			nomenclaturesJournalViewModel.SelectionMode = JournalSelectionMode.Single;
 			nomenclaturesJournalViewModel.OnEntitySelectedResult += ChangeNewNomenclature_OnEntitySelectedResult;
 
@@ -323,19 +264,19 @@ namespace Vodovoz
 		}
 
 		private void ChangeNewNomenclature_OnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
-        {
+		{
 			var row = ytreeviewItems.GetSelectedObject<RegradingOfGoodsDocumentItem>();
 			if (row == null)
-            {
+			{
 				return;
 			}
 
 			var id = e.SelectedNodes.FirstOrDefault()?.Id;
 
 			if (id == null)
-            {
+			{
 				return;
-            }
+			}
 
 			var nomenclature = UoW.Session.Get<Nomenclature>(id);
 			row.NomenclatureNew = nomenclature;
@@ -430,6 +371,17 @@ namespace Vodovoz
 					});
 			}
 			LoadStock();
+		}
+
+		public override void Destroy()
+		{
+			if(_lifetimeScope != null)
+			{
+				_lifetimeScope.Dispose();
+				_lifetimeScope = null;
+			}
+
+			base.Destroy();
 		}
 	}
 }

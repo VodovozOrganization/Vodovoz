@@ -1,5 +1,4 @@
-﻿using Autofac;
-using QS.Dialog.GtkUI.FileDialog;
+using Autofac;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Project.Services.FileDialog;

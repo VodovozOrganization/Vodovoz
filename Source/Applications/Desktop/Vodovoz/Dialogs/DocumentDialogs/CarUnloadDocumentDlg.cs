@@ -11,10 +11,12 @@ using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Vodovoz.Additions;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Drivers;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
@@ -25,6 +27,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Repository.Store;
 using Vodovoz.Services;
+using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
@@ -49,6 +52,7 @@ namespace Vodovoz
 		private IWageParameterService _wageParameterService;
 		private ICallTaskWorker _callTaskWorker;
 		private ILifetimeScope _lifetimeScope;
+		private IEventsQrPlacer _eventsQrPlacer;
 
 		private IStoreDocumentHelper _storeDocumentHelper;
 
@@ -116,6 +120,7 @@ namespace Vodovoz
 			_callTaskWorker = _lifetimeScope.Resolve<ICallTaskWorker>();
 
 			_storeDocumentHelper = _lifetimeScope.Resolve<IStoreDocumentHelper>();
+			_eventsQrPlacer = _lifetimeScope.Resolve<IEventsQrPlacer>();
 		}
 
 		private void ConfigureNewDoc()
@@ -147,7 +152,7 @@ namespace Vodovoz
 			editing &= Entity.RouteList?.Status != RouteListStatus.Closed || hasPermitionToEditDocWithClosedRL;
 			Entity.InitializeDefaultValues(UoW, _nomenclatureRepository);
 
-			entryRouteList.ViewModel = new LegacyEEVMBuilderFactory<CarUnloadDocument>(this, Entity, UoW, NavigationManager, _lifetimeScope)
+			var routeListViewModel = new LegacyEEVMBuilderFactory<CarUnloadDocument>(this, Entity, UoW, NavigationManager, _lifetimeScope)
 				.ForProperty(x => x.RouteList)
 				.UseViewModelJournalAndAutocompleter<RouteListJournalViewModel, RouteListJournalFilterViewModel>(filter =>
 				{
@@ -155,6 +160,7 @@ namespace Vodovoz
 				})
 				.Finish();
 
+			entryRouteList.ViewModel = routeListViewModel;
 			entryRouteList.ViewModel.Changed += OnYentryrefRouteListChanged;
 			OnYentryrefRouteListChanged(null, EventArgs.Empty);
 
@@ -175,7 +181,7 @@ namespace Vodovoz
 			ySpecCmbWarehouses.Binding.AddBinding(Entity, e => e.Warehouse, w => w.SelectedItem).InitializeFromSource();
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 
-			entryRouteList.ViewModel.IsEditable = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
+			routeListViewModel.CanViewEntity = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 
 			Entity.PropertyChanged += (sender, e) => {
 				if (e.PropertyName == nameof(Entity.Warehouse))
@@ -575,9 +581,12 @@ namespace Vodovoz
 				Save();
 			}
 
+			var rdlPath = "Reports/Store/CarUnloadDoc.rdl";
+			_eventsQrPlacer.AddQrEventForDocument(UoW, Entity.Id, EventQrDocumentType.CarUnloadDocument, ref rdlPath);
+
 			var reportInfo = new QS.Report.ReportInfo {
 				Title = Entity.Title,
-				Identifier = "Store.CarUnloadDoc",
+				Path = rdlPath,
 				Parameters = new Dictionary<string, object>
 					{
 						{ "id",  Entity.Id }

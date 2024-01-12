@@ -57,6 +57,9 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="client">Контрагент</param>
 		Order GetFirstRealOrderForClientForActionBottle(IUnitOfWork uow, Order order, Counterparty client);
 
+		bool HasCounterpartyFirstRealOrder(IUnitOfWork uow, int counterpartyId);
+		bool HasCounterpartyOtherFirstRealOrder(IUnitOfWork uow, Counterparty counterparty, int orderId);
+
 		OrderStatus[] GetGrantedStatusesToCreateSeveralOrders();
 
 		Order GetLatestCompleteOrderForCounterparty(IUnitOfWork UoW, Counterparty counterparty);
@@ -100,7 +103,7 @@ namespace Vodovoz.EntityRepositories.Orders
 
 		IList<Order> GetOrdersByCode1c(IUnitOfWork uow, string[] codes1c);
 
-		QueryOver<Order> GetOrdersForRLEditingQuery(DateTime date, bool showShipped, Order orderBaseAlias = null);
+		QueryOver<Order> GetOrdersForRLEditingQuery(DateTime date, bool showShipped, Order orderBaseAlias = null, bool excludeTrucks = false);
 		
 		IList<Order> GetOrdersToExport1c8(IUnitOfWork uow, IOrderParametersProvider orderParametersProvider, Export1cMode mode, DateTime startDate, DateTime endDate, int? organizationId = null);
 

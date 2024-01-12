@@ -39,6 +39,10 @@ namespace Dialogs.Employees
 
 		public bool HasChanges { get { return uow.HasChanges; } }
 
+		public virtual bool HasCustomCancellationConfirmationDialog { get; private set; }
+
+		public virtual Func<int> CustomCancellationConfirmationDialogFunc { get; private set; }
+
 		#endregion
 
 		public EmployeeWorkChartDlg()

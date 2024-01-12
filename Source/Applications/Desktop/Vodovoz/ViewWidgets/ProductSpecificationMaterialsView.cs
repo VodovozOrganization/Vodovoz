@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
+﻿using Autofac;
 using Gamma.GtkWidgets;
 using Gtk;
 using QS.Dialog.Gtk;
@@ -9,12 +6,15 @@ using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Tdi;
 using QSOrmProject;
+using System;
+using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 
 namespace Vodovoz
@@ -22,6 +22,7 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem (true)]
 	public partial class ProductSpecificationMaterialsView : Gtk.Bin
 	{
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private readonly INomenclatureRepository _nomenclatureRepository =
 			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
@@ -91,7 +92,7 @@ namespace Vodovoz
 			filter.AvailableCategories = Nomenclature.GetCategoriesForProductMaterial();
 
 			NomenclatureJournalFactory nomenclatureJournalFactory = new NomenclatureJournalFactory();
-			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel();
+			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel(_lifetimeScope);
 			journal.FilterViewModel = filter;
 			journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult;
 
@@ -139,6 +140,13 @@ namespace Vodovoz
 			}
 
 			labelSum.LabelProp = String.Format ("Всего: {0}", (totalAmount));
+		}
+
+		public override void Destroy()
+		{
+			base.Destroy();
+			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
 		}
 	}
 }

@@ -7,30 +7,34 @@ using System.Reflection;
 using Gamma.Utilities;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Journal;
 using QS.Tdi;
 using QS.ViewModels;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.ViewModels.Widgets
 {
-	public class AdditionalLoadingItemsViewModel : WidgetViewModelBase
+	public class AdditionalLoadingItemsViewModel : WidgetViewModelBase, IDisposable
 	{
-		private readonly IUnitOfWork _uow;
-		private readonly ITdiTab _master;
-		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
+		private readonly ITdiCompatibilityNavigation _navigationManager;
 		private readonly IInteractiveService _interactiveService;
+		private IUnitOfWork _uow;
+		private ITdiTab _master;
 		private AdditionalLoadingDocument _additionalLoadingDocument;
 
-		public AdditionalLoadingItemsViewModel(IUnitOfWork uow, ITdiTab master, INomenclatureJournalFactory nomenclatureSelectorFactory,
+		public AdditionalLoadingItemsViewModel(
+			IUnitOfWork uow,
+			ITdiTab master,
+			ITdiCompatibilityNavigation navigationManager,
 			IInteractiveService interactiveService)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_master = master ?? throw new ArgumentNullException(nameof(master));
-			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 		}
 
@@ -73,9 +77,16 @@ namespace Vodovoz.ViewModels.Widgets
 
 		public void AddItem()
 		{
-			var journal = _nomenclatureSelectorFactory.CreateNomenclaturesJournalViewModel(null, true);
+			var journal = _navigationManager.OpenViewModelOnTdi<NomenclaturesJournalViewModel>(
+				_master,
+				OpenPageOptions.AsSlave,
+				vm =>
+				{
+					vm.SelectionMode = JournalSelectionMode.Multiple;
+				}
+			).ViewModel;
+			
 			journal.OnEntitySelectedResult += OnNomenclaturesSelected;
-			_master?.TabParent.AddSlaveTab(_master, journal);
 		}
 
 		private void OnNomenclaturesSelected(object sender, JournalSelectedNodesEventArgs args)
@@ -131,6 +142,12 @@ namespace Vodovoz.ViewModels.Widgets
 					"Номенклатуры, которые не были добавлены:\n\n" +
 					$"{string.Join("\n", notValidCategory.Select(x => $"{x.Id} {x.Category.GetEnumTitle()} {x.Name}"))}");
 			}
+		}
+
+		public void Dispose()
+		{
+			_uow = null;
+			_master = null;
 		}
 	}
 }
