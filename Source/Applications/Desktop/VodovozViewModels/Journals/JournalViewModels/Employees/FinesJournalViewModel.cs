@@ -49,6 +49,8 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			filterViewModel.JournalViewModel = this;
 
+			filterViewModel.OnFiltered += OnFiltered;
+
 			if(filterConfig != null)
 			{
 				filterViewModel.SetAndRefilterAtOnce(filterConfig);
@@ -58,6 +60,11 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 			UpdateOnChanges(typeof(Fine), typeof(FineItem));
 
 			UseSlider = true;
+		}
+
+		private void OnFiltered(object sender, EventArgs e)
+		{
+			Refresh();
 		}
 
 		public ILifetimeScope Scope => _lifetimeScope;
