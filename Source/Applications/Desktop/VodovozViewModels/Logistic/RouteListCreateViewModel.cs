@@ -510,7 +510,8 @@ namespace Vodovoz.ViewModels.Logistic
 
 				UoW.Save(Entity.RouteListProfitability);
 
-				return true;
+				HasChanges = true;
+				return HasChanges;
 			}
 			catch(Exception)
 			{
