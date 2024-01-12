@@ -16,7 +16,7 @@ namespace Vodovoz.ViewModels.Payments
 	public class AutomaticallyAllocationBalanceWindowViewModel : WindowDialogViewModelBase, IDisposable
 	{
 		private readonly IInteractiveService _interactiveService;
-		private readonly PaymentService _paymentService;
+		private readonly IPaymentService _paymentService;
 		private readonly IUnitOfWork _unitOfWork;
 
 		private bool _isAllocationState;
@@ -28,7 +28,7 @@ namespace Vodovoz.ViewModels.Payments
 		public AutomaticallyAllocationBalanceWindowViewModel(
 			IInteractiveService interactiveService,
 			INavigationManager navigationManager,
-			PaymentService paymentService,
+			IPaymentService paymentService,
 			IUnitOfWorkFactory uowFactory)
 			: base(navigationManager)
 		{

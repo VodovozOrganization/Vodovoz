@@ -18,7 +18,7 @@ namespace Vodovoz.Application.Payments
 	/// <summary>
 	/// Сервис оплат
 	/// </summary>
-	public sealed class PaymentService
+	internal sealed class PaymentService : IPaymentService
 	{
 		private int _closingDocumentDeliveryScheduleId;
 
@@ -187,27 +187,27 @@ namespace Vodovoz.Application.Payments
 
 			var unallocatedNodes =
 				(from payment in unitOfWork.Session.Query<Payment>()
-				join organization in unitOfWork.Session.Query<Organization>()
-				on payment.Organization.Id equals organization.Id
-				join counterparty in unitOfWork.Session.Query<Counterparty>()
-				on payment.Counterparty.Id equals counterparty.Id
-				let counterpartyBalance =
-					(decimal?)(from cashlessMovementOperation in unitOfWork.Session.Query<CashlessMovementOperation>()
-							   where cashlessMovementOperation.Counterparty.Id == counterparty.Id
-								   && cashlessMovementOperation.Organization.Id == organization.Id
-								   && cashlessMovementOperation.CashlessMovementOperationStatus != AllocationStatus.Cancelled
-							   select cashlessMovementOperation.Income - cashlessMovementOperation.Expense).Sum() ?? 0m
-				let notPaidOrdersSum =
-					(decimal?)(from order in unitOfWork.Session.Query<Order>()
-							   join counterpartyContract in unitOfWork.Session.Query<CounterpartyContract>()
-							   on order.Contract.Id equals counterpartyContract.Id
-							   where order.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId
-								   && statuses.Contains(order.OrderStatus)
-								   && order.OrderPaymentStatus != OrderPaymentStatus.Paid
-								   && order.PaymentType == PaymentType.Cashless
-								   && order.Client.Id == counterparty.Id
-								   && counterpartyContract.Organization.Id == organization.Id
-							   select order.OrderItems.Sum(oi => oi.ActualSum)).Sum() ?? 0m
+				 join organization in unitOfWork.Session.Query<Organization>()
+				 on payment.Organization.Id equals organization.Id
+				 join counterparty in unitOfWork.Session.Query<Counterparty>()
+				 on payment.Counterparty.Id equals counterparty.Id
+				 let counterpartyBalance =
+					 (decimal?)(from cashlessMovementOperation in unitOfWork.Session.Query<CashlessMovementOperation>()
+								where cashlessMovementOperation.Counterparty.Id == counterparty.Id
+									&& cashlessMovementOperation.Organization.Id == organization.Id
+									&& cashlessMovementOperation.CashlessMovementOperationStatus != AllocationStatus.Cancelled
+								select cashlessMovementOperation.Income - cashlessMovementOperation.Expense).Sum() ?? 0m
+				 let notPaidOrdersSum =
+					 (decimal?)(from order in unitOfWork.Session.Query<Order>()
+								join counterpartyContract in unitOfWork.Session.Query<CounterpartyContract>()
+								on order.Contract.Id equals counterpartyContract.Id
+								where order.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId
+									&& statuses.Contains(order.OrderStatus)
+									&& order.OrderPaymentStatus != OrderPaymentStatus.Paid
+									&& order.PaymentType == PaymentType.Cashless
+									&& order.Client.Id == counterparty.Id
+									&& counterpartyContract.Organization.Id == organization.Id
+								select order.OrderItems.Sum(oi => oi.ActualSum)).Sum() ?? 0m
 				 let notFullyPaidOrdersPaidSum =
 					(decimal?)(from cashlessMovementOperationExpense in unitOfWork.Session.Query<CashlessMovementOperation>()
 							   join paymentItem in unitOfWork.Session.Query<PaymentItem>()
@@ -226,17 +226,17 @@ namespace Vodovoz.Application.Payments
 				 where counterpartiesWithDebts.Contains(payment.Counterparty.Id)
 					 && counterpartyDebt > 0
 					 && counterpartyBalance > 0
-				orderby counterpartyBalance descending
-				select new UnallocatedBalancesJournalNode
-				{
-					OrganizationId = organization.Id,
-					OrganizationName = organization.Name,
-					CounterpartyId = counterparty.Id,
-					CounterpartyINN = counterparty.INN,
-					CounterpartyName = counterparty.Name,
-					CounterpartyBalance = counterpartyBalance,
-					CounterpartyDebt = counterpartyDebt
-				}).Distinct();
+				 orderby counterpartyBalance descending
+				 select new UnallocatedBalancesJournalNode
+				 {
+					 OrganizationId = organization.Id,
+					 OrganizationName = organization.Name,
+					 CounterpartyId = counterparty.Id,
+					 CounterpartyINN = counterparty.INN,
+					 CounterpartyName = counterparty.Name,
+					 CounterpartyBalance = counterpartyBalance,
+					 CounterpartyDebt = counterpartyDebt
+				 }).Distinct();
 
 			var result = unallocatedNodes.ToList();
 
