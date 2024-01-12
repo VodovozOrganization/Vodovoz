@@ -19,7 +19,6 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		private readonly IPhoneTypeSettings _phoneTypeSettings;
 		private readonly IExternalCounterpartyController _externalCounterpartyController;
 		private readonly ICommonServices _commonServices;
-		private IList<ExternalCounterparty> _externalCounterparties;
 
 		public PhoneType SelectedPhoneType
 		{
@@ -79,8 +78,7 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 					return;
 				}
 
-				_externalCounterparties = externalCounterparties;
-				_externalCounterpartyController.ArchiveExternalCounterparties(_externalCounterparties);
+				_externalCounterpartyController.DeleteExternalCounterparties(_uow, externalCounterparties);
 				PhoneIsArchive = true;
 			}
 			else
@@ -91,11 +89,6 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 				}
 
 				PhoneIsArchive = false;
-
-				if(_externalCounterparties != null && _externalCounterparties.Any())
-				{
-					_externalCounterpartyController.UndoArchiveExternalCounterparties(_externalCounterparties);
-				}
 			}
 		}
 		

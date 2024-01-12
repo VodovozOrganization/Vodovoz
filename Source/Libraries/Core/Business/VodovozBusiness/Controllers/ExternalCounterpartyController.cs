@@ -22,7 +22,7 @@ namespace Vodovoz.Controllers
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 		}
 		
-		public bool ArchiveExternalCounterparties(IUnitOfWork uow, int phoneId)
+		public bool DeleteExternalCounterparties(IUnitOfWork uow, int phoneId)
 		{
 			if(!HasActiveExternalCounterparties(uow, phoneId, out var externalCounterparties))
 			{
@@ -36,33 +36,26 @@ namespace Vodovoz.Controllers
 				return false;
 			}
 
-			ArchiveExternalCounterparties(externalCounterparties);
+			DeleteExternalCounterparties(uow, externalCounterparties);
 
 			return true;
 		}
-
-		public void ArchiveExternalCounterparties(IEnumerable<ExternalCounterparty> externalCounterparties)
+		
+		public void DeleteExternalCounterparties(IUnitOfWork uow, IEnumerable<ExternalCounterparty> externalCounterparties)
 		{
-			UpdateArchiveExternalCounterparties(externalCounterparties, true);
+			foreach(var externalCounterparty in externalCounterparties)
+			{
+				uow.Delete(externalCounterparty);
+			}
 		}
 
-		public void UndoArchiveExternalCounterparties(IEnumerable<ExternalCounterparty> externalCounterparties)
-		{
-			UpdateArchiveExternalCounterparties(externalCounterparties, false);
-		}
-
-		public bool HasActiveExternalCounterparties(IUnitOfWork uow, int phoneId, out IList<ExternalCounterparty> externalCounterparties)
+		public bool HasActiveExternalCounterparties(
+			IUnitOfWork uow,
+			int phoneId,
+			out IEnumerable<ExternalCounterparty> externalCounterparties)
 		{
 			externalCounterparties = _externalCounterpartyRepository.GetActiveExternalCounterpartiesByPhone(uow, phoneId);
 			return externalCounterparties.Any();
-		}
-		
-		private void UpdateArchiveExternalCounterparties(IEnumerable<ExternalCounterparty> externalCounterparties, bool isArchive)
-		{
-			foreach(var extCounterparty in externalCounterparties)
-			{
-				extCounterparty.IsArchive = isArchive;
-			}
 		}
 	}
 }

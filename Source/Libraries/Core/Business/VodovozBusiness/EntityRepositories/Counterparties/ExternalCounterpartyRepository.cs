@@ -43,7 +43,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				.SingleOrDefault();
 		}
 		
-		public IList<ExternalCounterparty> GetActiveExternalCounterpartiesByPhone(IUnitOfWork uow, int phoneId)
+		public IEnumerable<ExternalCounterparty> GetActiveExternalCounterpartiesByPhone(IUnitOfWork uow, int phoneId)
 		{
 			return uow.Session.QueryOver<ExternalCounterparty>()
 				.Where(ec => !ec.IsArchive)
