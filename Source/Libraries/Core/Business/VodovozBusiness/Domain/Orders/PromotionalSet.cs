@@ -29,7 +29,7 @@ namespace Vodovoz.Domain.Orders
 		private bool _canEditNomenclatureCount;
 		private bool _promotionalSetForNewClients;
 		private string _onlineName;
-		private decimal? _bottlesCountForCalculatingDeliveryPrice;
+		private int? _bottlesCountForCalculatingDeliveryPrice;
 		
 		private IList<PromotionalSetItem> _promotionalSetItems = new List<PromotionalSetItem>();
 		private GenericObservableList<PromotionalSetItem> _observablePromotionalSetItems;
@@ -94,7 +94,7 @@ namespace Vodovoz.Domain.Orders
 		}
 		
 		[Display(Name = "Количество бутылей для расчета платной доставки")]
-		public virtual decimal? BottlesCountForCalculatingDeliveryPrice
+		public virtual int? BottlesCountForCalculatingDeliveryPrice
 		{
 			get => _bottlesCountForCalculatingDeliveryPrice;
 			set => SetField(ref _bottlesCountForCalculatingDeliveryPrice, value);
