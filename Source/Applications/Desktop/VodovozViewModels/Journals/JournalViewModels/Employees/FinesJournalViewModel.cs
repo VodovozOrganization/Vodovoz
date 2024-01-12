@@ -103,6 +103,11 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 				query.Where(() => finedEmployeeAlias.Subdivision.Id == _filterViewModel.Subdivision.Id);
 			}
 
+			if(_filterViewModel.Author != null)
+			{
+				query.Where(() => fineAuthorAlias.Id == _filterViewModel.Author.Id);
+			}
+
 			if(_filterViewModel.FineDateStart.HasValue)
 			{
 				query.Where(() => fineAlias.Date >= _filterViewModel.FineDateStart.Value);
