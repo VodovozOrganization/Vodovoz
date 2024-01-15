@@ -78,6 +78,8 @@ namespace Vodovoz
 
 		private RouteListItem _routeListItem;
 		private bool _canEditPrices;
+		private bool _canEditOrderAfterRecieptCreated;
+
 		private OrderNode _orderNode;
 
 		public IUnitOfWork UoW { get; }
@@ -113,7 +115,11 @@ namespace Vodovoz
 			CanFormOrderWithLiquidatedCounterparty = currentPermissionService
 				.ValidatePresetPermission(Vodovoz.Permissions.Order.CanFormOrderWithLiquidatedCounterparty);
 
-			_canEditPrices = currentPermissionService.ValidatePresetPermission("can_edit_price_discount_from_route_list");
+			_canEditPrices = currentPermissionService
+				.ValidatePresetPermission(Vodovoz.Permissions.Order.CanEditPriceDiscountFromRouteList);
+
+			_canEditOrderAfterRecieptCreated = currentPermissionService
+				.ValidatePresetPermission(Vodovoz.Permissions.Order.CanChangeOrderAfterRecieptCreated);
 
 			Build();
 

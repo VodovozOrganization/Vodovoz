@@ -41,5 +41,13 @@ namespace Vodovoz.Permissions
 			Name = "Изменение заказа при наличии кассового чека",
 			Description = "Пользователь может изменять товары, цены, контрагента в заказе даже при наличии кассового чека по данному заказу")]
 		public static string CanChangeOrderAfterRecieptCreated => nameof(CanChangeOrderAfterRecieptCreated);
+
+		/// <summary>
+		/// Изменение цены и скидки в закрытии МЛ - Возможность изменять цену и скидку в заказе из закрытия МЛ
+		/// </summary>
+		[Display(
+			Name = "Изменение цены и скидки в закрытии МЛ",
+			Description = "Возможность изменять цену и скидку в заказе из закрытия МЛ")]
+		public static string CanEditPriceDiscountFromRouteList => "can_edit_price_discount_from_route_list";
 	}
 }
