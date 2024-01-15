@@ -9,9 +9,12 @@ using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
+using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories
 {
@@ -86,21 +89,28 @@ namespace Vodovoz.EntityRepositories
 			}
 		}
 
-		public bool NeedSendUpdByEmail(int orderId)
+		public bool NeedSendDocumentsByEmailOnFinish(IUnitOfWork uow, Order order, IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider)
 		{
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"Проверка, нужно ли отправлять УПД по email?"))
-			{
-				return (from address in uow.GetAll<RouteListItem>()
-						where address.Order.Id == orderId
-							  && (address.Order.IsFastDelivery 
-							      || (
-								      address.Status != RouteListItemStatus.Transfered
-								      && address.AddressTransferType != null
-								      && address.AddressTransferType == AddressTransferType.FromFreeBalance)
-							      )
+				var result = (from address in uow.GetAll<RouteListItem>()
+					where address.Order.Id == order.Id
+						&& 
+						(							
+								address.Order.IsFastDelivery 
+								|| (
+										address.Status != RouteListItemStatus.Transfered
+										&& address.AddressTransferType != null
+										&& address.AddressTransferType == AddressTransferType.FromFreeBalance
+									)						   
+						|| (
+								(!address.Order.Client.NeedSendBillByEdo || address.Order.Client.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
+								&& address.Order.DeliverySchedule.Id == deliveryScheduleParametersProvider.ClosingDocumentDeliveryScheduleId
+								&& order.OrderStatus == OrderStatus.Closed
+							)
+						)						
 						select address.Id)
 					.Any();
-			}
+
+				return result;
 		}
 
 		public bool CanSendByTimeout(string address, int orderId, OrderDocumentType type)

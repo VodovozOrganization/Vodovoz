@@ -1,8 +1,8 @@
-using Autofac;
-using EdoService;
-using EdoService.Converters;
-using EdoService.Dto;
-using EdoService.Services;
+﻿using Autofac;
+using EdoService.Library;
+using EdoService.Library.Converters;
+using EdoService.Library.Dto;
+using EdoService.Library.Services;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
@@ -60,7 +60,6 @@ using Vodovoz.Domain.Retail;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
@@ -138,6 +137,7 @@ namespace Vodovoz
 		private IOrganizationParametersProvider _organizationParametersProvider = new OrganizationParametersProvider(new ParametersProvider());
 		private IRevenueServiceClient _revenueServiceClient;
 		private ICounterpartyService _counterpartyService;
+		private IEdoService _edoService;
 		private GenericObservableList<EdoContainer> _edoContainers = new GenericObservableList<EdoContainer>();
 
 		private bool _currentUserCanEditCounterpartyDetails = false;
@@ -302,6 +302,7 @@ namespace Vodovoz
 			_edoSettings = _lifetimeScope.Resolve<IEdoSettings>();
 			_counterpartySettings = _lifetimeScope.Resolve<ICounterpartySettings>();
 			_counterpartyService = _lifetimeScope.Resolve<ICounterpartyService>();
+			_edoService = _lifetimeScope.Resolve<IEdoService>();
 
 			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			var fileDialogService = new FileDialogService();
@@ -1328,7 +1329,8 @@ namespace Vodovoz
 					EntityUoWBuilder.ForOpen(Entity.Id),
 					UnitOfWorkFactory.GetDefaultFactory,
 					_commonServices,
-					GetOrderIdsWithoutSuccessfullySentUpd());
+					GetOrderIdsWithoutSuccessfullySentUpd(),
+					_edoService);
 				TabParent.AddSlaveTab(this, resendEdoDocumentsDialog);
 			}
 		}

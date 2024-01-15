@@ -1,3 +1,5 @@
+﻿using Autofac;
+using EdoService.Library;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using QS.Commands;
@@ -5,14 +7,13 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
+using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
 using System;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Autofac;
-using QS.Project.Journal.EntitySelector;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.EntityRepositories;
@@ -32,7 +33,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		private readonly CommonMessages _commonMessages;
 		private readonly IRDLPreviewOpener _rdlPreviewOpener;
 		private IGenericRepository<EdoContainer> _edoContainerRepository;
-
+		private readonly IEdoService _edoService;
 		public Action<string> OpenCounterpartyJournal;
 		private bool _userHavePermissionToResendEdoDocuments;
 		
@@ -47,7 +48,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			CommonMessages commonMessages,
 			IRDLPreviewOpener rdlPreviewOpener,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
-			IGenericRepository<EdoContainer> edoContainerRepository) : base(uowBuilder, uowFactory, commonServices)
+			IGenericRepository<EdoContainer> edoContainerRepository,
+			IEdoService edoService) : base(uowBuilder, uowFactory, commonServices)
 		{
 			if(lifetimeScope == null)
 			{
@@ -62,6 +64,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			_commonMessages = commonMessages ?? throw new ArgumentNullException(nameof(commonMessages));
 			_rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
 			_edoContainerRepository = edoContainerRepository ?? throw new ArgumentNullException(nameof(edoContainerRepository));
+			_edoService = edoService ?? throw new ArgumentNullException(nameof(edoService));
 			CounterpartyAutocompleteSelectorFactory =
 				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory(lifetimeScope);
@@ -157,46 +160,44 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			}
 		}
 
-		private void SendBillByEdo(IUnitOfWork uow)
-		{
-			var edoContainer = new EdoContainer
-			{
-				Type = EdoDocumentType.BillWSForDebt,
-				Created = DateTime.Now,
-				Container = new byte[64],
-				OrderWithoutShipmentForDebt = Entity,
-				Counterparty = Entity.Counterparty,
-				MainDocumentId = string.Empty,
-				EdoDocFlowStatus = EdoDocFlowStatus.PreparingToSend
-			};
-
-			uow.Save();
-			uow.Save(edoContainer);
-			uow.Commit();
-		}
-
 		public void OnButtonSendDocumentAgainClicked(object sender, EventArgs e)
 		{
-			if(EdoContainers.Any(x => x.EdoDocFlowStatus == EdoDocFlowStatus.Succeed))
+			var edoValidateResult = _edoService.ValidateEdoContainers(EdoContainers);
+
+			var errorMessages = edoValidateResult.Errors.Select(x => x.Message).ToArray();
+
+			if(edoValidateResult.IsFailure)
 			{
-				if(!CommonServices.InteractiveService.Question("Для данного заказа имеется документ со статусом \"Документооборот завершен успешно\".\nВы уверены, что хотите отправить дубль?"))
-				{
-					return;
-				}
-			}
-			else if(EdoContainers.Any(x => x.EdoDocFlowStatus == EdoDocFlowStatus.InProgress))
-			{
-				if(!CommonServices.InteractiveService.Question("Для данного заказа имеется документ со статусом \"В процессе\".\nВы уверены, что хотите отправить дубль?"))
+				if(edoValidateResult.Errors.Any(error => error.Code == Errors.Edo.Edo.AlreadySuccefullSended)
+					&& !CommonServices.InteractiveService.Question(
+						"Вы уверены, что хотите отправить дубль?\n" +
+						string.Join("\n", errorMessages),
+						"Требуется подтверждение!"))
 				{
 					return;
 				}
 			}
 
-			SendBillByEdo(UoW);
+			if(UoW.IsNew)
+			{
+				if(CommonServices.InteractiveService.Question("Перед отправкой необходимо сохранить счёт, продолжить?"))
+				{
+					UoW.Save();
+				}
+				else
+				{
+					return;
+				}
+			}
+
+			_edoService.SetNeedToResendEdoDocumentForOrder(Entity, EdoDocumentType.BillWSForDebt);
+
 			UpdateEdoContainers();
 
 			OnPropertyChanged(nameof(CanSendBillByEdo));
 			OnPropertyChanged(nameof(CanResendEdoBill));
+
+			CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Отправлено");
 		}
 
 		public void UpdateEdoContainers()
