@@ -1,4 +1,5 @@
 ﻿using DateTimeHelpers;
+using FluentNHibernate.Utils;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -71,6 +72,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		private IEnumerable<string> _lastGenerationErrors;
 		private LeftRightListViewModel<GroupingNode> _groupViewModel;
 		private bool _showContacts;
+		private static OrderStatus[] _clientOneOrderStatuses = { OrderStatus.Canceled, OrderStatus.DeliveryCanceled, OrderStatus.NotDelivered };
 
 		public TurnoverWithDynamicsReportViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -691,6 +693,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						{
 							var subQueryOrdersCount = QueryOver.Of(() => orderCountAlias)
 								.Where(() => orderCountAlias.Client.Id == counterpartyAlias.Id)
+								.WhereRestrictionOn(() => orderCountAlias.OrderStatus).Not.IsIn(_clientOneOrderStatuses)
 								.Select(Projections.GroupProperty(Projections.Property<Order>(o => o.Client.Id)));
 
 							var countProjection = Projections.CountDistinct(() => orderCountAlias.Id);
@@ -1224,6 +1227,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					{
 						var subQueryOrdersCount = QueryOver.Of(() => orderCountAlias)
 							.Where(() => orderCountAlias.Client.Id == counterpartyAlias.Id)
+							.WhereRestrictionOn(() => orderCountAlias.OrderStatus).Not.IsIn(_clientOneOrderStatuses)
 							.Select(Projections.GroupProperty(Projections.Property<Order>(o => o.Client.Id)));
 
 						var countProjection = Projections.CountDistinct(() => orderCountAlias.Id);
