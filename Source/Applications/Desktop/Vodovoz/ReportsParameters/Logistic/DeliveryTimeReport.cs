@@ -54,7 +54,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 				.AddColumn("").AddEnumRenderer(x => x.RouteListTypeOfUse)
 				.Finish();
 			ytreeRouteListTypeOfUse.ItemsDataSource = Enum.GetValues(typeof(RouteListTypeOfUse)).Cast<RouteListTypeOfUse>()
-				.Select(x => new SelectableParameter { RouteListTypeOfUse = x, IsSelected = x == RouteListTypeOfUse.Logistics}).ToList();
+				.Select(x => new SelectableParameter { RouteListTypeOfUse = x, IsSelected = x == RouteListTypeOfUse.Delivery}).ToList();
 
 			new List<string>() {
 				"Группировка по водителям, без нумерации",
@@ -143,12 +143,14 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		private enum RouteListTypeOfUse
 		{
-			[Display(Name = "Логистика")]
-			Logistics,
+			[Display(Name = "Доставка")]
+			Delivery,
 			[Display(Name = "СЦ")]
 			ServiceCenter,
 			[Display(Name = "Фуры")]
-			CompanyTrucks
+			CompanyTrucks,
+			[Display(Name = "Складская логистика")]
+			StorageLogistics
 		}
 	}
 }
