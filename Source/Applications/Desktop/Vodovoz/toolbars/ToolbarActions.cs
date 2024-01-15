@@ -10,7 +10,6 @@ using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Services;
-using QS.Project.Services.FileDialog;
 using QS.Report.ViewModels;
 using QSReport;
 using System;

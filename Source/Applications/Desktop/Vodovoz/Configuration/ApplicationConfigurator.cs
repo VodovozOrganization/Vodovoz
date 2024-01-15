@@ -19,6 +19,8 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Vodovoz.Cash.Transfer;
+using Vodovoz.Core.Data.NHibernate.Mappings;
+using Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Drivers;
 using Vodovoz.Data.NHibernate.HibernateMapping.Organizations;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.Dialogs;
@@ -99,7 +101,8 @@ namespace Vodovoz.Configuration
                     Assembly.GetAssembly(typeof(HistoryMain)),
                     Assembly.GetAssembly(typeof(QS.Attachments.Domain.Attachment)),
                     Assembly.GetAssembly(typeof(QS.Report.Domain.UserPrintSettings)),
-					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
+					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder)),
+					Assembly.GetAssembly(typeof(CompletedDriverWarehouseEventProxyMap))
 				},
 				cnf => {
                     cnf.DataBaseIntegration(

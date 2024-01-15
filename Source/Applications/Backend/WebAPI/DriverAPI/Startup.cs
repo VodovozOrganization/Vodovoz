@@ -53,6 +53,7 @@ using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using VodovozHealthCheck;
 using QS.Project.Domain;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 
 namespace DriverAPI
 {
@@ -275,6 +276,7 @@ namespace DriverAPI
 					Assembly.GetAssembly(typeof(HistoryMain)),
 					Assembly.GetAssembly(typeof(TypeOfEntity)),
 					Assembly.GetAssembly(typeof(Attachment)),
+					Assembly.GetAssembly(typeof(EmployeeWithLoginMap)),
 					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
 				}
 			);
@@ -311,10 +313,10 @@ namespace DriverAPI
 			services.AddScoped<TrueMarkCodesPool, TrueMarkTransactionalCodesPool>();
 
 			// Сервисы
-			services.AddSingleton<IWakeUpDriverClientService, WakeUpDriverClientService>();
+			//services.AddSingleton<IWakeUpDriverClientService, WakeUpDriverClientService>();
 
 			// Workers
-			services.AddHostedService<WakeUpNotificationSenderService>();
+			//services.AddHostedService<WakeUpNotificationSenderService>();
 
 			// Репозитории водовоза
 			services.AddScoped<ITrackRepository, TrackRepository>();

@@ -59,20 +59,30 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			{
 				var calcOrder = Nodes[first_index - 1];
 				var baseVersion = GetGroupVersion(calcOrder.ShippingBase, calcOrder.Order.DeliveryDate.Value);
-				travelTime = distanceCalculator.TimeToBaseSec(calcOrder.Order.DeliveryPoint, baseVersion);
+				travelTime = distanceCalculator.TimeToBaseSec(
+					calcOrder.Order.DeliveryPoint.PointCoordinates,
+					baseVersion.PointCoordinates);
 			}
 			else if(first_index == 0)
 			{
 				var calcOrder = Nodes[second_index - 1];
 				var baseVersion = GetGroupVersion(calcOrder.ShippingBase, calcOrder.Order.DeliveryDate.Value);
-				travelTime = distanceCalculator.TimeFromBaseSec(baseVersion, calcOrder.Order.DeliveryPoint);
+				travelTime = distanceCalculator.TimeFromBaseSec(
+					baseVersion.PointCoordinates,
+					calcOrder.Order.DeliveryPoint.PointCoordinates);
 			}
 			else
-				travelTime = distanceCalculator.TimeSec(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[second_index - 1].Order.DeliveryPoint);
+			{
+				travelTime = distanceCalculator.TimeSec(
+					Nodes[first_index - 1].Order.DeliveryPoint.PointCoordinates,
+					Nodes[second_index - 1].Order.DeliveryPoint.PointCoordinates);
+			}
 
-			if (first_index != 0)
+			if(first_index != 0)
+			{
 				serviceTime = Nodes[first_index - 1].Order.CalculateTimeOnPoint(Trip.Forwarder != null);
-			
+			}
+
 			return (long)Trip.Driver.TimeCorrection(serviceTime + travelTime);
 		}
 

@@ -8,6 +8,7 @@ using QS.Navigation;
 using QS.Print;
 using QS.Views.GtkUI;
 using QS.Widgets.GtkUI;
+using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Domain.Logistic.Drivers;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewModels.ViewModels.Logistic;

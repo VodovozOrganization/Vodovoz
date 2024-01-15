@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
-using DriverAPI.DTOs.V4;
-using DriverAPI.Library.DTOs;
-using DriverAPI.Library.Models;
+using EventsApi.Library.Dtos;
+using EventsApi.Library.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
-using Vodovoz.Domain.Logistic.Drivers;
 
 namespace DriverAPI.Controllers.V4
 {
@@ -20,18 +18,15 @@ namespace DriverAPI.Controllers.V4
 	{
 		private readonly ILogger<DriverWarehouseEventsController> _logger;
 		private readonly UserManager<IdentityUser> _userManager;
-		private readonly IEmployeeModel _employeeModel;
-		private readonly IDriverWarehouseEventsModel _driverWarehouseEventsModel;
+		private readonly ILogisticsEventsModel _driverWarehouseEventsModel;
 
 		public DriverWarehouseEventsController(
 			ILogger<DriverWarehouseEventsController> logger,
 			UserManager<IdentityUser> userManager,
-			IEmployeeModel employeeModel,
-			IDriverWarehouseEventsModel driverWarehouseEventsModel)
+			ILogisticsEventsModel driverWarehouseEventsModel)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-			_employeeModel = employeeModel ?? throw new ArgumentNullException(nameof(employeeModel));
 			_driverWarehouseEventsModel = driverWarehouseEventsModel ?? throw new ArgumentNullException(nameof(driverWarehouseEventsModel));
 		}
 		
@@ -67,8 +62,8 @@ namespace DriverAPI.Controllers.V4
 				Request.Headers[HeaderNames.Authorization]);
 
 			var user = await _userManager.GetUserAsync(User);
-			var driver = _employeeModel.GetByAPILogin(user.UserName);
-
+			var driver = _driverWarehouseEventsModel.GetEmployeeProxyByApiLogin(user.UserName);
+			
 			try
 			{
 				var completedEvent = _driverWarehouseEventsModel.CompleteDriverWarehouseEvent(qrData, eventData, driver);
@@ -105,11 +100,11 @@ namespace DriverAPI.Controllers.V4
 				Request.Headers[HeaderNames.Authorization]);
 
 			var user = await _userManager.GetUserAsync(User);
-			var driver = _employeeModel.GetByAPILogin(user.UserName);
+			var driver = _driverWarehouseEventsModel.GetEmployeeProxyByApiLogin(user.UserName);
 			
 			try
 			{
-				return Ok(_driverWarehouseEventsModel.GetTodayCompletedEventsForDriver(driver));
+				return Ok(_driverWarehouseEventsModel.GetTodayCompletedEvents(driver));
 			}
 			catch(Exception e)
 			{

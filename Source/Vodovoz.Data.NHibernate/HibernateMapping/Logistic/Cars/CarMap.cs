@@ -1,4 +1,5 @@
 ﻿using FluentNHibernate.Mapping;
+using Vodovoz.Core.Domain.Schemas.Logistics;
 using Vodovoz.Domain.Logistic.Cars;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Cars
@@ -7,7 +8,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Cars
 	{
 		public CarMap()
 		{
-			Table("cars");
+			Table(CarSchema.TableName);
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
@@ -33,7 +34,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Cars
 			Map(x => x.DocPTSSeries).Column("doc_pts_series");
 			Map(x => x.OrderNumber).Column("car_order_number");
 
-			References(x => x.Driver).Column("driver_id");
+			References(x => x.Driver).Column(CarSchema.DriverIdColumn);
 			References(x => x.FuelType).Column("fuel_type_id");
 			References(x => x.CarModel).Column("model_id");
 

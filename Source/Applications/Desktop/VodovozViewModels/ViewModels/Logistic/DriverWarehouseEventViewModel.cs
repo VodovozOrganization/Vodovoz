@@ -8,6 +8,9 @@ using Vodovoz.Domain.Logistic.Drivers;
 using Autofac;
 using QS.Commands;
 using QS.ViewModels.Extension;
+using Vodovoz.Core.Data.NHibernate.Logistics;
+using Vodovoz.Core.Domain.Interfaces.Logistics;
+using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.EntityRepositories.Logistic;
 using VodovozInfrastructure.Services;
 
