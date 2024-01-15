@@ -1,4 +1,4 @@
-using QS.Commands;
+﻿using QS.Commands;
 using QS.Dialog;
 using QS.Report.ViewModels;
 using QS.Services;
@@ -208,6 +208,15 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport
 					_commonServices.InteractiveService.ShowMessage(
 						ImportanceLevel.Error,
 						"Не установлена дата");
+
+					return false;
+				}
+
+				if(DateInOneDayReport.Value > DateTime.Today)
+				{
+					_commonServices.InteractiveService.ShowMessage(
+						ImportanceLevel.Error,
+						"Нельзя устанавливать дату более текущей");
 
 					return false;
 				}
