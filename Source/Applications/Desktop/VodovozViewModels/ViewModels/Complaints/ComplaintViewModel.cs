@@ -39,6 +39,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Complaints;
 using Vodovoz.ViewModels.ViewModels.Employees;
+using Vodovoz.Journals.JournalNodes;
 
 namespace Vodovoz.ViewModels.Complaints
 {
@@ -467,13 +468,15 @@ namespace Vodovoz.ViewModels.Complaints
 						});
 
 					page.ViewModel.SelectionMode = JournalSelectionMode.Single;
-					page.ViewModel.OnEntitySelectedResult += (sender, e) =>
+					page.ViewModel.OnSelectResult += (sender, e) =>
 					{
-						var selectedNode = e.SelectedNodes.FirstOrDefault();
-						if(selectedNode == null)
+						var selectedObject = e.SelectedObjects.FirstOrDefault();
+
+						if(!(selectedObject is FineJournalNode selectedNode))
 						{
 							return;
 						}
+
 						Entity.AddFine(UoW.GetById<Fine>(selectedNode.Id));
 					};
 				},
