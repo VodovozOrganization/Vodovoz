@@ -89,7 +89,7 @@ namespace Vodovoz
 		#endregion
 
 		public OrderReturnsView(
-			IUnitOfWork uow,
+			IUnitOfWork unitOfWork,
 			IOrderDiscountsController orderDiscountsController,
 			ICallTaskWorker callTaskWorker,
 			ICounterpartyService counterpartyService,
@@ -123,7 +123,7 @@ namespace Vodovoz
 
 			Build();
 
-			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
+			UoW = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 			_discountsController = orderDiscountsController ?? throw new ArgumentNullException(nameof(orderDiscountsController));
 			CallTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			_counterpartyService = counterpartyService ?? throw new ArgumentNullException(nameof(counterpartyService));
@@ -184,20 +184,22 @@ namespace Vodovoz
 
 		private void OpenSelectNomenclatureDlg()
 		{
-			var nomenclatureFilter = new NomenclatureFilterViewModel();
-			nomenclatureFilter.SetAndRefilterAtOnce(
-				x => x.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder(),
-				x => x.SelectCategory = NomenclatureCategory.deposit,
-				x => x.SelectSaleCategory = SaleCategory.forSale,
-				x => x.RestrictArchive = false
-			);
-
-			var journalViewModel = Startup.MainWin.NavigationManager.OpenViewModelOnTdi<NomenclaturesJournalViewModel>(this, OpenPageOptions.AsSlave).ViewModel;
-
-			journalViewModel.SelectionMode = JournalSelectionMode.Single;
-			journalViewModel.TabName = "Номенклатура на продажу";
-			journalViewModel.CalculateQuantityOnStock = true;
-			journalViewModel.OnEntitySelectedResult += OnNomenclatureSelected;
+			var journalViewModel = (_navigationManager as ITdiCompatibilityNavigation)
+				.OpenViewModelOnTdi<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(this, filter =>
+			{
+				filter.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder();
+				filter.SelectCategory = NomenclatureCategory.deposit;
+				filter.SelectSaleCategory = SaleCategory.forSale;
+				filter.RestrictArchive = false;
+			},
+			OpenPageOptions.AsSlave,
+			viewModel =>
+			{
+				viewModel.SelectionMode = JournalSelectionMode.Single;
+				viewModel.TabName = "Номенклатура на продажу";
+				viewModel.CalculateQuantityOnStock = true;
+				viewModel.OnEntitySelectedResult += OnNomenclatureSelected;
+			});
 		}
 
 		private void OnNomenclatureSelected(object sender, JournalSelectedNodesEventArgs e)
@@ -698,10 +700,17 @@ namespace Vodovoz
 
 		public bool CanClose()
 		{
+			var hasReceipts = _orderRepository.OrderHasSentReceipt(UoW, _routeListItem.Order.Id);
+
+			var ignoreReciepts = hasReceipts
+				&& _canEditOrderAfterRecieptCreated
+				&& _interactiveService.Question("По данному заказу сформирован кассовый чек. Если внесете изменения, то вам нужно будет сообщить в бухгалтерию о чеке и на склад о пересорте. Продолжить?");
+
 			var validationContext = new ValidationContext(_routeListItem.Order, null, new Dictionary<object, object>
 			{
 				{"NewStatus", OrderStatus.Closed},
-				{"AddressStatus", _routeListItem.Status}
+				{"AddressStatus", _routeListItem.Status},
+				{"IgnoreReciepts", ignoreReciepts }
 			});
 
 			validationContext.ServiceContainer.AddService(_orderParametersProvider);

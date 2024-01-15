@@ -1,4 +1,4 @@
-using fyiReporting.RDL;
+﻿using fyiReporting.RDL;
 using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Exceptions;
@@ -1604,7 +1604,8 @@ namespace Vodovoz.Domain.Orders
 
 			var hasReceipts = _orderRepository.OrderHasSentReceipt(UoW, Id);
 
-			if(hasReceipts)
+			if(!((bool?)validationContext.Items["IgnoreReciepts"] ?? false)
+				&& hasReceipts)
 			{
 				var incorrectReceiptItems = new List<string>();
 
