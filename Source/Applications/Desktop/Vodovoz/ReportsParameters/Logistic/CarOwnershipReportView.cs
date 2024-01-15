@@ -46,12 +46,6 @@ namespace Vodovoz.ReportsParameters.Logistic
 				.AddBinding(vm => vm.EndDateInPeriodReport, w => w.EndDateOrNull)
 				.InitializeFromSource();
 
-			yenumcomboboxStep.Binding
-				.AddSource(ViewModel)
-				.AddBinding(vm => vm.PeriodReportModes, w => w.ItemsEnum)
-				.AddBinding(vm => vm.SelectedPeriodReportMode, w => w.SelectedItem)
-				.InitializeFromSource();
-
 			yhboxDateSettings.Binding
 				.AddBinding(ViewModel, vm => vm.IsOneDayReportSelected, w => w.Sensitive)
 				.InitializeFromSource();

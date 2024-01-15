@@ -5,7 +5,6 @@ using QS.Services;
 using QS.Utilities.Enums;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Extensions;
@@ -24,7 +23,6 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport
 		private DateTime? _dateInOneDayReport;
 		private DateTime? _startDateInPeriodReport;
 		private DateTime? _endDateInPeriodReport;
-		private CarOwnershipReportPeriodMode _selectedPeriodReportMode;
 
 		private const string _oneDayReportIdentifier = "Logistic.CarOwnershipOneDayReport";
 		private const string _periodReportIdentifier = "Logistic.CarOwnershipPeriodReport";
@@ -39,11 +37,11 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport
 
 			_selectedCarTypesOfUse = EnumHelper.GetValuesList<CarTypeOfUse>();
 			_selectedCarOwnTypes = EnumHelper.GetValuesList<CarOwnType>();
-			
-			PeriodReportModes = typeof(CarOwnershipReportPeriodMode);
+
 			GenerateReportCommand = new DelegateCommand(SetReportParametersAndLoadReport);
 
 			IsOneDayReportSelected = true;
+
 			IsUserHasAccessToCarOwnershipReport = 
 				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Car.HasAccessToCarOwnershipReport);
 		}
@@ -110,12 +108,6 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport
 			set => SetField(ref _endDateInPeriodReport, value);
 		}
 
-		public CarOwnershipReportPeriodMode SelectedPeriodReportMode
-		{
-			get => _selectedPeriodReportMode;
-			set => SetField(ref _selectedPeriodReportMode, value);
-		}
-
 		#endregion Properties
 
 		private void SetReportParametersAndLoadReport()
@@ -146,7 +138,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport
 			_parameters = new Dictionary<string, object>
 			{
 				{ "car_type_of_use", SelectedCarTypesOfUse.ToArray() },
-				{ "car_own_type", SelectedCarOwnTypes.ToArray() }
+				{ "car_own_type", SelectedCarOwnTypes.ToArray() },
+				{ "filters_text", filtersText }
 			};
 
 			if(IsOneDayReportSelected)
@@ -154,7 +147,6 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport
 				Identifier = _oneDayReportIdentifier;
 
 				_parameters.Add("date", DateInOneDayReport.Value.Date);
-				_parameters.Add("filters_text", filtersText);
 
 				return true;
 			}
@@ -163,11 +155,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport
 			{
 				Identifier = _periodReportIdentifier;
 
-				filtersText += $"\nШаг: {SelectedPeriodReportMode.GetEnumDisplayName()}";
-
 				_parameters.Add("start_date", StartDateInPeriodReport.Value.Date);
 				_parameters.Add("end_date", EndDateInPeriodReport.Value.Date);
-				_parameters.Add("filters_text", filtersText);
 
 				return true;
 			}
@@ -239,14 +228,6 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport
 			}
 
 			return true;
-		}
-
-		public enum CarOwnershipReportPeriodMode
-		{
-			[Display(Name = "Месяц")]
-			Month,
-			[Display(Name = "Год")]
-			Year
 		}
 	}
 }
