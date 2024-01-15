@@ -1,4 +1,4 @@
-﻿using QS.Commands;
+using QS.Commands;
 using QS.Dialog;
 using QS.Report.ViewModels;
 using QS.Services;
@@ -142,8 +142,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport
 
 			_parameters = new Dictionary<string, object>
 			{
-				{ "car_type_of_use", selectedCarTypeOfUse },
-				{ "car_own_type", selectedCarOwnType }
+				{ "car_type_of_use", SelectedCarTypesOfUse.ToArray() },
+				{ "car_own_type", SelectedCarOwnTypes.ToArray() }
 			};
 
 			if(IsOneDayReportSelected)
