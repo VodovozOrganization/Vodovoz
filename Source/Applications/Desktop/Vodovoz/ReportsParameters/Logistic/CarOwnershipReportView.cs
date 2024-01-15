@@ -15,6 +15,8 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		private void Initialize()
 		{
+			yvboxMain.Sensitive = ViewModel.IsUserHasAccessToCarOwnershipReport;
+
 			enumcheckCarTypeOfUse.EnumType = typeof(CarTypeOfUse);
 			enumcheckCarTypeOfUse.Binding
 				.AddBinding(ViewModel, vm => vm.SelectedCarTypesOfUse, w => w.SelectedValuesList, new EnumsListConverter<CarTypeOfUse>())

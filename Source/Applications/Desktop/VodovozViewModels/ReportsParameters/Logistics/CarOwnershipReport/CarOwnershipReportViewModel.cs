@@ -44,12 +44,15 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport
 			GenerateReportCommand = new DelegateCommand(SetReportParametersAndLoadReport);
 
 			IsOneDayReportSelected = true;
+			IsUserHasAccessToCarOwnershipReport = 
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Car.HasAccessToCarOwnershipReport);
 		}
 
 		#region Properties
 		protected override Dictionary<string, object> Parameters => _parameters;
 		public DelegateCommand GenerateReportCommand { get; }
 		public Type PeriodReportModes { get; }
+		public bool IsUserHasAccessToCarOwnershipReport { get; }
 
 		public IEnumerable<CarTypeOfUse> SelectedCarTypesOfUse
 		{
