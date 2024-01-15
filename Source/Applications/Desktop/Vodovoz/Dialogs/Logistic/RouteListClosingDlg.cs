@@ -54,6 +54,11 @@ using QS.Navigation;
 using Vodovoz.ViewModels.Employees;
 using Microsoft.Extensions.Logging;
 using Vodovoz.ViewModels.Logistic;
+using QS.Services;
+using QS.Dialog;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.DiscountReasons;
 
 namespace Vodovoz
 {
@@ -84,6 +89,7 @@ namespace Vodovoz
 		private IValidationContextFactory _validationContextFactory;
 		private IRouteListProfitabilityController _routeListProfitabilityController;
 		private IRouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController;
+		private IOrderDiscountsController _orderDiscountsController;
 		private IWageParameterService _wageParameterService;
 		private IPaymentFromBankClientController _paymentFromBankClientController;
 		private IEmployeeNomenclatureMovementRepository _employeeNomenclatureMovementRepository;
@@ -147,6 +153,15 @@ namespace Vodovoz
 
 			_logger = _lifetimeScope.Resolve<ILogger<RouteListClosingDlg>>();
 
+			_currentPermissionService = _lifetimeScope.Resolve<ICurrentPermissionService>();
+			_counterpartyService = _lifetimeScope.Resolve<ICounterpartyService>();
+			_interactiveService = _lifetimeScope.Resolve<IInteractiveService>();
+			_employeeService = _lifetimeScope.Resolve<IEmployeeService>();
+			_userRepository = _lifetimeScope.Resolve<IUserRepository>();
+			_orderRepository = _lifetimeScope.Resolve<IOrderRepository>();
+			_discountReasonRepository = _lifetimeScope.Resolve<IDiscountReasonRepository>();
+			_nomenclatureOnlineParametersProvider = _lifetimeScope.Resolve<INomenclatureOnlineParametersProvider>();
+
 			_parametersProvider = _lifetimeScope.Resolve<IParametersProvider>();
 			_orderParametersProvider = _lifetimeScope.Resolve<IOrderParametersProvider>();
 			_deliveryRulesParametersProvider = _lifetimeScope.Resolve<IDeliveryRulesParametersProvider>();
@@ -167,6 +182,8 @@ namespace Vodovoz
 			_validationContextFactory = _lifetimeScope.Resolve<IValidationContextFactory>();
 			_routeListProfitabilityController = _lifetimeScope.Resolve<IRouteListProfitabilityController>();
 			_routeListAddressKeepingDocumentController = _lifetimeScope.Resolve<IRouteListAddressKeepingDocumentController>();
+			_orderDiscountsController = _lifetimeScope.Resolve<IOrderDiscountsController>();
+
 			_wageParameterService = _lifetimeScope.Resolve<IWageParameterService>();
 			_paymentFromBankClientController = _lifetimeScope.Resolve<IPaymentFromBankClientController>();
 			_employeeNomenclatureMovementRepository = _lifetimeScope.Resolve<IEmployeeNomenclatureMovementRepository>();
@@ -697,7 +714,25 @@ namespace Vodovoz
 		void OnRouteListItemActivated(object sender, RowActivatedArgs args)
 		{
 			var node = routeListAddressesView.GetSelectedRouteListItem();
-			var dlg = new OrderReturnsView(node, UoW);
+			var dlg = new OrderReturnsView(
+				UoW,
+				_orderDiscountsController,
+				CallTaskWorker,
+				_counterpartyService,
+				_currentPermissionService,
+				_interactiveService,
+				_employeeService,
+				_userRepository,
+				_orderRepository,
+				_discountReasonRepository,
+				_wageParameterService,
+				_parametersProvider,
+				_orderParametersProvider,
+				_nomenclatureOnlineParametersProvider,
+				_deliveryRulesParametersProvider,
+				NavigationManager,
+				_lifetimeScope);
+			dlg.ConfigureForRouteListAddress(node);
 			dlg.TabClosed += OnOrderReturnsViewTabClosed;
 			TabParent.AddSlaveTab(this, dlg);
 		}
@@ -788,6 +823,15 @@ namespace Vodovoz
 		/// Не использовать это поле напрямую, используйте свойство DefaultBottle
 		/// </summary>
 		Nomenclature defaultBottle;
+		private ICounterpartyService _counterpartyService;
+		private ICurrentPermissionService _currentPermissionService;
+		private IInteractiveService _interactiveService;
+		private IEmployeeService _employeeService;
+		private IUserRepository _userRepository;
+		private IOrderRepository _orderRepository;
+		private IDiscountReasonRepository _discountReasonRepository;
+		private INomenclatureOnlineParametersProvider _nomenclatureOnlineParametersProvider;
+
 		Nomenclature DefaultBottle {
 			get {
 				if(defaultBottle == null) {
