@@ -151,5 +151,11 @@ namespace Vodovoz.FilterViewModels.Employees
 			get => _author;
 			set => UpdateFilterField(ref _author, value);
 		}
+
+		public override void Dispose()
+		{
+			_journalViewModel = null;
+			base.Dispose();
+		}
 	}
 }

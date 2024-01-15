@@ -53,7 +53,7 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 
 			if(filterConfig != null)
 			{
-				filterViewModel.SetAndRefilterAtOnce(filterConfig);
+				filterViewModel.ConfigureWithoutFiltering(filterConfig);
 			}
 
 			TabName = $"Журнал {typeof(Fine).GetClassUserFriendlyName().GenitivePlural}";
