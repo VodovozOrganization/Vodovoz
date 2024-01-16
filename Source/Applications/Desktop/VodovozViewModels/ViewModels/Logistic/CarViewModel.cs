@@ -75,9 +75,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				Vodovoz.Permissions.Logistic.Car.CanChangeCarsBottlesFromAddress,
 				commonServices.UserService.CurrentUserId);
 
-			CanEditCarModel = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(CarModel)).CanUpdate;
-			CanChangeCarModel = Entity.Id == 0 || commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Car.CanChangeCarModel);
-			CanEditFuelCardNumber = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Car.CanChangeFuelCardNumber);
+			CanChangeCarModel =
+				Entity.Id == 0 || commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Car.CanChangeCarModel);
+			CanEditFuelCardNumber =
+				commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Car.CanChangeFuelCardNumber);
 
 			CarModelViewModel = new CommonEEVMBuilderFactory<Car>(this, Entity, UoW, NavigationManager, LifetimeScope)
 				.ForProperty(x => x.CarModel)
@@ -129,7 +130,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			set => SetField(ref _attachmentsViewModel, value);
 		}
 
-		public bool CanEditCarModel { get; }
 		public bool CanChangeCarModel { get; }
 		public bool CanEditFuelCardNumber { get; }
 
