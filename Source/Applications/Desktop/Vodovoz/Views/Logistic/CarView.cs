@@ -65,6 +65,14 @@ namespace Vodovoz.Views.Logistic
 			attachmentsView.ViewModel = ViewModel.AttachmentsViewModel;
 
 			checkIsArchive.Binding.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
+
+			ylabelArchivingDate.Binding.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Visible).InitializeFromSource();
+
+			datepickerArchivingDate.Binding
+				.AddSource(ViewModel.Entity)
+				.AddBinding(e => e.ArchivingDate, w => w.DateOrNull)
+				.AddBinding(e => e.IsArchive, w => w.Visible)
+				.InitializeFromSource();
 			
 			textDriverInfo.Selectable = true;
 
