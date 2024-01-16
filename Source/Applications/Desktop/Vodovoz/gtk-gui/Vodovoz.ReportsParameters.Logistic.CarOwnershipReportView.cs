@@ -195,7 +195,6 @@ namespace Vodovoz.ReportsParameters.Logistic
 			this.ytablePeriodSettings = new global::Gamma.GtkWidgets.yTable();
 			this.ytablePeriodSettings.Sensitive = false;
 			this.ytablePeriodSettings.Name = "ytablePeriodSettings";
-			this.ytablePeriodSettings.NRows = ((uint)(2));
 			this.ytablePeriodSettings.NColumns = ((uint)(2));
 			this.ytablePeriodSettings.RowSpacing = ((uint)(6));
 			this.ytablePeriodSettings.ColumnSpacing = ((uint)(6));
@@ -222,9 +221,13 @@ namespace Vodovoz.ReportsParameters.Logistic
 			this.yvboxPeriod.Add(this.ytablePeriodSettings);
 			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.yvboxPeriod[this.ytablePeriodSettings]));
 			w21.Position = 1;
+			w21.Expand = false;
+			w21.Fill = false;
 			this.yvboxMain.Add(this.yvboxPeriod);
 			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yvboxPeriod]));
 			w22.Position = 3;
+			w22.Expand = false;
+			w22.Fill = false;
 			// Container child yvboxMain.Gtk.Box+BoxChild
 			this.ybuttonCreateReport = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonCreateReport.CanFocus = true;
