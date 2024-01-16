@@ -59,6 +59,7 @@ using QS.Dialog;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.DiscountReasons;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz
 {
@@ -119,6 +120,8 @@ namespace Vodovoz
 
 		private Dictionary<int, HashSet<RouteListAddressKeepingDocumentItem>> _addressKeepingDocumentBottlesCacheList =
 			new Dictionary<int, HashSet<RouteListAddressKeepingDocumentItem>>();
+
+		private List<int> _ignoreReceiptsForOrderIds = new List<int>();
 
 		public virtual ICallTaskWorker CallTaskWorker { get; private set; }
 
@@ -739,6 +742,24 @@ namespace Vodovoz
 
 		private void OnOrderReturnsViewTabClosed(object sender, EventArgs e)
 		{
+			if(sender is OrderReturnsView orderReturnsView)
+			{
+				if(orderReturnsView.IgnoreReceipt)
+				{
+					if(orderReturnsView.OrderId.HasValue && !_ignoreReceiptsForOrderIds.Contains(orderReturnsView.OrderId.Value))
+					{
+						_ignoreReceiptsForOrderIds.Add(orderReturnsView.OrderId.Value);
+					}
+				}
+				else
+				{
+					if(orderReturnsView.OrderId.HasValue && _ignoreReceiptsForOrderIds.Contains(orderReturnsView.OrderId.Value))
+					{
+						_ignoreReceiptsForOrderIds.Remove(orderReturnsView.OrderId.Value);
+					}
+				}
+			}
+
 			var node = routeListAddressesView.GetSelectedRouteListItem();
 
 			if(!_addressKeepingDocumentItemsCacheList.ContainsKey(node.Id))
@@ -978,11 +999,13 @@ namespace Vodovoz
 			{
 				return false;
 			}
+
 			var contextItems = new Dictionary<object, object>
-				{
-					{nameof(IRouteListItemRepository), _routeListItemRepository},
-					{nameof(DriverTerminalCondition), _needToSelectTerminalCondition && Entity.Status == RouteListStatus.Closed}
-				};
+			{
+				{nameof(IRouteListItemRepository), _routeListItemRepository},
+				{nameof(DriverTerminalCondition), _needToSelectTerminalCondition && Entity.Status == RouteListStatus.Closed}
+			};
+
 			var context = new ValidationContext(Entity, null, contextItems);
 			var validator = new ObjectValidator(new GtkValidationViewFactory());
 
@@ -1032,8 +1055,10 @@ namespace Vodovoz
 			string orderIds = "";
 			byte ordersCounter = 0;
 			ValidationContext validationContext;
+
 			foreach(var item in Entity.Addresses) {
 				validationContext = new ValidationContext(item.Order);
+				validationContext.Items.Add(Order.ValidationKeyIgnoreReceipts, _ignoreReceiptsForOrderIds.Contains(item.Order.Id));
 				validationContext.ServiceContainer.AddService(_orderParametersProvider);
 				validationContext.ServiceContainer.AddService(_deliveryRulesParametersProvider);
 				if(!ServicesConfig.ValidationService.Validate(item.Order, validationContext))

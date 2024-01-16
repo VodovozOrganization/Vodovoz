@@ -141,6 +141,12 @@ namespace Vodovoz
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 		}
 
+		public bool CanFormOrderWithLiquidatedCounterparty { get; }
+
+		public bool IgnoreReceipt { get; private set; } = false;
+
+		public int? OrderId => _routeListItem?.Order?.Id;
+
 		public void ConfigureForRouteListAddress(RouteListItem routeListItem)
 		{
 			_routeListItem = routeListItem ?? throw new ArgumentNullException(nameof(routeListItem));
@@ -156,8 +162,6 @@ namespace Vodovoz
 			UpdateItemsList();
 			UpdateButtonsState();
 		}
-
-		public bool CanFormOrderWithLiquidatedCounterparty { get; }
 
 		private void UpdateListsSentivity()
 		{
@@ -702,15 +706,15 @@ namespace Vodovoz
 		{
 			var hasReceipts = _orderRepository.OrderHasSentReceipt(UoW, _routeListItem.Order.Id);
 
-			var ignoreReciepts = hasReceipts
+			IgnoreReceipt = hasReceipts
 				&& _canEditOrderAfterRecieptCreated
 				&& _interactiveService.Question("По данному заказу сформирован кассовый чек. Если внесете изменения, то вам нужно будет сообщить в бухгалтерию о чеке и на склад о пересорте. Продолжить?");
 
 			var validationContext = new ValidationContext(_routeListItem.Order, null, new Dictionary<object, object>
 			{
-				{"NewStatus", OrderStatus.Closed},
-				{"AddressStatus", _routeListItem.Status},
-				{"IgnoreReciepts", ignoreReciepts }
+				{ "NewStatus", OrderStatus.Closed },
+				{ "AddressStatus", _routeListItem.Status },
+				{ Order.ValidationKeyIgnoreReceipts, IgnoreReceipt }
 			});
 
 			validationContext.ServiceContainer.AddService(_orderParametersProvider);

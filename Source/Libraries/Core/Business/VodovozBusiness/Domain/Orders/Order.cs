@@ -1604,7 +1604,9 @@ namespace Vodovoz.Domain.Orders
 
 			var hasReceipts = _orderRepository.OrderHasSentReceipt(UoW, Id);
 
-			if(!((bool?)validationContext.Items["IgnoreReciepts"] ?? false)
+			validationContext.Items.TryGetValue(ValidationKeyIgnoreReceipts, out var ignoreReceipts);
+
+			if(!((bool?)ignoreReceipts ?? false)
 				&& hasReceipts)
 			{
 				var incorrectReceiptItems = new List<string>();
@@ -1767,7 +1769,9 @@ namespace Vodovoz.Domain.Orders
 			return incorrectReceiptItems;
 		}
 
-		#endregion
+		public static string ValidationKeyIgnoreReceipts => nameof(ValidationKeyIgnoreReceipts);
+
+		#endregion IValidatableObject implementation
 
 		#region Вычисляемые
 
