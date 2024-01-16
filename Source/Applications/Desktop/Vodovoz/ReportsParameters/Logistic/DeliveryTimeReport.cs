@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
@@ -139,18 +138,6 @@ namespace Vodovoz.ReportsParameters.Logistic
 			public bool IsSelected { get; set; }
 			public GeoGroup GeographicGroup { get; set; }
 			public RouteListTypeOfUse RouteListTypeOfUse { get; set; }
-		}
-
-		private enum RouteListTypeOfUse
-		{
-			[Display(Name = "Доставка")]
-			Delivery,
-			[Display(Name = "СЦ")]
-			ServiceCenter,
-			[Display(Name = "Фуры")]
-			CompanyTrucks,
-			[Display(Name = "Складская логистика")]
-			StorageLogistics
 		}
 	}
 }
