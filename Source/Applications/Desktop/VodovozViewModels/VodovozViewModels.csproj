@@ -113,6 +113,7 @@
     <Compile Include="Dialogs\Sale\GeoGroupVersionViewModel.cs" />
     <Compile Include="Dialogs\Sale\GeoGroupViewModel.cs" />
     <Compile Include="Extensions\DeliveryPointExtensions.cs" />
+    <Compile Include="Dialogs\DialogSettingsFactory.cs" />
     <Compile Include="Extensions\EntityTabViewModelBaseExtensions.cs" />
     <Compile Include="Factories\IIncludeExcludeSalesFilterFactory.cs" />
     <Compile Include="Factories\ILeftRightListViewModelFactory.cs" />
@@ -597,6 +598,7 @@
     <Compile Include="ViewModels\Reports\BulkEmailEventReport\BulkEmailEventReportRow.cs" />
     <Compile Include="ViewModels\Reports\BulkEmailEventReport\BulkEmailEventReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\ComplaintsJournalReport\ComplaintClassificationSummaryReport.cs" />
+    <Compile Include="ViewModels\Reports\ComplaintsJournalReport\ComplaintClassificationSummaryReport.ReportNode.cs" />
     <Compile Include="ViewModels\Reports\ComplaintsJournalReport\ComplaintsJournalReport.cs" />
     <Compile Include="ViewModels\Reports\ComplaintsJournalReport\ComplaintWithDepartmentsReactionJournalReport.cs" />
     <Compile Include="ViewModels\Reports\Counterparty\CounterpartyRevenueServiceReport.cs" />
