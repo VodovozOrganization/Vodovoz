@@ -40,11 +40,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		private global::QS.Widgets.GtkUI.DateRangePicker daterangepickerPeriod;
 
-		private global::Gamma.Widgets.yEnumComboBox yenumcomboboxStep;
-
 		private global::Gamma.GtkWidgets.yLabel ylabelPeriod;
-
-		private global::Gamma.GtkWidgets.yLabel ylabelStep;
 
 		private global::Gamma.GtkWidgets.yButton ybuttonCreateReport;
 
@@ -213,53 +209,22 @@ namespace Vodovoz.ReportsParameters.Logistic
 			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.ytablePeriodSettings[this.daterangepickerPeriod]));
 			w19.LeftAttach = ((uint)(1));
 			w19.RightAttach = ((uint)(2));
-			w19.XOptions = ((global::Gtk.AttachOptions)(4));
 			w19.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child ytablePeriodSettings.Gtk.Table+TableChild
-			this.yenumcomboboxStep = new global::Gamma.Widgets.yEnumComboBox();
-			this.yenumcomboboxStep.Name = "yenumcomboboxStep";
-			this.yenumcomboboxStep.ShowSpecialStateAll = false;
-			this.yenumcomboboxStep.ShowSpecialStateNot = false;
-			this.yenumcomboboxStep.UseShortTitle = false;
-			this.yenumcomboboxStep.DefaultFirst = false;
-			this.ytablePeriodSettings.Add(this.yenumcomboboxStep);
-			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.ytablePeriodSettings[this.yenumcomboboxStep]));
-			w20.TopAttach = ((uint)(1));
-			w20.BottomAttach = ((uint)(2));
-			w20.LeftAttach = ((uint)(1));
-			w20.RightAttach = ((uint)(2));
-			w20.XOptions = ((global::Gtk.AttachOptions)(4));
-			w20.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytablePeriodSettings.Gtk.Table+TableChild
 			this.ylabelPeriod = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelPeriod.Name = "ylabelPeriod";
 			this.ylabelPeriod.Xalign = 1F;
 			this.ylabelPeriod.LabelProp = global::Mono.Unix.Catalog.GetString("Период:");
 			this.ytablePeriodSettings.Add(this.ylabelPeriod);
-			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.ytablePeriodSettings[this.ylabelPeriod]));
-			w21.XOptions = ((global::Gtk.AttachOptions)(4));
-			w21.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child ytablePeriodSettings.Gtk.Table+TableChild
-			this.ylabelStep = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelStep.Name = "ylabelStep";
-			this.ylabelStep.Xalign = 1F;
-			this.ylabelStep.LabelProp = global::Mono.Unix.Catalog.GetString("Шаг:");
-			this.ytablePeriodSettings.Add(this.ylabelStep);
-			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.ytablePeriodSettings[this.ylabelStep]));
-			w22.TopAttach = ((uint)(1));
-			w22.BottomAttach = ((uint)(2));
-			w22.XOptions = ((global::Gtk.AttachOptions)(4));
-			w22.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.ytablePeriodSettings[this.ylabelPeriod]));
+			w20.XOptions = ((global::Gtk.AttachOptions)(4));
+			w20.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.yvboxPeriod.Add(this.ytablePeriodSettings);
-			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.yvboxPeriod[this.ytablePeriodSettings]));
-			w23.Position = 1;
-			w23.Expand = false;
-			w23.Fill = false;
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.yvboxPeriod[this.ytablePeriodSettings]));
+			w21.Position = 1;
 			this.yvboxMain.Add(this.yvboxPeriod);
-			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yvboxPeriod]));
-			w24.Position = 3;
-			w24.Expand = false;
-			w24.Fill = false;
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yvboxPeriod]));
+			w22.Position = 3;
 			// Container child yvboxMain.Gtk.Box+BoxChild
 			this.ybuttonCreateReport = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonCreateReport.CanFocus = true;
@@ -267,10 +232,10 @@ namespace Vodovoz.ReportsParameters.Logistic
 			this.ybuttonCreateReport.UseUnderline = true;
 			this.ybuttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.yvboxMain.Add(this.ybuttonCreateReport);
-			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.ybuttonCreateReport]));
-			w25.Position = 4;
-			w25.Expand = false;
-			w25.Fill = false;
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.ybuttonCreateReport]));
+			w23.Position = 4;
+			w23.Expand = false;
+			w23.Fill = false;
 			this.Add(this.yvboxMain);
 			if ((this.Child != null))
 			{
