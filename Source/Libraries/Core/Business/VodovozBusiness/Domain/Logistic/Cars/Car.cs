@@ -68,20 +68,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 		public virtual bool IsArchive
 		{
 			get => _isArchive;
-			set
-			{
-				if(SetField(ref _isArchive, value))
-				{
-					if(_isArchive)
-					{
-						ArchivingDate = DateTime.Now;
-					}
-					else
-					{
-						ArchivingDate = null;
-					}					
-				}
-			}
+			set => SetField(ref _isArchive, value);
 		}
 
 		[Display(Name ="Дата архивации")]
