@@ -99,11 +99,6 @@ namespace Vodovoz.ViewModels.Payments
 			{
 				IsAllocationState = true;
 
-				if(_unitOfWork.Session.GetCurrentTransaction() is null)
-				{
-					_unitOfWork.Session.BeginTransaction();
-				}
-
 				var distributionResult = AllocateByCounterpartyAndOrg(_selectedUnallocatedBalancesNode);
 				IsAllocationState = false;
 
@@ -118,8 +113,6 @@ namespace Vodovoz.ViewModels.Payments
 					},
 					errors =>
 					{
-						_unitOfWork.Session.GetCurrentTransaction()?.Rollback();
-
 						_interactiveService.ShowMessage(
 							ImportanceLevel.Error,
 							errors.First().Message);

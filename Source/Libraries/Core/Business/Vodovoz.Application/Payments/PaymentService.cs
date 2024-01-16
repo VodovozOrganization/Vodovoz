@@ -157,7 +157,7 @@ namespace Vodovoz.Application.Payments
 						payment.Status = PaymentState.completed;
 					}
 
-					unitOfWork.Session.Flush();
+					unitOfWork.Save(payment);
 				}
 				catch(Exception e)
 				{
