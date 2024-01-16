@@ -32,10 +32,13 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			List<int> ordersIds,
 			IEdoService edoService) :  base(uowBuilder, uowFactory, commonServices)
 		{
+			_edoService = edoService ?? throw new ArgumentNullException(nameof(edoService));
+
 			Title = $"Повторная отправка неотправленных УПД контрагента {Entity.Name}";
 
+			CanResendSelectedEdoDocuments = CommonServices.CurrentPermissionService.ValidatePresetPermission("can_resend_upd_documents");
+
 			GetLastUpdByOrderIds(ordersIds);
-			_edoService = edoService ?? throw new ArgumentNullException(nameof(edoService));
 		}
 
 		public event EventHandler EdoContainerNodesListChanged;
@@ -93,7 +96,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			}
 		}
 
-		public bool CanResendSelectedEdoDocuments => CommonServices.CurrentPermissionService.ValidatePresetPermission("can_resend_upd_documents");
+		public bool CanResendSelectedEdoDocuments { get; }
 
 		private void ResendSelectedEdoDocuments()
 		{

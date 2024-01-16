@@ -38,7 +38,6 @@ namespace TaxcomEdoApi.Services
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IParametersProvider _parametersProvider;
 		private readonly IOrderRepository _orderRepository;
-		private readonly IGenericRepository<EdoContainer> _edoContainersRepository;
 		private readonly IOrganizationRepository _organizationRepository;
 		private readonly IOrganizationParametersProvider _organizationParametersProvider;
 		private readonly IConfigurationSection _apiSection;
@@ -79,7 +78,6 @@ namespace TaxcomEdoApi.Services
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-			_edoContainersRepository = edoContainersRepository ?? throw new ArgumentNullException(nameof(edoContainersRepository));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_organizationParametersProvider = organizationParametersProvider ?? throw new ArgumentNullException(nameof(organizationParametersProvider));
 			_edoUpdFactory = edoUpdFactory ?? throw new ArgumentNullException(nameof(edoUpdFactory));
@@ -115,8 +113,8 @@ namespace TaxcomEdoApi.Services
 				{
 					_taxcomEdoApiHealthCheck.IsHealthy = await CreateAndSendUpd(uow, startDate);
 					await CreateAndSendBills(uow);
-					//await ProcessOutgoingDocuments(uow);
-					//await ProcessIngoingDocuments(uow);
+					await ProcessOutgoingDocuments(uow);
+					await ProcessIngoingDocuments(uow);
 				}
 			}
 		}
