@@ -110,17 +110,19 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.ComplaintsJournalReport
 
 		private IEnumerable<ReportNode> GenerateRows(IList<ComplaintJournalNode> journalNodes)
 		{
-			var reportRows = journalNodes.GroupBy(jn => new { jn.ComplaintObjectString, jn.ComplaintKindString, jn.ComplaintDetalizationString })
+			var reportRows = journalNodes.GroupBy(jn => new { jn.Guilties, jn.ComplaintObjectString, jn.ComplaintKindString, jn.ComplaintDetalizationString })
 				.Select(gr =>
 					new ReportNode
 					{
-						Guilties = GenerateGuilties(gr.Select(item => item.Guilties)),
+						Guilties = gr.Key.Guilties?.Replace('\n', '/') ?? "",
 						ComplaintObject = gr.Key.ComplaintObjectString,
 						ComplaintKind = gr.Key.ComplaintKindString,
 						ComplaintDetalization = gr.Key.ComplaintDetalizationString,
 						Amount = gr.Count()
 					})
-				.OrderByDescending(rn => rn.Amount)
+				.OrderBy(row => row.Guilties)
+				.ThenBy(row => row.ComplaintObject)
+				.ThenBy(row => row.ComplaintKind)
 				.ToList();
 
 			for(int i = 0; i < reportRows.Count; i++)
@@ -130,32 +132,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.ComplaintsJournalReport
 
 			return reportRows;
 		}
-
-		private string GenerateGuilties(IEnumerable<string> allGuilties)
-		{
-			var guilties = new List<string>();
-
-			foreach(var guilty in allGuilties)
-			{
-				if(guilty is null)
-				{
-					continue;
-				}
-
-				var splittedGuilties = guilty.Split('\n');
-
-				foreach(var subGuilty in splittedGuilties)
-				{
-					if(!guilties.Contains(subGuilty))
-					{
-						guilties.Add(subGuilty);
-					}
-				}
-			}
-
-			return string.Join("/", guilties);
-		}
-
+		
 		public static ComplaintClassificationSummaryReport Generate(
 			IList<ComplaintJournalNode> journalNodes,
 			ComplaintFilterViewModel complaintFilterViewModel)
