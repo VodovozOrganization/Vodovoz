@@ -120,7 +120,13 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.ComplaintsJournalReport
 						ComplaintDetalization = gr.Key.ComplaintDetalizationString,
 						Amount = gr.Count()
 					})
-				.OrderByDescending(rn => rn.Amount);
+				.OrderByDescending(rn => rn.Amount)
+				.ToList();
+
+			for(int i = 0; i < reportRows.Count; i++)
+			{
+				reportRows[i].Number = i + 1;
+			}
 
 			return reportRows;
 		}
