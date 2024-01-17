@@ -1,4 +1,6 @@
 ﻿using Autofac;
+using ClosedXML.Report;
+using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -8,14 +10,12 @@ using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
-using QS.Project.Services;
 using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.Tdi;
 using System;
 using System.Collections;
 using System.Linq;
-using DateTimeHelpers;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
@@ -31,11 +31,13 @@ using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
+using Vodovoz.ViewModels.Dialogs;
+using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
+using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Reports.ComplaintsJournalReport;
 using static Vodovoz.FilterViewModels.ComplaintFilterViewModel;
 using Order = Vodovoz.Domain.Orders.Order;
-using Vodovoz.ViewModels.Logistic;
 
 namespace Vodovoz.Journals.JournalViewModels
 {
@@ -45,18 +47,15 @@ namespace Vodovoz.Journals.JournalViewModels
 		IChangeComplaintJournal
 	{
 		private readonly IFileDialogService _fileDialogService;
+		private readonly ICommonServices _commonServices;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 		private readonly IGtkTabsOpener _gtkDlgOpener;
 		private readonly IComplaintParametersProvider _complaintParametersProvider;
 		private readonly IGeneralSettingsParametersProvider _generalSettingsParametersProvider;
-		private ILifetimeScope _scope;
-		private string _subdivisionQualityServiceShortName;
-		private string _subdivisionAuditDepartmentShortName;
+		private bool _canCloseComplaint;
 
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
-
-		private bool _canCloseComplaint = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_complaints");
 
 		public PanelViewType[] InfoWidgets => new[] { PanelViewType.ComplaintPanelView };
 
@@ -75,17 +74,16 @@ namespace Vodovoz.Journals.JournalViewModels
 			IUserRepository userRepository,
 			IComplaintParametersProvider complaintParametersProvider,
 			IGeneralSettingsParametersProvider generalSettingsParametersProvider,
-			ILifetimeScope scope,
 			Action<ComplaintFilterViewModel> filterConfig = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
 			_gtkDlgOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
 			_complaintParametersProvider = complaintParametersProvider ?? throw new ArgumentNullException(nameof(complaintParametersProvider));
 			_generalSettingsParametersProvider = generalSettingsParametersProvider ?? throw new ArgumentNullException(nameof(generalSettingsParametersProvider));
-			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 
 			TabName = "Журнал рекламаций";
 
@@ -114,6 +112,8 @@ namespace Vodovoz.Journals.JournalViewModels
 			IUserRepository userRepository,
 			Action<ComplaintFilterViewModel> filterConfig)
 		{
+			_canCloseComplaint = commonServices.CurrentPermissionService.ValidatePresetPermission("can_close_complaints");
+
 			SubdivisionQualityServiceShortName =
 				UoW.GetById<Subdivision>(_subdivisionParametersProvider.QualityServiceSubdivisionId).ShortName ?? "?";
 			SubdivisionAuditDepartmentShortName =
@@ -805,13 +805,16 @@ namespace Vodovoz.Journals.JournalViewModels
 					n => EntityConfigs[typeof(Complaint)].PermissionResult.CanUpdate,
 					n =>
 					{
-						var currentComplaintId = n.OfType<ComplaintJournalNode>().FirstOrDefault()?.Id;
+						var selectedNode = n.OfType<ComplaintJournalNode>().FirstOrDefault();
 
-						if(currentComplaintId.HasValue)
+						if(selectedNode == null)
 						{
-							var currentComplaintVM = ResolveComplaintViewModel(currentComplaintId.Value);
-							currentComplaintVM.AddFineCommand.Execute();
+							return;
 						}
+
+						var currentComplaint = UoW.GetById<Complaint>(selectedNode.Id);
+
+						CreateFineAndAddToComplaint(currentComplaint.Id, currentComplaint.GetFineReason());						
 					}
 				)
 			);
@@ -823,42 +826,46 @@ namespace Vodovoz.Journals.JournalViewModels
 					n => EntityConfigs[typeof(Complaint)].PermissionResult.CanUpdate && _canCloseComplaint,
 					n =>
 					{
-						var currentComplaintId = n.OfType<ComplaintJournalNode>().FirstOrDefault()?.Id;
-						ComplaintViewModel currentComplaintVM = null;
-						
-						if(currentComplaintId.HasValue)
+						var selectedNode = n.OfType<ComplaintJournalNode>().FirstOrDefault();
+
+						if(selectedNode == null)
 						{
-							currentComplaintVM = ResolveComplaintViewModel(currentComplaintId.Value);
+							return;
+						}
+
+						using(var uowLocal = UnitOfWorkFactory.CreateWithoutRoot("Закрытие рекламации"))
+						{
+							var currentComplaint = uowLocal.GetById<Complaint>(selectedNode.Id);
 
 							var interserctedSubdivisionsToInformIds =
 								_generalSettingsParametersProvider.SubdivisionsToInformComplaintHasNoDriver
-									.Intersect(currentComplaintVM.Entity.Guilties.Select(cgi => cgi.Subdivision.Id));
+									.Intersect(currentComplaint.Guilties.Select(cgi => cgi.Subdivision.Id));
 
-							var intersectedSubdivisionsNames = currentComplaintVM.Entity.Guilties
+							var intersectedSubdivisionsNames = currentComplaint.Guilties
 								.Select(g => g.Subdivision)
 								.Where(s => interserctedSubdivisionsToInformIds.Contains(s.Id))
 								.Select(s => s.Name);
 
-							if(currentComplaintVM.Entity.ComplaintResultOfEmployees?.Id ==
-								_complaintParametersProvider.ComplaintResultOfEmployeesIsGuiltyId
+							if(currentComplaint.ComplaintResultOfEmployees?.Id == _complaintParametersProvider.ComplaintResultOfEmployeesIsGuiltyId
 								&& interserctedSubdivisionsToInformIds.Any()
-								&& currentComplaintVM.Entity.Driver is null
-								&& !AskQuestion($"Вы хотите закрыть рекламацию на отдел {string.Join(", ", intersectedSubdivisionsNames)} без указания водителя?",
-								"Вы уверены?"))
+								&& currentComplaint.Driver is null
+								&& !_commonServices.InteractiveService.Question(
+									$"Вы хотите закрыть рекламацию на отдел {string.Join(", ", intersectedSubdivisionsNames)} без указания водителя?", "Вы уверены?"))
 							{
 								return;
 							}
 
-							currentComplaintVM.AddFineCommand.Execute();
-
 							var msg = string.Empty;
-							if(!currentComplaintVM.Entity.Close(ref msg))
+							if(!currentComplaint.Close(ref msg))
 							{
 								ShowWarningMessage(msg, "Не удалось закрыть");
 							}
 							else
 							{
-								currentComplaintVM.Save();
+								CreateFineAndAddToComplaint(currentComplaint.Id, currentComplaint.GetFineReason());
+
+								uowLocal.Save(currentComplaint);
+								uowLocal.Commit();								
 							}
 						}
 					}
@@ -866,11 +873,26 @@ namespace Vodovoz.Journals.JournalViewModels
 			);
 		}
 
-		private ComplaintViewModel ResolveComplaintViewModel(int currentComplaintId)
+		private void CreateFineAndAddToComplaint(int complaintId, string fineReason)
 		{
-			return _scope.Resolve<ComplaintViewModel>(
-				new TypedParameter(typeof(IEntityUoWBuilder),
-					EntityUoWBuilder.ForOpen(currentComplaintId)));
+			var finePage = NavigationManager.OpenViewModel<FineViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
+
+			finePage.ViewModel.FineReasonString = fineReason;
+
+			finePage.ViewModel.EntitySaved += (s, e) =>
+			{
+				using(var uowLocal = UnitOfWorkFactory.CreateWithoutRoot("Прикрепление штрафа к рекламации"))
+				{
+					var fine = e.Entity as Fine;
+
+					var complaint = uowLocal.GetById<Complaint>(complaintId);
+
+					complaint.AddFine(fine);
+
+					uowLocal.Save(complaint);
+					uowLocal.Commit();
+				}			
+			};
 		}
 
 		protected override void CreateNodeActions()
@@ -918,9 +940,32 @@ namespace Vodovoz.Journals.JournalViewModels
 				selectedItems =>
 				{
 					var nodes = GetComplaintQuery(UoW).List<ComplaintJournalNode>();
-					var report = new ComplaintClassificationSummaryReport(nodes, FilterViewModel, _fileDialogService);
-					report.Export();
+					var report = ComplaintClassificationSummaryReport.Generate(nodes, FilterViewModel);
+					ExportComplaintClassificationSummaryReport(report);
 				}));
+		}
+
+		public void ExportComplaintClassificationSummaryReport(ComplaintClassificationSummaryReport report)
+		{
+			var dialogSettingsFactory = new DialogSettingsFactory();
+			var dialogSettings = dialogSettingsFactory.CreateForExcelExport();
+
+			dialogSettings.FileName = report.FileName;
+
+			var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
+
+			if(result.Successful)
+			{
+				SaveReport(ComplaintClassificationSummaryReport.TemplatePath, result.Path, report);
+			}
+		}
+
+		private void SaveReport(string templatePath, string path, ComplaintClassificationSummaryReport report)
+		{
+			var template = new XLTemplate(templatePath);
+			template.AddVariable(report);
+			template.Generate();
+			template.SaveAs(path);
 		}
 
 		private void CreateAddActions()
@@ -1030,7 +1075,6 @@ namespace Vodovoz.Journals.JournalViewModels
 
 		public override void Dispose()
 		{
-			_scope = null;
 			FilterViewModel = null;
 			base.Dispose();
 		}
