@@ -168,27 +168,21 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport
 		{
 			if(IsOneDayReportSelected == IsPeriodReportSelected)
 			{
-				_commonServices.InteractiveService.ShowMessage(
-					ImportanceLevel.Error,
-					"Ошибка выбора типа отчета");
+				ShowErrorMessage("Ошибка выбора типа отчета");
 
 				return false;
 			}
 
 			if(SelectedCarTypesOfUse.Count() == 0)
 			{
-				_commonServices.InteractiveService.ShowMessage(
-					ImportanceLevel.Error,
-					"Не выбран тип ТС");
+				ShowErrorMessage("Не выбран тип ТС");
 
 				return false;
 			}
 
 			if(SelectedCarOwnTypes.Count() == 0)
 			{
-				_commonServices.InteractiveService.ShowMessage(
-					ImportanceLevel.Error,
-					"Не выбрана принадлежность ТС");
+				ShowErrorMessage("Не выбрана принадлежность ТС");
 
 				return false;
 			}
@@ -197,18 +191,14 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport
 			{
 				if(DateInOneDayReport is null)
 				{
-					_commonServices.InteractiveService.ShowMessage(
-						ImportanceLevel.Error,
-						"Не установлена дата");
+					ShowErrorMessage("Не установлена дата");
 
 					return false;
 				}
 
 				if(DateInOneDayReport.Value > DateTime.Today)
 				{
-					_commonServices.InteractiveService.ShowMessage(
-						ImportanceLevel.Error,
-						"Нельзя устанавливать дату более текущей");
+					ShowErrorMessage("Нельзя устанавливать дату более текущей");
 
 					return false;
 				}
@@ -219,15 +209,20 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport
 				if(StartDateInPeriodReport == null
 					|| EndDateInPeriodReport == null)
 				{
-					_commonServices.InteractiveService.ShowMessage(
-						ImportanceLevel.Error,
-						"Не установлен период");
+					ShowErrorMessage("Не установлен период");
 
 					return false;
 				}
 			}
 
 			return true;
+		}
+
+		private void ShowErrorMessage(string message)
+		{
+			_commonServices.InteractiveService.ShowMessage(
+						ImportanceLevel.Error,
+						message);
 		}
 	}
 }
