@@ -7,7 +7,8 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Vodovoz.ViewModels</RootNamespace>
     <AssemblyName>VodovozViewModels</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -864,6 +865,10 @@
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\RevenueService.Client\RevenueService.Client.csproj">
       <Project>{AFA4490E-F4DA-461D-9B55-F565F61C1DEA}</Project>
       <Name>RevenueService.Client</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Application\Vodovoz.Application.csproj">
+      <Project>{15A5975C-1F75-4023-A2E3-1D9B297B008F}</Project>
+      <Name>Vodovoz.Application</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Reports.Editing\Vodovoz.Reports.Editing.csproj">
       <Project>{EC80100E-0125-48C6-8D66-50EEBF26E320}</Project>
