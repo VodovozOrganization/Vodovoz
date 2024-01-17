@@ -1822,10 +1822,12 @@ namespace Vodovoz.Domain.Logistic
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			bool cashOrderClose = false;
+
 			if(validationContext.Items.ContainsKey("cash_order_close"))
 			{
 				cashOrderClose = (bool)validationContext.Items["cash_order_close"];
 			}
+
 			if(validationContext.Items.ContainsKey("NewStatus")) {
 				RouteListStatus newStatus = (RouteListStatus)validationContext.Items["NewStatus"];
 				switch(newStatus) {
@@ -1836,8 +1838,17 @@ namespace Vodovoz.Domain.Logistic
 					case RouteListStatus.MileageCheck:
 						var orderParametersProvider = validationContext.GetService<IOrderParametersProvider>();
 						var deliveryRulesParametersProvider = validationContext.GetService<IDeliveryRulesParametersProvider>();
+
+						validationContext.Items.TryGetValue(ValidationKeyIgnoreReceiptsForOrders, out var ignoreReceiptsInOrdersParameter);
+
+						if(!(ignoreReceiptsInOrdersParameter is List<int> ignoreReceiptsInOrders))
+						{
+							ignoreReceiptsInOrders = new List<int>();
+						}
+
 						foreach(var address in Addresses) {
 							var orderValidator = new ObjectValidator();
+
 							var orderValidationContext = new ValidationContext(
 								address.Order,
 								null,
@@ -1845,7 +1856,8 @@ namespace Vodovoz.Domain.Logistic
 								{
 									{ "NewStatus", OrderStatus.Closed },
 									{ "cash_order_close", cashOrderClose },
-									{ "AddressStatus", address.Status }
+									{ "AddressStatus", address.Status },
+									{ Order.ValidationKeyIgnoreReceipts, ignoreReceiptsInOrders.Contains(address.Order.Id) }
 								}
 							);
 							orderValidationContext.ServiceContainer.AddService(orderParametersProvider);
@@ -1934,6 +1946,8 @@ namespace Vodovoz.Domain.Logistic
 					new[] { nameof(GeographicGroups) });
 			}
 		}
+
+		public static string ValidationKeyIgnoreReceiptsForOrders => nameof(ValidationKeyIgnoreReceiptsForOrders);
 
 		#endregion
 
