@@ -128,8 +128,8 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -144,8 +144,8 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -160,8 +160,8 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -192,8 +192,8 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -216,11 +216,11 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <FontWeight >Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -233,9 +233,9 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <TextAlign >Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -249,9 +249,9 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <TextAlign >Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -265,9 +265,9 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <TextAlign >Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -280,11 +280,11 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <TextAlign >Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -294,7 +294,7 @@
         </Details>
         <Left>0.0pt</Left>
         <Top>95.2pt</Top>
-        <Footer >
+        <Footer>
           <TableRows>
             <TableRow>
               <Height>.2in</Height>
@@ -395,7 +395,7 @@
           <VerticalAlign>Middle</VerticalAlign>
         </Style>
       </Textbox>
-      <Table Name="Table2" >
+      <Table Name="Table2">
         <DataSetName>detailed_report</DataSetName>
         <NoRows>Автомобили типа "Фургон (ларгусы)" соответствующие заданным параметрам не найдены</NoRows>
         <Style>
@@ -646,7 +646,7 @@
           </Filter>
         </Filters>
       </Table>
-      <Table Name="Table3" >
+      <Table Name="Table3">
         <DataSetName>detailed_report</DataSetName>
         <NoRows>Автомобили типа "Грузовой" соответствующие заданным параметрам не найдены</NoRows>
         <Style>
@@ -897,7 +897,7 @@
           </Filter>
         </Filters>
       </Table>
-      <Table Name="Table4" >
+      <Table Name="Table4">
         <DataSetName>detailed_report</DataSetName>
         <NoRows>Автомобили типа "Фура" соответствующие заданным параметрам не найдены</NoRows>
         <Style>
@@ -1197,7 +1197,7 @@ FROM cars c
 JOIN car_models cm ON c.model_id = cm.id 
 JOIN car_versions cv ON c.id = cv.car_id 
 WHERE
-	(c.is_archive = 0 OR (c.is_archive = 1 and c.archiving_date &gt; @date))
+	(c.is_archive = 0 OR (c.is_archive = 1 and c.archiving_date &gt;= DATE_ADD(@date, INTERVAL 1 DAY)))
     AND cv.start_date &lt;= @date
     AND (cv.end_date is null OR cv.end_date &gt; @date)
     AND cm.car_type_of_use IN (@car_type_of_use)
@@ -1260,7 +1260,7 @@ JOIN car_versions cv ON c.id = cv.car_id
 LEFT JOIN employees e ON c.driver_id = e.id 
 LEFT JOIN car_manufacturers manuf ON cm.manufacturer_id = manuf.id 
 WHERE
-	(c.is_archive = 0 OR (c.is_archive = 1 and c.archiving_date &gt; @date))
+	(c.is_archive = 0 OR (c.is_archive = 1 and c.archiving_date &gt;= DATE_ADD(@date, INTERVAL 1 DAY)))
     AND cv.start_date &lt;= @date
     AND (cv.end_date is null OR cv.end_date &gt; @date)
     AND cm.car_type_of_use IN (@car_type_of_use)
@@ -1306,7 +1306,7 @@ ORDER BY c.id;</CommandText>
       </Fields>
     </DataSet>
   </DataSets>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="car_type_of_use">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
