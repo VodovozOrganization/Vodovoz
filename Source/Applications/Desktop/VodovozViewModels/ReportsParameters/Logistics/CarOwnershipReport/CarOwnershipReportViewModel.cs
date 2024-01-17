@@ -38,7 +38,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport
 			_selectedCarTypesOfUse = EnumHelper.GetValuesList<CarTypeOfUse>();
 			_selectedCarOwnTypes = EnumHelper.GetValuesList<CarOwnType>();
 
-			GenerateReportCommand = new DelegateCommand(SetReportParametersAndLoadReport);
+			GenerateReportCommand = new DelegateCommand(GenerateReport);
 
 			IsOneDayReportSelected = true;
 
@@ -110,23 +110,20 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport
 
 		#endregion Properties
 
-		private void SetReportParametersAndLoadReport()
+		private void GenerateReport()
 		{
-			if(!SetReportParameters())
+			if(!IsReportFiltersSettingsValid())
 			{
 				return;
 			}
 
+			SetReportParameters();
+
 			LoadReport();
 		}
 
-		private bool SetReportParameters()
+		private void SetReportParameters()
 		{
-			if(!IsReportSettingsValid())
-			{
-				return false;
-			}
-
 			var selectedCarTypeOfUse = string.Join(", ", SelectedCarTypesOfUse.Select(s => s.GetEnumDisplayName()));
 			var selectedCarOwnType = string.Join(", ", SelectedCarOwnTypes.Select(s => s.GetEnumDisplayName()));
 
@@ -148,7 +145,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport
 
 				_parameters.Add("date", DateInOneDayReport.Value.Date);
 
-				return true;
+				return;
 			}
 
 			if(IsPeriodReportSelected)
@@ -158,13 +155,13 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport
 				_parameters.Add("start_date", StartDateInPeriodReport.Value.Date);
 				_parameters.Add("end_date", EndDateInPeriodReport.Value.Date);
 
-				return true;
+				return;
 			}
 
 			throw new InvalidOperationException("Ошибка выбора типа отчета");
 		}
 
-		private bool IsReportSettingsValid()
+		private bool IsReportFiltersSettingsValid()
 		{
 			if(IsOneDayReportSelected == IsPeriodReportSelected)
 			{
