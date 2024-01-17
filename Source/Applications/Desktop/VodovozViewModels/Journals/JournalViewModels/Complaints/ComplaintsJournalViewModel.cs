@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using ClosedXML.Report;
 using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
@@ -30,6 +31,7 @@ using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
+using Vodovoz.ViewModels.Dialogs;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 using Vodovoz.ViewModels.Logistic;
@@ -938,9 +940,32 @@ namespace Vodovoz.Journals.JournalViewModels
 				selectedItems =>
 				{
 					var nodes = GetComplaintQuery(UoW).List<ComplaintJournalNode>();
-					var report = new ComplaintClassificationSummaryReport(nodes, FilterViewModel, _fileDialogService);
-					report.Export();
+					var report = ComplaintClassificationSummaryReport.Generate(nodes, FilterViewModel);
+					ExportComplaintClassificationSummaryReport(report);
 				}));
+		}
+
+		public void ExportComplaintClassificationSummaryReport(ComplaintClassificationSummaryReport report)
+		{
+			var dialogSettingsFactory = new DialogSettingsFactory();
+			var dialogSettings = dialogSettingsFactory.CreateForExcelExport();
+
+			dialogSettings.FileName = report.FileName;
+
+			var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
+
+			if(result.Successful)
+			{
+				SaveReport(ComplaintClassificationSummaryReport.TemplatePath, result.Path, report);
+			}
+		}
+
+		private void SaveReport(string templatePath, string path, ComplaintClassificationSummaryReport report)
+		{
+			var template = new XLTemplate(templatePath);
+			template.AddVariable(report);
+			template.Generate();
+			template.SaveAs(path);
 		}
 
 		private void CreateAddActions()
