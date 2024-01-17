@@ -1077,23 +1077,23 @@ namespace Vodovoz.Domain.Goods
 			if(string.IsNullOrWhiteSpace(Name))
 			{
 				yield return new ValidationResult(
-					"Название номенклатуры должно быть заполнено.", new[] { this.GetPropertyName(o => o.Name) });
+					"Название номенклатуры должно быть заполнено.", new[] { nameof(Name) });
 			}
 			else if(Name.Length > 220)
 			{
 				yield return new ValidationResult(
-					"Превышено максимальное количество символов в названии (220).", new[] { this.GetPropertyName(o => o.Name) });
+					"Превышено максимальное количество символов в названии (220).", new[] { nameof(Name) });
 			}
 
 			if(string.IsNullOrWhiteSpace(OfficialName))
 			{
 				yield return new ValidationResult(
-					"Официальное название номенклатуры должно быть заполнено.", new[] { this.GetPropertyName(o => o.OfficialName) });
+					"Официальное название номенклатуры должно быть заполнено.", new[] { nameof(OfficialName) });
 			}
 			else if(Name.Length > 220)
 			{
 				yield return new ValidationResult(
-					"Превышено максимальное количество символов в официальном названии (220).", new[] { this.GetPropertyName(o => o.OfficialName) });
+					"Превышено максимальное количество символов в официальном названии (220).", new[] { nameof(OfficialName) });
 			}
 
 			if(CategoriesWithWeightAndVolume.Contains(Category) && (Length == 0 || Width == 0 || Height == 0 || Weight == 0))
@@ -1111,27 +1111,27 @@ namespace Vodovoz.Domain.Goods
 			if(Folder1C == null)
 			{
 				yield return new ValidationResult(
-					"Папка 1С обязательна для заполнения", new[] { this.GetPropertyName(o => o.Folder1C) });
+					"Папка 1С обязательна для заполнения", new[] { nameof(Folder1C) });
 			}
 
 			if(string.IsNullOrWhiteSpace(Code1c))
 			{
 				yield return new ValidationResult(
-					"Код 1С обязателен для заполнения", new[] { this.GetPropertyName(o => o.Code1c) });
+					"Код 1С обязателен для заполнения", new[] { nameof(Code1c) });
 			}
 
 			if(Category == NomenclatureCategory.equipment && Kind == null)
 			{
 				yield return new ValidationResult(
 					"Не указан вид оборудования.",
-					new[] { this.GetPropertyName(o => o.Kind) });
+					new[] { nameof(Kind) });
 			}
 
 			if(GetCategoriesWithSaleCategory().Contains(_category) && SaleCategory == null)
 			{
 				yield return new ValidationResult(
 					"Не указана \"Доступность для продажи\"",
-					new[] { this.GetPropertyName(o => o.SaleCategory) }
+					new[] { nameof(SaleCategory) }
 				);
 			}
 
@@ -1139,14 +1139,14 @@ namespace Vodovoz.Domain.Goods
 			{
 				yield return new ValidationResult(
 					"Не указан тип залога.",
-					new[] { this.GetPropertyName(o => o.TypeOfDepositCategory) });
+					new[] { nameof(TypeOfDepositCategory) });
 			}
 
 			if(Category == NomenclatureCategory.water && !TareVolume.HasValue)
 			{
 				yield return new ValidationResult(
 					"Не выбран объем тары",
-					new[] { this.GetPropertyName(o => o.TareVolume) }
+					new[] { nameof(TareVolume) }
 				);
 			}
 
@@ -1159,7 +1159,7 @@ namespace Vodovoz.Domain.Goods
 			{
 				yield return new ValidationResult(
 					"Не указаны единицы измерения",
-					new[] { this.GetPropertyName(o => o.Unit) });
+					new[] { nameof(Unit) });
 			}
 
 			//Проверка зависимостей номенклатур #1: если есть зависимые
@@ -1176,14 +1176,14 @@ namespace Vodovoz.Domain.Goods
 						dependedNomenclaturesText += $"{n.Id}: {n.OfficialName} ({n.CategoryString})\n";
 					}
 
-					yield return new ValidationResult(dependedNomenclaturesText, new[] { this.GetPropertyName(o => o.DependsOnNomenclature) });
+					yield return new ValidationResult(dependedNomenclaturesText, new[] { nameof(DependsOnNomenclature) });
 				}
 
 				if(DependsOnNomenclature.DependsOnNomenclature != null)
 				{
 					yield return new ValidationResult(
 						$"Номенклатура '{DependsOnNomenclature.ShortOrFullName}' указанная в качеcтве основной для цен этой номеклатуры, сама зависит от '{DependsOnNomenclature.DependsOnNomenclature.ShortOrFullName}'",
-						new[] { this.GetPropertyName(o => o.DependsOnNomenclature) });
+						new[] { nameof(DependsOnNomenclature) });
 				}
 			}
 
@@ -1193,7 +1193,7 @@ namespace Vodovoz.Domain.Goods
 				{
 					yield return new ValidationResult(
 						$"Код 1с с префиксом автоформирования '{PrefixOfCode1c}', должен содержать {LengthOfCode1c}-символов.",
-						new[] { this.GetPropertyName(o => o.Code1c) });
+						new[] { nameof(Code1c) });
 				}
 
 				var next = nomenclatureRepository.GetNextCode1c(UoW);
@@ -1201,7 +1201,7 @@ namespace Vodovoz.Domain.Goods
 				{
 					yield return new ValidationResult(
 						$"Код 1с использует префикс автоматического формирования кодов '{PrefixOfCode1c}'. При этом пропускает некоторое количество значений. Используйте в качестве следующего кода {next} или оставьте это поле пустым для автозаполенения.",
-						new[] { this.GetPropertyName(o => o.Code1c) });
+						new[] { nameof(Code1c) });
 				}
 			}
 
@@ -1209,7 +1209,7 @@ namespace Vodovoz.Domain.Goods
 			{
 				yield return new ValidationResult(
 					"С 01.01.2019 ставка НДС 20%",
-					new[] { this.GetPropertyName(o => o.VAT) }
+					new[] { nameof(VAT) }
 				);
 			}
 
