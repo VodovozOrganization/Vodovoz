@@ -16,7 +16,7 @@ namespace Vodovoz.Views.Payments
 		{
 			btnAllocateByCurrentCounterparty.Clicked += (sender, args) => ViewModel.AllocateByCurrentCounterpartyCommand.Execute();
 			btnAllocateByCurrentCounterparty.Binding
-				.AddFuncBinding(ViewModel, vm => vm.CanAllocatoByCurrentCounterparty, w => w.Sensitive)
+				.AddFuncBinding(ViewModel, vm => vm.CanAllocateByCurrentCounterparty, w => w.Sensitive)
 				.InitializeFromSource();
 
 			btnAllocateByAllCounterpartiesWithPositiveBalance.Clicked +=

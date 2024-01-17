@@ -53,7 +53,7 @@ namespace Vodovoz.ViewModels.Payments
 			Deletable = false;
 			WindowPosition = WindowGravity.None;
 
-			AllocateByCurrentCounterpartyCommand = new DelegateCommand(AllocateByCurrentCounterparty, () => CanAllocatoByCurrentCounterparty);
+			AllocateByCurrentCounterpartyCommand = new DelegateCommand(AllocateByCurrentCounterparty, () => CanAllocateByCurrentCounterparty);
 			AllocateByAllCounterpartiesWithPositiveBalanceCommand = new DelegateCommand(AllocateByAllCounterpartiesWithPositiveBalance);
 		}
 
@@ -64,7 +64,7 @@ namespace Vodovoz.ViewModels.Payments
 			{
 				if(SetField(ref _isAllocationState, value))
 				{
-					OnPropertyChanged(nameof(CanAllocatoByCurrentCounterparty));
+					OnPropertyChanged(nameof(CanAllocateByCurrentCounterparty));
 				}
 			}
 		}
@@ -80,7 +80,7 @@ namespace Vodovoz.ViewModels.Payments
 		public DelegateCommand AllocateByCurrentCounterpartyCommand { get; }
 		public DelegateCommand AllocateByAllCounterpartiesWithPositiveBalanceCommand { get; }
 
-		public bool CanAllocatoByCurrentCounterparty => _selectedUnallocatedBalancesNode != null && !IsAllocationState;
+		public bool CanAllocateByCurrentCounterparty => _selectedUnallocatedBalancesNode != null && !IsAllocationState;
 
 		public void Configure(
 			UnallocatedBalancesJournalNode selectedUnallocatedBalancesNode,
@@ -90,7 +90,7 @@ namespace Vodovoz.ViewModels.Payments
 				?? throw new ArgumentNullException(nameof(selectedUnallocatedBalancesNode));
 			_loadedNodes = loadedNodes ?? throw new ArgumentNullException(nameof(loadedNodes));
 
-			OnPropertyChanged(nameof(CanAllocatoByCurrentCounterparty));
+			OnPropertyChanged(nameof(CanAllocateByCurrentCounterparty));
 		}
 
 		public void AllocateByCurrentCounterparty()
