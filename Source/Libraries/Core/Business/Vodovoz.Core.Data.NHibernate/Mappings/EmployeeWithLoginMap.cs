@@ -11,7 +11,6 @@ namespace Vodovoz.Core.Data.NHibernate.Mappings
 			
 			Id(x => x.Id).Column("id");
 			
-			//Map(x => x.EmployeeType).Column("employee_type").CustomType<EmployeeTypeStringType>().Update().Not.Insert();
 			Map(x => x.Name).Column("name").ReadOnly();
 			Map(x => x.LastName).Column("last_name").ReadOnly();
 			Map(x => x.Patronymic).Column("patronymic").ReadOnly();

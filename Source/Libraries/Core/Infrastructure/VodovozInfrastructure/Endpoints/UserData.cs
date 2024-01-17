@@ -2,11 +2,13 @@
 
 namespace VodovozInfrastructure.Endpoints
 {
-	public class RegisterPayload
+	public class UserData
 	{
 		[JsonPropertyName("username")]
 		public string Username { get; set; }
 		[JsonPropertyName("password")]
 		public string Password { get; set; }
+		[JsonPropertyName("userRole")]
+		public string UserRole { get; set; }
 	}
 }
