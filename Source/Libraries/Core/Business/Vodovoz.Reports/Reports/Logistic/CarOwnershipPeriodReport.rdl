@@ -86,7 +86,7 @@
           <VerticalAlign>Middle</VerticalAlign>
         </Style>
       </Textbox>
-      <Table Name="Table1" >
+      <Table Name="Table1">
         <DataSetName>car_changes</DataSetName>
         <NoRows>По заданным параметрам данных не найдено</NoRows>
         <Style>
@@ -429,9 +429,9 @@
       <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSets >
+  <DataSets>
     <DataSet Name="car_changes">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>60</Timeout>
         <CommandText>SELECT
@@ -458,7 +458,8 @@ LEFT JOIN employees e ON c.driver_id = e.id
 WHERE 
 	cv.start_date &gt;= @start_date and cv.start_date &lt;= @end_date
     AND cm.car_type_of_use IN (@car_type_of_use)
-    AND cv.car_own_type IN (@car_own_type)</CommandText>
+    AND cv.car_own_type IN (@car_own_type)
+ORDER BY cv.start_date, cv.car_own_type;</CommandText>
         <QueryParameters>
           <QueryParameter Name="@start_date">
             <Value>={?start_date}</Value>
@@ -474,7 +475,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="change_date">
           <DataField>change_date</DataField>
           <TypeName>System.String</TypeName>
