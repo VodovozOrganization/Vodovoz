@@ -1,4 +1,4 @@
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using QS.BusinessCommon.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -60,7 +60,7 @@ namespace Vodovoz.Domain.Goods
 		private int? _lockerRefrigeratorVolume;
 		private TapType? _tapType;
 		private bool _isSparklingWater;
-		
+
 		private int _id;
 
 		private decimal _length;
@@ -70,6 +70,75 @@ namespace Vodovoz.Domain.Goods
 
 		private bool _isAccountableInTrueMark;
 		private string _gtin;
+		private DateTime? _createDate;
+		private User _createdBy;
+		private string _name;
+		private string _officialName;
+		private bool _isArchive;
+		private bool _isDiler;
+		private bool _canPrintPrice;
+		private string _code1c;
+		private Folder1c _folder1;
+		private string _model;
+		private decimal _weight;
+		private VAT _vAT = VAT.Vat18;
+		private bool _doNotReserve;
+		private bool _rentPriority;
+		private bool _isDuty;
+		private MobileCatalog _mobileCatalog;
+		private bool _isSerial;
+		private MeasurementUnits _unit;
+		private decimal _minStockCount;
+		private bool _isDisposableTare;
+		private TareVolume? _tareVolume;
+		private NomenclatureCategory _category;
+		private SaleCategory? _saleCategory;
+		private TypeOfDepositCategory? _typeOfDepositCategory;
+		private EquipmentColors _equipmentColor;
+		private EquipmentKind _kind;
+		private Manufacturer _manufacturer;
+		private RouteColumn _routeListColumn;
+		private decimal _sumOfDamage;
+		private IList<NomenclaturePrice> _nomenclaturePrice = new List<NomenclaturePrice>();
+		private string _shortName;
+		private bool _hide;
+		private bool _isNewBottle;
+		private bool _isDefectiveBottle;
+		private bool _isShabbyBottle;
+		private FuelType _fuelType;
+		private bool _noDelivery;
+		private Nomenclature _dependsOnNomenclature;
+		private double _percentForMaster;
+		private Guid? _onlineStoreGuid;
+		private string _description;
+		private string _bottleCapColor;
+		private OnlineStore _onlineStore;
+		private ProductGroup _productGroup;
+		private IList<NomenclatureImage> _images = new List<NomenclatureImage>();
+
+		private string _onlineStoreExternalId;
+		private Counterparty _shipperCounterparty;
+		private string _storageCell;
+		private string _color;
+		private string _material;
+		private string _liters;
+		private string _size;
+		private string _package;
+		private string _degreeOfRoast;
+		private string _smell;
+		private string _taste;
+		private string _refrigeratorCapacity;
+		private string _coolingType;
+		private string _heatingPower;
+		private string _coolingPower;
+		private string _heatingPerformance;
+		private string _coolingPerformance;
+		private string _numberOfCartridges;
+		private string _characteristicsOfCartridges;
+		private string _countryOfOrigin;
+		private int? _planMonth;
+		private string _amountInAPackage;
+		private int? _planDay;
 
 		public Nomenclature()
 		{
@@ -84,101 +153,82 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _id, value);
 		}
 
-		private DateTime? createDate;
 		[Display(Name = "Дата создания")]
 		public virtual DateTime? CreateDate
 		{
-			get => createDate;
-			set => SetField(ref createDate, value, () => CreateDate);
+			get => _createDate;
+			set => SetField(ref _createDate, value);
 		}
 
-		private User createdBy;
 		[Display(Name = "Кем создана")]
 		public virtual User CreatedBy
 		{
-			get => createdBy;
-			set => SetField(ref createdBy, value, () => CreatedBy);
+			get => _createdBy;
+			set => SetField(ref _createdBy, value);
 		}
-
-		private string name;
 
 		[Display(Name = "Название")]
 		public virtual string Name
 		{
-			get => name;
-			set => SetField(ref name, value, () => Name);
+			get => _name;
+			set => SetField(ref _name, value);
 		}
-
-		private string officialName;
 
 		[Display(Name = "Официальное название")]
 		public virtual string OfficialName
 		{
-			get => officialName;
-			set => SetField(ref officialName, value, () => OfficialName);
+			get => _officialName;
+			set => SetField(ref _officialName, value);
 		}
-
-		private bool isArchive;
 
 		[Display(Name = "Архивная")]
 		public virtual bool IsArchive
 		{
-			get => isArchive;
-			set => SetField(ref isArchive, value, () => IsArchive);
+			get => _isArchive;
+			set => SetField(ref _isArchive, value);
 		}
-
-		private bool isDiler;
 
 		[Display(Name = "Дилер")]
 		public virtual bool IsDiler
 		{
-			get => isDiler;
-			set => SetField(ref isDiler, value, () => IsDiler);
+			get => _isDiler;
+			set => SetField(ref _isDiler, value);
 		}
-
-		private bool canPrintPrice;
 
 		[Display(Name = "Печатается прайс в документах")]
 		public virtual bool CanPrintPrice
 		{
-			get => canPrintPrice;
-			set => SetField(ref canPrintPrice, value, () => CanPrintPrice);
+			get => _canPrintPrice;
+			set => SetField(ref _canPrintPrice, value);
 		}
 
-		private string code1c;
 		[Display(Name = "Код 1с")]
 		[StringLength(11)]
 		public virtual string Code1c
 		{
-			get => code1c;
-			set => SetField(ref code1c, value, () => Code1c);
+			get => _code1c;
+			set => SetField(ref _code1c, value);
 		}
-
-		private Folder1c folder1;
 
 		[Display(Name = "Папка в 1с")]
 		public virtual Folder1c Folder1C
 		{
-			get => folder1;
-			set => SetField(ref folder1, value, () => Folder1C);
+			get => _folder1;
+			set => SetField(ref _folder1, value);
 		}
-
-		private string model;
 
 		[Display(Name = "Модель оборудования")]
 		public virtual string Model
 		{
-			get => model;
-			set => SetField(ref model, value, () => Model);
+			get => _model;
+			set => SetField(ref _model, value);
 		}
-
-		private decimal weight;
 
 		[Display(Name = "Вес")]
 		public virtual decimal Weight
 		{
-			get => weight;
-			set => SetField(ref weight, value, () => Weight);
+			get => _weight;
+			set => SetField(ref _weight, value);
 		}
 
 		/// <summary>
@@ -235,98 +285,79 @@ namespace Vodovoz.Domain.Goods
 			}
 		}
 
-		private VAT vAT = VAT.Vat18;
-
 		[Display(Name = "НДС")]
 		public virtual VAT VAT
 		{
-			get => vAT;
-			set => SetField(ref vAT, value, () => VAT);
+			get => _vAT;
+			set => SetField(ref _vAT, value);
 		}
-
-		private bool doNotReserve;
 
 		[Display(Name = "Не резервировать")]
 		public virtual bool DoNotReserve
 		{
-			get => doNotReserve;
-			set => SetField(ref doNotReserve, value, () => DoNotReserve);
+			get => _doNotReserve;
+			set => SetField(ref _doNotReserve, value);
 		}
-
-		private bool rentPriority;
 
 		[Display(Name = "Приоритет аренды")]
 		public virtual bool RentPriority
 		{
-			get => rentPriority;
-			set => SetField(ref rentPriority, value, () => RentPriority);
+			get => _rentPriority;
+			set => SetField(ref _rentPriority, value);
 		}
 
-		private bool isDuty;
 		/// <summary>
 		/// Дежурное оборудование
 		/// </summary>
 		[Display(Name = "Дежурное оборудование")]
 		public virtual bool IsDuty
 		{
-			get => isDuty;
-			set => SetField(ref isDuty, value, () => IsDuty);
+			get => _isDuty;
+			set => SetField(ref _isDuty, value);
 		}
-
-		private bool isSerial;
 
 		[Display(Name = "Серийный номер")]
 		public virtual bool IsSerial
 		{
-			get => isSerial;
-			set => SetField(ref isSerial, value, () => IsSerial);
+			get => _isSerial;
+			set => SetField(ref _isSerial, value);
 		}
-
-		private MeasurementUnits unit;
 
 		[Display(Name = "Единица измерения")]
 		public virtual MeasurementUnits Unit
 		{
-			get => unit;
-			set => SetField(ref unit, value, () => Unit);
+			get => _unit;
+			set => SetField(ref _unit, value);
 		}
-
-		private decimal minStockCount;
 
 		[Display(Name = "Минимальное количество на складе")]
 		public virtual decimal MinStockCount
 		{
-			get => minStockCount;
-			set => SetField(ref minStockCount, value, () => MinStockCount);
+			get => _minStockCount;
+			set => SetField(ref _minStockCount, value);
 		}
-
-		private bool isDisposableTare;
 
 		[Display(Name = "Одноразовая тара для воды")]
 		public virtual bool IsDisposableTare
 		{
-			get => isDisposableTare;
-			set => SetField(ref isDisposableTare, value, () => IsDisposableTare);
+			get => _isDisposableTare;
+			set => SetField(ref _isDisposableTare, value);
 		}
-
-		private TareVolume? tareVolume;
 
 		[Display(Name = "Объем тары для воды")]
 		public virtual TareVolume? TareVolume
 		{
-			get => tareVolume;
-			set => SetField(ref tareVolume, value, () => TareVolume);
+			get => _tareVolume;
+			set => SetField(ref _tareVolume, value);
 		}
-
-		private NomenclatureCategory category;
 
 		[Display(Name = "Категория")]
 		public virtual NomenclatureCategory Category
 		{
-			get => category;
+			get => _category;
 			set
 			{
-				if(SetField(ref category, value))
+				if(SetField(ref _category, value))
 				{
 					if(!CategoriesWithSerial.Contains(Category))
 					{
@@ -334,84 +365,72 @@ namespace Vodovoz.Domain.Goods
 					}
 
 					if(Category != NomenclatureCategory.water)
+					{
 						TareVolume = null;
+					}
 
 					if(!GetCategoriesWithSaleCategory().Contains(value))
+					{
 						SaleCategory = null;
+					}
 				}
 			}
 		}
 
-		private SaleCategory? saleCategory;
-
 		[Display(Name = "Доступность для продаж")]
 		public virtual SaleCategory? SaleCategory
 		{
-			get => saleCategory;
-			set => SetField(ref saleCategory, value, () => SaleCategory);
+			get => _saleCategory;
+			set => SetField(ref _saleCategory, value);
 		}
-
-		private TypeOfDepositCategory? typeOfDepositCategory;
 
 		[Display(Name = "Подкатегория залогов")]
 		public virtual TypeOfDepositCategory? TypeOfDepositCategory
 		{
-			get => typeOfDepositCategory;
-			set => SetField(ref typeOfDepositCategory, value, () => TypeOfDepositCategory);
+			get => _typeOfDepositCategory;
+			set => SetField(ref _typeOfDepositCategory, value);
 		}
-
-		private EquipmentColors equipmentColor;
 
 		[Display(Name = "Цвет оборудования")]
 		public virtual EquipmentColors EquipmentColor
 		{
-			get => equipmentColor;
-			set => SetField(ref equipmentColor, value, () => EquipmentColor);
+			get => _equipmentColor;
+			set => SetField(ref _equipmentColor, value);
 		}
-
-		private EquipmentKind _kind;
 
 		[Display(Name = "Вид оборудования")]
 		public virtual EquipmentKind Kind
 		{
 			get => _kind;
-			set => SetField(ref _kind, value, () => Kind);
+			set => SetField(ref _kind, value);
 		}
-
-		private Manufacturer manufacturer;
 
 		[Display(Name = "Производитель")]
 		public virtual Manufacturer Manufacturer
 		{
-			get => manufacturer;
-			set => SetField(ref manufacturer, value, () => Manufacturer);
+			get => _manufacturer;
+			set => SetField(ref _manufacturer, value);
 		}
-
-		private RouteColumn routeListColumn;
 
 		[Display(Name = "Производитель")]
 		public virtual RouteColumn RouteListColumn
 		{
-			get => routeListColumn;
-			set => SetField(ref routeListColumn, value, () => RouteListColumn);
+			get => _routeListColumn;
+			set => SetField(ref _routeListColumn, value);
 		}
-
-		private decimal sumOfDamage;
 
 		[Display(Name = "Сумма ущерба")]
 		public virtual decimal SumOfDamage
 		{
-			get => sumOfDamage;
-			set => SetField(ref sumOfDamage, value, () => SumOfDamage);
+			get => _sumOfDamage;
+			set => SetField(ref _sumOfDamage, value);
 		}
-
-		private IList<NomenclaturePrice> nomenclaturePrice = new List<NomenclaturePrice>();
 
 		[Display(Name = "Цены")]
 		public virtual IList<NomenclaturePrice> NomenclaturePrice
 		{
-			get => nomenclaturePrice;
-			set => SetField(ref nomenclaturePrice, value, () => NomenclaturePrice);
+			get => _nomenclaturePrice;
+			set => SetField(ref _nomenclaturePrice, value);
 		}
 
 		[Display(Name = "Альтернативные цены")]
@@ -421,41 +440,34 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _alternativeNomenclaturePrices, value);
 		}
 
-		private string shortName;
-
 		[Display(Name = "Сокращенное название")]
 		public virtual string ShortName
 		{
-			get => shortName;
-			set => SetField(ref shortName, value, () => ShortName);
+			get => _shortName;
+			set => SetField(ref _shortName, value);
 		}
-
-		private bool hide;
 
 		[Display(Name = "Скрыть из МЛ")]
 		public virtual bool Hide
 		{
-			get => hide;
-			set => SetField(ref hide, value, () => Hide);
+			get => _hide;
+			set => SetField(ref _hide, value);
 		}
-
-		private bool _noDelivery;
 
 		[Display(Name = "Доставка не требуется")]
 		public virtual bool NoDelivery
 		{
 			get => _noDelivery;
-			set => SetField(ref _noDelivery, value, () => NoDelivery);
+			set => SetField(ref _noDelivery, value);
 		}
 
-		private bool isNewBottle;
 		[Display(Name = "Это новая бутыль")]
 		public virtual bool IsNewBottle
 		{
-			get => isNewBottle;
+			get => _isNewBottle;
 			set
 			{
-				if(SetField(ref isNewBottle, value) && isNewBottle)
+				if(SetField(ref _isNewBottle, value) && _isNewBottle)
 				{
 					IsDefectiveBottle = false;
 					IsShabbyBottle = false;
@@ -463,14 +475,13 @@ namespace Vodovoz.Domain.Goods
 			}
 		}
 
-		private bool isDefectiveBottle;
 		[Display(Name = "Это бракованая бутыль")]
 		public virtual bool IsDefectiveBottle
 		{
-			get => isDefectiveBottle;
+			get => _isDefectiveBottle;
 			set
 			{
-				if(SetField(ref isDefectiveBottle, value) && isDefectiveBottle)
+				if(SetField(ref _isDefectiveBottle, value) && _isDefectiveBottle)
 				{
 					IsNewBottle = false;
 					IsShabbyBottle = false;
@@ -478,14 +489,13 @@ namespace Vodovoz.Domain.Goods
 			}
 		}
 
-		private bool isShabbyBottle;
 		[Display(Name = "Стройка")]
 		public virtual bool IsShabbyBottle
 		{
-			get => isShabbyBottle;
+			get => _isShabbyBottle;
 			set
 			{
-				if(SetField(ref isShabbyBottle, value) && isShabbyBottle)
+				if(SetField(ref _isShabbyBottle, value) && _isShabbyBottle)
 				{
 					IsNewBottle = false;
 					IsDefectiveBottle = false;
@@ -493,90 +503,75 @@ namespace Vodovoz.Domain.Goods
 			}
 		}
 
-		private FuelType fuelType;
 		[Display(Name = "Тип топлива")]
 		public virtual FuelType FuelType
 		{
-			get => fuelType;
-			set => SetField(ref fuelType, value, () => FuelType);
+			get => _fuelType;
+			set => SetField(ref _fuelType, value);
 		}
-
-		private Nomenclature dependsOnNomenclature;
 
 		[Display(Name = "Влияющая номенклатура")]
 		public virtual Nomenclature DependsOnNomenclature
 		{
-			get => dependsOnNomenclature;
-			set => SetField(ref dependsOnNomenclature, value, () => DependsOnNomenclature);
+			get => _dependsOnNomenclature;
+			set => SetField(ref _dependsOnNomenclature, value);
 		}
 
-		private double percentForMaster;
 
 		[Display(Name = "Процент зарплаты мастера")]
 		public virtual double PercentForMaster
 		{
-			get => percentForMaster;
-			set => SetField(ref percentForMaster, value, () => PercentForMaster);
+			get => _percentForMaster;
+			set => SetField(ref _percentForMaster, value);
 		}
-
-		private Guid? onlineStoreGuid;
 
 		[Display(Name = "Guid интернет магазина")]
 		public virtual Guid? OnlineStoreGuid
 		{
-			get => onlineStoreGuid;
-			set => SetField(ref onlineStoreGuid, value, () => OnlineStoreGuid);
+			get => _onlineStoreGuid;
+			set => SetField(ref _onlineStoreGuid, value);
 		}
-
-		private ProductGroup productGroup;
 
 		[Display(Name = "Группа товаров")]
 		public virtual ProductGroup ProductGroup
 		{
-			get => productGroup;
-			set => SetField(ref productGroup, value, () => ProductGroup);
+			get => _productGroup;
+			set => SetField(ref _productGroup, value);
 		}
 
-		private IList<NomenclatureImage> images = new List<NomenclatureImage>();
 		[Display(Name = "Изображения")]
 		public virtual IList<NomenclatureImage> Images
 		{
-			get => images;
-			set => SetField(ref images, value, () => Images);
+			get => _images;
+			set => SetField(ref _images, value);
 		}
-
-		private MobileCatalog mobileCatalog;
 
 		[Display(Name = "Каталог в мобильном приложении")]
 		public virtual MobileCatalog MobileCatalog
 		{
-			get => mobileCatalog;
-			set => SetField(ref mobileCatalog, value, () => MobileCatalog);
+			get => _mobileCatalog;
+			set => SetField(ref _mobileCatalog, value);
 		}
-
-		private string description;
 
 		[Display(Name = "Описание товара")]
 		public virtual string Description
 		{
-			get => description;
-			set => SetField(ref description, value);
+			get => _description;
+			set => SetField(ref _description, value);
 		}
 
-		private string bottleCapColor;
 		[Display(Name = "Цвет пробки 19л бутыли")]
 		public virtual string BottleCapColor
 		{
-			get => bottleCapColor;
-			set => SetField(ref bottleCapColor, value);
+			get => _bottleCapColor;
+			set => SetField(ref _bottleCapColor, value);
 		}
 
-		private OnlineStore onlineStore;
 		[Display(Name = "Интернет-магазин")]
 		public virtual OnlineStore OnlineStore
 		{
-			get => onlineStore;
-			set => SetField(ref onlineStore, value);
+			get => _onlineStore;
+			set => SetField(ref _onlineStore, value);
 		}
 
 		[Display(Name = "Участвует в групповом заполнении себестоимости")]
@@ -627,7 +622,6 @@ namespace Vodovoz.Domain.Goods
 			set => _observableAlternativeNomenclaturePrices = value;
 		}
 
-
 		[Display(Name = "Стоимости доставки ТМЦ на склад")]
 		public virtual IList<NomenclatureInnerDeliveryPrice> InnerDeliveryPrices
 		{
@@ -651,268 +645,225 @@ namespace Vodovoz.Domain.Goods
 			get => _gtin;
 			set => SetField(ref _gtin, value);
 		}
-		
+
 		[Display(Name = "Инвентарный учет")]
 		public virtual bool HasInventoryAccounting
 		{
 			get => _hasInventoryAccounting;
 			set => SetField(ref _hasInventoryAccounting, value);
 		}
-		
+
 		[Display(Name = "Тип стаканодержателя")]
 		public virtual GlassHolderType? GlassHolderType
 		{
 			get => _glassHolderType;
 			set => SetField(ref _glassHolderType, value);
 		}
-		#endregion
+
+		#endregion Свойства
 
 		#region Свойства товаров для магазина
 
-		private string onlineStoreExternalId;
 		[Display(Name = "Id в интернет магазине")]
 		public virtual string OnlineStoreExternalId
 		{
-			get => onlineStoreExternalId;
-			set => SetField(ref onlineStoreExternalId, value);
+			get => _onlineStoreExternalId;
+			set => SetField(ref _onlineStoreExternalId, value);
 		}
 
-		private Counterparty shipperCounterparty;
 		[Display(Name = "Поставщик")]
 		public virtual Counterparty ShipperCounterparty
 		{
-			get => shipperCounterparty;
-			set => SetField(ref shipperCounterparty, value);
+			get => _shipperCounterparty;
+			set => SetField(ref _shipperCounterparty, value);
 		}
 
-		private string storageCell;
 		[Display(Name = "Ячейка хранения")]
 		public virtual string StorageCell
 		{
-			get => storageCell;
-			set => SetField(ref storageCell, value);
+			get => _storageCell;
+			set => SetField(ref _storageCell, value);
 		}
-
-		private string color;
 
 		[Display(Name = "Цвет")]
 		public virtual string Color
 		{
-			get => color;
-			set => SetField(ref color, value);
+			get => _color;
+			set => SetField(ref _color, value);
 		}
-
-		private string material;
 
 		[Display(Name = "Материал")]
 		public virtual string Material
 		{
-			get => material;
-			set => SetField(ref material, value);
+			get => _material;
+			set => SetField(ref _material, value);
 		}
-
-		private string liters;
 
 		[Display(Name = "Объем")]
 		public virtual string Liters
 		{
-			get => liters;
-			set => SetField(ref liters, value);
+			get => _liters;
+			set => SetField(ref _liters, value);
 		}
-
-		private string size;
 
 		[Display(Name = "Размеры")]
 		public virtual string Size
 		{
-			get => size;
-			set => SetField(ref size, value);
+			get => _size;
+			set => SetField(ref _size, value);
 		}
-
-		private string package;
 
 		[Display(Name = "Тип упаковки")]
 		public virtual string Package
 		{
-			get => package;
-			set => SetField(ref package, value);
+			get => _package;
+			set => SetField(ref _package, value);
 		}
-
-		private string degreeOfRoast;
 
 		[Display(Name = "Степень обжарки")]
 		public virtual string DegreeOfRoast
 		{
-			get => degreeOfRoast;
-			set => SetField(ref degreeOfRoast, value);
+			get => _degreeOfRoast;
+			set => SetField(ref _degreeOfRoast, value);
 		}
-
-		private string smell;
 
 		[Display(Name = "Запах")]
 		public virtual string Smell
 		{
-			get => smell;
-			set => SetField(ref smell, value);
+			get => _smell;
+			set => SetField(ref _smell, value);
 		}
-
-		private string taste;
 
 		[Display(Name = "Вкус")]
 		public virtual string Taste
 		{
-			get => taste;
-			set => SetField(ref taste, value);
+			get => _taste;
+			set => SetField(ref _taste, value);
 		}
-
-		private string refrigeratorCapacity;
 
 		[Display(Name = "Объем шкафчика/холодильника")]
 		public virtual string RefrigeratorCapacity
 		{
-			get => refrigeratorCapacity;
-			set => SetField(ref refrigeratorCapacity, value);
+			get => _refrigeratorCapacity;
+			set => SetField(ref _refrigeratorCapacity, value);
 		}
-
-		private string coolingType;
 
 		[Display(Name = "Тип охлаждения")]
 		public virtual string CoolingType
 		{
-			get => coolingType;
-			set => SetField(ref coolingType, value);
+			get => _coolingType;
+			set => SetField(ref _coolingType, value);
 		}
-
-		private string heatingPower;
 
 		[Display(Name = "Мощность нагрева")]
 		public virtual string HeatingPower
 		{
-			get => heatingPower;
-			set => SetField(ref heatingPower, value);
+			get => _heatingPower;
+			set => SetField(ref _heatingPower, value);
 		}
-
-		private string coolingPower;
 
 		[Display(Name = "Мощность охлаждения")]
 		public virtual string CoolingPower
 		{
-			get => coolingPower;
-			set => SetField(ref coolingPower, value);
+			get => _coolingPower;
+			set => SetField(ref _coolingPower, value);
 		}
-
-		private string heatingPerformance;
 
 		[Display(Name = "Производительность нагрева")]
 		public virtual string HeatingPerformance
 		{
-			get => heatingPerformance;
-			set => SetField(ref heatingPerformance, value);
+			get => _heatingPerformance;
+			set => SetField(ref _heatingPerformance, value);
 		}
-
-		private string coolingPerformance;
 
 		[Display(Name = "Производительность охлаждения")]
 		public virtual string CoolingPerformance
 		{
-			get => coolingPerformance;
-			set => SetField(ref coolingPerformance, value);
+			get => _coolingPerformance;
+			set => SetField(ref _coolingPerformance, value);
 		}
-
-		private string numberOfCartridges;
 
 		[Display(Name = "Количество картриджей")]
 		public virtual string NumberOfCartridges
 		{
-			get => numberOfCartridges;
-			set => SetField(ref numberOfCartridges, value);
+			get => _numberOfCartridges;
+			set => SetField(ref _numberOfCartridges, value);
 		}
-
-		private string characteristicsOfCartridges;
 
 		[Display(Name = "Характеристика картриджей")]
 		public virtual string CharacteristicsOfCartridges
 		{
-			get => characteristicsOfCartridges;
-			set => SetField(ref characteristicsOfCartridges, value);
+			get => _characteristicsOfCartridges;
+			set => SetField(ref _characteristicsOfCartridges, value);
 		}
-
-		private string countryOfOrigin;
 
 		[Display(Name = "Страна происхождения")]
 		public virtual string CountryOfOrigin
 		{
-			get => countryOfOrigin;
-			set => SetField(ref countryOfOrigin, value);
+			get => _countryOfOrigin;
+			set => SetField(ref _countryOfOrigin, value);
 		}
-
-		private string amountInAPackage;
 
 		[Display(Name = "Количество  в упаковке")]
 		public virtual string AmountInAPackage
 		{
-			get => amountInAPackage;
-			set => SetField(ref amountInAPackage, value);
+			get => _amountInAPackage;
+			set => SetField(ref _amountInAPackage, value);
 		}
-
-
-		private int? planDay;
 
 		[Display(Name = "План день")]
 		public virtual int? PlanDay
 		{
-			get => planDay;
-			set => SetField(ref planDay, value);
+			get => _planDay;
+			set => SetField(ref _planDay, value);
 		}
-
-		private int? planMonth;
 
 		[Display(Name = "План месяц")]
 		public virtual int? PlanMonth
 		{
-			get => planMonth;
-			set => SetField(ref planMonth, value);
+			get => _planMonth;
+			set => SetField(ref _planMonth, value);
 		}
 
-		#endregion
+		#endregion Свойства товаров для магазина
 
 		#region Онлайн характеристики для ИПЗ
-		
+
 		[Display(Name = "Онлайн каталог в мобильном приложении")]
 		public virtual MobileAppNomenclatureOnlineCatalog MobileAppNomenclatureOnlineCatalog
 		{
 			get => _mobileAppNomenclatureOnlineCatalog;
 			set => SetField(ref _mobileAppNomenclatureOnlineCatalog, value);
 		}
-		
+
 		[Display(Name = "Онлайн каталог на сайте ВВ")]
 		public virtual VodovozWebSiteNomenclatureOnlineCatalog VodovozWebSiteNomenclatureOnlineCatalog
 		{
 			get => _vodovozWebSiteNomenclatureOnlineCatalog;
 			set => SetField(ref _vodovozWebSiteNomenclatureOnlineCatalog, value);
 		}
-		
+
 		[Display(Name = "Онлайн каталог на сайте Кулер Сэйл")]
 		public virtual KulerSaleWebSiteNomenclatureOnlineCatalog KulerSaleWebSiteNomenclatureOnlineCatalog
 		{
 			get => _kulerSaleWebSiteNomenclatureOnlineCatalog;
 			set => SetField(ref _kulerSaleWebSiteNomenclatureOnlineCatalog, value);
 		}
-		
+
 		[Display(Name = "Онлайн вид товара")]
 		public virtual NomenclatureOnlineGroup NomenclatureOnlineGroup
 		{
 			get => _nomenclatureOnlineGroup;
 			set => SetField(ref _nomenclatureOnlineGroup, value);
 		}
-		
+
 		[Display(Name = "Онлайн тип товара")]
 		public virtual NomenclatureOnlineCategory NomenclatureOnlineCategory
 		{
 			get => _nomenclatureOnlineCategory;
 			set => SetField(ref _nomenclatureOnlineCategory, value);
 		}
-		
+
 		[Display(Name = "Название в ИПЗ")]
 		public virtual string OnlineName
 		{
@@ -926,98 +877,98 @@ namespace Vodovoz.Domain.Goods
 			get => _equipmentInstallationType;
 			set => SetField(ref _equipmentInstallationType, value);
 		}
-		
+
 		[Display(Name = "Тип загрузки")]
 		public virtual EquipmentWorkloadType? EquipmentWorkloadType
 		{
 			get => _equipmentWorkloadType;
 			set => SetField(ref _equipmentWorkloadType, value);
 		}
-		
+
 		[Display(Name = "Тип помпы")]
 		public virtual PumpType? PumpType
 		{
 			get => _pumpType;
 			set => SetField(ref _pumpType, value);
 		}
-		
+
 		[Display(Name = "Тип крепления(стаканодержатель)")]
 		public virtual CupHolderBracingType? CupHolderBracingType
 		{
 			get => _cupHolderBracingType;
 			set => SetField(ref _cupHolderBracingType, value);
 		}
-		
+
 		[Display(Name = "Нагрев")]
 		public virtual bool? HasHeating
 		{
 			get => _hasHeating;
 			set => SetField(ref _hasHeating, value);
 		}
-		
+
 		[Display(Name = "Мощность нагрева")]
 		public virtual int? NewHeatingPower
 		{
 			get => _newHeatingPower;
 			set => SetField(ref _newHeatingPower, value);
 		}
-		
+
 		[Display(Name = "Производительность нагрева")]
 		public virtual int? HeatingProductivity
 		{
 			get => _heatingProductivity;
 			set => SetField(ref _heatingProductivity, value);
 		}
-		
+
 		[Display(Name = "Защита на кране горячей воды")]
 		public virtual ProtectionOnHotWaterTap? ProtectionOnHotWaterTap
 		{
 			get => _protectionOnHotWaterTap;
 			set => SetField(ref _protectionOnHotWaterTap, value);
 		}
-		
+
 		[Display(Name = "Охлаждение")]
 		public virtual bool? HasCooling
 		{
 			get => _hasCooling;
 			set => SetField(ref _hasCooling, value);
 		}
-		
+
 		[Display(Name = "Мощность охлаждения")]
 		public virtual int? NewCoolingPower
 		{
 			get => _newCoolingPower;
 			set => SetField(ref _newCoolingPower, value);
 		}
-		
+
 		[Display(Name = "Производительность охлаждения")]
 		public virtual int? CoolingProductivity
 		{
 			get => _coolingProductivity;
 			set => SetField(ref _coolingProductivity, value);
 		}
-		
+
 		[Display(Name = "Тип охлаждения")]
 		public virtual CoolingType? NewCoolingType
 		{
 			get => _newCoolingType;
 			set => SetField(ref _newCoolingType, value);
 		}
-		
+
 		[Display(Name = "Шкафчик/холодильник")]
 		public virtual LockerRefrigeratorType? LockerRefrigeratorType
 		{
 			get => _lockerRefrigeratorType;
 			set => SetField(ref _lockerRefrigeratorType, value);
 		}
-		
+
 		[Display(Name = "Объем шкафчика/холодильника")]
 		public virtual int? LockerRefrigeratorVolume
 		{
 			get => _lockerRefrigeratorVolume;
 			set => SetField(ref _lockerRefrigeratorVolume, value);
 		}
-		
+
 		[Display(Name = "Тип кранов")]
 		public virtual TapType? TapType
 		{
@@ -1031,8 +982,8 @@ namespace Vodovoz.Domain.Goods
 			get => _isSparklingWater;
 			set => SetField(ref _isSparklingWater, value);
 		}
-		
-		#endregion
+
+		#endregion Онлайн характеристики для ИПЗ
 
 		#region Рассчетные
 
@@ -1047,7 +998,7 @@ namespace Vodovoz.Domain.Goods
 
 		public override string ToString() => $"id ={Id} Name = {Name}";
 
-		#endregion
+		#endregion Рассчетные
 
 		#region Методы
 
@@ -1063,7 +1014,10 @@ namespace Vodovoz.Domain.Goods
 		public virtual decimal GetPrice(decimal? itemsCount, bool useAlternativePrice = false)
 		{
 			if(itemsCount < 1)
+			{
 				itemsCount = 1;
+			}
+
 			decimal price = 0m;
 			if(DependsOnNomenclature != null)
 			{
@@ -1099,13 +1053,16 @@ namespace Vodovoz.Domain.Goods
 			while(parent != null)
 			{
 				if(parent.Id == idOfOnlineShopGroup)
+				{
 					return true;
+				}
+
 				parent = parent.Parent;
 			}
 			return false;
 		}
 
-		#endregion
+		#endregion Методы
 
 		#region IValidatableObject implementation
 
@@ -1114,22 +1071,30 @@ namespace Vodovoz.Domain.Goods
 			if(!(validationContext.ServiceContainer.GetService(
 				typeof(INomenclatureRepository)) is INomenclatureRepository nomenclatureRepository))
 			{
-				throw new ArgumentNullException($"Не найден репозиторий { nameof(nomenclatureRepository) }");
+				throw new ArgumentNullException($"Не найден репозиторий {nameof(nomenclatureRepository)}");
 			}
 
-			if(String.IsNullOrWhiteSpace(Name))
+			if(string.IsNullOrWhiteSpace(Name))
+			{
 				yield return new ValidationResult(
 					"Название номенклатуры должно быть заполнено.", new[] { this.GetPropertyName(o => o.Name) });
+			}
 			else if(Name.Length > 220)
+			{
 				yield return new ValidationResult(
 					"Превышено максимальное количество символов в названии (220).", new[] { this.GetPropertyName(o => o.Name) });
+			}
 
-			if(String.IsNullOrWhiteSpace(OfficialName))
+			if(string.IsNullOrWhiteSpace(OfficialName))
+			{
 				yield return new ValidationResult(
 					"Официальное название номенклатуры должно быть заполнено.", new[] { this.GetPropertyName(o => o.OfficialName) });
+			}
 			else if(Name.Length > 220)
+			{
 				yield return new ValidationResult(
 					"Превышено максимальное количество символов в официальном названии (220).", new[] { this.GetPropertyName(o => o.OfficialName) });
+			}
 
 			if(CategoriesWithWeightAndVolume.Contains(Category) && (Length == 0 || Width == 0 || Height == 0 || Weight == 0))
 			{
@@ -1144,34 +1109,46 @@ namespace Vodovoz.Domain.Goods
 			}
 
 			if(Folder1C == null)
+			{
 				yield return new ValidationResult(
 					"Папка 1С обязательна для заполнения", new[] { this.GetPropertyName(o => o.Folder1C) });
+			}
 
-			if(String.IsNullOrWhiteSpace(Code1c))
+			if(string.IsNullOrWhiteSpace(Code1c))
+			{
 				yield return new ValidationResult(
 					"Код 1С обязателен для заполнения", new[] { this.GetPropertyName(o => o.Code1c) });
+			}
 
 			if(Category == NomenclatureCategory.equipment && Kind == null)
+			{
 				yield return new ValidationResult(
 					"Не указан вид оборудования.",
 					new[] { this.GetPropertyName(o => o.Kind) });
+			}
 
-			if(GetCategoriesWithSaleCategory().Contains(category) && SaleCategory == null)
+			if(GetCategoriesWithSaleCategory().Contains(_category) && SaleCategory == null)
+			{
 				yield return new ValidationResult(
 					"Не указана \"Доступность для продажи\"",
 					new[] { this.GetPropertyName(o => o.SaleCategory) }
 				);
+			}
 
 			if(Category == NomenclatureCategory.deposit && TypeOfDepositCategory == null)
+			{
 				yield return new ValidationResult(
 					"Не указан тип залога.",
 					new[] { this.GetPropertyName(o => o.TypeOfDepositCategory) });
+			}
 
 			if(Category == NomenclatureCategory.water && !TareVolume.HasValue)
+			{
 				yield return new ValidationResult(
 					"Не выбран объем тары",
 					new[] { this.GetPropertyName(o => o.TareVolume) }
 				);
+			}
 
 			if(Category == NomenclatureCategory.fuel && FuelType == null)
 			{
@@ -1179,9 +1156,11 @@ namespace Vodovoz.Domain.Goods
 			}
 
 			if(Unit == null)
+			{
 				yield return new ValidationResult(
 					"Не указаны единицы измерения",
 					new[] { this.GetPropertyName(o => o.Unit) });
+			}
 
 			//Проверка зависимостей номенклатур #1: если есть зависимые
 			if(DependsOnNomenclature != null)
@@ -1201,17 +1180,21 @@ namespace Vodovoz.Domain.Goods
 				}
 
 				if(DependsOnNomenclature.DependsOnNomenclature != null)
+				{
 					yield return new ValidationResult(
 						$"Номенклатура '{DependsOnNomenclature.ShortOrFullName}' указанная в качеcтве основной для цен этой номеклатуры, сама зависит от '{DependsOnNomenclature.DependsOnNomenclature.ShortOrFullName}'",
 						new[] { this.GetPropertyName(o => o.DependsOnNomenclature) });
+				}
 			}
 
 			if(Code1c != null && Code1c.StartsWith(PrefixOfCode1c))
 			{
 				if(Code1c.Length != LengthOfCode1c)
+				{
 					yield return new ValidationResult(
 						$"Код 1с с префиксом автоформирования '{PrefixOfCode1c}', должен содержать {LengthOfCode1c}-символов.",
 						new[] { this.GetPropertyName(o => o.Code1c) });
+				}
 
 				var next = nomenclatureRepository.GetNextCode1c(UoW);
 				if(string.Compare(Code1c, next) > 0)
@@ -1223,10 +1206,12 @@ namespace Vodovoz.Domain.Goods
 			}
 
 			if(DateTime.Now >= new DateTime(2019, 01, 01) && VAT == VAT.Vat18)
+			{
 				yield return new ValidationResult(
 					"С 01.01.2019 ставка НДС 20%",
 					new[] { this.GetPropertyName(o => o.VAT) }
 				);
+			}
 
 			foreach(var purchasePrice in PurchasePrices)
 			{
@@ -1255,7 +1240,7 @@ namespace Vodovoz.Domain.Goods
 			}
 		}
 
-		#endregion
+		#endregion IValidatableObject implementation
 
 		#region Statics
 
@@ -1269,7 +1254,8 @@ namespace Vodovoz.Domain.Goods
 		/// <returns>Массив <see cref="NomenclatureCategory"/> к которым может применяться <see cref="SaleCategory"/></returns>
 		public static NomenclatureCategory[] GetCategoriesWithSaleCategory()
 		{
-			return new[] {
+			return new[]
+			{
 				NomenclatureCategory.equipment,
 				NomenclatureCategory.material,
 				NomenclatureCategory.bottle,
@@ -1279,7 +1265,8 @@ namespace Vodovoz.Domain.Goods
 
 		public static NomenclatureCategory[] GetCategoriesForShipment()
 		{
-			return new[] {
+			return new[]
+			{
 				NomenclatureCategory.additional,
 				NomenclatureCategory.equipment,
 				NomenclatureCategory.water,
@@ -1296,7 +1283,8 @@ namespace Vodovoz.Domain.Goods
 
 		public static NomenclatureCategory[] GetCategoriesForSale()
 		{
-			return new[] {
+			return new[]
+			{
 				NomenclatureCategory.additional,
 				NomenclatureCategory.equipment,
 				NomenclatureCategory.water,
@@ -1310,7 +1298,8 @@ namespace Vodovoz.Domain.Goods
 
 		public static NomenclatureCategory[] GetCategoriesForSaleToOrder()
 		{
-			return new[] {
+			return new[]
+			{
 				NomenclatureCategory.additional,
 				NomenclatureCategory.equipment,
 				NomenclatureCategory.water,
@@ -1328,7 +1317,8 @@ namespace Vodovoz.Domain.Goods
 		/// </summary>
 		public static NomenclatureCategory[] GetCategoriesForEditOrderFromRL()
 		{
-			return new[] {
+			return new[]
+			{
 				NomenclatureCategory.additional,
 				NomenclatureCategory.water,
 				NomenclatureCategory.bottle,
@@ -1341,11 +1331,12 @@ namespace Vodovoz.Domain.Goods
 
 		public static NomenclatureCategory[] GetCategoriesForMaster()
 		{
-			List<NomenclatureCategory> list = new List<NomenclatureCategory>(GetCategoriesForSale()) {
-				NomenclatureCategory.master,
-				NomenclatureCategory.spare_parts
-			};
-			return list.ToArray();
+			return GetCategoriesForSale()
+				.Concat(new []
+				{
+					NomenclatureCategory.master,
+					NomenclatureCategory.spare_parts
+				}).ToArray();
 		}
 
 		/// <summary>
@@ -1353,7 +1344,8 @@ namespace Vodovoz.Domain.Goods
 		/// </summary>
 		public static NomenclatureCategory[] GetCategoriesForGoods()
 		{
-			return new[] {
+			return new[]
+			{
 				NomenclatureCategory.bottle,
 				NomenclatureCategory.additional,
 				NomenclatureCategory.equipment,
@@ -1375,7 +1367,8 @@ namespace Vodovoz.Domain.Goods
 		/// </summary>
 		public static NomenclatureCategory[] GetCategoriesForGoodsWithoutEmptyBottles()
 		{
-			return new[] {
+			return new[]
+			{
 				NomenclatureCategory.water,
 				NomenclatureCategory.additional,
 				NomenclatureCategory.equipment,
@@ -1387,7 +1380,8 @@ namespace Vodovoz.Domain.Goods
 
 		public static NomenclatureCategory[] GetCategoriesWithEditablePrice()
 		{
-			return new[] {
+			return new[]
+			{
 				NomenclatureCategory.bottle,
 				NomenclatureCategory.additional,
 				NomenclatureCategory.equipment,
@@ -1410,14 +1404,16 @@ namespace Vodovoz.Domain.Goods
 		/// </summary>
 		public static NomenclatureCategory[] GetCategoriesRequirementForWaterAgreement()
 		{
-			return new[] {
+			return new[]
+			{
 				NomenclatureCategory.water
 			};
 		}
 
 		public static NomenclatureCategory[] GetCategoriesNotNeededToLoad()
 		{
-			return new[] {
+			return new[]
+			{
 				NomenclatureCategory.service,
 				NomenclatureCategory.deposit,
 				NomenclatureCategory.master
@@ -1448,7 +1444,7 @@ namespace Vodovoz.Domain.Goods
 			NomenclatureCategory.Vehicle
 		};
 
-		#endregion
+		#endregion Statics
 
 		public virtual void ResetNotWaterOnlineParameters()
 		{
@@ -1468,14 +1464,14 @@ namespace Vodovoz.Domain.Goods
 			LockerRefrigeratorVolume = null;
 			TapType = null;
 		}
-		
+
 		public virtual void ResetNotKulerOnlineParameters()
 		{
 			IsSparklingWater = false;
 			PumpType = null;
 			CupHolderBracingType = null;
 		}
-		
+
 		public virtual void ResetNotPurifierOnlineParameters()
 		{
 			ResetNotKulerOnlineParameters();
@@ -1484,7 +1480,7 @@ namespace Vodovoz.Domain.Goods
 			LockerRefrigeratorVolume = null;
 			TapType = null;
 		}
-		
+
 		public virtual void ResetNotWaterPumpOnlineParameters()
 		{
 			IsSparklingWater = false;
@@ -1503,7 +1499,7 @@ namespace Vodovoz.Domain.Goods
 			LockerRefrigeratorVolume = null;
 			TapType = null;
 		}
-		
+
 		public virtual void ResetNotCupHolderOnlineParameters()
 		{
 			IsSparklingWater = false;
@@ -1529,7 +1525,7 @@ namespace Vodovoz.Domain.Goods
 			CoolingProductivity = null;
 			NewCoolingType = null;
 		}
-		
+
 		public virtual void ResetHeatingParameters()
 		{
 			NewHeatingPower = null;
@@ -1542,41 +1538,4 @@ namespace Vodovoz.Domain.Goods
 			LockerRefrigeratorVolume = null;
 		}
 	}
-
-	public enum TareVolume
-	{
-		[Display(Name = "19 л.")]
-		Vol19L = 19000,
-		[Display(Name = "6 л.")]
-		Vol6L = 6000,
-		[Display(Name = "1,5 л.")]
-		Vol1500ml = 1500,
-		[Display(Name = "0,6 л.")]
-		Vol600ml = 600,
-		[Display(Name = "0,5 л.")]
-		Vol500ml = 500
-	}
-
-	/// <summary>
-	/// Подтип категории "Товары"
-	/// </summary>
-	public enum SaleCategory
-	{
-		[Display(Name = "На продажу")]
-		forSale,
-		[Display(Name = "Не для продажи")]
-		notForSale
-	}
-
-	/// <summary>
-	/// Подтип категории "Залог"
-	/// </summary>
-	public enum TypeOfDepositCategory
-	{
-		[Display(Name = "Залог за бутыли")]
-		BottleDeposit,
-		[Display(Name = "Залог за оборудование")]
-		EquipmentDeposit
-	}
 }
-
