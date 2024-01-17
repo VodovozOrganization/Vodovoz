@@ -270,7 +270,7 @@ namespace Vodovoz.Views.Employees
 				.AddBinding(ViewModel, vm => vm.AddDriverAppLoginInfo, w => w.LabelProp)
 				.InitializeFromSource();
 
-			yAddMobileLogin.Binding
+			btnRegisterDriverAppUser.Binding
 				.AddBinding(ViewModel, vm => vm.IsValidNewDriverAppUser, w => w.Sensitive)
 				.InitializeFromSource();
 
@@ -889,15 +889,15 @@ namespace Vodovoz.Views.Employees
 
 		#endregion
 
+		protected void OnBtnRegisterDriverAppUserClicked(object sender, EventArgs e)
+		{
+			ViewModel.RegisterDriverAppUserOrAddRoleCommand.Execute();
+		}
+
 		public override void Destroy()
 		{
 			attachmentsView?.Destroy();
 			base.Destroy();
-		}
-
-		protected void OnYAddMobileLoginClicked(object sender, EventArgs e)
-		{
-			ViewModel.RegisterDriverAppUserOrAddRoleCommand.Execute();
 		}
 	}
 }
