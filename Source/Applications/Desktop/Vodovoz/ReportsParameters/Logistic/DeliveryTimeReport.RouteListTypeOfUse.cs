@@ -11,7 +11,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 			[Display(Name = "СЦ")]
 			ServiceCenter,
 			[Display(Name = "Фуры")]
-			CompanyTrucks,
+			Trucks,
 			[Display(Name = "Складская логистика")]
 			StorageLogistics
 		}
