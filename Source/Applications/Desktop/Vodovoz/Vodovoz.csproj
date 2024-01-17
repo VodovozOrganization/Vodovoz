@@ -460,6 +460,7 @@
     <Compile Include="JournalColumnsConfigs\CarEventJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\FineTemplateJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\FuelTypeJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\OrganizationJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\RegradingOfGoodsReasonsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\CarEventTypeJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\CarJournalRegistrar.cs" />
@@ -576,9 +577,11 @@
     <Compile Include="JournalColumnsConfigs\WarehouseJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\OrdersWithReceiptsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\WaterJournalRegistrar.cs" />
+    <Compile Include="JournalNodes\OrganizationJournalNode.cs" />
     <Compile Include="JournalNodes\RetailCounterpartyJournalNode.cs" />
     <Compile Include="JournalNodes\OrderForRouteListJournalNode.cs" />
     <Compile Include="JournalNodes\RetailOrderJournalNode.cs" />
+    <Compile Include="JournalViewModels\OrganizationJournalViewModel.cs" />
     <Compile Include="JournalViewModels\RetailCounterpartyJournalViewModel.cs" />
     <Compile Include="JournalViewModels\OrderForRouteListJournalViewModel.cs" />
     <Compile Include="gtk-gui\generated.cs" />
