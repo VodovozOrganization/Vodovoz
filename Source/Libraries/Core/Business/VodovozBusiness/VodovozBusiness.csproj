@@ -617,6 +617,8 @@
     <Compile Include="EntityRepositories\Orders\PromotionalSetRepository.cs" />
     <Compile Include="EntityRepositories\Orders\SmsPaymentRepository.cs" />
     <Compile Include="EntityRepositories\Organizations\IOrganizationRepository.cs" />
+    <Compile Include="EntityRepositories\Payments\NotFullyAllocatedPaymentNode.cs" />
+    <Compile Include="EntityRepositories\Payments\UnallocatedBalancesJournalNode.cs" />
     <Compile Include="EntityRepositories\Permissions\EntityExtendedPermission.cs" />
     <Compile Include="EntityRepositories\Permissions\IPrivilegesRepository.cs" />
     <Compile Include="EntityRepositories\Permissions\IUserRoleRepository.cs" />
@@ -681,6 +683,7 @@
     <Compile Include="Errors\Orders\Order.Accept.cs" />
     <Compile Include="Errors\Orders\Order.cs" />
     <Compile Include="Errors\Orders\Order.FastDelivery.cs" />
+    <Compile Include="Errors\Payments\PaymentsDistribution.cs" />
     <Compile Include="Errors\Result.cs" />
     <Compile Include="Errors\ResultT.cs" />
     <Compile Include="Extensions\DriverPositionExtensions.cs" />

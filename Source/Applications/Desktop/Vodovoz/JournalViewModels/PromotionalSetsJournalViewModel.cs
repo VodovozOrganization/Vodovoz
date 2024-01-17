@@ -11,12 +11,13 @@ using QS.Navigation;
 using Vodovoz.Domain.Orders;
 using Vodovoz.JournalNodes;
 using Vodovoz.ViewModels.Orders;
+using VodovozInfrastructure.StringHandlers;
 
 namespace Vodovoz.JournalViewModels
 {
 	public class PromotionalSetsJournalViewModel : SingleEntityJournalViewModelBase<PromotionalSet, PromotionalSetViewModel, PromotionalSetJournalNode>
 	{
-		private ILifetimeScope _lifetimeScope;
+		private readonly ILifetimeScope _lifetimeScope;
 		
 		public PromotionalSetsJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory, 
@@ -65,6 +66,7 @@ namespace Vodovoz.JournalViewModels
 			UnitOfWorkFactory,
 			commonServices,
 			NavigationManager,
+			_lifetimeScope.Resolve<IStringHandler>(),
 			_lifetimeScope
 		);
 
@@ -73,6 +75,7 @@ namespace Vodovoz.JournalViewModels
 			UnitOfWorkFactory,
 			commonServices,
 			NavigationManager,
+			_lifetimeScope.Resolve<IStringHandler>(),
 			_lifetimeScope
 	   	);
 

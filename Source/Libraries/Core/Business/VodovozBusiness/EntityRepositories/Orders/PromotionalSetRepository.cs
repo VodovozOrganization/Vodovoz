@@ -106,6 +106,8 @@ namespace Vodovoz.EntityRepositories.Orders
 					.Select(() => promotionalSetAlias.Id).WithAlias(() => resultAlias.PromotionalSetId)
 					.Select(() => promotionalSetAlias.OnlineName).WithAlias(() => resultAlias.PromotionalSetOnlineName)
 					.Select(() => promotionalSetAlias.PromotionalSetForNewClients).WithAlias(() => resultAlias.PromotionalSetForNewClients)
+					.Select(() => promotionalSetAlias.BottlesCountForCalculatingDeliveryPrice)
+						.WithAlias(() => resultAlias.BottlesCountForCalculatingDeliveryPrice)
 					.Select(p => p.PromotionalSetOnlineAvailability).WithAlias(() => resultAlias.AvailableForSale))
 				.TransformUsing(Transformers.AliasToBean<PromotionalSetOnlineParametersNode>())
 				.List<PromotionalSetOnlineParametersNode>();

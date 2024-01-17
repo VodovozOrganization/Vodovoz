@@ -385,6 +385,9 @@
     <None Include="$(MSBuildThisFileDirectory)\Reports\Logistic\OrderStatisticByWeek.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="$(MSBuildThisFileDirectory)\Reports\Logistic\OrderStatisticByWeekWithPotentialOrders.rdl">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="$(MSBuildThisFileDirectory)\Reports\Logistic\RouteList.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
