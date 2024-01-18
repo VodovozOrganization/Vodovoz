@@ -23,6 +23,7 @@ namespace CustomerAppsApi.Library.Factories
 					AvailableForSale = parametersNode.Value.AvailableForSale,
 					OnlineName = parametersNode.Value.PromotionalSetOnlineName,
 					ForNewClients = parametersNode.Value.PromotionalSetForNewClients,
+					BottlesCountForCalculatingDeliveryPrice = parametersNode.Value.BottlesCountForCalculatingDeliveryPrice,
 					PromotionalNomenclatures = CreatePromotionalNomenclatureDto(
 						parametersNode.Value.PromotionalSetId, parametersData.PromotionalSetItemBalanceNodes)
 				})

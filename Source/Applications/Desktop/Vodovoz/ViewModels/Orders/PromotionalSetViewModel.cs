@@ -15,18 +15,19 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using VodovozInfrastructure.StringHandlers;
 
 namespace Vodovoz.ViewModels.Orders
 {
 	public class PromotionalSetViewModel : EntityTabViewModelBase<PromotionalSet>, IPermissionResult
 	{
 		private ILifetimeScope _lifetimeScope;
-
 		private PromotionalSetItem _selectedPromoItem;
 		private PromotionalSetActionBase _selectedAction;
 		private WidgetViewModelBase _selectedActionViewModel;
 		private bool _informationTabActive;
 		private bool _sitesAndAppsTabActive;
+		private bool _showSpecialBottlesCountForDeliveryPrice;
 		private int _currentPage;
 		
 		public PromotionalSetViewModel(
@@ -34,8 +35,10 @@ namespace Vodovoz.ViewModels.Orders
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
+			IStringHandler stringHandler,
 			ILifetimeScope lifetimeScope) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
+			StringHandler = stringHandler ?? throw new ArgumentNullException(nameof(stringHandler));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			CanChangeType =
 				commonServices.CurrentPermissionService.ValidatePresetPermission(
@@ -46,6 +49,7 @@ namespace Vodovoz.ViewModels.Orders
 				AbortOpening("У вас недостаточно прав для просмотра");
 			}
 
+			_showSpecialBottlesCountForDeliveryPrice = Entity.BottlesCountForCalculatingDeliveryPrice.HasValue;
 			CreateCommands();
 			ConfigureOnlineParameters();
 		}
@@ -108,9 +112,22 @@ namespace Vodovoz.ViewModels.Orders
 			}
 		}
 		
+		public bool ShowSpecialBottlesCountForDeliveryPrice
+		{
+			get => _showSpecialBottlesCountForDeliveryPrice;
+			set
+			{
+				if(SetField(ref _showSpecialBottlesCountForDeliveryPrice, value) && !value)
+				{
+					Entity.BottlesCountForCalculatingDeliveryPrice = null;
+				}
+			}
+		}
+		
 		public PromotionalSetOnlineParameters MobileAppPromotionalSetOnlineParameters { get; private set; }
 		public PromotionalSetOnlineParameters VodovozWebSitePromotionalSetOnlineParameters { get; private set; }
 		public PromotionalSetOnlineParameters KulerSaleWebSitePromotionalSetOnlineParameters { get; private set; }
+		public IStringHandler StringHandler { get; }
 
 		#region Permissions
 

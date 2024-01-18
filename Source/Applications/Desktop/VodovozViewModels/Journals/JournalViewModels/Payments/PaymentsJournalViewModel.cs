@@ -67,7 +67,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			SetPermissions();
 
 			CreateCancelPaymentAction();
-			UpdateOnChanges(typeof(PaymentItem), typeof(VodOrder));
+			UpdateOnChanges(
+				typeof(PaymentItem),
+				typeof(Payment),
+				typeof(VodOrder));
 		}
 
 		private void SetPermissions()

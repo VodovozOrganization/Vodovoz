@@ -14,6 +14,9 @@ namespace Vodovoz.Data.NHibernate.NhibernateExtensions
 			RegisterFunction("DATE", new StandardSQLFunction("DATE", NHibernateUtil.Date));
 			RegisterFunction("TIME", new StandardSQLFunction("TIME", NHibernateUtil.Time));
 
+			RegisterFunction("ROUND", new SQLFunctionTemplate
+				(NHibernateUtil.Decimal, "ROUND(?1, ?2)"));
+
 			RegisterFunction("GROUP_CONCAT", new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(?1 SEPARATOR ?2)"));
 			RegisterFunction("GROUP_CONCAT_DISTINCT", new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(DISTINCT ?1 SEPARATOR ?2)"));
 			RegisterFunction("GROUP_CONCAT_ORDER_BY_ASC", new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(?1 ORDER BY ?2 ASC SEPARATOR ?3)"));
