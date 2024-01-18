@@ -5,6 +5,7 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -48,6 +49,7 @@ namespace Vodovoz.Journals.JournalViewModels
 	{
 		private readonly IFileDialogService _fileDialogService;
 		private readonly ICommonServices _commonServices;
+		private readonly IInteractiveService _interactiveService;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 		private readonly IGtkTabsOpener _gtkDlgOpener;
@@ -64,6 +66,7 @@ namespace Vodovoz.Journals.JournalViewModels
 		public ComplaintsJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
+			IInteractiveService interactiveService,
 			INavigationManager navigationManager,
 			IEmployeeService employeeService,
 			IRouteListItemRepository routeListItemRepository,
@@ -79,6 +82,7 @@ namespace Vodovoz.Journals.JournalViewModels
 		{
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
 			_gtkDlgOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
@@ -936,12 +940,28 @@ namespace Vodovoz.Journals.JournalViewModels
 
 		private void CreateComplaintClassificationSummaryAction()
 		{
-			NodeActionsList.Add(new JournalAction("Сводка по классификации рекламаций", x => true, x => true,
+			NodeActionsList.Add(new JournalAction(
+				"Сводка по классификации рекламаций",
+				x => true,
+				x => true,
 				selectedItems =>
 				{
-					var nodes = GetComplaintQuery(UoW).List<ComplaintJournalNode>();
-					var report = ComplaintClassificationSummaryReport.Generate(nodes, FilterViewModel);
-					ExportComplaintClassificationSummaryReport(report);
+					try
+					{
+						if(!FilterViewModel.EndDate.HasValue)
+						{
+							_interactiveService.ShowMessage(ImportanceLevel.Error, "Не выбран интервал");
+							return;
+						}
+
+						var nodes = GetComplaintQuery(UoW).List<ComplaintJournalNode>();
+						var report = ComplaintClassificationSummaryReport.Generate(nodes, FilterViewModel);
+						ExportComplaintClassificationSummaryReport(report);
+					}
+					catch(Exception e)
+					{
+						_interactiveService.ShowMessage(ImportanceLevel.Error, $"Не удалось создать отчет: {e.Message}");
+					}
 				}));
 		}
 
