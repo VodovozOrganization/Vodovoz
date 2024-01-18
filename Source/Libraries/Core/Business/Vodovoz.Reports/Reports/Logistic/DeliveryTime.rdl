@@ -63,9 +63,10 @@ WHERE
   AND delivery_schedule.to_time &lt;= @beforeTime
   AND (gg.id IN (@geographic_groups))
   AND (
-          IF('Logistics' IN (@rl_type_of_use), !employees.visiting_master AND !(cv.car_own_type = 'Company' AND cm.car_type_of_use = 'Truck'), false)
-              OR IF('CompanyTrucks' IN (@rl_type_of_use), cv.car_own_type = 'Company' AND cm.car_type_of_use = 'Truck', false)
+           IF('Delivery' IN (@rl_type_of_use), !employees.visiting_master AND cm.car_type_of_use != 'Truck' AND orders.order_address_type = 'Delivery' , false)
+              OR IF('Trucks' IN (@rl_type_of_use), cm.car_type_of_use = 'Truck', false)
               OR IF('ServiceCenter' IN (@rl_type_of_use), employees.visiting_master, false)
+              OR IF('StorageLogistics' IN (@rl_type_of_use), orders.order_address_type = 'StorageLogistics', false)
           )
 GROUP BY route_list_addresses.id
 ORDER BY driver_name, max_time

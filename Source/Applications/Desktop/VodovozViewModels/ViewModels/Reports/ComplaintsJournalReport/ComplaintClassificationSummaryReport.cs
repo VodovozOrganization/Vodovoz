@@ -1,35 +1,35 @@
-﻿using ClosedXML.Report;
-using QS.Project.Services.FileDialog;
+﻿using Gamma.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Gamma.Utilities;
 using Vodovoz.FilterViewModels;
 using Vodovoz.Journals.JournalNodes;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.ComplaintsJournalReport
 {
-	public class ComplaintClassificationSummaryReport
+	public partial class ComplaintClassificationSummaryReport
 	{
-		private const string _templatePath = @".\Reports\Complaints\ComplaintClassificationSummaryReport.xlsx";
-		private readonly IFileDialogService _fileDialogService;
-		private readonly Report _report;
+		public const string TemplatePath = @".\Reports\Complaints\ComplaintClassificationSummaryReport.xlsx";
 
-		public ComplaintClassificationSummaryReport(IList<ComplaintJournalNode> journalNodes, ComplaintFilterViewModel complaintFilterViewModel, IFileDialogService fileDialogService)
+		private ComplaintClassificationSummaryReport(IList<ComplaintJournalNode> journalNodes, string details)
 		{
-			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
-			if(complaintFilterViewModel == null)
-			{
-				throw new ArgumentNullException(nameof(complaintFilterViewModel));
-			}
+			Details = details;
 
-			var title = GenerateTitle(complaintFilterViewModel);
+			Title = $"Детализация рекламаций за {DateTime.Today:dd.MM.yyyy}";
 
-			_report = new Report(journalNodes, title);
+			Rows = GenerateRows(journalNodes);
 		}
 
-		private string GenerateTitle(ComplaintFilterViewModel filter)
+		public string FileName = $"{"Сводка по классификации рекламаций"} {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx";
+
+		public IEnumerable<ReportNode> Rows { get; }
+
+		public string Title { get; }
+
+		public string Details { get; }
+
+		private static string GenerateDetails(ComplaintFilterViewModel filter)
 		{
 			var generateDate = $"Время выгрузки: {DateTime.Now}";
 			StringBuilder title = new StringBuilder(generateDate);
@@ -108,63 +108,36 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.ComplaintsJournalReport
 			return title.ToString();
 		}
 
-		public void Export()
+		private IEnumerable<ReportNode> GenerateRows(IList<ComplaintJournalNode> journalNodes)
 		{
-			var dialogSettings = new DialogSettings();
-			dialogSettings.Title = "Сохранить";
-			dialogSettings.DefaultFileExtention = ".xlsx";
-			dialogSettings.FileName = $"{"Сводка по классификации рекламаций"} {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx";
+			var reportRows = journalNodes.GroupBy(jn => new { jn.Guilties, jn.ComplaintObjectString, jn.ComplaintKindString, jn.ComplaintDetalizationString })
+				.Select(gr =>
+					new ReportNode
+					{
+						Guilties = gr.Key.Guilties?.Replace('\n', '/') ?? "",
+						ComplaintObject = gr.Key.ComplaintObjectString,
+						ComplaintKind = gr.Key.ComplaintKindString,
+						ComplaintDetalization = gr.Key.ComplaintDetalizationString,
+						Amount = gr.Count()
+					})
+				.OrderBy(row => row.Guilties)
+				.ThenBy(row => row.ComplaintObject)
+				.ThenBy(row => row.ComplaintKind)
+				.ToList();
 
-			var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
-			if(result.Successful)
+			for(int i = 0; i < reportRows.Count; i++)
 			{
-				SaveReport(result.Path);
+				reportRows[i].Number = i + 1;
 			}
+
+			return reportRows;
 		}
-
-		private void SaveReport(string path)
+		
+		public static ComplaintClassificationSummaryReport Generate(
+			IList<ComplaintJournalNode> journalNodes,
+			ComplaintFilterViewModel complaintFilterViewModel)
 		{
-			var template = new XLTemplate(_templatePath);
-			template.AddVariable(_report);
-			template.Generate();
-			template.SaveAs(path);
-		}
-
-		private class Report
-		{
-			public Report(IList<ComplaintJournalNode> journalNodes, string title)
-			{
-				Rows = GenerateRows(journalNodes);
-				Title = title;
-			}
-
-			private IEnumerable<ReportNode> GenerateRows(IList<ComplaintJournalNode> journalNodes)
-			{
-				var reportRows = journalNodes.GroupBy(jn => new { jn.ComplaintObjectString, jn.ComplaintKindString, jn.ComplaintDetalizationString })
-					.Select(gr =>
-						new ReportNode
-						{
-							ComplaintObject = gr.Key.ComplaintObjectString,
-							ComplaintKind = gr.Key.ComplaintKindString,
-							ComplaintDetalization = gr.Key.ComplaintDetalizationString,
-							Amount = gr.Count()
-						})
-					.OrderByDescending(rn => rn.Amount);
-
-				return reportRows;
-			}
-
-			public class ReportNode
-			{
-				public string ComplaintObject { get; set; }
-				public string ComplaintKind { get; set; }
-				public string ComplaintDetalization { get; set; }
-				public int Amount { get; set; }
-
-			}
-
-			public IEnumerable<ReportNode> Rows { get; }
-			public string Title { get; }
+			return new ComplaintClassificationSummaryReport(journalNodes, GenerateDetails(complaintFilterViewModel));
 		}
 	}
 }
