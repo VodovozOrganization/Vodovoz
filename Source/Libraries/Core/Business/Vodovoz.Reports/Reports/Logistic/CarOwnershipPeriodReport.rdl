@@ -24,54 +24,8 @@
   </PageHeader>
   <Body>
     <ReportItems>
-      <Textbox Name="Textbox11" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>12.75pt</Height>
-        <Width>533.79pt</Width>
-        <Value>="Сформировано: " + Format( {@ExecutionTime}, "dd.MM.yyyy HH:mm")</Value>
-        <ZIndex>0</ZIndex>
-        <Left>0.00pt</Left>
-        <Top>32.40pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <TextAlign>Left</TextAlign>
-          <FontSize>10pt</FontSize>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Top>7.2pt</Top>
-        <Left>3.2pt</Left>
-        <Width>811.62pt</Width>
-        <Height>17.04pt</Height>
-        <Value>="Изменение принадлежности автопарка в период с " + (Format(Convert.ToDateTime({?start_date}), "dd.MM.yyyy")) + " по "+ (Format(Convert.ToDateTime({?end_date}), "dd.MM.yyyy"))</Value>
-        <Style>
-          <FontSize>15pt</FontSize>
-          <FontWeight>Bold</FontWeight>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <TextAlign>Center</TextAlign>
-          <VerticalAlign>Middle</VerticalAlign>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox12">
-        <Height>10.66pt</Height>
-        <Width>390.43pt</Width>
-        <Value>={?filters_text}</Value>
-        <ZIndex>0</ZIndex>
-        <Left>0.00pt</Left>
-        <Top>45.64pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <TextAlign>General</TextAlign>
-        </Style>
-        <CanGrow>true</CanGrow>
-      </Textbox>
       <Textbox Name="Textbox7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Top>67.8pt</Top>
+        <Top>88.7pt</Top>
         <Left>0.0pt</Left>
         <Width>811.62pt</Width>
         <Height>17.04pt</Height>
@@ -354,6 +308,8 @@
                         <TextAlign>Left</TextAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <PaddingLeft >2pt</PaddingLeft>
+                        <PaddingRight >2pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -363,10 +319,116 @@
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>92.7pt</Top>
+        <Top>118.6pt</Top>
+      </Table>
+      <Table Name="Table2" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <DataSetName>criterions</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>820.9pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>25.4pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox20">
+                      <Value>="Изменение принадлежности автопарка в период с " + (Format(Convert.ToDateTime({?start_date}), "dd.MM.yyyy")) + " по "+ (Format(Convert.ToDateTime({?end_date}), "dd.MM.yyyy"))</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>14pt</FontSize>
+                        <PaddingTop>3pt</PaddingTop>
+                        <PaddingBottom>6pt</PaddingBottom>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>19.8pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox21">
+                      <Value>="Сформировано: " + Format( {@ExecutionTime}, "dd.MM.yyyy HH:mm")</Value>
+                      <Style>
+                        <TextAlign>Left</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Normal</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingTop>3pt</PaddingTop>
+                        <PaddingBottom>3pt</PaddingBottom>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>22.1pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox22">
+                      <Value>={filters_text}</Value>
+                      <Style>
+                        <TextAlign>Left</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Normal</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingTop>3pt</PaddingTop>
+                        <PaddingBottom>6pt</PaddingBottom>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Left>0.0pt</Left>
+        <Top>15.3pt</Top>
       </Table>
     </ReportItems>
-    <Height>183.0pt</Height>
+    <Height>166.7pt</Height>
     <Columns>1</Columns>
   </Body>
   <PageFooter>
@@ -431,7 +493,7 @@
   </ReportParameters>
   <DataSets>
     <DataSet Name="car_changes">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>60</Timeout>
         <CommandText>SELECT
@@ -475,7 +537,7 @@ ORDER BY cv.start_date, cv.car_own_type;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="change_date">
           <DataField>change_date</DataField>
           <TypeName>System.String</TypeName>
@@ -502,6 +564,23 @@ ORDER BY cv.start_date, cv.car_own_type;</CommandText>
         </Field>
         <Field Name="driver_name">
           <DataField>driver_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="criterions" >
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT @filters_text as filters_text;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="@filters_text">
+            <Value>={?filters_text}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="filters_text">
+          <DataField>filters_text</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>

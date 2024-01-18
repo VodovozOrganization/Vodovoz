@@ -24,71 +24,9 @@
   </PageHeader>
   <Body>
     <ReportItems>
-      <Textbox Name="Textbox11" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>12.75pt</Height>
-        <Width>533.79pt</Width>
-        <Value>="Сформировано: " + Format( {@ExecutionTime}, "dd.MM.yyyy HH:mm")</Value>
-        <ZIndex>0</ZIndex>
-        <Left>0.00pt</Left>
-        <Top>32.40pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <TextAlign>Left</TextAlign>
-          <FontSize>10pt</FontSize>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Top>7.2pt</Top>
-        <Left>3.2pt</Left>
-        <Width>811.62pt</Width>
-        <Height>17.04pt</Height>
-        <Value>="Количество ТС компании " + (Format(Convert.ToDateTime({?date}), "dd.MM.yyyy"))</Value>
-        <Style>
-          <FontSize>15pt</FontSize>
-          <FontWeight>Bold</FontWeight>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <TextAlign>Center</TextAlign>
-          <VerticalAlign>Middle</VerticalAlign>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox12">
-        <Height>10.66pt</Height>
-        <Width>390.43pt</Width>
-        <Value>={?filters_text}</Value>
-        <ZIndex>0</ZIndex>
-        <Left>0.00pt</Left>
-        <Top>45.64pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <TextAlign>General</TextAlign>
-        </Style>
-        <CanGrow>true</CanGrow>
-      </Textbox>
-      <Textbox Name="Textbox7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Top>67.8pt</Top>
-        <Left>0.0pt</Left>
-        <Width>811.62pt</Width>
-        <Height>17.04pt</Height>
-        <Value>Распределение машин</Value>
-        <Style>
-          <FontSize>13pt</FontSize>
-          <FontWeight>Bold</FontWeight>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <TextAlign>Center</TextAlign>
-          <VerticalAlign>Middle</VerticalAlign>
-        </Style>
-      </Textbox>
       <Table Name="Table1">
         <DataSetName>summary_report</DataSetName>
-        <NoRows>Query returned no rows!</NoRows>
+        <NoRows>Автомобили соответствующие заданным параметрам не найдены</NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -219,6 +157,8 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontWeight>Bold</FontWeight>
+                        <PaddingLeft >2pt</PaddingLeft>
+                        <PaddingRight >2pt</PaddingRight>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -293,7 +233,7 @@
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>95.2pt</Top>
+        <Top>117.9pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -309,6 +249,8 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontWeight>Bold</FontWeight>
+                        <PaddingLeft >2pt</PaddingLeft>
+                        <PaddingRight >2pt</PaddingRight>
                       </Style>
                       <Value>Всего</Value>
                     </Textbox>
@@ -379,22 +321,6 @@
           </TableRows>
         </Footer>
       </Table>
-      <Textbox Name="Textbox26" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Top>142.9pt</Top>
-        <Left>3.1pt</Left>
-        <Width>811.62pt</Width>
-        <Height>17.04pt</Height>
-        <Value>Подробный отчёт по авто</Value>
-        <Style>
-          <FontSize>13pt</FontSize>
-          <FontWeight>Bold</FontWeight>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <TextAlign>Center</TextAlign>
-          <VerticalAlign>Middle</VerticalAlign>
-        </Style>
-      </Textbox>
       <Table Name="Table2">
         <DataSetName>detailed_report</DataSetName>
         <NoRows>Автомобили типа "Фургон (ларгусы)" соответствующие заданным параметрам не найдены</NoRows>
@@ -547,6 +473,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -611,6 +538,8 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Left</TextAlign>
+                        <PaddingLeft >2pt</PaddingLeft>
+                        <PaddingRight >2pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -626,6 +555,8 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Left</TextAlign>
+                        <PaddingLeft >2pt</PaddingLeft>
+                        <PaddingRight >2pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -635,7 +566,7 @@
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>166.4pt</Top>
+        <Top>197.5pt</Top>
         <Filters>
           <Filter>
             <FilterExpression>={car_type_of_use}</FilterExpression>
@@ -798,6 +729,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -862,6 +794,8 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Left</TextAlign>
+                        <PaddingLeft >2pt</PaddingLeft>
+                        <PaddingRight >2pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -877,6 +811,8 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Left</TextAlign>
+                        <PaddingLeft >2pt</PaddingLeft>
+                        <PaddingRight >2pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -886,7 +822,7 @@
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>201.2pt</Top>
+        <Top>232.4pt</Top>
         <Filters>
           <Filter>
             <FilterExpression>={car_type_of_use}</FilterExpression>
@@ -1049,6 +985,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1113,6 +1050,8 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Left</TextAlign>
+                        <PaddingLeft >2pt</PaddingLeft>
+                        <PaddingRight >2pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1128,6 +1067,8 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Left</TextAlign>
+                        <PaddingLeft >2pt</PaddingLeft>
+                        <PaddingRight >2pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1137,7 +1078,7 @@
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>237.3pt</Top>
+        <Top>270.2pt</Top>
         <Filters>
           <Filter>
             <FilterExpression>={car_type_of_use}</FilterExpression>
@@ -1148,8 +1089,146 @@
           </Filter>
         </Filters>
       </Table>
+      <Textbox Name="Textbox59">
+        <Height>16.52pt</Height>
+        <Width>816.11pt</Width>
+        <Value>Подробный отчёт по авто</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.0pt</Left>
+        <Top>169.4pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <FontSize>14pt</FontSize>
+          <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
+      <Table Name="Table5">
+        <DataSetName>criterions</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>820.9pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>25.4pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox1">
+                      <Value>="Количество ТС компании " + (Format(Convert.ToDateTime({?date}), "dd.MM.yyyy"))</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>14pt</FontSize>
+                        <PaddingTop>3pt</PaddingTop>
+                        <PaddingBottom>6pt</PaddingBottom>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>19.8pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox61">
+                      <Value>="Сформировано: " + Format( {@ExecutionTime}, "dd.MM.yyyy HH:mm")</Value>
+                      <Style>
+                        <TextAlign>Left</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Normal</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingTop>3pt</PaddingTop>
+                        <PaddingBottom>3pt</PaddingBottom>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>22.1pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox60">
+                      <Value>={filters_text}</Value>
+                      <Style>
+                        <TextAlign>Left</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Normal</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingTop>3pt</PaddingTop>
+                        <PaddingBottom>6pt</PaddingBottom>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Left>0.0pt</Left>
+        <Top>12.1pt</Top>
+      </Table>
+      <Textbox Name="Textbox62" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>18.04pt</Height>
+        <Width>499.99pt</Width>
+        <Value>Распределение машин</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.00pt</Left>
+        <Top>88.90pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <FontSize>14pt</FontSize>
+          <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
     </ReportItems>
-    <Height>300.0pt</Height>
+    <Height>314.4pt</Height>
     <Columns>1</Columns>
   </Body>
   <PageFooter>
@@ -1177,7 +1256,7 @@
   <DataElementStyle>AttributeNormal</DataElementStyle>
   <DataSets>
     <DataSet Name="summary_report">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>60</Timeout>
         <CommandText>SELECT 
@@ -1216,7 +1295,7 @@ GROUP BY t.car_type_of_use;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="model_info">
           <DataField>model_info</DataField>
           <TypeName>System.String</TypeName>
@@ -1240,7 +1319,7 @@ GROUP BY t.car_type_of_use;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="detailed_report">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>60</Timeout>
         <CommandText>SELECT
@@ -1278,7 +1357,7 @@ ORDER BY c.id;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="car_type_of_use">
           <DataField>car_type_of_use</DataField>
           <TypeName>System.String</TypeName>
@@ -1301,6 +1380,23 @@ ORDER BY c.id;</CommandText>
         </Field>
         <Field Name="car_own_type">
           <DataField>car_own_type</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="criterions" >
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT @filters_text as filters_text;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="@filters_text">
+            <Value>={?filters_text}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="filters_text">
+          <DataField>filters_text</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
