@@ -1647,6 +1647,12 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			#endregion
+
+			if(OrderItems.Where(x => x.Nomenclature.IsArchive) is IEnumerable<OrderItem> archivedNomenclatures && archivedNomenclatures.Any())
+			{
+				yield return new ValidationResult($"В заказе присутствуют архивные номенклатуры: {string.Join(", ", archivedNomenclatures.Select(x => x.Nomenclature.Name))} .",
+					new[] { nameof(Nomenclature) });
+			}
 		}
 
 		private void CopiedOrderItemsPriceValidation(OrderItem[] currentCopiedItems, List<string> incorrectPriceItems)
