@@ -47,6 +47,14 @@ namespace Vodovoz
 
 		private void ConfigureDlg ()
 		{
+			var isCanEditEntity = permissionResult.CanUpdate
+				|| (UoWGeneric.IsNew && permissionResult.CanCreate);
+
+			notebookMain.Visible = isCanEditEntity || permissionResult.CanRead;
+
+			accountsview1.CanEdit = isCanEditEntity;
+			buttonSave.Sensitive = isCanEditEntity;
+
 			dataentryName.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
 			dataentryFullName.Binding.AddBinding(Entity, e => e.FullName, w => w.Text).InitializeFromSource();
 
@@ -71,7 +79,7 @@ namespace Vodovoz
 				UoWGeneric.Root.Phones = new List<Phone> ();
 			phonesview1.Phones = UoWGeneric.Root.Phones;
 
-			var organizationVersionsViewModel = _organizationVersionsViewModelFactory.CreateOrganizationVersionsViewModel(Entity);
+			var organizationVersionsViewModel = _organizationVersionsViewModelFactory.CreateOrganizationVersionsViewModel(Entity, isCanEditEntity);
 			versionsView.ViewModel = organizationVersionsViewModel;
 		}
 
