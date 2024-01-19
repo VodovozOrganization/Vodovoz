@@ -254,7 +254,7 @@ namespace Vodovoz.Domain.Client
 		public virtual DebtType? CloseDeliveryDebtType
 		{
 			get => _closeDeliveryDebtType;
-			protected set => SetField(ref _closeDeliveryDebtType, value);
+			set => SetField(ref _closeDeliveryDebtType, value);
 		}
 
 		#endregion CloseDelivery
@@ -1131,6 +1131,7 @@ namespace Vodovoz.Domain.Client
 			CloseDeliveryDate = null;
 			CloseDeliveryPerson = null;
 			CloseDeliveryComment = null;
+			CloseDeliveryDebtType = null;
 
 			return true;
 		}
