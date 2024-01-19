@@ -1555,7 +1555,7 @@ FROM
 				query.Where(() => nomenclatureAlias.IsArchive);
 			}
 
-			var result = query.TransformUsing(Transformers.RootEntity).List();
+			var result = query.TransformUsing(Transformers.DistinctRootEntity).List();
 
 			return result;
 		}
