@@ -799,16 +799,14 @@ namespace Vodovoz.ViewModels.Logistic
 				else
 				{
 					if(!routeListShippedWithoutTerminal && notLoadedGoods.Any())
-					{
-						var notLoadedNomenclatureIds = notLoadedGoods.Select(x => x.NomenclatureId);
-						var notLoadedArchivedNomenclatures = localUow.GetAll<Nomenclature>()
-							.Where(n => notLoadedNomenclatureIds.Contains(n.Id) && n.IsArchive);
+					{						
+						var archivedNomenclatures = _routeListRepository.GetRouteListNomenclatures(localUow, routeList.Id, true);
 
-						if(notLoadedArchivedNomenclatures.Any())
+						if(archivedNomenclatures.Any())
 						{
 							commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
 								$"Не удалось автоматически отгрузить Маршрутный лист, т.к. присутствуют архивнвые номенклатуры: " +
-								$"{string.Join(", ", notLoadedArchivedNomenclatures.Select(n => n.Name))}");
+								$"{string.Join(", ", archivedNomenclatures.Select(n => $"№{n.Id} {n.Name}"))}.");
 
 							return;
 						}

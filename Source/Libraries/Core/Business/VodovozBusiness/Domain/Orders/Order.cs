@@ -1650,7 +1650,8 @@ namespace Vodovoz.Domain.Orders
 
 			if(OrderItems.Where(x => x.Nomenclature.IsArchive) is IEnumerable<OrderItem> archivedNomenclatures && archivedNomenclatures.Any())
 			{
-				yield return new ValidationResult($"В заказе присутствуют архивные номенклатуры: {string.Join(", ", archivedNomenclatures.Select(x => x.Nomenclature.Name))} .",
+				yield return new ValidationResult($"В заказе присутствуют архивные номенклатуры: " +
+					$"{string.Join(", ", archivedNomenclatures.Select(x => $"№{x.Nomenclature.Id} { x.Nomenclature.Name}"))}.",
 					new[] { nameof(Nomenclature) });
 			}
 		}
