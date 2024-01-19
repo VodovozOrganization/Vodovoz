@@ -2528,8 +2528,7 @@ namespace Vodovoz
 			_emailAddressForBill = _emailService.GetEmailAddressForBill(Entity);
 
 			if(_emailService.NeedSendBillToEmail(UoW, Entity, _orderRepository, _emailRepository)
-			   && _emailAddressForBill != null
-			   && Order.DeliverySchedule.Id != _deliveryScheduleParametersProvider.ClosingDocumentDeliveryScheduleId)
+			   && _emailAddressForBill != null)
 			{
 				_isNeedSendBillToEmail = true;
 			}
