@@ -2,6 +2,11 @@
 {
 	public static class Nomenclature
 	{
+		public static Error NotFound(int nomenclatureId) => new Error(
+			typeof(Nomenclature),
+			nameof(NotFound),
+			$"Номенклатура #{nomenclatureId} не найдена");
+
 		public static Error HasResiduesInWarhouses = new Error(
 			typeof(Nomenclature),
 			nameof(HasResiduesInWarhouses),

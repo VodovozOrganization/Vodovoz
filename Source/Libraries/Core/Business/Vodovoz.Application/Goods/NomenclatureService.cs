@@ -61,7 +61,7 @@ namespace Vodovoz.Application.Goods
 
 			if(nomenclature is null)
 			{
-				throw new ArgumentOutOfRangeException(nameof(nomenclatureId), $"Номенклатура #{nomenclatureId} не найдена");
+				return Result.Failure(Errors.Goods.Nomenclature.NotFound(nomenclatureId));
 			}
 
 			return Archive(unitOfWork, nomenclature);
