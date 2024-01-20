@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using Microsoft.Extensions.Logging;
 using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
@@ -13,6 +14,7 @@ using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Vodovoz.Application.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.EntityRepositories;
@@ -37,7 +39,9 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		private readonly IUserRepository _userRepository;
 		private readonly int[] _equipmentKindsHavingGlassHolder;
 		private readonly INomenclatureOnlineParametersProvider _nomenclatureOnlineParametersProvider;
+		private readonly INomenclatureService _nomenclatureService;
 		private ILifetimeScope _lifetimeScope;
+		private readonly IInteractiveService _interactiveService;
 		private NomenclatureOnlineParameters _mobileAppNomenclatureOnlineParameters;
 		private NomenclatureOnlineParameters _vodovozWebSiteNomenclatureOnlineParameters;
 		private NomenclatureOnlineParameters _kulerSaleWebSiteNomenclatureOnlineParameters;
@@ -53,6 +57,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
+			IInteractiveService interactiveService,
 			IEmployeeService employeeService,
 			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
@@ -60,7 +65,8 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			IUserRepository userRepository,
 			IStringHandler stringHandler,
 			INomenclatureOnlineParametersProvider nomenclatureOnlineParametersProvider,
-			INomenclatureSettings nomenclatureSettings)
+			INomenclatureSettings nomenclatureSettings,
+			INomenclatureService nomenclatureService)
 			: base(uowBuilder, uowFactory, commonServices)
 		{
 			if(nomenclatureSelectorFactory is null)
@@ -76,6 +82,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			StringHandler = stringHandler ?? throw new ArgumentNullException(nameof(stringHandler));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
@@ -85,6 +92,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			CounterpartySelectorFactory =
 				(counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope);
+			_nomenclatureService = nomenclatureService ?? throw new ArgumentNullException(nameof(nomenclatureService));
 
 			ConfigureEntryViewModels();
 			ConfigureOnlineParameters();
@@ -100,6 +108,9 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			SaveCommand = CreateSaveCommand();
 			CopyPricesWithoutDiscountFromMobileAppToVodovozWebSiteCommand =
 				CreateCopyPricesWithoutDiscountFromMobileAppToVodovozWebSiteCommand();
+
+			ArchiveCommand = new DelegateCommand(Archive);
+			UnArchiveCommand = new DelegateCommand(UnArchive);
 		}
 
 		public IStringHandler StringHandler { get; }
@@ -354,6 +365,10 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				},
 				() => true);
 		}
+
+		public DelegateCommand ArchiveCommand { get; }
+		public DelegateCommand UnArchiveCommand { get; }
+
 
 		#endregion Commands
 
@@ -836,6 +851,28 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				var mobileAppPrice = MobileAppNomenclatureOnlineParameters.NomenclatureOnlinePrices[i];
 				nomenclatureOnlineParameters.NomenclatureOnlinePrices[i].PriceWithoutDiscount = mobileAppPrice.PriceWithoutDiscount;
 			}
+		}
+
+		private void Archive()
+		{
+			if(!UoWGeneric.IsNew)
+			{
+				var result = _nomenclatureService.Archive(UoW, Entity);
+
+				if(result.IsFailure)
+				{
+					_interactiveService.ShowMessage(ImportanceLevel.Error, string.Join("\n", result.Errors.Select(e => e.Message)), "Не удалось архивирвоать номенклатуру");
+				}
+			}
+			else
+			{
+				Entity.IsArchive = true;
+			}
+		}
+
+		private void UnArchive()
+		{
+			Entity.IsArchive = false;
 		}
 
 		public override void Dispose()

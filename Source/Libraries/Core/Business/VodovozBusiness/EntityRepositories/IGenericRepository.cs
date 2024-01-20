@@ -15,5 +15,6 @@ namespace Vodovoz.EntityRepositories
 			int limit = 0);
 
 		IEnumerable<TEntity> Get(IUnitOfWork unitOfWork, ExpressionSpecification<TEntity> expressionSpecification, int limit = 0);
+		IEnumerable<TType> GetValue<TType>(IUnitOfWork unitOfWork, Expression<Func<TEntity, TType>> selector, Expression<Func<TEntity, bool>> predicate = null, int limit = 0);
 	}
 }

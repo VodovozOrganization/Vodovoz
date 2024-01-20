@@ -677,6 +677,7 @@
     <Compile Include="Errors\Clients\DeliveryPoint.cs" />
     <Compile Include="Errors\Clients\DeliveryPoint.FastDelivery.cs" />
     <Compile Include="Errors\Error.cs" />
+    <Compile Include="Errors\Goods\Nomenclature.cs" />
     <Compile Include="Errors\Logistics\District.cs" />
     <Compile Include="Errors\Logistics\District.FastDelivery.cs" />
     <Compile Include="Errors\Logistics\RouteList.RouteListItem.cs" />
