@@ -2,6 +2,7 @@
 using Gamma.GtkWidgets;
 using Gtk;
 using QS.DomainModel.UoW;
+using QS.Project.Journal;
 using System;
 using System.Linq;
 using Vodovoz.Domain.Goods;
@@ -12,6 +13,7 @@ using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 
 namespace Vodovoz.ViewWidgets
 {
@@ -101,14 +103,14 @@ namespace Vodovoz.ViewWidgets
 			var nomenclatureJournalFactory = new NomenclatureJournalFactory();
 			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel(_lifetimeScope);
 			journal.FilterViewModel = filter;
-			journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult;
+			journal.OnSelectResult += Journal_OnEntitySelectedResult;
 			journal.Title = "Оборудование";
 			MyTab.TabParent.AddSlaveTab(MyTab, journal);
 		}
 
-		private void Journal_OnEntitySelectedResult(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)
+		private void Journal_OnEntitySelectedResult(object sender, JournalSelectedEventArgs e)
 		{
-			var selectedNode = e.SelectedNodes.FirstOrDefault();
+			var selectedNode = e.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
 			if(selectedNode == null)
 			{
 				return;

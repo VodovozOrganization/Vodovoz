@@ -8,6 +8,7 @@ using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Project.Journal;
 using QS.Project.Services;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Documents;
@@ -26,6 +27,7 @@ using Vodovoz.Repository.Store;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 
 namespace Vodovoz
 {
@@ -308,7 +310,7 @@ namespace Vodovoz
 
 			var nomenclatureJournalFactory = new NomenclatureJournalFactory();
 			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel(_lifetimeScope, filter, true);
-			journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult;
+			journal.OnSelectResult += Journal_OnEntitySelectedResult;
 
 			if(_userHasOnlyAccessToWarehouseAndComplaints == null)
 			{
@@ -326,14 +328,16 @@ namespace Vodovoz
 			MyTab.TabParent.AddSlaveTab(MyTab, journal);
 		}
 
-		private void Journal_OnEntitySelectedResult(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)
+		private void Journal_OnEntitySelectedResult(object sender, JournalSelectedEventArgs e)
 		{
-			if(!e.SelectedNodes.Any())
+			var selectedNodes = e.SelectedObjects.Cast<NomenclatureJournalNode>();
+
+			if(!selectedNodes.Any())
 			{
 				return;
 			}
 
-			var nomenclatures = UoW.GetById<Nomenclature>(e.SelectedNodes.Select(x => x.Id));
+			var nomenclatures = UoW.GetById<Nomenclature>(selectedNodes.Select(x => x.Id));
 			foreach(var nomenclature in nomenclatures)
 			{
 				if(Items.Any(x => x.NomenclatureId == nomenclature.Id))

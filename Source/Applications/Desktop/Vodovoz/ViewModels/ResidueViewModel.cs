@@ -22,6 +22,8 @@ using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using QS.Project.Journal;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 
 namespace Vodovoz.ViewModels
 {
@@ -209,7 +211,7 @@ namespace Vodovoz.ViewModels
 					var nomenclatureJournalFactory = new NomenclatureJournalFactory();
 					var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel(_lifetimeScope);
 					journal.FilterViewModel = filter;
-					journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult; ;
+					journal.OnSelectResult += Journal_OnEntitySelectedResult;
 					TabParent.AddSlaveTab(this, journal);
 				},
 				() => CanEdit
@@ -221,9 +223,9 @@ namespace Vodovoz.ViewModels
 			);
 		}
 
-		private void Journal_OnEntitySelectedResult(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)
+		private void Journal_OnEntitySelectedResult(object sender, JournalSelectedEventArgs e)
 		{
-			var selectedNode = e.SelectedNodes.FirstOrDefault();
+			var selectedNode = e.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
 			if(selectedNode == null)
 			{
 				return;

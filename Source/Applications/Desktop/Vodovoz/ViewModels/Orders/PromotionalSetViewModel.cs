@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using QS.Commands;
 using QS.DomainModel.UoW;
@@ -174,8 +174,8 @@ namespace Vodovoz.ViewModels.Orders
 						vm => vm.SelectionMode = JournalSelectionMode.Single)
 					.ViewModel;
 
-				nomenJournalViewModel.OnEntitySelectedResult += (sender, e) => {
-					var selectedNode = e.SelectedNodes.Cast<NomenclatureJournalNode>().FirstOrDefault();
+				nomenJournalViewModel.OnSelectResult += (sender, e) => {
+					var selectedNode = e.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
 					if(selectedNode == null) {
 						return;
 					}
