@@ -213,18 +213,18 @@ namespace Vodovoz.ViewModels.Warehouses
 									{
 										filter.RestrictArchive = true;
 										filter.AvailableCategories = Nomenclature.GetCategoriesForGoods();
+										filter.RestrictedExcludedIds = alreadyAddedNomenclatures;
 									},
 									OpenPageOptions.AsSlave,
 									vm =>
 									{
 										vm.SelectionMode = JournalSelectionMode.Single;
-										vm.ExcludingNomenclatureIds = alreadyAddedNomenclatures;
 									}
 								).ViewModel;
 							
-							nomenclatureSelector.OnEntitySelectedResult += (sender, e) =>
+							nomenclatureSelector.OnSelectResult += (sender, e) =>
 							{
-								var selectedNodes = e.SelectedNodes;
+								var selectedNodes = e.SelectedObjects as IEnumerable<NomenclatureJournalNode>;
 								if(!selectedNodes.Any())
 								{
 									return;

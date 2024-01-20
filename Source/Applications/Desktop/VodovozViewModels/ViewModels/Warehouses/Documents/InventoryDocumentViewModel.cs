@@ -35,6 +35,7 @@ using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Reports;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 
 namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 {
@@ -400,14 +401,16 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 			var nomenclatureSelector = NomenclatureJournalFactory.CreateNomenclatureSelector(_lifetimeScope);
 			var nomenclatureJournalViewModel = NavigationManager.OpenViewModel<NomenclaturesJournalViewModel, IEntitySelector>(this, nomenclatureSelector).ViewModel;
 			nomenclatureJournalViewModel.SelectionMode = JournalSelectionMode.Single;
-			nomenclatureJournalViewModel.OnEntitySelectedResult += NomenclatureSelectorOnEntitySelectedResult;
+			nomenclatureJournalViewModel.OnSelectResult += NomenclatureSelectorOnEntitySelectedResult;
 		}
 
-		private void NomenclatureSelectorOnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
+		private void NomenclatureSelectorOnEntitySelectedResult(object sender, JournalSelectedEventArgs e)
 		{
-			if(e.SelectedNodes.Any())
+			var selectedNodes = e.SelectedObjects.Cast<NomenclatureJournalNode>();
+
+			if(selectedNodes.Any())
 			{
-				foreach(var node in e.SelectedNodes)
+				foreach(var node in selectedNodes)
 				{
 					if(Entity.ObservableNomenclatureItems.Any(x => x.Nomenclature.Id == node.Id))
 					{

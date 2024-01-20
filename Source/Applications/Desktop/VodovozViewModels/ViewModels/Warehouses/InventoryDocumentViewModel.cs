@@ -356,7 +356,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 				{
 					var page = NavigationManager.OpenViewModel<NomenclaturesJournalViewModel>(this, OpenPageOptions.AsSlave);
 					page.ViewModel.SelectionMode = JournalSelectionMode.Single;
-					page.ViewModel.OnEntitySelectedResult += OnMissingNomenclatureSelectedResult;
+					page.ViewModel.OnSelectResult += OnMissingNomenclatureSelectedResult;
 				}
 			));
 		
@@ -1003,14 +1003,16 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			}
 		}
 
-		private void OnMissingNomenclatureSelectedResult(object sender, JournalSelectedNodesEventArgs e)
+		private void OnMissingNomenclatureSelectedResult(object sender, JournalSelectedEventArgs e)
 		{
-			if(!e.SelectedNodes.Any())
+			var selectedNodes = e.SelectedObjects.Cast<NomenclatureJournalNode>();
+
+			if(!selectedNodes.Any())
 			{
 				return;
 			}
 
-			foreach(var node in e.SelectedNodes)
+			foreach(var node in selectedNodes)
 			{
 				if(Entity.ObservableNomenclatureItems.Any(x => x.Nomenclature.Id == node.Id))
 				{

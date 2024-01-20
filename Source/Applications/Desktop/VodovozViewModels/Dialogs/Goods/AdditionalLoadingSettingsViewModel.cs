@@ -17,6 +17,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.ViewModels.Goods
@@ -141,7 +142,7 @@ namespace Vodovoz.ViewModels.Goods
 						OpenPageOptions.AsSlave
 					);
 					page.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
-					page.ViewModel.OnEntitySelectedResult += OnNomenclaturesSelected;
+					page.ViewModel.OnSelectResult += OnNomenclaturesSelected;
 				}));
 
 		public DelegateCommand ShowFlyerInfoCommand => _showFlyerInfoCommand
@@ -162,9 +163,10 @@ namespace Vodovoz.ViewModels.Goods
 					);
 				}));
 
-		private void OnNomenclaturesSelected(object sender, JournalSelectedNodesEventArgs e)
+		private void OnNomenclaturesSelected(object sender, JournalSelectedEventArgs e)
 		{
-			var nodesToAdd = e.SelectedNodes
+			var nodesToAdd = e.SelectedObjects
+				.Cast<NomenclatureJournalNode>()
 				.Where(selectedNode => ObservableNomenclatureDistributions.All(x => x.Nomenclature.Id != selectedNode.Id))
 				.ToList();
 

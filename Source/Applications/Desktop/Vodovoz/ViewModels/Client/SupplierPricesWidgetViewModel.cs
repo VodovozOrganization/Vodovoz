@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using QS.Commands;
 using QS.DomainModel.UoW;
@@ -11,6 +11,7 @@ using QS.ViewModels;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.ViewModels.Client
@@ -87,19 +88,19 @@ namespace Vodovoz.ViewModels.Client
 							filter =>
 							{
 								filter.HidenByDefault = true;
+								filter.RestrictedExcludedIds = existingNomenclatures.ToArray();
 							},
 							OpenPageOptions.AsSlave,
 							vm =>
 							{
 								vm.SelectionMode = JournalSelectionMode.Single;
-								vm.ExcludingNomenclatureIds = existingNomenclatures.ToArray();
 							}
 						).ViewModel;
 					
-					journalViewModel.OnEntitySelectedResult += (sender, e) =>
+					journalViewModel.OnSelectResult += (sender, e) =>
 					{
-						var selectedNode = e.SelectedNodes.FirstOrDefault();
-						if(selectedNode == null)
+						var selectedObject = e.SelectedObjects.FirstOrDefault();
+						if(!(selectedObject is NomenclatureJournalNode selectedNode))
 						{
 							return;
 						}
