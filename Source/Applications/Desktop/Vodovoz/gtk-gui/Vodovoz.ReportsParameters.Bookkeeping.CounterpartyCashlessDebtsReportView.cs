@@ -20,7 +20,7 @@ namespace Vodovoz.ReportsParameters.Bookkeeping
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckExpiredOnly;
 
-		private global::Gamma.GtkWidgets.yCheckButton chkOrderByDate;
+		private global::Gamma.GtkWidgets.yCheckButton ycheckOrderByDate;
 
 		private global::Gamma.GtkWidgets.yVBox yvboxFilter;
 
@@ -118,14 +118,14 @@ namespace Vodovoz.ReportsParameters.Bookkeeping
 			w7.Expand = false;
 			w7.Fill = false;
 			// Container child yvboxParameters.Gtk.Box+BoxChild
-			this.chkOrderByDate = new global::Gamma.GtkWidgets.yCheckButton();
-			this.chkOrderByDate.CanFocus = true;
-			this.chkOrderByDate.Name = "chkOrderByDate";
-			this.chkOrderByDate.Label = global::Mono.Unix.Catalog.GetString("Сортировка по дате");
-			this.chkOrderByDate.DrawIndicator = true;
-			this.chkOrderByDate.UseUnderline = true;
-			this.yvboxParameters.Add(this.chkOrderByDate);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.yvboxParameters[this.chkOrderByDate]));
+			this.ycheckOrderByDate = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckOrderByDate.CanFocus = true;
+			this.ycheckOrderByDate.Name = "ycheckOrderByDate";
+			this.ycheckOrderByDate.Label = global::Mono.Unix.Catalog.GetString("Сортировка по дате");
+			this.ycheckOrderByDate.DrawIndicator = true;
+			this.ycheckOrderByDate.UseUnderline = true;
+			this.yvboxParameters.Add(this.ycheckOrderByDate);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.yvboxParameters[this.ycheckOrderByDate]));
 			w8.Position = 3;
 			w8.Expand = false;
 			w8.Fill = false;
