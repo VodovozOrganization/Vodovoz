@@ -1370,6 +1370,13 @@ namespace Vodovoz.Domain.Orders
 							$"У клиента стоит признак \"{doNotMixMarkedAndUnmarkedGoodsInOrderName}\"",
 							new[] { nameof(OrderItems) });
 					}
+					
+					if(OrderItems.Where(x => x.Nomenclature.IsArchive) is IEnumerable<OrderItem> archivedNomenclatures && archivedNomenclatures.Any())
+					{
+						yield return new ValidationResult($"В заказе присутствуют архивные номенклатуры: " +
+														$"{string.Join(", ", archivedNomenclatures.Select(x => $"№{x.Nomenclature.Id} { x.Nomenclature.Name}"))}.",
+							new[] { nameof(Nomenclature) });
+					}
 				}
 
 				if(newStatus == OrderStatus.Closed) {
@@ -1398,13 +1405,6 @@ namespace Vodovoz.Domain.Orders
 						"Недостаточно прав для подтверждения зыкрывашки по контракту. Обратитесь к руководителю.",
 						new[] { this.GetPropertyName(o => o.IsContractCloser) }
 					);
-				}
-				
-				if(OrderItems.Where(x => x.Nomenclature.IsArchive) is IEnumerable<OrderItem> archivedNomenclatures && archivedNomenclatures.Any())
-				{
-					yield return new ValidationResult($"В заказе присутствуют архивные номенклатуры: " +
-													$"{string.Join(", ", archivedNomenclatures.Select(x => $"№{x.Nomenclature.Id} { x.Nomenclature.Name}"))}.",
-						new[] { nameof(Nomenclature) });
 				}
 			}
 
