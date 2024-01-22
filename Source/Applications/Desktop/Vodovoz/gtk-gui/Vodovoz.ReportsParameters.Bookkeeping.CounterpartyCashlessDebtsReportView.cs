@@ -97,7 +97,7 @@ namespace Vodovoz.ReportsParameters.Bookkeeping
 			this.ycheckExcludeClosingDocuments = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckExcludeClosingDocuments.CanFocus = true;
 			this.ycheckExcludeClosingDocuments.Name = "ycheckExcludeClosingDocuments";
-			this.ycheckExcludeClosingDocuments.Label = global::Mono.Unix.Catalog.GetString("Исключить Закрывающие документы");
+			this.ycheckExcludeClosingDocuments.Label = global::Mono.Unix.Catalog.GetString("Исключить Закрывающие документы ");
 			this.ycheckExcludeClosingDocuments.DrawIndicator = true;
 			this.ycheckExcludeClosingDocuments.UseUnderline = true;
 			this.yvboxParameters.Add(this.ycheckExcludeClosingDocuments);
