@@ -736,7 +736,6 @@
     <Compile Include="ViewModels\Warehouses\MovementDocumentViewModel.cs" />
     <Compile Include="Infrastructure\Services\IWarehousePermissionService.cs" />
     <Compile Include="Infrastructure\Services\WarehousePermissionService.cs" />
-    <Compile Include="TempAdapters\INomenclatureJournalFactory.cs" />
     <Compile Include="ViewModels\Warehouses\ShiftChangeResidueDocumentViewModel.cs" />
     <Compile Include="ViewModels\Warehouses\WriteOffDocumentViewModel.cs" />
     <Compile Include="VodovozViewModelAssemblyFinder.cs" />

@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
@@ -10,7 +10,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.TempAdapters
 {
-	public class NomenclatureJournalFactory : INomenclatureJournalFactory
+	public class NomenclatureJournalFactory
 	{
 		public NomenclaturesJournalViewModel CreateNomenclaturesJournalViewModel(
 			ILifetimeScope lifetimeScope, NomenclatureFilterViewModel filter = null, bool multiselect = false)
