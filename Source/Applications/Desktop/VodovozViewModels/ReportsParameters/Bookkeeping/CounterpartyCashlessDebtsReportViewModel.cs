@@ -1,7 +1,6 @@
 ﻿using Gamma.Utilities;
 using NHibernate.Linq;
 using QS.Commands;
-using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Report.ViewModels;
 using QS.Services;
@@ -9,9 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Services;

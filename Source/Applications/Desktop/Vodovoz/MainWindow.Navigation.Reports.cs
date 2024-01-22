@@ -30,6 +30,7 @@ using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.Reports.Sales;
 using Vodovoz.ViewModels.ReportsParameters;
+using Vodovoz.ViewModels.ReportsParameters.Bookkeeping;
 using Vodovoz.ViewModels.ReportsParameters.Cash;
 using Vodovoz.ViewModels.ReportsParameters.Payments;
 using Vodovoz.ViewModels.ReportsParameters.Production;
@@ -1151,6 +1152,8 @@ public partial class MainWindow
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<CounterpartyCashlessDebtsReport>(),
 			() => new QSReport.ReportViewDlg(report));
+
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(CounterpartyCashlessDebtsReportViewModel));
 	}
 
 	/// <summary>

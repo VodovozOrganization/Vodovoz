@@ -182,6 +182,8 @@ using UserView = Vodovoz.Views.Users.UserView;
 using Vodovoz.ViewModels.ViewModels.Reports.Logistics;
 using Vodovoz.ViewModels.ReportsParameters.Production;
 using Vodovoz.Views.ReportsParameters.Production;
+using Vodovoz.ViewModels.ReportsParameters.Bookkeeping;
+using Vodovoz.ReportsParameters.Bookkeeping;
 
 namespace Vodovoz
 {
@@ -483,6 +485,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<DriversWarehousesEventsJournalFilterViewModel, DriversWarehousesEventsJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<CompletedDriversWarehousesEventsJournalFilterViewModel, CompletedDriversWarehousesEventsJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<ProducedProductionReportViewModel, ProducedProductionReportView>()
+				.RegisterWidgetForWidgetViewModel<CounterpartyCashlessDebtsReportViewModel, CounterpartyCashlessDebtsReportView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
