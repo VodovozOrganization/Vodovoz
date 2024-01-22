@@ -60,11 +60,18 @@ namespace Vodovoz.SmsInformerWorker
 
 		protected override async Task DoWork(CancellationToken stoppingToken)
 		{
-			_logger.LogDebug("Новый вызов отправки смс уведомлений");
+			try
+			{
+				_logger.LogDebug("Новый вызов отправки смс уведомлений");
 
-			SendNewNotifications();
+				SendNewNotifications();
 
-			await Task.CompletedTask;
+				await Task.CompletedTask;
+			}
+			catch(Exception ex)
+			{
+				_logger.LogCritical(ex, "Возвращено необработанное исключение при отправке сообщений!");
+			}
 		}
 
 		public abstract IEnumerable<SmsNotification> GetNotifications(IUnitOfWork unitOfWork);
