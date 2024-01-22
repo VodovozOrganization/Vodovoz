@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
 using Fias.Client;
@@ -438,8 +438,7 @@ namespace Vodovoz
 					builder.RegisterType<DeliveriesLateReport>().AsSelf();
 					builder.RegisterType<QualityReport>().AsSelf();
 					builder.RegisterType<DriverRoutesListRegisterReport>().AsSelf();
-					builder.RegisterType<RoutesListRegisterReport>().AsSelf();
-					builder.RegisterType<DeliveryTimeReport>().AsSelf();
+					builder.RegisterType<RoutesListRegisterReport>().AsSelf();					
 					builder.RegisterType<OrdersByDistrictReport>().AsSelf();
 					builder.RegisterType<CompanyTrucksReport>().AsSelf();
 					builder.RegisterType<LastOrderByDeliveryPointReport>().AsSelf();
