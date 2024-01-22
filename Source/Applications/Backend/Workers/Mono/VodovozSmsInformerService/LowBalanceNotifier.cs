@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using QS.DomainModel.UoW;
 using Vodovoz.Services;
 using Vodovoz.Domain.Sms;
@@ -17,7 +17,10 @@ namespace VodovozSmsInformerService
 		private readonly ISmsBalanceNotifier balanceNotifier;
 		private readonly ISmsNotifierParametersProvider smsNotifierParametersProvider;
 
-		public LowBalanceNotifier(ISmsSender smsSender, ISmsBalanceNotifier balanceNotifier, ISmsNotifierParametersProvider smsNotifierParametersProvider)
+		public LowBalanceNotifier(
+			ISmsSender smsSender,
+			ISmsBalanceNotifier balanceNotifier,
+			ISmsNotifierParametersProvider smsNotifierParametersProvider)
 		{
 			this.smsSender = smsSender ?? throw new ArgumentNullException(nameof(smsSender));
 			this.balanceNotifier = balanceNotifier ?? throw new ArgumentNullException(nameof(balanceNotifier));
