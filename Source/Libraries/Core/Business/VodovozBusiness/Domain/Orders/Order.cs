@@ -1399,6 +1399,13 @@ namespace Vodovoz.Domain.Orders
 						new[] { this.GetPropertyName(o => o.IsContractCloser) }
 					);
 				}
+				
+				if(OrderItems.Where(x => x.Nomenclature.IsArchive) is IEnumerable<OrderItem> archivedNomenclatures && archivedNomenclatures.Any())
+				{
+					yield return new ValidationResult($"В заказе присутствуют архивные номенклатуры: " +
+													$"{string.Join(", ", archivedNomenclatures.Select(x => $"№{x.Nomenclature.Id} { x.Nomenclature.Name}"))}.",
+						new[] { nameof(Nomenclature) });
+				}
 			}
 
 			bool isTransferedAddress = validationContext.Items.ContainsKey("AddressStatus") && (RouteListItemStatus)validationContext.Items["AddressStatus"] == RouteListItemStatus.Transfered;
@@ -1647,13 +1654,6 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			#endregion
-
-			if(OrderItems.Where(x => x.Nomenclature.IsArchive) is IEnumerable<OrderItem> archivedNomenclatures && archivedNomenclatures.Any())
-			{
-				yield return new ValidationResult($"В заказе присутствуют архивные номенклатуры: " +
-					$"{string.Join(", ", archivedNomenclatures.Select(x => $"№{x.Nomenclature.Id} { x.Nomenclature.Name}"))}.",
-					new[] { nameof(Nomenclature) });
-			}
 		}
 
 		private void CopiedOrderItemsPriceValidation(OrderItem[] currentCopiedItems, List<string> incorrectPriceItems)
