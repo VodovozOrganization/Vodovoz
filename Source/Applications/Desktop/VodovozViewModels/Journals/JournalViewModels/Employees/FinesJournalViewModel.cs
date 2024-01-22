@@ -11,6 +11,7 @@ using QS.Services;
 using QS.Utilities;
 using System;
 using System.Linq;
+using QS.Project.Services;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.FilterViewModels.Employees;
@@ -31,8 +32,10 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 			ICommonServices commonServices,
 			ILifetimeScope lifetimeScope,
 			INavigationManager navigationManager,
+			IDeleteEntityService deleteEntityService,
+			ICurrentPermissionService currentPermissionService,
 			Action<FineFilterViewModel> filterConfig = null)
-			: base(unitOfWorkFactory, commonServices.InteractiveService, navigationManager)
+			: base(unitOfWorkFactory, commonServices.InteractiveService, navigationManager, deleteEntityService, currentPermissionService)
 		{
 			if(filterViewModel is null)
 			{
