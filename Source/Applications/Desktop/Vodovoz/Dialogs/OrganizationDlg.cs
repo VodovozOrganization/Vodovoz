@@ -59,6 +59,7 @@ namespace Vodovoz
 
 			accountsview1.CanEdit = IsCanEditEntity;
 			buttonSave.Sensitive = IsCanEditEntity;
+			btnCancel.Clicked += (sender, args) => OnCloseTab(IsCanEditEntity, CloseSource.Cancel);
 
 			dataentryName.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
 			dataentryFullName.Binding.AddBinding(Entity, e => e.FullName, w => w.Text).InitializeFromSource();
