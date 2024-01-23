@@ -14,7 +14,9 @@ namespace Vodovoz.Core.Data.NHibernate.Mappings
 			Map(x => x.Name).Column("name").ReadOnly();
 			Map(x => x.LastName).Column("last_name").ReadOnly();
 			Map(x => x.Patronymic).Column("patronymic").ReadOnly();
-			Map(x => x.UserLogin).Column("android_login").ReadOnly();
+			
+			HasMany(x => x.ExternalApplicationUsers)
+				.Cascade.AllDeleteOrphan().LazyLoad().Inverse().KeyColumn("employee_id");
 		}
 	}
 }

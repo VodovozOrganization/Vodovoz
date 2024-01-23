@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.Entity;
+﻿using System.Collections.Generic;
+using QS.DomainModel.Entity;
 using QS.Utilities.Text;
 
 namespace Vodovoz.Core.Data.Employees
@@ -20,7 +21,7 @@ namespace Vodovoz.Core.Data.Employees
 		public virtual string LastName { get; }
 		public virtual string Name { get; }
 		public virtual string Patronymic { get; }
-		public virtual string UserLogin { get; }
+		public virtual IList<ExternalApplicationUserForApi> ExternalApplicationUsers { get; } = new List<ExternalApplicationUserForApi>();
 		public virtual string ShortName => PersonHelper.PersonNameWithInitials(LastName, Name, Patronymic);
 
 		public static EmployeeWithLogin Create(int id, string name, string lastName, string patronymic)

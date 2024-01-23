@@ -10,6 +10,7 @@ using Vodovoz.Core.Data.Interfaces.Employees;
 using Vodovoz.Core.Data.Interfaces.Logistics.Cars;
 using Vodovoz.Core.Data.Logistics;
 using Vodovoz.Core.Domain;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Interfaces.Logistics;
 using Vodovoz.Core.Domain.Logistics.Drivers;
 
@@ -108,9 +109,9 @@ namespace EventsApi.Library.Models
 		}
 
 		/// <summary>
-		/// Получение списка завершенных событий за текущий день для водителя
+		/// Получение списка завершенных событий за текущий день для сотрудника
 		/// </summary>
-		/// <param name="driver">водитель</param>
+		/// <param name="employee">сотрудник</param>
 		/// <returns>список завершенных событий за день</returns>
 		public IEnumerable<CompletedEventDto> GetTodayCompletedEvents(EmployeeWithLogin employee)
 		{
@@ -122,8 +123,10 @@ namespace EventsApi.Library.Models
 			return _completedDriverWarehouseEventProxyRepository.GetTodayCompletedEventsForEmployee(_unitOfWork, employee.Id);
 		}
 
-		public EmployeeWithLogin GetEmployeeProxyByApiLogin(string userLogin)
-			=> _employeeWithLoginRepository.GetEmployeeWithLogin(_unitOfWork, userLogin);
+		public EmployeeWithLogin GetEmployeeProxyByApiLogin(
+			string userLogin,
+			ExternalApplicationType applicationType = ExternalApplicationType.WarehouseApp)
+			=> _employeeWithLoginRepository.GetEmployeeWithLogin(_unitOfWork, userLogin, applicationType);
 
 		protected PointLatLng GetPointLatLng(decimal? latitude, decimal? longitude)
 		{

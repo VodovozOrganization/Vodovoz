@@ -1,4 +1,5 @@
 ﻿using FluentNHibernate.Mapping;
+using Vodovoz.Core.Domain.Schemas.Employees;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Employees
@@ -7,17 +8,18 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Employees
 	{
 		public ExternalApplicationUserMap()
 		{
-			Table("external_applications_users");
+			Table(ExternalApplicationUserSchema.TableName);
 
-			Id(x => x.Id).GeneratedBy.Native();
+			Id(x => x.Id).Column(ExternalApplicationUserSchema.IdColumn).GeneratedBy.Native();
 
-			Map(x => x.Login).Column("login");
-			Map(x => x.Password).Column("password");
-			Map(x => x.SessionKey).Column("session_key");
-			Map(x => x.Token).Column("token");
-			Map(x => x.ExternalApplicationType).Column("external_application_type");
+			Map(x => x.Login).Column(ExternalApplicationUserSchema.LoginColumn);
+			Map(x => x.Password).Column(ExternalApplicationUserSchema.PasswordColumn);
+			Map(x => x.SessionKey).Column(ExternalApplicationUserSchema.SessionKeyColumn);
+			Map(x => x.Token).Column(ExternalApplicationUserSchema.TokenColumn);
+			Map(x => x.ExternalApplicationType)
+				.Column(ExternalApplicationUserSchema.ExternalApplicationTypeColumn);
 
-			References(x => x.Employee).Column("employee_id");
+			References(x => x.Employee).Column(ExternalApplicationUserSchema.EmployeeColumn);
 		}
 	}
 }

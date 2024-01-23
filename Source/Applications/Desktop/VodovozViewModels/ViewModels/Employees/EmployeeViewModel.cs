@@ -22,6 +22,7 @@ using System.Linq;
 using System.Text;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -341,6 +342,11 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			!string.IsNullOrWhiteSpace(WarehouseAppUser.Login)
 			&& WarehouseAppUser.Password?.Length >= 3
 			&& CanRegisterWarehouseAppUser
+			&& CanEditEmployee;
+
+		public bool CanCopyWarehouseAppUserCredentialsToDriverUser =>
+			Entity.DriverAppUser is null
+			&& Entity.WarehouseAppUser != null
 			&& CanEditEmployee;
 
 		public string AddDriverAppLoginInfo => CanRegisterDriverAppUser
@@ -742,6 +748,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		public DelegateCommand RegisterWarehouseAppUserCommand { get; private set; }
 		public DelegateCommand AddRoleToWarehouseAppUserCommand { get; private set; }
 		public DelegateCommand RemoveRoleFromWarehouseAppUserCommand { get; private set; }
+		public DelegateCommand CopyWarehouseAppUserCredentialsToDriverAppUserCommand { get; private set; }
 		
 		public DelegateCommand CreateNewEmployeeRegistrationVersionCommand =>
 			_createNewEmployeeRegistrationVersionCommand ?? (_createNewEmployeeRegistrationVersionCommand = new DelegateCommand(
@@ -887,6 +894,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			CreateRegisterWarehouseAppUserCommand();
 			CreateAddRoleToWarehouseAppUserCommand();
 			CreateRemoveRoleFromWarehouseAppUserCommand();
+			CreateCopyWarehouseAppUserCredentialsToDriverAppUserCommand();
 		}
 
 		private void CreateRegisterWarehouseAppUserCommand()
@@ -897,6 +905,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 					try
 					{
 						RegisterWarehouseAppUserOrAddRole();
+						OnPropertyChanged(nameof(CanCopyWarehouseAppUserCredentialsToDriverUser));
 					}
 					catch(Exception e)
 					{
@@ -953,6 +962,21 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 					}
 				}
 			);
+		}
+		
+		private void CreateCopyWarehouseAppUserCredentialsToDriverAppUserCommand()
+		{
+			CopyWarehouseAppUserCredentialsToDriverAppUserCommand = new DelegateCommand(
+				() =>
+				{
+					if(Entity.WarehouseAppUser is null || Entity.DriverAppUser != null)
+					{
+						return;
+					}
+
+					DriverAppUser.Login = WarehouseAppUser.Login;
+					DriverAppUser.Password = WarehouseAppUser.Password;
+				});
 		}
 		
 		private void RegisterWarehouseAppUserOrAddRole(bool register = true)

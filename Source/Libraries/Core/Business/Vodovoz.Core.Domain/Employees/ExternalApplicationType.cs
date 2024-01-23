@@ -1,4 +1,4 @@
-namespace Vodovoz.Domain.Employees
+namespace Vodovoz.Core.Domain.Employees
 {
 	public enum ExternalApplicationType
 	{

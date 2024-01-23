@@ -14,6 +14,7 @@ using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Services;
 using QS.Utilities.Text;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Organizations;

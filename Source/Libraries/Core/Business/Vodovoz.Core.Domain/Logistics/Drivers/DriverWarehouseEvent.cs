@@ -1,8 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Interfaces.Logistics;
 
 namespace Vodovoz.Core.Domain.Logistics.Drivers
 {
@@ -11,7 +15,7 @@ namespace Vodovoz.Core.Domain.Logistics.Drivers
 		Nominative = "событие нахождения водителя на складе")]
 	[HistoryTrace]
 	[EntityPermission]
-	public class DriverWarehouseEvent : PropertyChangedBase, IDomainObject
+	public class DriverWarehouseEvent : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public static char QrParametersSeparator = ';';
 		public static string QrType = "EventQr";
@@ -116,6 +120,60 @@ namespace Vodovoz.Core.Domain.Logistics.Drivers
 		public override string ToString()
 		{
 			return EventName;
+		}
+
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(!(validationContext.GetService(
+					typeof(IDriverWarehouseEventRepository)) is IDriverWarehouseEventRepository driverWarehouseEventRepository))
+			{
+				throw new ArgumentNullException($"Не найден репозиторий { nameof(driverWarehouseEventRepository) }");
+			}
+			
+			if(string.IsNullOrWhiteSpace(EventName))
+			{
+				yield return new ValidationResult("Имя события должно быть заполнено");
+			}
+			else if(EventName.Length > EventNameMaxLength)
+			{
+				yield return new ValidationResult(
+					$"Длина названия события превышена на {EventNameMaxLength - EventName.Length}");
+			}
+
+			if(Type == DriverWarehouseEventType.OnLocation && (Latitude is null || Longitude is null))
+			{
+				yield return new ValidationResult("Не заполнены или неправильно заполнены координаты");
+			}
+			
+			if(Type == DriverWarehouseEventType.OnDocuments)
+			{
+				if(DocumentType is null)
+				{
+					yield return new ValidationResult("Не заполнен документ, на котором будет размещен Qr код");
+				}
+				
+				if(QrPositionOnDocument is null)
+				{
+					yield return new ValidationResult("Не указано размещение Qr кода на документе");
+				}
+				
+				if(DocumentType.HasValue
+					&& QrPositionOnDocument.HasValue
+					&& !IsArchive)
+				{
+					using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+					{
+						var hasEvents = driverWarehouseEventRepository.HasOtherActiveDriverWarehouseEventsForDocumentAndQrPosition(
+							uow, Id, DocumentType.Value, QrPositionOnDocument.Value);
+
+						if(hasEvents)
+						{
+							yield return new ValidationResult(
+								"Нельзя создавать больше одного события, размещаемого на документе на одной и той же позиции");
+						}
+					}
+				}
+			}
 		}
 	}
 }

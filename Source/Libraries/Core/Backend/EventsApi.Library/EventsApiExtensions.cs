@@ -3,7 +3,6 @@ using EventsApi.Library.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Vodovoz.Core.Data.Interfaces.Employees;
 using Vodovoz.Core.Data.Interfaces.Logistics.Cars;
-using Vodovoz.Core.Data.NHibernate.Logistics;
 using Vodovoz.Core.Data.NHibernate.Repositories.Employees;
 using Vodovoz.Core.Data.NHibernate.Repositories.Logistics;
 using Vodovoz.Core.Data.NHibernate.Repositories.Logistics.Cars;

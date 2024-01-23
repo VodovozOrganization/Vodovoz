@@ -4,10 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Data.NHibernate.Logistics;
+using Vodovoz.Core.Domain.Interfaces.Logistics;
 using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Domain.Logistic.Drivers;
-using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Presentation.Reports.Factories;
 using Vodovoz.RDL.Elements;
 

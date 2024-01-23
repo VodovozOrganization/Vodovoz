@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Data.NHibernate.Logistics;
+using Vodovoz.Core.Domain.Interfaces.Logistics;
 using Vodovoz.Core.Domain.Logistics.Drivers;
 
 namespace Vodovoz.Core.Data.NHibernate.Repositories.Logistics

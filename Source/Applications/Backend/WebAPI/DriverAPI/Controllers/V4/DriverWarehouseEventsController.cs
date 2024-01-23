@@ -7,13 +7,14 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
+using Vodovoz.Core.Domain.Employees;
 
 namespace DriverAPI.Controllers.V4
 {
 	/// <summary>
 	/// Контроллер событий нахождения водителя на складе
 	/// </summary>
-	[Authorize]
+	[Authorize(Roles = nameof(ApplicationUserRole.Driver))]
 	public class DriverWarehouseEventsController : VersionedController
 	{
 		private readonly ILogger<DriverWarehouseEventsController> _logger;
@@ -62,7 +63,8 @@ namespace DriverAPI.Controllers.V4
 				Request.Headers[HeaderNames.Authorization]);
 
 			var user = await _userManager.GetUserAsync(User);
-			var driver = _driverWarehouseEventsModel.GetEmployeeProxyByApiLogin(user.UserName);
+			var driver = _driverWarehouseEventsModel.GetEmployeeProxyByApiLogin(
+				user.UserName, ExternalApplicationType.DriverApp);
 			
 			try
 			{
@@ -100,7 +102,8 @@ namespace DriverAPI.Controllers.V4
 				Request.Headers[HeaderNames.Authorization]);
 
 			var user = await _userManager.GetUserAsync(User);
-			var driver = _driverWarehouseEventsModel.GetEmployeeProxyByApiLogin(user.UserName);
+			var driver = _driverWarehouseEventsModel.GetEmployeeProxyByApiLogin(
+				user.UserName, ExternalApplicationType.DriverApp);
 			
 			try
 			{

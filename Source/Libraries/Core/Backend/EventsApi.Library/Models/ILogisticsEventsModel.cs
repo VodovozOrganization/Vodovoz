@@ -2,6 +2,7 @@
 using EventsApi.Library.Dtos;
 using Vodovoz.Core.Data.Employees;
 using Vodovoz.Core.Data.Logistics;
+using Vodovoz.Core.Domain.Employees;
 
 namespace EventsApi.Library.Models
 {
@@ -29,12 +30,15 @@ namespace EventsApi.Library.Models
 		/// <param name="employee">сотрудник</param>
 		/// <returns>список завершенных событий за день</returns>
 		IEnumerable<CompletedEventDto> GetTodayCompletedEvents(EmployeeWithLogin employee);
-		
+
 		/// <summary>
 		/// Получение прокси сотрудника, содержащем необходимые сведения
 		/// </summary>
 		/// <param name="userLogin">логин сотрудника</param>
+		/// <param name="applicationType">тип приложения</param>
 		/// <returns>необходимые сведения о сотруднике</returns>
-		EmployeeWithLogin GetEmployeeProxyByApiLogin(string userLogin);
+		EmployeeWithLogin GetEmployeeProxyByApiLogin(
+			string userLogin,
+			ExternalApplicationType applicationType = ExternalApplicationType.WarehouseApp);
 	}
 }

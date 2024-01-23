@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.EntityRepositories.Employees

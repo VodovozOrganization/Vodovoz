@@ -270,6 +270,12 @@ namespace Vodovoz.Views.Employees
 				.AddBinding(ViewModel, vm => vm.AddDriverAppLoginInfo, w => w.LabelProp)
 				.InitializeFromSource();
 
+			btnCopyWarehouseAppUserCredentials.Binding
+				.AddBinding(ViewModel, vm => vm.CanCopyWarehouseAppUserCredentialsToDriverUser, w => w.Sensitive)
+				.InitializeFromSource();
+			btnCopyWarehouseAppUserCredentials.Clicked +=
+				(sender, args) => ViewModel.CopyWarehouseAppUserCredentialsToDriverAppUserCommand.Execute(); 
+			
 			btnRegisterDriverAppUser.Binding
 				.AddBinding(ViewModel, vm => vm.IsValidNewDriverAppUser, w => w.Sensitive)
 				.InitializeFromSource();

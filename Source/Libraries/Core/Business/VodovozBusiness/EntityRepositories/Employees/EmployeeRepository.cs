@@ -6,6 +6,7 @@ using NHibernate.Transform;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 

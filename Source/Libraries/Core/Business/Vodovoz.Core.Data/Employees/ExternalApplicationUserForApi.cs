@@ -3,19 +3,19 @@ using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Core.Domain.Employees;
 
-namespace Vodovoz.Domain.Employees
+namespace Vodovoz.Core.Data.Employees
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "пользователи внешних приложений",
 		Nominative = "пользователь внешнего приложения")]
 	[HistoryTrace]
-	public class ExternalApplicationUser : PropertyChangedBase, IDomainObject
+	public class ExternalApplicationUserForApi : PropertyChangedBase, IDomainObject
 	{
 		private string _login;
 		private string _password;
 		private string _androidSessionKey;
 		private string _token;
-		private Employee _employee;
+		private EmployeeWithLogin _employee;
 		
 		public virtual int Id { get; set; }
 
@@ -48,7 +48,7 @@ namespace Vodovoz.Domain.Employees
 		}
 
 		[Display(Name = "Сотрудник")]
-		public virtual Employee Employee
+		public virtual EmployeeWithLogin Employee
 		{
 			get => _employee;
 			set => SetField(ref _employee, value);

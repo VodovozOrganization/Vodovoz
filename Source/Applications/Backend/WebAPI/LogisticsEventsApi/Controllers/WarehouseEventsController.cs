@@ -6,15 +6,17 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Microsoft.Net.Http.Headers;
+using Vodovoz.Core.Domain.Employees;
 
 namespace LogisticsEventsApi.Controllers
 {
-	[Authorize]
+	[Authorize(Roles = _rolesToAccess)]
 	[ApiController]
 	[Route("/api/")]
 	public class WarehouseEventsController : ControllerBase
 	{
+		private const string _rolesToAccess =
+			nameof(ApplicationUserRole.WarehousePicker) + "," + nameof(ApplicationUserRole.WarehouseDriver);
 		private readonly ILogger<WarehouseEventsController> _logger;
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly ILogisticsEventsModel _warehouseEventsModel;
@@ -55,10 +57,9 @@ namespace LogisticsEventsApi.Controllers
 				return ValidationProblem("Неправильный QR код");
 			}
 			
-			_logger.LogInformation("Попытка завершения события {EventId} пользователем {Username} User token: {AccessToken}",
+			_logger.LogInformation("Попытка завершения события {EventId} пользователем {Username}",
 				qrData.EventId,
-				userName,
-				Request.Headers[HeaderNames.Authorization]);
+				userName);
 
 			var user = await _userManager.GetUserAsync(User);
 			var employee = _warehouseEventsModel.GetEmployeeProxyByApiLogin(user.UserName);
@@ -94,9 +95,8 @@ namespace LogisticsEventsApi.Controllers
 		{
 			var userName = HttpContext.User.Identity?.Name ?? "Unknown";
 
-			_logger.LogInformation("Попытка получения завершенных событий за день пользователем {Username} User token: {AccessToken}",
-				userName,
-				Request.Headers[HeaderNames.Authorization]);
+			_logger.LogInformation("Попытка получения завершенных событий за день пользователем {Username}",
+				userName);
 
 			var user = await _userManager.GetUserAsync(User);
 			var employee = _warehouseEventsModel.GetEmployeeProxyByApiLogin(user.UserName);

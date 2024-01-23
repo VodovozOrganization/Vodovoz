@@ -26,6 +26,7 @@ using QS.Project.Repositories;
 using QS.Project.Services;
 using QS.Services;
 using Vodovoz.Core.Data.NHibernate.Mappings;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Settings.Database;
 
 namespace LogisticsEventsApi
@@ -33,6 +34,11 @@ namespace LogisticsEventsApi
 	public class Startup
 	{
 		private const string _nLogSectionName = nameof(NLog);
+		public static readonly string[] AccessedRoles =
+			{
+				ApplicationUserRole.WarehousePicker.ToString(),
+				ApplicationUserRole.WarehouseDriver.ToString()
+			};
 		
 		public Startup(IConfiguration configuration)
 		{
@@ -67,28 +73,8 @@ namespace LogisticsEventsApi
 			
 			// Аутентификация
 			services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+				.AddRoles<IdentityRole>()
 				.AddEntityFrameworkStores<ApplicationDbContext>();
-			
-			/*services.Configure<IdentityOptions>(options =>
-			{
-				// Password settings
-				options.Password.RequireDigit =	Configuration.GetValue<bool>("Security:Password:RequireDigit");
-				options.Password.RequireLowercase =	Configuration.GetValue<bool>("Security:Password:RequireLowercase");
-				options.Password.RequireNonAlphanumeric = Configuration.GetValue<bool>("Security:Password:RequireNonAlphanumeric");
-				options.Password.RequireUppercase =	Configuration.GetValue<bool>("Security:Password:RequireUppercase");
-				options.Password.RequiredLength = Configuration.GetValue<int>("Security:Password:RequiredLength");
-				options.Password.RequiredUniqueChars = Configuration.GetValue<int>("Security:Password:RequiredUniqueChars");
-
-				// Lockout settings.
-				options.Lockout.DefaultLockoutTimeSpan =
-					TimeSpan.FromMinutes(Configuration.GetValue<int>("Security:Lockout:DefaultLockoutTimeSpan"));
-				options.Lockout.MaxFailedAccessAttempts = Configuration.GetValue<int>("Security:Lockout:MaxFailedAccessAttempts");
-				options.Lockout.AllowedForNewUsers = Configuration.GetValue<bool>("Security:Password:AllowedForNewUsers");
-
-				// User settings.
-				options.User.AllowedUserNameCharacters = Configuration.GetValue<string>("Security:Password:AllowedUserNameCharacters");
-				options.User.RequireUniqueEmail = Configuration.GetValue<bool>("Security:Password:RequireNonAlphanumeric");
-			});*/
 
 			services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 				.AddJwtBearer(cfg =>
