@@ -69,7 +69,7 @@ WHERE
               OR IF('StorageLogistics' IN (@rl_type_of_use), orders.order_address_type = 'StorageLogistics', false)
           )
   AND (
-         SELECT COUNT(*) FROM orders o
+         SELECT COUNT(o.id) FROM orders o
            INNER JOIN route_list_addresses rla ON rla.order_id = o.id
            INNER JOIN route_lists rl ON rl.id = rla.route_list_id
          WHERE rl.driver_id = route_lists.driver_id
