@@ -313,10 +313,10 @@ namespace DriverAPI
 			services.AddScoped<TrueMarkCodesPool, TrueMarkTransactionalCodesPool>();
 
 			// Сервисы
-			//services.AddSingleton<IWakeUpDriverClientService, WakeUpDriverClientService>();
+			services.AddSingleton<IWakeUpDriverClientService, WakeUpDriverClientService>();
 
 			// Workers
-			//services.AddHostedService<WakeUpNotificationSenderService>();
+			services.AddHostedService<WakeUpNotificationSenderService>();
 
 			// Репозитории водовоза
 			services.AddScoped<ITrackRepository, TrackRepository>();

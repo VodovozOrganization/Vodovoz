@@ -53,9 +53,11 @@ namespace DriverAPI.Controllers.V4
 				UserName = loginRequestModel.Username
 			};
 
+			IdentityResult userCreatedResult = null;
+
 			try
 			{
-				var userCreatedResult = await _userManager.CreateAsync(user, loginRequestModel.Password);
+				userCreatedResult = await _userManager.CreateAsync(user, loginRequestModel.Password);
 
 				if(!userCreatedResult.Succeeded)
 				{
@@ -71,7 +73,10 @@ namespace DriverAPI.Controllers.V4
 			}
 			catch
 			{
-				await _userManager.DeleteAsync(user);
+				if(userCreatedResult != null && userCreatedResult.Succeeded)
+				{
+					await _userManager.DeleteAsync(user);
+				}
 				throw;
 			}
 		}
@@ -111,8 +116,7 @@ namespace DriverAPI.Controllers.V4
 					
 					return;
 				}
-
-				await _userManager.DeleteAsync(user);
+				
 				throw new Exception(string.Join(", ", roleAddedToUserResult.Errors.Select(e => e.Description)));
 			}
 		}

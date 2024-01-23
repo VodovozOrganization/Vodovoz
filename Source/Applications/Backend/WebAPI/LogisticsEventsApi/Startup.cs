@@ -139,7 +139,6 @@ namespace LogisticsEventsApi
 			var connectionString = conStrBuilder.GetConnectionString(true);
 
 			var dbConfig = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
-				//.Dialect<MySQL57SpatialExtendedDialect>()
 				.ConnectionString(connectionString)
 				.Driver<LoggedMySqlClientDriver>()
 				.AdoNetBatchSize(100);
