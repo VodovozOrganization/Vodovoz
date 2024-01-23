@@ -1,43 +1,47 @@
-using System;
-using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using System.Text;
-using NLog;
+﻿using Autofac;
+using Microsoft.Extensions.Logging;
 using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Extension;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Vodovoz.Application.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Extensions;
-using Vodovoz.Services;
 using Vodovoz.Models;
+using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Nodes;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using VodovozInfrastructure.StringHandlers;
-using Vodovoz.Settings.Nomenclature;
-using System.ComponentModel;
-using Autofac;
 
 namespace Vodovoz.ViewModels.Dialogs.Goods
 {
 	public class NomenclatureViewModel : EntityTabViewModelBase<Nomenclature>, IAskSaveOnCloseViewModel
 	{
-		private static Logger logger = LogManager.GetCurrentClassLogger();
+		private static ILogger<NomenclatureViewModel> _logger;
 
 		private readonly IEmployeeService _employeeService;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
 		private readonly int[] _equipmentKindsHavingGlassHolder;
 		private readonly INomenclatureOnlineParametersProvider _nomenclatureOnlineParametersProvider;
+		private readonly INomenclatureService _nomenclatureService;
 		private ILifetimeScope _lifetimeScope;
+		private readonly IInteractiveService _interactiveService;
 		private NomenclatureOnlineParameters _mobileAppNomenclatureOnlineParameters;
 		private NomenclatureOnlineParameters _vodovozWebSiteNomenclatureOnlineParameters;
 		private NomenclatureOnlineParameters _kulerSaleWebSiteNomenclatureOnlineParameters;
@@ -47,13 +51,13 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		private bool _activeSitesAndAppsTab;
 		private IList<NomenclatureOnlineCategory> _onlineCategories;
 
-		private DelegateCommand _copyPricesWithoutDiscountFromMobileAppToVodovozWebSiteCommand;
-
 		public NomenclatureViewModel(
+			ILogger<NomenclatureViewModel> logger,
 			ILifetimeScope lifetimeScope,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
+			IInteractiveService interactiveService,
 			IEmployeeService employeeService,
 			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
@@ -61,7 +65,9 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			IUserRepository userRepository,
 			IStringHandler stringHandler,
 			INomenclatureOnlineParametersProvider nomenclatureOnlineParametersProvider,
-			INomenclatureSettings nomenclatureSettings) : base(uowBuilder, uowFactory, commonServices)
+			INomenclatureSettings nomenclatureSettings,
+			INomenclatureService nomenclatureService)
+			: base(uowBuilder, uowFactory, commonServices)
 		{
 			if(nomenclatureSelectorFactory is null)
 			{
@@ -74,7 +80,9 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			}
 
 			StringHandler = stringHandler ?? throw new ArgumentNullException(nameof(stringHandler));
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
@@ -84,6 +92,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			CounterpartySelectorFactory =
 				(counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope);
+			_nomenclatureService = nomenclatureService ?? throw new ArgumentNullException(nameof(nomenclatureService));
 
 			ConfigureEntryViewModels();
 			ConfigureOnlineParameters();
@@ -95,6 +104,13 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			SetGlassHolderCheckboxesSelection();
 
 			Entity.PropertyChanged += OnEntityPropertyChanged;
+
+			SaveCommand = CreateSaveCommand();
+			CopyPricesWithoutDiscountFromMobileAppToVodovozWebSiteCommand =
+				CreateCopyPricesWithoutDiscountFromMobileAppToVodovozWebSiteCommand();
+
+			ArchiveCommand = new DelegateCommand(Archive);
+			UnArchiveCommand = new DelegateCommand(UnArchive);
 		}
 
 		public IStringHandler StringHandler { get; }
@@ -309,6 +325,67 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		public NomenclatureInnerDeliveryPricesViewModel NomenclatureInnerDeliveryPricesViewModel { get; private set; }
 		private bool IsNewEntity => Entity.Id == 0;
 		private bool CanCreateNomenclaturesWithInventoryAccountingPermission { get; set; }
+
+		#region Commands
+
+		public DelegateCommand SaveCommand { get; }
+
+		private DelegateCommand CreateSaveCommand()
+		{
+			return new DelegateCommand(
+				() =>
+				{
+
+					if(_needCheckOnlinePrices)
+					{
+						if(HasAccessToSitesAndAppsTab && AskQuestion(
+							"Было произведено изменение цен номенклатуры, необходимо проверить корректность цен," +
+							" установленных на вкладке Сайты и приложения.\n" +
+							"Вы хотите переключиться на вкладку Сайты и приложения перед сохранением номенклатуры?"))
+						{
+							ActiveSitesAndAppsTab = true;
+							return;
+						}
+					}
+
+					Save(true);
+				},
+				() => true);
+		}
+
+		public DelegateCommand CopyPricesWithoutDiscountFromMobileAppToVodovozWebSiteCommand { get; }
+
+		private DelegateCommand CreateCopyPricesWithoutDiscountFromMobileAppToVodovozWebSiteCommand()
+		{
+			return new DelegateCommand(
+				() =>
+				{
+					CopyPricesWithoutDiscountFromMobileAppToOtherParameters(VodovozWebSiteNomenclatureOnlineParameters);
+					UpdateNomenclatureOnlinePricesNodes();
+				},
+				() => true);
+		}
+
+		public DelegateCommand ArchiveCommand { get; }
+		public DelegateCommand UnArchiveCommand { get; }
+
+
+		#endregion Commands
+
+		public bool ActiveSitesAndAppsTab
+		{
+			get => _activeSitesAndAppsTab;
+			set
+			{
+				if(SetField(ref _activeSitesAndAppsTab, value))
+				{
+					if(value)
+					{
+						_needCheckOnlinePrices = false;
+					}
+				}
+			}
+		}
 
 		private void SetGlassHolderCheckboxesSelection()
 		{
@@ -647,72 +724,17 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		}
 
 		protected override bool BeforeSave() {
-			logger.Info("Сохраняем номенклатуру...");
+			_logger.LogInformation("Сохраняем номенклатуру...");
 			Entity.SetNomenclatureCreationInfo(_userRepository);
 			
 			if(PriceChanged && Entity.Id > 0)
 			{
-				logger.Info("Проверяем связанные с ней промонаборы...");
+				_logger.LogInformation("Проверяем связанные с ней промонаборы...");
 				CheckPromoSetsWithNomenclature();
 			}
 			
 			return base.BeforeSave();
 		}
-
-		#region Commands
-
-		private DelegateCommand saveCommand = null;
-
-		public DelegateCommand SaveCommand =>
-			saveCommand ?? (saveCommand = new DelegateCommand(
-				() => {
-
-					if(_needCheckOnlinePrices)
-					{
-						if(HasAccessToSitesAndAppsTab && AskQuestion(
-							"Было произведено изменение цен номенклатуры, необходимо проверить корректность цен," +
-							" установленных на вкладке Сайты и приложения.\n" +
-							"Вы хотите переключиться на вкладку Сайты и приложения перед сохранением номенклатуры?"))
-						{
-							ActiveSitesAndAppsTab = true;
-							return;
-						}
-					}
-					
-					Save(true);
-				},
-				() => true
-			)
-		);
-		
-		public DelegateCommand CopyPricesWithoutDiscountFromMobileAppToVodovozWebSiteCommand =>
-			_copyPricesWithoutDiscountFromMobileAppToVodovozWebSiteCommand ?? (
-				_copyPricesWithoutDiscountFromMobileAppToVodovozWebSiteCommand = new DelegateCommand(
-					() =>
-					{
-						CopyPricesWithoutDiscountFromMobileAppToOtherParameters(VodovozWebSiteNomenclatureOnlineParameters);
-						UpdateNomenclatureOnlinePricesNodes();
-					},
-					() => true
-				)
-			);
-
-		public bool ActiveSitesAndAppsTab
-		{
-			get => _activeSitesAndAppsTab;
-			set
-			{
-				if(SetField(ref _activeSitesAndAppsTab, value))
-				{
-					if(value)
-					{
-						_needCheckOnlinePrices = false;
-					}
-				}
-			}
-		}
-
-		#endregion
 
 		public void UpdateNomenclatureOnlinePricesNodes()
 		{
@@ -829,6 +851,28 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				var mobileAppPrice = MobileAppNomenclatureOnlineParameters.NomenclatureOnlinePrices[i];
 				nomenclatureOnlineParameters.NomenclatureOnlinePrices[i].PriceWithoutDiscount = mobileAppPrice.PriceWithoutDiscount;
 			}
+		}
+
+		private void Archive()
+		{
+			if(!UoWGeneric.IsNew)
+			{
+				var result = _nomenclatureService.Archive(UoW, Entity);
+
+				if(result.IsFailure)
+				{
+					_interactiveService.ShowMessage(ImportanceLevel.Error, string.Join("\n", result.Errors.Select(e => e.Message)), "Не удалось архивирвоать номенклатуру");
+				}
+			}
+			else
+			{
+				Entity.IsArchive = true;
+			}
+		}
+
+		private void UnArchive()
+		{
+			Entity.IsArchive = false;
 		}
 
 		public override void Dispose()
