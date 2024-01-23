@@ -62,7 +62,7 @@ namespace Vodovoz.Application.Logistics.RouteOptimization
 			{
 				var calcOrder = _nodes[firstIndex - 1];
 				var baseVersion = GetGroupVersion(calcOrder.ShippingBase, calcOrder.Order.DeliveryDate.Value);
-				travelTime = distanceCalculator.TimeToBaseSec(
+				travelTime = _distanceCalculator.TimeToBaseSec(
 					calcOrder.Order.DeliveryPoint.PointCoordinates,
 					baseVersion.PointCoordinates);
 			}
@@ -70,23 +70,23 @@ namespace Vodovoz.Application.Logistics.RouteOptimization
 			{
 				var calcOrder = _nodes[secondIndex - 1];
 				var baseVersion = GetGroupVersion(calcOrder.ShippingBase, calcOrder.Order.DeliveryDate.Value);
-				travelTime = distanceCalculator.TimeFromBaseSec(
+				travelTime = _distanceCalculator.TimeFromBaseSec(
 					baseVersion.PointCoordinates,
 					calcOrder.Order.DeliveryPoint.PointCoordinates);
 			}
 			else
 			{
-				travelTime = distanceCalculator.TimeSec(
-					Nodes[first_index - 1].Order.DeliveryPoint.PointCoordinates,
-					Nodes[second_index - 1].Order.DeliveryPoint.PointCoordinates);
+				travelTime = _distanceCalculator.TimeSec(
+					_nodes[firstIndex - 1].Order.DeliveryPoint.PointCoordinates,
+					_nodes[secondIndex - 1].Order.DeliveryPoint.PointCoordinates);
 			}
 
-			if(first_index != 0)
+			if(firstIndex != 0)
 			{
-				serviceTime = Nodes[first_index - 1].Order.CalculateTimeOnPoint(Trip.Forwarder != null);
+				serviceTime = _nodes[firstIndex - 1].Order.CalculateTimeOnPoint(_trip.Forwarder != null);
 			}
 
-			return (long)Trip.Driver.TimeCorrection(serviceTime + travelTime);
+			return (long)_trip.Driver.TimeCorrection(serviceTime + travelTime);
 		}
 
 		private GeoGroupVersion GetGroupVersion(GeoGroup geoGroup, DateTime date)

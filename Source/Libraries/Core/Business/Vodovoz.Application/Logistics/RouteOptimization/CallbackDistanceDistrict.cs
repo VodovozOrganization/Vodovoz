@@ -4,7 +4,6 @@ using System.Linq;
 using Google.OrTools.ConstraintSolver;
 using Microsoft.Extensions.Logging;
 using Vodovoz.Core.Domain;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Tools;
 using Vodovoz.Tools.Logistic;
@@ -92,8 +91,8 @@ namespace Vodovoz.Application.Logistics.RouteOptimization
 #endif
 				var firstOrder = _nodes[firstIndex - 1];
 				var firstBaseVersion = GetGroupVersion(firstOrder.ShippingBase, firstOrder.Order.DeliveryDate.Value);
-				return distanceCalculator.DistanceToBaseMeter(
-					Nodes[first_index - 1].Order.DeliveryPoint.PointCoordinates,
+				return _distanceCalculator.DistanceToBaseMeter(
+					_nodes[firstIndex - 1].Order.DeliveryPoint.PointCoordinates,
 					firstBaseVersion.PointCoordinates);
 			}
 
@@ -164,15 +163,15 @@ namespace Vodovoz.Application.Logistics.RouteOptimization
 			{
 				var firstOrder = _nodes[secondIndex - 1];
 				var firstBaseVersion = GetGroupVersion(firstOrder.ShippingBase, firstOrder.Order.DeliveryDate.Value);
-				distance += distanceCalculator.DistanceFromBaseMeter(
+				distance += _distanceCalculator.DistanceFromBaseMeter(
 					firstBaseVersion.PointCoordinates,
-					Nodes[second_index - 1].Order.DeliveryPoint.PointCoordinates);
+					_nodes[secondIndex - 1].Order.DeliveryPoint.PointCoordinates);
 			}
 			else
 			{
-				distance += distanceCalculator.DistanceMeter(
-					Nodes[first_index - 1].Order.DeliveryPoint.PointCoordinates,
-					Nodes[second_index - 1].Order.DeliveryPoint.PointCoordinates);
+				distance += _distanceCalculator.DistanceMeter(
+					_nodes[firstIndex - 1].Order.DeliveryPoint.PointCoordinates,
+					_nodes[secondIndex - 1].Order.DeliveryPoint.PointCoordinates);
 			}
 
 			return distance + _fixedAddressPenality;
@@ -187,11 +186,11 @@ namespace Vodovoz.Application.Logistics.RouteOptimization
 
 				return (long)DistanceCalculator.GetDistanceMeters(
 					firstBaseVersion.GmapPoint,
-					Nodes[second_index - 1].Order.DeliveryPoint.GmapPoint);
+					_nodes[secondIndex - 1].Order.DeliveryPoint.GmapPoint);
 			}
 			return (long)DistanceCalculator.GetDistanceMeters(
-				Nodes[first_index - 1].Order.DeliveryPoint.GmapPoint,
-				Nodes[second_index - 1].Order.DeliveryPoint.GmapPoint);
+				_nodes[firstIndex - 1].Order.DeliveryPoint.GmapPoint,
+				_nodes[secondIndex - 1].Order.DeliveryPoint.GmapPoint);
 		}
 
 		private GeoGroupVersion GetGroupVersion(GeoGroup geoGroup, DateTime date)

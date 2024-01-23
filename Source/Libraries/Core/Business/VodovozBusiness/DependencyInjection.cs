@@ -36,7 +36,6 @@ namespace Vodovoz
 			.AddScoped<IFastPaymentSender, FastPaymentSender>()
 			.AddScoped<IOrganizationProvider, Stage2OrganizationProvider>()
 			.AddScoped<ISmsClientChannelFactory, SmsClientChannelFactory>()
-			.AddScoped<IDriverWarehouseEventQrDataHandler, DriverWarehouseEventQrDataHandler>()
 			.AddScoped<ICompletedDriverWarehouseEventRepository, CompletedDriverWarehouseEventRepository>()
 			.AddScoped<ICachedDistanceRepository, CachedDistanceRepository>()
 			.AddScoped<IGeographicGroupRepository, GeographicGroupRepository>();
