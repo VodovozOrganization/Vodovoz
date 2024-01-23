@@ -34,7 +34,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic
 				.Select(x => new SelectableParameter { RouteListTypeOfUse = x, IsSelected = x == RouteListTypeOfUse.Delivery })
 				.ToList();
 
-			OrdersEnRouteCountList = Enumerable.Range(0, 7);
+			OrdersEnRouteCountList = Enumerable.Range(0, 8);
 
 			GenerateReportCommand = new DelegateCommand(GenerateReport);
 		}
