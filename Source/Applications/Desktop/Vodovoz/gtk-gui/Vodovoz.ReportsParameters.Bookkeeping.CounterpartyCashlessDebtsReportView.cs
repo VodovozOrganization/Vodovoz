@@ -16,10 +16,6 @@ namespace Vodovoz.ReportsParameters.Bookkeeping
 
 		private global::Gamma.GtkWidgets.yButton ybuttonInfo;
 
-		private global::Gamma.GtkWidgets.yCheckButton ycheckExcludeClosingDocuments;
-
-		private global::Gamma.GtkWidgets.yCheckButton ycheckExpiredOnly;
-
 		private global::Gamma.GtkWidgets.yCheckButton ycheckOrderByDate;
 
 		private global::Gamma.GtkWidgets.yVBox yvboxFilter;
@@ -73,6 +69,7 @@ namespace Vodovoz.ReportsParameters.Bookkeeping
 			this.yhboxPeriod.Add(this.periodPicker);
 			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.yhboxPeriod[this.periodPicker]));
 			w2.Position = 1;
+			w2.Expand = false;
 			// Container child yhboxPeriod.Gtk.Box+BoxChild
 			this.ybuttonInfo = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonInfo.TooltipMarkup = "Справка по работе с отчётом";
@@ -85,6 +82,7 @@ namespace Vodovoz.ReportsParameters.Bookkeeping
 			this.ybuttonInfo.Image = w3;
 			this.yhboxPeriod.Add(this.ybuttonInfo);
 			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.yhboxPeriod[this.ybuttonInfo]));
+			w4.PackType = ((global::Gtk.PackType)(1));
 			w4.Position = 2;
 			w4.Expand = false;
 			w4.Fill = false;
@@ -94,30 +92,6 @@ namespace Vodovoz.ReportsParameters.Bookkeeping
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child yvboxParameters.Gtk.Box+BoxChild
-			this.ycheckExcludeClosingDocuments = new global::Gamma.GtkWidgets.yCheckButton();
-			this.ycheckExcludeClosingDocuments.CanFocus = true;
-			this.ycheckExcludeClosingDocuments.Name = "ycheckExcludeClosingDocuments";
-			this.ycheckExcludeClosingDocuments.Label = global::Mono.Unix.Catalog.GetString("Исключить Закрывающие документы ");
-			this.ycheckExcludeClosingDocuments.DrawIndicator = true;
-			this.ycheckExcludeClosingDocuments.UseUnderline = true;
-			this.yvboxParameters.Add(this.ycheckExcludeClosingDocuments);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.yvboxParameters[this.ycheckExcludeClosingDocuments]));
-			w6.Position = 1;
-			w6.Expand = false;
-			w6.Fill = false;
-			// Container child yvboxParameters.Gtk.Box+BoxChild
-			this.ycheckExpiredOnly = new global::Gamma.GtkWidgets.yCheckButton();
-			this.ycheckExpiredOnly.CanFocus = true;
-			this.ycheckExpiredOnly.Name = "ycheckExpiredOnly";
-			this.ycheckExpiredOnly.Label = global::Mono.Unix.Catalog.GetString("Только просроченные");
-			this.ycheckExpiredOnly.DrawIndicator = true;
-			this.ycheckExpiredOnly.UseUnderline = true;
-			this.yvboxParameters.Add(this.ycheckExpiredOnly);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.yvboxParameters[this.ycheckExpiredOnly]));
-			w7.Position = 2;
-			w7.Expand = false;
-			w7.Fill = false;
-			// Container child yvboxParameters.Gtk.Box+BoxChild
 			this.ycheckOrderByDate = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckOrderByDate.CanFocus = true;
 			this.ycheckOrderByDate.Name = "ycheckOrderByDate";
@@ -125,22 +99,22 @@ namespace Vodovoz.ReportsParameters.Bookkeeping
 			this.ycheckOrderByDate.DrawIndicator = true;
 			this.ycheckOrderByDate.UseUnderline = true;
 			this.yvboxParameters.Add(this.ycheckOrderByDate);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.yvboxParameters[this.ycheckOrderByDate]));
-			w8.Position = 3;
-			w8.Expand = false;
-			w8.Fill = false;
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.yvboxParameters[this.ycheckOrderByDate]));
+			w6.Position = 1;
+			w6.Expand = false;
+			w6.Fill = false;
 			this.yvboxMain.Add(this.yvboxParameters);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yvboxParameters]));
-			w9.Position = 0;
-			w9.Expand = false;
-			w9.Fill = false;
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yvboxParameters]));
+			w7.Position = 0;
+			w7.Expand = false;
+			w7.Fill = false;
 			// Container child yvboxMain.Gtk.Box+BoxChild
 			this.yvboxFilter = new global::Gamma.GtkWidgets.yVBox();
 			this.yvboxFilter.Name = "yvboxFilter";
 			this.yvboxFilter.Spacing = 6;
 			this.yvboxMain.Add(this.yvboxFilter);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yvboxFilter]));
-			w10.Position = 1;
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yvboxFilter]));
+			w8.Position = 1;
 			// Container child yvboxMain.Gtk.Box+BoxChild
 			this.yvboxReportSelection = new global::Gamma.GtkWidgets.yVBox();
 			this.yvboxReportSelection.Name = "yvboxReportSelection";
@@ -151,10 +125,10 @@ namespace Vodovoz.ReportsParameters.Bookkeeping
 			this.ylabelReportType.Xalign = 0F;
 			this.ylabelReportType.LabelProp = global::Mono.Unix.Catalog.GetString("Сформировать:");
 			this.yvboxReportSelection.Add(this.ylabelReportType);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.yvboxReportSelection[this.ylabelReportType]));
-			w11.Position = 0;
-			w11.Expand = false;
-			w11.Fill = false;
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.yvboxReportSelection[this.ylabelReportType]));
+			w9.Position = 0;
+			w9.Expand = false;
+			w9.Fill = false;
 			// Container child yvboxReportSelection.Gtk.Box+BoxChild
 			this.hboxButtons = new global::Gtk.HBox();
 			this.hboxButtons.Name = "hboxButtons";
@@ -166,10 +140,10 @@ namespace Vodovoz.ReportsParameters.Bookkeeping
 			this.ybuttonCounterpartyDebtBalance.UseUnderline = true;
 			this.ybuttonCounterpartyDebtBalance.Label = global::Mono.Unix.Catalog.GetString("Баланс компании");
 			this.hboxButtons.Add(this.ybuttonCounterpartyDebtBalance);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hboxButtons[this.ybuttonCounterpartyDebtBalance]));
-			w12.Position = 0;
-			w12.Expand = false;
-			w12.Fill = false;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hboxButtons[this.ybuttonCounterpartyDebtBalance]));
+			w10.Position = 0;
+			w10.Expand = false;
+			w10.Fill = false;
 			// Container child hboxButtons.Gtk.Box+BoxChild
 			this.ybuttonNotPaidOrders = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonNotPaidOrders.CanFocus = true;
@@ -177,10 +151,10 @@ namespace Vodovoz.ReportsParameters.Bookkeeping
 			this.ybuttonNotPaidOrders.UseUnderline = true;
 			this.ybuttonNotPaidOrders.Label = global::Mono.Unix.Catalog.GetString("Неоплаченные заказы");
 			this.hboxButtons.Add(this.ybuttonNotPaidOrders);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hboxButtons[this.ybuttonNotPaidOrders]));
-			w13.Position = 1;
-			w13.Expand = false;
-			w13.Fill = false;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hboxButtons[this.ybuttonNotPaidOrders]));
+			w11.Position = 1;
+			w11.Expand = false;
+			w11.Fill = false;
 			// Container child hboxButtons.Gtk.Box+BoxChild
 			this.ybuttonCounterpartyDebtDetails = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonCounterpartyDebtDetails.CanFocus = true;
@@ -188,20 +162,20 @@ namespace Vodovoz.ReportsParameters.Bookkeeping
 			this.ybuttonCounterpartyDebtDetails.UseUnderline = true;
 			this.ybuttonCounterpartyDebtDetails.Label = global::Mono.Unix.Catalog.GetString("Детализация по клиенту");
 			this.hboxButtons.Add(this.ybuttonCounterpartyDebtDetails);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hboxButtons[this.ybuttonCounterpartyDebtDetails]));
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hboxButtons[this.ybuttonCounterpartyDebtDetails]));
+			w12.Position = 2;
+			w12.Expand = false;
+			w12.Fill = false;
+			this.yvboxReportSelection.Add(this.hboxButtons);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.yvboxReportSelection[this.hboxButtons]));
+			w13.Position = 1;
+			w13.Expand = false;
+			w13.Fill = false;
+			this.yvboxMain.Add(this.yvboxReportSelection);
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yvboxReportSelection]));
 			w14.Position = 2;
 			w14.Expand = false;
 			w14.Fill = false;
-			this.yvboxReportSelection.Add(this.hboxButtons);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.yvboxReportSelection[this.hboxButtons]));
-			w15.Position = 1;
-			w15.Expand = false;
-			w15.Fill = false;
-			this.yvboxMain.Add(this.yvboxReportSelection);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yvboxReportSelection]));
-			w16.Position = 2;
-			w16.Expand = false;
-			w16.Fill = false;
 			this.Add(this.yvboxMain);
 			if ((this.Child != null))
 			{
