@@ -19,6 +19,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 {
 	public class RoboatsWaterTypeJournalViewModel : SingleEntityJournalViewModelBase<RoboatsWaterType, RoboatsWaterTypeViewModel, RoboatsWaterTypeJournalNode>
 	{
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IRoboatsViewModelFactory _roboatsViewModelFactory;
 		private readonly INomenclatureJournalFactory _nomenclatureJournalFactory;
 		private readonly ICommonServices _commonServices;
@@ -31,6 +32,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 			ICommonServices commonServices
 		) : base(unitOfWorkFactory, commonServices)
 		{
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_roboatsViewModelFactory = roboatsViewModelFactory ?? throw new ArgumentNullException(nameof(roboatsViewModelFactory));
 			_nomenclatureJournalFactory = nomenclatureJournalFactory ?? throw new ArgumentNullException(nameof(nomenclatureJournalFactory));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -154,9 +156,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 		};
 
 		protected override Func<RoboatsWaterTypeViewModel> CreateDialogFunction => () =>
-			new RoboatsWaterTypeViewModel(EntityUoWBuilder.ForCreate(), _nomenclatureJournalFactory, _roboatsViewModelFactory, _commonServices);
+			new RoboatsWaterTypeViewModel(EntityUoWBuilder.ForCreate(), _nomenclatureJournalFactory, _roboatsViewModelFactory, _unitOfWorkFactory, _commonServices);
 
 		protected override Func<RoboatsWaterTypeJournalNode, RoboatsWaterTypeViewModel> OpenDialogFunction => (node) =>
-			new RoboatsWaterTypeViewModel(EntityUoWBuilder.ForOpen(node.Id), _nomenclatureJournalFactory, _roboatsViewModelFactory, _commonServices);
+			new RoboatsWaterTypeViewModel(EntityUoWBuilder.ForOpen(node.Id), _nomenclatureJournalFactory, _roboatsViewModelFactory, _unitOfWorkFactory,_commonServices);
 	}
 }

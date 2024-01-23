@@ -38,7 +38,7 @@ namespace Vodovoz.ViewWidgets.Store
 			Build();
 
 			List<CullingCategory> types;
-			using(IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+			using(IUnitOfWork uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot()) {
 				types = uow.GetAll<CullingCategory>().OrderBy(c => c.Name).ToList();
 			}
 

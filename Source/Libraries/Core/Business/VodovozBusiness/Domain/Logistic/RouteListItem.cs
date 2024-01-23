@@ -1,4 +1,5 @@
-﻿using Gamma.Utilities;
+﻿using Autofac;
+using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
@@ -35,14 +36,22 @@ namespace Vodovoz.Domain.Logistic
 	public class RouteListItem : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
 		private AddressTransferType? _addressTransferType;
-		private static readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider = new DeliveryRulesParametersProvider(new ParametersProvider());
-		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
-		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
-		private readonly IRouteListItemRepository _routeListItemRepository = new RouteListItemRepository();
-		
 		private RouteListItem _transferredTo;
+
+
+		private IDeliveryRulesParametersProvider _deliveryRulesParametersProvider => ScopeProvider.Scope
+			.Resolve<IDeliveryRulesParametersProvider>();
+		private IEmployeeRepository _employeeRepository => ScopeProvider.Scope
+			.Resolve<IEmployeeRepository>();
+		private IUndeliveredOrdersRepository _undeliveredOrdersRepository => ScopeProvider.Scope
+			.Resolve<IUndeliveredOrdersRepository>();
+		private ISubdivisionRepository _subdivisionRepository => ScopeProvider.Scope
+			.Resolve<ISubdivisionRepository>();
+		private IRouteListItemRepository _routeListItemRepository => ScopeProvider.Scope
+			.Resolve<IRouteListItemRepository>();
+
 
 		#region Свойства
 

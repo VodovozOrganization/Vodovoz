@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.Report;
 using QS.Services;
 using QSReport;
@@ -26,7 +27,7 @@ namespace Vodovoz.ReportsParameters
 			this.Build();
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot ();
 			UserSubdivisions = GetSubdivisionsForUser();
 			
 			dateperiodpicker.StartDate = DateTime.Now.Date;

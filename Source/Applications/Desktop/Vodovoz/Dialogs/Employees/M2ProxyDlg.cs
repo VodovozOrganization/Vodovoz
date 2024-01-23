@@ -35,7 +35,7 @@ namespace Vodovoz.Dialogs.Employees
 		public M2ProxyDlg()
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<M2ProxyDocument>();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<M2ProxyDocument>();
 			TabName = "Новая доверенность М-2";
 			ConfigureDlg();
 		}
@@ -45,7 +45,7 @@ namespace Vodovoz.Dialogs.Employees
 		public M2ProxyDlg(int id)
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<M2ProxyDocument>(id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<M2ProxyDocument>(id);
 			TabName = "Изменение доверенности М-2";
 			ConfigureDlg();
 		}
@@ -53,7 +53,7 @@ namespace Vodovoz.Dialogs.Employees
 		public M2ProxyDlg(Order order)
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<M2ProxyDocument>();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<M2ProxyDocument>();
 			TabName = "Новая доверенность М-2";
 			Entity.Order = order;
 
@@ -205,7 +205,7 @@ namespace Vodovoz.Dialogs.Employees
 			if(Entity.Order == null)
 				return true;
 
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;

@@ -14,6 +14,11 @@ namespace Vodovoz.EntityRepositories.Employees
 {
 	public class EmployeeRepository : IEmployeeRepository
 	{
+		public EmployeeRepository()
+		{
+
+		}
+
 		public Employee GetEmployeeForCurrentUser(IUnitOfWork unitOfWork)
 		{
 			if(unitOfWork is null)
@@ -124,9 +129,9 @@ namespace Vodovoz.EntityRepositories.Employees
 				.SingleOrDefault<string>();
 		}
 
-		public EmployeeRegistration EmployeeRegistrationDuplicateExists(EmployeeRegistration registration)
+		public EmployeeRegistration EmployeeRegistrationDuplicateExists(IUnitOfWorkFactory uowFactory, EmployeeRegistration registration)
 		{
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = uowFactory.CreateWithoutRoot())
 			{
 				return uow.Session.QueryOver<EmployeeRegistration>()
 					.Where(er => er.PaymentForm == registration.PaymentForm)

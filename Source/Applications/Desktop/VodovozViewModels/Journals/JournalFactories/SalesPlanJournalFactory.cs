@@ -12,11 +12,18 @@ namespace Vodovoz.ViewModels.Journals.JournalFactories
 {
 	public class SalesPlanJournalFactory : ISalesPlanJournalFactory
 	{
+		private readonly IUnitOfWorkFactory _uowFactory;
+
+		public SalesPlanJournalFactory(IUnitOfWorkFactory uowFactory)
+		{
+			_uowFactory = uowFactory ?? throw new System.ArgumentNullException(nameof(uowFactory));
+		}
+
 		public IEntityAutocompleteSelectorFactory CreateSalesPlanAutocompleteSelectorFactory(INavigationManager navigationManager)
 		{
 			return new EntityAutocompleteSelectorFactory<SalesPlanJournalViewModel>(
 				typeof(SalesPlan),
-				() => new SalesPlanJournalViewModel(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, navigationManager));
+				() => new SalesPlanJournalViewModel(_uowFactory, ServicesConfig.CommonServices, navigationManager));
 		}
 	}
 }

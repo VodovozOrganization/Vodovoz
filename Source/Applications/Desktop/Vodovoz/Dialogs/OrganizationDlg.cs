@@ -16,7 +16,7 @@ namespace Vodovoz
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
 
 		private readonly IOrganizationVersionsViewModelFactory _organizationVersionsViewModelFactory 
-			= new OrganizationVersionsViewModelFactory(ServicesConfig.CommonServices, new EmployeeJournalFactory(Startup.MainWin.NavigationManager));
+			= new OrganizationVersionsViewModelFactory(ServicesConfig.UnitOfWorkFactory, ServicesConfig.CommonServices, new EmployeeJournalFactory(Startup.MainWin.NavigationManager));
 
 		public override bool HasChanges {
 			get {
@@ -29,14 +29,14 @@ namespace Vodovoz
 		public OrganizationDlg ()
 		{
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Organization> ();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<Organization> ();
 			ConfigureDlg ();
 		}
 
 		public OrganizationDlg (int id)
 		{
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Organization> (id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<Organization> (id);
 			ConfigureDlg ();
 		}
 
@@ -77,7 +77,7 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;

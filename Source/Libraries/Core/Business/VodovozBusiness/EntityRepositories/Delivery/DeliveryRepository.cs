@@ -28,8 +28,6 @@ namespace Vodovoz.EntityRepositories.Delivery
 {
 	public class DeliveryRepository : IDeliveryRepository
 	{
-		private readonly IGlobalSettings _globalSettings = new GlobalSettings(new ParametersProvider());
-
 		#region Получение районов по координатам
 
 		/// <summary>
@@ -224,6 +222,8 @@ namespace Vodovoz.EntityRepositories.Delivery
 				.Where(() => tpInner.Track.Id == t.Id)
 				.Select(Projections.Max(() => tpInner.TimeStamp));
 
+			var globalSettings = new GlobalSettings(new ParametersProvider());
+
 			//МЛ только в пути и с погруженным запасом
 			var routeListNodes = uow.Session.QueryOver(() => rl)
 				.JoinEntityAlias(() => t, () => t.RouteList.Id == rl.Id)
@@ -246,7 +246,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 				var distance = DistanceHelper.GetDistanceKm(node.Latitude, node.Longitude, latitude, longitude);
 				var deliveryPoint = new PointOnEarth(latitude, longitude);
 				var proposedRoute = OsrmClientFactory.Instance
-					.GetRoute(new List<PointOnEarth> { new PointOnEarth(node.Latitude, node.Longitude), deliveryPoint }, false, GeometryOverview.False, _globalSettings.ExcludeToll)?.Routes?
+					.GetRoute(new List<PointOnEarth> { new PointOnEarth(node.Latitude, node.Longitude), deliveryPoint }, false, GeometryOverview.False, globalSettings.ExcludeToll)?.Routes?
 					.FirstOrDefault();
 				
 				node.DistanceByLineToClient.ParameterValue = (decimal)distance;

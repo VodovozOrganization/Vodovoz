@@ -26,6 +26,7 @@ using Vodovoz.Domain.Documents.WriteOffDocuments;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Infrastructure;
+using QS.Project.Services;
 
 namespace Vodovoz.ViewModel
 {
@@ -848,7 +849,7 @@ namespace Vodovoz.ViewModel
 			Filter = filter;
 		}
 
-		public DocumentsVM() : this(UnitOfWorkFactory.CreateWithoutRoot())
+		public DocumentsVM() : this(ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
 		{
 			CreateRepresentationFilter = () => new StockDocumentsFilter(UoW);
 		}

@@ -26,6 +26,8 @@ using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using VodovozHealthCheck;
 using QS.Project.Core;
+using Vodovoz.Core.Data.NHibernate;
+using Microsoft.Extensions.Logging;
 
 namespace DeliveryRulesService
 {
@@ -49,17 +51,31 @@ namespace DeliveryRulesService
 				j.JsonSerializerOptions.PropertyNamingPolicy = null;
 			});
 
-			NLogBuilder.ConfigureNLog("NLog.config");
-
 			services
-				.AddHttpClient()
-				.ConfigureHealthCheckService<DeliveryRulesServiceHealthCheck>()
+				.AddLogging(logging =>
+				{
+					logging.ClearProviders();
+					logging.AddNLogWeb();
+					logging.AddConfiguration(Configuration.GetSection("NLog"));
+				})
+
+				.AddMappingAssemblies(
+					typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
+					typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
+					typeof(QS.Banks.Domain.Bank).Assembly,
+					typeof(QS.HistoryLog.HistoryMain).Assembly,
+					typeof(QS.Project.Domain.TypeOfEntity).Assembly,
+					typeof(QS.Attachments.Domain.Attachment).Assembly,
+					typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly
+				)
+				.AddDatabaseConnection()
 				.AddCore()
 				.AddTrackedUoW()
+
+				.ConfigureHealthCheckService<DeliveryRulesServiceHealthCheck>()
+				.AddHttpClient()
 				.AddFiasClient()
 				;
-
-			CreateBaseConfig(services);
 		}
 
 		public void ConfigureContainer(ContainerBuilder builder)
@@ -134,44 +150,5 @@ namespace DeliveryRulesService
 
 			app.ConfigureHealthCheckApplicationBuilder();
         }
-
-		private void CreateBaseConfig(IServiceCollection services)
-		{
-			var conStrBuilder = new MySqlConnectionStringBuilder();
-
-			var domainDBConfig = Configuration.GetSection("DomainDB");
-
-			conStrBuilder.Server = domainDBConfig.GetValue<string>("Server");
-			conStrBuilder.Port = domainDBConfig.GetValue<uint>("Port");
-			conStrBuilder.Database = domainDBConfig.GetValue<string>("Database");
-			conStrBuilder.UserID = domainDBConfig.GetValue<string>("UserID");
-			conStrBuilder.Password = domainDBConfig.GetValue<string>("Password");
-			conStrBuilder.SslMode = MySqlSslMode.None;
-
-			var connectionString = conStrBuilder.GetConnectionString(true);
-
-			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
-				.Dialect<MySQL57SpatialExtendedDialect>()
-				.ConnectionString(connectionString)
-				.AdoNetBatchSize(100)
-				.Driver<LoggedMySqlClientDriver>()
-				;
-
-			var provider = services.BuildServiceProvider();
-			var ormConfig = provider.GetRequiredService<IOrmConfig>();
-			ormConfig.ConfigureOrm(
-				db_config,
-				new Assembly[]
-				{
-					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
-					Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
-					Assembly.GetAssembly(typeof(Bank)),
-					Assembly.GetAssembly(typeof(HistoryMain)),
-					Assembly.GetAssembly(typeof(TypeOfEntity)),
-					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder)),
-					Assembly.GetAssembly(typeof(Attachment))
-				}
-			);
-		}
 	}
 }

@@ -1,4 +1,5 @@
 ﻿using QS.DomainModel.UoW;
+using QS.Project.Services;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.Parameters;
@@ -14,7 +15,7 @@ namespace Vodovoz.Models
 			var orderParametersProvider = new OrderParametersProvider(parametersProvider);
 			var geographicGroupParametersProvider = new GeographicGroupParametersProvider(parametersProvider);
 			var fastPaymentRepository = new FastPaymentRepository();
-			var cashReceiptRepository = new CashReceiptRepository(UnitOfWorkFactory.GetDefaultFactory, orderParametersProvider);
+			var cashReceiptRepository = new CashReceiptRepository(ServicesConfig.UnitOfWorkFactory, orderParametersProvider);
 
 			return new Stage2OrganizationProvider(
 				organizationParametersProvider,

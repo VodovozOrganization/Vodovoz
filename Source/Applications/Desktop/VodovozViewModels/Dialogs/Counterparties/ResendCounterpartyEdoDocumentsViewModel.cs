@@ -99,7 +99,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 
 			foreach(var document in documentsToResend)
 			{
-				document.EdoContainer.Order.SetNeedToRecendEdoUpd();
+				document.EdoContainer.Order.SetNeedToRecendEdoUpd(UnitOfWorkFactory);
 			}
 
 			Close(false, CloseSource.Cancel);

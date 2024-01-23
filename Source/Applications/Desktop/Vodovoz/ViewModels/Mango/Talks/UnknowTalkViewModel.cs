@@ -26,6 +26,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private readonly IUnitOfWork _uow;
 		private ILifetimeScope _lifetimeScope;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private IPage<CounterpartyJournalViewModel> _counterpartyJournalPage;
 		
 		public UnknowTalkViewModel(
@@ -39,11 +40,12 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 			INomenclatureRepository nomenclatureRepository) : base(navigation, manager)
 		{
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_tdiNavigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
 			_interactive = interactive ?? throw new ArgumentNullException(nameof(interactive));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
-			_uow = unitOfWorkFactory.CreateWithoutRoot();
+			_uow = _unitOfWorkFactory.CreateWithoutRoot();
 		}
 
 		#region Действия View
@@ -99,7 +101,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 
 			var parameters = new Dictionary<string, object> {
 				{"uowBuilder", EntityUoWBuilder.ForCreate()},
-				{ "unitOfWorkFactory", UnitOfWorkFactory.GetDefaultFactory },
+				{ "unitOfWorkFactory", _unitOfWorkFactory },
 				//Autofac: IEmployeeService 
 				{"employeeSelectorFactory", employeeSelectorFactory},
 				{"counterpartySelectorFactory", counterpartySelectorFactory},

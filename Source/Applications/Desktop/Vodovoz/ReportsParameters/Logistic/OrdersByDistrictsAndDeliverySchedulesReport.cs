@@ -6,6 +6,7 @@ using QS.Report;
 using QSReport;
 using QS.Dialog.GtkUI;
 using Vodovoz.Domain.Sale;
+using QS.Project.Services;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {
@@ -15,7 +16,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 		public OrdersByDistrictsAndDeliverySchedulesReport()
 		{
 			this.Build();
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			ConfigureDlg();
 		}
 

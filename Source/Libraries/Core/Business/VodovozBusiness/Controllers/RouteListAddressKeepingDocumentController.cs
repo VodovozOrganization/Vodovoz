@@ -254,7 +254,7 @@ namespace Vodovoz.Controllers
 		}
 
 		public HashSet<RouteListAddressKeepingDocumentItem> CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(
-			IUnitOfWork uow, RouteListItem changedRouteListItem, HashSet<RouteListAddressKeepingDocumentItem> itemsCacheList = null, bool isBottlesDiscrepancy = false)
+			IUnitOfWorkFactory uowFactory, IUnitOfWork uow, RouteListItem changedRouteListItem, HashSet<RouteListAddressKeepingDocumentItem> itemsCacheList = null, bool isBottlesDiscrepancy = false)
 		{
 			if(!changedRouteListItem.RouteList.ClosingFilled)
 			{
@@ -287,7 +287,7 @@ namespace Vodovoz.Controllers
 
 			var newItems = new HashSet<RouteListAddressKeepingDocumentItem>();
 
-			using(var uowLocal = UnitOfWorkFactory.CreateWithoutRoot("Измениние свободных остатков на кассе"))
+			using(var uowLocal = uowFactory.CreateWithoutRoot("Измениние свободных остатков на кассе"))
 			{
 				oldRouteListItem = uowLocal.GetById<RouteListItem>(changedRouteListItem.Id);
 				oldRouteList = uowLocal.GetById<RouteList>(changedRouteListItem.RouteList.Id);

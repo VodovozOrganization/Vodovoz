@@ -1,4 +1,4 @@
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.Dialog;
@@ -100,7 +100,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			var settingsController = new SettingsController(UnitOfWorkFactory, new Logger<SettingsController>(loggerFactory));
 			SendDocViewModel =
 				new SendDocumentByEmailViewModel(
-					new EmailRepository(),
+					uowFactory,
+					new EmailRepository(uowFactory),
 					new EmailParametersProvider(settingsController),
 					currentEmployee,
 					commonServices.InteractiveService,

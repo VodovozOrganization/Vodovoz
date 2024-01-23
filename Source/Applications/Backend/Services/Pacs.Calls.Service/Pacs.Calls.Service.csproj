@@ -22,6 +22,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />
 		<PackageReference Include="MassTransit" Version="8.0.12" />
 		<PackageReference Include="MassTransit.RabbitMQ" Version="8.0.12" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
@@ -30,6 +31,8 @@
 		<PackageReference Include="NHibernate.Spatial.MySQL" Version="6.0.0" />
 		<PackageReference Include="FluentNHibernate" Version="3.1.0" />
 		<PackageReference Include="RabbitMQ.Client" Version="6.4.0" />
+		<PackageReference Include="NLog.Extensions.Logging" Version="5.2.2" />
+		<PackageReference Include="NLog.Targets.Seq" Version="2.1.0" />
 	</ItemGroup>
 
 	<ItemGroup>

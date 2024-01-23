@@ -179,7 +179,7 @@ namespace CashReceiptPrepareWorker
 					Assembly.GetAssembly(typeof(Bank)),
 					Assembly.GetAssembly(typeof(TypeOfEntity)),
 					Assembly.GetAssembly(typeof(Attachment)),
-					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
+					Assembly.GetAssembly(typeof(AssemblyFinder))
 				}
 			);
 		}

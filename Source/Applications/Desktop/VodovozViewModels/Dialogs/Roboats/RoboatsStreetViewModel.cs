@@ -1,4 +1,5 @@
-﻿using QS.Navigation;
+﻿using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
@@ -15,7 +16,7 @@ namespace Vodovoz.ViewModels.Dialogs.Roboats
 		private readonly bool _canEdit;
 		private readonly bool _canCreate;
 
-		public RoboatsStreetViewModel(IEntityUoWBuilder uowBuilder, IRoboatsViewModelFactory roboatsViewModelFactory, ICommonServices commonServices) : base(uowBuilder, commonServices)
+		public RoboatsStreetViewModel(IEntityUoWBuilder uowBuilder, IRoboatsViewModelFactory roboatsViewModelFactory, IUnitOfWorkFactory uowFactory, ICommonServices commonServices) : base(uowBuilder, uowFactory, commonServices)
 		{
 			_roboatsViewModelFactory = roboatsViewModelFactory ?? throw new ArgumentNullException(nameof(roboatsViewModelFactory));
 

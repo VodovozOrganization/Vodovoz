@@ -50,7 +50,6 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly ILogger<RouteListCreateViewModel> _logger;
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IValidator _validator;
-		private readonly IValidationViewFactory _validationViewFactory;
 		private readonly IInteractiveService _interactiveService;
 		private readonly ICurrentPermissionService _currentPermissionService;
 		private readonly IEmployeeRepository _employeeRepository;
@@ -76,7 +75,6 @@ namespace Vodovoz.ViewModels.Logistic
 			ILifetimeScope lifetimeScope,
 			INavigationManager navigation,
 			IValidator validator,
-			IValidationViewFactory validationViewFactory,
 			IInteractiveService interactiveService,
 			ICurrentPermissionService currentPermissionService,
 			IEmployeeRepository employeeRepository,
@@ -92,7 +90,6 @@ namespace Vodovoz.ViewModels.Logistic
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_validator = validator ?? throw new ArgumentNullException(nameof(validator));
-			_validationViewFactory = validationViewFactory ?? throw new ArgumentNullException(nameof(validationViewFactory));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_currentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
@@ -463,9 +460,7 @@ namespace Vodovoz.ViewModels.Logistic
 			};
 
 			var context = new ValidationContext(Entity, null, contextItems);
-			var validator = new ObjectValidator(_validationViewFactory);
-
-			if(!validator.Validate(Entity, context))
+			if(!_validator.Validate(Entity, context))
 			{
 				return false;
 			}

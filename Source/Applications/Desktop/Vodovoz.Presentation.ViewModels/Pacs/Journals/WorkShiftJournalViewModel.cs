@@ -3,6 +3,7 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Journal;
+using QS.Project.Services;
 using QS.Services;
 using Vodovoz.Core.Domain.Pacs;
 using Vodovoz.Presentation.ViewModels.Employees;
@@ -15,15 +16,24 @@ namespace Vodovoz.Presentation.ViewModels.Pacs.Journals
 			IUnitOfWorkFactory uowFactory,
 			IInteractiveService interactiveService,
 			INavigationManager navigationManager,
+			IDeleteEntityService deleteEntityService,
 			ICurrentPermissionService currentPermissionService
-		) : base(uowFactory, interactiveService, navigationManager, currentPermissionService: currentPermissionService)
+		) : base(uowFactory, interactiveService, navigationManager, currentPermissionService: currentPermissionService, deleteEntityService: deleteEntityService)
 		{
 			Title = "Рабочие смены";
+
+			VisibleDeleteAction = false;
+
+			UpdateOnChanges(typeof(WorkShift));
 		}
 
 		protected override IQueryOver<WorkShift> ItemsQuery(IUnitOfWork uow)
 		{
-			return uow.Session.QueryOver<WorkShift>();
+			var query = uow.Session.QueryOver<WorkShift>();
+			query.Where(GetSearchCriterion<WorkShift>(
+				x => x.Name
+			));
+			return query;
 		}
 
 		protected override void CreateEntityDialog()

@@ -26,7 +26,7 @@ namespace Vodovoz
 			_lifetimeScope = lifetimeScope ?? throw new System.ArgumentNullException(nameof(lifetimeScope));
 
 			Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Warehouse>();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<Warehouse>();
 			ConfigureDialog();
 		}
 
@@ -39,7 +39,7 @@ namespace Vodovoz
 			_lifetimeScope = lifetimeScope ?? throw new System.ArgumentNullException(nameof(lifetimeScope));
 
 			Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Warehouse>(id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<Warehouse>(id);
 			ConfigureDialog();
 		}
 
@@ -105,7 +105,7 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;

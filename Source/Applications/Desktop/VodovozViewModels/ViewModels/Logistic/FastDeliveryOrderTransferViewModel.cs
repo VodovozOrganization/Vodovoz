@@ -26,6 +26,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 	public partial class FastDeliveryOrderTransferViewModel : WindowDialogViewModelBase, IDisposable
 	{
 		private readonly ILogger<FastDeliveryOrderTransferViewModel> _logger;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly TimeSpan _driverOfflineTimeSpan;
 		private readonly IRouteListRepository _routeListRepository;
@@ -59,11 +60,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		{
 			Title = "Перенос заказа с доставкой за час";
 
-			if(unitOfWorkFactory is null)
-			{
-				throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			}
-
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_confirmationQuestionInteractive = confirmationQuestionInteractive ?? throw new ArgumentNullException(nameof(confirmationQuestionInteractive));
@@ -71,11 +67,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_routeListProfitabilityController = routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
 			_osrmClient = osrmClient ?? throw new ArgumentNullException(nameof(osrmClient));
 			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
-			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot(Title);
+			_unitOfWork = _unitOfWorkFactory.CreateWithoutRoot(Title);
 
 			_driverOfflineTimeSpan = _deliveryRulesParametersProvider.MaxTimeOffsetForLatestTrackPoint;
 
@@ -292,7 +289,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private bool HasAddressChanges(RouteListItem address)
 		{
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot("Получение статуса адреса"))
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot("Получение статуса адреса"))
 			{
 				return uow.GetById<RouteListItem>(address.Id).Status != address.Status;
 			}

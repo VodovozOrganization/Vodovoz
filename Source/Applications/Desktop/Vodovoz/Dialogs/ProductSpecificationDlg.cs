@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.Validation;
 using Vodovoz.Domain.Store;
 using Vodovoz.TempAdapters;
@@ -15,7 +16,7 @@ namespace Vodovoz
 		public ProductSpecificationDlg ()
 		{
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<ProductSpecification> ();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<ProductSpecification> ();
 			ConfigureDlg ();
 		}
 
@@ -26,7 +27,7 @@ namespace Vodovoz
 		public ProductSpecificationDlg (int id)
 		{
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<ProductSpecification> (id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<ProductSpecification> (id);
 			ConfigureDlg ();
 		}
 
@@ -43,7 +44,7 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;

@@ -64,7 +64,7 @@ namespace Dialogs.Logistic
 		{
 			this.Build();
 
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			this.routeList = UoW.Session.QueryOver<RouteList>()
 				.Where(rl => rl.Id == routeListId).SingleOrDefault();
 			if (routeList == null)

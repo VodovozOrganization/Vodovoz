@@ -61,9 +61,16 @@ namespace Vodovoz.Configuration
 	public class ApplicationConfigurator : IApplicationConfigurator
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
-        private const int connectionTimeoutSeconds = 120;
+		//private readonly IOrmConfig _ormConfig;
 
-        public void ConfigureOrm()
+		private const int connectionTimeoutSeconds = 120;
+
+		public ApplicationConfigurator(/*IOrmConfig ormConfig*/)
+		{
+			//_ormConfig = ormConfig ?? throw new ArgumentNullException(nameof(ormConfig));
+		}
+
+        /*public void ConfigureOrm()
         {
             logger.Debug("Конфигурация ORM...");
 
@@ -88,8 +95,8 @@ namespace Vodovoz.Configuration
                 .AdoNetBatchSize(100)
                 .Driver<LoggedMySqlClientDriver>();
 
-            // Настройка ORM
-            OrmConfig.ConfigureOrm(
+			// Настройка ORM
+			_ormConfig.ConfigureOrm(
                 dbConfig,
                 new[] {
                     Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
@@ -115,7 +122,7 @@ namespace Vodovoz.Configuration
 			HistoryMain.Enable(dbConnectionStringBuilder);
 
 			logger.Debug("OK");
-        }
+        }*/
 
         public void CreateApplicationConfig()
         {

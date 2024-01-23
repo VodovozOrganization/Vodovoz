@@ -4,6 +4,7 @@ using System.Linq;
 using Gamma.Utilities;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Orders;
@@ -16,7 +17,7 @@ namespace Vodovoz.ReportsParameters.Orders
         public EShopSalesReport()
         {
             this.Build();
-            UoW = UnitOfWorkFactory.CreateWithoutRoot();
+            UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
             Configure();
         }
 

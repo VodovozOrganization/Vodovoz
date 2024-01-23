@@ -146,12 +146,6 @@ namespace Pacs.Server
 			{
 				await CheckConnection();
 
-				var checkResult = GetCheckStartBreakResult(breakType);
-				if(checkResult != null)
-				{
-					return checkResult;
-				}
-
 				if(reason.IsNullOrWhiteSpace())
 				{
 					return new OperatorResult(GetResultContent(), "Основание должно быть заполнено");

@@ -139,7 +139,7 @@ namespace UnsubscribePage
 					Assembly.GetAssembly(typeof(Bank)),
 					Assembly.GetAssembly(typeof(HistoryMain)),
 					Assembly.GetAssembly(typeof(Attachment)),
-					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
+					Assembly.GetAssembly(typeof(AssemblyFinder))
 				}
 			);
 

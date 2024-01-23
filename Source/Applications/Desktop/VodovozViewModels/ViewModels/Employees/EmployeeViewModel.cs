@@ -53,6 +53,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 	public class EmployeeViewModel : TabViewModelBase, ITdiDialog, ISingleUoWDialog, IAskSaveOnCloseViewModel
 	{
 		private readonly Logger _logger = LogManager.GetCurrentClassLogger();
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IAuthorizationService _authorizationService;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 		private readonly IEmployeeRepository _employeeRepository;
@@ -124,11 +125,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			EmployeeSettings.IEmployeeSettings employeeSettings,
 			bool traineeToEmployee = false) : base(commonServices?.InteractiveService, navigationManager)
 		{
-			if(unitOfWorkFactory is null)
-			{
-				throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			}
-
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
 			EmployeeWageParametersFactory =
 				employeeWageParametersFactory ?? throw new ArgumentNullException(nameof(employeeWageParametersFactory));
@@ -289,7 +286,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				    _routeListRepository,
 				    _commonServices,
 				    UoW,
-				    _baseParametersProvider));
+					_unitOfWorkFactory,
+					_baseParametersProvider));
 
 		public bool CanReadEmployeeDocuments { get; private set; }
 		public bool CanAddEmployeeDocument { get; private set; }
@@ -457,7 +455,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 						var driverDistrictPrioritySetViewModel = new DriverDistrictPrioritySetViewModel(
 							newDistrictPrioritySet,
 							UoW,
-							UnitOfWorkFactory.GetDefaultFactory,
+							_unitOfWorkFactory,
 							_commonServices,
 							_baseParametersProvider,
 							_employeeRepository
@@ -482,7 +480,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 						var driverDistrictPrioritySetViewModel = new DriverDistrictPrioritySetViewModel(
 							SelectedDistrictPrioritySet,
 							UoW,
-							UnitOfWorkFactory.GetDefaultFactory,
+							_unitOfWorkFactory,
 							_commonServices,
 							_baseParametersProvider,
 							_employeeRepository
@@ -541,7 +539,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 						var driverDistrictPrioritySetViewModel = new DriverDistrictPrioritySetViewModel(
 							newDistrictPrioritySet,
 							UoW,
-							UnitOfWorkFactory.GetDefaultFactory,
+							_unitOfWorkFactory,
 							_commonServices,
 							_baseParametersProvider,
 							_employeeRepository

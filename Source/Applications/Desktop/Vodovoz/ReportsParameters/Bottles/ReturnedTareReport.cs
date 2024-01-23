@@ -7,6 +7,7 @@ using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
+using QS.Project.Services;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Employees;
@@ -34,7 +35,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 		{
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			_filter = new SelectableParametersReportFilter(UoW);
 			Build();
 			

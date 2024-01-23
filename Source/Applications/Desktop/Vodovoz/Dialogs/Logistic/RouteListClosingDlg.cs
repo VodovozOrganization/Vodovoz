@@ -133,7 +133,7 @@ namespace Vodovoz
 
 			PerformanceHelper.StartMeasurement();
 
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(routeListId);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<RouteList>(routeListId);
 
 			TabName = string.Format("Закрытие маршрутного листа №{0}", Entity.Id);
 			PerformanceHelper.AddTimePoint("Создан UoW");
@@ -411,7 +411,7 @@ namespace Vodovoz
 				}
 
 				_addressKeepingDocumentBottlesCacheList[node.Id] = _routeListAddressKeepingDocumentController
-					.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, node, _addressKeepingDocumentBottlesCacheList[node.Id], true);
+					.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(ServicesConfig.UnitOfWorkFactory, UoW, node, _addressKeepingDocumentBottlesCacheList[node.Id], true);
 			}
 		}
 
@@ -713,7 +713,7 @@ namespace Vodovoz
 			}
 
 			_addressKeepingDocumentItemsCacheList[node.Id] = _routeListAddressKeepingDocumentController
-				.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, node, _addressKeepingDocumentItemsCacheList[node.Id]);
+				.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(ServicesConfig.UnitOfWorkFactory, UoW, node, _addressKeepingDocumentItemsCacheList[node.Id]);
 
 			ReloadDiscrepancies();
 
@@ -941,7 +941,7 @@ namespace Vodovoz
 					{nameof(DriverTerminalCondition), _needToSelectTerminalCondition && Entity.Status == RouteListStatus.Closed}
 				};
 			var context = new ValidationContext(Entity, null, contextItems);
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 
 			permissioncommentview.Save();
 

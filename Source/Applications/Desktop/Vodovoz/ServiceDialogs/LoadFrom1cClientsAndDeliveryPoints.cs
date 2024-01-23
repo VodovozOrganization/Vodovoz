@@ -23,7 +23,7 @@ namespace Vodovoz.ServiceDialogs
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class LoadFrom1cClientsAndDeliveryPoints : QS.Dialog.Gtk.TdiTabBase
 	{
-		private IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot();
+		private IUnitOfWork UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 
 		List<Counterparty> VodovozCounterparties = new List<Counterparty>();
 		List<Counterparty> CounterpatiesList = new List<Counterparty>();

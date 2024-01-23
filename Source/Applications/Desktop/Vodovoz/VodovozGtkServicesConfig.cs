@@ -24,9 +24,9 @@ namespace Vodovoz
 		public static void CreateVodovozDefaultServices()
 		{
 			ServicesConfig.InteractiveService = new GtkInteractiveService();
-			ServicesConfig.ValidationService = new ObjectValidator(new GtkValidationViewFactory());
+			ServicesConfig.ValidationService = ServicesConfig.ValidationService;
 			ServicesConfig.UserService = new UserService(LoadCurrentUser());
-			EmployeeService = new EmployeeService(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.UserService);
+			EmployeeService = new EmployeeService(ServicesConfig.UnitOfWorkFactory, ServicesConfig.UserService);
 
 			IRepresentationJournalFactory journalFactory = new PermissionControlledRepresentationJournalFactory();
 			RepresentationEntityPicker = new RepresentationEntityPickerGtk(journalFactory);
@@ -35,9 +35,9 @@ namespace Vodovoz
 
 			//пространство имен специально прописано чтобы при изменениях не было случайного совпадения с валидатором из QS
 			var entityPermissionValidator =
-				new Vodovoz.Domain.Permissions.EntityPermissionValidator(new EmployeeRepository(), new PermissionRepository());
+				new Vodovoz.Domain.Permissions.EntityPermissionValidator(ServicesConfig.UnitOfWorkFactory, new EmployeeRepository(), new PermissionRepository(), ServicesConfig.UnitOfWorkFactory);
 			var presetPermissionValidator =
-				new Vodovoz.Domain.Permissions.HierarchicalPresetPermissionValidator(new EmployeeRepository(), new PermissionRepository());
+				new Vodovoz.Domain.Permissions.HierarchicalPresetPermissionValidator(ServicesConfig.UnitOfWorkFactory, new EmployeeRepository(), new PermissionRepository());
 			var permissionService = new PermissionService(entityPermissionValidator, presetPermissionValidator);
 			PermissionsSettings.PermissionService = permissionService;
 			PermissionsSettings.CurrentPermissionService = new CurrentPermissionServiceAdapter(permissionService, ServicesConfig.UserService);
@@ -45,7 +45,7 @@ namespace Vodovoz
 
 		private static User LoadCurrentUser()
 		{
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
 			{
 				return uow.GetById<User>(QSMain.User.Id);
 			}

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Autofac;
 using GMap.NET;
 using QS.DomainModel.Entity;
 using QS.Osrm;
@@ -20,7 +21,8 @@ namespace Vodovoz.Domain.Logistic
 	public class Track : PropertyChangedBase, IDomainObject
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		private readonly IGlobalSettings _globalSettings = new GlobalSettings(new ParametersProvider());
+		private IGlobalSettings _globalSettings => ScopeProvider.Scope
+			.Resolve<IGlobalSettings>();
 
 		public virtual int Id { get; set; }
 

@@ -1,11 +1,11 @@
-﻿using System;
-using System.Globalization;
-using System.Linq;
-using System.Xml;
-using Gtk;
+﻿using Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSProjectsLib;
+using System;
+using System.Globalization;
+using System.Linq;
+using System.Xml;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.ExportTo1c;
@@ -15,7 +15,7 @@ using Vodovoz.Parameters;
 
 namespace Vodovoz
 {
-    public partial class ExportTo1cDialog : QS.Dialog.Gtk.TdiTabBase
+	public partial class ExportTo1cDialog : QS.Dialog.Gtk.TdiTabBase
     {
         bool exportInProgress;
         private readonly IParametersProvider _parametersProvider = new ParametersProvider();

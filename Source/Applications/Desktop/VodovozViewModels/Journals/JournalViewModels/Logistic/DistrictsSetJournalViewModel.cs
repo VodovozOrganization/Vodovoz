@@ -279,7 +279,7 @@ namespace Vodovoz.Journals.JournalViewModels
 						TabParent.AddSlaveTab(this,
 							new DistrictsSetActivationViewModel(
 								EntityUoWBuilder.ForOpen(selectedNode.Id),
-								QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
+								unitOfWorkFactory,
 								commonServices,
 								new EmployeeRepository()
 								)

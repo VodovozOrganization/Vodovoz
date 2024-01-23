@@ -423,7 +423,7 @@ namespace Vodovoz
 		protected void AddOrdersFromRegion()
 		{
 			var filter = new DistrictJournalFilterViewModel { Status = DistrictsSetStatus.Active, OnlyWithBorders = true };
-			var journalViewModel = new DistrictJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices)
+			var journalViewModel = new DistrictJournalViewModel(filter, ServicesConfig.UnitOfWorkFactory, ServicesConfig.CommonServices)
 			{
 				SelectionMode = JournalSelectionMode.Single,
 				EnableDeleteButton = false,

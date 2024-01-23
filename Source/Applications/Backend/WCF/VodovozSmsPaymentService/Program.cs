@@ -122,7 +122,8 @@ namespace VodovozSmsPaymentService
 
 				var smsPaymentFileCache = new SmsPaymentFileCache("/tmp/VodovozSmsPaymentServiceTemp.txt");
 
-				SmsPaymentServiceInstanceProvider smsPaymentServiceInstanceProvider = new SmsPaymentServiceInstanceProvider(
+				var smsPaymentServiceInstanceProvider = new SmsPaymentServiceInstanceProvider(
+					
 					paymentSender,
 					smsPaymentStatusNotificationReciever,
 					new OrderParametersProvider(new ParametersProvider()),

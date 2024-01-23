@@ -88,7 +88,7 @@ namespace Vodovoz.Tools
 				return;
 			}
 
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 			{
 				var maxOldTrackPointDate = _oldTrackPointRepository.GetMaxOldTrackPointDate(uow);
 				var lastDateToArchive = DateTime.Today.AddYears(-_archiveDataSettings.GetDistanceCacheDataPeriodAvailable);
@@ -129,7 +129,7 @@ namespace Vodovoz.Tools
 				return;
 			}
 
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 			{
 				var firstDateInWorkingBase = DateTime.Today.AddYears(-_archiveDataSettings.GetDistanceCacheDataPeriodAvailable).AddDays(1);
 				var firstCachedDistance = _cachedDistanceRepository.GetFirstCacheByCreateDate(uow);

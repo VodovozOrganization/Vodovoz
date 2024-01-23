@@ -227,6 +227,10 @@ namespace Pacs.Server
 				_globalBreakController.UpdateBreakAvailability();
 			}
 
+			/*var args = (BreakStartArgs)transition.Parameters[0];
+			if(args.BreakChangedBy == BreakChangedBy.Admin)
+			{ 
+			}*/
 			BreakAvailability = _operatorBreakController.GetBreakAvailability();
 			await _operatorNotifier.OperatorChanged(OperatorState, BreakAvailability);
 		}

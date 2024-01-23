@@ -33,7 +33,7 @@ namespace Vodovoz.Domain.Client
 	{
 		private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-		private readonly IGlobalSettings _globalSettings = new GlobalSettings(new ParametersProvider());
+		private IGlobalSettings _globalSettings;
 
 		private TimeSpan? _lunchTimeFrom;
 		private TimeSpan? _lunchTimeTo;
@@ -852,7 +852,7 @@ namespace Vodovoz.Domain.Client
 				new PointOnEarth(Latitude.Value, Longitude.Value)
 			};
 
-			RouteResponse result = OsrmClientFactory.Instance.GetRoute(route, false, GeometryOverview.False, _globalSettings.ExcludeToll);
+			RouteResponse result = OsrmClientFactory.Instance.GetRoute(route, false, GeometryOverview.False, GetGlobalSettings().ExcludeToll);
 
 			if(result == null)
 			{
@@ -878,30 +878,14 @@ namespace Vodovoz.Domain.Client
 				: $"{StreetTypeShort}. ";
 		}
 
-		#region Фабричные методы
-
-		public static IUnitOfWorkGeneric<DeliveryPoint> CreateUowForNew(Counterparty counterparty)
+		private IGlobalSettings GetGlobalSettings()
 		{
-			IUnitOfWorkGeneric<DeliveryPoint> uow = UnitOfWorkFactory.CreateWithNewRoot<DeliveryPoint>();
-
-			uow.Root.Counterparty = counterparty;
-
-			return uow;
-		}
-
-		public static DeliveryPoint Create(Counterparty counterparty)
-		{
-			DeliveryPoint point = new DeliveryPoint
+			if(_globalSettings == null)
 			{
-				Counterparty = counterparty
-			};
-
-			counterparty.DeliveryPoints.Add(point);
-
-			return point;
+				_globalSettings = new GlobalSettings(new ParametersProvider());
+			}
+			return _globalSettings;
 		}
-
-		#endregion Фабричные методы
 
 		#region IValidatableObject Implementation
 

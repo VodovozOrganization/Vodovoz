@@ -68,7 +68,7 @@ namespace Vodovoz.Reports
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			Build();
 
-			UoW = unitOfWorkFactory.CreateWithoutRoot();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 
 			comboPart.ItemsEnum = typeof(ReportParts);
 

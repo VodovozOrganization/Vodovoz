@@ -1,18 +1,14 @@
-﻿using Autofac.Core;
-using MessageTransport;
+﻿using MessageTransport;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using MySqlConnector;
+using Microsoft.Extensions.Logging;
+using NLog.Web;
 using Pacs.Admin.Server;
 using QS.Project.Core;
-using QS.Project.DB;
-using System.Reflection;
-using Vodovoz.Core.Data.NHibernate.Mapping.Pacs;
-using Vodovoz.Data.NHibernate.NhibernateExtensions;
-using Vodovoz.Settings.Pacs;
+using Vodovoz.Core.Data.NHibernate;
 
 namespace Pacs.Admin.Service
 {
@@ -28,17 +24,22 @@ namespace Pacs.Admin.Service
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
-			var transportSettings = new ConfigTransportSettings();
-			Configuration.Bind("MessageTransport", transportSettings);
-
 			services
+				.AddLogging(logging =>
+				{
+					logging.ClearProviders();
+					logging.AddNLogWeb();
+					logging.AddConfiguration(Configuration.GetSection("NLog"));
+				})
+				.AddMappingAssemblies(
+					typeof(Vodovoz.Core.Data.NHibernate.AssemblyFinder).Assembly
+				)
+				.AddDatabaseConnection()
 				.AddCore()
 				.AddTrackedUoW()
-				.AddSingleton<IMessageTransportSettings>(transportSettings)
+				.AddMessageTransportSettings()
 				.AddPacsAdminServices()
 				;
-
-			CreateBaseConfig(services);
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -57,38 +58,6 @@ namespace Pacs.Admin.Service
 			{
 				endpoints.MapControllers();
 			});
-		}
-
-		private void CreateBaseConfig(IServiceCollection services)
-		{
-			var dbSection = Configuration.GetSection("DomainDB");
-			var conStrBuilder = new MySqlConnectionStringBuilder();
-
-			conStrBuilder.Server = dbSection.GetValue<string>("Server");
-			conStrBuilder.Port = dbSection.GetValue<uint>("Port");
-			conStrBuilder.Database = dbSection.GetValue<string>("Database");
-			conStrBuilder.UserID = dbSection.GetValue<string>("UserID");
-			conStrBuilder.Password = dbSection.GetValue<string>("Password");
-			conStrBuilder.SslMode = MySqlSslMode.None;
-
-			var connectionString = conStrBuilder.GetConnectionString(true);
-
-			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
-				.Dialect<MySQL57SpatialExtendedDialect>()
-				.ConnectionString(connectionString)
-				.AdoNetBatchSize(100)
-				.Driver<LoggedMySqlClientDriver>()
-			;
-
-			var provider = services.BuildServiceProvider();
-			var ormConfig = provider.GetRequiredService<IOrmConfig>();
-			ormConfig.ConfigureOrm(
-				db_config,
-				new Assembly[]
-				{
-					Assembly.GetAssembly(typeof(DomainSettingsMap))
-				}
-			);
 		}
 	}
 }

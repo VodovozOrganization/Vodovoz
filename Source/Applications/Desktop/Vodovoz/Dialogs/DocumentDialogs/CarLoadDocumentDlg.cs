@@ -77,7 +77,7 @@ namespace Vodovoz
 		{
 			ResolveDependencies();
 			Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<CarLoadDocument>(id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<CarLoadDocument>(id);
 			ConfigureDlg();
 		}
 
@@ -98,7 +98,7 @@ namespace Vodovoz
 
 		private void ConfigureNewDoc()
 		{
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<CarLoadDocument>();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<CarLoadDocument>();
 			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null)
 			{
@@ -172,7 +172,7 @@ namespace Vodovoz
 			ySpecCmbWarehouses.ItemSelected += OnYSpecCmbWarehousesItemSelected;
 
 			var permmissionValidator =
-				new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
+				new EntityExtendedPermissionValidator(ServicesConfig.UnitOfWorkFactory, PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
 
 			Entity.CanEdit =
 				permmissionValidator.Validate(typeof(CarLoadDocument), currentUserId, nameof(RetroactivelyClosePermission));
@@ -201,7 +201,7 @@ namespace Vodovoz
 			}
 
 			Entity.UpdateAlreadyLoaded(UoW, _routeListRepository);
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;

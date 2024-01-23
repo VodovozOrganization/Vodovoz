@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.Services;
 using QS.Report;
 using QSReport;
 using Vodovoz.Core.Domain.Employees;
@@ -24,7 +25,7 @@ namespace Vodovoz.ReportsParameters.Store
 			}
 
 			this.Build();
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 
 			yEnumCmbSource.ItemsEnum = typeof(DefectSource);
 			yEnumCmbSource.AddEnumToHideList(new Enum[] { DefectSource.None });

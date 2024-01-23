@@ -11,11 +11,18 @@ namespace Vodovoz.Domain.Permissions
 {
 	public class EntityPermissionValidator : QS.DomainModel.Entity.EntityPermissions.EntityPermissionValidator
 	{
+		private readonly IUnitOfWorkFactory _uowFcatory;
 		protected IEmployeeRepository employeeRepository;
 		protected IPermissionRepository permissionRepository;
 
-		public EntityPermissionValidator(IEmployeeRepository employeeRepository, IPermissionRepository permissionRepository)
+		public EntityPermissionValidator(
+			IUnitOfWorkFactory uowFcatory,
+			IEmployeeRepository employeeRepository, 
+			IPermissionRepository permissionRepository,
+			IUnitOfWorkFactory uowFactory
+			) : base(uowFactory)
 		{
+			_uowFcatory = uowFcatory ?? throw new ArgumentNullException(nameof(uowFcatory));
 			this.employeeRepository = employeeRepository ??
 									  throw new ArgumentNullException(nameof(employeeRepository));
 			this.permissionRepository = permissionRepository ??
@@ -41,7 +48,7 @@ namespace Vodovoz.Domain.Permissions
 			}
 
 			Employee employee;
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+			using(var uow = _uowFcatory.CreateWithoutRoot()) {
 				employee = employeeRepository.GetEmployeesForUser(uow, userId).FirstOrDefault();
 
 				if(employee == null || employee.Subdivision == null) {

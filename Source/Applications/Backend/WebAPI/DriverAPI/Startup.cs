@@ -53,6 +53,9 @@ using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using VodovozHealthCheck;
 using QS.Project.Domain;
+using QS.Project.Core;
+using Vodovoz.Core.Data.NHibernate;
+using Vodovoz.Data.NHibernate;
 
 namespace DriverAPI
 {
@@ -93,17 +96,23 @@ namespace DriverAPI
 
 			// Конфигурация Nhibernate
 
-			try
-			{
-				CreateBaseConfig();
-			}
-			catch (Exception e)
-			{
-				_logger.LogCritical(e, e.Message);
-				throw;
-			}
+			services
+				.AddMappingAssemblies(
+					typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
+					typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
+					typeof(QS.Banks.Domain.Bank).Assembly,
+					typeof(QS.HistoryLog.HistoryMain).Assembly,
+					typeof(QS.Project.Domain.TypeOfEntity).Assembly,
+					typeof(QS.Attachments.Domain.Attachment).Assembly,
+					typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly
+				)
+				.AddDatabaseConnection()
+				.AddCore()
+				.AddTrackedUoW()
+				.AddServiceUser()
+				;
 
-			var sdsf = new MySql.Data.MySqlClient.MySqlConnectionStringBuilder();
+			services.AddStaticHistoryTracker();
 
 			RegisterDependencies(ref services);
 
@@ -241,69 +250,9 @@ namespace DriverAPI
 			app.ConfigureHealthCheckApplicationBuilder();
 		}
 
-		private void CreateBaseConfig()
-		{
-			_logger.LogInformation("Настройка параметров Nhibernate...");
-
-			var conStrBuilder = new MySqlConnectionStringBuilder();
-
-			var domainDBConfig =							Configuration.GetSection("DomainDB");
-
-			conStrBuilder.Server =							domainDBConfig.GetValue<string>("Server");
-			conStrBuilder.Port =							domainDBConfig.GetValue<uint>("Port");
-			conStrBuilder.Database =						domainDBConfig.GetValue<string>("Database");
-			conStrBuilder.UserID =							domainDBConfig.GetValue<string>("UserID");
-			conStrBuilder.Password =						domainDBConfig.GetValue<string>("Password");
-			conStrBuilder.SslMode = MySqlSslMode.None;
-
-			var connectionString = conStrBuilder.GetConnectionString(true);
-
-			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
-				.Dialect<MySQL57SpatialExtendedDialect>()
-				.ConnectionString(connectionString)
-				.Driver<LoggedMySqlClientDriver>()
-				.AdoNetBatchSize(100);
-
-			// Настройка ORM
-			OrmConfig.ConfigureOrm(
-				db_config,
-				new Assembly[]
-				{
-					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
-					Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
-					Assembly.GetAssembly(typeof(Bank)),
-					Assembly.GetAssembly(typeof(HistoryMain)),
-					Assembly.GetAssembly(typeof(TypeOfEntity)),
-					Assembly.GetAssembly(typeof(Attachment)),
-					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
-				}
-			);
-
-			var serviceUserId = 0;
-
-			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Получение пользователя"))
-			{
-				var serviceUser = unitOfWork.Session.Query<User>()
-					.Where(u => u.Login == domainDBConfig.GetValue<string>("UserID"))
-					.FirstOrDefault();
-
-				serviceUserId = serviceUser.Id;
-
-				ServicesConfig.UserService = new UserService(serviceUser);
-			}
-
-			QS.Project.Repositories.UserRepository.GetCurrentUserId = () => serviceUserId;
-
-			HistoryMain.Enable(conStrBuilder);
-		}
-
 		private void RegisterDependencies(ref IServiceCollection services)
 		{
 			// Сервисы для контроллеров
-
-			// Unit Of Work
-			services.AddScoped<IUnitOfWorkFactory>((sp) => UnitOfWorkFactory.GetDefaultFactory);
-			services.AddScoped<IUnitOfWork>((sp) => UnitOfWorkFactory.CreateWithoutRoot("Мобильное приложение водителей"));
 
 			// ErrorReporter
 			services.AddScoped<IErrorReporter>((sp) => ErrorReporter.Instance);

@@ -30,7 +30,7 @@ namespace Vodovoz.Reports
 		public StockMovements()
 		{
 			this.Build();
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			yentryrefWarehouse.ItemsQuery = new StoreDocumentHelper(new UserSettingsGetter()).GetRestrictedWarehouseQuery();
 			filter = new SelectableParametersReportFilter(UoW);
 			

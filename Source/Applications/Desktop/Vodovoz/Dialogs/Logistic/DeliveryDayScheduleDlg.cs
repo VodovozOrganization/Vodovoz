@@ -4,6 +4,7 @@ using QS.DomainModel.UoW;
 using QSOrmProject;
 using QS.Validation;
 using Vodovoz.Domain.Logistic;
+using QS.Project.Services;
 
 namespace Vodovoz.Dialogs.Logistic
 {
@@ -14,7 +15,7 @@ namespace Vodovoz.Dialogs.Logistic
 		public DeliveryDayScheduleDlg()
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<DeliveryDaySchedule>();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<DeliveryDaySchedule>();
 			ConfigureDlg();
 
 		}
@@ -22,7 +23,7 @@ namespace Vodovoz.Dialogs.Logistic
 		public DeliveryDayScheduleDlg(int id)
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<DeliveryDaySchedule>(id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<DeliveryDaySchedule>(id);
 			ConfigureDlg();
 		}
 
@@ -47,7 +48,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 		public override bool Save()
 		{
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;

@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Pacs;
 
 namespace Vodovoz.Presentation.ViewModels.Employees.Journals
 {
@@ -36,6 +37,7 @@ namespace Vodovoz.Presentation.ViewModels.Employees.Journals
 
 			DataLoader = new AnyDataLoader<InnerPhoneJournalNode>(GetItems);
 			CreateNodeActions();
+			UpdateOnChanges(typeof(InnerPhone));
 		}
 
 		protected IList<InnerPhoneJournalNode> GetItems(CancellationToken token)
@@ -44,15 +46,20 @@ namespace Vodovoz.Presentation.ViewModels.Employees.Journals
 
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 			{
-				var result = uow.Session.QueryOver<InnerPhone>()
+				var query = uow.Session.QueryOver<InnerPhone>()
 					.SelectList(list => list
 						.Select(x => x.PhoneNumber).WithAlias(() => resultAlias.Number)
 						.Select(x => x.Description).WithAlias(() => resultAlias.Description)
 					)
 					.OrderBy(x => x.PhoneNumber).Asc
-					.TransformUsing(Transformers.AliasToBean<InnerPhoneJournalNode>())
-					.List<InnerPhoneJournalNode>();
-				return result;
+					.TransformUsing(Transformers.AliasToBean<InnerPhoneJournalNode>());
+					
+				query.Where(GetSearchCriterion<InnerPhone>(
+					x => x.PhoneNumber,
+					x => x.Description
+				));
+
+				return query.List<InnerPhoneJournalNode>();
 			}
 		}
 

@@ -4,6 +4,7 @@ using Gtk;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.Services;
 using System;
 using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;

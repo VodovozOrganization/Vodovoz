@@ -8,6 +8,7 @@ using MoreLinq;
 using NHibernate.Exceptions;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Sale;
@@ -23,7 +24,7 @@ namespace Vodovoz.ReportsParameters
 		public OrderStatisticByWeekReport()
 		{
 			Build();
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 
 			dateperiodpicker.StartDate = new DateTime(DateTime.Today.Year, 1, 1);
 			dateperiodpicker.EndDate = DateTime.Today;

@@ -78,7 +78,7 @@ namespace Vodovoz
 
 		#endregion
 
-		public IUnitOfWork UoW { get; } = UnitOfWorkFactory.CreateWithoutRoot();
+		public IUnitOfWork UoW { get; } = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 
 		#region ITdiDialog implementation
 

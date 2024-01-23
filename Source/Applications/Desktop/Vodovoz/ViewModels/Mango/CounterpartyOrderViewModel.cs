@@ -36,6 +36,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 		#region Свойства
 		public Counterparty Client { get; private set; }
 		private ILifetimeScope _lifetimeScope;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private ITdiCompatibilityNavigation tdiNavigation;
 		private MangoManager MangoManager { get; set; }
 		private readonly IOrderParametersProvider _orderParametersProvider;
@@ -95,6 +96,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 		{
 			Client = client;
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			tdiNavigation = tdinavigation;
 			_routedListRepository = routedListRepository;
 			MangoManager = mangoManager;
@@ -103,7 +105,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
 			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
-			UoW = unitOfWorkFactory.CreateWithoutRoot();
+			UoW = _unitOfWorkFactory.CreateWithoutRoot();
 			LatestOrder = _orderRepository.GetLatestOrdersForCounterparty(UoW, client, count).ToList();
 
 			RefreshOrders = _RefreshOrders;
@@ -246,13 +248,14 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 		public void CancelOrder(Order order)
 		{
 			CallTaskWorker callTaskWorker = new CallTaskWorker(
-							CallTaskSingletonFactory.GetInstance(),
-							new CallTaskRepository(),
-							_orderRepository,
-							_employeeRepository,
-							new BaseParametersProvider(_parametersProvider),
-							ServicesConfig.CommonServices.UserService,
-							ErrorReporter.Instance);
+				_unitOfWorkFactory,
+				CallTaskSingletonFactory.GetInstance(),
+				new CallTaskRepository(),
+				_orderRepository,
+				_employeeRepository,
+				new BaseParametersProvider(_parametersProvider),
+				ServicesConfig.CommonServices.UserService,
+				ErrorReporter.Instance);
 
 			if(order.OrderStatus == OrderStatus.InTravelList)
 			{
@@ -299,7 +302,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 				var parameters = new Dictionary<string, object> {
 					{"order", order},
 					{"uowBuilder", EntityUoWBuilder.ForCreate()},
-					{ "unitOfWorkFactory",UnitOfWorkFactory.GetDefaultFactory },
+					{"unitOfWorkFactory", _unitOfWorkFactory},
 					{"employeeSelectorFactory", employeeSelectorFactory},
 					{"counterpartySelectorFactory", counterpartySelectorFactory},
 					{"phone", "+7" +this.MangoManager.CurrentCall.Phone.Number }

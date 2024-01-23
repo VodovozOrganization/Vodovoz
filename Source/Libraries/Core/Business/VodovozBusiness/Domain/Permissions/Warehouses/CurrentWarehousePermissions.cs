@@ -29,7 +29,7 @@ namespace Vodovoz.Domain.Permissions.Warehouses
 		private void Load()
 		{
 			var userId = ServicesConfig.UserService.CurrentUserId;
-			using(var uow = UnitOfWorkFactory.CreateForRoot<User>(userId))
+			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateForRoot<User>(userId))
 			{
 				var employee = new EmployeeRepository().GetEmployeeForCurrentUser(uow);
 				var subdivision = employee.Subdivision;

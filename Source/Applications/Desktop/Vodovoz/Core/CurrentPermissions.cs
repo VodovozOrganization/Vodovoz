@@ -21,7 +21,7 @@ namespace Vodovoz.Core
 
 		private static void Load()
 		{
-			using(var uow = UnitOfWorkFactory.CreateForRoot<User>(QSMain.User.Id))
+			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateForRoot<User>(QSMain.User.Id))
 			{
 				warehouse = new PermissionMatrix<WarehousePermissions, Domain.Store.Warehouse>();
 				warehouse.Init();

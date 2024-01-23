@@ -90,7 +90,7 @@ namespace ExternalCounterpartyAssignNotifier
 					Assembly.GetAssembly(typeof(HistoryMain)),
 					Assembly.GetAssembly(typeof(TypeOfEntity)),
 					Assembly.GetAssembly(typeof(Attachment)),
-					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
+					Assembly.GetAssembly(typeof(AssemblyFinder))
 				}
 			);
 		}

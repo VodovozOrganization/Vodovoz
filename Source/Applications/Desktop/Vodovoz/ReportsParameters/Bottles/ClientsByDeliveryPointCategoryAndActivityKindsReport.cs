@@ -11,6 +11,7 @@ using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Client;
 using QS.Dialog.GtkUI;
+using QS.Project.Services;
 
 namespace Vodovoz.ReportsParameters.Bottles
 {
@@ -24,7 +25,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 		public ClientsByDeliveryPointCategoryAndActivityKindsReport()
 		{
 			this.Build();
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			ConfigureDlg();
 		}
 

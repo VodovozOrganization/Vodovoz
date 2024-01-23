@@ -1,8 +1,15 @@
 ﻿using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
+using QS.HistoryLog;
 using System;
 
 namespace Vodovoz.Core.Domain.Pacs
 {
+	[Appellative(Gender = GrammaticalGender.Masculine,
+		NominativePlural = "настройки СКУД",
+		Nominative = "настройки СКУД")]
+	[EntityPermission]
+	[HistoryTrace]
 	public class DomainSettings : IDomainObject, IPacsDomainSettings
 	{
 		public virtual int Id { get; set; }

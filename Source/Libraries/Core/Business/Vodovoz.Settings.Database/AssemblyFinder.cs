@@ -3,7 +3,7 @@
 	/// <summary>
 	/// Класс используется исключительно для поиска сборки
 	/// </summary>
-	public class VodovozSettingsDatabaseAssemblyFinder
+	public class AssemblyFinder
 	{
 	}
 }

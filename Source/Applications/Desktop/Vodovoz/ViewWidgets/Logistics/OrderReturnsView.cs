@@ -134,9 +134,6 @@ namespace Vodovoz
 		private readonly IDiscountReasonRepository _discountReasonRepository = new DiscountReasonRepository();
 		private readonly WageParameterService _wageParameterService =
 			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(_parametersProvider));
-		private readonly INomenclatureOnlineParametersProvider _nomenclatureOnlineParametersProvider =
-			new NomenclatureOnlineParametersProvider(
-				new SettingsController(UnitOfWorkFactory.GetDefaultFactory, new Logger<SettingsController>(new LoggerFactory())));
 		private readonly RouteListItem _routeListItem;
 		private readonly IOrderDiscountsController _discountsController;
 
@@ -146,7 +143,6 @@ namespace Vodovoz
 		private CallTaskWorker _callTaskWorker;
 		private List<OrderItemReturnsNode> _itemsToClient;
 		private INomenclatureFixedPriceProvider _nomenclatureFixedPriceProvider;
-		private INomenclatureRepository _nomenclatureRepository;
 		public event PropertyChangedEventHandler PropertyChanged;
 
 		public IUnitOfWork UoW
@@ -163,6 +159,7 @@ namespace Vodovoz
 		{
 			get =>
 				_callTaskWorker ?? (_callTaskWorker = new CallTaskWorker(
+					ServicesConfig.UnitOfWorkFactory,
 					CallTaskSingletonFactory.GetInstance(),
 					new CallTaskRepository(),
 					_orderRepository,
@@ -297,7 +294,6 @@ namespace Vodovoz
 
 			_counterpartyService = _lifetimeScope.Resolve<ICounterpartyService>();
 
-			_nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 			_nomenclatureFixedPriceProvider =
 				new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory());
 			_canEditPrices =

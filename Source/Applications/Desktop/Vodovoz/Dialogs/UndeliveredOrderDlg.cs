@@ -40,6 +40,7 @@ namespace Vodovoz.Dialogs
 			get {
 				if(callTaskWorker == null) {
 					callTaskWorker = new CallTaskWorker(
+						ServicesConfig.UnitOfWorkFactory,
 						CallTaskSingletonFactory.GetInstance(),
 						new CallTaskRepository(),
 						_orderRepository,
@@ -56,7 +57,7 @@ namespace Vodovoz.Dialogs
 		public UndeliveredOrderDlg(bool isForSalesDepartment = false)
 		{
 			this.Build();
-			UoW = UnitOfWorkFactory.CreateWithNewRoot<UndeliveredOrder>();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<UndeliveredOrder>();
 			UndeliveredOrder = UoW.RootObject as UndeliveredOrder;
 			UndeliveredOrder.Author = UndeliveredOrder.EmployeeRegistrator = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 
@@ -74,7 +75,7 @@ namespace Vodovoz.Dialogs
 		public UndeliveredOrderDlg(int id, bool isForSalesDepartment = false)
 		{
 			this.Build();
-			UoW = UnitOfWorkFactory.CreateForRoot<UndeliveredOrder>(id);
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateForRoot<UndeliveredOrder>(id);
 			UndeliveredOrder = UoW.RootObject as UndeliveredOrder;
 			TabName = UndeliveredOrder.Title;
 			ConfigureDlg(isForSalesDepartment);
@@ -108,7 +109,7 @@ namespace Vodovoz.Dialogs
 
 			SetAccessibilities();
 			if(UndeliveredOrder.Id > 0) {//если недовоз новый, то не можем оставлять комментарии
-				IUnitOfWork UoWForComments = UnitOfWorkFactory.CreateWithoutRoot();
+				IUnitOfWork UoWForComments = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 				unOrderCmntView.Configure(UoWForComments, UndeliveredOrder, CommentedFields.Reason);
 				unOrderCmntView.CommentAdded += (sender, e) => CommentAdded?.Invoke(sender, e);
 				this.Destroyed += (sender, e) =>
@@ -126,7 +127,7 @@ namespace Vodovoz.Dialogs
 
 		private bool Save(bool needClose = true)
 		{
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(UndeliveredOrder))
 			{
 				return false;
@@ -191,7 +192,7 @@ namespace Vodovoz.Dialogs
 
 		private void ProcessSmsNotification()
 		{
-			SmsNotifier smsNotifier = new SmsNotifier(_baseParametersProvider);
+			SmsNotifier smsNotifier = new SmsNotifier(ServicesConfig.UnitOfWorkFactory, _baseParametersProvider);
 			smsNotifier.NotifyUndeliveryAutoTransferNotApproved(UndeliveredOrder);
 		}
 

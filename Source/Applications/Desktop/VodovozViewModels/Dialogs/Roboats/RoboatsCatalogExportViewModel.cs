@@ -202,7 +202,7 @@ namespace Vodovoz.ViewModels.Dialogs.Roboats
 				return;
 			}
 
-			var viewModel = new RoboatsStreetViewModel(EntityUoWBuilder.ForOpen(selectedNode.Id), _roboatsViewModelFactory, _commonServices);
+			var viewModel = new RoboatsStreetViewModel(EntityUoWBuilder.ForOpen(selectedNode.Id), _roboatsViewModelFactory, _unitOfWorkFactory, _commonServices);
 			OpenDialog(viewModel);
 		}
 
@@ -213,7 +213,7 @@ namespace Vodovoz.ViewModels.Dialogs.Roboats
 			{
 				return;
 			}
-			var viewModel = new RoboatsWaterTypeViewModel(EntityUoWBuilder.ForOpen(selectedNode.Id), _nomenclatureJournalFactory, _roboatsViewModelFactory, _commonServices);
+			var viewModel = new RoboatsWaterTypeViewModel(EntityUoWBuilder.ForOpen(selectedNode.Id), _nomenclatureJournalFactory, _roboatsViewModelFactory, _unitOfWorkFactory, _commonServices);
 			OpenDialog(viewModel);
 		}
 

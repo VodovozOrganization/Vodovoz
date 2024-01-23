@@ -2,6 +2,7 @@
 using GMap.NET.MapProviders;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.Report;
 using System;
 using System.Collections.Generic;
@@ -319,7 +320,7 @@ namespace Vodovoz.Additions.Logistic
 			};
 
 			GMapOverlay routeOverlay = new GMapOverlay("route");
-			using(var calc = new RouteGeometryCalculator())
+			using(var calc = new RouteGeometryCalculator(ServicesConfig.UnitOfWorkFactory))
 			{
 				MapDrawingHelper.DrawRoute(routeOverlay, routeList, calc);
 			}

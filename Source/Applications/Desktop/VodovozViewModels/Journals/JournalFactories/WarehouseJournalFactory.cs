@@ -12,13 +12,20 @@ namespace Vodovoz.ViewModels.Journals.JournalFactories
 {
 	public class WarehouseJournalFactory : IWarehouseJournalFactory
 	{
+		private readonly IUnitOfWorkFactory _uowFactory;
+
+		public WarehouseJournalFactory(IUnitOfWorkFactory uowFactory)
+		{
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+		}
+
 		public IEntityAutocompleteSelectorFactory CreateSelectorFactory(Action<WarehouseJournalFilterViewModel> filterParams = null)
 		{
 			return new EntityAutocompleteSelectorFactory<WarehouseJournalViewModel>(
 				typeof(Warehouse),
 				() =>
 					new WarehouseJournalViewModel(
-						UnitOfWorkFactory.GetDefaultFactory,
+						_uowFactory,
 						ServicesConfig.CommonServices,
 						new SubdivisionRepository(new ParametersProvider()),
 						filterParams)

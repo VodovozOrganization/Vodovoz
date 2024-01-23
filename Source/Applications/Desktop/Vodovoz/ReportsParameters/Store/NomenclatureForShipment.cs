@@ -6,6 +6,7 @@ using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Goods;
@@ -25,7 +26,7 @@ namespace Vodovoz.ReportsParameters.Store
 		public NomenclatureForShipment()
 		{
 			this.Build();
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			_filter = new SelectableParametersReportFilter(UoW);
 			ydatepicker.Date = DateTime.Today.AddDays(1);
 			ConfigureDlg();
@@ -33,7 +34,7 @@ namespace Vodovoz.ReportsParameters.Store
 
 		void ConfigureDlg()
 		{
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			lstGeoGrp.SetRenderTextFunc<GeoGroup>(g => string.Format("{0}", g.Name));
 			lstGeoGrp.ItemsList = _geographicGroupRepository.GeographicGroupsWithCoordinates(UoW);
 

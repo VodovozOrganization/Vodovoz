@@ -2028,6 +2028,7 @@
     <None Include="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <Compile Include="MainWindow.Closing.cs" />
     <None Include="RdlEngineConfig.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

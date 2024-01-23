@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using QS.DomainModel.UoW;
 using Vodovoz.Services;
 using Vodovoz.Domain.Sms;
@@ -12,13 +12,14 @@ namespace VodovozSmsInformerService
 	public class LowBalanceNotifier
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
-
+		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly ISmsSender smsSender;
 		private readonly ISmsBalanceNotifier balanceNotifier;
 		private readonly ISmsNotifierParametersProvider smsNotifierParametersProvider;
 
-		public LowBalanceNotifier(ISmsSender smsSender, ISmsBalanceNotifier balanceNotifier, ISmsNotifierParametersProvider smsNotifierParametersProvider)
+		public LowBalanceNotifier(IUnitOfWorkFactory uowFactory, ISmsSender smsSender, ISmsBalanceNotifier balanceNotifier, ISmsNotifierParametersProvider smsNotifierParametersProvider)
 		{
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			this.smsSender = smsSender ?? throw new ArgumentNullException(nameof(smsSender));
 			this.balanceNotifier = balanceNotifier ?? throw new ArgumentNullException(nameof(balanceNotifier));
 			this.smsNotifierParametersProvider = smsNotifierParametersProvider ?? throw new ArgumentNullException(nameof(smsNotifierParametersProvider));
@@ -53,7 +54,7 @@ namespace VodovozSmsInformerService
 					$"Неверно заполнен номер телефона ({unformedPhone}) для уведомления о низком балансе денежных средств на счете");
 				string notifyText = smsNotifierParametersProvider.GetLowBalanceNotifyText();
 				notifyText = notifyText.Replace("$balance$", currentBalanceLevel.ToString("0.##"));
-				using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+				using(var uow = _uowFactory.CreateWithoutRoot()) {
 					var notification = uow.Session.QueryOver<LowBalanceSmsNotification>()
 						.Where(x => x.Status == SmsNotificationStatus.New)
 						.OrderBy(x => x.NotifyTime).Desc

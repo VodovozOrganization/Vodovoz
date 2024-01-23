@@ -47,7 +47,7 @@ namespace Vodovoz.TempAdapters
 			var journal = new DeliveryPointJournalViewModel(
 				_deliveryPointViewModelFactory,
 				_deliveryPointJournalFilter ?? new DeliveryPointJournalFilterViewModel(),
-				UnitOfWorkFactory.GetDefaultFactory,
+				_lifetimeScope.Resolve<IUnitOfWorkFactory>(),
 				ServicesConfig.CommonServices,
 				hideJournalForOpen: true,
 				hideJournalForCreate: true);
@@ -61,7 +61,7 @@ namespace Vodovoz.TempAdapters
 				_deliveryPointViewModelFactory,
 				_deliveryPointJournalFilter
 				?? throw new ArgumentNullException($"Ожидался фильтр {nameof(_deliveryPointJournalFilter)} с указанным клиентом"),
-				UnitOfWorkFactory.GetDefaultFactory,
+				_lifetimeScope.Resolve<IUnitOfWorkFactory>(),
 				ServicesConfig.CommonServices,
 				hideJournalForOpen: true,
 				hideJournalForCreate: true);

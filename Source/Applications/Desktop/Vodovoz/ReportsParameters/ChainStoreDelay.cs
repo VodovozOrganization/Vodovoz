@@ -69,7 +69,8 @@ namespace Vodovoz.ReportsParameters
 
 		private void Configure(ILifetimeScope lifetimeScope)
 		{
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			var uowFactory = lifetimeScope.Resolve<IUnitOfWorkFactory>();
+			UoW = uowFactory.CreateWithoutRoot();
 			ydatepicker.Date = DateTime.Now.Date;
 			ConfigureEntries(lifetimeScope);
 			ydatepicker.Date = DateTime.Now;

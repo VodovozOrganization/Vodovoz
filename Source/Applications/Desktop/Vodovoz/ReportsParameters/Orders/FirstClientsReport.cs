@@ -12,6 +12,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Journals.FilterViewModels;
+using QS.Project.Services;
 
 namespace Vodovoz.ReportsParameters.Orders
 {
@@ -34,7 +35,7 @@ namespace Vodovoz.ReportsParameters.Orders
 			}
 			
 			Build();
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 
 			var reasons = discountReasonRepository.GetActiveDiscountReasons(UoW);
 			yCpecCmbDiscountReason.ItemsList = reasons;

@@ -7,8 +7,10 @@ using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Journal;
+using QS.Project.Services;
 using QS.Services;
 using System;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Pacs;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Presentation.ViewModels.Employees;
@@ -25,17 +27,20 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Pacs
 			IInteractiveService interactiveService,
 			INavigationManager navigationManager,
 			ICurrentPermissionService currentPermissionService,
+			IDeleteEntityService deleteEntityService,
 			IEntityChangeWatcher entityNotifier
-		) : base(uowFactory, interactiveService, navigationManager, currentPermissionService: currentPermissionService)
+		) : base(uowFactory, interactiveService, navigationManager, currentPermissionService: currentPermissionService, deleteEntityService: deleteEntityService)
 		{
 			if(entityNotifier is null)
 			{
 				throw new ArgumentNullException(nameof(entityNotifier));
 			}
 
-			Title = "Рабочие смены";
+			Title = "Операторы";
 
-			entityNotifier.BatchSubscribeOnEntity<Operator>((e) => Refresh());
+			VisibleDeleteAction = false;
+
+			UpdateOnChanges(typeof(Operator));
 		}
 
 		protected override IQueryOver<Operator> ItemsQuery(IUnitOfWork uow)
@@ -45,7 +50,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Pacs
 			WorkShift workShiftAlias = null;
 			OperatorNode resultAlias = null;
 
-			return uow.Session.QueryOver(() => operatorAlias)
+			var query = uow.Session.QueryOver(() => operatorAlias)
 				.JoinEntityAlias(() => employeeAlias, () => operatorAlias.Id == employeeAlias.Id, JoinType.InnerJoin)
 				.JoinAlias(() => operatorAlias.WorkShift, () => workShiftAlias)
 				.SelectList(list => list
@@ -53,6 +58,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Pacs
 					.Select(() => workShiftAlias.Name).WithAlias(() => resultAlias.WorkshiftName)
 				)
 				.TransformUsing(Transformers.AliasToBean<OperatorNode>());
+
+			query.Where(GetSearchCriterion(
+				() => employeeAlias.LastName,
+				() => employeeAlias.Name,
+				() => employeeAlias.Patronymic,
+				() => workShiftAlias.Name
+			));
+
+			return query;
 		}
 
 		protected override void CreateEntityDialog()

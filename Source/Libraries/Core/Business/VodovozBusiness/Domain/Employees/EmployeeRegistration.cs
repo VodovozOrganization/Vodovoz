@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using Vodovoz.EntityRepositories.Employees;
 
@@ -52,8 +54,8 @@ namespace Vodovoz.Domain.Employees
 			{
 				throw new ArgumentNullException($"Не найден репозиторий { nameof(employeeRepository) }");
 			}
-
-			var duplicate = employeeRepository.EmployeeRegistrationDuplicateExists(this);
+			var uowFactory = validationContext.GetRequiredService<IUnitOfWorkFactory>();
+			var duplicate = employeeRepository.EmployeeRegistrationDuplicateExists(uowFactory, this);
 			if(duplicate != null)
 			{
 				yield return new ValidationResult(

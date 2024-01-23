@@ -331,7 +331,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 		private void ClearEndWorkShiftReason()
 		{
-			EndWorkShiftReason = null;
+			EndWorkShiftReason = "";
 			EndWorkShiftReasonRequired = false;
 		}
 

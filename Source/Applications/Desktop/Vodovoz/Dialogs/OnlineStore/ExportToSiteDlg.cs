@@ -49,7 +49,7 @@ namespace Vodovoz.Dialogs.OnlineStore
 
 		protected void OnButtonRunToFileClicked(object sender, EventArgs e)
 		{
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
 			{
 				var fileChooser = new Gtk.FileChooserDialog("Выберите папку для сохранения выгрузки",
 					(Window)this.Toplevel,
@@ -106,7 +106,7 @@ namespace Vodovoz.Dialogs.OnlineStore
 
 		protected void OnButtonExportToSiteClicked(object sender, EventArgs e)
 		{
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot()) {
 				var export = new Export(uow);
 				export.ProgressUpdated += Export_ProgressUpdated;
 

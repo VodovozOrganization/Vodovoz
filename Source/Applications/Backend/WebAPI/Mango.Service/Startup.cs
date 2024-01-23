@@ -18,14 +18,12 @@ using NLog.Web;
 using System;
 using Vodovoz.Settings.Database.Pacs;
 using Vodovoz.Settings.Pacs;
+using QS.Project.Core;
 
 namespace Mango.Service
 {
 	public class Startup
 	{
-		private const string _nLogSectionName = "NLog";
-		private ILogger<Startup> _logger;
-
 		public Startup(IConfiguration configuration)
 		{
 			Configuration = configuration;
@@ -41,29 +39,15 @@ namespace Mango.Service
 				{
 					logging.ClearProviders();
 					logging.AddNLogWeb();
-					logging.AddConfiguration(Configuration.GetSection(_nLogSectionName));
+					logging.AddConfiguration(Configuration.GetSection("NLog"));
 				});
 
-			var _loggerFactory = LoggerFactory.Create(logging =>
-				logging.AddConfiguration(Configuration.GetSection(_nLogSectionName)));
-
-			_logger = _loggerFactory.CreateLogger<Startup>();
-
-			_logger.LogDebug("СТААААААРРРРРТТТ!!!!");
-
-			var dbSection = Configuration.GetSection("DomainDB");
-			if(!dbSection.Exists())
-			{
-				throw new ArgumentException("Не найдена секция DomainDB в конфигурации");
-			}
-			var connectionStringBuilder = new MySqlConnectionStringBuilder();
-			connectionStringBuilder.Server = dbSection["Server"];
-			connectionStringBuilder.Port = uint.Parse(dbSection["Port"]);
-			connectionStringBuilder.Database = dbSection["Database"];
-			connectionStringBuilder.UserID = dbSection["UserID"];
-			connectionStringBuilder.Password = dbSection["Password"];
-			connectionStringBuilder.SslMode = MySqlSslMode.None;
-			connectionStringBuilder.DefaultCommandTimeout = 5;
+			services.AddDatabaseConnectionSettings();
+			services.AddDatabaseConnectionString();
+			services.AddSingleton(provider => {
+				var connectionStringBuilder = provider.GetRequiredService<MySqlConnectionStringBuilder>();
+				return new MySqlConnection(connectionStringBuilder.ConnectionString);
+			});
 
 			services.AddSingleton(x =>
 				new MySqlConnection(connectionStringBuilder.ConnectionString));

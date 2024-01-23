@@ -9,6 +9,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Infrastructure;
 using Vodovoz.Extensions;
+using QS.Project.Services;
 
 namespace Vodovoz
 {
@@ -20,14 +21,14 @@ namespace Vodovoz
 		public DocTemplateDlg()
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<DocTemplate> ();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<DocTemplate> ();
 			ConfigureDlg ();
 		}
 
 		public DocTemplateDlg (int id)
 		{
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<DocTemplate> (id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<DocTemplate> (id);
 			ConfigureDlg ();
 		}
 
@@ -59,7 +60,7 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;

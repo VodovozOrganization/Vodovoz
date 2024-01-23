@@ -189,6 +189,7 @@ using UserView = Vodovoz.Views.Users.UserView;
 using Vodovoz.ViewModels.ViewModels.Reports.Logistics;
 using Vodovoz.ViewModels.ReportsParameters.Production;
 using Vodovoz.Views.ReportsParameters.Production;
+using QS.Project.Services;
 
 namespace Vodovoz
 {
@@ -212,7 +213,7 @@ namespace Vodovoz
 					new PermissionMatrix<WarehousePermissionsType, Warehouse>(), "Доступ к складам", "warehouse_access")
 			};
 
-			WarehousePermissionService warehousePermissionService = new WarehousePermissionService
+			var warehousePermissionService = new WarehousePermissionService(ServicesConfig.UnitOfWorkFactory)
 			{
 				WarehousePermissionValidatorFactory = new WarehousePermissionValidatorFactory()
 			};

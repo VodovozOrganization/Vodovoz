@@ -32,7 +32,7 @@ namespace Vodovoz
                 entryWarehouses.Subject = CurrentUserSettings.Settings.DefaultWarehouse ?? null;
 				Action<WarehouseJournalFilterViewModel> filterParams = f => f.IncludeWarehouseIds = warehousesList.Select(x => x.Id);
 				
-				var warehouseJournalFactory = new WarehouseJournalFactory();
+				var warehouseJournalFactory = new WarehouseJournalFactory(ServicesConfig.UnitOfWorkFactory);
 
 				entryWarehouses.SetEntityAutocompleteSelectorFactory(warehouseJournalFactory.CreateSelectorFactory(filterParams));
 

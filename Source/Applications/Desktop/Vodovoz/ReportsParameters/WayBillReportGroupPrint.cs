@@ -8,6 +8,7 @@ using NHibernate.Util;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.Report;
 using QSReport;
 using System;
@@ -52,7 +53,7 @@ namespace Vodovoz.ReportsParameters
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 
 			Build();
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 
 			ConfigureSingleReport();
 			ConfigureGroupReportForOneDay();

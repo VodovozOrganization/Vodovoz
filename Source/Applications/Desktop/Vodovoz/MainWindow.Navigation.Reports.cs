@@ -177,7 +177,7 @@ public partial class MainWindow
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<CardPaymentsOrdersReport>(),
-			() => new QSReport.ReportViewDlg(new CardPaymentsOrdersReport(UnitOfWorkFactory.GetDefaultFactory)));
+			() => new QSReport.ReportViewDlg(new CardPaymentsOrdersReport(ServicesConfig.UnitOfWorkFactory)));
 	}
 
 	/// <summary>
@@ -205,8 +205,8 @@ public partial class MainWindow
 			QSReport.ReportViewDlg.GenerateHashName<FirstClientsReport>(),
 			() => new QSReport.ReportViewDlg(
 				  new FirstClientsReport(
-						new DistrictJournalFactory(),
-						new DiscountReasonRepository())));
+						_autofacScope.Resolve<IDistrictJournalFactory>(),
+						new DiscountReasonRepository()))); ;
 	}
 
 	/// <summary>
@@ -955,7 +955,7 @@ public partial class MainWindow
 	{
 		tdiMain.OpenTab(QSReport.ReportViewDlg.GenerateHashName<DeliveryTimeReport>(),
 			() => new QSReport.ReportViewDlg(
-				new DeliveryTimeReport(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.InteractiveService)));
+				new DeliveryTimeReport(ServicesConfig.UnitOfWorkFactory, ServicesConfig.InteractiveService)));
 	}
 
 	/// <summary>
@@ -1146,7 +1146,7 @@ public partial class MainWindow
 			new DeliveryScheduleParametersProvider(new ParametersProvider()),
 			ServicesConfig.InteractiveService,
 			new CounterpartyJournalFactory(),
-			UnitOfWorkFactory.GetDefaultFactory);
+			ServicesConfig.UnitOfWorkFactory);
 
 		report.Destroyed += (o, args) =>  scope.Dispose();
 		
@@ -1318,7 +1318,7 @@ public partial class MainWindow
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<SalaryRatesReport>(),
 			() => new QSReport.ReportViewDlg(new SalaryRatesReport(
-				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.UnitOfWorkFactory,
 				new BaseParametersProvider(new ParametersProvider()),
 				ServicesConfig.CommonServices)));
 	}
@@ -1332,7 +1332,7 @@ public partial class MainWindow
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<EmployeesTaxesSumReport>(),
-			() => new QSReport.ReportViewDlg(new EmployeesTaxesSumReport(UnitOfWorkFactory.GetDefaultFactory)));
+			() => new QSReport.ReportViewDlg(new EmployeesTaxesSumReport(ServicesConfig.UnitOfWorkFactory)));
 	}
 
 	/// <summary>
@@ -1376,7 +1376,7 @@ public partial class MainWindow
 				new CounterpartyJournalFactory(),
 				new EmployeeJournalFactory(NavigationManager),
 				new SalesChannelJournalFactory(),
-				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.UnitOfWorkFactory,
 				ServicesConfig.InteractiveService)));
 	}
 
@@ -1391,8 +1391,8 @@ public partial class MainWindow
 			QSReport.ReportViewDlg.GenerateHashName<CounterpartyReport>(),
 			() => new QSReport.ReportViewDlg(new CounterpartyReport(
 				new SalesChannelJournalFactory(),
-				new DistrictJournalFactory(),
-				UnitOfWorkFactory.GetDefaultFactory,
+				_autofacScope.Resolve<IDistrictJournalFactory>(),
+				ServicesConfig.UnitOfWorkFactory,
 				ServicesConfig.InteractiveService)));
 
 	}

@@ -53,20 +53,6 @@ public partial class MainWindow
 		}
 	}
 
-	protected void OnDeleteEvent(object sender, DeleteEventArgs a)
-	{
-		if(tdiMain.CloseAllTabs())
-		{
-			a.RetVal = false;
-			_autofacScope.Dispose();
-			Application.Quit();
-		}
-		else
-		{
-			a.RetVal = true;
-		}
-	}
-
 	public void OnTdiMainTabAdded(object sender, TabAddedEventArgs args)
 	{
 		switch(args.Tab)

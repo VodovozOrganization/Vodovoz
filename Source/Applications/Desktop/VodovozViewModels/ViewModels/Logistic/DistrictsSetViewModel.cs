@@ -81,6 +81,8 @@ namespace Vodovoz.ViewModels.Logistic
 			PasteSchedulesToZoneCommand = new DelegateCommand(PasteSchedulesToZone);
 		}
 
+		public IUnitOfWorkFactory UoWFactory => UnitOfWorkFactory;
+
 		private readonly IEntityDeleteWorker _entityDeleteWorker;
 		private readonly IDeliveryScheduleJournalFactory _deliveryScheduleJournalFactory;
 		private readonly GeometryFactory _geometryFactory;
@@ -456,7 +458,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 		private void AddWeekDayDeliveryPriceRule()
 		{
-			var journal = new DeliveryPriceRuleJournalViewModel(UnitOfWorkFactory, _commonServices, DistrictRuleRepository);
+			var journal = new DeliveryPriceRuleJournalViewModel(base.UnitOfWorkFactory, _commonServices, DistrictRuleRepository);
 			journal.SelectionMode = JournalSelectionMode.Single;
 			journal.OnEntitySelectedResult += JournalOnWeekDayEntitySelectedResult;
 			TabParent.AddSlaveTab(this, journal);
@@ -505,7 +507,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 		private void AddCommonDeliveryPriceRule()
 		{
-			var journal = new DeliveryPriceRuleJournalViewModel(UnitOfWorkFactory, _commonServices, DistrictRuleRepository);
+			var journal = new DeliveryPriceRuleJournalViewModel(base.UnitOfWorkFactory, _commonServices, DistrictRuleRepository);
 			journal.SelectionMode = JournalSelectionMode.Single;
 			journal.OnEntitySelectedResult += JournalOnCommonEntitySelectedResult;
 			TabParent.AddSlaveTab(this, journal);

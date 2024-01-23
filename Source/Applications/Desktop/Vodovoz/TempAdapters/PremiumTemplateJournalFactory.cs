@@ -13,7 +13,7 @@ namespace Vodovoz.TempAdapters
 		{
 			return new EntityAutocompleteSelectorFactory<PremiumTemplateJournalViewModel>(typeof(PremiumTemplate), () =>
 			{
-				return new PremiumTemplateJournalViewModel(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+				return new PremiumTemplateJournalViewModel(ServicesConfig.UnitOfWorkFactory, ServicesConfig.CommonServices);
 			});
 		}
 	}

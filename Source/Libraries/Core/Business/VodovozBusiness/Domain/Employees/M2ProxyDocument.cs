@@ -92,13 +92,6 @@ namespace Vodovoz.Domain.Employees
 			set { SetField(ref expirationDate, value, () => ExpirationDate); }
 		}
 
-		//Конструкторы
-		public static IUnitOfWorkGeneric<M2ProxyDocument> Create()
-		{
-			var uow = UnitOfWorkFactory.CreateWithNewRoot<M2ProxyDocument>();
-			return uow;
-		}
-
 		public virtual bool UpdateM2ProxyDocumentTemplate(IUnitOfWork uow, IDocTemplateRepository docTemplateRepository)
 		{
 			if(Id > 0 || Organization == null)

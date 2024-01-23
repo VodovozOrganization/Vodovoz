@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Core.Infrastructure;
+using Microsoft.Extensions.Logging;
 using Pacs.Core;
 using Pacs.Core.Messages.Events;
 using Pacs.Operators.Client;
@@ -624,6 +625,16 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		}
 
 		#endregion Break
+
+		public bool CanStopApplication()
+		{
+			var canStop = OperatorState.State.IsIn(
+				OperatorStateType.New,
+				OperatorStateType.Connected,
+				OperatorStateType.Disconnected
+			);
+			return canStop;
+		}
 
 		#region Refresh
 

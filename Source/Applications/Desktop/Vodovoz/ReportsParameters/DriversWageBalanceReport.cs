@@ -6,6 +6,7 @@ using Gtk;
 using NHibernate.Transform;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.Report;
 using QSReport;
 using Vodovoz.Core.Domain.Employees;
@@ -21,7 +22,7 @@ namespace Vodovoz.ReportsParameters
 		public DriversWageBalanceReport()
 		{
 			Build();
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			Configure();
 		}
 

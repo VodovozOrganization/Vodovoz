@@ -26,7 +26,7 @@ namespace Vodovoz.Dialogs.Employees
 		{
 			ResolveDependencies();
 			Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<CarProxyDocument>();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<CarProxyDocument>();
 			Entity.Date = DateTime.Now;
 			TabName = "Новая доверенность на ТС";
 			ConfigureDlg();
@@ -39,7 +39,7 @@ namespace Vodovoz.Dialogs.Employees
 		{
 			ResolveDependencies();
 			Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<CarProxyDocument>(id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<CarProxyDocument>(id);
 			TabName = "Изменение доверенности на ТС";
 			ConfigureDlg();
 		}
@@ -156,7 +156,7 @@ namespace Vodovoz.Dialogs.Employees
 
 		public override bool Save()
 		{
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;

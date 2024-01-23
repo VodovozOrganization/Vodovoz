@@ -1,8 +1,9 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Gamma.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 
@@ -34,8 +35,10 @@ namespace Vodovoz.Domain.Logistic
         
         public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            using (IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot()) {
-                var allTimes = uow.GetAll<AcceptBefore>();
+			var uowFactory = validationContext.GetRequiredService<IUnitOfWorkFactory>();
+            using (IUnitOfWork uow = uowFactory.CreateWithoutRoot())
+			{
+				var allTimes = uow.GetAll<AcceptBefore>();
                 if (allTimes.Any(x => x.Time == Time))
                     yield return new ValidationResult ("Такое время уже присутствует в справочнике",
                         new[] { this.GetPropertyName (o => o.Time) });

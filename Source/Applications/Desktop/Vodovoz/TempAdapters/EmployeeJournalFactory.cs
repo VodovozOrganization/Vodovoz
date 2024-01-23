@@ -1,4 +1,4 @@
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
@@ -30,7 +30,7 @@ namespace Vodovoz.TempAdapters
 				filterViewModel ?? _employeeJournalFilter ?? new EmployeeFilterViewModel(),
 				_authorizationServiceFactory,
 				ServicesConfig.CommonServices,
-				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.UnitOfWorkFactory,
 				Startup.AppDIContainer,
 				Startup.MainWin.NavigationManager
 			);
@@ -107,7 +107,7 @@ namespace Vodovoz.TempAdapters
 						filter,
 						_authorizationServiceFactory,
 						ServicesConfig.CommonServices,
-						UnitOfWorkFactory.GetDefaultFactory,
+						ServicesConfig.UnitOfWorkFactory,
 						Startup.AppDIContainer,
 						Startup.MainWin.NavigationManager
 					);

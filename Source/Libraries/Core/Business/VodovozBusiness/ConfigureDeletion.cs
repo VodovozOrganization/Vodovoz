@@ -9,6 +9,7 @@ using QS.Project.DB;
 using QS.Project.Domain;
 using System;
 using System.Collections.Generic;
+using Vodovoz.Core.Domain.Pacs;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.CashTransfer;

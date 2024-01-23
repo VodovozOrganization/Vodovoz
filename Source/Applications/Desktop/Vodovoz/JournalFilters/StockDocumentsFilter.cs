@@ -22,7 +22,7 @@ namespace Vodovoz
 		{
 			enumcomboDocumentType.ItemsEnum = typeof(DocumentType);
 			enumcomboDocumentType.HiddenItems = new[] { DocumentType.DeliveryDocument as object };
-			var warehouseJournalFactory = new WarehouseJournalFactory();
+			var warehouseJournalFactory = new WarehouseJournalFactory(ServicesConfig.UnitOfWorkFactory);
 
 			evmeWarehouse.SetEntityAutocompleteSelectorFactory(warehouseJournalFactory.CreateSelectorFactory());
 

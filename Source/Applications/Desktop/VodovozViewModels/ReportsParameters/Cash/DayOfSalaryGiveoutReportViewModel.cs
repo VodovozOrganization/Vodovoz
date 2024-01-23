@@ -21,16 +21,19 @@ namespace Vodovoz.ViewModels.ReportsParameters.Cash
 		private DelegateCommand _selectAllCommand;
 		private DelegateCommand _generateReportCommand;
 		private readonly IInteractiveService _interactiveService;
+		private readonly IUnitOfWorkFactory _uowFactory;
 		private DateTime? _startDateTime = DateTime.Today;
 
 		public DayOfSalaryGiveoutReportViewModel(
 			RdlViewerViewModel rdlViewerViewModel,
+			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices
 		) : base(rdlViewerViewModel)
 		{
 			Title = "Дата выдачи ЗП водителей и экспедиторов";
 			Identifier = "Cash.DayOfSalaryGiveout";
 
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_interactiveService = (commonServices ?? throw new ArgumentNullException(nameof(commonServices))).InteractiveService;
 			var hasAccess = commonServices.CurrentPermissionService.ValidatePresetPermission("access_to_salary_reports_for_logistics");
 
@@ -39,7 +42,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Cash
 				throw new AbortCreatingPageException("Нет права на просмотр этого отчета", "Недостаточно прав");
 			}
 
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				EmployeeNode resultAlias = null;
 				Employee employeeAlias = null;

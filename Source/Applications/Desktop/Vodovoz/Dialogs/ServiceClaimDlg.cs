@@ -4,6 +4,7 @@ using Gamma.Utilities;
 using Gtk;
 using NLog;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.Tdi;
 using QS.Validation;
 using QSOrmProject;
@@ -70,7 +71,7 @@ namespace Vodovoz
 		public ServiceClaimDlg (Order order)
 		{
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<ServiceClaim>(new ServiceClaim (order));
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<ServiceClaim>(new ServiceClaim (order));
 			ConfigureDlg ();
 		}
 
@@ -81,14 +82,14 @@ namespace Vodovoz
 		public ServiceClaimDlg (int id)
 		{
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<ServiceClaim> (id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<ServiceClaim> (id);
 			ConfigureDlg ();
 		}
 
 		public ServiceClaimDlg (ServiceClaimType type)
 		{
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<ServiceClaim>(new ServiceClaim (type));
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<ServiceClaim>(new ServiceClaim (type));
 			if (type == ServiceClaimType.RegularService)
 				EntitySaved += (sender,args)=>CreateOrder();
 			Entity.ServiceStartDate = DateTime.Today;
@@ -237,7 +238,7 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;

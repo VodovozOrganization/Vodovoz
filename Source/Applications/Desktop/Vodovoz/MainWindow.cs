@@ -5,6 +5,7 @@ using Pacs.Admin.Client;
 using Pacs.Calls;
 using Pacs.Core;
 using Pacs.Operators.Client;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services;
@@ -50,6 +51,7 @@ public partial class MainWindow : Gtk.Window
 		//builder.Populate(services);
 	} );
 	private readonly IApplicationInfo _applicationInfo;
+	private readonly IInteractiveService _interativeService;
 	private readonly IPasswordValidator _passwordValidator;
 	private readonly IApplicationConfigurator _applicationConfigurator;
 	private readonly IMovementDocumentsNotificationsController _movementsNotificationsController;
@@ -73,6 +75,7 @@ public partial class MainWindow : Gtk.Window
 		
 		Build();
 
+		_interativeService = ServicesConfig.CommonServices.InteractiveService;
 		_messageBusControl = _autofacScope.Resolve<IBusControl>();
 		var transportInitializer = _autofacScope.Resolve<IMessageTransportInitializer>();
 		transportInitializer.Initialize(_messageBusControl);
@@ -222,7 +225,7 @@ public partial class MainWindow : Gtk.Window
 
 		#region Пользователь с правом работы только со складом и рекламациями
 
-		using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
+		using (var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
 		{
 			_accessOnlyToWarehouseAndComplaints =
 				commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
@@ -238,7 +241,7 @@ public partial class MainWindow : Gtk.Window
 
 		#region Уведомление об отправленных перемещениях для подразделения
 
-		using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
+		using (var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
 		{
 			_currentUserSubdivisionId = GetEmployeeSubdivisionId(uow);
 			_curentUserMovementDocumentsNotificationWarehouses = CurrentUserSettings.Settings.MovementDocumentsNotificationUserSelectedWarehouses;
@@ -288,7 +291,7 @@ public partial class MainWindow : Gtk.Window
 
 		bool userIsSalesRepresentative;
 
-		using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
+		using (var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
 		{
 			userIsSalesRepresentative = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.User.IsSalesRepresentative)
 				&& !commonServices.UserService.GetCurrentUser().IsAdmin;

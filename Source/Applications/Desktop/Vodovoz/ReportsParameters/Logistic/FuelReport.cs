@@ -37,7 +37,8 @@ namespace Vodovoz.Reports
 			}
 
 			Build();
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			var uowFactory = lifetimeScope.Resolve<IUnitOfWorkFactory>();
+			UoW = uowFactory.CreateWithoutRoot();
 			var filterDriver = new EmployeeFilterViewModel();
 			filterDriver.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.driver,

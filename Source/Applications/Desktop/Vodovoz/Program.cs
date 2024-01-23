@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using MySqlConnector;
 using NLog.Extensions.Logging;
 using Pacs.Admin.Client;
 using Pacs.Calls;
@@ -48,6 +49,7 @@ using QS.ViewModels;
 using QS.ViewModels.Extension;
 using QS.ViewModels.Resolve;
 using QS.Views.Resolve;
+using QSProjectsLib;
 using QSReport;
 using RevenueService.Client;
 using System;
@@ -62,6 +64,7 @@ using Vodovoz.CachingRepositories.Cash;
 using Vodovoz.CachingRepositories.Common;
 using Vodovoz.CachingRepositories.Counterparty;
 using Vodovoz.Core;
+using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.DataService;
 using Vodovoz.Core.Domain.Pacs;
 using Vodovoz.Dialogs.OrderWidgets;
@@ -177,13 +180,6 @@ namespace Vodovoz
 						.SingleInstance();
 
 					builder.RegisterType<LogService>().As<ILogService>().SingleInstance();
-
-					#region База
-
-					//builder.Register(c => UnitOfWorkFactory.GetDefaultFactory).As<IUnitOfWorkFactory>();
-					builder.Register(c => Startup.DataBaseInfo).As<IDataBaseInfo>().SingleInstance();
-
-					#endregion
 
 					#region Репозитории
 
@@ -691,9 +687,69 @@ namespace Vodovoz
 				{
 					services
 						.AddSingleton<Startup>()
+						.AddSingleton<IDatabaseConnectionSettings>((provider) =>
+						{
+							//Необходимо поменять логику работы окна логина,
+							//чтобы правильно возвращать данные для подключения не используя статические классы
+							var builder = QSMain.ConnectionStringBuilder;
+							return new DatabaseConnectionSettings
+							{
+								ServerName = builder.Server,
+								Port = builder.Port,
+								DatabaseName = builder.Database,
+								UserName = builder.UserID,
+								Password = builder.Password,
+								MySqlSslMode = builder.SslMode
+							};
+						})
+						.AddSingleton<MySqlConnectionStringBuilder>(provider =>
+						{
+							var connectionSettings = provider.GetRequiredService<IDatabaseConnectionSettings>();
+							var builder = new MySqlConnectionStringBuilder
+							{
+								Server = connectionSettings.ServerName,
+								Port = connectionSettings.Port,
+								Database = connectionSettings.DatabaseName,
+								UserID = connectionSettings.UserName,
+								Password = connectionSettings.Password,
+								SslMode = connectionSettings.MySqlSslMode
+							};
+
+							if(connectionSettings.DefaultCommandTimeout.HasValue)
+							{
+								builder.DefaultCommandTimeout = connectionSettings.DefaultCommandTimeout.Value;
+							}
+
+							builder.Add("ConnectionTimeout", 120);
+
+							return builder;
+
+						})
+						.AddMappingAssemblies(
+							typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
+							typeof(QS.Project.HibernateMapping.TypeOfEntityMap).Assembly,
+							typeof(QS.Banks.Domain.Bank).Assembly,
+							typeof(QS.HistoryLog.HistoryMain).Assembly,
+							typeof(QS.Attachments.Domain.Attachment).Assembly,
+							typeof(QS.Report.Domain.UserPrintSettings).Assembly,
+							typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly,
+							typeof(Vodovoz.Core.Data.NHibernate.AssemblyFinder).Assembly,
+							typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly
+						)
+						.AddDatabaseConfigurationExposer(config => {
+							config.DataBaseIntegration(
+								dbi => {
+									dbi.BatchSize = 100;
+									dbi.Timeout = 120;
+								}
+							);
+						})
+						.AddSpatialSqlConfiguration()
+						.AddNHibernateConfiguration()
+						.AddDatabaseInfo()
 						.AddCore()
 						.AddDesktop()
-						.AddNotTrackedUoW()
+						.AddTrackedUoW()
 
 						.AddScoped<IRouteListService, RouteListService>()
 						.AddScoped<RouteGeometryCalculator>()
@@ -715,7 +771,7 @@ namespace Vodovoz
 						.AddTransient<IValidationViewFactory, GtkValidationViewFactory>()
 						.AddApplication()
 						.AddBusiness()
-						
+
 
 						//Messages
 						.AddSingleton<MessagesHostedService>()
@@ -729,6 +785,8 @@ namespace Vodovoz
 						.AddSingleton<IObservable<OperatorState>>(ctx => ctx.GetRequiredService<OperatorStateAdminConsumer>())
 
 						.AddScoped<MessageEndpointConnector>()
+
+						.AddTransient<EntityModelFactory>()
 						
 						.AddPacsOperatorClient()
 						;

@@ -5,6 +5,20 @@
     <UserSecretsId>aad9baa5-77a7-4348-973f-6901627f0fc1</UserSecretsId>
   </PropertyGroup>
 
+	<ItemGroup>
+		<Content Remove="appsettings.Development.json" />
+		<Content Remove="appsettings.Production.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="appsettings.Development.json">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</None>
+		<None Include="appsettings.Production.json">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Autofac" Version="7.0.0" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />

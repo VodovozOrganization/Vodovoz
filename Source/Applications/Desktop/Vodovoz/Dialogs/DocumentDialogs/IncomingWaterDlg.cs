@@ -33,7 +33,7 @@ namespace Vodovoz
 		public IncomingWaterDlg()
 		{
 			Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<IncomingWater>();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<IncomingWater>();
 			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
@@ -50,7 +50,7 @@ namespace Vodovoz
 		public IncomingWaterDlg(int id)
 		{
 			Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<IncomingWater>(id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<IncomingWater>(id);
 			
 			ConfigureDlg();
 		}
@@ -91,7 +91,7 @@ namespace Vodovoz
 
 			var availableWarehousesIds = _storeDocumentHelper.GetRestrictedWarehousesIds(UoW, WarehousePermissionsType.IncomingWaterEdit);
 			Action<WarehouseJournalFilterViewModel> filterParams = f => f.IncludeWarehouseIds = availableWarehousesIds;
-			var warehouseJournalFactory = new WarehouseJournalFactory();
+			var warehouseJournalFactory = new WarehouseJournalFactory(ServicesConfig.UnitOfWorkFactory);
 			var warehouseAutocompleteSelectorFactory = warehouseJournalFactory.CreateSelectorFactory(filterParams);
 
 			sourceWarehouseEntry.SetEntityAutocompleteSelectorFactory(warehouseAutocompleteSelectorFactory);
@@ -102,7 +102,7 @@ namespace Vodovoz
 			incomingwatermaterialview1.DocumentUoW = UoWGeneric;
 
 			var permmissionValidator =
-				new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
+				new EntityExtendedPermissionValidator(ServicesConfig.UnitOfWorkFactory, PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
 			
 			Entity.CanEdit =
 				permmissionValidator.Validate(
@@ -140,7 +140,7 @@ namespace Vodovoz
 				return false;
 			}
 
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;

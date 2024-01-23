@@ -53,9 +53,9 @@ namespace Vodovoz.Dialogs
 
 			_needToHideProperties = !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_see_history_view_restricted_properties");
 
-			_historyTracePropertyJournalViewModel = new HistoryTracePropertyJournalViewModel(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices.InteractiveService);
+			_historyTracePropertyJournalViewModel = new HistoryTracePropertyJournalViewModel(ServicesConfig.UnitOfWorkFactory, ServicesConfig.CommonServices.InteractiveService);
 
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 
 			comboAction.ItemsEnum = typeof(EntityChangeOperation);
 
@@ -64,7 +64,7 @@ namespace Vodovoz.Dialogs
 
 			entryObject3.SetNodeAutocompleteSelectorFactory(
 				new NodeAutocompleteSelectorFactory<HistoryTraceObjectJournalViewModel>(typeof(HistoryTraceObjectNode),
-				() => new HistoryTraceObjectJournalViewModel(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices.InteractiveService)));
+				() => new HistoryTraceObjectJournalViewModel(ServicesConfig.UnitOfWorkFactory, ServicesConfig.CommonServices.InteractiveService)));
 
 			entryObject3.ChangedByUser += OnObjectChangedByUser;
 

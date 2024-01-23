@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
@@ -134,7 +134,7 @@ namespace Vodovoz.TempAdapters
 		{
 			return new EntityAutocompleteSelectorFactory<RoboatsWaterNomenclatureJournalViewModel>(
 				typeof(Nomenclature),
-				() => new RoboatsWaterNomenclatureJournalViewModel(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices)
+				() => new RoboatsWaterNomenclatureJournalViewModel(_lifetimeScope.Resolve<IUnitOfWorkFactory>(), ServicesConfig.CommonServices)
 				{
 					SelectionMode = JournalSelectionMode.Single,
 				});

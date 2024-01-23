@@ -10,6 +10,7 @@ using System.ComponentModel;
 using Vodovoz.Domain.Employees;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using QS.Project.Services;
 
 namespace Vodovoz.Reports
 {
@@ -25,7 +26,7 @@ namespace Vodovoz.Reports
 				throw new ArgumentNullException(nameof(navigationManager));
 			}
 
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 
 			Build();
 

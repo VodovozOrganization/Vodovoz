@@ -10,6 +10,13 @@ namespace Vodovoz.ViewModels.Journals.JournalFactories
 {
 	public class ProductGroupJournalFactory : IProductGroupJournalFactory
 	{
+		private readonly IUnitOfWorkFactory _uowFactory;
+
+		public ProductGroupJournalFactory(IUnitOfWorkFactory uowFactory)
+		{
+			_uowFactory = uowFactory ?? throw new System.ArgumentNullException(nameof(uowFactory));
+		}
+
 		public IEntityAutocompleteSelectorFactory CreateProductGroupAutocompleteSelectorFactory()
 		{
 			return new EntityAutocompleteSelectorFactory<ProductGroupJournalViewModel>(
@@ -27,7 +34,7 @@ namespace Vodovoz.ViewModels.Journals.JournalFactories
 		private ProductGroupJournalViewModel CreateProductGroupJournal() =>
 			new ProductGroupJournalViewModel(
 				new ProductGroupJournalFilterViewModel(),
-				UnitOfWorkFactory.GetDefaultFactory,
+				_uowFactory,
 				ServicesConfig.CommonServices,
 				this);
 	}

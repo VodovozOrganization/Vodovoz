@@ -1,4 +1,4 @@
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
@@ -18,6 +18,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 {
 	public class WarehouseJournalViewModel : SingleEntityJournalViewModelBase<Warehouse, WarehouseViewModel, WarehouseJournalNode>
 	{
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private WarehouseJournalFilterViewModel _filterViewModel;
 		private WarehousePermissionsType[] _warehousePermissions;
@@ -30,6 +31,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				: base(unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал складов";
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_warehousePermissions = new[] { WarehousePermissionsType.WarehouseView };
 
@@ -96,14 +98,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 		protected override Func<WarehouseViewModel> CreateDialogFunction => () => new WarehouseViewModel(
 			EntityUoWBuilder.ForCreate(),
-			QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
+			_unitOfWorkFactory,
 			commonServices,
 			_subdivisionRepository
 		);
 
 		protected override Func<WarehouseJournalNode, WarehouseViewModel> OpenDialogFunction => node => new WarehouseViewModel(
 			EntityUoWBuilder.ForOpen(node.Id),
-			QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
+			_unitOfWorkFactory,
 			commonServices,
 			_subdivisionRepository
 		);

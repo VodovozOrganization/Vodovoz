@@ -1,7 +1,9 @@
 ﻿using Core.Infrastructure;
 using Pacs.Admin.Client;
+using Pacs.Core;
 using Pacs.Server;
 using QS.Commands;
+using QS.Dialog;
 using QS.ViewModels;
 using System;
 using System.Data.Bindings.Collections.Generic;
@@ -14,6 +16,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 	{
 		private readonly OperatorModel _model;
 		private readonly AdminClient _adminClient;
+		private readonly IInteractiveService _interactiveService;
 		private string _tittle;
 		private string _breakReason;
 
@@ -21,10 +24,11 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		public DelegateCommand StartShortBreakCommand { get; set; }
 		public DelegateCommand EndBreakCommand { get; set; }
 
-		public DashboardOperatorDetailsViewModel(OperatorModel model, AdminClient adminClient)
+		public DashboardOperatorDetailsViewModel(OperatorModel model, AdminClient adminClient, IInteractiveService interactiveService)
 		{
 			_model = model ?? throw new ArgumentNullException(nameof(model));
 			_adminClient = adminClient ?? throw new ArgumentNullException(nameof(adminClient));
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 
 			Tittle = $"История оператора: {_model.Employee.GetPersonNameWithInitials()}";
 
@@ -74,22 +78,48 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 		private void StartLongBreak()
 		{
-			_adminClient.StartBreak(_model.CurrentState.OperatorId, BreakReason, OperatorBreakType.Long).Wait();
-			BreakReason = null;
+			try
+			{
+				_adminClient.StartBreak(_model.CurrentState.OperatorId, BreakReason, OperatorBreakType.Long).Wait();
+				ClearReason();
+			}
+			catch(PacsException ex)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, ex.Message);
+			}
 		}
 
 		private void StartShortBreak()
 		{
-			_adminClient.StartBreak(_model.CurrentState.OperatorId, BreakReason, OperatorBreakType.Short).Wait();
-			BreakReason = null;
+			try
+			{
+				_adminClient.StartBreak(_model.CurrentState.OperatorId, BreakReason, OperatorBreakType.Short).Wait();
+				ClearReason();
+			}
+			catch(PacsException ex)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, ex.Message);
+			}
 		}
 
 		public bool CanEndBreak => _model.Agent.CanEndBreak && !BreakReason.IsNullOrWhiteSpace();
 
 		private void EndBreak()
 		{
-			_adminClient.EndBreak(_model.CurrentState.OperatorId, BreakReason).Wait();
-			BreakReason = null;
+			try
+			{
+				_adminClient.EndBreak(_model.CurrentState.OperatorId, BreakReason).Wait();
+				ClearReason();
+			}
+			catch(PacsException ex)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, ex.Message);
+			}
+		}
+
+		private void ClearReason()
+		{
+			BreakReason = "";
 		}
 	}
 

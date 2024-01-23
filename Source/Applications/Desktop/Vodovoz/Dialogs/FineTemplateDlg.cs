@@ -3,6 +3,7 @@ using QS.DomainModel.UoW;
 using QSOrmProject;
 using QS.Validation;
 using Vodovoz.Domain;
+using QS.Project.Services;
 
 namespace Vodovoz
 {
@@ -13,14 +14,14 @@ namespace Vodovoz
 		public FineTemplateDlg ()
 		{
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<FineTemplate> ();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<FineTemplate> ();
 			ConfigureDlg ();
 		}
 
 		public FineTemplateDlg (int id)
 		{
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<FineTemplate> (id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<FineTemplate> (id);
 			ConfigureDlg ();
 		}
 
@@ -36,7 +37,7 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;

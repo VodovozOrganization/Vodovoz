@@ -51,7 +51,7 @@ namespace Vodovoz.Dialogs
 		public CallTaskDlg()
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<CallTask>();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<CallTask>();
 			_employeeRepository = new EmployeeRepository();
 			_bottleRepository = new BottlesRepository();
 			_callTaskRepository = new CallTaskRepository();
@@ -80,7 +80,7 @@ namespace Vodovoz.Dialogs
 		public CallTaskDlg(int callTaskId)
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<CallTask>(callTaskId);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<CallTask>(callTaskId);
 			_employeeRepository = new EmployeeRepository();
 			_bottleRepository = new BottlesRepository();
 			_callTaskRepository = new CallTaskRepository();
@@ -99,7 +99,7 @@ namespace Vodovoz.Dialogs
 			_contactsParameters = new ContactParametersProvider(_parametersProvider);
 			_organizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
 			var orderParametersProvider = new OrderParametersProvider(_parametersProvider);
-			var cashReceiptRepository = new CashReceiptRepository(UnitOfWorkFactory.GetDefaultFactory, orderParametersProvider);
+			var cashReceiptRepository = new CashReceiptRepository(ServicesConfig.UnitOfWorkFactory, orderParametersProvider);
 			_counterpartyContractRepository = new CounterpartyContractRepository(_organizationProvider, cashReceiptRepository);
 			_counterpartyContractFactory = new CounterpartyContractFactory(_organizationProvider, _counterpartyContractRepository);
 
@@ -251,7 +251,7 @@ namespace Vodovoz.Dialogs
 
 		public override bool Save()
 		{
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;

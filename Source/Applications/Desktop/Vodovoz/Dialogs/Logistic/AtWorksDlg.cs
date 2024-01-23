@@ -98,7 +98,7 @@ namespace Vodovoz.Dialogs.Logistic
 				throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			}
 
-			UoW = unitOfWorkFactory.CreateWithoutRoot("На работе");
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot("На работе");
 
 			if(userService is null)
 			{

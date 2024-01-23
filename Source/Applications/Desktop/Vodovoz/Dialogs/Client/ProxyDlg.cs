@@ -3,6 +3,7 @@ using Gamma.ColumnConfig;
 using NLog;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
+using QS.Project.Services;
 using QS.Validation;
 using System;
 using System.Collections.Generic;
@@ -23,7 +24,8 @@ namespace Vodovoz
 		public ProxyDlg(Counterparty counterparty)
 		{
 			this.Build();
-			UoWGeneric = Proxy.Create(counterparty);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<Proxy>();
+			UoWGeneric.Root.Counterparty = counterparty;
 			ConfigureDlg();
 		}
 
@@ -32,7 +34,7 @@ namespace Vodovoz
 		public ProxyDlg(int id)
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Proxy>(id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<Proxy>(id);
 			ConfigureDlg();
 		}
 
@@ -74,7 +76,7 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;

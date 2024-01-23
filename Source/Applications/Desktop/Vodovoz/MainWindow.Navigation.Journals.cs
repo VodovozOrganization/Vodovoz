@@ -196,9 +196,9 @@ public partial class MainWindow
 	{
 		var complaintSourcesViewModel = new SimpleEntityJournalViewModel<ComplaintSource, ComplaintSourceViewModel>(
 			x => x.Name,
-			() => new ComplaintSourceViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices),
-			(node) => new ComplaintSourceViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices),
-			 UnitOfWorkFactory.GetDefaultFactory,
+			() => new ComplaintSourceViewModel(EntityUoWBuilder.ForCreate(), ServicesConfig.UnitOfWorkFactory, ServicesConfig.CommonServices),
+			(node) => new ComplaintSourceViewModel(EntityUoWBuilder.ForOpen(node.Id), ServicesConfig.UnitOfWorkFactory, ServicesConfig.CommonServices),
+			 ServicesConfig.UnitOfWorkFactory,
 			ServicesConfig.CommonServices
 		);
 		tdiMain.AddTab(complaintSourcesViewModel);
@@ -274,15 +274,15 @@ public partial class MainWindow
 			x => x.Name,
 			() => new UndeliveryProblemSourceViewModel(
 				EntityUoWBuilder.ForCreate(),
-				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.UnitOfWorkFactory,
 				ServicesConfig.CommonServices
 			),
 			(node) => new UndeliveryProblemSourceViewModel(
 				EntityUoWBuilder.ForOpen(node.Id),
-				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.UnitOfWorkFactory,
 				ServicesConfig.CommonServices
 			),
-			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.UnitOfWorkFactory,
 			ServicesConfig.CommonServices
 		);
 		undeliveryProblemSourcesViewModel.SetActionsVisible(deleteActionEnabled: false);

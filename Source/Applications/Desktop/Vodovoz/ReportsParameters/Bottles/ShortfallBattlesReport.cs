@@ -11,6 +11,7 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using QS.Navigation;
 using Vodovoz.Core.Domain.Employees;
+using QS.Project.Services;
 
 namespace Vodovoz.ReportsParameters.Bottles
 {
@@ -25,7 +26,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			ydatepicker.Date = DateTime.Now.Date;
 			comboboxDriver.ItemsEnum = typeof(Drivers);
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			var filter = new EmployeeFilterViewModel();
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.driver,

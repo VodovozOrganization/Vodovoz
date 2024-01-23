@@ -53,6 +53,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IAtWorkRepository _atWorkRepository;
 		private readonly ILogger<RouteListsOnDayViewModel> _logger;
+		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly IUserRepository _userRepository;
 		private readonly DeliveryDaySchedule _defaultDeliveryDaySchedule;
@@ -66,6 +67,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public RouteListsOnDayViewModel(
 			ILogger<RouteListsOnDayViewModel> logger,
+			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
 			ILifetimeScope lifetimeScope,
 			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider,
@@ -95,6 +97,7 @@ namespace Vodovoz.ViewModels.Logistic
 				throw new ArgumentNullException(nameof(geographicGroupRepository));
 			}
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			CarRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
@@ -108,6 +111,7 @@ namespace Vodovoz.ViewModels.Logistic
 			_atWorkRepository = atWorkRepository ?? throw new ArgumentNullException(nameof(atWorkRepository));
 			OrderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
+			DistanceCalculator = new RouteGeometryCalculator(_uowFactory);
 
 			_closingDocumentDeliveryScheduleId = deliveryScheduleParametersProvider?.ClosingDocumentDeliveryScheduleId ??
 												throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider));
@@ -548,7 +552,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public GenericObservableList<GeographicGroupNode> GeographicGroupNodes { get; private set; }
 
-		public RouteGeometryCalculator DistanceCalculator { get; } = new RouteGeometryCalculator();
+		public RouteGeometryCalculator DistanceCalculator { get; }
 
 		private Employee driverFromRouteList;
 		public virtual Employee DriverFromRouteList
@@ -801,7 +805,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public void DisposeUoW() => UoW.Dispose();
 
-		public void CreateUoW() => UoW = UnitOfWorkFactory.CreateWithoutRoot();
+		public void CreateUoW() => UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 
 		public string GenerateToolTip(RouteList routeList)
 		{

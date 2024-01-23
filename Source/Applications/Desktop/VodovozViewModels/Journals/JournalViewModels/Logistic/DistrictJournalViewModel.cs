@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using NHibernate;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
@@ -16,7 +16,9 @@ namespace Vodovoz.Journals.JournalViewModels
 {
     public sealed class DistrictJournalViewModel: FilterableSingleEntityJournalViewModelBase<District, DistrictViewModel, DistrictJournalNode, DistrictJournalFilterViewModel>
     {
-        public DistrictJournalViewModel(DistrictJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+
+		public DistrictJournalViewModel(DistrictJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(
             filterViewModel, unitOfWorkFactory, commonServices)
         {
             TabName = "Журнал районов";
@@ -24,7 +26,8 @@ namespace Vodovoz.Journals.JournalViewModels
             EnableAddButton = false;
             EnableDeleteButton = false;
             EnableEditButton = false;
-        }
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+		}
 
         public bool EnableAddButton { get; set; }
         public bool EnableDeleteButton { get; set; }
@@ -66,10 +69,10 @@ namespace Vodovoz.Journals.JournalViewModels
             return result;
         };
         protected override Func<DistrictViewModel> CreateDialogFunction => () => 
-            new DistrictViewModel(EntityUoWBuilder.ForCreate(), QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory, commonServices);
+            new DistrictViewModel(EntityUoWBuilder.ForCreate(), _unitOfWorkFactory, commonServices);
 
         protected override Func<DistrictJournalNode, DistrictViewModel> OpenDialogFunction => node => 
-            new DistrictViewModel(EntityUoWBuilder.ForOpen(node.Id), QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory, commonServices);
+            new DistrictViewModel(EntityUoWBuilder.ForOpen(node.Id), _unitOfWorkFactory, commonServices);
 
         protected override void CreateNodeActions()
         {

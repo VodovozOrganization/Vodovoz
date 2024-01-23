@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.Report;
 using QSReport;
 using Vodovoz.Core.Domain.Employees;
@@ -22,7 +23,7 @@ namespace Vodovoz.ReportsParameters
 			}
 
 			Build();
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			var driversFilter = new EmployeeFilterViewModel();
 			driversFilter.SetAndRefilterAtOnce(
 				x => x.Category = EmployeeCategory.driver,

@@ -6,6 +6,7 @@ using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.RepresentationModel.GtkUI;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs.Logistic;
@@ -24,7 +25,7 @@ namespace Vodovoz.ViewModel
 {
 	public class ReadyForShipmentVM : QSOrmProject.RepresentationModel.RepresentationModelWithoutEntityBase<ReadyForShipmentVMNode>
 	{
-		public ReadyForShipmentVM() : this(UnitOfWorkFactory.CreateWithoutRoot()) { }
+		public ReadyForShipmentVM() : this(ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot()) { }
 
 		public ReadyForShipmentVM(IUnitOfWork uow) : base(
 			typeof(RouteList),

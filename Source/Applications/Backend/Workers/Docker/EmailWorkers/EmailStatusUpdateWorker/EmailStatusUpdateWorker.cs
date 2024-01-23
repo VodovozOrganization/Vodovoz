@@ -28,11 +28,12 @@ namespace EmailStatusUpdateWorker
 		private readonly string _storedEmailStatusUpdatingQueueId;
 
 		private readonly ILogger<EmailStatusUpdateWorker> _logger;
+		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IModel _channel;
 		private readonly IEmailRepository _emailRepository;
 		private readonly AsyncEventingBasicConsumer _consumer;
 
-		public EmailStatusUpdateWorker(ILogger<EmailStatusUpdateWorker> logger, IConfiguration configuration, IModel channel, IEmailRepository emailRepository)
+		public EmailStatusUpdateWorker(ILogger<EmailStatusUpdateWorker> logger, IUnitOfWorkFactory uowFactory, IConfiguration configuration, IModel channel, IEmailRepository emailRepository)
 		{
 			if(configuration is null)
 			{
@@ -40,6 +41,7 @@ namespace EmailStatusUpdateWorker
 			}
 
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_channel = channel ?? throw new ArgumentNullException(nameof(channel));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
 			_storedEmailStatusUpdatingQueueId = configuration.GetSection(_queuesConfigurationSection)
@@ -74,7 +76,7 @@ namespace EmailStatusUpdateWorker
 					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
 					Assembly.GetAssembly(typeof(QS.Project.Domain.UserBase)),
 					Assembly.GetAssembly(typeof(QS.Attachments.HibernateMapping.AttachmentMap)),
-					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
+					Assembly.GetAssembly(typeof(AssemblyFinder))
 				});
 
 				QS.HistoryLog.HistoryMain.Enable(conStrBuilder);
@@ -117,7 +119,7 @@ namespace EmailStatusUpdateWorker
 
 				if(message.EventPayload.Trackable)
 				{
-					using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Status update worker"))
+					using(var unitOfWork = _uowFactory.CreateWithoutRoot("Status update worker"))
 					{
 						var storedEmail = _emailRepository.GetById(unitOfWork, message.EventPayload.Id);
 

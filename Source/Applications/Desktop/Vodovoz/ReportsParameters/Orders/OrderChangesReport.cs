@@ -11,6 +11,7 @@ using QS.DomainModel.Entity;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using Vodovoz.Parameters;
+using QS.Project.Services;
 
 namespace Vodovoz.ReportsParameters.Orders
 {
@@ -38,7 +39,7 @@ namespace Vodovoz.ReportsParameters.Orders
 
         private void Configure()
         {
-            UoW = UnitOfWorkFactory.CreateWithoutRoot();
+            UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			chkOldMonitoring.Toggled += (sender, e) => UpdatePeriod();
 			UpdatePeriod();
 			buttonCreateReport.Clicked += OnButtonCreateReportClicked;

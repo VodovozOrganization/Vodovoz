@@ -24,13 +24,12 @@ using Vodovoz.Services;
 using Vodovoz.Settings.Database;
 using Vodovoz.Tools;
 using VodovozHealthCheck;
+using Vodovoz.Core.Data.NHibernate;
 
 namespace CashReceiptApi
 {
 	public class Startup
 	{
-		private const string _nLogSectionName = "NLog";
-
 		public Startup(IConfiguration configuration)
 		{
 			Configuration = configuration;
@@ -41,17 +40,25 @@ namespace CashReceiptApi
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
-			var nlogConfig = Configuration.GetSection(_nLogSectionName);
 			services.AddLogging(
 				logging =>
 				{
 					logging.ClearProviders();
 					logging.AddNLogWeb();
-					logging.AddConfiguration(nlogConfig);
-				});
-
-			services.AddCore()
+					logging.AddConfiguration(Configuration.GetSection("NLog"));
+				})
+				.AddMappingAssemblies(
+					typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
+					typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
+					typeof(QS.Banks.Domain.Bank).Assembly,
+					typeof(QS.Project.Domain.TypeOfEntity).Assembly,
+					typeof(QS.Attachments.Domain.Attachment).Assembly,
+					typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly
+				)
+				.AddDatabaseConnection()
+				.AddCore()
 				.AddTrackedUoW()
+				.AddDatabaseSettings()
 				;
 
 			services.AddAuthentication()
@@ -61,16 +68,12 @@ namespace CashReceiptApi
 			services.AddMvc().AddControllersAsServices();
 
 			services.ConfigureHealthCheckService<CashReceiptApiHealthCheck>(true);
-
-			CreateBaseConfig(services);
 		}
 
 		public void ConfigureContainer(ContainerBuilder builder)
 		{
 			ErrorReporter.Instance.AutomaticallySendEnabled = false;
 			ErrorReporter.Instance.SendedLogRowCount = 100;
-
-			builder.RegisterModule<DatabaseSettingsModule>();
 
 			builder.RegisterType<ApiKeyAuthenticationOptions>()
 				.AsSelf()
@@ -138,44 +141,6 @@ namespace CashReceiptApi
 			});
 
 			app.ConfigureHealthCheckApplicationBuilder();
-		}
-
-		private void CreateBaseConfig(IServiceCollection services)
-		{
-			var conStrBuilder = new MySqlConnectionStringBuilder();
-
-			var domainDBConfig = Configuration.GetSection("DomainDB");
-
-			conStrBuilder.Server = domainDBConfig.GetValue<string>("server");
-			conStrBuilder.Port = domainDBConfig.GetValue<uint>("port");
-			conStrBuilder.Database = domainDBConfig.GetValue<string>("database");
-			conStrBuilder.UserID = domainDBConfig.GetValue<string>("user");
-			conStrBuilder.Password = domainDBConfig.GetValue<string>("password");
-			conStrBuilder.SslMode = MySqlSslMode.None;
-
-			var connectionString = conStrBuilder.GetConnectionString(true);
-
-			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
-				.Dialect<MySQL57SpatialExtendedDialect>()
-				.ConnectionString(connectionString)
-				.AdoNetBatchSize(100)
-				.Driver<LoggedMySqlClientDriver>()
-				;
-
-			var provider = services.BuildServiceProvider();
-			var ormConfig = provider.GetRequiredService<IOrmConfig>();
-			ormConfig.ConfigureOrm(
-				db_config,
-				new Assembly[]
-				{
-					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
-					Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
-					Assembly.GetAssembly(typeof(Bank)),
-					Assembly.GetAssembly(typeof(TypeOfEntity)),
-					Assembly.GetAssembly(typeof(Attachment)),
-					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
-				}
-			);
 		}
 
 		private IConfigurationSection GetCashboxesConfiguration()

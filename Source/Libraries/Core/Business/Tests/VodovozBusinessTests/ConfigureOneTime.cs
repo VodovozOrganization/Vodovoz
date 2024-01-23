@@ -31,7 +31,7 @@ namespace VodovozBusinessTests.Deletion
 				Assembly.GetAssembly(typeof(QS.Banks.HMap.BankMap)),
 				Assembly.GetAssembly(typeof(QS.HistoryLog.HistoryMain)),
 				Assembly.GetAssembly(typeof(QS.Attachments.Domain.Attachment)),
-				Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
+				Assembly.GetAssembly(typeof(AssemblyFinder))
 			});
 
 			NhConfigered = true;

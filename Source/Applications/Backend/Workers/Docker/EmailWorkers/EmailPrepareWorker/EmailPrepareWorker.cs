@@ -33,6 +33,7 @@ namespace EmailPrepareWorker
 		private readonly string _emailSendExchange;
 
 		private readonly ILogger<EmailPrepareWorker> _logger;
+		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IModel _channel;
 		private readonly IEmailRepository _emailRepository;
 		private readonly IEmailParametersProvider _emailParametersProvider;
@@ -43,6 +44,7 @@ namespace EmailPrepareWorker
 
 		public EmailPrepareWorker(
 			ILogger<EmailPrepareWorker> logger,
+			IUnitOfWorkFactory uowFactory,
 			IConfiguration configuration,
 			IModel channel,
 			IEmailRepository emailRepository,
@@ -56,6 +58,7 @@ namespace EmailPrepareWorker
 			}
 
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_channel = channel ?? throw new ArgumentNullException(nameof(channel));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
 			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));
@@ -96,12 +99,12 @@ namespace EmailPrepareWorker
 					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
 					Assembly.GetAssembly(typeof(QS.Project.Domain.UserBase)),
 					Assembly.GetAssembly(typeof(QS.Attachments.HibernateMapping.AttachmentMap)),
-					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
+					Assembly.GetAssembly(typeof(AssemblyFinder))
 			});
 
 			QS.HistoryLog.HistoryMain.Enable(conStrBuilder);
 
-			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Email prepare worker"))
+			using(var unitOfWork = _uowFactory.CreateWithoutRoot("Email prepare worker"))
 			{
 				_instanceId = Convert.ToInt32(unitOfWork.Session
 					.CreateSQLQuery("SELECT GET_CURRENT_DATABASE_ID()")
@@ -138,7 +141,7 @@ namespace EmailPrepareWorker
 			
 			try
 			{
-				using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Document prepare worker"))
+				using(var unitOfWork = _uowFactory.CreateWithoutRoot("Document prepare worker"))
 				{
 					var emailsToSend = _emailRepository.GetEmailsForPreparingOrderDocuments(unitOfWork);
 
