@@ -1192,7 +1192,8 @@ namespace Vodovoz
 			#region Операции по счету
 
 			DeleteConfig.ExistingDeleteRule<Account>()
-						.AddRemoveFromDependence<Employee>(x => x.Accounts)
+						.AddRemoveFromDependence<Personnel>(x => x.Accounts)
+						.AddClearDependence<Counterparty>(item => item.OurOrganizationAccountForBills)
 						;
 
 			#endregion

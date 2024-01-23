@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Autofac;
+﻿using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -14,13 +11,14 @@ using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
 using QS.Tdi;
+using System;
+using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
-using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.NHibernateProjections.Orders;
@@ -33,7 +31,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 	public class UnallocatedBalancesJournalViewModel
 		: EntityJournalViewModelBase<Payment, PaymentsJournalViewModel, UnallocatedBalancesJournalNode>
 	{
-		private readonly IPaymentsRepository _paymentsRepository;
 		private readonly ILifetimeScope _scope;
 		private readonly int _closingDocumentDeliveryScheduleId;
 		private bool _canEdit;
@@ -41,7 +38,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 		public UnallocatedBalancesJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
-			IPaymentsRepository paymentsRepository,
 			INavigationManager navigationManager,
 			ICurrentPermissionService currentPermissionService,
 			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider,
@@ -58,8 +54,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			{
 				throw new ArgumentNullException(nameof(currentPermissionService));
 			}
-
-			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
 
 			_closingDocumentDeliveryScheduleId =
 				(deliveryScheduleParametersProvider ?? throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider)))
@@ -97,23 +91,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				(selected) => true,
 				(selected) =>
 				{
-					var ctorTypes = new[]
-					{
-						typeof(IUnitOfWork),
-						typeof(UnallocatedBalancesJournalNode),
-						typeof(int),
-						typeof(IList<UnallocatedBalancesJournalNode>)
-					};
-					var ctorValues = new object[]{
-						UoW,
-						selected.OfType<UnallocatedBalancesJournalNode>().ToArray()[0],
-						_closingDocumentDeliveryScheduleId,
-						Items
-					};
-
 					ShowInfoMessage("Будет произведен разнос всех нераспределенных платежей по неоплаченным заказам, начиная с самого раннего");
-					var page = NavigationManager.OpenViewModelTypedArgs<AutomaticallyAllocationBalanceWindowViewModel>(
-						this, ctorTypes, ctorValues, OpenPageOptions.IgnoreHash);
+					var page = NavigationManager.OpenViewModel<AutomaticallyAllocationBalanceWindowViewModel>(this, OpenPageOptions.IgnoreHash);
+
+					page.ViewModel.Configure(
+						selected.OfType<UnallocatedBalancesJournalNode>().ToArray().First(),
+						Items.Cast<UnallocatedBalancesJournalNode>().ToList());
+
 					page.PageClosed += (sender, args) => Refresh();
 				}
 			);

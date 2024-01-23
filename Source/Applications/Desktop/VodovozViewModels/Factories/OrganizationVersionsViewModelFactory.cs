@@ -22,9 +22,9 @@ namespace Vodovoz.ViewModels.Factories
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)); ;
 		}
 
-		public OrganizationVersionsViewModel CreateOrganizationVersionsViewModel(Organization organization)
+		public OrganizationVersionsViewModel CreateOrganizationVersionsViewModel(Organization organization, bool isEditable = true)
 		{
-			return new OrganizationVersionsViewModel(organization, _commonServices, new OrganizationVersionsController(organization), new StoredResourceRepository(_uowFactory), _employeeJournalFactory);
+			return new OrganizationVersionsViewModel(organization, _commonServices, new OrganizationVersionsController(organization), new StoredResourceRepository(_uowFactory), _employeeJournalFactory, isEditable);
 		}
 	}
 }

@@ -3033,6 +3033,7 @@ namespace Vodovoz
 						f.SelectCategory = defaultCategory;
 						f.SelectSaleCategory = SaleCategory.forSale;
 						f.RestrictArchive = false;
+						f.CanChangeShowArchive = false;
 					},
 					OpenPageOptions.AsSlaveIgnoreHash,
 					vm =>

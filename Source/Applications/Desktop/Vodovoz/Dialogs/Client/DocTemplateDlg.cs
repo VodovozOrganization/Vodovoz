@@ -1,20 +1,22 @@
-﻿using System;
+﻿using Autofac;
 using Gamma.Utilities;
 using QS.DomainModel.UoW;
+using QS.Validation;
+using QS.ViewModels.Control.EEVM;
 using QSDocTemplates;
 using QSProjectsLib;
-using QS.Validation;
-using Vodovoz.Domain;
+using System;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Organizations;
-using Vodovoz.Infrastructure;
 using Vodovoz.Extensions;
 using QS.Project.Services;
+using Vodovoz.Infrastructure;
+using Vodovoz.JournalViewModels;
 
 namespace Vodovoz
 {
 	public partial class DocTemplateDlg : QS.Dialog.Gtk.EntityDialogBase<DocTemplate>
 	{
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 		private FileWorker worker = new FileWorker();
 
@@ -44,8 +46,22 @@ namespace Vodovoz
 			ycomboType.Binding.AddBinding(Entity, e => e.TemplateType, w => w.SelectedItem).InitializeFromSource();
 			ycomboContractType.ItemsEnum = typeof(ContractType);
 			ycomboContractType.Binding.AddBinding(Entity, e => e.ContractType, w => w.SelectedItem).InitializeFromSource();
-			yentryreferenceOrg.SubjectType = typeof(Organization);
-			yentryreferenceOrg.Binding.AddBinding(Entity, e => e.Organization, w => w.Subject).InitializeFromSource();
+			
+			var organizationEntryViewModelBuilder = new LegacyEEVMBuilderFactory<DocTemplate>(
+				this,
+				Entity,
+				UoW,
+				Startup.MainWin.NavigationManager,
+				_lifetimeScope);
+
+			var organizationEntryViewModel = organizationEntryViewModelBuilder.ForProperty(x => x.Organization)
+				.UseTdiEntityDialog()
+				.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
+				.Finish();
+
+			organizationEntryViewModel.CanViewEntity = false;
+
+			entityentryOrganization.ViewModel = organizationEntryViewModel;
 
 			Entity.PropertyChanged += Entity_PropertyChanged;
 		}
@@ -88,6 +104,13 @@ namespace Vodovoz
 		protected void OnButtonEditClicked(object sender, EventArgs e)
 		{
 			worker.OpenInOffice(Entity, false, FileEditMode.Template);
+		}
+
+		public override void Destroy()
+		{
+			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
+			base.Destroy();
 		}
 	}
 }

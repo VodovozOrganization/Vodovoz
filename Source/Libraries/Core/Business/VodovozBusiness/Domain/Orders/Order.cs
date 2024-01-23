@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using fyiReporting.RDL;
 using Gamma.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -1369,6 +1369,13 @@ namespace Vodovoz.Domain.Orders
 							$"У клиента стоит признак \"{doNotMixMarkedAndUnmarkedGoodsInOrderName}\"",
 							new[] { nameof(OrderItems) });
 					}
+					
+					if(OrderItems.Where(x => x.Nomenclature.IsArchive) is IEnumerable<OrderItem> archivedNomenclatures && archivedNomenclatures.Any())
+					{
+						yield return new ValidationResult($"В заказе присутствуют архивные номенклатуры: " +
+														$"{string.Join(", ", archivedNomenclatures.Select(x => $"№{x.Nomenclature.Id} { x.Nomenclature.Name}"))}.",
+							new[] { nameof(Nomenclature) });
+					}
 				}
 
 				if(newStatus == OrderStatus.Closed) {
@@ -1603,7 +1610,10 @@ namespace Vodovoz.Domain.Orders
 
 			var hasReceipts = _orderRepository.OrderHasSentReceipt(UoW, Id);
 
-			if(hasReceipts)
+			validationContext.Items.TryGetValue(ValidationKeyIgnoreReceipts, out var ignoreReceipts);
+
+			if(!((bool?)ignoreReceipts ?? false)
+				&& hasReceipts)
 			{
 				var incorrectReceiptItems = new List<string>();
 
@@ -1765,7 +1775,9 @@ namespace Vodovoz.Domain.Orders
 			return incorrectReceiptItems;
 		}
 
-		#endregion
+		public static string ValidationKeyIgnoreReceipts => nameof(ValidationKeyIgnoreReceipts);
+
+		#endregion IValidatableObject implementation
 
 		#region Вычисляемые
 

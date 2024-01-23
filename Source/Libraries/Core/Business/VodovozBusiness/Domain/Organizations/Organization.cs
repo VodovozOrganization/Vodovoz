@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
@@ -19,7 +19,7 @@ namespace Vodovoz.Domain.Organizations
 		Nominative = "организация")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class Organization : AccountOwnerBase, IDomainObject, INamed
+	public class Organization : AccountOwnerBase, IDomainObject, INamed, IValidatableObject
 	{
 		private int? _avangardShopId;
 		private string _taxcomEdoAccountId;
@@ -175,5 +175,23 @@ namespace Vodovoz.Domain.Organizations
 		{
 			_activeOrganizationVersion = organizationVersion;
 		}
+
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			var duplicatedBankAccountNames = GetDuplicatedBankAccountNames();
+
+			if(duplicatedBankAccountNames.Count() > 0)
+			{
+				yield return new ValidationResult(
+					   $"Название банковского счета повторяется несколько раз: {string.Join(",", duplicatedBankAccountNames)}",
+					   new[] { nameof(Accounts) });
+			}
+		}
+
+		private IEnumerable<string> GetDuplicatedBankAccountNames() => Accounts
+			.GroupBy(a => a.Name)
+			.Where(g => g.Key != null && g.Count() > 1)
+			.Select(g => g.Key)
+			.ToList();
 	}
 }

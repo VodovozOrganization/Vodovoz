@@ -78,6 +78,10 @@ namespace PayPageAPI.Models
 			{
 				OfertaUrl = "pdf/offer_vv_south.pdf";
 			}
+			else if(organization.Id == _organizationParametersProvider.VodovozEastOrganizationId)
+			{
+				OfertaUrl = "pdf/offer_vv_east.pdf";
+			}
 			else
 			{
 				OfertaUrl = "pdf/offer_world_of_drinks.pdf";
