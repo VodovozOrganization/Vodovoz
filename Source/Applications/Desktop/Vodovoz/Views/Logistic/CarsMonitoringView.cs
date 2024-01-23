@@ -199,6 +199,7 @@ namespace Vodovoz.Views.Logistic
 				.AddColumn("Выполнено").AddProgressRenderer(x => x.CompletedPercent).AddSetter((c, n) => c.Text = n.CompletedText)
 				.AddColumn("Остаток\nбут.").AddTextRenderer().AddSetter((c, node) => c.Markup = $"{node.BottlesLeft:N0}")
 				.AddColumn("Остаток\nзапаса").AddTextRenderer().AddSetter((c, node) => c.Markup = $"{node.Water19LReserve:N0}")
+				.RowCells().AddSetter<CellRendererText>((c, node) => c.BackgroundGdk = node.IsNewbieDriver ? GdkColors.CarMonitoringNewbieDriversBase : GdkColors.PrimaryBase)
 				.Finish();
 
 			yTreeViewDrivers.ItemsDataSource = ViewModel.WorkingDrivers;
