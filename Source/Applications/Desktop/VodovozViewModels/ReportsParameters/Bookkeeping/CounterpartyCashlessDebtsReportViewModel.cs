@@ -12,6 +12,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Services;
+using DateTimeHelpers;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 {
@@ -84,7 +85,22 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 
 		private void GenerateCompanyDebtBalanceReport()
 		{
+			if(StartDate.HasValue)
+			{
+				_parameters.Add("start_date", StartDate.Value.ToString("yyyy-MM-ddTHH:mm:ss"));
+			}
 
+			if(EndDate.HasValue)
+			{
+				_parameters.Add("end_date", EndDate.Value.LatestDayTime().ToString("yyyy-MM-ddTHH:mm:ss"));
+			}
+
+			_parameters = FilterViewModel.GetReportParametersSet();
+			_parameters.Add( "creation_date", DateTime.Now);
+
+			Identifier = "Bookkeeping.CounterpartyDebtBalance";
+
+			LoadReport();
 		}
 		private void GenerateNotPaidOrdersReport()
 		{
