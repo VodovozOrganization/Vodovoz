@@ -25,6 +25,8 @@ namespace Vodovoz.Views.Organization
 
 		protected override void ConfigureWidget()
 		{
+			hbox5.Sensitive = ViewModel.IsButtonsAvailable;
+
 			yvboxVersionEdit.Binding.AddBinding(ViewModel, vm => vm.IsEditVisible, w => w.Visible).InitializeFromSource();
 
 			datepickerVersionDate.Binding.AddSource(ViewModel)
