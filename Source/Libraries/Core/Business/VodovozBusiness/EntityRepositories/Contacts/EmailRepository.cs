@@ -50,26 +50,31 @@ namespace Vodovoz.EntityRepositories
 
 		public bool HaveSendedEmailForBill(int orderId)
 		{
-			IList<BillDocumentEmail> result;
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"[ES]Получение списка отправленных писем"))
 			{
-				BillDocumentEmail orderDocumentEmailAlias = null;
-				OrderDocument orderDocumentAlias = null;
+				var result =
+					(
+						from billEmail in uow.Session.Query<BillDocumentEmail>()
+						where !new[] { StoredEmailStates.SendingError, StoredEmailStates.Undelivered }.Contains(billEmail.StoredEmail.State)
+							&& billEmail.OrderDocument.Order.Id == orderId
 
-				result = uow.Session.QueryOver<BillDocumentEmail>(() => orderDocumentEmailAlias)
-					.JoinAlias(() => orderDocumentEmailAlias.OrderDocument, () => orderDocumentAlias)
-					.Where(() => orderDocumentAlias.Order.Id == orderId)
-					.JoinQueryOver(ode => ode.StoredEmail)
-					.Where(se => se.State != StoredEmailStates.SendingError 
-					             && se.State != StoredEmailStates.Undelivered)
-					.WithSubquery.WhereExists(
-						QueryOver.Of<BillDocument>()
-							.Where(bd => bd.Id == orderDocumentEmailAlias.OrderDocument.Id)
-							.Select(bd => bd.Id))
-					.List();
+						let billDocument = from billDoc in uow.Session.Query<BillDocument>()
+										   where billDoc.Id == billEmail.OrderDocument.Id
+										   select billDoc
+
+						let specBillDocument = from specBillDoc in uow.Session.Query<SpecialBillDocument>()
+											   where specBillDoc.Id == billEmail.OrderDocument.Id
+											   select specBillDoc
+
+						where billDocument != null || specBillDocument != null
+
+						select billEmail.Id
+
+					)
+					.Count() > 0;
+
+				return result;
 			}
-
-			return result.Any();
 		}
 
 		public bool HasSendedEmailForUpd(int orderId)
