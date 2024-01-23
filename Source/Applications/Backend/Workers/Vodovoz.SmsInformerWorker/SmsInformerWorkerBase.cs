@@ -51,6 +51,7 @@ namespace Vodovoz.SmsInformerWorker
 			_lowBalanceNotificationService = lowBalanceNotificationService
 				?? throw new ArgumentNullException(nameof(lowBalanceNotificationService));
 
+			_smsBalanceNotifier.OnBalanceChange -= _lowBalanceNotificationService.BalanceNotifierOnBalanceChange;
 			_smsBalanceNotifier.OnBalanceChange += _lowBalanceNotificationService.BalanceNotifierOnBalanceChange;
 
 			_logger.LogInformation("Запущена отправка смс уведомлений. Проверка новых уведомлений каждые {ScanInterval} сек.", Interval.TotalSeconds);
