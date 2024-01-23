@@ -24,6 +24,7 @@ using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using QS.Project.Journal;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.ViewModels
 {
@@ -205,14 +206,12 @@ namespace Vodovoz.ViewModels
 		{
 			AddDepositEquipmentItemCommand = new DelegateCommand(
 				() => {
-					var filter = new NomenclatureFilterViewModel();
-					filter.RestrictCategory = NomenclatureCategory.equipment;
-
-					var nomenclatureJournalFactory = new NomenclatureJournalFactory();
-					var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel(_lifetimeScope);
-					journal.FilterViewModel = filter;
-					journal.OnSelectResult += Journal_OnEntitySelectedResult;
-					TabParent.AddSlaveTab(this, journal);
+					NavigationManager.OpenViewModel<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(this, filter =>
+						{
+							filter.RestrictCategory = NomenclatureCategory.equipment;
+						},
+						OpenPageOptions.AsSlave,
+						viewModel => viewModel.OnSelectResult += Journal_OnEntitySelectedResult);
 				},
 				() => CanEdit
 			);

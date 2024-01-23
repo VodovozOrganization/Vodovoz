@@ -6,6 +6,7 @@ using NLog;
 using QS.DomainModel.UoW;
 using QS.Tdi;
 using QS.Validation;
+using QS.ViewModels.Control.EEVM;
 using QSOrmProject;
 using QSProjectsLib;
 using System;
@@ -23,6 +24,9 @@ using Vodovoz.Parameters;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Dialogs.Goods;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.TempAdapters;
 using IDeliveryPointInfoProvider = Vodovoz.ViewModels.Infrastructure.InfoProviders.IDeliveryPointInfoProvider;
 
@@ -36,7 +40,6 @@ namespace Vodovoz
 		private readonly IEquipmentRepository _equipmentRepository = new EquipmentRepository();
 		private readonly INomenclatureRepository _nomenclatureRepository =
 			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
-		private INomenclatureJournalFactory _nomenclatureJournalFactory;
 
 		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilterViewModel =
 			new DeliveryPointJournalFilterViewModel();
@@ -108,7 +111,6 @@ namespace Vodovoz
 
 		void ConfigureDlg ()
 		{
-			_nomenclatureJournalFactory = new NomenclatureJournalFactory();
 			enumStatus.Sensitive = enumType.Sensitive = false;
 			enumStatusEditable.Sensitive = true;
 			notebook1.ShowTabs = false;
@@ -153,8 +155,16 @@ namespace Vodovoz
 			dpFactory.SetDeliveryPointJournalFilterViewModel(_deliveryPointJournalFilterViewModel);
 			evmeDeliveryPoint.SetEntityAutocompleteSelectorFactory(dpFactory.CreateDeliveryPointByClientAutocompleteSelectorFactory());
 
-			nomenclatureVMEntry.SetEntityAutocompleteSelectorFactory(
-				_nomenclatureJournalFactory.GetNotArchiveEquipmentsSelectorFactory(_lifetimeScope));
+			var entityEntryViewModel = new LegacyEEVMBuilderFactory<ServiceClaim>(this, Entity, UoW, Startup.MainWin.NavigationManager)
+				.ForProperty(x => x.Nomenclature)
+				.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(filter =>
+				{
+					filter.RestrictCategory = NomenclatureCategory.equipment;
+					filter.RestrictArchive = false;
+				})
+				.UseViewModelDialog<NomenclatureViewModel>()
+				.Finish();
+
 			nomenclatureVMEntry.Binding
 				.AddBinding(Entity, e => e.Nomenclature, w => w.Subject)
 				.InitializeFromSource();

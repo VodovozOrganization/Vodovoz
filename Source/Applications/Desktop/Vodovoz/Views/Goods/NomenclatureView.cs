@@ -423,12 +423,12 @@ namespace Vodovoz.Views.Goods
 
 			#endregion
 
-			entityViewModelEntryNomenclature.SetEntityAutocompleteSelectorFactory(ViewModel.NomenclatureSelectorFactory);
-			entityViewModelEntryNomenclature.Binding
-				.AddBinding(ViewModel.Entity, e => e.DependsOnNomenclature, w => w.Subject)
-				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
-				.InitializeFromSource();
-			entityViewModelEntryNomenclature.CanEditReference = true;
+			//entityViewModelEntryNomenclature.SetEntityAutocompleteSelectorFactory(ViewModel.NomenclatureSelectorFactory);
+			//entityViewModelEntryNomenclature.Binding
+			//	.AddBinding(ViewModel.Entity, e => e.DependsOnNomenclature, w => w.Subject)
+			//	.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+			//	.InitializeFromSource();
+			//entityViewModelEntryNomenclature.CanEditReference = true;
 
 			pricesView.Prices = ViewModel.Entity.NomenclaturePrice.Cast<NomenclaturePriceBase>().ToList();
 			pricesView.PricesList.ElementAdded += PriceAdded;

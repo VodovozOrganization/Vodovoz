@@ -8,7 +8,6 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.Filters.ViewModels
@@ -39,7 +38,6 @@ namespace Vodovoz.Filters.ViewModels
 		private DeliveryPointCategory _selectedDeliveryPointCategory;
 		private IEnumerable<DeliveryPointCategory> _deliveryPointCategories;
 		private IEntityAutocompleteSelectorFactory _counterpartySelectorFactory;
-		private IEntityAutocompleteSelectorFactory _nomenclatureSelectorFactory;
 		private IEntityAutocompleteSelectorFactory _deliveryPointSelectorFactory;
 
 		public DebtorsJournalFilterViewModel(ILifetimeScope lifetimeScope)
@@ -210,11 +208,6 @@ namespace Vodovoz.Filters.ViewModels
 		public virtual IEntityAutocompleteSelectorFactory CounterpartySelectorFactory =>
 			_counterpartySelectorFactory ?? (_counterpartySelectorFactory =
 				_lifetimeScope.Resolve<ICounterpartyJournalFactory>().CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope));
-
-		public virtual IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory =>
-			_nomenclatureSelectorFactory ?? (_nomenclatureSelectorFactory =
-				new EntityAutocompleteSelectorFactory<NomenclaturesJournalViewModel>(
-					typeof(Nomenclature), () => _lifetimeScope.Resolve<NomenclaturesJournalViewModel>()));
 
 		public override void Dispose()
 		{

@@ -28,7 +28,6 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly Action _updateJournalAction;
 		private readonly IList<Subdivision> _subdivisionsOnStart;
 		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
-		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 		private readonly ILifetimeScope _scope;
 
 		public ComplaintKindViewModel(
@@ -39,7 +38,6 @@ namespace Vodovoz.ViewModels.Complaints
 			IEmployeeJournalFactory employeeJournalFactory,
 			Action updateJournalAction,
 			ISalesPlanJournalFactory salesPlanJournalFactory,
-			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			ILifetimeScope scope) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
@@ -47,7 +45,6 @@ namespace Vodovoz.ViewModels.Complaints
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_updateJournalAction = updateJournalAction ?? throw new ArgumentNullException(nameof(updateJournalAction));
 			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
-			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 
 			ComplaintObjects = UoW.Session.QueryOver<ComplaintObject>().List();

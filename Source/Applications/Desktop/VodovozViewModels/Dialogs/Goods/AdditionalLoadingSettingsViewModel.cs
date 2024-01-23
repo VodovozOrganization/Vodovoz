@@ -1,22 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using Autofac;
+﻿using Autofac;
 using Gamma.Utilities;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Journal;
-using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels.Dialog;
 using QS.ViewModels.Extension;
+using System;
+using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Services;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
@@ -26,7 +24,6 @@ namespace Vodovoz.ViewModels.Goods
 	{
 		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
 		private readonly IInteractiveService _interactiveService;
-		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 
 		private DelegateCommand<IList<AdditionalLoadingNomenclatureDistribution>> _removeNomenclatureDistributionCommand;
 		private DelegateCommand _addNomenclatureDistributionCommand;
@@ -59,7 +56,6 @@ namespace Vodovoz.ViewModels.Goods
 			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ??
 				throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
 			_interactiveService = commonServices.InteractiveService;
-			_nomenclatureSelectorFactory = scope.Resolve<INomenclatureJournalFactory>();
 
 			CanEdit = commonServices.CurrentPermissionService
 				.ValidateEntityPermission(typeof(AdditionalLoadingNomenclatureDistribution)).CanUpdate;

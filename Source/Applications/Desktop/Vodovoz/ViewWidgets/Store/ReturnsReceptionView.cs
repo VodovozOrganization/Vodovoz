@@ -8,6 +8,7 @@ using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Journal;
 using QS.Project.Services;
 using Vodovoz.Core.DataService;
@@ -28,6 +29,7 @@ using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz
 {
@@ -85,6 +87,8 @@ namespace Vodovoz
 		}
 
 		private IUnitOfWork uow;
+
+		public INavigationManager NavigationManager { get; } = Startup.MainWin.NavigationManager;
 
 		public IUnitOfWork UoW {
 			get => uow;
@@ -302,16 +306,6 @@ namespace Vodovoz
 		
 		protected void OnButtonAddNomenclatureClicked(object sender, EventArgs e)
 		{
-			var filter = new NomenclatureFilterViewModel();
-			filter.AvailableCategories =
-				Nomenclature.GetCategoriesForGoods()
-					.Where(c => c != NomenclatureCategory.bottle && c != NomenclatureCategory.equipment)
-					.ToArray();
-
-			var nomenclatureJournalFactory = new NomenclatureJournalFactory();
-			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel(_lifetimeScope, filter, true);
-			journal.OnSelectResult += Journal_OnEntitySelectedResult;
-
 			if(_userHasOnlyAccessToWarehouseAndComplaints == null)
 			{
 				_userHasOnlyAccessToWarehouseAndComplaints =
@@ -320,12 +314,22 @@ namespace Vodovoz
 					&& !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin;
 			}
 
-			if(_userHasOnlyAccessToWarehouseAndComplaints.Value)
-			{
-				journal.HideButtons();
-			}
-
-			MyTab.TabParent.AddSlaveTab(MyTab, journal);
+			(NavigationManager as ITdiCompatibilityNavigation).OpenViewModelOnTdi<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(
+				MyTab,
+				filter =>
+				{
+					filter.AvailableCategories =
+						Nomenclature
+							.GetCategoriesForGoods()
+							.Where(c => c != NomenclatureCategory.bottle && c != NomenclatureCategory.equipment)
+							.ToArray();
+				},
+				OpenPageOptions.AsSlave,
+				viewModel =>
+				{
+					viewModel.OnSelectResult += Journal_OnEntitySelectedResult;
+					viewModel.HideButtons();
+				});
 		}
 
 		private void Journal_OnEntitySelectedResult(object sender, JournalSelectedEventArgs e)

@@ -19,6 +19,8 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Autofac;
 using QS.Project.Journal.EntitySelector;
+using QS.ViewModels.Control.EEVM;
+using Vodovoz.ViewModels.Dialogs.Goods;
 
 namespace Vodovoz
 {
@@ -120,14 +122,17 @@ namespace Vodovoz
 				Entity.CanEdit = true;
 			}
 
-			var nomenclatureFilter = new NomenclatureFilterViewModel() { HidenByDefault = true };
-			var nomenclatureAutoCompleteSelectorFactory = new EntityAutocompleteSelectorFactory<NomenclaturesJournalViewModel>(
-				typeof(Nomenclature),
-				() => _lifetimeScope.Resolve<NomenclaturesJournalViewModel>(
-					new TypedParameter(typeof(NomenclatureFilterViewModel), nomenclatureFilter)));
+			var entityEntryNomenclatureViewModel = new LegacyEEVMBuilderFactory<IncomingWater>(this, Entity, UoW, Startup.MainWin.NavigationManager)
+				.ForProperty(x => x.Product)
+				.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(filter =>
+				{
+					filter.HidenByDefault = true;
+				})
+				.UseViewModelDialog<NomenclatureViewModel>()
+				.Finish();
 			
-			yentryProduct.SetEntityAutocompleteSelectorFactory(nomenclatureAutoCompleteSelectorFactory);
-			yentryProduct.Binding.AddBinding(Entity, e => e.Product, w => w.Subject).InitializeFromSource();
+			//yentryProduct.SetEntityAutocompleteSelectorFactory(nomenclatureAutoCompleteSelectorFactory);
+			//yentryProduct.Binding.AddBinding(Entity, e => e.Product, w => w.Subject).InitializeFromSource();
 		}
 
 		public override bool Save ()

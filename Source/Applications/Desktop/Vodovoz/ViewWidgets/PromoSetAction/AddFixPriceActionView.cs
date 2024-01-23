@@ -15,9 +15,9 @@ namespace Vodovoz.ViewWidgets.PromoSetAction
 
 		private void ConfigureDlg()
 		{
-			entityviewmodelentryNomenclature.SetEntityAutocompleteSelectorFactory(ViewModel.NomenclatureSelectorFactory);
-			entityviewmodelentryNomenclature.Binding.AddBinding(ViewModel, vm => vm.Nomenclature, w => w.Subject);
-			entityviewmodelentryNomenclature.CanEditReference = true;
+			//entityviewmodelentryNomenclature.SetEntityAutocompleteSelectorFactory(ViewModel.NomenclatureSelectorFactory);
+			//entityviewmodelentryNomenclature.Binding.AddBinding(ViewModel, vm => vm.Nomenclature, w => w.Subject);
+			//entityviewmodelentryNomenclature.CanEditReference = true;
 
 			yspinbuttonPrice.Binding.AddBinding(ViewModel, vm => vm.Price, w => w.ValueAsDecimal);
 

@@ -4,6 +4,7 @@ using Gamma.Utilities;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
@@ -28,11 +29,15 @@ using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
+using Vodovoz.Representations.ProductGroups;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Store;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz
 {
@@ -40,7 +45,6 @@ namespace Vodovoz
 	{
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IStockRepository _stockRepository = new StockRepository();
 		private readonly BottlesRepository _bottlesRepository = new BottlesRepository();
@@ -54,10 +58,9 @@ namespace Vodovoz
 
 		public SelfDeliveryDocumentDlg()
 		{
-			this.Build();
+			Build();
 
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<SelfDeliveryDocument>();
-			_nomenclatureSelectorFactory = new NomenclatureJournalFactory();
 
 			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
@@ -102,6 +105,8 @@ namespace Vodovoz
 		public SelfDeliveryDocumentDlg(SelfDeliveryDocument sub) : this(sub.Id)
 		{
 		}
+
+		public INavigationManager NavigationManager { get; } = Startup.MainWin.NavigationManager;
 
 		private IPermissionResult CheckPermission()
 		{
@@ -359,14 +364,18 @@ namespace Vodovoz
 
 		protected void OnBtnAddOtherGoodsClicked(object sender, EventArgs e)
 		{
-			var nomenclatureSelector = _nomenclatureSelectorFactory.CreateNomenclatureOfGoodsWithoutEmptyBottlesSelector(_lifetimeScope);
-			nomenclatureSelector.OnEntitySelectedResult += NomenclatureSelectorOnEntitySelectedResult;
-			TabParent.AddTab(nomenclatureSelector, this);
+			var page = (NavigationManager as ITdiCompatibilityNavigation)
+				.OpenViewModelOnTdi<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(this, filter =>
+			{
+				filter.RestrictArchive = true;
+				filter.AvailableCategories = Nomenclature.GetCategoriesForGoodsWithoutEmptyBottles();
+			});
+			page.ViewModel.OnSelectResult += NomenclatureSelectorOnEntitySelectedResult;
 		}
 
-		private void NomenclatureSelectorOnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
+		private void NomenclatureSelectorOnEntitySelectedResult(object sender, JournalSelectedEventArgs e)
 		{
-			var nomenclatureNode = e.SelectedNodes.FirstOrDefault();
+			var nomenclatureNode = e.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
 			
 			if(nomenclatureNode == null)
 			{

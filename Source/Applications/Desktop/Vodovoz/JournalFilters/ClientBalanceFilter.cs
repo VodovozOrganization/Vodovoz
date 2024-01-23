@@ -23,12 +23,12 @@ namespace Vodovoz
 
 		protected override void ConfigureWithUow()
 		{
-			nomenclatureEntry.SetEntityAutocompleteSelectorFactory(
-			new EntityAutocompleteSelectorFactory<NomenclaturesJournalViewModel>(
-				typeof(Nomenclature),
-				() => _lifetimeScope.Resolve<NomenclaturesJournalViewModel>()));
+			//nomenclatureEntry.SetEntityAutocompleteSelectorFactory(
+			//new EntityAutocompleteSelectorFactory<NomenclaturesJournalViewModel>(
+			//	typeof(Nomenclature),
+			//	() => _lifetimeScope.Resolve<NomenclaturesJournalViewModel>()));
 			
-			nomenclatureEntry.ChangedByUser += NomenclatureEntryOnChangedByUser;
+			//nomenclatureEntry.ChangedByUser += NomenclatureEntryOnChangedByUser;
 
 			entryClient.SetEntityAutocompleteSelectorFactory(
 				_lifetimeScope.Resolve<ICounterpartyJournalFactory>().CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope));

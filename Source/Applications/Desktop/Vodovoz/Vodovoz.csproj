@@ -629,8 +629,6 @@
     <Compile Include="TempAdapters\AttachmentsViewModelFactory.cs" />
     <Compile Include="TempAdapters\ReportExporterAdapter.cs" />
     <Compile Include="TempAdapters\RouteListJournalFactory.cs" />
-    <Compile Include="TempAdapters\ComplaintKindJournalFactory.cs" />
-    <Compile Include="TempAdapters\NomenclatureJournalFactory.cs" />
     <Compile Include="TempAdapters\TdiNavigationManagerAdapter.cs" />
     <Compile Include="TreeModels\IModelConfig.cs" />
     <Compile Include="TreeModels\ModelConfig.cs" />
@@ -1829,8 +1827,6 @@
     <Compile Include="ReportsParameters\WayBillReportGroupPrint.cs" />
     <Compile Include="ViewWidgets\Logistics\DeliveryFreeBalanceView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Logistics.DeliveryFreeBalanceView.cs" />
-    <Compile Include="Views\Warehouse\Documents\InventoryDocumentView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.Documents.InventoryDocumentView.cs" />
     <Compile Include="Views\Reports\FastDeliveryPercentCoverageReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.FastDeliveryPercentCoverageReportView.cs" />
     <Compile Include="Dialogs\Organizations\OrganizationOwnershipTypeView.cs" />

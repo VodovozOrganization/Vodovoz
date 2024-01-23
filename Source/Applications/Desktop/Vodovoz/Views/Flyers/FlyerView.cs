@@ -21,9 +21,9 @@ namespace Vodovoz.Views.Flyers
 			btnActivate.Clicked += (sender, args) => ViewModel.ActivateFlyerCommand.Execute();
 			btnDeactivate.Clicked += (sender, args) => ViewModel.DeactivateFlyerCommand.Execute();
 			
-			entryFlyerNomenclature.SetEntityAutocompleteSelectorFactory(ViewModel.FlyerAutocompleteSelectorFactory);
-			entryFlyerNomenclature.Binding.AddBinding(ViewModel.Entity, e => e.FlyerNomenclature, w => w.Subject).InitializeFromSource();
-			entryFlyerNomenclature.Binding.AddBinding(ViewModel, vm => vm.CanEditFlyerNomenclature, w => w.Sensitive).InitializeFromSource();
+			//entryFlyerNomenclature.SetEntityAutocompleteSelectorFactory(ViewModel.FlyerAutocompleteSelectorFactory);
+			//entryFlyerNomenclature.Binding.AddBinding(ViewModel.Entity, e => e.FlyerNomenclature, w => w.Subject).InitializeFromSource();
+			//entryFlyerNomenclature.Binding.AddBinding(ViewModel, vm => vm.CanEditFlyerNomenclature, w => w.Sensitive).InitializeFromSource();
 			chkIsForFirstOrder.Binding.AddBinding(ViewModel.Entity, v => v.IsForFirstOrder, w => w.Active).InitializeFromSource();
 
 			hboxActivation.Binding.AddFuncBinding(ViewModel, vm => !vm.IsFlyerActivated, w => w.Visible).InitializeFromSource();

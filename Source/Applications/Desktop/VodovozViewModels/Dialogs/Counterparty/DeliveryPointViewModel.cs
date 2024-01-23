@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Fias.Client.Loaders;
 using QS.Commands;
 using QS.Dialog;
@@ -64,7 +64,6 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			ICitiesDataLoader citiesDataLoader,
 			IStreetsDataLoader streetsDataLoader,
 			IHousesDataLoader housesDataLoader,
-			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			NomenclatureFixedPriceController nomenclatureFixedPriceController,
 			IDeliveryPointRepository deliveryPointRepository,
 			IDeliveryScheduleJournalFactory deliveryScheduleSelectorFactory,
@@ -113,9 +112,6 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-
-			NomenclatureSelectorFactory =
-				nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 
 			_fixedPricesModel = new DeliveryPointFixedPricesModel(UoW, Entity, nomenclatureFixedPriceController);
 			PhonesViewModel = new PhonesViewModel(phoneRepository, UoW, contactsParameters, _roboatsJournalsFactory, CommonServices)
@@ -189,7 +185,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 		//widget init
 		public FixedPricesViewModel FixedPricesViewModel =>
 			_fixedPricesViewModel ??
-			(_fixedPricesViewModel = new FixedPricesViewModel(UoW, _fixedPricesModel, NomenclatureSelectorFactory, this, LifetimeScope));
+			(_fixedPricesViewModel = new FixedPricesViewModel(UoW, _fixedPricesModel, this, NavigationManager, LifetimeScope));
 
 		public List<DeliveryPointResponsiblePerson> ResponsiblePersons =>
 			_responsiblePersons ?? (_responsiblePersons = new List<DeliveryPointResponsiblePerson>());
@@ -200,7 +196,6 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 		public IStreetsDataLoader StreetsDataLoader { get; }
 		public IHousesDataLoader HousesDataLoader { get; }
 		public IOrderedEnumerable<DeliveryPointCategory> DeliveryPointCategories { get; }
-		public INomenclatureJournalFactory NomenclatureSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory DeliveryScheduleSelectorFactory { get; }
 
 		public override bool HasChanges

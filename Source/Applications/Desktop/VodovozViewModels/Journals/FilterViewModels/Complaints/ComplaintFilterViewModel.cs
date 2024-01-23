@@ -176,8 +176,6 @@ namespace Vodovoz.FilterViewModels
 
 		public IEntityEntryViewModel AtWorkInSubdivisionViewModel { get; private set; }
 
-		public IEntityAutocompleteSelectorFactory ComplaintKindSelectorFactory { get; private set; }
-
 		public IEntityEntryViewModel ComplaintDetalizationEntiryEntryViewModel { get; private set; }
 
 		public IEntityEntryViewModel AuthorEntiryEntryViewModel { get; private set; }
@@ -393,10 +391,6 @@ namespace Vodovoz.FilterViewModels
 		{
 			_complaintKindJournalFilter = _lifetimeScope.Resolve<ComplaintKindJournalFilterViewModel>();
 			_complaintKindJournalFilter.IsShow = true;
-			ComplaintKindSelectorFactory =
-				_lifetimeScope.Resolve<IComplaintKindJournalFactory>(
-						new TypedParameter(typeof(ComplaintKindJournalFilterViewModel), _complaintKindJournalFilter))
-					.CreateComplaintKindAutocompleteSelectorFactory(_lifetimeScope, _complaintKindJournalFilter);
 		}
 		
 		private void OnGuiltyItemReady(object sender, EventArgs e)

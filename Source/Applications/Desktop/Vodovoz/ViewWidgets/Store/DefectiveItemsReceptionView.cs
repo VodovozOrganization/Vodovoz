@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using System.Web.UI;
 using Autofac;
 using Gtk;
 using NHibernate.Transform;
 using NHibernate.Util;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Journal;
 using QS.Project.Services;
 using Vodovoz.Domain;
@@ -21,6 +23,7 @@ using Vodovoz.Infrastructure;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.ViewWidgets.Store
 {
@@ -32,6 +35,8 @@ namespace Vodovoz.ViewWidgets.Store
 		private bool? _userHasOnlyAccessToWarehouseAndComplaints;
 		
 		public IList<DefectiveItemNode> Items => defectiveList;
+
+		public INavigationManager NavigationManager { get; } = Startup.MainWin.NavigationManager;
 
 		public void AddItem(DefectiveItemNode item) => defectiveList.Add(item);
 
@@ -147,10 +152,10 @@ namespace Vodovoz.ViewWidgets.Store
 					.Select(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
 					.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.NomenclatureCategory)
-                    .Select(() => operationAlias.Amount).WithAlias(() => resultAlias.Amount)
-                    .Select(() => carUnloadDocumentItemAlias.GoodsAccountingOperation).WithAlias(() => resultAlias.MovementOperation)
-                    .Select(() => carUnloadDocumentItemAlias.DefectSource).WithAlias(() => resultAlias.Source)
-                    .Select(() => carUnloadDocumentItemAlias.TypeOfDefect).WithAlias(() => resultAlias.TypeOfDefect)
+					.Select(() => operationAlias.Amount).WithAlias(() => resultAlias.Amount)
+					.Select(() => carUnloadDocumentItemAlias.GoodsAccountingOperation).WithAlias(() => resultAlias.MovementOperation)
+					.Select(() => carUnloadDocumentItemAlias.DefectSource).WithAlias(() => resultAlias.Source)
+					.Select(() => carUnloadDocumentItemAlias.TypeOfDefect).WithAlias(() => resultAlias.TypeOfDefect)
 				   )
 				.TransformUsing(Transformers.AliasToBean<DefectiveItemNode>())
 				.List<DefectiveItemNode>();
@@ -160,13 +165,6 @@ namespace Vodovoz.ViewWidgets.Store
 
 		protected void OnButtonAddNomenclatureClicked(object sender, EventArgs e)
 		{
-			var filter = new NomenclatureFilterViewModel();
-			filter.IsDefectiveBottle = true;
-
-			var nomenclatureJournalFactory = new NomenclatureJournalFactory();
-			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel(_lifetimeScope, filter, true);
-			journal.OnSelectResult += Journal_OnEntitySelectedResult;
-			
 			if(_userHasOnlyAccessToWarehouseAndComplaints == null)
 			{
 				_userHasOnlyAccessToWarehouseAndComplaints =
@@ -175,12 +173,18 @@ namespace Vodovoz.ViewWidgets.Store
 					&& !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin;
 			}
 
-			if(_userHasOnlyAccessToWarehouseAndComplaints.Value)
-			{
-				journal.HideButtons();
-			}
-			
-			MyTab.TabParent.AddSlaveTab(MyTab, journal);
+			(NavigationManager as ITdiCompatibilityNavigation).OpenViewModelOnTdi<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(
+				MyTab,
+				filter =>
+				{
+					filter.IsDefectiveBottle = true;
+				},
+				OpenPageOptions.AsSlave,
+				viewModel =>
+				{
+					viewModel.OnSelectResult += Journal_OnEntitySelectedResult;
+					viewModel.HideButtons();
+				});
 		}
 
 		private void Journal_OnEntitySelectedResult(object sender, JournalSelectedEventArgs e)

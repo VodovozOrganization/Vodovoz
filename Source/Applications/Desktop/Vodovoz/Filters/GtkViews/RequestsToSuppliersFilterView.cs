@@ -18,8 +18,8 @@ namespace Vodovoz.Filters.GtkViews
 		{
 			dPerCreatedDate.Binding.AddBinding(ViewModel, x => x.RestrictStartDate, x => x.StartDateOrNull).InitializeFromSource();
 			dPerCreatedDate.Binding.AddBinding(ViewModel, x => x.RestrictEndDate, x => x.EndDateOrNull).InitializeFromSource();
-			entVMEntNomenclature.SetEntitySelectorFactory(ViewModel.NomenclatureSelectorFactory);
-			entVMEntNomenclature.Binding.AddBinding(ViewModel, x => x.RestrictNomenclature, x => x.Subject).InitializeFromSource();
+			//entVMEntNomenclature.SetEntitySelectorFactory(ViewModel.NomenclatureSelectorFactory);
+			//entVMEntNomenclature.Binding.AddBinding(ViewModel, x => x.RestrictNomenclature, x => x.Subject).InitializeFromSource();
 			enumStatus.ItemsEnum = typeof(RequestStatus);
 			enumStatus.Binding.AddBinding(ViewModel, vm => vm.RestrictStatus, w => w.SelectedItemOrNull).InitializeFromSource();
 		}

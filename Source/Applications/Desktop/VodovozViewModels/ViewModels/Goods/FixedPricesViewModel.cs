@@ -15,27 +15,30 @@ using QS.Project.Journal;
 using QS.Tdi;
 using Vodovoz.TempAdapters;
 using Autofac;
+using QS.Navigation;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 
 namespace Vodovoz.ViewModels.ViewModels.Goods
 {
 	public class FixedPricesViewModel : UoWWidgetViewModelBase, IDisposable
 	{
 		private readonly IFixedPricesModel _fixedPricesModel;
-		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 		private ITdiTab _parentTab;
 		private ILifetimeScope _lifetimeScope;
 
 		public FixedPricesViewModel(
 			IUnitOfWork uow,
 			IFixedPricesModel fixedPricesModel,
-			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			ITdiTab parentTab,
+			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope)
 		{
 			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
 			_fixedPricesModel = fixedPricesModel ?? throw new ArgumentNullException(nameof(fixedPricesModel));
-			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			_parentTab = parentTab ?? throw new ArgumentNullException(nameof(parentTab));
+			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			fixedPricesModel.FixedPricesUpdated += (sender, args) => UpdateFixedPrices();
 			UpdateFixedPrices();
@@ -197,18 +200,24 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 
 		private void SelectWaterNomenclature()
 		{
-			var waterJournalFactory = _nomenclatureSelectorFactory.GetWaterJournalFactory(_lifetimeScope);
-			var selector = waterJournalFactory.CreateAutocompleteSelector();
-			selector.OnEntitySelectedResult += OnWaterSelected;
-			_parentTab.TabParent.AddSlaveTab(_parentTab, selector);
+			var page = (NavigationManager as ITdiCompatibilityNavigation)
+				.OpenViewModelOnTdi<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(_parentTab, filter =>
+				{
+					filter.RestrictCategory = NomenclatureCategory.water;
+				});
+
+			page.ViewModel.OnSelectResult += OnWaterSelected;
 		}
 
-		private void OnWaterSelected(object sender, JournalSelectedNodesEventArgs e)
+		private void OnWaterSelected(object sender, JournalSelectedEventArgs e)
 		{
-			var selectedWaterNode = e.SelectedNodes.FirstOrDefault();
-			if(selectedWaterNode == null) {
+			var selectedWaterNode = e.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
+
+			if(selectedWaterNode == null)
+			{
 				return;
 			}
+
 			Nomenclature waterNomenclature = UoW.GetById<Nomenclature>(selectedWaterNode.Id);
 
 			if(!FixedPrices.Any(p => p.NomenclatureFixedPrice.Nomenclature == waterNomenclature))
@@ -259,6 +268,8 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 				return _removeFixedPriceCommand;
 			}
 		}
+
+		public INavigationManager NavigationManager { get; }
 
 		private void RemoveFixedPrice()
 		{

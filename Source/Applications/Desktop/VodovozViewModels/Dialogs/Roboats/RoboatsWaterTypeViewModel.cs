@@ -1,4 +1,5 @@
-﻿using QS.Navigation;
+﻿using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
@@ -6,30 +7,30 @@ using QS.ViewModels;
 using System;
 using Vodovoz.Domain.Roboats;
 using Vodovoz.Factories;
-using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.Dialogs.Roboats
 {
 	public class RoboatsWaterTypeViewModel : EntityTabViewModelBase<RoboatsWaterType>
 	{
 		private RoboatsEntityViewModel _roboatsEntityViewModel;
-		private readonly INomenclatureJournalFactory _nomenclatureJournalFactory;
 		private IEntityAutocompleteSelectorFactory _nomenclatureSelectorFactory;
 		private readonly bool _canEdit;
 		private readonly bool _canCreate;
 
-		public RoboatsWaterTypeViewModel(IEntityUoWBuilder uowBuilder, INomenclatureJournalFactory nomenclatureJournalFactory, IRoboatsViewModelFactory roboatsViewModelFactory, ICommonServices commonServices) : base(uowBuilder, commonServices)
+		public RoboatsWaterTypeViewModel(
+			IEntityUoWBuilder uowBuilder,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IRoboatsViewModelFactory roboatsViewModelFactory,
+			ICommonServices commonServices,
+			INavigationManager navigationManager)
+			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(roboatsViewModelFactory is null)
 			{
 				throw new ArgumentNullException(nameof(roboatsViewModelFactory));
 			}
 
-			_nomenclatureJournalFactory = nomenclatureJournalFactory ?? throw new ArgumentNullException(nameof(nomenclatureJournalFactory));
-
 			RoboatsEntityViewModel = roboatsViewModelFactory.CreateViewModel(Entity);
-
-			NomenclatureSelectorFactory = _nomenclatureJournalFactory.GetRoboatsWaterJournalFactory();
 
 			var permissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(RoboatsWaterType));
 			_canEdit = permissionResult.CanUpdate;
@@ -42,12 +43,6 @@ namespace Vodovoz.ViewModels.Dialogs.Roboats
 		{
 			get => _roboatsEntityViewModel;
 			set => SetField(ref _roboatsEntityViewModel, value);
-		}
-
-		public virtual IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory
-		{
-			get => _nomenclatureSelectorFactory;
-			set => SetField(ref _nomenclatureSelectorFactory, value);
 		}
 
 		protected override bool BeforeSave()

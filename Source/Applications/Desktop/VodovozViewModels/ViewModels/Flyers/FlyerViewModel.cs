@@ -1,16 +1,15 @@
-﻿using System;
-using System.Linq;
-using Autofac;
+﻿using Autofac;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
-using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
+using System;
+using System.Linq;
 using Vodovoz.Domain;
 using Vodovoz.EntityRepositories.Flyers;
-using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.ViewModels.Flyers
 {
@@ -30,14 +29,11 @@ namespace Vodovoz.ViewModels.ViewModels.Flyers
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			INomenclatureJournalFactory nomenclatureSelectorFactory,
-			IFlyerRepository flyerRepository) : base(uowBuilder, unitOfWorkFactory, commonServices)
+			IFlyerRepository flyerRepository,
+			INavigationManager navigationManager) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_flyerRepository = flyerRepository ?? throw new ArgumentNullException(nameof(flyerRepository));
-			FlyerAutocompleteSelectorFactory =
-				(nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory)))
-				.CreateNomenclatureForFlyerJournalFactory(_lifetimeScope);
 
 			if(!uowBuilder.IsNewEntity)
 			{
@@ -47,8 +43,6 @@ namespace Vodovoz.ViewModels.ViewModels.Flyers
 			SetCurrentFlyerActionTime();
 			AddServiceToValidationContext();
 		}
-
-		public IEntityAutocompleteSelectorFactory FlyerAutocompleteSelectorFactory { get; }
 
 		public DateTime? FlyerStartDate
 		{

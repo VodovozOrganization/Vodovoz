@@ -24,14 +24,14 @@ namespace Vodovoz.Views.Rent
 			spinPriceDaily.Binding.AddBinding(ViewModel.Entity, e => e.PriceDaily, w => w.ValueAsDecimal).InitializeFromSource();
 			spinPriceMonthly.Binding.AddBinding(ViewModel.Entity, e => e.PriceMonthly, w => w.ValueAsDecimal).InitializeFromSource();
 
-			entryDepositService.SetEntityAutocompleteSelectorFactory(ViewModel.DepositServiceSelectorFactory);
-			entryDepositService.Binding.AddBinding(ViewModel.Entity, e => e.DepositService, w => w.Subject).InitializeFromSource();
+			//entryDepositService.SetEntityAutocompleteSelectorFactory(ViewModel.DepositServiceSelectorFactory);
+			//entryDepositService.Binding.AddBinding(ViewModel.Entity, e => e.DepositService, w => w.Subject).InitializeFromSource();
 
-			entryRentServiceDaily.SetEntityAutocompleteSelectorFactory(ViewModel.NomenclatureSelectorFactory);
-			entryRentServiceDaily.Binding.AddBinding(ViewModel.Entity, e => e.RentServiceDaily, w => w.Subject).InitializeFromSource();
+			//entryRentServiceDaily.SetEntityAutocompleteSelectorFactory(ViewModel.NomenclatureSelectorFactory);
+			//entryRentServiceDaily.Binding.AddBinding(ViewModel.Entity, e => e.RentServiceDaily, w => w.Subject).InitializeFromSource();
 
-			entryRentServiceMonthly.SetEntityAutocompleteSelectorFactory(ViewModel.NomenclatureSelectorFactory);
-			entryRentServiceMonthly.Binding.AddBinding(ViewModel.Entity, e => e.RentServiceMonthly, w => w.Subject).InitializeFromSource();
+			//entryRentServiceMonthly.SetEntityAutocompleteSelectorFactory(ViewModel.NomenclatureSelectorFactory);
+			//entryRentServiceMonthly.Binding.AddBinding(ViewModel.Entity, e => e.RentServiceMonthly, w => w.Subject).InitializeFromSource();
 
 			referenceEquipmentType.SubjectType = typeof(EquipmentKind);
 			referenceEquipmentType.Binding.AddBinding(ViewModel.Entity, e => e.EquipmentKind, w => w.Subject).InitializeFromSource();

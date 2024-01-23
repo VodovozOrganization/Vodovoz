@@ -2,6 +2,7 @@
 using Gamma.GtkWidgets;
 using Gtk;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Journal;
 using System;
 using System.Linq;
@@ -14,6 +15,7 @@ using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.ViewWidgets
 {
@@ -24,6 +26,8 @@ namespace Vodovoz.ViewWidgets
 		private readonly INomenclatureRepository _nomenclatureRepository =
 			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		public IUnitOfWork UoW { get; set; }
+
+		public INavigationManager NavigationManager { get; } = Startup.MainWin.NavigationManager;
 
 		public Order Order { get; set; }
 
@@ -97,15 +101,15 @@ namespace Vodovoz.ViewWidgets
 
 		protected void OnButtonNewEquipmentDepositClicked(object sender, EventArgs e)
 		{
-			var filter = new NomenclatureFilterViewModel();
-			filter.RestrictCategory = NomenclatureCategory.equipment;
-
-			var nomenclatureJournalFactory = new NomenclatureJournalFactory();
-			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel(_lifetimeScope);
-			journal.FilterViewModel = filter;
-			journal.OnSelectResult += Journal_OnEntitySelectedResult;
-			journal.Title = "Оборудование";
-			MyTab.TabParent.AddSlaveTab(MyTab, journal);
+			(NavigationManager as ITdiCompatibilityNavigation).OpenViewModelOnTdi<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(this.MyTab, filter =>
+				{
+					filter.RestrictCategory = NomenclatureCategory.equipment;
+				},
+				OpenPageOptions.AsSlave,
+				viewModel => {
+					viewModel.OnSelectResult += Journal_OnEntitySelectedResult;
+					viewModel.Title = "Оборудование";
+				});
 		}
 
 		private void Journal_OnEntitySelectedResult(object sender, JournalSelectedEventArgs e)

@@ -22,7 +22,7 @@ namespace Vodovoz.Filters.GtkViews
 		{
 			entryreferenceClient.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartySelectorFactory);
 			entityVMEntryDeliveryPoint.SetEntityAutocompleteSelectorFactory(ViewModel.DeliveryPointSelectorFactory);
-			entityviewmodelentryNomenclature.SetEntityAutocompleteSelectorFactory(ViewModel.NomenclatureSelectorFactory);
+			//entityviewmodelentryNomenclature.SetEntityAutocompleteSelectorFactory(ViewModel.NomenclatureSelectorFactory);
 
 			yvalidatedentryDebtTo.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			yvalidatedentryDebtFrom.ValidationMode = QSWidgetLib.ValidationType.numeric;

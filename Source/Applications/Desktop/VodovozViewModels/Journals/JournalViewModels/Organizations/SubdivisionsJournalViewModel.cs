@@ -33,7 +33,6 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICurrentPermissionService _currentPermissionService;
 		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
-		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 		private readonly SubdivisionFilterViewModel _filterViewModel;
 		private readonly ILifetimeScope _scope;
 		private HierarchicalChunkLinqLoader<Subdivision, SubdivisionJournalNode> _hierarchicalChunkLinqLoader;
@@ -48,7 +47,6 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 			ICurrentPermissionService currentPermissionService,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ISalesPlanJournalFactory salesPlanJournalFactory,
-			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			Action<SubdivisionFilterViewModel> filterConfig = null)
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigation)
 		{
@@ -57,7 +55,6 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 				?? throw new ArgumentNullException(nameof(currentPermissionService));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
-			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			_filterViewModel = filterViewModel ?? throw new ArgumentNullException(nameof(filterViewModel));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 

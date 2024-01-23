@@ -1,14 +1,12 @@
-﻿using QS.Commands;
+﻿using Autofac;
+using QS.Commands;
 using QS.DomainModel.UoW;
-using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
 using System;
-using Autofac;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Parameters;
-using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 
@@ -16,26 +14,19 @@ namespace Vodovoz.ViewModels.Orders
 {
 	public class AddFixPriceActionViewModel : UoWWidgetViewModelBase, ICreationControl
 	{
-		public IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory { get; }
-		
 		public AddFixPriceActionViewModel(
 			ILifetimeScope lifetimeScope,
 			IUnitOfWork uow, 
 			PromotionalSet promotionalSet, 
-			ICommonServices commonServices,
-			INomenclatureJournalFactory nomenclatureJournalFactory) 
+			ICommonServices commonServices) 
 		{
 			if(lifetimeScope is null)
 			{
 				throw new ArgumentNullException(nameof(lifetimeScope));
 			}
 			
-			_nomenclatureJournalFactory = nomenclatureJournalFactory ?? throw new ArgumentNullException(nameof(nomenclatureJournalFactory));
-
 			var filter = new NomenclatureFilterViewModel();
 			filter.RestrictCategory = NomenclatureCategory.water;
-
-			NomenclatureSelectorFactory = _nomenclatureJournalFactory.GetDefaultNomenclatureSelectorFactory(lifetimeScope, filter);
 
 			CreateCommands();
 			PromotionalSet = promotionalSet;
@@ -99,8 +90,8 @@ namespace Vodovoz.ViewModels.Orders
 							PromotionalSet = PromotionalSet,
 							IsForZeroDebt = IsForZeroDebt
 						};
-                        if(!CommonServices.ValidationService.Validate(newAction))
-                            return;
+						if(!CommonServices.ValidationService.Validate(newAction))
+							return;
 						PromotionalSet.ObservablePromotionalSetActions.Add(newAction);
 					}
 				},
@@ -108,7 +99,6 @@ namespace Vodovoz.ViewModels.Orders
 		}
 
 		public DelegateCommand CancelCommand;
-		private readonly INomenclatureJournalFactory _nomenclatureJournalFactory;
 
 		private void CreateCancelCommand()
 		{

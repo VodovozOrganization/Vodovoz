@@ -18,11 +18,11 @@ namespace Vodovoz.Views.Roboats
 		private void Configure()
 		{
 			labelIdValue.Binding.AddFuncBinding(ViewModel.Entity, e => e.Id.ToString(), w => w.LabelProp).InitializeFromSource();
-			entryNomenclature.SetEntityAutocompleteSelectorFactory(ViewModel.NomenclatureSelectorFactory);
-			entryNomenclature.Binding
-				.AddBinding(ViewModel.Entity, e => e.Nomenclature, w => w.Subject)
-				.AddBinding(ViewModel, e => e.CanEdit, w => w.Sensitive)
-				.InitializeFromSource();
+			//entryNomenclature.SetEntityAutocompleteSelectorFactory(ViewModel.NomenclatureSelectorFactory);
+			//entryNomenclature.Binding
+			//	.AddBinding(ViewModel.Entity, e => e.Nomenclature, w => w.Subject)
+			//	.AddBinding(ViewModel, e => e.CanEdit, w => w.Sensitive)
+			//	.InitializeFromSource();
 			entryNomenclature.CanOpenWithoutTabParent = true;
 
 			buttonSave.Clicked += (s, e) => ViewModel.Save(true);

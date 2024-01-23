@@ -3,6 +3,7 @@ using Gamma.GtkWidgets;
 using Gtk;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Journal;
 using QS.Tdi;
 using QSOrmProject;
@@ -17,6 +18,7 @@ using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz
 {
@@ -29,6 +31,8 @@ namespace Vodovoz
 			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 
 		GenericObservableList<ProductSpecificationMaterial> items;
+
+		public INavigationManager NavigationManager { get; } = Startup.MainWin.NavigationManager;
 
 		private IUnitOfWorkGeneric<ProductSpecification> specificationUoW;
 
@@ -89,15 +93,16 @@ namespace Vodovoz
 				return;
 			}
 
-			var filter = new NomenclatureFilterViewModel();
-			filter.AvailableCategories = Nomenclature.GetCategoriesForProductMaterial();
-
-			NomenclatureJournalFactory nomenclatureJournalFactory = new NomenclatureJournalFactory();
-			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel(_lifetimeScope);
-			journal.FilterViewModel = filter;
-			journal.OnSelectResult += Journal_OnEntitySelectedResult;
-
-			mytab.TabParent.AddSlaveTab(mytab, journal);
+			(NavigationManager as ITdiCompatibilityNavigation).OpenViewModelOnTdi<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(
+				mytab,
+				filter =>
+				{
+					filter.AvailableCategories = Nomenclature.GetCategoriesForProductMaterial();
+				},
+				OpenPageOptions.AsSlave, viewModel =>
+				{
+					viewModel.OnSelectResult += Journal_OnEntitySelectedResult;
+				});
 		}
 
 		private void Journal_OnEntitySelectedResult(object sender, JournalSelectedEventArgs e)
