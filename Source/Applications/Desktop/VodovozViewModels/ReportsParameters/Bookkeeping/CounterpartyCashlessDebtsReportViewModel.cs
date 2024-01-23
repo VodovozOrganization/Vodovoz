@@ -15,7 +15,7 @@ using Vodovoz.Services;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 {
-	public class CounterpartyCashlessDebtsReportViewModel : ReportParametersViewModelBase
+	public class CounterpartyCashlessDebtsReportViewModel : ReportParametersViewModelBase, IDisposable
 	{
 		private const string _includeString = "_include";
 		private const string _excludeString = "_exclude";
@@ -29,8 +29,6 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 		private Dictionary<string, object> _parameters = new Dictionary<string, object>();
 		private DateTime? _startDate;
 		private DateTime? _endDate;
-		private bool _isExcludeClosingDocuments;
-		private bool _isExpiredOnly;
 		private bool _isOrderByDate;
 
 		public CounterpartyCashlessDebtsReportViewModel(
@@ -65,12 +63,6 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 		protected override Dictionary<string, object> Parameters => _parameters;
 		public IncludeExludeFiltersViewModel FilterViewModel { get; }
 
-		public bool IsExcludeClosingDocuments
-		{
-			get => _isExcludeClosingDocuments;
-			set => SetField(ref _isExcludeClosingDocuments, value);
-		}
-
 		public DateTime? StartDate
 		{
 			get => _startDate;
@@ -81,12 +73,6 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 		{
 			get => _endDate;
 			set => SetField(ref _endDate, value);
-		}
-
-		public bool IsExpiredOnly
-		{
-			get => _isExpiredOnly;
-			set => SetField(ref _isExpiredOnly, value);
 		}
 
 		public bool IsOrderByDate
@@ -150,17 +136,17 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 			//	return resultString;
 			//}
 
-			resultString += IsExcludeClosingDocuments
-				? "Без закрывающих документов\n"
-				: "";
+			//resultString += IsExcludeClosingDocuments
+			//	? "Без закрывающих документов\n"
+			//	: "";
 
 			//resultString += ycheckExcludeChainStores.Active
 			//	? "Без сетей\n"
 			//	: "";
 
-			resultString += IsExpiredOnly
-				? "Только просроченные\n"
-				: "";
+			//resultString += IsExpiredOnly
+			//	? "Только просроченные\n"
+			//	: "";
 
 			//var selectedOrderStatuses = enumcheckOrderStatuses.SelectedValuesList.Cast<OrderStatus>().ToList();
 			//if(!selectedOrderStatuses.Any())
@@ -361,7 +347,22 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 				config.RefreshFilteredElements();
 			});
 
+			var additionalParams = new Dictionary<string, string>
+			{
+				{ "Закрывающие документы", "is_closing_documents" },
+				{ "Сети", "is_chain_stores" },
+				{ "Просроченные", "is_expired" },
+				{ "Ликвидирован", "is_liquidated" },
+			};
+
+			includeExludeFiltersViewModel.AddFilter("Дополнительные фильтры", additionalParams);
+
 			return includeExludeFiltersViewModel;
+		}
+
+		public void Dispose()
+		{
+			_unitOfWork?.Dispose();
 		}
 	}
 }
