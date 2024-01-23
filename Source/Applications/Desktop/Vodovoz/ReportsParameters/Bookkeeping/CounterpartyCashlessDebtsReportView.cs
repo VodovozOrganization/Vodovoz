@@ -30,6 +30,11 @@ namespace Vodovoz.ReportsParameters.Bookkeeping
 
 			yvboxFilter.Add(filterView);
 			filterView.Show();
+
+			ybuttonInfo.Clicked += (s, e) => ViewModel.ShowInfoMessageCommand.Execute();
+			ybuttonCounterpartyDebtBalance.Clicked += (s, e) => ViewModel.GenerateCompanyDebtBalanceReportCommand.Execute();
+			ybuttonNotPaidOrders.Clicked += (s, e) => ViewModel.GenerateNotPaidOrdersReportCommand.Execute();
+			ybuttonCounterpartyDebtDetails.Clicked += (s, e) => ViewModel.GenerateCounterpartyDebtDetailsReportCommand.Execute();
 		}
 	}
 }
