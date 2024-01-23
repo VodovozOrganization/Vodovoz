@@ -99,6 +99,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			References(x => x.EdoOperator).Column("edo_operator_id");
 			References(x => x.LogisticsRequirements).Column("logistics_requirements_id").Cascade.All();
 			References(x => x.CounterpartySubtype).Column("counterparty_subtype_id");
+			References(x => x.OurOrganizationAccountForBills).Column("our_organization_account_for_bills");
 
 			HasMany(x => x.Phones).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("counterparty_id");
 			HasMany(x => x.Accounts).Cascade.AllDeleteOrphan().LazyLoad()
