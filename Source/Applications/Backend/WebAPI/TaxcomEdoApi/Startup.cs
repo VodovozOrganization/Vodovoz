@@ -113,7 +113,7 @@ namespace TaxcomEdoApi
 			services.AddSingleton<IOrganizationParametersProvider, OrganizationParametersProvider>();
 			services.AddSingleton<IContactStateConverter, ContactStateConverter>();
 
-			services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+			services.AddSingleton(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
 			services.ConfigureHealthCheckService<TaxcomEdoApiHealthCheck>(true);
 		}

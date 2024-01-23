@@ -7,6 +7,7 @@ using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Profitability;
+using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
 using Vodovoz.Models;
@@ -34,6 +35,10 @@ namespace Vodovoz
 			.AddScoped<INomenclatureRepository, NomenclatureRepository>()
 			.AddScoped<IFastPaymentSender, FastPaymentSender>()
 			.AddScoped<IOrganizationProvider, Stage2OrganizationProvider>()
-			.AddScoped<ISmsClientChannelFactory, SmsClientChannelFactory>();
+			.AddScoped<ISmsClientChannelFactory, SmsClientChannelFactory>()
+			.AddScoped<IDriverWarehouseEventQrDataHandler, DriverWarehouseEventQrDataHandler>()
+			.AddScoped<ICompletedDriverWarehouseEventRepository, CompletedDriverWarehouseEventRepository>()
+			.AddScoped<ICachedDistanceRepository, CachedDistanceRepository>()
+			.AddScoped<IGeographicGroupRepository, GeographicGroupRepository>();
 	}
 }

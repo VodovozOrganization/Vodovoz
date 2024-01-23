@@ -756,7 +756,7 @@ namespace Vodovoz.Domain.Logistic
 
 		#region Функции
 
-		public virtual CarVersion GetCarVersion => Car.GetActiveCarVersionOnDate(Date);
+		public virtual CarVersion GetCarVersion => Car?.GetActiveCarVersionOnDate(Date);
 
 		public virtual IDictionary<int, decimal> GetCashChangesForOrders()
 		{
@@ -867,7 +867,7 @@ namespace Vodovoz.Domain.Logistic
 
 			msg = string.Empty;
 			if(address.WasTransfered) {
-				var from = routeListItemRepository.GetTransferedFrom(UoW, address)?.RouteList?.Id;
+				var from = routeListItemRepository.GetTransferredFrom(UoW, address)?.RouteList?.Id;
 				msg = string.Format(
 					"Адрес \"{0}\" не может быть удалён, т.к. был перенесён из МЛ №{1}. Воспользуйтесь функционалом из вкладки \"Перенос адресов маршрутных листов\" для возврата этого адреса в исходный МЛ.",
 					address.Order.DeliveryPoint?.ShortAddress,
@@ -1824,10 +1824,12 @@ namespace Vodovoz.Domain.Logistic
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			bool cashOrderClose = false;
+
 			if(validationContext.Items.ContainsKey("cash_order_close"))
 			{
 				cashOrderClose = (bool)validationContext.Items["cash_order_close"];
 			}
+
 			if(validationContext.Items.ContainsKey("NewStatus")) {
 				RouteListStatus newStatus = (RouteListStatus)validationContext.Items["NewStatus"];
 				switch(newStatus) {
@@ -1838,8 +1840,17 @@ namespace Vodovoz.Domain.Logistic
 					case RouteListStatus.MileageCheck:
 						var orderParametersProvider = validationContext.GetService<IOrderParametersProvider>();
 						var deliveryRulesParametersProvider = validationContext.GetService<IDeliveryRulesParametersProvider>();
+
+						validationContext.Items.TryGetValue(ValidationKeyIgnoreReceiptsForOrders, out var ignoreReceiptsInOrdersParameter);
+
+						if(!(ignoreReceiptsInOrdersParameter is List<int> ignoreReceiptsInOrders))
+						{
+							ignoreReceiptsInOrders = new List<int>();
+						}
+
 						foreach(var address in Addresses) {
 							var orderValidator = new ObjectValidator();
+
 							var orderValidationContext = new ValidationContext(
 								address.Order,
 								null,
@@ -1847,7 +1858,8 @@ namespace Vodovoz.Domain.Logistic
 								{
 									{ "NewStatus", OrderStatus.Closed },
 									{ "cash_order_close", cashOrderClose },
-									{ "AddressStatus", address.Status }
+									{ "AddressStatus", address.Status },
+									{ Order.ValidationKeyIgnoreReceipts, ignoreReceiptsInOrders.Contains(address.Order.Id) }
 								}
 							);
 							orderValidationContext.ServiceContainer.AddService(orderParametersProvider);
@@ -1936,6 +1948,8 @@ namespace Vodovoz.Domain.Logistic
 					new[] { nameof(GeographicGroups) });
 			}
 		}
+
+		public static string ValidationKeyIgnoreReceiptsForOrders => nameof(ValidationKeyIgnoreReceiptsForOrders);
 
 		#endregion
 
@@ -3288,7 +3302,9 @@ namespace Vodovoz.Domain.Logistic
 
 		#endregion Зарплата
 
-		public static RouteListStatus[] AvailableToSendEnRouteStatuses => new RouteListStatus[] { RouteListStatus.Confirmed, RouteListStatus.InLoading };
+		public static RouteListStatus[] AvailableToSendEnRouteStatuses { get; } = { RouteListStatus.Confirmed, RouteListStatus.InLoading };
+
+		public static RouteListStatus[] NotLoadedRouteListStatuses { get; } = { RouteListStatus.New, RouteListStatus.Confirmed, RouteListStatus.InLoading };
 	}
 
 	public enum RouteListStatus

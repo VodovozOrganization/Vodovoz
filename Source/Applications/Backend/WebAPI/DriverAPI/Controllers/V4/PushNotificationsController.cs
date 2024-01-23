@@ -150,5 +150,27 @@ namespace DriverAPI.Controllers.V4
 				await _iFCMAPIHelper.SendPushNotification(token, "Уведомление о добавлении заказа за час", $"Добавлен заказ {orderId} с доставкой за час");
 			}
 		}
+
+		/// <summary>
+		/// Уведомления об изменении времени ожидания
+		/// </summary>
+		/// <param name="orderId">Номер заказа</param>
+		[HttpPost]
+		[AllowAnonymous]
+		[Route("NotifyOfWaitingTimeChanged")]
+		[ApiExplorerSettings(IgnoreApi = true)]
+		public async Task NotifyOfWaitingTimeChanged([FromBody] int orderId)
+		{
+			var token = _aPIRouteListData.GetActualDriverPushNotificationsTokenByOrderId(orderId);
+			if(string.IsNullOrWhiteSpace(token))
+			{
+				_logger.LogInformation("Отправка PUSH-сообщения прервана, водитель заказа {OrderId} не подписан на PUSH-сообщения.", orderId);
+			}
+			else
+			{
+				_logger.LogInformation("Отправка PUSH-сообщения об изменении времени ожидания заказа ({OrderId})", orderId);
+				await _iFCMAPIHelper.SendPushNotification(token, "Уведомление об изменении времени ожидания заказа", $"Время ожидания заказа {orderId} изменено");
+			}
+		}
 	}
 }

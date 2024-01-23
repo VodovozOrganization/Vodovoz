@@ -1,5 +1,4 @@
-﻿using System;
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModels.Dialogs.Fuel;

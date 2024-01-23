@@ -208,9 +208,9 @@ namespace Vodovoz.Views.Logistic
 		{
 			var text = ViewModel.Entity.EventName;
 			const float leftTextPadding = 10f;
-			const int heightAreaForText = 50;
+			const int heightAreaForText = 100;
 			var textArea = new RectangleF(leftTextPadding, qrImage.Height, qrImage.Width, heightAreaForText);
-			const string imageFilePath = @"EventQr.jpg";
+			var imageFilePath = System.IO.Path.GetTempFileName();
 			
 			using(qrImage)
 			{

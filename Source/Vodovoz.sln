@@ -281,8 +281,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DateTime", "DateTime", "{DB
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DateTimeHelpers", "Libraries\External\DateTime\DateTimeHelpers\DateTimeHelpers.csproj", "{DEE1EE33-C105-4F5A-A50B-70CF5E3C8348}"
 EndProject
-Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "sms-docker-compose", "Applications\Backend\WebAPI\Sms.Internal.Service.Compose\sms-docker-compose.dcproj", "{4D775080-9D03-48BF-B3AC-34953CE4EE5D}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sms.Internal.Client.Framework", "Libraries\Core\Backend\Sms\Sms.Internal.Client.Famework\Sms.Internal.Client.Framework.csproj", "{E6465994-0F46-4C9F-8CE4-BCB98F916B17}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrueMarkCodePoolCheckWorker", "Applications\Backend\Workers\IIS\TrueMarkCodePoolCheckWorker\TrueMarkCodePoolCheckWorker.csproj", "{0BCABE83-1F02-441B-BA2D-FFBF2D884FB2}"
@@ -358,16 +356,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventsApi.Library", "Libraries\Core\Backend\EventsApi.Library\EventsApi.Library.csproj", "{0FA93733-0BE7-4282-89DD-E19A7DA5F3EC}"
 EndProject
 Global
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems*{18104221-2774-43d3-b6c1-986af5ea15d5}*SharedItemsImports = 5
-		Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems*{2c663185-31b7-4254-a74c-2a468681f1ee}*SharedItemsImports = 5
-		Libraries\Core\Backend\Mango\Mango.Grpc\Mango.Grpc.projitems*{43ae78d9-23bd-4f1e-acee-b492d111da9f}*SharedItemsImports = 5
-		Libraries\Core\Backend\Mango\Mango.Grpc\Mango.Grpc.projitems*{50993438-f358-4dcd-8e0a-ce1446c76487}*SharedItemsImports = 4
-		Libraries\Core\Backend\CashReceipt\CashReceipt.Grpc\CashReceipt.Grpc.projitems*{99ff1ce2-f4dc-438f-9c3b-aec9dd11f9e2}*SharedItemsImports = 13
-		Libraries\Core\Backend\Sms\Sms.Internal.Grpc\Sms.Internal.Grpc.projitems*{bd7720d3-8b1a-4568-950e-9b45fffad776}*SharedItemsImports = 13
-		Libraries\Core\Backend\Mango\Mango.Grpc\Mango.Grpc.projitems*{bfb977b8-6c0b-4736-b7db-dd6b272f980a}*SharedItemsImports = 13
-		Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems*{eb83f1ee-34b2-488d-bba5-6e2af4d3b3fc}*SharedItemsImports = 13
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|x86 = Debug|x86
@@ -3211,24 +3199,6 @@ Global
 		{DEE1EE33-C105-4F5A-A50B-70CF5E3C8348}.WinDesktop|Any CPU.Build.0 = Debug|Any CPU
 		{DEE1EE33-C105-4F5A-A50B-70CF5E3C8348}.WinDesktop|x86.ActiveCfg = Debug|Any CPU
 		{DEE1EE33-C105-4F5A-A50B-70CF5E3C8348}.WinDesktop|x86.Build.0 = Debug|Any CPU
-		{4D775080-9D03-48BF-B3AC-34953CE4EE5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4D775080-9D03-48BF-B3AC-34953CE4EE5D}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{4D775080-9D03-48BF-B3AC-34953CE4EE5D}.DebugWin|Any CPU.ActiveCfg = Debug|Any CPU
-		{4D775080-9D03-48BF-B3AC-34953CE4EE5D}.DebugWin|x86.ActiveCfg = Debug|Any CPU
-		{4D775080-9D03-48BF-B3AC-34953CE4EE5D}.Docker|Any CPU.ActiveCfg = Debug|Any CPU
-		{4D775080-9D03-48BF-B3AC-34953CE4EE5D}.Docker|x86.ActiveCfg = Debug|Any CPU
-		{4D775080-9D03-48BF-B3AC-34953CE4EE5D}.LinuxDesktop|Any CPU.ActiveCfg = Release|Any CPU
-		{4D775080-9D03-48BF-B3AC-34953CE4EE5D}.LinuxDesktop|x86.ActiveCfg = Release|Any CPU
-		{4D775080-9D03-48BF-B3AC-34953CE4EE5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4D775080-9D03-48BF-B3AC-34953CE4EE5D}.Release|x86.ActiveCfg = Release|Any CPU
-		{4D775080-9D03-48BF-B3AC-34953CE4EE5D}.ReleaseWin|Any CPU.ActiveCfg = Release|Any CPU
-		{4D775080-9D03-48BF-B3AC-34953CE4EE5D}.ReleaseWin|x86.ActiveCfg = Release|Any CPU
-		{4D775080-9D03-48BF-B3AC-34953CE4EE5D}.WCF|Any CPU.ActiveCfg = Release|Any CPU
-		{4D775080-9D03-48BF-B3AC-34953CE4EE5D}.WCF|x86.ActiveCfg = Release|Any CPU
-		{4D775080-9D03-48BF-B3AC-34953CE4EE5D}.Web|Any CPU.ActiveCfg = Release|Any CPU
-		{4D775080-9D03-48BF-B3AC-34953CE4EE5D}.Web|x86.ActiveCfg = Release|Any CPU
-		{4D775080-9D03-48BF-B3AC-34953CE4EE5D}.WinDesktop|Any CPU.ActiveCfg = Release|Any CPU
-		{4D775080-9D03-48BF-B3AC-34953CE4EE5D}.WinDesktop|x86.ActiveCfg = Release|Any CPU
 		{E6465994-0F46-4C9F-8CE4-BCB98F916B17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E6465994-0F46-4C9F-8CE4-BCB98F916B17}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E6465994-0F46-4C9F-8CE4-BCB98F916B17}.Debug|x86.ActiveCfg = Debug|Any CPU
@@ -4550,7 +4520,6 @@ Global
 		{D8D2EC1E-5F3B-4699-87E7-C85274A2BE66} = {755F5318-7A67-4B7C-AB0D-E08E6DDEBD92}
 		{DB593C89-7C65-446A-BC67-E7C063B6C378} = {DDE3AB35-AFFE-4B12-AA51-E137B49B6699}
 		{DEE1EE33-C105-4F5A-A50B-70CF5E3C8348} = {DB593C89-7C65-446A-BC67-E7C063B6C378}
-		{4D775080-9D03-48BF-B3AC-34953CE4EE5D} = {9A64FD38-1065-4C74-A62A-666EA82BECF9}
 		{E6465994-0F46-4C9F-8CE4-BCB98F916B17} = {B9A88135-73D4-42CF-98BF-1ACB3CBABE30}
 		{0BCABE83-1F02-441B-BA2D-FFBF2D884FB2} = {AA384BE0-D7B1-4A95-BFB4-6B4B5ACD452E}
 		{AFA4490E-F4DA-461D-9B55-F565F61C1DEA} = {755F5318-7A67-4B7C-AB0D-E08E6DDEBD92}
@@ -4591,6 +4560,16 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5C28294A-BE19-449D-A626-5F2CC748368D}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems*{18104221-2774-43d3-b6c1-986af5ea15d5}*SharedItemsImports = 5
+		Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems*{2c663185-31b7-4254-a74c-2a468681f1ee}*SharedItemsImports = 5
+		Libraries\Core\Backend\Mango\Mango.Grpc\Mango.Grpc.projitems*{43ae78d9-23bd-4f1e-acee-b492d111da9f}*SharedItemsImports = 5
+		Libraries\Core\Backend\Mango\Mango.Grpc\Mango.Grpc.projitems*{50993438-f358-4dcd-8e0a-ce1446c76487}*SharedItemsImports = 4
+		Libraries\Core\Backend\CashReceipt\CashReceipt.Grpc\CashReceipt.Grpc.projitems*{99ff1ce2-f4dc-438f-9c3b-aec9dd11f9e2}*SharedItemsImports = 13
+		Libraries\Core\Backend\Sms\Sms.Internal.Grpc\Sms.Internal.Grpc.projitems*{bd7720d3-8b1a-4568-950e-9b45fffad776}*SharedItemsImports = 13
+		Libraries\Core\Backend\Mango\Mango.Grpc\Mango.Grpc.projitems*{bfb977b8-6c0b-4736-b7db-dd6b272f980a}*SharedItemsImports = 13
+		Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems*{eb83f1ee-34b2-488d-bba5-6e2af4d3b3fc}*SharedItemsImports = 13
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		Policies = $0
