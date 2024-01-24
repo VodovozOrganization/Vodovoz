@@ -16,7 +16,7 @@ using Vodovoz.Core.Domain.Logistics.Drivers;
 
 namespace EventsApi.Library.Models
 {
-	public abstract class LogisticsEventsModel : ILogisticsEventsModel
+	public abstract class LogisticsEventsService : ILogisticsEventsService
 	{
 		private readonly ILogger _logger;
 		private readonly IUnitOfWork _unitOfWork;
@@ -26,7 +26,7 @@ namespace EventsApi.Library.Models
 		private readonly IEmployeeWithLoginRepository _employeeWithLoginRepository;
 		private readonly EmployeeType _employeeType;
 		
-		protected LogisticsEventsModel(
+		protected LogisticsEventsService(
 			ILogger logger,
 			IUnitOfWork unitOfWork,
 			ICompletedDriverWarehouseEventProxyRepository completedDriverWarehouseEventProxyRepository,

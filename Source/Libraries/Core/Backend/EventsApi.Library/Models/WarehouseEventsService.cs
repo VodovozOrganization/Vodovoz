@@ -6,10 +6,10 @@ using Vodovoz.Core.Domain.Interfaces.Logistics;
 
 namespace EventsApi.Library.Models
 {
-	public class WarehouseEventsModel : LogisticsEventsModel
+	public class WarehouseEventsService : LogisticsEventsService
 	{
-		public WarehouseEventsModel(
-			ILogger<WarehouseEventsModel> logger,
+		public WarehouseEventsService(
+			ILogger<WarehouseEventsService> logger,
 			IUnitOfWork unitOfWork,
 			ICompletedDriverWarehouseEventProxyRepository completedDriverWarehouseEventProxyRepository,
 			IEmployeeWithLoginRepository employeeWithLoginRepository,

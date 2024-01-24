@@ -6,7 +6,7 @@ using Vodovoz.Core.Domain.Employees;
 
 namespace EventsApi.Library.Models
 {
-	public interface ILogisticsEventsModel
+	public interface ILogisticsEventsService
 	{
 		/// <summary>
 		/// Конвертация и проверка данных из Qr кода на корректность

@@ -19,16 +19,16 @@ namespace LogisticsEventsApi.Controllers
 			nameof(ApplicationUserRole.WarehousePicker) + "," + nameof(ApplicationUserRole.WarehouseDriver);
 		private readonly ILogger<WarehouseEventsController> _logger;
 		private readonly UserManager<IdentityUser> _userManager;
-		private readonly ILogisticsEventsModel _warehouseEventsModel;
+		private readonly ILogisticsEventsService _warehouseEventsService;
 
 		public WarehouseEventsController(
 			ILogger<WarehouseEventsController> logger,
 			UserManager<IdentityUser> userManager,
-			ILogisticsEventsModel warehouseEventsModel)
+			ILogisticsEventsService warehouseEventsService)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-			_warehouseEventsModel = warehouseEventsModel ?? throw new ArgumentNullException(nameof(warehouseEventsModel));
+			_warehouseEventsService = warehouseEventsService ?? throw new ArgumentNullException(nameof(warehouseEventsService));
 		}
 		
 		/// <summary>
@@ -45,7 +45,7 @@ namespace LogisticsEventsApi.Controllers
 			
 			try
 			{
-				qrData = _warehouseEventsModel.ConvertAndValidateQrData(eventData.QrData);
+				qrData = _warehouseEventsService.ConvertAndValidateQrData(eventData.QrData);
 			}
 			catch(Exception e)
 			{
@@ -62,11 +62,11 @@ namespace LogisticsEventsApi.Controllers
 				userName);
 
 			var user = await _userManager.GetUserAsync(User);
-			var employee = _warehouseEventsModel.GetEmployeeProxyByApiLogin(user.UserName);
+			var employee = _warehouseEventsService.GetEmployeeProxyByApiLogin(user.UserName);
 
 			try
 			{
-				var completedEvent = _warehouseEventsModel.CompleteDriverWarehouseEvent(qrData, eventData, employee);
+				var completedEvent = _warehouseEventsService.CompleteDriverWarehouseEvent(qrData, eventData, employee);
 				
 				return Ok(
 					new CompletedDriverWarehouseEventDto
@@ -99,11 +99,11 @@ namespace LogisticsEventsApi.Controllers
 				userName);
 
 			var user = await _userManager.GetUserAsync(User);
-			var employee = _warehouseEventsModel.GetEmployeeProxyByApiLogin(user.UserName);
+			var employee = _warehouseEventsService.GetEmployeeProxyByApiLogin(user.UserName);
 			
 			try
 			{
-				return Ok(_warehouseEventsModel.GetTodayCompletedEvents(employee));
+				return Ok(_warehouseEventsService.GetTodayCompletedEvents(employee));
 			}
 			catch(Exception e)
 			{

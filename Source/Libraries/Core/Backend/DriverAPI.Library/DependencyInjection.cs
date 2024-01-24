@@ -50,7 +50,7 @@ namespace DriverAPI.Library
 			services.AddScoped<ISmsPaymentModel, SmsPaymentModel>();
 			services.AddScoped<IDriverComplaintModel, DriverComplaintModel>();
 			services.AddScoped<IFastPaymentModel, FastPaymentModel>();
-			services.AddScoped<ILogisticsEventsModel, DriverWarehouseEventsModel>();
+			services.AddScoped<ILogisticsEventsService, DriverWarehouseEventsService>();
 
 			services.AddScoped<IGlobalSettings, GlobalSettings>();
 

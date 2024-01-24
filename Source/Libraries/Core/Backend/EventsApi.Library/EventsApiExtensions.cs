@@ -1,6 +1,7 @@
 ﻿using EventsApi.Library.Models;
 using EventsApi.Library.Services;
 using Microsoft.Extensions.DependencyInjection;
+using QS.DomainModel.UoW;
 using Vodovoz.Core.Data.Interfaces.Employees;
 using Vodovoz.Core.Data.Interfaces.Logistics.Cars;
 using Vodovoz.Core.Data.NHibernate.Repositories.Employees;
@@ -22,9 +23,8 @@ namespace EventsApi.Library
 		/// <returns></returns>
 		public static IServiceCollection AddDriverEventsDependencies(this IServiceCollection services)
 		{
-			services.AddLogisticsEventsDependencies();
-
-			services.AddScoped<ILogisticsEventsModel, DriverWarehouseEventsModel>();
+			services.AddLogisticsEventsDependencies()
+				.AddScoped<ILogisticsEventsService, DriverWarehouseEventsService>();
 			
 			return services;
 		}
@@ -36,9 +36,10 @@ namespace EventsApi.Library
 		/// <returns></returns>
 		public static IServiceCollection AddWarehouseEventsDependencies(this IServiceCollection services)
 		{
-			services.AddLogisticsEventsDependencies();
-
-			services.AddScoped<ILogisticsEventsModel, WarehouseEventsModel>();
+			services.AddScoped((sp) => UnitOfWorkFactory.GetDefaultFactory)
+				.AddScoped((sp) => UnitOfWorkFactory.CreateWithoutRoot("Приложение для сканирования событий(склад)"))
+				.AddLogisticsEventsDependencies()
+				.AddScoped<ILogisticsEventsService, WarehouseEventsService>();
 
 			return services;
 		}

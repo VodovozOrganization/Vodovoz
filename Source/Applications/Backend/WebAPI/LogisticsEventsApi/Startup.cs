@@ -62,7 +62,7 @@ namespace LogisticsEventsApi
 					logging.AddConfiguration(Configuration.GetSection(_nLogSectionName));
 				});
 
-			RegisterDependencies(services);
+			services.AddWarehouseEventsDependencies();
 
 			//закомментил пока нет зарегистрированных пользователей
 			//services.ConfigureHealthCheckService<LogisticsEventsApiHealthCheck>();
@@ -114,14 +114,6 @@ namespace LogisticsEventsApi
 			app.UseAuthorization();
 
 			app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
-		}
-		
-		private void RegisterDependencies(IServiceCollection services)
-		{
-			services.AddScoped((sp) => UnitOfWorkFactory.GetDefaultFactory);
-			services.AddScoped((sp) => UnitOfWorkFactory.CreateWithoutRoot("Приложение для сканирования событий(склад)"));
-			
-			services.AddWarehouseEventsDependencies();
 		}
 		
 		private string CreateBaseConfig()
