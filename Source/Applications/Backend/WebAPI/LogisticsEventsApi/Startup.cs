@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Text;
 using EventsApi.Library;
 using LogisticsEventsApi.Data;
+using LogisticsEventsApi.HealthChecks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -63,7 +64,8 @@ namespace LogisticsEventsApi
 
 			RegisterDependencies(services);
 
-			//services.ConfigureHealthCheckService<CustomerAppsApiHealthCheck>();
+			//закомментил пока нет зарегистрированных пользователей
+			//services.ConfigureHealthCheckService<LogisticsEventsApiHealthCheck>();
 			services.AddHttpClient();
 			
 			var connectionString = CreateBaseConfig();
@@ -99,7 +101,6 @@ namespace LogisticsEventsApi
 			if(env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
-				
 			}
 
 			app.UseSwagger();
