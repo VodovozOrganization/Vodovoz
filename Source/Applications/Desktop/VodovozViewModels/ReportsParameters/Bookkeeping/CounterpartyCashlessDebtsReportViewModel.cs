@@ -85,18 +85,12 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 
 		private void GenerateCompanyDebtBalanceReport()
 		{
-			if(StartDate.HasValue)
-			{
-				_parameters.Add("start_date", StartDate.Value.ToString("yyyy-MM-ddTHH:mm:ss"));
-			}
-
-			if(EndDate.HasValue)
-			{
-				_parameters.Add("end_date", EndDate.Value.LatestDayTime().ToString("yyyy-MM-ddTHH:mm:ss"));
-			}
-
 			_parameters = FilterViewModel.GetReportParametersSet();
+
+			_parameters.Add("start_date", StartDate.HasValue ? StartDate.Value.ToString("yyyy-MM-ddTHH:mm:ss") : string.Empty);
+			_parameters.Add("end_date", EndDate.HasValue ? EndDate.Value.LatestDayTime().ToString("yyyy-MM-ddTHH:mm:ss") : string.Empty);
 			_parameters.Add( "creation_date", DateTime.Now);
+			_parameters.Add("closing_document_delivery_schedule_id", 462);
 
 			Identifier = "Bookkeeping.CounterpartyDebtBalance";
 
