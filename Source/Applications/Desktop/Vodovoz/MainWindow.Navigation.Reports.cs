@@ -31,6 +31,7 @@ using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.Reports.Sales;
 using Vodovoz.ViewModels.ReportsParameters;
 using Vodovoz.ViewModels.ReportsParameters.Cash;
+using Vodovoz.ViewModels.ReportsParameters.Logistic;
 using Vodovoz.ViewModels.ReportsParameters.Payments;
 using Vodovoz.ViewModels.ReportsParameters.Production;
 using Vodovoz.ViewModels.ReportsParameters.Profitability;
@@ -951,9 +952,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionDeliveryTimeReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(QSReport.ReportViewDlg.GenerateHashName<DeliveryTimeReport>(),
-			() => new QSReport.ReportViewDlg(
-				new DeliveryTimeReport(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.InteractiveService)));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(DeliveryTimeReportViewModel));
 	}
 
 	/// <summary>

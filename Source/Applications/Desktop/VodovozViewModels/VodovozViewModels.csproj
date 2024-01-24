@@ -217,6 +217,10 @@
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.NumberOfComplaintsAgainstDriversReport.cs" />
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.NumberOfComplaintsAgainstDriversReport.Row.cs" />
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.ReportSortOrder.cs" />
+    <Compile Include="ReportsParameters\Logistic\DeliveryTimeReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Logistic\DeliveryTimeReportViewModel.ReportType.cs" />
+    <Compile Include="ReportsParameters\Logistic\DeliveryTimeReportViewModel.RouteListTypeOfUse.cs" />
+    <Compile Include="ReportsParameters\Logistic\DeliveryTimeReportViewModel.SelectableParameter.cs" />
     <Compile Include="ReportsParameters\Orders\UndeliveredOrdersClassificationReportViewModel.cs" />
     <Compile Include="ReportsParameters\Payments\PaymentsFromBankClientReportViewModel.cs" />
     <Compile Include="ReportsParameters\Production\ProducedProductionReportViewModel.cs" />

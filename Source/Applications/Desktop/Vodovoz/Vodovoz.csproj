@@ -617,7 +617,6 @@
     <Compile Include="gtk-gui\Vodovoz.ProxyDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentFilter.cs" />
-    <Compile Include="ReportsParameters\Logistic\DeliveryTimeReport.RouteListTypeOfUse.cs" />
     <Compile Include="ReportsParameters\Sales\ProfitabilitySalesReportView.cs" />
     <Compile Include="Representations\ProductGroups\INameNode.cs" />
     <Compile Include="Representations\ProductGroups\NomenclatureGroupNode.cs" />
@@ -923,8 +922,8 @@
     <Compile Include="gtk-gui\Vodovoz.Reports.Logistic.DeliveriesLateReport.cs" />
     <Compile Include="ReportsParameters\Logistic\RoutesListRegisterReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.Logistic.RoutesListRegisterReport.cs" />
-    <Compile Include="ReportsParameters\Logistic\DeliveryTimeReport.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.DeliveryTimeReport.cs" />
+    <Compile Include="ReportsParameters\Logistic\DeliveryTimeReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.DeliveryTimeReportView.cs" />
     <Compile Include="ReportsParameters\Logistic\FuelReport.cs" />
     <Compile Include="ReportsParameters\OnecCommentsReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.OnecCommentsReport.cs" />
