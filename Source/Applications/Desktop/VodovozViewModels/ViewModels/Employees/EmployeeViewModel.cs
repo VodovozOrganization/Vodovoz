@@ -1148,12 +1148,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				return false;
 			}
 			
-			//Проверяем, чтобы в БД не попала пустая строка
-			/*if(string.IsNullOrWhiteSpace(Entity.AndroidLogin))
-			{
-				Entity.AndroidLogin = null;
-			}*/
-
 			var driverAppUser = Entity.DriverAppUser;
 			
 			if(CanRegisterDriverAppUser
