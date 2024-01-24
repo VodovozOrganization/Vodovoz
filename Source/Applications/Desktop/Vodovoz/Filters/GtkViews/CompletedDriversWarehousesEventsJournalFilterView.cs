@@ -21,7 +21,6 @@ namespace Vodovoz.Filters.GtkViews
 		private void Configure()
 		{
 			eventEntry.ViewModel = ViewModel.DriverWarehouseEventViewModel;
-			driverEntry.ViewModel = ViewModel.DriverViewModel;
 			carEntry.ViewModel = ViewModel.CarViewModel;
 
 			entryCompletedEventId.KeyReleaseEvent += UpdateFilter;
