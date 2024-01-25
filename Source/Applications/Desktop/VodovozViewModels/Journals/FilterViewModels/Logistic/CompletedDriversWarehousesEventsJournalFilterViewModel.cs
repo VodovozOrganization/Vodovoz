@@ -1,16 +1,16 @@
 ﻿using System;
 using Autofac;
-using DateTimeHelpers;
 using QS.Navigation;
 using QS.Project.Filter;
 using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Dialog;
+using QS.ViewModels.Widgets;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Logistic.Drivers;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
-using Vodovoz.ViewModels.ViewModels.Employees;
+using Vodovoz.ViewModels.ReportsParameters.Profitability;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
@@ -18,6 +18,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 	public class CompletedDriversWarehousesEventsJournalFilterViewModel :
 		FilterViewModelBase<CompletedDriversWarehousesEventsJournalFilterViewModel>
 	{
+		private readonly ILeftRightListViewModelFactory _leftRightListViewModelFactory;
 		private readonly DialogViewModelBase _journalViewModel;
 		private readonly INavigationManager _navigationManager;
 		private readonly ILifetimeScope _scope;
@@ -32,15 +33,19 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 
 		public CompletedDriversWarehousesEventsJournalFilterViewModel(
 			DialogViewModelBase journalViewModel,
+			ILeftRightListViewModelFactory leftRightListViewModelFactory,
 			INavigationManager navigationManager,
 			ILifetimeScope scope,
 			Action<CompletedDriversWarehousesEventsJournalFilterViewModel> filterParameters = null)
 		{
 			_journalViewModel = journalViewModel ?? throw new ArgumentNullException(nameof(journalViewModel));
+			_leftRightListViewModelFactory =
+				leftRightListViewModelFactory ?? throw new ArgumentNullException(nameof(leftRightListViewModelFactory));
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 
 			ConfigureEntryViewModels();
+			SetupSorting();
 			
 			if(filterParameters != null)
 			{
@@ -49,8 +54,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		}
 
 		public IEntityEntryViewModel DriverWarehouseEventViewModel { get; private set; }
-		public IEntityEntryViewModel DriverViewModel { get; private set; }
 		public IEntityEntryViewModel CarViewModel { get; private set; }
+		public LeftRightListViewModel<GroupingNode> SortViewModel { get; private set; }
 
 		public int? CompletedEventId
 		{
@@ -111,17 +116,16 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 					.UseViewModelDialog<DriverWarehouseEventViewModel>()
 					.Finish();
 			
-			DriverViewModel =
-				builder.ForProperty(x => x.Employee)
-					.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel>()
-					.UseViewModelDialog<EmployeeViewModel>()
-					.Finish();
-			
 			CarViewModel =
 				builder.ForProperty(x => x.Car)
 					.UseViewModelJournalAndAutocompleter<CarJournalViewModel>()
 					.UseViewModelDialog<CarViewModel>()
 					.Finish();
+		}
+		
+		private void SetupSorting()
+		{
+			SortViewModel = _leftRightListViewModelFactory.CreateCompletedDriverEventsSortingConstructor();
 		}
 	}
 }
