@@ -1,4 +1,5 @@
-﻿using Gamma.Utilities;
+﻿using DateTimeHelpers;
+using Gamma.Utilities;
 using NHibernate.Linq;
 using QS.Commands;
 using QS.DomainModel.UoW;
@@ -7,12 +8,12 @@ using QS.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Services;
-using DateTimeHelpers;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 {
@@ -22,33 +23,39 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 		private const string _excludeString = "_exclude";
 
 		private readonly ICommonServices _commonServices;
-		private readonly IDeliveryScheduleParametersProvider _deliveryScheduleParametersProvider;
 		private readonly IGenericRepository<CounterpartySubtype> _counterpartySubtypeRepository;
 		private readonly IGenericRepository<Counterparty> _counterpartyRepository;
 		private readonly IUnitOfWork _unitOfWork;
+		private readonly int _closingDocumentDeliveryScheduleId;
 
-		private Dictionary<string, object> _parameters = new Dictionary<string, object>();
 		private DateTime? _startDate;
 		private DateTime? _endDate;
 		private bool _isOrderByDate;
 
 		public CounterpartyCashlessDebtsReportViewModel(
 			ICommonServices commonServices,
-			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider,
 			IGenericRepository<CounterpartySubtype> counterpartySubtypeRepository,
 			IGenericRepository<Counterparty> counterpartyRepository,
+			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider,
 			RdlViewerViewModel rdlViewerViewModel) : base(rdlViewerViewModel)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			_deliveryScheduleParametersProvider = deliveryScheduleParametersProvider ?? throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider));
 			_counterpartySubtypeRepository = counterpartySubtypeRepository ?? throw new ArgumentNullException(nameof(counterpartySubtypeRepository));
 			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
-			
+
+			if(deliveryScheduleParametersProvider is null)
+			{
+				throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider));
+			}
+
 			Title = "Долги по безналу";
 
 			_unitOfWork = UnitOfWorkFactory.CreateWithoutRoot(Title);
 
+			_closingDocumentDeliveryScheduleId = deliveryScheduleParametersProvider.ClosingDocumentDeliveryScheduleId;
+
 			FilterViewModel = CreateCounterpartyCashlessDebtsReportIncludeExcludeFilter(_unitOfWork);
+			FilterViewModel.SelectionChanged += OnFilterViewModelSelectionChanged;
 
 			ShowInfoMessageCommand = new DelegateCommand(ShowInfoMessage);
 			GenerateCompanyDebtBalanceReportCommand = new DelegateCommand(GenerateCompanyDebtBalanceReport);
@@ -56,13 +63,33 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 			GenerateCounterpartyDebtDetailsReportCommand = new DelegateCommand(GenerateCounterpartyDebtDetailsReport);
 		}
 
+		private void OnFilterViewModelSelectionChanged(object sender, EventArgs e)
+		{
+			throw new NotImplementedException();
+		}
+
 		#region Properties
 		public DelegateCommand ShowInfoMessageCommand { get; }
 		public DelegateCommand GenerateCompanyDebtBalanceReportCommand { get; }
 		public DelegateCommand GenerateNotPaidOrdersReportCommand { get; }
 		public DelegateCommand GenerateCounterpartyDebtDetailsReportCommand { get; }
-		protected override Dictionary<string, object> Parameters => _parameters;
 		public IncludeExludeFiltersViewModel FilterViewModel { get; }
+
+		protected override Dictionary<string, object> Parameters
+		{
+			get
+			{
+				var parameters = FilterViewModel.GetReportParametersSet();
+
+				parameters.Add("start_date", StartDate.HasValue ? StartDate.Value.ToString("yyyy-MM-ddTHH:mm:ss") : string.Empty);
+				parameters.Add("end_date", EndDate.HasValue ? EndDate.Value.LatestDayTime().ToString("yyyy-MM-ddTHH:mm:ss") : string.Empty);
+				parameters.Add("closing_document_delivery_schedule_id", _closingDocumentDeliveryScheduleId);
+				parameters.Add("filters_text", GetFiltersText(parameters));
+				parameters.Add("order_by_date", IsOrderByDate);
+
+				return parameters;
+			}
+		}
 
 		public DateTime? StartDate
 		{
@@ -85,96 +112,142 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 
 		private void GenerateCompanyDebtBalanceReport()
 		{
-			_parameters = FilterViewModel.GetReportParametersSet();
-
-			_parameters.Add("start_date", StartDate.HasValue ? StartDate.Value.ToString("yyyy-MM-ddTHH:mm:ss") : string.Empty);
-			_parameters.Add("end_date", EndDate.HasValue ? EndDate.Value.LatestDayTime().ToString("yyyy-MM-ddTHH:mm:ss") : string.Empty);
-			_parameters.Add( "creation_date", DateTime.Now);
-			_parameters.Add("closing_document_delivery_schedule_id", 462);
-
 			Identifier = "Bookkeeping.CounterpartyDebtBalance";
 
 			LoadReport();
 		}
+
 		private void GenerateNotPaidOrdersReport()
 		{
+			Identifier = "Bookkeeping.NotPaidOrders";
 
+			LoadReport();
 		}
 
 		private void GenerateCounterpartyDebtDetailsReport()
 		{
+			Identifier = IsOrderByDate
+				? "Bookkeeping.CounterpartyDebtDetails"
+				: "Bookkeeping.CounterpartyDebtDetailsWithoutOrderByDate";
 
+			LoadReport();
 		}
 
-		private bool IsReportFiltersSettingsValid()
+		private string GetFiltersText(Dictionary<string, object> parameters)
 		{
-			return false;
-		}
+			if(parameters.Count == 0)
+			{
+				return string.Empty;
+			}
 
+			var filtersText = new StringBuilder();
 
-		private object GetFiltersText(string buttonName)
-		{
-			var resultString = "Выбранные фильтры:\n";
+			filtersText.AppendLine("Выбранные фильтры:");
+			filtersText.Append("Период даты доставки: ");
 
 			if(StartDate == null && EndDate == null)
 			{
-				resultString += "";
+				filtersText.AppendLine("не выбран");
 			}
 			else if(StartDate != null && EndDate == null)
 			{
-				resultString += $"Период даты доставки: Начиная с {StartDate.Value:d}\n";
+				filtersText.AppendLine($"Начиная с {StartDate.Value:d}");
 			}
 			else if(StartDate == null)
 			{
-				resultString += $"Период даты доставки: До {EndDate.Value:d}\n";
+				filtersText.AppendLine($"До {EndDate.Value:d}");
 			}
 			else if(StartDate == EndDate)
 			{
-				resultString += $"Период даты доставки: На {StartDate.Value:d}\n";
+				filtersText.AppendLine($"На {StartDate.Value:d}");
 			}
 			else
 			{
-				resultString += $"Период даты доставки: С {StartDate.Value:d} по {EndDate.Value:d}\n";
+				filtersText.AppendLine($"С {StartDate.Value:d} по {EndDate.Value:d}");
 			}
 
-			//resultString += entryCounterparty.Subject == null
-			//	? ""
-			//	: $"Контрагент: {((Counterparty)entryCounterparty.Subject).Name}\n";
+			foreach (var parameter in parameters)
+			{
+				switch(parameter.Key)
+				{
+					case "is_closing_documents":
+						filtersText.AppendLine((bool)parameter.Value ? "Только закрывающие документы" : "Исключить Закрывающие документы");
+						break;
+					case "is_chain_stores":
+						filtersText.AppendLine((bool)parameter.Value ? "Только Сети" : "Исключить Сети");
+						break;
+					case "is_expired":
+						filtersText.AppendLine((bool)parameter.Value ? "Только Просроченные" : "Исключить Просроченные");
+						break;
+					case "is_liquidated":
+						filtersText.AppendLine((bool)parameter.Value ? "Только Ликвидирован" : "Исключить Ликвидирован");
+						break;
+					case "Counterparty_include":
+						if(parameter.Value is string[] includedCounterparties)
+						{
+							filtersText.AppendLine($"Вкл.клиентов: {includedCounterparties.Length}");
+						}
+						break;
+					case "Counterparty_exclude":
+						if(parameter.Value is string[] excludedCounterparties)
+						{
+							filtersText.AppendLine($"Искл.клиентов: {excludedCounterparties.Length}");
+						}
+						break;
+					case "CounterpartyType_include":
+						if(parameter.Value is string[] includedCounterpartyTypes)
+						{
+							filtersText.AppendLine($"Вкл.типов клиентов: {includedCounterpartyTypes.Length}");
+						}
+						break;
+					case "CounterpartyType_exclude":
+						if(parameter.Value is string[] excludedCounterpartyTypes)
+						{
+							filtersText.AppendLine($"Искл.типов клиентов: {excludedCounterpartyTypes.Length}");
+						}
+						break;
+					case "CounterpartySubtype_include":
+						if(parameter.Value is string[] includedCounterpartySubtype)
+						{
+							filtersText.AppendLine($"Вкл.типов клиентов: {includedCounterpartySubtype.Length}");
+						}
+						break;
+					case "CounterpartySubtype_exclude":
+						if(parameter.Value is string[] excludedCounterpartySubtype)
+						{
+							filtersText.AppendLine($"Искл.типов клиентов: {excludedCounterpartySubtype.Length}");
+						}
+						break;
+					case "OrderStatus_include":
+						if(parameter.Value is string[] includedOrderStatus)
+						{
+							filtersText.AppendLine($"Вкл.статусов заказов: {includedOrderStatus.Length}");
+						}
+						break;
+					case "OrderStatus_exclude":
+						if(parameter.Value is string[] excludedOrderStatus)
+						{
+							filtersText.AppendLine($"Искл.статусов заказов: {excludedOrderStatus.Length}");
+						}
+						break;
+					case "DebtType_include":
+						if(parameter.Value is string[] includedDebtType)
+						{
+							filtersText.AppendLine($"Вкл.типов задолженности: {includedDebtType.Length}");
+						}
+						break;
+					case "DebtType_exclude":
+						if(parameter.Value is string[] excludedDebtType)
+						{
+							filtersText.AppendLine($"Искл.типов задолженности: {excludedDebtType.Length}");
+						}
+						break;
+				}
+			}
 
-			//if(buttonName == nameof(ybuttonCounterpartyDebtDetails))
-			//{
-			//	return resultString;
-			//}
-
-			//resultString += IsExcludeClosingDocuments
-			//	? "Без закрывающих документов\n"
-			//	: "";
-
-			//resultString += ycheckExcludeChainStores.Active
-			//	? "Без сетей\n"
-			//	: "";
-
-			//resultString += IsExpiredOnly
-			//	? "Только просроченные\n"
-			//	: "";
-
-			//var selectedOrderStatuses = enumcheckOrderStatuses.SelectedValuesList.Cast<OrderStatus>().ToList();
-			//if(!selectedOrderStatuses.Any())
-			//{
-			//	resultString += "Статусы заказов: Никакие";
-			//}
-			//else if(!EnumHelper.GetValuesList<OrderStatus>().Except(selectedOrderStatuses).Any())
-			//{
-			//	resultString += "Статусы заказов: Все";
-			//}
-			//else
-			//{
-			//	resultString += $"Статусы заказов: {string.Join(", ", selectedOrderStatuses.Select(x => x.GetEnumTitle()))}";
-			//}
-
-			return resultString;
+			return filtersText.ToString();
 		}
-
+		
 		private void ShowInfoMessage()
 		{
 			//_commonServices.InteractiveService.ShowMessage(
@@ -201,7 +274,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 			//);
 		}
 
-		public IncludeExludeFiltersViewModel CreateCounterpartyCashlessDebtsReportIncludeExcludeFilter(IUnitOfWork unitOfWork)
+		private IncludeExludeFiltersViewModel CreateCounterpartyCashlessDebtsReportIncludeExcludeFilter(IUnitOfWork unitOfWork)
 		{
 			var includeExludeFiltersViewModel = new IncludeExludeFiltersViewModel(_commonServices.InteractiveService);
 
