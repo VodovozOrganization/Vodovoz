@@ -1060,6 +1060,7 @@
     <Compile Include="Specifications\ExpressionSpecificationOrExtension.cs" />
     <Compile Include="Specifications\ISpecification.cs" />
     <Compile Include="Specifications\Orders\EdoContainers\EdoContainerSpecification.cs" />
+    <Compile Include="Tools\Exceptions\DeliveryPointDistrictNotFoundException.cs" />
     <Compile Include="Tools\GeoGroupVersionNotFoundException.cs" />
     <Compile Include="Tools\DataArchiver.cs" />
     <Compile Include="Tools\IDataArchiver.cs" />
