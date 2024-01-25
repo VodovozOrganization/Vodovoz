@@ -1,4 +1,4 @@
-﻿using fyiReporting.RDL;
+using fyiReporting.RDL;
 using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Exceptions;
@@ -40,6 +40,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Undeliveries;
+using Vodovoz.Extensions;
 using Vodovoz.Factories;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
@@ -1408,10 +1409,17 @@ namespace Vodovoz.Domain.Orders
 				}
 			}
 
-			bool isTransferedAddress = validationContext.Items.ContainsKey("AddressStatus") && (RouteListItemStatus)validationContext.Items["AddressStatus"] == RouteListItemStatus.Transfered;
-			if (validationContext.Items.ContainsKey("cash_order_close") && (bool)validationContext.Items["cash_order_close"] )
-				if (PaymentType == PaymentType.Terminal && OnlineOrder == null && !_orderRepository.GetUndeliveryStatuses().Contains(OrderStatus) && !isTransferedAddress)
-					yield return new ValidationResult($"В заказе с оплатой по терминалу №{Id} отсутствует номер оплаты.");
+			var isCashOrderClose = validationContext.Items.ContainsKey("cash_order_close") && (bool)validationContext.Items["cash_order_close"];
+			var isTransferedAddress = validationContext.Items.ContainsKey("AddressStatus") && (RouteListItemStatus)validationContext.Items["AddressStatus"] == RouteListItemStatus.Transfered;
+
+			if(isCashOrderClose
+				&& !isTransferedAddress
+				&& PaymentTypesNeededOnlineOrder.Contains(PaymentType)
+				&& OnlineOrder == null
+				&& !_orderRepository.GetUndeliveryStatuses().Contains(OrderStatus)				)
+			{
+				yield return new ValidationResult($"В заказе №{Id} с оплатой по \"{PaymentType.GetEnumDisplayName(true)}\"  отсутствует номер оплаты.");
+			}
 
 			if (ObservableOrderItems.Any(x => x.Discount > 0 && x.DiscountReason == null && x.PromoSet == null))
 				yield return new ValidationResult("Если в заказе указана скидка на товар, то обязательно должно быть заполнено поле 'Основание'.");
@@ -4907,6 +4915,14 @@ namespace Vodovoz.Domain.Orders
 			PaymentType.DriverApplicationQR,
 			PaymentType.SmsQR,
 			PaymentType.Cashless
+		};
+
+		public static PaymentType[] PaymentTypesNeededOnlineOrder => new[]
+		{
+			PaymentType.Terminal,
+			PaymentType.PaidOnline,
+			PaymentType.SmsQR,
+			PaymentType.DriverApplicationQR
 		};
 
 		#endregion
