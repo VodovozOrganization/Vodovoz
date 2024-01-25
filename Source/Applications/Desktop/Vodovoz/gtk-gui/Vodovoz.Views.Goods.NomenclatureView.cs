@@ -54,11 +54,11 @@ namespace Vodovoz.Views.Goods
 
 		private global::QS.Views.Control.EntityEntry entityentryRouteColumn;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityViewModelEntryNomenclature;
-
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityviewmodelentryShipperCounterparty;
 
 		private global::Gamma.GtkWidgets.yEntry entryCode1c;
+
+		private global::QS.Views.Control.EntityEntry entryDependsOnNomenclature;
 
 		private global::Gamma.GtkWidgets.yEntry entryName;
 
@@ -799,21 +799,6 @@ namespace Vodovoz.Views.Goods
 			w25.XOptions = ((global::Gtk.AttachOptions)(4));
 			w25.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.entityViewModelEntryNomenclature = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entityViewModelEntryNomenclature.Events = ((global::Gdk.EventMask)(256));
-			this.entityViewModelEntryNomenclature.Name = "entityViewModelEntryNomenclature";
-			this.entityViewModelEntryNomenclature.CanEditReference = false;
-			this.entityViewModelEntryNomenclature.CanDisposeEntitySelectorFactory = false;
-			this.entityViewModelEntryNomenclature.CanOpenWithoutTabParent = false;
-			this.datatable1.Add(this.entityViewModelEntryNomenclature);
-			global::Gtk.Table.TableChild w26 = ((global::Gtk.Table.TableChild)(this.datatable1[this.entityViewModelEntryNomenclature]));
-			w26.TopAttach = ((uint)(7));
-			w26.BottomAttach = ((uint)(8));
-			w26.LeftAttach = ((uint)(1));
-			w26.RightAttach = ((uint)(4));
-			w26.XOptions = ((global::Gtk.AttachOptions)(4));
-			w26.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child datatable1.Gtk.Table+TableChild
 			this.entityviewmodelentryShipperCounterparty = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.entityviewmodelentryShipperCounterparty.Events = ((global::Gdk.EventMask)(256));
 			this.entityviewmodelentryShipperCounterparty.Name = "entityviewmodelentryShipperCounterparty";
@@ -821,13 +806,13 @@ namespace Vodovoz.Views.Goods
 			this.entityviewmodelentryShipperCounterparty.CanDisposeEntitySelectorFactory = false;
 			this.entityviewmodelentryShipperCounterparty.CanOpenWithoutTabParent = false;
 			this.datatable1.Add(this.entityviewmodelentryShipperCounterparty);
-			global::Gtk.Table.TableChild w27 = ((global::Gtk.Table.TableChild)(this.datatable1[this.entityviewmodelentryShipperCounterparty]));
-			w27.TopAttach = ((uint)(19));
-			w27.BottomAttach = ((uint)(20));
-			w27.LeftAttach = ((uint)(1));
-			w27.RightAttach = ((uint)(2));
-			w27.XOptions = ((global::Gtk.AttachOptions)(4));
-			w27.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w26 = ((global::Gtk.Table.TableChild)(this.datatable1[this.entityviewmodelentryShipperCounterparty]));
+			w26.TopAttach = ((uint)(19));
+			w26.BottomAttach = ((uint)(20));
+			w26.LeftAttach = ((uint)(1));
+			w26.RightAttach = ((uint)(2));
+			w26.XOptions = ((global::Gtk.AttachOptions)(4));
+			w26.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.entryCode1c = new global::Gamma.GtkWidgets.yEntry();
 			this.entryCode1c.CanFocus = true;
@@ -836,10 +821,22 @@ namespace Vodovoz.Views.Goods
 			this.entryCode1c.MaxLength = 11;
 			this.entryCode1c.InvisibleChar = '●';
 			this.datatable1.Add(this.entryCode1c);
-			global::Gtk.Table.TableChild w28 = ((global::Gtk.Table.TableChild)(this.datatable1[this.entryCode1c]));
-			w28.TopAttach = ((uint)(12));
-			w28.BottomAttach = ((uint)(13));
-			w28.LeftAttach = ((uint)(3));
+			global::Gtk.Table.TableChild w27 = ((global::Gtk.Table.TableChild)(this.datatable1[this.entryCode1c]));
+			w27.TopAttach = ((uint)(12));
+			w27.BottomAttach = ((uint)(13));
+			w27.LeftAttach = ((uint)(3));
+			w27.RightAttach = ((uint)(4));
+			w27.XOptions = ((global::Gtk.AttachOptions)(4));
+			w27.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child datatable1.Gtk.Table+TableChild
+			this.entryDependsOnNomenclature = new global::QS.Views.Control.EntityEntry();
+			this.entryDependsOnNomenclature.Events = ((global::Gdk.EventMask)(256));
+			this.entryDependsOnNomenclature.Name = "entryDependsOnNomenclature";
+			this.datatable1.Add(this.entryDependsOnNomenclature);
+			global::Gtk.Table.TableChild w28 = ((global::Gtk.Table.TableChild)(this.datatable1[this.entryDependsOnNomenclature]));
+			w28.TopAttach = ((uint)(7));
+			w28.BottomAttach = ((uint)(8));
+			w28.LeftAttach = ((uint)(1));
 			w28.RightAttach = ((uint)(4));
 			w28.XOptions = ((global::Gtk.AttachOptions)(4));
 			w28.YOptions = ((global::Gtk.AttachOptions)(4));
