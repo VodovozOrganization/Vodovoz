@@ -2030,6 +2030,7 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Infrastructure\Mango\" />
+    <Folder Include="ReportsParameters\PACS\" />
     <Folder Include="ViewModels\Goods\" />
   </ItemGroup>
   <ItemGroup>
