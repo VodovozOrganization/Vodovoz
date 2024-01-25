@@ -1138,21 +1138,6 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionCounterpartyCashlessDebtsReportActivated(object sender, EventArgs e)
 	{
-		var scope = Startup.AppDIContainer.BeginLifetimeScope();
-		
-		var report = new CounterpartyCashlessDebtsReport(
-			scope,
-			new DeliveryScheduleParametersProvider(new ParametersProvider()),
-			ServicesConfig.InteractiveService,
-			new CounterpartyJournalFactory(),
-			UnitOfWorkFactory.GetDefaultFactory);
-
-		report.Destroyed += (o, args) =>  scope.Dispose();
-		
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<CounterpartyCashlessDebtsReport>(),
-			() => new QSReport.ReportViewDlg(report));
-
 		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(CounterpartyCashlessDebtsReportViewModel));
 	}
 
