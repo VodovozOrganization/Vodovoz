@@ -17,6 +17,7 @@ using System;
 using System.Reflection;
 using UnsubscribePage.Controllers;
 using UnsubscribePage.HealthChecks;
+using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Parameters;
@@ -27,7 +28,6 @@ namespace UnsubscribePage
 {
 	public class Startup
 	{
-		private ILogger<Startup> _logger;
 		public Startup(IConfiguration configuration)
 		{
 			Configuration = configuration;
@@ -38,27 +38,32 @@ namespace UnsubscribePage
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
-			_logger = new Logger<Startup>(LoggerFactory.Create(logging =>
-				logging.AddNLogWeb(NLogBuilder.ConfigureNLog("NLog.config").Configuration)));
+			services.AddLogging(
+				logging =>
+				{
+					logging.ClearProviders();
+					logging.AddNLogWeb();
+					logging.AddConfiguration(Configuration.GetSection("NLog"));
+				});
 
 			services.AddControllersWithViews();
 
-			services
+			services.AddMappingAssemblies(
+					typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
+					typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
+					typeof(QS.Banks.Domain.Bank).Assembly,
+					typeof(QS.HistoryLog.HistoryMain).Assembly,
+					typeof(QS.Project.Domain.TypeOfEntity).Assembly,
+					typeof(QS.Attachments.Domain.Attachment).Assembly,
+					typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly
+				)
+				.AddDatabaseConnection()
 				.AddCore()
 				.AddTrackedUoW()
 				.ConfigureHealthCheckService<UnsubscribePageHealthCheck>()
 				;
 
-			// Конфигурация Nhibernate
-			try
-			{
-				CreateBaseConfig(services);
-			}
-			catch(Exception e)
-			{
-				_logger.LogCritical(e, e.Message);
-				throw;
-			}
+			services.AddStaticHistoryTracker();
 		}
 
 		public void ConfigureContainer(ContainerBuilder builder)
@@ -102,48 +107,6 @@ namespace UnsubscribePage
 			});
 
 			app.ConfigureHealthCheckApplicationBuilder();
-		}
-
-		private void CreateBaseConfig(IServiceCollection services)
-		{
-			_logger.LogInformation("Настройка параметров Nhibernate...");
-
-			var conStrBuilder = new MySqlConnectionStringBuilder();
-
-			var domainDBConfig = Configuration.GetSection("DomainDB");
-
-			conStrBuilder.Server = domainDBConfig.GetValue<string>("Server");
-			conStrBuilder.Port = domainDBConfig.GetValue<uint>("Port");
-			conStrBuilder.Database = domainDBConfig.GetValue<string>("Database");
-			conStrBuilder.UserID = domainDBConfig.GetValue<string>("UserID");
-			conStrBuilder.Password = domainDBConfig.GetValue<string>("Password");
-			conStrBuilder.SslMode = MySqlSslMode.None;
-
-			var connectionString = conStrBuilder.GetConnectionString(true);
-
-			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
-				.Dialect<MySQL57SpatialExtendedDialect>()
-				.ConnectionString(connectionString)
-				.AdoNetBatchSize(100)
-				.Driver<LoggedMySqlClientDriver>();
-
-			var provider = services.BuildServiceProvider();
-			var ormConfig = provider.GetRequiredService<IOrmConfig>();
-			ormConfig.ConfigureOrm(
-				db_config,
-				new Assembly[]
-				{
-					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
-					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
-					Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
-					Assembly.GetAssembly(typeof(Bank)),
-					Assembly.GetAssembly(typeof(HistoryMain)),
-					Assembly.GetAssembly(typeof(Attachment)),
-					Assembly.GetAssembly(typeof(AssemblyFinder))
-				}
-			);
-
-			HistoryMain.Enable(conStrBuilder);
 		}
 	}
 }

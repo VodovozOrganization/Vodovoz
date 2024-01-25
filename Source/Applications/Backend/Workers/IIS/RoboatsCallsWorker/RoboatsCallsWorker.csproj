@@ -5,6 +5,20 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<Content Remove="appsettings.Development.json" />
+		<Content Remove="appsettings.Production.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="appsettings.Development.json">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</None>
+		<None Include="appsettings.Production.json">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="NHibernate" Version="5.4.1" />
 		<PackageReference Include="NHibernate.Spatial.MySQL" Version="6.0.0" />
 		<PackageReference Include="FluentNHibernate" Version="3.1.0" />

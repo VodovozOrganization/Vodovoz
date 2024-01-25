@@ -16,6 +16,7 @@ using QS.Project.HibernateMapping;
 using System.Reflection;
 using TrueMarkApi.Library;
 using TrueMarkCodesWorker;
+using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Models.TrueMark;
@@ -26,8 +27,6 @@ namespace TrueMarkCodePoolCheckWorker
 {
 	public class Startup
     {
-		private const string _nLogSectionName = "NLog";
-		
 		public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -43,16 +42,24 @@ namespace TrueMarkCodePoolCheckWorker
 				{
 					logging.ClearProviders();
 					logging.AddNLogWeb();
-					logging.AddConfiguration(Configuration.GetSection(_nLogSectionName));
+					logging.AddConfiguration(Configuration.GetSection("NLog"));
 				});
 
 			services
+				.AddMappingAssemblies(
+					typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
+					typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
+					typeof(QS.Banks.Domain.Bank).Assembly,
+					typeof(QS.HistoryLog.HistoryMain).Assembly,
+					typeof(QS.Project.Domain.TypeOfEntity).Assembly,
+					typeof(QS.Attachments.Domain.Attachment).Assembly,
+					typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly
+				)
+				.AddDatabaseConnection()
 				.AddCore()
 				.AddTrackedUoW()
 				.AddHostedService<CodePoolCheckWorker>()
 				;
-
-			CreateBaseConfig(services);
 		}
 
 		public void ConfigureContainer(ContainerBuilder builder)
@@ -99,44 +106,5 @@ namespace TrueMarkCodePoolCheckWorker
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
         }
-
-		private void CreateBaseConfig(IServiceCollection services)
-		{
-			var conStrBuilder = new MySqlConnectionStringBuilder();
-
-			var domainDBConfig = Configuration.GetSection("DomainDB");
-
-			conStrBuilder.Server = domainDBConfig.GetValue<string>("Server");
-			conStrBuilder.Port = domainDBConfig.GetValue<uint>("Port");
-			conStrBuilder.Database = domainDBConfig.GetValue<string>("Database");
-			conStrBuilder.UserID = domainDBConfig.GetValue<string>("UserID");
-			conStrBuilder.Password = domainDBConfig.GetValue<string>("Password");
-			conStrBuilder.SslMode = MySqlSslMode.None;
-
-			var connectionString = conStrBuilder.GetConnectionString(true);
-
-			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
-				.Dialect<MySQL57SpatialExtendedDialect>()
-				.ConnectionString(connectionString)
-				.AdoNetBatchSize(100)
-				.Driver<LoggedMySqlClientDriver>()
-				;
-
-			var provider = services.BuildServiceProvider();
-			var ormConfig = provider.GetRequiredService<IOrmConfig>();
-			ormConfig.ConfigureOrm(
-				db_config,
-				new Assembly[]
-				{
-					Assembly.GetAssembly(typeof(DatabaseSettingsModule)),
-					Assembly.GetAssembly(typeof(UserBaseMap)),
-					Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
-					Assembly.GetAssembly(typeof(Bank)),
-					Assembly.GetAssembly(typeof(TypeOfEntity)),
-					Assembly.GetAssembly(typeof(Attachment)),
-					Assembly.GetAssembly(typeof(AssemblyFinder))
-				}
-			);
-		}
 	}
 }

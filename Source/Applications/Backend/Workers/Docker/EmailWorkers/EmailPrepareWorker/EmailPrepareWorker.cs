@@ -3,23 +3,16 @@ using EmailPrepareWorker.SendEmailMessageBuilders;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using MySqlConnector;
 using QS.DomainModel.UoW;
-using QS.Project.DB;
-using QSOrmProject;
-using QSProjectsLib;
 using RabbitMQ.Client;
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Parameters;
-using Vodovoz.Settings.Database;
 
 namespace EmailPrepareWorker
 {
@@ -72,37 +65,6 @@ namespace EmailPrepareWorker
 			_emailSendExchange = configuration.GetSection(_queuesConfigurationSection)
 				.GetValue<string>(_emailSendExchangeParameter);
 			_channel.QueueDeclare(_emailSendKey, true, false, false, null);
-
-			var conStrBuilder = new MySqlConnectionStringBuilder();
-
-			var databaseSection = configuration.GetSection("Database");
-
-			conStrBuilder.Server = databaseSection.GetValue("Hostname", "localhost");
-			conStrBuilder.Port = databaseSection.GetValue<uint>("Port", 3306);
-			conStrBuilder.UserID = databaseSection.GetValue("Username", "");
-			conStrBuilder.Password = databaseSection.GetValue("Password", "");
-			conStrBuilder.Database = databaseSection.GetValue("DatabaseName", "");
-			conStrBuilder.SslMode = MySqlSslMode.None;
-
-			QSMain.ConnectionString = conStrBuilder.GetConnectionString(true);
-			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
-									 .Dialect<NHibernate.Spatial.Dialect.MySQL57SpatialDialect>()
-									 .ConnectionString(QSMain.ConnectionString);
-
-			OrmMain.ClassMappingList = new List<IOrmObjectMapping> (); // Нужно, чтобы запустился конструктор OrmMain
-
-			OrmConfig.ConfigureOrm(db_config,
-				new Assembly[] {
-					Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
-					Assembly.GetAssembly(typeof(QS.Banks.Domain.Bank)),
-					Assembly.GetAssembly(typeof(QS.HistoryLog.HistoryMain)),
-					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
-					Assembly.GetAssembly(typeof(QS.Project.Domain.UserBase)),
-					Assembly.GetAssembly(typeof(QS.Attachments.HibernateMapping.AttachmentMap)),
-					Assembly.GetAssembly(typeof(AssemblyFinder))
-			});
-
-			QS.HistoryLog.HistoryMain.Enable(conStrBuilder);
 
 			using(var unitOfWork = _uowFactory.CreateWithoutRoot("Email prepare worker"))
 			{

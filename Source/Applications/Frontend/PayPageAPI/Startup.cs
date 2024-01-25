@@ -1,37 +1,27 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using AspNetCoreRateLimit;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Linq;
-using AspNetCoreRateLimit;
 using Microsoft.Extensions.Logging;
-using MySqlConnector;
 using NLog.Web;
 using PayPageAPI.Controllers;
+using PayPageAPI.HealthChecks;
 using PayPageAPI.Models;
-using QS.Attachments.Domain;
-using QS.Banks.Domain;
 using QS.DomainModel.UoW;
-using QS.HistoryLog;
-using QS.Project.DB;
+using QS.Project.Core;
+using Vodovoz.Core.Data.NHibernate;
+using Vodovoz.Data.NHibernate;
 using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
-using Vodovoz.Settings.Database;
-using System.Reflection;
-using PayPageAPI.HealthChecks;
-using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using VodovozHealthCheck;
 
 namespace PayPageAPI
 {
 	public class Startup
 	{
-		private const string _nLogSectionName = nameof(NLog);
-		private ILogger<Startup> _logger;
-
 		public Startup(IConfiguration configuration)
 		{
 			Configuration = configuration;
@@ -47,25 +37,27 @@ namespace PayPageAPI
 				{
 					logging.ClearProviders();
 					logging.AddNLogWeb();
-					logging.AddConfiguration(Configuration.GetSection(_nLogSectionName));
+					logging.AddConfiguration(Configuration.GetSection("NLog"));
 				});
 
-			_logger = new Logger<Startup>(LoggerFactory.Create(logging =>
-				logging.AddConfiguration(Configuration.GetSection(_nLogSectionName))));
+			services
+				.AddMappingAssemblies(
+					typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
+					typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
+					typeof(QS.Banks.Domain.Bank).Assembly,
+					typeof(QS.HistoryLog.HistoryMain).Assembly,
+					typeof(QS.Project.Domain.TypeOfEntity).Assembly,
+					typeof(QS.Attachments.Domain.Attachment).Assembly,
+					typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly
+				)
+				.AddDatabaseConnection()
+				.AddCore()
+				.AddTrackedUoW()
+				.AddServiceUser()
+				;
 
 			// Подключение к БД
-			services.AddScoped(_ => UnitOfWorkFactory.CreateWithoutRoot("Страница быстрых платежей"));
-
-			// Конфигурация Nhibernate
-			try
-			{
-				CreateBaseConfig();
-			}
-			catch(Exception e)
-			{
-				_logger.LogCritical(e, e.Message);
-				throw;
-			}
+			services.AddScoped(provider => provider.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot("Страница быстрых платежей"));
 			
 			services.AddOptions();
 			services.AddMemoryCache();
@@ -128,56 +120,6 @@ namespace PayPageAPI
 			});
 
 			app.ConfigureHealthCheckApplicationBuilder();
-		}
-		
-		private void CreateBaseConfig()
-		{
-			_logger.LogInformation("Настройка параметров Nhibernate...");
-
-			var conStrBuilder = new MySqlConnectionStringBuilder();
-
-			var domainDBConfig = Configuration.GetSection("DomainDB");
-
-			conStrBuilder.Server = domainDBConfig.GetValue<string>("Server");
-			conStrBuilder.Port = domainDBConfig.GetValue<uint>("Port");
-			conStrBuilder.Database = domainDBConfig.GetValue<string>("Database");
-			conStrBuilder.UserID = domainDBConfig.GetValue<string>("UserID");
-			conStrBuilder.Password = domainDBConfig.GetValue<string>("Password");
-			conStrBuilder.SslMode = MySqlSslMode.None;
-
-			var connectionString = conStrBuilder.GetConnectionString(true);
-
-			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
-				.Dialect<MySQL57SpatialExtendedDialect>()
-				.Driver<LoggedMySqlClientDriver>()
-				.ConnectionString(connectionString);
-
-			// Настройка ORM
-			OrmConfig.ConfigureOrm(
-				db_config,
-				new Assembly[]
-				{
-					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
-					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
-					Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
-					Assembly.GetAssembly(typeof(Bank)),
-					Assembly.GetAssembly(typeof(HistoryMain)),
-					Assembly.GetAssembly(typeof(Attachment)),
-					Assembly.GetAssembly(typeof(AssemblyFinder))
-				}
-			);
-
-			var serviceUserId = 0;
-
-			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Получение пользователя"))
-			{
-				serviceUserId = unitOfWork.Session.Query<Vodovoz.Domain.Employees.User>()
-					.Where(u => u.Login == domainDBConfig.GetValue<string>("UserID"))
-					.Select(u => u.Id)
-					.FirstOrDefault();
-			}
-
-			QS.Project.Repositories.UserRepository.GetCurrentUserId = () => serviceUserId;
 		}
 	}
 }

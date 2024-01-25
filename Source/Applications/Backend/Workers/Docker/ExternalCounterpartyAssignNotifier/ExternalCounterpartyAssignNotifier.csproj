@@ -5,6 +5,21 @@
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>.</DockerfileContext>
   </PropertyGroup>
+
+	<ItemGroup>
+		<Content Remove="appsettings.Development.json" />
+		<Content Remove="appsettings.Production.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="appsettings.Development.json">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</None>
+		<None Include="appsettings.Production.json">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+	
   <ItemGroup>
     <_WebToolingArtifacts Remove="Properties\PublishProfiles\dev-ExternalCounterpartyAssignNotifier.pubxml" />
     <_WebToolingArtifacts Remove="Properties\PublishProfiles\FolderProfile.pubxml" />
@@ -21,9 +36,6 @@
   <ItemGroup>
     <Content Include="..\..\..\..\..\.dockerignore">
       <Link>.dockerignore</Link>
-    </Content>
-    <Content Update="NLog.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>

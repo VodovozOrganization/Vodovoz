@@ -1,34 +1,26 @@
 ﻿using Autofac;
-using Core.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using MySqlConnector;
 using NLog.Web;
-using QS.Attachments.Domain;
-using QS.Banks.Domain;
-using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Core;
-using QS.Project.DB;
-using QS.Project.Domain;
-using QS.Project.Repositories;
 using QS.Project.Services;
 using QS.Services;
 using RoboatsService.Authentication;
 using RoboatsService.Monitoring;
 using RoboatsService.OrderValidation;
 using Sms.External.SmsRu;
-using System;
 using System.Linq;
 using System.Reflection;
 using Vodovoz;
 using Vodovoz.Application;
+using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.DataService;
-using Vodovoz.Data.NHibernate.NhibernateExtensions;
+using Vodovoz.Data.NHibernate;
 using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.Factories;
 using Vodovoz.Parameters;
@@ -40,9 +32,6 @@ namespace RoboatsService
 {
 	public class Startup
 	{
-		private IDataBaseInfo _dataBaseInfo;
-		private ILogger<Startup> _logger;
-
 		public Startup(IConfiguration configuration)
 		{
 			Configuration = configuration;
@@ -53,18 +42,36 @@ namespace RoboatsService
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
+			services.AddLogging(
+				logging =>
+				{
+					logging.ClearProviders();
+					logging.AddNLogWeb();
+					logging.AddConfiguration(Configuration.GetSection("NLog"));
+				}
+			);
 			services.AddAuthentication()
 				.AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(ApiKeyAuthenticationOptions.DefaultScheme, null);
 			services.AddAuthentication(ApiKeyAuthenticationOptions.DefaultScheme);
 			services.AddMvc().AddControllersAsServices();
+
+			services.AddMappingAssemblies(
+				typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
+				typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
+				typeof(QS.Banks.Domain.Bank).Assembly,
+				typeof(QS.HistoryLog.HistoryMain).Assembly,
+				typeof(QS.Project.Domain.TypeOfEntity).Assembly,
+				typeof(QS.Attachments.Domain.Attachment).Assembly,
+				typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly
+			);
+			services.AddDatabaseConnection();
 			services.AddCore();
 			services.AddTrackedUoW();
+			services.AddServiceUser();
+			services.AddStaticHistoryTracker();
+
 			services.AddApplication();
 			services.AddBusiness();
-
-			NLogBuilder.ConfigureNLog("NLog.config");
-
-			CreateBaseConfig(services);
 		}
 
 		public void ConfigureContainer(ContainerBuilder builder)
@@ -83,11 +90,6 @@ namespace RoboatsService
 			builder.RegisterType<ApiKeyAuthenticationHandler>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterInstance(ServicesConfig.UserService).As<IUserService>();
 
-			builder.RegisterInstance(_dataBaseInfo)
-				.AsSelf()
-				.AsImplementedInterfaces()
-				.SingleInstance();
-			
 			builder.RegisterModule<DatabaseSettingsModule>();
 			builder.RegisterModule<SmsExternalSmsRuModule>();
 			
@@ -150,68 +152,5 @@ namespace RoboatsService
 			});
 		}
 
-		private void CreateBaseConfig(IServiceCollection services)
-		{
-			var conStrBuilder = new MySqlConnectionStringBuilder();
-
-			var domainDBConfig = Configuration.GetSection("DomainDB");
-
-			conStrBuilder.Server = domainDBConfig.GetValue<string>("Server");
-			conStrBuilder.Port = domainDBConfig.GetValue<uint>("Port");
-			conStrBuilder.Database = domainDBConfig.GetValue<string>("Database");
-			conStrBuilder.UserID = domainDBConfig.GetValue<string>("UserID");
-			conStrBuilder.Password = domainDBConfig.GetValue<string>("Password");
-			conStrBuilder.SslMode = MySqlSslMode.None;
-
-			var connectionString = conStrBuilder.GetConnectionString(true);
-
-			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
-				.Dialect<MySQL57SpatialExtendedDialect>()
-				.ConnectionString(connectionString)
-				.AdoNetBatchSize(100)
-				.Driver<LoggedMySqlClientDriver>()
-				;
-
-			var provider = services.BuildServiceProvider();
-			var ormConfig = provider.GetRequiredService<IOrmConfig>();
-			ormConfig.ConfigureOrm(
-				db_config,
-				new Assembly[]
-				{
-					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
-					Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
-					Assembly.GetAssembly(typeof(Bank)),
-					Assembly.GetAssembly(typeof(HistoryMain)),
-					Assembly.GetAssembly(typeof(TypeOfEntity)),
-					Assembly.GetAssembly(typeof(Attachment)),
-					Assembly.GetAssembly(typeof(AssemblyFinder))
-				}
-			);
-
-			_dataBaseInfo = new DatabaseInfo(conStrBuilder.Database);
-
-			string userLogin = domainDBConfig.GetValue<string>("UserID");
-			int serviceUserId = 0;
-
-			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Получение пользователя"))
-			{
-				var serviceUser = unitOfWork.Session.Query<Vodovoz.Domain.Employees.User>()
-					.Where(u => u.Login == userLogin)
-					.FirstOrDefault();
-
-				serviceUserId = serviceUser.Id;
-
-				ServicesConfig.UserService = new UserService(serviceUser);
-			}
-
-			if(serviceUserId == 0)
-			{
-				throw new ApplicationException($"Невозможно получить пользователя по логину: {userLogin}");
-			}
-
-			UserRepository.GetCurrentUserId = () => serviceUserId;
-
-			HistoryMain.Enable(conStrBuilder);
-		}
 	}
 }

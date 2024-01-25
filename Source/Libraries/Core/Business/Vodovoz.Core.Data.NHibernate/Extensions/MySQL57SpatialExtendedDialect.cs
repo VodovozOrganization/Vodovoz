@@ -2,7 +2,7 @@
 using NHibernate.Dialect.Function;
 using NHibernate.Spatial.Dialect;
 
-namespace Vodovoz.Data.NHibernate.NhibernateExtensions
+namespace Vodovoz.Core.Data.NHibernate.NhibernateExtensions
 {
 	/// <summary>
 	/// Пример использования: Projections.SqlFunction("IS_NULL_OR_WHITESPACE", NHibernateUtil.Boolean, Projection.Property(() => alias))

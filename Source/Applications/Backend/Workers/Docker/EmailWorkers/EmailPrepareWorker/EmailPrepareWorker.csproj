@@ -1,11 +1,26 @@
-<Project Sdk="Microsoft.NET.Sdk.Worker;Microsoft.NET.Sdk.Publish">
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker;Microsoft.NET.Sdk.Publish">
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <UserSecretsId>dotnet-DocumentForEmailPreparingWorker-4C283AF3-DD08-43DA-B451-0DD6165221E8</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>.</DockerfileContext>
   </PropertyGroup>
-  <ItemGroup>
+
+	<ItemGroup>
+		<Content Remove="appsettings.Development.json" />
+		<Content Remove="appsettings.Production.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="appsettings.Development.json">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</None>
+		<None Include="appsettings.Production.json">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
     <PackageReference Include="FluentNHibernate" Version="3.1.0" />
     <PackageReference Include="Google.Protobuf" Version="3.22.1" />
 	  <PackageReference Include="MySqlConnector" Version="2.2.6" />
@@ -30,11 +45,6 @@
     <ProjectReference Include="..\..\..\..\..\..\Libraries\External\QSProjects\QSOrmProject\QSOrmProject.csproj" />
     <ProjectReference Include="..\..\..\..\..\..\Libraries\External\QSProjects\QSProjectsLib\QSProjectsLib.csproj" />
     <ProjectReference Include="..\..\..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Update="NLog.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <Import Project="..\..\..\..\..\..\Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems" Label="Shared" />
 </Project>

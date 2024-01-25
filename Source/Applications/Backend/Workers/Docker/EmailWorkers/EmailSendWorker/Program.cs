@@ -22,10 +22,11 @@ namespace EmailSendWorker
 			Host.CreateDefaultBuilder(args)
 				.ConfigureServices((hostContext, services) =>
 				{
-					services.AddLogging(loggingBuilder =>
+					services.AddLogging(logging =>
 					{
-						loggingBuilder.ClearProviders();
-						loggingBuilder.AddNLog("NLog.config");
+						logging.ClearProviders();
+						logging.AddNLog();
+						logging.AddConfiguration(hostContext.Configuration.GetSection("NLog"));
 					});
 
 					services.AddTransient<RabbitMQConnectionFactory>();

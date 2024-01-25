@@ -10,17 +10,17 @@ namespace PushNotificationsWorker
 	public static class DependencyInjection
 	{
 		public static IServiceCollection AddPushNotificationsWorker(this IServiceCollection services, HostBuilderContext hostContext) =>
-			services.AddDatabase(hostContext)
-					.AddFirebaseClient(hostContext.Configuration)
-					.Configure<TransferedFastDeliveryNotificationWorkerSettings>((options) =>
-					{
-						hostContext.Configuration.GetSection(nameof(TransferedFastDeliveryNotificationWorkerSettings)).Bind(options);
-					})
-					.Configure<CanceledFastDeliveryNotificationWorkerSettings>((options) =>
-					{
-						hostContext.Configuration.GetSection(nameof(CanceledFastDeliveryNotificationWorkerSettings)).Bind(options);
-					})
-					.AddHostedService<TransferedFastDeliveryNotificationWorker>()
-					.AddHostedService<CanceledFastDeliveryNotificationWorker>();
+			services
+				.AddFirebaseClient(hostContext.Configuration)
+				.Configure<TransferedFastDeliveryNotificationWorkerSettings>((options) =>
+				{
+					hostContext.Configuration.GetSection(nameof(TransferedFastDeliveryNotificationWorkerSettings)).Bind(options);
+				})
+				.Configure<CanceledFastDeliveryNotificationWorkerSettings>((options) =>
+				{
+					hostContext.Configuration.GetSection(nameof(CanceledFastDeliveryNotificationWorkerSettings)).Bind(options);
+				})
+				.AddHostedService<TransferedFastDeliveryNotificationWorker>()
+				.AddHostedService<CanceledFastDeliveryNotificationWorker>();
 	}
 }

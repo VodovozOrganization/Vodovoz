@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using QS.Project.Core;
 using QS.Project.DB;
-using Vodovoz.Data.NHibernate.NhibernateExtensions;
+using Vodovoz.Core.Data.NHibernate.NhibernateExtensions;
 using MySqlConnectionStringBuilder = MySqlConnector.MySqlConnectionStringBuilder;
 
 namespace Vodovoz.Core.Data.NHibernate

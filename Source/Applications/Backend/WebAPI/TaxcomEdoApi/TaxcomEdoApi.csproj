@@ -5,6 +5,20 @@
 	    <UserSecretsId>723b09af-6fa1-433a-abf7-9c207d54b371</UserSecretsId>
     </PropertyGroup>
 
+	<ItemGroup>
+		<Content Remove="appsettings.Development.json" />
+		<Content Remove="appsettings.Production.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="appsettings.Development.json">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</None>
+		<None Include="appsettings.Production.json">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
     <ItemGroup>
         <PackageReference Include="FluentNHibernate" Version="3.1.0" />
 		<PackageReference Include="MySqlConnector" Version="2.2.6" />

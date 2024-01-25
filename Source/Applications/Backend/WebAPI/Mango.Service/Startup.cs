@@ -44,17 +44,15 @@ namespace Mango.Service
 
 			services.AddDatabaseConnectionSettings();
 			services.AddDatabaseConnectionString();
-			services.AddSingleton(provider => {
+			services.AddSingleton(provider =>
+			{
 				var connectionStringBuilder = provider.GetRequiredService<MySqlConnectionStringBuilder>();
 				return new MySqlConnection(connectionStringBuilder.ConnectionString);
 			});
 
-			services.AddSingleton(x =>
-				new MySqlConnection(connectionStringBuilder.ConnectionString));
-
 			services.AddSingleton(x => new MangoController(
-				_loggerFactory.CreateLogger<MangoController>(), 
-				Configuration["Mango:VpbxApiKey"], 
+				x.GetRequiredService<ILogger<MangoController>>(),
+				Configuration["Mango:VpbxApiKey"],
 				Configuration["Mango:VpbxApiSalt"])
 			);
 
