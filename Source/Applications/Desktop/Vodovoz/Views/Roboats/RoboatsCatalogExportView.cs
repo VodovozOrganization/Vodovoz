@@ -18,7 +18,9 @@ namespace Vodovoz.Views.Roboats
 		private Widget _dialogView;
 		private readonly IGtkViewResolver _gtkViewResolver;
 
-		public RoboatsCatalogExportView(RoboatsCatalogExportViewModel viewModel, IGtkViewResolver gtkViewResolver) : base(viewModel)
+		public RoboatsCatalogExportView(
+			RoboatsCatalogExportViewModel viewModel,
+			IGtkViewResolver gtkViewResolver) : base(viewModel)
 		{
 			_gtkViewResolver = gtkViewResolver ?? throw new ArgumentNullException(nameof(gtkViewResolver));
 			Build();
@@ -84,7 +86,7 @@ namespace Vodovoz.Views.Roboats
 			{
 				return;
 			}
-			_dialogView = ViewModelWidgetResolver.Instance.Resolve((ITdiTab)ViewModel.Dialog);
+			_dialogView = _gtkViewResolver.Resolve(ViewModel.Dialog);
 			dialogHolder.Add(_dialogView);
 			_dialogView.Show();
 		}
