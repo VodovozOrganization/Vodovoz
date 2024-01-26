@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.UoW;
+﻿using Autofac;
+using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Services;
@@ -22,14 +23,20 @@ namespace Vodovoz.ViewModels.ViewModels.Rent
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
-			IRentPackageRepository rentPackageRepository)
+			IRentPackageRepository rentPackageRepository,
+			ILifetimeScope lifetimeScope)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
+			if(lifetimeScope is null)
+			{
+				throw new ArgumentNullException(nameof(lifetimeScope));
+			}
+
 			_rentPackageRepository = rentPackageRepository ?? throw new ArgumentNullException(nameof(rentPackageRepository));
 			
 			ConfigureValidateContext();
 
-			DepositServiceNomenclatureViewModel = new CommonEEVMBuilderFactory<FreeRentPackage>(this, Entity, UoW, NavigationManager)
+			DepositServiceNomenclatureViewModel = new CommonEEVMBuilderFactory<FreeRentPackage>(this, Entity, UoW, NavigationManager, lifetimeScope)
 				.ForProperty(x => x.DepositService)
 				.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(filter =>
 				{
