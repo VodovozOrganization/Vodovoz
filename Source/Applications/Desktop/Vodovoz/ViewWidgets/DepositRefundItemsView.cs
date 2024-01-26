@@ -12,7 +12,6 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Parameters;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
@@ -109,6 +108,7 @@ namespace Vodovoz.ViewWidgets
 				viewModel => {
 					viewModel.OnSelectResult += Journal_OnEntitySelectedResult;
 					viewModel.Title = "Оборудование";
+					viewModel.SelectionMode = JournalSelectionMode.Single;
 				});
 		}
 
