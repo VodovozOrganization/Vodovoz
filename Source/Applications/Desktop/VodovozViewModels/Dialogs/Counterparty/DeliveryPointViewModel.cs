@@ -143,7 +143,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 
 			DeliveryScheduleSelectorFactory = deliveryScheduleSelectorFactory;
 
-			DefaultWaterNomenclatureViewModel = new CommonEEVMBuilderFactory<DeliveryPoint>(this, Entity, UoW, NavigationManager)
+			DefaultWaterNomenclatureViewModel = new CommonEEVMBuilderFactory<DeliveryPoint>(this, Entity, UoW, NavigationManager, lifetimeScope)
 				.ForProperty(dp => dp.DefaultWaterNomenclature)
 				.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(filter =>
 				{
