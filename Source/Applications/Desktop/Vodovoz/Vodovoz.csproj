@@ -880,6 +880,7 @@
     <Compile Include="Representations\WorkingDriversVM.cs" />
     <Compile Include="Representations\DriverRouteListAddressesVM.cs" />
     <Compile Include="ViewWidgets\Reports\IncludeExludeFiltersView.cs" />
+    <Compile Include="ViewWidgets\Store\DefectiveItemNode.cs" />
     <Compile Include="ViewWidgets\Store\ReturnsReceptionView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReturnsReceptionView.cs" />
     <Compile Include="Additions\Logistic\CarMarker.cs" />
