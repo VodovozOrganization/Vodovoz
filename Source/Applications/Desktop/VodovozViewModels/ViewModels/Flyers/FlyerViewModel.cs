@@ -6,10 +6,14 @@ using QS.Navigation;
 using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using System;
 using System.Linq;
 using Vodovoz.Domain;
 using Vodovoz.EntityRepositories.Flyers;
+using Vodovoz.ViewModels.Dialogs.Goods;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.ViewModels.ViewModels.Flyers
 {
@@ -42,6 +46,15 @@ namespace Vodovoz.ViewModels.ViewModels.Flyers
 			
 			SetCurrentFlyerActionTime();
 			AddServiceToValidationContext();
+
+			NomenclatureViewModel = new CommonEEVMBuilderFactory<Flyer>(this, Entity, UoW, navigationManager, _lifetimeScope)
+				.ForProperty(x => x.FlyerNomenclature)
+				.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(filter =>
+				{
+
+				})
+				.UseViewModelDialog<NomenclatureViewModel>()
+				.Finish();
 		}
 
 		public DateTime? FlyerStartDate
@@ -73,6 +86,8 @@ namespace Vodovoz.ViewModels.ViewModels.Flyers
 		public bool CanActivateFlyer => FlyerStartDate.HasValue;
 		public bool CanDeactivateFlyer => FlyerEndDate.HasValue;
 		
+		public IEntityEntryViewModel NomenclatureViewModel { get; }
+
 		public DelegateCommand ActivateFlyerCommand => _activateFlyerCommand ?? (_activateFlyerCommand = new DelegateCommand(
 			() =>
 			{
