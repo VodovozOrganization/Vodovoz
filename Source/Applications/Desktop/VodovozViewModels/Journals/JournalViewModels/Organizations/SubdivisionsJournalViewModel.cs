@@ -21,7 +21,6 @@ using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.ViewModels.Organizations;
 
 namespace Vodovoz.Journals.JournalViewModels.Organizations
@@ -32,7 +31,6 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICurrentPermissionService _currentPermissionService;
-		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
 		private readonly SubdivisionFilterViewModel _filterViewModel;
 		private readonly ILifetimeScope _scope;
 		private HierarchicalChunkLinqLoader<Subdivision, SubdivisionJournalNode> _hierarchicalChunkLinqLoader;
@@ -46,7 +44,6 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 			ILifetimeScope scope,
 			ICurrentPermissionService currentPermissionService,
 			IEmployeeJournalFactory employeeJournalFactory,
-			ISalesPlanJournalFactory salesPlanJournalFactory,
 			Action<SubdivisionFilterViewModel> filterConfig = null)
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigation)
 		{
@@ -54,7 +51,6 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 			_currentPermissionService = currentPermissionService
 				?? throw new ArgumentNullException(nameof(currentPermissionService));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
 			_filterViewModel = filterViewModel ?? throw new ArgumentNullException(nameof(filterViewModel));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 

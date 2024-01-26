@@ -1,5 +1,4 @@
-﻿using Autofac;
-using QS.Commands;
+﻿using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -13,39 +12,25 @@ using Vodovoz.Domain.Complaints;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels.Organizations;
-using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz.ViewModels.Complaints
 {
 	public class ComplaintKindViewModel : EntityTabViewModelBase<ComplaintKind>
 	{
-		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
-		private readonly ICommonServices _commonServices;
-		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private DelegateCommand<Subdivision> _removeSubdivisionCommand;
 		private DelegateCommand _attachSubdivisionCommand;
 		private readonly Action _updateJournalAction;
 		private readonly IList<Subdivision> _subdivisionsOnStart;
-		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
-		private readonly ILifetimeScope _scope;
 
 		public ComplaintKindViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
-			IEmployeeJournalFactory employeeJournalFactory,
-			Action updateJournalAction,
-			ISalesPlanJournalFactory salesPlanJournalFactory,
-			ILifetimeScope scope) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
+			Action updateJournalAction)
+			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
-			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_updateJournalAction = updateJournalAction ?? throw new ArgumentNullException(nameof(updateJournalAction));
-			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
-			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 
 			ComplaintObjects = UoW.Session.QueryOver<ComplaintObject>().List();
 			_subdivisionsOnStart = new List<Subdivision>(Entity.Subdivisions);
