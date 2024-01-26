@@ -9,6 +9,7 @@ using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using System;
 using System.Collections.Generic;
@@ -19,6 +20,7 @@ using System.Threading.Tasks;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
@@ -27,8 +29,11 @@ using Vodovoz.Services;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Infrastructure.InfoProviders;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.ViewModels.Goods;
@@ -138,6 +143,15 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 
 			DeliveryScheduleSelectorFactory = deliveryScheduleSelectorFactory;
 
+			DefaultWaterNomenclatureViewModel = new CommonEEVMBuilderFactory<DeliveryPoint>(this, Entity, UoW, NavigationManager)
+				.ForProperty(dp => dp.DefaultWaterNomenclature)
+				.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(filter =>
+				{
+					filter.RestrictCategory = NomenclatureCategory.water;
+				})
+				.UseViewModelDialog<NomenclatureViewModel>()
+				.Finish();
+
 			Entity.PropertyChanged += (sender, e) =>
 			{
 				switch(e.PropertyName)
@@ -198,6 +212,8 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 		public IOrderedEnumerable<DeliveryPointCategory> DeliveryPointCategories { get; }
 		public IEntityAutocompleteSelectorFactory DeliveryScheduleSelectorFactory { get; }
 
+		public IEntityEntryViewModel DefaultWaterNomenclatureViewModel { get; }
+
 		public override bool HasChanges
 		{
 			get
@@ -218,7 +234,6 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 				Entity.LogisticsRequirements = _logisticsRequirementsVM.Entity;
 			}
 		}
-
 
 		#endregion
 

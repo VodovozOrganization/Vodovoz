@@ -1,24 +1,26 @@
-﻿using System;
+﻿using Autofac;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
+using System;
+using System.ComponentModel;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
-using Autofac;
-using QS.Project.Journal.EntitySelector;
 using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz
 {
 	[OrmDefaultIsFiltered(true)]
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class ClientBalanceFilter : RepresentationFilterBase<ClientBalanceFilter>
 	{
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+		private Nomenclature _restrictNomenclature;
+		private Nomenclature _nomenclature;
+		private bool _canChangeNomenclature;
 		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilter = new DeliveryPointJournalFilterViewModel();
 
 		protected override void ConfigureWithUow()
@@ -54,7 +56,7 @@ namespace Vodovoz
 
 		public ClientBalanceFilter()
 		{
-			this.Build();
+			Build();
 		}
 
 		public Counterparty RestrictCounterparty {
@@ -65,12 +67,37 @@ namespace Vodovoz
 			}
 		}
 
-		public Nomenclature RestrictNomenclature {
-			get { return nomenclatureEntry.Subject as Nomenclature; }
-			set {
-				nomenclatureEntry.Subject = value;
-				nomenclatureEntry.Sensitive = false;
+		public Nomenclature RestrictNomenclature
+		{
+			get => _restrictNomenclature;
+			set
+			{
+				_restrictNomenclature = value;
+
+				if(value is null)
+				{
+					CanChangeNomenclature = true;
+					Nomenclature = value;
+					return;
+				}
+
+				CanChangeNomenclature = false;
+				Nomenclature = value;
+
+				entryNomenclature.Sensitive = CanChangeNomenclature;
 			}
+		}
+
+		public Nomenclature Nomenclature
+		{
+			get => _nomenclature;
+			set => _nomenclature = value;
+		}
+
+		public bool CanChangeNomenclature
+		{
+			get => _canChangeNomenclature;
+			set => _canChangeNomenclature = value;
 		}
 
 		public DeliveryPoint RestrictDeliveryPoint {

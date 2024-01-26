@@ -4,9 +4,13 @@ using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using System;
 using Vodovoz.Domain.Roboats;
 using Vodovoz.Factories;
+using Vodovoz.ViewModels.Dialogs.Goods;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.ViewModels.Dialogs.Roboats
 {
@@ -35,6 +39,15 @@ namespace Vodovoz.ViewModels.Dialogs.Roboats
 			var permissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(RoboatsWaterType));
 			_canEdit = permissionResult.CanUpdate;
 			_canCreate = permissionResult.CanCreate;
+
+			NomenclatureViewModel = new CommonEEVMBuilderFactory<RoboatsWaterType>(this, Entity, UoW, NavigationManager)
+				.ForProperty(rwt => rwt.Nomenclature)
+				.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(filter =>
+				{
+
+				})
+				.UseViewModelDialog<NomenclatureViewModel>()
+				.Finish();
 		}
 
 		public bool CanEdit => _canEdit || _canCreate && UoW.IsNew;
@@ -44,6 +57,8 @@ namespace Vodovoz.ViewModels.Dialogs.Roboats
 			get => _roboatsEntityViewModel;
 			set => SetField(ref _roboatsEntityViewModel, value);
 		}
+
+		public IEntityEntryViewModel NomenclatureViewModel { get; private set; }
 
 		protected override bool BeforeSave()
 		{

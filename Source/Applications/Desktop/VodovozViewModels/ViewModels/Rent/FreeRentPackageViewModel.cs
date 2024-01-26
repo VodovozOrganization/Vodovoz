@@ -3,9 +3,13 @@ using QS.Navigation;
 using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using System;
 using Vodovoz.Domain;
 using Vodovoz.EntityRepositories.RentPackages;
+using Vodovoz.ViewModels.Dialogs.Goods;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.ViewModels.ViewModels.Rent
 {
@@ -24,7 +28,18 @@ namespace Vodovoz.ViewModels.ViewModels.Rent
 			_rentPackageRepository = rentPackageRepository ?? throw new ArgumentNullException(nameof(rentPackageRepository));
 			
 			ConfigureValidateContext();
+
+			DepositServiceNomenclatureViewModel = new CommonEEVMBuilderFactory<FreeRentPackage>(this, Entity, UoW, NavigationManager)
+				.ForProperty(x => x.DepositService)
+				.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(filter =>
+				{
+
+				})
+				.UseViewModelDialog<NomenclatureViewModel>()
+				.Finish();
 		}
+
+		public IEntityEntryViewModel DepositServiceNomenclatureViewModel { get; }
 
 		private void ConfigureValidateContext()
 		{

@@ -29,7 +29,6 @@ using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
-using Vodovoz.Representations.ProductGroups;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
@@ -366,10 +365,16 @@ namespace Vodovoz
 		{
 			var page = (NavigationManager as ITdiCompatibilityNavigation)
 				.OpenViewModelOnTdi<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(this, filter =>
-			{
-				filter.RestrictArchive = true;
-				filter.AvailableCategories = Nomenclature.GetCategoriesForGoodsWithoutEmptyBottles();
-			});
+				{
+					filter.RestrictArchive = true;
+					filter.AvailableCategories = Nomenclature.GetCategoriesForGoodsWithoutEmptyBottles();
+				},
+				OpenPageOptions.AsSlave,
+				viewModel =>
+				{
+					viewModel.SelectionMode = JournalSelectionMode.Single;
+				});
+
 			page.ViewModel.OnSelectResult += NomenclatureSelectorOnEntitySelectedResult;
 		}
 

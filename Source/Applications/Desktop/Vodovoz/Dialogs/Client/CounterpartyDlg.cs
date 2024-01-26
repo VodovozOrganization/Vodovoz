@@ -1083,7 +1083,7 @@ namespace Vodovoz
 					UoW,
 					this,
 					ServicesConfig.CommonServices,
-					Startup.MainWin.NavigationManager);
+					NavigationManager as ITdiCompatibilityNavigation);
 			supplierPricesWidget.Sensitive = CanEdit;
 		}
 
@@ -1918,7 +1918,14 @@ namespace Vodovoz
 
 		protected void OnYbuttonAddNomClicked(object sender, EventArgs e)
 		{
-			var page = (NavigationManager as ITdiCompatibilityNavigation).OpenViewModelOnTdi<NomenclaturesJournalViewModel>(this);
+			var page = (NavigationManager as ITdiCompatibilityNavigation).OpenViewModelOnTdi<NomenclaturesJournalViewModel>(
+				this,
+				OpenPageOptions.AsSlave,
+				viewModel =>
+				{
+					viewModel.SelectionMode = JournalSelectionMode.Single;
+				});
+
 			page.ViewModel.OnSelectResult += Journal_OnEntitySelectedResult;
 		}
 

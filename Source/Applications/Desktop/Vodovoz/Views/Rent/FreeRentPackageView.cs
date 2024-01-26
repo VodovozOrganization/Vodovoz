@@ -30,11 +30,7 @@ namespace Vodovoz.Views.Rent
 				.AddBinding(ViewModel.Entity, e => e.MinWaterAmount, w => w.ValueAsInt)
 				.InitializeFromSource();
 
-			//entryDepositService.SetEntityAutocompleteSelectorFactory(ViewModel.DepositServiceSelectorFactory);
-
-			entryDepositService.Binding
-				.AddBinding(ViewModel.Entity, e => e.DepositService, w => w.Subject)
-				.InitializeFromSource();
+			entryDepositServiceNomenclature.ViewModel = ViewModel.DepositServiceNomenclatureViewModel;
 
 			referenceEquipmentType.SubjectType = typeof(EquipmentKind);
 			referenceEquipmentType.Binding

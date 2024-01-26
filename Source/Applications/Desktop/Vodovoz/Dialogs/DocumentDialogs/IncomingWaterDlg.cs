@@ -1,26 +1,25 @@
-﻿using System;
+﻿using Autofac;
 using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
-using QSOrmProject;
-using QS.Validation;
-using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Store;
-using Vodovoz.PermissionExtensions;
-using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
+using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Services;
+using QS.Validation;
+using QS.ViewModels.Control.EEVM;
+using QSOrmProject;
+using System;
+using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Permissions.Warehouses;
+using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.PermissionExtensions;
 using Vodovoz.Tools.Store;
+using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalFactories;
-using Autofac;
-using QS.Project.Journal.EntitySelector;
-using QS.ViewModels.Control.EEVM;
-using Vodovoz.ViewModels.Dialogs.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz
 {
@@ -32,17 +31,20 @@ namespace Vodovoz
 		private readonly IUserRepository _userRepository = new UserRepository();
 		private readonly StoreDocumentHelper _storeDocumentHelper = new StoreDocumentHelper(new UserSettingsGetter());
 
+		public INavigationManager NavigationManager { get; private set; }
+
 		public IncomingWaterDlg()
 		{
 			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<IncomingWater>();
 			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
-			if(Entity.Author == null) {
+			if(Entity.Author == null)
+			{
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
 				FailInitialize = true;
 				return;
 			}
-			
+
 			Entity.IncomingWarehouse = _storeDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissionsType.IncomingWaterEdit);
 			Entity.WriteOffWarehouse = _storeDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissionsType.IncomingWaterEdit);
 
@@ -53,7 +55,7 @@ namespace Vodovoz
 		{
 			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<IncomingWater>(id);
-			
+
 			ConfigureDlg();
 		}
 
@@ -63,6 +65,8 @@ namespace Vodovoz
 
 		void ConfigureDlg()
 		{
+			NavigationManager = _lifetimeScope.Resolve<INavigationManager>();
+
 			if(_storeDocumentHelper.CheckAllPermissions(
 					UoW.IsNew, WarehousePermissionsType.IncomingWaterEdit, Entity.IncomingWarehouse, Entity.WriteOffWarehouse))
 			{
@@ -72,7 +76,19 @@ namespace Vodovoz
 
 			var editing = _storeDocumentHelper.CanEditDocument(
 				WarehousePermissionsType.IncomingWaterEdit, Entity.IncomingWarehouse, Entity.WriteOffWarehouse);
-			buttonFill.Sensitive = yentryProduct.IsEditable = spinAmount.Sensitive = editing;
+
+			var entityEntryNomenclatureViewModel = new LegacyEEVMBuilderFactory<IncomingWater>(this, Entity, UoW, NavigationManager, _lifetimeScope)
+				.ForProperty(x => x.Product)
+				.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(filter =>
+				{
+					filter.HidenByDefault = true;
+				})
+				.UseViewModelDialog<NomenclatureViewModel>()
+				.Finish();
+
+			entryProduct.ViewModel = entityEntryNomenclatureViewModel;
+
+			buttonFill.Sensitive = entryProduct.ViewModel.IsEditable = spinAmount.Sensitive = editing;
 			incomingwatermaterialview1.Sensitive = editing;
 
 			labelTimeStamp.Binding.AddBinding(Entity, e => e.DateString, w => w.LabelProp).InitializeFromSource();
@@ -105,42 +121,36 @@ namespace Vodovoz
 
 			var permmissionValidator =
 				new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
-			
+
 			Entity.CanEdit =
 				permmissionValidator.Validate(
 					typeof(IncomingWater), _userRepository.GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
-			
-			if(!Entity.CanEdit && Entity.TimeStamp.Date != DateTime.Now.Date) {
+
+			if(!Entity.CanEdit && Entity.TimeStamp.Date != DateTime.Now.Date)
+			{
 				spinAmount.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
-				yentryProduct.Sensitive = false;
+				entryProduct.Sensitive = false;
 				destinationWarehouseEntry.Sensitive = false;
 				sourceWarehouseEntry.Sensitive = false;
 				buttonFill.Sensitive = false;
 				incomingwatermaterialview1.Sensitive = false;
 				buttonSave.Sensitive = false;
-			} else {
+			}
+			else
+			{
 				Entity.CanEdit = true;
 			}
-
-			var entityEntryNomenclatureViewModel = new LegacyEEVMBuilderFactory<IncomingWater>(this, Entity, UoW, Startup.MainWin.NavigationManager)
-				.ForProperty(x => x.Product)
-				.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(filter =>
-				{
-					filter.HidenByDefault = true;
-				})
-				.UseViewModelDialog<NomenclatureViewModel>()
-				.Finish();
-			
-			//yentryProduct.SetEntityAutocompleteSelectorFactory(nomenclatureAutoCompleteSelectorFactory);
-			//yentryProduct.Binding.AddBinding(Entity, e => e.Product, w => w.Subject).InitializeFromSource();
 		}
 
-		public override bool Save ()
+		public override bool Save()
 		{
 			if(!Entity.CanEdit)
+			{
 				return false;
+			}
 
-			if(CheckWarehouseItems() == false){
+			if(CheckWarehouseItems() == false)
+			{
 				MessageDialogHelper.RunErrorDialog("На складе не хватает материалов");
 				return false;
 			}
@@ -151,45 +161,49 @@ namespace Vodovoz
 				return false;
 			}
 
-			Entity.LastEditor = _employeeRepository.GetEmployeeForCurrentUser (UoW);
+			Entity.LastEditor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			Entity.LastEditedTime = DateTime.Now;
 			if(Entity.LastEditor == null)
 			{
-				MessageDialogHelper.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
+				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
 				return false;
 			}
 
-			logger.Info ("Сохраняем документ производства...");
-			UoWGeneric.Save ();
-			logger.Info ("Ok.");
+			logger.Info("Сохраняем документ производства...");
+			UoWGeneric.Save();
+			logger.Info("Ok.");
 			return true;
 		}
 
 		private bool CheckWarehouseItems()
 		{
-			foreach(var mater in Entity.Materials){
+			foreach(var mater in Entity.Materials)
+			{
 				if(mater.Amount > mater.AmountOnSource)
+				{
 					return false;
-			} 
+				}
+			}
 			return true;
 		}
 
-		protected void OnButtonFillClicked (object sender, EventArgs e)
+		protected void OnButtonFillClicked(object sender, EventArgs e)
 		{
-			OrmReference SelectDialog = new OrmReference (typeof(ProductSpecification), UoWGeneric);
+			OrmReference SelectDialog = new OrmReference(typeof(ProductSpecification), UoWGeneric);
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.ObjectSelected += SelectDialog_ObjectSelected;
 
-			TabParent.AddSlaveTab (this, SelectDialog);
+			TabParent.AddSlaveTab(this, SelectDialog);
 		}
 
-		void SelectDialog_ObjectSelected (object sender, OrmReferenceObjectSectedEventArgs e)
+		void SelectDialog_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
 		{
 			var spec = e.Subject as ProductSpecification;
 			UoWGeneric.Root.Product = spec.Product;
-			UoWGeneric.Root.ObservableMaterials.Clear ();
-			foreach (var material in spec.Materials) {
-				UoWGeneric.Root.AddMaterial (material);
+			UoWGeneric.Root.ObservableMaterials.Clear();
+			foreach(var material in spec.Materials)
+			{
+				UoWGeneric.Root.AddMaterial(material);
 			}
 		}
 

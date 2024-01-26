@@ -170,11 +170,25 @@ namespace Vodovoz.FilterViewModels
 			return currentSubdivisionViewModel;
 		}
 
+		private IEntityEntryViewModel BuildComplaintKindViewModel(DialogViewModelBase journal)
+		{
+			var complaintKindViewModel = new CommonEEVMBuilderFactory<ComplaintFilterViewModel>(journal, this, UoW, _navigationManager, _lifetimeScope)
+				.ForProperty(x => x.ComplaintKind)
+				.UseViewModelDialog<ComplaintKindViewModel>()
+				.UseViewModelJournalAndAutocompleter<ComplaintKindJournalViewModel>()
+				.Finish();
+
+			complaintKindViewModel.DisposeViewModel = false;
+			return complaintKindViewModel;
+		}
+
 		public IEmployeeService EmployeeService { get; set; }
 
 		public IEntityEntryViewModel CurrentSubdivisionViewModel { get; private set; }
 
 		public IEntityEntryViewModel AtWorkInSubdivisionViewModel { get; private set; }
+
+		public IEntityEntryViewModel ComplaintKindViewModel { get; private set; }
 
 		public IEntityEntryViewModel ComplaintDetalizationEntiryEntryViewModel { get; private set; }
 
@@ -343,6 +357,7 @@ namespace Vodovoz.FilterViewModels
 				CurrentSubdivisionViewModel = BuildCurrentSubdivisionViewModel(value);
 				AtWorkInSubdivisionViewModel = BuildAtWorkInSubdivisionViewModel(value);
 				AuthorEntiryEntryViewModel = BuildAuthorViewModel(value);
+				ComplaintKindViewModel = BuildComplaintKindViewModel(value);
 
 				GuiltyItemVM.SubdivisionViewModel = BuildeGuiltyItemSubdivisionViewModel(value);
 			}
