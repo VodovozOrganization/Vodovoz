@@ -188,7 +188,8 @@ namespace Vodovoz.Configuration
                     .Column("Статус", x => x.Status.GetEnumTitle())
                     .SearchColumn("Водитель", x => String.Format("{0} - {1}", x.Driver.FullName, x.Car.Title)).End(),
                 OrmObjectMapping<RouteColumn>.Create().DefaultTableView().Column("Код", x => x.Id.ToString())
-                    .SearchColumn("Название", x => x.Name).End(),
+                    .SearchColumn("Название", x => x.Name).Column("Короткое название", x => x.ShortName)
+					.Column("Выделить", x => x.IsHighlighted ? "Да" : "Нет").End(),
                 OrmObjectMapping<DeliveryShift>.Create().Dialog<DeliveryShiftDlg>().DefaultTableView().SearchColumn("Название", x => x.Name)
                     .SearchColumn("Диапазон времени", x => x.DeliveryTime).End(),
                 OrmObjectMapping<DeliveryDaySchedule>.Create().Dialog<DeliveryDayScheduleDlg>().DefaultTableView()
