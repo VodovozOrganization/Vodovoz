@@ -628,6 +628,10 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 		public bool CanStopApplication()
 		{
+			if(OperatorState == null)
+			{
+				return true;
+			}
 			var canStop = OperatorState.State.IsIn(
 				OperatorStateType.New,
 				OperatorStateType.Connected,

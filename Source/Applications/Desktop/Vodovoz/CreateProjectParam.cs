@@ -190,6 +190,8 @@ using Vodovoz.ViewModels.ViewModels.Reports.Logistics;
 using Vodovoz.ViewModels.ReportsParameters.Production;
 using Vodovoz.Views.ReportsParameters.Production;
 using QS.Project.Services;
+using Vodovoz.Presentation.ViewModels.Reports.PACS;
+using Vodovoz.ReportsParameters.PACS;
 
 namespace Vodovoz
 {
@@ -499,6 +501,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<DriversWarehousesEventsJournalFilterViewModel, DriversWarehousesEventsJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<CompletedDriversWarehousesEventsJournalFilterViewModel, CompletedDriversWarehousesEventsJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<ProducedProductionReportViewModel, ProducedProductionReportView>()
+				.RegisterWidgetForWidgetViewModel<PacsMissingCallsReportViewModel, PacsMissingCallsReport>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;

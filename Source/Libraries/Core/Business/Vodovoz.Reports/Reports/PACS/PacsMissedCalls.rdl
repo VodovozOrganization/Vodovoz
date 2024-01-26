@@ -16,8 +16,8 @@
   </PageHeader>
   <Body>
     <Height>184.0pt</Height>
-    <Columns >1</Columns>
-    <ReportItems >
+    <Columns>1</Columns>
+    <ReportItems>
       <Table Name="Table1">
         <DataSetName>data</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
@@ -96,7 +96,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox5">
-                      <Value>Ожидание</Value>
+                      <Value>Ожидание, сек</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -210,6 +210,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Left</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -225,6 +226,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -271,6 +273,7 @@
                             </BorderStyle>
                             <BorderColor />
                             <BorderWidth />
+                            <TextAlign>Center</TextAlign>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -287,6 +290,7 @@
                             <BorderColor />
                             <BorderWidth />
                             <Format>dd.MM.yyyy HH:mm:ss</Format>
+                            <TextAlign>Center</TextAlign>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -303,6 +307,7 @@
                             <BorderColor />
                             <BorderWidth />
                             <Format>dd.MM.yyyy HH:mm:ss</Format>
+                            <TextAlign>Center</TextAlign>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -310,7 +315,7 @@
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox23">
-                          <Value>={disconnected_time}-{appeared_time}</Value>
+                          <Value>={waiting}</Value>
                           <CanGrow>true</CanGrow>
                           <Style>
                             <BorderStyle>
@@ -318,7 +323,7 @@
                             </BorderStyle>
                             <BorderColor />
                             <BorderWidth />
-                            <Format>mm:ss</Format>
+                            <TextAlign>Center</TextAlign>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -368,7 +373,7 @@
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageFooter>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS">
       <ConnectionProperties>
         <DataProvider>MySqlConnector</DataProvider>
@@ -377,21 +382,22 @@
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <DataSets >
+  <DataSets>
     <DataSet Name="data">
-      <Query>
+      <Query >
         <DataSourceName>DS</DataSourceName>
         <CommandText>SELECT
 	missed_calls.call_id,
 	missed_calls.from_number,
 	missed_calls.appeared_time,
 	missed_calls.disconnected_time,
+	TIMESTAMPDIFF(SECOND, missed_calls.appeared_time, missed_calls.disconnected_time) as waiting,
 	pos.operator_id,
 	e.last_name,
 	e.name,
 	e.patronymic,
-	(IF(pos.ended IS NOT NULL, IF(pos.ended &gt;= missed_calls.disconnected_time, missed_calls.disconnected_time, pos.ended), missed_calls.disconnected_time)
-	- IF(pos.started &gt;= missed_calls.appeared_time, pos.started, missed_calls.appeared_time)) as time_to_reaction
+	IF(pos.operator_id IS NULL, NULL, (IF(pos.ended IS NOT NULL, IF(pos.ended &gt;= missed_calls.disconnected_time, missed_calls.disconnected_time, pos.ended), missed_calls.disconnected_time)
+	- IF(pos.started &gt;= missed_calls.appeared_time, pos.started, missed_calls.appeared_time))) as time_to_reaction
 FROM
 	(SELECT 
 		pce2.*, 
@@ -428,7 +434,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="call_id">
           <DataField>call_id</DataField>
           <TypeName>System.String</TypeName>
@@ -465,25 +471,29 @@ FROM
           <DataField>time_to_reaction</DataField>
           <TypeName>System.Int32</TypeName>
         </Field>
+        <Field Name="waiting">
+          <DataField>waiting</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
       </Fields>
     </DataSet>
   </DataSets>
-  <ReportParameters >
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
+  <ReportParameters>
     <ReportParameter Name="date_from">
-      <DataType>DateTime</DataType>
+      <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="date_to">
-      <DataType>DateTime</DataType>
+      <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataElementName >Report</DataElementName>
-  <DataElementStyle >AttributeNormal</DataElementStyle>
 </Report>
