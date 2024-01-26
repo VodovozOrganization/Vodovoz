@@ -212,9 +212,13 @@ namespace Vodovoz.ViewModels.Orders
 			AddActionCommand = new DelegateCommand<PromotionalSetActionType>(
 			(actionType) =>
 				{
-					SelectedActionViewModel = _lifetimeScope.Resolve<AddFixPriceActionViewModel>(
+					var addFixedPriceViewModel = _lifetimeScope.Resolve<AddFixPriceActionViewModel>(
 						new TypedParameter(typeof(IUnitOfWork), UoW),
 						new TypedParameter(typeof(PromotionalSet), Entity));
+
+					addFixedPriceViewModel.Container = this;
+
+					SelectedActionViewModel = addFixedPriceViewModel;
 
 					if(SelectedActionViewModel is ICreationControl)
 					{

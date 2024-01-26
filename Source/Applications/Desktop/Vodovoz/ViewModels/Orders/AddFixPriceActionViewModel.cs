@@ -3,30 +3,34 @@ using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Services;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
+using QS.ViewModels.Dialog;
 using System;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Parameters;
 using Vodovoz.Tools;
+using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.ViewModels.Orders
 {
 	public class AddFixPriceActionViewModel : UoWWidgetViewModelBase, ICreationControl
 	{
+		private Nomenclature _nomenclature;
+		private decimal _price;
+		private bool _isForZeroDebt;
+		private DialogViewModelBase _container;
+		private readonly ILifetimeScope _lifetimeScope;
+
 		public AddFixPriceActionViewModel(
 			ILifetimeScope lifetimeScope,
-			IUnitOfWork uow, 
-			PromotionalSet promotionalSet, 
-			ICommonServices commonServices) 
+			IUnitOfWork uow,
+			PromotionalSet promotionalSet,
+			ICommonServices commonServices)
 		{
-			if(lifetimeScope is null)
-			{
-				throw new ArgumentNullException(nameof(lifetimeScope));
-			}
-			
-			var filter = new NomenclatureFilterViewModel();
-			filter.RestrictCategory = NomenclatureCategory.water;
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 
 			CreateCommands();
 			PromotionalSet = promotionalSet;
@@ -34,27 +38,52 @@ namespace Vodovoz.ViewModels.Orders
 			UoW = uow;
 		}
 
+		public DialogViewModelBase Container
+		{
+			get => _container;
+			set
+			{
+				if(_container != null)
+				{
+					return;
+				}
+
+				_container = value;
+
+				NomenclatureViewModel = new CommonEEVMBuilderFactory<AddFixPriceActionViewModel>(_container, this, UoW, _container.NavigationManager, _lifetimeScope)
+					.ForProperty(x => x.Nomenclature)
+					.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(filter =>
+					{
+						filter.RestrictCategory = NomenclatureCategory.water;
+					})
+					.UseViewModelDialog<NomenclatureViewModel>()
+					.Finish();
+			}
+		}
+
+		public IEntityEntryViewModel NomenclatureViewModel { get; private set; }
+
 		public PromotionalSet PromotionalSet { get; set; }
 		public ICommonServices CommonServices { get; set; }
 
 		public event Action CancelCreation;
 
-		private Nomenclature nomenclature;
-		public Nomenclature Nomenclature {
-			get => nomenclature;
-			set => SetField(ref nomenclature, value);
+		public Nomenclature Nomenclature
+		{
+			get => _nomenclature;
+			set => SetField(ref _nomenclature, value);
 		}
 
-		private decimal price;
-		public decimal Price {
-			get => price;
-			set => SetField(ref price, value);
+		public decimal Price
+		{
+			get => _price;
+			set => SetField(ref _price, value);
 		}
 
-		private bool isForZeroDebt;
-		public bool IsForZeroDebt {
-			get => isForZeroDebt;
-			set => SetField(ref isForZeroDebt, value);
+		public bool IsForZeroDebt
+		{
+			get => _isForZeroDebt;
+			set => SetField(ref _isForZeroDebt, value);
 		}
 
 		#region Commands
@@ -65,40 +94,51 @@ namespace Vodovoz.ViewModels.Orders
 			CreateCancelCommand();
 		}
 
-		public DelegateCommand AcceptCommand;
+		public DelegateCommand AcceptCommand { get; private set; }
+		public DelegateCommand CancelCommand { get; private set; }
 
 		private void CreateAcceptCommand()
 		{
 			AcceptCommand = new DelegateCommand(
-				() => {
-					var validatableAction = new PromotionalSetActionFixPrice {
+				() =>
+				{
+					var validatableAction = new PromotionalSetActionFixPrice
+					{
 						Nomenclature = Nomenclature,
 						Price = Price,
 						PromotionalSet = PromotionalSet,
 						IsForZeroDebt = IsForZeroDebt
 					};
+
 					if(!CommonServices.ValidationService.Validate(validatableAction))
+					{
 						return;
+					}
 
 					var nomenclatureParametersProvider = new NomenclatureParametersProvider(new ParametersProvider());
-					WaterFixedPriceGenerator waterFixedPriceGenerator = new WaterFixedPriceGenerator(UoW, nomenclatureParametersProvider);
+					var waterFixedPriceGenerator = new WaterFixedPriceGenerator(UoW, nomenclatureParametersProvider);
 					var fixedPrices = waterFixedPriceGenerator.GenerateFixedPrices(Nomenclature.Id, Price);
-					foreach(var fixedPrice in fixedPrices) {
-						var newAction = new PromotionalSetActionFixPrice {
+
+					foreach(var fixedPrice in fixedPrices)
+					{
+						var newAction = new PromotionalSetActionFixPrice
+						{
 							Nomenclature = fixedPrice.Nomenclature,
 							Price = fixedPrice.Price,
 							PromotionalSet = PromotionalSet,
 							IsForZeroDebt = IsForZeroDebt
 						};
+
 						if(!CommonServices.ValidationService.Validate(newAction))
+						{
 							return;
+						}
+
 						PromotionalSet.ObservablePromotionalSetActions.Add(newAction);
 					}
 				},
 				() => true);
 		}
-
-		public DelegateCommand CancelCommand;
 
 		private void CreateCancelCommand()
 		{
