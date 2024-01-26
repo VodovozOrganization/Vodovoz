@@ -2,18 +2,23 @@
 using CustomerAppsApi.Library.Factories;
 using CustomerAppsApi.Library.Models;
 using CustomerAppsApi.Library.Repositories;
+using CustomerAppsApi.Library.Services;
 using CustomerAppsApi.Library.Validators;
+using CustomerAppsApi.Models;
+using CustomerAppsApi.Validators;
 using Microsoft.Extensions.DependencyInjection;
+using QS.DomainModel.UoW;
 using Vodovoz.Controllers;
 using Vodovoz.Controllers.ContactsForExternalCounterparty;
 using Vodovoz.Factories;
+using VodovozInfrastructure.Cryptography;
 
 namespace CustomerAppsApi.Library
 {
 	/// <summary>
 	/// Методы расширения коллекции сервисов дял регистрации в контейнере зависимостей
 	/// </summary>
-	public static class DependencyInjection
+	public static class CustomerAppsApiExtensions
 	{
 		/// <summary>
 		/// Добавление сервисов библиотеки
@@ -22,7 +27,8 @@ namespace CustomerAppsApi.Library
 		/// <returns></returns>
 		public static IServiceCollection AddCustomerApiLibrary(this IServiceCollection services)
 		{
-			services.AddSingleton<ICachedBottlesDebtRepository, CachedBottlesDebtRepository>()
+			services.AddScoped(_ => UnitOfWorkFactory.CreateWithoutRoot("Сервис интеграции"))
+				.AddSingleton<ICachedBottlesDebtRepository, CachedBottlesDebtRepository>()
 				.AddSingleton<IRegisteredNaturalCounterpartyDtoFactory, RegisteredNaturalCounterpartyDtoFactory>()
 				.AddSingleton<IExternalCounterpartyMatchingFactory, ExternalCounterpartyMatchingFactory>()
 				.AddSingleton<IExternalCounterpartyFactory, ExternalCounterpartyFactory>()
@@ -37,11 +43,19 @@ namespace CustomerAppsApi.Library
 				.AddSingleton<ContactFinderForExternalCounterpartyFromMany>()
 				.AddSingleton<IContactManagerForExternalCounterparty, ContactManagerForExternalCounterparty>()
 				.AddSingleton<IGoodsOnlineParametersController, GoodsOnlineParametersController>()
+				.AddSingleton<NomenclaturesFrequencyRequestsHandler>()
+				.AddSingleton<PricesFrequencyRequestsHandler>()
+				.AddSingleton<SelfDeliveriesAddressesFrequencyRequestsHandler>()
 				.AddScoped<ICounterpartyModel, CounterpartyModel>()
 				.AddScoped<INomenclatureModel, NomenclatureModel>()
 				.AddScoped<IOrderModel, OrderModel>()
+				.AddScoped<IRentPackageModel, RentPackageModel>()
 				.AddScoped<IPromotionalSetModel, PromotionalSetModel>()
-				.AddScoped<ICounterpartyModelValidator, CounterpartyModelValidator>();
+				.AddScoped<IDeliveryPointModel, DeliveryPointModel>()
+				.AddScoped<IWarehouseModel, WarehouseModel>()
+				.AddScoped<IDeliveryPointModelValidator, DeliveryPointModelValidator>()
+				.AddScoped<ICounterpartyModelValidator, CounterpartyModelValidator>()
+				.AddScoped<IMD5HexHashFromString, MD5HexHashFromString>();
 
 			return services;
 		}

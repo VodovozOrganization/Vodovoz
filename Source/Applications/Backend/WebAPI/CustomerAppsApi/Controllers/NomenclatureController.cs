@@ -1,5 +1,6 @@
 using System;
 using CustomerAppsApi.Library.Dto;
+using CustomerAppsApi.Library.Models;
 using CustomerAppsApi.Library.Services;
 using CustomerAppsApi.Models;
 using Gamma.Utilities;

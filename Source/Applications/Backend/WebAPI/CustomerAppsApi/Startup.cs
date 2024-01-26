@@ -1,4 +1,4 @@
-using CustomerAppsApi.Middleware;
+﻿using CustomerAppsApi.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -19,10 +19,12 @@ using QS.Services;
 using QS.Utilities.Numeric;
 using System.Linq;
 using System.Reflection;
+using CustomerAppsApi.Factories;
 using CustomerAppsApi.HealthChecks;
-using CustomerAppsApi.Library.Services;
-using Vodovoz.Controllers;
-using Vodovoz.Controllers.ContactsForExternalCounterparty;
+using CustomerAppsApi.Library;
+using CustomerAppsApi.Library.Converters;
+using CustomerAppsApi.Library.Factories;
+using CustomerAppsApi.Library.Repositories;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
@@ -39,7 +41,6 @@ using Vodovoz.Services;
 using Vodovoz.Settings;
 using Vodovoz.Settings.Database;
 using VodovozHealthCheck;
-using VodovozInfrastructure.Cryptography;
 using UserRepository = QS.Project.Repositories.UserRepository;
 
 namespace CustomerAppsApi
@@ -85,8 +86,6 @@ namespace CustomerAppsApi
 				redisOptions.Configuration = connection;
 			});
 			
-			services.AddScoped<IUnitOfWork>(_ => UnitOfWorkFactory.CreateWithoutRoot("Сервис интеграции"));
-			
 			services.AddSingleton<IPhoneRepository, PhoneRepository>();
 			services.AddSingleton<IEmailRepository, EmailRepository>();
 			services.AddSingleton<IWarehouseRepository, WarehouseRepository>();
@@ -120,33 +119,9 @@ namespace CustomerAppsApi
 			services.AddSingleton<IRentPackageFactory, RentPackageFactory>();
 			services.AddSingleton<IPromotionalSetFactory, PromotionalSetFactory>();
 			services.AddSingleton<IDeliveryPointFactory, DeliveryPointFactory>();
-			services.AddSingleton<PhoneFormatter>(_ => new PhoneFormatter(PhoneFormat.DigitsTen));
-			services.AddSingleton<ICounterpartySettings, CounterpartySettings>();
 			services.AddSingleton<ICameFromConverter, CameFromConverter>();
 			services.AddSingleton<ISourceConverter, SourceConverter>();
-			
 			services.AddSingleton<PhoneFormatter>(_ => new PhoneFormatter(PhoneFormat.DigitsTen));
-			services.AddSingleton<ContactFinderForExternalCounterpartyFromOne>();
-			services.AddSingleton<ContactFinderForExternalCounterpartyFromTwo>();
-			services.AddSingleton<ContactFinderForExternalCounterpartyFromMany>();
-			services.AddSingleton<IContactManagerForExternalCounterparty, ContactManagerForExternalCounterparty>();
-			services.AddSingleton<IGoodsOnlineParametersController, GoodsOnlineParametersController>();
-
-			services.AddScoped<IUnitOfWork>(_ => UnitOfWorkFactory.CreateWithoutRoot("Сервис интеграции"));
-			services.AddScoped<CounterpartyModelValidator>();
-			services.AddScoped<ICounterpartyModel, CounterpartyModel>();
-			services.AddScoped<INomenclatureModel, NomenclatureModel>();
-			services.AddScoped<IRentPackageModel, RentPackageModel>();
-			services.AddScoped<IOrderModel, OrderModel>();
-			services.AddScoped<IPromotionalSetModel, PromotionalSetModel>();
-			services.AddScoped<IDeliveryPointModel, DeliveryPointModel>();
-			services.AddScoped<IMD5HexHashFromString, MD5HexHashFromString>();
-			services.AddScoped<CounterpartyModelValidator>();
-			services.AddScoped<IDeliveryPointModelValidator, DeliveryPointModelValidator>();
-			services.AddScoped<IWarehouseModel, WarehouseModel>();
-			services.AddSingleton<NomenclaturesFrequencyRequestsHandler>();
-			services.AddSingleton<PricesFrequencyRequestsHandler>();
-			services.AddSingleton<SelfDeliveriesAddressesFrequencyRequestsHandler>();
 			
 			services.AddCustomerApiLibrary();
 		}
