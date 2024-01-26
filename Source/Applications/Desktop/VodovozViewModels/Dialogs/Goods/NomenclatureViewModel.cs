@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.Dialog;
@@ -27,7 +27,7 @@ using Vodovoz.Services;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Nodes;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using VodovozInfrastructure.StringHandlers;
@@ -305,6 +305,8 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			}
 		}
 
+		public IEntityEntryViewModel DependsOnNomenclatureEntryViewModel { get; private set; }
+
 		public bool IsWaterParameters =>
 			SelectedOnlineGroup != null
 			&& SelectedOnlineGroup.Id == _nomenclatureOnlineParametersProvider.WaterNomenclatureOnlineGroupId;
@@ -532,6 +534,12 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		
 		private void ConfigureEntryViewModels()
 		{
+			DependsOnNomenclatureEntryViewModel = new CommonEEVMBuilderFactory<Nomenclature>(this, Entity, UoW, NavigationManager, _lifetimeScope)
+				.ForProperty(x => x.DependsOnNomenclature)
+				.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel>()
+				.UseViewModelDialog<NomenclatureViewModel>()
+				.Finish();
+
 			NomenclatureCostPricesViewModel =
 				new NomenclatureCostPricesViewModel(Entity, new NomenclatureCostPriceModel(CommonServices.CurrentPermissionService));
 			NomenclaturePurchasePricesViewModel =
