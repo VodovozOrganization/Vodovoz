@@ -54,8 +54,7 @@ namespace FastPaymentsAPI.Controllers
 		/// </summary>
 		/// <param name="orderDto">Dto с номером заказа</param>
 		/// <returns></returns>
-		[HttpPost]
-		[Route("/api/RegisterOrderForGetQR")]
+		[HttpPost("/api/RegisterOrderForGetQR")]
 		public async Task<QRResponseDTO> RegisterOrderForGetQR([FromBody] OrderDTO orderDto)
 		{
 			var orderId = orderDto.OrderId;
@@ -73,6 +72,15 @@ namespace FastPaymentsAPI.Controllers
 			try
 			{
 				var fastPayments = _fastPaymentModel.GetAllPerformedOrProcessingFastPaymentsByOrder(orderId);
+
+				var order = _fastPaymentOrderModel.GetOrder(orderId);
+				var orderValidationResult = _fastPaymentOrderModel.ValidateOrder(order, orderId);
+
+				if(orderValidationResult != null)
+				{
+					response.ErrorMessage = orderValidationResult;
+					return response;
+				}
 
 				if(fastPayments.Any())
 				{
@@ -108,7 +116,8 @@ namespace FastPaymentsAPI.Controllers
 						}
 						if(orderInfoResponseDto.Status == FastPaymentDTOStatus.Processing)
 						{
-							if(!string.IsNullOrWhiteSpace(fastPayment.QRPngBase64))
+							if(!string.IsNullOrWhiteSpace(fastPayment.QRPngBase64)
+								&& fastPayment.Amount == order.OrderSum)
 							{
 								response.QRCode = fastPayment.QRPngBase64;
 								response.FastPaymentStatus = fastPayment.FastPaymentStatus;
@@ -119,15 +128,6 @@ namespace FastPaymentsAPI.Controllers
 							_fastPaymentModel.UpdateFastPaymentStatus(fastPayment, FastPaymentDTOStatus.Rejected, DateTime.Now);
 						}
 					}
-				}
-				
-				var order = _fastPaymentOrderModel.GetOrder(orderId);
-				var orderValidationResult = _fastPaymentOrderModel.ValidateOrder(order, orderId);
-				
-				if(orderValidationResult != null)
-				{
-					response.ErrorMessage = orderValidationResult;
-					return response;
 				}
 
 				var fastPaymentGuid = Guid.NewGuid();
@@ -177,8 +177,7 @@ namespace FastPaymentsAPI.Controllers
 			return response;
 		}
 
-		[HttpGet]
-		[Route("/api/RegisterOrder")]
+		[HttpGet("/api/RegisterOrder")]
 		public async Task<FastPaymentResponseDTO> RegisterOrder(int orderId, string phoneNumber, bool isQr)
 		{
 			_logger.LogInformation($"Поступил запрос на отправку платежа с данными orderId: {orderId}, phoneNumber: {phoneNumber}");
@@ -301,8 +300,7 @@ namespace FastPaymentsAPI.Controllers
 		/// </summary>
 		/// <param name="fastPaymentRequestDto">Dto с номерами заказа и телефона</param>
 		/// <returns></returns>
-		[HttpPost]
-		[Route("/api/RegisterOrder")]
+		[HttpPost("/api/RegisterOrder")]
 		public async Task<FastPaymentResponseDTO> RegisterOrder([FromBody] FastPaymentRequestDTO fastPaymentRequestDto) =>
 			await RegisterOrder(fastPaymentRequestDto.OrderId, fastPaymentRequestDto.PhoneNumber, fastPaymentRequestDto.IsQr);
 		
@@ -311,8 +309,7 @@ namespace FastPaymentsAPI.Controllers
 		/// </summary>
 		/// <param name="requestRegisterOnlineOrderDto">Dto для регистрации онлайн-заказа</param>
 		/// <returns></returns>
-		[HttpPost]
-		[Route("/api/RegisterOnlineOrder")]
+		[HttpPost("/api/RegisterOnlineOrder")]
 		public async Task<ResponseRegisterOnlineOrderDTO> RegisterOnlineOrder(
 			[FromBody] RequestRegisterOnlineOrderDTO requestRegisterOnlineOrderDto)
 		{
@@ -324,8 +321,7 @@ namespace FastPaymentsAPI.Controllers
 		/// </summary>
 		/// <param name="requestRegisterOnlineOrderDto">Dto для регистрации онлайн-заказа</param>
 		/// <returns></returns>
-		[HttpPost]
-		[Route("/api/RegisterOnlineOrderFromMobileApp")]
+		[HttpPost("/api/RegisterOnlineOrderFromMobileApp")]
 		public async Task<ResponseRegisterOnlineOrderDTO> RegisterOnlineOrderFromMobileApp(
 			[FromBody] RequestRegisterOnlineOrderDTO requestRegisterOnlineOrderDto)
 		{
@@ -479,8 +475,7 @@ namespace FastPaymentsAPI.Controllers
 		/// </summary>
 		/// <param name="paidOrderDto">Dto с информацией об оплате</param>
 		/// <returns>При успешном выполнении отправляем 202</returns>
-		[HttpPost]
-		[Route("/api/ReceivePayment")]
+		[HttpPost("/api/ReceivePayment")]
 		[Consumes("application/x-www-form-urlencoded")]
 		public async Task<IActionResult> ReceivePayment([FromForm] PaidOrderDTO paidOrderDto)
 		{
@@ -575,8 +570,7 @@ namespace FastPaymentsAPI.Controllers
 		/// </summary>
 		/// <param name="cancelTicketRequestDto">Dto с сессией, которую надо отменить</param>
 		/// <returns></returns>
-		[HttpPost]
-		[Route("/api/CancelPayment")]
+		[HttpPost("/api/CancelPayment")]
 		public async Task<CancelTicketResponseDTO> CancelPayment([FromBody] CancelTicketRequestDTO cancelTicketRequestDto)
 		{
 			try
@@ -609,8 +603,7 @@ namespace FastPaymentsAPI.Controllers
 			}
 		}
 		
-		[HttpGet]
-		[Route("/api/GetOrderInfo")]
+		[HttpGet("/api/GetOrderInfo")]
 		public async Task<OrderInfoResponseDTO> GetOrderInfo(string ticket)
 		{
 			_logger.LogInformation($"Пришел запрос на получении инфы о платеже с сессией: {ticket}");
@@ -648,8 +641,7 @@ namespace FastPaymentsAPI.Controllers
 		/// </summary>
 		/// <param name="orderId">Id заказа</param>
 		/// <returns></returns>
-		[HttpGet]
-		[Route("/api/GetOrderId")]
+		[HttpGet("/api/GetOrderId")]
 		public OrderDTO GetOrderId(int orderId)
 		{
 			var order = _fastPaymentOrderModel.GetOrder(orderId);

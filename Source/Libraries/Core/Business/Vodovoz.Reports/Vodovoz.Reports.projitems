@@ -49,6 +49,9 @@
     <None Include="$(MSBuildThisFileDirectory)Reports\Orders\EdoUpdReport.xlsx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="$(MSBuildThisFileDirectory)Reports\Production\ProducedProductionYear.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="$(MSBuildThisFileDirectory)Reports\QualityControl\NumberOfComplaintsAgainstDriversReport.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -381,6 +384,9 @@
     </None>
     <None Include="$(MSBuildThisFileDirectory)\Reports\Logistic\OrderStatisticByWeek.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)\Reports\Logistic\OrderStatisticByWeekWithPotentialOrders.rdl">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="$(MSBuildThisFileDirectory)\Reports\Logistic\RouteList.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

@@ -21,6 +21,7 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Documents.DriverTerminalTransfer;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Operations;
@@ -317,9 +318,9 @@ namespace Vodovoz.ViewModels.Logistic
 			return result;
 		};
 
-		protected override Func<ITdiTab> CreateDialogFunction => () => _gtkTabsOpener.CreateRouteListCreateDlg();
+		protected override Func<ITdiTab> CreateDialogFunction => () => NavigationManager.OpenViewModel<RouteListCreateViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()).ViewModel;
 
-		protected override Func<RouteListJournalNode, ITdiTab> OpenDialogFunction => node => _gtkTabsOpener.CreateRouteListCreateDlg(node.Id);
+		protected override Func<RouteListJournalNode, ITdiTab> OpenDialogFunction => node => NavigationManager.OpenViewModel<RouteListCreateViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id)).ViewModel;
 
 		#region PopupActions
 
@@ -372,7 +373,7 @@ namespace Vodovoz.ViewModels.Logistic
 				{
 					if(selectedItems.FirstOrDefault() is RouteListJournalNode selectedNode)
 					{
-						_gtkTabsOpener.OpenRouteListCreateDlg(TabParent, selectedNode.Id);
+						NavigationManager.OpenViewModel<RouteListCreateViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(selectedNode.Id));
 					}
 				}
 			);
@@ -797,7 +798,22 @@ namespace Vodovoz.ViewModels.Logistic
 				}
 				else
 				{
+					if(!routeListShippedWithoutTerminal && notLoadedGoods.Any())
+					{						
+						var archivedNomenclatures = _routeListRepository.GetRouteListNomenclatures(localUow, routeList.Id, true);
+
+						if(archivedNomenclatures.Any())
+						{
+							commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+								$"Не удалось автоматически отгрузить Маршрутный лист, т.к. присутствуют архивнвые номенклатуры: " +
+								$"{string.Join(", ", archivedNomenclatures.Select(n => $"№{n.Id} {n.Name}"))}.");
+
+							return;
+						}
+					}
+
 					localUow.Commit();
+
 					commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
 						"Не удалось автоматически отгрузить Маршрутный лист");
 
@@ -962,8 +978,29 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			NodeActionsList.Clear();
 			CreateDefaultSelectAction();
-			CreateDefaultAddActions();
+			CreateAddActions();
 			CreateEditAction();
+		}
+
+		protected void CreateAddActions()
+		{
+			if(!EntityConfigs.Any())
+			{
+				return;
+			}
+
+			var entityConfig = EntityConfigs.First().Value;
+			var addAction = new JournalAction("Добавить",
+				(selected) => entityConfig.PermissionResult.CanCreate,
+				(selected) => entityConfig.PermissionResult.CanCreate,
+				(selected) => {
+					var page = NavigationManager.OpenViewModel<RouteListCreateViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
+
+					page.ViewModel.EntitySaved += Tab_EntitySaved;
+				},
+				"Insert"
+				);
+			NodeActionsList.Add(addAction);
 		}
 
 		private void CreateEditAction()
@@ -1000,7 +1037,7 @@ namespace Vodovoz.ViewModels.Logistic
 					var config = EntityConfigs[selectedNode.EntityType];
 					var foundDocumentConfig = config.EntityDocumentConfigurations.First(x => x.IsIdentified(selectedNode));
 
-					TabParent.OpenTab(() => foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode), this);
+					foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode);
 					if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog)
 					{
 						HideJournal(TabParent);

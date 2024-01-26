@@ -1197,6 +1197,7 @@ namespace Vodovoz
 
 			DeleteConfig.ExistingDeleteRule<Account>()
 						.AddRemoveFromDependence<Personnel>(x => x.Accounts)
+						.AddClearDependence<Counterparty>(item => item.OurOrganizationAccountForBills)
 						;
 
 			#endregion

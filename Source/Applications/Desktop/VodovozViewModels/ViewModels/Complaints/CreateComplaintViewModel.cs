@@ -35,6 +35,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly IUserRepository _userRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IFileDialogService _fileDialogService;
+		private readonly IOrderSelectorFactory _orderSelectorFactory;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 		private ILifetimeScope _lifetimeScope;
 		private IList<ComplaintObject> _complaintObjectSource;
@@ -65,17 +66,13 @@ namespace Vodovoz.ViewModels.Complaints
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			CounterpartyAutocompleteSelectorFactory =
 				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope);
 			DeliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
-
-			if(orderSelectorFactory == null)
-			{
-				throw new ArgumentNullException(nameof(orderSelectorFactory));
-			}
 
 			Entity.ComplaintType = ComplaintType.Client;
 			Entity.SetStatus(ComplaintStatuses.Checking);
@@ -165,6 +162,11 @@ namespace Vodovoz.ViewModels.Complaints
 				}
 
 				Entity.Driver = routeList.Driver;
+			}
+
+			if(e.PropertyName == nameof(Entity.Counterparty))
+			{
+				InitializeOrderAutocompleteSelectorFactory(_orderSelectorFactory);
 			}
 		}
 

@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories.Goods;
-using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Logistic
 {
@@ -72,14 +68,54 @@ namespace Vodovoz.EntityRepositories.Logistic
 			return query.List();
 		}
 
-		public RouteListItem GetTransferedFrom(IUnitOfWork uow, RouteListItem item)
+		public RouteListItem GetTransferredFrom(IUnitOfWork uow, RouteListItem item)
 		{
+			RouteListItem routeListItemAlias = null;
+			AddressTransferDocumentItem addressTransferDocumentItemAlias = null;
+
 			if(!item.WasTransfered)
+			{
 				return null;
-			return uow.Session.QueryOver<RouteListItem>()
-					  .Where(rli => rli.TransferedTo.Id == item.Id)
-					  .Take(1)
-					  .SingleOrDefault();
+			}
+
+			return uow.Session.QueryOver(() => routeListItemAlias)
+				.JoinEntityAlias(() => addressTransferDocumentItemAlias, () => routeListItemAlias.Id == addressTransferDocumentItemAlias.OldAddress.Id)
+				.Where(() => addressTransferDocumentItemAlias.NewAddress.Id == item.Id)
+				.OrderBy(() => addressTransferDocumentItemAlias.Id).Desc
+				.Take(1)
+				.SingleOrDefault();
+		}
+
+		public RouteListItem GetTransferredTo(IUnitOfWork uow, RouteListItem item)
+		{
+			RouteListItem routeListItemAlias = null;
+			AddressTransferDocumentItem addressTransferDocumentItemAlias = null;
+
+			if(item.TransferedTo == null)
+			{
+				return null;
+			}
+
+			return uow.Session.QueryOver(() => routeListItemAlias)
+				.JoinEntityAlias(() => addressTransferDocumentItemAlias, () => routeListItemAlias.Id == addressTransferDocumentItemAlias.NewAddress.Id)
+				.Where(() => addressTransferDocumentItemAlias.OldAddress.Id == item.Id)
+				.OrderBy(() => addressTransferDocumentItemAlias.Id).Desc
+				.Take(1)
+				.SingleOrDefault();
+		}
+
+		public AddressTransferType? GetAddressTransferType(IUnitOfWork uow, int oldAddressId, int newAddressId)
+		{
+			AddressTransferDocumentItem addressTransferDocumentItemAlias = null;
+
+			var result = uow.Session.QueryOver(() => addressTransferDocumentItemAlias)				
+				.Where(() => addressTransferDocumentItemAlias.OldAddress.Id == oldAddressId)
+				.And(() => addressTransferDocumentItemAlias.NewAddress.Id == newAddressId)
+				.OrderBy(() => addressTransferDocumentItemAlias.Id).Desc
+				.Take(1)
+				.SingleOrDefault();
+
+			return result?.AddressTransferType;
 		}
 
 		public bool AnotherRouteListItemForOrderExist(IUnitOfWork uow, RouteListItem routeListItem)

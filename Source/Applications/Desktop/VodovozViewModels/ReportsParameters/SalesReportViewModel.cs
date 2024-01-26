@@ -145,6 +145,13 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		private void SetupFilter()
 		{
 			_filterViewModel = _includeExcludeSalesFilterFactory.CreateSalesReportIncludeExcludeFilter(_unitOfWork, _userIsSalesRepresentative);
+
+			var additionalParams = new Dictionary<string, string>
+			{
+				{ "Самовывоз", "is_self_delivery" },
+			};
+
+			_filterViewModel.AddFilter("Дополнительные фильтры", additionalParams);
 		}
 
 		private void SetupGroupings()

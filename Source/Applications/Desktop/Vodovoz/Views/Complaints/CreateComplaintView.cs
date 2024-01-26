@@ -70,6 +70,8 @@ namespace Vodovoz.Views.Complaints
 
 		void EntryCounterparty_ChangedByUser(object sender, System.EventArgs e)
 		{
+			entryOrder.SetEntitySelectorFactory(ViewModel.OrderAutocompleteSelectorFactory);
+
 			if(ViewModel.Entity.Counterparty != null) {
 				spLstAddress.NameForSpecialStateNot = "Самовывоз";
 				spLstAddress.SetRenderTextFunc<DeliveryPoint>(d => string.Format("{0}: {1}", d.Id, d.ShortAddress));

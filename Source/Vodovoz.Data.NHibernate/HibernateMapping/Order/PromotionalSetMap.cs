@@ -18,6 +18,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.CanEditNomenclatureCount).Column("can_edit_nomenclature_count");
 			Map(x => x.OnlineName).Column("online_name");
 			Map(x => x.PromotionalSetForNewClients).Column("for_new_clients");
+			Map(x => x.BottlesCountForCalculatingDeliveryPrice)
+				.Column("bottles_count_for_calculating_delivery_price");
 
 			HasMany(x => x.PromotionalSetItems)
 				.Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("promotional_set_id");

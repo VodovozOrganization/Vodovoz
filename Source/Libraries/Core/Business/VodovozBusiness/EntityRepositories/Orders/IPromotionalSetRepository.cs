@@ -23,9 +23,9 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// игнорироваться заказ передаваемы в качестве параметра <paramref name="currOrder"/></param>
 		Dictionary<int, int[]> GetPromotionalSetsAndCorrespondingOrdersForDeliveryPoint(IUnitOfWork uow, Order currOrder, bool ignoreCurrentOrder = false);
 		bool AddressHasAlreadyBeenUsedForPromo( IUnitOfWork uow, DeliveryPoint deliveryPoint );
-		IList<PromotionalSetOnlineParametersNode> GetPromotionalSetsOnlineParametersForSend(
+		IEnumerable<PromotionalSetOnlineParametersNode> GetPromotionalSetsOnlineParametersForSend(
 			IUnitOfWork uow, GoodsOnlineParameterType parameterType);
-		IList<PromotionalSetItemBalanceNode> GetPromotionalSetsItemsWithBalanceForSend(
+		IEnumerable<PromotionalSetItemBalanceNode> GetPromotionalSetsItemsWithBalanceForSend(
 			IUnitOfWork uow, GoodsOnlineParameterType parameterType);
 	}
 }

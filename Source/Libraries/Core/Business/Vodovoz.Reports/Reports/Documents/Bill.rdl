@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -11,7 +11,7 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     o.id AS order_id,
@@ -87,7 +87,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -266,7 +266,7 @@ WHERE
     CONCAT('+7 ', phones.number) AS phone,
     banks.name,
     banks.bik,
-    banks.cor_account,
+    cor_account.cor_account_number as cor_account,
     banks.city,
     accounts.number,
     leader.last_name AS leader_last_name,
@@ -292,8 +292,12 @@ FROM
         AND
             (ov.end_date is null OR ov.end_date &gt;= orders.bill_date)
         LEFT JOIN
-    accounts ON accounts.id = organizations.default_account_id
-        LEFT JOIN
+    accounts ON 
+    		(((NOT counterparty.use_special_doc_fields OR counterparty.our_organization_account_for_bills is NULL) and accounts.id = organizations.default_account_id) 
+    		or (counterparty.use_special_doc_fields and accounts.id = counterparty.our_organization_account_for_bills))
+    	LEFT JOIN
+    banks_cor_accounts cor_account ON accounts.bank_cor_account_id = cor_account.id 
+    	LEFT JOIN
     banks ON banks.id = accounts.bank_id
         LEFT JOIN
     employees leader ON leader.id = ov.leader_id
@@ -1458,18 +1462,18 @@ WHERE o.id = @order_id
         <ZIndex>0</ZIndex>
       </Table>
       <List Name="List3">
-        <Height>120.47pt</Height>
+        <Height>103.22pt</Height>
         <Width>535.30pt</Width>
-        <Left>31.4pt</Left>
-        <Top>502.0pt</Top>
+        <Left>31.40pt</Left>
+        <Top>511.60pt</Top>
         <ReportItems>
           <Textbox Name="Textbox24">
             <Height>16.50pt</Height>
             <Width>173.52pt</Width>
             <Value>Руководитель________________</Value>
             <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>52.3pt</Top>
+            <Left>0.00pt</Left>
+            <Top>52.30pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1575,6 +1579,25 @@ WHERE o.id = @order_id
               <Hidden>={?hide_signature}</Hidden>
             </Visibility>
             <MIMEType>image/png</MIMEType>
+          </Image>
+          <Image Name="Image7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>102.39pt</Height>
+            <Width>112.93pt</Width>
+            <Left>290.00pt</Left>
+            <Top>0.00pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+            <Source>Database</Source>
+            <Value>=First( {image} , "Stamp" )</Value>
+            <Sizing>Fit</Sizing>
+            <MIMEType>image/png</MIMEType>
+            <Visibility>
+              <Hidden>={?hide_signature}</Hidden>
+            </Visibility>
+            <ZIndex>2</ZIndex>
           </Image>
         </ReportItems>
         <Style>
@@ -2007,25 +2030,6 @@ Iif(
         <ZIndex>0</ZIndex>
         <Visibility></Visibility>
         <MIMEType>image/jpeg</MIMEType>
-      </Image>
-      <Image Name="Image7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>102.39pt</Height>
-        <Width>112.93pt</Width>
-        <Left>321.7pt</Left>
-        <Top>511.7pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-        <Source>Database</Source>
-        <Value>=First( {image} , "Stamp" )</Value>
-        <Sizing>Fit</Sizing>
-        <MIMEType>image/png</MIMEType>
-        <Visibility>
-          <Hidden>={?hide_signature}</Hidden>
-        </Visibility>
-        <ZIndex>2</ZIndex>
       </Image>
       <Textbox Name="Textbox18" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>50pt</Height>

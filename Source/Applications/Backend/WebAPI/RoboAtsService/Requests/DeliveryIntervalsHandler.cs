@@ -94,23 +94,32 @@ namespace RoboatsService.Requests
 
 		private string GetTodayIntervals(IEnumerable<DeliverySchedule> intervals)
 		{
-
-			IEnumerable<int> availableIntevalIds = null;
-
-			if(DateTime.Now.Hour < 12)
-			{
-				availableIntevalIds = intervals.Where(x => x.From.Hours > 12).Select(x => x.Id);
-			}
-			else if(DateTime.Now.Hour < 16)
-			{
-				availableIntevalIds = intervals.Where(x => x.From.Hours > 16).Select(x => x.Id);
-			}
-			else
+			var offers = _roboatsRepository.GetTodayIntervalsOffers();
+			if(!offers.Any())
 			{
 				return string.Empty;
 			}
 
-			var result = GetOutputIntervalString(DateTime.Today, availableIntevalIds);
+			List<int> availableIntevalIds = new List<int>();
+
+			foreach(var interval in intervals)
+			{
+				var intervalOffers = offers
+					.Where(x => x.DeliveryInterval == interval.Id)
+					.Where(x => DateTime.Now.Hour < x.StartHour);
+
+				if(intervalOffers.Any())
+				{
+					availableIntevalIds.AddRange(intervals.Where(x => intervalOffers.Any(y => y.DeliveryInterval == x.Id)).Select(x => x.Id));
+				}
+			}
+
+			if(!availableIntevalIds.Any())
+			{
+				return string.Empty;
+			}
+
+			var result = GetOutputIntervalString(DateTime.Today, availableIntevalIds.Distinct());
 			return result;
 		}
 

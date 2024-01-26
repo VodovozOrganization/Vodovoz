@@ -1,18 +1,20 @@
-﻿using Gamma.Utilities;
+﻿using DateTimeHelpers;
+using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Report.ViewModels;
 using QS.Services;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using DateTimeHelpers;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -30,9 +32,6 @@ using Vodovoz.ViewModels.Infrastructure.InfoProviders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.ReportsParameters.Orders;
-using QS.Report.ViewModels;
-using Vodovoz.ViewModels.ViewModels.Flyers;
-using QS.Navigation;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 {
@@ -493,6 +492,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					.Select(() => oldOrderAuthorAlias.Name).WithAlias(() => resultAlias.OldOrderAuthorFirstName)
 					.Select(() => oldOrderAuthorAlias.Patronymic).WithAlias(() => resultAlias.OldOrderAuthorMiddleName)
 					.Select(() => undeliveredOrderDeliveryScheduleAlias.Name).WithAlias(() => resultAlias.OldDeliverySchedule)
+					.Select(() => oldOrderAlias.WaitUntilTime).WithAlias(() => resultAlias.WaitUntilTime)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorLastName)
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorFirstName)
 					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorMiddleName)

@@ -283,6 +283,7 @@ namespace Vodovoz.JournalViewModels
 				   .Select(() => orderAlias.Id).WithAlias(() => resultAlias.Id)
 				   .Select(() => orderAlias.SelfDelivery).WithAlias(() => resultAlias.IsSelfDelivery)
 				   .Select(() => deliveryScheduleAlias.Name).WithAlias(() => resultAlias.DeliveryTime)
+				   .Select(() => orderAlias.WaitUntilTime).WithAlias(() => resultAlias.WaitUntilTime)
 				   .Select(() => orderAlias.OrderStatus).WithAlias(() => resultAlias.StatusEnum)
 				   .Select(() => orderAlias.Address1c).WithAlias(() => resultAlias.Address1c)
 				   .Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorLastName)

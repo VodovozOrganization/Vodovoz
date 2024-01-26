@@ -124,6 +124,7 @@ namespace Vodovoz.Views.Logistic
                 (AttachOptions)0, (AttachOptions)0, (uint)0, (uint)0);
 
             var employeeEntry = new EntityViewModelEntry();
+            employeeEntry.CanDisposeEntitySelectorFactory = false;
             employeeEntry.WidthRequest = 200;
             employeeEntry.SetEntityAutocompleteSelectorFactory(_employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory());
 
@@ -199,7 +200,7 @@ namespace Vodovoz.Views.Logistic
                         Phone = responsiblePersonToCopy.Phone,
                         Employee = responsiblePersonToCopy.Employee
                     }
-                    );
+                );
             }
         }
 

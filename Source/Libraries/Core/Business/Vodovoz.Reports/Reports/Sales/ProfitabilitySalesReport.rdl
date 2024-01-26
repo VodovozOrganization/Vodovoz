@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -1468,7 +1468,7 @@ SELECT
     CASE WHEN n.category = 'rent' THEN "Аренда кулеров"
          WHEN n.category = 'water' THEN IF(n.is_disposable_tare, "Вода в одноразовой таре", "Вода в многооборотной таре")
          WHEN n.category = 'deposit' THEN "Залог"
-         WHEN n.category = 'spare_parts' THEN "Запчасти"
+         WHEN n.category = 'spare_parts' THEN "Запчасти сервисного центра"
          WHEN n.category = 'equipment' THEN "Оборудование"
          WHEN n.category = 'additional' THEN "Товары"
          WHEN n.category = 'service' THEN "Услуга"
@@ -1834,6 +1834,7 @@ WHERE
        	     OR ('New' IN (@CounterpartyCompositeClassification_exclude) AND (ISNULL(ccl.classification_by_bottles_count) OR ISNULL(ccl.classification_by_orders_count)))
        	     )
          )
+      AND (@is_self_delivery IS NULL OR o.self_delivery = @is_self_delivery)
 	GROUP BY oi.id
 ;</CommandText>
         <QueryParameters>
@@ -1956,6 +1957,9 @@ WHERE
           </QueryParameter>
           <QueryParameter Name="CounterpartyCompositeClassification_exclude">
             <Value>={?CounterpartyCompositeClassification_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="is_self_delivery">
+            <Value>={?is_self_delivery}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -2155,7 +2159,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Criterions">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
         <CommandText>SET @classification_include = 0;
@@ -2263,7 +2267,8 @@ SELECT
 		'')),
 		(IF(excluded_counterparty_classifications!=0,
 		CONCAT('Искл.классификаций контрагентов: ',excluded_counterparty_classifications,'\n'),
-		''))
+		'')),
+        (IF(@is_self_delivery, 'Только самовывозы\n', IF(!@is_self_delivery, 'Кроме самовывозов\n', '')))
         ) AS criterions
 FROM
     (SELECT
@@ -2588,9 +2593,12 @@ FROM
           <QueryParameter Name="CounterpartyCompositeClassification_exclude">
             <Value>={?CounterpartyCompositeClassification_exclude}</Value>
           </QueryParameter>
+          <QueryParameter Name="is_self_delivery">
+            <Value>={?is_self_delivery}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="criterions">
           <DataField>criterions</DataField>
           <TypeName>System.String</TypeName>
@@ -2609,7 +2617,7 @@ FROM
   </DataSources>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
@@ -2909,6 +2917,13 @@ FROM
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="is_self_delivery">
+      <DataType>Boolean</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
       <Prompt />
     </ReportParameter>
   </ReportParameters>

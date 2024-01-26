@@ -134,6 +134,7 @@ namespace Vodovoz.Domain.Client
 		private string _okpo;
 		private string _okdp;
 		private CargoReceiverSource _cargoReceiverSource;
+		private Account _ourOrganizationAccountForBills;
 		private IList<SpecialNomenclature> _specialNomenclatures = new List<SpecialNomenclature>();
 		private GenericObservableList<SpecialNomenclature> _observableSpecialNomenclatures;
 		private int _delayDaysForProviders;
@@ -728,6 +729,12 @@ namespace Vodovoz.Domain.Client
 		{
 			get => _cargoReceiverSource;
 			set => SetField(ref _cargoReceiverSource, value);
+		}
+
+		public virtual Account OurOrganizationAccountForBills
+		{
+			get => _ourOrganizationAccountForBills;
+			set => SetField(ref _ourOrganizationAccountForBills, value);
 		}
 
 		[Display(Name = "Особенный номер ТМЦ")]

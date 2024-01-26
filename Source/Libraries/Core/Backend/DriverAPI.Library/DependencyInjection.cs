@@ -1,12 +1,11 @@
 ﻿using DriverAPI.Library.Helpers;
 using DriverAPI.Library.Models;
-using DriverAPI.Library.Temp;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 using Vodovoz;
 using Vodovoz.Application;
-using Vodovoz.Application.Services.Logistics;
-using Vodovoz.Controllers;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.Settings.Database;
 
 namespace DriverAPI.Library
@@ -50,11 +49,11 @@ namespace DriverAPI.Library
 			services.AddScoped<IFastPaymentModel, FastPaymentModel>();
 			services.AddScoped<IDriverWarehouseEventsModel, DriverWarehouseEventsModel>();
 
-			services.AddScoped<IRouteOptimizer, RouteListOptimizerDummy>();
+			services.AddScoped<IGlobalSettings, GlobalSettings>();
 
-			services.AddBusiness();
-			services.AddApplication();
-			services.AddDatabaseSettings();
+			services.AddBusiness()
+					.AddApplication()
+					.AddDatabaseSettings();
 
 			return services;
 		}

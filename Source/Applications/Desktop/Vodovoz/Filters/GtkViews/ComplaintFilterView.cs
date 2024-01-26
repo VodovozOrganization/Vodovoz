@@ -75,6 +75,7 @@ namespace Vodovoz.Filters.GtkViews
 				.UseTdiEntityDialog()
 				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
 				.Finish();
+			entityentryCounterparty.ViewModel.DisposeViewModel = false;
 		}
 
 		public override void Destroy()

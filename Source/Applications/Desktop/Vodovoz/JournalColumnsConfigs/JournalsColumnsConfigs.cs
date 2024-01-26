@@ -23,8 +23,7 @@ namespace Vodovoz.JournalColumnsConfigs
 		public static void RegisterColumns()
 		{
 			var registratorGeneric = typeof(IColumnsConfigRegistrar<,>);
-			var types = AppDomain.CurrentDomain.GetAssemblies()
-				.SelectMany(s => s.GetTypes())
+			var types = typeof(JournalsColumnsConfigs).Assembly.GetTypes()
 				.Where(p => p.IsClass
 					&& !p.IsAbstract
 					&& p.GetInterfaces().Any(x =>

@@ -4,6 +4,7 @@ using System.ServiceModel.Channels;
 using System.ServiceModel.Dispatcher;
 using SmsPaymentService;
 using SmsPaymentService.PaymentControllers;
+using Vodovoz.NotificationRecievers;
 using Vodovoz.Services;
 
 namespace VodovozSmsPaymentService

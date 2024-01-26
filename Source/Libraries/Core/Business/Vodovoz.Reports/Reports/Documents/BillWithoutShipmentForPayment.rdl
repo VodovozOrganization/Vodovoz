@@ -78,7 +78,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="bwsfp_id">
           <DataField>bwsfp_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -248,7 +248,7 @@ Group By
     CONCAT('+7 ', phones.number) AS phone,
     banks.name,
     banks.bik,
-    banks.cor_account,
+    cor_account.cor_account_number as cor_account,
     banks.city,
     accounts.number,
     leader.last_name AS leader_last_name,
@@ -260,7 +260,7 @@ Group By
 FROM
     organizations
         LEFT JOIN
-    (SELECT ov.* FROM organization_versions ov
+    (SELECT ov.*, bill.client_id as counterparty_id  FROM organization_versions ov
    	    INNER JOIN
             bills_without_shipment_for_payment bill
         ON
@@ -269,9 +269,15 @@ FROM
             ov.start_date &lt;= bill.create_date
         AND
             (ov.end_date is null OR ov.end_date &gt;= bill.create_date)
-    ) AS ov ON organizations.id = ov.organization_id     
+    ) AS ov ON organizations.id = ov.organization_id
         LEFT JOIN
-    accounts ON accounts.id = organizations.default_account_id
+    counterparty ON ov.counterparty_id = counterparty.id
+        LEFT JOIN
+    accounts ON
+    		(((NOT counterparty.use_special_doc_fields OR counterparty.our_organization_account_for_bills is NULL) and accounts.id = organizations.default_account_id) 
+    		or (counterparty.use_special_doc_fields and accounts.id = counterparty.our_organization_account_for_bills))
+    	LEFT JOIN
+    banks_cor_accounts cor_account ON accounts.bank_cor_account_id = cor_account.id 
         LEFT JOIN
     banks ON banks.id = accounts.bank_id
         LEFT JOIN
@@ -1780,7 +1786,7 @@ Iif(
         <Height>145.00pt</Height>
         <Width>145.00pt</Width>
         <CustomProperties>
-          <CustomProperty >
+          <CustomProperty>
             <Name>QrCode</Name>
             <Value>= "ST00012|Name=" + First({org_name},'Organization') + "|PersonalAcc=" + First({account},'Organization') + "|BankName=" + First({name},'Organization') + "|BIC=" + First({bik},'Organization') + "|CorrespAcc="+First({cor_account},'Organization') + "|Sum=" + Format(Sum({total}, 'Goods'), "N0") * 100 + "|Purpose=Оплата счета " + First({bwsfp_id},'Order') + "|PayeeINN=" + First({INN},'Organization') + "|KPP=" + First({KPP},'Organization')</Value>
           </CustomProperty>

@@ -1,4 +1,4 @@
-﻿using Gamma.ColumnConfig;
+using Gamma.ColumnConfig;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;

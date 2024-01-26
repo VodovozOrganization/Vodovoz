@@ -35,6 +35,7 @@ using QS.Tdi;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.NHibernateProjections.Employees;
 using static Vodovoz.FilterViewModels.ComplaintFilterViewModel;
+using Vodovoz.ViewModels.Logistic;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 {
@@ -783,7 +784,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 					"Открыть маршрутный лист",
 					HasRouteList,
 					n => true,
-					n => _gtkDlgOpener.OpenRouteListCreateDlgFromViewModelByNavigator(this, GetRouteList(n).Id)
+					n => NavigationManager.OpenViewModel<RouteListCreateViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(GetRouteList(n).Id))
 				)
 			);
 
@@ -792,7 +793,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 					"Открыть диалог закрытия МЛ",
 					n => GetRouteList(n)?.CanBeOpenedInClosingDlg ?? false,
 					n => true,
-					n => _gtkDlgOpener.OpenRouteListCreateDlgFromViewModelByNavigator(this, GetRouteList(n).Id)
+					n => NavigationManager.OpenViewModel<RouteListCreateViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(GetRouteList(n).Id))
 				)
 			);
 
@@ -999,7 +1000,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 					if(selectedNode.EntityType == typeof(Complaint))
 					{
 						NavigationManager.OpenViewModel<ComplaintViewModel, IEntityUoWBuilder>(
-							this, EntityUoWBuilder.ForOpen(selectedNode.Id), OpenPageOptions.AsSlave);
+							this, EntityUoWBuilder.ForOpen(selectedNode.Id));
 					}
 				}
 			);

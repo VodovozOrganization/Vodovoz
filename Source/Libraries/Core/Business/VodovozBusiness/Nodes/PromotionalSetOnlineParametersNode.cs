@@ -9,5 +9,6 @@ namespace Vodovoz.Nodes
 		public GoodsOnlineAvailability? AvailableForSale { get; set; }
 		public string PromotionalSetOnlineName { get; set; }
 		public bool PromotionalSetForNewClients { get; set; }
+		public int? BottlesCountForCalculatingDeliveryPrice { get; set; }
 	}
 }

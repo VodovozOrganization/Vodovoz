@@ -27,8 +27,8 @@ namespace Vodovoz.Domain.Orders
 		#region Cвойства
 
 		public virtual int Id { get; set; }
-
-		[Display(Name = "Промонабор")]
+		
+		[Display(Name = "Рекламный набор")]
 		public virtual PromotionalSet PromoSet
 		{
 			get => _promoSet;
@@ -56,10 +56,16 @@ namespace Vodovoz.Domain.Orders
 			set
 			{
 				if(value > 100)
+				{
 					value = 100;
+				}
+
 				if(value < 0)
+				{
 					value = 0;
-				if(SetField(ref _discount, value, () => Discount))
+				}
+
+				if(SetField(ref _discount, value))
 				{
 					OnPropertyChanged(nameof(ManualChangingDiscount));
 				}

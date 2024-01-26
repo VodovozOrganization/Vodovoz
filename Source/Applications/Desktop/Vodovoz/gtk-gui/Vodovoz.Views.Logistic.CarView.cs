@@ -32,11 +32,11 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gamma.GtkWidgets.yCheckButton checkIsArchive;
 
-		private global::Gamma.Widgets.yEntryReference dataentryFuelType;
+		private global::QS.Views.Control.EntityEntry entryCarModel;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryCarModel;
+		private global::QS.Views.Control.EntityEntry entryDriver;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryDriver;
+		private global::QS.Views.Control.EntityEntry entryFuelType;
 
 		private global::Gtk.HBox hbox15;
 
@@ -306,39 +306,35 @@ namespace Vodovoz.Views.Logistic
 			w12.XOptions = ((global::Gtk.AttachOptions)(4));
 			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableCarData.Gtk.Table+TableChild
-			this.dataentryFuelType = new global::Gamma.Widgets.yEntryReference();
-			this.dataentryFuelType.Events = ((global::Gdk.EventMask)(256));
-			this.dataentryFuelType.Name = "dataentryFuelType";
-			this.tableCarData.Add(this.dataentryFuelType);
-			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.tableCarData[this.dataentryFuelType]));
-			w13.TopAttach = ((uint)(1));
-			w13.BottomAttach = ((uint)(2));
+			this.entryCarModel = new global::QS.Views.Control.EntityEntry();
+			this.entryCarModel.Events = ((global::Gdk.EventMask)(256));
+			this.entryCarModel.Name = "entryCarModel";
+			this.tableCarData.Add(this.entryCarModel);
+			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.tableCarData[this.entryCarModel]));
 			w13.LeftAttach = ((uint)(1));
-			w13.RightAttach = ((uint)(3));
+			w13.RightAttach = ((uint)(4));
 			w13.XOptions = ((global::Gtk.AttachOptions)(4));
 			w13.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableCarData.Gtk.Table+TableChild
-			this.entryCarModel = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entryCarModel.Events = ((global::Gdk.EventMask)(256));
-			this.entryCarModel.Name = "entryCarModel";
-			this.entryCarModel.CanEditReference = false;
-			this.entryCarModel.CanOpenWithoutTabParent = false;
-			this.tableCarData.Add(this.entryCarModel);
-			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.tableCarData[this.entryCarModel]));
+			this.entryDriver = new global::QS.Views.Control.EntityEntry();
+			this.entryDriver.Events = ((global::Gdk.EventMask)(256));
+			this.entryDriver.Name = "entryDriver";
+			this.tableCarData.Add(this.entryDriver);
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.tableCarData[this.entryDriver]));
+			w14.TopAttach = ((uint)(3));
+			w14.BottomAttach = ((uint)(4));
 			w14.LeftAttach = ((uint)(1));
-			w14.RightAttach = ((uint)(4));
+			w14.RightAttach = ((uint)(3));
 			w14.XOptions = ((global::Gtk.AttachOptions)(4));
 			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableCarData.Gtk.Table+TableChild
-			this.entryDriver = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entryDriver.Events = ((global::Gdk.EventMask)(256));
-			this.entryDriver.Name = "entryDriver";
-			this.entryDriver.CanEditReference = true;
-			this.entryDriver.CanOpenWithoutTabParent = false;
-			this.tableCarData.Add(this.entryDriver);
-			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.tableCarData[this.entryDriver]));
-			w15.TopAttach = ((uint)(3));
-			w15.BottomAttach = ((uint)(4));
+			this.entryFuelType = new global::QS.Views.Control.EntityEntry();
+			this.entryFuelType.Events = ((global::Gdk.EventMask)(256));
+			this.entryFuelType.Name = "entryFuelType";
+			this.tableCarData.Add(this.entryFuelType);
+			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.tableCarData[this.entryFuelType]));
+			w15.TopAttach = ((uint)(1));
+			w15.BottomAttach = ((uint)(2));
 			w15.LeftAttach = ((uint)(1));
 			w15.RightAttach = ((uint)(3));
 			w15.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -695,7 +691,7 @@ namespace Vodovoz.Views.Logistic
 			this.label7 = new global::Gtk.Label();
 			this.label7.Name = "label7";
 			this.label7.Xalign = 1F;
-			this.label7.LabelProp = global::Mono.Unix.Catalog.GetString(" Информация\nо водителе:");
+			this.label7.LabelProp = global::Mono.Unix.Catalog.GetString(" Информация\r\nо водителе:");
 			this.label7.Justify = ((global::Gtk.Justification)(1));
 			this.tableCarData.Add(this.label7);
 			global::Gtk.Table.TableChild w45 = ((global::Gtk.Table.TableChild)(this.tableCarData[this.label7]));
@@ -820,6 +816,7 @@ namespace Vodovoz.Views.Logistic
 			this.ydatepickerDocIssuedDate.Date = new global::System.DateTime(0);
 			this.ydatepickerDocIssuedDate.IsEditable = true;
 			this.ydatepickerDocIssuedDate.AutoSeparation = false;
+			this.ydatepickerDocIssuedDate.HideButtonClearDate = false;
 			this.tableCarData.Add(this.ydatepickerDocIssuedDate);
 			global::Gtk.Table.TableChild w55 = ((global::Gtk.Table.TableChild)(this.tableCarData[this.ydatepickerDocIssuedDate]));
 			w55.TopAttach = ((uint)(6));

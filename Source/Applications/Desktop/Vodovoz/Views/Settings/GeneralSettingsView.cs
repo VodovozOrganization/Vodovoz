@@ -74,6 +74,15 @@ namespace Vodovoz.Views.Settings
 				.InitializeFromSource();
 
 			ybuttonSaveIsSecondOrderDiscountAvailable.Clicked += (sender, args) => ViewModel.SaveSecondOrderDiscountAvailabilityCommand.Execute();
+
+			frameWaitUntil.Sensitive = ViewModel.CanEditOrderWaitUntilSetting;
+
+			ycheckWaitUntil.Binding
+				.AddBinding(ViewModel, vm => vm.IsOrderWaitUntilActive, v => v.Active)
+				.InitializeFromSource();
+
+			ybuttonSaveWaitUntil.Clicked += (sender, args) => ViewModel.SaveOrderWaitUntilActiveCommand.Execute();
+
 		}
 	}
 }

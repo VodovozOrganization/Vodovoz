@@ -1,10 +1,4 @@
-using CustomerAppsApi.Converters;
-using CustomerAppsApi.Factories;
-using CustomerAppsApi.Library.Factories;
 using CustomerAppsApi.Middleware;
-using CustomerAppsApi.Models;
-using CustomerAppsApi.Repositories;
-using CustomerAppsApi.Validators;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -91,6 +85,8 @@ namespace CustomerAppsApi
 				redisOptions.Configuration = connection;
 			});
 			
+			services.AddScoped<IUnitOfWork>(_ => UnitOfWorkFactory.CreateWithoutRoot("Сервис интеграции"));
+			
 			services.AddSingleton<IPhoneRepository, PhoneRepository>();
 			services.AddSingleton<IEmailRepository, EmailRepository>();
 			services.AddSingleton<IWarehouseRepository, WarehouseRepository>();
@@ -151,6 +147,8 @@ namespace CustomerAppsApi
 			services.AddSingleton<NomenclaturesFrequencyRequestsHandler>();
 			services.AddSingleton<PricesFrequencyRequestsHandler>();
 			services.AddSingleton<SelfDeliveriesAddressesFrequencyRequestsHandler>();
+			
+			services.AddCustomerApiLibrary();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -1538,7 +1538,29 @@ FROM
 
 			return routeListsDebtsSum;
 		}
+
+		public IList<Nomenclature> GetRouteListNomenclatures(IUnitOfWork uow, int routeListId, bool isArchived = false)
+		{
+			RouteListItem routeListItemAlias = null;
+			OrderItem orderItemAlias = null;
+			Nomenclature nomenclatureAlias = null;
+
+			var query = uow.Session.QueryOver(() => nomenclatureAlias)
+				.JoinEntityAlias(() => orderItemAlias, () => orderItemAlias.Nomenclature.Id == nomenclatureAlias.Id)
+				.JoinEntityAlias(() => routeListItemAlias, () => routeListItemAlias.Order.Id == orderItemAlias.Order.Id)
+				.Where(() => routeListItemAlias.RouteList.Id == routeListId);
+
+			if(isArchived)
+			{
+				query.Where(() => nomenclatureAlias.IsArchive);
+			}
+
+			var result = query.TransformUsing(Transformers.DistinctRootEntity).List();
+
+			return result;
+		}
 	}
+
 
 	#region DTO
 
@@ -1572,6 +1594,8 @@ FROM
 	{
 		public int NomenclatureId { get; set; }
 		public decimal Amount { get; set; }
+
+		public bool IsArchive { get; set; }
 	}
 
 	public class GoodsInRouteListResultToDivide

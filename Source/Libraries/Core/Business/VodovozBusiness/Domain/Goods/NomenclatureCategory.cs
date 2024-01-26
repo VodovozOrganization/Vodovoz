@@ -15,7 +15,7 @@ namespace Vodovoz.Domain.Goods
 		water,
 		[Display(Name = "Залог")]
 		deposit,
-		[Display(Name = "Запчасти")]
+		[Display(Name = "Запчасти сервисного центра")]
 		spare_parts,
 		[Display(Name = "Оборудование")]
 		equipment,

@@ -76,23 +76,22 @@ namespace Vodovoz.EntityRepositories.Orders
 			DeliveryPoint deliveryPointAlias = null;
 			PromotionalSet promotionalSetAlias = null;
 
-			var result =
-				uow.Session.QueryOver(() => ordersAlias)
-					.JoinAlias(() => ordersAlias.DeliveryPoint, () => deliveryPointAlias)
-					.JoinAlias(() => ordersAlias.PromotionalSets, () => promotionalSetAlias)
-					.Where(() => deliveryPointAlias.City.IsLike(deliveryPoint.City, MatchMode.Anywhere)
-						&& deliveryPointAlias.Street.IsLike(deliveryPoint.Street, MatchMode.Anywhere)
-						&& deliveryPointAlias.Building.IsLike(building, MatchMode.Anywhere)
-						&& deliveryPointAlias.Room == deliveryPoint.Room
-						&& promotionalSetAlias.PromotionalSetForNewClients
-						&& ordersAlias.OrderStatus.IsIn(GetAcceptableStatuses())
-						&& deliveryPointAlias.Id != deliveryPoint.Id)
-					.List<VodovozOrder>();
+			var result = uow.Session.QueryOver(() => ordersAlias)
+				.JoinAlias(() => ordersAlias.DeliveryPoint, () => deliveryPointAlias)
+				.JoinAlias(() => ordersAlias.PromotionalSets, () => promotionalSetAlias)
+				.Where(() => deliveryPointAlias.City.IsLike(deliveryPoint.City, MatchMode.Anywhere)
+					&& deliveryPointAlias.Street.IsLike(deliveryPoint.Street, MatchMode.Anywhere)
+					&& deliveryPointAlias.Building.IsLike(building, MatchMode.Anywhere)
+					&& deliveryPointAlias.Room == deliveryPoint.Room
+					&& promotionalSetAlias.PromotionalSetForNewClients
+					&& ordersAlias.OrderStatus.IsIn(GetAcceptableStatuses())
+					&& deliveryPointAlias.Id != deliveryPoint.Id)
+				.List<VodovozOrder>();
 			
 			return result.Count != 0;
 		}
 		
-		public IList<PromotionalSetOnlineParametersNode> GetPromotionalSetsOnlineParametersForSend(
+		public IEnumerable<PromotionalSetOnlineParametersNode> GetPromotionalSetsOnlineParametersForSend(
 			IUnitOfWork uow, GoodsOnlineParameterType parameterType)
 		{
 			PromotionalSet promotionalSetAlias = null;
@@ -107,12 +106,14 @@ namespace Vodovoz.EntityRepositories.Orders
 					.Select(() => promotionalSetAlias.Id).WithAlias(() => resultAlias.PromotionalSetId)
 					.Select(() => promotionalSetAlias.OnlineName).WithAlias(() => resultAlias.PromotionalSetOnlineName)
 					.Select(() => promotionalSetAlias.PromotionalSetForNewClients).WithAlias(() => resultAlias.PromotionalSetForNewClients)
+					.Select(() => promotionalSetAlias.BottlesCountForCalculatingDeliveryPrice)
+						.WithAlias(() => resultAlias.BottlesCountForCalculatingDeliveryPrice)
 					.Select(p => p.PromotionalSetOnlineAvailability).WithAlias(() => resultAlias.AvailableForSale))
 				.TransformUsing(Transformers.AliasToBean<PromotionalSetOnlineParametersNode>())
 				.List<PromotionalSetOnlineParametersNode>();
 		}
 		
-		public IList<PromotionalSetItemBalanceNode> GetPromotionalSetsItemsWithBalanceForSend(
+		public IEnumerable<PromotionalSetItemBalanceNode> GetPromotionalSetsItemsWithBalanceForSend(
 			IUnitOfWork uow, GoodsOnlineParameterType parameterType)
 		{
 			PromotionalSet promotionalSetAlias = null;
@@ -130,11 +131,10 @@ namespace Vodovoz.EntityRepositories.Orders
 			var balanceSubQuery = QueryOver.Of(() => nomenclature2Alias)
 				.JoinEntityAlias(
 					() => operationAlias,
-					() => nomenclatureAlias.Id == operationAlias.Nomenclature.Id,
+					() => nomenclature2Alias.Id == operationAlias.Nomenclature.Id,
 					JoinType.LeftOuterJoin)
 				.Where(() => nomenclatureAlias.Id == nomenclature2Alias.Id)
-				.SelectList(list => list
-					.Select(Projections.Sum(() => operationAlias.Amount).WithAlias(() => resultAlias.Stock)));
+				.Select(Projections.Sum(() => operationAlias.Amount));
 
 			return uow.Session.QueryOver<PromotionalSetOnlineParameters>()
 				.Left.JoinAlias(p => p.PromotionalSet, () => promotionalSetAlias)

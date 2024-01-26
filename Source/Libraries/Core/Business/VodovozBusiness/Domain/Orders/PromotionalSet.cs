@@ -21,6 +21,7 @@ namespace Vodovoz.Domain.Orders
 	[EntityPermission]
 	public class PromotionalSet : BusinessObjectBase<PromotionalSet>, IDomainObject, IValidatableObject, INamed, IArchivable
 	{
+		private const int _onlineNameLimit = 45;
 		private string _name;
 		private DateTime _createDate;
 		private bool _isArchive;
@@ -28,6 +29,7 @@ namespace Vodovoz.Domain.Orders
 		private bool _canEditNomenclatureCount;
 		private bool _promotionalSetForNewClients;
 		private string _onlineName;
+		private int? _bottlesCountForCalculatingDeliveryPrice;
 		
 		private IList<PromotionalSetItem> _promotionalSetItems = new List<PromotionalSetItem>();
 		private GenericObservableList<PromotionalSetItem> _observablePromotionalSetItems;
@@ -91,6 +93,13 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _onlineName, value);
 		}
 		
+		[Display(Name = "Количество бутылей для расчета платной доставки")]
+		public virtual int? BottlesCountForCalculatingDeliveryPrice
+		{
+			get => _bottlesCountForCalculatingDeliveryPrice;
+			set => SetField(ref _bottlesCountForCalculatingDeliveryPrice, value);
+		}
+		
 		[Display(Name = "Строки рекламного набора")]
 		public virtual IList<PromotionalSetItem> PromotionalSetItems
 		{
@@ -123,8 +132,8 @@ namespace Vodovoz.Domain.Orders
 
 		#endregion
 
-		public virtual string Title => string.Format("Промонабор №{0} \"{1}\"", Id, Name);
-		public virtual string ShortTitle => string.Format("Промонабор \"{0}\"", Name);
+		public virtual string Title => $"Промонабор №{Id} \"{Name}\"";
+		public virtual string ShortTitle => $"Промонабор \"{Name}\"";
 
 		#region IValidatableObject implementation
 
@@ -134,6 +143,13 @@ namespace Vodovoz.Domain.Orders
 			{
 				yield return new ValidationResult(
 					"Необходимо выбрать название набора",
+					new[] { nameof(Name) }
+				);
+			}
+			
+			if(!string.IsNullOrEmpty(OnlineName) && OnlineName.Length > _onlineNameLimit)
+			{
+				yield return new ValidationResult($"Название для ИПЗ превышено на {OnlineName.Length - _onlineNameLimit}",
 					new[] { nameof(Name) }
 				);
 			}
@@ -190,10 +206,5 @@ namespace Vodovoz.Domain.Orders
 		{
 			return !PromotionalSetActions.Any(a => !a.IsValidForOrder(order, standartNomenclatures));
 		}
-	}
-
-	public enum PromotionalSetActionType
-	{
-		[Display(Name = "Фиксированная цена")] FixedPrice
 	}
 }

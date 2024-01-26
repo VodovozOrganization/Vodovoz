@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+	<ProjectGuid>67F08744-55FB-4169-809E-82F7424775F4</ProjectGuid>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\External\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj" />
+    <ProjectReference Include="..\..\..\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
+  </ItemGroup>
+
+</Project>

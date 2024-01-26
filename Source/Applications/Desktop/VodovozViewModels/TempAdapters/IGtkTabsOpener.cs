@@ -1,11 +1,9 @@
 ﻿using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using QS.Navigation;
 using QS.Tdi;
 using System;
 using QS.ViewModels.Dialog;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 
@@ -19,9 +17,6 @@ namespace Vodovoz.TempAdapters
 		void OpenOrderDlgFromViewModelByNavigator(DialogViewModelBase from, int orderId);
 		void OpenCopyLesserOrderDlg(ITdiTab tab, int copiedOrderId);
 		ITdiTab OpenCopyOrderDlg(ITdiTab tab, int copiedOrderId);
-		ITdiTab OpenRouteListCreateDlg(ITdiTab tab, int id);
-		void OpenRouteListCreateDlgFromViewModelByNavigator(DialogViewModelBase from, int routeListId);
-		ITdiTab OpenRouteListCreateDlg(ITdiTabParent tab, int id);
 		ITdiTab OpenRouteListKeepingDlg(ITdiTabParent tab, int routeListId);
 		ITdiTab OpenRouteListKeepingDlg(ITdiTab tab, int routeListId);
 		ITdiTab OpenRouteListKeepingDlg(ITdiTabParent tab, int routeListId, int[] selectedOrdersIds);
@@ -41,10 +36,6 @@ namespace Vodovoz.TempAdapters
 		ITdiTab OpenCarUnloadDocumentDlg(int carUnloadDocumentId, ITdiTab master = null);
 		ITdiTab OpenShiftChangeWarehouseDocumentDlg(int shiftChangeWarehouseDocumentId, ITdiTab master = null);
 		ITdiTab OpenRegradingOfGoodsDocumentDlg(int regradingOfGoodsDocumentId, ITdiTab master = null);
-		ITdiTab OpenRouteListCreateDlg(ITdiTabParent tab);
-		ITdiTab OpenRouteListCreateDlg(ITdiTab tab);
-		ITdiTab CreateRouteListCreateDlg();
-		ITdiTab CreateRouteListCreateDlg(int id);
 		ITdiTab OpenRouteListControlDlg(ITdiTabParent tabParent, int id);
 		string GenerateDialogHashName<T>(int id) where T : IDomainObject;
 		void OpenCarLoadDocumentDlg(ITdiTabParent tabParent, Action<CarLoadDocument, IUnitOfWork, int, int> fillCarLoadDocumentFunc, int routeListId, int warehouseId);

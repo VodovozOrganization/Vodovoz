@@ -43,7 +43,8 @@ namespace Vodovoz.JournalViewModels.Suppliers
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_supplierPriceItemsRepository = supplierPriceItemsRepository ?? throw new ArgumentNullException(nameof(supplierPriceItemsRepository));
-			
+
+			UseSlider = false;
 			TabName = "Журнал заявок поставщикам";
 
 			var threadLoader = DataLoader as ThreadDataLoader<RequestToSupplierJournalNode>;

@@ -15,6 +15,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.FilterViewModels.Employees;
+using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels.Employees;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
@@ -338,13 +339,15 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			page.ViewModel.SelectionMode = JournalSelectionMode.Single;
 
-			page.ViewModel.OnEntitySelectedResult += (sender, e) =>
+			page.ViewModel.OnSelectResult += (sender, e) =>
 			{
-				var selectedNode = e.SelectedNodes.FirstOrDefault();
-				if(selectedNode == null)
+				var selectedObject = e.SelectedObjects.FirstOrDefault();
+
+				if(!(selectedObject is FineJournalNode selectedNode))
 				{
 					return;
 				}
+
 				Entity.AddFine(UoW.GetById<Fine>(selectedNode.Id));
 			};
 		}

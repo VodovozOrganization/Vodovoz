@@ -29,6 +29,7 @@ namespace PayPageAPI
 {
 	public class Startup
 	{
+		private const string _nLogSectionName = nameof(NLog);
 		private ILogger<Startup> _logger;
 
 		public Startup(IConfiguration configuration)
@@ -46,10 +47,11 @@ namespace PayPageAPI
 				{
 					logging.ClearProviders();
 					logging.AddNLogWeb();
+					logging.AddConfiguration(Configuration.GetSection(_nLogSectionName));
 				});
 
 			_logger = new Logger<Startup>(LoggerFactory.Create(logging =>
-				logging.AddNLogWeb(NLogBuilder.ConfigureNLog("NLog.config").Configuration)));
+				logging.AddConfiguration(Configuration.GetSection(_nLogSectionName))));
 
 			// Подключение к БД
 			services.AddScoped(_ => UnitOfWorkFactory.CreateWithoutRoot("Страница быстрых платежей"));

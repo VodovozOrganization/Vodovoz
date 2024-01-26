@@ -258,10 +258,10 @@ stage('Compress'){
 // 205	Этапы. Доставка
 stage('Delivery'){
 	parallel(
-		"Desktop ${NODE_VOD1}" : { DeliveryDesktopArtifact(DESKTOP_VOD1_DELIVERY_PATH) },
-		"Desktop ${NODE_VOD3}" : { DeliveryDesktopArtifact(DESKTOP_VOD3_DELIVERY_PATH) },
-		"Desktop ${NODE_VOD5}" : { DeliveryDesktopArtifact(DESKTOP_VOD5_DELIVERY_PATH) },
-		"Desktop ${NODE_VOD7}" : { DeliveryDesktopArtifact(DESKTOP_VOD7_DELIVERY_PATH) },
+		"Desktop ${NODE_VOD1}" : { DeliveryDesktopArtifact(NODE_VOD1, DESKTOP_VOD1_DELIVERY_PATH) },
+		"Desktop ${NODE_VOD3}" : { DeliveryDesktopArtifact(NODE_VOD3, DESKTOP_VOD3_DELIVERY_PATH) },
+		"Desktop ${NODE_VOD5}" : { DeliveryDesktopArtifact(NODE_VOD5, DESKTOP_VOD5_DELIVERY_PATH) },
+		"Desktop ${NODE_VOD7}" : { DeliveryDesktopArtifact(NODE_VOD7, DESKTOP_VOD7_DELIVERY_PATH) },
 
 		"DriverAPI" : { DeliveryWebArtifact("DriverAPI") },
 		"FastPaymentsAPI" : { DeliveryWebArtifact("FastPaymentsAPI") },
@@ -438,7 +438,23 @@ def DecompressArtifact(destPath, artifactName) {
 
 // 305	Фукнции. Доставка
 
-def DeliveryDesktopArtifact(deliveryPath){
+def DeliveryDesktopArtifact(nodeName, deliveryPath){
+	def nodeIsOnline = true;
+
+	jenkins.model.Jenkins.instance.getNodes().each{node ->
+		node.getAssignedLabels().each{label ->
+			if(label.name == nodeName && node.toComputer().isOffline()){
+				nodeIsOnline = false;
+				return
+			}
+		}
+	}
+
+	if(!nodeIsOnline){
+		unstable("${nodeName} - publish failed! node is offline")
+		return
+	}
+
 	if(CAN_DELIVERY_DESKTOP)
 	{
 		DeliveryWinArtifact("VodovozDesktop${ARCHIVE_EXTENTION}", deliveryPath)
@@ -532,13 +548,27 @@ def DeployDesktop(){
 // 307	Фукнции. Публикация
 
 def PublishDesktop(nodeName){
+	def nodeIsOnline = true;
+
+	jenkins.model.Jenkins.instance.getNodes().each{node ->
+		node.getAssignedLabels().each{label ->
+			if(label.name == nodeName && node.toComputer().isOffline()){
+				nodeIsOnline = false;
+				return
+			}
+		}
+	}
+
+	if(!nodeIsOnline){
+		unstable("${nodeName} - publish failed! node is offline")
+		return
+	}
+
 	node(nodeName){
-		if(CAN_PUBLISH_DESKTOP)
-		{
-			if(IS_HOTFIX)
-			{
+		if(CAN_PUBLISH_DESKTOP){
+			if(IS_HOTFIX){
 				def now = new Date()
-        		def hofix_suffix = now.format("MMdd_HHmm")
+				def hofix_suffix = now.format("MMdd_HHmm")
 				def hotfixName = "${NEW_DESKTOP_HOTFIX_FOLDER_NAME_PREFIX}_${hofix_suffix}"
 				def newHotfixPath = "${DESKTOP_HOTFIX_PUBLISH_PATH}/${hotfixName}"
 				DecompressArtifact(newHotfixPath, 'VodovozDesktop')
@@ -546,13 +576,11 @@ def PublishDesktop(nodeName){
 				return
 			}
 
-			if(IS_RELEASE)
-			{
+			if(IS_RELEASE){
 				DecompressArtifact(DESKTOP_NEW_RELEASE_PUBLISH_PATH, 'VodovozDesktop')
 				return
 			}
 		}
-
 		echo "Publish not needed"
 	}
 }

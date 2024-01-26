@@ -683,14 +683,18 @@ namespace DriverAPI.Library.Models
 				throw new ArgumentOutOfRangeException(nameof(orderId), $"Заказ не найден: {orderId}");
 			}
 
-			if(!vodovozOrder.IsBottleStock
-			   || vodovozOrder.BottlesByStockCount == bottlesByStockActualCount
-			   || vodovozOrder.BottlesByStockActualCount == bottlesByStockActualCount)
+			if(!vodovozOrder.IsBottleStock)
 			{
 				return;
 			}
 
-			vodovozOrder.IsBottleStockDiscrepancy = true;
+			if(vodovozOrder.BottlesByStockActualCount == bottlesByStockActualCount)
+			{
+				return;
+			}
+
+			vodovozOrder.IsBottleStockDiscrepancy = vodovozOrder.BottlesByStockCount != bottlesByStockActualCount;
+
 			vodovozOrder.BottlesByStockActualCount = bottlesByStockActualCount;
 			vodovozOrder.CalculateBottlesStockDiscounts(_orderParametersProvider, true);
 			_uow.Save(vodovozOrder);

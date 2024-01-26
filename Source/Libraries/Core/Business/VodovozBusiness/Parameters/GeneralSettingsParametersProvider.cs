@@ -15,6 +15,7 @@ namespace Vodovoz.Parameters
 		private const string _driversUnclosedRouteListsHavingDebtMaxCount = "drivers_stop_list_unclosed_route_lists_max_count";
 		private const string _driversRouteListsMaxDebtSum = "drivers_stop_list_route_lists_max_debt_sum";
 		private const string _isClientsSecondOrderDiscountActive = "is_client_second_order_discount_active";
+		private const string _isOrderWaitUntilActive = "is_order_wait_until_active";
 		private const string _warehousesForPricesAndStocksIntegrationName = "warehouses_for_prices_and_stocks_integration_name";
 
 		public GeneralSettingsParametersProvider(IParametersProvider parametersProvider)
@@ -88,7 +89,11 @@ namespace Vodovoz.Parameters
 
 		public void UpdateIsClientsSecondOrderDiscountActive(bool value) =>
 			_parametersProvider.CreateOrUpdateParameter(_isClientsSecondOrderDiscountActive, value.ToString());
-		
+
+		public bool GetIsOrderWaitUntilActive => _parametersProvider.GetValue<bool>(_isOrderWaitUntilActive);
+		public void UpdateIsOrderWaitUntilActive(bool value) =>
+			_parametersProvider.CreateOrUpdateParameter(_isOrderWaitUntilActive, value.ToString());
+
 		private int[] GetSubdivisionsToInformComplaintHasNoDriver()
 		{
 			return ParseIdsFromString(_subdivisionsToInformComplaintHasNoDriverParameterName);

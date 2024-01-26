@@ -1,4 +1,4 @@
-﻿using Gamma.Utilities;
+using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.Project.Journal;
 using QS.Utilities.Text;
@@ -16,6 +16,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes
 		public string Reason { get; set; }
 		public string Guilty { get; set; }
 		public string OldDeliverySchedule { get; set; }
+		public TimeSpan? WaitUntilTime { get; set; }
 
 		public string ClientAndAddress => String.Format("{0}\n{1}", Client, Address);
 		public string DriverName => OldRouteListDriverName ?? "Заказ\nне в МЛ";

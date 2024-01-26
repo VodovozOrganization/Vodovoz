@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using MoreLinq;
 using QS.Commands;
 using QS.Dialog;
@@ -226,7 +226,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_unitOfWork.Save(address);
 			_unitOfWork.Save(newItem);
 
-			UpdateTranferDocuments(address, newItem);
+			UpdateTranferDocuments(address, newItem, AddressTransferType.FromFreeBalance);
 
 			_unitOfWork.Save(routeListTo);
 			_unitOfWork.Save(routeListFrom);
@@ -284,10 +284,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			return true;
 		}
 
-		private void UpdateTranferDocuments(RouteListItem from, RouteListItem to)
+		private void UpdateTranferDocuments(RouteListItem from, RouteListItem to, AddressTransferType addressTransferType)
 		{
 			var addressTransferController = new AddressTransferController(new EmployeeRepository());
-			addressTransferController.UpdateDocuments(from, to, _unitOfWork);
+			addressTransferController.UpdateDocuments(from, to, _unitOfWork, addressTransferType);
 		}
 
 		private bool HasAddressChanges(RouteListItem address)
