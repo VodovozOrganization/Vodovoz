@@ -20,10 +20,12 @@ namespace Vodovoz.ReportsParameters.Bookkeeping
 				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
 				.InitializeFromSource();
 
-			ybuttonInfo.Clicked += (sender, args) => ViewModel.ShowInfoMessageCommand.Execute();
-
 			ycheckOrderByDate.Binding
 				.AddBinding(ViewModel, vm => vm.IsOrderByDate, w => w.Active)
+				.InitializeFromSource();
+
+			ybuttonCounterpartyDebtDetails.Binding
+				.AddBinding(ViewModel, vm => vm.IsCanCreateCounterpartyDebtDetailsReport, w => w.Sensitive)
 				.InitializeFromSource();
 
 			var filterView = new IncludeExludeFiltersView(ViewModel.FilterViewModel);

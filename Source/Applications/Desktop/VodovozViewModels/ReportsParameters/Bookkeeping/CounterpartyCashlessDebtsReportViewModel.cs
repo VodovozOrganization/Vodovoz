@@ -31,6 +31,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 		private DateTime? _startDate;
 		private DateTime? _endDate;
 		private bool _isOrderByDate;
+		private bool _isCanCreateCounterpartyDebtDetailsReport;
 
 		public CounterpartyCashlessDebtsReportViewModel(
 			ICommonServices commonServices,
@@ -61,11 +62,6 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 			GenerateCompanyDebtBalanceReportCommand = new DelegateCommand(GenerateCompanyDebtBalanceReport);
 			GenerateNotPaidOrdersReportCommand = new DelegateCommand(GenerateNotPaidOrdersReport);
 			GenerateCounterpartyDebtDetailsReportCommand = new DelegateCommand(GenerateCounterpartyDebtDetailsReport);
-		}
-
-		private void OnFilterViewModelSelectionChanged(object sender, EventArgs e)
-		{
-			throw new NotImplementedException();
 		}
 
 		#region Properties
@@ -108,6 +104,12 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 			get => _isOrderByDate;
 			set => SetField(ref _isOrderByDate, value);
 		}
+
+		public bool IsCanCreateCounterpartyDebtDetailsReport
+		{
+			get => _isCanCreateCounterpartyDebtDetailsReport;
+			set => SetField(ref _isCanCreateCounterpartyDebtDetailsReport, value);
+		}
 		#endregion Properties
 
 		private void GenerateCompanyDebtBalanceReport()
@@ -126,11 +128,40 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 
 		private void GenerateCounterpartyDebtDetailsReport()
 		{
+			if(!IsSelectedOneCounterparty())
+			{
+				_commonServices.InteractiveService.ShowMessage(
+					QS.Dialog.ImportanceLevel.Error,
+					"Чтобы сформировать отчет необходимо выбрать только одного контрагента");
+
+				return;
+			}
+
 			Identifier = IsOrderByDate
 				? "Bookkeeping.CounterpartyDebtDetails"
 				: "Bookkeeping.CounterpartyDebtDetailsWithoutOrderByDate";
 
 			LoadReport();
+		}
+
+		private void OnFilterViewModelSelectionChanged(object sender, EventArgs e)
+		{
+			IsCanCreateCounterpartyDebtDetailsReport = IsSelectedOneCounterparty();
+		}
+
+		private bool IsSelectedOneCounterparty()
+		{
+			var parameters = FilterViewModel.GetReportParametersSet();
+
+			if(parameters.TryGetValue("Counterparty_include", out object value))
+			{
+				if(value is string[] includedCounterparties)
+				{
+					return includedCounterparties.Length == 1;
+				}
+			}
+
+			return false;
 		}
 
 		private string GetFiltersText(Dictionary<string, object> parameters)
