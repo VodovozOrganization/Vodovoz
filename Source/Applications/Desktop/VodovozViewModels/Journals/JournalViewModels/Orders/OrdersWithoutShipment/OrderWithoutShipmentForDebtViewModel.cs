@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using EdoService.Library;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
@@ -14,6 +14,7 @@ using QS.ViewModels;
 using System;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.EntityRepositories;
@@ -33,6 +34,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		private readonly CommonMessages _commonMessages;
 		private readonly IRDLPreviewOpener _rdlPreviewOpener;
 		private IGenericRepository<EdoContainer> _edoContainerRepository;
+		private IGenericRepository<OrderEdoTrueMarkDocumentsActions> _orderEdoTrueMarkDocumentsActionsRepository;
 		private readonly IEdoService _edoService;
 		public Action<string> OpenCounterpartyJournal;
 		private bool _userHavePermissionToResendEdoDocuments;
@@ -49,6 +51,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			IRDLPreviewOpener rdlPreviewOpener,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IGenericRepository<EdoContainer> edoContainerRepository,
+			IGenericRepository<OrderEdoTrueMarkDocumentsActions> orderEdoTrueMarkDocumentsActionsRepository,
 			IEdoService edoService) : base(uowBuilder, uowFactory, commonServices)
 		{
 			if(lifetimeScope == null)
@@ -64,6 +67,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			_commonMessages = commonMessages ?? throw new ArgumentNullException(nameof(commonMessages));
 			_rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
 			_edoContainerRepository = edoContainerRepository ?? throw new ArgumentNullException(nameof(edoContainerRepository));
+			_orderEdoTrueMarkDocumentsActionsRepository = orderEdoTrueMarkDocumentsActionsRepository ?? throw new ArgumentNullException(nameof(orderEdoTrueMarkDocumentsActionsRepository));
 			_edoService = edoService ?? throw new ArgumentNullException(nameof(edoService));
 			CounterpartyAutocompleteSelectorFactory =
 				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
@@ -209,6 +213,15 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				foreach(var item in _edoContainerRepository.Get(uow, EdoContainerSpecification.CreateForOrderWithoutShipmentForDebtId(Entity.Id)))
 				{
 					EdoContainers.Add(item);
+				}
+
+				var action = _orderEdoTrueMarkDocumentsActionsRepository.Get(uow, x => x.OrderWithoutShipmentForDebt.Id == Entity.Id && x.IsNeedToResendEdoBill == true)
+					.FirstOrDefault();
+
+				if(action != null)
+				{
+					var tempContainer = new EdoContainer { Type = EdoDocumentType.BillWSForAdvancePayment, EdoDocFlowStatus = EdoDocFlowStatus.PreparingToSend};
+					EdoContainers.Add(tempContainer);
 				}
 			}
 		}

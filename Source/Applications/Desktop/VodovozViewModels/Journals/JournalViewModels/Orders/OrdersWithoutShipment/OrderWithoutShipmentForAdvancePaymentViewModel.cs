@@ -48,6 +48,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		private ILifetimeScope _lifetimeScope;
 		private UserSettings _currentUserSettings;
 		private IGenericRepository<EdoContainer> _edoContainerRepository;
+		private IGenericRepository<OrderEdoTrueMarkDocumentsActions> _orderEdoTrueMarkDocumentsActionsRepository;
 		private bool _canCreateBillsWithoutShipment;
 		private bool _canChoosePremiumDiscount;
 		private bool _canAddOnlineStoreNomenclaturesToOrder;
@@ -70,6 +71,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			IOrderDiscountsController discountsController,
 			CommonMessages commonMessages,
 			IGenericRepository<EdoContainer> edoContainerRepository,
+			IGenericRepository<OrderEdoTrueMarkDocumentsActions> orderEdoTrueMarkDocumentsActionsRepository,
 			IRDLPreviewOpener rdlPreviewOpener,
 			IEdoService edoService)
 			: base(uowBuilder, uowFactory, commonServices, navigationManager)
@@ -80,6 +82,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			_rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
 			_edoService = edoService ?? throw new ArgumentNullException(nameof(edoService));
 			_edoContainerRepository = edoContainerRepository ?? throw new ArgumentNullException(nameof(edoContainerRepository));
+			_orderEdoTrueMarkDocumentsActionsRepository = orderEdoTrueMarkDocumentsActionsRepository ?? throw new ArgumentNullException(nameof(orderEdoTrueMarkDocumentsActionsRepository));
 			if(discountReasonRepository == null)
 			{
 				throw new ArgumentNullException(nameof(discountReasonRepository));
@@ -361,6 +364,15 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				foreach(var item in _edoContainerRepository.Get(uow, EdoContainerSpecification.CreateForOrderWithoutShipmentForAdvancePaymentId(Entity.Id)))
 				{
 					EdoContainers.Add(item);
+				}
+
+				var action = _orderEdoTrueMarkDocumentsActionsRepository.Get(uow,x => x.OrderWithoutShipmentForAdvancePayment.Id == Entity.Id && x.IsNeedToResendEdoBill == true)
+					.FirstOrDefault();
+
+				if(action != null)
+				{
+					var tempContainer = new EdoContainer { Type = EdoDocumentType.BillWSForAdvancePayment, EdoDocFlowStatus = EdoDocFlowStatus.PreparingToSend };
+					EdoContainers.Add(tempContainer);
 				}
 			}
 		}
