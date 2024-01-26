@@ -468,6 +468,7 @@
     <Compile Include="JournalColumnsConfigs\CarModelJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ClientCameFromJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ColumnsConfigRegistrarBase.cs" />
+    <Compile Include="JournalColumnsConfigs\RouteColumnJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\RouteListMileageCheckJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\TagJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\KulerSaleWebSiteNomenclatureOnlineCatalogsJournalRegistrar.cs" />

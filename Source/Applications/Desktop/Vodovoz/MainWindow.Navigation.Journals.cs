@@ -1015,8 +1015,9 @@ public partial class MainWindow
 	[Obsolete("Старый диалог, заменить")]
 	protected void OnActionRouteColumnsActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference(typeof(RouteColumn));
-		tdiMain.AddTab(refWin);
+		NavigationManager.OpenViewModel<RouteColumnJournalViewModel>(null, OpenPageOptions.IgnoreHash);
+		//OrmReference refWin = new OrmReference(typeof(RouteColumn));
+		//tdiMain.AddTab(refWin);
 	}
 
 	/// <summary>
