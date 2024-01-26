@@ -14,24 +14,15 @@ namespace Vodovoz.ViewWidgets.Store
 		private int _amount;
 		public virtual int Amount
 		{
-			get { return _amount; }
-			set
-			{
-				SetField(ref _amount, value, () => Amount);
-			}
+			get => _amount;
+			set => SetField(ref _amount, value);
 		}
 
 		private int _returned;
 		public int Returned
 		{
-			get
-			{
-				return _returned;
-			}
-			set
-			{
-				SetField(ref _returned, value, () => Returned);
-			}
+			get => _returned;
+			set => SetField(ref _returned, value);
 		}
 	}
 }
