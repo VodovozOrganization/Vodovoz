@@ -51,7 +51,6 @@ namespace Vodovoz.ViewModels.ViewModels.Flyers
 				.ForProperty(x => x.FlyerNomenclature)
 				.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(filter =>
 				{
-
 				})
 				.UseViewModelDialog<NomenclatureViewModel>()
 				.Finish();
