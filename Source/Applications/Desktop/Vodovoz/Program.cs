@@ -1,6 +1,8 @@
 ﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
+using EdoService;
+using EdoService.Library;
 using Fias.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
@@ -346,6 +348,8 @@ namespace Vodovoz
 					builder.RegisterType<WarehousePermissionValidator>().As<IWarehousePermissionValidator>();
 					builder.RegisterType<WageParameterService>().As<IWageParameterService>();
 					builder.RegisterType<SelfDeliveryCashOrganisationDistributor>().As<ISelfDeliveryCashOrganisationDistributor>();
+					builder.RegisterType<EdoService.Library.EdoService>().As<IEdoService>();
+					builder.RegisterType<EmailService>().As<IEmailService>();
 
 					#endregion
 

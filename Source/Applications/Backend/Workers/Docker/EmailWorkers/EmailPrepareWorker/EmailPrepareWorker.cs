@@ -4,16 +4,15 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
+using NHibernate.Driver.MySqlConnector;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
-using QSOrmProject;
-using QSProjectsLib;
 using RabbitMQ.Client;
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Domain.StoredEmails;
@@ -40,6 +39,7 @@ namespace EmailPrepareWorker
 		private readonly IEmailSendMessagePreparer _emailSendMessagePreparer;
 		private readonly TimeSpan _workDelay = TimeSpan.FromSeconds(5);
 		private readonly int _instanceId;
+		private readonly string _connectionString;
 
 		public EmailPrepareWorker(
 			ILogger<EmailPrepareWorker> logger,
@@ -70,6 +70,8 @@ namespace EmailPrepareWorker
 				.GetValue<string>(_emailSendExchangeParameter);
 			_channel.QueueDeclare(_emailSendKey, true, false, false, null);
 
+			Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
 			var conStrBuilder = new MySqlConnectionStringBuilder();
 
 			var databaseSection = configuration.GetSection("Database");
@@ -81,12 +83,15 @@ namespace EmailPrepareWorker
 			conStrBuilder.Database = databaseSection.GetValue("DatabaseName", "");
 			conStrBuilder.SslMode = MySqlSslMode.None;
 
-			QSMain.ConnectionString = conStrBuilder.GetConnectionString(true);
+			//QSMain.ConnectionString = conStrBuilder.GetConnectionString(true);
+			_connectionString = conStrBuilder.GetConnectionString(true);
+
 			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
 									 .Dialect<NHibernate.Spatial.Dialect.MySQL57SpatialDialect>()
-									 .ConnectionString(QSMain.ConnectionString);
+									 .ConnectionString(/*QSMain.ConnectionString*/_connectionString)
+									 .Driver<MySqlConnectorDriver>();
 
-			OrmMain.ClassMappingList = new List<IOrmObjectMapping> (); // Нужно, чтобы запустился конструктор OrmMain
+			//OrmMain.ClassMappingList = new List<IOrmObjectMapping> (); // Нужно, чтобы запустился конструктор OrmMain
 
 			OrmConfig.ConfigureOrm(db_config,
 				new Assembly[] {
@@ -179,7 +184,7 @@ namespace EmailPrepareWorker
 								}
 							}
 
-							var sendingBody = _emailSendMessagePreparer.PrepareMessage(emailSendMessageBuilder);
+							var sendingBody = _emailSendMessagePreparer.PrepareMessage(emailSendMessageBuilder, _connectionString);
 
 							var properties = _channel.CreateBasicProperties();
 							properties.Persistent = true;

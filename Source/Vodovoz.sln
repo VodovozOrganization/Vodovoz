@@ -261,7 +261,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Taxcom", "Taxcom", "{833CFB
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EdoService", "EdoService", "{AB8D6BB6-41C6-46AC-835D-4A544B998302}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EdoService", "Libraries\Core\EdoService\EdoService.csproj", "{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EdoService.Library", "Libraries\Core\EdoService\EdoService.Library.csproj", "{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IIS", "IIS", "{AA384BE0-D7B1-4A95-BFB4-6B4B5ACD452E}"
 EndProject
