@@ -1,5 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using DocumentFormat.OpenXml.Bibliography;
+using DocumentFormat.OpenXml.Wordprocessing;
 using QS.DomainModel.Entity;
 
 namespace Vodovoz.Domain.Logistic
@@ -23,8 +25,8 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref _name, value);
 		}
 
-		[Display(Name = "Название")]
-		[StringLength(3)]
+		[Display(Name = "Короткое название")]
+		[StringLength(3, ErrorMessage = "Короткое название не должно быть длиннее 3-х символов")]
 		public virtual string ShortName
 		{
 			get => _shortName;
@@ -37,6 +39,8 @@ namespace Vodovoz.Domain.Logistic
 			get => _isHighlighted;
 			set => SetField(ref _isHighlighted, value);
 		}
+
+		public virtual string Title => Name;
 
 		public RouteColumn ()
 		{
