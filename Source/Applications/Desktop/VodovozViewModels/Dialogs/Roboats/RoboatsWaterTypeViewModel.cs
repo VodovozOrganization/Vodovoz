@@ -44,7 +44,7 @@ namespace Vodovoz.ViewModels.Dialogs.Roboats
 				.ForProperty(rwt => rwt.Nomenclature)
 				.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(filter =>
 				{
-
+					filter.RestrictCategory = Domain.Goods.NomenclatureCategory.water;
 				})
 				.UseViewModelDialog<NomenclatureViewModel>()
 				.Finish();
