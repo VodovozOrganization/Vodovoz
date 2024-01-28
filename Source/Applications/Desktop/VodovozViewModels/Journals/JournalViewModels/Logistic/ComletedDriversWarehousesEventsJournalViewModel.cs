@@ -11,6 +11,7 @@ using QS.Navigation;
 using QS.Project.DB;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
+using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.ViewModels.Dialog;
 using Vodovoz.Domain.Employees;
@@ -20,6 +21,7 @@ using Vodovoz.NHibernateProjections.Employees;
 using Vodovoz.Reports.Editing.Modifiers;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
+using Vodovoz.ViewModels.ViewModels.Reports.Logistics;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 {
@@ -64,6 +66,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			NodeActionsList.Clear();
 			CreateStartAutoRefresh();
 			CreateStopAutoRefresh();
+			CreateExportAction();
 		}
 
 		private void CreateStartAutoRefresh()
@@ -94,6 +97,29 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 					_autoRefreshTimer.Stop();
 					_autoRefreshEnabled = false;
 					UpdateJournalActions?.Invoke();
+				}
+			);
+			
+			NodeActionsList.Add(journalAction);
+		}
+		
+		private void CreateExportAction()
+		{
+			var journalAction = new JournalAction(
+				"Экспорт",
+				objects => true,
+				objects => true,
+				objects =>
+				{
+					var rows = GetCompletedEvents(UoW).List<CompletedDriversWarehousesEventsJournalNode>();
+
+					if(!rows.Any())
+					{
+						return;
+					}
+					
+					var report = new CompletedDriversWarehousesEventsJournalReport(_scope.Resolve<IFileDialogService>());
+					report.Export(rows);
 				}
 			);
 			
