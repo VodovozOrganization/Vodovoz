@@ -106,7 +106,7 @@ namespace Pacs.Operators.Server
 				return DateTime.Now;
 			}
 
-			var allowedTime = lastShortBreak.Started + actualSettings.ShortBreakInterval;
+			var allowedTime = lastShortBreak.Started + actualSettings.ShortBreakDuration + actualSettings.ShortBreakInterval;
 			return allowedTime;
 		}
 	}
