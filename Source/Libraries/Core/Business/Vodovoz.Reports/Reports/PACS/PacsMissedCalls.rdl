@@ -20,7 +20,7 @@
     <ReportItems>
       <Table Name="Table1">
         <DataSetName>data</DataSetName>
-        <NoRows>Query returned no rows!</NoRows>
+        <NoRows>За выбранный период нет пропущенных звонков</NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>

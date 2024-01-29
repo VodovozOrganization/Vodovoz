@@ -36,7 +36,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			Phone = _model.CurrentState.PhoneNumber;
 			BreakStartTime = _model.CurrentState.Started;
 
-			_timer = new Timer(60000);
+			_timer = new Timer(1000);
 			_timer.Elapsed += OnTick;
 			_timer.Start();
 
@@ -45,7 +45,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 		private void OnTick(object sender, ElapsedEventArgs e)
 		{
-			_guiDispatcher.RunInGuiTread(() => { 
+			_guiDispatcher.RunInGuiTread(() => {
 				OnPropertyChanged(nameof(TimeRemains));
 			});
 		}
@@ -84,7 +84,6 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			private set => SetField(ref _breakTimeGone, value);
 		}
 
-
 		public string TimeRemains
 		{
 			get
@@ -105,7 +104,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 				}
 
 				BreakTimeGone = remains < TimeSpan.Zero;
-				var format = (_breakTimeGone ? "\\-" : "") + "hh\\:mm";
+				var format = (_breakTimeGone ? "\\-" : "") + "hh\\ч\\.\\ mm\\м\\.";
 				return remains.ToString(format);
 			}
 		}

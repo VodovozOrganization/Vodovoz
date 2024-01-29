@@ -39,6 +39,14 @@ namespace Pacs.Operators.Server
 			return result;
 		}
 
+		[HttpPost("keep_alive")]
+		public async Task KeepAlive([FromBody] KeepAlive command)
+		{
+			_logger.LogTrace("Поддержание подключения оператора {OperatorId}", command.OperatorId);
+			var controller = _controllerProvider.GetOperatorController(command.OperatorId);
+			await controller.KeepAlive();
+		}
+
 		[HttpPost("startworkshift")]
 		public async Task<OperatorResult> StartWorkShift([FromBody] StartWorkShift command)
 		{

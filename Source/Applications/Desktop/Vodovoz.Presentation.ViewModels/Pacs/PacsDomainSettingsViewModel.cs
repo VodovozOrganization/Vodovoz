@@ -101,7 +101,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 		#region Settings
 
-		public int LongBreakDurationMinValue => 5;
+		public int LongBreakDurationMinValue => 0;
 		public int LongBreakDurationMaxValue => 1440;
 
 		[PropertyChangedAlso(nameof(HasChanges))]

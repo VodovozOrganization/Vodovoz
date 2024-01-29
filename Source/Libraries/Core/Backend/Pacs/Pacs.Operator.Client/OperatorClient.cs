@@ -252,6 +252,30 @@ namespace Pacs.Operators.Client
 			}
 		}
 
+		public async Task KeepAlive(CancellationToken cancellationToken = default)
+		{
+			var uri = $"{_pacsSettings.OperatorApiUrl}/{_url}/keep_alive";
+			var payload = new KeepAlive { OperatorId = _operatorId };
+			var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
+			_httpClient.DefaultRequestHeaders.Clear();
+			_httpClient.DefaultRequestHeaders.Add("ApiKey", _pacsSettings.OperatorApiKey);
+
+			try
+			{
+				var response = await _httpClient.PostAsync(uri, content);
+				if(response.IsSuccessStatusCode)
+				{
+					_logger.LogWarning("Отправка KeepAlive сообщения оператора {OperatorId} была не успешна. Код {HttpCode}", 
+						_operatorId, (int)response.StatusCode);
+				}
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Ошибка при отправке KeepAlive сообщения оператора {OperatorId}", _operatorId);
+				throw;
+			}
+		}
+
 		public async Task<GlobalBreakAvailability> GetGlobalBreakAvailability()
 		{
 			var uri = $"{_pacsSettings.OperatorApiUrl}/pacs/global-break-availability/get";

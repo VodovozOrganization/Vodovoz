@@ -501,18 +501,25 @@ namespace Pacs.Server
 
 		private void OnBreakEnded(StateMachine.Transition transition)
 		{
-			var args = (BreakEndArgs)transition.Parameters[0];
-			if(args.BreakChangedBy == BreakChangedBy.Admin)
+			if(transition.Parameters[0] is BreakEndArgs args)
 			{
-				OperatorState.BreakChangedBy = BreakChangedBy.Admin;
-				OperatorState.BreakChangedByAdminId = args.AdminId;
-				OperatorState.BreakAdminReason = args.Reason;
-				_logger.LogInformation("Оператор {OperatorId} завершил перерыв, вызванный коммандой администратора {AdminId}", 
-					OperatorId, args.AdminId);
+				if(args.BreakChangedBy == BreakChangedBy.Admin)
+				{
+					OperatorState.BreakChangedBy = BreakChangedBy.Admin;
+					OperatorState.BreakChangedByAdminId = args.AdminId;
+					OperatorState.BreakAdminReason = args.Reason;
+					_logger.LogInformation("Оператор {OperatorId} завершил перерыв, вызванный коммандой администратора {AdminId}",
+						OperatorId, args.AdminId);
+				}
+				else
+				{
+					_logger.LogInformation("Оператор {OperatorId} завершил перерыв", OperatorId);
+				}
 			}
 			else
 			{
-				_logger.LogInformation("Оператор {OperatorId} завершил перерыв", OperatorId);
+				OperatorState.BreakChangedBy = BreakChangedBy.Operator;
+				OperatorState.BreakAdminReason = "Завершен автоматически при закрытии смены";
 			}
 		}
 

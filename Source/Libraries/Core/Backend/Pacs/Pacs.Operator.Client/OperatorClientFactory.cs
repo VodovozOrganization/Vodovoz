@@ -16,5 +16,11 @@ namespace Pacs.Operators.Client
 		{
 			return _scope.Resolve<IOperatorClient>(new TypedParameter(typeof(int), operatorId));
 		}
+
+		public OperatorKeepAliveController CreateOperatorKeepAliveController(int operatorId)
+		{
+			var client = CreateOperatorClient(operatorId);
+			return _scope.Resolve<OperatorKeepAliveController>(new TypedParameter(typeof(IOperatorClient), client));
+		}
 	}
 }

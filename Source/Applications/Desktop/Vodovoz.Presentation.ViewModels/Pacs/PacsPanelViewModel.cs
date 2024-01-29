@@ -32,6 +32,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		private readonly IMangoManager _mangoManager;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IOperatorClient _operatorClient;
+		private readonly OperatorKeepAliveController _keepAliveController;
 		private readonly IGuiDispatcher _guiDispatcher;
 		private readonly INavigationManager _navigationManager;
 		private readonly IPacsRepository _pacsRepository;
@@ -99,6 +100,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			{
 				PacsEnabled = true;
 				_operatorClient = operatorClientFactory.CreateOperatorClient(_employee.Id);
+				_keepAliveController = operatorClientFactory.CreateOperatorKeepAliveController(_employee.Id);
 				_operatorClient.StateChanged += OperatorStateChanged;
 				GlobalBreakAvailability = _operatorClient.GetGlobalBreakAvailability().Result;
 				Connect();
@@ -217,6 +219,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 				try
 				{
 					var state = _operatorClient.Connect().Result;
+					_keepAliveController.Start();
 					UpdateState(state);
 				}
 				catch(Exception ex)
@@ -475,14 +478,15 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 					return false;
 				}
 
-				var breakUnavailable = !BreakAvailability.LongBreakAvailable
-					|| !GlobalBreakAvailability.LongBreakAvailable;
-				if(breakUnavailable)
+				if(_operatorStateAgent.CanEndBreak)
 				{
-					return false;
+					return true;
 				}
 
-				return _operatorStateAgent.CanStartBreak || _operatorStateAgent.CanEndBreak;
+				var breakUnavailable = !BreakAvailability.LongBreakAvailable
+					|| !GlobalBreakAvailability.LongBreakAvailable;
+
+				return _operatorStateAgent.CanStartBreak && !breakUnavailable;
 			}
 		}
 
@@ -494,14 +498,15 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 				{
 					return false;
 				}
+
+				if(_operatorStateAgent.CanEndBreak)
+				{
+					return true;
+				}
 				var breakUnavailable = !BreakAvailability.ShortBreakAvailable
 					|| !GlobalBreakAvailability.ShortBreakAvailable;
-				if(breakUnavailable)
-				{
-					return false;
-				}
 
-				return _operatorStateAgent.CanStartBreak || _operatorStateAgent.CanEndBreak;
+				return _operatorStateAgent.CanStartBreak && !breakUnavailable;
 			}
 		}
 

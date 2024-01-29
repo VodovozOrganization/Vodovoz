@@ -56,6 +56,7 @@ namespace Pacs.Core.Messages.Commands
 		public string PhoneNumber { get; set; }
 	}
 
-
-
+	public class KeepAlive : OperatorCommand
+	{
+	}
 }

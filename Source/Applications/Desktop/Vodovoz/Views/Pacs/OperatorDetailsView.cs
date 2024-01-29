@@ -24,10 +24,15 @@ namespace Vodovoz.Views.Pacs
 				.InitializeFromSource();
 
 			treeViewOperatorHistory.ColumnsConfig = FluentColumnsConfig<OperatorState>.Create()
-				.AddColumn("Статус").AddReadOnlyTextRenderer(x => x.State.GetEnumTitle())
-				.AddColumn("Начало").AddReadOnlyTextRenderer(x => x.Started.ToString("dd.MM HH:mm:ss"))
-				.AddColumn("Конец").AddReadOnlyTextRenderer(x => x.Ended.HasValue ? x.Ended.Value.ToString("dd.MM HH:mm:ss") : "")
-				.AddColumn("Доб. тел.").AddReadOnlyTextRenderer(x => x.PhoneNumber)
+				.AddColumn("Статус").HeaderAlignment(0.5f)
+					.AddReadOnlyTextRenderer(x => x.State.GetEnumTitle())
+				.AddColumn("Начало").HeaderAlignment(0.5f)
+					.AddReadOnlyTextRenderer(x => x.Started.ToString("dd.MM HH:mm:ss"))
+				.AddColumn("Конец").HeaderAlignment(0.5f)
+					.AddReadOnlyTextRenderer(x => x.Ended.HasValue ? x.Ended.Value.ToString("dd.MM HH:mm:ss") : "")
+				.AddColumn("Доб. тел.").HeaderAlignment(0.5f)
+					.AddReadOnlyTextRenderer(x => x.PhoneNumber)
+				.AddColumn("")
 				.Finish();
 
 			treeViewOperatorHistory.Binding.AddSource(ViewModel)

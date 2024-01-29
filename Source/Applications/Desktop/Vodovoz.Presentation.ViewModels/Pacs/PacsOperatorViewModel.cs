@@ -12,6 +12,7 @@ using QS.Utilities;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
@@ -43,7 +44,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		private string _phoneNumber;
 		private OperatorBreakAvailability _breakAvailability;
 		private GlobalBreakAvailability _globalBreakAvailability;
-		private IList<DashboardOperatorOnBreakViewModel> _operatorsOnBreak = new List<DashboardOperatorOnBreakViewModel>();
+		private GenericObservableList<DashboardOperatorOnBreakViewModel> _operatorsOnBreak = new GenericObservableList<DashboardOperatorOnBreakViewModel>();
 		private IPacsDomainSettings _settings;
 
 		public DelegateCommand StartWorkShiftCommand { get; private set; }
@@ -172,7 +173,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			}
 		}
 
-		public IList<DashboardOperatorOnBreakViewModel> OperatorsOnBreak
+		public GenericObservableList<DashboardOperatorOnBreakViewModel> OperatorsOnBreak
 		{
 			get => _operatorsOnBreak;
 			private set => SetField(ref _operatorsOnBreak, value);
@@ -489,7 +490,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 			_guiDispatcher.RunInGuiTread(() =>
 			{
-				OperatorsOnBreak = operatorViewModels.ToList();
+				OperatorsOnBreak = new GenericObservableList<DashboardOperatorOnBreakViewModel>(operatorViewModels.ToList());
 			});
 		}
 

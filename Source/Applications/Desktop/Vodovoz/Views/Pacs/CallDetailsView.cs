@@ -25,11 +25,16 @@ namespace Vodovoz.Views.Pacs
 				.InitializeFromSource();
 
 			treeViewHistory.ColumnsConfig = FluentColumnsConfig<CallEvent>.Create()
-				.AddColumn("Время").AddReadOnlyTextRenderer(x => x.EventTime.ToString("MM.dd HH:mm:ss"))
-				.AddColumn("Статус").AddReadOnlyTextRenderer(x => x.CallState.GetEnumTitle())
-				.AddColumn("От кого").AddReadOnlyTextRenderer(x => x.FromNumber)
-				.AddColumn("Кому").AddReadOnlyTextRenderer(x => x.ToExtension)
-				.AddColumn("Причина отключения").AddReadOnlyTextRenderer(x => x.DisconnectReason > 0 ? x.DisconnectReason.ToString() : "")
+				.AddColumn("Время").HeaderAlignment(0.5f)
+					.AddReadOnlyTextRenderer(x => x.EventTime.ToString("MM.dd HH:mm:ss"))
+				.AddColumn("Статус").HeaderAlignment(0.5f)
+					.AddReadOnlyTextRenderer(x => x.CallState.GetEnumTitle())
+				.AddColumn("От кого").HeaderAlignment(0.5f)
+					.AddReadOnlyTextRenderer(x => x.FromNumber)
+				.AddColumn("Кому").HeaderAlignment(0.5f)
+					.AddReadOnlyTextRenderer(x => x.ToExtension)
+				.AddColumn("Причина отключения").HeaderAlignment(0.5f)
+					.AddReadOnlyTextRenderer(x => x.DisconnectReason > 0 ? x.DisconnectReason.ToString() : "")
 				.AddColumn("")
 				.Finish();
 

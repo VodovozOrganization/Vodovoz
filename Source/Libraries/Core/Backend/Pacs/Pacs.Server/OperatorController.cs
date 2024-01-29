@@ -332,8 +332,20 @@ namespace Pacs.Server
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex, "Произошло исключение при попытке отключения оператора");
+				_logger.LogError(ex, "Произошло исключение при попытке отключения оператора {OperatorId}", _operatorAgent.OperatorId);
 				return new OperatorResult(GetResultContent(), ex.Message);
+			}
+		}
+
+		public async Task KeepAlive()
+		{
+			try
+			{
+				await _operatorAgent.KeepAlive();
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Произошло исключение при попытке вызова KeepAlive оператора {OperatorId}", _operatorAgent.OperatorId);
 			}
 		}
 

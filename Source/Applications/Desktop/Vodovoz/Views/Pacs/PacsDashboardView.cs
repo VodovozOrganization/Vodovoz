@@ -2,14 +2,13 @@
 using Gtk;
 using QS.ViewModels;
 using QS.Views.GtkUI;
-using System;
 using System.ComponentModel;
 using Vodovoz.Infrastructure;
 using Vodovoz.Presentation.ViewModels.Pacs;
 
 namespace Vodovoz.Views.Pacs
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class PacsDashboardView : WidgetViewBase<PacsDashboardViewModel>
 	{
 		private Widget _detailsWidget;
@@ -24,9 +23,13 @@ namespace Vodovoz.Views.Pacs
 			base.ConfigureWidget();
 
 			treeViewOperatorsOnBreak.ColumnsConfig = FluentColumnsConfig<DashboardOperatorOnBreakViewModel>.Create()
-				.AddColumn("Имя").AddReadOnlyTextRenderer(x => x.Name)
-				.AddColumn("Доб. тел.").AddReadOnlyTextRenderer(x => x.Phone)
-				.AddColumn("Осталось").AddReadOnlyTextRenderer(x => x.TimeRemains)
+				.AddColumn("Имя").HeaderAlignment(0.5f)
+					.AddReadOnlyTextRenderer(x => x.Name)
+				.AddColumn("Доб. тел.").HeaderAlignment(0.5f)
+					.AddReadOnlyTextRenderer(x => x.Phone)
+				.AddColumn("Осталось").HeaderAlignment(0.5f)
+					.AddReadOnlyTextRenderer(x => x.TimeRemains)
+				.AddColumn("")
 				.RowCells()
 					.AddSetter<CellRenderer>((cell, vm) =>
 					{
@@ -46,10 +49,15 @@ namespace Vodovoz.Views.Pacs
 			treeViewOperatorsOnBreak.RowActivated += OnActivateOperatorOnBreakRow;
 
 			treeViewOperatorsOnWorkshift.ColumnsConfig = FluentColumnsConfig<DashboardOperatorViewModel>.Create()
-				.AddColumn("Имя").AddReadOnlyTextRenderer(x => x.Name)
-				.AddColumn("Доб. тел.").AddReadOnlyTextRenderer(x => x.Phone)
-				.AddColumn("Статус").AddReadOnlyTextRenderer(x => x.State)
-				.AddColumn("Говорит с").AddReadOnlyTextRenderer(x => x.ConnectedToCall)
+				.AddColumn("Имя").HeaderAlignment(0.5f)
+					.AddReadOnlyTextRenderer(x => x.Name)
+				.AddColumn("Доб. тел.").HeaderAlignment(0.5f)
+					.AddReadOnlyTextRenderer(x => x.Phone)
+				.AddColumn("Статус").HeaderAlignment(0.5f)
+					.AddReadOnlyTextRenderer(x => x.State)
+				.AddColumn("Говорит с").HeaderAlignment(0.5f)
+					.AddReadOnlyTextRenderer(x => x.ConnectedToCall)
+				.AddColumn("")
 				.Finish();
 			treeViewOperatorsOnWorkshift.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.OperatorsOnWorkshift, w => w.ItemsDataSource)
@@ -57,9 +65,13 @@ namespace Vodovoz.Views.Pacs
 			treeViewOperatorsOnWorkshift.RowActivated += OnActivateOperatorRow;
 
 			treeViewMissedCalls.ColumnsConfig = FluentColumnsConfig<DashboardMissedCallViewModel>.Create()
-				.AddColumn("Время").AddReadOnlyTextRenderer(x => x.Time)
-				.AddColumn("Телефон").AddReadOnlyTextRenderer(x => x.Phone)
-				.AddColumn("Могли принять").AddReadOnlyTextRenderer(x => x.PossibleOperatorsCount)
+				.AddColumn("Время").HeaderAlignment(0.5f)
+					.AddReadOnlyTextRenderer(x => x.Time)
+				.AddColumn("Телефон").HeaderAlignment(0.5f)
+					.AddReadOnlyTextRenderer(x => x.Phone)
+				.AddColumn("Могли принять").HeaderAlignment(0.5f)
+					.AddReadOnlyTextRenderer(x => x.PossibleOperatorsCount)
+				.AddColumn("")
 				.Finish();
 			treeViewMissedCalls.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.MissedCalls, w => w.ItemsDataSource)
@@ -67,10 +79,15 @@ namespace Vodovoz.Views.Pacs
 			treeViewMissedCalls.RowActivated += OnActivateMissedCallRow;
 
 			treeViewAllCalls.ColumnsConfig = FluentColumnsConfig<DashboardCallViewModel>.Create()
-				.AddColumn("Время").AddReadOnlyTextRenderer(x => x.Time)
-				.AddColumn("Телефон").AddReadOnlyTextRenderer(x => x.Phone)
-				.AddColumn("Оператор").AddReadOnlyTextRenderer(x => x.Operator)
-				.AddColumn("Статус").AddReadOnlyTextRenderer(x => x.State)
+				.AddColumn("Время").HeaderAlignment(0.5f)
+					.AddReadOnlyTextRenderer(x => x.Time)
+				.AddColumn("Телефон").HeaderAlignment(0.5f)
+					.AddReadOnlyTextRenderer(x => x.Phone)
+				.AddColumn("Оператор").HeaderAlignment(0.5f)
+					.AddReadOnlyTextRenderer(x => x.Operator)
+				.AddColumn("Статус").HeaderAlignment(0.5f)
+					.AddReadOnlyTextRenderer(x => x.State)
+				.AddColumn("")
 				.Finish();
 			treeViewAllCalls.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.Calls, w => w.ItemsDataSource)

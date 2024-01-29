@@ -49,10 +49,14 @@ namespace Vodovoz.Views.Pacs
 				.InitializeFromSource();
 
 			treeviewOperatorsOnBreak.ColumnsConfig = FluentColumnsConfig<DashboardOperatorOnBreakViewModel>.Create()
-				.AddColumn("Перерыв").AddReadOnlyTextRenderer(x => x.Break)
-				.AddColumn("Имя").AddReadOnlyTextRenderer(x => x.Name)
-				.AddColumn("Доб. тел.").AddReadOnlyTextRenderer(x => x.Phone)
-				.AddColumn("Осталось").AddReadOnlyTextRenderer(x => x.TimeRemains)
+				.AddColumn("Перерыв").HeaderAlignment(0.5f)
+					.AddReadOnlyTextRenderer(x => x.Break)
+				.AddColumn("Имя").HeaderAlignment(0.5f)
+					.AddReadOnlyTextRenderer(x => x.Name)
+				.AddColumn("Доб. тел.").HeaderAlignment(0.5f)
+					.AddReadOnlyTextRenderer(x => x.Phone)
+				.AddColumn("Осталось").HeaderAlignment(0.5f)
+					.AddReadOnlyTextRenderer(x => x.TimeRemains)
 				.AddColumn("")
 				.RowCells()
 					.AddSetter<CellRenderer>((cell, vm) =>

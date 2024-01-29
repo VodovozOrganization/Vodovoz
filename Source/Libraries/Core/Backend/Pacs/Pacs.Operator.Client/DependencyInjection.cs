@@ -12,6 +12,7 @@ namespace Pacs.Operators.Client
 		{
 			services
 				.AddSingleton<IOperatorClient, OperatorClient>()
+				.AddSingleton<OperatorKeepAliveController>()
 				.AddScoped<IOperatorClientFactory, OperatorClientFactory>()
 				.AddSingleton<OperatorStateConsumer>()
 				.AddSingleton<IObservable<OperatorStateEvent>>(ctx => ctx.GetService<OperatorStateConsumer>())
