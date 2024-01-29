@@ -57,6 +57,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		public Employee Employee { get; private set; }
 		public OperatorState CurrentState => States.FirstOrDefault();
 		public GenericObservableList<OperatorState> States { get; set; }
+		public CallModel ConnectedCall { get; set; }
 
 		public void AddState(OperatorState state)
 		{
@@ -132,6 +133,16 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 				});
 
 			return possibleStates.Any();
+		}
+
+		public string GetConnectedCallNumber()
+		{
+			//После реализации загрузки звонков из базы надо поменять на вычисление звонка по CurrentState.CallId
+			if(ConnectedCall?.CurrentState == null)
+			{
+				return "";
+			}
+			return ConnectedCall.CurrentState.FromNumber;
 		}
 	}
 }

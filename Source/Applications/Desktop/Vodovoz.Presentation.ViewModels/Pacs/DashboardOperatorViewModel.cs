@@ -25,6 +25,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			Name = _model.Employee.GetPersonNameWithInitials();
 			Phone = GetPhone();
 			State = GetState();
+			ConnectedToCall = GetConnectedCall();
 		}
 
 		public OperatorModel Model => _model;
@@ -60,11 +61,13 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 				case nameof(OperatorModel.CurrentState):
 					var _phone = GetPhone();
 					var state = GetState();
+					var connectedToCall = GetConnectedCall();
 
 					_guiDispatcher.RunInGuiTread(() =>
 					{
 						Phone = _phone;
 						State = state;
+						ConnectedToCall = connectedToCall;
 					});
 					break;
 				default:
@@ -80,6 +83,11 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		private string GetState()
 		{
 			return AttributeUtil.GetEnumTitle(_model.CurrentState.State);
+		}
+
+		private string GetConnectedCall()
+		{
+			return _model.GetConnectedCallNumber();
 		}
 	}
 }

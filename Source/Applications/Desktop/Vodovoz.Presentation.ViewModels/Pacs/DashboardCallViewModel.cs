@@ -69,6 +69,14 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 						State = state;
 					});
 					break;
+				case nameof(CallModel.Operator):
+					var oper2 = GetOperator();
+
+					_guiDispatcher.RunInGuiTread(() =>
+					{
+						Operator = oper2;
+					});
+					break;
 				default:
 					break;
 			}

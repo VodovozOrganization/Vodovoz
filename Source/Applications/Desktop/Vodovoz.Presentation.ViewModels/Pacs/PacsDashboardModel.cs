@@ -195,7 +195,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 					return;
 				}
 
-				model = new CallModel();
+				model = new CallModel(_operatorStatesDic.Values);
 				model.CallMissed += OnCallMissed;
 				model.AddEvent(callEvent);
 				_callsDic.Add(callEvent.CallId, model);
