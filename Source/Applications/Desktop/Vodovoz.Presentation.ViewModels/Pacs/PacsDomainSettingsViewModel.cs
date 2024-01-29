@@ -101,7 +101,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 		#region Settings
 
-		public int LongBreakDurationMinValue => 0;
+		public int LongBreakDurationMinValue => 5;
 		public int LongBreakDurationMaxValue => 1440;
 
 		[PropertyChangedAlso(nameof(HasChanges))]
@@ -132,7 +132,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			}
 		}
 
-		public int LongBreakCountPerDayMinValue => 0;
+		public int LongBreakCountPerDayMinValue => 1;
 		public int LongBreakCountPerDayMaxValue => 5;
 
 		[PropertyChangedAlso(nameof(HasChanges))]
@@ -148,7 +148,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		}
 
 
-		public int ShortBreakDurationMinValue => 0;
+		public int ShortBreakDurationMinValue => 5;
 		public int ShortBreakDurationMaxValue => 500;
 
 		[PropertyChangedAlso(nameof(HasChanges))]
@@ -180,7 +180,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		}
 
 
-		public int ShortBreakIntervalMinValue => 0;
+		public int ShortBreakIntervalMinValue => 5;
 		public int ShortBreakIntervalMaxValue => 500;
 
 		[PropertyChangedAlso(nameof(HasChanges))]
