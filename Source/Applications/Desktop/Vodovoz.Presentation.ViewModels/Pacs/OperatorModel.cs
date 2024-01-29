@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using Core.Infrastructure;
 using MoreLinq;
 using MoreLinq.Extensions;
 using Pacs.Core;
