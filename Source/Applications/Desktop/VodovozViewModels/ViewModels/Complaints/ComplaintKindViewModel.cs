@@ -5,7 +5,6 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using QS.ViewModels;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Complaints;
@@ -19,35 +18,17 @@ namespace Vodovoz.ViewModels.Complaints
 	{
 		private DelegateCommand<Subdivision> _removeSubdivisionCommand;
 		private DelegateCommand _attachSubdivisionCommand;
-		private readonly Action _updateJournalAction;
-		private readonly IList<Subdivision> _subdivisionsOnStart;
 
 		public ComplaintKindViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			INavigationManager navigationManager,
-			Action updateJournalAction)
+			INavigationManager navigationManager)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
-			_updateJournalAction = updateJournalAction ?? throw new ArgumentNullException(nameof(updateJournalAction));
-
 			ComplaintObjects = UoW.Session.QueryOver<ComplaintObject>().List();
-			_subdivisionsOnStart = new List<Subdivision>(Entity.Subdivisions);
 
 			TabName = "Вид рекламаций";
-		}
-
-		protected override void AfterSave()
-		{
-			var isEqualSubdivisionLists = new HashSet<Subdivision>(_subdivisionsOnStart).SetEquals(Entity.Subdivisions);
-
-			if(!isEqualSubdivisionLists)
-			{
-				_updateJournalAction.Invoke();
-			}
-
-			base.AfterSave();
 		}
 
 		public IList<ComplaintObject> ComplaintObjects { get; }
