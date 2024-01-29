@@ -166,6 +166,7 @@ namespace Vodovoz
 				{
 					filter.RestrictCategory = NomenclatureCategory.equipment;
 					filter.RestrictArchive = false;
+					filter.HidenByDefault = true;
 				})
 				.UseViewModelDialog<NomenclatureViewModel>()
 				.Finish();
