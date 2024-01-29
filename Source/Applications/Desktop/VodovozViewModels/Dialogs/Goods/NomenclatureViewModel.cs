@@ -3,10 +3,12 @@ using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using System;
 using System.Collections.Generic;
@@ -25,7 +27,9 @@ using Vodovoz.Services;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Nodes;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Goods;
+using Vodovoz.ViewModels.ViewModels.Logistic;
 using VodovozInfrastructure.StringHandlers;
 
 namespace Vodovoz.ViewModels.Dialogs.Goods
@@ -57,6 +61,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
+			INavigationManager navigationManager,
 			IInteractiveService interactiveService,
 			IEmployeeService employeeService,
 			INomenclatureJournalFactory nomenclatureSelectorFactory,
@@ -67,7 +72,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			INomenclatureOnlineParametersProvider nomenclatureOnlineParametersProvider,
 			INomenclatureSettings nomenclatureSettings,
 			INomenclatureService nomenclatureService)
-			: base(uowBuilder, uowFactory, commonServices)
+			: base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
 			if(nomenclatureSelectorFactory is null)
 			{
@@ -94,6 +99,8 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope);
 			_nomenclatureService = nomenclatureService ?? throw new ArgumentNullException(nameof(nomenclatureService));
 
+			RouteColumnViewModel = BuildRouteColumnEntryViewModel();
+
 			ConfigureEntryViewModels();
 			ConfigureOnlineParameters();
 			ConfigureEntityPropertyChanges();
@@ -116,6 +123,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		public IStringHandler StringHandler { get; }
 		public IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
+		public IEntityEntryViewModel RouteColumnViewModel { get; }
 
 		public GenericObservableList<NomenclatureOnlinePricesNode> NomenclatureOnlinePrices { get; private set; }
 			= new GenericObservableList<NomenclatureOnlinePricesNode>();
@@ -538,6 +546,17 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				new NomenclaturePurchasePricesViewModel(Entity, new NomenclaturePurchasePriceModel(CommonServices.CurrentPermissionService));
 			NomenclatureInnerDeliveryPricesViewModel =
 				new NomenclatureInnerDeliveryPricesViewModel(Entity, new NomenclatureInnerDeliveryPriceModel(CommonServices.CurrentPermissionService));
+		}
+
+		public IEntityEntryViewModel BuildRouteColumnEntryViewModel()
+		{
+			var routeColumnEntryViewModelBuilder = new CommonEEVMBuilderFactory<Nomenclature>(this, Entity, UoW, NavigationManager, _lifetimeScope);
+
+			return routeColumnEntryViewModelBuilder
+				.ForProperty(x => x.RouteListColumn)
+				.UseViewModelJournalAndAutocompleter<RouteColumnJournalViewModel>()
+				.UseViewModelDialog<RouteColumnViewModel>()
+				.Finish();
 		}
 
 		private void ConfigureEntityPropertyChanges() {
