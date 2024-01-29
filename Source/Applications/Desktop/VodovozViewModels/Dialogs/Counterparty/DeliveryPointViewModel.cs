@@ -148,6 +148,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 				.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(filter =>
 				{
 					filter.RestrictCategory = NomenclatureCategory.water;
+					filter.RestrictDilers = true;
 				})
 				.UseViewModelDialog<NomenclatureViewModel>()
 				.Finish();
