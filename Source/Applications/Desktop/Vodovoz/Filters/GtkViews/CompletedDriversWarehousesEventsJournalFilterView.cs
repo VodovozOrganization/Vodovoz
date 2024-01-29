@@ -66,8 +66,8 @@ namespace Vodovoz.Filters.GtkViews
 		private void ConfigureSelectableFilter()
 		{
 			_filter.CreateParameterSet(
-				"Водители",
-				"drivers",
+				"Сотрудники",
+				"employees",
 				new ParametersFactory(ViewModel.UoW, (filters) =>
 				{
 					SelectableEntityParameter<Employee> resultAlias = null;
