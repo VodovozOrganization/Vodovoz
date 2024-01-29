@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
@@ -84,8 +85,13 @@ namespace Vodovoz
 				NomenclatureOld = nomenclature
 			};
 
-			var page = Startup.MainWin.NavigationManager.OpenViewModelOnTdi<NomenclaturesJournalViewModel>(
+			var page = Startup.MainWin.NavigationManager.OpenViewModelOnTdi<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(
 				MyTab,
+				filter =>
+				{
+					filter.RestrictArchive = true;
+					filter.AvailableCategories = Nomenclature.GetCategoriesForGoods();
+				},
 				QS.Navigation.OpenPageOptions.AsSlave,
 				vievModel =>
 				{
