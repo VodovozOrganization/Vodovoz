@@ -109,78 +109,30 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 		public bool CanTakeCallBetween(DateTime from, DateTime to)
 		{
-			var statesInCallPeriod = States.Where(x =>
-				{
-					if(x.Ended == null && x.Started < to)
-					{
-						return true;
-					}
-					if(x.Ended != null && x.Ended > from && x.Ended < to)
-					{
-						return true;
-					}
-					return false;
-				}).OrderBy(x => x.Started);
-
-			OperatorState lastWaitingState = null;
-			foreach(var state in statesInCallPeriod)
-			{
-				if(state.State == OperatorStateType.WaitingForCall)
-				{
-					lastWaitingState = state;
-				}
-
-				if(state.Ended == null)
-				{
-					if(state.State == OperatorStateType.WaitingForCall)
-					{
-						return true;
-					}
-
-					if(lastWaitingState != null && state.State.IsIn(OperatorStateType.Connected, OperatorStateType.Break))
-					{
-						return true;
-					}
-				}
-			}
-
-
-			/*var lastOpenedState = States
-				.Where(x => x.Started < from)
-				.Where(x => x.Ended == null)
+			var possibleStates = States
 				.Where(x => x.State == OperatorStateType.WaitingForCall)
-				.FirstOrDefault();
-
-			if(lastOpenedState != null)
-			{
-				return true;
-			}
-
-			var lastDeniedState = States
-				.Where(x => x.Ended == null)
 				.Where(x => x.Started < to)
-				.Where(x => x.Started > from)
-				.Where(x => x.State.IsIn(OperatorStateType.Connected, OperatorStateType.Break))
-				.FirstOrDefault();
+				.Where(x => x.Ended == null || x.Ended > from)
+				.Where(x =>
+				{
+					DateTime endPossibleTime;
+					if(x.Ended == null)
+					{
+						endPossibleTime = to;
+					}
+					else
+					{
+						endPossibleTime = x.Ended.Value >= to ? to : x.Ended.Value;
+					}
 
-			if(lastDeniedState != null)
-			{
-				States.
-			}*/
+					DateTime startPossibleTime = x.Started >= from ? x.Started : from;
 
+					var timeToReaction = endPossibleTime - startPossibleTime;
 
+					return timeToReaction > TimeSpan.FromSeconds(3);
+				});
 
-			/*var statesAtTime = States
-				.Where(x => x.Started >= from)
-				.Where(x => x.Started <= to);
-			if(!statesAtTime.Any())
-			{
-				return false;
-			}
-			var result = statesAtTime.All(x => x.State == OperatorStateType.WaitingForCall);
-			return result;*/
-
-			return false;
+			return possibleStates.Any();
 		}
 	}
 }
