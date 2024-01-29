@@ -412,7 +412,7 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _manufacturer, value);
 		}
 
-		[Display(Name = "Производитель")]
+		[Display(Name = "Колонка МЛ")]
 		public virtual RouteColumn RouteListColumn
 		{
 			get => _routeListColumn;
