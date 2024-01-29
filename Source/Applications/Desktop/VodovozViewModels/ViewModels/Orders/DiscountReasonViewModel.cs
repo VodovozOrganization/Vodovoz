@@ -87,7 +87,9 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public DelegateCommand AddNomenclatureCommand => _addNomenclatureCommand ?? (_addNomenclatureCommand = new DelegateCommand(
 					() =>
 					{
-						var page = NavigationManager.OpenViewModel<NomenclaturesJournalViewModel>(this);
+						var page = NavigationManager.OpenViewModel<NomenclaturesJournalViewModel>(this,
+							OpenPageOptions.AsSlave,
+							vm => vm.SelectionMode = QS.Project.Journal.JournalSelectionMode.Single);
 
 						page.ViewModel.OnSelectResult += (s, ea) =>
 						{
