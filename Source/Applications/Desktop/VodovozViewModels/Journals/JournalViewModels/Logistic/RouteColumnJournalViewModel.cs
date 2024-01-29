@@ -51,10 +51,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		};
 
 		protected override Func<RouteColumnViewModel> CreateDialogFunction => () =>
-			NavigationManager.OpenViewModel<RouteColumnViewModel>(null).ViewModel;
+			NavigationManager.OpenViewModel<RouteColumnViewModel>(this).ViewModel;
 
 		protected override Func<RouteColumnJournalNode, RouteColumnViewModel> OpenDialogFunction => selectedNode =>
-			NavigationManager.OpenViewModel<RouteColumnViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(selectedNode.Id)).ViewModel;
+			NavigationManager.OpenViewModel<RouteColumnViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(selectedNode.Id)).ViewModel;
 
 		public class RouteColumnJournalNode : JournalEntityNodeBase<RouteColumn>
 		{

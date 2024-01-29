@@ -15,7 +15,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			ICommonServices commonServices
 			) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
-			if(!CanRead)
+			if(!CanRead && !CanCreateOrUpdate)
 			{
 				AbortOpening("У вас недостаточно прав для просмотра");
 			}

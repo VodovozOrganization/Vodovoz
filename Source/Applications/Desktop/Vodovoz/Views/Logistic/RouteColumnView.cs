@@ -1,12 +1,32 @@
-﻿using System;
+﻿using QS.Views.GtkUI;
+using Vodovoz.ViewModels.ViewModels.Logistic;
 namespace Vodovoz.Views.Logistic
 {
-	[System.ComponentModel.ToolboxItem(true)]
-	public partial class RouteColumnView : Gtk.Bin
+	public partial class RouteColumnView : TabViewBase<RouteColumnViewModel>
 	{
-		public RouteColumnView()
+		public RouteColumnView(RouteColumnViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
+			Configure();
+		}
+
+		private void Configure()
+		{
+			yvboxMain.Binding
+				.AddBinding(ViewModel, vm => vm.CanCreateOrUpdate, w => w.Sensitive)
+				.InitializeFromSource();
+
+			yentryName.Binding
+				.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text)
+				.InitializeFromSource();
+
+			yentryShortName.Binding
+				.AddBinding(ViewModel.Entity, e => e.ShortName, w => w.Text)
+				.InitializeFromSource();
+
+			ycheckbuttonIsHighlighted.Binding
+				.AddBinding(ViewModel.Entity, e => e.IsHighlighted, w => w.Active)
+				.InitializeFromSource();
 		}
 	}
 }
