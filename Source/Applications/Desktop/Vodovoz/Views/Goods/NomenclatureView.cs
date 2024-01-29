@@ -290,11 +290,11 @@ namespace Vodovoz.Views.Goods
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 
-			referenceRouteColumn.SubjectType = typeof(RouteColumn);
-			referenceRouteColumn.Binding
-				.AddBinding(ViewModel.Entity, n => n.RouteListColumn, w => w.Subject)
-				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
-				.InitializeFromSource();
+			//referenceRouteColumn.SubjectType = typeof(RouteColumn);
+			//referenceRouteColumn.Binding
+			//	.AddBinding(ViewModel.Entity, n => n.RouteListColumn, w => w.Subject)
+			//	.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+			//	.InitializeFromSource();
 
 			checkNoDeliver.Binding
 				.AddBinding(ViewModel.Entity, e => e.NoDelivery, w => w.Active)
