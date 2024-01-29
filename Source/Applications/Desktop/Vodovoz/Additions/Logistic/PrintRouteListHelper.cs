@@ -117,6 +117,7 @@ namespace Vodovoz.Additions.Logistic
 						"C",
 						isClosed,
 						true,
+						column.IsHighlighted,
 						column.IsHighlighted ? $"=Iif({{{_waterTagNamePrefix}{column.Id}}} = 0, 'White', 'Lightgrey')" : "",
 						"0pt");
 				}
@@ -264,7 +265,7 @@ namespace Vodovoz.Additions.Logistic
 				   "<CanGrow>false</CanGrow></Textbox></ReportItems></TableCell>";
 		}
 
-		private static string GetCellTag(int id, string value, string formatString, bool isClosed, bool canGrow = false, string cellBackgroundString = "", string paddingValue = "10pt")
+		private static string GetCellTag(int id, string value, string formatString, bool isClosed, bool canGrow = false, bool isBoldText = false, string cellBackgroundString = "", string paddingValue = "10pt")
 		{
 			var canGrowText = canGrow ? "true" : "false";
 			return $"<TableCell><ReportItems>" +
@@ -278,6 +279,7 @@ namespace Vodovoz.Additions.Logistic
 				   : !string.IsNullOrEmpty(cellBackgroundString)
 						? $"<BackgroundColor>{cellBackgroundString}</BackgroundColor>"
 						: "") +
+				   (isBoldText ? $"<FontWeight >Bold</FontWeight>" : "") +
 				   $"<PaddingTop>{paddingValue}</PaddingTop><PaddingBottom>{paddingValue}</PaddingBottom></Style>" +
 				   $"<CanGrow>{canGrowText}</CanGrow></Textbox></ReportItems></TableCell>";
 		}
