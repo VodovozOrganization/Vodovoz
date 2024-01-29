@@ -617,7 +617,6 @@
     <Compile Include="gtk-gui\Vodovoz.ProxyDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentFilter.cs" />
-    <Compile Include="ReportsParameters\Logistic\DeliveryTimeReport.RouteListTypeOfUse.cs" />
     <Compile Include="ReportsParameters\Sales\ProfitabilitySalesReportView.cs" />
     <Compile Include="Representations\ProductGroups\INameNode.cs" />
     <Compile Include="Representations\ProductGroups\NomenclatureGroupNode.cs" />
@@ -923,8 +922,8 @@
     <Compile Include="gtk-gui\Vodovoz.Reports.Logistic.DeliveriesLateReport.cs" />
     <Compile Include="ReportsParameters\Logistic\RoutesListRegisterReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.Logistic.RoutesListRegisterReport.cs" />
-    <Compile Include="ReportsParameters\Logistic\DeliveryTimeReport.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.DeliveryTimeReport.cs" />
+    <Compile Include="ReportsParameters\Logistic\DeliveryTimeReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.DeliveryTimeReportView.cs" />
     <Compile Include="ReportsParameters\Logistic\FuelReport.cs" />
     <Compile Include="ReportsParameters\OnecCommentsReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.OnecCommentsReport.cs" />
@@ -2357,9 +2356,9 @@
       <Project>{cfc0d123-abb8-41c5-9814-89f627f770b6}</Project>
       <Name>VodovozBusiness</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\Libraries\Core\EdoService\EdoService.csproj">
+    <ProjectReference Include="..\..\..\Libraries\Core\EdoService\EdoService.Library.csproj">
       <Project>{eb928475-6d2b-4fef-a314-d75bccef3ad0}</Project>
-      <Name>EdoService</Name>
+      <Name>EdoService.Library</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Gtk\VodovozFiasWidgets\VodovozFiasWidgets.csproj">
       <Project>{49241ddd-3e0b-4944-9b3f-89f0c42e9e6d}</Project>
