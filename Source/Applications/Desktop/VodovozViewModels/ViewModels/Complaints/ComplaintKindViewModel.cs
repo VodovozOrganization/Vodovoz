@@ -25,7 +25,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private DelegateCommand<Subdivision> _removeSubdivisionCommand;
 		private DelegateCommand _attachSubdivisionCommand;
-		private readonly Action _updateJournalAction;
+		private readonly Action<bool> _updateJournalAction;
 		private readonly IList<Subdivision> _subdivisionsOnStart;
 		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
 		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
@@ -37,7 +37,7 @@ namespace Vodovoz.ViewModels.Complaints
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
 			IEmployeeJournalFactory employeeJournalFactory,
-			Action updateJournalAction,
+			Action<bool> updateJournalAction,
 			ISalesPlanJournalFactory salesPlanJournalFactory,
 			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			ILifetimeScope scope) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
@@ -62,7 +62,7 @@ namespace Vodovoz.ViewModels.Complaints
 
 			if(!isEqualSubdivisionLists)
 			{
-				_updateJournalAction.Invoke();
+				_updateJournalAction(true);
 			}
 
 			base.AfterSave();
