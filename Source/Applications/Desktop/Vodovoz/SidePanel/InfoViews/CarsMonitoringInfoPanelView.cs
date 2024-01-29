@@ -18,6 +18,7 @@ using Vodovoz.Infrastructure;
 using Vodovoz.Services;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using Source = GLib.Source;
 
 namespace Vodovoz.SidePanel.InfoViews
 {

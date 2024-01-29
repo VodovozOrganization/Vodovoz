@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace CustomerAppsApi.Library.Dto
+namespace Vodovoz.Domain.Client
 {
 	public enum Source
 	{

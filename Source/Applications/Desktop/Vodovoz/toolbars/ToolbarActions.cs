@@ -80,6 +80,7 @@ public partial class MainWindow : Window
 	Action ActionUndeliveredOrders;
 	Action ActionCashReceiptsJournal;
 	Action ActionOrdersWithReceiptJournal;
+	Action OnlineOrdersJournalAction;
 
 	Action ActionServiceClaims;
 	Action ActionWarehouseDocuments;
@@ -170,6 +171,7 @@ public partial class MainWindow : Window
 		ActionUndeliveredOrders = new Action("ActionUndeliveredOrders", "Журнал недовозов", null, null);
 		ActionCashReceiptsJournal = new Action(nameof(ActionCashReceiptsJournal), "Журнал чеков", null, "table");
 		ActionOrdersWithReceiptJournal = new Action(nameof(ActionOrdersWithReceiptJournal), "Журнал заказов с чеками", null, "table");
+		OnlineOrdersJournalAction = new Action(nameof(OnlineOrdersJournalAction), "Журнал онлайн заказов", null, null);
 		
 		//Работа с клиентами
 		ActionCallTasks = new Action("ActionCallTasks", "Журнал задач", null, "table");
@@ -264,6 +266,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionUndeliveredOrders, null);
 		w1.Add(ActionCashReceiptsJournal, null);
 		w1.Add(ActionOrdersWithReceiptJournal, null);
+		w1.Add(OnlineOrdersJournalAction, null);
 		
 		//
 		w1.Add(ActionServiceClaims, null);
@@ -361,7 +364,8 @@ public partial class MainWindow : Window
 		ActionUndeliveredOrders.Activated += ActionUndeliveredOrdersActivated;
 		ActionCashReceiptsJournal.Activated += ActionCashReceiptsJournalActivated;
 		ActionOrdersWithReceiptJournal.Activated += ActionOrdersWithReceiptJournalActivated;
-		
+		OnlineOrdersJournalAction.Activated += OnOnlineOrdersJournalActionActivated;
+
 		ActionServiceClaims.Activated += ActionServiceClaimsActivated;
 		ActionWarehouseDocuments.Activated += ActionWarehouseDocumentsActivated;
 		ActionReadyForShipment.Activated += ActionReadyForShipmentActivated;
@@ -932,5 +936,10 @@ public partial class MainWindow : Window
 			   null,
 			   filter => filter.IsForSalesDepartment = true,
 			   OpenPageOptions.IgnoreHash);
+	}
+	
+	private void OnOnlineOrdersJournalActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<OnlineOrdersJournalViewModel>(null);
 	}
 }

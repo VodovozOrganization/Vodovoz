@@ -460,6 +460,7 @@
     <Compile Include="JournalColumnsConfigs\CarEventJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\FineTemplateJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\FuelTypeJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\OnlineOrdersJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\OrganizationJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\RegradingOfGoodsReasonsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\CarEventTypeJournalRegistrar.cs" />
@@ -2561,13 +2562,10 @@
     <EmbeddedResource Include="icons\map\points\custom\logistics_requirements_many.png" />
     <EmbeddedResource Include="icons\map\points\custom\logistics_requirements_nationality.png" />
     <EmbeddedResource Include="icons\map\points\custom\logistics_requirements_pass.png" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="icons\common\empty16.png" />
     <EmbeddedResource Include="icons\common\folder16.png" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="icons\common\fire16.png" />
+	<EmbeddedResource Include="icons\common\green_circle48.png" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>

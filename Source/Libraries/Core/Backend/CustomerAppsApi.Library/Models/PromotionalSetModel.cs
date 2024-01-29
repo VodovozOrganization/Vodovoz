@@ -4,6 +4,7 @@ using CustomerAppsApi.Library.Dto;
 using CustomerAppsApi.Library.Factories;
 using QS.DomainModel.UoW;
 using Vodovoz.Controllers;
+using Vodovoz.Domain.Client;
 
 namespace CustomerAppsApi.Library.Models
 {

@@ -4,6 +4,7 @@ using CustomerAppsApi.Library.Models;
 using Gamma.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Vodovoz.Domain.Client;
 
 namespace CustomerAppsApi.Controllers
 {

@@ -91,6 +91,7 @@
     <Compile Include="Domain\Client\ReasonForLeaving.cs" />
     <Compile Include="Domain\Client\RegistrationInChestnyZnakStatus.cs" />
     <Compile Include="Domain\Client\SellingNomenclature.cs" />
+    <Compile Include="Domain\Client\Source.cs" />
     <Compile Include="Domain\Client\TaxType.cs" />
     <Compile Include="Domain\Goods\CupHolderBracingType.cs" />
     <Compile Include="Domain\Goods\CoolingType.cs" />
@@ -129,6 +130,13 @@
     <Compile Include="Domain\Logistic\RouteListSpecialCondition.cs" />
     <Compile Include="Domain\Logistic\RouteListSpecialConditionType.cs" />
     <Compile Include="Domain\Logistic\RegradingOfGoodsReason.cs" />
+    <Compile Include="Domain\Orders\OnlineOrder.cs" />
+    <Compile Include="Domain\Orders\OnlineOrderItem.cs" />
+    <Compile Include="Domain\Orders\OnlineOrderPaymentStatus.cs" />
+    <Compile Include="Domain\Orders\OnlineOrderPaymentType.cs" />
+    <Compile Include="Domain\Orders\OnlineOrderStatus.cs" />
+    <Compile Include="Domain\Orders\OnlinePaymentSource.cs" />
+    <Compile Include="Domain\Orders\OnlineRentPackage.cs" />
     <Compile Include="Domain\Orders\OrderItemRentSubType.cs" />
     <Compile Include="Domain\Orders\OrderRentType.cs" />
     <Compile Include="Domain\Orders\PromotionalSetActionType.cs" />
