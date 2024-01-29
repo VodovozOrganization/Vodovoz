@@ -48,14 +48,20 @@ namespace Vodovoz.ViewModels.ViewModels.Rent
 
 			DailyRentServiceNomenclatureViewModel = new CommonEEVMBuilderFactory<PaidRentPackage>(this, Entity, UoW, NavigationManager, lifetimeScope)
 				.ForProperty(x => x.RentServiceDaily)
-				.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel>()
+				.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(filter =>
+				{
+					filter.RestrictCategory = NomenclatureCategory.service;
+				})
 				.UseViewModelDialog<NomenclatureViewModel>()
 				.Finish();
 
 
 			LongTermRentNomenclatureServiceViewModel = new CommonEEVMBuilderFactory<PaidRentPackage>(this, Entity, UoW, NavigationManager, lifetimeScope)
 				.ForProperty(x => x.RentServiceMonthly)
-				.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel>()
+				.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(filter =>
+				{
+					filter.RestrictCategory = NomenclatureCategory.service;
+				})
 				.UseViewModelDialog<NomenclatureViewModel>()
 				.Finish();
 		}
