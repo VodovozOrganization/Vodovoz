@@ -787,16 +787,6 @@ public partial class MainWindow : Window
 
 	void ActionClientBalance_Activated(object sender, System.EventArgs e)
 	{
-		//tdiMain.OpenTab(
-		//	PermissionControlledRepresentationJournal.GenerateHashName<ClientEquipmentBalanceVM>(),
-		//	() =>
-		//	{
-		//		var journal = new PermissionControlledRepresentationJournal(new ClientEquipmentBalanceVM());
-		//		journal.CustomTabName("Оборудование у клиентов");
-		//		return journal;
-		//	}
-		//);
-
 		NavigationManager.OpenViewModel<ClientEquipmentBalanceJournalViewModel>(null);
 	}
 
