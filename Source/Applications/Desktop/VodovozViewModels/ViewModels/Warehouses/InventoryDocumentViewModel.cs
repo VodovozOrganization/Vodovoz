@@ -46,6 +46,7 @@ using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Warehouses;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 
 namespace Vodovoz.ViewModels.ViewModels.Warehouses
 {
@@ -354,9 +355,14 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			_addMissingNomenclatureCommand = new DelegateCommand(
 				() =>
 				{
-					var page = NavigationManager.OpenViewModel<NomenclaturesJournalViewModel>(this, OpenPageOptions.AsSlave);
-					page.ViewModel.SelectionMode = JournalSelectionMode.Single;
-					page.ViewModel.OnSelectResult += OnMissingNomenclatureSelectedResult;
+					NavigationManager.OpenViewModel<NomenclaturesJournalViewModel>(
+						this,
+						OpenPageOptions.AsSlave,
+						vm =>
+						{
+							vm.SelectionMode = JournalSelectionMode.Single;
+							vm.OnSelectResult += OnMissingNomenclatureSelectedResult;
+						});
 				}
 			));
 		
