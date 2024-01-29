@@ -418,7 +418,6 @@ namespace Vodovoz
 
 					#region Reports
 
-					builder.RegisterType<CounterpartyCashlessDebtsReport>().AsSelf();
 					builder.RegisterType<OrderChangesReport>().AsSelf();
 					builder.RegisterType<CashFlow>().AsSelf();
 					builder.RegisterType<WayBillReportGroupPrint>().AsSelf();
