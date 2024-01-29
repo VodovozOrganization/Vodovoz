@@ -1,4 +1,5 @@
-﻿using QS.Views.GtkUI;
+﻿using QS.Navigation;
+using QS.Views.GtkUI;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 namespace Vodovoz.Views.Logistic
 {
@@ -27,6 +28,10 @@ namespace Vodovoz.Views.Logistic
 			ycheckbuttonIsHighlighted.Binding
 				.AddBinding(ViewModel.Entity, e => e.IsHighlighted, w => w.Active)
 				.InitializeFromSource();
+
+			buttonSave.Sensitive = ViewModel.CanCreateOrUpdate;
+			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
+			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(true, CloseSource.Cancel); };
 		}
 	}
 }
