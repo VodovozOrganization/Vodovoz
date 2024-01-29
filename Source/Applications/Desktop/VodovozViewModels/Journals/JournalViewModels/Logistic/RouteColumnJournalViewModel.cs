@@ -1,4 +1,4 @@
-﻿using NHibernate;
+using NHibernate;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -51,10 +51,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		};
 
 		protected override Func<RouteColumnViewModel> CreateDialogFunction => () =>
-			NavigationManager.OpenViewModel<RouteColumnViewModel>(this).ViewModel;
+			new RouteColumnViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices);
 
-		protected override Func<RouteColumnJournalNode, RouteColumnViewModel> OpenDialogFunction => selectedNode =>
-			NavigationManager.OpenViewModel<RouteColumnViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(selectedNode.Id)).ViewModel;
+		protected override Func<RouteColumnJournalNode, RouteColumnViewModel> OpenDialogFunction => node =>
+			new RouteColumnViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices);
+
+		//protected override Func<RouteColumnViewModel> CreateDialogFunction => () =>
+		//	NavigationManager.OpenViewModel<RouteColumnViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForCreate()).ViewModel;
+
+		//protected override Func<RouteColumnJournalNode, RouteColumnViewModel> OpenDialogFunction => selectedNode =>
+		//	NavigationManager.OpenViewModel<RouteColumnViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(selectedNode.Id)).ViewModel;
 
 		public class RouteColumnJournalNode : JournalEntityNodeBase<RouteColumn>
 		{
