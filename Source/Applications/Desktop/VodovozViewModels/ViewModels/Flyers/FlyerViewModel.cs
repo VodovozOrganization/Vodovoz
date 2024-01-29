@@ -10,6 +10,7 @@ using QS.ViewModels.Control.EEVM;
 using System;
 using System.Linq;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
@@ -51,6 +52,8 @@ namespace Vodovoz.ViewModels.ViewModels.Flyers
 				.ForProperty(x => x.FlyerNomenclature)
 				.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(filter =>
 				{
+					filter.RestrictCategory = NomenclatureCategory.additional;
+					filter.RestrictArchive = false;
 				})
 				.UseViewModelDialog<NomenclatureViewModel>()
 				.Finish();
