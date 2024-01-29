@@ -1,8 +1,6 @@
-﻿using System;
+﻿using QS.DomainModel.Entity;
+using QS.HistoryLog;
 using System.ComponentModel.DataAnnotations;
-using DocumentFormat.OpenXml.Bibliography;
-using DocumentFormat.OpenXml.Wordprocessing;
-using QS.DomainModel.Entity;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -10,6 +8,7 @@ namespace Vodovoz.Domain.Logistic
 	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "колонки в маршрутном листе",
 		Nominative = "колонка маршрутного листа")]
+	[HistoryTrace]
 	public class RouteColumn : PropertyChangedBase, IDomainObject
 	{
 		private string _name;
