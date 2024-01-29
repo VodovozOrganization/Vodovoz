@@ -11,7 +11,7 @@ using static Vodovoz.ViewModels.Journals.JournalViewModels.Logistic.RouteColumnJ
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 {
-	public class RouteColumnJournalViewModel : EntityJournalViewModelBase<RouteColumn, RouteColumnViewModel, RouteColumnJournalNode>
+	public partial class RouteColumnJournalViewModel : EntityJournalViewModelBase<RouteColumn, RouteColumnViewModel, RouteColumnJournalNode>
 	{
 		public RouteColumnJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -48,15 +48,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				.Select(x => x.ShortName).WithAlias(() => resultAlias.ShortName)
 				.Select(x => x.IsHighlighted).WithAlias(() => resultAlias.IsHighlighted))
 				.TransformUsing(Transformers.AliasToBean<RouteColumnJournalNode>()).OrderBy(x => x.Name).Asc;
-		}
-
-		public class RouteColumnJournalNode : JournalEntityNodeBase<RouteColumn>
-		{
-			public string Name { get; set; }
-			public string ShortName { get; set; }
-			public bool IsHighlighted { get; set; }
-
-			public override string Title => Name;
 		}
 	}
 }
