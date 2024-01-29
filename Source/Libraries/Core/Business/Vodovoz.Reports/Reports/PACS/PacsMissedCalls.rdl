@@ -396,8 +396,11 @@
 	e.last_name,
 	e.name,
 	e.patronymic,
-	IF(pos.operator_id IS NULL, NULL, (IF(pos.ended IS NOT NULL, IF(pos.ended &gt;= missed_calls.disconnected_time, missed_calls.disconnected_time, pos.ended), missed_calls.disconnected_time)
-	- IF(pos.started &gt;= missed_calls.appeared_time, pos.started, missed_calls.appeared_time))) as time_to_reaction
+	TIMESTAMPDIFF(
+		SECOND, 
+		IF(pos.started &gt;= missed_calls.appeared_time, pos.started, missed_calls.appeared_time), 
+		IF(pos.operator_id IS NULL, NULL, (IF(pos.ended IS NOT NULL, IF(pos.ended &gt;= missed_calls.disconnected_time, missed_calls.disconnected_time, pos.ended), missed_calls.disconnected_time)))
+	) as time_to_reaction
 FROM
 	(SELECT 
 		pce2.*, 
@@ -419,10 +422,11 @@ FROM
 		AND pos.started &lt; missed_calls.disconnected_time
 		AND (pos.ended IS NULL OR pos.ended &gt; missed_calls.appeared_time)
 		#время на реакцию
-		AND (
-			IF(pos.ended IS NOT NULL, IF(pos.ended &gt;= missed_calls.disconnected_time, missed_calls.disconnected_time, pos.ended), missed_calls.disconnected_time)
-			- IF(pos.started &gt;= missed_calls.appeared_time, pos.started, missed_calls.appeared_time)
-		) &gt;= SEC_TO_TIME(3)
+		AND TIMESTAMPDIFF(
+				SECOND, 
+				IF(pos.started &gt;= missed_calls.appeared_time, pos.started, missed_calls.appeared_time), 
+				IF(pos.ended IS NOT NULL, IF(pos.ended &gt;= missed_calls.disconnected_time, missed_calls.disconnected_time, pos.ended), missed_calls.disconnected_time)
+			) &gt;= SEC_TO_TIME(3)
 	LEFT JOIN employees e ON e.id = pos.operator_id
 ;</CommandText>
         <QueryParameters>
