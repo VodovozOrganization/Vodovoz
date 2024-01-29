@@ -28,6 +28,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly int _closingDocumentDeliveryScheduleId;
 
+		private Dictionary<string, object> _parameters = new Dictionary<string, object>();
 		private DateTime? _startDate;
 		private DateTime? _endDate;
 		private bool _isOrderByDate;
@@ -71,21 +72,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 		public DelegateCommand GenerateCounterpartyDebtDetailsReportCommand { get; }
 		public IncludeExludeFiltersViewModel FilterViewModel { get; }
 
-		protected override Dictionary<string, object> Parameters
-		{
-			get
-			{
-				var parameters = FilterViewModel.GetReportParametersSet();
-
-				parameters.Add("start_date", StartDate.HasValue ? StartDate.Value.ToString("yyyy-MM-ddTHH:mm:ss") : string.Empty);
-				parameters.Add("end_date", EndDate.HasValue ? EndDate.Value.LatestDayTime().ToString("yyyy-MM-ddTHH:mm:ss") : string.Empty);
-				parameters.Add("closing_document_delivery_schedule_id", _closingDocumentDeliveryScheduleId);
-				parameters.Add("filters_text", GetFiltersText(parameters));
-				parameters.Add("order_by_date", IsOrderByDate);
-
-				return parameters;
-			}
-		}
+		protected override Dictionary<string, object> Parameters => _parameters;
 
 		public DateTime? StartDate
 		{
@@ -116,19 +103,19 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 		{
 			Identifier = "Bookkeeping.CounterpartyDebtBalance";
 
-			LoadReport();
+			GenerateReport();
 		}
 
 		private void GenerateNotPaidOrdersReport()
 		{
 			Identifier = "Bookkeeping.NotPaidOrders";
 
-			LoadReport();
+			GenerateReport();
 		}
 
 		private void GenerateCounterpartyDebtDetailsReport()
 		{
-			if(!IsSelectedOneCounterparty())
+			if(!IsSelectedOneCounterpartyCheck())
 			{
 				_commonServices.InteractiveService.ShowMessage(
 					QS.Dialog.ImportanceLevel.Error,
@@ -141,15 +128,37 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 				? "Bookkeeping.CounterpartyDebtDetails"
 				: "Bookkeeping.CounterpartyDebtDetailsWithoutOrderByDate";
 
+			GenerateReport(true);
+		}
+
+		private void GenerateReport(bool isReportBySingleCounterpartyDebt = false)
+		{
+			_parameters = FilterViewModel.GetReportParametersSet();
+
+			_parameters.Add("start_date", StartDate.HasValue ? StartDate.Value.ToString("yyyy-MM-ddTHH:mm:ss") : string.Empty);
+			_parameters.Add("end_date", EndDate.HasValue ? EndDate.Value.LatestDayTime().ToString("yyyy-MM-ddTHH:mm:ss") : string.Empty);
+			_parameters.Add("closing_document_delivery_schedule_id", _closingDocumentDeliveryScheduleId);
+
+			if(isReportBySingleCounterpartyDebt)
+			{
+				_parameters.Add("counterparty_id", GetSelectedCounterpartyId());
+			}
+			else
+			{
+				_parameters.Add("order_by_date", IsOrderByDate);
+			}
+
+			_parameters.Add("filters_text", GetFiltersText(_parameters, isReportBySingleCounterpartyDebt));
+
 			LoadReport();
 		}
 
 		private void OnFilterViewModelSelectionChanged(object sender, EventArgs e)
 		{
-			IsCanCreateCounterpartyDebtDetailsReport = IsSelectedOneCounterparty();
+			IsCanCreateCounterpartyDebtDetailsReport = IsSelectedOneCounterpartyCheck();
 		}
 
-		private bool IsSelectedOneCounterparty()
+		private bool IsSelectedOneCounterpartyCheck()
 		{
 			var parameters = FilterViewModel.GetReportParametersSet();
 
@@ -164,7 +173,25 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 			return false;
 		}
 
-		private string GetFiltersText(Dictionary<string, object> parameters)
+		private int GetSelectedCounterpartyId()
+		{
+			var parameters = FilterViewModel.GetReportParametersSet();
+
+			if(parameters.TryGetValue("Counterparty_include", out object value))
+			{
+				if(value is string[] includedCounterparties)
+				{
+					if(includedCounterparties.Length == 1)
+					{
+						return int.Parse(includedCounterparties[0]);
+					}
+				}
+			}
+
+			throw new InvalidOperationException("Для формирования отчета необходимо, чтобы был выбран только один контрагент");
+		}
+
+		private string GetFiltersText(Dictionary<string, object> parameters, bool isReportBySingleCounterpartyDebt)
 		{
 			if(parameters.Count == 0)
 			{
@@ -205,46 +232,46 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 						filtersText.AppendLine((bool)parameter.Value ? "Только закрывающие документы" : "Исключить Закрывающие документы");
 						break;
 					case "is_chain_stores":
-						filtersText.AppendLine((bool)parameter.Value ? "Только Сети" : "Исключить Сети");
+						filtersText.AppendLine((bool)parameter.Value && !isReportBySingleCounterpartyDebt ? "Только Сети" : "Исключить Сети");
 						break;
 					case "is_expired":
-						filtersText.AppendLine((bool)parameter.Value ? "Только Просроченные" : "Исключить Просроченные");
+						filtersText.AppendLine((bool)parameter.Value && !isReportBySingleCounterpartyDebt ? "Только Просроченные" : "Исключить Просроченные");
 						break;
 					case "is_liquidated":
-						filtersText.AppendLine((bool)parameter.Value ? "Только Ликвидирован" : "Исключить Ликвидирован");
+						filtersText.AppendLine((bool)parameter.Value && !isReportBySingleCounterpartyDebt ? "Только Ликвидирован" : "Исключить Ликвидирован");
 						break;
 					case "Counterparty_include":
-						if(parameter.Value is string[] includedCounterparties)
+						if(parameter.Value is string[] includedCounterparties && !isReportBySingleCounterpartyDebt)
 						{
 							filtersText.AppendLine($"Вкл.клиентов: {includedCounterparties.Length}");
 						}
 						break;
 					case "Counterparty_exclude":
-						if(parameter.Value is string[] excludedCounterparties)
+						if(parameter.Value is string[] excludedCounterparties && !isReportBySingleCounterpartyDebt)
 						{
 							filtersText.AppendLine($"Искл.клиентов: {excludedCounterparties.Length}");
 						}
 						break;
 					case "CounterpartyType_include":
-						if(parameter.Value is string[] includedCounterpartyTypes)
+						if(parameter.Value is string[] includedCounterpartyTypes && !isReportBySingleCounterpartyDebt)
 						{
 							filtersText.AppendLine($"Вкл.типов клиентов: {includedCounterpartyTypes.Length}");
 						}
 						break;
 					case "CounterpartyType_exclude":
-						if(parameter.Value is string[] excludedCounterpartyTypes)
+						if(parameter.Value is string[] excludedCounterpartyTypes && !isReportBySingleCounterpartyDebt)
 						{
 							filtersText.AppendLine($"Искл.типов клиентов: {excludedCounterpartyTypes.Length}");
 						}
 						break;
 					case "CounterpartySubtype_include":
-						if(parameter.Value is string[] includedCounterpartySubtype)
+						if(parameter.Value is string[] includedCounterpartySubtype && !isReportBySingleCounterpartyDebt)
 						{
 							filtersText.AppendLine($"Вкл.типов клиентов: {includedCounterpartySubtype.Length}");
 						}
 						break;
 					case "CounterpartySubtype_exclude":
-						if(parameter.Value is string[] excludedCounterpartySubtype)
+						if(parameter.Value is string[] excludedCounterpartySubtype && !isReportBySingleCounterpartyDebt)
 						{
 							filtersText.AppendLine($"Искл.типов клиентов: {excludedCounterpartySubtype.Length}");
 						}
@@ -262,13 +289,13 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 						}
 						break;
 					case "DebtType_include":
-						if(parameter.Value is string[] includedDebtType)
+						if(parameter.Value is string[] includedDebtType && !isReportBySingleCounterpartyDebt)
 						{
 							filtersText.AppendLine($"Вкл.типов задолженности: {includedDebtType.Length}");
 						}
 						break;
 					case "DebtType_exclude":
-						if(parameter.Value is string[] excludedDebtType)
+						if(parameter.Value is string[] excludedDebtType && !isReportBySingleCounterpartyDebt)
 						{
 							filtersText.AppendLine($"Искл.типов задолженности: {excludedDebtType.Length}");
 						}
