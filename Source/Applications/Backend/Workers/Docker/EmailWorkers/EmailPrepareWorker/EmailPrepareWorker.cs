@@ -1,7 +1,6 @@
-﻿using EmailPrepareWorker.Prepares;
+using EmailPrepareWorker.Prepares;
 using EmailPrepareWorker.SendEmailMessageBuilders;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using RabbitMQ.Client;
@@ -18,7 +17,7 @@ using Vodovoz.Settings.Common;
 
 namespace EmailPrepareWorker
 {
-	public class EmailPrepareWorker : BackgroundService
+	public class EmailPrepareWorker : TimerBackgroundServiceBase
 	{
 		private const string _queuesConfigurationSection = "Queues";
 		private const string _emailSendExchangeParameter = "EmailSendExchange";
@@ -34,9 +33,10 @@ namespace EmailPrepareWorker
 		private readonly IEmailSettings _emailSettings;
 		private readonly IEmailDocumentPreparer _emailDocumentPreparer;
 		private readonly IEmailSendMessagePreparer _emailSendMessagePreparer;
-		private readonly TimeSpan _workDelay = TimeSpan.FromSeconds(5);
 		private readonly int _instanceId;
 		private readonly string _connectionString;
+
+		protected override TimeSpan Interval { get; } = TimeSpan.FromSeconds(5);
 
 		public EmailPrepareWorker(
 			ILogger<EmailPrepareWorker> logger,
@@ -80,13 +80,17 @@ namespace EmailPrepareWorker
 			}
 		}
 
-		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+		protected override async Task DoWork(CancellationToken stoppingToken)
 		{
-			_logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-			while(!stoppingToken.IsCancellationRequested)
+			try
 			{
+				_logger.LogInformation("Email sending start at: {time}", DateTimeOffset.Now);
+
 				await PrepareAndSendEmails();
-				await Task.Delay(_workDelay, stoppingToken);
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, ex.Message);
 			}
 		}
 
@@ -102,77 +106,72 @@ namespace EmailPrepareWorker
 			return base.StopAsync(cancellationToken);
 		}
 
-		private Task PrepareAndSendEmails()
+		private async Task PrepareAndSendEmails()
 		{
 			SendEmailMessageBuilder emailSendMessageBuilder = null;
-			
-			try
+
+			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Document prepare worker"))
 			{
 				using(var unitOfWork = _uowFactory.CreateWithoutRoot("Document prepare worker"))
 				{
 					var emailsToSend = _emailRepository.GetEmailsForPreparingOrderDocuments(unitOfWork);
 
-					foreach(var counterpartyEmail in emailsToSend)
+				foreach(var counterpartyEmail in emailsToSend)
+				{
+					try
 					{
-						try
+						_logger.LogInformation($"Found message to prepare for stored email: {counterpartyEmail.StoredEmail.Id}");
+
+						if(counterpartyEmail.EmailableDocument == null)
 						{
-							_logger.LogInformation($"Found message to prepare for stored email: {counterpartyEmail.StoredEmail.Id}");
+							counterpartyEmail.StoredEmail.State = StoredEmailStates.SendingError;
+							counterpartyEmail.StoredEmail.Description = "Missing/deleted emailable document";
+							unitOfWork.Save(counterpartyEmail.StoredEmail);
+							unitOfWork.Commit();
 
-							if(counterpartyEmail.EmailableDocument == null)
-							{
-								counterpartyEmail.StoredEmail.State = StoredEmailStates.SendingError;
-								counterpartyEmail.StoredEmail.Description = "Missing/deleted emailable document";
-								unitOfWork.Save(counterpartyEmail.StoredEmail);
-								unitOfWork.Commit();
+							continue;
+						}
 
-								continue;
-							}
-
-							switch(counterpartyEmail.Type)
-							{
-								case CounterpartyEmailType.BillDocument:
-								case CounterpartyEmailType.OrderWithoutShipmentForPayment:
-								case CounterpartyEmailType.OrderWithoutShipmentForDebt:
-								case CounterpartyEmailType.OrderWithoutShipmentForAdvancePayment:
+						switch(counterpartyEmail.Type)
+						{
+							case CounterpartyEmailType.BillDocument:
+							case CounterpartyEmailType.OrderWithoutShipmentForPayment:
+							case CounterpartyEmailType.OrderWithoutShipmentForDebt:
+							case CounterpartyEmailType.OrderWithoutShipmentForAdvancePayment:
 								{
 										emailSendMessageBuilder = new SendEmailMessageBuilder(_emailSettings,
 											_emailDocumentPreparer, counterpartyEmail, _instanceId);
 
-										break;
+									break;
 								}
-								case CounterpartyEmailType.UpdDocument: 
+							case CounterpartyEmailType.UpdDocument:
 								{
 									emailSendMessageBuilder = new UpdSendEmailMessageBuilder(_emailSettings,
 										_emailDocumentPreparer, counterpartyEmail, _instanceId);
-										
+
 									break;
 								}
-							}
-
-							var sendingBody = _emailSendMessagePreparer.PrepareMessage(emailSendMessageBuilder, _connectionString);
-
-							var properties = _channel.CreateBasicProperties();
-							properties.Persistent = true;
-
-							_channel.BasicPublish(_emailSendExchange, _emailSendKey, properties, sendingBody);
-
-							counterpartyEmail.StoredEmail.State = StoredEmailStates.WaitingToSend;
-							unitOfWork.Save(counterpartyEmail.StoredEmail);
-							unitOfWork.Commit();
 						}
-						catch(Exception ex)
-						{
-							_logger.LogError($"Failed to process counterparty email {counterpartyEmail.Id}: {ex.Message}");
-						}
+
+						var sendingBody = _emailSendMessagePreparer.PrepareMessage(emailSendMessageBuilder, _connectionString);
+
+						var properties = _channel.CreateBasicProperties();
+						properties.Persistent = true;
+
+						_channel.BasicPublish(_emailSendExchange, _emailSendKey, properties, sendingBody);
+
+						counterpartyEmail.StoredEmail.State = StoredEmailStates.WaitingToSend;
+						unitOfWork.Save(counterpartyEmail.StoredEmail);
+						unitOfWork.Commit();
+					}
+					catch(Exception ex)
+					{
+						_logger.LogError($"Failed to process counterparty email {counterpartyEmail.Id}: {ex.Message}");
 					}
 				}
 			}
-			catch(Exception ex)
-			{
-				_logger.LogError(ex.Message);
-			}
 
-			return Task.CompletedTask;
+			await Task.CompletedTask;
 		}
 	}
 }

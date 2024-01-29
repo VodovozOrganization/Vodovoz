@@ -1,4 +1,4 @@
-﻿using Autofac.Extensions.DependencyInjection;
+using Autofac.Extensions.DependencyInjection;
 using EmailPrepareWorker.Prepares;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,6 +21,8 @@ namespace EmailPrepareWorker
 {
 	public class Program
 	{
+		private const string _nLogSectionName = nameof(NLog);
+
 		public static void Main(string[] args)
 		{
 			CreateHostBuilder(args).Build().Run();
@@ -28,16 +30,15 @@ namespace EmailPrepareWorker
 
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
 			Host.CreateDefaultBuilder(args)
+				.ConfigureLogging((hostBuilderContext, loggingBuilder) =>
+				{
+					loggingBuilder.ClearProviders();
+					loggingBuilder.AddNLog();
+					loggingBuilder.AddConfiguration(hostBuilderContext.Configuration.GetSection(_nLogSectionName));
+				})
 				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
 				.ConfigureServices((hostContext, services) =>
 				{
-					services.AddLogging(logging =>
-					{
-						logging.ClearProviders();
-						logging.AddNLog();
-						logging.AddConfiguration(hostContext.Configuration.GetSection("NLog"));
-					});
-
 					services.AddTransient<RabbitMQConnectionFactory>();
 
 					services.AddTransient((sp) =>
