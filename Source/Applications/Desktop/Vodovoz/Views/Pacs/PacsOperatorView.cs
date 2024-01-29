@@ -57,7 +57,6 @@ namespace Vodovoz.Views.Pacs
 					.AddReadOnlyTextRenderer(x => x.Phone)
 				.AddColumn("Осталось").HeaderAlignment(0.5f)
 					.AddReadOnlyTextRenderer(x => x.TimeRemains)
-				.AddColumn("")
 				.RowCells()
 					.AddSetter<CellRenderer>((cell, vm) =>
 					{
