@@ -8,11 +8,11 @@ namespace Vodovoz.Domain.Client
 		NominativePlural = "Типы задолженности")]
 	public enum DebtType
 	{
+		[Display(Name = "Краткосрочный")]
+		ShortTerm,
 		[Display(Name = "Судебный")]
 		Judicial,
 		[Display(Name = "Списание")]
-		WriteOff,
-		[Display(Name = "Краткосрочный")]
-		ShortTerm
+		WriteOff
 	}
 }
