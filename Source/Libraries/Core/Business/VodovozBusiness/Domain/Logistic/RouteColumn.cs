@@ -1,5 +1,6 @@
 ﻿using QS.DomainModel.Entity;
 using QS.HistoryLog;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.Logistic
@@ -9,7 +10,7 @@ namespace Vodovoz.Domain.Logistic
 		NominativePlural = "колонки в маршрутном листе",
 		Nominative = "колонка маршрутного листа")]
 	[HistoryTrace]
-	public class RouteColumn : PropertyChangedBase, IDomainObject
+	public class RouteColumn : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		private string _name;
 		private string _shortName;
@@ -17,15 +18,12 @@ namespace Vodovoz.Domain.Logistic
 		public virtual int Id { get; set; }
 
 		[Display (Name = "Название")]
-		[Required (ErrorMessage = "Название номенклатуры должно быть заполнено.")]
-		[StringLength(20)]
 		public virtual string Name {
 			get => _name;
 			set => SetField(ref _name, value);
 		}
 
 		[Display(Name = "Короткое название")]
-		[StringLength(3, ErrorMessage = "Короткое название не должно быть длиннее 3-х символов")]
 		public virtual string ShortName
 		{
 			get => _shortName;
@@ -44,6 +42,24 @@ namespace Vodovoz.Domain.Logistic
 		public RouteColumn ()
 		{
 			Name = string.Empty;
+		}
+
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(string.IsNullOrEmpty(Name))
+			{
+				yield return new ValidationResult("Название номенклатуры должно быть заполнено.", new[] { nameof(Name) });
+			}
+
+			if(!string.IsNullOrEmpty(Name) && Name.Length > 20)
+			{
+				yield return new ValidationResult("Название не должно быть длиннее 20 символов", new[] { nameof(Name) });
+			}
+
+			if(!string.IsNullOrEmpty(ShortName) && ShortName.Length > 3)
+			{
+				yield return new ValidationResult("Короткое название не должно быть длиннее 3 символов", new[] { nameof(ShortName) });
+			}
 		}
 	}
 }
