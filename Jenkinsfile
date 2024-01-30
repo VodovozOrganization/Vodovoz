@@ -202,29 +202,6 @@ stage('Build'){
 				}
 			}
 		},
-		"Linux" : {
-			node(NODE_LINUX_BUILD){
-				stage('Build WCF'){
-					if(CAN_BUILD_WCF)
-					{
-						Build("WCF")
-					}
-					else
-					{
-						echo "Build WCF not needed"
-					}
-				}
-				stage('Build Linux WEB'){
-					if(CAN_PUBLISH_BUILD_WEB)
-					{
-					}
-					else
-					{
-						echo "Publish Build Linux WEB not needed"
-					}
-				}
-			}
-		}
 	)
 }
 
