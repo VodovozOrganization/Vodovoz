@@ -1,12 +1,12 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
-using System.Data.Bindings.Utilities;
 using System.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
+using Vodovoz.Domain.Goods.PromotionalSetsOnlineParameters;
 using Vodovoz.Services;
 
 namespace Vodovoz.Domain.Orders
@@ -21,160 +21,190 @@ namespace Vodovoz.Domain.Orders
 	[EntityPermission]
 	public class PromotionalSet : BusinessObjectBase<PromotionalSet>, IDomainObject, IValidatableObject, INamed, IArchivable
 	{
+		private const int _onlineNameLimit = 45;
+		private string _name;
+		private DateTime _createDate;
+		private bool _isArchive;
+		private string _discountReasonInfo;
+		private bool _canEditNomenclatureCount;
+		private bool _promotionalSetForNewClients;
+		private string _onlineName;
+		private int? _bottlesCountForCalculatingDeliveryPrice;
+		
+		private IList<PromotionalSetItem> _promotionalSetItems = new List<PromotionalSetItem>();
+		private GenericObservableList<PromotionalSetItem> _observablePromotionalSetItems;
+		private IList<PromotionalSetActionBase> _promotionalSetActions = new List<PromotionalSetActionBase>();
+		private GenericObservableList<PromotionalSetActionBase> _observablePromotionalSetActions;
+		private IList<Order> _orders = new List<Order>();
+		private GenericObservableList<Order> _observableOrders;
+		private IList<PromotionalSetOnlineParameters> _promotionalSetOnlineParameters = new List<PromotionalSetOnlineParameters>();
+
 		#region Cвойства
 
 		public virtual int Id { get; set; }
 
-		string _name;
 		[Display(Name = "Название набора")]
-		public virtual string Name {
+		public virtual string Name
+		{
 			get => _name;
-			set => SetField(ref _name, value, () => Name);
+			set => SetField(ref _name, value);
 		}
-
-		DateTime _createDate;
+		
 		[Display(Name = "Дата создания")]
 		[IgnoreHistoryTrace]
-		public virtual DateTime CreateDate {
+		public virtual DateTime CreateDate
+		{
 			get => _createDate;
-			set => SetField(ref _createDate, value, () => CreateDate);
+			set => SetField(ref _createDate, value);
 		}
-
-		bool _isArchive;
+		
 		[Display(Name = "В архиве?")]
-		public virtual bool IsArchive {
+		public virtual bool IsArchive
+		{
 			get => _isArchive;
-			set => SetField(ref _isArchive, value, () => IsArchive);
+			set => SetField(ref _isArchive, value);
 		}
-
-		private string _discountReasonInfo;
+		
 		[Display(Name = "Согласованная акция")]
 		public virtual string DiscountReasonInfo
 		{
 			get => _discountReasonInfo;
 			set => SetField(ref _discountReasonInfo, value);
 		}
-
-		bool _canEditNomenclatureCount;
+		
 		[Display(Name = "Можно менять количество номенклатур")]
-		public virtual bool CanEditNomenclatureCount {
-			get => _canEditNomenclatureCount;
-			set => SetField(ref _canEditNomenclatureCount, value, () => CanEditNomenclatureCount);
-		}
-
-		bool _canBeAddedWithOtherPromoSets;
-		[Display(Name = "Может быть добавлен вместе с другими промонаборами")]
-		public virtual bool CanBeAddedWithOtherPromoSets {
-			get => _canBeAddedWithOtherPromoSets;
-			set => SetField(ref _canBeAddedWithOtherPromoSets, value, () => CanBeAddedWithOtherPromoSets);
-		}
-
-		bool _canBeReorderedWithoutRestriction;
-		[Display(Name = "Можно заказывать повторно без ограничений")]
-		public virtual bool CanBeReorderedWithoutRestriction
+		public virtual bool CanEditNomenclatureCount
 		{
-			get => _canBeReorderedWithoutRestriction;
-			set => SetField(ref _canBeReorderedWithoutRestriction, value);
+			get => _canEditNomenclatureCount;
+			set => SetField(ref _canEditNomenclatureCount, value);
 		}
 
-		IList<PromotionalSetItem> _promotionalSetItems = new List<PromotionalSetItem>();
+		[Display(Name = "Набор для новых клиентов")]
+		public virtual bool PromotionalSetForNewClients
+		{
+			get => _promotionalSetForNewClients;
+			set => SetField(ref _promotionalSetForNewClients, value);
+		}
+		
+		[Display(Name = "Название для ИПЗ")]
+		public virtual string OnlineName
+		{
+			get => _onlineName;
+			set => SetField(ref _onlineName, value);
+		}
+		
+		[Display(Name = "Количество бутылей для расчета платной доставки")]
+		public virtual int? BottlesCountForCalculatingDeliveryPrice
+		{
+			get => _bottlesCountForCalculatingDeliveryPrice;
+			set => SetField(ref _bottlesCountForCalculatingDeliveryPrice, value);
+		}
+		
 		[Display(Name = "Строки рекламного набора")]
-		public virtual IList<PromotionalSetItem> PromotionalSetItems {
+		public virtual IList<PromotionalSetItem> PromotionalSetItems
+		{
 			get => _promotionalSetItems;
-			set => SetField(ref _promotionalSetItems, value, () => PromotionalSetItems);
+			set => SetField(ref _promotionalSetItems, value);
 		}
-
-		GenericObservableList<PromotionalSetItem> _observablePromotionalSetItems;
+		
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<PromotionalSetItem> ObservablePromotionalSetItems {
-			get {
-				if(_observablePromotionalSetItems == null)
-					_observablePromotionalSetItems = new GenericObservableList<PromotionalSetItem>(_promotionalSetItems);
-				return _observablePromotionalSetItems;
-			}
-		}
+		public virtual GenericObservableList<PromotionalSetItem> ObservablePromotionalSetItems =>
+			_observablePromotionalSetItems ??
+			(_observablePromotionalSetItems = new GenericObservableList<PromotionalSetItem>(_promotionalSetItems));
 
-		IList<Order> _orders = new List<Order>();
 		[Display(Name = "Использован для заказов")]
-		public virtual IList<Order> Orders {
+		public virtual IList<Order> Orders
+		{
 			get => _orders;
 			set => SetField(ref _orders, value, () => Orders);
 		}
-
-		GenericObservableList<Order> _observableOrders;
+		
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<Order> ObservableOrders {
-			get {
-				if(_observableOrders == null)
-					_observableOrders = new GenericObservableList<Order>(Orders);
-				return _observableOrders;
-			}
+		public virtual GenericObservableList<Order> ObservableOrders => 
+			_observableOrders ?? (_observableOrders = new GenericObservableList<Order>(Orders));
+		
+		[Display(Name = "Онлайн параметры промонабора")]
+		public virtual IList<PromotionalSetOnlineParameters> PromotionalSetOnlineParameters
+		{
+			get => _promotionalSetOnlineParameters;
+			set => SetField(ref _promotionalSetOnlineParameters, value);
 		}
 
 		#endregion
 
-		public virtual string Title => string.Format("Промонабор №{0} \"{1}\"", Id, Name);
-		public virtual string ShortTitle => string.Format("Промонабор \"{0}\"", Name);
+		public virtual string Title => $"Промонабор №{Id} \"{Name}\"";
+		public virtual string ShortTitle => $"Промонабор \"{Name}\"";
 
 		#region IValidatableObject implementation
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(String.IsNullOrEmpty(Name))
+			if(string.IsNullOrEmpty(Name))
+			{
 				yield return new ValidationResult(
 					"Необходимо выбрать название набора",
-					new[] { this.GetPropertyName(o => o.Name) }
+					new[] { nameof(Name) }
 				);
+			}
+			
+			if(!string.IsNullOrEmpty(OnlineName) && OnlineName.Length > _onlineNameLimit)
+			{
+				yield return new ValidationResult($"Название для ИПЗ превышено на {OnlineName.Length - _onlineNameLimit}",
+					new[] { nameof(Name) }
+				);
+			}
+
 			if((!PromotionalSetItems.Any() || PromotionalSetItems.Any(i => i.Count <= 0)))
+			{
 				yield return new ValidationResult(
 					"Необходимо выбрать номенклатуру",
-					new[] { this.GetPropertyName(o => o.PromotionalSetItems) }
+					new[] { nameof(PromotionalSetItems) }
 				);
+			}
+
 			if(PromotionalSetItems.Any(i => i.Count == 0))
+			{
 				yield return new ValidationResult(
 					"Необходимо выбрать количество номенклатур, отличное от нуля",
-					new[] { this.GetPropertyName(o => o.PromotionalSetItems) }
+					new[] { nameof(PromotionalSetItems) }
 				);
+			}
+
 			if(PromotionalSetItems.Any(i => i.Discount < 0 || i.Discount > 100))
+			{
 				yield return new ValidationResult(
 					"Скидка не может быть меньше 0 или больше 100%",
-					new[] { this.GetPropertyName(o => o.PromotionalSetItems) }
+					new[] { nameof(PromotionalSetItems) }
 				);
+			}
+
 			if(PromotionalSetItems.Any(i => i.Discount != 0 &&
-				PromotionalSetActions.OfType<PromotionalSetActionFixPrice>().Select(a => a.Nomenclature.Id).Contains(i.Nomenclature.Id)))
+											PromotionalSetActions.OfType<PromotionalSetActionFixPrice>()
+												.Select(a => a.Nomenclature.Id).Contains(i.Nomenclature.Id)))
+			{
 				yield return new ValidationResult(
 					"Нельзя выбрать скидку на номенклатуру, для которой уже была создана фиксированная цена",
-					new[] { this.GetPropertyName(o => o.PromotionalSetItems) }
+					new[] { nameof(PromotionalSetItems) }
 				);
+			}
 		}
 
 		#endregion
 
-		IList<PromotionalSetActionBase> _promotionalSetActions = new List<PromotionalSetActionBase>();
-		public virtual IList<PromotionalSetActionBase> PromotionalSetActions {
+		public virtual IList<PromotionalSetActionBase> PromotionalSetActions
+		{
 			get => _promotionalSetActions;
-			set => SetField(ref _promotionalSetActions, value, () => PromotionalSetActions);
+			set => SetField(ref _promotionalSetActions, value);
 		}
-
-		GenericObservableList<PromotionalSetActionBase> _observablePromotionalSetActions;
+		
 		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<PromotionalSetActionBase> ObservablePromotionalSetActions {
-			get {
-				if(_observablePromotionalSetActions == null)
-					_observablePromotionalSetActions = new GenericObservableList<PromotionalSetActionBase>(_promotionalSetActions);
-				return _observablePromotionalSetActions;
-			}
-		}
+		public virtual GenericObservableList<PromotionalSetActionBase> ObservablePromotionalSetActions =>
+			_observablePromotionalSetActions ?? (_observablePromotionalSetActions =
+				new GenericObservableList<PromotionalSetActionBase>(_promotionalSetActions));
 
 		public virtual bool IsValidForOrder(Order order, IStandartNomenclatures standartNomenclatures)
 		{
 			return !PromotionalSetActions.Any(a => !a.IsValidForOrder(order, standartNomenclatures));
 		}
-	}
-
-	public enum PromotionalSetActionType
-	{
-		[Display(Name = "Фиксированная цена")]
-		FixedPrice
 	}
 }

@@ -1,4 +1,3 @@
-﻿using EdoService.Converters;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -36,6 +35,7 @@ using VodovozHealthCheck;
 using TaxcomEdoApi.HealthChecks;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Services;
+using EdoService.Library.Converters;
 
 namespace TaxcomEdoApi
 {
@@ -111,9 +111,10 @@ namespace TaxcomEdoApi
 			services.AddSingleton<UpdProductConverter>();
 			services.AddSingleton<IParametersProvider, ParametersProvider>();
 			services.AddSingleton<IOrganizationParametersProvider, OrganizationParametersProvider>();
+			services.AddSingleton<IDeliveryScheduleParametersProvider, DeliveryScheduleParametersProvider>();
 			services.AddSingleton<IContactStateConverter, ContactStateConverter>();
 
-			services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+			services.AddSingleton(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
 			services.ConfigureHealthCheckService<TaxcomEdoApiHealthCheck>(true);
 		}

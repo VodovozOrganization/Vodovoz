@@ -1,15 +1,12 @@
-﻿using System;
+﻿using Gamma.GtkWidgets;
+using Gdk;
+using Gtk;
+using QS.Views.GtkUI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Gamma.GtkWidgets;
-using Gdk;
-using Gtk;
-using QS.Navigation;
-using QS.Validation;
-using QS.Views.GtkUI;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Infrastructure;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Logistic;
@@ -104,6 +101,8 @@ namespace Vodovoz.Views.Logistic
 					.AddTextRenderer(n => n.Order.DeliveryPoint == null ? "Требуется точка доставки" : n.Order.DeliveryPoint.ShortAddress)
 				.AddColumn("Время")
 					.AddTextRenderer(n => n.Order.DeliverySchedule == null ? "" : n.Order.DeliverySchedule.Name)
+				.AddColumn("Ожидает до")
+					.AddTimeRenderer(n => n.Order.WaitUntilTime)
 				.AddColumn("Статус")
 					.AddPixbufRenderer(x => statusIcons[x.Status])
 					.AddEnumRenderer(n => n.Status, excludeItems: new Enum[] { RouteListItemStatus.Transfered })
@@ -137,7 +136,7 @@ namespace Vodovoz.Views.Logistic
 					.AddTextRenderer(n => n.CommentForFineAuthor != null ?
 						n.CommentForFineAuthor.ShortName : String.Empty)
 				.AddColumn("Переносы")
-					.AddTextRenderer(n => n.GetTransferText(n))
+					.AddTextRenderer(n => n.GetTransferText(false))
 				.RowCells()
 					.AddSetter<CellRenderer>((c, n) => {
 

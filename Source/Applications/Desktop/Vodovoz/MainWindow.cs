@@ -107,7 +107,7 @@ public partial class MainWindow : Gtk.Window
 		ActionRouteListsAtDay.Sensitive =
 			ActionRouteListTracking.Sensitive =
 			ActionRouteListMileageCheck.Sensitive =
-			ActionRouteListAddressesTransferring.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
+			ActionRouteListAddressesTransferring.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.IsLogistician);
 		var currentWarehousePermissions = new CurrentWarehousePermissions();
 		ActionStock.Sensitive = currentWarehousePermissions.WarehousePermissions.Any(x => x.PermissionValue == true);
 
@@ -212,15 +212,12 @@ public partial class MainWindow : Gtk.Window
 					new TypedParameter(typeof(IEnumerable<int>), _curentUserMovementDocumentsNotificationWarehouses));
 
 			var notificationDetails = _movementsNotificationsController.GetNotificationDetails(uow);
-
-			var message = notificationDetails.SendedMovementsCount > 0 ? $"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">{notificationDetails.NotificationMessage}</span>": notificationDetails.NotificationMessage;
-
+			UpdateSentMovementsNotification(notificationDetails.Notification);
 			hboxMovementsNotification.Visible = notificationDetails.NeedNotify;
-			lblMovementsNotification.Markup = message;
 
-			if (notificationDetails.NeedNotify)
+			if(notificationDetails.NeedNotify)
 			{
-				_movementsNotificationsController.UpdateNotificationAction += UpdateSendedMovementsNotification;
+				_movementsNotificationsController.UpdateNotificationAction += UpdateSentMovementsNotification;
 			}
 		}
 

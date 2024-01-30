@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using DriverAPI.DTOs.V4;
@@ -18,17 +19,21 @@ namespace DriverAPI.Library.Models
 		private readonly ILogger<DriverWarehouseEventsModel> _logger;
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly ICarRepository _carRepository;
+		private readonly ICompletedDriverWarehouseEventRepository _completedDriverWarehouseEventRepository;
 		private readonly IDriverWarehouseEventQrDataHandler _driverWarehouseEventQrDataHandler;
 
 		public DriverWarehouseEventsModel(
 			ILogger<DriverWarehouseEventsModel> logger,
 			IUnitOfWork unitOfWork,
 			ICarRepository carRepository,
+			ICompletedDriverWarehouseEventRepository completedDriverWarehouseEventRepository,
 			IDriverWarehouseEventQrDataHandler driverWarehouseEventQrDataHandler)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 			_carRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
+			_completedDriverWarehouseEventRepository =
+				completedDriverWarehouseEventRepository ?? throw new ArgumentNullException(nameof(completedDriverWarehouseEventRepository));
 			_driverWarehouseEventQrDataHandler =
 				driverWarehouseEventQrDataHandler ?? throw new ArgumentNullException(nameof(driverWarehouseEventQrDataHandler));
 		}
@@ -113,6 +118,17 @@ namespace DriverAPI.Library.Models
 			_logger.LogInformation("Ok");
 
 			return completedEvent;
+		}
+
+		/// <summary>
+		/// Получение списка завершенных событий за текущий день для водителя
+		/// </summary>
+		/// <param name="driver">водитель</param>
+		/// <returns>список завершенных событий за день</returns>
+		public IEnumerable<CompletedEventDto> GetTodayCompletedEventsForDriver(Employee driver)
+		{
+			_logger.LogInformation("Получаем завершенные события за сегодня для водителя {DriverName}", driver.ShortName);
+			return _completedDriverWarehouseEventRepository.GetTodayCompletedEventsForEmployee(_unitOfWork, driver.Id);
 		}
 
 		private PointLatLng GetPointLatLng(decimal? latitude, decimal? longitude)

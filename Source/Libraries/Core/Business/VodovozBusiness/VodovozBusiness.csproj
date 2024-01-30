@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -60,12 +60,13 @@
     <Compile Include="CommonEnums\AllYesNo.cs" />
     <Compile Include="ConfigureDeletion.cs" />
     <Compile Include="Controllers\IAddressTransferController.cs" />
+    <Compile Include="Controllers\SentMovementsNotificationDetails.cs" />
     <Compile Include="DependencyInjection.cs" />
     <Compile Include="Controllers\DriverWarehouseEventQrDataHandler.cs" />
     <Compile Include="Controllers\IDriverWarehouseEventQrDataHandler.cs" />
     <Compile Include="Domain\Cash\CashTransfer\CashTransferDocumentStatuses.cs" />
-    <Compile Include="Controllers\INomenclatureOnlineParametersController.cs" />
-    <Compile Include="Controllers\NomenclatureOnlineParametersController.cs" />
+    <Compile Include="Controllers\IGoodsOnlineParametersController.cs" />
+    <Compile Include="Controllers\GoodsOnlineParametersController.cs" />
     <Compile Include="Domain\Cash\ExpenseInvoiceDocumentType.cs" />
     <Compile Include="Domain\Cash\ExpenseType.cs" />
     <Compile Include="Domain\Cash\FinancialCategoriesGroups\FinancialCategoriesGroup.cs" />
@@ -105,9 +106,16 @@
     <Compile Include="Domain\Goods\NomenclatureOnlineGroup.cs" />
     <Compile Include="Domain\Goods\PumpType.cs" />
     <Compile Include="Domain\Goods\ProtectionOnHotWaterTap.cs" />
+    <Compile Include="Domain\Goods\SaleCategory.cs" />
     <Compile Include="Domain\Goods\TapType.cs" />
+    <Compile Include="Domain\Goods\TareVolume.cs" />
+    <Compile Include="Domain\Goods\TypeOfDepositCategory.cs" />
     <Compile Include="Domain\Goods\VodovozWebSiteNomenclatureOnlineCatalog.cs" />
     <Compile Include="Domain\Logistic\Drivers\CompletedDriverWarehouseEvent.cs" />
+    <Compile Include="Domain\Goods\PromotionalSetsOnlineParameters\KulerSaleWebSitePromotionalSetOnlineParameters.cs" />
+    <Compile Include="Domain\Goods\PromotionalSetsOnlineParameters\MobileAppPromotionalSetOnlineParameters.cs" />
+    <Compile Include="Domain\Goods\PromotionalSetsOnlineParameters\PromotionalSetOnlineParameters.cs" />
+    <Compile Include="Domain\Goods\PromotionalSetsOnlineParameters\VodovozWebSitePromotionalSetOnlineParameters.cs" />
     <Compile Include="Domain\Logistic\Drivers\DriverStopListRemoval.cs" />
     <Compile Include="Domain\Logistic\Drivers\DriverWarehouseEvent.cs" />
     <Compile Include="Domain\Logistic\Drivers\DriverWarehouseEventQrData.cs" />
@@ -123,6 +131,7 @@
     <Compile Include="Domain\Logistic\RegradingOfGoodsReason.cs" />
     <Compile Include="Domain\Orders\OrderItemRentSubType.cs" />
     <Compile Include="Domain\Orders\OrderRentType.cs" />
+    <Compile Include="Domain\Orders\PromotionalSetActionType.cs" />
     <Compile Include="Domain\Payments\CombinedPaymentNode.cs" />
     <Compile Include="Domain\Orders\OrderEdoTrueMarkDocumentsActions.cs" />
     <Compile Include="Domain\Orders\UndeliveryDetalization.cs" />
@@ -131,6 +140,7 @@
     <Compile Include="Domain\Payments\PaymentsFromCloudPaymentsParser.cs" />
     <Compile Include="Domain\Payments\PaymentsFromTinkoffParser.cs" />
     <Compile Include="Domain\Payments\PaymentState.cs" />
+    <Compile Include="Domain\Roboats\TodayIntervalOffer.cs" />
     <Compile Include="Domain\Sale\DistrictCopyItem.cs" />
     <Compile Include="Domain\StoredEmails\UpdDocumentEmail.cs" />
     <Compile Include="Domain\Store\WarehouseUsing.cs" />
@@ -172,10 +182,10 @@
     <Compile Include="Domain\Goods\NomenclaturesOnlineParameters\KulerSaleWebSiteNomenclatureOnlinePrice.cs" />
     <Compile Include="Domain\Goods\NomenclaturesOnlineParameters\MobileAppNomenclatureOnlineParameters.cs" />
     <Compile Include="Domain\Goods\NomenclaturesOnlineParameters\MobileAppNomenclatureOnlinePrice.cs" />
-    <Compile Include="Domain\Goods\NomenclaturesOnlineParameters\NomenclatureOnlineAvailability.cs" />
+    <Compile Include="Domain\Goods\NomenclaturesOnlineParameters\GoodsOnlineAvailability.cs" />
     <Compile Include="Domain\Goods\NomenclaturesOnlineParameters\NomenclatureOnlineMarker.cs" />
     <Compile Include="Domain\Goods\NomenclaturesOnlineParameters\NomenclatureOnlineParameters.cs" />
-    <Compile Include="Domain\Goods\NomenclaturesOnlineParameters\NomenclatureOnlineParameterType.cs" />
+    <Compile Include="Domain\Goods\NomenclaturesOnlineParameters\GoodsOnlineParameterType.cs" />
     <Compile Include="Domain\Goods\NomenclatureInstanceType.cs" />
     <Compile Include="Domain\Goods\NomenclaturesOnlineParameters\NomenclatureOnlinePrice.cs" />
     <Compile Include="Domain\Goods\NomenclaturesOnlineParameters\VodovozWebSiteNomenclatureOnlineParameters.cs" />
@@ -577,6 +587,7 @@
     <Compile Include="EntityRepositories\Logistic\CachedDistanceRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\CarEventRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\CompletedDriverWarehouseEventRepository.cs" />
+    <Compile Include="EntityRepositories\Logistic\CompletedEventDto.cs" />
     <Compile Include="EntityRepositories\Logistic\DeliveryShiftRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\DriverPosition.cs" />
     <Compile Include="EntityRepositories\Logistic\DriverWarehouseEventRepository.cs" />
@@ -610,6 +621,8 @@
     <Compile Include="EntityRepositories\Orders\PromotionalSetRepository.cs" />
     <Compile Include="EntityRepositories\Orders\SmsPaymentRepository.cs" />
     <Compile Include="EntityRepositories\Organizations\IOrganizationRepository.cs" />
+    <Compile Include="EntityRepositories\Payments\NotFullyAllocatedPaymentNode.cs" />
+    <Compile Include="EntityRepositories\Payments\UnallocatedBalancesJournalNode.cs" />
     <Compile Include="EntityRepositories\Permissions\EntityExtendedPermission.cs" />
     <Compile Include="EntityRepositories\Permissions\IPrivilegesRepository.cs" />
     <Compile Include="EntityRepositories\Permissions\IUserRoleRepository.cs" />
@@ -667,7 +680,9 @@
     <Compile Include="Errors\Clients\Counterparty.cs" />
     <Compile Include="Errors\Clients\DeliveryPoint.cs" />
     <Compile Include="Errors\Clients\DeliveryPoint.FastDelivery.cs" />
+    <Compile Include="Errors\Edo\Edo.cs" />
     <Compile Include="Errors\Error.cs" />
+    <Compile Include="Errors\Goods\Nomenclature.cs" />
     <Compile Include="Errors\Logistics\District.cs" />
     <Compile Include="Errors\Logistics\District.FastDelivery.cs" />
     <Compile Include="Errors\Logistics\RouteList.RouteListItem.cs" />
@@ -677,12 +692,14 @@
     <Compile Include="Errors\Orders\Order.Accept.cs" />
     <Compile Include="Errors\Orders\Order.cs" />
     <Compile Include="Errors\Orders\Order.FastDelivery.cs" />
+    <Compile Include="Errors\Payments\PaymentsDistribution.cs" />
     <Compile Include="Errors\Result.cs" />
     <Compile Include="Errors\ResultT.cs" />
     <Compile Include="Extensions\DriverPositionExtensions.cs" />
     <Compile Include="Extensions\EnumExtensions.cs" />
     <Compile Include="Extensions\ExpressionExtensions.cs" />
     <Compile Include="Extensions\NomenclatureOnlineParametersExtensions.cs" />
+    <Compile Include="Extensions\OrderItemExtensions.cs" />
     <Compile Include="Factories\CashReceiptFactory.cs" />
     <Compile Include="Factories\CounterpartyContractFactory.cs" />
     <Compile Include="Factories\EmployeeRegistrationFactory.cs" />
@@ -807,6 +824,13 @@
     <Compile Include="Nodes\NomenclatureOnlineParametersData.cs" />
     <Compile Include="Nodes\NomenclatureOnlineParametersNode.cs" />
     <Compile Include="Nodes\NomenclatureOnlinePriceNode.cs" />
+    <Compile Include="NotificationRecievers\DriverAPIHelper.cs" />
+    <Compile Include="NotificationRecievers\IFastDeliveryOrderAddedNotificationReciever.cs" />
+    <Compile Include="NotificationRecievers\IWaitingTimeChangedNotificationReciever.cs" />
+    <Compile Include="NotificationRecievers\ISmsPaymentStatusNotificationReciever.cs" />
+    <Compile Include="Nodes\PromotionalSetItemBalanceNode.cs" />
+    <Compile Include="Nodes\PromotionalSetOnlineParametersData.cs" />
+    <Compile Include="Nodes\PromotionalSetOnlineParametersNode.cs" />
     <Compile Include="Parameters\ArchiveDataSettings.cs" />
     <Compile Include="Parameters\CounterpartySettings.cs" />
     <Compile Include="Parameters\CashDistributionCommonOrganisationProvider.cs" />
@@ -851,6 +875,8 @@
     <Compile Include="Permissions\EdoContainer.OrderWithoutShipmentForDebt.cs" />
     <Compile Include="Permissions\EdoContainer.OrderWithoutShipmentForPayment.cs" />
     <Compile Include="Permissions\Email.cs" />
+    <Compile Include="Permissions\Logistic.Car.cs" />
+    <Compile Include="Permissions\Logistic.RouteList.cs" />
     <Compile Include="Permissions\Order.CashReceipt.cs" />
     <Compile Include="Permissions\Order.cs" />
     <Compile Include="Permissions\Cash.cs" />
@@ -860,11 +886,14 @@
     <Compile Include="Permissions\Order.UndeliveredOrder.cs" />
     <Compile Include="Permissions\Payment.BankClient.cs" />
     <Compile Include="Permissions\Payment.cs" />
+    <Compile Include="Permissions\Order.PromotionalSet.cs" />
     <Compile Include="Permissions\Report.cs" />
     <Compile Include="Permissions\User.cs" />
     <Compile Include="Permissions\Report.Sales.cs" />
+    <Compile Include="Services\EmailService.cs" />
     <Compile Include="Services\IComplaintParametersProvider.cs" />
     <Compile Include="Services\ICounterpartyService.cs" />
+    <Compile Include="Services\IEmailService.cs" />
     <Compile Include="Services\IEmployeeService.cs" />
     <Compile Include="Services\IFastDeliveryAvailabilityHistoryParameterProvider.cs" />
     <Compile Include="Parameters\CarEventSettings.cs" />
@@ -1039,6 +1068,7 @@
     <Compile Include="Specifications\ExpressionSpecificationOrExtension.cs" />
     <Compile Include="Specifications\ISpecification.cs" />
     <Compile Include="Specifications\Orders\EdoContainers\EdoContainerSpecification.cs" />
+    <Compile Include="Tools\Exceptions\DeliveryPointDistrictNotFoundException.cs" />
     <Compile Include="Tools\GeoGroupVersionNotFoundException.cs" />
     <Compile Include="Tools\DataArchiver.cs" />
     <Compile Include="Tools\IDataArchiver.cs" />

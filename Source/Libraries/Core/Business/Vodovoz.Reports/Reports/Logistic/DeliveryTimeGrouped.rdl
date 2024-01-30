@@ -63,10 +63,19 @@ WHERE
   AND delivery_schedule.to_time &lt;= @beforeTime
   AND (gg.id IN (@geographic_groups))
   AND (
-          IF('Logistics' IN (@rl_type_of_use), !employees.visiting_master AND !(cv.car_own_type = 'Company' AND cm.car_type_of_use = 'Truck'), false)
-              OR IF('CompanyTrucks' IN (@rl_type_of_use), cv.car_own_type = 'Company' AND cm.car_type_of_use = 'Truck', false)
+           IF('Delivery' IN (@rl_type_of_use), !employees.visiting_master AND cm.car_type_of_use != 'Truck' AND orders.order_address_type = 'Delivery' , false)
+              OR IF('Trucks' IN (@rl_type_of_use), cm.car_type_of_use = 'Truck', false)
               OR IF('ServiceCenter' IN (@rl_type_of_use), employees.visiting_master, false)
+              OR IF('StorageLogistics' IN (@rl_type_of_use), orders.order_address_type = 'StorageLogistics', false)
           )
+  AND (
+         SELECT COUNT(o.id) FROM orders o
+           INNER JOIN route_list_addresses rla ON rla.order_id = o.id
+           INNER JOIN route_lists rl ON rl.id = rla.route_list_id
+         WHERE rl.driver_id = route_lists.driver_id
+           AND o.order_status = 'OnTheWay'
+       ) &gt;= @orders_en_route_count
+
 GROUP BY route_list_addresses.id
 ORDER BY driver_name, max_time
 ;</CommandText>
@@ -79,6 +88,9 @@ ORDER BY driver_name, max_time
           </QueryParameter>
           <QueryParameter Name="rl_type_of_use">
             <Value>={?rl_type_of_use}</Value>
+          </QueryParameter>
+          <QueryParameter Name="orders_en_route_count">
+            <Value>={?orders_en_route_count}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -416,7 +428,7 @@ ORDER BY driver_name, max_time
   </PageFooter>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="beforeTime">
       <DataType>String</DataType>
       <DefaultValue>
@@ -456,6 +468,13 @@ ORDER BY driver_name, max_time
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="orders_en_route_count">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>

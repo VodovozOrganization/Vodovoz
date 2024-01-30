@@ -1,8 +1,8 @@
 using Autofac;
-using EdoService;
-using EdoService.Converters;
-using EdoService.Dto;
-using EdoService.Services;
+using EdoService.Library;
+using EdoService.Library.Converters;
+using EdoService.Library.Dto;
+using EdoService.Library.Services;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
@@ -60,7 +60,6 @@ using Vodovoz.Domain.Retail;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
@@ -138,11 +137,13 @@ namespace Vodovoz
 		private IOrganizationParametersProvider _organizationParametersProvider = new OrganizationParametersProvider(new ParametersProvider());
 		private IRevenueServiceClient _revenueServiceClient;
 		private ICounterpartyService _counterpartyService;
+		private IEdoService _edoService;
 		private GenericObservableList<EdoContainer> _edoContainers = new GenericObservableList<EdoContainer>();
 
 		private bool _currentUserCanEditCounterpartyDetails = false;
 		private bool _deliveryPointsConfigured = false;
 		private bool _documentsConfigured = false;
+		private Organization _vodovozOrganization;
 
 		public ThreadDataLoader<EmailRow> EmailDataLoader { get; private set; }
 
@@ -302,6 +303,7 @@ namespace Vodovoz
 			_edoSettings = _lifetimeScope.Resolve<IEdoSettings>();
 			_counterpartySettings = _lifetimeScope.Resolve<ICounterpartySettings>();
 			_counterpartyService = _lifetimeScope.Resolve<ICounterpartyService>();
+			_edoService = _lifetimeScope.Resolve<IEdoService>();
 
 			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			var fileDialogService = new FileDialogService();
@@ -327,6 +329,8 @@ namespace Vodovoz
 			{
 				UoWGeneric.Root.CounterpartyContracts = new List<CounterpartyContract>();
 			}
+
+			_vodovozOrganization = UoW.GetById<Organization>(_organizationParametersProvider.VodovozOrganizationId);
 
 			ConfigureTabInfo();
 			ConfigureTabContacts();
@@ -592,6 +596,13 @@ namespace Vodovoz
 				.AddBinding(Entity, e => e.WorksThroughOrganization, w => w.SelectedItem)
 				.InitializeFromSource();
 			specialListCmbWorksThroughOrganization.Sensitive = _canSetWorksThroughOrganization && CanEdit;
+
+			specialListCmbWorksThroughOrganization.ItemSelected += (s, e) =>
+			{
+				Entity.OurOrganizationAccountForBills = null;
+
+				UpdateOurOrganizationSpecialAccountItemList();
+			};
 
 			enumTax.ItemsEnum = typeof(TaxType);
 
@@ -903,6 +914,20 @@ namespace Vodovoz
 			buttonDeleteTag.Sensitive = CanEdit;
 		}
 
+		private void UpdateOurOrganizationSpecialAccountItemList()
+		{
+			if(!Entity.UseSpecialDocFields)
+			{
+				Entity.OurOrganizationAccountForBills = null;
+			}
+
+			var organization = Entity.WorksThroughOrganization ?? _vodovozOrganization;
+
+			speciallistcomboboxSpecialAccount.ShowSpecialStateNot = true;
+			speciallistcomboboxSpecialAccount.NameForSpecialStateNot = "По умолчанию";
+			speciallistcomboboxSpecialAccount.ItemsList = organization.Accounts;
+		}
+
 		private void ConfigureTabSpecialFields()
 		{
 			enumcomboCargoReceiverSource.ItemsEnum = typeof(CargoReceiverSource);
@@ -920,6 +945,12 @@ namespace Vodovoz
 				.AddBinding(Entity, e => e.SpecialCustomer, w => w.Text)
 				.InitializeFromSource();
 			yentryCustomer.IsEditable = CanEdit;
+
+			UpdateOurOrganizationSpecialAccountItemList();
+			speciallistcomboboxSpecialAccount.SetRenderTextFunc<Account>(e => e.Name);
+			speciallistcomboboxSpecialAccount.Binding
+				.AddBinding(Entity, e => e.OurOrganizationAccountForBills, w => w.SelectedItem)
+				.InitializeFromSource();
 
 			#region Особый договор
 
@@ -1328,7 +1359,8 @@ namespace Vodovoz
 					EntityUoWBuilder.ForOpen(Entity.Id),
 					UnitOfWorkFactory.GetDefaultFactory,
 					_commonServices,
-					GetOrderIdsWithoutSuccessfullySentUpd());
+					GetOrderIdsWithoutSuccessfullySentUpd(),
+					_edoService);
 				TabParent.AddSlaveTab(this, resendEdoDocumentsDialog);
 			}
 		}
@@ -1833,6 +1865,8 @@ namespace Vodovoz
 		protected void OnYcheckSpecialDocumentsToggled(object sender, EventArgs e)
 		{
 			radioSpecialDocFields.Visible = ycheckSpecialDocuments.Active;
+
+			UpdateOurOrganizationSpecialAccountItemList();
 		}
 
 		private void OnEntryPersonNamePartChanged(object sender, EventArgs e)

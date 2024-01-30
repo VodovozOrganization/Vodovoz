@@ -1,10 +1,4 @@
-﻿using CustomerAppsApi.Converters;
-using CustomerAppsApi.Factories;
-using CustomerAppsApi.Library.Factories;
 using CustomerAppsApi.Middleware;
-using CustomerAppsApi.Models;
-using CustomerAppsApi.Repositories;
-using CustomerAppsApi.Validators;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -34,6 +28,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Operations;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
@@ -88,51 +83,28 @@ namespace CustomerAppsApi
 				redisOptions.Configuration = connection;
 			});
 			
+			services.AddScoped<IUnitOfWork>(_ => UnitOfWorkFactory.CreateWithoutRoot("Сервис интеграции"));
+			
 			services.AddSingleton<IPhoneRepository, PhoneRepository>();
 			services.AddSingleton<IEmailRepository, EmailRepository>();
 			services.AddSingleton<IWarehouseRepository, WarehouseRepository>();
 			services.AddSingleton<IRoboatsRepository, RoboatsRepository>();
 			services.AddSingleton<IBottlesRepository, BottlesRepository>();
-			services.AddSingleton<ICachedBottlesDebtRepository, CachedBottlesDebtRepository>();
 			services.AddSingleton<INomenclatureRepository, NomenclatureRepository>();
+			services.AddSingleton<IOrderRepository, OrderRepository>();
 			services.AddSingleton<IStockRepository, StockRepository>();
+			services.AddSingleton<IPromotionalSetRepository, PromotionalSetRepository>();
 			services.AddSingleton<IExternalCounterpartyRepository, ExternalCounterpartyRepository>();
 			services.AddSingleton<IExternalCounterpartyMatchingRepository, ExternalCounterpartyMatchingRepository>();
-			
-			services.AddSingleton<ISettingsController, SettingsController>();
-			services.AddSingleton<ISessionProvider, DefaultSessionProvider>();
-			services.AddSingleton<IParametersProvider, ParametersProvider>();
-			services.AddSingleton<INomenclatureParametersProvider, NomenclatureParametersProvider>();
-			
-			services.AddSingleton<IRoboatsSettings, RoboatsSettings>();
-			services.AddSingleton<ICounterpartySettings, CounterpartySettings>();
-
-			services.AddSingleton<IUnitOfWorkFactory, DefaultUnitOfWorkFactory>();
-			services.AddSingleton<IRegisteredNaturalCounterpartyDtoFactory, RegisteredNaturalCounterpartyDtoFactory>();
-			services.AddSingleton<IExternalCounterpartyMatchingFactory, ExternalCounterpartyMatchingFactory>();
-			services.AddSingleton<IExternalCounterpartyFactory, ExternalCounterpartyFactory>();
-			services.AddSingleton<CounterpartyModelFactory>();
-			services.AddSingleton<ICounterpartyFactory, CounterpartyFactory>();
-			services.AddSingleton<INomenclatureFactory, NomenclatureFactory>();
-			
-			services.AddSingleton<ICameFromConverter, CameFromConverter>();
-			services.AddSingleton<ISourceConverter, SourceConverter>();
+			services.AddSingleton<SelfDeliveriesAddressesFrequencyRequestsHandler>();
+			services.AddSingleton<PricesFrequencyRequestsHandler>();
+			services.AddSingleton<NomenclaturesFrequencyRequestsHandler>();
+			services.AddScoped<IWarehouseModel, WarehouseModel>();
 			
 			services.AddSingleton<PhoneFormatter>(_ => new PhoneFormatter(PhoneFormat.DigitsTen));
-			services.AddSingleton<ContactFinderForExternalCounterpartyFromOne>();
-			services.AddSingleton<ContactFinderForExternalCounterpartyFromTwo>();
-			services.AddSingleton<ContactFinderForExternalCounterpartyFromMany>();
-			services.AddSingleton<IContactManagerForExternalCounterparty, ContactManagerForExternalCounterparty>();
-			services.AddSingleton<INomenclatureOnlineParametersController, NomenclatureOnlineParametersController>();
-
-			services.AddScoped<IUnitOfWork>(_ => UnitOfWorkFactory.CreateWithoutRoot("Сервис интеграции"));
-			services.AddScoped<CounterpartyModelValidator>();
-			services.AddScoped<ICounterpartyModel, CounterpartyModel>();
-			services.AddScoped<INomenclatureModel, NomenclatureModel>();
-			services.AddScoped<IWarehouseModel, WarehouseModel>();
-			services.AddSingleton<NomenclaturesFrequencyRequestsHandler>();
-			services.AddSingleton<PricesFrequencyRequestsHandler>();
-			services.AddSingleton<SelfDeliveriesAddressesFrequencyRequestsHandler>();
+			services.AddSingleton<ICounterpartySettings, CounterpartySettings>();
+			
+			services.AddCustomerApiLibrary();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

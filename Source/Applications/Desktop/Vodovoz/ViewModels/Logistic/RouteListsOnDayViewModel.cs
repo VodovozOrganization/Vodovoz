@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using NHibernate;
@@ -6,9 +6,9 @@ using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Commands;
 using QS.DomainModel.Entity;
-using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
@@ -20,7 +20,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Vodovoz.Additions.Logistic;
-using Vodovoz.Additions.Logistic.RouteOptimization;
+using Vodovoz.Application.Logistics.RouteOptimization;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
@@ -29,7 +29,6 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Profitability;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
@@ -61,6 +60,8 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 
+		private bool _excludeTrucks;
+
 		public IUnitOfWork UoW;
 
 		public RouteListsOnDayViewModel(
@@ -81,6 +82,7 @@ namespace Vodovoz.ViewModels.Logistic
 			IGeographicGroupRepository geographicGroupRepository,
 			IScheduleRestrictionRepository scheduleRestrictionRepository,
 			ICarModelJournalFactory carModelJournalFactory,
+			IRouteOptimizer routeOptimizer,
 			IRouteListProfitabilityController routeListProfitabilityController)
 			: base(commonServices?.InteractiveService, navigationManager)
 		{
@@ -100,6 +102,7 @@ namespace Vodovoz.ViewModels.Logistic
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			ScheduleRestrictionRepository = scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
 			CarModelJournalFactory = carModelJournalFactory;
+			Optimizer = routeOptimizer ?? throw new ArgumentNullException(nameof(routeOptimizer));
 			_routeListProfitabilityController = routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_atWorkRepository = atWorkRepository ?? throw new ArgumentNullException(nameof(atWorkRepository));
@@ -109,7 +112,7 @@ namespace Vodovoz.ViewModels.Logistic
 			_closingDocumentDeliveryScheduleId = deliveryScheduleParametersProvider?.ClosingDocumentDeliveryScheduleId ??
 												throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider));
 
-			CanСreateRoutelistInPastPeriod = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_routelist_in_past_period");
+			CanСreateRoutelistInPastPeriod = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.RouteList.CanCreateRouteListInPastPeriod);
 
 			CreateUoW();
 
@@ -154,7 +157,6 @@ namespace Vodovoz.ViewModels.Logistic
 					foundGeoGroup.Selected = true;
 				}
 			}
-			Optimizer = new RouteOptimizer(commonServices.InteractiveService, new GeographicGroupRepository());
 
 			_defaultDeliveryDaySchedule =
 				UoW.GetById<DeliveryDaySchedule>(defaultDeliveryDayScheduleSettings.GetDefaultDeliveryDayScheduleId());
@@ -200,6 +202,11 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 		}
 
+		public bool ExcludeTrucks
+		{
+			get => _excludeTrucks;
+			set => SetField(ref _excludeTrucks, value);
+		}
 		public ICommonServices CommonServices { get; }
 		public ILifetimeScope LifetimeScope { get; }
 		public ICarRepository CarRepository { get; }
@@ -312,7 +319,7 @@ namespace Vodovoz.ViewModels.Logistic
 								return;
 							}
 						}
-						_gtkTabsOpener.OpenRouteListCreateDlg(this, rl.Id);
+						NavigationManager.OpenViewModel<RouteListCreateViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(rl.Id));
 					}
 				},
 				i => true
@@ -643,8 +650,8 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 		}
 
-		private RouteOptimizer optimizer;
-		public virtual RouteOptimizer Optimizer
+		private IRouteOptimizer optimizer;
+		public virtual IRouteOptimizer Optimizer
 		{
 			get => optimizer;
 			set => SetField(ref optimizer, value);
@@ -1026,7 +1033,7 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			if(row is RouteList rl)
 			{
-				return rl?.RouteListProfitability?.GrossMarginSum;
+				return rl?.RouteListProfitability?.GrossMarginPercents;
 			}
 
 			return null;
@@ -1036,7 +1043,7 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			if(row is RouteList rl)
 			{
-				return rl?.RouteListProfitability?.GrossMarginPercents;
+				return rl?.RouteListProfitability?.GrossMarginSum;
 			}
 
 			return null;
@@ -1256,43 +1263,68 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
+			(int OrderId, decimal Count) resultAlias = default;
+			
+			_logger.LogInformation("Начали расчет параметров");
 
-			int totalOrders = OrderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
-											 .GetExecutableQueryOver(UoW.Session)
-											 .Select(Projections.Count<Order>(x => x.Id))
-											 .Where(o => !o.IsContractCloser)
-											 .And(o => o.OrderAddressType != OrderAddressType.Service)
-											 .SingleOrDefault<int>();
+			var totalOrders =
+				OrderRepository.GetOrdersForRLEditingQuery(DateForRouting, true, excludeTrucks: ExcludeTrucks)
+					.GetExecutableQueryOver(UoW.Session)
+					.Where(o => !o.IsContractCloser)
+					.And(o => o.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId)
+					.And(o => o.OrderAddressType != OrderAddressType.Service)
+					.Select(Projections.CountDistinct<Order>(x => x.Id))
+					.SingleOrDefault<int>();
 
-			decimal totalBottles = OrderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
-											  .GetExecutableQueryOver(UoW.Session)
-											  .JoinAlias(o => o.OrderItems, () => orderItemAlias)
-											  .JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
-											  .Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
-											  .Select(Projections.Sum(() => orderItemAlias.Count))
-											  .Where(o => !o.IsContractCloser)
-											  .And(o => o.OrderAddressType != OrderAddressType.Service)
-											  .SingleOrDefault<decimal>();
+			var totalBottles = 
+				OrderRepository.GetOrdersForRLEditingQuery(DateForRouting, true, excludeTrucks: ExcludeTrucks)
+					.GetExecutableQueryOver(UoW.Session)
+					.JoinAlias(o => o.OrderItems, () => orderItemAlias)
+					.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+					.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
+					.And(o => !o.IsContractCloser)
+					.And(o => o.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId)
+					.And(o => o.OrderAddressType != OrderAddressType.Service)
+					.SelectList(list => list
+						.SelectGroup(o => o.Id).WithAlias(() => resultAlias.OrderId)
+						.Select(Projections.Sum(() => orderItemAlias.Count)).WithAlias(() => resultAlias.Count))
+					.TransformUsing(Transformers.AliasToBean<(int OrderId, decimal Count)>())
+					.List<(int OrderId, decimal Count)>()
+					.Sum(x => x.Count);
 
-			decimal total6LBottles = OrderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
-											  .GetExecutableQueryOver(UoW.Session)
-											  .JoinAlias(o => o.OrderItems, () => orderItemAlias)
-											  .JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
-											  .Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol6L)
-											  .Select(Projections.Sum(() => orderItemAlias.Count))
-											  .Where(o => !o.IsContractCloser)
-											  .And(o => o.OrderAddressType != OrderAddressType.Service)
-											  .SingleOrDefault<decimal>();
+			var total6LBottles =
+				OrderRepository.GetOrdersForRLEditingQuery(DateForRouting, true, excludeTrucks: ExcludeTrucks)
+					.GetExecutableQueryOver(UoW.Session)
+					.JoinAlias(o => o.OrderItems, () => orderItemAlias)
+					.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+					.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol6L)
+					.And(o => !o.IsContractCloser)
+					.And(o => o.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId)
+					.And(o => o.OrderAddressType != OrderAddressType.Service)
+					.SelectList(list => list
+						.SelectGroup(o => o.Id).WithAlias(() => resultAlias.OrderId)
+						.Select(Projections.Sum(() => orderItemAlias.Count)).WithAlias(() => resultAlias.Count))
+					.TransformUsing(Transformers.AliasToBean<(int OrderId, decimal Count)>())
+					.List<(int OrderId, decimal Count)>()
+					.Sum(x => x.Count);
 
-			decimal total600mlBottles = OrderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
-											  .GetExecutableQueryOver(UoW.Session)
-											  .JoinAlias(o => o.OrderItems, () => orderItemAlias)
-											  .JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
-											  .Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol600ml)
-											  .Select(Projections.Sum(() => orderItemAlias.Count))
-											  .Where(o => !o.IsContractCloser)
-											  .And(o => o.OrderAddressType != OrderAddressType.Service)
-											  .SingleOrDefault<decimal>();
+			var total600mlBottles =
+				OrderRepository.GetOrdersForRLEditingQuery(DateForRouting, true, excludeTrucks: ExcludeTrucks)
+					.GetExecutableQueryOver(UoW.Session)
+					.JoinAlias(o => o.OrderItems, () => orderItemAlias)
+					.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+					.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol600ml)
+					.And(o => !o.IsContractCloser)
+					.And(o => o.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId)
+					.And(o => o.OrderAddressType != OrderAddressType.Service)
+					.SelectList(list => list
+						.SelectGroup(o => o.Id).WithAlias(() => resultAlias.OrderId)
+						.Select(Projections.Sum(() => orderItemAlias.Count)).WithAlias(() => resultAlias.Count))
+					.TransformUsing(Transformers.AliasToBean<(int OrderId, decimal Count)>())
+					.List<(int OrderId, decimal Count)>()
+					.Sum(x => x.Count);
+			
+			_logger.LogInformation("Закончили расчет параметров");
 
 			var text = new List<string> {
 				NumberToTextRus.FormatCase(totalOrders, "На день {0} заказ.", "На день {0} заказа.", "На день {0} заказов."),
@@ -1668,7 +1700,7 @@ namespace Vodovoz.ViewModels.Logistic
 			Optimizer.Drivers = DriversOnDay;
 			Optimizer.Forwarders = ForwardersOnDay;
 			Optimizer.StatisticsTxtAction = statisticsUpdateAction;
-			Optimizer.CreateRoutes(DateForRouting, DriverStartTime, DriverEndTime);
+			Optimizer.CreateRoutes(DateForRouting, DriverStartTime, DriverEndTime, message => CommonServices.InteractiveService.Question(message));
 
 			if(optimizer.ProposedRoutes.Any())
 			{

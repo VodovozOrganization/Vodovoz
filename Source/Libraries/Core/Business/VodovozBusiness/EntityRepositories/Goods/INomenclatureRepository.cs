@@ -1,6 +1,6 @@
-﻿using System;
 using System.Collections.Generic;
 using NHibernate.Criterion;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
@@ -82,9 +82,10 @@ namespace Vodovoz.EntityRepositories.Goods
 		Nomenclature GetNomenclature(IUnitOfWork uow, int nomenclatureId);
 		bool Has19LWater(IUnitOfWork uow, int[] nomenclaturesIds);
 		IList<NomenclatureOnlineParametersNode> GetNomenclaturesOnlineParametersForSend(
-			IUnitOfWork uow, NomenclatureOnlineParameterType parameterType);
+			IUnitOfWork uow, GoodsOnlineParameterType parameterType);
 		IList<NomenclatureOnlinePriceNode> GetNomenclaturesOnlinePricesByOnlineParameters(
 			IUnitOfWork uow, IEnumerable<int> onlineParametersIds);
-		IList<OnlineNomenclatureNode> GetNomenclaturesForSend(IUnitOfWork uow, NomenclatureOnlineParameterType parameterType);
+		IList<OnlineNomenclatureNode> GetNomenclaturesForSend(IUnitOfWork uow, GoodsOnlineParameterType parameterType);
+		IEnumerable<INamedDomainObject> GetPromoSetsWithNomenclature(IUnitOfWork unitOfWork, int nomenclatureId, bool notArchive = true);
 	}
 }

@@ -1,21 +1,9 @@
 ﻿using Gamma.ColumnConfig;
 using QS.Navigation;
 using QS.Views.GtkUI;
-using QSOrmProject;
 using System;
-using System.Linq;
-using NHibernate.Criterion;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.ViewModels.ViewModels.Logistic;
-using QS.DomainModel.UoW;
-using QS.Project.Services;
-using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.JournalFactories;
-using Vodovoz.Infrastructure.Services;
-using Vodovoz.Models;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
-using QS.Project.Journal;
 
 namespace Vodovoz.Views.Logistic
 {
@@ -34,12 +22,10 @@ namespace Vodovoz.Views.Logistic
 
 			vehicleNumberEntry.Binding.AddBinding(ViewModel.Entity, e => e.RegistrationNumber, w => w.Number).InitializeFromSource();
 
-			entryCarModel.CanEditReference = ViewModel.CanEditCarModel;
-			entryCarModel.SetEntityAutocompleteSelectorFactory(ViewModel.CarModelJournalFactory
-				.CreateCarModelAutocompleteSelectorFactory(ViewModel.LifetimeScope));
+			entryCarModel.ViewModel = ViewModel.CarModelViewModel;
+
 			entryCarModel.Binding
-				.AddBinding(ViewModel.Entity, e => e.CarModel, w => w.Subject)
-				.AddBinding(ViewModel, e => e.CanChangeCarModel, w => w.Sensitive)
+				.AddBinding(ViewModel, e => e.CanChangeCarModel, w => w.ViewModel.IsEditable)
 				.InitializeFromSource();
 
 			orderNumberSpin.Binding.AddBinding(ViewModel.Entity, e => e.OrderNumber, w => w.ValueAsInt).InitializeFromSource();
@@ -61,15 +47,12 @@ namespace Vodovoz.Views.Logistic
 			yentryPTSNum.Binding.AddBinding(ViewModel.Entity, e => e.DocPTSNumber, w => w.Text).InitializeFromSource();
 			yentryPTSSeries.Binding.AddBinding(ViewModel.Entity, e => e.DocPTSSeries, w => w.Text).InitializeFromSource();
 
-			entryDriver.SetEntityAutocompleteSelectorFactory(
-				ViewModel.EmployeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory());
+			entryDriver.ViewModel = ViewModel.DriverViewModel;
 
 			textDriverInfo.Binding.AddBinding(ViewModel, vm => vm.DriverInfoText, w => w.Text).InitializeFromSource();
 
-			entryDriver.Binding.AddBinding(ViewModel.Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
+			entryFuelType.ViewModel = ViewModel.FuelTypeViewModel;
 
-			dataentryFuelType.SubjectType = typeof(FuelType);
-			dataentryFuelType.Binding.AddBinding(ViewModel.Entity, e => e.FuelType, w => w.Subject).InitializeFromSource();
 			radiobuttonMain.Active = true;
 
 			minBottlesSpin.Binding.AddBinding(ViewModel.Entity, e => e.MinBottles, w => w.ValueAsInt).InitializeFromSource();

@@ -30,7 +30,6 @@ using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Service;
-using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Counterparties;
@@ -48,7 +47,6 @@ using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Orders;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
-using Type = Vodovoz.Domain.Orders.Documents.Type;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -90,9 +88,12 @@ namespace Vodovoz.Domain.Orders
 
 		private readonly OrderItemComparerForCopyingFromUndelivery _itemComparerForCopyingFromUndelivery =
 			new OrderItemComparerForCopyingFromUndelivery();
+		private readonly IEmailService _emailService = new EmailService();
+
 		private readonly double _futureDeliveryDaysLimit = 30;
 
 		private bool _isBottleStockDiscrepancy;
+		private TimeSpan? _waitUntilTime;
 
 		#region Платная доставка
 
@@ -120,6 +121,7 @@ namespace Vodovoz.Domain.Orders
 		private GeoGroup _selfDeliveryGeoGroup;
 
 		private int? _callBeforeArrivalMinutes;
+		private DateTime? _firstDeliveryDate;
 
 		#region Cвойства
 
@@ -301,6 +303,14 @@ namespace Vodovoz.Domain.Orders
 						"Дата договора будет изменена при сохранении текущего заказа!");
 				}
 			}
+		}
+
+		[Display(Name = "Первичная дата доставки")]
+		[HistoryDateOnly]
+		public virtual DateTime? FirstDeliveryDate
+		{
+			get => _firstDeliveryDate;
+			set => SetField(ref _firstDeliveryDate, value);
 		}
 
 		private DateTime billDate = DateTime.Now;
@@ -910,6 +920,13 @@ namespace Vodovoz.Domain.Orders
 			get => _logisticsRequirements;
 			set => SetField(ref _logisticsRequirements, value);
 		}
+		
+		[Display(Name = "Ожидает до")]
+		public virtual TimeSpan? WaitUntilTime
+		{
+			get => _waitUntilTime;
+			set => SetField(ref _waitUntilTime, value);
+		}
 
 		#endregion
 
@@ -1353,6 +1370,13 @@ namespace Vodovoz.Domain.Orders
 							$"У клиента стоит признак \"{doNotMixMarkedAndUnmarkedGoodsInOrderName}\"",
 							new[] { nameof(OrderItems) });
 					}
+					
+					if(OrderItems.Where(x => x.Nomenclature.IsArchive) is IEnumerable<OrderItem> archivedNomenclatures && archivedNomenclatures.Any())
+					{
+						yield return new ValidationResult($"В заказе присутствуют архивные номенклатуры: " +
+														$"{string.Join(", ", archivedNomenclatures.Select(x => $"№{x.Nomenclature.Id} { x.Nomenclature.Name}"))}.",
+							new[] { nameof(Nomenclature) });
+					}
 				}
 
 				if(newStatus == OrderStatus.Closed) {
@@ -1587,7 +1611,10 @@ namespace Vodovoz.Domain.Orders
 
 			var hasReceipts = _orderRepository.OrderHasSentReceipt(UoW, Id);
 
-			if(hasReceipts)
+			validationContext.Items.TryGetValue(ValidationKeyIgnoreReceipts, out var ignoreReceipts);
+
+			if(!((bool?)ignoreReceipts ?? false)
+				&& hasReceipts)
 			{
 				var incorrectReceiptItems = new List<string>();
 
@@ -1749,7 +1776,9 @@ namespace Vodovoz.Domain.Orders
 			return incorrectReceiptItems;
 		}
 
-		#endregion
+		public static string ValidationKeyIgnoreReceipts => nameof(ValidationKeyIgnoreReceipts);
+
+		#endregion IValidatableObject implementation
 
 		#region Вычисляемые
 
@@ -1965,12 +1994,12 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 
-			if(deliveryPriceItem.Price == price)
+			if(delivery.Price == price)
 			{
 				return;
 			}
 
-			deliveryPriceItem.SetPrice(price);
+			delivery.SetPrice(price);
 		}
 
 		public virtual void AddOrderItem(OrderItem orderItem, bool forceUseAlternativePrice = false)
@@ -1990,17 +2019,6 @@ namespace Vodovoz.Domain.Orders
 
 			ObservableOrderItems.Add(orderItem);
 			UpdateContract();
-		}
-
-		public virtual OrderItem AddOrderItem(Nomenclature nomenclature, decimal nds, int count, decimal price, int discount)
-		{
-			var item = OrderItem.CreateForSaleWithDiscount(this, nomenclature, count, price, false, discount, null, null);
-
-			item.IncludeNDS = nds;
-
-			ObservableOrderItems.Add(item);
-
-			return item;
 		}
 
 		public virtual void RemoveOrderItem(OrderItem orderItem)
@@ -2030,9 +2048,9 @@ namespace Vodovoz.Domain.Orders
 			UpdateContract();
 		}
 
-		public virtual void SetOrderItemCount(int orderItemId, decimal newCount)
+		public virtual void SetOrderItemCount(OrderItem orderItem, decimal newCount)
 		{
-			ObservableOrderItems.FirstOrDefault(x => x.Id == orderItemId)?.SetCount(newCount);
+			orderItem?.SetCount(newCount);
 		}
 
 		#endregion
@@ -2111,27 +2129,6 @@ namespace Vodovoz.Domain.Orders
 				.Where(x => x.Nomenclature.TareVolume == TareVolume.Vol19L)) {
 				item.SetDiscountByStock(stockBottleDiscountReason, stockBottleDiscountPercent);
 			}
-		}
-
-		public virtual Email GetEmailAddressForBill()
-		{
-			return Client.Emails.FirstOrDefault(x => (x.EmailType?.EmailPurpose == EmailPurpose.ForBills) || x.EmailType == null);
-		}
-
-		public virtual bool NeedSendBill(IEmailRepository emailRepository)
-		{
-			var notSendedByEdo = _orderRepository.GetEdoContainersByOrderId(UoW, Id).Count(x=>x.Type == Type.Bill) == 0;
-			var notSendedByEmail = !emailRepository.HaveSendedEmailForBill(Id);
-			var notSended = notSendedByEdo && notSendedByEmail;
-			if((OrderStatus == OrderStatus.NewOrder || OrderStatus == OrderStatus.Accepted || OrderStatus == OrderStatus.WaitForPayment)
-			   && PaymentType == PaymentType.Cashless
-			   && notSended)
-			{
-				//Проверка должен ли формироваться счет для текущего заказа
-				var requirementDocTypes = GetRequirementDocTypes();
-				return requirementDocTypes.Contains(OrderDocumentType.Bill) || requirementDocTypes.Contains(OrderDocumentType.SpecialBill);
-			}
-			return false;
 		}
 
 		public virtual void ParseTareReason()
@@ -2246,10 +2243,11 @@ namespace Vodovoz.Domain.Orders
 
 			Contract = counterpartyContract;
 
-			foreach(var orderItem in OrderItems)
+			for(var i = 0; i < OrderItems.Count; i++)
 			{
-				orderItem.CalculateVATType();
+				OrderItems[i].CalculateVATType();
 			}
+			
 			UpdateContractDocument();
 			UpdateDocuments();
 		}
@@ -2631,12 +2629,11 @@ namespace Vodovoz.Domain.Orders
 		/// <param name="proSet">Промонабор (промонабор)</param>
 		public virtual bool CanAddPromotionalSet(PromotionalSet proSet, IPromotionalSetRepository promotionalSetRepository)
 		{
-			if(PromotionalSets.Any(x => x.Id == proSet.Id)) {
-				InteractiveService.ShowMessage(ImportanceLevel.Warning, "В заказ нельзя добавить два одинаковых промонабора");
-				return false;
-			}
-			if((PromotionalSets.Count(x => !x.CanBeAddedWithOtherPromoSets) + (proSet.CanBeAddedWithOtherPromoSets ? 0 : 1)) > 1) {
-				InteractiveService.ShowMessage(ImportanceLevel.Warning, "В заказ нельзя добавить больше 1 промонабора, у которого нет свойства \"Может быть добавлен вместе с другими промонаборами\"");
+			if(PromotionalSets.Any(x => x.PromotionalSetForNewClients && proSet.PromotionalSetForNewClients))
+			{
+				InteractiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					"В заказ нельзя добавить два промо-набора для новых клиентов");
 				return false;
 			}
 
@@ -2645,34 +2642,33 @@ namespace Vodovoz.Domain.Orders
 				return true;
 			}
 
-			if(!proSet.CanBeReorderedWithoutRestriction && CanUsedPromo(promotionalSetRepository))
+			if(proSet.PromotionalSetForNewClients && CanUsedPromo(promotionalSetRepository))
 			{
-				string message = "По этому адресу уже была ранее отгрузка промонабора на другое физ.лицо.";
+				var message = "По этому адресу уже была ранее отгрузка промонабора на другое физ.лицо.";
 				InteractiveService.ShowMessage(ImportanceLevel.Warning, message);
 				return false;
 			}
 
 			var proSetDict = promotionalSetRepository.GetPromotionalSetsAndCorrespondingOrdersForDeliveryPoint(UoW, this);
-			
-			if(proSet.CanBeReorderedWithoutRestriction | !proSetDict.Any())
+
+			if(!proSet.PromotionalSetForNewClients | !proSetDict.Any())
 			{
 				return true;
 			}
 
 			var address = string.Join(", ", DeliveryPoint.City, DeliveryPoint.Street, DeliveryPoint.Building, DeliveryPoint.Room);
-			StringBuilder sb = new StringBuilder(string.Format("Для адреса \"{0}\", найдены схожие точки доставки, на которые уже создавались заказы с промонаборами:\n", address));
+			var sb = new StringBuilder(
+				$"Для адреса \"{address}\", найдены схожие точки доставки, на которые уже создавались заказы с промо-наборами:\n");
 			foreach(var d in proSetDict) {
 				var proSetTitle = UoW.GetById<PromotionalSet>(d.Key).ShortTitle;
 				var orders = string.Join(
 					" ,",
 					UoW.GetById<Order>(d.Value).Select(o => o.Title)
 				);
-				sb.AppendLine(string.Format("– {0}: {1}", proSetTitle, orders));
+				sb.AppendLine($"– {proSetTitle}: {orders}");
 			}
 			sb.AppendLine($"Вы уверены, что хотите добавить \"{proSet.Title}\"");
-			if(InteractiveService.Question(sb.ToString()))
-				return true;
-			return false;
+			return InteractiveService.Question(sb.ToString());
 		}
 
 		/// <summary>
@@ -3154,10 +3150,11 @@ namespace Vodovoz.Domain.Orders
 					break;
 				case OrderStatus.Shipped:
 				case OrderStatus.UnloadingOnStock:
-					SendUpdToEmail();
+					_emailService.SendUpdToEmailOnFinish(UoW, this, _emailRepository, _deliveryScheduleParametersProvider);
 					break;
 				case OrderStatus.Closed:
-					SendUpdToEmail();
+					_emailService.SendUpdToEmailOnFinish(UoW, this,_emailRepository, _deliveryScheduleParametersProvider);
+					_emailService.SendBillForClosingDocumentOrderToEmailOnFinish(UoW, this, _emailRepository, _orderRepository, _deliveryScheduleParametersProvider);
 					OnChangeStatusToClosed();
 					break;
 				case OrderStatus.DeliveryCanceled:
@@ -3253,50 +3250,6 @@ namespace Vodovoz.Domain.Orders
 				ChangeStatusAndCreateTasks(OrderStatus.OnLoading, callTaskWorker);
 				LoadAllowedBy = employee;
 			}
-		}
-
-		public virtual void SendUpdToEmail()
-		{
-			if(!_emailRepository.NeedSendUpdByEmail(Id) || _emailRepository.HasSendedEmailForUpd(Id))
-			{
-				return;
-			}
-
-			var document = OrderDocuments.FirstOrDefault(x => x.Type == OrderDocumentType.UPD || x.Type == OrderDocumentType.SpecialUPD);
-
-			if(document == null)
-			{
-				return;
-			}
-
-			var emailAddress = GetEmailAddressForBill();
-
-			if(emailAddress == null)
-			{
-				return;
-			}
-
-			var storedEmail = new StoredEmail
-			{
-				SendDate = DateTime.Now,
-				StateChangeDate = DateTime.Now,
-				State = StoredEmailStates.PreparingToSend,
-				RecipientAddress = emailAddress.Address,
-				ManualSending = false,
-				Subject = document.Name,
-				Author = Author
-			};
-
-			UoW.Save(storedEmail);
-
-			var updDocumentEmail = new UpdDocumentEmail
-			{
-				StoredEmail = storedEmail,
-				Counterparty = Client,
-				OrderDocument = document
-			};
-
-			UoW.Save(updDocumentEmail);
 		}
 
 		public virtual void SetActualCountToSelfDelivery()
@@ -3863,8 +3816,10 @@ namespace Vodovoz.Domain.Orders
 			if(IsContractCloser)
 				return false;
 
-			int amountDelivered = (int)OrderItems.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && !item.Nomenclature.IsDisposableTare)
-								.Sum(item => item?.ActualCount ?? 0);
+			int amountDelivered = (int)OrderItems
+				.Where(item => item.Nomenclature.Category == NomenclatureCategory.water
+					&& item.Nomenclature.TareVolume == TareVolume.Vol19L)
+				.Sum(item => item.ActualCount ?? 0);
 
 			if(forfeitQuantity == null) {
 				forfeitQuantity = (int)OrderItems.Where(i => i.Nomenclature.Id == standartNomenclatures.GetForfeitId())
@@ -3947,19 +3902,9 @@ namespace Vodovoz.Domain.Orders
 
 		#region Работа с документами
 
-		public virtual OrderDocumentType[] GetRequirementDocTypes()
-		{
-			//создаём объект-ключ на основе текущего заказа. Этот ключ содержит набор свойств,
-			//по которым будет происходить подбор правила для создания набора документов
-			var key = new OrderStateKey(this);
-
-			//обращение к хранилищу правил для получения массива типов документов по ключу
-			return OrderDocumentRulesRepository.GetSetOfDocumets(key);
-		}
-
 		public virtual void UpdateDocuments()
 		{
-			CheckAndCreateDocuments(GetRequirementDocTypes());
+			CheckAndCreateDocuments(_emailService.GetRequirementDocTypes(this));
 		}
 
 		public virtual void UpdateCertificates(out List<Nomenclature> nomenclaturesNeedUpdate)
@@ -4311,6 +4256,11 @@ namespace Vodovoz.Domain.Orders
 		{
 			SetFirstOrder();
 
+			if(FirstDeliveryDate is null)
+			{
+				FirstDeliveryDate = DeliveryDate;
+			}
+
 			if(!IsLoadedFrom1C)
 			{
 				UpdateContract();
@@ -4324,7 +4274,7 @@ namespace Vodovoz.Domain.Orders
 			paymentFromBankClientController.UpdateAllocatedSum(UoW, this);
 			paymentFromBankClientController.ReturnAllocatedSumToClientBalanceIfChangedPaymentTypeFromCashless(UoW, this);
 
-			var hasPromotionalSetForNewClient = PromotionalSets.Any(x => !x.CanBeReorderedWithoutRestriction);
+			var hasPromotionalSetForNewClient = PromotionalSets.Any(x => x.PromotionalSetForNewClients);
 
 			if(hasPromotionalSetForNewClient
 			   && ContactlessDelivery
@@ -4440,62 +4390,14 @@ namespace Vodovoz.Domain.Orders
 			return result;
 		}
 
-		public virtual void SetNeedToRecendEdoUpd()
-		{
-			var userCanResendUpd = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_resend_upd_documents");
-			if(!userCanResendUpd)
-			{
-				InteractiveService.ShowMessage(ImportanceLevel.Warning, "Текущий пользователь не имеет права повторной отправки УПД");
-				return;
-			}
 
-			if(OrderPaymentStatus == OrderPaymentStatus.Paid)
-			{
-				if(!ServicesConfig.InteractiveService.Question(
-					$"Счет по заказу №{Id} оплачен.\r\nПроверьте, пожалуйста, статус УПД в ЭДО перед повторной отправкой на предмет аннулирован/не аннулирован, подписан/не подписан.\r\n\r\n" +
-					$"Вы уверены, что хотите отправить повторно?"))
-				{
-					return;
-				}
-			}
+        #endregion
 
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
-			{
-				var edoDocumentsActions = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
-					.Where(x => x.Order.Id == Id)
-					.FirstOrDefault();
+        #region Аренда
 
-				if(edoDocumentsActions == null)
-				{
-					edoDocumentsActions = new OrderEdoTrueMarkDocumentsActions();
-					edoDocumentsActions.Order = this;
-				}
+        #region NonFreeRent
 
-				edoDocumentsActions.IsNeedToResendEdoUpd = true;
-
-				var orderLastTrueMarkDocument = uow.GetAll<TrueMarkApiDocument>()
-					.Where(x => x.Order.Id == Id)
-					.OrderByDescending(x => x.CreationDate)
-					.FirstOrDefault();
-
-				if(orderLastTrueMarkDocument != null 
-					&& orderLastTrueMarkDocument.Type != TrueMarkApiDocument.TrueMarkApiDocumentType.WithdrawalCancellation)
-				{
-					edoDocumentsActions.IsNeedToCancelTrueMarkDocument = true;
-				}
-
-				uow.Save(edoDocumentsActions);
-				uow.Commit();
-			}				
-		}
-
-		#endregion
-
-		#region Аренда
-
-		#region NonFreeRent
-
-		public virtual void AddNonFreeRent(PaidRentPackage paidRentPackage, Nomenclature equipmentNomenclature)
+        public virtual void AddNonFreeRent(PaidRentPackage paidRentPackage, Nomenclature equipmentNomenclature)
 		{
 			OrderItem orderRentDepositItem = GetExistingNonFreeRentDepositItem(paidRentPackage);
 			if(orderRentDepositItem == null) {

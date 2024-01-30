@@ -1,42 +1,47 @@
-using System;
-using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using NLog;
+﻿using Autofac;
+using Microsoft.Extensions.Logging;
 using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Extension;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Vodovoz.Application.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Extensions;
-using Vodovoz.Services;
 using Vodovoz.Models;
+using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Nodes;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using VodovozInfrastructure.StringHandlers;
-using Vodovoz.Settings.Nomenclature;
-using System.ComponentModel;
-using Autofac;
 
 namespace Vodovoz.ViewModels.Dialogs.Goods
 {
 	public class NomenclatureViewModel : EntityTabViewModelBase<Nomenclature>, IAskSaveOnCloseViewModel
 	{
-		private static Logger logger = LogManager.GetCurrentClassLogger();
+		private static ILogger<NomenclatureViewModel> _logger;
 
 		private readonly IEmployeeService _employeeService;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
 		private readonly int[] _equipmentKindsHavingGlassHolder;
 		private readonly INomenclatureOnlineParametersProvider _nomenclatureOnlineParametersProvider;
+		private readonly INomenclatureService _nomenclatureService;
 		private ILifetimeScope _lifetimeScope;
+		private readonly IInteractiveService _interactiveService;
 		private NomenclatureOnlineParameters _mobileAppNomenclatureOnlineParameters;
 		private NomenclatureOnlineParameters _vodovozWebSiteNomenclatureOnlineParameters;
 		private NomenclatureOnlineParameters _kulerSaleWebSiteNomenclatureOnlineParameters;
@@ -46,15 +51,13 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		private bool _activeSitesAndAppsTab;
 		private IList<NomenclatureOnlineCategory> _onlineCategories;
 
-		private DelegateCommand _copyPricesWithoutDiscountFromMobileAppToVodovozWebSiteCommand;
-
-		public Action PricesViewSaveChanges;
-
 		public NomenclatureViewModel(
+			ILogger<NomenclatureViewModel> logger,
 			ILifetimeScope lifetimeScope,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
+			IInteractiveService interactiveService,
 			IEmployeeService employeeService,
 			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
@@ -62,7 +65,9 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			IUserRepository userRepository,
 			IStringHandler stringHandler,
 			INomenclatureOnlineParametersProvider nomenclatureOnlineParametersProvider,
-			INomenclatureSettings nomenclatureSettings) : base(uowBuilder, uowFactory, commonServices)
+			INomenclatureSettings nomenclatureSettings,
+			INomenclatureService nomenclatureService)
+			: base(uowBuilder, uowFactory, commonServices)
 		{
 			if(nomenclatureSelectorFactory is null)
 			{
@@ -75,7 +80,9 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			}
 
 			StringHandler = stringHandler ?? throw new ArgumentNullException(nameof(stringHandler));
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
@@ -85,6 +92,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			CounterpartySelectorFactory =
 				(counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope);
+			_nomenclatureService = nomenclatureService ?? throw new ArgumentNullException(nameof(nomenclatureService));
 
 			ConfigureEntryViewModels();
 			ConfigureOnlineParameters();
@@ -96,6 +104,13 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			SetGlassHolderCheckboxesSelection();
 
 			Entity.PropertyChanged += OnEntityPropertyChanged;
+
+			SaveCommand = CreateSaveCommand();
+			CopyPricesWithoutDiscountFromMobileAppToVodovozWebSiteCommand =
+				CreateCopyPricesWithoutDiscountFromMobileAppToVodovozWebSiteCommand();
+
+			ArchiveCommand = new DelegateCommand(Archive);
+			UnArchiveCommand = new DelegateCommand(UnArchive);
 		}
 
 		public IStringHandler StringHandler { get; }
@@ -105,6 +120,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		public GenericObservableList<NomenclatureOnlinePricesNode> NomenclatureOnlinePrices { get; private set; }
 			= new GenericObservableList<NomenclatureOnlinePricesNode>();
 
+		public bool PriceChanged { get; set; }
 		public bool ImageLoaded { get; set; }
 		public NomenclatureImage PopupMenuOn { get; set; }
 		public bool IsWaterCategory => Entity.Category == NomenclatureCategory.water;
@@ -310,6 +326,67 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		private bool IsNewEntity => Entity.Id == 0;
 		private bool CanCreateNomenclaturesWithInventoryAccountingPermission { get; set; }
 
+		#region Commands
+
+		public DelegateCommand SaveCommand { get; }
+
+		private DelegateCommand CreateSaveCommand()
+		{
+			return new DelegateCommand(
+				() =>
+				{
+
+					if(_needCheckOnlinePrices)
+					{
+						if(HasAccessToSitesAndAppsTab && AskQuestion(
+							"Было произведено изменение цен номенклатуры, необходимо проверить корректность цен," +
+							" установленных на вкладке Сайты и приложения.\n" +
+							"Вы хотите переключиться на вкладку Сайты и приложения перед сохранением номенклатуры?"))
+						{
+							ActiveSitesAndAppsTab = true;
+							return;
+						}
+					}
+
+					Save(true);
+				},
+				() => true);
+		}
+
+		public DelegateCommand CopyPricesWithoutDiscountFromMobileAppToVodovozWebSiteCommand { get; }
+
+		private DelegateCommand CreateCopyPricesWithoutDiscountFromMobileAppToVodovozWebSiteCommand()
+		{
+			return new DelegateCommand(
+				() =>
+				{
+					CopyPricesWithoutDiscountFromMobileAppToOtherParameters(VodovozWebSiteNomenclatureOnlineParameters);
+					UpdateNomenclatureOnlinePricesNodes();
+				},
+				() => true);
+		}
+
+		public DelegateCommand ArchiveCommand { get; }
+		public DelegateCommand UnArchiveCommand { get; }
+
+
+		#endregion Commands
+
+		public bool ActiveSitesAndAppsTab
+		{
+			get => _activeSitesAndAppsTab;
+			set
+			{
+				if(SetField(ref _activeSitesAndAppsTab, value))
+				{
+					if(value)
+					{
+						_needCheckOnlinePrices = false;
+					}
+				}
+			}
+		}
+
 		private void SetGlassHolderCheckboxesSelection()
 		{
 			if(Entity.Category != NomenclatureCategory.equipment
@@ -394,10 +471,10 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		public void AddNotKulerSaleOnlinePrice(NomenclaturePrice price)
 		{
 			MobileAppNomenclatureOnlineParameters.AddNewNomenclatureOnlinePrice(
-				CreateNomenclatureOnlinePrice(price, NomenclatureOnlineParameterType.ForMobileApp));
+				CreateNomenclatureOnlinePrice(price, GoodsOnlineParameterType.ForMobileApp));
 
 			VodovozWebSiteNomenclatureOnlineParameters.AddNewNomenclatureOnlinePrice(
-				CreateNomenclatureOnlinePrice(price, NomenclatureOnlineParameterType.ForVodovozWebSite));
+				CreateNomenclatureOnlinePrice(price, GoodsOnlineParameterType.ForVodovozWebSite));
 			
 			_needCheckOnlinePrices = true;
 		}
@@ -405,7 +482,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		public void AddKulerSaleOnlinePrice(AlternativeNomenclaturePrice price)
 		{
 			KulerSaleWebSiteNomenclatureOnlineParameters.AddNewNomenclatureOnlinePrice(
-				CreateNomenclatureOnlinePrice(price, NomenclatureOnlineParameterType.ForKulerSaleWebSite));
+				CreateNomenclatureOnlinePrice(price, GoodsOnlineParameterType.ForKulerSaleWebSite));
 				
 			_needCheckOnlinePrices = true;
 		}
@@ -573,9 +650,9 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		
 		private void ConfigureOnlineParameters()
 		{
-			MobileAppNomenclatureOnlineParameters = GetNomenclatureOnlineParameters(NomenclatureOnlineParameterType.ForMobileApp);
-			VodovozWebSiteNomenclatureOnlineParameters = GetNomenclatureOnlineParameters(NomenclatureOnlineParameterType.ForVodovozWebSite);
-			KulerSaleWebSiteNomenclatureOnlineParameters = GetNomenclatureOnlineParameters(NomenclatureOnlineParameterType.ForKulerSaleWebSite);
+			MobileAppNomenclatureOnlineParameters = GetNomenclatureOnlineParameters(GoodsOnlineParameterType.ForMobileApp);
+			VodovozWebSiteNomenclatureOnlineParameters = GetNomenclatureOnlineParameters(GoodsOnlineParameterType.ForVodovozWebSite);
+			KulerSaleWebSiteNomenclatureOnlineParameters = GetNomenclatureOnlineParameters(GoodsOnlineParameterType.ForKulerSaleWebSite);
 			
 			MobileAppNomenclatureOnlineCatalogs = UoW.GetAll<MobileAppNomenclatureOnlineCatalog>().ToList();
 			VodovozWebSiteNomenclatureOnlineCatalogs = UoW.GetAll<VodovozWebSiteNomenclatureOnlineCatalog>().ToList();
@@ -586,18 +663,18 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			UpdateNomenclatureOnlinePricesNodes();
 		}
 
-		private NomenclatureOnlineParameters GetNomenclatureOnlineParameters(NomenclatureOnlineParameterType type)
+		private NomenclatureOnlineParameters GetNomenclatureOnlineParameters(GoodsOnlineParameterType type)
 		{
 			var parameters = Entity.NomenclatureOnlineParameters.SingleOrDefault(x => x.Type == type);
 			return parameters ?? CreateNomenclatureOnlineParameters(type);
 		}
 
-		private NomenclatureOnlineParameters CreateNomenclatureOnlineParameters(NomenclatureOnlineParameterType type)
+		private NomenclatureOnlineParameters CreateNomenclatureOnlineParameters(GoodsOnlineParameterType type)
 		{
 			NomenclatureOnlineParameters parameters = null;
 			switch(type)
 			{
-				case NomenclatureOnlineParameterType.ForMobileApp:
+				case GoodsOnlineParameterType.ForMobileApp:
 					parameters = new MobileAppNomenclatureOnlineParameters();
 
 					foreach(var nomenclaturePrice in Entity.NomenclaturePrice)
@@ -605,10 +682,10 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 						parameters.AddNewNomenclatureOnlinePrice(
 							CreateNomenclatureOnlinePrice(
 								nomenclaturePrice,
-								NomenclatureOnlineParameterType.ForMobileApp));
+								GoodsOnlineParameterType.ForMobileApp));
 					}
 					break;
-				case NomenclatureOnlineParameterType.ForVodovozWebSite:
+				case GoodsOnlineParameterType.ForVodovozWebSite:
 					parameters = new VodovozWebSiteNomenclatureOnlineParameters();
 					
 					foreach(var nomenclaturePrice in Entity.NomenclaturePrice)
@@ -616,10 +693,10 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 						parameters.AddNewNomenclatureOnlinePrice(
 							CreateNomenclatureOnlinePrice(
 								nomenclaturePrice,
-								NomenclatureOnlineParameterType.ForVodovozWebSite));
+								GoodsOnlineParameterType.ForVodovozWebSite));
 					}
 					break;
-				case NomenclatureOnlineParameterType.ForKulerSaleWebSite:
+				case GoodsOnlineParameterType.ForKulerSaleWebSite:
 					parameters = new KulerSaleWebSiteNomenclatureOnlineParameters();
 
 					foreach(var alternativeNomenclaturePrice in Entity.AlternativeNomenclaturePrices)
@@ -627,7 +704,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 						parameters.AddNewNomenclatureOnlinePrice(
 							CreateNomenclatureOnlinePrice(
 								alternativeNomenclaturePrice,
-								NomenclatureOnlineParameterType.ForKulerSaleWebSite));
+								GoodsOnlineParameterType.ForKulerSaleWebSite));
 					}
 					break;
 			}
@@ -647,66 +724,17 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		}
 
 		protected override bool BeforeSave() {
-			logger.Info("Сохраняем номенклатуру...");
+			_logger.LogInformation("Сохраняем номенклатуру...");
 			Entity.SetNomenclatureCreationInfo(_userRepository);
-			PricesViewSaveChanges?.Invoke();
+			
+			if(PriceChanged && Entity.Id > 0)
+			{
+				_logger.LogInformation("Проверяем связанные с ней промонаборы...");
+				CheckPromoSetsWithNomenclature();
+			}
+			
 			return base.BeforeSave();
 		}
-
-		#region Commands
-
-		private DelegateCommand saveCommand = null;
-
-		public DelegateCommand SaveCommand =>
-			saveCommand ?? (saveCommand = new DelegateCommand(
-				() => {
-
-					if(_needCheckOnlinePrices)
-					{
-						if(HasAccessToSitesAndAppsTab && AskQuestion(
-							"Было произведено изменение цен номенклатуры, необходимо проверить корректность цен," +
-							" установленных на вкладке Сайты и приложения.\n" +
-							"Вы хотите переключиться на вкладку Сайты и приложения перед сохранением номенклатуры?"))
-						{
-							ActiveSitesAndAppsTab = true;
-							return;
-						}
-					}
-					
-					Save(true);
-				},
-				() => true
-			)
-		);
-		
-		public DelegateCommand CopyPricesWithoutDiscountFromMobileAppToVodovozWebSiteCommand =>
-			_copyPricesWithoutDiscountFromMobileAppToVodovozWebSiteCommand ?? (
-				_copyPricesWithoutDiscountFromMobileAppToVodovozWebSiteCommand = new DelegateCommand(
-					() =>
-					{
-						CopyPricesWithoutDiscountFromMobileAppToOtherParameters(VodovozWebSiteNomenclatureOnlineParameters);
-						UpdateNomenclatureOnlinePricesNodes();
-					},
-					() => true
-				)
-			);
-
-		public bool ActiveSitesAndAppsTab
-		{
-			get => _activeSitesAndAppsTab;
-			set
-			{
-				if(SetField(ref _activeSitesAndAppsTab, value))
-				{
-					if(value)
-					{
-						_needCheckOnlinePrices = false;
-					}
-				}
-			}
-		}
-
-		#endregion
 
 		public void UpdateNomenclatureOnlinePricesNodes()
 		{
@@ -724,19 +752,19 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 					{
 						switch(onlinePrice.Type)
 						{
-							case NomenclatureOnlineParameterType.ForMobileApp:
+							case GoodsOnlineParameterType.ForMobileApp:
 								nomenclatureOnlinePricesNode = new NomenclatureOnlinePricesNode
 								{
 									MobileAppNomenclatureOnlinePrice = onlinePrice
 								};
 								break;
-							case NomenclatureOnlineParameterType.ForVodovozWebSite:
+							case GoodsOnlineParameterType.ForVodovozWebSite:
 								nomenclatureOnlinePricesNode = new NomenclatureOnlinePricesNode
 								{
 									VodovozWebSiteNomenclatureOnlinePrice = onlinePrice
 								};
 								break;
-							case NomenclatureOnlineParameterType.ForKulerSaleWebSite:
+							case GoodsOnlineParameterType.ForKulerSaleWebSite:
 								nomenclatureOnlinePricesNode = new NomenclatureOnlinePricesNode
 								{
 									KulerSaleWebSiteNomenclatureOnlinePrice = onlinePrice
@@ -752,13 +780,13 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 					{
 						switch(onlinePrice.Type)
 						{
-							case NomenclatureOnlineParameterType.ForMobileApp:
+							case GoodsOnlineParameterType.ForMobileApp:
 								nomenclatureOnlinePricesNode.MobileAppNomenclatureOnlinePrice = onlinePrice;
 								break;
-							case NomenclatureOnlineParameterType.ForVodovozWebSite:
+							case GoodsOnlineParameterType.ForVodovozWebSite:
 								nomenclatureOnlinePricesNode.VodovozWebSiteNomenclatureOnlinePrice = onlinePrice;
 								break;
-							case NomenclatureOnlineParameterType.ForKulerSaleWebSite:
+							case GoodsOnlineParameterType.ForKulerSaleWebSite:
 								nomenclatureOnlinePricesNode.KulerSaleWebSiteNomenclatureOnlinePrice = onlinePrice;
 								break;
 						}
@@ -774,27 +802,45 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 
 		private NomenclatureOnlinePrice CreateNomenclatureOnlinePrice(
 			NomenclaturePriceBase nomenclaturePrice,
-			NomenclatureOnlineParameterType type)
+			GoodsOnlineParameterType type)
 		{
 			switch(type)
 			{
-				case NomenclatureOnlineParameterType.ForMobileApp:
+				case GoodsOnlineParameterType.ForMobileApp:
 					return new MobileAppNomenclatureOnlinePrice
 					{
 						NomenclaturePrice = nomenclaturePrice
 					};
-				case NomenclatureOnlineParameterType.ForVodovozWebSite:
+				case GoodsOnlineParameterType.ForVodovozWebSite:
 					return new VodovozWebSiteNomenclatureOnlinePrice
 					{
 						NomenclaturePrice = nomenclaturePrice
 					};
-				case NomenclatureOnlineParameterType.ForKulerSaleWebSite:
+				case GoodsOnlineParameterType.ForKulerSaleWebSite:
 					return new KulerSaleWebSiteNomenclatureOnlinePrice
 					{
 						NomenclaturePrice = nomenclaturePrice
 					};
 				default:
 					throw new ArgumentOutOfRangeException(nameof(type), type, null);
+			}
+		}
+		
+		private void CheckPromoSetsWithNomenclature()
+		{
+			var promoSets = _nomenclatureRepository.GetPromoSetsWithNomenclature(UoW, Entity.Id);
+			
+			if(promoSets.Any())
+			{
+				var stringBuilder = new StringBuilder();
+				stringBuilder.Append("Изменены цены на товар, входящий в состав промонаборов:\n");
+				
+				foreach(var item in promoSets)
+				{
+					stringBuilder.Append($"Код: {item.Id} название: {item.Name}\n");
+				}
+				
+				ShowInfoMessage(stringBuilder.ToString());
 			}
 		}
 		
@@ -805,6 +851,28 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				var mobileAppPrice = MobileAppNomenclatureOnlineParameters.NomenclatureOnlinePrices[i];
 				nomenclatureOnlineParameters.NomenclatureOnlinePrices[i].PriceWithoutDiscount = mobileAppPrice.PriceWithoutDiscount;
 			}
+		}
+
+		private void Archive()
+		{
+			if(!UoWGeneric.IsNew)
+			{
+				var result = _nomenclatureService.Archive(UoW, Entity);
+
+				if(result.IsFailure)
+				{
+					_interactiveService.ShowMessage(ImportanceLevel.Error, string.Join("\n", result.Errors.Select(e => e.Message)), "Не удалось архивирвоать номенклатуру");
+				}
+			}
+			else
+			{
+				Entity.IsArchive = true;
+			}
+		}
+
+		private void UnArchive()
+		{
+			Entity.IsArchive = false;
 		}
 
 		public override void Dispose()

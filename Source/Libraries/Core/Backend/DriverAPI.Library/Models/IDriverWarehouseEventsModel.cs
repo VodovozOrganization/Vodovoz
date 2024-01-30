@@ -1,6 +1,8 @@
-﻿using DriverAPI.DTOs.V4;
+﻿using System.Collections.Generic;
+using DriverAPI.DTOs.V4;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Drivers;
+using Vodovoz.EntityRepositories.Logistic;
 
 namespace DriverAPI.Library.Models
 {
@@ -18,5 +20,6 @@ namespace DriverAPI.Library.Models
 		/// <returns></returns>
 		CompletedDriverWarehouseEvent CompleteDriverWarehouseEvent(
 			DriverWarehouseEventQrData qrData, DriverWarehouseEventData eventData, Employee driver);
+		IEnumerable<CompletedEventDto> GetTodayCompletedEventsForDriver(Employee driver);
 	}
 }

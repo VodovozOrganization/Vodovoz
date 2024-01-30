@@ -1,4 +1,5 @@
 ﻿using DateTimeHelpers;
+using FluentNHibernate.Utils;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -71,6 +72,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		private IEnumerable<string> _lastGenerationErrors;
 		private LeftRightListViewModel<GroupingNode> _groupViewModel;
 		private bool _showContacts;
+		private static OrderStatus[] _clientOneOrderStatuses = { OrderStatus.Canceled, OrderStatus.DeliveryCanceled, OrderStatus.NotDelivered };
 
 		public TurnoverWithDynamicsReportViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -269,6 +271,14 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		private void ConfigureFilter()
 		{
 			_filterViewModel = _includeExcludeSalesFilterFactory.CreateSalesReportIncludeExcludeFilter(_unitOfWork, _userIsSalesRepresentative);
+
+			var additionalParams = new Dictionary<string, string>
+			{
+				{ "Самовывоз", "is_self_delivery" },
+				{ "Клиенты с одним заказом", "with_one_order" },
+			};
+
+			_filterViewModel.AddFilter("Дополнительные фильтры", additionalParams);
 		}
 
 		private void SetupGroupings()
@@ -341,6 +351,24 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			}
 		}
 
+		public void GetBoolParamsValues(StringBuilder stringBuilder)
+		{
+			var includedBoolParams = FilterViewModel.GetFilter<IncludeExcludeBoolParamsFilter>();
+
+			var includedList = includedBoolParams.FilteredElements.Where(x => x.Include).Select(x => x.Title);
+			var excludedList = includedBoolParams.FilteredElements.Where(x => x.Exclude).Select(x => x.Title);
+
+			if(includedList.Any())
+			{
+				stringBuilder.AppendLine(string.Concat(" Только: ", string.Join(", ", includedList)));
+			}
+
+			if(excludedList.Any())
+			{
+				stringBuilder.AppendLine(string.Concat(" Кроме: ", string.Join(", ", excludedList)));
+			}
+		}
+
 		public async Task<TurnoverWithDynamicsReport> Generate(CancellationToken cancellationToken)
 		{
 			var errors = ValidateParameters();
@@ -367,6 +395,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			GetParameterValues<PaymentType>(sb2);
 			GetParameterValues<PromotionalSet>(sb2);
 			GetParameterValues<CounterpartyCompositeClassification>(sb2);
+			GetBoolParamsValues(sb2);
 
 			filters = sb2.ToString().Trim('\n');
 
@@ -560,9 +589,12 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			var includedCounterpartyClassifications = counterpartyClassificationsFilter.GetIncluded().ToArray();
 			var excludedCounterpartyClassifications = counterpartyClassificationsFilter.GetExcluded().ToArray();
 
+			var includedBoolParams = FilterViewModel.GetFilter<IncludeExcludeBoolParamsFilter>();
+
 			#endregion Сбор параметров
 
 			Order orderAlias = null;
+			Order orderCountAlias = null;
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
 			ProductGroup productGroupAlias = null;
@@ -642,6 +674,46 @@ namespace Vodovoz.ViewModels.Reports.Sales
 								excludedProductGroups)))
 						.Add(Restrictions.IsNull(Projections.Property(() => productGroupAlias.Id))));
 				}
+
+				#region BoolParams
+
+				foreach(var param in includedBoolParams.FilteredElements)
+				{
+					if(!param.Include && !param.Exclude)
+					{
+						continue;
+					}
+
+					switch(param.Number)
+					{
+						case "is_self_delivery":
+							nomenclaturesEmptyQuery.Where(() => orderAlias.SelfDelivery == param.Include);
+							break;
+						case "with_one_order":
+						{
+							var subQueryOrdersCount = QueryOver.Of(() => orderCountAlias)
+								.Where(() => orderCountAlias.Client.Id == counterpartyAlias.Id)
+								.WhereRestrictionOn(() => orderCountAlias.OrderStatus).Not.IsIn(_clientOneOrderStatuses)
+								.Select(Projections.GroupProperty(Projections.Property<Order>(o => o.Client.Id)));
+
+							var countProjection = Projections.CountDistinct(() => orderCountAlias.Id);
+
+							subQueryOrdersCount.Where(param.Include
+								? Restrictions.Eq(countProjection, 1)
+								: Restrictions.Not(Restrictions.Eq(countProjection, 1)));
+
+							nomenclaturesEmptyQuery.WithSubquery
+								.WhereProperty(() => counterpartyAlias.Id)
+								.In(subQueryOrdersCount);
+							
+							break;
+						}							
+						default:
+							throw new NotSupportedException(param.Number);
+					}
+				}
+
+				#endregion
 
 				nomenclaturesEmptyNodes = nomenclaturesEmptyQuery
 					.SelectList(list => list.SelectGroup(() => nomenclatureAlias.Id)
@@ -1136,6 +1208,46 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			}
 
 			#endregion CounterpartyClassifications
+
+			#region BoolParams
+
+			foreach(var param in includedBoolParams.FilteredElements)
+			{
+				if(!param.Include && !param.Exclude)
+				{
+					continue;
+				}
+
+				switch(param.Number)
+				{
+					case "is_self_delivery":
+						query.Where(() => orderAlias.SelfDelivery == param.Include);
+						break;
+					case "with_one_order":
+					{
+						var subQueryOrdersCount = QueryOver.Of(() => orderCountAlias)
+							.Where(() => orderCountAlias.Client.Id == counterpartyAlias.Id)
+							.WhereRestrictionOn(() => orderCountAlias.OrderStatus).Not.IsIn(_clientOneOrderStatuses)
+							.Select(Projections.GroupProperty(Projections.Property<Order>(o => o.Client.Id)));
+
+						var countProjection = Projections.CountDistinct(() => orderCountAlias.Id);
+
+						subQueryOrdersCount.Where(param.Include
+							? Restrictions.Eq(countProjection, 1)
+							: Restrictions.Not(Restrictions.Eq(countProjection, 1)));
+
+						query.WithSubquery
+							.WhereProperty(() => counterpartyAlias.Id)
+							.In(subQueryOrdersCount);
+						
+						break;
+					}
+					default:
+						throw new NotSupportedException(param.Number);
+				}
+			}
+
+			#endregion
 
 			#endregion
 

@@ -27,7 +27,7 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _externalId, value);
 		}
 		
-		public abstract NomenclatureOnlineParameterType Type { get; }
+		public abstract GoodsOnlineParameterType Type { get; }
 		
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{

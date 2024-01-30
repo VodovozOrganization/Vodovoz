@@ -17,6 +17,7 @@ using QS.ViewModels.Extension;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using QS.ViewModels.Dialog;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
@@ -38,6 +39,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Complaints;
 using Vodovoz.ViewModels.ViewModels.Employees;
+using Vodovoz.Journals.JournalNodes;
 
 namespace Vodovoz.ViewModels.Complaints
 {
@@ -254,7 +256,8 @@ namespace Vodovoz.ViewModels.Complaints
 				{
 					_discussionsViewModel = _scope.Resolve<ComplaintDiscussionsViewModel>(
 						new TypedParameter(typeof(Complaint), Entity),
-						new TypedParameter(typeof(IUnitOfWork), UoW));
+						new TypedParameter(typeof(IUnitOfWork), UoW),
+						new TypedParameter(typeof(DialogViewModelBase), this));
 				}
 				return _discussionsViewModel;
 			}
@@ -465,13 +468,15 @@ namespace Vodovoz.ViewModels.Complaints
 						});
 
 					page.ViewModel.SelectionMode = JournalSelectionMode.Single;
-					page.ViewModel.OnEntitySelectedResult += (sender, e) =>
+					page.ViewModel.OnSelectResult += (sender, e) =>
 					{
-						var selectedNode = e.SelectedNodes.FirstOrDefault();
-						if(selectedNode == null)
+						var selectedObject = e.SelectedObjects.FirstOrDefault();
+
+						if(!(selectedObject is FineJournalNode selectedNode))
 						{
 							return;
 						}
+
 						Entity.AddFine(UoW.GetById<Fine>(selectedNode.Id));
 					};
 				},
