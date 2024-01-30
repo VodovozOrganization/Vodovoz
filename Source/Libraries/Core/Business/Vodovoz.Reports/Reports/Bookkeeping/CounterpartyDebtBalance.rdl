@@ -44,7 +44,7 @@
             <Width>68.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>72.2pt</Width>
+            <Width>74.6pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>67.4pt</Width>
@@ -58,10 +58,10 @@
           <TableColumn>
             <Width>38.3pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>60.9pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>30.5pt</Width>
           </TableColumn>
         </TableColumns>
@@ -329,7 +329,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox28">
                       <Value>Тип задол-
@@ -348,7 +348,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox31">
                       <Value>Ликви-
@@ -469,9 +469,9 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <PaddingRight>1pt</PaddingRight>
                         <Format>#,##0.00</Format>
-                        <PaddingLeft >1pt</PaddingLeft>
-                        <PaddingTop >1pt</PaddingTop>
-                        <PaddingBottom >1pt</PaddingBottom>
+                        <PaddingLeft>1pt</PaddingLeft>
+                        <PaddingTop>1pt</PaddingTop>
+                        <PaddingBottom>1pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -491,9 +491,9 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <PaddingRight>1pt</PaddingRight>
                         <Format>#,##0.00</Format>
-                        <PaddingLeft >1pt</PaddingLeft>
-                        <PaddingTop >1pt</PaddingTop>
-                        <PaddingBottom >1pt</PaddingBottom>
+                        <PaddingLeft>1pt</PaddingLeft>
+                        <PaddingTop>1pt</PaddingTop>
+                        <PaddingBottom>1pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -513,9 +513,9 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <PaddingRight>1pt</PaddingRight>
                         <Format>#,##0.00</Format>
-                        <PaddingLeft >1pt</PaddingLeft>
-                        <PaddingTop >1pt</PaddingTop>
-                        <PaddingBottom >1pt</PaddingBottom>
+                        <PaddingLeft>1pt</PaddingLeft>
+                        <PaddingTop>1pt</PaddingTop>
+                        <PaddingBottom>1pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -535,9 +535,9 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <PaddingRight>1pt</PaddingRight>
                         <Format>#,##0.00</Format>
-                        <PaddingLeft >1pt</PaddingLeft>
-                        <PaddingTop >1pt</PaddingTop>
-                        <PaddingBottom >1pt</PaddingBottom>
+                        <PaddingLeft>1pt</PaddingLeft>
+                        <PaddingTop>1pt</PaddingTop>
+                        <PaddingBottom>1pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -580,7 +580,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox29">
                       <Value></Value>
@@ -599,7 +599,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox33">
                       <Value></Value>
@@ -826,7 +826,7 @@
                         <PaddingRight>1pt</PaddingRight>
                         <Format>0</Format>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -848,11 +848,11 @@
                         <PaddingRight>1pt</PaddingRight>
                         <Format>0</Format>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox30">
                       <Value>={counterparty_debt_type}</Value>
@@ -869,13 +869,13 @@
                         <PaddingLeft>1pt</PaddingLeft>
                         <PaddingRight>1pt</PaddingRight>
                         <Format>0</Format>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox36">
                       <Value>={liquidating_info}</Value>
@@ -892,7 +892,7 @@
                         <PaddingLeft>1pt</PaddingLeft>
                         <PaddingRight>1pt</PaddingRight>
                         <Format>0</Format>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -1142,7 +1142,7 @@ ORDER BY (T.not_paid_orders_sum - T.unallocated_balance - T.partial_paid_orders_
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>true</Nullable>

@@ -59,7 +59,7 @@
             <Width>54.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>48.9pt</Width>
+            <Width>54.4pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>46.3pt</Width>
@@ -1043,7 +1043,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     o.id AS order_id,
@@ -1197,7 +1197,7 @@ ORDER BY IF(@order_by_date, o.delivery_date, true) DESC,
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.Int32</TypeName>
