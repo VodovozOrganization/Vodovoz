@@ -2,6 +2,7 @@
 using Gamma.Utilities;
 using NHibernate.Linq;
 using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Report.ViewModels;
 using QS.Services;
@@ -308,28 +309,29 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 		
 		private void ShowInfoMessage()
 		{
-			//_commonServices.InteractiveService.ShowMessage(
-			//	ImportanceLevel.Info,
-			//	"Во все отчёты попадают только:\n" +
-			//	$"Контрагенты с формой '{PersonType.legal.GetEnumTitle()}'\n" +
-			//	$"Заказы с формой оплаты '{PaymentType.Cashless.GetEnumTitle()}', суммой больше 0 и статусом оплаты не равным '{OrderPaymentStatus.Paid.GetEnumTitle()}'\n\n" +
-			//	$"<b>{ybuttonCounterpartyDebtBalance.Label}</b>:\n" +
-			//	"Доступен только если не выбран контрагент \n\n" +
-			//	$"<b>{ybuttonCounterpartyDebtDetails.Label}</b>:\n" +
-			//	"Доступен только если выбран контрагент\n\n" +
-			//	$"Если <b>{chkOrderByDate.Label}</b> не активна:\n" +
-			//	$"- <b>{ybuttonCounterpartyDebtBalance.Label}</b> сортируется по последнему столбцу\n" +
-			//	$"- <b>{ybuttonNotPaidOrders.Label}</b> сортируются по последнему столбцу\n" +
-			//	$"- <b>{ybuttonCounterpartyDebtDetails.Label}</b> сортировка была по дате платежа по убыванию,\n" +
-			//	"а внутри блока платежа закрытые суммы заказов данным платежом.\n" +
-			//	"Выше до всех платежей идут незакрытые суммы неоплаченных/частично оплаченных заказов.\n" +
-			//	"Заказы внутри блока также сортируются по дате доставки по убыванию\n\n" +
-			//	$"Если <b>{chkOrderByDate.Label}</b> активна:\n" +
-			//	$"- <b>{ybuttonCounterpartyDebtBalance.Label}</b> сортируется по последнему столбцу\n" +
-			//	$"- <b>{ybuttonNotPaidOrders.Label}</b> сортируются по столбцу \"Дата доставки\"\n" +
-			//	$"- <b>{ybuttonCounterpartyDebtDetails.Label}</b> сортируется по столбцу \"Дата доставки заказа. Время операции\" по убыванию.\n" +
-			//	"При этом заказы не привязаны к платежу и не разбиваются по закрытым/незакрытым суммам"
-			//);
+			_commonServices.InteractiveService.ShowMessage(
+				ImportanceLevel.Info,
+				"Во все отчёты попадают только:\n" +
+				$"Контрагенты с формой '{PersonType.legal.GetEnumTitle()}'\n" +
+				$"Заказы с формой оплаты '{PaymentType.Cashless.GetEnumTitle()}', суммой больше 0 и статусом оплаты не равным '{OrderPaymentStatus.Paid.GetEnumTitle()}'\n\n" +
+				$"<b>Отчет \"Детализация по клиенту\"</b>:\n" +
+				"Доступен только если выбран один контрагент\n\n" +
+				$"Если <b>\"Сортировка по дате\"</b> не активна:\n" +
+				$"- <b>отчет \"Баланс компании\"</b> сортируется по последнему столбцу\n" +
+				$"- <b>отчет \"Неоплаченные заказы\"</b> сортируются по последнему столбцу\n" +
+				$"- <b>в отчете \"Детализация по клиенту\"</b> сортировка была по дате платежа по убыванию,\n" +
+				"а внутри блока платежа закрытые суммы заказов данным платежом.\n" +
+				"Выше до всех платежей идут незакрытые суммы неоплаченных/частично оплаченных заказов.\n" +
+				"Заказы внутри блока также сортируются по дате доставки по убыванию\n\n" +
+				$"Если <b>\"Сортировка по дате\"</b> активна:\n" +
+				$"- <b>\"Баланс компании\"</b> сортируется по последнему столбцу\n" +
+				$"- <b>\"Неоплаченные заказы\"</b> сортируются по столбцу \"Дата доставки\"\n" +
+				$"- <b>\"Детализация по клиенту\"</b> сортируется по столбцу \"Дата доставки заказа. Время операции\" по убыванию.\n" +
+				"При этом заказы не привязаны к платежу и не разбиваются по закрытым/незакрытым суммам\n" +
+				$"При формировании отчета <b>\"Детализация по клиенту\"</b> учитываются только параметры фильтра: \"Период\",\n" +
+				$"\"Сортировка по дате\", \"Контрагенты\" (должен быть выбран только один контрагента), \"Статусы заказа\",\n" +
+				$"\"Закрывающие документы\". Остальные фильтры на результат отчета не влияют."
+			);
 		}
 
 		private IncludeExludeFiltersViewModel CreateCounterpartyCashlessDebtsReportIncludeExcludeFilter(IUnitOfWork unitOfWork)
