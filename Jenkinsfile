@@ -129,11 +129,6 @@ stage('Checkout'){
 			node(NODE_WIN_BUILD){
 				PrepareSources()
 			}
-		},
-		"Linux" : {
-			node(NODE_LINUX_BUILD){
-				PrepareSources()
-			}
 		}
 	)
 }
@@ -144,13 +139,6 @@ stage('Restore'){
 		"Win" : {
 			node(NODE_WIN_BUILD){
 				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=DebugWin /p:Platform=x86 /maxcpucount:2"
-			}
-		},
-		"Linux" : {
-			node(NODE_LINUX_BUILD){
-				sh 'nuget restore Vodovoz/Source/Vodovoz.sln'
-				sh 'nuget restore Vodovoz/Source/Libraries/External/QSProjects/QSProjectsLib.sln'
-				sh 'nuget restore Vodovoz/Source/Libraries/External/My-FyiReporting/MajorsilenceReporting-Linux-GtkViewer.sln'
 			}
 		}
 	)
