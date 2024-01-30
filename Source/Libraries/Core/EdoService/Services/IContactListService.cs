@@ -1,10 +1,10 @@
-﻿using EdoService.Dto;
+﻿using EdoService.Library.Dto;
 using System;
 using System.Threading.Tasks;
 using TISystems.TTC.CRM.BE.Serialization;
 using Vodovoz.Domain.Client;
 
-namespace EdoService.Services
+namespace EdoService.Library.Services
 {
 	public interface IContactListService
 	{

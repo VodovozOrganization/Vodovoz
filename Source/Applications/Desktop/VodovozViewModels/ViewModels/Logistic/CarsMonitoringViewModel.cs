@@ -641,6 +641,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					.Select(() => driverAlias.Name).WithAlias(() => resultAlias.Name)
 					.Select(() => driverAlias.LastName).WithAlias(() => resultAlias.LastName)
 					.Select(() => driverAlias.Patronymic).WithAlias(() => resultAlias.Patronymic)
+					.Select(() => driverAlias.FirstWorkDay).WithAlias(() => resultAlias.FirstWorkDay)
 					.Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.CarNumber)
 					.Select(isCompanyCarProjection).WithAlias(() => resultAlias.IsVodovozAuto)
 					.Select(() => routeListAlias.Id).WithAlias(() => resultAlias.RouteListNumber)
@@ -883,6 +884,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public string Patronymic { get; set; }
 
+		public DateTime? FirstWorkDay { get; set; }
+
 		public string CarNumber { get; set; }
 
 		public bool IsVodovozAuto { get; set; }
@@ -925,6 +928,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public string ShortName => PersonHelper.PersonNameWithInitials(LastName, Name, Patronymic);
 
 		public DateTime? LastTrackPointTime { get; set; }
+
+		public bool IsNewbieDriver => FirstWorkDay.HasValue && (DateTime.Now - FirstWorkDay.Value).TotalDays <= 30;
 	}
 
 	public class RouteListAddressNode

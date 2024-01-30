@@ -1,10 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Vodovoz.ReportsParameters.Logistic
+namespace Vodovoz.ViewModels.ReportsParameters.Logistic
 {
-	public partial class DeliveryTimeReport
+	public partial class DeliveryTimeReportViewModel
 	{
-		private enum RouteListTypeOfUse
+		public enum RouteListTypeOfUse
 		{
 			[Display(Name = "Доставка")]
 			Delivery,
