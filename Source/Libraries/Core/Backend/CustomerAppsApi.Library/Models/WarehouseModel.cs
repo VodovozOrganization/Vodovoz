@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.EntityRepositories.Store;
 
-namespace CustomerAppsApi.Models
+namespace CustomerAppsApi.Library.Models
 {
 	public class WarehouseModel : IWarehouseModel
 	{

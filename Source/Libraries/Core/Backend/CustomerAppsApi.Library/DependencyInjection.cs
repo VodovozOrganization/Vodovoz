@@ -2,6 +2,7 @@
 using CustomerAppsApi.Library.Factories;
 using CustomerAppsApi.Library.Models;
 using CustomerAppsApi.Library.Repositories;
+using CustomerAppsApi.Library.Services;
 using CustomerAppsApi.Library.Validators;
 using Microsoft.Extensions.DependencyInjection;
 using Vodovoz.Controllers;
@@ -41,7 +42,11 @@ namespace CustomerAppsApi.Library
 				.AddScoped<INomenclatureModel, NomenclatureModel>()
 				.AddScoped<IOrderModel, OrderModel>()
 				.AddScoped<IPromotionalSetModel, PromotionalSetModel>()
-				.AddScoped<ICounterpartyModelValidator, CounterpartyModelValidator>();
+				.AddScoped<IWarehouseModel, WarehouseModel>()
+				.AddScoped<ICounterpartyModelValidator, CounterpartyModelValidator>()
+				.AddSingleton<SelfDeliveriesAddressesFrequencyRequestsHandler>()
+				.AddSingleton<PricesFrequencyRequestsHandler>()
+				.AddSingleton<NomenclaturesFrequencyRequestsHandler>();
 
 			return services;
 		}

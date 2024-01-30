@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Vodovoz.EntityRepositories.Store;
 
-namespace CustomerAppsApi.Models
+namespace CustomerAppsApi.Library.Models
 {
 	public interface IWarehouseModel
 	{
