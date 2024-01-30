@@ -50,20 +50,15 @@ NODE_VOD5 = "Vod5"
 NODE_VOD6 = "Vod6"
 NODE_VOD7 = "Vod7"
 NODE_WIN_BUILD = "WIN_BUILD"
-NODE_LINUX_BUILD = "LINUX_BUILD"
-NODE_LINUX_RUNTIME = "LINUX_RUNTIME"
 
 // 102	Настройки. Глобальные
 ARCHIVE_EXTENTION = '.7z'
 APP_PATH = "Vodovoz/Source/Applications"
-WCF_BUILD_OUTPUT_CATALOG = "bin/Debug"
 WEB_BUILD_OUTPUT_CATALOG = "bin/Release/net5.0_publish"
 WIN_BUILD_TOOL = "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/MSBuild.exe"
 DESKTOP_WATER_DELIVERY_PATH = "C:/Program Files (x86)/Vodovoz/WaterDelivery"
 DESKTOP_WORK_PATH = "${DESKTOP_WATER_DELIVERY_PATH}/Work"
 UPDATE_LOCK_FILE = "${DESKTOP_WORK_PATH}/current.lock"
-LINUX_BUILD_TOOL = "msbuild"
-LINUX_WEB_BUILD_TOOL = "dotnet publish"
 JOB_FOLDER_NAME = GetJobFolderName()
 IS_PULL_REQUEST = env.CHANGE_ID != null
 IS_DEVELOP = env.BRANCH_NAME == 'develop'
@@ -79,17 +74,14 @@ IS_MANUAL_BUILD = env.BRANCH_NAME ==~ /^manual-build(.*?)/
 CAN_BUILD_DESKTOP = true
 CAN_BUILD_WEB = true
 CAN_PUBLISH_BUILD_WEB = IS_HOTFIX || IS_RELEASE
-CAN_BUILD_WCF = true
 
 // 106	Настройки. Архивация
 CAN_COMPRESS_DESKTOP = CAN_BUILD_DESKTOP && (IS_HOTFIX || IS_RELEASE || IS_DEVELOP || IS_PULL_REQUEST || IS_MANUAL_BUILD || env.BRANCH_NAME == 'Beta')
 CAN_COMPRESS_WEB = CAN_PUBLISH_BUILD_WEB
-CAN_COMPRESS_WCF = CAN_BUILD_WCF && (IS_HOTFIX || IS_RELEASE)
 
 // 107	Настройки. Доставка
 CAN_DELIVERY_DESKTOP = CAN_COMPRESS_DESKTOP
 CAN_DELIVERY_WEB = CAN_COMPRESS_WEB
-CAN_DELIVERY_WCF = CAN_COMPRESS_WCF
 WIN_DELIVERY_SHARED_FOLDER_NAME = "JenkinsWorkspace"
 DESKTOP_VOD1_DELIVERY_PATH = "\\\\${NODE_VOD1}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
 DESKTOP_VOD3_DELIVERY_PATH = "\\\\${NODE_VOD3}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
@@ -101,21 +93,17 @@ WEB_DELIVERY_PATH = "\\\\${NODE_VOD6}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB
 DEPLOY_PATH = "F:/WORK/_BUILDS"
 CAN_DEPLOY_DESKTOP = CAN_DELIVERY_DESKTOP && (env.BRANCH_NAME == 'Beta' || IS_PULL_REQUEST || IS_MANUAL_BUILD || IS_DEVELOP)
 CAN_DEPLOY_WEB = false
-CAN_DEPLOY_WCF = false
 
 // 109	Настройки. Публикация	
 CAN_PUBLISH_DESKTOP = CAN_DELIVERY_DESKTOP && (IS_HOTFIX || IS_RELEASE)
 CAN_PUBLISH_WEB = CAN_DELIVERY_WEB
-CAN_PUBLISH_WCF = CAN_DELIVERY_WCF
 //Release потому что правила именования фиксов/релизов Release_MMDD_HHMM
 NEW_DESKTOP_HOTFIX_FOLDER_NAME_PREFIX = "Release"
 NEW_WEB_HOTFIX_FOLDER_NAME = "Hotfix"
-NEW_WCF_HOTFIX_FOLDER_NAME = NEW_WEB_HOTFIX_FOLDER_NAME
 NEW_RELEASE_FOLDER_NAME = "NewRelease"
 DESKTOP_HOTFIX_PUBLISH_PATH = DESKTOP_WORK_PATH
 DESKTOP_NEW_RELEASE_PUBLISH_PATH = "${DESKTOP_WATER_DELIVERY_PATH}/${NEW_RELEASE_FOLDER_NAME}"
 WEB_PUBLISH_PATH = "E:/CD"
-WCF_PUBLISH_PATH = "/opt/jenkins/builds"
 
 
 //-----------------------------------------------------------------------
@@ -214,9 +202,6 @@ stage('Compress'){
 		"CashReceiptSendWorker" : { CompressWebArtifact("Backend/Workers/IIS/CashReceiptSendWorker") },
 		"TrueMarkCodePoolCheckWorker" : { CompressWebArtifact("Backend/Workers/IIS/TrueMarkCodePoolCheckWorker") },
 		"PushNotificationsWorker" : { CompressWebArtifact("Backend/Workers/Docker/PushNotificationsWorker") },
-
-		"VodovozSmsInformerService" : { CompressWcfArtifact("Backend/Workers/Mono/VodovozSmsInformerService") },
-		"VodovozSmsPaymentService" : { CompressWcfArtifact("Backend/WCF/VodovozSmsPaymentService") },
 	)
 }
 
@@ -243,9 +228,6 @@ stage('Delivery'){
 		"CashReceiptSendWorker" : { DeliveryWebArtifact("CashReceiptSendWorker") },
 		"TrueMarkCodePoolCheckWorker" : { DeliveryWebArtifact("TrueMarkCodePoolCheckWorker") },
 		"PushNotificationsWorker" : { DeliveryWebArtifact("PushNotificationsWorker") },
-
-		"SmsInformerService" : { DeliveryWcfArtifact("VodovozSmsInformerService") },
-		"SmsPaymentService" : { DeliveryWcfArtifact("VodovozSmsPaymentService") },
 	)
 }
 
@@ -277,8 +259,6 @@ stage('Publish'){
 		"CashReceiptSendWorker" : { PublishWeb("CashReceiptSendWorker") },
 		"TrueMarkCodePoolCheckWorker" : { PublishWeb("TrueMarkCodePoolCheckWorker") },
 		"PushNotificationsWorker" : { PublishWeb("PushNotificationsWorker") },
-		"SmsInformerService" : { PublishWCF("VodovozSmsInformerService") },
-		"SmsPaymentService" : { PublishWCF("VodovozSmsPaymentService") },
 	)
 }
 
@@ -313,16 +293,7 @@ def PublishBuild(projectPath){
 }
 
 def Build(config){
-	if (isUnix()) {
-		sh "${LINUX_BUILD_TOOL} Vodovoz/Source/Vodovoz.sln /t:Build /p:Configuration=${config} /p:Platform=x86 /maxcpucount:2"
-	}
-	else {
-		bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Build /p:Configuration=${config} /p:Platform=x86 /maxcpucount:2"
-	}
-}
-
-def PublishBuildLinux(projectPath){
-	sh "${LINUX_WEB_BUILD_TOOL} ${projectPath} --configuration Release"
+	bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Build /p:Configuration=${config} /p:Platform=x86 /maxcpucount:2"
 }
 
 // 304	Фукнции. Запаковка
@@ -351,34 +322,6 @@ def CompressWebArtifact(relativeProjectPath){
 	else
 	{
 		echo "Compress Web artifacts not needed"
-	}
-}
-
-def CompressWcfArtifact(relativeProjectPath){
-	if(CAN_COMPRESS_WCF)
-	{
-		node(NODE_LINUX_BUILD){
-			def wcfProjectName = GetFolderName(relativeProjectPath)
-			CompressArtifact("${APP_PATH}/${relativeProjectPath}/${WCF_BUILD_OUTPUT_CATALOG}", wcfProjectName)
-		}
-	} 
-	else
-	{
-		echo "Compress WCF artifacts not needed"
-	}
-}
-
-def CompressWebLinuxArtifact(relativeProjectPath){
-	if(CAN_COMPRESS_WEB)
-	{
-		node(NODE_LINUX_BUILD){
-			def webLinuxProjectName = GetFolderName(relativeProjectPath)
-			CompressArtifact("${APP_PATH}/${relativeProjectPath}/bin/Release/netcoreapp3.1/publish", webLinuxProjectName)
-		}
-	} 
-	else
-	{
-		echo "Compress Web Linux artifacts not needed"
 	}
 }
 
@@ -441,28 +384,6 @@ def DeliveryWebArtifact(projectName){
 	}
 }
 
-def DeliveryWcfArtifact(projectName){
-	if(CAN_DELIVERY_WCF)
-	{
-		DeliveryLinuxArtifact("${projectName}${ARCHIVE_EXTENTION}")
-	}
-	else
-	{
-		echo "Delivery ${projectName} artifact  not needed"
-	}
-}
-
-def DeliveryWebLinuxArtifact(projectName){
-	if(CAN_DELIVERY_WEB)
-	{
-		DeliveryLinuxArtifact("${projectName}${ARCHIVE_EXTENTION}")
-	}
-	else
-	{
-		echo "Delivery ${projectName} artifact  not needed"
-	}
-}
-
 def DeliveryWinArtifact(artifactName, deliveryPath){
 	node(NODE_WIN_BUILD){
 		def workspacePath = GetWorkspacePath()
@@ -470,17 +391,6 @@ def DeliveryWinArtifact(artifactName, deliveryPath){
 			New-Item -ItemType File -Path "${deliveryPath}\\${artifactName}" -Force
 			Copy-Item -Path "${workspacePath}/${artifactName}" -Destination "${deliveryPath}\\${artifactName}" -Force
 		""")
-	}
-}
-
-def DeliveryLinuxArtifact(artifactName){
-	node(NODE_LINUX_BUILD){
-		def workspacePath = GetWorkspacePath()
-		def copyingItem = "${workspacePath}/${artifactName}"
-		echo "Copy ${copyingItem} to ${workspacePath}"
-		withCredentials([sshUserPrivateKey(credentialsId: "linux_vadim_jenkins_key", keyFileVariable: 'keyfile', usernameVariable: 'userName')]) {
-			sh 'rsync -v -rz -e "ssh -o StrictHostKeyChecking=no -i $keyfile -p 2213 -v" ' + copyingItem + ' $userName@srv2.vod.qsolution.ru:'+ workspacePath + '/ --delete-before'
-		}
 	}
 }
 
@@ -567,54 +477,6 @@ def PublishWeb(projectName){
 				DecompressArtifact(newReleasePath, projectName)
 				return
 			}
-		}
-
-		echo "Publish not needed"
-	}
-}
-
-def PublishWCF(projectName){
-	node(NODE_LINUX_RUNTIME){
-		if(CAN_PUBLISH_WCF)
-		{
-			if(IS_HOTFIX)
-			{
-				def newHotfixPath = "${WCF_PUBLISH_PATH}/${projectName}/${NEW_WCF_HOTFIX_FOLDER_NAME}"
-				DecompressArtifact(newHotfixPath, projectName)
-				return
-			}
-
-			if(IS_RELEASE)
-			{
-				def newReleasePath = "${WCF_PUBLISH_PATH}/${projectName}/${NEW_RELEASE_FOLDER_NAME}"
-				DecompressArtifact(newReleasePath, projectName)
-				return
-			}
-
-		}
-
-		echo "Publish not needed"
-	}
-}
-
-def PublishWebLinux(projectName){
-	node(NODE_LINUX_RUNTIME){
-		if(CAN_PUBLISH_WEB)
-		{
-			if(IS_HOTFIX)
-			{
-				def newHotfixPath = "${WCF_PUBLISH_PATH}/${projectName}/${NEW_WCF_HOTFIX_FOLDER_NAME}"
-				DecompressArtifact(newHotfixPath, projectName)
-				return
-			}
-
-			if(IS_RELEASE)
-			{
-				def newReleasePath = "${WCF_PUBLISH_PATH}/${projectName}/${NEW_RELEASE_FOLDER_NAME}"
-				DecompressArtifact(newReleasePath, projectName)
-				return
-			}
-
 		}
 
 		echo "Publish not needed"
