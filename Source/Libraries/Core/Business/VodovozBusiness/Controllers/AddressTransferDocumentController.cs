@@ -1,4 +1,4 @@
-﻿using QS.DomainModel.UoW;
+using QS.DomainModel.UoW;
 using System;
 using System.Linq;
 using Vodovoz.Domain.Documents;
@@ -11,9 +11,11 @@ namespace Vodovoz.Controllers
 	public class AddressTransferController : IAddressTransferController
 	{
 		private readonly IEmployeeRepository employeeRepository;
+		private readonly IRouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController;
 
-		public AddressTransferController(IEmployeeRepository employeeRepository)
+		public AddressTransferController(IEmployeeRepository employeeRepository, IRouteListAddressKeepingDocumentController routeListAddressKeepingDocumentController)
 		{
+			_routeListAddressKeepingDocumentController = routeListAddressKeepingDocumentController ?? throw new ArgumentNullException(nameof(routeListAddressKeepingDocumentController));
 			this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 		}
 
@@ -55,7 +57,7 @@ namespace Vodovoz.Controllers
 
 			transferDocument.ObservableAddressTransferDocumentItems.Add(newAddressTransferItem);
 
-			CreateDeliveryFreeBalanceTransferItems(newAddressTransferItem);
+			CreateDeliveryFreeBalanceTransferItems(uow, newAddressTransferItem);
 
 			if(newAddressTransferItem.AddressTransferType == AddressTransferType.FromHandToHand)
 			{
@@ -98,22 +100,9 @@ namespace Vodovoz.Controllers
 			}
 		}
 
-		private void CreateDeliveryFreeBalanceTransferItems(AddressTransferDocumentItem addressTransferItem)
+		private void CreateDeliveryFreeBalanceTransferItems(IUnitOfWork uow, AddressTransferDocumentItem addressTransferItem)
 		{
-			foreach(var orderItem in addressTransferItem.OldAddress.Order.GetAllGoodsToDeliver())
-			{
-				var newDeliveryFreeBalanceTransferItem = new DeliveryFreeBalanceTransferItem
-				{
-					AddressTransferDocumentItem = addressTransferItem,
-					RouteListFrom = addressTransferItem.OldAddress.RouteList,
-					RouteListTo = addressTransferItem.NewAddress.RouteList,
-					Nomenclature = orderItem.Nomenclature,
-					Amount = orderItem.Amount
-				};
-
-				newDeliveryFreeBalanceTransferItem.CreateOrUpdateOperations();
-				addressTransferItem.DeliveryFreeBalanceTransferItems.Add(newDeliveryFreeBalanceTransferItem);
-			}
+			_routeListAddressKeepingDocumentController.CreateDeliveryFreeBalanceTransferItems(uow, addressTransferItem);
 		}
 	}
 }
