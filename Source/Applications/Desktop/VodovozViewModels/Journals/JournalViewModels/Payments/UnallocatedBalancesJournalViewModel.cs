@@ -234,7 +234,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			{
 				f => f.Counterparty = UoW.GetById<Counterparty>(node.CounterpartyId),
 				f => f.IsSortingDescByUnAllocatedSum = true,
-				f => f.HideAllocatedPayments = true
+				f => f.HideAllocatedPayments = true,
+				f => f.HideCancelledPayments = true,
 			};
 
 			NavigationManager.OpenViewModel<PaymentsJournalViewModel, Action<PaymentsJournalFilterViewModel>[]>(

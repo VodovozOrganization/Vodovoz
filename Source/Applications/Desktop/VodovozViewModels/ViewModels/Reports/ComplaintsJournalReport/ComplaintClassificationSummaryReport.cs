@@ -12,11 +12,18 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.ComplaintsJournalReport
 	{
 		public const string TemplatePath = @".\Reports\Complaints\ComplaintClassificationSummaryReport.xlsx";
 
-		private ComplaintClassificationSummaryReport(IList<ComplaintJournalNode> journalNodes, string details)
+		private ComplaintClassificationSummaryReport(IList<ComplaintJournalNode> journalNodes, string details, DateTime? startDate, DateTime endDate)
 		{
 			Details = details;
 
-			Title = $"Детализация рекламаций за {DateTime.Today:dd.MM.yyyy}";
+			if(!startDate.HasValue || startDate?.Date == endDate.Date)
+			{
+				Title = $"Детализация рекламаций за {endDate:dd.MM.yyyy}";
+			}
+			else
+			{
+				Title = $"Детализация рекламаций с {startDate:dd.MM.yyyy} по {endDate:dd.MM.yyyy}";
+			}
 
 			Rows = GenerateRows(journalNodes);
 		}
@@ -33,14 +40,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.ComplaintsJournalReport
 		{
 			var generateDate = $"Время выгрузки: {DateTime.Now}";
 			StringBuilder title = new StringBuilder(generateDate);
-
-			if(filter.StartDate.HasValue)
-			{
-				title.Append($", начальная дата: {filter.StartDate:d}");
-			}
-
-			title.Append($", конечная дата: {filter.EndDate:d}");
-
 
 			if(filter.Subdivision != null)
 			{
@@ -137,7 +136,16 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.ComplaintsJournalReport
 			IList<ComplaintJournalNode> journalNodes,
 			ComplaintFilterViewModel complaintFilterViewModel)
 		{
-			return new ComplaintClassificationSummaryReport(journalNodes, GenerateDetails(complaintFilterViewModel));
+			if(!complaintFilterViewModel.EndDate.HasValue)
+			{
+				throw new ArgumentException("Не выбран интервал");
+			}
+
+			return new ComplaintClassificationSummaryReport(
+				journalNodes,
+				GenerateDetails(complaintFilterViewModel),
+				complaintFilterViewModel.StartDate,
+				complaintFilterViewModel.EndDate.Value);
 		}
 	}
 }

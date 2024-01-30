@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using QS.Dialog.Gtk;
 using QS.Permissions;
 using QS.Project.DB;
@@ -182,6 +182,8 @@ using UserView = Vodovoz.Views.Users.UserView;
 using Vodovoz.ViewModels.ViewModels.Reports.Logistics;
 using Vodovoz.ViewModels.ReportsParameters.Production;
 using Vodovoz.Views.ReportsParameters.Production;
+using Vodovoz.ViewModels.ReportsParameters.Logistic;
+using Vodovoz.ReportsParameters.Logistic;
 using Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport;
 using Vodovoz.ReportsParameters.Logistic;
 
@@ -485,6 +487,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<DriversWarehousesEventsJournalFilterViewModel, DriversWarehousesEventsJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<CompletedDriversWarehousesEventsJournalFilterViewModel, CompletedDriversWarehousesEventsJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<ProducedProductionReportViewModel, ProducedProductionReportView>()
+				.RegisterWidgetForWidgetViewModel<DeliveryTimeReportViewModel, DeliveryTimeReportView>()
 				.RegisterWidgetForWidgetViewModel<CarOwnershipReportViewModel, CarOwnershipReportView>()
 				;
 

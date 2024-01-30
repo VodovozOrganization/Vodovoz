@@ -8,6 +8,7 @@ using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Tools.Exceptions;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -88,7 +89,7 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		public WageDistrict WageDistrictOfAddress => item.Order.DeliveryPoint.District?.WageDistrict
-			?? throw new InvalidOperationException($"Точке доставки не присвоен логистический или зарплатный район! (Id адреса: {item.Id})");
+			?? throw new DeliveryPointDistrictNotFoundException($"Точке доставки {item.Order.DeliveryPoint.Id} не присвоен логистический или зарплатный район! (Id адреса: {item.Id})");
 
 		public bool WasVisitedByForwarder => item.WithForwarder;
 
