@@ -308,8 +308,8 @@
                         <TextAlign>Left</TextAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <PaddingLeft >2pt</PaddingLeft>
-                        <PaddingRight >2pt</PaddingRight>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -493,7 +493,7 @@
   </ReportParameters>
   <DataSets>
     <DataSet Name="car_changes">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>60</Timeout>
         <CommandText>SELECT
@@ -521,7 +521,31 @@ WHERE
 	cv.start_date &gt;= @start_date and cv.start_date &lt;= @end_date
     AND cm.car_type_of_use IN (@car_type_of_use)
     AND cv.car_own_type IN (@car_own_type)
-ORDER BY cv.start_date, cv.car_own_type;</CommandText>
+UNION
+SELECT
+date(c2.archiving_date) as change_date,
+'В архиве' as car_own_type,
+CASE cm2.car_type_of_use 
+	WHEN 'Largus' THEN 'Фургон'
+	WHEN 'GAZelle' THEN 'Грузовой'
+	WHEN 'Truck' THEN 'Фура'
+END as model_info,
+manuf2.name as manufacturer_name,
+cm2.name as car_model_name,
+c2.reg_number as car_reg_number,
+CONCAT(e2.last_name, ' ', e2.name, ' ', e2.patronymic) as driver_name
+FROM cars c2
+JOIN car_versions cv2 ON cv2.car_id = c2.id
+JOIN car_models cm2 ON c2.model_id = cm2.id 
+LEFT JOIN car_manufacturers manuf2 ON cm2.manufacturer_id = manuf2.id 
+LEFT JOIN employees e2 ON c2.driver_id = e2.id 
+WHERE 
+	c2.archiving_date  &gt;= @start_date and c2.archiving_date &lt;= DATE_ADD(@end_date, INTERVAL 1 DAY)
+	AND c2.is_archive = 1
+    AND cm2.car_type_of_use IN (@car_type_of_use)
+    AND cv2.car_own_type IN (@car_own_type)
+ORDER BY change_date DESC, car_own_type
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="@start_date">
             <Value>={?start_date}</Value>
@@ -537,7 +561,7 @@ ORDER BY cv.start_date, cv.car_own_type;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="change_date">
           <DataField>change_date</DataField>
           <TypeName>System.String</TypeName>
@@ -568,7 +592,7 @@ ORDER BY cv.start_date, cv.car_own_type;</CommandText>
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="criterions" >
+    <DataSet Name="criterions">
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT @filters_text as filters_text;</CommandText>
