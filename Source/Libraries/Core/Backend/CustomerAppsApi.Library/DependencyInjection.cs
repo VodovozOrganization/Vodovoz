@@ -5,9 +5,24 @@ using CustomerAppsApi.Library.Repositories;
 using CustomerAppsApi.Library.Services;
 using CustomerAppsApi.Library.Validators;
 using Microsoft.Extensions.DependencyInjection;
+using QS.DomainModel.UoW;
+using QS.Project.DB;
+using QS.Utilities.Numeric;
 using Vodovoz.Controllers;
 using Vodovoz.Controllers.ContactsForExternalCounterparty;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Operations;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Roboats;
+using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Factories;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
+using Vodovoz.Settings;
+using Vodovoz.Settings.Database;
 
 namespace CustomerAppsApi.Library
 {
@@ -23,7 +38,28 @@ namespace CustomerAppsApi.Library
 		/// <returns></returns>
 		public static IServiceCollection AddCustomerApiLibrary(this IServiceCollection services)
 		{
-			services.AddSingleton<ICachedBottlesDebtRepository, CachedBottlesDebtRepository>()
+			services
+				.AddScoped<IUnitOfWork>(_ => UnitOfWorkFactory.CreateWithoutRoot("Сервис интеграции"))
+				.AddSingleton<IPhoneRepository, PhoneRepository>()
+				.AddSingleton<IEmailRepository, EmailRepository>()
+				.AddSingleton<IWarehouseRepository, WarehouseRepository>()
+				.AddSingleton<IRoboatsRepository, RoboatsRepository>()
+				.AddSingleton<IBottlesRepository, BottlesRepository>()
+				.AddSingleton<INomenclatureRepository, NomenclatureRepository>()
+				.AddSingleton<IOrderRepository, OrderRepository>()
+				.AddSingleton<IStockRepository, StockRepository>()
+				.AddSingleton<IPromotionalSetRepository, PromotionalSetRepository>()
+				.AddSingleton<IExternalCounterpartyRepository, ExternalCounterpartyRepository>()
+				.AddSingleton<IExternalCounterpartyMatchingRepository, ExternalCounterpartyMatchingRepository>()
+				.AddSingleton<PhoneFormatter>(_ => new PhoneFormatter(PhoneFormat.DigitsTen))
+				.AddSingleton<ICounterpartySettings, CounterpartySettings>()
+				.AddSingleton<ISettingsController, SettingsController>()
+				.AddSingleton<ISessionProvider, DefaultSessionProvider>()
+				.AddSingleton<IParametersProvider, ParametersProvider>()
+				.AddSingleton<INomenclatureParametersProvider, NomenclatureParametersProvider>()
+				.AddSingleton<IUnitOfWorkFactory, DefaultUnitOfWorkFactory>()
+				.AddSingleton<IRoboatsSettings, RoboatsSettings>()
+				.AddSingleton<ICachedBottlesDebtRepository, CachedBottlesDebtRepository>()
 				.AddSingleton<IRegisteredNaturalCounterpartyDtoFactory, RegisteredNaturalCounterpartyDtoFactory>()
 				.AddSingleton<IExternalCounterpartyMatchingFactory, ExternalCounterpartyMatchingFactory>()
 				.AddSingleton<IExternalCounterpartyFactory, ExternalCounterpartyFactory>()
