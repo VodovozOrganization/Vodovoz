@@ -1945,6 +1945,15 @@ namespace Vodovoz.Domain.Logistic
 				yield return new ValidationResult("Выбрана часть города без актуальных данных о координатах, кассе и складе. Сохранение невозможно.", 
 					new[] { nameof(GeographicGroups) });
 			}
+
+			var onlineOrders = Addresses.GroupBy(x => x.Order.OnlineOrder)
+			  .Where(g => g.Key != null && g.Count() > 1)
+			  .Select(o => o.Key);
+
+			if(onlineOrders.Any())
+			{
+				yield return new ValidationResult($"В МЛ дублируются номера оплат: {string.Join(", ", onlineOrders)}", new[] { nameof(Addresses) });
+			}
 		}
 
 		public static string ValidationKeyIgnoreReceiptsForOrders => nameof(ValidationKeyIgnoreReceiptsForOrders);
