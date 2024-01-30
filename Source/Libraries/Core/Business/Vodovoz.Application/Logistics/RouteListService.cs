@@ -11,6 +11,7 @@ using Vodovoz.Controllers;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
@@ -21,6 +22,7 @@ using Vodovoz.Errors;
 using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Cash;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
 
@@ -45,6 +47,7 @@ namespace Vodovoz.Application.Logistics
 		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
 		private readonly ITrackRepository _trackRepository;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
+		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly RouteGeometryCalculator _routeGeometryCalculator;
 
 		public RouteListService(
@@ -65,6 +68,7 @@ namespace Vodovoz.Application.Logistics
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
 			ITrackRepository trackRepository,
 			IRouteListProfitabilityController routeListProfitabilityController,
+			INomenclatureSettings nomenclatureSettings,
 			RouteGeometryCalculator routeGeometryCalculator)
 		{
 			_logger = logger
@@ -101,6 +105,7 @@ namespace Vodovoz.Application.Logistics
 				?? throw new ArgumentNullException(nameof(trackRepository));
 			_routeListProfitabilityController = routeListProfitabilityController
 				?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
+			_nomenclatureSettings = nomenclatureSettings;
 			_routeGeometryCalculator = routeGeometryCalculator
 				?? throw new ArgumentNullException(nameof(routeGeometryCalculator));
 		}
@@ -294,6 +299,20 @@ namespace Vodovoz.Application.Logistics
 				{
 					RouteListId = routeList.Id,
 					RouteListSpecialConditionTypeId = RouteListSpecialConditionType.RouteListRequireAdditionalLoading
+				});
+			}
+
+			if(routeList.Addresses
+				.Any(address =>
+					address.Order.OrderItems.Any(oi =>
+						oi.Nomenclature.ProductGroup.Id == _nomenclatureSettings.CoolerProductGroupId)
+				&& !existingSpecialConditions.Any(x =>
+					x.RouteListSpecialConditionTypeId == RouteListSpecialConditionType.EquipmentCheckRequired)))
+			{
+				unitOfWork.Save(new RouteListSpecialCondition
+				{
+					RouteListId = routeList.Id,
+					RouteListSpecialConditionTypeId = RouteListSpecialConditionType.EquipmentCheckRequired
 				});
 			}
 		}

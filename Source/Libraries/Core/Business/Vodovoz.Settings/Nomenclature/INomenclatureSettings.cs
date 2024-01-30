@@ -3,5 +3,6 @@
 	public interface INomenclatureSettings
 	{
 		int[] EquipmentKindsHavingGlassHolder { get; }
+		int CoolerProductGroupId { get; }
 	}
 }
