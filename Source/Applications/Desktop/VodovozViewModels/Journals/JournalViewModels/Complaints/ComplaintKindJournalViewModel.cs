@@ -93,5 +93,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 
 			return itemsQuery;
 		}
+
+		public override void Dispose()
+		{
+			_filterViewModel.OnFiltered -= OnFilterViewModelFiltered;
+
+			base.Dispose();
+		}
 	}
 }

@@ -115,5 +115,12 @@ namespace Vodovoz.ViewModels.Counterparties
 				.OrderBy(x => x.OperationTime).Desc
 				.TransformUsing(Transformers.AliasToBean<ClientEquipmentBalanceNode>());
 		}
+
+		public override void Dispose()
+		{
+			_clientBalanceFilterViewModel.OnFiltered -= OnFilterViewModelFiltered;
+
+			base.Dispose();
+		}
 	}
 }
