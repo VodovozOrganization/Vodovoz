@@ -1,9 +1,7 @@
 ﻿using Autofac;
 using Gtk;
-using QS.Banks.Domain;
 using QS.Deletion.Views;
 using QS.Dialog.GtkUI;
-using QS.HistoryLog;
 using QS.Journal.GtkUI;
 using QS.Project.Journal;
 using QS.Tdi;
@@ -46,12 +44,7 @@ namespace Vodovoz.Core
 		{
 			var usedAssemblies = new Assembly[] {
 				Assembly.GetAssembly(typeof(DeletionView)),
-				Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
-				Assembly.GetAssembly(typeof(Data.NHibernate.AssemblyFinder)),
-				Assembly.GetAssembly(typeof(Bank)),
-				Assembly.GetAssembly(typeof(HistoryMain)),
-				Assembly.GetAssembly(typeof(MainWindow)),
-				Assembly.GetAssembly(typeof(VodovozViewModelAssemblyFinder))
+				Assembly.GetAssembly(typeof(MainWindow))
 			};
 
 			_classNamesBaseGtkViewResolver = new ClassNamesBaseGtkViewResolver(new ViewFactory(), usedAssemblies);
