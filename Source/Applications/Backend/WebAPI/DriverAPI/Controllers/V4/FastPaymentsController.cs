@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Drivers;
 
 namespace DriverAPI.Controllers.V4
@@ -16,7 +18,7 @@ namespace DriverAPI.Controllers.V4
 	/// <summary>
 	/// Контроллер оплат СБП
 	/// </summary>
-	[Authorize]
+	[Authorize(Roles = nameof(ApplicationUserRole.Driver))]
 	public class FastPaymentsController : VersionedController
 	{
 		private readonly ILogger<FastPaymentsController> _logger;

@@ -19,9 +19,9 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.StoredEmails
 			References(x => x.Counterparty).Column("counterparty_id");
 		}
 
-		public class OrderDocumentEmailMap : SubclassMap<BillDocumentEmail>
+		public class BillDocumentEmailMap : SubclassMap<BillDocumentEmail>
 		{
-			public OrderDocumentEmailMap()
+			public BillDocumentEmailMap()
 			{
 				DiscriminatorValue(nameof(CounterpartyEmailType.BillDocument));
 				References(x => x.OrderDocument).Column("order_document_id");

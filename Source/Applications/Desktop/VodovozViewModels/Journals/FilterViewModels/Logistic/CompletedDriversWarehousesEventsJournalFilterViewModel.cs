@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using Autofac;
 using QS.Navigation;
 using QS.Project.Filter;
 using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Dialog;
+using Vodovoz.Core.Domain.Logistics.Drivers;
 using QS.ViewModels.Widgets;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;

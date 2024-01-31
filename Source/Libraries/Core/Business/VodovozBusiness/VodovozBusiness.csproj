@@ -62,8 +62,6 @@
     <Compile Include="Controllers\IAddressTransferController.cs" />
     <Compile Include="Controllers\SentMovementsNotificationDetails.cs" />
     <Compile Include="DependencyInjection.cs" />
-    <Compile Include="Controllers\DriverWarehouseEventQrDataHandler.cs" />
-    <Compile Include="Controllers\IDriverWarehouseEventQrDataHandler.cs" />
     <Compile Include="Domain\Cash\CashTransfer\CashTransferDocumentStatuses.cs" />
     <Compile Include="Controllers\IGoodsOnlineParametersController.cs" />
     <Compile Include="Controllers\GoodsOnlineParametersController.cs" />
@@ -92,6 +90,13 @@
     <Compile Include="Domain\Client\RegistrationInChestnyZnakStatus.cs" />
     <Compile Include="Domain\Client\SellingNomenclature.cs" />
     <Compile Include="Domain\Client\TaxType.cs" />
+    <Compile Include="Domain\Employees\DriverTerminalRelation.cs" />
+    <Compile Include="Domain\Employees\DriverType.cs" />
+    <Compile Include="Domain\Employees\EmployeeCategory.cs" />
+    <Compile Include="Domain\Employees\EmployeeStatus.cs" />
+    <Compile Include="Domain\Employees\EmployeeType.cs" />
+    <Compile Include="Domain\Employees\ExternalApplicationUser.cs" />
+    <Compile Include="Domain\Employees\Gender.cs" />
     <Compile Include="Domain\Goods\CupHolderBracingType.cs" />
     <Compile Include="Domain\Goods\CoolingType.cs" />
     <Compile Include="Domain\Goods\EquipmentInstallationType.cs" />
@@ -111,18 +116,14 @@
     <Compile Include="Domain\Goods\TareVolume.cs" />
     <Compile Include="Domain\Goods\TypeOfDepositCategory.cs" />
     <Compile Include="Domain\Goods\VodovozWebSiteNomenclatureOnlineCatalog.cs" />
+    <Compile Include="Domain\Logistic\Cars\Car.cs" />
     <Compile Include="Domain\Logistic\Drivers\CompletedDriverWarehouseEvent.cs" />
     <Compile Include="Domain\Goods\PromotionalSetsOnlineParameters\KulerSaleWebSitePromotionalSetOnlineParameters.cs" />
     <Compile Include="Domain\Goods\PromotionalSetsOnlineParameters\MobileAppPromotionalSetOnlineParameters.cs" />
     <Compile Include="Domain\Goods\PromotionalSetsOnlineParameters\PromotionalSetOnlineParameters.cs" />
     <Compile Include="Domain\Goods\PromotionalSetsOnlineParameters\VodovozWebSitePromotionalSetOnlineParameters.cs" />
     <Compile Include="Domain\Logistic\Drivers\DriverStopListRemoval.cs" />
-    <Compile Include="Domain\Logistic\Drivers\DriverWarehouseEvent.cs" />
-    <Compile Include="Domain\Logistic\Drivers\DriverWarehouseEventQrData.cs" />
-    <Compile Include="Domain\Logistic\Drivers\DriverWarehouseEventType.cs" />
     <Compile Include="Domain\Logistic\Drivers\EventNamePosition.cs" />
-    <Compile Include="Domain\Logistic\Drivers\EventQrDocumentType.cs" />
-    <Compile Include="Domain\Logistic\Drivers\EventQrPositionOnDocument.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\RouteListMaxFastDeliveryOrders.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryChange.ChangeType.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryChange.cs" />
@@ -387,7 +388,6 @@
     <Compile Include="Domain\InstanceMailingConfiguration.cs" />
     <Compile Include="Domain\IOrderDailyNumberController.cs" />
     <Compile Include="Domain\Logistic\AcceptBefore.cs" />
-    <Compile Include="Domain\Logistic\Cars\Car.cs" />
     <Compile Include="Domain\Logistic\Cars\CarEvent.cs" />
     <Compile Include="Domain\Logistic\Cars\CarEventType.cs" />
     <Compile Include="Domain\Logistic\Cars\CarFuelVersion.cs" />
@@ -585,17 +585,15 @@
     <Compile Include="EntityRepositories\IGenericRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\CachedDistanceRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\CarEventRepository.cs" />
+    <Compile Include="EntityRepositories\Logistic\CarRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\CompletedDriverWarehouseEventRepository.cs" />
-    <Compile Include="EntityRepositories\Logistic\CompletedEventDto.cs" />
     <Compile Include="EntityRepositories\Logistic\DeliveryShiftRepository.cs" />
-    <Compile Include="EntityRepositories\Logistic\DriverPosition.cs" />
-    <Compile Include="EntityRepositories\Logistic\DriverWarehouseEventRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\ICachedDistanceRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\ICarEventRepository.cs" />
+    <Compile Include="EntityRepositories\Logistic\ICarRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\ICompletedDriverWarehouseEventRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\IDeliveryShiftRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\IArchivedTrackPointRepository.cs" />
-    <Compile Include="EntityRepositories\Logistic\IDriverWarehouseEventRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\IRouteColumnRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\ITrackRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\IWayBillDocumentRepository.cs" />
@@ -676,6 +674,7 @@
     <Compile Include="Errors\Clients\Counterparty.cs" />
     <Compile Include="Errors\Clients\DeliveryPoint.cs" />
     <Compile Include="Errors\Clients\DeliveryPoint.FastDelivery.cs" />
+    <Compile Include="Errors\Edo\Edo.cs" />
     <Compile Include="Errors\Error.cs" />
     <Compile Include="Errors\Goods\Nomenclature.cs" />
     <Compile Include="Errors\Logistics\District.cs" />
@@ -690,7 +689,6 @@
     <Compile Include="Errors\Payments\PaymentsDistribution.cs" />
     <Compile Include="Errors\Result.cs" />
     <Compile Include="Errors\ResultT.cs" />
-    <Compile Include="Extensions\DriverPositionExtensions.cs" />
     <Compile Include="Extensions\EnumExtensions.cs" />
     <Compile Include="Extensions\ExpressionExtensions.cs" />
     <Compile Include="Extensions\NomenclatureOnlineParametersExtensions.cs" />
@@ -885,8 +883,10 @@
     <Compile Include="Permissions\Report.cs" />
     <Compile Include="Permissions\User.cs" />
     <Compile Include="Permissions\Report.Sales.cs" />
+    <Compile Include="Services\EmailService.cs" />
     <Compile Include="Services\IComplaintParametersProvider.cs" />
     <Compile Include="Services\ICounterpartyService.cs" />
+    <Compile Include="Services\IEmailService.cs" />
     <Compile Include="Services\IEmployeeService.cs" />
     <Compile Include="Services\IFastDeliveryAvailabilityHistoryParameterProvider.cs" />
     <Compile Include="Parameters\CarEventSettings.cs" />
@@ -1061,6 +1061,7 @@
     <Compile Include="Specifications\ExpressionSpecificationOrExtension.cs" />
     <Compile Include="Specifications\ISpecification.cs" />
     <Compile Include="Specifications\Orders\EdoContainers\EdoContainerSpecification.cs" />
+    <Compile Include="Tools\Exceptions\DeliveryPointDistrictNotFoundException.cs" />
     <Compile Include="Tools\GeoGroupVersionNotFoundException.cs" />
     <Compile Include="Tools\DataArchiver.cs" />
     <Compile Include="Tools\IDataArchiver.cs" />
@@ -1068,7 +1069,6 @@
     <Compile Include="Tools\Interactive\ConfirmationQuestion\ConfirmationQuestionDialogSettings.cs" />
     <Compile Include="Tools\Interactive\ConfirmationQuestion\ConfirmationQuestionDialogSettings.ImgType.cs" />
     <Compile Include="Tools\Interactive\ConfirmationQuestion\IConfirmationQuestionInteractive.cs" />
-    <Compile Include="Tools\Logistic\DistanceCalculator.cs" />
     <Compile Include="Tools\Logistic\DriverDistrictPriorityHelper.cs" />
     <Compile Include="Tools\Logistic\IDistanceCalculator.cs" />
     <Compile Include="Domain\Logistic\CachedDistance.cs" />
@@ -1293,8 +1293,6 @@
     <Compile Include="Domain\Orders\Documents\AssemblyListDocument.cs" />
     <Compile Include="EntityRepositories\Logistic\AtWorkRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\IAtWorkRepository.cs" />
-    <Compile Include="EntityRepositories\Logistic\CarRepository.cs" />
-    <Compile Include="EntityRepositories\Logistic\ICarRepository.cs" />
     <Compile Include="Domain\Sms\SmsNotification.cs" />
     <Compile Include="Domain\Sms\SmsNotificationType.cs" />
     <Compile Include="Domain\Sms\NewClientSmsNotification.cs" />
@@ -1549,6 +1547,10 @@
     <ProjectReference Include="..\..\Infrastructure\VodovozInfrastructure\VodovozInfrastructure.csproj">
       <Project>{42efc426-2c88-4608-8191-dbca4172a695}</Project>
       <Name>VodovozInfrastructure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj">
+      <Project>{67f08744-55fb-4169-809e-82f7424775f4}</Project>
+      <Name>Vodovoz.Core.Domain</Name>
     </ProjectReference>
     <ProjectReference Include="..\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj">
       <Project>{E79B382D-7E61-42D7-B14D-CD1247E586C2}</Project>

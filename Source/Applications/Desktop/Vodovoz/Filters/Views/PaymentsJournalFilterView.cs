@@ -38,6 +38,9 @@ namespace Vodovoz.Filters.Views
 			chkPaymentsWithoutCounterparty.Binding
 				.AddBinding(ViewModel, vm => vm.HidePaymentsWithoutCounterparty, w => w.Active)
 				.InitializeFromSource();
+			chkHideCancelledPayments.Binding
+				.AddBinding(ViewModel, vm => vm.HideCancelledPayments, w => w.Active)
+				.InitializeFromSource();
 
 			ConfigureEntry();
 		}

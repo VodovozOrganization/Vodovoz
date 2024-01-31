@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Dialogs.Employees;
 using Gtk;
 using QS.Dialog.Gtk;
@@ -10,7 +10,6 @@ using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Services;
-using QS.Project.Services.FileDialog;
 using QS.Report.ViewModels;
 using QSReport;
 using System;
@@ -584,7 +583,12 @@ public partial class MainWindow : Window
 
 	void ActionPaymentFromBank_Activated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<PaymentsJournalViewModel>(null);
+		var filterParams = new Action<PaymentsJournalFilterViewModel>[]
+		{
+				f => f.HideCancelledPayments = true,
+		};
+
+		NavigationManager.OpenViewModel<PaymentsJournalViewModel, Action<PaymentsJournalFilterViewModel>[]>(null, filterParams);
 	}
 
 	private void OnActionImportPaymentsFromAvangardActivated(object sender, EventArgs e)

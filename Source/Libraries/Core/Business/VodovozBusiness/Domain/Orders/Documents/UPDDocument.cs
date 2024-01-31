@@ -17,8 +17,76 @@ namespace Vodovoz.Domain.Orders.Documents
 			Convert.ToDateTime("2021-06-30T23:59:59", CultureInfo.CreateSpecificCulture("ru-RU"));
 		private static readonly IOrganizationParametersProvider _organizationParametersProvider =
 			new OrganizationParametersProvider(new ParametersProvider());
+		private readonly IDeliveryScheduleParametersProvider _deliveryScheduleParametersProvider =
+			new DeliveryScheduleParametersProvider(new ParametersProvider());
 		private int? _beveragesWorldOrganizationId;
 
+		private EmailTemplate GetTemplateForStandartReason(bool hasAgreeForEdo)
+		{
+			var isFastDelivery = Order.IsFastDelivery;
+
+			var reason = isFastDelivery ? "" : "<br>Т.к. заказ был перенесен на другой маршрут, Вам не привезли закрывающие документы.";
+
+			var fastDeliveryString = isFastDelivery ? "по экспресс-доставке." : "";
+
+			var body = hasAgreeForEdo
+				? "Просьба подписать документ в ЭДО или ответным письмом выслать скан с Вашими печатью и подписью"
+				: "Просьба ответным письмом выслать скан с Вашими печатью и подписью." +
+				  "<br>Если компания использует ЭДО, прошу выслать приглашение по указанным данным ниже, это упростит обмен документами в будущем." +
+				  "<br>Наши данные:" +
+				  "<br>Оператор ЭДО - ТАКСКОМ" +
+				  "<br>ООО \"Веселый Водовоз\" (роуминг, Такском)" +
+				  "<br>ИНН 7816453294" +
+				  "<br>ИД 2AL-EF740B2F-CA2E-414B-A2A7-F8FA6824B4E4-00000";
+
+			var text = "Добрый день!" +
+					   $"<br>" +
+					   $"<br>Во вложении {Title} {fastDeliveryString}" +
+					   $"{reason}" +
+					   $"<br>{body}" +
+					   "<br>" +
+					   "<br>В случае отказа от обмена через ЭДО, я подготовлю документы для отправки по почте РФ или со следующей поставкой." +
+					   "<br>Жду обратной связи.";
+
+			var template = new EmailTemplate
+			{
+				Title = "ООО \"Веселый водовоз\"",
+				TextHtml = text,
+				Text = text
+			};
+
+			return template;
+		}
+
+		private EmailTemplate GetTemplateForClosingDocumentOrder(bool hasAgreeForEdo)
+		{
+			var body = hasAgreeForEdo
+				? "Просьба подписать документ в ЭДО или ответным письмом выслать скан с Вашими печатью и подписью"
+				: "Просьба ответным письмом выслать скан с Вашими печатью и подписью." +
+				  "<br>Если компания использует ЭДО, прошу выслать приглашение по указанным данным ниже, это упростит обмен документами в будущем." +
+				  "<br>Наши данные:" +
+				  "<br>Оператор ЭДО - ТАКСКОМ" +
+				  "<br>ООО \"Веселый Водовоз\" (роуминг, Такском)" +
+				  "<br>ИНН 7816453294" +
+				  "<br>ИД 2AL-EF740B2F-CA2E-414B-A2A7-F8FA6824B4E4-00000";
+
+			var text = "Добрый день!" +
+					   $"<br>" +
+					   $"<br>Во вложении {Title} по сервиному обслуживанию" +
+					   $"<br>{body}" +
+					   "<br>" +
+					   "<br>В случае отказа от обмена через ЭДО, я подготовлю документы для отправки по почте РФ или со следующей поставкой." +
+					   "<br>Жду обратной связи.";
+
+			var template = new EmailTemplate
+			{
+				Title = "ООО \"Веселый водовоз\"",
+				TextHtml = text,
+				Text = text
+			};
+
+			return template;
+		}
 
 		#region implemented abstract members of OrderDocument
 		public override OrderDocumentType Type => OrderDocumentType.UPD;
@@ -52,39 +120,13 @@ namespace Vodovoz.Domain.Orders.Documents
 		public virtual EmailTemplate GetEmailTemplate()
 		{
 			var hasAgreeForEdo = Order.Client.ConsentForEdoStatus == ConsentForEdoStatus.Agree;
-			var isFastDelivery = Order.IsFastDelivery;
 
-			var reason = isFastDelivery ? "" : "<br>Т.к. заказ был перенесен на другой маршрут, Вам не привезли закрывающие документы.";
-
-			var fastDeliveryString = isFastDelivery ? "по экспресс-доставке." : "";
-
-			var body = hasAgreeForEdo
-				? "Просьба подписать документ в ЭДО или ответным письмом выслать скан с Вашими печатью и подписью"
-				: "Просьба ответным письмом выслать скан с Вашими печатью и подписью." +
-				  "<br>Если компания использует ЭДО, прошу выслать приглашение по указанным данным ниже, это упростит обмен документами в будущем." +
-				  "<br>Наши данные:" +
-				  "<br>Оператор ЭДО - ТАКСКОМ" +
-				  "<br>ООО \"Веселый Водовоз\" (роуминг, Такском)" +
-				  "<br>ИНН 7816453294" +
-				  "<br>ИД 2AL-EF740B2F-CA2E-414B-A2A7-F8FA6824B4E4-00000";
-
-			var text = "Добрый день!" +
-			           $"<br>" +
-					   $"<br>Во вложении {Title} {fastDeliveryString}" +
-			           $"{reason}" +
-			           $"<br>{body}" +
-			           "<br>" +
-			           "<br>В случае отказа от обмена через ЭДО, я подготовлю документы для отправки по почте РФ или со следующей поставкой." +
-			           "<br>Жду обратной связи.";
-
-			var template = new EmailTemplate
+			if( Order.DeliverySchedule.Id == _deliveryScheduleParametersProvider.ClosingDocumentDeliveryScheduleId)
 			{
-				Title = "ООО \"Веселый водовоз\"",
-				TextHtml = text,
-				Text = text
-			};
+				return GetTemplateForClosingDocumentOrder(hasAgreeForEdo);
+			}
 
-			return template;
+			return GetTemplateForStandartReason(hasAgreeForEdo);
 		}
 
 		#endregion

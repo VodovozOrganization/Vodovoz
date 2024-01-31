@@ -28,13 +28,21 @@ namespace DriverAPI.Services
 
 			foreach(var driver in drivers)
 			{
-				if(_clients.TryAdd(driver.Id, driver.AndroidToken))
+				var userApp = driver.DriverAppUser;
+				
+				if(_clients.TryAdd(driver.Id, userApp.Token))
 				{
-					_logger.LogTrace("Предзагружен получатель WakeUp-сообщений {DriverId} с токеном {FirebaseToken}", driver.Id, driver.AndroidToken);
+					_logger.LogTrace(
+						"Предзагружен получатель WakeUp-сообщений {DriverId} с токеном {FirebaseToken}",
+						driver.Id,
+						userApp.Token);
 					continue;
 				}
 
-				_logger.LogWarning("Не удалось предзагрузить получателя WakeUp-сообщений {DriverId} с токеном {FirebaseToken}", driver.Id, driver.AndroidToken);
+				_logger.LogWarning(
+					"Не удалось предзагрузить получателя WakeUp-сообщений {DriverId} с токеном {FirebaseToken}",
+					driver.Id,
+					userApp.Token);
 			}
 
 			_logger.LogInformation("Зарегистрировано {WakeUpCoordinatesNotificationClientsCount} клиентов для получения WakeUp-сообщений", Clients.Count);
@@ -80,13 +88,15 @@ namespace DriverAPI.Services
 
 		public void UnSubscribe(Employee driver)
 		{
+			var userApp = driver.DriverAppUser;
+
 			try
 			{
 				if(!_clients.TryGetValue(driver.Id, out var activeToken))
 				{
 					_logger.LogWarning("Не удалось отписать водителя {DriverId} от WakeUp-сообщений, токен {FirebaseToken}, водитель не подписан на WakeUp-сообщения",
 						driver.Id,
-						driver.AndroidToken);
+						userApp.Token);
 
 					return;
 				}
@@ -102,13 +112,13 @@ namespace DriverAPI.Services
 
 				_logger.LogError("Не удалось отписать водителя {DriverId} от WakeUp-сообщений, токен {FirebaseToken}",
 					driver.Id,
-					driver.AndroidToken);
+					userApp.Token);
 			}
 			catch(Exception e)
 			{
 				_logger.LogCritical(e, "Не удалось отписать водителя {DriverId} от WakeUp-сообщений, токен {FirebaseToken}, произошла непредвиденная ошибка",
 					driver.Id,
-					driver.AndroidToken);
+					userApp.Token);
 			}
 		}
 	}

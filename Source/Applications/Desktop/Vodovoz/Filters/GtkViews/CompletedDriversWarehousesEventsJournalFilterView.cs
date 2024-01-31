@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Linq;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Logistic.Drivers;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.Infrastructure.Converters;
 using Gtk;
+using Vodovoz.Core.Domain.Logistics.Drivers;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Project.DB;

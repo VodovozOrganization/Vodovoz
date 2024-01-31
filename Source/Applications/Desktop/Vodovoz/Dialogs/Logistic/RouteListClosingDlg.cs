@@ -1098,7 +1098,8 @@ namespace Vodovoz
 					{"NewStatus", RouteListStatus.MileageCheck},
 					{"cash_order_close", true},
 					{nameof(IRouteListItemRepository), _routeListItemRepository},
-					{nameof(DriverTerminalCondition), _needToSelectTerminalCondition}
+					{nameof(DriverTerminalCondition), _needToSelectTerminalCondition},
+					{RouteList.ValidationKeyIgnoreReceiptsForOrders, _ignoreReceiptsForOrderIds}
 				});
 			validationContext.ServiceContainer.AddService(_orderParametersProvider);
 			validationContext.ServiceContainer.AddService(_deliveryRulesParametersProvider);
