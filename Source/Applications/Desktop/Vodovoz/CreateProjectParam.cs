@@ -353,6 +353,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<NomenclatureOnlineCategoryViewModel, NomenclatureOnlineCategoryView>()
 				.RegisterWidgetForTabViewModel<DriverWarehouseEventViewModel, DriverWarehouseEventView>()
 				.RegisterWidgetForTabViewModel<DriversWarehousesEventsReportViewModel, DriversWarehousesEventsReportView>()
+				.RegisterWidgetForTabViewModel<RouteColumnViewModel, RouteColumnView>()
 				;
 
 			//Регистрация виджетов
