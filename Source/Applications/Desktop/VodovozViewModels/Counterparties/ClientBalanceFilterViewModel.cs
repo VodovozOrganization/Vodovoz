@@ -1,7 +1,6 @@
 ﻿using Autofac;
 using QS.Project.Filter;
 using QS.ViewModels.Control.EEVM;
-using QS.ViewModels.Dialog;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.TempAdapters;
@@ -13,7 +12,7 @@ namespace Vodovoz.ViewModels.Counterparties
 {
 	public class ClientBalanceFilterViewModel : FilterViewModelBase<ClientBalanceFilterViewModel>
 	{
-		private readonly ILifetimeScope _lifetimeScope;
+		private ILifetimeScope _lifetimeScope;
 		private Nomenclature _restrictNomenclature;
 		private Nomenclature _nomenclature;
 		private bool _canChangeNomenclature;
@@ -121,5 +120,12 @@ namespace Vodovoz.ViewModels.Counterparties
 		public IDeliveryPointJournalFactory DeliveryPointJournalFactory { get; }
 
 		public ILifetimeScope LifetimeScope => _lifetimeScope;
+
+		public override void Dispose()
+		{
+			_journal = null;
+			_lifetimeScope = null;
+			base.Dispose();
+		}
 	}
 }
