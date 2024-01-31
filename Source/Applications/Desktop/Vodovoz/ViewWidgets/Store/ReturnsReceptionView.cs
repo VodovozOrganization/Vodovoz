@@ -323,6 +323,7 @@ namespace Vodovoz
 				OpenPageOptions.AsSlave,
 				viewModel =>
 				{
+					viewModel.SelectionMode = JournalSelectionMode.Multiple;
 					viewModel.OnSelectResult += Journal_OnEntitySelectedResult;
 					viewModel.HideButtons();
 				});
