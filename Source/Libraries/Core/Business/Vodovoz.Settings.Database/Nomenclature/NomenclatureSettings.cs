@@ -23,6 +23,8 @@ namespace Vodovoz.Settings.Database.Nomenclature
 			}
 		}
 
-		public int CoolerProductGroupId => _settingsController.GetIntValue(nameof(CoolerProductGroupId));
+		public int[] EquipmentForCheckProductGroupsIds => _settingsController
+			.GetValue<string>(nameof(EquipmentForCheckProductGroupsIds))
+			.FromStringToIntArray();
 	}
 }
