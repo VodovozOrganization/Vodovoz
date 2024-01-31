@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -406,7 +406,6 @@
     <Compile Include="Additions\Logistic\CoordinateExtensions.cs" />
     <Compile Include="Additions\Logistic\CustomPolygons.cs" />
     <Compile Include="Additions\Logistic\DeliveryPointExtensions.cs" />
-    <Compile Include="Additions\Logistic\DriverPositionExtensions.cs" />
     <Compile Include="Additions\Logistic\RouteListPrintableDocs.cs" />
     <Compile Include="Additions\Logistic\TrackPointsExtensions.cs" />
     <Compile Include="Additions\Printing\EntityDocumentsPrinterFactory.cs" />
@@ -416,10 +415,10 @@
     <Compile Include="Commons\FileChooser.cs" />
     <Compile Include="Commons\HotkeyHandler.cs" />
     <Compile Include="Commons\ThemmedDiffFormater.cs" />
-    <Compile Include="Core\DocumentPrinter.cs" />
-    <Compile Include="Core\Permissions\EntitySubdivisionForUserPermissionViewModel.cs" />
-    <Compile Include="Core\ViewFactory.cs" />
-    <Compile Include="Core\WidgetResolveException.cs" />
+    <Compile Include="Cores\DocumentPrinter.cs" />
+    <Compile Include="Cores\Permissions\EntitySubdivisionForUserPermissionViewModel.cs" />
+    <Compile Include="Cores\ViewFactory.cs" />
+    <Compile Include="Cores\WidgetResolveException.cs" />
     <Compile Include="Counterparties\SubtypesJournalRegistrar.cs" />
     <Compile Include="Crutches\WrapLabel.cs" />
     <Compile Include="Configuration\ApplicationConfigurator.cs" />
@@ -468,6 +467,7 @@
     <Compile Include="JournalColumnsConfigs\CarModelJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ClientCameFromJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ColumnsConfigRegistrarBase.cs" />
+    <Compile Include="JournalColumnsConfigs\RouteColumnJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\RouteListMileageCheckJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\TagJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\KulerSaleWebSiteNomenclatureOnlineCatalogsJournalRegistrar.cs" />
@@ -999,7 +999,7 @@
     <Compile Include="ServiceDialogs\Database\ReplaceEntityLinksDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.Database.ReplaceEntityLinksDlg.cs" />
     <Compile Include="ReportsParameters\Store\StockMovements.cs" />
-    <Compile Include="Core\CurrentUserSettings.cs" />
+    <Compile Include="Cores\CurrentUserSettings.cs" />
     <Compile Include="ReportsParameters\Bottles\BottlesMovementReport.cs" />
     <Compile Include="ReportsParameters\Bottles\BottlesMovementSummaryReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.BottlesMovementSummaryReport.cs" />
@@ -1103,26 +1103,26 @@
     <Compile Include="Representations\WarehousesVM.cs" />
     <Compile Include="JournalViewers\WarehousesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalViewers.WarehousesView.cs" />
-    <Compile Include="Core\Permissions\SubdivisionEntityPermissionWidget.cs" />
+    <Compile Include="Cores\Permissions\SubdivisionEntityPermissionWidget.cs" />
     <Compile Include="gtk-gui\Vodovoz.Core.Permissions.SubdivisionEntityPermissionWidget.cs" />
     <Compile Include="ReportsParameters\Bottles\OrdersByCreationDateReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.OrdersByCreationDateReport.cs" />
     <Compile Include="ViewWidgets\GeographicGroupsToStringWidget.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.GeographicGroupsToStringWidget.cs" />
-    <Compile Include="Core\Permissions\SubdivisionForUserEntityPermissionWidget.cs" />
+    <Compile Include="Cores\Permissions\SubdivisionForUserEntityPermissionWidget.cs" />
     <Compile Include="gtk-gui\Vodovoz.Core.Permissions.SubdivisionForUserEntityPermissionWidget.cs" />
-    <Compile Include="Core\Journal\MultipleEntityJournal.cs" />
-    <Compile Include="Core\Journal\MultipleEntityVMNodeBase.cs" />
-    <Compile Include="Core\Journal\MultipleEntityModelBase.cs" />
-    <Compile Include="Core\Journal\IMultipleEntityRepresentationModel.cs" />
-    <Compile Include="Core\Journal\ActionForCreateEntityConfig.cs" />
-    <Compile Include="Core\Journal\MultipleEntityModelDocumentConfig.cs" />
-    <Compile Include="Core\Journal\MultipleEntityModelConfiguration.cs" />
+    <Compile Include="Cores\Journal\MultipleEntityJournal.cs" />
+    <Compile Include="Cores\Journal\MultipleEntityVMNodeBase.cs" />
+    <Compile Include="Cores\Journal\MultipleEntityModelBase.cs" />
+    <Compile Include="Cores\Journal\IMultipleEntityRepresentationModel.cs" />
+    <Compile Include="Cores\Journal\ActionForCreateEntityConfig.cs" />
+    <Compile Include="Cores\Journal\MultipleEntityModelDocumentConfig.cs" />
+    <Compile Include="Cores\Journal\MultipleEntityModelConfiguration.cs" />
     <Compile Include="gtk-gui\Vodovoz.Core.Journal.MultipleEntityJournal.cs" />
     <Compile Include="Additions\Printing\EntityDocumentsPrinter.cs" />
-    <Compile Include="Core\Permissions\ISubdivisionDividingFilter.cs" />
+    <Compile Include="Cores\Permissions\ISubdivisionDividingFilter.cs" />
     <Compile Include="JournalFilters\SubdivisionsAccessJournalFilterBase.cs" />
-    <Compile Include="Core\Permissions\AccessFilteredSubdivisionSelectorWidget.cs" />
+    <Compile Include="Cores\Permissions\AccessFilteredSubdivisionSelectorWidget.cs" />
     <Compile Include="gtk-gui\Vodovoz.Core.Permissions.AccessFilteredSubdivisionSelectorWidget.cs" />
     <Compile Include="Dialogs\CertificateDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.CertificateDlg.cs" />
@@ -1150,7 +1150,7 @@
     <Compile Include="ReportsParameters\Store\StockMovementsAdvancedReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.StockMovementsAdvancedReport.cs" />
     <Compile Include="Representations\CallTasksVM.cs" />
-    <Compile Include="Core\ViewModelWidgetResolver.cs" />
+    <Compile Include="Cores\ViewModelWidgetResolver.cs" />
     <Compile Include="Dialogs\OrderWidgets\OrderDlg.cs" />
     <Compile Include="Dialogs\Fuel\FuelTransferDocumentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Fuel.FuelTransferDocumentView.cs" />
@@ -1322,17 +1322,17 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.AdvancedWageParameterViews.AdvancedWageParametersView.cs" />
     <Compile Include="Views\Warehouse\MovementDocumentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.MovementDocumentView.cs" />
-    <Compile Include="Core\BasedOnNameViewModelWidgetResolver.cs" />
-    <Compile Include="Core\RdlPreviewOpener.cs" />
+    <Compile Include="Cores\BasedOnNameViewModelWidgetResolver.cs" />
+    <Compile Include="Cores\RdlPreviewOpener.cs" />
     <Compile Include="ReportsParameters\ZeroDebtClientReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.ZeroDebtClientReport.cs" />
     <Compile Include="Filters\GtkViews\NomenclatureStockFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.NomenclatureStockFilterView.cs" />
     <Compile Include="Views\Complaints\ComplaintKindView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintKindView.cs" />
-    <Compile Include="Core\WidgetContainerView.cs" />
+    <Compile Include="Cores\WidgetContainerView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Core.WidgetContainerView.cs" />
-    <Compile Include="Core\IWidgetResolver.cs" />
+    <Compile Include="Cores\IWidgetResolver.cs" />
     <Compile Include="ReportsParameters\Sales\SalesByDiscountReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.SalesByDiscountReport.cs" />
     <Compile Include="Filters\ViewModels\CallTaskFilterViewModel.cs" />
@@ -1428,7 +1428,7 @@
     <Compile Include="ServiceDialogs\OldExportTo1c\ExportNodes\TableRecordNode.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\ExportOperation.cs" />
     <Compile Include="ServiceDialogs\OldExportTo1c\ExportOperation.cs" />
-    <Compile Include="Core\PromosetDuplicateFinder.cs" />
+    <Compile Include="Cores\PromosetDuplicateFinder.cs" />
     <Compile Include="ReportsParameters\WayBillReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.WayBillReport.cs" />
     <Compile Include="ViewModels\BusinessTasks\ClientTaskViewModel.cs" />
@@ -1989,6 +1989,10 @@
     <Compile Include="Views\Reports\DriversWarehousesEventsReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.DriversWarehousesEventsReportView.cs" />
     <Compile Include="ReportsParameters\OrderStatisticsByWeekReportType.cs" />
+    <Compile Include="ReportsParameters\Logistic\CarOwnershipReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.CarOwnershipReportView.cs" />
+    <Compile Include="Views\Logistic\RouteColumnView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.RouteColumnView.cs" />
     <Compile Include="ReportsParameters\Bookkeeping\CounterpartyCashlessDebtsReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bookkeeping.CounterpartyCashlessDebtsReportView.cs" />
   </ItemGroup>
@@ -2329,6 +2333,14 @@
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Sms\SmsPaymentService\SmsPaymentService.csproj">
       <Project>{ca429421-2cce-4f9f-8dce-379583ab297c}</Project>
       <Name>SmsPaymentService</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Core.Data.NHibernate\Vodovoz.Core.Data.NHibernate.csproj">
+      <Project>{2c01f582-c2ac-4785-9934-e32ae57645d2}</Project>
+      <Name>Vodovoz.Core.Data.NHibernate</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj">
+      <Project>{67f08744-55fb-4169-809e-82f7424775f4}</Project>
+      <Name>Vodovoz.Core.Domain</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Reports.Editing\Vodovoz.Reports.Editing.csproj">
       <Project>{EC80100E-0125-48C6-8D66-50EEBF26E320}</Project>

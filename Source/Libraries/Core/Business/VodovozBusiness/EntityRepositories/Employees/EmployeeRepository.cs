@@ -6,6 +6,7 @@ using NHibernate.Transform;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 
@@ -30,20 +31,29 @@ namespace Vodovoz.EntityRepositories.Employees
 				.SingleOrDefault();
 		}
 
-		public Employee GetDriverByAuthKey(IUnitOfWork uow, string authKey)
+		public Employee GetEmployeeByAuthKey(IUnitOfWork uow, string authKey)
 		{
 			Employee employeeAlias = null;
+			ExternalApplicationUser externalAppUserAlias = null;
 
 			return uow.Session.QueryOver<Employee>(() => employeeAlias)
-				.Where(() => employeeAlias.AndroidSessionKey == authKey)
+				.JoinAlias(() => employeeAlias.ExternalApplicationsUsers, () => externalAppUserAlias)
+				.Where(() => externalAppUserAlias.SessionKey == authKey)
 				.Where(() => employeeAlias.Status != EmployeeStatus.IsFired)
 				.SingleOrDefault();
 		}
 
-		public Employee GetDriverByAndroidLogin(IUnitOfWork uow, string login)
+		public Employee GetEmployeeByAndroidLogin(
+			IUnitOfWork uow,
+			string login,
+			ExternalApplicationType externalApplicationType = ExternalApplicationType.DriverApp)
 		{
+			ExternalApplicationUser externalAppUserAlias = null;
+			
 			return uow.Session.QueryOver<Employee>()
-				.Where(e => e.AndroidLogin == login)
+				.JoinAlias(e => e.ExternalApplicationsUsers, () => externalAppUserAlias)
+				.Where(e => externalAppUserAlias.Login == login)
+				.And(e => externalAppUserAlias.ExternalApplicationType == externalApplicationType)
 				.SingleOrDefault();
 		}
 
@@ -105,21 +115,29 @@ namespace Vodovoz.EntityRepositories.Employees
 			return QueryOver.Of<Employee>().Where(e => e.Status != EmployeeStatus.IsFired).OrderBy(e => e.LastName).Asc.ThenBy(e => e.Name).Asc.ThenBy(e => e.Patronymic).Asc;
 		}
 
-		public string GetEmployeePushTokenByOrderId(IUnitOfWork uow, int orderId)
+		public string GetEmployeePushTokenByOrderId(
+			IUnitOfWork uow,
+			int orderId,
+			ExternalApplicationType externalApplicationType = ExternalApplicationType.DriverApp)
 		{
-			Vodovoz.Domain.Orders.Order vodovozOrder = null;
-			RouteListItem routeListAddress = null;
-			RouteList routeList = null;
-			Employee employee = null;
+			Vodovoz.Domain.Orders.Order vodovozOrderAlias = null;
+			RouteListItem routeListAddressAlias = null;
+			RouteList routeListAlias = null;
+			Employee employeeAlias = null;
+			ExternalApplicationUser externalApplicationUserAlias = null;
 
-			return uow.Session.QueryOver<RouteListItem>(() => routeListAddress)
-				.Inner.JoinAlias(() => routeListAddress.RouteList, () => routeList)
-				.Inner.JoinAlias(() => routeListAddress.Order, () => vodovozOrder)
-				.Inner.JoinAlias(() => routeList.Driver, () => employee)
-				.Where(Restrictions.Eq(Projections.Property(() => vodovozOrder.Id), orderId))
-				.And(Restrictions.Not(Restrictions.Eq(Projections.Property(() => routeListAddress.Status), RouteListItemStatus.Transfered)))
-				.And(Restrictions.IsNull(Projections.Property(() => routeListAddress.TransferedTo)))
-				.Select(Projections.Property(() => employee.AndroidToken))
+			return uow.Session.QueryOver<RouteListItem>(() => routeListAddressAlias)
+				.Inner.JoinAlias(() => routeListAddressAlias.RouteList, () => routeListAlias)
+				.Inner.JoinAlias(() => routeListAddressAlias.Order, () => vodovozOrderAlias)
+				.Inner.JoinAlias(() => routeListAlias.Driver, () => employeeAlias)
+				.Inner.JoinAlias(
+					() => employeeAlias.ExternalApplicationsUsers,
+					() => externalApplicationUserAlias,
+					u => u.ExternalApplicationType == externalApplicationType)
+				.Where(() => vodovozOrderAlias.Id == orderId)
+				.And(() => routeListAddressAlias.Status != RouteListItemStatus.Transfered)
+				.And(() => routeListAddressAlias.TransferedTo == null)
+				.Select(Projections.Property(() => externalApplicationUserAlias.Token))
 				.SingleOrDefault<string>();
 		}
 
@@ -138,10 +156,14 @@ namespace Vodovoz.EntityRepositories.Employees
 
 		public IEnumerable<Employee> GetSubscribedToPushNotificationsDrivers(IUnitOfWork uow)
 		{
-			return uow.Session.Query<Employee>()
-				.Where(e => e.AndroidToken != null && e.AndroidToken != string.Empty)
-				.ToList()
-				.AsEnumerable();
+			var query = from externalUser in uow.Session.Query<ExternalApplicationUser>()
+				join employee in uow.Session.Query<Employee>()
+					on externalUser.Employee.Id equals employee.Id
+				where !string.IsNullOrWhiteSpace(externalUser.Token) &&
+					externalUser.ExternalApplicationType == ExternalApplicationType.DriverApp
+				select employee;
+
+			return query.ToList();
 		}
 	}
 }

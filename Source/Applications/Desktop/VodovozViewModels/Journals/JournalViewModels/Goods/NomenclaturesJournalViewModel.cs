@@ -1,4 +1,4 @@
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.BusinessCommon.Domain;
@@ -50,6 +50,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 				typeof(VodovozOrder),
 				typeof(OrderItem)
 			);
+
+			UseSlider = false;
 		}
 
 		[Obsolete("Лучше передавать через фильтр")]

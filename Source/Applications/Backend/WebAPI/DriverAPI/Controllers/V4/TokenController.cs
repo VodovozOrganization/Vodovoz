@@ -1,6 +1,4 @@
-﻿using DriverAPI.Data;
-using DriverAPI.DTOs.V4;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -11,6 +9,8 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Vodovoz.Core.Data.Dto_s;
+using Vodovoz.Core.Domain.Employees;
 
 namespace DriverAPI.Controllers.V4
 {
@@ -20,7 +20,6 @@ namespace DriverAPI.Controllers.V4
 	public class TokenController : VersionedController
 	{
 		private readonly IConfiguration _configuration;
-		private readonly ApplicationDbContext _context;
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly double _tokenLifetime;
 		private readonly string _securityKey;
@@ -35,11 +34,9 @@ namespace DriverAPI.Controllers.V4
 
 		public TokenController(
 			IConfiguration configuration,
-			ApplicationDbContext context,
 			UserManager<IdentityUser> userManager)
 		{
 			_configuration = configuration;
-			_context = context;
 			_userManager = userManager;
 
 			_tokenLifetime = _configuration.GetValue<double>("Security:Token:Lifetime");
@@ -51,7 +48,7 @@ namespace DriverAPI.Controllers.V4
 		/// Аутентификация
 		/// </summary>
 		/// <param name="loginRequestModel"></param>
-		/// <returns><see cref="TokenResponseDto"/></returns>
+		/// <returns><see cref="Vodovoz.Core.Data.Dto_s.TokenResponseDto"/></returns>
 		/// <exception cref="UnauthorizedAccessException"></exception>
 		[HttpPost]
 		[Produces("application/json")]
@@ -71,20 +68,20 @@ namespace DriverAPI.Controllers.V4
 		private async Task<bool> IsValidCredentials(string username, string password)
 		{
 			var user = await _userManager.FindByNameAsync(username);
-			if(!_loginCaseSensitive || user?.UserName == username)
+			
+			if(_loginCaseSensitive && user?.UserName != username)
 			{
-				return await _userManager.CheckPasswordAsync(user, password);
+				return await new ValueTask<bool>(false);
 			}
-			return await new ValueTask<bool>(false);
+
+			return await _userManager.CheckPasswordAsync(user, password)
+					&& await _userManager.IsInRoleAsync(user, ApplicationUserRole.Driver.ToString());
 		}
 
 		private async Task<TokenResponseDto> GenerateToken(string username)
 		{
 			var user = await _userManager.FindByNameAsync(username);
-			var roles = from ur in _context.UserRoles
-						join r in _context.Roles on ur.RoleId equals r.Id
-						where ur.UserId == user.Id
-						select new { ur.UserId, ur.RoleId, r.Name };
+			var roles = await _userManager.GetRolesAsync(user);
 
 			var claims = new List<Claim>
 			{
@@ -93,11 +90,8 @@ namespace DriverAPI.Controllers.V4
 				new Claim(JwtRegisteredClaimNames.Nbf, new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds().ToString()),
 				new Claim(JwtRegisteredClaimNames.Exp, new DateTimeOffset(DateTime.Now.AddMinutes(_tokenLifetime)).ToUnixTimeSeconds().ToString())
 			};
-
-			foreach(var role in roles)
-			{
-				claims.Add(new Claim(ClaimTypes.Role, role.Name));
-			}
+			
+			claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
 			var token = new JwtSecurityToken(
 				new JwtHeader(

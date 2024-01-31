@@ -11,6 +11,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			Map(x => x.Name).Column("name");
+			Map(x => x.ShortName).Column("short_name");
+			Map(x => x.IsHighlighted).Column("is_highlighted");
 		}
 	}
 }

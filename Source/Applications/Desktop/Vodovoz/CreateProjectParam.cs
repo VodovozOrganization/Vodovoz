@@ -184,6 +184,8 @@ using Vodovoz.ViewModels.ReportsParameters.Production;
 using Vodovoz.Views.ReportsParameters.Production;
 using Vodovoz.ViewModels.ReportsParameters.Logistic;
 using Vodovoz.ReportsParameters.Logistic;
+using Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport;
+using Vodovoz.ReportsParameters.Logistic;
 using Vodovoz.ViewModels.ReportsParameters.Bookkeeping;
 using Vodovoz.ReportsParameters.Bookkeeping;
 
@@ -353,6 +355,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<NomenclatureOnlineCategoryViewModel, NomenclatureOnlineCategoryView>()
 				.RegisterWidgetForTabViewModel<DriverWarehouseEventViewModel, DriverWarehouseEventView>()
 				.RegisterWidgetForTabViewModel<DriversWarehousesEventsReportViewModel, DriversWarehousesEventsReportView>()
+				.RegisterWidgetForTabViewModel<RouteColumnViewModel, RouteColumnView>()
 				;
 
 			//Регистрация виджетов
@@ -488,6 +491,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<CompletedDriversWarehousesEventsJournalFilterViewModel, CompletedDriversWarehousesEventsJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<ProducedProductionReportViewModel, ProducedProductionReportView>()
 				.RegisterWidgetForWidgetViewModel<DeliveryTimeReportViewModel, DeliveryTimeReportView>()
+				.RegisterWidgetForWidgetViewModel<CarOwnershipReportViewModel, CarOwnershipReportView>()
 				.RegisterWidgetForWidgetViewModel<CounterpartyCashlessDebtsReportViewModel, CounterpartyCashlessDebtsReportView>()
 				;
 
