@@ -624,6 +624,7 @@
     <Compile Include="ViewModels\Reports\FastDelivery\FastDeliveryPercentCoverageReport.cs" />
     <Compile Include="ViewModels\Reports\FastDelivery\FastDeliverySalesReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\FilterTypeChangedArgs.cs" />
+    <Compile Include="ReportsParameters\Logistics\CarOwnershipReport\CarOwnershipReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\Logistics\DriversWarehousesEventNode.cs" />
     <Compile Include="ViewModels\Reports\Logistics\DriversWarehousesEventsReportNode.cs" />
     <Compile Include="ViewModels\Reports\Logistics\DriversWarehousesEventsReportViewModel.cs" />

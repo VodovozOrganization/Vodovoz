@@ -1991,6 +1991,8 @@
     <Compile Include="Views\Reports\DriversWarehousesEventsReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.DriversWarehousesEventsReportView.cs" />
     <Compile Include="ReportsParameters\OrderStatisticsByWeekReportType.cs" />
+    <Compile Include="ReportsParameters\Logistic\CarOwnershipReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.CarOwnershipReportView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
