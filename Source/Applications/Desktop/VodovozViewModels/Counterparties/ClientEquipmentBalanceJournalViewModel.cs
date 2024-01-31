@@ -8,6 +8,7 @@ using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
 using QS.ViewModels.Dialog;
+using System;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using static Vodovoz.ViewModels.Counterparties.ClientEquipmentBalanceJournalViewModel;
@@ -35,6 +36,7 @@ namespace Vodovoz.ViewModels.Counterparties
 
 			_clientBalanceFilterViewModel.Journal = this;
 
+			_clientBalanceFilterViewModel.OnFiltered += OnFilterViewModelFiltered;
 			JournalFilter = _clientBalanceFilterViewModel;
 
 			UserHaveAccessOnlyToWarehouseAndComplaints =
@@ -44,6 +46,11 @@ namespace Vodovoz.ViewModels.Counterparties
 			_clientBalanceFilterViewModel.CanChangeDeliveryPoint = !UserHaveAccessOnlyToWarehouseAndComplaints;
 
 			NodeActionsList.Clear();
+		}
+
+		private void OnFilterViewModelFiltered(object sender, EventArgs e)
+		{
+			Refresh();
 		}
 
 		public bool UserHaveAccessOnlyToWarehouseAndComplaints { get; }
