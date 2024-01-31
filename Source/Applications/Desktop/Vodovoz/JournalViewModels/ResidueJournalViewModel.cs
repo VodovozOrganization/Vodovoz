@@ -32,12 +32,18 @@ namespace Vodovoz.JournalViewModels
 		{
 			_filterViewModel = filterViewModel ?? throw new ArgumentNullException(nameof(filterViewModel));
 
+			_filterViewModel.OnFiltered += OnFfilterViewModelFiltered;
 			JournalFilter = _filterViewModel;
 
 			TabName = "Журнал остатков";
 			UseSlider = true;
 
 			UpdateOnChanges(typeof(Residue));
+		}
+
+		private void OnFfilterViewModelFiltered(object sender, EventArgs e)
+		{
+			Refresh();
 		}
 
 		protected override IQueryOver<Residue> ItemsQuery(IUnitOfWork uow)
@@ -101,6 +107,13 @@ namespace Vodovoz.JournalViewModels
 				.TransformUsing(Transformers.AliasToBean<ResidueJournalNode>());
 
 			return resultQuery;
+		}
+
+		public override void Dispose()
+		{
+			_filterViewModel.OnFiltered -= OnFfilterViewModelFiltered;
+
+			base.Dispose();
 		}
 	}
 }
