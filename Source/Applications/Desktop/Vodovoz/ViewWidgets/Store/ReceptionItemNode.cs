@@ -28,12 +28,12 @@ namespace Vodovoz
 			set => SetField(ref _expectedAmount, value);
 		}
 
-		int equipmentId;
+		int _equipmentId;
 		[PropertyChangedAlso("Serial")]
 		public int EquipmentId
 		{
-			get => equipmentId;
-			set => SetField(ref equipmentId, value);
+			get => _equipmentId;
+			set => SetField(ref _equipmentId, value);
 		}
 
 		[Display(Name = "№ кулера")]
