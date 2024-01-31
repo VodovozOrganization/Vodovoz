@@ -1,7 +1,10 @@
-﻿using Gtk;
+using Gtk;
 using QS.Journal.GtkUI;
 using QS.Tdi;
 using QS.Views.GtkUI;
+using QS.Views.Resolve;
+using System;
+using System.ComponentModel;
 using System.Linq;
 using Vodovoz.Core;
 using Vodovoz.Domain.Roboats;
@@ -11,9 +14,16 @@ namespace Vodovoz.Views.Roboats
 {
 	public partial class RoboatsCatalogExportView : TabViewBase<RoboatsCatalogExportViewModel>
 	{
-		public RoboatsCatalogExportView(RoboatsCatalogExportViewModel viewModel) : base(viewModel)
+		private JournalView _journalView;
+		private Widget _dialogView;
+		private readonly IGtkViewResolver _gtkViewResolver;
+
+		public RoboatsCatalogExportView(
+			RoboatsCatalogExportViewModel viewModel,
+			IGtkViewResolver gtkViewResolver) : base(viewModel)
 		{
-			this.Build();
+			_gtkViewResolver = gtkViewResolver ?? throw new ArgumentNullException(nameof(gtkViewResolver));
+			Build();
 			Configure();
 		}
 
@@ -34,7 +44,7 @@ namespace Vodovoz.Views.Roboats
 			UpdateJournal();
 		}
 
-		private void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		private void ViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
 			switch(e.PropertyName)
 			{
@@ -49,7 +59,6 @@ namespace Vodovoz.Views.Roboats
 			}
 		}
 
-		private JournalView _journalView;
 
 		private void UpdateJournal()
 		{
@@ -64,12 +73,11 @@ namespace Vodovoz.Views.Roboats
 				return;
 			}
 
-			_journalView = new JournalView(ViewModel.Journal);
+			_journalView = new JournalView(ViewModel.Journal, _gtkViewResolver);
 			journalHolder.Add(_journalView);
 			_journalView.Show();
 		}
 
-		private Widget _dialogView;
 
 		private void UpdateDialog()
 		{
@@ -78,7 +86,7 @@ namespace Vodovoz.Views.Roboats
 			{
 				return;
 			}
-			_dialogView = ViewModelWidgetResolver.Instance.Resolve((ITdiTab)ViewModel.Dialog);
+			_dialogView = _gtkViewResolver.Resolve(ViewModel.Dialog);
 			dialogHolder.Add(_dialogView);
 			_dialogView.Show();
 		}

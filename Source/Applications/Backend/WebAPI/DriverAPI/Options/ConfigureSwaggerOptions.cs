@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
@@ -24,6 +25,18 @@ namespace DriverAPI.Options
 			foreach (var desvription in _apiVersionDescriptionProvider.ApiVersionDescriptions)
 			{
 				options.SwaggerDoc(desvription.GroupName, CreateVersionInfo(desvription));
+
+				options.MapType<TimeSpan>(() => new OpenApiSchema
+				{
+					Type = "string",
+					Example = new OpenApiString("00:00:00")
+				});
+
+				options.MapType<TimeSpan?>(() => new OpenApiSchema
+				{
+					Type = "string",
+					Example = new OpenApiString("00:00:00")
+				});
 
 				// using System.Reflection;
 				var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";

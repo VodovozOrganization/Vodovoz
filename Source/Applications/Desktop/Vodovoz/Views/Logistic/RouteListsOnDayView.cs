@@ -1,4 +1,4 @@
-﻿using Gamma.Binding;
+using Gamma.Binding;
 using Gamma.Binding.Core.LevelTreeConfig;
 using Gamma.ColumnConfig;
 using Gdk;
@@ -8,7 +8,6 @@ using GMap.NET.MapProviders;
 using Gtk;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Journal;
 using QS.Utilities;
