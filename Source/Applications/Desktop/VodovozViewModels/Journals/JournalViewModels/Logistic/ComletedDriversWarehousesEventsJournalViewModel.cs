@@ -208,6 +208,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				query.Where(ce => ce.DistanceMetersFromScanningLocation == _filterViewModel.DistanceFromScanning);
 			}
 
+			var selectedDrivers = _filterViewModel.GetSelectedDrivers();
+
+			if(selectedDrivers.Any())
+			{
+				query.WhereRestrictionOn(() => driverAlias.Id).IsInG(selectedDrivers);
+			}
+
 			query.SelectList(list => list
 				.Select(ce => ce.Id).WithAlias(() => resultAlias.Id)
 				.Select(() => eventAlias.EventName).WithAlias(() => resultAlias.EventName)
