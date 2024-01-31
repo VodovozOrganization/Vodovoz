@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.Dialog;
@@ -28,6 +28,7 @@ using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Nodes;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using VodovozInfrastructure.StringHandlers;
