@@ -87,20 +87,22 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public DelegateCommand AddNomenclatureCommand => _addNomenclatureCommand ?? (_addNomenclatureCommand = new DelegateCommand(
 					() =>
 					{
-						var page = NavigationManager.OpenViewModel<NomenclaturesJournalViewModel>(this,
+						NavigationManager.OpenViewModel<NomenclaturesJournalViewModel>(this,
 							OpenPageOptions.AsSlave,
-							vm => vm.SelectionMode = QS.Project.Journal.JournalSelectionMode.Single);
-
-						page.ViewModel.OnSelectResult += (s, ea) =>
-						{
-							var selectedNode = ea.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
-							if(selectedNode == null)
+							vm =>
 							{
-								return;
-							}
+								vm.SelectionMode = QS.Project.Journal.JournalSelectionMode.Single;
+								vm.OnSelectResult += (s, ea) =>
+								{
+									var selectedNode = ea.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
+									if(selectedNode == null)
+									{
+										return;
+									}
 
-							Entity.AddNomenclature(UoW.GetById<Nomenclature>(selectedNode.Id));
-						};
+									Entity.AddNomenclature(UoW.GetById<Nomenclature>(selectedNode.Id));
+								};
+							});
 					}
 				)
 			);

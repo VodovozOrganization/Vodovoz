@@ -101,10 +101,9 @@ namespace Vodovoz.Dialogs
 					{
 						vm.SelectionMode = JournalSelectionMode.Multiple;
 						vm.Title = "Номенклатура на продажу";
+						vm.OnSelectResult += JournalOnEntitySelectedResult;
 					}
 				).ViewModel;
-			
-			journal.OnSelectResult += JournalOnEntitySelectedResult;
 		}
 
 		private void JournalOnEntitySelectedResult(object sender, JournalSelectedEventArgs e)

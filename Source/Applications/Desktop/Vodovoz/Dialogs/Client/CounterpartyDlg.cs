@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using EdoService.Library;
 using EdoService.Library.Converters;
 using EdoService.Library.Dto;
@@ -1918,15 +1918,14 @@ namespace Vodovoz
 
 		protected void OnYbuttonAddNomClicked(object sender, EventArgs e)
 		{
-			var page = (NavigationManager as ITdiCompatibilityNavigation).OpenViewModelOnTdi<NomenclaturesJournalViewModel>(
+			(NavigationManager as ITdiCompatibilityNavigation).OpenViewModelOnTdi<NomenclaturesJournalViewModel>(
 				this,
 				OpenPageOptions.AsSlave,
 				viewModel =>
 				{
 					viewModel.SelectionMode = JournalSelectionMode.Single;
+					viewModel.OnSelectResult += Journal_OnEntitySelectedResult;
 				});
-
-			page.ViewModel.OnSelectResult += Journal_OnEntitySelectedResult;
 		}
 
 		private void Journal_OnEntitySelectedResult(object sender, JournalSelectedEventArgs e)

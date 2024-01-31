@@ -15,6 +15,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Models;
+using Vodovoz.ViewModelBased;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
@@ -207,7 +208,7 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 
 		private void SelectWaterNomenclature()
 		{
-			var page = (NavigationManager as ITdiCompatibilityNavigation)
+			(NavigationManager as ITdiCompatibilityNavigation)
 				.OpenViewModelOnTdi<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(_parentTab, filter =>
 				{
 					filter.RestrictCategory = NomenclatureCategory.water;
@@ -216,9 +217,8 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 				viewModel =>
 				{
 					viewModel.SelectionMode = JournalSelectionMode.Single;
+					viewModel.OnSelectResult += OnWaterSelected;
 				});
-
-			page.ViewModel.OnSelectResult += OnWaterSelected;
 		}
 
 		private void OnWaterSelected(object sender, JournalSelectedEventArgs e)

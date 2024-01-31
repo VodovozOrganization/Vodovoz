@@ -229,10 +229,7 @@ namespace Vodovoz.Filters.ViewModels
 					NomenclatureViewModel = new CommonEEVMBuilderFactory<DebtorsJournalFilterViewModel>(_journal, this, UoW, _journal.NavigationManager, _lifetimeScope)
 						.ForProperty(x => x.LastOrderNomenclature)
 						.UseViewModelDialog<NomenclatureViewModel>()
-						.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(filter =>
-						{
-							
-						})
+						.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel>()
 						.Finish();
 				}
 			}
@@ -240,6 +237,7 @@ namespace Vodovoz.Filters.ViewModels
 
 		public override void Dispose()
 		{
+			_journal = null;
 			_lifetimeScope = null;
 			base.Dispose();
 		}

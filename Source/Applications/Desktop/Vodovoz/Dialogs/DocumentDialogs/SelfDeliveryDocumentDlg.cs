@@ -363,7 +363,7 @@ namespace Vodovoz
 
 		protected void OnBtnAddOtherGoodsClicked(object sender, EventArgs e)
 		{
-			var page = (NavigationManager as ITdiCompatibilityNavigation)
+			(NavigationManager as ITdiCompatibilityNavigation)
 				.OpenViewModelOnTdi<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(this, filter =>
 				{
 					filter.RestrictArchive = true;
@@ -373,9 +373,8 @@ namespace Vodovoz
 				viewModel =>
 				{
 					viewModel.SelectionMode = JournalSelectionMode.Single;
+					viewModel.OnSelectResult += NomenclatureSelectorOnEntitySelectedResult;
 				});
-
-			page.ViewModel.OnSelectResult += NomenclatureSelectorOnEntitySelectedResult;
 		}
 
 		private void NomenclatureSelectorOnEntitySelectedResult(object sender, JournalSelectedEventArgs e)
