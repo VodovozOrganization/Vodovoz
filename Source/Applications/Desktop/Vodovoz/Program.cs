@@ -55,7 +55,9 @@ using Vodovoz.CachingRepositories.Cash;
 using Vodovoz.CachingRepositories.Common;
 using Vodovoz.CachingRepositories.Counterparty;
 using Vodovoz.Core;
+using Vodovoz.Core.Data.NHibernate.Repositories.Logistics;
 using Vodovoz.Core.DataService;
+using Vodovoz.Core.Domain.Interfaces.Logistics;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
@@ -639,7 +641,6 @@ namespace Vodovoz
 					services.AddSingleton<Startup>()
 						.AddScoped<RouteGeometryCalculator>()
 						.AddSingleton<OsrmClient>(sp => OsrmClientFactory.Instance)
-						.AddSingleton<IFastDeliveryDistanceChecker, DistanceCalculator>()
 						.AddScoped<IDebtorsParameters, DebtorsParameters>()
 						.AddFiasClient()							
 						.AddScoped<RevisionBottlesAndDeposits>()
@@ -649,6 +650,8 @@ namespace Vodovoz
 						.AddScoped<ICustomReportFactory, CustomReportFactory>()
 						.AddScoped<ICustomPropertiesFactory, CustomPropertiesFactory>()
 						.AddScoped<ICustomReportItemFactory, CustomReportItemFactory>()
+						.AddScoped<IDriverWarehouseEventRepository, DriverWarehouseEventRepository>()
+						.AddScoped<ICompletedDriverWarehouseEventProxyRepository, CompletedDriverWarehouseEventProxyRepository>()
 						.AddScoped<IRdlTextBoxFactory, RdlTextBoxFactory>()
 						.AddScoped<IEventsQrPlacer, EventsQrPlacer>()
 						.AddTransient<IValidationViewFactory, GtkValidationViewFactory>()

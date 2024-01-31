@@ -16,6 +16,7 @@ using QS.Navigation;
 using QS.Project.Services.FileDialog;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
+using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Logistic.Drivers;

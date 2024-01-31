@@ -4,6 +4,7 @@ using Vodovoz.Domain.Logistic.Drivers;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.Infrastructure.Converters;
 using Gtk;
+using Vodovoz.Core.Domain.Logistics.Drivers;
 
 namespace Vodovoz.Filters.GtkViews
 {
