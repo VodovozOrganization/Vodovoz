@@ -957,9 +957,15 @@ namespace Vodovoz.Domain.Logistic
 			for(int ix = 0; ix < RouteList.Addresses.Count; ix++) {
 				var address = RouteList.Addresses[ix];
 				if(ix == 0)
+				{
 					time = time.Add(RouteList.Addresses[ix].Order.DeliverySchedule.From);
+				}
 				else
-					time = time.AddSeconds(sputnikCache.TimeSec(RouteList.Addresses[ix - 1].Order.DeliveryPoint, RouteList.Addresses[ix].Order.DeliveryPoint));
+				{
+					time = time.AddSeconds(sputnikCache.TimeSec(
+						RouteList.Addresses[ix - 1].Order.DeliveryPoint.PointCoordinates,
+						RouteList.Addresses[ix].Order.DeliveryPoint.PointCoordinates));
+				}
 
 				if(address == this)
 					break;

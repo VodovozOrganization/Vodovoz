@@ -1,14 +1,13 @@
-﻿using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Sale;
+﻿using Vodovoz.Core.Domain;
 
 namespace Vodovoz.Tools.Logistic
 {
 	public interface IDistanceCalculator
 	{
-		int DistanceMeter(DeliveryPoint fromDP, DeliveryPoint toDP);
+		int DistanceMeter(PointCoordinates fromDeliveryPoint, PointCoordinates toDeliveryPoint);
 
-		int DistanceFromBaseMeter(GeoGroupVersion fromBase, DeliveryPoint toDP);
+		int DistanceFromBaseMeter(PointCoordinates fromBase, PointCoordinates toDeliveryPoint);
 
-		int DistanceToBaseMeter(DeliveryPoint fromDP, GeoGroupVersion toBase);
+		int DistanceToBaseMeter(PointCoordinates fromDeliveryPoint, PointCoordinates toBase);
 	}
 }

@@ -5,6 +5,7 @@ using QS.Navigation;
 using QS.Project.Filter;
 using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Dialog;
+using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Logistic.Drivers;
