@@ -1,5 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
+using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
@@ -16,50 +16,60 @@ namespace Vodovoz
 		public int NomenclatureId { get; set; }
 		public string Name { get; set; }
 
-		public virtual decimal Amount {
+		public virtual decimal Amount
+		{
 			get => _amount;
-			set => SetField(ref _amount, value, () => Amount);
+			set => SetField(ref _amount, value);
 		}
 
-		public virtual decimal ExpectedAmount {
+		public virtual decimal ExpectedAmount
+		{
 			get => _expectedAmount;
-			set => SetField(ref _expectedAmount, value, () => ExpectedAmount);
+			set => SetField(ref _expectedAmount, value);
 		}
 
 		int equipmentId;
 		[PropertyChangedAlso("Serial")]
-		public int EquipmentId {
+		public int EquipmentId
+		{
 			get => equipmentId;
-			set => SetField(ref equipmentId, value, () => EquipmentId);
+			set => SetField(ref equipmentId, value);
 		}
 
 		[Display(Name = "№ кулера")]
-		public string Redhead {
+		public string Redhead
+		{
 			get => CarUnloadDocumentItem.Redhead;
-			set {
+			set
+			{
 				if(value != CarUnloadDocumentItem.Redhead)
+				{
 					CarUnloadDocumentItem.Redhead = value;
+				}
 			}
 		}
 
-		ServiceClaim serviceClaim;
+		ServiceClaim _serviceClaim;
 
-		public virtual ServiceClaim ServiceClaim {
-			get => serviceClaim;
-			set => SetField(ref serviceClaim, value, () => ServiceClaim);
+		public virtual ServiceClaim ServiceClaim
+		{
+			get => _serviceClaim;
+			set => SetField(ref _serviceClaim, value);
 		}
 
 		public Equipment NewEquipment { get; set; }
-		public bool Returned {
+		public bool Returned
+		{
 			get => Amount > 0;
 			set => Amount = value ? 1 : 0;
 		}
 
-		GoodsAccountingOperation movementOperation = new GoodsAccountingOperation();
+		GoodsAccountingOperation _movementOperation = new GoodsAccountingOperation();
 
-		public virtual GoodsAccountingOperation MovementOperation {
-			get => movementOperation;
-			set => SetField(ref movementOperation, value, () => MovementOperation);
+		public virtual GoodsAccountingOperation MovementOperation
+		{
+			get => _movementOperation;
+			set => SetField(ref _movementOperation, value);
 		}
 
 		public ReceptionItemNode(Nomenclature nomenclature, int amount)
@@ -72,19 +82,20 @@ namespace Vodovoz
 
 		public ReceptionItemNode(GoodsAccountingOperation movementOperation) : this(movementOperation.Nomenclature, (int)movementOperation.Amount)
 		{
-			this.movementOperation = movementOperation;
+			_movementOperation = movementOperation;
 		}
 
-		CarUnloadDocumentItem carUnloadDocumentItem = new CarUnloadDocumentItem();
+		CarUnloadDocumentItem _carUnloadDocumentItem = new CarUnloadDocumentItem();
 
-		public virtual CarUnloadDocumentItem CarUnloadDocumentItem {
-			get => carUnloadDocumentItem;
-			set => SetField(ref carUnloadDocumentItem, value, () => CarUnloadDocumentItem);
+		public virtual CarUnloadDocumentItem CarUnloadDocumentItem
+		{
+			get => _carUnloadDocumentItem;
+			set => SetField(ref _carUnloadDocumentItem, value);
 		}
 
 		public ReceptionItemNode(CarUnloadDocumentItem carUnloadDocumentItem) : this(carUnloadDocumentItem.GoodsAccountingOperation)
 		{
-			this.carUnloadDocumentItem = carUnloadDocumentItem;
+			_carUnloadDocumentItem = carUnloadDocumentItem;
 		}
 
 		public ReceptionItemNode() { }

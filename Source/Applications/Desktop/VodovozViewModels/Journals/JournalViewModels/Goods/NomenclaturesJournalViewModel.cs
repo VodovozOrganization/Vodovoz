@@ -43,6 +43,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 				_filterViewModel.ConfigureWithoutFiltering(filterParams);
 			}
 
+			_filterViewModel.OnFiltered += OnFilterViewModelFiltered;
 			JournalFilter = _filterViewModel;
 
 			UpdateOnChanges(
@@ -54,6 +55,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 			);
 
 			UseSlider = false;
+		}
+
+		private void OnFilterViewModelFiltered(object sender, EventArgs e)
+		{
+			Refresh();
 		}
 
 		public void HideButtons()

@@ -16,7 +16,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.ViewModels.Orders
 {
-	public class AddFixPriceActionViewModel : UoWWidgetViewModelBase, ICreationControl
+	public class AddFixPriceActionViewModel : UoWWidgetViewModelBase, ICreationControl, IDisposable
 	{
 		private Nomenclature _nomenclature;
 		private decimal _price;
@@ -145,6 +145,11 @@ namespace Vodovoz.ViewModels.Orders
 			CancelCommand = new DelegateCommand(
 				() => CancelCreation?.Invoke(),
 				() => true);
+		}
+
+		public void Dispose()
+		{
+			_container = null;
 		}
 
 		#endregion

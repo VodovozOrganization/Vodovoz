@@ -45,7 +45,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 				_filterViewModel.ConfigureWithoutFiltering(filterConfig);
 			}
 
+			_filterViewModel.OnFiltered += OnFilterViewModelFiltered;
 			JournalFilter = _filterViewModel;
+		}
+
+		private void OnFilterViewModelFiltered(object sender, EventArgs e)
+		{
+			Refresh();
 		}
 
 		protected override IQueryOver<ComplaintKind> ItemsQuery(IUnitOfWork uow)
