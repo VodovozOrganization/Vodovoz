@@ -20,6 +20,7 @@ using System.Linq;
 using System.Reflection;
 using CustomerAppsApi.HealthChecks;
 using CustomerAppsApi.Library;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.Settings.Database;
 using VodovozHealthCheck;
@@ -122,7 +123,8 @@ namespace CustomerAppsApi
 					Assembly.GetAssembly(typeof(HistoryMain)),
 					Assembly.GetAssembly(typeof(TypeOfEntity)),
 					Assembly.GetAssembly(typeof(Attachment)),
-					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
+					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder)),
+					Assembly.GetAssembly(typeof(DriverWarehouseEventMap))
 				}
 			);
 
