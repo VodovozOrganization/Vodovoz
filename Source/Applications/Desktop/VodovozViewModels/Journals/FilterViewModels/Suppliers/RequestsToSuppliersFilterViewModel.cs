@@ -106,6 +106,7 @@ namespace Vodovoz.FilterViewModels.Suppliers
 
 		public override void Dispose()
 		{
+			_journal = null;
 			_lifetimeScope = null;
 			base.Dispose();
 		}
