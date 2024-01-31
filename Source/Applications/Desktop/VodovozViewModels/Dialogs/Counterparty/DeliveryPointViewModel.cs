@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Fias.Client.Loaders;
 using QS.Commands;
 using QS.Dialog;
@@ -9,6 +9,7 @@ using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using System;
 using System.Collections.Generic;
@@ -19,6 +20,7 @@ using System.Threading.Tasks;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
@@ -27,8 +29,11 @@ using Vodovoz.Services;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Infrastructure.InfoProviders;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.ViewModels.Goods;
@@ -64,7 +69,6 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			ICitiesDataLoader citiesDataLoader,
 			IStreetsDataLoader streetsDataLoader,
 			IHousesDataLoader housesDataLoader,
-			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			NomenclatureFixedPriceController nomenclatureFixedPriceController,
 			IDeliveryPointRepository deliveryPointRepository,
 			IDeliveryScheduleJournalFactory deliveryScheduleSelectorFactory,
@@ -114,9 +118,6 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 
-			NomenclatureSelectorFactory =
-				nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
-
 			_fixedPricesModel = new DeliveryPointFixedPricesModel(UoW, Entity, nomenclatureFixedPriceController);
 			PhonesViewModel = new PhonesViewModel(phoneRepository, UoW, contactsParameters, _roboatsJournalsFactory, CommonServices)
 			{
@@ -141,6 +142,16 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 				?? throw new ArgumentNullException(nameof(deliveryPointRepository));
 
 			DeliveryScheduleSelectorFactory = deliveryScheduleSelectorFactory;
+
+			DefaultWaterNomenclatureViewModel = new CommonEEVMBuilderFactory<DeliveryPoint>(this, Entity, UoW, NavigationManager, lifetimeScope)
+				.ForProperty(dp => dp.DefaultWaterNomenclature)
+				.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(filter =>
+				{
+					filter.RestrictCategory = NomenclatureCategory.water;
+					filter.RestrictDilers = true;
+				})
+				.UseViewModelDialog<NomenclatureViewModel>()
+				.Finish();
 
 			Entity.PropertyChanged += (sender, e) =>
 			{
@@ -189,7 +200,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 		//widget init
 		public FixedPricesViewModel FixedPricesViewModel =>
 			_fixedPricesViewModel ??
-			(_fixedPricesViewModel = new FixedPricesViewModel(UoW, _fixedPricesModel, NomenclatureSelectorFactory, this, LifetimeScope));
+			(_fixedPricesViewModel = new FixedPricesViewModel(UoW, _fixedPricesModel, this, NavigationManager, LifetimeScope));
 
 		public List<DeliveryPointResponsiblePerson> ResponsiblePersons =>
 			_responsiblePersons ?? (_responsiblePersons = new List<DeliveryPointResponsiblePerson>());
@@ -200,8 +211,9 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 		public IStreetsDataLoader StreetsDataLoader { get; }
 		public IHousesDataLoader HousesDataLoader { get; }
 		public IOrderedEnumerable<DeliveryPointCategory> DeliveryPointCategories { get; }
-		public INomenclatureJournalFactory NomenclatureSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory DeliveryScheduleSelectorFactory { get; }
+
+		public IEntityEntryViewModel DefaultWaterNomenclatureViewModel { get; }
 
 		public override bool HasChanges
 		{
@@ -223,7 +235,6 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 				Entity.LogisticsRequirements = _logisticsRequirementsVM.Entity;
 			}
 		}
-
 
 		#endregion
 

@@ -27,6 +27,7 @@ using Vodovoz.Services;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Nodes;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
@@ -64,7 +65,6 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			INavigationManager navigationManager,
 			IInteractiveService interactiveService,
 			IEmployeeService employeeService,
-			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
@@ -74,11 +74,6 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			INomenclatureService nomenclatureService)
 			: base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
-			if(nomenclatureSelectorFactory is null)
-			{
-				throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
-			}
-
 			if(nomenclatureSettings is null)
 			{
 				throw new ArgumentNullException(nameof(nomenclatureSettings));
@@ -93,7 +88,6 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_nomenclatureOnlineParametersProvider =
 				nomenclatureOnlineParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureOnlineParametersProvider));
-			NomenclatureSelectorFactory = nomenclatureSelectorFactory.GetDefaultNomenclatureSelectorFactory(_lifetimeScope);
 			CounterpartySelectorFactory =
 				(counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope);
@@ -121,7 +115,6 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		}
 
 		public IStringHandler StringHandler { get; }
-		public IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 		public IEntityEntryViewModel RouteColumnViewModel { get; }
 
@@ -312,6 +305,8 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				}
 			}
 		}
+
+		public IEntityEntryViewModel DependsOnNomenclatureEntryViewModel { get; private set; }
 
 		public bool IsWaterParameters =>
 			SelectedOnlineGroup != null
@@ -540,6 +535,12 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		
 		private void ConfigureEntryViewModels()
 		{
+			DependsOnNomenclatureEntryViewModel = new CommonEEVMBuilderFactory<Nomenclature>(this, Entity, UoW, NavigationManager, _lifetimeScope)
+				.ForProperty(x => x.DependsOnNomenclature)
+				.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel>()
+				.UseViewModelDialog<NomenclatureViewModel>()
+				.Finish();
+
 			NomenclatureCostPricesViewModel =
 				new NomenclatureCostPricesViewModel(Entity, new NomenclatureCostPriceModel(CommonServices.CurrentPermissionService));
 			NomenclaturePurchasePricesViewModel =

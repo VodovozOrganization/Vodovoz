@@ -36,6 +36,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 using EdoDocumentType = Vodovoz.Domain.Orders.Documents.Type;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 
 namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 {
@@ -165,9 +166,9 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 					journalViewModel.TabName = "Номенклатура на продажу";
 					journalViewModel.CalculateQuantityOnStock = true;
 				
-					journalViewModel.OnEntitySelectedResult += (s, ea) =>
+					journalViewModel.OnSelectResult += (s, ea) =>
 					{
-						var selectedNode = ea.SelectedNodes.FirstOrDefault();
+						var selectedNode = ea.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
 						
 						if(selectedNode == null)
 						{
