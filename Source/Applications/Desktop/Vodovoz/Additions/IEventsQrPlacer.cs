@@ -1,4 +1,5 @@
 ﻿using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Domain.Logistic.Drivers;
 
 namespace Vodovoz.Additions
