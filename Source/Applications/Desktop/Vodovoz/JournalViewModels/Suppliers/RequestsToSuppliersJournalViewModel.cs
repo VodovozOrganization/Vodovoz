@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
@@ -38,11 +38,13 @@ namespace Vodovoz.JournalViewModels.Suppliers
 			ICommonServices commonServices,
 			ITdiCompatibilityNavigation navigationManager,
 			IEmployeeService employeeService,
-			ISupplierPriceItemsRepository supplierPriceItemsRepository) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			ISupplierPriceItemsRepository supplierPriceItemsRepository) : base(filterViewModel, unitOfWorkFactory, commonServices, navigation: navigationManager)
 		{
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_supplierPriceItemsRepository = supplierPriceItemsRepository ?? throw new ArgumentNullException(nameof(supplierPriceItemsRepository));
+
+			filterViewModel.Journal = this;
 
 			UseSlider = false;
 			TabName = "Журнал заявок поставщикам";

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Vodovoz.Application.Goods;
 using Vodovoz.Application.Logistics;
 using Vodovoz.Application.Logistics.RouteOptimization;
 using Vodovoz.Application.Orders.Services;
@@ -19,6 +20,7 @@ namespace Vodovoz.Application
 			.AddScoped<ICounterpartyService, CounterpartyService>()
 			.AddScoped<IRouteListService, RouteListService>()
 			.AddScoped<IPaymentService, PaymentService>()
-			.AddScoped<IOrderService, OrderService>();
+			.AddScoped<IOrderService, OrderService>()
+			.AddScoped<INomenclatureService, NomenclatureService>();
 	}
 }

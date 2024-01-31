@@ -1,4 +1,5 @@
-﻿using Gamma.GtkWidgets;
+﻿using Gamma.ColumnConfig;
+using Gamma.GtkWidgets;
 using Gtk;
 using NLog;
 using QS.BusinessCommon.Domain;
@@ -6,17 +7,13 @@ using QS.Helpers;
 using QS.Navigation;
 using QS.Project.Dialogs.GtkUI;
 using QS.Views.GtkUI;
+using QS.Widgets;
 using QSOrmProject;
 using QSWidgetLib;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Globalization;
 using System.Linq;
-using System.Web.UI.WebControls;
-using Gamma.Binding;
-using Gamma.ColumnConfig;
-using QS.Widgets;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
@@ -293,9 +290,8 @@ namespace Vodovoz.Views.Goods
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 
-			referenceRouteColumn.SubjectType = typeof(RouteColumn);
-			referenceRouteColumn.Binding
-				.AddBinding(ViewModel.Entity, n => n.RouteListColumn, w => w.Subject)
+			entityentryRouteColumn.ViewModel = ViewModel.RouteColumnViewModel;
+			entityentryRouteColumn.Binding
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 
@@ -309,10 +305,14 @@ namespace Vodovoz.Views.Goods
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 			yentryShortName.MaxLength = 220;
+
 			checkIsArchive.Binding
 				.AddFuncBinding(ViewModel, vm => vm.CanCreateAndArcNomenclatures && vm.CanEdit, w => w.Sensitive)
-				.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active)
 				.InitializeFromSource();
+
+			checkIsArchive.Active = ViewModel.Entity.IsArchive;
+
+			checkIsArchive.Released += OnCheckIsArchiveReleased;
 
 			entityviewmodelentryShipperCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartySelectorFactory);
 			entityviewmodelentryShipperCounterparty.Binding
@@ -423,12 +423,10 @@ namespace Vodovoz.Views.Goods
 
 			#endregion
 
-			entityViewModelEntryNomenclature.SetEntityAutocompleteSelectorFactory(ViewModel.NomenclatureSelectorFactory);
-			entityViewModelEntryNomenclature.Binding
-				.AddBinding(ViewModel.Entity, e => e.DependsOnNomenclature, w => w.Subject)
+			entryDependsOnNomenclature.ViewModel = ViewModel.DependsOnNomenclatureEntryViewModel;
+			entryDependsOnNomenclature.Binding
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
-			entityViewModelEntryNomenclature.CanEditReference = true;
 
 			pricesView.Prices = ViewModel.Entity.NomenclaturePrice.Cast<NomenclaturePriceBase>().ToList();
 			pricesView.PricesList.ElementAdded += PriceAdded;
@@ -478,6 +476,20 @@ namespace Vodovoz.Views.Goods
 
 			//make actions menu
 			ConfigureActionsMenu();
+		}
+
+		private void OnCheckIsArchiveReleased(object sender, EventArgs e)
+		{
+			if(ViewModel.Entity.IsArchive)
+			{
+				ViewModel.UnArchiveCommand.Execute();
+			}
+			else
+			{
+				ViewModel.ArchiveCommand.Execute();
+			}
+
+			checkIsArchive.Active = ViewModel.Entity.IsArchive;
 		}
 
 		private void PricePropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -945,19 +957,19 @@ namespace Vodovoz.Views.Goods
 			ViewModel.Entity.BottleCapColor = $"#{colorRed}{colorGreen}{colorBlue}";
 		}
 
-		void Entity_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		private void Entity_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
 			if(e.PropertyName == nameof(ViewModel.Entity.ProductGroup))
 				nomenclaturecharacteristicsview1.RefreshWidgets();
 		}
 
-		void OnReplaceLinksActivated(object sender, EventArgs e)
+		private void OnReplaceLinksActivated(object sender, EventArgs e)
 		{
 			var replaceDlg = new ReplaceEntityLinksDlg(ViewModel.Entity);
 			ViewModel.TabParent.AddSlaveTab(ViewModel, replaceDlg);
 		}
 
-		string GenerateOfficialName(object arg)
+		private string GenerateOfficialName(object arg)
 		{
 			var widget = arg as Entry;
 			return widget.Text;
@@ -1069,7 +1081,7 @@ namespace Vodovoz.Views.Goods
 			Chooser.Destroy();
 		}
 
-		void Imageslist_ImageButtonPressEvent(object sender, ImageButtonPressEventArgs e)
+		private void Imageslist_ImageButtonPressEvent(object sender, ImageButtonPressEventArgs e)
 		{
 			if((int)e.eventArgs.Event.Button == 3) {
 				ViewModel.PopupMenuOn = (NomenclatureImage)e.Tag;
@@ -1082,13 +1094,19 @@ namespace Vodovoz.Views.Goods
 			}
 		}
 
-		void DeleteImage_Activated(object sender, EventArgs e)
+		private void DeleteImage_Activated(object sender, EventArgs e)
 		{
 			ViewModel.DeleteImage();
 			ReloadImages();
 		}
 
 		#endregion
+
+		public override void Destroy()
+		{
+			Dispose();
+			base.Destroy();
+		}
 
 		public override void Dispose()
 		{
@@ -1105,7 +1123,9 @@ namespace Vodovoz.Views.Goods
 				alternativePricesView.PricesList.ElementRemoved -= PriceRemoved;
 				alternativePricesView.PricesList.ElementChanged -= PriceRowChanged;
 			}
-			
+
+			checkIsArchive.Released -= OnCheckIsArchiveReleased;
+
 			base.Dispose();
 		}
 	}

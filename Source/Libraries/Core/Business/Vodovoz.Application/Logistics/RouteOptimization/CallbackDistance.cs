@@ -43,17 +43,23 @@ namespace Vodovoz.Application.Logistics.RouteOptimization
 			{
 				var firstOrder = _nodes[secondIndex - 1];
 				var firstBaseVersion = GetGroupVersion(firstOrder.ShippingBase, firstOrder.Order.DeliveryDate.Value);
-				distance = _distanceCalculator.DistanceFromBaseMeter(firstBaseVersion, _nodes[secondIndex - 1].Order.DeliveryPoint);
+				distance = _distanceCalculator.DistanceFromBaseMeter(
+					firstBaseVersion.PointCoordinates,
+					_nodes[secondIndex - 1].Order.DeliveryPoint.PointCoordinates);
 			}
 			else if(secondIndex == 0)
 			{
 				var secondOrder = _nodes[firstIndex - 1];
 				var secondBaseVersion = GetGroupVersion(secondOrder.ShippingBase, secondOrder.Order.DeliveryDate.Value);
-				distance = _distanceCalculator.DistanceToBaseMeter(_nodes[firstIndex - 1].Order.DeliveryPoint, secondBaseVersion);
+				distance = _distanceCalculator.DistanceToBaseMeter(
+					_nodes[firstIndex - 1].Order.DeliveryPoint.PointCoordinates,
+					secondBaseVersion.PointCoordinates);
 			}
 			else
 			{
-				distance = _distanceCalculator.DistanceMeter(_nodes[firstIndex - 1].Order.DeliveryPoint, _nodes[secondIndex - 1].Order.DeliveryPoint);
+				distance = _distanceCalculator.DistanceMeter(
+					_nodes[firstIndex - 1].Order.DeliveryPoint.PointCoordinates,
+					_nodes[secondIndex - 1].Order.DeliveryPoint.PointCoordinates);
 			}
 
 			return distance;

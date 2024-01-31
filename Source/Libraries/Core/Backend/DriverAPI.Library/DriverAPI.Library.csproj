@@ -22,6 +22,7 @@
 		<ProjectReference Include="..\..\..\External\Gtk.DataBindings\System.Data.Bindings\System.Data.Bindings.csproj" />
 		<ProjectReference Include="..\..\Business\Vodovoz.Application\Vodovoz.Application.csproj" />
 		<ProjectReference Include="..\..\Business\VodovozBusiness\VodovozBusiness.csproj" />
+		<ProjectReference Include="..\EventsApi.Library\EventsApi.Library.csproj" />
 	</ItemGroup>
 
 </Project>

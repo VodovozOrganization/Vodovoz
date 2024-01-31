@@ -1,22 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using Autofac;
+﻿using Autofac;
 using Gamma.Utilities;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Journal;
-using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels.Dialog;
 using QS.ViewModels.Extension;
+using System;
+using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Services;
-using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.ViewModels.Goods
@@ -25,7 +24,6 @@ namespace Vodovoz.ViewModels.Goods
 	{
 		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
 		private readonly IInteractiveService _interactiveService;
-		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 
 		private DelegateCommand<IList<AdditionalLoadingNomenclatureDistribution>> _removeNomenclatureDistributionCommand;
 		private DelegateCommand _addNomenclatureDistributionCommand;
@@ -58,7 +56,6 @@ namespace Vodovoz.ViewModels.Goods
 			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ??
 				throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
 			_interactiveService = commonServices.InteractiveService;
-			_nomenclatureSelectorFactory = scope.Resolve<INomenclatureJournalFactory>();
 
 			CanEdit = commonServices.CurrentPermissionService
 				.ValidateEntityPermission(typeof(AdditionalLoadingNomenclatureDistribution)).CanUpdate;
@@ -141,7 +138,7 @@ namespace Vodovoz.ViewModels.Goods
 						OpenPageOptions.AsSlave
 					);
 					page.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
-					page.ViewModel.OnEntitySelectedResult += OnNomenclaturesSelected;
+					page.ViewModel.OnSelectResult += OnNomenclaturesSelected;
 				}));
 
 		public DelegateCommand ShowFlyerInfoCommand => _showFlyerInfoCommand
@@ -162,9 +159,10 @@ namespace Vodovoz.ViewModels.Goods
 					);
 				}));
 
-		private void OnNomenclaturesSelected(object sender, JournalSelectedNodesEventArgs e)
+		private void OnNomenclaturesSelected(object sender, JournalSelectedEventArgs e)
 		{
-			var nodesToAdd = e.SelectedNodes
+			var nodesToAdd = e.SelectedObjects
+				.Cast<NomenclatureJournalNode>()
 				.Where(selectedNode => ObservableNomenclatureDistributions.All(x => x.Nomenclature.Id != selectedNode.Id))
 				.ToList();
 

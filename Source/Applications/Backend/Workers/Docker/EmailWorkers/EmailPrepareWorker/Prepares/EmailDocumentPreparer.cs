@@ -1,10 +1,8 @@
 ﻿using fyiReporting.RDL;
 using QS.Report;
-using QSProjectsLib;
 using RdlEngine;
 using System;
 using System.IO;
-using System.Threading.Tasks;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;
 using EmailAttachment = Mailjet.Api.Abstractions.EmailAttachment;
@@ -13,7 +11,7 @@ namespace EmailPrepareWorker.Prepares
 {
 	public class EmailDocumentPreparer : IEmailDocumentPreparer
 	{
-		public EmailAttachment PrepareDocument(IEmailableDocument document, CounterpartyEmailType counterpartyEmailType)
+		public EmailAttachment PrepareDocument(IEmailableDocument document, CounterpartyEmailType counterpartyEmailType, string connectionString)
 		{
 			bool wasHideSignature;
 			ReportInfo ri;
@@ -21,11 +19,11 @@ namespace EmailPrepareWorker.Prepares
 			wasHideSignature = document.HideSignature;
 			document.HideSignature = false;
 
-			ri = document.GetReportInfo();
+			ri = document.GetReportInfo(connectionString);
 
 			document.HideSignature = wasHideSignature;
 
-			using MemoryStream stream = ReportExporter.ExportToMemoryStream(ri.GetReportUri(), ri.GetParametersString(), QSMain.ConnectionString, OutputPresentationType.PDF, true);
+			using MemoryStream stream = ReportExporter.ExportToMemoryStream(ri.GetReportUri(), ri.GetParametersString(), connectionString, OutputPresentationType.PDF, true);
 
 			string documentDate = document.DocumentDate.HasValue ? "_" + document.DocumentDate.Value.ToString("ddMMyyyy") : "";
 

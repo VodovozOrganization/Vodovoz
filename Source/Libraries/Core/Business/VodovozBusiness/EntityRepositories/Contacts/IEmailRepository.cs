@@ -1,11 +1,13 @@
-﻿using System;
+﻿using QS.DomainModel.UoW;
+using System;
 using System.Collections.Generic;
-using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
 
 namespace Vodovoz.EntityRepositories
 {
@@ -16,7 +18,7 @@ namespace Vodovoz.EntityRepositories
 		StoredEmail GetStoredEmailByMessageId(IUnitOfWork uow, string messageId);
 		bool HaveSendedEmailForBill(int orderId);
 		bool HasSendedEmailForUpd(int orderId);
-		bool NeedSendUpdByEmail(int id);
+		bool NeedSendDocumentsByEmailOnFinish(IUnitOfWork uow, Order order, IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider);
 		bool CanSendByTimeout(string address, int orderId, OrderDocumentType type);
 		int GetCurrentDatabaseId(IUnitOfWork uow);
 		int GetCounterpartyIdByEmailGuidForUnsubscribing(IUnitOfWork uow, Guid emailGuid);

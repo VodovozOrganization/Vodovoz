@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Sale;
+using Vodovoz.Core.Domain;
 using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.Application.Logistics.RouteOptimization
@@ -14,8 +13,8 @@ namespace Vodovoz.Application.Logistics.RouteOptimization
 		List<WayHash> ErrorWays { get; }
 		void Dispose();
 		void FlushCache();
-		int TimeFromBaseSec(GeoGroupVersion fromBase, DeliveryPoint toDP);
-		int TimeSec(DeliveryPoint fromDP, DeliveryPoint toDP);
-		int TimeToBaseSec(DeliveryPoint fromDP, GeoGroupVersion toBase);
+		int TimeFromBaseSec(PointCoordinates fromBase, PointCoordinates toDeliveryPoint);
+		int TimeSec(PointCoordinates fromDeliveryPont, PointCoordinates toDeliveryPoint);
+		int TimeToBaseSec(PointCoordinates fromDeliveryPont, PointCoordinates toBase);
 	}
 }

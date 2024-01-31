@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
+using NHibernate.Driver.MySqlConnector;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QSProjectsLib;
@@ -64,7 +65,8 @@ namespace EmailStatusUpdateWorker
 				QSMain.ConnectionString = conStrBuilder.GetConnectionString(true);
 				var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
 										 .Dialect<NHibernate.Spatial.Dialect.MySQL57SpatialDialect>()
-										 .ConnectionString(QSMain.ConnectionString);
+										 .ConnectionString(QSMain.ConnectionString)
+										 .Driver<MySqlConnectorDriver>();
 
 				OrmConfig.ConfigureOrm(db_config,
 					new Assembly[] {

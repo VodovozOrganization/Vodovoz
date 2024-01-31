@@ -1,4 +1,4 @@
-﻿namespace EdoService.Dto
+﻿namespace EdoService.Library.Dto
 {
 	public class ResultDto
 	{

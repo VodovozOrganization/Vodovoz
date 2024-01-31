@@ -12,6 +12,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Drivers;
 
 namespace DriverAPI.Controllers.V4
@@ -19,7 +21,7 @@ namespace DriverAPI.Controllers.V4
 	/// <summary>
 	/// Контроллер заказов
 	/// </summary>
-	[Authorize]
+	[Authorize(Roles = nameof(ApplicationUserRole.Driver))]
 	public class OrdersController : VersionedController
 	{
 		private readonly ILogger<OrdersController> _logger;

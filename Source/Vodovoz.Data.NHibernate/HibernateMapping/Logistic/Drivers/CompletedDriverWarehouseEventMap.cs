@@ -1,4 +1,5 @@
 ﻿using FluentNHibernate.Mapping;
+using Vodovoz.Core.Domain.Schemas.Logistics;
 using Vodovoz.Domain.Logistic.Drivers;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Drivers
@@ -7,20 +8,24 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Drivers
 	{
 		public CompletedDriverWarehouseEventMap()
 		{
-			Table("completed_drivers_warehouses_events");
+			Table(CompletedDriverWarehouseEventSchema.TableName);
 			
-			Id(x => x.Id).Column("id").GeneratedBy.Native();
+			Id(x => x.Id)
+				.Column(CompletedDriverWarehouseEventSchema.IdColumn).GeneratedBy.Native();
 
-			Map(x => x.Latitude).Column("latitude");
-			Map(x => x.Longitude).Column("longitude");
-			Map(x => x.CompletedDate).Column("completed_date");
+			Map(x => x.Latitude).Column(CompletedDriverWarehouseEventSchema.LatitudeColumn);
+			Map(x => x.Longitude).Column(CompletedDriverWarehouseEventSchema.LongitudeColumn);
+			Map(x => x.CompletedDate).Column(CompletedDriverWarehouseEventSchema.CompletedColumn);
 			Map(x => x.DistanceMetersFromScanningLocation)
-				.Column("distance_meters_from_scanning_location");
-			Map(x => x.DocumentId).Column("document_id");
+				.Column(CompletedDriverWarehouseEventSchema.DistanceMetersFromScanningLocationColumn);
+			Map(x => x.DocumentId).Column(CompletedDriverWarehouseEventSchema.DocumentIdColumn);
 
-			References(x => x.DriverWarehouseEvent).Column("driver_warehouse_event_id");
-			References(x => x.Employee).Column("employee_id");
-			References(x => x.Car).Column("car_id");
+			References(x => x.DriverWarehouseEvent)
+				.Column(CompletedDriverWarehouseEventSchema.DriverWarehouseEventColumn);
+			References(x => x.Employee)
+				.Column(CompletedDriverWarehouseEventSchema.EmployeeColumn);
+			References(x => x.Car)
+				.Column(CompletedDriverWarehouseEventSchema.CarColumn);
 		}
 	}
 }

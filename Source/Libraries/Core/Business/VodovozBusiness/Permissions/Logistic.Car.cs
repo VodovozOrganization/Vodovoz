@@ -26,6 +26,13 @@ namespace Vodovoz.Permissions
 			[Display(
 				Name = "Изменение в автомобиле количества забираемых бутылей с адреса")]
 			public static string CanChangeCarsBottlesFromAddress => "can_change_cars_bottles_from_address";
+
+			/// <summary>
+			/// Доступ к отчету "Отчет о принадлежности ТС"
+			/// </summary>
+			[Display(
+				Name = "Доступ к отчету \"Отчет о принадлежности ТС\"")]
+			public static string HasAccessToCarOwnershipReport => "has_access_to_car_ownership_report";
 		}
 	}
 }

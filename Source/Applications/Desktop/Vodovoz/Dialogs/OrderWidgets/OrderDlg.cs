@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
@@ -45,6 +46,7 @@ using Vodovoz.Application.Orders.Services;
 using Vodovoz.Controllers;
 using Vodovoz.Core;
 using Vodovoz.Core.DataService;
+using Vodovoz.Cores;
 using Vodovoz.Dialogs;
 using Vodovoz.Dialogs.Client;
 using Vodovoz.Dialogs.Email;
@@ -95,7 +97,6 @@ using Vodovoz.NotificationRecievers;
 using Vodovoz.Parameters;
 using Vodovoz.Presentation.ViewModels.PaymentType;
 using Vodovoz.Services;
-using Vodovoz.Settings.Nomenclature;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.SidePanel.InfoViews;
@@ -109,6 +110,7 @@ using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.Infrastructure.Print;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
@@ -159,7 +161,8 @@ namespace Vodovoz
 		private static readonly IDeliveryRepository _deliveryRepository = new DeliveryRepository();
 
 		private IOrderService _orderService;
-
+		private IEdoService _edoService;
+		private IEmailService _emailService;		
 		private string _lastDeliveryPointComment;
 
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
@@ -198,6 +201,7 @@ namespace Vodovoz
 		private readonly IEmailRepository _emailRepository = new EmailRepository();
 		private readonly ICashRepository _cashRepository = new CashRepository();
 		private readonly IPromotionalSetRepository _promotionalSetRepository = new PromotionalSetRepository();
+		private readonly IDeliveryScheduleParametersProvider _deliveryScheduleParametersProvider = new DeliveryScheduleParametersProvider(_parametersProvider);
 		private ICounterpartyService _counterpartyService;
 
 		private readonly IRentPackagesJournalsViewModelsFactory _rentPackagesJournalsViewModelsFactory
@@ -214,6 +218,9 @@ namespace Vodovoz
 			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
 				"can_set_organization_from_order_and_counterparty");
 
+		private readonly bool _canResendUpdDpcuments =
+			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_resend_upd_documents");
+		
 		private readonly bool _canEditSealAndSignatureUpd =
 			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_seal_and_signature_UPD");
 
@@ -233,7 +240,7 @@ namespace Vodovoz
 		private INomenclatureFixedPriceProvider _nomenclatureFixedPriceProvider;
 		private IOrderDiscountsController _discountsController;
 		private IOrderDailyNumberController _dailyNumberController;
-		private bool _isNeedSendBill;
+		private bool _isNeedSendBillToEmail;
 		private Email _emailAddressForBill;
 		private DateTime? _previousDeliveryDate;
 		private PhonesJournalFilterViewModel _contactPhoneFilter;
@@ -562,10 +569,12 @@ namespace Vodovoz
 			_fastDeliveryNomenclatureId = _nomenclatureParametersProvider.FastDeliveryNomenclatureId;
 			_advancedPaymentNomenclatureId = _nomenclatureParametersProvider.AdvancedPaymentNomenclatureId;
 			_orderService = _lifetimeScope.Resolve<IOrderService>();
+			_counterpartyService = _lifetimeScope.Resolve<ICounterpartyService>();
+			_edoService = _lifetimeScope.Resolve<IEdoService>();
+			_emailService = _lifetimeScope.Resolve<IEmailService>();
 			NavigationManager = Startup.MainWin.NavigationManager;
 			_selectPaymentTypeViewModel = new SelectPaymentTypeViewModel(NavigationManager);
-			_lastDeliveryPointComment = Entity.DeliveryPoint?.Comment.Trim('\n').Trim(' ') ?? string.Empty;
-			_counterpartyService = _lifetimeScope.Resolve<ICounterpartyService>();
+			_lastDeliveryPointComment = Entity.DeliveryPoint?.Comment.Trim('\n').Trim(' ') ?? string.Empty;			
 
 			_edoContainerRepository = _lifetimeScope.Resolve<IGenericRepository<EdoContainer>>();
 
@@ -1240,34 +1249,42 @@ namespace Vodovoz
 				}
 			}
 
-			ybuttonSendDocumentAgain.Sensitive = orderHasUpdDocuments;
+			ybuttonSendDocumentAgain.Sensitive = orderHasUpdDocuments && _canResendUpdDpcuments;
 			ybuttonSendDocumentAgain.Label = "Отправить повторно";
 		}
 
 		private void OnButtonSendDocumentAgainClicked(object sender, EventArgs e)
-		{
-			if(IsOrderHasUpdStatus(EdoDocFlowStatus.Succeed))
-			{
-				if(!ServicesConfig.InteractiveService.Question("Для данного заказа имеется УПД со статусом \"Документооборот завершен успешно\".\nВы уверены, что хотите отправить дубль?"))
-				{
-					return;
-				}
-			}
-			else if(IsOrderHasUpdStatus(EdoDocFlowStatus.InProgress))
-			{
-				if(!ServicesConfig.InteractiveService.Question("Для данного заказа имеется УПД со статусом \"В процессе\".\nВы уверены, что хотите отправить дубль?"))
-				{
-					return;
-				}
-			}
-			
+		{			
 			ResendUpd();
 			CustomizeSendDocumentAgainButton();
 		}
 
 		private void ResendUpd()
 		{
-			Entity.SetNeedToRecendEdoUpd();
+			var edoValidateUpdResult = _edoService.ValidateOrderForUpd(Entity);
+			var edoValidateContainerResult = _edoService.ValidateEdoContainers(GetOutgoingUpdDocuments());
+
+			var edoValidateResult = edoValidateUpdResult.Errors.Concat(edoValidateContainerResult.Errors);
+
+			var isValidateFailure = edoValidateUpdResult.IsFailure || edoValidateContainerResult.IsFailure;
+
+			var errorMessages = edoValidateUpdResult.Errors.Select(x => x.Message)
+				.Concat(edoValidateContainerResult.Errors.Select(x => x.Message))
+				.ToArray();
+
+			if(isValidateFailure)
+			{
+				if(edoValidateResult.Any(error => error.Code == Errors.Edo.Edo.AlreadyPaidUpd || error.Code == Errors.Edo.Edo.AlreadySuccefullSended)
+					&& !ServicesConfig.InteractiveService.Question(
+						"Вы уверены, что хотите отправить повторно?\n" +
+						string.Join("\n - ", errorMessages),
+						"Требуется подтверждение!"))
+				{
+					return;
+				}
+			}
+
+			_edoService.SetNeedToResendEdoDocumentForOrder(Entity, Type.Upd);
 		}
 
 		private void OnLogisticsRequirementsSelectionChanged(object sender, PropertyChangedEventArgs e)
@@ -2187,11 +2204,6 @@ namespace Vodovoz
 
 				Entity.SaveEntity(UoW, _currentEmployee, _dailyNumberController, _paymentFromBankClientController);
 
-				if(_isNeedSendBill)
-				{
-					SendBill();
-				}
-
 				if(Entity.WaitUntilTime != _lastWaitUntilTime)
 				{
 					// Пока нет доработки в мобильном тут оставим заглушенным
@@ -2356,7 +2368,7 @@ namespace Vodovoz
 			PrepareSendBillInformation();
 
 			if(_emailAddressForBill == null
-			   && Entity.NeedSendBill(_emailRepository)
+			   && _emailService.NeedSendBillToEmail(UoW, Entity, _orderRepository, _emailRepository)
 			   && (!Counterparty.NeedSendBillByEdo || Counterparty.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
 			   && !MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?"))
 			{
@@ -2479,6 +2491,11 @@ namespace Vodovoz
 
 			ProcessSmsNotification();
 
+			if(_isNeedSendBillToEmail)
+			{
+				_emailService.SendBillToEmail(UoW, Entity, _emailRepository);
+			}
+
 			UpdateUIState();
 
 			return Result.Success();
@@ -2510,18 +2527,16 @@ namespace Vodovoz
 
 		private void PrepareSendBillInformation()
 		{
-			_emailAddressForBill = Entity.GetEmailAddressForBill();
+			_emailAddressForBill = _emailService.GetEmailAddressForBill(Entity);
 
-			if(Entity.NeedSendBill(_emailRepository)
-			   && (_emailAddressForBill != null 
-			       || (Counterparty.NeedSendBillByEdo && Counterparty.ConsentForEdoStatus == ConsentForEdoStatus.Agree))
-			   )
+			if(_emailService.NeedSendBillToEmail(UoW, Entity, _orderRepository, _emailRepository)
+			   && _emailAddressForBill != null)
 			{
-				_isNeedSendBill = true;
+				_isNeedSendBillToEmail = true;
 			}
 			else
 			{
-				_isNeedSendBill = false;
+				_isNeedSendBillToEmail = false;
 			}
 		}
 
@@ -2996,9 +3011,9 @@ namespace Vodovoz
 					})
 				.ViewModel;
 			
-			journalViewModel.OnEntitySelectedResult += (s, ea) =>
+			journalViewModel.OnSelectResult += (s, ea) =>
 			{
-				var selectedNode = ea.SelectedNodes.FirstOrDefault();
+				var selectedNode = ea.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
 				
 				if(selectedNode == null)
 				{
@@ -3043,9 +3058,9 @@ namespace Vodovoz
 					})
 				.ViewModel;
 			
-			journalViewModel.OnEntitySelectedResult += (s, ea) =>
+			journalViewModel.OnSelectResult += (s, ea) =>
 			{
-				var selectedNode = ea.SelectedNodes.FirstOrDefault();
+				var selectedNode = ea.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
 				if(selectedNode == null)
 				{
 					return;
@@ -3728,7 +3743,7 @@ namespace Vodovoz
 			PrepareSendBillInformation();
 
 			if(_emailAddressForBill == null
-			   && Entity.NeedSendBill(_emailRepository)
+			   && _emailService.NeedSendBillToEmail(UoW, Entity, _orderRepository, _emailRepository)
 			   && (!Counterparty.NeedSendBillByEdo || Counterparty.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
 			   && !MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?"))
 			{
@@ -4364,96 +4379,6 @@ namespace Vodovoz
 		{
 			Email clientEmail = Entity.Client.Emails.FirstOrDefault(x => (x.EmailType?.EmailPurpose == EmailPurpose.ForBills) || x.EmailType == null);
 			return clientEmail != null || MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?");
-		}
-
-		private void SendBill()
-		{
-			var document = Entity.OrderDocuments.FirstOrDefault(x => (x.Type == OrderDocumentType.Bill
-				|| x.Type == OrderDocumentType.SpecialBill)
-				&& x.Order.Id == Entity.Id);
-
-			if(document == null)
-			{
-				MessageDialogHelper.RunErrorDialog("Невозможно отправить счет. Счет не найден.");
-				return;
-			}
-
-			try
-			{
-				using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"Добавление записи для отправки счета"))
-				{
-					if(Counterparty.NeedSendBillByEdo && Counterparty.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
-					{
-						SendBillByEdo(uow);
-					}
-					else
-					{
-						SendBillByEmail(uow, document);
-					}
-				}
-			}
-			catch(Exception ex)
-			{
-				logger.Debug($"Ошибка при сохранении. Ошибка: {ex.Message}");
-				throw ex;
-			}
-		}
-
-		private void SendBillByEdo(IUnitOfWork uow)
-		{
-			var edoContainer = _edoContainers.SingleOrDefault(x => x.Type == Type.Bill)
-							   ?? new EdoContainer
-							   {
-								   Type = Type.Bill,
-								   Created = DateTime.Now,
-								   Container = new byte[64],
-								   Order = Order,
-								   Counterparty = Counterparty,
-								   MainDocumentId = string.Empty,
-								   EdoDocFlowStatus = EdoDocFlowStatus.PreparingToSend
-							   };
-
-			uow.Save(edoContainer);
-			uow.Commit();
-		}
-
-		private void SendBillByEmail(IUnitOfWork uow, OrderDocument document)
-		{
-			if(_emailRepository.HaveSendedEmailForBill(Entity.Id))
-			{
-				return;
-			}
-
-			if(_emailAddressForBill == null)
-			{
-				throw new ArgumentNullException(nameof(_emailAddressForBill));
-			}
-
-			Email clientEmail = Entity.Client.Emails.FirstOrDefault(x => (x.EmailType?.EmailPurpose == EmailPurpose.ForBills) || x.EmailType == null);
-
-			var storedEmail = new StoredEmail
-			{
-				SendDate = DateTime.Now,
-				StateChangeDate = DateTime.Now,
-				State = StoredEmailStates.PreparingToSend,
-				RecipientAddress = clientEmail.Address,
-				ManualSending = false,
-				Subject = document.Name,
-				Author = _employeeRepository.GetEmployeeForCurrentUser(uow)
-			};
-
-			uow.Save(storedEmail);
-
-			BillDocumentEmail orderDocumentEmail = new BillDocumentEmail
-			{
-				StoredEmail = storedEmail,
-				Counterparty = Counterparty,
-				OrderDocument = document
-			};
-
-			uow.Save(orderDocumentEmail);
-
-			uow.Commit();
 		}
 
 		void Selection_Changed(object sender, EventArgs e)

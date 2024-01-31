@@ -1,7 +1,10 @@
-﻿using DriverAPI.Library.Helpers;
+using DriverAPI.Library.Helpers;
 using DriverAPI.Library.Models;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
+using EventsApi.Library;
+using EventsApi.Library.Models;
+using EventsApi.Library.Services;
 using Vodovoz;
 using Vodovoz.Application;
 using Vodovoz.Parameters;
@@ -47,13 +50,14 @@ namespace DriverAPI.Library
 			services.AddScoped<ISmsPaymentModel, SmsPaymentModel>();
 			services.AddScoped<IDriverComplaintModel, DriverComplaintModel>();
 			services.AddScoped<IFastPaymentModel, FastPaymentModel>();
-			services.AddScoped<IDriverWarehouseEventsModel, DriverWarehouseEventsModel>();
+			services.AddScoped<ILogisticsEventsService, DriverWarehouseEventsService>();
 
 			services.AddScoped<IGlobalSettings, GlobalSettings>();
 
-			services.AddBusiness()
-					.AddApplication()
-					.AddDatabaseSettings();
+			services.AddBusiness();
+			services.AddApplication();
+			services.AddDatabaseSettings();
+			services.AddDriverEventsDependencies();
 
 			return services;
 		}

@@ -1,4 +1,4 @@
-﻿using fyiReporting.RDL;
+using fyiReporting.RDL;
 using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Exceptions;
@@ -30,7 +30,6 @@ using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Service;
-using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Counterparties;
@@ -40,6 +39,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Undeliveries;
+using Vodovoz.Extensions;
 using Vodovoz.Factories;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
@@ -48,7 +48,6 @@ using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Orders;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
-using Type = Vodovoz.Domain.Orders.Documents.Type;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -90,6 +89,8 @@ namespace Vodovoz.Domain.Orders
 
 		private readonly OrderItemComparerForCopyingFromUndelivery _itemComparerForCopyingFromUndelivery =
 			new OrderItemComparerForCopyingFromUndelivery();
+		private readonly IEmailService _emailService = new EmailService();
+
 		private readonly double _futureDeliveryDaysLimit = 30;
 
 		private bool _isBottleStockDiscrepancy;
@@ -1408,10 +1409,17 @@ namespace Vodovoz.Domain.Orders
 				}
 			}
 
-			bool isTransferedAddress = validationContext.Items.ContainsKey("AddressStatus") && (RouteListItemStatus)validationContext.Items["AddressStatus"] == RouteListItemStatus.Transfered;
-			if (validationContext.Items.ContainsKey("cash_order_close") && (bool)validationContext.Items["cash_order_close"] )
-				if (PaymentType == PaymentType.Terminal && OnlineOrder == null && !_orderRepository.GetUndeliveryStatuses().Contains(OrderStatus) && !isTransferedAddress)
-					yield return new ValidationResult($"В заказе с оплатой по терминалу №{Id} отсутствует номер оплаты.");
+			var isCashOrderClose = validationContext.Items.ContainsKey("cash_order_close") && (bool)validationContext.Items["cash_order_close"];
+			var isTransferedAddress = validationContext.Items.ContainsKey("AddressStatus") && (RouteListItemStatus)validationContext.Items["AddressStatus"] == RouteListItemStatus.Transfered;
+
+			if(isCashOrderClose
+				&& !isTransferedAddress
+				&& PaymentTypesNeededOnlineOrder.Contains(PaymentType)
+				&& OnlineOrder == null
+				&& !_orderRepository.GetUndeliveryStatuses().Contains(OrderStatus)				)
+			{
+				yield return new ValidationResult($"В заказе №{Id} с оплатой по \"{PaymentType.GetEnumDisplayName(true)}\"  отсутствует номер оплаты.");
+			}
 
 			if (ObservableOrderItems.Any(x => x.Discount > 0 && x.DiscountReason == null && x.PromoSet == null))
 				yield return new ValidationResult("Если в заказе указана скидка на товар, то обязательно должно быть заполнено поле 'Основание'.");
@@ -2129,27 +2137,6 @@ namespace Vodovoz.Domain.Orders
 				.Where(x => x.Nomenclature.TareVolume == TareVolume.Vol19L)) {
 				item.SetDiscountByStock(stockBottleDiscountReason, stockBottleDiscountPercent);
 			}
-		}
-
-		public virtual Email GetEmailAddressForBill()
-		{
-			return Client.Emails.FirstOrDefault(x => (x.EmailType?.EmailPurpose == EmailPurpose.ForBills) || x.EmailType == null);
-		}
-
-		public virtual bool NeedSendBill(IEmailRepository emailRepository)
-		{
-			var notSendedByEdo = _orderRepository.GetEdoContainersByOrderId(UoW, Id).Count(x=>x.Type == Type.Bill) == 0;
-			var notSendedByEmail = !emailRepository.HaveSendedEmailForBill(Id);
-			var notSended = notSendedByEdo && notSendedByEmail;
-			if((OrderStatus == OrderStatus.NewOrder || OrderStatus == OrderStatus.Accepted || OrderStatus == OrderStatus.WaitForPayment)
-			   && PaymentType == PaymentType.Cashless
-			   && notSended)
-			{
-				//Проверка должен ли формироваться счет для текущего заказа
-				var requirementDocTypes = GetRequirementDocTypes();
-				return requirementDocTypes.Contains(OrderDocumentType.Bill) || requirementDocTypes.Contains(OrderDocumentType.SpecialBill);
-			}
-			return false;
 		}
 
 		public virtual void ParseTareReason()
@@ -3171,10 +3158,11 @@ namespace Vodovoz.Domain.Orders
 					break;
 				case OrderStatus.Shipped:
 				case OrderStatus.UnloadingOnStock:
-					SendUpdToEmail();
+					_emailService.SendUpdToEmailOnFinish(UoW, this, _emailRepository, _deliveryScheduleParametersProvider);
 					break;
 				case OrderStatus.Closed:
-					SendUpdToEmail();
+					_emailService.SendUpdToEmailOnFinish(UoW, this,_emailRepository, _deliveryScheduleParametersProvider);
+					_emailService.SendBillForClosingDocumentOrderToEmailOnFinish(UoW, this, _emailRepository, _orderRepository, _deliveryScheduleParametersProvider);
 					OnChangeStatusToClosed();
 					break;
 				case OrderStatus.DeliveryCanceled:
@@ -3270,50 +3258,6 @@ namespace Vodovoz.Domain.Orders
 				ChangeStatusAndCreateTasks(OrderStatus.OnLoading, callTaskWorker);
 				LoadAllowedBy = employee;
 			}
-		}
-
-		public virtual void SendUpdToEmail()
-		{
-			if(!_emailRepository.NeedSendUpdByEmail(Id) || _emailRepository.HasSendedEmailForUpd(Id))
-			{
-				return;
-			}
-
-			var document = OrderDocuments.FirstOrDefault(x => x.Type == OrderDocumentType.UPD || x.Type == OrderDocumentType.SpecialUPD);
-
-			if(document == null)
-			{
-				return;
-			}
-
-			var emailAddress = GetEmailAddressForBill();
-
-			if(emailAddress == null)
-			{
-				return;
-			}
-
-			var storedEmail = new StoredEmail
-			{
-				SendDate = DateTime.Now,
-				StateChangeDate = DateTime.Now,
-				State = StoredEmailStates.PreparingToSend,
-				RecipientAddress = emailAddress.Address,
-				ManualSending = false,
-				Subject = document.Name,
-				Author = Author
-			};
-
-			UoW.Save(storedEmail);
-
-			var updDocumentEmail = new UpdDocumentEmail
-			{
-				StoredEmail = storedEmail,
-				Counterparty = Client,
-				OrderDocument = document
-			};
-
-			UoW.Save(updDocumentEmail);
 		}
 
 		public virtual void SetActualCountToSelfDelivery()
@@ -3966,19 +3910,9 @@ namespace Vodovoz.Domain.Orders
 
 		#region Работа с документами
 
-		public virtual OrderDocumentType[] GetRequirementDocTypes()
-		{
-			//создаём объект-ключ на основе текущего заказа. Этот ключ содержит набор свойств,
-			//по которым будет происходить подбор правила для создания набора документов
-			var key = new OrderStateKey(this);
-
-			//обращение к хранилищу правил для получения массива типов документов по ключу
-			return OrderDocumentRulesRepository.GetSetOfDocumets(key);
-		}
-
 		public virtual void UpdateDocuments()
 		{
-			CheckAndCreateDocuments(GetRequirementDocTypes());
+			CheckAndCreateDocuments(_emailService.GetRequirementDocTypes(this));
 		}
 
 		public virtual void UpdateCertificates(out List<Nomenclature> nomenclaturesNeedUpdate)
@@ -4464,62 +4398,14 @@ namespace Vodovoz.Domain.Orders
 			return result;
 		}
 
-		public virtual void SetNeedToRecendEdoUpd()
-		{
-			var userCanResendUpd = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_resend_upd_documents");
-			if(!userCanResendUpd)
-			{
-				InteractiveService.ShowMessage(ImportanceLevel.Warning, "Текущий пользователь не имеет права повторной отправки УПД");
-				return;
-			}
 
-			if(OrderPaymentStatus == OrderPaymentStatus.Paid)
-			{
-				if(!ServicesConfig.InteractiveService.Question(
-					$"Счет по заказу №{Id} оплачен.\r\nПроверьте, пожалуйста, статус УПД в ЭДО перед повторной отправкой на предмет аннулирован/не аннулирован, подписан/не подписан.\r\n\r\n" +
-					$"Вы уверены, что хотите отправить повторно?"))
-				{
-					return;
-				}
-			}
+        #endregion
 
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
-			{
-				var edoDocumentsActions = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
-					.Where(x => x.Order.Id == Id)
-					.FirstOrDefault();
+        #region Аренда
 
-				if(edoDocumentsActions == null)
-				{
-					edoDocumentsActions = new OrderEdoTrueMarkDocumentsActions();
-					edoDocumentsActions.Order = this;
-				}
+        #region NonFreeRent
 
-				edoDocumentsActions.IsNeedToResendEdoUpd = true;
-
-				var orderLastTrueMarkDocument = uow.GetAll<TrueMarkApiDocument>()
-					.Where(x => x.Order.Id == Id)
-					.OrderByDescending(x => x.CreationDate)
-					.FirstOrDefault();
-
-				if(orderLastTrueMarkDocument != null 
-					&& orderLastTrueMarkDocument.Type != TrueMarkApiDocument.TrueMarkApiDocumentType.WithdrawalCancellation)
-				{
-					edoDocumentsActions.IsNeedToCancelTrueMarkDocument = true;
-				}
-
-				uow.Save(edoDocumentsActions);
-				uow.Commit();
-			}				
-		}
-
-		#endregion
-
-		#region Аренда
-
-		#region NonFreeRent
-
-		public virtual void AddNonFreeRent(PaidRentPackage paidRentPackage, Nomenclature equipmentNomenclature)
+        public virtual void AddNonFreeRent(PaidRentPackage paidRentPackage, Nomenclature equipmentNomenclature)
 		{
 			OrderItem orderRentDepositItem = GetExistingNonFreeRentDepositItem(paidRentPackage);
 			if(orderRentDepositItem == null) {
@@ -4907,6 +4793,14 @@ namespace Vodovoz.Domain.Orders
 			PaymentType.DriverApplicationQR,
 			PaymentType.SmsQR,
 			PaymentType.Cashless
+		};
+
+		public static PaymentType[] PaymentTypesNeededOnlineOrder => new[]
+		{
+			PaymentType.Terminal,
+			PaymentType.PaidOnline,
+			PaymentType.SmsQR,
+			PaymentType.DriverApplicationQR
 		};
 
 		#endregion

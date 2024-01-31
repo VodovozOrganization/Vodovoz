@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -73,12 +73,15 @@
     <Compile Include="Cash\Transfer\Journal\TransferDocumentsJournalViewModel.cs" />
     <Compile Include="Cash\TransferExpenseViewModel.cs" />
     <Compile Include="Cash\TransferIncomeViewModel.cs" />
+    <Compile Include="Counterparties\ClientBalanceFilterViewModel.cs" />
     <Compile Include="Counterparties\ClientClassification\CounterpartyClassificationCalculationEmailSettingsViewModel.cs" />
     <Compile Include="Counterparties\ClientClassification\CounterpartyClassificationCalculationEmailSettingsViewModel.StartClassificationCalculationEventArgs.cs" />
     <Compile Include="Counterparties\ClientClassification\CounterpartyClassificationCalculationViewModel.CalculationMessageEventArgs.cs" />
     <Compile Include="Counterparties\ClientClassification\CounterpartyClassificationCalculationViewModel.ClassificationCalculationReport.cs" />
     <Compile Include="Counterparties\ClientClassification\CounterpartyClassificationCalculationViewModel.ClassificationCalculationReportRow.cs" />
     <Compile Include="Counterparties\ClientClassification\CounterpartyClassificationCalculationViewModel.cs" />
+    <Compile Include="Counterparties\ClientEquipmentBalanceJournalViewModel.ClientEquipmentBalanceNode.cs" />
+    <Compile Include="Counterparties\ClientEquipmentBalanceJournalViewModel.cs" />
     <Compile Include="Counterparties\SubtypesJournalViewModel.cs" />
     <Compile Include="Counterparties\SubtypesJournalViewModel.Node.cs" />
     <Compile Include="Counterparties\SubtypeViewModel.cs" />
@@ -153,7 +156,6 @@
     <Compile Include="Journals\JournalFactories\UndeliveryDetalizationlFactory.cs" />
     <Compile Include="Journals\JournalFactories\IUndeliveryDetalizationlFactory.cs" />
     <Compile Include="Journals\JournalFactories\IRouteListJournalFactory.cs" />
-    <Compile Include="Journals\JournalFactories\IComplaintKindJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\ISalesChannelJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\IWarehouseJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\SalesChannelJournalFactory.cs" />
@@ -190,6 +192,8 @@
     <Compile Include="Journals\JournalViewModels\Employees\EmployeeRegistrationsJournalNode.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\FineTemplateJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\RegradingOfGoodsReasonsJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Logistic\RouteColumnJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Logistic\RouteColumnJournalViewModel.RouteColumnJournalNode.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\OrdersWithoutShipment\OrderWithoutShipmentForPaymentNode.cs" />
     <Compile Include="Journals\JournalViewModels\Goods\KulerSaleWebSiteNomenclatureOnlineCatalogsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Goods\MobileAppNomenclatureOnlineCatalogsJournalViewModel.cs" />
@@ -217,6 +221,11 @@
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.NumberOfComplaintsAgainstDriversReport.cs" />
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.NumberOfComplaintsAgainstDriversReport.Row.cs" />
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.ReportSortOrder.cs" />
+    <Compile Include="ReportsParameters\Logistic\DeliveryTimeReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Logistic\DeliveryTimeReportViewModel.ReportType.cs" />
+    <Compile Include="ReportsParameters\Logistic\DeliveryTimeReportViewModel.RouteListTypeOfUse.cs" />
+    <Compile Include="ReportsParameters\Logistic\DeliveryTimeReportViewModel.SelectableParameter.cs" />
+    <Compile Include="ReportsParameters\Bookkeeping\CounterpartyCashlessDebtsReportViewModel.cs" />
     <Compile Include="ReportsParameters\Orders\UndeliveredOrdersClassificationReportViewModel.cs" />
     <Compile Include="ReportsParameters\Payments\PaymentsFromBankClientReportViewModel.cs" />
     <Compile Include="ReportsParameters\Production\ProducedProductionReportViewModel.cs" />
@@ -279,6 +288,7 @@
     <Compile Include="ViewModels\Logistic\FastDeliveryOrderTransferViewModel.cs" />
     <Compile Include="ViewModels\Logistic\FastDeliveryOrderTransferViewModel.RouteListNode.cs" />
     <Compile Include="ViewModels\Logistic\LogisticsRequirementsViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\RouteColumnViewModel.cs" />
     <Compile Include="ViewModels\Logistic\RouteListMaxFastDeliveryOrdersViewModel.cs" />
     <Compile Include="ViewModels\Logistic\RouteListFastDeliveryMaxDistanceViewModel.cs" />
     <Compile Include="ViewModels\Logistic\RouteListKeepingNode.cs" />
@@ -362,9 +372,7 @@
     <Compile Include="Journals\JournalFactories\DistrictJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\IBulkEmailEventReasonJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\IDistrictJournalFactory.cs" />
-    <Compile Include="Journals\JournalFactories\SalesPlanJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\CarEventTypeJournalFactory.cs" />
-    <Compile Include="Journals\JournalFactories\ISalesPlanJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\ICarEventTypeJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\WarehouseJournalFactory.cs" />
     <Compile Include="Journals\JournalNodes\AddressType.cs" />
@@ -620,6 +628,8 @@
     <Compile Include="ViewModels\Reports\FastDelivery\FastDeliveryPercentCoverageReport.cs" />
     <Compile Include="ViewModels\Reports\FastDelivery\FastDeliverySalesReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\FilterTypeChangedArgs.cs" />
+    <Compile Include="ReportsParameters\Logistics\CarOwnershipReport\CarOwnershipReportViewModel.cs" />
+    <Compile Include="ViewModels\Reports\Logistics\CompletedDriversWarehousesEventsJournalReport.cs" />
     <Compile Include="ViewModels\Reports\Logistics\DriversWarehousesEventNode.cs" />
     <Compile Include="ViewModels\Reports\Logistics\DriversWarehousesEventsReportNode.cs" />
     <Compile Include="ViewModels\Reports\Logistics\DriversWarehousesEventsReportViewModel.cs" />
@@ -726,7 +736,6 @@
     <Compile Include="ViewModels\Warehouses\MovementDocumentViewModel.cs" />
     <Compile Include="Infrastructure\Services\IWarehousePermissionService.cs" />
     <Compile Include="Infrastructure\Services\WarehousePermissionService.cs" />
-    <Compile Include="TempAdapters\INomenclatureJournalFactory.cs" />
     <Compile Include="ViewModels\Warehouses\ShiftChangeResidueDocumentViewModel.cs" />
     <Compile Include="ViewModels\Warehouses\WriteOffDocumentViewModel.cs" />
     <Compile Include="VodovozViewModelAssemblyFinder.cs" />
@@ -830,7 +839,6 @@
     <Compile Include="Widgets\SelectableParametersFilterViewModel.cs" />
     <Compile Include="Widgets\Profitability\MonthPickerViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\DriverMessageFilterViewModel.cs" />
-    <Compile Include="ViewModels\Warehouses\Documents\InventoryDocumentViewModel.cs" />
     <Compile Include="ViewModels\Reports\FastDelivery\FastDeliveryPercentCoverageReportViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\ComplaintDetalizationJournalViewModel.cs" />
     <Compile Include="Journals\JournalNodes\Complaints\ComplaintDetalizationJournalNode.cs" />
@@ -870,6 +878,14 @@
       <Project>{15A5975C-1F75-4023-A2E3-1D9B297B008F}</Project>
       <Name>Vodovoz.Application</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Core.Data.NHibernate\Vodovoz.Core.Data.NHibernate.csproj">
+      <Project>{2c01f582-c2ac-4785-9934-e32ae57645d2}</Project>
+      <Name>Vodovoz.Core.Data.NHibernate</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj">
+      <Project>{67f08744-55fb-4169-809e-82f7424775f4}</Project>
+      <Name>Vodovoz.Core.Domain</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Reports.Editing\Vodovoz.Reports.Editing.csproj">
       <Project>{EC80100E-0125-48C6-8D66-50EEBF26E320}</Project>
       <Name>Vodovoz.Reports.Editing</Name>
@@ -885,6 +901,10 @@
     <ProjectReference Include="..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj">
       <Project>{CFC0D123-ABB8-41C5-9814-89F627F770B6}</Project>
       <Name>VodovozBusiness</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\EdoService\EdoService.Library.csproj">
+      <Project>{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}</Project>
+      <Name>EdoService.Library</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Infrastructure\VodovozInfrastructure\VodovozInfrastructure.csproj">
       <Project>{42EFC426-2C88-4608-8191-DBCA4172A695}</Project>

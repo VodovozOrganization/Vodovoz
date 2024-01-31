@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -27,6 +27,7 @@ namespace Sms.Internal.Service
 				.AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(ApiKeyAuthenticationOptions.DefaultScheme, null);
 			services.AddAuthentication(ApiKeyAuthenticationOptions.DefaultScheme);
 			services.AddGrpc().Services.AddAuthorization();
+			services.Configure<SmsRuConfiguration>(Configuration.GetSection("SmsRu"));
 		}
 
 		public void ConfigureContainer(ContainerBuilder builder)
@@ -34,7 +35,6 @@ namespace Sms.Internal.Service
 			builder.RegisterType<ApiKeyAuthenticationOptions>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<ApiKeyAuthenticationHandler>().AsSelf().AsImplementedInterfaces();
 
-			builder.RegisterInstance(GetSmsRuSettings()).AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<SmsRuSendController>().AsSelf().AsImplementedInterfaces();
 		}
 
@@ -46,7 +46,7 @@ namespace Sms.Internal.Service
 				app.UseDeveloperExceptionPage();
 			}
 
-            app.UseHttpsRedirection();
+			app.UseHttpsRedirection();
 			app.UseRouting();
 
 			app.UseAuthentication();
@@ -57,29 +57,6 @@ namespace Sms.Internal.Service
 			{
 				endpoints.MapGrpcService<SmsService>().EnableGrpcWeb();
 			});
-		}
-
-		private ISmsRuConfiguration GetSmsRuSettings()
-		{
-			var smsRuSection = Configuration.GetSection("SmsRu");
-
-			var smsRuConfig = new SmsRuConfiguration(
-				smsRuSection["login"],
-				smsRuSection["password"],
-				smsRuSection["appId"],
-				smsRuSection["partnerId"],
-				smsRuSection["email"],
-				smsRuSection["smsNumberFrom"],
-				smsRuSection["smtpLogin"],
-				smsRuSection["smtpPassword"],
-				smsRuSection["smtpServer"],
-				int.Parse(smsRuSection["smtpPort"]),
-				bool.Parse(smsRuSection["smtpUseSSL"]),
-				bool.Parse(smsRuSection["translit"]),
-				bool.Parse(smsRuSection["test"]),
-				smsRuSection["baseUrl"]
-				);
-			return smsRuConfig;
 		}
 	}
 }
