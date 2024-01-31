@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using QS.Attachments.ViewModels.Widgets;
 using QS.Commands;
+using QS.Dialog;
 using QS.Dialog.ViewModels;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -147,6 +148,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			UpdateArchivingDate();
 
+			UpdateCarInfoInDriverEntity();
+
 			return result;
 		}
 
@@ -215,6 +218,37 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 						NavigationManager.ForceClosePage(progressWindow);
 					}
 				}
+			}
+		}
+
+		private void UpdateCarInfoInDriverEntity()
+		{
+			if(Entity.IsArchive || Entity.Driver is null)
+			{
+				return;
+			}
+
+			var changesInfo = string.Empty;
+
+			var newCarownType = Entity.CarVersions.OrderByDescending(c => c.StartDate).First().CarOwnType;
+
+			if(Entity.Driver.DriverOfCarOwnType is null || Entity.Driver.DriverOfCarOwnType != newCarownType)
+			{
+				Entity.Driver.DriverOfCarOwnType = newCarownType;
+				changesInfo += "\n- принадлежность автомобиля";
+			}
+
+			if(Entity.Driver.DriverOfCarTypeOfUse is null || Entity.Driver.DriverOfCarTypeOfUse != Entity.CarModel.CarTypeOfUse)
+			{
+				Entity.Driver.DriverOfCarTypeOfUse = Entity.CarModel.CarTypeOfUse;
+				changesInfo += "\n- тип автомобиля";
+			}
+
+			if(!string.IsNullOrEmpty(changesInfo))
+			{
+				CommonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					$"Внимание! В карточке водителя будут обновлены:{changesInfo}");
 			}
 		}
 
