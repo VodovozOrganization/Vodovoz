@@ -86,16 +86,16 @@ namespace Vodovoz.ViewModels.Widgets
 				}
 			).ViewModel;
 			
-			journal.OnEntitySelectedResult += OnNomenclaturesSelected;
+			journal.OnSelectResult += OnNomenclaturesSelected;
 		}
 
-		private void OnNomenclaturesSelected(object sender, JournalSelectedNodesEventArgs args)
+		private void OnNomenclaturesSelected(object sender, JournalSelectedEventArgs args)
 		{
 			if(AdditionalLoadingDocument == null)
 			{
 				return;
 			}
-			var selectedNodes = args.SelectedNodes.OfType<NomenclatureJournalNode>();
+			var selectedNodes = args.SelectedObjects.Cast<NomenclatureJournalNode>();
 			var selectedNomenclatures = _uow.GetById<Nomenclature>(selectedNodes.Select(x => x.Id));
 			var notValidWeightOrVolume = new List<Nomenclature>();
 			var notValidCategory = new List<Nomenclature>();
