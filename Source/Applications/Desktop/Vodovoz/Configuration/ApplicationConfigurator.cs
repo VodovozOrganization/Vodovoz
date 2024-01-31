@@ -54,6 +54,7 @@ using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Store;
+using Vodovoz.ViewModels.Warehouses;
 using Vodovoz.Views.Users;
 using Vodovoz.Views.Warehouse;
 using VodovozInfrastructure.Configuration;
