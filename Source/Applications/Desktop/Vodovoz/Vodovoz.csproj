@@ -1714,8 +1714,6 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintResultOfCounterpartyView.cs" />
     <Compile Include="Views\Client\RoboAtsCounterpartyNameView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Client.RoboAtsCounterpartyNameView.cs" />
-    <Compile Include="ReportsParameters\Bookkeeping\CounterpartyCashlessDebtsReport.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bookkeeping.CounterpartyCashlessDebtsReport.cs" />
     <Compile Include="Views\Client\RoboAtsCounterpartyPatronymicView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Client.RoboAtsCounterpartyPatronymicView.cs" />
     <Compile Include="Views\Goods\AdditionalLoadingSettingsView.cs" />
@@ -1995,6 +1993,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.CarOwnershipReportView.cs" />
     <Compile Include="Views\Logistic\RouteColumnView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.RouteColumnView.cs" />
+    <Compile Include="ReportsParameters\Bookkeeping\CounterpartyCashlessDebtsReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bookkeeping.CounterpartyCashlessDebtsReportView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

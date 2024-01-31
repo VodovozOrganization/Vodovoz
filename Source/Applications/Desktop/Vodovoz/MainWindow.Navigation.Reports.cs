@@ -30,6 +30,7 @@ using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.Reports.Sales;
 using Vodovoz.ViewModels.ReportsParameters;
+using Vodovoz.ViewModels.ReportsParameters.Bookkeeping;
 using Vodovoz.ViewModels.ReportsParameters.Cash;
 using Vodovoz.ViewModels.ReportsParameters.Logistic;
 using Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport;
@@ -1147,20 +1148,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionCounterpartyCashlessDebtsReportActivated(object sender, EventArgs e)
 	{
-		var scope = Startup.AppDIContainer.BeginLifetimeScope();
-		
-		var report = new CounterpartyCashlessDebtsReport(
-			scope,
-			new DeliveryScheduleParametersProvider(new ParametersProvider()),
-			ServicesConfig.InteractiveService,
-			new CounterpartyJournalFactory(),
-			UnitOfWorkFactory.GetDefaultFactory);
-
-		report.Destroyed += (o, args) =>  scope.Dispose();
-		
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<CounterpartyCashlessDebtsReport>(),
-			() => new QSReport.ReportViewDlg(report));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(CounterpartyCashlessDebtsReportViewModel));
 	}
 
 	/// <summary>
