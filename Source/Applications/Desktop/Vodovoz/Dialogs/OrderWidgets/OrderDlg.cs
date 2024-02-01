@@ -272,7 +272,7 @@ namespace Vodovoz
 
 		private Result _lastSaveResult;
 
-        private readonly IGeneralSettingsParametersProvider _generalSettingsParametersProvider = new GeneralSettingsParametersProvider(new ParametersProvider());
+		private readonly IGeneralSettingsParametersProvider _generalSettingsParametersProvider = new GeneralSettingsParametersProvider(new ParametersProvider());
 		private bool _isWaitUntilActive => Entity.OrderStatus == OrderStatus.OnTheWay
 			&& _generalSettingsParametersProvider.GetIsOrderWaitUntilActive;
 		private TimeSpan? _lastWaitUntilTime;
@@ -837,7 +837,7 @@ namespace Vodovoz
 			evmeAuthor.Binding.AddBinding(Entity, s => s.Author, w => w.Subject).InitializeFromSource();
 			evmeAuthor.Sensitive = false;
 
-			entryDeliveryPoint.ViewModel = new LegacyEEVMBuilderFactory<OrderDlg>(this, this, UoW, NavigationManager, _lifetimeScope)
+			entryDeliveryPoint.ViewModel = new LegacyEEVMBuilderFactory<Order>(this, Entity, UoW, NavigationManager, _lifetimeScope)
 				.ForProperty(d => d.DeliveryPoint)
 				.UseViewModelJournalAndAutocompleter<DeliveryPointByClientJournalViewModel, DeliveryPointJournalFilterViewModel>(filter =>
 				{
@@ -845,6 +845,9 @@ namespace Vodovoz
 				})
 				.UseViewModelDialog<DeliveryPointViewModel>()
 				.Finish();
+
+			entryDeliveryPoint.ViewModel.Changed += OnReferenceDeliveryPointChanged;
+			entryDeliveryPoint.ViewModel.ChangedByUser += OnReferenceDeliveryPointChangedByUser;
 
 			_contactPhoneFilter = new PhonesJournalFilterViewModel
 			{
@@ -925,7 +928,7 @@ namespace Vodovoz
 				entryDeliverySchedule.Sensitive = labelDeliverySchedule.Sensitive = !checkSelfDelivery.Active;
 				ybuttonFastDeliveryCheck.Sensitive =
 					ycheckFastDelivery.Sensitive = !checkSelfDelivery.Active && Entity.CanChangeFastDelivery;
-				lblDeliveryPoint.Sensitive = evmeDeliveryPoint.Sensitive = !checkSelfDelivery.Active;
+				lblDeliveryPoint.Sensitive = entryDeliveryPoint.Sensitive = !checkSelfDelivery.Active;
 				buttonAddMaster.Sensitive = !checkSelfDelivery.Active;
 
 				Entity.UpdateClientDefaultParam(UoW, counterpartyContractRepository, organizationProvider, counterpartyContractFactory);
@@ -3319,13 +3322,13 @@ namespace Vodovoz
 			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(entityVMEntryClient.Subject));
 			if(Entity.Client != null)
 			{
-				var filter = new DeliveryPointJournalFilterViewModel() { Counterparty = Entity.Client, HidenByDefault = true };
+				(entryDeliveryPoint.ViewModel as DeliveryPointByClientJournalViewModel)?.FilterViewModel.SetAndRefilterAtOnce(dpf =>
+				{
+					dpf.Counterparty = Entity.Client;
+					dpf.HidenByDefault = true;
+				});
 
-				var deliveryPointFactory = _lifetimeScope.Resolve<IDeliveryPointJournalFactory>();
-				deliveryPointFactory.SetDeliveryPointJournalFilterViewModel(filter);
-
-				evmeDeliveryPoint.SetEntityAutocompleteSelectorFactory(deliveryPointFactory.CreateDeliveryPointByClientAutocompleteSelectorFactory());
-				evmeDeliveryPoint.Sensitive = Entity.OrderStatus == OrderStatus.NewOrder;
+				entryDeliveryPoint.Sensitive = Entity.OrderStatus == OrderStatus.NewOrder;
 
 				if(Entity.Client.PersonType == PersonType.natural)
 				{
@@ -3352,7 +3355,7 @@ namespace Vodovoz
 				enumTax.SelectedItem = Entity.Client.TaxType;
 				enumTax.Visible = lblTax.Visible = IsEnumTaxVisible();
 			} else {
-				evmeDeliveryPoint.Sensitive = false;
+				entryDeliveryPoint.Sensitive = false;
 			}
 			Entity.SetProxyForOrder();
 			UpdateProxyInfo();
@@ -3388,7 +3391,7 @@ namespace Vodovoz
 		{
 			UpdateContactPhoneFilter();
 
-			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(evmeDeliveryPoint.Subject));
+			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity.DeliveryPoint));
 
 			if(Entity.DeliveryPoint != null)
 			{
@@ -4059,8 +4062,8 @@ namespace Vodovoz
 					{
 						var curCount = oItem.Nomenclature.IsWater19L ? Order.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) : oItem.Count;
 						oItem.IsAlternativePrice = Entity.HasPermissionsForAlternativePrice
-						                           && oItem.Nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= curCount)
-						                           && oItem.GetWaterFixedPrice() == null;
+												   && oItem.Nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= curCount)
+												   && oItem.GetWaterFixedPrice() == null;
 					}
 
 					if(oItem != null && oItem.Nomenclature.IsWater19L)
@@ -4144,10 +4147,10 @@ namespace Vodovoz
 		{
 			bool val = Entity.CanEditByStatus && CanEditByPermission;
 			buttonSelectPaymentType.Sensitive = (Entity.Client != null) && val && !chkContractCloser.Active;
-			evmeDeliveryPoint.IsEditable = val;
+			entryDeliveryPoint.ViewModel.IsEditable = val;
 			entryDeliverySchedule.Sensitive = labelDeliverySchedule.Sensitive = !checkSelfDelivery.Active && val;
 			ybuttonFastDeliveryCheck.Sensitive = ycheckFastDelivery.Sensitive = !checkSelfDelivery.Active && val && Entity.CanChangeFastDelivery;
-			lblDeliveryPoint.Sensitive = evmeDeliveryPoint.Sensitive = !checkSelfDelivery.Active && val && Entity.Client != null;
+			lblDeliveryPoint.Sensitive = entryDeliveryPoint.Sensitive = !checkSelfDelivery.Active && val && Entity.Client != null;
 			buttonAddMaster.Sensitive = !checkSelfDelivery.Active && val && !Entity.IsLoadedFrom1C;
 			enumAddRentButton.Sensitive = enumSignatureType.Sensitive =
 				enumDocumentType.Sensitive = val;
