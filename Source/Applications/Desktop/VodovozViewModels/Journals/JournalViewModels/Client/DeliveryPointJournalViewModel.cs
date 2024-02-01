@@ -86,10 +86,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
 
 					foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode);
-					if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog)
-					{
-						HideJournal(TabParent);
-					}
 				}
 			);
 			if(SelectionMode == JournalSelectionMode.None)
