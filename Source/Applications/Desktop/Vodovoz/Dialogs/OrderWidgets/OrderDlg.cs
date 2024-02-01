@@ -110,6 +110,7 @@ using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.Infrastructure.Print;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
@@ -3010,9 +3011,9 @@ namespace Vodovoz
 					})
 				.ViewModel;
 			
-			journalViewModel.OnEntitySelectedResult += (s, ea) =>
+			journalViewModel.OnSelectResult += (s, ea) =>
 			{
-				var selectedNode = ea.SelectedNodes.FirstOrDefault();
+				var selectedNode = ea.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
 				
 				if(selectedNode == null)
 				{
@@ -3057,9 +3058,9 @@ namespace Vodovoz
 					})
 				.ViewModel;
 			
-			journalViewModel.OnEntitySelectedResult += (s, ea) =>
+			journalViewModel.OnSelectResult += (s, ea) =>
 			{
-				var selectedNode = ea.SelectedNodes.FirstOrDefault();
+				var selectedNode = ea.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
 				if(selectedNode == null)
 				{
 					return;

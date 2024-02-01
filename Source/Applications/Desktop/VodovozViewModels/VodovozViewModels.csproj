@@ -73,12 +73,15 @@
     <Compile Include="Cash\Transfer\Journal\TransferDocumentsJournalViewModel.cs" />
     <Compile Include="Cash\TransferExpenseViewModel.cs" />
     <Compile Include="Cash\TransferIncomeViewModel.cs" />
+    <Compile Include="Counterparties\ClientBalanceFilterViewModel.cs" />
     <Compile Include="Counterparties\ClientClassification\CounterpartyClassificationCalculationEmailSettingsViewModel.cs" />
     <Compile Include="Counterparties\ClientClassification\CounterpartyClassificationCalculationEmailSettingsViewModel.StartClassificationCalculationEventArgs.cs" />
     <Compile Include="Counterparties\ClientClassification\CounterpartyClassificationCalculationViewModel.CalculationMessageEventArgs.cs" />
     <Compile Include="Counterparties\ClientClassification\CounterpartyClassificationCalculationViewModel.ClassificationCalculationReport.cs" />
     <Compile Include="Counterparties\ClientClassification\CounterpartyClassificationCalculationViewModel.ClassificationCalculationReportRow.cs" />
     <Compile Include="Counterparties\ClientClassification\CounterpartyClassificationCalculationViewModel.cs" />
+    <Compile Include="Counterparties\ClientEquipmentBalanceJournalViewModel.ClientEquipmentBalanceNode.cs" />
+    <Compile Include="Counterparties\ClientEquipmentBalanceJournalViewModel.cs" />
     <Compile Include="Counterparties\SubtypesJournalViewModel.cs" />
     <Compile Include="Counterparties\SubtypesJournalViewModel.Node.cs" />
     <Compile Include="Counterparties\SubtypeViewModel.cs" />
@@ -153,7 +156,6 @@
     <Compile Include="Journals\JournalFactories\UndeliveryDetalizationlFactory.cs" />
     <Compile Include="Journals\JournalFactories\IUndeliveryDetalizationlFactory.cs" />
     <Compile Include="Journals\JournalFactories\IRouteListJournalFactory.cs" />
-    <Compile Include="Journals\JournalFactories\IComplaintKindJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\ISalesChannelJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\IWarehouseJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\SalesChannelJournalFactory.cs" />
@@ -190,6 +192,8 @@
     <Compile Include="Journals\JournalViewModels\Employees\EmployeeRegistrationsJournalNode.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\FineTemplateJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\RegradingOfGoodsReasonsJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Logistic\RouteColumnJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Logistic\RouteColumnJournalViewModel.RouteColumnJournalNode.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\OrdersWithoutShipment\OrderWithoutShipmentForPaymentNode.cs" />
     <Compile Include="Journals\JournalViewModels\Goods\KulerSaleWebSiteNomenclatureOnlineCatalogsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Goods\MobileAppNomenclatureOnlineCatalogsJournalViewModel.cs" />
@@ -221,6 +225,7 @@
     <Compile Include="ReportsParameters\Logistic\DeliveryTimeReportViewModel.ReportType.cs" />
     <Compile Include="ReportsParameters\Logistic\DeliveryTimeReportViewModel.RouteListTypeOfUse.cs" />
     <Compile Include="ReportsParameters\Logistic\DeliveryTimeReportViewModel.SelectableParameter.cs" />
+    <Compile Include="ReportsParameters\Bookkeeping\CounterpartyCashlessDebtsReportViewModel.cs" />
     <Compile Include="ReportsParameters\Orders\UndeliveredOrdersClassificationReportViewModel.cs" />
     <Compile Include="ReportsParameters\Payments\PaymentsFromBankClientReportViewModel.cs" />
     <Compile Include="ReportsParameters\Production\ProducedProductionReportViewModel.cs" />
@@ -283,6 +288,7 @@
     <Compile Include="ViewModels\Logistic\FastDeliveryOrderTransferViewModel.cs" />
     <Compile Include="ViewModels\Logistic\FastDeliveryOrderTransferViewModel.RouteListNode.cs" />
     <Compile Include="ViewModels\Logistic\LogisticsRequirementsViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\RouteColumnViewModel.cs" />
     <Compile Include="ViewModels\Logistic\RouteListMaxFastDeliveryOrdersViewModel.cs" />
     <Compile Include="ViewModels\Logistic\RouteListFastDeliveryMaxDistanceViewModel.cs" />
     <Compile Include="ViewModels\Logistic\RouteListKeepingNode.cs" />
@@ -366,9 +372,7 @@
     <Compile Include="Journals\JournalFactories\DistrictJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\IBulkEmailEventReasonJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\IDistrictJournalFactory.cs" />
-    <Compile Include="Journals\JournalFactories\SalesPlanJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\CarEventTypeJournalFactory.cs" />
-    <Compile Include="Journals\JournalFactories\ISalesPlanJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\ICarEventTypeJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\WarehouseJournalFactory.cs" />
     <Compile Include="Journals\JournalNodes\AddressType.cs" />
@@ -732,7 +736,6 @@
     <Compile Include="ViewModels\Warehouses\MovementDocumentViewModel.cs" />
     <Compile Include="Infrastructure\Services\IWarehousePermissionService.cs" />
     <Compile Include="Infrastructure\Services\WarehousePermissionService.cs" />
-    <Compile Include="TempAdapters\INomenclatureJournalFactory.cs" />
     <Compile Include="ViewModels\Warehouses\ShiftChangeResidueDocumentViewModel.cs" />
     <Compile Include="ViewModels\Warehouses\WriteOffDocumentViewModel.cs" />
     <Compile Include="VodovozViewModelAssemblyFinder.cs" />
@@ -836,7 +839,6 @@
     <Compile Include="Widgets\SelectableParametersFilterViewModel.cs" />
     <Compile Include="Widgets\Profitability\MonthPickerViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\DriverMessageFilterViewModel.cs" />
-    <Compile Include="ViewModels\Warehouses\Documents\InventoryDocumentViewModel.cs" />
     <Compile Include="ViewModels\Reports\FastDelivery\FastDeliveryPercentCoverageReportViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\ComplaintDetalizationJournalViewModel.cs" />
     <Compile Include="Journals\JournalNodes\Complaints\ComplaintDetalizationJournalNode.cs" />

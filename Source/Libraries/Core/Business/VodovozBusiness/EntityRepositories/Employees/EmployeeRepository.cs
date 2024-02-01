@@ -159,8 +159,9 @@ namespace Vodovoz.EntityRepositories.Employees
 			var query = from externalUser in uow.Session.Query<ExternalApplicationUser>()
 				join employee in uow.Session.Query<Employee>()
 					on externalUser.Employee.Id equals employee.Id
-				where !string.IsNullOrWhiteSpace(externalUser.Token) &&
-					externalUser.ExternalApplicationType == ExternalApplicationType.DriverApp
+				where externalUser.Token != null
+					&& externalUser.Token.Length > 2
+					&& externalUser.ExternalApplicationType == ExternalApplicationType.DriverApp
 				select employee;
 
 			return query.ToList();

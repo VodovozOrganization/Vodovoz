@@ -72,8 +72,10 @@ WHERE
          SELECT COUNT(o.id) FROM orders o
            INNER JOIN route_list_addresses rla ON rla.order_id = o.id
            INNER JOIN route_lists rl ON rl.id = rla.route_list_id
+           LEFT JOIN delivery_schedule ds ON o.delivery_schedule_id = ds.id
          WHERE rl.driver_id = route_lists.driver_id
            AND o.order_status = 'OnTheWay'
+           AND ds.to_time &lt;= @beforeTime
        ) &gt;= @orders_en_route_count
 
 GROUP BY route_list_addresses.id
@@ -480,7 +482,7 @@ ORDER BY driver_name, max_time
   </PageFooter>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="beforeTime">
       <DataType>String</DataType>
       <DefaultValue>

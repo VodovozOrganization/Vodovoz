@@ -239,6 +239,8 @@ namespace Vodovoz
 			((GenericObservableList<ReceptionNonSerialEquipmentItemNode>)nonserialequipmentreceptionview1.Items).ListContentChanged +=
 				(sender, e) => HasChanges = true;
 			((GenericObservableList<DefectiveItemNode>)defectiveitemsreceptionview1.Items).ListContentChanged += (sender, e) => HasChanges = true;
+
+			nonserialequipmentreceptionview1.Container = this;
 		}
 
 		public override bool Save()

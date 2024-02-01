@@ -81,6 +81,7 @@
     <Compile Include="Domain\Client\ClientClassification\CounterpartyClassificationCalculationSettings.cs" />
     <Compile Include="Domain\Client\CounterpartySubtype.cs" />
     <Compile Include="Domain\Client\CounterpartyType.cs" />
+    <Compile Include="Domain\Client\DebtType.cs" />
     <Compile Include="Domain\Client\DefaultDocumentType.cs" />
     <Compile Include="Domain\Client\EntranceType.cs" />
     <Compile Include="Domain\Client\ISupplierPriceNode.cs" />

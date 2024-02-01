@@ -1,4 +1,4 @@
-﻿using Gtk;
+using Gtk;
 using QS.Journal.GtkUI;
 using QS.Tdi;
 using QS.Views.GtkUI;

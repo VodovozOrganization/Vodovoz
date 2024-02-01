@@ -1,50 +1,38 @@
-﻿using Autofac;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.DB;
-using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Project.Services;
 using QS.Services;
 using System;
 using Vodovoz.Domain.Complaints;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes.Complaints;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 {
-	public class ComplaintKindJournalViewModel : FilterableSingleEntityJournalViewModelBase<ComplaintKind, ComplaintKindViewModel, ComplaintKindJournalNode, ComplaintKindJournalFilterViewModel>
+	public class ComplaintKindJournalViewModel : EntityJournalViewModelBase<ComplaintKind, ComplaintKindViewModel, ComplaintKindJournalNode>
 	{
-		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
-		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
-		private ILifetimeScope _scope;
+		private readonly ComplaintKindJournalFilterViewModel _filterViewModel;
 
 		public ComplaintKindJournalViewModel(
 			ComplaintKindJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
-			IEmployeeJournalFactory employeeJournalFactory,
-			ISalesPlanJournalFactory salesPlanJournalFactory, 
-			INomenclatureJournalFactory nomenclatureSelectorFactory,
-			ILifetimeScope scope,
+			IDeleteEntityService deleteEntityService,
+			ICurrentPermissionService currentPermissionService,
 			Action<ComplaintKindJournalFilterViewModel> filterConfig = null)
-			: base(filterViewModel, unitOfWorkFactory, commonServices, navigation: navigationManager)
+			: base(unitOfWorkFactory, commonServices.InteractiveService, navigationManager, deleteEntityService, currentPermissionService)
 		{
 			if(navigationManager is null)
 			{
 				throw new ArgumentNullException(nameof(navigationManager));
 			}
-
-			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
-			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
-			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
+			_filterViewModel = filterViewModel ?? throw new ArgumentNullException(nameof(filterViewModel));
 
 			TabName = "Виды рекламаций";
 
@@ -54,11 +42,19 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 
 			if(filterConfig != null)
 			{
-				FilterViewModel.ConfigureWithoutFiltering(filterConfig);
+				_filterViewModel.ConfigureWithoutFiltering(filterConfig);
 			}
+
+			_filterViewModel.OnFiltered += OnFilterViewModelFiltered;
+			JournalFilter = _filterViewModel;
 		}
 
-		protected override Func<IUnitOfWork, IQueryOver<ComplaintKind>> ItemsSourceQueryFunction => (uow) =>
+		private void OnFilterViewModelFiltered(object sender, EventArgs e)
+		{
+			Refresh();
+		}
+
+		protected override IQueryOver<ComplaintKind> ItemsQuery(IUnitOfWork uow)
 		{
 			ComplaintKind complaintKindAlias = null;
 			ComplaintObject complaintObjectAlias = null;
@@ -69,9 +65,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 				.Left.JoinAlias(x => x.ComplaintObject, () => complaintObjectAlias)
 				.Left.JoinAlias(x => x.Subdivisions, () => subdivisionsAlias);
 
-			if(FilterViewModel.ComplaintObject != null)
+			if(_filterViewModel.ComplaintObject != null)
 			{
-				itemsQuery.Where(x => x.ComplaintObject.Id == FilterViewModel.ComplaintObject.Id);
+				itemsQuery.Where(x => x.ComplaintObject.Id == _filterViewModel.ComplaintObject.Id);
 			}
 
 			itemsQuery.Where(GetSearchCriterion(
@@ -96,27 +92,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 				.TransformUsing(Transformers.AliasToBean<ComplaintKindJournalNode>());
 
 			return itemsQuery;
-		};
-
-		protected override void CreateNodeActions()
-		{
-			NodeActionsList.Clear();
-			CreateDefaultAddActions();
-			CreateDefaultEditAction();
-			CreateDefaultSelectAction();
 		}
-
-		protected override Func<ComplaintKindViewModel> CreateDialogFunction => () =>
-			new ComplaintKindViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices, NavigationManager, _employeeJournalFactory, Refresh, 
-				_salesPlanJournalFactory, _nomenclatureSelectorFactory, _scope.BeginLifetimeScope());
-
-		protected override Func<ComplaintKindJournalNode, ComplaintKindViewModel> OpenDialogFunction =>
-			(node) => new ComplaintKindViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices, NavigationManager, _employeeJournalFactory, Refresh,
-				_salesPlanJournalFactory, _nomenclatureSelectorFactory, _scope.BeginLifetimeScope());
 
 		public override void Dispose()
 		{
-			_scope = null;
+			_filterViewModel.OnFiltered -= OnFilterViewModelFiltered;
+
 			base.Dispose();
 		}
 	}

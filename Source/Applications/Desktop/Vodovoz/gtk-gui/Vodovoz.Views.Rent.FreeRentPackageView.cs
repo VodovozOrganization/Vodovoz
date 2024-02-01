@@ -16,7 +16,7 @@ namespace Vodovoz.Views.Rent
 
 		private global::Gamma.GtkWidgets.yEntry dataentryName;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryDepositService;
+		private global::QS.Views.Control.EntityEntry entryDepositServiceNomenclature;
 
 		private global::Gtk.HBox hbox5;
 
@@ -105,13 +105,11 @@ namespace Vodovoz.Views.Rent
 			w6.RightAttach = ((uint)(2));
 			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.entryDepositService = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entryDepositService.Events = ((global::Gdk.EventMask)(256));
-			this.entryDepositService.Name = "entryDepositService";
-			this.entryDepositService.CanEditReference = false;
-			this.entryDepositService.CanOpenWithoutTabParent = false;
-			this.datatable1.Add(this.entryDepositService);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.datatable1[this.entryDepositService]));
+			this.entryDepositServiceNomenclature = new global::QS.Views.Control.EntityEntry();
+			this.entryDepositServiceNomenclature.Events = ((global::Gdk.EventMask)(256));
+			this.entryDepositServiceNomenclature.Name = "entryDepositServiceNomenclature";
+			this.datatable1.Add(this.entryDepositServiceNomenclature);
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.datatable1[this.entryDepositServiceNomenclature]));
 			w7.TopAttach = ((uint)(4));
 			w7.BottomAttach = ((uint)(5));
 			w7.LeftAttach = ((uint)(1));
@@ -229,7 +227,7 @@ namespace Vodovoz.Views.Rent
 			this.ylblMinQtyBottles = new global::Gamma.GtkWidgets.yLabel();
 			this.ylblMinQtyBottles.Name = "ylblMinQtyBottles";
 			this.ylblMinQtyBottles.Xalign = 1F;
-			this.ylblMinQtyBottles.LabelProp = global::Mono.Unix.Catalog.GetString("Минимальное\r\nкол-во бутылей:");
+			this.ylblMinQtyBottles.LabelProp = global::Mono.Unix.Catalog.GetString("Минимальное\nкол-во бутылей:");
 			this.datatable1.Add(this.ylblMinQtyBottles);
 			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.datatable1[this.ylblMinQtyBottles]));
 			w17.TopAttach = ((uint)(1));

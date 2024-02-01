@@ -27,6 +27,7 @@ using Vodovoz.Infrastructure;
 using QS.Navigation;
 using QS.Project.Journal;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
 {
@@ -378,12 +379,12 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 					vm => vm.SelectionMode = JournalSelectionMode.Single
 				).ViewModel;
 				
-			journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult;
+			journal.OnSelectResult += Journal_OnEntitySelectedResult;
 		}
 
-		private void Journal_OnEntitySelectedResult(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)
+		private void Journal_OnEntitySelectedResult(object sender, JournalSelectedEventArgs e)
 		{
-			var selectedNode = e.SelectedNodes.FirstOrDefault();
+			var selectedNode = e.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
 			if(selectedNode == null)
 			{
 				return;

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -457,6 +457,7 @@
     <Compile Include="JournalColumnsConfigs\BulkEmailEventReasonJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\BusinessTasksJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\CarEventJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\ClientBalanceJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\FineTemplateJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\FuelTypeJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\OrganizationJournalRegistrar.cs" />
@@ -467,6 +468,7 @@
     <Compile Include="JournalColumnsConfigs\CarModelJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ClientCameFromJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ColumnsConfigRegistrarBase.cs" />
+    <Compile Include="JournalColumnsConfigs\RouteColumnJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\RouteListMileageCheckJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\TagJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\KulerSaleWebSiteNomenclatureOnlineCatalogsJournalRegistrar.cs" />
@@ -628,8 +630,6 @@
     <Compile Include="TempAdapters\AttachmentsViewModelFactory.cs" />
     <Compile Include="TempAdapters\ReportExporterAdapter.cs" />
     <Compile Include="TempAdapters\RouteListJournalFactory.cs" />
-    <Compile Include="TempAdapters\ComplaintKindJournalFactory.cs" />
-    <Compile Include="TempAdapters\NomenclatureJournalFactory.cs" />
     <Compile Include="TempAdapters\TdiNavigationManagerAdapter.cs" />
     <Compile Include="TreeModels\IModelConfig.cs" />
     <Compile Include="TreeModels\ModelConfig.cs" />
@@ -851,7 +851,6 @@
     <Compile Include="Dialogs\Client\CounterpartyDlg.cs" />
     <Compile Include="Dialogs\Client\ContactDlg.cs" />
     <Compile Include="Dialogs\Client\ProxyDlg.cs" />
-    <Compile Include="Representations\ClientEquipmentBalanceVM.cs" />
     <Compile Include="Representations\EquipmentKindsForRentVM.cs" />
     <Compile Include="Dialogs\DocumentDialogs\RegradingOfGoodsDocumentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.RegradingOfGoodsDocumentDlg.cs" />
@@ -881,6 +880,9 @@
     <Compile Include="Representations\WorkingDriversVM.cs" />
     <Compile Include="Representations\DriverRouteListAddressesVM.cs" />
     <Compile Include="ViewWidgets\Reports\IncludeExludeFiltersView.cs" />
+    <Compile Include="ViewWidgets\Store\DefectiveItemNode.cs" />
+    <Compile Include="ViewWidgets\Store\ReceptionItemNode.cs" />
+    <Compile Include="ViewWidgets\Store\ReceptionNonSerialEquipmentItemNode.cs" />
     <Compile Include="ViewWidgets\Store\ReturnsReceptionView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReturnsReceptionView.cs" />
     <Compile Include="Additions\Logistic\CarMarker.cs" />
@@ -1713,8 +1715,6 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintResultOfCounterpartyView.cs" />
     <Compile Include="Views\Client\RoboAtsCounterpartyNameView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Client.RoboAtsCounterpartyNameView.cs" />
-    <Compile Include="ReportsParameters\Bookkeeping\CounterpartyCashlessDebtsReport.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bookkeeping.CounterpartyCashlessDebtsReport.cs" />
     <Compile Include="Views\Client\RoboAtsCounterpartyPatronymicView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Client.RoboAtsCounterpartyPatronymicView.cs" />
     <Compile Include="Views\Goods\AdditionalLoadingSettingsView.cs" />
@@ -1830,8 +1830,6 @@
     <Compile Include="ReportsParameters\WayBillReportGroupPrint.cs" />
     <Compile Include="ViewWidgets\Logistics\DeliveryFreeBalanceView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Logistics.DeliveryFreeBalanceView.cs" />
-    <Compile Include="Views\Warehouse\Documents\InventoryDocumentView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.Documents.InventoryDocumentView.cs" />
     <Compile Include="Views\Reports\FastDeliveryPercentCoverageReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.FastDeliveryPercentCoverageReportView.cs" />
     <Compile Include="Dialogs\Organizations\OrganizationOwnershipTypeView.cs" />
@@ -1992,6 +1990,10 @@
     <Compile Include="ReportsParameters\OrderStatisticsByWeekReportType.cs" />
     <Compile Include="ReportsParameters\Logistic\CarOwnershipReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.CarOwnershipReportView.cs" />
+    <Compile Include="Views\Logistic\RouteColumnView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.RouteColumnView.cs" />
+    <Compile Include="ReportsParameters\Bookkeeping\CounterpartyCashlessDebtsReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bookkeeping.CounterpartyCashlessDebtsReportView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

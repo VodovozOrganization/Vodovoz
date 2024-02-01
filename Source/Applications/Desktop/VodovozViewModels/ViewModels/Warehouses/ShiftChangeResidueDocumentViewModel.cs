@@ -29,6 +29,7 @@ using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
@@ -286,10 +287,13 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			_addMissingNomenclatureCommand = new DelegateCommand(
 				() =>
 				{
-					var page = NavigationManager.OpenViewModel<NomenclaturesJournalViewModel>(this, OpenPageOptions.AsSlave);
-					page.ViewModel.FilterViewModel.AvailableCategories = Nomenclature.GetCategoriesForGoods();
+					var page = NavigationManager.OpenViewModel<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(
+						this,
+						filter => filter.AvailableCategories = Nomenclature.GetCategoriesForGoods(),
+						OpenPageOptions.AsSlave);
+
 					page.ViewModel.SelectionMode = JournalSelectionMode.Single;
-					page.ViewModel.OnEntitySelectedResult += OnMissingNomenclatureSelectedResult;
+					page.ViewModel.OnSelectResult += OnMissingNomenclatureSelectedResult;
 				}
 			));
 
@@ -735,14 +739,16 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 				() => CanChangeShiftChangeResidueDocumentType);
 		}
 
-		private void OnMissingNomenclatureSelectedResult(object sender, JournalSelectedNodesEventArgs e)
+		private void OnMissingNomenclatureSelectedResult(object sender, JournalSelectedEventArgs e)
 		{
-			if(!e.SelectedNodes.Any())
+			var selectedNodes = e.SelectedObjects.Cast<NomenclatureJournalNode>();
+
+			if(!selectedNodes.Any())
 			{
 				return;
 			}
 
-			foreach(var node in e.SelectedNodes)
+			foreach(var node in selectedNodes)
 			{
 				if(Entity.NomenclatureItems.Any(x => x.Nomenclature.Id == node.Id))
 				{

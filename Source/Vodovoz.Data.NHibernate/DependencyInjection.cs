@@ -10,6 +10,7 @@ using QS.Services;
 using System;
 using System.Linq;
 using System.Reflection;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.Data.NHibernate.Options;
 using Vodovoz.Domain.Employees;
@@ -64,7 +65,8 @@ namespace Vodovoz.Data.NHibernate
 					typeof(QS.Banks.Domain.Bank).Assembly,
 					typeof(QS.HistoryLog.HistoryMain).Assembly,
 					typeof(QS.Attachments.Domain.Attachment).Assembly,
-					typeof(Vodovoz.Settings.Database.VodovozSettingsDatabaseAssemblyFinder).Assembly
+					typeof(Vodovoz.Settings.Database.VodovozSettingsDatabaseAssemblyFinder).Assembly,
+					typeof(DriverWarehouseEventMap).Assembly
 				}
 			);
 
