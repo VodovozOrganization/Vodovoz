@@ -31,7 +31,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 		{
 			TabName = "Журнал точек доставки клиента";
 
-
 			UpdateOnChanges(
 				typeof(Counterparty),
 				typeof(DeliveryPoint)
@@ -75,10 +74,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
 
 					foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode);
-					if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog)
-					{
-						HideJournal(TabParent);
-					}
 				}
 			);
 			if(SelectionMode == JournalSelectionMode.None)
@@ -116,10 +111,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 								(selected) =>
 								{
 									createDlgConfig.OpenEntityDialogFunction.Invoke();
-									if(documentConfig.JournalParameters.HideJournalForCreateDialog)
-									{
-										HideJournal(TabParent);
-									}
 								}
 							);
 							addParentNodeAction.ChildActionsList.Add(childNodeAction);
@@ -138,11 +129,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 					{
 						var docConfig = entityConfig.EntityDocumentConfigurations.First();
 						docConfig.GetCreateEntityDlgConfigs().First().OpenEntityDialogFunction.Invoke();
-
-						if(docConfig.JournalParameters.HideJournalForCreateDialog)
-						{
-							HideJournal(TabParent);
-						}
 					},
 					"Insert"
 					);
