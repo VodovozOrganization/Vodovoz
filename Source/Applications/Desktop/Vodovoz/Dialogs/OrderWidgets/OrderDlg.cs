@@ -3322,12 +3322,12 @@ namespace Vodovoz
 			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(entityVMEntryClient.Subject));
 			if(Entity.Client != null)
 			{
-				var filter = new DeliveryPointJournalFilterViewModel() { Counterparty = Entity.Client, HidenByDefault = true };
+				(entryDeliveryPoint.ViewModel as DeliveryPointByClientJournalViewModel)?.FilterViewModel.SetAndRefilterAtOnce(dpf =>
+				{
+					dpf.Counterparty = Entity.Client;
+					dpf.HidenByDefault = true;
+				});
 
-				var deliveryPointFactory = _lifetimeScope.Resolve<IDeliveryPointJournalFactory>();
-				deliveryPointFactory.SetDeliveryPointJournalFilterViewModel(filter);
-
-				(entryDeliveryPoint.ViewModel as DeliveryPointByClientJournalViewModel).FilterViewModel.SetAndRefilterAtOnce(dpf => dpf.Counterparty = Entity.Client);
 				entryDeliveryPoint.Sensitive = Entity.OrderStatus == OrderStatus.NewOrder;
 
 				if(Entity.Client.PersonType == PersonType.natural)

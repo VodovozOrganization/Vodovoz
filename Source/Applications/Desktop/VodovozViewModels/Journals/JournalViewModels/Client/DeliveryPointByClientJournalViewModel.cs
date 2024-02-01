@@ -25,8 +25,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
-			bool hideJournalForOpen,
-			bool hideJournalForCreate)
+			bool hideJournalForOpen = false,
+			bool hideJournalForCreate = false)
 			: base(filterViewModel, unitOfWorkFactory, commonServices, hideJournalForOpen, hideJournalForCreate, navigationManager)
 		{
 			TabName = "Журнал точек доставки клиента";
