@@ -36,6 +36,7 @@ using TaxcomEdoApi.HealthChecks;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Services;
 using EdoService.Library.Converters;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 
 namespace TaxcomEdoApi
 {
@@ -171,7 +172,8 @@ namespace TaxcomEdoApi
 					Assembly.GetAssembly(typeof(HistoryMain)),
 					Assembly.GetAssembly(typeof(TypeOfEntity)),
 					Assembly.GetAssembly(typeof(Attachment)),
-					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
+					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder)),
+					Assembly.GetAssembly(typeof(DriverWarehouseEventMap))
 				}
 			);
 

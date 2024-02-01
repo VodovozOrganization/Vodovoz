@@ -43,7 +43,6 @@ namespace Vodovoz.ViewModels.Dialogs.Roboats
 		private readonly ICommonServices _commonServices;
 		private readonly IDeliveryScheduleRepository _deliveryScheduleRepository;
 		private readonly IRoboatsViewModelFactory _roboatsViewModelFactory;
-		private readonly INomenclatureJournalFactory _nomenclatureJournalFactory;
 		private RoboatsEntityType? _selectedExportType;
 		private OpenViewModelCommand _openDialogCommand;
 		private bool exportStarting;
@@ -73,7 +72,6 @@ namespace Vodovoz.ViewModels.Dialogs.Roboats
 			ICommonServices commonServices,
 			IDeliveryScheduleRepository deliveryScheduleRepository,
 			IRoboatsViewModelFactory roboatsViewModelFactory,
-			INomenclatureJournalFactory nomenclatureJournalFactory,
 			INavigationManager navigation) : base(commonServices.InteractiveService, navigation)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -85,7 +83,6 @@ namespace Vodovoz.ViewModels.Dialogs.Roboats
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_deliveryScheduleRepository = deliveryScheduleRepository ?? throw new ArgumentNullException(nameof(deliveryScheduleRepository));
 			_roboatsViewModelFactory = roboatsViewModelFactory ?? throw new ArgumentNullException(nameof(roboatsViewModelFactory));
-			_nomenclatureJournalFactory = nomenclatureJournalFactory ?? throw new ArgumentNullException(nameof(nomenclatureJournalFactory));
 			_openDialogCommand = new OpenViewModelCommand(OpenDialog);
 
 			var canEdit = _commonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_roboats");
@@ -173,7 +170,6 @@ namespace Vodovoz.ViewModels.Dialogs.Roboats
 					break;
 				case RoboatsEntityType.WaterTypes:
 					var waterTypeJournal = _roboatsJournalsFactory.CreateWaterJournal();
-					waterTypeJournal.SetForRoboatsCatalogExport(_openDialogCommand);
 					waterTypeJournal.OnSelectResult += OnWaterJournalSelected;
 					Journal = waterTypeJournal;
 					break;
@@ -210,11 +206,13 @@ namespace Vodovoz.ViewModels.Dialogs.Roboats
 		private void OnWaterJournalSelected(object sender, JournalSelectedEventArgs e)
 		{
 			var selectedNode = e.GetSelectedObjects<RoboatsWaterTypeJournalNode>().SingleOrDefault();
+
 			if(selectedNode == null)
 			{
 				return;
 			}
-			var viewModel = new RoboatsWaterTypeViewModel(EntityUoWBuilder.ForOpen(selectedNode.Id), _nomenclatureJournalFactory, _roboatsViewModelFactory, _commonServices);
+
+			var viewModel = new RoboatsWaterTypeViewModel(EntityUoWBuilder.ForOpen(selectedNode.Id), _unitOfWorkFactory, _roboatsViewModelFactory, _commonServices, NavigationManager);
 			OpenDialog(viewModel);
 		}
 

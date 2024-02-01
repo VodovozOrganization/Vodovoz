@@ -30,7 +30,7 @@ namespace Vodovoz.Controllers
 			IUnitOfWork uow, GoodsOnlineParameterType parameterType)
 		{
 			var parameters =
-				_nomenclatureRepository.GetNomenclaturesOnlineParametersForSend(uow, parameterType)
+				_nomenclatureRepository.GetActiveNomenclaturesOnlineParametersForSend(uow, parameterType)
 					.ToDictionary(x => x.NomenclatureId);
 			
 			var prices =
@@ -62,7 +62,7 @@ namespace Vodovoz.Controllers
 			IUnitOfWork uow, GoodsOnlineParameterType parameterType)
 		{
 			var parameters =
-				_promotionalSetRepository.GetPromotionalSetsOnlineParametersForSend(uow, parameterType)
+				_promotionalSetRepository.GetActivePromotionalSetsOnlineParametersForSend(uow, parameterType)
 					.ToDictionary(x => x.PromotionalSetId);
 			
 			var promotionalSetItems =

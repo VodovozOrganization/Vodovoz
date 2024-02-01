@@ -1,4 +1,4 @@
-﻿using Google.OrTools.ConstraintSolver;
+using Google.OrTools.ConstraintSolver;
 using Microsoft.Extensions.Logging;
 using System;
 using Vodovoz.Domain.Sale;
@@ -62,17 +62,23 @@ namespace Vodovoz.Application.Logistics.RouteOptimization
 			{
 				var calcOrder = _nodes[firstIndex - 1];
 				var baseVersion = GetGroupVersion(calcOrder.ShippingBase, calcOrder.Order.DeliveryDate.Value);
-				travelTime = _distanceCalculator.TimeToBaseSec(calcOrder.Order.DeliveryPoint, baseVersion);
+				travelTime = _distanceCalculator.TimeToBaseSec(
+					calcOrder.Order.DeliveryPoint.PointCoordinates,
+					baseVersion.PointCoordinates);
 			}
 			else if(firstIndex == 0)
 			{
 				var calcOrder = _nodes[secondIndex - 1];
 				var baseVersion = GetGroupVersion(calcOrder.ShippingBase, calcOrder.Order.DeliveryDate.Value);
-				travelTime = _distanceCalculator.TimeFromBaseSec(baseVersion, calcOrder.Order.DeliveryPoint);
+				travelTime = _distanceCalculator.TimeFromBaseSec(
+					baseVersion.PointCoordinates,
+					calcOrder.Order.DeliveryPoint.PointCoordinates);
 			}
 			else
 			{
-				travelTime = _distanceCalculator.TimeSec(_nodes[firstIndex - 1].Order.DeliveryPoint, _nodes[secondIndex - 1].Order.DeliveryPoint);
+				travelTime = _distanceCalculator.TimeSec(
+					_nodes[firstIndex - 1].Order.DeliveryPoint.PointCoordinates,
+					_nodes[secondIndex - 1].Order.DeliveryPoint.PointCoordinates);
 			}
 
 			if(firstIndex != 0)

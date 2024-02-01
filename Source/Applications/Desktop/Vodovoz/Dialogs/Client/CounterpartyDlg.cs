@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using EdoService.Library;
 using EdoService.Library.Converters;
 using EdoService.Library.Dto;
@@ -85,6 +85,8 @@ using Vodovoz.ViewModels.Dialogs.Counterparty;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes.Client;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
@@ -137,6 +139,8 @@ namespace Vodovoz
 		private IOrganizationParametersProvider _organizationParametersProvider = new OrganizationParametersProvider(new ParametersProvider());
 		private IRevenueServiceClient _revenueServiceClient;
 		private ICounterpartyService _counterpartyService;
+		private IDeleteEntityService _deleteEntityService;
+		private ICurrentPermissionService _currentPermissionService;
 		private IEdoService _edoService;
 		private GenericObservableList<EdoContainer> _edoContainers = new GenericObservableList<EdoContainer>();
 
@@ -303,13 +307,14 @@ namespace Vodovoz
 			_edoSettings = _lifetimeScope.Resolve<IEdoSettings>();
 			_counterpartySettings = _lifetimeScope.Resolve<ICounterpartySettings>();
 			_counterpartyService = _lifetimeScope.Resolve<ICounterpartyService>();
+			_deleteEntityService = _lifetimeScope.Resolve<IDeleteEntityService>();
+			_currentPermissionService = _lifetimeScope.Resolve<ICurrentPermissionService>();
 			_edoService = _lifetimeScope.Resolve<IEdoService>();
 
 			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			var fileDialogService = new FileDialogService();
 			var roboatsViewModelFactory = new RoboatsViewModelFactory(roboatsFileStorageFactory, fileDialogService, ServicesConfig.CommonServices.CurrentPermissionService);
-			var nomenclatureSelectorFactory = new NomenclatureJournalFactory();
-			_roboatsJournalsFactory = new RoboatsJournalsFactory(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, roboatsViewModelFactory, nomenclatureSelectorFactory);
+			_roboatsJournalsFactory = new RoboatsJournalsFactory(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, roboatsViewModelFactory, NavigationManager, _deleteEntityService, _currentPermissionService);
 			_edoOperatorsJournalFactory = new EdoOperatorsJournalFactory();
 			_emailParametersProvider = _lifetimeScope.Resolve<IEmailParametersProvider>();
 
@@ -1078,7 +1083,7 @@ namespace Vodovoz
 					UoW,
 					this,
 					ServicesConfig.CommonServices,
-					Startup.MainWin.NavigationManager);
+					NavigationManager as ITdiCompatibilityNavigation);
 			supplierPricesWidget.Sensitive = CanEdit;
 		}
 
@@ -1087,8 +1092,7 @@ namespace Vodovoz
 			var nomenclatureFixedPriceFactory = new NomenclatureFixedPriceFactory();
 			var fixedPriceController = new NomenclatureFixedPriceController(nomenclatureFixedPriceFactory);
 			var fixedPricesModel = new CounterpartyFixedPricesModel(UoW, Entity, fixedPriceController);
-			var nomSelectorFactory = new NomenclatureJournalFactory();
-			FixedPricesViewModel fixedPricesViewModel = new FixedPricesViewModel(UoW, fixedPricesModel, nomSelectorFactory, this, _lifetimeScope);
+			FixedPricesViewModel fixedPricesViewModel = new FixedPricesViewModel(UoW, fixedPricesModel, this, NavigationManager, _lifetimeScope);
 			fixedpricesview.ViewModel = fixedPricesViewModel;
 			SetSensitivityByPermission("can_edit_counterparty_fixed_prices", fixedpricesview);
 		}
@@ -1914,16 +1918,19 @@ namespace Vodovoz
 
 		protected void OnYbuttonAddNomClicked(object sender, EventArgs e)
 		{
-			NomenclatureJournalFactory nomenclatureJournalFactory = new NomenclatureJournalFactory();
-			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel(_lifetimeScope);
-			journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult;
-
-			TabParent.AddSlaveTab(this, journal);
+			(NavigationManager as ITdiCompatibilityNavigation).OpenViewModelOnTdi<NomenclaturesJournalViewModel>(
+				this,
+				OpenPageOptions.AsSlave,
+				viewModel =>
+				{
+					viewModel.SelectionMode = JournalSelectionMode.Single;
+					viewModel.OnSelectResult += Journal_OnEntitySelectedResult;
+				});
 		}
 
-		private void Journal_OnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
+		private void Journal_OnEntitySelectedResult(object sender, JournalSelectedEventArgs e)
 		{
-			var selectedNode = e.SelectedNodes.FirstOrDefault();
+			var selectedNode = e.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
 			if(selectedNode == null)
 			{
 				return;

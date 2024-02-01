@@ -15,6 +15,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Parameters;
@@ -101,7 +102,8 @@ namespace EmailPrepareWorker
 					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
 					Assembly.GetAssembly(typeof(QS.Project.Domain.UserBase)),
 					Assembly.GetAssembly(typeof(QS.Attachments.HibernateMapping.AttachmentMap)),
-					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
+					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder)),
+					Assembly.GetAssembly(typeof(DriverWarehouseEventMap))
 			});
 
 			QS.HistoryLog.HistoryMain.Enable(conStrBuilder);
