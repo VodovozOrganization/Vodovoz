@@ -48,6 +48,8 @@ namespace Vodovoz
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityVMEntryClient;
 
+		private global::QS.Views.Control.EntityEntry entryDeliveryPoint;
+
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryDeliverySchedule;
 
 		private global::Gamma.Widgets.yEnumComboBox enumSignatureType;
@@ -55,8 +57,6 @@ namespace Vodovoz
 		private global::Gamma.Widgets.yEnumComboBox enumTax;
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeAuthor;
-
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeDeliveryPoint;
 
 		private global::Gtk.HBox hbox16;
 
@@ -788,6 +788,7 @@ namespace Vodovoz
 			this.entityVMEntryClient.Events = ((global::Gdk.EventMask)(256));
 			this.entityVMEntryClient.Name = "entityVMEntryClient";
 			this.entityVMEntryClient.CanEditReference = false;
+			this.entityVMEntryClient.CanDisposeEntitySelectorFactory = false;
 			this.entityVMEntryClient.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.entityVMEntryClient);
 			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.table1[this.entityVMEntryClient]));
@@ -798,19 +799,32 @@ namespace Vodovoz
 			w20.XOptions = ((global::Gtk.AttachOptions)(4));
 			w20.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
+			this.entryDeliveryPoint = new global::QS.Views.Control.EntityEntry();
+			this.entryDeliveryPoint.Events = ((global::Gdk.EventMask)(256));
+			this.entryDeliveryPoint.Name = "entryDeliveryPoint";
+			this.table1.Add(this.entryDeliveryPoint);
+			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.table1[this.entryDeliveryPoint]));
+			w21.TopAttach = ((uint)(3));
+			w21.BottomAttach = ((uint)(4));
+			w21.LeftAttach = ((uint)(1));
+			w21.RightAttach = ((uint)(4));
+			w21.XOptions = ((global::Gtk.AttachOptions)(4));
+			w21.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
 			this.entryDeliverySchedule = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.entryDeliverySchedule.Events = ((global::Gdk.EventMask)(256));
 			this.entryDeliverySchedule.Name = "entryDeliverySchedule";
 			this.entryDeliverySchedule.CanEditReference = false;
+			this.entryDeliverySchedule.CanDisposeEntitySelectorFactory = false;
 			this.entryDeliverySchedule.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.entryDeliverySchedule);
-			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.table1[this.entryDeliverySchedule]));
-			w21.TopAttach = ((uint)(11));
-			w21.BottomAttach = ((uint)(12));
-			w21.LeftAttach = ((uint)(1));
-			w21.RightAttach = ((uint)(2));
-			w21.XOptions = ((global::Gtk.AttachOptions)(4));
-			w21.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.table1[this.entryDeliverySchedule]));
+			w22.TopAttach = ((uint)(11));
+			w22.BottomAttach = ((uint)(12));
+			w22.LeftAttach = ((uint)(1));
+			w22.RightAttach = ((uint)(2));
+			w22.XOptions = ((global::Gtk.AttachOptions)(4));
+			w22.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.enumSignatureType = new global::Gamma.Widgets.yEnumComboBox();
 			this.enumSignatureType.Name = "enumSignatureType";
@@ -819,13 +833,13 @@ namespace Vodovoz
 			this.enumSignatureType.UseShortTitle = false;
 			this.enumSignatureType.DefaultFirst = false;
 			this.table1.Add(this.enumSignatureType);
-			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.table1[this.enumSignatureType]));
-			w22.TopAttach = ((uint)(17));
-			w22.BottomAttach = ((uint)(18));
-			w22.LeftAttach = ((uint)(1));
-			w22.RightAttach = ((uint)(2));
-			w22.XOptions = ((global::Gtk.AttachOptions)(4));
-			w22.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.table1[this.enumSignatureType]));
+			w23.TopAttach = ((uint)(17));
+			w23.BottomAttach = ((uint)(18));
+			w23.LeftAttach = ((uint)(1));
+			w23.RightAttach = ((uint)(2));
+			w23.XOptions = ((global::Gtk.AttachOptions)(4));
+			w23.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.enumTax = new global::Gamma.Widgets.yEnumComboBox();
 			this.enumTax.Name = "enumTax";
@@ -834,38 +848,25 @@ namespace Vodovoz
 			this.enumTax.UseShortTitle = false;
 			this.enumTax.DefaultFirst = false;
 			this.table1.Add(this.enumTax);
-			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.table1[this.enumTax]));
-			w23.TopAttach = ((uint)(7));
-			w23.BottomAttach = ((uint)(8));
-			w23.LeftAttach = ((uint)(1));
-			w23.RightAttach = ((uint)(2));
-			w23.XOptions = ((global::Gtk.AttachOptions)(4));
-			w23.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w24 = ((global::Gtk.Table.TableChild)(this.table1[this.enumTax]));
+			w24.TopAttach = ((uint)(7));
+			w24.BottomAttach = ((uint)(8));
+			w24.LeftAttach = ((uint)(1));
+			w24.RightAttach = ((uint)(2));
+			w24.XOptions = ((global::Gtk.AttachOptions)(4));
+			w24.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.evmeAuthor = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.evmeAuthor.Events = ((global::Gdk.EventMask)(256));
 			this.evmeAuthor.Name = "evmeAuthor";
 			this.evmeAuthor.CanEditReference = true;
+			this.evmeAuthor.CanDisposeEntitySelectorFactory = false;
 			this.evmeAuthor.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.evmeAuthor);
-			global::Gtk.Table.TableChild w24 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeAuthor]));
-			w24.TopAttach = ((uint)(1));
-			w24.BottomAttach = ((uint)(2));
-			w24.LeftAttach = ((uint)(3));
-			w24.RightAttach = ((uint)(4));
-			w24.XOptions = ((global::Gtk.AttachOptions)(4));
-			w24.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.evmeDeliveryPoint = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.evmeDeliveryPoint.Events = ((global::Gdk.EventMask)(256));
-			this.evmeDeliveryPoint.Name = "evmeDeliveryPoint";
-			this.evmeDeliveryPoint.CanEditReference = false;
-			this.evmeDeliveryPoint.CanOpenWithoutTabParent = false;
-			this.table1.Add(this.evmeDeliveryPoint);
-			global::Gtk.Table.TableChild w25 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeDeliveryPoint]));
-			w25.TopAttach = ((uint)(3));
-			w25.BottomAttach = ((uint)(4));
-			w25.LeftAttach = ((uint)(1));
+			global::Gtk.Table.TableChild w25 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeAuthor]));
+			w25.TopAttach = ((uint)(1));
+			w25.BottomAttach = ((uint)(2));
+			w25.LeftAttach = ((uint)(3));
 			w25.RightAttach = ((uint)(4));
 			w25.XOptions = ((global::Gtk.AttachOptions)(4));
 			w25.YOptions = ((global::Gtk.AttachOptions)(4));
@@ -1192,7 +1193,7 @@ namespace Vodovoz
 			this.labelComment.Name = "labelComment";
 			this.labelComment.Xalign = 1F;
 			this.labelComment.Yalign = 0F;
-			this.labelComment.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий\nк заказу:");
+			this.labelComment.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий\r\nк заказу:");
 			this.table1.Add(this.labelComment);
 			global::Gtk.Table.TableChild w56 = ((global::Gtk.Table.TableChild)(this.table1[this.labelComment]));
 			w56.TopAttach = ((uint)(18));
@@ -1236,7 +1237,7 @@ namespace Vodovoz
 			this.labelEShop = new global::Gtk.Label();
 			this.labelEShop.Name = "labelEShop";
 			this.labelEShop.Xalign = 1F;
-			this.labelEShop.LabelProp = global::Mono.Unix.Catalog.GetString("Номер заказа\nинтернет-магазина:");
+			this.labelEShop.LabelProp = global::Mono.Unix.Catalog.GetString("Номер заказа\r\nинтернет-магазина:");
 			this.table1.Add(this.labelEShop);
 			global::Gtk.Table.TableChild w60 = ((global::Gtk.Table.TableChild)(this.table1[this.labelEShop]));
 			w60.TopAttach = ((uint)(14));
@@ -1272,7 +1273,7 @@ namespace Vodovoz
 			this.labelSignatureType = new global::Gtk.Label();
 			this.labelSignatureType.Name = "labelSignatureType";
 			this.labelSignatureType.Xalign = 1F;
-			this.labelSignatureType.LabelProp = global::Mono.Unix.Catalog.GetString("Подписание\n документов:");
+			this.labelSignatureType.LabelProp = global::Mono.Unix.Catalog.GetString("Подписание\r\n документов:");
 			this.table1.Add(this.labelSignatureType);
 			global::Gtk.Table.TableChild w63 = ((global::Gtk.Table.TableChild)(this.table1[this.labelSignatureType]));
 			w63.TopAttach = ((uint)(17));
@@ -1368,7 +1369,6 @@ namespace Vodovoz
 			this.timepickerWaitUntil = new global::QS.Widgets.GtkUI.TimePicker();
 			this.timepickerWaitUntil.Events = ((global::Gdk.EventMask)(256));
 			this.timepickerWaitUntil.Name = "timepickerWaitUntil";
-			this.timepickerWaitUntil.TimeOrNull = new global::System.TimeSpan(0);
 			this.table1.Add(this.timepickerWaitUntil);
 			global::Gtk.Table.TableChild w70 = ((global::Gtk.Table.TableChild)(this.table1[this.timepickerWaitUntil]));
 			w70.TopAttach = ((uint)(12));
@@ -1493,6 +1493,7 @@ namespace Vodovoz
 			this.evmeContactPhone.Events = ((global::Gdk.EventMask)(256));
 			this.evmeContactPhone.Name = "evmeContactPhone";
 			this.evmeContactPhone.CanEditReference = false;
+			this.evmeContactPhone.CanDisposeEntitySelectorFactory = false;
 			this.evmeContactPhone.CanOpenWithoutTabParent = false;
 			this.yhbox2.Add(this.evmeContactPhone);
 			global::Gtk.Box.BoxChild w81 = ((global::Gtk.Box.BoxChild)(this.yhbox2[this.evmeContactPhone]));
@@ -1649,7 +1650,7 @@ namespace Vodovoz
 			this.ylabelLogisticsRequirements.Name = "ylabelLogisticsRequirements";
 			this.ylabelLogisticsRequirements.Xalign = 1F;
 			this.ylabelLogisticsRequirements.Yalign = 0F;
-			this.ylabelLogisticsRequirements.LabelProp = global::Mono.Unix.Catalog.GetString("Требования\nк логистике:");
+			this.ylabelLogisticsRequirements.LabelProp = global::Mono.Unix.Catalog.GetString("Требования\r\nк логистике:");
 			this.table1.Add(this.ylabelLogisticsRequirements);
 			global::Gtk.Table.TableChild w96 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelLogisticsRequirements]));
 			w96.TopAttach = ((uint)(20));
@@ -1822,7 +1823,7 @@ namespace Vodovoz
 			this.labelDeliveryDate5 = new global::Gtk.Label();
 			this.labelDeliveryDate5.Name = "labelDeliveryDate5";
 			this.labelDeliveryDate5.Xalign = 1F;
-			this.labelDeliveryDate5.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий \nводителя из \nприложения:");
+			this.labelDeliveryDate5.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий \r\nводителя из \r\nприложения:");
 			this.labelDeliveryDate5.Justify = ((global::Gtk.Justification)(1));
 			this.hbox17.Add(this.labelDeliveryDate5);
 			global::Gtk.Box.BoxChild w114 = ((global::Gtk.Box.BoxChild)(this.hbox17[this.labelDeliveryDate5]));
@@ -1885,7 +1886,7 @@ namespace Vodovoz
 			this.labelDeliveryDate3 = new global::Gtk.Label();
 			this.labelDeliveryDate3.Name = "labelDeliveryDate3";
 			this.labelDeliveryDate3.Xalign = 1F;
-			this.labelDeliveryDate3.LabelProp = global::Mono.Unix.Catalog.GetString("Номер звонка\nводителя:");
+			this.labelDeliveryDate3.LabelProp = global::Mono.Unix.Catalog.GetString("Номер звонка\r\nводителя:");
 			this.labelDeliveryDate3.Justify = ((global::Gtk.Justification)(1));
 			this.tblDriverControl.Add(this.labelDeliveryDate3);
 			global::Gtk.Table.TableChild w121 = ((global::Gtk.Table.TableChild)(this.tblDriverControl[this.labelDeliveryDate3]));
@@ -1898,7 +1899,7 @@ namespace Vodovoz
 			this.labelDeliveryDate4.WidthRequest = 160;
 			this.labelDeliveryDate4.Name = "labelDeliveryDate4";
 			this.labelDeliveryDate4.Xalign = 1F;
-			this.labelDeliveryDate4.LabelProp = global::Mono.Unix.Catalog.GetString("Причина \nнесдачи тары:");
+			this.labelDeliveryDate4.LabelProp = global::Mono.Unix.Catalog.GetString("Причина \r\nнесдачи тары:");
 			this.labelDeliveryDate4.Justify = ((global::Gtk.Justification)(1));
 			this.tblDriverControl.Add(this.labelDeliveryDate4);
 			global::Gtk.Table.TableChild w122 = ((global::Gtk.Table.TableChild)(this.tblDriverControl[this.labelDeliveryDate4]));
@@ -1910,7 +1911,7 @@ namespace Vodovoz
 			this.labelODZComments = new global::Gtk.Label();
 			this.labelODZComments.Name = "labelODZComments";
 			this.labelODZComments.Xalign = 1F;
-			this.labelODZComments.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий\n ОДЗ:");
+			this.labelODZComments.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий\r\n ОДЗ:");
 			this.labelODZComments.Justify = ((global::Gtk.Justification)(1));
 			this.tblDriverControl.Add(this.labelODZComments);
 			global::Gtk.Table.TableChild w123 = ((global::Gtk.Table.TableChild)(this.tblDriverControl[this.labelODZComments]));
@@ -1922,7 +1923,7 @@ namespace Vodovoz
 			this.labelOPComments = new global::Gtk.Label();
 			this.labelOPComments.Name = "labelOPComments";
 			this.labelOPComments.Xalign = 1F;
-			this.labelOPComments.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий \nОП/ОСК:");
+			this.labelOPComments.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий \r\nОП/ОСК:");
 			this.labelOPComments.Justify = ((global::Gtk.Justification)(1));
 			this.tblDriverControl.Add(this.labelOPComments);
 			global::Gtk.Table.TableChild w124 = ((global::Gtk.Table.TableChild)(this.tblDriverControl[this.labelOPComments]));
@@ -1934,7 +1935,7 @@ namespace Vodovoz
 			this.labelTaraComments = new global::Gtk.Label();
 			this.labelTaraComments.Name = "labelTaraComments";
 			this.labelTaraComments.Xalign = 1F;
-			this.labelTaraComments.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий \nпо таре:");
+			this.labelTaraComments.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий \r\nпо таре:");
 			this.labelTaraComments.Justify = ((global::Gtk.Justification)(1));
 			this.tblDriverControl.Add(this.labelTaraComments);
 			global::Gtk.Table.TableChild w125 = ((global::Gtk.Table.TableChild)(this.tblDriverControl[this.labelTaraComments]));
@@ -1980,7 +1981,7 @@ namespace Vodovoz
 			this.label26.Name = "label26";
 			this.label26.Xalign = 1F;
 			this.label26.Yalign = 0F;
-			this.label26.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий \nменеджера\nводительского\nтелефона:");
+			this.label26.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий \r\nменеджера\r\nводительского\r\nтелефона:");
 			this.label26.Justify = ((global::Gtk.Justification)(1));
 			this.vbox7.Add(this.label26);
 			global::Gtk.Box.BoxChild w129 = ((global::Gtk.Box.BoxChild)(this.vbox7[this.label26]));
@@ -1992,7 +1993,7 @@ namespace Vodovoz
 			this.buttonCopyManagerComment.CanFocus = true;
 			this.buttonCopyManagerComment.Name = "buttonCopyManagerComment";
 			this.buttonCopyManagerComment.UseUnderline = true;
-			this.buttonCopyManagerComment.Label = global::Mono.Unix.Catalog.GetString("Скопировать \nкомментарий");
+			this.buttonCopyManagerComment.Label = global::Mono.Unix.Catalog.GetString("Скопировать \r\nкомментарий");
 			this.vbox7.Add(this.buttonCopyManagerComment);
 			global::Gtk.Box.BoxChild w130 = ((global::Gtk.Box.BoxChild)(this.vbox7[this.buttonCopyManagerComment]));
 			w130.Position = 1;
@@ -3557,8 +3558,6 @@ namespace Vodovoz
 			this.pickerDeliveryDate.DateChangedByUser += new global::System.EventHandler(this.OnPickerDeliveryDateDateChangedByUser);
 			this.pickerBillDate.DateChanged += new global::System.EventHandler(this.OnPickerDeliveryDateDateChanged);
 			this.checkSelfDelivery.Toggled += new global::System.EventHandler(this.OnCheckSelfDeliveryToggled);
-			this.evmeDeliveryPoint.Changed += new global::System.EventHandler(this.OnReferenceDeliveryPointChanged);
-			this.evmeDeliveryPoint.ChangedByUser += new global::System.EventHandler(this.OnReferenceDeliveryPointChangedByUser);
 			this.enumSignatureType.Changed += new global::System.EventHandler(this.OnEnumSignatureTypeChanged);
 			this.entityVMEntryClient.Changed += new global::System.EventHandler(this.OnEntityVMEntryClientChanged);
 			this.entityVMEntryClient.ChangedByUser += new global::System.EventHandler(this.OnEntityVMEntryClientChangedByUser);
