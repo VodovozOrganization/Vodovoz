@@ -1,4 +1,4 @@
-﻿using NetTopologySuite.Geometries;
+using NetTopologySuite.Geometries;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -98,7 +98,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
 			IGtkTabsOpener gtkTabsOpener,
 			IGeographicGroupRepository geographicGroupRepository,
-			IGeographicGroupParametersProvider geographicGroupParametersProvider)
+			IGeographicGroupParametersProvider geographicGroupParametersProvider,
+			IEmployeeSettings employeeSettings)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
@@ -110,6 +111,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_geographicGroupParametersProvider = geographicGroupParametersProvider;
 
 			TabName = "Мониторинг";
+
+			MaxDaysForNewbieDriver = employeeSettings.MaxDaysForNewbieDriver;
 
 			CarsOverlayId = "cars";
 			TracksOverlayId = "tracks";
@@ -855,6 +858,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			CurrentObjectChanged?.Invoke(this, CurrentObjectChangedArgs.Empty);
 		}
 
+		public int MaxDaysForNewbieDriver { get; }
+
 		#region IDisposable
 		public override void Dispose()
 		{
@@ -929,7 +934,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public DateTime? LastTrackPointTime { get; set; }
 
-		public bool IsNewbieDriver => FirstWorkDay.HasValue && (DateTime.Now - FirstWorkDay.Value).TotalDays <= 30;
+		public int TotalWorkDays => (int)(FirstWorkDay.HasValue ? (DateTime.Now - FirstWorkDay.Value).TotalDays : 0);
 	}
 
 	public class RouteListAddressNode
