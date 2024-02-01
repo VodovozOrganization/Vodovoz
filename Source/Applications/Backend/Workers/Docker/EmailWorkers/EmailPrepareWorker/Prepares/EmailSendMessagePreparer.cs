@@ -7,13 +7,13 @@ namespace EmailPrepareWorker.Prepares
 {
 	public class EmailSendMessagePreparer : IEmailSendMessagePreparer
 	{
-		public byte[] PrepareMessage(SendEmailMessageBuilder builder)
+		public byte[] PrepareMessage(SendEmailMessageBuilder builder, string connectionString)
 		{
 			SendEmailMessage message = builder
 				.AddFromContact()
 				.AddToContact()
 				.AddTemplate()
-				.AddAttachment()
+				.AddAttachment(connectionString)
 				.AddPayload();
 
 			var serializedMessage = JsonSerializer.Serialize(message);

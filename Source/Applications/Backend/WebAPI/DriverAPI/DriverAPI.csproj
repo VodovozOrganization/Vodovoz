@@ -43,6 +43,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\DriverAPI.Library\DriverAPI.Library.csproj" />
+    <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\EventsApi.Library\EventsApi.Library.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\HealthCheck\VodovozHealthCheck.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\Core\Business\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Infrastructure\BackendInfrastructure\BackendInfrastructure.csproj" />
