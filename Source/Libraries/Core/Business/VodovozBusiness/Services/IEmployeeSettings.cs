@@ -3,5 +3,6 @@
 	public interface IEmployeeSettings
 	{
 		int WorkingClothesFineTemplateId { get; }
+		int MaxDaysForNewbieDriver { get; }
 	}
 }
