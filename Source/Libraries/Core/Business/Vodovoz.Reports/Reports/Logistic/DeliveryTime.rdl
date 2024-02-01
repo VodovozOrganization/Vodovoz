@@ -21,6 +21,7 @@
     <DataSet Name="Data">
       <Query >
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>90</Timeout>
         <CommandText>SELECT
     employees.visiting_master,
     route_list_addresses.route_list_id,
