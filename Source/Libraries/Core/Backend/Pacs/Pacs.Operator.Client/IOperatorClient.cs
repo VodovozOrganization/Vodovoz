@@ -8,7 +8,7 @@ namespace Pacs.Operators.Client
 {
 	public interface IOperatorClient
 	{
-		int OperatorId { get; }
+		int? OperatorId { get; }
 
 		event EventHandler<OperatorStateEvent> StateChanged;
 		Task<GlobalBreakAvailability> GetGlobalBreakAvailability();

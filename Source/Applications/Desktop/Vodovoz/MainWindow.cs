@@ -22,6 +22,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Vodovoz;
+using Vodovoz.Application.Pacs;
 using Vodovoz.Controllers;
 using Vodovoz.Core;
 using Vodovoz.Domain.Employees;
@@ -60,7 +61,7 @@ public partial class MainWindow : Gtk.Window
 	private readonly int _currentUserSubdivisionId;
 	private readonly IEnumerable<int> _curentUserMovementDocumentsNotificationWarehouses;
 	private readonly bool _hideComplaintsNotifications;
-
+	private readonly OperatorService _operatorService;
 	private bool _accessOnlyToWarehouseAndComplaints;
 	//private MessagesHostedService _messageService;
 	private IBusControl _messageBusControl;
@@ -103,6 +104,8 @@ public partial class MainWindow : Gtk.Window
 
 		tdiMain.WidgetResolver = ViewModelWidgetResolver.Instance;
 		TDIMain.MainNotebook = tdiMain;
+		_operatorService = _autofacScope.Resolve<OperatorService>();
+
 		var highlightWColor = CurrentUserSettings.Settings.HighlightTabsWithColor;
 		var keepTabColor = CurrentUserSettings.Settings.KeepTabColor;
 		var reorderTabs = CurrentUserSettings.Settings.ReorderTabs;

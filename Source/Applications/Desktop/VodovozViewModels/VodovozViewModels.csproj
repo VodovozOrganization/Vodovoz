@@ -879,6 +879,10 @@
       <Project>{50993438-f358-4dcd-8e0a-ce1446c76487}</Project>
       <Name>Mango.Grpc.Client</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Pacs\Pacs.Operator.Client\Pacs.Operator.Client.csproj">
+      <Project>{5eca0400-36d9-4d8b-b206-57061f4ab9dc}</Project>
+      <Name>Pacs.Operator.Client</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\RevenueService.Client\RevenueService.Client.csproj">
       <Project>{AFA4490E-F4DA-461D-9B55-F565F61C1DEA}</Project>
       <Name>RevenueService.Client</Name>

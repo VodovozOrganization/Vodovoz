@@ -5,6 +5,7 @@ using Gamma.Binding.Core;
 using Vodovoz.ViewModels.Dialogs.Mango;
 using System.ComponentModel;
 using Vodovoz.Presentation.ViewModels.Mango;
+using Vodovoz.Application.Mango;
 
 namespace Vodovoz.ViewWidgets.Mango
 {

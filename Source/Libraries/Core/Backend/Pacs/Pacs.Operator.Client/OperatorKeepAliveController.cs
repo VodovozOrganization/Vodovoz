@@ -39,6 +39,10 @@ namespace Pacs.Operators.Client
 
 		public void Start()
 		{
+			if(_operatorClient.OperatorId == null)
+			{
+				return;
+			}
 			if(_timer != null)
 			{
 				return;

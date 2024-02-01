@@ -2,6 +2,7 @@
 using QS.Views.GtkUI;
 using System;
 using System.ComponentModel;
+using Vodovoz.Application.Pacs;
 using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Converters;
@@ -51,12 +52,8 @@ namespace Vodovoz.Views.Pacs
 			labelPacs.UseMarkup = true;
 			labelPacs.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.PacsInfo, w => w.LabelProp, new TextToColoredTextConverter(GetPacsLabelColor))
-				/*.AddFuncBinding(vm => string.Format("<span foreground=\"{0}\"{1}</span>", 
-					vm.BreakTimeGone ? GdkColors.DangerText.ToHtmlColor() : GdkColors.PrimaryText.ToHtmlColor(),
-					vm.PacsInfo
-				), w => w.LabelProp)*/
 				.InitializeFromSource();
-			
+
 			buttonMango.HasTooltip = true;
 			buttonMango.TooltipText = "Открыть диалог звонков Манго";
 			buttonMango.BindCommand(ViewModel.OpenMangoDialogCommand);
@@ -73,7 +70,7 @@ namespace Vodovoz.Views.Pacs
 
 		public IconSize IconSize
 		{
-			get => _iconSize; 
+			get => _iconSize;
 			set
 			{
 				if(_iconSize == value)
@@ -95,6 +92,8 @@ namespace Vodovoz.Views.Pacs
 			{
 				case nameof(PacsPanelViewModel.LongBreakState):
 					UpdateLongBreakButtonImage();
+					break;
+				case nameof(PacsPanelViewModel.ShortBreakState):
 					UpdateShortBreakButtonImage();
 					break;
 				case nameof(PacsPanelViewModel.PacsState):

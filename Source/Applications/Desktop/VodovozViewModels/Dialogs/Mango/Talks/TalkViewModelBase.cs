@@ -2,6 +2,7 @@
 using QS.Navigation;
 using QS.ViewModels.Dialog;
 using System;
+using Vodovoz.Application.Mango;
 using Vodovoz.Presentation.ViewModels.Mango;
 
 namespace Vodovoz.ViewModels.Dialogs.Mango.Talks

@@ -2,6 +2,7 @@
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Validation;
+using QS.ViewModels;
 using QS.ViewModels.Dialog;
 using ReactiveUI;
 using System;
@@ -20,6 +21,32 @@ namespace Vodovoz.Presentation.ViewModels.Employees
 		public event PropertyChangingEventHandler PropertyChanging;
 
 		public ReactiveDialogViewModel(INavigationManager navigation) : base(navigation)
+		{
+			Subscriptions = new CompositeDisposable();
+		}
+
+		void IReactiveObject.RaisePropertyChanged(PropertyChangedEventArgs args)
+		{
+			RaisePropertyChanged(args);
+		}
+
+		public void RaisePropertyChanging(PropertyChangingEventArgs args)
+		{
+			PropertyChanging?.Invoke(this, args);
+		}
+
+		public virtual void Dispose()
+		{
+			Subscriptions.Dispose();
+		}
+	}
+
+	public class ReactiveWidgetViewModel : WidgetViewModelBase, IReactiveObject, IDisposable
+	{
+		protected CompositeDisposable Subscriptions { get; }
+		public event PropertyChangingEventHandler PropertyChanging;
+
+		public ReactiveWidgetViewModel()
 		{
 			Subscriptions = new CompositeDisposable();
 		}

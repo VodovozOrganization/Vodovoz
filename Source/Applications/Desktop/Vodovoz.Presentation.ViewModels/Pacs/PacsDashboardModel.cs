@@ -8,7 +8,6 @@ using System.Linq;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Pacs;
 using Vodovoz.Services;
-using CallEvent = Pacs.Core.Messages.Events.CallEvent;
 using CallEventEntity = Vodovoz.Core.Domain.Pacs.CallEvent;
 
 namespace Vodovoz.Presentation.ViewModels.Pacs

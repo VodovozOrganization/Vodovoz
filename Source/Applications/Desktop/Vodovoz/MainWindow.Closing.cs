@@ -1,12 +1,14 @@
-﻿using Gtk;
+﻿using Autofac;
+using Gtk;
 using QS.Dialog;
 using System;
+using Vodovoz.Application.Pacs;
 
 public partial class MainWindow
 {
 	protected void OnDeleteEvent(object sender, DeleteEventArgs a)
 	{
-		var canPacsClose = pacspanelview1.ViewModel.CanStopApplication();
+		var canPacsClose = _operatorService.CanStopApplication();
 		if (!canPacsClose)
 		{
 			_interativeService.ShowMessage(ImportanceLevel.Warning, "Вы не завершили смену.");
@@ -31,7 +33,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnQuitActionActivated(object sender, EventArgs e)
 	{
-		var canPacsClose = pacspanelview1.ViewModel.CanStopApplication();
+		var canPacsClose = _operatorService.CanStopApplication();
 		if(!canPacsClose)
 		{
 			_interativeService.ShowMessage(ImportanceLevel.Warning, "Вы не завершили смену.");

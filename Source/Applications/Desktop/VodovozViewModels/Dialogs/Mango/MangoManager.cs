@@ -2,6 +2,7 @@
 using Mango.Grpc.Client;
 using MangoService;
 using Microsoft.Extensions.Logging;
+using Pacs.Operators.Client;
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.NotifyChange;
@@ -12,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Vodovoz.Application.Mango;
 using Vodovoz.Presentation.ViewModels.Mango;
 using Vodovoz.Settings.Mango;
 using Vodovoz.ViewModels.Dialogs.Mango.Talks;
@@ -21,7 +23,7 @@ using Timer = System.Timers.Timer;
 namespace Vodovoz.ViewModels.Dialogs.Mango
 {
 	public class MangoManager : PropertyChangedBase, IDisposable, IMangoManager
-    {
+	{
 		private readonly ILogger<MangoManager> _logger;
 		//private readonly Gtk.Action _toolbarIcon;
 		private readonly ILoggerFactory _loggerFactory;

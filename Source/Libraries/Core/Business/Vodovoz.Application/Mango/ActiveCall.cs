@@ -5,7 +5,7 @@ using QS.DomainModel.Entity;
 using QS.Utilities.Numeric;
 using Vodovoz.Domain.Contacts;
 
-namespace Vodovoz.Presentation.ViewModels.Mango
+namespace Vodovoz.Application.Mango
 {
 	public class ActiveCall : PropertyChangedBase
 	{

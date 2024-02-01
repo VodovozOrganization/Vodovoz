@@ -1,4 +1,4 @@
-﻿namespace Vodovoz.Presentation.ViewModels.Mango
+﻿namespace Vodovoz.Application.Mango
 {
 	public enum ConnectionState
 	{
