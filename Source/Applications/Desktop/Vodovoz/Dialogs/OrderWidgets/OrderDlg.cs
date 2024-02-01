@@ -123,6 +123,8 @@ using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
+using QS.ViewModels.Control.EEVM;
+using Vodovoz.ViewModels.Dialogs.Counterparty;
 
 namespace Vodovoz
 {
@@ -835,8 +837,14 @@ namespace Vodovoz
 			evmeAuthor.Binding.AddBinding(Entity, s => s.Author, w => w.Subject).InitializeFromSource();
 			evmeAuthor.Sensitive = false;
 
-			evmeDeliveryPoint.Binding.AddBinding(Entity, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
-			evmeDeliveryPoint.CanEditReference = true;
+			entryDeliveryPoint.ViewModel = new LegacyEEVMBuilderFactory<OrderDlg>(this, this, UoW, NavigationManager, _lifetimeScope)
+				.ForProperty(d => d.DeliveryPoint)
+				.UseViewModelJournalAndAutocompleter<DeliveryPointByClientJournalViewModel, DeliveryPointJournalFilterViewModel>(filter =>
+				{
+					filter.Counterparty = Entity.Client;
+				})
+				.UseViewModelDialog<DeliveryPointViewModel>()
+				.Finish();
 
 			_contactPhoneFilter = new PhonesJournalFilterViewModel
 			{
@@ -847,7 +855,7 @@ namespace Vodovoz
 				() => new PhonesJournalViewModel(_contactPhoneFilter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices));
 			evmeContactPhone.SetEntitySelectorFactory(phoneSelectoFactory);
 
-			evmeDeliveryPoint.ChangedByUser += (s, e) =>
+			entryDeliveryPoint.ViewModel.ChangedByUser += (s, e) =>
 			{
 				if(Entity?.DeliveryPoint == null)
 				{
