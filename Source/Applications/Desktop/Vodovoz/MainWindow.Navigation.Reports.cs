@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services;
@@ -30,8 +30,10 @@ using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.Reports.Sales;
 using Vodovoz.ViewModels.ReportsParameters;
+using Vodovoz.ViewModels.ReportsParameters.Bookkeeping;
 using Vodovoz.ViewModels.ReportsParameters.Cash;
 using Vodovoz.ViewModels.ReportsParameters.Logistic;
+using Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport;
 using Vodovoz.ViewModels.ReportsParameters.Payments;
 using Vodovoz.ViewModels.ReportsParameters.Production;
 using Vodovoz.ViewModels.ReportsParameters.Profitability;
@@ -858,6 +860,16 @@ public partial class MainWindow
 		NavigationManager.OpenViewModel<DriversWarehousesEventsReportViewModel>(null);
 	}
 
+	/// <summary>
+	/// Отчет о принадлежности ТС
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnCarOwnershipReportActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(CarOwnershipReportViewModel));
+	}
+
 	#endregion Логистика
 
 	#region Сотрудники
@@ -1136,20 +1148,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionCounterpartyCashlessDebtsReportActivated(object sender, EventArgs e)
 	{
-		var scope = Startup.AppDIContainer.BeginLifetimeScope();
-		
-		var report = new CounterpartyCashlessDebtsReport(
-			scope,
-			new DeliveryScheduleParametersProvider(new ParametersProvider()),
-			ServicesConfig.InteractiveService,
-			new CounterpartyJournalFactory(),
-			UnitOfWorkFactory.GetDefaultFactory);
-
-		report.Destroyed += (o, args) =>  scope.Dispose();
-		
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<CounterpartyCashlessDebtsReport>(),
-			() => new QSReport.ReportViewDlg(report));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(CounterpartyCashlessDebtsReportViewModel));
 	}
 
 	/// <summary>

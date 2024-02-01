@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -131,7 +131,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox17">
-                      <Value>="Сформировано: " + Format( {?creation_date}, "dd.MM.yyyy HH:mm")</Value>
+                      <Value>="Сформировано: " + Format( {@ExecutionTime}, "dd.MM.yyyy HH:mm")</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
@@ -655,11 +655,18 @@ FROM orders o
     INNER JOIN order_items oi on o.id = oi.order_id
 WHERE
     o.client_id = @counterparty_id
-  AND o.order_status IN (@order_statuses)
+  AND (
+             ('0' IN (@OrderStatus_include) OR (o.order_status IN (@OrderStatus_include)))
+				AND (NOT (o.order_status IN (@OrderStatus_exclude)) OR o.order_status IS NULL)
+         )
   AND o.payment_type = 'Cashless'
   AND (@start_date = '' OR o.delivery_date &gt;= @start_date)
   AND (@end_date = '' OR o.delivery_date &lt;= @end_date)
-  AND (@exclude_closing_documents = FALSE OR o.delivery_schedule_id != @closing_document_delivery_schedule_id)
+  AND (
+      	@is_closing_documents IS NULL 
+      	OR (@is_closing_documents = FALSE AND (o.delivery_schedule_id != @closing_document_delivery_schedule_id OR o.delivery_schedule_id IS NULL)) 
+      	OR (@is_closing_documents = TRUE AND o.delivery_schedule_id = @closing_document_delivery_schedule_id)
+      )
 GROUP BY o.id
 having expense &gt; 0
 UNION ALL
@@ -695,14 +702,17 @@ ORDER BY date DESC;</CommandText>
           <QueryParameter Name="counterparty_id">
             <Value>={?counterparty_id}</Value>
           </QueryParameter>
-          <QueryParameter Name="order_statuses">
-            <Value>={?order_statuses}</Value>
+          <QueryParameter Name="OrderStatus_include">
+            <Value>={?OrderStatus_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="OrderStatus_exclude">
+            <Value>={?OrderStatus_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="is_closing_documents">
+            <Value>={?is_closing_documents}</Value>
           </QueryParameter>
           <QueryParameter Name="closing_document_delivery_schedule_id">
             <Value>={?closing_document_delivery_schedule_id}</Value>
-          </QueryParameter>
-          <QueryParameter Name="exclude_closing_documents">
-            <Value>={?exclude_closing_documents}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -787,7 +797,7 @@ WHERE c.id = @counterparty_id</CommandText>
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
-    <ReportParameter Name="counterparty_id">
+    <ReportParameter Name="closing_document_delivery_schedule_id">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
@@ -801,33 +811,110 @@ WHERE c.id = @counterparty_id</CommandText>
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
-    <ReportParameter Name="creation_date">
-      <DataType>DateTime</DataType>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
-    </ReportParameter>
-    <ReportParameter Name="order_statuses">
-      <DataType>String</DataType>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
-    </ReportParameter>
-    <ReportParameter Name="closing_document_delivery_schedule_id">
+    <ReportParameter Name="counterparty_id">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
-    <ReportParameter Name="exclude_closing_documents">
-      <DataType>Boolean</DataType>
+    <ReportParameter Name="Counterparty_include">
+      <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Counterparty_exclude">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CounterpartyType_include">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CounterpartyType_exclude">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CounterpartySubtype_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CounterpartySubtype_exclude">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="OrderStatus_include">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="OrderStatus_exclude">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="DebtType_include">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="DebtType_exclude">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="is_closing_documents">
+      <DataType>Boolean</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="is_chain_stores">
+      <DataType>Boolean</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="is_expired">
+      <DataType>Boolean</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="is_liquidated">
+      <DataType>Boolean</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

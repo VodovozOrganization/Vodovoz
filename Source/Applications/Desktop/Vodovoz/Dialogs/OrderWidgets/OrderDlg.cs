@@ -46,6 +46,7 @@ using Vodovoz.Application.Orders.Services;
 using Vodovoz.Controllers;
 using Vodovoz.Core;
 using Vodovoz.Core.DataService;
+using Vodovoz.Cores;
 using Vodovoz.Dialogs;
 using Vodovoz.Dialogs.Client;
 using Vodovoz.Dialogs.Email;
@@ -109,6 +110,7 @@ using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.Infrastructure.Print;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
@@ -1136,7 +1138,7 @@ namespace Vodovoz
 		{
 			var isNotFastDeliveryOrSelfDelivery = !(Entity.SelfDelivery || Entity.IsFastDelivery);
 
-			hboxCallBeforeArrival.Visible = false;// = isNotFastDeliveryOrSelfDelivery; Вернуть при выпуске МП водителей
+			hboxCallBeforeArrival.Visible = isNotFastDeliveryOrSelfDelivery;
 		}
 
 		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs args)
@@ -3009,9 +3011,9 @@ namespace Vodovoz
 					})
 				.ViewModel;
 			
-			journalViewModel.OnEntitySelectedResult += (s, ea) =>
+			journalViewModel.OnSelectResult += (s, ea) =>
 			{
-				var selectedNode = ea.SelectedNodes.FirstOrDefault();
+				var selectedNode = ea.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
 				
 				if(selectedNode == null)
 				{
@@ -3056,9 +3058,9 @@ namespace Vodovoz
 					})
 				.ViewModel;
 			
-			journalViewModel.OnEntitySelectedResult += (s, ea) =>
+			journalViewModel.OnSelectResult += (s, ea) =>
 			{
-				var selectedNode = ea.SelectedNodes.FirstOrDefault();
+				var selectedNode = ea.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
 				if(selectedNode == null)
 				{
 					return;

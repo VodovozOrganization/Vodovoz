@@ -1789,8 +1789,10 @@ namespace Vodovoz.Domain.Logistic
 					return true;
 				}
 
-				var unclosedRouteListsHavingDebtsCount = _routeListRepository.GetUnclosedRouteListsCountHavingDebtByDriver(UoW, Driver.Id, Id);
-				var unclosedRouteListsDebtsSum = _routeListRepository.GetUnclosedRouteListsDebtsSumByDriver(UoW, Driver.Id, Id);
+				var unclosedRouteListsHavingDebtsCount =
+					_routeListRepository.GetUnclosedRouteListsCountHavingDebtByDriver(UoW, Driver.Id, Id);
+				var unclosedRouteListsDebtsSum =
+					_routeListRepository.GetUnclosedRouteListsDebtsSumByDriver(UoW, Driver.Id, Id);
 
 				if(unclosedRouteListsHavingDebtsCount > maxDriversUnclosedRouteListsCountParameter 
 					|| unclosedRouteListsDebtsSum > maxDriversRouteListsDebtsSumParameter)
@@ -1944,6 +1946,15 @@ namespace Vodovoz.Domain.Logistic
 			{
 				yield return new ValidationResult("Выбрана часть города без актуальных данных о координатах, кассе и складе. Сохранение невозможно.", 
 					new[] { nameof(GeographicGroups) });
+			}
+
+			var onlineOrders = Addresses.GroupBy(x => x.Order.OnlineOrder)
+			  .Where(g => g.Key != null && g.Count() > 1)
+			  .Select(o => o.Key);
+
+			if(onlineOrders.Any())
+			{
+				yield return new ValidationResult($"В МЛ дублируются номера оплат: {string.Join(", ", onlineOrders)}", new[] { nameof(Addresses) });
 			}
 		}
 
@@ -2538,9 +2549,10 @@ namespace Vodovoz.Domain.Logistic
 		{
 			TimeSpan minTime = new TimeSpan();
 			//Расчет минимального времени к которому нужно\можно подъехать.
-			for(int ix = 0; ix < Addresses.Count; ix++) {
-
-				if(ix == 0) {
+			for(int ix = 0; ix < Addresses.Count; ix++)
+			{
+				if(ix == 0)
+				{
 					minTime = Addresses[ix].Order.DeliverySchedule.From;
 
 					var geoGroup = GeographicGroups.FirstOrDefault();
@@ -2550,12 +2562,25 @@ namespace Vodovoz.Domain.Logistic
 						throw new GeoGroupVersionNotFoundException($"Невозможно рассчитать планируемое время, так как на {Date} у части города нет актуальных данных.");
 					}
 
-					var timeFromBase = TimeSpan.FromSeconds(sputnikCache.TimeFromBase(geoGroupVersion, Addresses[ix].Order.DeliveryPoint));
+					var timeFromBase = TimeSpan.FromSeconds(
+						sputnikCache.TimeFromBase(
+							geoGroupVersion.PointCoordinates,
+							Addresses[ix].Order.DeliveryPoint.PointCoordinates));
+					
 					var onBase = minTime - timeFromBase;
+					
 					if(Shift != null && onBase < Shift.StartTime)
+					{
 						minTime = Shift.StartTime + timeFromBase;
-				} else
-					minTime += TimeSpan.FromSeconds(sputnikCache.TimeSec(Addresses[ix - 1].Order.DeliveryPoint, Addresses[ix].Order.DeliveryPoint));
+					}
+				}
+				else
+				{
+					minTime += TimeSpan.FromSeconds(
+						sputnikCache.TimeSec(
+							Addresses[ix - 1].Order.DeliveryPoint.PointCoordinates,
+							Addresses[ix].Order.DeliveryPoint.PointCoordinates));
+				}
 
 				Addresses[ix].PlanTimeStart = minTime > Addresses[ix].Order.DeliverySchedule.From ? minTime : Addresses[ix].Order.DeliverySchedule.From;
 
@@ -2565,39 +2590,65 @@ namespace Vodovoz.Domain.Logistic
 			TimeSpan maxTime = new TimeSpan();
 			for(int ix = Addresses.Count - 1; ix >= 0; ix--) {
 
-				if(ix == Addresses.Count - 1) {
+				if(ix == Addresses.Count - 1)
+				{
 					maxTime = Addresses[ix].Order.DeliverySchedule.To;
 
 					var geoGroup = GeographicGroups.FirstOrDefault();
 					var geoGroupVersion = geoGroup.GetVersionOrNull(Date);
 					if(geoGroupVersion == null)
 					{
-						throw new GeoGroupVersionNotFoundException($"Невозможно рассчитать планируемое время, так как на {Date} у части города нет актуальных данных.");
+						throw new GeoGroupVersionNotFoundException(
+							$"Невозможно рассчитать планируемое время, так как на {Date} у части города нет актуальных данных.");
 					}
 
-					var timeToBase = TimeSpan.FromSeconds(sputnikCache.TimeToBase(Addresses[ix].Order.DeliveryPoint, geoGroupVersion));
+					var timeToBase = TimeSpan.FromSeconds(
+						sputnikCache.TimeToBase(
+							Addresses[ix].Order.DeliveryPoint.PointCoordinates,
+							geoGroupVersion.PointCoordinates));
+					
 					var onBase = maxTime + timeToBase;
+					
 					if(Shift != null && onBase > Shift.EndTime)
+					{
 						maxTime = Shift.EndTime - timeToBase;
-				} else
-					maxTime -= TimeSpan.FromSeconds(sputnikCache.TimeSec(Addresses[ix].Order.DeliveryPoint, Addresses[ix + 1].Order.DeliveryPoint));
+					}
+				}
+				else
+				{
+					maxTime -= TimeSpan.FromSeconds(
+						sputnikCache.TimeSec(
+							Addresses[ix].Order.DeliveryPoint.PointCoordinates,
+							Addresses[ix + 1].Order.DeliveryPoint.PointCoordinates));
+				}
 
 				if(maxTime > Addresses[ix].Order.DeliverySchedule.To)
+				{
 					maxTime = Addresses[ix].Order.DeliverySchedule.To;
+				}
 
 				maxTime -= TimeSpan.FromSeconds(Addresses[ix].TimeOnPoint);
 
-				if(maxTime < Addresses[ix].PlanTimeStart) { //Расписание испорчено, успеть нельзя. Пытаемся его более менее адекватно отобразить.
+				if(maxTime < Addresses[ix].PlanTimeStart)
+				{
+					//Расписание испорчено, успеть нельзя. Пытаемся его более менее адекватно отобразить.
 					TimeSpan beforeMin = new TimeSpan(1, 0, 0, 0);
 					if(ix > 0)
+					{
 						beforeMin = Addresses[ix - 1].PlanTimeStart.Value
-													 + TimeSpan.FromSeconds(sputnikCache.TimeSec(Addresses[ix - 1].Order.DeliveryPoint, Addresses[ix].Order.DeliveryPoint))
-													 + TimeSpan.FromSeconds(Addresses[ix - 1].TimeOnPoint);
-					if(beforeMin < Addresses[ix].Order.DeliverySchedule.From) {
+									+ TimeSpan.FromSeconds(sputnikCache.TimeSec(Addresses[ix - 1].Order.DeliveryPoint.PointCoordinates,
+										Addresses[ix].Order.DeliveryPoint.PointCoordinates))
+									+ TimeSpan.FromSeconds(Addresses[ix - 1].TimeOnPoint);
+					}
+
+					if(beforeMin < Addresses[ix].Order.DeliverySchedule.From)
+					{
 						Addresses[ix].PlanTimeStart = beforeMin < maxTime ? maxTime : beforeMin;
 					}
+
 					maxTime = Addresses[ix].PlanTimeStart.Value;
 				}
+
 				Addresses[ix].PlanTimeEnd = maxTime;
 			}
 		}
@@ -2614,21 +2665,28 @@ namespace Vodovoz.Domain.Logistic
 		{
 			
 
-			var sorted = routelists.Where(x => x.Addresses.Any() && !x.OnloadTimeFixed)
-								   .Select(
-										rl => {
-											var geoGroup = rl.GeographicGroups.FirstOrDefault();
-											var geoGroupVersion = geoGroup.GetVersionOrNull(rl.Date);
-											if(geoGroupVersion == null)
-											{
-												throw new GeoGroupVersionNotFoundException($"Невозможно рассчитать время на погрузке, так как на {rl.Date} у части города ({geoGroup.Name}) нет актуальных данных.");
-											}
+			var sorted =
+				routelists
+					.Where(x => x.Addresses.Any() && !x.OnloadTimeFixed)
+					.Select(
+						rl => {
+							var geoGroup = rl.GeographicGroups.FirstOrDefault();
+							var geoGroupVersion = geoGroup.GetVersionOrNull(rl.Date);
+							if(geoGroupVersion == null)
+							{
+								throw new GeoGroupVersionNotFoundException($"Невозможно рассчитать время на погрузке, так как на {rl.Date} у части города ({geoGroup.Name}) нет актуальных данных.");
+							}
 
-											var time = rl.FirstAddressTime.Value - TimeSpan.FromSeconds(sputnikCache.TimeFromBase(geoGroupVersion, rl.Addresses.First().Order.DeliveryPoint));
-											return new Tuple<TimeSpan, RouteList>(time, rl);
-										}
-									)
-								   .OrderByDescending(x => x.Item1);
+							var time =
+								rl.FirstAddressTime.Value - TimeSpan.FromSeconds(
+									sputnikCache.TimeFromBase(
+										geoGroupVersion.PointCoordinates,
+										rl.Addresses.First().Order.DeliveryPoint.PointCoordinates));
+							
+							return new Tuple<TimeSpan, RouteList>(time, rl);
+						}
+					)
+					.OrderByDescending(x => x.Item1);
 			var fixedTime = routelists.Where(x => x.Addresses.Any() && x.OnloadTimeFixed).ToList();
 			var paralellLoading = 4;
 			var loadingPlaces = Enumerable.Range(0, paralellLoading).Select(x => new TimeSpan(1, 0, 0, 0)).ToArray();
@@ -2680,10 +2738,12 @@ namespace Vodovoz.Domain.Logistic
 				throw new GeoGroupVersionNotFoundException($"Невозможно построить трек, так как на {Date} у части города ({geoGroup.Name}) нет актуальных данных.");
 			}
 
-			var hash = CachedDistance.GetHash(geoGroupVersion);
+			var hash = CachedDistance.GetHash(geoGroupVersion.PointCoordinates);
 			var result = new List<long>();
 			result.Add(hash);
-			result.AddRange(Addresses.Where(x => x.Order.DeliveryPoint.CoordinatesExist).Select(x => CachedDistance.GetHash(x.Order.DeliveryPoint)));
+			result.AddRange(
+				Addresses.Where(x => x.Order.DeliveryPoint.CoordinatesExist)
+					.Select(x => CachedDistance.GetHash(x.Order.DeliveryPoint.PointCoordinates)));
 			result.Add(hash);
 			return result.ToArray();
 		}

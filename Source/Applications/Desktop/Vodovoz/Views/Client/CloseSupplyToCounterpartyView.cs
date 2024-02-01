@@ -9,12 +9,11 @@ using QS.Dialog.GtkUI.FileDialog;
 
 namespace Vodovoz.Views.Client
 {
-	[System.ComponentModel.ToolboxItem(true)]
 	public partial class CloseSupplyToCounterpartyView : TabViewBase<CloseSupplyToCounterpartyViewModel>
 	{
 		public CloseSupplyToCounterpartyView(CloseSupplyToCounterpartyViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 			ConfigureDlg();
 		}
 
@@ -43,6 +42,17 @@ namespace Vodovoz.Views.Client
 
 		private void ConfigureCloseSupplyControls()
 		{
+			ylabelDebtType.Binding
+				.AddBinding(ViewModel.Entity, e => e.IsDeliveriesClosed, l => l.Visible)
+				.InitializeFromSource();
+
+			yenumcomboboxDebtType.ItemsEnum = typeof(DebtType);
+			yenumcomboboxDebtType.Binding
+				.AddSource(ViewModel.Entity)
+				.AddBinding(e => e.CloseDeliveryDebtType, w => w.SelectedItemOrNull)
+				.AddBinding(e => e.IsDeliveriesClosed, l => l.Visible)
+				.InitializeFromSource();
+
 			labelCloseDelivery.Binding
 				.AddBinding(ViewModel, vm => vm.CloseDeliveryLabelInfo, l => l.LabelProp)
 				.AddBinding(ViewModel.Entity, e => e.IsDeliveriesClosed, l => l.Visible)

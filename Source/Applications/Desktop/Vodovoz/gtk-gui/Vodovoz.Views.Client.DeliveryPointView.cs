@@ -78,7 +78,7 @@ namespace Vodovoz.Views.Client
 
 		private global::Gtk.Label codeLabel2;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryDefaultWater;
+		private global::QS.Views.Control.EntityEntry entryDefaultWaterNomenclature;
 
 		private global::Gtk.HBox hbox4;
 
@@ -393,6 +393,7 @@ namespace Vodovoz.Views.Client
 			this.entryDefaultDeliverySchedule.Events = ((global::Gdk.EventMask)(256));
 			this.entryDefaultDeliverySchedule.Name = "entryDefaultDeliverySchedule";
 			this.entryDefaultDeliverySchedule.CanEditReference = true;
+			this.entryDefaultDeliverySchedule.CanDisposeEntitySelectorFactory = false;
 			this.entryDefaultDeliverySchedule.CanOpenWithoutTabParent = false;
 			this.hbox16.Add(this.entryDefaultDeliverySchedule);
 			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hbox16[this.entryDefaultDeliverySchedule]));
@@ -585,14 +586,11 @@ namespace Vodovoz.Views.Client
 			w35.Expand = false;
 			w35.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.entryDefaultWater = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entryDefaultWater.WidthRequest = 430;
-			this.entryDefaultWater.Events = ((global::Gdk.EventMask)(256));
-			this.entryDefaultWater.Name = "entryDefaultWater";
-			this.entryDefaultWater.CanEditReference = false;
-			this.entryDefaultWater.CanOpenWithoutTabParent = false;
-			this.hbox3.Add(this.entryDefaultWater);
-			global::Gtk.Box.BoxChild w36 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.entryDefaultWater]));
+			this.entryDefaultWaterNomenclature = new global::QS.Views.Control.EntityEntry();
+			this.entryDefaultWaterNomenclature.Events = ((global::Gdk.EventMask)(256));
+			this.entryDefaultWaterNomenclature.Name = "entryDefaultWaterNomenclature";
+			this.hbox3.Add(this.entryDefaultWaterNomenclature);
+			global::Gtk.Box.BoxChild w36 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.entryDefaultWaterNomenclature]));
 			w36.Position = 2;
 			this.tableMainInfo.Add(this.hbox3);
 			global::Gtk.Table.TableChild w37 = ((global::Gtk.Table.TableChild)(this.tableMainInfo[this.hbox3]));

@@ -35,6 +35,12 @@ namespace Vodovoz.Reports.Editing.Modifiers
 		[Display(Name = "Классификация контрагента")]
 		CounterpartyClassification,
 		[Display(Name = "Промонабор")]
-		PromotionalSet
+		PromotionalSet,
+		[Display(Name = "Сотрудник")]
+		Employee,
+		[Display(Name = "Событие")]
+		DriverWarehouseEvent,
+		[Display(Name = "Время события")]
+		DriverWarehouseEventDate
 	}
 }

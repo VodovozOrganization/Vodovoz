@@ -14,7 +14,7 @@ namespace Vodovoz.ViewWidgets.PromoSetAction
 
 		private global::Gtk.VBox vbox5;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityviewmodelentryNomenclature;
+		private global::QS.Views.Control.EntityEntry entryNomenclature;
 
 		private global::Gtk.HBox hbox5;
 
@@ -71,12 +71,11 @@ namespace Vodovoz.ViewWidgets.PromoSetAction
 			this.vbox5.Name = "vbox5";
 			this.vbox5.Spacing = 6;
 			// Container child vbox5.Gtk.Box+BoxChild
-			this.entityviewmodelentryNomenclature = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entityviewmodelentryNomenclature.Events = ((global::Gdk.EventMask)(256));
-			this.entityviewmodelentryNomenclature.Name = "entityviewmodelentryNomenclature";
-			this.entityviewmodelentryNomenclature.CanEditReference = false;
-			this.vbox5.Add(this.entityviewmodelentryNomenclature);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.entityviewmodelentryNomenclature]));
+			this.entryNomenclature = new global::QS.Views.Control.EntityEntry();
+			this.entryNomenclature.Events = ((global::Gdk.EventMask)(256));
+			this.entryNomenclature.Name = "entryNomenclature";
+			this.vbox5.Add(this.entryNomenclature);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.entryNomenclature]));
 			w4.Position = 0;
 			w4.Expand = false;
 			w4.Fill = false;
