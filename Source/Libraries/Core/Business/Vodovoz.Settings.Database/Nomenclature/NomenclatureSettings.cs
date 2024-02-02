@@ -22,5 +22,9 @@ namespace Vodovoz.Settings.Database.Nomenclature
 				return ids;
 			}
 		}
+
+		public int[] EquipmentForCheckProductGroupsIds => _settingsController
+			.GetValue<string>(nameof(EquipmentForCheckProductGroupsIds))
+			.FromStringToIntArray();
 	}
 }
