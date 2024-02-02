@@ -345,9 +345,9 @@ namespace Vodovoz.Application.Logistics
 					.Select(pg => pg.Id)
 					.ToList();
 
-				buffer.Union(productGroupsIds);
+				buffer.AddRange(productGroupsIds);
 
-				result.Union(productGroupsIds);
+				result = result.Union(productGroupsIds).ToList();
 
 				buffer.Remove(current);
 			}
