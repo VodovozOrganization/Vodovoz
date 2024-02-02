@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Reflection;
 using FastPaymentsAPI.HealthChecks;
@@ -41,6 +41,7 @@ using Vodovoz.Settings.Database;
 using Vodovoz.Settings.FastPayments;
 using VodovozInfrastructure.Cryptography;
 using VodovozHealthCheck;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 
 namespace FastPaymentsAPI
 {
@@ -68,6 +69,9 @@ namespace FastPaymentsAPI
 					logging.AddNLogWeb();
 					logging.AddConfiguration(nlogConfig);
 				});
+
+			_logger = new Logger<Startup>(LoggerFactory.Create(logging =>
+				logging.AddConfiguration(Configuration.GetSection(_nLogSectionName))));
 
 			services.AddHttpClient()
 				.AddControllers()
@@ -223,6 +227,7 @@ namespace FastPaymentsAPI
 					Assembly.GetAssembly(typeof(Bank)),
 					Assembly.GetAssembly(typeof(HistoryMain)),
 					Assembly.GetAssembly(typeof(Attachment)),
+					typeof(DriverWarehouseEventMap).Assembly,
 					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
 				}
 			);

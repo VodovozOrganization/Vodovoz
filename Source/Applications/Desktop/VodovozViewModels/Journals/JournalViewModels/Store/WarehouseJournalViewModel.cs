@@ -6,7 +6,9 @@ using QS.Project.Journal;
 using QS.Services;
 using System;
 using System.Linq;
+using Autofac;
 using NHibernate.Criterion;
+using QS.Navigation;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
@@ -19,6 +21,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 	public class WarehouseJournalViewModel : SingleEntityJournalViewModelBase<Warehouse, WarehouseViewModel, WarehouseJournalNode>
 	{
 		private readonly ISubdivisionRepository _subdivisionRepository;
+		private ILifetimeScope _lifetimeScope;
 		private WarehouseJournalFilterViewModel _filterViewModel;
 		private WarehousePermissionsType[] _warehousePermissions;
 		
@@ -26,11 +29,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			ISubdivisionRepository subdivisionRepository,
+			INavigationManager navigationManager,
+			ILifetimeScope lifetimeScope,
 			Action<WarehouseJournalFilterViewModel> filterParams = null)
-				: base(unitOfWorkFactory, commonServices)
+				: base(unitOfWorkFactory, commonServices, navigation: navigationManager)
 		{
 			TabName = "Журнал складов";
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_warehousePermissions = new[] { WarehousePermissionsType.WarehouseView };
 
 			CreateFilter(filterParams);
@@ -98,14 +104,24 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			EntityUoWBuilder.ForCreate(),
 			QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 			commonServices,
-			_subdivisionRepository
+			_subdivisionRepository,
+			NavigationManager,
+			_lifetimeScope
 		);
 
 		protected override Func<WarehouseJournalNode, WarehouseViewModel> OpenDialogFunction => node => new WarehouseViewModel(
 			EntityUoWBuilder.ForOpen(node.Id),
 			QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 			commonServices,
-			_subdivisionRepository
+			_subdivisionRepository,
+			NavigationManager,
+			_lifetimeScope
 		);
+
+		public override void Dispose()
+		{
+			_lifetimeScope = null;
+			base.Dispose();
+		}
 	}
 }

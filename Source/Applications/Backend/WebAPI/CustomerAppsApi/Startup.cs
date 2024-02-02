@@ -1,4 +1,4 @@
-﻿using CustomerAppsApi.Middleware;
+using CustomerAppsApi.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -16,22 +16,12 @@ using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Services;
 using QS.Services;
-using QS.Utilities.Numeric;
 using System.Linq;
 using System.Reflection;
 using CustomerAppsApi.HealthChecks;
 using CustomerAppsApi.Library;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.EntityRepositories.Operations;
-using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.Roboats;
-using Vodovoz.EntityRepositories.Stock;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
-using Vodovoz.Settings;
 using Vodovoz.Settings.Database;
 using VodovozHealthCheck;
 using UserRepository = QS.Project.Repositories.UserRepository;
@@ -78,28 +68,6 @@ namespace CustomerAppsApi
 				var connection = Configuration.GetConnectionString("Redis");
 				redisOptions.Configuration = connection;
 			});
-			
-			services.AddScoped<IUnitOfWork>(_ => UnitOfWorkFactory.CreateWithoutRoot("Сервис интеграции"));
-			
-			services.AddSingleton<IPhoneRepository, PhoneRepository>();
-			services.AddSingleton<IEmailRepository, EmailRepository>();
-			services.AddSingleton<ISettingsController, SettingsController>();
-			services.AddSingleton<ISessionProvider, DefaultSessionProvider>();
-			services.AddSingleton<IParametersProvider, ParametersProvider>();
-			services.AddSingleton<INomenclatureParametersProvider, NomenclatureParametersProvider>();
-			services.AddSingleton<IUnitOfWorkFactory, DefaultUnitOfWorkFactory>();
-			services.AddSingleton<IRoboatsSettings, RoboatsSettings>();
-			services.AddSingleton<IRoboatsRepository, RoboatsRepository>();
-			services.AddSingleton<IBottlesRepository, BottlesRepository>();
-			services.AddSingleton<INomenclatureRepository, NomenclatureRepository>();
-			services.AddSingleton<IOrderRepository, OrderRepository>();
-			services.AddSingleton<IStockRepository, StockRepository>();
-			services.AddSingleton<IPromotionalSetRepository, PromotionalSetRepository>();
-			services.AddSingleton<IExternalCounterpartyRepository, ExternalCounterpartyRepository>();
-			services.AddSingleton<IExternalCounterpartyMatchingRepository, ExternalCounterpartyMatchingRepository>();
-			
-			services.AddSingleton<PhoneFormatter>(_ => new PhoneFormatter(PhoneFormat.DigitsTen));
-			services.AddSingleton<ICounterpartySettings, CounterpartySettings>();
 			
 			services.AddCustomerApiLibrary();
 		}
@@ -155,7 +123,8 @@ namespace CustomerAppsApi
 					Assembly.GetAssembly(typeof(HistoryMain)),
 					Assembly.GetAssembly(typeof(TypeOfEntity)),
 					Assembly.GetAssembly(typeof(Attachment)),
-					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
+					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder)),
+					Assembly.GetAssembly(typeof(DriverWarehouseEventMap))
 				}
 			);
 

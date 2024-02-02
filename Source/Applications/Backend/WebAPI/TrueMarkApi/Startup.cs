@@ -25,6 +25,7 @@ using System.Text;
 using TrueMarkApi.HealthChecks;
 using TrueMarkApi.Services;
 using TrueMarkApi.Services.Authorization;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
@@ -161,7 +162,8 @@ namespace TrueMarkApi
 					Assembly.GetAssembly(typeof(Bank)),
 					Assembly.GetAssembly(typeof(HistoryMain)),
 					Assembly.GetAssembly(typeof(TypeOfEntity)),
-					Assembly.GetAssembly(typeof(Attachment))
+					Assembly.GetAssembly(typeof(Attachment)),
+					Assembly.GetAssembly(typeof(DriverWarehouseEventMap))
 				}
 			);
 

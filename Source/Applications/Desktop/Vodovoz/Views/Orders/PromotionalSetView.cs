@@ -1,4 +1,5 @@
-﻿using Gamma.ColumnConfig;
+﻿using System;
+using Gamma.ColumnConfig;
 using Gtk;
 using QS.Utilities;
 using QS.Views.GtkUI;
@@ -60,9 +61,20 @@ namespace Vodovoz.Views.Orders
 				.InitializeFromSource();
 
 			chkPromoSetForNewClients.Binding
-				.AddBinding(ViewModel.Entity, e => e.PromotionalSetForNewClients, w => w.Active)
+				.AddBinding(ViewModel.Entity, p => p.PromotionalSetForNewClients, w => w.Active)
 				.InitializeFromSource();
 			chkPromoSetForNewClients.Sensitive = ViewModel.CanChangeType;
+
+			chkBtnShowSpecialBottlesCountForDeliveryPrice.Binding
+				.AddBinding(ViewModel, vm => vm.ShowSpecialBottlesCountForDeliveryPrice, w => w.Active)
+				.InitializeFromSource();
+
+			entrySpecialBottlesCountForDeliveryPrice.MaxLength = 3;
+			entrySpecialBottlesCountForDeliveryPrice.Binding
+				.AddBinding(ViewModel.Entity, p => p.BottlesCountForCalculatingDeliveryPrice, w => w.Text, new NullableIntToStringConverter())
+				.AddBinding(ViewModel, vm => vm.ShowSpecialBottlesCountForDeliveryPrice, w => w.Visible)
+				.InitializeFromSource();
+			entrySpecialBottlesCountForDeliveryPrice.Changed += OnSpecialBottlesCountForDeliveryPriceChanged;
 
 			widgetcontainerview.Binding
 				.AddBinding(ViewModel, vm => vm.SelectedActionViewModel, w => w.WidgetViewModel);
@@ -93,6 +105,15 @@ namespace Vodovoz.Views.Orders
 			ConfigureSitesAndAppsTab();
 
 			ylblCreationDate.Text = ViewModel.CreationDate;
+		}
+		
+		private void OnSpecialBottlesCountForDeliveryPriceChanged(object sender, EventArgs e)
+		{
+			var entry = sender as Entry;
+			var chars = entry.Text.ToCharArray();
+			
+			var text = ViewModel.StringHandler.ConvertCharsArrayToNumericString(chars);
+			entry.Text = string.IsNullOrWhiteSpace(text) ? string.Empty : text;
 		}
 
 		private void ConfigureTreePromoSetsItems()

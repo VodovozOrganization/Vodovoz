@@ -91,7 +91,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			return result.Count != 0;
 		}
 		
-		public IEnumerable<PromotionalSetOnlineParametersNode> GetPromotionalSetsOnlineParametersForSend(
+		public IEnumerable<PromotionalSetOnlineParametersNode> GetActivePromotionalSetsOnlineParametersForSend(
 			IUnitOfWork uow, GoodsOnlineParameterType parameterType)
 		{
 			PromotionalSet promotionalSetAlias = null;
@@ -101,11 +101,14 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Left.JoinAlias(p => p.PromotionalSet, () => promotionalSetAlias)
 				.Where(p => p.Type == parameterType)
 				.And(p => p.PromotionalSetOnlineAvailability != null)
+				.And(() => !promotionalSetAlias.IsArchive)
 				.SelectList(list => list
 					.Select(p => p.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => promotionalSetAlias.Id).WithAlias(() => resultAlias.PromotionalSetId)
 					.Select(() => promotionalSetAlias.OnlineName).WithAlias(() => resultAlias.PromotionalSetOnlineName)
 					.Select(() => promotionalSetAlias.PromotionalSetForNewClients).WithAlias(() => resultAlias.PromotionalSetForNewClients)
+					.Select(() => promotionalSetAlias.BottlesCountForCalculatingDeliveryPrice)
+						.WithAlias(() => resultAlias.BottlesCountForCalculatingDeliveryPrice)
 					.Select(p => p.PromotionalSetOnlineAvailability).WithAlias(() => resultAlias.AvailableForSale))
 				.TransformUsing(Transformers.AliasToBean<PromotionalSetOnlineParametersNode>())
 				.List<PromotionalSetOnlineParametersNode>();
@@ -140,6 +143,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Left.JoinAlias(() => promotionalSetItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Where(p => p.Type == parameterType)
 				.And(p => p.PromotionalSetOnlineAvailability != null)
+				.And(() => !promotionalSetAlias.IsArchive)
 				.SelectList(list => list
 					.Select(() => promotionalSetAlias.Id).WithAlias(() => resultAlias.PromotionalSetId)
 					.Select(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)

@@ -12,6 +12,7 @@ using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 
 namespace Vodovoz.Dialogs
 {
@@ -100,20 +101,21 @@ namespace Vodovoz.Dialogs
 					{
 						vm.SelectionMode = JournalSelectionMode.Multiple;
 						vm.Title = "Номенклатура на продажу";
+						vm.OnSelectResult += JournalOnEntitySelectedResult;
 					}
 				).ViewModel;
-			
-			journal.OnEntitySelectedResult += JournalOnEntitySelectedResult;
 		}
 
-		private void JournalOnEntitySelectedResult(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)
+		private void JournalOnEntitySelectedResult(object sender, JournalSelectedEventArgs e)
 		{
-			if(!e.SelectedNodes.Any())
+			var selectedNodes = e.SelectedObjects.Cast<NomenclatureJournalNode>();
+
+			if(!selectedNodes.Any())
 			{
 				return;
 			}
 
-			var nomenclatures = UoWGeneric.GetById<Nomenclature>(e.SelectedNodes.Select(x => x.Id));
+			var nomenclatures = UoWGeneric.GetById<Nomenclature>(selectedNodes.Select(x => x.Id));
 			foreach(var nomenclature in nomenclatures)
 			{
 				if(!Entity.ObservableNomenclatures.Any(x => x == nomenclature))

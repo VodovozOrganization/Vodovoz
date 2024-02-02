@@ -144,6 +144,7 @@ namespace Vodovoz
 			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.MysqlCommandTimeoutException);
 			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.GeoGroupVersionNotFoundException);
 			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.SystemOutOfMemoryExceptionHandler);
+			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.DeliveryPointDistrictNotFoundException);
 
 			#endregion
 

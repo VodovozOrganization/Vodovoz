@@ -21,6 +21,7 @@ using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.FilterViewModels.Employees;
+using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels.Employees;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
@@ -217,18 +218,20 @@ namespace Vodovoz.ViewModels.Logistic
 					});
 
 				page.ViewModel.SelectionMode = JournalSelectionMode.Single;
-				page.ViewModel.OnEntitySelectedResult +=
+				page.ViewModel.OnSelectResult +=
 					(sender, e) =>
 					{
-						var selectedNode = e.SelectedNodes.FirstOrDefault();
+						var selectedObject = e.SelectedObjects.FirstOrDefault();
 						
-						if (selectedNode == null)
+						if(!(selectedObject is FineJournalNode selectedNode))
+						{
 							return;
-						
+						}
+
 						var fine = UoW.GetById<Fine>(selectedNode.Id);
 
 						var undeliveredOrder = GetUndeliveredOrder();
-						if (undeliveredOrder != null)
+						if(undeliveredOrder != null)
 						{
 							fine.UndeliveredOrder = undeliveredOrder;
 							UoW.Save(fine);
@@ -266,12 +269,12 @@ namespace Vodovoz.ViewModels.Logistic
 					});
 
 				page.ViewModel.SelectionMode = JournalSelectionMode.Single;
-				page.ViewModel.OnEntitySelectedResult +=
+				page.ViewModel.OnSelectResult +=
 					(sender, e) =>
 					{
-						var selectedNode = e.SelectedNodes.FirstOrDefault();
-						
-						if(selectedNode == null)
+						var selectedObject = e.SelectedObjects.FirstOrDefault();
+
+						if(!(selectedObject is FineJournalNode selectedNode))
 						{
 							return;
 						}

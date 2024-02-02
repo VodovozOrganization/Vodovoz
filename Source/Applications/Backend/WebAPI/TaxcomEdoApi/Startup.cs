@@ -1,4 +1,3 @@
-﻿using EdoService.Converters;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -36,6 +35,8 @@ using VodovozHealthCheck;
 using TaxcomEdoApi.HealthChecks;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Services;
+using EdoService.Library.Converters;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 
 namespace TaxcomEdoApi
 {
@@ -111,6 +112,7 @@ namespace TaxcomEdoApi
 			services.AddSingleton<UpdProductConverter>();
 			services.AddSingleton<IParametersProvider, ParametersProvider>();
 			services.AddSingleton<IOrganizationParametersProvider, OrganizationParametersProvider>();
+			services.AddSingleton<IDeliveryScheduleParametersProvider, DeliveryScheduleParametersProvider>();
 			services.AddSingleton<IContactStateConverter, ContactStateConverter>();
 
 			services.AddSingleton(typeof(IGenericRepository<>), typeof(GenericRepository<>));
@@ -170,7 +172,8 @@ namespace TaxcomEdoApi
 					Assembly.GetAssembly(typeof(HistoryMain)),
 					Assembly.GetAssembly(typeof(TypeOfEntity)),
 					Assembly.GetAssembly(typeof(Attachment)),
-					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
+					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder)),
+					Assembly.GetAssembly(typeof(DriverWarehouseEventMap))
 				}
 			);
 

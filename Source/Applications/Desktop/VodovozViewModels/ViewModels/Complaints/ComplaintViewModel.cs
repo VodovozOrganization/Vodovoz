@@ -10,14 +10,13 @@ using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services.FileDialog;
 using QS.Services;
-using QS.Tdi;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
+using QS.ViewModels.Dialog;
 using QS.ViewModels.Extension;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using QS.ViewModels.Dialog;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
@@ -26,6 +25,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Employees;
+using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels.Employees;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
@@ -33,7 +33,6 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.TempAdapters;
@@ -83,7 +82,6 @@ namespace Vodovoz.ViewModels.Complaints
 			IEmployeeJournalFactory driverJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
-			INomenclatureJournalFactory nomenclatureJournalFactory,
 			IComplaintResultsRepository complaintResultsRepository,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
 			IRouteListItemRepository routeListItemRepository,
@@ -98,7 +96,6 @@ namespace Vodovoz.ViewModels.Complaints
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_complaintResultsRepository = complaintResultsRepository ?? throw new ArgumentNullException(nameof(complaintResultsRepository));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
-			NomenclatureJournalFactory = nomenclatureJournalFactory ?? throw new ArgumentNullException(nameof(nomenclatureJournalFactory));
 			EmployeeJournalFactory = driverJournalFactory ?? throw new ArgumentNullException(nameof(driverJournalFactory));
 			CounterpartyAutocompleteSelectorFactory =
 				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
@@ -467,13 +464,15 @@ namespace Vodovoz.ViewModels.Complaints
 						});
 
 					page.ViewModel.SelectionMode = JournalSelectionMode.Single;
-					page.ViewModel.OnEntitySelectedResult += (sender, e) =>
+					page.ViewModel.OnSelectResult += (sender, e) =>
 					{
-						var selectedNode = e.SelectedNodes.FirstOrDefault();
-						if(selectedNode == null)
+						var selectedObject = e.SelectedObjects.FirstOrDefault();
+
+						if(!(selectedObject is FineJournalNode selectedNode))
 						{
 							return;
 						}
+
 						Entity.AddFine(UoW.GetById<Fine>(selectedNode.Id));
 					};
 				},
@@ -583,7 +582,6 @@ namespace Vodovoz.ViewModels.Complaints
 		public IEntityEntryViewModel SubdivisionViewModel { get; private set; }
 		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelectorFactory { get; }
 		private IDeliveryPointJournalFactory DeliveryPointJournalFactory { get; }
-		private INomenclatureJournalFactory NomenclatureJournalFactory { get; }
 		private ISubdivisionParametersProvider SubdivisionParametersProvider { get; }
 
 		private void InitializeOrderAutocompleteSelectorFactory(IOrderSelectorFactory orderSelectorFactory)

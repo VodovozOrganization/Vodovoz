@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using NLog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -311,6 +311,9 @@ public partial class MainWindow : Gtk.Window
 
 		ActionClassificationCalculation.Sensitive = 
 			commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Counterparty.CanCalculateCounterpartyClassifications);
+
+		CarOwnershipReportAction.Sensitive =
+			commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Car.HasAccessToCarOwnershipReport);
 
 		InitializeThemesMenuItem();
 	}

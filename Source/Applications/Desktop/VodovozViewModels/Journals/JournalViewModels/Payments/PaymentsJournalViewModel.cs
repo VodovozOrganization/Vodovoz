@@ -67,7 +67,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			SetPermissions();
 
 			CreateCancelPaymentAction();
-			UpdateOnChanges(typeof(PaymentItem), typeof(VodOrder));
+			UpdateOnChanges(
+				typeof(PaymentItem),
+				typeof(Payment),
+				typeof(VodOrder));
 		}
 
 		private void SetPermissions()
@@ -168,6 +171,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				if(_filterViewModel.HideCompleted)
 				{
 					paymentQuery.Where(p => p.Status != PaymentState.completed);
+				}
+
+				if(_filterViewModel.HideCancelledPayments)
+				{
+					paymentQuery.Where(p => p.Status != PaymentState.Cancelled);
 				}
 
 				if(_filterViewModel.HidePaymentsWithoutCounterparty)

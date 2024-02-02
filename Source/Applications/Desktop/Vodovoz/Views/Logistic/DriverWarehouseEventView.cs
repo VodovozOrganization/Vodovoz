@@ -8,6 +8,7 @@ using QS.Navigation;
 using QS.Print;
 using QS.Views.GtkUI;
 using QS.Widgets.GtkUI;
+using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Domain.Logistic.Drivers;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewModels.ViewModels.Logistic;
@@ -170,8 +171,8 @@ namespace Vodovoz.Views.Logistic
 
 			var hints = new Dictionary<EncodeHintType, object> { { EncodeHintType.CHARACTER_SET, "utf-8" } };
 
-			const int qrWidth = 300;
-			const int qrHeight = 300;
+			const int qrWidth = 1500;
+			const int qrHeight = 1500;
 			
 			var qrMatrix = qrEncode.encode(
 				ViewModel.Entity.GenerateQrData(),
@@ -216,7 +217,7 @@ namespace Vodovoz.Views.Logistic
 				using(var qrWithText = new Bitmap(qrImage.Width, qrImage.Height + heightAreaForText))
 				using(var canvas = Graphics.FromImage(qrWithText))
 				{
-					using(var arialFont = new System.Drawing.Font("Arial", 14, FontStyle.Bold))
+					using(var arialFont = new System.Drawing.Font("Arial", 50, FontStyle.Bold))
 					{
 						canvas.Clear(Color.White);
 						canvas.DrawImage(qrImage, new PointF(0f, 0f));

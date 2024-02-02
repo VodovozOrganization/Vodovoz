@@ -23,7 +23,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// игнорироваться заказ передаваемы в качестве параметра <paramref name="currOrder"/></param>
 		Dictionary<int, int[]> GetPromotionalSetsAndCorrespondingOrdersForDeliveryPoint(IUnitOfWork uow, Order currOrder, bool ignoreCurrentOrder = false);
 		bool AddressHasAlreadyBeenUsedForPromo( IUnitOfWork uow, DeliveryPoint deliveryPoint );
-		IEnumerable<PromotionalSetOnlineParametersNode> GetPromotionalSetsOnlineParametersForSend(
+		IEnumerable<PromotionalSetOnlineParametersNode> GetActivePromotionalSetsOnlineParametersForSend(
 			IUnitOfWork uow, GoodsOnlineParameterType parameterType);
 		IEnumerable<PromotionalSetItemBalanceNode> GetPromotionalSetsItemsWithBalanceForSend(
 			IUnitOfWork uow, GoodsOnlineParameterType parameterType);

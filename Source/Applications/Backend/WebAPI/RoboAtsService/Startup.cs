@@ -25,6 +25,7 @@ using System.Linq;
 using System.Reflection;
 using Vodovoz;
 using Vodovoz.Application;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Core.DataService;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.EntityRepositories.Roboats;
@@ -182,7 +183,8 @@ namespace RoboatsService
 					Assembly.GetAssembly(typeof(HistoryMain)),
 					Assembly.GetAssembly(typeof(TypeOfEntity)),
 					Assembly.GetAssembly(typeof(Attachment)),
-					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
+					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder)),
+					Assembly.GetAssembly(typeof(DriverWarehouseEventMap))
 				}
 			);
 

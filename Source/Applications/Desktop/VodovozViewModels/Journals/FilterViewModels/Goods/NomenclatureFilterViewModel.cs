@@ -94,10 +94,10 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Goods
 			get => _restrictArchive;
 			set {
 				UpdateFilterField(ref _restrictArchive, value);
-				CanChangeShowArchive = true;
 			}
 		}
-		public bool CanChangeShowArchive { get; private set; } = true;
+
+		public bool CanChangeShowArchive{ get; set; } = true;
 
 		[PropertyChangedAlso(
 			nameof(IsDispossableTareApplicable),

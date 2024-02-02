@@ -19,6 +19,7 @@ using System.Linq;
 using System.Reflection;
 using DeliveryRulesService.HealthChecks;
 using Vodovoz;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Core.DataService;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.Settings.Database;
@@ -168,7 +169,8 @@ namespace DeliveryRulesService
 					Assembly.GetAssembly(typeof(HistoryMain)),
 					Assembly.GetAssembly(typeof(TypeOfEntity)),
 					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder)),
-					Assembly.GetAssembly(typeof(Attachment))
+					Assembly.GetAssembly(typeof(Attachment)),
+					Assembly.GetAssembly(typeof(DriverWarehouseEventMap))
 				}
 			);
 		}

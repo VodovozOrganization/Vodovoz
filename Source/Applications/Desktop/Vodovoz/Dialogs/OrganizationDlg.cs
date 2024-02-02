@@ -1,7 +1,9 @@
 ﻿using NLog;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Services;
 using QS.Validation;
+using QS.ViewModels.Extension;
 using System;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories;
@@ -16,7 +18,7 @@ using Vodovoz.Controllers;
 
 namespace Vodovoz
 {
-	public partial class OrganizationDlg : QS.Dialog.Gtk.EntityDialogBase<Organization>
+	public partial class OrganizationDlg : QS.Dialog.Gtk.EntityDialogBase<Organization>, IAskSaveOnCloseViewModel
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
 
@@ -57,8 +59,20 @@ namespace Vodovoz
 
 		}
 
+		public bool IsCanEditEntity => 
+			permissionResult.CanUpdate
+			|| (UoWGeneric.IsNew && permissionResult.CanCreate);
+
+		public bool AskSaveOnClose => IsCanEditEntity;
+
 		private void ConfigureDlg ()
 		{
+			notebookMain.Visible = IsCanEditEntity || permissionResult.CanRead;
+
+			accountsview1.CanEdit = IsCanEditEntity;
+			buttonSave.Sensitive = IsCanEditEntity;
+			btnCancel.Clicked += (sender, args) => OnCloseTab(IsCanEditEntity, CloseSource.Cancel);
+
 			dataentryName.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
 			dataentryFullName.Binding.AddBinding(Entity, e => e.FullName, w => w.Text).InitializeFromSource();
 
@@ -90,7 +104,7 @@ namespace Vodovoz
 					};
 			phonesView.ViewModel = _phonesViewModel;
 
-			var organizationVersionsViewModel = _organizationVersionsViewModelFactory.CreateOrganizationVersionsViewModel(Entity);
+			var organizationVersionsViewModel = _organizationVersionsViewModelFactory.CreateOrganizationVersionsViewModel(Entity, IsCanEditEntity);
 			versionsView.ViewModel = organizationVersionsViewModel;
 		}
 

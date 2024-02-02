@@ -63,11 +63,9 @@ public partial class MainWindow
 	/// </summary>
 	/// <param name="sender"></param>
 	/// <param name="e"></param>
-	[Obsolete("Старый диалог, заменить")]
 	protected void OnActionOrganizationsActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference(typeof(Organization));
-		tdiMain.AddTab(refWin);
+		NavigationManager.OpenViewModel<OrganizationJournalViewModel>(null);
 	}
 
 	/// <summary>
@@ -1014,11 +1012,9 @@ public partial class MainWindow
 	/// </summary>
 	/// <param name="sender"></param>
 	/// <param name="e"></param>
-	[Obsolete("Старый диалог, заменить")]
 	protected void OnActionRouteColumnsActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference(typeof(RouteColumn));
-		tdiMain.AddTab(refWin);
+		NavigationManager.OpenViewModel<RouteColumnJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>

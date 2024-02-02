@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -2990,7 +2990,7 @@ SELECT
     CASE WHEN n.category = 'rent' THEN "Аренда кулеров"
          WHEN n.category = 'water' THEN IF(n.is_disposable_tare, "Вода в одноразовой таре", "Вода в многооборотной таре")
          WHEN n.category = 'deposit' THEN "Залог"
-         WHEN n.category = 'spare_parts' THEN "Запчасти"
+         WHEN n.category = 'spare_parts' THEN "Запчасти сервисного центра"
          WHEN n.category = 'equipment' THEN "Оборудование"
          WHEN n.category = 'additional' THEN "Товары"
          WHEN n.category = 'service' THEN "Услуга"

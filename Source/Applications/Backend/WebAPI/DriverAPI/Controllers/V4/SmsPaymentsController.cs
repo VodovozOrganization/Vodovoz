@@ -11,13 +11,15 @@ using Vodovoz.Domain.Logistic.Drivers;
 using System.Threading.Tasks;
 using DriverAPI.DTOs.V4;
 using DriverAPI.Library.Helpers;
+using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Domain.Employees;
 
 namespace DriverAPI.Controllers.V4
 {
 	/// <summary>
 	/// Контроллер оплаты по смс
 	/// </summary>
-	[Authorize]
+	[Authorize(Roles = nameof(ApplicationUserRole.Driver))]
 	public class SmsPaymentsController : VersionedController
 	{
 		private readonly ILogger<SmsPaymentsController> _logger;

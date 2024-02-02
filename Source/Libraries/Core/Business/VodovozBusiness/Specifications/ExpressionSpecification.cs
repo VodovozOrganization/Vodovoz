@@ -16,5 +16,19 @@ namespace Vodovoz.Specifications
 		}
 
 		public bool IsSatisfiedBy(T entity) => ExpressionFunc(entity);
+
+		public static ExpressionSpecification<T> operator &(
+			ExpressionSpecification<T> leftSpecification,
+			ExpressionSpecification<T> rightSpecification)
+			=> leftSpecification.And(rightSpecification);
+
+		public static ExpressionSpecification<T> operator |(
+			ExpressionSpecification<T> leftSpecification,
+			ExpressionSpecification<T> rightSpecification)
+			=> leftSpecification.Or(rightSpecification);
+
+		public static ExpressionSpecification<T> operator !(
+			ExpressionSpecification<T> specification)
+			=> specification.Not();
 	}
 }

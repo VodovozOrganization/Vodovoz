@@ -172,7 +172,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 					&& x.PaymentNum == int.Parse(doc.DocNum)
 					&& x.Organization.INN == doc.RecipientInn
 					&& x.CounterpartyInn == doc.PayerInn
-					&& x.CounterpartyCurrentAcc == doc.PayerCurrentAccount);
+					&& x.CounterpartyCurrentAcc == doc.PayerCurrentAccount
+					&& x.Total == doc.Total);
 
 				if(_paymentsRepository.NotManuallyPaymentFromBankClientExists(
 					UoW,
@@ -180,7 +181,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 					int.Parse(doc.DocNum),
 					doc.RecipientInn,
 					doc.PayerInn,
-					doc.PayerCurrentAccount) || curDoc != null)
+					doc.PayerCurrentAccount,
+					doc.Total) || curDoc != null)
 				{
 					count++;
 					countDuplicates++;

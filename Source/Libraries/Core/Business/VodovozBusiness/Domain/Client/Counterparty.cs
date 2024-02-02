@@ -76,6 +76,7 @@ namespace Vodovoz.Domain.Client
 		private string _closeDeliveryComment;
 		private DateTime? _closeDeliveryDate;
 		private Employee _closeDeliveryPerson;
+		private DebtType? _closeDeliveryDebtType;
 		private IList<Proxy> _proxies;
 		private decimal _maxCredit;
 		private string _name;
@@ -134,6 +135,7 @@ namespace Vodovoz.Domain.Client
 		private string _okpo;
 		private string _okdp;
 		private CargoReceiverSource _cargoReceiverSource;
+		private Account _ourOrganizationAccountForBills;
 		private IList<SpecialNomenclature> _specialNomenclatures = new List<SpecialNomenclature>();
 		private GenericObservableList<SpecialNomenclature> _observableSpecialNomenclatures;
 		private int _delayDaysForProviders;
@@ -247,6 +249,12 @@ namespace Vodovoz.Domain.Client
 		{
 			get => _closeDeliveryPerson;
 			protected set => SetField(ref _closeDeliveryPerson, value);
+		}
+
+		public virtual DebtType? CloseDeliveryDebtType
+		{
+			get => _closeDeliveryDebtType;
+			set => SetField(ref _closeDeliveryDebtType, value);
 		}
 
 		#endregion CloseDelivery
@@ -730,6 +738,12 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref _cargoReceiverSource, value);
 		}
 
+		public virtual Account OurOrganizationAccountForBills
+		{
+			get => _ourOrganizationAccountForBills;
+			set => SetField(ref _ourOrganizationAccountForBills, value);
+		}
+
 		[Display(Name = "Особенный номер ТМЦ")]
 		public virtual IList<SpecialNomenclature> SpecialNomenclatures
 		{
@@ -1117,6 +1131,7 @@ namespace Vodovoz.Domain.Client
 			CloseDeliveryDate = null;
 			CloseDeliveryPerson = null;
 			CloseDeliveryComment = null;
+			CloseDeliveryDebtType = null;
 
 			return true;
 		}

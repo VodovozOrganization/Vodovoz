@@ -534,7 +534,8 @@ namespace Vodovoz.ViewModels.Widgets
 				var filter = Scope.Resolve<OrderJournalFilterViewModel>();
 				filter.SetAndRefilterAtOnce(
 					x => x.RestrictCounterparty = Entity.OldOrder?.Client,
-					x => x.HideStatuses = new Enum[] { OrderStatus.WaitForPayment }
+					x => x.HideStatuses = new Enum[] { OrderStatus.WaitForPayment },
+					x => x.ViewTypes = ViewTypes.Order
 				);
 
 				var orderJournal = _orderSelectorFactory.CreateOrderJournalViewModel(filter);

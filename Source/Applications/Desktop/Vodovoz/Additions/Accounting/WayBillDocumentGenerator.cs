@@ -296,29 +296,35 @@ namespace Vodovoz.Additions.Accounting
 				if(i == 0)
 				{
 					var geoGroupVersion = GetActualGeoGroupVersion(employee, generationDate);
-					wayBill.Mileage = _distanceCalculator.DistanceFromBaseMeter(geoGroupVersion, order.DeliveryPoint) * 2 / 1000m;
+					wayBill.Mileage = _distanceCalculator.DistanceFromBaseMeter(
+						geoGroupVersion.PointCoordinates,
+						order.DeliveryPoint.PointCoordinates) * 2 / 1000m;
 					
-					wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(geoGroupVersion));
+					wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(geoGroupVersion.PointCoordinates));
 					deliveryPointFrom = order.DeliveryPoint;
 				}
 				else if(i == lastId)
 				{
 					var geoGroupVersion = GetActualGeoGroupVersion(employee, generationDate);
-					wayBill.Mileage = _distanceCalculator.DistanceToBaseMeter(order.DeliveryPoint, geoGroupVersion) * 2 / 1000m;
+					wayBill.Mileage = _distanceCalculator.DistanceToBaseMeter(
+						order.DeliveryPoint.PointCoordinates,
+						geoGroupVersion.PointCoordinates) * 2 / 1000m;
 
 					if(order.DeliveryPoint.CoordinatesExist)
 					{
-						wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(order.DeliveryPoint));
+						wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(order.DeliveryPoint.PointCoordinates));
 					}
-					wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(geoGroupVersion));
+					wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(geoGroupVersion.PointCoordinates));
 				}
 				else
 				{
-					wayBill.Mileage = _distanceCalculator.DistanceMeter(deliveryPointFrom, order.DeliveryPoint) * 2 / 1000m;
+					wayBill.Mileage = _distanceCalculator.DistanceMeter(
+						deliveryPointFrom.PointCoordinates,
+						order.DeliveryPoint.PointCoordinates) * 2 / 1000m;
 
 					if(order.DeliveryPoint.CoordinatesExist)
 					{
-						wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(order.DeliveryPoint));
+						wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(order.DeliveryPoint.PointCoordinates));
 					}
 					deliveryPointFrom = order.DeliveryPoint;
 				}

@@ -84,5 +84,6 @@ namespace Vodovoz.EntityRepositories.Logistic
 		int GetUnclosedRouteListsCountHavingDebtByDriver(IUnitOfWork uow, int driverId, int excludeRouteListId = 0);
 		decimal GetUnclosedRouteListsDebtsSumByDriver(IUnitOfWork uow, int driverId, int excludeRouteListId = 0);
 		RouteListRepository.RouteListProfitabilitySpendings GetRouteListSpendings(IUnitOfWork uow, int routeListId, decimal routeListExpensesPerKg);
+		IList<Nomenclature> GetRouteListNomenclatures(IUnitOfWork uow, int routeListId, bool isArchived = false);
 	}
 }

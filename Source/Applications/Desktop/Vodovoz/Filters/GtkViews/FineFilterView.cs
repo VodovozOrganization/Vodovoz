@@ -17,6 +17,8 @@ namespace Vodovoz.Filters.GtkViews
 		{
 			entrySubdivision.ViewModel = ViewModel.SubdivisionViewModel;
 
+			entryAuthor.ViewModel = ViewModel.AuthorViewModel;
+
 			ydateperiodpickerFineDate.Binding.AddBinding(ViewModel, vm => vm.FineDateStart, w => w.StartDateOrNull).InitializeFromSource();
 			ydateperiodpickerFineDate.Binding.AddBinding(ViewModel, vm => vm.FineDateEnd, w => w.EndDateOrNull).InitializeFromSource();
 			ydateperiodpickerFineDate.Binding.AddBinding(ViewModel, vm => vm.CanEditFineDate, w => w.Sensitive).InitializeFromSource();

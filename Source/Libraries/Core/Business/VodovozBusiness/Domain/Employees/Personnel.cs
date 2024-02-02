@@ -102,7 +102,7 @@ namespace Vodovoz.Domain.Employees
 		}
 
 		[Display(Name = "Тип")]
-		public abstract EmployeeType EmployeeType { get; set; }
+		public abstract EmployeeType EmployeeType { get; }
 
 		string drivingLicense;
 

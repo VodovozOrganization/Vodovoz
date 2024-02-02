@@ -1,8 +1,8 @@
-using Autofac;
-using EdoService;
-using EdoService.Converters;
-using EdoService.Dto;
-using EdoService.Services;
+﻿using Autofac;
+using EdoService.Library;
+using EdoService.Library.Converters;
+using EdoService.Library.Dto;
+using EdoService.Library.Services;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
@@ -63,7 +63,6 @@ using Vodovoz.Domain.Retail;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
@@ -89,6 +88,8 @@ using Vodovoz.ViewModels.Dialogs.Counterparty;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes.Client;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
@@ -145,11 +146,15 @@ namespace Vodovoz
 		private IOrganizationParametersProvider _organizationParametersProvider = new OrganizationParametersProvider(new ParametersProvider());
 		private IRevenueServiceClient _revenueServiceClient;
 		private ICounterpartyService _counterpartyService;
+		private IDeleteEntityService _deleteEntityService;
+		private ICurrentPermissionService _currentPermissionService;
+		private IEdoService _edoService;
 		private GenericObservableList<EdoContainer> _edoContainers = new GenericObservableList<EdoContainer>();
 
 		private bool _currentUserCanEditCounterpartyDetails = false;
 		private bool _deliveryPointsConfigured = false;
 		private bool _documentsConfigured = false;
+		private Organization _vodovozOrganization;
 
 		public ThreadDataLoader<EmailRow> EmailDataLoader { get; private set; }
 
@@ -309,12 +314,14 @@ namespace Vodovoz
 			_edoSettings = _lifetimeScope.Resolve<IEdoSettings>();
 			_counterpartySettings = _lifetimeScope.Resolve<ICounterpartySettings>();
 			_counterpartyService = _lifetimeScope.Resolve<ICounterpartyService>();
+			_deleteEntityService = _lifetimeScope.Resolve<IDeleteEntityService>();
+			_currentPermissionService = _lifetimeScope.Resolve<ICurrentPermissionService>();
+			_edoService = _lifetimeScope.Resolve<IEdoService>();
 
 			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			var fileDialogService = new FileDialogService();
 			var roboatsViewModelFactory = new RoboatsViewModelFactory(roboatsFileStorageFactory, fileDialogService, ServicesConfig.CommonServices.CurrentPermissionService);
-			var nomenclatureSelectorFactory = new NomenclatureJournalFactory();
-			_roboatsJournalsFactory = new RoboatsJournalsFactory(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, roboatsViewModelFactory, nomenclatureSelectorFactory);
+			_roboatsJournalsFactory = new RoboatsJournalsFactory(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, roboatsViewModelFactory, NavigationManager, _deleteEntityService, _currentPermissionService);
 			_edoOperatorsJournalFactory = new EdoOperatorsJournalFactory();
 			_emailParametersProvider = _lifetimeScope.Resolve<IEmailParametersProvider>();
 
@@ -334,6 +341,8 @@ namespace Vodovoz
 			{
 				UoWGeneric.Root.CounterpartyContracts = new List<CounterpartyContract>();
 			}
+
+			_vodovozOrganization = UoW.GetById<Organization>(_organizationParametersProvider.VodovozOrganizationId);
 
 			ConfigureTabInfo();
 			ConfigureTabContacts();
@@ -599,6 +608,13 @@ namespace Vodovoz
 				.AddBinding(Entity, e => e.WorksThroughOrganization, w => w.SelectedItem)
 				.InitializeFromSource();
 			specialListCmbWorksThroughOrganization.Sensitive = _canSetWorksThroughOrganization && CanEdit;
+
+			specialListCmbWorksThroughOrganization.ItemSelected += (s, e) =>
+			{
+				Entity.OurOrganizationAccountForBills = null;
+
+				UpdateOurOrganizationSpecialAccountItemList();
+			};
 
 			enumTax.ItemsEnum = typeof(TaxType);
 
@@ -916,6 +932,20 @@ namespace Vodovoz
 			buttonDeleteTag.Sensitive = CanEdit;
 		}
 
+		private void UpdateOurOrganizationSpecialAccountItemList()
+		{
+			if(!Entity.UseSpecialDocFields)
+			{
+				Entity.OurOrganizationAccountForBills = null;
+			}
+
+			var organization = Entity.WorksThroughOrganization ?? _vodovozOrganization;
+
+			speciallistcomboboxSpecialAccount.ShowSpecialStateNot = true;
+			speciallistcomboboxSpecialAccount.NameForSpecialStateNot = "По умолчанию";
+			speciallistcomboboxSpecialAccount.ItemsList = organization.Accounts;
+		}
+
 		private void ConfigureTabSpecialFields()
 		{
 			enumcomboCargoReceiverSource.ItemsEnum = typeof(CargoReceiverSource);
@@ -933,6 +963,12 @@ namespace Vodovoz
 				.AddBinding(Entity, e => e.SpecialCustomer, w => w.Text)
 				.InitializeFromSource();
 			yentryCustomer.IsEditable = CanEdit;
+
+			UpdateOurOrganizationSpecialAccountItemList();
+			speciallistcomboboxSpecialAccount.SetRenderTextFunc<Account>(e => e.Name);
+			speciallistcomboboxSpecialAccount.Binding
+				.AddBinding(Entity, e => e.OurOrganizationAccountForBills, w => w.SelectedItem)
+				.InitializeFromSource();
 
 			#region Особый договор
 
@@ -1060,7 +1096,7 @@ namespace Vodovoz
 					UoW,
 					this,
 					ServicesConfig.CommonServices,
-					Startup.MainWin.NavigationManager);
+					NavigationManager as ITdiCompatibilityNavigation);
 			supplierPricesWidget.Sensitive = CanEdit;
 		}
 
@@ -1069,8 +1105,7 @@ namespace Vodovoz
 			var nomenclatureFixedPriceFactory = new NomenclatureFixedPriceFactory();
 			var fixedPriceController = new NomenclatureFixedPriceController(nomenclatureFixedPriceFactory);
 			var fixedPricesModel = new CounterpartyFixedPricesModel(UoW, Entity, fixedPriceController);
-			var nomSelectorFactory = new NomenclatureJournalFactory();
-			FixedPricesViewModel fixedPricesViewModel = new FixedPricesViewModel(UoW, fixedPricesModel, nomSelectorFactory, this, _lifetimeScope);
+			FixedPricesViewModel fixedPricesViewModel = new FixedPricesViewModel(UoW, fixedPricesModel, this, NavigationManager, _lifetimeScope);
 			fixedpricesview.ViewModel = fixedPricesViewModel;
 			SetSensitivityByPermission("can_edit_counterparty_fixed_prices", fixedpricesview);
 		}
@@ -1341,7 +1376,8 @@ namespace Vodovoz
 					EntityUoWBuilder.ForOpen(Entity.Id),
 					UnitOfWorkFactory.GetDefaultFactory,
 					_commonServices,
-					GetOrderIdsWithoutSuccessfullySentUpd());
+					GetOrderIdsWithoutSuccessfullySentUpd(),
+					_edoService);
 				TabParent.AddSlaveTab(this, resendEdoDocumentsDialog);
 			}
 		}
@@ -1846,6 +1882,8 @@ namespace Vodovoz
 		protected void OnYcheckSpecialDocumentsToggled(object sender, EventArgs e)
 		{
 			radioSpecialDocFields.Visible = ycheckSpecialDocuments.Active;
+
+			UpdateOurOrganizationSpecialAccountItemList();
 		}
 
 		private void OnEntryPersonNamePartChanged(object sender, EventArgs e)
@@ -1893,16 +1931,19 @@ namespace Vodovoz
 
 		protected void OnYbuttonAddNomClicked(object sender, EventArgs e)
 		{
-			NomenclatureJournalFactory nomenclatureJournalFactory = new NomenclatureJournalFactory();
-			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel(_lifetimeScope);
-			journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult;
-
-			TabParent.AddSlaveTab(this, journal);
+			(NavigationManager as ITdiCompatibilityNavigation).OpenViewModelOnTdi<NomenclaturesJournalViewModel>(
+				this,
+				OpenPageOptions.AsSlave,
+				viewModel =>
+				{
+					viewModel.SelectionMode = JournalSelectionMode.Single;
+					viewModel.OnSelectResult += Journal_OnEntitySelectedResult;
+				});
 		}
 
-		private void Journal_OnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
+		private void Journal_OnEntitySelectedResult(object sender, JournalSelectedEventArgs e)
 		{
-			var selectedNode = e.SelectedNodes.FirstOrDefault();
+			var selectedNode = e.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
 			if(selectedNode == null)
 			{
 				return;

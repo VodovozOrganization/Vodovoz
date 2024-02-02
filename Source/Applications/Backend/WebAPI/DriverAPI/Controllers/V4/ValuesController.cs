@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Services;
 
 namespace DriverAPI.Controllers.V4
@@ -9,7 +11,7 @@ namespace DriverAPI.Controllers.V4
 	/// <summary>
 	/// Контроллер значений
 	/// </summary>
-	[Authorize]
+	[Authorize(Roles = nameof(ApplicationUserRole.Driver))]
 	public class ValuesController : VersionedController
 	{
 		private readonly IDriverApiParametersProvider _webApiParametersProvider;

@@ -27,6 +27,10 @@ namespace CustomerAppsApi.Library.Dto
 		/// </summary>
 		public bool ForNewClients { get; set; }
 		/// <summary>
+		/// Количество бутылей для расчета платной доставки
+		/// </summary>
+		public int? BottlesCountForCalculatingDeliveryPrice { get; set; }
+		/// <summary>
 		/// Список номенклатур промонабора
 		/// </summary>
 		public IList<PromotionalNomenclatureDto> PromotionalNomenclatures { get; set; }

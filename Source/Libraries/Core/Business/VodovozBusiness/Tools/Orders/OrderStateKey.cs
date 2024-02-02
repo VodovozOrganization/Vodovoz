@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using QS.DomainModel.UoW;
@@ -135,41 +136,76 @@ namespace Vodovoz.Tools.Orders
 			HasEShopOrder = Order.EShopOrder.HasValue;
 
 			//для проверки цены доставки
-			NotDisposableWater19LCount = Order.OrderItems
-				.Where(x => x.Nomenclature != null
-					&& !x.Nomenclature.IsDisposableTare
-					&& x.Nomenclature.IsWater19L)
-				.Sum(x => x.Count);
-			DisposableWater19LCount = Order.OrderItems
-				.Where(x => x.Nomenclature != null
-					&& x.Nomenclature.Category == NomenclatureCategory.water
-					&& x.Nomenclature.IsDisposableTare
-					&& x.Nomenclature.TareVolume == TareVolume.Vol19L)
-				.Sum(x => x.Count);
-			DisposableWater6LCount = Order.OrderItems
-				.Where(x => x.Nomenclature != null
-					&& x.Nomenclature.Category == NomenclatureCategory.water
-					&& x.Nomenclature.IsDisposableTare
-					&& x.Nomenclature.TareVolume == TareVolume.Vol6L)
-				.Sum(x => x.Count);
-			DisposableWater1500mlCount = Order.OrderItems
-				.Where(x => x.Nomenclature != null
-					&& x.Nomenclature.Category == NomenclatureCategory.water
-					&& x.Nomenclature.IsDisposableTare
-					&& x.Nomenclature.TareVolume == TareVolume.Vol1500ml)
-				.Sum(x => x.Count);
-			DisposableWater600mlCount = Order.OrderItems
-				.Where(x => x.Nomenclature != null
-					&& x.Nomenclature.Category == NomenclatureCategory.water
-					&& x.Nomenclature.IsDisposableTare
-					&& x.Nomenclature.TareVolume == TareVolume.Vol600ml)
-				.Sum(x => x.Count);
-			DisposableWater500mlCount = Order.OrderItems
-				.Where(x => x.Nomenclature != null
-					&& x.Nomenclature.Category == NomenclatureCategory.water
-					&& x.Nomenclature.IsDisposableTare
-					&& x.Nomenclature.TareVolume == TareVolume.Vol500ml)
-				.Sum(x => x.Count);
+			CalculateAllWaterCount();
+		}
+
+		private void CalculateAllWaterCount()
+		{
+			CalculatePromoSetWaterCount();
+			CalculateNotPromoSetWaterCount();
+		}
+
+		private void CalculatePromoSetWaterCount()
+		{
+			var water = Order.OrderItems.Where(
+				x => x.PromoSet != null &&
+					x.Nomenclature != null &&
+					x.Nomenclature.Category == NomenclatureCategory.water)
+				.ToList();
+
+			foreach(var item in water)
+			{
+				if(item.PromoSet.BottlesCountForCalculatingDeliveryPrice.HasValue)
+				{
+					NotDisposableWater19LCount = item.PromoSet.BottlesCountForCalculatingDeliveryPrice.Value;
+					break;
+				}
+				
+				CalculateWaterCount(item);
+			}
+		}
+
+		private void CalculateNotPromoSetWaterCount()
+		{
+			var water = Order.OrderItems.Where(
+				x => x.PromoSet == null &&
+				x.Nomenclature != null &&
+				x.Nomenclature.Category == NomenclatureCategory.water)
+				.ToList();
+
+			foreach(var item in water)
+			{
+				CalculateWaterCount(item);
+			}
+		}
+
+		private void CalculateWaterCount(OrderItem item)
+		{
+			switch(item.Nomenclature.TareVolume)
+			{
+				case TareVolume.Vol19L:
+					if(item.Nomenclature.IsDisposableTare)
+					{
+						DisposableWater19LCount += item.Count;
+					}
+					else
+					{
+						NotDisposableWater19LCount += item.Count;
+					}
+					break;
+				case TareVolume.Vol6L:
+					DisposableWater6LCount += item.Count;
+					break;
+				case TareVolume.Vol1500ml:
+					DisposableWater1500mlCount += item.Count;
+					break;
+				case TareVolume.Vol600ml:
+					DisposableWater600mlCount += item.Count;
+					break;
+				case TareVolume.Vol500ml:
+					DisposableWater500mlCount += item.Count;
+					break;
+			}
 		}
 
 		private bool HasOrderEquipments(IUnitOfWork uow)

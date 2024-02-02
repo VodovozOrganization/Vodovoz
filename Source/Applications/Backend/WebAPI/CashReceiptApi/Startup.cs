@@ -24,6 +24,7 @@ using Vodovoz.Services;
 using Vodovoz.Settings.Database;
 using Vodovoz.Tools;
 using VodovozHealthCheck;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 
 namespace CashReceiptApi
 {
@@ -176,6 +177,7 @@ namespace CashReceiptApi
 					Assembly.GetAssembly(typeof(Bank)),
 					Assembly.GetAssembly(typeof(TypeOfEntity)),
 					Assembly.GetAssembly(typeof(Attachment)),
+					typeof(DriverWarehouseEventMap).Assembly,
 					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
 				}
 			);

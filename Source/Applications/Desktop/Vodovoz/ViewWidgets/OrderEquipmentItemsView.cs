@@ -1,4 +1,4 @@
-using Gamma.GtkWidgets;
+﻿using Gamma.GtkWidgets;
 using Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
@@ -14,6 +14,7 @@ using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 
 namespace Vodovoz.ViewWidgets
 {
@@ -355,12 +356,12 @@ namespace Vodovoz.ViewWidgets
 			}
 
 			var nomenclaturesJournalViewModel = OpenNomenclaturesJournalViewModel();
-			nomenclaturesJournalViewModel.OnEntitySelectedResult += NomenclatureToClient;
+			nomenclaturesJournalViewModel.OnSelectResult += NomenclatureToClient;
 		}
 
-		void NomenclatureToClient(object sender, JournalSelectedNodesEventArgs e)
+		void NomenclatureToClient(object sender, JournalSelectedEventArgs e)
 		{
-			var selectedNode = e.SelectedNodes.FirstOrDefault();
+			var selectedNode = e.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
 			if(selectedNode == null) {
 				return;
 			}
@@ -381,7 +382,7 @@ namespace Vodovoz.ViewWidgets
 			}
 			
 			var nomenclaturesJournalViewModel = OpenNomenclaturesJournalViewModel();
-			nomenclaturesJournalViewModel.OnEntitySelectedResult += NomenclatureFromClient;
+			nomenclaturesJournalViewModel.OnSelectResult += NomenclatureFromClient;
 		}
 
 		private NomenclaturesJournalViewModel OpenNomenclaturesJournalViewModel()
@@ -403,9 +404,9 @@ namespace Vodovoz.ViewWidgets
 			.ViewModel;
 		}
 
-		void NomenclatureFromClient(object sender, JournalSelectedNodesEventArgs e)
+		void NomenclatureFromClient(object sender, JournalSelectedEventArgs e)
 		{
-			var selectedNode = e.SelectedNodes.FirstOrDefault();
+			var selectedNode = e.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
 			if(selectedNode == null) {
 				return;
 			}

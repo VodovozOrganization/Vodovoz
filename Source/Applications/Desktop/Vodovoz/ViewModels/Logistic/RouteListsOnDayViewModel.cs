@@ -808,10 +808,20 @@ namespace Vodovoz.ViewModels.Logistic
 			var firstDP = routeList.Addresses.FirstOrDefault()?.Order.DeliveryPoint;
 			var geoGroup = routeList.GeographicGroups.FirstOrDefault();
 			var geoGroupVersion = geoGroup.GetVersionOrNull(routeList.Date);
+			
+			var distanceFromBase =
+				firstDP != null && geoGroupVersion != null
+					? DistanceCalculator.DistanceFromBaseMeter(geoGroupVersion.PointCoordinates, firstDP.PointCoordinates)
+					: 0;
+			
+			var timeFromBase =
+				firstDP != null && geoGroupVersion != null
+					? DistanceCalculator.TimeFromBase(geoGroupVersion.PointCoordinates, firstDP.PointCoordinates)
+					: 0;
 
 			return $"Первый адрес: {routeList.FirstAddressTime:t}\n" +
-				$"Путь со склада: {(firstDP != null && geoGroupVersion != null ? DistanceCalculator.DistanceFromBaseMeter(geoGroupVersion, firstDP) * 0.001 : 0):N1} км." +
-				$" ({(firstDP != null && geoGroupVersion != null ? DistanceCalculator.TimeFromBase(geoGroupVersion, firstDP) / 60 : 0)} мин.)\n" +
+				$"Путь со склада: {(distanceFromBase * 0.001):N1} км." +
+				$" ({ timeFromBase / 60 } мин.)\n" +
 				$"Выезд со склада: {routeList.OnLoadTimeEnd:t}\nПогрузка на складе: {routeList.TimeOnLoadMinuts} минут";
 		}
 
@@ -1020,10 +1030,10 @@ namespace Vodovoz.ViewModels.Logistic
 						return null;
 					}
 
-					return $"{(double)DistanceCalculator.DistanceFromBaseMeter(geoGroupVersion, rli.Order.DeliveryPoint) / 1000:N1}км";
+					return $"{(double)DistanceCalculator.DistanceFromBaseMeter(geoGroupVersion.PointCoordinates, rli.Order.DeliveryPoint.PointCoordinates) / 1000:N1}км";
 				}
 
-				return $"{(double)DistanceCalculator.DistanceMeter(rli.RouteList.Addresses[rli.IndexInRoute - 1].Order.DeliveryPoint, rli.Order.DeliveryPoint) / 1000:N1}км";
+				return $"{(double)DistanceCalculator.DistanceMeter(rli.RouteList.Addresses[rli.IndexInRoute - 1].Order.DeliveryPoint.PointCoordinates, rli.Order.DeliveryPoint.PointCoordinates) / 1000:N1}км";
 			}
 
 			return null;

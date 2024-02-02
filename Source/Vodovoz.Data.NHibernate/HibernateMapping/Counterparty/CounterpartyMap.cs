@@ -84,6 +84,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			Map(x => x.Patronymic).Column("patronymic");
 			Map(x => x.NeedSendBillByEdo).Column("need_send_bill_by_edo");
 			Map(x => x.DefaultExpenseCategoryId).Column("default_financial_expense_category_id");
+			Map(x => x.CloseDeliveryDebtType).Column("close_delivery_debt_type");
 
 			References(x => x.MainCounterparty).Column("maincounterparty_id");
 			References(x => x.PreviousCounterparty).Column("previous_counterparty_id");
@@ -99,6 +100,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			References(x => x.EdoOperator).Column("edo_operator_id");
 			References(x => x.LogisticsRequirements).Column("logistics_requirements_id").Cascade.All();
 			References(x => x.CounterpartySubtype).Column("counterparty_subtype_id");
+			References(x => x.OurOrganizationAccountForBills).Column("our_organization_account_for_bills");
 
 			HasMany(x => x.Phones).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("counterparty_id");
 			HasMany(x => x.Accounts).Cascade.AllDeleteOrphan().LazyLoad()

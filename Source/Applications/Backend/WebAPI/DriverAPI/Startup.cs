@@ -22,7 +22,6 @@ using MySqlConnector;
 using NLog.Web;
 using QS.Attachments.Domain;
 using QS.Banks.Domain;
-using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.DB;
@@ -53,6 +52,7 @@ using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using VodovozHealthCheck;
 using QS.Project.Domain;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 
 namespace DriverAPI
 {
@@ -109,6 +109,7 @@ namespace DriverAPI
 
 			// Аутентификация
 			services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+				.AddRoles<IdentityRole>()
 				.AddEntityFrameworkStores<ApplicationDbContext>();
 
 			services.Configure<IdentityOptions>(options =>
@@ -275,6 +276,7 @@ namespace DriverAPI
 					Assembly.GetAssembly(typeof(HistoryMain)),
 					Assembly.GetAssembly(typeof(TypeOfEntity)),
 					Assembly.GetAssembly(typeof(Attachment)),
+					Assembly.GetAssembly(typeof(EmployeeWithLoginMap)),
 					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
 				}
 			);

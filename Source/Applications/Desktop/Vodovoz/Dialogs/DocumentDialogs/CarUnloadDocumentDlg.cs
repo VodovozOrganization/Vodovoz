@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Additions;
+using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
@@ -238,6 +239,8 @@ namespace Vodovoz
 			((GenericObservableList<ReceptionNonSerialEquipmentItemNode>)nonserialequipmentreceptionview1.Items).ListContentChanged +=
 				(sender, e) => HasChanges = true;
 			((GenericObservableList<DefectiveItemNode>)defectiveitemsreceptionview1.Items).ListContentChanged += (sender, e) => HasChanges = true;
+
+			nonserialequipmentreceptionview1.Container = this;
 		}
 
 		public override bool Save()

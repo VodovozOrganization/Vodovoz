@@ -21,6 +21,7 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Documents.DriverTerminalTransfer;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Operations;
@@ -797,7 +798,22 @@ namespace Vodovoz.ViewModels.Logistic
 				}
 				else
 				{
+					if(!routeListShippedWithoutTerminal && notLoadedGoods.Any())
+					{						
+						var archivedNomenclatures = _routeListRepository.GetRouteListNomenclatures(localUow, routeList.Id, true);
+
+						if(archivedNomenclatures.Any())
+						{
+							commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+								$"Не удалось автоматически отгрузить Маршрутный лист, т.к. присутствуют архивнвые номенклатуры: " +
+								$"{string.Join(", ", archivedNomenclatures.Select(n => $"№{n.Id} {n.Name}"))}.");
+
+							return;
+						}
+					}
+
 					localUow.Commit();
+
 					commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
 						"Не удалось автоматически отгрузить Маршрутный лист");
 

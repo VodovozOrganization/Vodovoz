@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Dialogs.Employees;
 using Gtk;
 using QS.Dialog.Gtk;
@@ -10,7 +10,6 @@ using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Services;
-using QS.Project.Services.FileDialog;
 using QS.Report.ViewModels;
 using QSReport;
 using System;
@@ -47,6 +46,7 @@ using Vodovoz.ViewModel;
 using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Cash.DocumentsJournal;
 using Vodovoz.ViewModels.Cash.Transfer.Journal;
+using Vodovoz.ViewModels.Counterparties;
 using Vodovoz.ViewModels.Dialogs.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Cash;
@@ -584,7 +584,12 @@ public partial class MainWindow : Window
 
 	void ActionPaymentFromBank_Activated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<PaymentsJournalViewModel>(null);
+		var filterParams = new Action<PaymentsJournalFilterViewModel>[]
+		{
+				f => f.HideCancelledPayments = true,
+		};
+
+		NavigationManager.OpenViewModel<PaymentsJournalViewModel, Action<PaymentsJournalFilterViewModel>[]>(null, filterParams);
 	}
 
 	private void OnActionImportPaymentsFromAvangardActivated(object sender, EventArgs e)
@@ -782,15 +787,7 @@ public partial class MainWindow : Window
 
 	void ActionClientBalance_Activated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			PermissionControlledRepresentationJournal.GenerateHashName<ClientEquipmentBalanceVM>(),
-			() =>
-			{
-				var journal = new PermissionControlledRepresentationJournal(new ClientEquipmentBalanceVM());
-				journal.CustomTabName("Оборудование у клиентов");
-				return journal;
-			}
-		);
+		NavigationManager.OpenViewModel<ClientEquipmentBalanceJournalViewModel>(null);
 	}
 
 	void ActionAddOrder_Activated(object sender, System.EventArgs e)

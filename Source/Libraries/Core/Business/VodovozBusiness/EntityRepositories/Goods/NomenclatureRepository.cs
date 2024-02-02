@@ -365,7 +365,7 @@ namespace Vodovoz.EntityRepositories.Goods
 				.Any();
 		}
 
-		public IList<NomenclatureOnlineParametersNode> GetNomenclaturesOnlineParametersForSend(
+		public IList<NomenclatureOnlineParametersNode> GetActiveNomenclaturesOnlineParametersForSend(
 			IUnitOfWork uow, GoodsOnlineParameterType parameterType)
 		{
 			Nomenclature nomenclatureAlias = null;
@@ -375,6 +375,7 @@ namespace Vodovoz.EntityRepositories.Goods
 				.Left.JoinAlias(p => p.Nomenclature, () => nomenclatureAlias)
 				.Where(p => p.Type == parameterType)
 				.And(p => p.NomenclatureOnlineAvailability != null)
+				.And(() => !nomenclatureAlias.IsArchive)
 				.SelectList(list => list
 					.Select(p => p.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
@@ -427,7 +428,8 @@ namespace Vodovoz.EntityRepositories.Goods
 				.JoinEntityAlias(
 					() => onlineParametersAlias,
 					() => onlineParametersAlias.Nomenclature.Id == nomenclatureAlias.Id)
-				.And(() => onlineParametersAlias.NomenclatureOnlineAvailability != null);
+				.And(() => onlineParametersAlias.NomenclatureOnlineAvailability != null)
+				.Where(n => !n.IsArchive);
 			
 			var queryBuilder = new QueryOverProjectionBuilder<Nomenclature>()
 				.Select(n => n.Id).WithAlias(() => resultAlias.ErpId)

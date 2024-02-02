@@ -2,6 +2,7 @@
 using System.Globalization;
 using GMap.NET;
 using QS.Osrm;
+using Vodovoz.Core.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Sale;
 
@@ -25,16 +26,7 @@ namespace Vodovoz.Domain.Logistic
 
 		#region Static
 
-		public static long GetHash(DeliveryPoint point) => GetHash((double)point.Latitude.Value, (double)point.Longitude.Value);
-
-		public static long GetHash(GeoGroupVersion geoGroupVersion)
-		{
-			if(geoGroupVersion is null)
-			{
-				throw new ArgumentNullException(nameof(geoGroupVersion));
-			}
-			return GetHash((double)geoGroupVersion.BaseLatitude.Value, (double)geoGroupVersion.BaseLongitude.Value);
-		}
+		public static long GetHash(PointCoordinates point) => GetHash((double)point.Latitude.Value, (double)point.Longitude.Value);
 
 		public static long GetHash(double latitude, double longitude)
 		{
