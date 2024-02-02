@@ -11,6 +11,7 @@ using Vodovoz.Controllers;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
@@ -21,6 +22,8 @@ using Vodovoz.Errors;
 using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Cash;
+using Vodovoz.Settings.Database.Nomenclature;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
 
@@ -35,6 +38,7 @@ namespace Vodovoz.Application.Logistics
 		private readonly IGenericRepository<RouteListSpecialCondition> _routeListSpecialConditionRepository;
 		private readonly IGenericRepository<RouteListSpecialConditionType> _routeListSpecialConditionTypeRepository;
 		private readonly IGenericRepository<Employee> _employeeRepository;
+		private readonly IGenericRepository<ProductGroup> _productGroupRepository;
 		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly IRouteOptimizer _routeOptimizer;
 		private readonly IWageParameterService _wageParameterService;
@@ -45,6 +49,7 @@ namespace Vodovoz.Application.Logistics
 		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
 		private readonly ITrackRepository _trackRepository;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
+		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly RouteGeometryCalculator _routeGeometryCalculator;
 
 		public RouteListService(
@@ -55,6 +60,7 @@ namespace Vodovoz.Application.Logistics
 			IGenericRepository<RouteListSpecialCondition> routeListSpecialConditionRepository,
 			IGenericRepository<RouteListSpecialConditionType> routeListSpecialConditionTypeRepository,
 			IGenericRepository<Employee> employeeRepository,
+			IGenericRepository<ProductGroup> productGroupRepository,
 			ICallTaskWorker callTaskWorker,
 			IRouteOptimizer routeOptimizer,
 			IWageParameterService wageParameterService,
@@ -65,6 +71,7 @@ namespace Vodovoz.Application.Logistics
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
 			ITrackRepository trackRepository,
 			IRouteListProfitabilityController routeListProfitabilityController,
+			INomenclatureSettings nomenclatureSettings,
 			RouteGeometryCalculator routeGeometryCalculator)
 		{
 			_logger = logger
@@ -101,34 +108,12 @@ namespace Vodovoz.Application.Logistics
 				?? throw new ArgumentNullException(nameof(trackRepository));
 			_routeListProfitabilityController = routeListProfitabilityController
 				?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
+			_nomenclatureSettings = nomenclatureSettings
+				?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_routeGeometryCalculator = routeGeometryCalculator
 				?? throw new ArgumentNullException(nameof(routeGeometryCalculator));
-		}
-
-		public IDictionary<int, string> GetSpecialConditionsDictionaryFor(
-			IUnitOfWork unitOfWork,
-			int routeListId)
-		{
-			var routeListConditions = _routeListSpecialConditionRepository
-				.Get(unitOfWork, x => x.RouteListId == routeListId);
-
-			var conditionTypesIds = routeListConditions.Select(x => x.RouteListSpecialConditionTypeId).Distinct();
-
-			var specialConditrionTypes = _routeListSpecialConditionTypeRepository.Get(unitOfWork, sct => conditionTypesIds.Contains(sct.Id));
-
-			var result = routeListConditions.ToDictionary(x => x.Id, x => specialConditrionTypes.First(sct => sct.Id == x.RouteListSpecialConditionTypeId).Name);
-
-			return result;
-		}
-
-		public IEnumerable<RouteListSpecialCondition> GetSpecialConditionsFor(
-			IUnitOfWork unitOfWork,
-			int routeListId)
-		{
-			var routeList = _routeListSpecialConditionRepository
-				.Get(unitOfWork, x => x.RouteListId == routeListId);
-
-			return routeList;
+			_productGroupRepository = productGroupRepository
+				?? throw new ArgumentNullException(nameof(productGroupRepository));
 		}
 
 		public bool TrySendEnRoute(
@@ -247,6 +232,37 @@ namespace Vodovoz.Application.Logistics
 
 		#region SpecialConditions - спец. условия МЛ
 
+		public IDictionary<int, string> GetSpecialConditionsDictionaryFor(
+			IUnitOfWork unitOfWork,
+			int routeListId)
+		{
+			var routeListConditions = _routeListSpecialConditionRepository
+				.Get(unitOfWork, x => x.RouteListId == routeListId);
+
+			var conditionTypesIds = routeListConditions
+				.Select(x => x.RouteListSpecialConditionTypeId)
+				.Distinct();
+
+			var specialConditrionTypes = _routeListSpecialConditionTypeRepository
+				.Get(unitOfWork, sct => conditionTypesIds.Contains(sct.Id));
+
+			var result = routeListConditions
+				.ToDictionary(x => x.Id, x => specialConditrionTypes
+					.First(sct => sct.Id == x.RouteListSpecialConditionTypeId).Name);
+
+			return result;
+		}
+
+		public IEnumerable<RouteListSpecialCondition> GetSpecialConditionsFor(
+			IUnitOfWork unitOfWork,
+			int routeListId)
+		{
+			var routeList = _routeListSpecialConditionRepository
+				.Get(unitOfWork, x => x.RouteListId == routeListId);
+
+			return routeList;
+		}
+
 		private void CreateSpecialConditionsFor(
 			IUnitOfWork unitOfWork,
 			RouteList routeList)
@@ -296,6 +312,47 @@ namespace Vodovoz.Application.Logistics
 					RouteListSpecialConditionTypeId = RouteListSpecialConditionType.RouteListRequireAdditionalLoading
 				});
 			}
+
+			var productGroupsIds = GetAllProductGroupChilds(unitOfWork, _nomenclatureSettings.EquipmentForCheckProductGroupsIds);
+
+			if(routeList.Addresses
+				.Any(address =>
+					address.Order.OrderItems.Any(oi =>
+						productGroupsIds.Contains(oi.Nomenclature.ProductGroup.Id))
+				&& !existingSpecialConditions.Any(x =>
+					x.RouteListSpecialConditionTypeId == RouteListSpecialConditionType.EquipmentCheckRequired)))
+			{
+				unitOfWork.Save(new RouteListSpecialCondition
+				{
+					RouteListId = routeList.Id,
+					RouteListSpecialConditionTypeId = RouteListSpecialConditionType.EquipmentCheckRequired
+				});
+			}
+		}
+
+		private IEnumerable<int> GetAllProductGroupChilds(IUnitOfWork unitOfWork, IEnumerable<int> ids)
+		{
+			var result = new List<int>(ids);
+
+			var buffer = new List<int>(ids);
+
+			while(buffer.Count > 0)
+			{
+				var current = buffer[0];
+
+				var productGroupsIds = _productGroupRepository
+					.Get(unitOfWork, pg => pg.Parent.Id == current)
+					.Select(pg => pg.Id)
+					.ToList();
+
+				buffer.AddRange(productGroupsIds);
+
+				result = result.Union(productGroupsIds).ToList();
+
+				buffer.Remove(current);
+			}
+
+			return result;
 		}
 
 		public void AcceptConditions(
