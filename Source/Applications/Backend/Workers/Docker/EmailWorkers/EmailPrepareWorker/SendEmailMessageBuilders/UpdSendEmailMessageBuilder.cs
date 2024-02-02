@@ -43,6 +43,11 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 				_emailDocumentPreparer.PrepareDocument(document, _counterpartyEmail.Type, connectionString)
 			};
 
+			if(document.Order.IsFirstOrder && _counterpartyEmail.Type == CounterpartyEmailType.UpdDocument)
+			{
+				attachments.Add(_emailDocumentPreparer.PrepareOfferAgreementDocument(document.Order.Contract, connectionString));
+			}
+
 			_sendEmailMessage.Attachments = attachments;
 
 			return this;
