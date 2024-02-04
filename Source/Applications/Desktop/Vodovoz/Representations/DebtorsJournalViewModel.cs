@@ -4,6 +4,7 @@ using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.DB;
 using QS.Project.Journal;
 using QS.Project.Services.FileDialog;
@@ -55,6 +56,7 @@ namespace Vodovoz.Representations
 			DebtorsJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
+			INavigationManager navigationManager,
 			IEmployeeRepository employeeRepository,
 			IGtkTabsOpener gtkTabsOpener,
 			IDebtorsParameters debtorsParameters,
@@ -62,7 +64,7 @@ namespace Vodovoz.Representations
 			IAttachmentsViewModelFactory attachmentsViewModelFactory,
 			IEmailRepository emailRepository,
 			IFileDialogService fileDialogService)
-			: base(filterViewModel, unitOfWorkFactory, commonServices)
+			: base(filterViewModel, unitOfWorkFactory, commonServices, navigation: navigationManager)
 		{
 			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));
 			_attachmentsViewModelFactory = attachmentsViewModelFactory ?? throw new ArgumentNullException(nameof(attachmentsViewModelFactory));
@@ -76,9 +78,12 @@ namespace Vodovoz.Representations
 
 			_canSendBulkEmails = commonServices.CurrentPermissionService.ValidatePresetPermission(Permissions.Email.CanSendBulkEmails);
 
+			filterViewModel.Journal = this;
+
 			TabName = "Журнал задолженности";
 			SelectionMode = JournalSelectionMode.Multiple;
 			DataLoader.ItemsListUpdated += UpdateFooterInfo;
+
 		}
 
 		public override string FooterInfo

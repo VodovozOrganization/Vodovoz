@@ -290,9 +290,8 @@ namespace Vodovoz.Views.Goods
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 
-			referenceRouteColumn.SubjectType = typeof(RouteColumn);
-			referenceRouteColumn.Binding
-				.AddBinding(ViewModel.Entity, n => n.RouteListColumn, w => w.Subject)
+			entityentryRouteColumn.ViewModel = ViewModel.RouteColumnViewModel;
+			entityentryRouteColumn.Binding
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 
@@ -424,12 +423,10 @@ namespace Vodovoz.Views.Goods
 
 			#endregion
 
-			entityViewModelEntryNomenclature.SetEntityAutocompleteSelectorFactory(ViewModel.NomenclatureSelectorFactory);
-			entityViewModelEntryNomenclature.Binding
-				.AddBinding(ViewModel.Entity, e => e.DependsOnNomenclature, w => w.Subject)
+			entryDependsOnNomenclature.ViewModel = ViewModel.DependsOnNomenclatureEntryViewModel;
+			entryDependsOnNomenclature.Binding
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
-			entityViewModelEntryNomenclature.CanEditReference = true;
 
 			pricesView.Prices = ViewModel.Entity.NomenclaturePrice.Cast<NomenclaturePriceBase>().ToList();
 			pricesView.PricesList.ElementAdded += PriceAdded;

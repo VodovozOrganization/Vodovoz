@@ -173,6 +173,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 					paymentQuery.Where(p => p.Status != PaymentState.completed);
 				}
 
+				if(_filterViewModel.HideCancelledPayments)
+				{
+					paymentQuery.Where(p => p.Status != PaymentState.Cancelled);
+				}
+
 				if(_filterViewModel.HidePaymentsWithoutCounterparty)
 				{
 					paymentQuery.Where(p => p.Counterparty != null);

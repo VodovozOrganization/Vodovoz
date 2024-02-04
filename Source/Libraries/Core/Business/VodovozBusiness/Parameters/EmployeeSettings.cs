@@ -13,5 +13,7 @@ namespace Vodovoz.Parameters
 		}
 
 		public int WorkingClothesFineTemplateId => _parametersProvider.GetIntValue("working_clothes_fine_template_id");
+
+		public int MaxDaysForNewbieDriver => _parametersProvider.GetIntValue("max_days_for_newbie_driver");
 	}
 }

@@ -4,6 +4,7 @@ using Gamma.Utilities;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
@@ -33,6 +34,9 @@ using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Store;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz
 {
@@ -54,6 +58,8 @@ namespace Vodovoz
 
 		public SelfDeliveryDocumentDlg()
 		{
+			Build();
+
 			this.Build();
 
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<SelfDeliveryDocument>();
@@ -102,6 +108,8 @@ namespace Vodovoz
 		public SelfDeliveryDocumentDlg(SelfDeliveryDocument sub) : this(sub.Id)
 		{
 		}
+
+		public INavigationManager NavigationManager { get; } = Startup.MainWin.NavigationManager;
 
 		private IPermissionResult CheckPermission()
 		{
@@ -360,14 +368,23 @@ namespace Vodovoz
 
 		protected void OnBtnAddOtherGoodsClicked(object sender, EventArgs e)
 		{
-			var nomenclatureSelector = _nomenclatureSelectorFactory.CreateNomenclatureOfGoodsWithoutEmptyBottlesSelector(_lifetimeScope);
-			nomenclatureSelector.OnEntitySelectedResult += NomenclatureSelectorOnEntitySelectedResult;
-			TabParent.AddTab(nomenclatureSelector, this);
+			(NavigationManager as ITdiCompatibilityNavigation)
+				.OpenViewModelOnTdi<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(this, filter =>
+				{
+					filter.RestrictArchive = true;
+					filter.AvailableCategories = Nomenclature.GetCategoriesForGoodsWithoutEmptyBottles();
+				},
+				OpenPageOptions.AsSlave,
+				viewModel =>
+				{
+					viewModel.SelectionMode = JournalSelectionMode.Single;
+					viewModel.OnSelectResult += NomenclatureSelectorOnEntitySelectedResult;
+				});
 		}
 
-		private void NomenclatureSelectorOnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
+		private void NomenclatureSelectorOnEntitySelectedResult(object sender, JournalSelectedEventArgs e)
 		{
-			var nomenclatureNode = e.SelectedNodes.FirstOrDefault();
+			var nomenclatureNode = e.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
 			
 			if(nomenclatureNode == null)
 			{

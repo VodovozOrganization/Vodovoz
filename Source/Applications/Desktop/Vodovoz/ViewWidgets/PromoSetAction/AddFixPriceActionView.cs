@@ -8,16 +8,14 @@ namespace Vodovoz.ViewWidgets.PromoSetAction
 	{
 		public AddFixPriceActionView(AddFixPriceActionViewModel viewModel)
 		{
-			this.Build();
+			Build();
 			ViewModel = viewModel;
 			ConfigureDlg();
 		}
 
 		private void ConfigureDlg()
 		{
-			entityviewmodelentryNomenclature.SetEntityAutocompleteSelectorFactory(ViewModel.NomenclatureSelectorFactory);
-			entityviewmodelentryNomenclature.Binding.AddBinding(ViewModel, vm => vm.Nomenclature, w => w.Subject);
-			entityviewmodelentryNomenclature.CanEditReference = true;
+			entryNomenclature.ViewModel = ViewModel.NomenclatureViewModel;
 
 			yspinbuttonPrice.Binding.AddBinding(ViewModel, vm => vm.Price, w => w.ValueAsDecimal);
 
@@ -26,6 +24,5 @@ namespace Vodovoz.ViewWidgets.PromoSetAction
 			buttonCancel.Clicked += (sender, e) => { ViewModel.CancelCommand.Execute(); };
 			ybuttonAccept.Clicked += (sender, e) => { ViewModel.AcceptCommand.Execute(); };
 		}
-
 	}
 }

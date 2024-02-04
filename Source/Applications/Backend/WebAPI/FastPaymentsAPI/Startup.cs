@@ -71,6 +71,9 @@ namespace FastPaymentsAPI
 					logging.AddConfiguration(Configuration.GetSection("NLog"));
 				});
 
+			_logger = new Logger<Startup>(LoggerFactory.Create(logging =>
+				logging.AddConfiguration(Configuration.GetSection(_nLogSectionName))));
+
 			services.AddHttpClient()
 				.AddControllers()
 				.AddXmlSerializerFormatters();

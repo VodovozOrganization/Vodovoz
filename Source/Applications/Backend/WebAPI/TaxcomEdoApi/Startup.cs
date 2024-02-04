@@ -1,4 +1,3 @@
-﻿using EdoService.Converters;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -114,6 +113,7 @@ namespace TaxcomEdoApi
 			services.AddSingleton<UpdProductConverter>();
 			services.AddSingleton<IParametersProvider, ParametersProvider>();
 			services.AddSingleton<IOrganizationParametersProvider, OrganizationParametersProvider>();
+			services.AddSingleton<IDeliveryScheduleParametersProvider, DeliveryScheduleParametersProvider>();
 			services.AddSingleton<IContactStateConverter, ContactStateConverter>();
 
 			services.AddSingleton(typeof(IGenericRepository<>), typeof(GenericRepository<>));

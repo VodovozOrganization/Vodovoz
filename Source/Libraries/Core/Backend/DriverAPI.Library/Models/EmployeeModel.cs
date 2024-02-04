@@ -17,23 +17,23 @@ namespace DriverAPI.Library.Models
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 		}
 
-		public void EnablePushNotifications(Employee driver, string token)
+		public void EnablePushNotifications(ExternalApplicationUser driverAppUser, string token)
 		{
-			driver.AndroidToken = token;
-			_unitOfWork.Save(driver);
+			driverAppUser.Token = token;
+			_unitOfWork.Save(driverAppUser);
 			_unitOfWork.Commit();
 		}
 
-		public void DisablePushNotifications(Employee driver)
+		public void DisablePushNotifications(ExternalApplicationUser driverAppUser)
 		{
-			driver.AndroidToken = null;
-			_unitOfWork.Save(driver);
+			driverAppUser.Token = null;
+			_unitOfWork.Save(driverAppUser);
 			_unitOfWork.Commit();
 		}
 
 		public Employee GetByAPILogin(string login)
 		{
-			return _employeeRepository.GetDriverByAndroidLogin(_unitOfWork, login)
+			return _employeeRepository.GetEmployeeByAndroidLogin(_unitOfWork, login)
 				?? throw new DataNotFoundException(nameof(login), $"Не найден сотрудник для логина { login }");
 		}
 

@@ -355,6 +355,8 @@ public partial class MainWindow : Gtk.Window
 			commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Counterparty.CanCalculateCounterpartyClassifications);
 
 		ActionInnerPhones.Activated += OnInnerPhonesActionActivated;
+		CarOwnershipReportAction.Sensitive =
+			commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Car.HasAccessToCarOwnershipReport);
 
 		InitializeThemesMenuItem();
 	}

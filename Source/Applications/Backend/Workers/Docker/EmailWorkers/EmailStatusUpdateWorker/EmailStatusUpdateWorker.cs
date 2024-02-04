@@ -10,6 +10,7 @@ using System;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 

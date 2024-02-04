@@ -42,6 +42,7 @@ using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.TempAdapters;
 
@@ -202,13 +203,13 @@ namespace Vodovoz
 				viewModel.SelectionMode = JournalSelectionMode.Single;
 				viewModel.TabName = "Номенклатура на продажу";
 				viewModel.CalculateQuantityOnStock = true;
-				viewModel.OnEntitySelectedResult += OnNomenclatureSelected;
+				viewModel.OnSelectResult += OnNomenclatureSelected;
 			});
 		}
 
-		private void OnNomenclatureSelected(object sender, JournalSelectedNodesEventArgs e)
+		private void OnNomenclatureSelected(object sender, JournalSelectedEventArgs e)
 		{
-			var selectedNodes = e.SelectedNodes;
+			var selectedNodes = e.SelectedObjects.Cast<NomenclatureJournalNode>();
 
 			if(!selectedNodes.Any())
 			{

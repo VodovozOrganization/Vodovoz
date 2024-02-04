@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Timers;
 using Autofac;
 using DateTimeHelpers;
@@ -10,14 +11,18 @@ using QS.Navigation;
 using QS.Project.DB;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
+using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.ViewModels.Dialog;
+using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Logistic.Drivers;
 using Vodovoz.NHibernateProjections.Employees;
+using Vodovoz.Reports.Editing.Modifiers;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
+using Vodovoz.ViewModels.ViewModels.Reports.Logistics;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 {
@@ -62,6 +67,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			NodeActionsList.Clear();
 			CreateStartAutoRefresh();
 			CreateStopAutoRefresh();
+			CreateExportAction();
 		}
 
 		private void CreateStartAutoRefresh()
@@ -98,6 +104,29 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			NodeActionsList.Add(journalAction);
 		}
 		
+		private void CreateExportAction()
+		{
+			var journalAction = new JournalAction(
+				"Экспорт",
+				objects => true,
+				objects => true,
+				objects =>
+				{
+					var rows = GetCompletedEvents(UoW).List<CompletedDriversWarehousesEventsJournalNode>();
+
+					if(!rows.Any())
+					{
+						return;
+					}
+					
+					var report = new CompletedDriversWarehousesEventsJournalReport(_scope.Resolve<IFileDialogService>());
+					report.Export(rows);
+				}
+			);
+			
+			NodeActionsList.Add(journalAction);
+		}
+		
 		private void StartAutoRefresh()
 		{
 			if(_autoRefreshEnabled)
@@ -128,8 +157,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 			var query = uow.Session.QueryOver<CompletedDriverWarehouseEvent>()
 				.JoinAlias(ce => ce.Employee, () => driverAlias)
-				.JoinAlias(ce => ce.Car, () => carAlias)
-				.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
+				.Left.JoinAlias(ce => ce.Car, () => carAlias)
+				.Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
 				.JoinAlias(ce => ce.DriverWarehouseEvent, () => eventAlias);
 
 			var carModelWithNumber = CustomProjections.Concat(
@@ -138,14 +167,18 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				Projections.Property(() => carAlias.RegistrationNumber),
 				Projections.Constant(")"));
 
+			var employeeProjection = EmployeeProjections.GetDriverFullNameProjection();
+
 			if(_filterViewModel.CompletedEventId.HasValue)
 			{
 				query.Where(ce => ce.Id == _filterViewModel.CompletedEventId);
 			}
 
-			if(_filterViewModel.StartDate.HasValue)
+			var startDate = _filterViewModel.StartDate;
+			
+			if(startDate.HasValue)
 			{
-				query.Where(ce => ce.CompletedDate >= _filterViewModel.StartDate);
+				query.Where(ce => ce.CompletedDate >= startDate);
 			}
 
 			var endDate = _filterViewModel.EndDate;
@@ -175,16 +208,42 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				query.Where(ce => ce.DistanceMetersFromScanningLocation == _filterViewModel.DistanceFromScanning);
 			}
 
+			var selectedDrivers = _filterViewModel.GetSelectedDrivers();
+
+			if(selectedDrivers.Any())
+			{
+				query.WhereRestrictionOn(() => driverAlias.Id).IsInG(selectedDrivers);
+			}
+
 			query.SelectList(list => list
 				.Select(ce => ce.Id).WithAlias(() => resultAlias.Id)
 				.Select(() => eventAlias.EventName).WithAlias(() => resultAlias.EventName)
 				.Select(() => eventAlias.Type).WithAlias(() => resultAlias.EventType)
-				.Select(EmployeeProjections.GetDriverFullNameProjection()).WithAlias(() => resultAlias.DriverName)
+				.Select(employeeProjection).WithAlias(() => resultAlias.DriverName)
 				.Select(carModelWithNumber).WithAlias(() => resultAlias.Car)
 				.Select(ce => ce.CompletedDate).WithAlias(() => resultAlias.CompletedDate)
 				.Select(ce => ce.DistanceMetersFromScanningLocation)
 					.WithAlias(() => resultAlias.DistanceMetersFromScanningLocation))
 				.TransformUsing(Transformers.AliasToBean<CompletedDriversWarehousesEventsJournalNode>());
+
+			if(_filterViewModel.SortViewModel.RightItems.Any())
+			{
+				foreach(var node in _filterViewModel.SortViewModel.GetRightItems())
+				{
+					switch(node.GroupType)
+					{
+						case GroupingType.Employee:
+							query.OrderBy(employeeProjection);
+							break;
+						case GroupingType.DriverWarehouseEvent:
+							query.OrderBy(() => eventAlias.EventName);
+							break;
+						case GroupingType.DriverWarehouseEventDate:
+							query.OrderBy(ce => ce.Id);
+							break;
+					}
+				}
+			}
 			
 			return query;
 		}

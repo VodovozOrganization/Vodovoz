@@ -3,7 +3,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Vodovoz.Settings.Edo;
 
-namespace EdoService.Services
+namespace EdoService.Library.Services
 {
 	public class TaxcomAuthorizationService : IAuthorizationService
 	{

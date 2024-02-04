@@ -1,25 +1,25 @@
 ﻿using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
+using Sms.Internal;
+using System;
 using System.Linq;
-using Vodovoz.Domain.Orders;
-using Vodovoz.Services;
-using Vodovoz.Domain.Goods;
-using Vodovoz.Tools.Orders;
-using Vodovoz.Domain.Sale;
+using System.Threading.Tasks;
 using Vodovoz.Controllers;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Factories;
 using Vodovoz.Models;
-using Vodovoz.Tools.CallTasks;
-using System;
 using Vodovoz.Models.Orders;
-using Vodovoz.Domain.Client;
-using System.Threading.Tasks;
-using Vodovoz.Domain.Employees;
-using Sms.Internal;
-using Vodovoz.Domain.Logistic;
+using Vodovoz.Services;
+using Vodovoz.Tools.CallTasks;
+using Vodovoz.Tools.Orders;
 
 namespace Vodovoz.Application.Orders.Services
 {

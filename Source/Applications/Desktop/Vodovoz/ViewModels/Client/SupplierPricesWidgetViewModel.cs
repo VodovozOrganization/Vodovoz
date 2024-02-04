@@ -1,6 +1,4 @@
-using System;
-using System.Linq;
-using QS.Commands;
+﻿using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Journal;
@@ -8,9 +6,12 @@ using QS.Project.Search;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
+using System;
+using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.ViewModels.Client
@@ -19,6 +20,7 @@ namespace Vodovoz.ViewModels.Client
 	{
 		private readonly ITdiCompatibilityNavigation _navigationManager;
 		private ITdiTab _dialogTab;
+		private bool _canRemove = false;
 
 		public event EventHandler ListContentChanged;
 
@@ -38,21 +40,21 @@ namespace Vodovoz.ViewModels.Client
 
 			CreateCommands();
 			RefreshPrices();
-			
+
 			Search = new SearchViewModel();
 			Search.OnSearch += (sender, e) => RefreshPrices();
 			Entity.ObservableSuplierPriceItems.ElementAdded += (aList, aIdx) => RefreshPrices();
 			Entity.ObservableSuplierPriceItems.ElementRemoved += (aList, aIdx, aObject) => RefreshPrices();
 		}
 
-		void CreateCommands()
+		private void CreateCommands()
 		{
 			CreateAddItemCommand();
 			CreateRemoveItemCommand();
 			CreateEditItemCommand();
 		}
 
-		void RefreshPrices()
+		private void RefreshPrices()
 		{
 			Entity.SupplierPriceListRefresh(Search?.SearchValues);
 			ListContentChanged?.Invoke(this, new EventArgs());
@@ -62,11 +64,12 @@ namespace Vodovoz.ViewModels.Client
 		public bool CanAdd { get; set; } = true;
 		public bool CanEdit { get; set; } = false;//задача редактирования пока не актуальна
 
-		bool canRemove = false;
-		public bool CanRemove {
-			get => canRemove;
-			set => SetField(ref canRemove, value);
+		public bool CanRemove
+		{
+			get => _canRemove;
+			set => SetField(ref _canRemove, value);
 		}
+
 		#region Commands
 
 		#region AddItemCommand
@@ -80,26 +83,26 @@ namespace Vodovoz.ViewModels.Client
 				{
 					var existingNomenclatures =
 						Entity.ObservableSuplierPriceItems.Select(i => i.NomenclatureToBuy.Id).Distinct();
-					
+
 					var journalViewModel =
 						_navigationManager.OpenViewModelOnTdi<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(
 							_dialogTab,
 							filter =>
 							{
 								filter.HidenByDefault = true;
+								filter.RestrictedExcludedIds = existingNomenclatures.ToArray();
 							},
 							OpenPageOptions.AsSlave,
 							vm =>
 							{
 								vm.SelectionMode = JournalSelectionMode.Single;
-								vm.ExcludingNomenclatureIds = existingNomenclatures.ToArray();
 							}
 						).ViewModel;
-					
-					journalViewModel.OnEntitySelectedResult += (sender, e) =>
+
+					journalViewModel.OnSelectResult += (sender, e) =>
 					{
-						var selectedNode = e.SelectedNodes.FirstOrDefault();
-						if(selectedNode == null)
+						var selectedObject = e.SelectedObjects.FirstOrDefault();
+						if(!(selectedObject is NomenclatureJournalNode selectedNode))
 						{
 							return;
 						}

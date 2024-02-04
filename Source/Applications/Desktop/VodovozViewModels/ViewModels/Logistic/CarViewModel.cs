@@ -142,6 +142,15 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public CarVersionsViewModel CarVersionsViewModel { get; }
 		public OdometerReadingsViewModel OdometerReadingsViewModel { get; }
 
+		protected override bool BeforeSave()
+		{
+			var result = base.BeforeSave();
+
+			UpdateArchivingDate();
+
+			return result;
+		}
+
 		public override bool Save(bool close)
 		{
 			var routeLists = CarVersionsViewModel.GetAllAffectedRouteLists(UoW);
@@ -207,6 +216,19 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 						NavigationManager.ForceClosePage(progressWindow);
 					}
 				}
+			}
+		}
+
+		private void UpdateArchivingDate()
+		{
+			if(Entity.IsArchive && Entity.ArchivingDate == null)
+			{
+				Entity.ArchivingDate = DateTime.Now;
+			}
+
+			if(!Entity.IsArchive && Entity.ArchivingDate != null)
+			{
+				Entity.ArchivingDate = null;
 			}
 		}
 

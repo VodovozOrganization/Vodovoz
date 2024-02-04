@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <UserSecretsId>dotnet-Vodovoz.SmsInformerWorker-495db85a-9345-40a4-9b63-083909aba867</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Infrastructure\BackendInfrastructure\BackendInfrastructure.csproj" />
+    <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Sms\Sms.External.Interface\Sms.External.Interface.csproj" />
+    <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Sms\Sms.External.SmsRu\Sms.External.SmsRu.csproj" />
+    <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Attachments\QS.Attachments.csproj" />
+    <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
+    <ProjectReference Include="..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj" />
+  </ItemGroup>
+</Project>

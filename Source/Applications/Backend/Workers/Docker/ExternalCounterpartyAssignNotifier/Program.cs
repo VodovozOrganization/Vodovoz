@@ -15,6 +15,7 @@ using System;
 using System.Reflection;
 using System.Text.Json;
 using Vodovoz.Core.Data.NHibernate;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Settings.Database;

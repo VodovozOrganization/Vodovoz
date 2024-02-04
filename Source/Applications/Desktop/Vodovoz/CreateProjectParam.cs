@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using QS.Dialog.Gtk;
 using QS.Permissions;
 using QS.Project.DB;
@@ -192,6 +192,12 @@ using Vodovoz.Views.ReportsParameters.Production;
 using QS.Project.Services;
 using Vodovoz.Presentation.ViewModels.Reports.PACS;
 using Vodovoz.ReportsParameters.PACS;
+using Vodovoz.ViewModels.ReportsParameters.Logistic;
+using Vodovoz.ReportsParameters.Logistic;
+using Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport;
+using Vodovoz.ReportsParameters.Logistic;
+using Vodovoz.ViewModels.ReportsParameters.Bookkeeping;
+using Vodovoz.ReportsParameters.Bookkeeping;
 
 namespace Vodovoz
 {
@@ -367,6 +373,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<DriversWarehousesEventsReportViewModel, DriversWarehousesEventsReportView>()
 				.RegisterWidgetForTabViewModel<PacsOperatorReferenceBookViewModel, PacsOperatorReferenceBookView>()
 				.RegisterWidgetForTabViewModel<WorkShiftViewModel, PacsWorkShiftView>()
+				.RegisterWidgetForTabViewModel<RouteColumnViewModel, RouteColumnView>()
 				;
 
 			//Регистрация виджетов
@@ -496,12 +503,16 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<WarehousesSettingsViewModel, NamedDomainEntitiesSettingsView>()
 				.RegisterWidgetForWidgetViewModel<SelectPaymentTypeViewModel, SelectPaymentTypeWindowView>()
 				.RegisterWidgetForWidgetViewModel<FreeRentPackagesFilterViewModel, FreeRentPackagesFilterView>()
+				.RegisterWidgetForWidgetViewModel<ClientBalanceFilterViewModel, ClientBalanceFilter>()
 				.RegisterWidgetForWidgetViewModel<CounterpartyClassificationCalculationEmailSettingsViewModel, CounterpartyClassificationCalculationEmailSettingsView>()
 				.RegisterWidgetForWidgetViewModel<NomenclatureOnlineCatalogViewModel, NomenclatureOnlineCatalogView>()
 				.RegisterWidgetForWidgetViewModel<DriversWarehousesEventsJournalFilterViewModel, DriversWarehousesEventsJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<CompletedDriversWarehousesEventsJournalFilterViewModel, CompletedDriversWarehousesEventsJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<ProducedProductionReportViewModel, ProducedProductionReportView>()
 				.RegisterWidgetForWidgetViewModel<PacsMissingCallsReportViewModel, PacsMissingCallsReport>()
+				.RegisterWidgetForWidgetViewModel<DeliveryTimeReportViewModel, DeliveryTimeReportView>()
+				.RegisterWidgetForWidgetViewModel<CarOwnershipReportViewModel, CarOwnershipReportView>()
+				.RegisterWidgetForWidgetViewModel<CounterpartyCashlessDebtsReportViewModel, CounterpartyCashlessDebtsReportView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;

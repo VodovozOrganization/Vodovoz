@@ -8,8 +8,10 @@ using RabbitMQ.Client;
 using System;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Parameters;
@@ -34,6 +36,7 @@ namespace EmailPrepareWorker
 		private readonly IEmailSendMessagePreparer _emailSendMessagePreparer;
 		private readonly TimeSpan _workDelay = TimeSpan.FromSeconds(5);
 		private readonly int _instanceId;
+		private readonly string _connectionString;
 
 		public EmailPrepareWorker(
 			ILogger<EmailPrepareWorker> logger,
@@ -65,6 +68,8 @@ namespace EmailPrepareWorker
 			_emailSendExchange = configuration.GetSection(_queuesConfigurationSection)
 				.GetValue<string>(_emailSendExchangeParameter);
 			_channel.QueueDeclare(_emailSendKey, true, false, false, null);
+			
+			Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
 			using(var unitOfWork = _uowFactory.CreateWithoutRoot("Email prepare worker"))
 			{
@@ -144,7 +149,7 @@ namespace EmailPrepareWorker
 								}
 							}
 
-							var sendingBody = _emailSendMessagePreparer.PrepareMessage(emailSendMessageBuilder);
+							var sendingBody = _emailSendMessagePreparer.PrepareMessage(emailSendMessageBuilder, _connectionString);
 
 							var properties = _channel.CreateBasicProperties();
 							properties.Persistent = true;

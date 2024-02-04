@@ -54,6 +54,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 		private byte[] _photo;
 		private string _registrationNumber = String.Empty;
 		private string _vIn;
+		private DateTime? _archivingDate;
 
 		public virtual int Id { get; set; }
 
@@ -69,6 +70,13 @@ namespace Vodovoz.Domain.Logistic.Cars
 		{
 			get => _isArchive;
 			set => SetField(ref _isArchive, value);
+		}
+
+		[Display(Name ="Дата архивации")]
+		public virtual DateTime? ArchivingDate
+		{
+			get => _archivingDate;
+			set => SetField(ref _archivingDate, value);
 		}
 
 		public virtual IList<CarVersion> CarVersions

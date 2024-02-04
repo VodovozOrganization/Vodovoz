@@ -1,4 +1,4 @@
-﻿using CustomerAppsApi.HealthChecks;
+using CustomerAppsApi.HealthChecks;
 using CustomerAppsApi.Library.Converters;
 using CustomerAppsApi.Library.Factories;
 using CustomerAppsApi.Library.Models;
@@ -117,6 +117,7 @@ namespace CustomerAppsApi
 
 				.AddHttpClient()
 				.AddControllers()
+				.AddCustomerApiLibrary()
 				;
 
 			services.AddStaticHistoryTracker();

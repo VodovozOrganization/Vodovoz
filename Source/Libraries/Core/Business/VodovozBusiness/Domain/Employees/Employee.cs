@@ -58,6 +58,7 @@ namespace Vodovoz.Domain.Employees
 		private IList<EmployeeRegistrationVersion> _employeeRegistrationVersions = new List<EmployeeRegistrationVersion>();
 		private IList<DriverDistrictPrioritySet> _driverDistrictPrioritySets = new List<DriverDistrictPrioritySet>();
 		private IList<DriverWorkScheduleSet> _driverWorkScheduleSets = new List<DriverWorkScheduleSet>();
+		private IList<ExternalApplicationUser> _externalApplicationsUsers = new List<ExternalApplicationUser>();
 
 		private GenericObservableList<EmployeeDocument> _observableDocuments;
 		private GenericObservableList<Account> _observableAccounts;
@@ -98,6 +99,13 @@ namespace Vodovoz.Domain.Employees
 			set { SetField(ref _user, value, () => User); }
 		}
 
+		[Display(Name = "Пользователи внешних приложений")]
+		public virtual IList<ExternalApplicationUser> ExternalApplicationsUsers
+		{
+			get => _externalApplicationsUsers;
+			set => SetField(ref _externalApplicationsUsers, value);
+		}
+
 		[Display(Name = "Подразделение")]
 		public virtual Subdivision Subdivision
 		{
@@ -131,6 +139,13 @@ namespace Vodovoz.Domain.Employees
 		{
 			get => _driverOfCarOwnType;
 			set => SetField(ref _driverOfCarOwnType, value);
+		}
+
+		[Display(Name = "Есть доступ к складскому приложению")]
+		public virtual bool HasAccessToWarehouseApp
+		{
+			get => _hasAccessToWarehouseApp;
+			set => SetField(ref _hasAccessToWarehouseApp, value);
 		}
 
 		[Display(Name = "Телефоны")]
@@ -269,18 +284,18 @@ namespace Vodovoz.Domain.Employees
 		{
 			if(!(validationContext.ServiceContainer.GetService(typeof(IEmployeeRepository)) is IEmployeeRepository employeeRepository))
 			{
-				throw new ArgumentNullException($"Не найден репозиторий { nameof(employeeRepository) }");
+				throw new ArgumentNullException($"Не найден репозиторий {nameof(employeeRepository)}");
 			}
 
 			if(!(validationContext.ServiceContainer.GetService(typeof(ISubdivisionParametersProvider)) is ISubdivisionParametersProvider
-				   subdivisionParametersProvider))
+					subdivisionParametersProvider))
 			{
-				throw new ArgumentNullException($"Не найден сервис { nameof(subdivisionParametersProvider) }");
+				throw new ArgumentNullException($"Не найден сервис {nameof(subdivisionParametersProvider)}");
 			}
 
 			if(!(validationContext.ServiceContainer.GetService(typeof(IUserRepository)) is IUserRepository userRepository))
 			{
-				throw new ArgumentNullException($"Не найден репозиторий { nameof(userRepository) }");
+				throw new ArgumentNullException($"Не найден репозиторий {nameof(userRepository)}");
 			}
 
 			if(String.IsNullOrEmpty(LastName))
@@ -295,22 +310,22 @@ namespace Vodovoz.Domain.Employees
 
 			if(employees.Count > 0)
 			{
-				yield return new ValidationResult("Сотрудник уже существует", new[] { "Duplication" });
 			}
 
-			if(!string.IsNullOrEmpty(AndroidLogin))
+			if(ExternalApplicationsUsers.Any())
 			{
-				var exist = employeeRepository.GetDriverByAndroidLogin(UoW, AndroidLogin);
+				var login = ExternalApplicationsUsers.First().Login;
+				var exist = employeeRepository.GetEmployeeByAndroidLogin(UoW, login);
 
 				if(exist != null && exist.Id != Id)
 				{
 					yield return new ValidationResult(
-						$"Другой водитель с логином { AndroidLogin } для Android уже есть в БД.",
-						new[] { nameof(AndroidLogin) });
+						$"Пользователь с таким логином {login} уже есть в БД");
 				}
 			}
 
-			if(!String.IsNullOrEmpty(LoginForNewUser) && User != null) {
+			if(!String.IsNullOrEmpty(LoginForNewUser) && User != null)
+			{
 				yield return new ValidationResult($"Сотрудник уже привязан к пользователю",
 					new[] { nameof(LoginForNewUser) });
 			}
@@ -318,10 +333,13 @@ namespace Vodovoz.Domain.Employees
 			var regex = new Regex(@"^[A-Za-z\d.,_-]+\Z");
 			if(!string.IsNullOrEmpty(LoginForNewUser) && !regex.IsMatch(LoginForNewUser))
 			{
-				yield return new ValidationResult("Логин может состоять только из букв английского алфавита, нижнего подчеркивания, дефиса, точки и запятой", new[] { nameof(LoginForNewUser) });
+				yield return new ValidationResult(
+					"Логин может состоять только из букв английского алфавита, нижнего подчеркивания, дефиса, точки и запятой",
+					new[] { nameof(LoginForNewUser) });
 			}
 
-			if(!String.IsNullOrEmpty(LoginForNewUser)) {
+			if(!String.IsNullOrEmpty(LoginForNewUser))
+			{
 				User exist = userRepository.GetUserByLogin(UoW, LoginForNewUser);
 				if(exist != null && exist.Id != Id)
 				{
@@ -330,7 +348,8 @@ namespace Vodovoz.Domain.Employees
 				}
 			}
 
-			if(!String.IsNullOrEmpty(LoginForNewUser)) {
+			if(!String.IsNullOrEmpty(LoginForNewUser))
+			{
 				string mes = null;
 				bool userExists = false;
 
@@ -349,6 +368,7 @@ namespace Vodovoz.Domain.Employees
 						throw;
 					}
 				}
+
 				if(!String.IsNullOrWhiteSpace(mes))
 				{
 					yield return new ValidationResult(mes, new[] { nameof(LoginForNewUser) });
@@ -360,24 +380,30 @@ namespace Vodovoz.Domain.Employees
 				}
 			}
 
-			if(!String.IsNullOrEmpty(LoginForNewUser) && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_users")) {
+			if(!String.IsNullOrEmpty(LoginForNewUser) &&
+				!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_users"))
+			{
 				yield return new ValidationResult($"Недостаточно прав для создания нового пользователя",
 					new[] { nameof(LoginForNewUser) });
 			}
 
-			if(Status == EmployeeStatus.IsFired && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_fire_employees")) {
+			if(Status == EmployeeStatus.IsFired &&
+				!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_fire_employees"))
+			{
 				yield return new ValidationResult($"Недостаточно прав для увольнения сотрудников",
-						new[] { nameof(Status) });
+					new[] { nameof(Status) });
 			}
 
-			if(!String.IsNullOrEmpty(LoginForNewUser)) {
+			if(!String.IsNullOrEmpty(LoginForNewUser))
+			{
 				string exist = GetPhoneForSmsNotification();
 				if(exist == null)
 					yield return new ValidationResult($"Для создания пользователя должен быть правильно указан мобильный телефон",
-							new[] { nameof(LoginForNewUser) });
-				if (String.IsNullOrEmpty(Email)) {
+						new[] { nameof(LoginForNewUser) });
+				if(String.IsNullOrEmpty(Email))
+				{
 					yield return new ValidationResult($"Для создания пользователя должен быть правильно указан e-mail адрес",
-							new[] { nameof(Email) });
+						new[] { nameof(Email) });
 				}
 			}
 
@@ -385,7 +411,8 @@ namespace Vodovoz.Domain.Employees
 			{
 				if(DriverOfCarTypeOfUse == null || DriverOfCarOwnType == null)
 				{
-					yield return new ValidationResult(@"Обязательно должны быть выбраны поля 'Управляет а\м' для типа и принадлежности авто",
+					yield return new ValidationResult(
+						@"Обязательно должны быть выбраны поля 'Управляет а\м' для типа и принадлежности авто",
 						new[] { nameof(DriverOfCarTypeOfUse), nameof(DriverOfCarOwnType) });
 				}
 			}
@@ -393,7 +420,7 @@ namespace Vodovoz.Domain.Employees
 			if(Subdivision == null || Subdivision.Id == subdivisionParametersProvider.GetParentVodovozSubdivisionId())
 			{
 				yield return new ValidationResult("Поле подразделение должно быть заполнено и не должно являться" +
-					" общим подразделением 'Веселый Водовоз'");
+												" общим подразделением 'Веселый Водовоз'");
 			}
 
 			List<EmployeeDocument> mainDocuments = GetMainDocuments();
@@ -408,7 +435,7 @@ namespace Vodovoz.Domain.Employees
 			if(String.IsNullOrEmpty(DrivingLicense) && IsDriverForOneDay)
 				yield return new ValidationResult(String.Format("У разового водителя должно быть водительское удостоверение"),
 					new[] { this.GetPropertyName(x => x.DrivingLicense) });
-			
+
 			if(Comment != null && Comment.Length > _commentLimit)
 			{
 				yield return new ValidationResult($"Длина комментария превышена на {Comment.Length - _commentLimit}",
@@ -460,6 +487,12 @@ namespace Vodovoz.Domain.Employees
 
 		#region Функции
 
+		public virtual ExternalApplicationUser DriverAppUser =>
+			ExternalApplicationsUsers.SingleOrDefault(x => x.ExternalApplicationType == ExternalApplicationType.DriverApp);
+		
+		public virtual ExternalApplicationUser WarehouseAppUser =>
+			ExternalApplicationsUsers.SingleOrDefault(x => x.ExternalApplicationType == ExternalApplicationType.WarehouseApp);
+		
 		public virtual IWageCalculationRepository WageCalculationRepository { get; set; } = new WageCalculationRepository();
 
 		public virtual string GetPersonNameWithInitials() => PersonHelper.PersonNameWithInitials(LastName, Name, Patronymic);
@@ -469,7 +502,8 @@ namespace Vodovoz.Domain.Employees
 		public virtual bool CheckStartDateForNewWageParameter(DateTime newStartDate)
 		{
 			WageParameter oldWageParameter = ObservableWageParameters.FirstOrDefault(x => x.EndDate == null);
-			if(oldWageParameter == null) {
+			if(oldWageParameter == null)
+			{
 				return true;
 			}
 
@@ -478,19 +512,25 @@ namespace Vodovoz.Domain.Employees
 
 		public virtual void ChangeWageParameter(EmployeeWageParameter wageParameter, DateTime startDate)
 		{
-			if(wageParameter == null) {
+			if(wageParameter == null)
+			{
 				throw new ArgumentNullException(nameof(wageParameter));
 			}
 
 			wageParameter.Employee = this;
 			wageParameter.StartDate = startDate;
 			WageParameter oldWageParameter = ObservableWageParameters.FirstOrDefault(x => x.EndDate == null);
-			if(oldWageParameter != null) {
-				if(oldWageParameter.StartDate > startDate) {
-					throw new InvalidOperationException("Нельзя создать новую запись с датой более ранней уже существующей записи. Неверно выбрана дата");
+			if(oldWageParameter != null)
+			{
+				if(oldWageParameter.StartDate > startDate)
+				{
+					throw new InvalidOperationException(
+						"Нельзя создать новую запись с датой более ранней уже существующей записи. Неверно выбрана дата");
 				}
+
 				oldWageParameter.EndDate = startDate.AddMilliseconds(-1);
 			}
+
 			ObservableWageParameters.Add(wageParameter);
 		}
 
@@ -498,58 +538,78 @@ namespace Vodovoz.Domain.Employees
 		public virtual EmployeeWageParameter GetActualWageParameter(DateTime date)
 		{
 			return WageParameters.Where(x => x.StartDate <= date)
-								 .OrderByDescending(x => x.StartDate)
-								 .Take(1)
-								 .SingleOrDefault();
+				.OrderByDescending(x => x.StartDate)
+				.Take(1)
+				.SingleOrDefault();
 		}
 
-		public virtual void CreateDefaultWageParameter(IWageCalculationRepository wageRepository, IWageParametersProvider wageParametersProvider, IInteractiveService interactiveService)
+		public virtual void CreateDefaultWageParameter(IWageCalculationRepository wageRepository,
+			IWageParametersProvider wageParametersProvider, IInteractiveService interactiveService)
 		{
-			if(wageRepository == null) {
+			if(wageRepository == null)
+			{
 				throw new ArgumentNullException(nameof(wageRepository));
 			}
-			if(wageParametersProvider == null) {
+
+			if(wageParametersProvider == null)
+			{
 				throw new ArgumentNullException(nameof(wageParametersProvider));
 			}
-			if(interactiveService == null) {
+
+			if(interactiveService == null)
+			{
 				throw new ArgumentNullException(nameof(interactiveService));
 			}
 
 			var defaultLevel = wageRepository.DefaultLevelForNewEmployees(UoW);
-			if(defaultLevel == null) {
-				interactiveService.ShowMessage(ImportanceLevel.Warning, "\"В журнале ставок по уровням не отмечен \"Уровень по умолчанию для новых сотрудников (Найм)\"!\"", "Невозможно создать расчет зарплаты");
+			if(defaultLevel == null)
+			{
+				interactiveService.ShowMessage(ImportanceLevel.Warning,
+					"\"В журнале ставок по уровням не отмечен \"Уровень по умолчанию для новых сотрудников (Найм)\"!\"",
+					"Невозможно создать расчет зарплаты");
 				return;
 			}
 
 			var defaultLevelForOurCar = wageRepository.DefaultLevelForNewEmployeesOnOurCars(UoW);
-			if(defaultLevelForOurCar == null) {
-				interactiveService.ShowMessage(ImportanceLevel.Warning, "\"В журнале ставок по уровням не отмечен \"Уровень по умолчанию для новых сотрудников (Для наших авто)\"!\"", "Невозможно создать расчет зарплаты");
+			if(defaultLevelForOurCar == null)
+			{
+				interactiveService.ShowMessage(ImportanceLevel.Warning,
+					"\"В журнале ставок по уровням не отмечен \"Уровень по умолчанию для новых сотрудников (Для наших авто)\"!\"",
+					"Невозможно создать расчет зарплаты");
 				return;
 			}
 
 			var defaultLevelForRaskatCar = wageRepository.DefaultLevelForNewEmployeesOnRaskatCars(UoW);
 			if(defaultLevelForRaskatCar == null)
 			{
-				interactiveService.ShowMessage(ImportanceLevel.Warning, "\"В журнале ставок по уровням не отмечен \"Уровень по умолчанию для новых сотрудников (Для авто в раскате)\"!\"", "Невозможно создать расчет зарплаты");
+				interactiveService.ShowMessage(ImportanceLevel.Warning,
+					"\"В журнале ставок по уровням не отмечен \"Уровень по умолчанию для новых сотрудников (Для авто в раскате)\"!\"",
+					"Невозможно создать расчет зарплаты");
 				return;
 			}
 
 			if(Id != 0) return;
 
 			ObservableWageParameters.Clear();
-			switch(Category) {
+			switch(Category)
+			{
 				case EmployeeCategory.driver:
-					EmployeeWageParameter parameterForDriver = new EmployeeWageParameter {
+					EmployeeWageParameter parameterForDriver = new EmployeeWageParameter
+					{
 						WageParameterItem = new ManualWageParameterItem(),
 						WageParameterItemForOurCars = new ManualWageParameterItem(),
 						WageParameterItemForRaskatCars = new ManualWageParameterItem()
 					};
-					if(VisitingMaster && !IsDriverForOneDay) {
-						parameterForDriver = new EmployeeWageParameter {
-							WageParameterItem = new PercentWageParameterItem {
+					if(VisitingMaster && !IsDriverForOneDay)
+					{
+						parameterForDriver = new EmployeeWageParameter
+						{
+							WageParameterItem = new PercentWageParameterItem
+							{
 								PercentWageType = PercentWageTypes.Service
 							},
-							WageParameterItemForOurCars = new PercentWageParameterItem {
+							WageParameterItemForOurCars = new PercentWageParameterItem
+							{
 								PercentWageType = PercentWageTypes.Service
 							},
 							WageParameterItemForRaskatCars = new PercentWageParameterItem
@@ -558,12 +618,16 @@ namespace Vodovoz.Domain.Employees
 							}
 						};
 					}
-					else if(!IsDriverForOneDay) {
-						parameterForDriver = new EmployeeWageParameter {
-							WageParameterItem = new RatesLevelWageParameterItem {
+					else if(!IsDriverForOneDay)
+					{
+						parameterForDriver = new EmployeeWageParameter
+						{
+							WageParameterItem = new RatesLevelWageParameterItem
+							{
 								WageDistrictLevelRates = defaultLevel
 							},
-							WageParameterItemForOurCars = new RatesLevelWageParameterItem {
+							WageParameterItemForOurCars = new RatesLevelWageParameterItem
+							{
 								WageDistrictLevelRates = defaultLevelForOurCar
 							},
 							WageParameterItemForRaskatCars = new RatesLevelWageParameterItem
@@ -576,8 +640,10 @@ namespace Vodovoz.Domain.Employees
 					ChangeWageParameter(parameterForDriver, DateTime.Today);
 					break;
 				case EmployeeCategory.forwarder:
-					var parameterForForwarder = new EmployeeWageParameter {
-						WageParameterItem = new RatesLevelWageParameterItem {
+					var parameterForForwarder = new EmployeeWageParameter
+					{
+						WageParameterItem = new RatesLevelWageParameterItem
+						{
 							WageDistrictLevelRates = defaultLevel
 						},
 						WageParameterItemForOurCars = new RatesLevelWageParameterItem
@@ -618,7 +684,8 @@ namespace Vodovoz.Domain.Employees
 
 		public virtual string GetPhoneForSmsNotification()
 		{
-			string stringPhoneNumber = Phones.FirstOrDefault(p => p?.DigitsNumber != null && p.DigitsNumber.Count() == 10)?.DigitsNumber.TrimStart('+').TrimStart('7').TrimStart('8');
+			string stringPhoneNumber = Phones.FirstOrDefault(p => p?.DigitsNumber != null && p.DigitsNumber.Count() == 10)?.DigitsNumber
+				.TrimStart('+').TrimStart('7').TrimStart('8');
 			if(String.IsNullOrWhiteSpace(stringPhoneNumber)
 				|| stringPhoneNumber.Length == 0
 				|| stringPhoneNumber.First() != '9'
@@ -639,7 +706,7 @@ namespace Vodovoz.Domain.Employees
 
 			var now = DateTime.Now;
 
-			if (currentActiveSet != null)
+			if(currentActiveSet != null)
 			{
 				currentActiveSet.IsActive = false;
 				currentActiveSet.DateLastChanged = now;
@@ -653,16 +720,17 @@ namespace Vodovoz.Domain.Employees
 			driverDistrictPrioritySet.IsActive = true;
 			driverDistrictPrioritySet.DateLastChanged = now;
 			driverDistrictPrioritySet.LastEditor = editor;
-			driverDistrictPrioritySet.DateActivated 
+			driverDistrictPrioritySet.DateActivated
 				= currentActiveSet?.DateDeactivated.Value.Date.AddDays(1) ?? DateTime.Today;
 		}
-		
+
 		public virtual void AddActiveDriverWorkScheduleSet(DriverWorkScheduleSet activeDriverWorkScheduleSet)
 		{
 			var currentActiveSet = ObservableDriverWorkScheduleSets.SingleOrDefault(x => x.IsActive);
-			if(currentActiveSet != null) {
+			if(currentActiveSet != null)
+			{
 				currentActiveSet.IsActive = false;
-				
+
 				currentActiveSet.DateDeactivated = currentActiveSet.DateActivated.Date > DateTime.Today
 					? currentActiveSet.DateActivated.Date.AddDays(1).AddMilliseconds(-1)
 					: DateTime.Today.AddDays(1).AddMilliseconds(-1);
@@ -670,11 +738,13 @@ namespace Vodovoz.Domain.Employees
 
 			activeDriverWorkScheduleSet.IsActive = true;
 			activeDriverWorkScheduleSet.DateActivated = currentActiveSet?.DateDeactivated.Value.Date.AddDays(1) ?? DateTime.Today;
-			
-			if(ObservableDriverWorkScheduleSets.Any()) {
+
+			if(ObservableDriverWorkScheduleSets.Any())
+			{
 				ObservableDriverWorkScheduleSets.Insert(0, activeDriverWorkScheduleSet);
 			}
-			else {
+			else
+			{
 				ObservableDriverWorkScheduleSets.Add(activeDriverWorkScheduleSet);
 			}
 		}

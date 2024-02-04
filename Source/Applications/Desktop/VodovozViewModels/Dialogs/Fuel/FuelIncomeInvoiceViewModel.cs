@@ -21,6 +21,7 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.ViewModels.Dialogs.Fuel
@@ -144,13 +145,15 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 						vm => vm.SelectionMode = JournalSelectionMode.Single)
 						.ViewModel;
 					
-					selector.OnEntitySelectedResult += (sender, args) =>
+					selector.OnSelectResult += (sender, args) =>
 					{
-						if(args.SelectedNodes == null || !args.SelectedNodes.Any()){
+						var selectedNodes = args.SelectedObjects.Cast<NomenclatureJournalNode>();
+
+						if(selectedNodes == null || !selectedNodes.Any()){
 							return;
 						}
 
-						var nomenclatures = UoW.GetById<Nomenclature>(args.SelectedNodes.Select(x => x.Id).ToArray());
+						var nomenclatures = UoW.GetById<Nomenclature>(selectedNodes.Select(x => x.Id).ToArray());
 						foreach(var nomenclature in nomenclatures) {
 							Entity.AddItem(nomenclature);
 						}

@@ -1,38 +1,34 @@
 ﻿using System;
 using System.Threading.Tasks;
-using DriverAPI.DTOs.V4;
-using DriverAPI.Library.DTOs;
-using DriverAPI.Library.Models;
+using EventsApi.Library.Dtos;
+using EventsApi.Library.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
-using Vodovoz.Domain.Logistic.Drivers;
+using Vodovoz.Core.Domain.Employees;
 
 namespace DriverAPI.Controllers.V4
 {
 	/// <summary>
 	/// Контроллер событий нахождения водителя на складе
 	/// </summary>
-	[Authorize]
+	[Authorize(Roles = nameof(ApplicationUserRole.Driver))]
 	public class DriverWarehouseEventsController : VersionedController
 	{
 		private readonly ILogger<DriverWarehouseEventsController> _logger;
 		private readonly UserManager<IdentityUser> _userManager;
-		private readonly IEmployeeModel _employeeModel;
-		private readonly IDriverWarehouseEventsModel _driverWarehouseEventsModel;
+		private readonly ILogisticsEventsService _driverWarehouseEventsService;
 
 		public DriverWarehouseEventsController(
 			ILogger<DriverWarehouseEventsController> logger,
 			UserManager<IdentityUser> userManager,
-			IEmployeeModel employeeModel,
-			IDriverWarehouseEventsModel driverWarehouseEventsModel)
+			ILogisticsEventsService driverWarehouseEventsService)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-			_employeeModel = employeeModel ?? throw new ArgumentNullException(nameof(employeeModel));
-			_driverWarehouseEventsModel = driverWarehouseEventsModel ?? throw new ArgumentNullException(nameof(driverWarehouseEventsModel));
+			_driverWarehouseEventsService = driverWarehouseEventsService ?? throw new ArgumentNullException(nameof(driverWarehouseEventsService));
 		}
 		
 		/// <summary>
@@ -49,7 +45,7 @@ namespace DriverAPI.Controllers.V4
 			
 			try
 			{
-				qrData = _driverWarehouseEventsModel.ConvertAndValidateQrData(eventData.QrData);
+				qrData = _driverWarehouseEventsService.ConvertAndValidateQrData(eventData.QrData);
 			}
 			catch(Exception e)
 			{
@@ -67,11 +63,12 @@ namespace DriverAPI.Controllers.V4
 				Request.Headers[HeaderNames.Authorization]);
 
 			var user = await _userManager.GetUserAsync(User);
-			var driver = _employeeModel.GetByAPILogin(user.UserName);
-
+			var driver = _driverWarehouseEventsService.GetEmployeeProxyByApiLogin(
+				user.UserName, ExternalApplicationType.DriverApp);
+			
 			try
 			{
-				var completedEvent = _driverWarehouseEventsModel.CompleteDriverWarehouseEvent(qrData, eventData, driver);
+				var completedEvent = _driverWarehouseEventsService.CompleteDriverWarehouseEvent(qrData, eventData, driver);
 				
 				return Ok(
 					new CompletedDriverWarehouseEventDto
@@ -105,11 +102,12 @@ namespace DriverAPI.Controllers.V4
 				Request.Headers[HeaderNames.Authorization]);
 
 			var user = await _userManager.GetUserAsync(User);
-			var driver = _employeeModel.GetByAPILogin(user.UserName);
+			var driver = _driverWarehouseEventsService.GetEmployeeProxyByApiLogin(
+				user.UserName, ExternalApplicationType.DriverApp);
 			
 			try
 			{
-				return Ok(_driverWarehouseEventsModel.GetTodayCompletedEventsForDriver(driver));
+				return Ok(_driverWarehouseEventsService.GetTodayCompletedEvents(driver));
 			}
 			catch(Exception e)
 			{

@@ -19,6 +19,7 @@ using System.Linq;
 using System.Reflection;
 using DeliveryRulesService.HealthChecks;
 using Vodovoz;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Core.DataService;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.Settings.Database;
