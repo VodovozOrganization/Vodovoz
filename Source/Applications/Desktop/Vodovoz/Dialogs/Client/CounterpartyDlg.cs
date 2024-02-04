@@ -315,8 +315,7 @@ namespace Vodovoz
 			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			var fileDialogService = new FileDialogService();
 			var roboatsViewModelFactory = new RoboatsViewModelFactory(roboatsFileStorageFactory, fileDialogService, ServicesConfig.CommonServices.CurrentPermissionService);
-			var nomenclatureSelectorFactory = new NomenclatureJournalFactory(_lifetimeScope);
-			_roboatsJournalsFactory = new RoboatsJournalsFactory(ServicesConfig.UnitOfWorkFactory, ServicesConfig.CommonServices, roboatsViewModelFactory, nomenclatureSelectorFactory);
+			_roboatsJournalsFactory = new RoboatsJournalsFactory(ServicesConfig.UnitOfWorkFactory, ServicesConfig.CommonServices, roboatsViewModelFactory, NavigationManager, _deleteEntityService, _currentPermissionService);
 			_edoOperatorsJournalFactory = new EdoOperatorsJournalFactory(ServicesConfig.UnitOfWorkFactory);
 			_emailParametersProvider = _lifetimeScope.Resolve<IEmailParametersProvider>();
 
@@ -1094,8 +1093,7 @@ namespace Vodovoz
 			var nomenclatureFixedPriceFactory = new NomenclatureFixedPriceFactory();
 			var fixedPriceController = new NomenclatureFixedPriceController(nomenclatureFixedPriceFactory);
 			var fixedPricesModel = new CounterpartyFixedPricesModel(UoW, Entity, fixedPriceController);
-			var nomSelectorFactory = new NomenclatureJournalFactory(_lifetimeScope);
-			FixedPricesViewModel fixedPricesViewModel = new FixedPricesViewModel(UoW, fixedPricesModel, nomSelectorFactory, this, _lifetimeScope);
+			FixedPricesViewModel fixedPricesViewModel = new FixedPricesViewModel(UoW, fixedPricesModel, this, NavigationManager, _lifetimeScope);
 			fixedpricesview.ViewModel = fixedPricesViewModel;
 			SetSensitivityByPermission("can_edit_counterparty_fixed_prices", fixedpricesview);
 		}
@@ -1921,16 +1919,13 @@ namespace Vodovoz
 
 		protected void OnYbuttonAddNomClicked(object sender, EventArgs e)
 		{
-			NomenclatureJournalFactory nomenclatureJournalFactory = new NomenclatureJournalFactory(_lifetimeScope);
-			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel(_lifetimeScope);
-			journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult;
-
-			TabParent.AddSlaveTab(this, journal);
+			var page = (NavigationManager as ITdiCompatibilityNavigation).OpenViewModelOnTdi<NomenclaturesJournalViewModel>(this);
+			page.ViewModel.OnSelectResult += Journal_OnEntitySelectedResult;
 		}
 
-		private void Journal_OnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
+		private void Journal_OnEntitySelectedResult(object sender, JournalSelectedEventArgs e)
 		{
-			var selectedNode = e.SelectedNodes.FirstOrDefault();
+			var selectedNode = e.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
 			if(selectedNode == null)
 			{
 				return;

@@ -485,7 +485,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 							newDistrictPrioritySet,
 							UoW,
 							_unitOfWorkFactory,
-							_commonServices,
+							CommonServices,
 							_baseParametersProvider,
 							_employeeRepository
 						);
@@ -510,7 +510,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 							SelectedDistrictPrioritySet,
 							UoW,
 							_unitOfWorkFactory,
-							_commonServices,
+							CommonServices,
 							_baseParametersProvider,
 							_employeeRepository
 						);
@@ -569,7 +569,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 							newDistrictPrioritySet,
 							UoW,
 							_unitOfWorkFactory,
-							_commonServices,
+							CommonServices,
 							_baseParametersProvider,
 							_employeeRepository
 						);

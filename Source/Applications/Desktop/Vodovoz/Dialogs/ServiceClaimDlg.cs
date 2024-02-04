@@ -84,10 +84,6 @@ namespace Vodovoz
 		{
 		}
 
-		public ServiceClaimDlg(ServiceClaim sub) : this(sub.Id)
-		{
-		}
-
 		public ServiceClaimDlg(int id)
 		{
 			this.Build ();
@@ -117,7 +113,6 @@ namespace Vodovoz
 
 		void ConfigureDlg()
 		{
-			_nomenclatureJournalFactory = new NomenclatureJournalFactory(_lifetimeScope);
 			enumStatus.Sensitive = enumType.Sensitive = false;
 			enumStatusEditable.Sensitive = true;
 			notebook1.ShowTabs = false;

@@ -39,6 +39,8 @@ namespace Vodovoz.Domain.Employees
 	{
 		private const int _commentLimit = 255;
 
+		private bool _hasAccessToWarehouseApp;
+
 		private Citizenship _citizenship;
 		private Nationality _nationality;
 		private EmployeePost _post;

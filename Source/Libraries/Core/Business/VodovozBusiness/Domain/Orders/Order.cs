@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using fyiReporting.RDL;
 using Gamma.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -77,6 +77,8 @@ namespace Vodovoz.Domain.Orders
 			.Resolve<INomenclatureRepository>();
 		private IEmailRepository _emailRepository => ScopeProvider.Scope
 			.Resolve<IEmailRepository>();
+		private IEmailService _emailService => ScopeProvider.Scope
+			.Resolve<IEmailService>();
 		private IGeneralSettingsParametersProvider _generalSettingsParameters => ScopeProvider.Scope
 			.Resolve<IGeneralSettingsParametersProvider>();
 		private IOrderParametersProvider _orderParametersProvider => ScopeProvider.Scope

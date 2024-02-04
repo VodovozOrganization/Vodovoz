@@ -20,6 +20,9 @@ namespace Vodovoz.Domain.Orders.Documents
 		private IOrganizationParametersProvider _organizationParametersProvider => ScopeProvider.Scope
 			.Resolve<IOrganizationParametersProvider>();
 
+		private IDeliveryScheduleParametersProvider _deliveryScheduleParametersProvider => ScopeProvider.Scope
+			.Resolve<IDeliveryScheduleParametersProvider>();
+
 		private int? _beveragesWorldOrganizationId;
 
 		private EmailTemplate GetTemplateForStandartReason(bool hasAgreeForEdo)

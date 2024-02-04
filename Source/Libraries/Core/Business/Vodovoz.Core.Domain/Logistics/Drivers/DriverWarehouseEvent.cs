@@ -126,7 +126,7 @@ namespace Vodovoz.Core.Domain.Logistics.Drivers
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			var uowFactory = validationContext.GetRequiredService<IUnitOfWorkFactory>();
-			if(!(validationContext.ServiceContainer.GetService(
+			if(!(validationContext.GetService(
 					typeof(IDriverWarehouseEventRepository)) is IDriverWarehouseEventRepository driverWarehouseEventRepository))
 			{
 				throw new ArgumentNullException($"Не найден репозиторий { nameof(driverWarehouseEventRepository) }");

@@ -23,8 +23,6 @@ namespace Vodovoz
 		{
 			Build();
 
-			_nomenclatureSelectorFactory = new NomenclatureJournalFactory(_lifetimeScope);
-
 			ytreeviewItems.ColumnsConfig = ColumnsConfigFactory.Create<RegradingOfGoodsTemplateItem>()
 				.AddColumn("Старая номенклатура").AddTextRenderer(x => x.NomenclatureOld.Name)
 				.AddColumn("Новая номенклатура").AddTextRenderer(x => x.NomenclatureNew.Name)

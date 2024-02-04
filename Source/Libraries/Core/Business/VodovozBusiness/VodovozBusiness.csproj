@@ -92,13 +92,7 @@
     <Compile Include="Domain\Client\RegistrationInChestnyZnakStatus.cs" />
     <Compile Include="Domain\Client\SellingNomenclature.cs" />
     <Compile Include="Domain\Client\TaxType.cs" />
-    <Compile Include="Domain\Employees\DriverTerminalRelation.cs" />
-    <Compile Include="Domain\Employees\DriverType.cs" />
-    <Compile Include="Domain\Employees\EmployeeCategory.cs" />
-    <Compile Include="Domain\Employees\EmployeeStatus.cs" />
-    <Compile Include="Domain\Employees\EmployeeType.cs" />
     <Compile Include="Domain\Employees\ExternalApplicationUser.cs" />
-    <Compile Include="Domain\Employees\Gender.cs" />
     <Compile Include="Domain\Goods\CupHolderBracingType.cs" />
     <Compile Include="Domain\Goods\CoolingType.cs" />
     <Compile Include="Domain\Goods\EquipmentInstallationType.cs" />
@@ -1079,7 +1073,6 @@
     <Compile Include="Tools\Logistic\DriverDistrictPriorityHelper.cs" />
     <Compile Include="Tools\Logistic\IDistanceCalculator.cs" />
     <Compile Include="Domain\Logistic\CachedDistance.cs" />
-    <Compile Include="Tools\Logistic\IFastDeliveryDistanceChecker.cs" />
     <Compile Include="Tools\Logistic\RouteGeometryCalculator.cs" />
     <Compile Include="Domain\Logistic\AtWorkDriverDistrictPriority.cs" />
     <Compile Include="Domain\Logistic\DeliveryDaySchedule.cs" />

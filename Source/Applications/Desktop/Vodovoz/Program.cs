@@ -68,7 +68,10 @@ using Vodovoz.CachingRepositories.Common;
 using Vodovoz.CachingRepositories.Counterparty;
 using Vodovoz.Core;
 using Vodovoz.Core.Data.NHibernate;
+using Vodovoz.Core.Data.NHibernate.Repositories.Logistics;
 using Vodovoz.Core.DataService;
+using Vodovoz.Core.Domain;
+using Vodovoz.Core.Domain.Interfaces.Logistics;
 using Vodovoz.Core.Domain.Pacs;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain;
@@ -757,11 +760,9 @@ namespace Vodovoz
 						.AddScoped<IRouteListService, RouteListService>()
 						.AddScoped<RouteGeometryCalculator>()
 						.AddSingleton<OsrmClient>(sp => OsrmClientFactory.Instance)
-						.AddSingleton<IFastDeliveryDistanceChecker, DistanceCalculator>()
 
 						.AddScoped<IDebtorsParameters, DebtorsParameters>()
 						.AddFiasClient()
-						.AddSingleton<IFastDeliveryDistanceChecker, DistanceCalculator>()
 						.AddScoped<RevisionBottlesAndDeposits>()
 						.AddTransient<IReportExporter, ReportExporterAdapter>()
 						.AddScoped<SelectPaymentTypeViewModel>()

@@ -1,9 +1,5 @@
-﻿using System.Linq;
-using System.Reflection;
-using System.Text;
-using EventsApi.Library;
+﻿using EventsApi.Library;
 using LogisticsEventsApi.Data;
-using LogisticsEventsApi.HealthChecks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -17,18 +13,11 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MySqlConnector;
 using NLog.Web;
-using QS.Attachments.Domain;
-using QS.Banks.Domain;
-using QS.DomainModel.UoW;
 using QS.HistoryLog;
-using QS.Project.DB;
-using QS.Project.Domain;
-using QS.Project.Repositories;
-using QS.Project.Services;
-using QS.Services;
-using Vodovoz.Core.Data.NHibernate.Mappings;
+using QS.Project.Core;
+using System.Text;
+using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Employees;
-using Vodovoz.Settings.Database;
 
 namespace LogisticsEventsApi
 {
@@ -64,17 +53,33 @@ namespace LogisticsEventsApi
 
 			services.AddWarehouseEventsDependencies();
 
-			//закомментил пока нет зарегистрированных пользователей
-			//services.ConfigureHealthCheckService<LogisticsEventsApiHealthCheck>();
 			services.AddHttpClient();
-			
-			var connectionString = CreateBaseConfig();
-			
-			services.AddDbContext<ApplicationDbContext>(options =>
-				options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
-			
-			// Аутентификация
-			services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+
+			services
+				.AddMappingAssemblies(
+					typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
+					typeof(QS.Banks.Domain.Bank).Assembly,
+					typeof(QS.HistoryLog.HistoryMain).Assembly,
+					typeof(QS.Project.Domain.TypeOfEntity).Assembly,
+					typeof(QS.Attachments.Domain.Attachment).Assembly,
+					typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly
+				)
+				.AddDatabaseConnection()
+				.AddCore()
+				.AddTrackedUoW()
+				.AddServiceUser()
+				;
+
+			services.AddStaticHistoryTracker();
+
+			services.AddDbContext<ApplicationDbContext>((provider, options) =>
+			{
+				var connectionStringBuilder =  provider.GetRequiredService<MySqlConnectionStringBuilder>();
+				options.UseMySql(connectionStringBuilder.ConnectionString, ServerVersion.AutoDetect(connectionStringBuilder.ConnectionString));
+			});
+
+		// Аутентификация
+		services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
 				.AddRoles<IdentityRole>()
 				.AddEntityFrameworkStores<ApplicationDbContext>();
 
@@ -114,61 +119,6 @@ namespace LogisticsEventsApi
 			app.UseAuthorization();
 
 			app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
-		}
-		
-		private string CreateBaseConfig()
-		{
-			var conStrBuilder = new MySqlConnectionStringBuilder();
-
-			var domainDbConfig = Configuration.GetSection("DomainDB");
-
-			conStrBuilder.Server = domainDbConfig.GetValue<string>("Server");
-			conStrBuilder.Port = domainDbConfig.GetValue<uint>("Port");
-			conStrBuilder.Database = domainDbConfig.GetValue<string>("Database");
-			conStrBuilder.UserID = domainDbConfig.GetValue<string>("UserID");
-			conStrBuilder.Password = domainDbConfig.GetValue<string>("Password");
-			conStrBuilder.SslMode = MySqlSslMode.None;
-
-			var connectionString = conStrBuilder.GetConnectionString(true);
-
-			var dbConfig = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
-				.ConnectionString(connectionString)
-				.Driver<LoggedMySqlClientDriver>()
-				.AdoNetBatchSize(100);
-
-			// Настройка ORM
-			OrmConfig.ConfigureOrm(
-				dbConfig,
-				new Assembly[]
-				{
-					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
-					Assembly.GetAssembly(typeof(Bank)),
-					Assembly.GetAssembly(typeof(HistoryMain)),
-					Assembly.GetAssembly(typeof(TypeOfEntity)),
-					Assembly.GetAssembly(typeof(Attachment)),
-					Assembly.GetAssembly(typeof(EmployeeWithLoginMap)),
-					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
-				}
-			);
-
-			var userLogin = domainDbConfig.GetValue<string>("UserID");
-			var serviceUserId = 0;
-
-			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Получение пользователя"))
-			{
-				var serviceUser = unitOfWork.Session
-					.Query<UserBase>()
-					.FirstOrDefault(u => u.Login == userLogin);
-
-				serviceUserId = serviceUser.Id;
-
-				ServicesConfig.UserService = new UserService(serviceUser);
-			}
-
-			UserRepository.GetCurrentUserId = () => serviceUserId;
-			HistoryMain.Enable(conStrBuilder);
-
-			return connectionString;
 		}
 	}
 }

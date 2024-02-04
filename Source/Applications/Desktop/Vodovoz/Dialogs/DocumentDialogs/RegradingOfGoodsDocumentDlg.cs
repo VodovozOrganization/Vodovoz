@@ -86,7 +86,7 @@ namespace Vodovoz
 				_storeDocumentHelper.GetRestrictedWarehousesIds(UoW, WarehousePermissionsType.RegradingOfGoodsEdit);
 			Action<WarehouseJournalFilterViewModel> filterParams = f => f.IncludeWarehouseIds = availableWarehousesIds;
 
-			var warehouseJournalFactory = new WarehouseJournalFactory(ServicesConfig.UnitOfWorkFactory);
+			var warehouseJournalFactory = new WarehouseJournalFactory();
 
 			warehouseEntry.SetEntityAutocompleteSelectorFactory(warehouseJournalFactory.CreateSelectorFactory(_lifetimeScope, filterParams));
 			warehouseEntry.Binding.AddBinding(Entity, e => e.Warehouse, w => w.Subject).InitializeFromSource();

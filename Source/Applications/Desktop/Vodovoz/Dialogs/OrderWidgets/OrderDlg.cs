@@ -124,7 +124,7 @@ using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConver
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 using QS.ViewModels.Control.EEVM;
-using Vodovoz.ViewModels.Dialogs.Counterparty;
+using Vodovoz.ViewModels.Dialogs.Counterparties;
 
 namespace Vodovoz
 {

@@ -57,7 +57,6 @@ namespace Vodovoz.EntityRepositories
 
 		public bool HaveSendedEmailForBill(int orderId)
 		{
-			IList<BillDocumentEmail> result;
 			using(var uow = _uowFactory.CreateWithoutRoot($"[ES]Получение списка отправленных писем"))
 			{
 				var result =
