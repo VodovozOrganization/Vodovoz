@@ -426,7 +426,7 @@ namespace Vodovoz.Views.Employees
 
 					ViewModel.AddRoleToWarehouseAppUserCommand.Execute();
 				}
-				else if(ViewModel.WarehouseAppUser != null)
+				else if(ViewModel.Entity.WarehouseAppUser != null)
 				{
 					ViewModel.CommonServices.InteractiveService.ShowMessage(
 						ImportanceLevel.Info,
