@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -2211,6 +2211,11 @@ namespace Vodovoz
 					MessageDialogHelper.RunInfoDialog("Было изменено количество оборудования в заказе, оно также будет изменено в дополнительном соглашении");
 				}
 
+				if(_isNeedSendBillToEmail)
+				{
+					_emailService.SendBillToEmail(UoW, Entity, _emailRepository);
+				}
+
 				logger.Info("Сохраняем заказ...");
 
 				Entity.SaveEntity(UoW, _currentEmployee, _dailyNumberController, _paymentFromBankClientController);
@@ -2501,11 +2506,6 @@ namespace Vodovoz
 			}
 
 			ProcessSmsNotification();
-
-			if(_isNeedSendBillToEmail)
-			{
-				_emailService.SendBillToEmail(UoW, Entity, _emailRepository);
-			}
 
 			UpdateUIState();
 
