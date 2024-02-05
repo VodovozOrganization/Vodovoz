@@ -26,10 +26,13 @@ namespace Mango.CallsPublishing
 						{
 							hostCfg.Username(transportSettings.User);
 							hostCfg.Password(transportSettings.Password);
-							hostCfg.UseSsl(ssl =>
+							if(transportSettings.UseSSL)
 							{
-								ssl.Protocol = SslProtocols.Tls12;
-							});
+								hostCfg.UseSsl(ssl =>
+								{
+									ssl.Protocol = SslProtocols.Tls12;
+								});
+							}
 						}
 					);
 

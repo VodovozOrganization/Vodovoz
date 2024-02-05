@@ -1,8 +1,10 @@
 ﻿using Grpc.Core;
+using Mango.Core.Settings;
 using Mango.Service.Calling;
 using Mango.Service.Extensions;
 using Mango.Service.Services;
 using MangoService;
+using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -19,7 +21,7 @@ namespace Mango.Service.HostedServices
 	{
 		private readonly ILogger<NotificationHostedService> _logger;
 		private readonly PhonebookHostedService _phonebookService;
-		private readonly IConfiguration _configuration;
+		private readonly IMangoSettings _mangoSettings;
 		private readonly ICallerService _callerService;
 
 		public readonly List<Subscription> Subscribers = new List<Subscription>();
@@ -27,12 +29,12 @@ namespace Mango.Service.HostedServices
 		public NotificationHostedService(
 			ILogger<NotificationHostedService> logger,
 			PhonebookHostedService phonebookService,
-			IConfiguration configuration,
+			IMangoSettings mangoSettings,
 			ICallerService callerService)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_phonebookService = phonebookService ?? throw new ArgumentNullException(nameof(phonebookService));
-			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+			_mangoSettings = mangoSettings ?? throw new ArgumentNullException(nameof(mangoSettings));
 			_callerService = callerService ?? throw new ArgumentNullException(nameof(callerService));
 			_logger.LogInformation("Создание службы уведомлений");
 		}
@@ -361,15 +363,27 @@ namespace Mango.Service.HostedServices
 		private Server _server;
 		public async Task StartAsync(CancellationToken cancellationToken)
 		{
-			_logger.LogInformation("Запуск сервера GRPC");
-			_server = new Server
+			var connectionSettings = _mangoSettings.GrpcConnectionSettings;
+			var options = new[]
 			{
+				new ChannelOption("grpc.keepalive_time_ms", connectionSettings.KeepAliveTimeMs),
+				new ChannelOption("grpc.keepalive_timeout_ms", connectionSettings.KeepAliveTimeoutMs),
+				new ChannelOption("grpc.keepalive_permit_without_calls", connectionSettings.KeepAlivePermitWithoutCalls ? 1 : 0),
+				new ChannelOption("grpc.http2.max_pings_without_data", connectionSettings.MaxPingWithoutData),
+				new ChannelOption("grpc.http2.min_time_between_pings_ms", connectionSettings.MinTimeBetweenPingsMs),
+				new ChannelOption("grpc.http2.max_ping_strikes", connectionSettings.MaxPingStrikes)
+			};
+
+			_logger.LogInformation("Запуск сервера GRPC");
+			_server = new Server(options)
+			{
+				
 				Services =
 				{
 					NotificationService.BindService(this),
 					PhonebookService.BindService(_phonebookService)
 				},
-				Ports = { new ServerPort("0.0.0.0", int.Parse(_configuration["Grpc:Port"]), ServerCredentials.Insecure) }
+				Ports = { new ServerPort("0.0.0.0", _mangoSettings.GrpcConnectionSettings.Port, ServerCredentials.Insecure) }
 			};
 			_server.Start();
 		}
