@@ -86,7 +86,7 @@ WHERE orders.id = @order_id</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="MasterOrderItem">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT order_items.id,
        order_items.count,
@@ -106,7 +106,7 @@ WHERE (nomenclature.category="master" OR nomenclature.category="spare_parts")
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="count">
           <DataField>count</DataField>
           <TypeName>System.Decimal</TypeName>
@@ -130,7 +130,7 @@ WHERE (nomenclature.category="master" OR nomenclature.category="spare_parts")
       </Fields>
     </DataSet>
     <DataSet Name="images">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	stored_resource.id AS ID1,
@@ -145,7 +145,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="ID1">
           <DataField>ID1</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -199,7 +199,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           <BorderWidth />
           <FontFamily>Arial</FontFamily>
           <FontSize>12pt</FontSize>
-          <TextDecoration >None</TextDecoration>
+          <TextDecoration>None</TextDecoration>
         </Style>
       </Textbox>
       <Textbox Name="Textbox35">
@@ -233,7 +233,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           <BorderWidth />
           <FontFamily>Arial</FontFamily>
           <FontSize>12pt</FontSize>
-          <TextDecoration >None</TextDecoration>
+          <TextDecoration>None</TextDecoration>
         </Style>
       </Textbox>
       <Textbox Name="Textbox37">
@@ -262,9 +262,9 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
         <Style>
           <FontFamily>Arial</FontFamily>
           <FontSize>12pt</FontSize>
-          <BorderStyle  />
-          <BorderColor  />
-          <BorderWidth  />
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
         </Style>
       </Textbox>
       <Textbox Name="Textbox39">
@@ -427,9 +427,9 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <PaddingBottom >2pt</PaddingBottom>
+                        <PaddingBottom>2pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -472,7 +472,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -507,8 +507,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           <FontFamily>Arial</FontFamily>
           <FontSize>11pt</FontSize>
           <FontWeight>Bold</FontWeight>
-          <TextAlign >Center</TextAlign>
-          <VerticalAlign >Middle</VerticalAlign>
+          <TextAlign>Center</TextAlign>
+          <VerticalAlign>Middle</VerticalAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox17">
@@ -541,8 +541,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
-          <BorderColor  />
-          <BorderWidth  />
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -551,16 +551,16 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           <TableColumn>
             <Width>70pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>44.0pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>70pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
           <TableRows>
-            <TableRow >
+            <TableRow>
               <Height>17.0pt</Height>
               <TableCells>
                 <TableCell>
@@ -573,10 +573,10 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <FontSize >11pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>11pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -597,9 +597,9 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -614,14 +614,14 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox67">
                       <Value>Кол-во</Value>
@@ -631,14 +631,14 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox64">
                       <Value>Стоимость</Value>
@@ -648,9 +648,9 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -677,10 +677,10 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <PaddingLeft >2pt</PaddingLeft>
-                        <PaddingRight >2pt</PaddingRight>
-                        <PaddingTop >1pt</PaddingTop>
-                        <PaddingBottom >1pt</PaddingBottom>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>1pt</PaddingTop>
+                        <PaddingBottom>1pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -698,15 +698,15 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <Format>#,##0.00</Format>
-                        <PaddingLeft >2pt</PaddingLeft>
-                        <PaddingRight >2pt</PaddingRight>
-                        <PaddingTop >1pt</PaddingTop>
-                        <PaddingBottom >1pt</PaddingBottom>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>1pt</PaddingTop>
+                        <PaddingBottom>1pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox68">
                       <Value>={count}</Value>
@@ -718,13 +718,13 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <Format>#,##0</Format>
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox65">
                       <Value>={count}*{price}</Value>
@@ -736,11 +736,11 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <Format>#,##0.00</Format>
-                        <BackgroundColor >Lightgrey</BackgroundColor>
-                        <PaddingLeft >2pt</PaddingLeft>
-                        <PaddingRight >2pt</PaddingRight>
-                        <PaddingTop >1pt</PaddingTop>
-                        <PaddingBottom >1pt</PaddingBottom>
+                        <BackgroundColor>Lightgrey</BackgroundColor>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>1pt</PaddingTop>
+                        <PaddingBottom>1pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -752,7 +752,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
         </Details>
         <Left>0.0pt</Left>
         <Top>334.1pt</Top>
-        <Footer >
+        <Footer>
           <TableRows>
             <TableRow>
               <Height>.2in</Height>
@@ -980,7 +980,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
             </TableRow>
           </TableRows>
         </Footer>
-        <Filters >
+        <Filters>
           <Filter>
             <FilterExpression>={category}</FilterExpression>
             <Operator>Equal</Operator>
@@ -1023,7 +1023,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1047,7 +1047,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1092,7 +1092,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1116,7 +1116,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1160,7 +1160,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           <FontFamily>Times New Roman</FontFamily>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox2" >
+      <Textbox Name="Textbox2">
         <Height>20pt</Height>
         <Width>140pt</Width>
         <Value>Вода</Value>
@@ -1184,10 +1184,10 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           <FontFamily>Arial</FontFamily>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox3" >
+      <Textbox Name="Textbox3">
         <Height>8pt</Height>
         <Width>8pt</Width>
-        <Value> </Value>
+        <Value></Value>
         <ZIndex>1</ZIndex>
         <Left>146.0pt</Left>
         <Top>185.4pt</Top>
@@ -1203,10 +1203,10 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           <BorderWidth />
         </Style>
       </Textbox>
-      <Textbox Name="Textbox11" >
+      <Textbox Name="Textbox11">
         <Height>8pt</Height>
         <Width>8pt</Width>
-        <Value> </Value>
+        <Value></Value>
         <ZIndex>1</ZIndex>
         <Left>146.0pt</Left>
         <Top>197.4pt</Top>
@@ -1222,10 +1222,10 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           <BorderWidth />
         </Style>
       </Textbox>
-      <Textbox Name="Textbox12" >
+      <Textbox Name="Textbox12">
         <Height>8pt</Height>
         <Width>8pt</Width>
-        <Value> </Value>
+        <Value></Value>
         <ZIndex>1</ZIndex>
         <Left>146.0pt</Left>
         <Top>209.4pt</Top>
@@ -1241,10 +1241,10 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           <BorderWidth />
         </Style>
       </Textbox>
-      <Textbox Name="Textbox14" >
+      <Textbox Name="Textbox14">
         <Height>8pt</Height>
         <Width>8pt</Width>
-        <Value> </Value>
+        <Value></Value>
         <ZIndex>1</ZIndex>
         <Left>146.0pt</Left>
         <Top>221.4pt</Top>
@@ -1260,10 +1260,10 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           <BorderWidth />
         </Style>
       </Textbox>
-      <Textbox Name="Textbox15" >
+      <Textbox Name="Textbox15">
         <Height>8pt</Height>
         <Width>8pt</Width>
-        <Value> </Value>
+        <Value></Value>
         <ZIndex>1</ZIndex>
         <Left>146.0pt</Left>
         <Top>233.4pt</Top>
@@ -1279,10 +1279,10 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           <BorderWidth />
         </Style>
       </Textbox>
-      <Textbox Name="Textbox42" >
+      <Textbox Name="Textbox42">
         <Height>8pt</Height>
         <Width>8pt</Width>
-        <Value> </Value>
+        <Value></Value>
         <ZIndex>1</ZIndex>
         <Left>146.0pt</Left>
         <Top>245.4pt</Top>
@@ -1298,10 +1298,10 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           <BorderWidth />
         </Style>
       </Textbox>
-      <Textbox Name="Textbox43" >
+      <Textbox Name="Textbox43">
         <Height>8pt</Height>
         <Width>8pt</Width>
-        <Value> </Value>
+        <Value></Value>
         <ZIndex>1</ZIndex>
         <Left>146.0pt</Left>
         <Top>257.4pt</Top>
@@ -1317,10 +1317,10 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           <BorderWidth />
         </Style>
       </Textbox>
-      <Textbox Name="Textbox44" >
+      <Textbox Name="Textbox44">
         <Height>20.00pt</Height>
         <Width>370.00pt</Width>
-        <Value> </Value>
+        <Value></Value>
         <ZIndex>0</ZIndex>
         <Left>143.0pt</Left>
         <Top>305.4pt</Top>
@@ -1341,10 +1341,10 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           <FontFamily>Arial</FontFamily>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox47" >
+      <Textbox Name="Textbox47">
         <Height>8pt</Height>
         <Width>8pt</Width>
-        <Value> </Value>
+        <Value></Value>
         <ZIndex>1</ZIndex>
         <Left>146.0pt</Left>
         <Top>308.4pt</Top>
@@ -1360,10 +1360,10 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           <BorderWidth />
         </Style>
       </Textbox>
-      <Textbox Name="Textbox48" >
+      <Textbox Name="Textbox48">
         <Height>8pt</Height>
         <Width>8pt</Width>
-        <Value> </Value>
+        <Value></Value>
         <ZIndex>1</ZIndex>
         <Left>226.0pt</Left>
         <Top>308.4pt</Top>
@@ -1379,10 +1379,10 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           <BorderWidth />
         </Style>
       </Textbox>
-      <Textbox Name="Textbox49" >
+      <Textbox Name="Textbox49">
         <Height>8pt</Height>
         <Width>8pt</Width>
-        <Value> </Value>
+        <Value></Value>
         <ZIndex>1</ZIndex>
         <Left>306.0pt</Left>
         <Top>308.4pt</Top>
@@ -1398,7 +1398,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           <BorderWidth />
         </Style>
       </Textbox>
-      <Textbox Name="Textbox50" >
+      <Textbox Name="Textbox50">
         <Height>8pt</Height>
         <Width>260pt</Width>
         <Value>Исправен</Value>
@@ -1421,7 +1421,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           <PaddingLeft>3pt</PaddingLeft>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox51" >
+      <Textbox Name="Textbox51">
         <Height>8pt</Height>
         <Width>260pt</Width>
         <Value>Не работает функция нагрева</Value>
@@ -1444,7 +1444,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           <PaddingLeft>3pt</PaddingLeft>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox52" >
+      <Textbox Name="Textbox52">
         <Height>8pt</Height>
         <Width>260pt</Width>
         <Value>Не работает функция охлаждения</Value>
@@ -1467,7 +1467,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           <PaddingLeft>3pt</PaddingLeft>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox53" >
+      <Textbox Name="Textbox53">
         <Height>8pt</Height>
         <Width>260pt</Width>
         <Value>Механическая поломка крана</Value>
@@ -1490,7 +1490,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           <PaddingLeft>3pt</PaddingLeft>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox54" >
+      <Textbox Name="Textbox54">
         <Height>8pt</Height>
         <Width>260pt</Width>
         <Value>Механическая поломка корпуса</Value>
@@ -1513,7 +1513,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           <PaddingLeft>3pt</PaddingLeft>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox55" >
+      <Textbox Name="Textbox55">
         <Height>8pt</Height>
         <Width>260pt</Width>
         <Value>Высокая степень загрязнения, плесень</Value>
@@ -1536,7 +1536,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           <PaddingLeft>3pt</PaddingLeft>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox56" >
+      <Textbox Name="Textbox56">
         <Height>8pt</Height>
         <Width>260pt</Width>
         <Value>Другое:</Value>
@@ -1559,7 +1559,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           <PaddingLeft>3pt</PaddingLeft>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox57" >
+      <Textbox Name="Textbox57">
         <Height>8pt</Height>
         <Width>50pt</Width>
         <Value>ВВ</Value>
@@ -1582,7 +1582,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           <PaddingLeft>3pt</PaddingLeft>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox58" >
+      <Textbox Name="Textbox58">
         <Height>8pt</Height>
         <Width>50pt</Width>
         <Value>Воды нет</Value>
@@ -1605,7 +1605,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           <PaddingLeft>3pt</PaddingLeft>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox59" >
+      <Textbox Name="Textbox59">
         <Height>8pt</Height>
         <Width>50pt</Width>
         <Value>Другая</Value>
@@ -1635,8 +1635,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
-          <BorderColor  />
-          <BorderWidth  />
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -1645,16 +1645,16 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           <TableColumn>
             <Width>70pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>44.0pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>70pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
           <TableRows>
-            <TableRow >
+            <TableRow>
               <Height>17.0pt</Height>
               <TableCells>
                 <TableCell>
@@ -1667,10 +1667,10 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <FontSize >11pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>11pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1691,9 +1691,9 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1708,14 +1708,14 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox95">
                       <Value>Кол-во</Value>
@@ -1725,14 +1725,14 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox96">
                       <Value>Стоимость</Value>
@@ -1742,9 +1742,9 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1771,10 +1771,10 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <PaddingLeft >2pt</PaddingLeft>
-                        <PaddingRight >2pt</PaddingRight>
-                        <PaddingTop >1pt</PaddingTop>
-                        <PaddingBottom >1pt</PaddingBottom>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>1pt</PaddingTop>
+                        <PaddingBottom>1pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1792,15 +1792,15 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <Format>#,##0.00</Format>
-                        <PaddingLeft >2pt</PaddingLeft>
-                        <PaddingRight >2pt</PaddingRight>
-                        <PaddingTop >1pt</PaddingTop>
-                        <PaddingBottom >1pt</PaddingBottom>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>1pt</PaddingTop>
+                        <PaddingBottom>1pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox99">
                       <Value>={count}</Value>
@@ -1812,13 +1812,13 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <Format>#,##0</Format>
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox100">
                       <Value>={count}*{price}</Value>
@@ -1830,11 +1830,11 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <Format>#,##0.00</Format>
-                        <BackgroundColor >Lightgrey</BackgroundColor>
-                        <PaddingLeft >2pt</PaddingLeft>
-                        <PaddingRight >2pt</PaddingRight>
-                        <PaddingTop >1pt</PaddingTop>
-                        <PaddingBottom >1pt</PaddingBottom>
+                        <BackgroundColor>Lightgrey</BackgroundColor>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>1pt</PaddingTop>
+                        <PaddingBottom>1pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -1846,7 +1846,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
         </Details>
         <Left>0.0pt</Left>
         <Top>457.4pt</Top>
-        <Footer >
+        <Footer>
           <TableRows>
             <TableRow>
               <Height>.2in</Height>
@@ -2074,7 +2074,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
             </TableRow>
           </TableRows>
         </Footer>
-        <Filters >
+        <Filters>
           <Filter>
             <FilterExpression>={category}</FilterExpression>
             <Operator>Equal</Operator>
@@ -2084,7 +2084,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           </Filter>
         </Filters>
       </Table>
-      <Textbox Name="Textbox6" >
+      <Textbox Name="Textbox6">
         <Height>12.00pt</Height>
         <Width>112.14pt</Width>
         <Value>+7 (812) 603-43-23</Value>
@@ -2097,7 +2097,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           <BorderWidth />
         </Style>
       </Textbox>
-      <Textbox Name="Textbox8" >
+      <Textbox Name="Textbox8">
         <Height>12.76pt</Height>
         <Width>156.59pt</Width>
         <Value>KULER.SERVICE@YANDEX.RU</Value>
@@ -2110,7 +2110,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           <BorderWidth />
         </Style>
       </Textbox>
-      <Line Name="Line1" >
+      <Line Name="Line1">
         <Height>0in</Height>
         <Width>100pt</Width>
         <Style>
@@ -2121,7 +2121,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
         <Left>372.1pt</Left>
         <Top>589.4pt</Top>
       </Line>
-      <Line Name="Line2" >
+      <Line Name="Line2">
         <Height>0in</Height>
         <Width>100pt</Width>
         <Style>
@@ -2539,12 +2539,6 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
             End Select
         End If
     End Function</Code>
-  <EmbeddedImages>
-    <EmbeddedImage Name="smile">
-      <MIMEType>image/png</MIMEType>
-      <ImageData>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</ImageData>
-    </EmbeddedImage>
-  </EmbeddedImages>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
@@ -2554,7 +2548,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="order_id">
       <DataType>Integer</DataType>
       <DefaultValue>
