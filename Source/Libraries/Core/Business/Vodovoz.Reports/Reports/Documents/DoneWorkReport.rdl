@@ -88,18 +88,39 @@ WHERE orders.id = @order_id</CommandText>
     <DataSet Name="MasterOrderItem">
       <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT order_items.id,
-       order_items.count,
+        <CommandText>SELECT order_items.id as order_items_id,
+       FORMAT(order_items.count, 0) as count,
        mu.digits as digits,
-       order_items.price,
-       nomenclature.name,
-       order_items.order_id,
-       nomenclature.category
+       FORMAT(order_items.price, 2, 'ru_RU') as price,
+       nomenclature.name as name,
+       order_items.order_id as order_id,
+       nomenclature.category as category,
+       FORMAT(order_items.price * order_items.count, 2, 'ru_RU') as sum_price
 FROM order_items
     LEFT JOIN nomenclature on order_items.nomenclature_id=nomenclature.id
     LEFT JOIN measurement_units mu on nomenclature.unit_id = mu.id
 WHERE (nomenclature.category="master" OR nomenclature.category="spare_parts")
-    AND order_items.order_id=@order_id</CommandText>
+    AND order_items.order_id=@order_id
+UNION ALL
+SELECT '' as order_items_id,
+       '' as count,
+       '' as digits,
+       '' as price,
+       '' as name,
+       '' as order_id,
+       'spare_parts' as category,
+       '' as sum_price
+UNION ALL
+SELECT '' as order_items_id,
+       '' as count,
+       '' as digits,
+       '' as price,
+       '' as name,
+       '' as order_id,
+       'master' as category,
+       '' as sum_price
+
+</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id.Value</Value>
@@ -109,7 +130,7 @@ WHERE (nomenclature.category="master" OR nomenclature.category="spare_parts")
       <Fields>
         <Field Name="count">
           <DataField>count</DataField>
-          <TypeName>System.Decimal</TypeName>
+          <TypeName>System.String</TypeName>
         </Field>
         <Field Name="name">
           <DataField>name</DataField>
@@ -125,6 +146,10 @@ WHERE (nomenclature.category="master" OR nomenclature.category="spare_parts")
         </Field>
         <Field Name="category">
           <DataField>category</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="sum_price">
+          <DataField>sum_price</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -163,7 +188,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
     <PrintOnLastPage>false</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>692.1pt</Height>
+    <Height>671.8pt</Height>
     <Columns>1</Columns>
     <ReportItems>
       <Textbox Name="Textbox1">
@@ -190,7 +215,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
         <Value>/                               /</Value>
         <ZIndex>0</ZIndex>
         <Left>371.8pt</Left>
-        <Top>574.8pt</Top>
+        <Top>558.8pt</Top>
         <Style>
           <BorderStyle>
             <Bottom>None</Bottom>
@@ -208,7 +233,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
         <Value>Подпись клиента</Value>
         <ZIndex>0</ZIndex>
         <Left>365.1pt</Left>
-        <Top>658.5pt</Top>
+        <Top>642.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -224,7 +249,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
         <Value>/                               /</Value>
         <ZIndex>0</ZIndex>
         <Left>371.9pt</Left>
-        <Top>642.7pt</Top>
+        <Top>626.7pt</Top>
         <Style>
           <BorderStyle>
             <Bottom>None</Bottom>
@@ -242,7 +267,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
         <Value>= Iif(First({is_service}, "Order"), "Подпись исполнителя", "Подпись водителя")</Value>
         <ZIndex>0</ZIndex>
         <Left>364.1pt</Left>
-        <Top>594.3pt</Top>
+        <Top>578.3pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -258,7 +283,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
         <Value>Итого:</Value>
         <ZIndex>0</ZIndex>
         <Left>2.4pt</Left>
-        <Top>576.2pt</Top>
+        <Top>560.2pt</Top>
         <Style>
           <FontFamily>Arial</FontFamily>
           <FontSize>12pt</FontSize>
@@ -273,7 +298,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
         <Value></Value>
         <ZIndex>0</ZIndex>
         <Left>44.6pt</Left>
-        <Top>575.7pt</Top>
+        <Top>559.7pt</Top>
         <Style>
           <BorderStyle>
             <Bottom>Solid</Bottom>
@@ -697,11 +722,11 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format>#,##0.00</Format>
                         <PaddingLeft>2pt</PaddingLeft>
                         <PaddingRight>2pt</PaddingRight>
                         <PaddingTop>1pt</PaddingTop>
                         <PaddingBottom>1pt</PaddingBottom>
+                        <TextAlign>Right</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -717,7 +742,6 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format>#,##0</Format>
                         <TextAlign>Center</TextAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
@@ -727,7 +751,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox65">
-                      <Value>={count}*{price}</Value>
+                      <Value>={sum_price}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -735,12 +759,12 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format>#,##0.00</Format>
                         <BackgroundColor>Lightgrey</BackgroundColor>
                         <PaddingLeft>2pt</PaddingLeft>
                         <PaddingRight>2pt</PaddingRight>
                         <PaddingTop>1pt</PaddingTop>
                         <PaddingBottom>1pt</PaddingBottom>
+                        <TextAlign>Right</TextAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -754,62 +778,6 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
         <Top>334.1pt</Top>
         <Footer>
           <TableRows>
-            <TableRow>
-              <Height>.2in</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox61">
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                      </Style>
-                      <Value></Value>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox63">
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                      </Style>
-                      <Value></Value>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox69">
-                      <Value></Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox66">
-                      <Value></Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <BackgroundColor></BackgroundColor>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
             <TableRow>
               <Height>.2in</Height>
               <TableCells>
@@ -859,7 +827,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <BackgroundColor></BackgroundColor>
+                        <BackgroundColor>Lightgrey</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -915,7 +883,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <BackgroundColor></BackgroundColor>
+                        <BackgroundColor>Lightgrey</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -971,7 +939,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <BackgroundColor></BackgroundColor>
+                        <BackgroundColor>Lightgrey</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1057,7 +1025,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>600.3pt</Top>
+        <Top>584.3pt</Top>
       </fyi:Grid>
       <fyi:Grid xmlns:fyi="http://www.fyireporting.com/schemas" Name="Grid4">
         <Style>
@@ -1126,7 +1094,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>628.2pt</Top>
+        <Top>612.2pt</Top>
       </fyi:Grid>
       <Image Name="Image1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>101.01pt</Height>
@@ -1791,11 +1759,11 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format>#,##0.00</Format>
                         <PaddingLeft>2pt</PaddingLeft>
                         <PaddingRight>2pt</PaddingRight>
                         <PaddingTop>1pt</PaddingTop>
                         <PaddingBottom>1pt</PaddingBottom>
+                        <TextAlign>Right</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1811,7 +1779,6 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format>#,##0</Format>
                         <TextAlign>Center</TextAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
@@ -1821,7 +1788,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox100">
-                      <Value>={count}*{price}</Value>
+                      <Value>={sum_price}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1829,12 +1796,12 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format>#,##0.00</Format>
                         <BackgroundColor>Lightgrey</BackgroundColor>
                         <PaddingLeft>2pt</PaddingLeft>
                         <PaddingRight>2pt</PaddingRight>
                         <PaddingTop>1pt</PaddingTop>
                         <PaddingBottom>1pt</PaddingBottom>
+                        <TextAlign>Right</TextAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -1845,65 +1812,9 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>457.4pt</Top>
+        <Top>441.4pt</Top>
         <Footer>
           <TableRows>
-            <TableRow>
-              <Height>.2in</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox101">
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                      </Style>
-                      <Value></Value>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox102">
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                      </Style>
-                      <Value></Value>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox103">
-                      <Value></Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox104">
-                      <Value></Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <BackgroundColor></BackgroundColor>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
             <TableRow>
               <Height>.2in</Height>
               <TableCells>
@@ -1953,7 +1864,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <BackgroundColor></BackgroundColor>
+                        <BackgroundColor>Lightgrey</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2009,7 +1920,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <BackgroundColor></BackgroundColor>
+                        <BackgroundColor>Lightgrey</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2065,7 +1976,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <BackgroundColor></BackgroundColor>
+                        <BackgroundColor>Lightgrey</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2090,7 +2001,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
         <Value>+7 (812) 603-43-23</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>665.4pt</Top>
+        <Top>649.4pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2103,7 +2014,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
         <Value>KULER.SERVICE@YANDEX.RU</Value>
         <ZIndex>1</ZIndex>
         <Left>116.2pt</Left>
-        <Top>665.0pt</Top>
+        <Top>649.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2112,25 +2023,27 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
       </Textbox>
       <Line Name="Line1">
         <Height>0in</Height>
-        <Width>100pt</Width>
+        <Width>105pt</Width>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
         </Style>
         <Left>372.1pt</Left>
-        <Top>589.4pt</Top>
+        <Top>573.4pt</Top>
+        <ZIndex>1</ZIndex>
       </Line>
       <Line Name="Line2">
         <Height>0in</Height>
-        <Width>100pt</Width>
+        <Width>105pt</Width>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
         </Style>
         <Left>372.8pt</Left>
-        <Top>658.1pt</Top>
+        <Top>642.1pt</Top>
+        <ZIndex>1</ZIndex>
       </Line>
     </ReportItems>
   </Body>
