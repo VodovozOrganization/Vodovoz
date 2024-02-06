@@ -15,6 +15,8 @@ using Microsoft.Extensions.Logging;
 using MySqlConnector;
 using NHibernate;
 using NLog.Web;
+using QS.DomainModel.UoW;
+using QS.Project.DB;
 using System;
 using Vodovoz.Settings.Database.Pacs;
 using Vodovoz.Settings.Pacs;
@@ -56,6 +58,11 @@ namespace Mango.Service
 				Configuration["Mango:VpbxApiSalt"])
 			);
 
+			services.AddSingleton<IDataBaseInfo>((sp) => new DataBaseLocalInfo(connectionStringBuilder.Database));
+			services.AddSingleton<IUnitOfWorkFactory>((sp) => UnitOfWorkFactory.GetDefaultFactory);
+			services.AddSingleton<ISettingsController, SettingsController>();
+			services.AddSingleton<IMangoUserSettngs, MangoUserSettings>();
+
 			services.AddSingleton<CallsHostedService>();
 			services.AddHostedService(provider => provider.GetService<CallsHostedService>());
 
@@ -66,6 +73,8 @@ namespace Mango.Service
 			services.AddHostedService(provider => provider.GetService<NotificationHostedService>());
 
 			services.AddSingleton<ICallerService, CallerService>();
+			services.AddSingleton<ICallEventHandler, MangoHandler>();
+
 			services.AddScoped<ICallEventHandler, MangoHandler>();
 
 			var messageTransportSettings = new ConfigTransportSettings();
