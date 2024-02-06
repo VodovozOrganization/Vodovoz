@@ -1333,7 +1333,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
         <Width>8pt</Width>
         <Value></Value>
         <ZIndex>1</ZIndex>
-        <Left>226.0pt</Left>
+        <Left>186.0pt</Left>
         <Top>308.4pt</Top>
         <Style>
           <BorderStyle>
@@ -1352,7 +1352,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
         <Width>8pt</Width>
         <Value></Value>
         <ZIndex>1</ZIndex>
-        <Left>306.0pt</Left>
+        <Left>256.0pt</Left>
         <Top>308.4pt</Top>
         <Style>
           <BorderStyle>
@@ -1507,7 +1507,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
       <Textbox Name="Textbox56">
         <Height>8pt</Height>
         <Width>260pt</Width>
-        <Value>Другое:</Value>
+        <Value>Брак бутылки</Value>
         <ZIndex>1</ZIndex>
         <Left>155.0pt</Left>
         <Top>257.4pt</Top>
@@ -1555,7 +1555,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
         <Width>50pt</Width>
         <Value>Воды нет</Value>
         <ZIndex>1</ZIndex>
-        <Left>234.0pt</Left>
+        <Left>194.0pt</Left>
         <Top>308.4pt</Top>
         <Style>
           <BorderStyle>
@@ -1575,10 +1575,10 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
       </Textbox>
       <Textbox Name="Textbox59">
         <Height>8pt</Height>
-        <Width>50pt</Width>
-        <Value>Другая</Value>
+        <Width>160pt</Width>
+        <Value>Скважина, источник, водопроводная</Value>
         <ZIndex>1</ZIndex>
-        <Left>314.0pt</Left>
+        <Left>264.0pt</Left>
         <Top>308.4pt</Top>
         <Style>
           <BorderStyle>
@@ -2045,6 +2045,90 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
         <Top>642.1pt</Top>
         <ZIndex>1</ZIndex>
       </Line>
+      <Textbox Name="Textbox4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>8pt</Height>
+        <Width>8pt</Width>
+        <Value></Value>
+        <ZIndex>1</ZIndex>
+        <Left>146pt</Left>
+        <Top>269.4pt</Top>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+            <Left>Solid</Left>
+            <Right>Solid</Right>
+            <Top>Solid</Top>
+            <Bottom>Solid</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>8pt</Height>
+        <Width>260pt</Width>
+        <Value>Другое:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>155pt</Left>
+        <Top>269.4pt</Top>
+        <Style>
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>8pt</FontSize>
+          <TextAlign>Left</TextAlign>
+          <VerticalAlign>Middle</VerticalAlign>
+          <PaddingLeft>3pt</PaddingLeft>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox13" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>8pt</Height>
+        <Width>8pt</Width>
+        <Value></Value>
+        <ZIndex>1</ZIndex>
+        <Left>436pt</Left>
+        <Top>308.4pt</Top>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+            <Left>Solid</Left>
+            <Right>Solid</Right>
+            <Top>Solid</Top>
+            <Bottom>Solid</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox16" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>8pt</Height>
+        <Width>50pt</Width>
+        <Value>Другая</Value>
+        <ZIndex>1</ZIndex>
+        <Left>444pt</Left>
+        <Top>308.4pt</Top>
+        <Style>
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>8pt</FontSize>
+          <TextAlign>Left</TextAlign>
+          <VerticalAlign>Middle</VerticalAlign>
+          <PaddingLeft>3pt</PaddingLeft>
+        </Style>
+      </Textbox>
     </ReportItems>
   </Body>
   <PageFooter>
