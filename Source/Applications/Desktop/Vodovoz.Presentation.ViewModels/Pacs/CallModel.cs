@@ -13,11 +13,13 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 	public class CallModel : PropertyChangedBase
 	{
 		private readonly IEnumerable<OperatorModel> _operators;
+		private readonly HashSet<int> _callIds;
 		private bool _connected;
 
 		public CallModel(IEnumerable<OperatorModel> operators)
 		{
 			CallEvents = new GenericObservableList<CallEvent>();
+			_callIds = new HashSet<int>();
 			_operators = operators ?? throw new ArgumentNullException(nameof(operators));
 		}
 
@@ -36,7 +38,13 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			if(CallEvents.Count == 0)
 			{
 				CallEvents.Add(callEvent);
+				_callIds.Add(callEvent.Id);
 				CheckMissed();
+				return;
+			}
+
+			if(_callIds.Contains(callEvent.Id))
+			{
 				return;
 			}
 
@@ -44,6 +52,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			{
 				if(callEvent.CallSequence > CallEvents[i].CallSequence)
 				{
+					_callIds.Add(callEvent.Id);
 					CallEvents.Insert(i, callEvent);
 					OnPropertyChanged(nameof(CurrentState));
 					CheckConnected(callEvent);

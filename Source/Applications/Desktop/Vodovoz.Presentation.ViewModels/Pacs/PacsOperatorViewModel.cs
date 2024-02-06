@@ -1,51 +1,35 @@
 ﻿using Core.Infrastructure;
-using Pacs.Admin.Client;
 using Pacs.Core;
-using Pacs.Core.Messages.Events;
-using Pacs.Operators.Client;
-using Pacs.Server;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.Navigation;
-using QS.Utilities;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Vodovoz.Core.Data.Repositories;
-using Vodovoz.Core.Domain.Pacs;
-using Vodovoz.Domain.Employees;
+using Vodovoz.Application.Pacs;
 using Vodovoz.Services;
 
 namespace Vodovoz.Presentation.ViewModels.Pacs
 {
-	public class PacsOperatorViewModel : WidgetViewModelBase,
-		IObserver<GlobalBreakAvailability>,
-		IObserver<OperatorsOnBreakEvent>,
-		IObserver<SettingsEvent>,
-		IDisposable
+	public class PacsOperatorViewModel : WidgetViewModelBase
 	{
-		private readonly Employee _employee;
-		private readonly IOperatorStateAgent _operatorStateAgent;
-		private readonly IInteractiveService _interactiveService;
+		private readonly OperatorService _operatorService;
 		private readonly IEmployeeService _employeeService;
+		private readonly IInteractiveService _interactiveService;
 		private readonly IGuiDispatcher _guiDispatcher;
-		private readonly IPacsRepository _pacsRepository;
 		private readonly IPacsDashboardViewModelFactory _pacsDashboardViewModelFactory;
-		private readonly OperatorSettingsConsumer _operatorSettingsConsumer;
-		private readonly IOperatorClient _operatorClient;
-		private readonly IDisposable _breakAvailabilitySubscription;
-		private readonly IDisposable _operatorsOnBreakSubscription;
-		private readonly IDisposable _settingsSubscription;
 
+		private GenericObservableList<DashboardOperatorOnBreakViewModel> _operatorsOnBreak;
 		private string _phoneNumber;
-		private OperatorBreakAvailability _breakAvailability;
-		private GlobalBreakAvailability _globalBreakAvailability;
-		private GenericObservableList<DashboardOperatorOnBreakViewModel> _operatorsOnBreak = new GenericObservableList<DashboardOperatorOnBreakViewModel>();
-		private IPacsDomainSettings _settings;
+		private IEnumerable<string> _availablePhones;
+		private string _endWorkShiftReason;
+		private bool _endWorkShiftReasonRequired;
+		private string _breakInfo;
 
 		public DelegateCommand StartWorkShiftCommand { get; private set; }
 		public DelegateCommand EndWorkShiftCommand { get; private set; }
@@ -56,121 +40,87 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		public DelegateCommand EndBreakCommand { get; private set; }
 
 		public PacsOperatorViewModel(
-			IOperatorStateAgent operatorStateAgent,
-			IInteractiveService interactiveService,
+			OperatorService operatorService,
 			IEmployeeService employeeService,
+			IInteractiveService interactiveService,
 			IGuiDispatcher guiDispatcher,
-			IOperatorClientFactory operatorClientFactory,
-			IPacsRepository pacsRepository,
-			IPacsDashboardViewModelFactory pacsDashboardViewModelFactory,
-			IObservable<GlobalBreakAvailability> breakAvailabilityPublisher,
-			IObservable<OperatorsOnBreakEvent> operatorsOnBreakPublisher,
-			OperatorSettingsConsumer operatorSettingsConsumer
+			IPacsDashboardViewModelFactory pacsDashboardViewModelFactory
 			)
 		{
-			if(operatorClientFactory is null)
-			{
-				throw new ArgumentNullException(nameof(operatorClientFactory));
-			}
-
-			_operatorStateAgent = operatorStateAgent ?? throw new ArgumentNullException(nameof(operatorStateAgent));
-			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			_operatorService = operatorService ?? throw new ArgumentNullException(nameof(operatorService));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
-			_pacsRepository = pacsRepository ?? throw new ArgumentNullException(nameof(pacsRepository));
 			_pacsDashboardViewModelFactory = pacsDashboardViewModelFactory ?? throw new ArgumentNullException(nameof(pacsDashboardViewModelFactory));
-			_operatorSettingsConsumer = operatorSettingsConsumer ?? throw new ArgumentNullException(nameof(operatorSettingsConsumer));
-			AvailablePhones = new List<string>();
 
-			_employee = employeeService.GetEmployeeForCurrentUser();
-			if(_employee == null)
+			_operatorsOnBreak = new GenericObservableList<DashboardOperatorOnBreakViewModel>();
+
+			if(!(_operatorService.IsInitialized && _operatorService.IsOperator))
 			{
 				throw new AbortCreatingPageException(
-					"Должен быть привязан сотрудник к пользователю. Обратитесь в отдел кадров.",
+					"Пользователь должен быть оператором.",
 					"Не настроен пользователь");
 			}
 
-			_operatorClient = operatorClientFactory.CreateOperatorClient(_employee.Id);
-			_operatorClient.StateChanged += OnStateChanged;
-
-			AvailablePhones = _pacsRepository.GetAvailablePhones();
-			_settings = _pacsRepository.GetPacsDomainSettings();
-
 			ConfigureCommands();
 
-			_breakAvailabilitySubscription = breakAvailabilityPublisher.Subscribe(this);
-			_operatorsOnBreakSubscription = operatorsOnBreakPublisher.Subscribe(this);
-			_settingsSubscription = _operatorSettingsConsumer.Subscribe(this);
+			PhoneNumber = _operatorService.OperatorState?.PhoneNumber;
+			AvailablePhones = _operatorService.AvailablePhones;
+			PrepareOperatorsOnBreakViewModels();
 
-			try
-			{
-				var stateEvent = _operatorClient.Connect().Result;
-				CurrentState = stateEvent.State;
-				BreakAvailability = stateEvent.BreakAvailability;
-				GlobalBreakAvailability = _operatorClient.GetGlobalBreakAvailability().Result;
-			}
-			catch(Exception ex)
-			{
-				var pacsEx = ex.FindExceptionTypeInInner<PacsException>();
-				if(pacsEx != null)
-				{
-					throw new AbortCreatingPageException(ex.Message, "");
-				}
-			}
-
-			PhoneNumber = CurrentState?.PhoneNumber;
-			var operatorsOnBreakEvent = _operatorClient.GetOperatorsOnBreak().Result;
-			PrepareOperatorsOnBreakViewModels(operatorsOnBreakEvent.OnBreak);
+			_operatorService.PropertyChanged += OperatorServicePropertyChanged;
 		}
 
-		private void OnStateChanged(object sender, OperatorStateEvent e)
+		private void OperatorServicePropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
 			_guiDispatcher.RunInGuiTread(() =>
 			{
-				CurrentState = e.State;
-				BreakAvailability = e.BreakAvailability;
+				switch(e.PropertyName)
+				{
+					case nameof(OperatorService.OperatorState):
+						PhoneNumber = _operatorService.OperatorState?.PhoneNumber;
+						OnPropertyChanged(nameof(CanChangePhone));
+						break;
+					case nameof(OperatorService.OperatorsOnBreak):
+						PrepareOperatorsOnBreakViewModels();
+						break;
+					case nameof(OperatorService.AvailablePhones):
+						AvailablePhones = _operatorService.AvailablePhones;
+						OnPropertyChanged(nameof(CanStartWorkShift));
+						OnPropertyChanged(nameof(CanChangePhone));
+						break;
+					case nameof(OperatorService.CanStartWorkShift):
+						OnPropertyChanged(nameof(CanStartWorkShift));
+						break;
+					case nameof(OperatorService.CanChangePhone):
+						OnPropertyChanged(nameof(CanChangePhone));
+						break;
+					case nameof(OperatorService.BreakInfo):
+						BreakInfo = _operatorService.BreakInfo;
+						break;
+					case nameof(OperatorService.Settings):
+						UpdateSettings();
+						break;
+					case nameof(OperatorService.CanStartLongBreak):
+						OnPropertyChanged(nameof(ShowBreakInfo));
+						OnPropertyChanged(nameof(CanStartLongBreak));
+						break;
+					case nameof(OperatorService.CanStartShortBreak):
+						OnPropertyChanged(nameof(ShowBreakInfo));
+						OnPropertyChanged(nameof(CanStartShortBreak));
+						break;
+					case nameof(OperatorService.CanEndBreak):
+						OnPropertyChanged(nameof(CanEndBreak));
+						break;
+					case nameof(OperatorService.BreakInProgress):
+						OnPropertyChanged(nameof(CanStartLongBreak));
+						OnPropertyChanged(nameof(CanStartShortBreak));
+						OnPropertyChanged(nameof(CanEndBreak));
+						break;
+					default:
+						break;
+				}
 			});
-		}
-
-		public OperatorState CurrentState
-		{
-			get => _operatorStateAgent.OperatorState;
-			set
-			{
-				_operatorStateAgent.OperatorState = value;
-				PhoneNumber = _operatorStateAgent.OperatorState?.PhoneNumber;
-				OnPropertyChanged(nameof(CanStartWorkShift));
-				OnPropertyChanged(nameof(CanEndWorkShift));
-				OnPropertyChanged(nameof(CanStartLongBreak));
-				OnPropertyChanged(nameof(CanStartShortBreak));
-				OnPropertyChanged(nameof(CanEndBreak));
-				OnPropertyChanged(nameof(CanChangePhone));
-			}
-		}
-
-		public OperatorBreakAvailability BreakAvailability
-		{
-			get => _breakAvailability;
-			private set
-			{
-				_breakAvailability = value;
-				OnPropertyChanged(nameof(CanStartLongBreak));
-				OnPropertyChanged(nameof(CanStartShortBreak));
-				OnPropertyChanged(nameof(HasBreakInfo));
-				OnPropertyChanged(nameof(BreakInfo));
-			}
-		}
-		public GlobalBreakAvailability GlobalBreakAvailability
-		{
-			get => _globalBreakAvailability;
-			private set
-			{
-				_globalBreakAvailability = value;
-				OnPropertyChanged(nameof(CanStartLongBreak));
-				OnPropertyChanged(nameof(CanStartShortBreak));
-				OnPropertyChanged(nameof(HasBreakInfo));
-				OnPropertyChanged(nameof(BreakInfo));
-			}
 		}
 
 		public GenericObservableList<DashboardOperatorOnBreakViewModel> OperatorsOnBreak
@@ -179,51 +129,14 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			private set => SetField(ref _operatorsOnBreak, value);
 		}
 
-		public bool HasBreakInfo => !CanStartLongBreak || !CanStartShortBreak;
-
-		public string BreakInfo
-		{
-			get
-			{
-				string result = "";
-				if(GlobalBreakAvailability == null || BreakAvailability == null)
-				{
-					return result;
-				}
-				if(!GlobalBreakAvailability.LongBreakAvailable)
-				{
-					result += $"\n{GlobalBreakAvailability.LongBreakDescription}";
-				}
-				if(!BreakAvailability.LongBreakAvailable)
-				{
-					result += $"\n{BreakAvailability.LongBreakDescription}";
-				}
-
-				if(!GlobalBreakAvailability.ShortBreakAvailable)
-				{
-					result += $"\n{GlobalBreakAvailability.ShortBreakDescription}";
-				}
-				if(!BreakAvailability.ShortBreakAvailable)
-				{
-					result += $"\n{BreakAvailability.ShortBreakDescription}";
-					if(BreakAvailability.ShortBreakSupposedlyAvailableAfter.HasValue)
-					{
-						result += $"\nМалый перерыв будет доступен после: {BreakAvailability.ShortBreakSupposedlyAvailableAfter.Value.ToString("dd.MM HH:mm")}";
-						//ПО ИСТЕЧЕНИИ ВРЕМЕНИ СДЕЛАТЬ ЗАПРОС ДОСТУПНОСТИ ПЕРЕРЫВА
-					}
-				}
-
-				return result.Trim('\n');
-			}
-		}
-
+		
 		private void ConfigureCommands()
 		{
 			StartWorkShiftCommand = new DelegateCommand(() => StartWorkShift().Wait(), () => CanStartWorkShift);
 			StartWorkShiftCommand.CanExecuteChangedWith(this, x => x.CanStartWorkShift);
 
-			EndWorkShiftCommand = new DelegateCommand(() => EndWorkShift().Wait(), () => CanEndWorkShift);
-			EndWorkShiftCommand.CanExecuteChangedWith(this, x => x.CanEndWorkShift);
+			EndWorkShiftCommand = new DelegateCommand(() => EndWorkShift().Wait(), () => _operatorService.CanEndWorkShift);
+			EndWorkShiftCommand.CanExecuteChangedWith(_operatorService, x => x.CanEndWorkShift);
 
 			CancelEndWorkShiftReasonCommand = new DelegateCommand(() => ClearEndWorkShiftReason());
 
@@ -240,50 +153,28 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			EndBreakCommand.CanExecuteChangedWith(this, x => x.CanEndBreak);
 		}
 
-		public IEnumerable<string> AvailablePhones { get; }
-
-		[PropertyChangedAlso(nameof(CanStartWorkShift))]
-		[PropertyChangedAlso(nameof(CanChangePhone))]
-		public virtual string PhoneNumber
-		{
-			get => _phoneNumber;
-			set => SetField(ref _phoneNumber, value);
-		}
-
-
 		public bool CanStartWorkShift => !string.IsNullOrWhiteSpace(PhoneNumber)
-			&& AvailablePhones.Contains(PhoneNumber)
-			&& _operatorStateAgent.CanStartWorkShift;
+			&& _operatorService.AvailablePhones.Contains(PhoneNumber)
+			&& _operatorService.CanStartWorkShift;
 
 		private async Task StartWorkShift()
 		{
 			try
 			{
-				var state = await _operatorClient.StartWorkShift(PhoneNumber);
-				UpdateState(state);
+				await _operatorService.StartWorkShift(PhoneNumber);
 			}
 			catch(PacsException ex)
 			{
-				_guiDispatcher.RunInGuiTread(() =>
-				{
-					_interactiveService.ShowMessage(ImportanceLevel.Warning, ex.Message);
-				});
+				_guiDispatcher.RunInGuiTread(() => _interactiveService.ShowMessage(ImportanceLevel.Warning, ex.Message));
 			}
 		}
 
-		//СУДА ДОБАВИТЬ ХРАНЕНИЕ И ПРОВЕРКУ ВРЕМЕНИ КОГДА МОЖНО ЗАКОНЧИТЬ СМЕНУ
-		//и действия по запросу причины в команде
-
-		public bool CanEndWorkShift => _operatorStateAgent.CanEndWorkShift && CurrentState.WorkShift != null;
-
-		private bool _endWorkShiftReasonRequired;
 		public virtual bool EndWorkShiftReasonRequired
 		{
 			get => _endWorkShiftReasonRequired;
 			set => SetField(ref _endWorkShiftReasonRequired, value);
 		}
 
-		private string _endWorkShiftReason;
 		public virtual string EndWorkShiftReason
 		{
 			get => _endWorkShiftReason;
@@ -294,7 +185,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		{
 			try
 			{
-				if(DateTime.Now > CurrentState.WorkShift.GetPlannedEndTime())
+				if(DateTime.Now > _operatorService.OperatorState.WorkShift.GetPlannedEndTime())
 				{
 					_guiDispatcher.RunInGuiTread(() =>
 					{
@@ -314,8 +205,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 					}
 				}
 
-				var state = await _operatorClient.EndWorkShift(EndWorkShiftReason);
-				UpdateState(state);
+				await _operatorService.EndWorkShift(EndWorkShiftReason);
 				_guiDispatcher.RunInGuiTread(() =>
 				{
 					ClearEndWorkShiftReason();
@@ -323,10 +213,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			}
 			catch(PacsException ex)
 			{
-				_guiDispatcher.RunInGuiTread(() =>
-				{
-					_interactiveService.ShowMessage(ImportanceLevel.Warning, ex.Message);
-				});
+				_guiDispatcher.RunInGuiTread(() => _interactiveService.ShowMessage(ImportanceLevel.Warning, ex.Message));
 			}
 		}
 
@@ -336,154 +223,115 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			EndWorkShiftReasonRequired = false;
 		}
 
+		[PropertyChangedAlso(nameof(CanStartWorkShift))]
+		[PropertyChangedAlso(nameof(CanChangePhone))]
+		public virtual string PhoneNumber
+		{
+			get => _phoneNumber;
+			set => SetField(ref _phoneNumber, value);
+		}
+
+		public virtual IEnumerable<string> AvailablePhones
+		{
+			get => _availablePhones;
+			private set => SetField(ref _availablePhones, value);
+		}
 
 		public bool CanChangePhone => !string.IsNullOrWhiteSpace(PhoneNumber)
-			&& AvailablePhones.Contains(PhoneNumber)
-			&& CurrentState != null
-			&& CurrentState.PhoneNumber != PhoneNumber
-			&& _operatorStateAgent.CanChangePhone;
+			&& _operatorService.AvailablePhones.Contains(PhoneNumber)
+			&& _operatorService.OperatorState != null
+			&& _operatorService.OperatorState.PhoneNumber != PhoneNumber
+			&& _operatorService.CanChangePhone;
 
 		private async Task ChangePhone()
 		{
 			try
 			{
-				var state = await _operatorClient.ChangeNumber(PhoneNumber);
-				UpdateState(state);
+				await _operatorService.ChangePhone(PhoneNumber);
 			}
 			catch(PacsException ex)
 			{
-				_guiDispatcher.RunInGuiTread(() =>
-				{
-					_interactiveService.ShowMessage(ImportanceLevel.Warning, ex.Message);
-				});
+				_guiDispatcher.RunInGuiTread(() => _interactiveService.ShowMessage(ImportanceLevel.Warning, ex.Message));
 			}
 		}
 
-
-		public bool CanStartLongBreak => _operatorStateAgent.CanStartBreak
-			&& GlobalBreakAvailability.LongBreakAvailable
-			&& BreakAvailability.LongBreakAvailable;
-
-		public bool CanStartShortBreak => _operatorStateAgent.CanStartBreak
-			&& GlobalBreakAvailability.ShortBreakAvailable
-			&& BreakAvailability.ShortBreakAvailable;
+		public bool CanStartLongBreak => _operatorService.CanStartLongBreak && !_operatorService.BreakInProgress;
 
 		private async Task StartLongBreak()
 		{
+			if(!_interactiveService.Question("Хотите взять большой перерыв?", "Перерыв"))
+			{
+				return;
+			}
+
 			try
 			{
-				var state = await _operatorClient.StartBreak(OperatorBreakType.Long);
-				UpdateState(state);
+				await _operatorService.StartLongBreak();
 			}
 			catch(PacsException ex)
 			{
-				_guiDispatcher.RunInGuiTread(() =>
-				{
-					_interactiveService.ShowMessage(ImportanceLevel.Warning, ex.Message);
-				});
+				_guiDispatcher.RunInGuiTread(() => _interactiveService.ShowMessage(ImportanceLevel.Warning, ex.Message));
 			}
 		}
+
+		public bool CanStartShortBreak => _operatorService.CanStartShortBreak && !_operatorService.BreakInProgress;
 
 		private async Task StartShortBreak()
 		{
+			if(!_interactiveService.Question("Хотите взять малый перерыв?", "Перерыв"))
+			{
+				return;
+			}
+
 			try
 			{
-				var state = await _operatorClient.StartBreak(OperatorBreakType.Short);
-				UpdateState(state);
+				await _operatorService.StartShortBreak();
 			}
 			catch(PacsException ex)
 			{
-				_guiDispatcher.RunInGuiTread(() =>
-				{
-					_interactiveService.ShowMessage(ImportanceLevel.Warning, ex.Message);
-				});
+				_guiDispatcher.RunInGuiTread(() => _interactiveService.ShowMessage(ImportanceLevel.Warning, ex.Message));
 			}
 		}
 
-
-		public bool CanEndBreak => _operatorStateAgent.CanEndBreak;
+		public bool CanEndBreak => _operatorService.CanEndBreak && !_operatorService.BreakInProgress;
 
 		private async Task EndBreak()
 		{
+			if(!_interactiveService.Question("Закончить перерыв?", "Перерыв"))
+			{
+				return;
+			}
+
 			try
 			{
-				var state = await _operatorClient.EndBreak();
-				UpdateState(state);
+				await _operatorService.EndBreak();
 			}
 			catch(PacsException ex)
 			{
-				_guiDispatcher.RunInGuiTread(() =>
-				{
-					_interactiveService.ShowMessage(ImportanceLevel.Warning, ex.Message);
-				});
+				_guiDispatcher.RunInGuiTread(() => _interactiveService.ShowMessage(ImportanceLevel.Warning, ex.Message));
 			}
 		}
 
-		private void UpdateState(OperatorStateEvent operatorState)
+		public bool ShowBreakInfo => !_operatorService.CanStartLongBreak || !_operatorService.CanStartShortBreak;
+
+		public virtual string BreakInfo
 		{
-			_guiDispatcher.RunInGuiTread(() =>
-			{
-				CurrentState = operatorState.State;
-				BreakAvailability = operatorState.BreakAvailability;
-			});
+			get => _breakInfo;
+			private set => SetField(ref _breakInfo, value);
 		}
 
-		void IObserver<GlobalBreakAvailability>.OnCompleted()
-		{
-			_breakAvailabilitySubscription.Dispose();
-		}
-
-		void IObserver<GlobalBreakAvailability>.OnError(Exception error)
-		{
-		}
-
-		void IObserver<GlobalBreakAvailability>.OnNext(GlobalBreakAvailability value)
-		{
-			_guiDispatcher.RunInGuiTread(() =>
-			{
-				GlobalBreakAvailability = value;
-				OnPropertyChanged(nameof(CanStartLongBreak));
-				OnPropertyChanged(nameof(CanStartShortBreak));
-			});
-		}
-
-		public void Dispose()
-		{
-			_breakAvailabilitySubscription.Dispose();
-			_operatorsOnBreakSubscription.Dispose();
-			_settingsSubscription.Dispose();
-		}
-
-		#region IObserver<OperatorsOnBreakEvent>
-
-		void IObserver<OperatorsOnBreakEvent>.OnCompleted()
-		{
-			_operatorsOnBreakSubscription.Dispose();
-		}
-
-		void IObserver<OperatorsOnBreakEvent>.OnError(Exception error)
-		{
-		}
-
-		void IObserver<OperatorsOnBreakEvent>.OnNext(OperatorsOnBreakEvent value)
-		{
-			PrepareOperatorsOnBreakViewModels(value.OnBreak);
-		}
-
-		#endregion IObserver<OperatorsOnBreakEvent>
-
-		private void PrepareOperatorsOnBreakViewModels(IEnumerable<OperatorState> operatorsOnBreak)
+		private void PrepareOperatorsOnBreakViewModels()
 		{
 			foreach(var operatorOnBreak in OperatorsOnBreak)
 			{
 				operatorOnBreak.Dispose();
 			}
 
-			var operatorViewModels = operatorsOnBreak.Select(x =>
+			var operatorViewModels = _operatorService.OperatorsOnBreak.Select(x =>
 			{
 				var model = new OperatorModel(_employeeService);
 				model.AddState(x);
-				model.Settings = _settings;
+				model.Settings = _operatorService.Settings;
 				var vm = _pacsDashboardViewModelFactory.CreateOperatorOnBreakViewModel(model);
 				return vm;
 			});
@@ -494,29 +342,12 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			});
 		}
 
-		#region IObserver<SettingsEvent>
-
-		void IObserver<SettingsEvent>.OnCompleted()
+		private void UpdateSettings()
 		{
-			_settingsSubscription.Dispose();
-		}
-
-		void IObserver<SettingsEvent>.OnError(Exception error)
-		{
-		}
-
-		void IObserver<SettingsEvent>.OnNext(SettingsEvent value)
-		{
-			_settings = value.Settings;
-			_guiDispatcher.RunInGuiTread(() =>
+			foreach(var operatorOnBreak in OperatorsOnBreak)
 			{
-				foreach(var operatorOnBreak in OperatorsOnBreak)
-				{
-					operatorOnBreak.Model.Settings = _settings;
-				}
-			});
+				operatorOnBreak.Model.Settings = _operatorService.Settings;
+			}
 		}
-
-		#endregion IObserver<SettingsEvent>
 	}
 }

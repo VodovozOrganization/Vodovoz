@@ -32,14 +32,14 @@ namespace Vodovoz.Views.Pacs
 			buttonLongBreak.TooltipText = "Большой перерыв";
 			buttonLongBreak.BindCommand(ViewModel.LongBreakCommand);
 			buttonLongBreak.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.PacsEnabled, w => w.Visible)
+				.AddBinding(vm => vm.IsOperator, w => w.Visible)
 				.InitializeFromSource();
 
 			buttonShortBreak.HasTooltip = true;
 			buttonShortBreak.TooltipText = "Малый перерыв";
 			buttonShortBreak.BindCommand(ViewModel.ShortBreakCommand);
 			buttonShortBreak.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.PacsEnabled, w => w.Visible)
+				.AddBinding(vm => vm.IsOperator, w => w.Visible)
 				.InitializeFromSource();
 
 			buttonPacs.HasTooltip = true;

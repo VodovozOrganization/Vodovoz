@@ -144,7 +144,7 @@ namespace Vodovoz.Views.Pacs
 		{
 			if(buttonOperator.Active)
 			{
-				notebookPacs.CurrentPage = 0;
+				notebookPacs.CurrentPage = notebookPacs.PageNum(_operatorView);
 			}
 		}
 
@@ -152,7 +152,7 @@ namespace Vodovoz.Views.Pacs
 		{
 			if(buttonDashboard.Active)
 			{
-				notebookPacs.CurrentPage = 1;
+				notebookPacs.CurrentPage = notebookPacs.PageNum(_dashboardView);
 			}
 		}
 
@@ -160,7 +160,7 @@ namespace Vodovoz.Views.Pacs
 		{
 			if(buttonSettings.Active)
 			{
-				notebookPacs.CurrentPage = 2;
+				notebookPacs.CurrentPage = notebookPacs.PageNum(_settingsView);
 			}
 		}
 
@@ -168,7 +168,7 @@ namespace Vodovoz.Views.Pacs
 		{
 			if(buttonReports.Active)
 			{
-				notebookPacs.CurrentPage = 3;
+				notebookPacs.CurrentPage = notebookPacs.PageNum(_reportsView);
 			}
 		}
 	}

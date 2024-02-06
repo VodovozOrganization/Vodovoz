@@ -42,7 +42,9 @@ namespace Pacs.MangoCalls.Consumers
 				rmq.AutoDelete = true;
 				rmq.Durable = true;
 
-				rmq.Bind<MangoCallEvent>();
+				rmq.Bind<MangoCallEvent>(x => 
+					x.RoutingKey = "#"
+				);
 			}
 		}
 	}

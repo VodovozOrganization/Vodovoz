@@ -43,6 +43,20 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories
 			}
 		}
 
+		public IEnumerable<CallEvent> GetCalls(DateTime from)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				CallEvent callEventAlias = null;
+
+				var result = uow.Session.QueryOver(() => callEventAlias)
+					.Where(() => callEventAlias.CreationTime >= from)
+					.List();
+
+				return result;
+			}
+		}
+
 		public IEnumerable<string> GetAvailablePhones()
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())
@@ -67,6 +81,22 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories
 				var result = uow.Session.QueryOver(() => operatorStateAlias)
 					.Left.JoinAlias(() => operatorStateAlias.Session, () => operatorSessionAlias)
 					.Where(() => operatorSessionAlias.Ended == null)
+					.List();
+
+				return result;
+			}
+		}
+
+		public IEnumerable<OperatorState> GetOperators(DateTime from)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				OperatorState operatorStateAlias = null;
+				OperatorSession operatorSessionAlias = null;
+
+				var result = uow.Session.QueryOver(() => operatorStateAlias)
+					.Left.JoinAlias(() => operatorStateAlias.Session, () => operatorSessionAlias)
+					.Where(() => operatorSessionAlias.Started >= from)
 					.List();
 
 				return result;
@@ -114,15 +144,12 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories
 			}
 		}
 
-		public bool PacsEnabledFor(int subdivisionId)
+		public bool PacsEnabledFor(int employeeId)
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
-				var result = uow.Session.QueryOver<SubdivisionEntity>()
-					.Where(x => x.Id == subdivisionId)
-					.Select(x => x.PacsTimeManagementEnabled)
-					.List<bool>().FirstOrDefault();
-				return result;
+				var oper = uow.GetById<Operator>(employeeId);
+				return oper != null;
 			}
 		}
 

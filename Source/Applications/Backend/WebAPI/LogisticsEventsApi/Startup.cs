@@ -61,13 +61,11 @@ namespace LogisticsEventsApi
 					typeof(QS.Banks.Domain.Bank).Assembly,
 					typeof(QS.HistoryLog.HistoryMain).Assembly,
 					typeof(QS.Project.Domain.TypeOfEntity).Assembly,
-					typeof(QS.Attachments.Domain.Attachment).Assembly,
 					typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly
 				)
 				.AddDatabaseConnection()
 				.AddCore()
 				.AddTrackedUoW()
-				.AddServiceUser()
 				;
 
 			services.AddStaticHistoryTracker();

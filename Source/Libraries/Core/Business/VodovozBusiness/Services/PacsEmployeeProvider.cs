@@ -54,7 +54,7 @@ namespace Vodovoz.Services
 			_employee = _employeeService.GetEmployeeForCurrentUser();
 			if(_employee != null)
 			{
-				IsOperator = _pacsRepository.PacsEnabledFor(_employee.Subdivision.Id);
+				IsOperator = _pacsRepository.PacsEnabledFor(_employee.Id);
 				IsAdministrator = _permissionService.ValidateUserPresetPermission(Permissions.Pacs.IsAdministrator, _employee.User.Id);
 			}
 		}

@@ -276,7 +276,7 @@ namespace Pacs.Operators.Client
 			try
 			{
 				var response = await _httpClient.PostAsync(uri, content);
-				if(response.IsSuccessStatusCode)
+				if(!response.IsSuccessStatusCode)
 				{
 					_logger.LogWarning("Отправка KeepAlive сообщения оператора {OperatorId} была не успешна. Код {HttpCode}", 
 						_operatorId, (int)response.StatusCode);

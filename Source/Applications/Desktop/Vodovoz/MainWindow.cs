@@ -81,7 +81,7 @@ public partial class MainWindow : Gtk.Window
 		var transportInitializer = _autofacScope.Resolve<IMessageTransportInitializer>();
 		transportInitializer.Initialize(_messageBusControl);
 
-		var endpointConnector = _autofacScope.Resolve<MessageEndpointConnector>();
+	var endpointConnector = _autofacScope.Resolve<MessageEndpointConnector>();
 
 		Task.Run(async () =>
 		{

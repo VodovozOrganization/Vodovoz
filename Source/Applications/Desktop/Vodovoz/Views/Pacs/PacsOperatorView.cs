@@ -45,7 +45,7 @@ namespace Vodovoz.Views.Pacs
 
 			labelBreakInfo.Binding
 				.AddBinding(ViewModel, vm => vm.BreakInfo, w => w.LabelProp)
-				.AddBinding(ViewModel, vm => vm.HasBreakInfo, w => w.Visible)
+				.AddBinding(ViewModel, vm => vm.ShowBreakInfo, w => w.Visible)
 				.InitializeFromSource();
 
 			treeviewOperatorsOnBreak.ColumnsConfig = FluentColumnsConfig<DashboardOperatorOnBreakViewModel>.Create()

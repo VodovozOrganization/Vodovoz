@@ -316,7 +316,8 @@ namespace Vodovoz
 					//builder.RegisterType<PacsCallEventConsumer>()
 					//	.As<IObservable<CallEvent>>();
 
-					builder.RegisterType<PacsDashboardViewModelFactory>().As<IPacsDashboardViewModelFactory>();
+					builder.RegisterType<PacsDashboardViewModelFactory>().As<IPacsDashboardViewModelFactory>()
+						.SingleInstance();
 
 
 					
