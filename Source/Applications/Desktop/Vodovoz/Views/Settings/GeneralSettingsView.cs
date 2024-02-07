@@ -14,6 +14,13 @@ namespace Vodovoz.Views.Settings
 
 		private void Configure()
 		{
+			ynotebookData.ShowTabs = false;
+
+			yradiobuttonLogistics.Toggled += OnNotepadRadiobuttonToggled;
+			yradiobuttonComplaints.Toggled += OnNotepadRadiobuttonToggled;
+			yradiobuttonOrders.Toggled += OnNotepadRadiobuttonToggled;
+			yradiobuttonWarehouse.Toggled += OnNotepadRadiobuttonToggled;
+
 			btnSaveRouteListPrintedPhones.Clicked += (sender, args) => ViewModel.SaveRouteListPrintedFormPhonesCommand.Execute();
 			btnSaveRouteListPrintedPhones.Binding.AddBinding(ViewModel, vm => vm.CanEditRouteListPrintedFormPhones, w => w.Sensitive)
 				.InitializeFromSource();
@@ -83,6 +90,29 @@ namespace Vodovoz.Views.Settings
 
 			ybuttonSaveWaitUntil.Clicked += (sender, args) => ViewModel.SaveOrderWaitUntilActiveCommand.Execute();
 
+		}
+
+		private void OnNotepadRadiobuttonToggled(object sender, System.EventArgs e)
+		{
+			if(yradiobuttonLogistics.Active)
+			{
+				ynotebookData.CurrentPage = 0;
+			}
+
+			if(yradiobuttonComplaints.Active)
+			{
+				ynotebookData.CurrentPage = 1;
+			}
+
+			if(yradiobuttonOrders.Active)
+			{
+				ynotebookData.CurrentPage = 2;
+			}
+
+			if(yradiobuttonWarehouse.Active)
+			{
+				ynotebookData.CurrentPage = 3;
+			}
 		}
 	}
 }
