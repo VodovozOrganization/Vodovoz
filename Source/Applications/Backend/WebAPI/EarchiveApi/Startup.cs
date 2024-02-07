@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using NLog.Web;
 using MySqlConnector;
 using VodovozHealthCheck;
+using QS.DomainModel.UoW;
 
 namespace EarchiveApi
 {
@@ -28,8 +29,8 @@ namespace EarchiveApi
 		// For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
 		public void ConfigureServices(IServiceCollection services)
 		{
-			services.AddSingleton(x =>
-				new MySqlConnection(GetConnectionString()));
+			services.AddSingleton(x => new MySqlConnection(GetConnectionString()));
+			services.AddSingleton(x => UnitOfWorkFactory.GetDefaultFactory);
 
 			services.AddGrpc();
 

@@ -29,6 +29,7 @@ using QS.Services;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Settings.Database;
+using VodovozHealthCheck;
 
 namespace LogisticsEventsApi
 {
@@ -65,7 +66,7 @@ namespace LogisticsEventsApi
 			services.AddWarehouseEventsDependencies();
 
 			//закомментил пока нет зарегистрированных пользователей
-			//services.ConfigureHealthCheckService<LogisticsEventsApiHealthCheck>();
+			services.ConfigureHealthCheckService<LogisticsEventsApiHealthCheck>();
 			services.AddHttpClient();
 			
 			var connectionString = CreateBaseConfig();
@@ -114,6 +115,8 @@ namespace LogisticsEventsApi
 			app.UseAuthorization();
 
 			app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+
+			app.ConfigureHealthCheckApplicationBuilder();
 		}
 		
 		private string CreateBaseConfig()
