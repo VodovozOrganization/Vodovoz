@@ -18,11 +18,11 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Errors;
 using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Cash;
-using Vodovoz.Settings.Database.Nomenclature;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
@@ -825,6 +825,7 @@ namespace Vodovoz.Application.Logistics
 
 		public Result ValidateForAccept(
 			RouteList routeList,
+			IOrderRepository orderRepository,
 			bool skipOverfillValidation = false)
 		{
 			var errors = new List<Error>();
@@ -847,6 +848,16 @@ namespace Vodovoz.Application.Logistics
 			if(routeList.HasReverseVolumeExcess())
 			{
 				errors.Add(Errors.Logistics.RouteList.InsufficientFreeVolumeForReturn(routeList.ReverseVolumeExecess()));
+			}
+
+			var canceledOrdersIds = routeList.Addresses
+				.Where(a => orderRepository.GetUndeliveryStatuses().Contains(a.Order.OrderStatus))
+				.Select(a => a.Order.Id)
+				.ToArray();
+
+			if(canceledOrdersIds.Any())
+			{
+				errors.Add(Errors.Logistics.RouteList.ContainsCanceledOrdersOnAccept(canceledOrdersIds));
 			}
 
 			var overfillErrorsCodes = Errors.Logistics.RouteList.OverfilledErrorCodes;
@@ -877,12 +888,13 @@ namespace Vodovoz.Application.Logistics
 			RouteList routeList,
 			Action<bool> disableItemsUpdate,
 			IValidator validationService,
+			IOrderRepository orderRepository,
 			bool skipOverfillValidation = false,
 			bool confirmRecalculateRoute = false,
 			bool confirmSendOnClosing = false,
 			bool confirmSenEnRoute = false)
 		{
-			var validationResult = ValidateForAccept(routeList, skipOverfillValidation);
+			var validationResult = ValidateForAccept(routeList, orderRepository, skipOverfillValidation);
 
 			var messages = new List<string>();
 
