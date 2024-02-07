@@ -674,7 +674,7 @@ namespace Vodovoz.Views.Settings
 			// Container child yvboxOrders.Gtk.Box+BoxChild
 			this.frameBillAddionalInfo = new global::Gtk.Frame();
 			this.frameBillAddionalInfo.Name = "frameBillAddionalInfo";
-			this.frameBillAddionalInfo.ShadowType = ((global::Gtk.ShadowType)(0));
+			this.frameBillAddionalInfo.BorderWidth = ((uint)(1));
 			// Container child frameBillAddionalInfo.Gtk.Container+ContainerChild
 			this.GtkAlignment18 = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
 			this.GtkAlignment18.Name = "GtkAlignment18";
@@ -732,8 +732,7 @@ namespace Vodovoz.Views.Settings
 			this.frameBillAddionalInfo.Add(this.GtkAlignment18);
 			this.yvboxOrders.Add(this.frameBillAddionalInfo);
 			global::Gtk.Box.BoxChild w58 = ((global::Gtk.Box.BoxChild)(this.yvboxOrders[this.frameBillAddionalInfo]));
-			w58.PackType = ((global::Gtk.PackType)(1));
-			w58.Position = 5;
+			w58.Position = 4;
 			w58.Expand = false;
 			this.ynotebookData.Add(this.yvboxOrders);
 			global::Gtk.Notebook.NotebookChild w59 = ((global::Gtk.Notebook.NotebookChild)(this.ynotebookData[this.yvboxOrders]));
