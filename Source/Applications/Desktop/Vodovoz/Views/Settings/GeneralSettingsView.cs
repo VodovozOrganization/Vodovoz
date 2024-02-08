@@ -90,6 +90,15 @@ namespace Vodovoz.Views.Settings
 
 			ybuttonSaveWaitUntil.Clicked += (sender, args) => ViewModel.SaveOrderWaitUntilActiveCommand.Execute();
 
+			yentryBillAdditionalinfo.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.BillAdditionalInfo, w => w.Text)
+				.AddBinding(vm => vm.CanSaveBillAdditionalInfo, w => w.Sensitive)
+				.InitializeFromSource();
+
+			ybuttonBillAdditionaInfoSave.Clicked += (s, e) => ViewModel.SaveBillAdditionalInfoCommand.Execute();
+			ybuttonBillAdditionaInfoSave.Sensitive = ViewModel.CanSaveBillAdditionalInfo;
+
 		}
 
 		private void OnNotepadRadiobuttonToggled(object sender, System.EventArgs e)

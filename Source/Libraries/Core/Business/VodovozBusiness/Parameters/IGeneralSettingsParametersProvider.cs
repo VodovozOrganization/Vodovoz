@@ -34,5 +34,7 @@ namespace Vodovoz.Parameters
 
 		bool GetIsOrderWaitUntilActive { get; }
 		void UpdateIsOrderWaitUntilActive(bool value);
+		string GetBillAdditionalInfo { get; }
+		void UpdateBillAdditionalInfo(string value);
 	}
 }

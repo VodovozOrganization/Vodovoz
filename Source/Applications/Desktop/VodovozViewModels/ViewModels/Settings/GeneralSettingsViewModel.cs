@@ -1,5 +1,4 @@
-﻿using NHibernate.Driver;
-using QS.Commands;
+﻿using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -37,6 +36,9 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 		private bool _isOrderWaitUntilActive;
 
+		private string _billAdditionalInfo;
+		private DelegateCommand _saveBillAdditionalInfoCommand;
+
 		public GeneralSettingsViewModel(
 			IGeneralSettingsParametersProvider generalSettingsParametersProvider,
 			ICommonServices commonServices,
@@ -68,13 +70,17 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			_driversUnclosedRouteListsHavingDebtCount = _generalSettingsParametersProvider.DriversUnclosedRouteListsHavingDebtMaxCount;
 			_driversRouteListsDebtMaxSum = _generalSettingsParametersProvider.DriversRouteListsMaxDebtSum;
 
-			_canActivateClientsSecondOrderDiscount = 
+			_canActivateClientsSecondOrderDiscount =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Order.CanActivateClientsSecondOrderDiscount);
 			_isClientsSecondOrderDiscountActive = _generalSettingsParametersProvider.GetIsClientsSecondOrderDiscountActive;
-			
+
 			_isOrderWaitUntilActive = _generalSettingsParametersProvider.GetIsOrderWaitUntilActive;
 			CanEditOrderWaitUntilSetting = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Order.CanEditOrderWaitUntil);
 			SaveOrderWaitUntilActiveCommand = new DelegateCommand(SaveIsEditOrderWaitUntilActive, () => CanEditOrderWaitUntilSetting);
+
+			_billAdditionalInfo = _generalSettingsParametersProvider.GetBillAdditionalInfo;
+			CanSaveBillAdditionalInfo = true;
+			SaveBillAdditionalInfoCommand = new DelegateCommand(SaveBillAdditionalInfo, () => CanSaveBillAdditionalInfo);
 		}
 
 		#region RouteListPrintedFormPhones
@@ -266,6 +272,26 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 		#endregion
 
+		#region BillAdditionalInfo
+
+		public string BillAdditionalInfo
+		{
+			get => _billAdditionalInfo;
+			set => SetField(ref _billAdditionalInfo, value);
+		}
+
+		public DelegateCommand SaveBillAdditionalInfoCommand { get; }
+
+		public bool CanSaveBillAdditionalInfo { get; }
+
+		private void SaveBillAdditionalInfo()
+		{
+			_generalSettingsParametersProvider.UpdateBillAdditionalInfo(BillAdditionalInfo);
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
+		}
+
+		#endregion
+
 		private void InitializeSettingsViewModels()
 		{
 			ComplaintsSubdivisionSettingsViewModel = new SubdivisionSettingsViewModel(_commonServices, _unitOfWorkFactory, NavigationManager,
@@ -292,12 +318,12 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			WarehousesForPricesAndStocksIntegrationViewModel =
 				new WarehousesSettingsViewModel(_commonServices, _unitOfWorkFactory, NavigationManager,
 				_generalSettingsParametersProvider, _generalSettingsParametersProvider.WarehousesForPricesAndStocksIntegrationName)
-			{
-				CanEdit = true,
-				MainTitle = "<b>Настройки складов для интеграции остатков и цен</b>",
-				DetailTitle = "Использовать следующие склады при подсчете остатков для ИПЗ:",
-				Info = "Подсчет остатков при отправке в ИПЗ будет производиться только по выбранным складам."
-			};
+				{
+					CanEdit = true,
+					MainTitle = "<b>Настройки складов для интеграции остатков и цен</b>",
+					DetailTitle = "Использовать следующие склады при подсчете остатков для ИПЗ:",
+					Info = "Подсчет остатков при отправке в ИПЗ будет производиться только по выбранным складам."
+				};
 
 			FillItemSources();
 		}
