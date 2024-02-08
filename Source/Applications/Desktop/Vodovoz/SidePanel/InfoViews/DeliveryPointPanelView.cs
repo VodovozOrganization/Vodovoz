@@ -71,6 +71,8 @@ namespace Vodovoz.SidePanel.InfoViews
 			textviewComment.FocusOutEvent += OnTextviewCommentFocusOut;
 
 			logisticsRequirementsView.ViewModel = new LogisticsRequirementsViewModel(GetLogisticsRequirements(), _commonServices);
+			logisticsRequirementsView.Sensitive = _deliveryPointPermissionResult.CanUpdate;
+			buttonSaveLogisticsRequirements.Sensitive = _deliveryPointPermissionResult.CanUpdate;
 		}
 
 		private void Refresh(object changedObj)
