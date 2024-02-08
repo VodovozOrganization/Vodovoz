@@ -934,14 +934,19 @@ namespace Vodovoz.EntityRepositories.Orders
 			query.Where(() => orderAlias.DeliveryDate >= startDate
 					|| (orderEdoTrueMarkDocumentsActionsAlias.IsNeedToResendEdoUpd && orderAlias.DeliveryDate >= manualResendUpdStartDate));
 
-
 			var orderStatusRestriction = Restrictions.Or(
 				Restrictions.And(
-					Restrictions.NotEqProperty(Projections.Property(() => orderAlias.DeliverySchedule.Id), Projections.Constant(closingDocumentDeliveryScheduleId)),
+					Restrictions.Or(
+						Restrictions.IsNull(Projections.Property(() => orderAlias.DeliverySchedule.Id)),
+						Restrictions.NotEqProperty(
+							Projections.Property(() => orderAlias.DeliverySchedule.Id),
+							Projections.Constant(closingDocumentDeliveryScheduleId))),
 					Restrictions.In(Projections.Property(() => orderAlias.OrderStatus), orderStatuses)
 					),
 				Restrictions.And(
-					Restrictions.EqProperty(Projections.Property(() => orderAlias.DeliverySchedule.Id), Projections.Constant(closingDocumentDeliveryScheduleId)),
+					Restrictions.EqProperty(
+						Projections.Property(() => orderAlias.DeliverySchedule.Id),
+						Projections.Constant(closingDocumentDeliveryScheduleId)),
 					Restrictions.In(Projections.Property(() => orderAlias.OrderStatus), orderStatusesForOrderDocumentCloser)
 					)
 				);
