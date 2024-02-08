@@ -12,7 +12,7 @@ namespace Vodovoz
 
 		private global::Gtk.Button buttonSave;
 
-		private global::Gtk.Button buttonCancel;
+		private global::Gtk.Button btnCancel;
 
 		private global::Gtk.VSeparator vseparator1;
 
@@ -587,16 +587,16 @@ namespace Vodovoz
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonCancel = new global::Gtk.Button();
-			this.buttonCancel.CanFocus = true;
-			this.buttonCancel.Name = "buttonCancel";
-			this.buttonCancel.UseUnderline = true;
-			this.buttonCancel.Label = global::Mono.Unix.Catalog.GetString("Отменить");
+			this.btnCancel = new global::Gtk.Button();
+			this.btnCancel.CanFocus = true;
+			this.btnCancel.Name = "btnCancel";
+			this.btnCancel.UseUnderline = true;
+			this.btnCancel.Label = global::Mono.Unix.Catalog.GetString("Отменить");
 			global::Gtk.Image w3 = new global::Gtk.Image();
 			w3.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-revert-to-saved", global::Gtk.IconSize.Menu);
-			this.buttonCancel.Image = w3;
-			this.hbox1.Add(this.buttonCancel);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonCancel]));
+			this.btnCancel.Image = w3;
+			this.hbox1.Add(this.btnCancel);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.btnCancel]));
 			w4.Position = 1;
 			w4.Expand = false;
 			w4.Fill = false;
@@ -1193,7 +1193,7 @@ namespace Vodovoz
 			this.labelComment.Name = "labelComment";
 			this.labelComment.Xalign = 1F;
 			this.labelComment.Yalign = 0F;
-			this.labelComment.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий\r\nк заказу:");
+			this.labelComment.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий\nк заказу:");
 			this.table1.Add(this.labelComment);
 			global::Gtk.Table.TableChild w56 = ((global::Gtk.Table.TableChild)(this.table1[this.labelComment]));
 			w56.TopAttach = ((uint)(18));
@@ -1237,7 +1237,7 @@ namespace Vodovoz
 			this.labelEShop = new global::Gtk.Label();
 			this.labelEShop.Name = "labelEShop";
 			this.labelEShop.Xalign = 1F;
-			this.labelEShop.LabelProp = global::Mono.Unix.Catalog.GetString("Номер заказа\r\nинтернет-магазина:");
+			this.labelEShop.LabelProp = global::Mono.Unix.Catalog.GetString("Номер заказа\nинтернет-магазина:");
 			this.table1.Add(this.labelEShop);
 			global::Gtk.Table.TableChild w60 = ((global::Gtk.Table.TableChild)(this.table1[this.labelEShop]));
 			w60.TopAttach = ((uint)(14));
@@ -1273,7 +1273,7 @@ namespace Vodovoz
 			this.labelSignatureType = new global::Gtk.Label();
 			this.labelSignatureType.Name = "labelSignatureType";
 			this.labelSignatureType.Xalign = 1F;
-			this.labelSignatureType.LabelProp = global::Mono.Unix.Catalog.GetString("Подписание\r\n документов:");
+			this.labelSignatureType.LabelProp = global::Mono.Unix.Catalog.GetString("Подписание\n документов:");
 			this.table1.Add(this.labelSignatureType);
 			global::Gtk.Table.TableChild w63 = ((global::Gtk.Table.TableChild)(this.table1[this.labelSignatureType]));
 			w63.TopAttach = ((uint)(17));
@@ -1650,7 +1650,7 @@ namespace Vodovoz
 			this.ylabelLogisticsRequirements.Name = "ylabelLogisticsRequirements";
 			this.ylabelLogisticsRequirements.Xalign = 1F;
 			this.ylabelLogisticsRequirements.Yalign = 0F;
-			this.ylabelLogisticsRequirements.LabelProp = global::Mono.Unix.Catalog.GetString("Требования\r\nк логистике:");
+			this.ylabelLogisticsRequirements.LabelProp = global::Mono.Unix.Catalog.GetString("Требования\nк логистике:");
 			this.table1.Add(this.ylabelLogisticsRequirements);
 			global::Gtk.Table.TableChild w96 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelLogisticsRequirements]));
 			w96.TopAttach = ((uint)(20));
@@ -1823,7 +1823,7 @@ namespace Vodovoz
 			this.labelDeliveryDate5 = new global::Gtk.Label();
 			this.labelDeliveryDate5.Name = "labelDeliveryDate5";
 			this.labelDeliveryDate5.Xalign = 1F;
-			this.labelDeliveryDate5.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий \r\nводителя из \r\nприложения:");
+			this.labelDeliveryDate5.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий \nводителя из \nприложения:");
 			this.labelDeliveryDate5.Justify = ((global::Gtk.Justification)(1));
 			this.hbox17.Add(this.labelDeliveryDate5);
 			global::Gtk.Box.BoxChild w114 = ((global::Gtk.Box.BoxChild)(this.hbox17[this.labelDeliveryDate5]));
@@ -1886,7 +1886,7 @@ namespace Vodovoz
 			this.labelDeliveryDate3 = new global::Gtk.Label();
 			this.labelDeliveryDate3.Name = "labelDeliveryDate3";
 			this.labelDeliveryDate3.Xalign = 1F;
-			this.labelDeliveryDate3.LabelProp = global::Mono.Unix.Catalog.GetString("Номер звонка\r\nводителя:");
+			this.labelDeliveryDate3.LabelProp = global::Mono.Unix.Catalog.GetString("Номер звонка\nводителя:");
 			this.labelDeliveryDate3.Justify = ((global::Gtk.Justification)(1));
 			this.tblDriverControl.Add(this.labelDeliveryDate3);
 			global::Gtk.Table.TableChild w121 = ((global::Gtk.Table.TableChild)(this.tblDriverControl[this.labelDeliveryDate3]));
@@ -1899,7 +1899,7 @@ namespace Vodovoz
 			this.labelDeliveryDate4.WidthRequest = 160;
 			this.labelDeliveryDate4.Name = "labelDeliveryDate4";
 			this.labelDeliveryDate4.Xalign = 1F;
-			this.labelDeliveryDate4.LabelProp = global::Mono.Unix.Catalog.GetString("Причина \r\nнесдачи тары:");
+			this.labelDeliveryDate4.LabelProp = global::Mono.Unix.Catalog.GetString("Причина \nнесдачи тары:");
 			this.labelDeliveryDate4.Justify = ((global::Gtk.Justification)(1));
 			this.tblDriverControl.Add(this.labelDeliveryDate4);
 			global::Gtk.Table.TableChild w122 = ((global::Gtk.Table.TableChild)(this.tblDriverControl[this.labelDeliveryDate4]));
@@ -1911,7 +1911,7 @@ namespace Vodovoz
 			this.labelODZComments = new global::Gtk.Label();
 			this.labelODZComments.Name = "labelODZComments";
 			this.labelODZComments.Xalign = 1F;
-			this.labelODZComments.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий\r\n ОДЗ:");
+			this.labelODZComments.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий\n ОДЗ:");
 			this.labelODZComments.Justify = ((global::Gtk.Justification)(1));
 			this.tblDriverControl.Add(this.labelODZComments);
 			global::Gtk.Table.TableChild w123 = ((global::Gtk.Table.TableChild)(this.tblDriverControl[this.labelODZComments]));
@@ -1923,7 +1923,7 @@ namespace Vodovoz
 			this.labelOPComments = new global::Gtk.Label();
 			this.labelOPComments.Name = "labelOPComments";
 			this.labelOPComments.Xalign = 1F;
-			this.labelOPComments.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий \r\nОП/ОСК:");
+			this.labelOPComments.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий \nОП/ОСК:");
 			this.labelOPComments.Justify = ((global::Gtk.Justification)(1));
 			this.tblDriverControl.Add(this.labelOPComments);
 			global::Gtk.Table.TableChild w124 = ((global::Gtk.Table.TableChild)(this.tblDriverControl[this.labelOPComments]));
@@ -1935,7 +1935,7 @@ namespace Vodovoz
 			this.labelTaraComments = new global::Gtk.Label();
 			this.labelTaraComments.Name = "labelTaraComments";
 			this.labelTaraComments.Xalign = 1F;
-			this.labelTaraComments.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий \r\nпо таре:");
+			this.labelTaraComments.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий \nпо таре:");
 			this.labelTaraComments.Justify = ((global::Gtk.Justification)(1));
 			this.tblDriverControl.Add(this.labelTaraComments);
 			global::Gtk.Table.TableChild w125 = ((global::Gtk.Table.TableChild)(this.tblDriverControl[this.labelTaraComments]));
@@ -1981,7 +1981,7 @@ namespace Vodovoz
 			this.label26.Name = "label26";
 			this.label26.Xalign = 1F;
 			this.label26.Yalign = 0F;
-			this.label26.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий \r\nменеджера\r\nводительского\r\nтелефона:");
+			this.label26.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий \nменеджера\nводительского\nтелефона:");
 			this.label26.Justify = ((global::Gtk.Justification)(1));
 			this.vbox7.Add(this.label26);
 			global::Gtk.Box.BoxChild w129 = ((global::Gtk.Box.BoxChild)(this.vbox7[this.label26]));
@@ -1993,7 +1993,7 @@ namespace Vodovoz
 			this.buttonCopyManagerComment.CanFocus = true;
 			this.buttonCopyManagerComment.Name = "buttonCopyManagerComment";
 			this.buttonCopyManagerComment.UseUnderline = true;
-			this.buttonCopyManagerComment.Label = global::Mono.Unix.Catalog.GetString("Скопировать \r\nкомментарий");
+			this.buttonCopyManagerComment.Label = global::Mono.Unix.Catalog.GetString("Скопировать \nкомментарий");
 			this.vbox7.Add(this.buttonCopyManagerComment);
 			global::Gtk.Box.BoxChild w130 = ((global::Gtk.Box.BoxChild)(this.vbox7[this.buttonCopyManagerComment]));
 			w130.Position = 1;

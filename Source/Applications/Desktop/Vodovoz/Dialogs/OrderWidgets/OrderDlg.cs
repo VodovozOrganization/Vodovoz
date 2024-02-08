@@ -2173,7 +2173,7 @@ namespace Vodovoz
 		{
 			canClose = isSensitive;
 			buttonSave.Sensitive = CanEditByPermission && isSensitive;
-			buttonCancel.Sensitive = isSensitive;
+			btnCancel.Sensitive = isSensitive;
 		}
 
 		protected bool Validate(ValidationContext validationContext)
@@ -4252,7 +4252,7 @@ namespace Vodovoz
 
 		public void SetDlgToReadOnly()
 		{
-			buttonSave.Sensitive = buttonCancel.Sensitive =
+			buttonSave.Sensitive = btnCancel.Sensitive =
 			hboxStatusButtons.Visible = false;
 		}
 
