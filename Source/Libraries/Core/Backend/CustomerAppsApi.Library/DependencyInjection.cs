@@ -6,7 +6,13 @@ using CustomerAppsApi.Library.Validators;
 using Microsoft.Extensions.DependencyInjection;
 using Vodovoz.Controllers;
 using Vodovoz.Controllers.ContactsForExternalCounterparty;
+using Vodovoz.Domain.Service;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Factories;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
+using Vodovoz.Tools.CallTasks;
+using Vodovoz.Validation;
 
 namespace CustomerAppsApi.Library
 {
@@ -30,6 +36,7 @@ namespace CustomerAppsApi.Library
 				.AddSingleton<ICounterpartyFactory, CounterpartyFactory>()
 				.AddSingleton<INomenclatureFactory, NomenclatureFactory>()
 				.AddSingleton<IPromotionalSetFactory, PromotionalSetFactory>()
+				.AddSingleton<IOnlineOrderFactory, OnlineOrderFactory>()
 				.AddSingleton<ICameFromConverter, CameFromConverter>()
 				.AddSingleton<ISourceConverter, SourceConverter>()
 				.AddSingleton<ContactFinderForExternalCounterpartyFromOne>()
@@ -41,7 +48,18 @@ namespace CustomerAppsApi.Library
 				.AddScoped<INomenclatureModel, NomenclatureModel>()
 				.AddScoped<IOrderModel, OrderModel>()
 				.AddScoped<IPromotionalSetModel, PromotionalSetModel>()
-				.AddScoped<ICounterpartyModelValidator, CounterpartyModelValidator>();
+				.AddScoped<ICounterpartyModelValidator, CounterpartyModelValidator>()
+				.AddScoped<OrderFromOnlineOrderCreator>()
+				.AddScoped<ICallTaskWorker, CallTaskWorker>()
+				.AddScoped<ICounterpartyContractRepository, CounterpartyContractRepository>()
+				.AddScoped<ICounterpartyContractFactory, CounterpartyContractFactory>()
+				.AddScoped<FastDeliveryHandler>()
+				.AddScoped<OrderFromOnlineOrderValidator>()
+				.AddScoped<IDriverApiParametersProvider, DriverApiParametersProvider>()
+				.AddScoped<IDeliveryRulesParametersProvider, DeliveryRulesParametersProvider>()
+				.AddScoped<IRouteListAddressKeepingDocumentController, RouteListAddressKeepingDocumentController>()
+				.AddScoped<IFastDeliveryValidator, FastDeliveryValidator>()
+				;
 
 			return services;
 		}

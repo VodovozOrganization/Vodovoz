@@ -68,7 +68,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			return result;
 		}
 
-		public bool AddressHasAlreadyBeenUsedForPromo(IUnitOfWork uow, DeliveryPoint deliveryPoint)
+		public bool AddressHasAlreadyBeenUsedForPromoForNewClients(IUnitOfWork uow, DeliveryPoint deliveryPoint)
 		{
 			string building = GetBuildingNumber(deliveryPoint.Building);
 

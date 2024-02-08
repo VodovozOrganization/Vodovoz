@@ -1,5 +1,5 @@
 ﻿using System;
-using CustomerAppsApi.Library.Dto;
+using CustomerAppsApi.Library.Dto.Orders;
 using CustomerAppsApi.Library.Models;
 using Gamma.Utilities;
 using Microsoft.AspNetCore.Mvc;
@@ -45,6 +45,42 @@ namespace CustomerAppsApi.Controllers
 			}
 			
 			return canOrder;
+		}
+		
+		[HttpPost("CreateOrder")]
+		public IActionResult CreateOrder(OnlineOrderInfoDto onlineOrderInfoDto)
+		{
+			var sourceName = onlineOrderInfoDto.Source.GetEnumTitle();
+			
+			try
+			{
+				_logger.LogInformation(
+					"Поступил запрос от {Source} на создание заказа для {CounterpartyId}",
+					sourceName,
+					onlineOrderInfoDto.CounterpartyErpId);
+				
+				var orderId = _orderModel.CreateOrderFromOnlineOrder(onlineOrderInfoDto);
+
+				if(orderId == default)
+				{
+					//отправляем код ошибки, почему не был создан заказ
+				}
+				else
+				{
+					
+				}
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e,
+					"Ошибка при создании заказа для {CounterpartyId} от {Source}",
+					onlineOrderInfoDto.CounterpartyErpId,
+					sourceName);
+
+				return Problem();
+			}
+
+			return Ok();
 		}
 	}
 }

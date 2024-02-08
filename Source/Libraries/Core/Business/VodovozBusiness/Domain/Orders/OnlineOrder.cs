@@ -5,26 +5,29 @@ using QS.DomainModel.Entity;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.Domain.Orders
 {
 	public class OnlineOrder : PropertyChangedBase, IDomainObject
 	{
+		private DateTime _version;
 		private Source _source;
-		private int _counterpartyId;
+		private int? _counterpartyId;
 		private Counterparty _counterparty;
-		private int _deliveryPointId;
+		private int? _deliveryPointId;
 		private DeliveryPoint _deliveryPoint;
-		private Guid _externalCounterpartyId;
+		private Guid? _externalCounterpartyId;
 		private bool _isSelfDelivery;
-		private int? _geoGroupId;
+		private int? _selfDeliveryGeoGroupId;
+		private GeoGroup _selfDeliveryGeoGroup;
 		private OnlineOrderPaymentType _onlineOrderPaymentType;
 		private OnlineOrderPaymentStatus _onlineOrderPaymentStatus;
 		private int? _onlinePayment;
-		private OnlinePaymentSource _onlinePaymentSource;
+		private OnlinePaymentSource? _onlinePaymentSource;
 		private bool _isNeedConfirmationByCall;
 		private DateTime _deliveryDate;
-		private int _deliveryScheduleId;
+		private int? _deliveryScheduleId;
 		private DeliverySchedule _deliverySchedule;
 		private bool _isFastDelivery;
 		private string _contactPhone;
@@ -39,6 +42,13 @@ namespace Vodovoz.Domain.Orders
 		private IList<OnlineRentPackage> _onlineRentPackages;
 
 		public virtual int Id { get; set; }
+		
+		[Display(Name = "Версия")]
+		public virtual DateTime Version
+		{
+			get => _version;
+			set => SetField(ref _version, value);
+		}
 
 		[Display(Name = "Источник онлайн заказа")]
 		public virtual Source Source
@@ -48,7 +58,7 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		[Display(Name = "Клиент")]
-		public virtual int CounterpartyId
+		public virtual int? CounterpartyId
 		{
 			get => _counterpartyId;
 			set => SetField(ref _counterpartyId, value);
@@ -62,14 +72,14 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		[Display(Name = "Внешний Id пользователя")]
-		public virtual Guid ExternalCounterpartyId
+		public virtual Guid? ExternalCounterpartyId
 		{
 			get => _externalCounterpartyId;
 			set => SetField(ref _externalCounterpartyId, value);
 		}
 		
 		[Display(Name = "Точка доставки")]
-		public virtual int DeliveryPointId
+		public virtual int? DeliveryPointId
 		{
 			get => _deliveryPointId;
 			set => SetField(ref _deliveryPointId, value);
@@ -89,11 +99,18 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _isSelfDelivery, value);
 		}
 
-		[Display(Name = "Id Гео группы для самовывоза")]
-		public virtual int? GeoGroupId
+		[Display(Name = "Id гео группы для самовывоза")]
+		public virtual int? SelfDeliveryGeoGroupId
 		{
-			get => _geoGroupId;
-			set => SetField(ref _geoGroupId, value);
+			get => _selfDeliveryGeoGroupId;
+			set => SetField(ref _selfDeliveryGeoGroupId, value);
+		}
+		
+		[Display(Name = "Гео группа для самовывоза")]
+		public virtual GeoGroup SelfDeliveryGeoGroup
+		{
+			get => _selfDeliveryGeoGroup;
+			set => SetField(ref _selfDeliveryGeoGroup, value);
 		}
 
 		[Display(Name = "Форма оплаты")]
@@ -125,13 +142,13 @@ namespace Vodovoz.Domain.Orders
 		}
 		
 		[Display(Name = "Источник оплаты")]
-		public virtual OnlinePaymentSource OnlinePaymentSource
+		public virtual OnlinePaymentSource? OnlinePaymentSource
 		{
 			get => _onlinePaymentSource;
 			set => SetField(ref _onlinePaymentSource, value);
 		}
 		
-		[Display(Name = "Нужно подтверждение по телефону")]
+		[Display(Name = "Нужно подтверждение по телефону?")]
 		public virtual bool IsNeedConfirmationByCall
 		{
 			get => _isNeedConfirmationByCall;
@@ -145,8 +162,8 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _deliveryDate, value);
 		}
 		
-		[Display(Name = "Время доставки")]
-		public virtual int DeliveryScheduleId
+		[Display(Name = "Id времени доставки")]
+		public virtual int? DeliveryScheduleId
 		{
 			get => _deliveryScheduleId;
 			set => SetField(ref _deliveryScheduleId, value);
@@ -228,5 +245,7 @@ namespace Vodovoz.Domain.Orders
 			get => _onlineRentPackages;
 			set => SetField(ref _onlineRentPackages, value);
 		}
+		
+		public string OrderWarnings { get; set; }
 	}
 }

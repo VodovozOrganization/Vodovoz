@@ -40,6 +40,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Vodovoz.Additions.Printing;
 using Vodovoz.Application.Orders.Services;
 using Vodovoz.Controllers;
@@ -120,6 +121,7 @@ using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
+using LogLevel = NLog.LogLevel;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 
 namespace Vodovoz
@@ -148,7 +150,7 @@ namespace Vodovoz
 		private static readonly INomenclatureParametersProvider _nomenclatureParametersProvider = new NomenclatureParametersProvider(_parametersProvider);
 		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(_parametersProvider);
 
-		private readonly IFastDeliveryValidator _fastDeliveryValidator = new FastDeliveryValidator();
+		private IFastDeliveryValidator _fastDeliveryValidator;
 
 		private static readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider =
 			new DeliveryRulesParametersProvider(_parametersProvider);
@@ -241,6 +243,7 @@ namespace Vodovoz
 		private string _commentManager;
 		private StringBuilder _summaryInfoBuilder = new StringBuilder();
 		private EdoContainer _selectedEdoContainer;
+		private FastDeliveryHandler _fastDeliveryHandler;
 
 		private IUnitOfWorkGeneric<Order> _slaveUnitOfWork = null;
 		private OrderDlg _slaveOrderDlg = null;
@@ -278,28 +281,6 @@ namespace Vodovoz
 				}
 
 				return nomenclatureRepository;
-			}
-		}
-
-		private DriverAPIHelper _driverApiHelper;
-
-		public virtual DriverAPIHelper DriverApiHelper
-		{
-			get
-			{
-				if(_driverApiHelper == null)
-				{
-					var driverApiConfig = new DriverApiHelperConfiguration
-					{
-						ApiBase = _driverApiParametersProvider.ApiBase,
-						NotifyOfSmsPaymentStatusChangedURI = _driverApiParametersProvider.NotifyOfSmsPaymentStatusChangedUri,
-						NotifyOfFastDeliveryOrderAddedURI = _driverApiParametersProvider.NotifyOfFastDeliveryOrderAddedUri,
-						NotifyOfWaitingTimeChangedURI = _driverApiParametersProvider.NotifyOfWaitingTimeChangedURI
-					};
-					_driverApiHelper = new DriverAPIHelper(driverApiConfig);
-				}
-
-				return _driverApiHelper;
 			}
 		}
 
@@ -379,7 +360,6 @@ namespace Vodovoz
 			NotifyConfiguration.Instance.UnsubscribeAll(this);
 			_lifetimeScope?.Dispose();
 			_lifetimeScope = null;
-			_driverApiHelper?.Dispose();
 			base.Destroy();
 		}
 
@@ -554,6 +534,17 @@ namespace Vodovoz
 			SetLogisticsRequirementsCheckboxes();
 		}
 
+		public void CopyFromOnlineOrder(OnlineOrder onlineOrder)
+		{
+			Entity.Client = onlineOrder.Counterparty;
+			Entity.DeliveryPoint = onlineOrder.DeliveryPoint;
+			Entity.SelfDelivery = onlineOrder.IsFastDelivery;
+			Entity.DeliverySchedule = onlineOrder.DeliverySchedule;
+			Entity.IsFastDelivery = onlineOrder.IsFastDelivery;
+			Entity.SelfDeliveryGeoGroup = onlineOrder.SelfDeliveryGeoGroup;
+			
+		}
+
 		public void ConfigureDlg()
 		{
 			SetPermissions();
@@ -562,6 +553,8 @@ namespace Vodovoz
 			_fastDeliveryNomenclatureId = _nomenclatureParametersProvider.FastDeliveryNomenclatureId;
 			_advancedPaymentNomenclatureId = _nomenclatureParametersProvider.AdvancedPaymentNomenclatureId;
 			_orderService = _lifetimeScope.Resolve<IOrderService>();
+			_fastDeliveryHandler = _lifetimeScope.Resolve<FastDeliveryHandler>();
+			_fastDeliveryValidator = _lifetimeScope.Resolve<IFastDeliveryValidator>();
 			NavigationManager = Startup.MainWin.NavigationManager;
 			_selectPaymentTypeViewModel = new SelectPaymentTypeViewModel(NavigationManager);
 			_lastDeliveryPointComment = Entity.DeliveryPoint?.Comment.Trim('\n').Trim(' ') ?? string.Empty;
@@ -2348,7 +2341,7 @@ namespace Vodovoz
 					return Result.Failure(Errors.Orders.Order.AcceptAbortedByUser);
 				}
 			}
-			if(hasPromoSetForNewClients && Entity.CanUsedPromo(_promotionalSetRepository))
+			if(hasPromoSetForNewClients && Entity.HasUsedPromoForNewClients(_promotionalSetRepository))
 			{
 				return Result.Failure(Errors.Orders.Order.UnableToShipPromoSet);
 			}
@@ -2362,43 +2355,21 @@ namespace Vodovoz
 			{
 				return Result.Failure(Errors.Orders.Order.AcceptAbortedByUser);
 			}
-
-			RouteList routeListToAddFastDeliveryOrder = null;
-
-			if(Entity.IsFastDelivery)
+			
+			var fastDeliveryResult = _fastDeliveryHandler.CheckFastDelivery(UoW, Entity);
+			
+			//TODO проверить работу проверки доступности быстрой доставки
+			if(fastDeliveryResult.IsFailure)
 			{
-				var fastDeliveryValidationResult = _fastDeliveryValidator.ValidateOrder(Entity);
-
-				if(fastDeliveryValidationResult.IsFailure)
+				if(fastDeliveryResult.Errors.Any(x => x.Code == nameof(Errors.Orders.Order.FastDelivery.RouteListForFastDeliveryIsMissing)))
 				{
-					return Result.Failure(fastDeliveryValidationResult.Errors);
-				}
-				
-				var fastDeliveryAvailabilityHistory = _deliveryRepository.GetRouteListsForFastDelivery(
-					UoW,
-					(double)Entity.DeliveryPoint.Latitude.Value,
-					(double)Entity.DeliveryPoint.Longitude.Value,
-					isGetClosestByRoute: true,
-					_deliveryRulesParametersProvider,
-					Entity.GetAllGoodsToDeliver(),
-					Entity
-				);
-
-				var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(UnitOfWorkFactory.GetDefaultFactory);
-				fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryAvailabilityHistory);
-
-				routeListToAddFastDeliveryOrder = fastDeliveryAvailabilityHistory.Items
-					.FirstOrDefault(x => x.IsValidToFastDelivery)
-					?.RouteList;
-
-				if(routeListToAddFastDeliveryOrder == null)
-				{
-					var fastDeliveryVerificationViewModel = new FastDeliveryVerificationViewModel(fastDeliveryAvailabilityHistory);
-					Startup.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, IUnitOfWork, FastDeliveryVerificationViewModel>(
+					var fastDeliveryVerificationViewModel =
+						new FastDeliveryVerificationViewModel(_fastDeliveryHandler.FastDeliveryAvailabilityHistory);
+					NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, IUnitOfWork, FastDeliveryVerificationViewModel>(
 						null, UoW, fastDeliveryVerificationViewModel);
-
-					return Result.Failure(Errors.Orders.Order.FastDelivery.RouteListForFastDeliveryIsMissing);
 				}
+
+				return fastDeliveryResult;
 			}
 
 			var edoLightsMatrixPanelView = Startup.MainWin.InfoPanel.GetWidget(typeof(EdoLightsMatrixPanelView)) as EdoLightsMatrixPanelView;
@@ -2451,61 +2422,14 @@ namespace Vodovoz
 
 			Entity.AcceptOrder(_currentEmployee, CallTaskWorker);
 			treeItems.Selection.UnselectAll();
-
-			RouteListItem fastDeliveryAddress = null;
-
-			if(routeListToAddFastDeliveryOrder != null)
-			{
-				UoW.Session.Refresh(routeListToAddFastDeliveryOrder);
-				fastDeliveryAddress = routeListToAddFastDeliveryOrder.AddAddressFromOrder(Entity);
-				Entity.ChangeStatusAndCreateTasks(OrderStatus.OnTheWay, CallTaskWorker);
-				Entity.UpdateDocuments();
-			}
-
-			if(fastDeliveryAddress != null)
-			{
-				UoW.Session.Save(fastDeliveryAddress);
-
-				_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(
-					UoW, fastDeliveryAddress, DeliveryFreeBalanceType.Decrease);
-			}
+			
+			_fastDeliveryHandler.TryAddOrderToRouteListAndNotifyDriver(UoW, Entity, CallTaskWorker);
 
 			OpenNewOrderForDailyRentEquipmentReturnIfNeeded();
-
-			if(routeListToAddFastDeliveryOrder != null && DriverApiParametersProvider.NotificationsEnabled)
-			{
-				NotifyDriverOfFastDeliveryOrderAddedAsync();
-			}
-
 			ProcessSmsNotification();
-
 			UpdateUIState();
 
 			return Result.Success();
-		}
-
-		private async Task NotifyDriverOfFastDeliveryOrderAddedAsync()
-		{
-			try
-			{
-				await DriverApiHelper.NotifyOfFastDeliveryOrderAdded(Entity.Id);
-			}
-			catch(Exception e)
-			{
-				logger.Error(e, "Не удалось уведомить водителя о добавлении заказа с быстрой доставкой в МЛ");
-			}
-		}
-
-		private async Task NotifyDriverAboutWaitingTimeChangedAsync()
-		{
-			try
-			{
-				await DriverApiHelper.NotifyOfWaitingTimeChanged(Entity.Id);
-			}
-			catch(Exception e)
-			{
-				logger.Error(e, $"Не удалось уведомить водителя изменении времени ожидания");
-			}
 		}
 
 		private void PrepareSendBillInformation()
@@ -4017,7 +3941,6 @@ namespace Vodovoz
 		/// дополнительном соглашении
 		/// </summary>
 		private bool OrderItemEquipmentCountHasChanges;
-
 
 		/// <summary>
 		/// При изменении количества оборудования в списке товаров меняет его

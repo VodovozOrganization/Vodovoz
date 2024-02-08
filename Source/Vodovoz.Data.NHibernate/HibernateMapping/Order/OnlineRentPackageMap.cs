@@ -11,9 +11,11 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
-			Map(x => x.RentPackageId).Column("rent_package_id");
+			Map(x => x.RentPackageId).Column("first_rent_package_id");
 			Map(x => x.Price).Column("price");
 			Map(x => x.Count).Column("count");
+			
+			References(x => x.RentPackage).Column("rent_package_id");
 		}
 	}
 }

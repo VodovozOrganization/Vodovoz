@@ -59,6 +59,7 @@
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
     <Compile Include="ConfigureDeletion.cs" />
+    <Compile Include="Controllers\FastDeliveryHandler.cs" />
     <Compile Include="Controllers\IAddressTransferController.cs" />
     <Compile Include="Controllers\SentMovementsNotificationDetails.cs" />
     <Compile Include="DependencyInjection.cs" />
@@ -150,6 +151,8 @@
     <Compile Include="Domain\Payments\PaymentState.cs" />
     <Compile Include="Domain\Roboats\TodayIntervalOffer.cs" />
     <Compile Include="Domain\Sale\DistrictCopyItem.cs" />
+    <Compile Include="Domain\Service\GoodsPriceCalculator.cs" />
+    <Compile Include="Domain\Service\OrderFromOnlineOrderCreator.cs" />
     <Compile Include="Domain\StoredEmails\UpdDocumentEmail.cs" />
     <Compile Include="Domain\Subdivisions\SubdivisionType.cs" />
     <Compile Include="EntityRepositories\Cash\FinancialExpenseCategoriesRepository.cs" />
@@ -692,6 +695,7 @@
     <Compile Include="Errors\Logistics\RouteList.cs" />
     <Compile Include="Errors\Logistics\TariffZone.cs" />
     <Compile Include="Errors\Logistics\TariffZone.FastDelivery.cs" />
+    <Compile Include="Errors\Orders\OnlineOrder.cs" />
     <Compile Include="Errors\Orders\Order.Accept.cs" />
     <Compile Include="Errors\Orders\Order.cs" />
     <Compile Include="Errors\Orders\Order.FastDelivery.cs" />
@@ -702,6 +706,8 @@
     <Compile Include="Extensions\EnumExtensions.cs" />
     <Compile Include="Extensions\ExpressionExtensions.cs" />
     <Compile Include="Extensions\NomenclatureOnlineParametersExtensions.cs" />
+    <Compile Include="Extensions\OnlineOrderPaymentTypeExtensions.cs" />
+    <Compile Include="Extensions\OnlinePaymentSourceExtensions.cs" />
     <Compile Include="Extensions\OrderItemExtensions.cs" />
     <Compile Include="Factories\CashReceiptFactory.cs" />
     <Compile Include="Factories\CounterpartyContractFactory.cs" />

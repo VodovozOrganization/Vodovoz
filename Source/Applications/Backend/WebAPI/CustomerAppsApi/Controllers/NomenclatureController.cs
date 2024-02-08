@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using CustomerAppsApi.Library.Dto;
+using CustomerAppsApi.Library.Dto.Goods;
 using CustomerAppsApi.Library.Models;
 using Gamma.Utilities;
 using Microsoft.AspNetCore.Mvc;

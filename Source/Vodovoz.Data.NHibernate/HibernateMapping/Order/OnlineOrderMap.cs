@@ -8,6 +8,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 		public OnlineOrderMap()
 		{
 			Table("online_orders");
+			OptimisticLock.Version();
+			Version(x => x.Version).Column("version");
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
@@ -16,7 +18,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.ExternalCounterpartyId).Column("external_counterparty_id");
 			Map(x => x.DeliveryPointId).Column("first_delivery_point_id");
 			Map(x => x.IsSelfDelivery).Column("is_self_delivery");
-			Map(x => x.GeoGroupId).Column("geo_group_id");
+			Map(x => x.SelfDeliveryGeoGroupId).Column("first_self_delivery_geo_group_id");
 			Map(x => x.OnlineOrderPaymentType).Column("online_order_payment_type");
 			Map(x => x.OnlineOrderPaymentStatus).Column("online_order_payment_status");
 			Map(x => x.OnlineOrderStatus).Column("online_order_status");
@@ -35,6 +37,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			References(x => x.Counterparty).Column("counterparty_id");
 			References(x => x.DeliveryPoint).Column("delivery_point_id");
 			References(x => x.DeliverySchedule).Column("delivery_schedule_id");
+			References(x => x.SelfDeliveryGeoGroup).Column("self_delivery_geo_group_id");
 			References(x => x.Order).Column("order_id");
 			References(x => x.EmployeeWorkWith).Column("employee_work_with_id");
 

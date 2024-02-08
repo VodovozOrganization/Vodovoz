@@ -52,6 +52,7 @@ using Vodovoz.Application;
 using Vodovoz.CachingRepositories.Cash;
 using Vodovoz.CachingRepositories.Common;
 using Vodovoz.CachingRepositories.Counterparty;
+using Vodovoz.Controllers;
 using Vodovoz.Core;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs.OrderWidgets;
@@ -102,6 +103,7 @@ using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Interactive.ConfirmationQuestion;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.Tools.Store;
+using Vodovoz.Validation;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Infrastructure.Services;
@@ -648,6 +650,8 @@ namespace Vodovoz
 						.AddScoped<IRdlTextBoxFactory, RdlTextBoxFactory>()
 						.AddScoped<IEventsQrPlacer, EventsQrPlacer>()
 						.AddTransient<IValidationViewFactory, GtkValidationViewFactory>()
+						.AddScoped<FastDeliveryHandler>()
+						.AddScoped<IFastDeliveryValidator, FastDeliveryValidator>()
 						.AddApplication()
 						.AddBusiness();
 				});

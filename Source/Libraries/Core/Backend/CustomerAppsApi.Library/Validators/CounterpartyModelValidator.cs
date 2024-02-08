@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using CustomerAppsApi.Library.Dto;
+using CustomerAppsApi.Library.Dto.Counterparties;
 using QS.Utilities.Numeric;
 using Vodovoz.Domain.Client;
 using Vodovoz.Parameters;

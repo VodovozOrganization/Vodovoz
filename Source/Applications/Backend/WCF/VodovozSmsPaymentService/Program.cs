@@ -113,7 +113,7 @@ namespace VodovozSmsPaymentService
 				{
 					ApiBase = new Uri(driverApiSection["ApiBase"]),
 					NotifyOfSmsPaymentStatusChangedURI = driverApiSection["NotifyOfSmsPaymentStatusChangedURI"],
-					NotifyOfFastDeliveryOrderAddedURI = driverApiSection["NotifyOfFastDeliveryOrderAddedURI"]
+					NotifyOfFastDeliveryOrderAddedUri = driverApiSection["NotifyOfFastDeliveryOrderAddedURI"]
 				};
 
 				ISmsPaymentStatusNotificationReciever smsPaymentStatusNotificationReciever =

@@ -4,19 +4,37 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Orders
 {
-	public class OnlineOrderItem : PropertyChangedBase, IDomainObject
+	public class OnlineOrderItem : Product, IDomainObject
 	{
 		private int _nomenclatureId;
-		private Nomenclature _nomenclature;
 		private decimal _price;
-		private decimal _count;
 		private bool _isDiscountInMoney;
 		private decimal _discount;
 		private int _discountReasonId;
 		private DiscountReason _discountReason;
-		private int _promoSetId;
-		private PromotionalSet _promoSet;
+		private int? _promoSetId;
 		private OnlineOrder _onlineOrder;
+
+		public OnlineOrderItem() { }
+
+		public OnlineOrderItem(
+			int? nomenclatureId,
+			decimal count,
+			bool isDiscountInMoney,
+			decimal discount,
+			decimal price,
+			int? promoSetId,
+			OnlineOrder onlineOrder
+			)
+		{
+			NomenclatureId = nomenclatureId.Value;
+			Count = count;
+			IsDiscountInMoney = isDiscountInMoney;
+			Discount = discount;
+			Price = price;
+			PromoSetId = promoSetId;
+			OnlineOrder = onlineOrder;
+		}
 
 		public virtual int Id { get; set; }
 		
@@ -34,12 +52,12 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _nomenclatureId, value);
 		}
 		
-		[Display(Name = "Номенклатура")]
+		/*[Display(Name = "Номенклатура")]
 		public virtual Nomenclature Nomenclature
 		{
 			get => _nomenclature;
 			set => SetField(ref _nomenclature, value);
-		}
+		}*/
 		
 		[Display(Name = "Цена")]
 		public virtual decimal Price
@@ -48,12 +66,12 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _price, value);
 		}
 		
-		[Display(Name = "Количество")]
+		/*[Display(Name = "Количество")]
 		public virtual decimal Count
 		{
 			get => _count;
 			set => SetField(ref _count, value);
-		}
+		}*/
 		
 		[Display(Name = "Скидка в деньгах")]
 		public virtual bool IsDiscountInMoney
@@ -69,7 +87,7 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _discount, value);
 		}
 		
-		[Display(Name = "Id основания скидки")]
+		/*[Display(Name = "Id основания скидки")]
 		public virtual int DiscountReasonId
 		{
 			get => _discountReasonId;
@@ -81,20 +99,20 @@ namespace Vodovoz.Domain.Orders
 		{
 			get => _discountReason;
 			set => SetField(ref _discountReason, value);
-		}
+		}*/
 		
 		[Display(Name = "Id промонабора")]
-		public virtual int PromoSetId
+		public virtual int? PromoSetId
 		{
 			get => _promoSetId;
 			set => SetField(ref _promoSetId, value);
 		}
 		
-		[Display(Name = "Промонабор")]
+		/*[Display(Name = "Промонабор")]
 		public virtual PromotionalSet PromoSet
 		{
 			get => _promoSet;
 			set => SetField(ref _promoSet, value);
-		}
+		}*/
 	}
 }

@@ -823,6 +823,15 @@ namespace Vodovoz.Domain.Orders
 			get => _trifle;
 			set => SetField(ref _trifle, value);
 		}
+		
+		private string _orderWarnings;
+
+		[Display(Name = "Предупреждения")]
+		public virtual string OrderWarnings
+		{
+			get => _orderWarnings;
+			set => SetField(ref _orderWarnings, value);
+		}
 
 		private int? onlineOrder;
 
@@ -2663,7 +2672,7 @@ namespace Vodovoz.Domain.Orders
 				return true;
 			}
 
-			if(proSet.PromotionalSetForNewClients && CanUsedPromo(promotionalSetRepository))
+			if(proSet.PromotionalSetForNewClients && HasUsedPromoForNewClients(promotionalSetRepository))
 			{
 				var message = "По этому адресу уже была ранее отгрузка промонабора на другое физ.лицо.";
 				InteractiveService.ShowMessage(ImportanceLevel.Warning, message);
@@ -2695,14 +2704,14 @@ namespace Vodovoz.Domain.Orders
 		/// <summary>
 		/// Проверка на использование промонабора в заказе на адрес
 		/// </summary>
-		/// <returns><c>true</c>, если на адрес не доставляли промонабор,
-		/// <c>false</c> если нельзя.</returns>
-		public virtual bool CanUsedPromo(IPromotionalSetRepository promotionalSetRepository)
+		/// <returns><c>true</c>, если на адрес доставляли промонабор для новых клиентов,
+		/// <c>false</c> если нет</returns>
+		public virtual bool HasUsedPromoForNewClients(IPromotionalSetRepository promotionalSetRepository)
 		{
 			return !SelfDelivery
 				&& Client.PersonType == PersonType.natural
 				&& ((DeliveryPoint.RoomType == RoomType.Office) || (DeliveryPoint.RoomType == RoomType.Store))
-				&& promotionalSetRepository.AddressHasAlreadyBeenUsedForPromo(UoW, deliveryPoint);
+				&& promotionalSetRepository.AddressHasAlreadyBeenUsedForPromoForNewClients(UoW, deliveryPoint);
 		}
 
 		private CounterpartyContract CreateServiceContractAddMasterNomenclature(Nomenclature nomenclature)
@@ -3456,12 +3465,18 @@ namespace Vodovoz.Domain.Orders
 		private void AcceptSelfDeliveryOrder(ICallTaskWorker callTaskWorker)
 		{
 			if(!SelfDelivery || OrderStatus != OrderStatus.NewOrder)
+			{
 				return;
+			}
 
 			if(PayAfterShipment || OrderSum == 0)
+			{
 				ChangeStatusAndCreateTasks(OrderStatus.Accepted, callTaskWorker);
+			}
 			else
+			{
 				ChangeStatusAndCreateTasks(OrderStatus.WaitForPayment, callTaskWorker);
+			}
 		}
 
 		/// <summary>
@@ -3483,9 +3498,13 @@ namespace Vodovoz.Domain.Orders
 		public virtual void AcceptOrder(Employee currentEmployee, ICallTaskWorker callTaskWorker)
 		{
 			if(SelfDelivery)
+			{
 				AcceptSelfDeliveryOrder(callTaskWorker);
+			}
 			else if(CanSetOrderAsAccepted)
+			{
 				ChangeStatusAndCreateTasks(OrderStatus.Accepted, callTaskWorker);
+			}
 
 			AcceptedOrderEmployee = currentEmployee;
 		}

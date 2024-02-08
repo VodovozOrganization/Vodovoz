@@ -13,7 +13,7 @@ namespace Vodovoz.JournalColumnsConfigs
 	public class OnlineOrdersJournalRegistrar : ColumnsConfigRegistrarBase<OnlineOrdersJournalViewModel, OnlineOrdersJournalNode>
 	{
 		private static readonly Pixbuf _emptyImg = new Pixbuf(typeof(Startup).Assembly, "Vodovoz.icons.common.empty16.png");
-		private static readonly Pixbuf _greenCircle = new Pixbuf(typeof(Startup).Assembly, "Vodovoz.icons.common.green_circle48.png");
+		private static readonly Pixbuf _greenCircle = new Pixbuf(typeof(Startup).Assembly, "Vodovoz.icons.common.green_circle16.png");
 
 		public override IColumnsConfig Configure(FluentColumnsConfig<OnlineOrdersJournalNode> config) =>
 			config.AddColumn("Номер")
@@ -39,7 +39,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					}
 					else if(node.OnlineOrderStatus == OnlineOrderStatus.New && node.IsNeedConfirmationByCall)
 					{
-						color = GdkColors.SuccessText; //должен быть оранжевый
+						color = GdkColors.Orange;
 					}
 
 					if(node.OnlineOrderStatus == OnlineOrderStatus.Canceled)

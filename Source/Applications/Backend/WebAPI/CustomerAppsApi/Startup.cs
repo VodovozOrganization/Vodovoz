@@ -24,6 +24,8 @@ using CustomerAppsApi.Library;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.Delivery;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
@@ -83,10 +85,12 @@ namespace CustomerAppsApi
 			
 			services.AddSingleton<IPhoneRepository, PhoneRepository>();
 			services.AddSingleton<IEmailRepository, EmailRepository>();
+			services.AddSingleton<IDeliveryRepository, DeliveryRepository>();
 			services.AddSingleton<ISettingsController, SettingsController>();
 			services.AddSingleton<ISessionProvider, DefaultSessionProvider>();
 			services.AddSingleton<IParametersProvider, ParametersProvider>();
 			services.AddSingleton<INomenclatureParametersProvider, NomenclatureParametersProvider>();
+			services.AddSingleton<IOrderParametersProvider, OrderParametersProvider>();
 			services.AddSingleton<IUnitOfWorkFactory, DefaultUnitOfWorkFactory>();
 			services.AddSingleton<IRoboatsSettings, RoboatsSettings>();
 			services.AddSingleton<IRoboatsRepository, RoboatsRepository>();
@@ -97,6 +101,7 @@ namespace CustomerAppsApi
 			services.AddSingleton<IPromotionalSetRepository, PromotionalSetRepository>();
 			services.AddSingleton<IExternalCounterpartyRepository, ExternalCounterpartyRepository>();
 			services.AddSingleton<IExternalCounterpartyMatchingRepository, ExternalCounterpartyMatchingRepository>();
+			services.AddSingleton<IEmployeeRepository, EmployeeRepository>();
 			
 			services.AddSingleton<PhoneFormatter>(_ => new PhoneFormatter(PhoneFormat.DigitsTen));
 			services.AddSingleton<ICounterpartySettings, CounterpartySettings>();
