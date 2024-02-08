@@ -11,6 +11,8 @@ using NLog.Web;
 using MySqlConnector;
 using VodovozHealthCheck;
 using QS.DomainModel.UoW;
+using QS.Project.DB;
+using System.Reflection;
 
 namespace EarchiveApi
 {
@@ -29,7 +31,9 @@ namespace EarchiveApi
 		// For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
 		public void ConfigureServices(IServiceCollection services)
 		{
-			services.AddSingleton(x => new MySqlConnection(GetConnectionString()));
+			var connectionString = GetConnectionString();
+
+			services.AddSingleton(x => new MySqlConnection(connectionString));
 			services.AddSingleton(x => UnitOfWorkFactory.GetDefaultFactory);
 
 			services.AddGrpc();
@@ -43,6 +47,15 @@ namespace EarchiveApi
 				});
 
 			services.ConfigureHealthCheckService<EarchiveApiHealthCheck>();
+
+			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
+				.ConnectionString(connectionString)
+				.AdoNetBatchSize(100)
+				.Driver<LoggedMySqlClientDriver>();
+
+			OrmConfig.ConfigureOrm(
+				db_config,
+				new Assembly[] {});
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
