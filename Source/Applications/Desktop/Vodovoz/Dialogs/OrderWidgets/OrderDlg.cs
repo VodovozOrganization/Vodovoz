@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -617,6 +617,8 @@ namespace Vodovoz
 			ConfigureAcceptButtons();
 			ConfigureButtonActions();
 			ConfigureSendDocumentByEmailWidget();
+
+			btnCancel.Clicked += (sender, args) => OnCloseTab(CanEditByPermission, CloseSource.Cancel);
 
 			spinDiscount.Adjustment.Upper = 100;
 			_commentManager = Entity.CommentManager ?? string.Empty;
