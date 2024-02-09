@@ -742,6 +742,7 @@ namespace Vodovoz.Views.Settings
 			this.ybuttonBillAdditionaInfoSave.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
 			this.yhboxBillAdditionalInfoButtons.Add(this.ybuttonBillAdditionaInfoSave);
 			global::Gtk.Box.BoxChild w55 = ((global::Gtk.Box.BoxChild)(this.yhboxBillAdditionalInfoButtons[this.ybuttonBillAdditionaInfoSave]));
+			w55.PackType = ((global::Gtk.PackType)(1));
 			w55.Position = 2;
 			w55.Expand = false;
 			this.ytableBillAdditionalInfo.Add(this.yhboxBillAdditionalInfoButtons);
