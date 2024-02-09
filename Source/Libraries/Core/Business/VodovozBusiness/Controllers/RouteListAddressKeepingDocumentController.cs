@@ -1,4 +1,4 @@
-﻿using QS.DomainModel.UoW;
+using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -530,25 +530,25 @@ namespace Vodovoz.Controllers
 				}
 
 				addressTransferDocumentItem.DeliveryFreeBalanceTransferItems.Add(newDeliveryFreeBalanceTransferItem);
+			}
 
-				uow.Save(addressTransferDocumentItem);
+			uow.Save(addressTransferDocumentItem);
 
-				// Если переносят в МЛ в статусе Сдаётся, адрес переходит в статус Доставлен и нужны операции на возврат
-				if(addressTransferDocumentItem.AddressTransferType != AddressTransferType.NeedToReload 
-					&& newAddress.RouteList.Status == RouteListStatus.OnClosing)
-				{
-					var routeListKeepingDocument = uow.GetAll<RouteListAddressKeepingDocument>()
-						.SingleOrDefault(x => x.RouteListItem.Id == newAddress.Id)
-						?? new RouteListAddressKeepingDocument();
+			// Если переносят в МЛ в статусе Сдаётся, адрес переходит в статус Доставлен и нужны операции на возврат
+			if(addressTransferDocumentItem.AddressTransferType != AddressTransferType.NeedToReload
+				&& newAddress.RouteList.Status == RouteListStatus.OnClosing)
+			{
+				var routeListKeepingDocument = uow.GetAll<RouteListAddressKeepingDocument>()
+					.SingleOrDefault(x => x.RouteListItem.Id == newAddress.Id)
+					?? new RouteListAddressKeepingDocument();
 
-					var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(uow);
-					routeListKeepingDocument.RouteListItem = newAddress;
-					routeListKeepingDocument.Author = currentEmployee;
+				var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(uow);
+				routeListKeepingDocument.RouteListItem = newAddress;
+				routeListKeepingDocument.Author = currentEmployee;
 
-					CreateOperationsForReturns(uow, newAddress, routeListKeepingDocument, oldAddress.Status, newAddress.Status, true);
+				CreateOperationsForReturns(uow, newAddress, routeListKeepingDocument, oldAddress.Status, newAddress.Status, true);
 
-					uow.Save(routeListKeepingDocument);
-				}
+				uow.Save(routeListKeepingDocument);
 			}
 		}
 	}
