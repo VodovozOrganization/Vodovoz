@@ -36,5 +36,7 @@ namespace Vodovoz.Parameters
 		void UpdateIsOrderWaitUntilActive(bool value);
 		string GetBillAdditionalInfo { get; }
 		void UpdateBillAdditionalInfo(string value);
+		string GetCarLoadDocumentInfoString { get; }
+		void UpdateCarLoadDocumentInfoString(string value);
 	}
 }

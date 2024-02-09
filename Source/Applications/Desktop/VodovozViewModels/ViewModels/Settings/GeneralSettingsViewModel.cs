@@ -37,7 +37,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private bool _isOrderWaitUntilActive;
 
 		private string _billAdditionalInfo;
-		private DelegateCommand _saveBillAdditionalInfoCommand;
+		private string _carLoadDocumentInfoString;
+
 
 		public GeneralSettingsViewModel(
 			IGeneralSettingsParametersProvider generalSettingsParametersProvider,
@@ -79,8 +80,12 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			SaveOrderWaitUntilActiveCommand = new DelegateCommand(SaveIsEditOrderWaitUntilActive, () => CanEditOrderWaitUntilSetting);
 
 			_billAdditionalInfo = _generalSettingsParametersProvider.GetBillAdditionalInfo;
-			CanSaveBillAdditionalInfo = true;
+			CanSaveBillAdditionalInfo = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Order.Documents.CanEditBillAdditionalInfo);
 			SaveBillAdditionalInfoCommand = new DelegateCommand(SaveBillAdditionalInfo, () => CanSaveBillAdditionalInfo);
+
+			_carLoadDocumentInfoString = _generalSettingsParametersProvider.GetCarLoadDocumentInfoString;
+			CanSaveCarLoadDocumentInfoString = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Store.Documents.CanEditCarLoadDocumentInfoString);
+			SaveCarLoadDocumentInfoStringCommand = new DelegateCommand(SaveCarLoadDocumentInfoString, () => CanSaveCarLoadDocumentInfoString);
 		}
 
 		#region RouteListPrintedFormPhones
@@ -287,6 +292,26 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private void SaveBillAdditionalInfo()
 		{
 			_generalSettingsParametersProvider.UpdateBillAdditionalInfo(BillAdditionalInfo);
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
+		}
+
+		#endregion
+
+		#region CarLoadDocumentInfoString
+
+		public string CarLoadDocumentInfoString
+		{
+			get => _carLoadDocumentInfoString;
+			set => SetField(ref _carLoadDocumentInfoString, value);
+		}
+
+		public DelegateCommand SaveCarLoadDocumentInfoStringCommand { get; }
+
+		public bool CanSaveCarLoadDocumentInfoString { get; }
+
+		private void SaveCarLoadDocumentInfoString()
+		{
+			_generalSettingsParametersProvider.UpdateCarLoadDocumentInfoString(CarLoadDocumentInfoString);
 			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
 		}
 
