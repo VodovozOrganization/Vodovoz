@@ -96,8 +96,8 @@ namespace Vodovoz.Views.Settings
 				.AddBinding(vm => vm.CanSaveBillAdditionalInfo, w => w.Sensitive)
 				.InitializeFromSource();
 
-			ybuttonBillAdditionaInfoSave.Clicked += (s, e) => ViewModel.SaveBillAdditionalInfoCommand.Execute();
-			ybuttonBillAdditionaInfoSave.Sensitive = ViewModel.CanSaveBillAdditionalInfo;
+			ybuttonSaveBillAdditionaInfo.Clicked += (s, e) => ViewModel.SaveBillAdditionalInfoCommand.Execute();
+			ybuttonSaveBillAdditionaInfo.Sensitive = ViewModel.CanSaveBillAdditionalInfo;
 
 		}
 
