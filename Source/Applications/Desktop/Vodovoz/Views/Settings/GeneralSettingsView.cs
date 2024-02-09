@@ -96,9 +96,17 @@ namespace Vodovoz.Views.Settings
 				.AddBinding(vm => vm.CanSaveBillAdditionalInfo, w => w.Sensitive)
 				.InitializeFromSource();
 
-			ybuttonSaveBillAdditionaInfo.Clicked += (s, e) => ViewModel.SaveBillAdditionalInfoCommand.Execute();
 			ybuttonSaveBillAdditionaInfo.Sensitive = ViewModel.CanSaveBillAdditionalInfo;
+			ybuttonSaveBillAdditionaInfo.Clicked += (s, e) => ViewModel.SaveBillAdditionalInfoCommand.Execute();
 
+			yentryCarLoadDocumentInfoString.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.CarLoadDocumentInfoString, w => w.Text)
+				.AddBinding(vm => vm.CanSaveCarLoadDocumentInfoString, w => w.Sensitive)
+				.InitializeFromSource();
+
+			ybuttonSaveCarLoadDocumentInfoString.Sensitive = ViewModel.CanSaveCarLoadDocumentInfoString;
+			ybuttonSaveCarLoadDocumentInfoString.Clicked += (s, e) => ViewModel.SaveCarLoadDocumentInfoStringCommand.Execute();
 		}
 
 		private void OnNotepadRadiobuttonToggled(object sender, System.EventArgs e)
