@@ -175,7 +175,7 @@ namespace Vodovoz.Views.Logistic
 			const int qrHeight = 1500;
 			
 			var qrMatrix = qrEncode.encode(
-				ViewModel.Entity.GenerateQrData(),
+				ViewModel.Entity.GenerateQrData(ViewModel.DriverWarehouseEventSettings.VodovozSiteForQr),
 				BarcodeFormat.QR_CODE,
 				qrWidth,
 				qrHeight,
@@ -208,7 +208,7 @@ namespace Vodovoz.Views.Logistic
 		{
 			var text = ViewModel.Entity.EventName;
 			const float leftTextPadding = 10f;
-			const int heightAreaForText = 100;
+			const int heightAreaForText = 250;
 			var textArea = new RectangleF(leftTextPadding, qrImage.Height, qrImage.Width, heightAreaForText);
 			var imageFilePath = System.IO.Path.GetTempFileName();
 			
