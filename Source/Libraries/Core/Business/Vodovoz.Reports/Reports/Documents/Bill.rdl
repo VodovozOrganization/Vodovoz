@@ -537,7 +537,7 @@ WHERE o.id = @order_id
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="AdditionalInfo" >
+    <DataSet Name="AdditionalInfo">
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT bp.str_value as info_str
@@ -598,7 +598,7 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
         <Value>Внимание! Оплата данного счета означает согласие с условиями поставки товара. Уведомление об оплате обязательно, в противном случае не гарантируется наличие товара на складе. Товар отпускается по факту прихода денег на р/с Поставщика.</Value>
         <ZIndex>0</ZIndex>
         <Left>208.7pt</Left>
-        <Top>36.2pt</Top>
+        <Top>34.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1699,7 +1699,7 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
         <Value>='Счет № ' + First({order_id}, 'Order') + ' от ' + First({bill_date}, 'Order') + ' ' + Iif(String.IsNullOrEmpty({?special_contract_number}), '', {?special_contract_number})</Value>
         <ZIndex>0</ZIndex>
         <Left>39.2pt</Left>
-        <Top>226.3pt</Top>
+        <Top>228.7pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1723,7 +1723,7 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
           <FontFamily>Calibri</FontFamily>
         </Style>
         <Left>40.7pt</Left>
-        <Top>244.1pt</Top>
+        <Top>247.3pt</Top>
       </Line>
       <Table Name="Table1">
         <DataSetName>Order</DataSetName>
@@ -2098,16 +2098,16 @@ Iif(
           </CustomProperty>
         </CustomProperties>
         <Left>415.5pt</Left>
-        <Top>64.6pt</Top>
+        <Top>63.0pt</Top>
         <ZIndex>10</ZIndex>
       </CustomReportItem>
-      <Textbox Name="Textbox46" >
+      <Textbox Name="Textbox46">
         <Height>21.73pt</Height>
-        <Width>496.17pt</Width>
+        <Width>500pt</Width>
         <Value>=First( {info_str} , "AdditionalInfo" )</Value>
         <ZIndex>2</ZIndex>
-        <Left>40.70pt</Left>
-        <Top>205.60pt</Top>
+        <Left>39.2pt</Left>
+        <Top>205.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2117,11 +2117,8 @@ Iif(
           <Color>Red</Color>
           <VerticalAlign>Middle</VerticalAlign>
         </Style>
-        <CanGrow>true</CanGrow>
+        <CanGrow>false</CanGrow>
         <CanShrink>false</CanShrink>
-        <Visibility>
-          <Hidden>=String.IsNullOrEmpty('')</Hidden>
-        </Visibility>
       </Textbox>
     </ReportItems>
   </Body>
