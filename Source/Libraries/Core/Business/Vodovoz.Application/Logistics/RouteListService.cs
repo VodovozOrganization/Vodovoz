@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using MoreLinq;
+using NHibernate;
 using QS.DomainModel.UoW;
 using QS.Validation;
 using System;
@@ -531,7 +532,8 @@ namespace Vodovoz.Application.Logistics
 			sourceRouteList.CalculateWages(_wageParameterService);
 
 			// Сохранение данных в транзакцию
-			unitOfWork.Session.Flush();
+
+			FlushSessionWithoutCommit(unitOfWork);
 
 			_routeListProfitabilityController.ReCalculateRouteListProfitability(unitOfWork, sourceRouteList);
 
@@ -639,7 +641,9 @@ namespace Vodovoz.Application.Logistics
 
 				targetRouteList.ObservableAddresses.Add(newAddress);
 				unitOfWork.Save(targetRouteList);
-				unitOfWork.Session.Flush();
+
+				FlushSessionWithoutCommit(unitOfWork);
+
 				sourceRouteList.TransferAddressTo(unitOfWork, address, newAddress);
 				unitOfWork.Save(sourceRouteList);
 				unitOfWork.Save(targetRouteList);
@@ -669,7 +673,7 @@ namespace Vodovoz.Application.Logistics
 
 			//Пересчёт зарплаты после изменения МЛ
 
-			unitOfWork.Session.Flush();
+			FlushSessionWithoutCommit(unitOfWork);
 
 			sourceRouteList.CalculateWages(_wageParameterService);
 			_routeListProfitabilityController.ReCalculateRouteListProfitability(unitOfWork, sourceRouteList);
@@ -701,6 +705,21 @@ namespace Vodovoz.Application.Logistics
 			unitOfWork.Save(targetRouteList);
 
 			return Result.Success(messages.Where(x => !string.IsNullOrWhiteSpace(x)));
+		}
+
+
+		private void FlushSessionWithoutCommit(IUnitOfWork uow)
+		{
+			// Если транзакция не открыта, то вызов Session.Flush() сразу коммитит изменения в базу
+
+			var transaction = uow.Session.GetCurrentTransaction();
+
+			if(transaction is null)
+			{
+				uow.Session.BeginTransaction();
+			}
+
+			uow.Session.Flush();
 		}
 
 		/// <summary>

@@ -1,5 +1,6 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using MoreLinq;
+using NHibernate;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -208,6 +209,13 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 				routeListTo.ObservableAddresses.Add(newItem);
 				routeListFrom.TransferAddressTo(_unitOfWork, address, newItem);
+			}
+
+			var transaction = _unitOfWork.Session.GetCurrentTransaction();
+
+			if(transaction is null)
+			{
+				_unitOfWork.Session.BeginTransaction();
 			}
 
 			_unitOfWork.Session.Flush();
