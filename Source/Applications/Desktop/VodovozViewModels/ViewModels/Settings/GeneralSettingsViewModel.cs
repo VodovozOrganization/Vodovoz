@@ -12,6 +12,9 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 {
 	public class GeneralSettingsViewModel : TabViewModelBase
 	{
+		private const int _carLoadDocumentInfoStringMaxLength = 120;
+		private const int _billAdditionalInfoMaxLength = 200;
+
 		private readonly IGeneralSettingsParametersProvider _generalSettingsParametersProvider;
 		private readonly ICommonServices _commonServices;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
@@ -291,6 +294,12 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 		private void SaveBillAdditionalInfo()
 		{
+			if(!string.IsNullOrEmpty(BillAdditionalInfo) && BillAdditionalInfo.Length > _billAdditionalInfoMaxLength)
+			{
+				ShowMaxStringLengthExceededErrorMessage(BillAdditionalInfo.Length, _billAdditionalInfoMaxLength);
+				return;
+			}
+
 			_generalSettingsParametersProvider.UpdateBillAdditionalInfo(BillAdditionalInfo);
 			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
 		}
@@ -311,6 +320,12 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 		private void SaveCarLoadDocumentInfoString()
 		{
+			if(!string.IsNullOrEmpty(CarLoadDocumentInfoString) && CarLoadDocumentInfoString.Length > _carLoadDocumentInfoStringMaxLength)
+			{
+				ShowMaxStringLengthExceededErrorMessage(CarLoadDocumentInfoString.Length, _carLoadDocumentInfoStringMaxLength);
+				return;
+			}
+
 			_generalSettingsParametersProvider.UpdateCarLoadDocumentInfoString(CarLoadDocumentInfoString);
 			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
 		}
@@ -381,6 +396,15 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 					AlternativePricesSubdivisionSettingsViewModel.ObservableSubdivisions.Add(subdivision);
 				}
 			}
+		}
+
+		private void ShowMaxStringLengthExceededErrorMessage(int currentLength, int maxLength)
+		{
+			_commonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Error,
+					$"Сохранение недоступно!" +
+					$"\nМаксимально допустимая длина строки составляет {maxLength} символов." +
+					$"\nВы ввели {currentLength} символов.");
 		}
 	}
 }
