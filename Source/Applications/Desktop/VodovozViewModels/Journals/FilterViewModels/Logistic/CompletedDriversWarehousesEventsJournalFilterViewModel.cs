@@ -36,7 +36,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		private DriverWarehouseEventType? _selectedEventType;
 		private DateTime? _startDate = DateTime.Today;
 		private DateTime? _endDate = DateTime.Today;
-		private Employee _employee;
+		private bool _orderByDriverWarehouseEventDateDesc = true;
 		private Car _car;
 
 		public CompletedDriversWarehousesEventsJournalFilterViewModel(
@@ -104,10 +104,10 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 			set => SetField(ref _endDate, value);
 		}
 		
-		public Employee Employee
+		public bool OrderByDriverWarehouseEventDateDesc
 		{
-			get => _employee;
-			set => UpdateFilterField(ref _employee, value);
+			get => _orderByDriverWarehouseEventDateDesc;
+			set => UpdateFilterField(ref _orderByDriverWarehouseEventDateDesc, value);
 		}
 		
 		public Car Car

@@ -100,19 +100,20 @@ namespace Vodovoz.Core.Domain.Logistics.Drivers
 			}
 		}
 
-		public virtual string GenerateQrData(int? documentId = null)
+		public virtual string GenerateQrData(string vodovozSite = null, int? documentId = null)
 		{
 			var sb = new StringBuilder();
 			
+			sb.Append(vodovozSite);
 			sb.Append(QrType);
 			sb.Append(QrParametersSeparator);
 			sb.Append($"{Id}");
 			sb.Append(QrParametersSeparator);
 			sb.Append($"{documentId}");
 			sb.Append(QrParametersSeparator);
-			sb.Append($"{Latitude}");
+			sb.Append($"{Latitude:N6}");
 			sb.Append(QrParametersSeparator);
-			sb.Append($"{Longitude}");
+			sb.Append($"{Longitude:N6}");
 
 			return sb.ToString();
 		}
