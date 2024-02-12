@@ -238,7 +238,7 @@ GROUP BY o2.e_shop_order;</CommandText>
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="InfoString" >
+    <DataSet Name="InfoString">
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT bp.str_value as info_str
@@ -1125,7 +1125,7 @@ WHERE bp.name = 'car_load_document_info_string';</CommandText>
           </TableRows>
         </Details>
         <Left>105.6pt</Left>
-        <Top>205.0pt</Top>
+        <Top>209.0pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -1264,7 +1264,7 @@ WHERE bp.name = 'car_load_document_info_string';</CommandText>
         <Value>Кладовщик_____________</Value>
         <ZIndex>0</ZIndex>
         <Left>40.9pt</Left>
-        <Top>392.8pt</Top>
+        <Top>396.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1278,7 +1278,7 @@ WHERE bp.name = 'car_load_document_info_string';</CommandText>
         <Value>= "Водитель_____________"</Value>
         <ZIndex>0</ZIndex>
         <Left>282.9pt</Left>
-        <Top>392.6pt</Top>
+        <Top>396.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1358,7 +1358,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>316.5pt</Top>
+        <Top>320.5pt</Top>
       </Table>
       <Table Name="Table8" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Doc</DataSetName>
@@ -1431,7 +1431,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>318.2pt</Top>
+        <Top>322.2pt</Top>
       </Table>
       <Line Name="Line3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>0.07pt</Height>
@@ -1446,7 +1446,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </BorderWidth>
         </Style>
         <Left>0.0pt</Left>
-        <Top>314.2pt</Top>
+        <Top>318.2pt</Top>
       </Line>
       <Table Name="Table9" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Doc</DataSetName>
@@ -1520,7 +1520,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>176.5pt</Top>
+        <Top>180.5pt</Top>
       </Table>
       <Table Name="Table11" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Doc</DataSetName>
@@ -1687,7 +1687,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </BorderWidth>
         </Style>
         <Left>0.0pt</Left>
-        <Top>173.4pt</Top>
+        <Top>177.4pt</Top>
       </Line>
       <Table Name="Table13" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Equipment</DataSetName>
@@ -1804,7 +1804,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </TableRows>
         </Details>
         <Left>20.8pt</Left>
-        <Top>351.4pt</Top>
+        <Top>355.4pt</Top>
         <ZIndex>0</ZIndex>
       </Table>
       <Table Name="Table16" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1853,7 +1853,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           <RepeatOnNewPage>true</RepeatOnNewPage>
         </Header>
         <Left>413.1pt</Left>
-        <Top>339.7pt</Top>
+        <Top>343.7pt</Top>
         <Details>
           <TableRows>
             <TableRow>
@@ -2480,7 +2480,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         <Value>= "Водитель_____________"</Value>
         <ZIndex>0</ZIndex>
         <Left>263.7pt</Left>
-        <Top>253.9pt</Top>
+        <Top>257.9pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2494,7 +2494,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         <Value>Кладовщик_____________</Value>
         <ZIndex>0</ZIndex>
         <Left>110.5pt</Left>
-        <Top>253.9pt</Top>
+        <Top>257.9pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2508,7 +2508,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         <Value>Товар мной проверен. По количеству и качеству товара претензий не имею.</Value>
         <ZIndex>0</ZIndex>
         <Left>173.1pt</Left>
-        <Top>406.5pt</Top>
+        <Top>410.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2601,33 +2601,33 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         </Style>
       </Rectangle>
       <Textbox Name="Textbox33" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>14.27pt</Height>
-        <Width>557.48pt</Width>
+        <Height>15pt</Height>
+        <Width>565pt</Width>
         <Value>=First( {info_str} , "InfoString" )</Value>
         <ZIndex>0</ZIndex>
-        <Left>5.35pt</Left>
-        <Top>152.70pt</Top>
+        <Left>3pt</Left>
+        <Top>156.7pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
-          <FontWeight >Bold</FontWeight>
-          <TextAlign >Right</TextAlign>
+          <FontWeight>Bold</FontWeight>
+          <TextAlign>Right</TextAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox34" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>15.78pt</Height>
-        <Width>543.11pt</Width>
+        <Width>565pt</Width>
         <Value>=First( {info_str} , "InfoString" )</Value>
         <ZIndex>0</ZIndex>
-        <Left>20.22pt</Left>
-        <Top>419.30pt</Top>
+        <Left>3.0pt</Left>
+        <Top>429.7pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
-          <FontWeight >Bold</FontWeight>
-          <TextAlign >Right</TextAlign>
+          <FontWeight>Bold</FontWeight>
+          <TextAlign>Right</TextAlign>
         </Style>
       </Textbox>
     </ReportItems>
