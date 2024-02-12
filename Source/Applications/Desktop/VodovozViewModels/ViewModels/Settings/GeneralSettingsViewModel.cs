@@ -12,8 +12,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 {
 	public class GeneralSettingsViewModel : TabViewModelBase
 	{
-		private const int _carLoadDocumentInfoStringMaxLength = 120;
-		private const int _billAdditionalInfoMaxLength = 200;
+		private const int _carLoadDocumentInfoStringMaxLength = 80;
+		private const int _billAdditionalInfoMaxLength = 140;
 
 		private readonly IGeneralSettingsParametersProvider _generalSettingsParametersProvider;
 		private readonly ICommonServices _commonServices;
