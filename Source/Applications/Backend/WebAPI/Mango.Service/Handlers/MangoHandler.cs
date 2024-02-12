@@ -21,7 +21,7 @@ namespace Mango.Service.Handlers
 			_notificationHostedService = notificationHostedService ?? throw new System.ArgumentNullException(nameof(notificationHostedService));
 		}
 
-		public Task HandleAsync(CallEvent callEvent)
+		public Task HandleAsync(MangoCallEvent callEvent)
 		{
 			var call = _callsService.Calls.GetOrAdd(callEvent.CallId, id => new CallInfo(callEvent));
 			lock(call)
