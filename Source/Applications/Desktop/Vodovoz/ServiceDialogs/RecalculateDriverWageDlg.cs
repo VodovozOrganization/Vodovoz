@@ -34,7 +34,7 @@ namespace Vodovoz.ServiceDialogs
 
         private void ConfigureDlg()
         {
-            var employeeFactory = new EmployeeJournalFactory();
+            var employeeFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager);
             evmeDriver.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
             datePickerFrom.IsEditable = true;
             datePickerTo.IsEditable = true;

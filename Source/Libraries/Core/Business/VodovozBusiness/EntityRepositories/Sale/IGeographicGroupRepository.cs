@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Sale;
@@ -12,6 +12,8 @@ namespace Vodovoz.EntityRepositories.Sale
 		IList<GeoGroup> GeographicGroupsWithCoordinates(IUnitOfWork uow, bool isActiveOnly = false);
 		IList<GeoGroupVersion> GetGeographicGroupVersionsOnDate(IUnitOfWork uow, DateTime date);
 		IList<GeoGroup> GeographicGroupsWithCoordinatesExceptEast(
+			IUnitOfWork uow, IGeographicGroupParametersProvider geographicGroupParametersProvider);
+		IList<GeoGroup> GeographicGroupsWithoutEast(
 			IUnitOfWork uow, IGeographicGroupParametersProvider geographicGroupParametersProvider);
 	}
 }

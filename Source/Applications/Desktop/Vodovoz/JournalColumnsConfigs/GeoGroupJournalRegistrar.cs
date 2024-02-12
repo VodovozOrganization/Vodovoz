@@ -11,6 +11,9 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddNumericRenderer(node => node.Id).WidthChars(4)
 				.AddColumn("Название")
 					.AddTextRenderer(node => node.Name)
+				.AddColumn("В архиве")
+					.AddToggleRenderer(node => node.IsArchived).Editing(false)
+				.AddColumn("")
 				.Finish();
 	}
 }

@@ -29,7 +29,7 @@ namespace DeliveryRulesService.Controllers
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IDeliveryRepository _deliveryRepository;
 		private readonly INomenclatureRepository _nomenclatureRepository;
-		private readonly FiasApiClientFactory _fiasApiClientFactory;
+		private readonly IFiasApiClientFactory _fiasApiClientFactory;
 		private readonly IFiasApiClient _fiasApiClient;
 		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
 		private readonly INomenclatureParametersProvider _nomenclatureParametersProvider;
@@ -43,7 +43,7 @@ namespace DeliveryRulesService.Controllers
 			IUnitOfWorkFactory uowFactory,
 			IDeliveryRepository deliveryRepository,
 			INomenclatureRepository nomenclatureRepository,
-			FiasApiClientFactory fiasApiClientFactory,
+			IFiasApiClientFactory fiasApiClientFactory,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
 			INomenclatureParametersProvider nomenclatureParametersProvider,
 			FastDeliveryAvailabilityHistoryModel fastDeliveryAvailabilityHistoryModel,
@@ -423,9 +423,19 @@ namespace DeliveryRulesService.Controllers
 		//Также сортировка в каждой группе по величине интервала и если она совпадает, по первому времени интервала
 		private static IEnumerable<DeliverySchedule> ReorderScheduleRestrictions(IList<DeliverySchedule> deliverySchedules)
 		{
-			return deliverySchedules
+			// Cуществует интервал с 17 до 19,  на него правила сортировки не должны действовать, этот интервал должен отображаться в самом конце в любом случае.
+			// (В дальнейшем появление подобных уникальных интервалов не планируется).
+			var valuesFrom17To19 = deliverySchedules.Where(x => x.From == TimeSpan.FromHours(17) && x.To == TimeSpan.FromHours(19)).ToList();
+
+			var result = deliverySchedules
+				.Where(x => x.From != TimeSpan.FromHours(17) || x.To != TimeSpan.FromHours(19))
 				.OrderBy(ds => ds.From)
-				.ThenBy(ds => ds.To);
+				.ThenByDescending(ds => ds.To)
+				.ToList();
+
+			result.AddRange(valuesFrom17To19);
+
+			return result;
 		}
 
 		private IList<DeliveryRuleDTO> FillDeliveryRuleDTO<T>(IList<T> rules)

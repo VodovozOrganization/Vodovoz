@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>210mm</PageHeight>
   <PageWidth>297mm</PageWidth>
   <Width>7.5in</Width>
@@ -15,77 +13,42 @@
     <DataSet Name="MainData">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT nomenclature.id as nomenclature_id,
-       nomenclature.name as nomenclature_name,
-       IFNULL(subquery1.name_for_group, 'Неизвестно') as warehouse_for_grouping,
-       IFNULL(subquery1.sum, -1) as current_month_sum,
-       IFNULL(subquery2.sum, 0) as month_minus_1_sum,
-       IFNULL(subquery3.sum, 0) as month_minus_2_sum,
-       IFNULL(subquery1.sum - subquery2.sum, 0) as diff_curr_minus_1_month,
-       IFNULL(subquery2.sum - subquery3.sum, 0) as diff_minus_1_minus_2_month,
-       IFNULL((subquery1.sum - subquery2.sum)*100/subquery1.sum, 0) as diff_curr_minus_1_month_percent,
-       IFNULL((subquery2.sum - subquery3.sum)*100/subquery2.sum, 0) as diff_minus_1_minus_2_month_percent
+        <CommandText>SELECT
+t.warehouse_for_grouping,
+t.nomenclature_name,
+SUM(IF(t.month = MONTH(@month_minus_2_start) AND t.year = YEAR(@month_minus_2_start), t.oper_sum, 0)) AS month_minus_2_sum,
+SUM(IF(t.month = MONTH(@month_minus_1_start) AND t.year = YEAR(@month_minus_1_start), t.oper_sum, 0)) AS month_minus_1_sum,
+SUM(IF(t.month = MONTH(@month_start) AND t.year = YEAR(@month_start), t.oper_sum, 0)) current_month_sum
+
+FROM (
+
+SELECT      
+       nomenclature.name  as  nomenclature_name,
+       SUM(goods_accounting_operations.amount) as oper_sum,
+       YEAR(store_incoming_water.time_stamp) year,
+       MONTH(store_incoming_water.time_stamp) month,
+       (SELECT name FROM warehouses w WHERE w.id = goods_accounting_operations.warehouse_id) AS warehouse_for_grouping
 
 FROM nomenclature
-         LEFT JOIN warehouses w on nomenclature.warehouse_id = w.id
-         LEFT JOIN
-     (SELECT
-          goods_accounting_operations.nomenclature_id as id,
-          SUM(IF(goods_accounting_operations.warehouse_id = @warehouse_id
-             AND goods_accounting_operations.amount &gt; 0
-             AND store_incoming_water.id IS NOT NULL, cast(goods_accounting_operations.amount as signed), 0)) as sum,
-          (SELECT warehouses.name FROM warehouses WHERE id = @warehouse_id) as name_for_group
-
-      FROM
-          goods_accounting_operations
-              LEFT JOIN store_incoming_water ON store_incoming_water.produce_operation_id = goods_accounting_operations.id
-
-      WHERE
-              store_incoming_water.time_stamp &gt;= @month_start
-        AND store_incoming_water.time_stamp &lt;= DATE_ADD(@month_end, INTERVAL 1 DAY)
-      GROUP BY goods_accounting_operations.nomenclature_id) as subquery1 on subquery1.id  = nomenclature.id
-
-
-         LEFT JOIN
-     (SELECT
-          goods_accounting_operations.nomenclature_id as id,
-          SUM(IF(goods_accounting_operations.warehouse_id = @warehouse_id
-             AND goods_accounting_operations.amount &gt; 0
-             AND store_incoming_water.id IS NOT NULL, cast(goods_accounting_operations.amount as signed), 0)) as sum,
-          (SELECT warehouses.name FROM warehouses WHERE id = @warehouse_id) as name_for_group
-
-      FROM
-          goods_accounting_operations
-              LEFT JOIN store_incoming_water ON store_incoming_water.produce_operation_id = goods_accounting_operations.id
-
-      WHERE
-              store_incoming_water.time_stamp &gt;= @month_minus_1_start
-        AND store_incoming_water.time_stamp &lt;= DATE_ADD(@month_minus_1_end, INTERVAL 1 DAY)
-      GROUP BY goods_accounting_operations.nomenclature_id) as subquery2 on subquery2.id  = nomenclature.id
-
-
-         LEFT JOIN
-     (SELECT
-          goods_accounting_operations.nomenclature_id as id,
-          SUM(IF(goods_accounting_operations.warehouse_id = @warehouse_id
-             AND goods_accounting_operations.amount &gt; 0
-             AND store_incoming_water.id IS NOT NULL, cast(goods_accounting_operations.amount as signed), 0)) as sum,
-          (SELECT warehouses.name FROM warehouses WHERE id = @warehouse_id) as name_for_group
-
-      FROM
-          goods_accounting_operations
-              LEFT JOIN store_incoming_water ON store_incoming_water.produce_operation_id = goods_accounting_operations.id
-
-      WHERE
-              store_incoming_water.time_stamp &gt;= @month_minus_2_start
-        AND store_incoming_water.time_stamp &lt;= DATE_ADD(@month_minus_2_end, INTERVAL 1 DAY)
-      GROUP BY goods_accounting_operations.nomenclature_id) as subquery3 on subquery3.id  = nomenclature.id
-
-WHERE nomenclature.category = 'water' AND
-    (nomenclature.id = @nomenclature_id OR @nomenclature_id = -1)
-
-GROUP BY nomenclature.id;
-     </CommandText>
+    LEFT JOIN goods_accounting_operations on goods_accounting_operations.nomenclature_id = nomenclature.id
+    LEFT JOIN store_incoming_water ON store_incoming_water.produce_operation_id = goods_accounting_operations.id
+    WHERE
+         nomenclature.category = 'water'
+         AND store_incoming_water.time_stamp &gt;= @month_minus_2_start
+         AND store_incoming_water.time_stamp &lt;= DATE_ADD( @month_end, INTERVAL 1 DAY)
+         AND goods_accounting_operations.amount &gt; 0
+         AND store_incoming_water.id IS NOT NULL
+         AND
+         (0 IN (@Nomenclature_include) OR (goods_accounting_operations.nomenclature_id IN (@Nomenclature_include)))
+				AND NOT ( goods_accounting_operations.nomenclature_id IN (@Nomenclature_exclude))
+         AND
+         (0 IN (@Warehouse_include) OR (goods_accounting_operations.warehouse_id  IN (@Warehouse_include)))
+				AND NOT ( goods_accounting_operations.warehouse_id  IN (@Warehouse_exclude))				                 
+         
+         GROUP BY year, month, nomenclature_name, warehouse_for_grouping
+) t
+         
+GROUP BY t.nomenclature_name, t.warehouse_for_grouping</CommandText>
         <QueryParameters>
           <QueryParameter Name="month_start">
             <Value>={?month_start}</Value>
@@ -105,53 +68,40 @@ GROUP BY nomenclature.id;
           <QueryParameter Name="month_minus_2_end">
             <Value>={?month_minus_2_end}</Value>
           </QueryParameter>
-          <QueryParameter Name="nomenclature_id">
-            <Value>={?nomenclature_id}</Value>
+          <QueryParameter Name="Nomenclature_include">
+            <Value>={?Nomenclature_include}</Value>
           </QueryParameter>
-          <QueryParameter Name="warehouse_id">
-            <Value>={?warehouse_id}</Value>
+          <QueryParameter Name="Nomenclature_exclude">
+            <Value>={?Nomenclature_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="Warehouse_include">
+            <Value>={?Warehouse_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="Warehouse_exclude">
+            <Value>={?Warehouse_exclude}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
       <Fields >
-        <Field Name="nomenclature_id">
-          <DataField>nomenclature_id</DataField>
-          <TypeName>System.Int32</TypeName>
+        <Field Name="warehouse_for_grouping">
+          <DataField>warehouse_for_grouping</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
         <Field Name="nomenclature_name">
           <DataField>nomenclature_name</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="current_month_sum">
-          <DataField>current_month_sum</DataField>
-          <TypeName>System.Int32</TypeName>
+        <Field Name="month_minus_2_sum">
+          <DataField>month_minus_2_sum</DataField>
+          <TypeName>System.Decimal</TypeName>
         </Field>
         <Field Name="month_minus_1_sum">
           <DataField>month_minus_1_sum</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
-        <Field Name="month_minus_2_sum">
-          <DataField>month_minus_2_sum</DataField>
+        <Field Name="current_month_sum">
+          <DataField>current_month_sum</DataField>
           <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="diff_curr_minus_1_month">
-          <DataField>diff_curr_minus_1_month</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="diff_minus_1_minus_2_month">
-          <DataField>diff_minus_1_minus_2_month</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="diff_curr_minus_1_month_percent">
-          <DataField>diff_curr_minus_1_month_percent</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="diff_minus_1_minus_2_month_percent">
-          <DataField>diff_minus_1_minus_2_month_percent</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="warehouse_for_grouping">
-          <DataField>warehouse_for_grouping</DataField>
         </Field>
       </Fields>
     </DataSet>
@@ -424,6 +374,7 @@ GROUP BY nomenclature.id;
                           <Top>1pt</Top>
                           <Bottom>1pt</Bottom>
                         </BorderWidth>
+                        <Format >0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -445,6 +396,7 @@ GROUP BY nomenclature.id;
                           <Top>1pt</Top>
                           <Bottom>1pt</Bottom>
                         </BorderWidth>
+                        <Format >0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -452,7 +404,7 @@ GROUP BY nomenclature.id;
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox33">
-                      <Value>={diff_minus_1_minus_2_month}</Value>
+                      <Value>={month_minus_1_sum}-{month_minus_2_sum}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -466,6 +418,7 @@ GROUP BY nomenclature.id;
                           <Top>1pt</Top>
                           <Bottom>1pt</Bottom>
                         </BorderWidth>
+                        <Format >0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -473,7 +426,7 @@ GROUP BY nomenclature.id;
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox37">
-                      <Value>={diff_minus_1_minus_2_month_percent}</Value>
+                      <Value>=({month_minus_1_sum}-{month_minus_2_sum}) * 100 / {month_minus_1_sum}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -487,7 +440,7 @@ GROUP BY nomenclature.id;
                           <Top>1pt</Top>
                           <Bottom>1pt</Bottom>
                         </BorderWidth>
-                        <Format >#,##0.00</Format>
+                        <Format>0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -510,6 +463,7 @@ GROUP BY nomenclature.id;
                           <Bottom>1pt</Bottom>
                         </BorderWidth>
                         <BackgroundColor>Khaki</BackgroundColor>
+                        <Format >0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -517,7 +471,7 @@ GROUP BY nomenclature.id;
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox5">
-                      <Value>={diff_curr_minus_1_month}</Value>
+                      <Value>={current_month_sum}-{month_minus_1_sum}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -531,6 +485,7 @@ GROUP BY nomenclature.id;
                           <Top>1pt</Top>
                           <Bottom>1pt</Bottom>
                         </BorderWidth>
+                        <Format >0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -538,7 +493,7 @@ GROUP BY nomenclature.id;
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox7">
-                      <Value>={diff_curr_minus_1_month_percent}</Value>
+                      <Value>=({current_month_sum}-{month_minus_1_sum}) * 100 / {current_month_sum}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -552,7 +507,7 @@ GROUP BY nomenclature.id;
                           <Top>1pt</Top>
                           <Bottom>1pt</Bottom>
                         </BorderWidth>
-                        <Format >#,##0.00</Format>
+                        <Format>0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -605,8 +560,7 @@ GROUP BY nomenclature.id;
                               <Default>Solid</Default>
                             </BorderStyle>
                           </Style>
-                          <Value>
-                          </Value>
+                          <Value></Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -618,8 +572,7 @@ GROUP BY nomenclature.id;
                               <Default>Solid</Default>
                             </BorderStyle>
                           </Style>
-                          <Value>
-                          </Value>
+                          <Value></Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -631,8 +584,7 @@ GROUP BY nomenclature.id;
                               <Default>Solid</Default>
                             </BorderStyle>
                           </Style>
-                          <Value>
-                          </Value>
+                          <Value></Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -644,8 +596,7 @@ GROUP BY nomenclature.id;
                               <Default>Solid</Default>
                             </BorderStyle>
                           </Style>
-                          <Value>
-                          </Value>
+                          <Value></Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -660,8 +611,7 @@ GROUP BY nomenclature.id;
                             <BorderWidth />
                             <BackgroundColor>Khaki</BackgroundColor>
                           </Style>
-                          <Value>
-                          </Value>
+                          <Value></Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -673,8 +623,7 @@ GROUP BY nomenclature.id;
                               <Default>Solid</Default>
                             </BorderStyle>
                           </Style>
-                          <Value>
-                          </Value>
+                          <Value></Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -686,8 +635,7 @@ GROUP BY nomenclature.id;
                               <Default>Solid</Default>
                             </BorderStyle>
                           </Style>
-                          <Value>
-                          </Value>
+                          <Value></Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -714,8 +662,7 @@ GROUP BY nomenclature.id;
                               <Bottom>2pt</Bottom>
                             </BorderWidth>
                           </Style>
-                          <Value>
-                          </Value>
+                          <Value></Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -732,8 +679,7 @@ GROUP BY nomenclature.id;
                               <Bottom>2pt</Bottom>
                             </BorderWidth>
                           </Style>
-                          <Value>
-                          </Value>
+                          <Value></Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -750,8 +696,7 @@ GROUP BY nomenclature.id;
                               <Bottom>2pt</Bottom>
                             </BorderWidth>
                           </Style>
-                          <Value>
-                          </Value>
+                          <Value></Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -768,8 +713,7 @@ GROUP BY nomenclature.id;
                               <Bottom>2pt</Bottom>
                             </BorderWidth>
                           </Style>
-                          <Value>
-                          </Value>
+                          <Value></Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -786,8 +730,7 @@ GROUP BY nomenclature.id;
                               <Bottom>2pt</Bottom>
                             </BorderWidth>
                           </Style>
-                          <Value>
-                          </Value>
+                          <Value></Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -804,8 +747,7 @@ GROUP BY nomenclature.id;
                               <Bottom>2pt</Bottom>
                             </BorderWidth>
                           </Style>
-                          <Value>
-                          </Value>
+                          <Value></Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -822,8 +764,7 @@ GROUP BY nomenclature.id;
                               <Bottom>2pt</Bottom>
                             </BorderWidth>
                           </Style>
-                          <Value>
-                          </Value>
+                          <Value></Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -840,8 +781,7 @@ GROUP BY nomenclature.id;
                               <Bottom>2pt</Bottom>
                             </BorderWidth>
                           </Style>
-                          <Value>
-                          </Value>
+                          <Value></Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -917,126 +857,127 @@ GROUP BY nomenclature.id;
   </PageFooter>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <DataSources>
+  <DataSources >
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySqlConnector</DataProvider>
-        <ConnectString>database=Vodovoz;user=andrey;password=123;port=3306;server=vod.qsolution.ru</ConnectString>
+        <ConnectString>database=Vodovoz;user=qa;password=123;port=3306;server=vod.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="month_start">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="month_end">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="month_minus_1_start">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="month_minus_1_end">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="month_minus_2_start">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="month_minus_2_end">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="month_name">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="month_name_minus_1">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="month_name_minus_2">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="creation_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
-    </ReportParameter>
-    <ReportParameter Name="nomenclature_id">
-      <DataType>String</DataType>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
-    </ReportParameter>
-    <ReportParameter Name="warehouse_id">
-      <DataType>String</DataType>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="nomenclature_footer_name">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="warehouse_footer_name">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Nomenclature_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Nomenclature_exclude">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Warehouse_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Warehouse_exclude">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

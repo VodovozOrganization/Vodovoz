@@ -1,5 +1,6 @@
 ﻿using System;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.ViewModels.Reports.Sales
@@ -21,6 +22,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				public int? CounterpartyId { get; set; }
 
 				public CounterpartyType? CounterpartyType { get; set; }
+				public string CounterpartySubtype { get; set; }
+				public int? CounterpartySubtypeId { get; set; }
 
 				public string CounterpartyPhones { get; set; }
 
@@ -42,7 +45,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 				public DateTime? OrderDeliveryDate { get; set; }
 
-				public int? RouteListId { get; set; }
+				public int RouteListId { get; set; }
 
 				public int ProductGroupId { get; set; }
 
@@ -57,6 +60,12 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				public decimal ActualSum { get; set; }
 
 				public string OrderContactPhone { get; set; }
+
+				public CounterpartyCompositeClassification CounterpartyClassification { get; set; }
+
+				public int PromotionalSetId { get; set; }
+				
+				public string PromotionalSetName { get; set; }
 			}
 		}
 	}

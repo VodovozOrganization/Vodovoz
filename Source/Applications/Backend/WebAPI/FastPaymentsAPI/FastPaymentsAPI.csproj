@@ -5,6 +5,7 @@
         <Nullable>disable</Nullable>
         <ImplicitUsings>disable</ImplicitUsings>
         <LangVersion>9</LangVersion>
+        <UserSecretsId>0c9c63cb-3246-4944-b158-6e31bfd1fc2c</UserSecretsId>
     </PropertyGroup>
 
 	<ItemGroup>
@@ -34,6 +35,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\FastPaymentsAPI.Library\FastPaymentsAPI.Library.csproj" />
+      <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\HealthCheck\VodovozHealthCheck.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\Core\Business\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Attachments\QS.Attachments.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj" />

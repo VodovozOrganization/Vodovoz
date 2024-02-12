@@ -10,6 +10,7 @@ using QS.Navigation;
 using QS.Project.Journal;
 using QS.Services;
 using QS.ViewModels;
+using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.Parameters;
 
@@ -45,17 +46,17 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		{
 			var page = _navigationManager.OpenViewModel<SubdivisionsJournalViewModel>(null);
 			page.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
-			page.ViewModel.OnEntitySelectedResult += OnSubdivisionsToAddSelected;
+			page.ViewModel.OnSelectResult += OnSubdivisionsToAddSelected;
 		}
 
-		private void OnSubdivisionsToAddSelected(object sender, JournalSelectedNodesEventArgs e)
+		private void OnSubdivisionsToAddSelected(object sender, JournalSelectedEventArgs e)
 		{
 			if(!(sender is SubdivisionsJournalViewModel viewModel))
 			{
 				return;
 			}
 
-			var selectedIds = e.SelectedNodes.Select(x => x.Id);
+			var selectedIds = e.SelectedObjects.Select(x => ((SubdivisionJournalNode)x).Id);
 
 			if(!selectedIds.Any())
 			{
@@ -92,7 +93,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 				}
 			}
 
-			viewModel.OnEntitySelectedResult -= OnSubdivisionsToAddSelected;
+			viewModel.OnSelectResult -= OnSubdivisionsToAddSelected;
 		}
 
 		private void RemoveSubdivision()

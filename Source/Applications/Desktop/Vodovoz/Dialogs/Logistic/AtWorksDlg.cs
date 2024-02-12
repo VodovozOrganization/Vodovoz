@@ -1,3 +1,4 @@
+﻿using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gamma.Widgets.Additions;
@@ -6,7 +7,6 @@ using Gtk;
 using Microsoft.Extensions.Logging;
 using QS.Dialog;
 using QS.Dialog.Gtk;
-using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -19,29 +19,21 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Vodovoz.Controllers;
-using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Sale;
-using Vodovoz.EntityRepositories.WageCalculation;
-using Vodovoz.Factories;
 using Vodovoz.Infrastructure;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.Models;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Logistic;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic;
@@ -56,16 +48,15 @@ namespace Vodovoz.Dialogs.Logistic
 		private readonly Gtk.Adjustment _driversAtWorksPriorityAdjustment = new Gtk.Adjustment(6, 1, 10, 1, 1, 1);
 
 		private readonly ILogger<AtWorksDlg> _logger;
-
+		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IDefaultDeliveryDayScheduleSettings _defaultDeliveryDayScheduleSettings;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly ICarRepository _carRepository;
 		private readonly IGeographicGroupRepository _geographicGroupRepository;
 		private readonly IScheduleRestrictionRepository _scheduleRestrictionRepository;
 		private readonly IRouteListRepository _routeListRepository;
-		private readonly IAttachmentsViewModelFactory _attachmentsViewModelFactory;
+		private readonly IInteractiveService _interactiveService;
 		private readonly IAtWorkRepository _atWorkRepository;
 		private readonly EmployeeFilterViewModel _forwarderFilter;
 		private readonly AtWorkFilterViewModel _filterViewModel;
@@ -74,6 +65,7 @@ namespace Vodovoz.Dialogs.Logistic
 		private readonly Color _colorPrimaryText = GdkColors.PrimaryText;
 		private readonly Color _colorInsensitiveText = GdkColors.InsensitiveText;
 		private readonly Color _colorLightRed = GdkColors.DangerBase;
+
 		private IList<RouteList> _routelists = new List<RouteList>();
 		private readonly HashSet<AtWorkDriver> _driversWithCommentChanged = new HashSet<AtWorkDriver>();
 		private bool _hasNewDrivers;
@@ -83,19 +75,28 @@ namespace Vodovoz.Dialogs.Logistic
 
 		public AtWorksDlg(
 			ILogger<AtWorksDlg> logger,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			INavigationManager navigationManager,
+			ILifetimeScope lifetimeScope,
 			IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IRouteListRepository routeListRepository,
 			ICarRepository carRepository,
 			IEmployeeRepository employeeRepository,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IGeographicGroupRepository geographicGroupRepository,
 			IScheduleRestrictionRepository scheduleRestrictionRepository,
-			IAttachmentsViewModelFactory attachmentsViewModelFactory,
 			IUserService userService,
 			IPermissionService permissionService,
+			IInteractiveService interactiveService,
 			IAtWorkRepository atWorkRepository)
 		{
+			if(unitOfWorkFactory is null)
+			{
+				throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			}
+
+			UoW = unitOfWorkFactory.CreateWithoutRoot("На работе");
+
 			if(userService is null)
 			{
 				throw new ArgumentNullException(nameof(userService));
@@ -107,15 +108,16 @@ namespace Vodovoz.Dialogs.Logistic
 			}
 
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_defaultDeliveryDayScheduleSettings = defaultDeliveryDayScheduleSettings ?? throw new ArgumentNullException(nameof(defaultDeliveryDayScheduleSettings));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_carRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
-			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			_geographicGroupRepository = geographicGroupRepository ?? throw new ArgumentNullException(nameof(geographicGroupRepository));
 			_scheduleRestrictionRepository = scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
-			_attachmentsViewModelFactory = attachmentsViewModelFactory ?? throw new ArgumentNullException(nameof(attachmentsViewModelFactory));
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_atWorkRepository = atWorkRepository ?? throw new ArgumentNullException(nameof(atWorkRepository));
 
 			_filterViewModel = new AtWorkFilterViewModel(UoW, _geographicGroupRepository, CheckAndSaveBeforeСontinue);
@@ -144,9 +146,13 @@ namespace Vodovoz.Dialogs.Logistic
 
 		#region Properties
 
-		public IUnitOfWork UoW { get; } = UnitOfWorkFactory.CreateWithoutRoot();
+		public IUnitOfWork UoW { get; }
 
 		public bool HasChanges => UoW.HasChanges;
+
+		public virtual bool HasCustomCancellationConfirmationDialog => false;
+
+		public virtual Func<int> CustomCancellationConfirmationDialogFunc => null;
 
 		public event EventHandler<EntitySavedEventArgs> EntitySaved;
 
@@ -155,6 +161,7 @@ namespace Vodovoz.Dialogs.Logistic
 		public GenericObservableList<AtWorkDriver> DriversAtDay { get; }
 
 		public GenericObservableList<AtWorkForwarder> ForwardersAtDay { get; }
+		public INavigationManager NavigationManager { get; }
 
 		#endregion Properties
 
@@ -223,9 +230,9 @@ namespace Vodovoz.Dialogs.Logistic
 		private void ConfigureForwardersAtWorksTreeView()
 		{
 			ytreeviewOnDayForwarders.ColumnsConfig = FluentColumnsConfig<AtWorkForwarder>.Create()
-							.AddColumn("Экспедитор").AddTextRenderer(x => x.Employee.ShortName)
-							.AddColumn("Едет с водителем").AddTextRenderer(x => RenderForwaderWithDriver(x))
-							.Finish();
+				.AddColumn("Экспедитор").AddTextRenderer(x => x.Employee.ShortName)
+				.AddColumn("Едет с водителем").AddTextRenderer(x => RenderForwaderWithDriver(x))
+				.Finish();
 
 			ytreeviewOnDayForwarders.ItemsDataSource = ForwardersAtDay;
 			ytreeviewOnDayForwarders.Selection.Mode = Gtk.SelectionMode.Multiple;
@@ -242,7 +249,7 @@ namespace Vodovoz.Dialogs.Logistic
 					.AddTextRenderer(x => x.Status.GetEnumTitle())
 				.AddColumn("Причина")
 					.AddTextRenderer(x => x.Reason)
-						.AddSetter((cell, driver) => cell.Editable = driver.Status == AtWorkDriver.DriverStatus.NotWorking)
+					.AddSetter((cell, driver) => cell.Editable = driver.Status == AtWorkDriver.DriverStatus.NotWorking)
 				.AddColumn("Водитель")
 					.AddTextRenderer(x => x.Employee.ShortName)
 				.AddColumn("Скор.")
@@ -280,15 +287,16 @@ namespace Vodovoz.Dialogs.Logistic
 				.AddColumn("")
 				.AddColumn("Комментарий")
 					.AddTextRenderer(x => x.Comment)
-						.Editable(true)
+					.Editable(true)
 				.AddColumn("Принадлежность\nавто")
 					.AddTextRenderer(x => x.CarOwnTypeDisplayName)
 				.AddColumn("Тип\nавто")
 					.AddTextRenderer(x => x.CarTypeOfUseDisplayName)
-				.RowCells().AddSetter<CellRendererText>((c, n) =>
-					c.ForegroundGdk = n.Status == AtWorkDriver.DriverStatus.NotWorking
-					? _colorInsensitiveText
-					: _colorPrimaryText)
+				.RowCells()
+					.AddSetter<CellRendererText>((c, n) =>
+						c.ForegroundGdk = n.Status == AtWorkDriver.DriverStatus.NotWorking
+						? _colorInsensitiveText
+						: _colorPrimaryText)
 				.Finish();
 
 			ytreeviewAtWorkDrivers.ItemsDataSource = DriversAtDay;
@@ -318,7 +326,7 @@ namespace Vodovoz.Dialogs.Logistic
 				return true;
 			}
 
-			if(ServicesConfig.InteractiveService.Question(question)
+			if(_interactiveService.Question(question)
 				&& Save())
 			{
 				return true;
@@ -351,7 +359,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 			_routelists = routeListGenerator.Generate();
 
-			if(ServicesConfig.InteractiveService.Question($"Будут созданы {_routelists.Count} маршрутных листов.\nПродолжить?"))
+			if(_interactiveService.Question($"Будут созданы {_routelists.Count} маршрутных листов.\nПродолжить?"))
 			{
 				SaveAndClose();
 			}
@@ -377,7 +385,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 		protected void OnButtonAddWorkingDriversClicked(object sender, EventArgs e)
 		{
-			if(!MessageDialogHelper.RunQuestionDialog("Будут добавлены все работающие водители, вы уверены?"))
+			if(!_interactiveService.Question("Будут добавлены все работающие водители, вы уверены?"))
 			{
 				return;
 			}
@@ -420,15 +428,11 @@ namespace Vodovoz.Dialogs.Logistic
 			switch(_filterViewModel.SortType)
 			{
 				case SortAtWorkDriversType.ByName:
-					{
-						sortedAtWorkDrivers = atWorkDrivers.OrderBy(x => x.Employee.ShortName);
-						break;
-					}
+					sortedAtWorkDrivers = atWorkDrivers.OrderBy(x => x.Employee.ShortName);
+					break;
 				case SortAtWorkDriversType.ByCarOwn:
-					{
-						sortedAtWorkDrivers = atWorkDrivers.OrderBy(x => x.CarOwnTypeDisplayName);
-						break;
-					}
+					sortedAtWorkDrivers = atWorkDrivers.OrderBy(x => x.CarOwnTypeDisplayName);
+					break;
 			}
 
 			if(sortedAtWorkDrivers is null)
@@ -473,36 +477,37 @@ namespace Vodovoz.Dialogs.Logistic
 
 			foreach(var driver in toDel)
 			{
-				if(driver.Id > 0)
+				if(driver.Id <= 0)
 				{
-					ChangeButtonAddRemove(driver.Status == AtWorkDriver.DriverStatus.IsWorking);
-					if(driver.Status == AtWorkDriver.DriverStatus.NotWorking)
+					DriversAtDay.Remove(driver);
+					continue;
+				}
+
+				ChangeButtonAddRemove(driver.Status == AtWorkDriver.DriverStatus.IsWorking);
+
+				if(driver.Status == AtWorkDriver.DriverStatus.NotWorking)
+				{
+					if(_canReturnDriver)
 					{
-						if(_canReturnDriver)
-						{
-							driver.Status = AtWorkDriver.DriverStatus.IsWorking;
-						}
+						driver.Status = AtWorkDriver.DriverStatus.IsWorking;
 					}
-					else
-					{
-						driver.Status = AtWorkDriver.DriverStatus.NotWorking;
-						driver.AuthorRemovedDriver = _employeeRepository.GetEmployeeForCurrentUser(UoW);
-						driver.RemovedDate = DateTime.Now;
-					}
-					DriversAtDay.OnPropertyChanged(nameof(driver.Status));
 				}
 				else
 				{
-					DriversAtDay.Remove(driver);
+					driver.Status = AtWorkDriver.DriverStatus.NotWorking;
+					driver.AuthorRemovedDriver = _employeeRepository.GetEmployeeForCurrentUser(UoW);
+					driver.RemovedDate = DateTime.Now;
 				}
+
+				DriversAtDay.OnPropertyChanged(nameof(driver.Status));
 			}
 		}
 
 		protected void OnButtonClearDriverScreenClicked(object sender, EventArgs e)
 		{
-			if(MessageDialogHelper.RunQuestionWithTitleDialog("ВНИМАНИЕ!!!",
-				$"Список работающих и снятых водителей на дату: {_filterViewModel.AtDate.ToShortDateString()} будет очищен\n\n" +
-				"Вы действительно хотите продолжить?"))
+			if(_interactiveService.Question($"Список работающих и снятых водителей на дату: {_filterViewModel.AtDate.ToShortDateString()} будет очищен\n\n" +
+				"Вы действительно хотите продолжить?",
+				"ВНИМАНИЕ!!!"))
 			{
 				DriversAtDay.ToList().ForEach(x => UoW.Delete(x));
 				DriversAtDay.Clear();
@@ -519,33 +524,27 @@ namespace Vodovoz.Dialogs.Logistic
 
 			if(driver == null)
 			{
-				MessageDialogHelper.RunWarningDialog("Не выбран водитель!");
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Не выбран водитель!");
 				return;
 			}
 
-			var filter = new CarJournalFilterViewModel(new CarModelJournalFactory());
+			var filter = new CarJournalFilterViewModel(_lifetimeScope, new CarModelJournalFactory());
 
 			filter.SetAndRefilterAtOnce(
 				x => x.Archive = false,
 				x => x.RestrictedCarOwnTypes = new List<CarOwnType> { CarOwnType.Company }
 			);
 
-			var journal = new CarJournalViewModel(
-				filter,
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices,
-				Startup.AppDIContainer.BeginLifetimeScope());
+			var carJournalPage = (NavigationManager as ITdiCompatibilityNavigation).OpenViewModelOnTdi<CarJournalViewModel, CarJournalFilterViewModel>(this, filter);
 
-			journal.SelectionMode = JournalSelectionMode.Single;
+			carJournalPage.ViewModel.SelectionMode = JournalSelectionMode.Single;
 
-			journal.OnEntitySelectedResult += (o, args) =>
+			carJournalPage.ViewModel.OnEntitySelectedResult += (o, args) =>
 			{
 				var car = UoW.GetById<Car>(args.SelectedNodes.First().Id);
 				DriversAtDay.Where(x => x.Car != null && x.Car.Id == car.Id).ToList().ForEach(x => x.Car = null);
 				driver.Car = car;
 			};
-
-			TabParent.AddSlaveTab(this, journal);
 		}
 
 		protected void OnButtonAppointForwardersClicked(object sender, EventArgs e)
@@ -604,7 +603,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 				if(!districtsBottles.Any())
 				{
-					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Нет заказов на день для определения приоритета водителя.");
+					_interactiveService.ShowMessage(ImportanceLevel.Warning, "Нет заказов на день для определения приоритета водителя.");
 					return;
 				}
 
@@ -622,35 +621,19 @@ namespace Vodovoz.Dialogs.Logistic
 				}
 			}
 
-			MessageDialogHelper.RunInfoDialog("Готово.");
+			_interactiveService.ShowMessage(ImportanceLevel.Info, "Готово.");
 		}
 
 		protected void OnButtonOpenCarClicked(object sender, EventArgs e)
 		{
-			var selected = ytreeviewAtWorkDrivers.GetSelectedObjects<AtWorkDriver>().First();
+			var selected = ytreeviewAtWorkDrivers.GetSelectedObjects<AtWorkDriver>().FirstOrDefault();
 
-			var uowFactory = UnitOfWorkFactory.GetDefaultFactory;
-			var commonServices = ServicesConfig.CommonServices;
-			var warehouseJournalFactory = new WarehouseJournalFactory();
-			var employeeService = new EmployeeService();
-			var geoGroupVersionsModel = new GeoGroupVersionsModel(commonServices.UserService, employeeService);
-			var geoGroupJournalFactory = new GeoGroupJournalFactory(uowFactory, commonServices, _subdivisionJournalFactory, warehouseJournalFactory, geoGroupVersionsModel);
+			if(selected is null)
+			{
+				return;
+			}
 
-			TabParent.OpenTab(
-				DialogHelper.GenerateDialogHashName<Car>(selected.Car.Id),
-				() => new CarViewModel(
-					EntityUoWBuilder.ForOpen(selected.Car.Id),
-					UnitOfWorkFactory.GetDefaultFactory,
-					ServicesConfig.CommonServices,
-					_employeeJournalFactory,
-					_attachmentsViewModelFactory,
-					new CarModelJournalFactory(),
-					new CarVersionsViewModelFactory(ServicesConfig.CommonServices),
-					new OdometerReadingsViewModelFactory(ServicesConfig.CommonServices),
-					new RouteListsWageController(new WageParameterService(new WageCalculationRepository(),
-						new BaseParametersProvider(new ParametersProvider()))),
-					geoGroupJournalFactory,
-					Startup.MainWin.NavigationManager));
+			(NavigationManager as ITdiCompatibilityNavigation).OpenViewModelOnTdi<CarViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(selected.Car.Id));
 		}
 
 		protected void OnButtonEditDistrictsClicked(object sender, EventArgs e)
@@ -664,7 +647,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 			foreach(var one in selected)
 			{
-				Startup.MainWin.NavigationManager.OpenViewModelOnTdi<EmployeeViewModel, IEntityUoWBuilder>(
+				(NavigationManager as ITdiCompatibilityNavigation).OpenViewModelOnTdi<EmployeeViewModel, IEntityUoWBuilder>(
 					this, EntityUoWBuilder.ForOpen(one.Employee.Id));
 			}
 		}
@@ -698,8 +681,11 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private void YtreeviewDrivers_Selection_Changed(object sender, EventArgs e)
 		{
-			buttonRemoveDriver.Sensitive = buttonDriverSelectAuto.Sensitive
-				= buttonOpenDriver.Sensitive = ytreeviewAtWorkDrivers.Selection.CountSelectedRows() > 0;
+			var sensitiveness = ytreeviewAtWorkDrivers.Selection.CountSelectedRows() > 0;
+
+			buttonRemoveDriver.Sensitive = sensitiveness;
+			buttonDriverSelectAuto.Sensitive = sensitiveness;
+			buttonOpenDriver.Sensitive = sensitiveness;
 
 			if(ytreeviewAtWorkDrivers.Selection.CountSelectedRows() != 1 && districtpriorityview1.Visible)
 			{
@@ -861,7 +847,7 @@ namespace Vodovoz.Dialogs.Logistic
 			var forwarder = ForwardersAtDay.FirstOrDefault(x => x.Employee.Id == driver.DefaultForwarder.Id);
 
 			if(forwarder == null
-				&& MessageDialogHelper.RunQuestionDialog(
+				&& _interactiveService.Question(
 					  $"Водитель {driver.ShortName} обычно ездит с экспедитором {driver.DefaultForwarder.ShortName}. " +
 					  $"Он отсутствует в списке экспедиторов. Добавить его в список?"))
 			{
@@ -890,7 +876,7 @@ namespace Vodovoz.Dialogs.Logistic
 						continue;
 					}
 
-					MessageDialogHelper.RunWarningDialog("Не у всех снятых водителей указаны причины!");
+					_interactiveService.ShowMessage(ImportanceLevel.Warning, "Не у всех снятых водителей указаны причины!");
 					return false;
 				}
 			}
@@ -899,13 +885,13 @@ namespace Vodovoz.Dialogs.Logistic
 			{
 				if(driver.GeographicGroup == null)
 				{
-					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Error, "Не у всех водителей указана база!");
+					_interactiveService.ShowMessage(ImportanceLevel.Error, "Не у всех водителей указана база!");
 					return false;
 				}
 
 				if(driver.Car == null)
 				{
-					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Error, "Не у всех водителей указан авто!");
+					_interactiveService.ShowMessage(ImportanceLevel.Error, "Не у всех водителей указан авто!");
 					return false;
 				}
 			}
@@ -1013,7 +999,7 @@ namespace Vodovoz.Dialogs.Logistic
 					}
 				}
 
-				MessageDialogHelper.RunInfoDialog($"Были найдены и исправлены устаревшие приоритеты районов.\nУдалено приоритетов, ссылающихся на несуществующий район: {deletedCount}");
+				_interactiveService.ShowMessage(ImportanceLevel.Info, $"Были найдены и исправлены устаревшие приоритеты районов.\nУдалено приоритетов, ссылающихся на несуществующий район: {deletedCount}");
 
 				ytreeviewAtWorkDrivers.YTreeModel.EmitModelChanged();
 			}

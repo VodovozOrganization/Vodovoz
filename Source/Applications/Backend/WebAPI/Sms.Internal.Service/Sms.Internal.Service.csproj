@@ -5,7 +5,6 @@
     <UserSecretsId>d6b9a2e9-a3a6-4133-a5cd-d2dd944e825f</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 	<DockerfileContext>..\..\..\..</DockerfileContext>
-	<DockerComposeProjectPath>..\Sms.Internal.Service.Compose\sms-docker-compose.dcproj</DockerComposeProjectPath>	
 	<VersionPrefix>1.1.1</VersionPrefix>
 	<AssemblyVersion>$(VersionPrefix)</AssemblyVersion>
 	<FileVersion>$(VersionPrefix)</FileVersion>

@@ -22,8 +22,10 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using TrueMarkApi.HealthChecks;
 using TrueMarkApi.Services;
 using TrueMarkApi.Services.Authorization;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
@@ -31,6 +33,8 @@ using Vodovoz.Settings;
 using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Database.Edo;
 using Vodovoz.Settings.Edo;
+using VodovozHealthCheck;
+
 
 namespace TrueMarkApi
 {
@@ -91,6 +95,8 @@ namespace TrueMarkApi
 					};
 				});
 
+			services.ConfigureHealthCheckService<TrueMarkHealthCheck>(true);
+
 			// Конфигурация Nhibernate
 			try
 			{
@@ -121,6 +127,8 @@ namespace TrueMarkApi
 			{
 				endpoints.MapControllers();
 			});
+
+			app.ConfigureHealthCheckApplicationBuilder();
 		}
 
 		private void CreateBaseConfig()
@@ -154,7 +162,8 @@ namespace TrueMarkApi
 					Assembly.GetAssembly(typeof(Bank)),
 					Assembly.GetAssembly(typeof(HistoryMain)),
 					Assembly.GetAssembly(typeof(TypeOfEntity)),
-					Assembly.GetAssembly(typeof(Attachment))
+					Assembly.GetAssembly(typeof(Attachment)),
+					Assembly.GetAssembly(typeof(DriverWarehouseEventMap))
 				}
 			);
 

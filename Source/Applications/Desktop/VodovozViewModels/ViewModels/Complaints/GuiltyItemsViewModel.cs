@@ -1,95 +1,107 @@
-﻿using System;
+﻿using Autofac;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Services;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
+using QS.ViewModels.Dialog;
+using System;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.ViewModels.Organizations;
 
 namespace Vodovoz.ViewModels.Complaints
 {
 	public class GuiltyItemsViewModel : EntityWidgetViewModelBase<Complaint>
 	{
-		readonly ISubdivisionRepository _subdivisionRepository;
+		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		ISubdivisionJournalFactory _subdivisionJournalFactory;
-		readonly ICommonServices _commonServices;
-		readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
+		private readonly DialogViewModelBase _container;
+		private readonly ILifetimeScope _lifetimeScope;
+		private readonly ICommonServices _commonServices;
+		private readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 
 		public GuiltyItemsViewModel(
 			Complaint entity,
 			IUnitOfWork uow,
+			DialogViewModelBase container,
+			ILifetimeScope lifetimeScope,
 			ICommonServices commonServices,
 			ISubdivisionRepository subdivisionRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
 			bool isForSalesDepartment = false
 		) : base(entity, commonServices)
 		{
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_employeeSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
-			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
-			_commonServices = commonServices;
+			_container = container ?? throw new ArgumentNullException(nameof(container));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
 			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
 			CreateCommands();
 		}
 
-		GuiltyItemViewModel currentGuiltyVM;
+		private GuiltyItemViewModel _currentGuiltyVM;
 		public virtual GuiltyItemViewModel CurrentGuiltyVM
 		{
-			get => currentGuiltyVM;
+			get => _currentGuiltyVM;
 			set
 			{
-				SetField(ref currentGuiltyVM, value, () => CurrentGuiltyVM);
+				SetField(ref _currentGuiltyVM, value);
 				OnPropertyChanged(nameof(CanAddGuilty));
 			}
 		}
 
-		private bool canRemoveGuilty;
+		private bool _canRemoveGuilty;
 		public virtual bool CanRemoveGuilty {
-			get => canRemoveGuilty;
-			set => SetField(ref canRemoveGuilty, value, () => CanRemoveGuilty);
+			get => _canRemoveGuilty;
+			set => SetField(ref _canRemoveGuilty, value);
 		}
 
-
-		bool canEditGuilty;
+		private bool _canEditGuilty;
 		public bool CanEditGuilty {
-			get => canEditGuilty;
-			set => SetField(ref canEditGuilty, value, () => CanEditGuilty);
+			get => _canEditGuilty;
+			set => SetField(ref _canEditGuilty, value);
 		}
 
         public bool CanAddGuilty => ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_add_guilty_in_complaints")
 			&& CurrentGuiltyVM == null;
 
-		void UpdateAcessibility()
+		private void UpdateAcessibility()
 		{
 			CanEditGuilty = !CanAddGuilty;
 		}
 
-		void CreateItem()
+		private void CreateItem()
 		{
 			CurrentGuiltyVM = new GuiltyItemViewModel(
 				new ComplaintGuiltyItem(),
 				_commonServices,
 				_subdivisionRepository,
 				_employeeJournalFactory,
-				_subdivisionJournalFactory,
 				_subdivisionParametersProvider,
 				UoW
 			);
+
+			CurrentGuiltyVM.SubdivisionViewModel = new CommonEEVMBuilderFactory<ComplaintGuiltyItem>(_container, CurrentGuiltyVM.Entity, UoW, _container.NavigationManager, _lifetimeScope)
+				.ForProperty(x => x.Subdivision)
+				.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel>()
+				.UseViewModelDialog<SubdivisionViewModel>()
+				.Finish();
+
 			UpdateAcessibility();
 		}
 
-		void ClearItem()
+		private void ClearItem()
 		{
 			CurrentGuiltyVM = null;
 			UpdateAcessibility();
@@ -97,7 +109,7 @@ namespace Vodovoz.ViewModels.Complaints
 
 		#region Commands
 
-		void CreateCommands()
+		private void CreateCommands()
 		{
 			CreateAddGuiltyCommand();
 			CreateRemoveGuiltyCommand();

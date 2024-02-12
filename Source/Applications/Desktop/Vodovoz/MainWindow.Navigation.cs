@@ -1,49 +1,11 @@
-﻿using Autofac;
-using Gtk;
-using QS.Dialog.Gtk;
-using QS.DomainModel.Entity;
+﻿using Gtk;
 using QS.Tdi;
 using QS.Tdi.Gtk;
-using QSOrmProject;
-using System;
 using Vodovoz.Core.Journal;
 using Vodovoz.SidePanel.InfoProviders;
 
 public partial class MainWindow
 {
-	#region Obsolete methods
-
-	[Obsolete("Старые диалоги, по достижению ссылок 0 - удалить")]
-	private void OpenDialog<TDlg>()
-	where TDlg : TdiTabBase
-	{
-		var localScope = _autofacScope.BeginLifetimeScope();
-
-		var tab = tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<TDlg>(),
-			() => localScope.Resolve<TDlg>());
-
-		tab.TabClosed += (s, e) =>
-		{
-			localScope.Dispose();
-			localScope = null;
-		};
-	}
-
-	[Obsolete("Очень старые диалоги, по достижению ссылок 0 - удалить")]
-	private void OpenOrmReference<TDomainObject>()
-	where TDomainObject : IDomainObject =>
-	tdiMain.AddTab(new OrmReference(typeof(TDomainObject)));
-
-	[Obsolete("Очень старые диалоги, по достижению ссылок 0 - удалить")]
-	private void OpenHashedOrmReference<TDomainObject>()
-	where TDomainObject : IDomainObject =>
-		tdiMain.OpenTab(
-			OrmReference.GenerateHashName<TDomainObject>(),
-			() => new OrmReference(typeof(TDomainObject)));
-
-	#endregion Obsolete methods
-
 	public void OnTdiMainTabClosed(object sender, TabClosedEventArgs args)
 	{
 		switch(args.Tab)

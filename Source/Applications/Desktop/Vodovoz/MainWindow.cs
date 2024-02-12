@@ -50,9 +50,6 @@ public partial class MainWindow : Gtk.Window
 	public TdiNotebook TdiMain => tdiMain;
 	public InfoPanel InfoPanel => infopanel;
 
-	public readonly TdiNavigationManager NavigationManager;
-	public readonly MangoManager MangoManager;
-
 	public MainWindow(IPasswordValidator passwordValidator, IApplicationConfigurator applicationConfigurator) : base(Gtk.WindowType.Toplevel)
 	{
 		_passwordValidator = passwordValidator ?? throw new ArgumentNullException(nameof(passwordValidator));
@@ -75,24 +72,24 @@ public partial class MainWindow : Gtk.Window
 		TDIMain.SetTabsColorHighlighting(highlightWColor, keepTabColor, GetTabsColors(), tabsParametersProvider.TabsPrefix);
 		TDIMain.SetTabsReordering(reorderTabs);
 
-		if(reorderTabs)
+		if (reorderTabs)
 		{
 			ReorderTabs.Activate();
 		}
 
-		if(highlightWColor)
+		if (highlightWColor)
 		{
 			HighlightTabsWithColor.Activate();
 		}
 
-		if(keepTabColor)
+		if (keepTabColor)
 		{
 			KeepTabColor.Activate();
 		}
 
 		bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
-		if(isWindows)
+		if (isWindows)
 		{
 			KeyPressEvent += HotKeyHandler.HandleKeyPressEvent;
 		}
@@ -110,7 +107,7 @@ public partial class MainWindow : Gtk.Window
 		ActionRouteListsAtDay.Sensitive =
 			ActionRouteListTracking.Sensitive =
 			ActionRouteListMileageCheck.Sensitive =
-			ActionRouteListAddressesTransferring.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
+			ActionRouteListAddressesTransferring.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.IsLogistician);
 		var currentWarehousePermissions = new CurrentWarehousePermissions();
 		ActionStock.Sensitive = currentWarehousePermissions.WarehousePermissions.Any(x => x.PermissionValue == true);
 
@@ -154,7 +151,7 @@ public partial class MainWindow : Gtk.Window
 		ActionDriversStopLists.Sensitive = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DriverStopListRemoval)).CanRead;
 
 		//Читаем настройки пользователя
-		switch(CurrentUserSettings.Settings.ToolbarStyle)
+		switch (CurrentUserSettings.Settings.ToolbarStyle)
 		{
 			case ToolbarStyle.Both:
 				ActionToolBarBoth.Activate();
@@ -167,7 +164,7 @@ public partial class MainWindow : Gtk.Window
 				break;
 		}
 
-		switch(CurrentUserSettings.Settings.ToolBarIconsSize)
+		switch (CurrentUserSettings.Settings.ToolBarIconsSize)
 		{
 			case IconsSize.ExtraSmall:
 				ActionIconsExtraSmall.Activate();
@@ -183,17 +180,13 @@ public partial class MainWindow : Gtk.Window
 				break;
 		}
 
-		NavigationManager = _autofacScope.Resolve<TdiNavigationManager>(new TypedParameter(typeof(TdiNotebook), tdiMain));
-		MangoManager = _autofacScope.Resolve<MangoManager>(new TypedParameter(typeof(Gtk.Action), MangoAction));
-		MangoManager.Connect();
-
 		// Отдел продаж
 
 		ActionSalesDepartment.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission("access_to_sales_department");
 
 		#region Пользователь с правом работы только со складом и рекламациями
 
-		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+		using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
 		{
 			_accessOnlyToWarehouseAndComplaints =
 				commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
@@ -209,25 +202,22 @@ public partial class MainWindow : Gtk.Window
 
 		#region Уведомление об отправленных перемещениях для подразделения
 
-		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+		using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
 		{
 			_currentUserSubdivisionId = GetEmployeeSubdivisionId(uow);
 			_curentUserMovementDocumentsNotificationWarehouses = CurrentUserSettings.Settings.MovementDocumentsNotificationUserSelectedWarehouses;
 			_movementsNotificationsController = _autofacScope
 				.Resolve<IMovementDocumentsNotificationsController>(
-					new TypedParameter(typeof(int), _currentUserSubdivisionId), 
+					new TypedParameter(typeof(int), _currentUserSubdivisionId),
 					new TypedParameter(typeof(IEnumerable<int>), _curentUserMovementDocumentsNotificationWarehouses));
 
 			var notificationDetails = _movementsNotificationsController.GetNotificationDetails(uow);
-
-			var message = notificationDetails.SendedMovementsCount > 0 ? $"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">{notificationDetails.NotificationMessage}</span>": notificationDetails.NotificationMessage;
-
+			UpdateSentMovementsNotification(notificationDetails.Notification);
 			hboxMovementsNotification.Visible = notificationDetails.NeedNotify;
-			lblMovementsNotification.Markup = message;
 
 			if(notificationDetails.NeedNotify)
 			{
-				_movementsNotificationsController.UpdateNotificationAction += UpdateSendedMovementsNotification;
+				_movementsNotificationsController.UpdateNotificationAction += UpdateSentMovementsNotification;
 			}
 		}
 
@@ -239,7 +229,7 @@ public partial class MainWindow : Gtk.Window
 
 		_complaintNotificationController = _autofacScope.Resolve<IComplaintNotificationController>(new TypedParameter(typeof(int), _currentUserSubdivisionId));
 
-		if(!_hideComplaintsNotifications)
+		if (!_hideComplaintsNotifications)
 		{
 			_complaintNotificationController.UpdateNotificationAction += UpdateSendedComplaintsNotification;
 
@@ -262,7 +252,7 @@ public partial class MainWindow : Gtk.Window
 
 		bool userIsSalesRepresentative;
 
-		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+		using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
 		{
 			userIsSalesRepresentative = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.User.IsSalesRepresentative)
 				&& !commonServices.UserService.GetCurrentUser().IsAdmin;
@@ -319,7 +309,27 @@ public partial class MainWindow : Gtk.Window
 
 		Action74.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.CanGenerateCashFlowDdsReport);
 
+		ActionClassificationCalculation.Sensitive = 
+			commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Counterparty.CanCalculateCounterpartyClassifications);
+
+		CarOwnershipReportAction.Sensitive =
+			commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Car.HasAccessToCarOwnershipReport);
+
 		InitializeThemesMenuItem();
+	}
+	
+	public ITdiCompatibilityNavigation NavigationManager { get; private set; }
+	public MangoManager MangoManager { get; private set; }
+
+	/// <summary>
+	/// Пока в <see cref="EmployeeJournalFactory"/> есть получение <see cref="NavigationManager"/> через <see cref="MainWindow"/>
+	/// то инициализируем менеджеры после инициализации главного окна
+	/// </summary>
+	public void InitializeManagers()
+	{
+		NavigationManager = _autofacScope.Resolve<ITdiCompatibilityNavigation>(new TypedParameter(typeof(TdiNotebook), tdiMain));
+		MangoManager = _autofacScope.Resolve<MangoManager>(new TypedParameter(typeof(Gtk.Action), MangoAction));
+		MangoManager.Connect();
 	}
 
 	private DateTime GetDateTimeFGromVersion(Version version) =>

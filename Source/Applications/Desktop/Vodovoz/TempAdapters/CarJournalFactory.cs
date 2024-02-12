@@ -23,21 +23,14 @@ namespace Vodovoz.TempAdapters
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 		}
 
-		public IEntityAutocompleteSelectorFactory CreateCarAutocompleteSelectorFactory(bool multipleSelect = false)
+		public IEntityAutocompleteSelectorFactory CreateCarAutocompleteSelectorFactory(ILifetimeScope lifetimeScope, bool multipleSelect = false)
 		{
 			return new EntityAutocompleteSelectorFactory<CarJournalViewModel>(typeof(Car),
 				() =>
 				{
-					var filter = new CarJournalFilterViewModel(new CarModelJournalFactory());
-					var journalViewModel =
-						new CarJournalViewModel(
-							filter,
-							UnitOfWorkFactory.GetDefaultFactory,
-							ServicesConfig.CommonServices,
-							Startup.AppDIContainer.BeginLifetimeScope());
-					journalViewModel.NavigationManager = _navigationManager;
-					journalViewModel.SelectionMode = multipleSelect ? JournalSelectionMode.Multiple : JournalSelectionMode.Single;
-					return journalViewModel;
+					var journal = lifetimeScope.Resolve<CarJournalViewModel>();
+					journal.SelectionMode = multipleSelect ? JournalSelectionMode.Multiple : JournalSelectionMode.Single;
+					return journal;
 				});
 		}
 

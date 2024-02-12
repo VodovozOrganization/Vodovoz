@@ -1,9 +1,12 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using DocumentFormat.OpenXml.Wordprocessing;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
 
@@ -15,6 +18,8 @@ namespace Vodovoz.Domain.Documents
 	[HistoryTrace]
 	public class RegradingOfGoodsDocumentItem: PropertyChangedBase, IDomainObject
 	{
+		private RegradingOfGoodsReason _regradingOfGoodsReason;
+
 		public virtual int Id { get; set; }
 
 		public virtual RegradingOfGoodsDocument Document { get; set; }
@@ -104,6 +109,13 @@ namespace Vodovoz.Domain.Documents
 		public virtual WarehouseBulkGoodsAccountingOperation WarehouseIncomeOperation {
 			get => warehouseIncomeOperation;
 			set => SetField (ref warehouseIncomeOperation, value);
+		}
+
+		[Display(Name = "Причина пересортицы")]
+		public virtual RegradingOfGoodsReason RegradingOfGoodsReason
+		{
+			get => _regradingOfGoodsReason;
+			set => SetField(ref _regradingOfGoodsReason, value);
 		}
 
 		#region Не сохраняемые

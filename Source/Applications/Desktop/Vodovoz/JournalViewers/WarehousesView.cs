@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Linq;
+using Autofac;
 using Gtk;
 using QS.Dialog.Gtk;
+using QS.Navigation;
 using QS.Project.Services;
 using QS.Services;
 using QSOrmProject;
@@ -13,10 +16,16 @@ namespace Vodovoz.JournalViewers
 	{
 		private readonly IPermissionResult _permissionResult =
 			ServicesConfig.CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Warehouse));
+		private readonly ILifetimeScope _lifetimeScope;
 		private WarehousesVM _vm;
-		
-		public WarehousesView()
+
+		public INavigationManager NavigationManager { get; }
+
+		public WarehousesView(INavigationManager navigationManager, ILifetimeScope lifetimeScope)
 		{
+			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+
 			Build();
 			TabName = "Журнал складов";
 			Configure();
@@ -56,7 +65,9 @@ namespace Vodovoz.JournalViewers
 
 		private WarehouseDlg CreateWarehouseDlg(int warehouseId)
 		{
-			var dlg = warehouseId == 0 ? new WarehouseDlg() : new WarehouseDlg(warehouseId);
+			var dlg = warehouseId == 0
+				? new WarehouseDlg(NavigationManager, _lifetimeScope)
+				: new WarehouseDlg(NavigationManager, _lifetimeScope, warehouseId);
 			dlg.EntitySaved += (o, args) => DisposeUowAndUpdate();
 			return dlg;
 		}
@@ -104,6 +115,8 @@ namespace Vodovoz.JournalViewers
 
 		protected override void OnDestroyed()
 		{
+			tableWarehouses.ItemsDataSource = Enumerable.Empty<string>();
+			tableWarehouses?.Destroy();
 			_vm?.Destroy();
 			base.OnDestroyed();
 		}

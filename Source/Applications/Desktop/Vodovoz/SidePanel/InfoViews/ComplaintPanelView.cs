@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using DateTimeHelpers;
 using Gamma.Binding;
 using Gamma.Binding.Core.LevelTreeConfig;
 using Gamma.ColumnConfig;
@@ -199,7 +200,12 @@ namespace Vodovoz.SidePanel.InfoViews
 						   .Left.JoinAlias(() => guiltyItemAlias.Responsible, () => responsibleAlias)
 						   .Left.JoinAlias(() => employeeAlias.Subdivision, () => subdivisionForEmployeeAlias);
 
-			filter.EndDate = filter.EndDate.Date.AddHours(23).AddMinutes(59);
+
+			if(filter.EndDate != null)
+			{
+				filter.EndDate = filter.EndDate.Value.LatestDayTime();
+			}
+
 			if(filter.StartDate.HasValue)
 				filter.StartDate = filter.StartDate.Value.Date;
 

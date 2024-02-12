@@ -21,7 +21,7 @@ namespace Vodovoz.EntityRepositories.Roboats
 {
 	public class RoboatsRepository : IRoboatsRepository
 	{
-		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IRoboatsSettings _roboatsSettings;
 
 		private HashSet<Guid> _roboatsStreetsCache = new HashSet<Guid>();
@@ -33,9 +33,9 @@ namespace Vodovoz.EntityRepositories.Roboats
 		private DateTime _roboatsWatersCacheLastUpdate;
 
 
-		public RoboatsRepository(IUnitOfWorkFactory unitOfWorkFactory, IRoboatsSettings roboatsSettings)
+		public RoboatsRepository(IUnitOfWorkFactory uowFactory, IRoboatsSettings roboatsSettings)
 		{
-			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_roboatsSettings = roboatsSettings ?? throw new ArgumentNullException(nameof(roboatsSettings));
 		}
 
@@ -61,7 +61,7 @@ namespace Vodovoz.EntityRepositories.Roboats
 		private IEnumerable<IRoboatsEntity> GetRoboatsEntity<T>()
 			where T : class, IRoboatsEntity
 		{
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				T entityAlias = null;
 
@@ -73,7 +73,7 @@ namespace Vodovoz.EntityRepositories.Roboats
 
 		public IEnumerable<int> GetCounterpartyIdsByPhone(string phone)
 		{
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				Phone phoneAlias = null;
 				Counterparty counterpartyAlias = null;
@@ -120,7 +120,7 @@ namespace Vodovoz.EntityRepositories.Roboats
 				return _roboatsWatersCache;
 			}
 
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				RoboatsWaterType roboatsWaterTypeAlias = null;
 				var waters = uow.Session.QueryOver(() => roboatsWaterTypeAlias)
@@ -133,7 +133,7 @@ namespace Vodovoz.EntityRepositories.Roboats
 
 		public int GetRoboatsCounterpartyNameId(int counterpartyId, string phone)
 		{
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				var resultPhone = GetCountepartyPhone(uow, phone, counterpartyId);
 
@@ -153,7 +153,7 @@ namespace Vodovoz.EntityRepositories.Roboats
 
 		public int GetRoboatsCounterpartyPatronymicId(int counterpartyId, string phone)
 		{
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				var resultPhone = GetCountepartyPhone(uow, phone, counterpartyId);
 
@@ -225,7 +225,7 @@ namespace Vodovoz.EntityRepositories.Roboats
 
 		public IEnumerable<DeliverySchedule> GetRoboatsAvailableDeliveryIntervals()
 		{
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				DeliverySchedule deliveryScheduleAlias = null;
 
@@ -240,7 +240,7 @@ namespace Vodovoz.EntityRepositories.Roboats
 
 		public IEnumerable<RoboatsDeliveryIntervalRestriction> GetRoboatsDeliveryIntervalRestrictions()
 		{
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				var result = uow.GetAll<RoboatsDeliveryIntervalRestriction>().ToList();
 				return result;
@@ -262,7 +262,7 @@ namespace Vodovoz.EntityRepositories.Roboats
 		private IEnumerable<Order> GetLastOrders(int counterpartyId, int? deliveryPointId = null)
 		{
 			IList<Order> orders = new List<Order>();
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				Order orderAlias = null;
 				OrderItem orderItemAlias = null;
@@ -331,7 +331,7 @@ namespace Vodovoz.EntityRepositories.Roboats
 
 		public int? GetBottlesReturnForOrder(int counterpartyId, int orderId)
 		{
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				var order = uow.GetById<Order>(orderId);
 				if(order == null)
@@ -350,7 +350,7 @@ namespace Vodovoz.EntityRepositories.Roboats
 
 		public DeliverySchedule GetDeliverySchedule(int roboatsTimeId)
 		{
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				DeliverySchedule deliveryScheduleAlias = null;
 
@@ -364,7 +364,7 @@ namespace Vodovoz.EntityRepositories.Roboats
 
 		public IEnumerable<NomenclatureQuantity> GetWatersQuantityFromOrder(int counterpartyId, int orderId)
 		{
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				var result = new List<NomenclatureQuantity>();
 
@@ -397,7 +397,7 @@ namespace Vodovoz.EntityRepositories.Roboats
 				return _roboatsStreetsCache;
 			}
 
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				RoboatsStreet roboatsStreetAlias = null;
 				RoboatsFiasStreet roboatsFiasStreetAlias = null;
@@ -415,7 +415,7 @@ namespace Vodovoz.EntityRepositories.Roboats
 
 		public int? GetRoboAtsStreetId(int counterPartyId, int deliveryPointId)
 		{
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				RoboatsStreet roboatsStreetAlias = null;
 				RoboatsFiasStreet roboatsFiasStreetAlias = null;
@@ -439,7 +439,7 @@ namespace Vodovoz.EntityRepositories.Roboats
 
 		public string GetDeliveryPointBuilding(int deliveryPointId, int counterpartyId)
 		{
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				DeliveryPoint deliveryPointAlias = null;
 
@@ -455,7 +455,7 @@ namespace Vodovoz.EntityRepositories.Roboats
 
 		public string GetDeliveryPointApartment(int deliveryPointId, int counterpartyId)
 		{
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				DeliveryPoint deliveryPointAlias = null;
 
@@ -471,7 +471,7 @@ namespace Vodovoz.EntityRepositories.Roboats
 
 		public bool CounterpartyExcluded(int counterpartyId)
 		{
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				Counterparty counterpartyAlias = null;
 				var query = uow.Session.QueryOver(() => counterpartyAlias)
@@ -529,6 +529,14 @@ namespace Vodovoz.EntityRepositories.Roboats
 					patronymic.ToLower()))
 				.Take(1)
 				.SingleOrDefault();
+		}
+
+		public IEnumerable<TodayIntervalOffer> GetTodayIntervalsOffers()
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				return uow.GetAll<TodayIntervalOffer>().ToList();
+			}
 		}
 	}
 }

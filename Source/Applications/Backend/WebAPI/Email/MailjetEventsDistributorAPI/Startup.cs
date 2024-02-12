@@ -1,4 +1,5 @@
 ﻿using MailjetEventsDistributorAPI.DataAccess;
+using MailjetEventsDistributorAPI.HealthChecks;
 using MailjetEventsDistributorAPI.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -9,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using NLog.Web;
 using RabbitMQ.Infrastructure;
+using VodovozHealthCheck;
 
 namespace MailjetEventsDistributorAPI
 {
@@ -44,6 +46,8 @@ namespace MailjetEventsDistributorAPI
 			{
 				c.SwaggerDoc("v1", new OpenApiInfo { Title = "MailjetEventMessagesDistributorAPI", Version = "v1" });
 			});
+
+			services.ConfigureHealthCheckService<MailjetEventsDistributeHealthCheck>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -66,6 +70,8 @@ namespace MailjetEventsDistributorAPI
 			{
 				endpoints.MapControllers();
 			});
+
+			app.ConfigureHealthCheckApplicationBuilder();
 		}
 	}
 }

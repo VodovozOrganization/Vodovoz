@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using FastPaymentsAPI.HealthChecks;
 using FastPaymentsAPI.Library.ApiClients;
 using FastPaymentsAPI.Library.Converters;
 using FastPaymentsAPI.Library.Factories;
@@ -39,6 +40,8 @@ using Vodovoz.Settings;
 using Vodovoz.Settings.Database;
 using Vodovoz.Settings.FastPayments;
 using VodovozInfrastructure.Cryptography;
+using VodovozHealthCheck;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 
 namespace FastPaymentsAPI
 {
@@ -66,6 +69,9 @@ namespace FastPaymentsAPI
 					logging.AddNLogWeb();
 					logging.AddConfiguration(nlogConfig);
 				});
+
+			_logger = new Logger<Startup>(LoggerFactory.Create(logging =>
+				logging.AddConfiguration(Configuration.GetSection(_nLogSectionName))));
 
 			services.AddHttpClient()
 				.AddControllers()
@@ -154,6 +160,8 @@ namespace FastPaymentsAPI
 			services.AddSingleton<IErrorHandler, ErrorHandler>();
 			services.AddSingleton(_ => new FastPaymentFileCache("/tmp/VodovozFastPaymentServiceTemp.txt"));
 			services.AddScoped<IOrderRequestManager, OrderRequestManager>();
+
+			services.ConfigureHealthCheckService<FastPaymentsHealthCheck>();
 		}
 		
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -184,6 +192,8 @@ namespace FastPaymentsAPI
 				name: "default",
 				pattern: "{controller=Home}/{action=Index}/{id?}");
 			});
+
+			app.ConfigureHealthCheckApplicationBuilder();
 		}
 
 		private void CreateBaseConfig()
@@ -217,6 +227,7 @@ namespace FastPaymentsAPI
 					Assembly.GetAssembly(typeof(Bank)),
 					Assembly.GetAssembly(typeof(HistoryMain)),
 					Assembly.GetAssembly(typeof(Attachment)),
+					typeof(DriverWarehouseEventMap).Assembly,
 					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
 				}
 			);

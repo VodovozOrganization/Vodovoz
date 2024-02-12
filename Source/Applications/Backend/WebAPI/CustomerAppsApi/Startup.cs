@@ -1,10 +1,4 @@
-using CustomerAppsApi.Converters;
-using CustomerAppsApi.Factories;
-using CustomerAppsApi.Library.Factories;
 using CustomerAppsApi.Middleware;
-using CustomerAppsApi.Models;
-using CustomerAppsApi.Repositories;
-using CustomerAppsApi.Validators;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -22,24 +16,14 @@ using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Services;
 using QS.Services;
-using QS.Utilities.Numeric;
 using System.Linq;
 using System.Reflection;
-using Vodovoz.Controllers;
-using Vodovoz.Controllers.ContactsForExternalCounterparty;
+using CustomerAppsApi.HealthChecks;
+using CustomerAppsApi.Library;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.EntityRepositories.Operations;
-using Vodovoz.EntityRepositories.RentPackages;
-using Vodovoz.EntityRepositories.Roboats;
-using Vodovoz.EntityRepositories.Stock;
-using Vodovoz.Factories;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
-using Vodovoz.Settings;
 using Vodovoz.Settings.Database;
+using VodovozHealthCheck;
 using UserRepository = QS.Project.Repositories.UserRepository;
 
 namespace CustomerAppsApi
@@ -70,6 +54,10 @@ namespace CustomerAppsApi
 				});
 
 			RegisterDependencies(services);
+
+			services.ConfigureHealthCheckService<CustomerAppsApiHealthCheck>();
+			services.AddHttpClient();
+
 			CreateBaseConfig();
 		}
 
@@ -81,44 +69,7 @@ namespace CustomerAppsApi
 				redisOptions.Configuration = connection;
 			});
 			
-			services.AddSingleton<IPhoneRepository, PhoneRepository>();
-			services.AddSingleton<IEmailRepository, EmailRepository>();
-			services.AddSingleton<ISettingsController, SettingsController>();
-			services.AddSingleton<ISessionProvider, DefaultSessionProvider>();
-			services.AddSingleton<IParametersProvider, ParametersProvider>();
-			services.AddSingleton<INomenclatureParametersProvider, NomenclatureParametersProvider>();
-			services.AddSingleton<IUnitOfWorkFactory, DefaultUnitOfWorkFactory>();
-			services.AddSingleton<IRoboatsSettings, RoboatsSettings>();
-			services.AddSingleton<IRoboatsRepository, RoboatsRepository>();
-			services.AddSingleton<IBottlesRepository, BottlesRepository>();
-			services.AddSingleton<ICachedBottlesDebtRepository, CachedBottlesDebtRepository>();
-			services.AddSingleton<INomenclatureRepository, NomenclatureRepository>();
-			services.AddSingleton<IStockRepository, StockRepository>();
-			services.AddSingleton<IRentPackageRepository, RentPackageRepository>();
-			services.AddSingleton<IExternalCounterpartyRepository, ExternalCounterpartyRepository>();
-			services.AddSingleton<IExternalCounterpartyMatchingRepository, ExternalCounterpartyMatchingRepository>();
-			services.AddSingleton<IRegisteredNaturalCounterpartyDtoFactory, RegisteredNaturalCounterpartyDtoFactory>();
-			services.AddSingleton<IExternalCounterpartyMatchingFactory, ExternalCounterpartyMatchingFactory>();
-			services.AddSingleton<IExternalCounterpartyFactory, ExternalCounterpartyFactory>();
-			services.AddSingleton<CounterpartyModelFactory>();
-			services.AddSingleton<ICounterpartyFactory, CounterpartyFactory>();
-			services.AddSingleton<INomenclatureFactory, NomenclatureFactory>();
-			services.AddSingleton<IRentPackageFactory, RentPackageFactory>();
-			services.AddSingleton<PhoneFormatter>(_ => new PhoneFormatter(PhoneFormat.DigitsTen));
-			services.AddSingleton<ICounterpartySettings, CounterpartySettings>();
-			services.AddSingleton<ICameFromConverter, CameFromConverter>();
-			services.AddSingleton<ISourceConverter, SourceConverter>();
-			services.AddSingleton<ContactFinderForExternalCounterpartyFromOne>();
-			services.AddSingleton<ContactFinderForExternalCounterpartyFromTwo>();
-			services.AddSingleton<ContactFinderForExternalCounterpartyFromMany>();
-			services.AddSingleton<IContactManagerForExternalCounterparty, ContactManagerForExternalCounterparty>();
-			services.AddSingleton<INomenclatureOnlineParametersController, NomenclatureOnlineParametersController>();
-
-			services.AddScoped<IUnitOfWork>(_ => UnitOfWorkFactory.CreateWithoutRoot("Сервис интеграции"));
-			services.AddScoped<ICounterpartyModel, CounterpartyModel>();
-			services.AddScoped<INomenclatureModel, NomenclatureModel>();
-			services.AddScoped<IRentPackageModel, RentPackageModel>();
-			services.AddScoped<CounterpartyModelValidator>();
+			services.AddCustomerApiLibrary();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -136,6 +87,8 @@ namespace CustomerAppsApi
 			app.UseRouting();
 
 			app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+
+			app.ConfigureHealthCheckApplicationBuilder();
 		}
 		
 		private void CreateBaseConfig()
@@ -170,7 +123,8 @@ namespace CustomerAppsApi
 					Assembly.GetAssembly(typeof(HistoryMain)),
 					Assembly.GetAssembly(typeof(TypeOfEntity)),
 					Assembly.GetAssembly(typeof(Attachment)),
-					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
+					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder)),
+					Assembly.GetAssembly(typeof(DriverWarehouseEventMap))
 				}
 			);
 

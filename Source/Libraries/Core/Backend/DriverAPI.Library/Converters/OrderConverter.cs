@@ -67,6 +67,7 @@ namespace DriverAPI.Library.Converters
 				DeliveryTime = vodovozOrder.TimeDelivered?.ToString("HH:mm:ss"),
 				FullBottleCount = vodovozOrder.Total19LBottlesToDeliver,
 				EmptyBottlesToReturn = (vodovozOrder.BottlesReturn ?? 0) + vodovozOrder.BottlesByStockCount,
+				BottlesByStockActualCount = vodovozOrder.BottlesByStockActualCount,
 				Counterparty = vodovozOrder.Client.FullName,
 				PhoneNumbers = CreatePhoneList(vodovozOrder),
 				PaymentType = _paymentTypeConverter.ConvertToAPIPaymentType(vodovozOrder.PaymentType, qrPaymentDtoStatus == FastPaymentStatus.Performed, vodovozOrder.PaymentByTerminalSource),
@@ -77,9 +78,12 @@ namespace DriverAPI.Library.Converters
 				OrderDeliveryItems = pairOfSplitedLists.orderDeliveryItems,
 				OrderReceptionItems = pairOfSplitedLists.orderReceptionItems,
 				IsFastDelivery = vodovozOrder.IsFastDelivery,
+				ContactlessDelivery = vodovozOrder.ContactlessDelivery,
 				AddedToRouteListTime = addedToRouteListTime.ToString("dd.MM.yyyyTHH:mm:ss"),
+				CallBeforeArrivalMinutes = vodovozOrder.CallBeforeArrivalMinutes,
 				Trifle = vodovozOrder.Trifle ?? 0,
-				SignatureType = _signatureTypeConverter.ConvertToApiSignatureType(vodovozOrder.SignatureType)
+				SignatureType = _signatureTypeConverter.ConvertToApiSignatureType(vodovozOrder.SignatureType),
+				WaitUntilTime = vodovozOrder.WaitUntilTime
 			};
 
 			return apiOrder;
@@ -176,7 +180,7 @@ namespace DriverAPI.Library.Converters
 
 		private OrderSaleItemDto ConvertToAPIOrderSaleItem(OrderItem saleItem)
 		{
-			var result = new OrderSaleItemDto()
+			var result = new OrderSaleItemDto
 			{
 				OrderSaleItemId = saleItem.Id,
 				Name = saleItem.Nomenclature.Name,
@@ -187,8 +191,31 @@ namespace DriverAPI.Library.Converters
 				IsBottleStock = saleItem.Order.IsBottleStock && saleItem.DiscountByStock > 0,
 				IsDiscountInMoney = saleItem.IsDiscountInMoney,
 				Discount = saleItem.IsDiscountInMoney ? saleItem.DiscountMoney : saleItem.Discount,
-				DiscountReason = saleItem.DiscountReason?.Name
+				DiscountReason = saleItem.DiscountReason?.Name,
+				CapColor = saleItem.Nomenclature.BottleCapColor
 			};
+
+			if(saleItem.Nomenclature.TareVolume != null)
+			{
+				switch(saleItem.Nomenclature.TareVolume)
+				{
+					case Vodovoz.Domain.Goods.TareVolume.Vol19L:
+						result.TareVolume = 19;
+						break;
+					case Vodovoz.Domain.Goods.TareVolume.Vol6L:
+						result.TareVolume = 6;
+						break;
+					case Vodovoz.Domain.Goods.TareVolume.Vol1500ml:
+						result.TareVolume = 1.5m;
+						break;
+					case Vodovoz.Domain.Goods.TareVolume.Vol600ml:
+						result.TareVolume = 0.6m;
+						break;
+					case Vodovoz.Domain.Goods.TareVolume.Vol500ml:
+						result.TareVolume = 0.5m;
+						break;
+				}
+			}
 
 			return result;
 		}

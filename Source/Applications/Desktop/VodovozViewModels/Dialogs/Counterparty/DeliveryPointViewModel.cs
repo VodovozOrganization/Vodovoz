@@ -1,11 +1,15 @@
-﻿using QS.Commands;
+﻿using Autofac;
+using Fias.Client.Loaders;
+using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using System;
 using System.Collections.Generic;
@@ -13,29 +17,32 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Fias.Client.Loaders;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Models;
 using Vodovoz.Services;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Infrastructure.InfoProviders;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
-using Vodovoz.Domain.Logistic;
+using VodovozInfrastructure.Services;
 
 namespace Vodovoz.ViewModels.Dialogs.Counterparty
 {
-	public class DeliveryPointViewModel : EntityTabViewModelBase<DeliveryPoint>, IDeliveryPointInfoProvider, ITDICloseControlTab,
+	public partial class DeliveryPointViewModel : EntityTabViewModelBase<DeliveryPoint>, IDeliveryPointInfoProvider, ITDICloseControlTab,
 		IAskSaveOnCloseViewModel
 	{
 		private int _currentPage = 0;
@@ -49,18 +56,19 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 		private readonly IFixedPricesModel _fixedPricesModel;
 		private readonly IDeliveryPointRepository _deliveryPointRepository;
 		private readonly RoboatsJournalsFactory _roboatsJournalsFactory;
-		private readonly IPromotionalSetRepository _promotionalSetRepository = new PromotionalSetRepository();
+		private readonly PanelViewType[] _infoWidgets = new[] { PanelViewType.DeliveryPricePanelView };
+		private readonly ICoordinatesParser _coordinatesParser;
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
 		public DeliveryPointViewModel(
 			IUserRepository userRepository,
+			INavigationManager navigationManager,
 			IGtkTabsOpener gtkTabsOpener,
 			IPhoneRepository phoneRepository,
 			IContactParametersProvider contactsParameters,
 			ICitiesDataLoader citiesDataLoader,
 			IStreetsDataLoader streetsDataLoader,
 			IHousesDataLoader housesDataLoader,
-			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			NomenclatureFixedPriceController nomenclatureFixedPriceController,
 			IDeliveryPointRepository deliveryPointRepository,
 			IDeliveryScheduleJournalFactory deliveryScheduleSelectorFactory,
@@ -68,8 +76,10 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			RoboatsJournalsFactory roboatsJournalsFactory,
-		 	Domain.Client.Counterparty client = null)
-			: base(uowBuilder, unitOfWorkFactory, commonServices)
+			ILifetimeScope lifetimeScope,
+			ICoordinatesParser coordinatesParser,
+			Domain.Client.Counterparty client = null)
+			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(client != null && uowBuilder.IsNewEntity)
 			{
@@ -78,6 +88,11 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			else if(client == null && uowBuilder.IsNewEntity)
 			{
 				throw new ArgumentNullException(nameof(client), "Нельзя создать точку доставки без указания клиента");
+			}
+
+			if(navigationManager is null)
+			{
+				throw new ArgumentNullException(nameof(navigationManager));
 			}
 
 			if(phoneRepository == null)
@@ -96,13 +111,12 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			}
 
 			_roboatsJournalsFactory = roboatsJournalsFactory ?? throw new ArgumentNullException(nameof(roboatsJournalsFactory));
+			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_coordinatesParser = coordinatesParser ?? throw new ArgumentNullException(nameof(coordinatesParser));;
 			_deliveryPointRepository = deliveryPointRepository ?? throw new ArgumentNullException(nameof(deliveryPointRepository));
 
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-
-			NomenclatureSelectorFactory =
-				nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 
 			_fixedPricesModel = new DeliveryPointFixedPricesModel(UoW, Entity, nomenclatureFixedPriceController);
 			PhonesViewModel = new PhonesViewModel(phoneRepository, UoW, contactsParameters, _roboatsJournalsFactory, CommonServices)
@@ -126,7 +140,19 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			DeliveryPointCategories =
 				deliveryPointRepository?.GetActiveDeliveryPointCategories(UoW)
 				?? throw new ArgumentNullException(nameof(deliveryPointRepository));
+
 			DeliveryScheduleSelectorFactory = deliveryScheduleSelectorFactory;
+
+			DefaultWaterNomenclatureViewModel = new CommonEEVMBuilderFactory<DeliveryPoint>(this, Entity, UoW, NavigationManager, lifetimeScope)
+				.ForProperty(dp => dp.DefaultWaterNomenclature)
+				.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(filter =>
+				{
+					filter.RestrictCategory = NomenclatureCategory.water;
+					filter.RestrictDilers = true;
+				})
+				.UseViewModelDialog<NomenclatureViewModel>()
+				.Finish();
+
 			Entity.PropertyChanged += (sender, e) =>
 			{
 				switch(e.PropertyName)
@@ -143,6 +169,10 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			}
 
 			_logisticsRequirementsVM = new LogisticsRequirementsViewModel(Entity.LogisticsRequirements, commonServices);
+
+			OpenCounterpartyCommand = new DelegateCommand(
+				OpenCounterparty,
+				() => Entity.Counterparty != null);
 		}
 
 		#region Свойства
@@ -170,18 +200,20 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 		//widget init
 		public FixedPricesViewModel FixedPricesViewModel =>
 			_fixedPricesViewModel ??
-			(_fixedPricesViewModel = new FixedPricesViewModel(UoW, _fixedPricesModel, NomenclatureSelectorFactory, this));
+			(_fixedPricesViewModel = new FixedPricesViewModel(UoW, _fixedPricesModel, this, NavigationManager, LifetimeScope));
 
 		public List<DeliveryPointResponsiblePerson> ResponsiblePersons =>
 			_responsiblePersons ?? (_responsiblePersons = new List<DeliveryPointResponsiblePerson>());
 
+		public ILifetimeScope LifetimeScope { get; }
 		public PhonesViewModel PhonesViewModel { get; }
 		public ICitiesDataLoader CitiesDataLoader { get; }
 		public IStreetsDataLoader StreetsDataLoader { get; }
 		public IHousesDataLoader HousesDataLoader { get; }
 		public IOrderedEnumerable<DeliveryPointCategory> DeliveryPointCategories { get; }
-		public INomenclatureJournalFactory NomenclatureSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory DeliveryScheduleSelectorFactory { get; }
+
+		public IEntityEntryViewModel DefaultWaterNomenclatureViewModel { get; }
 
 		public override bool HasChanges
 		{
@@ -204,13 +236,12 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			}
 		}
 
-
 		#endregion
 
 		#region IDeliveryPointInfoProvider
 
 		public DeliveryPoint DeliveryPoint => Entity;
-		public PanelViewType[] InfoWidgets => new[] { PanelViewType.DeliveryPricePanelView };
+		public PanelViewType[] InfoWidgets => _infoWidgets;
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 
 		#endregion
@@ -253,7 +284,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 					return false;
 				}
 
-				if(Entity.Counterparty.PersonType == PersonType.natural 
+				if(Entity.Counterparty.PersonType == PersonType.natural
 					&& ((Entity.RoomType == RoomType.Office) || (Entity.RoomType == RoomType.Store))
 					&& !_deliveryPointRepository.CheckingAnAddressForDeliveryForNewCustomers(UoW, Entity))
 				{
@@ -293,27 +324,16 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 
 		public void SetCoordinatesFromBuffer(string buffer)
 		{
-			var error = true;
-			var coordinates = buffer?.Split(',');
-			if(coordinates?.Length == 2)
+			var result = _coordinatesParser.GetCoordinatesFromBuffer(buffer);
+			
+			if(!result.ParsedCoordinates.HasValue)
 			{
-				coordinates[0] = coordinates[0].Replace('.', ',');
-				coordinates[1] = coordinates[1].Replace('.', ',');
-
-				var goodLat = decimal.TryParse(coordinates[0].Trim(), out decimal latitude);
-				var goodLon = decimal.TryParse(coordinates[1].Trim(), out decimal longitude);
-
-				if(goodLat && goodLon)
-				{
-					WriteCoordinates(latitude, longitude, true);
-					error = false;
-				}
+				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, result.ErrorMessage);
 			}
-
-			if(error)
+			else
 			{
-				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
-					"Буфер обмена не содержит координат или содержит неправильные координаты");
+				var parsedCoordinates = result.ParsedCoordinates.Value;
+				WriteCoordinates(parsedCoordinates.Latitude, parsedCoordinates.Longitude, true);
 			}
 		}
 
@@ -364,7 +384,6 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			|| Entity.Building != BuildingBeforeChange
 			|| Entity.Entrance != EntranceBeforeChange;
 
-
 		#region ITDICloseControlTab
 
 		public bool CanClose()
@@ -388,12 +407,12 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 
 		#region Commands
 
-		private DelegateCommand _openCounterpartyCommand;
+		public DelegateCommand OpenCounterpartyCommand { get; }
 
-		public DelegateCommand OpenCounterpartyCommand => _openCounterpartyCommand ?? (_openCounterpartyCommand = new DelegateCommand(
-			() => _gtkTabsOpener.OpenCounterpartyDlg(this, Entity.Counterparty.Id),
-			() => Entity.Counterparty != null
-		));
+		private void OpenCounterparty()
+		{
+			_gtkTabsOpener.OpenCounterpartyDlg(this, Entity.Counterparty.Id);
+		}
 
 		private DelegateCommand _openOnMapCommand;
 
@@ -424,18 +443,23 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 
 		public async Task<Coordinate> UpdateCoordinatesFromGeoCoderAsync(IHousesDataLoader entryBuildingHousesDataLoader)
 		{
-			decimal? latitude = null, longitude = null;
+			decimal? latitude = null;
+			decimal? longitude = null;
+
 			try
 			{
 				_isBuildingsInLoadingProcess = true;
 
+				int.TryParse(Entity.Entrance, out var parsedEntrance);
+
 				var address =
-					string.IsNullOrWhiteSpace(Entity.Entrance)
+					parsedEntrance <= 0
 					? $"{Entity.LocalityType} {Entity.City}, {Entity.StreetDistrict}, {Entity.Street} {Entity.StreetType}, {Entity.Building}"
 					: $"{Entity.LocalityType} {Entity.City}, {Entity.StreetDistrict}, {Entity.Street} {Entity.StreetType}, {Entity.Building}" +
 						$", {(Entity.EntranceType == EntranceType.Entrance ? "парадная" : "вход")} {Entity.Entrance}";
 
 				var findedByGeoCoder = await entryBuildingHousesDataLoader.GetCoordinatesByGeocoderAsync(address, _cancellationTokenSource.Token);
+
 				if(findedByGeoCoder != null)
 				{
 					var culture = CultureInfo.CreateSpecificCulture("ru-RU");
@@ -456,14 +480,8 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			};
 		}
 
-		public class Coordinate
-		{
-			public decimal? Latitude { get; set; }
-			public decimal? Longitude { get; set; }
-		}
-
 		public bool IsDisposed { get; private set; }
-
+		
 		public override void Dispose()
 		{
 			IsDisposed = true;

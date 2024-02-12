@@ -1,7 +1,6 @@
 ﻿using Autofac;
 using DeliveryRulesService.Cache;
 using Fias.Client;
-using Fias.Client.Cache;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -18,12 +17,15 @@ using QS.Project.Domain;
 using QS.Services;
 using System.Linq;
 using System.Reflection;
+using DeliveryRulesService.HealthChecks;
 using Vodovoz;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Core.DataService;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.Settings.Database;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using VodovozHealthCheck;
 
 namespace DeliveryRulesService
 {
@@ -48,7 +50,13 @@ namespace DeliveryRulesService
 				j.JsonSerializerOptions.PropertyNamingPolicy = null;
 			});
 
+			services.ConfigureHealthCheckService<DeliveryRulesServiceHealthCheck>();
+
+			services.AddHttpClient();
+
 			NLogBuilder.ConfigureNLog("NLog.config");
+
+			services.AddFiasClient();
 
 			CreateBaseConfig();
 		}
@@ -62,8 +70,6 @@ namespace DeliveryRulesService
 			builder.RegisterType<DefaultUnitOfWorkFactory>().AsImplementedInterfaces();
 			builder.RegisterType<BaseParametersProvider>().AsImplementedInterfaces();
 			builder.RegisterType<DistrictCache>().AsSelf().AsImplementedInterfaces();
-			builder.RegisterType<GeocoderCache>().AsSelf().AsImplementedInterfaces();
-			builder.RegisterType<FiasApiClientFactory>().AsSelf().AsImplementedInterfaces();
 			
 			builder.RegisterType<CallTaskWorker>()
 				.AsSelf()
@@ -126,7 +132,9 @@ namespace DeliveryRulesService
 			{
 				endpoints.MapControllers();
 			});
-		}
+
+			app.ConfigureHealthCheckApplicationBuilder();
+        }
 
 		private void CreateBaseConfig()
 		{
@@ -161,7 +169,8 @@ namespace DeliveryRulesService
 					Assembly.GetAssembly(typeof(HistoryMain)),
 					Assembly.GetAssembly(typeof(TypeOfEntity)),
 					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder)),
-					Assembly.GetAssembly(typeof(Attachment))
+					Assembly.GetAssembly(typeof(Attachment)),
+					Assembly.GetAssembly(typeof(DriverWarehouseEventMap))
 				}
 			);
 		}

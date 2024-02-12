@@ -1,14 +1,16 @@
-﻿using QS.Commands;
+﻿using EdoService;
+using EdoService.Library;
+using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
-using QS.Project.Services;
 using QS.Services;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Orders.Documents;
+using Type = Vodovoz.Domain.Orders.Documents.Type;
 
 namespace Vodovoz.ViewModels.Dialogs.Counterparty
 {
@@ -21,14 +23,20 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 		private DelegateCommand _unselectAllCommand;
 		private DelegateCommand _invertSelectionCommand;
 		private DelegateCommand _cancelCommand;
+		private readonly IEdoService _edoService;
 
 		public ResendCounterpartyEdoDocumentsViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
-			List<int> ordersIds) :  base(uowBuilder, uowFactory, commonServices)
+			List<int> ordersIds,
+			IEdoService edoService) :  base(uowBuilder, uowFactory, commonServices)
 		{
+			_edoService = edoService ?? throw new ArgumentNullException(nameof(edoService));
+
 			Title = $"Повторная отправка неотправленных УПД контрагента {Entity.Name}";
+
+			CanResendSelectedEdoDocuments = CommonServices.CurrentPermissionService.ValidatePresetPermission("can_resend_upd_documents");
 
 			GetLastUpdByOrderIds(ordersIds);
 		}
@@ -88,18 +96,36 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			}
 		}
 
-		public bool CanResendSelectedEdoDocuments => true;
+		public bool CanResendSelectedEdoDocuments { get; }
 
 		private void ResendSelectedEdoDocuments()
 		{
 			var documentsToResend = _edoContainerNodes.Where(x => x.IsSelected).ToList();
 			var infoMessage = $"Будет отправлено {documentsToResend.Count}";
 
-			ServicesConfig.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Info, infoMessage);
+			CommonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Info, infoMessage);
 
 			foreach(var document in documentsToResend)
 			{
-				document.EdoContainer.Order.SetNeedToRecendEdoUpd();
+				var order = document.EdoContainer.Order;
+
+				var edoValidateResult = _edoService.ValidateOrderForUpd(order);
+
+				var errorMessages = edoValidateResult.Errors.Select(x => x.Message).ToArray();
+
+				if(edoValidateResult.IsFailure)
+				{
+					if(edoValidateResult.Errors.Any(error => error.Code == Errors.Edo.Edo.AlreadyPaidUpd)
+						&& !CommonServices.InteractiveService.Question(
+							"Вы уверены, что хотите отправить повторно?\n" +
+							string.Join("\n - ", errorMessages),
+							"Требуется подтверждение!"))
+					{
+						continue;
+					}
+				}
+
+				_edoService.SetNeedToResendEdoDocumentForOrder(order, Type.Upd);
 			}
 
 			Close(false, CloseSource.Cancel);

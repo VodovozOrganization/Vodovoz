@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
+using NHibernate.Driver.MySqlConnector;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QSProjectsLib;
@@ -14,6 +15,7 @@ using System.Reflection;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Settings.Database;
@@ -64,7 +66,8 @@ namespace EmailStatusUpdateWorker
 				QSMain.ConnectionString = conStrBuilder.GetConnectionString(true);
 				var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
 										 .Dialect<NHibernate.Spatial.Dialect.MySQL57SpatialDialect>()
-										 .ConnectionString(QSMain.ConnectionString);
+										 .ConnectionString(QSMain.ConnectionString)
+										 .Driver<MySqlConnectorDriver>();
 
 				OrmConfig.ConfigureOrm(db_config,
 					new Assembly[] {
@@ -74,7 +77,8 @@ namespace EmailStatusUpdateWorker
 					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
 					Assembly.GetAssembly(typeof(QS.Project.Domain.UserBase)),
 					Assembly.GetAssembly(typeof(QS.Attachments.HibernateMapping.AttachmentMap)),
-					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
+					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder)),
+					Assembly.GetAssembly(typeof(DriverWarehouseEventMap))
 				});
 
 				QS.HistoryLog.HistoryMain.Enable(conStrBuilder);

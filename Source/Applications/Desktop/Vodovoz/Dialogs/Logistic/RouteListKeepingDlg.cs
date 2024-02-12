@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using Gamma.GtkWidgets;
 using Gtk;
+using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.Dialog.GtkUI.FileDialog;
 using QS.DomainModel.Entity;
@@ -12,30 +13,23 @@ using QS.Tdi;
 using QS.ViewModels.Extension;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Gamma.Utilities;
 using Vodovoz.Controllers;
-using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.BasicHandbooks;
-using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.Profitability;
-using Vodovoz.EntityRepositories.Stock;
-using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
 using Vodovoz.Infrastructure;
 using Vodovoz.Parameters;
-using Vodovoz.Services;
-using Vodovoz.Settings.Database;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -44,33 +38,27 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewWidgets.Logistics;
 using Vodovoz.ViewWidgets.Mango;
+using QS.Navigation;
+using Vodovoz.ViewModels.Employees;
+using QS.Project.Domain;
 
 namespace Vodovoz
 {
 	public partial class RouteListKeepingDlg : QS.Dialog.Gtk.EntityDialogBase<RouteList>, ITDICloseControlTab, IAskSaveOnCloseViewModel
 	{
-		private readonly ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
-		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
-		private static readonly INomenclatureParametersProvider _nomenclatureParametersProvider =
-			new NomenclatureParametersProvider(_parametersProvider);
-		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private readonly IDeliveryShiftRepository _deliveryShiftRepository = new DeliveryShiftRepository();
-		private readonly IRouteListProfitabilityController _routeListProfitabilityController =
-			new RouteListProfitabilityController(
-				new RouteListProfitabilityFactory(),
-				_nomenclatureParametersProvider,
-				new ProfitabilityConstantsRepository(),
-				new RouteListProfitabilityRepository(),
-				new RouteListRepository(new StockRepository(), new BaseParametersProvider(_parametersProvider)),
-				new NomenclatureRepository(_nomenclatureParametersProvider));
+		private ILifetimeScope _lifetimeScope;
+		private IEmployeeRepository _employeeRepository;
+		private IDeliveryShiftRepository _deliveryShiftRepository;
+		private IRouteListProfitabilityController _routeListProfitabilityController;
+		private IWageParameterService _wageParameterService;
+		private IGeneralSettingsParametersProvider _generalSettingsParametersProvider;
+		private readonly bool _isOrderWaitUntilActive;
 
 		//2 уровня доступа к виджетам, для всех и для логистов.
 		private readonly bool _allEditing;
 		private readonly bool _logisticanEditing;
 		private readonly bool _isUserLogist;
 		private Employee previousForwarder = null;
-		WageParameterService wageParameterService =
-			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(_parametersProvider));
 
 		private DeliveryFreeBalanceViewModel _deliveryFreeBalanceViewModel;
 
@@ -78,12 +66,15 @@ namespace Vodovoz
 
 		public RouteListKeepingDlg(int id)
 		{
-			this.Build();
+			ResolveDependencies();
+			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(id);
 			TabName = $"Ведение МЛ №{Entity.Id}";
 			_allEditing = Entity.Status == RouteListStatus.EnRoute && permissionResult.CanUpdate;
-			_isUserLogist = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
+			_isUserLogist = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Permissions.Logistic.IsLogistician);
 			_logisticanEditing = _isUserLogist && _allEditing;
+
+			_isOrderWaitUntilActive = _generalSettingsParametersProvider.GetIsOrderWaitUntilActive;
 
 			ConfigureDlg();
 		}
@@ -101,6 +92,8 @@ namespace Vodovoz
 			}
 		}
 
+		public ITdiCompatibilityNavigation NavigationManager { get; } = Startup.MainWin.NavigationManager;
+
 		public override bool HasChanges
 		{
 			get
@@ -113,28 +106,25 @@ namespace Vodovoz
 
 		public bool AskSaveOnClose => permissionResult.CanUpdate;
 
-		private CallTaskWorker callTaskWorker;
-		public virtual CallTaskWorker CallTaskWorker {
-			get {
-				if(callTaskWorker == null) {
-					callTaskWorker = new CallTaskWorker(
-						CallTaskSingletonFactory.GetInstance(),
-						new CallTaskRepository(),
-						new OrderRepository(),
-						_employeeRepository,
-						new BaseParametersProvider(new ParametersProvider()),
-						ServicesConfig.CommonServices.UserService,
-						ErrorReporter.Instance);
-				}
-				return callTaskWorker;
-			}
-			set { callTaskWorker = value; }
-		}
+		public virtual ICallTaskWorker CallTaskWorker { get; private set; }
 
 		Dictionary<RouteListItemStatus, Gdk.Pixbuf> statusIcons = new Dictionary<RouteListItemStatus, Gdk.Pixbuf>();
 
 		List<RouteListKeepingItemNode> items;
 		RouteListKeepingItemNode selectedItem;
+
+		public void ResolveDependencies()
+		{
+			_lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+
+			_employeeRepository = _lifetimeScope.Resolve<IEmployeeRepository>();
+			_deliveryShiftRepository = _lifetimeScope.Resolve<IDeliveryShiftRepository>();
+			_routeListProfitabilityController = _lifetimeScope.Resolve<IRouteListProfitabilityController>();
+			_wageParameterService = _lifetimeScope.Resolve<IWageParameterService>();
+			_generalSettingsParametersProvider = _lifetimeScope.Resolve<IGeneralSettingsParametersProvider>();
+
+			CallTaskWorker = _lifetimeScope.Resolve<ICallTaskWorker>();
+		}
 
 		private void ConfigureDlg()
 		{
@@ -144,7 +134,7 @@ namespace Vodovoz
 			Entity.ObservableAddresses.ElementRemoved += ObservableAddresses_ElementRemoved;
 			Entity.ObservableAddresses.ElementChanged += ObservableAddresses_ElementChanged;
 
-			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(Startup.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory());
+			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(Startup.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory(_lifetimeScope));
 				entityviewmodelentryCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 			entityviewmodelentryCar.Sensitive = _logisticanEditing;
@@ -161,7 +151,7 @@ namespace Vodovoz
 			driverFilter.SetAndRefilterAtOnce(
 				x => x.Status = EmployeeStatus.IsWorking,
 				x => x.RestrictCategory = EmployeeCategory.driver);
-			var driverFactory = new EmployeeJournalFactory(driverFilter);
+			var driverFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager, driverFilter);
 			evmeDriver.SetEntityAutocompleteSelectorFactory(driverFactory.CreateEmployeeAutocompleteSelectorFactory());
 			evmeDriver.Binding.AddBinding(Entity, rl => rl.Driver, widget => widget.Subject).InitializeFromSource();
 			evmeDriver.Sensitive = _logisticanEditing;
@@ -171,7 +161,7 @@ namespace Vodovoz
 			forwarderFilter.SetAndRefilterAtOnce(
 				x => x.Status = EmployeeStatus.IsWorking,
 				x => x.RestrictCategory = EmployeeCategory.forwarder);
-			var forwarderFactory = new EmployeeJournalFactory(forwarderFilter);
+			var forwarderFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager, forwarderFilter);
 			evmeForwarder.SetEntityAutocompleteSelectorFactory(forwarderFactory.CreateEmployeeAutocompleteSelectorFactory());
 			evmeForwarder.Binding.AddSource(Entity)
 				.AddBinding(rl => rl.Forwarder, widget => widget.Subject)
@@ -180,7 +170,7 @@ namespace Vodovoz
 
 			evmeForwarder.Changed += ReferenceForwarder_Changed;
 
-			var employeeFactory = new EmployeeJournalFactory();
+			var employeeFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager);
 			evmeLogistician.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
 			evmeLogistician.Binding.AddBinding(Entity, rl => rl.Logistician, widget => widget.Subject).InitializeFromSource();
 			evmeLogistician.Sensitive = _logisticanEditing;
@@ -220,6 +210,10 @@ namespace Vodovoz
 					.AddTextRenderer(node => node.RouteListItem.Order.Id.ToString())
 				.AddColumn("Адрес")
 					.AddTextRenderer(node => node.RouteListItem.Order.DeliveryPoint == null ? "Требуется точка доставки" : node.RouteListItem.Order.DeliveryPoint.ShortAddress)
+				.AddColumn("Ожидает до")
+					.AddTimeRenderer(node => node.WaitUntil)
+					.AddSetter((c, n) => c.Editable = _isOrderWaitUntilActive && n.RouteListItem.Order.OrderStatus == Domain.Orders.OrderStatus.OnTheWay)
+					.WidthChars(5)
 				.AddColumn("Время")
 					.AddTextRenderer(node => node.RouteListItem.Order.DeliverySchedule == null ? "" : node.RouteListItem.Order.DeliverySchedule.Name)
 				.AddColumn("Статус")
@@ -410,16 +404,38 @@ namespace Vodovoz
 		void RLI_StatusChanged(object sender, StatusChangedEventArgs e)
 		{
 			var newStatus = e.NewStatus;
-			if(sender is RouteListKeepingItemNode rli) {
-				if(newStatus == RouteListItemStatus.Canceled || newStatus == RouteListItemStatus.Overdue) {
+			if(sender is RouteListKeepingItemNode rli) 
+			{
+				if(newStatus == RouteListItemStatus.Canceled || newStatus == RouteListItemStatus.Overdue) 
+				{
 					UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(rli.RouteListItem.Order, rli.RouteListItem.RouteList.UoW);
 					TabParent.AddSlaveTab(this, dlg);
 					dlg.DlgSaved += (s, ea) =>
 					{
 						rli.UpdateStatus(newStatus, CallTaskWorker);
+						UoW.Save(rli.RouteListItem);
+						UoW.Commit();
 					};
 					return;
 				}
+
+				var uowFactory = _lifetimeScope.Resolve<IUnitOfWorkFactory>();
+
+				ValidationContext validationContext = new ValidationContext(Entity, null, new Dictionary<object, object>
+				{
+					{ "uowFactory", uowFactory }
+				});
+
+				var canCreateSeveralOrdersValidationResult =
+					rli.RouteListItem.Order.ValidateCanCreateSeveralOrderForDateAndDeliveryPoint(validationContext);
+
+				if(canCreateSeveralOrdersValidationResult != ValidationResult.Success)
+				{
+					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, $"Нельзя перевести адрес в статус \"{newStatus.GetEnumTitle()}\": {canCreateSeveralOrdersValidationResult.ErrorMessage} ");
+
+					return;
+				}
+
 				rli.UpdateStatus(newStatus, CallTaskWorker);
 			}
 		}
@@ -439,7 +455,7 @@ namespace Vodovoz
 			if(Entity.Status == RouteListStatus.OnClosing
 				&& ((previousForwarder == null && newForwarder != null)
 					|| (previousForwarder != null && newForwarder == null)))
-				Entity.RecalculateAllWages(wageParameterService);
+				Entity.RecalculateAllWages(_wageParameterService);
 
 			previousForwarder = Entity.Forwarder;
 		}
@@ -467,7 +483,7 @@ namespace Vodovoz
 			try {
 				SetSensetivity(false);
 
-				Entity.CalculateWages(wageParameterService);
+				Entity.CalculateWages(_wageParameterService);
 
 				UoWGeneric.Save();
 
@@ -558,10 +574,9 @@ namespace Vodovoz
 
 		protected void OnButtonNewFineClicked(object sender, EventArgs e)
 		{
-			this.TabParent.AddSlaveTab(
-				this,
-				new FineDlg(Entity)
-			);
+			var page = NavigationManager.OpenViewModelOnTdi<FineViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate(), OpenPageOptions.AsSlave);
+
+			page.ViewModel.SetRouteListById(Entity.Id);
 		}
 
 		protected void OnButtonMadeCallClicked(object sender, EventArgs e)
@@ -610,6 +625,12 @@ namespace Vodovoz
 			}
 		}
 
+		public TimeSpan? WaitUntil
+		{
+			get => RouteListItem.Order.WaitUntilTime;
+			set => RouteListItem.Order.WaitUntilTime = value;			
+		}
+
 		public string Comment {
 			get => RouteListItem.Comment;
 			set {
@@ -631,7 +652,7 @@ namespace Vodovoz
 			}
 		}
 
-		public string Transferred => RouteListItem.GetTransferText(RouteListItem);
+		public string Transferred => RouteListItem.GetTransferText();
 
 		RouteListItem routeListItem;
 
@@ -644,7 +665,7 @@ namespace Vodovoz
 			}
 		}
 
-		public void UpdateStatus(RouteListItemStatus value, CallTaskWorker callTaskWorker)
+		public void UpdateStatus(RouteListItemStatus value, ICallTaskWorker callTaskWorker)
 		{
 			var uow = RouteListItem.RouteList.UoW;
 			RouteListItem.RouteList.ChangeAddressStatusAndCreateTask(uow, RouteListItem.Id, value, callTaskWorker);

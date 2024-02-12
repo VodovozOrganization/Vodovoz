@@ -1,7 +1,9 @@
 ﻿using System;
+using Autofac;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Services;
 using QS.Validation;
 using Vodovoz.Domain.Documents;
@@ -21,6 +23,7 @@ namespace Vodovoz
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IUserRepository _userRepository = new UserRepository();
 		private readonly StoreDocumentHelper _storeDocumentHelper = new StoreDocumentHelper(new UserSettingsGetter());
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 
 		public RegradingOfGoodsDocumentDlg()
 		{
@@ -53,6 +56,9 @@ namespace Vodovoz
 
 		void ConfigureDlg ()
 		{
+			regradingofgoodsitemsview.NavigationManager = Startup.MainWin.NavigationManager;
+			regradingofgoodsitemsview.ParrentDlg = this;
+
 			if(_storeDocumentHelper.CheckAllPermissions(UoW.IsNew, WarehousePermissionsType.RegradingOfGoodsEdit, Entity.Warehouse)) {
 				FailInitialize = true;
 				return;
@@ -82,7 +88,7 @@ namespace Vodovoz
 
 			var warehouseJournalFactory = new WarehouseJournalFactory();
 
-			warehouseEntry.SetEntityAutocompleteSelectorFactory(warehouseJournalFactory.CreateSelectorFactory(filterParams));
+			warehouseEntry.SetEntityAutocompleteSelectorFactory(warehouseJournalFactory.CreateSelectorFactory(_lifetimeScope, filterParams));
 			warehouseEntry.Binding.AddBinding(Entity, e => e.Warehouse, w => w.Subject).InitializeFromSource();
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 
@@ -126,6 +132,16 @@ namespace Vodovoz
 			UoWGeneric.Save ();
 			logger.Info ("Ok.");
 			return true;
+		}
+		
+		protected override void OnDestroyed()
+		{
+			if(_lifetimeScope != null)
+			{
+				_lifetimeScope.Dispose();
+				_lifetimeScope = null;
+			}
+			base.OnDestroyed();
 		}
 	}
 }

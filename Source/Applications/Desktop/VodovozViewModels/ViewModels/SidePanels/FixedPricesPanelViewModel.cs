@@ -11,7 +11,7 @@ using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.ViewModels.SidePanels
 {
-    public class FixedPricesPanelViewModel : UoWWidgetViewModelBase
+    public class FixedPricesPanelViewModel : UoWWidgetViewModelBase, IDisposable
     {
         private readonly IFixedPricesDialogOpener fixedPricesDialogOpener;
         private Domain.Client.Counterparty counterparty;
@@ -78,5 +78,10 @@ namespace Vodovoz.ViewModels.ViewModels.SidePanels
                 return;
             }
         }
+
+		public void Dispose()
+		{
+			fixedPricesDialogOpener?.Dispose();
+		}
     }
 }

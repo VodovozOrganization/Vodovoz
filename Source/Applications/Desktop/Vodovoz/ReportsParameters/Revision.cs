@@ -1,62 +1,39 @@
-﻿using System;
-using System.Collections.Generic;
-using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
-using QS.Report;
+﻿using QS.ViewModels.Control.EEVM;
+using QS.Views;
 using QSReport;
-using Vodovoz.Domain.Client;
+using System;
+using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModels.ReportsParameters;
 
 namespace Vodovoz.Reports
 {
-	public partial class Revision : SingleUoWWidgetBase, IParametersWidget
+	public partial class Revision : ViewBase<RevisionReportViewModel>
 	{
-		public Revision()
+		public Revision(RevisionReportViewModel viewModel)
+			: base(viewModel)
 		{
-			this.Build();
-			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
-			referenceCounterparty.RepresentationModel = new ViewModel.CounterpartyVM(UoW);
+			Build();
+
+			dateperiodpicker1.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.StartDate, w => w.StartDateOrNull)
+				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
+				.InitializeFromSource();
+
+			entryCounterparty.ViewModel = new LegacyEEVMBuilderFactory<RevisionReportViewModel>(ViewModel.RdlViewerViewModel, null, ViewModel, ViewModel.UnitOfWork, ViewModel.NavigationManager, ViewModel.LifetimeScope)
+				.ForProperty(x => x.Counterparty)
+				.UseTdiEntityDialog()
+				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
+				.Finish();
+
+			entryCounterparty.ViewModel.PropertyChanged += OnReferenceCounterpartyChanged;
 		}	
-
-		#region IParametersWidget implementation
-
-		public string Title
-		{
-			get
-			{
-				return "Акт сверки";
-			}
-		}
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
-		#endregion
-
-		void OnUpdate(bool hide = false)
-		{
-			if (LoadReport != null)
-			{
-				LoadReport(this, new LoadReportEventArgs(GetReportInfo(), hide));
-			}
-		}
-
 		protected void OnButtonRunClicked(object sender, EventArgs e)
 		{
-			OnUpdate(true);
+			ViewModel.LoadReport();
 		}
-
-		private ReportInfo GetReportInfo()
-		{			
-			return new ReportInfo
-			{
-				Identifier = "Client.Revision",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "StartDate", dateperiodpicker1.StartDateOrNull.Value },
-					{ "EndDate", dateperiodpicker1.EndDateOrNull.Value },
-					{ "CounterpartyID", (referenceCounterparty.Subject as Counterparty).Id}
-				}
-			};
-		}			
 
 		protected void OnDateperiodpicker1PeriodChanged(object sender, EventArgs e)
 		{
@@ -65,12 +42,12 @@ namespace Vodovoz.Reports
 
 		private void ValidateParameters()
 		{
-			var datePeriodSelected = dateperiodpicker1.EndDateOrNull != null && dateperiodpicker1.StartDateOrNull != null;
-			var counterpartySelected = referenceCounterparty.Subject != null;
+			var datePeriodSelected = ViewModel.EndDate.HasValue && ViewModel.StartDate.HasValue;
+			var counterpartySelected = ViewModel.Counterparty != null;
 			buttonRun.Sensitive = datePeriodSelected && counterpartySelected;
 		}
 
-		protected void OnReferenceCounterpartyChanged (object sender, EventArgs e)
+		protected void OnReferenceCounterpartyChanged(object sender, EventArgs e)
 		{
 			ValidateParameters();
 		}

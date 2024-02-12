@@ -2,15 +2,27 @@ using DriverAPI.Library.Helpers;
 using DriverAPI.Library.Models;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
-using IDeprecated2OrderModel = DriverAPI.Library.Deprecated2.Models.IOrderModel;
-using Deprecated2OrderModel = DriverAPI.Library.Deprecated2.Models.OrderModel;
-using IDeprecated2RouteListModel = DriverAPI.Library.Deprecated2.Models.IRouteListModel;
-using Deprecated2RouteListModel = DriverAPI.Library.Deprecated2.Models.RouteListModel;
+using EventsApi.Library;
+using EventsApi.Library.Models;
+using EventsApi.Library.Services;
+using Vodovoz;
+using Vodovoz.Application;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
+using Vodovoz.Settings.Database;
 
 namespace DriverAPI.Library
 {
+	/// <summary>
+	/// Методы расширения коллекции сервисов дял регистрации в контейнере зависимостей
+	/// </summary>
 	public static class DependencyInjection
 	{
+		/// <summary>
+		/// Добавление сервисов библиотеки
+		/// </summary>
+		/// <param name="services"></param>
+		/// <returns></returns>
 		public static IServiceCollection AddDriverApiLibrary(this IServiceCollection services)
 		{
 			// Конвертеры
@@ -38,10 +50,15 @@ namespace DriverAPI.Library
 			services.AddScoped<ISmsPaymentModel, SmsPaymentModel>();
 			services.AddScoped<IDriverComplaintModel, DriverComplaintModel>();
 			services.AddScoped<IFastPaymentModel, FastPaymentModel>();
+			services.AddScoped<ILogisticsEventsService, DriverWarehouseEventsService>();
 
-			// Deprecated2
-			services.AddScoped<IDeprecated2OrderModel, Deprecated2OrderModel>();
-			services.AddScoped<IDeprecated2RouteListModel, Deprecated2RouteListModel>();
+			services.AddScoped<IGlobalSettings, GlobalSettings>();
+
+			services.AddBusiness();
+			services.AddApplication();
+			services.AddDatabaseSettings();
+			services.AddDriverEventsDependencies();
+
 			return services;
 		}
 	}

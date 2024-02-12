@@ -1,4 +1,4 @@
-﻿using FluentNHibernate.Mapping;
+using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Goods.Rent;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods.Rent
@@ -15,7 +15,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods.Rent
 			Map(x => x.OnlineName).Column("online_name");
 			Map(x => x.MinWaterAmount).Column("min_water_amount");
 			Map(x => x.Deposit).Column("deposit");
-			
+			Map(x => x.IsArchive).Column("is_archive");
 			References(x => x.EquipmentKind).Column("equipment_kind_id");
 			References(x => x.DepositService).Column("deposit_service_id").LazyLoad();
 

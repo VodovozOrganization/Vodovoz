@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
@@ -454,6 +455,11 @@ namespace Vodovoz.ViewModels.Factories
 						enumElement.Include = true;
 					}
 				}
+			});
+
+			includeExludeFiltersViewModel.AddFilter<CounterpartyCompositeClassification>(config =>
+			{
+				config.RefreshFilteredElements();
 			});
 
 			return includeExludeFiltersViewModel;

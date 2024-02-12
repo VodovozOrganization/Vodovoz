@@ -1,4 +1,4 @@
-﻿using QS.Navigation;
+using QS.Navigation;
 using QS.Views.GtkUI;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
@@ -6,13 +6,13 @@ using Vodovoz.ViewModels.ViewModels.Rent;
 
 namespace Vodovoz.Views.Rent
 {
-    public partial class FreeRentPackageView : TabViewBase<FreeRentPackageViewModel>
-    {
-        public FreeRentPackageView(FreeRentPackageViewModel viewModel) : base(viewModel)
-        {
-            Build();
-            Configure();
-        }
+	public partial class FreeRentPackageView : TabViewBase<FreeRentPackageViewModel>
+	{
+		public FreeRentPackageView(FreeRentPackageViewModel viewModel) : base(viewModel)
+		{
+			Build();
+			Configure();
+		}
 
         private void Configure()
         {
@@ -51,6 +51,12 @@ namespace Vodovoz.Views.Rent
 			entryDepositService.Binding
 				.AddBinding(ViewModel.Entity, e => e.DepositService, w => w.Subject)
 				.InitializeFromSource();
+
+			spinMinWaterAmount.Binding
+				.AddBinding(ViewModel.Entity, e => e.MinWaterAmount, w => w.ValueAsInt)
+				.InitializeFromSource();
+
+			entryDepositServiceNomenclature.ViewModel = ViewModel.DepositServiceNomenclatureViewModel;
 
 			referenceEquipmentType.SubjectType = typeof(EquipmentKind);
 			referenceEquipmentType.Binding

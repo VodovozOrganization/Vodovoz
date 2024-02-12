@@ -1,76 +1,60 @@
-﻿using System;
-using System.Linq;
-using QS.Commands;
+﻿using QS.Commands;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Journal;
-using QS.Project.Journal.EntitySelector;
 using QS.Project.Search;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
+using System;
+using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.FilterViewModels.Goods;
-using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalViewModels;
-using Vodovoz.Services;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.ViewModels.Client
 {
-	public class SupplierPricesWidgetViewModel : EntityWidgetViewModelBase<Counterparty>
+	public class SupplierPricesWidgetViewModel : EntityWidgetViewModelBase<Counterparty>, IDisposable
 	{
-		private readonly ITdiTab dialogTab;
-		private readonly IEmployeeService employeeService;
-		private readonly INomenclatureRepository nomenclatureRepository;
-		private readonly IUserRepository userRepository;
-		private readonly ICounterpartyJournalFactory counterpartySelectorFactory;
-		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
+		private readonly ITdiCompatibilityNavigation _navigationManager;
+		private ITdiTab _dialogTab;
+		private bool _canRemove = false;
 
 		public event EventHandler ListContentChanged;
 
 		public IJournalSearch Search { get; private set; }
 
-		public SupplierPricesWidgetViewModel(Counterparty entity,
+		public SupplierPricesWidgetViewModel(
+			Counterparty entity,
 			IUnitOfWork uow,
 			ITdiTab dialogTab,
 			ICommonServices commonServices,
-			IEmployeeService employeeService,
-			ICounterpartyJournalFactory counterpartySelectorFactory,
-			INomenclatureJournalFactory nomenclatureSelectorFactory,
-			INomenclatureRepository nomenclatureRepository,
-			IUserRepository userRepository)
+			ITdiCompatibilityNavigation navigationManager)
 			: base(entity, commonServices)
 		{
-			this.dialogTab = dialogTab ?? throw new ArgumentNullException(nameof(dialogTab));
+			_dialogTab = dialogTab ?? throw new ArgumentNullException(nameof(dialogTab));
+			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
-			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
-			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
-			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 
 			CreateCommands();
 			RefreshPrices();
-			
+
 			Search = new SearchViewModel();
 			Search.OnSearch += (sender, e) => RefreshPrices();
 			Entity.ObservableSuplierPriceItems.ElementAdded += (aList, aIdx) => RefreshPrices();
 			Entity.ObservableSuplierPriceItems.ElementRemoved += (aList, aIdx, aObject) => RefreshPrices();
 		}
 
-		void CreateCommands()
+		private void CreateCommands()
 		{
 			CreateAddItemCommand();
 			CreateRemoveItemCommand();
 			CreateEditItemCommand();
 		}
 
-		void RefreshPrices()
+		private void RefreshPrices()
 		{
 			Entity.SupplierPriceListRefresh(Search?.SearchValues);
 			ListContentChanged?.Invoke(this, new EventArgs());
@@ -80,11 +64,12 @@ namespace Vodovoz.ViewModels.Client
 		public bool CanAdd { get; set; } = true;
 		public bool CanEdit { get; set; } = false;//задача редактирования пока не актуальна
 
-		bool canRemove = false;
-		public bool CanRemove {
-			get => canRemove;
-			set => SetField(ref canRemove, value);
+		public bool CanRemove
+		{
+			get => _canRemove;
+			set => SetField(ref _canRemove, value);
 		}
+
 		#region Commands
 
 		#region AddItemCommand
@@ -94,31 +79,36 @@ namespace Vodovoz.ViewModels.Client
 		private void CreateAddItemCommand()
 		{
 			AddItemCommand = new DelegateCommand(
-				() => {
-					var existingNomenclatures = Entity.ObservableSuplierPriceItems.Select(i => i.NomenclatureToBuy.Id).Distinct();
-					var filter = new NomenclatureFilterViewModel() {
-						HidenByDefault = true
-					};
-					NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
-						filter,
-						UnitOfWorkFactory.GetDefaultFactory,
-						CommonServices,
-						employeeService,
-						_nomenclatureSelectorFactory,
-						counterpartySelectorFactory,
-						nomenclatureRepository,
-						userRepository
-					) {
-						SelectionMode = JournalSelectionMode.Single,
-						ExcludingNomenclatureIds = existingNomenclatures.ToArray()
-					};
-					journalViewModel.OnEntitySelectedResult += (sender, e) => {
-						var selectedNode = e.SelectedNodes.FirstOrDefault();
-						if(selectedNode == null)
+				() =>
+				{
+					var existingNomenclatures =
+						Entity.ObservableSuplierPriceItems.Select(i => i.NomenclatureToBuy.Id).Distinct();
+
+					var journalViewModel =
+						_navigationManager.OpenViewModelOnTdi<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(
+							_dialogTab,
+							filter =>
+							{
+								filter.HidenByDefault = true;
+								filter.RestrictedExcludedIds = existingNomenclatures.ToArray();
+							},
+							OpenPageOptions.AsSlave,
+							vm =>
+							{
+								vm.SelectionMode = JournalSelectionMode.Single;
+							}
+						).ViewModel;
+
+					journalViewModel.OnSelectResult += (sender, e) =>
+					{
+						var selectedObject = e.SelectedObjects.FirstOrDefault();
+						if(!(selectedObject is NomenclatureJournalNode selectedNode))
+						{
 							return;
+						}
+
 						Entity.AddSupplierPriceItems(UoW.GetById<Nomenclature>(selectedNode.Id));
 					};
-					dialogTab.TabParent.AddSlaveTab(dialogTab, journalViewModel);
 				},
 				() => true
 			);
@@ -156,5 +146,9 @@ namespace Vodovoz.ViewModels.Client
 
 		#endregion Commands
 
+		public void Dispose()
+		{
+			_dialogTab = null;
+		}
 	}
 }

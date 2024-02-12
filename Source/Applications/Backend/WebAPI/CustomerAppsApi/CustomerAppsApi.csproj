@@ -2,13 +2,13 @@
 
     <PropertyGroup>
         <TargetFramework>net5.0</TargetFramework>
+        <UserSecretsId>666510de-1881-4000-816c-464dfc803344</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="FluentNHibernate" Version="3.1.0" />
 		<PackageReference Include="MySqlConnector" Version="2.2.6" />
         <PackageReference Include="NHibernate" Version="5.4.1" />
-        <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="5.0.1" />
         <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="2.1.3" />
         <PackageReference Include="NHibernate.Spatial.MySQL" Version="6.0.0" />
         <PackageReference Include="NLog.Web.AspNetCore" Version="5.2.1" />
@@ -17,6 +17,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\CustomerAppsApi.Library\CustomerAppsApi.Library.csproj" />
+      <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\HealthCheck\VodovozHealthCheck.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\Core\Business\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\Modules\QS.Banks\QS.Banks.csproj" />

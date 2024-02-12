@@ -12,26 +12,26 @@ namespace Vodovoz.Infrastructure
 	/// </summary>
 	public static class GdkColors
 	{
-		private static Widget _defaultWidget => new Label();
+		private static readonly Widget _defaultWidget = new Label();
 
-		public static bool IsDark => Rc.GetStyle(_defaultWidget).IsDark();
-		public static bool IsLight => Rc.GetStyle(_defaultWidget).IsLight();
+		public static bool IsDark { get; } = Rc.GetStyle(_defaultWidget).IsDark();
+		public static bool IsLight { get; } = Rc.GetStyle(_defaultWidget).IsLight();
 
 		#region Primary
 
-		public static Color PrimaryBG => Rc.GetStyle(_defaultWidget).Background(StateType.Normal);
-		public static Color PrimaryFG => Rc.GetStyle(_defaultWidget).Foreground(StateType.Normal);
-		public static Color PrimaryText => Rc.GetStyle(_defaultWidget).Text(StateType.Normal);
-		public static Color PrimaryBase => Rc.GetStyle(_defaultWidget).Base(StateType.Normal);
+		public static Color PrimaryBG { get; } = Rc.GetStyle(_defaultWidget).Background(StateType.Normal);
+		public static Color PrimaryFG { get; } = Rc.GetStyle(_defaultWidget).Foreground(StateType.Normal);
+		public static Color PrimaryText { get; } = Rc.GetStyle(_defaultWidget).Text(StateType.Normal);
+		public static Color PrimaryBase { get; } = Rc.GetStyle(_defaultWidget).Base(StateType.Normal);
 
 		#endregion Primary
 
 		#region Active
 
-		public static Color ActiveBG => Rc.GetStyle(_defaultWidget).Background(StateType.Active);
-		public static Color ActiveFG => Rc.GetStyle(_defaultWidget).Foreground(StateType.Active);
-		public static Color ActiveText => Rc.GetStyle(_defaultWidget).Text(StateType.Active);
-		public static Color ActiveBase => Rc.GetStyle(_defaultWidget).Base(StateType.Active);
+		public static Color ActiveBG { get; } = Rc.GetStyle(_defaultWidget).Background(StateType.Active);
+		public static Color ActiveFG { get; } = Rc.GetStyle(_defaultWidget).Foreground(StateType.Active);
+		public static Color ActiveText { get; } = Rc.GetStyle(_defaultWidget).Text(StateType.Active);
+		public static Color ActiveBase { get; } = Rc.GetStyle(_defaultWidget).Base(StateType.Active);
 
 		#endregion Active
 
@@ -69,10 +69,10 @@ namespace Vodovoz.Infrastructure
 
 		#region Insensitive
 
-		public static Color InsensitiveBG => Rc.GetStyle(_defaultWidget).Background(StateType.Insensitive);
-		public static Color InsensitiveFG => Rc.GetStyle(_defaultWidget).Foreground(StateType.Insensitive);
-		public static Color InsensitiveText => Rc.GetStyle(_defaultWidget).Text(StateType.Insensitive);
-		public static Color InsensitiveBase => Rc.GetStyle(_defaultWidget).Base(StateType.Insensitive);
+		public static Color InsensitiveBG { get; } = Rc.GetStyle(_defaultWidget).Background(StateType.Insensitive);
+		public static Color InsensitiveFG { get; } = Rc.GetStyle(_defaultWidget).Foreground(StateType.Insensitive);
+		public static Color InsensitiveText { get; } = Rc.GetStyle(_defaultWidget).Text(StateType.Insensitive);
+		public static Color InsensitiveBase { get; } = Rc.GetStyle(_defaultWidget).Base(StateType.Insensitive);
 
 		#endregion Insensitive
 
@@ -92,6 +92,7 @@ namespace Vodovoz.Infrastructure
 		public static Color DarkMustard { get; } = IsLight ? new Color(0xb3, 0xb3, 0x00) : new Color(255, 219, 88);
 		public static Color CashFlowTotalColor { get; } = IsLight ? new Color(249, 191, 143) : new Color(233, 84, 32);
 		public static Color ComplaintDiscussionCommentBase { get; } = IsLight ? new Color(230, 230, 245) : new Color(62, 62, 65);
+		public static Color CarMonitoringNewbieDriversBase { get; } = IsLight ? new Color(250, 130, 130) : new Color(178, 102, 25);
 
 		#endregion AdditionalColors
 	}

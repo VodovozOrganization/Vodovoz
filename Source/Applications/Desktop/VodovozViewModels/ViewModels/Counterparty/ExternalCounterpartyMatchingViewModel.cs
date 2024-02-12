@@ -144,7 +144,6 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 						{
 							externalCounterparty = UoW.GetById<ExternalCounterparty>(discrepancy.ExternalCounterpartyId);
 							externalCounterparty.Phone = GetPhone(counterpartyNode);
-							
 						}
 						else
 						{
@@ -331,30 +330,16 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 		
 		private void ReAssignCounterparty(ExistingExternalCounterpartyNode selectedDiscrepancyNode)
 		{
-			if(Entity.ExternalCounterpartyGuid == selectedDiscrepancyNode.ExternalCounterpartyGuid)
+			if(Entity.ExternalCounterpartyGuid == selectedDiscrepancyNode.ExternalCounterpartyGuid
+				&& DigitsPhoneNumber != selectedDiscrepancyNode.PhoneNumber)
 			{
 				ReAssignCounterpartyWithChangePhone(selectedDiscrepancyNode);
 			}
-			else if(DigitsPhoneNumber == selectedDiscrepancyNode.PhoneNumber)
+			else if(DigitsPhoneNumber == selectedDiscrepancyNode.PhoneNumber
+				&& Entity.ExternalCounterpartyGuid != selectedDiscrepancyNode.ExternalCounterpartyGuid)
 			{
 				ReAssignCounterpartyWithChangeExternalId(selectedDiscrepancyNode);
 			}
-		}
-
-		private Guid CreateNewGuidForExternalCounterparty(CounterpartyFrom counterpartyFrom)
-		{
-			Guid newGuid;
-			ExternalCounterparty externalCounterpartyWithSameGuid;
-			
-			do
-			{
-				newGuid = Guid.NewGuid();
-				externalCounterpartyWithSameGuid =
-					UoW.GetAll<ExternalCounterparty>()
-						.SingleOrDefault(x => x.ExternalCounterpartyId == newGuid && x.CounterpartyFrom == counterpartyFrom);
-			} while(externalCounterpartyWithSameGuid != null);
-
-			return newGuid;
 		}
 
 		private void ReAssignCounterpartyWithChangePhone(ExistingExternalCounterpartyNode selectedDiscrepancyNode)
@@ -378,7 +363,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 		private void ReAssignCounterpartyWithChangeExternalId(ExistingExternalCounterpartyNode selectedDiscrepancyNode)
 		{
 			var externalCounterparty = UoW.GetById<ExternalCounterparty>(selectedDiscrepancyNode.ExternalCounterpartyId);
-			externalCounterparty.ExternalCounterpartyId = CreateNewGuidForExternalCounterparty(externalCounterparty.CounterpartyFrom);
+			externalCounterparty.ExternalCounterpartyId = Entity.ExternalCounterpartyGuid;
 			Entity.AssignCounterparty(externalCounterparty);
 		}
 

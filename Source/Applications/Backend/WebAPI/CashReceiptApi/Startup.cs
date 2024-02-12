@@ -15,6 +15,7 @@ using QS.Project.DB;
 using QS.Project.Domain;
 using System.Configuration;
 using System.Reflection;
+using CashReceiptApi.HealthChecks;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.Models.CashReceipts;
 using Vodovoz.Models.TrueMark;
@@ -22,6 +23,8 @@ using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Settings.Database;
 using Vodovoz.Tools;
+using VodovozHealthCheck;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 
 namespace CashReceiptApi
 {
@@ -53,6 +56,8 @@ namespace CashReceiptApi
 			services.AddAuthentication(ApiKeyAuthenticationOptions.DefaultScheme);
 			services.AddGrpc().Services.AddAuthorization();
 			services.AddMvc().AddControllersAsServices();
+
+			services.ConfigureHealthCheckService<CashReceiptApiHealthCheck>(true);
 
 			CreateBaseConfig();
 		}
@@ -136,6 +141,8 @@ namespace CashReceiptApi
 			{
 				endpoints.MapGrpcService<CashReceiptService>().EnableGrpcWeb();
 			});
+
+			app.ConfigureHealthCheckApplicationBuilder();
 		}
 
 		private void CreateBaseConfig()
@@ -170,6 +177,7 @@ namespace CashReceiptApi
 					Assembly.GetAssembly(typeof(Bank)),
 					Assembly.GetAssembly(typeof(TypeOfEntity)),
 					Assembly.GetAssembly(typeof(Attachment)),
+					typeof(DriverWarehouseEventMap).Assembly,
 					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
 				}
 			);

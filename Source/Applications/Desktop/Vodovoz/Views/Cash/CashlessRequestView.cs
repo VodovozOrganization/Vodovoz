@@ -32,10 +32,8 @@ namespace Vodovoz.Views.Cash
 			evmeAuthor.Binding
 				.AddBinding(ViewModel.Entity, e => e.Author, w => w.Subject)
 				.InitializeFromSource();
-			evmeSubdivision.Sensitive = false;
-			evmeSubdivision.Binding
-				.AddBinding(ViewModel.Entity, e => e.Subdivision, w => w.Subject)
-				.InitializeFromSource();
+
+			entrySubdivision.ViewModel = ViewModel.SubdivisionViewModel;
 
 			evmeCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyAutocompleteSelector);
 			evmeCounterparty.Binding

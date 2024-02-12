@@ -1,16 +1,19 @@
-﻿using System;
+﻿using Gamma.Utilities;
+using NetTopologySuite.Geometries;
+using NHibernate.Criterion;
+using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
+using QS.DomainModel.UoW;
+using QS.HistoryLog;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Gamma.Utilities;
-using NetTopologySuite.Geometries;
-using QS.DomainModel.Entity;
-using QS.DomainModel.Entity.EntityPermissions;
-using QS.HistoryLog;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation;
+using Vodovoz.Errors.Logistics;
 using Vodovoz.Tools.Orders;
 
 namespace Vodovoz.Domain.Sale
@@ -22,305 +25,338 @@ namespace Vodovoz.Domain.Sale
 	[HistoryTrace]
 	public class District : BusinessObjectBase<District>, IDomainObject, IValidatableObject, ICloneable
 	{
+		#region Fields
+		string _districtName;
+		private TariffZone _tariffZone;
+		private Geometry _districtBorder;
+		private int _minBottles;
+		private decimal _waterPrice;
+		private DistrictWaterPrice _priceType;
+		private WageDistrict _wageDistrict;
+		private GeoGroup _geographicGroup;
+		private DistrictsSet _districtsSet;
+		private District _copyOf;
+		private IList<DistrictCopyItem> _districtCopyItems = new List<DistrictCopyItem>();
+		private IList<CommonDistrictRuleItem> _commonDistrictRuleItems = new List<CommonDistrictRuleItem>();
+
+		private IList<WeekDayDistrictRuleItem> _todayDistrictRuleItems = new List<WeekDayDistrictRuleItem>();
+		private GenericObservableList<WeekDayDistrictRuleItem> _observableTodayDistrictRuleItems;
+		private IList<WeekDayDistrictRuleItem> _mondayDistrictRuleItems = new List<WeekDayDistrictRuleItem>();
+		private GenericObservableList<WeekDayDistrictRuleItem> _observableMondayDistrictRuleItems;
+		private IList<WeekDayDistrictRuleItem> _tuesdayDistrictRuleItems = new List<WeekDayDistrictRuleItem>();
+		private GenericObservableList<WeekDayDistrictRuleItem> _observableTuesdayDistrictRuleItems;
+		private IList<WeekDayDistrictRuleItem> _wednesdayDistrictRuleItems = new List<WeekDayDistrictRuleItem>();
+		private GenericObservableList<WeekDayDistrictRuleItem> _observableWednesdayDistrictRuleItems;
+		private IList<WeekDayDistrictRuleItem> _thursdayDistrictRuleItems = new List<WeekDayDistrictRuleItem>();
+		private GenericObservableList<WeekDayDistrictRuleItem> _observableThursdayDistrictRuleItems;
+		private IList<WeekDayDistrictRuleItem> _fridayDistrictRuleItems = new List<WeekDayDistrictRuleItem>();
+		private GenericObservableList<WeekDayDistrictRuleItem> _observableFridayDistrictRuleItems;
+		private IList<WeekDayDistrictRuleItem> _saturdayDistrictRuleItems = new List<WeekDayDistrictRuleItem>();
+		private GenericObservableList<WeekDayDistrictRuleItem> _observableSaturdayDistrictRuleItems;
+		private IList<WeekDayDistrictRuleItem> _sundayDistrictRuleItems = new List<WeekDayDistrictRuleItem>();
+		private GenericObservableList<WeekDayDistrictRuleItem> _observableSundayDistrictRuleItems;
+
+		private IList<DeliveryScheduleRestriction> _todayDeliveryScheduleRestrictions = new List<DeliveryScheduleRestriction>();
+		private GenericObservableList<DeliveryScheduleRestriction> _observableTodayDeliveryScheduleRestrictions;
+		private IList<DeliveryScheduleRestriction> _mondayDeliveryScheduleRestrictions = new List<DeliveryScheduleRestriction>();
+		private GenericObservableList<DeliveryScheduleRestriction> _observableMondayDeliveryScheduleRestrictions;
+		private IList<DeliveryScheduleRestriction> _tuesdayDeliveryScheduleRestrictions = new List<DeliveryScheduleRestriction>();
+		private GenericObservableList<DeliveryScheduleRestriction> _observableTuesdayDeliveryScheduleRestrictions;
+		private IList<DeliveryScheduleRestriction> _wednesdayDeliveryScheduleRestrictions = new List<DeliveryScheduleRestriction>();
+		private GenericObservableList<DeliveryScheduleRestriction> _observableWednesdayDeliveryScheduleRestrictions;
+		private IList<DeliveryScheduleRestriction> _thursdayDeliveryScheduleRestrictions = new List<DeliveryScheduleRestriction>();
+		private GenericObservableList<DeliveryScheduleRestriction> _observableThursdayDeliveryScheduleRestrictions;
+		private IList<DeliveryScheduleRestriction> _fridayDeliveryScheduleRestrictions = new List<DeliveryScheduleRestriction>();
+		private GenericObservableList<DeliveryScheduleRestriction> _observableFridayDeliveryScheduleRestrictions;
+		private IList<DeliveryScheduleRestriction> _saturdayDeliveryScheduleRestrictions = new List<DeliveryScheduleRestriction>();
+		private GenericObservableList<DeliveryScheduleRestriction> _observableSaturdayDeliveryScheduleRestrictions;
+		private IList<DeliveryScheduleRestriction> _sundayDeliveryScheduleRestrictions = new List<DeliveryScheduleRestriction>();
+		private GenericObservableList<DeliveryScheduleRestriction> _observableSundayDeliveryScheduleRestrictions;
+		#endregion Fields
+
 		#region Свойства
 		public virtual int Id { get; set; }
 
-		string districtName;
 		[Display(Name = "Название района")]
-		public virtual string DistrictName {
-			get => districtName;
-			set => SetField(ref districtName, value, () => DistrictName);
+		public virtual string DistrictName
+		{
+			get => _districtName;
+			set => SetField(ref _districtName, value);
 		}
 
-		private TariffZone tariffZone;
 		[Display(Name = "Тарифная зоны")]
-		public virtual TariffZone TariffZone {
-			get => tariffZone;
-			set => SetField(ref tariffZone, value, () => TariffZone);
+		public virtual TariffZone TariffZone
+		{
+			get => _tariffZone;
+			set => SetField(ref _tariffZone, value);
 		}
 
-		private Geometry districtBorder;
 		[Display(Name = "Граница")]
-		public virtual Geometry DistrictBorder {
-			get => districtBorder;
-			set => SetField(ref districtBorder, value, () => DistrictBorder);
+		public virtual Geometry DistrictBorder
+		{
+			get => _districtBorder;
+			set => SetField(ref _districtBorder, value);
 		}
-		
-		int minBottles;
+
 		[Display(Name = "Минимальное количество бутылей")]
-		public virtual int MinBottles {
-			get => minBottles;
-			set => SetField(ref minBottles, value, () => MinBottles);
+		public virtual int MinBottles
+		{
+			get => _minBottles;
+			set => SetField(ref _minBottles, value);
 		}
 
-		private decimal waterPrice;
 		[Display(Name = "Цена на воду")]
-		public virtual decimal WaterPrice {
-			get => waterPrice;
-			set => SetField(ref waterPrice, value, () => WaterPrice);
+		public virtual decimal WaterPrice
+		{
+			get => _waterPrice;
+			set => SetField(ref _waterPrice, value);
 		}
 
-		private DistrictWaterPrice priceType;
 		[Display(Name = "Вид цены")]
-		public virtual DistrictWaterPrice PriceType {
-			get => priceType;
-			set {
-				SetField(ref priceType, value, () => PriceType);
+		public virtual DistrictWaterPrice PriceType
+		{
+			get => _priceType;
+			set
+			{
+				SetField(ref _priceType, value);
 				if(WaterPrice != 0 && PriceType != DistrictWaterPrice.FixForDistrict)
 					WaterPrice = 0;
 			}
 		}
 
-		private WageDistrict wageDistrict;
 		[Display(Name = "Группа района для расчёта ЗП")]
-		public virtual WageDistrict WageDistrict {
-			get => wageDistrict;
-			set => SetField(ref wageDistrict, value);
+		public virtual WageDistrict WageDistrict
+		{
+			get => _wageDistrict;
+			set => SetField(ref _wageDistrict, value);
 		}
-		
-		private GeoGroup geographicGroup;
+
 		[Display(Name = "Часть города")]
-		public virtual GeoGroup GeographicGroup {
-			get => geographicGroup;
-			set => SetField(ref geographicGroup, value, () => GeographicGroup);
+		public virtual GeoGroup GeographicGroup
+		{
+			get => _geographicGroup;
+			set => SetField(ref _geographicGroup, value);
 		}
-		
-		private DistrictsSet districtsSet;
+
 		[Display(Name = "Версия районов")]
-		public virtual DistrictsSet DistrictsSet {
-			get => districtsSet;
-			set => SetField(ref districtsSet, value, () => DistrictsSet);
+		public virtual DistrictsSet DistrictsSet
+		{
+			get => _districtsSet;
+			set => SetField(ref _districtsSet, value);
 		}
-		
-		private District copyOf;
+
 		[Display(Name = "Копия района")]
-		public virtual District CopyOf {
-			get => copyOf;
-			set => SetField(ref copyOf, value, () => CopyOf);
+		public virtual District CopyOf
+		{
+			get => _copyOf;
+			set => SetField(ref _copyOf, value);
 		}
-		
-		private District copiedTo;
-		[Display(Name = "Район, скопированный из этого района")]
-		public virtual District CopiedTo {
-			get => copiedTo;
-			set => SetField(ref copiedTo, value);
+
+		[Display(Name = "Районы, в которые был скопирован данный район")]
+		public virtual IList<DistrictCopyItem> DistrictCopyItems
+		{
+			get => _districtCopyItems;
+			set => SetField(ref _districtCopyItems, value);
 		}
-		
 		#endregion
 
 		#region CommonDistrictRuleItems
 
-		private IList<CommonDistrictRuleItem> commonDistrictRuleItems = new List<CommonDistrictRuleItem>();
 		[Display(Name = "Правила и цены доставки района")]
-		public virtual IList<CommonDistrictRuleItem> CommonDistrictRuleItems {
-			get => commonDistrictRuleItems;
-			set => SetField(ref commonDistrictRuleItems, value, () => CommonDistrictRuleItems);
+		public virtual IList<CommonDistrictRuleItem> CommonDistrictRuleItems
+		{
+			get => _commonDistrictRuleItems;
+			set => SetField(ref _commonDistrictRuleItems, value, () => CommonDistrictRuleItems);
 		}
 
-		private GenericObservableList<CommonDistrictRuleItem> observableCommonDistrictRuleItems;
+		private GenericObservableList<CommonDistrictRuleItem> _observableCommonDistrictRuleItems;
 		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<CommonDistrictRuleItem> ObservableCommonDistrictRuleItems =>
-			observableCommonDistrictRuleItems ?? (observableCommonDistrictRuleItems =
+			_observableCommonDistrictRuleItems ?? (_observableCommonDistrictRuleItems =
 				new GenericObservableList<CommonDistrictRuleItem>(CommonDistrictRuleItems));
 
 		#endregion
 
 		#region WeekDayDistricRuleItems
-		
-		private IList<WeekDayDistrictRuleItem> todayDistrictRuleItems = new List<WeekDayDistrictRuleItem>();
-		public virtual IList<WeekDayDistrictRuleItem> TodayDistrictRuleItems {
-			get => todayDistrictRuleItems;
-			set => SetField(ref todayDistrictRuleItems, value, () => TodayDistrictRuleItems);
+
+		public virtual IList<WeekDayDistrictRuleItem> TodayDistrictRuleItems
+		{
+			get => _todayDistrictRuleItems;
+			set => SetField(ref _todayDistrictRuleItems, value, () => TodayDistrictRuleItems);
 		}
 
-		private GenericObservableList<WeekDayDistrictRuleItem> observableTodayDistrictRuleItems;
 		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<WeekDayDistrictRuleItem> ObservableTodayDistrictRuleItems =>
-			observableTodayDistrictRuleItems ?? (observableTodayDistrictRuleItems =
+			_observableTodayDistrictRuleItems ?? (_observableTodayDistrictRuleItems =
 				new GenericObservableList<WeekDayDistrictRuleItem>(TodayDistrictRuleItems));
 
-		private IList<WeekDayDistrictRuleItem> mondayDistrictRuleItems = new List<WeekDayDistrictRuleItem>();
-		public virtual IList<WeekDayDistrictRuleItem> MondayDistrictRuleItems {
-			get => mondayDistrictRuleItems;
-			set => SetField(ref mondayDistrictRuleItems, value, () => MondayDistrictRuleItems);
+		public virtual IList<WeekDayDistrictRuleItem> MondayDistrictRuleItems
+		{
+			get => _mondayDistrictRuleItems;
+			set => SetField(ref _mondayDistrictRuleItems, value, () => MondayDistrictRuleItems);
 		}
 
-		private GenericObservableList<WeekDayDistrictRuleItem> observableMondayDistrictRuleItems;
 		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<WeekDayDistrictRuleItem> ObservableMondayDistrictRuleItems =>
-			observableMondayDistrictRuleItems ?? (observableMondayDistrictRuleItems =
+			_observableMondayDistrictRuleItems ?? (_observableMondayDistrictRuleItems =
 				new GenericObservableList<WeekDayDistrictRuleItem>(MondayDistrictRuleItems));
 
-		private IList<WeekDayDistrictRuleItem> tuesdayDistrictRuleItems = new List<WeekDayDistrictRuleItem>();
-		public virtual IList<WeekDayDistrictRuleItem> TuesdayDistrictRuleItems {
-			get => tuesdayDistrictRuleItems;
-			set => SetField(ref tuesdayDistrictRuleItems, value, () => TuesdayDistrictRuleItems);
+		public virtual IList<WeekDayDistrictRuleItem> TuesdayDistrictRuleItems
+		{
+			get => _tuesdayDistrictRuleItems;
+			set => SetField(ref _tuesdayDistrictRuleItems, value, () => TuesdayDistrictRuleItems);
 		}
 
-		private GenericObservableList<WeekDayDistrictRuleItem> observableTuesdayDistrictRuleItems;
 		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<WeekDayDistrictRuleItem> ObservableTuesdayDistrictRuleItems =>
-			observableTuesdayDistrictRuleItems ?? (observableTuesdayDistrictRuleItems =
+			_observableTuesdayDistrictRuleItems ?? (_observableTuesdayDistrictRuleItems =
 				new GenericObservableList<WeekDayDistrictRuleItem>(TuesdayDistrictRuleItems));
 
-		private IList<WeekDayDistrictRuleItem> wednesdayDistrictRuleItems = new List<WeekDayDistrictRuleItem>();
-		public virtual IList<WeekDayDistrictRuleItem> WednesdayDistrictRuleItems {
-			get => wednesdayDistrictRuleItems;
-			set => SetField(ref wednesdayDistrictRuleItems, value, () => WednesdayDistrictRuleItems);
+		public virtual IList<WeekDayDistrictRuleItem> WednesdayDistrictRuleItems
+		{
+			get => _wednesdayDistrictRuleItems;
+			set => SetField(ref _wednesdayDistrictRuleItems, value, () => WednesdayDistrictRuleItems);
 		}
 
-		private GenericObservableList<WeekDayDistrictRuleItem> observableWednesdayDistrictRuleItems;
 		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<WeekDayDistrictRuleItem> ObservableWednesdayDistrictRuleItems =>
-			observableWednesdayDistrictRuleItems ?? (observableWednesdayDistrictRuleItems =
+			_observableWednesdayDistrictRuleItems ?? (_observableWednesdayDistrictRuleItems =
 				new GenericObservableList<WeekDayDistrictRuleItem>(WednesdayDistrictRuleItems));
 
-		private IList<WeekDayDistrictRuleItem> thursdayDistrictRuleItems = new List<WeekDayDistrictRuleItem>();
-		public virtual IList<WeekDayDistrictRuleItem> ThursdayDistrictRuleItems {
-			get => thursdayDistrictRuleItems;
-			set => SetField(ref thursdayDistrictRuleItems, value, () => ThursdayDistrictRuleItems);
+		public virtual IList<WeekDayDistrictRuleItem> ThursdayDistrictRuleItems
+		{
+			get => _thursdayDistrictRuleItems;
+			set => SetField(ref _thursdayDistrictRuleItems, value, () => ThursdayDistrictRuleItems);
 		}
 
-		private GenericObservableList<WeekDayDistrictRuleItem> observableThursdayDistrictRuleItems;
 		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<WeekDayDistrictRuleItem> ObservableThursdayDistrictRuleItems =>
-			observableThursdayDistrictRuleItems ?? (observableThursdayDistrictRuleItems =
+			_observableThursdayDistrictRuleItems ?? (_observableThursdayDistrictRuleItems =
 				new GenericObservableList<WeekDayDistrictRuleItem>(ThursdayDistrictRuleItems));
 
-		private IList<WeekDayDistrictRuleItem> fridayDistrictRuleItems = new List<WeekDayDistrictRuleItem>();
-		public virtual IList<WeekDayDistrictRuleItem> FridayDistrictRuleItems {
-			get => fridayDistrictRuleItems;
-			set => SetField(ref fridayDistrictRuleItems, value, () => FridayDistrictRuleItems);
+		public virtual IList<WeekDayDistrictRuleItem> FridayDistrictRuleItems
+		{
+			get => _fridayDistrictRuleItems;
+			set => SetField(ref _fridayDistrictRuleItems, value, () => FridayDistrictRuleItems);
 		}
 
-		private GenericObservableList<WeekDayDistrictRuleItem> observableFridayDistrictRuleItems;
 		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<WeekDayDistrictRuleItem> ObservableFridayDistrictRuleItems =>
-			observableFridayDistrictRuleItems ?? (observableFridayDistrictRuleItems =
+			_observableFridayDistrictRuleItems ?? (_observableFridayDistrictRuleItems =
 				new GenericObservableList<WeekDayDistrictRuleItem>(FridayDistrictRuleItems));
 
-		private IList<WeekDayDistrictRuleItem> saturdayDistrictRuleItems = new List<WeekDayDistrictRuleItem>();
-		public virtual IList<WeekDayDistrictRuleItem> SaturdayDistrictRuleItems {
-			get => saturdayDistrictRuleItems;
-			set => SetField(ref saturdayDistrictRuleItems, value, () => SaturdayDistrictRuleItems);
+		public virtual IList<WeekDayDistrictRuleItem> SaturdayDistrictRuleItems
+		{
+			get => _saturdayDistrictRuleItems;
+			set => SetField(ref _saturdayDistrictRuleItems, value, () => SaturdayDistrictRuleItems);
 		}
 
-		private GenericObservableList<WeekDayDistrictRuleItem> observableSaturdayDistrictRuleItems;
 		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<WeekDayDistrictRuleItem> ObservableSaturdayDistrictRuleItems =>
-			observableSaturdayDistrictRuleItems ?? (observableSaturdayDistrictRuleItems =
+			_observableSaturdayDistrictRuleItems ?? (_observableSaturdayDistrictRuleItems =
 				new GenericObservableList<WeekDayDistrictRuleItem>(SaturdayDistrictRuleItems));
 
-		private IList<WeekDayDistrictRuleItem> sundayDistrictRuleItems = new List<WeekDayDistrictRuleItem>();
-		public virtual IList<WeekDayDistrictRuleItem> SundayDistrictRuleItems {
-			get => sundayDistrictRuleItems;
-			set => SetField(ref sundayDistrictRuleItems, value, () => SundayDistrictRuleItems);
+		public virtual IList<WeekDayDistrictRuleItem> SundayDistrictRuleItems
+		{
+			get => _sundayDistrictRuleItems;
+			set => SetField(ref _sundayDistrictRuleItems, value, () => SundayDistrictRuleItems);
 		}
 
-		private GenericObservableList<WeekDayDistrictRuleItem> observableSundayDistrictRuleItems;
 		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<WeekDayDistrictRuleItem> ObservableSundayDistrictRuleItems =>
-			observableSundayDistrictRuleItems ?? (observableSundayDistrictRuleItems =
+			_observableSundayDistrictRuleItems ?? (_observableSundayDistrictRuleItems =
 				new GenericObservableList<WeekDayDistrictRuleItem>(SundayDistrictRuleItems));
 
 		#endregion
-		
+
 		#region DeliveryScheduleRestrictions
-		
-		private IList<DeliveryScheduleRestriction> todayDeliveryScheduleRestrictions = new List<DeliveryScheduleRestriction>();
-		public virtual IList<DeliveryScheduleRestriction> TodayDeliveryScheduleRestrictions {
-			get => todayDeliveryScheduleRestrictions;
-			set => SetField(ref todayDeliveryScheduleRestrictions, value, () => TodayDeliveryScheduleRestrictions);
+
+		public virtual IList<DeliveryScheduleRestriction> TodayDeliveryScheduleRestrictions
+		{
+			get => _todayDeliveryScheduleRestrictions;
+			set => SetField(ref _todayDeliveryScheduleRestrictions, value, () => TodayDeliveryScheduleRestrictions);
 		}
 
-		private GenericObservableList<DeliveryScheduleRestriction> observableTodayDeliveryScheduleRestrictions;
 		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<DeliveryScheduleRestriction> ObservableTodayDeliveryScheduleRestrictions =>
-			observableTodayDeliveryScheduleRestrictions ?? (observableTodayDeliveryScheduleRestrictions =
+			_observableTodayDeliveryScheduleRestrictions ?? (_observableTodayDeliveryScheduleRestrictions =
 				new GenericObservableList<DeliveryScheduleRestriction>(TodayDeliveryScheduleRestrictions));
 
-		private IList<DeliveryScheduleRestriction> mondayDeliveryScheduleRestrictions = new List<DeliveryScheduleRestriction>();
-		public virtual IList<DeliveryScheduleRestriction> MondayDeliveryScheduleRestrictions {
-			get => mondayDeliveryScheduleRestrictions;
-			set => SetField(ref mondayDeliveryScheduleRestrictions, value, () => MondayDeliveryScheduleRestrictions);
+		public virtual IList<DeliveryScheduleRestriction> MondayDeliveryScheduleRestrictions
+		{
+			get => _mondayDeliveryScheduleRestrictions;
+			set => SetField(ref _mondayDeliveryScheduleRestrictions, value, () => MondayDeliveryScheduleRestrictions);
 		}
 
-		private GenericObservableList<DeliveryScheduleRestriction> observableMondayDeliveryScheduleRestrictions;
 		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<DeliveryScheduleRestriction> ObservableMondayDeliveryScheduleRestrictions =>
-			observableMondayDeliveryScheduleRestrictions ?? (observableMondayDeliveryScheduleRestrictions =
+			_observableMondayDeliveryScheduleRestrictions ?? (_observableMondayDeliveryScheduleRestrictions =
 				new GenericObservableList<DeliveryScheduleRestriction>(MondayDeliveryScheduleRestrictions));
 
-		private IList<DeliveryScheduleRestriction> tuesdayDeliveryScheduleRestrictions = new List<DeliveryScheduleRestriction>();
-		public virtual IList<DeliveryScheduleRestriction> TuesdayDeliveryScheduleRestrictions {
-			get => tuesdayDeliveryScheduleRestrictions;
-			set => SetField(ref tuesdayDeliveryScheduleRestrictions, value, () => TuesdayDeliveryScheduleRestrictions);
+		public virtual IList<DeliveryScheduleRestriction> TuesdayDeliveryScheduleRestrictions
+		{
+			get => _tuesdayDeliveryScheduleRestrictions;
+			set => SetField(ref _tuesdayDeliveryScheduleRestrictions, value, () => TuesdayDeliveryScheduleRestrictions);
 		}
 
-		private GenericObservableList<DeliveryScheduleRestriction> observableTuesdayDeliveryScheduleRestrictions;
 		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<DeliveryScheduleRestriction> ObservableTuesdayDeliveryScheduleRestrictions =>
-			observableTuesdayDeliveryScheduleRestrictions ?? (observableTuesdayDeliveryScheduleRestrictions =
+			_observableTuesdayDeliveryScheduleRestrictions ?? (_observableTuesdayDeliveryScheduleRestrictions =
 				new GenericObservableList<DeliveryScheduleRestriction>(TuesdayDeliveryScheduleRestrictions));
 
-		private IList<DeliveryScheduleRestriction> wednesdayDeliveryScheduleRestrictions = new List<DeliveryScheduleRestriction>();
-		public virtual IList<DeliveryScheduleRestriction> WednesdayDeliveryScheduleRestrictions {
-			get => wednesdayDeliveryScheduleRestrictions;
-			set => SetField(ref wednesdayDeliveryScheduleRestrictions, value, () => WednesdayDeliveryScheduleRestrictions);
+		public virtual IList<DeliveryScheduleRestriction> WednesdayDeliveryScheduleRestrictions
+		{
+			get => _wednesdayDeliveryScheduleRestrictions;
+			set => SetField(ref _wednesdayDeliveryScheduleRestrictions, value, () => WednesdayDeliveryScheduleRestrictions);
 		}
 
-		private GenericObservableList<DeliveryScheduleRestriction> observableWednesdayDeliveryScheduleRestrictions;
 		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<DeliveryScheduleRestriction> ObservableWednesdayDeliveryScheduleRestrictions =>
-			observableWednesdayDeliveryScheduleRestrictions ?? (observableWednesdayDeliveryScheduleRestrictions =
+			_observableWednesdayDeliveryScheduleRestrictions ?? (_observableWednesdayDeliveryScheduleRestrictions =
 				new GenericObservableList<DeliveryScheduleRestriction>(WednesdayDeliveryScheduleRestrictions));
 
-		private IList<DeliveryScheduleRestriction> thursdayDeliveryScheduleRestrictions = new List<DeliveryScheduleRestriction>();
-		public virtual IList<DeliveryScheduleRestriction> ThursdayDeliveryScheduleRestrictions {
-			get => thursdayDeliveryScheduleRestrictions;
-			set => SetField(ref thursdayDeliveryScheduleRestrictions, value, () => ThursdayDeliveryScheduleRestrictions);
+		public virtual IList<DeliveryScheduleRestriction> ThursdayDeliveryScheduleRestrictions
+		{
+			get => _thursdayDeliveryScheduleRestrictions;
+			set => SetField(ref _thursdayDeliveryScheduleRestrictions, value, () => ThursdayDeliveryScheduleRestrictions);
 		}
 
-		private GenericObservableList<DeliveryScheduleRestriction> observableThursdayDeliveryScheduleRestrictions;
 		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<DeliveryScheduleRestriction> ObservableThursdayDeliveryScheduleRestrictions =>
-			observableThursdayDeliveryScheduleRestrictions ?? (observableThursdayDeliveryScheduleRestrictions =
+			_observableThursdayDeliveryScheduleRestrictions ?? (_observableThursdayDeliveryScheduleRestrictions =
 				new GenericObservableList<DeliveryScheduleRestriction>(ThursdayDeliveryScheduleRestrictions));
 
-		private IList<DeliveryScheduleRestriction> fridayDeliveryScheduleRestrictions = new List<DeliveryScheduleRestriction>();
-		public virtual IList<DeliveryScheduleRestriction> FridayDeliveryScheduleRestrictions {
-			get => fridayDeliveryScheduleRestrictions;
-			set => SetField(ref fridayDeliveryScheduleRestrictions, value, () => FridayDeliveryScheduleRestrictions);
+		public virtual IList<DeliveryScheduleRestriction> FridayDeliveryScheduleRestrictions
+		{
+			get => _fridayDeliveryScheduleRestrictions;
+			set => SetField(ref _fridayDeliveryScheduleRestrictions, value, () => FridayDeliveryScheduleRestrictions);
 		}
 
-		private GenericObservableList<DeliveryScheduleRestriction> observableFridayDeliveryScheduleRestrictions;
 		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<DeliveryScheduleRestriction> ObservableFridayDeliveryScheduleRestrictions =>
-			observableFridayDeliveryScheduleRestrictions ?? (observableFridayDeliveryScheduleRestrictions =
+			_observableFridayDeliveryScheduleRestrictions ?? (_observableFridayDeliveryScheduleRestrictions =
 				new GenericObservableList<DeliveryScheduleRestriction>(FridayDeliveryScheduleRestrictions));
 
-		private IList<DeliveryScheduleRestriction> saturdayDeliveryScheduleRestrictions = new List<DeliveryScheduleRestriction>();
-		public virtual IList<DeliveryScheduleRestriction> SaturdayDeliveryScheduleRestrictions {
-			get => saturdayDeliveryScheduleRestrictions;
-			set => SetField(ref saturdayDeliveryScheduleRestrictions, value, () => SaturdayDeliveryScheduleRestrictions);
+		public virtual IList<DeliveryScheduleRestriction> SaturdayDeliveryScheduleRestrictions
+		{
+			get => _saturdayDeliveryScheduleRestrictions;
+			set => SetField(ref _saturdayDeliveryScheduleRestrictions, value, () => SaturdayDeliveryScheduleRestrictions);
 		}
 
-		private GenericObservableList<DeliveryScheduleRestriction> observableSaturdayDeliveryScheduleRestrictions;
 		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<DeliveryScheduleRestriction> ObservableSaturdayDeliveryScheduleRestrictions =>
-			observableSaturdayDeliveryScheduleRestrictions ?? (observableSaturdayDeliveryScheduleRestrictions =
+			_observableSaturdayDeliveryScheduleRestrictions ?? (_observableSaturdayDeliveryScheduleRestrictions =
 				new GenericObservableList<DeliveryScheduleRestriction>(SaturdayDeliveryScheduleRestrictions));
 
-		private IList<DeliveryScheduleRestriction> sundayDeliveryScheduleRestrictions = new List<DeliveryScheduleRestriction>();
-		public virtual IList<DeliveryScheduleRestriction> SundayDeliveryScheduleRestrictions {
-			get => sundayDeliveryScheduleRestrictions;
-			set => SetField(ref sundayDeliveryScheduleRestrictions, value, () => SundayDeliveryScheduleRestrictions);
+		public virtual IList<DeliveryScheduleRestriction> SundayDeliveryScheduleRestrictions
+		{
+			get => _sundayDeliveryScheduleRestrictions;
+			set => SetField(ref _sundayDeliveryScheduleRestrictions, value, () => SundayDeliveryScheduleRestrictions);
 		}
 
-		private GenericObservableList<DeliveryScheduleRestriction> observableSundayDeliveryScheduleRestrictions;
 		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<DeliveryScheduleRestriction> ObservableSundayDeliveryScheduleRestrictions =>
-			observableSundayDeliveryScheduleRestrictions ?? (observableSundayDeliveryScheduleRestrictions =
+			_observableSundayDeliveryScheduleRestrictions ?? (_observableSundayDeliveryScheduleRestrictions =
 				new GenericObservableList<DeliveryScheduleRestriction>(SundayDeliveryScheduleRestrictions));
 
 		#endregion
@@ -328,13 +364,14 @@ namespace Vodovoz.Domain.Sale
 		#region Функции
 
 		public virtual string Title => DistrictName;
-		
+
 		public virtual bool HaveRestrictions => GetAllDeliveryScheduleRestrictions().Any();
 
 		public virtual string GetSchedulesString(bool withMarkup = false)
 		{
 			var result = new StringBuilder();
-			foreach (var deliveryScheduleRestriction in GetAllDeliveryScheduleRestrictions().GroupBy(x => x.WeekDay).OrderBy(x => (int)x.Key)) {
+			foreach(var deliveryScheduleRestriction in GetAllDeliveryScheduleRestrictions().GroupBy(x => x.WeekDay).OrderBy(x => (int)x.Key))
+			{
 				var weekName = deliveryScheduleRestriction.Key.GetEnumTitle();
 				result.Append(withMarkup ? $"<u><b>{weekName}</b></u>" : weekName);
 				var weekRules = GetWeekDayRuleItemCollectionByWeekDayName(deliveryScheduleRestriction.Key);
@@ -361,24 +398,28 @@ namespace Vodovoz.Domain.Sale
 				}
 				else
 					result.AppendLine();
-				
-				if(deliveryScheduleRestriction.Key == WeekDayName.Today) {
+
+				if(deliveryScheduleRestriction.Key == WeekDayName.Today)
+				{
 					var groupedRestrictions = deliveryScheduleRestriction
 						.Where(x => x.AcceptBefore != null)
 						.GroupBy(x => x.AcceptBefore.Name)
 						.OrderBy(x => x.Key);
 
-					foreach (var group in groupedRestrictions) {
+					foreach(var group in groupedRestrictions)
+					{
 						result.Append(withMarkup ? $"<b>до {group.Key}:</b> " : $"до {group.Key}: ");
 
 						int i = 1;
 						int maxScheduleCountOnLine = 3;
 						var restrictions = group.OrderBy(x => x.DeliverySchedule.From).ThenBy(x => x.DeliverySchedule.To).ToList();
 						int lastItemId = restrictions.Last().Id;
-						foreach (var restriction in restrictions) {
+						foreach(var restriction in restrictions)
+						{
 							result.Append(restriction.DeliverySchedule.Name);
 							result.Append(restriction.Id == lastItemId ? ";" : ", ");
-							if(i == maxScheduleCountOnLine && restriction.Id != lastItemId) {
+							if(i == maxScheduleCountOnLine && restriction.Id != lastItemId)
+							{
 								result.AppendLine();
 								maxScheduleCountOnLine = 4;
 								i = 0;
@@ -388,15 +429,18 @@ namespace Vodovoz.Domain.Sale
 						result.AppendLine();
 					}
 				}
-				else {
+				else
+				{
 					var restrictions = deliveryScheduleRestriction.OrderBy(x => x.DeliverySchedule.From).ThenBy(x => x.DeliverySchedule.To).ToList();
 					int maxScheduleCountOnLine = 4;
 					int i = 1;
 					int lastItemId = restrictions.Last().Id;
-					foreach (var restriction in restrictions) {
+					foreach(var restriction in restrictions)
+					{
 						result.Append(restriction.DeliverySchedule.Name);
 						result.Append(restriction.Id == lastItemId ? ";" : ", ");
-						if(i == maxScheduleCountOnLine && restriction.Id != lastItemId) {
+						if(i == maxScheduleCountOnLine && restriction.Id != lastItemId)
+						{
 							result.AppendLine();
 							i = 0;
 						}
@@ -422,7 +466,7 @@ namespace Vodovoz.Domain.Sale
 					.Concat(SaturdayDeliveryScheduleRestrictions)
 					.Concat(SundayDeliveryScheduleRestrictions);
 		}
-		
+
 		public virtual IEnumerable<WeekDayDistrictRuleItem> GetAllWeekDayDistrictRuleItems()
 		{
 			return TodayDistrictRuleItems
@@ -437,7 +481,8 @@ namespace Vodovoz.Domain.Sale
 
 		public virtual GenericObservableList<WeekDayDistrictRuleItem> GetWeekDayRuleItemCollectionByWeekDayName(WeekDayName weekDayName)
 		{
-			switch (weekDayName) {
+			switch(weekDayName)
+			{
 				case WeekDayName.Today: return ObservableTodayDistrictRuleItems;
 				case WeekDayName.Monday: return ObservableMondayDistrictRuleItems;
 				case WeekDayName.Tuesday: return ObservableTuesdayDistrictRuleItems;
@@ -449,10 +494,11 @@ namespace Vodovoz.Domain.Sale
 				default: throw new ArgumentOutOfRangeException();
 			}
 		}
-		
+
 		public virtual GenericObservableList<DeliveryScheduleRestriction> GetScheduleRestrictionCollectionByWeekDayName(WeekDayName weekDayName)
 		{
-			switch (weekDayName) {
+			switch(weekDayName)
+			{
 				case WeekDayName.Today: return ObservableTodayDeliveryScheduleRestrictions;
 				case WeekDayName.Monday: return ObservableMondayDeliveryScheduleRestrictions;
 				case WeekDayName.Tuesday: return ObservableTuesdayDeliveryScheduleRestrictions;
@@ -464,7 +510,68 @@ namespace Vodovoz.Domain.Sale
 				default: throw new ArgumentOutOfRangeException();
 			}
 		}
-		
+
+		private void ClearAllDeliveryScheduleRestrictions()
+		{
+			TodayDeliveryScheduleRestrictions.Clear();
+			MondayDeliveryScheduleRestrictions.Clear();
+			TuesdayDeliveryScheduleRestrictions.Clear();
+			WednesdayDeliveryScheduleRestrictions.Clear();
+			ThursdayDeliveryScheduleRestrictions.Clear();
+			FridayDeliveryScheduleRestrictions.Clear();
+			SaturdayDeliveryScheduleRestrictions.Clear();
+			SundayDeliveryScheduleRestrictions.Clear();
+		}
+
+		public virtual void ReplaceDistrictDeliveryScheduleRestrictions(IEnumerable<DeliveryScheduleRestriction> deliveryScheduleRestrictions)
+		{
+			if(deliveryScheduleRestrictions == null)
+			{
+				throw new ArgumentException(
+					 "Отсутствуют данные новых графиков доставки");
+			}
+
+			if(deliveryScheduleRestrictions.Any(s => s.District.Id != Id))
+			{
+				throw new ArgumentException(
+					 "Id района в который добавляется график доставки должен совпадать с Id района в новом графике доставки");
+			}
+
+			ClearAllDeliveryScheduleRestrictions();
+
+			foreach(var schedule in deliveryScheduleRestrictions)
+			{
+				switch(schedule.WeekDay)
+				{
+					case WeekDayName.Today:
+						ObservableTodayDeliveryScheduleRestrictions.Add(schedule);
+						break;
+					case WeekDayName.Monday:
+						ObservableMondayDeliveryScheduleRestrictions.Add(schedule);
+						break;
+					case WeekDayName.Tuesday:
+						ObservableTuesdayDeliveryScheduleRestrictions.Add(schedule);
+						break;
+					case WeekDayName.Wednesday:
+						ObservableWednesdayDeliveryScheduleRestrictions.Add(schedule);
+						break;
+					case WeekDayName.Thursday:
+						ObservableThursdayDeliveryScheduleRestrictions.Add(schedule);
+						break;
+					case WeekDayName.Friday:
+						ObservableFridayDeliveryScheduleRestrictions.Add(schedule);
+						break;
+					case WeekDayName.Saturday:
+						ObservableSaturdayDeliveryScheduleRestrictions.Add(schedule);
+						break;
+					case WeekDayName.Sunday:
+						ObservableSundayDeliveryScheduleRestrictions.Add(schedule);
+						break;
+					default: throw new ArgumentOutOfRangeException();
+				}
+			}
+		}
+
 		/// <summary>
 		///	Приоритет от максимального:
 		///	1) Правила доставки на сегодня
@@ -473,54 +580,57 @@ namespace Vodovoz.Domain.Sale
 		/// </summary>
 		public virtual decimal GetDeliveryPrice(OrderStateKey orderStateKey, decimal eShopGoodsSum)
 		{
-			if(orderStateKey.Order.DeliveryDate.HasValue) {
-				if(orderStateKey.Order.DeliveryDate.Value.Date == DateTime.Today && ObservableTodayDistrictRuleItems.Any()) {
+			if(orderStateKey.Order.DeliveryDate.HasValue)
+			{
+				if(orderStateKey.Order.DeliveryDate.Value.Date == DateTime.Today && ObservableTodayDistrictRuleItems.Any())
+				{
 					var todayDeliveryRules = ObservableTodayDistrictRuleItems.Where(x => orderStateKey.CompareWithDeliveryPriceRule(x.DeliveryPriceRule)).ToList();
 
-					if (todayDeliveryRules.Any())
+					if(todayDeliveryRules.Any())
 					{
 						var todayMinEShopGoodsSum =
 							todayDeliveryRules.Max(x => x.DeliveryPriceRule.OrderMinSumEShopGoods);
-						
+
 						if(eShopGoodsSum < todayMinEShopGoodsSum || todayMinEShopGoodsSum == 0)
 							return todayDeliveryRules.Max(x => x.Price);
 					}
 					return 0m;
 				}
 				var dayOfWeekRules = GetWeekDayRuleItemCollectionByWeekDayName(ConvertDayOfWeekToWeekDayName(orderStateKey.Order.DeliveryDate.Value.DayOfWeek));
-				if(dayOfWeekRules.Any()) {
+				if(dayOfWeekRules.Any())
+				{
 					var dayOfWeekDeliveryRules = dayOfWeekRules.Where(x => orderStateKey.CompareWithDeliveryPriceRule(x.DeliveryPriceRule)).ToList();
-					
-					if (dayOfWeekDeliveryRules.Any())
+
+					if(dayOfWeekDeliveryRules.Any())
 					{
 						var dayOfWeekEShopGoodsSum =
 							dayOfWeekDeliveryRules.Max(x => x.DeliveryPriceRule.OrderMinSumEShopGoods);
-						
+
 						if(eShopGoodsSum < dayOfWeekEShopGoodsSum || dayOfWeekEShopGoodsSum == 0)
 							return dayOfWeekDeliveryRules.Max(x => x.Price);
 					}
-					
+
 					return 0m;
 				}
 			}
-			var commonDeliveryRules = 
+			var commonDeliveryRules =
 				CommonDistrictRuleItems.Where(x => orderStateKey.CompareWithDeliveryPriceRule(x.DeliveryPriceRule)).ToList();
-			
-			if (commonDeliveryRules.Any())
+
+			if(commonDeliveryRules.Any())
 			{
 				var commonMinEShopGoodsSum = commonDeliveryRules.Max(x => x.DeliveryPriceRule.OrderMinSumEShopGoods);
-				
+
 				if(eShopGoodsSum < commonMinEShopGoodsSum || commonMinEShopGoodsSum == 0)
 					return commonDeliveryRules.Max(x => x.Price);
 			}
-					
+
 			return 0m;
 		}
 
 		private void InitializeAllCollections()
 		{
 			CommonDistrictRuleItems = new List<CommonDistrictRuleItem>();
-			
+
 			TodayDeliveryScheduleRestrictions = new List<DeliveryScheduleRestriction>();
 			MondayDeliveryScheduleRestrictions = new List<DeliveryScheduleRestriction>();
 			TuesdayDeliveryScheduleRestrictions = new List<DeliveryScheduleRestriction>();
@@ -529,7 +639,7 @@ namespace Vodovoz.Domain.Sale
 			FridayDeliveryScheduleRestrictions = new List<DeliveryScheduleRestriction>();
 			SaturdayDeliveryScheduleRestrictions = new List<DeliveryScheduleRestriction>();
 			SundayDeliveryScheduleRestrictions = new List<DeliveryScheduleRestriction>();
-			
+
 			TodayDistrictRuleItems = new List<WeekDayDistrictRuleItem>();
 			MondayDistrictRuleItems = new List<WeekDayDistrictRuleItem>();
 			TuesdayDistrictRuleItems = new List<WeekDayDistrictRuleItem>();
@@ -548,58 +658,66 @@ namespace Vodovoz.Domain.Sale
 		#endregion
 
 		#region IValidatableObject implementation
-		
+
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(String.IsNullOrWhiteSpace(DistrictName)) {
+			if(String.IsNullOrWhiteSpace(DistrictName))
+			{
 				yield return new ValidationResult(
 					"Необходимо заполнить имя района",
 					new[] { this.GetPropertyName(o => o.DistrictName) }
 				);
 			}
-			if(GeographicGroup == null) {
+			if(GeographicGroup == null)
+			{
 				yield return new ValidationResult(
 					$"Для района \"{DistrictName}\" необходимо указать часть города, содержащую этот район доставки",
 					new[] { this.GetPropertyName(o => o.GeographicGroup) }
 				);
 			}
-			if(DistrictBorder == null) {
+			if(DistrictBorder == null)
+			{
 				yield return new ValidationResult(
 					$"Для района \"{DistrictName}\" необходимо нарисовать границы на карте",
 					new[] { this.GetPropertyName(o => o.DistrictBorder) }
 				);
 			}
-			if(WageDistrict == null) {
+			if(WageDistrict == null)
+			{
 				yield return new ValidationResult(
 					$"Для района \"{DistrictName}\" необходимо выбрать зарплатную группу",
 					new[] { this.GetPropertyName(o => o.WageDistrict) }
 				);
 			}
-			if(ObservableCommonDistrictRuleItems.Any(i => i.Price <= 0)) {
+			if(ObservableCommonDistrictRuleItems.Any(i => i.Price <= 0))
+			{
 				yield return new ValidationResult(
 					$"Для всех правил доставки для района \"{DistrictName}\" должны быть указаны цены",
 					new[] { this.GetPropertyName(o => o.CommonDistrictRuleItems) }
 				);
 			}
-			if(GetAllWeekDayDistrictRuleItems().Any(i => i.Price <= 0)) {
+			if(GetAllWeekDayDistrictRuleItems().Any(i => i.Price <= 0))
+			{
 				yield return new ValidationResult(
 					$"Для всех особых правил доставки для района \"{DistrictName}\" должны быть указаны цены"
 				);
 			}
-			if(ObservableTodayDeliveryScheduleRestrictions.Any(i => i.AcceptBefore == null)) {
+			if(ObservableTodayDeliveryScheduleRestrictions.Any(i => i.AcceptBefore == null))
+			{
 				yield return new ValidationResult(
 					$"Для графиков доставки \"день в день\" для района \"{DistrictName}\" должно быть указано время приема до"
 				);
 			}
 		}
-		
+
 		#endregion
 
 		#region ICloneable implementation
 
 		public virtual object Clone()
 		{
-			var newDistrict = new District {
+			var newDistrict = new District
+			{
 				DistrictName = DistrictName,
 				DistrictBorder = DistrictBorder?.Copy(),
 				WageDistrict = WageDistrict,
@@ -611,33 +729,37 @@ namespace Vodovoz.Domain.Sale
 			};
 			newDistrict.InitializeAllCollections();
 
-			foreach (var commonRuleItem in CommonDistrictRuleItems) {
+			foreach(var commonRuleItem in CommonDistrictRuleItems)
+			{
 				var newCommonRuleItem = (CommonDistrictRuleItem)commonRuleItem.Clone();
 				newCommonRuleItem.District = newDistrict;
 				newDistrict.CommonDistrictRuleItems
 					.Add(newCommonRuleItem);
 			}
-			foreach (var scheduleRestriction in GetAllDeliveryScheduleRestrictions()) {
+			foreach(var scheduleRestriction in GetAllDeliveryScheduleRestrictions())
+			{
 				var newScheduleRestriction = (DeliveryScheduleRestriction)scheduleRestriction.Clone();
 				newScheduleRestriction.District = newDistrict;
 				newDistrict.GetScheduleRestrictionCollectionByWeekDayName(scheduleRestriction.WeekDay)
 					.Add(newScheduleRestriction);
 			}
-			foreach (var weekDayRule in GetAllWeekDayDistrictRuleItems()) {
+			foreach(var weekDayRule in GetAllWeekDayDistrictRuleItems())
+			{
 				var newWeekDayRule = (WeekDayDistrictRuleItem)weekDayRule.Clone();
 				newWeekDayRule.District = newDistrict;
 				newDistrict.GetWeekDayRuleItemCollectionByWeekDayName(weekDayRule.WeekDay)
 					.Add(newWeekDayRule);
 			}
-			
+
 			return newDistrict;
 		}
 
 		#endregion
-		
+
 		public static WeekDayName ConvertDayOfWeekToWeekDayName(DayOfWeek dayOfWeek)
 		{
-			switch (dayOfWeek) {
+			switch(dayOfWeek)
+			{
 				case DayOfWeek.Monday: return WeekDayName.Monday;
 				case DayOfWeek.Tuesday: return WeekDayName.Tuesday;
 				case DayOfWeek.Wednesday: return WeekDayName.Wednesday;
@@ -649,17 +771,48 @@ namespace Vodovoz.Domain.Sale
 			}
 		}
 
-		public static District GetDistrictFromActiveDistrictsSetOrNull(District district)
+		public static District GetDistrictFromActiveDistrictsSetOrNull(IUnitOfWork uow, District district)
 		{
-			while(true) {
-				if(district?.DistrictsSet == null) {
-					return null;
-				}
-				if(district.DistrictsSet.Status == DistrictsSetStatus.Active) {
+			int exceptNodeId = 0;
+
+			while(district != null && district.CopyOf != null)
+			{
+				if(district.IsActive)
+				{
 					return district;
 				}
-				district = district.CopiedTo;
+
+				var activeCopiedDistrict = 
+					GetAllCopiedDistrictsByRoot(uow, district.Id, exceptNodeId)
+					.Where(d => d.IsActive)
+					.FirstOrDefault();
+
+				if(activeCopiedDistrict != null)
+				{
+					return activeCopiedDistrict;
+				}
+
+				exceptNodeId = district.Id;
+				district = district.CopyOf;
+			}
+
+			return null;
+		}
+
+		private static IEnumerable<District> GetAllCopiedDistrictsByRoot(IUnitOfWork uow, int rootNodeId, int exceptNodeId = 0)
+		{
+			foreach(var childGroup in GetDistrictsByParentId(uow, rootNodeId).Where(d => d.Id != exceptNodeId))
+			{
+				yield return childGroup;
+
+				foreach(var nextLevelChildGroup in GetAllCopiedDistrictsByRoot(uow, childGroup.Id))
+				{
+					yield return nextLevelChildGroup;
+				}
 			}
 		}
+
+		private static IQueryable<District> GetDistrictsByParentId(IUnitOfWork uow, int rootId) =>
+			uow.GetAll<District>().Where(g => g.CopyOf.Id == rootId);
 	}
 }

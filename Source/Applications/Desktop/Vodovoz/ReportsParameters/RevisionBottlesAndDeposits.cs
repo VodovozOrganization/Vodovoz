@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Autofac;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Report;
@@ -18,10 +19,17 @@ namespace Vodovoz.Reports
 		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilter = new DeliveryPointJournalFilterViewModel();
 		private bool _showStockBottle;
 
-		public RevisionBottlesAndDeposits(IOrderRepository orderRepository,
+		public RevisionBottlesAndDeposits(
+			ILifetimeScope lifetimeScope,
+			IOrderRepository orderRepository,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory)
 		{
+			if(lifetimeScope == null)
+			{
+				throw new ArgumentNullException(nameof(lifetimeScope));
+			}
+
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			
 			Build();
@@ -29,7 +37,7 @@ namespace Vodovoz.Reports
 			entityViewModelEntryCounterparty
 				.SetEntityAutocompleteSelectorFactory(
 				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
-				.CreateCounterpartyAutocompleteSelectorFactory());
+				.CreateCounterpartyAutocompleteSelectorFactory(lifetimeScope));
 			(deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory)))
 				.SetDeliveryPointJournalFilterViewModel(_deliveryPointJournalFilter);
 			evmeDeliveryPoint

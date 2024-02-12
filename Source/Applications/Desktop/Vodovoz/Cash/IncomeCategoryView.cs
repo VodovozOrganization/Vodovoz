@@ -40,12 +40,7 @@ namespace Vodovoz.Cash
 			ParentEntityviewmodelentry.CanEditReference = true;
 			#endregion
 
-			#region SubdivisionEntityviewmodelentry
-
-			SubdivisionEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(ViewModel.SubdivisionAutocompleteSelectorFactory);
-			SubdivisionEntityviewmodelentry.Binding.AddBinding(ViewModel.Entity, s => s.Subdivision, w => w.Subject).InitializeFromSource();
-
-			#endregion
+			entrySubdivision.ViewModel = ViewModel.SubdivisionViewModel;
 
 			ycheckArchived.Binding.AddBinding(ViewModel, e => e.IsArchive, w => w.Active).InitializeFromSource();
 

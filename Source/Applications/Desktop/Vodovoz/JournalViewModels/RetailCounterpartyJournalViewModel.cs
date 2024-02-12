@@ -14,6 +14,7 @@ using QS.Project.Journal;
 using Vodovoz.Domain.Retail;
 using Vodovoz.ViewModels.Dialogs.Counterparty;
 using QS.Project.Domain;
+using QS.Navigation;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -25,13 +26,23 @@ namespace Vodovoz.JournalViewModels
 		public RetailCounterpartyJournalViewModel(
 			CounterpartyJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			ICommonServices commonServices,
+			INavigationManager navigationManager,
+			Action<CounterpartyJournalFilterViewModel> filterConfig = null)
+			: base(filterViewModel, unitOfWorkFactory, commonServices, navigation: navigationManager)
 		{
+			filterViewModel.Journal = this;
+
 			TabName = "Журнал контрагентов";
 			
 			_canOpenCloseDeliveries =
 				commonServices.CurrentPermissionService.ValidatePresetPermission("can_close_deliveries_for_counterparty");
-			
+
+			if(filterConfig != null)
+			{
+				FilterViewModel.ConfigureWithoutFiltering(filterConfig);
+			}
+
 			UpdateOnChanges(
 				typeof(Counterparty),
 				typeof(CounterpartyContract),

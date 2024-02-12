@@ -1,4 +1,5 @@
-﻿using Gamma.ColumnConfig;
+﻿using Autofac;
+using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.Widgets;
 using NHibernate.Criterion;
@@ -24,6 +25,7 @@ namespace Vodovoz.ReportsParameters
 {
 	public partial class WayBillReportGroupPrint : SingleUoWWidgetBase, IParametersWidget
 	{
+		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICarJournalFactory _carJournalFactory;
 		private readonly IOrganizationJournalFactory _organizationJournalFactory;
@@ -34,12 +36,14 @@ namespace Vodovoz.ReportsParameters
 		private List<DriverSelectableNode> _availableDriversList = new List<DriverSelectableNode>();
 
 		public WayBillReportGroupPrint(
-				IEmployeeJournalFactory employeeJournalFactory, 
-				ICarJournalFactory carJournalFactory, 
-				IOrganizationJournalFactory organizationJournalFactory, 
-				IInteractiveService interactiveService,
-				ISubdivisionRepository subdivisionRepository)
+			ILifetimeScope lifetimeScope,
+			IEmployeeJournalFactory employeeJournalFactory, 
+			ICarJournalFactory carJournalFactory, 
+			IOrganizationJournalFactory organizationJournalFactory, 
+			IInteractiveService interactiveService,
+			ISubdivisionRepository subdivisionRepository)
 		{
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_carJournalFactory = carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory));
 			_organizationJournalFactory = organizationJournalFactory ?? throw new ArgumentNullException(nameof(organizationJournalFactory));
@@ -83,7 +87,7 @@ namespace Vodovoz.ReportsParameters
 				_employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory());
 
 			//Выбор автомобиля
-			entityCarSingleReport.SetEntityAutocompleteSelectorFactory(_carJournalFactory.CreateCarAutocompleteSelectorFactory());
+			entityCarSingleReport.SetEntityAutocompleteSelectorFactory(_carJournalFactory.CreateCarAutocompleteSelectorFactory(_lifetimeScope));
 
 			yradiobuttonSingleReport.Clicked += OnRadiobuttonSingleReportClicked;
 		}

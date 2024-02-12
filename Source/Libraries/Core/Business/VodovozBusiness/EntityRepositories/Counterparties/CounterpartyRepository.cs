@@ -8,7 +8,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Domain.Contacts;
+using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 
 namespace Vodovoz.EntityRepositories.Counterparties
@@ -31,13 +34,13 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		public IList<ClientCameFrom> GetPlacesClientCameFrom(IUnitOfWork uow, bool doNotShowArchive, bool orderByDescending = false)
 		{
 			var query = uow.Session.QueryOver<ClientCameFrom>();
-			
+
 			if(doNotShowArchive)
 			{
 				query.Where(f => !f.IsArchive);
 			}
 
-			return orderByDescending 
+			return orderByDescending
 				? query.OrderBy(f => f.Name).Desc().List()
 				: query.OrderBy(f => f.Name).Asc().List();
 		}
@@ -160,7 +163,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			var allRequiredPhoneNumbers = phones.Select(p => p.DigitsNumber).Distinct();
 
 			var allPhonesItemsHavingRequiredNumbers = uow.GetAll<Phone>().Where(p => allRequiredPhoneNumbers.Contains(p.DigitsNumber) && !p.IsArchive);
-			
+
 			var counterpartiesHavingRequiredNumbers = allPhonesItemsHavingRequiredNumbers
 				.Where(p => p.Counterparty != null && p.Counterparty.Id != currentCounterpartyId && !p.Counterparty.IsArchive)
 				.Select(p => new { Number = p.Number, Message = $"Карточка контрагента {p.Counterparty.FullName}" })
@@ -168,18 +171,18 @@ namespace Vodovoz.EntityRepositories.Counterparties
 
 			var counterpartiesByDeliveryPointsHavingRequiredNumbers = allPhonesItemsHavingRequiredNumbers
 				.Where(p => p.DeliveryPoint != null && p.DeliveryPoint.IsActive && p.DeliveryPoint.Counterparty != null)
-				.Select(c => new { Number = c.Number, DeliveryPoint = c.DeliveryPoint } )
-				.Join(uow.GetAll<Counterparty>(), d => d.DeliveryPoint.Counterparty, c => c, (d,c) => new { Number = d.Number, DeliveryPoint = d.DeliveryPoint, Counterparty = c })
+				.Select(c => new { Number = c.Number, DeliveryPoint = c.DeliveryPoint })
+				.Join(uow.GetAll<Counterparty>(), d => d.DeliveryPoint.Counterparty, c => c, (d, c) => new { Number = d.Number, DeliveryPoint = d.DeliveryPoint, Counterparty = c })
 				.Where(dc => dc.Counterparty != null && !dc.Counterparty.IsArchive && dc.Counterparty.Id != currentCounterpartyId)
-				.Select(dc => new { Number = dc.Number, Message = $"Точка доставки контрагента \"{dc.Counterparty.FullName}\" по адресу: {dc.DeliveryPoint.ShortAddress}" } )
-				.ToList().Distinct();	
-			
+				.Select(dc => new { Number = dc.Number, Message = $"Точка доставки контрагента \"{dc.Counterparty.FullName}\" по адресу: {dc.DeliveryPoint.ShortAddress}" })
+				.ToList().Distinct();
+
 
 			foreach(var phone in counterpartiesHavingRequiredNumbers)
 			{
 				if(!phoneWithMessages.ContainsKey(phone.Number))
 				{
-					phoneWithMessages.Add(phone.Number, new List<string> { phone.Message } );
+					phoneWithMessages.Add(phone.Number, new List<string> { phone.Message });
 				}
 				else
 				{
@@ -280,7 +283,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			}
 			return result;
 		}
-		
+
 		public Counterparty GetCounterpartyByPersonalAccountIdInEdo(IUnitOfWork uow, string edxClientId)
 		{
 			return uow.Session.QueryOver<Counterparty>()
@@ -301,6 +304,77 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				.Where(x => x.Counterparty.Id == counterpartyId)
 				.OrderBy(x => x.Created).Desc
 				.List();
+		}
+
+		public IQueryable<int> GetLastClassificationCalculationSettingsId(IUnitOfWork uow)
+		{
+			var query = uow.Session.Query<CounterpartyClassification>()
+				.OrderByDescending(c => c.Id)
+				.Select(c => c.ClassificationCalculationSettingsId)
+				.Take(1);
+
+			return query;
+		}
+
+		public IQueryable<CounterpartyClassification> GetLastExistingClassificationsForCounterparties(
+			IUnitOfWork uow,
+			int lastCalculationSettingsId)
+		{
+			var query = uow.GetAll<CounterpartyClassification>()
+				.Where(c => c.ClassificationCalculationSettingsId == lastCalculationSettingsId)
+				.Select(c => new CounterpartyClassification
+				{
+					Id = c.Id,
+					CounterpartyId = c.CounterpartyId,
+					ClassificationByBottlesCount = c.ClassificationByBottlesCount,
+					ClassificationByOrdersCount = c.ClassificationByOrdersCount,
+					BottlesPerMonthAverageCount = c.BottlesPerMonthAverageCount,
+					OrdersPerMonthAverageCount = c.OrdersPerMonthAverageCount,
+					MoneyTurnoverPerMonthAverageSum = c.MoneyTurnoverPerMonthAverageSum,
+					ClassificationCalculationSettingsId = c.ClassificationCalculationSettingsId
+				});
+
+			return query;
+		}
+
+		public IQueryable<CounterpartyClassification> CalculateCounterpartyClassifications(
+			IUnitOfWork uow,
+			CounterpartyClassificationCalculationSettings calculationSettings)
+		{
+			var creationDate = calculationSettings.SettingsCreationDate;
+
+			var dateFrom = creationDate.Date.AddMonths(-calculationSettings.PeriodInMonths);
+			var dateTo = creationDate.Date.AddDays(1);
+
+			var query =
+				from o in uow.Session.Query<Domain.Orders.Order>()
+				join item in uow.GetAll<OrderItem>() on o.Id equals item.Order.Id into items
+				from oi in items.DefaultIfEmpty()
+				join nomenclature in uow.GetAll<Nomenclature>() on oi.Nomenclature.Id equals nomenclature.Id into nomenclatures
+				from n in nomenclatures.DefaultIfEmpty()
+				where
+					o.DeliveryDate < dateTo
+					&& o.DeliveryDate >= dateFrom
+					&& o.OrderStatus == OrderStatus.Closed
+				group new { Order = o, Item = oi, Nomenclature = n } by new { CleintId = o.Client.Id } into clientsGroups
+				select new CounterpartyClassification
+				(
+					clientsGroups.Key.CleintId,
+					clientsGroups.Sum(data =>
+							(data.Nomenclature != null && data.Item != null
+								&& data.Nomenclature.Category == NomenclatureCategory.water
+								&& data.Nomenclature.TareVolume == TareVolume.Vol19L)
+							? data.Item.Count
+							: 0),
+					clientsGroups.Select(data =>
+							data.Order.Id).Distinct().Count(),
+					clientsGroups.Sum(data =>
+							(data.Item != null
+							?  (data.Item.ActualCount ?? data.Item.Count) * data.Item.Price - data.Item.DiscountMoney
+							: 0)),
+					calculationSettings);
+
+			return query;
 		}
 	}
 }

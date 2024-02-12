@@ -1,72 +1,82 @@
-﻿using System;
+﻿using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
-using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
+using System;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.Rent;
 using Vodovoz.EntityRepositories.RentPackages;
-using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Dialogs.Goods;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.ViewModels.ViewModels.Rent
 {
-    public class PaidRentPackageViewModel : EntityTabViewModelBase<PaidRentPackage>
-    {
-		private readonly INomenclatureJournalFactory _nomenclatureJournalFactory;
+	public class PaidRentPackageViewModel : EntityTabViewModelBase<PaidRentPackage>
+	{
 		private readonly IRentPackageRepository _rentPackageRepository;
-		private IEntityAutocompleteSelectorFactory _depositServiceSelectorFactory;
-		private IEntityAutocompleteSelectorFactory _nomenclatureServiceSelectorFactory;
 
 		public PaidRentPackageViewModel(
-            IEntityUoWBuilder uowBuilder,
-            IUnitOfWorkFactory unitOfWorkFactory,
-            ICommonServices commonServices,
-			INomenclatureJournalFactory nomenclatureJournalFactory,
-            IRentPackageRepository rentPackageRepository) : base(uowBuilder, unitOfWorkFactory, commonServices)
-        {
-			_nomenclatureJournalFactory = nomenclatureJournalFactory ?? throw new ArgumentNullException(nameof(nomenclatureJournalFactory));
+			IEntityUoWBuilder uowBuilder,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			INavigationManager navigationManager,
+			IRentPackageRepository rentPackageRepository,
+			ILifetimeScope lifetimeScope)
+			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
+		{
 			_rentPackageRepository = rentPackageRepository ?? throw new ArgumentNullException(nameof(rentPackageRepository));
 
-	        NomenclatureCriteria = UoW.Session.CreateCriteria<Nomenclature>();
-	        DepositNomenclatureCriteria = NomenclatureCriteria.Add(Restrictions.Eq("Category", NomenclatureCategory.deposit));
+			NomenclatureCriteria = UoW.Session.CreateCriteria<Nomenclature>();
+			DepositNomenclatureCriteria = NomenclatureCriteria.Add(Restrictions.Eq("Category", NomenclatureCategory.deposit));
 
-	        ConfigureValidateContext();
-        }
-        
-        public ICriteria DepositNomenclatureCriteria { get; }
-        public ICriteria NomenclatureCriteria { get; }
+			ConfigureValidateContext();
 
-		public IEntityAutocompleteSelectorFactory DepositServiceSelectorFactory
-		{
-			get
-			{
-				if(_depositServiceSelectorFactory == null)
+			DepositServiceNomenclatureViewModel = new CommonEEVMBuilderFactory<PaidRentPackage>(this, Entity, UoW, NavigationManager, lifetimeScope)
+				.ForProperty(x => x.DepositService)
+				.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(filter =>
 				{
-					_depositServiceSelectorFactory = _nomenclatureJournalFactory.GetDepositSelectorFactory();
-				}
-				return _depositServiceSelectorFactory;
-			}
+					filter.RestrictCategory = NomenclatureCategory.deposit;
+				})
+				.UseViewModelDialog<NomenclatureViewModel>()
+				.Finish();
+
+			DailyRentServiceNomenclatureViewModel = new CommonEEVMBuilderFactory<PaidRentPackage>(this, Entity, UoW, NavigationManager, lifetimeScope)
+				.ForProperty(x => x.RentServiceDaily)
+				.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(filter =>
+				{
+					filter.RestrictCategory = NomenclatureCategory.service;
+				})
+				.UseViewModelDialog<NomenclatureViewModel>()
+				.Finish();
+
+
+			LongTermRentNomenclatureServiceViewModel = new CommonEEVMBuilderFactory<PaidRentPackage>(this, Entity, UoW, NavigationManager, lifetimeScope)
+				.ForProperty(x => x.RentServiceMonthly)
+				.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(filter =>
+				{
+					filter.RestrictCategory = NomenclatureCategory.service;
+				})
+				.UseViewModelDialog<NomenclatureViewModel>()
+				.Finish();
 		}
 
-		public IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory
-		{
-			get
-			{
-				if(_nomenclatureServiceSelectorFactory == null)
-				{
-					_nomenclatureServiceSelectorFactory = _nomenclatureJournalFactory.GetServiceSelectorFactory();
-				}
-				return _nomenclatureServiceSelectorFactory;
-			}
-		}
+		public ICriteria DepositNomenclatureCriteria { get; }
+		public ICriteria NomenclatureCriteria { get; }
+
+		public IEntityEntryViewModel DepositServiceNomenclatureViewModel { get; }
+		public IEntityEntryViewModel DailyRentServiceNomenclatureViewModel { get; }
+		public IEntityEntryViewModel LongTermRentNomenclatureServiceViewModel { get; }
 
 		private void ConfigureValidateContext()
-        {
-	        ValidationContext.ServiceContainer.AddService(typeof(IRentPackageRepository), _rentPackageRepository);
-        }
-    }
+		{
+			ValidationContext.ServiceContainer.AddService(typeof(IRentPackageRepository), _rentPackageRepository);
+		}
+	}
 }

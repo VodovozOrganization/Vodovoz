@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Linq;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
@@ -12,9 +13,8 @@ using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.ViewModels.Rent
 {
-    public class FreeRentPackageViewModel : EntityTabViewModelBase<FreeRentPackage>
-    {
-		private readonly INomenclatureJournalFactory _nomenclatureJournalFactory;
+	public class FreeRentPackageViewModel : EntityTabViewModelBase<FreeRentPackage>
+	{
 		private readonly IRentPackageRepository _rentPackageRepository;
 		private IEntityAutocompleteSelectorFactory _depositServiceSelectorFactory;
 		private FreeRentPackageOnlineParameters _kulerSaleWebSiteFreeRentPackageOnlineParameters;
@@ -41,14 +41,23 @@ namespace Vodovoz.ViewModels.ViewModels.Rent
 
 		public IEntityAutocompleteSelectorFactory DepositServiceSelectorFactory
 		{
-			get
+			if(lifetimeScope is null)
 			{
-				if(_depositServiceSelectorFactory == null)
-				{
-					_depositServiceSelectorFactory = _nomenclatureJournalFactory.GetDepositSelectorFactory();
-				}
-				return _depositServiceSelectorFactory;
+				throw new ArgumentNullException(nameof(lifetimeScope));
 			}
+
+			_rentPackageRepository = rentPackageRepository ?? throw new ArgumentNullException(nameof(rentPackageRepository));
+			
+			ConfigureValidateContext();
+
+			DepositServiceNomenclatureViewModel = new CommonEEVMBuilderFactory<FreeRentPackage>(this, Entity, UoW, NavigationManager, lifetimeScope)
+				.ForProperty(x => x.DepositService)
+				.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(filter =>
+				{
+
+				})
+				.UseViewModelDialog<NomenclatureViewModel>()
+				.Finish();
 		}
 
 		public bool IsNewEntity => UoW.IsNew;
@@ -98,6 +107,8 @@ namespace Vodovoz.ViewModels.ViewModels.Rent
 				}
 			}
 		}
+
+		public IEntityEntryViewModel DepositServiceNomenclatureViewModel { get; }
 
 		private void ConfigureValidateContext()
         {

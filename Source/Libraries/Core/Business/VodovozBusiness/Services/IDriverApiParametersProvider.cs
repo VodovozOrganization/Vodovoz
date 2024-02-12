@@ -9,5 +9,6 @@ namespace Vodovoz.Services
         Uri ApiBase { get; }
         string NotifyOfSmsPaymentStatusChangedUri { get; }
         string NotifyOfFastDeliveryOrderAddedUri { get; }
-    }
+		string NotifyOfWaitingTimeChangedURI { get; }
+	}
 }

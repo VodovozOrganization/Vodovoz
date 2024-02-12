@@ -1,42 +1,37 @@
-﻿using System;
-using System.Linq;
-using NLog;
+﻿using Microsoft.Extensions.Logging;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using System;
+using System.Linq;
 using Vodovoz.Domain;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Profitability;
-using Vodovoz.Domain.Store;
-using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Profitability;
-using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Factories;
-using Vodovoz.Models;
 using Vodovoz.Services;
 
 namespace Vodovoz.Controllers
 {
 	public class RouteListProfitabilityController : IRouteListProfitabilityController
 	{
-		private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+		private readonly ILogger<RouteListProfitabilityController> _logger;
 		private readonly IRouteListProfitabilityFactory _routeListProfitabilityFactory;
 		private readonly IProfitabilityConstantsRepository _profitabilityConstantsRepository;
 		private readonly IRouteListProfitabilityRepository _routeListProfitabilityRepository;
 		private readonly IRouteListRepository _routeListRepository;
-		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly int[] _paidDeliveriesNomenclaturesIds;
 
 		public RouteListProfitabilityController(
+			ILogger<RouteListProfitabilityController> logger,
 			IRouteListProfitabilityFactory routeListProfitabilityFactory,
 			INomenclatureParametersProvider nomenclatureParametersProvider,
 			IProfitabilityConstantsRepository profitabilityConstantsRepository,
 			IRouteListProfitabilityRepository routeListProfitabilityRepository,
-			IRouteListRepository routeListRepository,
-			INomenclatureRepository nomenclatureRepository)
+			IRouteListRepository routeListRepository)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_routeListProfitabilityFactory =
 				routeListProfitabilityFactory ?? throw new ArgumentNullException(nameof(routeListProfitabilityFactory));
 			_profitabilityConstantsRepository =
@@ -44,7 +39,6 @@ namespace Vodovoz.Controllers
 			_routeListProfitabilityRepository =
 				routeListProfitabilityRepository ?? throw new ArgumentNullException(nameof(routeListProfitabilityRepository));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
-			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_paidDeliveriesNomenclaturesIds =
 				(nomenclatureParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureParametersProvider)))
 				.PaidDeliveriesNomenclaturesIds();
@@ -118,19 +112,20 @@ namespace Vodovoz.Controllers
 		
 		private void CalculateRouteListProfitability(IUnitOfWork uow, RouteList routeList, bool useDataFromDataBase = false)
 		{
-			_logger.Debug("Ищем версию авто...");
+			_logger.LogDebug("Ищем версию авто...");
+
 			var routeListProfitability = routeList.RouteListProfitability;
 			var carVersion = routeList.Car?.CarVersions
 				.Where(cv => cv.StartDate <= routeList.Date)
 				.SingleOrDefault(cv => cv.EndDate == null || cv.EndDate > routeList.Date);
 
-			_logger.Debug("Рассчитываем основные показатели рентабельности...");
+			_logger.LogDebug("Рассчитываем основные показатели рентабельности...");
 			CalculateGeneralDataRouteListProfitability(uow, routeList, routeListProfitability, useDataFromDataBase);
 			
 			var nearestProfitabilityConstants = _profitabilityConstantsRepository.GetNearestProfitabilityConstantsByDate(
 				uow, new DateTime(routeList.Date.Year, routeList.Date.Month, 1));
 			
-			_logger.Debug("Рассчитываем остальные показатели рентабельности...");
+			_logger.LogDebug("Рассчитываем остальные показатели рентабельности...");
 			if(routeList.HasFixedShippingPrice)
 			{
 				CalculateRouteListProfitabilityWithFixedShippingPrice(routeList, routeListProfitability);
@@ -144,15 +139,14 @@ namespace Vodovoz.Controllers
 				CalculateRouteListProfitabilityForNotCompanyCar(routeList, routeListProfitability);
 			}
 			
-			_logger.Debug("Рассчитываем затраты на кг...");
+			_logger.LogDebug("Рассчитываем затраты на кг...");
 			routeListProfitability.RouteListExpensesPerKg = routeListProfitability.TotalGoodsWeight > 0
 				? Math.Round(routeListProfitability.RouteListExpenses / routeListProfitability.TotalGoodsWeight, 2)
 				: default(decimal);
 			
-			_logger.Debug("Рассчитываем валовую маржу...");
+			_logger.LogDebug("Рассчитываем валовую маржу...");
 			CalculateRouteListProfitabilityGrossMargin(uow, routeList, routeListProfitability);
 		}
-
 		
 		/// <summary>
 		/// Считаем сумму продаж в МЛ, расходы и валовую маржу с показателем в процентах

@@ -1,5 +1,3 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -15,6 +13,18 @@ namespace Vodovoz.Domain.Goods.Rent
 	[EntityPermission]
 	public class PaidRentPackage: BusinessObjectBase<PaidRentPackage>, IDomainObject, IValidatableObject
 	{
+		private int _minWaterAmount;
+		private string _name;
+		private decimal _deposit;
+		private EquipmentKind _equipmentKind;
+		private Nomenclature _depositService;
+		private bool _isArchive;
+
+		public FreeRentPackage()
+		{
+			Name = string.Empty;
+		}
+
 		#region Свойства
 
 		public virtual int Id { get; set; }
@@ -64,9 +74,10 @@ namespace Vodovoz.Domain.Goods.Rent
 
 		[Display (Name = "Вид оборудования")]
 		[Required(ErrorMessage = "Вид оборудования должен быть указан.")]
-		public virtual EquipmentKind EquipmentKind {
-			get { return equipmentKind; }
-			set { SetField (ref equipmentKind, value, () => EquipmentKind); }
+		public virtual EquipmentKind EquipmentKind
+		{
+			get => _equipmentKind;
+			set => SetField(ref _equipmentKind, value);
 		}
 
 		decimal deposit;
@@ -79,10 +90,11 @@ namespace Vodovoz.Domain.Goods.Rent
 
 		Nomenclature depositService;
 
-		[Display (Name = "Услуга залога")]
-		public virtual Nomenclature DepositService {
-			get { return depositService; }
-			set { SetField (ref depositService, value, () => DepositService); }
+		[Display(Name = "Архив")]
+		public virtual bool IsArchive
+		{
+			get => _isArchive;
+			set => SetField(ref _isArchive, value);
 		}
 
 		#endregion
@@ -100,9 +112,9 @@ namespace Vodovoz.Domain.Goods.Rent
 			var allready = rentPackageRepository.GetPaidRentPackage(UoW, EquipmentKind);
 			if(allready != null && allready.Id != Id)
 			{
-				yield return new ValidationResult (
-					String.Format ("Условия для оборудования {0} уже существуют.", EquipmentKind.Name),
-					new[] { this.GetPropertyName (o => o.EquipmentKind) });
+				yield return new ValidationResult(
+					$"Условия для оборудования {EquipmentKind.Name} уже существуют.",
+					new[] { this.GetPropertyName(o => o.EquipmentKind) });
 			}
 		}
 

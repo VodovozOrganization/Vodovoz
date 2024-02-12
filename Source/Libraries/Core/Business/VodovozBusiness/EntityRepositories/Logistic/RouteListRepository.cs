@@ -7,6 +7,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
@@ -1471,10 +1472,12 @@ FROM
 	GROUP BY oi.id
 	) prof
 ;";
+
 			var query = uow.Session.CreateSQLQuery(sql)
 				.SetParameter("route_list_id", routeListId)
 				.SetParameter("route_list_expenses_per_kg", routeListExpensesPerKg)
 				.SetResultTransformer(Transformers.AliasToBean(typeof(RouteListProfitabilitySpendings)));
+
 			var result = query.UniqueResult<RouteListProfitabilitySpendings>();
 			return result;
 		}
@@ -1535,7 +1538,29 @@ FROM
 
 			return routeListsDebtsSum;
 		}
+
+		public IList<Nomenclature> GetRouteListNomenclatures(IUnitOfWork uow, int routeListId, bool isArchived = false)
+		{
+			RouteListItem routeListItemAlias = null;
+			OrderItem orderItemAlias = null;
+			Nomenclature nomenclatureAlias = null;
+
+			var query = uow.Session.QueryOver(() => nomenclatureAlias)
+				.JoinEntityAlias(() => orderItemAlias, () => orderItemAlias.Nomenclature.Id == nomenclatureAlias.Id)
+				.JoinEntityAlias(() => routeListItemAlias, () => routeListItemAlias.Order.Id == orderItemAlias.Order.Id)
+				.Where(() => routeListItemAlias.RouteList.Id == routeListId);
+
+			if(isArchived)
+			{
+				query.Where(() => nomenclatureAlias.IsArchive);
+			}
+
+			var result = query.TransformUsing(Transformers.DistinctRootEntity).List();
+
+			return result;
+		}
 	}
+
 
 	#region DTO
 
@@ -1569,6 +1594,8 @@ FROM
 	{
 		public int NomenclatureId { get; set; }
 		public decimal Amount { get; set; }
+
+		public bool IsArchive { get; set; }
 	}
 
 	public class GoodsInRouteListResultToDivide

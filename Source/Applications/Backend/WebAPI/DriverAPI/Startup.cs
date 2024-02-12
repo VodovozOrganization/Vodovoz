@@ -22,7 +22,6 @@ using MySqlConnector;
 using NLog.Web;
 using QS.Attachments.Domain;
 using QS.Banks.Domain;
-using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.DB;
@@ -33,9 +32,12 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text;
+using DriverAPI.HealthChecks;
 using Vodovoz.Core.DataService;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.Domain.Employees;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.FastPayments;
@@ -47,6 +49,10 @@ using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Settings.Database;
 using Vodovoz.Tools;
+using Vodovoz.Tools.CallTasks;
+using VodovozHealthCheck;
+using QS.Project.Domain;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 
 namespace DriverAPI
 {
@@ -103,6 +109,7 @@ namespace DriverAPI
 
 			// Аутентификация
 			services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+				.AddRoles<IdentityRole>()
 				.AddEntityFrameworkStores<ApplicationDbContext>();
 
 			services.Configure<IdentityOptions>(options =>
@@ -149,7 +156,7 @@ namespace DriverAPI
 			
 			services.AddApiVersioning(config =>
 			{
-				config.DefaultApiVersion = new ApiVersion(1, 0);
+				config.DefaultApiVersion = new ApiVersion(4, 0);
 				config.AssumeDefaultVersionWhenUnspecified = true;
 				config.ReportApiVersions = true;
 				config.ApiVersionReader = new UrlSegmentApiVersionReader();
@@ -180,6 +187,10 @@ namespace DriverAPI
 				c.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 				c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("key", "=" + apiConfiguration["AccessToken"]);
 			});
+
+			services.ConfigureHealthCheckService<DriverApiHealthCheck>();
+
+			services.AddHttpClient();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -227,6 +238,8 @@ namespace DriverAPI
 					pattern: "{controller=Home}/{action=Index}/{id?}");
 				endpoints.MapRazorPages();
 			});
+
+			app.ConfigureHealthCheckApplicationBuilder();
 		}
 
 		private void CreateBaseConfig()
@@ -258,11 +271,12 @@ namespace DriverAPI
 				new Assembly[]
 				{
 					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
-					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
 					Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
 					Assembly.GetAssembly(typeof(Bank)),
 					Assembly.GetAssembly(typeof(HistoryMain)),
+					Assembly.GetAssembly(typeof(TypeOfEntity)),
 					Assembly.GetAssembly(typeof(Attachment)),
+					Assembly.GetAssembly(typeof(EmployeeWithLoginMap)),
 					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
 				}
 			);
@@ -313,6 +327,7 @@ namespace DriverAPI
 			services.AddScoped<IOrderRepository, OrderRepository>();
 			services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 			services.AddScoped<IFastPaymentRepository, FastPaymentRepository>();
+			services.AddScoped<ICarRepository, CarRepository>();
 
 			// Провайдеры параметров
 			services.AddScoped<IParametersProvider, ParametersProvider>();
@@ -321,7 +336,18 @@ namespace DriverAPI
 			services.AddScoped<ITerminalNomenclatureProvider, BaseParametersProvider>();
 			services.AddScoped<INomenclatureParametersProvider, NomenclatureParametersProvider>();
 
+			services.AddScoped<IPersonProvider, BaseParametersProvider>();
+			services.AddScoped<ITerminalNomenclatureProvider, BaseParametersProvider>();
+
 			services.AddDriverApiLibrary();
+
+			services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+
+			services.AddScoped<ICallTaskWorker, CallTaskWorker>();
+			services.AddScoped<ICallTaskFactory>(context => CallTaskSingletonFactory.GetInstance());
+			services.AddScoped<ICallTaskRepository, CallTaskRepository>();
+
+			services.AddScoped<IUserService>(context => ServicesConfig.UserService);
 		}
 	}
 }

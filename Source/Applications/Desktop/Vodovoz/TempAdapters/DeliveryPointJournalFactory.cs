@@ -1,14 +1,11 @@
 ﻿using System;
-using Fias.Client;
-using Fias.Client.Cache;
+using Autofac;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using Vodovoz.Domain.Client;
-using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.TempAdapters;
 
@@ -16,18 +13,13 @@ namespace Vodovoz.TempAdapters
 {
 	public class DeliveryPointJournalFactory : IDeliveryPointJournalFactory
 	{
+		private readonly ILifetimeScope _lifetimeScope;
 		private DeliveryPointJournalFilterViewModel _deliveryPointJournalFilter;
-		
-		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory;
 
-		public DeliveryPointJournalFactory(DeliveryPointJournalFilterViewModel deliveryPointJournalFilter = null)
+		public DeliveryPointJournalFactory(ILifetimeScope lifetimeScope, DeliveryPointJournalFilterViewModel deliveryPointJournalFilter)
 		{
-			_deliveryPointJournalFilter = deliveryPointJournalFilter; 
-			IParametersProvider parametersProvider = new ParametersProvider();
-			IFiasApiParametersProvider fiasApiParametersProvider = new FiasApiParametersProvider(parametersProvider);
-			var geoCoderCache = new GeocoderCache(UnitOfWorkFactory.GetDefaultFactory);
-			IFiasApiClient fiasApiClient = new FiasApiClient(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken, geoCoderCache);
-			_deliveryPointViewModelFactory = new DeliveryPointViewModelFactory(fiasApiClient);
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_deliveryPointJournalFilter = deliveryPointJournalFilter ?? throw new ArgumentNullException(nameof(deliveryPointJournalFilter)); 
 		}
 
 		public void SetDeliveryPointJournalFilterViewModel(DeliveryPointJournalFilterViewModel filter)
@@ -50,10 +42,10 @@ namespace Vodovoz.TempAdapters
 		public DeliveryPointJournalViewModel CreateDeliveryPointJournal()
 		{
 			var journal = new DeliveryPointJournalViewModel(
-				_deliveryPointViewModelFactory,
 				_deliveryPointJournalFilter ?? new DeliveryPointJournalFilterViewModel(),
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
+				_lifetimeScope.Resolve<INavigationManager>(),
 				hideJournalForOpen: true,
 				hideJournalForCreate: true);
 			
@@ -63,11 +55,11 @@ namespace Vodovoz.TempAdapters
 		public DeliveryPointByClientJournalViewModel CreateDeliveryPointByClientJournal()
 		{
 			var journal = new DeliveryPointByClientJournalViewModel(
-				_deliveryPointViewModelFactory,
 				_deliveryPointJournalFilter
 				?? throw new ArgumentNullException($"Ожидался фильтр {nameof(_deliveryPointJournalFilter)} с указанным клиентом"),
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
+				_lifetimeScope.Resolve<INavigationManager>(),
 				hideJournalForOpen: true,
 				hideJournalForCreate: true);
 			

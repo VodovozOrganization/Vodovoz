@@ -8,7 +8,7 @@ namespace Vodovoz.Infrastructure.Converters
 	{
 		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
 		{
-			return value?.ToString();
+			return value is null ? string.Empty : value.ToString();
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

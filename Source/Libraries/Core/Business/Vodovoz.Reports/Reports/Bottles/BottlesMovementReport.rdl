@@ -1020,7 +1020,7 @@ true,
                             <BorderColor />
                             <BorderWidth />
                             <VerticalAlign>Middle</VerticalAlign>
-                            <FontSize >8.5pt</FontSize>
+                            <FontSize>8.5pt</FontSize>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -1500,7 +1500,7 @@ Sum(Fields!amount_unloaded_empty.Value, "Route_lists") - Sum(Fields!actual_count
         <CommandText>SELECT
     employees.last_name,
     route_lists.id,
-    IFNULL(rla.count, 0) AS count,
+    (IFNULL(rla.start_count, 0) + IFNULL(additional_loading.amount, 0)) AS count,
     IFNULL(rla.actual_count, 0) AS actual_count,
     TRUNCATE(IFNULL(returned_full.amount, 0),
              0) AS amount_unloaded_full,
@@ -1529,7 +1529,7 @@ FROM
          route_list_addresses.route_list_id AS route_list_id,
          SUM(IFNULL(orders.returned_tare, 0)) AS bottles_to_return,
          SUM(IF(route_list_addresses.status NOT IN ('Canceled' , 'Overdue','Transfered'), route_list_addresses.bottles_returned, 0)) AS bottles_returned,
-         SUM(o_items.count) AS count,
+         SUM(o_items.start_count) AS start_count,
          SUM(o_items.actual_count) AS actual_count,
          SUM(IFNULL(orders.bottles_by_stock_actual_count, 0)) AS bottles_by_stock_actual_count
      FROM
@@ -1538,22 +1538,28 @@ FROM
              LEFT JOIN (
              SELECT
                  order_items.order_id,
-                 SUM(order_items.count) AS count,
-                 SUM(IF(route_list_addresses.status = 'Transfered', 0, IFNULL(order_items.actual_count, 0))) AS actual_count,
+                 SUM(
+                    CASE 
+                        WHEN rla2.was_transfered THEN 0
+                        WHEN orders.is_fast_delivery THEN 0
+                        WHEN rla2.address_transfer_type = 'FromFreeBalance' AND transfered_to.id is null THEN 0
+                        ELSE order_items.count
+                     END) AS start_count,
+                 SUM(IF(rla2.status = 'Transfered', 0, IFNULL(order_items.actual_count, 0))) AS actual_count,
                  route_lists.id AS rl_id
              FROM
                  order_items
+                     LEFT JOIN orders ON orders.id = order_items.order_id
                      LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
-                     LEFT JOIN route_list_addresses ON route_list_addresses.order_id = order_items.order_id
-                     LEFT JOIN route_list_addresses transfered_to ON transfered_to.id = route_list_addresses.transfered_to_id
-                     LEFT JOIN route_lists ON route_list_addresses.route_list_id = route_lists.id
+                     LEFT JOIN route_list_addresses rla2 ON rla2.order_id = order_items.order_id
+                     LEFT JOIN route_list_addresses transfered_to ON transfered_to.id = rla2.transfered_to_id
+                     LEFT JOIN route_lists ON rla2.route_list_id = route_lists.id
              WHERE
-                     nomenclature.category = 'water'
-               AND NOT nomenclature.is_disposable_tare
-               AND route_lists.date &gt;= @start_date
-               AND (@end_date = '' OR route_lists.date &lt;= @end_date)
-               AND (transfered_to.id is null OR transfered_to.address_transfer_type = 'NeedToReload' OR transfered_to.address_transfer_type = 'FromFreeBalance')
-             GROUP BY route_list_addresses.id
+                nomenclature.category = 'water' and nomenclature.tare_volume = 'Vol19L'
+                AND route_lists.date &gt;= @start_date
+                AND (@end_date = '' OR route_lists.date &lt;= @end_date)
+                AND (transfered_to.id is null OR transfered_to.address_transfer_type = 'NeedToReload' OR transfered_to.address_transfer_type = 'FromFreeBalance')
+             GROUP BY rla2.id
          ) AS o_items ON o_items.order_id = orders.id AND o_items.rl_id = route_list_addresses.route_list_id
              LEFT JOIN route_lists ON route_list_addresses.route_list_id = route_lists.id
      WHERE
@@ -1572,11 +1578,10 @@ FROM
              LEFT JOIN nomenclature ON nomenclature.id = goods_accounting_operations.nomenclature_id
              LEFT JOIN route_lists ON store_car_unload_documents.route_list_id = route_lists.id
      WHERE
-             nomenclature.category = 'water'
-       AND NOT nomenclature.is_disposable_tare
-       AND route_lists.date &gt;= @start_date
-       AND (@end_date = ''
-         OR route_lists.date &lt;= @end_date)
+        nomenclature.category = 'water' and nomenclature.tare_volume = 'Vol19L'
+        AND route_lists.date &gt;= @start_date
+        AND (@end_date = ''
+            OR route_lists.date &lt;= @end_date)
      GROUP BY store_car_unload_documents.route_list_id) AS returned_full ON returned_full.route_list_id = route_lists.id
         LEFT JOIN
     (SELECT
@@ -1611,6 +1616,17 @@ FROM
        AND (@end_date = ''
          OR route_lists.date &lt;= @end_date)
      GROUP BY store_car_unload_documents.route_list_id) AS returned_deffective ON returned_deffective.route_list_id = route_lists.id
+        LEFT JOIN
+    (
+        SELECT 
+            ald.id,
+            SUM(aldi.amount) as amount
+        FROM additional_loading_documents ald
+        LEFT JOIN additional_loading_document_items aldi ON aldi.additional_loading_document_id = ald.id
+        LEFT JOIN nomenclature n ON n.id = aldi.nomenclature_id
+        WHERE n.category = 'water' and n.tare_volume = 'Vol19L'
+        GROUP BY ald.id
+    ) as additional_loading ON additional_loading.id = route_lists.additional_loading_document_id
         LEFT JOIN
     employees closed_by ON closed_by.id = route_lists.closed_by_employee_id
 WHERE

@@ -72,8 +72,7 @@ namespace Vodovoz.Application.Services
 			if(status != PartyStatus.ACTIVE)
 			{
 				counterparty.IsLiquidating = true;
-				counterparty.CloseDelivery(employee);
-				counterparty.AddCloseDeliveryComment($"Автоматическое закрытие поставок: контрагент в статусе \"{status.GetUserFriendlyName()}\" в ФНС. Оформление заказа невозможно.", employee);
+				StopShipmentsIfNeeded(counterparty, employee, true, status.GetUserFriendlyName());
 			}
 		}
 
@@ -87,6 +86,22 @@ namespace Vodovoz.Application.Services
 
 				unitOfWork.Save();
 			}
+		}
+
+		public void StopShipmentsIfNeeded(Counterparty counterparty, Employee employee, bool isLiquidating, string statusName)
+		{
+			if(!isLiquidating)
+			{
+				return;
+			}
+
+			if(counterparty.IsDeliveriesClosed)
+			{
+				return;
+			}
+
+			counterparty.CloseDelivery(employee);
+			counterparty.AddCloseDeliveryComment($"Автоматическое закрытие поставок: контрагент в статусе \"{statusName}\" в ФНС. Оформление заказа невозможно.", employee);
 		}
 
 		public void UpdateDetailsFromRevenueServiceInfoIfNeeded(

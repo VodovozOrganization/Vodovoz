@@ -9,10 +9,7 @@ namespace Vodovoz.Domain.Employees
 	[EntityPermission]
 	public class Trainee : Personnel, ITrainee
 	{
-		public override EmployeeType EmployeeType {
-			get { return EmployeeType.Trainee; }
-			set {}
-		}
+		public override EmployeeType EmployeeType => EmployeeType.Trainee;
 	}
 
 	public interface ITrainee : IPersonnel

@@ -1,19 +1,23 @@
 ﻿using DriverAPI.Library.Converters;
+using DriverAPI.Library.DTOs;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
-using DriverAPI.Library.DTOs;
+using Vodovoz.Services.Logistics;
+using static Vodovoz.Permissions.Logistic;
 
 namespace DriverAPI.Library.Models
 {
 	internal class RouteListModel : IRouteListModel
 	{
 		private readonly ILogger<RouteListModel> _logger;
+		private readonly IRouteListService _routeListService;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly RouteListConverter _routeListConverter;
@@ -25,7 +29,8 @@ namespace DriverAPI.Library.Models
 			IRouteListItemRepository routeListItemRepository,
 			RouteListConverter routeListConverter,
 			IEmployeeRepository employeeRepository,
-			IUnitOfWork unitOfWork)
+			IUnitOfWork unitOfWork,
+			IRouteListService routeListService)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
@@ -33,6 +38,7 @@ namespace DriverAPI.Library.Models
 			_routeListConverter = routeListConverter ?? throw new ArgumentNullException(nameof(routeListConverter));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 		}
 
 		/// <summary>
@@ -43,9 +49,16 @@ namespace DriverAPI.Library.Models
 		public RouteListDto Get(int routeListId)
 		{
 			var routeList = _routeListRepository.GetRouteListById(_unitOfWork, routeListId)
-				?? throw new DataNotFoundException(nameof(routeListId), $"Маршрутный лист { routeListId } не найден");
+				?? throw new DataNotFoundException(nameof(routeListId), $"Маршрутный лист {routeListId} не найден");
 
-			return _routeListConverter.ConvertToAPIRouteList(routeList, _routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routeListId));
+			IDictionary<int, string> spectiaConditionsToAccept = new Dictionary<int, string>();
+
+			if(!routeList.SpecialConditionsAccepted)
+			{
+				spectiaConditionsToAccept = _routeListService.GetSpecialConditionsDictionaryFor(_unitOfWork, routeListId);
+			}
+
+			return _routeListConverter.ConvertToAPIRouteList(routeList, _routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routeListId), spectiaConditionsToAccept);
 		}
 
 		/// <summary>
@@ -58,15 +71,22 @@ namespace DriverAPI.Library.Models
 			var vodovozRouteLists = _routeListRepository.GetRouteListsByIds(_unitOfWork, routeListsIds);
 			var routeLists = new List<RouteListDto>();
 
-			foreach (var routelist in vodovozRouteLists)
+			foreach(var routeList in vodovozRouteLists)
 			{
 				try
 				{
-					routeLists.Add(_routeListConverter.ConvertToAPIRouteList(routelist, _routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routelist.Id)));
+					IDictionary<int, string> spectiaConditionsToAccept = new Dictionary<int, string>();
+
+					if(!routeList.SpecialConditionsAccepted)
+					{
+						spectiaConditionsToAccept = _routeListService.GetSpecialConditionsDictionaryFor(_unitOfWork, routeList.Id);
+					}
+
+					routeLists.Add(_routeListConverter.ConvertToAPIRouteList(routeList, _routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routeList.Id), spectiaConditionsToAccept));
 				}
-				catch (ConverterException e)
+				catch(ConverterException e)
 				{
-					_logger.LogWarning(e, "Ошибка конвертации маршрутного листа {RouteListId}", routelist.Id);
+					_logger.LogWarning(e, "Ошибка конвертации маршрутного листа {RouteListId}", routeList.Id);
 				}
 			}
 
@@ -80,7 +100,7 @@ namespace DriverAPI.Library.Models
 		/// <returns>Список идентификаторов</returns>
 		public IEnumerable<int> GetRouteListsIdsForDriverByAndroidLogin(string login)
 		{
-			var driver = _employeeRepository.GetDriverByAndroidLogin(_unitOfWork, login)
+			var driver = _employeeRepository.GetEmployeeByAndroidLogin(_unitOfWork, login)
 				?? throw new DataNotFoundException(nameof(login), $"Водитель не найден");
 
 			return _routeListRepository.GetDriverRouteListsIds(
@@ -108,7 +128,7 @@ namespace DriverAPI.Library.Models
 			}
 
 			if(routeListAddress.RouteList.Status != RouteListStatus.EnRoute
-			|| routeListAddress.Status != RouteListItemStatus.EnRoute)
+				|| routeListAddress.Status != RouteListItemStatus.EnRoute)
 			{
 				_logger.LogWarning("Попытка записи координаты точки доставки в МЛ {RouteListId} в статусе {RouteListStatus}" +
 					" адреса {RouteListAddressId} в статусе {RouteListAddressStatus} водителем {DriverId}",

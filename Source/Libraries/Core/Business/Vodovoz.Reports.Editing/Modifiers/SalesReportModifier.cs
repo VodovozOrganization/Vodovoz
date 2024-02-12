@@ -184,6 +184,8 @@ namespace Vodovoz.Reports.Editing.Modifiers
 				case GroupingType.CounterpartyType: return "={counterparty_type}";
 				case GroupingType.PaymentType: return "={payment_type}";
 				case GroupingType.Organization: return "={organization}";
+				case GroupingType.CounterpartyClassification: return "={counterparty_classification}";
+				case GroupingType.PromotionalSet: return "={promotional_set}";
 				default:
 					throw new NotSupportedException("Неизвестная группировка");
 			}
@@ -206,6 +208,8 @@ namespace Vodovoz.Reports.Editing.Modifiers
 				case GroupingType.CounterpartyType: return "{counterparty_type}";
 				case GroupingType.PaymentType: return "{payment_type}";
 				case GroupingType.Organization: return "{organization}";
+				case GroupingType.CounterpartyClassification: return "{counterparty_classification}";
+				case GroupingType.PromotionalSet: return "{promotional_set}";
 				default:
 					throw new NotSupportedException("Неизвестная группировка");
 			}

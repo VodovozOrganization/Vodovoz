@@ -1,9 +1,11 @@
-﻿using QS.Commands;
+﻿using Autofac;
+using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
+using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Extension;
@@ -11,7 +13,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using QS.Project.Services.FileDialog;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -20,13 +21,13 @@ using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.FilterViewModels.Employees;
+using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels.Employees;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.TempAdapters;
 
@@ -34,17 +35,15 @@ namespace Vodovoz.ViewModels.Logistic
 {
 	public class RouteListAnalysisViewModel : EntityTabViewModelBase<RouteList>, IAskSaveOnCloseViewModel
 	{
-		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
 		private readonly IFileDialogService _fileDialogService;
+		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IEmployeeService _employeeService;
 		private readonly IWageParameterService _wageParameterService;
 		private readonly IOrderSelectorFactory _orderSelectorFactory;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private readonly IDeliveryPointJournalFactory _deliveryPointJournalFactory;
-		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
 		private readonly IGtkTabsOpener _gtkDialogsOpener;
-		private readonly IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private readonly IEmployeeSettings _employeeSettings;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
@@ -60,9 +59,7 @@ namespace Vodovoz.ViewModels.Logistic
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IGtkTabsOpener gtkDialogsOpener,
-			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
 			IDeliveryShiftRepository deliveryShiftRepository,
 			IEmployeeSettings employeeSettings,
 			IEmployeeService employeeService,
@@ -71,27 +68,30 @@ namespace Vodovoz.ViewModels.Logistic
 			IRouteListItemRepository routeListItemRepository,
 			IWageParameterService wageParameterService,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
-			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
-			IFileDialogService fileDialogService)
-			: base (uowBuilder, unitOfWorkFactory, commonServices)
+			IFileDialogService fileDialogService,
+			ILifetimeScope lifetimeScope,
+			INavigationManager navigationManager)
+			: base (uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
+			if(navigationManager is null)
+			{
+				throw new ArgumentNullException(nameof(navigationManager));
+			}
+
 			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			_deliveryPointJournalFactory = 
 				deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
-			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			_gtkDialogsOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
-			_undeliveredOrdersJournalOpener =
-				undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			_routeListProfitabilityController =
 				routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 			_subdivisionParametersProvider =
 				subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
-			_undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
-			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService)); ;
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService)); _lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			;
 			UndeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -166,37 +166,15 @@ namespace Vodovoz.ViewModels.Logistic
 		public DelegateCommand OpenUndeliveredOrderCommand => 
 			openUndeliveredOrderCommand ?? (openUndeliveredOrderCommand = new DelegateCommand(
 				() => {
-
-					var undeliveredOrdersFilter = new UndeliveredOrdersFilterViewModel(
-						_commonServices,
-						_orderSelectorFactory,
-						_employeeJournalFactory,
-						_counterpartyJournalFactory,
-						_deliveryPointJournalFactory,
-						_subdivisionJournalFactory)
+					var page = NavigationManager.OpenViewModel<UndeliveredOrdersJournalViewModel, Action<UndeliveredOrdersFilterViewModel>>(this, filter =>
 					{
-						HidenByDefault = true,
-						RestrictOldOrder = SelectedItem.Order,
-						RestrictOldOrderStartDate = SelectedItem.Order.DeliveryDate,
-						RestrictOldOrderEndDate = SelectedItem.Order.DeliveryDate
-					};
+						filter.HidenByDefault = true;
+						filter.RestrictOldOrder = SelectedItem.Order;
+						filter.RestrictOldOrderStartDate = SelectedItem.Order.DeliveryDate;
+						filter.RestrictOldOrderEndDate = SelectedItem.Order.DeliveryDate;
+					});
 
-					var dlg = new UndeliveredOrdersJournalViewModel(
-						undeliveredOrdersFilter,
-						UnitOfWorkFactory,
-						_commonServices,
-						_gtkDialogsOpener,
-						_employeeJournalFactory,
-						_employeeService,
-						_undeliveredOrdersJournalOpener,
-						UndeliveredOrdersRepository,
-						_employeeSettings,
-						_subdivisionParametersProvider
-					);
-
-					dlg.TabClosed += (s,e) => UpdateTreeAddresses?.Invoke();
-					
-					TabParent.AddTab(dlg, this);
+					page.PageClosed += (s,e) => UpdateTreeAddresses?.Invoke();
 				}, 
 				() => SelectedItem != null
 			)
@@ -205,36 +183,25 @@ namespace Vodovoz.ViewModels.Logistic
 		private DelegateCommand createFineCommand;
 		public DelegateCommand CreateFineCommand => createFineCommand ?? (createFineCommand = new DelegateCommand(
 			() => {
-				
-				var fineViewModel = new FineViewModel(
-					EntityUoWBuilder.ForCreate(),
-					QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-					_undeliveryViewOpener,
-					_employeeService,
-					_employeeJournalFactory,
-					_employeeSettings,
-					CommonServices
-				);
+				var page = NavigationManager.OpenViewModel<FineViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate(), OpenPageOptions.AsSlave);
 
-				fineViewModel.RouteList = SelectedItem.RouteList;
+				page.ViewModel.SetRouteListById(SelectedItem.RouteList.Id);
 
 				var undeliveredOrder = GetUndeliveredOrder();
 
 				if (undeliveredOrder != null)
 				{
-					fineViewModel.UndeliveredOrder = undeliveredOrder;
+					page.ViewModel.UndeliveredOrder = undeliveredOrder;
 				}
 
 				if(SelectedItem.CalculateTimeLateArrival() != null)
-					fineViewModel.FineReasonString = $"Опоздание по заказу №{SelectedItem.Order.Id} от {SelectedItem.Order.DeliveryDate:d}";
+					page.ViewModel.FineReasonString = $"Опоздание по заказу №{SelectedItem.Order.Id} от {SelectedItem.Order.DeliveryDate:d}";
 
-				fineViewModel.EntitySaved += (sender, args) =>
+				page.ViewModel.EntitySaved += (sender, args) =>
 				{
 					SelectedItem.AddFine(args.Entity as Fine);
 					UpdateTreeAddresses?.Invoke();
 				}; 
-				
-				TabParent.AddSlaveTab(this, fineViewModel);
 			}, () => SelectedItem != null
 		));
 		
@@ -242,30 +209,29 @@ namespace Vodovoz.ViewModels.Logistic
 		public DelegateCommand AttachFineCommand => attachFineCommand ?? (attachFineCommand = new DelegateCommand(
 			() =>
 			{
-				var fineFilter = new FineFilterViewModel();
-				fineFilter.ExcludedIds = SelectedItem.Fines.Select(x => x.Id).ToArray();
-				var fineJournalViewModel = new FinesJournalViewModel(
-					fineFilter,
-					_undeliveryViewOpener,
-					_employeeService,
-					_employeeJournalFactory,
-					UnitOfWorkFactory, 
-					_employeeSettings,
-					CommonServices
-				);
-				fineJournalViewModel.SelectionMode = JournalSelectionMode.Single;
-				fineJournalViewModel.OnEntitySelectedResult +=
+				var page = NavigationManager.OpenViewModel<FinesJournalViewModel, Action<FineFilterViewModel>>(
+					this,
+					filter =>
+					{
+						filter.CanEditFilter = false;
+						filter.ExcludedIds = SelectedItem.Fines.Select(x => x.Id).ToArray();
+					});
+
+				page.ViewModel.SelectionMode = JournalSelectionMode.Single;
+				page.ViewModel.OnSelectResult +=
 					(sender, e) =>
 					{
-						var selectedNode = e.SelectedNodes.FirstOrDefault();
+						var selectedObject = e.SelectedObjects.FirstOrDefault();
 						
-						if (selectedNode == null)
+						if(!(selectedObject is FineJournalNode selectedNode))
+						{
 							return;
-						
+						}
+
 						var fine = UoW.GetById<Fine>(selectedNode.Id);
 
 						var undeliveredOrder = GetUndeliveredOrder();
-						if (undeliveredOrder != null)
+						if(undeliveredOrder != null)
 						{
 							fine.UndeliveredOrder = undeliveredOrder;
 							UoW.Save(fine);
@@ -274,7 +240,6 @@ namespace Vodovoz.ViewModels.Logistic
 						SelectedItem.AddFine(fine);
 						UpdateTreeAddresses?.Invoke();
 					};
-				TabParent.AddSlaveTab(this, fineJournalViewModel);
 			}, () => SelectedItem != null
 		));
 		
@@ -295,32 +260,30 @@ namespace Vodovoz.ViewModels.Logistic
 			createDetachFineCommand ?? (createDetachFineCommand = new DelegateCommand(
 			() =>
 			{
-				var fineFilter = new FineFilterViewModel();
-				fineFilter.FindFinesWithIds = SelectedItem.Fines.Select(x => x.Id).ToArray();
-				var fineJournalViewModel = new FinesJournalViewModel(
-					fineFilter,
-					_undeliveryViewOpener,
-					_employeeService,
-					_employeeJournalFactory,
-					UnitOfWorkFactory, 
-					_employeeSettings,
-					CommonServices
-				);
-				fineJournalViewModel.SelectionMode = JournalSelectionMode.Single;
-				fineJournalViewModel.OnEntitySelectedResult +=
+				var page = NavigationManager.OpenViewModel<FinesJournalViewModel, Action<FineFilterViewModel>>(
+					this,
+					filter =>
+					{
+						filter.CanEditFilter = false;
+						filter.ExcludedIds = SelectedItem.Fines.Select(x => x.Id).ToArray();
+					});
+
+				page.ViewModel.SelectionMode = JournalSelectionMode.Single;
+				page.ViewModel.OnSelectResult +=
 					(sender, e) =>
 					{
-						var selectedNode = e.SelectedNodes.FirstOrDefault();
-						
-						if (selectedNode == null)
+						var selectedObject = e.SelectedObjects.FirstOrDefault();
+
+						if(!(selectedObject is FineJournalNode selectedNode))
+						{
 							return;
-						
+						}
+
 						var fine = UoW.GetById<Fine>(selectedNode.Id);
 
 						SelectedItem.RemoveFine(fine);
 						UpdateTreeAddresses?.Invoke();
 					};
-				TabParent.AddSlaveTab(this, fineJournalViewModel);
 			}, () => SelectedItem != null
 		));
 		 
@@ -350,6 +313,8 @@ namespace Vodovoz.ViewModels.Logistic
 			UndeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, SelectedItem.Order.Id).SingleOrDefault();
 
 		public bool AskSaveOnClose => CanEditRouteList;
+
+		public ILifetimeScope LifetimeScope => _lifetimeScope;
 
 		protected override bool BeforeSave()
 		{

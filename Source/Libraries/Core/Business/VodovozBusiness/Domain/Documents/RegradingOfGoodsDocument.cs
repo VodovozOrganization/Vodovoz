@@ -8,6 +8,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
@@ -137,6 +138,12 @@ namespace Vodovoz.Domain.Documents
 					"Список номенклатур, в которых не заполнен вес или объём:\n" +
 					$"{string.Join("\n", needWeightOrVolume.Select(x => $"({x.Id}) {x.Name}"))}",
 					new[] { nameof(Items) });
+			}
+
+			if(Items.Any(x => x.RegradingOfGoodsReason == null))
+			{
+				yield return new ValidationResult("Выберите причину пересортицы для всех строк документа",
+					new[] { nameof(CarEventType) });
 			}
 		}
 	}

@@ -3,7 +3,6 @@ using System.Linq;
 using System.Collections.Generic;
 using NHibernate;
 using NHibernate.Criterion;
-using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;

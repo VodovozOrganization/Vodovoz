@@ -46,6 +46,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			Map(x => x.DistanceFromBaseMeters).Column("distance_from_center_meters");
 			Map(x => x.HaveResidue).Column("have_residue");
 			Map(x => x.AlwaysFreeDelivery).Column("always_free_delivery");
+			Map(x => x.KPP).Column("KPP");
 
 			References(x => x.Counterparty).Column("counterparty_id");
 			References(x => x.DeliverySchedule).Column("delivery_schedule_id");

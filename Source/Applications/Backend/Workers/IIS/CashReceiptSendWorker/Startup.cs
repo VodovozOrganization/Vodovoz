@@ -13,6 +13,7 @@ using QS.Project.DB;
 using QS.Project.Domain;
 using System.Configuration;
 using System.Reflection;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Models.CashReceipts;
@@ -165,6 +166,7 @@ namespace CashReceiptSendWorker
 					Assembly.GetAssembly(typeof(Bank)),
 					Assembly.GetAssembly(typeof(TypeOfEntity)),
 					Assembly.GetAssembly(typeof(Attachment)),
+					typeof(DriverWarehouseEventMap).Assembly,
 					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
 				}
 			);

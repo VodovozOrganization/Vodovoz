@@ -290,6 +290,8 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 			set => SetField(ref _subdivisionsTo, value);
 		}
 
+		public ILifetimeScope LifetimeScope => _lifetimeScope;
+
 		private void UpdateCashSubdivisions()
 		{
 			Type[] cashDocumentTypes = { typeof(Income), typeof(Expense), typeof(AdvanceReport) };

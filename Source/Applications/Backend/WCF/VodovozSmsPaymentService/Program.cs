@@ -16,6 +16,7 @@ using SmsPaymentService;
 using SmsPaymentService.PaymentControllers;
 using SmsPaymentService.Workers;
 using Vodovoz.Models;
+using Vodovoz.NotificationRecievers;
 using Vodovoz.Parameters;
 using Vodovoz.Settings.Database;
 

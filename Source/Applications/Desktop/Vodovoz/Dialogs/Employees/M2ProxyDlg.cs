@@ -1,24 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Autofac;
 using Gamma.GtkWidgets;
 using Gtk;
 using NLog;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QS.Project.Domain;
 using QS.Project.Services;
 using QS.Validation;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
-using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.Dialogs.Employees
 {
@@ -26,6 +25,7 @@ namespace Vodovoz.Dialogs.Employees
 	public partial class M2ProxyDlg : QS.Dialog.Gtk.EntityDialogBase<M2ProxyDocument>, IEditableDialog
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 
 		private readonly IDocTemplateRepository _docTemplateRepository = new DocTemplateRepository();
 
@@ -66,7 +66,7 @@ namespace Vodovoz.Dialogs.Employees
 				GetDocument();
 
 			ylabelNumber.Binding.AddBinding(Entity, x => x.Title, x => x.LabelProp).InitializeFromSource();
-			var orderFactory = new OrderSelectorFactory();
+			var orderFactory = _lifetimeScope.Resolve<IOrderSelectorFactory>();
 			evmeOrder.SetEntityAutocompleteSelectorFactory(orderFactory.CreateOrderAutocompleteSelectorFactory());
 			evmeOrder.Binding.AddBinding(Entity, x => x.Order, x => x.Subject).InitializeFromSource();
 			evmeOrder.Changed += (sender, e) => {
@@ -74,7 +74,7 @@ namespace Vodovoz.Dialogs.Employees
 			};
 			evmeOrder.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 
-			var orgFactory = new OrganizationJournalFactory();
+			var orgFactory = _lifetimeScope.Resolve<IOrganizationJournalFactory>();
 			evmeOrganization.SetEntityAutocompleteSelectorFactory(orgFactory.CreateOrganizationAutocompleteSelectorFactory());
 			evmeOrganization.Binding.AddBinding(Entity, x => x.Organization, x => x.Subject).InitializeFromSource();
 			evmeOrganization.Changed += (sender, e) => UpdateStates();
@@ -84,12 +84,12 @@ namespace Vodovoz.Dialogs.Employees
 			yDPDatesRange.Binding.AddBinding(Entity, x => x.Date, x => x.StartDate).InitializeFromSource();
 			yDPDatesRange.Binding.AddBinding(Entity, x => x.ExpirationDate, x => x.EndDate).InitializeFromSource();
 
-			var employeeFactory = new EmployeeJournalFactory();
+			var employeeFactory = _lifetimeScope.Resolve<IEmployeeJournalFactory>();
 			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
 			evmeEmployee.Binding.AddBinding(Entity, x => x.Employee, x => x.Subject).InitializeFromSource();
 
-			var supplierFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
-			evmeSupplier.SetEntityAutocompleteSelectorFactory(supplierFactory.CreateCounterpartyAutocompleteSelectorFactory());
+			var supplierFactory = _lifetimeScope.Resolve<ICounterpartyJournalFactory>();
+			evmeSupplier.SetEntityAutocompleteSelectorFactory(supplierFactory.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope));
 			evmeSupplier.Binding.AddBinding(Entity, x => x.Supplier, x => x.Subject).InitializeFromSource();
 
 			yETicketNr.Binding.AddBinding(Entity, x => x.TicketNumber, w => w.Text).InitializeFromSource();
@@ -223,6 +223,13 @@ namespace Vodovoz.Dialogs.Employees
 			}
 
 			return true;
+		}
+
+		public override void Destroy()
+		{
+			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
+			base.Destroy();
 		}
 	}
 }

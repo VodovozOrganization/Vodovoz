@@ -1,4 +1,4 @@
-﻿using NetTopologySuite.Geometries;
+using NetTopologySuite.Geometries;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Linq;
+using Vodovoz.Core.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -46,6 +47,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
 
 		private readonly IGtkTabsOpener _gtkTabsOpener;
+		private readonly IGeographicGroupRepository _geographicGroupRepository;
+		private readonly IGeographicGroupParametersProvider _geographicGroupParametersProvider;
 
 		private bool _showCarCirclesOverlay = false;
 		private bool _showDistrictsOverlay = false;
@@ -82,6 +85,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private int _fastDeliveryDistrictsLastVersionId = -1;
 		private IList<District> _cachedFastDeliveryDistricts;
+		private IList<GeoGroup> _geogroups;
+		private GeoGroup _selectedGeoGroup;
 
 		public CarsMonitoringViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -91,7 +96,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IRouteListRepository routeListRepository,
 			IScheduleRestrictionRepository scheduleRestrictionRepository,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
-			IGtkTabsOpener gtkTabsOpener)
+			IGtkTabsOpener gtkTabsOpener,
+			IGeographicGroupRepository geographicGroupRepository,
+			IGeographicGroupParametersProvider geographicGroupParametersProvider,
+			IEmployeeSettings employeeSettings)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
@@ -99,8 +107,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_scheduleRestrictionRepository = scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
 			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
+			_geographicGroupRepository = geographicGroupRepository ?? throw new ArgumentNullException(nameof(geographicGroupRepository));
+			_geographicGroupParametersProvider = geographicGroupParametersProvider;
 
 			TabName = "Мониторинг";
+
+			MaxDaysForNewbieDriver = employeeSettings.MaxDaysForNewbieDriver;
 
 			CarsOverlayId = "cars";
 			TracksOverlayId = "tracks";
@@ -296,6 +308,21 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					{
 						RefreshFastDeliveryDistrictsCommand?.Execute();
 					}
+				}
+			}
+		}
+
+		public IList<GeoGroup> GeoGroups => _geogroups 
+		    ?? (_geogroups = _geographicGroupRepository.GeographicGroupsWithoutEast(UoW, _geographicGroupParametersProvider));
+
+		public GeoGroup SelectedGeoGroup
+		{
+			get => _selectedGeoGroup;
+			set
+			{
+				if(SetField(ref _selectedGeoGroup, value))
+				{
+					RefreshWorkingDriversCommand?.Execute();
 				}
 			}
 		}
@@ -605,12 +632,19 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				.OrderBy(d => d.StartDate).Desc
 				.Take(1);
 
+			if(SelectedGeoGroup != null)
+			{
+				GeoGroup geographicGroupAlias = null;
+
+				query.Inner.JoinAlias(() => routeListAlias.GeographicGroups, () => geographicGroupAlias, () => geographicGroupAlias.Id == SelectedGeoGroup.Id);
+			}
 
 			var result = query.SelectList(list => list
 					.Select(() => driverAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => driverAlias.Name).WithAlias(() => resultAlias.Name)
 					.Select(() => driverAlias.LastName).WithAlias(() => resultAlias.LastName)
 					.Select(() => driverAlias.Patronymic).WithAlias(() => resultAlias.Patronymic)
+					.Select(() => driverAlias.FirstWorkDay).WithAlias(() => resultAlias.FirstWorkDay)
 					.Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.CarNumber)
 					.Select(isCompanyCarProjection).WithAlias(() => resultAlias.IsVodovozAuto)
 					.Select(() => routeListAlias.Id).WithAlias(() => resultAlias.RouteListNumber)
@@ -824,6 +858,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			CurrentObjectChanged?.Invoke(this, CurrentObjectChangedArgs.Empty);
 		}
 
+		public int MaxDaysForNewbieDriver { get; }
+
 		#region IDisposable
 		public override void Dispose()
 		{
@@ -852,6 +888,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public string LastName { get; set; }
 
 		public string Patronymic { get; set; }
+
+		public DateTime? FirstWorkDay { get; set; }
 
 		public string CarNumber { get; set; }
 
@@ -895,6 +933,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public string ShortName => PersonHelper.PersonNameWithInitials(LastName, Name, Patronymic);
 
 		public DateTime? LastTrackPointTime { get; set; }
+
+		public int TotalWorkDays => (int)(FirstWorkDay.HasValue ? (DateTime.Now - FirstWorkDay.Value).TotalDays : 0);
 	}
 
 	public class RouteListAddressNode

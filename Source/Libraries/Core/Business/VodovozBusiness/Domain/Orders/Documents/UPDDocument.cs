@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Text;
 using QS.Print;
 using QS.Report;
 using Vodovoz.Domain.Client;
@@ -18,41 +17,12 @@ namespace Vodovoz.Domain.Orders.Documents
 			Convert.ToDateTime("2021-06-30T23:59:59", CultureInfo.CreateSpecificCulture("ru-RU"));
 		private static readonly IOrganizationParametersProvider _organizationParametersProvider =
 			new OrganizationParametersProvider(new ParametersProvider());
+		private readonly IDeliveryScheduleParametersProvider _deliveryScheduleParametersProvider =
+			new DeliveryScheduleParametersProvider(new ParametersProvider());
 		private int? _beveragesWorldOrganizationId;
 
-
-		#region implemented abstract members of OrderDocument
-		public override OrderDocumentType Type => OrderDocumentType.UPD;
-		#endregion
-
-		#region implemented abstract members of IPrintableRDLDocument
-
-		public virtual ReportInfo GetReportInfo(string connectionString = null)
+		private EmailTemplate GetTemplateForStandartReason(bool hasAgreeForEdo)
 		{
-			var identifier = Order.DeliveryDate <= _edition2017LastDate ? "Documents.UPD2017Edition" : "Documents.UPD";
-			return new ReportInfo {
-				Title = String.Format("УПД {0} от {1:d}", Order.Id, Order.DeliveryDate),
-				Identifier = identifier,
-				Parameters = new Dictionary<string, object> {
-					{ "order_id", Order.Id },
-					{ "special", false },
-					{ "hide_signature", HideSignature}
-				},
-				RestrictedOutputPresentationTypes = RestrictedOutputPresentationTypes
-			};
-		}
-
-		public virtual Dictionary<object, object> Parameters { get; set; }
-		#endregion
-
-		#region implemented abstract members of IEmailableDocument
-
-		public virtual string Title => String.Format($"УПД №{Order.Id} от {Order.DeliveryDate:d}");
-		public virtual Counterparty Counterparty => Order?.Client;
-
-		public virtual EmailTemplate GetEmailTemplate()
-		{
-			var hasAgreeForEdo = Order.Client.ConsentForEdoStatus == ConsentForEdoStatus.Agree;
 			var isFastDelivery = Order.IsFastDelivery;
 
 			var reason = isFastDelivery ? "" : "<br>Т.к. заказ был перенесен на другой маршрут, Вам не привезли закрывающие документы.";
@@ -70,13 +40,13 @@ namespace Vodovoz.Domain.Orders.Documents
 				  "<br>ИД 2AL-EF740B2F-CA2E-414B-A2A7-F8FA6824B4E4-00000";
 
 			var text = "Добрый день!" +
-			           $"<br>" +
+					   $"<br>" +
 					   $"<br>Во вложении {Title} {fastDeliveryString}" +
-			           $"{reason}" +
-			           $"<br>{body}" +
-			           "<br>" +
-			           "<br>В случае отказа от обмена через ЭДО, я подготовлю документы для отправки по почте РФ или со следующей поставкой." +
-			           "<br>Жду обратной связи.";
+					   $"{reason}" +
+					   $"<br>{body}" +
+					   "<br>" +
+					   "<br>В случае отказа от обмена через ЭДО, я подготовлю документы для отправки по почте РФ или со следующей поставкой." +
+					   "<br>Жду обратной связи.";
 
 			var template = new EmailTemplate
 			{
@@ -88,9 +58,80 @@ namespace Vodovoz.Domain.Orders.Documents
 			return template;
 		}
 
+		private EmailTemplate GetTemplateForClosingDocumentOrder(bool hasAgreeForEdo)
+		{
+			var body = hasAgreeForEdo
+				? "Просьба подписать документ в ЭДО или ответным письмом выслать скан с Вашими печатью и подписью"
+				: "Просьба ответным письмом выслать скан с Вашими печатью и подписью." +
+				  "<br>Если компания использует ЭДО, прошу выслать приглашение по указанным данным ниже, это упростит обмен документами в будущем." +
+				  "<br>Наши данные:" +
+				  "<br>Оператор ЭДО - ТАКСКОМ" +
+				  "<br>ООО \"Веселый Водовоз\" (роуминг, Такском)" +
+				  "<br>ИНН 7816453294" +
+				  "<br>ИД 2AL-EF740B2F-CA2E-414B-A2A7-F8FA6824B4E4-00000";
+
+			var text = "Добрый день!" +
+					   $"<br>" +
+					   $"<br>Во вложении {Title} по сервиному обслуживанию" +
+					   $"<br>{body}" +
+					   "<br>" +
+					   "<br>В случае отказа от обмена через ЭДО, я подготовлю документы для отправки по почте РФ или со следующей поставкой." +
+					   "<br>Жду обратной связи.";
+
+			var template = new EmailTemplate
+			{
+				Title = "ООО \"Веселый водовоз\"",
+				TextHtml = text,
+				Text = text
+			};
+
+			return template;
+		}
+
+		#region implemented abstract members of OrderDocument
+		public override OrderDocumentType Type => OrderDocumentType.UPD;
 		#endregion
 
-		public override string Name => String.Format("УПД №{0}", Order.Id);
+		#region implemented abstract members of IPrintableRDLDocument
+
+		public virtual ReportInfo GetReportInfo(string connectionString = null)
+		{
+			var identifier = Order.DeliveryDate <= _edition2017LastDate ? "Documents.UPD2017Edition" : "Documents.UPD";
+			return new ReportInfo {
+				Title = $"УПД {Order.Id} от {Order.DeliveryDate:d}",
+				Identifier = identifier,
+				Parameters = new Dictionary<string, object> {
+					{ "order_id", Order.Id },
+					{ "special", false },
+					{ "hide_signature", HideSignature}
+				},
+				RestrictedOutputPresentationTypes = RestrictedOutputPresentationTypes
+			};
+		}
+
+		public virtual Dictionary<object, object> Parameters { get; set; }
+		#endregion
+
+		#region implemented abstract members of IEmailableDocument
+
+		public virtual string Title => $"УПД №{Order.Id} от {Order.DeliveryDate:d}";
+		public virtual Counterparty Counterparty => Order?.Client;
+
+		public virtual EmailTemplate GetEmailTemplate()
+		{
+			var hasAgreeForEdo = Order.Client.ConsentForEdoStatus == ConsentForEdoStatus.Agree;
+
+			if( Order.DeliverySchedule.Id == _deliveryScheduleParametersProvider.ClosingDocumentDeliveryScheduleId)
+			{
+				return GetTemplateForClosingDocumentOrder(hasAgreeForEdo);
+			}
+
+			return GetTemplateForStandartReason(hasAgreeForEdo);
+		}
+
+		#endregion
+
+		public override string Name => $"УПД №{Order.Id}";
 
 		public override DateTime? DocumentDate => Order?.DeliveryDate;
 
@@ -129,4 +170,3 @@ namespace Vodovoz.Domain.Orders.Documents
 		}
 	}
 }
-

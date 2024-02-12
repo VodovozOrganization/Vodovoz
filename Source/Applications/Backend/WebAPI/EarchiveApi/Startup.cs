@@ -1,4 +1,5 @@
-﻿using EarchiveApi.Services;
+﻿using EarchiveApi.HealthChecks;
+using EarchiveApi.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -8,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using NLog.Web;
 using MySqlConnector;
+using VodovozHealthCheck;
 
 namespace EarchiveApi
 {
@@ -38,6 +40,8 @@ namespace EarchiveApi
 					logging.AddNLogWeb();
 					logging.AddConfiguration(Configuration.GetSection(_nLogSectionName));
 				});
+
+			services.ConfigureHealthCheckService<EarchiveApiHealthCheck>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -58,6 +62,8 @@ namespace EarchiveApi
 				endpoints.MapGet("/", async context =>
 					await context.Response.WriteAsync("Use GRPC clietn for connection"));
 			});
+
+			app.ConfigureHealthCheckApplicationBuilder();
 		}
 
 		private string GetConnectionString()

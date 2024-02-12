@@ -16,13 +16,16 @@ namespace Vodovoz.Views.Payments
 		{
 			btnAllocateByCurrentCounterparty.Clicked += (sender, args) => ViewModel.AllocateByCurrentCounterpartyCommand.Execute();
 			btnAllocateByCurrentCounterparty.Binding
-				.AddFuncBinding(ViewModel, vm => !vm.IsAllocationState, w => w.Sensitive)
+				.AddFuncBinding(ViewModel, vm => vm.CanAllocateByCurrentCounterparty, w => w.Sensitive)
 				.InitializeFromSource();
+
 			btnAllocateByAllCounterpartiesWithPositiveBalance.Clicked +=
 				(sender, args) => ViewModel.AllocateByAllCounterpartiesWithPositiveBalanceCommand.Execute();
+
 			btnAllocateByAllCounterpartiesWithPositiveBalance.Binding
 				.AddFuncBinding(ViewModel, vm => !vm.IsAllocationState, w => w.Sensitive)
 				.InitializeFromSource();
+
 			btnCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
 			btnCancel.Binding
 				.AddFuncBinding(ViewModel, vm => !vm.IsAllocationState, w => w.Sensitive)

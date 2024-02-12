@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -214,6 +214,7 @@ namespace Vodovoz.ViewModels.Logistic
 					continue;
 				}
 				var newSet = DriverDistrictPriorityHelper.CopyPrioritySetWithActiveDistricts(
+					uow,
 					currentActivePrioritySet,
 					out var notCopied
 				);

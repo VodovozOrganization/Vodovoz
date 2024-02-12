@@ -21,12 +21,16 @@ using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Settings.Database;
 using System.Reflection;
+using PayPageAPI.HealthChecks;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
+using VodovozHealthCheck;
 
 namespace PayPageAPI
 {
 	public class Startup
 	{
+		private const string _nLogSectionName = nameof(NLog);
 		private ILogger<Startup> _logger;
 
 		public Startup(IConfiguration configuration)
@@ -44,10 +48,11 @@ namespace PayPageAPI
 				{
 					logging.ClearProviders();
 					logging.AddNLogWeb();
+					logging.AddConfiguration(Configuration.GetSection(_nLogSectionName));
 				});
 
 			_logger = new Logger<Startup>(LoggerFactory.Create(logging =>
-				logging.AddNLogWeb(NLogBuilder.ConfigureNLog("NLog.config").Configuration)));
+				logging.AddConfiguration(Configuration.GetSection(_nLogSectionName))));
 
 			// Подключение к БД
 			services.AddScoped(_ => UnitOfWorkFactory.CreateWithoutRoot("Страница быстрых платежей"));
@@ -90,6 +95,8 @@ namespace PayPageAPI
 			
 			//models
 			services.AddScoped<IAvangardFastPaymentModel, AvangardFastPaymentModel>();
+
+			services.ConfigureHealthCheckService<PayPageHealthCheck>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -120,6 +127,8 @@ namespace PayPageAPI
 					name: "default",
 					pattern: "{controller=Home}/{action=Index}/{id?}");
 			});
+
+			app.ConfigureHealthCheckApplicationBuilder();
 		}
 		
 		private void CreateBaseConfig()
@@ -155,7 +164,8 @@ namespace PayPageAPI
 					Assembly.GetAssembly(typeof(Bank)),
 					Assembly.GetAssembly(typeof(HistoryMain)),
 					Assembly.GetAssembly(typeof(Attachment)),
-					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
+					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder)),
+					Assembly.GetAssembly(typeof(DriverWarehouseEventMap))
 				}
 			);
 

@@ -1,4 +1,7 @@
+﻿using Autofac;
+using Autofac.Core.Lifetime;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Services.FileDialog;
 using QS.Services;
@@ -21,10 +24,10 @@ namespace Vodovoz.ViewModels.Complaints
 {
 	public class CreateInnerComplaintViewModel : EntityTabViewModelBase<Complaint>
 	{
+		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IEmployeeService _employeeService;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly IUserRepository _userRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
@@ -36,22 +39,23 @@ namespace Vodovoz.ViewModels.Complaints
 		public CreateInnerComplaintViewModel(
 			IEntityUoWBuilder uoWBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
+			INavigationManager navigationManager,
+			ILifetimeScope lifetimeScope,
 			IEmployeeService employeeService,
 			ISubdivisionRepository subdivisionRepository,
 			ICommonServices commonServices,
 			IEmployeeJournalFactory employeeJournalFactory,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IFileDialogService fileDialogService,
 			IUserRepository userRepository,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
-			IRouteListItemRepository routeListItemRepository) : base(uoWBuilder, unitOfWorkFactory, commonServices)
+			IRouteListItemRepository routeListItemRepository) : base(uoWBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			Entity.ComplaintType = ComplaintType.Inner;
@@ -128,7 +132,7 @@ namespace Vodovoz.ViewModels.Complaints
 				if(guiltyItemsViewModel == null)
 				{
 					guiltyItemsViewModel =
-						new GuiltyItemsViewModel(Entity, UoW, CommonServices, _subdivisionRepository, _employeeJournalFactory, _subdivisionJournalFactory, _subdivisionParametersProvider);
+						new GuiltyItemsViewModel(Entity, UoW, this, _lifetimeScope, CommonServices, _subdivisionRepository, _employeeJournalFactory, _subdivisionParametersProvider);
 				}
 
 				return guiltyItemsViewModel;

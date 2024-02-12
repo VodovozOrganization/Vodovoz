@@ -9,6 +9,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.TempAdapters;
+using Autofac;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {
@@ -16,14 +17,16 @@ namespace Vodovoz.ReportsParameters.Logistic
 	{
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICarJournalFactory _carJournalFactory;
+		private readonly ILifetimeScope _lifetimeScope;
 
 		public MileageReport(
 			IEmployeeJournalFactory employeeJournalFactory,
-			ICarJournalFactory carJournalFactory)
+			ICarJournalFactory carJournalFactory,
+			ILifetimeScope lifetimeScope)
 		{
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_carJournalFactory = carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory));
-
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			Build();
 			Configure();
 		}
@@ -50,7 +53,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 			entityviewmodelentryEmployee.SetEntityAutocompleteSelectorFactory(
 				_employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory());
 
-			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(_carJournalFactory.CreateCarAutocompleteSelectorFactory());
+			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(_carJournalFactory.CreateCarAutocompleteSelectorFactory(_lifetimeScope));
 		}
 
 		#region IParametersWidget implementation
