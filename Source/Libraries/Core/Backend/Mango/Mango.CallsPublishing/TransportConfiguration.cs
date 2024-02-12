@@ -11,8 +11,8 @@ namespace Mango.CallsPublishing
 		/// </summary>
 		public static void ConfigureMangoMessageTopology(this IRabbitMqBusFactoryConfigurator configurator, IBusRegistrationContext context)
 		{
-			configurator.Message<CallEvent>(x => x.SetEntityName("mango.call_event"));
-			configurator.Send<CallEvent>(x => x.UseRoutingKeyFormatter(ctx => $"acdgroup-{ctx.Message.To.AcdGroup}."));
+			configurator.Message<MangoCallEvent>(x => x.SetEntityName("mango.call_event"));
+			configurator.Send<MangoCallEvent>(x => x.UseRoutingKeyFormatter(ctx => $"acdgroup-{ctx.Message.To.AcdGroup}."));
 		}
 
 		/// <summary>
@@ -22,7 +22,7 @@ namespace Mango.CallsPublishing
 		{
 			configurator.ConfigureMangoMessageTopology(context);
 
-			configurator.Publish<CallEvent>(x =>
+			configurator.Publish<MangoCallEvent>(x =>
 			{
 				x.ExchangeType = ExchangeType.Topic;
 				x.Durable = true;
