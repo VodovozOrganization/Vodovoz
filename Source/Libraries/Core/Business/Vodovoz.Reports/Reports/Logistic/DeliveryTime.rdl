@@ -57,7 +57,7 @@ INNER JOIN
     car_versions cv ON c.id = cv.car_id
         AND cv.start_date &lt;= route_lists.date
         AND (cv.end_date IS NULL OR cv.end_date &gt;= route_lists.date)
-INNER JOIN (
+LEFT JOIN (
         SELECT rl.driver_id, COUNT(o.id) AS amount
            FROM orders o
            INNER JOIN route_list_addresses rla ON rla.order_id = o.id
@@ -79,7 +79,7 @@ WHERE
               OR IF('ServiceCenter' IN (@rl_type_of_use), employees.visiting_master, false)
               OR IF('StorageLogistics' IN (@rl_type_of_use), orders.order_address_type = 'StorageLogistics', false)
           )
-  AND en_route_orders.amount &gt;= @orders_en_route_count
+  AND IFNULL(en_route_orders.amount, 0) &gt;= @orders_en_route_count
 
 GROUP BY route_list_addresses.id
 ORDER BY driver_name, max_time
