@@ -30,9 +30,9 @@ namespace Vodovoz.Reports
 	public partial class StockMovements : SingleUoWWidgetBase, IParametersWidget, INotifyPropertyChanged
 	{
 		private readonly INavigationManager _navigationManager;
-
-		private SelectableParametersReportFilter _filter;
-		private GenericObservableList<SelectableSortTypeNode> _selectableSortTypeNodes = new GenericObservableList<SelectableSortTypeNode>();
+		private readonly SelectableParametersReportFilter _filter;
+		private readonly GenericObservableList<SelectableSortTypeNode> _selectableSortTypeNodes =
+			new GenericObservableList<SelectableSortTypeNode>();
 		private Warehouse _warehouse;
 		private ITdiTab _parentTab;
 		private ILifetimeScope _scope;
@@ -62,7 +62,7 @@ namespace Vodovoz.Reports
 			}
 		}
 
-		private ITdiTab ParentTab
+		public ITdiTab ParentTab
 		{
 			get => _parentTab;
 			set
@@ -88,9 +88,12 @@ namespace Vodovoz.Reports
 			var builder = new LegacyEEVMBuilderFactory<StockMovements>(ParentTab, this, UoW, _navigationManager, _scope);
 
 			WarehouseEntryViewModel = builder.ForProperty(x => x.Warehouse)
-				.UseViewModelDialog<WarehouseViewModel>()
 				.UseViewModelJournalAndAutocompleter<WarehouseJournalViewModel>()
+				.UseViewModelDialog<WarehouseViewModel>()
 				.Finish();
+			
+			WarehouseEntryViewModel.Changed += OnWarehouseChanged;
+			entryWarehouse.ViewModel = WarehouseEntryViewModel;
 		}
 
 		private void ConfigureDlg()
@@ -191,8 +194,6 @@ namespace Vodovoz.Reports
 			}
 
 			RefreshAvailableSortTypes();
-
-			WarehouseEntryViewModel.Changed += YentryrefWarehouse_Changed;
 		}
 
 		private void RefreshAvailableSortTypes()
@@ -214,7 +215,7 @@ namespace Vodovoz.Reports
 			}
 		}
 
-		private void YentryrefWarehouse_Changed(object sender, EventArgs e) => RefreshAvailableSortTypes();
+		private void OnWarehouseChanged(object sender, EventArgs e) => RefreshAvailableSortTypes();
 
         #region IParametersWidget implementation
 
@@ -286,12 +287,12 @@ namespace Vodovoz.Reports
 			buttonRun.Sensitive = datePeriodSelected;
 		}
 
-		public override void Dispose()
+		public override void Destroy()
 		{
 			if(_scope != null)
 			{
-				_scope = null;
 				_scope.Dispose();
+				_scope = null;
 			}
 			_parentTab = null;
 

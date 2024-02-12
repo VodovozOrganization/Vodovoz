@@ -388,10 +388,12 @@ public partial class MainWindow
 	protected void OnActionStockMovementsActivated(object sender, EventArgs e)
 	{
 		var report = new Vodovoz.Reports.StockMovements(NavigationManager, Startup.AppDIContainer.BeginLifetimeScope());
+		var dlg = new QSReport.ReportViewDlg(report);
+		report.ParentTab = dlg;
 
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.StockMovements>(),
-			() => new QSReport.ReportViewDlg(report));
+			() => dlg);
 	}
 
 	/// <summary>
