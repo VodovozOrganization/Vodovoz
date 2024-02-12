@@ -23,6 +23,11 @@ namespace Vodovoz.Domain.Goods.Rent
 		private EquipmentKind _equipmentKind;
 		private Nomenclature _depositService;
 		private IList<FreeRentPackageOnlineParameters> _onlineParameters = new List<FreeRentPackageOnlineParameters>();
+		
+		public FreeRentPackage()
+		{
+			Name = string.Empty;
+		}
 
 		#region Свойства
 
@@ -124,10 +129,5 @@ namespace Vodovoz.Domain.Goods.Rent
 		}
 
 		#endregion
-
-		public FreeRentPackage()
-		{
-			Name = string.Empty;
-		}
 	}
 }

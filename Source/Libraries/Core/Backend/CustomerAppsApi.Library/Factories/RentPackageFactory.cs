@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using CustomerAppsApi.Factories;
 using CustomerAppsApi.Library.Dto;
 using Vodovoz.Nodes;
 
-namespace CustomerAppsApi.Factories
+namespace CustomerAppsApi.Library.Factories
 {
 	public class RentPackageFactory : IRentPackageFactory
 	{

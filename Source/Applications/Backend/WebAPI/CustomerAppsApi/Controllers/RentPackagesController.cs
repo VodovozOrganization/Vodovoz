@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using CustomerAppsApi.Library.Dto;
+using CustomerAppsApi.Library.Services;
 using CustomerAppsApi.Models;
 using Gamma.Utilities;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace CustomerAppsApi.Controllers
@@ -13,19 +12,19 @@ namespace CustomerAppsApi.Controllers
 	[Route("/api/")]
 	public class RentPackagesController : ControllerBase
 	{
-		private readonly ILogger<CounterpartyController> _logger;
+		private readonly ILogger<RentPackagesController> _logger;
+		private readonly RentPackagesFrequencyRequestsHandler _rentPackagesFrequencyRequestsHandler;
 		private readonly IRentPackageModel _rentPackageModel;
-		private readonly IConfigurationSection _requestsLimitsSection;
-		private static readonly ConcurrentDictionary<Source, DateTime> _requestTimes = new ConcurrentDictionary<Source, DateTime>();
 
 		public RentPackagesController(
-			ILogger<CounterpartyController> logger,
-			IConfiguration configuration,
+			ILogger<RentPackagesController> logger,
+			RentPackagesFrequencyRequestsHandler rentPackagesFrequencyRequestsHandler,
 			IRentPackageModel rentPackageModel)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_rentPackagesFrequencyRequestsHandler =
+				rentPackagesFrequencyRequestsHandler ?? throw new ArgumentNullException(nameof(rentPackagesFrequencyRequestsHandler));
 			_rentPackageModel = rentPackageModel ?? throw new ArgumentNullException(nameof(rentPackageModel));
-			_requestsLimitsSection = configuration.GetSection("RequestsMinutesLimits");
 		}
 
 		[HttpGet("GetFreeRentPackages")]
@@ -34,15 +33,8 @@ namespace CustomerAppsApi.Controllers
 			var sourceName = source.GetEnumTitle();
 			try
 			{
-				_logger.LogInformation("Поступил запрос на выборку бесплатных пакетов аренды от источника {Source}", sourceName);
-				var now = DateTime.Now;
-				var lastRequestTime = _requestTimes.GetOrAdd(source, now);
-				var passedTimeMinutes = lastRequestTime == now ? 0d : (now - lastRequestTime).TotalMinutes;
-				var requestFrequencyMinutesLimit = _requestsLimitsSection.GetValue<int>("FreePackagesRequestFrequencyLimit");
-
-				if(passedTimeMinutes > 0 && passedTimeMinutes < requestFrequencyMinutesLimit)
+				if(!_rentPackagesFrequencyRequestsHandler.CanRequest(source, sourceName))
 				{
-					_logger.LogInformation("Превышен интервал обращений для источника {Source}", sourceName);
 					return new FreeRentPackagesDto
 					{
 						ErrorMessage = "Превышен интервал обращений"
@@ -50,7 +42,7 @@ namespace CustomerAppsApi.Controllers
 				}
 
 				var rentPackages = _rentPackageModel.GetFreeRentPackages(source);
-				_requestTimes.TryUpdate(source, DateTime.Now, lastRequestTime);
+				_rentPackagesFrequencyRequestsHandler.TryUpdate(source);
 				return rentPackages;
 			}
 			catch(Exception e)

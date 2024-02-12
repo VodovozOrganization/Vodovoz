@@ -29,17 +29,17 @@ namespace Vodovoz.ViewModels.ViewModels.Rent
 		private bool _sitesAndAppsTabActive;
 
 		public FreeRentPackageViewModel(
-            IEntityUoWBuilder uowBuilder,
-            IUnitOfWorkFactory unitOfWorkFactory,
+			IEntityUoWBuilder uowBuilder,
+			IUnitOfWorkFactory unitOfWorkFactory,
 			ILifetimeScope lifetimeScope,
 			INavigationManager navigationManager,
-            ICommonServices commonServices,
-            IRentPackageRepository rentPackageRepository) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
-	    {
+			ICommonServices commonServices,
+			IRentPackageRepository rentPackageRepository) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
+		{
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_rentPackageRepository = rentPackageRepository ?? throw new ArgumentNullException(nameof(rentPackageRepository));
-		    
-		    ConfigureValidateContext();
+
+			ConfigureValidateContext();
 			ConfigureEntryViewModels();
 			ConfigureOnlineParameters();
 			ConfigurePropertyChangeRelations();
@@ -53,19 +53,19 @@ namespace Vodovoz.ViewModels.ViewModels.Rent
 			get => _currentPage;
 			set => SetField(ref _currentPage, value);
 		}
-		
+
 		public FreeRentPackageOnlineParameters MobileAppFreeRentPackageOnlineParameters
 		{
 			get => _mobileAppFreeRentPackageOnlineParameters;
 			set => SetField(ref _mobileAppFreeRentPackageOnlineParameters, value);
 		}
-		
+
 		public FreeRentPackageOnlineParameters VodovozWebSiteFreeRentPackageOnlineParameters
 		{
 			get => _vodovozWebSiteFreeRentPackageOnlineParameters;
 			set => SetField(ref _vodovozWebSiteFreeRentPackageOnlineParameters, value);
 		}
-		
+
 		public FreeRentPackageOnlineParameters KulerSaleWebSiteFreeRentPackageOnlineParameters
 		{
 			get => _kulerSaleWebSiteFreeRentPackageOnlineParameters;
@@ -100,22 +100,19 @@ namespace Vodovoz.ViewModels.ViewModels.Rent
 		public IEntityEntryViewModel EquipmentKindViewModel { get; private set; }
 
 		private void ConfigureValidateContext()
-        {
-	        ValidationContext.ServiceContainer.AddService(typeof(IRentPackageRepository), _rentPackageRepository);
-        }
-		
+		{
+			ValidationContext.ServiceContainer.AddService(typeof(IRentPackageRepository), _rentPackageRepository);
+		}
+
 		private void ConfigureEntryViewModels()
 		{
 			var builder = new CommonEEVMBuilderFactory<FreeRentPackage>(this, Entity, UoW, NavigationManager, _lifetimeScope);
-			
-			DepositServiceNomenclatureViewModel = builder
-					.ForProperty(x => x.DepositService)
-					.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(filter =>
-					{
 
-					})
-					.UseViewModelDialog<NomenclatureViewModel>()
-					.Finish();
+			DepositServiceNomenclatureViewModel = builder
+				.ForProperty(x => x.DepositService)
+				.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(filter => { })
+				.UseViewModelDialog<NomenclatureViewModel>()
+				.Finish();
 
 			EquipmentKindViewModel = builder
 				.ForProperty(x => x.EquipmentKind)
@@ -123,7 +120,7 @@ namespace Vodovoz.ViewModels.ViewModels.Rent
 				.UseViewModelDialog<EquipmentKindViewModel>()
 				.Finish();
 		}
-		
+
 		private void ConfigureOnlineParameters()
 		{
 			MobileAppFreeRentPackageOnlineParameters = GetPackageOnlineParameters(GoodsOnlineParameterType.ForMobileApp);
@@ -140,7 +137,7 @@ namespace Vodovoz.ViewModels.ViewModels.Rent
 		private FreeRentPackageOnlineParameters CreatePackageOnlineParameters(GoodsOnlineParameterType parameterType)
 		{
 			FreeRentPackageOnlineParameters parameters = null;
-			
+
 			switch(parameterType)
 			{
 				case GoodsOnlineParameterType.ForMobileApp:
@@ -158,7 +155,7 @@ namespace Vodovoz.ViewModels.ViewModels.Rent
 			Entity.OnlineParameters.Add(parameters);
 			return parameters;
 		}
-		
+
 		private void ConfigurePropertyChangeRelations()
 		{
 			SetPropertyChangeRelation(e => e.Id,

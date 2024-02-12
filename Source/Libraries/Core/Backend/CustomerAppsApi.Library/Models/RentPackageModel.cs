@@ -1,11 +1,12 @@
 ﻿using System;
-using CustomerAppsApi.Converters;
 using CustomerAppsApi.Factories;
+using CustomerAppsApi.Library.Converters;
 using CustomerAppsApi.Library.Dto;
+using CustomerAppsApi.Models;
 using QS.DomainModel.UoW;
 using Vodovoz.EntityRepositories.RentPackages;
 
-namespace CustomerAppsApi.Models
+namespace CustomerAppsApi.Library.Models
 {
 	public class RentPackageModel : IRentPackageModel
 	{
