@@ -21,6 +21,11 @@ using System;
 using Vodovoz.Settings.Database.Pacs;
 using Vodovoz.Settings.Pacs;
 using QS.Project.Core;
+using Vodovoz.Core.Data.NHibernate;
+using Vodovoz.Settings.Database;
+using Vodovoz.Settings.Database.Mango;
+using Vodovoz.Settings.Mango;
+using Vodovoz.Settings;
 
 namespace Mango.Service
 {
@@ -44,8 +49,10 @@ namespace Mango.Service
 					logging.AddConfiguration(Configuration.GetSection("NLog"));
 				});
 
-			services.AddDatabaseConnectionSettings();
-			services.AddDatabaseConnectionString();
+			services.AddDatabaseConnection();
+			services.AddCore();
+			services.AddNotTrackedUoW();
+			
 			services.AddSingleton(provider =>
 			{
 				var connectionStringBuilder = provider.GetRequiredService<MySqlConnectionStringBuilder>();
@@ -58,8 +65,6 @@ namespace Mango.Service
 				Configuration["Mango:VpbxApiSalt"])
 			);
 
-			services.AddSingleton<IDataBaseInfo>((sp) => new DataBaseLocalInfo(connectionStringBuilder.Database));
-			services.AddSingleton<IUnitOfWorkFactory>((sp) => UnitOfWorkFactory.GetDefaultFactory);
 			services.AddSingleton<ISettingsController, SettingsController>();
 			services.AddSingleton<IMangoUserSettngs, MangoUserSettings>();
 

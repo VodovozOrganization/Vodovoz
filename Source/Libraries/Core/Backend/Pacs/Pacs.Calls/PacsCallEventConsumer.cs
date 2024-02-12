@@ -73,20 +73,20 @@ namespace Pacs.Calls
 
 	public class PacsCallEventConsumerDefinition : ConsumerDefinition<PacsCallEventConsumer>
 	{
-		private readonly int _operatorId;
+		private readonly int _administratorId;
 
-		public PacsCallEventConsumerDefinition(IPacsOperatorProvider operatorProvider)
+		public PacsCallEventConsumerDefinition(IPacsAdministratorProvider administratorProvider)
 		{
-			if(operatorProvider.OperatorId == null)
+			if(administratorProvider == null)
 			{
-				throw new PacsException("Невозможно получение событий звонков. Так как в системе не определен оператор.");
+				throw new PacsException("Невозможно получение событий звонков. Так как в системе не определен администратор.");
 			}
-			_operatorId = operatorProvider.OperatorId.Value;
+			_administratorId = administratorProvider.AdministratorId.Value;
 
 			Endpoint(x =>
 			{
 				var key = SimpleKeyGenerator.GenerateKey(16);
-				x.Name = $"pacs.event.call.consumer-operator-{_operatorId}";
+				x.Name = $"pacs.event.call.consumer-admin-{_administratorId}";
 				x.InstanceId = $"-{key}";
 			});
 		}
