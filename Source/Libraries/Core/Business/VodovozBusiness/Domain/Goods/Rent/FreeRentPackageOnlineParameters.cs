@@ -6,7 +6,7 @@ namespace Vodovoz.Domain.Goods.Rent
 {
 	public abstract class FreeRentPackageOnlineParameters : PropertyChangedBase, IDomainObject
 	{
-		private NomenclatureOnlineAvailability? _packageOnlineAvailability;
+		private GoodsOnlineParameterType? _packageOnlineAvailability;
 		private FreeRentPackage _freeRentPackage;
 
 		public virtual int Id { get; set; }
@@ -19,12 +19,12 @@ namespace Vodovoz.Domain.Goods.Rent
 		}
 		
 		[Display(Name = "Онлайн доступность")]
-		public virtual NomenclatureOnlineAvailability? PackageOnlineAvailability
+		public virtual GoodsOnlineParameterType? PackageOnlineAvailability
 		{
 			get => _packageOnlineAvailability;
 			set => SetField(ref _packageOnlineAvailability, value);
 		}
 		
-		public abstract NomenclatureOnlineParameterType Type { get; }
+		public abstract GoodsOnlineParameterType Type { get; }
 	}
 }

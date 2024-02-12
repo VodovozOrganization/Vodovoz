@@ -1,4 +1,4 @@
-using QS.Navigation;
+﻿using QS.Navigation;
 using QS.Views.GtkUI;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
@@ -47,11 +47,6 @@ namespace Vodovoz.Views.Rent
 				.AddBinding(ViewModel.Entity, e => e.MinWaterAmount, w => w.ValueAsInt)
 				.InitializeFromSource();
 
-			entryDepositService.SetEntityAutocompleteSelectorFactory(ViewModel.DepositServiceSelectorFactory);
-			entryDepositService.Binding
-				.AddBinding(ViewModel.Entity, e => e.DepositService, w => w.Subject)
-				.InitializeFromSource();
-
 			spinMinWaterAmount.Binding
 				.AddBinding(ViewModel.Entity, e => e.MinWaterAmount, w => w.ValueAsInt)
 				.InitializeFromSource();
@@ -80,19 +75,19 @@ namespace Vodovoz.Views.Rent
 				.InitializeFromSource();
 
 			enumCmbOnlineAvailabilityMobileApp.ShowSpecialStateNot = true;
-			enumCmbOnlineAvailabilityMobileApp.ItemsEnum = typeof(NomenclatureOnlineAvailability);
+			enumCmbOnlineAvailabilityMobileApp.ItemsEnum = typeof(GoodsOnlineAvailability);
 			enumCmbOnlineAvailabilityMobileApp.Binding
 				.AddBinding(ViewModel.MobileAppFreeRentPackageOnlineParameters, p => p.PackageOnlineAvailability, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 			
 			enumCmbOnlineAvailabilityVodovozWebSite.ShowSpecialStateNot = true;
-			enumCmbOnlineAvailabilityVodovozWebSite.ItemsEnum = typeof(NomenclatureOnlineAvailability);
+			enumCmbOnlineAvailabilityVodovozWebSite.ItemsEnum = typeof(GoodsOnlineAvailability);
 			enumCmbOnlineAvailabilityVodovozWebSite.Binding
 				.AddBinding(ViewModel.VodovozWebSiteFreeRentPackageOnlineParameters, p => p.PackageOnlineAvailability, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 			
 			enumCmbOnlineAvailabilityKulerSaleWebSite.ShowSpecialStateNot = true;
-			enumCmbOnlineAvailabilityKulerSaleWebSite.ItemsEnum = typeof(NomenclatureOnlineAvailability);
+			enumCmbOnlineAvailabilityKulerSaleWebSite.ItemsEnum = typeof(GoodsOnlineAvailability);
 			enumCmbOnlineAvailabilityKulerSaleWebSite.Binding
 				.AddBinding(ViewModel.KulerSaleWebSiteFreeRentPackageOnlineParameters, p => p.PackageOnlineAvailability, w => w.SelectedItemOrNull)
 				.InitializeFromSource();

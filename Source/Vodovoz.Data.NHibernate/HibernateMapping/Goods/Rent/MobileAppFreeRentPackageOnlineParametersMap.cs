@@ -8,7 +8,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods.Rent
 	{
 		public MobileAppFreeRentPackageOnlineParametersMap()
 		{
-			DiscriminatorValue(nameof(NomenclatureOnlineParameterType.ForMobileApp));
+			DiscriminatorValue(nameof(GoodsOnlineParameterType.ForMobileApp));
 		}
 	}
 }

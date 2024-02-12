@@ -22,7 +22,7 @@ namespace Vodovoz.EntityRepositories.RentPackages
 		}
 
 		public IEnumerable<FreeRentPackageWithOnlineParametersNode> GetFreeRentPackagesForSend(
-			IUnitOfWork uow, NomenclatureOnlineParameterType parameterType)
+			IUnitOfWork uow, GoodsOnlineParameterType parameterType)
 		{
 			FreeRentPackageOnlineParameters onlineParametersAlias = null;
 			FreeRentPackageWithOnlineParametersNode resultAlias = null;

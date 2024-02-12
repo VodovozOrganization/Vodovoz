@@ -1,25 +1,28 @@
-using System;
+﻿using System;
 using System.Linq;
+using Autofac;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.EntityRepositories.RentPackages;
-using QS.Project.Journal.EntitySelector;
+using QS.ViewModels.Control.EEVM;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain.Goods.Rent;
-using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Dialogs.Goods;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.ViewModels.ViewModels.Rent
 {
 	public class FreeRentPackageViewModel : EntityTabViewModelBase<FreeRentPackage>
 	{
 		private readonly IRentPackageRepository _rentPackageRepository;
-		private IEntityAutocompleteSelectorFactory _depositServiceSelectorFactory;
 		private FreeRentPackageOnlineParameters _kulerSaleWebSiteFreeRentPackageOnlineParameters;
 		private FreeRentPackageOnlineParameters _vodovozWebSiteFreeRentPackageOnlineParameters;
 		private FreeRentPackageOnlineParameters _mobileAppFreeRentPackageOnlineParameters;
+		private ILifetimeScope _lifetimeScope;
 		private int _currentPage;
 		private bool _informationTabActive;
 		private bool _sitesAndAppsTabActive;
@@ -27,37 +30,18 @@ namespace Vodovoz.ViewModels.ViewModels.Rent
 		public FreeRentPackageViewModel(
             IEntityUoWBuilder uowBuilder,
             IUnitOfWorkFactory unitOfWorkFactory,
+			ILifetimeScope lifetimeScope,
+			INavigationManager navigationManager,
             ICommonServices commonServices,
-			INomenclatureJournalFactory nomenclatureJournalFactory,
-            IRentPackageRepository rentPackageRepository) : base(uowBuilder, unitOfWorkFactory, commonServices)
+            IRentPackageRepository rentPackageRepository) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 	    {
-			_nomenclatureJournalFactory = nomenclatureJournalFactory ?? throw new ArgumentNullException(nameof(nomenclatureJournalFactory));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_rentPackageRepository = rentPackageRepository ?? throw new ArgumentNullException(nameof(rentPackageRepository));
 		    
 		    ConfigureValidateContext();
+			ConfigureEntryViewModels();
 			ConfigureOnlineParameters();
 			ConfigurePropertyChangeRelations();
-		}
-
-		public IEntityAutocompleteSelectorFactory DepositServiceSelectorFactory
-		{
-			if(lifetimeScope is null)
-			{
-				throw new ArgumentNullException(nameof(lifetimeScope));
-			}
-
-			_rentPackageRepository = rentPackageRepository ?? throw new ArgumentNullException(nameof(rentPackageRepository));
-			
-			ConfigureValidateContext();
-
-			DepositServiceNomenclatureViewModel = new CommonEEVMBuilderFactory<FreeRentPackage>(this, Entity, UoW, NavigationManager, lifetimeScope)
-				.ForProperty(x => x.DepositService)
-				.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(filter =>
-				{
-
-				})
-				.UseViewModelDialog<NomenclatureViewModel>()
-				.Finish();
 		}
 
 		public bool IsNewEntity => UoW.IsNew;
@@ -68,16 +52,19 @@ namespace Vodovoz.ViewModels.ViewModels.Rent
 			get => _currentPage;
 			set => SetField(ref _currentPage, value);
 		}
+		
 		public FreeRentPackageOnlineParameters MobileAppFreeRentPackageOnlineParameters
 		{
 			get => _mobileAppFreeRentPackageOnlineParameters;
 			set => SetField(ref _mobileAppFreeRentPackageOnlineParameters, value);
 		}
+		
 		public FreeRentPackageOnlineParameters VodovozWebSiteFreeRentPackageOnlineParameters
 		{
 			get => _vodovozWebSiteFreeRentPackageOnlineParameters;
 			set => SetField(ref _vodovozWebSiteFreeRentPackageOnlineParameters, value);
 		}
+		
 		public FreeRentPackageOnlineParameters KulerSaleWebSiteFreeRentPackageOnlineParameters
 		{
 			get => _kulerSaleWebSiteFreeRentPackageOnlineParameters;
@@ -108,39 +95,52 @@ namespace Vodovoz.ViewModels.ViewModels.Rent
 			}
 		}
 
-		public IEntityEntryViewModel DepositServiceNomenclatureViewModel { get; }
+		public IEntityEntryViewModel DepositServiceNomenclatureViewModel { get; private set; }
 
 		private void ConfigureValidateContext()
         {
 	        ValidationContext.ServiceContainer.AddService(typeof(IRentPackageRepository), _rentPackageRepository);
         }
 		
+		private void ConfigureEntryViewModels()
+		{
+			DepositServiceNomenclatureViewModel =
+				new CommonEEVMBuilderFactory<FreeRentPackage>(this, Entity, UoW, NavigationManager, _lifetimeScope)
+					.ForProperty(x => x.DepositService)
+					.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(filter =>
+					{
+
+					})
+					.UseViewModelDialog<NomenclatureViewModel>()
+					.Finish();
+		}
+		
 		private void ConfigureOnlineParameters()
 		{
-			MobileAppFreeRentPackageOnlineParameters = GetPackageOnlineParameters(NomenclatureOnlineParameterType.ForMobileApp);
-			VodovozWebSiteFreeRentPackageOnlineParameters = GetPackageOnlineParameters(NomenclatureOnlineParameterType.ForVodovozWebSite);
-			KulerSaleWebSiteFreeRentPackageOnlineParameters = GetPackageOnlineParameters(NomenclatureOnlineParameterType.ForKulerSaleWebSite);
+			MobileAppFreeRentPackageOnlineParameters = GetPackageOnlineParameters(GoodsOnlineParameterType.ForMobileApp);
+			VodovozWebSiteFreeRentPackageOnlineParameters = GetPackageOnlineParameters(GoodsOnlineParameterType.ForVodovozWebSite);
+			KulerSaleWebSiteFreeRentPackageOnlineParameters = GetPackageOnlineParameters(GoodsOnlineParameterType.ForKulerSaleWebSite);
 		}
 
-		private FreeRentPackageOnlineParameters GetPackageOnlineParameters(NomenclatureOnlineParameterType parameterType)
+		private FreeRentPackageOnlineParameters GetPackageOnlineParameters(GoodsOnlineParameterType parameterType)
 		{
 			var parameters = Entity.OnlineParameters.SingleOrDefault(x => x.Type == parameterType);
 			return parameters ?? CreatePackageOnlineParameters(parameterType);
 		}
 
-		private FreeRentPackageOnlineParameters CreatePackageOnlineParameters(NomenclatureOnlineParameterType parameterType)
+		private FreeRentPackageOnlineParameters CreatePackageOnlineParameters(GoodsOnlineParameterType parameterType)
 		{
 			FreeRentPackageOnlineParameters parameters = null;
 			
 			switch(parameterType)
 			{
-				case NomenclatureOnlineParameterType.ForMobileApp:
+				case GoodsOnlineParameterType.ForMobileApp:
 					parameters = new MobileAppFreeRentPackageOnlineParameters();
 					break;
-				case NomenclatureOnlineParameterType.ForVodovozWebSite:
+				case GoodsOnlineParameterType.ForVodovozWebSite:
 					parameters = new VodovozWebSiteFreeRentPackageOnlineParameters();
 					break;
-				case NomenclatureOnlineParameterType.ForKulerSaleWebSite:
+				case GoodsOnlineParameterType.ForKulerSaleWebSite:
 					parameters = new KulerSaleWebSiteFreeRentPackageOnlineParameters();
 					break;
 			}
@@ -154,6 +154,12 @@ namespace Vodovoz.ViewModels.ViewModels.Rent
 		{
 			SetPropertyChangeRelation(e => e.Id,
 				() => IdString);
+		}
+
+		public override void Dispose()
+		{
+			_lifetimeScope = null;
+			base.Dispose();
 		}
 	}
 }

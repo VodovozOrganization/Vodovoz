@@ -19,6 +19,7 @@ namespace Vodovoz.Domain.Goods.Rent
 		private string _name;
 		private string _onlineName;
 		private decimal _deposit;
+		private bool _isArchive;
 		private EquipmentKind _equipmentKind;
 		private Nomenclature _depositService;
 		private IList<FreeRentPackageOnlineParameters> _onlineParameters = new List<FreeRentPackageOnlineParameters>();
@@ -77,6 +78,13 @@ namespace Vodovoz.Domain.Goods.Rent
 		{
 			get => _onlineParameters;
 			set => SetField(ref _onlineParameters, value);
+		}
+		
+		[Display(Name = "Архив")]
+		public virtual bool IsArchive
+		{
+			get => _isArchive;
+			set => SetField(ref _isArchive, value);
 		}
 
 		#endregion
