@@ -13,6 +13,7 @@ using Vodovoz.Domain.Goods.Rent;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using Vodovoz.ViewModels.ViewModels.Goods;
 
 namespace Vodovoz.ViewModels.ViewModels.Rent
 {
@@ -96,6 +97,7 @@ namespace Vodovoz.ViewModels.ViewModels.Rent
 		}
 
 		public IEntityEntryViewModel DepositServiceNomenclatureViewModel { get; private set; }
+		public IEntityEntryViewModel EquipmentKindViewModel { get; private set; }
 
 		private void ConfigureValidateContext()
         {
@@ -104,8 +106,9 @@ namespace Vodovoz.ViewModels.ViewModels.Rent
 		
 		private void ConfigureEntryViewModels()
 		{
-			DepositServiceNomenclatureViewModel =
-				new CommonEEVMBuilderFactory<FreeRentPackage>(this, Entity, UoW, NavigationManager, _lifetimeScope)
+			var builder = new CommonEEVMBuilderFactory<FreeRentPackage>(this, Entity, UoW, NavigationManager, _lifetimeScope);
+			
+			DepositServiceNomenclatureViewModel = builder
 					.ForProperty(x => x.DepositService)
 					.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(filter =>
 					{
@@ -113,6 +116,12 @@ namespace Vodovoz.ViewModels.ViewModels.Rent
 					})
 					.UseViewModelDialog<NomenclatureViewModel>()
 					.Finish();
+
+			EquipmentKindViewModel = builder
+				.ForProperty(x => x.EquipmentKind)
+				.UseViewModelJournalAndAutocompleter<EquipmentKindJournalViewModel>()
+				.UseViewModelDialog<EquipmentKindViewModel>()
+				.Finish();
 		}
 		
 		private void ConfigureOnlineParameters()

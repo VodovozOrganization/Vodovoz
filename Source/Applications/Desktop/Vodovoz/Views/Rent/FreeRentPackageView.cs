@@ -1,6 +1,5 @@
 ﻿using QS.Navigation;
 using QS.Views.GtkUI;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.ViewModels.ViewModels.Rent;
 
@@ -51,11 +50,11 @@ namespace Vodovoz.Views.Rent
 				.AddBinding(ViewModel.Entity, e => e.MinWaterAmount, w => w.ValueAsInt)
 				.InitializeFromSource();
 
-			entryDepositServiceNomenclature.ViewModel = ViewModel.DepositServiceNomenclatureViewModel;
-
-			referenceEquipmentType.SubjectType = typeof(EquipmentKind);
-			referenceEquipmentType.Binding
-				.AddBinding(ViewModel.Entity, e => e.EquipmentKind, w => w.Subject)
+			entryDepositService.ViewModel = ViewModel.DepositServiceNomenclatureViewModel;
+			entryEquipmentType.ViewModel = ViewModel.EquipmentKindViewModel;
+			
+			chkIsArchive.Binding
+				.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active)
 				.InitializeFromSource();
 		}
 
