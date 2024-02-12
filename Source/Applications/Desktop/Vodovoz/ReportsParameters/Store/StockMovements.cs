@@ -92,6 +92,7 @@ namespace Vodovoz.Reports
 				.UseViewModelDialog<WarehouseViewModel>()
 				.Finish();
 			
+			RefreshAvailableSortTypes();
 			WarehouseEntryViewModel.Changed += OnWarehouseChanged;
 			entryWarehouse.ViewModel = WarehouseEntryViewModel;
 		}
@@ -192,8 +193,6 @@ namespace Vodovoz.Reports
             {
 				_selectableSortTypeNodes.Add(new SelectableSortTypeNode(enumItem));
 			}
-
-			RefreshAvailableSortTypes();
 		}
 
 		private void RefreshAvailableSortTypes()
@@ -296,7 +295,7 @@ namespace Vodovoz.Reports
 			}
 			_parentTab = null;
 
-			base.Dispose();
+			base.Destroy();
 		}
 	}
 
