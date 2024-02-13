@@ -5,6 +5,7 @@ using System.Text;
 using EventsApi.Library.Dtos;
 using Microsoft.Extensions.Logging;
 using Vodovoz.Core.Domain.Logistics.Drivers;
+using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Employee;
 
 namespace EventsApi.Library.Services
@@ -27,13 +28,19 @@ namespace EventsApi.Library.Services
 		
 		public DriverWarehouseEventQrData ConvertQrData(string qrData)
 		{
-			var result =
-				qrData.Replace(_driverWarehouseEventSettings.VodovozSiteForQr, null)
-					.Split(DriverWarehouseEvent.QrParametersSeparator);
+			var parsedQrParameters = qrData.GetSubstringAfterSeparator(DriverWarehouseEvent.UriQrParametersSeparator);
+
+			if(string.IsNullOrWhiteSpace(parsedQrParameters))
+			{
+				LogWrongQr(qrData);
+				return null;
+			}
+			
+			var result = parsedQrParameters.Split(DriverWarehouseEvent.QrParametersSeparator);
 
 			if(result[0] != DriverWarehouseEvent.QrType)
 			{
-				_logger.LogError("Неправильный Qr код: {QrData}", qrData);
+				LogWrongQr(qrData);
 				return null;
 			}
 
@@ -54,6 +61,11 @@ namespace EventsApi.Library.Services
 			}
 
 			return data;
+		}
+
+		private void LogWrongQr(string qrData)
+		{
+			_logger.LogError("Неправильный Qr код: {QrData}", qrData);
 		}
 
 		private DriverWarehouseEventQrData ConvertQrData(string[] qrData)
