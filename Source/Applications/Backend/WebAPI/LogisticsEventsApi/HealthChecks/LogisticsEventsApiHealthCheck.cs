@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
@@ -45,7 +45,7 @@ namespace LogisticsEventsApi.HealthChecks
 			};
 
 			var tokenResponse = await ResponseHelper.PostJsonByUri<LoginRequestDto, TokenResponseDto>(
-				$"{baseAddress}/Authenticate",
+				$"{baseAddress}/api/Authenticate",
 				_httpClientFactory,
 				loginRequestDto);
 
