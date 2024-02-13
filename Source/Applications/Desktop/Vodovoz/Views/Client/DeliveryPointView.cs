@@ -1,4 +1,4 @@
-﻿using Gamma.GtkWidgets;
+using Gamma.GtkWidgets;
 using Gamma.Widgets;
 using GMap.NET;
 using GMap.NET.GtkSharp;
@@ -513,18 +513,19 @@ namespace Vodovoz.Views.Client
 			{
 				_addressIsMoving = false;
 				var newPoint = _mapWidget.FromLocalToLatLng((int) args.Event.X, (int) args.Event.Y);
-				if(!ViewModel.DeliveryPoint.ManualCoordinates
-					&& ViewModel.DeliveryPoint.FoundOnOsm
-					&& !MessageDialogHelper.RunQuestionDialog(
-						"Координаты точки установлены по адресу. Вы уверены что хотите установить новые координаты?"))
+
+				string message = string.Empty;
+
+				if(!ViewModel.DeliveryPoint.ManualCoordinates && ViewModel.DeliveryPoint.FoundOnOsm)
 				{
-					UpdateAddressOnMap();
-					return;
+					message = "Координаты точки установлены по адресу. Вы уверены что хотите установить новые координаты?";
+				}
+				else if(!ViewModel.UoWGeneric.IsNew && ViewModel.Entity.CoordinatesExist)
+				{
+					message = "Координаты точки доставки уже были установлены. Вы уверены что хотите установить новые координаты?";
 				}
 
-				if(!ViewModel.UoWGeneric.IsNew
-					&& !MessageDialogHelper.RunQuestionDialog(
-						"Координаты точки доставки уже были установлены. Вы уверены что хотите установить новые координаты?"))
+				if(!string.IsNullOrEmpty(message) && !MessageDialogHelper.RunQuestionDialog(message))
 				{
 					UpdateAddressOnMap();
 					return;

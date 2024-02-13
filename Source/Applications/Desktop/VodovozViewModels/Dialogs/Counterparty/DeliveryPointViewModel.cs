@@ -318,7 +318,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 
 					if(accurateDistrict == null
 						&& !CommonServices.InteractiveService.Question(
-							"Точный район доставки по координатам не определён и подобран ближайший. Сохранить ближайший найденный район по данным координатам?",
+							"Точный район доставки по координатам не определён. Сохранить ТД без точного района?",
 							"Проверьте координаты!"))
 					{
 						return false;
