@@ -726,7 +726,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                         <PaddingRight>2pt</PaddingRight>
                         <PaddingTop>1pt</PaddingTop>
                         <PaddingBottom>1pt</PaddingBottom>
-                        <TextAlign>Right</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -764,7 +764,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                         <PaddingRight>2pt</PaddingRight>
                         <PaddingTop>1pt</PaddingTop>
                         <PaddingBottom>1pt</PaddingBottom>
-                        <TextAlign>Right</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -1763,7 +1763,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                         <PaddingRight>2pt</PaddingRight>
                         <PaddingTop>1pt</PaddingTop>
                         <PaddingBottom>1pt</PaddingBottom>
-                        <TextAlign>Right</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1801,7 +1801,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                         <PaddingRight>2pt</PaddingRight>
                         <PaddingTop>1pt</PaddingTop>
                         <PaddingBottom>1pt</PaddingBottom>
-                        <TextAlign>Right</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>

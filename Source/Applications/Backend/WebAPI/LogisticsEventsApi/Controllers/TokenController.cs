@@ -19,6 +19,7 @@ namespace LogisticsEventsApi.Controllers
 	/// Контроллер аутентификации
 	/// </summary>
 	[ApiController]
+	[Route("/api/")]
 	public partial class TokenController : ControllerBase
 	{
 		private const string _key = "Key";

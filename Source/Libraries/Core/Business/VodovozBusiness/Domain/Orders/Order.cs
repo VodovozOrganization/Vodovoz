@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using fyiReporting.RDL;
 using Gamma.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -3825,6 +3825,7 @@ namespace Vodovoz.Domain.Orders
 
 			int amountDelivered = (int)OrderItems
 				.Where(item => item.Nomenclature.Category == NomenclatureCategory.water
+					&& !item.Nomenclature.IsDisposableTare
 					&& item.Nomenclature.TareVolume == TareVolume.Vol19L)
 				.Sum(item => item.ActualCount ?? 0);
 

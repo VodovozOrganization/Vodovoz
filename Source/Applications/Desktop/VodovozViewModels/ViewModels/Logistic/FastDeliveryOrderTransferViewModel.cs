@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using MoreLinq;
+using NHibernate;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -14,7 +15,6 @@ using System.Linq;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
-using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Services;
 using Vodovoz.Tools.Interactive.ConfirmationQuestion;
@@ -32,6 +32,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly ICommonServices _commonServices;
 		private readonly IConfirmationQuestionInteractive _confirmationQuestionInteractive;
+		private readonly IAddressTransferController _addressTransferController;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 		private readonly IWageParameterService _wageParameterService;
@@ -55,6 +56,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			OsrmClient osrmClient,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
 			IConfirmationQuestionInteractive confirmationQuestionInteractive,
+			IAddressTransferController addressTransferController,
 			int routeListAddressId)
 			: base(navigationManager)
 		{
@@ -63,6 +65,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_confirmationQuestionInteractive = confirmationQuestionInteractive ?? throw new ArgumentNullException(nameof(confirmationQuestionInteractive));
+			_addressTransferController = addressTransferController ?? throw new ArgumentNullException(nameof(addressTransferController));
 			FilterViewModel = filterViewModel ?? throw new ArgumentNullException(nameof(filterViewModel));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_routeListProfitabilityController = routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
@@ -205,6 +208,13 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				routeListFrom.TransferAddressTo(_unitOfWork, address, newItem);
 			}
 
+			var transaction = _unitOfWork.Session.GetCurrentTransaction();
+
+			if(transaction is null)
+			{
+				_unitOfWork.Session.BeginTransaction();
+			}
+
 			_unitOfWork.Session.Flush();
 
 			routeListFrom.CalculateWages(_wageParameterService);
@@ -283,8 +293,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private void UpdateTranferDocuments(RouteListItem from, RouteListItem to, AddressTransferType addressTransferType)
 		{
-			var addressTransferController = new AddressTransferController(new EmployeeRepository());
-			addressTransferController.UpdateDocuments(from, to, _unitOfWork, addressTransferType);
+			_addressTransferController.UpdateDocuments(from, to, _unitOfWork, addressTransferType);
 		}
 
 		private bool HasAddressChanges(RouteListItem address)

@@ -875,12 +875,15 @@
     <Compile Include="Permissions\Cash.Income.cs" />
     <Compile Include="Permissions\Cash.Expense.cs" />
     <Compile Include="Permissions\Logistic.cs" />
+    <Compile Include="Permissions\Order.Documents.cs" />
     <Compile Include="Permissions\Order.UndeliveredOrder.cs" />
     <Compile Include="Permissions\Pacs.cs" />
     <Compile Include="Permissions\Payment.BankClient.cs" />
     <Compile Include="Permissions\Payment.cs" />
     <Compile Include="Permissions\Order.PromotionalSet.cs" />
     <Compile Include="Permissions\Report.cs" />
+    <Compile Include="Permissions\Store.cs" />
+    <Compile Include="Permissions\Store.Documents.cs" />
     <Compile Include="Permissions\User.cs" />
     <Compile Include="Permissions\Report.Sales.cs" />
     <Compile Include="Services\EmailService.cs" />
