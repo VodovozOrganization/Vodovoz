@@ -5,6 +5,6 @@ namespace Mango.Core.Handlers
 {
 	public interface ICallEventHandler
 	{
-		Task HandleAsync(CallEvent callEvent);
+		Task HandleAsync(MangoCallEvent callEvent);
 	}
 }

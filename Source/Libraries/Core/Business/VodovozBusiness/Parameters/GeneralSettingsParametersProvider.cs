@@ -17,6 +17,8 @@ namespace Vodovoz.Parameters
 		private const string _isClientsSecondOrderDiscountActive = "is_client_second_order_discount_active";
 		private const string _isOrderWaitUntilActive = "is_order_wait_until_active";
 		private const string _warehousesForPricesAndStocksIntegrationName = "warehouses_for_prices_and_stocks_integration_name";
+		private const string _billAdditionalInfo = "bill_additional_info";
+		private const string _carLoadDocumentInfoString = "car_load_document_info_string";
 
 		public GeneralSettingsParametersProvider(IParametersProvider parametersProvider)
 		{
@@ -108,7 +110,17 @@ namespace Vodovoz.Parameters
 		{
 			return ParseIdsFromString(_warehousesForPricesAndStocksIntegrationName);
 		}
-		
+
+		public string GetBillAdditionalInfo => _parametersProvider.GetParameterValue(_billAdditionalInfo, true);
+
+		public void UpdateBillAdditionalInfo(string value) =>
+			_parametersProvider.CreateOrUpdateParameter(_billAdditionalInfo, value);
+
+		public string GetCarLoadDocumentInfoString => _parametersProvider.GetParameterValue(_carLoadDocumentInfoString, true);
+
+		public void UpdateCarLoadDocumentInfoString(string value) =>
+			_parametersProvider.CreateOrUpdateParameter(_carLoadDocumentInfoString, value);
+
 		private int[] ParseIdsFromString(string parameterName, bool allowEmpty = true)
 		{
 			var parameterValue = _parametersProvider.GetParameterValue(parameterName, allowEmpty);
