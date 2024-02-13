@@ -1858,7 +1858,7 @@ end      </CommandText>
     <DataSet Name="bottles_addresses_set">
       <Query>
         <DataSourceName>DS1</DataSourceName>
-        <Timeout>120</Timeout>
+        <Timeout>180</Timeout>
         <CommandText>SELECT
 (
         if(CAST(SUM(T.bottles_monday) as SIGNED) is null,0,CAST(SUM(T.bottles_monday) as SIGNED)) +
@@ -2024,7 +2024,7 @@ FROM
     <DataSet Name="bottles_addresses_set_2">
       <Query>
         <DataSourceName>DS1</DataSourceName>
-        <Timeout>120</Timeout>
+        <Timeout>180</Timeout>
         <CommandText>SELECT
     (
         if(CAST(SUM(T.bottles_monday) as SIGNED) is null,0,CAST(SUM(T.bottles_monday) as SIGNED)) +
