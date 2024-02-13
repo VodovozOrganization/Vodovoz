@@ -1021,22 +1021,6 @@ FROM
             )
         FROM guilty_in_undelivered_orders giuo 
         WHERE un.id = giuo.undelivery_id) as guilty,
-		/*GROUP_CONCAT(
-            CASE g.guilty_side
-            WHEN 'Client' THEN 'Клиент'
-            WHEN 'Driver' THEN 'Водитель'
-            WHEN 'Department' THEN IF(dep.name IS NULL, 'Отдел ВВ', dep.name)
-            WHEN 'ServiceMan' THEN 'Мастер СЦ'
-            WHEN 'ForceMajor' THEN 'Форс-мажор'
-            WHEN 'DirectorLO' THEN 'Доставка за час'
-            WHEN 'DirectorLOCurrentDayDelivery' THEN 'Доставка в тот же день'
-            WHEN 'AutoСancelAutoTransfer' then 'Автоотмена автопереноса'
-            WHEN 'None' THEN 'Нет (не недовоз)'
-            WHEN 'Unknown' THEN 'Неизвестно'
-            ELSE g.guilty_side
-            END
-            SEPARATOR ';\n'
-            ) AS guilty,*/
 		CASE
 			un.status
             WHEN 'InProcess' THEN 'В работе'
