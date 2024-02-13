@@ -23,7 +23,6 @@ using Vodovoz.Controllers;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
@@ -31,6 +30,7 @@ using Vodovoz.Domain.Profitability;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Errors;
 using Vodovoz.Extensions;
 using Vodovoz.Models;
@@ -61,7 +61,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IDeliveryShiftRepository _deliveryShiftRepository;
 		private readonly IAdditionalLoadingModel _additionalLoadingModel;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
-
+		private readonly IOrderRepository _orderRepository;
 		private bool _canClose = true;
 		private Employee _oldDriver;
 		private DateTime _previousSelectedDate;
@@ -86,7 +86,8 @@ namespace Vodovoz.ViewModels.Logistic
 			IGenericRepository<RouteListSpecialConditionType> routeListSpecialConditionTypeRepository,
 			IDeliveryShiftRepository deliveryShiftRepository,
 			IAdditionalLoadingModel additionalLoadingModel,
-			IRouteListProfitabilityController routeListProfitabilityController)
+			IRouteListProfitabilityController routeListProfitabilityController,
+			IOrderRepository orderRepository)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -103,6 +104,7 @@ namespace Vodovoz.ViewModels.Logistic
 			_deliveryShiftRepository = deliveryShiftRepository ?? throw new ArgumentNullException(nameof(deliveryShiftRepository));
 			_additionalLoadingModel = additionalLoadingModel ?? throw new ArgumentNullException(nameof(additionalLoadingModel));
 			_routeListProfitabilityController = routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 
 			if(uowBuilder.IsNewEntity)
 			{
@@ -612,7 +614,7 @@ namespace Vodovoz.ViewModels.Logistic
 				return;
 			}
 
-			var beforeAcceptValidation = _routeListService.ValidateForAccept(Entity);
+			var beforeAcceptValidation = _routeListService.ValidateForAccept(Entity, _orderRepository);
 
 			bool skipOverfillValidation = false;
 
@@ -678,6 +680,7 @@ namespace Vodovoz.ViewModels.Logistic
 						Entity,
 						DisableItemsUpdateDelegate,
 						_validator,
+						_orderRepository,
 						skipOverfillValidation,
 						confirmRecalculateRoute,
 						confirmSendOnClosing,

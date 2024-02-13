@@ -22,8 +22,11 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.Delivery;
+using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.Models;
 using Vodovoz.Services;
 using Vodovoz.SidePanel;
@@ -58,7 +61,10 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 		private readonly RoboatsJournalsFactory _roboatsJournalsFactory;
 		private readonly PanelViewType[] _infoWidgets = new[] { PanelViewType.DeliveryPricePanelView };
 		private readonly ICoordinatesParser _coordinatesParser;
+		private readonly IDeliveryRepository _deliveryRepository;
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+		private string _districtOnMap;
+		private bool _showDistrictBorders;
 
 		public DeliveryPointViewModel(
 			IUserRepository userRepository,
@@ -78,6 +84,8 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			RoboatsJournalsFactory roboatsJournalsFactory,
 			ILifetimeScope lifetimeScope,
 			ICoordinatesParser coordinatesParser,
+			IScheduleRestrictionRepository scheduleRestrictionRepository,
+			IDeliveryRepository deliveryRepository,
 			Domain.Client.Counterparty client = null)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
@@ -112,7 +120,8 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 
 			_roboatsJournalsFactory = roboatsJournalsFactory ?? throw new ArgumentNullException(nameof(roboatsJournalsFactory));
 			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
-			_coordinatesParser = coordinatesParser ?? throw new ArgumentNullException(nameof(coordinatesParser));;
+			_coordinatesParser = coordinatesParser ?? throw new ArgumentNullException(nameof(coordinatesParser));
+			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));			
 			_deliveryPointRepository = deliveryPointRepository ?? throw new ArgumentNullException(nameof(deliveryPointRepository));
 
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
@@ -157,7 +166,8 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			{
 				switch(e.PropertyName)
 				{ // от этого события зависит панель цен доставки, которые в свою очередь зависят от района и, возможно, фиксов
-					case nameof(Entity.District):
+					case nameof(Entity.Latitude):
+					case nameof(Entity.Longitude):
 						CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity));
 						break;
 				}
@@ -173,6 +183,8 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			OpenCounterpartyCommand = new DelegateCommand(
 				OpenCounterparty,
 				() => Entity.Counterparty != null);
+
+			AllActiveDistrictsWithBorders = scheduleRestrictionRepository.GetDistrictsWithBorder(UoW);
 		}
 
 		#region Свойства
@@ -251,6 +263,11 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			CurrentPage = 1;
 		}
 
+		public District GetAccurateDistrict() =>
+			Entity.CoordinatesExist
+				? _deliveryRepository.GetAccurateDistrict(UoW, Entity.Latitude.Value, Entity.Longitude.Value)
+				: null;
+
 		public override bool Save(bool close)
 		{
 			try
@@ -290,6 +307,19 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 				{
 					var createDeliveryPoint = AskQuestion($"Уточните с клиентом: по данному адресу находится юр.лицо. Вы уверены, что хотите сохранить этот адрес для физ.лица?");
 					if(!createDeliveryPoint)
+					{
+						return false;
+					}
+				}
+
+				if(Entity.CoordinatesExist)
+				{
+					var accurateDistrict = _deliveryRepository.GetAccurateDistrict(UoW, Entity.Latitude.Value, Entity.Longitude.Value);
+
+					if(accurateDistrict == null
+						&& !CommonServices.InteractiveService.Question(
+							"Точный район доставки по координатам не определён. Сохранить ТД без точного района?",
+							"Проверьте координаты!"))
 					{
 						return false;
 					}
@@ -373,6 +403,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			}
 		}
 
+		public IList<District> AllActiveDistrictsWithBorders { get; }
 		public string CityBeforeChange { get; set; }
 		public string StreetBeforeChange { get; set; }
 		public string BuildingBeforeChange { get; set; }
@@ -480,8 +511,19 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			};
 		}
 
+
 		public bool IsDisposed { get; private set; }
-		
+		public string DistrictOnMapText 
+		{
+			get => _districtOnMap; 
+			set => SetField(ref _districtOnMap, value); 
+		}
+		public bool ShowDistrictBorders 
+		{ 
+			get => _showDistrictBorders; 
+			set => SetField(ref _showDistrictBorders, value);
+		}
+
 		public override void Dispose()
 		{
 			IsDisposed = true;

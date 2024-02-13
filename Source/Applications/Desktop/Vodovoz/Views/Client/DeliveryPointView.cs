@@ -1,4 +1,5 @@
-﻿using Gamma.Widgets;
+using Gamma.GtkWidgets;
+using Gamma.Widgets;
 using GMap.NET;
 using GMap.NET.GtkSharp;
 using GMap.NET.GtkSharp.Markers;
@@ -9,9 +10,11 @@ using QS.Navigation;
 using QS.Views.GtkUI;
 using System;
 using System.ComponentModel;
+using System.Drawing;
 using System.Threading.Tasks;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Sale;
 using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Dialogs.Counterparty;
@@ -25,10 +28,14 @@ namespace Vodovoz.Views.Client
 
 		private bool _addressIsMoving;
 		private VBox _vboxMap;
+		private HBox _hboxMap;
 		private yEnumComboBox _comboMapType;
+		private yLabel _districtOnMapLabel;
+		private yCheckButton _showDistrictsBordersCheck;
 		private GMapControl _mapWidget;
-		private GMapMarker _addressMarker;
+		private GMapMarker _addressMarker;		
 		private readonly GMapOverlay _addressOverlay = new GMapOverlay();
+		private readonly GMapOverlay _districtsBordersOverlay = new GMapOverlay("district_borders");
 		private readonly Clipboard _clipboard = Clipboard.Get(Gdk.Atom.Intern("CLIPBOARD", false));
 
 		public DeliveryPointView(DeliveryPointViewModel viewModel) : base(viewModel)
@@ -291,13 +298,22 @@ namespace Vodovoz.Views.Client
 				HasFrame = true
 			};
 
-			_mapWidget.Overlays.Add(_addressOverlay);
+			_districtsBordersOverlay.IsVisibile = false;
+			_mapWidget.Overlays.Add(_districtsBordersOverlay);
+			_mapWidget.Overlays.Add(_addressOverlay);			
 			_mapWidget.ButtonPressEvent += MapWidgetOnButtonPressEvent;
 			_mapWidget.ButtonReleaseEvent += MapWidgetOnButtonReleaseEvent;
 			_mapWidget.MotionNotifyEvent += MapWidgetOnMotionNotifyEvent;
+
+			_mapWidget.OnPolygonEnter += OnMapWidgetPolygonEnter;
+			_mapWidget.OnPolygonLeave += OnMapWidgetPolygonLeave;
 			_mapWidget.Sensitive = ViewModel.CanEdit;
 
 			_vboxMap = new VBox();
+			_hboxMap = new HBox();
+	
+			_vboxMap.Add(_hboxMap);
+
 			_comboMapType = new yEnumComboBox();
 			_comboMapType.ItemsEnum = typeof(MapProviders);
 			_comboMapType.SelectedItem = MapProviders.GoogleMap;
@@ -305,11 +321,31 @@ namespace Vodovoz.Views.Client
 			_comboMapType.EnumItemSelected += (sender, args) =>
 			{
 				_mapWidget.MapProvider = MapProvidersHelper.GetPovider((MapProviders)args.SelectedItem);
+				RefreshDistrictsBorders();
 			};
 
-			_vboxMap.Add(_comboMapType);
-			_vboxMap.SetChildPacking(_comboMapType, false, false, 0, PackType.Start);
+			_hboxMap.Add(_comboMapType);
+			_hboxMap.SetChildPacking(_comboMapType, false, false, 0, PackType.Start);
+
+			_showDistrictsBordersCheck = new yCheckButton();
+			_showDistrictsBordersCheck.Label = "Показывать логистические районы";
+			_showDistrictsBordersCheck.Binding
+				.AddBinding(ViewModel, vm => vm.ShowDistrictBorders, w => w.Active)
+				.InitializeFromSource();
+			_showDistrictsBordersCheck.Toggled += OnShowDistrictsBordersToggled;
+
+			_hboxMap.Add(_showDistrictsBordersCheck);
+			_vboxMap.SetChildPacking(_hboxMap, false, false, 0, PackType.Start);	
 			_vboxMap.Add(_mapWidget);
+
+			_districtOnMapLabel = new yLabel();
+			_districtOnMapLabel.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.DistrictOnMapText, w => w.Text)
+				.AddBinding(vm => vm.ShowDistrictBorders, w => w.Visible)
+				.InitializeFromSource();
+			_vboxMap.Add(_districtOnMapLabel);
+			_vboxMap.SetChildPacking(_districtOnMapLabel, false, false, 0, PackType.Start);
+
 			_vboxMap.ShowAll();
 
 			sidePanelMap.Panel = _vboxMap;
@@ -343,6 +379,61 @@ namespace Vodovoz.Views.Client
 			}
 
 			logisticsRequirementsView.ViewModel = ViewModel.LogisticsRequirementsViewModel;
+
+			RefreshDistrictsBorders();
+		}
+
+		private void RefreshDistrictsBorders()
+		{
+			_districtsBordersOverlay.Clear();
+			District acurateDistrict = null;
+
+			if(ViewModel.Entity.Latitude.HasValue && ViewModel.Entity.Longitude.HasValue)
+			{
+				acurateDistrict = ViewModel.GetAccurateDistrict();
+			}
+
+			foreach(var district in ViewModel.AllActiveDistrictsWithBorders)
+			{
+				if(district.DistrictBorder != null)
+				{
+					Color color;
+					int alpha;
+					Pen pen;
+					int borderWidth;
+
+					if(district == acurateDistrict)
+					{
+						color = Color.Red;
+						alpha = 50;
+						borderWidth = 2;
+					}
+					else
+					{
+						color = Color.Blue;
+						alpha = 30;
+						borderWidth = 1;
+					}
+
+					pen = new Pen(color, borderWidth);
+
+					var coordinates = district.DistrictBorder.Coordinates.ToPointLatLng();
+
+					var polygon = new GMapPolygon(coordinates, district.DistrictName)
+					{
+						Fill = new SolidBrush(Color.FromArgb(alpha, color)),
+						Stroke = pen,
+						IsHitTestVisible = true
+					};
+
+					_districtsBordersOverlay.Polygons.Add(polygon);
+				}
+			}
+		}
+
+		private void OnShowDistrictsBordersToggled(object sender, EventArgs e)
+		{
+			_districtsBordersOverlay.IsVisibile = ViewModel.ShowDistrictBorders;
 		}
 
 		private void ViewModelOnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -353,6 +444,7 @@ namespace Vodovoz.Views.Client
 				case nameof(ViewModel.Entity.Longitude):
 					UpdateMapPosition();
 					UpdateAddressOnMap();
+					RefreshDistrictsBorders();
 					break;
 				case nameof(ViewModel.Entity.Counterparty) when ViewModel.Entity?.Counterparty != null:
 				{
@@ -421,18 +513,19 @@ namespace Vodovoz.Views.Client
 			{
 				_addressIsMoving = false;
 				var newPoint = _mapWidget.FromLocalToLatLng((int) args.Event.X, (int) args.Event.Y);
-				if(!ViewModel.DeliveryPoint.ManualCoordinates
-					&& ViewModel.DeliveryPoint.FoundOnOsm
-					&& !MessageDialogHelper.RunQuestionDialog(
-						"Координаты точки установлены по адресу. Вы уверены что хотите установить новые координаты?"))
+
+				string message = string.Empty;
+
+				if(!ViewModel.DeliveryPoint.ManualCoordinates && ViewModel.DeliveryPoint.FoundOnOsm)
 				{
-					UpdateAddressOnMap();
-					return;
+					message = "Координаты точки установлены по адресу. Вы уверены что хотите установить новые координаты?";
+				}
+				else if(!ViewModel.UoWGeneric.IsNew && ViewModel.Entity.CoordinatesExist)
+				{
+					message = "Координаты точки доставки уже были установлены. Вы уверены что хотите установить новые координаты?";
 				}
 
-				if(!ViewModel.UoWGeneric.IsNew
-					&& !MessageDialogHelper.RunQuestionDialog(
-						"Координаты точки доставки уже были установлены. Вы уверены что хотите установить новые координаты?"))
+				if(!string.IsNullOrEmpty(message) && !MessageDialogHelper.RunQuestionDialog(message))
 				{
 					UpdateAddressOnMap();
 					return;
@@ -462,6 +555,19 @@ namespace Vodovoz.Views.Client
 				_addressIsMoving = true;
 			}
 		}
+
+		private void OnMapWidgetPolygonLeave(GMapPolygon item)
+		{
+			if(ViewModel.DistrictOnMapText == item.Name)
+			{
+				ViewModel.DistrictOnMapText = string.Empty;
+			}
+		}
+
+		private void OnMapWidgetPolygonEnter(GMapPolygon item)
+		{
+			ViewModel.DistrictOnMapText = item.Name;
+		}		
 
 		#endregion
 
@@ -587,6 +693,19 @@ namespace Vodovoz.Views.Client
 
 				notebook1.CurrentPage = 1;
 			}
+		}
+
+		public override void Destroy()
+		{
+			_mapWidget.Destroy();
+			_showDistrictsBordersCheck.Toggled -= OnShowDistrictsBordersToggled;
+			_showDistrictsBordersCheck.Destroy();
+			_districtOnMapLabel.Destroy();
+			_comboMapType.Destroy();
+			_hboxMap.Destroy();
+			_vboxMap.Destroy();
+
+			base.Destroy();
 		}
 
 		#endregion
