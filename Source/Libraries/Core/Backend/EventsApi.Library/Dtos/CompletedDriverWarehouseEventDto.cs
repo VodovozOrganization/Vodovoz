@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Text.Json.Serialization;
+using EventsApi.Library.Converters;
 
 namespace EventsApi.Library.Dtos
 {
@@ -12,8 +14,9 @@ namespace EventsApi.Library.Dtos
 		/// </summary>
 		public string EventName { get; set; }
 		/// <summary>
-		/// Время в Utc формате
+		/// Время события
 		/// </summary>
+		[JsonConverter(typeof(DateTimeJsonConverter))]
 		public DateTime CompletedDate { get; set; }
 		/// <summary>
 		/// Фамилия и инициалы сотрудника, завершившего событие

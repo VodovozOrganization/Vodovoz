@@ -14,6 +14,5 @@ namespace Vodovoz.Settings.Database.Employee
 		
 		public int MaxDistanceMetersFromScanningLocation =>
 			_settingsController.GetValue<int>("Events.MaxDistanceMetersFromScanningLocation");
-		public string VodovozSiteForQr => _settingsController.GetValue<string>("Events.VodovozSiteForQr");
 	}
 }

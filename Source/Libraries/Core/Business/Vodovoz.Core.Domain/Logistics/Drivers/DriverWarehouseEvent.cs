@@ -18,12 +18,15 @@ namespace Vodovoz.Core.Domain.Logistics.Drivers
 	public class DriverWarehouseEvent : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public static char QrParametersSeparator = ';';
+		public static char UriQrParametersSeparator = '?';
 		public static string QrType = "EventQr";
 		public const int EventNameMaxLength = 150;
 		private decimal? _latitude;
 		private decimal? _longitude;
+		private const int _uriMaxLength = 150;
 		private bool _isArchive;
 		private string _eventName;
+		private string _uriForQr;
 		private DriverWarehouseEventType _type;
 		private EventQrDocumentType? _documentType;
 		private EventQrPositionOnDocument? _qrPositionOnDocument;
@@ -78,6 +81,13 @@ namespace Vodovoz.Core.Domain.Logistics.Drivers
 			get => _qrPositionOnDocument;
 			set => SetField(ref _qrPositionOnDocument, value);
 		}
+		
+		[Display(Name = "Ссылка для Qr кода")]
+		public virtual string UriForQr
+		{
+			get => _uriForQr;
+			set => SetField(ref _uriForQr, value);
+		}
 
 		public virtual void WriteCoordinates(decimal? latitude, decimal? longitude)
 		{
@@ -100,11 +110,12 @@ namespace Vodovoz.Core.Domain.Logistics.Drivers
 			}
 		}
 
-		public virtual string GenerateQrData(string vodovozSite = null, int? documentId = null)
+		public virtual string GenerateQrData(int? documentId = null)
 		{
 			var sb = new StringBuilder();
 			
-			sb.Append(vodovozSite);
+			sb.Append(UriForQr);
+			sb.Append(UriQrParametersSeparator);
 			sb.Append(QrType);
 			sb.Append(QrParametersSeparator);
 			sb.Append($"{Id}");
@@ -137,8 +148,12 @@ namespace Vodovoz.Core.Domain.Logistics.Drivers
 			}
 			else if(EventName.Length > EventNameMaxLength)
 			{
-				yield return new ValidationResult(
-					$"Длина названия события превышена на {EventNameMaxLength - EventName.Length}");
+				yield return new ValidationResult($"Длина названия события превышена на {EventNameMaxLength - EventName.Length}");
+			}
+
+			if(!string.IsNullOrWhiteSpace(UriForQr) && UriForQr.Length > _uriMaxLength)
+			{
+				yield return new ValidationResult($"Длина ссылки для QR превышена на {_uriMaxLength - UriForQr.Length}");
 			}
 
 			if(Type == DriverWarehouseEventType.OnLocation && (Latitude is null || Longitude is null))

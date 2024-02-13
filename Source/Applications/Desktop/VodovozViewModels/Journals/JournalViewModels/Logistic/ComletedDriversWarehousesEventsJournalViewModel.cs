@@ -255,7 +255,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 							query.OrderBy(() => eventAlias.EventName).Asc();
 							break;
 						case GroupingType.DriverWarehouseEventDate:
-							if(_filterViewModel.OrderByDriverWarehouseEventDateDesc)
+							if(_filterViewModel.OrderByEventDateDesc)
 							{
 								query.OrderBy(ce => ce.Id).Desc();
 							}
