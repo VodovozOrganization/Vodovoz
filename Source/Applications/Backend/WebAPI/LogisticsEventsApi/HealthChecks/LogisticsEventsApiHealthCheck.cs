@@ -1,11 +1,10 @@
-﻿using System;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
+using System;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 using Vodovoz.Core.Data.Dto_s;
 using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
@@ -46,16 +45,16 @@ namespace LogisticsEventsApi.HealthChecks
 			};
 
 			var tokenResponse = await ResponseHelper.PostJsonByUri<LoginRequestDto, TokenResponseDto>(
-				$"{baseAddress}/api/Authenticate",
+				$"{baseAddress}/Authenticate",
 				_httpClientFactory,
 				loginRequestDto);
 
-			var todayCompletedEventsResult = await ResponseHelper.GetJsonByUri<IStatusCodeActionResult>(
+			var todayCompletedEventsResult = await ResponseHelper.GetByUri(
 				$"{baseAddress}/api/GetTodayCompletedEvents",
 				_httpClientFactory,
 				tokenResponse.AccessToken);
 
-			var todayCompletedEventsIsHealthy = todayCompletedEventsResult.StatusCode == StatusCodes.Status200OK;
+			var todayCompletedEventsIsHealthy = ((HttpResponseMessage)todayCompletedEventsResult).StatusCode == HttpStatusCode.OK;
 
 			if(!todayCompletedEventsIsHealthy)
 			{
