@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -1760,7 +1760,7 @@ LightGreen
   </PageFooter>
   <DataSets>
     <DataSet Name="guiltiesSet">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>select
   CONCAT(
@@ -1794,7 +1794,7 @@ end      </CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="guiltyboys">
           <DataField>guiltyboys</DataField>
           <TypeName>System.String</TypeName>
@@ -1858,6 +1858,7 @@ end      </CommandText>
     <DataSet Name="bottles_addresses_set">
       <Query>
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>120</Timeout>
         <CommandText>SELECT
 (
         if(CAST(SUM(T.bottles_monday) as SIGNED) is null,0,CAST(SUM(T.bottles_monday) as SIGNED)) +
@@ -2023,6 +2024,7 @@ FROM
     <DataSet Name="bottles_addresses_set_2">
       <Query>
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>120</Timeout>
         <CommandText>SELECT
     (
         if(CAST(SUM(T.bottles_monday) as SIGNED) is null,0,CAST(SUM(T.bottles_monday) as SIGNED)) +
