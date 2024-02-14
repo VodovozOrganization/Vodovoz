@@ -255,6 +255,7 @@ namespace DriverAPI
 
 		private void RegisterDependencies(ref IServiceCollection services)
 		{
+			services.AddScoped<IUnitOfWork>((sp) => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot());
 			// Сервисы для контроллеров
 
 			// ErrorReporter
