@@ -1,22 +1,15 @@
 ﻿using Autofac;
 using CashReceiptApi.Authentication;
-using CashReceiptApi.HealthChecks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using MySqlConnector;
 using NLog.Web;
-using QS.Attachments.Domain;
-using QS.Banks.Domain;
 using QS.Project.Core;
-using QS.Project.DB;
-using QS.Project.Domain;
 using System.Configuration;
-using System.Reflection;
-using Vodovoz.Data.NHibernate.NhibernateExtensions;
+using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Models.CashReceipts;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Parameters;
@@ -24,7 +17,6 @@ using Vodovoz.Services;
 using Vodovoz.Settings.Database;
 using Vodovoz.Tools;
 using VodovozHealthCheck;
-using Vodovoz.Core.Data.NHibernate;
 
 namespace CashReceiptApi
 {
@@ -66,8 +58,6 @@ namespace CashReceiptApi
 			services.AddAuthentication(ApiKeyAuthenticationOptions.DefaultScheme);
 			services.AddGrpc().Services.AddAuthorization();
 			services.AddMvc().AddControllersAsServices();
-
-			services.ConfigureHealthCheckService<CashReceiptApiHealthCheck>(true);
 		}
 
 		public void ConfigureContainer(ContainerBuilder builder)

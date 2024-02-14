@@ -1,5 +1,6 @@
 ﻿using EventsApi.Library;
 using LogisticsEventsApi.Data;
+using LogisticsEventsApi.HealthChecks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
