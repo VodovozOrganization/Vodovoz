@@ -5,6 +5,7 @@ using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -1055,7 +1056,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 		public bool RouteListWasChanged(RouteList routeList)
 		{
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot()) {
 				var actualRouteList = uow.GetById<RouteList>(routeList.Id);
 				return actualRouteList.Version != routeList.Version;
 			}
@@ -1271,7 +1272,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 		public bool HasRouteList(int driverId, DateTime date, int deliveryShiftId)
 		{
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
 			{
 				RouteList routeListAlias = null;
 

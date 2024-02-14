@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using GMap.NET.MapProviders;
 using Gtk;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
 using QS.BaseParameters;
@@ -10,6 +11,7 @@ using QS.Dialog;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.ErrorReporting;
+using QS.Project.DB;
 using QS.Project.DB.Passwords;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Repositories;
@@ -30,6 +32,7 @@ using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.Security.Principal;
+using System.Text.Json;
 using Vodovoz.Configuration;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Employees;
@@ -50,6 +53,7 @@ namespace Vodovoz
 	{
 		private readonly ILogger<Startup> _logger;
 		private readonly IApplicationInfo _applicationInfo;
+		private readonly IConfiguration _configuration;
 		private static IErrorReportingSettings _errorReportingSettings;
 		private static IPasswordValidator passwordValidator;
 
@@ -59,11 +63,13 @@ namespace Vodovoz
 			ILogger<Startup> logger,
 			ILifetimeScope lifetimeScope,
 			IApplicationInfo applicationInfo,
+			IConfiguration configuration,
 			IErrorReportingSettings errorReportingSettings)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			AppDIContainer = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_applicationInfo = applicationInfo ?? throw new ArgumentNullException(nameof(applicationInfo));
+			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 			_errorReportingSettings = errorReportingSettings ?? throw new ArgumentNullException(nameof(errorReportingSettings));
 		}
 
@@ -72,6 +78,12 @@ namespace Vodovoz
 			CultureInfo.CurrentCulture = CultureInfo.CreateSpecificCulture("ru-RU");
 			Gtk.Application.Init();
 			QSMain.GuiThread = System.Threading.Thread.CurrentThread;
+
+			ScopeProvider.Scope = AppDIContainer;
+
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			validator.ServiceProvider = AppDIContainer.Resolve<IServiceProvider>();
+			ServicesConfig.ValidationService = validator;
 
 			#region Первоначальная настройка обработки ошибок
 			ErrorReporter.Instance.AutomaticallySendEnabled = false;
@@ -86,7 +98,6 @@ namespace Vodovoz
 			//FIXME Удалить после того как будет удалена зависимость от библиотеки QSProjectLib
 			QSMain.ProjectPermission = new System.Collections.Generic.Dictionary<string, UserPermission>();
 
-			CreateProjectParam();
 			ConfigureViewModelWidgetResolver();
 			ConfigureJournalColumnsConfigs();
 
@@ -108,16 +119,18 @@ namespace Vodovoz
 			if(LoginResult == ResponseType.DeleteEvent || LoginResult == ResponseType.Cancel)
 				return;
 
-			DataBaseInfo = new Vodovoz.Infrastructure.Database.DatabaseInfo(LoginDialog.BaseName, false);
-
 			LoginDialog.Destroy();
 
 			PerformanceHelper.StartMeasurement("Замер запуска приложения");
 			GetPermissionsSettings();
 			//Настройка базы
 			var applicationConfigurator = new ApplicationConfigurator();
-			applicationConfigurator.ConfigureOrm();
+			//applicationConfigurator.ConfigureOrm();
 			applicationConfigurator.CreateApplicationConfig();
+			OrmConfig.Config = AppDIContainer.Resolve<IOrmConfig>();
+			ServicesConfig.UnitOfWorkFactory = AppDIContainer.Resolve<IUnitOfWorkFactory>();
+
+			CreateProjectParam();
 
 			PerformanceHelper.AddTimePoint("Закончена настройка базы");
 			VodovozGtkServicesConfig.CreateVodovozDefaultServices();
@@ -133,7 +146,7 @@ namespace Vodovoz
 			ErrorReporter.Instance.AutomaticallySendEnabled = canAutomaticallyErrorSend;
 			ErrorReporter.Instance.SendedLogRowCount = baseParameters.GetRowCountForErrorLog();
 
-			var errorMessageModelFactoryWithUserService = new DefaultErrorMessageModelFactory(ErrorReporter.Instance, ServicesConfig.UserService, UnitOfWorkFactory.GetDefaultFactory);
+			var errorMessageModelFactoryWithUserService = new DefaultErrorMessageModelFactory(ErrorReporter.Instance, ServicesConfig.UserService, ServicesConfig.UnitOfWorkFactory);
 			exceptionHandler.InteractiveService = ServicesConfig.InteractiveService;
 			exceptionHandler.ErrorMessageModelFactory = errorMessageModelFactoryWithUserService;
 			//Настройка обычных обработчиков ошибок.
@@ -149,7 +162,7 @@ namespace Vodovoz
 			#endregion
 
 			passwordValidator = new PasswordValidator(
-				new PasswordValidationSettingsFactory(UnitOfWorkFactory.GetDefaultFactory).GetPasswordValidationSettings()
+				new PasswordValidationSettingsFactory(ServicesConfig.UnitOfWorkFactory).GetPasswordValidationSettings()
 			);
 
 			//Настройка карты
@@ -258,7 +271,7 @@ namespace Vodovoz
 			int currentUserId;
 			IChangePasswordModel changePasswordModel;
 
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
 			{
 				var userRepository = new UserRepository();
 				var currentUser = userRepository.GetCurrentUser(uow);
@@ -295,7 +308,7 @@ namespace Vodovoz
 
 			if(result == ResponseType.Ok && changePasswordModel.PasswordWasChanged)
 			{
-				using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+				using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
 				{
 					var user = uow.GetById<User>(currentUserId);
 					user.NeedPasswordChange = false;
@@ -340,7 +353,7 @@ namespace Vodovoz
 
 		private static bool CanLogin()
 		{
-			using(var uow = UnitOfWorkFactory.GetDefaultFactory.CreateWithoutRoot())
+			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
 			{
 				var dBLogin = ServicesConfig.CommonServices.UserService.GetCurrentUser().Login;
 

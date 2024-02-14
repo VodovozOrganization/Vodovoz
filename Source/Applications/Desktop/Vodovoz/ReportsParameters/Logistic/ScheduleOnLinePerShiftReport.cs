@@ -4,6 +4,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Logistic.Cars;
@@ -21,7 +22,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		private void ConfigureDlg()
 		{
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			geographicGroup.UoW = UoW;
 			geographicGroup.Label = "Часть города:";
 			geographicGroup.Items = new GenericObservableList<GeoGroup>(UoW.GetAll<GeoGroup>().ToList());

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
+using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
@@ -124,6 +125,7 @@ namespace Vodovoz.Core.Domain.Logistics.Drivers
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
+			var uowFactory = validationContext.GetRequiredService<IUnitOfWorkFactory>();
 			if(!(validationContext.GetService(
 					typeof(IDriverWarehouseEventRepository)) is IDriverWarehouseEventRepository driverWarehouseEventRepository))
 			{
@@ -161,7 +163,7 @@ namespace Vodovoz.Core.Domain.Logistics.Drivers
 					&& QrPositionOnDocument.HasValue
 					&& !IsArchive)
 				{
-					using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+					using(var uow = uowFactory.CreateWithoutRoot())
 					{
 						var hasEvents = driverWarehouseEventRepository.HasOtherActiveDriverWarehouseEventsForDocumentAndQrPosition(
 							uow, Id, DocumentType.Value, QrPositionOnDocument.Value);

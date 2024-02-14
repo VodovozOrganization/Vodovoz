@@ -15,6 +15,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Subdivisions
 			Map(x => x.SubdivisionType).Column("type");
 			Map(x => x.Address).Column("address");
 			Map(x => x.IsArchive).Column("is_archive");
+			Map(x => x.PacsTimeManagementEnabled).Column("pacs_time_management_enabled");
 
 			References(x => x.Chief).Column("chief_id");
 			References(x => x.ParentSubdivision).Column("parent_subdivision_id");

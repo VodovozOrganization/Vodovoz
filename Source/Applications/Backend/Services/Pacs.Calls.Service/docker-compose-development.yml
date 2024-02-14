@@ -1,0 +1,18 @@
+﻿# stack name: mango_develop
+
+version: "3.8"
+
+services:
+
+  service:
+    image: docker.vod.qsolution.ru:5100/pacs.admin.service:develop
+    ports:
+      - 7984:5000
+    volumes:
+      - /etc/vodovoz/pacs.admin.service/development/appsettings.Development.json:/app/appsettings.Development.json
+      - /var/log/vodovoz/pacs.admin.service/development/:/var/log/pacs.admin.service
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:5000
+    restart: unless-stopped

@@ -5,6 +5,7 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Project.Services;
 using QS.Tdi;
 using QSOrmProject;
 using QSProjectsLib;
@@ -43,7 +44,7 @@ namespace Vodovoz
 
 			List<CullingCategory> types;
 			List<RegradingOfGoodsReason> regradingReasons;
-			using(IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+			using(IUnitOfWork uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot()) {
 				types = uow.GetAll<CullingCategory>().OrderBy(c => c.Name).ToList();
 				regradingReasons = uow.GetAll<RegradingOfGoodsReason>().OrderBy(c => c.Name).ToList();
 			}

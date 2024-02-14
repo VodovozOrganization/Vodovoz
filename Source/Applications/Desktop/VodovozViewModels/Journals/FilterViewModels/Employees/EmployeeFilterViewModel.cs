@@ -4,6 +4,7 @@ using QS.Project.Services;
 using QS.ViewModels.Control.EEVM;
 using System;
 using System.Collections.Generic;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.WageCalculation;
@@ -273,7 +274,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
 					{
 						Category = EmployeeCategory.driver;
 						Status = EmployeeStatus.IsWorking;
-						DriverTerminalRelation = Domain.Employees.DriverTerminalRelation.WithoutTerminal;
+						DriverTerminalRelation = Vodovoz.Core.Domain.Employees.DriverTerminalRelation.WithoutTerminal;
 					}
 					else
 					{

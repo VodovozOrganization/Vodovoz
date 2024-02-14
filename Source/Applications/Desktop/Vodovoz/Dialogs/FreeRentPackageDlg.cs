@@ -21,7 +21,7 @@ namespace Vodovoz
 		public FreeRentPackageDlg()
 		{
 			Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<FreeRentPackage>();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<FreeRentPackage>();
 			TabName = "Новый пакет бесплатной аренды";
 			ConfigureDlg();
 		}
@@ -29,7 +29,7 @@ namespace Vodovoz
 		public FreeRentPackageDlg(int id)
 		{
 			Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<FreeRentPackage>(id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<FreeRentPackage>(id);
 			ConfigureDlg();
 		}
 

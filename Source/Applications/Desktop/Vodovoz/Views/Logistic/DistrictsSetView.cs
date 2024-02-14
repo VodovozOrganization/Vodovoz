@@ -207,15 +207,15 @@ namespace Vodovoz.Views.Logistic
 					x => x.Name,
 					() => new AcceptBeforeViewModel(
 						EntityUoWBuilder.ForCreate(),
-						UnitOfWorkFactory.GetDefaultFactory,
+						ViewModel.UoWFactory,
 						ServicesConfig.CommonServices
 					),
 					node => new AcceptBeforeViewModel(
 						EntityUoWBuilder.ForOpen(node.Id),
-						UnitOfWorkFactory.GetDefaultFactory,
+						ViewModel.UoWFactory,
 						ServicesConfig.CommonServices
 					),
-					UnitOfWorkFactory.GetDefaultFactory,
+					ViewModel.UoWFactory,
 					ServicesConfig.CommonServices
 				);
 				acceptBeforeTimeViewModel.SelectionMode = JournalSelectionMode.Single;
