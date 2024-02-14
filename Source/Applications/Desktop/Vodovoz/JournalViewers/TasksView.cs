@@ -16,6 +16,7 @@ using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using QS.Dialog.GtkUI.FileDialog;
 using QS.Extensions;
+using QS.Project.Services;
 
 namespace Vodovoz.JournalViewers
 {
@@ -37,7 +38,7 @@ namespace Vodovoz.JournalViewers
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_deliveryPointRepository = deliveryPointRepository ?? throw new ArgumentNullException(nameof(deliveryPointRepository));
 
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			TabName = "Журнал задач для обзвона";
 			ConfigureDlg();
 		}

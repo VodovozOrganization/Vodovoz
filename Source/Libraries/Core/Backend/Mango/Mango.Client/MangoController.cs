@@ -16,11 +16,7 @@ using xNetStandard;
 
 namespace Mango.Client
 {
-	public enum ForwardingMethod
-	{
-		hold,
-		blind
-	}
+	
 
 	/// <summary>
 	/// Класс , позволяющий отправлять коаманды в Mango

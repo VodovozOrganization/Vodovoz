@@ -1,4 +1,6 @@
-﻿using Gamma.Utilities;
+using System;
+using System.Linq;
+using Gamma.Utilities;
 using Gtk;
 using NLog;
 using QS.Dialog.Gtk;
@@ -150,7 +152,7 @@ namespace Vodovoz
 							DialogHelper.GenerateDialogHashName<DriverAttachedTerminalGiveoutDocument>(id),
 							() => new DriverAttachedTerminalViewModel(
 								EntityUoWBuilder.ForOpen(id),
-								UnitOfWorkFactory.GetDefaultFactory,
+								ServicesConfig.UnitOfWorkFactory,
 								ServicesConfig.CommonServices
 							),
 							this
@@ -161,7 +163,7 @@ namespace Vodovoz
 							DialogHelper.GenerateDialogHashName<DriverAttachedTerminalReturnDocument>(id),
 							() => new DriverAttachedTerminalViewModel(
 								EntityUoWBuilder.ForOpen(id),
-								UnitOfWorkFactory.GetDefaultFactory,
+								ServicesConfig.UnitOfWorkFactory,
 								ServicesConfig.CommonServices
 							),
 							this

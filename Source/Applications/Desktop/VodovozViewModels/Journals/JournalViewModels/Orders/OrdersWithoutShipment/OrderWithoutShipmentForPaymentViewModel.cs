@@ -1,4 +1,5 @@
-﻿using Autofac;
+using Gamma.Utilities;
+using Autofac;
 using EdoService.Library;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
@@ -107,7 +108,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			var settingsController = new SettingsController(UnitOfWorkFactory, new Logger<SettingsController>(loggerFactory));
 			SendDocViewModel =
 				new SendDocumentByEmailViewModel(
-					new EmailRepository(),
+					uowFactory,
+					new EmailRepository(uowFactory),
 					new EmailParametersProvider(settingsController),
 					currentEmployee,
 					commonServices.InteractiveService,

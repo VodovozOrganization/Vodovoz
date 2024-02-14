@@ -10,10 +10,17 @@ namespace Vodovoz.EntityRepositories.StoredResourceRepository
 {
 	public class StoredResourceRepository : IStoredResourceRepository
 	{
+		private readonly IUnitOfWorkFactory _uowFactory;
+
+		public StoredResourceRepository(IUnitOfWorkFactory uowFactory)
+		{
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+		}
+
 		public IList<StoredResource> GetAllSignatures()
 		{
 			IList<StoredResource> result;
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"Получение подписей"))
+			using(var uow = _uowFactory.CreateWithoutRoot($"Получение подписей"))
 			{
 				result = uow.Session.QueryOver<StoredResource>()
 				   .Where(sr => sr.ImageType == ImageType.Signature)

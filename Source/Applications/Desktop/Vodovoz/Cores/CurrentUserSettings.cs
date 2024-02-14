@@ -1,5 +1,6 @@
 ﻿using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QSOrmProject;
 using System;
 using System.Linq;
@@ -51,7 +52,7 @@ namespace Vodovoz
 			get
 			{
 				if(uow == null || !uow.IsAlive)
-					uow = UnitOfWorkFactory.CreateWithoutRoot();
+					uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 				return uow;
 			}
 		}

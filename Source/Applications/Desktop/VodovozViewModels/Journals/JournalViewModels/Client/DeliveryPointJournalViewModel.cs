@@ -11,7 +11,7 @@ using System;
 using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.ViewModels.Dialogs.Counterparty;
+using Vodovoz.ViewModels.Dialogs.Counterparties;
 using Vodovoz.ViewModels.Journals.JournalNodes.Client;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client

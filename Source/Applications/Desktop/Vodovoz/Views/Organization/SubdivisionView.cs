@@ -7,10 +7,8 @@ using System;
 using System.ComponentModel;
 using System.Linq;
 using Vodovoz.Domain.Sale;
-using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Infrastructure;
 using Vodovoz.Journals.JournalNodes;
-using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.ViewModels.ViewModels.Organizations;
 
 namespace Vodovoz.Views.Organization

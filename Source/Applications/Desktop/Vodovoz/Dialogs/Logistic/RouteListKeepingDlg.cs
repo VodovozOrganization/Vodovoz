@@ -41,6 +41,7 @@ using Vodovoz.ViewWidgets.Mango;
 using QS.Navigation;
 using Vodovoz.ViewModels.Employees;
 using QS.Project.Domain;
+using Vodovoz.Core.Domain.Employees;
 
 namespace Vodovoz
 {
@@ -68,7 +69,7 @@ namespace Vodovoz
 		{
 			ResolveDependencies();
 			Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<RouteList>(id);
 			TabName = $"Ведение МЛ №{Entity.Id}";
 			_allEditing = Entity.Status == RouteListStatus.EnRoute && permissionResult.CanUpdate;
 			_isUserLogist = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Permissions.Logistic.IsLogistician);
@@ -539,7 +540,7 @@ namespace Vodovoz
 						roboatsFileStorageFactory, fileDialogService, ServicesConfig.CommonServices.CurrentPermissionService);
 				var journal =
 					new DeliveryScheduleJournalViewModel(
-						UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, deliveryScheduleRepository, roboatsViewModelFactory);
+						ServicesConfig.UnitOfWorkFactory, ServicesConfig.CommonServices, deliveryScheduleRepository, roboatsViewModelFactory);
 				journal.SelectionMode = JournalSelectionMode.Single;
 				journal.OnEntitySelectedResult += (s, args) => {
 					var selectedResult = args.SelectedNodes.First() as DeliveryScheduleJournalNode;

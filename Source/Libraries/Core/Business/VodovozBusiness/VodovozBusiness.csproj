@@ -56,6 +56,7 @@
     <Compile Include="CachingRepositories\Common\DomainEntityInMemoryCacheRepositoryBase.cs" />
     <Compile Include="CachingRepositories\Common\IDomainEntityInMemoryCacheRepository.cs" />
     <Compile Include="CachingRepositories\Counterparty\CounterpartyInMemoryTitlesCacheRepository.cs" />
+    <Compile Include="ScopeProvider.cs" />
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
     <Compile Include="ConfigureDeletion.cs" />
@@ -91,13 +92,7 @@
     <Compile Include="Domain\Client\RegistrationInChestnyZnakStatus.cs" />
     <Compile Include="Domain\Client\SellingNomenclature.cs" />
     <Compile Include="Domain\Client\TaxType.cs" />
-    <Compile Include="Domain\Employees\DriverTerminalRelation.cs" />
-    <Compile Include="Domain\Employees\DriverType.cs" />
-    <Compile Include="Domain\Employees\EmployeeCategory.cs" />
-    <Compile Include="Domain\Employees\EmployeeStatus.cs" />
-    <Compile Include="Domain\Employees\EmployeeType.cs" />
     <Compile Include="Domain\Employees\ExternalApplicationUser.cs" />
-    <Compile Include="Domain\Employees\Gender.cs" />
     <Compile Include="Domain\Goods\CupHolderBracingType.cs" />
     <Compile Include="Domain\Goods\CoolingType.cs" />
     <Compile Include="Domain\Goods\EquipmentInstallationType.cs" />
@@ -367,7 +362,6 @@
     <Compile Include="Domain\Documents\WriteOffDocuments\WriteOffDocumentItemType.cs" />
     <Compile Include="Domain\Documents\WriteOffDocuments\WriteOffType.cs" />
     <Compile Include="Domain\Employees\CashSubdivisionSortingSettings.cs" />
-    <Compile Include="Domain\Employees\IEmployeeRegistration.cs" />
     <Compile Include="Domain\Employees\PremiumBase.cs" />
     <Compile Include="Domain\Employees\PremiumRaskatGAZelle.cs" />
     <Compile Include="Domain\Employees\EmployeeRegistration.cs" />
@@ -890,6 +884,7 @@
     <Compile Include="Permissions\Logistic.cs" />
     <Compile Include="Permissions\Order.Documents.cs" />
     <Compile Include="Permissions\Order.UndeliveredOrder.cs" />
+    <Compile Include="Permissions\Pacs.cs" />
     <Compile Include="Permissions\Payment.BankClient.cs" />
     <Compile Include="Permissions\Payment.cs" />
     <Compile Include="Permissions\Order.PromotionalSet.cs" />
@@ -1085,7 +1080,6 @@
     <Compile Include="Tools\Logistic\DriverDistrictPriorityHelper.cs" />
     <Compile Include="Tools\Logistic\IDistanceCalculator.cs" />
     <Compile Include="Domain\Logistic\CachedDistance.cs" />
-    <Compile Include="Tools\Logistic\IFastDeliveryDistanceChecker.cs" />
     <Compile Include="Tools\Logistic\RouteGeometryCalculator.cs" />
     <Compile Include="Domain\Logistic\AtWorkDriverDistrictPriority.cs" />
     <Compile Include="Domain\Logistic\DeliveryDaySchedule.cs" />
@@ -1138,9 +1132,6 @@
     <Compile Include="Domain\StoredEmails\EmailTemplate.cs" />
     <Compile Include="Domain\StoredEmails\EmailAttachment.cs" />
     <Compile Include="Tools\AdditionalAgreements\WaterFixedPriceGenerator.cs" />
-    <Compile Include="Domain\Employees\Personnel.cs" />
-    <Compile Include="Domain\Employees\Trainee.cs" />
-    <Compile Include="Domain\Employees\IEmployee.cs" />
     <Compile Include="Domain\Orders\Documents\SpecialBill.cs" />
     <Compile Include="Domain\Orders\Documents\SpecialUPDDocument.cs" />
     <Compile Include="Domain\Goods\NomenclatureProperties.cs" />
@@ -1522,7 +1513,7 @@
       <Name>QS.Project.Abstract</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj">
-      <Project>{C01AE5A4-3CFF-4C7B-884D-45B07ACDE761}</Project>
+      <Project>{c01ae5a4-3cff-4c7b-884d-45b07acde761}</Project>
       <Name>QS.Project.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\External\QSProjects\QS.Project.Desktop\QS.Project.Desktop.csproj">
@@ -1545,6 +1536,10 @@
       <Project>{d3b6592d-6dcf-40f7-8627-3b4a6cbb040c}</Project>
       <Name>CashReceiptApi.Client.Framework</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Backend\Pacs\Pacs.Core\Pacs.Core.csproj">
+      <Project>{2A0BF064-B8AB-4FBC-9765-673A9255E6CE}</Project>
+      <Name>Pacs.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Backend\Sms\Sms.Internal.Client.Famework\Sms.Internal.Client.Framework.csproj">
       <Project>{e6465994-0f46-4c9f-8ce4-bcb98f916b17}</Project>
       <Name>Sms.Internal.Client.Framework</Name>
@@ -1561,6 +1556,10 @@
       <Project>{42efc426-2c88-4608-8191-dbca4172a695}</Project>
       <Name>VodovozInfrastructure</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Vodovoz.Core.Data\Vodovoz.Core.Data.csproj">
+      <Project>{ec987b0b-d857-4ec5-85a8-f8821363698f}</Project>
+      <Name>Vodovoz.Core.Data</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj">
       <Project>{67f08744-55fb-4169-809e-82f7424775f4}</Project>
       <Name>Vodovoz.Core.Domain</Name>
@@ -1576,6 +1575,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Domain\Common\" />
+    <Folder Include="EntityRepositories\Pacs\" />
     <Folder Include="NHibernateProjections\Counterparty\" />
   </ItemGroup>
 </Project>

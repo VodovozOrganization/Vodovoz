@@ -8,6 +8,7 @@ using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Services;
 using QS.Services;
+using Vodovoz.Core.Domain.Employees;
 
 namespace VodovozBusinessTests.Employees
 {

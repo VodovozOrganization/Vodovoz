@@ -121,7 +121,7 @@ namespace Vodovoz.Dialogs
 
 		private bool HasOrderStatusExternalChangesOrCancellationImpossible(out OrderStatus actualOrderStatus)
 		{
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot("Проверка актуального статуа заказа"))
+			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot("Проверка актуального статуа заказа"))
 			{
 				actualOrderStatus = uow.GetById<Order>(order.Id).OrderStatus;
 			}
@@ -136,7 +136,7 @@ namespace Vodovoz.Dialogs
 
 		private bool SaveUndelivery(bool needClose = true, bool forceSave = false)
 		{
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(undelivery))
 			{
 				return false;
@@ -161,7 +161,7 @@ namespace Vodovoz.Dialogs
 
 		private void ProcessSmsNotification()
 		{
-			var smsNotifier = new SmsNotifier(_smsNotifierParametersProvider);
+			var smsNotifier = new SmsNotifier(ServicesConfig.UnitOfWorkFactory, _smsNotifierParametersProvider);
 			smsNotifier.NotifyUndeliveryAutoTransferNotApproved(undelivery, UoW);
 		}
 

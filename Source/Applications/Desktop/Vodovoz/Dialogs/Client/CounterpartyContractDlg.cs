@@ -30,7 +30,9 @@ namespace Vodovoz
 		public CounterpartyContractDlg (Counterparty counterparty)
 		{
 			this.Build ();
-			UoWGeneric = CounterpartyContract.Create (counterparty);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<CounterpartyContract>();
+			UoWGeneric.Root.Counterparty = counterparty;
+			UoWGeneric.Root.GenerateSubNumber(counterparty);
 			TabName = "Новый договор";
 			ConfigureDlg ();
 		}
@@ -50,7 +52,7 @@ namespace Vodovoz
 			var orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
 			var parametersProvider = new ParametersProvider();
 			var orderParametersProvider = new OrderParametersProvider(parametersProvider);
-			var cashReceiptRepository = new CashReceiptRepository(UnitOfWorkFactory.GetDefaultFactory, orderParametersProvider);
+			var cashReceiptRepository = new CashReceiptRepository(ServicesConfig.UnitOfWorkFactory, orderParametersProvider);
 			var counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider, cashReceiptRepository);
 			var contractType =  counterpartyContractRepository.GetContractTypeForPaymentType(counterparty.PersonType, paymentType);
 			Entity.ContractType = contractType;
@@ -65,7 +67,7 @@ namespace Vodovoz
 		public CounterpartyContractDlg (int id)
 		{
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<CounterpartyContract> (id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<CounterpartyContract> (id);
 			ConfigureDlg ();
 		}
 
@@ -123,7 +125,7 @@ namespace Vodovoz
 				return false;
 			}
 
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;
