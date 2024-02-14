@@ -21,5 +21,22 @@ namespace Vodovoz.Settings.Database
 
 			return services;
 		}
+
+		public static IServiceCollection AddDatabaseSingletonSettings(this IServiceCollection services)
+		{
+			services.AddSingleton<ISettingsController, SettingsController>();
+
+			var settingsTypes = typeof(DependencyInjection).Assembly.GetTypes()
+				.Where(t => t.IsClass
+					&& t.Name.EndsWith("Settings")
+					&& t.GetInterfaces().Any(i => i.Name == $"I{t.Name}"));
+
+			foreach(var type in settingsTypes)
+			{
+				services.AddSingleton(type.GetInterfaces().First(i => i.Name == $"I{type.Name}"), type);
+			}
+
+			return services;
+		}
 	}
 }

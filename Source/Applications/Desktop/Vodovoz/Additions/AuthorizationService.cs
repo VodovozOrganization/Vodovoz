@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using RabbitMQ.Infrastructure;
 using RabbitMQ.MailSending;
 using System;
@@ -59,7 +60,7 @@ namespace Vodovoz.Additions
 
 		public bool ResetPassword(string userLogin, string password, string email, string fullName)
 		{
-			using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			using (var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
 			{
 				_userRepository.ChangePasswordForUser(uow, userLogin, password);
 				var user = _userRepository.GetUserByLogin(uow, userLogin);

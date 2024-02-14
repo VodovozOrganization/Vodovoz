@@ -3,15 +3,11 @@ using EmailPrepareWorker.SendEmailMessageBuilders;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using MySqlConnector;
-using NHibernate.Driver.MySqlConnector;
 using QS.DomainModel.UoW;
-using QS.Project.DB;
 using RabbitMQ.Client;
 using System;
 using System.Globalization;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,7 +15,6 @@ using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Parameters;
-using Vodovoz.Settings.Database;
 
 namespace EmailPrepareWorker
 {
@@ -33,6 +28,7 @@ namespace EmailPrepareWorker
 		private readonly string _emailSendExchange;
 
 		private readonly ILogger<EmailPrepareWorker> _logger;
+		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IModel _channel;
 		private readonly IEmailRepository _emailRepository;
 		private readonly IEmailParametersProvider _emailParametersProvider;
@@ -44,6 +40,7 @@ namespace EmailPrepareWorker
 
 		public EmailPrepareWorker(
 			ILogger<EmailPrepareWorker> logger,
+			IUnitOfWorkFactory uowFactory,
 			IConfiguration configuration,
 			IModel channel,
 			IEmailRepository emailRepository,
@@ -57,6 +54,7 @@ namespace EmailPrepareWorker
 			}
 
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_channel = channel ?? throw new ArgumentNullException(nameof(channel));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
 			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));
@@ -70,45 +68,10 @@ namespace EmailPrepareWorker
 			_emailSendExchange = configuration.GetSection(_queuesConfigurationSection)
 				.GetValue<string>(_emailSendExchangeParameter);
 			_channel.QueueDeclare(_emailSendKey, true, false, false, null);
-
+			
 			Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-			var conStrBuilder = new MySqlConnectionStringBuilder();
-
-			var databaseSection = configuration.GetSection("Database");
-
-			conStrBuilder.Server = databaseSection.GetValue("Hostname", "localhost");
-			conStrBuilder.Port = databaseSection.GetValue<uint>("Port", 3306);
-			conStrBuilder.UserID = databaseSection.GetValue("Username", "");
-			conStrBuilder.Password = databaseSection.GetValue("Password", "");
-			conStrBuilder.Database = databaseSection.GetValue("DatabaseName", "");
-			conStrBuilder.SslMode = MySqlSslMode.None;
-
-			//QSMain.ConnectionString = conStrBuilder.GetConnectionString(true);
-			_connectionString = conStrBuilder.GetConnectionString(true);
-
-			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
-									 .Dialect<NHibernate.Spatial.Dialect.MySQL57SpatialDialect>()
-									 .ConnectionString(/*QSMain.ConnectionString*/_connectionString)
-									 .Driver<MySqlConnectorDriver>();
-
-			//OrmMain.ClassMappingList = new List<IOrmObjectMapping> (); // Нужно, чтобы запустился конструктор OrmMain
-
-			OrmConfig.ConfigureOrm(db_config,
-				new Assembly[] {
-					Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
-					Assembly.GetAssembly(typeof(QS.Banks.Domain.Bank)),
-					Assembly.GetAssembly(typeof(QS.HistoryLog.HistoryMain)),
-					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
-					Assembly.GetAssembly(typeof(QS.Project.Domain.UserBase)),
-					Assembly.GetAssembly(typeof(QS.Attachments.HibernateMapping.AttachmentMap)),
-					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder)),
-					Assembly.GetAssembly(typeof(DriverWarehouseEventMap))
-			});
-
-			QS.HistoryLog.HistoryMain.Enable(conStrBuilder);
-
-			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Email prepare worker"))
+			using(var unitOfWork = _uowFactory.CreateWithoutRoot("Email prepare worker"))
 			{
 				_instanceId = Convert.ToInt32(unitOfWork.Session
 					.CreateSQLQuery("SELECT GET_CURRENT_DATABASE_ID()")
@@ -145,7 +108,7 @@ namespace EmailPrepareWorker
 			
 			try
 			{
-				using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Document prepare worker"))
+				using(var unitOfWork = _uowFactory.CreateWithoutRoot("Document prepare worker"))
 				{
 					var emailsToSend = _emailRepository.GetEmailsForPreparingOrderDocuments(unitOfWork);
 

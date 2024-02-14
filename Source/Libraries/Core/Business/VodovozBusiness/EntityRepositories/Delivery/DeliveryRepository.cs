@@ -28,8 +28,6 @@ namespace Vodovoz.EntityRepositories.Delivery
 {
 	public class DeliveryRepository : IDeliveryRepository
 	{
-		private readonly IGlobalSettings _globalSettings = new GlobalSettings(new ParametersProvider());
-
 		#region Получение районов по координатам
 
 		/// <summary>
@@ -89,6 +87,31 @@ namespace Vodovoz.EntityRepositories.Delivery
 				}
 			}
 			return new List<District>();
+		}
+
+		/// <summary>
+		/// Возвращает точный район по координатам, null если не нашёл
+		/// </summary>
+		/// <param name="uow"></param>
+		/// <param name="latitude"></param>
+		/// <param name="longitude"></param>
+		/// <returns></returns>
+		public District GetAccurateDistrict(IUnitOfWork uow, decimal latitude, decimal longitude)
+		{
+			var point = new Point((double)latitude, (double)longitude);
+
+			District districtAlias = null;
+			DistrictsSet districtsSetAlias = null;
+
+			var districtsWithBorders = uow.Session.QueryOver<District>(() => districtAlias)
+				.Left.JoinAlias(() => districtAlias.DistrictsSet, () => districtsSetAlias)
+				.Where(x => x.DistrictBorder != null)
+				.And(() => districtsSetAlias.Status == DistrictsSetStatus.Active)
+				.List<District>();
+
+			var districts = districtsWithBorders.Where(x => x.DistrictBorder.Contains(point)).ToList();
+
+			return districts?.FirstOrDefault();
 		}
 
 		/// <summary>
@@ -224,6 +247,8 @@ namespace Vodovoz.EntityRepositories.Delivery
 				.Where(() => tpInner.Track.Id == t.Id)
 				.Select(Projections.Max(() => tpInner.TimeStamp));
 
+			var globalSettings = new GlobalSettings(new ParametersProvider());
+
 			//МЛ только в пути и с погруженным запасом
 			var routeListNodes = uow.Session.QueryOver(() => rl)
 				.JoinEntityAlias(() => t, () => t.RouteList.Id == rl.Id)
@@ -246,7 +271,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 				var distance = DistanceHelper.GetDistanceKm(node.Latitude, node.Longitude, latitude, longitude);
 				var deliveryPoint = new PointOnEarth(latitude, longitude);
 				var proposedRoute = OsrmClientFactory.Instance
-					.GetRoute(new List<PointOnEarth> { new PointOnEarth(node.Latitude, node.Longitude), deliveryPoint }, false, GeometryOverview.False, _globalSettings.ExcludeToll)?.Routes?
+					.GetRoute(new List<PointOnEarth> { new PointOnEarth(node.Latitude, node.Longitude), deliveryPoint }, false, GeometryOverview.False, globalSettings.ExcludeToll)?.Routes?
 					.FirstOrDefault();
 				
 				node.DistanceByLineToClient.ParameterValue = (decimal)distance;

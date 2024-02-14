@@ -1,4 +1,4 @@
-﻿using EventsApi.Library.Models;
+using EventsApi.Library.Models;
 using EventsApi.Library.Services;
 using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.UoW;
@@ -40,8 +40,8 @@ namespace EventsApi.Library
 		/// <returns></returns>
 		public static IServiceCollection AddWarehouseEventsDependencies(this IServiceCollection services)
 		{
-			services.AddScoped((sp) => UnitOfWorkFactory.GetDefaultFactory)
-				.AddScoped((sp) => UnitOfWorkFactory.CreateWithoutRoot("Приложение для сканирования событий(склад)"))
+			services
+				.AddScoped((sp) => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot("Приложение для сканирования событий(склад)"))
 				.AddScoped<ISettingsController, SettingsController>()
 				.AddLogisticsEventsDependencies()
 				.AddScoped<ILogisticsEventsService, WarehouseEventsService>();

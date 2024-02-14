@@ -1,16 +1,15 @@
 ﻿using QS.Commands;
 using QS.Dialog;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using QS.ErrorReporting;
 using QS.Navigation;
-using QS.Project.Services;
+using QS.Project.Services.FileDialog;
+using QS.Utilities;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
-using QS.DomainModel.Entity;
 using Vodovoz.Domain.Store;
 using Vodovoz.Services;
-using QS.Project.Services.FileDialog;
 
 namespace Vodovoz.ViewModels.Reports
 {

@@ -1,8 +1,8 @@
-namespace VodovozInfrastructure.Configuration
+﻿namespace VodovozInfrastructure.Configuration
 {
     public interface IApplicationConfigurator
     {
-        void ConfigureOrm();
+        //void ConfigureOrm();
         void CreateApplicationConfig();
     }
 }

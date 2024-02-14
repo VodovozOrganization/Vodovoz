@@ -55,7 +55,7 @@ namespace Vodovoz.SidePanel
 					return new FixedPricesPanelView(fixedPricesPanelViewModel);
 				case PanelViewType.CashInfoPanelView:
 					return new CashInfoPanelView(
-						UnitOfWorkFactory.GetDefaultFactory,
+						ServicesConfig.UnitOfWorkFactory,
 						new CashRepository(),
 						new SubdivisionRepository(new ParametersProvider()),
 						new UserRepository());
@@ -66,7 +66,7 @@ namespace Vodovoz.SidePanel
 					var edoLightsMatrixPanelViewModel = new EdoLightsMatrixPanelViewModel(edoLightsMatrixViewModel, gtkTabsOpener, tdiTab);
 					return new EdoLightsMatrixPanelView(edoLightsMatrixPanelViewModel);
 				case PanelViewType.CarsMonitoringInfoPanelView:
-					return new CarsMonitoringInfoPanelView(UnitOfWorkFactory.GetDefaultFactory, new DeliveryRulesParametersProvider(new ParametersProvider()), Startup.MainWin.NavigationManager);
+					return new CarsMonitoringInfoPanelView(ServicesConfig.UnitOfWorkFactory, new DeliveryRulesParametersProvider(new ParametersProvider()), Startup.MainWin.NavigationManager);
 				default:
 					throw new NotSupportedException();
 			}

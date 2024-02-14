@@ -8,8 +8,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using MySqlConnector;
 using NLog.Web;
+using QS.Project.Core;
 using RabbitMQ.Infrastructure;
+using Vodovoz.Core.Data.NHibernate;
 using VodovozHealthCheck;
 
 namespace MailjetEventsDistributorAPI
@@ -37,6 +40,20 @@ namespace MailjetEventsDistributorAPI
 
 			_logger = new Logger<Startup>(LoggerFactory.Create(logging =>
 			logging.AddNLogWeb(NLogBuilder.ConfigureNLog("NLog.config").Configuration)));
+
+			services.AddMappingAssemblies()
+				.AddSingleton<MySqlConnectionStringBuilder>((provider) => {
+					var configuration = provider.GetRequiredService<IConfiguration>();
+					var connectionString = configuration.GetSection("ConnectionStrings").GetValue<string>("Default");
+					var builder = new MySqlConnectionStringBuilder(connectionString);
+
+					return builder;
+				})
+				.AddSpatialSqlConfiguration()
+				.AddNHibernateConfiguration()
+				.AddDatabaseInfo()
+				.AddCore()
+				.AddTrackedUoW();
 
 			services.AddTransient<RabbitMQConnectionFactory>();
 			services.AddTransient<IInstanceData, InstanceData>();
