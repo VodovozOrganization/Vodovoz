@@ -18,7 +18,7 @@ namespace Vodovoz.Domain.Employees
 	[EntityPermission]
 	public class CarProxyDocument : ProxyDocument, IValidatableObject
 	{
-		ICounterpartyRepository counterpartyRepository = ScopeProvider.Scope
+		ICounterpartyRepository counterpartyRepository => ScopeProvider.Scope
 			.Resolve<ICounterpartyRepository>();
 
 		public virtual string Title {
