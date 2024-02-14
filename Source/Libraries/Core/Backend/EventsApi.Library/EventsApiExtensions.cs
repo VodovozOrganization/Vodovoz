@@ -42,6 +42,7 @@ namespace EventsApi.Library
 		{
 			services.AddScoped((sp) => UnitOfWorkFactory.GetDefaultFactory)
 				.AddScoped((sp) => UnitOfWorkFactory.CreateWithoutRoot("Приложение для сканирования событий(склад)"))
+				.AddScoped<ISettingsController, SettingsController>()
 				.AddLogisticsEventsDependencies()
 				.AddScoped<ILogisticsEventsService, WarehouseEventsService>();
 
@@ -59,8 +60,7 @@ namespace EventsApi.Library
 				.AddScoped<IEmployeeWithLoginRepository, EmployeeWithLoginRepository>()
 				.AddScoped<ICarIdRepository, CarIdRepository>()
 				.AddScoped<IDriverWarehouseEventQrDataHandler, DriverWarehouseEventQrDataHandler>()
-				.AddScoped<IDriverWarehouseEventSettings, DriverWarehouseEventSettings>()
-				.AddScoped<ISettingsController, SettingsController>();
+				.AddScoped<IDriverWarehouseEventSettings, DriverWarehouseEventSettings>();
 
 			return services;
 		}
