@@ -88,6 +88,8 @@ namespace PayPageAPI
 			services.AddScoped<IAvangardFastPaymentModel, AvangardFastPaymentModel>();
 
 			services.ConfigureHealthCheckService<PayPageHealthCheck>();
+
+			services.AddSingleton(x => UnitOfWorkFactory.GetDefaultFactory);
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

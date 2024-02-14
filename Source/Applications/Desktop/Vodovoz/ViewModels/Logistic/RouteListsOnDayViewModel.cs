@@ -16,6 +16,7 @@ using QS.Utilities;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -283,9 +284,8 @@ namespace Vodovoz.ViewModels.Logistic
 					route.RecalculatePlanTime(DistanceCalculator);
 					route.RecalculatePlanedDistance(DistanceCalculator);
 
-					UoW.Session.Flush();
+					ReCalculateRouteListProfitability(route);
 
-					_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, route);
 				},
 				i => i != null
 			);
@@ -1537,12 +1537,25 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			RebuildAllRoutes(actionUpdateInfo);
 
-			UoW.Session.Flush();
-			_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, routeList);
+			ReCalculateRouteListProfitability(routeList);
 
 			UoW.Save(routeList);
 			UoW.Commit();
 			HasNoChanges = true;
+		}
+
+		private void ReCalculateRouteListProfitability(RouteList routeList)
+		{
+			var transaction = UoW.Session.GetCurrentTransaction();
+
+			if(transaction is null)
+			{
+				UoW.Session.BeginTransaction();
+			}
+
+			UoW.Session.Flush();
+
+			_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, routeList);
 		}
 
 		public void RebuildAllRoutes(Action<string> actionUpdateInfo = null)

@@ -90,6 +90,31 @@ namespace Vodovoz.EntityRepositories.Delivery
 		}
 
 		/// <summary>
+		/// Возвращает точный район по координатам, null если не нашёл
+		/// </summary>
+		/// <param name="uow"></param>
+		/// <param name="latitude"></param>
+		/// <param name="longitude"></param>
+		/// <returns></returns>
+		public District GetAccurateDistrict(IUnitOfWork uow, decimal latitude, decimal longitude)
+		{
+			var point = new Point((double)latitude, (double)longitude);
+
+			District districtAlias = null;
+			DistrictsSet districtsSetAlias = null;
+
+			var districtsWithBorders = uow.Session.QueryOver<District>(() => districtAlias)
+				.Left.JoinAlias(() => districtAlias.DistrictsSet, () => districtsSetAlias)
+				.Where(x => x.DistrictBorder != null)
+				.And(() => districtsSetAlias.Status == DistrictsSetStatus.Active)
+				.List<District>();
+
+			var districts = districtsWithBorders.Where(x => x.DistrictBorder.Contains(point)).ToList();
+
+			return districts?.FirstOrDefault();
+		}
+
+		/// <summary>
 		/// Получение 4 точек, отстоящих от базовой точки на <paramref name="distanceInMeters"/> вправо, влево, вверх и вниз.
 		/// </summary>
 		/// <param name="basePoint">Базовая точка</param>
