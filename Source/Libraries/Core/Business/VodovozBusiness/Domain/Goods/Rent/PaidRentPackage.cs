@@ -23,12 +23,16 @@ namespace Vodovoz.Domain.Goods.Rent
 		private decimal _deposit;
 		private Nomenclature _depositService;
 
+		public PaidRentPackage()
+		{
+			Name = String.Empty;
+		}
+		
 		#region Свойства
 
 		public virtual int Id { get; set; }
 
 		[Display(Name = "Название")]
-		[Required(ErrorMessage = "Необходимо заполнить название пакета платной аренды.")]
 		public virtual string Name
 		{
 			get => _name;
@@ -64,7 +68,6 @@ namespace Vodovoz.Domain.Goods.Rent
 		}
 
 		[Display(Name = "Вид оборудования")]
-		[Required(ErrorMessage = "Вид оборудования должен быть указан.")]
 		public virtual EquipmentKind EquipmentKind
 		{
 			get => _equipmentKind;
@@ -97,6 +100,16 @@ namespace Vodovoz.Domain.Goods.Rent
 				throw new ArgumentNullException($"Не найден репозиторий { nameof(rentPackageRepository) }");
 			}
 
+			if(string.IsNullOrWhiteSpace(Name))
+			{
+				yield return new ValidationResult("Необходимо заполнить название пакета платной аренды.");
+			}
+			
+			if(EquipmentKind is null)
+			{
+				yield return new ValidationResult("Вид оборудования должен быть указан.");
+			}
+
 			var allready = rentPackageRepository.GetPaidRentPackage(UoW, EquipmentKind);
 			if(allready != null && allready.Id != Id)
 			{
@@ -105,10 +118,5 @@ namespace Vodovoz.Domain.Goods.Rent
 		}
 
 		#endregion
-
-		public PaidRentPackage()
-		{
-			Name = String.Empty;
-		}
 	}
 }

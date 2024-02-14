@@ -15,6 +15,8 @@ namespace Vodovoz.Domain.Goods.Rent
 	{
 		private const int _nameLimit = 45;
 		private const int _onlineNameLimit = 45;
+		private const int _minWaterCount = 1;
+		private const int _maxWaterCount = 200;
 		private int _minWaterAmount;
 		private string _name;
 		private string _onlineName;
@@ -34,7 +36,6 @@ namespace Vodovoz.Domain.Goods.Rent
 		public virtual int Id { get; set; }
 
 		[Display(Name = "Минимальное количество")]
-		[Range(1, 200, ErrorMessage = "Минимальное количество воды в пакете аренды не может быть равно нулю.")]
 		public virtual int MinWaterAmount
 		{
 			get => _minWaterAmount;
@@ -42,7 +43,6 @@ namespace Vodovoz.Domain.Goods.Rent
 		}
 
 		[Display(Name = "Название")]
-		[Required(ErrorMessage = "Необходимо заполнить название пакета.")]
 		public virtual string Name
 		{
 			get => _name;
@@ -64,7 +64,6 @@ namespace Vodovoz.Domain.Goods.Rent
 		}
 
 		[Display(Name = "Вид оборудования")]
-		[Required(ErrorMessage = "Вид оборудования должен быть указан.")]
 		public virtual EquipmentKind EquipmentKind
 		{
 			get => _equipmentKind;
@@ -111,6 +110,17 @@ namespace Vodovoz.Domain.Goods.Rent
 			else if(Name.Length > _nameLimit)
 			{
 				yield return new ValidationResult($"Длина названия пакета аренды превышена на {Name.Length - _nameLimit}");
+			}
+
+			if(MinWaterAmount < _minWaterCount || MinWaterAmount > _maxWaterCount)
+			{
+				yield return new ValidationResult(
+					$"Минимальное количество воды в пакете аренды не может быть меньше {_minWaterCount} или больше {_maxWaterCount}");
+			}
+			
+			if(EquipmentKind is null)
+			{
+				yield return new ValidationResult("Вид оборудования должен быть указан.");
 			}
 
 			if(!string.IsNullOrWhiteSpace(OnlineName) && OnlineName.Length > _onlineNameLimit)
