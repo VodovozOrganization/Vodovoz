@@ -79,7 +79,6 @@ namespace Vodovoz
 			Gtk.Application.Init();
 			QSMain.GuiThread = System.Threading.Thread.CurrentThread;
 
-			UnitOfWorkFactory.Scope = AppDIContainer;
 			ScopeProvider.Scope = AppDIContainer;
 
 			var validator = new ObjectValidator(new GtkValidationViewFactory());
