@@ -147,6 +147,7 @@ using VodovozInfrastructure.Services;
 using VodovozInfrastructure.StringHandlers;
 using static Vodovoz.ViewModels.Cash.Reports.CashFlowAnalysisViewModel;
 using IErrorReporter = Vodovoz.Tools.IErrorReporter;
+using QS.HistoryLog;
 
 namespace Vodovoz
 {
@@ -797,6 +798,8 @@ namespace Vodovoz
 						
 						.AddPacsOperatorClient()
 						;
+
+					services.AddStaticHistoryTracker();
 
 					services.AddPacsMassTransitNotHosted(
 						(context, rabbitCfg) =>
