@@ -146,7 +146,7 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				var oper = uow.GetById<Operator>(employeeId);
-				return oper.PacsEnabled;
+				return oper != null && oper.PacsEnabled;
 			}
 		}
 	}
