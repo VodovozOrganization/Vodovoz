@@ -72,8 +72,8 @@ namespace Vodovoz.Domain.Logistic
 			.Resolve<IParametersProvider>();
 		private BaseParametersProvider _baseParametersProvider => ScopeProvider.Scope
 			.Resolve<BaseParametersProvider>();
-		private NomenclatureParametersProvider _nomenclatureParametersProvider => ScopeProvider.Scope
-			.Resolve<NomenclatureParametersProvider>();
+		private INomenclatureParametersProvider _nomenclatureParametersProvider => ScopeProvider.Scope
+			.Resolve<INomenclatureParametersProvider>();
 		private CashDistributionCommonOrganisationProvider _commonOrganisationProvider => ScopeProvider.Scope
 			.Resolve<CashDistributionCommonOrganisationProvider>();
 		private IRouteListRepository _routeListRepository => ScopeProvider.Scope
