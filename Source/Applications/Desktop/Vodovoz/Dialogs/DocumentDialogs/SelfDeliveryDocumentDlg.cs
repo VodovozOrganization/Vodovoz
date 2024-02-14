@@ -59,8 +59,6 @@ namespace Vodovoz
 		{
 			Build();
 
-			this.Build();
-
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<SelfDeliveryDocument>();
 
 			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
@@ -90,7 +88,7 @@ namespace Vodovoz
 
 		public SelfDeliveryDocumentDlg(int id)
 		{
-			this.Build();
+			Build();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<SelfDeliveryDocument>(id);
 			var validationResult = CheckPermission();
 			if(!validationResult.CanRead) {
