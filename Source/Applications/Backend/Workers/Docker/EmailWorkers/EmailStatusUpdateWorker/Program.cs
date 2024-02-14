@@ -9,6 +9,7 @@ using Vodovoz.EntityRepositories;
 using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
 using QS.HistoryLog;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 
 namespace EmailStatusUpdateWorker
 {
@@ -37,6 +38,7 @@ namespace EmailStatusUpdateWorker
 						typeof(QS.HistoryLog.HistoryMain).Assembly,
 						typeof(QS.Project.Domain.TypeOfEntity).Assembly,
 						typeof(QS.Attachments.Domain.Attachment).Assembly,
+						typeof(EmployeeWithLoginMap).Assembly,
 						typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly
 					);
 					services.AddDatabaseConnection();

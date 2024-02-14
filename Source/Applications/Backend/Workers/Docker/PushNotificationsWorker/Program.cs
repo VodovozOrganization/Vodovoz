@@ -5,6 +5,7 @@ using NLog.Web;
 using QS.HistoryLog;
 using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate;
 
 namespace PushNotificationsWorker
@@ -45,6 +46,7 @@ namespace PushNotificationsWorker
 							typeof(QS.HistoryLog.HistoryMain).Assembly,
 							typeof(QS.Project.Domain.TypeOfEntity).Assembly,
 							typeof(QS.Attachments.Domain.Attachment).Assembly,
+							typeof(EmployeeWithLoginMap).Assembly,
 							typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly
 						)
 						.AddDatabaseConnection()

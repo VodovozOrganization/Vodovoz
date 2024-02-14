@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 
 namespace Vodovoz.SmsInformerWorker
 {
@@ -37,6 +38,7 @@ namespace Vodovoz.SmsInformerWorker
 							typeof(QS.HistoryLog.HistoryMain).Assembly,
 							typeof(QS.Project.Domain.TypeOfEntity).Assembly,
 							typeof(QS.Attachments.Domain.Attachment).Assembly,
+							typeof(EmployeeWithLoginMap).Assembly,
 							typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly
 						)
 						.AddDatabaseConnection()

@@ -18,6 +18,7 @@ using QS.HistoryLog;
 using QS.Project.Core;
 using System.Text;
 using Vodovoz.Core.Data.NHibernate;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Settings.Database;
 using VodovozHealthCheck;
@@ -66,6 +67,7 @@ namespace LogisticsEventsApi
 					typeof(QS.Banks.Domain.Bank).Assembly,
 					typeof(QS.HistoryLog.HistoryMain).Assembly,
 					typeof(QS.Project.Domain.TypeOfEntity).Assembly,
+					typeof(EmployeeWithLoginMap).Assembly,
 					typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly
 				)
 				.AddDatabaseConnection()
