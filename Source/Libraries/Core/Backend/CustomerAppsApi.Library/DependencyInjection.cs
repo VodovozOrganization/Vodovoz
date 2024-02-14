@@ -1,9 +1,11 @@
-﻿using CustomerAppsApi.Library.Converters;
+﻿using CustomerAppsApi.Factories;
+using CustomerAppsApi.Library.Converters;
 using CustomerAppsApi.Library.Factories;
 using CustomerAppsApi.Library.Models;
 using CustomerAppsApi.Library.Repositories;
 using CustomerAppsApi.Library.Services;
 using CustomerAppsApi.Library.Validators;
+using CustomerAppsApi.Models;
 using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
@@ -15,6 +17,7 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.RentPackages;
 using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
@@ -50,6 +53,7 @@ namespace CustomerAppsApi.Library
 				.AddSingleton<IPromotionalSetRepository, PromotionalSetRepository>()
 				.AddSingleton<IExternalCounterpartyRepository, ExternalCounterpartyRepository>()
 				.AddSingleton<IExternalCounterpartyMatchingRepository, ExternalCounterpartyMatchingRepository>()
+				.AddSingleton<IRentPackageRepository, RentPackageRepository>()
 				.AddSingleton<PhoneFormatter>(_ => new PhoneFormatter(PhoneFormat.DigitsTen))
 				.AddSingleton<ICounterpartySettings, CounterpartySettings>()
 				.AddSingleton<ISettingsController, SettingsController>()
@@ -65,6 +69,7 @@ namespace CustomerAppsApi.Library
 				.AddSingleton<ICounterpartyFactory, CounterpartyFactory>()
 				.AddSingleton<INomenclatureFactory, NomenclatureFactory>()
 				.AddSingleton<IPromotionalSetFactory, PromotionalSetFactory>()
+				.AddSingleton<IRentPackageFactory, RentPackageFactory>()
 				.AddSingleton<ICameFromConverter, CameFromConverter>()
 				.AddSingleton<ISourceConverter, SourceConverter>()
 				.AddSingleton<ContactFinderForExternalCounterpartyFromOne>()
@@ -77,10 +82,12 @@ namespace CustomerAppsApi.Library
 				.AddScoped<IOrderModel, OrderModel>()
 				.AddScoped<IPromotionalSetModel, PromotionalSetModel>()
 				.AddScoped<IWarehouseModel, WarehouseModel>()
+				.AddScoped<IRentPackageModel, RentPackageModel>()
 				.AddScoped<ICounterpartyModelValidator, CounterpartyModelValidator>()
 				.AddSingleton<SelfDeliveriesAddressesFrequencyRequestsHandler>()
 				.AddSingleton<PricesFrequencyRequestsHandler>()
-				.AddSingleton<NomenclaturesFrequencyRequestsHandler>();
+				.AddSingleton<NomenclaturesFrequencyRequestsHandler>()
+				.AddSingleton<RentPackagesFrequencyRequestsHandler>();
 
 			return services;
 		}
