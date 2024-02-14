@@ -54,6 +54,8 @@ namespace LogisticsEventsApi
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
+			services.AddControllers();
+
 			services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "LogisticsEventsApi", Version = "v1" }); });
 			
 			services.AddLogging(
@@ -69,12 +71,6 @@ namespace LogisticsEventsApi
 			//закомментил пока нет зарегистрированных пользователей
 			services.ConfigureHealthCheckService<LogisticsEventsApiHealthCheck>();
 			services.AddHttpClient();
-			
-			services.AddControllers()
-				.AddJsonOptions(options =>
-				{
-					options.JsonSerializerOptions.Converters.Add(new DateTimeJsonConverter());
-				});
 			
 			var connectionString = CreateBaseConfig();
 			

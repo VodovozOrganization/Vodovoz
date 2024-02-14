@@ -14,13 +14,16 @@ namespace EventsApi.Library.Dtos
 		/// </summary>
 		public string EventName { get; set; }
 		/// <summary>
-		/// Время события
+		/// Время события в Utc формате
 		/// </summary>
-		[JsonConverter(typeof(DateTimeJsonConverter))]
 		public DateTime CompletedDate { get; set; }
 		/// <summary>
 		/// Фамилия и инициалы сотрудника, завершившего событие
 		/// </summary>
 		public string EmployeeName { get; set; }
+		/// <summary>
+		/// Расстояние от места сканирования (м
+		/// </summary>
+		public virtual decimal DistanceMetersFromScanningLocation { get; set; }
 	}
 }
