@@ -17,7 +17,6 @@ using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Settings.Database;
 using Vodovoz.Tools;
-using VodovozHealthCheck;
 
 namespace CashReceiptApi
 {
@@ -131,8 +130,6 @@ namespace CashReceiptApi
 			{
 				endpoints.MapGrpcService<CashReceiptService>().EnableGrpcWeb();
 			});
-
-			app.ConfigureHealthCheckApplicationBuilder();
 		}
 
 		private IConfigurationSection GetCashboxesConfiguration()
