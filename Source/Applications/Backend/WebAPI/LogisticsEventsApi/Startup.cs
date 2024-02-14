@@ -1,4 +1,9 @@
-﻿using EventsApi.Library;
+using System.ComponentModel;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using EventsApi.Library;
+using EventsApi.Library.Converters;
 using LogisticsEventsApi.Data;
 using LogisticsEventsApi.HealthChecks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -44,6 +49,7 @@ namespace LogisticsEventsApi
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddControllers();
+
 			services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "LogisticsEventsApi", Version = "v1" }); });
 			
 			services.AddLogging(
