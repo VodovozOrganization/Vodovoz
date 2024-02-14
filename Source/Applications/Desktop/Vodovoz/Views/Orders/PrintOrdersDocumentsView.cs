@@ -33,6 +33,10 @@ namespace Vodovoz.Views.Orders
 
 			ybuttonCancel.Clicked += (_, _2) => ViewModel.CloseDialogCommand.Execute();
 
+			ybuttonSelectAll.Clicked += (_, _2) => ViewModel.SelectAllOrdersCommand.Execute();
+
+			ybuttonDeselectAll.Clicked += (_, _2) => ViewModel.DeselectAllOrdersCommand.Execute();
+
 			ycheckbuttonBill.Binding
 				.AddBinding(ViewModel, vm => vm.IsPrintBill, w => w.Active)
 				.InitializeFromSource();
