@@ -113,6 +113,7 @@ namespace DriverAPI
 				.AddServiceUser()
 				;
 
+			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 			services.AddStaticHistoryTracker();
 
 			RegisterDependencies(ref services);

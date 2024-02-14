@@ -78,6 +78,8 @@ namespace DeliveryRulesService
 				.AddHttpClient()
 				.AddFiasClient()
 				;
+
+				Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 		}
 
 		public void ConfigureContainer(ContainerBuilder builder)

@@ -54,6 +54,8 @@ namespace CashReceiptApi
 				.AddDatabaseSettings()
 				;
 
+			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
+
 			services.AddAuthentication()
 				.AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(ApiKeyAuthenticationOptions.DefaultScheme, null);
 			services.AddAuthentication(ApiKeyAuthenticationOptions.DefaultScheme);

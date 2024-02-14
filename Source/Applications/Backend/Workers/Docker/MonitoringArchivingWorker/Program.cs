@@ -60,6 +60,8 @@ namespace MonitoringArchivingWorker
 						.AddTrackedUoW()
 						.AddHostedService<MonitoringArchivingWorker>()
 						;
+
+						Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 				});
 	}
 }

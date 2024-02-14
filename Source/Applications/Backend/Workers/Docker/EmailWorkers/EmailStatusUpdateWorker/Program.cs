@@ -45,6 +45,7 @@ namespace EmailStatusUpdateWorker
 					services.AddCore();
 					services.AddTrackedUoW();
 					services.AddStaticHistoryTracker();
+					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 
 					services.AddTransient<RabbitMQConnectionFactory>();
 

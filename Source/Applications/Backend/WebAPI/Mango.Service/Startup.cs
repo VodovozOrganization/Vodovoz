@@ -52,7 +52,7 @@ namespace Mango.Service
 			services.AddDatabaseConnection();
 			services.AddCore();
 			services.AddNotTrackedUoW();
-			
+
 			services.AddSingleton(provider =>
 			{
 				var connectionStringBuilder = provider.GetRequiredService<MySqlConnectionStringBuilder>();

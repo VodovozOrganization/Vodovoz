@@ -56,6 +56,8 @@ namespace PayPageAPI
 				.AddServiceUser()
 				;
 
+			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
+
 			// Подключение к БД
 			services.AddScoped(provider => provider.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot("Страница быстрых платежей"));
 			

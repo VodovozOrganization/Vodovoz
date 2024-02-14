@@ -100,6 +100,7 @@ namespace FastPaymentsAPI
 				.AddServiceUser()
 				;
 
+			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 			services.AddStaticHistoryTracker();
 
 			services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "FastPaymentsAPI", Version = "v1" }); });

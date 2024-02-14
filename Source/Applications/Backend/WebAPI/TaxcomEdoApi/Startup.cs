@@ -91,6 +91,7 @@ namespace TaxcomEdoApi
 			services.AddTrackedUoW();
 			services.AddServiceUser();
 			services.AddStaticHistoryTracker();
+			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 
 
 			services.AddHostedService<AutoSendReceiveService>();

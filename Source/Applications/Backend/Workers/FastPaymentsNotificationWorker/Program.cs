@@ -57,6 +57,7 @@ namespace FastPaymentsNotificationWorker
 						.AddCore()
 						.AddTrackedUoW();
 
+				Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 					services.AddHostedService<PaymentsNotificationWorker>();
 				});
 

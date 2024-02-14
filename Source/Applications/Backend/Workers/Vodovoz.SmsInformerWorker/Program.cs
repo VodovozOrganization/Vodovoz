@@ -45,6 +45,8 @@ namespace Vodovoz.SmsInformerWorker
 						.AddCore()
 						.AddTrackedUoW()
 						.AddSmsInformerWorker(hostContext);
+
+					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 				});
 	}
 }

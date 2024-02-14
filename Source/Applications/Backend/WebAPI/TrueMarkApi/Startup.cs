@@ -69,6 +69,7 @@ namespace TrueMarkApi
 			services.AddTrackedUoW();
 			services.AddServiceUser();
 			services.AddStaticHistoryTracker();
+			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 
 			services.AddControllers();
 			services.AddHostedService<DocumentService>();

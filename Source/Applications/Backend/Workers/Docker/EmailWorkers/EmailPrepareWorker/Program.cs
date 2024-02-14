@@ -62,6 +62,7 @@ namespace EmailPrepareWorker
 					services.AddCore();
 					services.AddTrackedUoW();
 					services.AddStaticHistoryTracker();
+					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 
 					services.AddSingleton<ISettingsController, SettingsController>();
 					services.AddSingleton<IEmailParametersProvider, EmailParametersProvider>();

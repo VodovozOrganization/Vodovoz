@@ -121,6 +121,7 @@ namespace CustomerAppsApi
 				.AddControllers()
 				;
 
+			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 			Library.DependencyInjection.AddCustomerApiLibrary(services);
 
 			services.AddStaticHistoryTracker();

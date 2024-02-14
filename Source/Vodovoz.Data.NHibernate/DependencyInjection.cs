@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Autofac;
+using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.UoW;
 using QS.Project.Core;
 using QS.Project.DB;
@@ -32,6 +33,18 @@ namespace Vodovoz.Data.NHibernate
 					ServicesConfig.UserService = new UserService(serviceUser);
 					QS.Project.Repositories.UserRepository.GetCurrentUserId = () => serviceUser.Id;
 				}
+				return new OnDatabaseInitialization();
+			});
+			return services;
+		}
+
+		[Obsolete("Удалить после очистки сущностей от зависимостей")]
+		public static IServiceCollection AddStaticScopeForEntity(this IServiceCollection services)
+		{
+			services.AddSingleton<OnDatabaseInitialization>((provider) =>
+			{
+				var scope = provider.GetRequiredService<ILifetimeScope>();
+				ScopeProvider.Scope = scope;
 				return new OnDatabaseInitialization();
 			});
 			return services;

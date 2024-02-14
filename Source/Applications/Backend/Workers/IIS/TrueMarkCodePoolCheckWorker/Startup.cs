@@ -62,6 +62,7 @@ namespace TrueMarkCodePoolCheckWorker
 				.AddTrackedUoW()
 				.AddHostedService<CodePoolCheckWorker>()
 				;
+				Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 		}
 
 		public void ConfigureContainer(ContainerBuilder builder)

@@ -67,6 +67,7 @@ namespace ExternalCounterpartyAssignNotifier
 						client.Timeout = TimeSpan.FromSeconds(15);
 					});
 
+					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 					services.AddStaticHistoryTracker();
 				});
 		}

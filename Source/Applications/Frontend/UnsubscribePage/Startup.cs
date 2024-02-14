@@ -63,6 +63,7 @@ namespace UnsubscribePage
 				.ConfigureHealthCheckService<UnsubscribePageHealthCheck>()
 				;
 
+			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 			services.AddStaticHistoryTracker();
 		}
 

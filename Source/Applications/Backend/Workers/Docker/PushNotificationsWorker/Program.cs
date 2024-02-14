@@ -55,6 +55,7 @@ namespace PushNotificationsWorker
 						.AddServiceUser()
 						.AddPushNotificationsWorker(hostContext);
 
+					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 					services.AddStaticHistoryTracker();
 				})
 			.UseWindowsService();

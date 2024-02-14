@@ -58,6 +58,7 @@ namespace CashReceiptPrepareWorker
 				.AddTrackedUoW()
 				;
 
+			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 			services.AddHostedService<ReceiptsPrepareWorker>();
 		}
 

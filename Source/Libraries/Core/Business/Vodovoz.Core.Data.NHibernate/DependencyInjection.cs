@@ -1,4 +1,5 @@
-﻿using FluentNHibernate.Cfg.Db;
+﻿using Autofac;
+using FluentNHibernate.Cfg.Db;
 using Microsoft.Extensions.DependencyInjection;
 using QS.Project.Core;
 using QS.Project.DB;
