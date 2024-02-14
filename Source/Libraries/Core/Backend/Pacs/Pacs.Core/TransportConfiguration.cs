@@ -13,7 +13,6 @@ using RabbitMQ.Client;
 using System;
 using System.Linq;
 using System.Security.Authentication;
-using Vodovoz.Core.Domain.Pacs;
 using Vodovoz.Settings.Pacs;
 
 namespace Pacs.Core

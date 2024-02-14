@@ -10,6 +10,7 @@ using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
 using System;
+using Vodovoz.Core.Application.Entity;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Pacs;
 using Vodovoz.Domain.Employees;

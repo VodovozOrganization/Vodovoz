@@ -1,12 +1,8 @@
 ﻿using Mango.Core.Dto;
 using MassTransit;
-using Pacs.Core;
-using Pacs.Core.Messages.Commands;
 using Pacs.MangoCalls.Services;
-using Pacs.Server.Consumers;
 using System;
 using System.Threading.Tasks;
-using Vodovoz.Core.Domain.Pacs;
 
 namespace Pacs.MangoCalls.Consumers
 {
@@ -24,28 +20,6 @@ namespace Pacs.MangoCalls.Consumers
 			var callEvent = context.Message;
 			await _callEventRegistrar.RegisterCallEvent(callEvent);
 			return;
-		}
-	}
-
-	public class MangoCallEventConsumerDefinition : ConsumerDefinition<MangoCallEventConsumer>
-	{
-		public MangoCallEventConsumerDefinition()
-		{
-			EndpointName = $"pacs.mango.call_event.consumer";
-		}
-
-		protected override void ConfigureConsumer(IReceiveEndpointConfigurator endpointConfigurator,
-			IConsumerConfigurator<MangoCallEventConsumer> consumerConfigurator)
-		{
-			if(endpointConfigurator is IRabbitMqReceiveEndpointConfigurator rmq)
-			{
-				rmq.AutoDelete = true;
-				rmq.Durable = true;
-
-				rmq.Bind<MangoCallEvent>(x => 
-					x.RoutingKey = "#"
-				);
-			}
 		}
 	}
 }

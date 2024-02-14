@@ -5,6 +5,9 @@ using System.Text;
 
 namespace Pacs.Core
 {
+	/// <summary>
+	/// Иключение, возникающее при работе СКУД
+	/// </summary>
 	public class PacsException : Exception
 	{
 		public PacsException()
@@ -20,13 +23,6 @@ namespace Pacs.Core
 		}
 
 		protected PacsException(SerializationInfo info, StreamingContext context) : base(info, context)
-		{
-		}
-	}
-
-	public class PacsInitException : PacsException
-	{
-		public PacsInitException(string message) : base(message)
 		{
 		}
 	}

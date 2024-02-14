@@ -61,6 +61,11 @@ namespace Vodovoz.Views.Pacs
 				.AddBinding(vm => vm.MangoPhone, w => w.LabelProp)
 				.InitializeFromSource();
 			ViewModel.PropertyChanged += ViewModelPropertyChanged;
+
+			UpdateLongBreakButtonImage();
+			UpdateShortBreakButtonImage();
+			UpdatePacsButtonImage();
+			UpdateMangoButtonImage();
 		}
 
 		private string GetPacsLabelColor()

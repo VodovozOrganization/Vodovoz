@@ -5,6 +5,7 @@ using QS.ViewModels;
 using System;
 using System.ComponentModel;
 using System.Timers;
+using Vodovoz.Application.Pacs;
 using Vodovoz.Core.Domain.Pacs;
 
 namespace Vodovoz.Presentation.ViewModels.Pacs

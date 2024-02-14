@@ -1,7 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Pacs.Admin.Client;
-using Pacs.Calls;
+using Pacs.Calls.Consumers;
 using Pacs.Core.Messages.Events;
+using Pacs.Operators.Client.Consumers;
 using System;
 
 namespace Pacs.Operators.Client
@@ -27,51 +28,9 @@ namespace Pacs.Operators.Client
 				.AddSingleton<IObservable<OperatorsOnBreakEvent>>(ctx => ctx.GetService<OperatorsOnBreakConsumer>())
 
 				.AddSingleton<OperatorSettingsConsumer>()
-
-				//.AddSingleton<OperatorStateConsumer>()
-				//.AddSingleton<IConsumer<OperatorState>, OperatorStateConsumer>()
-				//.AddSingleton<IObservable<OperatorState>, OperatorStateConsumer>()
 				;
-
-			
-
-
-			//services.AddMassTransitServices(x =>
-			//{
-			//	x.AddConsumers(Assembly.GetAssembly(typeof(OperatorStateConsumerDefinition)));
-			//	x.AddConsumers(Assembly.GetAssembly(typeof(PacsCallEventConsumerDefinition)));
-			//	additionalRegistrations.Invoke(x);
-
-			//	x.UsingRabbitMq((context, cfg) =>
-			//	{
-			//		var transportSettings = context.GetService<IMessageTransportSettings>();
-			//		cfg.Host(
-			//			transportSettings.Host,
-			//			(ushort)transportSettings.Port,
-			//			transportSettings.VirtualHost,
-			//			hostCfg =>
-			//			{
-			//				hostCfg.Username(transportSettings.Username);
-			//				hostCfg.Password(transportSettings.Password);
-			//				if(transportSettings.UseSSL)
-			//				{
-			//					hostCfg.UseSsl(ssl =>
-			//					{
-			//						ssl.Protocol = SslProtocols.Tls12;
-			//					});
-			//				}
-			//			}
-			//		);
-
-			//		cfg.ConfigureOperatorPublishTopology(context);
-
-			//		cfg.ConfigureEndpoints(context);
-			//	});
-			//});
 
 			return services;
 		}
-
-		
 	}
 }

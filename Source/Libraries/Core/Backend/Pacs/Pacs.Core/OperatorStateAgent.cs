@@ -8,18 +8,6 @@ using StateMachine = Stateless.StateMachine<
 
 namespace Pacs.Core
 {
-	public interface IOperatorStateAgent
-	{
-		OperatorState OperatorState { get; set; }
-
-		bool CanChangePhone { get; }
-		bool CanEndBreak { get; }
-		bool CanEndWorkShift { get; }
-		bool CanStartBreak { get; }
-		bool CanStartWorkShift { get; }
-		bool OnWorkshift { get; }
-	}
-
 	public class OperatorStateAgent : IOperatorStateAgent
 	{
 		private StateMachine _machine;
@@ -113,20 +101,5 @@ namespace Pacs.Core
 			machine.Configure(OperatorStateType.Disconnected)
 				.Permit(OperatorStateTrigger.Connect, OperatorStateType.Connected);
 		}
-	}
-
-	public enum OperatorStateTrigger
-	{
-		Connect,
-		StartWorkShift,
-		TakeCall,
-		EndCall,
-		StartBreak,
-		EndBreak,
-		ChangePhone,
-		EndWorkShift,
-		Disconnect,
-		KeepAlive,
-		CheckInactivity
 	}
 }

@@ -1,5 +1,4 @@
-﻿using DocumentFormat.OpenXml.Spreadsheet;
-using QS.Dialog;
+﻿using QS.Dialog;
 using QS.ViewModels;
 using System;
 using System.Collections.Concurrent;
@@ -7,6 +6,7 @@ using System.Collections.Specialized;
 using System.Data.Bindings.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Application.Pacs;
 
 namespace Vodovoz.Presentation.ViewModels.Pacs
 {

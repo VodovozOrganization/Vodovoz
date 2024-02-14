@@ -5,8 +5,8 @@ using QS.Navigation;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
+using Vodovoz.Core.Application.Entity;
 using Vodovoz.Core.Domain.Pacs;
-using Vodovoz.Presentation.ViewModels.Employees;
 
 namespace Vodovoz.Presentation.ViewModels.Pacs.Journals
 {

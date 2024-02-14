@@ -1,4 +1,6 @@
-﻿namespace Vodovoz.Presentation.ViewModels.Pacs
+﻿using Vodovoz.Application.Pacs;
+
+namespace Vodovoz.Presentation.ViewModels.Pacs
 {
 	public interface IPacsDashboardViewModelFactory
 	{
@@ -10,6 +12,5 @@
 		DashboardOperatorDetailsViewModel CreateOperatorDetailsViewModel(OperatorModel operatorModel);
 		DashboardCallDetailsViewModel CreateCallDetailsViewModel(CallModel operatorModel);
 		DashboardMissedCallDetailsViewModel CreateMissedCallDetailsViewModel(MissedCallModel operatorModel);
-
 	}
 }

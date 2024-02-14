@@ -19,8 +19,4 @@
     <ProjectReference Include="..\Pacs.Server\Pacs.Server.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Filters\" />
-  </ItemGroup>
-
 </Project>

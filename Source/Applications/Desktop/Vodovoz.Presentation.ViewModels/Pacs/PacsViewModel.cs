@@ -1,9 +1,6 @@
 ﻿using QS.Navigation;
-using QS.Services;
 using QS.ViewModels.Dialog;
 using System;
-using Vodovoz.Core.Data.Repositories;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Services;
 
 namespace Vodovoz.Presentation.ViewModels.Pacs
@@ -12,29 +9,15 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 	{
 		private readonly IPacsViewModelFactory _pacsViewModelFactory;
 		private readonly IPacsEmployeeProvider _pacsEmployeeProvider;
-		private readonly IPacsRepository _pacsRepository;
-		private readonly IPermissionService _permissionService;
-		//private readonly Employee _employee;
-		private bool _isOperator;
-		private bool _isAdmin;
 
 		public PacsViewModel(
 			IPacsViewModelFactory pacsViewModelFactory,
 			IPacsEmployeeProvider pacsEmployeeProvider,
-			//IEmployeeService employeeService,
-			//IPacsRepository pacsRepository,
-			//IPermissionService permissionService,
 			INavigationManager navigation) 
 			: base(navigation)
 		{
-			/*if(employeeService is null)
-			{
-				throw new ArgumentNullException(nameof(employeeService));
-			}*/
 			_pacsViewModelFactory = pacsViewModelFactory ?? throw new ArgumentNullException(nameof(pacsViewModelFactory));
 			_pacsEmployeeProvider = pacsEmployeeProvider ?? throw new ArgumentNullException(nameof(pacsEmployeeProvider));
-			//_pacsRepository = pacsRepository ?? throw new ArgumentNullException(nameof(pacsRepository));
-			//_permissionService = permissionService ?? throw new ArgumentNullException(nameof(permissionService));
 
 			Title = "СКУД";
 
@@ -60,7 +43,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 					ReportsViewModel = _pacsViewModelFactory.CreateReportsViewModel();
 				}
 			}
-			catch(Exception ex)
+			catch(Exception)
 			{
 				Dispose();
 				throw;

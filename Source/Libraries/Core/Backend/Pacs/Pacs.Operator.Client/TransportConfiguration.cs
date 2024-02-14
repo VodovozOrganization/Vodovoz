@@ -13,7 +13,6 @@ namespace Pacs.Operators.Client
 		public static void ConfigureOperatorMessageTopology(this IRabbitMqBusFactoryConfigurator configurator, IBusRegistrationContext context)
 		{
 			configurator.AddPacsBaseTopology(context);
-			//configurator.Message<OperatorState>(x => x.SetEntityName("pacs.operator_state_event"));
 		}
 	}
 }

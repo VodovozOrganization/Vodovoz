@@ -64,38 +64,12 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 
-			//_employee = _employeeService.GetEmployeeForCurrentUser();
-			//if(_employee == null)
-			//{
-			//	CanChange = false;
-			//	PacsEnabled = false;
-			//	return;
-			//}
-
 			_pacsInfoUpdateTimer = new Timer(1000);
 			_pacsInfoUpdateTimer.Elapsed += OnInfoTick;
 			_settings = pacsRepository.GetPacsDomainSettings();
 
 			PacsEnabled = _operatorService.IsInitialized;
 			IsOperator = PacsEnabled && _operatorService.IsOperator;
-
-			//if(_pacsRepository.PacsEnabledFor(_employee.Subdivision.Id))
-			//{
-			//	PacsEnabled = true;
-			//	_operatorClient = operatorClientFactory.CreateOperatorClient(_employee.Id);
-			//	_keepAliveController = operatorClientFactory.CreateOperatorKeepAliveController(_employee.Id);
-			//	_operatorClient.StateChanged += OperatorStateChanged;
-			//	GlobalBreakAvailability = _operatorClient.GetGlobalBreakAvailability().Result;
-			//	Connect();
-			//}
-			//else
-			//{
-			//	PacsEnabled = false;
-			//	if(_employee.InnerPhone.HasValue)
-			//	{
-			//		_mangoManager.Connect(_employee.InnerPhone.Value);
-			//	}
-			//}
 
 			LongBreakCommand = new DelegateCommand(() => StartLongBreak().Wait(), () => CanLongBreakOrEnd);
 			LongBreakCommand.CanExecuteChangedWith(this, x => x.CanLongBreakOrEnd);
@@ -109,30 +83,6 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			OpenMangoDialogCommand.CanExecuteChangedWith(_operatorService, x => x.CanOpenMango);
 
 			_settingsSubscription = settingsPublisher.Subscribe(this);
-
-			//_operatorService.WhenAnyValue(x => x.OperatorState)
-			//	.Subscribe(x => _guiDispatcher.RunInGuiTread(() => UpdatePacsInfo()))
-			//	.DisposeWith(Subscriptions);
-
-			//_operatorService.WhenAnyValue(x => x.PacsState)
-			//	.Subscribe(x => _guiDispatcher.RunInGuiTread(() => PacsState = x))
-			//	.DisposeWith(Subscriptions);
-
-			//_operatorService.WhenAnyValue(x => x.LongBreakState)
-			//	.Subscribe(x => _guiDispatcher.RunInGuiTread(() => LongBreakState = x))
-			//	.DisposeWith(Subscriptions);
-
-			//_operatorService.WhenAnyValue(x => x.ShortBreakState)
-			//	.Subscribe(x => _guiDispatcher.RunInGuiTread(() => ShortBreakState = x))
-			//	.DisposeWith(Subscriptions);
-
-			//_operatorService.WhenAnyValue(x => x.MangoPhone)
-			//	.Subscribe(x => _guiDispatcher.RunInGuiTread(() => MangoPhone = x))
-			//	.DisposeWith(Subscriptions);
-
-			//_operatorService.WhenAnyValue(x => x.MangoState)
-			//	.Subscribe(x => _guiDispatcher.RunInGuiTread(() => MangoState = x))
-			//	.DisposeWith(Subscriptions);
 
 			_operatorService.PropertyChanged += OperatorServicePropertyChanged;
 		}

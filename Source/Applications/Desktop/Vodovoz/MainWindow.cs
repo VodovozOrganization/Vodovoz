@@ -2,9 +2,10 @@
 using MassTransit;
 using NLog;
 using Pacs.Admin.Client;
-using Pacs.Calls;
+using Pacs.Admin.Client.Consumers.Definitions;
+using Pacs.Calls.Consumers.Definitions;
 using Pacs.Core;
-using Pacs.Operators.Client;
+using Pacs.Operators.Client.Consumers.Definitions;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;

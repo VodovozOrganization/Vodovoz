@@ -2,6 +2,7 @@
 using Pacs.Core;
 using Pacs.Core.Messages.Commands;
 using Pacs.Core.Messages.Events;
+using Pacs.Operators.Client.Consumers;
 using Pacs.Server;
 using System;
 using System.Net.Http;

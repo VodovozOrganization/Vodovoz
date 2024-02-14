@@ -2383,6 +2383,10 @@
       <Project>{ca429421-2cce-4f9f-8dce-379583ab297c}</Project>
       <Name>SmsPaymentService</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Core.Application\Vodovoz.Core.Application.csproj">
+      <Project>{5D521F22-C232-438D-B547-5D6486754737}</Project>
+      <Name>Vodovoz.Core.Application</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Core.Data.NHibernate\Vodovoz.Core.Data.NHibernate.csproj">
       <Project>{2c01f582-c2ac-4785-9934-e32ae57645d2}</Project>
       <Name>Vodovoz.Core.Data.NHibernate</Name>

@@ -3,6 +3,7 @@ using QS.Dialog;
 using QS.ViewModels;
 using System;
 using System.ComponentModel;
+using Vodovoz.Application.Pacs;
 
 namespace Vodovoz.Presentation.ViewModels.Pacs
 {

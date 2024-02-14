@@ -1,9 +1,10 @@
 ﻿using Autofac;
 using System;
+using Vodovoz.Application.Pacs;
 
 namespace Vodovoz.Presentation.ViewModels.Pacs
 {
-	public class PacsDashboardViewModelFactory : IPacsDashboardViewModelFactory//, IDisposable
+	public class PacsDashboardViewModelFactory : IPacsDashboardViewModelFactory
 	{
 		private ILifetimeScope _scope;
 
@@ -47,11 +48,5 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		{
 			return _scope.Resolve<DashboardMissedCallDetailsViewModel>(new TypedParameter(missedCallModel.GetType(), missedCallModel));
 		}
-
-		//public void Dispose()
-		//{
-		//	_scope.Dispose();
-		//	//_scope = null;
-		//}
 	}
 }

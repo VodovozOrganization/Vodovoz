@@ -142,6 +142,7 @@ namespace Vodovoz.Application.Pacs
 					AvailablePhones = _pacsRepository.GetAvailablePhones();
 					OperatorsOnBreak = _client.GetOperatorsOnBreak().Result.OnBreak;
 					_settings = _pacsRepository.GetPacsDomainSettings();
+					StartMango();
 					SubscribeEvents();
 				}
 			};
@@ -237,7 +238,6 @@ namespace Vodovoz.Application.Pacs
 					UpdateShortBreak();
 					UpdateEndBreak();
 					UpdatePacsState();
-					UpdateMango();
 				}
 			}
 		}
@@ -667,20 +667,44 @@ namespace Vodovoz.Application.Pacs
 
 		private void UpdateMango()
 		{
-			if(!IsInitialized)
+			switch(_mangoManager.ConnectionState)
 			{
-				if(_mangoManager.IsActive)
-				{
-					_mangoManager.Disconnect();
-					MangoPhone = "";
-					CanOpenMango = false;
-				}
-
-				return;
+				case ConnectionState.Disable:
+					MangoState = MangoState.Disable;
+					break;
+				case ConnectionState.Connected:
+					MangoState = MangoState.Connected;
+					break;
+				case ConnectionState.Ring:
+					MangoState = MangoState.Ring;
+					break;
+				case ConnectionState.Talk:
+					MangoState = MangoState.Talk;
+					break;
+				case ConnectionState.Disconnected:
+					MangoState = MangoState.Disconnected;
+					break;
+				default:
+					break;
 			}
+		}
 
+		private void StartMango()
+		{
 			if(IsOperator)
 			{
+				if(!IsInitialized)
+				{
+					if(_mangoManager.IsActive)
+					{
+						_mangoManager.Disconnect();
+						MangoPhone = "";
+						CanOpenMango = false;
+					}
+
+					return;
+				}
+
 				//инициализация со скуд
 				var hasPhone = uint.TryParse(OperatorState.PhoneNumber, out var phone);
 				if(!hasPhone)
@@ -810,30 +834,5 @@ namespace Vodovoz.Application.Pacs
 			_delayedBreakUpdateTimer?.Dispose();
 			UnsubscribeEvents();
 		}
-	}
-
-	public enum PacsState
-	{
-		Disconnected,
-		Connected,
-		WorkShift,
-		Break,
-		Talk
-	}
-
-	public enum BreakState
-	{
-		BreakDenied,
-		CanStartBreak,
-		CanEndBreak
-	}
-
-	public enum MangoState
-	{
-		Disable,
-		Disconnected,
-		Connected,
-		Ring,
-		Talk
 	}
 }

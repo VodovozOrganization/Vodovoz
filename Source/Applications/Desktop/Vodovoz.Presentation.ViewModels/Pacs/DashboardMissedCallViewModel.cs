@@ -1,5 +1,6 @@
 ﻿using QS.ViewModels;
 using System;
+using Vodovoz.Application.Pacs;
 
 namespace Vodovoz.Presentation.ViewModels.Pacs
 {

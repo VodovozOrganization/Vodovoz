@@ -2,10 +2,10 @@
 using QS.Validation;
 using ReactiveUI;
 using System;
-using System.ComponentModel.DataAnnotations;
 using System.Reactive.Disposables;
+using Vodovoz.Core.Application.Entity;
 using Vodovoz.Core.Domain.Pacs;
-using Vodovoz.Presentation.ViewModels.Employees;
+using Vodovoz.Presentation.ViewModels.Common;
 
 namespace Vodovoz.Presentation.ViewModels.Pacs
 {

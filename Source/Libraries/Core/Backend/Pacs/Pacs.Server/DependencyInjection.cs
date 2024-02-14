@@ -1,8 +1,10 @@
 ﻿using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Pacs.Core;
-using Pacs.Operators.Server;
-using Pacs.Server.Consumers;
+using Pacs.Server.Breaks;
+using Pacs.Server.Consumers.Definitions;
+using Pacs.Server.Operators;
+using Pacs.Server.Phones;
 using System.Reflection;
 using Vodovoz.Core.Data.NHibernate.Repositories;
 using Vodovoz.Core.Data.Repositories;
