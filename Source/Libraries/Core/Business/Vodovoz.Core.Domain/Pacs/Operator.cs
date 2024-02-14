@@ -1,65 +1,103 @@
-﻿using Pacs.Server;
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
+using QS.HistoryLog;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Core.Domain.Pacs
 {
-	public class OperatorState : IDomainObject
+	[Appellative(Gender = GrammaticalGender.Masculine,
+		NominativePlural = "операторы",
+		Nominative = "оператор")]
+	[EntityPermission]
+	[HistoryTrace]
+	public class Operator : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
-		public virtual int Id { get; set; }
-		public virtual int OperatorId { get; set; }
-		public virtual OperatorSession Session { get; set; }
-		public virtual OperatorWorkshift WorkShift { get; set; }
-		public virtual DateTime Started { get; set; }
-		public virtual DateTime? Ended { get; set; }
-		public virtual OperatorTrigger Trigger { get; set; }
-		public virtual OperatorStateType State { get; set; }
-		public virtual OperatorBreakType? BreakType { get; set; }
-		public virtual string PhoneNumber { get; set; }
-		public virtual string CallId { get; set; }
-		public virtual DisconnectionType DisconnectionType { get; set; }
-		public virtual BreakChangedBy BreakChangedBy { get; set; }
-		public virtual int? BreakChangedByAdminId { get; set; }
-		public virtual string BreakAdminReason { get; set; }
+		private int _id;
+		private WorkShift _workShift;
+		private bool _pacsEnabled;
 
-		public static OperatorState Copy(OperatorState operatorState)
+		[Display(Name = "Код")]
+		public virtual int Id
 		{
-			return new OperatorState
+			get => _id;
+			set => SetField(ref _id, value);
+		}
+
+		[Display(Name = "Рабочая смена")]
+		public virtual WorkShift WorkShift
+		{
+			get => _workShift;
+			set => SetField(ref _workShift, value);
+		}
+
+		[Display(Name = "Включен в СКУД")]
+		public virtual bool PacsEnabled
+		{
+			get => _pacsEnabled;
+			set => SetField(ref _pacsEnabled, value);
+		}
+
+
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(Id == 0)
 			{
-				OperatorId = operatorState.OperatorId,
-				Session = operatorState.Session,
-				Started = operatorState.Started,
-				Ended = operatorState.Ended,
-				Trigger = operatorState.Trigger,
-				State = operatorState.State,
-				PhoneNumber = operatorState.PhoneNumber,
-				CallId = operatorState.CallId,
-				DisconnectionType = operatorState.DisconnectionType,
-				WorkShift = operatorState.WorkShift
-			};
+				yield return new ValidationResult("Необходимо выбрать оператора", new[] { nameof(Operator) });
+			}
+
+			if(WorkShift == null)
+			{
+				yield return new ValidationResult("Необходимо выбрать смену", new[] { nameof(WorkShift) });
+			}
 		}
 	}
 
-	public class OperatorSession
+	[Appellative(Gender = GrammaticalGender.Feminine,
+		NominativePlural = "смены",
+		Nominative = "смена")]
+	[EntityPermission]
+	[HistoryTrace]
+	public class WorkShift : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
-		public virtual Guid Id { get; set; }
-		public virtual DateTime Started { get; set; }
-		public virtual DateTime? Ended { get; set; }
-		public virtual int OperatorId { get; set; }
-	}
+		private int _id;
+		private string _name;
+		private TimeSpan _duration;
 
-	public class OperatorWorkshift
-	{
-		public virtual int Id { get; set; }
-		public virtual int OperatorId { get; set; }
-		public virtual WorkShift PlannedWorkShift { get; set; }
-		public virtual DateTime Started { get; set; }
-		public virtual DateTime? Ended { get; set; }
-		public virtual string Reason { get; set; }
-
-		public virtual DateTime GetPlannedEndTime()
+		[Display(Name = "Код")]
+		public virtual int Id
 		{
-			return Started.Add(PlannedWorkShift.Duration);
+			get => _id;
+			set => SetField(ref _id, value);
+		}
+
+		[Display(Name = "Название")]
+		public virtual string Name
+		{
+			get => _name;
+			set => SetField(ref _name, value);
+		}
+
+
+		[Display(Name = "Длительность")]
+		public virtual TimeSpan Duration
+		{
+			get => _duration;
+			set => SetField(ref _duration, value);
+		}
+
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(Duration <= TimeSpan.Zero)
+			{
+				yield return new ValidationResult("Длительность должна быть больше нуля", new[] { nameof(Duration) });
+			}
+
+			if(string.IsNullOrWhiteSpace(Name))
+			{
+				yield return new ValidationResult("Название должно быть заполнено", new[] { nameof(Name) });
+			}
 		}
 	}
 }

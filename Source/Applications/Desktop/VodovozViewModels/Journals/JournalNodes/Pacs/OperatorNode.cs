@@ -1,12 +1,5 @@
 ﻿using QS.Project.Journal;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Vodovoz.Core.Domain.Pacs;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Services;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes.Pacs
 {
@@ -15,5 +8,6 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Pacs
 		public override string Title => Operator == null ? "" : Operator.GetPersonNameWithInitials();
 		public Employee Operator { get; set; }
 		public string WorkshiftName{ get; set; }
+		public bool PacsEnabled { get; set; }
 	}
 }

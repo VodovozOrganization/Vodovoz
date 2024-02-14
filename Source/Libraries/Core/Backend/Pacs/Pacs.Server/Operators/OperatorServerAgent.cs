@@ -171,6 +171,17 @@ namespace Pacs.Server.Operators
 
 		#endregion Initialization
 
+		public bool OperatorEnabled()
+		{
+			var @operator =  _operatorRepository.GetOperator(OperatorId);
+
+			var operatorDisabled = !@operator.PacsEnabled && OperatorState.State.IsIn(
+				OperatorStateType.Disconnected,
+				OperatorStateType.New);
+
+			return !operatorDisabled;
+		}
+
 		private void ChangeState(OperatorStateType newState)
 		{
 			var timestamp = DateTime.Now;

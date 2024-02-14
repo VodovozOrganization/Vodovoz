@@ -1,5 +1,4 @@
-﻿using NHibernate.Criterion;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Core.Data.Repositories;
@@ -33,6 +32,15 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories
 					.Take(1)
 					.SingleOrDefault<OperatorState>();
 
+				return result;
+			}
+		}
+
+		public Operator GetOperator(int operatorId)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				var result = uow.Session.Get<Operator>(operatorId);
 				return result;
 			}
 		}

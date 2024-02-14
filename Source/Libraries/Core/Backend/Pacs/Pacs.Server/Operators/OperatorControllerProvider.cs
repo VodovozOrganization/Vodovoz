@@ -9,14 +9,14 @@ namespace Pacs.Server.Operators
 	public class OperatorControllerProvider : IOperatorControllerProvider
 	{
 		private readonly IOperatorControllerFactory _operatorControllerFactory;
-		private readonly IPacsRepository _pacsRepository;
+		private readonly IOperatorRepository _operatorRepository;
 		private ConcurrentDictionary<int, OperatorController> _controllers;
 
-		public OperatorControllerProvider(IOperatorControllerFactory operatorControllerFactory, IPacsRepository pacsRepository)
+		public OperatorControllerProvider(IOperatorControllerFactory operatorControllerFactory, IOperatorRepository operatorRepository)
 		{
 			_controllers = new ConcurrentDictionary<int, OperatorController>();
 			_operatorControllerFactory = operatorControllerFactory ?? throw new ArgumentNullException(nameof(operatorControllerFactory));
-			_pacsRepository = pacsRepository ?? throw new ArgumentNullException(nameof(pacsRepository));
+			_operatorRepository = operatorRepository ?? throw new ArgumentNullException(nameof(operatorRepository));
 		}
 
 		public OperatorController GetOperatorController(int operatorId)
@@ -26,7 +26,7 @@ namespace Pacs.Server.Operators
 				return controller;
 			}
 
-			var @operator = _pacsRepository.GetOperator(operatorId);
+			var @operator = _operatorRepository.GetOperator(operatorId);
 			if(@operator == null)
 			{
 				throw new PacsException($"Оператор {operatorId} не зарегистрирован");

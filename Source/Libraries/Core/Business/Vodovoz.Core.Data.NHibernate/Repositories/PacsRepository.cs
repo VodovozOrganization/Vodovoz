@@ -1,14 +1,11 @@
 ﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.SqlCommand;
-using Pacs.Server;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Employees;
-using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Core.Domain.Pacs;
 
 namespace Vodovoz.Core.Data.NHibernate.Repositories
@@ -149,16 +146,7 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				var oper = uow.GetById<Operator>(employeeId);
-				return oper != null;
-			}
-		}
-
-		public Operator GetOperator(int operatorId)
-		{
-			using(var uow = _uowFactory.CreateWithoutRoot())
-			{
-				var result = uow.Session.Get<Operator>(operatorId);
-				return result;
+				return oper.PacsEnabled;
 			}
 		}
 	}

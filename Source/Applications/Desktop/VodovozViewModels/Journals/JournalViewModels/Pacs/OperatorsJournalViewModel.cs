@@ -57,6 +57,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Pacs
 				.SelectList(list => list
 					.Select(Projections.Entity(() => employeeAlias)).WithAlias(() => resultAlias.Operator)
 					.Select(() => workShiftAlias.Name).WithAlias(() => resultAlias.WorkshiftName)
+					.Select(() => operatorAlias.PacsEnabled).WithAlias(() => resultAlias.PacsEnabled)
 				)
 				.TransformUsing(Transformers.AliasToBean<OperatorNode>());
 

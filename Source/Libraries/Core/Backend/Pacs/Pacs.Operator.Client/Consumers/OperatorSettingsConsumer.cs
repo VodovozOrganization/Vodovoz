@@ -1,14 +1,11 @@
-﻿using Core.Infrastructure;
-using MassTransit;
-using Pacs.Core;
+﻿using MassTransit;
 using Pacs.Core.Messages.Events;
-using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Pacs.Admin.Client
+namespace Pacs.Operators.Client.Consumers
 {
 	public class OperatorSettingsConsumer : IConsumer<SettingsEvent>, IObservable<SettingsEvent>, IDisposable
 	{
@@ -67,44 +64,6 @@ namespace Pacs.Admin.Client
 			foreach(var observer in _observers.ToList())
 			{
 				observer.OnCompleted();
-			}
-		}
-	}
-
-	public class OperatorSettingsConsumerDefinition : ConsumerDefinition<OperatorSettingsConsumer>
-	{
-		private readonly int _operatorId;
-
-		public OperatorSettingsConsumerDefinition(IPacsOperatorProvider operatorProvider)
-		{
-			if(operatorProvider.OperatorId == null)
-			{
-				throw new PacsInitException("Невозможно подключить получение настроек СКУД, " +
-					"так как текущий пользователь не является оператором СКУД.");
-			}
-
-			_operatorId = operatorProvider.OperatorId.Value;
-
-			Endpoint(x =>
-			{
-				var key = SimpleKeyGenerator.GenerateKey(16);
-				x.Name = $"pacs.event.settings.consumer-operator-{_operatorId}";
-				x.InstanceId = $"-{key}";
-			});
-		}
-
-		protected override void ConfigureConsumer(IReceiveEndpointConfigurator endpointConfigurator,
-			IConsumerConfigurator<OperatorSettingsConsumer> consumerConfigurator)
-		{
-			endpointConfigurator.ConfigureConsumeTopology = false;
-
-			if(endpointConfigurator is IRabbitMqReceiveEndpointConfigurator rmq)
-			{
-				rmq.AutoDelete = true;
-				rmq.Durable = true;
-				rmq.ExchangeType = ExchangeType.Fanout;
-
-				rmq.Bind<SettingsEvent>();
 			}
 		}
 	}

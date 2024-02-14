@@ -1,9 +1,9 @@
 ﻿using Core.Infrastructure;
 using Microsoft.Extensions.Logging;
-using Pacs.Admin.Client;
 using Pacs.Core;
 using Pacs.Core.Messages.Events;
 using Pacs.Operators.Client;
+using Pacs.Operators.Client.Consumers;
 using Pacs.Server;
 using QS.DomainModel.Entity;
 using System;
@@ -40,7 +40,6 @@ namespace Vodovoz.Application.Pacs
 		private readonly OperatorSettingsConsumer _operatorSettingsConsumer;
 		private readonly IObservable<OperatorsOnBreakEvent> _operatorsOnBreakPublisher;
 		private readonly IPacsEmployeeProvider _pacsEmployeeProvider;
-		private readonly IPacsAdministratorProvider _pacsAdministratorProvider;
 		private Timer _connectingTimer;
 		private Timer _delayedBreakUpdateTimer;
 		private bool _isConnected;
@@ -107,6 +106,10 @@ namespace Vodovoz.Application.Pacs
 			{
 				StartConnecting();
 			}
+			else
+			{
+				UpdateMango();
+			}
 		}
 
 		public bool IsInitialized { get; }
@@ -142,7 +145,7 @@ namespace Vodovoz.Application.Pacs
 					AvailablePhones = _pacsRepository.GetAvailablePhones();
 					OperatorsOnBreak = _client.GetOperatorsOnBreak().Result.OnBreak;
 					_settings = _pacsRepository.GetPacsDomainSettings();
-					StartMango();
+					UpdateMango();
 					SubscribeEvents();
 				}
 			};
@@ -238,6 +241,7 @@ namespace Vodovoz.Application.Pacs
 					UpdateShortBreak();
 					UpdateEndBreak();
 					UpdatePacsState();
+					UpdateMango();
 				}
 			}
 		}
@@ -658,14 +662,14 @@ namespace Vodovoz.Application.Pacs
 			switch(e.PropertyName)
 			{
 				case nameof(IMangoManager.ConnectionState):
-					UpdateMango();
+					UpdateMangoState();
 					break;
 				default:
 					break;
 			}
 		}
 
-		private void UpdateMango()
+		private void UpdateMangoState()
 		{
 			switch(_mangoManager.ConnectionState)
 			{
@@ -689,7 +693,7 @@ namespace Vodovoz.Application.Pacs
 			}
 		}
 
-		private void StartMango()
+		private void UpdateMango()
 		{
 			if(IsOperator)
 			{
@@ -739,7 +743,7 @@ namespace Vodovoz.Application.Pacs
 				if(_mangoManager.CanConnect && _employee.InnerPhone.HasValue)
 				{
 					_mangoManager.Connect(_employee.InnerPhone.Value);
-					MangoPhone = OperatorState.PhoneNumber;
+					MangoPhone = _employee.InnerPhone.Value.ToString();
 					CanOpenMango = true;
 				}
 				else

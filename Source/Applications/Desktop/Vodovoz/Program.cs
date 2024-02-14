@@ -67,6 +67,7 @@ using Vodovoz.Additions;
 using Vodovoz.Application;
 using Vodovoz.Application.Logistics;
 using Vodovoz.Application.Mango;
+using Vodovoz.Application.Pacs;
 using Vodovoz.Application.Services.Logistics;
 using Vodovoz.CachingRepositories.Cash;
 using Vodovoz.CachingRepositories.Common;
@@ -314,13 +315,6 @@ namespace Vodovoz
 						.AsSelf()
 						.As<IObserver<OperatorState>>()
 						.As<IObserver<Pacs.Core.Messages.Events.CallEvent>>();
-
-					/*builder.RegisterType<SettingsConsumer>()
-						.AsSelf()
-						.As<IObservable<Pacs.Core.Messages.Events.SettingsEvent>>();*/
-
-					//builder.RegisterType<PacsCallEventConsumer>()
-					//	.As<IObservable<CallEvent>>();
 
 					builder.RegisterType<PacsDashboardViewModelFactory>().As<IPacsDashboardViewModelFactory>()
 						.SingleInstance();

@@ -17,6 +17,5 @@ namespace Vodovoz.Core.Data.Repositories
 
 		IEnumerable<OperatorState> GetOperatorsOnBreak(DateTime date);
 		IEnumerable<OperatorState> GetOperatorBreakStates(int operatorId, DateTime date);
-		Operator GetOperator(int operatorId);
 	}
 }

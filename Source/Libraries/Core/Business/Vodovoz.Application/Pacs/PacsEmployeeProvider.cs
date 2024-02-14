@@ -3,16 +3,10 @@ using QS.Services;
 using System;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Services;
 
-namespace Vodovoz.Services
+namespace Vodovoz.Application.Pacs
 {
-	public interface IPacsEmployeeProvider
-	{
-		int? EmployeeId { get; }
-		bool IsAdministrator { get; }
-		bool IsOperator { get; }
-	}
-
 	public class PacsEmployeeProvider : IPacsEmployeeProvider, IPacsOperatorProvider, IPacsAdministratorProvider
 	{
 		private readonly IEmployeeService _employeeService;

@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Pacs.Admin.Client;
 using Pacs.Calls.Consumers;
 using Pacs.Core.Messages.Events;
 using Pacs.Operators.Client.Consumers;

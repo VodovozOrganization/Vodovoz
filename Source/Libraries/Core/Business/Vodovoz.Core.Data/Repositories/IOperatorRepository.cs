@@ -7,5 +7,6 @@ namespace Vodovoz.Core.Data.Repositories
 	{
 		OperatorState GetOperatorState(int operatorId);
 		IEnumerable<OperatorState> GetOperatorHistory(int operatorId);
+		Operator GetOperator(int operatorId);
 	}
 }

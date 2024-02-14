@@ -1054,7 +1054,6 @@
     <Compile Include="Services\IUserRoleSettings.cs" />
     <Compile Include="Services\IUserSettings.cs" />
     <Compile Include="Services\Logistics\IRouteListService.cs" />
-    <Compile Include="Services\PacsEmployeeProvider.cs" />
     <Compile Include="Services\Logistics\RouteListAcceptStatus.cs" />
     <Compile Include="Services\RevenueServiceInfo.cs" />
     <Compile Include="Services\UserRoleSettings.cs" />

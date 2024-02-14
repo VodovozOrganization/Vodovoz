@@ -85,6 +85,12 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			_settingsSubscription = settingsPublisher.Subscribe(this);
 
 			_operatorService.PropertyChanged += OperatorServicePropertyChanged;
+
+			PacsState = _operatorService.PacsState;
+			LongBreakState = _operatorService.LongBreakState;
+			ShortBreakState = _operatorService.ShortBreakState;
+			MangoPhone = _operatorService.MangoPhone;
+			MangoState = _operatorService.MangoState;
 		}
 
 		private void OperatorServicePropertyChanged(object sender, PropertyChangedEventArgs e)

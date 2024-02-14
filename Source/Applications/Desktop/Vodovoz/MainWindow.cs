@@ -1,7 +1,6 @@
 ﻿using Autofac;
 using MassTransit;
 using NLog;
-using Pacs.Admin.Client;
 using Pacs.Admin.Client.Consumers.Definitions;
 using Pacs.Calls.Consumers.Definitions;
 using Pacs.Core;
@@ -45,13 +44,7 @@ public partial class MainWindow : Gtk.Window
 {
 	private static Logger _logger = LogManager.GetCurrentClassLogger();
 	private uint _lastUiId;
-	private readonly ILifetimeScope _autofacScope = Startup.AppDIContainer.BeginLifetimeScope((builder) => {
-		//var services = new ServiceCollection();
-		//var transportSettings = Startup.AppDIContainer.Resolve<IMessageTransportSettings>();
-		//services.AddPacsOperatorClient(transportSettings);
-		//builder.RegisterType<MessagesHostedService>();
-		//builder.Populate(services);
-	} );
+	private readonly ILifetimeScope _autofacScope = Startup.AppDIContainer.BeginLifetimeScope();
 	private readonly IApplicationInfo _applicationInfo;
 	private readonly IInteractiveService _interativeService;
 	private readonly IPasswordValidator _passwordValidator;
@@ -64,7 +57,6 @@ public partial class MainWindow : Gtk.Window
 	private readonly bool _hideComplaintsNotifications;
 	private readonly OperatorService _operatorService;
 	private bool _accessOnlyToWarehouseAndComplaints;
-	//private MessagesHostedService _messageService;
 	private IBusControl _messageBusControl;
 
 	public TdiNotebook TdiMain => tdiMain;
@@ -82,7 +74,7 @@ public partial class MainWindow : Gtk.Window
 		var transportInitializer = _autofacScope.Resolve<IMessageTransportInitializer>();
 		transportInitializer.Initialize(_messageBusControl);
 
-	var endpointConnector = _autofacScope.Resolve<MessageEndpointConnector>();
+		var endpointConnector = _autofacScope.Resolve<MessageEndpointConnector>();
 
 		Task.Run(async () =>
 		{

@@ -48,6 +48,11 @@ namespace Pacs.Server.Operators
 		{
 			try
 			{
+				if(!ValidateOperator(out var result))
+				{
+					return result;
+				}
+
 				if(_operatorAgent.CanChangedBy(OperatorTrigger.Connect))
 				{
 					await _operatorAgent.Connect();
@@ -66,6 +71,11 @@ namespace Pacs.Server.Operators
 		{
 			try
 			{
+				if(!ValidateOperator(out var result))
+				{
+					return result;
+				}
+
 				await CheckConnection();
 
 				if(!_phoneController.ValidatePhone(phoneNumber))
@@ -97,6 +107,11 @@ namespace Pacs.Server.Operators
 		{
 			try
 			{
+				if(!ValidateOperator(out var result))
+				{
+					return result;
+				}
+
 				await CheckConnection();
 
 				if(!_operatorAgent.CanChangedBy(OperatorTrigger.EndWorkShift))
@@ -123,6 +138,11 @@ namespace Pacs.Server.Operators
 		{
 			try
 			{
+				if(!ValidateOperator(out var result))
+				{
+					return result;
+				}
+
 				await CheckConnection();
 
 				var checkResult = GetCheckStartBreakResult(breakType);
@@ -145,6 +165,11 @@ namespace Pacs.Server.Operators
 		{
 			try
 			{
+				if(!ValidateOperator(out var result))
+				{
+					return result;
+				}
+
 				await CheckConnection();
 
 				if(reason.IsNullOrWhiteSpace())
@@ -213,6 +238,11 @@ namespace Pacs.Server.Operators
 		{
 			try
 			{
+				if(!ValidateOperator(out var result))
+				{
+					return result;
+				}
+
 				await CheckConnection();
 
 				if(!_operatorAgent.CanChangedBy(OperatorTrigger.EndBreak))
@@ -234,6 +264,11 @@ namespace Pacs.Server.Operators
 		{
 			try
 			{
+				if(!ValidateOperator(out var result))
+				{
+					return result;
+				}
+
 				await CheckConnection();
 
 				if(!_operatorAgent.CanChangedBy(OperatorTrigger.EndBreak))
@@ -261,6 +296,11 @@ namespace Pacs.Server.Operators
 		{
 			try
 			{
+				if(!ValidateOperator(out var result))
+				{
+					return result;
+				}
+
 				await CheckConnection();
 
 				if(!_phoneController.ValidatePhone(phoneNumber))
@@ -355,6 +395,20 @@ namespace Pacs.Server.Operators
 			if(_operatorAgent.OperatorState.State == OperatorStateType.Disconnected)
 			{
 				await _operatorAgent.Connect();
+			}
+		}
+
+		private bool ValidateOperator(out OperatorResult operatorResult)
+		{
+			if(_operatorAgent.OperatorEnabled())
+			{
+				operatorResult = null;
+				return true;
+			}
+			else
+			{
+				operatorResult = new OperatorResult(GetResultContent(), $"Оператор отключен от СКУД");
+				return false;
 			}
 		}
 

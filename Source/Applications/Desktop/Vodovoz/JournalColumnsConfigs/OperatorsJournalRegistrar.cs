@@ -10,6 +10,7 @@ namespace Vodovoz.JournalColumnsConfigs
 			config
 				.AddColumn("Оператор").AddTextRenderer(node => node.Title)
 				.AddColumn("График").AddTextRenderer(node => node.WorkshiftName)
+				.AddColumn("Включен").AddToggleRenderer(node => node.PacsEnabled).Editing(false)
 				.AddColumn("")
 				.Finish();
 	}
