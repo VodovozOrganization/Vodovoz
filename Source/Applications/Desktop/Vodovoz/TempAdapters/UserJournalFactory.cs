@@ -15,7 +15,7 @@ namespace Vodovoz.TempAdapters
 			return new EntityAutocompleteSelectorFactory<SelectUserJournalViewModel>(typeof(User),
 				() => new SelectUserJournalViewModel(
 					new UsersJournalFilterViewModel(),
-					UnitOfWorkFactory.GetDefaultFactory,
+					ServicesConfig.UnitOfWorkFactory,
 					ServicesConfig.CommonServices)
 			);
 		}

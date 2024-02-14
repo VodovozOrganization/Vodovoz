@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using QS.Osrm;
+using QS.Project.Services;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -45,7 +46,7 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 		private readonly ILogger<ExtDistanceCalculator> _logger;
 		private readonly ICachedDistanceRepository _cachedDistanceRepository;
 		private readonly IGlobalSettings _globalSettings;
-		private IUnitOfWork _unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Расчет расстояний");
+		private IUnitOfWork _unitOfWork = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot("Расчет расстояний");
 		private int _proposeNeedCached = 0;
 		private readonly Action<string> _statisticsTxtAction;
 		private DateTime? _startLoadTime;
@@ -414,7 +415,7 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 			{
 				lock(_unitOfWork)
 				{
-					_unitOfWork.TrySave(cachedValue, false);
+					_unitOfWork.Save(cachedValue, false);
 					_unsavedItems++;
 					if(_unsavedItems >= SaveBy)
 					{

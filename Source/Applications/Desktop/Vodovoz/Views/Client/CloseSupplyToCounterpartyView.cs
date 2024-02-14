@@ -2,7 +2,7 @@
 using QS.Views.GtkUI;
 using System;
 using Vodovoz.Domain.Client;
-using Vodovoz.ViewModels.Dialogs.Counterparty;
+using Vodovoz.ViewModels.Dialogs.Counterparties;
 using QS.Project.Services;
 using QS.Navigation;
 using QS.Dialog.GtkUI.FileDialog;

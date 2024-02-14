@@ -13,18 +13,20 @@ namespace UnsubscribePage.Models
 	public class UnsubscribeViewModel : IValidatableObject
 	{
 		private IList<BulkEmailEventReason> _reasonsList;
+		private readonly IUnitOfWorkFactory _uowFactory;
 
 		public UnsubscribeViewModel() { }
 
-		public UnsubscribeViewModel(Guid guid, IEmailRepository emailRepository, IEmailParametersProvider emailParametersProvider)
+		public UnsubscribeViewModel(IUnitOfWorkFactory uowFactory, Guid guid, IEmailRepository emailRepository, IEmailParametersProvider emailParametersProvider)
 		{
 			Initialize(guid, emailRepository, emailParametersProvider);
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 		}
 
 		private void Initialize(Guid guid, IEmailRepository emailRepository, IEmailParametersProvider emailParametersProvider)
 		{
 			OtherReasonId = emailParametersProvider.BulkEmailEventOtherReasonId;
-			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Инициализация страницы отписки"))
+			using(var unitOfWork = _uowFactory.CreateWithoutRoot("Инициализация страницы отписки"))
 			{
 				CounterpartyId = emailRepository.GetCounterpartyIdByEmailGuidForUnsubscribing(unitOfWork, guid);
 				_reasonsList = emailRepository.GetUnsubscribingReasons(unitOfWork, emailParametersProvider, isForUnsubscribePage: true);
@@ -54,7 +56,7 @@ namespace UnsubscribePage.Models
 				}
 			};
 
-			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Отписка от массовой рассылки"))
+			using(var unitOfWork = _uowFactory.CreateWithoutRoot("Отписка от массовой рассылки"))
 			{
 				unitOfWork.Save(unsubscribingEvent);
 				unitOfWork.Commit();

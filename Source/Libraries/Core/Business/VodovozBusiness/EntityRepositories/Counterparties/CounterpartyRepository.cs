@@ -18,6 +18,13 @@ namespace Vodovoz.EntityRepositories.Counterparties
 {
 	public class CounterpartyRepository : ICounterpartyRepository
 	{
+		private readonly IUnitOfWorkFactory _uowFactory;
+
+		public CounterpartyRepository(IUnitOfWorkFactory uowFactory)
+		{
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+		}
+
 		public QueryOver<Counterparty> ActiveClientsQuery()
 		{
 			return QueryOver.Of<Counterparty>()
@@ -275,7 +282,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		public IList<Counterparty> GetDealers()
 		{
 			IList<Counterparty> result;
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"Получение списка адресов имеющих фиксированную цену"))
+			using(var uow = _uowFactory.CreateWithoutRoot($"Получение списка адресов имеющих фиксированную цену"))
 			{
 				result = uow.Session.QueryOver<Counterparty>()
 				   .Where(c => c.CounterpartyType == CounterpartyType.Dealer)

@@ -125,7 +125,7 @@ using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConver
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 using QS.ViewModels.Control.EEVM;
-using Vodovoz.ViewModels.Dialogs.Counterparty;
+using Vodovoz.ViewModels.Dialogs.Counterparties;
 
 namespace Vodovoz
 {
@@ -201,17 +201,17 @@ namespace Vodovoz
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
 		private readonly IDiscountReasonRepository _discountReasonRepository = new DiscountReasonRepository();
 		private readonly IRouteListItemRepository _routeListItemRepository = new RouteListItemRepository();
-		private readonly IEmailRepository _emailRepository = new EmailRepository();
+		private readonly IEmailRepository _emailRepository = new EmailRepository(ServicesConfig.UnitOfWorkFactory);
 		private readonly ICashRepository _cashRepository = new CashRepository();
 		private readonly IPromotionalSetRepository _promotionalSetRepository = new PromotionalSetRepository();
 		private readonly IDeliveryScheduleParametersProvider _deliveryScheduleParametersProvider = new DeliveryScheduleParametersProvider(_parametersProvider);
 		private ICounterpartyService _counterpartyService;
 
 		private readonly IRentPackagesJournalsViewModelsFactory _rentPackagesJournalsViewModelsFactory
-			= new RentPackagesJournalsViewModelsFactory(Startup.MainWin.NavigationManager);
+			= new RentPackagesJournalsViewModelsFactory(ServicesConfig.UnitOfWorkFactory, Startup.MainWin.NavigationManager);
 
 		private readonly INonSerialEquipmentsForRentJournalViewModelFactory _nonSerialEquipmentsForRentJournalViewModelFactory
-			= new NonSerialEquipmentsForRentJournalViewModelFactory();
+			= new NonSerialEquipmentsForRentJournalViewModelFactory(ServicesConfig.UnitOfWorkFactory);
 
 		private readonly IPaymentItemsRepository _paymentItemsRepository = new PaymentItemsRepository();
 		private readonly IPaymentsRepository _paymentsRepository = new PaymentsRepository();
@@ -354,6 +354,7 @@ namespace Vodovoz
 				if(callTaskWorker == null)
 				{
 					callTaskWorker = new CallTaskWorker(
+						ServicesConfig.UnitOfWorkFactory,
 						CallTaskSingletonFactory.GetInstance(),
 						new CallTaskRepository(),
 						_orderRepository,
@@ -396,7 +397,7 @@ namespace Vodovoz
 		public OrderDlg()
 		{
 			Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Order>();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<Order>();
 			Entity.Author = _currentEmployee = _employeeService.GetEmployeeForUser(UoW, _userRepository.GetCurrentUser(UoW).Id);
 			if(Entity.Author == null)
 			{
@@ -448,7 +449,7 @@ namespace Vodovoz
 		public OrderDlg(int id)
 		{
 			Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Order>(id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<Order>(id);
 			IsForRetail = UoWGeneric.Root.Client.IsForRetail;
 			IsForSalesDepartment = UoWGeneric.Root.Client.IsForSalesDepartment;
 			ConfigureDlg();
@@ -480,7 +481,7 @@ namespace Vodovoz
 				var orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
 				var parametersProvider = new ParametersProvider();
 				var orderParametersProvider = new OrderParametersProvider(parametersProvider);
-				var cashReceiptRepository = new CashReceiptRepository(UnitOfWorkFactory.GetDefaultFactory, orderParametersProvider);
+				var cashReceiptRepository = new CashReceiptRepository(ServicesConfig.UnitOfWorkFactory, orderParametersProvider);
 				counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider, cashReceiptRepository);
 				counterpartyContractFactory = new CounterpartyContractFactory(orderOrganizationProvider, counterpartyContractRepository);
 				Entity.UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
@@ -603,11 +604,11 @@ namespace Vodovoz
 			organizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
 			var parametersProvider = new ParametersProvider();
 			var orderParametersProvider = new OrderParametersProvider(parametersProvider);
-			var cashReceiptRepository = new CashReceiptRepository(UnitOfWorkFactory.GetDefaultFactory, orderParametersProvider);
+			var cashReceiptRepository = new CashReceiptRepository(ServicesConfig.UnitOfWorkFactory, orderParametersProvider);
 			counterpartyContractRepository = new CounterpartyContractRepository(organizationProvider, cashReceiptRepository);
 			counterpartyContractFactory = new CounterpartyContractFactory(organizationProvider, counterpartyContractRepository);
 			_orderParametersProvider = new OrderParametersProvider(parametersProvider);
-			_dailyNumberController = new OrderDailyNumberController(_orderRepository, UnitOfWorkFactory.GetDefaultFactory);
+			_dailyNumberController = new OrderDailyNumberController(_orderRepository, ServicesConfig.UnitOfWorkFactory);
 
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<NomenclatureFixedPrice>(OnNomenclatureFixedPriceChanged);
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<DeliveryPoint, Phone>(OnDeliveryPointChanged);
@@ -801,7 +802,7 @@ namespace Vodovoz
 
 			entityVMEntryClient.SetEntityAutocompleteSelectorFactory(
 				new EntityAutocompleteSelectorFactory<CounterpartyJournalViewModel>(typeof(Counterparty),
-					() => new CounterpartyJournalViewModel(counterpartyFilter, UnitOfWorkFactory.GetDefaultFactory,
+					() => new CounterpartyJournalViewModel(counterpartyFilter, ServicesConfig.UnitOfWorkFactory,
 						ServicesConfig.CommonServices, Startup.MainWin.NavigationManager, filter =>
 						{
 							filter.IsForRetail = IsForRetail;
@@ -824,7 +825,7 @@ namespace Vodovoz
 			var fileDialogService = new FileDialogService();
 			var _roboatsViewModelFactory = new RoboatsViewModelFactory(roboatsFileStorageFactory, fileDialogService,
 				ServicesConfig.CommonServices.CurrentPermissionService);
-			var deliveryScheduleJournalFactory = new DeliveryScheduleJournalFactory(UnitOfWorkFactory.GetDefaultFactory,
+			var deliveryScheduleJournalFactory = new DeliveryScheduleJournalFactory(ServicesConfig.UnitOfWorkFactory,
 				ServicesConfig.CommonServices, deliveryScheduleRepository, _roboatsViewModelFactory);
 			deliveryScheduleJournalFactory.RestrictIsNotArchive = true;
 			entryDeliverySchedule.SetEntityAutocompleteSelectorFactory(deliveryScheduleJournalFactory);
@@ -858,7 +859,7 @@ namespace Vodovoz
 				DeliveryPoint = DeliveryPoint
 			};
 			var phoneSelectoFactory = new EntityAutocompleteSelectorFactory<PhonesJournalViewModel>(typeof(Phone),
-				() => new PhonesJournalViewModel(_contactPhoneFilter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices));
+				() => new PhonesJournalViewModel(_contactPhoneFilter, ServicesConfig.UnitOfWorkFactory, ServicesConfig.CommonServices));
 			evmeContactPhone.SetEntitySelectorFactory(phoneSelectoFactory);
 
 			entryDeliveryPoint.ViewModel.ChangedByUser += (s, e) =>
@@ -1249,7 +1250,7 @@ namespace Vodovoz
 				return;
 			}
 
-			using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			using (var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
 			{
 				var resendUpdAction = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
 						.Where(x => x.Order.Id == Entity.Id)
@@ -1401,7 +1402,7 @@ namespace Vodovoz
 			var counterpartyLogisticsRequirements = new LogisticsRequirements();
 			var deliveryPointLogisticsRequirements = new LogisticsRequirements();
 
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
 			{
 				if(Entity.Client?.LogisticsRequirements?.Id > 0)
 				{
@@ -1518,7 +1519,7 @@ namespace Vodovoz
 				Entity
 			);
 
-			var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(UnitOfWorkFactory.GetDefaultFactory);
+			var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(ServicesConfig.UnitOfWorkFactory);
 			fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryAvailabilityHistory);
 
 			var fastDeliveryVerificationViewModel = new FastDeliveryVerificationViewModel(fastDeliveryAvailabilityHistory);
@@ -2038,7 +2039,7 @@ namespace Vodovoz
 		{
 			_edoContainers.Clear();
 
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
 			{
 				var containers = _edoContainerRepository.Get(uow, EdoContainerSpecification.CreateForOrderId(Entity.Id));
 
@@ -2094,6 +2095,7 @@ namespace Vodovoz
 		{
 			SendDocumentByEmailViewModel =
 				new SendDocumentByEmailViewModel(
+					ServicesConfig.UnitOfWorkFactory,
 					_emailRepository,
 					_lifetimeScope.Resolve<IEmailParametersProvider>(),
 					_currentEmployee,
@@ -2415,7 +2417,7 @@ namespace Vodovoz
 					Entity
 				);
 
-				var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(UnitOfWorkFactory.GetDefaultFactory);
+				var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(ServicesConfig.UnitOfWorkFactory);
 				fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryAvailabilityHistory);
 
 				routeListToAddFastDeliveryOrder = fastDeliveryAvailabilityHistory.Items
@@ -2604,7 +2606,7 @@ namespace Vodovoz
 
 		private void ProcessSmsNotification()
 		{
-			SmsNotifier smsNotifier = new SmsNotifier(_baseParametersProvider);
+			SmsNotifier smsNotifier = new SmsNotifier(ServicesConfig.UnitOfWorkFactory, _baseParametersProvider);
 			smsNotifier.NotifyIfNewClient(Entity);
 		}
 
@@ -4186,7 +4188,7 @@ namespace Vodovoz
 			btnAddM2ProxyForThisOrder.Sensitive = val;
 			btnRemExistingDocument.Sensitive = val;
 			RouteListStatus? rlStatus = null;
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot()) {
 				if(Entity.Id != 0)
 					rlStatus = _orderRepository.GetAllRLForOrder(uow, Entity).FirstOrDefault()?.Status;
 				var sensitive = rlStatus.HasValue && CanEditByPermission
@@ -4667,7 +4669,7 @@ namespace Vodovoz
 
 		private IUnitOfWorkGeneric<Order> CreateNewOrderForDailyRentEquipmentReturn(Order sourceOrder)
 		{
-			var result = UnitOfWorkFactory.CreateWithNewRoot<Order>();
+			var result = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<Order>();
 
 			result.Root.Client = sourceOrder.Client;
 			result.Root.Author = sourceOrder.Author;

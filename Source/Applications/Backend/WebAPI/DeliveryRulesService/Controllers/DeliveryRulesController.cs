@@ -246,7 +246,7 @@ namespace DeliveryRulesService.Controllers
 				return await ValueTask.FromResult(deliveryInfo);
 			}
 			
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot(ServiceConstants.CheckingFastDeliveryAvailable))
+			using(var uow = _uowFactory.CreateWithoutRoot(ServiceConstants.CheckingFastDeliveryAvailable))
 			{
 				var fastDeliveryAllowed = await CheckIfFastDeliveryAllowedAsync(uow, request.Latitude, request.Longitude, request.SiteNomenclatures);
 
@@ -274,7 +274,7 @@ namespace DeliveryRulesService.Controllers
 				return await ValueTask.FromResult(deliveryInfo);
 			}
 			
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot(ServiceConstants.CheckingFastDeliveryAvailable))
+			using(var uow = _uowFactory.CreateWithoutRoot(ServiceConstants.CheckingFastDeliveryAvailable))
 			{
 				var fastDeliveryAllowed = await CheckIfFastDeliveryAllowedAsync(uow, request.Latitude, request.Longitude, request.SiteNomenclatures);
 				
@@ -321,7 +321,7 @@ namespace DeliveryRulesService.Controllers
 		{
 			_logger.LogInformation(ServiceConstants.RequestToGetDeliveryRules());
 
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				District district;
 
