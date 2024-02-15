@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using Microsoft.Extensions.Logging;
+using NLog;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -17,9 +18,9 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using Vodovoz.CachingRepositories.Common;
-using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;

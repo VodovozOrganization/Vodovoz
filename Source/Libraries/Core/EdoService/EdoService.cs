@@ -17,18 +17,11 @@ namespace EdoService.Library
 {
 	public class EdoService : IEdoService
 	{
-		private readonly IUnitOfWorkFactory _uowFactory;
-
 		private static EdoDocFlowStatus[] _successfulEdoStatuses => new[] { EdoDocFlowStatus.Succeed, EdoDocFlowStatus.InProgress };
-
-		public EdoService(IUnitOfWorkFactory uowFactory)
-		{
-			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
-		}
 
 		public virtual void SetNeedToResendEdoDocumentForOrder<T>(T entity, Type type) where T : IDomainObject
 		{
-			using(var uow = _uowFactory.CreateWithoutRoot("Ставим документ в очередь на переотправку в ЭДО"))
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot("Ставим документ в очередь на переотправку в ЭДО"))
 			{
 				var edoDocumentsActions = UpdateEdoDocumentAction(uow, entity, type);
 

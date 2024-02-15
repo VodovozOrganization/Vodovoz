@@ -31,7 +31,6 @@ using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Tools;
-using Vodovoz.Core.Domain.Employees;
 
 namespace Vodovoz.Additions.Accounting
 {

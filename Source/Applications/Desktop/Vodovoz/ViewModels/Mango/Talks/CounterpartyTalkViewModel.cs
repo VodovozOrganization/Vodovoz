@@ -7,15 +7,13 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QSReport;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Infrastructure.Mango;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
@@ -26,12 +24,11 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.Views.Mango;
 
-namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
+namespace Vodovoz.ViewModels.Mango.Talks
 {
 	public partial class CounterpartyTalkViewModel : TalkViewModelBase, IDisposable
 	{
 		private readonly ITdiCompatibilityNavigation _tdiNavigation;
-		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IRouteListRepository _routedListRepository;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IOrderParametersProvider _orderParametersProvider;
@@ -69,7 +66,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 		{
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_tdiNavigation = tdinavigation ?? throw new ArgumentNullException(nameof(tdinavigation));
-			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+
 			_routedListRepository = routedListRepository;
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
@@ -79,7 +76,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
 			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
-			_uow = _unitOfWorkFactory.CreateWithoutRoot();
+			_uow = unitOfWorkFactory.CreateWithoutRoot();
 			_deliveryPointJournalFactory =
 				deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 
@@ -90,7 +87,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 				foreach(Counterparty client in clients)
 				{
 					CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(
-						client, _lifetimeScope, _unitOfWorkFactory, tdinavigation, routedListRepository, MangoManager, _orderParametersProvider,
+						client, _lifetimeScope, unitOfWorkFactory, tdinavigation, routedListRepository, MangoManager, _orderParametersProvider,
 						_employeeJournalFactory, _counterpartyJournalFactory, _parametersProvider, _deliveryRulesParametersProvider);
 					CounterpartyOrdersViewModels.Add(model);
 				}
@@ -139,7 +136,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 					new CounterpartyOrderViewModel(
 						client,
 						_lifetimeScope,
-						_unitOfWorkFactory,
+						UnitOfWorkFactory.GetDefaultFactory,
 						_tdiNavigation,
 						_routedListRepository,
 						MangoManager,
@@ -172,7 +169,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 
 				CounterpartyOrderViewModel model =
 					new CounterpartyOrderViewModel(
-						client, _lifetimeScope, _unitOfWorkFactory, _tdiNavigation, _routedListRepository, MangoManager,
+						client, _lifetimeScope, UnitOfWorkFactory.GetDefaultFactory, _tdiNavigation, _routedListRepository, MangoManager,
 						_orderParametersProvider, _employeeJournalFactory, _counterpartyJournalFactory, _parametersProvider,
 						_deliveryRulesParametersProvider);
 				
@@ -219,7 +216,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 			var parameters = new Dictionary<string, object> {
 				{"client", currentCounterparty},
 				{"uowBuilder", EntityUoWBuilder.ForCreate()},
-				{ "unitOfWorkFactory", _unitOfWorkFactory },
+				{ "unitOfWorkFactory", UnitOfWorkFactory.GetDefaultFactory },
 				//Autofac: IEmployeeService 
 				{"employeeSelectorFactory", employeeSelectorFactory},
 				{"counterpartySelectorFactory", counterpartySelectorFactory},

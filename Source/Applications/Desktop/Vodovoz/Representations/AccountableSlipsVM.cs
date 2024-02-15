@@ -6,7 +6,6 @@ using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
-using QS.Project.Services;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using QSProjectsLib;
@@ -153,8 +152,8 @@ namespace Vodovoz.ViewModel
 			Filter = filter;
 		}
 
-		public AccountableSlipsVM ()
-			: this(ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
+		public AccountableSlipsVM () 
+			: this(UnitOfWorkFactory.CreateWithoutRoot ()) 
 		{}
 
 		public AccountableSlipsVM (IUnitOfWork uow) : base( typeof(Expense), typeof(AdvanceReport), typeof(Income))

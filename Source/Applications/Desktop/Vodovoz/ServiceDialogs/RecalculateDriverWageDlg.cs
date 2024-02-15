@@ -26,7 +26,7 @@ namespace Vodovoz.ServiceDialogs
         {
             this.Build();
             TabName = "Пересчет ЗП водителей";
-            UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
+            UoW = UnitOfWorkFactory.CreateWithoutRoot();
             ConfigureDlg();
             _wageParameterService =
 	            new WageParameterService(_wageCalculationRepository, new BaseParametersProvider(new ParametersProvider()));
@@ -55,7 +55,7 @@ namespace Vodovoz.ServiceDialogs
                 throw new ArgumentNullException("Не выбрана дата по!");
             }
 
-            using (var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
+            using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
             {
                 var dateTimeFrom = datePickerFrom.Date.Date;
                 var dateTimeTo = datePickerTo.Date.Date.AddDays(1).AddMilliseconds(-1);
@@ -95,7 +95,7 @@ namespace Vodovoz.ServiceDialogs
                 throw new ArgumentNullException("Не выбрана дата по!");
             }
 
-            using (var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
+            using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
             {
                 var dateTimeFrom = datePickerFrom.Date.Date;
                 var dateTimeTo = datePickerTo.Date.Date.AddDays(1).AddMilliseconds(-1);

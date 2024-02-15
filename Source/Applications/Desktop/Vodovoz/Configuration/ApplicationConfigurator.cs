@@ -65,16 +65,9 @@ namespace Vodovoz.Configuration
 	public class ApplicationConfigurator : IApplicationConfigurator
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
-		//private readonly IOrmConfig _ormConfig;
+        private const int connectionTimeoutSeconds = 120;
 
-		private const int connectionTimeoutSeconds = 120;
-
-		public ApplicationConfigurator(/*IOrmConfig ormConfig*/)
-		{
-			//_ormConfig = ormConfig ?? throw new ArgumentNullException(nameof(ormConfig));
-		}
-
-        /*public void ConfigureOrm()
+        public void ConfigureOrm()
         {
             logger.Debug("Конфигурация ORM...");
 
@@ -100,18 +93,17 @@ namespace Vodovoz.Configuration
                 .Driver<LoggedMySqlClientDriver>();
 
 			// Настройка ORM
-			_ormConfig.ConfigureOrm(
+			OrmConfig.ConfigureOrm(
                 dbConfig,
                 new[] {
                     Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
+                    Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
                     Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
                     Assembly.GetAssembly(typeof(Bank)),
                     Assembly.GetAssembly(typeof(HistoryMain)),
                     Assembly.GetAssembly(typeof(QS.Attachments.Domain.Attachment)),
                     Assembly.GetAssembly(typeof(QS.Report.Domain.UserPrintSettings)),
 					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder)),
-					Assembly.GetAssembly(typeof(Vodovoz.Core.Data.NHibernate.AssemblyFinder)),
-                    Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder))
 					Assembly.GetAssembly(typeof(CompletedDriverWarehouseEventProxyMap))
 				},
 				cnf => {
@@ -129,7 +121,7 @@ namespace Vodovoz.Configuration
 			HistoryMain.Enable(dbConnectionStringBuilder);
 
 			logger.Debug("OK");
-        }*/
+        }
 
         public void CreateApplicationConfig()
         {
@@ -286,6 +278,11 @@ namespace Vodovoz.Configuration
                 .Column("Активно", x => !x.IsActive ? "нет" : String.Empty)
                 .SearchColumn("Имя класса", x => x.Type)
                 .OrderAsc(x => x.CustomName)
+                .End();
+            OrmMain.AddObjectDescription<Trainee>().Dialog<TraineeDlg>().DefaultTableView()
+                .Column("Код", x => x.Id.ToString())
+                .SearchColumn("Ф.И.О.", x => x.FullName)
+                .OrderAsc(x => x.LastName).OrderAsc(x => x.Name).OrderAsc(x => x.Patronymic)
                 .End();
             OrmMain.AddObjectDescription<Certificate>().Dialog<CertificateDlg>().DefaultTableView()
                 .SearchColumn("Имя", x => x.Name)

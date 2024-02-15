@@ -2,14 +2,13 @@
 
 namespace MessageTransport
 {
-	/*public interface IMessageTransportSettings
+	public interface IMessageTransportSettings
 	{
 		string Host { get; }
 		int Port { get; }
 		string VirtualHost { get; }
-		string Username { get; }
+		string User { get; }
 		string Password { get; }
-		bool UseSSL { get; }
-		List<MessageTTLSetting> MessagesTimeToLive { get; }
-	}*/
+		IEnumerable<MessageTTLSetting> MessagesTTL { get; }
+	}
 }

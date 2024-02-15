@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using QS.DomainModel.UoW;
-using QS.Project.Services;
 using System;
 using Vodovoz.Settings.Database;
 
@@ -15,7 +14,7 @@ namespace Vodovoz.Parameters
 		public ParametersProvider()
 		{
 			var loggerFactory = new NLogLoggerFactory();
-			_settingsController = new SettingsController(ServicesConfig.UnitOfWorkFactory, new Logger<SettingsController>(loggerFactory));
+			_settingsController = new SettingsController(UnitOfWorkFactory.GetDefaultFactory, new Logger<SettingsController>(loggerFactory));
 		}
 
 		public bool ContainsParameter(string parameterName)

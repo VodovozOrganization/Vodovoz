@@ -24,7 +24,6 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.EntityRepositories.Cash;
-using Vodovoz.Core.Domain.Employees;
 using Autofac;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.Factories;
@@ -51,7 +50,7 @@ namespace Vodovoz.Dialogs
 		public CallTaskDlg()
 		{
 			this.Build();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<CallTask>();
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<CallTask>();
 			_employeeRepository = new EmployeeRepository();
 			_bottleRepository = new BottlesRepository();
 			_callTaskRepository = new CallTaskRepository();
@@ -80,7 +79,7 @@ namespace Vodovoz.Dialogs
 		public CallTaskDlg(int callTaskId)
 		{
 			this.Build();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<CallTask>(callTaskId);
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<CallTask>(callTaskId);
 			_employeeRepository = new EmployeeRepository();
 			_bottleRepository = new BottlesRepository();
 			_callTaskRepository = new CallTaskRepository();
@@ -99,7 +98,7 @@ namespace Vodovoz.Dialogs
 			_contactsParameters = new ContactParametersProvider(_parametersProvider);
 			_organizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
 			var orderParametersProvider = new OrderParametersProvider(_parametersProvider);
-			var cashReceiptRepository = new CashReceiptRepository(ServicesConfig.UnitOfWorkFactory, orderParametersProvider);
+			var cashReceiptRepository = new CashReceiptRepository(UnitOfWorkFactory.GetDefaultFactory, orderParametersProvider);
 			_counterpartyContractRepository = new CounterpartyContractRepository(_organizationProvider, cashReceiptRepository);
 			_counterpartyContractFactory = new CounterpartyContractFactory(_organizationProvider, _counterpartyContractRepository);
 
@@ -251,7 +250,7 @@ namespace Vodovoz.Dialogs
 
 		public override bool Save()
 		{
-			var validator = ServicesConfig.ValidationService;
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
 			if(!validator.Validate(Entity))
 			{
 				return false;

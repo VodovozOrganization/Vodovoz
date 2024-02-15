@@ -3,6 +3,7 @@ using Microsoft.Extensions.Hosting;
 using Sms.External.Interface;
 using Sms.External.SmsRu;
 using Vodovoz.Core.DataService;
+using Vodovoz.Data.NHibernate;
 using Vodovoz.EntityRepositories.SmsNotifications;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
@@ -21,7 +22,7 @@ namespace Vodovoz.SmsInformerWorker
 			.AddSingleton<ISmsNotificationRepository, SmsNotificationRepository>()
 			.AddSingleton<ISmsNotifierParametersProvider, BaseParametersProvider>()
 			.AddSingleton<IParametersProvider, ParametersProvider>()
-			;
+			.AddDatabase(context);
 
 		public static IServiceCollection ConfigureSmsInformerWorker(this IServiceCollection services, HostBuilderContext context) => services
 			.Configure<SmsInformerOptions>(context.Configuration.GetSection(nameof(SmsInformerOptions)))

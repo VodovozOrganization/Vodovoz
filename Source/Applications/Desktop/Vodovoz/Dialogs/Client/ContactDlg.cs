@@ -23,8 +23,7 @@ namespace Vodovoz
 		public ContactDlg (Counterparty counterparty)
 		{
 			this.Build ();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<Contact>();
-			UoWGeneric.Root.Counterparty = counterparty;
+			UoWGeneric = Contact.Create (counterparty);
 			ConfigureDlg ();
 		}
 
@@ -35,7 +34,7 @@ namespace Vodovoz
 		public ContactDlg (int id)
 		{
 			this.Build ();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<Contact> (id);
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Contact> (id);
 			ConfigureDlg ();
 		}
 
@@ -70,7 +69,7 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
-			var validator = ServicesConfig.ValidationService;
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
 			if(!validator.Validate(Entity))
 			{
 				return false;

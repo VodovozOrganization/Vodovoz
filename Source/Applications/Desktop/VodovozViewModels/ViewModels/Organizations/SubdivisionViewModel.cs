@@ -28,7 +28,6 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 		private readonly ILifetimeScope _scope;
 		private PresetSubdivisionPermissionsViewModel _presetSubdivisionPermissionVm;
 		private WarehousePermissionsViewModel _warehousePermissionsVm;
-		private bool _canEnablePacs;
 
 		public SubdivisionViewModel(
 			IEntityUoWBuilder uoWBuilder,
@@ -82,10 +81,6 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 			CreateCommands();
 
 			SubscribeUpdateOnChanges();
-
-			_canEnablePacs = CommonServices.PermissionService.ValidateUserPresetPermission(
-				Vodovoz.Permissions.Pacs.CanEnablePacs, 
-				CommonServices.UserService.CurrentUserId);
 		}
 
 		public ISubdivisionRepository SubdivisionRepository { get; }
@@ -123,7 +118,6 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 		}
 
 		public bool CanEdit => PermissionResult.CanUpdate;
-		public bool CanEnablePacs => _canEnablePacs;
 
 		public bool GeographicGroupVisible => Entity.ParentSubdivision != null && Entity.ChildSubdivisions.Any();
 

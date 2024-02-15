@@ -1,36 +1,41 @@
 ﻿using Mango.Core.Handlers;
 using MassTransit;
+using MessageTransport;
 using Microsoft.Extensions.DependencyInjection;
 using System.Security.Authentication;
-using Vodovoz.Settings.Pacs;
 
 namespace Mango.CallsPublishing
 {
 	public static class DependencyInjection
 	{
-		public static IServiceCollection AddCallsPublishing(this IServiceCollection services)
+		public static IServiceCollection AddCallsPublishing(this IServiceCollection services, IMessageTransportSettings transportSettings)
 		{
-			services.AddScoped<ICallEventHandler, PublisherCallEventHandler>();
+			services
+				.AddScoped<ICallEventHandler, PublisherCallEventHandler>()
+				;
 
-			services.AddMassTransit(busCfg =>
+			services.AddMassTransit(x =>
 			{
-				busCfg.UsingRabbitMq((context, rabbitCfg) =>
+				x.UsingRabbitMq((context, cfg) =>
 				{
-					var ts = context.GetRequiredService<IMessageTransportSettings>();
-					rabbitCfg.Host(ts.Host, (ushort)ts.Port, ts.VirtualHost,
-						rabbitHostCfg =>
+					cfg.Host(
+						transportSettings.Host,
+						(ushort)transportSettings.Port,
+						transportSettings.VirtualHost,
+						hostCfg => 
 						{
-							rabbitHostCfg.Username(ts.Username);
-							rabbitHostCfg.Password(ts.Password);
-							if(ts.UseSSL)
+							hostCfg.Username(transportSettings.User);
+							hostCfg.Password(transportSettings.Password);
+							hostCfg.UseSsl(ssl =>
 							{
-								rabbitHostCfg.UseSsl(ssl => ssl.Protocol = SslProtocols.Tls12);
-							}
+								ssl.Protocol = SslProtocols.Tls12;
+							});
 						}
 					);
 
-					rabbitCfg.AddMangoProducerTopology(context);
-					rabbitCfg.ConfigureEndpoints(context);
+					cfg.ConfigureMangoProducerTopology(context);
+
+					cfg.ConfigureEndpoints(context);
 				});
 			});
 

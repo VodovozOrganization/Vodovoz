@@ -10,7 +10,6 @@ using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
-using QS.Project.Services;
 using QS.Services;
 using QS.Tdi;
 using QS.Utilities;
@@ -88,7 +87,7 @@ namespace Vodovoz.SidePanel.InfoViews
 		private void SaveLogisticsRequirements()
 		{
 			using(var uow =
-					ServicesConfig.UnitOfWorkFactory.CreateForRoot<Counterparty>(_counterparty.Id, "Кнопка «Cохранить требования к логистике на панели контрагента"))
+					UnitOfWorkFactory.CreateForRoot<Counterparty>(_counterparty.Id, "Кнопка «Cохранить требования к логистике на панели контрагента"))
 			{
 				if(uow.Root.LogisticsRequirements == null)
 				{
@@ -248,7 +247,7 @@ namespace Vodovoz.SidePanel.InfoViews
 		private void SaveComment()
 		{
 			using(var uow =
-				ServicesConfig.UnitOfWorkFactory.CreateForRoot<Counterparty>(_counterparty.Id, "Кнопка «Cохранить комментарий» на панели контрагента"))
+				UnitOfWorkFactory.CreateForRoot<Counterparty>(_counterparty.Id, "Кнопка «Cохранить комментарий» на панели контрагента"))
 			{
 				uow.Root.Comment = textviewComment.Buffer.Text;
 				uow.Save();
@@ -304,7 +303,7 @@ namespace Vodovoz.SidePanel.InfoViews
 				DialogHelper.GenerateDialogHashName<Counterparty>(_counterparty.Id),
 				() =>
 				{
-					var dlg = new CounterpartyDlg(EntityUoWBuilder.ForOpen(_counterparty.Id), ServicesConfig.UnitOfWorkFactory);
+					var dlg = new CounterpartyDlg(EntityUoWBuilder.ForOpen(_counterparty.Id), UnitOfWorkFactory.GetDefaultFactory);
 					dlg.ActivateContactsTab();
 					dlg.EntitySaved += (o, args) => Refresh(args.Entity);
 					return dlg;

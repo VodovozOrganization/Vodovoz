@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Timers;
@@ -10,15 +10,13 @@ namespace SmsPaymentService.Workers
 {
     public class CachePaymentsWorker
     {
-        public CachePaymentsWorker(IUnitOfWorkFactory uowFactory, SmsPaymentFileCache smsPaymentFileCache, ISmsPaymentService smsPaymentService)
+        public CachePaymentsWorker(SmsPaymentFileCache smsPaymentFileCache, ISmsPaymentService smsPaymentService)
         {
-			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
-			this.smsPaymentFileCache = smsPaymentFileCache ?? throw new ArgumentNullException(nameof(smsPaymentFileCache));
+            this.smsPaymentFileCache = smsPaymentFileCache ?? throw new ArgumentNullException(nameof(smsPaymentFileCache));
             this.smsPaymentService = smsPaymentService ?? throw new ArgumentNullException(nameof(smsPaymentService));
         }
-
-		private readonly IUnitOfWorkFactory _uowFactory;
-		private readonly SmsPaymentFileCache smsPaymentFileCache;
+        
+        private readonly SmsPaymentFileCache smsPaymentFileCache;
         private readonly ISmsPaymentService smsPaymentService;
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         
@@ -57,7 +55,7 @@ namespace SmsPaymentService.Workers
                     return;
                 }
 
-                using (var uow = _uowFactory.CreateWithoutRoot()) {
+                using (IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot()) {
                     var cachesWithIds = caches.Where(x => x.ExternalId.HasValue && x.PaymentId.HasValue).ToList();
 
                     var readyForSendPayments = uow.Session.QueryOver<SmsPayment>()

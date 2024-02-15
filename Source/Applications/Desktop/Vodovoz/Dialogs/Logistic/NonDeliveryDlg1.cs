@@ -40,7 +40,7 @@ namespace Vodovoz.Dialogs.Logistic
 		//public NonDeliveryDlg (int id)
 		//{
 		//	this.Build ();
-		//	UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<NonDelivery> (id);
+		//	UoWGeneric = UnitOfWorkFactory.CreateForRoot<NonDelivery> (id);
 		//	TabName = String.Format ("Создание недовоза{0}", Entity.Id);
 		//	ConfigureDlg ();
 		//}

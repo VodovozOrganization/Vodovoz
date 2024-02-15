@@ -4,7 +4,6 @@ using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NLog.Extensions.Logging;
 using QS.DomainModel.UoW;
-using QS.Project.Services;
 using RabbitMQ.Infrastructure;
 using RabbitMQ.MailSending;
 using System;
@@ -27,7 +26,7 @@ namespace Vodovoz.Additions
 
 		public void ResendEmailWithErrorSendingStatus(DateTime date)
 		{
-			using(var uowLocal = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
+			using(var uowLocal = UnitOfWorkFactory.CreateWithoutRoot())
 			{
 				var configuration = uowLocal.GetAll<InstanceMailingConfiguration>().FirstOrDefault();
 
@@ -157,7 +156,7 @@ namespace Vodovoz.Additions
 					try
 					{
 
-						using(var unitOfWork = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot("StoredEmail"))
+						using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("StoredEmail"))
 						{
 							var storedEmail = new StoredEmail
 							{

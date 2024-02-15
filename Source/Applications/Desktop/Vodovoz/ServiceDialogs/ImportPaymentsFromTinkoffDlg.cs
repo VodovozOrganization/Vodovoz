@@ -152,7 +152,7 @@ namespace Vodovoz.ServiceDialogs
 		{
 			if(otherPaymentsFromDB == null || !otherPaymentsFromDB.Any())
 			{
-				using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
+				using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 				{
 					otherPaymentsFromDB = _paymentsRepository.GetPaymentsByTwoMonths(uow, payment.DateAndTime);
 				}
@@ -350,7 +350,7 @@ namespace Vodovoz.ServiceDialogs
 			foreach(var selectedPayment in paymentsToSave) {
 				try {
 					if(cnt == 0) {
-						uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
+						uow = UnitOfWorkFactory.CreateWithoutRoot();
 						uow.Session.SetBatchSize(batchSize);
 					}
 					uow.Save(selectedPayment);

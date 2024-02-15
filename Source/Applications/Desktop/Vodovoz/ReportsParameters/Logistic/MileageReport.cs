@@ -33,8 +33,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		private void Configure()
 		{
-			var uowFactory = _lifetimeScope.Resolve<IUnitOfWorkFactory>();
-			UoW = uowFactory.CreateWithoutRoot();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
 			ConfigureEntries();
 

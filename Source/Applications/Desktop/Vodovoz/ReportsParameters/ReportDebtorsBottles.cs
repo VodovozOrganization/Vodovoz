@@ -5,7 +5,6 @@ using QS.Dialog;
 using QS.Report;
 using QSReport;
 using QS.Dialog.GtkUI;
-using QS.Project.Services;
 
 namespace Vodovoz.ReportsParameters
 {
@@ -15,7 +14,7 @@ namespace Vodovoz.ReportsParameters
 		public ReportDebtorsBottles()
 		{
 			this.Build();
-			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 		}
 
 		#region IParametersWidget implementation

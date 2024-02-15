@@ -5,7 +5,6 @@ using System.Linq;
 using NHibernate.Transform;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QS.Project.Services;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Orders;
@@ -22,7 +21,7 @@ namespace Vodovoz.ReportsParameters.Sales
 		public SalesByDiscountReport()
 		{
 			Build();
-			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			_filter = new SelectableParametersReportFilter(UoW);
 			dateperiodpicker.StartDate = dateperiodpicker.EndDate = DateTime.Today;
 			ConfigureMultipleFilter();

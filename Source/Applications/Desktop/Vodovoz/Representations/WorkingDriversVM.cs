@@ -8,7 +8,6 @@ using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
-using QS.Project.Services;
 using QS.Utilities.Text;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Documents;
@@ -150,7 +149,7 @@ namespace Vodovoz.ViewModel
 
 		#endregion
 
-		public WorkingDriversVM() : this(ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot(), new RouteListTrackFilterViewModel()) { }
+		public WorkingDriversVM() : this(UnitOfWorkFactory.CreateWithoutRoot(), new RouteListTrackFilterViewModel()) { }
 
 		public WorkingDriversVM(IUnitOfWork uow, RouteListTrackFilterViewModel routeListTrackFilterViewModel) : base()
 		{

@@ -21,14 +21,14 @@ namespace Vodovoz
 		public PaidRentPackageDlg ()
 		{
 			this.Build ();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<PaidRentPackage>();
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<PaidRentPackage>();
 			ConfigureDlg ();
 		}
 
 		public PaidRentPackageDlg (int id)
 		{
 			this.Build ();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<PaidRentPackage> (id);
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<PaidRentPackage> (id);
 			ConfigureDlg ();
 		}
 

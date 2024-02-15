@@ -45,8 +45,6 @@ using Vodovoz.JournalFilters.Proposal;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewers.Complaints;
-using Vodovoz.Presentation.ViewModels.Employees;
-using Vodovoz.Presentation.ViewModels.Pacs;
 using Vodovoz.Logistic;
 using Vodovoz.Presentation.ViewModels.PaymentType;
 using Vodovoz.QualityControl.Reports;
@@ -72,13 +70,11 @@ using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Counterparties;
 using Vodovoz.ViewModels.Counterparties.ClientClassification;
 using Vodovoz.ViewModels.Dialogs.Complaints;
-using Vodovoz.ViewModels.Dialogs.Counterparties;
+using Vodovoz.ViewModels.Dialogs.Counterparty;
 using Vodovoz.ViewModels.Dialogs.Email;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Dialogs.Logistic;
-using Vodovoz.ViewModels.Dialogs.Mango;
-using Vodovoz.ViewModels.Dialogs.Mango.Talks;
 using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.Dialogs.Roboats;
 using Vodovoz.ViewModels.Dialogs.Sales;
@@ -158,12 +154,9 @@ using Vodovoz.Views.Employees;
 using Vodovoz.Views.Flyers;
 using Vodovoz.Views.Goods;
 using Vodovoz.Views.Logistic;
-using Vodovoz.Views.Mango;
-using Vodovoz.Views.Mango.Talks;
 using Vodovoz.Views.Orders;
 using Vodovoz.Views.Orders.OrdersWithoutShipment;
 using Vodovoz.Views.Organization;
-using Vodovoz.Views.Pacs;
 using Vodovoz.Views.Payments;
 using Vodovoz.Views.Permissions;
 using Vodovoz.Views.Print;
@@ -189,9 +182,6 @@ using UserView = Vodovoz.Views.Users.UserView;
 using Vodovoz.ViewModels.ViewModels.Reports.Logistics;
 using Vodovoz.ViewModels.ReportsParameters.Production;
 using Vodovoz.Views.ReportsParameters.Production;
-using QS.Project.Services;
-using Vodovoz.Presentation.ViewModels.Reports.PACS;
-using Vodovoz.ReportsParameters.PACS;
 using Vodovoz.ViewModels.ReportsParameters.Logistic;
 using Vodovoz.ReportsParameters.Logistic;
 using Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport;
@@ -221,7 +211,7 @@ namespace Vodovoz
 					new PermissionMatrix<WarehousePermissionsType, Warehouse>(), "Доступ к складам", "warehouse_access")
 			};
 
-			var warehousePermissionService = new WarehousePermissionService(ServicesConfig.UnitOfWorkFactory)
+			WarehousePermissionService warehousePermissionService = new WarehousePermissionService
 			{
 				WarehousePermissionValidatorFactory = new WarehousePermissionValidatorFactory()
 			};
@@ -361,18 +351,10 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<UndeliveryDetalizationViewModel, UndeliveryDetalizationView>()
 				.RegisterWidgetForTabViewModel<RegradingOfGoodsReasonViewModel, RegradingOfGoodsReasonView>()
 				.RegisterWidgetForTabViewModel<CounterpartyClassificationCalculationViewModel, CounterpartyClassificationCalculationView>()
-				.RegisterWidgetForTabViewModel<PacsViewModel, PacsView>()
-				.RegisterWidgetForTabViewModel<SubscriberSelectionViewModel, SubscriberSelectionView>()
-				.RegisterWidgetForTabViewModel<CounterpartyTalkViewModel, CounterpartyTalkView>()
-				.RegisterWidgetForTabViewModel<UnknowTalkViewModel, UnknowTalkView>()
-				.RegisterWidgetForTabViewModel<IncomingCallViewModel, IncomingCallView>()
-				.RegisterWidgetForTabViewModel<InnerPhoneViewModel, InnerPhoneView>()
 				.RegisterWidgetForTabViewModel<NomenclatureOnlineGroupViewModel, NomenclatureOnlineGroupView>()
 				.RegisterWidgetForTabViewModel<NomenclatureOnlineCategoryViewModel, NomenclatureOnlineCategoryView>()
 				.RegisterWidgetForTabViewModel<DriverWarehouseEventViewModel, DriverWarehouseEventView>()
 				.RegisterWidgetForTabViewModel<DriversWarehousesEventsReportViewModel, DriversWarehousesEventsReportView>()
-				.RegisterWidgetForTabViewModel<PacsOperatorReferenceBookViewModel, PacsOperatorReferenceBookView>()
-				.RegisterWidgetForTabViewModel<WorkShiftViewModel, PacsWorkShiftView>()
 				.RegisterWidgetForTabViewModel<RouteColumnViewModel, RouteColumnView>()
 				;
 
@@ -509,7 +491,6 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<DriversWarehousesEventsJournalFilterViewModel, DriversWarehousesEventsJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<CompletedDriversWarehousesEventsJournalFilterViewModel, CompletedDriversWarehousesEventsJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<ProducedProductionReportViewModel, ProducedProductionReportView>()
-				.RegisterWidgetForWidgetViewModel<PacsMissingCallsReportViewModel, PacsMissingCallsReport>()
 				.RegisterWidgetForWidgetViewModel<DeliveryTimeReportViewModel, DeliveryTimeReportView>()
 				.RegisterWidgetForWidgetViewModel<CarOwnershipReportViewModel, CarOwnershipReportView>()
 				.RegisterWidgetForWidgetViewModel<CounterpartyCashlessDebtsReportViewModel, CounterpartyCashlessDebtsReportView>()

@@ -5,7 +5,6 @@ using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
 using QS.Dialog.GtkUI;
-using QS.Project.Services;
 
 namespace Vodovoz.ReportsParameters.Bottles
 {
@@ -15,7 +14,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 		public OrdersByCreationDateReport()
 		{
 			this.Build();
-			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			ConfigureDlg();
 		}
 

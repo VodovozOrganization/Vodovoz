@@ -1,6 +1,4 @@
-using Autofac;
-using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
+﻿using QS.Dialog.GtkUI;
 using QS.Navigation;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Journal;
@@ -8,18 +6,12 @@ using System;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels;
-using Vodovoz.Infrastructure;
-using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ReportsParameters.Logistic;
 using Vodovoz.Representations;
-using Vodovoz.TempAdapters;
-using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.Accounting;
 using Vodovoz.ViewModels.Dialogs.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
@@ -27,7 +19,6 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
-using Vodovoz.Core.Domain.Employees;
 using Vodovoz.ViewModels.Logistic;
 
 public partial class MainWindow
@@ -205,6 +196,14 @@ public partial class MainWindow
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<DriverRoutesListRegisterReport>(),
 			() => new QSReport.ReportViewDlg(new DriverRoutesListRegisterReport())
+		);
+	}
+
+	protected void OnActionTraineeActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			PermissionControlledRepresentationJournal.GenerateHashName<TraineeVM>(),
+			() => new PermissionControlledRepresentationJournal(new TraineeVM())
 		);
 	}
 

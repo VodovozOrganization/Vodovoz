@@ -11,6 +11,9 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 {
 	public class OrderWithoutShipmentBase : PropertyChangedBase
 	{
+		private static readonly IGeneralSettingsParametersProvider _generalSettingsParameters =
+			new GeneralSettingsParametersProvider(new ParametersProvider());
+
 		DateTime? createDate;
 		[Display(Name = "Дата создания")]
 		public virtual DateTime? CreateDate {
@@ -50,13 +53,6 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			return Client?.Emails.FirstOrDefault(x => (x.EmailType?.EmailPurpose == EmailPurpose.ForBills) || x.EmailType == null);
 		}
 
-		public virtual bool HasPermissionsForAlternativePrice
-		{
-			get
-			{
-				var generalSettingsParameters = new GeneralSettingsParametersProvider(new ParametersProvider());
-				return generalSettingsParameters.SubdivisionsForAlternativePrices.Contains(Author.Subdivision.Id);
-			}
-		}
+		public virtual bool HasPermissionsForAlternativePrice => _generalSettingsParameters.SubdivisionsForAlternativePrices.Contains(Author.Subdivision.Id);
 	}
 }

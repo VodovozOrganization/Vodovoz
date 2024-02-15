@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QS.Project.Services;
 using QS.Report;
 using QS.Services;
 using QSReport;
-using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.ReportsParameters.Employees
@@ -20,7 +18,7 @@ namespace Vodovoz.ReportsParameters.Employees
 		public EmployeesReport(IInteractiveService interactiveService)
         {
             this.Build();
-            UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
+            UoW = UnitOfWorkFactory.CreateWithoutRoot();
             Configure();
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 		}

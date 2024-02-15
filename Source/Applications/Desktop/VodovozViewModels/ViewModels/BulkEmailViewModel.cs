@@ -38,7 +38,6 @@ namespace Vodovoz.ViewModels.ViewModels
 	public class BulkEmailViewModel : DialogViewModelBase
 	{
 		private readonly IUnitOfWork _uow;
-		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IEmailParametersProvider _emailParametersProvider;
 		private readonly ICommonServices _commonServices;
 		private readonly int _instanceId;
@@ -65,8 +64,7 @@ namespace Vodovoz.ViewModels.ViewModels
 			Func<IUnitOfWork, IQueryOver<Order>> itemsSourceQueryFunction, IEmailParametersProvider emailParametersProvider,
 			ICommonServices commonServices, IAttachmentsViewModelFactory attachmentsViewModelFactory, Employee author, IEmailRepository emailRepository) : base(navigation)
 		{
-			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			_uow = _unitOfWorkFactory.CreateWithoutRoot();
+			_uow = (unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory))).CreateWithoutRoot();
 			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_author = author ?? throw new ArgumentNullException(nameof(author));
@@ -266,7 +264,7 @@ namespace Vodovoz.ViewModels.ViewModels
 
 				OnPropertyChanged(nameof(SendingProgressUpper));
 
-				using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot("BulkEmail"))
+				using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("BulkEmail"))
 				{
 					foreach(var counterparty in _counterpartiesToSent)
 					{

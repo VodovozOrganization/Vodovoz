@@ -2,7 +2,6 @@
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QS.Tdi;
-using QS.Project.Services;
 
 namespace Vodovoz
 {
@@ -34,7 +33,7 @@ namespace Vodovoz
 		{
 			this.Build ();
 			this.TabName = "Готовые к разгрузке";
-			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot ();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
 			tableReadyForReception.Selection.Changed += OnSelectionChanged;
 		}
 

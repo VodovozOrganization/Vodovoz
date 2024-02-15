@@ -1,5 +1,4 @@
 ﻿using QS.DomainModel.UoW;
-using QS.Project.Services;
 using QSProjectsLib;
 using System;
 using System.Linq;
@@ -59,7 +58,7 @@ namespace Vodovoz
 			Build();
 			TabName = "Движения по подотчетным деньгам";
 			accountableslipfilter1.Refiltered += Accountableslipfilter1_Refiltered;
-			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			accountableslipfilter1.JournalTab = this;
 		}
 

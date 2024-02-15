@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
-using QS.Project.Services;
 using QSProjectsLib;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
@@ -27,7 +26,7 @@ namespace Vodovoz.Old1612ExportTo1c
         public ExportOperation(Export1cMode mode, IOrderParametersProvider orderParametersProvider, DateTime start, DateTime end, Organization organization = null)
         {
             this.orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
-            uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
+            uow = UnitOfWorkFactory.CreateWithoutRoot();
             this.start = start;
             this.end = end;
             this.mode = mode;

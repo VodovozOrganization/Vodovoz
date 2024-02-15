@@ -31,7 +31,6 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 {
 	public class FuelWriteoffDocumentViewModel : EntityTabViewModelBase<FuelWriteoffDocument>
 	{
-		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IEmployeeService _employeeService;
 		private readonly IFuelRepository _fuelRepository;
 		private readonly ISubdivisionRepository _subdivisionRepository;
@@ -56,7 +55,6 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 			ILifetimeScope lifetimeScope)
 			: base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
-			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
@@ -137,7 +135,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 		public FuelBalanceViewModel FuelBalanceViewModel {
 			get {
 				if(_fuelBalanceViewModel == null) {
-					_fuelBalanceViewModel = new FuelBalanceViewModel(_unitOfWorkFactory, _subdivisionRepository, _fuelRepository);
+					_fuelBalanceViewModel = new FuelBalanceViewModel(_subdivisionRepository, _fuelRepository);
 				}
 				return _fuelBalanceViewModel;
 			}
@@ -221,7 +219,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 						(node) =>
 							new FuelTypeViewModel(
 								EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, CommonServices, _routeListProfitabilityController),
-						_unitOfWorkFactory,
+						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 						CommonServices);
 					fuelTypeJournalViewModel.SetRestriction(() => {
 						return Restrictions.Not(Restrictions.In(Projections.Id(), Entity.ObservableFuelWriteoffDocumentItems.Select(x => x.FuelType.Id).ToArray()));

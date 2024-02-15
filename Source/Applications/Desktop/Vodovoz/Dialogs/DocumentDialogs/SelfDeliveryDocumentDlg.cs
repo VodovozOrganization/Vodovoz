@@ -59,9 +59,7 @@ namespace Vodovoz
 		{
 			Build();
 
-			this.Build();
-
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<SelfDeliveryDocument>();
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<SelfDeliveryDocument>();
 
 			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
@@ -91,7 +89,7 @@ namespace Vodovoz
 		public SelfDeliveryDocumentDlg(int id)
 		{
 			this.Build();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<SelfDeliveryDocument>(id);
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<SelfDeliveryDocument>(id);
 			var validationResult = CheckPermission();
 			if(!validationResult.CanRead) {
 				MessageDialogHelper.RunErrorDialog("Нет прав для доступа к документу отпуска самовывоза");
@@ -206,7 +204,7 @@ namespace Vodovoz
 			yTreeOtherGoods.ItemsDataSource = GoodsReceptionList;
 
 			var permmissionValidator =
-				new EntityExtendedPermissionValidator(ServicesConfig.UnitOfWorkFactory, PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
+				new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
 			
 			Entity.CanEdit =
 				permmissionValidator.Validate(
@@ -266,7 +264,7 @@ namespace Vodovoz
 			if(!Entity.CanEdit)
 				return false;
 
-			var validator = ServicesConfig.ValidationService;
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
 			if(!validator.Validate(Entity))
 			{
 				return false;
@@ -284,14 +282,13 @@ namespace Vodovoz
 
 			IStandartNomenclatures standartNomenclatures = new BaseParametersProvider(new ParametersProvider());
 			var callTaskWorker = new CallTaskWorker(
-				ServicesConfig.UnitOfWorkFactory,
-				CallTaskSingletonFactory.GetInstance(),
-				new CallTaskRepository(),
-				new OrderRepository(),
-				_employeeRepository,
-				new BaseParametersProvider(new ParametersProvider()),
-				ServicesConfig.CommonServices.UserService,
-				ErrorReporter.Instance);
+						CallTaskSingletonFactory.GetInstance(),
+						new CallTaskRepository(),
+						new OrderRepository(),
+						_employeeRepository,
+						new BaseParametersProvider(new ParametersProvider()),
+						ServicesConfig.CommonServices.UserService,
+						ErrorReporter.Instance);
 			if(Entity.FullyShiped(UoW, standartNomenclatures, new RouteListItemRepository(), new SelfDeliveryRepository(), new CashRepository(), callTaskWorker))
 				MessageDialogHelper.RunInfoDialog("Заказ отгружен полностью.");
 

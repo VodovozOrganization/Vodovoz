@@ -3,14 +3,12 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Report;
 using QSReport;
-using Vodovoz.Core.Domain.Employees;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using Vodovoz.Domain.Employees;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
-using QS.Project.Services;
 
 namespace Vodovoz.Reports
 {
@@ -26,7 +24,7 @@ namespace Vodovoz.Reports
 				throw new ArgumentNullException(nameof(navigationManager));
 			}
 
-			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
 			Build();
 

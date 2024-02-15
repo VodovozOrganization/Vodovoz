@@ -6,7 +6,6 @@ using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Store;
 using QS.Dialog.GtkUI;
-using QS.Project.Services;
 
 namespace Vodovoz.ReportsParameters.Store
 {
@@ -16,7 +15,7 @@ namespace Vodovoz.ReportsParameters.Store
 		public NotFullyLoadedRouteListsReport()
 		{
 			this.Build();
-			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			yEntRefWarehouse.SubjectType = typeof(Warehouse);
 			datePeriodPicker.StartDate = datePeriodPicker.EndDate = DateTime.Today;
 		}

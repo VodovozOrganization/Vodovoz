@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
@@ -34,7 +33,6 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			var uowFactory = validationContext.GetRequiredService<IUnitOfWorkFactory>();
 			if(!(validationContext.ServiceContainer.GetService(
 				typeof(IPaymentFromRepository)) is IPaymentFromRepository paymentFromRepository))
 			{
@@ -61,7 +59,7 @@ namespace Vodovoz.Domain.Orders
 					new[] { nameof(OrganizationForOnlinePayments.AvangardShopId) });
 			}
 
-			using(var uow = uowFactory.CreateWithoutRoot())
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 			{
 				var duplicate = paymentFromRepository.GetDuplicatePaymentFromByName(uow, Id, Name);
 				if(duplicate != null)

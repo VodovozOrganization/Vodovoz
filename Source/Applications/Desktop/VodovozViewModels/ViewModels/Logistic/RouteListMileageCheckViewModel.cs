@@ -155,7 +155,6 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public virtual CallTaskWorker CallTaskWorker =>
 			_callTaskWorker ?? (_callTaskWorker = new CallTaskWorker(
-				UnitOfWorkFactory,
 				CallTaskSingletonFactory.GetInstance(),
 				_callTaskRepository,
 				_orderRepository,

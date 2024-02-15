@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QS.Project.Services;
 using QS.Report;
 using QSProjectsLib;
 using QSReport;
@@ -15,7 +14,7 @@ namespace Vodovoz.Reports.Logistic
 		public DeliveriesLateReport ()
 		{
 			this.Build ();
-			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			ySpecCmbGeographicGroup.ItemsList = UoW.GetAll<GeoGroup>();
 
 			ycheckWithoutFastSelect.Toggled += (s, e) => SetIntervalAvailability();

@@ -1,7 +1,6 @@
 ﻿using Gtk;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
-using QS.Project.Services;
 using QS.Validation;
 using Vodovoz.Domain.Client;
 
@@ -12,14 +11,14 @@ namespace Vodovoz.Dialogs.Client
 		public CounterpartyActivityKindDlg()
 		{
 			this.Build();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<CounterpartyActivityKind>();
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<CounterpartyActivityKind>();
 			ConfigureDlg();
 		}
 
 		public CounterpartyActivityKindDlg(int id)
 		{
 			this.Build();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<CounterpartyActivityKind>(id);
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<CounterpartyActivityKind>(id);
 			ConfigureDlg();
 		}
 
@@ -27,7 +26,7 @@ namespace Vodovoz.Dialogs.Client
 
 		public override bool Save()
 		{
-			var validator = ServicesConfig.ValidationService;
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
 			if(!validator.Validate(Entity))
 			{
 				return false;

@@ -4,7 +4,6 @@ using System.Linq;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QS.Project.Services;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Sale;
@@ -17,7 +16,7 @@ namespace Vodovoz.ReportsParameters
 		public TariffZoneDebts()
 		{
 			this.Build();
-			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			dateperiodpicker.StartDate = DateTime.Today.AddMonths(-1);
 			dateperiodpicker.EndDate = DateTime.Today;
 

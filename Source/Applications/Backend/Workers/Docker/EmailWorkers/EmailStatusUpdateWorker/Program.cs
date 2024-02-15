@@ -6,9 +6,6 @@ using NLog.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Infrastructure;
 using Vodovoz.EntityRepositories;
-using QS.Project.Core;
-using Vodovoz.Core.Data.NHibernate;
-using QS.HistoryLog;
 
 namespace EmailStatusUpdateWorker
 {
@@ -23,26 +20,11 @@ namespace EmailStatusUpdateWorker
 			Host.CreateDefaultBuilder(args)
 				.ConfigureServices((hostContext, services) =>
 				{
-					services.AddLogging(logging =>
+					services.AddLogging(loggingBuilder =>
 					{
-						logging.ClearProviders();
-						logging.AddNLog();
-						logging.AddConfiguration(hostContext.Configuration.GetSection("NLog"));
+						loggingBuilder.ClearProviders();
+						loggingBuilder.AddNLog("NLog.config");
 					});
-
-					services.AddMappingAssemblies(
-						typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
-						typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
-						typeof(QS.Banks.Domain.Bank).Assembly,
-						typeof(QS.HistoryLog.HistoryMain).Assembly,
-						typeof(QS.Project.Domain.TypeOfEntity).Assembly,
-						typeof(QS.Attachments.Domain.Attachment).Assembly,
-						typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly
-					);
-					services.AddDatabaseConnection();
-					services.AddCore();
-					services.AddTrackedUoW();
-					services.AddStaticHistoryTracker();
 
 					services.AddTransient<RabbitMQConnectionFactory>();
 

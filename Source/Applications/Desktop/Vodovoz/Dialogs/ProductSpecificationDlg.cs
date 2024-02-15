@@ -1,6 +1,5 @@
 ﻿using Autofac;
 using QS.DomainModel.UoW;
-using QS.Project.Services;
 using QS.Navigation;
 using QS.Validation;
 using QS.ViewModels.Control.EEVM;
@@ -18,7 +17,7 @@ namespace Vodovoz
 		{
 			ResolveDependencies();
 			Build();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<ProductSpecification>();
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<ProductSpecification>();
 			ConfigureDlg();
 		}
 
@@ -30,7 +29,7 @@ namespace Vodovoz
 		{
 			ResolveDependencies();
 			Build();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<ProductSpecification>(id);
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<ProductSpecification>(id);
 			ConfigureDlg();
 		}
 
@@ -57,7 +56,7 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
-			var validator = ServicesConfig.ValidationService;
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
 			if(!validator.Validate(Entity))
 			{
 				return false;

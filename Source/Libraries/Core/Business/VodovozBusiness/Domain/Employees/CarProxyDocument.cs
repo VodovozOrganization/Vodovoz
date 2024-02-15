@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Autofac;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
@@ -18,8 +17,7 @@ namespace Vodovoz.Domain.Employees
 	[EntityPermission]
 	public class CarProxyDocument : ProxyDocument, IValidatableObject
 	{
-		ICounterpartyRepository counterpartyRepository = ScopeProvider.Scope
-			.Resolve<ICounterpartyRepository>();
+		ICounterpartyRepository counterpartyRepository = new CounterpartyRepository();
 
 		public virtual string Title {
 			get {
@@ -68,6 +66,13 @@ namespace Vodovoz.Domain.Employees
 		public override DateTime ExpirationDate {
 			get => expirationDate;
 			set { SetField(ref expirationDate, value, () => ExpirationDate); }
+		}
+
+		//Конструкторы
+		public static IUnitOfWorkGeneric<CarProxyDocument> Create()
+		{
+			var uow = UnitOfWorkFactory.CreateWithNewRoot<CarProxyDocument>();
+			return uow;
 		}
 
 		public virtual void UpdateCarProxyDocumentTemplate(IUnitOfWork uow, IDocTemplateRepository docTemplateRepository)

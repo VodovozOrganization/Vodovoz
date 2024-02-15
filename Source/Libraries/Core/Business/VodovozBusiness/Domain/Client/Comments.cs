@@ -21,6 +21,12 @@ namespace Vodovoz.Domain.Client
 
 		public virtual int Id { get; set; }
 
+		public static IUnitOfWorkGeneric<Comments> Create()
+		{
+			var uow = UnitOfWorkFactory.CreateWithNewRoot<Comments>();
+			return uow;
+		}
+
 		Counterparty counterparty;
 
 		[Required]

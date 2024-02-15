@@ -32,7 +32,6 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
 		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings;
-		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly ITrackRepository _trackRepository;
 
 		private readonly CashDistributionCommonOrganisationProvider _commonOrganisationProvider =
@@ -146,7 +145,6 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		public FuelDocumentViewModel
 		(
 			RouteList rl,
-			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
 			ISubdivisionRepository subdivisionsRepository,
 			IEmployeeRepository employeeRepository,
@@ -162,7 +160,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			{
 				throw new ArgumentNullException(nameof(lifetimeScope));
 			}
-			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+
 			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			SubdivisionsRepository = subdivisionsRepository ?? throw new ArgumentNullException(nameof(subdivisionsRepository));
 			FuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
@@ -176,7 +174,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				(carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory)))
 				.CreateCarAutocompleteSelectorFactory(lifetimeScope);
 
-			var uow = _uowFactory.CreateWithNewRoot<FuelDocument>();
+			var uow = UnitOfWorkFactory.CreateWithNewRoot<FuelDocument>();
 			UoW = uow;
 			FuelDocument = uow.Root;
 			FuelDocument.UoW = UoW;

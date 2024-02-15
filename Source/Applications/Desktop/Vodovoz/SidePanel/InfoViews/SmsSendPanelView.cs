@@ -1,7 +1,6 @@
 ﻿using Autofac;
 using Gamma.GtkWidgets;
 using QS.Dialog;
-using QS.Project.DB;
 using QS.Services;
 using Sms.Internal;
 using System;
@@ -55,8 +54,7 @@ namespace Vodovoz.SidePanel.InfoViews
 				currentPermissionService.ValidatePresetPermission("can_send_sms_for_additional_order_statuses");
 			_canSendSmsForPayFromSbpByCard = currentPermissionService.ValidatePresetPermission("can_send_sms_for_pay_from_sbp_by_card");
 			var settingsController = _lifetimeScope.Resolve<ISettingsController>();
-			var databaseInfo = _lifetimeScope.Resolve<IDataBaseInfo>();
-			_smsSettings = new SmsSettings(settingsController, databaseInfo);
+			_smsSettings = new SmsSettings(settingsController, Startup.DataBaseInfo);
 			_fastPaymentSender = _lifetimeScope.Resolve<IFastPaymentSender>();
 
 			Configure();

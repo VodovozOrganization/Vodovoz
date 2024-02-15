@@ -11,7 +11,7 @@ namespace Vodovoz.ViewModels.Journals.JournalFactories
 		public IEntityAutocompleteSelectorFactory CreateSalesChannelAutocompleteSelectorFactory()
 		{
 			return new DefaultEntityAutocompleteSelectorFactory<SalesChannel, SalesChannelJournalViewModel,
-				SalesChannelJournalFilterViewModel>(ServicesConfig.UnitOfWorkFactory, ServicesConfig.CommonServices);
+				SalesChannelJournalFilterViewModel>(ServicesConfig.CommonServices);
 		}
 	}
 }

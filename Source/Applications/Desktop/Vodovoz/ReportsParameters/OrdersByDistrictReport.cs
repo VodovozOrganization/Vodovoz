@@ -18,11 +18,11 @@ namespace Vodovoz.ReportsParameters
 		public OrdersByDistrictReport()
 		{
 			this.Build();
-			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
 			entryDistrict.SetEntityAutocompleteSelectorFactory(new EntityAutocompleteSelectorFactory<DistrictJournalViewModel>(typeof(District), () => {
 				var filter = new DistrictJournalFilterViewModel { Status = DistrictsSetStatus.Active };
-				return new DistrictJournalViewModel(filter, ServicesConfig.UnitOfWorkFactory, ServicesConfig.CommonServices) {
+				return new DistrictJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices) {
 					EnableDeleteButton = false,
 					EnableAddButton = false,
 					EnableEditButton = false

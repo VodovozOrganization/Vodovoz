@@ -50,9 +50,6 @@ using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
 using Order = Vodovoz.Domain.Orders.Order;
 using Vodovoz.Settings.Cash;
-using Vodovoz.Core.Domain.Employees;
-using Microsoft.Extensions.DependencyInjection;
-using Autofac;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -64,40 +61,37 @@ namespace Vodovoz.Domain.Logistic
 	public class RouteList : BusinessObjectBase<RouteList>, IDomainObject, IValidatableObject
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		private static IGeneralSettingsParametersProvider _generalSettingsParametersProviderGap;
+		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
+		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(_parametersProvider);
+		private static readonly NomenclatureParametersProvider _nomenclatureParametersProvider = new NomenclatureParametersProvider(_parametersProvider);
+		private static readonly CashDistributionCommonOrganisationProvider _commonOrganisationProvider =
+			new CashDistributionCommonOrganisationProvider(new OrganizationParametersProvider(_parametersProvider));
+		private static readonly IRouteListRepository _routeListRepository =
+			new RouteListRepository(new StockRepository(), _baseParametersProvider);
+		private static readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider =
+			new DeliveryRulesParametersProvider(_parametersProvider);
 
-		private IUnitOfWorkFactory _uowFactory => ScopeProvider.Scope
-			.Resolve<IUnitOfWorkFactory>();
-		private IParametersProvider _parametersProvider => ScopeProvider.Scope
-			.Resolve<IParametersProvider>();
-		private BaseParametersProvider _baseParametersProvider => ScopeProvider.Scope
-			.Resolve<BaseParametersProvider>();
-		private NomenclatureParametersProvider _nomenclatureParametersProvider => ScopeProvider.Scope
-			.Resolve<NomenclatureParametersProvider>();
-		private CashDistributionCommonOrganisationProvider _commonOrganisationProvider => ScopeProvider.Scope
-			.Resolve<CashDistributionCommonOrganisationProvider>();
-		private IRouteListRepository _routeListRepository => ScopeProvider.Scope
-			.Resolve<IRouteListRepository>();
-		private IDeliveryRulesParametersProvider _deliveryRulesParametersProvider => ScopeProvider.Scope
-			.Resolve<IDeliveryRulesParametersProvider>();
-		private IGeneralSettingsParametersProvider GetGeneralSettingsParametersProvider => ScopeProvider.Scope
-			.Resolve<IGeneralSettingsParametersProvider>();
-		private IRouteListCashOrganisationDistributor routeListCashOrganisationDistributor => ScopeProvider.Scope
-			.Resolve<IRouteListCashOrganisationDistributor>();
-		private IExpenseCashOrganisationDistributor expenseCashOrganisationDistributor => ScopeProvider.Scope
-			.Resolve<IExpenseCashOrganisationDistributor>();
-		private ICarUnloadRepository _carUnloadRepository => ScopeProvider.Scope
-			.Resolve<ICarUnloadRepository>();
-		private ICashRepository _cashRepository => ScopeProvider.Scope
-			.Resolve<ICashRepository>();
-		private IEmployeeRepository _employeeRepository => ScopeProvider.Scope
-			.Resolve<IEmployeeRepository>();
-		private ICarLoadDocumentRepository _carLoadDocumentRepository => ScopeProvider.Scope
-			.Resolve<ICarLoadDocumentRepository>();
-		private IOrderRepository _orderRepository => ScopeProvider.Scope
-			.Resolve<IOrderRepository>();
-		private IGlobalSettings _globalSettings => ScopeProvider.Scope
-			.Resolve<IGlobalSettings>();
+		private static readonly IGeneralSettingsParametersProvider _generalSettingsParameters =
+			new GeneralSettingsParametersProvider(new ParametersProvider());
+		private static IGeneralSettingsParametersProvider _generalSettingsParametersProviderGap;
+		private static IGeneralSettingsParametersProvider GetGeneralSettingsParametersProvider =>
+			_generalSettingsParametersProviderGap ?? _generalSettingsParameters;
+
+		private RouteListCashOrganisationDistributor routeListCashOrganisationDistributor =
+			new RouteListCashOrganisationDistributor(
+				_commonOrganisationProvider,
+				new RouteListItemCashDistributionDocumentRepository(),
+				new OrderRepository());
+
+		private ExpenseCashOrganisationDistributor expenseCashOrganisationDistributor =
+			new ExpenseCashOrganisationDistributor();
+
+		private readonly ICarUnloadRepository _carUnloadRepository = new CarUnloadRepository();
+		private readonly ICashRepository _cashRepository = new CashRepository();
+		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly ICarLoadDocumentRepository _carLoadDocumentRepository = new CarLoadDocumentRepository(_routeListRepository);
+		private readonly IOrderRepository _orderRepository = new OrderRepository();
+		private readonly IGlobalSettings _globalSettings = new GlobalSettings(new ParametersProvider());
 
 		private CarVersion _carVersion;
 		private Car _car;
@@ -1661,7 +1655,7 @@ namespace Vodovoz.Domain.Logistic
 						RouteListTo = foundRouteList,
 					};
 
-					using(var localUoW = _uowFactory.CreateWithoutRoot())
+					using(var localUoW = UnitOfWorkFactory.CreateWithoutRoot())
 					{
 						localUoW.Save(terminalTransferDocumentForOneDriver);
 						localUoW.Commit();
@@ -1855,7 +1849,8 @@ namespace Vodovoz.Domain.Logistic
 						}
 
 						foreach(var address in Addresses) {
-							var validator = validationContext.GetRequiredService<IValidator>();
+							var orderValidator = new ObjectValidator();
+
 							var orderValidationContext = new ValidationContext(
 								address.Order,
 								null,
@@ -1869,9 +1864,9 @@ namespace Vodovoz.Domain.Logistic
 							);
 							orderValidationContext.ServiceContainer.AddService(orderParametersProvider);
 							orderValidationContext.ServiceContainer.AddService(deliveryRulesParametersProvider);
-							validator.Validate(address.Order, orderValidationContext, false);
+							orderValidator.Validate(address.Order, orderValidationContext);
 
-							foreach(var result in validator.Results)
+							foreach(var result in orderValidator.Results)
 								yield return result;
 						}
 						break;
@@ -2348,7 +2343,7 @@ namespace Vodovoz.Domain.Logistic
 			decimal routeListDebt = 0;
 			if(Id > 0)
 			{
-				using(var uow = _uowFactory.CreateWithoutRoot())
+				using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 				{
 					var totalCachAmount = DeliveredRouteListAddresses.Sum(item => item.TotalCash) - PhoneSum;
 					var routeListCashAdvance = _cashRepository.GetRouteListCashExpensesSum(uow, Id);
@@ -2373,7 +2368,7 @@ namespace Vodovoz.Domain.Logistic
 			var debt = CalculateRouteListDebt();
 			RouteListDebt routeListDebt = null;
 
-			using(var uow = _uowFactory.CreateWithoutRoot())
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 			{
 				routeListDebt = uow.GetAll<RouteListDebt>()
 					.Where(r => r.RouteList.Id == Id)
@@ -2416,7 +2411,7 @@ namespace Vodovoz.Domain.Logistic
 		{
 			UpdateRouteListDebt();
 
-			using(var uow = _uowFactory.CreateWithoutRoot())
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 			{
 				var routeListDebt = uow.GetAll<RouteListDebt>()
 					.Where(r => r.RouteList.Id == Id)

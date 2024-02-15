@@ -19,7 +19,7 @@ namespace Vodovoz.ServiceDialogs.Database
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class OrdersWithoutBottlesOperationDlg : QS.Dialog.Gtk.TdiTabBase
 	{
-		IUnitOfWork uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
+		IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 
 		List<Order> orders;
 

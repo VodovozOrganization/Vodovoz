@@ -1,7 +1,7 @@
-﻿using QS.Project.Filter;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using Vodovoz.Core.Domain.Employees;
+using QS.Project.Filter;
+using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Subdivisions;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Cash

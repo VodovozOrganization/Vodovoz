@@ -18,7 +18,6 @@ namespace Vodovoz.Tools.CallTasks
 	public class CallTaskWorker : ICallTaskWorker
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
-		private readonly IUnitOfWorkFactory _uowfactory;
 
 		public ITaskCreationInteractive TaskCreationInteractive { get; set; }
 
@@ -31,7 +30,6 @@ namespace Vodovoz.Tools.CallTasks
 		private IErrorReporter errorReporter { get; }
 
 		public CallTaskWorker(
-			IUnitOfWorkFactory uowfactory,
 			ICallTaskFactory callTaskFactory, 
 			ICallTaskRepository callTaskRepository, 
 			IOrderRepository orderRepository, 
@@ -42,7 +40,6 @@ namespace Vodovoz.Tools.CallTasks
 			ITaskCreationInteractive taskCreationInteractive = null
 			)
 		{
-			_uowfactory = uowfactory ?? throw new ArgumentNullException(nameof(uowfactory));
 			this.callTaskFactory = callTaskFactory ?? throw new ArgumentNullException(nameof(callTaskFactory));
 			this.callTaskRepository = callTaskRepository ?? throw new ArgumentNullException(nameof(callTaskRepository));
 			this.orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
@@ -63,7 +60,7 @@ namespace Vodovoz.Tools.CallTasks
 
 			Task.Run(() =>
 			{
-				using(var uow = _uowfactory.CreateWithoutRoot())
+				using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 				{
 					try
 					{

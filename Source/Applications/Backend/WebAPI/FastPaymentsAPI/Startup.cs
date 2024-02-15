@@ -41,9 +41,7 @@ using Vodovoz.Settings.Database;
 using Vodovoz.Settings.FastPayments;
 using VodovozInfrastructure.Cryptography;
 using VodovozHealthCheck;
-using QS.Project.Core;
-using Vodovoz.Core.Data.NHibernate;
-using Vodovoz.Data.NHibernate;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 
 namespace FastPaymentsAPI
 {
@@ -63,12 +61,13 @@ namespace FastPaymentsAPI
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
+			var nlogConfig = Configuration.GetSection(_nLogSectionName);
 			services.AddLogging(
 				logging =>
 				{
 					logging.ClearProviders();
 					logging.AddNLogWeb();
-					logging.AddConfiguration(Configuration.GetSection("NLog"));
+					logging.AddConfiguration(nlogConfig);
 				});
 
 			_logger = new Logger<Startup>(LoggerFactory.Create(logging =>
@@ -79,26 +78,18 @@ namespace FastPaymentsAPI
 				.AddXmlSerializerFormatters();
 
 			// Подключение к БД
-			services.AddScoped((provider) => provider.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot("Сервис быстрых платежей"));
-			
-			// Конфигурация Nhibernate
-			services
-				.AddMappingAssemblies(
-					typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
-					typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
-					typeof(QS.Banks.Domain.Bank).Assembly,
-					typeof(QS.HistoryLog.HistoryMain).Assembly,
-					typeof(QS.Project.Domain.TypeOfEntity).Assembly,
-					typeof(QS.Attachments.Domain.Attachment).Assembly,
-					typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly
-				)
-				.AddDatabaseConnection()
-				.AddCore()
-				.AddTrackedUoW()
-				.AddServiceUser()
-				;
+			services.AddScoped(_ => UnitOfWorkFactory.CreateWithoutRoot("Сервис быстрых платежей"));
 
-			services.AddStaticHistoryTracker();
+			// Конфигурация Nhibernate
+			try
+			{
+				CreateBaseConfig();
+			}
+			catch(Exception e)
+			{
+				_logger.LogCritical(e, e.Message);
+				throw;
+			}
 
 			services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "FastPaymentsAPI", Version = "v1" }); });
 
@@ -121,6 +112,9 @@ namespace FastPaymentsAPI
 			services.AddScoped<MobileAppNotifier>();
 			services.AddScoped<NotificationModel>();
 			
+
+			// Unit Of Work
+			services.AddScoped<IUnitOfWorkFactory>((sp) => UnitOfWorkFactory.GetDefaultFactory);
 
 			//backgroundServices
 			services.AddHostedService<FastPaymentStatusUpdater>();
@@ -200,6 +194,59 @@ namespace FastPaymentsAPI
 			});
 
 			app.ConfigureHealthCheckApplicationBuilder();
+		}
+
+		private void CreateBaseConfig()
+		{
+			var conStrBuilder = new MySqlConnectionStringBuilder();
+
+			var domainDBConfig = Configuration.GetSection("DomainDB");
+
+			conStrBuilder.Server = domainDBConfig.GetValue<string>("Server");
+			conStrBuilder.Port = domainDBConfig.GetValue<uint>("Port");
+			conStrBuilder.Database = domainDBConfig.GetValue<string>("Database");
+			conStrBuilder.UserID = domainDBConfig.GetValue<string>("UserID");
+			conStrBuilder.Password = domainDBConfig.GetValue<string>("Password");
+			conStrBuilder.SslMode = MySqlSslMode.None;
+
+			var connectionString = conStrBuilder.GetConnectionString(true);
+
+			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
+				.Dialect<MySQL57SpatialExtendedDialect>()
+				.ConnectionString(connectionString)
+				.Driver<LoggedMySqlClientDriver>();
+
+			// Настройка ORM
+			OrmConfig.ConfigureOrm(
+				db_config,
+				new Assembly[]
+				{
+					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
+					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
+					Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
+					Assembly.GetAssembly(typeof(Bank)),
+					Assembly.GetAssembly(typeof(HistoryMain)),
+					Assembly.GetAssembly(typeof(Attachment)),
+					typeof(DriverWarehouseEventMap).Assembly,
+					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
+				}
+			);
+
+			var serviceUserId = 0;
+
+			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Получение пользователя"))
+			{
+				var serviceUser = unitOfWork.Session.Query<Vodovoz.Domain.Employees.User>()
+					.Where(u => u.Login == domainDBConfig.GetValue<string>("UserID"))
+					.FirstOrDefault();
+
+				serviceUserId = serviceUser.Id;
+
+				ServicesConfig.UserService = new UserService(serviceUser);
+			}
+
+			QS.Project.Repositories.UserRepository.GetCurrentUserId = () => serviceUserId;
+			HistoryMain.Enable(conStrBuilder);
 		}
 	}
 }

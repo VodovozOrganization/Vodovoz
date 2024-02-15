@@ -6,7 +6,6 @@ using Gamma.Utilities;
 using Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QS.Project.Services;
 using QS.Services;
 using QS.Tdi;
 using QSProjectsLib;
@@ -27,7 +26,7 @@ namespace Vodovoz.SidePanel.InfoViews
 	public partial class DeliveryPointPanelView : Gtk.Bin, IPanelView
 	{
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
-		private readonly IDeliveryPointRepository _deliveryPointRepository = new DeliveryPointRepository(ServicesConfig.UnitOfWorkFactory);
+		private readonly IDeliveryPointRepository _deliveryPointRepository = new DeliveryPointRepository();
 		private readonly IBottlesRepository _bottlesRepository = new BottlesRepository();
 		private readonly IDepositRepository _depositRepository = new DepositRepository();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
@@ -101,7 +100,7 @@ namespace Vodovoz.SidePanel.InfoViews
 		private void SaveLogisticsRequirements()
 		{
 			using(var uow =
-					ServicesConfig.UnitOfWorkFactory.CreateForRoot<DeliveryPoint>(DeliveryPoint.Id, "Кнопка «Cохранить требования к логистике на панели точки доставки"))
+					UnitOfWorkFactory.CreateForRoot<DeliveryPoint>(DeliveryPoint.Id, "Кнопка «Cохранить требования к логистике на панели точки доставки"))
 			{
 				if(uow.Root.LogisticsRequirements == null)
 				{
@@ -270,7 +269,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		private void SaveComment()
 		{
-			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateForRoot<DeliveryPoint>(DeliveryPoint.Id, "Кнопка «Cохранить комментарий» на панели точки доставки"))
+			using(var uow = UnitOfWorkFactory.CreateForRoot<DeliveryPoint>(DeliveryPoint.Id, "Кнопка «Cохранить комментарий» на панели точки доставки"))
 			{
 				uow.Root.Comment = textviewComment.Buffer.Text;
 				uow.Save();

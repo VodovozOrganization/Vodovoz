@@ -4,10 +4,17 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using MySqlConnector;
 using NLog.Web;
-using QS.Project.Core;
+using QS.Attachments.Domain;
+using QS.Banks.Domain;
+using QS.DomainModel.UoW;
+using QS.Project.DB;
+using QS.Project.Domain;
 using System.Configuration;
-using Vodovoz.Core.Data.NHibernate;
+using System.Reflection;
+using Vodovoz.Core.Data.NHibernate.Mappings;
+using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Models.CashReceipts;
 using Vodovoz.Models.TrueMark;
@@ -41,22 +48,9 @@ namespace CashReceiptSendWorker
 					logging.AddConfiguration(nlogConfig);
 				});
 
-			services
-				.AddMappingAssemblies(
-					typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
-					typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
-					typeof(QS.Banks.Domain.Bank).Assembly,
-					typeof(QS.HistoryLog.HistoryMain).Assembly,
-					typeof(QS.Project.Domain.TypeOfEntity).Assembly,
-					typeof(QS.Attachments.Domain.Attachment).Assembly,
-					typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly
-				)
-				.AddDatabaseConnection()
-				.AddCore()
-				.AddTrackedUoW()
-				;
-
 			services.AddHostedService<CashReceiptSendWorker>();
+
+			CreateBaseConfig();
 		}
 
 		public void ConfigureContainer(ContainerBuilder builder)
@@ -65,6 +59,14 @@ namespace CashReceiptSendWorker
 			ErrorReporter.Instance.SendedLogRowCount = 100;
 
 			builder.RegisterModule<DatabaseSettingsModule>();
+
+			builder.RegisterType<DefaultSessionProvider>()
+				.As<ISessionProvider>()
+				.SingleInstance();
+
+			builder.RegisterType<DefaultUnitOfWorkFactory>()
+				.As<IUnitOfWorkFactory>()
+				.SingleInstance();
 
 			builder.RegisterType<CashReceiptRepository>()
 				.As<ICashReceiptRepository>()
@@ -130,6 +132,44 @@ namespace CashReceiptSendWorker
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
+		}
+
+		private void CreateBaseConfig()
+		{
+			var conStrBuilder = new MySqlConnectionStringBuilder();
+
+			var domainDBConfig = Configuration.GetSection("DomainDB");
+
+			conStrBuilder.Server = domainDBConfig.GetValue<string>("server");
+			conStrBuilder.Port = domainDBConfig.GetValue<uint>("port");
+			conStrBuilder.Database = domainDBConfig.GetValue<string>("database");
+			conStrBuilder.UserID = domainDBConfig.GetValue<string>("user");
+			conStrBuilder.Password = domainDBConfig.GetValue<string>("password");
+			conStrBuilder.SslMode = MySqlSslMode.None;
+
+			var connectionString = conStrBuilder.GetConnectionString(true);
+
+			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
+				.Dialect<MySQL57SpatialExtendedDialect>()
+				.ConnectionString(connectionString)
+				.AdoNetBatchSize(100)
+				.Driver<LoggedMySqlClientDriver>()
+				;
+
+			// Настройка ORM
+			OrmConfig.ConfigureOrm(
+				db_config,
+				new Assembly[]
+				{
+					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
+					Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
+					Assembly.GetAssembly(typeof(Bank)),
+					Assembly.GetAssembly(typeof(TypeOfEntity)),
+					Assembly.GetAssembly(typeof(Attachment)),
+					typeof(DriverWarehouseEventMap).Assembly,
+					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
+				}
+			);
 		}
 
 		private IConfigurationSection GetCashboxesConfiguration()

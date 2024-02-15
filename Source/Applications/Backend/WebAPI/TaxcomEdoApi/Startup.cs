@@ -1,32 +1,42 @@
-﻿using EdoService.Library.Converters;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using MySqlConnector;
 using NLog.Web;
+using QS.Attachments.Domain;
+using QS.Banks.Domain;
+using QS.DomainModel.UoW;
 using QS.HistoryLog;
-using QS.Project.Core;
+using QS.Project.DB;
+using QS.Project.Domain;
+using QS.Project.Repositories;
 using System;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using Microsoft.Extensions.Logging;
 using Taxcom.Client.Api;
 using TaxcomEdoApi.Converters;
 using TaxcomEdoApi.Factories;
-using TaxcomEdoApi.HealthChecks;
 using TaxcomEdoApi.Services;
-using Vodovoz.Core.Data.NHibernate;
-using Vodovoz.Data.NHibernate;
-using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Parameters;
-using Vodovoz.Services;
 using Vodovoz.Tools.Orders;
+using QS.Services;
+using QS.Project.Services;
+using Vodovoz.Settings.Database;
+using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using VodovozHealthCheck;
+using TaxcomEdoApi.HealthChecks;
+using Vodovoz.EntityRepositories;
+using Vodovoz.Services;
+using EdoService.Library.Converters;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 
 namespace TaxcomEdoApi
 {
@@ -59,6 +69,8 @@ namespace TaxcomEdoApi
 			_logger.LogInformation("Логирование Startup начато");
 
 			Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+			
+			CreateBaseConfig();
 
 			services.AddControllers()
 				.AddXmlSerializerFormatters();
@@ -74,23 +86,7 @@ namespace TaxcomEdoApi
 				_logger.LogCritical("Не найден сертификат в личном хранилище пользователя");
 				throw new InvalidOperationException("Не найден сертификат в личном хранилище пользователя");
 			}
-
-			services.AddMappingAssemblies(
-				typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
-				typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
-				typeof(QS.Banks.Domain.Bank).Assembly,
-				typeof(QS.HistoryLog.HistoryMain).Assembly,
-				typeof(QS.Project.Domain.TypeOfEntity).Assembly,
-				typeof(QS.Attachments.Domain.Attachment).Assembly,
-				typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly
-			);
-			services.AddDatabaseConnection();
-			services.AddCore();
-			services.AddTrackedUoW();
-			services.AddServiceUser();
-			services.AddStaticHistoryTracker();
-
-
+			
 			services.AddHostedService<AutoSendReceiveService>();
 			services.AddHostedService<ContactsUpdaterService>();
 			services.AddHostedService<DocumentFlowService>();
@@ -101,6 +97,8 @@ namespace TaxcomEdoApi
 				certificate.RawData,
 				apiSection.GetValue<string>("EdxClientId")));
 
+			services.AddSingleton<ISessionProvider, DefaultSessionProvider>();
+			services.AddSingleton<IUnitOfWorkFactory, DefaultUnitOfWorkFactory>();
 			services.AddSingleton<IOrderRepository, OrderRepository>();
 			services.AddSingleton<IOrganizationRepository, OrganizationRepository>();
 			services.AddSingleton<ICounterpartyRepository, CounterpartyRepository>();
@@ -141,6 +139,60 @@ namespace TaxcomEdoApi
 			app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 
 			app.ConfigureHealthCheckApplicationBuilder();
+		}
+
+		private void CreateBaseConfig()
+		{
+			var conStrBuilder = new MySqlConnectionStringBuilder();
+
+			var domainDbConfig = Configuration.GetSection("DomainDB");
+
+			conStrBuilder.Server = domainDbConfig.GetValue<string>("Server");
+			conStrBuilder.Port = domainDbConfig.GetValue<uint>("Port");
+			conStrBuilder.Database = domainDbConfig.GetValue<string>("Database");
+			conStrBuilder.UserID = domainDbConfig.GetValue<string>("UserID");
+			conStrBuilder.Password = domainDbConfig.GetValue<string>("Password");
+			conStrBuilder.SslMode = MySqlSslMode.None;
+
+			var connectionString = conStrBuilder.GetConnectionString(true);
+
+			var dbConfig = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
+					.Dialect<MySQL57SpatialExtendedDialect>()
+					.ConnectionString(connectionString)
+					.Driver<LoggedMySqlClientDriver>();
+
+			// Настройка ORM
+			OrmConfig.ConfigureOrm(
+				dbConfig,
+				new[]
+				{
+					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
+					Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
+					Assembly.GetAssembly(typeof(Bank)),
+					Assembly.GetAssembly(typeof(HistoryMain)),
+					Assembly.GetAssembly(typeof(TypeOfEntity)),
+					Assembly.GetAssembly(typeof(Attachment)),
+					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder)),
+					Assembly.GetAssembly(typeof(DriverWarehouseEventMap))
+				}
+			);
+
+			string userLogin = domainDbConfig.GetValue<string>("UserID");
+			int serviceUserId = 0;
+
+			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Получение пользователя"))
+			{
+				var serviceUser = unitOfWork.Session.Query<Vodovoz.Domain.Employees.User>()
+					.Where(u => u.Login == userLogin)
+					.FirstOrDefault();
+
+				serviceUserId = serviceUser.Id;
+
+				ServicesConfig.UserService = new UserService(serviceUser);
+			}
+
+			QS.Project.Repositories.UserRepository.GetCurrentUserId = () => serviceUserId;
+			HistoryMain.Enable(conStrBuilder);
 		}
 	}
 }

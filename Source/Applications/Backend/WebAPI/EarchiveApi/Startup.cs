@@ -10,12 +10,16 @@ using Microsoft.Extensions.Logging;
 using NLog.Web;
 using MySqlConnector;
 using VodovozHealthCheck;
-using QS.Project.Core;
+using QS.DomainModel.UoW;
+using QS.Project.DB;
+using System.Reflection;
 
 namespace EarchiveApi
 {
 	public class Startup
 	{
+		private const string _nLogSectionName = "NLog";
+
 		public Startup(IConfiguration configuration)
 		{
 			Configuration = configuration;
@@ -27,12 +31,10 @@ namespace EarchiveApi
 		// For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
 		public void ConfigureServices(IServiceCollection services)
 		{
-			services.AddDatabaseConnectionSettings();
-			services.AddDatabaseConnectionString();
-			services.AddSingleton(provider => {
-				var connectionStringBuilder = provider.GetRequiredService<MySqlConnectionStringBuilder>();
-				return new MySqlConnection(connectionStringBuilder.ConnectionString);
-			});
+			var connectionString = GetConnectionString();
+
+			services.AddSingleton(x => new MySqlConnection(connectionString));
+			services.AddSingleton(x => UnitOfWorkFactory.GetDefaultFactory);
 
 			services.AddGrpc();
 
@@ -41,10 +43,19 @@ namespace EarchiveApi
 				{
 					logging.ClearProviders();
 					logging.AddNLogWeb();
-					logging.AddConfiguration(Configuration.GetSection("NLog"));
+					logging.AddConfiguration(Configuration.GetSection(_nLogSectionName));
 				});
 
 			services.ConfigureHealthCheckService<EarchiveApiHealthCheck>();
+
+			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
+				.ConnectionString(connectionString)
+				.AdoNetBatchSize(100)
+				.Driver<LoggedMySqlClientDriver>();
+
+			OrmConfig.ConfigureOrm(
+				db_config,
+				new Assembly[] {});
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -67,6 +78,21 @@ namespace EarchiveApi
 			});
 
 			app.ConfigureHealthCheckApplicationBuilder();
+		}
+
+		private string GetConnectionString()
+		{
+			var connectionStringBuilder = new MySqlConnectionStringBuilder();
+			var domainDbConfig = Configuration.GetSection("DomainDB");
+			connectionStringBuilder.Server = domainDbConfig.GetValue<string>("Server");
+			connectionStringBuilder.Port = domainDbConfig.GetValue<uint>("Port");
+			connectionStringBuilder.Database = domainDbConfig.GetValue<string>("Database");
+			connectionStringBuilder.UserID = domainDbConfig.GetValue<string>("UserID");
+			connectionStringBuilder.Password = domainDbConfig.GetValue<string>("Password");
+			connectionStringBuilder.SslMode = MySqlSslMode.Disabled;
+			connectionStringBuilder.DefaultCommandTimeout = domainDbConfig.GetValue<uint>("DefaultTimeout");
+
+			return connectionStringBuilder.ConnectionString;
 		}
 	}
 }

@@ -31,7 +31,7 @@ namespace Vodovoz
 		public WriteoffDocumentDlg ()
 		{
 			this.Build ();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<WriteoffDocument>();
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<WriteoffDocument>();
 			Entity.Author = Entity.ResponsibleEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null)
 			{
@@ -48,7 +48,7 @@ namespace Vodovoz
 		public WriteoffDocumentDlg (int id)
 		{
 			this.Build ();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<WriteoffDocument> (id);
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<WriteoffDocument> (id);
 			comboType.Sensitive = false;
 			ConfigureDlg ();
 		}

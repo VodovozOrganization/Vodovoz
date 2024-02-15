@@ -13,7 +13,6 @@ namespace VodovozBusinessTests.Deletion
 
 		public static void ConfigureNh()
 		{
-			throw new NotImplementedException("Необходима интеграция с контейнером зависимостей");
 			if(NhConfigered)
 				return;
 
@@ -24,7 +23,7 @@ namespace VodovozBusinessTests.Deletion
 
 			Console.WriteLine("ORM");
 			// Настройка ORM
-			/*OrmConfig.ConfigureOrm(db_config, new Assembly[]
+			OrmConfig.ConfigureOrm(db_config, new Assembly[]
 			{
 				Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
 				Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
@@ -32,8 +31,8 @@ namespace VodovozBusinessTests.Deletion
 				Assembly.GetAssembly(typeof(QS.Banks.HMap.BankMap)),
 				Assembly.GetAssembly(typeof(QS.HistoryLog.HistoryMain)),
 				Assembly.GetAssembly(typeof(QS.Attachments.Domain.Attachment)),
-				Assembly.GetAssembly(typeof(AssemblyFinder))
-			});*/
+				Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
+			});
 
 			NhConfigered = true;
 		}

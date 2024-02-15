@@ -5,7 +5,6 @@ using Gamma.Utilities;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
-using QS.Project.Services;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
@@ -18,7 +17,7 @@ namespace Vodovoz.ViewModel
 {
 	public class ReadyForReceptionVM : RepresentationModelWithoutEntityBase<ReadyForReceptionVMNode>
 	{
-		public ReadyForReceptionVM() : this(ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot()) { }
+		public ReadyForReceptionVM() : this(UnitOfWorkFactory.CreateWithoutRoot()) { }
 
 		public ReadyForReceptionVM(IUnitOfWork uow) : base(typeof(RouteList), typeof(Vodovoz.Domain.Orders.Order))
 		{

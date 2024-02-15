@@ -4,7 +4,6 @@ using QS.DomainModel.UoW;
 using QSOrmProject;
 using QS.Validation;
 using Vodovoz.Domain.Client;
-using QS.Project.Services;
 
 namespace Vodovoz.Dialogs
 {
@@ -19,7 +18,7 @@ namespace Vodovoz.Dialogs
 		{
 			this.Build();
 
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<CommentsTemplates>();
+			UoWGeneric = CommentsTemplates.Create();
 			ConfigureDlg();
 		}
 
@@ -30,7 +29,7 @@ namespace Vodovoz.Dialogs
 		public CommentDlg(int id)
 		{
 			this.Build();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<CommentsTemplates>(id);
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<CommentsTemplates>(id);
 			ConfigureDlg();
 		}
 
@@ -47,7 +46,7 @@ namespace Vodovoz.Dialogs
 
 		public override bool Save()
 		{
-			var validator = ServicesConfig.ValidationService;
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
 			if(!validator.Validate(Entity))
 			{
 				return false;

@@ -9,12 +9,10 @@ namespace Vodovoz.Domain.Sms
 {
 	public class SmsNotifier
 	{
-		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly ISmsNotifierParametersProvider smsNotifierParametersProvider;
 
-		public SmsNotifier(IUnitOfWorkFactory uowFactory, ISmsNotifierParametersProvider smsNotifierParametersProvider)
+		public SmsNotifier(ISmsNotifierParametersProvider smsNotifierParametersProvider)
 		{
-			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			this.smsNotifierParametersProvider = smsNotifierParametersProvider ?? throw new ArgumentNullException(nameof(smsNotifierParametersProvider));
 		}
 
@@ -40,7 +38,7 @@ namespace Vodovoz.Domain.Sms
 			}
 
 			//проверка уже существующих ранее уведомлений
-			using(var uow = _uowFactory.CreateWithoutRoot()) {
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
 				var existsNotifications = uow.Session.QueryOver<NewClientSmsNotification>()
 					.Where(x => x.Counterparty.Id == order.Client.Id)
 					.List();
@@ -68,7 +66,7 @@ namespace Vodovoz.Domain.Sms
 			messageText = messageText.Replace(deliveryTimeVariable, $"{orderScheduleTimeString}");
 
 			//создание нового уведомления для отправки
-			using(var uow = _uowFactory.CreateWithNewRoot<NewClientSmsNotification>()) {
+			using(var uow = UnitOfWorkFactory.CreateWithNewRoot<NewClientSmsNotification>()) {
 				uow.Root.Order = order;
 				uow.Root.Counterparty = order.Client;
 				uow.Root.NotifyTime = DateTime.Now;
@@ -114,7 +112,7 @@ namespace Vodovoz.Domain.Sms
 			}
 			
 			//проверка уже существующих ранее уведомлений по недовозу
-			using(var uow = _uowFactory.CreateWithoutRoot())
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 			{
 				var existsNotifications = uow.Session.QueryOver<UndeliveryNotApprovedSmsNotification>()
 					.Where(x => x.UndeliveredOrder.Id == undeliveredOrder.Id)
@@ -171,7 +169,7 @@ namespace Vodovoz.Domain.Sms
 				return;
 			}
 
-			using(var uow = _uowFactory.CreateWithNewRoot<UndeliveryNotApprovedSmsNotification>())
+			using(var uow = UnitOfWorkFactory.CreateWithNewRoot<UndeliveryNotApprovedSmsNotification>())
 			{
 				FillNotification(uow.Root);
 				uow.Save();

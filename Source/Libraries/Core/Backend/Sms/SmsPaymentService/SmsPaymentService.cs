@@ -21,8 +21,7 @@ namespace SmsPaymentService
     public class SmsPaymentService : ISmsPaymentService
     {
 	    private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
-		private readonly IUnitOfWorkFactory _uowFactory;
-		private readonly IPaymentController _paymentController;
+	    private readonly IPaymentController _paymentController;
 	    private readonly ISmsPaymentStatusNotificationReciever _smsPaymentStatusNotificationReciever;
 	    private readonly IOrderParametersProvider _orderParametersProvider;
 	    private readonly SmsPaymentFileCache _smsPaymentFileCache;
@@ -30,7 +29,6 @@ namespace SmsPaymentService
 	    private readonly ISmsPaymentValidator _smsPaymentValidator;
 
 	    public SmsPaymentService(
-			IUnitOfWorkFactory uowFactory,
             IPaymentController paymentController, 
             ISmsPaymentStatusNotificationReciever smsPaymentStatusNotificationReciever,
             IOrderParametersProvider orderParametersProvider,
@@ -39,8 +37,7 @@ namespace SmsPaymentService
             ISmsPaymentValidator smsPaymentValidator
         )
         {
-			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
-			_paymentController = paymentController ?? throw new ArgumentNullException(nameof(paymentController));
+            _paymentController = paymentController ?? throw new ArgumentNullException(nameof(paymentController));
             _smsPaymentStatusNotificationReciever = smsPaymentStatusNotificationReciever ?? throw new ArgumentNullException(nameof(smsPaymentStatusNotificationReciever));
             _orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
             _smsPaymentFileCache = smsPaymentFileCache ?? throw new ArgumentNullException(nameof(smsPaymentFileCache));
@@ -72,7 +69,7 @@ namespace SmsPaymentService
             
             try
             {
-                using (var uow = _uowFactory.CreateWithoutRoot()) {
+                using (IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot()) {
                     var order = uow.GetById<Order>(orderId);
                     if (order == null) {
                         _logger.Error( $"Запрос на отправку платежа пришёл со значением номера заказа, не существующем в базе (Id: {orderId})");
@@ -175,7 +172,7 @@ namespace SmsPaymentService
                     return new StatusCode(HttpStatusCode.UnsupportedMediaType);
                 }
 
-                using (var uow = _uowFactory.CreateWithoutRoot()) {
+                using (IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot()) {
 
                     SmsPayment payment;
                     try {
@@ -279,7 +276,7 @@ namespace SmsPaymentService
         {
             _logger.Info($"Поступил запрос на обновление статуса платежа с externalId: {externalId}");
             try {
-                using (var uow = _uowFactory.CreateWithoutRoot()) {
+                using (var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
                     var payment = uow.Session.QueryOver<SmsPayment>()
                        .Where(x => x.ExternalId == externalId)
                        .Take(1)
@@ -344,7 +341,7 @@ namespace SmsPaymentService
             _logger.Info($"Поступил запрос на актульный статус платежа для заказа с Id: {orderId}");
 
             try {
-                using (var uow = _uowFactory.CreateWithoutRoot()) {
+                using (var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
                     var payments = uow.Session.QueryOver<SmsPayment>().Where(x => x.Order.Id == orderId && x.ExternalId != 0).List();
                     if (!payments.Any())
                         return new PaymentResult($"Для заказа с Id: {orderId} не создано ни одного платежа");
@@ -376,7 +373,7 @@ namespace SmsPaymentService
 		public bool ServiceStatus()
         {
             try {
-                using (var uow = _uowFactory.CreateWithoutRoot()) {
+                using (IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot()) {
                     uow.GetById<Order>(123);
                 }
             }
@@ -393,7 +390,7 @@ namespace SmsPaymentService
 			{
                 _logger.Info("Запущен процесс синхронизации статусов платежей");
                 
-                using (var uow = _uowFactory.CreateWithoutRoot())
+                using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
 				{
 					RouteListItem routeListItemAlias = null;
                     Order orderAlias = null;

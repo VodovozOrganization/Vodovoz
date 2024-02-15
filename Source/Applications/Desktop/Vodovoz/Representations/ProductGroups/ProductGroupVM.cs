@@ -10,7 +10,6 @@ using Gdk;
 using Gtk;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
-using QS.Project.Services;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.StoredResources;
@@ -37,7 +36,7 @@ namespace Vodovoz.Representations.ProductGroups
 			};
 		}
 
-		public ProductGroupVM() : this(ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot()) { }
+		public ProductGroupVM() : this(UnitOfWorkFactory.CreateWithoutRoot()) { }
 		
 		public ProductGroupVM(IUnitOfWork uow, ProductGroupFilterViewModel filterViewModel) : this(uow)
 		{

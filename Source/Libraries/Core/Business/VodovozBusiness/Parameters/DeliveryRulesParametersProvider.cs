@@ -1,6 +1,5 @@
-﻿using NHibernate.Criterion;
+using NHibernate.Criterion;
 using QS.DomainModel.UoW;
-using QS.Project.Services;
 using System;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Services;
@@ -85,7 +84,7 @@ namespace Vodovoz.Parameters
 		{
 			get
 			{
-				using(var unitOfWork = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot(_getMaxDistanceToLatestTrackPointKmUnitOfWorkTitle))
+				using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot(_getMaxDistanceToLatestTrackPointKmUnitOfWorkTitle))
 				{
 					return unitOfWork.Query<FastDeliveryMaxDistanceParameterVersion>()
 						.Where(x => x.EndDate == null)
@@ -96,7 +95,7 @@ namespace Vodovoz.Parameters
 
 		public double GetMaxDistanceToLatestTrackPointKmFor(DateTime dateTime)
 		{
-			using(var unitOfWork = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot(_getMaxDistanceToLatestTrackPointKmUnitOfWorkTitle))
+			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot(_getMaxDistanceToLatestTrackPointKmUnitOfWorkTitle))
 			{
 				FastDeliveryMaxDistanceParameterVersion fastDeliveryMaxDistanceParameterVersionAlias = null;
 
@@ -112,7 +111,7 @@ namespace Vodovoz.Parameters
 
 		public void UpdateFastDeliveryMaxDistanceParameter(double value)
 		{
-			using(var unitOfWork = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot(_setMaxDistanceToLatestTrackPointKmUnitOfWorkTitle))
+			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot(_setMaxDistanceToLatestTrackPointKmUnitOfWorkTitle))
 			{
 				var activationTime = DateTime.Now;
 

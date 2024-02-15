@@ -6,8 +6,6 @@ using QS.Report.ViewModels;
 using System;
 using Vodovoz;
 using Vodovoz.Core.DataService;
-using Vodovoz.Core.Domain.Employees;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.EntityRepositories.Employees;
@@ -180,7 +178,7 @@ public partial class MainWindow
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<CardPaymentsOrdersReport>(),
-			() => new QSReport.ReportViewDlg(new CardPaymentsOrdersReport(ServicesConfig.UnitOfWorkFactory)));
+			() => new QSReport.ReportViewDlg(new CardPaymentsOrdersReport(UnitOfWorkFactory.GetDefaultFactory)));
 	}
 
 	/// <summary>
@@ -208,8 +206,8 @@ public partial class MainWindow
 			QSReport.ReportViewDlg.GenerateHashName<FirstClientsReport>(),
 			() => new QSReport.ReportViewDlg(
 				  new FirstClientsReport(
-						_autofacScope.Resolve<IDistrictJournalFactory>(),
-						new DiscountReasonRepository()))); ;
+						new DistrictJournalFactory(),
+						new DiscountReasonRepository())));
 	}
 
 	/// <summary>
@@ -1320,7 +1318,7 @@ public partial class MainWindow
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<SalaryRatesReport>(),
 			() => new QSReport.ReportViewDlg(new SalaryRatesReport(
-				ServicesConfig.UnitOfWorkFactory,
+				UnitOfWorkFactory.GetDefaultFactory,
 				new BaseParametersProvider(new ParametersProvider()),
 				ServicesConfig.CommonServices)));
 	}
@@ -1334,7 +1332,7 @@ public partial class MainWindow
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<EmployeesTaxesSumReport>(),
-			() => new QSReport.ReportViewDlg(new EmployeesTaxesSumReport(ServicesConfig.UnitOfWorkFactory)));
+			() => new QSReport.ReportViewDlg(new EmployeesTaxesSumReport(UnitOfWorkFactory.GetDefaultFactory)));
 	}
 
 	/// <summary>
@@ -1378,7 +1376,7 @@ public partial class MainWindow
 				new CounterpartyJournalFactory(),
 				new EmployeeJournalFactory(NavigationManager),
 				new SalesChannelJournalFactory(),
-				ServicesConfig.UnitOfWorkFactory,
+				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.InteractiveService)));
 	}
 
@@ -1393,8 +1391,8 @@ public partial class MainWindow
 			QSReport.ReportViewDlg.GenerateHashName<CounterpartyReport>(),
 			() => new QSReport.ReportViewDlg(new CounterpartyReport(
 				new SalesChannelJournalFactory(),
-				_autofacScope.Resolve<IDistrictJournalFactory>(),
-				ServicesConfig.UnitOfWorkFactory,
+				new DistrictJournalFactory(),
+				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.InteractiveService)));
 
 	}

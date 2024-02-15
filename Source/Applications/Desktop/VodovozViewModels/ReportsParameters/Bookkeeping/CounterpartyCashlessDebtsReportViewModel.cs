@@ -24,7 +24,6 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 		private const string _excludeString = "_exclude";
 
 		private readonly ICommonServices _commonServices;
-		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IGenericRepository<CounterpartySubtype> _counterpartySubtypeRepository;
 		private readonly IGenericRepository<Counterparty> _counterpartyRepository;
 		private readonly IUnitOfWork _unitOfWork;
@@ -38,14 +37,12 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 
 		public CounterpartyCashlessDebtsReportViewModel(
 			ICommonServices commonServices,
-			IUnitOfWorkFactory uowFactory,
 			IGenericRepository<CounterpartySubtype> counterpartySubtypeRepository,
 			IGenericRepository<Counterparty> counterpartyRepository,
 			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider,
 			RdlViewerViewModel rdlViewerViewModel) : base(rdlViewerViewModel)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_counterpartySubtypeRepository = counterpartySubtypeRepository ?? throw new ArgumentNullException(nameof(counterpartySubtypeRepository));
 			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
 
@@ -56,7 +53,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 
 			Title = "Долги по безналу";
 
-			_unitOfWork = _uowFactory.CreateWithoutRoot(Title);
+			_unitOfWork = UnitOfWorkFactory.CreateWithoutRoot(Title);
 
 			_closingDocumentDeliveryScheduleId = deliveryScheduleParametersProvider.ClosingDocumentDeliveryScheduleId;
 
