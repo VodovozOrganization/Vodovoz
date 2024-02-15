@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Errors;
 
 namespace Vodovoz.Services.Logistics
@@ -50,7 +51,7 @@ namespace Vodovoz.Services.Logistics
 			int targetRouteListId,
 			IDictionary<int, AddressTransferType?> ordersIdsAndTransferType);
 
-		Result ValidateForAccept(RouteList routeList, bool skipOverfillValidation = false);
+		Result ValidateForAccept(RouteList routeList,IOrderRepository orderRepository, bool skipOverfillValidation = false);
 
 		Result TryChangeStatusToNew(
 			IUnitOfWork unitOfWork,
@@ -61,6 +62,7 @@ namespace Vodovoz.Services.Logistics
 			RouteList routeList,
 			Action<bool> disableItemsUpdate,
 			IValidator validationService,
+			IOrderRepository orderRepository,
 			bool skipOverfillValidation = false,
 			bool confirmRecalculateRoute = false,
 			bool confirmSendOnClosing = false,

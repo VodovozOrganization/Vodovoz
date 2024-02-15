@@ -89,7 +89,17 @@ namespace Vodovoz.SidePanel.InfoViews
 			using(var uow =
 					UnitOfWorkFactory.CreateForRoot<Counterparty>(_counterparty.Id, "Кнопка «Cохранить требования к логистике на панели контрагента"))
 			{
-				uow.Root.LogisticsRequirements = logisticsRequirementsView.ViewModel.Entity;
+				if(uow.Root.LogisticsRequirements == null)
+				{
+					uow.Root.LogisticsRequirements = new LogisticsRequirements();
+				}
+
+				uow.Root.LogisticsRequirements.ForwarderRequired = logisticsRequirementsView.ViewModel.Entity.ForwarderRequired;
+				uow.Root.LogisticsRequirements.DocumentsRequired = logisticsRequirementsView.ViewModel.Entity.DocumentsRequired;
+				uow.Root.LogisticsRequirements.RussianDriverRequired = logisticsRequirementsView.ViewModel.Entity.RussianDriverRequired;
+				uow.Root.LogisticsRequirements.PassRequired = logisticsRequirementsView.ViewModel.Entity.PassRequired;
+				uow.Root.LogisticsRequirements.LargusRequired = logisticsRequirementsView.ViewModel.Entity.LargusRequired;
+
 				uow.Save();
 			}
 		}
@@ -169,6 +179,10 @@ namespace Vodovoz.SidePanel.InfoViews
 			PhonesTable.Attach(btn, 1, 2, rowsCount - 1, rowsCount);
 			PhonesTable.ShowAll();
 			btn.Sensitive = buttonSaveComment.Sensitive = _counterpartyPermissionResult.CanUpdate && _counterparty.Id != 0;
+
+			var isLogistcsRequirementsEditable = _counterpartyPermissionResult.CanUpdate && _counterparty.Id != 0;
+			logisticsRequirementsView.Sensitive = isLogistcsRequirementsEditable;
+			buttonSaveLogisticsRequirements.Sensitive = isLogistcsRequirementsEditable;
 
 			if(InfoProvider is OrderDlg)
 			{

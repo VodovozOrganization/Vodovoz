@@ -1,7 +1,9 @@
-﻿using System.Linq;
+﻿using System.ComponentModel;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using EventsApi.Library;
+using EventsApi.Library.Converters;
 using LogisticsEventsApi.Data;
 using LogisticsEventsApi.HealthChecks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -29,6 +31,7 @@ using QS.Services;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Settings.Database;
+using VodovozHealthCheck;
 
 namespace LogisticsEventsApi
 {
@@ -52,6 +55,7 @@ namespace LogisticsEventsApi
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddControllers();
+
 			services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "LogisticsEventsApi", Version = "v1" }); });
 			
 			services.AddLogging(
@@ -65,7 +69,7 @@ namespace LogisticsEventsApi
 			services.AddWarehouseEventsDependencies();
 
 			//закомментил пока нет зарегистрированных пользователей
-			//services.ConfigureHealthCheckService<LogisticsEventsApiHealthCheck>();
+			services.ConfigureHealthCheckService<LogisticsEventsApiHealthCheck>();
 			services.AddHttpClient();
 			
 			var connectionString = CreateBaseConfig();
@@ -114,6 +118,8 @@ namespace LogisticsEventsApi
 			app.UseAuthorization();
 
 			app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+
+			app.ConfigureHealthCheckApplicationBuilder();
 		}
 		
 		private string CreateBaseConfig()
