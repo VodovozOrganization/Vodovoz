@@ -36,7 +36,7 @@ namespace Vodovoz
 		public IncomingWaterDlg()
 		{
 			Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<IncomingWater>();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<IncomingWater>();
 			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null)
 			{
@@ -54,8 +54,8 @@ namespace Vodovoz
 		public IncomingWaterDlg(int id)
 		{
 			Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<IncomingWater>(id);
-
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<IncomingWater>(id);
+			
 			ConfigureDlg();
 		}
 
@@ -120,8 +120,8 @@ namespace Vodovoz
 			incomingwatermaterialview1.DocumentUoW = UoWGeneric;
 
 			var permmissionValidator =
-				new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
-
+				new EntityExtendedPermissionValidator(ServicesConfig.UnitOfWorkFactory, PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
+			
 			Entity.CanEdit =
 				permmissionValidator.Validate(
 					typeof(IncomingWater), _userRepository.GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
@@ -155,7 +155,7 @@ namespace Vodovoz
 				return false;
 			}
 
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;

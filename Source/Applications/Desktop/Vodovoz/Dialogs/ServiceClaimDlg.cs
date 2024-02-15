@@ -4,6 +4,7 @@ using Gamma.Utilities;
 using Gtk;
 using NLog;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.Tdi;
 using QS.Validation;
 using QS.ViewModels.Control.EEVM;
@@ -74,31 +75,27 @@ namespace Vodovoz
 
 		public ServiceClaimDlg(Order order)
 		{
-			Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<ServiceClaim>(new ServiceClaim(order));
-			ConfigureDlg();
+			this.Build ();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<ServiceClaim>(new ServiceClaim (order));
+			ConfigureDlg ();
 		}
 
-		public ServiceClaimDlg(ServiceClaim sub) : this(sub.Id)
+		public ServiceClaimDlg (ServiceClaim sub) : this (sub.Id)
 		{
 		}
 
 		public ServiceClaimDlg(int id)
 		{
-			Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<ServiceClaim>(id);
-			ConfigureDlg();
+			this.Build ();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<ServiceClaim> (id);
 		}
 
 		public ServiceClaimDlg(ServiceClaimType type)
 		{
-			Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<ServiceClaim>(new ServiceClaim(type));
-			if(type == ServiceClaimType.RegularService)
-			{
-				EntitySaved += (sender, args) => CreateOrder();
-			}
-
+			this.Build ();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<ServiceClaim>(new ServiceClaim (type));
+			if (type == ServiceClaimType.RegularService)
+				EntitySaved += (sender,args)=>CreateOrder();
 			Entity.ServiceStartDate = DateTime.Today;
 			Entity.ServiceStartDate = DateTime.Now.AddDays(1);
 			ConfigureDlg();
@@ -253,7 +250,7 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;

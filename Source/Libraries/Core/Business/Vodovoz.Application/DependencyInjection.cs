@@ -3,6 +3,7 @@ using Vodovoz.Application.Goods;
 using Vodovoz.Application.Logistics;
 using Vodovoz.Application.Logistics.RouteOptimization;
 using Vodovoz.Application.Orders.Services;
+using Vodovoz.Application.Pacs;
 using Vodovoz.Application.Payments;
 using Vodovoz.Application.Services;
 using Vodovoz.Services;
@@ -17,6 +18,7 @@ namespace Vodovoz.Application
 			.AddApplicationServices();
 
 		public static IServiceCollection AddApplicationServices(this IServiceCollection services) => services
+			.AddSingleton<OperatorService>()
 			.AddScoped<ICounterpartyService, CounterpartyService>()
 			.AddScoped<IRouteListService, RouteListService>()
 			.AddScoped<IPaymentService, PaymentService>()

@@ -10,6 +10,7 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Print;
+using QS.Project.Services;
 using QS.Tdi;
 using QSProjectsLib;
 using Vodovoz.Additions.Logistic;
@@ -41,7 +42,7 @@ namespace Vodovoz.Dialogs.Logistic
 		private GenericObservableList<GeoGroup> _geographicGroups;
 		private GenericObservableList<string> _warnings;
 
-		private IUnitOfWork _uow = UnitOfWorkFactory.CreateWithoutRoot();
+		private IUnitOfWork _uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 
 		public PrintRouteDocumentsDlg()
 		{

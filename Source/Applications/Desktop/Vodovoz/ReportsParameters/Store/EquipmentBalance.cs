@@ -9,6 +9,7 @@ using Gamma.Utilities;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Goods;
@@ -22,7 +23,7 @@ namespace Vodovoz.ReportsParameters.Store
 		public EquipmentBalance()
 		{
 			this.Build();
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 
 			var categoryList =  Enum.GetValues(typeof(NomenclatureCategory)).Cast<NomenclatureCategory>().ToList();
 

@@ -42,7 +42,6 @@ namespace CustomerAppsApi.Library
 		public static IServiceCollection AddCustomerApiLibrary(this IServiceCollection services)
 		{
 			services
-				.AddScoped<IUnitOfWork>(_ => UnitOfWorkFactory.CreateWithoutRoot("Сервис интеграции"))
 				.AddSingleton<IPhoneRepository, PhoneRepository>()
 				.AddSingleton<IEmailRepository, EmailRepository>()
 				.AddSingleton<IWarehouseRepository, WarehouseRepository>()
@@ -61,7 +60,6 @@ namespace CustomerAppsApi.Library
 				.AddSingleton<ISessionProvider, DefaultSessionProvider>()
 				.AddSingleton<IParametersProvider, ParametersProvider>()
 				.AddSingleton<INomenclatureParametersProvider, NomenclatureParametersProvider>()
-				.AddSingleton<IUnitOfWorkFactory, DefaultUnitOfWorkFactory>()
 				.AddSingleton<IRoboatsSettings, RoboatsSettings>()
 				.AddSingleton<ICachedBottlesDebtRepository, CachedBottlesDebtRepository>()
 				.AddSingleton<IRegisteredNaturalCounterpartyDtoFactory, RegisteredNaturalCounterpartyDtoFactory>()

@@ -14,6 +14,7 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Project.Services;
 using QS.Services;
 using QSProjectsLib;
 using Vodovoz.Domain.Cash;
@@ -217,7 +218,7 @@ namespace Vodovoz.Representations
 		public override string FooterInfo {
 			get {
 				StringBuilder sb = new StringBuilder();
-				using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+				using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot()) {
 					var lst = ItemsSourceQueryFunction(uow).List<SelfDeliveryJournalNode>();
 					sb.Append("Сумма БН: <b>").Append(lst.Sum(n => n.OrderCashlessSumTotal).ToShortCurrencyString()).Append("</b>\t|\t");
 					sb.Append("Сумма нал: <b>").Append(lst.Sum(n => n.OrderCashSumTotal).ToShortCurrencyString()).Append("</b>\t|\t");

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Gamma.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
@@ -142,16 +143,12 @@ namespace Vodovoz.Domain.Client
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
-			var orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
-			var parametersProvider = new ParametersProvider();
-			var orderParametersProvider = new OrderParametersProvider(parametersProvider);
-			var cashReceiptRepository = new CashReceiptRepository(UnitOfWorkFactory.GetDefaultFactory, orderParametersProvider);
-			var counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider, cashReceiptRepository); 
-			
+			var counterpartyContractRepository = validationContext.GetRequiredService<ICounterpartyContractRepository>();
+			var uowFactory = validationContext.GetRequiredService<IUnitOfWorkFactory>();
+
 			if(!IsArchive && !OnCancellation)
 			{
-				using(var uow = UnitOfWorkFactory.CreateWithoutRoot("Валидация договора контрагента"))
+				using(var uow = uowFactory.CreateWithoutRoot("Валидация договора контрагента"))
 				{
 					var contracts =
 						counterpartyContractRepository.GetActiveContractsWithOrganization(uow, Counterparty, Organization, ContractType);
@@ -172,20 +169,16 @@ namespace Vodovoz.Domain.Client
 		/// </summary>
 		/// <returns>Максимальный внутренний номер договора у передаваемого клиента</returns>
 		/// <param name="counterparty">Клиент</param>
-		public static int GenerateSubNumber(Counterparty counterparty)
+		public virtual void GenerateSubNumber(Counterparty counterparty)
 		{
 			if(counterparty.CounterpartyContracts.Any())
-				return counterparty.CounterpartyContracts.Max(c => c.ContractSubNumber) + 1;
-			return 1;
-		}
-
-		//Конструкторы
-		public static IUnitOfWorkGeneric<CounterpartyContract> Create(Counterparty counterparty)
-		{
-			var uow = UnitOfWorkFactory.CreateWithNewRoot<CounterpartyContract>();
-			uow.Root.Counterparty = counterparty;
-			uow.Root.ContractSubNumber = GenerateSubNumber(counterparty);
-			return uow;
+			{
+				ContractSubNumber = counterparty.CounterpartyContracts.Max(c => c.ContractSubNumber) + 1;
+			}
+			else
+			{
+				ContractSubNumber = 1;
+			}
 		}
 		
 		#region Функции

@@ -4,6 +4,7 @@ using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
 using QS.Dialog.GtkUI;
+using QS.Project.Services;
 
 namespace Vodovoz.ReportsParameters
 {
@@ -12,7 +13,7 @@ namespace Vodovoz.ReportsParameters
 		public DriversToDistrictsAssignmentReport()
 		{
 			Build();
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 		}
 
 		#region IParametersWidget implementation

@@ -1,9 +1,9 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.Text.RegularExpressions;
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using QS.Utilities.Numeric;
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
 using Vodovoz.Domain.Client;
 using Vodovoz.Services;
 
@@ -13,66 +13,20 @@ namespace Vodovoz.Domain.Contacts
 		NominativePlural = "телефоны",
 		Nominative = "телефон")]
 	[HistoryTrace]
-	public class Phone : PropertyChangedBase, IDomainObject
+	public class Phone : Core.Domain.Contacts.PhoneEntity
 	{
 		#region Свойства
+
 		private DeliveryPoint _deliveryPoint;
 		private Counterparty _counterparty;
 		private RoboAtsCounterpartyName _roboAtsCounterpartyName;
 		private RoboAtsCounterpartyPatronymic _roboAtsCounterpartyPatronymic;
 
-		public virtual int Id { get; set; }
-
-		private string number;
-		public virtual string Number
-		{
-			get => number;
-			set
-			{
-				var formatter = new PhoneFormatter(PhoneFormat.BracketWithWhitespaceLastTen);
-				string phone = formatter.FormatString(value);
-				SetField(ref number, phone, () => Number);
-				DigitsNumber = value;
-			}
-		}
-
-		private string digitsNumber;
-		[Display(Name = "Только цифры")]
-		public virtual string DigitsNumber
-		{
-			get => digitsNumber;
-			protected set
-			{
-				var formatter = new PhoneFormatter(PhoneFormat.DigitsTen);
-				string phone = formatter.FormatString(value);
-				SetField(ref digitsNumber, phone, () => DigitsNumber);
-			}
-		}
-
-		public virtual string Additional { get; set; }
-
 		private PhoneType phoneType;
 		public virtual PhoneType PhoneType
 		{
 			get => phoneType;
-			set { SetField(ref phoneType, value, () => PhoneType); }
-		}
-
-		private string _comment;
-
-		[Display(Name = "Комментарий")]
-		public virtual string Comment
-		{
-			get => _comment;
-			set { SetField(ref _comment, value); }
-		}
-
-		private bool _isArchive;
-		[Display(Name = "Архив")]
-		public virtual bool IsArchive
-		{
-			get => _isArchive;
-			set => SetField(ref _isArchive, value);
+			set => SetField(ref phoneType, value);
 		}
 
 		[Display(Name = "Точка доставки")]
@@ -126,6 +80,7 @@ namespace Vodovoz.Domain.Contacts
 		public Phone()
 		{
 		}
+
 		/// <summary>
 		/// Конструктор ,который преобразует любой вид телефона к стандартному виду
 		/// Формат:
@@ -140,23 +95,17 @@ namespace Vodovoz.Domain.Contacts
 		{
 			var formatter = new PhoneFormatter(PhoneFormat.BracketWithWhitespaceLastTen);
 			string phone = formatter.FormatString(number);
-			this.number = phone;
+			_number = phone;
 
 			formatter = new PhoneFormatter(PhoneFormat.DigitsTen);
 			phone = formatter.FormatString(number);
-			this.digitsNumber = phone;
+			_digitsNumber = phone;
 
 			_comment = comment;
 		}
 
 		public virtual Phone Init(IContactParametersProvider contactsParameters)
 		{
-			//I-2566 Отключено за ненадобностью
-			//if(String.IsNullOrWhiteSpace(contactsParameters.DefaultCityCode))
-			//	Number = String.Empty;
-			//else
-			//Number = String.Format("({0})", contactsParameters.DefaultCityCode);
-
 			Number = String.Empty;
 			Additional = String.Empty;
 			return this;
@@ -171,7 +120,7 @@ namespace Vodovoz.Domain.Contacts
 
 		private bool IsValidPhoneNumberFormat()
 		{
-			if(Regex.IsMatch(digitsNumber, "^[3 4 8 9]{1}[0-9]{9}"))
+			if(Regex.IsMatch(_digitsNumber, "^[3 4 8 9]{1}[0-9]{9}"))
 			{
 				return true;
 			}

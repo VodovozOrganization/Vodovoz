@@ -1,14 +1,24 @@
 ﻿using QS.Banks.Domain;
 using QS.BusinessCommon.Domain;
+using QS.Dialog.Gtk;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Services;
+using QS.Services;
 using QS.Validation;
 using QSBanks;
 using QSOrmProject;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Extensions.Logging;
+using Vodovoz;
+using Vodovoz.Controllers;
+using Vodovoz.Core.DataService;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
@@ -26,6 +36,9 @@ using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.Journals.JournalViewModels.WageCalculation;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Presentation.ViewModels.Employees.Journals;
+using Vodovoz.Services;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Complaints;
@@ -56,6 +69,7 @@ using Vodovoz.ViewModels.Profitability;
 
 public partial class MainWindow
 {
+
 	#region Наша организация
 
 	/// <summary>
@@ -180,9 +194,9 @@ public partial class MainWindow
 	{
 		var complaintSourcesViewModel = new SimpleEntityJournalViewModel<ComplaintSource, ComplaintSourceViewModel>(
 			x => x.Name,
-			() => new ComplaintSourceViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices),
-			(node) => new ComplaintSourceViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices),
-			 UnitOfWorkFactory.GetDefaultFactory,
+			() => new ComplaintSourceViewModel(EntityUoWBuilder.ForCreate(), ServicesConfig.UnitOfWorkFactory, ServicesConfig.CommonServices),
+			(node) => new ComplaintSourceViewModel(EntityUoWBuilder.ForOpen(node.Id), ServicesConfig.UnitOfWorkFactory, ServicesConfig.CommonServices),
+			 ServicesConfig.UnitOfWorkFactory,
 			ServicesConfig.CommonServices
 		);
 		tdiMain.AddTab(complaintSourcesViewModel);
@@ -258,15 +272,15 @@ public partial class MainWindow
 			x => x.Name,
 			() => new UndeliveryProblemSourceViewModel(
 				EntityUoWBuilder.ForCreate(),
-				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.UnitOfWorkFactory,
 				ServicesConfig.CommonServices
 			),
 			(node) => new UndeliveryProblemSourceViewModel(
 				EntityUoWBuilder.ForOpen(node.Id),
-				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.UnitOfWorkFactory,
 				ServicesConfig.CommonServices
 			),
-			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.UnitOfWorkFactory,
 			ServicesConfig.CommonServices
 		);
 		undeliveryProblemSourcesViewModel.SetActionsVisible(deleteActionEnabled: false);
@@ -331,6 +345,16 @@ public partial class MainWindow
 	protected void OnRoboatsExportActionActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<RoboatsCatalogExportViewModel>(null);
+	}
+
+	/// <summary>
+	/// Справочники Roboats
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnInnerPhonesActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<InnerPhonesJournalViewModel>(null);
 	}
 
 	#endregion Наша организация

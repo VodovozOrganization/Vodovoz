@@ -30,6 +30,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly bool _canManageTerminal;
 		private readonly Warehouse _defaultWarehouse;
 		private readonly ICommonServices _commonServices;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IWarehouseRepository _warehouseRepository;
 		private readonly IRouteListRepository _routeListRepository;
@@ -48,12 +49,14 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			IRouteListRepository routeListRepository,
 			ICommonServices commonServices,
 			IUnitOfWork uow,
+			IUnitOfWorkFactory unitOfWorkFactory,
 			ITerminalNomenclatureProvider terminalNomenclatureProvider)
 		{
 			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
 			_driver = driver ?? throw new ArgumentNullException(nameof(driver));
 			_parentTab = parentTab ?? throw new ArgumentNullException(nameof(parentTab));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_terminalNomenclatureProvider =
 				terminalNomenclatureProvider ?? throw new ArgumentNullException(nameof(terminalNomenclatureProvider));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
@@ -147,7 +150,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				Nomenclature = terminal
 			};
 			var writeoffWarehouseJournal =
-				new NomenclatureBalanceByStockJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, _commonServices)
+				new NomenclatureBalanceByStockJournalViewModel(filter, _unitOfWorkFactory, _commonServices)
 				{
 					TabName = "Выбор склада для списания терминала",
 					SelectionMode = JournalSelectionMode.Single

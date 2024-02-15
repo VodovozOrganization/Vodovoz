@@ -1,23 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Autofac;
+﻿using Autofac;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.Infrastructure.Mango;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
-namespace Vodovoz.ViewModels.Mango.Talks
+namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 {
 	public class UnknowTalkViewModel : TalkViewModelBase, IDisposable
 	{
@@ -27,6 +26,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private readonly IUnitOfWork _uow;
 		private ILifetimeScope _lifetimeScope;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private IPage<CounterpartyJournalViewModel> _counterpartyJournalPage;
 		
 		public UnknowTalkViewModel(
@@ -40,11 +40,12 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			INomenclatureRepository nomenclatureRepository) : base(navigation, manager)
 		{
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_tdiNavigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
 			_interactive = interactive ?? throw new ArgumentNullException(nameof(interactive));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
-			_uow = unitOfWorkFactory.CreateWithoutRoot();
+			_uow = _unitOfWorkFactory.CreateWithoutRoot();
 		}
 
 		#region Действия View
@@ -100,7 +101,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 			var parameters = new Dictionary<string, object> {
 				{"uowBuilder", EntityUoWBuilder.ForCreate()},
-				{ "unitOfWorkFactory", UnitOfWorkFactory.GetDefaultFactory },
+				{ "unitOfWorkFactory", _unitOfWorkFactory },
 				//Autofac: IEmployeeService 
 				{"employeeSelectorFactory", employeeSelectorFactory},
 				{"counterpartySelectorFactory", counterpartySelectorFactory},

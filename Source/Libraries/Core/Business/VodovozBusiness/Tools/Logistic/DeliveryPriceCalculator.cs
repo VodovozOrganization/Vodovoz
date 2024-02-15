@@ -1,6 +1,6 @@
 ﻿using NetTopologySuite.Geometries;
-using QS.DomainModel.UoW;
 using QS.Osrm;
+using QS.Project.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,7 +41,7 @@ namespace Vodovoz.Tools.Logistic
 			DeliveryPriceNode result = new DeliveryPriceNode();
 
 			//Топливо
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot("Расчет стоимости доставки")) {
+			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot("Расчет стоимости доставки")) {
 				var fuel = _fuelRepository.GetDefaultFuel(uow);
 				if(fuel == null) {
 					result.ErrorMessage = string.Format("Топливо по умолчанию «АИ-92» не найдено в справочке.");

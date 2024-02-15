@@ -8,11 +8,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using MySqlConnector;
 using NLog.Web;
-using QS.DomainModel.UoW;
-using QS.Project.DB;
+using QS.Project.Core;
 using RabbitMQ.Infrastructure;
-using System.Reflection;
+using Vodovoz.Core.Data.NHibernate;
 using VodovozHealthCheck;
 
 namespace MailjetEventsDistributorAPI
@@ -41,10 +41,22 @@ namespace MailjetEventsDistributorAPI
 			_logger = new Logger<Startup>(LoggerFactory.Create(logging =>
 			logging.AddNLogWeb(NLogBuilder.ConfigureNLog("NLog.config").Configuration)));
 
+			services.AddMappingAssemblies()
+				.AddSingleton<MySqlConnectionStringBuilder>((provider) => {
+					var configuration = provider.GetRequiredService<IConfiguration>();
+					var connectionString = configuration.GetSection("ConnectionStrings").GetValue<string>("Default");
+					var builder = new MySqlConnectionStringBuilder(connectionString);
+
+					return builder;
+				})
+				.AddSpatialSqlConfiguration()
+				.AddNHibernateConfiguration()
+				.AddDatabaseInfo()
+				.AddCore()
+				.AddTrackedUoW();
+
 			services.AddTransient<RabbitMQConnectionFactory>();
 			services.AddTransient<IInstanceData, InstanceData>();
-
-			services.AddSingleton(x => UnitOfWorkFactory.GetDefaultFactory);
 
 			services.AddControllers();
 			services.AddSwaggerGen(c =>
@@ -53,18 +65,6 @@ namespace MailjetEventsDistributorAPI
 			});
 
 			services.ConfigureHealthCheckService<MailjetEventsDistributeHealthCheck>();
-
-			var connectionString = Configuration.GetSection("ConnectionStrings").GetValue<string>("Default");
-
-			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
-				.ConnectionString(connectionString)
-				.AdoNetBatchSize(100)
-				.Driver<LoggedMySqlClientDriver>();
-
-			OrmConfig.ConfigureOrm(
-				db_config,
-				new Assembly[] {});
-
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
