@@ -1855,7 +1855,7 @@ namespace Vodovoz.Domain.Logistic
 						}
 
 						foreach(var address in Addresses) {
-							var validator = validationContext.GetRequiredService<IValidator>();
+							var validator = ServicesConfig.ValidationService;
 							var orderValidationContext = new ValidationContext(
 								address.Order,
 								null,
