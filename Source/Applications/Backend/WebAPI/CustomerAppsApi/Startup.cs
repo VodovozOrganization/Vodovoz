@@ -81,7 +81,6 @@ namespace CustomerAppsApi
 				.AddDatabaseConnection()
 				.AddCore()
 				.AddTrackedUoW()
-				.AddServiceUser()
 
 				.AddSingleton<IPhoneRepository, PhoneRepository>()
 				.AddSingleton<IEmailRepository, EmailRepository>()

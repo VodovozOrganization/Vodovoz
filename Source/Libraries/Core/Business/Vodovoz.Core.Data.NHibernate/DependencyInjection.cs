@@ -1,6 +1,6 @@
-﻿using Autofac;
-using FluentNHibernate.Cfg.Db;
+﻿using FluentNHibernate.Cfg.Db;
 using Microsoft.Extensions.DependencyInjection;
+using QS;
 using QS.Project.Core;
 using QS.Project.DB;
 using Vodovoz.Core.Data.NHibernate.NhibernateExtensions;
@@ -36,6 +36,9 @@ namespace Vodovoz.Core.Data.NHibernate
 				.AddNHibernateConfiguration()
 				.AddDatabaseInfo()
 				;
+
+			services.AddStaticServicesConfig();
+
 			return services;
 		}
 	}

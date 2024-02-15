@@ -81,10 +81,6 @@ namespace Vodovoz
 
 			ScopeProvider.Scope = AppDIContainer;
 
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
-			validator.ServiceProvider = AppDIContainer.Resolve<IServiceProvider>();
-			ServicesConfig.ValidationService = validator;
-
 			#region Первоначальная настройка обработки ошибок
 			ErrorReporter.Instance.AutomaticallySendEnabled = false;
 			ErrorReporter.Instance.SendedLogRowCount = 100;
@@ -125,10 +121,7 @@ namespace Vodovoz
 			GetPermissionsSettings();
 			//Настройка базы
 			var applicationConfigurator = new ApplicationConfigurator();
-			//applicationConfigurator.ConfigureOrm();
 			applicationConfigurator.CreateApplicationConfig();
-			OrmConfig.Config = AppDIContainer.Resolve<IOrmConfig>();
-			ServicesConfig.UnitOfWorkFactory = AppDIContainer.Resolve<IUnitOfWorkFactory>();
 
 			CreateProjectParam();
 

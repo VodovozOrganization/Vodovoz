@@ -23,9 +23,6 @@ namespace Vodovoz
 
 		public static void CreateVodovozDefaultServices()
 		{
-			ServicesConfig.InteractiveService = new GtkInteractiveService();
-			ServicesConfig.ValidationService = ServicesConfig.ValidationService;
-			ServicesConfig.UserService = new UserService(LoadCurrentUser());
 			EmployeeService = new EmployeeService(ServicesConfig.UnitOfWorkFactory, ServicesConfig.UserService);
 
 			IRepresentationJournalFactory journalFactory = new PermissionControlledRepresentationJournalFactory();
@@ -41,14 +38,6 @@ namespace Vodovoz
 			var permissionService = new PermissionService(entityPermissionValidator, presetPermissionValidator);
 			PermissionsSettings.PermissionService = permissionService;
 			PermissionsSettings.CurrentPermissionService = new CurrentPermissionServiceAdapter(permissionService, ServicesConfig.UserService);
-		}
-
-		private static User LoadCurrentUser()
-		{
-			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
-			{
-				return uow.GetById<User>(QSMain.User.Id);
-			}
 		}
 	}
 }

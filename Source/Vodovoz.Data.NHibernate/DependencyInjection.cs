@@ -13,38 +13,12 @@ namespace Vodovoz.Data.NHibernate
 {
 	public static class DependencyInjection
 	{
-		public static IServiceCollection AddServiceUser(this IServiceCollection services)
-		{
-			services.AddSingleton<OnDatabaseInitialization>((provider) =>
-			{
-				var uowFactory = provider.GetRequiredService<IUnitOfWorkFactory>();
-				var connectionSettings = provider.GetRequiredService<IDatabaseConnectionSettings>();
-				using(var uow = uowFactory.CreateWithoutRoot())
-				{
-					var serviceUser = uow.Session.Query<UserBase>()
-						.Where(u => u.Login == connectionSettings.UserName)
-						.FirstOrDefault();
-
-					if(serviceUser is null)
-					{
-						throw new InvalidOperationException("Service user not found");
-					}
-
-					ServicesConfig.UserService = new UserService(serviceUser);
-					QS.Project.Repositories.UserRepository.GetCurrentUserId = () => serviceUser.Id;
-				}
-				return new OnDatabaseInitialization();
-			});
-			return services;
-		}
-
 		[Obsolete("Удалить после очистки сущностей от зависимостей")]
 		public static IServiceCollection AddStaticScopeForEntity(this IServiceCollection services)
 		{
 			services.AddSingleton<OnDatabaseInitialization>((provider) =>
 			{
-				var scope = provider.GetRequiredService<ILifetimeScope>();
-				ScopeProvider.Scope = scope;
+				ScopeProvider.Scope = provider.GetRequiredService<ILifetimeScope>();
 				return new OnDatabaseInitialization();
 			});
 			return services;

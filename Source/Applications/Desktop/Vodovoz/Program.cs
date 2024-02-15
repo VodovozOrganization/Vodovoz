@@ -205,13 +205,9 @@ namespace Vodovoz
 					#region Сервисы
 
 					//GtkUI
-					builder.RegisterType<GtkMessageDialogsInteractive>().As<IInteractiveMessage>();
-					builder.RegisterType<GtkQuestionDialogsInteractive>().As<IInteractiveQuestion>();
-					builder.RegisterType<GtkInteractiveService>().As<IInteractiveService>();
 					builder.RegisterType<GtkConfirmationQuestionInteractive>().As<IConfirmationQuestionInteractive>();
 
 					builder.Register(c => ServicesConfig.CommonServices).As<ICommonServices>();
-					builder.Register(с => ServicesConfig.UserService).As<IUserService>();
 					builder.RegisterType<DeleteEntityGUIService>().As<IDeleteEntityService>();
 					builder.Register(c => DeleteConfig.Main).As<DeleteConfiguration>();
 					builder.Register(c => PermissionsSettings.CurrentPermissionService).As<ICurrentPermissionService>();
@@ -757,7 +753,9 @@ namespace Vodovoz
 						.AddDatabaseInfo()
 						.AddCore()
 						.AddDesktop()
-						.AddTrackedUoW()
+						.AddGuiTrackedUoW()
+						.AddObjectValidatorWithGui()
+						.AddGuiInteracive()
 
 						.AddScoped<IRouteListService, RouteListService>()
 						.AddScoped<RouteGeometryCalculator>()

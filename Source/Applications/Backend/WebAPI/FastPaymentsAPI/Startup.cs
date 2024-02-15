@@ -97,7 +97,6 @@ namespace FastPaymentsAPI
 				.AddDatabaseConnection()
 				.AddCore()
 				.AddTrackedUoW()
-				.AddServiceUser()
 				;
 
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);

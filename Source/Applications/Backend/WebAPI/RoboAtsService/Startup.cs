@@ -69,7 +69,6 @@ namespace RoboatsService
 			services.AddDatabaseConnection();
 			services.AddCore();
 			services.AddTrackedUoW();
-			services.AddServiceUser();
 			services.AddStaticHistoryTracker();
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 
