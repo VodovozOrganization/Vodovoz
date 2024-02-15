@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -56,6 +56,7 @@ using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.EntityFactories;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Goods.Rent;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
@@ -617,6 +618,8 @@ namespace Vodovoz
 			ConfigureAcceptButtons();
 			ConfigureButtonActions();
 			ConfigureSendDocumentByEmailWidget();
+
+			btnCancel.Clicked += (sender, args) => OnCloseTab(CanEditByPermission, CloseSource.Cancel);
 
 			spinDiscount.Adjustment.Upper = 100;
 			_commentManager = Entity.CommentManager ?? string.Empty;
@@ -2173,7 +2176,7 @@ namespace Vodovoz
 		{
 			canClose = isSensitive;
 			buttonSave.Sensitive = CanEditByPermission && isSensitive;
-			buttonCancel.Sensitive = isSensitive;
+			btnCancel.Sensitive = isSensitive;
 		}
 
 		protected bool Validate(ValidationContext validationContext)
@@ -4252,7 +4255,7 @@ namespace Vodovoz
 
 		public void SetDlgToReadOnly()
 		{
-			buttonSave.Sensitive = buttonCancel.Sensitive =
+			buttonSave.Sensitive = btnCancel.Sensitive =
 			hboxStatusButtons.Visible = false;
 		}
 

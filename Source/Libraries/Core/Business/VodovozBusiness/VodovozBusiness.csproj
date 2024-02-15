@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -123,6 +123,12 @@
     <Compile Include="Domain\Goods\PromotionalSetsOnlineParameters\MobileAppPromotionalSetOnlineParameters.cs" />
     <Compile Include="Domain\Goods\PromotionalSetsOnlineParameters\PromotionalSetOnlineParameters.cs" />
     <Compile Include="Domain\Goods\PromotionalSetsOnlineParameters\VodovozWebSitePromotionalSetOnlineParameters.cs" />
+    <Compile Include="Domain\Goods\Rent\FreeRentPackage.cs" />
+    <Compile Include="Domain\Goods\Rent\FreeRentPackageOnlineParameters.cs" />
+    <Compile Include="Domain\Goods\Rent\KulerSaleWebSiteFreeRentPackageOnlineParameters.cs" />
+    <Compile Include="Domain\Goods\Rent\MobileAppFreeRentPackageOnlineParameters.cs" />
+    <Compile Include="Domain\Goods\Rent\PaidRentPackage.cs" />
+    <Compile Include="Domain\Goods\Rent\VodovozWebSiteFreeRentPackageOnlineParameters.cs" />
     <Compile Include="Domain\Logistic\Drivers\DriverStopListRemoval.cs" />
     <Compile Include="Domain\Logistic\Drivers\EventNamePosition.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\RouteListMaxFastDeliveryOrders.cs" />
@@ -819,6 +825,7 @@
     <Compile Include="Nodes\OnlineNomenclatureNode.cs" />
     <Compile Include="Nodes\AvangardOperation.cs" />
     <Compile Include="Nodes\AvangardOperations.cs" />
+    <Compile Include="Nodes\FreeRentPackageWithOnlineParametersNode.cs" />
     <Compile Include="Nodes\NomenclatureOnlineParametersData.cs" />
     <Compile Include="Nodes\NomenclatureOnlineParametersNode.cs" />
     <Compile Include="Nodes\NomenclatureOnlinePriceNode.cs" />
@@ -881,11 +888,14 @@
     <Compile Include="Permissions\Cash.Income.cs" />
     <Compile Include="Permissions\Cash.Expense.cs" />
     <Compile Include="Permissions\Logistic.cs" />
+    <Compile Include="Permissions\Order.Documents.cs" />
     <Compile Include="Permissions\Order.UndeliveredOrder.cs" />
     <Compile Include="Permissions\Payment.BankClient.cs" />
     <Compile Include="Permissions\Payment.cs" />
     <Compile Include="Permissions\Order.PromotionalSet.cs" />
     <Compile Include="Permissions\Report.cs" />
+    <Compile Include="Permissions\Store.cs" />
+    <Compile Include="Permissions\Store.Documents.cs" />
     <Compile Include="Permissions\User.cs" />
     <Compile Include="Permissions\Report.Sales.cs" />
     <Compile Include="Services\EmailService.cs" />
@@ -964,7 +974,6 @@
     <Compile Include="Domain\Employees\Nationality.cs" />
     <Compile Include="Domain\Employees\User.cs" />
     <Compile Include="Domain\Employees\UserSettings.cs" />
-    <Compile Include="Domain\FreeRentPackage.cs" />
     <Compile Include="Domain\Goods\Equipment.cs" />
     <Compile Include="Domain\Goods\Nomenclature.cs" />
     <Compile Include="Domain\Goods\NomenclaturePrice.cs" />
@@ -995,7 +1004,6 @@
     <Compile Include="Domain\Orders\OrderEnums.cs" />
     <Compile Include="Domain\Orders\OrderEquipment.cs" />
     <Compile Include="Domain\Orders\OrderItem.cs" />
-    <Compile Include="Domain\PaidRentPackage.cs" />
     <Compile Include="Domain\Service\ServiceClaim.cs" />
     <Compile Include="Domain\Service\ServiceClaimHistory.cs" />
     <Compile Include="Domain\Service\ServiceClaimItem.cs" />
