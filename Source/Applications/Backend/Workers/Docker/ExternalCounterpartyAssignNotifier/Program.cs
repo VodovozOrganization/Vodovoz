@@ -1,4 +1,5 @@
-﻿using ExternalCounterpartyAssignNotifier.Services;
+﻿using Autofac.Extensions.DependencyInjection;
+using ExternalCounterpartyAssignNotifier.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -32,6 +33,7 @@ namespace ExternalCounterpartyAssignNotifier
 		public static IHostBuilder CreateHostBuilder(string[] args)
 		{
 			return Host.CreateDefaultBuilder(args)
+				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
 				.ConfigureServices((hostContext, services) =>
 				{
 					services.AddLogging(logging =>

@@ -10,6 +10,7 @@ using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
 using QS.HistoryLog;
 using Vodovoz.Core.Data.NHibernate.Mappings;
+using Autofac.Extensions.DependencyInjection;
 
 namespace EmailStatusUpdateWorker
 {
@@ -22,6 +23,7 @@ namespace EmailStatusUpdateWorker
 
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
 			Host.CreateDefaultBuilder(args)
+				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
 				.ConfigureServices((hostContext, services) =>
 				{
 					services.AddLogging(logging =>

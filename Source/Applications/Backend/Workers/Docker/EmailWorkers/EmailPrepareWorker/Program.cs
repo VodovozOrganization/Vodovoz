@@ -1,4 +1,5 @@
-﻿using EmailPrepareWorker.Prepares;
+﻿using Autofac.Extensions.DependencyInjection;
+using EmailPrepareWorker.Prepares;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -26,6 +27,7 @@ namespace EmailPrepareWorker
 
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
 			Host.CreateDefaultBuilder(args)
+				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
 				.ConfigureServices((hostContext, services) =>
 				{
 					services.AddLogging(logging =>
