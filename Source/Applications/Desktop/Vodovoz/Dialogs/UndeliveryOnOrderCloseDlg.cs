@@ -83,15 +83,17 @@ namespace Vodovoz.Dialogs
 
 		public bool Save(bool needClose = true, bool forceSave = false)
 		{
-			if(HasOrderStatusExternalChangesOrCancellationImpossible(out OrderStatus actualOrderStatus))
+			UoW.Session.Refresh(undelivery.OldOrder);
+
+			var isOrderStatusForbiddenForCancellation = !_orderRepository.GetStatusesForOrderCancelationWithCancellation().Contains(undelivery.OldOrder.OrderStatus);
+			var isSelfDeliveryOnLoadingOrder = order.SelfDelivery && undelivery.OldOrder.OrderStatus == OrderStatus.OnLoading;
+
+			if(isOrderStatusForbiddenForCancellation && !isSelfDeliveryOnLoadingOrder)
 			{
-				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
-					$"Статус заказа был кем-то изменён на статус \"{actualOrderStatus.GetEnumTitle()}\" с момента открытия диалога, теперь отмена невозможна.");
+				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, $"В текущий момент заказ нельзя отменить");
 
 				return false;
 			}
-
-			UoW.Session.Refresh(undelivery.OldOrder);
 
 			var saved = SaveUndelivery(needClose, forceSave);
 
