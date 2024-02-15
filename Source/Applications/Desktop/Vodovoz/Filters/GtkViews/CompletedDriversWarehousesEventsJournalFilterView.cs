@@ -49,10 +49,6 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
 				.InitializeFromSource();
 			dateEventRangePicker.PeriodChangedByUser += OnDateEventPeriodChangedByUser;
-			
-			chkOrderByEventDateDesc.Binding
-				.AddBinding(ViewModel, vm => vm.OrderByEventDateDesc, w => w.Active)
-				.InitializeFromSource();
 
 			CreateSelectableFilter();
 			CreateAndConfigureGroupList();

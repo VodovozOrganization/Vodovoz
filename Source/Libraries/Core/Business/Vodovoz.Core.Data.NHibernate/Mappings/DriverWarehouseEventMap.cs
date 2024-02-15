@@ -18,7 +18,6 @@ namespace Vodovoz.Core.Data.NHibernate.Mappings
 			Map(x => x.EventName).Column("event_name");
 			Map(x => x.DocumentType).Column("document_type");
 			Map(x => x.QrPositionOnDocument).Column("qr_position");
-			Map(x => x.UriForQr).Column("uri_for_qr");
 		}
 	}
 }

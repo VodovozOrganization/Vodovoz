@@ -10,7 +10,6 @@ using QS.ViewModels.Extension;
 using Vodovoz.Core.Domain.Interfaces.Logistics;
 using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.Settings.Employee;
 using VodovozInfrastructure.Services;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
@@ -20,7 +19,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly ICoordinatesParser _coordinatesParser;
 		private readonly IDriverWarehouseEventRepository _driverWarehouseEventRepository;
 		private readonly ICompletedDriverWarehouseEventRepository _completedDriverWarehouseEventRepository;
-
+		
 		private ILifetimeScope _scope;
 		private bool _hasCompletedEvents;
 
@@ -32,7 +31,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			ICoordinatesParser coordinatesParser,
 			IDriverWarehouseEventRepository driverWarehouseEventRepository,
 			ICompletedDriverWarehouseEventRepository completedDriverWarehouseEventRepository,
-			IDriverWarehouseEventSettings driverWarehouseEventSettings,
 			ILifetimeScope scope) : base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			_coordinatesParser = coordinatesParser ?? throw new ArgumentNullException(nameof(coordinatesParser));
@@ -40,8 +38,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				driverWarehouseEventRepository ?? throw new ArgumentNullException(nameof(driverWarehouseEventRepository));
 			_completedDriverWarehouseEventRepository =
 				completedDriverWarehouseEventRepository ?? throw new ArgumentNullException(nameof(completedDriverWarehouseEventRepository));
-			DriverWarehouseEventSettings =
-				driverWarehouseEventSettings ?? throw new ArgumentNullException(nameof(driverWarehouseEventSettings));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			
 			Configure();
@@ -57,7 +53,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public bool IsCoordinatesVisible => Entity.Type == DriverWarehouseEventType.OnLocation;
 		public bool CanPrintQrCode => Entity.Type == DriverWarehouseEventType.OnLocation;
 		public bool IsDocumentQrParametersVisible => Entity.Type == DriverWarehouseEventType.OnDocuments;
-		public IDriverWarehouseEventSettings DriverWarehouseEventSettings { get; }
 
 		public DriverWarehouseEventType EventType
 		{

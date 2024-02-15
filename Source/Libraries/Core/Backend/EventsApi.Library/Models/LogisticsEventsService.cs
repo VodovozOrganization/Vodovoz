@@ -13,7 +13,6 @@ using Vodovoz.Core.Domain;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Interfaces.Logistics;
 using Vodovoz.Core.Domain.Logistics.Drivers;
-using Vodovoz.Settings.Employee;
 
 namespace EventsApi.Library.Models
 {
@@ -22,7 +21,6 @@ namespace EventsApi.Library.Models
 		private readonly ILogger _logger;
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly IDriverWarehouseEventQrDataHandler _driverWarehouseEventQrDataHandler;
-		private readonly IDriverWarehouseEventSettings _driverWarehouseEventSettings;
 		private readonly ICarIdRepository _carIdRepository;
 		private readonly ICompletedDriverWarehouseEventProxyRepository _completedDriverWarehouseEventProxyRepository;
 		private readonly IEmployeeWithLoginRepository _employeeWithLoginRepository;
@@ -34,7 +32,6 @@ namespace EventsApi.Library.Models
 			ICompletedDriverWarehouseEventProxyRepository completedDriverWarehouseEventProxyRepository,
 			IEmployeeWithLoginRepository employeeWithLoginRepository,
 			IDriverWarehouseEventQrDataHandler driverWarehouseEventQrDataHandler,
-			IDriverWarehouseEventSettings driverWarehouseEventSettings,
 			EmployeeType employeeType,
 			ICarIdRepository carIdRepository = null)
 		{
@@ -42,8 +39,6 @@ namespace EventsApi.Library.Models
 			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 			_driverWarehouseEventQrDataHandler =
 				driverWarehouseEventQrDataHandler ?? throw new ArgumentNullException(nameof(driverWarehouseEventQrDataHandler));
-			_driverWarehouseEventSettings =
-				driverWarehouseEventSettings ?? throw new ArgumentNullException(nameof(driverWarehouseEventSettings));
 			_completedDriverWarehouseEventProxyRepository =
 				completedDriverWarehouseEventProxyRepository ?? throw new ArgumentNullException(nameof(completedDriverWarehouseEventProxyRepository));
 			_employeeWithLoginRepository =
@@ -97,17 +92,7 @@ namespace EventsApi.Library.Models
 				var driverPoint = GetPointLatLng(eventData.Latitude, eventData.Longitude);
 				var qrPoint = GetPointLatLng(driverWarehouseEvent.Latitude, driverWarehouseEvent.Longitude);
 			
-				distanceMetersFromScanningLocation = (int)DistanceCalculator.GetDistanceMeters(driverPoint, qrPoint);
-			}
-
-			if(distanceMetersFromScanningLocation > _driverWarehouseEventSettings.MaxDistanceMetersFromScanningLocation)
-			{
-				_logger.LogWarning("Расстояние ({DistanceMetersFromScanningLocation}) сканирования события {EventName} пользователем {EmployeeName} превышает допустимый предел",
-					distanceMetersFromScanningLocation,
-					driverWarehouseEvent.EventName,
-					employee.ShortName);
-
-				return null;
+				distanceMetersFromScanningLocation = (decimal)DistanceCalculator.GetDistanceMeters(driverPoint, qrPoint);
 			}
 
 			_logger.LogInformation("Создаем завершенное событие {EventName} для {EmployeeName}",

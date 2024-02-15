@@ -32,18 +32,5 @@ namespace Vodovoz.Settings.Database
 
 			return values;
 		}
-
-		public static string GetSubstringAfterSeparator(this string source, char separator)
-		{
-			for(var i = 0; i < source.Length; i++)
-			{
-				if(source[i] == separator)
-				{
-					return source.Substring(++i);
-				}
-			}
-
-			return null;
-		}
 	}
 }

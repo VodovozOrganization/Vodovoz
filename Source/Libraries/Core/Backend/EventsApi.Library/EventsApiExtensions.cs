@@ -1,4 +1,4 @@
-using EventsApi.Library.Models;
+﻿using EventsApi.Library.Models;
 using EventsApi.Library.Services;
 using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.UoW;
@@ -8,10 +8,6 @@ using Vodovoz.Core.Data.NHibernate.Repositories.Employees;
 using Vodovoz.Core.Data.NHibernate.Repositories.Logistics;
 using Vodovoz.Core.Data.NHibernate.Repositories.Logistics.Cars;
 using Vodovoz.Core.Domain.Interfaces.Logistics;
-using Vodovoz.Settings;
-using Vodovoz.Settings.Database;
-using Vodovoz.Settings.Database.Employee;
-using Vodovoz.Settings.Employee;
 
 namespace EventsApi.Library
 {
@@ -42,7 +38,6 @@ namespace EventsApi.Library
 		{
 			services
 				.AddScoped((sp) => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot("Приложение для сканирования событий(склад)"))
-				.AddScoped<ISettingsController, SettingsController>()
 				.AddLogisticsEventsDependencies()
 				.AddScoped<ILogisticsEventsService, WarehouseEventsService>();
 
@@ -59,8 +54,7 @@ namespace EventsApi.Library
 			services.AddScoped<ICompletedDriverWarehouseEventProxyRepository, CompletedDriverWarehouseEventProxyRepository>()
 				.AddScoped<IEmployeeWithLoginRepository, EmployeeWithLoginRepository>()
 				.AddScoped<ICarIdRepository, CarIdRepository>()
-				.AddScoped<IDriverWarehouseEventQrDataHandler, DriverWarehouseEventQrDataHandler>()
-				.AddScoped<IDriverWarehouseEventSettings, DriverWarehouseEventSettings>();
+				.AddScoped<IDriverWarehouseEventQrDataHandler, DriverWarehouseEventQrDataHandler>();
 
 			return services;
 		}

@@ -9,7 +9,6 @@ using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Domain.Logistic.Drivers;
 using Vodovoz.Presentation.Reports.Factories;
 using Vodovoz.RDL.Elements;
-using Vodovoz.Settings.Employee;
 
 namespace Vodovoz.Additions
 {
@@ -235,7 +234,7 @@ namespace Vodovoz.Additions
 			var padding = 5m;
 			var leftReportItem = left + "pt";
 			var topReportItem = top + "pt";
-			var qrString = @event.GenerateQrData(documentId: documentId);
+			var qrString = @event.GenerateQrData(documentId);
 			var qrReportItem = _customReportFactory.CreateDefaultQrReportItem(leftReportItem, topReportItem, qrString);
 
 			if(eventNamePosition == EventNamePosition.Bottom)

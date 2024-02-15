@@ -67,19 +67,13 @@ namespace LogisticsEventsApi.Controllers
 			try
 			{
 				var completedEvent = _warehouseEventsService.CompleteDriverWarehouseEvent(qrData, eventData, employee);
-
-				if(completedEvent is null)
-				{
-					return Problem("Слишком большое расстояние от Qr кода", statusCode: 550);
-				}
 				
 				return Ok(
 					new CompletedDriverWarehouseEventDto
 					{
 						EventName = completedEvent.DriverWarehouseEvent.EventName,
 						CompletedDate = completedEvent.CompletedDate,
-						EmployeeName = completedEvent.Employee.ShortName,
-						DistanceMetersFromScanningLocation = completedEvent.DistanceMetersFromScanningLocation ?? 0m
+						EmployeeName = completedEvent.Employee.ShortName
 					});
 			}
 			catch(Exception e)

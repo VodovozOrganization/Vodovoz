@@ -61,15 +61,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 			TabName = "Журнал завершенных событий";
 		}
-		
-		public override string FooterInfo
-		{
-			get
-			{
-				var autoRefreshInfo = GetAutoRefreshInfo();
-				return $"{autoRefreshInfo} | {base.FooterInfo}";
-			}
-		}
 
 		protected override void CreateNodeActions()
 		{
@@ -77,11 +68,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			CreateStartAutoRefresh();
 			CreateStopAutoRefresh();
 			CreateExportAction();
-		}
-		
-		private string GetAutoRefreshInfo()
-		{
-			return _autoRefreshEnabled ? $"Автообновление каждые {_autoRefreshInterval} сек." : "Автообновление выключено";
 		}
 
 		private void CreateStartAutoRefresh()
@@ -94,7 +80,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				{
 					_autoRefreshTimer.Start();
 					_autoRefreshEnabled = true;
-					OnPropertyChanged(nameof(FooterInfo));
 					UpdateJournalActions?.Invoke();
 				}
 			);
@@ -112,7 +97,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				{
 					_autoRefreshTimer.Stop();
 					_autoRefreshEnabled = false;
-					OnPropertyChanged(nameof(FooterInfo));
 					UpdateJournalActions?.Invoke();
 				}
 			);
@@ -249,20 +233,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 					switch(node.GroupType)
 					{
 						case GroupingType.Employee:
-							query.OrderBy(employeeProjection).Asc();
+							query.OrderBy(employeeProjection);
 							break;
 						case GroupingType.DriverWarehouseEvent:
-							query.OrderBy(() => eventAlias.EventName).Asc();
+							query.OrderBy(() => eventAlias.EventName);
 							break;
 						case GroupingType.DriverWarehouseEventDate:
-							if(_filterViewModel.OrderByEventDateDesc)
-							{
-								query.OrderBy(ce => ce.Id).Desc();
-							}
-							else
-							{
-								query.OrderBy(ce => ce.Id).Asc();
-							}
+							query.OrderBy(ce => ce.Id);
 							break;
 					}
 				}
