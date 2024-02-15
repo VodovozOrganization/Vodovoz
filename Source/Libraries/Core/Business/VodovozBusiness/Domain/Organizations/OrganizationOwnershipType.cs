@@ -16,8 +16,12 @@ namespace Vodovoz.Domain.Organizations
 	[EntityPermission]
 	public class OrganizationOwnershipType : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
+		private IUnitOfWork _uow;
+
 		public OrganizationOwnershipType()
 		{
+			_uow = UnitOfWorkFactory.CreateWithoutRoot();
+
 			Abbreviation = string.Empty;
 			FullName = string.Empty;
 		}
@@ -51,6 +55,8 @@ namespace Vodovoz.Domain.Organizations
 		#endregion
 
 		public virtual string Title => Abbreviation;
+
+		public static IUnitOfWorkGeneric<OrganizationOwnershipType> Create() => UnitOfWorkFactory.CreateWithNewRoot<OrganizationOwnershipType>();
 
 		#region IValidatableObject implementation
 		public virtual bool CheckForAbbreviationDuplicate(IUnitOfWork uow, IOrganizationRepository organizationRepository)

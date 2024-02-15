@@ -5,7 +5,6 @@ using QS.Report;
 using QSReport;
 using QS.Dialog.GtkUI;
 using Vodovoz.EntityRepositories.Payments;
-using QS.Project.Services;
 
 namespace Vodovoz.ReportsParameters.Payments
 {
@@ -18,7 +17,7 @@ namespace Vodovoz.ReportsParameters.Payments
 			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
 
 			Build();
-			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			ConfigureDlg();
 		}
 

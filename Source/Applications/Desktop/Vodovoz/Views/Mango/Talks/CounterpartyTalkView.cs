@@ -1,9 +1,9 @@
-﻿using Gtk;
-using QS.Views.Dialog;
-using System;
+﻿using System;
 using System.Linq;
+using Gtk;
+using QS.Views.Dialog;
 using Vodovoz.Domain.Client;
-using Vodovoz.ViewModels.Dialogs.Mango.Talks;
+using Vodovoz.ViewModels.Mango.Talks;
 
 namespace Vodovoz.Views.Mango.Talks
 {

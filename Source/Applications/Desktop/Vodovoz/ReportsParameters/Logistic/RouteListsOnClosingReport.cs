@@ -4,7 +4,6 @@ using System.Linq;
 using DateTimeHelpers;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QS.Project.Services;
 using QS.Report;
 using QS.Widgets;
 using QSReport;
@@ -18,7 +17,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 		public RouteListsOnClosingReport()
 		{
 			Build();
-			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
 			Configure();
 		}

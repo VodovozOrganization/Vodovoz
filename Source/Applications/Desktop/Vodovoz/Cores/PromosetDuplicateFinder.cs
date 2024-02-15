@@ -10,7 +10,6 @@ using Vodovoz.Domain.Contacts;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Dialog;
-using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Cores
 {
@@ -73,8 +72,8 @@ namespace Vodovoz.Cores
 			DeliveryPoint deliveryPoint)
 		{
 			DeliveryPoint deliveryPointAlias = null;
-			Vodovoz.Domain.Orders.Order orderAlias = null;
-			OrderItem orderItemAlias = null;
+			Domain.Orders.Order orderAlias = null;
+			Domain.Orders.OrderItem orderItemAlias = null;
 			Counterparty counterpartyAlias = null;
 			Phone counterpartyPhoneAlias = null;
 			Phone deliveryPointPhoneAlias = null;
@@ -115,8 +114,8 @@ namespace Vodovoz.Cores
 			int orderId,
 			IEnumerable<Phone> phones)
 		{
-			Vodovoz.Domain.Orders.Order orderAlias = null;
-			OrderItem orderItemAlias = null;
+			Domain.Orders.Order orderAlias = null;
+			Domain.Orders.OrderItem orderItemAlias = null;
 			Counterparty counterpartyAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
 			Phone counterpartyPhoneAlias = null;
@@ -187,8 +186,8 @@ namespace Vodovoz.Cores
 			IEnumerable<int> excludeOrderIds,
 			IEnumerable<Phone> phones)
 		{
-			Vodovoz.Domain.Orders.Order orderAlias = null;
-			Vodovoz.Domain.Orders.OrderItem orderItemAlias = null;
+			Domain.Orders.Order orderAlias = null;
+			Domain.Orders.OrderItem orderItemAlias = null;
 			Counterparty counterpartyAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
 			Phone counterpartyPhoneAlias = null;

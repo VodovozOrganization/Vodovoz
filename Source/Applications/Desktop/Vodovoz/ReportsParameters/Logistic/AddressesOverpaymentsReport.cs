@@ -6,10 +6,8 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
-using QS.Project.Services;
 using QS.Report;
 using QSReport;
-using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.TempAdapters;
@@ -33,7 +31,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 			_driverSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 			_officeSelectorFactory = _employeeJournalFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory();
 			Build();
-			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			Configure();
 		}
 

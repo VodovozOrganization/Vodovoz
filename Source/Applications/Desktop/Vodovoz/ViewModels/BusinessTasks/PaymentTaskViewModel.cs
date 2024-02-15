@@ -12,7 +12,6 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
 using Vodovoz.TempAdapters;
-using QS.Project.Services;
 
 namespace Vodovoz.ViewModels.BusinessTasks
 {
@@ -62,7 +61,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 
 			OrderSelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Order,
 																				OrderJournalViewModel,
-																				OrderJournalFilterViewModel>(ServicesConfig.UnitOfWorkFactory, CommonServices);
+																				OrderJournalFilterViewModel>(CommonServices);
 		}
 
 		private void CreateCommands()

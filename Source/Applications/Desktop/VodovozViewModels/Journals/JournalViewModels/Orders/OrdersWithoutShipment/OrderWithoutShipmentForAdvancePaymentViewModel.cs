@@ -126,8 +126,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			var settingsController = new SettingsController(UnitOfWorkFactory, new Logger<SettingsController>(loggerFactory));
 			SendDocViewModel =
 				new SendDocumentByEmailViewModel(
-					uowFactory,
-					new EmailRepository(uowFactory),
+					new EmailRepository(),
 					new EmailParametersProvider(settingsController),
 					currentEmployee,
 					commonServices.InteractiveService,

@@ -70,10 +70,6 @@ using Vodovoz.ViewModels.Suppliers;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
 using Action = Gtk.Action;
-using Vodovoz.Core.Domain.Employees;
-using QS.Report.ViewModels;
-using Vodovoz.ViewModels.ReportsParameters;
-using Vodovoz.Reports;
 
 public partial class MainWindow : Window
 {
@@ -522,7 +518,7 @@ public partial class MainWindow : Window
 			"CRM",
 			() => new TasksView(
 								new EmployeeJournalFactory(NavigationManager),
-								new DeliveryPointRepository(ServicesConfig.UnitOfWorkFactory)), null
+								new DeliveryPointRepository()), null
 		);
 	}
 
@@ -574,7 +570,7 @@ public partial class MainWindow : Window
 			"ExportImportNomenclatureCatalog",
 			() => new ExportImportNomenclatureCatalogViewModel(
 				nomenclatureRepository,
-				ServicesConfig.UnitOfWorkFactory,
+				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				NavigationManagerProvider.NavigationManager
 			)
@@ -612,7 +608,7 @@ public partial class MainWindow : Window
 
 		var paymentsJournalViewModel = new FinancialDistrictsSetsJournalViewModel(
 			filter,
-			ServicesConfig.UnitOfWorkFactory,
+			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices,
 			VodovozGtkServicesConfig.EmployeeService,
 			new EntityDeleteWorker(),
@@ -659,9 +655,8 @@ public partial class MainWindow : Window
 
 	void ActionOrganizationCashTransferDocuments_Activated(object sender, EventArgs e)
 	{
-		var uowFactory = _autofacScope.Resolve<IUnitOfWorkFactory>();
 		var entityExtendedPermissionValidator = new EntityExtendedPermissionValidator(
-			uowFactory, PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository());
+			PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository());
 
 		var employeeFilter = new EmployeeFilterViewModel
 		{
@@ -675,7 +670,7 @@ public partial class MainWindow : Window
 			{
 				HidenByDefault = true
 			},
-			ServicesConfig.UnitOfWorkFactory,
+			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices,
 			entityExtendedPermissionValidator,
 			VodovozGtkServicesConfig.EmployeeService)
@@ -718,7 +713,7 @@ public partial class MainWindow : Window
 	{
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<ExportTo1cDialog>(),
-			() => new ExportTo1cDialog(ServicesConfig.UnitOfWorkFactory)
+			() => new ExportTo1cDialog(UnitOfWorkFactory.GetDefaultFactory)
 		);
 	}
 
@@ -726,7 +721,7 @@ public partial class MainWindow : Window
 	{
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<Old1612ExportTo1cDialog>(),
-			() => new Old1612ExportTo1cDialog(ServicesConfig.UnitOfWorkFactory)
+			() => new Old1612ExportTo1cDialog(UnitOfWorkFactory.GetDefaultFactory)
 		);
 	}
 

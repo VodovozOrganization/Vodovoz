@@ -26,8 +26,7 @@ namespace Vodovoz.ReportsParameters
 			}
 
 			Build();
-			var uowFactory = lifetimeScope.Resolve<IUnitOfWorkFactory>();
-			UoW = uowFactory.CreateWithoutRoot();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			_counterpartyJournalFactory = new CounterpartyJournalFactory();
 			_deliveryPointJournalFilterViewModel = new DeliveryPointJournalFilterViewModel();
 			_deliveryPointJournalFactory = lifetimeScope.Resolve<IDeliveryPointJournalFactory>();

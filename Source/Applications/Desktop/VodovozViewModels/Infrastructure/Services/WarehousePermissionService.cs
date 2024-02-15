@@ -11,7 +11,6 @@ namespace Vodovoz.Services.Permissions
 	{
 		private IWarehousePermissionValidatorFactory _warehousePermissionValidatorFactory;
 		private readonly IPermissionRepository _permissionRepository;
-		private readonly IUnitOfWorkFactory _uowFactory;
 
 		//FIXME Хранение в статическом свойстве (как и сама фабрика) необходимо временно на момент переноса базового функционала в проект без зависимостей от проектов с зависимостями на Gtk
 		public IWarehousePermissionValidatorFactory WarehousePermissionValidatorFactory {
@@ -25,14 +24,13 @@ namespace Vodovoz.Services.Permissions
 			set => _warehousePermissionValidatorFactory = value;
 		}
 
-		public WarehousePermissionService(IUnitOfWorkFactory uowFactory)
+		public WarehousePermissionService()
 		{
 			WarehousePermissionValidatorFactory = new WarehousePermissionValidatorFactory();
 			_permissionRepository = new PermissionRepository();
-			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 		}
 
 		public IWarehousePermissionValidator GetValidator()
-			=> WarehousePermissionValidatorFactory.CreateValidator(_uowFactory, _permissionRepository);
+			=> WarehousePermissionValidatorFactory.CreateValidator(UnitOfWorkFactory.GetDefaultFactory, _permissionRepository);
 	}
 }

@@ -2,7 +2,6 @@
 using Pango;
 using QS.Views.GtkUI;
 using QSProjectsLib;
-using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;

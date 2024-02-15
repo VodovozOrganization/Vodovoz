@@ -46,7 +46,6 @@ using System.Threading;
 using TISystems.TTC.CRM.BE.Serialization;
 using TrueMarkApi.Library.Converters;
 using TrueMarkApi.Library.Dto;
-using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
@@ -81,8 +80,8 @@ using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.Counterparties;
-using Vodovoz.ViewModels.Dialogs.Counterparties;
 using Vodovoz.ViewModels.Dialogs.Complaints;
+using Vodovoz.ViewModels.Dialogs.Counterparty;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes.Client;
@@ -114,10 +113,10 @@ namespace Vodovoz
 		private readonly IBottlesRepository _bottlesRepository = new BottlesRepository();
 		private readonly IDepositRepository _depositRepository = new DepositRepository();
 		private readonly IMoneyRepository _moneyRepository = new MoneyRepository();
-		private readonly ICounterpartyRepository _counterpartyRepository = new CounterpartyRepository(ServicesConfig.UnitOfWorkFactory);
+		private readonly ICounterpartyRepository _counterpartyRepository = new CounterpartyRepository();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
 		private readonly IPhoneRepository _phoneRepository = new PhoneRepository();
-		private readonly IEmailRepository _emailRepository = new EmailRepository(ServicesConfig.UnitOfWorkFactory);
+		private readonly IEmailRepository _emailRepository = new EmailRepository();
 		private readonly IOrganizationRepository _organizationRepository = new OrganizationRepository();
 		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository = new ExternalCounterpartyRepository();
 		private readonly IContactParametersProvider _contactsParameters = new ContactParametersProvider(new ParametersProvider());
@@ -240,14 +239,14 @@ namespace Vodovoz
 		public CounterpartyDlg()
 		{
 			Build();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<Counterparty>();
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Counterparty>();
 			ConfigureDlg();
 		}
 
 		public CounterpartyDlg(int id)
 		{
 			Build();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<Counterparty>(id);
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Counterparty>(id);
 			ConfigureDlg();
 		}
 
@@ -258,7 +257,7 @@ namespace Vodovoz
 		public CounterpartyDlg(NewCounterpartyParameters parameters)
 		{
 			Build();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<Counterparty>();
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Counterparty>();
 
 			Entity.Name = parameters.Name;
 			Entity.FullName = parameters.FullName;
@@ -291,7 +290,7 @@ namespace Vodovoz
 		public CounterpartyDlg(Phone phone)
 		{
 			Build();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<Counterparty>();
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Counterparty>();
 			phone.Counterparty = Entity;
 			Entity.Phones.Add(phone);
 			ConfigureDlg();
@@ -315,8 +314,8 @@ namespace Vodovoz
 			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			var fileDialogService = new FileDialogService();
 			var roboatsViewModelFactory = new RoboatsViewModelFactory(roboatsFileStorageFactory, fileDialogService, ServicesConfig.CommonServices.CurrentPermissionService);
-			_roboatsJournalsFactory = new RoboatsJournalsFactory(ServicesConfig.UnitOfWorkFactory, ServicesConfig.CommonServices, roboatsViewModelFactory, NavigationManager, _deleteEntityService, _currentPermissionService);
-			_edoOperatorsJournalFactory = new EdoOperatorsJournalFactory(ServicesConfig.UnitOfWorkFactory);
+			_roboatsJournalsFactory = new RoboatsJournalsFactory(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, roboatsViewModelFactory, NavigationManager, _deleteEntityService, _currentPermissionService);
+			_edoOperatorsJournalFactory = new EdoOperatorsJournalFactory();
 			_emailParametersProvider = _lifetimeScope.Resolve<IEmailParametersProvider>();
 
 			buttonSave.Sensitive = CanEdit;
@@ -1117,7 +1116,7 @@ namespace Vodovoz
 			}
 
 			_emailLastScrollPosition = 0;
-			EmailDataLoader = new ThreadDataLoader<EmailRow>(ServicesConfig.UnitOfWorkFactory) { PageSize = 50 };
+			EmailDataLoader = new ThreadDataLoader<EmailRow>(UnitOfWorkFactory.GetDefaultFactory) { PageSize = 50 };
 			EmailDataLoader.AddQuery(EmailItemsSourceQueryFunction);
 
 			ytreeviewEmails.ColumnsConfig = FluentColumnsConfig<EmailRow>.Create()
@@ -1362,7 +1361,7 @@ namespace Vodovoz
 			{
 				var resendEdoDocumentsDialog = new ResendCounterpartyEdoDocumentsViewModel(
 					EntityUoWBuilder.ForOpen(Entity.Id),
-					ServicesConfig.UnitOfWorkFactory,
+					UnitOfWorkFactory.GetDefaultFactory,
 					_commonServices,
 					GetOrderIdsWithoutSuccessfullySentUpd(),
 					_edoService);
@@ -1379,7 +1378,7 @@ namespace Vodovoz
 
 			_edoContainers.Clear();
 
-			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 			{
 				foreach(var item in _counterpartyRepository.GetEdoContainersByCounterpartyId(uow, Entity.Id))
 				{
@@ -1919,8 +1918,14 @@ namespace Vodovoz
 
 		protected void OnYbuttonAddNomClicked(object sender, EventArgs e)
 		{
-			var page = (NavigationManager as ITdiCompatibilityNavigation).OpenViewModelOnTdi<NomenclaturesJournalViewModel>(this);
-			page.ViewModel.OnSelectResult += Journal_OnEntitySelectedResult;
+			(NavigationManager as ITdiCompatibilityNavigation).OpenViewModelOnTdi<NomenclaturesJournalViewModel>(
+				this,
+				OpenPageOptions.AsSlave,
+				viewModel =>
+				{
+					viewModel.SelectionMode = JournalSelectionMode.Single;
+					viewModel.OnSelectResult += Journal_OnEntitySelectedResult;
+				});
 		}
 
 		private void Journal_OnEntitySelectedResult(object sender, JournalSelectedEventArgs e)
@@ -2002,7 +2007,7 @@ namespace Vodovoz
 				Counterparty = Entity
 			};
 
-			using(var unitOfWork = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot("Сохранение отписки от массовой рассылки"))
+			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Сохранение отписки от массовой рассылки"))
 			{
 				unitOfWork.Save(unsubscribingEvent);
 				unitOfWork.Commit();
@@ -2022,7 +2027,7 @@ namespace Vodovoz
 				Counterparty = Entity
 			};
 
-			using(var unitOfWork = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot("Сохранение подписки на массовую рассылку"))
+			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Сохранение подписки на массовую рассылку"))
 			{
 				unitOfWork.Save(subscribingEvent);
 				unitOfWork.Commit();
@@ -2420,7 +2425,7 @@ namespace Vodovoz
 					IsArchive = false
 				};
 
-				using(var uowOrganization = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot(newOrganizationOwnershipType))
+				using(var uowOrganization = UnitOfWorkFactory.CreateWithNewRoot(newOrganizationOwnershipType))
 				{
 					uowOrganization.Save(newOrganizationOwnershipType);
 				}

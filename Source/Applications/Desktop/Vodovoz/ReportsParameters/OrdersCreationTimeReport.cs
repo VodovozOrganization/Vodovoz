@@ -13,7 +13,6 @@ using Gamma.ColumnConfig;
 using NHibernate.Transform;
 using NHibernate.Criterion;
 using Vodovoz.Domain.Logistic;
-using QS.Project.Services;
 
 namespace Vodovoz.ReportsParameters
 {
@@ -29,7 +28,7 @@ namespace Vodovoz.ReportsParameters
 		public OrdersCreationTimeReport()
 		{
 			this.Build();
-			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			filter = new SelectableParametersReportFilter(UoW);
 			buttonCreateReport.Clicked += (sender, e) => OnUpdate(true);
 

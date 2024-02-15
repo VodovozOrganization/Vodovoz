@@ -1,4 +1,7 @@
-﻿using QS.Banks;
+﻿using System;
+using System.Collections.Generic;
+using System.Web.UI.WebControls;
+using QS.Banks;
 using QS.Banks.Domain;
 using QS.BusinessCommon.Domain;
 using QS.Deletion;
@@ -7,9 +10,6 @@ using QS.DomainModel.Entity;
 using QS.HistoryLog.Domain;
 using QS.Project.DB;
 using QS.Project.Domain;
-using System;
-using System.Collections.Generic;
-using Vodovoz.Core.Domain.Pacs;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.CashTransfer;
@@ -26,7 +26,6 @@ using Vodovoz.Domain.Documents.WriteOffDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Goods.Rent;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Logistic.FastDelivery;
@@ -42,6 +41,7 @@ using Vodovoz.Domain.Roboats;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
+using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Domain.StoredResources;
 using Vodovoz.Domain.Suppliers;
 using Vodovoz.Domain.WageCalculation;
@@ -275,6 +275,8 @@ namespace Vodovoz
 
 			#region Сотрудники
 
+			DeleteConfig.AddHibernateDeleteInfo<Trainee>();
+
 			//основной класс. не удаляем. в тестах настроен игнор.
 			DeleteConfig.AddHibernateDeleteInfo<Employee>()
 				.AddDeleteDependenceFromCollection(item => item.Phones)
@@ -420,9 +422,9 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<EmployeeContract>();
 			DeleteConfig.AddHibernateDeleteInfo<EmployeeDocument>()
 						.AddClearDependence<EmployeeContract>(x => x.Document)
-						.AddRemoveFromDependence<Employee>(x => x.Documents)
+						.AddRemoveFromDependence<Personnel>(x => x.Documents)
 						;
-			DeleteConfig.AddHibernateDeleteInfo<Employee>();
+			DeleteConfig.AddHibernateDeleteInfo<Personnel>();
 			DeleteConfig.AddHibernateDeleteInfo<EmployeeWorkChart>();
 			DeleteConfig.AddHibernateDeleteInfo<CarProxyDocument>();
 			DeleteConfig.AddHibernateDeleteInfo<M2ProxyDocument>();
@@ -1193,6 +1195,7 @@ namespace Vodovoz
 			#region Операции по счету
 
 			DeleteConfig.ExistingDeleteRule<Account>()
+						.AddRemoveFromDependence<Personnel>(x => x.Accounts)
 						.AddClearDependence<Counterparty>(item => item.OurOrganizationAccountForBills)
 						;
 

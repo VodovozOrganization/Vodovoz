@@ -10,7 +10,6 @@ using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
-using QS.Project.Services;
 using QS.Services;
 using QS.Tdi;
 using QS.Utilities;
@@ -88,19 +87,9 @@ namespace Vodovoz.SidePanel.InfoViews
 		private void SaveLogisticsRequirements()
 		{
 			using(var uow =
-					ServicesConfig.UnitOfWorkFactory.CreateForRoot<Counterparty>(_counterparty.Id, "Кнопка «Cохранить требования к логистике на панели контрагента"))
+					UnitOfWorkFactory.CreateForRoot<Counterparty>(_counterparty.Id, "Кнопка «Cохранить требования к логистике на панели контрагента"))
 			{
-				if(uow.Root.LogisticsRequirements == null)
-				{
-					uow.Root.LogisticsRequirements = new LogisticsRequirements();
-				}
-
-				uow.Root.LogisticsRequirements.ForwarderRequired = logisticsRequirementsView.ViewModel.Entity.ForwarderRequired;
-				uow.Root.LogisticsRequirements.DocumentsRequired = logisticsRequirementsView.ViewModel.Entity.DocumentsRequired;
-				uow.Root.LogisticsRequirements.RussianDriverRequired = logisticsRequirementsView.ViewModel.Entity.RussianDriverRequired;
-				uow.Root.LogisticsRequirements.PassRequired = logisticsRequirementsView.ViewModel.Entity.PassRequired;
-				uow.Root.LogisticsRequirements.LargusRequired = logisticsRequirementsView.ViewModel.Entity.LargusRequired;
-
+				uow.Root.LogisticsRequirements = logisticsRequirementsView.ViewModel.Entity;
 				uow.Save();
 			}
 		}
@@ -181,10 +170,6 @@ namespace Vodovoz.SidePanel.InfoViews
 			PhonesTable.ShowAll();
 			btn.Sensitive = buttonSaveComment.Sensitive = _counterpartyPermissionResult.CanUpdate && _counterparty.Id != 0;
 
-			var isLogistcsRequirementsEditable = _counterpartyPermissionResult.CanUpdate && _counterparty.Id != 0;
-			logisticsRequirementsView.Sensitive = isLogistcsRequirementsEditable;
-			buttonSaveLogisticsRequirements.Sensitive = isLogistcsRequirementsEditable;
-
 			if(InfoProvider is OrderDlg)
 			{
 				yvboxLogisticsRequirements.Visible = true;
@@ -248,7 +233,7 @@ namespace Vodovoz.SidePanel.InfoViews
 		private void SaveComment()
 		{
 			using(var uow =
-				ServicesConfig.UnitOfWorkFactory.CreateForRoot<Counterparty>(_counterparty.Id, "Кнопка «Cохранить комментарий» на панели контрагента"))
+				UnitOfWorkFactory.CreateForRoot<Counterparty>(_counterparty.Id, "Кнопка «Cохранить комментарий» на панели контрагента"))
 			{
 				uow.Root.Comment = textviewComment.Buffer.Text;
 				uow.Save();
@@ -304,7 +289,7 @@ namespace Vodovoz.SidePanel.InfoViews
 				DialogHelper.GenerateDialogHashName<Counterparty>(_counterparty.Id),
 				() =>
 				{
-					var dlg = new CounterpartyDlg(EntityUoWBuilder.ForOpen(_counterparty.Id), ServicesConfig.UnitOfWorkFactory);
+					var dlg = new CounterpartyDlg(EntityUoWBuilder.ForOpen(_counterparty.Id), UnitOfWorkFactory.GetDefaultFactory);
 					dlg.ActivateContactsTab();
 					dlg.EntitySaved += (o, args) => Refresh(args.Entity);
 					return dlg;

@@ -1,8 +1,7 @@
-﻿using Gamma.Utilities;
-using QS.Project.Journal;
-using System;
-using Vodovoz.Core.Domain.Employees;
+﻿using QS.Project.Journal;
+using Gamma.Utilities;
 using Vodovoz.Domain.Employees;
+using System;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes.Employees
 {

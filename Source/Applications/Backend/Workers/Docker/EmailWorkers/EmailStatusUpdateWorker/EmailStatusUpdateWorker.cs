@@ -2,17 +2,23 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using MySqlConnector;
+using NHibernate.Driver.MySqlConnector;
 using QS.DomainModel.UoW;
+using QS.Project.DB;
+using QSProjectsLib;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RabbitMQ.MailSending;
 using System;
+using System.Reflection;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
+using Vodovoz.Settings.Database;
 
 namespace EmailStatusUpdateWorker
 {
@@ -24,12 +30,11 @@ namespace EmailStatusUpdateWorker
 		private readonly string _storedEmailStatusUpdatingQueueId;
 
 		private readonly ILogger<EmailStatusUpdateWorker> _logger;
-		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IModel _channel;
 		private readonly IEmailRepository _emailRepository;
 		private readonly AsyncEventingBasicConsumer _consumer;
 
-		public EmailStatusUpdateWorker(ILogger<EmailStatusUpdateWorker> logger, IUnitOfWorkFactory uowFactory, IConfiguration configuration, IModel channel, IEmailRepository emailRepository)
+		public EmailStatusUpdateWorker(ILogger<EmailStatusUpdateWorker> logger, IConfiguration configuration, IModel channel, IEmailRepository emailRepository)
 		{
 			if(configuration is null)
 			{
@@ -37,7 +42,6 @@ namespace EmailStatusUpdateWorker
 			}
 
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_channel = channel ?? throw new ArgumentNullException(nameof(channel));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
 			_storedEmailStatusUpdatingQueueId = configuration.GetSection(_queuesConfigurationSection)
@@ -45,6 +49,45 @@ namespace EmailStatusUpdateWorker
 			_channel.QueueDeclare(_storedEmailStatusUpdatingQueueId, true, false, false, null);
 			_consumer = new AsyncEventingBasicConsumer(_channel);
 			_consumer.Received += MessageRecieved;
+
+			try
+			{
+				var conStrBuilder = new MySqlConnectionStringBuilder();
+
+				var databaseSection = configuration.GetSection("Database");
+
+				conStrBuilder.Server = databaseSection.GetValue("Host", "localhost");
+				conStrBuilder.Port = databaseSection.GetValue<uint>("Port", 3306);
+				conStrBuilder.UserID = databaseSection.GetValue("Username", "");
+				conStrBuilder.Password = databaseSection.GetValue("Password", "");
+				conStrBuilder.Database = databaseSection.GetValue("DatabaseName", "");
+				conStrBuilder.SslMode = MySqlSslMode.None;
+
+				QSMain.ConnectionString = conStrBuilder.GetConnectionString(true);
+				var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
+										 .Dialect<NHibernate.Spatial.Dialect.MySQL57SpatialDialect>()
+										 .ConnectionString(QSMain.ConnectionString)
+										 .Driver<MySqlConnectorDriver>();
+
+				OrmConfig.ConfigureOrm(db_config,
+					new Assembly[] {
+					Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
+					Assembly.GetAssembly(typeof(QS.Banks.Domain.Bank)),
+					Assembly.GetAssembly(typeof(QS.HistoryLog.HistoryMain)),
+					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
+					Assembly.GetAssembly(typeof(QS.Project.Domain.UserBase)),
+					Assembly.GetAssembly(typeof(QS.Attachments.HibernateMapping.AttachmentMap)),
+					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder)),
+					Assembly.GetAssembly(typeof(DriverWarehouseEventMap))
+				});
+
+				QS.HistoryLog.HistoryMain.Enable(conStrBuilder);
+			}
+			catch(Exception ex)
+			{
+				_logger.LogCritical(ex, "Ошибка чтения конфигурационного файла.");
+				return;
+			}
 		}
 
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -78,7 +121,7 @@ namespace EmailStatusUpdateWorker
 
 				if(message.EventPayload.Trackable)
 				{
-					using(var unitOfWork = _uowFactory.CreateWithoutRoot("Status update worker"))
+					using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Status update worker"))
 					{
 						var storedEmail = _emailRepository.GetById(unitOfWork, message.EventPayload.Id);
 

@@ -16,7 +16,6 @@ using QS.Utilities;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -54,7 +53,6 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IAtWorkRepository _atWorkRepository;
 		private readonly ILogger<RouteListsOnDayViewModel> _logger;
-		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly IUserRepository _userRepository;
 		private readonly DeliveryDaySchedule _defaultDeliveryDaySchedule;
@@ -68,7 +66,6 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public RouteListsOnDayViewModel(
 			ILogger<RouteListsOnDayViewModel> logger,
-			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
 			ILifetimeScope lifetimeScope,
 			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider,
@@ -98,7 +95,6 @@ namespace Vodovoz.ViewModels.Logistic
 				throw new ArgumentNullException(nameof(geographicGroupRepository));
 			}
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			CarRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
@@ -112,7 +108,6 @@ namespace Vodovoz.ViewModels.Logistic
 			_atWorkRepository = atWorkRepository ?? throw new ArgumentNullException(nameof(atWorkRepository));
 			OrderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
-			DistanceCalculator = new RouteGeometryCalculator(_uowFactory);
 
 			_closingDocumentDeliveryScheduleId = deliveryScheduleParametersProvider?.ClosingDocumentDeliveryScheduleId ??
 												throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider));
@@ -284,8 +279,9 @@ namespace Vodovoz.ViewModels.Logistic
 					route.RecalculatePlanTime(DistanceCalculator);
 					route.RecalculatePlanedDistance(DistanceCalculator);
 
-					ReCalculateRouteListProfitability(route);
+					UoW.Session.Flush();
 
+					_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, route);
 				},
 				i => i != null
 			);
@@ -552,7 +548,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public GenericObservableList<GeographicGroupNode> GeographicGroupNodes { get; private set; }
 
-		public RouteGeometryCalculator DistanceCalculator { get; }
+		public RouteGeometryCalculator DistanceCalculator { get; } = new RouteGeometryCalculator();
 
 		private Employee driverFromRouteList;
 		public virtual Employee DriverFromRouteList
@@ -805,7 +801,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public void DisposeUoW() => UoW.Dispose();
 
-		public void CreateUoW() => UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
+		public void CreateUoW() => UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
 		public string GenerateToolTip(RouteList routeList)
 		{
@@ -1537,25 +1533,12 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			RebuildAllRoutes(actionUpdateInfo);
 
-			ReCalculateRouteListProfitability(routeList);
+			UoW.Session.Flush();
+			_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, routeList);
 
 			UoW.Save(routeList);
 			UoW.Commit();
 			HasNoChanges = true;
-		}
-
-		private void ReCalculateRouteListProfitability(RouteList routeList)
-		{
-			var transaction = UoW.Session.GetCurrentTransaction();
-
-			if(transaction is null)
-			{
-				UoW.Session.BeginTransaction();
-			}
-
-			UoW.Session.Flush();
-
-			_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, routeList);
 		}
 
 		public void RebuildAllRoutes(Action<string> actionUpdateInfo = null)

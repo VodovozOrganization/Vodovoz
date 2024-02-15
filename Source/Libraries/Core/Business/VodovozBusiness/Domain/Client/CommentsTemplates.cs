@@ -35,5 +35,11 @@ namespace Vodovoz.Domain.Client
 
 		#endregion
 
+
+		public static IUnitOfWorkGeneric<CommentsTemplates> Create()
+		{
+			var uow = UnitOfWorkFactory.CreateWithNewRoot<CommentsTemplates>();
+			return uow;
+		}
 	}
 }

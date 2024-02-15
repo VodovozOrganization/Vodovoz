@@ -5,7 +5,6 @@ using QS.DomainModel.UoW;
 using QS.Project.Services;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Goods.Rent;
 using Vodovoz.EntityRepositories.RentPackages;
 using Vodovoz.Factories;
 
@@ -22,14 +21,14 @@ namespace Vodovoz
 		public PaidRentPackageDlg ()
 		{
 			this.Build ();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<PaidRentPackage>();
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<PaidRentPackage>();
 			ConfigureDlg ();
 		}
 
 		public PaidRentPackageDlg (int id)
 		{
 			this.Build ();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<PaidRentPackage> (id);
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<PaidRentPackage> (id);
 			ConfigureDlg ();
 		}
 

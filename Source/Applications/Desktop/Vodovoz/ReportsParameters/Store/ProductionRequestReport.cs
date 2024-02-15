@@ -5,7 +5,6 @@ using System.Linq;
 using Gamma.ColumnConfig;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QS.Project.Services;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Sale;
@@ -26,7 +25,7 @@ namespace Vodovoz.ReportsParameters.Store
 		{
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			Build();
-			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			Configure();
 		}
 

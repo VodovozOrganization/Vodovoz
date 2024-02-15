@@ -1,21 +1,17 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using Gamma.Binding.Core;
-using Gtk;
 using QS.Widgets;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Presentation.ViewModels.Mango;
-using Vodovoz.ViewModels.Dialogs.Mango;
+using Vodovoz.Infrastructure.Mango;
 
 namespace Vodovoz.ViewWidgets.Mango
 {
 	public class EmployeePhone : MenuButton
 	{
 		private Employee _employee;
-		private MangoManager _mangoManager;
 
 		public BindingControler<EmployeePhone> Binding { get; private set; }
 
@@ -29,38 +25,14 @@ namespace Vodovoz.ViewWidgets.Mango
 			Binding = new BindingControler<EmployeePhone>(this, new Expression<Func<EmployeePhone, object>>[] {});
 		}
 
-		public MangoManager MangoManager
-		{
-			get => _mangoManager; set
-			{
-				_mangoManager = value;
-				if(_mangoManager != null)
-				{
-					_mangoManager.PropertyChanged += MangoManagerPropertyChanged;
-				}
-			}
-		}
-
-		private void MangoManagerPropertyChanged(object sender, PropertyChangedEventArgs e)
-		{
-			switch(e.PropertyName)
-			{
-				case nameof(MangoManager.ConnectionState):
-					Gtk.Application.Invoke(delegate {
-						Sensitive = MangoManager.IsActive;
-					});
-					break;
-				default:
-					break;
-			}
-		}
+		public MangoManager MangoManager;
 
 		public Employee Employee {
 			get => _employee; set {
 				_employee = value;
 
 				if(Employee != null && Employee.Phones.Any()) {
-					Sensitive = MangoManager != null && MangoManager.IsActive;
+					Sensitive = MangoManager != null && MangoManager.ConnectionState != ConnectionState.Disable;
 					Menu = new Gtk.Menu();
 					foreach(var phone in Employee.Phones) {
 						var item = new QSWidgetLib.MenuItemId<Phone>(phone.LongText);
@@ -79,7 +51,5 @@ namespace Vodovoz.ViewWidgets.Mango
 			var item = sender as QSWidgetLib.MenuItemId<Phone>;
 			MangoManager.MakeCall("+7" + item.ID.DigitsNumber);
 		}
-
-		
 	}
 }

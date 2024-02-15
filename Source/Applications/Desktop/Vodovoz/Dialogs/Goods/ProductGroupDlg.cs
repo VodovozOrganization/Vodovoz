@@ -18,14 +18,14 @@ namespace Vodovoz.Dialogs.Goods
 		public ProductGroupDlg()
 		{
 			Build();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<ProductGroup>();
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<ProductGroup>();
 			ConfigureDialog();
 		}
 
 		public ProductGroupDlg(int id)
 		{
 			Build();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<ProductGroup>(id);
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<ProductGroup>(id);
 			ConfigureDialog();
 		}
 
@@ -69,7 +69,7 @@ namespace Vodovoz.Dialogs.Goods
 
 		public override bool Save()
 		{
-			var validator = ServicesConfig.ValidationService;
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
 			if(!validator.Validate(Entity))
 			{
 				return false;

@@ -21,7 +21,7 @@ namespace Vodovoz
 		private readonly IPermissionResult _permissionResult;
 		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory;
 		private readonly bool _canDeleteByPresetPermission;
-		private readonly IDeliveryPointRepository _deliveryPointRepository = new DeliveryPointRepository(ServicesConfig.UnitOfWorkFactory);
+		private readonly IDeliveryPointRepository _deliveryPointRepository = new DeliveryPointRepository();
 
 		public DeliveryPointsManagementView()
 		{

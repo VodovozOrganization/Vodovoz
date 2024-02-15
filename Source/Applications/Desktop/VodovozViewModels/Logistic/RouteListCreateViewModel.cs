@@ -20,10 +20,10 @@ using System.Data;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Controllers;
-using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
@@ -31,7 +31,6 @@ using Vodovoz.Domain.Profitability;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Errors;
 using Vodovoz.Extensions;
 using Vodovoz.Models;
@@ -51,6 +50,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly ILogger<RouteListCreateViewModel> _logger;
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IValidator _validator;
+		private readonly IValidationViewFactory _validationViewFactory;
 		private readonly IInteractiveService _interactiveService;
 		private readonly ICurrentPermissionService _currentPermissionService;
 		private readonly IEmployeeRepository _employeeRepository;
@@ -61,7 +61,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IDeliveryShiftRepository _deliveryShiftRepository;
 		private readonly IAdditionalLoadingModel _additionalLoadingModel;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
-		private readonly IOrderRepository _orderRepository;
+
 		private bool _canClose = true;
 		private Employee _oldDriver;
 		private DateTime _previousSelectedDate;
@@ -76,6 +76,7 @@ namespace Vodovoz.ViewModels.Logistic
 			ILifetimeScope lifetimeScope,
 			INavigationManager navigation,
 			IValidator validator,
+			IValidationViewFactory validationViewFactory,
 			IInteractiveService interactiveService,
 			ICurrentPermissionService currentPermissionService,
 			IEmployeeRepository employeeRepository,
@@ -85,13 +86,13 @@ namespace Vodovoz.ViewModels.Logistic
 			IGenericRepository<RouteListSpecialConditionType> routeListSpecialConditionTypeRepository,
 			IDeliveryShiftRepository deliveryShiftRepository,
 			IAdditionalLoadingModel additionalLoadingModel,
-			IRouteListProfitabilityController routeListProfitabilityController,
-			IOrderRepository orderRepository)
+			IRouteListProfitabilityController routeListProfitabilityController)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_validator = validator ?? throw new ArgumentNullException(nameof(validator));
+			_validationViewFactory = validationViewFactory ?? throw new ArgumentNullException(nameof(validationViewFactory));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_currentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
@@ -102,7 +103,6 @@ namespace Vodovoz.ViewModels.Logistic
 			_deliveryShiftRepository = deliveryShiftRepository ?? throw new ArgumentNullException(nameof(deliveryShiftRepository));
 			_additionalLoadingModel = additionalLoadingModel ?? throw new ArgumentNullException(nameof(additionalLoadingModel));
 			_routeListProfitabilityController = routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
-			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 
 			if(uowBuilder.IsNewEntity)
 			{
@@ -463,7 +463,9 @@ namespace Vodovoz.ViewModels.Logistic
 			};
 
 			var context = new ValidationContext(Entity, null, contextItems);
-			if(!_validator.Validate(Entity, context))
+			var validator = new ObjectValidator(_validationViewFactory);
+
+			if(!validator.Validate(Entity, context))
 			{
 				return false;
 			}
@@ -610,7 +612,7 @@ namespace Vodovoz.ViewModels.Logistic
 				return;
 			}
 
-			var beforeAcceptValidation = _routeListService.ValidateForAccept(Entity, _orderRepository);
+			var beforeAcceptValidation = _routeListService.ValidateForAccept(Entity);
 
 			bool skipOverfillValidation = false;
 
@@ -676,7 +678,6 @@ namespace Vodovoz.ViewModels.Logistic
 						Entity,
 						DisableItemsUpdateDelegate,
 						_validator,
-						_orderRepository,
 						skipOverfillValidation,
 						confirmRecalculateRoute,
 						confirmSendOnClosing,

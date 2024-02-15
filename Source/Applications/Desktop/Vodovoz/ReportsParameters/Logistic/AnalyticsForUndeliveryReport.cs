@@ -17,7 +17,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 		public AnalyticsForUndeliveryReport()
 		{
 			this.Build();
-			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			ConfigureDlg();
 		}
 

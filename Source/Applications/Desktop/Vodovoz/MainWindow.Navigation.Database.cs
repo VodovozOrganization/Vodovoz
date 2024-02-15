@@ -67,5 +67,19 @@ public partial class MainWindow
 		NavigationManager.OpenTdiTab<Vodovoz.Dialogs.HistoryView>(null, QS.Navigation.OpenPageOptions.IgnoreHash);
 	}
 
+	/// <summary>
+	/// Выход
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnQuitActionActivated(object sender, EventArgs e)
+	{
+		if(tdiMain.CloseAllTabs())
+		{
+			_autofacScope.Dispose();
+			Application.Quit();
+		}
+	}
+
 	#endregion База
 }

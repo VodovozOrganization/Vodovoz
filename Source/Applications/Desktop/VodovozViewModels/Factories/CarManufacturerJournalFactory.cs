@@ -10,19 +10,12 @@ namespace Vodovoz.ViewModels.Factories
 {
 	public class CarManufacturerJournalFactory : ICarManufacturerJournalFactory
 	{
-		private readonly IUnitOfWorkFactory _uowFactory;
-
-		public CarManufacturerJournalFactory(IUnitOfWorkFactory uowFactory)
-		{
-			_uowFactory = uowFactory ?? throw new System.ArgumentNullException(nameof(uowFactory));
-		}
-
 		public IEntityAutocompleteSelectorFactory CreateCarManufacturerAutocompleteSelectorFactory(bool multipleSelect = false)
 		{
 			return new EntityAutocompleteSelectorFactory<CarManufacturerJournalViewModel>(
 				typeof(CarManufacturer),
 				() => new CarManufacturerJournalViewModel(
-					_uowFactory,
+					UnitOfWorkFactory.GetDefaultFactory,
 					ServicesConfig.CommonServices)
 				{
 					SelectionMode = multipleSelect ? JournalSelectionMode.Multiple : JournalSelectionMode.Single

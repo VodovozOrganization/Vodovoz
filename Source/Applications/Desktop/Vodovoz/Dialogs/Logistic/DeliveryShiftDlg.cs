@@ -4,7 +4,6 @@ using QSOrmProject;
 using QS.Validation;
 using QSWidgetLib;
 using Vodovoz.Domain.Logistic;
-using QS.Project.Services;
 
 namespace Vodovoz.Dialogs.Logistic
 {
@@ -15,14 +14,14 @@ namespace Vodovoz.Dialogs.Logistic
 		public DeliveryShiftDlg()
 		{
 			this.Build();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<DeliveryShift>();
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<DeliveryShift>();
 			ConfigureDlg();
 		}
 
 		public DeliveryShiftDlg(int id)
 		{
 			this.Build();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<DeliveryShift>(id);
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<DeliveryShift>(id);
 			ConfigureDlg();
 		}
 
@@ -52,7 +51,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 		public override bool Save()
 		{
-			var validator = ServicesConfig.ValidationService;
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
 			if(!validator.Validate(Entity))
 			{
 				return false;

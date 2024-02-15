@@ -46,7 +46,7 @@ namespace Vodovoz.Dialogs.Logistic
 		public RouteListControlDlg(int id) : this()
 		{
 			Build();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<RouteList>(id);
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(id);
 			ConfigureDlg();
 		}
 
@@ -58,7 +58,7 @@ namespace Vodovoz.Dialogs.Logistic
 			};
 
 			var context = new ValidationContext(Entity, null, contextItems);
-			var validator = ServicesConfig.ValidationService;
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
 
 			if(!validator.Validate(Entity, context))
 			{

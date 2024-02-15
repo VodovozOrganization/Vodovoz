@@ -28,7 +28,7 @@ namespace Vodovoz
 		public RegradingOfGoodsDocumentDlg()
 		{
 			this.Build();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<RegradingOfGoodsDocument> ();
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<RegradingOfGoodsDocument> ();
 			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser (UoW);
 			if(Entity.Author == null)
 			{
@@ -45,7 +45,7 @@ namespace Vodovoz
 		public RegradingOfGoodsDocumentDlg (int id)
 		{
 			this.Build ();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<RegradingOfGoodsDocument> (id);
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RegradingOfGoodsDocument> (id);
 			
 			ConfigureDlg();
 		}
@@ -96,7 +96,7 @@ namespace Vodovoz
 			if (Entity.Items.Count > 0)
 				warehouseEntry.Sensitive = false;
 
-			var permmissionValidator = new EntityExtendedPermissionValidator(ServicesConfig.UnitOfWorkFactory, PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
+			var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
 			Entity.CanEdit = permmissionValidator.Validate(typeof(RegradingOfGoodsDocument), _userRepository.GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
 			if(!Entity.CanEdit && Entity.TimeStamp.Date != DateTime.Now.Date) {
 				ytextviewCommnet.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
@@ -114,7 +114,7 @@ namespace Vodovoz
 			if(!Entity.CanEdit)
 				return false;
 
-			var validator = ServicesConfig.ValidationService;
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
 			if(!validator.Validate(Entity))
 			{
 				return false;

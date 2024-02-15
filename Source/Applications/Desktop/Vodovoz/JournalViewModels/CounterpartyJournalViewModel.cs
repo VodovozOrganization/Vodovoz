@@ -16,7 +16,7 @@ using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Retail;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
-using Vodovoz.ViewModels.Dialogs.Counterparties;
+using Vodovoz.ViewModels.Dialogs.Counterparty;
 
 namespace Vodovoz.JournalViewModels
 {

@@ -381,14 +381,13 @@ namespace Vodovoz.JournalViewModels
 		protected void InitPopupActions()
 		{
 			var callTaskWorker = new CallTaskWorker(
-				UnitOfWorkFactory,
-				CallTaskSingletonFactory.GetInstance(),
-				_callTaskRepository,
-				new OrderRepository(),
-				new EmployeeRepository(),
-				_baseParametersProvider,
-				commonServices.UserService,
-				ErrorReporter.Instance);
+					CallTaskSingletonFactory.GetInstance(),
+					_callTaskRepository,
+					new OrderRepository(),
+					new EmployeeRepository(),
+					_baseParametersProvider,
+					commonServices.UserService,
+					ErrorReporter.Instance);
 
 			PopupActionsList.Add(new JournalAction(
 				"Закрытие МЛ",
@@ -446,7 +445,6 @@ namespace Vodovoz.JournalViewModels
 							DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
 							() => new FuelDocumentViewModel(
 								RouteList,
-								UnitOfWorkFactory,
 								commonServices,
 								_subdivisionRepository,
 								new EmployeeRepository(),

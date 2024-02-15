@@ -15,7 +15,7 @@ namespace Vodovoz.Domain.Client
 	[HistoryTrace]
 	public class Responsible : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
-		private IComplaintParametersProvider _complaintParameterProvider;
+		private IComplaintParametersProvider _complaintParameterProvider = new ComplaintParametersProvider(new ParametersProvider());
 
 		private string _name;
 		private bool _isArchived;
@@ -36,18 +36,8 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref _isArchived, value);
 		}
 
-		public virtual bool IsSubdivisionResponsible => Id == GetComplaintParameterProvider().SubdivisionResponsibleId;
-		public virtual bool IsEmployeeResponsible => Id == GetComplaintParameterProvider().EmployeeResponsibleId;
-
-		private IComplaintParametersProvider GetComplaintParameterProvider()
-		{
-			if(_complaintParameterProvider == null)
-			{
-				_complaintParameterProvider = new ComplaintParametersProvider(new ParametersProvider());
-			}
-
-			return _complaintParameterProvider;
-		}
+		public virtual bool IsSubdivisionResponsible => Id == _complaintParameterProvider.SubdivisionResponsibleId;
+		public virtual bool IsEmployeeResponsible => Id == _complaintParameterProvider.EmployeeResponsibleId;
 
 		#region IValidatableObject implementation
 

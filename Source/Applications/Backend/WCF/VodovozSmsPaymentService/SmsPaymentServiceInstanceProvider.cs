@@ -2,7 +2,6 @@
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Dispatcher;
-using QS.DomainModel.UoW;
 using SmsPaymentService;
 using SmsPaymentService.PaymentControllers;
 using Vodovoz.NotificationRecievers;
@@ -12,7 +11,6 @@ namespace VodovozSmsPaymentService
 {
 	public class SmsPaymentServiceInstanceProvider : IInstanceProvider
 	{
-		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IPaymentController _paymentController;
 		private readonly ISmsPaymentStatusNotificationReciever _smsPaymentStatusNotificationReciever;
 		private readonly IOrderParametersProvider _orderParametersProvider;
@@ -21,7 +19,6 @@ namespace VodovozSmsPaymentService
 		private readonly ISmsPaymentValidator _smsPaymentValidator;
 
 		public SmsPaymentServiceInstanceProvider(
-			IUnitOfWorkFactory uowFactory,
 			IPaymentController paymentController,
 			ISmsPaymentStatusNotificationReciever smsPaymentStatusNotificationReciever,
 			IOrderParametersProvider orderParametersProvider,
@@ -30,7 +27,6 @@ namespace VodovozSmsPaymentService
 			ISmsPaymentValidator smsPaymentValidator
 		)
 		{
-			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_paymentController = paymentController ?? throw new ArgumentNullException(nameof(paymentController));
 			_smsPaymentStatusNotificationReciever = smsPaymentStatusNotificationReciever ??
 				throw new ArgumentNullException(nameof(smsPaymentStatusNotificationReciever));
@@ -44,7 +40,7 @@ namespace VodovozSmsPaymentService
 
 		public object GetInstance(InstanceContext instanceContext)
 		{
-			return new SmsPaymentService.SmsPaymentService(_uowFactory, _paymentController, _smsPaymentStatusNotificationReciever,
+			return new SmsPaymentService.SmsPaymentService(_paymentController, _smsPaymentStatusNotificationReciever,
 				_orderParametersProvider, _smsPaymentFileProdiver, _smsPaymentDTOFactory, _smsPaymentValidator);
 		}
 

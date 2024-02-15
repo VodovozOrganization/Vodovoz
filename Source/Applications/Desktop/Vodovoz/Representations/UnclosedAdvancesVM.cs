@@ -6,7 +6,6 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
-using QS.Project.Services;
 using QS.Utilities.Text;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
@@ -114,7 +113,7 @@ namespace Vodovoz.ViewModel
 			Filter = filter;
 		}
 
-		public UnclosedAdvancesVM() : this(ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
+		public UnclosedAdvancesVM() : this(UnitOfWorkFactory.CreateWithoutRoot())
 		{
 			CreateRepresentationFilter = () => new UnclosedAdvancesFilter(UoW);
 		}

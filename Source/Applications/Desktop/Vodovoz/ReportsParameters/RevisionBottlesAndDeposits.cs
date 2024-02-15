@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Autofac;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QS.Project.Services;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Client;
@@ -34,8 +33,7 @@ namespace Vodovoz.Reports
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			
 			Build();
-			var uowFactory = lifetimeScope.Resolve<IUnitOfWorkFactory>();
-			UoW = uowFactory.CreateWithoutRoot ();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
 			entityViewModelEntryCounterparty
 				.SetEntityAutocompleteSelectorFactory(
 				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))

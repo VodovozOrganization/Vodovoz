@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Timers;
 using NLog;
@@ -11,14 +11,8 @@ namespace SmsPaymentService.Workers
     {
         private Timer timer;
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
-		private readonly IUnitOfWorkFactory _uowFactory;
-		private const double startInterval = 3 * 60 * 1000; //3 минуты
+        private const double startInterval = 3 * 60 * 1000; //3 минуты
         private const double interval = 60 * 60 * 1000;     //1 час
-
-		public OverduePaymentsWorker(IUnitOfWorkFactory uowFactory)
-		{
-			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
-		}
 
         public void Start()
         {
@@ -35,7 +29,7 @@ namespace SmsPaymentService.Workers
                 logger.Info("Закрытие просроченных платежей...");
                 timer.Interval = interval;
                 
-                using (var uow = _uowFactory.CreateWithoutRoot()) {
+                using (IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot()) {
                     
                     var paymentsToCancel = uow.Session.QueryOver<SmsPayment>()
                         .Where(x => x.SmsPaymentStatus == SmsPaymentStatus.WaitingForPayment)

@@ -59,7 +59,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 			ConfigureEntityPropertyChanges();
 			CreateCommands();
 
-			FuelBalanceViewModel = new FuelBalanceViewModel(unitOfWorkFactory,subdivisionRepository, fuelRepository);
+			FuelBalanceViewModel = new FuelBalanceViewModel(subdivisionRepository, fuelRepository);
 
 			UpdateCashSubdivisions();
 			UpdateFuelTypes();

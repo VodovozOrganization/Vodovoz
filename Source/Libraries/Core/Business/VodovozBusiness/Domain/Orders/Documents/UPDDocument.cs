@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using Autofac;
 using QS.Print;
 using QS.Report;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;
-using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 
@@ -17,12 +15,10 @@ namespace Vodovoz.Domain.Orders.Documents
 	{
 		private static readonly DateTime _edition2017LastDate =
 			Convert.ToDateTime("2021-06-30T23:59:59", CultureInfo.CreateSpecificCulture("ru-RU"));
-		private IOrganizationParametersProvider _organizationParametersProvider => ScopeProvider.Scope
-			.Resolve<IOrganizationParametersProvider>();
-
-		private IDeliveryScheduleParametersProvider _deliveryScheduleParametersProvider => ScopeProvider.Scope
-			.Resolve<IDeliveryScheduleParametersProvider>();
-
+		private static readonly IOrganizationParametersProvider _organizationParametersProvider =
+			new OrganizationParametersProvider(new ParametersProvider());
+		private readonly IDeliveryScheduleParametersProvider _deliveryScheduleParametersProvider =
+			new DeliveryScheduleParametersProvider(new ParametersProvider());
 		private int? _beveragesWorldOrganizationId;
 
 		private EmailTemplate GetTemplateForStandartReason(bool hasAgreeForEdo)

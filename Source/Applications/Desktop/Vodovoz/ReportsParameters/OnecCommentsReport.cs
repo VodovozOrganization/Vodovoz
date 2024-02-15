@@ -12,7 +12,6 @@ using NHibernate.Transform;
 using System.Linq;
 using NHibernate.Criterion;
 using Vodovoz.ViewModels.Reports;
-using QS.Project.Services;
 
 namespace Vodovoz.ReportsParameters
 {
@@ -24,7 +23,7 @@ namespace Vodovoz.ReportsParameters
 		public OnecCommentsReport ()
 		{
 			this.Build ();
-			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot ();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
 			_filter = new SelectableParametersReportFilter(UoW);
 			ConfigureReport();
 		}

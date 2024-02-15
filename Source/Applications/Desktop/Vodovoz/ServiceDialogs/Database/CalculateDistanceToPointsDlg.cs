@@ -15,7 +15,7 @@ namespace Vodovoz.ServiceDialogs.Database
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		int SaveBy = 300;
 
-		IUnitOfWork uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
+		IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 
 		IList<DeliveryPoint> points;
 

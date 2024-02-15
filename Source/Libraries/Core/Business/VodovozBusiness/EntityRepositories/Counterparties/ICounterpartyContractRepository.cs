@@ -1,5 +1,4 @@
 ﻿using QS.DomainModel.UoW;
-using System.Collections.Generic;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
@@ -12,7 +11,5 @@ namespace Vodovoz.EntityRepositories.Counterparties
         CounterpartyContract GetCounterpartyContract(IUnitOfWork uow, Order order, IErrorReporter errorReporter);
 		CounterpartyContract GetCounterpartyContractByOrganization(IUnitOfWork uow, Order order, Organization organization);
 		ContractType GetContractTypeForPaymentType(PersonType clientType, PaymentType paymentType);
-		IList<CounterpartyContract> GetActiveContractsWithOrganization(IUnitOfWork uow, Counterparty counterparty, Organization org, ContractType type);
-
-	}
+    }
 }

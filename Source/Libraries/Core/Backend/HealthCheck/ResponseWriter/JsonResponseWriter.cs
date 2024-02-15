@@ -1,11 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace VodovozHealthCheck.ResponseWriter
 {
@@ -15,11 +14,7 @@ namespace VodovozHealthCheck.ResponseWriter
 		{
 			context.Response.ContentType = "application/json; charset=utf-8";
 
-			var options = new JsonWriterOptions
-			{
-				Indented = true,
-				Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-			};
+			var options = new JsonWriterOptions { Indented = true };
 
 			using var memoryStream = new MemoryStream();
 			using(var jsonWriter = new Utf8JsonWriter(memoryStream, options))

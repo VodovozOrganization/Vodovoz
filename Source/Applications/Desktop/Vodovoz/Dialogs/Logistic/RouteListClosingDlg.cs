@@ -53,7 +53,6 @@ using Vodovoz.Extensions;
 using QS.Navigation;
 using Vodovoz.ViewModels.Employees;
 using Microsoft.Extensions.Logging;
-using Vodovoz.Core.Domain.Employees;
 using Vodovoz.ViewModels.Logistic;
 using QS.Services;
 using QS.Dialog;
@@ -142,7 +141,7 @@ namespace Vodovoz
 
 			PerformanceHelper.StartMeasurement();
 
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<RouteList>(routeListId);
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(routeListId);
 
 			TabName = string.Format("Закрытие маршрутного листа №{0}", Entity.Id);
 			PerformanceHelper.AddTimePoint("Создан UoW");
@@ -431,7 +430,7 @@ namespace Vodovoz
 				}
 
 				_addressKeepingDocumentBottlesCacheList[node.Id] = _routeListAddressKeepingDocumentController
-					.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(ServicesConfig.UnitOfWorkFactory, UoW, node, _addressKeepingDocumentBottlesCacheList[node.Id], true);
+					.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, node, _addressKeepingDocumentBottlesCacheList[node.Id], true);
 			}
 		}
 
@@ -769,7 +768,7 @@ namespace Vodovoz
 			}
 
 			_addressKeepingDocumentItemsCacheList[node.Id] = _routeListAddressKeepingDocumentController
-				.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(ServicesConfig.UnitOfWorkFactory, UoW, node, _addressKeepingDocumentItemsCacheList[node.Id]);
+				.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, node, _addressKeepingDocumentItemsCacheList[node.Id]);
 
 			ReloadDiscrepancies();
 
@@ -1008,7 +1007,7 @@ namespace Vodovoz
 			};
 
 			var context = new ValidationContext(Entity, null, contextItems);
-			var validator = ServicesConfig.ValidationService;
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
 
 			permissioncommentview.Save();
 

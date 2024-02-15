@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using NHibernate;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
@@ -12,7 +12,6 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.JournalNodes;
 using Vodovoz.ViewModels.Orders;
 using VodovozInfrastructure.StringHandlers;
-using System.Linq;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -85,67 +84,7 @@ namespace Vodovoz.JournalViewModels
 			NodeActionsList.Clear();
 			CreateDefaultSelectAction();
 			CreateDefaultAddActions();
-			CreateCustomEditAction();
-		}
-
-		private void CreateCustomEditAction()
-		{
-			var editAction = new JournalAction("Изменить",
-				(selected) =>
-				{
-					var selectedNodes = selected.OfType<PromotionalSetJournalNode>();
-
-					if(selectedNodes == null || selectedNodes.Count() != 1)
-					{
-						return false;
-					}
-
-					var selectedNode = selectedNodes.First();
-
-					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
-					{
-						return false;
-					}
-
-					var config = EntityConfigs[selectedNode.EntityType];
-
-					return config.PermissionResult.CanUpdate || config.PermissionResult.CanRead;
-				},
-				(selected) => true,
-				(selected) =>
-				{
-					var selectedNodes = selected.OfType<PromotionalSetJournalNode>();
-
-					if(selectedNodes == null || selectedNodes.Count() != 1)
-					{
-						return;
-					}
-
-					var selectedNode = selectedNodes.First();
-
-					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
-					{
-						return;
-					}
-
-					var config = EntityConfigs[selectedNode.EntityType];
-					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
-
-					TabParent.OpenTab(() => foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode), this);
-
-					if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog)
-					{
-						HideJournal(TabParent);
-					}
-				}
-			);
-
-			if(SelectionMode == JournalSelectionMode.None)
-			{
-				RowActivatedAction = editAction;
-			}
-
-			NodeActionsList.Add(editAction);
+			CreateDefaultEditAction();
 		}
 	}
 }

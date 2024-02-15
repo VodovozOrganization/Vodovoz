@@ -17,7 +17,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 		public ShipmentReport()
 		{
 			this.Build();
-			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			ydatepicker.Date = DateTime.Now.Date;
 			referenceWarehouse.ItemsQuery = StoreDocumentHelper.GetNotArchiveWarehousesQuery();
 			ButtonSensitivity();

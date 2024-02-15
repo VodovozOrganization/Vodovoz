@@ -8,7 +8,6 @@ using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Sale;
 using QS.Dialog.GtkUI;
-using QS.Project.Services;
 
 namespace Vodovoz.ReportsParameters
 {
@@ -26,7 +25,7 @@ namespace Vodovoz.ReportsParameters
 
 		void ConfigureDlg()
 		{
-			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			geograficGroup.UoW = UoW;
 			geograficGroup.Label = "Часть города:";
 			geographicGroups = new GenericObservableList<GeoGroup>();

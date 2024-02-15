@@ -1,7 +1,5 @@
-using Autofac;
-using fyiReporting.RDL;
+﻿using fyiReporting.RDL;
 using Gamma.Utilities;
-using Microsoft.Extensions.DependencyInjection;
 using NHibernate;
 using NHibernate.Exceptions;
 using QS.Dialog;
@@ -26,7 +24,6 @@ using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Goods.Rent;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders.Documents;
@@ -65,30 +62,34 @@ namespace Vodovoz.Domain.Orders
 	public class Order : BusinessObjectBase<Order>, IDomainObject, IValidatableObject
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private static readonly IOrderRepository _orderRepository = new OrderRepository();
+		private static readonly IPaymentItemsRepository _paymentItemsRepository = new PaymentItemsRepository();
+		private static readonly IPaymentsRepository _paymentsRepository = new PaymentsRepository();
 
-		private IOrderRepository _orderRepository => ScopeProvider.Scope
-			.Resolve<IOrderRepository>();
-		private IPaymentItemsRepository _paymentItemsRepository => ScopeProvider.Scope
-			.Resolve<IPaymentItemsRepository>();
-		private IUndeliveredOrdersRepository _undeliveredOrdersRepository => ScopeProvider.Scope
-			.Resolve<IUndeliveredOrdersRepository>();
-		private IPaymentFromBankClientController _paymentFromBankClientController => ScopeProvider.Scope
-			.Resolve<IPaymentFromBankClientController>();
-		private INomenclatureRepository _nomenclatureRepository => ScopeProvider.Scope
-			.Resolve<INomenclatureRepository>();
-		private IEmailRepository _emailRepository => ScopeProvider.Scope
-			.Resolve<IEmailRepository>();
-		private IEmailService _emailService => ScopeProvider.Scope
-			.Resolve<IEmailService>();
-		private IGeneralSettingsParametersProvider _generalSettingsParameters => ScopeProvider.Scope
-			.Resolve<IGeneralSettingsParametersProvider>();
-		private IOrderParametersProvider _orderParametersProvider => ScopeProvider.Scope
-			.Resolve<IOrderParametersProvider>();
-		private IDeliveryScheduleParametersProvider _deliveryScheduleParametersProvider => ScopeProvider.Scope
-			.Resolve<IDeliveryScheduleParametersProvider>();
-		private OrderItemComparerForCopyingFromUndelivery _itemComparerForCopyingFromUndelivery => ScopeProvider.Scope
-			.Resolve<OrderItemComparerForCopyingFromUndelivery>();
+		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
+		private readonly IPaymentFromBankClientController _paymentFromBankClientController =
+			new PaymentFromBankClientController(_paymentItemsRepository, _orderRepository, _paymentsRepository);
 
+		private readonly INomenclatureRepository _nomenclatureRepository =
+			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+
+		private readonly ICashReceiptRepository _cashReceiptRepository = new CashReceiptRepository(UnitOfWorkFactory.GetDefaultFactory,
+			new OrderParametersProvider(new ParametersProvider()));
+
+		private readonly IEmailRepository _emailRepository = new EmailRepository();
+
+		private static readonly IGeneralSettingsParametersProvider _generalSettingsParameters =
+			new GeneralSettingsParametersProvider(new ParametersProvider());
+
+		private static readonly IOrderParametersProvider _orderParametersProvider =
+			new OrderParametersProvider(new ParametersProvider());
+
+		private static readonly IDeliveryScheduleParametersProvider _deliveryScheduleParametersProvider =
+			new DeliveryScheduleParametersProvider(new ParametersProvider());
+
+		private readonly OrderItemComparerForCopyingFromUndelivery _itemComparerForCopyingFromUndelivery =
+			new OrderItemComparerForCopyingFromUndelivery();
+		private readonly IEmailService _emailService = new EmailService();
 
 		private readonly double _futureDeliveryDaysLimit = 30;
 
@@ -780,7 +781,7 @@ namespace Vodovoz.Domain.Orders
 		[Display(Name = "Количество бутылей по акции")]
 		public virtual int BottlesByStockCount {
 			get => bottlesByStockCount;
-			set => SetField(ref bottlesByStockCount, value);
+			set => SetField(ref bottlesByStockCount, value, () => BottlesByStockCount);
 		}
 
 		private int bottlesByStockActualCount;
@@ -1244,7 +1245,6 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			var uowFactory = validationContext.GetRequiredService<IUnitOfWorkFactory>();
 			if(DeliveryDate == null || DeliveryDate == default(DateTime))
 				yield return new ValidationResult("В заказе не указана дата доставки.",
 					new[] { this.GetPropertyName(o => o.DeliveryDate) });
@@ -1626,7 +1626,7 @@ namespace Vodovoz.Domain.Orders
 			{
 				var incorrectReceiptItems = new List<string>();
 
-				using(var uow = uowFactory.CreateWithoutRoot("Валидация заказа, если уже есть чек"))
+				using(var uow = UnitOfWorkFactory.CreateWithoutRoot("Валидация заказа, если уже есть чек"))
 				{
 					if(uow.GetById<Order>(Id) is Order oldOrder)
 					{
@@ -1646,7 +1646,7 @@ namespace Vodovoz.Domain.Orders
 
 			if(Client != null && DeliveryPoint != null)
 			{
-				using (var uow = uowFactory.CreateWithoutRoot("Проверка соответствия точки доставки контрагенту"))
+				using (var uow = UnitOfWorkFactory.CreateWithoutRoot("Проверка соответствия точки доставки контрагенту"))
 				{
 					var clientDeliveryPointsIds = uow.GetAll<DeliveryPoint>()
 						.Where(d => d.Counterparty.Id == Client.Id)
@@ -1963,7 +1963,7 @@ namespace Vodovoz.Domain.Orders
 				orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
 				var parametersProvider = new ParametersProvider();
 				var orderParametersProvider = new OrderParametersProvider(parametersProvider);
-				var cashReceiptRepository = new CashReceiptRepository(ServicesConfig.UnitOfWorkFactory, orderParametersProvider);
+				var cashReceiptRepository = new CashReceiptRepository(UnitOfWorkFactory.GetDefaultFactory, orderParametersProvider);
 				counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider, cashReceiptRepository);
 				counterpartyContractFactory = new CounterpartyContractFactory(orderOrganizationProvider, counterpartyContractRepository);
 			}
@@ -4249,7 +4249,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(Id == 0) return;
 
-			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateForRoot<Order>(Id, "Кнопка сохранить только комментарий к заказу")) {
+			using(var uow = UnitOfWorkFactory.CreateForRoot<Order>(Id, "Кнопка сохранить только комментарий к заказу")) {
 				uow.Root.Comment = Comment;
 				uow.Save();
 				uow.Commit();
@@ -4399,58 +4399,10 @@ namespace Vodovoz.Domain.Orders
 			return result;
 		}
 
-		public virtual void SetNeedToRecendEdoUpd(IUnitOfWorkFactory uowFactory)
-		{
-			var userCanResendUpd = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_resend_upd_documents");
-			if(!userCanResendUpd)
-			{
-				InteractiveService.ShowMessage(ImportanceLevel.Warning, "Текущий пользователь не имеет права повторной отправки УПД");
-				return;
-			}
 
-			if(OrderPaymentStatus == OrderPaymentStatus.Paid)
-			{
-				if(!ServicesConfig.InteractiveService.Question(
-					$"Счет по заказу №{Id} оплачен.\r\nПроверьте, пожалуйста, статус УПД в ЭДО перед повторной отправкой на предмет аннулирован/не аннулирован, подписан/не подписан.\r\n\r\n" +
-					$"Вы уверены, что хотите отправить повторно?"))
-				{
-					return;
-				}
-			}
+        #endregion
 
-			using(var uow = uowFactory.CreateWithoutRoot())
-			{
-				var edoDocumentsActions = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
-					.Where(x => x.Order.Id == Id)
-					.FirstOrDefault();
-
-				if(edoDocumentsActions == null)
-				{
-					edoDocumentsActions = new OrderEdoTrueMarkDocumentsActions();
-					edoDocumentsActions.Order = this;
-				}
-
-				edoDocumentsActions.IsNeedToResendEdoUpd = true;
-
-				var orderLastTrueMarkDocument = uow.GetAll<TrueMarkApiDocument>()
-					.Where(x => x.Order.Id == Id)
-					.OrderByDescending(x => x.CreationDate)
-					.FirstOrDefault();
-
-				if(orderLastTrueMarkDocument != null 
-					&& orderLastTrueMarkDocument.Type != TrueMarkApiDocument.TrueMarkApiDocumentType.WithdrawalCancellation)
-				{
-					edoDocumentsActions.IsNeedToCancelTrueMarkDocument = true;
-				}
-
-				uow.Save(edoDocumentsActions);
-				uow.Commit();
-			}				
-		}
-
-		#endregion
-
-		#region Аренда
+        #region Аренда
 
         #region NonFreeRent
 

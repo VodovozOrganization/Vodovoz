@@ -1,7 +1,6 @@
 ﻿using System;
 using Gamma.Widgets;
 using QS.DomainModel.UoW;
-using QS.Project.Services;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Store;
@@ -35,7 +34,7 @@ namespace Vodovoz
 			UoW = uow;
 		}
 
-		public StockBalanceFilter() : this(ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
+		public StockBalanceFilter() : this(UnitOfWorkFactory.CreateWithoutRoot())
 		{
 		}
 

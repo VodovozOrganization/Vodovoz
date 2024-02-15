@@ -8,7 +8,6 @@ using QSProjectsLib;
 using QS.Validation;
 using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories.Equipments;
-using QS.Project.Services;
 
 namespace Vodovoz
 {
@@ -21,14 +20,14 @@ namespace Vodovoz
 		public EquipmentDlg ()
 		{
 			this.Build ();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<Equipment>();
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Equipment>();
 			ConfigureDlg ();
 		}
 
 		public EquipmentDlg (int id)
 		{
 			this.Build ();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<Equipment> (id);
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Equipment> (id);
 			ConfigureDlg ();
 			FillLocation();
 		}
@@ -56,7 +55,7 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
-			var validator = ServicesConfig.ValidationService;
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
 			if(!validator.Validate(Entity))
 			{
 				return false;

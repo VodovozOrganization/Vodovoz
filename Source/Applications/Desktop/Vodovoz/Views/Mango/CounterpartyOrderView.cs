@@ -1,10 +1,10 @@
-﻿using Gamma.GtkWidgets;
+﻿using System;
+using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
 using QS.Views;
-using System;
 using Vodovoz.Domain.Orders;
-using Vodovoz.ViewModels.Dialogs.Mango;
+using Vodovoz.ViewModels.Mango;
 
 namespace Vodovoz.Views.Mango
 {

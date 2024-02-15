@@ -14,14 +14,6 @@ namespace Vodovoz.Views.Settings
 
 		private void Configure()
 		{
-			ynotebookData.ShowTabs = false;
-
-			yradiobuttonLogistics.Toggled += OnNotepadRadiobuttonToggled;
-			yradiobuttonComplaints.Toggled += OnNotepadRadiobuttonToggled;
-			yradiobuttonOrders.Toggled += OnNotepadRadiobuttonToggled;
-			yradiobuttonWarehouse.Toggled += OnNotepadRadiobuttonToggled;
-
-			#region Вкладка Логистика
 			btnSaveRouteListPrintedPhones.Clicked += (sender, args) => ViewModel.SaveRouteListPrintedFormPhonesCommand.Execute();
 			btnSaveRouteListPrintedPhones.Binding.AddBinding(ViewModel, vm => vm.CanEditRouteListPrintedFormPhones, w => w.Sensitive)
 				.InitializeFromSource();
@@ -38,6 +30,24 @@ namespace Vodovoz.Views.Settings
 			ycheckCanAddForwardersToLargus.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.CanAddForwardersToLargus, w => w.Active)
 				.AddBinding(vm => vm.CanEditCanAddForwardersToLargus, w => w.Sensitive)
+				.InitializeFromSource();
+
+			roboatssettingsview1.ViewModel = ViewModel.RoboatsSettingsViewModel;
+
+			complaintSubdivisionsView.ViewModel = ViewModel.ComplaintsSubdivisionSettingsViewModel;
+
+			alternativePriceSubdivisionsView.ViewModel = ViewModel.AlternativePricesSubdivisionSettingsViewModel;
+
+			warehousesForPricesAndStocksIntegrationsView.ViewModel = ViewModel.WarehousesForPricesAndStocksIntegrationViewModel;
+
+			btnSaveOrderAutoComment.Clicked += (sender, args) => ViewModel.SaveOrderAutoCommentCommand.Execute();
+			btnSaveOrderAutoComment.Binding.AddBinding(ViewModel, vm => vm.CanEditOrderAutoComment, w => w.Sensitive).InitializeFromSource();
+
+			btnOrderAutoCommentInfo.Clicked += (sender, args) => ViewModel.ShowAutoCommentInfoCommand.Execute();
+
+			entryOrderAutoComment.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.OrderAutoComment, w => w.Text)
+				.AddBinding(vm => vm.CanEditOrderAutoComment, w => w.IsEditable)
 				.InitializeFromSource();
 
 			yspinbuttonRouteListsCount.Binding
@@ -57,6 +67,14 @@ namespace Vodovoz.Views.Settings
 				.AddBinding(ViewModel, vm => vm.CanSaveDriversStopListProperties, t => t.Sensitive)
 				.InitializeFromSource();
 
+			frameSecondOrderDiscount.Sensitive = ViewModel.CanSaveSecondOrderDiscountAvailability;
+
+			ycheckIsSecondOrderDiscountAvailable.Binding
+				.AddBinding(ViewModel, vm => vm.IsClientsSecondOrderDiscountActive, v => v.Active)
+				.InitializeFromSource();
+
+			ybuttonSaveIsSecondOrderDiscountAvailable.Clicked += (sender, args) => ViewModel.SaveSecondOrderDiscountAvailabilityCommand.Execute();
+
 			frameWaitUntil.Sensitive = ViewModel.CanEditOrderWaitUntilSetting;
 
 			ycheckWaitUntil.Binding
@@ -65,79 +83,6 @@ namespace Vodovoz.Views.Settings
 
 			ybuttonSaveWaitUntil.Clicked += (sender, args) => ViewModel.SaveOrderWaitUntilActiveCommand.Execute();
 
-			yentryBillAdditionalinfo.Binding
-				.AddSource(ViewModel)
-				.AddBinding(vm => vm.BillAdditionalInfo, w => w.Text)
-				.AddBinding(vm => vm.CanSaveBillAdditionalInfo, w => w.Sensitive)
-				.InitializeFromSource();
-
-			ybuttonSaveBillAdditionaInfo.Sensitive = ViewModel.CanSaveBillAdditionalInfo;
-			ybuttonSaveBillAdditionaInfo.Clicked += (s, e) => ViewModel.SaveBillAdditionalInfoCommand.Execute();
-			#endregion Вкладка Логистика
-
-			#region Вкладка Рекламации
-			complaintSubdivisionsView.ViewModel = ViewModel.ComplaintsSubdivisionSettingsViewModel;
-			#endregion Вкладка Рекламации
-
-			#region Вкладка Заказы
-			roboatssettingsview1.ViewModel = ViewModel.RoboatsSettingsViewModel;
-
-			alternativePriceSubdivisionsView.ViewModel = ViewModel.AlternativePricesSubdivisionSettingsViewModel;
-
-			btnOrderAutoCommentInfo.Clicked += (sender, args) => ViewModel.ShowAutoCommentInfoCommand.Execute();
-
-			btnSaveOrderAutoComment.Clicked += (sender, args) => ViewModel.SaveOrderAutoCommentCommand.Execute();
-			btnSaveOrderAutoComment.Binding.AddBinding(ViewModel, vm => vm.CanEditOrderAutoComment, w => w.Sensitive).InitializeFromSource();
-
-			entryOrderAutoComment.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.OrderAutoComment, w => w.Text)
-				.AddBinding(vm => vm.CanEditOrderAutoComment, w => w.IsEditable)
-				.InitializeFromSource();
-
-			frameSecondOrderDiscount.Sensitive = ViewModel.CanSaveSecondOrderDiscountAvailability;
-
-			ycheckIsSecondOrderDiscountAvailable.Binding
-				.AddBinding(ViewModel, vm => vm.IsClientsSecondOrderDiscountActive, v => v.Active)
-				.InitializeFromSource();
-
-			ybuttonSaveIsSecondOrderDiscountAvailable.Clicked += (sender, args) => ViewModel.SaveSecondOrderDiscountAvailabilityCommand.Execute();
-			#endregion Вкладка Заказы
-
-			#region Вкладка Склад
-			warehousesForPricesAndStocksIntegrationsView.ViewModel = ViewModel.WarehousesForPricesAndStocksIntegrationViewModel;
-
-			yentryCarLoadDocumentInfoString.Binding
-				.AddSource(ViewModel)
-				.AddBinding(vm => vm.CarLoadDocumentInfoString, w => w.Text)
-				.AddBinding(vm => vm.CanSaveCarLoadDocumentInfoString, w => w.Sensitive)
-				.InitializeFromSource();
-
-			ybuttonSaveCarLoadDocumentInfoString.Sensitive = ViewModel.CanSaveCarLoadDocumentInfoString;
-			ybuttonSaveCarLoadDocumentInfoString.Clicked += (s, e) => ViewModel.SaveCarLoadDocumentInfoStringCommand.Execute();
-			#endregion Вкладка Склад
-		}
-
-		private void OnNotepadRadiobuttonToggled(object sender, System.EventArgs e)
-		{
-			if(yradiobuttonLogistics.Active)
-			{
-				ynotebookData.CurrentPage = 0;
-			}
-
-			if(yradiobuttonComplaints.Active)
-			{
-				ynotebookData.CurrentPage = 1;
-			}
-
-			if(yradiobuttonOrders.Active)
-			{
-				ynotebookData.CurrentPage = 2;
-			}
-
-			if(yradiobuttonWarehouse.Active)
-			{
-				ynotebookData.CurrentPage = 3;
-			}
 		}
 	}
 }

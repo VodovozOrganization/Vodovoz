@@ -23,7 +23,7 @@ namespace Vodovoz.ServiceDialogs
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class LoadFrom1cClientsAndDeliveryPoints : QS.Dialog.Gtk.TdiTabBase
 	{
-		private IUnitOfWork UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
+		private IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
 		List<Counterparty> VodovozCounterparties = new List<Counterparty>();
 		List<Counterparty> CounterpatiesList = new List<Counterparty>();
@@ -641,7 +641,7 @@ namespace Vodovoz.ServiceDialogs
 			UoW.Session.SetBatchSize(500);
 			foreach(var item in CounterpatiesList) {
 				try {
-					UoW.Save(item);
+					UoW.Save<Counterparty>(item);
 				} catch(Exception ex) {
 					ErrorLog("Ошибка сохранения", item.Code1c, string.Format("{0}", item.Id), string.Format("{0}", ex.Message));
 					ErrorsCounterparties.Add(string.Format("{0}", item.Id));

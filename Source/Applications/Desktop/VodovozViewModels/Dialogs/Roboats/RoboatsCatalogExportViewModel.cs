@@ -20,9 +20,10 @@ using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.Factories;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Commands;
-using Vodovoz.ViewModels.Dialogs.Counterparties;
+using Vodovoz.ViewModels.Dialogs.Counterparty;
 using Vodovoz.ViewModels.Dialogs.Logistic;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.Journals.JournalNodes.Client;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
@@ -198,7 +199,7 @@ namespace Vodovoz.ViewModels.Dialogs.Roboats
 				return;
 			}
 
-			var viewModel = new RoboatsStreetViewModel(EntityUoWBuilder.ForOpen(selectedNode.Id), _roboatsViewModelFactory, _unitOfWorkFactory, _commonServices);
+			var viewModel = new RoboatsStreetViewModel(EntityUoWBuilder.ForOpen(selectedNode.Id), _roboatsViewModelFactory, _commonServices);
 			OpenDialog(viewModel);
 		}
 

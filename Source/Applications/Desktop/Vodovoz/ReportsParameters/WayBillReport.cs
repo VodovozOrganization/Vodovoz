@@ -26,10 +26,9 @@ namespace Vodovoz.ReportsParameters
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_carJournalFactory = carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory));
-			var uowFactory = _lifetimeScope.Resolve<IUnitOfWorkFactory>();
 
 			Build();
-			UoW = uowFactory.CreateWithoutRoot();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			Configure();
 		}
 

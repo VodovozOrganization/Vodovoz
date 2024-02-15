@@ -24,18 +24,11 @@ namespace VodovozHealthCheck
 		{
 			_logger.LogInformation("Поступил запрос на информацию о здоровье.");
 
-			bool isDbConnected;
 			VodovozHealthResultDto healthResult;
 
 			try
 			{
-				isDbConnected = CheckDbConnection();
-
-				if(!isDbConnected)
-				{
-					return HealthCheckResult.Unhealthy("Проблема с БД.");
-				}
-
+				CheckDbConnection();
 				healthResult = await GetHealthResult();
 			}
 			catch(Exception e)
@@ -65,20 +58,12 @@ namespace VodovozHealthCheck
 			return HealthCheckResult.Unhealthy(failedMessage, null, unhealthyDictionary);
 		}
 
-		private bool CheckDbConnection()
+		private void CheckDbConnection()
 		{
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot("HealthCheck"))
 			{
 				var query = uow.Session.CreateSQLQuery("SELECT 1");
-				try
-				{
-					var result = query.UniqueResult();
-					return result != null;
-				}
-				catch(Exception) 
-				{
-					return false;
-				}
+				query.UniqueResult();
 			}
 		}
 

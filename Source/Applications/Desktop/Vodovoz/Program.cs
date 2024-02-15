@@ -9,18 +9,7 @@ using Microsoft.Extensions.Configuration.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using MySqlConnector;
 using NLog.Extensions.Logging;
-using Pacs.Admin.Client;
-using Pacs.Admin.Client.Consumers;
-using Pacs.Admin.Client.Consumers.Definitions;
-using Pacs.Calls.Consumers;
-using Pacs.Calls.Consumers.Definitions;
-using Pacs.Core;
-using Pacs.Core.Messages.Events;
-using Pacs.Operators.Client;
-using Pacs.Operators.Client.Consumers;
-using Pacs.Operators.Client.Consumers.Definitions;
 using QS.Deletion;
 using QS.Deletion.Configuration;
 using QS.Deletion.ViewModels;
@@ -31,15 +20,14 @@ using QS.Dialog.GtkUI.FileDialog;
 using QS.Dialog.ViewModels;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.NotifyChange;
+using QS.DomainModel.UoW;
 using QS.ErrorReporting;
 using QS.ErrorReporting.Handlers;
 using QS.Navigation;
 using QS.Osrm;
 using QS.Permissions;
-using QS.Project.Core;
 using QS.Project.DB;
 using QS.Project.Domain;
-using QS.Project.GtkSharp;
 using QS.Project.Services;
 using QS.Project.Services.FileDialog;
 using QS.Project.Services.GtkUI;
@@ -50,13 +38,11 @@ using QS.Report.ViewModels;
 using QS.Report.Views;
 using QS.Services;
 using QS.Tdi;
-using QS.Tdi.Gtk;
 using QS.Validation;
 using QS.ViewModels;
 using QS.ViewModels.Extension;
 using QS.ViewModels.Resolve;
 using QS.Views.Resolve;
-using QSProjectsLib;
 using QSReport;
 using RevenueService.Client;
 using System;
@@ -65,21 +51,13 @@ using System.Linq;
 using System.Reflection;
 using Vodovoz.Additions;
 using Vodovoz.Application;
-using Vodovoz.Application.Logistics;
-using Vodovoz.Application.Mango;
-using Vodovoz.Application.Pacs;
-using Vodovoz.Application.Services.Logistics;
 using Vodovoz.CachingRepositories.Cash;
 using Vodovoz.CachingRepositories.Common;
 using Vodovoz.CachingRepositories.Counterparty;
 using Vodovoz.Core;
-using Vodovoz.Core.Application.Entity;
-using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Repositories.Logistics;
 using Vodovoz.Core.DataService;
-using Vodovoz.Core.Domain;
 using Vodovoz.Core.Domain.Interfaces.Logistics;
-using Vodovoz.Core.Domain.Pacs;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
@@ -95,6 +73,7 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Suppliers;
+using Vodovoz.Infrastructure.Mango;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.Infrastructure.Services;
@@ -104,9 +83,6 @@ using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Presentation.Reports.Factories;
 using Vodovoz.Presentation.ViewModels.Common;
-using Vodovoz.Presentation.ViewModels.Employees;
-using Vodovoz.Presentation.ViewModels.Mango;
-using Vodovoz.Presentation.ViewModels.Pacs;
 using Vodovoz.Presentation.ViewModels.PaymentType;
 using Vodovoz.Reports;
 using Vodovoz.Reports.Logistic;
@@ -121,7 +97,6 @@ using Vodovoz.ReportsParameters.Retail;
 using Vodovoz.ReportsParameters.Sales;
 using Vodovoz.ReportsParameters.Store;
 using Vodovoz.Services;
-using Vodovoz.Services.Logistics;
 using Vodovoz.Services.Permissions;
 using Vodovoz.Settings.Database;
 using Vodovoz.SidePanel.InfoViews;
@@ -132,11 +107,10 @@ using Vodovoz.Tools.Interactive.ConfirmationQuestion;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Complaints;
-using Vodovoz.ViewModels.Dialogs.Mango;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Infrastructure.Services;
 using Vodovoz.ViewModels.Journals.JournalFactories;
-using Vodovoz.ViewModels.Mango;
+using Vodovoz.ViewModels.Mango.Talks;
 using Vodovoz.ViewModels.Permissions;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.Views.Mango.Talks;
@@ -162,7 +136,7 @@ namespace Vodovoz
 				Gtk.Application.Init();
 
 				var host = CreateHostBuilder().Build();
-				host.RunAsync();
+
 				host.Services.GetService<Startup>().Start(args);
 			}
 			finally
@@ -193,6 +167,13 @@ namespace Vodovoz
 						.SingleInstance();
 
 					builder.RegisterType<LogService>().As<ILogService>().SingleInstance();
+
+					#region База
+
+					builder.Register(c => UnitOfWorkFactory.GetDefaultFactory).As<IUnitOfWorkFactory>();
+					builder.Register(c => Startup.DataBaseInfo).As<IDataBaseInfo>().SingleInstance();
+
+					#endregion
 
 					#region Репозитории
 
@@ -233,7 +214,6 @@ namespace Vodovoz
 					builder.Register(context => new AutofacViewModelsTdiPageFactory(context.Resolve<ILifetimeScope>())).As<IViewModelsPageFactory>();
 					builder.Register(context => new AutofacTdiPageFactory(context.Resolve<ILifetimeScope>())).As<ITdiPageFactory>();
 					builder.Register(context => new AutofacViewModelsGtkPageFactory(context.Resolve<ILifetimeScope>())).AsSelf();
-					builder.Register<TdiNotebook>((context) => TDIMain.MainNotebook);
 					builder.RegisterType<TdiNavigationManagerAdapter>().AsSelf().As<INavigationManager>().As<ITdiCompatibilityNavigation>()
 						.SingleInstance();
 					builder.Register(context => new ClassNamesBaseGtkViewResolver(context.Resolve<IGtkViewFactory>(),
@@ -249,9 +229,8 @@ namespace Vodovoz
 					builder.Register(context => new AutofacViewModelResolver(context.Resolve<ILifetimeScope>())).As<IViewModelResolver>();
 					builder.Register(с => NotifyConfiguration.Instance).As<IEntityChangeWatcher>();
 					builder.RegisterAssemblyTypes(
-							Assembly.GetExecutingAssembly(),
-							Assembly.GetAssembly(typeof(ComplaintViewModel)),
-							Assembly.GetAssembly(typeof(PacsPanelViewModel)))
+							Assembly.GetAssembly(typeof(InternalTalkViewModel)),
+							Assembly.GetAssembly(typeof(ComplaintViewModel)))
 						.Where(t => t.IsAssignableTo<ViewModelBase>() && t.Name.EndsWith("ViewModel"))
 						.AsSelf();
 					builder.RegisterType<PrepareDeletionViewModel>().As<IOnCloseActionViewModel>().AsSelf();
@@ -259,7 +238,6 @@ namespace Vodovoz
 					builder.RegisterType<DeletionViewModel>().AsSelf();
 					builder.RegisterType<RdlViewerViewModel>().AsSelf();
 					builder.RegisterType<ProgressWindowViewModel>().AsSelf();
-					builder.RegisterType<PacsViewModelFactory>().As<IPacsViewModelFactory>();
 
 					#endregion
 
@@ -305,28 +283,6 @@ namespace Vodovoz
 					builder.RegisterModule<DatabaseSettingsModule>();
 					builder.RegisterModule<CashReceiptClientChannelModule>();
 
-					
-					builder.RegisterType<OperatorStateAgent>().As<IOperatorStateAgent>();
-					builder.RegisterType<OperatorClientFactory>().As<IOperatorClientFactory>();
-					builder.RegisterType<OperatorClient>().As<IOperatorClient>();
-					builder.RegisterType<AdminClient>().AsSelf();
-					
-					builder.RegisterType<PacsDashboardModel>()
-						.AsSelf()
-						.As<IObserver<OperatorState>>()
-						.As<IObserver<Pacs.Core.Messages.Events.CallEvent>>();
-
-					builder.RegisterType<PacsDashboardViewModelFactory>().As<IPacsDashboardViewModelFactory>()
-						.SingleInstance();
-
-
-					
-					builder.RegisterType<PacsEmployeeProvider>()
-						.As<IPacsEmployeeProvider>()
-						.As<IPacsOperatorProvider>()
-						.As<IPacsAdministratorProvider>()
-						.InstancePerLifetimeScope();
-
 					builder.RegisterType<FileChooser>().As<IFileChooserProvider>();
 
 
@@ -353,7 +309,6 @@ namespace Vodovoz
 
 					builder.RegisterType<IncludeExcludeSalesFilterFactory>().As<IIncludeExcludeSalesFilterFactory>().InstancePerLifetimeScope();
 					builder.RegisterType<LeftRightListViewModelFactory>().As<ILeftRightListViewModelFactory>().InstancePerLifetimeScope();
-					builder.RegisterType<PacsViewModelOpener>().As<IPacsViewModelOpener>().InstancePerLifetimeScope();
 
 					#endregion
 
@@ -430,11 +385,8 @@ namespace Vodovoz
 					#region Репозитории
 
 					builder.RegisterGeneric(typeof(GenericRepository<>)).As(typeof(IGenericRepository<>)).InstancePerLifetimeScope();
-					
-					builder.RegisterAssemblyTypes(
-						Assembly.GetAssembly(typeof(CounterpartyContractRepository)),
-						Assembly.GetAssembly(typeof(Vodovoz.Core.Data.NHibernate.AssemblyFinder))
-						)
+
+					builder.RegisterAssemblyTypes(Assembly.GetAssembly(typeof(CounterpartyContractRepository)))
 						.Where(t => t.Name.EndsWith("Repository")
 							&& t.GetInterfaces()
 								.Where(i => i.Name == $"I{t.Name}")
@@ -462,14 +414,7 @@ namespace Vodovoz
 
 					#region Mango
 
-					builder.RegisterType<MangoViewModelNavigator>()
-						.As<IMangoViewModelNavigator>()
-						.SingleInstance();
-
-					builder.RegisterType<MangoManager>()
-						.As<IMangoManager>()
-						.AsSelf()
-						.SingleInstance();
+					builder.RegisterType<MangoManager>().AsSelf();
 
 					#endregion
 
@@ -692,78 +637,11 @@ namespace Vodovoz
 				}))
 				.ConfigureServices((hostingContext, services) =>
 				{
-					services
-						.AddSingleton<Startup>()
-						.AddSingleton<IDatabaseConnectionSettings>((provider) =>
-						{
-							//Необходимо поменять логику работы окна логина,
-							//чтобы правильно возвращать данные для подключения не используя статические классы
-							var builder = QSMain.ConnectionStringBuilder;
-							return new DatabaseConnectionSettings
-							{
-								ServerName = builder.Server,
-								Port = builder.Port,
-								DatabaseName = builder.Database,
-								UserName = builder.UserID,
-								Password = builder.Password,
-								MySqlSslMode = builder.SslMode
-							};
-						})
-						.AddSingleton<MySqlConnectionStringBuilder>(provider =>
-						{
-							var connectionSettings = provider.GetRequiredService<IDatabaseConnectionSettings>();
-							var builder = new MySqlConnectionStringBuilder
-							{
-								Server = connectionSettings.ServerName,
-								Port = connectionSettings.Port,
-								Database = connectionSettings.DatabaseName,
-								UserID = connectionSettings.UserName,
-								Password = connectionSettings.Password,
-								SslMode = connectionSettings.MySqlSslMode
-							};
-
-							if(connectionSettings.DefaultCommandTimeout.HasValue)
-							{
-								builder.DefaultCommandTimeout = connectionSettings.DefaultCommandTimeout.Value;
-							}
-
-							builder.Add("ConnectionTimeout", 120);
-
-							return builder;
-
-						})
-						.AddMappingAssemblies(
-							typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
-							typeof(QS.Project.HibernateMapping.TypeOfEntityMap).Assembly,
-							typeof(QS.Banks.Domain.Bank).Assembly,
-							typeof(QS.HistoryLog.HistoryMain).Assembly,
-							typeof(QS.Attachments.Domain.Attachment).Assembly,
-							typeof(QS.Report.Domain.UserPrintSettings).Assembly,
-							typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly,
-							typeof(Vodovoz.Core.Data.NHibernate.AssemblyFinder).Assembly,
-							typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly
-						)
-						.AddDatabaseConfigurationExposer(config => {
-							config.DataBaseIntegration(
-								dbi => {
-									dbi.BatchSize = 100;
-									dbi.Timeout = 120;
-								}
-							);
-						})
-						.AddSpatialSqlConfiguration()
-						.AddNHibernateConfiguration()
-						.AddDatabaseInfo()
-						.AddCore()
-						.AddDesktop()
-						.AddTrackedUoW()
-
-						.AddScoped<IRouteListService, RouteListService>()
+					services.AddSingleton<Startup>()
 						.AddScoped<RouteGeometryCalculator>()
 						.AddSingleton<OsrmClient>(sp => OsrmClientFactory.Instance)
-
 						.AddScoped<IDebtorsParameters, DebtorsParameters>()
-						.AddFiasClient()
+						.AddFiasClient()							
 						.AddScoped<RevisionBottlesAndDeposits>()
 						.AddTransient<IReportExporter, ReportExporterAdapter>()
 						.AddScoped<SelectPaymentTypeViewModel>()
@@ -777,58 +655,7 @@ namespace Vodovoz
 						.AddScoped<IEventsQrPlacer, EventsQrPlacer>()
 						.AddTransient<IValidationViewFactory, GtkValidationViewFactory>()
 						.AddApplication()
-						.AddBusiness()
-
-
-						//Messages
-						.AddSingleton<MessagesHostedService>()
-						.AddSingleton<IMessageTransportInitializer>(ctx => ctx.GetRequiredService<MessagesHostedService>())
-						.AddHostedService(ctx => ctx.GetRequiredService<MessagesHostedService>())
-
-						.AddSingleton<SettingsConsumer>()
-						.AddSingleton<IObservable<SettingsEvent>>(ctx => ctx.GetRequiredService<SettingsConsumer>())
-
-						.AddSingleton<OperatorStateAdminConsumer>()
-						.AddSingleton<IObservable<OperatorState>>(ctx => ctx.GetRequiredService<OperatorStateAdminConsumer>())
-
-						.AddScoped<MessageEndpointConnector>()
-
-						.AddTransient<EntityModelFactory>()
-						
-						.AddPacsOperatorClient()
-						;
-
-					services.AddPacsMassTransitNotHosted(
-						(context, rabbitCfg) =>
-						{
-							rabbitCfg.AddPacsBaseTopology(context);
-						},
-						(busCfg) =>
-						{
-							//Оператор
-							busCfg.AddConsumer<OperatorStateConsumer>(typeof(OperatorStateConsumerDefinition));
-							busCfg.AddConsumer<OperatorsOnBreakConsumer>(typeof(OperatorsOnBreakConsumerDefinition));
-							busCfg.AddConsumer<OperatorSettingsConsumer>(typeof(OperatorSettingsConsumerDefinition));
-							//Админ
-							busCfg.AddConsumer<OperatorStateAdminConsumer>(typeof(OperatorStateAdminConsumerDefinition));
-							busCfg.AddConsumer<SettingsConsumer>(typeof(SettingsConsumerDefinition));
-							busCfg.AddConsumer<PacsCallEventConsumer>(typeof(PacsCallEventConsumerDefinition));
-							
-						}
-						//Exclude необходим для отложенного запуска конечной точки, или отмены запуска по условию
-						//При этом добавление определения потребителя в конфигурации обязательно
-						,(filter) => {
-							filter.Exclude<SettingsConsumer>();
-							filter.Exclude<OperatorSettingsConsumer>();
-							filter.Exclude<OperatorStateAdminConsumer>();
-							filter.Exclude<OperatorStateConsumer>();
-							filter.Exclude<OperatorsOnBreakConsumer>();
-							filter.Exclude<PacsCallEventConsumer>();
-						}
-					);
+						.AddBusiness();
 				});
-
-
-
 	}
 }

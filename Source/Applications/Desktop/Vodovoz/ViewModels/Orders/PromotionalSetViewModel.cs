@@ -16,11 +16,10 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using VodovozInfrastructure.StringHandlers;
-using QS.ViewModels.Extension;
 
 namespace Vodovoz.ViewModels.Orders
 {
-	public class PromotionalSetViewModel : EntityTabViewModelBase<PromotionalSet>, IPermissionResult, IAskSaveOnCloseViewModel
+	public class PromotionalSetViewModel : EntityTabViewModelBase<PromotionalSet>, IPermissionResult
 	{
 		private ILifetimeScope _lifetimeScope;
 		private PromotionalSetItem _selectedPromoItem;
@@ -138,12 +137,10 @@ namespace Vodovoz.ViewModels.Orders
 		public bool CanDelete => PermissionResult.CanDelete;
 
 		public bool CanCreateOrUpdate => Entity.Id == 0 ? CanCreate : CanUpdate;
-		public bool CanRemoveNomenclature => SelectedPromoItem != null && CanCreateOrUpdate;
+		public bool CanRemoveNomenclature => SelectedPromoItem != null && CanUpdate;
 		public bool CanRemoveAction => _selectedAction != null && CanDelete && Entity.Id == 0;
 
 		public bool CanChangeType { get; }
-
-		public bool AskSaveOnClose => CanCreateOrUpdate;
 
 		#endregion
 

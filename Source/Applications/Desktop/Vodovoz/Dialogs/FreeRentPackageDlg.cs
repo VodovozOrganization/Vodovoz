@@ -5,7 +5,6 @@ using QS.Project.Services;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Goods.Rent;
 using Vodovoz.EntityRepositories.RentPackages;
 using Vodovoz.Factories;
 
@@ -22,7 +21,7 @@ namespace Vodovoz
 		public FreeRentPackageDlg()
 		{
 			Build();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<FreeRentPackage>();
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<FreeRentPackage>();
 			TabName = "Новый пакет бесплатной аренды";
 			ConfigureDlg();
 		}
@@ -30,7 +29,7 @@ namespace Vodovoz
 		public FreeRentPackageDlg(int id)
 		{
 			Build();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<FreeRentPackage>(id);
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<FreeRentPackage>(id);
 			ConfigureDlg();
 		}
 

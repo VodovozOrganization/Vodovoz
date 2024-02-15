@@ -12,7 +12,6 @@ using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
-using QS.Project.Services;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 
 namespace Vodovoz.Dialogs
@@ -28,7 +27,7 @@ namespace Vodovoz.Dialogs
 		public CertificateDlg()
 		{
 			this.Build();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<Certificate>();
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Certificate>();
 			TabName = "Новый сертификат";
 			ConfigureDlg();
 		}
@@ -36,7 +35,7 @@ namespace Vodovoz.Dialogs
 		public CertificateDlg(int id)
 		{
 			this.Build();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<Certificate>(id);
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Certificate>(id);
 			ConfigureDlg();
 		}
 
@@ -71,7 +70,7 @@ namespace Vodovoz.Dialogs
 
 		public override bool Save()
 		{
-			var validator = ServicesConfig.ValidationService;
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
 			if(!validator.Validate(Entity))
 			{
 				return false;

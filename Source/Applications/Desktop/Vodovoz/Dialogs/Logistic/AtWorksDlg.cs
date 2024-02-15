@@ -19,9 +19,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Vodovoz.Controllers;
-using Vodovoz.Core.DataService;
-using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
@@ -98,7 +95,7 @@ namespace Vodovoz.Dialogs.Logistic
 				throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			}
 
-			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot("На работе");
+			UoW = unitOfWorkFactory.CreateWithoutRoot("На работе");
 
 			if(userService is null)
 			{

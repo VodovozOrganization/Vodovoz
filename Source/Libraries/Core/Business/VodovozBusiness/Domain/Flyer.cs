@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
@@ -72,8 +71,7 @@ namespace Vodovoz.Domain
 					throw new ArgumentException("Не был передан необходимый аргумент IFlyerRepository");
 				}
 
-				var uowFactory = validationContext.GetRequiredService<IUnitOfWorkFactory>();
-				if(flyerRepository.ExistsFlyerForNomenclatureId(uowFactory.CreateWithoutRoot(), FlyerNomenclature.Id))
+				if(flyerRepository.ExistsFlyerForNomenclatureId(UnitOfWorkFactory.CreateWithoutRoot(), FlyerNomenclature.Id))
 				{
 					yield return new ValidationResult("Листовка с данной номенклатурой уже создана",
 						new[] { nameof(FlyerNomenclature) });

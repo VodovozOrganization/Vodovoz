@@ -26,9 +26,6 @@ using Vodovoz.Settings.Database;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using VodovozHealthCheck;
-using QS.Project.Core;
-using Vodovoz.Core.Data.NHibernate;
-using Microsoft.Extensions.Logging;
 
 namespace DeliveryRulesService
 {
@@ -46,37 +43,22 @@ namespace DeliveryRulesService
         {
 
 			services.AddMvc().AddControllersAsServices();
+
 			services.AddControllers().AddJsonOptions(j =>
 			{
 				//Необходимо для сериализации свойств как PascalCase
 				j.JsonSerializerOptions.PropertyNamingPolicy = null;
 			});
 
-			services
-				.AddLogging(logging =>
-				{
-					logging.ClearProviders();
-					logging.AddNLogWeb();
-					logging.AddConfiguration(Configuration.GetSection("NLog"));
-				})
+			services.ConfigureHealthCheckService<DeliveryRulesServiceHealthCheck>();
 
-				.AddMappingAssemblies(
-					typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
-					typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
-					typeof(QS.Banks.Domain.Bank).Assembly,
-					typeof(QS.HistoryLog.HistoryMain).Assembly,
-					typeof(QS.Project.Domain.TypeOfEntity).Assembly,
-					typeof(QS.Attachments.Domain.Attachment).Assembly,
-					typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly
-				)
-				.AddDatabaseConnection()
-				.AddCore()
-				.AddTrackedUoW()
+			services.AddHttpClient();
 
-				.ConfigureHealthCheckService<DeliveryRulesServiceHealthCheck>()
-				.AddHttpClient()
-				.AddFiasClient()
-				;
+			NLogBuilder.ConfigureNLog("NLog.config");
+
+			services.AddFiasClient();
+
+			CreateBaseConfig();
 		}
 
 		public void ConfigureContainer(ContainerBuilder builder)
@@ -84,6 +66,8 @@ namespace DeliveryRulesService
 			ErrorReporter.Instance.AutomaticallySendEnabled = false;
 			ErrorReporter.Instance.SendedLogRowCount = 100;
 
+			builder.RegisterType<DefaultSessionProvider>().AsImplementedInterfaces();
+			builder.RegisterType<DefaultUnitOfWorkFactory>().AsImplementedInterfaces();
 			builder.RegisterType<BaseParametersProvider>().AsImplementedInterfaces();
 			builder.RegisterType<DistrictCache>().AsSelf().AsImplementedInterfaces();
 			
@@ -151,5 +135,44 @@ namespace DeliveryRulesService
 
 			app.ConfigureHealthCheckApplicationBuilder();
         }
+
+		private void CreateBaseConfig()
+		{
+			var conStrBuilder = new MySqlConnectionStringBuilder();
+
+			var domainDBConfig = Configuration.GetSection("DomainDB");
+
+			conStrBuilder.Server = domainDBConfig.GetValue<string>("Server");
+			conStrBuilder.Port = domainDBConfig.GetValue<uint>("Port");
+			conStrBuilder.Database = domainDBConfig.GetValue<string>("Database");
+			conStrBuilder.UserID = domainDBConfig.GetValue<string>("UserID");
+			conStrBuilder.Password = domainDBConfig.GetValue<string>("Password");
+			conStrBuilder.SslMode = MySqlSslMode.None;
+
+			var connectionString = conStrBuilder.GetConnectionString(true);
+
+			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
+				.Dialect<MySQL57SpatialExtendedDialect>()
+				.ConnectionString(connectionString)
+				.AdoNetBatchSize(100)
+				.Driver<LoggedMySqlClientDriver>()
+				;
+
+			// Настройка ORM
+			OrmConfig.ConfigureOrm(
+				db_config,
+				new Assembly[]
+				{
+					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
+					Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
+					Assembly.GetAssembly(typeof(Bank)),
+					Assembly.GetAssembly(typeof(HistoryMain)),
+					Assembly.GetAssembly(typeof(TypeOfEntity)),
+					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder)),
+					Assembly.GetAssembly(typeof(Attachment)),
+					Assembly.GetAssembly(typeof(DriverWarehouseEventMap))
+				}
+			);
+		}
 	}
 }

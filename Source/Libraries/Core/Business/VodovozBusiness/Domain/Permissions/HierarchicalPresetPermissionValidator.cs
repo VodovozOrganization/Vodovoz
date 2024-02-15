@@ -10,14 +10,12 @@ namespace Vodovoz.Domain.Permissions
 {
 	public class HierarchicalPresetPermissionValidator : IPresetPermissionValidator
 	{
-		private readonly IUnitOfWorkFactory _uowFactory;
 		protected IEmployeeRepository employeeRepository;
 
 		protected IPermissionRepository permissionRepository;
 
-		public HierarchicalPresetPermissionValidator(IUnitOfWorkFactory uowFactory, IEmployeeRepository employeeRepository, IPermissionRepository permissionRepository)
+		public HierarchicalPresetPermissionValidator(IEmployeeRepository employeeRepository, IPermissionRepository permissionRepository)
 		{
-			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			this.employeeRepository = employeeRepository ??
 									  throw new ArgumentNullException(nameof(employeeRepository));
 			this.permissionRepository = permissionRepository ??
@@ -31,7 +29,7 @@ namespace Vodovoz.Domain.Permissions
 			if(userId == default(int))
 				return false;
 
-			using(var uow = _uowFactory.CreateWithoutRoot()) 
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) 
 			{
 				var user = uow.GetById<User>(userId);
 

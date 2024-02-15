@@ -1,7 +1,6 @@
 ﻿using System;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QS.Project.Services;
 using QS.Services;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
@@ -69,7 +68,7 @@ namespace Vodovoz.SidePanel.InfoViews
 				return;
 			}
 
-			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<CallTask>("Кнопка «Создать задачу» на панели \"Постановка задачи\""))
+			using(var uow = UnitOfWorkFactory.CreateWithNewRoot<CallTask>("Кнопка «Создать задачу» на панели \"Постановка задачи\""))
 			{
 				CallTaskSingletonFactory.GetInstance()
 					.CreateTask(uow, _employeeRepository, _personProvider, uow.Root, _order, ytextview.Buffer.Text);

@@ -45,7 +45,7 @@ namespace Vodovoz.Reports
 			_scope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 
 			Build();
-			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			_filter = new SelectableParametersReportFilter(UoW);
 
 			ConfigureDlg();

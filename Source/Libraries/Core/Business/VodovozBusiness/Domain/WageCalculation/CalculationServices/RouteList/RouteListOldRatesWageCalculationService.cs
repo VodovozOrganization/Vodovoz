@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.Bindings;
 using System.Linq;
-using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 {

@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace Vodovoz.Errors.Logistics
+﻿namespace Vodovoz.Errors.Logistics
 {
 	public static partial class RouteList
 	{
@@ -15,12 +13,6 @@ namespace Vodovoz.Errors.Logistics
 				typeof(RouteList),
 				nameof(NotFound),
 				$"Маршрутный лист #{id} не найден");
-
-		public static Error ContainsCanceledOrdersOnAccept(int[] canceledOrdersIds) =>
-			new Error(
-				typeof(RouteList),
-				nameof(ContainsCanceledOrdersOnAccept),
-				$"В МЛ находятся отменённые заказы, необходимо удалить их: {string.Join(", ", canceledOrdersIds)}.");
 
 		public static Error CarIsEmpty =>
 			new Error(

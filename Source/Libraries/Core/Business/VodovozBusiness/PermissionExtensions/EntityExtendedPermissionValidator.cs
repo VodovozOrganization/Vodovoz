@@ -11,11 +11,8 @@ namespace Vodovoz.PermissionExtensions
 {
 	public class EntityExtendedPermissionValidator : IEntityExtendedPermissionValidator
 	{
-		private readonly IUnitOfWorkFactory _uowFactory;
-
-		public EntityExtendedPermissionValidator(IUnitOfWorkFactory uowFactory, IPermissionExtensionStore permissionExtensionStore, IEmployeeRepository employeeRepository)
+		public EntityExtendedPermissionValidator(IPermissionExtensionStore permissionExtensionStore, IEmployeeRepository employeeRepository)
 		{
-			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			PermissionExtensionStore = permissionExtensionStore ?? throw new NullReferenceException(nameof(permissionExtensionStore));
 			EmployeeRepository = employeeRepository ?? throw new NullReferenceException(nameof(employeeRepository));
 		}
@@ -34,7 +31,7 @@ namespace Vodovoz.PermissionExtensions
 			if(!permissionExtension.IsValidType(entityType))
 				return false;
 				
-			using(var uow = _uowFactory.CreateWithoutRoot()) 
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) 
 			{
 				User user = uow.GetById<User>(userId);
 

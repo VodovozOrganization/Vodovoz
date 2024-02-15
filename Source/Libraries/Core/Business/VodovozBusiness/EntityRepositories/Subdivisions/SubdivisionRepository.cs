@@ -1,10 +1,9 @@
-﻿using NHibernate.Criterion;
-using QS.DomainModel.UoW;
-using QS.Project.Domain;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Core.Domain.Employees;
+using NHibernate.Criterion;
+using QS.DomainModel.UoW;
+using QS.Project.Domain;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;

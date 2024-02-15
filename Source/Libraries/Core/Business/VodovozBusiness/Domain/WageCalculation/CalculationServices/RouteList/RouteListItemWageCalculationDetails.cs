@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 {

@@ -20,13 +20,6 @@ namespace Vodovoz.EntityRepositories
 {
 	public class EmailRepository : IEmailRepository
 	{
-		private readonly IUnitOfWorkFactory _uowFactory;
-
-		public EmailRepository(IUnitOfWorkFactory uowFactory)
-		{
-			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
-		}
-
 		public StoredEmail GetById(IUnitOfWork unitOfWork, int id)
 		{
 			return unitOfWork.GetById<StoredEmail>(id);
@@ -57,7 +50,7 @@ namespace Vodovoz.EntityRepositories
 
 		public bool HaveSendedEmailForBill(int orderId)
 		{
-			using(var uow = _uowFactory.CreateWithoutRoot($"[ES]Получение списка отправленных писем"))
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"[ES]Получение списка отправленных писем"))
 			{
 				var result =
 					(
@@ -86,7 +79,7 @@ namespace Vodovoz.EntityRepositories
 
 		public bool HasSendedEmailForUpd(int orderId)
 		{
-			using(var uow = _uowFactory.CreateWithoutRoot($"Получение списка отправленных писем c УПД"))
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"Получение списка отправленных писем c УПД"))
 			{
 				return (from documentEmail in uow.GetAll<UpdDocumentEmail>()
 						where documentEmail.OrderDocument.Order.Id == orderId
@@ -129,7 +122,7 @@ namespace Vodovoz.EntityRepositories
 		{
 			// Время в минутах, по истечению которых будет возможна повторная отправка
 			double timeLimit = 10;
-			using(var uow = _uowFactory.CreateWithoutRoot($"[ES]Получение возможна ли повторная отправка"))
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"[ES]Получение возможна ли повторная отправка"))
 			{
 				if(type == OrderDocumentType.Bill || type == OrderDocumentType.SpecialBill)
 				{

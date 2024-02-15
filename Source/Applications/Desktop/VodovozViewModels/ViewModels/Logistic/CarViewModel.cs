@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 using QS.Attachments.ViewModels.Widgets;
 using QS.Commands;
-using QS.Dialog;
 using QS.Dialog.ViewModels;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -15,7 +14,6 @@ using System;
 using System.Linq;
 using System.Threading;
 using Vodovoz.Controllers;
-using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
@@ -43,7 +41,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private AttachmentsViewModel _attachmentsViewModel;
 		private string _driverInfoText;
-		private bool _isNeedToUpdateCarInfoInDriverEntity;
 
 		public CarViewModel(
 			ILogger<CarViewModel> logger,
@@ -71,7 +68,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			AttachmentsViewModel = attachmentsViewModelFactory.CreateNewAttachmentsViewModel(Entity.ObservableAttachments);
 			CarVersionsViewModel = (carVersionsViewModelFactory ?? throw new ArgumentNullException(nameof(carVersionsViewModelFactory)))
 				.CreateCarVersionsViewModel(Entity);
-
 			OdometerReadingsViewModel = (odometerReadingsViewModelFactory ?? throw new ArgumentNullException(nameof(odometerReadingsViewModelFactory)))
 				.CreateOdometerReadingsViewModel(Entity);
 
@@ -90,8 +86,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				.UseViewModelDialog<CarModelViewModel>()
 				.Finish();
 
-			CarModelViewModel.ChangedByUser += OnCarModelViewModelChangedByUser;
-
 			DriverViewModel = new CommonEEVMBuilderFactory<Car>(this, Entity, UoW, NavigationManager, LifetimeScope)
 			.ForProperty(x => x.Driver)
 				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(filter =>
@@ -101,8 +95,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				})
 				.UseViewModelDialog<EmployeeViewModel>()
 				.Finish();
-
-			DriverViewModel.ChangedByUser += OnDriverViewModelChangedByUser;
 
 			FuelTypeViewModel = new CommonEEVMBuilderFactory<Car>(this, Entity, UoW, NavigationManager, LifetimeScope)
 				.ForProperty(x => x.FuelType)
@@ -117,9 +109,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					OnDriverChanged();
 				}
 			};
-
-			Entity.ObservableCarVersions.ElementAdded += OnObservableCarVersionsElementAdded;
-
 			OnDriverChanged();
 		}
 
@@ -157,8 +146,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			var result = base.BeforeSave();
 
 			UpdateArchivingDate();
-
-			UpdateCarInfoInDriverEntity();
 
 			return result;
 		}
@@ -264,62 +251,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 		}
 
-		private void OnDriverViewModelChangedByUser(object sender, EventArgs e)
-		{
-			SetIsNeedToUpdateCarInfoInDriverEntity();
-		}
-
-		private void OnCarModelViewModelChangedByUser(object sender, EventArgs e)
-		{
-			SetIsNeedToUpdateCarInfoInDriverEntity();
-		}
-
-		private void OnObservableCarVersionsElementAdded(object aList, int[] aIdx)
-		{
-			SetIsNeedToUpdateCarInfoInDriverEntity();
-		}
-
-		private void SetIsNeedToUpdateCarInfoInDriverEntity()
-		{
-			_isNeedToUpdateCarInfoInDriverEntity = !(Entity.Driver is null);
-		}
-
-		private void UpdateCarInfoInDriverEntity()
-		{
-			if(!_isNeedToUpdateCarInfoInDriverEntity
-				|| Entity.IsArchive
-				|| Entity.Driver is null
-				|| Entity.Driver.Category != EmployeeCategory.driver)
-			{
-				return;
-			}
-
-			var changesInfo = string.Empty;
-
-			var newCarownType = Entity.CarVersions.OrderByDescending(c => c.StartDate).First().CarOwnType;
-
-			if(Entity.Driver.DriverOfCarOwnType is null || Entity.Driver.DriverOfCarOwnType != newCarownType)
-			{
-				Entity.Driver.DriverOfCarOwnType = newCarownType;
-				changesInfo += "\n- принадлежность автомобиля";
-			}
-
-			if(Entity.Driver.DriverOfCarTypeOfUse is null || Entity.Driver.DriverOfCarTypeOfUse != Entity.CarModel.CarTypeOfUse)
-			{
-				Entity.Driver.DriverOfCarTypeOfUse = Entity.CarModel.CarTypeOfUse;
-				changesInfo += "\n- тип автомобиля";
-			}
-
-			if(!string.IsNullOrEmpty(changesInfo))
-			{
-				CommonServices.InteractiveService.ShowMessage(
-					ImportanceLevel.Warning,
-					$"Внимание! В карточке водителя будут обновлены:{changesInfo}");
-			}
-
-			_isNeedToUpdateCarInfoInDriverEntity = false;
-		}
-
 		#region Add GeoGroup
 
 		public DelegateCommand AddGeoGroupCommand
@@ -382,14 +313,5 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		}
 
 		#endregion Add GeoGroup
-
-		public override void Dispose()
-		{
-			Entity.ObservableCarVersions.ElementAdded -= OnObservableCarVersionsElementAdded;
-			CarModelViewModel.ChangedByUser -= OnCarModelViewModelChangedByUser;
-			DriverViewModel.ChangedByUser -= OnDriverViewModelChangedByUser;
-
-			base.Dispose();
-		}
 	}
 }

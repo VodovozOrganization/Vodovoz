@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using Autofac;
 using NHibernate;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -341,8 +340,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 				orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
 			}
 
-			var uowFactory = ScopeProvider.Scope.Resolve<IUnitOfWorkFactory>();
-			using(var uow = uowFactory.CreateWithoutRoot()) {
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
 				return orderOrganizationProvider.GetOrganizationForOrderWithoutShipment(uow,
 					OrderWithoutDeliveryForAdvancePayment);
 			}
