@@ -10,7 +10,5 @@ namespace CustomerAppsApi.Library.Services
 		NomenclaturesRequestFrequencyLimit,
 		[Display(Name = "лимит частоты запроса адресов самовывоза")]
 		SelfDeliveriesAddressesRequestFrequencyLimit,
-		[Display(Name = "лимит частоты запроса пакетов аренды")]
-		RentPackagesRequestFrequencyLimit
 	}
 }
