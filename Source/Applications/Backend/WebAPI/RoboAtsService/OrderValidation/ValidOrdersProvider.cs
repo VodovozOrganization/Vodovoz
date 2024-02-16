@@ -9,8 +9,8 @@ using System.Linq;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Roboats;
 using Vodovoz.EntityRepositories.Roboats;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Roboats;
 
 namespace RoboatsService.OrderValidation
 {

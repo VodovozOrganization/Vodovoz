@@ -1,7 +1,7 @@
 ﻿using System;
-using Vodovoz.Settings;
+using Vodovoz.Settings.Roboats;
 
-namespace Vodovoz.Parameters
+namespace Vodovoz.Settings.Database.Roboats
 {
 	public class RoboatsSettings : IRoboatsSettings
 	{
@@ -34,7 +34,7 @@ namespace Vodovoz.Parameters
 		/// и будет закрыть при следующей проверке устаревших звонков
 		/// </summary>
 		public int CallTimeout => _settingsController.GetIntValue("roboats_call_timeout");
-		
+
 		/// <summary>
 		/// Интервал проверки устаревших звонков (в минутах)
 		/// </summary>

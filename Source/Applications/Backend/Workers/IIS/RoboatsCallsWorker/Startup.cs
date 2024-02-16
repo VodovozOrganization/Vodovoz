@@ -14,9 +14,10 @@ using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.Roboats;
-using Vodovoz.Parameters;
 using Vodovoz.Settings;
 using Vodovoz.Settings.Database;
+using Vodovoz.Settings.Database.Roboats;
+using Vodovoz.Settings.Roboats;
 using Vodovoz.Tools;
 
 namespace RoboatsCallsWorker

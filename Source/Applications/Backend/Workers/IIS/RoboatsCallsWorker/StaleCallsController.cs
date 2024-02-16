@@ -3,7 +3,7 @@ using QS.DomainModel.UoW;
 using System;
 using Vodovoz.Domain.Roboats;
 using Vodovoz.EntityRepositories.Roboats;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Roboats;
 
 namespace RoboatsCallsWorker
 {

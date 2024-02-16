@@ -24,8 +24,9 @@ using Vodovoz.Core.DataService;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.Factories;
-using Vodovoz.Parameters;
 using Vodovoz.Settings.Database;
+using Vodovoz.Settings.Database.Roboats;
+using Vodovoz.Settings.Roboats;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 

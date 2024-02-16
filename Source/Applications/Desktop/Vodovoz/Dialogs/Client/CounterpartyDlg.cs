@@ -96,6 +96,7 @@ using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 using TrueMarkApiClient = TrueMarkApi.Library.TrueMarkApiClient;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
+using Vodovoz.Settings.Roboats;
 
 namespace Vodovoz
 {

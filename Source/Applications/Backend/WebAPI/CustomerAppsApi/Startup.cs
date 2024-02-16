@@ -33,6 +33,8 @@ using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Settings;
 using Vodovoz.Settings.Database;
+using Vodovoz.Settings.Database.Roboats;
+using Vodovoz.Settings.Roboats;
 using VodovozHealthCheck;
 
 namespace CustomerAppsApi

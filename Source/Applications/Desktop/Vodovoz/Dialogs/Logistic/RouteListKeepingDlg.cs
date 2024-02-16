@@ -42,6 +42,7 @@ using QS.Navigation;
 using Vodovoz.ViewModels.Employees;
 using QS.Project.Domain;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Settings.Roboats;
 
 namespace Vodovoz
 {

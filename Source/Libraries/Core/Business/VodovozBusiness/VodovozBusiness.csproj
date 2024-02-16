@@ -855,7 +855,6 @@
     <Compile Include="Parameters\IGeneralSettingsParametersProvider.cs" />
     <Compile Include="Parameters\IGMapParametersProviders.cs" />
     <Compile Include="Parameters\FiasApiParametersProvider.cs" />
-    <Compile Include="Parameters\IRoboatsSettings.cs" />
     <Compile Include="Parameters\ComplaintParameterProvider.cs" />
     <Compile Include="Parameters\NomenclatureOnlineParametersProvider.cs" />
     <Compile Include="Parameters\PhoneTypeSettings.cs" />
@@ -899,7 +898,6 @@
     <Compile Include="Services\IEmployeeSettings.cs" />
     <Compile Include="Services\IFastPaymentParametersProvider.cs" />
     <Compile Include="Services\IGlobalSettings.cs" />
-    <Compile Include="Parameters\RoboatsSettings.cs" />
     <Compile Include="Services\INewDriverAdvanceParametersProvider.cs" />
     <Compile Include="Parameters\IParametersProvider.cs" />
     <Compile Include="Parameters\IReportDefaultsProvider.cs" />

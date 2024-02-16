@@ -127,6 +127,7 @@ using Type = Vodovoz.Domain.Orders.Documents.Type;
 using QS.ViewModels.Control.EEVM;
 using Vodovoz.ViewModels.Dialogs.Counterparties;
 using Vodovoz.Settings.Logistics;
+using Vodovoz.Settings.Roboats;
 
 namespace Vodovoz
 {
