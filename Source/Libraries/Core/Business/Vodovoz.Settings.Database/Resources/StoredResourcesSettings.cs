@@ -1,7 +1,7 @@
 ﻿using System;
-using Vodovoz.Settings;
+using Vodovoz.Settings.Resources;
 
-namespace Vodovoz.Parameters
+namespace Vodovoz.Settings.Database.Resources
 {
 	public class StoredResourcesSettings : IStoredResourcesSettings
 	{
