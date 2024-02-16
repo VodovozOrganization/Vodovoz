@@ -1,6 +1,6 @@
-﻿namespace Vodovoz.Services
+﻿namespace Vodovoz.Settings.Logistics
 {
-	public interface IPremiumRaskatGAZelleParametersProvider
+	public interface IPremiumRaskatGAZelleSettings
 	{
 		decimal PremiumRaskatGAZelleMoney { get; }
 		int MinRecalculatedDistanceForPremiumRaskatGAZelle { get; }

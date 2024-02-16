@@ -10,6 +10,7 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Services;
 using Order = Vodovoz.Domain.Orders.Order;
+using Vodovoz.Settings.Logistics;
 
 namespace Vodovoz.Models
 {
@@ -17,11 +18,11 @@ namespace Vodovoz.Models
 	{
 		private readonly IEmployeeRepository employeeRepository;
 		private readonly IWageParametersProvider wageParametersProvider;
-		private readonly IPremiumRaskatGAZelleParametersProvider premiumRaskatGAZelleParametersProvider;
+		private readonly IPremiumRaskatGAZelleSettings premiumRaskatGAZelleParametersProvider;
 		private readonly RouteList routeList;
 
 		public PremiumRaskatGAZelleWageModel(IEmployeeRepository employeeRepository, IWageParametersProvider wageParametersProvider,
-			IPremiumRaskatGAZelleParametersProvider premiumRaskatGaZelleParametersProvider, RouteList routeList)
+			IPremiumRaskatGAZelleSettings premiumRaskatGaZelleParametersProvider, RouteList routeList)
 		{
 			this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			this.wageParametersProvider = wageParametersProvider ?? throw new ArgumentNullException(nameof(wageParametersProvider));

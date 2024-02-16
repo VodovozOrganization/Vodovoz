@@ -53,6 +53,7 @@ using Vodovoz.Settings.Cash;
 using Vodovoz.Core.Domain.Employees;
 using Microsoft.Extensions.DependencyInjection;
 using Autofac;
+using Vodovoz.Settings.Logistics;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -2536,9 +2537,9 @@ namespace Vodovoz.Domain.Logistic
 			moneyMovementOperations.ForEach(op => UoW.Save(op));
 
 			UpdateWageOperation();
-
+			var premiumRaskatSettings = ScopeProvider.Scope.Resolve<IPremiumRaskatGAZelleSettings>();
 			var premiumRaskatGAZelleWageModel = new PremiumRaskatGAZelleWageModel(_employeeRepository, _baseParametersProvider,
-				new PremiumRaskatGAZelleParametersProvider(_parametersProvider), this);
+				premiumRaskatSettings, this);
 			premiumRaskatGAZelleWageModel.UpdatePremiumRaskatGAZelle(UoW);
 		}
 

@@ -907,7 +907,6 @@
     <Compile Include="Parameters\OrderParametersProvider.cs" />
     <Compile Include="Parameters\OrganizationParametersProvider.cs" />
     <Compile Include="Parameters\ParametersProvider.cs" />
-    <Compile Include="Parameters\PremiumRaskatGAZelleParametersProvider.cs" />
     <Compile Include="PrintableDocuments\IncomingInvoiceDocumentRDL.cs" />
     <Compile Include="PrintableDocuments\MovementDocumentRDL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -1034,7 +1033,6 @@
     <Compile Include="Services\INomenclaturePlanParametersProvider.cs" />
     <Compile Include="Services\IOrderParametersProvider.cs" />
     <Compile Include="Services\IOrganizationParametersProvider.cs" />
-    <Compile Include="Services\IPremiumRaskatGAZelleParametersProvider.cs" />
     <Compile Include="Services\ITerminalNomenclatureProvider.cs" />
     <Compile Include="Services\IDriverApiParametersProvider.cs" />
     <Compile Include="Services\DriverApiParametersProvider.cs" />
